@@ -8,25 +8,33 @@
 #include "Test.h"
 #include "SkRasterPipeline.h"
 
-SK_RASTER_STAGE(load) {
-    auto ptr = (const float*)ctx + x;
+static void SK_VECTORCALL load(SkRasterPipeline::Stage* st, size_t x, size_t tail,
+                               Sk4f  r, Sk4f  g, Sk4f  b, Sk4f  a,
+                               Sk4f dr, Sk4f dg, Sk4f db, Sk4f da) {
+    auto ptr = st->ctx<const float*>() + x;
     switch(tail&3) {
         case 0: a = Sk4f{ptr[3]};
         case 3: b = Sk4f{ptr[2]};
         case 2: g = Sk4f{ptr[1]};
         case 1: r = Sk4f{ptr[0]};
     }
+    st->next(x,tail, r,g,b,a, dr,dg,db,da);
 }
 
-SK_RASTER_STAGE(square) {
+static void SK_VECTORCALL square(SkRasterPipeline::Stage* st, size_t x, size_t tail,
+                                 Sk4f  r, Sk4f  g, Sk4f  b, Sk4f  a,
+                                 Sk4f dr, Sk4f dg, Sk4f db, Sk4f da) {
     r *= r;
     g *= g;
     b *= b;
     a *= a;
+    st->next(x,tail, r,g,b,a, dr,dg,db,da);
 }
 
-SK_RASTER_STAGE(store) {
-    auto ptr = (float*)ctx + x;
+static void SK_VECTORCALL store(SkRasterPipeline::Stage* st, size_t x, size_t tail,
+                                Sk4f  r, Sk4f  g, Sk4f  b, Sk4f  a,
+                                Sk4f dr, Sk4f dg, Sk4f db, Sk4f da) {
+    auto ptr = st->ctx<float*>() + x;
     switch (tail&3) {
         case 0: ptr[3] = a[0];
         case 3: ptr[2] = b[0];
@@ -41,6 +49,8 @@ DEF_TEST(SkRasterPipeline, r) {
     //    - context pointers                           (load,store)
     //    - stages sensitive to the number of pixels   (load,store)
     //    - stages insensitive to the number of pixels (square)
+    //    - stages that chain to the next stage        (load,square)
+    //    - stages that terminate the pipeline         (store)
     //
     // This pipeline loads up some values, squares them, then writes them back to memory.
 
@@ -48,9 +58,9 @@ DEF_TEST(SkRasterPipeline, r) {
     float       dst_vals[] = { 0,0,0,0,0 };
 
     SkRasterPipeline p;
-    p.append<load>(src_vals);
-    p.append<square>();
-    p.append<store>(dst_vals);
+    p.append(load, src_vals);
+    p.append(square);
+    p.append(store, dst_vals);
 
     p.run(5);
 
@@ -71,6 +81,6 @@ DEF_TEST(SkRasterPipeline_nonsense, r) {
     // No asserts... just a test that this is safe to run and terminates.
     // square() always calls st->next(); this makes sure we've always got something there to call.
     SkRasterPipeline p;
-    p.append<square>();
+    p.append(square);
     p.run(20);
 }

@@ -48,14 +48,6 @@
  *
  * Some stages that typically return are those that write a color to a destination pointer,
  * but any stage can short-circuit the rest of the pipeline by returning instead of calling next().
- *
- * Most simple pipeline stages can use the SK_RASTER_STAGE macro to define a static EasyFn,
- * which simplifies the user interface a bit:
- *    - the context pointer is available directly as the first parameter;
- *    - instead of manually calling a next() function, just modify registers in place.
- *
- * To add an EasyFn stage to the pipeline, call append<fn>() instead of append(&fn).
- * It's a slight performance benefit to call last<fn>() for the last stage of a pipeline.
  */
 
 // TODO: There may be a better place to stuff tail, e.g. in the bottom alignment bits of
@@ -66,9 +58,6 @@ public:
     struct Stage;
     using Fn = void(SK_VECTORCALL *)(Stage*, size_t, size_t, Sk4f,Sk4f,Sk4f,Sk4f,
                                                              Sk4f,Sk4f,Sk4f,Sk4f);
-    using EasyFn = void(void*, size_t, size_t, Sk4f&, Sk4f&, Sk4f&, Sk4f&,
-                                               Sk4f&, Sk4f&, Sk4f&, Sk4f&);
-
     struct Stage {
         template <typename T>
         T ctx() { return static_cast<T>(fCtx); }
@@ -99,17 +88,6 @@ public:
     void append(Fn body, Fn tail, const void* ctx = nullptr);
     void append(Fn fn, const void* ctx = nullptr) { this->append(fn, fn, ctx); }
 
-    // Version of append that can be used with static EasyFn (see SK_RASTER_STAGE).
-    template <EasyFn fn>
-    void append(const void* ctx = nullptr) {
-        this->append(Body<fn,true>, Tail<fn,true>, ctx);
-    }
-
-    // If this is the last stage of the pipeline, last() is a bit faster than append().
-    template <EasyFn fn>
-    void last(const void* ctx = nullptr) {
-        this->append(Body<fn,false>, Tail<fn,false>, ctx);
-    }
 
     // Append all stages to this pipeline.
     void extend(const SkRasterPipeline&);
@@ -122,42 +100,10 @@ private:
     // buggy pipeline can't walk off its own end.
     static void SK_VECTORCALL JustReturn(Stage*, size_t, size_t, Sk4f,Sk4f,Sk4f,Sk4f,
                                                                  Sk4f,Sk4f,Sk4f,Sk4f);
-
-    template <EasyFn kernel, bool kCallNext>
-    static void SK_VECTORCALL Body(SkRasterPipeline::Stage* st, size_t x, size_t tail,
-                                   Sk4f  r, Sk4f  g, Sk4f  b, Sk4f  a,
-                                   Sk4f dr, Sk4f dg, Sk4f db, Sk4f da) {
-        // Passing 0 lets the optimizer completely drop any "if (tail) {...}" code in kernel.
-        kernel(st->ctx<void*>(), x,0, r,g,b,a, dr,dg,db,da);
-        if (kCallNext) {
-            st->next(x,tail, r,g,b,a, dr,dg,db,da);  // It's faster to pass tail here than 0.
-        }
-    }
-
-    template <EasyFn kernel, bool kCallNext>
-    static void SK_VECTORCALL Tail(SkRasterPipeline::Stage* st, size_t x, size_t tail,
-                                   Sk4f  r, Sk4f  g, Sk4f  b, Sk4f  a,
-                                   Sk4f dr, Sk4f dg, Sk4f db, Sk4f da) {
-    #if defined(__clang__)
-        __builtin_assume(tail > 0);  // This flourish lets Clang compile away any tail==0 code.
-    #endif
-        kernel(st->ctx<void*>(), x,tail, r,g,b,a, dr,dg,db,da);
-        if (kCallNext) {
-            st->next(x,tail, r,g,b,a, dr,dg,db,da);
-        }
-    }
-
     Stages fBody,
            fTail;
     Fn fBodyStart = &JustReturn,
        fTailStart = &JustReturn;
 };
-
-// These are always static, and we _really_ want them to inline.
-// If you find yourself wanting a non-inline stage, write a SkRasterPipeline::Fn directly.
-#define SK_RASTER_STAGE(name)                                           \
-    static SK_ALWAYS_INLINE void name(void* ctx, size_t x, size_t tail, \
-                            Sk4f&  r, Sk4f&  g, Sk4f&  b, Sk4f&  a,     \
-                            Sk4f& dr, Sk4f& dg, Sk4f& db, Sk4f& da)
 
 #endif//SkRasterPipeline_DEFINED
