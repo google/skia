@@ -102,10 +102,10 @@ SkBlitter* SkRasterPipelineBlitter::Create(const SkPixmap& dst,
             color.premul());
 
     if (!paint.getShader()) {
-        blitter->fShader.append(SkOpts::constant_color, &blitter->fPaintColor);
+        blitter->fShader.append(SkRasterPipeline::constant_color, &blitter->fPaintColor);
     }
     if (!paint.getXfermode()) {
-        blitter->fXfermode.append(SkOpts::srcover);
+        blitter->fXfermode.append(SkRasterPipeline::srcover);
     }
 
     return blitter;
@@ -117,14 +117,14 @@ void SkRasterPipelineBlitter::append_load_d(SkRasterPipeline* p, const void* dst
     switch (fDst.info().colorType()) {
         case kN32_SkColorType:
             if (fDst.info().gammaCloseToSRGB()) {
-                p->append(SkOpts::load_d_srgb_body, SkOpts::load_d_srgb_tail, dst);
+                p->append(SkRasterPipeline::load_d_srgb, dst);
             }
             break;
         case kRGBA_F16_SkColorType:
-            p->append(SkOpts::load_d_f16_body, SkOpts::load_d_f16_tail, dst);
+            p->append(SkRasterPipeline::load_d_f16, dst);
             break;
         case kRGB_565_SkColorType:
-            p->append(SkOpts::load_d_565_body, SkOpts::load_d_565_tail, dst);
+            p->append(SkRasterPipeline::load_d_565, dst);
             break;
         default: break;
     }
@@ -136,14 +136,14 @@ void SkRasterPipelineBlitter::append_store(SkRasterPipeline* p, void* dst) const
     switch (fDst.info().colorType()) {
         case kN32_SkColorType:
             if (fDst.info().gammaCloseToSRGB()) {
-                p->append(SkOpts::store_srgb_body, SkOpts::store_srgb_tail, dst);
+                p->append(SkRasterPipeline::store_srgb, dst);
             }
             break;
         case kRGBA_F16_SkColorType:
-            p->append(SkOpts::store_f16_body, SkOpts::store_f16_tail, dst);
+            p->append(SkRasterPipeline::store_f16, dst);
             break;
         case kRGB_565_SkColorType:
-            p->append(SkOpts::store_565_body, SkOpts::store_565_tail, dst);
+            p->append(SkRasterPipeline::store_565, dst);
             break;
         default: break;
     }
@@ -171,7 +171,7 @@ void SkRasterPipelineBlitter::blitAntiH(int x, int y, const SkAlpha aa[], const 
     p.extend(fColorFilter);
     this->append_load_d(&p, dst);
     p.extend(fXfermode);
-    p.append(SkOpts::lerp_constant_float, &coverage);
+    p.append(SkRasterPipeline::lerp_constant_float, &coverage);
     this->append_store(&p, dst);
 
     for (int16_t run = *runs; run > 0; run = *runs) {
@@ -201,10 +201,10 @@ void SkRasterPipelineBlitter::blitMask(const SkMask& mask, const SkIRect& clip) 
         p.extend(fXfermode);
         switch (mask.fFormat) {
             case SkMask::kA8_Format:
-                p.append(SkOpts::lerp_u8_body, SkOpts::lerp_u8_tail, mask.getAddr8(x,y)-x);
+                p.append(SkRasterPipeline::lerp_u8, mask.getAddr8(x,y)-x);
                 break;
             case SkMask::kLCD16_Format:
-                p.append(SkOpts::lerp_565_body, SkOpts::lerp_565_tail, mask.getAddrLCD16(x,y)-x);
+                p.append(SkRasterPipeline::lerp_565, mask.getAddrLCD16(x,y)-x);
                 break;
             default: break;
         }
