@@ -1353,15 +1353,15 @@ const
         }
     }
 
+#if defined(GOOGLE3)
+    // Stack frame size is limited in GOOGLE3.
+    SkAutoSMalloc<256 * sizeof(uint32_t)> storage;
+#else
+    SkAutoSMalloc<1024 * sizeof(uint32_t)> storage;
+#endif
     if (fColorLUT) {
         size_t storageBytes = len * sizeof(uint32_t);
-#if defined(GOOGLE3)
-        // Stack frame size is limited in GOOGLE3.
-        SkAutoSMalloc<256 * sizeof(uint32_t)> storage(storageBytes);
-#else
-        SkAutoSMalloc<1024 * sizeof(uint32_t)> storage(storageBytes);
-#endif
-
+        storage.reset(storageBytes);
         handle_color_lut((uint32_t*) storage.get(), src, len, fColorLUT.get());
         src = (const uint32_t*) storage.get();
     }
