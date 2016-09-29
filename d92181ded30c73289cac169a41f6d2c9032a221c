@@ -60,6 +60,24 @@
     },
     {
       "key": {
+        "uuid": "c541232d_ab92a9ad",
+        "filename": "src/gpu/gl/GrGLGpu.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 212,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2016-09-29T19:52:09Z",
+      "side": 1,
+      "message": "Ha, I\u0027m fine with it as is. If we only plan to support this for textures (probably) then I would say it\u0027s better as is.",
+      "parentUuid": "a566efce_83e164e9",
+      "revId": "d92181ded30c73289cac169a41f6d2c9032a221c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "a566efce_830a44c7",
         "filename": "src/gpu/vk/GrVkGpu.cpp",
         "patchSetId": 2
