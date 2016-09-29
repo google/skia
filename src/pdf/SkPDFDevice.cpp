@@ -772,33 +772,98 @@ void SkPDFDevice::drawPath(const SkDraw& d,
                           &content.entry()->fContent);
 }
 
-void SkPDFDevice::drawBitmapRect(const SkDraw& draw,
+
+void SkPDFDevice::drawImageRect(const SkDraw& d,
+                                const SkImage* image,
+                                const SkRect* src,
+                                const SkRect& dst,
+                                const SkPaint& srcPaint,
+                                SkCanvas::SrcRectConstraint) {
+    if (!image) {
+        return;
+    }
+    SkIRect bounds = image->bounds();
+    SkPaint paint = srcPaint;
+    if (image->isOpaque()) {
+        replace_srcmode_on_opaque_paint(&paint);
+    }
+    SkRect srcRect = src ? *src : SkRect::Make(bounds);
+    SkMatrix transform;
+    transform.setRectToRect(srcRect, dst, SkMatrix::kFill_ScaleToFit);
+    if (src) {
+        if (!srcRect.intersect(SkRect::Make(bounds))) {
+            return;
+        }
+        srcRect.roundOut(&bounds);
+        transform.preTranslate(SkIntToScalar(bounds.x()),
+                               SkIntToScalar(bounds.y()));
+    }
+    SkImageSubset imageSubset(sk_ref_sp(const_cast<SkImage*>(image)), bounds);
+    transform.postConcat(*d.fMatrix);
+    if (!imageSubset.good()) {
+        return;
+    }
+    this->internalDrawImage(transform, d.fClipStack, d.fRC->bwRgn(),
+                            std::move(imageSubset), paint);
+}
+
+void SkPDFDevice::drawBitmapRect(const SkDraw& d,
                                  const SkBitmap& bitmap,
                                  const SkRect* src,
                                  const SkRect& dst,
-                                 const SkPaint& srcPaint,
-                                 SkCanvas::SrcRectConstraint constraint) {
-    SkASSERT(false);
+                                const SkPaint& srcPaint,
+                                SkCanvas::SrcRectConstraint) {
+    if (bitmap.drawsNothing()) {
+        return;
+    }
+    SkIRect bounds = bitmap.bounds();
+    SkPaint paint = srcPaint;
+    if (bitmap.isOpaque()) {
+        replace_srcmode_on_opaque_paint(&paint);
+    }
+    SkRect srcRect = src ? *src : SkRect::Make(bounds);
+    SkMatrix transform;
+    transform.setRectToRect(srcRect, dst, SkMatrix::kFill_ScaleToFit);
+    if (src) {
+        if (!srcRect.intersect(SkRect::Make(bounds))) {
+            return;
+        }
+        srcRect.roundOut(&bounds);
+        transform.preTranslate(SkIntToScalar(bounds.x()),
+                               SkIntToScalar(bounds.y()));
+    }
+    SkBitmap bitmapCopy;
+    if (!bitmap.extractSubset(&bitmapCopy, bounds)) {
+        return;
+    }
+    SkImageSubset imageSubset(bitmapCopy);
+    transform.postConcat(*d.fMatrix);
+    if (!imageSubset.good()) {
+        return;
+    }
+    this->internalDrawImage(transform, d.fClipStack, d.fRC->bwRgn(),
+                            std::move(imageSubset), paint);
 }
 
 void SkPDFDevice::drawBitmap(const SkDraw& d,
                              const SkBitmap& bitmap,
                              const SkMatrix& matrix,
                              const SkPaint& srcPaint) {
+    if (bitmap.drawsNothing() || d.fRC->isEmpty()) {
+        return;
+    }
     SkPaint paint = srcPaint;
     if (bitmap.isOpaque()) {
         replace_srcmode_on_opaque_paint(&paint);
     }
-
-    if (d.fRC->isEmpty()) {
-        return;
-    }
-
     SkMatrix transform = matrix;
     transform.postConcat(*d.fMatrix);
-    SkImageBitmap imageBitmap(bitmap);
+    SkImageSubset imageSubset(bitmap);
+    if (!imageSubset.good()) {
+        return;
+    }
     this->internalDrawImage(
-            transform, d.fClipStack, d.fRC->bwRgn(), imageBitmap, paint);
+            transform, d.fClipStack, d.fRC->bwRgn(), std::move(imageSubset), paint);
 }
 
 void SkPDFDevice::drawSprite(const SkDraw& d,
@@ -806,20 +871,20 @@ void SkPDFDevice::drawSprite(const SkDraw& d,
                              int x,
                              int y,
                              const SkPaint& srcPaint) {
+    if (bitmap.drawsNothing() || d.fRC->isEmpty()) {
+        return;
+    }
     SkPaint paint = srcPaint;
     if (bitmap.isOpaque()) {
         replace_srcmode_on_opaque_paint(&paint);
     }
-
-    if (d.fRC->isEmpty()) {
+    SkMatrix transform = SkMatrix::MakeTrans(SkIntToScalar(x), SkIntToScalar(y));
+    SkImageSubset imageSubset(bitmap);
+    if (!imageSubset.good()) {
         return;
     }
-
-    SkMatrix matrix;
-    matrix.setTranslate(SkIntToScalar(x), SkIntToScalar(y));
-    SkImageBitmap imageBitmap(bitmap);
     this->internalDrawImage(
-            matrix, d.fClipStack, d.fRC->bwRgn(), imageBitmap, paint);
+            transform, d.fClipStack, d.fRC->bwRgn(), std::move(imageSubset), paint);
 }
 
 void SkPDFDevice::drawImage(const SkDraw& draw,
@@ -839,18 +904,12 @@ void SkPDFDevice::drawImage(const SkDraw& draw,
     }
     SkMatrix transform = SkMatrix::MakeTrans(x, y);
     transform.postConcat(*draw.fMatrix);
-    SkImageBitmap imageBitmap(const_cast<SkImage*>(image));
+    SkImageSubset imageSubset(sk_ref_sp(const_cast<SkImage*>(image)));
+    if (!imageSubset.good()) {
+        return;
+    }
     this->internalDrawImage(
-            transform, draw.fClipStack, draw.fRC->bwRgn(), imageBitmap, paint);
-}
-
-void SkPDFDevice::drawImageRect(const SkDraw& draw,
-                                const SkImage* image,
-                                const SkRect* src,
-                                const SkRect& dst,
-                                const SkPaint& srcPaint,
-                                SkCanvas::SrcRectConstraint constraint) {
-    SkASSERT(false);
+            transform, draw.fClipStack, draw.fRC->bwRgn(), std::move(imageSubset), paint);
 }
 
 namespace {
@@ -2109,16 +2168,16 @@ static SkSize rect_to_size(const SkRect& r) {
     return SkSize::Make(r.width(), r.height());
 }
 
-static sk_sp<SkImage> color_filter(const SkImageBitmap& imageBitmap,
+static sk_sp<SkImage> color_filter(const SkImageSubset& imageSubset,
                                    SkColorFilter* colorFilter) {
     auto surface =
-        SkSurface::MakeRaster(SkImageInfo::MakeN32Premul(imageBitmap.dimensions()));
+        SkSurface::MakeRaster(SkImageInfo::MakeN32Premul(imageSubset.dimensions()));
     SkASSERT(surface);
     SkCanvas* canvas = surface->getCanvas();
     canvas->clear(SK_ColorTRANSPARENT);
     SkPaint paint;
     paint.setColorFilter(sk_ref_sp(colorFilter));
-    imageBitmap.draw(canvas, &paint);
+    imageSubset.draw(canvas, &paint);
     canvas->flush();
     return surface->makeImageSnapshot();
 }
@@ -2127,9 +2186,9 @@ static sk_sp<SkImage> color_filter(const SkImageBitmap& imageBitmap,
 void SkPDFDevice::internalDrawImage(const SkMatrix& origMatrix,
                                     const SkClipStack* clipStack,
                                     const SkRegion& origClipRegion,
-                                    SkImageBitmap imageBitmap,
+                                    SkImageSubset imageSubset,
                                     const SkPaint& paint) {
-    if (imageBitmap.dimensions().isZero()) {
+    if (imageSubset.dimensions().isZero()) {
         return;
     }
     #ifdef SK_PDF_IMAGE_STATS
@@ -2138,7 +2197,6 @@ void SkPDFDevice::internalDrawImage(const SkMatrix& origMatrix,
     SkMatrix matrix = origMatrix;
     SkRegion perspectiveBounds;
     const SkRegion* clipRegion = &origClipRegion;
-    sk_sp<SkImage> autoImageUnref;
 
     // Rasterize the bitmap using perspective in a new bitmap.
     if (origMatrix.hasPerspective()) {
@@ -2148,7 +2206,7 @@ void SkPDFDevice::internalDrawImage(const SkMatrix& origMatrix,
         // Transform the bitmap in the new space, without taking into
         // account the initial transform.
         SkPath perspectiveOutline;
-        SkRect imageBounds = SkRect::Make(imageBitmap.bounds());
+        SkRect imageBounds = SkRect::Make(imageSubset.bounds());
         perspectiveOutline.addRect(imageBounds);
         perspectiveOutline.transform(origMatrix);
 
@@ -2182,7 +2240,7 @@ void SkPDFDevice::internalDrawImage(const SkMatrix& origMatrix,
 
         SkISize wh = rect_to_size(physicalPerspectiveBounds).toCeil();
 
-        auto surface(SkSurface::MakeRaster(SkImageInfo::MakeN32Premul(wh)));
+        auto surface = SkSurface::MakeRaster(SkImageInfo::MakeN32Premul(wh));
         if (!surface) {
             return;
         }
@@ -2199,7 +2257,7 @@ void SkPDFDevice::internalDrawImage(const SkMatrix& origMatrix,
         // Translate the draw in the new canvas, so we perfectly fit the
         // shape in the bitmap.
         canvas->setMatrix(offsetMatrix);
-        imageBitmap.draw(canvas, nullptr);
+        imageSubset.draw(canvas, nullptr);
         // Make sure the final bits are in the bitmap.
         canvas->flush();
 
@@ -2211,8 +2269,7 @@ void SkPDFDevice::internalDrawImage(const SkMatrix& origMatrix,
         perspectiveBounds.setRect(bounds.roundOut());
         clipRegion = &perspectiveBounds;
 
-        autoImageUnref = surface->makeImageSnapshot();
-        imageBitmap = SkImageBitmap(autoImageUnref.get());
+        imageSubset = SkImageSubset(surface->makeImageSnapshot());
     }
 
     SkMatrix scaled;
@@ -2220,9 +2277,9 @@ void SkPDFDevice::internalDrawImage(const SkMatrix& origMatrix,
     scaled.setScale(SK_Scalar1, -SK_Scalar1);
     scaled.postTranslate(0, SK_Scalar1);
     // Scale the image up from 1x1 to WxH.
-    SkIRect subset = imageBitmap.bounds();
-    scaled.postScale(SkIntToScalar(imageBitmap.dimensions().width()),
-                     SkIntToScalar(imageBitmap.dimensions().height()));
+    SkIRect subset = imageSubset.bounds();
+    scaled.postScale(SkIntToScalar(imageSubset.dimensions().width()),
+                     SkIntToScalar(imageSubset.dimensions().height()));
     scaled.postConcat(matrix);
     ScopedContentEntry content(this, clipStack, *clipRegion, scaled, paint);
     if (!content.entry()) {
@@ -2244,16 +2301,16 @@ void SkPDFDevice::internalDrawImage(const SkMatrix& origMatrix,
         // drawBitmap*()/drawImage*() calls amd ImageFilters (which
         // rasterize a layer on this backend).  Fortuanely, this seems
         // to be how Chromium impements most color-filters.
-        autoImageUnref = color_filter(imageBitmap, colorFilter);
-        imageBitmap = SkImageBitmap(autoImageUnref.get());
+        sk_sp<SkImage> img = color_filter(imageSubset, colorFilter);
+        imageSubset = SkImageSubset(std::move(img));
         // TODO(halcanary): de-dupe this by caching filtered images.
         // (maybe in the resource cache?)
     }
 
-    SkBitmapKey key = imageBitmap.getKey();
+    SkBitmapKey key = imageSubset.getKey();
     sk_sp<SkPDFObject> pdfimage = fDocument->canon()->findPDFBitmap(key);
     if (!pdfimage) {
-        sk_sp<SkImage> img = imageBitmap.makeImage();
+        sk_sp<SkImage> img = imageSubset.makeImage();
         if (!img) {
             return;
         }

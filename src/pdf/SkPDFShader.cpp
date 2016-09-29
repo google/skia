@@ -958,7 +958,8 @@ static sk_sp<SkPDFStream> make_image_shader(SkPDFDocument* doc,
                                             SkScalar dpi,
                                             const SkPDFShader::State& state,
                                             SkBitmap image) {
-    SkASSERT(state.fBitmapKey == SkBitmapKey(image));
+    SkASSERT(state.fBitmapKey ==
+             (SkBitmapKey{image.getSubset(), image.getGenerationID()}));
     SkAutoLockPixels SkAutoLockPixels(image);
 
     // The image shader pattern cell will be drawn into a separate device
@@ -1167,7 +1168,7 @@ bool SkPDFShader::State::operator==(const SkPDFShader::State& b) const {
 
     if (fType == SkShader::kNone_GradientType) {
         if (fBitmapKey != b.fBitmapKey ||
-                fBitmapKey.id() == 0 ||
+                fBitmapKey.fID == 0 ||
                 fImageTileModes[0] != b.fImageTileModes[0] ||
                 fImageTileModes[1] != b.fImageTileModes[1]) {
             return false;
@@ -1223,6 +1224,7 @@ SkPDFShader::State::State(SkShader* shader, const SkMatrix& canvasTransform,
     fType = shader->asAGradient(&fInfo);
 
     if (fType != SkShader::kNone_GradientType) {
+        fBitmapKey = SkBitmapKey{{0, 0, 0, 0}, 0};
         fShaderTransform = shader->getLocalMatrix();
         this->allocateGradientInfoStorage();
         shader->asAGradient(&fInfo);
@@ -1231,7 +1233,7 @@ SkPDFShader::State::State(SkShader* shader, const SkMatrix& canvasTransform,
     if (SkImage* skimg = shader->isAImage(&fShaderTransform, fImageTileModes)) {
         // TODO(halcanary): delay converting to bitmap.
         if (skimg->asLegacyBitmap(imageDst, SkImage::kRO_LegacyBitmapMode)) {
-            fBitmapKey = SkBitmapKey(*imageDst);
+            fBitmapKey = SkBitmapKey{imageDst->getSubset(), imageDst->getGenerationID()};
             return;
         }
     }
@@ -1276,7 +1278,7 @@ SkPDFShader::State::State(SkShader* shader, const SkMatrix& canvasTransform,
 
     fShaderTransform.setTranslate(shaderRect.x(), shaderRect.y());
     fShaderTransform.preScale(1 / scale.width(), 1 / scale.height());
-    fBitmapKey = SkBitmapKey(*imageDst);
+    fBitmapKey = SkBitmapKey{imageDst->getSubset(), imageDst->getGenerationID()};
 }
 
 SkPDFShader::State::State(const SkPDFShader::State& other)
@@ -1305,7 +1307,7 @@ SkPDFShader::State::State(const SkPDFShader::State& other)
  * Only valid for gradient states.
  */
 SkPDFShader::State SkPDFShader::State::MakeAlphaToLuminosityState() const {
-    SkASSERT(fBitmapKey == SkBitmapKey());
+    SkASSERT(fBitmapKey == (SkBitmapKey{{0, 0, 0, 0}, 0}));
     SkASSERT(fType != SkShader::kNone_GradientType);
 
     SkPDFShader::State newState(*this);
@@ -1323,7 +1325,7 @@ SkPDFShader::State SkPDFShader::State::MakeAlphaToLuminosityState() const {
  * Only valid for gradient states.
  */
 SkPDFShader::State SkPDFShader::State::MakeOpaqueState() const {
-    SkASSERT(fBitmapKey == SkBitmapKey());
+    SkASSERT(fBitmapKey == (SkBitmapKey{{0, 0, 0, 0}, 0}));
     SkASSERT(fType != SkShader::kNone_GradientType);
 
     SkPDFShader::State newState(*this);
