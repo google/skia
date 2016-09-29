@@ -8,6 +8,7 @@
 #ifndef SkOpts_DEFINED
 #define SkOpts_DEFINED
 
+#include "SkRasterPipeline.h"
 #include "SkTextureCompressor.h"
 #include "SkTypes.h"
 #include "SkXfermode.h"
@@ -71,6 +72,25 @@ namespace SkOpts {
     static inline uint32_t hash(const void* data, size_t bytes, uint32_t seed=0) {
         return hash_fn(data, bytes, seed);
     }
+
+    // Each of the SkRasterPipeline::Fn's lists its context pointer type in the comments.
+
+    extern SkRasterPipeline::Fn srcover,                             // (none)
+                                constant_color,                      // const SkPM4f*
+                                lerp_constant_float;                 // const float*, in [0,1]
+
+    extern SkRasterPipeline::Fn load_d_srgb_body, load_d_srgb_tail,  // const uint32_t*
+                                load_s_srgb_body, load_s_srgb_tail,  // const uint32_t*
+                                 store_srgb_body,  store_srgb_tail,  //       uint32_t*
+                                 load_d_f16_body,  load_d_f16_tail,  // const uint64_t*
+                                 load_s_f16_body,  load_s_f16_tail,  // const uint64_t*
+                                  store_f16_body,   store_f16_tail,  //       uint64_t*
+                                 load_d_565_body,  load_d_565_tail,  // const uint16_t*
+                                 load_s_565_body,  load_s_565_tail,  // const uint16_t*
+                                  store_565_body,   store_565_tail,  //       uint16_t*
+                                   scale_u8_body,    scale_u8_tail,  // const uint8_t*
+                                    lerp_u8_body,     lerp_u8_tail,  // const uint8_t*
+                                   lerp_565_body,    lerp_565_tail;  // const uint16_t*
 }
 
 #endif//SkOpts_DEFINED
