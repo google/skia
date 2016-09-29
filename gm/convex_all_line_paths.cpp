@@ -8,6 +8,8 @@
 #include "gm.h"
 #include "SkPathPriv.h"
 
+#include "../../src/gpu/batches/GrAAConvexTessellator.h"
+
 static void create_ngon(int n, SkPoint* pts, SkScalar width, SkScalar height) {
     float angleStep = 360.0f / n, angle = 0.0f, sin, cos;
     if ((n % 2) == 1) {
@@ -28,16 +30,16 @@ namespace skiagm {
 // paths
 class ConvexLineOnlyPathsGM : public GM {
 public:
-    ConvexLineOnlyPathsGM(bool doStrokeAndFill) : fDoStrokeAndFill(doStrokeAndFill) {
+    ConvexLineOnlyPathsGM(bool doStrokeAndFill) : fDoStrokeAndFill(true) {
         this->setBGColor(0xFFFFFFFF);
     }
 
 protected:
     SkString onShortName() override {
         if (fDoStrokeAndFill) {
-            return SkString("convex-lineonly-paths-stroke-and-fill");
+            return SkString("convex-lineonly-paths");
         }
-        return SkString("convex-lineonly-paths");
+        return SkString("convex-lineonly-1paths");
     }
     SkISize onISize() override { return SkISize::Make(kGMWidth, kGMHeight); }
     bool runAsBench() const override { return true; }
@@ -88,12 +90,12 @@ protected:
             {  0.025f,  0.025f },
             { -0.025f,  0.025f }
         };
-        // Triangle in which the first point should fuse with last
+//******// Triangle in which the first point should fuse with last
         const SkPoint gPoints6[] = {
-            { -20.0f, -13.0f },
-            { -20.0f, -13.05f },
-            {  20.0f, -13.0f },
-            {  20.0f,  27.0f }
+            { -200.0f, -130.0f },
+            { -200.0f, -130.05f },
+            {  200.0f, -130.0f },
+            {  200.0f,  270.0f }
         };
         // thin rect with colinear lines
         const SkPoint gPoints7[] = {
@@ -248,7 +250,7 @@ protected:
         SkASSERT(SkPathPriv::AsFirstDirection(dir) == actualDir);
         SkRect bounds = path.getBounds();
         SkASSERT(SkScalarNearlyEqual(bounds.centerX(), 0.0f));
-        SkASSERT(bounds.height() <= kMaxPathHeight);
+//        SkASSERT(bounds.height() <= kMaxPathHeight);
 #endif
         return path;
     }
@@ -277,8 +279,8 @@ protected:
 
         const SkColor colors[2] = { SK_ColorBLACK, SK_ColorWHITE };
         const SkPath::Direction dirs[2] = { SkPath::kCW_Direction, SkPath::kCCW_Direction };
-        const float scales[] = { 1.0f, 0.75f, 0.5f, 0.25f, 0.1f, 0.01f, 0.001f };
-        const SkPaint::Join joins[3] = { SkPaint::kRound_Join,
+        const float scales[] = { 1.0f };//, 0.75f, 0.5f, 0.25f, 0.1f, 0.01f, 0.001f };
+        const SkPaint::Join joins[3] = { SkPaint::kBevel_Join,
                                          SkPaint::kBevel_Join,
                                          SkPaint::kMiter_Join };
 
@@ -303,6 +305,32 @@ protected:
     }
 
     void onDraw(SkCanvas* canvas) override {
+        SkPath path = GetPath(6, 0, SkPath::kCW_Direction);
+
+        canvas->translate(300.0f, 300.0f);
+
+        const SkPaint::Join join = SkPaint::Join::kMiter_Join;
+        const SkScalar miterLimit = 100.0f;
+
+        SkPaint paint;
+        paint.setColor(SK_ColorGRAY);
+        paint.setStyle(SkPaint::kStrokeAndFill_Style);
+        paint.setAntiAlias(true);
+        paint.setStrokeWidth(50.0f);
+        paint.setStrokeJoin(join);
+        paint.setStrokeMiter(miterLimit);
+
+        canvas->drawPath(path, paint);
+
+#if 0
+        GrAAConvexTessellator tess(SkStrokeRec::kStrokeAndFill_Style, 50, join, miterLimit);
+
+        tess.tessellate(SkMatrix::I(), path);
+
+        tess.draw(canvas);
+#endif
+
+#if 0
         // the right edge of the last drawn path
         SkPoint offset = { 0, SkScalarHalf(kMaxPathHeight) };
         if (fDoStrokeAndFill) {
@@ -310,10 +338,13 @@ protected:
             offset.fY += kStrokeWidth / 2.0f;
         }
 
-        for (int i = 0; i < kNumPaths; ++i) {
-            this->drawPath(canvas, i, &offset);
-        }
+        canvas->translate(100.0f, 150.0f);
+        //for (int i = 0; i < kNumPaths; ++i) {
+            this->drawPath(canvas, 6, &offset);
+        //}
+#endif
 
+#if 0
         // Repro for crbug.com/472723 (Missing AA on portions of graphic with GPU rasterization)
         {
             canvas->translate(356.0f, 50.0f);
@@ -333,14 +364,15 @@ protected:
             p1.lineTo(386.121399f, 689.940125f);
             canvas->drawPath(p1, p);
         }
+#endif
     }
 
 private:
-    static constexpr int kStrokeWidth   = 10;
+    static constexpr int kStrokeWidth   = 50;
     static constexpr int kNumPaths      = 20;
     static constexpr int kMaxPathHeight = 100;
-    static constexpr int kGMWidth       = 512;
-    static constexpr int kGMHeight      = 512;
+    static constexpr int kGMWidth       = 700;
+    static constexpr int kGMHeight      = 700;
 
     bool fDoStrokeAndFill;
 

@@ -29,7 +29,7 @@ static const int DEFAULT_BUFFER_SIZE = 100;
 
 // The thicker the stroke, the harder it is to produce high-quality results using tessellation. For
 // the time being, we simply drop back to software rendering above this stroke width.
-static const SkScalar kMaxStrokeWidth = 20.0;
+static const SkScalar kMaxStrokeWidth = 60.0;
 
 GrAALinearizingConvexPathRenderer::GrAALinearizingConvexPathRenderer() {
 }

@@ -19,7 +19,7 @@ class SkCanvas;
 class SkMatrix;
 class SkPath;
 
-//#define GR_AA_CONVEX_TESSELLATOR_VIZ 1
+#define GR_AA_CONVEX_TESSELLATOR_VIZ 1
 
 // device space distance which we inset / outset points in order to create the soft antialiased edge
 static const SkScalar kAntialiasingRadius = 0.5f;
@@ -32,11 +32,24 @@ class GrAAConvexTessellator;
 // computeDepthFromEdge requests.
 class GrAAConvexTessellator {
 public:
+    // Represents whether a given point is within a curve. A point is inside a curve only if it is
+    // an interior point within a quad, cubic, or conic, or if it is the endpoint of a quad, cubic,
+    // or conic with another curve meeting it at (more or less) the same angle.
+    enum CurveState {
+        // point is a sharp vertex
+        kSharp_CurveState,
+        // endpoint of a curve with the other side's curvature not yet determined
+        kIndeterminate_CurveState,
+        // point is in the interior of a curve
+        kCurve_CurveState
+    };
+
     GrAAConvexTessellator(SkStrokeRec::Style style = SkStrokeRec::kFill_Style,
                           SkScalar strokeWidth = -1.0f,
                           SkPaint::Join join = SkPaint::Join::kBevel_Join,
                           SkScalar miterLimit = 0.0f)
         : fSide(SkPoint::kOn_Side)
+        , fInitialOutsetRing(false)
         , fStrokeWidth(strokeWidth)
         , fStyle(style)
         , fJoin(join)
@@ -44,6 +57,9 @@ public:
     }
 
     SkPoint::Side side() const { return fSide; }
+
+    SkScalar miterLimit() const { return fMiterLimit; }
+    SkPaint::Join join() const { return fJoin; }
 
     bool tessellate(const SkMatrix& m, const SkPath& path);
 
@@ -126,7 +142,7 @@ private:
 
     // The Ring holds a set of indices into the global pool that together define
     // a single polygon inset.
-    class Ring {
+    class InsetRing {
     public:
         void setReserve(int numPts) { fPts.setReserve(numPts); }
         void rewind() { fPts.rewind(); }
@@ -150,8 +166,8 @@ private:
         void init(const GrAAConvexTessellator& tess);
         void init(const SkTDArray<SkVector>& norms, const SkTDArray<SkVector>& bisectors);
 
-        const SkPoint& norm(int index) const { return fPts[index].fNorm; }
-        const SkPoint& bisector(int index) const { return fPts[index].fBisector; }
+        const SkPoint& norm17(int index) const { return fPts[index].fNorm17; }
+        const SkPoint& bisector17(int index) const { return fPts[index].fBisector17; }
         int index(int index) const { return fPts[index].fIndex; }
         int origEdgeID(int index) const { return fPts[index].fOrigEdgeId; }
         void setOrigEdgeId(int index, int id) { fPts[index].fOrigEdgeId = id; }
@@ -167,8 +183,8 @@ private:
         SkDEBUGCODE(bool isConvex(const GrAAConvexTessellator& tess) const;)
 
         struct PointData {
-            SkPoint fNorm;
-            SkPoint fBisector;
+            SkPoint fNorm17;
+            SkPoint fBisector17;
             int     fIndex;
             int     fOrigEdgeId;
         };
@@ -176,16 +192,123 @@ private:
         SkTDArray<PointData> fPts;
     };
 
-    // Represents whether a given point is within a curve. A point is inside a curve only if it is
-    // an interior point within a quad, cubic, or conic, or if it is the endpoint of a quad, cubic,
-    // or conic with another curve meeting it at (more or less) the same angle.
-    enum CurveState {
-        // point is a sharp vertex
-        kSharp_CurveState,
-        // endpoint of a curve with the other side's curvature not yet determined
-        kIndeterminate_CurveState,
-        // point is in the interior of a curve
-        kCurve_CurveState
+    class OutsetRing {
+    public:
+        OutsetRing(bool passOnPts) : fPassOnPts(passOnPts) { }
+
+        void setReserve(int numPts) { fPts7.setReserve(numPts); }
+        void rewind() { fPts7.rewind(); }
+
+        int numPts() const { return fPts7.count(); }
+
+        int add(GrAAConvexTessellator& tess, const SkPoint& p,
+                SkScalar coverage, CurveState curve, int i1, int i2) {
+
+            int index = -1;
+            if (fPassOnPts) {
+                index = tess.addPt(p, -1.0f, coverage, false, curve);
+                fPts7.push()->set(p, curve, index, -1);
+            } else {
+                fPts7.push()->set(p, curve, i1, i2);            
+            }
+
+            return index;
+        }
+
+        void validate1(const GrAAConvexTessellator& tess) {
+            for (int i = 0; i < fPts7.count(); ++i) {
+                SkASSERT(fPts7[i].fI1 < tess.numPts());
+                SkASSERT(fPts7[i].fI2 < tess.numPts());
+            }
+        }
+
+        void fuse(int disappearingId, int stayingId) {
+            for (int i = fPts7.count()-1; i >= 0; --i) {
+                if (fPts7[i].fI1 == disappearingId) {
+                    fPts7[i].fI1 = stayingId;
+                } else {
+                    break;
+                }
+            }
+        }
+        void rmLinearPt(int disapearingPt, int firstEndPt, int secondEndPt) {
+            for (int i = fPts7.count()-1; i >= 0; --i) {
+        
+            }
+        }
+
+        // init should be called after all the points have been added (via add)
+        void init1(SkVector::Side side);
+
+        void pop() {
+            fPts7.pop();
+        }
+
+        const SkPoint& lastPt() const { return fPts7.top().fPt; }
+        const SkPoint& point(int index) const { return fPts7[index].fPt; }
+        const SkPoint& norm(int index) const { return fPts7[index].fNorm; }
+        const SkPoint& bisector(int index) const { return fPts7[index].fBisector; }
+        CurveState curveState(int index) const { return fPts7[index].fCurveState; }
+        int index1(int index) const { return fPts7[index].fI1; }
+        int index2(int index) const { return fPts7[index].fI2; }
+
+        void createOuterRing(GrAAConvexTessellator& tess, SkScalar outset,
+                             SkScalar coverage, OutsetRing* nextRing);
+
+   #if GR_AA_CONVEX_TESSELLATOR_VIZ
+        void draw(SkCanvas* canvas, const GrAAConvexTessellator& tess) const;
+    #endif
+
+    private:
+        void computeNormals1(SkVector::Side side);
+        void computeBisectors1(SkVector::Side side);
+
+        int bevel(GrAAConvexTessellator& tess,
+                  OutsetRing* nextRing,
+                  const SkVector& perp2,
+                  int perp1Idx,
+                  int cur,
+                  SkScalar coverage,
+                  CurveState curve);
+
+        void addTrisForEdge(GrAAConvexTessellator& tess, int first, int second, int i0, int i1) {
+            SkASSERT(fPts7[first].fI1 != -1 && fPts7[first].fI2 == -1);
+            SkASSERT(fPts7[second].fI1 != -1 && fPts7[second].fI2 == -1);
+
+            tess.addTri(fPts7[first].fI1, i0, fPts7[second].fI1);
+            tess.addTri(fPts7[first].fI1, i1, i0);        
+        }
+
+        void addTrisForCorner(GrAAConvexTessellator& tess, int cur, int i0, int i1, int i2) {
+            SkASSERT(fPts7[cur].fI1 != -1 && fPts7[cur].fI2 == -1);
+            tess.addTri(fPts7[cur].fI1, i0, i1);
+            tess.addTri(fPts7[cur].fI1, i1, i2);
+        }
+
+        void addTri(GrAAConvexTessellator& tess, int cur, int i0, int i1) {
+            SkASSERT(fPts7[cur].fI1 != -1 && fPts7[cur].fI2 == -1);
+            tess.addTri(fPts7[cur].fI1, i0, i1);
+        }
+
+        struct PointData {
+            void set(const SkPoint& p, CurveState curve, int i1, int i2) {
+                fPt = p;
+                //fNorm = n;
+                fCurveState = curve;
+                fI1 = i1;
+                fI2 = i2;
+            }
+
+            SkPoint fPt;
+            SkVector fNorm;
+            SkVector fBisector;
+            CurveState fCurveState;
+            int fI1;
+            int fI2;
+        };
+
+        SkTDArray<PointData> fPts7;
+        bool fPassOnPts;
     };
 
     bool movable(int index) const { return fMovable[index]; }
@@ -225,23 +348,21 @@ private:
 
     void conicTo(const SkMatrix& m, SkPoint pts[3], SkScalar w);
 
-    void terminate(const Ring& lastRing);
+    void terminate(const InsetRing& lastRing);
 
     // return false on failure/degenerate path
     bool extractFromPath(const SkMatrix& m, const SkPath& path);
     void computeBisectors();
 
-    void fanRing(const Ring& ring);
+    void fanRing(const InsetRing& ring);
 
-    Ring* getNextRing(Ring* lastRing);
+    InsetRing* getNextInsetRing(InsetRing* lastRing);
+    OutsetRing* getNextOutsetRing(bool passOnPts);
 
-    void createOuterRing(const Ring& previousRing, SkScalar outset, SkScalar coverage,
-                         Ring* nextRing);
+    bool createInsetRings(InsetRing& previousRing, SkScalar initialDepth, SkScalar initialCoverage,
+                          SkScalar targetDepth, SkScalar targetCoverage, InsetRing** finalRing);
 
-    bool createInsetRings(Ring& previousRing, SkScalar initialDepth, SkScalar initialCoverage,
-                          SkScalar targetDepth, SkScalar targetCoverage, Ring** finalRing);
-
-    bool createInsetRing(const Ring& lastRing, Ring* nextRing,
+    bool createInsetRing(const InsetRing& lastRing, InsetRing* nextRing,
                          SkScalar initialDepth, SkScalar initialCoverage, SkScalar targetDepth,
                          SkScalar targetCoverage, bool forceNew);
 
@@ -257,7 +378,7 @@ private:
     SkTDArray<CurveState> fCurveState;
 
     // The outward facing normals for the original polygon
-    SkTDArray<SkVector>   fNorms;
+    SkTDArray<SkVector>   fNorms1;
     // The inward facing bisector at each point in the original polygon. Only
     // needed for exterior ring creation and then handed off to the initial ring.
     SkTDArray<SkVector>   fBisectors;
@@ -267,12 +388,14 @@ private:
     // The triangulation of the points
     SkTDArray<int>        fIndices;
 
-    Ring                  fInitialRing;
+    InsetRing             fInitialInsetRing;
+    OutsetRing            fInitialOutsetRing;
 #if GR_AA_CONVEX_TESSELLATOR_VIZ
     // When visualizing save all the rings
-    SkTDArray<Ring*>      fRings;
+    SkTDArray<InsetRing*>      fInsetRings;
+    SkTDArray<OutsetRing*>     fOutsetRings;
 #else
-    Ring                  fRings[2];
+    InsetRing                  fInsetRings[2];
 #endif
     CandidateVerts        fCandidateVerts;
 
