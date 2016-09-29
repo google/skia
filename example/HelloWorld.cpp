@@ -139,24 +139,13 @@ void HelloWorldWindow::drawContents(SkCanvas* canvas) {
 
 void HelloWorldWindow::draw(SkCanvas* canvas) {
     this->drawContents(canvas);
-    // in case we have queued drawing calls
-    fContext->flush();
     // Invalidate the window to force a redraw. Poor man's animation mechanism.
     this->inval(NULL);
 
     if (kRaster_DeviceType == fType) {
-        // need to send the raster bits to the (gpu) window
-        sk_sp<SkImage> snap = fRasterSurface->makeImageSnapshot();
-        SkPixmap pmap;
-        if (snap->peekPixels(&pmap)) {
-            const SkImageInfo& info = pmap.info();
-
-            SkCanvas* canvas = fGpuSurface->getCanvas();
-
-            canvas->writePixels(info, pmap.addr(), pmap.rowBytes(), 0, 0);
-            canvas->flush();
-        }
+        fRasterSurface->draw(fGpuSurface->getCanvas(), 0, 0, nullptr);
     }
+    fGpuSurface->getCanvas()->flush();
     INHERITED::present();
 }
 
