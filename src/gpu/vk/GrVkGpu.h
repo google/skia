@@ -141,6 +141,10 @@ public:
 
     void finishDrawTarget() override;
 
+    GrFence SK_WARN_UNUSED_RESULT insertFence() const override;
+    bool waitFence(GrFence, uint64_t timeout) const override;
+    void deleteFence(GrFence) const override;
+
     void generateMipmap(GrVkTexture* tex);
 
     bool updateBuffer(GrVkBuffer* buffer, const void* src, VkDeviceSize offset, VkDeviceSize size);

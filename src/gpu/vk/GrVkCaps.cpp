@@ -36,6 +36,7 @@ GrVkCaps::GrVkCaps(const GrContextOptions& contextOptions, const GrVkInterface* 
     fOversizedStencilSupport = false; //TODO: figure this out
 
     fUseDrawInsteadOfClear = false;
+    fFenceSyncSupport = true;   // always available in Vulkan
 
     fMapBufferFlags = kNone_MapFlags; //TODO: figure this out
     fBufferMapThreshold = SK_MaxS32;  //TODO: figure this out

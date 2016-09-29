@@ -4694,3 +4694,19 @@ bool GrGLGpu::onMakeCopyForTextureParams(GrTexture* texture, const GrTexturePara
     }
     return false;
 }
+
+GrFence SK_WARN_UNUSED_RESULT GrGLGpu::insertFence() const {
+    GrGLsync fence;
+    GL_CALL_RET(fence, FenceSync(GR_GL_SYNC_GPU_COMMANDS_COMPLETE, 0));
+    return (GrFence)fence;
+}
+
+bool GrGLGpu::waitFence(GrFence fence, uint64_t timeout) const {
+    GrGLenum result;
+    GL_CALL_RET(result, ClientWaitSync((GrGLsync)fence, GR_GL_SYNC_FLUSH_COMMANDS_BIT, timeout));
+    return (GR_GL_CONDITION_SATISFIED == result);
+}
+
+void GrGLGpu::deleteFence(GrFence fence) const {
+    GL_CALL(DeleteSync((GrGLsync)fence));
+}

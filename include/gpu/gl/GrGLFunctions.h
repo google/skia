@@ -345,6 +345,11 @@ typedef GrGLvoid (GR_GL_FUNCTION_TYPE* GrGLFlushMappedNamedBufferRangeProc)(GrGL
 // OpenGL 3.1
 typedef GrGLvoid (GR_GL_FUNCTION_TYPE* GrGLTextureBufferProc)(GrGLuint texture, GrGLenum target, GrGLenum internalformat, GrGLuint buffer);
 
+/* ARB_sync */
+typedef GrGLsync (GR_GL_FUNCTION_TYPE* GrGLFenceSyncProc)(GrGLenum condition, GrGLbitfield flags);
+typedef GrGLenum (GR_GL_FUNCTION_TYPE* GrGLClientWaitSyncProc)(GrGLsync sync, GrGLbitfield flags, GrGLuint64 timeout);
+typedef GrGLvoid (GR_GL_FUNCTION_TYPE* GrGLDeleteSyncProc)(GrGLsync sync);
+
 /* KHR_debug */
 typedef GrGLvoid (GR_GL_FUNCTION_TYPE* GrGLDebugMessageControlProc)(GrGLenum source, GrGLenum type, GrGLenum severity, GrGLsizei count, const GrGLuint* ids, GrGLboolean enabled);
 typedef GrGLvoid (GR_GL_FUNCTION_TYPE* GrGLDebugMessageInsertProc)(GrGLenum source, GrGLenum type, GrGLuint id, GrGLenum severity, GrGLsizei length,  const GrGLchar* buf);

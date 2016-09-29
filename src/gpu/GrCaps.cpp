@@ -103,6 +103,7 @@ GrCaps::GrCaps(const GrContextOptions& options) {
     fFullClearIsFree = false;
     fMustClearUploadedBufferData = false;
     fSampleShadingSupport = false;
+    fFenceSyncSupport = false;
 
     fUseDrawInsteadOfClear = false;
 
@@ -189,6 +190,9 @@ SkString GrCaps::dump() const {
     r.appendf("Prefer client-side dynamic buffers : %s\n", gNY[fPreferClientSideDynamicBuffers]);
     r.appendf("Full screen clear is free          : %s\n", gNY[fFullClearIsFree]);
     r.appendf("Must clear buffer memory           : %s\n", gNY[fMustClearUploadedBufferData]);
+    r.appendf("Sample shading support             : %s\n", gNY[fSampleShadingSupport]);
+    r.appendf("Fence sync support                 : %s\n", gNY[fFenceSyncSupport]);
+
     r.appendf("Draw Instead of Clear [workaround] : %s\n", gNY[fUseDrawInsteadOfClear]);
     r.appendf("Draw Instead of TexSubImage [workaround] : %s\n",
               gNY[fUseDrawInsteadOfPartialRenderTargetWrite]);

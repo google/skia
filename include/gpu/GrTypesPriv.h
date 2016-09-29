@@ -482,4 +482,9 @@ template <typename T> T * const * sk_sp_address_as_pointer_address(sk_sp<T> cons
     return reinterpret_cast<T * const *>(sp);
 }
 
+/*
+ * Object for CPU-GPU synchronization
+ */
+typedef intptr_t GrFence;
+
 #endif
