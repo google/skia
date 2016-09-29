@@ -8,24 +8,20 @@
 #include "gm.h"
 #include "SkCanvas.h"
 #include "SkColorPriv.h"
-#include "SkShader.h"
-
-#include "SkArithmeticMode.h"
 #include "SkGradientShader.h"
+#include "SkImage.h"
+#include "SkImageSource.h"
+#include "SkShader.h"
+#include "SkSurface.h"
+#include "SkXfermodeImageFilter.h"
+
 #define WW  100
 #define HH  32
 
-#ifdef SK_SUPPORT_LEGACY_ARITHMETICMODE
-static SkBitmap make_bm() {
-    SkBitmap bm;
-    bm.allocN32Pixels(WW, HH);
-    bm.eraseColor(SK_ColorTRANSPARENT);
-    return bm;
-}
+static sk_sp<SkImage> make_src() {
+    sk_sp<SkSurface> surface(SkSurface::MakeRasterN32Premul(WW, HH));
+    SkCanvas* canvas = surface->getCanvas();
 
-static SkBitmap make_src() {
-    SkBitmap bm = make_bm();
-    SkCanvas canvas(bm);
     SkPaint paint;
     SkPoint pts[] = { {0, 0}, {SkIntToScalar(WW), SkIntToScalar(HH)} };
     SkColor colors[] = {
@@ -34,13 +30,14 @@ static SkBitmap make_src() {
     };
     paint.setShader(SkGradientShader::MakeLinear(pts, colors, nullptr, SK_ARRAY_COUNT(colors),
                                                  SkShader::kClamp_TileMode));
-    canvas.drawPaint(paint);
-    return bm;
+    canvas->drawPaint(paint);
+    return surface->makeImageSnapshot();
 }
 
-static SkBitmap make_dst() {
-    SkBitmap bm = make_bm();
-    SkCanvas canvas(bm);
+static sk_sp<SkImage> make_dst() {
+    sk_sp<SkSurface> surface(SkSurface::MakeRasterN32Premul(WW, HH));
+    SkCanvas* canvas = surface->getCanvas();
+
     SkPaint paint;
     SkPoint pts[] = { {0, SkIntToScalar(HH)}, {SkIntToScalar(WW), 0} };
     SkColor colors[] = {
@@ -49,8 +46,8 @@ static SkBitmap make_dst() {
     };
     paint.setShader(SkGradientShader::MakeLinear(pts, colors, nullptr, SK_ARRAY_COUNT(colors),
                                                  SkShader::kClamp_TileMode));
-    canvas.drawPaint(paint);
-    return bm;
+    canvas->drawPaint(paint);
+    return surface->makeImageSnapshot();
 }
 
 static void show_k_text(SkCanvas* canvas, SkScalar x, SkScalar y, const SkScalar k[]) {
@@ -80,8 +77,10 @@ protected:
     virtual SkISize onISize() { return SkISize::Make(640, 572); }
 
     virtual void onDraw(SkCanvas* canvas) {
-        SkBitmap src = make_src();
-        SkBitmap dst = make_dst();
+        sk_sp<SkImage> src = make_src();
+        sk_sp<SkImage> dst = make_dst();
+        sk_sp<SkImageFilter> srcFilter = SkImageSource::Make(src);
+        sk_sp<SkImageFilter> dstFilter = SkImageSource::Make(dst);
 
         constexpr SkScalar one = SK_Scalar1;
         constexpr SkScalar K[] = {
@@ -100,25 +99,27 @@ protected:
 
         const SkScalar* k = K;
         const SkScalar* stop = k + SK_ARRAY_COUNT(K);
-        SkScalar y = 0;
-        SkScalar gap = SkIntToScalar(src.width() + 20);
+        const SkRect rect = SkRect::MakeWH(WW, HH);
+        SkScalar gap = SkIntToScalar(WW + 20);
         while (k < stop) {
-            SkScalar x = 0;
-            canvas->drawBitmap(src, x, y, nullptr);
-            x += gap;
-            canvas->drawBitmap(dst, x, y, nullptr);
-            x += gap;
-            SkRect rect = SkRect::MakeXYWH(x, y, SkIntToScalar(WW), SkIntToScalar(HH));
-            canvas->saveLayer(&rect, nullptr);
-            canvas->drawBitmap(dst, x, y, nullptr);
-            SkPaint paint;
-            paint.setXfermode(SkArithmeticMode::Make(k[0], k[1], k[2], k[3]));
-            canvas->drawBitmap(src, x, y, &paint);
-            canvas->restore();
-            x += gap;
-            show_k_text(canvas, x, y, k);
+            {
+                SkAutoCanvasRestore acr(canvas, true);
+                canvas->drawImage(src, 0, 0);
+                canvas->translate(gap, 0);
+                canvas->drawImage(dst, 0, 0);
+                canvas->translate(gap, 0);
+                SkPaint paint;
+                paint.setImageFilter(SkXfermodeImageFilter::MakeArithmetic(k[0], k[1], k[2], k[3],
+                                     true, dstFilter, srcFilter, nullptr));
+                canvas->saveLayer(&rect, &paint);
+                canvas->restore();
+
+                canvas->translate(gap, 0);
+                show_k_text(canvas, 0, 0, k);
+            }
+
             k += 4;
-            y += SkIntToScalar(src.height() + 12);
+            canvas->translate(0, HH + 12);
         }
 
         // Draw two special cases to test enforcePMColor. In these cases, we
@@ -128,29 +129,33 @@ protected:
         // second draw.
         for (int i = 0; i < 2; i++) {
             const bool enforcePMColor = (i == 0);
-            SkScalar x = gap;
-            canvas->drawBitmap(dst, x, y, nullptr);
-            x += gap;
-            SkRect rect = SkRect::MakeXYWH(x, y, SkIntToScalar(WW), SkIntToScalar(HH));
-            canvas->saveLayer(&rect, nullptr);
-            SkPaint paint1;
-            paint1.setXfermode(SkArithmeticMode::Make(0, -one / 2, 0, 1, enforcePMColor));
-            canvas->drawBitmap(dst, x, y, &paint1);
-            SkPaint paint2;
-            paint2.setXfermode(SkArithmeticMode::Make(0, one / 2, -one, 1));
-            canvas->drawBitmap(dst, x, y, &paint2);
-            canvas->restore();
-            x += gap;
 
-            // Label
-            SkPaint paint;
-            paint.setTextSize(SkIntToScalar(24));
-            paint.setAntiAlias(true);
-            sk_tool_utils::set_portable_typeface(&paint);
-            SkString str(enforcePMColor ? "enforcePM" : "no enforcePM");
-            canvas->drawText(str.c_str(), str.size(), x, y + paint.getTextSize(), paint);
+            {
+                SkAutoCanvasRestore acr(canvas, true);
+                canvas->translate(gap, 0);
+                canvas->drawImage(dst, 0, 0);
+                canvas->translate(gap, 0);
 
-            y += SkIntToScalar(src.height() + 12);
+                sk_sp<SkImageFilter> bg =
+                    SkXfermodeImageFilter::MakeArithmetic(0, 0, -one / 2, 1, enforcePMColor,
+                                                          dstFilter);
+                SkPaint p;
+                p.setImageFilter(SkXfermodeImageFilter::MakeArithmetic(0, one / 2, -one, 1, true,
+                                                                       std::move(bg), dstFilter,
+                                                                       nullptr));
+                canvas->saveLayer(&rect, &p);
+                canvas->restore();
+                canvas->translate(gap, 0);
+
+                // Label
+                SkPaint paint;
+                paint.setTextSize(SkIntToScalar(24));
+                paint.setAntiAlias(true);
+                sk_tool_utils::set_portable_typeface(&paint);
+                SkString str(enforcePMColor ? "enforcePM" : "no enforcePM");
+                canvas->drawText(str.c_str(), str.size(), 0, paint.getTextSize(), paint);
+            }
+            canvas->translate(0, HH + 12);
         }
     }
 
@@ -161,4 +166,3 @@ private:
 ///////////////////////////////////////////////////////////////////////////////
 
 DEF_GM( return new ArithmodeGM; )
-#endif
