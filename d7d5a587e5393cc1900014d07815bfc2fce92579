@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "a566efce_a35e684b",
+        "filename": "include/private/SkFloatingPoint.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 114,
+      "author": {
+        "id": 5110
+      },
+      "writtenOn": "2016-09-29T15:37:43Z",
+      "side": 1,
+      "message": "static_assert(sizeof(int)\u003d\u003dsizeof(float),\"\");",
+      "range": {
+        "startLine": 114,
+        "startChar": 27,
+        "endLine": 114,
+        "endChar": 28
+      },
+      "revId": "d7d5a587e5393cc1900014d07815bfc2fce92579",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
