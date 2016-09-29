@@ -25,6 +25,24 @@
     },
     {
       "key": {
+        "uuid": "a566efce_cec54336",
+        "filename": "include/core/SkPaint.h",
+        "patchSetId": 5
+      },
+      "lineNbr": 1114,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2016-09-29T21:17:54Z",
+      "side": 1,
+      "message": "Don\u0027t want to force everyone to pay for 32bits when they store the enum.",
+      "parentUuid": "c541232d_6b6601b9",
+      "revId": "67773d7a2b9fea9ca12d0e6afb2d12a3dc872e4c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "c541232d_eb70316b",
         "filename": "include/core/SkXfermode.h",
         "patchSetId": 5
@@ -42,6 +60,24 @@
         "endLine": 161,
         "endChar": 27
       },
+      "revId": "67773d7a2b9fea9ca12d0e6afb2d12a3dc872e4c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "a566efce_0ed01bf4",
+        "filename": "include/core/SkXfermode.h",
+        "patchSetId": 5
+      },
+      "lineNbr": 161,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2016-09-29T21:17:54Z",
+      "side": 1,
+      "message": "Right. The current impl still has churn, but longer-term it shouldn\u0027t need to, and this API is meant to convey that.",
+      "parentUuid": "c541232d_eb70316b",
       "revId": "67773d7a2b9fea9ca12d0e6afb2d12a3dc872e4c",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
