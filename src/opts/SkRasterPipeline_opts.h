@@ -25,26 +25,26 @@ using Kernel_Sk4f = void(void*, size_t, size_t, Sk4f&, Sk4f&, Sk4f&, Sk4f&,
 
 
 template <Kernel_Sk4f kernel, bool kCallNext>
-static inline void SK_VECTORCALL body(SkRasterPipeline::Stage* st, size_t x, size_t t,
-                                      Sk4f  r, Sk4f  g, Sk4f  b, Sk4f  a,
-                                      Sk4f dr, Sk4f dg, Sk4f db, Sk4f da) {
+static inline void SK_VECTORCALL stage_4(SkRasterPipeline::Stage* st, size_t x, size_t tail,
+                                         Sk4f  r, Sk4f  g, Sk4f  b, Sk4f  a,
+                                         Sk4f dr, Sk4f dg, Sk4f db, Sk4f da) {
     // Passing 0 lets the optimizer completely drop any "if (tail) {...}" code in kernel.
     kernel(st->ctx<void*>(), x,0, r,g,b,a, dr,dg,db,da);
     if (kCallNext) {
-        st->next(x,t, r,g,b,a, dr,dg,db,da);  // It's faster to pass t here than 0.
+        st->next(x,tail, r,g,b,a, dr,dg,db,da);  // It's faster to pass t here than 0.
     }
 }
 
 template <Kernel_Sk4f kernel, bool kCallNext>
-static inline void SK_VECTORCALL tail(SkRasterPipeline::Stage* st, size_t x, size_t t,
-                                      Sk4f  r, Sk4f  g, Sk4f  b, Sk4f  a,
-                                      Sk4f dr, Sk4f dg, Sk4f db, Sk4f da) {
+static inline void SK_VECTORCALL stage_1_3(SkRasterPipeline::Stage* st, size_t x, size_t tail,
+                                           Sk4f  r, Sk4f  g, Sk4f  b, Sk4f  a,
+                                           Sk4f dr, Sk4f dg, Sk4f db, Sk4f da) {
 #if defined(__clang__)
-    __builtin_assume(t > 0);  // This flourish lets Clang compile away any tail==0 code.
+    __builtin_assume(tail > 0);  // This flourish lets Clang compile away any tail==0 code.
 #endif
-    kernel(st->ctx<void*>(), x,t, r,g,b,a, dr,dg,db,da);
+    kernel(st->ctx<void*>(), x,tail, r,g,b,a, dr,dg,db,da);
     if (kCallNext) {
-        st->next(x,t, r,g,b,a, dr,dg,db,da);
+        st->next(x,tail, r,g,b,a, dr,dg,db,da);
     }
 }
 

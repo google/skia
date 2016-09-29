@@ -88,6 +88,33 @@ public:
     void append(Fn body, Fn tail, const void* ctx = nullptr);
     void append(Fn fn, const void* ctx = nullptr) { this->append(fn, fn, ctx); }
 
+    enum StockStage {
+        store_565,
+        store_srgb,
+        store_f16,
+
+        load_s_565,
+        load_s_srgb,
+        load_s_f16,
+
+        load_d_565,
+        load_d_srgb,
+        load_d_f16,
+
+        scale_u8,
+
+        lerp_u8,
+        lerp_565,
+        lerp_constant_float,
+
+        constant_color,
+
+        srcover,
+
+        kNumStockStages,
+    };
+    void append(StockStage, const void* ctx=nullptr);
+
 
     // Append all stages to this pipeline.
     void extend(const SkRasterPipeline&);
