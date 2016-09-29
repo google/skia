@@ -224,8 +224,7 @@ sk_sp<GrDrawContext> GrDrawingManager::makeDrawContext(sk_sp<GrRenderTarget> rt,
     // by, including internal usage. We allow a null color space here, for read/write pixels and
     // other special code paths. If a color space is provided, though, enforce all other rules.
     if (colorSpace && !SkSurface_Gpu::Valid(fContext, rt->config(), colorSpace.get())) {
-        // SRGBTODO: Enable this assert once image filters are propagating color type and space
-//        SkDEBUGFAIL("Invalid config and colorspace combination");
+        SkDEBUGFAIL("Invalid config and colorspace combination");
         return nullptr;
     }
 
