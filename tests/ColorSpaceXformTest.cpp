@@ -164,3 +164,24 @@ DEF_TEST(ColorSpaceXform_NonMatchingGamma, r) {
 
     test_identity_xform(r, gammas);
 }
+
+DEF_TEST(ColorSpaceXform_applyCLUTMemoryAccess, r) {
+    // buffers larger than 1024 (or 256 in GOOGLE3) will force ColorSpaceXform_Base::apply()
+    // to heap-allocate a buffer that is used for CLUT application, and this test is here to
+    // ensure that it no longer causes potential invalid memory accesses when this happens
+    const size_t len = 2048;
+    SkAutoTMalloc<uint32_t> src(len);
+    SkAutoTMalloc<uint32_t> dst(len);
+    for (uint32_t i = 0; i < len; ++i) {
+        src[i] = i;
+    }
+    // this ICC profile has a CLUT in it
+    const SkString filename(GetResourcePath("icc_profiles/upperRight.icc"));
+    sk_sp<SkData> iccData = SkData::MakeFromFileName(filename.c_str());
+    REPORTER_ASSERT_MESSAGE(r, iccData, "upperRight.icc profile required for test");
+    sk_sp<SkColorSpace> srcSpace = SkColorSpace::NewICC(iccData->bytes(), iccData->size());
+    sk_sp<SkColorSpace> dstSpace = SkColorSpace::NewNamed(SkColorSpace::kSRGB_Named);
+    auto xform = SkColorSpaceXform::New(srcSpace.get(), dstSpace.get());
+    xform->apply(dst.get(), src.get(), len, SkColorSpaceXform::kRGBA_8888_ColorFormat,
+                 SkColorSpaceXform::kRGBA_8888_ColorFormat, kUnpremul_SkAlphaType);
+}
