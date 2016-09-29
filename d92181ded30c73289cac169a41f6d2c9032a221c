@@ -1,0 +1,67 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "a566efce_630d30e0",
+        "filename": "src/gpu/gl/GrGLBuffer.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 35,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2016-09-29T19:39:53Z",
+      "side": 1,
+      "message": "one more space?",
+      "range": {
+        "startLine": 35,
+        "startChar": 7,
+        "endLine": 35,
+        "endChar": 8
+      },
+      "revId": "d92181ded30c73289cac169a41f6d2c9032a221c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "c541232d_4bc5c59e",
+        "filename": "src/gpu/gl/GrGLGpu.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 212,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2016-09-29T19:39:53Z",
+      "side": 1,
+      "message": "Is there not support for transferring into FBOs/Renderbuffers or is this just for implementation simplicity?",
+      "revId": "d92181ded30c73289cac169a41f6d2c9032a221c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "a566efce_830a44c7",
+        "filename": "src/gpu/vk/GrVkGpu.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 399,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2016-09-29T19:39:53Z",
+      "side": 1,
+      "message": "Should we have some query on GrCaps about the origin that is supported for transfers? I\u0027m assuming GL has the opposite test.",
+      "range": {
+        "startLine": 399,
+        "startChar": 5,
+        "endLine": 399,
+        "endChar": 57
+      },
+      "revId": "d92181ded30c73289cac169a41f6d2c9032a221c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
