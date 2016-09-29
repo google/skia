@@ -72,9 +72,7 @@ protected:
     void onDraw(SkCanvas* canvas) override {
         const SkRect target = SkRect::MakeWH(SkIntToScalar(kAtlasSize), SkIntToScalar(kAtlasSize));
 
-        if (nullptr == fAtlas) {
-            fAtlas = make_atlas(canvas, kAtlasSize);
-        }
+        auto atlas = make_atlas(canvas, kAtlasSize);
 
         const struct {
             SkXfermode::Mode fMode;
@@ -151,11 +149,11 @@ protected:
             canvas->translate(SkIntToScalar(i*(target.height()+kPad)),
                               SkIntToScalar(kTextPad+kPad));
             // w/o a paint
-            canvas->drawAtlas(fAtlas.get(), xforms, rects, quadColors, numColors,
+            canvas->drawAtlas(atlas.get(), xforms, rects, quadColors, numColors,
                               gModes[i].fMode, nullptr, nullptr);
             canvas->translate(0.0f, numColors*(target.height()+kPad));
             // w a paint
-            canvas->drawAtlas(fAtlas.get(), xforms, rects, quadColors, numColors,
+            canvas->drawAtlas(atlas.get(), xforms, rects, quadColors, numColors,
                               gModes[i].fMode, nullptr, &paint);
             canvas->restore();
         }
@@ -167,9 +165,6 @@ private:
     static constexpr int kAtlasSize = 30;
     static constexpr int kPad = 2;
     static constexpr int kTextPad = 8;
-
-
-    sk_sp<SkImage> fAtlas;
 
     typedef GM INHERITED;
 };

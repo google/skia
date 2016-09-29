@@ -35,8 +35,6 @@ class DrawAtlasGM : public skiagm::GM {
         return surface->makeImageSnapshot();
     }
 
-    sk_sp<SkImage> fAtlas;
-
 public:
     DrawAtlasGM() {}
 
@@ -52,9 +50,7 @@ protected:
 
     void onDraw(SkCanvas* canvas) override {
         const SkRect target = { 50, 50, 80, 90 };
-        if (nullptr == fAtlas) {
-            fAtlas = MakeAtlas(canvas, target);
-        }
+        auto atlas = MakeAtlas(canvas, target);
 
         const struct {
             SkScalar fScale;
@@ -91,9 +87,9 @@ protected:
         paint.setFilterQuality(kLow_SkFilterQuality);
         paint.setAntiAlias(true);
 
-        canvas->drawAtlas(fAtlas.get(), xform, tex, N, nullptr, &paint);
+        canvas->drawAtlas(atlas.get(), xform, tex, N, nullptr, &paint);
         canvas->translate(0, 100);
-        canvas->drawAtlas(fAtlas.get(), xform, tex, colors, N, SkXfermode::kSrcIn_Mode, nullptr, &paint);
+        canvas->drawAtlas(atlas.get(), xform, tex, colors, N, SkXfermode::kSrcIn_Mode, nullptr, &paint);
     }
 
 private:
