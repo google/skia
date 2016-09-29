@@ -653,7 +653,6 @@ SkBaseDevice* SkCanvas::init(SkBaseDevice* device, InitFlags flags) {
     // const-cast.
     *const_cast<bool*>(&fConservativeRasterClip) = SkToBool(flags & kConservativeRasterClip_InitFlag);
 
-    fAllowSoftClip = true;
     fAllowSimplifyClip = false;
     fDeviceCMDirty = true;
     fSaveCount = 1;
@@ -1540,10 +1539,6 @@ sk_sp<SkLights> SkCanvas::getLights() const {
 //////////////////////////////////////////////////////////////////////////////
 
 void SkCanvas::clipRect(const SkRect& rect, ClipOp op, bool doAA) {
-    if (!fAllowSoftClip) {
-        doAA = false;
-    }
-
     this->checkForDeferredSave();
     ClipEdgeStyle edgeStyle = doAA ? kSoft_ClipEdgeStyle : kHard_ClipEdgeStyle;
     this->onClipRect(rect, op, edgeStyle);
@@ -1605,9 +1600,6 @@ void SkCanvas::onClipRRect(const SkRRect& rrect, ClipOp op, ClipEdgeStyle edgeSt
         AutoValidateClip avc(this);
 
         fDeviceCMDirty = true;
-        if (!fAllowSoftClip) {
-            edgeStyle = kHard_ClipEdgeStyle;
-        }
 
         fClipStack->clipDevRRect(transformedRRect, op, kSoft_ClipEdgeStyle == edgeStyle);
 
@@ -1653,9 +1645,6 @@ void SkCanvas::onClipPath(const SkPath& path, ClipOp op, ClipEdgeStyle edgeStyle
     AutoValidateClip avc(this);
 
     fDeviceCMDirty = true;
-    if (!fAllowSoftClip) {
-        edgeStyle = kHard_ClipEdgeStyle;
-    }
 
     SkPath devPath;
     if (fMCRec->fMatrix.isIdentity()) {

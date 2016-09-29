@@ -536,14 +536,6 @@ public:
     }
 
     /** EXPERIMENTAL -- only used for testing
-        Set to false to force clips to be hard, even if doAntiAlias=true is
-        passed to clipRect or clipPath.
-     */
-    void setAllowSoftClip(bool allow) {
-        fAllowSoftClip = allow;
-    }
-
-    /** EXPERIMENTAL -- only used for testing
         Set to simplify clip stack using path ops.
      */
     void setAllowSimplifyClip(bool allow) {
