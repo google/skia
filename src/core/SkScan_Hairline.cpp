@@ -593,12 +593,10 @@ void hair_path(const SkPath& path, const SkRasterClip& rclip, SkBlitter* blitter
                 break;
         }
         if (SkPaint::kButt_Cap != capStyle) {
-#if !defined(SK_SUPPORT_LEGACY_HAIRLINE_END_CAP)
             if (prevVerb == SkPath::kMove_Verb &&
                     verb >= SkPath::kLine_Verb && verb <= SkPath::kCubic_Verb) {
                 firstPt = pts[0];  // the curve moved the initial point, so close to it instead
             }
-#endif
             prevVerb = verb;
         }
     }
