@@ -15,6 +15,8 @@
 
 using Kernel_Sk4f = void(void*, size_t, size_t, Sk4f&, Sk4f&, Sk4f&, Sk4f&,
                                                 Sk4f&, Sk4f&, Sk4f&, Sk4f&);
+using Kernel_Sk8f = void(void*, size_t, size_t, Sk8f&, Sk8f&, Sk8f&, Sk8f&,
+                                                Sk8f&, Sk8f&, Sk8f&, Sk8f&);
 
 // These are always static, and we _really_ want them to inline.
 // If you find yourself wanting a non-inline stage, write a SkRasterPipeline::Fn directly.
@@ -22,7 +24,10 @@ using Kernel_Sk4f = void(void*, size_t, size_t, Sk4f&, Sk4f&, Sk4f&, Sk4f&,
     static SK_ALWAYS_INLINE void name(void* ctx, size_t x, size_t tail,        \
                                       Sk4f&  r, Sk4f&  g, Sk4f&  b, Sk4f&  a,  \
                                       Sk4f& dr, Sk4f& dg, Sk4f& db, Sk4f& da)
-
+#define KERNEL_Sk8f(name)                                                      \
+    static SK_ALWAYS_INLINE void name(void* ctx, size_t x, size_t tail,        \
+                                      Sk8f&  r, Sk8f&  g, Sk8f&  b, Sk8f&  a,  \
+                                      Sk8f& dr, Sk8f& dg, Sk8f& db, Sk8f& da)
 
 template <Kernel_Sk4f kernel, bool kCallNext>
 static inline void SK_VECTORCALL stage_4(SkRasterPipeline::Stage* st, size_t x, size_t tail,
@@ -39,6 +44,30 @@ template <Kernel_Sk4f kernel, bool kCallNext>
 static inline void SK_VECTORCALL stage_1_3(SkRasterPipeline::Stage* st, size_t x, size_t tail,
                                            Sk4f  r, Sk4f  g, Sk4f  b, Sk4f  a,
                                            Sk4f dr, Sk4f dg, Sk4f db, Sk4f da) {
+#if defined(__clang__)
+    __builtin_assume(tail > 0);  // This flourish lets Clang compile away any tail==0 code.
+#endif
+    kernel(st->ctx<void*>(), x,tail, r,g,b,a, dr,dg,db,da);
+    if (kCallNext) {
+        st->next(x,tail, r,g,b,a, dr,dg,db,da);
+    }
+}
+
+template <Kernel_Sk8f kernel, bool kCallNext>
+static inline void SK_VECTORCALL stage_8(SkRasterPipeline::Stage* st, size_t x, size_t tail,
+                                         Sk8f  r, Sk8f  g, Sk8f  b, Sk8f  a,
+                                         Sk8f dr, Sk8f dg, Sk8f db, Sk8f da) {
+    // Passing 0 lets the optimizer completely drop any "if (tail) {...}" code in kernel.
+    kernel(st->ctx<void*>(), x,0, r,g,b,a, dr,dg,db,da);
+    if (kCallNext) {
+        st->next(x,tail, r,g,b,a, dr,dg,db,da);  // It's faster to pass t here than 0.
+    }
+}
+
+template <Kernel_Sk8f kernel, bool kCallNext>
+static inline void SK_VECTORCALL stage_1_7(SkRasterPipeline::Stage* st, size_t x, size_t tail,
+                                           Sk8f  r, Sk8f  g, Sk8f  b, Sk8f  a,
+                                           Sk8f dr, Sk8f dg, Sk8f db, Sk8f da) {
 #if defined(__clang__)
     __builtin_assume(tail > 0);  // This flourish lets Clang compile away any tail==0 code.
 #endif
@@ -102,6 +131,13 @@ namespace SK_OPTS_NS {
 
     // The default shader produces a constant color (from the SkPaint).
     KERNEL_Sk4f(constant_color) {
+        auto color = (const SkPM4f*)ctx;
+        r = color->r();
+        g = color->g();
+        b = color->b();
+        a = color->a();
+    }
+    KERNEL_Sk8f(constant_color) {
         auto color = (const SkPM4f*)ctx;
         r = color->r();
         g = color->g();
