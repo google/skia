@@ -126,23 +126,13 @@ private:
     typedef MathBench INHERITED;
 };
 
-static inline float SkFastInvSqrt(float x) {
-    float xhalf = 0.5f*x;
-    uint32_t i = *SkTCast<uint32_t*>(&x);
-    i = 0x5f3759df - (i>>1);
-    x = *SkTCast<float*>(&i);
-    x = x*(1.5f-xhalf*x*x);
-//    x = x*(1.5f-xhalf*x*x); // this line takes err from 10^-3 to 10^-6
-    return x;
-}
-
 class FastISqrtMathBench : public MathBench {
 public:
     FastISqrtMathBench() : INHERITED("fastIsqrt") {}
 protected:
     void performTest(float* SK_RESTRICT dst, const float* SK_RESTRICT src, int count) override {
         for (int i = 0; i < count; ++i) {
-            dst[i] = SkFastInvSqrt(src[i]);
+            dst[i] = sk_float_rsqrt(src[i]);
         }
     }
 private:
