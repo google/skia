@@ -576,6 +576,7 @@ action("skia.h") {
   script = "gn/echo_headers.py"
   args = [ rebase_path("$target_gen_dir/skia.h", root_build_dir) ] +
          rebase_path(skia_h_headers, target_gen_dir)
+  inputs = skia_h_headers
   outputs = [
     "$target_gen_dir/skia.h",
   ]
