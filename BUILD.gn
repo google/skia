@@ -27,7 +27,10 @@ declare_args() {
   skia_enable_gpu = true
   skia_enable_tools = is_skia_standalone
   skia_enable_vulkan_debug_layers = is_skia_standalone && is_debug
+  skia_vulkan_sdk = ""
 }
+
+skia_use_vulkan = skia_use_vulkan || skia_vulkan_sdk != ""
 
 # Our tools require static linking (they use non-exported symbols).
 skia_enable_tools = skia_enable_tools && !is_component_build
@@ -106,6 +109,15 @@ config("skia_private") {
   if (is_official_build || is_android) {
     # TODO(bsalomon): it'd be nice to make Android normal.
     defines += [ "SK_ALLOW_STATIC_GLOBAL_INITIALIZERS=0" ]
+  }
+  libs = []
+  lib_dirs = []
+  if (skia_use_vulkan) {
+    if (skia_vulkan_sdk != "") {
+      include_dirs += [ "$skia_vulkan_sdk/x86_64/include/" ]
+      lib_dirs += [ "$skia_vulkan_sdk/x86_64/lib/" ]
+    }
+    libs += [ "vulkan" ]
   }
 }
 
@@ -345,7 +357,6 @@ optional("gpu") {
   if (skia_use_vulkan) {
     public_defines += [ "SK_VULKAN" ]
     sources += skia_vk_sources
-    libs += [ "vulkan" ]
     if (skia_enable_vulkan_debug_layers) {
       public_defines += [ "SK_ENABLE_VK_LAYERS" ]
     }
