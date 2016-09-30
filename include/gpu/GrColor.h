@@ -185,6 +185,16 @@ struct GrColor4f {
         fRGBA[3] = a;
     }
 
+    enum Illegal_Constructor {
+        kIllegal_Constructor
+    };
+    GrColor4f(Illegal_Constructor) {
+        fRGBA[0] = SK_FloatNaN;
+        fRGBA[1] = SK_FloatNaN;
+        fRGBA[2] = SK_FloatNaN;
+        fRGBA[3] = SK_FloatNaN;
+    }
+
     static GrColor4f FromGrColor(GrColor color) {
         GrColor4f result;
         GrColorToRGBAFloat(color, result.fRGBA);
@@ -204,6 +214,10 @@ struct GrColor4f {
     }
     bool operator!=(const GrColor4f& other) const {
         return !(*this == other);
+    }
+
+    bool isValid() const {
+        return !sk_float_isnan(fRGBA[0]);
     }
 
     GrColor toGrColor() const {

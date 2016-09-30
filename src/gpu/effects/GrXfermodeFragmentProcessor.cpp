@@ -123,7 +123,7 @@ sk_sp<GrFragmentProcessor> GrXfermodeFragmentProcessor::MakeFromTwoProcessors(
          sk_sp<GrFragmentProcessor> src, sk_sp<GrFragmentProcessor> dst, SkXfermode::Mode mode) {
     switch (mode) {
         case SkXfermode::kClear_Mode:
-            return GrConstColorProcessor::Make(GrColor_TRANSPARENT_BLACK,
+            return GrConstColorProcessor::Make(GrColor4f::FromGrColor(GrColor_TRANSPARENT_BLACK),
                                                GrConstColorProcessor::kIgnore_InputMode);
         case SkXfermode::kSrc_Mode:
             return src;
