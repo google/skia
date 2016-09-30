@@ -55,7 +55,7 @@ protected:
 #endif
 
 private:
-    sk_sp<SkXfermode> fMode;
+    SkBlendMode fMode;
 
     friend class SkXfermodeImageFilter;
 
@@ -76,8 +76,8 @@ SkXfermodeImageFilter_Base::SkXfermodeImageFilter_Base(sk_sp<SkXfermode> mode,
                                              sk_sp<SkImageFilter> inputs[2],
                                              const CropRect* cropRect)
     : INHERITED(inputs, 2, cropRect)
-    , fMode(std::move(mode)) {
-}
+    , fMode(mode ? mode->blend() : SkBlendMode::kSrcOver)
+{}
 
 sk_sp<SkFlattenable> SkXfermodeImageFilter_Base::CreateProc(SkReadBuffer& buffer) {
     SK_IMAGEFILTER_UNFLATTEN_COMMON(common, 2);
@@ -88,7 +88,7 @@ sk_sp<SkFlattenable> SkXfermodeImageFilter_Base::CreateProc(SkReadBuffer& buffer
 
 void SkXfermodeImageFilter_Base::flatten(SkWriteBuffer& buffer) const {
     this->INHERITED::flatten(buffer);
-    buffer.writeFlattenable(fMode.get());
+    buffer.write32((unsigned)fMode);
 }
 
 sk_sp<SkSpecialImage> SkXfermodeImageFilter_Base::onFilterImage(SkSpecialImage* source,
@@ -147,7 +147,7 @@ sk_sp<SkSpecialImage> SkXfermodeImageFilter_Base::onFilterImage(SkSpecialImage* 
 
     if (background) {
         SkPaint paint;
-        paint.setXfermodeMode(SkXfermode::kSrc_Mode);
+        paint.setBlendMode(SkBlendMode::kSrc);
         background->draw(canvas,
                          SkIntToScalar(backgroundOffset.fX), SkIntToScalar(backgroundOffset.fY),
                          &paint);
@@ -161,7 +161,7 @@ sk_sp<SkSpecialImage> SkXfermodeImageFilter_Base::onFilterImage(SkSpecialImage* 
 void SkXfermodeImageFilter_Base::drawForeground(SkCanvas* canvas, SkSpecialImage* img,
                                                 const SkIRect& fgBounds) const {
     SkPaint paint;
-    paint.setXfermode(fMode);
+    paint.setBlendMode(fMode);
     if (img) {
         img->draw(canvas, SkIntToScalar(fgBounds.fLeft), SkIntToScalar(fgBounds.fTop), &paint);
     }
@@ -175,11 +175,7 @@ void SkXfermodeImageFilter_Base::drawForeground(SkCanvas* canvas, SkSpecialImage
 #ifndef SK_IGNORE_TO_STRING
 void SkXfermodeImageFilter_Base::toString(SkString* str) const {
     str->appendf("SkXfermodeImageFilter: (");
-    str->appendf("xfermode: (");
-    if (fMode) {
-        fMode->toString(str);
-    }
-    str->append(")");
+    str->appendf("blendmode: (%d)", fMode);
     if (this->getInput(0)) {
         str->appendf("foreground: (");
         this->getInput(0)->toString(str);
@@ -266,7 +262,7 @@ sk_sp<SkSpecialImage> SkXfermodeImageFilter_Base::filterImageGPU(
         paint.addColorFragmentProcessor(std::move(bgFP));
     }
 
-    paint.setPorterDuffXPFactory(SkXfermode::kSrc_Mode);
+    paint.setPorterDuffXPFactory(SkBlendMode::kSrc);
 
     sk_sp<GrDrawContext> drawContext(
         context->makeDrawContext(SkBackingFit::kApprox, bounds.width(), bounds.height(),
@@ -290,8 +286,9 @@ sk_sp<SkSpecialImage> SkXfermodeImageFilter_Base::filterImageGPU(
 sk_sp<GrFragmentProcessor>
 SkXfermodeImageFilter_Base::makeFGFrag(sk_sp<GrFragmentProcessor> bgFP) const {
     // A null fMode is interpreted to mean kSrcOver_Mode (to match raster).
-    SkAutoTUnref<SkXfermode> mode(SkSafeRef(fMode.get()));
-    if (!mode) {
+    SkXfermode* xfer = SkXfermode::Peek(fMode);
+    sk_sp<SkXfermode> srcover;
+    if (!xfer) {
         // It would be awesome to use SkXfermode::Create here but it knows better
         // than us and won't return a kSrcOver_Mode SkXfermode. That means we
         // have to get one the hard way.
@@ -299,9 +296,11 @@ SkXfermodeImageFilter_Base::makeFGFrag(sk_sp<GrFragmentProcessor> bgFP) const {
         rec.fProc = SkXfermode::GetProc(SkXfermode::kSrcOver_Mode);
         SkXfermode::ModeAsCoeff(SkXfermode::kSrcOver_Mode, &rec.fSC, &rec.fDC);
 
-        mode.reset(new SkProcCoeffXfermode(rec, SkXfermode::kSrcOver_Mode));
+        srcover.reset(new SkProcCoeffXfermode(rec, SkXfermode::kSrcOver_Mode));
+        xfer = srcover.get();
+
     }
-    return mode->makeFragmentProcessorForImageFilter(std::move(bgFP));
+    return xfer->makeFragmentProcessorForImageFilter(std::move(bgFP));
 }
 
 #endif
