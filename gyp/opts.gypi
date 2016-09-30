@@ -61,9 +61,4 @@
         'hsw_sources': [
             '<(skia_src_path)/opts/SkOpts_hsw.cpp',
         ],
-
-        # TODO: clean up after updating Chrome build.
-        'avx2_sources': [
-            '<(skia_src_path)/opts/SkOpts_hsw.cpp',
-        ],
 }
