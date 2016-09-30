@@ -15,6 +15,8 @@
 
 using Kernel_Sk4f = void(void*, size_t, size_t, Sk4f&, Sk4f&, Sk4f&, Sk4f&,
                                                 Sk4f&, Sk4f&, Sk4f&, Sk4f&);
+using Kernel_Sk8f = void(void*, size_t, size_t, Sk8f&, Sk8f&, Sk8f&, Sk8f&,
+                                                Sk8f&, Sk8f&, Sk8f&, Sk8f&);
 
 // These are always static, and we _really_ want them to inline.
 // If you find yourself wanting a non-inline stage, write a SkRasterPipeline::Fn directly.
@@ -22,7 +24,10 @@ using Kernel_Sk4f = void(void*, size_t, size_t, Sk4f&, Sk4f&, Sk4f&, Sk4f&,
     static SK_ALWAYS_INLINE void name(void* ctx, size_t x, size_t tail,        \
                                       Sk4f&  r, Sk4f&  g, Sk4f&  b, Sk4f&  a,  \
                                       Sk4f& dr, Sk4f& dg, Sk4f& db, Sk4f& da)
-
+#define KERNEL_Sk8f(name)                                                      \
+    static SK_ALWAYS_INLINE void name(void* ctx, size_t x, size_t tail,        \
+                                      Sk8f&  r, Sk8f&  g, Sk8f&  b, Sk8f&  a,  \
+                                      Sk8f& dr, Sk8f& dg, Sk8f& db, Sk8f& da)
 
 template <Kernel_Sk4f kernel, bool kCallNext>
 static inline void SK_VECTORCALL stage_4(SkRasterPipeline::Stage* st, size_t x, size_t tail,
@@ -48,37 +53,98 @@ static inline void SK_VECTORCALL stage_1_3(SkRasterPipeline::Stage* st, size_t x
     }
 }
 
+template <Kernel_Sk8f kernel, bool kCallNext>
+static inline void SK_VECTORCALL stage_8(SkRasterPipeline::Stage* st, size_t x, size_t tail,
+                                         Sk8f  r, Sk8f  g, Sk8f  b, Sk8f  a,
+                                         Sk8f dr, Sk8f dg, Sk8f db, Sk8f da) {
+    // Passing 0 lets the optimizer completely drop any "if (tail) {...}" code in kernel.
+    kernel(st->ctx<void*>(), x,0, r,g,b,a, dr,dg,db,da);
+    if (kCallNext) {
+        st->next(x,tail, r,g,b,a, dr,dg,db,da);  // It's faster to pass t here than 0.
+    }
+}
+
+template <Kernel_Sk8f kernel, bool kCallNext>
+static inline void SK_VECTORCALL stage_1_7(SkRasterPipeline::Stage* st, size_t x, size_t tail,
+                                           Sk8f  r, Sk8f  g, Sk8f  b, Sk8f  a,
+                                           Sk8f dr, Sk8f dg, Sk8f db, Sk8f da) {
+#if defined(__clang__)
+    __builtin_assume(tail > 0);  // This flourish lets Clang compile away any tail==0 code.
+#endif
+    kernel(st->ctx<void*>(), x,tail, r,g,b,a, dr,dg,db,da);
+    if (kCallNext) {
+        st->next(x,tail, r,g,b,a, dr,dg,db,da);
+    }
+}
+
 namespace SK_OPTS_NS {
 
     // Clamp colors into [0,1] premul (e.g. just before storing back to memory).
-    static void clamp_01_premul(Sk4f& r, Sk4f& g, Sk4f& b, Sk4f& a) {
-        a = Sk4f::Max(a, 0.0f);
-        r = Sk4f::Max(r, 0.0f);
-        g = Sk4f::Max(g, 0.0f);
-        b = Sk4f::Max(b, 0.0f);
+    template <typename V>
+    static void clamp_01_premul(V& r, V& g, V& b, V& a) {
+        a = V::Max(a, 0.0f);
+        r = V::Max(r, 0.0f);
+        g = V::Max(g, 0.0f);
+        b = V::Max(b, 0.0f);
 
-        a = Sk4f::Min(a, 1.0f);
-        r = Sk4f::Min(r, a);
-        g = Sk4f::Min(g, a);
-        b = Sk4f::Min(b, a);
+        a = V::Min(a, 1.0f);
+        r = V::Min(r, a);
+        g = V::Min(g, a);
+        b = V::Min(b, a);
     }
 
-    static Sk4f lerp(const Sk4f& from, const Sk4f& to, const Sk4f& cov) {
-        return from + (to-from)*cov;
+    template <typename V>
+    static V lerp(const V& from, const V& to, const V& cov) {
+        return SkNx_fma(to-from, cov, from);
     }
 
     template <typename T>
-    static SkNx<4,T> load_tail(size_t tail, const T* src) {
+    static SkNx<4,T> load4(size_t tail, const T* src) {
         if (tail) {
-           return SkNx<4,T>(src[0], (tail>1 ? src[1] : 0), (tail>2 ? src[2] : 0), 0);
+            T vals[] = {src[0],0,0,0};
+            if (tail > 1) { vals[1] = src[1]; }
+            if (tail > 2) { vals[2] = src[2]; }
+            return SkNx<4,T>::Load(vals);
         }
         return SkNx<4,T>::Load(src);
     }
 
     template <typename T>
-    static void store_tail(size_t tail, const SkNx<4,T>& v, T* dst) {
+    static SkNx<8,T> load8(size_t tail, const T* src) {
+        if (tail) {
+            // TODO: maskload for 32- and 64-bit T.
+            T vals[] = {src[0],0,0,0, 0,0,0,0};
+            if (tail > 1) { vals[1] = src[1]; }
+            if (tail > 2) { vals[2] = src[2]; }
+            if (tail > 3) { vals[3] = src[3]; }
+            if (tail > 4) { vals[4] = src[4]; }
+            if (tail > 5) { vals[5] = src[5]; }
+            if (tail > 6) { vals[6] = src[6]; }
+            return SkNx<8,T>::Load(vals);
+        }
+        return SkNx<8,T>::Load(src);
+    }
+
+    template <typename T>
+    static void store4(size_t tail, const SkNx<4,T>& v, T* dst) {
         switch(tail) {
             case 0: return v.store(dst);
+            case 3: dst[2] = v[2];
+            case 2: dst[1] = v[1];
+            case 1: dst[0] = v[0];
+        }
+    }
+
+    template <typename T>
+    static void store8(size_t tail, const SkNx<8,T>& v, T* dst) {
+        switch (tail) {
+            case 0: return v.store(dst);
+
+            // TODO: maskstore for 32- and 64-bit T.
+            case 7: dst[6] = v[6];
+            case 6: dst[5] = v[5];
+            case 5: dst[4] = v[4];
+            case 4: dst[3] = v[3];
             case 3: dst[2] = v[2];
             case 2: dst[1] = v[1];
             case 1: dst[0] = v[0];
@@ -108,6 +174,13 @@ namespace SK_OPTS_NS {
         b = color->b();
         a = color->a();
     }
+    KERNEL_Sk8f(constant_color) {
+        auto color = (const SkPM4f*)ctx;
+        r = color->r();
+        g = color->g();
+        b = color->b();
+        a = color->a();
+    }
 
     // The default transfer mode is srcover, s' = s + d*(1-sa).
     KERNEL_Sk4f(srcover) {
@@ -115,6 +188,12 @@ namespace SK_OPTS_NS {
         g += dg*(1.0f - a);
         b += db*(1.0f - a);
         a += da*(1.0f - a);
+    }
+    KERNEL_Sk8f(srcover) {
+        r = SkNx_fma(dr, 1.0f - a, r);
+        g = SkNx_fma(dg, 1.0f - a, g);
+        b = SkNx_fma(db, 1.0f - a, b);
+        a = SkNx_fma(da, 1.0f - a, a);
     }
 
     // s' = d(1-c) + sc, for a constant c.
@@ -126,12 +205,29 @@ namespace SK_OPTS_NS {
         b = lerp(db, b, c);
         a = lerp(da, a, c);
     }
+    KERNEL_Sk8f(lerp_constant_float) {
+        Sk8f c = *(const float*)ctx;
+
+        r = lerp(dr, r, c);
+        g = lerp(dg, g, c);
+        b = lerp(db, b, c);
+        a = lerp(da, a, c);
+    }
 
     // s' = sc for 8-bit c.
     KERNEL_Sk4f(scale_u8) {
         auto ptr = (const uint8_t*)ctx + x;
 
-        Sk4f c = SkNx_cast<float>(load_tail(tail, ptr)) * (1/255.0f);
+        Sk4f c = SkNx_cast<float>(load4(tail, ptr)) * (1/255.0f);
+        r = r*c;
+        g = g*c;
+        b = b*c;
+        a = a*c;
+    }
+    KERNEL_Sk8f(scale_u8) {
+        auto ptr = (const uint8_t*)ctx + x;
+
+        Sk8f c = SkNx_cast<float>(load8(tail, ptr)) * (1/255.0f);
         r = r*c;
         g = g*c;
         b = b*c;
@@ -142,7 +238,7 @@ namespace SK_OPTS_NS {
     KERNEL_Sk4f(lerp_u8) {
         auto ptr = (const uint8_t*)ctx + x;
 
-        Sk4f c = SkNx_cast<float>(load_tail(tail, ptr)) * (1/255.0f);
+        Sk4f c = SkNx_cast<float>(load4(tail, ptr)) * (1/255.0f);
         r = lerp(dr, r, c);
         g = lerp(dg, g, c);
         b = lerp(db, b, c);
@@ -153,7 +249,7 @@ namespace SK_OPTS_NS {
     KERNEL_Sk4f(lerp_565) {
         auto ptr = (const uint16_t*)ctx + x;
         Sk4f cr, cg, cb;
-        from_565(load_tail(tail, ptr), &cr, &cg, &cb);
+        from_565(load4(tail, ptr), &cr, &cg, &cb);
 
         r = lerp(dr, r, cr);
         g = lerp(dg, g, cg);
@@ -163,20 +259,20 @@ namespace SK_OPTS_NS {
 
     KERNEL_Sk4f(load_d_565) {
         auto ptr = (const uint16_t*)ctx + x;
-        from_565(load_tail(tail, ptr), &dr,&dg,&db);
+        from_565(load4(tail, ptr), &dr,&dg,&db);
         da = 1.0f;
     }
 
     KERNEL_Sk4f(load_s_565) {
         auto ptr = (const uint16_t*)ctx + x;
-        from_565(load_tail(tail, ptr), &r,&g,&b);
+        from_565(load4(tail, ptr), &r,&g,&b);
         a = 1.0f;
     }
 
     KERNEL_Sk4f(store_565) {
         clamp_01_premul(r,g,b,a);
         auto ptr = (uint16_t*)ctx + x;
-        store_tail(tail, to_565(r,g,b), ptr);
+        store4(tail, to_565(r,g,b), ptr);
     }
 
     KERNEL_Sk4f(load_d_f16) {
@@ -279,6 +375,22 @@ namespace SK_OPTS_NS {
 
         da = SkNx_cast<float>(Sk4u::Load(ptr) >> SK_A32_SHIFT) * (1/255.0f);
     }
+    KERNEL_Sk8f(load_d_srgb) {
+    #if SK_CPU_SSE_LEVEL >= SK_CPU_SSE_LEVEL_AVX2
+        auto ptr = (const uint32_t*)ctx + x;
+
+        auto px = load8(tail, (const int*)ptr),
+             ri = (px >> SK_R32_SHIFT) & 0xff,
+             gi = (px >> SK_G32_SHIFT) & 0xff,
+             bi = (px >> SK_B32_SHIFT) & 0xff,
+             ai = (px >> SK_A32_SHIFT) & 0xff;
+
+        dr = _mm256_i32gather_ps(sk_linear_from_srgb, ri.fVec, 4);
+        dg = _mm256_i32gather_ps(sk_linear_from_srgb, gi.fVec, 4);
+        db = _mm256_i32gather_ps(sk_linear_from_srgb, bi.fVec, 4);
+        da = _mm256_i32gather_ps(sk_linear_from_srgb, ai.fVec, 4);
+    #endif
+    }
 
     KERNEL_Sk4f(load_s_srgb) {
         auto ptr = (const uint32_t*)ctx + x;
@@ -318,15 +430,41 @@ namespace SK_OPTS_NS {
 
         a = SkNx_cast<float>(Sk4u::Load(ptr) >> SK_A32_SHIFT) * (1/255.0f);
     }
+    KERNEL_Sk8f(load_s_srgb) {
+    #if SK_CPU_SSE_LEVEL >= SK_CPU_SSE_LEVEL_AVX2
+        auto ptr = (const uint32_t*)ctx + x;
+
+        auto px = load8(tail, (const int*)ptr),
+             ri = (px >> SK_R32_SHIFT) & 0xff,
+             gi = (px >> SK_G32_SHIFT) & 0xff,
+             bi = (px >> SK_B32_SHIFT) & 0xff,
+             ai = (px >> SK_A32_SHIFT) & 0xff;
+
+        r = _mm256_i32gather_ps(sk_linear_from_srgb, ri.fVec, 4);
+        g = _mm256_i32gather_ps(sk_linear_from_srgb, gi.fVec, 4);
+        b = _mm256_i32gather_ps(sk_linear_from_srgb, bi.fVec, 4);
+        a = _mm256_i32gather_ps(sk_linear_from_srgb, ai.fVec, 4);
+    #endif
+    }
 
     KERNEL_Sk4f(store_srgb) {
         clamp_01_premul(r,g,b,a);
         auto ptr = (uint32_t*)ctx + x;
-        store_tail(tail, ( sk_linear_to_srgb_noclamp(r) << SK_R32_SHIFT
-                         | sk_linear_to_srgb_noclamp(g) << SK_G32_SHIFT
-                         | sk_linear_to_srgb_noclamp(b) << SK_B32_SHIFT
-                         |       Sk4f_round(255.0f * a) << SK_A32_SHIFT), (int*)ptr);
+        store4(tail, ( sk_linear_to_srgb_noclamp(r) << SK_R32_SHIFT
+                     | sk_linear_to_srgb_noclamp(g) << SK_G32_SHIFT
+                     | sk_linear_to_srgb_noclamp(b) << SK_B32_SHIFT
+                     |       Sk4f_round(255.0f * a) << SK_A32_SHIFT), (int*)ptr);
     }
+    /*
+    KERNEL_Sk8f(store_srgb) {
+        clamp_01_premul(r,g,b,a);
+        auto ptr = (uint32_t*)ctx + x;
+        store4(tail, ( sk_linear_to_srgb_noclamp(r) << SK_R32_SHIFT
+                     | sk_linear_to_srgb_noclamp(g) << SK_G32_SHIFT
+                     | sk_linear_to_srgb_noclamp(b) << SK_B32_SHIFT
+                     |       Sk4f_round(255.0f * a) << SK_A32_SHIFT), (int*)ptr);
+    }
+    */
 
 }
 

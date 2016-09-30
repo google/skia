@@ -92,7 +92,7 @@ namespace SkOpts {
 
     // TODO: might be nice to only create one instance of tail-insensitive stages.
 
-    SkRasterPipeline::Fn stages_4[] = {
+    SkRasterPipeline::Fn4 stages_4[] = {
         stage_4<SK_OPTS_NS::store_565 , false>,
         stage_4<SK_OPTS_NS::store_srgb, false>,
         stage_4<SK_OPTS_NS::store_f16 , false>,
@@ -117,7 +117,7 @@ namespace SkOpts {
     };
     static_assert(SK_ARRAY_COUNT(stages_4) == SkRasterPipeline::kNumStockStages, "");
 
-    SkRasterPipeline::Fn stages_1_3[] = {
+    SkRasterPipeline::Fn4 stages_1_3[] = {
         stage_1_3<SK_OPTS_NS::store_565 , false>,
         stage_1_3<SK_OPTS_NS::store_srgb, false>,
         stage_1_3<SK_OPTS_NS::store_f16 , false>,
@@ -141,6 +141,9 @@ namespace SkOpts {
         stage_1_3<SK_OPTS_NS::srcover, true>,
     };
     static_assert(SK_ARRAY_COUNT(stages_1_3) == SkRasterPipeline::kNumStockStages, "");
+
+    SkRasterPipeline::Fn8 stages_8  [SkRasterPipeline::kNumStockStages] = { nullptr /* ... */ };
+    SkRasterPipeline::Fn8 stages_1_7[SkRasterPipeline::kNumStockStages] = { nullptr /* ... */ };
 
     // Each Init_foo() is defined in src/opts/SkOpts_foo.cpp.
     void Init_ssse3();

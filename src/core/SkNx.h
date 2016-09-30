@@ -275,6 +275,11 @@ SI SkNx<1,Dst> SkNx_cast(const SkNx<1,Src>& v) {
     return static_cast<Dst>(v.fVal);
 }
 
+template <int N, typename T>
+SI SkNx<N,T> SkNx_fma(const SkNx<N,T>& a, const SkNx<N,T>& b, const SkNx<N,T>& c) {
+    return a*b+c;
+}
+
 typedef SkNx<2,     float> Sk2f;
 typedef SkNx<4,     float> Sk4f;
 typedef SkNx<8,     float> Sk8f;
