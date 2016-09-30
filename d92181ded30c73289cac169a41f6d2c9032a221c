@@ -25,6 +25,24 @@
     },
     {
       "key": {
+        "uuid": "22459584_a1ab5870",
+        "filename": "src/gpu/gl/GrGLBuffer.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 35,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2016-09-30T18:55:09Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "a566efce_630d30e0",
+      "revId": "d92181ded30c73289cac169a41f6d2c9032a221c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "c541232d_4bc5c59e",
         "filename": "src/gpu/gl/GrGLGpu.h",
         "patchSetId": 2
@@ -95,6 +113,24 @@
         "endLine": 399,
         "endChar": 57
       },
+      "revId": "d92181ded30c73289cac169a41f6d2c9032a221c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "22459584_8120dc09",
+        "filename": "src/gpu/vk/GrVkGpu.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 399,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2016-09-30T18:55:09Z",
+      "side": 1,
+      "message": "I believe we decided offline to have the client handle any axis flips, i.e., the data in the buffer is in a format to be copied directly into the texture. Let me know if this is still okay. Otherwise I\u0027ll be removing this in a follow-up patch.",
+      "parentUuid": "a566efce_830a44c7",
       "revId": "d92181ded30c73289cac169a41f6d2c9032a221c",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
