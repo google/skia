@@ -161,8 +161,9 @@ BASE_SRCS_UNIX = struct(
         # Included in :opts_sse4 library.
         "src/opts/*SSE4*",
         "src/opts/*sse4*",
-        # Included in :opts_avx or :opts_avx2
+        # Included in :opts_avx or :opts_hsw
         "src/opts/*avx*",
+        "src/opts/*hsw*",
         "src/opts/SkBitmapProcState_opts_none.cpp",
         "src/opts/SkBlitMask_opts_none.cpp",
         "src/opts/SkBlitRow_opts_none.cpp",
