@@ -1205,47 +1205,6 @@ static Clusterator make_clusterator(
     return Clusterator(clusters, utf8Text, SkToU32(glyphCount), utf8ByteCount);
 }
 
-static void draw_transparent_text(SkPDFDevice* device,
-                                  const SkDraw& d,
-                                  const void* text, size_t len,
-                                  SkScalar x, SkScalar y,
-                                  const SkPaint& srcPaint) {
-    sk_sp<SkTypeface> defaultFace = SkTypeface::MakeDefault();
-    if (!SkPDFFont::CanEmbedTypeface(defaultFace.get(), device->getCanon())) {
-        SkDebugf("SkPDF: default typeface should be embeddable");
-        return;  // Avoid infinite loop in release.
-    }
-    SkPaint transparent;
-    transparent.setTypeface(std::move(defaultFace));
-    transparent.setTextSize(srcPaint.getTextSize());
-    transparent.setColor(SK_ColorTRANSPARENT);
-    switch (srcPaint.getTextEncoding()) {
-        case SkPaint::kGlyphID_TextEncoding: {
-            // Since a glyphId<->Unicode mapping is typeface-specific,
-            // map back to Unicode first.
-            size_t glyphCount = len / 2;
-            SkAutoTMalloc<SkUnichar> unichars(glyphCount);
-            srcPaint.glyphsToUnichars(
-                    (const uint16_t*)text, SkToInt(glyphCount), &unichars[0]);
-            transparent.setTextEncoding(SkPaint::kUTF32_TextEncoding);
-            // TODO(halcanary): deal with case where default typeface
-            // does not have glyphs for these unicode code points.
-            device->drawText(d, &unichars[0],
-                             glyphCount * sizeof(SkUnichar),
-                             x, y, transparent);
-            break;
-        }
-        case SkPaint::kUTF8_TextEncoding:
-        case SkPaint::kUTF16_TextEncoding:
-        case SkPaint::kUTF32_TextEncoding:
-            transparent.setTextEncoding(srcPaint.getTextEncoding());
-            device->drawText(d, text, len, x, y, transparent);
-            break;
-        default:
-            SkFAIL("unknown text encoding");
-    }
-}
-
 static SkUnichar map_glyph(const SkTDArray<SkUnichar>& glyphToUnicode, SkGlyphID glyph) {
     return SkToInt(glyph) < glyphToUnicode.count() ? glyphToUnicode[SkToInt(glyph)] : -1;
 }
@@ -1300,39 +1259,6 @@ void SkPDFDevice::internalDrawText(
     }
     int glyphCount = paint.textToGlyphs(sourceText, sourceByteCount, nullptr);
     if (glyphCount <= 0) {
-        return;
-    }
-    // TODO(halcanary): use metrics->fGlyphToUnicode to check Unicode mapping.
-    if (!SkPDFFont::CanEmbedTypeface(typeface, fDocument->canon())) {
-        SkPath path; // https://bug.skia.org/3866
-        switch (positioning) {
-            case SkTextBlob::kDefault_Positioning:
-                srcPaint.getTextPath(sourceText, sourceByteCount,
-                                     offset.x(), offset.y(), &path);
-                break;
-            case SkTextBlob::kHorizontal_Positioning: {
-                SkAutoTMalloc<SkPoint> positionsBuffer(glyphCount);
-                for (int  i = 0; i < glyphCount; ++i) {
-                    positionsBuffer[i] = offset + SkPoint{pos[i], 0};
-                }
-                srcPaint.getPosTextPath(sourceText, sourceByteCount,
-                                        &positionsBuffer[0], &path);
-                break;
-            }
-            case SkTextBlob::kFull_Positioning: {
-                SkAutoTMalloc<SkPoint> positionsBuffer(glyphCount);
-                for (int  i = 0; i < glyphCount; ++i) {
-                    positionsBuffer[i] = offset + SkPoint{pos[2 * i], pos[2 * i + 1]};
-                }
-                srcPaint.getPosTextPath(sourceText, sourceByteCount,
-                                        &positionsBuffer[0], &path);
-                break;
-            }
-        }
-        this->drawPath(d, path, srcPaint, &SkMatrix::I(), true);
-        // Draw text transparently to make it copyable/searchable/accessable.
-        draw_transparent_text(this, d, sourceText, sourceByteCount,
-                              offset.x(), offset.y(), paint);
         return;
     }
 
