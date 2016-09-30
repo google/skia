@@ -22,15 +22,17 @@
 
 extern const float sk_linear_from_srgb[256];
 
-static inline Sk4f sk_clamp_0_255(const Sk4f& x) {
+template <typename V>
+static inline V sk_clamp_0_255(const V& x) {
     // The order of the arguments is important here.  We want to make sure that NaN
     // clamps to zero.  Note that max(NaN, 0) = 0, while max(0, NaN) = NaN.
-    return Sk4f::Min(Sk4f::Max(x, 0.0f), 255.0f);
+    return V::Min(V::Max(x, 0.0f), 255.0f);
 }
 
 // This should probably only be called from sk_linear_to_srgb() or sk_linear_to_srgb_noclamp().
 // It generally doesn't make sense to work with sRGB floats.
-static inline Sk4f sk_linear_to_srgb_needs_trunc(const Sk4f& x) {
+template <typename V>
+static inline V sk_linear_to_srgb_needs_trunc(const V& x) {
     // Approximation of the sRGB gamma curve (within 1 when scaled to 8-bit pixels).
     //
     // Constants tuned by brute force to minimize (in order of importance) after truncation:
@@ -54,9 +56,10 @@ static inline Sk4i sk_linear_to_srgb(const Sk4f& x) {
     return SkNx_cast<int>(sk_clamp_0_255(f));
 }
 
-static inline Sk4i sk_linear_to_srgb_noclamp(const Sk4f& x) {
-    Sk4f f = sk_linear_to_srgb_needs_trunc(x);
-    for (int i = 0; i < 4; i++) {
+template <int N>
+static inline SkNx<N,int> sk_linear_to_srgb_noclamp(const SkNx<N,float>& x) {
+    auto f = sk_linear_to_srgb_needs_trunc(x);
+    for (int i = 0; i < N; i++) {
         SkASSERTF(0.0f <= f[i] && f[i] < 256.0f, "f[%d] was %g, outside [0,256)\n", i, f[i]);
     }
     return SkNx_cast<int>(f);
