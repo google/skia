@@ -58,8 +58,12 @@
         'avx_sources': [
             '<(skia_src_path)/opts/SkOpts_avx.cpp',
         ],
-        # These targets are empty, but XCode doesn't like that, so add an empty file to each.
+        'hsw_sources': [
+            '<(skia_src_path)/opts/SkOpts_hsw.cpp',
+        ],
+
+        # TODO: clean up after updating Chrome build.
         'avx2_sources': [
-            '<(skia_src_path)/core/SkForceCPlusPlusLinking.cpp',
+            '<(skia_src_path)/opts/SkOpts_hsw.cpp',
         ],
 }

@@ -197,6 +197,18 @@ opts("avx") {
   cflags = [ "-mavx" ]
 }
 
+opts("hsw") {
+  enabled = is_x86
+  sources = skia_opts.hsw_sources
+  cflags = [
+    "-mavx2",
+    "-mbmi",
+    "-mbmi2",
+    "-mf16c",
+    "-mfma",
+  ]
+}
+
 opts("dsp") {
   enabled = current_cpu == "mipsel"
   sources = skia_opts.mips_dsp_sources
@@ -440,6 +452,7 @@ component("skia") {
     ":fontmgr_fuchsia",
     ":gif",
     ":gpu",
+    ":hsw",
     ":jpeg",
     ":none",
     ":pdf",

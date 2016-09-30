@@ -52,6 +52,8 @@
 
             cpuid7(abcd);
             if (abcd[1] & (1<<5)) { features |= SkCpu::AVX2; }
+            if (abcd[1] & (1<<3)) { features |= SkCpu::BMI1; }
+            if (abcd[1] & (1<<8)) { features |= SkCpu::BMI2; }
         }
         return features;
     }

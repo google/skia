@@ -134,13 +134,14 @@ file (GLOB_RECURSE ssse3_srcs ../src/*ssse3*.cpp ../src/*SSSE3*.cpp)
 file (GLOB_RECURSE sse41_srcs ../src/*sse41*.cpp ../src/*SSE41*.cpp)
 file (GLOB_RECURSE sse42_srcs ../src/*sse42*.cpp ../src/*SSE42*.cpp)
 file (GLOB_RECURSE avx_srcs   ../src/*_avx.cpp)
-file (GLOB_RECURSE avx2_srcs  ../src/*_avx2.cpp)
+file (GLOB_RECURSE hsw_srcs   ../src/*_hsw.cpp)
 if (NOT WIN32)
     set_source_files_properties(${ssse3_srcs} PROPERTIES COMPILE_FLAGS -mssse3)
     set_source_files_properties(${sse41_srcs} PROPERTIES COMPILE_FLAGS -msse4.1)
     set_source_files_properties(${sse42_srcs} PROPERTIES COMPILE_FLAGS -msse4.2)
     set_source_files_properties(${avx_srcs}   PROPERTIES COMPILE_FLAGS -mavx)
-    set_source_files_properties(${avx2_srcs}  PROPERTIES COMPILE_FLAGS -mavx2)
+    set_source_files_properties(${hsw_srcs}   PROPERTIES COMPILE_FLAGS
+        -mavx2 -mbmi -mbmi2 -mf16c -mfma)
 endif()
 
 # Detect our optional dependencies.
