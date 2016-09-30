@@ -225,18 +225,25 @@ bool GrAAConvexTessellator::tessellate(const SkMatrix& m, const SkPath& path) {
         return false;
     }
 
-    SkScalar coverage = 1.0f;
+    static const SkScalar kFullCoverage = 1.0f;
+    static const SkScalar kHalfCoverage = 0.5f;
+    static const SkScalar kZeroCoverage = 0.0f;
+//    SkScalar coverage = 1.0f;
     SkScalar scaleFactor = 0.0f;
 
     if (SkStrokeRec::kStrokeAndFill_Style == fStyle) {
         SkASSERT(m.isSimilarity());
         scaleFactor = m.getMaxScale(); // x and y scale are the same
         SkScalar effectiveStrokeWidth = scaleFactor * fStrokeWidth;
-        Ring outerStrokeAndAARing;
+        Ring outerStrokeRing;
         this->createOuterRing(fInitialRing,
-                              effectiveStrokeWidth / 2 + kAntialiasingRadius, 0.0,
-                              &outerStrokeAndAARing);
+                              effectiveStrokeWidth / 2 - kAntialiasingRadius,
+                              kFullCoverage,
+                              &outerStrokeRing);
 
+        this->fanRing(fInitialRing);
+
+#if 0
         // discard all the triangles added between the originating ring and the new outer ring
         fIndices.rewind();
 
@@ -260,6 +267,12 @@ bool GrAAConvexTessellator::tessellate(const SkMatrix& m, const SkPath& path) {
                                0.0f, 0.0f, 2*kAntialiasingRadius, 1.0f,
                                &insetAARing);
 
+#else
+        outerStrokeRing.init(*this);
+        Ring outerAARing;
+        this->createOuterRing(outerStrokeRing, 2.0f * kAntialiasingRadius,
+                              kZeroCoverage, &outerAARing);
+#endif
         SkDEBUGCODE(this->validate();)
         return true;
     }
@@ -271,13 +284,14 @@ bool GrAAConvexTessellator::tessellate(const SkMatrix& m, const SkPath& path) {
         SkScalar effectiveStrokeWidth = scaleFactor * fStrokeWidth;
         Ring outerStrokeRing;
         this->createOuterRing(fInitialRing, effectiveStrokeWidth / 2 - kAntialiasingRadius,
-                              coverage, &outerStrokeRing);
+                              kFullCoverage, &outerStrokeRing);
         outerStrokeRing.init(*this);
         Ring outerAARing;
-        this->createOuterRing(outerStrokeRing, kAntialiasingRadius * 2, 0.0f, &outerAARing);
+        this->createOuterRing(outerStrokeRing, kAntialiasingRadius * 2,
+                              kZeroCoverage, &outerAARing);
     } else {
         Ring outerAARing;
-        this->createOuterRing(fInitialRing, kAntialiasingRadius, 0.0f, &outerAARing);
+        this->createOuterRing(fInitialRing, kAntialiasingRadius, kZeroCoverage, &outerAARing);
     }
 
     // the bisectors are only needed for the computation of the outer ring
@@ -287,15 +301,16 @@ bool GrAAConvexTessellator::tessellate(const SkMatrix& m, const SkPath& path) {
         SkScalar effectiveStrokeWidth = scaleFactor * fStrokeWidth;
         Ring* insetStrokeRing;
         SkScalar strokeDepth = effectiveStrokeWidth / 2 - kAntialiasingRadius;
-        if (this->createInsetRings(fInitialRing, 0.0f, coverage, strokeDepth, coverage,
+        if (this->createInsetRings(fInitialRing, 0.0f, kFullCoverage, strokeDepth, kFullCoverage,
                                    &insetStrokeRing)) {
             Ring* insetAARing;
-            this->createInsetRings(*insetStrokeRing, strokeDepth, coverage, strokeDepth +
-                                   kAntialiasingRadius * 2, 0.0f, &insetAARing);
+            this->createInsetRings(*insetStrokeRing, strokeDepth, kFullCoverage, strokeDepth +
+                                   kAntialiasingRadius * 2, kZeroCoverage, &insetAARing);
         }
     } else {
         Ring* insetAARing;
-        this->createInsetRings(fInitialRing, 0.0f, 0.5f, kAntialiasingRadius, 1.0f, &insetAARing);
+        this->createInsetRings(fInitialRing, 0.0f, kHalfCoverage, kAntialiasingRadius,
+                               kFullCoverage, &insetAARing);
     }
 
     SkDEBUGCODE(this->validate();)
