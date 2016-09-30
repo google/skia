@@ -21,7 +21,7 @@
 #include "SkTDArray.h"
 #include "SkTextBlob.h"
 
-class SkImageBitmap;
+class SkImageSubset;
 class SkPath;
 class SkPDFArray;
 class SkPDFCanon;
@@ -285,7 +285,7 @@ private:
     void internalDrawImage(const SkMatrix& origMatrix,
                            const SkClipStack* clipStack,
                            const SkRegion& origClipRegion,
-                           SkImageBitmap imageBitmap,
+                           SkImageSubset imageSubset,
                            const SkPaint& paint);
 
     bool handleInversePath(const SkDraw& d, const SkPath& origPath,
