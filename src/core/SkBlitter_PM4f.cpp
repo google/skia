@@ -325,7 +325,7 @@ static bool is_opaque(const SkPaint& paint, const SkShader::Context* shaderConte
 
 struct State4f {
     State4f(const SkImageInfo& info, const SkPaint& paint, const SkShader::Context* shaderContext) {
-        fXfer = paint.getXfermode();
+        fXfer = SkXfermode::Peek(paint.getBlendMode());
         if (shaderContext) {
             fBuffer.reset(info.width());
         } else {
@@ -410,7 +410,7 @@ template <typename State> SkBlitter* create(const SkPixmap& device, const SkPain
         SkShader::Context::BlitState bstate;
         sk_bzero(&bstate, sizeof(bstate));
         bstate.fCtx = shaderContext;
-        bstate.fXfer = paint.getXfermode();
+        bstate.fXfer = SkXfermode::Peek(paint.getBlendMode());
 
         (void)shaderContext->chooseBlitProcs(device.info(), &bstate);
         return allocator->createT<SkState_Shader_Blitter<State>>(device, paint, bstate);

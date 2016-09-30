@@ -1553,3 +1553,50 @@ bool SkProcCoeffXfermode::onAppendStages(SkRasterPipeline* p) const {
     }
     return false;
 }
+
+///////////////////////////////////////////////////////////////////////////////////////////////////
+
+bool SkBlendMode_SupportsCoverageAsAlpha(SkBlendMode mode) {
+    switch (mode) {
+        case SkBlendMode::kDst:
+        case SkBlendMode::kSrcOver:
+        case SkBlendMode::kDstOver:
+        case SkBlendMode::kDstOut:
+        case SkBlendMode::kSrcATop:
+        case SkBlendMode::kXor:
+        case SkBlendMode::kPlus:
+            return true;
+        default:
+            break;
+    }
+    return false;
+}
+
+bool SkXfermode::IsOpaque(SkBlendMode mode, SrcColorOpacity opacityType) {
+    const ProcCoeff rec = gProcCoeffs[(int)mode];
+
+    switch (rec.fSC) {
+        case kDA_Coeff:
+        case kDC_Coeff:
+        case kIDA_Coeff:
+        case kIDC_Coeff:
+            return false;
+        default:
+            break;
+    }
+
+    switch (rec.fDC) {
+        case kZero_Coeff:
+            return true;
+        case kISA_Coeff:
+            return kOpaque_SrcColorOpacity == opacityType;
+        case kSA_Coeff:
+            return kTransparentBlack_SrcColorOpacity == opacityType ||
+            kTransparentAlpha_SrcColorOpacity == opacityType;
+        case kSC_Coeff:
+            return kTransparentBlack_SrcColorOpacity == opacityType;
+        default:
+            return false;
+    }
+    return false;
+}

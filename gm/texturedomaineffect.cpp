@@ -57,14 +57,14 @@ protected:
         SkColor colors2[] = { SK_ColorMAGENTA, SK_ColorLTGRAY, SK_ColorYELLOW };
         paint.setShader(SkGradientShader::MakeSweep(45.f, 55.f, colors2, nullptr,
                                                     SK_ARRAY_COUNT(colors2)));
-        paint.setXfermodeMode(SkXfermode::kDarken_Mode);
+        paint.setBlendMode(SkBlendMode::kDarken);
         canvas.drawOval(SkRect::MakeXYWH(-5.f, -5.f, fBmp.width() + 10.f, fBmp.height() + 10.f),
                         paint);
 
         SkColor colors3[] = { SK_ColorBLUE, SK_ColorLTGRAY, SK_ColorGREEN };
         paint.setShader(SkGradientShader::MakeSweep(25.f, 35.f, colors3, nullptr,
                                                     SK_ARRAY_COUNT(colors3)));
-        paint.setXfermodeMode(SkXfermode::kLighten_Mode);
+        paint.setBlendMode(SkBlendMode::kLighten);
         canvas.drawOval(SkRect::MakeXYWH(-5.f, -5.f, fBmp.width() + 10.f, fBmp.height() + 10.f),
                         paint);
     }

@@ -267,7 +267,7 @@ bool SkPixmap::scalePixels(const SkPixmap& dst, SkFilterQuality quality) const {
 
     SkPaint paint;
     paint.setFilterQuality(quality);
-    paint.setXfermodeMode(SkXfermode::kSrc_Mode);
+    paint.setBlendMode(SkBlendMode::kSrc);
     surface->getCanvas()->drawBitmapRect(bitmap, SkRect::MakeIWH(dst.width(), dst.height()),
                                          &paint);
     return true;

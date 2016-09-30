@@ -13,7 +13,7 @@
 class Sprite_4f : public SkSpriteBlitter {
 public:
     Sprite_4f(const SkPixmap& src, const SkPaint& paint) : INHERITED(src) {
-        fXfer = paint.getXfermode();
+        fXfer = SkXfermode::Peek(paint.getBlendMode());
         fLoader = SkLoadSpanProc_Choose(src.info());
         fFilter = SkFilterSpanProc_Choose(paint);
         fBuffer.reset(src.width());
