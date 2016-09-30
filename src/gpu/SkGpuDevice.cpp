@@ -1501,7 +1501,7 @@ void SkGpuDevice::drawProducerLattice(const SkDraw& draw, GrTextureProducer* pro
     }
 
     std::unique_ptr<SkLatticeIter> iter(
-            new SkLatticeIter(producer->width(), producer->height(), lattice, dst));
+            new SkLatticeIter(lattice, dst));
     fDrawContext->drawImageLattice(fClip, grPaint, *draw.fMatrix, producer->width(),
                                    producer->height(), std::move(iter), dst);
 }

@@ -559,6 +559,7 @@ static void drawImageLattice_handler(SkPipeReader& reader, uint32_t packedVerb, 
     } else {
         lattice.fFlags = nullptr;
     }
+    lattice.fBounds = skip<SkIRect>(reader);
     const SkRect* dst = skip<SkRect>(reader);
 
     SkPaint paintStorage, *paint = nullptr;

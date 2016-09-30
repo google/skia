@@ -107,6 +107,7 @@ template <> void Draw::draw(const DrawImageLattice& r) {
     lattice.fYCount = r.yCount;
     lattice.fYDivs = r.yDivs;
     lattice.fFlags = (0 == r.flagCount) ? nullptr : r.flags;
+    lattice.fBounds = &r.src;
     fCanvas->drawImageLattice(r.image.get(), lattice, r.dst, r.paint);
 }
 

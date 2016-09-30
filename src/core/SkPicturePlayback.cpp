@@ -327,6 +327,9 @@ void SkPicturePlayback::handleOp(SkReadBuffer* reader,
             int flagCount = reader->readInt();
             lattice.fFlags = (0 == flagCount) ? nullptr : (const SkCanvas::Lattice::Flags*)
                     reader->skip(SkAlign4(flagCount * sizeof(SkCanvas::Lattice::Flags)));
+            SkIRect src;
+            reader->readIRect(&src);
+            lattice.fBounds = &src;
             SkRect dst;
             reader->readRect(&dst);
             canvas->drawImageLattice(image, lattice, dst, paint);

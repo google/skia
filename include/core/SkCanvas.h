@@ -948,6 +948,9 @@ public:
 
     /**
      *  Specifies coordinates to divide a bitmap into (xCount*yCount) rects.
+     *
+     *  If the lattice divs or bounds are invalid, the entire lattice
+     *  struct will be ignored on the draw call.
      */
     struct Lattice {
         enum Flags : uint8_t {
@@ -956,29 +959,34 @@ public:
         };
 
         // An array of x-coordinates that divide the bitmap vertically.
-        // These must be unique, increasing, and in the set [0, width).
+        // These must be unique, increasing, and in the set [fBounds.fLeft, fBounds.fRight).
         // Does not have ownership.
-        const int*   fXDivs;
+        const int*     fXDivs;
 
         // An array of y-coordinates that divide the bitmap horizontally.
-        // These must be unique, increasing, and in the set [0, height).
+        // These must be unique, increasing, and in the set [fBounds.fTop, fBounds.fBottom).
         // Does not have ownership.
-        const int*   fYDivs;
+        const int*     fYDivs;
 
         // If non-null, the length of this array must be equal to
         // (fXCount + 1) * (fYCount + 1).  Note that we allow the first rect
-        // in each direction to empty (divs[0] = 0).  In this case, the
-        // caller still must specify a flag (as a placeholder) for these
-        // empty rects.
+        // in each direction to be empty (ex: fXDivs[0] = fBounds.fLeft).
+        // In this case, the caller still must specify a flag (as a placeholder)
+        // for these empty rects.
         // The flags correspond to the rects in the lattice, first moving
         // left to right and then top to bottom.
-        const Flags* fFlags;
+        const Flags*   fFlags;
 
         // The number of fXDivs.
-        int          fXCount;
+        int            fXCount;
 
         // The number of fYDivs.
-        int          fYCount;
+        int            fYCount;
+
+        // The bound to draw from.  Must be contained by the src that is being drawn,
+        // non-empty, and non-inverted.
+        // If nullptr, the bounds are the entire src.
+        const SkIRect* fBounds;
     };
 
     /**

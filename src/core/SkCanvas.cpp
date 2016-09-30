@@ -1999,8 +1999,16 @@ void SkCanvas::drawImageLattice(const SkImage* image, const Lattice& lattice, co
     if (dst.isEmpty()) {
         return;
     }
-    if (SkLatticeIter::Valid(image->width(), image->height(), lattice)) {
-        this->onDrawImageLattice(image, lattice, dst, paint);
+
+    SkIRect bounds;
+    Lattice latticePlusBounds = lattice;
+    if (!latticePlusBounds.fBounds) {
+        bounds = SkIRect::MakeWH(image->width(), image->height());
+        latticePlusBounds.fBounds = &bounds;
+    }
+
+    if (SkLatticeIter::Valid(image->width(), image->height(), latticePlusBounds)) {
+        this->onDrawImageLattice(image, latticePlusBounds, dst, paint);
     } else {
         this->drawImageRect(image, dst, paint);
     }
@@ -2049,8 +2057,16 @@ void SkCanvas::drawBitmapLattice(const SkBitmap& bitmap, const Lattice& lattice,
     if (bitmap.drawsNothing() || dst.isEmpty()) {
         return;
     }
-    if (SkLatticeIter::Valid(bitmap.width(), bitmap.height(), lattice)) {
-        this->onDrawBitmapLattice(bitmap, lattice, dst, paint);
+
+    SkIRect bounds;
+    Lattice latticePlusBounds = lattice;
+    if (!latticePlusBounds.fBounds) {
+        bounds = SkIRect::MakeWH(bitmap.width(), bitmap.height());
+        latticePlusBounds.fBounds = &bounds;
+    }
+
+    if (SkLatticeIter::Valid(bitmap.width(), bitmap.height(), latticePlusBounds)) {
+        this->onDrawBitmapLattice(bitmap, latticePlusBounds, dst, paint);
     } else {
         this->drawBitmapRect(bitmap, dst, paint);
     }

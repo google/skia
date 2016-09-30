@@ -11,10 +11,10 @@
 /**
  *  Divs must be in increasing order with no duplicates.
  */
-static bool valid_divs(const int* divs, int count, int len) {
-    int prev = -1;
+static bool valid_divs(const int* divs, int count, int start, int end) {
+    int prev = start - 1;
     for (int i = 0; i < count; i++) {
-        if (prev >= divs[i] || divs[i] >= len) {
+        if (prev >= divs[i] || divs[i] >= end) {
             return false;
         }
     }
@@ -23,29 +23,38 @@ static bool valid_divs(const int* divs, int count, int len) {
 }
 
 bool SkLatticeIter::Valid(int width, int height, const SkCanvas::Lattice& lattice) {
-    bool zeroXDivs = lattice.fXCount <= 0 || (1 == lattice.fXCount && 0 == lattice.fXDivs[0]);
-    bool zeroYDivs = lattice.fYCount <= 0 || (1 == lattice.fYCount && 0 == lattice.fYDivs[0]);
+    SkIRect totalBounds = SkIRect::MakeWH(width, height);
+    SkASSERT(lattice.fBounds);
+    const SkIRect latticeBounds = *lattice.fBounds;
+    if (!totalBounds.contains(latticeBounds)) {
+        return false;
+    }
+
+    bool zeroXDivs = lattice.fXCount <= 0 || (1 == lattice.fXCount &&
+                                              latticeBounds.fLeft == lattice.fXDivs[0]);
+    bool zeroYDivs = lattice.fYCount <= 0 || (1 == lattice.fYCount &&
+                                              latticeBounds.fTop == lattice.fYDivs[0]);
     if (zeroXDivs && zeroYDivs) {
         return false;
     }
 
-    return valid_divs(lattice.fXDivs, lattice.fXCount, width) &&
-           valid_divs(lattice.fYDivs, lattice.fYCount, height);
+    return valid_divs(lattice.fXDivs, lattice.fXCount, latticeBounds.fLeft, latticeBounds.fRight)
+        && valid_divs(lattice.fYDivs, lattice.fYCount, latticeBounds.fTop, latticeBounds.fBottom);
 }
 
 /**
  *  Count the number of pixels that are in "scalable" patches.
  */
 static int count_scalable_pixels(const int32_t* divs, int numDivs, bool firstIsScalable,
-                                 int length) {
+                                 int start, int end) {
     if (0 == numDivs) {
-        return firstIsScalable ? length : 0;
+        return firstIsScalable ? end - start : 0;
     }
 
     int i;
     int count;
     if (firstIsScalable) {
-        count = divs[0];
+        count = divs[0] - start;
         i = 1;
     } else {
         count = 0;
@@ -56,7 +65,7 @@ static int count_scalable_pixels(const int32_t* divs, int numDivs, bool firstIsS
         // Alternatively, we could use |top| and |bottom| as variable names, instead of
         // |left| and |right|.
         int left = divs[i];
-        int right = (i + 1 < numDivs) ? divs[i + 1] : length;
+        int right = (i + 1 < numDivs) ? divs[i + 1] : end;
         count += right - left;
     }
 
@@ -67,10 +76,10 @@ static int count_scalable_pixels(const int32_t* divs, int numDivs, bool firstIsS
  *  Set points for the src and dst rects on subsequent draw calls.
  */
 static void set_points(float* dst, float* src, const int* divs, int divCount, int srcFixed,
-                       int srcScalable, float dstStart, float dstStop, bool isScalable) {
+                       int srcScalable, float srcStart, float srcEnd, float dstStart, float dstEnd,
+                       bool isScalable) {
 
-    float dstLen = dstStop - dstStart;
-    int srcLen = srcFixed + srcScalable;
+    float dstLen = dstEnd - dstStart;
     float scale;
     if (srcFixed <= dstLen) {
         // This is the "normal" case, where we scale the "scalable" patches and leave
@@ -81,7 +90,7 @@ static void set_points(float* dst, float* src, const int* divs, int divCount, in
         scale = dstLen / ((float) srcFixed);
     }
 
-    src[0] = 0.0f;
+    src[0] = srcStart;
     dst[0] = dstStart;
     for (int i = 0; i < divCount; i++) {
         src[i + 1] = (float) (divs[i]);
@@ -98,17 +107,17 @@ static void set_points(float* dst, float* src, const int* divs, int divCount, in
         isScalable = !isScalable;
     }
 
-    src[divCount + 1] = (float) srcLen;
-    dst[divCount + 1] = dstStop;
+    src[divCount + 1] = srcEnd;
+    dst[divCount + 1] = dstEnd;
 }
 
-SkLatticeIter::SkLatticeIter(int srcWidth, int srcHeight, const SkCanvas::Lattice& lattice,
-                             const SkRect& dst)
-{
+SkLatticeIter::SkLatticeIter(const SkCanvas::Lattice& lattice, const SkRect& dst) {
     const int* xDivs = lattice.fXDivs;
     const int origXCount = lattice.fXCount;
     const int* yDivs = lattice.fYDivs;
     const int origYCount = lattice.fYCount;
+    SkASSERT(lattice.fBounds);
+    const SkIRect src = *lattice.fBounds;
 
     // In the x-dimension, the first rectangle always starts at x = 0 and is "scalable".
     // If xDiv[0] is 0, it indicates that the first rectangle is degenerate, so the
@@ -121,36 +130,36 @@ SkLatticeIter::SkLatticeIter(int srcWidth, int srcHeight, const SkCanvas::Lattic
     // patches will be "fixed" or "scalable" in the y-direction.
     int xCount = origXCount;
     int yCount = origYCount;
-    bool xIsScalable = (xCount > 0 && 0 == xDivs[0]);
+    bool xIsScalable = (xCount > 0 && src.fLeft == xDivs[0]);
     if (xIsScalable) {
         // Once we've decided that the first patch is "scalable", we don't need the
-        // xDiv.  It is always implied that we start at zero.
+        // xDiv.  It is always implied that we start at the edge of the bounds.
         xDivs++;
         xCount--;
     }
-    bool yIsScalable = (yCount > 0 && 0 == yDivs[0]);
+    bool yIsScalable = (yCount > 0 && src.fTop == yDivs[0]);
     if (yIsScalable) {
         // Once we've decided that the first patch is "scalable", we don't need the
-        // yDiv.  It is always implied that we start at zero.
+        // yDiv.  It is always implied that we start at the edge of the bounds.
         yDivs++;
         yCount--;
     }
 
     // Count "scalable" and "fixed" pixels in each dimension.
-    int xCountScalable = count_scalable_pixels(xDivs, xCount, xIsScalable, srcWidth);
-    int xCountFixed = srcWidth - xCountScalable;
-    int yCountScalable = count_scalable_pixels(yDivs, yCount, yIsScalable, srcHeight);
-    int yCountFixed = srcHeight - yCountScalable;
+    int xCountScalable = count_scalable_pixels(xDivs, xCount, xIsScalable, src.fLeft, src.fRight);
+    int xCountFixed = src.width() - xCountScalable;
+    int yCountScalable = count_scalable_pixels(yDivs, yCount, yIsScalable, src.fTop, src.fBottom);
+    int yCountFixed = src.height() - yCountScalable;
 
     fSrcX.reset(xCount + 2);
     fDstX.reset(xCount + 2);
     set_points(fDstX.begin(), fSrcX.begin(), xDivs, xCount, xCountFixed, xCountScalable,
-               dst.fLeft, dst.fRight, xIsScalable);
+               src.fLeft, src.fRight, dst.fLeft, dst.fRight, xIsScalable);
 
     fSrcY.reset(yCount + 2);
     fDstY.reset(yCount + 2);
     set_points(fDstY.begin(), fSrcY.begin(), yDivs, yCount, yCountFixed, yCountScalable,
-               dst.fTop, dst.fBottom, yIsScalable);
+               src.fTop, src.fBottom, dst.fTop, dst.fBottom, yIsScalable);
 
     fCurrX = fCurrY = 0;
     fNumRectsInLattice = (xCount + 1) * (yCount + 1);

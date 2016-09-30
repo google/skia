@@ -582,6 +582,8 @@ void SkPipeCanvas::onDrawImageLattice(const SkImage* image, const Lattice& latti
         SkASSERT(count > 0);
         write_pad(&writer, lattice.fFlags, count);
     }
+    SkASSERT(lattice.fBounds);
+    writer.write(&lattice.fBounds, sizeof(*lattice.fBounds));
     writer.write(&dst, sizeof(dst));
     if (paint) {
         write_paint(writer, *paint, kImage_PaintUsage);

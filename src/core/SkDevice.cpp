@@ -219,7 +219,7 @@ void SkBaseDevice::drawBitmapNine(const SkDraw& draw, const SkBitmap& bitmap, co
 void SkBaseDevice::drawImageLattice(const SkDraw& draw, const SkImage* image,
                                     const SkCanvas::Lattice& lattice, const SkRect& dst,
                                     const SkPaint& paint) {
-    SkLatticeIter iter(image->width(), image->height(), lattice, dst);
+    SkLatticeIter iter(lattice, dst);
 
     SkRect srcR, dstR;
     while (iter.next(&srcR, &dstR)) {
@@ -230,7 +230,7 @@ void SkBaseDevice::drawImageLattice(const SkDraw& draw, const SkImage* image,
 void SkBaseDevice::drawBitmapLattice(const SkDraw& draw, const SkBitmap& bitmap,
                                      const SkCanvas::Lattice& lattice, const SkRect& dst,
                                      const SkPaint& paint) {
-    SkLatticeIter iter(bitmap.width(), bitmap.height(), lattice, dst);
+    SkLatticeIter iter(lattice, dst);
 
     SkRect srcR, dstR;
     while (iter.next(&srcR, &dstR)) {
