@@ -89,7 +89,9 @@ SkShader::GradientType SkColorShader::asAGradient(GradientInfo* info) const {
 
 #include "SkGr.h"
 #include "effects/GrConstColorProcessor.h"
-sk_sp<GrFragmentProcessor> SkColorShader::asFragmentProcessor(const AsFPArgs&) const {
+sk_sp<GrFragmentProcessor> SkColorShader::asFragmentProcessor(const AsFPArgs& args) const {
+    FIXME !!!
+    GrColor4f color = GrColor4f::FromGrColor(SkColorToUnpremulGrColor(fColor));
     GrColor color = SkColorToPremulGrColor(fColor);
     return GrConstColorProcessor::Make(color, GrConstColorProcessor::kModulateA_InputMode);
 }

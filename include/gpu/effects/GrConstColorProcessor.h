@@ -26,7 +26,7 @@ public:
     };
     static const int kInputModeCnt = kLastInputMode + 1;
 
-    static sk_sp<GrFragmentProcessor> Make(GrColor color, InputMode mode) {
+    static sk_sp<GrFragmentProcessor> Make(GrColor4f color, InputMode mode) {
         return sk_sp<GrFragmentProcessor>(new GrConstColorProcessor(color, mode));
     }
 
@@ -34,16 +34,16 @@ public:
 
     SkString dumpInfo() const override {
         SkString str;
-        str.appendf("Color: 0x%08x", fColor);
+        str.appendf("Color: 0x%08x", fColor.toGrColor());
         return str;
     }
 
-    GrColor color() const { return fColor; }
+    GrColor4f color() const { return fColor; }
 
     InputMode inputMode() const { return fMode; }
 
 private:
-    GrConstColorProcessor(GrColor color, InputMode mode) : fColor(color), fMode(mode) {
+    GrConstColorProcessor(GrColor4f color, InputMode mode) : fColor(color), fMode(mode) {
         this->initClassID<GrConstColorProcessor>();
     }
 
@@ -57,7 +57,7 @@ private:
 
     GR_DECLARE_FRAGMENT_PROCESSOR_TEST;
 
-    GrColor     fColor;
+    GrColor4f   fColor;
     InputMode   fMode;
 
     typedef GrFragmentProcessor INHERITED;
