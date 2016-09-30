@@ -26,7 +26,8 @@ bool SortContourList(SkOpContourHead** , bool evenOdd, bool oppEvenOdd);
 bool HandleCoincidence(SkOpContourHead* , SkOpCoincidence* );
 bool OpDebug(const SkPath& one, const SkPath& two, SkPathOp op, SkPath* result
              SkDEBUGPARAMS(bool skipAssert)
-             SkDEBUGPARAMS(const char* testName));
+             SkDEBUGPARAMS(const char* testName)
+             SkDEBUGPARAMS(void* reporter));
 SkScalar ScaleFactor(const SkPath& path);
 void ScalePath(const SkPath& path, SkScalar scale, SkPath* scaled);
 

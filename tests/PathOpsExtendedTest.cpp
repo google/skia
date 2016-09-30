@@ -23,11 +23,13 @@
 
 bool OpDebug(const SkPath& one, const SkPath& two, SkPathOp op, SkPath* result
              SkDEBUGPARAMS(bool skipAssert)
-             SkDEBUGPARAMS(const char* testName));
+             SkDEBUGPARAMS(const char* testName)
+             SkDEBUGPARAMS(void* reporter));
 
 bool SimplifyDebug(const SkPath& one, SkPath* result
                    SkDEBUGPARAMS(bool skipAssert)
-                   SkDEBUGPARAMS(const char* testName));
+                   SkDEBUGPARAMS(const char* testName)
+                   SkDEBUGPARAMS(void* reporter));
 
 
 __SK_FORCE_IMAGE_DECODER_LINKING;
@@ -476,7 +478,7 @@ static bool inner_simplify(skiatest::Reporter* reporter, const SkPath& path, con
 #endif
     SkPath out;
     if (!SimplifyDebug(path, &out  SkDEBUGPARAMS(SkipAssert::kYes == skipAssert)
-            SkDEBUGPARAMS(testName))) {
+            SkDEBUGPARAMS(testName) SkDEBUGPARAMS(reporter))) {
         if (ExpectSuccess::kYes == expectSuccess) {
             SkDebugf("%s did not expect %s failure\n", __FUNCTION__, filename);
             REPORTER_ASSERT(reporter, 0);
@@ -536,7 +538,7 @@ static bool innerPathOp(skiatest::Reporter* reporter, const SkPath& a, const SkP
 #endif
     SkPath out;
     if (!OpDebug(a, b, shapeOp, &out  SkDEBUGPARAMS(SkipAssert::kYes == skipAssert)
-            SkDEBUGPARAMS(testName))) {
+            SkDEBUGPARAMS(testName) SkDEBUGPARAMS(reporter))) {
         if (ExpectSuccess::kYes == expectSuccess) {
             SkDebugf("%s %s did not expect failure\n", __FUNCTION__, testName);
             REPORTER_ASSERT(reporter, 0);

@@ -130,16 +130,16 @@ public:
 
     void debugAddAngle(double startT, double endT);
 #if DEBUG_COINCIDENCE_VERBOSE
-    const SkOpPtT* debugAddT(double t, const char* id, SkPathOpsDebug::GlitchLog* ) const;
+    const SkOpPtT* debugAddT(double t, SkPathOpsDebug::GlitchLog* ) const;
 #endif
     const SkOpAngle* debugAngle(int id) const;
 #if DEBUG_ANGLE
     void debugCheckAngleCoin() const;
 #endif
 #if DEBUG_COINCIDENCE_VERBOSE
-    void debugCheckHealth(const char* id, SkPathOpsDebug::GlitchLog* ) const;
-    void debugClearAll(const char* id, SkPathOpsDebug::GlitchLog* glitches) const;
-    void debugClearOne(const SkOpSpan* span, const char* id, SkPathOpsDebug::GlitchLog* glitches) const;
+    void debugCheckHealth(SkPathOpsDebug::GlitchLog* ) const;
+    void debugClearAll(SkPathOpsDebug::GlitchLog* glitches) const;
+    void debugClearOne(const SkOpSpan* span, SkPathOpsDebug::GlitchLog* glitches) const;
 #endif
     const SkOpCoincidence* debugCoincidence() const;
     SkOpContour* debugContour(int id) const;
@@ -150,9 +150,9 @@ public:
 
     SkOpAngle* debugLastAngle();
 #if DEBUG_COINCIDENCE_VERBOSE
-    void debugMissingCoincidence(const char* id, SkPathOpsDebug::GlitchLog* glitches) const;
-    void debugMoveMultiples(const char* id, SkPathOpsDebug::GlitchLog* glitches) const;
-    void debugMoveNearby(const char* id, SkPathOpsDebug::GlitchLog* glitches) const;
+    void debugMissingCoincidence(SkPathOpsDebug::GlitchLog* glitches) const;
+    void debugMoveMultiples(SkPathOpsDebug::GlitchLog* glitches) const;
+    void debugMoveNearby(SkPathOpsDebug::GlitchLog* glitches) const;
 #endif
     const SkOpPtT* debugPtT(int id) const;
     void debugReset();

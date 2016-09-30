@@ -242,7 +242,8 @@ static void dump_op(const SkPath& one, const SkPath& two, SkPathOp op) {
 
 SK_DECLARE_STATIC_MUTEX(debugWorstLoop);
 
-SkOpGlobalState debugWorstState(nullptr, nullptr  SkDEBUGPARAMS(false) SkDEBUGPARAMS(nullptr));
+SkOpGlobalState debugWorstState(nullptr, nullptr  SkDEBUGPARAMS(false) SkDEBUGPARAMS(nullptr)
+        SkDEBUGPARAMS(nullptr));
 
 void ReportPathOpsDebugging() {
     debugWorstState.debugLoopReport();
@@ -253,12 +254,13 @@ extern void (*gVerboseFinalize)();
 #endif
 
 bool OpDebug(const SkPath& one, const SkPath& two, SkPathOp op, SkPath* result
-        SkDEBUGPARAMS(bool skipAssert) SkDEBUGPARAMS(const char* testName)) {
+        SkDEBUGPARAMS(bool skipAssert) SkDEBUGPARAMS(const char* testName)
+        SkDEBUGPARAMS(void* reporter)) {
     SkChunkAlloc allocator(4096);  // FIXME: add a constant expression here, tune
     SkOpContour contour;
     SkOpContourHead* contourList = static_cast<SkOpContourHead*>(&contour);
     SkOpGlobalState globalState(contourList, &allocator
-            SkDEBUGPARAMS(skipAssert) SkDEBUGPARAMS(testName));
+            SkDEBUGPARAMS(skipAssert) SkDEBUGPARAMS(testName) SkDEBUGPARAMS(reporter));
     SkOpCoincidence coincidence(&globalState);
 #if DEBUGGING_PATHOPS_FROM_HOST
     dump_op(one, two, op);
@@ -315,7 +317,7 @@ bool OpDebug(const SkPath& one, const SkPath& two, SkPathOp op, SkPath* result
             ;
     } while ((current = current->next()));
 #if DEBUG_VALIDATE
-    globalState.setPhase(SkOpGlobalState::kWalking);
+    globalState.setPhase(SkOpPhase::kWalking);
 #endif
     if (!HandleCoincidence(contourList, &coincidence)) {
         return false;
@@ -462,6 +464,7 @@ bool Op(const SkPath& one, const SkPath& two, SkPathOp op, SkPath* result) {
     }
     return true;
 #else
-    return OpDebug(one, two, op, result  SkDEBUGPARAMS(true) SkDEBUGPARAMS(nullptr));
+    return OpDebug(one, two, op, result  SkDEBUGPARAMS(true) SkDEBUGPARAMS(nullptr)
+        SkDEBUGPARAMS(nullptr));
 #endif
 }

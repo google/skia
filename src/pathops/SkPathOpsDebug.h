@@ -13,10 +13,12 @@
 #include <stdlib.h>
 #include <stdio.h>
 
+enum class SkOpPhase : char;
+
 #ifdef SK_RELEASE
 #define FORCE_RELEASE 1
 #else
-#define FORCE_RELEASE 1  // set force release to 1 for multiple thread -- no debugging
+#define FORCE_RELEASE 0  // set force release to 1 for multiple thread -- no debugging
 #endif
 
 #define DEBUG_UNDER_DEVELOPMENT 1
@@ -79,7 +81,7 @@
 #define DEBUG_ASSEMBLE 1
 #define DEBUG_COINCIDENCE 01
 #define DEBUG_COINCIDENCE_ORDER 0  // tight arc quads may generate out-of-order coincdence spans
-#define DEBUG_COINCIDENCE_VERBOSE 0
+#define DEBUG_COINCIDENCE_VERBOSE 01
 #define DEBUG_CUBIC_BINARY_SEARCH 0
 #define DEBUG_CUBIC_SPLIT 1
 #define DEBUG_DUMP_SEGMENTS 1
@@ -128,10 +130,58 @@
 #endif
 
 #if DEBUG_COINCIDENCE
-    #define DEBUG_COINCIDENCE_HEALTH(contourList, id) \
-            SkPathOpsDebug::CheckHealth(contourList, id)
+    #define DEBUG_COIN_DECLARE_ONLY_PARAMS() \
+            const char* funcName, int lineNo, SkOpPhase phase, int iteration
+    #define DEBUG_COIN_DECLARE_PARAMS() \
+            , DEBUG_COIN_DECLARE_ONLY_PARAMS()
+    #define DEBUG_COIN_ONLY_PARAMS() \
+            __func__, __LINE__, SkOpPhase::kNoChange, 0
+    #define DEBUG_COIN_PARAMS() \
+            , DEBUG_COIN_ONLY_PARAMS()
+    #define DEBUG_ITER_ONLY_PARAMS(iteration) \
+            __func__, __LINE__, SkOpPhase::kNoChange, iteration
+    #define DEBUG_ITER_PARAMS(iteration) \
+            , DEBUG_ITER_ONLY_PARAMS(iteration)
+    #define DEBUG_PHASE_ONLY_PARAMS(phase) \
+            __func__, __LINE__, SkOpPhase::phase, 0
+    #define DEBUG_PHASE_PARAMS(phase) \
+            , DEBUG_PHASE_ONLY_PARAMS(phase)
+    #define DEBUG_SET_PHASE() \
+            this->globalState()->debugSetPhase(funcName, lineNo, phase, iteration)
+    #define DEBUG_STATIC_SET_PHASE(obj) \
+            obj->globalState()->debugSetPhase(funcName, lineNo, phase, iteration)
+#elif DEBUG_VALIDATE
+    #define DEBUG_COIN_DECLARE_ONLY_PARAMS() \
+            SkOpPhase phase
+    #define DEBUG_COIN_DECLARE_PARAMS() \
+            , DEBUG_COIN_DECLARE_ONLY_PARAMS()
+    #define DEBUG_COIN_ONLY_PARAMS() \
+            SkOpPhase::kNoChange
+    #define DEBUG_COIN_PARAMS() \
+            , DEBUG_COIN_ONLY_PARAMS()
+    #define DEBUG_ITER_ONLY_PARAMS(iteration) \
+            SkOpPhase::kNoChange
+    #define DEBUG_ITER_PARAMS(iteration) \
+            , DEBUG_ITER_ONLY_PARAMS(iteration)
+    #define DEBUG_PHASE_ONLY_PARAMS(phase) \
+            SkOpPhase::phase
+    #define DEBUG_PHASE_PARAMS(phase) \
+            , DEBUG_PHASE_ONLY_PARAMS(phase)
+    #define DEBUG_SET_PHASE() \
+            this->globalState()->debugSetPhase(phase)
+    #define DEBUG_STATIC_SET_PHASE(obj) \
+            obj->globalState()->debugSetPhase(phase)
 #else
-    #define DEBUG_COINCIDENCE_HEALTH(contourList, id)
+    #define DEBUG_COIN_DECLARE_ONLY_PARAMS()
+    #define DEBUG_COIN_DECLARE_PARAMS()
+    #define DEBUG_COIN_ONLY_PARAMS()
+    #define DEBUG_COIN_PARAMS()
+    #define DEBUG_ITER_ONLY_PARAMS(iteration)
+    #define DEBUG_ITER_PARAMS(iteration)
+    #define DEBUG_PHASE_ONLY_PARAMS(phase)
+    #define DEBUG_PHASE_PARAMS(phase)
+    #define DEBUG_SET_PHASE()
+    #define DEBUG_STATIC_SET_PHASE(obj)
 #endif
 
 #define CUBIC_DEBUG_STR  "{{{%1.9g,%1.9g}, {%1.9g,%1.9g}, {%1.9g,%1.9g}, {%1.9g,%1.9g}}}"
@@ -172,8 +222,83 @@
 
 class SkPathOpsDebug {
 public:
+    enum class CoinID {
+        kNone,
+        kAddMissing,
+        kAddEndMovedSpans,
+        kAddExpanded,
+        kCorrectEnds,
+        kExpand,
+        kFindOverlaps,
+        kFinished,
+        kMark,
+        kMissingCoincidence,
+        kMoveMultiples,
+        kMoveNearby,
+        kPairsApply,
+    };
+
     static const char* kLVerbStr[];
+
+#if DEBUG_COINCIDENCE
     struct GlitchLog;
+#endif
+
+#if DEBUG_COINCIDENCE_VERBOSE
+    enum GlitchType {
+        kUninitialized_Glitch,
+        kAddCorruptCoin_Glitch,
+        kAddExpandedCoin_Glitch,
+        kAddExpandedFail_Glitch,
+        kAddIfCollapsed_Glitch,
+        kAddIfMissingCoin_Glitch,
+        kAddMissingCoin_Glitch,
+        kAddMissingExtend_Glitch,
+        kAddOrOverlap_Glitch,
+        kCollapsedCoin_Glitch,
+        kCollapsedDone_Glitch,
+        kCollapsedOppValue_Glitch,
+        kCollapsedSpan_Glitch,
+        kCollapsedWindValue_Glitch,
+        kCorrectEnd_Glitch,
+        kDeletedCoin_Glitch,
+        kExpandCoin_Glitch,
+        kFail_Glitch,
+        kMarkCoinEnd_Glitch,
+        kMarkCoinInsert_Glitch,
+        kMarkCoinMissing_Glitch,
+        kMarkCoinStart_Glitch,
+        kMergeContained_Glitch,
+        kMergeMatches_Glitch,
+        kMissingCoin_Glitch,
+        kMissingDone_Glitch,
+        kMissingIntersection_Glitch,
+        kMoveMultiple_Glitch,
+        kMoveNearbyClearAll_Glitch,
+        kMoveNearbyClearAll2_Glitch,
+        kMoveNearbyMerge_Glitch,
+        kMoveNearbyMergeFinal_Glitch,
+        kMoveNearbyRelease_Glitch,
+        kMoveNearbyReleaseFinal_Glitch,
+        kReleasedSpan_Glitch,
+        kReturnFalse_Glitch,
+        kUnaligned_Glitch,
+        kUnalignedHead_Glitch,
+        kUnalignedTail_Glitch,
+    };
+
+    struct CoinDictEntry {
+        int fIteration;
+        int fLineNumber;
+        GlitchType fGlitchType;
+    };
+
+    struct CoinDict {
+        CoinDictEntry* find(int iteration, int lineNumber);
+        SkTDArray<CoinDictEntry> fDict;
+    };
+
+#endif
 
 #if defined(SK_DEBUG) || !FORCE_RELEASE
     static int gContourID;
@@ -189,7 +314,7 @@ public:
     static const char* kPathOpStr[];
 #endif
 
-    static void CoincidentHealth(class SkOpContourHead* contourList, const char* id);
+    static void AddedCoin(class SkOpContourHead* contourList, CoinID, int iteration, int lineno );
     static void MathematicaIze(char* str, size_t bufferSize);
     static bool ValidWind(int winding);
     static void WindingPrintf(int winding);
@@ -209,7 +334,7 @@ public:
 
     static bool ChaseContains(const SkTDArray<class SkOpSpanBase*>& , const class SkOpSpanBase* );
 
-    static void CheckHealth(class SkOpContourHead* contourList, const char* id);
+    static void CheckHealth(class SkOpContourHead* contourList);
 
     static const class SkOpAngle* DebugAngleAngle(const class SkOpAngle*, int id);
     static class SkOpContour* DebugAngleContour(class SkOpAngle*, int id);
@@ -246,6 +371,9 @@ public:
     static const class SkOpPtT* DebugSpanPtT(const class SkOpSpanBase*, int id);
     static const class SkOpSegment* DebugSpanSegment(const class SkOpSpanBase*, int id);
     static const class SkOpSpanBase* DebugSpanSpan(const class SkOpSpanBase*, int id);
+
+    static void SetPhase(class SkOpContourHead* contourList, CoinID , int lineNumber,
+                         SkOpPhase );
 };
 
 struct SkDQuad;

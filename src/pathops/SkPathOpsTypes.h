@@ -29,17 +29,19 @@ class SkOpContourHead;
 class SkIntersections;
 class SkIntersectionHelper;
 
+enum class SkOpPhase : char {
+    kNoChange,
+    kIntersecting,
+    kWalking,
+    kFixWinding,
+};
+
 class SkOpGlobalState {
 public:
     SkOpGlobalState(SkOpContourHead* head,
                     SkChunkAlloc* allocator  SkDEBUGPARAMS(bool debugSkipAssert)
-                    SkDEBUGPARAMS(const char* testName));
-
-    enum Phase {
-        kIntersecting,
-        kWalking,
-        kFixWinding,
-    };
+                    SkDEBUGPARAMS(const char* testName)
+                    SkDEBUGPARAMS(void* reporter));
 
     enum {
         kMaxWindingTries = 10
@@ -98,6 +100,27 @@ public:
     bool debugCheckHealth() const { return fDebugCheckHealth; }
 #endif
 
+#if DEBUG_VALIDATE || DEBUG_COINCIDENCE
+    void debugSetPhase(DEBUG_COIN_DECLARE_ONLY_PARAMS()) const;
+#endif
+
+#if DEBUG_COINCIDENCE_VERBOSE
+    SkPathOpsDebug::CoinDict* debugCoinDict() { return fCoinDict; }
+    int debugLineNumber() const { return fLineNumber; }
+    SkPathOpsDebug::CoinID debugPrevCoinCheck() const { return fPrevCoinCheck; }
+    SkPathOpsDebug::CoinID debugNextCoinCheck() const { return fNextCoinCheck; }
+    void debugSetCoinDict(SkPathOpsDebug::CoinDict* dict) { fCoinDict = dict; }
+    void debugSetFunctionName(const char* funcName) { fFunctionName = funcName; }
+    void debugSetIteration(int iteration) { fIteration = iteration; }
+    void debugSetLineNumber(int lineNumber) { fLineNumber = lineNumber; }
+
+    void debugSetNextCoinCheck(SkPathOpsDebug::CoinID next) {
+        fPrevCoinCheck = fNextCoinCheck;
+        fNextCoinCheck = next; 
+    }
+#endif
+
+
     int nested() const {
         return fNested;
     }
@@ -128,7 +151,7 @@ public:
     }
 #endif
 
-    Phase phase() const {
+    SkOpPhase phase() const {
         return fPhase;
     }
     
@@ -152,7 +175,7 @@ public:
         fContourHead = contourHead;
     }
 
-    void setPhase(Phase phase) {
+    void setPhase(SkOpPhase phase) {
         SkASSERT(fPhase != phase);
         fPhase = phase;
     }
@@ -174,9 +197,10 @@ private:
     bool fAllocatedOpSpan;
     bool fWindingFailed;
     bool fAngleCoincidence;
-    Phase fPhase;
+    SkOpPhase fPhase;
 #ifdef SK_DEBUG
     const char* fDebugTestName;
+    void* fDebugReporter;
     int fAngleID;
     int fCoinID;
     int fContourID;
@@ -190,6 +214,14 @@ private:
     SkPath::Verb fDebugWorstVerb[6];
     SkPoint fDebugWorstPts[24];
     float fDebugWorstWeight[6];
+#endif
+#if DEBUG_COINCIDENCE_VERBOSE
+    int fIteration;
+    int fLineNumber;
+    const char* fFunctionName;
+    SkPathOpsDebug::CoinID fPrevCoinCheck;
+    SkPathOpsDebug::CoinID fNextCoinCheck;
+    SkPathOpsDebug::CoinDict* fCoinDict;
 #endif
 #if DEBUG_COINCIDENCE
     bool fDebugCheckHealth;

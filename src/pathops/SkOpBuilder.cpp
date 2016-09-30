@@ -45,7 +45,7 @@ bool FixWinding(SkPath* path) {
     SkChunkAlloc allocator(4096);
     SkOpContourHead contourHead;
     SkOpGlobalState globalState(&contourHead, &allocator  SkDEBUGPARAMS(false)
-            SkDEBUGPARAMS(nullptr));
+            SkDEBUGPARAMS(nullptr) SkDEBUGPARAMS(nullptr));
     SkOpEdgeBuilder builder(*path, &contourHead, &globalState);
     if (builder.unparseable() || !builder.finish()) {
         return false;
@@ -60,7 +60,7 @@ bool FixWinding(SkPath* path) {
     contourHead.resetReverse();
     bool writePath = false;
     SkOpSpan* topSpan;
-    globalState.setPhase(SkOpGlobalState::kFixWinding);
+    globalState.setPhase(SkOpPhase::kFixWinding);
     while ((topSpan = FindSortableTop(&contourHead))) {
         SkOpSegment* topSegment = topSpan->segment();
         SkOpContour* topContour = topSegment->contour();

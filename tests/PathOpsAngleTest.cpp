@@ -239,7 +239,8 @@ static const int circleDataSetSize = (int) SK_ARRAY_COUNT(circleDataSet);
 DEF_TEST(PathOpsAngleCircle, reporter) {
     SkChunkAlloc allocator(4096);
     SkOpContourHead contour;
-    SkOpGlobalState state(&contour, &allocator  SkDEBUGPARAMS(false) SkDEBUGPARAMS(nullptr));
+    SkOpGlobalState state(&contour, &allocator  SkDEBUGPARAMS(false) SkDEBUGPARAMS(nullptr)
+            SkDEBUGPARAMS(nullptr));
     contour.init(&state, false, false);
     for (int index = 0; index < circleDataSetSize; ++index) {
         CircleData& data = circleDataSet[index];
@@ -431,7 +432,8 @@ struct FourPoints {
 DEF_TEST(PathOpsAngleAfter, reporter) {
     SkChunkAlloc allocator(4096);
     SkOpContourHead contour;
-    SkOpGlobalState state(&contour, &allocator  SkDEBUGPARAMS(false) SkDEBUGPARAMS(nullptr));
+    SkOpGlobalState state(&contour, &allocator  SkDEBUGPARAMS(false) SkDEBUGPARAMS(nullptr)
+            SkDEBUGPARAMS(nullptr));
     contour.init(&state, false, false);
     for (int index = intersectDataSetsSize - 1; index >= 0; --index) {
         IntersectData* dataArray = intersectDataSets[index];
@@ -503,7 +505,8 @@ void SkOpSegment::debugAddAngle(double startT, double endT) {
 DEF_TEST(PathOpsAngleAllOnOneSide, reporter) {
     SkChunkAlloc allocator(4096);
     SkOpContourHead contour;
-    SkOpGlobalState state(&contour, &allocator  SkDEBUGPARAMS(false) SkDEBUGPARAMS(nullptr));
+    SkOpGlobalState state(&contour, &allocator  SkDEBUGPARAMS(false) SkDEBUGPARAMS(nullptr)
+            SkDEBUGPARAMS(nullptr));
     contour.init(&state, false, false);
     SkPoint conicPts[3] = {{494.37100219726562f, 224.66200256347656f},
         {494.37360910682298f, 224.6729026561527f},

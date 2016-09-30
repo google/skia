@@ -153,7 +153,8 @@ static bool bridgeXor(SkOpContourHead* contourList, SkPathWriter* simple) {
 
 // FIXME : add this as a member of SkPath
 bool SimplifyDebug(const SkPath& path, SkPath* result
-        SkDEBUGPARAMS(bool skipAssert) SkDEBUGPARAMS(const char* testName)) {
+        SkDEBUGPARAMS(bool skipAssert) SkDEBUGPARAMS(const char* testName)
+        SkDEBUGPARAMS(void* reporter)) {
     // returns 1 for evenodd, -1 for winding, regardless of inverse-ness
     SkPath::FillType fillType = path.isInverseFillType() ? SkPath::kInverseEvenOdd_FillType
             : SkPath::kEvenOdd_FillType;
@@ -169,7 +170,7 @@ bool SimplifyDebug(const SkPath& path, SkPath* result
     SkOpContour contour;
     SkOpContourHead* contourList = static_cast<SkOpContourHead*>(&contour);
     SkOpGlobalState globalState(contourList, &allocator
-            SkDEBUGPARAMS(skipAssert) SkDEBUGPARAMS(testName));
+            SkDEBUGPARAMS(skipAssert) SkDEBUGPARAMS(testName) SkDEBUGPARAMS(reporter));
     SkOpCoincidence coincidence(&globalState);
     SkScalar scaleFactor = ScaleFactor(path);
     SkPath scaledPath;
@@ -203,7 +204,7 @@ bool SimplifyDebug(const SkPath& path, SkPath* result
                 && (next = next->next()));
     } while ((current = current->next()));
 #if DEBUG_VALIDATE
-    globalState.setPhase(SkOpGlobalState::kWalking);
+    globalState.setPhase(SkOpPhase::kWalking);
 #endif
     if (!HandleCoincidence(contourList, &coincidence)) {
         return false;
@@ -227,5 +228,6 @@ bool SimplifyDebug(const SkPath& path, SkPath* result
 }
 
 bool Simplify(const SkPath& path, SkPath* result) {
-    return SimplifyDebug(path, result  SkDEBUGPARAMS(true) SkDEBUGPARAMS(nullptr));
+    return SimplifyDebug(path, result  SkDEBUGPARAMS(true) SkDEBUGPARAMS(nullptr)
+            SkDEBUGPARAMS(nullptr));
 }

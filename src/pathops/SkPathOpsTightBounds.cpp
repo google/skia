@@ -12,7 +12,7 @@ bool TightBounds(const SkPath& path, SkRect* result) {
     SkOpContour contour;
     SkOpContourHead* contourList = static_cast<SkOpContourHead*>(&contour);
     SkOpGlobalState globalState(contourList, &allocator  SkDEBUGPARAMS(false)
-            SkDEBUGPARAMS(nullptr));
+            SkDEBUGPARAMS(nullptr) SkDEBUGPARAMS(nullptr));
     // turn path into list of segments
     SkScalar scaleFactor = ScaleFactor(path);
     SkPath scaledPath;
