@@ -42,11 +42,8 @@ def RunSteps(api):
 
   results_dir = api.path['cwd'].join('dm')
 
-  # Validate the JSON file.
-  json_file = results_dir.join(DM_JSON)
-  api.json.read('validate dm.json', json_file)
-
   # Move dm.json and verbose.log to their own directory.
+  json_file = results_dir.join(DM_JSON)
   log_file = results_dir.join(VERBOSE_LOG)
   tmp_dir = api.path['cwd'].join('tmp_upload')
   api.shutil.makedirs('tmp dir', tmp_dir, infra_step=True)
