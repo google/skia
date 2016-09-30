@@ -183,9 +183,9 @@
       ],
       'sources': [ '<@(avx2_sources)' ],
       'msvs_settings': { 'VCCLCompilerTool': { 'EnableEnhancedInstructionSet': '5' } },
-      'xcode_settings': { 'OTHER_CPLUSPLUSFLAGS': [ '-mavx2' ] },
+      'xcode_settings': { 'OTHER_CPLUSPLUSFLAGS': [ '-mavx2', '-mf16c', '-mfma' ] },
       'conditions': [
-        [ 'not skia_android_framework', { 'cflags': [ '-mavx2' ] }],
+        [ 'not skia_android_framework', { 'cflags': [ '-mavx2', '-mf16c', '-mfma' ] }],
       ],
     },
     {

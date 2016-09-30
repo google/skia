@@ -197,6 +197,16 @@ opts("avx") {
   cflags = [ "-mavx" ]
 }
 
+opts("avx2") {
+  enabled = is_x86
+  sources = skia_opts.avx2_sources
+  cflags = [
+    "-mavx2",
+    "-mf16c",
+    "-mfma",
+  ]
+}
+
 opts("dsp") {
   enabled = current_cpu == "mipsel"
   sources = skia_opts.mips_dsp_sources
@@ -432,6 +442,7 @@ component("skia") {
     ":arm64",
     ":armv7",
     ":avx",
+    ":avx2",
     ":crc32",
     ":dsp",
     ":fontmgr_android",
