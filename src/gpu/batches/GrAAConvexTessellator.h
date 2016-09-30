@@ -139,12 +139,14 @@ private:
             pt->fOrigEdgeId = origEdgeId;
         }
 
+#if 0
         // Upgrade this ring so that it can behave like an originating ring
         void makeOriginalRing() {
             for (int i = 0; i < fPts.count(); ++i) {
                 fPts[i].fOrigEdgeId = fPts[i].fIndex;
             }            
         }
+#endif
 
         // init should be called after all the indices have been added (via addIdx)
         void init(const GrAAConvexTessellator& tess);
