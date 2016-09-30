@@ -37,6 +37,10 @@
 #include "SkReadBuffer.h"
 #include "SkStream.h"
 
+#if defined(SK_BUILD_FOR_MAC) || defined(SK_BUILD_FOR_IOS)
+#include "SkCGUtils.h"
+#endif
+
 #if SK_SUPPORT_GPU
 #   include "gl/GrGLInterface.h"
 #   include "gl/GrGLUtil.h"
