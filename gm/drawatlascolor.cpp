@@ -26,7 +26,7 @@ static sk_sp<SkImage> make_atlas(SkCanvas* caller, int atlasSize) {
     SkCanvas* canvas = surface->getCanvas();
 
     SkPaint paint;
-    paint.setXfermode(SkXfermode::Make(SkXfermode::kSrc_Mode));
+    paint.setBlendMode(SkBlendMode::kSrc);
 
     paint.setColor(SK_ColorWHITE);
     SkRect r = SkRect::MakeXYWH(0, 0,

@@ -339,8 +339,7 @@ SkARGB32_Shader_Blitter::SkARGB32_Shader_Blitter(const SkPixmap& device,
 {
     fBuffer = (SkPMColor*)sk_malloc_throw(device.width() * (sizeof(SkPMColor)));
 
-    fXfermode = paint.getXfermode();
-    SkSafeRef(fXfermode);
+    fXfermode = SkXfermode::Peek(paint.getBlendMode());
 
     int flags = 0;
     if (!(shaderContext->getFlags() & SkShader::kOpaqueAlpha_Flag)) {
@@ -370,7 +369,6 @@ SkARGB32_Shader_Blitter::SkARGB32_Shader_Blitter(const SkPixmap& device,
 }
 
 SkARGB32_Shader_Blitter::~SkARGB32_Shader_Blitter() {
-    SkSafeUnref(fXfermode);
     sk_free(fBuffer);
 }
 

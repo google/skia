@@ -12,58 +12,58 @@
 #include "SkPDFGraphicState.h"
 #include "SkPDFUtils.h"
 
-static const char* as_blend_mode(SkXfermode::Mode mode) {
+static const char* as_blend_mode(SkBlendMode mode) {
     switch (mode) {
-        case SkXfermode::kSrcOver_Mode:
+        case SkBlendMode::kSrcOver:
             return "Normal";
-        case SkXfermode::kMultiply_Mode:
+        case SkBlendMode::kMultiply:
             return "Multiply";
-        case SkXfermode::kScreen_Mode:
+        case SkBlendMode::kScreen:
             return "Screen";
-        case SkXfermode::kOverlay_Mode:
+        case SkBlendMode::kOverlay:
             return "Overlay";
-        case SkXfermode::kDarken_Mode:
+        case SkBlendMode::kDarken:
             return "Darken";
-        case SkXfermode::kLighten_Mode:
+        case SkBlendMode::kLighten:
             return "Lighten";
-        case SkXfermode::kColorDodge_Mode:
+        case SkBlendMode::kColorDodge:
             return "ColorDodge";
-        case SkXfermode::kColorBurn_Mode:
+        case SkBlendMode::kColorBurn:
             return "ColorBurn";
-        case SkXfermode::kHardLight_Mode:
+        case SkBlendMode::kHardLight:
             return "HardLight";
-        case SkXfermode::kSoftLight_Mode:
+        case SkBlendMode::kSoftLight:
             return "SoftLight";
-        case SkXfermode::kDifference_Mode:
+        case SkBlendMode::kDifference:
             return "Difference";
-        case SkXfermode::kExclusion_Mode:
+        case SkBlendMode::kExclusion:
             return "Exclusion";
-        case SkXfermode::kHue_Mode:
+        case SkBlendMode::kHue:
             return "Hue";
-        case SkXfermode::kSaturation_Mode:
+        case SkBlendMode::kSaturation:
             return "Saturation";
-        case SkXfermode::kColor_Mode:
+        case SkBlendMode::kColor:
             return "Color";
-        case SkXfermode::kLuminosity_Mode:
+        case SkBlendMode::kLuminosity:
             return "Luminosity";
 
         // These are handled in SkPDFDevice::setUpContentEntry.
-        case SkXfermode::kClear_Mode:
-        case SkXfermode::kSrc_Mode:
-        case SkXfermode::kDst_Mode:
-        case SkXfermode::kDstOver_Mode:
-        case SkXfermode::kSrcIn_Mode:
-        case SkXfermode::kDstIn_Mode:
-        case SkXfermode::kSrcOut_Mode:
-        case SkXfermode::kDstOut_Mode:
-        case SkXfermode::kSrcATop_Mode:
-        case SkXfermode::kDstATop_Mode:
-        case SkXfermode::kModulate_Mode:
+        case SkBlendMode::kClear:
+        case SkBlendMode::kSrc:
+        case SkBlendMode::kDst:
+        case SkBlendMode::kDstOver:
+        case SkBlendMode::kSrcIn:
+        case SkBlendMode::kDstIn:
+        case SkBlendMode::kSrcOut:
+        case SkBlendMode::kDstOut:
+        case SkBlendMode::kSrcATop:
+        case SkBlendMode::kDstATop:
+        case SkBlendMode::kModulate:
             return "Normal";
 
         // TODO(vandebo): Figure out if we can support more of these modes.
-        case SkXfermode::kXor_Mode:
-        case SkXfermode::kPlus_Mode:
+        case SkBlendMode::kXor:
+        case SkBlendMode::kPlus:
             return nullptr;
     }
     return nullptr;
@@ -71,32 +71,28 @@ static const char* as_blend_mode(SkXfermode::Mode mode) {
 
 // If a SkXfermode is unsupported in PDF, this function returns
 // SrcOver, otherwise, it returns that Xfermode as a Mode.
-static SkXfermode::Mode mode_for_pdf(const SkXfermode* xfermode) {
-    SkXfermode::Mode mode = SkXfermode::kSrcOver_Mode;
-    if (xfermode) {
-        xfermode->asMode(&mode);
-    }
+static SkBlendMode mode_for_pdf(SkBlendMode mode) {
     switch (mode) {
-        case SkXfermode::kSrcOver_Mode:
-        case SkXfermode::kMultiply_Mode:
-        case SkXfermode::kScreen_Mode:
-        case SkXfermode::kOverlay_Mode:
-        case SkXfermode::kDarken_Mode:
-        case SkXfermode::kLighten_Mode:
-        case SkXfermode::kColorDodge_Mode:
-        case SkXfermode::kColorBurn_Mode:
-        case SkXfermode::kHardLight_Mode:
-        case SkXfermode::kSoftLight_Mode:
-        case SkXfermode::kDifference_Mode:
-        case SkXfermode::kExclusion_Mode:
-        case SkXfermode::kHue_Mode:
-        case SkXfermode::kSaturation_Mode:
-        case SkXfermode::kColor_Mode:
-        case SkXfermode::kLuminosity_Mode:
+        case SkBlendMode::kSrcOver:
+        case SkBlendMode::kMultiply:
+        case SkBlendMode::kScreen:
+        case SkBlendMode::kOverlay:
+        case SkBlendMode::kDarken:
+        case SkBlendMode::kLighten:
+        case SkBlendMode::kColorDodge:
+        case SkBlendMode::kColorBurn:
+        case SkBlendMode::kHardLight:
+        case SkBlendMode::kSoftLight:
+        case SkBlendMode::kDifference:
+        case SkBlendMode::kExclusion:
+        case SkBlendMode::kHue:
+        case SkBlendMode::kSaturation:
+        case SkBlendMode::kColor:
+        case SkBlendMode::kLuminosity:
             // Mode is suppported and handled by pdf graphics state.
             return mode;
         default:
-            return SkXfermode::kSrcOver_Mode;  // Default mode.
+            return SkBlendMode::kSrcOver;  // Default mode.
     }
 }
 
@@ -106,7 +102,7 @@ SkPDFGraphicState::SkPDFGraphicState(const SkPaint& p)
     , fAlpha(p.getAlpha())
     , fStrokeCap(SkToU8(p.getStrokeCap()))
     , fStrokeJoin(SkToU8(p.getStrokeJoin()))
-    , fMode(SkToU8(mode_for_pdf(p.getXfermode()))) {}
+    , fMode(SkToU8((unsigned)mode_for_pdf(p.getBlendMode()))) {}
 
 // static
 SkPDFGraphicState* SkPDFGraphicState::GetGraphicStateForPaint(
@@ -186,7 +182,6 @@ void SkPDFGraphicState::emitObject(
 
     SkPaint::Cap strokeCap = (SkPaint::Cap)fStrokeCap;
     SkPaint::Join strokeJoin = (SkPaint::Join)fStrokeJoin;
-    SkXfermode::Mode xferMode = (SkXfermode::Mode)fMode;
 
     static_assert(SkPaint::kButt_Cap == 0, "paint_cap_mismatch");
     static_assert(SkPaint::kRound_Cap == 1, "paint_cap_mismatch");
@@ -205,6 +200,6 @@ void SkPDFGraphicState::emitObject(
     dict->insertScalar("LW", fStrokeWidth);
     dict->insertScalar("ML", fStrokeMiter);
     dict->insertBool("SA", true);  // SA = Auto stroke adjustment.
-    dict->insertName("BM", as_blend_mode(xferMode));
+    dict->insertName("BM", as_blend_mode((SkBlendMode)fMode));
     dict->emitObject(stream, objNumMap);
 }
