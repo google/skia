@@ -287,7 +287,7 @@ BASE_SRCS_IOS = struct(
 )
 
 ################################################################################
-## SSSE3/SSE4/AVX/AVX2 SRCS
+## SSSE3/SSE4/AVX/HSW SRCS
 ################################################################################
 
 SSSE3_SRCS = struct(
@@ -311,13 +311,6 @@ AVX_SRCS = struct(
 )
 
 HSW_SRCS = struct(
-    include = [
-        "src/opts/*_hsw.cpp",
-    ],
-)
-
-# TODO: clean up after updating BUILD.
-AVX2_SRCS = struct(
     include = [
         "src/opts/*_hsw.cpp",
     ],
@@ -348,7 +341,7 @@ BASE_DEPS_UNIX = [
     ":opts_ssse3",
     ":opts_sse4",
     ":opts_avx",
-    ":opts_avx2",
+    ":opts_hsw",
 ]
 
 BASE_DEPS_ANDROID = []
