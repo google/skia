@@ -147,7 +147,7 @@ namespace SkOpts {
     void Init_sse41();
     void Init_sse42();
     void Init_avx();
-    void Init_avx2() {}
+    void Init_hsw();
     void Init_crc32();
 
     static void init() {
@@ -157,7 +157,7 @@ namespace SkOpts {
         if (SkCpu::Supports(SkCpu::SSE41)) { Init_sse41(); }
         if (SkCpu::Supports(SkCpu::SSE42)) { Init_sse42(); }
         if (SkCpu::Supports(SkCpu::AVX  )) { Init_avx();   }
-        if (SkCpu::Supports(SkCpu::AVX2 )) { Init_avx2();  }
+        if (SkCpu::Supports(SkCpu::HSW  )) { Init_hsw();   }
 
     #elif defined(SK_CPU_ARM64)
         if (SkCpu::Supports(SkCpu::CRC32)) { Init_crc32(); }
