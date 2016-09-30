@@ -20,6 +20,7 @@
 #include "GrXferProcessor.h"
 #include "GrYUVProvider.h"
 
+#include "SkBlendModePriv.h"
 #include "SkColorFilter.h"
 #include "SkConfig8888.h"
 #include "SkCanvas.h"
@@ -680,9 +681,8 @@ static inline bool skpaint_to_grpaint_impl(GrContext* context,
     // When the xfermode is null on the SkPaint (meaning kSrcOver) we need the XPFactory field on
     // the GrPaint to also be null (also kSrcOver).
     SkASSERT(!grPaint->getXPFactory());
-    SkXfermode* xfermode = skPaint.getXfermode();
-    if (xfermode) {
-        grPaint->setXPFactory(xfermode->asXPFactory());
+    if (!skPaint.isSrcOver()) {
+        grPaint->setXPFactory(SkBlendMode_AsXPFactory(skPaint.getBlendMode()));
     }
 
 #ifndef SK_IGNORE_GPU_DITHER
