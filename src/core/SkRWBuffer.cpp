@@ -199,7 +199,7 @@ SkRWBuffer::~SkRWBuffer() {
 // next, since our reader will be using fCapacity (min'd against its total available) to know how
 // many bytes to read from a given block.
 //
-void SkRWBuffer::append(const void* src, size_t length) {
+void SkRWBuffer::append(const void* src, size_t length, size_t reserve) {
     this->validate();
     if (0 == length) {
         return;
@@ -208,7 +208,7 @@ void SkRWBuffer::append(const void* src, size_t length) {
     fTotalUsed += length;
 
     if (nullptr == fHead) {
-        fHead = SkBufferHead::Alloc(length);
+        fHead = SkBufferHead::Alloc(length + reserve);
         fTail = &fHead->fBlock;
     }
 
@@ -218,7 +218,7 @@ void SkRWBuffer::append(const void* src, size_t length) {
     length -= written;
 
     if (length) {
-        SkBufferBlock* block = SkBufferBlock::Alloc(length);
+        SkBufferBlock* block = SkBufferBlock::Alloc(length + reserve);
         fTail->fNext = block;
         fTail = block;
         written = fTail->append(src, length);
