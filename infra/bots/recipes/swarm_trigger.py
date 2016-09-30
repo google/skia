@@ -48,6 +48,7 @@ TEST_BUILDERS = {
       'Infra-PerCommit',
       'Perf-Ubuntu-GCC-GCE-CPU-AVX2-x86_64-Release-Trybot',
       'Perf-Ubuntu-GCC-Golo-GPU-GT610-x86_64-Release-CT_BENCH_1k_SKPs',
+      'Perf-Ubuntu-GCC-ShuttleA-GPU-GTX550Ti-x86_64-Release-Valgrind',
       'Test-Android-Clang-AndroidOne-CPU-MT6582-arm-Debug-GN_Android',
       'Test-Android-GCC-NVIDIA_Shield-GPU-TegraX1-Arm64-Debug-Vulkan',
       'Test-Android-GCC-Nexus7v2-GPU-Tegra3-Arm7-Release',
@@ -694,9 +695,10 @@ def test_for_bot(api, builder, mastername, slavename, testname=None):
     test += api.step_data(
         'upload new .isolated file for perf_skia',
         stdout=api.raw_io.output('def456 XYZ.isolated'))
-    test += api.step_data(
-        'upload new .isolated file for upload_nano_results_skia',
-        stdout=api.raw_io.output('def456 XYZ.isolated'))
+    if 'Valgrind' not in builder:
+      test += api.step_data(
+          'upload new .isolated file for upload_nano_results_skia',
+          stdout=api.raw_io.output('def456 XYZ.isolated'))
   if 'Housekeeper' in builder and 'RecreateSKPs' not in builder:
     test += api.step_data(
         'upload new .isolated file for housekeeper_skia',

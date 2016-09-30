@@ -144,4 +144,19 @@ class SkiaVarsApi(recipe_api.RecipeApi):
   @property
   def upload_perf_results(self):
     # TODO(borenet): Move this into the swarm_perf recipe.
-    return ('Release' in self.m.properties['buildername'])
+    if 'Release' not in self.m.properties['buildername']:
+      return False
+    skip_upload_bots = [
+      'ASAN',
+      'Coverage',
+      'MSAN',
+      'TSAN',
+      'UBSAN',
+      'Valgrind',
+    ]
+    upload_perf_results = True
+    for s in skip_upload_bots:
+      if s in self.m.properties['buildername']:
+        upload_perf_results = False
+        break
+    return upload_perf_results

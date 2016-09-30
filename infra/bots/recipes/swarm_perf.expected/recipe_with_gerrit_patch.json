@@ -83,50 +83,6 @@
   },
   {
     "cmd": [
-      "python",
-      "-u",
-      "\nimport os, sys\nfrom common import chromium_utils # Error? See https://crbug.com/584783.\n\n\nif os.path.exists(sys.argv[1]):\n  chromium_utils.RemoveDirectory(sys.argv[1])\n",
-      "[CUSTOM_[SWARM_OUT_DIR]]/perfdata/Perf-Ubuntu-GCC-ShuttleA-GPU-GTX550Ti-x86_64-Release-Valgrind-Trybot/data"
-    ],
-    "env": {
-      "PYTHONPATH": "[SLAVE_BUILD]/skia/infra/bots/.recipe_deps/build/scripts"
-    },
-    "name": "rmtree data",
-    "~followup_annotations": [
-      "@@@STEP_LOG_LINE@python.inline@@@@",
-      "@@@STEP_LOG_LINE@python.inline@import os, sys@@@",
-      "@@@STEP_LOG_LINE@python.inline@from common import chromium_utils # Error? See https://crbug.com/584783.@@@",
-      "@@@STEP_LOG_LINE@python.inline@@@@",
-      "@@@STEP_LOG_LINE@python.inline@@@@",
-      "@@@STEP_LOG_LINE@python.inline@if os.path.exists(sys.argv[1]):@@@",
-      "@@@STEP_LOG_LINE@python.inline@  chromium_utils.RemoveDirectory(sys.argv[1])@@@",
-      "@@@STEP_LOG_END@python.inline@@@"
-    ]
-  },
-  {
-    "cmd": [
-      "python",
-      "-u",
-      "\nimport sys, os\npath = sys.argv[1]\nmode = int(sys.argv[2])\nif not os.path.isdir(path):\n  if os.path.exists(path):\n    print \"%s exists but is not a dir\" % path\n    sys.exit(1)\n  os.makedirs(path, mode)\n",
-      "[CUSTOM_[SWARM_OUT_DIR]]/perfdata/Perf-Ubuntu-GCC-ShuttleA-GPU-GTX550Ti-x86_64-Release-Valgrind-Trybot/data",
-      "511"
-    ],
-    "name": "makedirs data",
-    "~followup_annotations": [
-      "@@@STEP_LOG_LINE@python.inline@@@@",
-      "@@@STEP_LOG_LINE@python.inline@import sys, os@@@",
-      "@@@STEP_LOG_LINE@python.inline@path = sys.argv[1]@@@",
-      "@@@STEP_LOG_LINE@python.inline@mode = int(sys.argv[2])@@@",
-      "@@@STEP_LOG_LINE@python.inline@if not os.path.isdir(path):@@@",
-      "@@@STEP_LOG_LINE@python.inline@  if os.path.exists(path):@@@",
-      "@@@STEP_LOG_LINE@python.inline@    print \"%s exists but is not a dir\" % path@@@",
-      "@@@STEP_LOG_LINE@python.inline@    sys.exit(1)@@@",
-      "@@@STEP_LOG_LINE@python.inline@  os.makedirs(path, mode)@@@",
-      "@@@STEP_LOG_END@python.inline@@@"
-    ]
-  },
-  {
-    "cmd": [
       "valgrind",
       "--gen-suppressions=all",
       "--leak-check=full",
@@ -191,35 +147,7 @@
       "~inc13.png",
       "~inc14.png",
       "~inc0.webp",
-      "~inc1.webp",
-      "--outResultsFile",
-      "[CUSTOM_[SWARM_OUT_DIR]]/perfdata/Perf-Ubuntu-GCC-ShuttleA-GPU-GTX550Ti-x86_64-Release-Valgrind-Trybot/data/nanobench_abc123_1337018001.json",
-      "--properties",
-      "gitHash",
-      "abc123",
-      "build_number",
-      "5",
-      "issue",
-      "2100",
-      "patchset",
-      "2",
-      "patch_storage",
-      "gerrit",
-      "--key",
-      "arch",
-      "x86_64",
-      "compiler",
-      "GCC",
-      "cpu_or_gpu",
-      "GPU",
-      "cpu_or_gpu_value",
-      "GTX550Ti",
-      "extra_config",
-      "Valgrind",
-      "model",
-      "ShuttleA",
-      "os",
-      "Ubuntu"
+      "~inc1.webp"
     ],
     "env": {
       "BUILDTYPE": "Release",
@@ -295,34 +223,6 @@
       "~inc14.png",
       "~inc0.webp",
       "~inc1.webp",
-      "--outResultsFile",
-      "[CUSTOM_[SWARM_OUT_DIR]]/perfdata/Perf-Ubuntu-GCC-ShuttleA-GPU-GTX550Ti-x86_64-Release-Valgrind-Trybot/data/nanobench_abc123_1337018001.json",
-      "--properties",
-      "gitHash",
-      "abc123",
-      "build_number",
-      "5",
-      "issue",
-      "2100",
-      "patchset",
-      "2",
-      "patch_storage",
-      "gerrit",
-      "--key",
-      "arch",
-      "x86_64",
-      "compiler",
-      "GCC",
-      "cpu_or_gpu",
-      "GPU",
-      "cpu_or_gpu_value",
-      "GTX550Ti",
-      "extra_config",
-      "Valgrind",
-      "model",
-      "ShuttleA",
-      "os",
-      "Ubuntu",
       "--abandonGpuContext",
       "--nocpu"
     ],
@@ -332,28 +232,6 @@
       "SKIA_OUT": "[SLAVE_BUILD]/out"
     },
     "name": "nanobench --abandonGpuContext"
-  },
-  {
-    "cmd": [
-      "python",
-      "-u",
-      "\nimport sys, os\npath = sys.argv[1]\nmode = int(sys.argv[2])\nif not os.path.isdir(path):\n  if os.path.exists(path):\n    print \"%s exists but is not a dir\" % path\n    sys.exit(1)\n  os.makedirs(path, mode)\n",
-      "[CUSTOM_[SWARM_OUT_DIR]]/perfdata/Perf-Ubuntu-GCC-ShuttleA-GPU-GTX550Ti-x86_64-Release-Valgrind-Trybot/data",
-      "511"
-    ],
-    "name": "makedirs perf_dir",
-    "~followup_annotations": [
-      "@@@STEP_LOG_LINE@python.inline@@@@",
-      "@@@STEP_LOG_LINE@python.inline@import sys, os@@@",
-      "@@@STEP_LOG_LINE@python.inline@path = sys.argv[1]@@@",
-      "@@@STEP_LOG_LINE@python.inline@mode = int(sys.argv[2])@@@",
-      "@@@STEP_LOG_LINE@python.inline@if not os.path.isdir(path):@@@",
-      "@@@STEP_LOG_LINE@python.inline@  if os.path.exists(path):@@@",
-      "@@@STEP_LOG_LINE@python.inline@    print \"%s exists but is not a dir\" % path@@@",
-      "@@@STEP_LOG_LINE@python.inline@    sys.exit(1)@@@",
-      "@@@STEP_LOG_LINE@python.inline@  os.makedirs(path, mode)@@@",
-      "@@@STEP_LOG_END@python.inline@@@"
-    ]
   },
   {
     "name": "$result",
