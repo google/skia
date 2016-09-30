@@ -16,6 +16,7 @@
 #include "SkImageInfo.h"
 
 class GrCaps;
+class GrColorSpaceXform;
 class GrContext;
 class GrTexture;
 class GrTextureParams;
@@ -40,6 +41,9 @@ static inline GrColor SkColorToUnpremulGrColor(SkColor c) {
     unsigned a = SkColorGetA(c);
     return GrColorPackRGBA(r, g, b, a);
 }
+
+GrColor4f SkColorToPremulGrColor4f(SkColor c, bool gammaCorrect, GrColorSpaceXform* gamutXform);
+GrColor4f SkColorToUnpremulGrColor4f(SkColor c, bool gammaCorrect, GrColorSpaceXform* gamutXform);
 
 static inline GrColor SkColorToOpaqueGrColor(SkColor c) {
     unsigned r = SkColorGetR(c);
