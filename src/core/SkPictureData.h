@@ -117,6 +117,9 @@ public:
 
     const SkPaint* getPaint(SkReadBuffer* reader) const {
         const int index = reader->readInt() - 1;
+        if (index == -1) {  // recorder wrote a zero for no paint (likely drawimage)
+            return nullptr;
+        }
         return reader->validateIndex(index, fPaints.count()) ? &fPaints[index] : nullptr;
     }
 

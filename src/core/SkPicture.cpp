@@ -157,7 +157,7 @@ bool SkPicture::InternalOnly_BufferIsSKP(SkReadBuffer* buffer, SkPictInfo* pInfo
 
 sk_sp<SkPicture> SkPicture::Forwardport(const SkPictInfo& info,
                                         const SkPictureData* data,
-                                        const SkReadBuffer* buffer) {
+                                        SkReadBuffer* buffer) {
     if (!data) {
         return nullptr;
     }

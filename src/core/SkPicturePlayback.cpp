@@ -82,7 +82,7 @@ void get_text(SkReadBuffer* reader, TextContainer* text) {
 
 void SkPicturePlayback::draw(SkCanvas* canvas,
                              SkPicture::AbortCallback* callback,
-                             const SkReadBuffer* buffer) {
+                             SkReadBuffer* buffer) {
     AutoResetOpID aroi(this);
     SkASSERT(0 == fCurOffset);
 
@@ -113,6 +113,11 @@ void SkPicturePlayback::draw(SkCanvas* canvas,
         }
 
         this->handleOp(reader, op, size, canvas, initialMatrix);
+    }
+
+    // need to propagate invalid state to the parent reader
+    if (buffer) {
+        buffer->validate(reader->isValid());
     }
 }
 

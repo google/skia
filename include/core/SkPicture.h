@@ -247,7 +247,7 @@ private:
     static bool IsValidPictInfo(const SkPictInfo& info);
     static sk_sp<SkPicture> Forwardport(const SkPictInfo&,
                                         const SkPictureData*,
-                                        const SkReadBuffer* buffer);
+                                        SkReadBuffer* buffer);
 
     SkPictInfo createHeader() const;
     SkPictureData* backport() const;

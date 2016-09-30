@@ -566,6 +566,7 @@ DEF_TEST(Serialization, reporter) {
         // Deserialize picture
         SkValidatingReadBuffer reader(static_cast<void*>(data.get()), size);
         sk_sp<SkPicture> readPict(SkPicture::MakeFromBuffer(reader));
+        REPORTER_ASSERT(reporter, reader.isValid());
         REPORTER_ASSERT(reporter, readPict.get());
     }
 
