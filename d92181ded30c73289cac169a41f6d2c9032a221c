@@ -134,6 +134,24 @@
       "revId": "d92181ded30c73289cac169a41f6d2c9032a221c",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "22459584_41641447",
+        "filename": "src/gpu/vk/GrVkGpu.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 399,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2016-09-30T19:00:53Z",
+      "side": 1,
+      "message": "Right, I was just wondering if the client needs a hint about what the natural orientation is. Or is it the same between GL and VK backends.",
+      "parentUuid": "22459584_8120dc09",
+      "revId": "d92181ded30c73289cac169a41f6d2c9032a221c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
