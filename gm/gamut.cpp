@@ -125,15 +125,11 @@ static void draw_gamut_grid(SkCanvas* canvas, SkTArray<SkAutoTDelete<CellRendere
     wideGamutRGB_toXYZD50.set3x3RowMajorf(gWideGamutRGB_toXYZD50);
 
     // Use the original canvas' color type, but account for gamma requirements
-    SkColorType colorType = canvas->imageInfo().colorType();
-    if (kUnknown_SkColorType == colorType) {
-        // This can happen when recording (in which case we'll just use 8888 offscreen surfaces)
-        colorType = kN32_SkColorType;
-    }
+    SkImageInfo origInfo = canvas->imageInfo();
     auto srgbCS = SkColorSpace::NewNamed(SkColorSpace::kSRGB_Named);
     auto wideCS = SkColorSpace::NewRGB(SkColorSpace::kSRGB_RenderTargetGamma,
                                        wideGamutRGB_toXYZD50);
-    switch (colorType) {
+    switch (origInfo.colorType()) {
         case kRGBA_8888_SkColorType:
         case kBGRA_8888_SkColorType:
             break;
@@ -146,19 +142,16 @@ static void draw_gamut_grid(SkCanvas* canvas, SkTArray<SkAutoTDelete<CellRendere
     }
 
     // Make our two working surfaces (one sRGB, one Adobe)
-    SkImageInfo srgbGamutInfo = SkImageInfo::Make(gRectSize, gRectSize, colorType,
+    SkImageInfo srgbGamutInfo = SkImageInfo::Make(gRectSize, gRectSize, origInfo.colorType(),
                                                   kPremul_SkAlphaType, srgbCS);
-    SkImageInfo wideGamutInfo = SkImageInfo::Make(gRectSize, gRectSize, colorType,
+    SkImageInfo wideGamutInfo = SkImageInfo::Make(gRectSize, gRectSize, origInfo.colorType(),
                                                   kPremul_SkAlphaType, wideCS);
     // readPixels doesn't do color conversion (yet), so we can use it to see the raw (wide) data
     SkImageInfo dstInfo = srgbGamutInfo.makeColorSpace(nullptr);
     sk_sp<SkSurface> srgbGamutSurface = canvas->makeSurface(srgbGamutInfo);
-    if (!srgbGamutSurface) {
-        srgbGamutSurface = SkSurface::MakeRaster(srgbGamutInfo);
-    }
     sk_sp<SkSurface> wideGamutSurface = canvas->makeSurface(wideGamutInfo);
-    if (!wideGamutSurface) {
-        wideGamutSurface = SkSurface::MakeRaster(wideGamutInfo);
+    if (!srgbGamutSurface || !wideGamutSurface) {
+        return;
     }
     SkCanvas* srgbGamutCanvas = srgbGamutSurface->getCanvas();
     SkCanvas* wideGamutCanvas = wideGamutSurface->getCanvas();
