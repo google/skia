@@ -140,7 +140,7 @@ if (NOT WIN32)
     set_source_files_properties(${sse41_srcs} PROPERTIES COMPILE_FLAGS -msse4.1)
     set_source_files_properties(${sse42_srcs} PROPERTIES COMPILE_FLAGS -msse4.2)
     set_source_files_properties(${avx_srcs}   PROPERTIES COMPILE_FLAGS -mavx)
-    set_source_files_properties(${avx2_srcs}  PROPERTIES COMPILE_FLAGS -mavx2)
+    set_source_files_properties(${avx2_srcs}  PROPERTIES COMPILE_FLAGS -mavx2 -mf16c -mfma)
 endif()
 
 # Detect our optional dependencies.
