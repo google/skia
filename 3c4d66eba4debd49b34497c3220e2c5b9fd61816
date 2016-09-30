@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "22459584_7e6e1126",
+        "filename": "BUILD.gn",
+        "patchSetId": 7
+      },
+      "lineNbr": 200,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2016-09-30T14:02:19Z",
+      "side": 1,
+      "message": "Is hsw a standard abbreviation for haswell? Maybe a comment?",
+      "revId": "3c4d66eba4debd49b34497c3220e2c5b9fd61816",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
