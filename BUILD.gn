@@ -27,7 +27,10 @@ declare_args() {
   skia_enable_gpu = true
   skia_enable_tools = is_skia_standalone
   skia_enable_vulkan_debug_layers = is_skia_standalone && is_debug
+  skia_vulkan_sdk = ""
 }
+
+skia_use_vulkan = skia_use_vulkan || skia_vulkan_sdk != ""
 
 # Our tools require static linking (they use non-exported symbols).
 skia_enable_tools = skia_enable_tools && !is_component_build
@@ -229,9 +232,13 @@ template("optional") {
                              [
                                "public_defines",
                                "sources_when_disabled",
+                               "configs",
                              ])
       all_dependent_configs = [ ":" + target_name + "_public" ]
       configs += skia_library_configs
+      if (defined(invoker.configs)) {
+        configs += invoker.configs
+      }
     }
   } else {
     source_set(target_name) {
@@ -243,6 +250,7 @@ template("optional") {
                                "libs",
                                "sources",
                                "sources_when_disabled",
+                               "configs",
                              ])
       if (defined(invoker.sources_when_disabled)) {
         sources = invoker.sources_when_disabled
@@ -319,9 +327,22 @@ optional("gif") {
   ]
 }
 
+config("skia_private_vulkan") {
+  if (skia_use_vulkan) {
+    include_dirs = []
+    lib_dirs = []
+    if (skia_vulkan_sdk != "") {
+      include_dirs += [ "$skia_vulkan_sdk/x86_64/include/" ]
+      lib_dirs += [ "$skia_vulkan_sdk/x86_64/lib/" ]
+    }
+    libs = [ "vulkan" ]
+  }
+}
+
 optional("gpu") {
   enabled = skia_enable_gpu
   public_defines = []
+  configs = [ ":skia_private_vulkan" ]
 
   sources = skia_gpu_sources + [ "src/gpu/gl/GrGLDefaultInterface_native.cpp" ]
 
@@ -345,7 +366,6 @@ optional("gpu") {
   if (skia_use_vulkan) {
     public_defines += [ "SK_VULKAN" ]
     sources += skia_vk_sources
-    libs += [ "vulkan" ]
     if (skia_enable_vulkan_debug_layers) {
       public_defines += [ "SK_ENABLE_VK_LAYERS" ]
     }
@@ -627,11 +647,19 @@ if (skia_enable_tools) {
       }
     }
     source_set(target_name) {
-      forward_variables_from(invoker, "*", [ "public_include_dirs" ])
+      forward_variables_from(invoker,
+                             "*",
+                             [
+                               "public_include_dirs",
+                               "public_configs",
+                             ])
       public_configs = [
         ":" + target_name + "_config",
         ":skia_private",
       ]
+      if (defined(invoker.public_configs)) {
+        public_configs += invoker.public_configs
+      }
 
       if (!defined(deps)) {
         deps = []
@@ -643,6 +671,7 @@ if (skia_enable_tools) {
 
   test_lib("gpu_tool_utils") {
     public_include_dirs = []
+    public_configs = [ ":skia_private_vulkan" ]
     if (skia_enable_gpu) {
       public_defines = []
       public_include_dirs += [ "tools/gpu" ]
