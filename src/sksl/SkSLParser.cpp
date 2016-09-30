@@ -56,9 +56,7 @@
 #include "ast/SkSLASTIndexSuffix.h"
 #include "ast/SkSLASTInterfaceBlock.h"
 #include "ast/SkSLASTIntLiteral.h"
-#include "ast/SkSLASTModifiersDeclaration.h"
 #include "ast/SkSLASTParameter.h"
-#include "ast/SkSLASTPrecision.h"
 #include "ast/SkSLASTPrefixExpression.h"
 #include "ast/SkSLASTReturnStatement.h"
 #include "ast/SkSLASTStatement.h"
@@ -99,13 +97,9 @@ std::vector<std::unique_ptr<ASTDeclaration>> Parser::file() {
         switch (this->peek().fKind) {
             case Token::END_OF_FILE:
                 return result;
-            case Token::PRECISION: {
-                std::unique_ptr<ASTDeclaration> precision = this->precision();
-                if (precision) {
-                    result.push_back(std::move(precision));
-                }
+            case Token::PRECISION:
+                this->precision();
                 break;
-            }
             case Token::DIRECTIVE: {
                 std::unique_ptr<ASTDeclaration> decl = this->directive();
                 if (decl) {
@@ -169,37 +163,29 @@ bool Parser::isType(std::string name) {
 }
 
 /* PRECISION (LOWP | MEDIUMP | HIGHP) type SEMICOLON */
-std::unique_ptr<ASTDeclaration> Parser::precision() {
+void Parser::precision() {
     if (!this->expect(Token::PRECISION, "'precision'")) {
-        return nullptr;
+        return;
     }
-    Modifiers::Flag result;
     Token p = this->nextToken();
     switch (p.fKind) {
-        case Token::LOWP:
-            result = Modifiers::kLowp_Flag;
-            break;
-        case Token::MEDIUMP:
-            result = Modifiers::kMediump_Flag;
-            break;
+        case Token::LOWP: // fall through
+        case Token::MEDIUMP: // fall through
         case Token::HIGHP:
-            result = Modifiers::kHighp_Flag;
+            // ignored for now
             break;
         default:
             this->error(p.fPosition, "expected 'lowp', 'mediump', or 'highp', but found '" + 
                                      p.fText + "'");
-            return nullptr;
+            return;
     }
-    // FIXME handle the type
     if (!this->type()) {
-        return nullptr;
+        return;
     }
     this->expect(Token::SEMICOLON, "';'");
-    return std::unique_ptr<ASTDeclaration>(new ASTPrecision(p.fPosition, result));
 }
 
-/* DIRECTIVE(#version) INT_LITERAL ("es" | "compatibility")? | 
-   DIRECTIVE(#extension) IDENTIFIER COLON IDENTIFIER */
+/* DIRECTIVE(#version) INT_LITERAL | DIRECTIVE(#extension) IDENTIFIER COLON IDENTIFIER */
 std::unique_ptr<ASTDeclaration> Parser::directive() {
     Token start;
     if (!this->expect(Token::DIRECTIVE, "a directive", &start)) {
@@ -207,12 +193,7 @@ std::unique_ptr<ASTDeclaration> Parser::directive() {
     }
     if (start.fText == "#version") {
         this->expect(Token::INT_LITERAL, "a version number");
-        Token next = this->peek();
-        if (next.fText == "es" || next.fText == "compatibility") {
-            this->nextToken();
-        }
-        // version is ignored for now; it will eventually become an error when we stop pretending
-        // to be GLSL
+        // ignored for now
         return nullptr;
     } else if (start.fText == "#extension") {
         Token name;
@@ -245,10 +226,6 @@ std::unique_ptr<ASTDeclaration> Parser::declaration() {
     }
     if (lookahead.fKind == Token::STRUCT) {
         return this->structVarDeclaration(modifiers);
-    }
-    if (lookahead.fKind == Token::SEMICOLON) {
-        this->nextToken();
-        return std::unique_ptr<ASTDeclaration>(new ASTModifiersDeclaration(modifiers));
     }
     std::unique_ptr<ASTType> type(this->type());
     if (!type) {
@@ -500,13 +477,10 @@ ASTLayout Parser::layout() {
     int set = -1;
     int builtin = -1;
     bool originUpperLeft = false;
-    bool overrideCoverage = false;
-    bool blendSupportAllEquations = false;
     if (this->peek().fKind == Token::LAYOUT) {
         this->nextToken();
         if (!this->expect(Token::LPAREN, "'('")) {
-            return ASTLayout(location, binding, index, set, builtin, originUpperLeft,
-                             overrideCoverage, blendSupportAllEquations);
+            return ASTLayout(location, binding, index, set, builtin, originUpperLeft);
         }
         for (;;) {
             Token t = this->nextToken();
@@ -522,10 +496,6 @@ ASTLayout Parser::layout() {
                 builtin = this->layoutInt();
             } else if (t.fText == "origin_upper_left") {
                 originUpperLeft = true;
-            } else if (t.fText == "override_coverage") {
-                overrideCoverage = true;
-            } else if (t.fText == "blend_support_all_equations") {
-                blendSupportAllEquations = true;
             } else {
                 this->error(t.fPosition, ("'" + t.fText + 
                                           "' is not a valid layout qualifier").c_str());
@@ -539,8 +509,7 @@ ASTLayout Parser::layout() {
             }
         }
     }
-    return ASTLayout(location, binding, index, set, builtin, originUpperLeft, overrideCoverage,
-                     blendSupportAllEquations);
+    return ASTLayout(location, binding, index, set, builtin, originUpperLeft);
 }
 
 /* layout? (UNIFORM | CONST | IN | OUT | INOUT | LOWP | MEDIUMP | HIGHP | FLAT | NOPERSPECTIVE)* */
@@ -1242,11 +1211,10 @@ std::unique_ptr<ASTExpression> Parser::multiplicativeExpression() {
 /* postfixExpression | (PLUS | MINUS | NOT | PLUSPLUS | MINUSMINUS) unaryExpression */
 std::unique_ptr<ASTExpression> Parser::unaryExpression() {
     switch (this->peek().fKind) {
-        case Token::PLUS:       // fall through
-        case Token::MINUS:      // fall through
-        case Token::LOGICALNOT: // fall through
-        case Token::BITWISENOT: // fall through
-        case Token::PLUSPLUS:   // fall through
+        case Token::PLUS:     // fall through
+        case Token::MINUS:    // fall through
+        case Token::NOT:      // fall through
+        case Token::PLUSPLUS: // fall through
         case Token::MINUSMINUS: {
             Token t = this->nextToken();
             std::unique_ptr<ASTExpression> expr = this->unaryExpression();
@@ -1286,16 +1254,12 @@ std::unique_ptr<ASTExpression> Parser::postfixExpression() {
     }
 }
 
-/* LBRACKET expression? RBRACKET | DOT IDENTIFIER | LPAREN parameters RPAREN | 
+/* LBRACKET expression RBRACKET | DOT IDENTIFIER | LPAREN parameters RPAREN | 
    PLUSPLUS | MINUSMINUS */
 std::unique_ptr<ASTSuffix> Parser::suffix() {
     Token next = this->nextToken();
     switch (next.fKind) {
         case Token::LBRACKET: {
-            if (this->peek().fKind == Token::RBRACKET) {
-                this->nextToken();
-                return std::unique_ptr<ASTSuffix>(new ASTIndexSuffix(next.fPosition));
-            }
             std::unique_ptr<ASTExpression> e = this->expression();
             if (!e) {
                 return nullptr;

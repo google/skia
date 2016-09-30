@@ -10,13 +10,11 @@
 #include <fstream>
 #include <streambuf>
 
-#include "ast/SkSLASTPrecision.h"
 #include "SkSLIRGenerator.h"
 #include "SkSLParser.h"
 #include "SkSLSPIRVCodeGenerator.h"
 #include "ir/SkSLExpression.h"
 #include "ir/SkSLIntLiteral.h"
-#include "ir/SkSLModifiersDeclaration.h"
 #include "ir/SkSLSymbolTable.h"
 #include "ir/SkSLVarDeclaration.h"
 #include "SkMutex.h"
@@ -99,7 +97,6 @@ Compiler::Compiler()
     ADD_TYPE(Sampler1D);
     ADD_TYPE(Sampler2D);
     ADD_TYPE(Sampler3D);
-    ADD_TYPE(SamplerExternalOES);
     ADD_TYPE(SamplerCube);
     ADD_TYPE(Sampler2DRect);
     ADD_TYPE(Sampler1DArray);
@@ -131,10 +128,8 @@ Compiler::Compiler()
     ADD_TYPE(GSampler2DArrayShadow);
     ADD_TYPE(GSamplerCubeArrayShadow);
 
-    Modifiers::Flag ignored1;
-    std::vector<std::unique_ptr<ProgramElement>> ignored2;
-    this->internalConvertProgram(SKSL_INCLUDE, &ignored1, &ignored2);
-    printf("%s", errorText().c_str());
+    std::vector<std::unique_ptr<ProgramElement>> ignored;
+    this->internalConvertProgram(SKSL_INCLUDE, &ignored);
     ASSERT(!fErrorCount);
 }
 
@@ -143,14 +138,12 @@ Compiler::~Compiler() {
 }
 
 void Compiler::internalConvertProgram(std::string text,
-                                      Modifiers::Flag* defaultPrecision,
                                       std::vector<std::unique_ptr<ProgramElement>>* result) {
     Parser parser(text, *fTypes, *this);
     std::vector<std::unique_ptr<ASTDeclaration>> parsed = parser.file();
     if (fErrorCount) {
         return;
     }
-    *defaultPrecision = Modifiers::kHighp_Flag;
     for (size_t i = 0; i < parsed.size(); i++) {
         ASTDeclaration& decl = *parsed[i];
         switch (decl.fKind) {
@@ -171,14 +164,6 @@ void Compiler::internalConvertProgram(std::string text,
                 }
                 break;
             }
-            case ASTDeclaration::kModifiers_Kind: {
-                std::unique_ptr<ModifiersDeclaration> f = fIRGenerator->convertModifiersDeclaration(
-                                                                   (ASTModifiersDeclaration&) decl);
-                if (f) {
-                    result->push_back(std::move(f));
-                }
-                break;
-            }
             case ASTDeclaration::kInterfaceBlock_Kind: {
                 std::unique_ptr<InterfaceBlock> i = fIRGenerator->convertInterfaceBlock(
                                                                          (ASTInterfaceBlock&) decl);
@@ -194,10 +179,6 @@ void Compiler::internalConvertProgram(std::string text,
                 }
                 break;
             }
-            case ASTDeclaration::kPrecision_Kind: {
-                *defaultPrecision = ((ASTPrecision&) decl).fPrecision;
-                break;
-            }
             default:
                 ABORT("unsupported declaration: %s\n", decl.description().c_str());
         }
@@ -209,18 +190,16 @@ std::unique_ptr<Program> Compiler::convertProgram(Program::Kind kind, std::strin
     fErrorCount = 0;
     fIRGenerator->pushSymbolTable();
     std::vector<std::unique_ptr<ProgramElement>> elements;
-    Modifiers::Flag ignored;
     switch (kind) {
         case Program::kVertex_Kind:
-            this->internalConvertProgram(SKSL_VERT_INCLUDE, &ignored, &elements);
+            this->internalConvertProgram(SKSL_VERT_INCLUDE, &elements);
             break;
         case Program::kFragment_Kind:
-            this->internalConvertProgram(SKSL_FRAG_INCLUDE, &ignored, &elements);
+            this->internalConvertProgram(SKSL_FRAG_INCLUDE, &elements);
             break;
     }
-    Modifiers::Flag defaultPrecision;
-    this->internalConvertProgram(text, &defaultPrecision, &elements);
-    auto result = std::unique_ptr<Program>(new Program(kind, defaultPrecision, std::move(elements), 
+    this->internalConvertProgram(text, &elements);
+    auto result = std::unique_ptr<Program>(new Program(kind, std::move(elements), 
                                                        fIRGenerator->fSymbolTable));;
     fIRGenerator->popSymbolTable();
     this->writeErrorCount();

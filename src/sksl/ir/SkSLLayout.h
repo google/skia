@@ -22,20 +22,15 @@ struct Layout {
     , fIndex(layout.fIndex)
     , fSet(layout.fSet)
     , fBuiltin(layout.fBuiltin)
-    , fOriginUpperLeft(layout.fOriginUpperLeft)
-    , fOverrideCoverage(layout.fOverrideCoverage)
-    , fBlendSupportAllEquations(layout.fBlendSupportAllEquations) {}
+    , fOriginUpperLeft(layout.fOriginUpperLeft) {}
 
-    Layout(int location, int binding, int index, int set, int builtin, bool originUpperLeft,
-           bool overrideCoverage, bool blendSupportAllEquations)
+    Layout(int location, int binding, int index, int set, int builtin, bool originUpperLeft)
     : fLocation(location)
     , fBinding(binding)
     , fIndex(index)
     , fSet(set)
     , fBuiltin(builtin)
-    , fOriginUpperLeft(originUpperLeft)
-    , fOverrideCoverage(overrideCoverage)
-    , fBlendSupportAllEquations(blendSupportAllEquations) {}
+    , fOriginUpperLeft(originUpperLeft) {}
 
     std::string description() const {
         std::string result;
@@ -64,14 +59,6 @@ struct Layout {
             result += separator + "origin_upper_left";
             separator = ", ";
         }
-        if (fOverrideCoverage) {
-            result += separator + "override_coverage";
-            separator = ", ";
-        }
-        if (fBlendSupportAllEquations) {
-            result += separator + "blend_support_all_equations";
-            separator = ", ";
-        }
         if (result.length() > 0) {
             result = "layout (" + result + ")";
         }
@@ -79,14 +66,11 @@ struct Layout {
     }
 
     bool operator==(const Layout& other) const {
-        return fLocation                 == other.fLocation &&
-               fBinding                  == other.fBinding &&
-               fIndex                    == other.fIndex &&
-               fSet                      == other.fSet &&
-               fBuiltin                  == other.fBuiltin &&
-               fOriginUpperLeft          == other.fOriginUpperLeft &&
-               fOverrideCoverage         == other.fOverrideCoverage &&
-               fBlendSupportAllEquations == other.fBlendSupportAllEquations;
+        return fLocation == other.fLocation &&
+               fBinding  == other.fBinding &&
+               fIndex    == other.fIndex &&
+               fSet      == other.fSet &&
+               fBuiltin  == other.fBuiltin;
     }
 
     bool operator!=(const Layout& other) const {
@@ -101,8 +85,6 @@ struct Layout {
     int fSet;
     int fBuiltin;
     bool fOriginUpperLeft;
-    bool fOverrideCoverage;
-    bool fBlendSupportAllEquations;
 };
 
 } // namespace

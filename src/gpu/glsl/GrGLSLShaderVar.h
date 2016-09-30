@@ -213,20 +213,24 @@ public:
 
 private:
     static const char* TypeModifierString(const GrGLSLCaps* glslCaps, TypeModifier t) {
+        GrGLSLGeneration gen = glslCaps->generation();
         switch (t) {
             case kNone_TypeModifier:
                 return "";
-            case kAttribute_TypeModifier: // fall through
-            case kVaryingIn_TypeModifier: // fall through
             case kIn_TypeModifier:
                 return "in";
             case kInOut_TypeModifier:
                 return "inout";
-            case kVaryingOut_TypeModifier: // fall through
             case kOut_TypeModifier:
                 return "out";
             case kUniform_TypeModifier:
                 return "uniform";
+            case kAttribute_TypeModifier:
+                return k110_GrGLSLGeneration == gen ? "attribute" : "in";
+            case kVaryingIn_TypeModifier:
+                return k110_GrGLSLGeneration == gen ? "varying" : "in";
+            case kVaryingOut_TypeModifier:
+                return k110_GrGLSLGeneration == gen ? "varying" : "out";
             default:
                 SkFAIL("Unknown shader variable type modifier.");
                 return ""; // suppress warning
