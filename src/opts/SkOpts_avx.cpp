@@ -12,3 +12,4 @@
 namespace SkOpts {
     void Init_avx() { }
 }
+
