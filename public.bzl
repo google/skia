@@ -134,7 +134,9 @@ BASE_SRCS_ALL = struct(
 
         # Currently exclude all vulkan specific files
         "src/gpu/vk/*",
-        "src/sksl/**/*",
+
+        # Defines main.
+        "src/sksl/SkSLMain.cpp",
     ],
 )
 
@@ -381,6 +383,7 @@ INCLUDES = [
     "src/ports",
     "src/pdf",
     "src/sfnt",
+    "src/sksl",
     "src/utils",
     "third_party/etc1",
     "third_party/ktx",
@@ -436,7 +439,6 @@ DM_SRCS_ALL = struct(
         "tests/PathOpsSkpClipTest.cpp",  # Alternate main.
         "tests/skia_test.cpp",  # Old main.
         "tests/SkpSkGrTest.cpp",  # Alternate main.
-        "tests/SkSL*.cpp",  # Excluded along with Vulkan.
         "tests/SVGDeviceTest.cpp",
         "tools/gpu/gl/angle/*",
         "tools/gpu/gl/egl/*",
