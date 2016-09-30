@@ -346,7 +346,7 @@ bool SkOpSpan::sortableTop(SkOpContour* contourHead) {
 #endif
         }
         if (sumSet) {
-            if (this->globalState()->phase() == SkOpGlobalState::kFixWinding) {
+            if (this->globalState()->phase() == SkOpPhase::kFixWinding) {
                 hitSegment->contour()->setCcw(ccw);
             } else {
                 (void) hitSegment->markAndChaseWinding(span, span->next(), windSum, oppSum, nullptr);
