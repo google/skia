@@ -138,7 +138,6 @@ public:
         return width > kGlyphMaxDim || height > kGlyphMaxDim;
     }
 
-private:
     // The backing GrTexture for a GrBatchAtlas is broken into a spatial grid of BatchPlots.
     // The BatchPlots keep track of subimage placement via their GrRectanizer. A BatchPlot
     // manages the lifetime of its data using two tokens, a last use token and a last upload token.
