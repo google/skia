@@ -452,6 +452,11 @@ public:
         // OpenGL 3.1
         GrGLFunction<GrGLTextureBufferProc> fTextureBuffer;
 
+        /* ARB_sync */
+        GrGLFunction<GrGLFenceSyncProc> fFenceSync;
+        GrGLFunction<GrGLClientWaitSyncProc> fClientWaitSync;
+        GrGLFunction<GrGLDeleteSyncProc> fDeleteSync;
+
         /* KHR_debug */
         GrGLFunction<GrGLDebugMessageControlProc> fDebugMessageControl;
         GrGLFunction<GrGLDebugMessageInsertProc> fDebugMessageInsert;

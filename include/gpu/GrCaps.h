@@ -286,6 +286,8 @@ public:
 
     bool sampleShadingSupport() const { return fSampleShadingSupport; }
 
+    bool fenceSyncSupport() const { return fFenceSyncSupport; }
+
 protected:
     /** Subclasses must call this at the end of their constructors in order to apply caps
         overrides requested by the client. Note that overrides will only reduce the caps never
@@ -324,6 +326,8 @@ protected:
     bool fPreferVRAMUseOverFlushes                   : 1;
 
     bool fSampleShadingSupport                       : 1;
+    // TODO: this may need to be an enum to support different fence types
+    bool fFenceSyncSupport                           : 1;
 
     InstancedSupport fInstancedSupport;
 

@@ -144,6 +144,10 @@ public:
 
     void finishDrawTarget() override;
 
+    GrFence SK_WARN_UNUSED_RESULT insertFence() const override;
+    bool waitFence(GrFence, uint64_t timeout) const override;
+    void deleteFence(GrFence) const override;
+
 private:
     GrGLGpu(GrGLContext* ctx, GrContext* context);
 

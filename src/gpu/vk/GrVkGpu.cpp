@@ -1888,3 +1888,31 @@ void GrVkGpu::submitSecondaryCommandBuffer(GrVkSecondaryCommandBuffer* buffer,
     this->didWriteToSurface(target, &bounds);
 }
 
+GrFence SK_WARN_UNUSED_RESULT GrVkGpu::insertFence() const {
+    VkFenceCreateInfo createInfo;
+    memset(&createInfo, 0, sizeof(VkFenceCreateInfo));
+    createInfo.sType = VK_STRUCTURE_TYPE_FENCE_CREATE_INFO;
+    createInfo.pNext = nullptr;
+    createInfo.flags = 0;
+    VkFence fence = VK_NULL_HANDLE;
+    VkResult result = GR_VK_CALL(this->vkInterface(), CreateFence(this->device(), &createInfo,
+                                                                  nullptr, &fence));
+    // TODO: verify that all QueueSubmits before this will finish before this fence signals
+    if (VK_SUCCESS == result) {
+        GR_VK_CALL(this->vkInterface(), QueueSubmit(this->queue(), 0, nullptr, fence));
+    }
+    return (GrFence)fence;
+}
+
+bool GrVkGpu::waitFence(GrFence fence, uint64_t timeout) const {
+    VkResult result = GR_VK_CALL(this->vkInterface(), WaitForFences(this->device(), 1,
+                                                                    (VkFence*)&fence,
+                                                                    VK_TRUE,
+                                                                    timeout));
+    return (VK_SUCCESS == result);
+}
+
+void GrVkGpu::deleteFence(GrFence fence) const {
+    GR_VK_CALL(this->vkInterface(), DestroyFence(this->device(), (VkFence)fence, nullptr));
+}
+

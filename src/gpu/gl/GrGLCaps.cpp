@@ -550,6 +550,15 @@ void GrGLCaps::init(const GrContextOptions& contextOptions,
         fSampleShadingSupport = true;
     }
 
+    // TODO: support CHROMIUM_sync_point and maybe KHR_fence_sync
+    if (kGL_GrGLStandard == standard) {
+        if (version >= GR_GL_VER(3, 2) || ctxInfo.hasExtension("GL_ARB_sync")) {
+            fFenceSyncSupport = true;
+        }
+    } else if (version >= GR_GL_VER(3, 0)) {
+        fFenceSyncSupport = true;
+    }
+
     // We support manual mip-map generation (via iterative downsampling draw calls). This fixes
     // bugs on some cards/drivers that produce incorrect mip-maps for sRGB textures when using
     // glGenerateMipmap. Our implementation requires mip-level sampling control. Additionally,
