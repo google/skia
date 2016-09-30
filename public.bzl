@@ -309,9 +309,16 @@ AVX_SRCS = struct(
     ],
 )
 
+HSW_SRCS = struct(
+    include = [
+        "src/opts/*_hsw.cpp",
+    ],
+)
+
+# TODO: clean up after updating BUILD.
 AVX2_SRCS = struct(
     include = [
-        "src/opts/*_avx2.cpp",
+        "src/opts/*_hsw.cpp",
     ],
 )
 
