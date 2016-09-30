@@ -181,7 +181,12 @@ bool SkROBuffer::Iter::next() {
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
-SkRWBuffer::SkRWBuffer(size_t initialCapacity) : fHead(nullptr), fTail(nullptr), fTotalUsed(0) {}
+SkRWBuffer::SkRWBuffer(size_t initialCapacity) : fHead(nullptr), fTail(nullptr), fTotalUsed(0) {
+    if (initialCapacity) {
+        fHead = SkBufferHead::Alloc(initialCapacity);
+        fTail = &fHead->fBlock;
+    }
+}
 
 SkRWBuffer::~SkRWBuffer() {
     this->validate();
