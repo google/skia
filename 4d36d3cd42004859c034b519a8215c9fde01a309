@@ -1,0 +1,119 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "22459584_44c0a226",
+        "filename": "include/core/SkXfermode.h",
+        "patchSetId": 11
+      },
+      "lineNbr": 165,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2016-10-01T02:29:08Z",
+      "side": 1,
+      "message": "nit: we have a Make(SkBlendMode) flavor, no need to cast here?",
+      "range": {
+        "startLine": 165,
+        "startChar": 39,
+        "endLine": 165,
+        "endChar": 43
+      },
+      "revId": "4d36d3cd42004859c034b519a8215c9fde01a309",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "22459584_e4a56e9d",
+        "filename": "include/core/SkXfermode.h",
+        "patchSetId": 11
+      },
+      "lineNbr": 166,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2016-10-01T02:29:08Z",
+      "side": 1,
+      "message": "I guess Make fails for SrcOver?\n\nHow about we drop this check and instead change the assert to SkASSERT(!xfer || !xfer-\u003eunique())?",
+      "range": {
+        "startLine": 166,
+        "startChar": 17,
+        "endLine": 166,
+        "endChar": 18
+      },
+      "revId": "4d36d3cd42004859c034b519a8215c9fde01a309",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "22459584_24c59636",
+        "filename": "include/core/SkXfermode.h",
+        "patchSetId": 11
+      },
+      "lineNbr": 170,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2016-10-01T02:29:08Z",
+      "side": 1,
+      "message": "Won\u0027t this leak if clients don\u0027t unref explicitly?  I thought prev return xfer.get() was the right way to handle it.",
+      "range": {
+        "startLine": 170,
+        "startChar": 20,
+        "endLine": 170,
+        "endChar": 27
+      },
+      "revId": "4d36d3cd42004859c034b519a8215c9fde01a309",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "22459584_84caaa42",
+        "filename": "tests/SerializationTest.cpp",
+        "patchSetId": 11
+      },
+      "lineNbr": 447,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2016-10-01T02:29:08Z",
+      "side": 1,
+      "message": "?",
+      "range": {
+        "startLine": 447,
+        "startChar": 10,
+        "endLine": 447,
+        "endChar": 11
+      },
+      "revId": "4d36d3cd42004859c034b519a8215c9fde01a309",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "22459584_64cf9e54",
+        "filename": "tools/debugger/SkDebugCanvas.cpp",
+        "patchSetId": 11
+      },
+      "lineNbr": 45,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2016-10-01T02:29:08Z",
+      "side": 1,
+      "message": "ouch: this reminds me we likely have something similar in Chromium.",
+      "range": {
+        "startLine": 45,
+        "startChar": 51,
+        "endLine": 45,
+        "endChar": 52
+      },
+      "revId": "4d36d3cd42004859c034b519a8215c9fde01a309",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
