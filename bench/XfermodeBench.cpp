@@ -15,10 +15,8 @@
 // Benchmark that draws non-AA rects or AA text with an SkXfermode::Mode.
 class XfermodeBench : public Benchmark {
 public:
-    XfermodeBench(SkXfermode::Mode mode, bool aa) {
-        fXfermode = SkXfermode::Make(mode);
+    XfermodeBench(SkBlendMode mode, bool aa) : fBlendMode(mode) {
         fAA = aa;
-        SkASSERT(fXfermode.get() || SkXfermode::kSrcOver_Mode == mode);
         fName.printf("Xfermode_%s%s", SkXfermode::ModeName(mode), aa ? "_aa" : "");
     }
 
@@ -32,7 +30,7 @@ protected:
         SkRandom random;
         for (int i = 0; i < loops; ++i) {
             SkPaint paint;
-            paint.setXfermode(fXfermode);
+            paint.setBlendMode(fBlendMode);
             paint.setColor(random.nextU());
             if (fAA) {
                 // Draw text to exercise AA code paths.
@@ -61,31 +59,10 @@ protected:
     }
 
 private:
-    sk_sp<SkXfermode>   fXfermode;
-    SkString            fName;
-    bool                fAA;
+    SkBlendMode fBlendMode;
+    SkString    fName;
+    bool        fAA;
 
-    typedef Benchmark INHERITED;
-};
-
-class XferCreateBench : public Benchmark {
-public:
-    bool isSuitableFor(Backend backend) override {
-        return backend == kNonRendering_Backend;
-    }
-
-protected:
-    const char* onGetName() override { return "xfermode_create"; }
-
-    void onDraw(int loops, SkCanvas* canvas) override {
-        for (int outer = 0; outer < loops * 10; ++outer) {
-            for (int i = 0; i <= SkXfermode::kLastMode; ++i) {
-                (void)SkXfermode::Make(SkXfermode::Mode(i));
-            }
-        }
-    }
-
-private:
     typedef Benchmark INHERITED;
 };
 
@@ -95,37 +72,35 @@ private:
     DEF_BENCH( return new XfermodeBench(__VA_ARGS__, true); )  \
     DEF_BENCH( return new XfermodeBench(__VA_ARGS__, false); )
 
-BENCH(SkXfermode::kClear_Mode)
-BENCH(SkXfermode::kSrc_Mode)
-BENCH(SkXfermode::kDst_Mode)
-BENCH(SkXfermode::kSrcOver_Mode)
-BENCH(SkXfermode::kDstOver_Mode)
-BENCH(SkXfermode::kSrcIn_Mode)
-BENCH(SkXfermode::kDstIn_Mode)
-BENCH(SkXfermode::kSrcOut_Mode)
-BENCH(SkXfermode::kDstOut_Mode)
-BENCH(SkXfermode::kSrcATop_Mode)
-BENCH(SkXfermode::kDstATop_Mode)
-BENCH(SkXfermode::kXor_Mode)
+BENCH(SkBlendMode::kClear)
+BENCH(SkBlendMode::kSrc)
+BENCH(SkBlendMode::kDst)
+BENCH(SkBlendMode::kSrcOver)
+BENCH(SkBlendMode::kDstOver)
+BENCH(SkBlendMode::kSrcIn)
+BENCH(SkBlendMode::kDstIn)
+BENCH(SkBlendMode::kSrcOut)
+BENCH(SkBlendMode::kDstOut)
+BENCH(SkBlendMode::kSrcATop)
+BENCH(SkBlendMode::kDstATop)
+BENCH(SkBlendMode::kXor)
 
-BENCH(SkXfermode::kPlus_Mode)
-BENCH(SkXfermode::kModulate_Mode)
-BENCH(SkXfermode::kScreen_Mode)
+BENCH(SkBlendMode::kPlus)
+BENCH(SkBlendMode::kModulate)
+BENCH(SkBlendMode::kScreen)
 
-BENCH(SkXfermode::kOverlay_Mode)
-BENCH(SkXfermode::kDarken_Mode)
-BENCH(SkXfermode::kLighten_Mode)
-BENCH(SkXfermode::kColorDodge_Mode)
-BENCH(SkXfermode::kColorBurn_Mode)
-BENCH(SkXfermode::kHardLight_Mode)
-BENCH(SkXfermode::kSoftLight_Mode)
-BENCH(SkXfermode::kDifference_Mode)
-BENCH(SkXfermode::kExclusion_Mode)
-BENCH(SkXfermode::kMultiply_Mode)
+BENCH(SkBlendMode::kOverlay)
+BENCH(SkBlendMode::kDarken)
+BENCH(SkBlendMode::kLighten)
+BENCH(SkBlendMode::kColorDodge)
+BENCH(SkBlendMode::kColorBurn)
+BENCH(SkBlendMode::kHardLight)
+BENCH(SkBlendMode::kSoftLight)
+BENCH(SkBlendMode::kDifference)
+BENCH(SkBlendMode::kExclusion)
+BENCH(SkBlendMode::kMultiply)
 
-BENCH(SkXfermode::kHue_Mode)
-BENCH(SkXfermode::kSaturation_Mode)
-BENCH(SkXfermode::kColor_Mode)
-BENCH(SkXfermode::kLuminosity_Mode)
-
-DEF_BENCH(return new XferCreateBench;)
+BENCH(SkBlendMode::kHue)
+BENCH(SkBlendMode::kSaturation)
+BENCH(SkBlendMode::kColor)
+BENCH(SkBlendMode::kLuminosity)
