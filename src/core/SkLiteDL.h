@@ -70,18 +70,12 @@ public:
     void drawTextRSXform(const void*, size_t, const SkRSXform[], const SkRect*, const SkPaint&);
     void drawTextBlob   (const SkTextBlob*, SkScalar,SkScalar, const SkPaint&);
 
-    void drawBitmap    (const SkBitmap&, SkScalar, SkScalar,            const SkPaint*);
-    void drawBitmapNine(const SkBitmap&, const SkIRect&, const SkRect&, const SkPaint*);
-    void drawBitmapRect(const SkBitmap&, const SkRect*,  const SkRect&, const SkPaint*,
-                        SkCanvas::SrcRectConstraint);
-    void drawBitmapLattice(const SkBitmap&, const SkCanvas::Lattice&, const SkRect&,
-                           const SkPaint*);
-
-    void drawImage    (const SkImage*, SkScalar,SkScalar,             const SkPaint*);
-    void drawImageNine(const SkImage*, const SkIRect&, const SkRect&, const SkPaint*);
-    void drawImageRect(const SkImage*, const SkRect*, const SkRect&,  const SkPaint*,
+    void drawImage    (sk_sp<const SkImage>, SkScalar,SkScalar,             const SkPaint*);
+    void drawImageNine(sk_sp<const SkImage>, const SkIRect&, const SkRect&, const SkPaint*);
+    void drawImageRect(sk_sp<const SkImage>, const SkRect*, const SkRect&,  const SkPaint*,
                        SkCanvas::SrcRectConstraint);
-    void drawImageLattice(const SkImage*, const SkCanvas::Lattice&, const SkRect&, const SkPaint*);
+    void drawImageLattice(sk_sp<const SkImage>, const SkCanvas::Lattice&,
+                          const SkRect&, const SkPaint*);
 
     void drawPatch(const SkPoint[12], const SkColor[4], const SkPoint[4],
                    SkXfermode*, const SkPaint&);
