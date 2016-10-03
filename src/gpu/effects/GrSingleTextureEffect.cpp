@@ -9,9 +9,8 @@
 
 GrSingleTextureEffect::GrSingleTextureEffect(GrTexture* texture,
                                              sk_sp<GrColorSpaceXform> colorSpaceXform,
-                                             const SkMatrix& m,
-                                             GrCoordSet coordSet)
-    : fCoordTransform(coordSet, m, texture, GrTextureParams::kNone_FilterMode)
+                                             const SkMatrix& m)
+    : fCoordTransform(m, texture, GrTextureParams::kNone_FilterMode)
     , fTextureAccess(texture)
     , fColorSpaceXform(std::move(colorSpaceXform)) {
     this->addCoordTransform(&fCoordTransform);
@@ -21,9 +20,8 @@ GrSingleTextureEffect::GrSingleTextureEffect(GrTexture* texture,
 GrSingleTextureEffect::GrSingleTextureEffect(GrTexture* texture,
                                              sk_sp<GrColorSpaceXform> colorSpaceXform,
                                              const SkMatrix& m,
-                                             GrTextureParams::FilterMode filterMode,
-                                             GrCoordSet coordSet)
-    : fCoordTransform(coordSet, m, texture, filterMode)
+                                             GrTextureParams::FilterMode filterMode)
+    : fCoordTransform(m, texture, filterMode)
     , fTextureAccess(texture, filterMode)
     , fColorSpaceXform(std::move(colorSpaceXform)) {
     this->addCoordTransform(&fCoordTransform);
@@ -33,9 +31,8 @@ GrSingleTextureEffect::GrSingleTextureEffect(GrTexture* texture,
 GrSingleTextureEffect::GrSingleTextureEffect(GrTexture* texture,
                                              sk_sp<GrColorSpaceXform> colorSpaceXform,
                                              const SkMatrix& m,
-                                             const GrTextureParams& params,
-                                             GrCoordSet coordSet)
-    : fCoordTransform(coordSet, m, texture, params.filterMode())
+                                             const GrTextureParams& params)
+    : fCoordTransform(m, texture, params.filterMode())
     , fTextureAccess(texture, params)
     , fColorSpaceXform(std::move(colorSpaceXform)) {
     this->addCoordTransform(&fCoordTransform);
