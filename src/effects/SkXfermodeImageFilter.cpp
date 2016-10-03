@@ -188,7 +188,7 @@ void SkXfermodeImageFilter_Base::drawForeground(SkCanvas* canvas, SkSpecialImage
 #ifndef SK_IGNORE_TO_STRING
 void SkXfermodeImageFilter_Base::toString(SkString* str) const {
     str->appendf("SkXfermodeImageFilter: (");
-    str->appendf("blendmode: (%d)", fMode);
+    str->appendf("blendmode: (%d)", (int)fMode);
     if (this->getInput(0)) {
         str->appendf("foreground: (");
         this->getInput(0)->toString(str);
