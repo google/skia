@@ -408,10 +408,15 @@ protected:
         be passed to the gradient factory rather than the array.
     */
     static const int kMaxRandomGradientColors = 4;
-    static int RandomGradientParams(SkRandom* r,
-                                    SkColor colors[kMaxRandomGradientColors],
-                                    SkScalar** stops,
-                                    SkShader::TileMode* tm);
+    struct RandomGradientParams {
+        RandomGradientParams(SkRandom* r);
+
+        SkColor fColors[kMaxRandomGradientColors];
+        SkScalar fStopStorage[kMaxRandomGradientColors];
+        SkShader::TileMode fTileMode;
+        int fColorCount;
+        SkScalar* fStops;
+    };
 
     bool onIsEqual(const GrFragmentProcessor&) const override;
 
