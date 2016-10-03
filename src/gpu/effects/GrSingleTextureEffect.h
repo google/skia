@@ -34,16 +34,14 @@ public:
 
 protected:
     /** unfiltered, clamp mode */
-    GrSingleTextureEffect(GrTexture*, sk_sp<GrColorSpaceXform>, const SkMatrix&,
-                          GrCoordSet = kLocal_GrCoordSet);
+    GrSingleTextureEffect(GrTexture*, sk_sp<GrColorSpaceXform>, const SkMatrix&);
     /** clamp mode */
     GrSingleTextureEffect(GrTexture*, sk_sp<GrColorSpaceXform>, const SkMatrix&,
-                          GrTextureParams::FilterMode filterMode, GrCoordSet = kLocal_GrCoordSet);
+                          GrTextureParams::FilterMode filterMode);
     GrSingleTextureEffect(GrTexture*,
                           sk_sp<GrColorSpaceXform>,
                           const SkMatrix&,
-                          const GrTextureParams&,
-                          GrCoordSet = kLocal_GrCoordSet);
+                          const GrTextureParams&);
 
     /**
      * Can be used as a helper to implement subclass onComputeInvariantOutput(). It assumes that

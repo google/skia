@@ -36,16 +36,15 @@ static bool draw_mask(GrDrawContext* drawContext,
     SkMatrix matrix;
     matrix.setTranslate(-SkIntToScalar(maskRect.fLeft), -SkIntToScalar(maskRect.fTop));
     matrix.postIDiv(mask->width(), mask->height());
-
-    grp->addCoverageFragmentProcessor(GrSimpleTextureEffect::Make(mask, nullptr, matrix,
-                                                                  kDevice_GrCoordSet));
+    matrix.preConcat(viewMatrix);
+    grp->addCoverageFragmentProcessor(GrSimpleTextureEffect::Make(mask, nullptr, matrix));
 
     SkMatrix inverse;
     if (!viewMatrix.invert(&inverse)) {
         return false;
     }
-    drawContext->fillRectWithLocalMatrix(clip, *grp, SkMatrix::I(),
-                                         SkRect::Make(maskRect), inverse);
+    drawContext->fillRectWithLocalMatrix(clip, *grp, SkMatrix::I(), SkRect::Make(maskRect),
+                                         inverse);
     return true;
 }
 
