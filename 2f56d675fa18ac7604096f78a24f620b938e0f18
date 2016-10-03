@@ -53,6 +53,29 @@
     },
     {
       "key": {
+        "uuid": "22459584_e76450b2",
+        "filename": "src/gpu/effects/GrSimpleTextureEffect.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 18,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2016-10-03T19:21:12Z",
+      "side": 1,
+      "message": "Update comment?",
+      "range": {
+        "startLine": 18,
+        "startChar": 3,
+        "endLine": 18,
+        "endChar": 31
+      },
+      "revId": "2f56d675fa18ac7604096f78a24f620b938e0f18",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "22459584_87fe2cc5",
         "filename": "src/gpu/effects/GrTextureDomain.h",
         "patchSetId": 4
