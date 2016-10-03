@@ -104,7 +104,7 @@ protected:
     }
 
     void onDraw(SkCanvas* canvas) override {
-        SkImageInfo info = SkImageInfo::MakeN32(WIDTH, HEIGHT, kOpaque_SkAlphaType);
+        SkImageInfo info = SkImageInfo::MakeS32(WIDTH, HEIGHT, kOpaque_SkAlphaType);
         auto surface(canvas->makeSurface(info));
         if (nullptr == surface) {
             surface = SkSurface::MakeRaster(info);

@@ -166,18 +166,21 @@ sk_sp<SkSpecialImage> SkAlphaThresholdFilterImpl::onFilterImage(SkSpecialImage* 
             return nullptr;
         }
 
-        // SRGBTODO: handle sRGB here
+        const OutputProperties& outProps = ctx.outputProperties();
+        sk_sp<GrColorSpaceXform> colorSpaceXform = GrColorSpaceXform::Make(input->getColorSpace(),
+                                                                           outProps.colorSpace());
         sk_sp<GrFragmentProcessor> fp(GrAlphaThresholdFragmentProcessor::Make(
-                                                                   inputTexture.get(),
-                                                                   maskTexture.get(),
-                                                                   fInnerThreshold,
-                                                                   fOuterThreshold,
-                                                                   bounds));
+                                                                         inputTexture.get(),
+                                                                         std::move(colorSpaceXform),
+                                                                         maskTexture.get(),
+                                                                         fInnerThreshold,
+                                                                         fOuterThreshold,
+                                                                         bounds));
         if (!fp) {
             return nullptr;
         }
 
-        return DrawWithFP(context, std::move(fp), bounds, ctx.outputProperties());
+        return DrawWithFP(context, std::move(fp), bounds, outProps);
     }
 #endif
 
