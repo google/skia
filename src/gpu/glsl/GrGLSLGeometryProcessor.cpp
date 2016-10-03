@@ -36,11 +36,9 @@ void GrGLSLGeometryProcessor::emitTransforms(GrGLSLVertexBuilder* vb,
         strUniName.printf("CoordTransformMatrix_%d", i);
         GrSLType varyingType;
 
-        GrCoordSet coordType = coordTransform->sourceCoords();
         uint32_t type = coordTransform->getMatrix().getType();
-        if (kLocal_GrCoordSet == coordType) {
-            type |= localMatrix.getType();
-        }
+        type |= localMatrix.getType();
+
         varyingType = SkToBool(SkMatrix::kPerspective_Mask & type) ? kVec3f_GrSLType :
                                                                      kVec2f_GrSLType;
         GrSLPrecision precision = coordTransform->precision();
@@ -62,31 +60,10 @@ void GrGLSLGeometryProcessor::emitTransforms(GrGLSLVertexBuilder* vb,
         SkASSERT(kVec2f_GrSLType == varyingType || kVec3f_GrSLType == varyingType);
         handler->specifyCoordsForCurrCoordTransform(SkString(v.fsIn()), varyingType);
 
-        // varying = matrix * coords (logically)
-        if (kDevice_GrCoordSet == coordType) {
-            if (kVec2f_GrSLType == varyingType) {
-                if (kVec2f_GrSLType == posVar.getType()) {
-                    vb->codeAppendf("%s = (%s * vec3(%s, 1)).xy;",
-                                    v.vsOut(), uniName, posVar.c_str());
-                } else {
-                    // The brackets here are just to scope the temp variable
-                    vb->codeAppendf("{ vec3 temp = %s * %s;", uniName, posVar.c_str());
-                    vb->codeAppendf("%s = vec2(temp.x/temp.z, temp.y/temp.z); }", v.vsOut());
-                }
-            } else {
-                if (kVec2f_GrSLType == posVar.getType()) {
-                    vb->codeAppendf("%s = %s * vec3(%s, 1);",
-                                    v.vsOut(), uniName, posVar.c_str());
-                } else {
-                    vb->codeAppendf("%s = %s * %s;", v.vsOut(), uniName, posVar.c_str());
-                }
-            }
+        if (kVec2f_GrSLType == varyingType) {
+            vb->codeAppendf("%s = (%s * vec3(%s, 1)).xy;", v.vsOut(), uniName, localCoords);
         } else {
-            if (kVec2f_GrSLType == varyingType) {
-                vb->codeAppendf("%s = (%s * vec3(%s, 1)).xy;", v.vsOut(), uniName, localCoords);
-            } else {
-                vb->codeAppendf("%s = %s * vec3(%s, 1);", v.vsOut(), uniName, localCoords);
-            }
+            vb->codeAppendf("%s = %s * vec3(%s, 1);", v.vsOut(), uniName, localCoords);
         }
         ++i;
     }
