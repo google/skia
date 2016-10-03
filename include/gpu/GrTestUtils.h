@@ -42,6 +42,7 @@ const SkPath& TestPathConvex(SkRandom*);
 SkStrokeRec TestStrokeRec(SkRandom*);
 /** Creates styles with dash path effects and null path effects */
 void TestStyle(SkRandom*, GrStyle*);
+sk_sp<SkColorSpace> TestColorSpace(SkRandom*);
 sk_sp<GrColorSpaceXform> TestColorXform(SkRandom*);
 
 // We have a simplified dash path effect here to avoid relying on SkDashPathEffect which
