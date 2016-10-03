@@ -302,8 +302,6 @@ public:
 
     SkClipStack();
     SkClipStack(const SkClipStack& b);
-    explicit SkClipStack(const SkRect& r);
-    explicit SkClipStack(const SkIRect& r);
     ~SkClipStack();
 
     SkClipStack& operator=(const SkClipStack& b);
@@ -351,11 +349,11 @@ public:
     void clipDevRect(const SkIRect& ir, SkCanvas::ClipOp op) {
         SkRect r;
         r.set(ir);
-        this->clipDevRect(r, op, false);
+        this->clipRect(r, SkMatrix::I(), op, false);
     }
-    void clipDevRect(const SkRect&, SkCanvas::ClipOp, bool doAA);
-    void clipDevRRect(const SkRRect&, SkCanvas::ClipOp, bool doAA);
-    void clipDevPath(const SkPath&, SkCanvas::ClipOp, bool doAA);
+    void clipRect(const SkRect&, const SkMatrix& matrix, SkCanvas::ClipOp, bool doAA);
+    void clipRRect(const SkRRect&, const SkMatrix& matrix, SkCanvas::ClipOp, bool doAA);
+    void clipPath(const SkPath&, const SkMatrix& matrix, SkCanvas::ClipOp, bool doAA);
     // An optimized version of clipDevRect(emptyRect, kIntersect, ...)
     void clipEmpty();
 
