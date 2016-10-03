@@ -2954,13 +2954,8 @@ void SkCanvas::drawDrawable(SkDrawable* dr, const SkMatrix* matrix) {
 }
 
 void SkCanvas::onDrawDrawable(SkDrawable* dr, const SkMatrix* matrix) {
-    SkRect bounds = dr->getBounds();
-    if (matrix) {
-        matrix->mapRect(&bounds);
-    }
-    if (this->quickReject(bounds)) {
-        return;
-    }
+    // drawable bounds are no longer reliable (e.g. android displaylist)
+    // so don't use them for quick-reject
     dr->draw(this, matrix);
 }
 
