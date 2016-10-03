@@ -31,7 +31,7 @@ static void make_paint(SkPaint* paint, const SkMatrix& localMatrix) {
     SkPoint pts[] = { { 0, 0 }, { 0, SK_Scalar1*20 } };
     paint->setShader(SkGradientShader::MakeLinear(pts, colors, nullptr, 2,
                                                   SkShader::kClamp_TileMode, 0, &localMatrix));
-    paint->setBlendMode(SkBlendMode::kDstIn);
+    paint->setXfermodeMode(SkXfermode::kDstIn_Mode);
 }
 
 // test drawing with strips of fading gradient above and below
@@ -141,7 +141,7 @@ protected:
             canvas->saveLayer(&r, &p);
             canvas->drawColor(0xFFFF0000);
             p.setAlpha(0);  // or 0
-            p.setBlendMode(SkBlendMode::kSrc);
+            p.setXfermodeMode(SkXfermode::kSrc_Mode);
             canvas->drawOval(r, p);
             canvas->restore();
             return;

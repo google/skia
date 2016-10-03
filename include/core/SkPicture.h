@@ -224,11 +224,10 @@ private:
     // V47: Add occluder rect to SkBlurMaskFilter
     // V48: Read and write extended SkTextBlobs.
     // V49: Gradients serialized as SkColor4f + SkColorSpace
-    // V50: SkXfermode -> SkBlendMode
 
     // Only SKPs within the min/current picture version range (inclusive) can be read.
     static const uint32_t     MIN_PICTURE_VERSION = 35;     // Produced by Chrome M39.
-    static const uint32_t CURRENT_PICTURE_VERSION = 50;
+    static const uint32_t CURRENT_PICTURE_VERSION = 49;
 
     static_assert(MIN_PICTURE_VERSION <= 41,
                   "Remove kFontFileName and related code from SkFontDescriptor.cpp.");

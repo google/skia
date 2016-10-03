@@ -618,7 +618,6 @@ DEFINES_ALL = [
     "SK_SUPPORT_LEGACY_TEXTBLOB_BUILDER",
     "SK_SUPPORT_LEGACY_CLIP_REGIONOPS",
     "SK_SUPPORT_LEGACY_SHADER_ISABITMAP",
-    "SK_SUPPORT_LEGACY_XFERMODE_OBJECT",
 ]
 
 ################################################################################

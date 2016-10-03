@@ -18,7 +18,7 @@ static void draw(SkCanvas* canvas, int width, int height, SkColor colors[2]) {
     SkPaint paint;
     paint.setShader(SkGradientShader::MakeRadial(center, radius, colors, nullptr, 2,
                                                  SkShader::kMirror_TileMode));
-    paint.setBlendMode(SkBlendMode::kSrc);
+    paint.setXfermodeMode(SkXfermode::kSrc_Mode);
     canvas->drawPaint(paint);
 }
 

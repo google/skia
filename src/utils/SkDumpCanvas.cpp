@@ -209,8 +209,8 @@ SkCanvas::SaveLayerStrategy SkDumpCanvas::getSaveLayerStrategy(const SaveLayerRe
         if (paint->getAlpha() != 0xFF) {
             str.appendf(" alpha:0x%02X", paint->getAlpha());
         }
-        if (!paint->isSrcOver()) {
-            str.appendf(" blendmode:%d", paint->getBlendMode());
+        if (paint->getXfermode()) {
+            str.appendf(" xfermode:%p", paint->getXfermode());
         }
     }
     this->dump(kSave_Verb, paint, str.c_str());
@@ -540,10 +540,8 @@ void SkFormatDumper::dump(SkDumpCanvas* canvas, SkDumpCanvas::Verb verb,
 
     if (p) {
         msg.appendf(" color:0x%08X flags:%X", p->getColor(), p->getFlags());
-        if (!p->isSrcOver()) {
-            msg.appendf(" blendmode:%d", p->getBlendMode());
-        }
         appendFlattenable(&msg, p->getShader(), "shader");
+        appendFlattenable(&msg, p->getXfermode(), "xfermode");
         appendFlattenable(&msg, p->getPathEffect(), "pathEffect");
         appendFlattenable(&msg, p->getMaskFilter(), "maskFilter");
         appendFlattenable(&msg, p->getPathEffect(), "pathEffect");

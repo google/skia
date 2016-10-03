@@ -107,7 +107,7 @@ sk_sp<GrTexture> SkAlphaThresholdFilterImpl::createMaskTexture(GrContext* contex
     }
 
     GrPaint grPaint;
-    grPaint.setPorterDuffXPFactory(SkBlendMode::kSrc);
+    grPaint.setPorterDuffXPFactory(SkXfermode::kSrc_Mode);
     SkRegion::Iterator iter(fRegion);
     drawContext->clear(nullptr, 0x0, true);
 
