@@ -113,7 +113,7 @@ static void fill_src_canvas(SkCanvas* canvas) {
     canvas->setMatrix(SkMatrix::I());
     canvas->clipRect(DEV_RECT_S, SkCanvas::kReplace_Op);
     SkPaint paint;
-    paint.setXfermodeMode(SkXfermode::kSrc_Mode);
+    paint.setBlendMode(SkBlendMode::kSrc);
     canvas->drawBitmap(make_src_bitmap(), 0, 0, &paint);
     canvas->restore();
 }

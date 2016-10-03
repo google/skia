@@ -230,10 +230,8 @@ SkA8_Shader_Blitter::SkA8_Shader_Blitter(const SkPixmap& device, const SkPaint& 
                                          SkShader::Context* shaderContext)
     : INHERITED(device, paint, shaderContext)
 {
-    if ((fXfermode = paint.getXfermode()) != nullptr) {
-        fXfermode->ref();
-        SkASSERT(fShaderContext);
-    }
+    fXfermode = SkXfermode::Peek(paint.getBlendMode());
+    SkASSERT(!fXfermode || fShaderContext);
 
     int width = device.width();
     fBuffer = (SkPMColor*)sk_malloc_throw(sizeof(SkPMColor) * (width + (SkAlign4(width) >> 2)));
@@ -241,7 +239,6 @@ SkA8_Shader_Blitter::SkA8_Shader_Blitter(const SkPixmap& device, const SkPaint& 
 }
 
 SkA8_Shader_Blitter::~SkA8_Shader_Blitter() {
-    if (fXfermode) SkSafeUnref(fXfermode);
     sk_free(fBuffer);
 }
 
@@ -355,7 +352,7 @@ void SkA8_Shader_Blitter::blitMask(const SkMask& mask, const SkIRect& clip) {
 SkA8_Coverage_Blitter::SkA8_Coverage_Blitter(const SkPixmap& device,
                              const SkPaint& paint) : SkRasterBlitter(device) {
     SkASSERT(nullptr == paint.getShader());
-    SkASSERT(nullptr == paint.getXfermode());
+    SkASSERT(paint.isSrcOver());
     SkASSERT(nullptr == paint.getColorFilter());
 }
 
