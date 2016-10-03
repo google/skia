@@ -290,6 +290,20 @@ SkPathEffect::DashType TestDashPathEffect::asADash(DashInfo* info) const {
     return kDash_DashType;
 }
 
+sk_sp<SkColorSpace> TestColorSpace(SkRandom* random) {
+    static sk_sp<SkColorSpace> gColorSpaces[3];
+    static bool gOnce;
+    if (!gOnce) {
+        gOnce = true;
+        // No color space (legacy mode)
+        gColorSpaces[0] = nullptr;
+        // sRGB or Adobe
+        gColorSpaces[1] = SkColorSpace::NewNamed(SkColorSpace::kSRGB_Named);
+        gColorSpaces[2] = SkColorSpace::NewNamed(SkColorSpace::kAdobeRGB_Named);
+    }
+    return gColorSpaces[random->nextULessThan(static_cast<uint32_t>(SK_ARRAY_COUNT(gColorSpaces)))];
+}
+
 sk_sp<GrColorSpaceXform> TestColorXform(SkRandom* random) {
     static sk_sp<GrColorSpaceXform> gXforms[3];
     static bool gOnce;
