@@ -593,8 +593,9 @@ sk_sp<GrFragmentProcessor> GrPerlinNoiseEffect::TestCreate(GrProcessorTestData* 
                                             stitchTiles ? &tileSize : nullptr));
 
     SkMatrix viewMatrix = GrTest::TestMatrix(d->fRandom);
+    auto colorSpace = GrTest::TestColorSpace(d->fRandom);
     return shader->asFragmentProcessor(SkShader::AsFPArgs(d->fContext, &viewMatrix, nullptr,
-                                                          kNone_SkFilterQuality, nullptr,
+                                                          kNone_SkFilterQuality, colorSpace.get(),
                                                           SkSourceGammaTreatment::kRespect));
 }
 
