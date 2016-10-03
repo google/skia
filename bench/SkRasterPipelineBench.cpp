@@ -11,32 +11,39 @@
 
 static const int N = 1023;
 
-static uint32_t dst[N],
-                src[N];
-static uint8_t mask[N];
+static uint64_t dst[N];  // sRGB or F16
+static uint32_t src[N];  // sRGB
+static uint8_t mask[N];  // 8-bit linear
 
 // We'll build up a somewhat realistic useful pipeline:
 //   - load srgb src
 //   - scale src by 8-bit mask
-//   - load srgb dst
+//   - load srgb/f16 dst
 //   - src = srcover(dst, src)
-//   - store src back as srgb
+//   - store src back as srgb/f16
 
+template <bool kF16>
 class SkRasterPipelineBench : public Benchmark {
 public:
     bool isSuitableFor(Backend backend) override { return backend == kNonRendering_Backend; }
-    const char* onGetName() override { return "SkRasterPipeline"; }
+    const char* onGetName() override {
+        return kF16 ? "SkRasterPipeline_f16"
+                    : "SkRasterPipeline_srgb";
+    }
 
     void onDraw(int loops, SkCanvas*) override {
         while (loops --> 0) {
             SkRasterPipeline p;
             p.append(SkRasterPipeline::load_s_srgb, src);
             p.append(SkRasterPipeline::   scale_u8, mask);
-            p.append(SkRasterPipeline::load_d_srgb, dst);
+            p.append(kF16 ? SkRasterPipeline::load_d_f16
+                          : SkRasterPipeline::load_d_srgb, dst);
             p.append(SkRasterPipeline::    srcover);
-            p.append(SkRasterPipeline:: store_srgb, dst);
+            p.append(kF16 ? SkRasterPipeline::store_f16
+                          : SkRasterPipeline::store_srgb, dst);
             p.run(N);
         }
     }
 };
-DEF_BENCH( return new SkRasterPipelineBench; )
+DEF_BENCH( return new SkRasterPipelineBench<true>; )
+DEF_BENCH( return new SkRasterPipelineBench<false>; )
