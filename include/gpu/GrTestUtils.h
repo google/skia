@@ -13,6 +13,7 @@
 #ifdef GR_TEST_UTILS
 
 #include "GrColor.h"
+#include "GrColorSpaceXform.h"
 #include "SkPathEffect.h"
 #include "SkRandom.h"
 #include "SkStrokeRec.h"
@@ -41,6 +42,7 @@ const SkPath& TestPathConvex(SkRandom*);
 SkStrokeRec TestStrokeRec(SkRandom*);
 /** Creates styles with dash path effects and null path effects */
 void TestStyle(SkRandom*, GrStyle*);
+sk_sp<GrColorSpaceXform> TestColorXform(SkRandom*);
 
 // We have a simplified dash path effect here to avoid relying on SkDashPathEffect which
 // is in the optional build target effects.

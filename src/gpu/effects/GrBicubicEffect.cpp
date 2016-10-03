@@ -205,7 +205,8 @@ sk_sp<GrFragmentProcessor> GrBicubicEffect::TestCreate(GrProcessorTestData* d) {
     for (int i = 0; i < 16; i++) {
         coefficients[i] = d->fRandom->nextSScalar1();
     }
-    return GrBicubicEffect::Make(d->fTextures[texIdx], nullptr, coefficients);
+    auto colorSpaceXform = GrTest::TestColorXform(d->fRandom);
+    return GrBicubicEffect::Make(d->fTextures[texIdx], colorSpaceXform, coefficients);
 }
 
 //////////////////////////////////////////////////////////////////////////////

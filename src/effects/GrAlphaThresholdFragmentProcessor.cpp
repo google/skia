@@ -180,7 +180,8 @@ sk_sp<GrFragmentProcessor> GrAlphaThresholdFragmentProcessor::TestCreate(GrProce
     uint32_t x = d->fRandom->nextULessThan(kMaxWidth - width);
     uint32_t y = d->fRandom->nextULessThan(kMaxHeight - height);
     SkIRect bounds = SkIRect::MakeXYWH(x, y, width, height);
-    return GrAlphaThresholdFragmentProcessor::Make(bmpTex, nullptr, maskTex,
+    auto colorSpaceXform = GrTest::TestColorXform(d->fRandom);
+    return GrAlphaThresholdFragmentProcessor::Make(bmpTex, colorSpaceXform, maskTex,
                                                    innerThresh, outerThresh,
                                                    bounds);
 }

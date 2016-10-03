@@ -295,9 +295,10 @@ sk_sp<GrFragmentProcessor> GrTextureDomainEffect::TestCreate(GrProcessorTestData
     const SkMatrix& matrix = GrTest::TestMatrix(d->fRandom);
     bool bilerp = mode != GrTextureDomain::kRepeat_Mode ? d->fRandom->nextBool() : false;
     GrCoordSet coords = d->fRandom->nextBool() ? kLocal_GrCoordSet : kDevice_GrCoordSet;
+    auto colorSpaceXform = GrTest::TestColorXform(d->fRandom);
     return GrTextureDomainEffect::Make(
         d->fTextures[texIdx],
-        nullptr,
+        colorSpaceXform,
         matrix,
         domain,
         mode,
