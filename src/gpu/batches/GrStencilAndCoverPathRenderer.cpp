@@ -94,12 +94,10 @@ bool GrStencilAndCoverPathRenderer::onDrawPath(const DrawPathArgs& args) {
 
     const SkMatrix& viewMatrix = *args.fViewMatrix;
 
-    SkPath path;
-    args.fShape->asPath(&path);
 
-    SkAutoTUnref<GrPath> p(get_gr_path(fResourceProvider, *args.fShape));
+    SkAutoTUnref<GrPath> path(get_gr_path(fResourceProvider, *args.fShape));
 
-    if (path.isInverseFillType()) {
+    if (args.fShape->inverseFilled()) {
         SkMatrix invert = SkMatrix::I();
         SkRect bounds =
             SkRect::MakeLTRB(0, 0,
@@ -126,7 +124,7 @@ bool GrStencilAndCoverPathRenderer::onDrawPath(const DrawPathArgs& args) {
 
         // fake inverse with a stencil and cover
         args.fDrawContext->drawContextPriv().stencilPath(*args.fClip, args.fPaint->isAntiAlias(),
-                                                         viewMatrix, p);
+                                                         viewMatrix, path);
 
         {
             static constexpr GrUserStencilSettings kInvertedCoverPass(
@@ -160,8 +158,8 @@ bool GrStencilAndCoverPathRenderer::onDrawPath(const DrawPathArgs& args) {
                 0xffff>()
         );
 
-        SkAutoTUnref<GrDrawBatch> batch(
-                GrDrawPathBatch::Create(viewMatrix, args.fPaint->getColor(), p->getFillType(), p));
+        SkAutoTUnref<GrDrawBatch> batch(GrDrawPathBatch::Create(viewMatrix, args.fPaint->getColor(),
+                                                                path));
 
         GrPipelineBuilder pipelineBuilder(*args.fPaint, args.fPaint->isAntiAlias());
         pipelineBuilder.setUserStencil(&kCoverPass);
