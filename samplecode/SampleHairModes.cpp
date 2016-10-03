@@ -12,21 +12,21 @@
 #include "SkShader.h"
 
 static const struct {
-    SkXfermode::Mode  fMode;
-    const char*         fLabel;
+    SkBlendMode fMode;
+    const char* fLabel;
 } gModes[] = {
-    { SkXfermode::kClear_Mode,    "Clear"     },
-    { SkXfermode::kSrc_Mode,      "Src"       },
-    { SkXfermode::kDst_Mode,      "Dst"       },
-    { SkXfermode::kSrcOver_Mode,  "SrcOver"   },
-    { SkXfermode::kDstOver_Mode,  "DstOver"   },
-    { SkXfermode::kSrcIn_Mode,    "SrcIn"     },
-    { SkXfermode::kDstIn_Mode,    "DstIn"     },
-    { SkXfermode::kSrcOut_Mode,   "SrcOut"    },
-    { SkXfermode::kDstOut_Mode,   "DstOut"    },
-    { SkXfermode::kSrcATop_Mode,  "SrcATop"   },
-    { SkXfermode::kDstATop_Mode,  "DstATop"   },
-    { SkXfermode::kXor_Mode,      "Xor"       },
+    { SkBlendMode::kClear,    "Clear"     },
+    { SkBlendMode::kSrc,      "Src"       },
+    { SkBlendMode::kDst,      "Dst"       },
+    { SkBlendMode::kSrcOver,  "SrcOver"   },
+    { SkBlendMode::kDstOver,  "DstOver"   },
+    { SkBlendMode::kSrcIn,    "SrcIn"     },
+    { SkBlendMode::kDstIn,    "DstIn"     },
+    { SkBlendMode::kSrcOut,   "SrcOut"    },
+    { SkBlendMode::kDstOut,   "DstOut"    },
+    { SkBlendMode::kSrcATop,  "SrcATop"   },
+    { SkBlendMode::kDstATop,  "DstATop"   },
+    { SkBlendMode::kXor,      "Xor"       },
 };
 
 const int gWidth = 64;
@@ -34,7 +34,7 @@ const int gHeight = 64;
 const SkScalar W = SkIntToScalar(gWidth);
 const SkScalar H = SkIntToScalar(gHeight);
 
-static SkScalar drawCell(SkCanvas* canvas, sk_sp<SkXfermode> mode, SkAlpha a0, SkAlpha a1) {
+static SkScalar drawCell(SkCanvas* canvas, SkBlendMode mode, SkAlpha a0, SkAlpha a1) {
     SkPaint paint;
     paint.setAntiAlias(true);
 
@@ -47,7 +47,7 @@ static SkScalar drawCell(SkCanvas* canvas, sk_sp<SkXfermode> mode, SkAlpha a0, S
 
     paint.setColor(SK_ColorRED);
     paint.setAlpha(a1);
-    paint.setXfermode(mode);
+    paint.setBlendMode(mode);
     for (int angle = 0; angle < 24; ++angle) {
         SkScalar x = SkScalarCos(SkIntToScalar(angle) * (SK_ScalarPI * 2) / 24) * gWidth;
         SkScalar y = SkScalarSin(SkIntToScalar(angle) * (SK_ScalarPI * 2) / 24) * gHeight;
@@ -105,7 +105,7 @@ protected:
                 }
                 canvas->drawRect(bounds, fBGPaint);
                 canvas->saveLayer(&bounds, nullptr);
-                SkScalar dy = drawCell(canvas, SkXfermode::Make(gModes[i].fMode),
+                SkScalar dy = drawCell(canvas, gModes[i].fMode,
                                        gAlphaValue[alpha & 1],
                                        gAlphaValue[alpha & 2]);
                 canvas->restore();

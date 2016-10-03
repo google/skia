@@ -9,6 +9,7 @@
 #define SkCanvas_DEFINED
 
 #include "SkTypes.h"
+#include "SkBlendMode.h"
 #include "SkBitmap.h"
 #include "SkClipOp.h"
 #include "SkDeque.h"
@@ -595,22 +596,31 @@ public:
         @param b    the blue component (0..255) of the color to fill the canvas
         @param mode the mode to apply the color in (defaults to SrcOver)
     */
-    void drawARGB(U8CPU a, U8CPU r, U8CPU g, U8CPU b,
-                  SkXfermode::Mode mode = SkXfermode::kSrcOver_Mode);
+    void drawARGB(U8CPU a, U8CPU r, U8CPU g, U8CPU b, SkBlendMode mode = SkBlendMode::kSrcOver);
+#ifdef SK_SUPPORT_LEGACY_XFERMODE_OBJECT
+    void drawARGB(U8CPU a, U8CPU r, U8CPU g, U8CPU b, SkXfermode::Mode mode) {
+        this->drawARGB(a, r, g, b, (SkBlendMode)mode);
+    }
+#endif
 
     /** Fill the entire canvas' bitmap (restricted to the current clip) with the
         specified color and mode.
         @param color    the color to draw with
         @param mode the mode to apply the color in (defaults to SrcOver)
     */
-    void drawColor(SkColor color, SkXfermode::Mode mode = SkXfermode::kSrcOver_Mode);
+    void drawColor(SkColor color, SkBlendMode mode = SkBlendMode::kSrcOver);
+#ifdef SK_SUPPORT_LEGACY_XFERMODE_OBJECT
+    void drawColor(SkColor color, SkXfermode::Mode mode) {
+        this->drawColor(color, (SkBlendMode)mode);
+    }
+#endif
 
     /**
      *  Helper method for drawing a color in SRC mode, completely replacing all the pixels
      *  in the current clip with this color.
      */
     void clear(SkColor color) {
-        this->drawColor(color, SkXfermode::kSrc_Mode);
+        this->drawColor(color, SkBlendMode::kSrc);
     }
 
     /**

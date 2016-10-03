@@ -149,13 +149,13 @@ static SkMatrix read_sparse_matrix(SkReadBuffer& reader, SkMatrix::TypeMask tm) 
  *      pad zeros       : 8
  */
 static SkPaint read_paint(SkReadBuffer& reader) {
+    SkPaint paint;
+
     uint32_t packedFlags = reader.read32();
     uint32_t extra = reader.read32();
     unsigned nondef = extra >> 16;
-    SkXfermode::Mode mode = (SkXfermode::Mode)((extra >> 8) & 0xFF);
-    SkASSERT((extra & 0xFF) == 0);
-
-    SkPaint paint;
+    paint.setBlendMode(SkBlendMode((extra >> 8) & 0xFF));
+    SkASSERT((extra & 0xFF) == 0);  // zero pad byte
 
     packedFlags >>= 2;  // currently unused
     paint.setTextEncoding((SkPaint::TextEncoding)(packedFlags & 3));    packedFlags >>= 2;
@@ -180,16 +180,11 @@ static SkPaint read_paint(SkReadBuffer& reader) {
     CHECK_SET_FLATTENABLE(Typeface);
     CHECK_SET_FLATTENABLE(PathEffect);
     CHECK_SET_FLATTENABLE(Shader);
-    CHECK_SET_FLATTENABLE(Xfermode);
     CHECK_SET_FLATTENABLE(MaskFilter);
     CHECK_SET_FLATTENABLE(ColorFilter);
     CHECK_SET_FLATTENABLE(Rasterizer);
     CHECK_SET_FLATTENABLE(ImageFilter);
     CHECK_SET_FLATTENABLE(DrawLooper);
-
-    if (!(nondef & kXfermode_NonDef)) {
-        paint.setXfermodeMode(mode);
-    }
 
     return paint;
 }
