@@ -66,7 +66,8 @@ void GrFragmentProcessor::addBufferAccess(const GrBufferAccess* bufferAccess) {
 
 void GrFragmentProcessor::addCoordTransform(const GrCoordTransform* transform) {
     fCoordTransforms.push_back(transform);
-    fUsesLocalCoords = fUsesLocalCoords || transform->sourceCoords() == kLocal_GrCoordSet;
+    // Make this just be ct count != 0?
+    fUsesLocalCoords = true;
     SkDEBUGCODE(transform->setInProcessor();)
 }
 
