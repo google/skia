@@ -168,6 +168,7 @@ def dm_flags(bot):
     blacklist('pdf skp _ worldjournal')
     blacklist('pdf skp _ desk_baidu.skp')
     blacklist('pdf skp _ desk_wikipedia.skp')
+    blacklist('_ svg _ _')
 
   if 'iOS' in bot:
     blacklist('gpu skp _ _')
