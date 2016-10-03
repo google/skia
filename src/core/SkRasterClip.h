@@ -62,9 +62,9 @@ public:
 
     bool op(const SkIRect&, SkRegion::Op);
     bool op(const SkRegion&, SkRegion::Op);
-    bool op(const SkRect&, const SkIRect&, SkRegion::Op, bool doAA);
-    bool op(const SkRRect&, const SkIRect&, SkRegion::Op, bool doAA);
-    bool op(const SkPath&, const SkIRect&, SkRegion::Op, bool doAA);
+    bool op(const SkRect&, const SkMatrix& matrix, const SkIRect&, SkRegion::Op, bool doAA);
+    bool op(const SkRRect&, const SkMatrix& matrix, const SkIRect&, SkRegion::Op, bool doAA);
+    bool op(const SkPath&, const SkMatrix& matrix, const SkIRect&, SkRegion::Op, bool doAA);
 
     void translate(int dx, int dy, SkRasterClip* dst) const;
     void translate(int dx, int dy) {

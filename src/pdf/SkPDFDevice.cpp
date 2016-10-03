@@ -1637,10 +1637,9 @@ void SkPDFDevice::handlePathAnnotation(const SkPath& path,
         return;
     }
 
-    SkPath transformedPath = path;
-    transformedPath.transform(*d.fMatrix);
     SkRasterClip clip = *d.fRC;
-    clip.op(transformedPath, SkIRect::MakeWH(width(), height()), SkRegion::kIntersect_Op,
+    clip.op(path, *d.fMatrix, SkIRect::MakeWH(width(), height()),
+            SkRegion::kIntersect_Op,
             false);
     SkRect transformedRect = SkRect::Make(clip.getBounds());
 
@@ -1761,8 +1760,7 @@ SkPDFDevice::ContentEntry* SkPDFDevice::setUpContentEntry(const SkClipStack* cli
             synthesizedClipStack = fExistingClipStack;
             SkPath clipPath;
             clipRegion.getBoundaryPath(&clipPath);
-            synthesizedClipStack.clipDevPath(clipPath, SkCanvas::kReplace_Op,
-                                             false);
+            synthesizedClipStack.clipPath(clipPath, SkMatrix::I(), SkCanvas::kReplace_Op, false);
             clipStack = &synthesizedClipStack;
         }
     }
