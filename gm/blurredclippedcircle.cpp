@@ -34,7 +34,7 @@ protected:
     void onDraw(SkCanvas* canvas) override {
         SkPaint whitePaint;
         whitePaint.setColor(SK_ColorWHITE);
-        whitePaint.setXfermode(SkXfermode::Make(SkXfermode::kSrc_Mode));
+        whitePaint.setBlendMode(SkBlendMode::kSrc);
         whitePaint.setAntiAlias(true);
 
         // This scale exercises precision limits in the circle blur effect (crbug.com/560651)

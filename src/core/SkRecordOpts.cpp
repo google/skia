@@ -98,7 +98,7 @@ static bool fold_opacity_layer_color_to_paint(const SkPaint* layerPaint,
     // looper drawing unmodulated filter layer twice and then modulating the result produces
     // different image to drawing modulated filter layer twice.
     // TODO: most likely the looper and only some xfer modes are the hard constraints
-    if (paint->getXfermode() || paint->getLooper()) {
+    if (!paint->isSrcOver() || paint->getLooper()) {
         return false;
     }
 
@@ -129,9 +129,9 @@ static bool fold_opacity_layer_color_to_paint(const SkPaint* layerPaint,
         }
 
         // The layer paint can not have any effects.
-        if (layerPaint->getPathEffect() ||
+        if (layerPaint->getPathEffect()  ||
             layerPaint->getShader()      ||
-            layerPaint->getXfermode()    ||
+            !layerPaint->isSrcOver()     ||
             layerPaint->getMaskFilter()  ||
             layerPaint->getColorFilter() ||
             layerPaint->getRasterizer()  ||
@@ -174,16 +174,12 @@ void SkRecordNoopSaveRestores(SkRecord* record) {
 }
 
 static bool effectively_srcover(const SkPaint* paint) {
-    if (!paint) {
-        return true;
-    }
-    SkXfermode* mode = paint->getXfermode();
-    if (SkXfermode::IsMode(mode, SkXfermode::kSrcOver_Mode)) {
+    if (!paint || paint->isSrcOver()) {
         return true;
     }
     // src-mode with opaque and no effects (which might change opaqueness) is ok too.
     return !paint->getShader() && !paint->getColorFilter() && !paint->getImageFilter() &&
-           0xFF == paint->getAlpha() && SkXfermode::IsMode(mode, SkXfermode::kSrc_Mode);
+           0xFF == paint->getAlpha() && paint->getBlendMode() == SkBlendMode::kSrc;
 }
 
 // For some SaveLayer-[drawing command]-Restore patterns, merge the SaveLayer's alpha into the
