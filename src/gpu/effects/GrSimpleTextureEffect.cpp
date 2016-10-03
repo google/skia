@@ -84,13 +84,7 @@ sk_sp<GrFragmentProcessor> GrSimpleTextureEffect::TestCreate(GrProcessorTestData
     GrTextureParams params(tileModes, d->fRandom->nextBool() ? GrTextureParams::kBilerp_FilterMode :
                                                                GrTextureParams::kNone_FilterMode);
 
-    static const GrCoordSet kCoordSets[] = {
-        kLocal_GrCoordSet,
-        kDevice_GrCoordSet
-    };
-    GrCoordSet coordSet = kCoordSets[d->fRandom->nextULessThan(SK_ARRAY_COUNT(kCoordSets))];
-
     const SkMatrix& matrix = GrTest::TestMatrix(d->fRandom);
     auto colorSpaceXform = GrTest::TestColorXform(d->fRandom);
-    return GrSimpleTextureEffect::Make(d->fTextures[texIdx], colorSpaceXform, matrix, coordSet);
+    return GrSimpleTextureEffect::Make(d->fTextures[texIdx], colorSpaceXform, matrix);
 }
