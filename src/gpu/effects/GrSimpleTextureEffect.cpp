@@ -91,5 +91,6 @@ sk_sp<GrFragmentProcessor> GrSimpleTextureEffect::TestCreate(GrProcessorTestData
     GrCoordSet coordSet = kCoordSets[d->fRandom->nextULessThan(SK_ARRAY_COUNT(kCoordSets))];
 
     const SkMatrix& matrix = GrTest::TestMatrix(d->fRandom);
-    return GrSimpleTextureEffect::Make(d->fTextures[texIdx], nullptr, matrix, coordSet);
+    auto colorSpaceXform = GrTest::TestColorXform(d->fRandom);
+    return GrSimpleTextureEffect::Make(d->fTextures[texIdx], colorSpaceXform, matrix, coordSet);
 }
