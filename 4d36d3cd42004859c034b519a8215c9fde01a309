@@ -125,6 +125,24 @@
     },
     {
       "key": {
+        "uuid": "22459584_4716e4be",
+        "filename": "include/core/SkXfermode.h",
+        "patchSetId": 11
+      },
+      "lineNbr": 170,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2016-10-03T16:37:33Z",
+      "side": 1,
+      "message": "So don\u0027t we want sk_sp\u003c\u003e to undo the ref added by Make? Doesn\u0027t release() leak that ref?\n\nbefore:\n\n  ref count \u003d\u003d 1\n\nPeek:\n  sk_sp\u003cSkXfermode\u003e xfer \u003d Make((Mode)bm); // ref count \u003d\u003d 2\n  ...\n  return xfer.release(); // ref count \u003d\u003d 2\n\nafter:\n\n  ref count \u003d\u003d 2?",
+      "parentUuid": "22459584_444a6227",
+      "revId": "4d36d3cd42004859c034b519a8215c9fde01a309",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "22459584_84caaa42",
         "filename": "tests/SerializationTest.cpp",
         "patchSetId": 11
