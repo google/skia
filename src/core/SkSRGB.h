@@ -62,4 +62,19 @@ static inline Sk4i sk_linear_to_srgb_noclamp(const Sk4f& x) {
     return SkNx_cast<int>(f);
 }
 
+static inline Sk4f sk_linear_from_srgb_math(const Sk4i& x) {
+    auto s = SkNx_cast<float>(x);
+
+    auto sq = s*s,
+         cb = s*sq;
+
+    auto lo = s * (1/(255.0f * 12.92f));
+
+    auto hi = (0.002564f                                       )
+            + (0.696943f * (1/255.0f) * (1/255.0f)             ) * sq
+            + (0.300493f * (1/255.0f) * (1/255.0f) * (1/255.0f)) * cb;
+
+    return (s < 14.025f).thenElse(lo, hi);
+}
+
 #endif//SkSRGB_DEFINED
