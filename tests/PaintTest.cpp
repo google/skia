@@ -292,7 +292,7 @@ DEF_TEST(Paint_MoreFlattening, r) {
     paint.setColor(0x00AABBCC);
     paint.setTextScaleX(1.0f);  // Default value, ignored.
     paint.setTextSize(19);
-    paint.setBlendMode(SkBlendMode::kModulate);
+    paint.setXfermode(SkXfermode::Make(SkXfermode::kModulate_Mode));
     paint.setLooper(nullptr);  // Default value, ignored.
 
     SkBinaryWriteBuffer writer;
@@ -311,7 +311,12 @@ DEF_TEST(Paint_MoreFlattening, r) {
     ASSERT(other.getTextScaleX() == paint.getTextScaleX());
     ASSERT(other.getTextSize()   == paint.getTextSize());
     ASSERT(other.getLooper()     == paint.getLooper());
-    ASSERT(other.getBlendMode()  == paint.getBlendMode());
+
+    // We have to be a little looser and compare just the modes.  Pointers might not be the same.
+    SkXfermode::Mode otherMode, paintMode;
+    ASSERT(other.getXfermode()->asMode(&otherMode));
+    ASSERT(paint.getXfermode()->asMode(&paintMode));
+    ASSERT(otherMode == paintMode);
 }
 
 DEF_TEST(Paint_getHash, r) {
@@ -350,11 +355,11 @@ DEF_TEST(Paint_nothingToDraw, r) {
     REPORTER_ASSERT(r, paint.nothingToDraw());
 
     paint.setAlpha(0xFF);
-    paint.setBlendMode(SkBlendMode::kDst);
+    paint.setXfermodeMode(SkXfermode::kDst_Mode);
     REPORTER_ASSERT(r, paint.nothingToDraw());
 
     paint.setAlpha(0);
-    paint.setBlendMode(SkBlendMode::kSrcOver);
+    paint.setXfermodeMode(SkXfermode::kSrcOver_Mode);
 
     SkColorMatrix cm;
     cm.setIdentity();   // does not change alpha

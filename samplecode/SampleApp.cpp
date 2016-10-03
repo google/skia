@@ -351,7 +351,7 @@ public:
             bool doGamma = (fActualColorBits == 30) && SkImageInfoIsGammaCorrect(win->info());
 
             SkPaint gammaPaint;
-            gammaPaint.setBlendMode(SkBlendMode::kSrc);
+            gammaPaint.setXfermodeMode(SkXfermode::kSrc_Mode);
             if (doGamma) {
                 gammaPaint.setColorFilter(SkGammaColorFilter::Make(1.0f / 2.2f));
             }

@@ -472,7 +472,7 @@ static void r0(SkLayerRasterizer::Builder* rastBuilder, SkPaint& p)
 
     p.setAlpha(0x11);
     p.setStyle(SkPaint::kFill_Style);
-    p.setBlendMode(SkBlendMode::kSrc);
+    p.setXfermodeMode(SkXfermode::kSrc_Mode);
     rastBuilder->addLayer(p);
 }
 
@@ -481,7 +481,7 @@ static void r1(SkLayerRasterizer::Builder* rastBuilder, SkPaint& p)
     rastBuilder->addLayer(p);
 
     p.setAlpha(0x40);
-    p.setBlendMode(SkBlendMode::kSrc);
+    p.setXfermodeMode(SkXfermode::kSrc_Mode);
     p.setStyle(SkPaint::kStroke_Style);
     p.setStrokeWidth(SK_Scalar1*2);
     rastBuilder->addLayer(p);
@@ -495,7 +495,7 @@ static void r2(SkLayerRasterizer::Builder* rastBuilder, SkPaint& p)
 
     p.setStyle(SkPaint::kStroke_Style);
     p.setStrokeWidth(SK_Scalar1*3/2);
-    p.setBlendMode(SkBlendMode::kClear);
+    p.setXfermodeMode(SkXfermode::kClear_Mode);
     rastBuilder->addLayer(p);
 }
 
@@ -507,7 +507,7 @@ static void r3(SkLayerRasterizer::Builder* rastBuilder, SkPaint& p)
 
     p.setAlpha(0x20);
     p.setStyle(SkPaint::kFill_Style);
-    p.setBlendMode(SkBlendMode::kSrc);
+    p.setXfermodeMode(SkXfermode::kSrc_Mode);
     rastBuilder->addLayer(p);
 }
 
@@ -517,10 +517,10 @@ static void r4(SkLayerRasterizer::Builder* rastBuilder, SkPaint& p)
     rastBuilder->addLayer(p, SkIntToScalar(3), SkIntToScalar(3));
 
     p.setAlpha(0xFF);
-    p.setBlendMode(SkBlendMode::kClear);
+    p.setXfermodeMode(SkXfermode::kClear_Mode);
     rastBuilder->addLayer(p, SK_Scalar1*3/2, SK_Scalar1*3/2);
 
-    p.setBlendMode(SkBlendMode::kSrcOver);
+    p.setXfermode(nullptr);
     rastBuilder->addLayer(p);
 }
 
@@ -531,7 +531,7 @@ static void r5(SkLayerRasterizer::Builder* rastBuilder, SkPaint& p)
     rastBuilder->addLayer(p);
 
     p.setPathEffect(SkDiscretePathEffect::Make(SK_Scalar1*4, SK_Scalar1*3));
-    p.setBlendMode(SkBlendMode::kSrcOut);
+    p.setXfermodeMode(SkXfermode::kSrcOut_Mode);
     rastBuilder->addLayer(p);
 }
 
@@ -543,7 +543,7 @@ static void r6(SkLayerRasterizer::Builder* rastBuilder, SkPaint& p)
     SkLayerRasterizer::Builder rastBuilder2;
     r5(&rastBuilder2, p);
     p.setRasterizer(rastBuilder2.detach());
-    p.setBlendMode(SkBlendMode::kClear);
+    p.setXfermodeMode(SkXfermode::kClear_Mode);
     rastBuilder->addLayer(p);
 }
 
@@ -572,11 +572,11 @@ static void r8(SkLayerRasterizer::Builder* rastBuilder, SkPaint& p)
     lattice.setScale(SK_Scalar1*6, SK_Scalar1*6, 0, 0);
     lattice.postSkew(SK_Scalar1/3, 0, 0, 0);
     p.setPathEffect(MakeDotEffect(SK_Scalar1*2, lattice));
-    p.setBlendMode(SkBlendMode::kClear);
+    p.setXfermodeMode(SkXfermode::kClear_Mode);
     rastBuilder->addLayer(p);
 
     p.setPathEffect(nullptr);
-    p.setBlendMode(SkBlendMode::kSrcOver);
+    p.setXfermode(nullptr);
     p.setStyle(SkPaint::kStroke_Style);
     p.setStrokeWidth(SK_Scalar1);
     rastBuilder->addLayer(p);
@@ -590,11 +590,11 @@ static void r9(SkLayerRasterizer::Builder* rastBuilder, SkPaint& p)
     lattice.setScale(SK_Scalar1, SK_Scalar1*6, 0, 0);
     lattice.postRotate(SkIntToScalar(30), 0, 0);
     p.setPathEffect(SkLine2DPathEffect::Make(SK_Scalar1*2, lattice));
-    p.setBlendMode(SkBlendMode::kClear);
+    p.setXfermodeMode(SkXfermode::kClear_Mode);
     rastBuilder->addLayer(p);
 
     p.setPathEffect(nullptr);
-    p.setBlendMode(SkBlendMode::kSrcOver);
+    p.setXfermode(nullptr);
     p.setStyle(SkPaint::kStroke_Style);
     p.setStrokeWidth(SK_Scalar1);
     rastBuilder->addLayer(p);

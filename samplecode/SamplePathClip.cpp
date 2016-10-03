@@ -225,7 +225,7 @@ protected:
         // We use a layer, so we can PLUS the different edge-colors, showing where two edges
         // canceled each other out.
         canvas->saveLayer(nullptr, nullptr);
-        p.setBlendMode(SkBlendMode::kPlus);
+        p.setXfermodeMode(SkXfermode::kPlus_Mode);
         for (int i = 0; i < N; ++i) {
             const int j = (i + 1) % N;
             p.setColor(fEdgeColor[i]);

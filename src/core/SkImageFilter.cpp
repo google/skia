@@ -281,7 +281,7 @@ sk_sp<SkSpecialImage> SkImageFilter::DrawWithFP(GrContext* context,
                                                 const OutputProperties& outputProperties) {
     GrPaint paint;
     paint.addColorFragmentProcessor(std::move(fp));
-    paint.setPorterDuffXPFactory(SkBlendMode::kSrc);
+    paint.setPorterDuffXPFactory(SkXfermode::kSrc_Mode);
 
     sk_sp<SkColorSpace> colorSpace = sk_ref_sp(outputProperties.colorSpace());
     GrPixelConfig config = GrRenderableConfigForColorSpace(colorSpace.get());

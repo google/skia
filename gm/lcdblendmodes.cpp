@@ -76,44 +76,44 @@ protected:
         this->drawColumn(surfCanvas, SK_ColorCYAN, SK_ColorMAGENTA, true);
 
         SkPaint surfPaint;
-        surfPaint.setBlendMode(SkBlendMode::kSrcOver);
+        surfPaint.setXfermode(SkXfermode::Make(SkXfermode::kSrcOver_Mode));
         surface->draw(canvas, 0, 0, &surfPaint);
     }
 
     void drawColumn(SkCanvas* canvas, SkColor backgroundColor, SkColor textColor, bool useGrad) {
         const struct {
-            SkBlendMode fMode;
-            const char* fLabel;
+            SkXfermode::Mode  fMode;
+            const char*       fLabel;
         } gModes[] = {
-            { SkBlendMode::kClear,        "Clear"       },
-            { SkBlendMode::kSrc,          "Src"         },
-            { SkBlendMode::kDst,          "Dst"         },
-            { SkBlendMode::kSrcOver,      "SrcOver"     },
-            { SkBlendMode::kDstOver,      "DstOver"     },
-            { SkBlendMode::kSrcIn,        "SrcIn"       },
-            { SkBlendMode::kDstIn,        "DstIn"       },
-            { SkBlendMode::kSrcOut,       "SrcOut"      },
-            { SkBlendMode::kDstOut,       "DstOut"      },
-            { SkBlendMode::kSrcATop,      "SrcATop"     },
-            { SkBlendMode::kDstATop,      "DstATop"     },
-            { SkBlendMode::kXor,          "Xor"         },
-            { SkBlendMode::kPlus,         "Plus"        },
-            { SkBlendMode::kModulate,     "Modulate"    },
-            { SkBlendMode::kScreen,       "Screen"      },
-            { SkBlendMode::kOverlay,      "Overlay"     },
-            { SkBlendMode::kDarken,       "Darken"      },
-            { SkBlendMode::kLighten,      "Lighten"     },
-            { SkBlendMode::kColorDodge,   "ColorDodge"  },
-            { SkBlendMode::kColorBurn,    "ColorBurn"   },
-            { SkBlendMode::kHardLight,    "HardLight"   },
-            { SkBlendMode::kSoftLight,    "SoftLight"   },
-            { SkBlendMode::kDifference,   "Difference"  },
-            { SkBlendMode::kExclusion,    "Exclusion"   },
-            { SkBlendMode::kMultiply,     "Multiply"    },
-            { SkBlendMode::kHue,          "Hue"         },
-            { SkBlendMode::kSaturation,   "Saturation"  },
-            { SkBlendMode::kColor,        "Color"       },
-            { SkBlendMode::kLuminosity,   "Luminosity"  },
+            { SkXfermode::kClear_Mode,        "Clear"       },
+            { SkXfermode::kSrc_Mode,          "Src"         },
+            { SkXfermode::kDst_Mode,          "Dst"         },
+            { SkXfermode::kSrcOver_Mode,      "SrcOver"     },
+            { SkXfermode::kDstOver_Mode,      "DstOver"     },
+            { SkXfermode::kSrcIn_Mode,        "SrcIn"       },
+            { SkXfermode::kDstIn_Mode,        "DstIn"       },
+            { SkXfermode::kSrcOut_Mode,       "SrcOut"      },
+            { SkXfermode::kDstOut_Mode,       "DstOut"      },
+            { SkXfermode::kSrcATop_Mode,      "SrcATop"     },
+            { SkXfermode::kDstATop_Mode,      "DstATop"     },
+            { SkXfermode::kXor_Mode,          "Xor"         },
+            { SkXfermode::kPlus_Mode,         "Plus"        },
+            { SkXfermode::kModulate_Mode,     "Modulate"    },
+            { SkXfermode::kScreen_Mode,       "Screen"      },
+            { SkXfermode::kOverlay_Mode,      "Overlay"     },
+            { SkXfermode::kDarken_Mode,       "Darken"      },
+            { SkXfermode::kLighten_Mode,      "Lighten"     },
+            { SkXfermode::kColorDodge_Mode,   "ColorDodge"  },
+            { SkXfermode::kColorBurn_Mode,    "ColorBurn"   },
+            { SkXfermode::kHardLight_Mode,    "HardLight"   },
+            { SkXfermode::kSoftLight_Mode,    "SoftLight"   },
+            { SkXfermode::kDifference_Mode,   "Difference"  },
+            { SkXfermode::kExclusion_Mode,    "Exclusion"   },
+            { SkXfermode::kMultiply_Mode,     "Multiply"    },
+            { SkXfermode::kHue_Mode,          "Hue"         },
+            { SkXfermode::kSaturation_Mode,   "Saturation"  },
+            { SkXfermode::kColor_Mode,        "Color"       },
+            { SkXfermode::kLuminosity_Mode,   "Luminosity"  },
         };
         // Draw background rect
         SkPaint backgroundPaint;
@@ -128,7 +128,7 @@ protected:
             paint.setSubpixelText(true);
             paint.setLCDRenderText(true);
             paint.setTextSize(fTextHeight);
-            paint.setBlendMode(gModes[m].fMode);
+            paint.setXfermode(SkXfermode::Make(gModes[m].fMode));
             sk_tool_utils::set_portable_typeface(&paint);
             if (useGrad) {
                 SkRect r;

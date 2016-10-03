@@ -163,7 +163,7 @@ private:
         canvas->restore();
 
         SkPaint paint;
-        paint.setBlendMode(SkBlendMode::kClear);
+        paint.setXfermodeMode(SkXfermode::kClear_Mode);
         for (int iy = 1; iy < fH; ++iy) {
             SkScalar y = SkIntToScalar(iy * fZoom);
             canvas->drawLine(0, y - SK_ScalarHalf, 999, y - SK_ScalarHalf, paint);

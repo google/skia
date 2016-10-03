@@ -67,7 +67,7 @@ static SkString to_lower(const char* str) {
 
 class RotRectBench: public Benchmark {
 public:
-    RotRectBench(bool aa, ColorType ct, SkBlendMode mode)
+    RotRectBench(bool aa, ColorType ct, SkXfermode::Mode mode)
         : fAA(aa)
         , fColorType(ct)
         , fMode(mode) {
@@ -80,7 +80,7 @@ protected:
     void onDraw(int loops, SkCanvas* canvas) override {
         SkPaint paint;
         paint.setAntiAlias(fAA);
-        paint.setBlendMode(fMode);
+        paint.setXfermodeMode(fMode);
         SkColor color = start_color(fColorType);
 
         int w = this->getSize().x();
@@ -147,48 +147,48 @@ private:
         fName.appendf("_%s", to_lower(SkXfermode::ModeName(fMode)).c_str());
     }
 
-    bool        fAA;
-    ColorType   fColorType;
-    SkBlendMode fMode;
-    SkString    fName;
+    bool             fAA;
+    ColorType        fColorType;
+    SkXfermode::Mode fMode;
+    SkString         fName;
 
     typedef Benchmark INHERITED;
 };
 
 // Choose kSrcOver because it always allows coverage and alpha to be conflated. kSrc only allows
 // conflation when opaque, and kDarken because it isn't possilbe with standard GL blending.
-DEF_BENCH(return new RotRectBench(true,  kConstantOpaque_ColorType,                  SkBlendMode::kSrcOver);)
-DEF_BENCH(return new RotRectBench(true,  kConstantTransparent_ColorType,             SkBlendMode::kSrcOver);)
-DEF_BENCH(return new RotRectBench(true,  kChangingOpaque_ColorType,                  SkBlendMode::kSrcOver);)
-DEF_BENCH(return new RotRectBench(true,  kChangingTransparent_ColorType,             SkBlendMode::kSrcOver);)
-DEF_BENCH(return new RotRectBench(true,  kAlternatingOpaqueAndTransparent_ColorType, SkBlendMode::kSrcOver);)
+DEF_BENCH(return new RotRectBench(true,  kConstantOpaque_ColorType,                  SkXfermode::kSrcOver_Mode);)
+DEF_BENCH(return new RotRectBench(true,  kConstantTransparent_ColorType,             SkXfermode::kSrcOver_Mode);)
+DEF_BENCH(return new RotRectBench(true,  kChangingOpaque_ColorType,                  SkXfermode::kSrcOver_Mode);)
+DEF_BENCH(return new RotRectBench(true,  kChangingTransparent_ColorType,             SkXfermode::kSrcOver_Mode);)
+DEF_BENCH(return new RotRectBench(true,  kAlternatingOpaqueAndTransparent_ColorType, SkXfermode::kSrcOver_Mode);)
 
-DEF_BENCH(return new RotRectBench(false, kConstantOpaque_ColorType,                  SkBlendMode::kSrcOver);)
-DEF_BENCH(return new RotRectBench(false, kConstantTransparent_ColorType,             SkBlendMode::kSrcOver);)
-DEF_BENCH(return new RotRectBench(false, kChangingOpaque_ColorType,                  SkBlendMode::kSrcOver);)
-DEF_BENCH(return new RotRectBench(false, kChangingTransparent_ColorType,             SkBlendMode::kSrcOver);)
-DEF_BENCH(return new RotRectBench(false, kAlternatingOpaqueAndTransparent_ColorType, SkBlendMode::kSrcOver);)
+DEF_BENCH(return new RotRectBench(false, kConstantOpaque_ColorType,                  SkXfermode::kSrcOver_Mode);)
+DEF_BENCH(return new RotRectBench(false, kConstantTransparent_ColorType,             SkXfermode::kSrcOver_Mode);)
+DEF_BENCH(return new RotRectBench(false, kChangingOpaque_ColorType,                  SkXfermode::kSrcOver_Mode);)
+DEF_BENCH(return new RotRectBench(false, kChangingTransparent_ColorType,             SkXfermode::kSrcOver_Mode);)
+DEF_BENCH(return new RotRectBench(false, kAlternatingOpaqueAndTransparent_ColorType, SkXfermode::kSrcOver_Mode);)
 
-DEF_BENCH(return new RotRectBench(true,  kConstantOpaque_ColorType,                  SkBlendMode::kSrc);)
-DEF_BENCH(return new RotRectBench(true,  kConstantTransparent_ColorType,             SkBlendMode::kSrc);)
-DEF_BENCH(return new RotRectBench(true,  kChangingOpaque_ColorType,                  SkBlendMode::kSrc);)
-DEF_BENCH(return new RotRectBench(true,  kChangingTransparent_ColorType,             SkBlendMode::kSrc);)
-DEF_BENCH(return new RotRectBench(true,  kAlternatingOpaqueAndTransparent_ColorType, SkBlendMode::kSrc);)
+DEF_BENCH(return new RotRectBench(true,  kConstantOpaque_ColorType,                  SkXfermode::kSrc_Mode);)
+DEF_BENCH(return new RotRectBench(true,  kConstantTransparent_ColorType,             SkXfermode::kSrc_Mode);)
+DEF_BENCH(return new RotRectBench(true,  kChangingOpaque_ColorType,                  SkXfermode::kSrc_Mode);)
+DEF_BENCH(return new RotRectBench(true,  kChangingTransparent_ColorType,             SkXfermode::kSrc_Mode);)
+DEF_BENCH(return new RotRectBench(true,  kAlternatingOpaqueAndTransparent_ColorType, SkXfermode::kSrc_Mode);)
 
-DEF_BENCH(return new RotRectBench(false, kConstantOpaque_ColorType,                  SkBlendMode::kSrc);)
-DEF_BENCH(return new RotRectBench(false, kConstantTransparent_ColorType,             SkBlendMode::kSrc);)
-DEF_BENCH(return new RotRectBench(false, kChangingOpaque_ColorType,                  SkBlendMode::kSrc);)
-DEF_BENCH(return new RotRectBench(false, kChangingTransparent_ColorType,             SkBlendMode::kSrc);)
-DEF_BENCH(return new RotRectBench(false, kAlternatingOpaqueAndTransparent_ColorType, SkBlendMode::kSrc);)
+DEF_BENCH(return new RotRectBench(false, kConstantOpaque_ColorType,                  SkXfermode::kSrc_Mode);)
+DEF_BENCH(return new RotRectBench(false, kConstantTransparent_ColorType,             SkXfermode::kSrc_Mode);)
+DEF_BENCH(return new RotRectBench(false, kChangingOpaque_ColorType,                  SkXfermode::kSrc_Mode);)
+DEF_BENCH(return new RotRectBench(false, kChangingTransparent_ColorType,             SkXfermode::kSrc_Mode);)
+DEF_BENCH(return new RotRectBench(false, kAlternatingOpaqueAndTransparent_ColorType, SkXfermode::kSrc_Mode);)
 
-DEF_BENCH(return new RotRectBench(true,  kConstantOpaque_ColorType,                  SkBlendMode::kDarken);)
-DEF_BENCH(return new RotRectBench(true,  kConstantTransparent_ColorType,             SkBlendMode::kDarken);)
-DEF_BENCH(return new RotRectBench(true,  kChangingOpaque_ColorType,                  SkBlendMode::kDarken);)
-DEF_BENCH(return new RotRectBench(true,  kChangingTransparent_ColorType,             SkBlendMode::kDarken);)
-DEF_BENCH(return new RotRectBench(true,  kAlternatingOpaqueAndTransparent_ColorType, SkBlendMode::kDarken);)
+DEF_BENCH(return new RotRectBench(true,  kConstantOpaque_ColorType,                  SkXfermode::kDarken_Mode);)
+DEF_BENCH(return new RotRectBench(true,  kConstantTransparent_ColorType,             SkXfermode::kDarken_Mode);)
+DEF_BENCH(return new RotRectBench(true,  kChangingOpaque_ColorType,                  SkXfermode::kDarken_Mode);)
+DEF_BENCH(return new RotRectBench(true,  kChangingTransparent_ColorType,             SkXfermode::kDarken_Mode);)
+DEF_BENCH(return new RotRectBench(true,  kAlternatingOpaqueAndTransparent_ColorType, SkXfermode::kDarken_Mode);)
 
-DEF_BENCH(return new RotRectBench(false, kConstantOpaque_ColorType,                  SkBlendMode::kDarken);)
-DEF_BENCH(return new RotRectBench(false, kConstantTransparent_ColorType,             SkBlendMode::kDarken);)
-DEF_BENCH(return new RotRectBench(false, kChangingOpaque_ColorType,                  SkBlendMode::kDarken);)
-DEF_BENCH(return new RotRectBench(false, kChangingTransparent_ColorType,             SkBlendMode::kDarken);)
-DEF_BENCH(return new RotRectBench(false, kAlternatingOpaqueAndTransparent_ColorType, SkBlendMode::kDarken);)
+DEF_BENCH(return new RotRectBench(false, kConstantOpaque_ColorType,                  SkXfermode::kDarken_Mode);)
+DEF_BENCH(return new RotRectBench(false, kConstantTransparent_ColorType,             SkXfermode::kDarken_Mode);)
+DEF_BENCH(return new RotRectBench(false, kChangingOpaque_ColorType,                  SkXfermode::kDarken_Mode);)
+DEF_BENCH(return new RotRectBench(false, kChangingTransparent_ColorType,             SkXfermode::kDarken_Mode);)
+DEF_BENCH(return new RotRectBench(false, kAlternatingOpaqueAndTransparent_ColorType, SkXfermode::kDarken_Mode);)

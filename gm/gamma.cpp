@@ -75,11 +75,11 @@ DEF_SIMPLE_GM(gamma, canvas, 850, 200) {
         advance();
     };
 
-    auto nextXferRect = [&](SkColor srcColor, SkBlendMode mode, SkColor dstColor) {
+    auto nextXferRect = [&](SkColor srcColor, SkXfermode::Mode mode, SkColor dstColor) {
         p.setColor(dstColor);
         canvas->drawRect(r, p);
         p.setColor(srcColor);
-        p.setBlendMode(mode);
+        p.setXfermodeMode(mode);
         canvas->drawRect(r, p);
 
         SkString srcText = SkStringPrintf("%08X", srcColor);
@@ -207,18 +207,18 @@ DEF_SIMPLE_GM(gamma, canvas, 850, 200) {
 
     canvas->saveLayer(nullptr, nullptr);
 
-    nextXferRect(0x7fffffff, SkBlendMode::kSrcOver, SK_ColorBLACK);
-    nextXferRect(0x7f000000, SkBlendMode::kSrcOver, SK_ColorWHITE);
+    nextXferRect(0x7fffffff, SkXfermode::kSrcOver_Mode, SK_ColorBLACK);
+    nextXferRect(0x7f000000, SkXfermode::kSrcOver_Mode, SK_ColorWHITE);
 
-    nextXferRect(SK_ColorBLACK, SkBlendMode::kDstOver, 0x7fffffff);
-    nextXferRect(SK_ColorWHITE, SkBlendMode::kSrcIn, 0x7fff00ff);
-    nextXferRect(0x7fff00ff, SkBlendMode::kDstIn, SK_ColorWHITE);
+    nextXferRect(SK_ColorBLACK, SkXfermode::kDstOver_Mode, 0x7fffffff);
+    nextXferRect(SK_ColorWHITE, SkXfermode::kSrcIn_Mode, 0x7fff00ff);
+    nextXferRect(0x7fff00ff, SkXfermode::kDstIn_Mode, SK_ColorWHITE);
 
     // 0x89 = 255 * linear_to_srgb(0.25)
-    nextXferRect(0xff898989, SkBlendMode::kPlus, 0xff898989);
+    nextXferRect(0xff898989, SkXfermode::kPlus_Mode, 0xff898989);
 
     // 0xDB = 255 * linear_to_srgb(sqrt(0.5))
-    nextXferRect(0xffdbdbdb, SkBlendMode::kModulate, 0xffdbdbdb);
+    nextXferRect(0xffdbdbdb, SkXfermode::kModulate_Mode, 0xffdbdbdb);
 
     canvas->restore();
 }
