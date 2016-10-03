@@ -68,19 +68,14 @@ GrVkGpuCommandBuffer::GrVkGpuCommandBuffer(GrVkGpu* gpu,
     get_vk_load_store_ops(stencilInfo, &vkLoadOp, &vkStoreOp);
     GrVkRenderPass::LoadStoreOps vkStencilOps(vkLoadOp, vkStoreOp);
 
-    GrVkRenderPass::LoadStoreOps vkResolveOps(VK_ATTACHMENT_LOAD_OP_LOAD,
-                                              VK_ATTACHMENT_STORE_OP_STORE);
-
     const GrVkResourceProvider::CompatibleRPHandle& rpHandle = target->compatibleRenderPassHandle();
     if (rpHandle.isValid()) {
         fRenderPass = fGpu->resourceProvider().findRenderPass(rpHandle,
                                                               vkColorOps,
-                                                              vkResolveOps,
                                                               vkStencilOps);
     } else {
         fRenderPass = fGpu->resourceProvider().findRenderPass(*target,
                                                               vkColorOps,
-                                                              vkResolveOps,
                                                               vkStencilOps);
     }
 
@@ -148,8 +143,6 @@ void GrVkGpuCommandBuffer::discard(GrRenderTarget* target) {
                                                 VK_ATTACHMENT_STORE_OP_STORE);
         GrVkRenderPass::LoadStoreOps vkStencilOps(VK_ATTACHMENT_LOAD_OP_DONT_CARE,
                                                   VK_ATTACHMENT_STORE_OP_STORE);
-        GrVkRenderPass::LoadStoreOps vkResolveOps(VK_ATTACHMENT_LOAD_OP_DONT_CARE,
-                                                  VK_ATTACHMENT_STORE_OP_STORE);
 
         const GrVkRenderPass* oldRP = fRenderPass;
 
@@ -159,12 +152,10 @@ void GrVkGpuCommandBuffer::discard(GrRenderTarget* target) {
         if (rpHandle.isValid()) {
             fRenderPass = fGpu->resourceProvider().findRenderPass(rpHandle,
                                                                   vkColorOps,
-                                                                  vkResolveOps,
                                                                   vkStencilOps);
         } else {
             fRenderPass = fGpu->resourceProvider().findRenderPass(*vkRT,
                                                                   vkColorOps,
-                                                                  vkResolveOps,
                                                                   vkStencilOps);
         }
 
@@ -245,8 +236,6 @@ void GrVkGpuCommandBuffer::onClear(GrRenderTarget* target, const GrFixedClip& cl
                                                 VK_ATTACHMENT_STORE_OP_STORE);
         GrVkRenderPass::LoadStoreOps vkStencilOps(VK_ATTACHMENT_LOAD_OP_LOAD,
                                                   VK_ATTACHMENT_STORE_OP_STORE);
-        GrVkRenderPass::LoadStoreOps vkResolveOps(VK_ATTACHMENT_LOAD_OP_LOAD,
-                                                  VK_ATTACHMENT_STORE_OP_STORE);
 
         const GrVkRenderPass* oldRP = fRenderPass;
 
@@ -255,12 +244,10 @@ void GrVkGpuCommandBuffer::onClear(GrRenderTarget* target, const GrFixedClip& cl
         if (rpHandle.isValid()) {
             fRenderPass = fGpu->resourceProvider().findRenderPass(rpHandle,
                                                                   vkColorOps,
-                                                                  vkResolveOps,
                                                                   vkStencilOps);
         } else {
             fRenderPass = fGpu->resourceProvider().findRenderPass(*vkRT,
                                                                   vkColorOps,
-                                                                  vkResolveOps,
                                                                   vkStencilOps);
         }
 

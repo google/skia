@@ -73,7 +73,6 @@ public:
     // return a GrVkRenderPasses without the need inspecting a GrVkRenderTarget.
     const GrVkRenderPass* findRenderPass(const GrVkRenderTarget& target,
                                          const GrVkRenderPass::LoadStoreOps& colorOps,
-                                         const GrVkRenderPass::LoadStoreOps& resolveOps,
                                          const GrVkRenderPass::LoadStoreOps& stencilOps,
                                          CompatibleRPHandle* compatibleHandle = nullptr);
 
@@ -81,7 +80,6 @@ public:
     // findCompatibleRenderPass.
     const GrVkRenderPass* findRenderPass(const CompatibleRPHandle& compatibleHandle,
                                          const GrVkRenderPass::LoadStoreOps& colorOps,
-                                         const GrVkRenderPass::LoadStoreOps& resolveOps,
                                          const GrVkRenderPass::LoadStoreOps& stencilOps);
 
     GrVkPrimaryCommandBuffer* findOrCreatePrimaryCommandBuffer();

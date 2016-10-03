@@ -131,7 +131,6 @@ GrVkResourceProvider::findCompatibleRenderPass(const CompatibleRPHandle& compati
 const GrVkRenderPass* GrVkResourceProvider::findRenderPass(
                                                      const GrVkRenderTarget& target,
                                                      const GrVkRenderPass::LoadStoreOps& colorOps,
-                                                     const GrVkRenderPass::LoadStoreOps& resolveOps,
                                                      const GrVkRenderPass::LoadStoreOps& stencilOps,
                                                      CompatibleRPHandle* compatibleHandle) {
     GrVkResourceProvider::CompatibleRPHandle tempRPHandle;
@@ -142,13 +141,12 @@ const GrVkRenderPass* GrVkResourceProvider::findRenderPass(
     // This will get us the handle to (and possible create) the compatible set for the specific
     // GrVkRenderPass we are looking for.
     this->findCompatibleRenderPass(target, compatibleHandle);
-    return this->findRenderPass(*pRPHandle, colorOps, resolveOps, stencilOps);
+    return this->findRenderPass(*pRPHandle, colorOps, stencilOps);
 }
 
 const GrVkRenderPass*
 GrVkResourceProvider::findRenderPass(const CompatibleRPHandle& compatibleHandle,
                                      const GrVkRenderPass::LoadStoreOps& colorOps,
-                                     const GrVkRenderPass::LoadStoreOps& resolveOps,
                                      const GrVkRenderPass::LoadStoreOps& stencilOps) {
     SkASSERT(compatibleHandle.isValid() && compatibleHandle.toIndex() < fRenderPassArray.count());
     CompatibleRenderPassSet& compatibleSet = fRenderPassArray[compatibleHandle.toIndex()];

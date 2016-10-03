@@ -294,20 +294,16 @@ bool GrVkCopyManager::copySurfaceAsDraw(GrVkGpu* gpu,
                                             VK_ATTACHMENT_STORE_OP_STORE);
     GrVkRenderPass::LoadStoreOps vkStencilOps(VK_ATTACHMENT_LOAD_OP_DONT_CARE,
                                               VK_ATTACHMENT_STORE_OP_STORE);
-    GrVkRenderPass::LoadStoreOps vkResolveOps(VK_ATTACHMENT_LOAD_OP_DONT_CARE,
-                                              VK_ATTACHMENT_STORE_OP_STORE);
     const GrVkRenderPass* renderPass;
     const GrVkResourceProvider::CompatibleRPHandle& rpHandle =
         rt->compatibleRenderPassHandle();
     if (rpHandle.isValid()) {
         renderPass = gpu->resourceProvider().findRenderPass(rpHandle,
                                                             vkColorOps,
-                                                            vkResolveOps,
                                                             vkStencilOps);
     } else {
         renderPass = gpu->resourceProvider().findRenderPass(*rt,
                                                             vkColorOps,
-                                                            vkResolveOps,
                                                             vkStencilOps);
     }
 
