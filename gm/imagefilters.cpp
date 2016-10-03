@@ -19,7 +19,7 @@
  *
  *  see https://bug.skia.org/3741
  */
-static void do_draw(SkCanvas* canvas, SkXfermode::Mode mode, sk_sp<SkImageFilter> imf) {
+static void do_draw(SkCanvas* canvas, SkBlendMode mode, sk_sp<SkImageFilter> imf) {
         SkAutoCanvasRestore acr(canvas, true);
         canvas->clipRect(SkRect::MakeWH(220, 220));
 
@@ -40,7 +40,7 @@ static void do_draw(SkCanvas* canvas, SkXfermode::Mode mode, sk_sp<SkImageFilter
 
         paint.setColor(0x660000FF);
         paint.setImageFilter(std::move(imf));
-        paint.setXfermodeMode(mode);
+        paint.setBlendMode(mode);
         canvas->drawOval(r1, paint);
 }
 
@@ -52,8 +52,8 @@ DEF_SIMPLE_GM(imagefilters_xfermodes, canvas, 480, 480) {
                                                                  kNone_SkFilterQuality,
                                                                  nullptr));
 
-        const SkXfermode::Mode modes[] = {
-            SkXfermode::kSrcATop_Mode, SkXfermode::kDstIn_Mode
+        const SkBlendMode modes[] = {
+            SkBlendMode::kSrcATop, SkBlendMode::kDstIn
         };
 
         for (size_t i = 0; i < SK_ARRAY_COUNT(modes); ++i) {
