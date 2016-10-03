@@ -654,48 +654,24 @@ void SkLiteDL::drawShadowedPicture(const SkPicture* picture, const SkMatrix* mat
     push<DrawShadowedPicture>(0, picture, matrix, paint, params);
 }
 
-void SkLiteDL::drawBitmap(const SkBitmap& bm, SkScalar x, SkScalar y, const SkPaint* paint) {
-    this->push<DrawImage>(0, SkImage::MakeFromBitmap(bm), x,y, paint);
+void SkLiteDL::drawImage(sk_sp<const SkImage> image, SkScalar x, SkScalar y, const SkPaint* paint) {
+    this->push<DrawImage>(0, std::move(image), x,y, paint);
 }
-void SkLiteDL::drawBitmapNine(const SkBitmap& bm, const SkIRect& center,
-                              const SkRect& dst, const SkPaint* paint) {
-    this->push<DrawImageNine>(0, SkImage::MakeFromBitmap(bm), center, dst, paint);
-}
-void SkLiteDL::drawBitmapRect(const SkBitmap& bm, const SkRect* src, const SkRect& dst,
-                              const SkPaint* paint, SkCanvas::SrcRectConstraint constraint) {
-    this->push<DrawImageRect>(0, SkImage::MakeFromBitmap(bm), src, dst, paint, constraint);
-}
-void SkLiteDL::drawBitmapLattice(const SkBitmap& bm, const SkCanvas::Lattice& lattice,
-                                 const SkRect& dst, const SkPaint* paint) {
-    int xs = lattice.fXCount, ys = lattice.fYCount;
-    int fs = lattice.fFlags ? (xs + 1) * (ys + 1) : 0;
-    size_t bytes = (xs + ys) * sizeof(int) + fs * sizeof(SkCanvas::Lattice::Flags);
-    SkASSERT(lattice.fBounds);
-    void* pod = this->push<DrawImageLattice>(bytes, SkImage::MakeFromBitmap(bm), xs, ys, fs,
-                                             *lattice.fBounds, dst, paint);
-    copy_v(pod, lattice.fXDivs, xs,
-                lattice.fYDivs, ys,
-                lattice.fFlags, fs);
-}
-
-void SkLiteDL::drawImage(const SkImage* image, SkScalar x, SkScalar y, const SkPaint* paint) {
-    this->push<DrawImage>(0, sk_ref_sp(image), x,y, paint);
-}
-void SkLiteDL::drawImageNine(const SkImage* image, const SkIRect& center,
+void SkLiteDL::drawImageNine(sk_sp<const SkImage> image, const SkIRect& center,
                              const SkRect& dst, const SkPaint* paint) {
-    this->push<DrawImageNine>(0, sk_ref_sp(image), center, dst, paint);
+    this->push<DrawImageNine>(0, std::move(image), center, dst, paint);
 }
-void SkLiteDL::drawImageRect(const SkImage* image, const SkRect* src, const SkRect& dst,
+void SkLiteDL::drawImageRect(sk_sp<const SkImage> image, const SkRect* src, const SkRect& dst,
                              const SkPaint* paint, SkCanvas::SrcRectConstraint constraint) {
-    this->push<DrawImageRect>(0, sk_ref_sp(image), src, dst, paint, constraint);
+    this->push<DrawImageRect>(0, std::move(image), src, dst, paint, constraint);
 }
-void SkLiteDL::drawImageLattice(const SkImage* image, const SkCanvas::Lattice& lattice,
+void SkLiteDL::drawImageLattice(sk_sp<const SkImage> image, const SkCanvas::Lattice& lattice,
                                 const SkRect& dst, const SkPaint* paint) {
     int xs = lattice.fXCount, ys = lattice.fYCount;
     int fs = lattice.fFlags ? (xs + 1) * (ys + 1) : 0;
     size_t bytes = (xs + ys) * sizeof(int) + fs * sizeof(SkCanvas::Lattice::Flags);
     SkASSERT(lattice.fBounds);
-    void* pod = this->push<DrawImageLattice>(bytes, sk_ref_sp(image), xs, ys, fs, *lattice.fBounds,
+    void* pod = this->push<DrawImageLattice>(bytes, std::move(image), xs, ys, fs, *lattice.fBounds,
                                              dst, paint);
     copy_v(pod, lattice.fXDivs, xs,
                 lattice.fYDivs, ys,
