@@ -25,6 +25,24 @@
     },
     {
       "key": {
+        "uuid": "22459584_a77888c7",
+        "filename": "src/core/SkCanvas.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 1551,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2016-10-03T17:47:55Z",
+      "side": 0,
+      "message": "Yes, this will cause double transformation of the rect to device space. The raster backend will eventually be spared the clip stack\u0027s transformation by a forthcoming CL that stores the clips in the stack in local coords. For Ganesh, we expect the wins from local space clips to outweigh the double rect xform.",
+      "parentUuid": "22459584_47ba648d",
+      "revId": "497630a2af7569d4c6c0f6df0b232f5e0196a8a5",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "22459584_a73d2819",
         "filename": "src/core/SkCanvas.cpp",
         "patchSetId": 2
@@ -42,6 +60,24 @@
         "endLine": 1560,
         "endChar": 18
       },
+      "revId": "497630a2af7569d4c6c0f6df0b232f5e0196a8a5",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "22459584_8792ac05",
+        "filename": "src/core/SkCanvas.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 1560,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2016-10-03T17:47:55Z",
+      "side": 0,
+      "message": "I spoke offline with Mike and he wasn\u0027t sure whether this is a win. If we see a regression the plan is to move the check into SkRasterClip and add an out param to op() to indicate that the clip was unchanged by the rect.",
+      "parentUuid": "22459584_a73d2819",
       "revId": "497630a2af7569d4c6c0f6df0b232f5e0196a8a5",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
