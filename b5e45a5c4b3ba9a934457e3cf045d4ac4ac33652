@@ -1,0 +1,142 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "22459584_c77b14c3",
+        "filename": "src/core/SkRasterPipeline.cpp",
+        "patchSetId": 11
+      },
+      "lineNbr": 30,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2016-10-03T17:50:08Z",
+      "side": 1,
+      "message": "I think I figured out what you\u0027re doing here, but it seems weird.  You\u0027ve just inlined an implementation for append(Fn8)?",
+      "range": {
+        "startLine": 30,
+        "startChar": 4,
+        "endLine": 30,
+        "endChar": 89
+      },
+      "revId": "b5e45a5c4b3ba9a934457e3cf045d4ac4ac33652",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "22459584_e78290af",
+        "filename": "src/core/SkRasterPipeline.cpp",
+        "patchSetId": 11
+      },
+      "lineNbr": 53,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2016-10-03T17:50:08Z",
+      "side": 1,
+      "message": "So this returns false if the 8f pipeline isn\u0027t built properly?  In that case, we use the 4f pipeline?\n\nI\u0027m wondering if there is a better way to do this...",
+      "range": {
+        "startLine": 53,
+        "startChar": 8,
+        "endLine": 53,
+        "endChar": 23
+      },
+      "revId": "b5e45a5c4b3ba9a934457e3cf045d4ac4ac33652",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "22459584_e7ed707c",
+        "filename": "src/opts/SkOpts_hsw.cpp",
+        "patchSetId": 11
+      },
+      "lineNbr": 39,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2016-10-03T17:50:08Z",
+      "side": 1,
+      "message": "Why is this here?",
+      "range": {
+        "startLine": 37,
+        "startChar": 0,
+        "endLine": 39,
+        "endChar": 5
+      },
+      "revId": "b5e45a5c4b3ba9a934457e3cf045d4ac4ac33652",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "22459584_4788a4d5",
+        "filename": "src/opts/SkOpts_hsw.cpp",
+        "patchSetId": 11
+      },
+      "lineNbr": 47,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2016-10-03T17:50:08Z",
+      "side": 1,
+      "message": "Seems weird to do this much error checking in opt code.",
+      "range": {
+        "startLine": 40,
+        "startChar": 0,
+        "endLine": 47,
+        "endChar": 5
+      },
+      "revId": "b5e45a5c4b3ba9a934457e3cf045d4ac4ac33652",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "22459584_c498327e",
+        "filename": "src/opts/SkRasterPipeline_opts.h",
+        "patchSetId": 11
+      },
+      "lineNbr": 60,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2016-10-03T17:50:08Z",
+      "side": 1,
+      "message": "This is cool",
+      "range": {
+        "startLine": 60,
+        "startChar": 4,
+        "endLine": 60,
+        "endChar": 89
+      },
+      "revId": "b5e45a5c4b3ba9a934457e3cf045d4ac4ac33652",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "22459584_64a4beb4",
+        "filename": "src/opts/SkRasterPipeline_opts.h",
+        "patchSetId": 11
+      },
+      "lineNbr": 63,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2016-10-03T17:50:08Z",
+      "side": 1,
+      "message": "nit: tail?",
+      "range": {
+        "startLine": 63,
+        "startChar": 72,
+        "endLine": 63,
+        "endChar": 73
+      },
+      "revId": "b5e45a5c4b3ba9a934457e3cf045d4ac4ac33652",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
