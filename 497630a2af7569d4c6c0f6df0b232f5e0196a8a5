@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "22459584_47ba648d",
+        "filename": "src/core/SkCanvas.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 1551,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2016-10-03T17:24:11Z",
+      "side": 0,
+      "message": "I\u0027m a bit concerned that we\u0027re possibly duplicating this sort of work in two places now.",
+      "range": {
+        "startLine": 1551,
+        "startChar": 24,
+        "endLine": 1551,
+        "endChar": 45
+      },
+      "revId": "497630a2af7569d4c6c0f6df0b232f5e0196a8a5",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "22459584_a73d2819",
+        "filename": "src/core/SkCanvas.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 1560,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2016-10-03T17:24:11Z",
+      "side": 0,
+      "message": "Don\u0027t we care about this fast path?",
+      "range": {
+        "startLine": 1560,
+        "startChar": 12,
+        "endLine": 1560,
+        "endChar": 18
+      },
+      "revId": "497630a2af7569d4c6c0f6df0b232f5e0196a8a5",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
