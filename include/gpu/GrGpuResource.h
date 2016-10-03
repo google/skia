@@ -58,6 +58,7 @@ public:
         this->validate();
 
         if (!(--fRefCnt)) {
+            SkASSERT(fRefCnt >= 0);
             if (!static_cast<const DERIVED*>(this)->notifyRefCountIsZero()) {
                 return;
             }
@@ -117,6 +118,7 @@ private:
 
 private:
     void didRemoveRefOrPendingIO(CntType cntTypeRemoved) const {
+        this->validate();
         if (0 == fPendingReads && 0 == fPendingWrites && 0 == fRefCnt) {
             static_cast<const DERIVED*>(this)->notifyAllCntsAreZero(cntTypeRemoved);
         }

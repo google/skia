@@ -76,6 +76,7 @@ private:
         , fSoftwarePathRenderer(nullptr)
         , fFlushState(context->getGpu(), context->resourceProvider())
         , fFlushing(false)
+        , fLastFlushType(GrResourceCache::FlushType::kExternal)
         , fIsImmediateMode(isImmediateMode) {
     }
 
@@ -107,6 +108,7 @@ private:
 
     GrBatchFlushState                 fFlushState;
     bool                              fFlushing;
+    GrResourceCache::FlushType        fLastFlushType;
 
     bool                              fIsImmediateMode;
 };
