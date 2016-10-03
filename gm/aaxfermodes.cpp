@@ -121,7 +121,7 @@ protected:
                 if (firstMode + m > SkXfermode::kLastMode) {
                     break;
                 }
-                SkBlendMode mode = static_cast<SkBlendMode>(firstMode + m);
+                SkXfermode::Mode mode = static_cast<SkXfermode::Mode>(firstMode + m);
                 canvas->save();
 
                 if (kShape_Pass == drawingPass) {
@@ -144,7 +144,7 @@ protected:
                                         10);
                             } else {
                                 SkASSERT(kBackground_Pass == drawingPass);
-                                canvas->drawColor(kBGColor, SkBlendMode::kSrc);
+                                canvas->drawColor(kBGColor, SkXfermode::kSrc_Mode);
                             }
                             canvas->restore();
                         } else {
@@ -190,17 +190,18 @@ protected:
         canvas->restore();
     }
 
-    void drawModeName(SkCanvas* canvas, SkBlendMode mode) {
-        const char* modeName = SkXfermode::ModeName(mode);
+    void drawModeName(SkCanvas* canvas, SkXfermode::Mode mode) {
+        const char* modeName = mode <= SkXfermode::kLastMode ? SkXfermode::ModeName(mode)
+                                                             : "Arithmetic";
         fLabelPaint.setTextAlign(SkPaint::kRight_Align);
         canvas->drawText(modeName, strlen(modeName), kLabelSpacing - kShapeSize / 4,
                          fLabelPaint.getTextSize() / 4, fLabelPaint);
     }
 
-    void setupShapePaint(SkCanvas* canvas, GrColor color, SkBlendMode mode, SkPaint* paint) {
+    void setupShapePaint(SkCanvas* canvas, GrColor color, SkXfermode::Mode mode, SkPaint* paint) {
         paint->setColor(color);
 
-        if (mode == SkBlendMode::kPlus) {
+        if (mode == SkXfermode::kPlus_Mode) {
             // Check for overflow, otherwise we might get confusing AA artifacts.
             int maxSum = SkTMax(SkTMax(SkColorGetA(kBGColor) + SkColorGetA(color),
                                        SkColorGetR(kBGColor) + SkColorGetR(color)),
@@ -210,7 +211,7 @@ protected:
             if (maxSum > 255) {
                 SkPaint dimPaint;
                 dimPaint.setAntiAlias(false);
-                dimPaint.setBlendMode(SkBlendMode::kDstIn);
+                dimPaint.setXfermodeMode(SkXfermode::kDstIn_Mode);
                 if (255 != paint->getAlpha()) {
                     // Dim the src and dst colors.
                     dimPaint.setARGB(255 * 255 / maxSum, 0, 0, 0);
@@ -226,11 +227,11 @@ protected:
         }
     }
 
-    void drawShape(SkCanvas* canvas, Shape shape, const SkPaint& paint, SkBlendMode mode) {
-        SkASSERT(mode <= SkBlendMode::kLastMode);
+    void drawShape(SkCanvas* canvas, Shape shape, const SkPaint& paint, SkXfermode::Mode mode) {
+        SkASSERT(mode <= SkXfermode::kLastMode);
         SkPaint shapePaint(paint);
         shapePaint.setAntiAlias(kSquare_Shape != shape);
-        shapePaint.setBlendMode(mode);
+        shapePaint.setXfermodeMode(mode);
 
         switch (shape) {
             case kSquare_Shape:
@@ -248,7 +249,7 @@ protected:
 
             case kOval_Shape:
                 canvas->save();
-                canvas->rotate(static_cast<SkScalar>((511 * (int)mode + 257) % 360));
+                canvas->rotate(static_cast<SkScalar>((511 * mode + 257) % 360));
                 canvas->drawPath(fOval, shapePaint);
                 canvas->restore();
                 break;

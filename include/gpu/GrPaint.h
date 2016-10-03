@@ -16,9 +16,9 @@
 #include "effects/GrPorterDuffXferProcessor.h"
 #include "GrFragmentProcessor.h"
 
-#include "SkBlendMode.h"
 #include "SkRefCnt.h"
 #include "SkRegion.h"
+#include "SkXfermode.h"
 
 /**
  * The paint describes how color and coverage are computed at each pixel by GrContext draw
@@ -93,10 +93,6 @@ public:
 
     void setXPFactory(sk_sp<GrXPFactory> xpFactory) {
         fXPFactory = std::move(xpFactory);
-    }
-
-    void setPorterDuffXPFactory(SkBlendMode mode) {
-        fXPFactory = GrPorterDuffXPFactory::Make((SkXfermode::Mode)mode);
     }
 
     void setPorterDuffXPFactory(SkXfermode::Mode mode) {

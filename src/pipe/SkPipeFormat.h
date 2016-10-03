@@ -94,11 +94,12 @@ enum {
     kTypeface_NonDef    = 1 << 6,
     kPathEffect_NonDef  = 1 << 7,
     kShader_NonDef      = 1 << 8,
-    kMaskFilter_NonDef  = 1 << 9,
-    kColorFilter_NonDef = 1 << 10,
-    kRasterizer_NonDef  = 1 << 11,
-    kImageFilter_NonDef = 1 << 12,
-    kDrawLooper_NonDef  = 1 << 13,
+    kXfermode_NonDef    = 1 << 9,
+    kMaskFilter_NonDef  = 1 << 10,
+    kColorFilter_NonDef = 1 << 11,
+    kRasterizer_NonDef  = 1 << 12,
+    kImageFilter_NonDef = 1 << 13,
+    kDrawLooper_NonDef  = 1 << 14,
 };
 
 enum {

@@ -34,7 +34,7 @@ class Drawer {
 
     const SkImageInfo& imageInfo() const { return fImageInfo; }
 
-    void draw(SkCanvas* canvas, const SkRect& clipRect, SkBlendMode mode) const {
+    void draw(SkCanvas* canvas, const SkRect& clipRect, SkXfermode::Mode mode) const {
         SkPaint greenPaint;
         greenPaint.setColor(0xff008000);
         SkPaint blackPaint;
@@ -43,7 +43,7 @@ class Drawer {
         whitePaint.setColor(0xffffffff);
         SkPaint layerPaint;
         layerPaint.setColor(0xff000000);
-        layerPaint.setBlendMode(mode);
+        layerPaint.setXfermodeMode(mode);
         SkRect canvasRect(SkRect::MakeWH(SkIntToScalar(fImageInfo.width()),
                                          SkIntToScalar(fImageInfo.height())));
 
@@ -68,7 +68,7 @@ class RecordingStrategy {
     virtual ~RecordingStrategy() {}
     virtual const SkBitmap& recordAndReplay(const Drawer& drawer,
                                             const SkRect& intoClip,
-                                            SkBlendMode) = 0;
+                                            SkXfermode::Mode) = 0;
 };
 
 class BitmapBackedCanvasStrategy : public RecordingStrategy {
@@ -78,8 +78,9 @@ class BitmapBackedCanvasStrategy : public RecordingStrategy {
         fBitmap.allocPixels(imageInfo);
     }
 
-    const SkBitmap& recordAndReplay(const Drawer& drawer, const SkRect& intoClip,
-                                    SkBlendMode mode) override {
+    virtual const SkBitmap& recordAndReplay(const Drawer& drawer,
+                                            const SkRect& intoClip,
+                                            SkXfermode::Mode mode) {
         SkCanvas canvas(fBitmap);
         canvas.clear(0xffffffff);
         // Note that the scene is drawn just into the clipped region!
@@ -103,8 +104,9 @@ class PictureStrategy : public RecordingStrategy {
         fHeight = imageInfo.height();
     }
 
-    const SkBitmap& recordAndReplay(const Drawer& drawer, const SkRect& intoClip,
-                                    SkBlendMode mode) override {
+    virtual const SkBitmap& recordAndReplay(const Drawer& drawer,
+                                            const SkRect& intoClip,
+                                            SkXfermode::Mode mode) {
         SkRTreeFactory factory;
         SkPictureRecorder recorder;
         SkRect canvasRect(SkRect::MakeWH(SkIntToScalar(fWidth),SkIntToScalar(fHeight)));
@@ -142,9 +144,9 @@ DEF_TEST(SkRecordingAccuracyXfermode, reporter) {
     SkString errors;
 #endif
 
-    for (int iMode = 0; iMode < int(SkBlendMode::kLastMode); iMode++) {
+    for (int iMode = 0; iMode < int(SkXfermode::kLastMode); iMode++) {
         const SkRect& clip = SkRect::MakeXYWH(100, 0, 100, 100);
-        SkBlendMode mode = SkBlendMode(iMode);
+        SkXfermode::Mode mode = SkXfermode::Mode(iMode);
 
         const SkBitmap& goldenBM = golden.recordAndReplay(drawer, clip, mode);
         const SkBitmap& pictureBM = picture.recordAndReplay(drawer, clip, mode);

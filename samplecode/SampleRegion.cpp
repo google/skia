@@ -80,7 +80,7 @@ static void drawFadingText(SkCanvas* canvas,
 
     SkPaint p;
     p.setShader(SkGradientShader::MakeLinear(pts, colors, pos, 3, SkShader::kClamp_TileMode));
-    p.setBlendMode(SkBlendMode::kDstIn);
+    p.setXfermodeMode(SkXfermode::kDstIn_Mode);
     canvas->drawRect(bounds, p);
 
     canvas->restore();
