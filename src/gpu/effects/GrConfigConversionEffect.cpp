@@ -229,19 +229,19 @@ void GrConfigConversionEffect::TestForPreservingPMConversions(GrContext* context
                 tempDC->asTexture().get(), GrSwizzle::RGBA(), *pmToUPMRule, SkMatrix::I()));
 
         paint1.addColorFragmentProcessor(std::move(pmToUPM1));
-        paint1.setPorterDuffXPFactory(SkXfermode::kSrc_Mode);
+        paint1.setPorterDuffXPFactory(SkBlendMode::kSrc);
 
         readDC->fillRectToRect(GrNoClip(), paint1, SkMatrix::I(), kDstRect, kSrcRect);
 
         readDC->asTexture()->readPixels(0, 0, kSize, kSize, kConfig, firstRead);
 
         paint2.addColorFragmentProcessor(std::move(upmToPM));
-        paint2.setPorterDuffXPFactory(SkXfermode::kSrc_Mode);
+        paint2.setPorterDuffXPFactory(SkBlendMode::kSrc);
 
         tempDC->fillRectToRect(GrNoClip(), paint2, SkMatrix::I(), kDstRect, kSrcRect);
 
         paint3.addColorFragmentProcessor(std::move(pmToUPM2));
-        paint3.setPorterDuffXPFactory(SkXfermode::kSrc_Mode);
+        paint3.setPorterDuffXPFactory(SkBlendMode::kSrc);
 
         readDC->fillRectToRect(GrNoClip(), paint3, SkMatrix::I(), kDstRect, kSrcRect);
 

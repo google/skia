@@ -21,15 +21,15 @@
 /*
  * Convert a boolean operation into a transfer mode code
  */
-static SkXfermode::Mode op_to_mode(SkRegion::Op op) {
+static SkBlendMode op_to_mode(SkRegion::Op op) {
 
-    static const SkXfermode::Mode modeMap[] = {
-        SkXfermode::kDstOut_Mode,   // kDifference_Op
-        SkXfermode::kModulate_Mode, // kIntersect_Op
-        SkXfermode::kSrcOver_Mode,  // kUnion_Op
-        SkXfermode::kXor_Mode,      // kXOR_Op
-        SkXfermode::kClear_Mode,    // kReverseDifference_Op
-        SkXfermode::kSrc_Mode,      // kReplace_Op
+    static const SkBlendMode modeMap[] = {
+        SkBlendMode::kDstOut,   // kDifference_Op
+        SkBlendMode::kModulate, // kIntersect_Op
+        SkBlendMode::kSrcOver,  // kUnion_Op
+        SkBlendMode::kXor,      // kXOR_Op
+        SkBlendMode::kClear,    // kReverseDifference_Op
+        SkBlendMode::kSrc,      // kReplace_Op
     };
 
     return modeMap[op];
@@ -42,7 +42,7 @@ void GrSWMaskHelper::drawRect(const SkRect& rect, SkRegion::Op op,
                               bool antiAlias, uint8_t alpha) {
     SkPaint paint;
 
-    paint.setXfermode(SkXfermode::Make(op_to_mode(op)));
+    paint.setBlendMode(op_to_mode(op));
     paint.setAntiAlias(antiAlias);
     paint.setColor(SkColorSetARGB(alpha, alpha, alpha, alpha));
 
@@ -65,7 +65,7 @@ void GrSWMaskHelper::drawShape(const GrShape& shape, SkRegion::Op op, bool antiA
         SkASSERT(0xFF == paint.getAlpha());
         fDraw.drawPathCoverage(path, paint);
     } else {
-        paint.setXfermodeMode(op_to_mode(op));
+        paint.setBlendMode(op_to_mode(op));
         paint.setColor(SkColorSetARGB(alpha, alpha, alpha, alpha));
         fDraw.drawPath(path, paint);
     }

@@ -29,7 +29,7 @@ static sk_sp<SkPicture> make_picture() {
     canvas->drawPath(path, paint);
 
     paint.setColor(0x80FFFFFF);
-    paint.setXfermodeMode(SkXfermode::kPlus_Mode);
+    paint.setBlendMode(SkBlendMode::kPlus);
     canvas->drawRect(SkRect::MakeXYWH(25, 25, 50, 50), paint);
 
     return rec.finishRecordingAsPicture();

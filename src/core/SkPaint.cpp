@@ -52,6 +52,7 @@ SkPaint::SkPaint() {
     fColor      = SK_ColorBLACK;
     fWidth      = 0;
     fMiterLimit = SkPaintDefaults_MiterLimit;
+    fBlendMode  = (unsigned)SkBlendMode::kSrcOver;
 
     // Zero all bitfields, then set some non-zero defaults.
     fBitfieldsUInt           = 0;
@@ -69,7 +70,6 @@ SkPaint::SkPaint(const SkPaint& src)
     : COPY(fTypeface)
     , COPY(fPathEffect)
     , COPY(fShader)
-    , COPY(fXfermode)
     , COPY(fMaskFilter)
     , COPY(fColorFilter)
     , COPY(fRasterizer)
@@ -81,6 +81,7 @@ SkPaint::SkPaint(const SkPaint& src)
     , COPY(fColor)
     , COPY(fWidth)
     , COPY(fMiterLimit)
+    , COPY(fBlendMode)
     , COPY(fBitfields)
 #undef COPY
 {}
@@ -90,7 +91,6 @@ SkPaint::SkPaint(SkPaint&& src) {
     MOVE(fTypeface);
     MOVE(fPathEffect);
     MOVE(fShader);
-    MOVE(fXfermode);
     MOVE(fMaskFilter);
     MOVE(fColorFilter);
     MOVE(fRasterizer);
@@ -102,6 +102,7 @@ SkPaint::SkPaint(SkPaint&& src) {
     MOVE(fColor);
     MOVE(fWidth);
     MOVE(fMiterLimit);
+    MOVE(fBlendMode);
     MOVE(fBitfields);
 #undef MOVE
 }
@@ -117,7 +118,6 @@ SkPaint& SkPaint::operator=(const SkPaint& src) {
     ASSIGN(fTypeface);
     ASSIGN(fPathEffect);
     ASSIGN(fShader);
-    ASSIGN(fXfermode);
     ASSIGN(fMaskFilter);
     ASSIGN(fColorFilter);
     ASSIGN(fRasterizer);
@@ -129,6 +129,7 @@ SkPaint& SkPaint::operator=(const SkPaint& src) {
     ASSIGN(fColor);
     ASSIGN(fWidth);
     ASSIGN(fMiterLimit);
+    ASSIGN(fBlendMode);
     ASSIGN(fBitfields);
 #undef ASSIGN
 
@@ -144,7 +145,6 @@ SkPaint& SkPaint::operator=(SkPaint&& src) {
     MOVE(fTypeface);
     MOVE(fPathEffect);
     MOVE(fShader);
-    MOVE(fXfermode);
     MOVE(fMaskFilter);
     MOVE(fColorFilter);
     MOVE(fRasterizer);
@@ -156,6 +156,7 @@ SkPaint& SkPaint::operator=(SkPaint&& src) {
     MOVE(fColor);
     MOVE(fWidth);
     MOVE(fMiterLimit);
+    MOVE(fBlendMode);
     MOVE(fBitfields);
 #undef MOVE
 
@@ -167,7 +168,6 @@ bool operator==(const SkPaint& a, const SkPaint& b) {
     return EQUAL(fTypeface)
         && EQUAL(fPathEffect)
         && EQUAL(fShader)
-        && EQUAL(fXfermode)
         && EQUAL(fMaskFilter)
         && EQUAL(fColorFilter)
         && EQUAL(fRasterizer)
@@ -179,6 +179,7 @@ bool operator==(const SkPaint& a, const SkPaint& b) {
         && EQUAL(fColor)
         && EQUAL(fWidth)
         && EQUAL(fMiterLimit)
+        && EQUAL(fBlendMode)
         && EQUAL(fBitfieldsUInt)
         ;
 #undef EQUAL
@@ -360,7 +361,6 @@ MOVE_FIELD(Rasterizer)
 MOVE_FIELD(ImageFilter)
 MOVE_FIELD(Shader)
 MOVE_FIELD(ColorFilter)
-MOVE_FIELD(Xfermode)
 MOVE_FIELD(PathEffect)
 MOVE_FIELD(MaskFilter)
 MOVE_FIELD(DrawLooper)
@@ -385,9 +385,6 @@ SET_PTR(Shader)
 #ifdef SK_SUPPORT_LEGACY_COLORFILTER_PTR
 SET_PTR(ColorFilter)
 #endif
-#ifdef SK_SUPPORT_LEGACY_XFERMODE_PTR
-SET_PTR(Xfermode)
-#endif
 #ifdef SK_SUPPORT_LEGACY_PATHEFFECT_PTR
 SET_PTR(PathEffect)
 #endif
@@ -403,10 +400,18 @@ SkDrawLooper* SkPaint::setLooper(SkDrawLooper* looper) {
 }
 #endif
 
-SkXfermode* SkPaint::setXfermodeMode(SkXfermode::Mode mode) {
-    fXfermode = SkXfermode::Make(mode);
-    return fXfermode.get(); // can/should we change this API to be void, like the other setters?
+#ifdef SK_SUPPORT_LEGACY_XFERMODE_OBJECT
+void SkPaint::setXfermode(sk_sp<SkXfermode> mode) {
+    this->setBlendMode(mode ? mode->blend() : SkBlendMode::kSrcOver);
 }
+SkXfermode* SkPaint::getXfermode() const {
+    return SkXfermode::Peek((SkBlendMode)fBlendMode);
+}
+SkXfermode* SkPaint::setXfermodeMode(SkXfermode::Mode mode) {
+    this->setBlendMode((SkBlendMode)mode);
+    return SkXfermode::Peek((SkBlendMode)mode);
+}
+#endif
 
 ///////////////////////////////////////////////////////////////////////////////
 
@@ -1904,7 +1909,6 @@ void SkPaint::flatten(SkWriteBuffer& buffer) const {
     }
     if (asint(this->getPathEffect()) |
         asint(this->getShader()) |
-        asint(this->getXfermode()) |
         asint(this->getMaskFilter()) |
         asint(this->getColorFilter()) |
         asint(this->getRasterizer()) |
@@ -1923,7 +1927,8 @@ void SkPaint::flatten(SkWriteBuffer& buffer) const {
     buffer.writeUInt(pack_paint_flags(this->getFlags(), this->getHinting(), this->getTextAlign(),
                                       this->getFilterQuality(), flatFlags));
     buffer.writeUInt(pack_4(this->getStrokeCap(), this->getStrokeJoin(),
-                            this->getStyle(), this->getTextEncoding()));
+                            (this->getStyle() << 4) | this->getTextEncoding(),
+                            fBlendMode));
 
     // now we're done with ptr and the (pre)reserved space. If we need to write
     // additional fields, use the buffer directly
@@ -1933,7 +1938,6 @@ void SkPaint::flatten(SkWriteBuffer& buffer) const {
     if (flatFlags & kHasEffects_FlatFlag) {
         buffer.writeFlattenable(this->getPathEffect());
         buffer.writeFlattenable(this->getShader());
-        buffer.writeFlattenable(this->getXfermode());
         buffer.writeFlattenable(this->getMaskFilter());
         buffer.writeFlattenable(this->getColorFilter());
         buffer.writeFlattenable(this->getRasterizer());
@@ -1955,8 +1959,14 @@ void SkPaint::unflatten(SkReadBuffer& buffer) {
     uint32_t tmp = buffer.readUInt();
     this->setStrokeCap(static_cast<Cap>((tmp >> 24) & 0xFF));
     this->setStrokeJoin(static_cast<Join>((tmp >> 16) & 0xFF));
-    this->setStyle(static_cast<Style>((tmp >> 8) & 0xFF));
-    this->setTextEncoding(static_cast<TextEncoding>((tmp >> 0) & 0xFF));
+    if (buffer.isVersionLT(SkReadBuffer::kXfermodeToBlendMode_Version)) {
+        this->setStyle(static_cast<Style>((tmp >> 8) & 0xFF));
+        this->setTextEncoding(static_cast<TextEncoding>((tmp >> 0) & 0xFF));
+    } else {
+        this->setStyle(static_cast<Style>((tmp >> 12) & 0xF));
+        this->setTextEncoding(static_cast<TextEncoding>((tmp >> 8) & 0xF));
+        this->setBlendMode((SkBlendMode)(tmp & 0xFF));
+    }
 
     if (flatFlags & kHasTypeface_FlatFlag) {
         this->setTypeface(buffer.readTypeface());
@@ -1967,7 +1977,16 @@ void SkPaint::unflatten(SkReadBuffer& buffer) {
     if (flatFlags & kHasEffects_FlatFlag) {
         this->setPathEffect(buffer.readPathEffect());
         this->setShader(buffer.readShader());
-        this->setXfermode(buffer.readXfermode());
+        if (buffer.isVersionLT(SkReadBuffer::kXfermodeToBlendMode_Version)) {
+            sk_sp<SkXfermode> xfer = buffer.readXfermode();
+            if (xfer) {
+                SkXfermode::Mode mode;
+                if (!xfer->asMode(&mode)) {
+                    mode = SkXfermode::kSrcOver_Mode;
+                }
+                this->setBlendMode((SkBlendMode)mode);
+            }
+        }
         this->setMaskFilter(buffer.readMaskFilter());
         this->setColorFilter(buffer.readColorFilter());
         this->setRasterizer(buffer.readRasterizer());
@@ -1986,7 +2005,6 @@ void SkPaint::unflatten(SkReadBuffer& buffer) {
     } else {
         this->setPathEffect(nullptr);
         this->setShader(nullptr);
-        this->setXfermode(nullptr);
         this->setMaskFilter(nullptr);
         this->setColorFilter(nullptr);
         this->setRasterizer(nullptr);
@@ -2116,11 +2134,8 @@ void SkPaint::toString(SkString* str) const {
         str->append("</dd>");
     }
 
-    SkXfermode* xfer = this->getXfermode();
-    if (xfer) {
-        str->append("<dt>Xfermode:</dt><dd>");
-        xfer->toString(str);
-        str->append("</dd>");
+    if (!this->isSrcOver()) {
+        str->appendf("<dt>Xfermode:</dt><dd>%d</dd>", fBlendMode);
     }
 
     SkMaskFilter* maskFilter = this->getMaskFilter();
@@ -2363,23 +2378,20 @@ bool SkPaint::nothingToDraw() const {
     if (fDrawLooper) {
         return false;
     }
-    SkXfermode::Mode mode;
-    if (SkXfermode::AsMode(fXfermode.get(), &mode)) {
-        switch (mode) {
-            case SkXfermode::kSrcOver_Mode:
-            case SkXfermode::kSrcATop_Mode:
-            case SkXfermode::kDstOut_Mode:
-            case SkXfermode::kDstOver_Mode:
-            case SkXfermode::kPlus_Mode:
-                if (0 == this->getAlpha()) {
-                    return !affects_alpha(fColorFilter.get()) && !affects_alpha(fImageFilter.get());
-                }
-                break;
-            case SkXfermode::kDst_Mode:
-                return true;
-            default:
-                break;
-        }
+    switch ((SkBlendMode)fBlendMode) {
+        case SkBlendMode::kSrcOver:
+        case SkBlendMode::kSrcATop:
+        case SkBlendMode::kDstOut:
+        case SkBlendMode::kDstOver:
+        case SkBlendMode::kPlus:
+            if (0 == this->getAlpha()) {
+                return !affects_alpha(fColorFilter.get()) && !affects_alpha(fImageFilter.get());
+            }
+            break;
+        case SkBlendMode::kDst:
+            return true;
+        default:
+            break;
     }
     return false;
 }
@@ -2387,7 +2399,7 @@ bool SkPaint::nothingToDraw() const {
 uint32_t SkPaint::getHash() const {
     // We're going to hash 10 pointers and 7 32-bit values, finishing up with fBitfields,
     // so fBitfields should be 10 pointers and 6 32-bit values from the start.
-    static_assert(offsetof(SkPaint, fBitfields) == 9 * sizeof(void*) + 6 * sizeof(uint32_t),
+    static_assert(offsetof(SkPaint, fBitfields) == 8 * sizeof(void*) + 7 * sizeof(uint32_t),
                   "SkPaint_notPackedTightly");
     return SkOpts::hash(reinterpret_cast<const uint32_t*>(this),
                         offsetof(SkPaint, fBitfields) + sizeof(fBitfields));
