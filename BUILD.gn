@@ -987,4 +987,20 @@ if (skia_enable_tools) {
     ]
     testonly = true
   }
+
+  executable("fuzz") {
+    sources = [
+      "fuzz/FilterFuzz.cpp",
+      "fuzz/FuzzGradients.cpp",
+      "fuzz/FuzzParsePath.cpp",
+      "fuzz/FuzzPathop.cpp",
+      "fuzz/FuzzScaleToSides.cpp",
+      "fuzz/fuzz.cpp",
+    ]
+    deps = [
+      ":flags",
+      ":skia",
+    ]
+    testonly = true
+  }
 }
