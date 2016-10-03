@@ -497,7 +497,7 @@
 #   if !defined(WINAPI_FAMILY) || (WINAPI_FAMILY == WINAPI_FAMILY_DESKTOP_APP) /* Windows Desktop */
 #    define PNG_ABORT() ExitProcess(0)
 #   else /* Windows Store */
-#    define PNG_ABORT()
+#    define PNG_ABORT() abort()
 #   endif
 #  else
 #    define PNG_ABORT() abort()
