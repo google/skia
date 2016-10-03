@@ -190,13 +190,9 @@ GR_DEFINE_FRAGMENT_PROCESSOR_TEST(GrSweepGradient);
 sk_sp<GrFragmentProcessor> GrSweepGradient::TestCreate(GrProcessorTestData* d) {
     SkPoint center = {d->fRandom->nextUScalar1(), d->fRandom->nextUScalar1()};
 
-    SkColor colors[kMaxRandomGradientColors];
-    SkScalar stopsArray[kMaxRandomGradientColors];
-    SkScalar* stops = stopsArray;
-    SkShader::TileMode tmIgnored;
-    int colorCount = RandomGradientParams(d->fRandom, colors, &stops, &tmIgnored);
-    sk_sp<SkShader> shader(SkGradientShader::MakeSweep(center.fX, center.fY,  colors, stops,
-                                                       colorCount));
+    RandomGradientParams params(d->fRandom);
+    sk_sp<SkShader> shader(SkGradientShader::MakeSweep(center.fX, center.fY,  params.fColors,
+                                                       params.fStops, params.fColorCount));
     SkMatrix viewMatrix = GrTest::TestMatrix(d->fRandom);
     auto dstColorSpace = GrTest::TestColorSpace(d->fRandom);
     sk_sp<GrFragmentProcessor> fp = shader->asFragmentProcessor(SkShader::AsFPArgs(
