@@ -117,7 +117,11 @@ public:
 
             switch (mode) {
             case kCircle_Mode:
-                fragBuilder->codeAppendf("%s = clamp((%s.%c - length(delta))/%s, 0.0, 1.0);",
+                // When a shadow circle gets large we can have some precision issues if
+                // we do "length(delta)/radius". The scaleDist temporary cuts the
+                // delta vector down a bit before invoking length.
+                fragBuilder->codeAppendf("float scaledDist = length(delta/%s);", radName);
+                fragBuilder->codeAppendf("%s = clamp((%s.%c/%s - scaledDist), 0.0, 1.0);",
                                          outputName, sizesName, indices[0], radName);
                 break;
             case kRect_Mode:
@@ -136,7 +140,7 @@ public:
                 // distance from the corner and then use the multiplier to mask
                 // between the two distances.
                 fragBuilder->codeAppendf("float xDist = clamp((%s.%c - abs(delta.x))/%s,"
-                                                             " 0.0, 1.0);",
+                                                             "0.0, 1.0);",
                                          sizesName, indices[0], radName);
                 fragBuilder->codeAppendf("float yDist = clamp((%s.%c - abs(delta.y))/%s,"
                                                              "0.0, 1.0);",
