@@ -7,6 +7,7 @@
 
 #include "GrTestUtils.h"
 #include "GrStyle.h"
+#include "SkColorSpace.h"
 #include "SkDashPathPriv.h"
 #include "SkMatrix.h"
 #include "SkPath.h"
@@ -289,6 +290,22 @@ SkPathEffect::DashType TestDashPathEffect::asADash(DashInfo* info) const {
     return kDash_DashType;
 }
 
+sk_sp<GrColorSpaceXform> TestColorXform(SkRandom* random) {
+    static sk_sp<GrColorSpaceXform> gXforms[3];
+    static bool gOnce;
+    if (!gOnce) {
+        gOnce = true;
+        sk_sp<SkColorSpace> srgb = SkColorSpace::NewNamed(SkColorSpace::kSRGB_Named);
+        sk_sp<SkColorSpace> adobe = SkColorSpace::NewNamed(SkColorSpace::kAdobeRGB_Named);
+        // No gamut change
+        gXforms[0] = nullptr;
+        // To larger gamut
+        gXforms[1] = GrColorSpaceXform::Make(srgb.get(), adobe.get());
+        // To smaller gamut
+        gXforms[2] = GrColorSpaceXform::Make(adobe.get(), srgb.get());
+    }
+    return gXforms[random->nextULessThan(static_cast<uint32_t>(SK_ARRAY_COUNT(gXforms)))];
+}
 
 }  // namespace GrTest
 
