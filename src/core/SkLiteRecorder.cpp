@@ -129,43 +129,43 @@ void SkLiteRecorder::onDrawTextBlob(const SkTextBlob* blob,
 void SkLiteRecorder::onDrawBitmap(const SkBitmap& bm,
                                   SkScalar x, SkScalar y,
                                   const SkPaint* paint) {
-    fDL->drawBitmap(bm, x,y, paint);
+    fDL->drawImage(SkImage::MakeFromBitmap(bm), x,y, paint);
 }
 void SkLiteRecorder::onDrawBitmapNine(const SkBitmap& bm,
                                       const SkIRect& center, const SkRect& dst,
                                       const SkPaint* paint) {
-    fDL->drawBitmapNine(bm, center, dst, paint);
+    fDL->drawImageNine(SkImage::MakeFromBitmap(bm), center, dst, paint);
 }
 void SkLiteRecorder::onDrawBitmapRect(const SkBitmap& bm,
                                       const SkRect* src, const SkRect& dst,
                                       const SkPaint* paint, SrcRectConstraint constraint) {
-    fDL->drawBitmapRect(bm, src, dst, paint, constraint);
+    fDL->drawImageRect(SkImage::MakeFromBitmap(bm), src, dst, paint, constraint);
 }
 void SkLiteRecorder::onDrawBitmapLattice(const SkBitmap& bm,
                                          const SkCanvas::Lattice& lattice, const SkRect& dst,
                                          const SkPaint* paint) {
-    fDL->drawBitmapLattice(bm, lattice, dst, paint);
+    fDL->drawImageLattice(SkImage::MakeFromBitmap(bm), lattice, dst, paint);
 }
 
 void SkLiteRecorder::onDrawImage(const SkImage* img,
                                   SkScalar x, SkScalar y,
                                   const SkPaint* paint) {
-    fDL->drawImage(img, x,y, paint);
+    fDL->drawImage(sk_ref_sp(img), x,y, paint);
 }
 void SkLiteRecorder::onDrawImageNine(const SkImage* img,
                                       const SkIRect& center, const SkRect& dst,
                                       const SkPaint* paint) {
-    fDL->drawImageNine(img, center, dst, paint);
+    fDL->drawImageNine(sk_ref_sp(img), center, dst, paint);
 }
 void SkLiteRecorder::onDrawImageRect(const SkImage* img,
                                       const SkRect* src, const SkRect& dst,
                                       const SkPaint* paint, SrcRectConstraint constraint) {
-    fDL->drawImageRect(img, src, dst, paint, constraint);
+    fDL->drawImageRect(sk_ref_sp(img), src, dst, paint, constraint);
 }
 void SkLiteRecorder::onDrawImageLattice(const SkImage* img,
                                         const SkCanvas::Lattice& lattice, const SkRect& dst,
                                         const SkPaint* paint) {
-    fDL->drawImageLattice(img, lattice, dst, paint);
+    fDL->drawImageLattice(sk_ref_sp(img), lattice, dst, paint);
 }
 
 
