@@ -484,7 +484,7 @@ public:
              */
             SkPaint tmp;
             tmp.setImageFilter(fPaint->getImageFilter());
-            tmp.setXfermode(sk_ref_sp(fPaint->getXfermode()));
+            tmp.setBlendMode(fPaint->getBlendMode());
             SkRect storage;
             if (rawBounds) {
                 // Make rawBounds include all paint outsets except for those due to image filters.
@@ -558,7 +558,7 @@ bool AutoDrawLooper::doNext(SkDrawFilter::Type drawType) {
 
     if (fTempLayerForImageFilter) {
         paint->setImageFilter(nullptr);
-        paint->setXfermode(nullptr);
+        paint->setBlendMode(SkBlendMode::kSrcOver);
     }
 
     if (fLooperContext && !fLooperContext->next(fCanvas, paint)) {
@@ -2690,7 +2690,7 @@ void SkCanvas::DrawTextDecorations(const SkDraw& draw, const SkPaint& paint,
     // nothing to draw
     if (text == nullptr || byteLength == 0 ||
         draw.fRC->isEmpty() ||
-        (paint.getAlpha() == 0 && paint.getXfermode() == nullptr)) {
+        (paint.getAlpha() == 0 && paint.isSrcOver())) {
         return;
     }
 
@@ -2999,26 +2999,21 @@ void SkCanvas::onDrawAnnotation(const SkRect& rect, const char key[], SkData* va
 // methods, rather than actually drawing themselves.
 //////////////////////////////////////////////////////////////////////////////
 
-void SkCanvas::drawARGB(U8CPU a, U8CPU r, U8CPU g, U8CPU b,
-                        SkXfermode::Mode mode) {
+void SkCanvas::drawARGB(U8CPU a, U8CPU r, U8CPU g, U8CPU b, SkBlendMode mode) {
     TRACE_EVENT0("disabled-by-default-skia", "SkCanvas::drawARGB()");
     SkPaint paint;
 
     paint.setARGB(a, r, g, b);
-    if (SkXfermode::kSrcOver_Mode != mode) {
-        paint.setXfermodeMode(mode);
-    }
+    paint.setBlendMode(mode);
     this->drawPaint(paint);
 }
 
-void SkCanvas::drawColor(SkColor c, SkXfermode::Mode mode) {
+void SkCanvas::drawColor(SkColor c, SkBlendMode mode) {
     TRACE_EVENT0("disabled-by-default-skia", "SkCanvas::drawColor()");
     SkPaint paint;
 
     paint.setColor(c);
-    if (SkXfermode::kSrcOver_Mode != mode) {
-        paint.setXfermodeMode(mode);
-    }
+    paint.setBlendMode(mode);
     this->drawPaint(paint);
 }
 

@@ -240,7 +240,7 @@ DEF_TEST(RecordDraw_SaveLayerBoundsAffectsClipBounds, r) {
     SkRecorder recorder(&record, 50, 50);
 
     SkPaint p;
-    p.setXfermodeMode(SkXfermode::kSrc_Mode);
+    p.setBlendMode(SkBlendMode::kSrc);
 
     SkRect layerBounds = SkRect::MakeLTRB(10, 10, 40, 40);
     recorder.saveLayer(&layerBounds, &p);
