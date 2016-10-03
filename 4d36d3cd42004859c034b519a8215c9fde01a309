@@ -25,6 +25,24 @@
     },
     {
       "key": {
+        "uuid": "22459584_c4d0324f",
+        "filename": "include/core/SkXfermode.h",
+        "patchSetId": 11
+      },
+      "lineNbr": 165,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2016-10-03T14:46:18Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "22459584_44c0a226",
+      "revId": "4d36d3cd42004859c034b519a8215c9fde01a309",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "22459584_e4a56e9d",
         "filename": "include/core/SkXfermode.h",
         "patchSetId": 11
@@ -42,6 +60,24 @@
         "endLine": 166,
         "endChar": 18
       },
+      "revId": "4d36d3cd42004859c034b519a8215c9fde01a309",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "22459584_a4cd26b3",
+        "filename": "include/core/SkXfermode.h",
+        "patchSetId": 11
+      },
+      "lineNbr": 166,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2016-10-03T14:46:18Z",
+      "side": 1,
+      "message": "Deeper change to return an xfermode object for srcover. I can harden the assert",
+      "parentUuid": "22459584_e4a56e9d",
       "revId": "4d36d3cd42004859c034b519a8215c9fde01a309",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
@@ -71,6 +107,24 @@
     },
     {
       "key": {
+        "uuid": "22459584_444a6227",
+        "filename": "include/core/SkXfermode.h",
+        "patchSetId": 11
+      },
+      "lineNbr": 170,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2016-10-03T14:46:18Z",
+      "side": 1,
+      "message": "Make always adds a ref, which the caller must undo (via the sp object). Peek leaves the global object \"untouched\", so the caller must NOT fiddle the refcnt on a value returned from Peek. Will add some dox.",
+      "parentUuid": "22459584_24c59636",
+      "revId": "4d36d3cd42004859c034b519a8215c9fde01a309",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "22459584_84caaa42",
         "filename": "tests/SerializationTest.cpp",
         "patchSetId": 11
@@ -94,6 +148,24 @@
     },
     {
       "key": {
+        "uuid": "22459584_244f5637",
+        "filename": "tests/SerializationTest.cpp",
+        "patchSetId": 11
+      },
+      "lineNbr": 447,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2016-10-03T14:46:18Z",
+      "side": 1,
+      "message": "oops, leftover diagnostics. removed.",
+      "parentUuid": "22459584_84caaa42",
+      "revId": "4d36d3cd42004859c034b519a8215c9fde01a309",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "22459584_64cf9e54",
         "filename": "tools/debugger/SkDebugCanvas.cpp",
         "patchSetId": 11
@@ -111,6 +183,24 @@
         "endLine": 45,
         "endChar": 52
       },
+      "revId": "4d36d3cd42004859c034b519a8215c9fde01a309",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "22459584_84546acc",
+        "filename": "tools/debugger/SkDebugCanvas.cpp",
+        "patchSetId": 11
+      },
+      "lineNbr": 45,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2016-10-03T14:46:18Z",
+      "side": 1,
+      "message": "Chrome has an xfermode subclass?!?",
+      "parentUuid": "22459584_64cf9e54",
       "revId": "4d36d3cd42004859c034b519a8215c9fde01a309",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
