@@ -1545,42 +1545,12 @@ void SkCanvas::clipRect(const SkRect& rect, ClipOp op, bool doAA) {
 }
 
 void SkCanvas::onClipRect(const SkRect& rect, ClipOp op, ClipEdgeStyle edgeStyle) {
-    const bool isScaleTrans = fMCRec->fMatrix.isScaleTranslate();
-    SkRect devR;
-    if (isScaleTrans) {
-        fMCRec->fMatrix.mapRectScaleTranslate(&devR, rect);
-    }
-
-    if (kIntersect_Op == op && kHard_ClipEdgeStyle == edgeStyle && isScaleTrans) {
-        if (devR.round().contains(fMCRec->fRasterClip.getBounds())) {
-#if 0
-            SkDebugf("------- ignored clipRect [%g %g %g %g]\n",
-                     rect.left(), rect.top(), rect.right(), rect.bottom());
-#endif
-            return;
-        }
-    }
-
+    const bool isAA = kSoft_ClipEdgeStyle == edgeStyle;
     AutoValidateClip avc(this);
-
+    fClipStack->clipRect(rect, fMCRec->fMatrix, op, isAA);
+    fMCRec->fRasterClip.op(rect, fMCRec->fMatrix, this->getTopLayerBounds(), (SkRegion::Op)op,
+                           isAA);
     fDeviceCMDirty = true;
-
-    if (isScaleTrans) {
-        const bool isAA = kSoft_ClipEdgeStyle == edgeStyle;
-        fClipStack->clipDevRect(devR, op, isAA);
-        fMCRec->fRasterClip.op(devR, this->getTopLayerBounds(), (SkRegion::Op)op, isAA);
-    } else {
-        // since we're rotated or some such thing, we convert the rect to a path
-        // and clip against that, since it can handle any matrix. However, to
-        // avoid recursion in the case where we are subclassed (e.g. Pictures)
-        // we explicitly call "our" version of clipPath.
-        SkPath  path;
-
-        path.addRect(rect);
-        path.setIsVolatile(true);
-        this->SkCanvas::onClipPath(path, op, edgeStyle);
-    }
-
     fDeviceClipBounds = qr_clip_bounds(fMCRec->fRasterClip.getBounds());
 }
 
@@ -1595,25 +1565,16 @@ void SkCanvas::clipRRect(const SkRRect& rrect, ClipOp op, bool doAA) {
 }
 
 void SkCanvas::onClipRRect(const SkRRect& rrect, ClipOp op, ClipEdgeStyle edgeStyle) {
-    SkRRect transformedRRect;
-    if (rrect.transform(fMCRec->fMatrix, &transformedRRect)) {
-        AutoValidateClip avc(this);
+    AutoValidateClip avc(this);
 
-        fDeviceCMDirty = true;
+    fDeviceCMDirty = true;
 
-        fClipStack->clipDevRRect(transformedRRect, op, kSoft_ClipEdgeStyle == edgeStyle);
-
-        fMCRec->fRasterClip.op(transformedRRect, this->getTopLayerBounds(), (SkRegion::Op)op,
-                               kSoft_ClipEdgeStyle == edgeStyle);
-        fDeviceClipBounds = qr_clip_bounds(fMCRec->fRasterClip.getBounds());
-        return;
-    }
-
-    SkPath path;
-    path.addRRect(rrect);
-    path.setIsVolatile(true);
-    // call the non-virtual version
-    this->SkCanvas::onClipPath(path, op, edgeStyle);
+    bool isAA = kSoft_ClipEdgeStyle == edgeStyle;
+    fClipStack->clipRRect(rrect, fMCRec->fMatrix, op, isAA);
+    fMCRec->fRasterClip.op(rrect, fMCRec->fMatrix, this->getTopLayerBounds(), (SkRegion::Op)op,
+                           isAA);
+    fDeviceClipBounds = qr_clip_bounds(fMCRec->fRasterClip.getBounds());
+    return;
 }
 
 void SkCanvas::clipPath(const SkPath& path, ClipOp op, bool doAA) {
@@ -1645,38 +1606,21 @@ void SkCanvas::onClipPath(const SkPath& path, ClipOp op, ClipEdgeStyle edgeStyle
     AutoValidateClip avc(this);
 
     fDeviceCMDirty = true;
+    bool isAA = kSoft_ClipEdgeStyle == edgeStyle;
 
-    SkPath devPath;
-    if (fMCRec->fMatrix.isIdentity()) {
-        devPath = path;
-    } else {
-        path.transform(fMCRec->fMatrix, &devPath);
-        devPath.setIsVolatile(true);
-    }
+    fClipStack->clipPath(path, fMCRec->fMatrix, op, isAA);
 
-    // Check if the transfomation, or the original path itself
-    // made us empty. Note this can also happen if we contained NaN
-    // values. computing the bounds detects this, and will set our
-    // bounds to empty if that is the case. (see SkRect::set(pts, count))
-    if (devPath.getBounds().isEmpty()) {
-        // resetting the path will remove any NaN or other wanky values
-        // that might upset our scan converter.
-        devPath.reset();
-    }
-
-    // if we called path.swap() we could avoid a deep copy of this path
-    fClipStack->clipDevPath(devPath, op, kSoft_ClipEdgeStyle == edgeStyle);
-
+    const SkPath* rasterClipPath = &path;
+    const SkMatrix* matrix = &fMCRec->fMatrix;
+    SkPath tempPath;
     if (fAllowSimplifyClip) {
-        bool clipIsAA = getClipStack()->asPath(&devPath);
-        if (clipIsAA) {
-            edgeStyle = kSoft_ClipEdgeStyle;
-        }
-
+        isAA = getClipStack()->asPath(&tempPath);
+        rasterClipPath = &tempPath;
+        matrix = &SkMatrix::I();
         op = kReplace_Op;
     }
-
-    fMCRec->fRasterClip.op(devPath, this->getTopLayerBounds(), (SkRegion::Op)op, edgeStyle);
+    fMCRec->fRasterClip.op(*rasterClipPath, *matrix, this->getTopLayerBounds(), (SkRegion::Op)op,
+                           isAA);
     fDeviceClipBounds = qr_clip_bounds(fMCRec->fRasterClip.getBounds());
 }
 
@@ -1725,8 +1669,8 @@ void SkCanvas::validateClip() const {
             default: {
                 SkPath path;
                 element->asPath(&path);
-                tmpClip.op(path, this->getTopLayerBounds(), (SkRegion::Op)element->getOp(),
-                           element->isAA());
+                tmpClip.op(path, SkMatrix::I(), this->getTopLayerBounds(),
+                           (SkRegion::Op)element->getOp(), element->isAA());
                 break;
             }
         }

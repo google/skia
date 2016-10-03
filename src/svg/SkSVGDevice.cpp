@@ -726,11 +726,9 @@ void SkSVGDevice::drawBitmapRect(const SkDraw& draw, const SkBitmap& bm, const S
 
     SkClipStack adjustedClipStack;
     if (srcOrNull && *srcOrNull != SkRect::Make(bm.bounds())) {
-        SkRect devClipRect;
-        draw.fMatrix->mapRect(&devClipRect, dst);
-
         adjustedClipStack = *draw.fClipStack;
-        adjustedClipStack.clipDevRect(devClipRect, SkCanvas::kIntersect_Op, paint.isAntiAlias());
+        adjustedClipStack.clipRect(dst, *draw.fMatrix, SkCanvas::kIntersect_Op,
+                                   paint.isAntiAlias());
         adjustedDraw.fClipStack = &adjustedClipStack;
     }
 

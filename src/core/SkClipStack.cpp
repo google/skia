@@ -503,24 +503,6 @@ SkClipStack::SkClipStack(const SkClipStack& b)
     *this = b;
 }
 
-SkClipStack::SkClipStack(const SkRect& r)
-    : fDeque(sizeof(Element), kDefaultElementAllocCnt)
-    , fSaveCount(0) {
-    if (!r.isEmpty()) {
-        this->clipDevRect(r, SkCanvas::kReplace_Op, false);
-    }
-}
-
-SkClipStack::SkClipStack(const SkIRect& r)
-    : fDeque(sizeof(Element), kDefaultElementAllocCnt)
-    , fSaveCount(0) {
-    if (!r.isEmpty()) {
-        SkRect temp;
-        temp.set(r);
-        this->clipDevRect(temp, SkCanvas::kReplace_Op, false);
-    }
-}
-
 SkClipStack::~SkClipStack() {
     reset();
 }
@@ -745,18 +727,41 @@ void SkClipStack::pushElement(const Element& element) {
     newElement->updateBoundAndGenID(prior);
 }
 
-void SkClipStack::clipDevRRect(const SkRRect& rrect, SkCanvas::ClipOp op, bool doAA) {
-    Element element(fSaveCount, rrect, op, doAA);
-    this->pushElement(element);
+void SkClipStack::clipRRect(const SkRRect& rrect, const SkMatrix& matrix, SkCanvas::ClipOp op,
+                            bool doAA) {
+    SkRRect transformedRRect;
+    if (rrect.transform(matrix, &transformedRRect)) {
+        Element element(fSaveCount, transformedRRect, op, doAA);
+        this->pushElement(element);
+        return;
+    }
+    SkPath path;
+    path.addRRect(rrect);
+    path.setIsVolatile(true);
+    this->clipPath(path, matrix, op, doAA);
 }
 
-void SkClipStack::clipDevRect(const SkRect& rect, SkCanvas::ClipOp op, bool doAA) {
-    Element element(fSaveCount, rect, op, doAA);
-    this->pushElement(element);
+void SkClipStack::clipRect(const SkRect& rect, const SkMatrix& matrix, SkCanvas::ClipOp op,
+                           bool doAA) {
+    if (matrix.rectStaysRect()) {
+        SkRect devRect;
+        matrix.mapRect(&devRect, rect);
+        Element element(fSaveCount, devRect, op, doAA);
+        this->pushElement(element);
+        return;
+    }
+    SkPath path;
+    path.addRect(rect);
+    path.setIsVolatile(true);
+    this->clipPath(path, matrix, op, doAA);
 }
 
-void SkClipStack::clipDevPath(const SkPath& path, SkCanvas::ClipOp op, bool doAA) {
-    Element element(fSaveCount, path, op, doAA);
+void SkClipStack::clipPath(const SkPath& path, const SkMatrix& matrix, SkCanvas::ClipOp op,
+                           bool doAA) {
+    SkPath devPath;
+    path.transform(matrix, &devPath);
+
+    Element element(fSaveCount, devPath, op, doAA);
     this->pushElement(element);
 }
 
