@@ -79,26 +79,12 @@ void GrClipStackClip::getConservativeBounds(int width, int height, SkIRect* devR
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-// set up the draw state to enable the aa clipping mask. Besides setting up the
-// stage matrix this also alters the vertex layout
+// set up the draw state to enable the aa clipping mask.
 static sk_sp<GrFragmentProcessor> create_fp_for_mask(GrTexture* result,
                                                      const SkIRect &devBound) {
-    SkMatrix mat;
-    // We use device coords to compute the texture coordinates. We set our matrix to be a
-    // translation to the devBound, and then a scaling matrix to normalized coords.
-    mat.setIDiv(result->width(), result->height());
-    mat.preTranslate(SkIntToScalar(-devBound.fLeft),
-                     SkIntToScalar(-devBound.fTop));
-
     SkIRect domainTexels = SkIRect::MakeWH(devBound.width(), devBound.height());
-    return sk_sp<GrFragmentProcessor>(GrTextureDomainEffect::Make(
-                                         result,
-                                         nullptr,
-                                         mat,
-                                         GrTextureDomain::MakeTexelDomain(result, domainTexels),
-                                         GrTextureDomain::kDecal_Mode,
-                                         GrTextureParams::kNone_FilterMode,
-                                         kDevice_GrCoordSet));
+    return GrDeviceSpaceTextureDecalFragmentProcessor::Make(result, domainTexels,
+                                                            {devBound.fLeft, devBound.fTop});
 }
 
 // Does the path in 'element' require SW rendering? If so, return true (and,

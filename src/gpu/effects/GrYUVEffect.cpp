@@ -154,9 +154,9 @@ private:
     YUVtoRGBEffect(GrTexture* yTexture, GrTexture* uTexture, GrTexture* vTexture,
                    const SkMatrix yuvMatrix[3], GrTextureParams::FilterMode uvFilterMode,
                    SkYUVColorSpace colorSpace, bool nv12)
-        : fYTransform(kLocal_GrCoordSet, yuvMatrix[0], yTexture, GrTextureParams::kNone_FilterMode)
+        : fYTransform(yuvMatrix[0], yTexture, GrTextureParams::kNone_FilterMode)
         , fYAccess(yTexture)
-        , fUTransform(kLocal_GrCoordSet, yuvMatrix[1], uTexture, uvFilterMode)
+        , fUTransform(yuvMatrix[1], uTexture, uvFilterMode)
         , fUAccess(uTexture, uvFilterMode)
         , fVAccess(vTexture, uvFilterMode)
         , fColorSpace(colorSpace)
@@ -167,7 +167,7 @@ private:
         this->addCoordTransform(&fUTransform);
         this->addTextureAccess(&fUAccess);
         if (!fNV12) {
-            fVTransform = GrCoordTransform(kLocal_GrCoordSet, yuvMatrix[2], vTexture, uvFilterMode);
+            fVTransform = GrCoordTransform(yuvMatrix[2], vTexture, uvFilterMode);
             this->addCoordTransform(&fVTransform);
             this->addTextureAccess(&fVAccess);
         }

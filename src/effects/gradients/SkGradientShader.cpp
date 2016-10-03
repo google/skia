@@ -1605,7 +1605,7 @@ GrGradientEffect::GrGradientEffect(const CreateArgs& args) {
                 fPremulType = kAfterInterp_PremulType;
             }
 
-            fCoordTransform.reset(kCoordSet, *args.fMatrix);
+            fCoordTransform.reset(*args.fMatrix);
 
             break;
         case kTexture_ColorType:
@@ -1648,8 +1648,7 @@ GrGradientEffect::GrGradientEffect(const CreateArgs& args) {
             fRow = fAtlas->lockRow(bitmap);
             if (-1 != fRow) {
                 fYCoord = fAtlas->getYOffset(fRow)+SK_ScalarHalf*fAtlas->getNormalizedTexelHeight();
-                fCoordTransform.reset(kCoordSet, *args.fMatrix, fAtlas->getTexture(),
-                                      params.filterMode());
+                fCoordTransform.reset(*args.fMatrix, fAtlas->getTexture(), params.filterMode());
                 fTextureAccess.reset(fAtlas->getTexture(), params);
             } else {
                 SkAutoTUnref<GrTexture> texture(
@@ -1658,7 +1657,7 @@ GrGradientEffect::GrGradientEffect(const CreateArgs& args) {
                 if (!texture) {
                     return;
                 }
-                fCoordTransform.reset(kCoordSet, *args.fMatrix, texture, params.filterMode());
+                fCoordTransform.reset(*args.fMatrix, texture, params.filterMode());
                 fTextureAccess.reset(texture, params);
                 fYCoord = SK_ScalarHalf;
             }

@@ -480,10 +480,9 @@ GrDisplacementMapEffect::GrDisplacementMapEffect(
                              const SkMatrix& offsetMatrix,
                              GrTexture* color,
                              const SkISize& colorDimensions)
-    : fDisplacementTransform(kLocal_GrCoordSet, offsetMatrix, displacement,
-                             GrTextureParams::kNone_FilterMode)
+    : fDisplacementTransform(offsetMatrix, displacement, GrTextureParams::kNone_FilterMode)
     , fDisplacementAccess(displacement)
-    , fColorTransform(kLocal_GrCoordSet, color, GrTextureParams::kNone_FilterMode)
+    , fColorTransform(color, GrTextureParams::kNone_FilterMode)
     , fDomain(GrTextureDomain::MakeTexelDomain(color, SkIRect::MakeSize(colorDimensions)),
               GrTextureDomain::kDecal_Mode)
     , fColorAccess(color)

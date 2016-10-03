@@ -554,7 +554,7 @@ private:
         this->initClassID<GrPerlinNoiseEffect>();
         this->addTextureAccess(&fPermutationsAccess);
         this->addTextureAccess(&fNoiseAccess);
-        fCoordTransform.reset(kLocal_GrCoordSet, matrix);
+        fCoordTransform.reset(matrix);
         this->addCoordTransform(&fCoordTransform);
     }
 

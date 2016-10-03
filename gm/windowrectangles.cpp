@@ -155,14 +155,7 @@ class AlphaOnlyClip final : public MaskOnlyClipBase {
 public:
     AlphaOnlyClip(GrTexture* mask, int x, int y) {
         int w = mask->width(), h = mask->height();
-        SkMatrix mat = SkMatrix::MakeScale(1.f / SkIntToScalar(w), 1.f / SkIntToScalar(h));
-        mat.preTranslate(SkIntToScalar(-x), SkIntToScalar(-y));
-        fFP = GrTextureDomainEffect::Make(
-                  mask, nullptr, mat,
-                  GrTextureDomain::MakeTexelDomain(mask, SkIRect::MakeWH(w, h)),
-                  GrTextureDomain::kDecal_Mode, GrTextureParams::kNone_FilterMode,
-                  kDevice_GrCoordSet);
-
+        fFP = GrDeviceSpaceTextureDecalFragmentProcessor::Make(mask, SkIRect::MakeWH(w, h), {x, y});
     }
 private:
     bool apply(GrContext*, GrDrawContext*, bool, bool, GrAppliedClip* out) const override {

@@ -184,7 +184,7 @@ void GrSWMaskHelper::DrawToTargetWithShapeMask(GrTexture* texture,
     maskMatrix.setIDiv(texture->width(), texture->height());
     maskMatrix.preTranslate(SkIntToScalar(-textureOriginInDeviceSpace.fX),
                             SkIntToScalar(-textureOriginInDeviceSpace.fY));
-
+    maskMatrix.preConcat(viewMatrix);
     GrPipelineBuilder pipelineBuilder(paint, drawContext->mustUseHWAA(paint));
     pipelineBuilder.setUserStencil(&userStencilSettings);
 
@@ -192,8 +192,7 @@ void GrSWMaskHelper::DrawToTargetWithShapeMask(GrTexture* texture,
                          GrSimpleTextureEffect::Make(texture,
                                                      nullptr,
                                                      maskMatrix,
-                                                     GrTextureParams::kNone_FilterMode,
-                                                     kDevice_GrCoordSet));
+                                                     GrTextureParams::kNone_FilterMode));
 
     SkAutoTUnref<GrDrawBatch> batch(GrRectBatchFactory::CreateNonAAFill(paint.getColor(),
                                                                         SkMatrix::I(),

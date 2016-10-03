@@ -47,13 +47,11 @@ GrAlphaThresholdFragmentProcessor::GrAlphaThresholdFragmentProcessor(
                                                            const SkIRect& bounds)
     : fInnerThreshold(innerThreshold)
     , fOuterThreshold(outerThreshold)
-    , fImageCoordTransform(kLocal_GrCoordSet,
-                           GrCoordTransform::MakeDivByTextureWHMatrix(texture), texture,
+    , fImageCoordTransform(GrCoordTransform::MakeDivByTextureWHMatrix(texture), texture,
                            GrTextureParams::kNone_FilterMode)
     , fImageTextureAccess(texture)
     , fColorSpaceXform(std::move(colorSpaceXform))
-    , fMaskCoordTransform(kLocal_GrCoordSet,
-                          make_div_and_translate_matrix(maskTexture, -bounds.x(), -bounds.y()),
+    , fMaskCoordTransform(make_div_and_translate_matrix(maskTexture, -bounds.x(), -bounds.y()),
                           maskTexture,
                           GrTextureParams::kNone_FilterMode)
     , fMaskTextureAccess(maskTexture) {

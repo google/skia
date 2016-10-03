@@ -409,8 +409,6 @@ protected:
     const GrCoordTransform& getCoordTransform() const { return fCoordTransform; }
 
 private:
-    static const GrCoordSet kCoordSet = kLocal_GrCoordSet;
-
     // If we're in legacy mode, then fColors will be populated. If we're gamma-correct, then
     // fColors4f and fColorSpaceXform will be populated.
     SkTDArray<SkColor>       fColors;
