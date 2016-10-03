@@ -58,7 +58,7 @@ bool GM::animate(const SkAnimTimer& timer) {
 /////////////////////////////////////////////////////////////////////////////////////////////
 
 void GM::onDrawBackground(SkCanvas* canvas) {
-    canvas->drawColor(fBGColor, SkBlendMode::kSrc);
+    canvas->drawColor(fBGColor, SkXfermode::kSrc_Mode);
 }
 
 void GM::drawSizeBounds(SkCanvas* canvas, SkColor color) {

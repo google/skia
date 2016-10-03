@@ -37,7 +37,7 @@ DEF_SIMPLE_GM(PlusMergesAA, canvas, 256, 256) {
 
     // Using Plus on the right should merge the AA of seam together completely covering the red.
     canvas->saveLayer(nullptr, nullptr);
-      p.setBlendMode(SkBlendMode::kPlus);
+      p.setXfermodeMode(SkXfermode::kPlus_Mode);
       canvas->translate(150, 0);
       canvas->drawPath(upperLeft, p);
       canvas->drawPath(bottomRight, p);

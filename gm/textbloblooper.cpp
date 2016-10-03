@@ -51,7 +51,7 @@ static void add_to_text_blob(SkTextBlobBuilder* builder, const char* text, const
 typedef void (*LooperProc)(SkPaint*);
 
 struct LooperSettings {
-    SkBlendMode      fMode;
+    SkXfermode::Mode fMode;
     SkColor          fColor;
     SkPaint::Style   fStyle;
     SkScalar         fWidth;
@@ -120,7 +120,7 @@ static sk_sp<SkDrawLooper> setupLooper(SkLayerDrawLooper::BitFlags bits,
     for (size_t i = 0; i < size; i++) {
         info.fOffset.set(settings[i].fOffset, settings[i].fOffset);
         SkPaint* paint = looperBuilder.addLayer(info);
-        paint->setBlendMode(settings[i].fMode);
+        paint->setXfermodeMode(settings[i].fMode);
         paint->setColor(settings[i].fColor);
         paint->setStyle(settings[i].fStyle);
         paint->setStrokeWidth(settings[i].fWidth);
@@ -152,37 +152,37 @@ protected:
 
         // create a looper which sandwhiches an effect in two normal draws
         LooperSettings looperSandwhich[] = {
-           { SkBlendMode::kSrc, SK_ColorMAGENTA, SkPaint::kFill_Style, 0, 0, 0, false },
-           { SkBlendMode::kSrcOver, 0x88000000, SkPaint::kFill_Style, 0, 10.f, 0, true },
-           { SkBlendMode::kSrcOver, 0x50FF00FF, SkPaint::kFill_Style, 0, 20.f, 0, false },
+           { SkXfermode::kSrc_Mode, SK_ColorMAGENTA, SkPaint::kFill_Style, 0, 0, 0, false },
+           { SkXfermode::kSrcOver_Mode, 0x88000000, SkPaint::kFill_Style, 0, 10.f, 0, true },
+           { SkXfermode::kSrcOver_Mode, 0x50FF00FF, SkPaint::kFill_Style, 0, 20.f, 0, false },
         };
 
         LooperSettings compound[] = {
-            { SkBlendMode::kSrc, SK_ColorWHITE, SkPaint::kStroke_Style, 1.f * 3/4, 0, 0, false },
-            { SkBlendMode::kSrc, SK_ColorRED, SkPaint::kStroke_Style, 4.f, 0, 0, false },
-            { SkBlendMode::kSrc, SK_ColorBLUE, SkPaint::kFill_Style, 0, 0, 0, false },
-            { SkBlendMode::kSrcOver, 0x88000000, SkPaint::kFill_Style, 0, 10.f, 0, true }
+            { SkXfermode::kSrc_Mode, SK_ColorWHITE, SkPaint::kStroke_Style, 1.f * 3/4, 0, 0, false },
+            { SkXfermode::kSrc_Mode, SK_ColorRED, SkPaint::kStroke_Style, 4.f, 0, 0, false },
+            { SkXfermode::kSrc_Mode, SK_ColorBLUE, SkPaint::kFill_Style, 0, 0, 0, false },
+            { SkXfermode::kSrcOver_Mode, 0x88000000, SkPaint::kFill_Style, 0, 10.f, 0, true }
         };
 
         LooperSettings xfermode[] = {
-            { SkBlendMode::kDifference, SK_ColorWHITE, SkPaint::kFill_Style, 0, 0, 0, false },
-            { SkBlendMode::kSrcOver, 0xFF000000, SkPaint::kFill_Style, 0, 1.f, 0, true },
-            { SkBlendMode::kSrcOver, 0x50FF00FF, SkPaint::kFill_Style, 0, 2.f, 0, false },
+            { SkXfermode::kDifference_Mode, SK_ColorWHITE, SkPaint::kFill_Style, 0, 0, 0, false },
+            { SkXfermode::kSrcOver_Mode, 0xFF000000, SkPaint::kFill_Style, 0, 1.f, 0, true },
+            { SkXfermode::kSrcOver_Mode, 0x50FF00FF, SkPaint::kFill_Style, 0, 2.f, 0, false },
         };
 
         // NOTE, this should be ignored by textblobs
         LooperSettings skew[] = {
-            { SkBlendMode::kSrc, SK_ColorRED, SkPaint::kFill_Style, 0, 0, -1.f, false },
-            { SkBlendMode::kSrc, SK_ColorGREEN, SkPaint::kFill_Style, 0, 10.f, -1.f, false },
-            { SkBlendMode::kSrc, SK_ColorBLUE, SkPaint::kFill_Style, 0, 20.f, -1.f, false },
+            { SkXfermode::kSrc_Mode, SK_ColorRED, SkPaint::kFill_Style, 0, 0, -1.f, false },
+            { SkXfermode::kSrc_Mode, SK_ColorGREEN, SkPaint::kFill_Style, 0, 10.f, -1.f, false },
+            { SkXfermode::kSrc_Mode, SK_ColorBLUE, SkPaint::kFill_Style, 0, 20.f, -1.f, false },
         };
 
         LooperSettings kitchenSink[] = {
-            { SkBlendMode::kSrc, SK_ColorWHITE, SkPaint::kStroke_Style, 1.f * 3/4, 0, 0, false },
-            { SkBlendMode::kSrc, SK_ColorBLACK, SkPaint::kFill_Style, 0, 0, 0, false },
-            { SkBlendMode::kDifference, SK_ColorWHITE, SkPaint::kFill_Style, 1.f, 10.f, 0, false },
-            { SkBlendMode::kSrc, SK_ColorWHITE, SkPaint::kFill_Style, 0, 10.f, 0, true },
-            { SkBlendMode::kSrcOver, 0x50FF00FF, SkPaint::kFill_Style, 0, 20.f, 0, false },
+            { SkXfermode::kSrc_Mode, SK_ColorWHITE, SkPaint::kStroke_Style, 1.f * 3/4, 0, 0, false },
+            { SkXfermode::kSrc_Mode, SK_ColorBLACK, SkPaint::kFill_Style, 0, 0, 0, false },
+            { SkXfermode::kDifference_Mode, SK_ColorWHITE, SkPaint::kFill_Style, 1.f, 10.f, 0, false },
+            { SkXfermode::kSrc_Mode, SK_ColorWHITE, SkPaint::kFill_Style, 0, 10.f, 0, true },
+            { SkXfermode::kSrcOver_Mode, 0x50FF00FF, SkPaint::kFill_Style, 0, 20.f, 0, false },
         };
 
         fLoopers.push_back(setupLooper(SkLayerDrawLooper::kMaskFilter_Bit |

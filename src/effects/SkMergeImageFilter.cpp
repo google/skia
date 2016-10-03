@@ -131,7 +131,7 @@ sk_sp<SkSpecialImage> SkMergeImageFilter::onFilterImage(SkSpecialImage* source, 
 
         SkPaint paint;
         if (fModes) {
-            paint.setBlendMode((SkBlendMode)fModes[i]);
+            paint.setXfermodeMode((SkXfermode::Mode)fModes[i]);
         }
 
         inputs[i]->draw(canvas,

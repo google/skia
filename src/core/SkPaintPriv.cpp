@@ -41,7 +41,7 @@ bool SkPaintPriv::Overwrites(const SkPaint* paint, ShaderOverrideOpacity overrid
         }
     }
 
-    return SkXfermode::IsOpaque(paint->getBlendMode(), opacityType);
+    return SkXfermode::IsOpaque(paint->getXfermode(), opacityType);
 }
 
 bool SkPaintPriv::Overwrites(const SkBitmap& bitmap, const SkPaint* paint) {

@@ -446,7 +446,7 @@ bool SkBitmapDevice::onShouldDisableLCD(const SkPaint& paint) const {
         paint.getPathEffect() ||
         paint.isFakeBoldText() ||
         paint.getStyle() != SkPaint::kFill_Style ||
-        !paint.isSrcOver())
+        !SkXfermode::IsMode(paint.getXfermode(), SkXfermode::kSrcOver_Mode))
     {
         return true;
     }

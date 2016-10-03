@@ -26,7 +26,7 @@ static void draw_label(SkCanvas* canvas, const char* label,
                      paint);
 }
 
-static void draw_scene(SkCanvas* canvas, const sk_sp<SkColorFilter>& filter, SkBlendMode mode,
+static void draw_scene(SkCanvas* canvas, const sk_sp<SkColorFilter>& filter, SkXfermode::Mode mode,
                        const sk_sp<SkShader>& s1, const sk_sp<SkShader>& s2) {
     SkPaint paint;
     paint.setAntiAlias(true);
@@ -53,7 +53,7 @@ static void draw_scene(SkCanvas* canvas, const sk_sp<SkColorFilter>& filter, SkB
     }
 
     SkPaint xferPaint;
-    xferPaint.setBlendMode(mode);
+    xferPaint.setXfermodeMode(mode);
     canvas->saveLayer(&bounds, &xferPaint);
 
     r = bounds;
@@ -101,14 +101,13 @@ protected:
     }
 
     void onDraw(SkCanvas* canvas) override {
-        SkBlendMode modes[] = {
-            SkBlendMode::kSrcOver,
-            SkBlendMode::kDstOver,
-            SkBlendMode::kSrcATop,
-            SkBlendMode::kDstATop,
-            SkBlendMode::kSrcIn,
-            SkBlendMode::kDstIn,
-        };
+        SkXfermode::Mode modes[] = { SkXfermode::kSrcOver_Mode,
+                                     SkXfermode::kDstOver_Mode,
+                                     SkXfermode::kSrcATop_Mode,
+                                     SkXfermode::kDstATop_Mode,
+                                     SkXfermode::kSrcIn_Mode,
+                                     SkXfermode::kDstIn_Mode,
+                                   };
         struct {
             const sk_sp<SkShader>& fShader1;
             const sk_sp<SkShader>& fShader2;

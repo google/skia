@@ -40,7 +40,7 @@ protected:
 
         SkScalar x = 0, y = 0;
         for (size_t m = 0; m <= SkXfermode::kLastMode; m++) {
-            SkBlendMode mode = static_cast<SkBlendMode>(m);
+            SkXfermode::Mode mode = static_cast<SkXfermode::Mode>(m);
 
             canvas->save();
 
@@ -57,7 +57,7 @@ protected:
             p.setShader(fDst);
             canvas->drawRect(r, p);
             p.setShader(fSrc);
-            p.setBlendMode(mode);
+            p.setXfermode(SkXfermode::Make(mode));
             canvas->drawRect(r, p);
 
             canvas->restore();
@@ -65,7 +65,7 @@ protected:
             r.inset(-SK_ScalarHalf, -SK_ScalarHalf);
             p.setStyle(SkPaint::kStroke_Style);
             p.setShader(nullptr);
-            p.setBlendMode(SkBlendMode::kSrcOver);
+            p.setXfermode(nullptr);
             canvas->drawRect(r, p);
 
             canvas->restore();
