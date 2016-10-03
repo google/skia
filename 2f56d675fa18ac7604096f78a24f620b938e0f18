@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "22459584_3269581d",
+        "filename": "include/gpu/GrCoordTransform.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 18,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2016-10-03T20:57:03Z",
+      "side": 1,
+      "message": "Did a more thorough update of this comment.",
+      "parentUuid": "22459584_c7a2f4f6",
+      "revId": "2f56d675fa18ac7604096f78a24f620b938e0f18",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "22459584_a79fe8b2",
         "filename": "include/gpu/GrCoordTransform.h",
         "patchSetId": 4
@@ -36,6 +54,24 @@
     },
     {
       "key": {
+        "uuid": "22459584_7273e00e",
+        "filename": "include/gpu/GrCoordTransform.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 56,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2016-10-03T20:57:03Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "22459584_a79fe8b2",
+      "revId": "2f56d675fa18ac7604096f78a24f620b938e0f18",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "22459584_07cb3c9d",
         "filename": "src/gpu/GrFragmentProcessor.cpp",
         "patchSetId": 4
@@ -47,6 +83,24 @@
       "writtenOn": "2016-10-03T19:09:39Z",
       "side": 1,
       "message": "is there an extra \"ct\" here ?",
+      "revId": "2f56d675fa18ac7604096f78a24f620b938e0f18",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "22459584_d257545c",
+        "filename": "src/gpu/GrFragmentProcessor.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 68,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2016-10-03T20:57:03Z",
+      "side": 1,
+      "message": "Removed this comment.",
+      "parentUuid": "22459584_07cb3c9d",
       "revId": "2f56d675fa18ac7604096f78a24f620b938e0f18",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
@@ -76,6 +130,24 @@
     },
     {
       "key": {
+        "uuid": "22459584_524d04c5",
+        "filename": "src/gpu/effects/GrSimpleTextureEffect.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 18,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2016-10-03T20:57:03Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "22459584_e76450b2",
+      "revId": "2f56d675fa18ac7604096f78a24f620b938e0f18",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "22459584_87fe2cc5",
         "filename": "src/gpu/effects/GrTextureDomain.h",
         "patchSetId": 4
@@ -87,6 +159,24 @@
       "writtenOn": "2016-10-03T19:09:39Z",
       "side": 1,
       "message": "dump offset too ?",
+      "revId": "2f56d675fa18ac7604096f78a24f620b938e0f18",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "22459584_b2544859",
+        "filename": "src/gpu/effects/GrTextureDomain.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 221,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2016-10-03T20:57:03Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "22459584_87fe2cc5",
       "revId": "2f56d675fa18ac7604096f78a24f620b938e0f18",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
