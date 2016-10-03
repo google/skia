@@ -45,7 +45,7 @@ namespace skiagm {
 
 class ImageAlphaThresholdGM : public GM {
 public:
-    ImageAlphaThresholdGM(bool useCropRect) : fUseCropRect(true) { 
+    ImageAlphaThresholdGM(bool useCropRect) : fUseCropRect(useCropRect) {
         this->setBGColor(0xFFFFFFFF);
     }
 
