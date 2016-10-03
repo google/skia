@@ -11,6 +11,10 @@
 #include "SkNx.h"
 #include "SkTypes.h"
 
+#if SK_CPU_SSE_LEVEL >= SK_CPU_SSE_LEVEL_AVX2
+    #include <x86intrin.h>
+#endif
+
 // 16-bit floating point value
 // format is 1 bit sign, 5 bits exponent, 10 bits mantissa
 // only used for storage
@@ -39,12 +43,16 @@ static inline Sk4h SkFloatToHalf_finite_ftz(const Sk4f&);
 // GCC 4.9 lacks the intrinsics to use ARMv8 f16<->f32 instructions, so we use inline assembly.
 
 static inline Sk4f SkHalfToFloat_finite_ftz(const Sk4h& hs) {
-#if !defined(SKNX_NO_SIMD) && defined(SK_CPU_ARM64)
+#if !defined(SKNX_NO_SIMD) && SK_CPU_SSE_LEVEL >= SK_CPU_SSE_LEVEL_AVX2
+    return _mm_cvtph_ps(hs.fVec);
+
+#elif !defined(SKNX_NO_SIMD) && defined(SK_CPU_ARM64)
     float32x4_t fs;
     asm ("fcvtl %[fs].4s, %[hs].4h   \n"   // vcvt_f32_f16(...)
         : [fs] "=w" (fs)                   // =w: write-only NEON register
         : [hs] "w" (hs.fVec));             //  w: read-only NEON register
     return fs;
+
 #else
     Sk4i bits     = SkNx_cast<int>(hs),  // Expand to 32 bit.
          sign     = bits & 0x00008000,   // Save the sign bit for later...
@@ -65,11 +73,15 @@ static inline Sk4f SkHalfToFloat_finite_ftz(uint64_t hs) {
 }
 
 static inline Sk4h SkFloatToHalf_finite_ftz(const Sk4f& fs) {
-#if !defined(SKNX_NO_SIMD) && defined(SK_CPU_ARM64)
+#if !defined(SKNX_NO_SIMD) && SK_CPU_SSE_LEVEL >= SK_CPU_SSE_LEVEL_AVX2
+    return _mm_cvtps_ph(fs.fVec, _MM_FROUND_CUR_DIRECTION);
+
+#elif !defined(SKNX_NO_SIMD) && defined(SK_CPU_ARM64)
     float32x4_t vec = fs.fVec;
     asm ("fcvtn %[vec].4h, %[vec].4s  \n"   // vcvt_f16_f32(vec)
         : [vec] "+w" (vec));                // +w: read-write NEON register
     return vreinterpret_u16_f32(vget_low_f32(vec));
+
 #else
     Sk4i bits         = Sk4i::Load(&fs),
          sign         = bits & 0x80000000,      // Save the sign bit for later...
