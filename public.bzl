@@ -177,7 +177,6 @@ BASE_SRCS_UNIX = struct(
         "src/ports/*mozalloc*",
         "src/ports/*nacl*",
         "src/ports/*win*",
-        "src/ports/SkFontConfigInterface_direct_factory.cpp",
         "src/ports/SkFontMgr_custom_directory_factory.cpp",
         "src/ports/SkFontMgr_custom_embedded_factory.cpp",
         "src/ports/SkFontMgr_custom_empty_factory.cpp",
