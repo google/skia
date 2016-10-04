@@ -89,13 +89,15 @@ class GNFlavorUtils(default_flavor.DefaultFlavorUtils):
     for (k,v) in {
       'cc':  cc,
       'cxx': cxx,
-      'extra_cflags':  ' '.join(extra_cflags),
-      'extra_ldflags': ' '.join(extra_ldflags),
       'sanitize': extra_config if 'SAN' in extra_config else '',
       'target_cpu': 'x86' if target_arch == 'x86' else '',
     }.iteritems():
       if v:
         args[k] = '"%s"' % v
+    if extra_cflags:
+      args['extra_cflags'] = repr(extra_cflags).replace("'", '"')
+    if extra_ldflags:
+      args['extra_ldflags'] = repr(extra_ldflags).replace("'", '"')
 
     gn_args = ' '.join('%s=%s' % (k,v) for (k,v) in sorted(args.iteritems()))
 
