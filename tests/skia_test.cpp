@@ -86,7 +86,7 @@ public:
   void operator()() {
       struct TestReporter : public skiatest::Reporter {
       public:
-          TestReporter() : fError(false), fTestCount(0), fStats(nullptr) {}
+          TestReporter() : fStats(nullptr), fError(false), fTestCount(0) {}
           void bumpTestCount() override { ++fTestCount; }
           bool allowExtendedTest() const override {
               return FLAGS_extendedTest;
