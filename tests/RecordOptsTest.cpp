@@ -140,7 +140,7 @@ DEF_TEST(RecordOpts_NoopSaveLayerDrawRestore, r) {
     SkPaint alphaOnlyLayerPaint, translucentLayerPaint, xfermodeLayerPaint;
     alphaOnlyLayerPaint.setColor(0x03000000);  // Only alpha.
     translucentLayerPaint.setColor(0x03040506);  // Not only alpha.
-    xfermodeLayerPaint.setBlendMode(SkBlendMode::kDstIn);  // Any effect will do.
+    xfermodeLayerPaint.setXfermodeMode(SkXfermode::kDstIn_Mode);  // Any effect will do.
 
     SkPaint opaqueDrawPaint, translucentDrawPaint;
     opaqueDrawPaint.setColor(0xFF020202);  // Opaque.
@@ -222,10 +222,10 @@ DEF_TEST(RecordOpts_MergeSvgOpacityAndFilterLayers, r) {
     SkPaint translucentLayerPaint;
     translucentLayerPaint.setColor(0x03040506);  // Not only alpha.
     SkPaint xfermodePaint;
-    xfermodePaint.setBlendMode(SkBlendMode::kDstIn);
+    xfermodePaint.setXfermodeMode(SkXfermode::kDstIn_Mode);
     SkPaint colorFilterPaint;
     colorFilterPaint.setColorFilter(
-        SkColorFilter::MakeModeFilter(SK_ColorLTGRAY, SkBlendMode::kSrcIn));
+        SkColorFilter::MakeModeFilter(SK_ColorLTGRAY, SkXfermode::kSrcIn_Mode));
 
     SkPaint opaqueFilterLayerPaint;
     opaqueFilterLayerPaint.setColor(0xFF020202);  // Opaque.
@@ -353,7 +353,7 @@ static void do_draw(SkCanvas* canvas, SkColor color, bool doLayer) {
 
     if (doLayer) {
         canvas->saveLayer(nullptr, nullptr);
-        p.setBlendMode(SkBlendMode::kSrc);
+        p.setXfermodeMode(SkXfermode::kSrc_Mode);
         canvas->drawPaint(p);
         canvas->restore();
     } else {

@@ -11,7 +11,7 @@
 
 static void do_draw(SkCanvas* canvas, const SkRect& r) {
     SkPaint paint;
-    paint.setBlendMode(SkBlendMode::kSrc);
+    paint.setXfermodeMode(SkXfermode::kSrc_Mode);
     paint.setColor(0x800000FF);
     canvas->drawRect(r, paint);
 }

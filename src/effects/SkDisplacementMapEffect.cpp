@@ -343,7 +343,7 @@ sk_sp<SkSpecialImage> SkDisplacementMapEffect::onFilterImage(SkSpecialImage* sou
                                           offsetMatrix,
                                           colorTexture.get(),
                                           SkISize::Make(color->width(), color->height())));
-        paint.setPorterDuffXPFactory(SkBlendMode::kSrc);
+        paint.setPorterDuffXPFactory(SkXfermode::kSrc_Mode);
         SkMatrix matrix;
         matrix.setTranslate(-SkIntToScalar(colorBounds.x()), -SkIntToScalar(colorBounds.y()));
 

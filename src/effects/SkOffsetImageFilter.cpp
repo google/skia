@@ -61,7 +61,7 @@ sk_sp<SkSpecialImage> SkOffsetImageFilter::onFilterImage(SkSpecialImage* source,
         canvas->clear(0x0);
 
         SkPaint paint;
-        paint.setBlendMode(SkBlendMode::kSrc);
+        paint.setXfermodeMode(SkXfermode::kSrc_Mode);
         canvas->translate(SkIntToScalar(srcOffset.fX - bounds.fLeft),
                           SkIntToScalar(srcOffset.fY - bounds.fTop));
 

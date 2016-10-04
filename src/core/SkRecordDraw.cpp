@@ -341,27 +341,34 @@ private:
                 return true;
             }
 
-            // Unusual blendmodes require us to process a saved layer
+            // Unusual Xfermodes require us to process a saved layer
             // even with operations outisde the clip.
             // For example, DstIn is used by masking layers.
             // https://code.google.com/p/skia/issues/detail?id=1291
             // https://crbug.com/401593
-            switch (paint->getBlendMode()) {
-                // For each of the following transfer modes, if the source
-                // alpha is zero (our transparent black), the resulting
-                // blended alpha is not necessarily equal to the original
-                // destination alpha.
-                case SkBlendMode::kClear:
-                case SkBlendMode::kSrc:
-                case SkBlendMode::kSrcIn:
-                case SkBlendMode::kDstIn:
-                case SkBlendMode::kSrcOut:
-                case SkBlendMode::kDstATop:
-                case SkBlendMode::kModulate:
-                    return true;
-                    break;
-                default:
-                    break;
+            SkXfermode* xfermode = paint->getXfermode();
+            SkXfermode::Mode mode;
+            // SrcOver is ok, and is also the common case with a nullptr xfermode.
+            // So we should make that the fast path and bypass the mode extraction
+            // and test.
+            if (xfermode && xfermode->asMode(&mode)) {
+                switch (mode) {
+                    // For each of the following transfer modes, if the source
+                    // alpha is zero (our transparent black), the resulting
+                    // blended alpha is not necessarily equal to the original
+                    // destination alpha.
+                    case SkXfermode::kClear_Mode:
+                    case SkXfermode::kSrc_Mode:
+                    case SkXfermode::kSrcIn_Mode:
+                    case SkXfermode::kDstIn_Mode:
+                    case SkXfermode::kSrcOut_Mode:
+                    case SkXfermode::kDstATop_Mode:
+                    case SkXfermode::kModulate_Mode:
+                        return true;
+                        break;
+                    default:
+                        break;
+                }
             }
         }
         return false;

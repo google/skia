@@ -23,12 +23,12 @@ class DrawAtlasGM : public skiagm::GM {
         canvas->clear(SK_ColorRED);
 
         SkPaint paint;
-        paint.setBlendMode(SkBlendMode::kClear);
+        paint.setXfermodeMode(SkXfermode::kClear_Mode);
         SkRect r(target);
         r.inset(-1, -1);
         // zero out a place (with a 1-pixel border) to land our drawing.
         canvas->drawRect(r, paint);
-        paint.setBlendMode(SkBlendMode::kSrcOver);
+        paint.setXfermode(nullptr);
         paint.setColor(SK_ColorBLUE);
         paint.setAntiAlias(true);
         canvas->drawOval(target, paint);

@@ -69,7 +69,7 @@ protected:
         redPaint.setColor(SK_ColorRED);
         canvas->drawRect(bounds, redPaint);
         SkPaint srcInPaint(paint);
-        srcInPaint.setBlendMode(SkBlendMode::kSrcIn);
+        srcInPaint.setXfermodeMode(SkXfermode::kSrcIn_Mode);
         canvas->drawTextBlob(fBlob, 0, 0, srcInPaint);
 
         canvas->translate(SkIntToScalar(xDelta), SkIntToScalar(yDelta));
