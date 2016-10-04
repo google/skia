@@ -244,79 +244,21 @@ namespace SK_OPTS_NS {
     KERNEL_Sk4f(load_d_srgb) {
         auto ptr = (const uint32_t*)ctx + x;
 
-        if (tail) {
-            float rs[] = {0,0,0,0},
-                  gs[] = {0,0,0,0},
-                  bs[] = {0,0,0,0},
-                  as[] = {0,0,0,0};
-            for (size_t i = 0; i < tail; i++) {
-                rs[i] = sk_linear_from_srgb[(ptr[i] >> SK_R32_SHIFT) & 0xff];
-                gs[i] = sk_linear_from_srgb[(ptr[i] >> SK_G32_SHIFT) & 0xff];
-                bs[i] = sk_linear_from_srgb[(ptr[i] >> SK_B32_SHIFT) & 0xff];
-                as[i] =       (1/255.0f) *  (ptr[i] >> SK_A32_SHIFT)        ;
-            }
-            dr = Sk4f::Load(rs);
-            dg = Sk4f::Load(gs);
-            db = Sk4f::Load(bs);
-            da = Sk4f::Load(as);
-            return;
-        }
-
-        dr = { sk_linear_from_srgb[(ptr[0] >> SK_R32_SHIFT) & 0xff],
-               sk_linear_from_srgb[(ptr[1] >> SK_R32_SHIFT) & 0xff],
-               sk_linear_from_srgb[(ptr[2] >> SK_R32_SHIFT) & 0xff],
-               sk_linear_from_srgb[(ptr[3] >> SK_R32_SHIFT) & 0xff] };
-
-        dg = { sk_linear_from_srgb[(ptr[0] >> SK_G32_SHIFT) & 0xff],
-               sk_linear_from_srgb[(ptr[1] >> SK_G32_SHIFT) & 0xff],
-               sk_linear_from_srgb[(ptr[2] >> SK_G32_SHIFT) & 0xff],
-               sk_linear_from_srgb[(ptr[3] >> SK_G32_SHIFT) & 0xff] };
-
-        db = { sk_linear_from_srgb[(ptr[0] >> SK_B32_SHIFT) & 0xff],
-               sk_linear_from_srgb[(ptr[1] >> SK_B32_SHIFT) & 0xff],
-               sk_linear_from_srgb[(ptr[2] >> SK_B32_SHIFT) & 0xff],
-               sk_linear_from_srgb[(ptr[3] >> SK_B32_SHIFT) & 0xff] };
-
-        da = SkNx_cast<float>(Sk4u::Load(ptr) >> SK_A32_SHIFT) * (1/255.0f);
+        auto px = load_tail(tail, (const int*)ptr);
+        dr =    sk_linear_from_srgb_math((px >> SK_R32_SHIFT) & 0xff);
+        dg =    sk_linear_from_srgb_math((px >> SK_G32_SHIFT) & 0xff);
+        db =    sk_linear_from_srgb_math((px >> SK_B32_SHIFT) & 0xff);
+        da = (1/255.0f)*SkNx_cast<float>((px >> SK_A32_SHIFT) & 0xff);
     }
 
     KERNEL_Sk4f(load_s_srgb) {
         auto ptr = (const uint32_t*)ctx + x;
 
-        if (tail) {
-            float rs[] = {0,0,0,0},
-                  gs[] = {0,0,0,0},
-                  bs[] = {0,0,0,0},
-                  as[] = {0,0,0,0};
-            for (size_t i = 0; i < tail; i++) {
-                rs[i] = sk_linear_from_srgb[(ptr[i] >> SK_R32_SHIFT) & 0xff];
-                gs[i] = sk_linear_from_srgb[(ptr[i] >> SK_G32_SHIFT) & 0xff];
-                bs[i] = sk_linear_from_srgb[(ptr[i] >> SK_B32_SHIFT) & 0xff];
-                as[i] =       (1/255.0f) *  (ptr[i] >> SK_A32_SHIFT)        ;
-            }
-            r = Sk4f::Load(rs);
-            g = Sk4f::Load(gs);
-            b = Sk4f::Load(bs);
-            a = Sk4f::Load(as);
-            return;
-        }
-
-        r = { sk_linear_from_srgb[(ptr[0] >> SK_R32_SHIFT) & 0xff],
-              sk_linear_from_srgb[(ptr[1] >> SK_R32_SHIFT) & 0xff],
-              sk_linear_from_srgb[(ptr[2] >> SK_R32_SHIFT) & 0xff],
-              sk_linear_from_srgb[(ptr[3] >> SK_R32_SHIFT) & 0xff] };
-
-        g = { sk_linear_from_srgb[(ptr[0] >> SK_G32_SHIFT) & 0xff],
-              sk_linear_from_srgb[(ptr[1] >> SK_G32_SHIFT) & 0xff],
-              sk_linear_from_srgb[(ptr[2] >> SK_G32_SHIFT) & 0xff],
-              sk_linear_from_srgb[(ptr[3] >> SK_G32_SHIFT) & 0xff] };
-
-        b = { sk_linear_from_srgb[(ptr[0] >> SK_B32_SHIFT) & 0xff],
-              sk_linear_from_srgb[(ptr[1] >> SK_B32_SHIFT) & 0xff],
-              sk_linear_from_srgb[(ptr[2] >> SK_B32_SHIFT) & 0xff],
-              sk_linear_from_srgb[(ptr[3] >> SK_B32_SHIFT) & 0xff] };
-
-        a = SkNx_cast<float>(Sk4u::Load(ptr) >> SK_A32_SHIFT) * (1/255.0f);
+        auto px = load_tail(tail, (const int*)ptr);
+        r =    sk_linear_from_srgb_math((px >> SK_R32_SHIFT) & 0xff);
+        g =    sk_linear_from_srgb_math((px >> SK_G32_SHIFT) & 0xff);
+        b =    sk_linear_from_srgb_math((px >> SK_B32_SHIFT) & 0xff);
+        a = (1/255.0f)*SkNx_cast<float>((px >> SK_A32_SHIFT) & 0xff);
     }
 
     KERNEL_Sk4f(store_srgb) {
