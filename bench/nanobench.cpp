@@ -44,6 +44,7 @@
 #include "SkTaskGroup.h"
 #include "SkThreadUtils.h"
 #include "ThermalManager.h"
+#include "SkScan.h"
 
 #include <stdlib.h>
 
@@ -126,6 +127,8 @@ DEFINE_string(sourceType, "",
         "Apply usual --match rules to source type: bench, gm, skp, image, etc.");
 DEFINE_string(benchType,  "",
         "Apply usual --match rules to bench type: micro, recording, playback, skcodec, etc.");
+
+DEFINE_bool(analyticAA, false, "Analytic Anati-Alias");
 
 static double now_ms() { return SkTime::GetNSecs() * 1e-6; }
 
@@ -1176,6 +1179,10 @@ int nanobench_main() {
 
     if (FLAGS_keepAlive) {
         start_keepalive();
+    }
+
+    if (FLAGS_analyticAA) {
+        GlobalAAConfig::getInstance().fUseAnalyticAA = true;
     }
 
     int runs = 0;
