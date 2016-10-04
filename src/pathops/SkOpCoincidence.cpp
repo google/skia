@@ -490,6 +490,7 @@ bool SkOpCoincidence::addExpanded(DEBUG_COIN_DECLARE_ONLY_PARAMS()) {
                         walk = walk->upCast()->next();
                     } while (!(walkOpp = walk->ptT()->contains(oSeg))
                             && walk != coin->coinPtTEnd()->span());
+                    FAIL_IF(!walkOpp);
                     nextT = walk->t();
                     oNextT = walkOpp->fT;
                 }
