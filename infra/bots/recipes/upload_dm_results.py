@@ -22,7 +22,27 @@ import time
 
 DM_JSON = 'dm.json'
 GS_BUCKET = 'gs://skia-infra-gm'
+UPLOAD_ATTEMPTS = 5
 VERBOSE_LOG = 'verbose.log'
+
+
+def cp(api, name, src, dst, extra_args=None):
+  cmd = ['gsutil', 'cp']
+  if extra_args:
+    cmd.extend(extra_args)
+  cmd.extend([src, dst])
+
+  name = 'upload %s' % name
+  for i in xrange(UPLOAD_ATTEMPTS):
+    step_name = name
+    if i > 0:
+      step_name += ' (attempt %d)' % (i+1)
+    try:
+      api.step(step_name, cmd=cmd)
+      break
+    except api.step.StepFailure:
+      if i == UPLOAD_ATTEMPTS - 1:
+        raise
 
 
 def RunSteps(api):
@@ -60,10 +80,7 @@ def RunSteps(api):
       test_data=['someimage.png'],
       infra_step=True)
   if len(files_to_upload) > 0:
-    api.step(
-        'upload images',
-        cmd=['gsutil', 'cp', results_dir.join('*'), image_dest_path],
-     )
+    cp(api, 'images', results_dir.join('*'), image_dest_path)
 
   # Upload the JSON summary and verbose.log.
   now = api.time.utcnow()
@@ -85,11 +102,8 @@ def RunSteps(api):
 
   summary_dest_path = '/'.join((GS_BUCKET, summary_dest_path))
 
-  api.step(
-      'upload JSON and logs',
-      cmd=['gsutil', 'cp', '-z', 'json,log', tmp_dir.join('*'),
-           summary_dest_path],
-  )
+  cp(api, 'JSON and logs', tmp_dir.join('*'), summary_dest_path,
+     ['-z', 'json,log'])
 
 
 def GenTests(api):
@@ -99,6 +113,26 @@ def GenTests(api):
     api.properties(buildername=builder,
                    revision='abc123',
                    path_config='kitchen')
+  )
+
+  yield (
+    api.test('failed_once') +
+    api.properties(buildername=builder,
+                   revision='abc123',
+                   path_config='kitchen') +
+    api.step_data('upload images', retcode=1)
+  )
+
+  yield (
+    api.test('failed_all') +
+    api.properties(buildername=builder,
+                   revision='abc123',
+                   path_config='kitchen') +
+    api.step_data('upload images', retcode=1) +
+    api.step_data('upload images (attempt 2)', retcode=1) +
+    api.step_data('upload images (attempt 3)', retcode=1) +
+    api.step_data('upload images (attempt 4)', retcode=1) +
+    api.step_data('upload images (attempt 5)', retcode=1)
   )
 
   builder = 'Test-Ubuntu-GCC-GCE-CPU-AVX2-x86_64-Debug-Trybot'
