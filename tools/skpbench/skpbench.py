@@ -32,8 +32,7 @@ unacceptable stddev.
 __argparse.add_argument('--adb',
     action='store_true', help="execute skpbench over adb")
 __argparse.add_argument('-s', '--device-serial',
-    help="if using adb, ID of the specific device to target "
-         "(only required if more than 1 device is attached)")
+    help="if using adb, id of the specific device to target")
 __argparse.add_argument('-p', '--path',
     help="directory to execute ./skpbench from")
 __argparse.add_argument('-m', '--max-stddev',
@@ -48,10 +47,7 @@ __argparse.add_argument('-v','--verbosity',
 __argparse.add_argument('-d', '--duration',
     type=int, help="number of milliseconds to run each benchmark")
 __argparse.add_argument('-l', '--sample-ms',
-    type=int, help="duration of a sample (minimum)")
-__argparse.add_argument('--gpu',
-    action='store_true',
-    help="perform timing on the gpu clock instead of cpu (gpu work only)")
+    type=int, help="minimum duration of a sample")
 __argparse.add_argument('--fps',
     action='store_true', help="use fps instead of ms")
 __argparse.add_argument('-c', '--config',
@@ -97,8 +93,6 @@ class SKPBench:
     ARGV.extend(['--duration', str(FLAGS.duration)])
   if FLAGS.sample_ms:
     ARGV.extend(['--sampleMs', str(FLAGS.sample_ms)])
-  if FLAGS.gpu:
-    ARGV.extend(['--gpuClock', 'true'])
   if FLAGS.fps:
     ARGV.extend(['--fps', 'true'])
   if FLAGS.path:
@@ -194,7 +188,7 @@ class SKPBench:
 
   def terminate(self):
     if self._proc:
-      self._proc.terminate()
+      self._proc.kill()
       self._monitor.join()
       self._proc.wait()
       self._proc = None

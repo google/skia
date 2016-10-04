@@ -25,8 +25,6 @@ class BenchResult:
                        '(?P<samples>\d+)'
                        '(?P<sample_ms_pad> +)'
                        '(?P<sample_ms>\d+)'
-                       '(?P<clock_pad> +)'
-                       '(?P<clock>[cg]pu)'
                        '(?P<metric_pad> +)'
                        '(?P<metric>ms|fps)'
                        '(?P<config_pad> +)'
@@ -47,7 +45,6 @@ class BenchResult:
     self.stddev = float(match.group('stddev')[:-1]) # Drop '%' sign.
     self.samples = int(match.group('samples'))
     self.sample_ms = int(match.group('sample_ms'))
-    self.clock = match.group('clock')
     self.metric = match.group('metric')
     self.config = match.group('config')
     self.bench = match.group('bench')
@@ -62,7 +59,7 @@ class BenchResult:
     else:
       values = list()
       for name in ['accum', 'median', 'max', 'min', 'stddev',
-                   'samples', 'sample_ms', 'clock', 'metric', 'config']:
+                   'samples', 'sample_ms', 'metric', 'config']:
         values.append(self.get_string(name + '_pad'))
         values.append(self.get_string(name))
       values.append(config_suffix)

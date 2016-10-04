@@ -13,7 +13,7 @@
 namespace sk_gpu_test {
 
 using PlatformFence = intptr_t;
-static constexpr PlatformFence kInvalidFence = 0;
+static constexpr PlatformFence kInvalidPlatformFence = 0;
 
 /*
  * This class provides an interface to interact with fence syncs. A fence sync is an object that the
@@ -29,6 +29,6 @@ public:
     virtual ~FenceSync() {}
 };
 
-}  // namespace sk_gpu_test
+}
 
 #endif
