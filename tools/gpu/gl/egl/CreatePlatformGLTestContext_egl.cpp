@@ -320,6 +320,8 @@ void EGLFenceSync::deleteFence(sk_gpu_test::PlatformFence platformFence) const {
     eglDestroySyncKHR(fDisplay, eglsync);
 }
 
+GR_STATIC_ASSERT(sizeof(EGLSyncKHR) <= sizeof(sk_gpu_test::PlatformFence));
+
 }  // anonymous namespace
 
 namespace sk_gpu_test {
@@ -337,4 +339,3 @@ GLTestContext *CreatePlatformGLTestContext(GrGLStandard forcedGpuAPI,
     return ctx;
 }
 }  // namespace sk_gpu_test
-

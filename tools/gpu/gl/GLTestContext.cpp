@@ -28,6 +28,7 @@ private:
     static constexpr GrGLbitfield GL_SYNC_FLUSH_COMMANDS_BIT = 0x00000001;
 
     typedef struct __GLsync *GLsync;
+    GR_STATIC_ASSERT(sizeof(GLsync) <= sizeof(sk_gpu_test::PlatformFence));
 
     typedef GLsync (GR_GL_FUNCTION_TYPE* GLFenceSyncProc) (GrGLenum, GrGLbitfield);
     typedef GrGLenum (GR_GL_FUNCTION_TYPE* GLClientWaitSyncProc) (GLsync, GrGLbitfield, GrGLuint64);

@@ -103,6 +103,8 @@ private:
     typedef sk_gpu_test::FenceSync INHERITED;
 };
 
+GR_STATIC_ASSERT(sizeof(VkFence) <= sizeof(sk_gpu_test::PlatformFence));
+
 // TODO: Implement swap buffers and finish
 class VkTestContextImpl : public sk_gpu_test::VkTestContext {
 public:

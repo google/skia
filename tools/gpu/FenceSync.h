@@ -12,7 +12,7 @@
 
 namespace sk_gpu_test {
 
-using PlatformFence = intptr_t;
+using PlatformFence = uint64_t;
 static constexpr PlatformFence kInvalidPlatformFence = 0;
 
 /*
