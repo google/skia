@@ -45,7 +45,42 @@ namespace SkOpts {
 
         STAGE(constant_color, true);
 
-        STAGE(srcover, true);
+    #undef STAGE
+
+    #define STAGE(stage) \
+        stages_4  [SkRasterPipeline::stage] = xfermode<SK_OPTS_NS::stage>; \
+        stages_1_3[SkRasterPipeline::stage] = xfermode<SK_OPTS_NS::stage>
+
+        STAGE(dst);
+        STAGE(dstatop);
+        STAGE(dstin);
+        STAGE(dstout);
+        STAGE(dstover);
+        STAGE(srcatop);
+        STAGE(srcin);
+        STAGE(srcout);
+        STAGE(srcover);
+        STAGE(clear);
+        STAGE(modulate);
+        STAGE(multiply);
+        STAGE(plus_);
+        STAGE(screen);
+        STAGE(xor_);
+    #undef STAGE
+
+    #define STAGE(stage) \
+        stages_4  [SkRasterPipeline::stage] = xfermode<SK_OPTS_NS::stage, SK_OPTS_NS::srcover>; \
+        stages_1_3[SkRasterPipeline::stage] = xfermode<SK_OPTS_NS::stage, SK_OPTS_NS::srcover>
+
+        STAGE(colorburn);
+        STAGE(colordodge);
+        STAGE(darken);
+        STAGE(difference);
+        STAGE(exclusion);
+        STAGE(hardlight);
+        STAGE(lighten);
+        STAGE(overlay);
+        STAGE(softlight);
     #undef STAGE
 
     }
