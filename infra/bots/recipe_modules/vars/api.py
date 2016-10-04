@@ -9,8 +9,6 @@
 from recipe_engine import recipe_api
 
 
-BOTO_CHROMIUM_SKIA_GM = 'chromium-skia-gm.boto'
-
 CONFIG_DEBUG = 'Debug'
 CONFIG_RELEASE = 'Release'
 
