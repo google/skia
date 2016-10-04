@@ -125,9 +125,10 @@ if (!is_debug) {
 if (!is_official_build) {
   default_configs += [ "//gn:debug_symbols" ]
 }
+default_configs += [ "//gn:extra_flags" ]
 
 set_defaults("executable") {
-  configs = default_configs + [ "//gn:executable" ]
+  configs = [ "//gn:executable" ] + default_configs
 }
 
 set_defaults("source_set") {
