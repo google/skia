@@ -27,14 +27,10 @@ DEF_TEST(SkRasterPipeline, r) {
     Sk4f f = SkHalfToFloat_finite_ftz(result);
 
     // We should see half-intensity magenta.
-#if !defined(SK_BUILD_FOR_MAC)
     REPORTER_ASSERT(r, f[0] == 0.5f);
     REPORTER_ASSERT(r, f[1] == 0.0f);
     REPORTER_ASSERT(r, f[2] == 0.5f);
     REPORTER_ASSERT(r, f[3] == 1.0f);
-#else
-    SkDebugf("SkRasterPipeline test: %g %g %g %g\n", f[0], f[1], f[2], f[3]);
-#endif
 }
 
 DEF_TEST(SkRasterPipeline_empty, r) {
