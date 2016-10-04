@@ -426,7 +426,7 @@ bool SkPictureData::parseStreamTag(SkStream* stream,
             /* Should we use SkValidatingReadBuffer instead? */
             SkReadBuffer buffer(storage.get(), size);
             buffer.setFlags(pictInfoFlagsToReadBufferFlags(fInfo.fFlags));
-            buffer.setVersion(fInfo.fVersion);
+            buffer.setVersion(fInfo.getVersion());
 
             if (!fFactoryPlayback) {
                 return false;
@@ -591,7 +591,7 @@ SkPictureData* SkPictureData::CreateFromStream(SkStream* stream,
 SkPictureData* SkPictureData::CreateFromBuffer(SkReadBuffer& buffer,
                                                const SkPictInfo& info) {
     SkAutoTDelete<SkPictureData> data(new SkPictureData(info));
-    buffer.setVersion(info.fVersion);
+    buffer.setVersion(info.getVersion());
 
     if (!data->parseBuffer(buffer)) {
         return nullptr;
