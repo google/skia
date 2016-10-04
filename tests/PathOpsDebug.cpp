@@ -330,6 +330,26 @@ const SkOpSpanBase* SkPathOpsDebug::DebugSpanSpan(const SkOpSpanBase* span, int 
     return span->debugSpan(id);
 }
 
+#if DEBUG_COIN
+void SkPathOpsDebug::DumpCoinDict() {
+    gCoinSumChangedDict.dump("unused coin algorithm", false);
+    gCoinSumVisitedDict.dump("visited coin function", true);
+}
+
+void SkPathOpsDebug::CoinDict::dump(const char* str, bool visitCheck) const {
+    int count = fDict.count();
+    for (int index = 0; index < count; ++index) {
+        const auto& entry = fDict[index];
+        if (visitCheck || entry.fGlitchType == kUninitialized_Glitch) {
+            SkDebugf("%s %s : line %d iteration %d", str, entry.fFunctionName,
+                    entry.fLineNumber, entry.fIteration);
+            DumpGlitchType(entry.fGlitchType);
+            SkDebugf("\n");
+        }
+    }
+}
+#endif
+
 void SkOpContour::dumpContours() const {
     SkOpContour* contour = this->globalState()->contourHead();
     do {

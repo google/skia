@@ -91,14 +91,6 @@ public:
         return SkDEBUGRELEASE(fDebugIndent, 0);
     }
 
-#if DEBUG_ACTIVE_SPANS
-    void debugShowActiveSpans() {
-        SkOpSegment* segment = &fHead;
-        do {
-            segment->debugShowActiveSpans();
-        } while ((segment = segment->next()));
-    }
-#endif
 
     const SkOpAngle* debugAngle(int id) const {
         return SkDEBUGRELEASE(this->globalState()->debugAngle(id), nullptr);
@@ -108,16 +100,18 @@ public:
         return this->globalState()->coincidence();
     }
 
-#if DEBUG_COINCIDENCE_VERBOSE
-    void debugCheckHealth(const char* id, SkPathOpsDebug::GlitchLog* ) const;
+#if DEBUG_COIN
+    void debugCheckHealth(SkPathOpsDebug::GlitchLog* ) const;
 #endif
 
     SkOpContour* debugContour(int id) const {
         return SkDEBUGRELEASE(this->globalState()->debugContour(id), nullptr);
     }
 
-#if DEBUG_COINCIDENCE_VERBOSE
-    void debugMissingCoincidence(const char* id, SkPathOpsDebug::GlitchLog* log) const;
+#if DEBUG_COIN
+    void debugMissingCoincidence(SkPathOpsDebug::GlitchLog* log) const;
+    void debugMoveMultiples(SkPathOpsDebug::GlitchLog* ) const;
+    void debugMoveNearby(SkPathOpsDebug::GlitchLog* log) const;
 #endif
 
     const SkOpPtT* debugPtT(int id) const {
@@ -127,6 +121,15 @@ public:
     const SkOpSegment* debugSegment(int id) const {
         return SkDEBUGRELEASE(this->globalState()->debugSegment(id), nullptr);
     }
+
+#if DEBUG_ACTIVE_SPANS
+    void debugShowActiveSpans() {
+        SkOpSegment* segment = &fHead;
+        do {
+            segment->debugShowActiveSpans();
+        } while ((segment = segment->next()));
+    }
+#endif
 
     const SkOpSpanBase* debugSpan(int id) const {
         return SkDEBUGRELEASE(this->globalState()->debugSpan(id), nullptr);
@@ -235,10 +238,6 @@ public:
 #endif
             } else if (segment->missingCoincidence()) {
                 result = true;
-    // FIXME: trying again loops forever in issue3651_6
-    // The continue below is speculative -- once there's an actual case that requires it,
-    // add the plumbing necessary to look for another missing coincidence in the same segment
-         //       continue; // try again in case another missing coincidence is further along
             }
             segment = segment->next();
         } while (segment);
@@ -345,8 +344,6 @@ public:
     void setXor(bool isXor) {
         fXor = isXor;
     }
-
-    SkPath::Verb simplifyCubic(SkPoint pts[4]);
 
     void sortAngles() {
         SkASSERT(fCount > 0);

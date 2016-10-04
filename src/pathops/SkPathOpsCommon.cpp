@@ -198,14 +198,16 @@ bool SortContourList(SkOpContourHead** contourList, bool evenOdd, bool oppEvenOd
     return true;
 }
 
-static void calcAngles(SkOpContourHead* contourList) {
+static void calc_angles(SkOpContourHead* contourList  DEBUG_COIN_DECLARE_PARAMS()) {
+    DEBUG_STATIC_SET_PHASE(contourList);
     SkOpContour* contour = contourList;
     do {
         contour->calcAngles();
     } while ((contour = contour->next()));
 }
 
-static bool missingCoincidence(SkOpContourHead* contourList) {
+static bool missing_coincidence(SkOpContourHead* contourList  DEBUG_COIN_DECLARE_PARAMS()) {
+    DEBUG_STATIC_SET_PHASE(contourList);
     SkOpContour* contour = contourList;
     bool result = false;
     do {
@@ -214,7 +216,8 @@ static bool missingCoincidence(SkOpContourHead* contourList) {
     return result;
 }
 
-static bool moveMultiples(SkOpContourHead* contourList) {
+static bool move_multiples(SkOpContourHead* contourList  DEBUG_COIN_DECLARE_PARAMS()) {
+    DEBUG_STATIC_SET_PHASE(contourList);
     SkOpContour* contour = contourList;
     do {
         if (!contour->moveMultiples()) {
@@ -224,14 +227,15 @@ static bool moveMultiples(SkOpContourHead* contourList) {
     return true;
 }
 
-static void moveNearby(SkOpContourHead* contourList) {
+static void move_nearby(SkOpContourHead* contourList  DEBUG_COIN_DECLARE_PARAMS()) {
+    DEBUG_STATIC_SET_PHASE(contourList);
     SkOpContour* contour = contourList;
     do {
         contour->moveNearby();
     } while ((contour = contour->next()));
 }
 
-static void sortAngles(SkOpContourHead* contourList) {
+static void sort_angles(SkOpContourHead* contourList) {
     SkOpContour* contour = contourList;
     do {
         contour->sortAngles();
@@ -240,43 +244,27 @@ static void sortAngles(SkOpContourHead* contourList) {
 
 bool HandleCoincidence(SkOpContourHead* contourList, SkOpCoincidence* coincidence) {
     SkOpGlobalState* globalState = contourList->globalState();
-    DEBUG_COINCIDENCE_HEALTH(contourList, "start");
-#if DEBUG_VALIDATE
-    globalState->setPhase(SkOpGlobalState::kIntersecting);
-#endif
-
     // match up points within the coincident runs
-    if (!coincidence->addExpanded()) {
+    if (!coincidence->addExpanded(DEBUG_PHASE_ONLY_PARAMS(kIntersecting))) {
         return false;
     }
-    DEBUG_COINCIDENCE_HEALTH(contourList, "addExpanded");
-#if DEBUG_VALIDATE
-    globalState->setPhase(SkOpGlobalState::kWalking);
-#endif
     // combine t values when multiple intersections occur on some segments but not others
-    if (!moveMultiples(contourList)) {
+    if (!move_multiples(contourList  DEBUG_PHASE_PARAMS(kWalking))) {
         return false;
     }
-    DEBUG_COINCIDENCE_HEALTH(contourList, "moveMultiples");
     // move t values and points together to eliminate small/tiny gaps
-    (void) moveNearby(contourList);
-    DEBUG_COINCIDENCE_HEALTH(contourList, "moveNearby");
-#if DEBUG_VALIDATE
-    globalState->setPhase(SkOpGlobalState::kIntersecting);
-#endif
+    move_nearby(contourList  DEBUG_COIN_PARAMS());
     // add coincidence formed by pairing on curve points and endpoints
-    coincidence->correctEnds();
-    if (!coincidence->addEndMovedSpans()) {
+    coincidence->correctEnds(DEBUG_PHASE_ONLY_PARAMS(kIntersecting));
+    if (!coincidence->addEndMovedSpans(DEBUG_COIN_ONLY_PARAMS())) {
         return false;
     }
-    DEBUG_COINCIDENCE_HEALTH(contourList, "addEndMovedSpans");
-
     const int SAFETY_COUNT = 100;  // FIXME: tune
     int safetyHatch = SAFETY_COUNT;
     // look for coincidence present in A-B and A-C but missing in B-C
     do {
         bool added;
-        if (!coincidence->addMissing(&added)) {
+        if (!coincidence->addMissing(&added  DEBUG_ITER_PARAMS(SAFETY_COUNT - safetyHatch))) {
             return false;
         }
         if (!added) {
@@ -286,98 +274,70 @@ bool HandleCoincidence(SkOpContourHead* contourList, SkOpCoincidence* coincidenc
             SkASSERT(globalState->debugSkipAssert());
             return false;
         }
-        DEBUG_COINCIDENCE_HEALTH(contourList, "addMissing");
-        moveNearby(contourList);
-        DEBUG_COINCIDENCE_HEALTH(contourList, "moveNearby");
+        move_nearby(contourList  DEBUG_ITER_PARAMS(SAFETY_COUNT - safetyHatch - 1));
     } while (true);
-    DEBUG_COINCIDENCE_HEALTH(contourList, "addMissing2");
     // FIXME: only call this if addMissing modified something when returning false
-    moveNearby(contourList);
-    DEBUG_COINCIDENCE_HEALTH(contourList, "moveNearby2");
+    move_nearby(contourList  DEBUG_COIN_PARAMS());
     // check to see if, loosely, coincident ranges may be expanded
-    if (coincidence->expand()) {
-        DEBUG_COINCIDENCE_HEALTH(contourList, "expand1");
+    if (coincidence->expand(DEBUG_COIN_ONLY_PARAMS())) {
         bool added;
-        if (!coincidence->addMissing(&added)) {
+        if (!coincidence->addMissing(&added  DEBUG_COIN_PARAMS())) {
             return false;
         }
-        DEBUG_COINCIDENCE_HEALTH(contourList, "addMissing2");
-        if (!coincidence->addExpanded()) {
+        if (!coincidence->addExpanded(DEBUG_COIN_ONLY_PARAMS())) {
             return false;
         }
-        DEBUG_COINCIDENCE_HEALTH(contourList, "addExpanded2");
-        if (!moveMultiples(contourList)) {
+        if (!move_multiples(contourList  DEBUG_COIN_PARAMS())) {
             return false;
         }
-        DEBUG_COINCIDENCE_HEALTH(contourList, "moveMultiples2");
-        moveNearby(contourList);
+        move_nearby(contourList  DEBUG_COIN_PARAMS());
     }
-#if DEBUG_VALIDATE
-    globalState->setPhase(SkOpGlobalState::kWalking);
-#endif
-    DEBUG_COINCIDENCE_HEALTH(contourList, "expand2");
     // the expanded ranges may not align -- add the missing spans
-    if (!coincidence->addExpanded()) {
+    if (!coincidence->addExpanded(DEBUG_PHASE_ONLY_PARAMS(kWalking))) {
         return false;
     }
-    DEBUG_COINCIDENCE_HEALTH(contourList, "addExpanded3");
-    coincidence->correctEnds();
-    if (!coincidence->mark()) {  // mark spans of coincident segments as coincident
+    coincidence->correctEnds(DEBUG_COIN_ONLY_PARAMS());
+    // mark spans of coincident segments as coincident
+    if (!coincidence->mark(DEBUG_COIN_ONLY_PARAMS())) {
         return false;
     }
-    DEBUG_COINCIDENCE_HEALTH(contourList, "mark1");
     // look for coincidence lines and curves undetected by intersection
-    if (missingCoincidence(contourList)) {
-#if DEBUG_VALIDATE
-        globalState->setPhase(SkOpGlobalState::kIntersecting);
-#endif
-        DEBUG_COINCIDENCE_HEALTH(contourList, "missingCoincidence1");
-        (void) coincidence->expand();
-        DEBUG_COINCIDENCE_HEALTH(contourList, "expand3");
-        if (!coincidence->addExpanded()) {
+    if (missing_coincidence(contourList  DEBUG_COIN_PARAMS())) {
+        (void) coincidence->expand(DEBUG_PHASE_ONLY_PARAMS(kIntersecting));
+        if (!coincidence->addExpanded(DEBUG_COIN_ONLY_PARAMS())) {
             return false;
         }
-#if DEBUG_VALIDATE
-        globalState->setPhase(SkOpGlobalState::kWalking);
-#endif
-        DEBUG_COINCIDENCE_HEALTH(contourList, "addExpanded3");
-        if (!coincidence->mark()) {
+        if (!coincidence->mark(DEBUG_PHASE_ONLY_PARAMS(kWalking))) {
             return false;
         }
     } else {
-        DEBUG_COINCIDENCE_HEALTH(contourList, "missingCoincidence2");
-        (void) coincidence->expand();
+        (void) coincidence->expand(DEBUG_COIN_ONLY_PARAMS());
     }
-    DEBUG_COINCIDENCE_HEALTH(contourList, "missingCoincidence3");
+    (void) coincidence->expand(DEBUG_COIN_ONLY_PARAMS());
 
-    (void) coincidence->expand();
-
-#if 0  // under development
-    // coincident runs may cross two or more spans, but the opposite spans may be out of order
-    if (!coincidence->reorder()) {
-      return false;
-    }
-#endif
-    DEBUG_COINCIDENCE_HEALTH(contourList, "coincidence.reorder");
     SkOpCoincidence overlaps(globalState);
+    safetyHatch = SAFETY_COUNT;
     do {
         SkOpCoincidence* pairs = overlaps.isEmpty() ? coincidence : &overlaps;
-        if (!pairs->apply()) {  // adjust the winding value to account for coincident edges
+        // adjust the winding value to account for coincident edges
+        if (!pairs->apply(DEBUG_ITER_ONLY_PARAMS(SAFETY_COUNT - safetyHatch))) {  
             return false;
         }
-        DEBUG_COINCIDENCE_HEALTH(contourList, "pairs->apply");
         // For each coincident pair that overlaps another, when the receivers (the 1st of the pair)
         // are different, construct a new pair to resolve their mutual span
-        if (!pairs->findOverlaps(&overlaps)) {
+        if (!pairs->findOverlaps(&overlaps  DEBUG_ITER_PARAMS(SAFETY_COUNT - safetyHatch))) {
             return false;
         }
-        DEBUG_COINCIDENCE_HEALTH(contourList, "pairs->findOverlaps");
+        if (!--safetyHatch) {
+            SkASSERT(globalState->debugSkipAssert());
+            return false;
+        }
     } while (!overlaps.isEmpty());
-    calcAngles(contourList);
-    sortAngles(contourList);
+    calc_angles(contourList  DEBUG_COIN_PARAMS());
+    sort_angles(contourList);
     if (globalState->angleCoincidence()) {
-        (void) missingCoincidence(contourList);
-        if (!coincidence->apply()) {
+        (void) missing_coincidence(contourList  DEBUG_COIN_PARAMS());
+        if (!coincidence->apply(DEBUG_COIN_ONLY_PARAMS())) {
             return false;
         }
     }

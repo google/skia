@@ -234,16 +234,19 @@ SkOpGlobalState::SkOpGlobalState(SkOpContourHead* head,
     , fNested(0)
     , fWindingFailed(false)
     , fAngleCoincidence(false)
-    , fPhase(kIntersecting)
+    , fPhase(SkOpPhase::kIntersecting)
     SkDEBUGPARAMS(fDebugTestName(testName))
     SkDEBUGPARAMS(fAngleID(0))
     SkDEBUGPARAMS(fCoinID(0))
     SkDEBUGPARAMS(fContourID(0))
     SkDEBUGPARAMS(fPtTID(0))
     SkDEBUGPARAMS(fSegmentID(0))
-SkDEBUGPARAMS(fSpanID(0))
-SkDEBUGPARAMS(fDebugSkipAssert(debugSkipAssert)) {
+    SkDEBUGPARAMS(fSpanID(0))
+    SkDEBUGPARAMS(fDebugSkipAssert(debugSkipAssert)) {
 #if DEBUG_T_SECT_LOOP_COUNT
     debugResetLoopCounts();
+#endif
+#if DEBUG_COIN
+    fPreviousFuncName = nullptr;
 #endif
 }

@@ -129,17 +129,17 @@ public:
     }
 
     void debugAddAngle(double startT, double endT);
-#if DEBUG_COINCIDENCE_VERBOSE
-    const SkOpPtT* debugAddT(double t, const char* id, SkPathOpsDebug::GlitchLog* ) const;
+#if DEBUG_COIN
+    const SkOpPtT* debugAddT(double t, SkPathOpsDebug::GlitchLog* ) const;
 #endif
     const SkOpAngle* debugAngle(int id) const;
 #if DEBUG_ANGLE
     void debugCheckAngleCoin() const;
 #endif
-#if DEBUG_COINCIDENCE_VERBOSE
-    void debugCheckHealth(const char* id, SkPathOpsDebug::GlitchLog* ) const;
-    void debugClearAll(const char* id, SkPathOpsDebug::GlitchLog* glitches) const;
-    void debugClearOne(const SkOpSpan* span, const char* id, SkPathOpsDebug::GlitchLog* glitches) const;
+#if DEBUG_COIN
+    void debugCheckHealth(SkPathOpsDebug::GlitchLog* ) const;
+    void debugClearAll(SkPathOpsDebug::GlitchLog* glitches) const;
+    void debugClearOne(const SkOpSpan* span, SkPathOpsDebug::GlitchLog* glitches) const;
 #endif
     const SkOpCoincidence* debugCoincidence() const;
     SkOpContour* debugContour(int id) const;
@@ -149,10 +149,10 @@ public:
     }
 
     SkOpAngle* debugLastAngle();
-#if DEBUG_COINCIDENCE_VERBOSE
-    void debugMissingCoincidence(const char* id, SkPathOpsDebug::GlitchLog* glitches) const;
-    void debugMoveMultiples(const char* id, SkPathOpsDebug::GlitchLog* glitches) const;
-    void debugMoveNearby(const char* id, SkPathOpsDebug::GlitchLog* glitches) const;
+#if DEBUG_COIN
+    void debugMissingCoincidence(SkPathOpsDebug::GlitchLog* glitches) const;
+    void debugMoveMultiples(SkPathOpsDebug::GlitchLog* glitches) const;
+    void debugMoveNearby(SkPathOpsDebug::GlitchLog* glitches) const;
 #endif
     const SkOpPtT* debugPtT(int id) const;
     void debugReset();
@@ -174,7 +174,7 @@ public:
     void debugSetCoinT(int, SkScalar ) const; 
 #endif
 
-#if DEBUG_COINCIDENCE
+#if DEBUG_COIN
     static void DebugClearVisited(const SkOpSpanBase* span);
 
     bool debugVisited() const {
@@ -341,7 +341,7 @@ public:
 
     void rayCheck(const SkOpRayHit& base, SkOpRayDir dir, SkOpRayHit** hits, SkChunkAlloc*);
 
-#if DEBUG_COINCIDENCE
+#if DEBUG_COIN
     void resetDebugVisited() const {
         fDebugVisited = false;
     }
@@ -447,7 +447,7 @@ private:
     int fDoneCount;  // number of processed spans (zero initially)
     SkPath::Verb fVerb;
     bool fVisited;  // used by missing coincidence check
-#if DEBUG_COINCIDENCE
+#if DEBUG_COIN
     mutable bool fDebugVisited;  // used by debug missing coincidence check
 #endif
 #if DEBUG_COINCIDENCE_ORDER

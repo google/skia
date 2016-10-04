@@ -242,7 +242,8 @@ static void dump_op(const SkPath& one, const SkPath& two, SkPathOp op) {
 
 SK_DECLARE_STATIC_MUTEX(debugWorstLoop);
 
-SkOpGlobalState debugWorstState(nullptr, nullptr  SkDEBUGPARAMS(false) SkDEBUGPARAMS(nullptr));
+SkOpGlobalState debugWorstState(nullptr, nullptr  SkDEBUGPARAMS(false) SkDEBUGPARAMS(nullptr)
+        SkDEBUGPARAMS(nullptr));
 
 void ReportPathOpsDebugging() {
     debugWorstState.debugLoopReport();
@@ -315,9 +316,13 @@ bool OpDebug(const SkPath& one, const SkPath& two, SkPathOp op, SkPath* result
             ;
     } while ((current = current->next()));
 #if DEBUG_VALIDATE
-    globalState.setPhase(SkOpGlobalState::kWalking);
+    globalState.setPhase(SkOpPhase::kWalking);
 #endif
-    if (!HandleCoincidence(contourList, &coincidence)) {
+    bool success = HandleCoincidence(contourList, &coincidence);
+#if DEBUG_COIN
+    globalState.debugAddToGlobalCoinDicts();
+#endif
+    if (!success) {
         return false;
     }
 #if DEBUG_ALIGNMENT
