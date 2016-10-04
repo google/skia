@@ -113,7 +113,30 @@ namespace SkOpts {
 
         stage_4<SK_OPTS_NS::constant_color, true>,
 
-        stage_4<SK_OPTS_NS::srcover, true>,
+        (SkRasterPipeline::Fn)xfermode<SK_OPTS_NS::dst>,
+        (SkRasterPipeline::Fn)xfermode<SK_OPTS_NS::dstatop>,
+        (SkRasterPipeline::Fn)xfermode<SK_OPTS_NS::dstin>,
+        (SkRasterPipeline::Fn)xfermode<SK_OPTS_NS::dstout>,
+        (SkRasterPipeline::Fn)xfermode<SK_OPTS_NS::dstover>,
+        (SkRasterPipeline::Fn)xfermode<SK_OPTS_NS::srcatop>,
+        (SkRasterPipeline::Fn)xfermode<SK_OPTS_NS::srcin>,
+        (SkRasterPipeline::Fn)xfermode<SK_OPTS_NS::srcout>,
+        (SkRasterPipeline::Fn)xfermode<SK_OPTS_NS::srcover>,
+        (SkRasterPipeline::Fn)xfermode<SK_OPTS_NS::clear>,
+        (SkRasterPipeline::Fn)xfermode<SK_OPTS_NS::modulate>,
+        (SkRasterPipeline::Fn)xfermode<SK_OPTS_NS::multiply>,
+        (SkRasterPipeline::Fn)xfermode<SK_OPTS_NS::plus_>,
+        (SkRasterPipeline::Fn)xfermode<SK_OPTS_NS::screen>,
+        (SkRasterPipeline::Fn)xfermode<SK_OPTS_NS::xor_>,
+        (SkRasterPipeline::Fn)xfermode<SK_OPTS_NS::colorburn,  SK_OPTS_NS::srcover>,
+        (SkRasterPipeline::Fn)xfermode<SK_OPTS_NS::colordodge, SK_OPTS_NS::srcover>,
+        (SkRasterPipeline::Fn)xfermode<SK_OPTS_NS::darken,     SK_OPTS_NS::srcover>,
+        (SkRasterPipeline::Fn)xfermode<SK_OPTS_NS::difference, SK_OPTS_NS::srcover>,
+        (SkRasterPipeline::Fn)xfermode<SK_OPTS_NS::exclusion,  SK_OPTS_NS::srcover>,
+        (SkRasterPipeline::Fn)xfermode<SK_OPTS_NS::hardlight,  SK_OPTS_NS::srcover>,
+        (SkRasterPipeline::Fn)xfermode<SK_OPTS_NS::lighten,    SK_OPTS_NS::srcover>,
+        (SkRasterPipeline::Fn)xfermode<SK_OPTS_NS::overlay,    SK_OPTS_NS::srcover>,
+        (SkRasterPipeline::Fn)xfermode<SK_OPTS_NS::softlight,  SK_OPTS_NS::srcover>,
     };
     static_assert(SK_ARRAY_COUNT(stages_4) == SkRasterPipeline::kNumStockStages, "");
 
@@ -138,7 +161,30 @@ namespace SkOpts {
 
         stage_1_3<SK_OPTS_NS::constant_color, true>,
 
-        stage_1_3<SK_OPTS_NS::srcover, true>,
+        (SkRasterPipeline::Fn)xfermode<SK_OPTS_NS::dst>,
+        (SkRasterPipeline::Fn)xfermode<SK_OPTS_NS::dstatop>,
+        (SkRasterPipeline::Fn)xfermode<SK_OPTS_NS::dstin>,
+        (SkRasterPipeline::Fn)xfermode<SK_OPTS_NS::dstout>,
+        (SkRasterPipeline::Fn)xfermode<SK_OPTS_NS::dstover>,
+        (SkRasterPipeline::Fn)xfermode<SK_OPTS_NS::srcatop>,
+        (SkRasterPipeline::Fn)xfermode<SK_OPTS_NS::srcin>,
+        (SkRasterPipeline::Fn)xfermode<SK_OPTS_NS::srcout>,
+        (SkRasterPipeline::Fn)xfermode<SK_OPTS_NS::srcover>,
+        (SkRasterPipeline::Fn)xfermode<SK_OPTS_NS::clear>,
+        (SkRasterPipeline::Fn)xfermode<SK_OPTS_NS::modulate>,
+        (SkRasterPipeline::Fn)xfermode<SK_OPTS_NS::multiply>,
+        (SkRasterPipeline::Fn)xfermode<SK_OPTS_NS::plus_>,
+        (SkRasterPipeline::Fn)xfermode<SK_OPTS_NS::screen>,
+        (SkRasterPipeline::Fn)xfermode<SK_OPTS_NS::xor_>,
+        (SkRasterPipeline::Fn)xfermode<SK_OPTS_NS::colorburn,  SK_OPTS_NS::srcover>,
+        (SkRasterPipeline::Fn)xfermode<SK_OPTS_NS::colordodge, SK_OPTS_NS::srcover>,
+        (SkRasterPipeline::Fn)xfermode<SK_OPTS_NS::darken,     SK_OPTS_NS::srcover>,
+        (SkRasterPipeline::Fn)xfermode<SK_OPTS_NS::difference, SK_OPTS_NS::srcover>,
+        (SkRasterPipeline::Fn)xfermode<SK_OPTS_NS::exclusion,  SK_OPTS_NS::srcover>,
+        (SkRasterPipeline::Fn)xfermode<SK_OPTS_NS::hardlight,  SK_OPTS_NS::srcover>,
+        (SkRasterPipeline::Fn)xfermode<SK_OPTS_NS::lighten,    SK_OPTS_NS::srcover>,
+        (SkRasterPipeline::Fn)xfermode<SK_OPTS_NS::overlay,    SK_OPTS_NS::srcover>,
+        (SkRasterPipeline::Fn)xfermode<SK_OPTS_NS::softlight,  SK_OPTS_NS::srcover>,
     };
     static_assert(SK_ARRAY_COUNT(stages_1_3) == SkRasterPipeline::kNumStockStages, "");
 
