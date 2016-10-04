@@ -19,7 +19,7 @@ DOXYGEN_BINARY = 'doxygen'
 WORKDIR = os.path.join(os.pardir, 'doxygen_workdir')
 DOXYGEN_CONFIG_DIR = os.path.join(WORKDIR, 'doxygen-config')
 DOXYGEN_WORKING_DIR = os.path.join(WORKDIR, 'doxygen')
-DOXYGEN_GS_PATH = '/'.join(['gs://chromium-skia-gm', 'doxygen'])
+DOXYGEN_GS_PATH = '/'.join(['gs://skia-doc', 'doxygen'])
 
 IFRAME_FOOTER_TEMPLATE = """
 <html><body><address style="text-align: right;"><small>
@@ -39,7 +39,7 @@ def recreate_dir(path):
   os.makedirs(path)
 
 
-def generate_and_upload_doxygen(gsutil_path):
+def generate_and_upload_doxygen():
   """Generate Doxygen."""
   # Create empty dir and add static_footer.txt
   recreate_dir(DOXYGEN_WORKING_DIR)
@@ -65,11 +65,11 @@ def generate_and_upload_doxygen(gsutil_path):
         subprocess.check_output([DOXYGEN_BINARY, '--version']).rstrip()))
 
   # Upload.
-  cmd = [gsutil_path, 'cp', '-a', 'public-read', '-R',
+  cmd = ['gsutil', 'cp', '-a', 'public-read', '-R',
          DOXYGEN_WORKING_DIR, DOXYGEN_GS_PATH]
   subprocess.check_call(cmd)
 
 
 if '__main__' == __name__:
-  generate_and_upload_doxygen(*sys.argv[1:])
+  generate_and_upload_doxygen()
 

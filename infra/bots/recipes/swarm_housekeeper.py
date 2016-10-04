@@ -47,8 +47,7 @@ def RunSteps(api):
     api.run(
       api.step,
       'generate and upload doxygen',
-      cmd=['python', api.core.resource('generate_and_upload_doxygen.py'),
-           gsutil_path],
+      cmd=['python', api.core.resource('generate_and_upload_doxygen.py')],
       cwd=cwd,
       abort_on_failure=False)
 
