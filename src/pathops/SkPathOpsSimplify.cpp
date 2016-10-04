@@ -203,9 +203,13 @@ bool SimplifyDebug(const SkPath& path, SkPath* result
                 && (next = next->next()));
     } while ((current = current->next()));
 #if DEBUG_VALIDATE
-    globalState.setPhase(SkOpGlobalState::kWalking);
+    globalState.setPhase(SkOpPhase::kWalking);
 #endif
-    if (!HandleCoincidence(contourList, &coincidence)) {
+    bool success = HandleCoincidence(contourList, &coincidence);
+#if DEBUG_COIN
+    globalState.debugAddToGlobalCoinDicts();
+#endif
+    if (!success) {
         return false;
     }
 #if DEBUG_DUMP_ALIGNMENT

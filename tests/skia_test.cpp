@@ -12,6 +12,7 @@
 #include "SkCommonFlags.h"
 #include "SkGraphics.h"
 #include "SkOSFile.h"
+#include "SkPathOpsDebug.h"
 #include "SkTArray.h"
 #include "SkTaskGroup.h"
 #include "SkTemplates.h"
@@ -27,6 +28,9 @@ using namespace skiatest;
 using namespace sk_gpu_test;
 
 DEFINE_bool2(extendedTest, x, false, "run extended tests for pathOps.");
+#if DEBUG_COIN
+DEFINE_bool2(coinTest, c, false, "detect unused coincidence algorithms.");
+#endif
 
 // need to explicitly declare this, or we get some weird infinite loop llist
 template TestRegistry* TestRegistry::gHead;
@@ -82,7 +86,7 @@ public:
   void operator()() {
       struct TestReporter : public skiatest::Reporter {
       public:
-          TestReporter() : fError(false), fTestCount(0) {}
+          TestReporter() : fError(false), fTestCount(0), fStats(nullptr) {}
           void bumpTestCount() override { ++fTestCount; }
           bool allowExtendedTest() const override {
               return FLAGS_extendedTest;
@@ -92,6 +96,8 @@ public:
               SkDebugf("\nFAILED: %s", failure.toString().c_str());
               fError = true;
           }
+          void* stats() { return fStats; }
+          void* fStats;
           bool fError;
           int fTestCount;
       } reporter;
@@ -219,6 +225,12 @@ int test_main() {
     }
 
     SkDebugf("\n");
+#if DEBUG_COIN
+    if (FLAGS_coinTest) {
+        SkPathOpsDebug::DumpCoinDict();
+    }
+#endif
+
     return (status.failCount() == 0) ? 0 : 1;
 }
 
