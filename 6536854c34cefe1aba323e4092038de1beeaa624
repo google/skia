@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "e227fd48_17a9d677",
+        "filename": "src/core/SkPictureData.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 40,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2016-10-04T19:04:44Z",
+      "side": 1,
+      "message": "If you use ~0 in place of both 12345678 and 255, it\u0027s not really so crude anymore.",
+      "range": {
+        "startLine": 40,
+        "startChar": 40,
+        "endLine": 40,
+        "endChar": 58
+      },
+      "revId": "6536854c34cefe1aba323e4092038de1beeaa624",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
