@@ -13,9 +13,7 @@
 #include "GrGpuResourcePriv.h"
 #include "GrResourceCache.h"
 #include "GrResourceKey.h"
-#include "SkChunkAlloc.h"
 #include "SkMessageBus.h"
-#include "SkRandom.h"
 #include "SkRefCnt.h"
 #include "SkTArray.h"
 #include "SkTDPQueue.h"
@@ -139,7 +137,13 @@ public:
     /**
      * Find a resource that matches a unique key.
      */
-    GrGpuResource* findAndRefUniqueResource(const GrUniqueKey& key);
+    GrGpuResource* findAndRefUniqueResource(const GrUniqueKey& key) {
+        GrGpuResource* resource = fUniqueHash.find(key);
+        if (resource) {
+            this->refAndMakeResourceMRU(resource);
+        }
+        return resource;
+    }
 
     /**
      * Query whether a unique key exists in the cache.
@@ -150,19 +154,14 @@ public:
 
     /** Purges resources to become under budget and processes resources with invalidated unique
         keys. */
-    void purgeAsNeeded() { this->internalPurgeAsNeeded(false); }
+    void purgeAsNeeded();
 
     /** Purges all resources that don't have external owners. */
     void purgeAllUnlocked();
 
     /** Returns true if the cache would like a flush to occur in order to make more resources
         purgeable. */
-    bool requestsFlush() const {
-        // When in random replacement mode we request a flush in order to make as many resources
-        // as possible subject to replacement.
-        return this->overBudget() && (ReplacementStrategy::kRandom == fStrategy ||
-                                      0 == fPurgeableQueue.count());
-    }
+    bool requestsFlush() const { return fRequestFlush; }
 
     enum FlushType {
         kExternal,
@@ -233,14 +232,10 @@ private:
     void refAndMakeResourceMRU(GrGpuResource*);
     /// @}
 
-    void internalPurgeAsNeeded(bool fromFlushNotification);
     void processInvalidUniqueKeys(const SkTArray<GrUniqueKeyInvalidatedMessage>&);
     void addToNonpurgeableArray(GrGpuResource*);
     void removeFromNonpurgeableArray(GrGpuResource*);
     bool overBudget() const { return fBudgetedBytes > fMaxBytes || fBudgetedCount > fMaxCount; }
-    GrGpuResource* selectResourceUsingStrategy();
-    void recordPurgedKey(GrGpuResource*);
-    void recordKeyMiss(const GrUniqueKey&);
 
     bool wouldFit(size_t bytes) {
         return fBudgetedBytes+bytes <= fMaxBytes && fBudgetedCount+1 <= fMaxCount;
@@ -259,26 +254,21 @@ private:
 
     class AvailableForScratchUse;
 
-    struct HashTraitsBase {
-        static uint32_t Hash(const GrResourceKey& key) { return key.hash(); }
-    };
-
-    struct ScratchMapTraits : public HashTraitsBase {
+    struct ScratchMapTraits {
         static const GrScratchKey& GetKey(const GrGpuResource& r) {
             return r.resourcePriv().getScratchKey();
         }
+
+        static uint32_t Hash(const GrScratchKey& key) { return key.hash(); }
     };
     typedef SkTMultiMap<GrGpuResource, GrScratchKey, ScratchMapTraits> ScratchMap;
 
-    struct UniqueHashTraits : public HashTraitsBase {
+    struct UniqueHashTraits {
         static const GrUniqueKey& GetKey(const GrGpuResource& r) { return r.getUniqueKey(); }
+
+        static uint32_t Hash(const GrUniqueKey& key) { return key.hash(); }
     };
     typedef SkTDynamicHash<GrGpuResource, GrUniqueKey, UniqueHashTraits> UniqueHash;
-
-    struct UniqueSetTraits : public HashTraitsBase {
-        static const GrUniqueKey& GetKey(const GrUniqueKey& key) { return key; }
-    };
-    typedef SkTDynamicHash<GrUniqueKey, GrUniqueKey, UniqueSetTraits> UniqueKeySet;
 
     static bool CompareTimestamp(GrGpuResource* const& a, GrGpuResource* const& b) {
         return a->cacheAccess().timestamp() < b->cacheAccess().timestamp();
@@ -287,22 +277,6 @@ private:
     static int* AccessResourceIndex(GrGpuResource* const& res) {
         return res->cacheAccess().accessCacheIndex();
     }
-
-    /**
-     * The resource cache chooses one of these replacement strategies based on a "strategy score"
-     * updated after each external flush based on unique key cache misses.
-     */
-    enum class ReplacementStrategy {
-        kLRU,
-        kRandom
-    };
-    /**
-     * When the current strategy score is >=0 LRU is chosen, when it is < 0 random is chosen. The
-     * absolute value of the score moves by 1 each flush.
-     */
-    static constexpr int kStrategyScoreMin = -5;
-    static constexpr int kStrategyScoreMax = 4;
-    static constexpr int kInitialStrategyScore = 2;
 
     typedef SkMessageBus<GrUniqueKeyInvalidatedMessage>::Inbox InvalidUniqueKeyInbox;
     typedef SkTDPQueue<GrGpuResource*, CompareTimestamp, AccessResourceIndex> PurgeableQueue;
@@ -325,17 +299,6 @@ private:
     size_t                              fMaxBytes;
     int                                 fMaxUnusedFlushes;
 
-    // Data related to replacement strategy.
-    SkRandom                            fRandom;
-    ReplacementStrategy                 fStrategy;
-    int                                 fStrategyScore;
-    int                                 fTotalMissesThisFlush;
-    int                                 fMissesThisFlushPurgedRecently;
-    UniqueKeySet                        fUniqueKeysPurgedThisFlush[2];
-    // These are pointers to SkChunckAlloc because of gcc bug 63707
-    SkChunkAlloc*                       fUniqueKeysPurgedThisFlushStorage[2];
-    int                                 fFlushParity;
-
 #if GR_CACHE_STATS
     int                                 fHighWaterCount;
     size_t                              fHighWaterBytes;
@@ -351,9 +314,8 @@ private:
     int                                 fBudgetedCount;
     size_t                              fBudgetedBytes;
 
+    bool                                fRequestFlush;
     uint32_t                            fExternalFlushCnt;
-
-    bool                                fIsPurging;
 
     InvalidUniqueKeyInbox               fInvalidUniqueKeyInbox;
 

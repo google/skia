@@ -57,22 +57,13 @@ private:
 };
 
  //////////////////////////////////////////////////////////////////////////////
-constexpr int GrResourceCache::kStrategyScoreMin;
-constexpr int GrResourceCache::kStrategyScoreMax;
-constexpr int GrResourceCache::kInitialStrategyScore;
+
 
 GrResourceCache::GrResourceCache(const GrCaps* caps)
     : fTimestamp(0)
     , fMaxCount(kDefaultMaxCount)
     , fMaxBytes(kDefaultMaxSize)
     , fMaxUnusedFlushes(kDefaultMaxUnusedFlushes)
-    , fStrategy(ReplacementStrategy::kLRU)
-    , fStrategyScore(kInitialStrategyScore)
-    , fTotalMissesThisFlush(0)
-    , fMissesThisFlushPurgedRecently(0)
-    , fUniqueKeysPurgedThisFlushStorage {new SkChunkAlloc(8*sizeof(GrUniqueKey)),
-                                         new SkChunkAlloc(8*sizeof(GrUniqueKey))}
-    , fFlushParity(0)
 #if GR_CACHE_STATS
     , fHighWaterCount(0)
     , fHighWaterBytes(0)
@@ -82,8 +73,8 @@ GrResourceCache::GrResourceCache(const GrCaps* caps)
     , fBytes(0)
     , fBudgetedCount(0)
     , fBudgetedBytes(0)
+    , fRequestFlush(false)
     , fExternalFlushCnt(0)
-    , fIsPurging(false)
     , fPreferVRAMUseOverFlushes(caps->preferVRAMUseOverFlushes()) {
     SkDEBUGCODE(fCount = 0;)
     SkDEBUGCODE(fNewlyPurgeableResourceForValidation = nullptr;)
@@ -91,8 +82,6 @@ GrResourceCache::GrResourceCache(const GrCaps* caps)
 
 GrResourceCache::~GrResourceCache() {
     this->releaseAll();
-    delete fUniqueKeysPurgedThisFlushStorage[0];
-    delete fUniqueKeysPurgedThisFlushStorage[1];
 }
 
 void GrResourceCache::setLimits(int count, size_t bytes, int maxUnusedFlushes) {
@@ -238,10 +227,8 @@ private:
 GrGpuResource* GrResourceCache::findAndRefScratchResource(const GrScratchKey& scratchKey,
                                                           size_t resourceSize,
                                                           uint32_t flags) {
-    // We don't currently track misses for scratch resources for selecting the replacement policy.
-    // The reason is that it is common to look for a scratch resource before creating a texture
-    // that will immediately become uniquely keyed.
     SkASSERT(scratchKey.isValid());
+
     GrGpuResource* resource;
     if (flags & (kPreferNoPendingIO_ScratchFlag | kRequireNoPendingIO_ScratchFlag)) {
         resource = fScratchMap.find(scratchKey, AvailableForScratchUse(true));
@@ -267,25 +254,6 @@ GrGpuResource* GrResourceCache::findAndRefScratchResource(const GrScratchKey& sc
         this->validate();
     }
     return resource;
-}
-
-GrGpuResource* GrResourceCache::findAndRefUniqueResource(const GrUniqueKey& key) {
-    GrGpuResource* resource = fUniqueHash.find(key);
-    if (resource) {
-        this->refAndMakeResourceMRU(resource);
-    } else {
-        this->recordKeyMiss(key);
-    }
-    return resource;
-}
-
-void GrResourceCache::recordKeyMiss(const GrUniqueKey& key) {
-    // If a resource with this key was purged either this flush or the previous flush, consider it
-    // a recent purge.
-    if (fUniqueKeysPurgedThisFlush[0].find(key) || fUniqueKeysPurgedThisFlush[1].find(key)) {
-        ++fMissesThisFlushPurgedRecently;
-    }
-    ++fTotalMissesThisFlush;
 }
 
 void GrResourceCache::willRemoveScratchKey(const GrGpuResource* resource) {
@@ -412,12 +380,9 @@ void GrResourceCache::notifyCntReachedZero(GrGpuResource* resource, uint32_t fla
     } else {
         // Purge the resource immediately if we're over budget
         // Also purge if the resource has neither a valid scratch key nor a unique key.
-        bool hasKey = resource->resourcePriv().getScratchKey().isValid() ||
-                      resource->getUniqueKey().isValid();
-        if (hasKey) {
-            if (this->overBudget()) {
-                this->purgeAsNeeded();
-            }
+        bool noKey = !resource->resourcePriv().getScratchKey().isValid() &&
+                     !resource->getUniqueKey().isValid();
+        if (!this->overBudget() && !noKey) {
             return;
         }
     }
@@ -477,36 +442,7 @@ void GrResourceCache::didChangeBudgetStatus(GrGpuResource* resource) {
     this->validate();
 }
 
-void GrResourceCache::recordPurgedKey(GrGpuResource* resource) {
-    // This maximum exists to avoid allocating too much space for key tracking.
-    static constexpr int kMaxTrackedKeys = 256;
-    if (fUniqueKeysPurgedThisFlush[fFlushParity].count() >= kMaxTrackedKeys) {
-        return;
-    }
-    if (resource->getUniqueKey().isValid() &&
-        !fUniqueKeysPurgedThisFlush[fFlushParity].find(resource->getUniqueKey())) {
-        void* p = fUniqueKeysPurgedThisFlushStorage[fFlushParity]->allocThrow(sizeof(GrUniqueKey));
-        GrUniqueKey* copy = new (p) GrUniqueKey;
-        *copy = resource->getUniqueKey();
-        fUniqueKeysPurgedThisFlush[fFlushParity].add(copy);
-    }
-}
-
-GrGpuResource* GrResourceCache::selectResourceUsingStrategy() {
-    switch (fStrategy) {
-        case ReplacementStrategy::kLRU:
-            return fPurgeableQueue.peek();
-        case ReplacementStrategy::kRandom:
-            return fPurgeableQueue.at(fRandom.nextULessThan(fPurgeableQueue.count()));
-    }
-    return nullptr;
-}
-
-void GrResourceCache::internalPurgeAsNeeded(bool fromFlushNotification) {
-    if (fIsPurging) {
-        return;
-    }
-    fIsPurging = true;
+void GrResourceCache::purgeAsNeeded() {
     SkTArray<GrUniqueKeyInvalidatedMessage> invalidKeyMsgs;
     fInvalidUniqueKeyInbox.poll(&invalidKeyMsgs);
     if (invalidKeyMsgs.count()) {
@@ -534,31 +470,26 @@ void GrResourceCache::internalPurgeAsNeeded(bool fromFlushNotification) {
                 }
                 GrGpuResource* resource = fPurgeableQueue.peek();
                 SkASSERT(resource->isPurgeable());
-                this->recordPurgedKey(resource);
                 resource->cacheAccess().release();
             }
         }
     }
 
-    if (ReplacementStrategy::kRandom == fStrategy && !fromFlushNotification) {
-        // Wait until after the requested flush when all the pending IO resources will be eligible
-        // for the draft.
-        SkASSERT(!this->overBudget() || this->requestsFlush());
-        fIsPurging = false;
-        return;
-    }
-
     bool stillOverbudget = this->overBudget();
     while (stillOverbudget && fPurgeableQueue.count()) {
-        GrGpuResource* resource = this->selectResourceUsingStrategy();
+        GrGpuResource* resource = fPurgeableQueue.peek();
         SkASSERT(resource->isPurgeable());
-        this->recordPurgedKey(resource);
         resource->cacheAccess().release();
         stillOverbudget = this->overBudget();
     }
 
     this->validate();
-    fIsPurging = false;
+
+    if (stillOverbudget) {
+        // Set this so that GrDrawingManager will issue a flush to free up resources with pending
+        // IO that we were unable to purge in this pass.
+        fRequestFlush = true;
+    }
 }
 
 void GrResourceCache::purgeAllUnlocked() {
@@ -618,6 +549,7 @@ uint32_t GrResourceCache::getNextTimestamp() {
                 *sortedPurgeableResources.append() = fPurgeableQueue.peek();
                 fPurgeableQueue.pop();
             }
+
             SkTQSort(fNonpurgeableResources.begin(), fNonpurgeableResources.end() - 1,
                      CompareTimestamp);
 
@@ -668,25 +600,10 @@ void GrResourceCache::notifyFlushOccurred(FlushType type) {
         case FlushType::kImmediateMode:
             break;
         case FlushType::kCacheRequested:
+            SkASSERT(fRequestFlush);
+            fRequestFlush = false;
             break;
-        case FlushType::kExternal: {
-            int scoreDelta = 1;
-            if (fMissesThisFlushPurgedRecently) {
-                // If > 60% of our cache misses were things we purged in the last two flushes
-                // then we move closer towards selecting random replacement.
-                if ((float)fMissesThisFlushPurgedRecently / fTotalMissesThisFlush > 0.6f) {
-                    scoreDelta = -1;
-                }
-            }
-            fStrategyScore = SkTPin(fStrategyScore + scoreDelta, kStrategyScoreMin,
-                                    kStrategyScoreMax);
-            fStrategy = fStrategyScore < 0 ? ReplacementStrategy::kRandom
-                                           : ReplacementStrategy::kLRU;
-            fMissesThisFlushPurgedRecently = 0;
-            fTotalMissesThisFlush = 0;
-            fFlushParity = -(fFlushParity - 1);
-            fUniqueKeysPurgedThisFlush[fFlushParity].reset();
-            fUniqueKeysPurgedThisFlushStorage[fFlushParity]->rewind();
+        case FlushType::kExternal:
             ++fExternalFlushCnt;
             if (0 == fExternalFlushCnt) {
                 // When this wraps just reset all the purgeable resources' last used flush state.
@@ -695,9 +612,8 @@ void GrResourceCache::notifyFlushOccurred(FlushType type) {
                 }
             }
             break;
-        }
     }
-    this->internalPurgeAsNeeded(true);
+    this->purgeAsNeeded();
 }
 
 void GrResourceCache::dumpMemoryStatistics(SkTraceMemoryDump* traceMemoryDump) const {

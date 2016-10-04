@@ -129,17 +129,10 @@ void GrDrawingManager::internalFlush(GrResourceCache::FlushType type) {
 #endif
 
     fFlushState.reset();
-    // Avoid notifying the cache about successive client flushes where no rendering occurred between
-    // them.
-    bool skipNotify = false;
-    if (!flushed) {
-        skipNotify = GrResourceCache::kExternal == fLastFlushType &&
-                     GrResourceCache::kExternal == type;
-    }
-    if (!skipNotify) {
+    // We always have to notify the cache when it requested a flush so it can reset its state.
+    if (flushed || type == GrResourceCache::FlushType::kCacheRequested) {
         fContext->getResourceCache()->notifyFlushOccurred(type);
     }
-    fLastFlushType = type;
     fFlushing = false;
 }
 
@@ -152,9 +145,6 @@ void GrDrawingManager::prepareSurfaceForExternalIO(GrSurface* surface) {
 
     if (surface->surfacePriv().hasPendingIO()) {
         this->flush();
-    } else if (GrResourceCache::kExternal != fLastFlushType) {
-        fContext->getResourceCache()->notifyFlushOccurred(GrResourceCache::kExternal);
-        fLastFlushType = GrResourceCache::kExternal;
     }
 
     GrRenderTarget* rt = surface->asRenderTarget();
