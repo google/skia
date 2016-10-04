@@ -8,8 +8,8 @@
 from __future__ import print_function
 from _benchresult import BenchResult
 from argparse import ArgumentParser
+from collections import defaultdict, namedtuple
 from datetime import datetime
-import collections
 import operator
 import os
 import sys
@@ -27,7 +27,7 @@ This script can also be used to generate a Google sheet:
 (1) Install the "Office Editing for Docs, Sheets & Slides" Chrome extension:
     https://chrome.google.com/webstore/detail/office-editing-for-docs-s/gbkeegbaiigmenfmjfclcdgdpimamgkj
 
-(2) Designate Chrome os-wide as the default application for opening .csv files.
+(2) Update your global OS file associations to use Chrome for .csv files.
 
 (3) Run parseskpbench.py with the --open flag.
 
@@ -49,74 +49,91 @@ __argparse.add_argument('sources',
 
 FLAGS = __argparse.parse_args()
 
+RESULT_QUALIFIERS = ('sample_ms', 'clock', 'metric')
+
+class FullConfig(namedtuple('fullconfig', ('config',) + RESULT_QUALIFIERS)):
+  def qualified_name(self, qualifiers=RESULT_QUALIFIERS):
+    return get_qualified_name(self.config.replace(',', ' '),
+                              {x:getattr(self, x) for x in qualifiers})
+
+def get_qualified_name(name, qualifiers):
+  if not qualifiers:
+    return name
+  else:
+    args = ('%s=%s' % (k,v) for k,v in qualifiers.iteritems())
+    return '%s (%s)' % (name, ' '.join(args))
 
 class Parser:
   def __init__(self):
-    self.configs = list() # use list to preserve the order configs appear in.
-    self.rows = collections.defaultdict(dict)
-    self.cols = collections.defaultdict(dict)
-    self.metric = None
-    self.sample_ms = None
+    self.sheet_qualifiers = {x:None for x in RESULT_QUALIFIERS}
+    self.config_qualifiers = set()
+    self.fullconfigs = list() # use list to preserve the order.
+    self.rows = defaultdict(dict)
+    self.cols = defaultdict(dict)
 
   def parse_file(self, infile):
     for line in infile:
       match = BenchResult.match(line)
       if not match:
         continue
-      if self.metric is None:
-        self.metric = match.metric
-      elif match.metric != self.metric:
-        raise ValueError("results have mismatched metrics (%s and %s)" %
-                         (self.metric, match.metric))
-      if self.sample_ms is None:
-        self.sample_ms = match.sample_ms
-      elif not FLAGS.force and match.sample_ms != self.sample_ms:
-        raise ValueError("results have mismatched sampling times. "
-                         "(use --force to ignore)")
-      if not match.config in self.configs:
-        self.configs.append(match.config)
-      self.rows[match.bench][match.config] = match.get_string(FLAGS.result)
-      self.cols[match.config][match.bench] = getattr(match, FLAGS.result)
+
+      fullconfig = FullConfig(*(match.get_string(x)
+                                for x in FullConfig._fields))
+      if not fullconfig in self.fullconfigs:
+        self.fullconfigs.append(fullconfig)
+
+      for qualifier, value in self.sheet_qualifiers.items():
+        if value is None:
+          self.sheet_qualifiers[qualifier] = match.get_string(qualifier)
+        elif value != match.get_string(qualifier):
+          del self.sheet_qualifiers[qualifier]
+          self.config_qualifiers.add(qualifier)
+
+      self.rows[match.bench][fullconfig] = match.get_string(FLAGS.result)
+      self.cols[fullconfig][match.bench] = getattr(match, FLAGS.result)
 
   def print_csv(self, outfile=sys.stdout):
-    print('%s_%s' % (FLAGS.result, self.metric), file=outfile)
+    # Write the title.
+    print(get_qualified_name(FLAGS.result, self.sheet_qualifiers), file=outfile)
 
     # Write the header.
     outfile.write('bench,')
-    for config in self.configs:
-      outfile.write('%s,' % config)
+    for fullconfig in self.fullconfigs:
+      outfile.write('%s,' % fullconfig.qualified_name(self.config_qualifiers))
     outfile.write('\n')
 
     # Write the rows.
-    for bench, row in self.rows.items():
+    for bench, row in self.rows.iteritems():
       outfile.write('%s,' % bench)
-      for config in self.configs:
-        if config in row:
-          outfile.write('%s,' % row[config])
+      for fullconfig in self.fullconfigs:
+        if fullconfig in row:
+          outfile.write('%s,' % row[fullconfig])
         elif FLAGS.force:
-          outfile.write(',')
+          outfile.write('NULL,')
         else:
           raise ValueError("%s: missing value for %s. (use --force to ignore)" %
-                           (bench, config))
+                           (bench,
+                            fullconfig.qualified_name(self.config_qualifiers)))
       outfile.write('\n')
 
     # Add simple, literal averages.
     if len(self.rows) > 1:
       outfile.write('\n')
-      self.__print_computed_row('MEAN',
+      self._print_computed_row('MEAN',
         lambda col: reduce(operator.add, col.values()) / len(col),
         outfile=outfile)
-      self.__print_computed_row('GEOMEAN',
+      self._print_computed_row('GEOMEAN',
         lambda col: reduce(operator.mul, col.values()) ** (1.0 / len(col)),
         outfile=outfile)
 
-  def __print_computed_row(self, name, func, outfile=sys.stdout):
+  def _print_computed_row(self, name, func, outfile=sys.stdout):
     outfile.write('%s,' % name)
-    for config in self.configs:
-      assert(len(self.cols[config]) == len(self.rows))
-      outfile.write('%.4g,' % func(self.cols[config]))
+    for fullconfig in self.fullconfigs:
+      if len(self.cols[fullconfig]) != len(self.rows):
+        outfile.write('NULL,')
+        continue
+      outfile.write('%.4g,' % func(self.cols[fullconfig]))
     outfile.write('\n')
-
 
 def main():
   parser = Parser()

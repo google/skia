@@ -8,8 +8,13 @@
 
 #include "TestContext.h"
 
+#include "GpuTimer.h"
+
 namespace sk_gpu_test {
-TestContext::TestContext() : fFenceSync(nullptr), fCurrentFenceIdx(0) {
+TestContext::TestContext()
+    : fFenceSync(nullptr)
+    , fGpuTimer(nullptr)
+    , fCurrentFenceIdx(0) {
     memset(fFrameFences, 0, sizeof(fFrameFences));
 }
 
@@ -21,6 +26,7 @@ TestContext::~TestContext() {
     }
 #endif
     SkASSERT(!fFenceSync);
+    SkASSERT(!fGpuTimer);
 }
 
 void TestContext::makeCurrent() const { this->onPlatformMakeCurrent(); }
@@ -63,6 +69,7 @@ void TestContext::teardown() {
         delete fFenceSync;
         fFenceSync = nullptr;
     }
+    delete fGpuTimer;
 }
 
 }

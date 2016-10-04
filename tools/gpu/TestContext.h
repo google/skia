@@ -14,6 +14,9 @@
 #include "../private/SkTemplates.h"
 
 namespace sk_gpu_test {
+
+class GpuTimer;
+
 /**
  * An offscreen 3D context. This class is intended for Skia's internal testing needs and not
  * for general use.
@@ -26,6 +29,9 @@ public:
 
     bool fenceSyncSupport() const { return fFenceSync != nullptr; }
     FenceSync* fenceSync() { SkASSERT(fFenceSync); return fFenceSync; }
+
+    bool gpuTimingSupport() const { return fGpuTimer != nullptr; }
+    GpuTimer* gpuTimer() const { SkASSERT(fGpuTimer); return fGpuTimer; }
 
     bool getMaxGpuFrameLag(int *maxFrameLag) const {
         if (!fFenceSync) {
@@ -75,7 +81,8 @@ public:
     virtual void finish() = 0;
 
 protected:
-    FenceSync* fFenceSync;
+    FenceSync*   fFenceSync;
+    GpuTimer*    fGpuTimer;
 
     TestContext();
 
