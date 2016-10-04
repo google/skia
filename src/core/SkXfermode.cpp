@@ -1433,117 +1433,36 @@ SK_DEFINE_FLATTENABLE_REGISTRAR_GROUP_START(SkXfermode)
     SK_DEFINE_FLATTENABLE_REGISTRAR_ENTRY(SkProcCoeffXfermode)
 SK_DEFINE_FLATTENABLE_REGISTRAR_GROUP_END
 
-static Sk4f inv(const Sk4f& x) { return 1.0f - x; }
-
-// Most of these modes apply the same logic kernel to each channel.
-template <Sk4f kernel(const Sk4f& s, const Sk4f& sa, const Sk4f& d, const Sk4f& da)>
-static void SK_VECTORCALL rgba(SkRasterPipeline::Stage* st, size_t x, size_t tail,
-                               Sk4f  r, Sk4f  g, Sk4f  b, Sk4f  a,
-                               Sk4f dr, Sk4f dg, Sk4f db, Sk4f da) {
-    r = kernel(r,a,dr,da);
-    g = kernel(g,a,dg,da);
-    b = kernel(b,a,db,da);
-    a = kernel(a,a,da,da);
-    st->next(x,tail, r,g,b,a, dr,dg,db,da);
-}
-
-#define KERNEL(name) static Sk4f name(const Sk4f& s, const Sk4f& sa, const Sk4f& d, const Sk4f& da)
-KERNEL(clear)    { return 0.0f; }
-KERNEL(dst)      { return d; }
-KERNEL(dstover)  { return d + inv(da)*s; }
-
-KERNEL(srcin)    { return s * da; }
-KERNEL(srcout)   { return s * inv(da); }
-KERNEL(srcatop)  { return s*da + d*inv(sa); }
-KERNEL(dstin)    { return srcin  (d,da,s,sa); }
-KERNEL(dstout)   { return srcout (d,da,s,sa); }
-KERNEL(dstatop)  { return srcatop(d,da,s,sa); }
-
-KERNEL(modulate) { return s*d; }
-KERNEL(multiply) { return s*inv(da) + d*inv(sa) + s*d; }
-KERNEL(plus_)     { return s + d; }
-KERNEL(screen)   { return s + d - s*d; }
-KERNEL(xor_)     { return s*inv(da) + d*inv(sa); }
-
-// Most of the rest apply the same logic to each color channel, and srcover's logic to alpha.
-// (darken and lighten can actually go either way, but they're a little faster this way.)
-template <Sk4f kernel(const Sk4f& s, const Sk4f& sa, const Sk4f& d, const Sk4f& da)>
-static void SK_VECTORCALL rgb_srcover(SkRasterPipeline::Stage* st, size_t x, size_t tail,
-                                      Sk4f  r, Sk4f  g, Sk4f  b, Sk4f  a,
-                                      Sk4f dr, Sk4f dg, Sk4f db, Sk4f da) {
-    r = kernel(r,a,dr,da);
-    g = kernel(g,a,dg,da);
-    b = kernel(b,a,db,da);
-    a = a + da*inv(a);
-    st->next(x,tail, r,g,b,a, dr,dg,db,da);
-}
-
-KERNEL(colorburn) {
-    return (d == da  ).thenElse(d + s*inv(da),
-           (s == 0.0f).thenElse(s + d*inv(sa),
-                                sa*(da - Sk4f::Min(da, (da-d)*sa/s)) + s*inv(da) + d*inv(sa)));
-}
-KERNEL(colordodge) {
-    return (d == 0.0f).thenElse(d + s*inv(da),
-           (s == sa  ).thenElse(s + d*inv(sa),
-                                sa*Sk4f::Min(da, (d*sa)/(sa - s)) + s*inv(da) + d*inv(sa)));
-}
-KERNEL(darken)     { return s + d - Sk4f::Max(s*da, d*sa); }
-KERNEL(difference) { return s + d - 2.0f*Sk4f::Min(s*da,d*sa); }
-KERNEL(exclusion)  { return s + d - 2.0f*s*d; }
-KERNEL(hardlight) {
-    return s*inv(da) + d*inv(sa)
-         + (2.0f*s <= sa).thenElse(2.0f*s*d, sa*da - 2.0f*(da-d)*(sa-s));
-}
-KERNEL(lighten) { return s + d - Sk4f::Min(s*da, d*sa); }
-KERNEL(overlay) { return hardlight(d,da,s,sa); }
-KERNEL(softlight) {
-    Sk4f m  = (da > 0.0f).thenElse(d / da, 0.0f),
-         s2 = 2.0f*s,
-         m4 = 4.0f*m;
-
-    // The logic forks three ways:
-    //    1. dark src?
-    //    2. light src, dark dst?
-    //    3. light src, light dst?
-    Sk4f darkSrc = d*(sa + (s2 - sa)*(1.0f - m)),     // Used in case 1.
-         darkDst = (m4*m4 + m4)*(m - 1.0f) + 7.0f*m,  // Used in case 2.
-         liteDst = m.rsqrt().invert() - m,            // Used in case 3.
-         liteSrc = d*sa + da*(s2 - sa) * (4.0f*d <= da).thenElse(darkDst, liteDst);  // 2 or 3?
-    return s*inv(da) + d*inv(sa) + (s2 <= sa).thenElse(darkSrc, liteSrc);  // 1 or (2 or 3)?
-}
-#undef KERNEL
 
 bool SkProcCoeffXfermode::onAppendStages(SkRasterPipeline* p) const {
     switch (fMode) {
-        case kSrcOver_Mode: SkASSERT(false); return false;  // Well how did we get here?
+        case kSrc_Mode:    /*This stage is a no-op.*/             return true;
+        case kDst_Mode:     p->append(SkRasterPipeline::dst);     return true;
+        case kSrcATop_Mode: p->append(SkRasterPipeline::srcatop); return true;
+        case kDstATop_Mode: p->append(SkRasterPipeline::dstatop); return true;
+        case kSrcIn_Mode:   p->append(SkRasterPipeline::srcin);   return true;
+        case kDstIn_Mode:   p->append(SkRasterPipeline::dstin);   return true;
+        case kSrcOut_Mode:  p->append(SkRasterPipeline::srcout);  return true;
+        case kDstOut_Mode:  p->append(SkRasterPipeline::dstout);  return true;
+        case kSrcOver_Mode: p->append(SkRasterPipeline::srcover); return true;
+        case kDstOver_Mode: p->append(SkRasterPipeline::dstover); return true;
 
-        case kSrc_Mode:    /*This stage is a no-op.*/ return true;
-        case kDst_Mode:     p->append(rgba<dst>);     return true;
-        case kSrcATop_Mode: p->append(rgba<srcatop>); return true;
-        case kDstATop_Mode: p->append(rgba<dstatop>); return true;
-        case kSrcIn_Mode:   p->append(rgba<srcin>);   return true;
-        case kDstIn_Mode:   p->append(rgba<dstin>);   return true;
-        case kSrcOut_Mode:  p->append(rgba<srcout>);  return true;
-        case kDstOut_Mode:  p->append(rgba<dstout>);  return true;
-        case kDstOver_Mode: p->append(rgba<dstover>); return true;
+        case kClear_Mode:    p->append(SkRasterPipeline::clear);    return true;
+        case kModulate_Mode: p->append(SkRasterPipeline::modulate); return true;
+        case kMultiply_Mode: p->append(SkRasterPipeline::multiply); return true;
+        case kPlus_Mode:     p->append(SkRasterPipeline::plus_);    return true;
+        case kScreen_Mode:   p->append(SkRasterPipeline::screen);   return true;
+        case kXor_Mode:      p->append(SkRasterPipeline::xor_);     return true;
 
-        case kClear_Mode:    p->append(rgba<clear>);    return true;
-        case kModulate_Mode: p->append(rgba<modulate>); return true;
-        case kMultiply_Mode: p->append(rgba<multiply>); return true;
-        case kPlus_Mode:     p->append(rgba<plus_>);    return true;
-        case kScreen_Mode:   p->append(rgba<screen>);   return true;
-        case kXor_Mode:      p->append(rgba<xor_>);     return true;
-
-        case kColorBurn_Mode:  p->append(rgb_srcover<colorburn>);  return true;
-        case kColorDodge_Mode: p->append(rgb_srcover<colordodge>); return true;
-        case kDarken_Mode:     p->append(rgb_srcover<darken>);     return true;
-        case kDifference_Mode: p->append(rgb_srcover<difference>); return true;
-        case kExclusion_Mode:  p->append(rgb_srcover<exclusion>);  return true;
-        case kHardLight_Mode:  p->append(rgb_srcover<hardlight>);  return true;
-        case kLighten_Mode:    p->append(rgb_srcover<lighten>);    return true;
-        case kOverlay_Mode:    p->append(rgb_srcover<overlay>);    return true;
-        case kSoftLight_Mode:  p->append(rgb_srcover<softlight>);  return true;
+        case kColorBurn_Mode:  p->append(SkRasterPipeline::colorburn);  return true;
+        case kColorDodge_Mode: p->append(SkRasterPipeline::colordodge); return true;
+        case kDarken_Mode:     p->append(SkRasterPipeline::darken);     return true;
+        case kDifference_Mode: p->append(SkRasterPipeline::difference); return true;
+        case kExclusion_Mode:  p->append(SkRasterPipeline::exclusion);  return true;
+        case kHardLight_Mode:  p->append(SkRasterPipeline::hardlight);  return true;
+        case kLighten_Mode:    p->append(SkRasterPipeline::lighten);    return true;
+        case kOverlay_Mode:    p->append(SkRasterPipeline::overlay);    return true;
+        case kSoftLight_Mode:  p->append(SkRasterPipeline::softlight);  return true;
 
         // TODO
         case kColor_Mode:       return false;
