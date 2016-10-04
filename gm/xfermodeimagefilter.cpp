@@ -48,46 +48,45 @@ protected:
         SkPaint paint;
 
         const struct {
-            SkXfermode::Mode  fMode;
-            const char*         fLabel;
+            SkBlendMode fMode;
+            const char* fLabel;
         } gModes[] = {
-            { SkXfermode::kClear_Mode,    "Clear"     },
-            { SkXfermode::kSrc_Mode,      "Src"       },
-            { SkXfermode::kDst_Mode,      "Dst"       },
-            { SkXfermode::kSrcOver_Mode,  "SrcOver"   },
-            { SkXfermode::kDstOver_Mode,  "DstOver"   },
-            { SkXfermode::kSrcIn_Mode,    "SrcIn"     },
-            { SkXfermode::kDstIn_Mode,    "DstIn"     },
-            { SkXfermode::kSrcOut_Mode,   "SrcOut"    },
-            { SkXfermode::kDstOut_Mode,   "DstOut"    },
-            { SkXfermode::kSrcATop_Mode,  "SrcATop"   },
-            { SkXfermode::kDstATop_Mode,  "DstATop"   },
-            { SkXfermode::kXor_Mode,      "Xor"       },
+            { SkBlendMode::kClear,    "Clear"     },
+            { SkBlendMode::kSrc,      "Src"       },
+            { SkBlendMode::kDst,      "Dst"       },
+            { SkBlendMode::kSrcOver,  "SrcOver"   },
+            { SkBlendMode::kDstOver,  "DstOver"   },
+            { SkBlendMode::kSrcIn,    "SrcIn"     },
+            { SkBlendMode::kDstIn,    "DstIn"     },
+            { SkBlendMode::kSrcOut,   "SrcOut"    },
+            { SkBlendMode::kDstOut,   "DstOut"    },
+            { SkBlendMode::kSrcATop,  "SrcATop"   },
+            { SkBlendMode::kDstATop,  "DstATop"   },
+            { SkBlendMode::kXor,      "Xor"       },
 
-            { SkXfermode::kPlus_Mode,         "Plus"          },
-            { SkXfermode::kModulate_Mode,     "Modulate"      },
-            { SkXfermode::kScreen_Mode,       "Screen"        },
-            { SkXfermode::kOverlay_Mode,      "Overlay"       },
-            { SkXfermode::kDarken_Mode,       "Darken"        },
-            { SkXfermode::kLighten_Mode,      "Lighten"       },
-            { SkXfermode::kColorDodge_Mode,   "ColorDodge"    },
-            { SkXfermode::kColorBurn_Mode,    "ColorBurn"     },
-            { SkXfermode::kHardLight_Mode,    "HardLight"     },
-            { SkXfermode::kSoftLight_Mode,    "SoftLight"     },
-            { SkXfermode::kDifference_Mode,   "Difference"    },
-            { SkXfermode::kExclusion_Mode,    "Exclusion"     },
-            { SkXfermode::kMultiply_Mode,     "Multiply"      },
-            { SkXfermode::kHue_Mode,          "Hue"           },
-            { SkXfermode::kSaturation_Mode,   "Saturation"    },
-            { SkXfermode::kColor_Mode,        "Color"         },
-            { SkXfermode::kLuminosity_Mode,   "Luminosity"    },
+            { SkBlendMode::kPlus,         "Plus"          },
+            { SkBlendMode::kModulate,     "Modulate"      },
+            { SkBlendMode::kScreen,       "Screen"        },
+            { SkBlendMode::kOverlay,      "Overlay"       },
+            { SkBlendMode::kDarken,       "Darken"        },
+            { SkBlendMode::kLighten,      "Lighten"       },
+            { SkBlendMode::kColorDodge,   "ColorDodge"    },
+            { SkBlendMode::kColorBurn,    "ColorBurn"     },
+            { SkBlendMode::kHardLight,    "HardLight"     },
+            { SkBlendMode::kSoftLight,    "SoftLight"     },
+            { SkBlendMode::kDifference,   "Difference"    },
+            { SkBlendMode::kExclusion,    "Exclusion"     },
+            { SkBlendMode::kMultiply,     "Multiply"      },
+            { SkBlendMode::kHue,          "Hue"           },
+            { SkBlendMode::kSaturation,   "Saturation"    },
+            { SkBlendMode::kColor,        "Color"         },
+            { SkBlendMode::kLuminosity,   "Luminosity"    },
         };
 
         int x = 0, y = 0;
         sk_sp<SkImageFilter> background(SkImageSource::Make(fCheckerboard));
         for (size_t i = 0; i < SK_ARRAY_COUNT(gModes); i++) {
-            paint.setImageFilter(SkXfermodeImageFilter::Make(SkXfermode::Make(gModes[i].fMode),
-                                                             background));
+            paint.setImageFilter(SkXfermodeImageFilter::Make(gModes[i].fMode, background));
             DrawClippedBitmap(canvas, fBitmap, paint, x, y);
             x += fBitmap.width() + MARGIN;
             if (x + fBitmap.width() > WIDTH) {
@@ -104,7 +103,7 @@ protected:
             y += fBitmap.height() + MARGIN;
         }
         // Test nullptr mode
-        paint.setImageFilter(SkXfermodeImageFilter::Make(nullptr, background));
+        paint.setImageFilter(SkXfermodeImageFilter::Make(SkBlendMode::kSrcOver, background));
         DrawClippedBitmap(canvas, fBitmap, paint, x, y);
         x += fBitmap.width() + MARGIN;
         if (x + fBitmap.width() > WIDTH) {
@@ -122,11 +121,10 @@ protected:
         sk_sp<SkImageFilter> offsetBackground(SkOffsetImageFilter::Make(SkIntToScalar(4),
                                                                         SkIntToScalar(4),
                                                                         background));
-        paint.setImageFilter(SkXfermodeImageFilter::Make(
-                                                     SkXfermode::Make(SkXfermode::kSrcOver_Mode),
-                                                     offsetBackground,
-                                                     offsetForeground,
-                                                     nullptr));
+        paint.setImageFilter(SkXfermodeImageFilter::Make(SkBlendMode::kSrcOver,
+                                                         offsetBackground,
+                                                         offsetForeground,
+                                                         nullptr));
         DrawClippedPaint(canvas, clipRect, paint, x, y);
         x += fBitmap.width() + MARGIN;
         if (x + fBitmap.width() > WIDTH) {
@@ -134,7 +132,7 @@ protected:
             y += fBitmap.height() + MARGIN;
         }
         // Test offsets on Darken (uses shader blend)
-        paint.setImageFilter(SkXfermodeImageFilter::Make(SkXfermode::Make(SkXfermode::kDarken_Mode),
+        paint.setImageFilter(SkXfermodeImageFilter::Make(SkBlendMode::kDarken,
                                                          offsetBackground,
                                                          offsetForeground,
                                                          nullptr));
@@ -146,9 +144,9 @@ protected:
         }
         // Test cropping
         constexpr size_t nbSamples = 3;
-        SkXfermode::Mode sampledModes[nbSamples] = {SkXfermode::kOverlay_Mode,
-                                                    SkXfermode::kSrcOver_Mode,
-                                                    SkXfermode::kPlus_Mode};
+        const SkBlendMode sampledModes[nbSamples] = {
+            SkBlendMode::kOverlay, SkBlendMode::kSrcOver, SkBlendMode::kPlus
+        };
         int offsets[nbSamples][4] = {{ 10,  10, -16, -16},
                                      { 10,  10,  10,  10},
                                      {-10, -10,  -6,  -6}};
@@ -158,7 +156,7 @@ protected:
                                                  fBitmap.width()  + offsets[i][2],
                                                  fBitmap.height() + offsets[i][3]);
             SkImageFilter::CropRect rect(SkRect::Make(cropRect));
-            paint.setImageFilter(SkXfermodeImageFilter::Make(SkXfermode::Make(sampledModes[i]),
+            paint.setImageFilter(SkXfermodeImageFilter::Make(sampledModes[i],
                                                              offsetBackground,
                                                              offsetForeground,
                                                              &rect));
@@ -170,7 +168,7 @@ protected:
             }
         }
         // Test small bg, large fg with Screen (uses shader blend)
-        auto mode = SkXfermode::Make(SkXfermode::kScreen_Mode);
+        SkBlendMode mode = SkBlendMode::kScreen;
         SkImageFilter::CropRect cropRect(SkRect::MakeXYWH(10, 10, 60, 60));
         sk_sp<SkImageFilter> cropped(SkOffsetImageFilter::Make(0, 0, foreground, &cropRect));
         paint.setImageFilter(SkXfermodeImageFilter::Make(mode, cropped, background, nullptr));
@@ -191,7 +189,7 @@ protected:
         // Test small fg, large bg with SrcIn with a crop that forces it to full size.
         // This tests that SkXfermodeImageFilter correctly applies the compositing mode to
         // the region outside the foreground.
-        mode = SkXfermode::Make(SkXfermode::kSrcIn_Mode);
+        mode = SkBlendMode::kSrcIn;
         SkImageFilter::CropRect cropRectFull(SkRect::MakeXYWH(0, 0, 80, 80));
         paint.setImageFilter(SkXfermodeImageFilter::Make(mode, background,
                                                          cropped, &cropRectFull));

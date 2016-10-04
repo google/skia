@@ -18,18 +18,18 @@
 #include "SkGradientShader.h"
 
 const struct {
-    SkXfermode::Mode fMode;
-    const char*      fName;
+    SkBlendMode fMode;
+    const char* fName;
 } gModes[] = {
-    { SkXfermode::kSrcOver_Mode, "src-over" },
-    { SkXfermode::kSrc_Mode,     "src" },
-    { SkXfermode::kSrcIn_Mode,   "src-in" },
-    { SkXfermode::kSrcOut_Mode,  "src-out" },
-    { SkXfermode::kSrcATop_Mode, "src-atop" },
-    { SkXfermode::kDstOver_Mode, "dst-over" },
-    { SkXfermode::kDstIn_Mode,   "dst-in" },
-    { SkXfermode::kDstOut_Mode,  "dst-out" },
-    { SkXfermode::kDstATop_Mode, "dst-atop" },
+    { SkBlendMode::kSrcOver, "src-over" },
+    { SkBlendMode::kSrc,     "src" },
+    { SkBlendMode::kSrcIn,   "src-in" },
+    { SkBlendMode::kSrcOut,  "src-out" },
+    { SkBlendMode::kSrcATop, "src-atop" },
+    { SkBlendMode::kDstOver, "dst-over" },
+    { SkBlendMode::kDstIn,   "dst-in" },
+    { SkBlendMode::kDstOut,  "dst-out" },
+    { SkBlendMode::kDstATop, "dst-atop" },
 };
 const int N_Modes = SK_ARRAY_COUNT(gModes);
 
@@ -109,10 +109,10 @@ private:
 
 class ModeDrawable : public SkDrawable {
 public:
-    ModeDrawable() : fMode(SkXfermode::kSrcOver_Mode), fLoc(SkPoint::Make(0, 0)) {}
+    ModeDrawable() : fMode(SkBlendMode::kSrcOver), fLoc(SkPoint::Make(0, 0)) {}
 
-    SkXfermode::Mode fMode;
-    SkPoint          fLoc;
+    SkBlendMode fMode;
+    SkPoint     fLoc;
 
     bool hitTest(SkScalar x, SkScalar y) {
         SkRect target = SkRect::MakeXYWH(x - fLoc.x() - 1, y - fLoc.y() - 1, 3, 3);
@@ -139,7 +139,7 @@ protected:
     }
 
     void onDraw(SkCanvas* canvas) override {
-        fPaint.setXfermodeMode(fMode);
+        fPaint.setBlendMode(fMode);
         canvas->save();
         canvas->translate(fLoc.x(), fLoc.y());
         canvas->drawOval(fBounds, fPaint);
@@ -160,7 +160,7 @@ class XferDemo : public SampleView {
         SkScalar x = 10;
         SkScalar y = 10;
         for (int i = 0; i < N_Modes; ++i) {
-            SkAutoTUnref<SkView> v(new PushButtonWig(gModes[i].fName, gModes[i].fMode));
+            SkAutoTUnref<SkView> v(new PushButtonWig(gModes[i].fName, (int)gModes[i].fMode));
             v->setSize(70, 25);
             v->setLoc(x, y);
             v->setVisibleP(true);
@@ -178,7 +178,7 @@ public:
         for (int i = 0; i < N; ++i) {
             fDrs[i].reset(new CircDrawable(200, colors[i]));
             fDrs[i]->fLoc.set(100.f + i * 100, 100.f + i * 100);
-            fDrs[i]->fMode = SkXfermode::kSrcOver_Mode;
+            fDrs[i]->fMode = SkBlendMode::kSrcOver;
         }
         fSelected = nullptr;
 
@@ -189,7 +189,7 @@ protected:
     bool onEvent(const SkEvent& evt) override {
         if (evt.isType("push-button")) {
             if (fSelected) {
-                fSelected->fMode = (SkXfermode::Mode)evt.getFast32();
+                fSelected->fMode = (SkBlendMode)evt.getFast32();
                 this->inval(nullptr);
             }
             return true;

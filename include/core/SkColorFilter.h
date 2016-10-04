@@ -115,6 +115,9 @@ public:
                     or NULL if the mode will have no effect.
     */
     static sk_sp<SkColorFilter> MakeModeFilter(SkColor c, SkXfermode::Mode mode);
+    static sk_sp<SkColorFilter> MakeModeFilter(SkColor c, SkBlendMode mode) {
+        return MakeModeFilter(c, (SkXfermode::Mode)mode);
+    }
 
     /** Construct a colorfilter whose effect is to first apply the inner filter and then apply
      *  the outer filter to the result of the inner's.
