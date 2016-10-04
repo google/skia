@@ -1180,7 +1180,7 @@ int nanobench_main() {
     }
 
     if (FLAGS_analyticAA) {
-        GlobalAAConfig::getInstance().fUseAnalyticAA = true;
+        gSkUseAnalyticAA = true;
     }
 
     int runs = 0;

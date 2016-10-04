@@ -1802,8 +1802,7 @@ bool SampleWindow::onHandleChar(SkUnichar uni) {
             }
             break;
         case 'A':
-            GlobalAAConfig::getInstance().fUseAnalyticAA =
-                    !GlobalAAConfig::getInstance().fUseAnalyticAA;
+            gSkUseAnalyticAA = !gSkUseAnalyticAA.load();
             this->inval(nullptr);
             break;
         case 'B':

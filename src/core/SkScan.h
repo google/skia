@@ -11,6 +11,7 @@
 
 #include "SkFixed.h"
 #include "SkRect.h"
+#include <atomic>
 
 class SkRasterClip;
 class SkRegion;
@@ -22,21 +23,7 @@ class SkPath;
 */
 typedef SkIRect SkXRect;
 
-class GlobalAAConfig {
-private:
-    GlobalAAConfig() {}
-
-public:
-    bool fUseAnalyticAA = false;
-
-    GlobalAAConfig(const GlobalAAConfig&) = delete;
-    void operator=(const GlobalAAConfig&) = delete;
-
-    static GlobalAAConfig& getInstance() {
-        static GlobalAAConfig instance;
-        return instance;
-    }
-};
+extern std::atomic<bool> gSkUseAnalyticAA;
 
 class AdditiveBlitter;
 

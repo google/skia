@@ -1109,7 +1109,7 @@ void SkScan::aaa_fill_path(const SkPath& path, const SkIRect* clipRect, Additive
     // If we're convex, then we need both edges, even the right edge is past the clip
     const bool canCullToTheRight = !path.isConvex();
 
-    SkASSERT(GlobalAAConfig::getInstance().fUseAnalyticAA);
+    SkASSERT(gSkUseAnalyticAA.load());
     int count = builder.build(path, clipRect, 0, canCullToTheRight, true);
     SkASSERT(count >= 0);
 

@@ -750,7 +750,7 @@ void SkScan::FillPath(const SkPath& path, const SkRasterClip& clip,
 
 void SkScan::AntiFillPath(const SkPath& path, const SkRasterClip& clip,
                           SkBlitter* blitter) {
-    if (GlobalAAConfig::getInstance().fUseAnalyticAA) {
+    if (gSkUseAnalyticAA.load()) {
         SkScan::AAAFillPath(path, clip, blitter);
         return;
     }
