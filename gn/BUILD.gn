@@ -16,10 +16,10 @@ declare_args() {
 
   windk = ""
 
-  extra_cflags = ""
-  extra_cflags_c = ""
-  extra_cflags_cc = ""
-  extra_ldflags = ""
+  extra_cflags = []
+  extra_cflags_c = []
+  extra_cflags_cc = []
+  extra_ldflags = []
 
   cc_wrapper = ""
 }
@@ -228,6 +228,13 @@ config("default") {
   }
 }
 
+config("extra_flags") {
+  cflags = extra_cflags
+  cflags_c = extra_cflags_c
+  cflags_cc = extra_cflags_cc
+  ldflags = extra_ldflags
+}
+
 config("debug_symbols") {
   # It's annoying to wait for full debug symbols to push over
   # to Android devices.  -gline-tables-only is a lot slimmer.
@@ -365,24 +372,22 @@ toolchain("gcc_like") {
 
   tool("cc") {
     depfile = "{{output}}.d"
-    command = "$cc_wrapper $cc -MMD -MF $depfile {{defines}} {{include_dirs}} {{cflags}} {{cflags_c}} $extra_cflags $extra_cflags_c -c {{source}} -o {{output}}"
+    command = "$cc_wrapper $cc -MMD -MF $depfile {{defines}} {{include_dirs}} {{cflags}} {{cflags_c}} -c {{source}} -o {{output}}"
     depsformat = "gcc"
     outputs = [
       "{{source_out_dir}}/{{target_output_name}}.{{source_name_part}}.o",
     ]
-    description =
-        "$cc_wrapper $cc ... $extra_cflags $extra_cflags_c -o {{output}}"
+    description = "$cc_wrapper $cc ... -o {{output}}"
   }
 
   tool("cxx") {
     depfile = "{{output}}.d"
-    command = "$cc_wrapper $cxx -MMD -MF $depfile {{defines}} {{include_dirs}} {{cflags}} {{cflags_cc}} $extra_cflags $extra_cflags_cc -c {{source}} -o {{output}}"
+    command = "$cc_wrapper $cxx -MMD -MF $depfile {{defines}} {{include_dirs}} {{cflags}} {{cflags_cc}} -c {{source}} -o {{output}}"
     depsformat = "gcc"
     outputs = [
       "{{source_out_dir}}/{{target_output_name}}.{{source_name_part}}.o",
     ]
-    description =
-        "$cc_wrapper $cxx ... $extra_cflags $extra_cflags_cc -o {{output}}"
+    description = "$cc_wrapper $cxx ... -o {{output}}"
   }
 
   tool("asm") {
@@ -413,21 +418,21 @@ toolchain("gcc_like") {
       rpath = "-Wl,-install_name,@rpath/$soname"
     }
 
-    command = "$cc_wrapper $cxx -shared {{ldflags}} {{inputs}} {{solibs}} {{libs}} $rpath $extra_ldflags -o {{output}}"
+    command = "$cc_wrapper $cxx -shared {{ldflags}} {{inputs}} {{solibs}} {{libs}} $rpath -o {{output}}"
     outputs = [
       "{{root_out_dir}}/$soname",
     ]
     output_prefix = "lib"
     default_output_extension = ".so"
-    description = "$cc_wrapper $cxx -shared ... $extra_ldflags -o {{output}}"
+    description = "$cc_wrapper $cxx -shared ... -o {{output}}"
   }
 
   tool("link") {
-    command = "$cc_wrapper $cxx {{ldflags}} {{inputs}} {{solibs}} {{libs}} $extra_ldflags -o {{output}}"
+    command = "$cc_wrapper $cxx {{ldflags}} {{inputs}} {{solibs}} {{libs}} -o {{output}}"
     outputs = [
       "{{root_out_dir}}/{{target_output_name}}{{output_extension}}",
     ]
-    description = "$cc_wrapper $cxx ... $extra_ldflags -o {{output}}"
+    description = "$cc_wrapper $cxx ... -o {{output}}"
   }
 
   tool("stamp") {
