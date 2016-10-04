@@ -619,7 +619,10 @@ void SkPathRef::Iter::setPathRef(const SkPathRef& path) {
     fPts = path.points();
     fVerbs = path.verbs();
     fVerbStop = path.verbsMemBegin();
-    fConicWeights = path.conicWeights() - 1; // begin one behind
+    fConicWeights = path.conicWeights();
+    if (fConicWeights) {
+      fConicWeights -= 1;  // begin one behind
+    }
 }
 
 uint8_t SkPathRef::Iter::next(SkPoint pts[4]) {

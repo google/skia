@@ -1783,7 +1783,10 @@ void SkPath::Iter::setPath(const SkPath& path, bool forceClose) {
     fPts = path.fPathRef->points();
     fVerbs = path.fPathRef->verbs();
     fVerbStop = path.fPathRef->verbsMemBegin();
-    fConicWeights = path.fPathRef->conicWeights() - 1; // begin one behind
+    fConicWeights = path.fPathRef->conicWeights();
+    if (fConicWeights) {
+      fConicWeights -= 1;  // begin one behind
+    }
     fLastPt.fX = fLastPt.fY = 0;
     fMoveTo.fX = fMoveTo.fY = 0;
     fForceClose = SkToU8(forceClose);
