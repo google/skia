@@ -113,7 +113,30 @@ namespace SkOpts {
 
         stage_4<SK_OPTS_NS::constant_color, true>,
 
-        stage_4<SK_OPTS_NS::srcover, true>,
+        SK_OPTS_NS::dst,
+        SK_OPTS_NS::dstatop,
+        SK_OPTS_NS::dstin,
+        SK_OPTS_NS::dstout,
+        SK_OPTS_NS::dstover,
+        SK_OPTS_NS::srcatop,
+        SK_OPTS_NS::srcin,
+        SK_OPTS_NS::srcout,
+        SK_OPTS_NS::srcover,
+        SK_OPTS_NS::clear,
+        SK_OPTS_NS::modulate,
+        SK_OPTS_NS::multiply,
+        SK_OPTS_NS::plus_,
+        SK_OPTS_NS::screen,
+        SK_OPTS_NS::xor_,
+        SK_OPTS_NS::colorburn,
+        SK_OPTS_NS::colordodge,
+        SK_OPTS_NS::darken,
+        SK_OPTS_NS::difference,
+        SK_OPTS_NS::exclusion,
+        SK_OPTS_NS::hardlight,
+        SK_OPTS_NS::lighten,
+        SK_OPTS_NS::overlay,
+        SK_OPTS_NS::softlight,
     };
     static_assert(SK_ARRAY_COUNT(stages_4) == SkRasterPipeline::kNumStockStages, "");
 
@@ -138,7 +161,30 @@ namespace SkOpts {
 
         stage_1_3<SK_OPTS_NS::constant_color, true>,
 
-        stage_1_3<SK_OPTS_NS::srcover, true>,
+        SK_OPTS_NS::dst,
+        SK_OPTS_NS::dstatop,
+        SK_OPTS_NS::dstin,
+        SK_OPTS_NS::dstout,
+        SK_OPTS_NS::dstover,
+        SK_OPTS_NS::srcatop,
+        SK_OPTS_NS::srcin,
+        SK_OPTS_NS::srcout,
+        SK_OPTS_NS::srcover,
+        SK_OPTS_NS::clear,
+        SK_OPTS_NS::modulate,
+        SK_OPTS_NS::multiply,
+        SK_OPTS_NS::plus_,
+        SK_OPTS_NS::screen,
+        SK_OPTS_NS::xor_,
+        SK_OPTS_NS::colorburn,
+        SK_OPTS_NS::colordodge,
+        SK_OPTS_NS::darken,
+        SK_OPTS_NS::difference,
+        SK_OPTS_NS::exclusion,
+        SK_OPTS_NS::hardlight,
+        SK_OPTS_NS::lighten,
+        SK_OPTS_NS::overlay,
+        SK_OPTS_NS::softlight,
     };
     static_assert(SK_ARRAY_COUNT(stages_1_3) == SkRasterPipeline::kNumStockStages, "");
 
