@@ -160,7 +160,7 @@ SkRGB16_Black_Blitter::SkRGB16_Black_Blitter(const SkPixmap& device, const SkPai
     : INHERITED(device, paint) {
     SkASSERT(paint.getShader() == nullptr);
     SkASSERT(paint.getColorFilter() == nullptr);
-    SkASSERT(paint.getXfermode() == nullptr);
+    SkASSERT(paint.isSrcOver());
     SkASSERT(paint.getColor() == SK_ColorBLACK);
 }
 
@@ -683,7 +683,7 @@ SkRGB16_Shader_Blitter::SkRGB16_Shader_Blitter(const SkPixmap& device,
                                                SkShader::Context* shaderContext)
     : INHERITED(device, paint, shaderContext)
 {
-    SkASSERT(paint.getXfermode() == nullptr);
+    SkASSERT(paint.isSrcOver());
 
     fBuffer = (SkPMColor*)sk_malloc_throw(device.width() * sizeof(SkPMColor));
 
@@ -809,9 +809,8 @@ SkRGB16_Shader_Xfermode_Blitter::SkRGB16_Shader_Xfermode_Blitter(
                                 SkShader::Context* shaderContext)
     : INHERITED(device, paint, shaderContext)
 {
-    fXfermode = paint.getXfermode();
+    fXfermode = SkXfermode::Peek(paint.getBlendMode());
     SkASSERT(fXfermode);
-    fXfermode->ref();
 
     int width = device.width();
     fBuffer = (SkPMColor*)sk_malloc_throw((width + (SkAlign4(width) >> 2)) * sizeof(SkPMColor));
@@ -819,7 +818,6 @@ SkRGB16_Shader_Xfermode_Blitter::SkRGB16_Shader_Xfermode_Blitter(
 }
 
 SkRGB16_Shader_Xfermode_Blitter::~SkRGB16_Shader_Xfermode_Blitter() {
-    fXfermode->unref();
     sk_free(fBuffer);
 }
 
@@ -897,14 +895,14 @@ SkBlitter* SkBlitter_ChooseD565(const SkPixmap& device, const SkPaint& paint,
 
     SkBlitter* blitter;
     SkShader* shader = paint.getShader();
-    SkXfermode* mode = paint.getXfermode();
+    bool is_srcover = paint.isSrcOver();
 
     // we require a shader if there is an xfermode, handled by our caller
-    SkASSERT(nullptr == mode || shader);
+    SkASSERT(is_srcover || shader);
 
     if (shader) {
         SkASSERT(shaderContext != nullptr);
-        if (mode) {
+        if (!is_srcover) {
             blitter = allocator->createT<SkRGB16_Shader_Xfermode_Blitter>(device, paint,
                                                                           shaderContext);
         } else {
