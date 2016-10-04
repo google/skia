@@ -79,6 +79,8 @@ public:
         return fVersion > 0 && fVersion < targetVersion;
     }
 
+    uint32_t getVersion() const { return fVersion; }
+
     /** This may be called at most once; most clients of SkReadBuffer should not mess with it. */
     void setVersion(int version) {
         SkASSERT(0 == fVersion || version == fVersion);
