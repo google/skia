@@ -20,20 +20,20 @@
 namespace {
 
 // TODO: Share this class with ANGLE if/when it gets support for EGL_KHR_fence_sync.
-class EGLFenceSync : public SkGpuFenceSync {
+class EGLFenceSync : public sk_gpu_test::FenceSync {
 public:
     static EGLFenceSync* CreateIfSupported(EGLDisplay);
 
-    SkPlatformGpuFence SK_WARN_UNUSED_RESULT insertFence() const override;
-    bool waitFence(SkPlatformGpuFence fence) const override;
-    void deleteFence(SkPlatformGpuFence fence) const override;
+    sk_gpu_test::PlatformFence SK_WARN_UNUSED_RESULT insertFence() const override;
+    bool waitFence(sk_gpu_test::PlatformFence fence) const override;
+    void deleteFence(sk_gpu_test::PlatformFence fence) const override;
 
 private:
     EGLFenceSync(EGLDisplay display) : fDisplay(display) {}
 
     EGLDisplay                    fDisplay;
 
-    typedef SkGpuFenceSync INHERITED;
+    typedef sk_gpu_test::FenceSync INHERITED;
 };
 
 class EGLGLTestContext : public sk_gpu_test::GLTestContext {
@@ -301,12 +301,13 @@ EGLFenceSync* EGLFenceSync::CreateIfSupported(EGLDisplay display) {
     return new EGLFenceSync(display);
 }
 
-SkPlatformGpuFence EGLFenceSync::insertFence() const {
-    return eglCreateSyncKHR(fDisplay, EGL_SYNC_FENCE_KHR, nullptr);
+sk_gpu_test::PlatformFence EGLFenceSync::insertFence() const {
+    EGLSyncKHR eglsync = eglCreateSyncKHR(fDisplay, EGL_SYNC_FENCE_KHR, nullptr);
+    return reinterpret_cast<sk_gpu_test::PlatformFence>(eglsync);
 }
 
-bool EGLFenceSync::waitFence(SkPlatformGpuFence platformFence) const {
-    EGLSyncKHR eglsync = static_cast<EGLSyncKHR>(platformFence);
+bool EGLFenceSync::waitFence(sk_gpu_test::PlatformFence platformFence) const {
+    EGLSyncKHR eglsync = reinterpret_cast<EGLSyncKHR>(platformFence);
     return EGL_CONDITION_SATISFIED_KHR ==
             eglClientWaitSyncKHR(fDisplay,
                                  eglsync,
@@ -314,8 +315,8 @@ bool EGLFenceSync::waitFence(SkPlatformGpuFence platformFence) const {
                                  EGL_FOREVER_KHR);
 }
 
-void EGLFenceSync::deleteFence(SkPlatformGpuFence platformFence) const {
-    EGLSyncKHR eglsync = static_cast<EGLSyncKHR>(platformFence);
+void EGLFenceSync::deleteFence(sk_gpu_test::PlatformFence platformFence) const {
+    EGLSyncKHR eglsync = reinterpret_cast<EGLSyncKHR>(platformFence);
     eglDestroySyncKHR(fDisplay, eglsync);
 }
 

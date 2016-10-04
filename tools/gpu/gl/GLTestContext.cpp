@@ -8,21 +8,24 @@
 #include "GLTestContext.h"
 #include "gl/GrGLUtil.h"
 
-namespace sk_gpu_test {
-class GLTestContext::GLFenceSync : public SkGpuFenceSync {
-public:
-    static GLFenceSync* CreateIfSupported(const GLTestContext*);
+namespace {
 
-    SkPlatformGpuFence SK_WARN_UNUSED_RESULT insertFence() const override;
-    bool waitFence(SkPlatformGpuFence fence) const override;
-    void deleteFence(SkPlatformGpuFence fence) const override;
+class GLFenceSync : public sk_gpu_test::FenceSync {
+public:
+    static GLFenceSync* CreateIfSupported(const sk_gpu_test::GLTestContext*);
+
+    sk_gpu_test::PlatformFence SK_WARN_UNUSED_RESULT insertFence() const override;
+    bool waitFence(sk_gpu_test::PlatformFence fence) const override;
+    void deleteFence(sk_gpu_test::PlatformFence fence) const override;
 
 private:
-    GLFenceSync() {}
+    GLFenceSync(const sk_gpu_test::GLTestContext*, const char* ext = "");
 
-    static const GrGLenum GL_SYNC_GPU_COMMANDS_COMPLETE  = 0x9117;
-    static const GrGLenum GL_WAIT_FAILED                 = 0x911d;
-    static const GrGLbitfield GL_SYNC_FLUSH_COMMANDS_BIT = 0x00000001;
+    bool validate() { return fGLFenceSync && fGLClientWaitSync && fGLDeleteSync; }
+
+    static constexpr GrGLenum GL_SYNC_GPU_COMMANDS_COMPLETE  = 0x9117;
+    static constexpr GrGLenum GL_WAIT_FAILED                 = 0x911d;
+    static constexpr GrGLbitfield GL_SYNC_FLUSH_COMMANDS_BIT = 0x00000001;
 
     typedef struct __GLsync *GLsync;
 
@@ -34,8 +37,49 @@ private:
     GLClientWaitSyncProc   fGLClientWaitSync;
     GLDeleteSyncProc       fGLDeleteSync;
 
-    typedef SkGpuFenceSync INHERITED;
+    typedef FenceSync INHERITED;
 };
+
+GLFenceSync* GLFenceSync::CreateIfSupported(const sk_gpu_test::GLTestContext* ctx) {
+    SkAutoTDelete<GLFenceSync> ret;
+    if (kGL_GrGLStandard == ctx->gl()->fStandard) {
+        if (GrGLGetVersion(ctx->gl()) < GR_GL_VER(3,2) && !ctx->gl()->hasExtension("GL_ARB_sync")) {
+            return nullptr;
+        }
+        ret.reset(new GLFenceSync(ctx));
+    } else {
+        if (!ctx->gl()->hasExtension("GL_APPLE_sync")) {
+            return nullptr;
+        }
+        ret.reset(new GLFenceSync(ctx, "APPLE"));
+    }
+    return ret->validate() ? ret.release() : nullptr;
+}
+
+GLFenceSync::GLFenceSync(const sk_gpu_test::GLTestContext* ctx, const char* ext) {
+    ctx->getGLProcAddress(&fGLFenceSync, "glFenceSync");
+    ctx->getGLProcAddress(&fGLClientWaitSync, "glClientWaitSync");
+    ctx->getGLProcAddress(&fGLDeleteSync, "glDeleteSync");
+}
+
+sk_gpu_test::PlatformFence GLFenceSync::insertFence() const {
+    __GLsync* glsync = fGLFenceSync(GL_SYNC_GPU_COMMANDS_COMPLETE, 0);
+    return reinterpret_cast<sk_gpu_test::PlatformFence>(glsync);
+}
+
+bool GLFenceSync::waitFence(sk_gpu_test::PlatformFence fence) const {
+    GLsync glsync = reinterpret_cast<GLsync>(fence);
+    return GL_WAIT_FAILED != fGLClientWaitSync(glsync, GL_SYNC_FLUSH_COMMANDS_BIT, -1);
+}
+
+void GLFenceSync::deleteFence(sk_gpu_test::PlatformFence fence) const {
+    GLsync glsync = reinterpret_cast<GLsync>(fence);
+    fGLDeleteSync(glsync);
+}
+
+}  // anonymous namespace
+
+namespace sk_gpu_test {
 
 GLTestContext::GLTestContext() : TestContext() {}
 
@@ -43,7 +87,7 @@ GLTestContext::~GLTestContext() {
     SkASSERT(nullptr == fGL.get());
 }
 
-void GLTestContext::init(const GrGLInterface* gl, SkGpuFenceSync* fenceSync) {
+void GLTestContext::init(const GrGLInterface* gl, FenceSync* fenceSync) {
     SkASSERT(!fGL.get());
     fGL.reset(gl);
     fFenceSync = fenceSync ? fenceSync : GLFenceSync::CreateIfSupported(this);
@@ -71,55 +115,6 @@ void GLTestContext::finish() {
     if (fGL) {
         GR_GL_CALL(fGL.get(), Finish());
     }
-}
-
-GLTestContext::GLFenceSync* GLTestContext::GLFenceSync::CreateIfSupported(const GLTestContext* ctx) {
-    SkAutoTDelete<GLFenceSync> ret(new GLFenceSync);
-
-    if (kGL_GrGLStandard == ctx->gl()->fStandard) {
-        const GrGLubyte* versionStr;
-        GR_GL_CALL_RET(ctx->gl(), versionStr, GetString(GR_GL_VERSION));
-        GrGLVersion version = GrGLGetVersionFromString(reinterpret_cast<const char*>(versionStr));
-        if (version < GR_GL_VER(3,2) && !ctx->gl()->hasExtension("GL_ARB_sync")) {
-            return nullptr;
-        }
-        ret->fGLFenceSync = reinterpret_cast<GLFenceSyncProc>(
-            ctx->onPlatformGetProcAddress("glFenceSync"));
-        ret->fGLClientWaitSync = reinterpret_cast<GLClientWaitSyncProc>(
-            ctx->onPlatformGetProcAddress("glClientWaitSync"));
-        ret->fGLDeleteSync = reinterpret_cast<GLDeleteSyncProc>(
-            ctx->onPlatformGetProcAddress("glDeleteSync"));
-    } else {
-        if (!ctx->gl()->hasExtension("GL_APPLE_sync")) {
-            return nullptr;
-        }
-        ret->fGLFenceSync = reinterpret_cast<GLFenceSyncProc>(
-            ctx->onPlatformGetProcAddress("glFenceSyncAPPLE"));
-        ret->fGLClientWaitSync = reinterpret_cast<GLClientWaitSyncProc>(
-            ctx->onPlatformGetProcAddress("glClientWaitSyncAPPLE"));
-        ret->fGLDeleteSync = reinterpret_cast<GLDeleteSyncProc>(
-            ctx->onPlatformGetProcAddress("glDeleteSyncAPPLE"));
-    }
-
-    if (!ret->fGLFenceSync || !ret->fGLClientWaitSync || !ret->fGLDeleteSync) {
-        return nullptr;
-    }
-
-    return ret.release();
-}
-
-SkPlatformGpuFence GLTestContext::GLFenceSync::insertFence() const {
-    return fGLFenceSync(GL_SYNC_GPU_COMMANDS_COMPLETE, 0);
-}
-
-bool GLTestContext::GLFenceSync::waitFence(SkPlatformGpuFence fence) const {
-    GLsync glsync = static_cast<GLsync>(fence);
-    return GL_WAIT_FAILED != fGLClientWaitSync(glsync, GL_SYNC_FLUSH_COMMANDS_BIT, -1);
-}
-
-void GLTestContext::GLFenceSync::deleteFence(SkPlatformGpuFence fence) const {
-    GLsync glsync = static_cast<GLsync>(fence);
-    fGLDeleteSync(glsync);
 }
 
 GrGLint GLTestContext::createTextureRectangle(int width, int height, GrGLenum internalFormat,

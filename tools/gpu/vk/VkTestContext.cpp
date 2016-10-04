@@ -15,11 +15,11 @@
 
 namespace {
 /**
- * Implements SkGpuFenceSync for Vulkan. It creates a single command buffer with
- * USAGE_SIMULTANEOUS with no content . On every insertFence request it submits
- * the command buffer with a new fence.
+ * Implements sk_gpu_test::FenceSync for Vulkan. It creates a single command
+ * buffer with USAGE_SIMULTANEOUS with no content . On every insertFence request
+ * it submits the command buffer with a new fence.
  */
-class VkFenceSync : public SkGpuFenceSync {
+class VkFenceSync : public sk_gpu_test::FenceSync {
 public:
     VkFenceSync(sk_sp<const GrVkInterface> vk, VkDevice device, VkQueue queue,
                 uint32_t queueFamilyIndex)
@@ -58,7 +58,7 @@ public:
         GR_VK_CALL(fVk, DestroyCommandPool(fDevice, fCommandPool, nullptr));
     }
 
-    SkPlatformGpuFence SK_WARN_UNUSED_RESULT insertFence() const override {
+    sk_gpu_test::PlatformFence SK_WARN_UNUSED_RESULT insertFence() const override {
         VkFence fence;
         VkFenceCreateInfo info;
         info.sType = VK_STRUCTURE_TYPE_FENCE_CREATE_INFO;
@@ -77,17 +77,17 @@ public:
         submitInfo.pSignalSemaphores = nullptr;
         GR_VK_CALL_ERRCHECK(fVk, QueueSubmit(fQueue, 1, &submitInfo, fence));
         SkDEBUGCODE(++fUnfinishedSyncs;)
-        return reinterpret_cast<SkPlatformGpuFence>(fence);
+        return reinterpret_cast<sk_gpu_test::PlatformFence>(fence);
     }
 
-    bool waitFence(SkPlatformGpuFence opaqueFence) const override {
+    bool waitFence(sk_gpu_test::PlatformFence opaqueFence) const override {
         VkFence fence = reinterpret_cast<VkFence>(opaqueFence);
         static constexpr uint64_t kForever = ~((uint64_t)0);
         auto result = GR_VK_CALL(fVk, WaitForFences(fDevice, 1, &fence, true, kForever));
         return result != VK_TIMEOUT;
     }
 
-    void deleteFence(SkPlatformGpuFence opaqueFence) const override {
+    void deleteFence(sk_gpu_test::PlatformFence opaqueFence) const override {
         VkFence fence = reinterpret_cast<VkFence>(opaqueFence);
         GR_VK_CALL(fVk, DestroyFence(fDevice, fence, nullptr));
         SkDEBUGCODE(--fUnfinishedSyncs;)
@@ -100,7 +100,7 @@ private:
     VkCommandPool               fCommandPool;
     VkCommandBuffer             fCommandBuffer;
     SkDEBUGCODE(mutable int     fUnfinishedSyncs;)
-    typedef SkGpuFenceSync INHERITED;
+    typedef sk_gpu_test::FenceSync INHERITED;
 };
 
 // TODO: Implement swap buffers and finish
@@ -141,7 +141,7 @@ private:
 
     typedef sk_gpu_test::VkTestContext INHERITED;
 };
-}
+}  // anonymous namespace
 
 namespace sk_gpu_test {
 VkTestContext* CreatePlatformVkTestContext() { return VkTestContextImpl::Create(); }

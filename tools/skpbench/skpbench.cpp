@@ -33,6 +33,10 @@
  * Currently, only GPU configs are supported.
  */
 
+using sk_gpu_test::PlatformFence;
+using sk_gpu_test::kInvalidPlatformFence;
+using sk_gpu_test::FenceSync;
+
 DEFINE_int32(duration, 5000, "number of milliseconds to run the benchmark");
 DEFINE_int32(sampleMs, 50, "minimum duration of a sample");
 DEFINE_bool(fps, false, "use fps instead of ms");
@@ -62,7 +66,7 @@ struct Sample {
 
 class GpuSync {
 public:
-    GpuSync(const SkGpuFenceSync* fenceSync);
+    GpuSync(const FenceSync* fenceSync);
     ~GpuSync();
 
     void syncToPreviousFrame();
@@ -70,8 +74,8 @@ public:
 private:
     void updateFence();
 
-    const SkGpuFenceSync* const   fFenceSync;
-    SkPlatformGpuFence            fFence;
+    const FenceSync* const   fFenceSync;
+    PlatformFence            fFence;
 };
 
 enum class ExitErr {
@@ -88,7 +92,7 @@ static bool mkdir_p(const SkString& name);
 static SkString join(const SkCommandLineFlags::StringArray&);
 static void exitf(ExitErr, const char* format, ...);
 
-static void run_benchmark(const SkGpuFenceSync* fenceSync, SkCanvas* canvas, const SkPicture* skp,
+static void run_benchmark(const FenceSync* fenceSync, SkCanvas* canvas, const SkPicture* skp,
                           std::vector<Sample>* samples) {
     using clock = Sample::clock;
     const clock::duration sampleDuration = std::chrono::milliseconds(FLAGS_sampleMs);
@@ -296,7 +300,7 @@ static void exitf(ExitErr err, const char* format, ...) {
     exit((int)err);
 }
 
-GpuSync::GpuSync(const SkGpuFenceSync* fenceSync)
+GpuSync::GpuSync(const FenceSync* fenceSync)
     : fFenceSync(fenceSync) {
     this->updateFence();
 }
@@ -306,7 +310,7 @@ GpuSync::~GpuSync() {
 }
 
 void GpuSync::syncToPreviousFrame() {
-    if (kInvalidPlatformGpuFence == fFence) {
+    if (kInvalidPlatformFence == fFence) {
         exitf(ExitErr::kSoftware, "attempted to sync with invalid fence");
     }
     if (!fFenceSync->waitFence(fFence)) {
@@ -318,7 +322,7 @@ void GpuSync::syncToPreviousFrame() {
 
 void GpuSync::updateFence() {
     fFence = fFenceSync->insertFence();
-    if (kInvalidPlatformGpuFence == fFence) {
+    if (kInvalidPlatformFence == fFence) {
         exitf(ExitErr::kUnavailable, "failed to insert fence");
     }
 }

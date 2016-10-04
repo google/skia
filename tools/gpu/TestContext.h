@@ -9,8 +9,8 @@
 #ifndef TestContext_DEFINED
 #define TestContext_DEFINED
 
+#include "FenceSync.h"
 #include "GrTypes.h"
-#include "../private/SkGpuFenceSync.h"
 #include "../private/SkTemplates.h"
 
 namespace sk_gpu_test {
@@ -25,6 +25,7 @@ public:
     virtual bool isValid() const = 0;
 
     bool fenceSyncSupport() const { return fFenceSync != nullptr; }
+    FenceSync* fenceSync() { SkASSERT(fFenceSync); return fFenceSync; }
 
     bool getMaxGpuFrameLag(int *maxFrameLag) const {
         if (!fFenceSync) {
@@ -73,13 +74,8 @@ public:
     /** Wait until all GPU work is finished. */
     virtual void finish() = 0;
 
-    /**
-     * returns the fencesync object owned by this GLTestContext
-     */
-    SkGpuFenceSync *fenceSync() { return fFenceSync; }
-
 protected:
-    SkGpuFenceSync* fFenceSync;
+    FenceSync* fFenceSync;
 
     TestContext();
 
@@ -94,7 +90,7 @@ private:
         kMaxFrameLag = 3
     };
 
-    SkPlatformGpuFence fFrameFences[kMaxFrameLag - 1];
+    PlatformFence fFrameFences[kMaxFrameLag - 1];
     int fCurrentFenceIdx;
 
     typedef SkNoncopyable INHERITED;
