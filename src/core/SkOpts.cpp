@@ -113,7 +113,30 @@ namespace SkOpts {
 
         stage_4<SK_OPTS_NS::constant_color, true>,
 
-        stage_4<SK_OPTS_NS::srcover, true>,
+        xfermode<SK_OPTS_NS::dst>,
+        xfermode<SK_OPTS_NS::dstatop>,
+        xfermode<SK_OPTS_NS::dstin>,
+        xfermode<SK_OPTS_NS::dstout>,
+        xfermode<SK_OPTS_NS::dstover>,
+        xfermode<SK_OPTS_NS::srcatop>,
+        xfermode<SK_OPTS_NS::srcin>,
+        xfermode<SK_OPTS_NS::srcout>,
+        xfermode<SK_OPTS_NS::srcover>,
+        xfermode<SK_OPTS_NS::clear>,
+        xfermode<SK_OPTS_NS::modulate>,
+        xfermode<SK_OPTS_NS::multiply>,
+        xfermode<SK_OPTS_NS::plus_>,
+        xfermode<SK_OPTS_NS::screen>,
+        xfermode<SK_OPTS_NS::xor_>,
+        xfermode<SK_OPTS_NS::colorburn,  SK_OPTS_NS::srcover>,
+        xfermode<SK_OPTS_NS::colordodge, SK_OPTS_NS::srcover>,
+        xfermode<SK_OPTS_NS::darken,     SK_OPTS_NS::srcover>,
+        xfermode<SK_OPTS_NS::difference, SK_OPTS_NS::srcover>,
+        xfermode<SK_OPTS_NS::exclusion,  SK_OPTS_NS::srcover>,
+        xfermode<SK_OPTS_NS::hardlight,  SK_OPTS_NS::srcover>,
+        xfermode<SK_OPTS_NS::lighten,    SK_OPTS_NS::srcover>,
+        xfermode<SK_OPTS_NS::overlay,    SK_OPTS_NS::srcover>,
+        xfermode<SK_OPTS_NS::softlight,  SK_OPTS_NS::srcover>,
     };
     static_assert(SK_ARRAY_COUNT(stages_4) == SkRasterPipeline::kNumStockStages, "");
 
@@ -138,7 +161,30 @@ namespace SkOpts {
 
         stage_1_3<SK_OPTS_NS::constant_color, true>,
 
-        stage_1_3<SK_OPTS_NS::srcover, true>,
+        xfermode<SK_OPTS_NS::dst>,
+        xfermode<SK_OPTS_NS::dstatop>,
+        xfermode<SK_OPTS_NS::dstin>,
+        xfermode<SK_OPTS_NS::dstout>,
+        xfermode<SK_OPTS_NS::dstover>,
+        xfermode<SK_OPTS_NS::srcatop>,
+        xfermode<SK_OPTS_NS::srcin>,
+        xfermode<SK_OPTS_NS::srcout>,
+        xfermode<SK_OPTS_NS::srcover>,
+        xfermode<SK_OPTS_NS::clear>,
+        xfermode<SK_OPTS_NS::modulate>,
+        xfermode<SK_OPTS_NS::multiply>,
+        xfermode<SK_OPTS_NS::plus_>,
+        xfermode<SK_OPTS_NS::screen>,
+        xfermode<SK_OPTS_NS::xor_>,
+        xfermode<SK_OPTS_NS::colorburn,  SK_OPTS_NS::srcover>,
+        xfermode<SK_OPTS_NS::colordodge, SK_OPTS_NS::srcover>,
+        xfermode<SK_OPTS_NS::darken,     SK_OPTS_NS::srcover>,
+        xfermode<SK_OPTS_NS::difference, SK_OPTS_NS::srcover>,
+        xfermode<SK_OPTS_NS::exclusion,  SK_OPTS_NS::srcover>,
+        xfermode<SK_OPTS_NS::hardlight,  SK_OPTS_NS::srcover>,
+        xfermode<SK_OPTS_NS::lighten,    SK_OPTS_NS::srcover>,
+        xfermode<SK_OPTS_NS::overlay,    SK_OPTS_NS::srcover>,
+        xfermode<SK_OPTS_NS::softlight,  SK_OPTS_NS::srcover>,
     };
     static_assert(SK_ARRAY_COUNT(stages_1_3) == SkRasterPipeline::kNumStockStages, "");
 
