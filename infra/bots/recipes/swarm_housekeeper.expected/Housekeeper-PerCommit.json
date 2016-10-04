@@ -37,8 +37,7 @@
   {
     "cmd": [
       "python",
-      "RECIPE_MODULE[skia::core]/resources/generate_and_upload_doxygen.py",
-      "[DEPOT_TOOLS]/gsutil.py"
+      "RECIPE_MODULE[skia::core]/resources/generate_and_upload_doxygen.py"
     ],
     "cwd": "[SLAVE_BUILD]/skia",
     "env": {
