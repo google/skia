@@ -22,24 +22,6 @@ class SkPath;
 */
 typedef SkIRect SkXRect;
 
-class GlobalAAConfig {
-private:
-    GlobalAAConfig() {}
-
-public:
-    bool fUseAnalyticAA = false;
-
-    GlobalAAConfig(const GlobalAAConfig&) = delete;
-    void operator=(const GlobalAAConfig&) = delete;
-
-    static GlobalAAConfig& getInstance() {
-        static GlobalAAConfig instance;
-        return instance;
-    }
-};
-
-class AdditiveBlitter;
-
 class SkScan {
 public:
     /*
@@ -63,7 +45,6 @@ public:
     static void AntiFillXRect(const SkXRect&, const SkRasterClip&, SkBlitter*);
     static void FillPath(const SkPath&, const SkRasterClip&, SkBlitter*);
     static void AntiFillPath(const SkPath&, const SkRasterClip&, SkBlitter*);
-    static void AAAFillPath(const SkPath&, const SkRasterClip&, SkBlitter*);
     static void FrameRect(const SkRect&, const SkPoint& strokeSize,
                           const SkRasterClip&, SkBlitter*);
     static void AntiFrameRect(const SkRect&, const SkPoint& strokeSize,
@@ -98,9 +79,6 @@ private:
                               const SkRegion*, SkBlitter*);
     static void HairLineRgn(const SkPoint[], int count, const SkRegion*, SkBlitter*);
     static void AntiHairLineRgn(const SkPoint[], int count, const SkRegion*, SkBlitter*);
-    static void AAAFillPath(const SkPath& path, const SkRegion& origClip, SkBlitter* blitter);
-    static void aaa_fill_path(const SkPath& path, const SkIRect* clipRect, AdditiveBlitter*,
-                   int start_y, int stop_y, const SkRegion& clipRgn, bool isUsingMask);
 };
 
 /** Assign an SkXRect from a SkIRect, by promoting the src rect's coordinates

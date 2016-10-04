@@ -12,7 +12,6 @@
 #include "SkTDArray.h"
 
 struct SkEdge;
-struct SkAnalyticEdge;
 class SkEdgeClipper;
 class SkPath;
 
@@ -22,11 +21,9 @@ public:
 
     // returns the number of built edges. The array of those edge pointers
     // is returned from edgeList().
-    int build(const SkPath& path, const SkIRect* clip, int shiftUp, bool clipToTheRight,
-              bool analyticAA = false);
+    int build(const SkPath& path, const SkIRect* clip, int shiftUp, bool clipToTheRight);
 
-    SkEdge** edgeList() { return (SkEdge**)fEdgeList; }
-    SkAnalyticEdge** analyticEdgeList() { return (SkAnalyticEdge**)fEdgeList; }
+    SkEdge** edgeList() { return fEdgeList; }
 
 private:
     enum Combine {
@@ -35,15 +32,11 @@ private:
         kTotal_Combine
     };
 
-    Combine CombineVertical(const SkEdge* edge, SkEdge* last);
-    Combine CombineVertical(const SkAnalyticEdge* edge, SkAnalyticEdge* last);
+    static Combine CombineVertical(const SkEdge* edge, SkEdge* last);
     Combine checkVertical(const SkEdge* edge, SkEdge** edgePtr);
-    Combine checkVertical(const SkAnalyticEdge* edge, SkAnalyticEdge** edgePtr);
-    bool vertical_line(const SkEdge* edge);
-    bool vertical_line(const SkAnalyticEdge* edge);
 
     SkChunkAlloc        fAlloc;
-    SkTDArray<void*>    fList;
+    SkTDArray<SkEdge*>  fList;
 
     /*
      *  If we're in general mode, we allcoate the pointers in fList, and this
@@ -51,10 +44,9 @@ private:
      *  empty, as we will have preallocated room for the pointers in fAlloc's
      *  block, and fEdgeList will point into that.
      */
-    void**      fEdgeList;
+    SkEdge**    fEdgeList;
 
     int         fShiftUp;
-    bool        fAnalyticAA;
 
 public:
     void addLine(const SkPoint pts[]);
