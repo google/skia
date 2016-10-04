@@ -147,12 +147,34 @@ class SK_API SkRefCnt : public SkRefCntBase {
     null in on each side of the assignment, and ensuring that ref() is called
     before unref(), in case the two pointers point to the same object.
  */
+
+#if defined(SK_BUILD_FOR_ANDROID_FRAMEWORK) || defined(SK_DEBUG)
+// This version heuristically detects data races, since those otherwise result
+// in redundant reference count decrements, which are exceedingly
+// difficult to debug.
+
+#define SkRefCnt_SafeAssign(dst, src)   \
+    do {                                \
+        typedef std::remove_reference<decltype(dst)>::type T;  \
+        T old_dst = *const_cast<T volatile *>(&dst); \
+        if (src) src->ref();            \
+        if (old_dst) old_dst->unref();          \
+        if (old_dst != *const_cast<T volatile *>(&dst)) { \
+            SkDebugf("Detected racing Skia calls at %s:%d\n", __FILE__, __LINE__); \
+        } \
+        dst = src;                      \
+    } while (0)
+
+#else /* !(SK_BUILD_FOR_ANDROID_FRAMEWORK || SK_DEBUG) */
+
 #define SkRefCnt_SafeAssign(dst, src)   \
     do {                                \
         if (src) src->ref();            \
         if (dst) dst->unref();          \
         dst = src;                      \
     } while (0)
+
+#endif
 
 
 /** Call obj->ref() and return obj. The obj must not be nullptr.
