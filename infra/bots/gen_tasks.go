@@ -11,6 +11,7 @@ package main
 import (
 	"bytes"
 	"encoding/json"
+	"flag"
 	"fmt"
 	"io/ioutil"
 	"os"
@@ -62,6 +63,9 @@ var (
 
 	// Path to the infra/bots directory.
 	infrabotsDir = ""
+
+	// Flags.
+	testing = flag.Bool("test", false, "Run in test mode: verify that the output hasn't changed.")
 )
 
 // deriveCompileTaskName returns the name of a compile task based on the given
@@ -492,7 +496,6 @@ func main() {
 	}
 
 	// Write the tasks.json file.
-	outFile := path.Join(root, specs.TASKS_CFG_FILE)
 	b, err := json.MarshalIndent(cfg, "", "  ")
 	if err != nil {
 		glog.Fatal(err)
@@ -501,8 +504,21 @@ func main() {
 	// much less readable. Replace the escape characters with the real
 	// character.
 	b = bytes.Replace(b, []byte("\\u003c"), []byte("<"), -1)
-	if err := ioutil.WriteFile(outFile, b, os.ModePerm); err != nil {
-		glog.Fatal(err)
+
+	outFile := path.Join(root, specs.TASKS_CFG_FILE)
+	if *testing {
+		// Don't write the file; read it and compare.
+		expect, err := ioutil.ReadFile(outFile)
+		if err != nil {
+			glog.Fatal(err)
+		}
+		if !bytes.Equal(expect, b) {
+			glog.Fatalf("Expected no changes, but changes were found!")
+		}
+	} else {
+		if err := ioutil.WriteFile(outFile, b, os.ModePerm); err != nil {
+			glog.Fatal(err)
+		}
 	}
 }
 

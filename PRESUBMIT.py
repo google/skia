@@ -183,6 +183,24 @@ def _RecipeSimulationTest(input_api, output_api):
         '`%s` failed:\n%s' % (' '.join(cmd), e.output)))
   return results
 
+
+def _GenTasksTest(input_api, output_api):
+  """Run gen_tasks.go test."""
+  results = []
+  if not any(f.LocalPath().startswith('infra')
+             for f in input_api.AffectedFiles()):
+    return results
+
+  gen_tasks = os.path.join('infra', 'bots', 'gen_tasks.go')
+  cmd = ['go', 'run', gen_tasks, '--test']
+  try:
+    subprocess.check_output(cmd)
+  except subprocess.CalledProcessError as e:
+    results.append(output_api.PresubmitError(
+        '`%s` failed:\n%s' % (' '.join(cmd), e.output)))
+  return results
+
+
 def _CheckGNFormatted(input_api, output_api):
   """Make sure any .gn files we're changing have been formatted."""
   results = []
@@ -234,8 +252,10 @@ def CheckChangeOnUpload(input_api, output_api):
   results = []
   results.extend(_CommonChecks(input_api, output_api))
   # Run on upload, not commit, since the presubmit bot apparently doesn't have
-  # coverage installed.
+  # coverage or Go installed.
   results.extend(_RecipeSimulationTest(input_api, output_api))
+  results.extend(_GenTasksTest(input_api, output_api))
+
   results.extend(_CheckGNFormatted(input_api, output_api))
   return results
 
