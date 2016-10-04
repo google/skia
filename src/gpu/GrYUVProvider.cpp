@@ -142,7 +142,7 @@ sk_sp<GrTexture> GrYUVProvider::refAsTexture(GrContext* ctx,
         }
     }
 
-    paint.setPorterDuffXPFactory(SkBlendMode::kSrc);
+    paint.setPorterDuffXPFactory(SkXfermode::kSrc_Mode);
     const SkRect r = SkRect::MakeIWH(yuvInfo.fSizeInfo.fSizes[SkYUVSizeInfo::kY].fWidth,
             yuvInfo.fSizeInfo.fSizes[SkYUVSizeInfo::kY].fHeight);
 

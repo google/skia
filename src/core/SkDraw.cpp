@@ -7,7 +7,6 @@
 #define __STDC_LIMIT_MACROS
 
 #include "SkDraw.h"
-#include "SkBlendModePriv.h"
 #include "SkBlitter.h"
 #include "SkCanvas.h"
 #include "SkColorPriv.h"
@@ -164,27 +163,31 @@ static BitmapXferProc ChooseBitmapXferProc(const SkPixmap& dst, const SkPaint& p
         return nullptr;
     }
 
-    SkBlendMode mode = paint.getBlendMode();
+    SkXfermode::Mode mode;
+    if (!SkXfermode::AsMode(paint.getXfermode(), &mode)) {
+        return nullptr;
+    }
+
     SkColor color = paint.getColor();
 
     // collaps modes based on color...
-    if (SkBlendMode::kSrcOver == mode) {
+    if (SkXfermode::kSrcOver_Mode == mode) {
         unsigned alpha = SkColorGetA(color);
         if (0 == alpha) {
-            mode = SkBlendMode::kDst;
+            mode = SkXfermode::kDst_Mode;
         } else if (0xFF == alpha) {
-            mode = SkBlendMode::kSrc;
+            mode = SkXfermode::kSrc_Mode;
         }
     }
 
     switch (mode) {
-        case SkBlendMode::kClear:
+        case SkXfermode::kClear_Mode:
 //            SkDebugf("--- D_Clear_BitmapXferProc\n");
             return D_Clear_BitmapXferProc;  // ignore data
-        case SkBlendMode::kDst:
+        case SkXfermode::kDst_Mode:
 //            SkDebugf("--- D_Dst_BitmapXferProc\n");
             return D_Dst_BitmapXferProc;    // ignore data
-        case SkBlendMode::kSrc: {
+        case SkXfermode::kSrc_Mode: {
             /*
                 should I worry about dithering for the lower depths?
             */
@@ -1140,7 +1143,7 @@ void SkDraw::drawPath(const SkPath& origSrcPath, const SkPaint& origPaint,
         if (SkDrawTreatAsHairline(origPaint, *matrix, &coverage)) {
             if (SK_Scalar1 == coverage) {
                 paint.writable()->setStrokeWidth(0);
-            } else if (SkBlendMode_SupportsCoverageAsAlpha(origPaint.getBlendMode())) {
+            } else if (SkXfermode::SupportsCoverageAsAlpha(origPaint.getXfermode())) {
                 U8CPU newAlpha;
 #if 0
                 newAlpha = SkToU8(SkScalarRoundToInt(coverage *

@@ -45,7 +45,7 @@ bool SkRGBAToYUV(const SkImage* image, const SkISize sizes[3], void* const plane
         }
         SkPaint paint;
         paint.setFilterQuality(kLow_SkFilterQuality);
-        paint.setBlendMode(SkBlendMode::kSrc);
+        paint.setXfermodeMode(SkXfermode::kSrc_Mode);
         int rowStartIdx = 5 * i;
         const SkScalar* row = kYUVColorSpaceInvMatrices[colorSpace] + rowStartIdx;
         paint.setColorFilter(

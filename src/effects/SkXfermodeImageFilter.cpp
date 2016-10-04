@@ -27,7 +27,7 @@
 
 class SkXfermodeImageFilter_Base : public SkImageFilter {
 public:
-    SkXfermodeImageFilter_Base(SkBlendMode mode, sk_sp<SkImageFilter> inputs[2],
+    SkXfermodeImageFilter_Base(sk_sp<SkXfermode> mode, sk_sp<SkImageFilter> inputs[2],
                                const CropRect* cropRect);
 
     SK_TO_STRING_OVERRIDE()
@@ -55,7 +55,7 @@ protected:
 #endif
 
 private:
-    SkBlendMode fMode;
+    sk_sp<SkXfermode> fMode;
 
     friend class SkXfermodeImageFilter;
 
@@ -64,7 +64,7 @@ private:
 
 ///////////////////////////////////////////////////////////////////////////////
 
-sk_sp<SkImageFilter> SkXfermodeImageFilter::Make(SkBlendMode mode,
+sk_sp<SkImageFilter> SkXfermodeImageFilter::Make(sk_sp<SkXfermode> mode,
                                                  sk_sp<SkImageFilter> background,
                                                  sk_sp<SkImageFilter> foreground,
                                                  const SkImageFilter::CropRect* cropRect) {
@@ -72,36 +72,23 @@ sk_sp<SkImageFilter> SkXfermodeImageFilter::Make(SkBlendMode mode,
     return sk_sp<SkImageFilter>(new SkXfermodeImageFilter_Base(mode, inputs, cropRect));
 }
 
-#ifdef SK_SUPPORT_LEGACY_XFERMODE_OBJECT
-sk_sp<SkImageFilter> SkXfermodeImageFilter::Make(sk_sp<SkXfermode> mode,
-                                                 sk_sp<SkImageFilter> background,
-                                                 sk_sp<SkImageFilter> foreground,
-                                                 const SkImageFilter::CropRect* cropRect) {
-    return Make(mode ? mode->blend() : SkBlendMode::kSrcOver,
-                std::move(background), std::move(foreground), cropRect);
-}
-#endif
-
-SkXfermodeImageFilter_Base::SkXfermodeImageFilter_Base(SkBlendMode mode,
-                                                       sk_sp<SkImageFilter> inputs[2],
-                                                       const CropRect* cropRect)
+SkXfermodeImageFilter_Base::SkXfermodeImageFilter_Base(sk_sp<SkXfermode> mode,
+                                             sk_sp<SkImageFilter> inputs[2],
+                                             const CropRect* cropRect)
     : INHERITED(inputs, 2, cropRect)
-    , fMode(mode)
-{}
+    , fMode(std::move(mode)) {
+}
 
 sk_sp<SkFlattenable> SkXfermodeImageFilter_Base::CreateProc(SkReadBuffer& buffer) {
     SK_IMAGEFILTER_UNFLATTEN_COMMON(common, 2);
-    uint32_t mode = buffer.read32();
-    if (!buffer.validate(mode <= (unsigned)SkBlendMode::kLastMode)) {
-        return nullptr;
-    }
-    return SkXfermodeImageFilter::Make((SkBlendMode)mode, common.getInput(0), common.getInput(1),
+    sk_sp<SkXfermode> mode(buffer.readXfermode());
+    return SkXfermodeImageFilter::Make(std::move(mode), common.getInput(0), common.getInput(1),
                                        &common.cropRect());
 }
 
 void SkXfermodeImageFilter_Base::flatten(SkWriteBuffer& buffer) const {
     this->INHERITED::flatten(buffer);
-    buffer.write32((unsigned)fMode);
+    buffer.writeFlattenable(fMode.get());
 }
 
 sk_sp<SkSpecialImage> SkXfermodeImageFilter_Base::onFilterImage(SkSpecialImage* source,
@@ -160,7 +147,7 @@ sk_sp<SkSpecialImage> SkXfermodeImageFilter_Base::onFilterImage(SkSpecialImage* 
 
     if (background) {
         SkPaint paint;
-        paint.setBlendMode(SkBlendMode::kSrc);
+        paint.setXfermodeMode(SkXfermode::kSrc_Mode);
         background->draw(canvas,
                          SkIntToScalar(backgroundOffset.fX), SkIntToScalar(backgroundOffset.fY),
                          &paint);
@@ -174,7 +161,7 @@ sk_sp<SkSpecialImage> SkXfermodeImageFilter_Base::onFilterImage(SkSpecialImage* 
 void SkXfermodeImageFilter_Base::drawForeground(SkCanvas* canvas, SkSpecialImage* img,
                                                 const SkIRect& fgBounds) const {
     SkPaint paint;
-    paint.setBlendMode(fMode);
+    paint.setXfermode(fMode);
     if (img) {
         img->draw(canvas, SkIntToScalar(fgBounds.fLeft), SkIntToScalar(fgBounds.fTop), &paint);
     }
@@ -188,7 +175,11 @@ void SkXfermodeImageFilter_Base::drawForeground(SkCanvas* canvas, SkSpecialImage
 #ifndef SK_IGNORE_TO_STRING
 void SkXfermodeImageFilter_Base::toString(SkString* str) const {
     str->appendf("SkXfermodeImageFilter: (");
-    str->appendf("blendmode: (%d)", fMode);
+    str->appendf("xfermode: (");
+    if (fMode) {
+        fMode->toString(str);
+    }
+    str->append(")");
     if (this->getInput(0)) {
         str->appendf("foreground: (");
         this->getInput(0)->toString(str);
@@ -275,7 +266,7 @@ sk_sp<SkSpecialImage> SkXfermodeImageFilter_Base::filterImageGPU(
         paint.addColorFragmentProcessor(std::move(bgFP));
     }
 
-    paint.setPorterDuffXPFactory(SkBlendMode::kSrc);
+    paint.setPorterDuffXPFactory(SkXfermode::kSrc_Mode);
 
     sk_sp<GrDrawContext> drawContext(
         context->makeDrawContext(SkBackingFit::kApprox, bounds.width(), bounds.height(),
@@ -299,9 +290,8 @@ sk_sp<SkSpecialImage> SkXfermodeImageFilter_Base::filterImageGPU(
 sk_sp<GrFragmentProcessor>
 SkXfermodeImageFilter_Base::makeFGFrag(sk_sp<GrFragmentProcessor> bgFP) const {
     // A null fMode is interpreted to mean kSrcOver_Mode (to match raster).
-    SkXfermode* xfer = SkXfermode::Peek(fMode);
-    sk_sp<SkXfermode> srcover;
-    if (!xfer) {
+    SkAutoTUnref<SkXfermode> mode(SkSafeRef(fMode.get()));
+    if (!mode) {
         // It would be awesome to use SkXfermode::Create here but it knows better
         // than us and won't return a kSrcOver_Mode SkXfermode. That means we
         // have to get one the hard way.
@@ -309,11 +299,9 @@ SkXfermodeImageFilter_Base::makeFGFrag(sk_sp<GrFragmentProcessor> bgFP) const {
         rec.fProc = SkXfermode::GetProc(SkXfermode::kSrcOver_Mode);
         SkXfermode::ModeAsCoeff(SkXfermode::kSrcOver_Mode, &rec.fSC, &rec.fDC);
 
-        srcover.reset(new SkProcCoeffXfermode(rec, SkXfermode::kSrcOver_Mode));
-        xfer = srcover.get();
-
+        mode.reset(new SkProcCoeffXfermode(rec, SkXfermode::kSrcOver_Mode));
     }
-    return xfer->makeFragmentProcessorForImageFilter(std::move(bgFP));
+    return mode->makeFragmentProcessorForImageFilter(std::move(bgFP));
 }
 
 #endif
@@ -324,8 +312,7 @@ class SkArithmeticImageFilter : public SkXfermodeImageFilter_Base {
 public:
     SkArithmeticImageFilter(float k1, float k2, float k3, float k4, bool enforcePMColor,
                             sk_sp<SkImageFilter> inputs[2], const CropRect* cropRect)
-        // need to pass a blendmode to our inherited constructor, but we ignore it
-        : SkXfermodeImageFilter_Base(SkBlendMode::kSrcOver, inputs, cropRect)
+        : SkXfermodeImageFilter_Base(nullptr, inputs, cropRect)
         , fK{ k1, k2, k3, k4 }
         , fEnforcePMColor(enforcePMColor)
     {}
@@ -360,8 +347,8 @@ sk_sp<SkFlattenable> SkArithmeticImageFilter::CreateProc(SkReadBuffer& buffer) {
     SK_IMAGEFILTER_UNFLATTEN_COMMON(common, 2);
 
     // skip the mode (srcover) our parent-class wrote
-    SkDEBUGCODE(uint32_t mode =) buffer.read32();
-    SkASSERT((unsigned)SkBlendMode::kSrcOver == mode);
+    sk_sp<SkXfermode> mode(buffer.readXfermode());
+    SkASSERT(nullptr == mode);
 
     float k[4];
     for (int i = 0; i < 4; ++i) {
@@ -488,16 +475,16 @@ sk_sp<SkImageFilter> SkXfermodeImageFilter::MakeArithmetic(float k1, float k2, f
     int mode = -1;  // illegal mode
     if (SkScalarNearlyZero(k1) && SkScalarNearlyEqual(k2, SK_Scalar1) &&
         SkScalarNearlyZero(k3) && SkScalarNearlyZero(k4)) {
-        mode = (int)SkBlendMode::kSrc;
+        mode = SkXfermode::kSrc_Mode;
     } else if (SkScalarNearlyZero(k1) && SkScalarNearlyZero(k2) &&
                SkScalarNearlyEqual(k3, SK_Scalar1) && SkScalarNearlyZero(k4)) {
-        mode = (int)SkBlendMode::kDst;
+        mode = SkXfermode::kDst_Mode;
     } else if (SkScalarNearlyZero(k1) && SkScalarNearlyZero(k2) &&
                SkScalarNearlyZero(k3) && SkScalarNearlyZero(k4)) {
-        mode = (int)SkBlendMode::kClear;
+        mode = SkXfermode::kClear_Mode;
     }
     if (mode >= 0) {
-        return SkXfermodeImageFilter::Make((SkBlendMode)mode,
+        return SkXfermodeImageFilter::Make(SkXfermode::Make((SkXfermode::Mode)mode),
                                            std::move(background), std::move(foreground), crop);
     }
 

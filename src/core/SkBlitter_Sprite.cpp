@@ -68,11 +68,14 @@ public:
         if (0xFF != paint.getAlpha()) {
             return false;
         }
-        SkBlendMode mode = paint.getBlendMode();
-        if (SkBlendMode::kSrc == mode) {
+        SkXfermode::Mode mode;
+        if (!SkXfermode::AsMode(paint.getXfermode(), &mode)) {
+            return false;
+        }
+        if (SkXfermode::kSrc_Mode == mode) {
             return true;
         }
-        if (SkBlendMode::kSrcOver == mode && src.isOpaque()) {
+        if (SkXfermode::kSrcOver_Mode == mode && src.isOpaque()) {
             return true;
         }
 
@@ -82,7 +85,7 @@ public:
             return false;
         }
 
-        return SkBlendMode::kSrcOver == mode;
+        return SkXfermode::kSrcOver_Mode == mode;
     }
 
     SkSpriteBlitter_Src_SrcOver(const SkPixmap& src)
@@ -91,11 +94,14 @@ public:
     void setup(const SkPixmap& dst, int left, int top, const SkPaint& paint) override {
         SkASSERT(Supports(dst, fSource, paint));
         this->INHERITED::setup(dst, left, top, paint);
-        SkBlendMode mode = paint.getBlendMode();
+        SkXfermode::Mode mode;
+        if (!SkXfermode::AsMode(paint.getXfermode(), &mode)) {
+            SkFAIL("Should never happen.");
+        }
 
-        SkASSERT(mode == SkBlendMode::kSrcOver || mode == SkBlendMode::kSrc);
+        SkASSERT(mode == SkXfermode::kSrcOver_Mode || mode == SkXfermode::kSrc_Mode);
 
-        if (mode == SkBlendMode::kSrcOver && !fSource.isOpaque()) {
+        if (mode == SkXfermode::kSrcOver_Mode && !fSource.isOpaque()) {
             fUseMemcpy = false;
         }
     }

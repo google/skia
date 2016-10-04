@@ -351,7 +351,7 @@ DEF_TEST(Image_RetainSnapshot, reporter) {
     }
 
     SkPaint paint;
-    paint.setBlendMode(SkBlendMode::kSrc);
+    paint.setXfermodeMode(SkXfermode::kSrc_Mode);
     paint.setColor(SK_ColorRED);
 
     surface->getCanvas()->drawRect(SkRect::MakeXYWH(1, 1, 1, 1), paint);
