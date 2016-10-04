@@ -113,7 +113,30 @@ namespace SkOpts {
 
         stage_4<SK_OPTS_NS::constant_color, true>,
 
-        stage_4<SK_OPTS_NS::srcover, true>,
+        reinterpret_cast<SkRasterPipeline::Fn>(xfermode<SK_OPTS_NS::dst>),
+        reinterpret_cast<SkRasterPipeline::Fn>(xfermode<SK_OPTS_NS::dstatop>),
+        reinterpret_cast<SkRasterPipeline::Fn>(xfermode<SK_OPTS_NS::dstin>),
+        reinterpret_cast<SkRasterPipeline::Fn>(xfermode<SK_OPTS_NS::dstout>),
+        reinterpret_cast<SkRasterPipeline::Fn>(xfermode<SK_OPTS_NS::dstover>),
+        reinterpret_cast<SkRasterPipeline::Fn>(xfermode<SK_OPTS_NS::srcatop>),
+        reinterpret_cast<SkRasterPipeline::Fn>(xfermode<SK_OPTS_NS::srcin>),
+        reinterpret_cast<SkRasterPipeline::Fn>(xfermode<SK_OPTS_NS::srcout>),
+        reinterpret_cast<SkRasterPipeline::Fn>(xfermode<SK_OPTS_NS::srcover>),
+        reinterpret_cast<SkRasterPipeline::Fn>(xfermode<SK_OPTS_NS::clear>),
+        reinterpret_cast<SkRasterPipeline::Fn>(xfermode<SK_OPTS_NS::modulate>),
+        reinterpret_cast<SkRasterPipeline::Fn>(xfermode<SK_OPTS_NS::multiply>),
+        reinterpret_cast<SkRasterPipeline::Fn>(xfermode<SK_OPTS_NS::plus_>),
+        reinterpret_cast<SkRasterPipeline::Fn>(xfermode<SK_OPTS_NS::screen>),
+        reinterpret_cast<SkRasterPipeline::Fn>(xfermode<SK_OPTS_NS::xor_>),
+        reinterpret_cast<SkRasterPipeline::Fn>(xfermode<SK_OPTS_NS::colorburn,  SK_OPTS_NS::srcover>),
+        reinterpret_cast<SkRasterPipeline::Fn>(xfermode<SK_OPTS_NS::colordodge, SK_OPTS_NS::srcover>),
+        reinterpret_cast<SkRasterPipeline::Fn>(xfermode<SK_OPTS_NS::darken,     SK_OPTS_NS::srcover>),
+        reinterpret_cast<SkRasterPipeline::Fn>(xfermode<SK_OPTS_NS::difference, SK_OPTS_NS::srcover>),
+        reinterpret_cast<SkRasterPipeline::Fn>(xfermode<SK_OPTS_NS::exclusion,  SK_OPTS_NS::srcover>),
+        reinterpret_cast<SkRasterPipeline::Fn>(xfermode<SK_OPTS_NS::hardlight,  SK_OPTS_NS::srcover>),
+        reinterpret_cast<SkRasterPipeline::Fn>(xfermode<SK_OPTS_NS::lighten,    SK_OPTS_NS::srcover>),
+        reinterpret_cast<SkRasterPipeline::Fn>(xfermode<SK_OPTS_NS::overlay,    SK_OPTS_NS::srcover>),
+        reinterpret_cast<SkRasterPipeline::Fn>(xfermode<SK_OPTS_NS::softlight,  SK_OPTS_NS::srcover>),
     };
     static_assert(SK_ARRAY_COUNT(stages_4) == SkRasterPipeline::kNumStockStages, "");
 
@@ -138,7 +161,30 @@ namespace SkOpts {
 
         stage_1_3<SK_OPTS_NS::constant_color, true>,
 
-        stage_1_3<SK_OPTS_NS::srcover, true>,
+        reinterpret_cast<SkRasterPipeline::Fn>(xfermode<SK_OPTS_NS::dst>),
+        reinterpret_cast<SkRasterPipeline::Fn>(xfermode<SK_OPTS_NS::dstatop>),
+        reinterpret_cast<SkRasterPipeline::Fn>(xfermode<SK_OPTS_NS::dstin>),
+        reinterpret_cast<SkRasterPipeline::Fn>(xfermode<SK_OPTS_NS::dstout>),
+        reinterpret_cast<SkRasterPipeline::Fn>(xfermode<SK_OPTS_NS::dstover>),
+        reinterpret_cast<SkRasterPipeline::Fn>(xfermode<SK_OPTS_NS::srcatop>),
+        reinterpret_cast<SkRasterPipeline::Fn>(xfermode<SK_OPTS_NS::srcin>),
+        reinterpret_cast<SkRasterPipeline::Fn>(xfermode<SK_OPTS_NS::srcout>),
+        reinterpret_cast<SkRasterPipeline::Fn>(xfermode<SK_OPTS_NS::srcover>),
+        reinterpret_cast<SkRasterPipeline::Fn>(xfermode<SK_OPTS_NS::clear>),
+        reinterpret_cast<SkRasterPipeline::Fn>(xfermode<SK_OPTS_NS::modulate>),
+        reinterpret_cast<SkRasterPipeline::Fn>(xfermode<SK_OPTS_NS::multiply>),
+        reinterpret_cast<SkRasterPipeline::Fn>(xfermode<SK_OPTS_NS::plus_>),
+        reinterpret_cast<SkRasterPipeline::Fn>(xfermode<SK_OPTS_NS::screen>),
+        reinterpret_cast<SkRasterPipeline::Fn>(xfermode<SK_OPTS_NS::xor_>),
+        reinterpret_cast<SkRasterPipeline::Fn>(xfermode<SK_OPTS_NS::colorburn,  SK_OPTS_NS::srcover>),
+        reinterpret_cast<SkRasterPipeline::Fn>(xfermode<SK_OPTS_NS::colordodge, SK_OPTS_NS::srcover>),
+        reinterpret_cast<SkRasterPipeline::Fn>(xfermode<SK_OPTS_NS::darken,     SK_OPTS_NS::srcover>),
+        reinterpret_cast<SkRasterPipeline::Fn>(xfermode<SK_OPTS_NS::difference, SK_OPTS_NS::srcover>),
+        reinterpret_cast<SkRasterPipeline::Fn>(xfermode<SK_OPTS_NS::exclusion,  SK_OPTS_NS::srcover>),
+        reinterpret_cast<SkRasterPipeline::Fn>(xfermode<SK_OPTS_NS::hardlight,  SK_OPTS_NS::srcover>),
+        reinterpret_cast<SkRasterPipeline::Fn>(xfermode<SK_OPTS_NS::lighten,    SK_OPTS_NS::srcover>),
+        reinterpret_cast<SkRasterPipeline::Fn>(xfermode<SK_OPTS_NS::overlay,    SK_OPTS_NS::srcover>),
+        reinterpret_cast<SkRasterPipeline::Fn>(xfermode<SK_OPTS_NS::softlight,  SK_OPTS_NS::srcover>),
     };
     static_assert(SK_ARRAY_COUNT(stages_1_3) == SkRasterPipeline::kNumStockStages, "");
 

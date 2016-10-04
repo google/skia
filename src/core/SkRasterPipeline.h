@@ -83,11 +83,6 @@ public:
     void run(size_t x, size_t n);
     void run(size_t n) { this->run(0, n); }
 
-    // body() will only be called with tail=0, indicating it always works on a full 4 pixels.
-    // tail() will only be called with tail=1..3 to handle the jagged end of n%4 pixels.
-    void append(Fn body, Fn tail, const void* ctx = nullptr);
-    void append(Fn fn, const void* ctx = nullptr) { this->append(fn, fn, ctx); }
-
     enum StockStage {
         store_565,
         store_srgb,
@@ -109,7 +104,30 @@ public:
 
         constant_color,
 
+        dst,
+        dstatop,
+        dstin,
+        dstout,
+        dstover,
+        srcatop,
+        srcin,
+        srcout,
         srcover,
+        clear,
+        modulate,
+        multiply,
+        plus_,
+        screen,
+        xor_,
+        colorburn,
+        colordodge,
+        darken,
+        difference,
+        exclusion,
+        hardlight,
+        lighten,
+        overlay,
+        softlight,
 
         kNumStockStages,
     };
@@ -121,6 +139,8 @@ public:
 
 private:
     using Stages = SkSTArray<10, Stage, /*MEM_COPY=*/true>;
+
+    void append(Fn body, Fn tail, const void*);
 
     // This no-op default makes fBodyStart and fTailStart unconditionally safe to call,
     // and is always the last stage's fNext as a sort of safety net to make sure even a
