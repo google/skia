@@ -1276,7 +1276,7 @@ int dm_main() {
     setup_crash_handler();
 
     if (FLAGS_analyticAA) {
-        GlobalAAConfig::getInstance().fUseAnalyticAA = true;
+        gSkUseAnalyticAA = true;
     }
 
     if (FLAGS_verbose) {
