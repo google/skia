@@ -33,6 +33,7 @@
 #include "SkTypeface.h"
 #include "SkWindow.h"
 #include "sk_tool_utils.h"
+#include "SkScan.h"
 
 #include "SkReadBuffer.h"
 #include "SkStream.h"
@@ -1799,6 +1800,11 @@ bool SampleWindow::onHandleChar(SkUnichar uni) {
             if (this->sendAnimatePulse()) {
                 this->inval(nullptr);
             }
+            break;
+        case 'A':
+            GlobalAAConfig::getInstance().fUseAnalyticAA =
+                    !GlobalAAConfig::getInstance().fUseAnalyticAA;
+            this->inval(nullptr);
             break;
         case 'B':
             post_event_to_sink(new SkEvent("PictFileView::toggleBBox"), curr_view(this));

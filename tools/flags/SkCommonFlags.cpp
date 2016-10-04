@@ -65,6 +65,8 @@ DEFINE_string(properties, "",
               "Space-separated key/value pairs to add to JSON identifying this run.");
 DEFINE_bool2(pre_log, p, false, "Log before running each test. May be incomprehensible when threading");
 
+DEFINE_bool(analyticAA, false, "Analytic Anati-Alias");
+
 bool CollectImages(SkCommandLineFlags::StringArray images, SkTArray<SkString>* output) {
     SkASSERT(output);
 

@@ -71,17 +71,22 @@ void SkBlitter::blitRect(int x, int y, int width, int height) {
     }
 }
 
-/// Default implementation doesn't check for any easy optimizations
-/// such as alpha == 0 or 255; also uses blitV(), which some subclasses
+/// Default implementation doesn't check for easy optimizations
+/// such as alpha == 255; also uses blitV(), which some subclasses
 /// may not support.
 void SkBlitter::blitAntiRect(int x, int y, int width, int height,
                              SkAlpha leftAlpha, SkAlpha rightAlpha) {
-    this->blitV(x++, y, height, leftAlpha);
+    if (leftAlpha > 0) { // we may send in x = -1 with leftAlpha = 0
+        this->blitV(x, y, height, leftAlpha);
+    }
+    x++;
     if (width > 0) {
         this->blitRect(x, y, width, height);
         x += width;
     }
-    this->blitV(x, y, height, rightAlpha);
+    if (rightAlpha > 0) {
+        this->blitV(x, y, height, rightAlpha);
+    }
 }
 
 //////////////////////////////////////////////////////////////////////////////
