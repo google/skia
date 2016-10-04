@@ -92,7 +92,9 @@ namespace SkOpts {
 
     // TODO: might be nice to only create one instance of tail-insensitive stages.
 
-    SkRasterPipeline::Fn stages_4[] = {
+    void (SK_VECTORCALL *stages_4[])(SkRasterPipeline::Stage*, size_t, size_t,
+                                    Sk4f, Sk4f, Sk4f, Sk4f,
+                                    Sk4f, Sk4f, Sk4f, Sk4f) = {
         stage_4<SK_OPTS_NS::store_565 , false>,
         stage_4<SK_OPTS_NS::store_srgb, false>,
         stage_4<SK_OPTS_NS::store_f16 , false>,
@@ -113,11 +115,36 @@ namespace SkOpts {
 
         stage_4<SK_OPTS_NS::constant_color, true>,
 
-        stage_4<SK_OPTS_NS::srcover, true>,
+        xfermode<SK_OPTS_NS::dst>,
+        xfermode<SK_OPTS_NS::dstatop>,
+        xfermode<SK_OPTS_NS::dstin>,
+        xfermode<SK_OPTS_NS::dstout>,
+        xfermode<SK_OPTS_NS::dstover>,
+        xfermode<SK_OPTS_NS::srcatop>,
+        xfermode<SK_OPTS_NS::srcin>,
+        xfermode<SK_OPTS_NS::srcout>,
+        xfermode<SK_OPTS_NS::srcover>,
+        xfermode<SK_OPTS_NS::clear>,
+        xfermode<SK_OPTS_NS::modulate>,
+        xfermode<SK_OPTS_NS::multiply>,
+        xfermode<SK_OPTS_NS::plus_>,
+        xfermode<SK_OPTS_NS::screen>,
+        xfermode<SK_OPTS_NS::xor_>,
+        xfermode<SK_OPTS_NS::colorburn,  SK_OPTS_NS::srcover>,
+        xfermode<SK_OPTS_NS::colordodge, SK_OPTS_NS::srcover>,
+        xfermode<SK_OPTS_NS::darken,     SK_OPTS_NS::srcover>,
+        xfermode<SK_OPTS_NS::difference, SK_OPTS_NS::srcover>,
+        xfermode<SK_OPTS_NS::exclusion,  SK_OPTS_NS::srcover>,
+        xfermode<SK_OPTS_NS::hardlight,  SK_OPTS_NS::srcover>,
+        xfermode<SK_OPTS_NS::lighten,    SK_OPTS_NS::srcover>,
+        xfermode<SK_OPTS_NS::overlay,    SK_OPTS_NS::srcover>,
+        xfermode<SK_OPTS_NS::softlight,  SK_OPTS_NS::srcover>,
     };
     static_assert(SK_ARRAY_COUNT(stages_4) == SkRasterPipeline::kNumStockStages, "");
 
-    SkRasterPipeline::Fn stages_1_3[] = {
+    void (SK_VECTORCALL *stages_1_3[])(SkRasterPipeline::Stage*, size_t, size_t,
+                                       Sk4f, Sk4f, Sk4f, Sk4f,
+                                       Sk4f, Sk4f, Sk4f, Sk4f) = {
         stage_1_3<SK_OPTS_NS::store_565 , false>,
         stage_1_3<SK_OPTS_NS::store_srgb, false>,
         stage_1_3<SK_OPTS_NS::store_f16 , false>,
@@ -138,7 +165,30 @@ namespace SkOpts {
 
         stage_1_3<SK_OPTS_NS::constant_color, true>,
 
-        stage_1_3<SK_OPTS_NS::srcover, true>,
+        xfermode<SK_OPTS_NS::dst>,
+        xfermode<SK_OPTS_NS::dstatop>,
+        xfermode<SK_OPTS_NS::dstin>,
+        xfermode<SK_OPTS_NS::dstout>,
+        xfermode<SK_OPTS_NS::dstover>,
+        xfermode<SK_OPTS_NS::srcatop>,
+        xfermode<SK_OPTS_NS::srcin>,
+        xfermode<SK_OPTS_NS::srcout>,
+        xfermode<SK_OPTS_NS::srcover>,
+        xfermode<SK_OPTS_NS::clear>,
+        xfermode<SK_OPTS_NS::modulate>,
+        xfermode<SK_OPTS_NS::multiply>,
+        xfermode<SK_OPTS_NS::plus_>,
+        xfermode<SK_OPTS_NS::screen>,
+        xfermode<SK_OPTS_NS::xor_>,
+        xfermode<SK_OPTS_NS::colorburn,  SK_OPTS_NS::srcover>,
+        xfermode<SK_OPTS_NS::colordodge, SK_OPTS_NS::srcover>,
+        xfermode<SK_OPTS_NS::darken,     SK_OPTS_NS::srcover>,
+        xfermode<SK_OPTS_NS::difference, SK_OPTS_NS::srcover>,
+        xfermode<SK_OPTS_NS::exclusion,  SK_OPTS_NS::srcover>,
+        xfermode<SK_OPTS_NS::hardlight,  SK_OPTS_NS::srcover>,
+        xfermode<SK_OPTS_NS::lighten,    SK_OPTS_NS::srcover>,
+        xfermode<SK_OPTS_NS::overlay,    SK_OPTS_NS::srcover>,
+        xfermode<SK_OPTS_NS::softlight,  SK_OPTS_NS::srcover>,
     };
     static_assert(SK_ARRAY_COUNT(stages_1_3) == SkRasterPipeline::kNumStockStages, "");
 

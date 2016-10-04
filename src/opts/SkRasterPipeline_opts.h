@@ -48,6 +48,23 @@ static inline void SK_VECTORCALL stage_1_3(SkRasterPipeline::Stage* st, size_t x
     }
 }
 
+using Xfermode_Sk4f = Sk4f(const Sk4f& s, const Sk4f& sa, const Sk4f& d, const Sk4f& da);
+
+#define XFERMODE_Sk4f(name) static SK_ALWAYS_INLINE Sk4f name(const Sk4f& s, const Sk4f& sa, \
+                                                              const Sk4f& d, const Sk4f& da)
+
+// Most xfermodes apply the same logic kernel to each channel, some varying alpha.
+template <Xfermode_Sk4f rgb, Xfermode_Sk4f alpha = rgb>
+static inline void SK_VECTORCALL xfermode(SkRasterPipeline::Stage* st, size_t x, size_t tail,
+                                          Sk4f  r, Sk4f  g, Sk4f  b, Sk4f  a,
+                                          Sk4f dr, Sk4f dg, Sk4f db, Sk4f da) {
+    r = rgb  (r,a,dr,da);
+    g = rgb  (g,a,dg,da);
+    b = rgb  (b,a,db,da);
+    a = alpha(a,a,da,da);
+    st->next(x,tail, r,g,b,a, dr,dg,db,da);
+}
+
 namespace SK_OPTS_NS {
 
     // Clamp colors into [0,1] premul (e.g. just before storing back to memory).
@@ -62,6 +79,8 @@ namespace SK_OPTS_NS {
         g = Sk4f::Min(g, a);
         b = Sk4f::Min(b, a);
     }
+
+    static Sk4f inv(const Sk4f& x) { return 1.0f - x; }
 
     static Sk4f lerp(const Sk4f& from, const Sk4f& to, const Sk4f& cov) {
         return from + (to-from)*cov;
@@ -107,14 +126,6 @@ namespace SK_OPTS_NS {
         g = color->g();
         b = color->b();
         a = color->a();
-    }
-
-    // The default transfer mode is srcover, s' = s + d*(1-sa).
-    KERNEL_Sk4f(srcover) {
-        r += dr*(1.0f - a);
-        g += dg*(1.0f - a);
-        b += db*(1.0f - a);
-        a += da*(1.0f - a);
     }
 
     // s' = d(1-c) + sc, for a constant c.
@@ -270,6 +281,62 @@ namespace SK_OPTS_NS {
                          |       Sk4f_round(255.0f * a) << SK_A32_SHIFT), (int*)ptr);
     }
 
+    XFERMODE_Sk4f(clear)    { return 0.0f; }
+  //XFERMODE_Sk4f(src)      { return s; }   // This would be a no-op stage, so we just omit it.
+    XFERMODE_Sk4f(dst)      { return d; }
+
+    XFERMODE_Sk4f(srcatop)  { return s*da + d*inv(sa); }
+    XFERMODE_Sk4f(srcin)    { return s * da; }
+    XFERMODE_Sk4f(srcout)   { return s * inv(da); }
+    XFERMODE_Sk4f(srcover)  { return s + inv(sa)*d; }
+    XFERMODE_Sk4f(dstatop)  { return srcatop(d,da,s,sa); }
+    XFERMODE_Sk4f(dstin)    { return srcin  (d,da,s,sa); }
+    XFERMODE_Sk4f(dstout)   { return srcout (d,da,s,sa); }
+    XFERMODE_Sk4f(dstover)  { return srcover(d,da,s,sa); }
+
+    XFERMODE_Sk4f(modulate) { return s*d; }
+    XFERMODE_Sk4f(multiply) { return s*inv(da) + d*inv(sa) + s*d; }
+    XFERMODE_Sk4f(plus_)    { return s + d; }
+    XFERMODE_Sk4f(screen)   { return s + d - s*d; }
+    XFERMODE_Sk4f(xor_)     { return s*inv(da) + d*inv(sa); }
+
+    XFERMODE_Sk4f(colorburn) {
+        return (d == da  ).thenElse(d + s*inv(da),
+               (s == 0.0f).thenElse(s + d*inv(sa),
+                                    sa*(da - Sk4f::Min(da, (da-d)*sa/s)) + s*inv(da) + d*inv(sa)));
+    }
+    XFERMODE_Sk4f(colordodge) {
+        return (d == 0.0f).thenElse(d + s*inv(da),
+               (s == sa  ).thenElse(s + d*inv(sa),
+                                    sa*Sk4f::Min(da, (d*sa)/(sa - s)) + s*inv(da) + d*inv(sa)));
+    }
+    XFERMODE_Sk4f(darken)     { return s + d - Sk4f::Max(s*da, d*sa); }
+    XFERMODE_Sk4f(difference) { return s + d - 2.0f*Sk4f::Min(s*da,d*sa); }
+    XFERMODE_Sk4f(exclusion)  { return s + d - 2.0f*s*d; }
+    XFERMODE_Sk4f(hardlight) {
+        return s*inv(da) + d*inv(sa)
+             + (2.0f*s <= sa).thenElse(2.0f*s*d, sa*da - 2.0f*(da-d)*(sa-s));
+    }
+    XFERMODE_Sk4f(lighten) { return s + d - Sk4f::Min(s*da, d*sa); }
+    XFERMODE_Sk4f(overlay) { return hardlight(d,da,s,sa); }
+    XFERMODE_Sk4f(softlight) {
+        Sk4f m  = (da > 0.0f).thenElse(d / da, 0.0f),
+             s2 = 2.0f*s,
+             m4 = 4.0f*m;
+
+        // The logic forks three ways:
+        //    1. dark src?
+        //    2. light src, dark dst?
+        //    3. light src, light dst?
+        Sk4f darkSrc = d*(sa + (s2 - sa)*(1.0f - m)),     // Used in case 1.
+             darkDst = (m4*m4 + m4)*(m - 1.0f) + 7.0f*m,  // Used in case 2.
+             liteDst = m.rsqrt().invert() - m,            // Used in case 3.
+             liteSrc = d*sa + da*(s2 - sa) * (4.0f*d <= da).thenElse(darkDst, liteDst);  // 2 or 3?
+        return s*inv(da) + d*inv(sa) + (s2 <= sa).thenElse(darkSrc, liteSrc);  // 1 or (2 or 3)?
+    }
 }
+
+#undef KERNEL_Sk4f
+#undef XFERMODE_Sk4f
 
 #endif//SkRasterPipeline_opts_DEFINED
