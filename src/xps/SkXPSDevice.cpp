@@ -1220,7 +1220,7 @@ void SkXPSDevice::internalDrawRect(const SkDraw& d,
                                    const SkPaint& paint) {
     //Exit early if there is nothing to draw.
     if (d.fRC->isEmpty() ||
-        (paint.getAlpha() == 0 && paint.getXfermode() == nullptr)) {
+        (paint.getAlpha() == 0 && paint.isSrcOver())) {
         return;
     }
 
@@ -1536,7 +1536,7 @@ void SkXPSDevice::drawPath(const SkDraw& d,
 
     // nothing to draw
     if (d.fRC->isEmpty() ||
-        (paint->getAlpha() == 0 && paint->getXfermode() == nullptr)) {
+        (paint->getAlpha() == 0 && paint->isSrcOver())) {
         return;
     }
 
