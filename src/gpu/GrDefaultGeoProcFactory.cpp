@@ -222,7 +222,8 @@ private:
             fInColor = &this->addVertexAttrib("inColor", kVec4ub_GrVertexAttribType);
         }
         if (hasExplicitLocalCoords) {
-            fInLocalCoords = &this->addVertexAttrib("inLocalCoord", kVec2f_GrVertexAttribType);
+            fInLocalCoords = &this->addVertexAttrib("inLocalCoord", kVec2f_GrVertexAttribType,
+                                                    kHigh_GrSLPrecision);
             this->setHasExplicitLocalCoords();
         }
         if (hasCoverage) {
