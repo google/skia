@@ -156,26 +156,35 @@ class SkDebugClipVisitor : public SkCanvas::ClipVisitor {
 public:
     SkDebugClipVisitor(SkCanvas* canvas) : fCanvas(canvas) {}
 
-    void clipRect(const SkRect& r, SkCanvas::ClipOp, bool doAA) override {
+    void clipRect(const SkRect& r, const SkMatrix& m, SkCanvas::ClipOp, bool doAA) override {
         SkPaint p;
         p.setColor(SK_ColorRED);
         p.setStyle(SkPaint::kStroke_Style);
         p.setAntiAlias(doAA);
+        fCanvas->save();
+        fCanvas->concat(m);
         fCanvas->drawRect(r, p);
+        fCanvas->restore();
     }
-    void clipRRect(const SkRRect& rr, SkCanvas::ClipOp, bool doAA) override {
+    void clipRRect(const SkRRect& rr, const SkMatrix& m, SkCanvas::ClipOp, bool doAA) override {
         SkPaint p;
         p.setColor(SK_ColorGREEN);
         p.setStyle(SkPaint::kStroke_Style);
         p.setAntiAlias(doAA);
+        fCanvas->save();
+        fCanvas->concat(m);
         fCanvas->drawRRect(rr, p);
+        fCanvas->restore();
     }
-    void clipPath(const SkPath& path, SkCanvas::ClipOp, bool doAA) override {
+    void clipPath(const SkPath& path, const SkMatrix& m, SkCanvas::ClipOp, bool doAA) override {
         SkPaint p;
         p.setColor(SK_ColorBLUE);
         p.setStyle(SkPaint::kStroke_Style);
         p.setAntiAlias(doAA);
+        fCanvas->save();
+        fCanvas->concat(m);
         fCanvas->drawPath(path, p);
+        fCanvas->restore();
     }
 
 protected:

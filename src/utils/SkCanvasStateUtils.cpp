@@ -142,15 +142,15 @@ public:
     bool failed() { return fFailed; }
 
     // ClipVisitor
-    void clipRect(const SkRect& rect, SkCanvas::ClipOp op, bool antialias) override {
+    void clipRect(const SkRect&, const SkMatrix&, SkCanvas::ClipOp, bool antialias) override {
         fFailed |= antialias;
     }
 
-    void clipRRect(const SkRRect& rrect, SkCanvas::ClipOp op, bool antialias) override {
+    void clipRRect(const SkRRect&, const SkMatrix&, SkCanvas::ClipOp, bool antialias) override {
         fFailed |= antialias;
     }
 
-    void clipPath(const SkPath&, SkCanvas::ClipOp, bool antialias) override {
+    void clipPath(const SkPath&, const SkMatrix&, SkCanvas::ClipOp, bool antialias) override {
         fFailed |= antialias;
     }
 
