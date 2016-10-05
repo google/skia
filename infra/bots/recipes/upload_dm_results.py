@@ -17,7 +17,7 @@ DEPS = [
 ]
 
 
-import time
+import calendar
 
 
 DM_JSON = 'dm.json'
@@ -92,7 +92,7 @@ def RunSteps(api):
       str(now.hour ).zfill(2),
       revision,
       builder_name,
-      str(int(time.mktime(now.utctimetuple())))])
+      str(int(calendar.timegm(now.utctimetuple())))])
 
   # Trybot results are further siloed by issue/patchset.
   if builder_name.endswith('-Trybot'):
