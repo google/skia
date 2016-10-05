@@ -525,7 +525,6 @@ void SkDeferredCanvas::onDrawPatch(const SkPoint cubics[12], const SkColor color
 }
 
 void SkDeferredCanvas::onDrawAnnotation(const SkRect& rect, const char key[], SkData* data) {
-    this->flush_all();
     fCanvas->drawAnnotation(rect, key, data);
 }
 
