@@ -17,9 +17,6 @@ class GrProcOptInfo;
 class GrPorterDuffXPFactory : public GrXPFactory {
 public:
     static sk_sp<GrXPFactory> Make(SkXfermode::Mode mode);
-    static sk_sp<GrXPFactory> Make(SkBlendMode mode) {
-        return Make((SkXfermode::Mode)mode);
-    }
 
     void getInvariantBlendedColor(const GrProcOptInfo& colorPOI,
                                   GrXPFactory::InvariantBlendedColor*) const override;

@@ -127,7 +127,7 @@ DEF_SIMPLE_GM(rotate_imagefilter, canvas, 500, 500) {
     sk_sp<SkImageFilter> filters[] = {
         nullptr,
         SkBlurImageFilter::Make(6, 0, nullptr),
-        SkXfermodeImageFilter::Make(SkBlendMode::kSrcOver, nullptr),
+        SkXfermodeImageFilter::Make(SkXfermode::Make(SkXfermode::kSrcOver_Mode), nullptr),
     };
 
     for (auto& filter : filters) {

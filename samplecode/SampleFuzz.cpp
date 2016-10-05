@@ -153,15 +153,15 @@ static void do_fuzz(SkCanvas* canvas) {
       break;
 
       case 2: {
-          SkBlendMode mode;
+          SkXfermode::Mode mode;
           switch (R(3)) {
-            case 0: mode = SkBlendMode::kSrc; break;
-            case 1: mode = SkBlendMode::kXor; break;
+            case 0: mode = SkXfermode::kSrc_Mode; break;
+            case 1: mode = SkXfermode::kXor_Mode; break;
             case 2:
             default:  // silence warning
-              mode = SkBlendMode::kSrcOver; break;
+              mode = SkXfermode::kSrcOver_Mode; break;
           }
-          paint.setBlendMode(mode);
+          paint.setXfermodeMode(mode);
       }
       break;
 
