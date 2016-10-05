@@ -294,6 +294,7 @@ typedef SkNx<8,  uint16_t> Sk8h;
 typedef SkNx<16, uint16_t> Sk16h;
 
 typedef SkNx<4,  int32_t> Sk4i;
+typedef SkNx<8,  int32_t> Sk8i;
 typedef SkNx<4, uint32_t> Sk4u;
 
 // Include platform specific specializations if available.
