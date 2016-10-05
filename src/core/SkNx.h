@@ -275,6 +275,11 @@ SI SkNx<1,Dst> SkNx_cast(const SkNx<1,Src>& v) {
     return static_cast<Dst>(v.fVal);
 }
 
+template <int N, typename T>
+SI SkNx<N,T> SkNx_fma(const SkNx<N,T>& f, const SkNx<N,T>& m, const SkNx<N,T>& a) {
+    return f*m+a;
+}
+
 typedef SkNx<2,     float> Sk2f;
 typedef SkNx<4,     float> Sk4f;
 typedef SkNx<8,     float> Sk8f;
@@ -294,6 +299,7 @@ typedef SkNx<8,  uint16_t> Sk8h;
 typedef SkNx<16, uint16_t> Sk16h;
 
 typedef SkNx<4,  int32_t> Sk4i;
+typedef SkNx<8,  int32_t> Sk8i;
 typedef SkNx<4, uint32_t> Sk4u;
 
 // Include platform specific specializations if available.
@@ -303,7 +309,7 @@ typedef SkNx<4, uint32_t> Sk4u;
     #include "../opts/SkNx_neon.h"
 #else
 
-SI Sk4i Sk4f_round(const Sk4f& x) {
+SI Sk4i SkNx_round(const Sk4f& x) {
     return { (int) lrintf (x[0]),
              (int) lrintf (x[1]),
              (int) lrintf (x[2]),

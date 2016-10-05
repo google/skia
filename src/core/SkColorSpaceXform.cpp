@@ -843,9 +843,9 @@ static inline void store_2dot2(void* dst, const uint32_t* src,
 
     Sk4i da = Sk4i::Load(src) & 0xFF000000;
 
-    Sk4i rgba = (Sk4f_round(dr) << kRShift)
-              | (Sk4f_round(dg) << kGShift)
-              | (Sk4f_round(db) << kBShift)
+    Sk4i rgba = (SkNx_round(dr) << kRShift)
+              | (SkNx_round(dg) << kGShift)
+              | (SkNx_round(db) << kBShift)
               | (da                       );
     rgba.store(dst);
 }
@@ -857,7 +857,7 @@ static inline void store_2dot2_1(void* dst, const uint32_t* src,
     rgba = sk_clamp_0_255(linear_to_2dot2(rgba));
 
     uint32_t tmp;
-    SkNx_cast<uint8_t>(Sk4f_round(rgba)).store(&tmp);
+    SkNx_cast<uint8_t>(SkNx_round(rgba)).store(&tmp);
     tmp = (*src & 0xFF000000) | (tmp & 0x00FFFFFF);
     if (kBGRA_Order == kOrder) {
         tmp = SkSwizzle_RB(tmp);
@@ -878,9 +878,9 @@ static inline void store_linear(void* dst, const uint32_t* src,
 
     Sk4i da = Sk4i::Load(src) & 0xFF000000;
 
-    Sk4i rgba = (Sk4f_round(dr) << kRShift)
-              | (Sk4f_round(dg) << kGShift)
-              | (Sk4f_round(db) << kBShift)
+    Sk4i rgba = (SkNx_round(dr) << kRShift)
+              | (SkNx_round(dg) << kGShift)
+              | (SkNx_round(db) << kBShift)
               | (da                       );
     rgba.store(dst);
 }
@@ -892,7 +892,7 @@ static inline void store_linear_1(void* dst, const uint32_t* src,
     rgba = sk_clamp_0_255(255.0f * rgba);
 
     uint32_t tmp;
-    SkNx_cast<uint8_t>(Sk4f_round(rgba)).store(&tmp);
+    SkNx_cast<uint8_t>(SkNx_round(rgba)).store(&tmp);
     tmp = (*src & 0xFF000000) | (tmp & 0x00FFFFFF);
     if (kBGRA_Order == kOrder) {
         tmp = SkSwizzle_RB(tmp);
@@ -964,9 +964,9 @@ static inline void store_generic(void* dst, const uint32_t* src,
     dg = Sk4f::Min(Sk4f::Max(1023.0f * dg, 0.0f), 1023.0f);
     db = Sk4f::Min(Sk4f::Max(1023.0f * db, 0.0f), 1023.0f);
 
-    Sk4i ir = Sk4f_round(dr);
-    Sk4i ig = Sk4f_round(dg);
-    Sk4i ib = Sk4f_round(db);
+    Sk4i ir = SkNx_round(dr);
+    Sk4i ig = SkNx_round(dg);
+    Sk4i ib = SkNx_round(db);
 
     Sk4i da = Sk4i::Load(src) & 0xFF000000;
 
@@ -997,7 +997,7 @@ static inline void store_generic_1(void* dst, const uint32_t* src,
     set_rb_shifts(kOrder, &kRShift, &kBShift);
     rgba = Sk4f::Min(Sk4f::Max(1023.0f * rgba, 0.0f), 1023.0f);
 
-    Sk4i indices = Sk4f_round(rgba);
+    Sk4i indices = SkNx_round(rgba);
 
     *((uint32_t*) dst) = dstTables[0][indices[0]] << kRShift
                        | dstTables[1][indices[1]] << kGShift
