@@ -36,9 +36,9 @@ static inline void SK_VECTORCALL stage_4(SkRasterPipeline::Stage* st, size_t x, 
 }
 
 template <Kernel_Sk4f kernel, bool kCallNext>
-static inline void SK_VECTORCALL stage_1_3(SkRasterPipeline::Stage* st, size_t x, size_t tail,
-                                           Sk4f  r, Sk4f  g, Sk4f  b, Sk4f  a,
-                                           Sk4f dr, Sk4f dg, Sk4f db, Sk4f da) {
+static inline void SK_VECTORCALL stage_3(SkRasterPipeline::Stage* st, size_t x, size_t tail,
+                                         Sk4f  r, Sk4f  g, Sk4f  b, Sk4f  a,
+                                         Sk4f dr, Sk4f dg, Sk4f db, Sk4f da) {
 #if defined(__clang__)
     __builtin_assume(tail > 0);  // This flourish lets Clang compile away any tail==0 code.
 #endif
@@ -81,6 +81,34 @@ static inline void SK_VECTORCALL stage_1_3(SkRasterPipeline::Stage* st, size_t x
                                                const Sk4f& d, const Sk4f& da)
 
 namespace SK_OPTS_NS {
+
+    static inline void run4(size_t x, size_t n,
+                            SkRasterPipeline::Fn bodyStart, SkRasterPipeline::Stage* body,
+                            SkRasterPipeline::Fn tailStart, SkRasterPipeline::Stage* tail) {
+        Sk4f v;  // Fastest to start uninitialized.
+        while (n >= 4) {
+            ((SkRasterPipeline::Fn4)bodyStart)(body, x,0, v,v,v,v, v,v,v,v);
+            x += 4;
+            n -= 4;
+        }
+        if (n > 0) {
+            ((SkRasterPipeline::Fn4)tailStart)(tail, x,n, v,v,v,v, v,v,v,v);
+        }
+    }
+
+    static inline void run8(size_t x, size_t n,
+                            SkRasterPipeline::Fn bodyStart, SkRasterPipeline::Stage* body,
+                            SkRasterPipeline::Fn tailStart, SkRasterPipeline::Stage* tail) {
+        Sk8f v;  // Fastest to start uninitialized.
+        while (n >= 8) {
+            ((SkRasterPipeline::Fn8)bodyStart)(body, x,0, v,v,v,v, v,v,v,v);
+            x += 8;
+            n -= 8;
+        }
+        if (n > 0) {
+            ((SkRasterPipeline::Fn8)tailStart)(tail, x,n, v,v,v,v, v,v,v,v);
+        }
+    }
 
     // Clamp colors into [0,1] premul (e.g. just before storing back to memory).
     static void clamp_01_premul(Sk4f& r, Sk4f& g, Sk4f& b, Sk4f& a) {
@@ -133,6 +161,7 @@ namespace SK_OPTS_NS {
                                   | Sk4f_round(b * SK_B16_MASK) << SK_B16_SHIFT);
     }
 
+    KERNEL_Sk4f(just_return) { }
 
     // The default shader produces a constant color (from the SkPaint).
     KERNEL_Sk4f(constant_color) {
