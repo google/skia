@@ -87,7 +87,7 @@ sk_sp<SkSpecialImage> SkTileImageFilter::onFilterImage(SkSpecialImage* source,
         SkASSERT(canvas);
 
         SkPaint paint;
-        paint.setXfermodeMode(SkXfermode::kSrc_Mode);
+        paint.setBlendMode(SkBlendMode::kSrc);
 
         input->draw(canvas, 
                     SkIntToScalar(inputOffset.x()), SkIntToScalar(inputOffset.y()),
@@ -107,7 +107,7 @@ sk_sp<SkSpecialImage> SkTileImageFilter::onFilterImage(SkSpecialImage* source,
     SkASSERT(canvas);
 
     SkPaint paint;
-    paint.setXfermodeMode(SkXfermode::kSrc_Mode);
+    paint.setBlendMode(SkBlendMode::kSrc);
     paint.setShader(subset->makeShader(SkShader::kRepeat_TileMode, SkShader::kRepeat_TileMode));
     canvas->translate(-dstRect.fLeft, -dstRect.fTop);
     canvas->drawRect(dstRect, paint);

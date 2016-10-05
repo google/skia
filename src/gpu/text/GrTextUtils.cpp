@@ -547,8 +547,7 @@ void GrTextUtils::DrawPosTextAsPath(GrContext* context,
 }
 
 bool GrTextUtils::ShouldDisableLCD(const SkPaint& paint) {
-    return !SkXfermode::AsMode(paint.getXfermode(), nullptr) ||
-           paint.getMaskFilter() ||
+    return paint.getMaskFilter() ||
            paint.getRasterizer() ||
            paint.getPathEffect() ||
            paint.isFakeBoldText() ||

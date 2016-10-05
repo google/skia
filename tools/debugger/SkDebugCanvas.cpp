@@ -42,7 +42,8 @@ protected:
         if (*paint) {
             if (nullptr != fOverdrawXfermode.get()) {
                 paint->writable()->setAntiAlias(false);
-                paint->writable()->setXfermode(fOverdrawXfermode);
+                // TODO: replace overdraw mode with something else
+//                paint->writable()->setXfermode(fOverdrawXfermode);
             }
 
             if (fOverrideFilterQuality) {

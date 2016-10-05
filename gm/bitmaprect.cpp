@@ -201,7 +201,7 @@ protected:
     void onDraw(SkCanvas* canvas) override {
         SkPaint paint;
         paint.setAlpha(128);
-        paint.setXfermode(SkXfermode::Make(SkXfermode::kXor_Mode));
+        paint.setBlendMode(SkBlendMode::kXor);
 
         SkRect srcR1 = { 0.0f, 0.0f, 4096.0f, 2040.0f };
         SkRect dstR1 = { 10.1f, 10.1f, 629.9f, 400.9f };
