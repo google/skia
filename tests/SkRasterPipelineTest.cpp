@@ -15,7 +15,7 @@ DEF_TEST(SkRasterPipeline, r) {
 
     Sk4h red  = SkFloatToHalf_finite_ftz({ 1.0f, 0.0f, 0.0f, 1.0f }),
          blue = SkFloatToHalf_finite_ftz({ 0.0f, 0.0f, 0.5f, 0.5f }),
-         result;
+         result = { 1, 2, 3, 4 };
 
     SkRasterPipeline p;
     p.append(SkRasterPipeline::load_s_f16, &blue);
