@@ -1766,9 +1766,9 @@ private:
 class SkCanvasClipVisitor {
 public:
     virtual ~SkCanvasClipVisitor();
-    virtual void clipRect(const SkRect&, SkCanvas::ClipOp, bool antialias) = 0;
-    virtual void clipRRect(const SkRRect&, SkCanvas::ClipOp, bool antialias) = 0;
-    virtual void clipPath(const SkPath&, SkCanvas::ClipOp, bool antialias) = 0;
+    virtual void clipRect(const SkRect&, const SkMatrix&, SkCanvas::ClipOp, bool antialias) = 0;
+    virtual void clipRRect(const SkRRect&, const SkMatrix&, SkCanvas::ClipOp, bool antialias) = 0;
+    virtual void clipPath(const SkPath&, const SkMatrix&, SkCanvas::ClipOp, bool antialias) = 0;
 };
 
 #endif

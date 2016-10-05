@@ -80,10 +80,25 @@ private:
 class ReplayClipStackVisitor final : public SkCanvasClipVisitor {
 public:
     typedef SkCanvas::ClipOp Op;
+
     ReplayClipStackVisitor(SkCanvas* canvas) : fCanvas(canvas) {}
-    void clipRect(const SkRect& r, Op op, bool aa) override { fCanvas->clipRect(r, op, aa); }
-    void clipRRect(const SkRRect& rr, Op op, bool aa) override { fCanvas->clipRRect(rr, op, aa); }
-    void clipPath(const SkPath&, Op, bool) override { SkFAIL("Not implemented"); }
+
+    void clipRect(const SkRect& r, const SkMatrix& m, Op op, bool aa) override {
+        fCanvas->save();
+        fCanvas->concat(m);
+        fCanvas->clipRect(r, op, aa);
+        fCanvas->restore();
+    }
+
+    void clipRRect(const SkRRect& rr, const SkMatrix& m, Op op, bool aa) override {
+        fCanvas->save();
+        fCanvas->concat(m);
+        fCanvas->clipRRect(rr, op, aa);
+        fCanvas->restore();
+    }
+
+    void clipPath(const SkPath&, const SkMatrix&, Op, bool) override { SkFAIL("Not implemented"); }
+
 private:
     SkCanvas* const fCanvas;
 };
