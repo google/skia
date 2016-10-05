@@ -1,0 +1,44 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "825001f1_34a0deed",
+        "filename": "src/utils/SkDeferredCanvas.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 48,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2016-10-05T21:31:04Z",
+      "side": 1,
+      "message": "Would feel much cozier if this were\n\n  SkDeferredCanvas::SkDeferredCanvas(SkCanvas* canvas) { this-\u003ereset(canvas); }",
+      "revId": "ef895f9b79ccbde270b33b2be2f953a23d1191e4",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "825001f1_549d62b8",
+        "filename": "src/utils/SkDeferredCanvas.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 62,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2016-10-05T21:31:04Z",
+      "side": 1,
+      "message": "This fCanvas is not yet the correct SkCanvas*.  fCanvas \u003d canvas needs to come first.",
+      "range": {
+        "startLine": 62,
+        "startChar": 52,
+        "endLine": 62,
+        "endChar": 59
+      },
+      "revId": "ef895f9b79ccbde270b33b2be2f953a23d1191e4",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
