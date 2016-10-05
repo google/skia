@@ -122,12 +122,64 @@
   {
     "cmd": [
       "git",
-      "cl",
-      "presubmit",
-      "--force"
+      "checkout",
+      "-b",
+      "tmp_00000000-0000-0000-0000-000000000000"
     ],
     "cwd": "[CUSTOM_/_B_WORK]/skia",
+    "name": "create git branch"
+  },
+  {
+    "cmd": [
+      "git",
+      "status"
+    ],
+    "cwd": "[CUSTOM_/_B_WORK]/skia",
+    "name": "git status"
+  },
+  {
+    "cmd": [
+      "git",
+      "cl",
+      "presubmit",
+      "--force",
+      "-v",
+      "-v"
+    ],
+    "cwd": "[CUSTOM_/_B_WORK]/skia",
+    "env": {
+      "PATH": "RECIPE_PACKAGE_REPO[depot_tools]:%(PATH)s"
+    },
     "name": "presubmit"
+  },
+  {
+    "cmd": [
+      "git",
+      "reset",
+      "--hard",
+      "origin/master"
+    ],
+    "cwd": "[CUSTOM_/_B_WORK]/skia",
+    "name": "git reset"
+  },
+  {
+    "cmd": [
+      "git",
+      "checkout",
+      "origin/master"
+    ],
+    "cwd": "[CUSTOM_/_B_WORK]/skia",
+    "name": "checkout origin/master"
+  },
+  {
+    "cmd": [
+      "git",
+      "branch",
+      "-D",
+      "tmp_00000000-0000-0000-0000-000000000000"
+    ],
+    "cwd": "[CUSTOM_/_B_WORK]/skia",
+    "name": "delete git branch"
   },
   {
     "name": "$result",

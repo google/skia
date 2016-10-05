@@ -8,8 +8,11 @@
 
 DEPS = [
   'core',
+  'depot_tools/depot_tools',
+  'recipe_engine/path',
   'recipe_engine/properties',
   'recipe_engine/step',
+  'recipe_engine/uuid',
   'vars',
 ]
 
@@ -17,9 +20,34 @@ DEPS = [
 def RunSteps(api):
   api.vars.setup()
   api.core.checkout_steps()
-  api.step('presubmit',
-           cmd=['git', 'cl', 'presubmit', '--force'],
+
+  # git-cl wants us to be on a branch.
+  branch = 'tmp_%s' % api.uuid.random()
+  api.step('create git branch',
+           cmd=['git', 'checkout', '-b', branch],
            cwd=api.vars.skia_dir)
+  try:
+    api.step('git status',
+             cmd=['git', 'status'],
+             cwd=api.vars.skia_dir)
+
+    depot_tools_path = api.depot_tools.package_repo_resource()
+    env = {'PATH': api.path.pathsep.join([str(depot_tools_path), '%(PATH)s'])}
+    api.step('presubmit',
+             cmd=['git', 'cl', 'presubmit', '--force', '-v', '-v'],
+             cwd=api.vars.skia_dir,
+             env=env)
+  finally:
+    api.step('git reset',
+             cmd=['git', 'reset', '--hard', 'origin/master'],
+             cwd=api.vars.skia_dir)
+    api.step('checkout origin/master',
+             cmd=['git', 'checkout', 'origin/master'],
+             cwd=api.vars.skia_dir)
+    api.step('delete git branch',
+             cmd=['git', 'branch', '-D', branch],
+             cwd=api.vars.skia_dir)
+             
 
 
 def GenTests(api):
