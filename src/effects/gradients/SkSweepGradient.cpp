@@ -50,7 +50,7 @@ size_t SkSweepGradient::onContextSize(const ContextRec&) const {
 }
 
 SkShader::Context* SkSweepGradient::onCreateContext(const ContextRec& rec, void* storage) const {
-    return new (storage) SweepGradientContext(*this, rec);
+    return CheckedCreateContext<SweepGradientContext>(storage, *this, rec);
 }
 
 SkSweepGradient::SweepGradientContext::SweepGradientContext(

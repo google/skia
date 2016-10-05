@@ -397,6 +397,10 @@ SkGradientShaderBase::GradientShaderBaseContext::GradientShaderBaseContext(
     }
 }
 
+bool SkGradientShaderBase::GradientShaderBaseContext::isValid() const {
+    return fDstToIndex.isFinite();
+}
+
 SkGradientShaderBase::GradientShaderCache::GradientShaderCache(
         U8CPU alpha, bool dither, const SkGradientShaderBase& shader)
     : fCacheAlpha(alpha)

@@ -82,8 +82,8 @@ size_t SkLinearGradient::onContextSize(const ContextRec& rec) const {
 
 SkShader::Context* SkLinearGradient::onCreateContext(const ContextRec& rec, void* storage) const {
     return use_4f_context(rec, fGradFlags)
-        ? static_cast<SkShader::Context*>(new (storage) LinearGradient4fContext(*this, rec))
-        : static_cast<SkShader::Context*>(new (storage) LinearGradientContext(*this, rec));
+        ? CheckedCreateContext<LinearGradient4fContext>(storage, *this, rec)
+        : CheckedCreateContext<  LinearGradientContext>(storage, *this, rec);
 }
 
 // This swizzles SkColor into the same component order as SkPMColor, but does not actually

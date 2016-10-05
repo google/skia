@@ -115,7 +115,6 @@ public:
         SkAutoMalloc fDynamicStorage;
     };
 
-public:
     SkGradientShaderBase(const Descriptor& desc, const SkMatrix& ptsToUnit);
     virtual ~SkGradientShaderBase();
 
@@ -158,6 +157,8 @@ public:
         GradientShaderBaseContext(const SkGradientShaderBase& shader, const ContextRec&);
 
         uint32_t getFlags() const override { return fFlags; }
+
+        bool isValid() const;
 
     protected:
         SkMatrix    fDstToIndex;
@@ -232,6 +233,16 @@ protected:
     static void FlipGradientColors(SkColor* colorDst, Rec* recDst,
                                    SkColor* colorSrc, Rec* recSrc,
                                    int count);
+
+    template <typename T, typename... Args>
+    static Context* CheckedCreateContext(void* storage, Args&&... args) {
+        auto* ctx = new (storage) T(std::forward<Args>(args)...);
+        if (!ctx->isValid()) {
+            ctx->~T();
+            return nullptr;
+        }
+        return ctx;
+    }
 
 private:
     enum {

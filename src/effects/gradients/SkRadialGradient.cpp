@@ -44,7 +44,7 @@ size_t SkRadialGradient::onContextSize(const ContextRec&) const {
 }
 
 SkShader::Context* SkRadialGradient::onCreateContext(const ContextRec& rec, void* storage) const {
-    return new (storage) RadialGradientContext(*this, rec);
+    return CheckedCreateContext<RadialGradientContext>(storage, *this, rec);
 }
 
 SkRadialGradient::RadialGradientContext::RadialGradientContext(

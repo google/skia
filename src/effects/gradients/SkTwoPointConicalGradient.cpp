@@ -216,7 +216,7 @@ size_t SkTwoPointConicalGradient::onContextSize(const ContextRec&) const {
 
 SkShader::Context* SkTwoPointConicalGradient::onCreateContext(const ContextRec& rec,
                                                               void* storage) const {
-    return new (storage) TwoPointConicalGradientContext(*this, rec);
+    return CheckedCreateContext<TwoPointConicalGradientContext>(storage, *this, rec);
 }
 
 SkTwoPointConicalGradient::TwoPointConicalGradientContext::TwoPointConicalGradientContext(
