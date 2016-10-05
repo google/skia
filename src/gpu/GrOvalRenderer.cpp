@@ -166,6 +166,7 @@ private:
             fragBuilder->codeAppend("float d = length(circleEdge.xy);");
             fragBuilder->codeAppend("float distanceToOuterEdge = circleEdge.z * (1.0 - d);");
             fragBuilder->codeAppend("float edgeAlpha = clamp(distanceToOuterEdge, 0.0, 1.0);");
+
             if (cgp.fStroke) {
                 fragBuilder->codeAppend("float distanceToInnerEdge = circleEdge.z * (d - circleEdge.w);");
                 fragBuilder->codeAppend("float innerAlpha = clamp(distanceToInnerEdge, 0.0, 1.0);");
@@ -174,9 +175,12 @@ private:
 
             if (args.fDistanceVectorName) {
                 const char* innerEdgeDistance = cgp.fStroke ? "distanceToInnerEdge" : "0.0";
-                fragBuilder->codeAppend ("if (d == 0.0) {"); // if on the center of the circle
-                fragBuilder->codeAppendf("    %s = vec4(1.0, 0.0, distanceToOuterEdge, "
-                                         "%s);", // no normalize
+                // in the interior of the circle (which for rrects can be a rect)
+                fragBuilder->codeAppend ("if ((circleEdge.z * d) <= 0.0) {");
+                fragBuilder->codeAppend ("    float rectDist = abs(max(circleEdge.x, circleEdge.y));");
+                fragBuilder->codeAppend ("    distanceToOuterEdge = (rectDist + 1.0) * abs(circleEdge.z);");
+                fragBuilder->codeAppend ("    edgeAlpha = 1.0;");
+                fragBuilder->codeAppendf("    %s = vec4(1.0, 0.0, distanceToOuterEdge, %s);",
                                          args.fDistanceVectorName, innerEdgeDistance);
                 fragBuilder->codeAppend ("} else {");
                 fragBuilder->codeAppendf("    %s = vec4(normalize(circleEdge.xy), distanceToOuterEdge, %s);",
@@ -1350,6 +1354,10 @@ private:
 //   |_|________|_|
 //
 // We don't draw the center quad from the fill rect in this case.
+//
+// For filled rrects that need to provide a distance vector we resuse the overstroke
+// geometry but make the inner rect degenerate (either a point or a horizontal or
+// vertical line).
 
 static const uint16_t gOverstrokeRRectIndices[] = {
     // overstroke quads
@@ -1391,12 +1399,14 @@ enum RRectType {
     kFill_RRectType,
     kStroke_RRectType,
     kOverstroke_RRectType,
+    kFillWithDist_RRectType
 };
 
 static int rrect_type_to_vert_count(RRectType type) {
     static const int kTypeToVertCount[] = {
         kVertsPerStandardRRect,
         kVertsPerStandardRRect,
+        kVertsPerOverstrokeRRect,
         kVertsPerOverstrokeRRect,
     };
 
@@ -1408,6 +1418,7 @@ static int rrect_type_to_index_count(RRectType type) {
         kIndicesPerFillRRect,
         kIndicesPerStrokeRRect,
         kIndicesPerOverstrokeRRect,
+        kIndicesPerOverstrokeRRect,
     };
 
     return kTypeToIndexCount[type];
@@ -1417,6 +1428,7 @@ static const uint16_t* rrect_type_to_indices(RRectType type) {
     static const uint16_t* kTypeToIndices[] = {
         gStandardRRectIndices,
         gStandardRRectIndices,
+        gOverstrokeRRectIndices,
         gOverstrokeRRectIndices,
     };
 
@@ -1431,8 +1443,9 @@ public:
 
     // A devStrokeWidth <= 0 indicates a fill only. If devStrokeWidth > 0 then strokeOnly indicates
     // whether the rrect is only stroked or stroked and filled.
-    RRectCircleRendererBatch(GrColor color, const SkMatrix& viewMatrix, const SkRect& devRect,
-                             float devRadius, float devStrokeWidth, bool strokeOnly)
+    RRectCircleRendererBatch(GrColor color, bool needsDistance, const SkMatrix& viewMatrix,
+                             const SkRect& devRect, float devRadius,
+                             float devStrokeWidth, bool strokeOnly)
             : INHERITED(ClassID())
             , fViewMatrixIfUsingLocalCoords(viewMatrix) {
         SkRect bounds = devRect;
@@ -1461,6 +1474,9 @@ public:
             }
             outerRadius += halfWidth;
             bounds.outset(halfWidth, halfWidth);
+        }
+        if (kFill_RRectType == type && needsDistance) {
+            type = kFillWithDist_RRectType;
         }
 
         // The radii are outset for two reasons. First, it allows the shader to simply perform
@@ -1577,7 +1593,8 @@ private:
             SkScalar yOuterRadii[4] = {-1, 0, 0, 1 };
             // The inner radius in the vertex data must be specified in normalized space.
             // For fills, specifying -1/outerRadius guarantees an alpha of 1.0 at the inner radius.
-            SkScalar innerRadius = args.fType != kFill_RRectType
+            SkScalar innerRadius = args.fType != kFill_RRectType &&
+                                   args.fType != kFillWithDist_RRectType
                                    ? args.fInnerRadius / args.fOuterRadius
                                    : -1.0f / args.fOuterRadius;
             for (int i = 0; i < 4; ++i) {
@@ -1681,6 +1698,88 @@ private:
                 verts->fOffset = SkPoint::Make(maxOffset, 0);
                 verts->fOuterRadius = overstrokeOuterRadius;
                 verts->fInnerRadius = 0;
+                verts++;
+            }
+
+            if (kFillWithDist_RRectType == args.fType) {
+                SkScalar xDepth, yDepth;
+                SkScalar xs[2], ys[2];
+
+                if (SkScalarNearlyEqual(bounds.width(), bounds.height())) {
+                    xs[0] = xs[1] = bounds.centerX();
+                    ys[0] = ys[1] = bounds.centerY();
+                    xDepth = -(bounds.width() / outerRadius - 2);
+                    yDepth = -(bounds.height() / outerRadius - 2);
+                } else if (bounds.width() > bounds.height()) {
+                    xs[0] = bounds.fLeft + bounds.height()/2.0f;
+                    xs[1] = bounds.fRight - bounds.height()/2.0f;
+                    ys[0] = ys[1] = bounds.centerY();
+                    xDepth = yDepth = -(bounds.height() / outerRadius - 2);
+                } else {
+                    xs[0] = xs[1] = bounds.centerX();
+                    ys[0] = bounds.fTop + bounds.width() / 2.0f;
+                    ys[1] = bounds.fBottom - bounds.width()/2.0f;
+                    xDepth = yDepth = -(bounds.width() / outerRadius - 2);
+                }
+
+                // TL
+                verts->fPos = SkPoint::Make(bounds.fLeft + outerRadius, yCoords[1]);
+                verts->fColor = color;
+                verts->fOffset = SkPoint::Make(0, 0);
+                verts->fOuterRadius = -outerRadius;
+                verts->fInnerRadius = 0.0f;
+                verts++;
+
+                // TR
+                verts->fPos = SkPoint::Make(bounds.fRight - outerRadius, yCoords[1]);
+                verts->fColor = color;
+                verts->fOffset = SkPoint::Make(0, 0);
+                verts->fOuterRadius = -outerRadius;
+                verts->fInnerRadius = 0.0f;
+                verts++;
+
+                verts->fPos = SkPoint::Make(xs[0], ys[0]);
+                verts->fColor = color;
+                verts->fOffset = SkPoint::Make(xDepth, yDepth);
+                verts->fOuterRadius = -outerRadius;
+                verts->fInnerRadius = 0.0f;
+                verts++;
+
+                verts->fPos = SkPoint::Make(xs[1], ys[0]);
+                verts->fColor = color;
+                verts->fOffset = SkPoint::Make(xDepth, yDepth);
+                verts->fOuterRadius = -outerRadius;
+                verts->fInnerRadius = 0.0f;
+                verts++;
+
+                verts->fPos = SkPoint::Make(xs[0], ys[1]);
+                verts->fColor = color;
+                verts->fOffset = SkPoint::Make(xDepth, yDepth);
+                verts->fOuterRadius = -outerRadius;
+                verts->fInnerRadius = 0.0f;
+                verts++;
+
+                verts->fPos = SkPoint::Make(xs[1], ys[1]);
+                verts->fColor = color;
+                verts->fOffset = SkPoint::Make(xDepth, yDepth);
+                verts->fOuterRadius = -outerRadius;
+                verts->fInnerRadius = 0.0f;
+                verts++;
+
+                // BL
+                verts->fPos = SkPoint::Make(bounds.fLeft + outerRadius, yCoords[2]);
+                verts->fColor = color;
+                verts->fOffset = SkPoint::Make(0, 0);
+                verts->fOuterRadius = -outerRadius;
+                verts->fInnerRadius = 0.0f;
+                verts++;
+
+                // BR
+                verts->fPos = SkPoint::Make(bounds.fRight - outerRadius, yCoords[2]);
+                verts->fColor = color;
+                verts->fOffset = SkPoint::Make(0, 0);
+                verts->fOuterRadius = -outerRadius;
+                verts->fInnerRadius = 0.0f;
                 verts++;
             }
 
@@ -1971,6 +2070,7 @@ private:
 };
 
 static GrDrawBatch* create_rrect_batch(GrColor color,
+                                       bool needsDistance,
                                        const SkMatrix& viewMatrix,
                                        const SkRRect& rrect,
                                        const SkStrokeRec& stroke) {
@@ -2031,8 +2131,8 @@ static GrDrawBatch* create_rrect_batch(GrColor color,
 
     // if the corners are circles, use the circle renderer
     if (isCircular) {
-        return new RRectCircleRendererBatch(color, viewMatrix, bounds, xRadius, scaledStroke.fX,
-                                            isStrokeOnly);
+        return new RRectCircleRendererBatch(color, needsDistance, viewMatrix, bounds, xRadius,
+                                            scaledStroke.fX, isStrokeOnly);
     // otherwise we use the ellipse renderer
     } else {
         return RRectEllipseRendererBatch::Create(color, viewMatrix, bounds, xRadius, yRadius,
@@ -2042,6 +2142,7 @@ static GrDrawBatch* create_rrect_batch(GrColor color,
 }
 
 GrDrawBatch* GrOvalRenderer::CreateRRectBatch(GrColor color,
+                                              bool needsDistance,
                                               const SkMatrix& viewMatrix,
                                               const SkRRect& rrect,
                                               const SkStrokeRec& stroke,
@@ -2054,7 +2155,7 @@ GrDrawBatch* GrOvalRenderer::CreateRRectBatch(GrColor color,
         return nullptr;
     }
 
-    return create_rrect_batch(color, viewMatrix, rrect, stroke);
+    return create_rrect_batch(color, needsDistance, viewMatrix, rrect, stroke);
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -2165,7 +2266,9 @@ DRAW_BATCH_TEST_DEFINE(RRectBatch) {
     SkMatrix viewMatrix = GrTest::TestMatrixRectStaysRect(random);
     GrColor color = GrRandomColor(random);
     const SkRRect& rrect = GrTest::TestRRectSimple(random);
-    return create_rrect_batch(color, viewMatrix, rrect, GrTest::TestStrokeRec(random));
+    bool needsDistance = random->nextBool();
+    return create_rrect_batch(color, needsDistance, viewMatrix, rrect,
+                              GrTest::TestStrokeRec(random));
 }
 
 #endif
