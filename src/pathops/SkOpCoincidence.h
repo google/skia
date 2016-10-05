@@ -74,7 +74,6 @@ public:
     SkOpPtT* oppPtTStartWritable() const { return const_cast<SkOpPtT*>(fOppPtTStart); }
     SkOpPtT* oppPtTEndWritable() const { return const_cast<SkOpPtT*>(fOppPtTEnd); }
     bool ordered() const;
-    int spanCount() const;
 
     void set(SkCoincidentSpans* next, const SkOpPtT* coinPtTStart, const SkOpPtT* coinPtTEnd,
             const SkOpPtT* oppPtTStart, const SkOpPtT* oppPtTEnd);
@@ -123,10 +122,6 @@ public:
 
     void setNext(SkCoincidentSpans* next) { fNext = next; }
 
-    bool startEquals(const SkOpSpanBase* outer, const SkOpSpanBase* over) const {
-        return fCoinPtTStart->span() == over && fOppPtTStart->span() == outer;
-    }
-
 private:
     SkCoincidentSpans* fNext;
     const SkOpPtT* fCoinPtTStart;
@@ -155,8 +150,7 @@ public:
     bool addEndMovedSpans(DEBUG_COIN_DECLARE_ONLY_PARAMS());
     bool addExpanded(DEBUG_COIN_DECLARE_ONLY_PARAMS());
     bool addMissing(bool* added  DEBUG_COIN_DECLARE_PARAMS());
-    bool addUncommon();
-    bool apply(DEBUG_COIN_DECLARE_ONLY_PARAMS());
+    void apply(DEBUG_COIN_DECLARE_ONLY_PARAMS());
     bool contains(const SkOpPtT* coinPtTStart, const SkOpPtT* coinPtTEnd,
                   const SkOpPtT* oppPtTStart, const SkOpPtT* oppPtTEnd) const;
     void correctEnds(DEBUG_COIN_DECLARE_ONLY_PARAMS());
@@ -203,7 +197,6 @@ public:
     }
 
 #if DEBUG_COIN
-    void debugRemoveCollapsed(SkPathOpsDebug::GlitchLog* ) const;
     void debugRelease(SkPathOpsDebug::GlitchLog* , const SkCoincidentSpans* ,
                       const SkCoincidentSpans* ) const;
     void debugRelease(SkPathOpsDebug::GlitchLog* , const SkOpSegment* ) const;
@@ -216,11 +209,10 @@ public:
 
     void debugValidate() const;
     void dump() const;
-    bool edge(const SkOpPtT* , bool* start) const;
     bool expand(DEBUG_COIN_DECLARE_ONLY_PARAMS());
     bool extend(const SkOpPtT* coinPtTStart, const SkOpPtT* coinPtTEnd, const SkOpPtT* oppPtTStart,
                 const SkOpPtT* oppPtTEnd);
-    bool findOverlaps(SkOpCoincidence*  DEBUG_COIN_DECLARE_PARAMS()) const;
+    void findOverlaps(SkOpCoincidence*  DEBUG_COIN_DECLARE_PARAMS()) const;
     void fixUp(SkOpPtT* deleted, const SkOpPtT* kept);
 
     SkOpGlobalState* globalState() {
@@ -235,7 +227,7 @@ public:
         return !fHead && !fTop;
     }
 
-    bool mark(DEBUG_COIN_DECLARE_ONLY_PARAMS());
+    void mark(DEBUG_COIN_DECLARE_ONLY_PARAMS());
     void markCollapsed(SkOpPtT* );
 
     static bool Ordered(const SkOpPtT* coinPtTStart, const SkOpPtT* oppPtTStart) {
@@ -256,13 +248,6 @@ private:
     bool addEndMovedSpans(const SkOpSpan* base, const SkOpSpanBase* testSpan);
     bool addEndMovedSpans(const SkOpPtT* ptT);
 
-    bool addIfMissing(const SkCoincidentSpans* outer, SkOpPtT* over1s, SkOpPtT* over1e);
-
-    bool addIfMissing(const SkCoincidentSpans* outer, const SkOpPtT* over1s,
-                      const SkOpPtT* over1e) {
-        return addIfMissing(outer, const_cast<SkOpPtT*>(over1s), const_cast<SkOpPtT*>(over1e));
-    }
-
     bool addIfMissing(const SkOpPtT* over1s, const SkOpPtT* over2s,
                       double tStart, double tEnd, SkOpSegment* coinSeg, SkOpSegment* oppSeg,
                       bool* added
@@ -272,8 +257,6 @@ private:
     bool addOverlap(const SkOpSegment* seg1, const SkOpSegment* seg1o,
                     const SkOpSegment* seg2, const SkOpSegment* seg2o,
                     const SkOpPtT* overS, const SkOpPtT* overE);
-    bool alreadyAdded(const SkCoincidentSpans* check, const SkCoincidentSpans* outer,
-                      const SkOpPtT* over1s, const SkOpPtT* over1e) const;
     bool checkOverlap(SkCoincidentSpans* check,
                       const SkOpSegment* coinSeg, const SkOpSegment* oppSeg,
                       double coinTs, double coinTe, double oppTs, double oppTe,
@@ -303,8 +286,6 @@ private:
     bool release(SkCoincidentSpans* coin, SkCoincidentSpans* );
     void releaseDeleted(SkCoincidentSpans* );
     void restoreHead();
-    bool testForCoincidence(const SkCoincidentSpans* outer, const SkOpPtT* testS,
-                            const SkOpPtT* testE) const;
     // return coinPtT->segment()->t mapped from overS->fT <= t <= overE->fT
     static double TRange(const SkOpPtT* overS, double t, const SkOpSegment* coinPtT
                          SkDEBUGPARAMS(const SkOpPtT* overE));

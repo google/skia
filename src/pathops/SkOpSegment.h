@@ -107,7 +107,6 @@ public:
     }
 
     void calcAngles();
-    bool collapsed() const;
     bool collapsed(double startT, double endT) const;
     static void ComputeOneSum(const SkOpAngle* baseAngle, SkOpAngle* nextAngle,
                               SkOpAngle::IncludeType );
@@ -186,8 +185,9 @@ public:
     }
 #endif
 
-    void release(const SkOpSpan* );
+#if DEBUG_ANGLE
     double distSq(double t, const SkOpAngle* opp) const;
+#endif
 
     bool done() const {
         SkOPASSERT(fDoneCount <= fCount);
@@ -331,15 +331,10 @@ public:
         return ptsDisjoint(span.fT, span.fPt, t, pt);
     }
 
-    bool ptsDisjoint(const SkOpSpanBase* span, const SkOpSpanBase* test) const {
-        SkASSERT(this == span->segment());
-        SkASSERT(this == test->segment());
-        return ptsDisjoint(span->t(), span->pt(), test->t(), test->pt());
-    }
-
     bool ptsDisjoint(double t1, const SkPoint& pt1, double t2, const SkPoint& pt2) const;
 
     void rayCheck(const SkOpRayHit& base, SkOpRayDir dir, SkOpRayHit** hits, SkChunkAlloc*);
+    void release(const SkOpSpan* );
 
 #if DEBUG_COIN
     void resetDebugVisited() const {
@@ -391,7 +386,6 @@ public:
     }
 
     bool subDivide(const SkOpSpanBase* start, const SkOpSpanBase* end, SkDCurve* result) const;
-    bool subDivide(const SkOpSpanBase* start, const SkOpSpanBase* end, SkOpCurve* result) const;
 
     const SkOpSpanBase* tail() const {
         return &fTail;

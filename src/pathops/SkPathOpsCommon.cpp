@@ -259,7 +259,7 @@ bool HandleCoincidence(SkOpContourHead* contourList, SkOpCoincidence* coincidenc
     if (!coincidence->addEndMovedSpans(DEBUG_COIN_ONLY_PARAMS())) {
         return false;
     }
-    const int SAFETY_COUNT = 100;  // FIXME: tune
+    const int SAFETY_COUNT = 3;
     int safetyHatch = SAFETY_COUNT;
     // look for coincidence present in A-B and A-C but missing in B-C
     do {
@@ -276,8 +276,6 @@ bool HandleCoincidence(SkOpContourHead* contourList, SkOpCoincidence* coincidenc
         }
         move_nearby(contourList  DEBUG_ITER_PARAMS(SAFETY_COUNT - safetyHatch - 1));
     } while (true);
-    // FIXME: only call this if addMissing modified something when returning false
-    move_nearby(contourList  DEBUG_COIN_PARAMS());
     // check to see if, loosely, coincident ranges may be expanded
     if (coincidence->expand(DEBUG_COIN_ONLY_PARAMS())) {
         bool added;
@@ -296,20 +294,15 @@ bool HandleCoincidence(SkOpContourHead* contourList, SkOpCoincidence* coincidenc
     if (!coincidence->addExpanded(DEBUG_PHASE_ONLY_PARAMS(kWalking))) {
         return false;
     }
-    coincidence->correctEnds(DEBUG_COIN_ONLY_PARAMS());
     // mark spans of coincident segments as coincident
-    if (!coincidence->mark(DEBUG_COIN_ONLY_PARAMS())) {
-        return false;
-    }
+    coincidence->mark(DEBUG_COIN_ONLY_PARAMS());
     // look for coincidence lines and curves undetected by intersection
     if (missing_coincidence(contourList  DEBUG_COIN_PARAMS())) {
         (void) coincidence->expand(DEBUG_PHASE_ONLY_PARAMS(kIntersecting));
         if (!coincidence->addExpanded(DEBUG_COIN_ONLY_PARAMS())) {
             return false;
         }
-        if (!coincidence->mark(DEBUG_PHASE_ONLY_PARAMS(kWalking))) {
-            return false;
-        }
+        coincidence->mark(DEBUG_PHASE_ONLY_PARAMS(kWalking));
     } else {
         (void) coincidence->expand(DEBUG_COIN_ONLY_PARAMS());
     }
@@ -320,14 +313,10 @@ bool HandleCoincidence(SkOpContourHead* contourList, SkOpCoincidence* coincidenc
     do {
         SkOpCoincidence* pairs = overlaps.isEmpty() ? coincidence : &overlaps;
         // adjust the winding value to account for coincident edges
-        if (!pairs->apply(DEBUG_ITER_ONLY_PARAMS(SAFETY_COUNT - safetyHatch))) {  
-            return false;
-        }
+        pairs->apply(DEBUG_ITER_ONLY_PARAMS(SAFETY_COUNT - safetyHatch));  
         // For each coincident pair that overlaps another, when the receivers (the 1st of the pair)
         // are different, construct a new pair to resolve their mutual span
-        if (!pairs->findOverlaps(&overlaps  DEBUG_ITER_PARAMS(SAFETY_COUNT - safetyHatch))) {
-            return false;
-        }
+        pairs->findOverlaps(&overlaps  DEBUG_ITER_PARAMS(SAFETY_COUNT - safetyHatch));
         if (!--safetyHatch) {
             SkASSERT(globalState->debugSkipAssert());
             return false;
@@ -335,12 +324,6 @@ bool HandleCoincidence(SkOpContourHead* contourList, SkOpCoincidence* coincidenc
     } while (!overlaps.isEmpty());
     calc_angles(contourList  DEBUG_COIN_PARAMS());
     sort_angles(contourList);
-    if (globalState->angleCoincidence()) {
-        (void) missing_coincidence(contourList  DEBUG_COIN_PARAMS());
-        if (!coincidence->apply(DEBUG_COIN_ONLY_PARAMS())) {
-            return false;
-        }
-    }
 #if DEBUG_COINCIDENCE_VERBOSE
     coincidence->debugShowCoincidence();
 #endif

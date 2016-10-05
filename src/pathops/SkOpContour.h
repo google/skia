@@ -232,11 +232,7 @@ public:
         SkOpSegment* segment = &fHead;
         bool result = false;
         do {
-            if (fState->angleCoincidence()) {
-#if DEBUG_ANGLE
-                segment->debugCheckAngleCoin();
-#endif
-            } else if (segment->missingCoincidence()) {
+            if (segment->missingCoincidence()) {
                 result = true;
             }
             segment = segment->next();

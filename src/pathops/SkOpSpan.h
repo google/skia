@@ -41,7 +41,6 @@ public:
 
     bool alias() const;
     bool coincident() const { return fCoincident; }
-    bool collapsed(const SkOpPtT* ) const;
     bool contains(const SkOpPtT* ) const;
     bool contains(const SkOpSegment*, const SkPoint& ) const;
     bool contains(const SkOpSegment*, double t) const;
@@ -137,8 +136,6 @@ public:
 
     bool ptAlreadySeen(const SkOpPtT* head) const;
     SkOpPtT* prev();
-    SkOpPtT* remove(const SkOpPtT* kept);
-    void removeNext(const SkOpPtT* kept);
 
     const SkOpSegment* segment() const;
     SkOpSegment* segment();
@@ -241,8 +238,6 @@ public:
 #if DEBUG_COIN
     void debugInsertCoinEnd(SkPathOpsDebug::GlitchLog* ,
                             const SkOpSpanBase* ) const;
-    void debugMergeContained(SkPathOpsDebug::GlitchLog* ,
-                             const SkPathOpsBounds& bounds, bool* deleted) const;
     void debugMergeMatches(SkPathOpsDebug::GlitchLog* log,
                            const SkOpSpanBase* opp) const;
 #endif
@@ -293,7 +288,6 @@ public:
     }
 
     void merge(SkOpSpan* span);
-    void mergeContained(const SkPathOpsBounds& bounds);
     void mergeMatches(SkOpSpanBase* opp);
 
     const SkOpSpan* prev() const {
@@ -424,10 +418,6 @@ public:
         }
         fAlreadyAdded = true;
         return false;
-    }
-
-    bool checkAlreadyAdded() const {
-        return fAlreadyAdded;
     }
 
     bool clearCoincident() {

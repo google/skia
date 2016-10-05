@@ -28,16 +28,6 @@ const SkOpPtT* SkOpPtT::active() const {
     return this;
 }
 
-bool SkOpPtT::collapsed(const SkOpPtT* check) const {
-    if (fPt != check->fPt) {
-        return false;
-    }
-    SkASSERT(this != check);
-    const SkOpSegment* segment = this->segment();
-    SkASSERT(segment == check->segment());
-    return segment->collapsed();
-}
-
 bool SkOpPtT::contains(const SkOpPtT* check) const {
     SkOPASSERT(this != check);
     const SkOpPtT* ptT = this;
@@ -146,38 +136,6 @@ SkOpPtT* SkOpPtT::prev() {
     return result;
 }
 
-SkOpPtT* SkOpPtT::remove(const SkOpPtT* kept) {
-    SkOpPtT* prev = this;
-    do {
-        SkOpPtT* next = prev->fNext;
-        if (next == this) {
-            prev->removeNext(kept);
-            SkASSERT(prev->fNext != prev);
-            fDeleted = true;
-            return prev;
-        }
-        prev = next;
-    } while (prev != this);
-    SkASSERT(0);
-    return nullptr;
-}
-
-void SkOpPtT::removeNext(const SkOpPtT* kept) {
-    SkASSERT(this->fNext);
-    SkOpPtT* next = this->fNext;
-    SkASSERT(this != next->fNext);
-    this->fNext = next->fNext;
-    SkOpSpanBase* span = next->span();
-    SkOpCoincidence* coincidence = span->globalState()->coincidence();
-    if (coincidence) {
-        coincidence->fixUp(next, kept);
-    }
-    next->setDeleted();
-    if (span->ptT() == next) {
-        span->upCast()->release(kept);
-    }
-}
-
 const SkOpSegment* SkOpPtT::segment() const {
     return span()->segment();
 }
@@ -200,26 +158,6 @@ void SkOpSpanBase::addOpp(SkOpSpanBase* opp) {
     this->mergeMatches(opp);
     this->ptT()->addOpp(opp->ptT(), oppPrev);
     this->checkForCollapsedCoincidence();
-}
-
-// Please keep this in sync with debugMergeContained()
-void SkOpSpanBase::mergeContained(const SkPathOpsBounds& bounds) {
-    // while adjacent spans' points are contained by the bounds, merge them
-    SkOpSpanBase* prev = this;
-    SkOpSegment* seg = this->segment();
-    while ((prev = prev->prev()) && bounds.contains(prev->pt()) && !seg->ptsDisjoint(prev, this)) {
-        this->mergeMatches(prev);
-        this->addOpp(prev);
-    }
-    SkOpSpanBase* next = this;
-    while (next->upCastable() && (next = next->upCast()->next())
-            && bounds.contains(next->pt()) && !seg->ptsDisjoint(this, next)) {
-        this->mergeMatches(next);
-        this->addOpp(next);
-    }
-#if DEBUG_COINCIDENCE
-    this->globalState()->coincidence()->debugValidate();
-#endif
 }
 
 bool SkOpSpanBase::collapsed(double s, double e) const {

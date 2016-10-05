@@ -437,7 +437,6 @@ void SkPathOpsDebug::DumpGlitchType(GlitchType glitchType) {
         case kMarkCoinInsert_Glitch: SkDebugf(" MarkCoinInsert"); break;
         case kMarkCoinMissing_Glitch: SkDebugf(" MarkCoinMissing"); break;
         case kMarkCoinStart_Glitch: SkDebugf(" MarkCoinStart"); break;
-        case kMergeContained_Glitch: SkDebugf(" MergeContained"); break;
         case kMergeMatches_Glitch: SkDebugf(" MergeMatches"); break;
         case kMissingCoin_Glitch: SkDebugf(" MissingCoin"); break;
         case kMissingDone_Glitch: SkDebugf(" MissingDone"); break;
@@ -2307,11 +2306,7 @@ void SkOpContour::debugMissingCoincidence(SkPathOpsDebug::GlitchLog* log) const 
     const SkOpSegment* segment = &fHead;
 //    bool result = false;
     do {
-        if (fState->angleCoincidence()) {
-// #if DEBUG_ANGLE
-//          segment->debugCheckAngleCoin();
-// #endif
-        } else if (segment->debugMissingCoincidence(log), false) {
+        if (segment->debugMissingCoincidence(log), false) {
 //          result = true;
         }
         segment = segment->next();
@@ -2466,42 +2461,6 @@ void SkOpSpanBase::debugInsertCoinEnd(SkPathOpsDebug::GlitchLog* log, const SkOp
 //     coin->fCoinEnd = this->fCoinEnd;
 //     this->fCoinEnd = coinNext;
     debugValidate();
-}
-
-// Commented-out lines keep this in sync with mergeContained()
-void SkOpSpanBase::debugMergeContained(SkPathOpsDebug::GlitchLog* log, const SkPathOpsBounds& bounds, bool* deleted) const {
-    // while adjacent spans' points are contained by the bounds, merge them
-    const SkOpSpanBase* prev = this;
-    const SkOpSegment* seg = this->segment();
-    while ((prev = prev->prev()) && bounds.contains(prev->pt()) && !seg->ptsDisjoint(prev, this)) {
-        if (prev->prev()) {
-            log->record(SkPathOpsDebug::kMergeContained_Glitch, this, prev);
-        } else if (this->final()) {
-            log->record(SkPathOpsDebug::kMergeContained_Glitch, this, prev);
-            // return;
-        } else {
-            log->record(SkPathOpsDebug::kMergeContained_Glitch, prev, this);
-        }
-    }
-    const SkOpSpanBase* current = this;
-    const SkOpSpanBase* next = this;
-    while (next->upCastable() && (next = next->upCast()->next())
-            && bounds.contains(next->pt()) && !seg->ptsDisjoint(this, next)) {
-        if (!current->prev() && next->final()) {
-            log->record(SkPathOpsDebug::kMergeContained_Glitch, next, current);
-            current = next;
-        }
-        if (current->prev()) {
-            log->record(SkPathOpsDebug::kMergeContained_Glitch, next, current);
-            current = next;
-        } else {
-            log->record(SkPathOpsDebug::kMergeContained_Glitch, next, current);
-            current = next;
-        }
-    }
-#if DEBUG_COINCIDENCE
-    // this->globalState()->coincidence()->debugValidate();
-#endif
 }
 
 // Commented-out lines keep this in sync with mergeMatches()
