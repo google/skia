@@ -261,8 +261,8 @@ public:
                                                                       std::move(paintFilter),
                                                                       cropRect));
         }
-        this->addFilter("xfermode", SkXfermodeImageFilter::Make(
-            SkXfermode::Make(SkXfermode::kSrc_Mode), input, input, cropRect));
+        this->addFilter("xfermode", SkXfermodeImageFilter::Make(SkBlendMode::kSrc, input, input,
+                                                                cropRect));
     }
     int count() const { return fFilters.count(); }
     SkImageFilter* getFilter(int index) const { return fFilters[index].fFilter.get(); }
@@ -938,14 +938,14 @@ DEF_TEST(ImageFilterUnionBounds, reporter) {
     // Regardless of which order they appear in, the image filter bounds should
     // be combined correctly.
     {
-        sk_sp<SkImageFilter> composite(SkXfermodeImageFilter::Make(nullptr, offset));
+        sk_sp<SkImageFilter> composite(SkXfermodeImageFilter::Make(SkBlendMode::kSrcOver, offset));
         SkRect bounds = SkRect::MakeWH(100, 100);
         // Intentionally aliasing here, as that's what the real callers do.
         bounds = composite->computeFastBounds(bounds);
         REPORTER_ASSERT(reporter, bounds == SkRect::MakeWH(150, 100));
     }
     {
-        sk_sp<SkImageFilter> composite(SkXfermodeImageFilter::Make(nullptr, nullptr,
+        sk_sp<SkImageFilter> composite(SkXfermodeImageFilter::Make(SkBlendMode::kSrcOver, nullptr,
                                                                    offset, nullptr));
         SkRect bounds = SkRect::MakeWH(100, 100);
         // Intentionally aliasing here, as that's what the real callers do.
@@ -1432,7 +1432,7 @@ static void test_xfermode_cropped_input(SkCanvas* canvas, skiatest::Reporter* re
 
     // Check that an xfermode image filter whose input has been cropped out still draws the other
     // input. Also check that drawing with both inputs cropped out doesn't cause a GPU warning.
-    sk_sp<SkXfermode> mode(SkXfermode::Make(SkXfermode::kSrcOver_Mode));
+    SkBlendMode mode = SkBlendMode::kSrcOver;
     sk_sp<SkImageFilter> xfermodeNoFg(SkXfermodeImageFilter::Make(mode, greenFilter,
                                                                   croppedOut, nullptr));
     sk_sp<SkImageFilter> xfermodeNoBg(SkXfermodeImageFilter::Make(mode, croppedOut,
