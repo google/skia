@@ -250,6 +250,9 @@ def CheckChangeOnUpload(input_api, output_api):
   * Check change has one and only one EOL.
   """
   results = []
+  results.extend(_CheckLGTMsForPublicAPI(input_api, output_api))
+  print 'Check above'
+  import pdb; pdb.set_trace();
   results.extend(_CommonChecks(input_api, output_api))
   # Run on upload, not commit, since the presubmit bot apparently doesn't have
   # coverage or Go installed.
