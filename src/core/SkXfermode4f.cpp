@@ -68,7 +68,7 @@ static void store_4_srgb(void* ptr, const Sk4x4f& p) {
     ( sk_linear_to_srgb(p.r) <<  0
     | sk_linear_to_srgb(p.g) <<  8
     | sk_linear_to_srgb(p.b) << 16
-    | Sk4f_round(255.0f*p.a) << 24).store(ptr);
+    | SkNx_round(255.0f*p.a) << 24).store(ptr);
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////

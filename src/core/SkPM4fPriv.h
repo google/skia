@@ -34,7 +34,7 @@ static inline Sk4f Sk4f_fromS32(uint32_t px) {
 
 static inline uint32_t Sk4f_toL32(const Sk4f& px) {
     uint32_t l32;
-    SkNx_cast<uint8_t>(Sk4f_round(px * 255.0f)).store(&l32);
+    SkNx_cast<uint8_t>(SkNx_round(px * 255.0f)).store(&l32);
     return l32;
 }
 
