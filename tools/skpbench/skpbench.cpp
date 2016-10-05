@@ -5,6 +5,7 @@
  * found in the LICENSE file.
  */
 
+#include "GpuTimer.h"
 #include "GrContextFactory.h"
 #include "SkCanvas.h"
 #include "SkOSFile.h"
@@ -33,12 +34,9 @@
  * Currently, only GPU configs are supported.
  */
 
-using sk_gpu_test::PlatformFence;
-using sk_gpu_test::kInvalidPlatformFence;
-using sk_gpu_test::FenceSync;
-
 DEFINE_int32(duration, 5000, "number of milliseconds to run the benchmark");
 DEFINE_int32(sampleMs, 50, "minimum duration of a sample");
+DEFINE_bool(gpuClock, false, "time on the gpu clock (gpu work only)");
 DEFINE_bool(fps, false, "use fps instead of ms");
 DEFINE_string(skp, "", "path to a single .skp file to benchmark");
 DEFINE_string(png, "", "if set, save a .png proof to disk at this file location");
@@ -46,13 +44,13 @@ DEFINE_int32(verbosity, 4, "level of verbosity (0=none to 5=debug)");
 DEFINE_bool(suppressHeader, false, "don't print a header row before the results");
 
 static const char* header =
-    "   accum    median       max       min   stddev  samples  sample_ms  metric  config    bench";
+"   accum    median       max       min   stddev  samples  sample_ms  clock  metric  config    bench";
 
 static const char* resultFormat =
-    "%8.4g  %8.4g  %8.4g  %8.4g  %6.3g%%  %7li  %9i  %-6s  %-9s %s";
+"%8.4g  %8.4g  %8.4g  %8.4g  %6.3g%%  %7li  %9i  %-5s  %-6s  %-9s %s";
 
 struct Sample {
-    using clock = std::chrono::high_resolution_clock;
+    using duration = std::chrono::nanoseconds;
 
     Sample() : fFrames(0), fDuration(0) {}
     double seconds() const { return std::chrono::duration<double>(fDuration).count(); }
@@ -60,13 +58,13 @@ struct Sample {
     double value() const { return FLAGS_fps ? fFrames / this->seconds() : this->ms() / fFrames; }
     static const char* metric() { return FLAGS_fps ? "fps" : "ms"; }
 
-    int fFrames;
-    clock::duration fDuration;
+    int        fFrames;
+    duration   fDuration;
 };
 
 class GpuSync {
 public:
-    GpuSync(const FenceSync* fenceSync);
+    GpuSync(const sk_gpu_test::FenceSync* fenceSync);
     ~GpuSync();
 
     void syncToPreviousFrame();
@@ -74,8 +72,8 @@ public:
 private:
     void updateFence();
 
-    const FenceSync* const   fFenceSync;
-    PlatformFence            fFence;
+    const sk_gpu_test::FenceSync* const   fFenceSync;
+    sk_gpu_test::PlatformFence            fFence;
 };
 
 enum class ExitErr {
@@ -92,10 +90,10 @@ static bool mkdir_p(const SkString& name);
 static SkString join(const SkCommandLineFlags::StringArray&);
 static void exitf(ExitErr, const char* format, ...);
 
-static void run_benchmark(const FenceSync* fenceSync, SkCanvas* canvas, const SkPicture* skp,
-                          std::vector<Sample>* samples) {
-    using clock = Sample::clock;
-    const clock::duration sampleDuration = std::chrono::milliseconds(FLAGS_sampleMs);
+static void run_benchmark(const sk_gpu_test::FenceSync* fenceSync, SkCanvas* canvas,
+                          const SkPicture* skp, std::vector<Sample>* samples) {
+    using clock = std::chrono::high_resolution_clock;
+    const Sample::duration sampleDuration = std::chrono::milliseconds(FLAGS_sampleMs);
     const clock::duration benchDuration = std::chrono::milliseconds(FLAGS_duration);
 
     draw_skp_and_flush(canvas, skp);
@@ -121,6 +119,66 @@ static void run_benchmark(const FenceSync* fenceSync, SkCanvas* canvas, const Sk
             ++sample.fFrames;
         } while (sample.fDuration < sampleDuration);
     } while (now < endTime || 0 == samples->size() % 2);
+}
+
+static void run_gpu_time_benchmark(sk_gpu_test::GpuTimer* gpuTimer,
+                                   const sk_gpu_test::FenceSync* fenceSync, SkCanvas* canvas,
+                                   const SkPicture* skp, std::vector<Sample>* samples) {
+    using sk_gpu_test::PlatformTimerQuery;
+    using clock = std::chrono::steady_clock;
+    const clock::duration sampleDuration = std::chrono::milliseconds(FLAGS_sampleMs);
+    const clock::duration benchDuration = std::chrono::milliseconds(FLAGS_duration);
+
+    if (!gpuTimer->disjointSupport()) {
+        fprintf(stderr, "WARNING: GPU timer cannot detect disjoint operations; "
+                        "results may be unreliable\n");
+    }
+
+    draw_skp_and_flush(canvas, skp);
+    GpuSync gpuSync(fenceSync);
+
+    gpuTimer->queueStart();
+    draw_skp_and_flush(canvas, skp);
+    PlatformTimerQuery previousTime = gpuTimer->queueStop();
+    gpuSync.syncToPreviousFrame();
+
+    clock::time_point now = clock::now();
+    const clock::time_point endTime = now + benchDuration;
+
+    do {
+        const clock::time_point sampleEndTime = now + sampleDuration;
+        samples->emplace_back();
+        Sample& sample = samples->back();
+
+        do {
+            gpuTimer->queueStart();
+            draw_skp_and_flush(canvas, skp);
+            PlatformTimerQuery time = gpuTimer->queueStop();
+            gpuSync.syncToPreviousFrame();
+
+            switch (gpuTimer->checkQueryStatus(previousTime)) {
+                using QueryStatus = sk_gpu_test::GpuTimer::QueryStatus;
+                case QueryStatus::kInvalid:
+                    exitf(ExitErr::kUnavailable, "GPU timer failed");
+                case QueryStatus::kPending:
+                    exitf(ExitErr::kUnavailable, "timer query still not ready after fence sync");
+                case QueryStatus::kDisjoint:
+                    if (FLAGS_verbosity >= 4) {
+                        fprintf(stderr, "discarding timer query due to disjoint operations.\n");
+                    }
+                    break;
+                case QueryStatus::kAccurate:
+                    sample.fDuration += gpuTimer->getTimeElapsed(previousTime);
+                    ++sample.fFrames;
+                    break;
+            }
+            gpuTimer->deleteQuery(previousTime);
+            previousTime = time;
+            now = clock::now();
+        } while (now < sampleEndTime || 0 == sample.fFrames);
+    } while (now < endTime || 0 == samples->size() % 2);
+
+    gpuTimer->deleteQuery(previousTime);
 }
 
 void print_result(const std::vector<Sample>& samples, const char* config, const char* bench)  {
@@ -149,7 +207,8 @@ void print_result(const std::vector<Sample>& samples, const char* config, const 
     const double stddev = 100/*%*/ * sqrt(variance) / accumValue;
 
     printf(resultFormat, accumValue, values[values.size() / 2], values.back(), values.front(),
-           stddev, values.size(), FLAGS_sampleMs, Sample::metric(), config, bench);
+           stddev, values.size(), FLAGS_sampleMs, FLAGS_gpuClock ? "gpu" : "cpu", Sample::metric(),
+           config, bench);
     printf("\n");
     fflush(stdout);
 }
@@ -247,7 +306,15 @@ int main(int argc, char** argv) {
     // Run the benchmark.
     SkCanvas* canvas = surface->getCanvas();
     canvas->translate(-skp->cullRect().x(), -skp->cullRect().y());
-    run_benchmark(testCtx->fenceSync(), canvas, skp.get(), &samples);
+    if (!FLAGS_gpuClock) {
+        run_benchmark(testCtx->fenceSync(), canvas, skp.get(), &samples);
+    } else {
+        if (!testCtx->gpuTimingSupport()) {
+            exitf(ExitErr::kUnavailable, "GPU does not support timing");
+        }
+        run_gpu_time_benchmark(testCtx->gpuTimer(), testCtx->fenceSync(), canvas, skp.get(),
+                               &samples);
+    }
     print_result(samples, config->getTag().c_str(), SkOSPath::Basename(skpfile).c_str());
 
     // Save a proof (if one was requested).
@@ -300,7 +367,7 @@ static void exitf(ExitErr err, const char* format, ...) {
     exit((int)err);
 }
 
-GpuSync::GpuSync(const FenceSync* fenceSync)
+GpuSync::GpuSync(const sk_gpu_test::FenceSync* fenceSync)
     : fFenceSync(fenceSync) {
     this->updateFence();
 }
@@ -310,7 +377,7 @@ GpuSync::~GpuSync() {
 }
 
 void GpuSync::syncToPreviousFrame() {
-    if (kInvalidPlatformFence == fFence) {
+    if (sk_gpu_test::kInvalidFence == fFence) {
         exitf(ExitErr::kSoftware, "attempted to sync with invalid fence");
     }
     if (!fFenceSync->waitFence(fFence)) {
@@ -322,7 +389,7 @@ void GpuSync::syncToPreviousFrame() {
 
 void GpuSync::updateFence() {
     fFence = fFenceSync->insertFence();
-    if (kInvalidPlatformFence == fFence) {
+    if (sk_gpu_test::kInvalidFence == fFence) {
         exitf(ExitErr::kUnavailable, "failed to insert fence");
     }
 }
