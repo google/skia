@@ -92,7 +92,9 @@ namespace SkOpts {
 
     // TODO: might be nice to only create one instance of tail-insensitive stages.
 
-    SkRasterPipeline::Fn stages_4[] = {
+    SkRasterPipeline::Fn4 stages_4[] = {
+        stage_4<SK_OPTS_NS::just_return, false>,
+
         stage_4<SK_OPTS_NS::store_565 , false>,
         stage_4<SK_OPTS_NS::store_srgb, false>,
         stage_4<SK_OPTS_NS::store_f16 , false>,
@@ -140,26 +142,28 @@ namespace SkOpts {
     };
     static_assert(SK_ARRAY_COUNT(stages_4) == SkRasterPipeline::kNumStockStages, "");
 
-    SkRasterPipeline::Fn stages_1_3[] = {
-        stage_1_3<SK_OPTS_NS::store_565 , false>,
-        stage_1_3<SK_OPTS_NS::store_srgb, false>,
-        stage_1_3<SK_OPTS_NS::store_f16 , false>,
+    SkRasterPipeline::Fn4 stages_3[] = {
+        stage_3<SK_OPTS_NS::just_return, false>,
 
-        stage_1_3<SK_OPTS_NS::load_s_565 , true>,
-        stage_1_3<SK_OPTS_NS::load_s_srgb, true>,
-        stage_1_3<SK_OPTS_NS::load_s_f16 , true>,
+        stage_3<SK_OPTS_NS::store_565 , false>,
+        stage_3<SK_OPTS_NS::store_srgb, false>,
+        stage_3<SK_OPTS_NS::store_f16 , false>,
 
-        stage_1_3<SK_OPTS_NS::load_d_565 , true>,
-        stage_1_3<SK_OPTS_NS::load_d_srgb, true>,
-        stage_1_3<SK_OPTS_NS::load_d_f16 , true>,
+        stage_3<SK_OPTS_NS::load_s_565 , true>,
+        stage_3<SK_OPTS_NS::load_s_srgb, true>,
+        stage_3<SK_OPTS_NS::load_s_f16 , true>,
 
-        stage_1_3<SK_OPTS_NS::scale_u8, true>,
+        stage_3<SK_OPTS_NS::load_d_565 , true>,
+        stage_3<SK_OPTS_NS::load_d_srgb, true>,
+        stage_3<SK_OPTS_NS::load_d_f16 , true>,
 
-        stage_1_3<SK_OPTS_NS::lerp_u8            , true>,
-        stage_1_3<SK_OPTS_NS::lerp_565           , true>,
-        stage_1_3<SK_OPTS_NS::lerp_constant_float, true>,
+        stage_3<SK_OPTS_NS::scale_u8, true>,
 
-        stage_1_3<SK_OPTS_NS::constant_color, true>,
+        stage_3<SK_OPTS_NS::lerp_u8            , true>,
+        stage_3<SK_OPTS_NS::lerp_565           , true>,
+        stage_3<SK_OPTS_NS::lerp_constant_float, true>,
+
+        stage_3<SK_OPTS_NS::constant_color, true>,
 
         SK_OPTS_NS::dst,
         SK_OPTS_NS::dstatop,
@@ -186,7 +190,13 @@ namespace SkOpts {
         SK_OPTS_NS::overlay,
         SK_OPTS_NS::softlight,
     };
-    static_assert(SK_ARRAY_COUNT(stages_1_3) == SkRasterPipeline::kNumStockStages, "");
+    static_assert(SK_ARRAY_COUNT(stages_3) == SkRasterPipeline::kNumStockStages, "");
+
+    SkRasterPipeline::Fn8 stages_8[SkRasterPipeline::kNumStockStages] = { nullptr /*...*/ };
+    SkRasterPipeline::Fn8 stages_7[SkRasterPipeline::kNumStockStages] = { nullptr /*...*/ };
+
+    decltype(run4) run4 = SK_OPTS_NS::run4;
+    decltype(run4) run8 = nullptr;
 
     // Each Init_foo() is defined in src/opts/SkOpts_foo.cpp.
     void Init_ssse3();

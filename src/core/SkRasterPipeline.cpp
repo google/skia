@@ -8,11 +8,24 @@
 #include "SkOpts.h"
 #include "SkRasterPipeline.h"
 
-SkRasterPipeline::SkRasterPipeline() {}
+SkRasterPipeline::SkRasterPipeline() {
+    if (SkOpts::run8) {
+        fRun        = SkOpts::run8;
+        fBodyStages = reinterpret_cast<SkRasterPipeline::Fn*>(SkOpts::stages_8);
+        fTailStages = reinterpret_cast<SkRasterPipeline::Fn*>(SkOpts::stages_7);
+    } else {
+        fRun        = SkOpts::run4;
+        fBodyStages = reinterpret_cast<SkRasterPipeline::Fn*>(SkOpts::stages_4);
+        fTailStages = reinterpret_cast<SkRasterPipeline::Fn*>(SkOpts::stages_3);
+    }
+    fJustReturn = fBodyStages[just_return];
+    fBodyStart  = fJustReturn;
+    fTailStart  = fJustReturn;
+}
 
 void SkRasterPipeline::append(SkRasterPipeline::Fn body,
                               SkRasterPipeline::Fn tail,
-                              const void* ctx) {
+                              void* ctx) {
     // Each stage holds its own context and the next function to call.
     // So the pipeline itself has to hold onto the first function that starts the pipeline.
     (fBody.empty() ? fBodyStart : fBody.back().fNext) = body;
@@ -20,12 +33,12 @@ void SkRasterPipeline::append(SkRasterPipeline::Fn body,
 
     // Each last stage starts with its next function set to JustReturn as a safety net.
     // It'll be overwritten by the next call to append().
-    fBody.push_back({ &JustReturn, const_cast<void*>(ctx) });
-    fTail.push_back({ &JustReturn, const_cast<void*>(ctx) });
+    fBody.push_back({ fJustReturn, ctx });
+    fTail.push_back({ fJustReturn, ctx });
 }
 
-void SkRasterPipeline::append(StockStage stage, const void* ctx) {
-    this->append(SkOpts::stages_4[stage], SkOpts::stages_1_3[stage], ctx);
+void SkRasterPipeline::append(StockStage stage, void* ctx) {
+    this->append(fBodyStages[stage], fTailStages[stage], ctx);
 }
 
 void SkRasterPipeline::extend(const SkRasterPipeline& src) {
@@ -42,18 +55,5 @@ void SkRasterPipeline::extend(const SkRasterPipeline& src) {
 }
 
 void SkRasterPipeline::run(size_t x, size_t n) {
-    // It's fastest to start uninitialized if the compilers all let us.  If not, next fastest is 0.
-    Sk4f v;
-
-    while (n >= 4) {
-        fBodyStart(fBody.begin(), x,0, v,v,v,v, v,v,v,v);
-        x += 4;
-        n -= 4;
-    }
-    if (n > 0) {
-        fTailStart(fTail.begin(), x,n, v,v,v,v, v,v,v,v);
-    }
+    fRun(x, n, fBodyStart, fBody.begin(), fTailStart, fTail.begin());
 }
-
-void SK_VECTORCALL SkRasterPipeline::JustReturn(Stage*, size_t, size_t, Sk4f,Sk4f,Sk4f,Sk4f,
-                                                                        Sk4f,Sk4f,Sk4f,Sk4f) {}

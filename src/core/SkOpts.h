@@ -73,8 +73,14 @@ namespace SkOpts {
         return hash_fn(data, bytes, seed);
     }
 
-    extern SkRasterPipeline::Fn stages_4  [SkRasterPipeline::kNumStockStages],
-                                stages_1_3[SkRasterPipeline::kNumStockStages];
+    extern SkRasterPipeline::Fn4 stages_4[SkRasterPipeline::kNumStockStages],
+                                 stages_3[SkRasterPipeline::kNumStockStages];
+    extern SkRasterPipeline::Fn8 stages_8[SkRasterPipeline::kNumStockStages],
+                                 stages_7[SkRasterPipeline::kNumStockStages];
+    extern void (*run4)(size_t, size_t, SkRasterPipeline::Fn, SkRasterPipeline::Stage*,
+                                        SkRasterPipeline::Fn, SkRasterPipeline::Stage*);
+    extern void (*run8)(size_t, size_t, SkRasterPipeline::Fn, SkRasterPipeline::Stage*,
+                                        SkRasterPipeline::Fn, SkRasterPipeline::Stage*);
 }
 
 #endif//SkOpts_DEFINED
