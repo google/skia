@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "825001f1_31e8f0cc",
+        "filename": "src/gpu/GrOvalRenderer.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 1713,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2016-10-05T18:29:48Z",
+      "side": 1,
+      "message": "It\u0027s not clear to me why this has to be significantly different from the overstroke case. It seems to me that if you set overstrokeOuterRadius \u003d outerRadius + 0.5*min(bounds.width(), bounds.height()) and maxOffset to be 0.5*min(bounds.width(), bounds.height())/overstrokeOuterRadius the vertex code above should just work with the existing shader. But maybe I\u0027m missing something.",
+      "range": {
+        "startLine": 1713,
+        "startChar": 12,
+        "endLine": 1713,
+        "endChar": 54
+      },
+      "revId": "dfccf7a96c2dfb285b340f4c2adb1e3bc6942f25",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
