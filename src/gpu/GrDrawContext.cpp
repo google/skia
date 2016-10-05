@@ -851,11 +851,13 @@ void GrDrawContext::drawRRect(const GrClip& origClip,
 
     if (should_apply_coverage_aa(paint, fRenderTarget.get(), &useHWAA)) {
         GrShaderCaps* shaderCaps = fContext->caps()->shaderCaps();
-        SkAutoTUnref<GrDrawBatch> batch(GrOvalRenderer::CreateRRectBatch(paint.getColor(),
-                                                                         viewMatrix,
-                                                                         rrect,
-                                                                         stroke,
-                                                                         shaderCaps));
+        SkAutoTUnref<GrDrawBatch> batch(GrOvalRenderer::CreateRRectBatch(
+                                                                paint.getColor(),
+                                                                paint.usesDistanceVectorField(),
+                                                                viewMatrix,
+                                                                rrect,
+                                                                stroke,
+                                                                shaderCaps));
         if (batch) {
             GrPipelineBuilder pipelineBuilder(paint, useHWAA);
             this->getDrawTarget()->drawBatch(pipelineBuilder, this, *clip, batch);
