@@ -45,6 +45,7 @@ TEST_BUILDERS = {
       'Build-Win-MSVC-x86_64-Release-Vulkan',
       'Housekeeper-Nightly-RecreateSKPs_Canary',
       'Housekeeper-PerCommit',
+      'Housekeeper-PerCommit-Presubmit',
       'Infra-PerCommit',
       'Perf-Ubuntu-GCC-GCE-CPU-AVX2-x86_64-Release-Trybot',
       'Perf-Ubuntu-GCC-Golo-GPU-GT610-x86_64-Release-CT_BENCH_1k_SKPs',
@@ -298,6 +299,23 @@ def housekeeper_swarm(api, builder_cfg, got_revision, infrabots_dir,
       cipd_packages=[cipd_pkg(api, infrabots_dir, 'go')],
       )
   return api.swarming.collect_swarming_task(task)
+
+
+def presubmit_swarm(api, builder_cfg, got_revision, infrabots_dir):
+  task = trigger_task(
+      api,
+      'presubmit',
+      api.properties['buildername'],
+      api.properties['mastername'],
+      api.properties['slavename'],
+      api.properties['buildnumber'],
+      builder_cfg,
+      got_revision,
+      infrabots_dir,
+      idempotent=False,
+      store_output=False,
+      cipd_packages=None)
+  api.swarming.collect_swarming_task(task)
 
 
 def recreate_skps_swarm(api, builder_cfg, got_revision, infrabots_dir,
@@ -595,6 +613,9 @@ def RunSteps(api):
 
   builder_cfg = api.builder_name_schema.DictForBuilderName(builder_name)
 
+  if 'Presubmit' in builder_name:
+    return presubmit_swarm(api, builder_cfg, got_revision, infrabots_dir)
+
   if 'RecreateSKPs' in builder_name:
     recreate_skps_swarm(api, builder_cfg, got_revision, infrabots_dir,
                         extra_hashes)
@@ -699,7 +720,9 @@ def test_for_bot(api, builder, mastername, slavename, testname=None):
       test += api.step_data(
           'upload new .isolated file for upload_nano_results_skia',
           stdout=api.raw_io.output('def456 XYZ.isolated'))
-  if 'Housekeeper' in builder and 'RecreateSKPs' not in builder:
+  if ('Housekeeper' in builder and
+      'RecreateSKPs' not in builder and
+      'Presubmit' not in builder):
     test += api.step_data(
         'upload new .isolated file for housekeeper_skia',
         stdout=api.raw_io.output('def456 XYZ.isolated'))
