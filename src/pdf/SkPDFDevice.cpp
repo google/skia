@@ -47,12 +47,11 @@
 
 // Utility functions
 
-// If the paint will definitely draw opaquely, replace kSrc_Mode with
-// kSrcOver_Mode.  http://crbug.com/473572
+// If the paint will definitely draw opaquely, replace kSrc with
+// kSrcOver.  http://crbug.com/473572
 static void replace_srcmode_on_opaque_paint(SkPaint* paint) {
-    if (kSrcOver_SkXfermodeInterpretation
-        == SkInterpretXfermode(*paint, false)) {
-        paint->setXfermode(nullptr);
+    if (kSrcOver_SkXfermodeInterpretation == SkInterpretXfermode(*paint, false)) {
+        paint->setBlendMode(SkBlendMode::kSrcOver);
     }
 }
 
@@ -392,7 +391,7 @@ public:
                        const SkPaint& paint, bool hasText = false)
         : fDevice(device),
           fContentEntry(nullptr),
-          fXfermode(SkXfermode::kSrcOver_Mode),
+          fBlendMode(SkBlendMode::kSrcOver),
           fDstFormXObject(nullptr) {
         init(draw.fClipStack, draw.fRC->bwRgn(), *draw.fMatrix, paint, hasText);
     }
@@ -401,7 +400,7 @@ public:
                        const SkPaint& paint, bool hasText = false)
         : fDevice(device),
           fContentEntry(nullptr),
-          fXfermode(SkXfermode::kSrcOver_Mode),
+          fBlendMode(SkBlendMode::kSrcOver),
           fDstFormXObject(nullptr) {
         init(clipStack, clipRegion, matrix, paint, hasText);
     }
@@ -412,7 +411,7 @@ public:
             if (shape->isEmpty()) {
                 shape = nullptr;
             }
-            fDevice->finishContentEntry(fXfermode, std::move(fDstFormXObject), shape);
+            fDevice->finishContentEntry(fBlendMode, std::move(fDstFormXObject), shape);
         }
     }
 
@@ -420,16 +419,16 @@ public:
 
     /* Returns true when we explicitly need the shape of the drawing. */
     bool needShape() {
-        switch (fXfermode) {
-            case SkXfermode::kClear_Mode:
-            case SkXfermode::kSrc_Mode:
-            case SkXfermode::kSrcIn_Mode:
-            case SkXfermode::kSrcOut_Mode:
-            case SkXfermode::kDstIn_Mode:
-            case SkXfermode::kDstOut_Mode:
-            case SkXfermode::kSrcATop_Mode:
-            case SkXfermode::kDstATop_Mode:
-            case SkXfermode::kModulate_Mode:
+        switch (fBlendMode) {
+            case SkBlendMode::kClear:
+            case SkBlendMode::kSrc:
+            case SkBlendMode::kSrcIn:
+            case SkBlendMode::kSrcOut:
+            case SkBlendMode::kDstIn:
+            case SkBlendMode::kDstOut:
+            case SkBlendMode::kSrcATop:
+            case SkBlendMode::kDstATop:
+            case SkBlendMode::kModulate:
                 return true;
             default:
                 return false;
@@ -438,7 +437,7 @@ public:
 
     /* Returns true unless we only need the shape of the drawing. */
     bool needSource() {
-        if (fXfermode == SkXfermode::kClear_Mode) {
+        if (fBlendMode == SkBlendMode::kClear) {
             return false;
         }
         return true;
@@ -455,7 +454,7 @@ public:
 private:
     SkPDFDevice* fDevice;
     SkPDFDevice::ContentEntry* fContentEntry;
-    SkXfermode::Mode fXfermode;
+    SkBlendMode fBlendMode;
     sk_sp<SkPDFObject> fDstFormXObject;
     SkPath fShape;
 
@@ -466,9 +465,7 @@ private:
             NOT_IMPLEMENTED(!matrix.hasPerspective(), false);
             return;
         }
-        if (paint.getXfermode()) {
-            paint.getXfermode()->asMode(&fXfermode);
-        }
+        fBlendMode = paint.getBlendMode();
         fContentEntry = fDevice->setUpContentEntry(clipStack, clipRegion,
                                                    matrix, paint, hasText,
                                                    &fDstFormXObject);
@@ -1707,7 +1704,7 @@ void SkPDFDevice::drawFormXObjectWithMask(int xObjectIndex,
                                           sk_sp<SkPDFObject> mask,
                                           const SkClipStack* clipStack,
                                           const SkRegion& clipRegion,
-                                          SkXfermode::Mode mode,
+                                          SkBlendMode mode,
                                           bool invertClip) {
     if (clipRegion.isEmpty() && !invertClip) {
         return;
@@ -1720,7 +1717,7 @@ void SkPDFDevice::drawFormXObjectWithMask(int xObjectIndex,
     SkMatrix identity;
     identity.reset();
     SkPaint paint;
-    paint.setXfermodeMode(mode);
+    paint.setBlendMode(mode);
     ScopedContentEntry content(this, clipStack, clipRegion, identity, paint);
     if (!content.entry()) {
         return;
@@ -1765,27 +1762,24 @@ SkPDFDevice::ContentEntry* SkPDFDevice::setUpContentEntry(const SkClipStack* cli
         }
     }
 
-    SkXfermode::Mode xfermode = SkXfermode::kSrcOver_Mode;
-    if (paint.getXfermode()) {
-        paint.getXfermode()->asMode(&xfermode);
-    }
+    SkBlendMode blendMode = paint.getBlendMode();
 
     // For the following modes, we want to handle source and destination
     // separately, so make an object of what's already there.
-    if (xfermode == SkXfermode::kClear_Mode       ||
-            xfermode == SkXfermode::kSrc_Mode     ||
-            xfermode == SkXfermode::kSrcIn_Mode   ||
-            xfermode == SkXfermode::kDstIn_Mode   ||
-            xfermode == SkXfermode::kSrcOut_Mode  ||
-            xfermode == SkXfermode::kDstOut_Mode  ||
-            xfermode == SkXfermode::kSrcATop_Mode ||
-            xfermode == SkXfermode::kDstATop_Mode ||
-            xfermode == SkXfermode::kModulate_Mode) {
+    if (blendMode == SkBlendMode::kClear       ||
+            blendMode == SkBlendMode::kSrc     ||
+            blendMode == SkBlendMode::kSrcIn   ||
+            blendMode == SkBlendMode::kDstIn   ||
+            blendMode == SkBlendMode::kSrcOut  ||
+            blendMode == SkBlendMode::kDstOut  ||
+            blendMode == SkBlendMode::kSrcATop ||
+            blendMode == SkBlendMode::kDstATop ||
+            blendMode == SkBlendMode::kModulate) {
         if (!isContentEmpty()) {
             *dst = this->makeFormXObjectFromDevice();
             SkASSERT(isContentEmpty());
-        } else if (xfermode != SkXfermode::kSrc_Mode &&
-                   xfermode != SkXfermode::kSrcOut_Mode) {
+        } else if (blendMode != SkBlendMode::kSrc &&
+                   blendMode != SkBlendMode::kSrcOut) {
             // Except for Src and SrcOut, if there isn't anything already there,
             // then we're done.
             return nullptr;
@@ -1795,14 +1789,14 @@ SkPDFDevice::ContentEntry* SkPDFDevice::setUpContentEntry(const SkClipStack* cli
     // Xor, Plus.
 
     // Dst xfer mode doesn't draw source at all.
-    if (xfermode == SkXfermode::kDst_Mode) {
+    if (blendMode == SkBlendMode::kDst) {
         return nullptr;
     }
 
     SkPDFDevice::ContentEntry* entry;
     if (fContentEntries.back() && fContentEntries.back()->fContent.getOffset() == 0) {
         entry = fContentEntries.back();
-    } else if (xfermode != SkXfermode::kDstOver_Mode) {
+    } else if (blendMode != SkBlendMode::kDstOver) {
         entry = fContentEntries.emplace_back();
     } else {
         entry = fContentEntries.emplace_front();
@@ -1812,23 +1806,23 @@ SkPDFDevice::ContentEntry* SkPDFDevice::setUpContentEntry(const SkClipStack* cli
     return entry;
 }
 
-void SkPDFDevice::finishContentEntry(SkXfermode::Mode xfermode,
+void SkPDFDevice::finishContentEntry(SkBlendMode blendMode,
                                      sk_sp<SkPDFObject> dst,
                                      SkPath* shape) {
-    if (xfermode != SkXfermode::kClear_Mode       &&
-            xfermode != SkXfermode::kSrc_Mode     &&
-            xfermode != SkXfermode::kDstOver_Mode &&
-            xfermode != SkXfermode::kSrcIn_Mode   &&
-            xfermode != SkXfermode::kDstIn_Mode   &&
-            xfermode != SkXfermode::kSrcOut_Mode  &&
-            xfermode != SkXfermode::kDstOut_Mode  &&
-            xfermode != SkXfermode::kSrcATop_Mode &&
-            xfermode != SkXfermode::kDstATop_Mode &&
-            xfermode != SkXfermode::kModulate_Mode) {
+    if (blendMode != SkBlendMode::kClear       &&
+            blendMode != SkBlendMode::kSrc     &&
+            blendMode != SkBlendMode::kDstOver &&
+            blendMode != SkBlendMode::kSrcIn   &&
+            blendMode != SkBlendMode::kDstIn   &&
+            blendMode != SkBlendMode::kSrcOut  &&
+            blendMode != SkBlendMode::kDstOut  &&
+            blendMode != SkBlendMode::kSrcATop &&
+            blendMode != SkBlendMode::kDstATop &&
+            blendMode != SkBlendMode::kModulate) {
         SkASSERT(!dst);
         return;
     }
-    if (xfermode == SkXfermode::kDstOver_Mode) {
+    if (blendMode == SkBlendMode::kDstOver) {
         SkASSERT(!dst);
         if (fContentEntries.front()->fContent.getOffset() == 0) {
             // For DstOver, an empty content entry was inserted before the rest
@@ -1839,8 +1833,8 @@ void SkPDFDevice::finishContentEntry(SkXfermode::Mode xfermode,
         return;
     }
     if (!dst) {
-        SkASSERT(xfermode == SkXfermode::kSrc_Mode ||
-                 xfermode == SkXfermode::kSrcOut_Mode);
+        SkASSERT(blendMode == SkBlendMode::kSrc ||
+                 blendMode == SkBlendMode::kSrcOut);
         return;
     }
 
@@ -1865,8 +1859,8 @@ void SkPDFDevice::finishContentEntry(SkXfermode::Mode xfermode,
         // If there is shape, then an empty source with Src, SrcIn, SrcOut,
         // DstIn, DstAtop or Modulate reduces to Clear and DstOut or SrcAtop
         // reduces to Dst.
-        if (shape == nullptr || xfermode == SkXfermode::kDstOut_Mode ||
-                xfermode == SkXfermode::kSrcATop_Mode) {
+        if (shape == nullptr || blendMode == SkBlendMode::kDstOut ||
+                blendMode == SkBlendMode::kSrcATop) {
             ScopedContentEntry content(this, &fExistingClipStack,
                                        fExistingClipRegion, identity,
                                        stockPaint);
@@ -1875,7 +1869,7 @@ void SkPDFDevice::finishContentEntry(SkXfermode::Mode xfermode,
                                         &content.entry()->fContent);
             return;
         } else {
-            xfermode = SkXfermode::kClear_Mode;
+            blendMode = SkBlendMode::kClear;
         }
     } else {
         SkASSERT(fContentEntries.count() == 1);
@@ -1884,14 +1878,14 @@ void SkPDFDevice::finishContentEntry(SkXfermode::Mode xfermode,
 
     // TODO(vandebo) srcFormXObject may contain alpha, but here we want it
     // without alpha.
-    if (xfermode == SkXfermode::kSrcATop_Mode) {
+    if (blendMode == SkBlendMode::kSrcATop) {
         // TODO(vandebo): In order to properly support SrcATop we have to track
         // the shape of what's been drawn at all times. It's the intersection of
         // the non-transparent parts of the device and the outlines (shape) of
         // all images and devices drawn.
         drawFormXObjectWithMask(addXObjectResource(srcFormXObject.get()), dst,
                                 &fExistingClipStack, fExistingClipRegion,
-                                SkXfermode::kSrcOver_Mode, true);
+                                SkBlendMode::kSrcOver, true);
     } else {
         if (shape != nullptr) {
             // Draw shape into a form-xobject.
@@ -1907,19 +1901,19 @@ void SkPDFDevice::finishContentEntry(SkXfermode::Mode xfermode,
             drawFormXObjectWithMask(addXObjectResource(dst.get()),
                                     this->makeFormXObjectFromDevice(),
                                     &fExistingClipStack, fExistingClipRegion,
-                                    SkXfermode::kSrcOver_Mode, true);
+                                    SkBlendMode::kSrcOver, true);
 
         } else {
             drawFormXObjectWithMask(addXObjectResource(dst.get()), srcFormXObject,
                                     &fExistingClipStack, fExistingClipRegion,
-                                    SkXfermode::kSrcOver_Mode, true);
+                                    SkBlendMode::kSrcOver, true);
         }
     }
 
-    if (xfermode == SkXfermode::kClear_Mode) {
+    if (blendMode == SkBlendMode::kClear) {
         return;
-    } else if (xfermode == SkXfermode::kSrc_Mode ||
-            xfermode == SkXfermode::kDstATop_Mode) {
+    } else if (blendMode == SkBlendMode::kSrc ||
+            blendMode == SkBlendMode::kDstATop) {
         ScopedContentEntry content(this, &fExistingClipStack,
                                    fExistingClipRegion, identity, stockPaint);
         if (content.entry()) {
@@ -1927,10 +1921,10 @@ void SkPDFDevice::finishContentEntry(SkXfermode::Mode xfermode,
                     this->addXObjectResource(srcFormXObject.get()),
                     &content.entry()->fContent);
         }
-        if (xfermode == SkXfermode::kSrc_Mode) {
+        if (blendMode == SkBlendMode::kSrc) {
             return;
         }
-    } else if (xfermode == SkXfermode::kSrcATop_Mode) {
+    } else if (blendMode == SkBlendMode::kSrcATop) {
         ScopedContentEntry content(this, &fExistingClipStack,
                                    fExistingClipRegion, identity, stockPaint);
         if (content.entry()) {
@@ -1939,36 +1933,36 @@ void SkPDFDevice::finishContentEntry(SkXfermode::Mode xfermode,
         }
     }
 
-    SkASSERT(xfermode == SkXfermode::kSrcIn_Mode   ||
-             xfermode == SkXfermode::kDstIn_Mode   ||
-             xfermode == SkXfermode::kSrcOut_Mode  ||
-             xfermode == SkXfermode::kDstOut_Mode  ||
-             xfermode == SkXfermode::kSrcATop_Mode ||
-             xfermode == SkXfermode::kDstATop_Mode ||
-             xfermode == SkXfermode::kModulate_Mode);
+    SkASSERT(blendMode == SkBlendMode::kSrcIn   ||
+             blendMode == SkBlendMode::kDstIn   ||
+             blendMode == SkBlendMode::kSrcOut  ||
+             blendMode == SkBlendMode::kDstOut  ||
+             blendMode == SkBlendMode::kSrcATop ||
+             blendMode == SkBlendMode::kDstATop ||
+             blendMode == SkBlendMode::kModulate);
 
-    if (xfermode == SkXfermode::kSrcIn_Mode ||
-            xfermode == SkXfermode::kSrcOut_Mode ||
-            xfermode == SkXfermode::kSrcATop_Mode) {
+    if (blendMode == SkBlendMode::kSrcIn ||
+            blendMode == SkBlendMode::kSrcOut ||
+            blendMode == SkBlendMode::kSrcATop) {
         drawFormXObjectWithMask(addXObjectResource(srcFormXObject.get()),
                                 std::move(dst),
                                 &fExistingClipStack, fExistingClipRegion,
-                                SkXfermode::kSrcOver_Mode,
-                                xfermode == SkXfermode::kSrcOut_Mode);
+                                SkBlendMode::kSrcOver,
+                                blendMode == SkBlendMode::kSrcOut);
         return;
     } else {
-        SkXfermode::Mode mode = SkXfermode::kSrcOver_Mode;
+        SkBlendMode mode = SkBlendMode::kSrcOver;
         int resourceID = addXObjectResource(dst.get());
-        if (xfermode == SkXfermode::kModulate_Mode) {
+        if (blendMode == SkBlendMode::kModulate) {
             drawFormXObjectWithMask(addXObjectResource(srcFormXObject.get()),
                                     std::move(dst), &fExistingClipStack,
                                     fExistingClipRegion,
-                                    SkXfermode::kSrcOver_Mode, false);
-            mode = SkXfermode::kMultiply_Mode;
+                                    SkBlendMode::kSrcOver, false);
+            mode = SkBlendMode::kMultiply;
         }
         drawFormXObjectWithMask(resourceID, std::move(srcFormXObject),
                                 &fExistingClipStack, fExistingClipRegion, mode,
-                                xfermode == SkXfermode::kDstOut_Mode);
+                                blendMode == SkBlendMode::kDstOut);
         return;
     }
 }

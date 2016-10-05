@@ -220,7 +220,7 @@ SkBitmap create_checkerboard_bitmap(int w, int h, SkColor c1, SkColor c2, int ch
 void draw_checkerboard(SkCanvas* canvas, SkColor c1, SkColor c2, int size) {
     SkPaint paint;
     paint.setShader(create_checkerboard_shader(c1, c2, size));
-    paint.setXfermodeMode(SkXfermode::kSrc_Mode);
+    paint.setBlendMode(SkBlendMode::kSrc);
     canvas->drawPaint(paint);
 }
 
