@@ -63,7 +63,15 @@ void SkOpEdgeBuilder::closeContour(const SkPoint& curveEnd, const SkPoint& curve
         *fPathVerbs.append() = SkPath::kLine_Verb;
         *fPathPts.append() = curveStart;
     } else {
-        fPathPts[fPathPts.count() - 1] = curveStart;
+        int verbCount = fPathVerbs.count();
+        int ptsCount = fPathPts.count();
+        if (SkPath::kLine_Verb == fPathVerbs[verbCount - 1]
+                && fPathPts[ptsCount - 2] == curveStart) {
+            fPathVerbs.pop();
+            fPathPts.pop();
+        } else {
+            fPathPts[ptsCount - 1] = curveStart;
+        }
     }
     *fPathVerbs.append() = SkPath::kClose_Verb;
 }
