@@ -82,8 +82,8 @@ protected:
             draw_hair, draw_thick, draw_rect, draw_oval, draw_text
         };
 
-        const SkXfermode::Mode modes[] = {
-            SkXfermode::kSrcOver_Mode, SkXfermode::kSrc_Mode, SkXfermode::kClear_Mode
+        const SkBlendMode modes[] = {
+            SkBlendMode::kSrcOver, SkBlendMode::kSrc, SkBlendMode::kClear
         };
 
         const PaintProc paintProcs[] = {
@@ -96,7 +96,7 @@ protected:
             for (size_t i = 0; i < SK_ARRAY_COUNT(paintProcs); ++i) {
                 paintProcs[i](&paint);
                 for (size_t x = 0; x < SK_ARRAY_COUNT(modes); ++x) {
-                    paint.setXfermodeMode(modes[x]);
+                    paint.setBlendMode(modes[x]);
                     canvas->save();
                     for (size_t y = 0; y < SK_ARRAY_COUNT(procs); ++y) {
                         procs[y](canvas, paint);
