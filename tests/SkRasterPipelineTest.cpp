@@ -12,16 +12,9 @@
 DEF_TEST(SkRasterPipeline, r) {
     // Build and run a simple pipeline to exercise SkRasterPipeline,
     // drawing 50% transparent blue over opaque red in half-floats.
-
-    Sk4h red  = SkFloatToHalf_finite_ftz({ 1.0f, 0.0f, 0.0f, 1.0f }),
-         blue = SkFloatToHalf_finite_ftz({ 0.0f, 0.0f, 0.5f, 0.5f }),
-         result = { 1, 2, 3, 4 };
-
-    uint64_t bits;
-    memcpy(&bits, &red, 8);
-    SkDebugf("SkRasterPipeline red: 0x%016llx, want 0x3c00000000003c00\n", bits);
-    memcpy(&bits, &blue, 8);
-    SkDebugf("SkRasterPipeline blue: 0x%016llx, want 0x3800380000000000\n", bits);
+    uint64_t red  = 0x3c00000000003c00ull,
+             blue = 0x3800380000000000ull,
+             result;
 
     SkRasterPipeline p;
     p.append(SkRasterPipeline::load_s_f16, &blue);
@@ -30,16 +23,11 @@ DEF_TEST(SkRasterPipeline, r) {
     p.append(SkRasterPipeline::store_f16, &result);
     p.run(1);
 
-    Sk4f f = SkHalfToFloat_finite_ftz(result);
-
-    memcpy(&bits, &result, 8);
-    SkDebugf("SkRasterPipeline result: 0x%016llx, want 0x3c00380000003800\n", bits);
-
     // We should see half-intensity magenta.
-    REPORTER_ASSERT(r, f[0] == 0.5f);
-    REPORTER_ASSERT(r, f[1] == 0.0f);
-    REPORTER_ASSERT(r, f[2] == 0.5f);
-    REPORTER_ASSERT(r, f[3] == 1.0f);
+    REPORTER_ASSERT(r, ((result >>  0) & 0xffff) == 0x3800);
+    REPORTER_ASSERT(r, ((result >> 16) & 0xffff) == 0x0000);
+    REPORTER_ASSERT(r, ((result >> 32) & 0xffff) == 0x3800);
+    REPORTER_ASSERT(r, ((result >> 48) & 0xffff) == 0x3c00);
 }
 
 DEF_TEST(SkRasterPipeline_empty, r) {

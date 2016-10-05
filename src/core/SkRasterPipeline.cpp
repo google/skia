@@ -12,7 +12,7 @@ SkRasterPipeline::SkRasterPipeline() {}
 
 void SkRasterPipeline::append(SkRasterPipeline::Fn body,
                               SkRasterPipeline::Fn tail,
-                              const void* ctx) {
+                              void* ctx) {
     // Each stage holds its own context and the next function to call.
     // So the pipeline itself has to hold onto the first function that starts the pipeline.
     (fBody.empty() ? fBodyStart : fBody.back().fNext) = body;
@@ -20,11 +20,11 @@ void SkRasterPipeline::append(SkRasterPipeline::Fn body,
 
     // Each last stage starts with its next function set to JustReturn as a safety net.
     // It'll be overwritten by the next call to append().
-    fBody.push_back({ &JustReturn, const_cast<void*>(ctx) });
-    fTail.push_back({ &JustReturn, const_cast<void*>(ctx) });
+    fBody.push_back({ &JustReturn, ctx });
+    fTail.push_back({ &JustReturn, ctx });
 }
 
-void SkRasterPipeline::append(StockStage stage, const void* ctx) {
+void SkRasterPipeline::append(StockStage stage, void* ctx) {
     this->append(SkOpts::stages_4[stage], SkOpts::stages_1_3[stage], ctx);
 }
 

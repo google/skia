@@ -131,7 +131,8 @@ public:
 
         kNumStockStages,
     };
-    void append(StockStage, const void* ctx=nullptr);
+    void append(StockStage, void* = nullptr);
+    void append(StockStage stage, const void* ctx) { this->append(stage, const_cast<void*>(ctx)); }
 
 
     // Append all stages to this pipeline.
@@ -140,7 +141,7 @@ public:
 private:
     using Stages = SkSTArray<10, Stage, /*MEM_COPY=*/true>;
 
-    void append(Fn body, Fn tail, const void*);
+    void append(Fn body, Fn tail, void*);
 
     // This no-op default makes fBodyStart and fTailStart unconditionally safe to call,
     // and is always the last stage's fNext as a sort of safety net to make sure even a
