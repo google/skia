@@ -31,6 +31,7 @@ PUBLIC_API_OWNERS = (
     'bsalomon@google.com',
     'djsollen@chromium.org',
     'djsollen@google.com',
+    'rmistry@chromium.org',
 )
 
 AUTHORS_FILE_NAME = 'AUTHORS'
@@ -250,6 +251,7 @@ def CheckChangeOnUpload(input_api, output_api):
   * Check change has one and only one EOL.
   """
   results = []
+  results.extend(_CheckLGTMsForPublicAPI(input_api, output_api))
   results.extend(_CommonChecks(input_api, output_api))
   # Run on upload, not commit, since the presubmit bot apparently doesn't have
   # coverage or Go installed.
