@@ -1003,4 +1003,16 @@ if (skia_enable_tools) {
     ]
     testonly = true
   }
+
+  executable("dump_record") {
+    sources = [
+      "tools/DumpRecord.cpp",
+      "tools/dump_record.cpp",
+    ]
+    deps = [
+      ":flags",
+      ":skia",
+    ]
+    testonly = true
+  }
 }
