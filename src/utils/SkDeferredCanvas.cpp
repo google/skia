@@ -318,6 +318,11 @@ void SkDeferredCanvas::onDrawRect(const SkRect& rect, const SkPaint& paint) {
     fCanvas->drawRect(modRect, paint);
 }
 
+void SkDeferredCanvas::onDrawRegion(const SkRegion& region, const SkPaint& paint) {
+    this->flush_all();  // can we do better?
+    fCanvas->drawRegion(region, paint);
+}
+
 void SkDeferredCanvas::onDrawOval(const SkRect& rect, const SkPaint& paint) {
     SkRect modRect = rect;
     this->flush_check(&modRect, &paint, kNoClip_Flag);
@@ -387,6 +392,13 @@ void SkDeferredCanvas::onDrawBitmapNine(const SkBitmap& bitmap, const SkIRect& c
     fCanvas->drawBitmapNine(bitmap, center, modRect, paint);
 }
 
+void SkDeferredCanvas::onDrawBitmapLattice(const SkBitmap& bitmap, const Lattice& lattice,
+                                           const SkRect& dst, const SkPaint* paint) {
+    SkRect modRect = dst;
+    this->flush_check(&modRect, paint, kNoClip_Flag);
+    fCanvas->drawBitmapLattice(bitmap, lattice, modRect, paint);
+}
+
 void SkDeferredCanvas::onDrawImageNine(const SkImage* image, const SkIRect& center,
                                        const SkRect& dst, const SkPaint* paint) {
     SkRect modRect = dst;
@@ -412,6 +424,13 @@ void SkDeferredCanvas::onDrawImageRect(const SkImage* image, const SkRect* src, 
     SkRect modRect = dst;
     this->flush_check(&modRect, paint, kNoClip_Flag);
     fCanvas->legacy_drawImageRect(image, src, modRect, paint, constraint);
+}
+
+void SkDeferredCanvas::onDrawImageLattice(const SkImage* image, const Lattice& lattice,
+                                          const SkRect& dst, const SkPaint* paint) {
+    SkRect modRect = dst;
+    this->flush_check(&modRect, paint, kNoClip_Flag);
+    fCanvas->drawImageLattice(image, lattice, modRect, paint);
 }
 
 void SkDeferredCanvas::onDrawText(const void* text, size_t byteLength, SkScalar x, SkScalar y,
