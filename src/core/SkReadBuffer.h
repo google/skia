@@ -69,7 +69,6 @@ public:
         kLightingShaderWritesInvNormRotation = 45,
         kBlurMaskFilterWritesOccluder      = 47,
         kGradientShaderFloatColor_Version  = 49,
-        kXfermodeToBlendMode_Version       = 50,
     };
 
     /**

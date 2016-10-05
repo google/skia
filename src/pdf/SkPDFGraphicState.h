@@ -70,7 +70,7 @@ private:
     const uint8_t fAlpha;
     const uint8_t fStrokeCap;   // SkPaint::Cap
     const uint8_t fStrokeJoin;  // SkPaint::Join
-    const uint8_t fMode;        // SkBlendMode
+    const uint8_t fMode;        // SkXfermode::Mode
 
     SkPDFGraphicState(const SkPaint&);
 

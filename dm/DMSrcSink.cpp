@@ -1454,7 +1454,7 @@ Error ViaUpright::draw(const Src& src, SkBitmap* bitmap, SkWStream* stream, SkSt
     SkCanvas canvas(uprighted);
     canvas.concat(upright);
     SkPaint paint;
-    paint.setBlendMode(SkBlendMode::kSrc);
+    paint.setXfermodeMode(SkXfermode::kSrc_Mode);
     canvas.drawBitmap(*bitmap, 0, 0, &paint);
 
     *bitmap = uprighted;

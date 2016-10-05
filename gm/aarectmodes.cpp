@@ -59,21 +59,21 @@ static void test4(SkCanvas* canvas) {
 }
 
 constexpr struct {
-    SkBlendMode fMode;
-    const char* fLabel;
+    SkXfermode::Mode  fMode;
+    const char*         fLabel;
 } gModes[] = {
-    { SkBlendMode::kClear,    "Clear"     },
-    { SkBlendMode::kSrc,      "Src"       },
-    { SkBlendMode::kDst,      "Dst"       },
-    { SkBlendMode::kSrcOver,  "SrcOver"   },
-    { SkBlendMode::kDstOver,  "DstOver"   },
-    { SkBlendMode::kSrcIn,    "SrcIn"     },
-    { SkBlendMode::kDstIn,    "DstIn"     },
-    { SkBlendMode::kSrcOut,   "SrcOut"    },
-    { SkBlendMode::kDstOut,   "DstOut"    },
-    { SkBlendMode::kSrcATop,  "SrcATop"   },
-    { SkBlendMode::kDstATop,  "DstATop"   },
-    { SkBlendMode::kXor,      "Xor"       },
+    { SkXfermode::kClear_Mode,    "Clear"     },
+    { SkXfermode::kSrc_Mode,      "Src"       },
+    { SkXfermode::kDst_Mode,      "Dst"       },
+    { SkXfermode::kSrcOver_Mode,  "SrcOver"   },
+    { SkXfermode::kDstOver_Mode,  "DstOver"   },
+    { SkXfermode::kSrcIn_Mode,    "SrcIn"     },
+    { SkXfermode::kDstIn_Mode,    "DstIn"     },
+    { SkXfermode::kSrcOut_Mode,   "SrcOut"    },
+    { SkXfermode::kDstOut_Mode,   "DstOut"    },
+    { SkXfermode::kSrcATop_Mode,  "SrcATop"   },
+    { SkXfermode::kDstATop_Mode,  "DstATop"   },
+    { SkXfermode::kXor_Mode,      "Xor"       },
 };
 
 const int gWidth = 64;
@@ -81,7 +81,7 @@ const int gHeight = 64;
 const SkScalar W = SkIntToScalar(gWidth);
 const SkScalar H = SkIntToScalar(gHeight);
 
-static SkScalar drawCell(SkCanvas* canvas, SkBlendMode mode, SkAlpha a0, SkAlpha a1) {
+static SkScalar drawCell(SkCanvas* canvas, sk_sp<SkXfermode> mode, SkAlpha a0, SkAlpha a1) {
 
     SkPaint paint;
     paint.setAntiAlias(true);
@@ -95,7 +95,7 @@ static SkScalar drawCell(SkCanvas* canvas, SkBlendMode mode, SkAlpha a0, SkAlpha
 
     paint.setColor(SK_ColorRED);
     paint.setAlpha(a1);
-    paint.setBlendMode(mode);
+    paint.setXfermode(std::move(mode));
 
     SkScalar offset = SK_Scalar1 / 3;
     SkRect rect = SkRect::MakeXYWH(W / 4 + offset,
@@ -155,7 +155,7 @@ namespace skiagm {
                     }
                     canvas->drawRect(bounds, fBGPaint);
                     canvas->saveLayer(&bounds, nullptr);
-                    SkScalar dy = drawCell(canvas, gModes[i].fMode,
+                    SkScalar dy = drawCell(canvas, SkXfermode::Make(gModes[i].fMode),
                                            gAlphaValue[alpha & 1],
                                            gAlphaValue[alpha & 2]);
                     canvas->restore();
