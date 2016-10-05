@@ -233,7 +233,6 @@ SkOpGlobalState::SkOpGlobalState(SkOpContourHead* head,
     , fContourHead(head)
     , fNested(0)
     , fWindingFailed(false)
-    , fAngleCoincidence(false)
     , fPhase(SkOpPhase::kIntersecting)
     SkDEBUGPARAMS(fDebugTestName(testName))
     SkDEBUGPARAMS(fAngleID(0))

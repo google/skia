@@ -33,19 +33,6 @@ static bool bridgeWinding(SkOpContourHead* contourList, SkPathWriter* simple) {
                     SkOpSegment* next = current->findNextWinding(&chase, &nextStart, &nextEnd,
                             &unsortable);
                     if (!next) {
-                        if (!unsortable && simple->hasMove()
-                                && current->verb() != SkPath::kLine_Verb
-                                && !simple->isClosed()) {
-                            // FIXME: put in the next two lines to avoid handling already added
-                            if (start->starter(end)->checkAlreadyAdded()) {
-                                simple->finishContour();
-                            } else if (!current->addCurveTo(start, end, simple)) {
-                                return false;
-                            }
-                            if (!simple->isClosed()) {
-                                SkPathOpsDebug::ShowActiveSpans(contourList);
-                            }
-                        }
                         break;
                     }
         #if DEBUG_FLOW

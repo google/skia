@@ -259,7 +259,6 @@ public:
         kMarkCoinInsert_Glitch,
         kMarkCoinMissing_Glitch,
         kMarkCoinStart_Glitch,
-        kMergeContained_Glitch,
         kMergeMatches_Glitch,
         kMissingCoin_Glitch,
         kMissingDone_Glitch,

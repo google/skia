@@ -635,17 +635,6 @@ void SkOpAngle::insert(SkOpAngle* angle) {
         }
         last = next;
         next = next->fNext;
-        if (last == this) {
-            if (next->fUnorderable) {
-                fUnorderable = true;
-            } else {
-                globalState()->setAngleCoincidence();
-                this->fNext = angle;
-                angle->fNext = next;
-                angle->fCheckCoincidence = true;
-            }
-            return;
-        }
     } while (true);
 }
 

@@ -321,14 +321,6 @@ void SkOpSegment::clearOne(SkOpSpan* span) {
     this->markDone(span);
 }
 
-// Quads and conics collapse if the end points are the same, because
-// the curve doesn't enclose an area.
-bool SkOpSegment::collapsed() const {
-    // FIXME: cubics can have also collapsed -- need to check if the
-    // control points are on a line with the end points
-    return fVerb < SkPath::kCubic_Verb && fHead.pt() == fTail.pt();
-}
-
 bool SkOpSegment::collapsed(double s, double e) const {
     const SkOpSpanBase* span = &fHead;
     do {
@@ -490,6 +482,8 @@ void SkOpSegment::release(const SkOpSpan* span) {
     SkOPASSERT(fCount >= fDoneCount);
 }
 
+#if DEBUG_ANGLE
+// called only by debugCheckNearCoincidence
 double SkOpSegment::distSq(double t, const SkOpAngle* oppAngle) const {
     SkDPoint testPt = this->dPtAtT(t);
     SkDLine testPerp = {{ testPt, testPt }};
@@ -511,6 +505,7 @@ double SkOpSegment::distSq(double t, const SkOpAngle* oppAngle) const {
     }
     return closestDistSq;
 }
+#endif
 
 /*
  The M and S variable name parts stand for the operators.
@@ -1532,60 +1527,6 @@ void SkOpSegment::sortAngles() {
         SkASSERT(!baseAngle || baseAngle->loopCount() > 1);
 #endif
     } while (!span->final() && (span = span->upCast()->next()));
-}
-
-// return true if midpoints were computed
-bool SkOpSegment::subDivide(const SkOpSpanBase* start, const SkOpSpanBase* end,
-        SkOpCurve* edge) const {
-    SkASSERT(start != end);
-    const SkOpPtT& startPtT = *start->ptT();
-    const SkOpPtT& endPtT = *end->ptT();
-    SkDEBUGCODE(edge->fVerb = fVerb);
-    edge->fPts[0] = startPtT.fPt;
-    int points = SkPathOpsVerbToPoints(fVerb);
-    edge->fPts[points] = endPtT.fPt;
-    edge->fWeight = 1;
-    if (fVerb == SkPath::kLine_Verb) {
-        return false;
-    }
-    double startT = startPtT.fT;
-    double endT = endPtT.fT;
-    if ((startT == 0 || endT == 0) && (startT == 1 || endT == 1)) {
-        // don't compute midpoints if we already have them
-        if (fVerb == SkPath::kQuad_Verb) {
-            edge->fPts[1] = fPts[1];
-            return false;
-        }
-        if (fVerb == SkPath::kConic_Verb) {
-            edge->fPts[1] = fPts[1];
-            edge->fWeight = fWeight;
-            return false;
-        }
-        SkASSERT(fVerb == SkPath::kCubic_Verb);
-        if (start < end) {
-            edge->fPts[1] = fPts[1];
-            edge->fPts[2] = fPts[2];
-            return false;
-        }
-        edge->fPts[1] = fPts[2];
-        edge->fPts[2] = fPts[1];
-        return false;
-    }
-    const SkDPoint sub[2] = {{ edge->fPts[0].fX, edge->fPts[0].fY},
-            {edge->fPts[points].fX, edge->fPts[points].fY }};
-    if (fVerb == SkPath::kQuad_Verb) {
-        edge->fPts[1] = SkDQuad::SubDivide(fPts, sub[0], sub[1], startT, endT).asSkPoint();
-    } else if (fVerb == SkPath::kConic_Verb) {
-        edge->fPts[1] = SkDConic::SubDivide(fPts, fWeight, sub[0], sub[1],
-                startT, endT, &edge->fWeight).asSkPoint();
-    } else {
-        SkASSERT(fVerb == SkPath::kCubic_Verb);
-        SkDPoint ctrl[2];
-        SkDCubic::SubDivide(fPts, sub[0], sub[1], startT, endT, ctrl);
-        edge->fPts[1] = ctrl[0].asSkPoint();
-        edge->fPts[2] = ctrl[1].asSkPoint();
-    }
-    return true;
 }
 
 bool SkOpSegment::subDivide(const SkOpSpanBase* start, const SkOpSpanBase* end,

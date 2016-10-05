@@ -54,10 +54,6 @@ public:
         return fAllocator;
     }
 
-    bool angleCoincidence() const {
-        return fAngleCoincidence;
-    }
-
     void bumpNested() {
         ++fNested;
     }
@@ -155,10 +151,6 @@ public:
         fAllocatedOpSpan = true;
     }
 
-    void setAngleCoincidence() {
-        fAngleCoincidence = true;
-    }
-
     void setCoincidence(SkOpCoincidence* coincidence) {
         fCoincidence = coincidence;
     }
@@ -191,7 +183,6 @@ private:
     int fNested;
     bool fAllocatedOpSpan;
     bool fWindingFailed;
-    bool fAngleCoincidence;
     SkOpPhase fPhase;
 #ifdef SK_DEBUG
     const char* fDebugTestName;
