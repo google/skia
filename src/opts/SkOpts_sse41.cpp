@@ -22,8 +22,8 @@ namespace SkOpts {
         blit_row_s32a_opaque = sse41::blit_row_s32a_opaque;
 
     #define STAGE(stage, kCallNext) \
-        stages_4  [SkRasterPipeline::stage] = stage_4  <SK_OPTS_NS::stage, kCallNext>; \
-        stages_1_3[SkRasterPipeline::stage] = stage_1_3<SK_OPTS_NS::stage, kCallNext>
+        stages_4[SkRasterPipeline::stage] = stage_4<SK_OPTS_NS::stage, kCallNext>; \
+        stages_3[SkRasterPipeline::stage] = stage_3<SK_OPTS_NS::stage, kCallNext>
 
         STAGE(store_565 , false);
         STAGE(store_srgb, false);
@@ -48,8 +48,8 @@ namespace SkOpts {
     #undef STAGE
 
     #define STAGE(stage) \
-        stages_4  [SkRasterPipeline::stage] = SK_OPTS_NS::stage; \
-        stages_1_3[SkRasterPipeline::stage] = SK_OPTS_NS::stage
+        stages_4[SkRasterPipeline::stage] = SK_OPTS_NS::stage; \
+        stages_3[SkRasterPipeline::stage] = SK_OPTS_NS::stage
 
         STAGE(dst);
         STAGE(dstatop);

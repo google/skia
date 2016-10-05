@@ -294,6 +294,7 @@ typedef SkNx<8,  uint16_t> Sk8h;
 typedef SkNx<16, uint16_t> Sk16h;
 
 typedef SkNx<4,  int32_t> Sk4i;
+typedef SkNx<8,  int32_t> Sk8i;
 typedef SkNx<4, uint32_t> Sk4u;
 
 // Include platform specific specializations if available.
@@ -308,6 +309,17 @@ SI Sk4i Sk4f_round(const Sk4f& x) {
              (int) lrintf (x[1]),
              (int) lrintf (x[2]),
              (int) lrintf (x[3]), };
+}
+
+SI Sk8i Sk8f_round(const Sk8f& x) {
+    return { (int) lrintf (x[0]),
+             (int) lrintf (x[1]),
+             (int) lrintf (x[2]),
+             (int) lrintf (x[3]),
+             (int) lrintf (x[4]),
+             (int) lrintf (x[5]),
+             (int) lrintf (x[6]),
+             (int) lrintf (x[7]), };
 }
 
 // Load 4 Sk4h and transpose them (256 bits total).

@@ -56,8 +56,12 @@
 class SkRasterPipeline {
 public:
     struct Stage;
-    using Fn = void(SK_VECTORCALL *)(Stage*, size_t, size_t, Sk4f,Sk4f,Sk4f,Sk4f,
-                                                             Sk4f,Sk4f,Sk4f,Sk4f);
+    using Fn4 = void(SK_VECTORCALL *)(Stage*, size_t, size_t, Sk4f,Sk4f,Sk4f,Sk4f,
+                                                              Sk4f,Sk4f,Sk4f,Sk4f);
+    using Fn8 = void(SK_VECTORCALL *)(Stage*, size_t, size_t, Sk8f,Sk8f,Sk8f,Sk8f,
+                                                              Sk8f,Sk8f,Sk8f,Sk8f);
+    using Fn = void(*)();
+
     struct Stage {
         template <typename T>
         T ctx() { return static_cast<T>(fCtx); }
@@ -66,7 +70,13 @@ public:
                                                        Sk4f v4, Sk4f v5, Sk4f v6, Sk4f v7) {
             // Stages are logically a pipeline, and physically are contiguous in an array.
             // To get to the next stage, we just increment our pointer to the next array element.
-            fNext(this+1, x,tail, v0,v1,v2,v3, v4,v5,v6,v7);
+            ((Fn4)fNext)(this+1, x,tail, v0,v1,v2,v3, v4,v5,v6,v7);
+        }
+        void SK_VECTORCALL next(size_t x, size_t tail, Sk8f v0, Sk8f v1, Sk8f v2, Sk8f v3,
+                                                       Sk8f v4, Sk8f v5, Sk8f v6, Sk8f v7) {
+            // Stages are logically a pipeline, and physically are contiguous in an array.
+            // To get to the next stage, we just increment our pointer to the next array element.
+            ((Fn8)fNext)(this+1, x,tail, v0,v1,v2,v3, v4,v5,v6,v7);
         }
 
         // It makes next() a good bit cheaper if we hold the next function to call here,
@@ -84,6 +94,8 @@ public:
     void run(size_t n) { this->run(0, n); }
 
     enum StockStage {
+        just_return,
+
         store_565,
         store_srgb,
         store_f16,
@@ -134,7 +146,6 @@ public:
     void append(StockStage, void* = nullptr);
     void append(StockStage stage, const void* ctx) { this->append(stage, const_cast<void*>(ctx)); }
 
-
     // Append all stages to this pipeline.
     void extend(const SkRasterPipeline&);
 
@@ -143,15 +154,15 @@ private:
 
     void append(Fn body, Fn tail, void*);
 
-    // This no-op default makes fBodyStart and fTailStart unconditionally safe to call,
-    // and is always the last stage's fNext as a sort of safety net to make sure even a
-    // buggy pipeline can't walk off its own end.
-    static void SK_VECTORCALL JustReturn(Stage*, size_t, size_t, Sk4f,Sk4f,Sk4f,Sk4f,
-                                                                 Sk4f,Sk4f,Sk4f,Sk4f);
+    void (*fRun)(size_t, size_t, Fn, Stage*, Fn, Stage*);
+    Fn* fBodyStages;
+    Fn* fTailStages;
+    Fn  fJustReturn;
+
     Stages fBody,
            fTail;
-    Fn fBodyStart = &JustReturn,
-       fTailStart = &JustReturn;
+    Fn fBodyStart,
+       fTailStart;
 };
 
 #endif//SkRasterPipeline_DEFINED
