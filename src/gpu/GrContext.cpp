@@ -356,7 +356,7 @@ bool GrContext::writeSurfacePixels(GrSurface* surface,
             }
             GrPaint paint;
             paint.addColorFragmentProcessor(std::move(fp));
-            paint.setPorterDuffXPFactory(SkBlendMode::kSrc);
+            paint.setPorterDuffXPFactory(SkXfermode::kSrc_Mode);
             paint.setAllowSRGBInputs(true);
             SkRect rect = SkRect::MakeWH(SkIntToScalar(width), SkIntToScalar(height));
             drawContext->drawRect(GrNoClip(), paint, matrix, rect, nullptr);
@@ -471,7 +471,7 @@ bool GrContext::readSurfacePixels(GrSurface* src,
             if (fp) {
                 GrPaint paint;
                 paint.addColorFragmentProcessor(std::move(fp));
-                paint.setPorterDuffXPFactory(SkBlendMode::kSrc);
+                paint.setPorterDuffXPFactory(SkXfermode::kSrc_Mode);
                 paint.setAllowSRGBInputs(true);
                 SkRect rect = SkRect::MakeWH(SkIntToScalar(width), SkIntToScalar(height));
                 tempDC->drawRect(GrNoClip(), paint, SkMatrix::I(), rect, nullptr);

@@ -49,8 +49,8 @@ protected:
 
     SkISize onISize() override { return SkISize::Make(kWidth, kHeight); }
 
-    void drawTestCase(SkCanvas* canvas, SkScalar x, SkScalar y, SkBlendMode mode,
-                      SkBlendMode mode2) {
+    void drawTestCase(SkCanvas* canvas, SkScalar x, SkScalar y, SkXfermode::Mode mode,
+                      SkXfermode::Mode mode2) {
         const SkColor colors[] {
                 SK_ColorRED,
                 SK_ColorGREEN,
@@ -60,6 +60,8 @@ protected:
                 SK_ColorMAGENTA,
         };
 
+        sk_sp<SkXfermode> xfermode(SkXfermode::Make(mode));
+        sk_sp<SkXfermode> xfermode2(SkXfermode::Make(mode2));
         for (size_t i = 0; i < SK_ARRAY_COUNT(colors); i++) {
             canvas->save();
             canvas->translate(x, y);
@@ -68,7 +70,7 @@ protected:
 
             SkPaint textPaint;
             textPaint.setColor(colors[i]);
-            textPaint.setBlendMode(i % 2 == 0 ? mode : mode2);
+            textPaint.setXfermode(i % 2 == 0 ? xfermode : xfermode2);
             canvas->drawTextBlob(fBlob, 0, 0, textPaint);
             canvas->restore();
         }
@@ -77,11 +79,13 @@ protected:
     void onDraw(SkCanvas* canvas) override {
         SkScalar offsetX = kWidth / 4.0f;
         SkScalar offsetY = kHeight / 4.0f;
-        drawTestCase(canvas, offsetX, offsetY,  SkBlendMode::kSrc, SkBlendMode::kSrc);
-        drawTestCase(canvas, 3 * offsetX, offsetY,  SkBlendMode::kSrcOver, SkBlendMode::kSrcOver);
-        drawTestCase(canvas, offsetX, 3 * offsetY,  SkBlendMode::kHardLight,
-                     SkBlendMode::kLuminosity);
-        drawTestCase(canvas, 3 * offsetX, 3 * offsetY,  SkBlendMode::kSrcOver, SkBlendMode::kSrc);
+        drawTestCase(canvas, offsetX, offsetY,  SkXfermode::kSrc_Mode, SkXfermode::kSrc_Mode);
+        drawTestCase(canvas, 3 * offsetX, offsetY,  SkXfermode::kSrcOver_Mode,
+                     SkXfermode::kSrcOver_Mode);
+        drawTestCase(canvas, offsetX, 3 * offsetY,  SkXfermode::kHardLight_Mode,
+                     SkXfermode::kLuminosity_Mode);
+        drawTestCase(canvas, 3 * offsetX, 3 * offsetY,  SkXfermode::kSrcOver_Mode,
+                     SkXfermode::kSrc_Mode);
     }
 
 private:

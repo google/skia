@@ -104,7 +104,7 @@ void SkLayerDrawLooper::LayerDrawLooperContext::ApplyInfo(
         dst->setColorFilter(sk_ref_sp(src.getColorFilter()));
     }
     if (bits & kXfermode_Bit) {
-        dst->setBlendMode(src.getBlendMode());
+        dst->setXfermode(sk_ref_sp(src.getXfermode()));
     }
 
     // we don't override these

@@ -37,7 +37,8 @@ class XfermodesBlurView : public SampleView {
     SkBitmap    fBG;
     SkBitmap    fSrcB, fDstB;
 
-    void draw_mode(SkCanvas* canvas, SkBlendMode mode, int alpha, SkScalar x, SkScalar y) {
+    void draw_mode(SkCanvas* canvas, sk_sp<SkXfermode> mode, int alpha,
+                   SkScalar x, SkScalar y) {
         SkPaint p;
         p.setMaskFilter(SkBlurMaskFilter::Make(kNormal_SkBlurStyle,
                                                SkBlurMask::ConvertRadiusToSigma(5),
@@ -54,7 +55,7 @@ class XfermodesBlurView : public SampleView {
         r.offset(x, y);
         canvas->drawOval(r, p);
 
-        p.setBlendMode(mode);
+        p.setXfermode(std::move(mode));
 
         // draw a square overlapping the circle
         // in the lower right of the canvas
@@ -109,23 +110,34 @@ protected:
         }
 
         const struct {
-            SkBlendMode fMode;
-            const char* fLabel;
+            SkXfermode::Mode  fMode;
+            const char*         fLabel;
         } gModes[] = {
-            { SkBlendMode::kClear,    "Clear"     },
-            { SkBlendMode::kSrc,      "Src"       },
-            { SkBlendMode::kDst,      "Dst"       },
-            { SkBlendMode::kSrcOver,  "SrcOver"   },
-            { SkBlendMode::kDstOver,  "DstOver"   },
-            { SkBlendMode::kSrcIn,    "SrcIn"     },
-            { SkBlendMode::kDstIn,    "DstIn"     },
-            { SkBlendMode::kSrcOut,   "SrcOut"    },
-            { SkBlendMode::kDstOut,   "DstOut"    },
-            { SkBlendMode::kSrcATop,  "SrcATop"   },
-            { SkBlendMode::kDstATop,  "DstATop"   },
-            { SkBlendMode::kXor,      "Xor"       },
+            { SkXfermode::kClear_Mode,    "Clear"     },
+            { SkXfermode::kSrc_Mode,      "Src"       },
+            { SkXfermode::kDst_Mode,      "Dst"       },
+            { SkXfermode::kSrcOver_Mode,  "SrcOver"   },
+            { SkXfermode::kDstOver_Mode,  "DstOver"   },
+            { SkXfermode::kSrcIn_Mode,    "SrcIn"     },
+            { SkXfermode::kDstIn_Mode,    "DstIn"     },
+            { SkXfermode::kSrcOut_Mode,   "SrcOut"    },
+            { SkXfermode::kDstOut_Mode,   "DstOut"    },
+            { SkXfermode::kSrcATop_Mode,  "SrcATop"   },
+            { SkXfermode::kDstATop_Mode,  "DstATop"   },
+            { SkXfermode::kXor_Mode,      "Xor"       },
 
-            { SkBlendMode::kPlus,     "Plus"          },
+            { SkXfermode::kPlus_Mode,         "Plus"          },
+            /*{ SkXfermode::kModulate_Mode,     "Modulate"      },
+            { SkXfermode::kScreen_Mode,       "Screen"        },
+            { SkXfermode::kOverlay_Mode,      "Overlay"       },
+            { SkXfermode::kDarken_Mode,       "Darken"        },
+            { SkXfermode::kLighten_Mode,      "Lighten"       },
+            { SkXfermode::kColorDodge_Mode,   "ColorDodge"    },
+            { SkXfermode::kColorBurn_Mode,    "ColorBurn"     },
+            { SkXfermode::kHardLight_Mode,    "HardLight"     },
+            { SkXfermode::kSoftLight_Mode,    "SoftLight"     },
+            { SkXfermode::kDifference_Mode,   "Difference"    },
+            { SkXfermode::kExclusion_Mode,    "Exclusion"     },*/
         };
 
         const SkScalar w = SkIntToScalar(W);
@@ -156,7 +168,8 @@ protected:
                 canvas->drawRect(r, p);
 
                 canvas->saveLayer(&r, nullptr);
-                draw_mode(canvas, gModes[i].fMode, twice ? 0x88 : 0xFF, r.fLeft, r.fTop);
+                draw_mode(canvas, SkXfermode::Make(gModes[i].fMode),
+                          twice ? 0x88 : 0xFF, r.fLeft, r.fTop);
                 canvas->restore();
 
                 r.inset(-SK_ScalarHalf, -SK_ScalarHalf);

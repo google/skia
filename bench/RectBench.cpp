@@ -85,7 +85,7 @@ private:
 class SrcModeRectBench : public RectBench {
 public:
     SrcModeRectBench() : INHERITED(1, 0) {
-        fMode = SkBlendMode::kSrc;
+        fMode = SkXfermode::Make(SkXfermode::kSrc_Mode);
     }
 
 protected:
@@ -93,7 +93,7 @@ protected:
         this->INHERITED::setupPaint(paint);
         // srcmode is most interesting when we're not opaque
         paint->setAlpha(0x80);
-        paint->setBlendMode(fMode);
+        paint->setXfermode(fMode);
     }
 
     const char* onGetName() override {
@@ -103,8 +103,8 @@ protected:
     }
 
 private:
-    SkString    fName;
-    SkBlendMode fMode;
+    SkString fName;
+    sk_sp<SkXfermode> fMode;
 
     typedef RectBench INHERITED;
 };

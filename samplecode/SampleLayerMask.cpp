@@ -44,13 +44,13 @@ protected:
             bounds.offset(-bounds.fLeft, -bounds.fTop);
             c.drawOval(bounds, paint);
 
-            paint.setBlendMode(SkBlendMode::kDstIn);
+            paint.setXfermodeMode(SkXfermode::kDstIn_Mode);
             canvas->drawBitmap(mask, r.fLeft, r.fTop, &paint);
         } else {
             SkPath p;
             p.addOval(r);
             p.setFillType(SkPath::kInverseWinding_FillType);
-            paint.setBlendMode(SkBlendMode::kDstOut);
+            paint.setXfermodeMode(SkXfermode::kDstOut_Mode);
             canvas->drawPath(p, paint);
         }
     }

@@ -63,7 +63,8 @@ public:
         fColorFilter = paint.getColorFilter();
         SkSafeRef(fColorFilter);
 
-        fXfermode = SkXfermode::Peek(paint.getBlendMode());
+        fXfermode = paint.getXfermode();
+        SkSafeRef(fXfermode);
 
         fBufferSize = 0;
         fBuffer = nullptr;
@@ -82,6 +83,7 @@ public:
 
     virtual ~Sprite_D32_XferFilter() {
         delete[] fBuffer;
+        SkSafeUnref(fXfermode);
         SkSafeUnref(fColorFilter);
     }
 
@@ -261,7 +263,7 @@ SkSpriteBlitter* SkSpriteBlitter::ChooseL32(const SkPixmap& source, const SkPain
     }
 
     U8CPU       alpha = paint.getAlpha();
-    bool isSrcOver = paint.isSrcOver();
+    SkXfermode* xfermode = paint.getXfermode();
     SkColorFilter* filter = paint.getColorFilter();
     SkSpriteBlitter* blitter = nullptr;
 
@@ -270,7 +272,7 @@ SkSpriteBlitter* SkSpriteBlitter::ChooseL32(const SkPixmap& source, const SkPain
             if (alpha != 0xFF) {
                 return nullptr;    // we only have opaque sprites
             }
-            if (!isSrcOver || filter) {
+            if (xfermode || filter) {
                 blitter = allocator->createT<Sprite_D32_S4444_XferFilter>(source, paint);
             } else if (source.isOpaque()) {
                 blitter = allocator->createT<Sprite_D32_S4444_Opaque>(source);
@@ -279,7 +281,7 @@ SkSpriteBlitter* SkSpriteBlitter::ChooseL32(const SkPixmap& source, const SkPain
             }
             break;
         case kN32_SkColorType:
-            if (!isSrcOver || filter) {
+            if (xfermode || filter) {
                 if (255 == alpha) {
                     // this can handle xfermode or filter, but not alpha
                     blitter = allocator->createT<Sprite_D32_S32A_XferFilter>(source, paint);

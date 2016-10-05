@@ -77,7 +77,7 @@ protected:
         SkPaint paint;
         SkColorMatrix matrix;
 
-        paint.setBlendMode(SkBlendMode::kSrc);
+        paint.setXfermodeMode(SkXfermode::kSrc_Mode);
         const SkImage* bmps[] = { fSolidImg.get(), fTransparentImg.get() };
 
         for (size_t i = 0; i < SK_ARRAY_COUNT(bmps); ++i) {

@@ -1116,6 +1116,16 @@ static void apply_paint_shader(const SkPaint& paint, Json::Value* target,
     }
 }
 
+static void apply_paint_xfermode(const SkPaint& paint, Json::Value* target,
+                                 UrlDataManager& urlDataManager) {
+    SkFlattenable* xfermode = paint.getXfermode();
+    if (xfermode != nullptr) {
+        Json::Value jsonXfermode;
+        SkDrawCommand::flatten(xfermode, &jsonXfermode, urlDataManager);
+        (*target)[SKDEBUGCANVAS_ATTRIBUTE_XFERMODE] = jsonXfermode;
+    }
+}
+
 static void apply_paint_imagefilter(const SkPaint& paint, Json::Value* target,
                                     UrlDataManager& urlDataManager) {
     SkFlattenable* imageFilter = paint.getImageFilter();
@@ -1167,6 +1177,7 @@ Json::Value SkDrawCommand::MakeJsonPaint(const SkPaint& paint, UrlDataManager& u
     apply_paint_patheffect(paint, &result, urlDataManager);
     apply_paint_maskfilter(paint, &result, urlDataManager);
     apply_paint_shader(paint, &result, urlDataManager);
+    apply_paint_xfermode(paint, &result, urlDataManager);
     apply_paint_looper(paint, &result, urlDataManager);
     apply_paint_imagefilter(paint, &result, urlDataManager);
     apply_paint_colorfilter(paint, &result, urlDataManager);
@@ -1231,6 +1242,17 @@ static void extract_json_paint_colorfilter(Json::Value& jsonPaint, UrlDataManage
                                                                           urlDataManager));
         if (colorFilter != nullptr) {
             target->setColorFilter(colorFilter);
+        }
+    }
+}
+
+static void extract_json_paint_xfermode(Json::Value& jsonPaint, UrlDataManager& urlDataManager,
+                                        SkPaint* target) {
+    if (jsonPaint.isMember(SKDEBUGCANVAS_ATTRIBUTE_XFERMODE)) {
+        Json::Value jsonXfermode = jsonPaint[SKDEBUGCANVAS_ATTRIBUTE_XFERMODE];
+        sk_sp<SkXfermode> xfermode((SkXfermode*) load_flattenable(jsonXfermode, urlDataManager));
+        if (xfermode != nullptr) {
+            target->setXfermode(xfermode);
         }
     }
 }
@@ -1481,6 +1503,7 @@ static void extract_json_paint(Json::Value& paint, UrlDataManager& urlDataManage
     extract_json_paint_patheffect(paint, urlDataManager, result);
     extract_json_paint_maskfilter(paint, urlDataManager, result);
     extract_json_paint_colorfilter(paint, urlDataManager, result);
+    extract_json_paint_xfermode(paint, urlDataManager, result);
     extract_json_paint_looper(paint, urlDataManager, result);
     extract_json_paint_imagefilter(paint, urlDataManager, result);
     extract_json_paint_typeface(paint, urlDataManager, result);

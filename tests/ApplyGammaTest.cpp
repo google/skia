@@ -112,7 +112,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(ApplyGamma, reporter, ctxInfo) {
             dstCanvas->flush();
 
             SkPaint gammaPaint;
-            gammaPaint.setBlendMode(SkBlendMode::kSrc);
+            gammaPaint.setXfermodeMode(SkXfermode::kSrc_Mode);
             gammaPaint.setColorFilter(SkGammaColorFilter::Make(gamma));
 
             dstCanvas->drawImage(src, 0, 0, &gammaPaint);
