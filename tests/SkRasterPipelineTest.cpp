@@ -17,6 +17,12 @@ DEF_TEST(SkRasterPipeline, r) {
          blue = SkFloatToHalf_finite_ftz({ 0.0f, 0.0f, 0.5f, 0.5f }),
          result = { 1, 2, 3, 4 };
 
+    uint64_t bits;
+    memcpy(&bits, &red, 8);
+    SkDebugf("SkRasterPipeline red: 0x%016llx, want 0x3c00000000003c00\n", bits);
+    memcpy(&bits, &blue, 8);
+    SkDebugf("SkRasterPipeline blue: 0x%016llx, want 0x3800380000000000\n", bits);
+
     SkRasterPipeline p;
     p.append(SkRasterPipeline::load_s_f16, &blue);
     p.append(SkRasterPipeline::load_d_f16, &red);
@@ -26,9 +32,8 @@ DEF_TEST(SkRasterPipeline, r) {
 
     Sk4f f = SkHalfToFloat_finite_ftz(result);
 
-    uint64_t bits;
     memcpy(&bits, &result, 8);
-    SkDebugf("SkRasterPipeline: 0x%016llx\n", bits);
+    SkDebugf("SkRasterPipeline result: 0x%016llx, want 0x3c00380000003800\n", bits);
 
     // We should see half-intensity magenta.
     REPORTER_ASSERT(r, f[0] == 0.5f);
