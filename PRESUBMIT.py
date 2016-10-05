@@ -454,10 +454,11 @@ def _CheckLGTMsForPublicAPI(input_api, output_api):
         output_api.PresubmitError(
             "If this CL adds to or changes Skia's public API, you need an LGTM "
             "from any of %s.  If this CL only removes from or doesn't change "
-            "Skia's public API, please add a short note to the CL saying so "
-            "and add one of those reviewers on a TBR= line.  If you don't know "
-            "if this CL affects Skia's public API, treat it like it does."
-            % str(PUBLIC_API_OWNERS)))
+            "Skia's public API, please add a short note to the CL saying so. "
+            "Add one of the owners as a reviewer to your CL. For Rietveld CLs "
+            "you also need to add one of those owners on a TBR= line.  If you "
+            "don't know if this CL affects Skia's public API, treat it like it "
+            "does." % str(PUBLIC_API_OWNERS)))
   return results
 
 
