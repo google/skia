@@ -31,7 +31,7 @@ bool SkDeferredCanvas::Rec::isConcat(SkMatrix* m) const {
 
 void SkDeferredCanvas::Rec::setConcat(const SkMatrix& m) {
     SkASSERT(m.getType() <= (SkMatrix::kScale_Mask | SkMatrix::kTranslate_Mask));
-    
+
     if (m.getType() <= SkMatrix::kTranslate_Mask) {
         fType = kTrans_Type;
         fData.fTranslate.set(m.getTranslateX(), m.getTranslateY());
@@ -44,12 +44,26 @@ void SkDeferredCanvas::Rec::setConcat(const SkMatrix& m) {
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
+SkDeferredCanvas::SkDeferredCanvas() {}
 SkDeferredCanvas::SkDeferredCanvas(SkCanvas* canvas)
     : INHERITED(canvas->getBaseLayerSize().width(), canvas->getBaseLayerSize().height())
     , fCanvas(canvas)
 {}
 
 SkDeferredCanvas::~SkDeferredCanvas() {}
+
+void SkDeferredCanvas::reset(SkCanvas* canvas) {
+    if (fCanvas) {
+        this->flush();
+        fCanvas = nullptr;
+    }
+    fRecs.reset();
+    if (canvas) {
+        this->resetForNextPicture(SkIRect::MakeSize(fCanvas->getBaseLayerSize()));
+        fCanvas = canvas;
+        fCanvas->resetForNextPicture(SkIRect::MakeSize(fCanvas->getBaseLayerSize()));
+    }
+}
 
 void SkDeferredCanvas::push_save() {
     Rec* r = fRecs.append();
@@ -434,7 +448,7 @@ void SkDeferredCanvas::onDrawImageLattice(const SkImage* image, const Lattice& l
 }
 
 void SkDeferredCanvas::onDrawText(const void* text, size_t byteLength, SkScalar x, SkScalar y,
-                              const SkPaint& paint) {
+                                  const SkPaint& paint) {
     this->flush_translate(&x, &y, paint);
     fCanvas->drawText(text, byteLength, x, y, paint);
 }
@@ -480,7 +494,7 @@ void SkDeferredCanvas::onDrawTextBlob(const SkTextBlob* blob, SkScalar x, SkScal
 #include "SkCanvasPriv.h"
 void SkDeferredCanvas::onDrawPicture(const SkPicture* picture, const SkMatrix* matrix,
                                  const SkPaint* paint) {
-#if 1
+#if 0
     SkAutoCanvasMatrixPaint acmp(this, matrix, paint, picture->cullRect());
     picture->playback(this);
 #else
@@ -491,7 +505,7 @@ void SkDeferredCanvas::onDrawPicture(const SkPicture* picture, const SkMatrix* m
 
 void SkDeferredCanvas::onDrawDrawable(SkDrawable* drawable, const SkMatrix* matrix) {
     // TODO: investigate culling and applying concat to the matrix
-#if 1
+#if 0
     drawable->draw(this, matrix);
 #else
     this->flush_before_saves();

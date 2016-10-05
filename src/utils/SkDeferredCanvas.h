@@ -14,8 +14,11 @@
 
 class SK_API SkDeferredCanvas : public SkCanvas {
 public:
+    SkDeferredCanvas();
     SkDeferredCanvas(SkCanvas*);
     ~SkDeferredCanvas() override;
+
+    void reset(SkCanvas*);
 
 #ifdef SK_SUPPORT_LEGACY_DRAWFILTER
     SkDrawFilter* setDrawFilter(SkDrawFilter*) override;
@@ -106,7 +109,7 @@ protected:
     class Iter;
 
 private:
-    SkCanvas* fCanvas;
+    SkCanvas* fCanvas{nullptr};
 
     enum Type {
         kSave_Type,
@@ -137,7 +140,7 @@ private:
     void push_save();
     void push_cliprect(const SkRect&);
     bool push_concat(const SkMatrix&);
-    
+
     void emit(const Rec& rec);
 
     void flush_all();
