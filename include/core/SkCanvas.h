@@ -1505,7 +1505,7 @@ protected:
                                        const SkPaint*,
                                        const SkShadowParams& params);
 #endif
-    
+
     // Returns the canvas to be used by DrawIter. Default implementation
     // returns this. Subclasses that encapsulate an indirect canvas may
     // need to overload this method. The impl must keep track of this, as it
@@ -1557,7 +1557,7 @@ private:
         SkPaint           fDefaultPaint;
         bool              fDone;
     };
-    
+
     static bool BoundsAffectsClip(SaveLayerFlags);
     static SaveLayerFlags LegacySaveFlagsToSaveLayerFlags(uint32_t legacySaveFlags);
 
@@ -1627,6 +1627,7 @@ private:
     friend class SkPictureImageFilter;  // SkCanvas(SkBaseDevice*, SkSurfaceProps*, InitFlags)
     friend class SkPictureRecord;   // predrawNotify (why does it need it? <reed>)
     friend class SkPicturePlayback; // SaveFlagsToSaveLayerFlags
+    friend class SkDeferredCanvas;  // For use of resetForNextPicture
 
     enum InitFlags {
         kDefault_InitFlags                  = 0,
