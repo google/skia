@@ -21,35 +21,34 @@ namespace SkOpts {
         srcover_srgb_srgb    = sse41::srcover_srgb_srgb;
         blit_row_s32a_opaque = sse41::blit_row_s32a_opaque;
 
-    #define STAGE(stage, kCallNext) \
-        stages_4  [SkRasterPipeline::stage] = stage_4  <SK_OPTS_NS::stage, kCallNext>; \
-        stages_1_3[SkRasterPipeline::stage] = stage_1_3<SK_OPTS_NS::stage, kCallNext>
+    #define STAGE(stage)                                        \
+        body[SkRasterPipeline::stage] = SK_OPTS_NS::stage;      \
+        tail[SkRasterPipeline::stage] = SK_OPTS_NS::stage##_tail
 
-        STAGE(store_565 , false);
-        STAGE(store_srgb, false);
-        STAGE(store_f16 , false);
+        STAGE(store_565);
+        STAGE(store_srgb);
+        STAGE(store_f16);
 
-        STAGE(load_s_565 , true);
-        STAGE(load_s_srgb, true);
-        STAGE(load_s_f16 , true);
+        STAGE(load_s_565);
+        STAGE(load_s_srgb);
+        STAGE(load_s_f16);
 
-        STAGE(load_d_565 , true);
-        STAGE(load_d_srgb, true);
-        STAGE(load_d_f16 , true);
+        STAGE(load_d_565);
+        STAGE(load_d_srgb);
+        STAGE(load_d_f16);
 
-        STAGE(scale_u8, true);
+        STAGE(scale_u8);
 
-        STAGE(lerp_u8            , true);
-        STAGE(lerp_565           , true);
-        STAGE(lerp_constant_float, true);
-
-        STAGE(constant_color, true);
-
+        STAGE(lerp_u8);
+        STAGE(lerp_565);
     #undef STAGE
 
     #define STAGE(stage) \
-        stages_4  [SkRasterPipeline::stage] = SK_OPTS_NS::stage; \
-        stages_1_3[SkRasterPipeline::stage] = SK_OPTS_NS::stage
+        body[SkRasterPipeline::stage] = SK_OPTS_NS::stage; \
+        tail[SkRasterPipeline::stage] = SK_OPTS_NS::stage
+
+        STAGE(lerp_constant_float);
+        STAGE(constant_color);
 
         STAGE(dst);
         STAGE(dstatop);
