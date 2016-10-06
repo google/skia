@@ -1548,7 +1548,7 @@ private:
 
     static void FillInOverstrokeVerts(CircleVertex** verts, const SkRect& bounds,
                                       SkScalar smInset, SkScalar bigInset, SkScalar xOffset,
-                                      SkScalar outerRadius, GrColor color) {
+                                      SkScalar outerRadius, SkScalar innerRadius, GrColor color) {
         SkASSERT(smInset < bigInset);
 
         // TL
@@ -1556,7 +1556,7 @@ private:
         (*verts)->fColor = color;
         (*verts)->fOffset = SkPoint::Make(xOffset, 0);
         (*verts)->fOuterRadius = outerRadius;
-        (*verts)->fInnerRadius = 0;
+        (*verts)->fInnerRadius = innerRadius;
         (*verts)++;
 
         // TR
@@ -1564,35 +1564,35 @@ private:
         (*verts)->fColor = color;
         (*verts)->fOffset = SkPoint::Make(xOffset, 0);
         (*verts)->fOuterRadius = outerRadius;
-        (*verts)->fInnerRadius = 0;
+        (*verts)->fInnerRadius = innerRadius;
         (*verts)++;
 
         (*verts)->fPos = SkPoint::Make(bounds.fLeft + bigInset,  bounds.fTop + bigInset);
         (*verts)->fColor = color;
         (*verts)->fOffset = SkPoint::Make(0, 0);
         (*verts)->fOuterRadius = outerRadius;
-        (*verts)->fInnerRadius = 0;
+        (*verts)->fInnerRadius = innerRadius;
         (*verts)++;
 
         (*verts)->fPos = SkPoint::Make(bounds.fRight - bigInset,  bounds.fTop + bigInset);
         (*verts)->fColor = color;
         (*verts)->fOffset = SkPoint::Make(0, 0);
         (*verts)->fOuterRadius = outerRadius;
-        (*verts)->fInnerRadius = 0;
+        (*verts)->fInnerRadius = innerRadius;
         (*verts)++;
 
         (*verts)->fPos = SkPoint::Make(bounds.fLeft + bigInset, bounds.fBottom - bigInset);
         (*verts)->fColor = color;
         (*verts)->fOffset = SkPoint::Make(0, 0);
         (*verts)->fOuterRadius = outerRadius;
-        (*verts)->fInnerRadius = 0;
+        (*verts)->fInnerRadius = innerRadius;
         (*verts)++;
 
         (*verts)->fPos = SkPoint::Make(bounds.fRight - bigInset, bounds.fBottom - bigInset);
         (*verts)->fColor = color;
         (*verts)->fOffset = SkPoint::Make(0, 0);
         (*verts)->fOuterRadius = outerRadius;
-        (*verts)->fInnerRadius = 0;
+        (*verts)->fInnerRadius = innerRadius;
         (*verts)++;
 
         // BL
@@ -1600,7 +1600,7 @@ private:
         (*verts)->fColor = color;
         (*verts)->fOffset = SkPoint::Make(xOffset, 0);
         (*verts)->fOuterRadius = outerRadius;
-        (*verts)->fInnerRadius = 0;
+        (*verts)->fInnerRadius = innerRadius;
         (*verts)++;
 
         // BR
@@ -1608,7 +1608,7 @@ private:
         (*verts)->fColor = color;
         (*verts)->fOffset = SkPoint::Make(xOffset, 0);
         (*verts)->fOuterRadius = outerRadius;
-        (*verts)->fInnerRadius = 0;
+        (*verts)->fInnerRadius = innerRadius;
         (*verts)++;
     }
 
@@ -1715,7 +1715,7 @@ private:
                 SkScalar maxOffset = -args.fInnerRadius / overstrokeOuterRadius;
 
                 FillInOverstrokeVerts(&verts, bounds, outerRadius, overstrokeOuterRadius,
-                                      maxOffset, overstrokeOuterRadius, color);
+                                      maxOffset, overstrokeOuterRadius, 0.0f, color);
             }
 
             if (kFillWithDist_RRectType == args.fType) {
@@ -1724,7 +1724,7 @@ private:
                 SkScalar xOffset = 1.0f - outerRadius / halfMinDim;
 
                 FillInOverstrokeVerts(&verts, bounds, outerRadius, halfMinDim,
-                                      xOffset, halfMinDim, color);
+                                      xOffset, halfMinDim, -1.0f, color);
             }
 
             const uint16_t* primIndices = rrect_type_to_indices(args.fType);
