@@ -219,10 +219,13 @@ DEF_GM( return new FillCircleGM; )
 //////////////////////
 
 static void html_canvas_arc(SkPath* path, SkScalar x, SkScalar y, SkScalar r, SkScalar start,
-                            SkScalar end, bool ccw) {
+                            SkScalar end, bool ccw, bool callArcTo) {
     SkRect bounds = { x - r, y - r, x + r, y + r };
     SkScalar sweep = ccw ? end - start : start - end;
-    path->arcTo(bounds, start, sweep, false);
+    if (callArcTo)
+        path->arcTo(bounds, start, sweep, false);
+    else
+        path->addArc(bounds, start, sweep);
 }
 
 // Lifted from canvas-arc-circumference-fill-diffs.html
@@ -269,7 +272,7 @@ protected:
                 SkPath path;
                 path.moveTo(0, 2);
                 html_canvas_arc(&path, 18, 15, 10, startAngle, startAngle + (sweepAngles[j] * sign),
-                                anticlockwise);
+                                anticlockwise, true);
                 path.lineTo(0, 28);
                 canvas->drawPath(path, paint);
                 canvas->translate(30, 0);
@@ -283,3 +286,37 @@ private:
     typedef skiagm::GM INHERITED;
 };
 DEF_GM( return new ManyArcsGM; )
+
+// Lifted from https://bugs.chromium.org/p/chromium/issues/detail?id=640031
+class TinyAngleBigRadiusArcsGM : public skiagm::GM {
+public:
+    TinyAngleBigRadiusArcsGM() {}
+
+protected:
+    SkString onShortName() override { return SkString("tinyanglearcs"); }
+
+    SkISize onISize() override { return SkISize::Make(620, 330); }
+
+    void onDraw(SkCanvas* canvas) override {
+        SkPaint paint;
+        paint.setAntiAlias(true);
+        paint.setStyle(SkPaint::kStroke_Style);
+
+        canvas->translate(50, 50);
+
+        SkPath path;
+        path.moveTo(50, 20);
+        path.lineTo(50, 0);
+        // A combination of tiny sweepAngle + large radius, we should draw a line.
+        html_canvas_arc(&path, 50, 100000, 100000, 270, 270.0f - 0.00572957795f,
+                        false, true);
+        path.lineTo(60, 20);
+        html_canvas_arc(&path, 50, 100000, 99980, 270.0f - 0.00572957795f, 270,
+                        false, false);
+        canvas->drawPath(path, paint);
+    }
+
+private:
+    typedef skiagm::GM INHERITED;
+};
+DEF_GM( return new TinyAngleBigRadiusArcsGM; )
