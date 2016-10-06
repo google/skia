@@ -220,7 +220,7 @@ namespace SK_OPTS_NS {
         }
 
         Sk4h rh, gh, bh, ah;
-        Sk4h_load4(ptr, &rh, &gh, &bh, &ah);
+        Sk4h::Load4(ptr, &rh, &gh, &bh, &ah);
         dr = SkHalfToFloat_finite_ftz(rh);
         dg = SkHalfToFloat_finite_ftz(gh);
         db = SkHalfToFloat_finite_ftz(bh);
@@ -242,7 +242,7 @@ namespace SK_OPTS_NS {
         }
 
         Sk4h rh, gh, bh, ah;
-        Sk4h_load4(ptr, &rh, &gh, &bh, &ah);
+        Sk4h::Load4(ptr, &rh, &gh, &bh, &ah);
         r = SkHalfToFloat_finite_ftz(rh);
         g = SkHalfToFloat_finite_ftz(gh);
         b = SkHalfToFloat_finite_ftz(bh);
@@ -254,7 +254,7 @@ namespace SK_OPTS_NS {
         auto ptr = (uint64_t*)ctx + x;
 
         switch (tail) {
-            case 0: return Sk4h_store4(ptr, SkFloatToHalf_finite_ftz(r),
+            case 0: return Sk4h::Store4(ptr, SkFloatToHalf_finite_ftz(r),
                                             SkFloatToHalf_finite_ftz(g),
                                             SkFloatToHalf_finite_ftz(b),
                                             SkFloatToHalf_finite_ftz(a));
