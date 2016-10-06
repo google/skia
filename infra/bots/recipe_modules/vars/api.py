@@ -34,6 +34,7 @@ class SkiaVarsApi(recipe_api.RecipeApi):
     self.default_env = {}
     self.gclient_env = {}
     self.is_compile_bot = self.builder_name.startswith('Build-')
+    self.no_buildbot = self.m.properties.get('nobuildbot', '') == 'True'
 
     self.default_env['CHROME_HEADLESS'] = '1'
     # The 'depot_tools' directory comes from recipe DEPS and isn't provided by
@@ -106,17 +107,27 @@ class SkiaVarsApi(recipe_api.RecipeApi):
 
     self.default_env.update({'SKIA_OUT': self.skia_out,
                              'BUILDTYPE': self.configuration})
-    self.is_trybot = self.builder_cfg['is_trybot']
+
     self.patch_storage = self.m.properties.get('patch_storage', 'rietveld')
     self.issue = None
     self.patchset = None
-    if self.is_trybot:
-      if self.patch_storage == 'gerrit':
-        self.issue = self.m.properties['event.change.number']
-        self.patchset = self.m.properties['event.patchSet.ref'].split('/')[-1]
-      else:
+    if self.no_buildbot:
+      self.is_trybot = (
+          self.m.properties.get('issue', '') and
+          self.m.properties.get('patchset', ''))
+      if self.is_trybot:
         self.issue = self.m.properties['issue']
         self.patchset = self.m.properties['patchset']
+    else:
+      self.is_trybot = self.builder_cfg['is_trybot']
+      if self.is_trybot:
+        if self.patch_storage == 'gerrit':
+          self.issue = self.m.properties['event.change.number']
+          self.patchset = self.m.properties['event.patchSet.ref'].split('/')[-1]
+        else:
+          self.issue = self.m.properties['issue']
+          self.patchset = self.m.properties['patchset']
+
     self.dm_dir = self.m.path.join(
         self.swarming_out_dir, 'dm')
     self.perf_data_dir = self.m.path.join(self.swarming_out_dir,
