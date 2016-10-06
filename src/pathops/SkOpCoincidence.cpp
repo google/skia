@@ -842,9 +842,11 @@ bool SkOpCoincidence::addOverlap(const SkOpSegment* seg1, const SkOpSegment* seg
         const SkOpPtT* overS, const SkOpPtT* overE) {
     const SkOpPtT* s1 = overS->find(seg1);
     const SkOpPtT* e1 = overE->find(seg1);
+    FAIL_IF(!e1);
     if (!s1->starter(e1)->span()->upCast()->windValue()) {
         s1 = overS->find(seg1o);
         e1 = overE->find(seg1o);
+        FAIL_IF(!e1);
         if (!s1->starter(e1)->span()->upCast()->windValue()) {
             return true;
         }
@@ -1176,7 +1178,7 @@ bool SkOpCoincidence::expand(DEBUG_COIN_DECLARE_ONLY_PARAMS()) {
     return expanded;
 }
 
-void SkOpCoincidence::findOverlaps(SkOpCoincidence* overlaps  DEBUG_COIN_DECLARE_PARAMS()) const {
+bool SkOpCoincidence::findOverlaps(SkOpCoincidence* overlaps  DEBUG_COIN_DECLARE_PARAMS()) const {
     DEBUG_SET_PHASE();
     overlaps->fHead = overlaps->fTop = nullptr;
     SkCoincidentSpans* outer = fHead;
@@ -1201,12 +1203,15 @@ void SkOpCoincidence::findOverlaps(SkOpCoincidence* overlaps  DEBUG_COIN_DECLARE
                     || (outerOpp == innerOpp && SkOpPtT::Overlaps(outer->oppPtTStart(),
                     outer->oppPtTEnd(), inner->oppPtTStart(), inner->oppPtTEnd(),
                     &overlapS, &overlapE))) {
-                SkAssertResult(overlaps->addOverlap(outerCoin, outerOpp, innerCoin, innerOpp,
-                        overlapS, overlapE));
+                if (!overlaps->addOverlap(outerCoin, outerOpp, innerCoin, innerOpp,
+                        overlapS, overlapE)) {
+                    return false;
+                }
              }
         }
         outer = outer->next();
     }
+    return true;
 }
 
 void SkOpCoincidence::fixUp(SkOpPtT* deleted, const SkOpPtT* kept) {
@@ -1265,9 +1270,9 @@ void SkOpCoincidence::mark(DEBUG_COIN_DECLARE_ONLY_PARAMS()) {
         SkOpSpan* start = coin->coinPtTStartWritable()->span()->upCast();
         SkASSERT(!start->deleted());
         SkOpSpanBase* end = coin->coinPtTEndWritable()->span();
-        SkASSERT(!end->deleted());
+        SkOPASSERT(!end->deleted());
         SkOpSpanBase* oStart = coin->oppPtTStartWritable()->span();
-        SkASSERT(!oStart->deleted());
+        SkOPASSERT(!oStart->deleted());
         SkOpSpanBase* oEnd = coin->oppPtTEndWritable()->span();
         SkASSERT(!oEnd->deleted());
         bool flipped = coin->flipped();
