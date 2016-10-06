@@ -39,6 +39,23 @@
       "revId": "ef895f9b79ccbde270b33b2be2f953a23d1191e4",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "3f6930e5_f73e2012",
+        "filename": "src/utils/SkDeferredCanvas.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 64,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2016-10-06T01:39:57Z",
+      "side": 1,
+      "message": "I don\u0027t think we should be calling resetForNextPicture() on the destination canvas here.\n\nresetForNextPicture() is only meant to be called on certain SkCanvas subtypes, and we can\u0027t know here that this is one of the safe ones, nor can we know that it\u0027s all that\u0027s needed to reset that subtype.  resetForNextPicture() only resets the SkCanvas part of that SkCanvas subtype.  \n\nInstead, if the destination needs a reset, we need to call its particular method for resetting itself (e.g. SkLiteRecorder::reset(SkLiteDL*)) first before calling SkDeferredCanvas::reset().",
+      "revId": "ef895f9b79ccbde270b33b2be2f953a23d1191e4",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
