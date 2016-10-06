@@ -39,6 +39,14 @@ public:
     sk_sp<GrXPFactory> asXPFactory() const override;
 #endif
 
+    bool isArithmetic(SkArithmeticParams* params) const override {
+        if (params) {
+            memcpy(params->fK, fK, 4 * sizeof(float));
+            params->fEnforcePMColor = fEnforcePMColor;
+        }
+        return true;
+    }
+
 private:
     void flatten(SkWriteBuffer& buffer) const override {
         buffer.writeScalar(fK[0]);

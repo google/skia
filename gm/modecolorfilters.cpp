@@ -78,7 +78,7 @@ protected:
         }
         SkPaint bgPaint;
         bgPaint.setShader(fBmpShader);
-        bgPaint.setXfermodeMode(SkXfermode::kSrc_Mode);
+        bgPaint.setBlendMode(SkBlendMode::kSrc);
 
         sk_sp<SkShader> shaders[] = {
             nullptr,                                   // use a paint color instead of a shader

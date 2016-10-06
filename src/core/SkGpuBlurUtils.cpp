@@ -80,7 +80,7 @@ static void convolve_gaussian_1d(GrDrawContext* drawContext,
     sk_sp<GrFragmentProcessor> conv(GrConvolutionEffect::MakeGaussian(
         texture, direction, radius, sigma, useBounds, bounds));
     paint.addColorFragmentProcessor(std::move(conv));
-    paint.setPorterDuffXPFactory(SkXfermode::kSrc_Mode);
+    paint.setPorterDuffXPFactory(SkBlendMode::kSrc);
     SkMatrix localMatrix = SkMatrix::MakeTrans(-SkIntToScalar(srcOffset.x()),
                                                -SkIntToScalar(srcOffset.y()));
     drawContext->fillRectWithLocalMatrix(clip, paint, SkMatrix::I(),
@@ -110,7 +110,7 @@ static void convolve_gaussian_2d(GrDrawContext* drawContext,
             srcBounds ? GrTextureDomain::kDecal_Mode : GrTextureDomain::kIgnore_Mode,
             true, sigmaX, sigmaY));
     paint.addColorFragmentProcessor(std::move(conv));
-    paint.setPorterDuffXPFactory(SkXfermode::kSrc_Mode);
+    paint.setPorterDuffXPFactory(SkBlendMode::kSrc);
     drawContext->fillRectWithLocalMatrix(clip, paint, SkMatrix::I(), 
                                          SkRect::Make(dstRect), localMatrix);
 }
@@ -285,7 +285,7 @@ sk_sp<GrDrawContext> GaussianBlur(GrContext* context,
             GrTextureParams params(SkShader::kClamp_TileMode, GrTextureParams::kBilerp_FilterMode);
             paint.addColorTextureProcessor(srcTexture.get(), nullptr, matrix, params);
         }
-        paint.setPorterDuffXPFactory(SkXfermode::kSrc_Mode);
+        paint.setPorterDuffXPFactory(SkBlendMode::kSrc);
         shrink_irect_by_2(&dstRect, i < scaleFactorX, i < scaleFactorY);
 
         dstDrawContext->fillRectToRect(clip, paint, SkMatrix::I(),
@@ -361,7 +361,7 @@ sk_sp<GrDrawContext> GaussianBlur(GrContext* context,
         GrTextureParams params(SkShader::kClamp_TileMode, GrTextureParams::kBilerp_FilterMode);
         sk_sp<GrTexture> tex(srcDrawContext->asTexture());
         paint.addColorTextureProcessor(tex.get(), nullptr, matrix, params);
-        paint.setPorterDuffXPFactory(SkXfermode::kSrc_Mode);
+        paint.setPorterDuffXPFactory(SkBlendMode::kSrc);
 
         SkIRect dstRect(srcRect);
         scale_irect(&dstRect, scaleFactorX, scaleFactorY);

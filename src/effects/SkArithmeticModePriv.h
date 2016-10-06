@@ -10,6 +10,11 @@
 
 #include "SkArithmeticMode.h"
 
+struct SkArithmeticParams {
+    float fK[4];
+    bool fEnforcePMColor;
+};
+
 #ifndef SK_SUPPORT_LEGACY_ARITHMETICMODE
 
 class SK_API SkArithmeticMode {

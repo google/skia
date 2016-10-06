@@ -401,7 +401,7 @@ static void apply_morphology_rect(GrDrawContext* drawContext,
                                                              radius,
                                                              morphType,
                                                              bounds));
-    paint.setPorterDuffXPFactory(SkXfermode::kSrc_Mode);
+    paint.setPorterDuffXPFactory(SkBlendMode::kSrc);
     drawContext->fillRectToRect(clip, paint, SkMatrix::I(), SkRect::Make(dstRect),
                                      SkRect::Make(srcRect));
 }
@@ -418,7 +418,7 @@ static void apply_morphology_rect_no_bounds(GrDrawContext* drawContext,
     paint.setGammaCorrect(drawContext->isGammaCorrect());
     paint.addColorFragmentProcessor(GrMorphologyEffect::Make(texture, direction, radius,
                                                              morphType));
-    paint.setPorterDuffXPFactory(SkXfermode::kSrc_Mode);
+    paint.setPorterDuffXPFactory(SkBlendMode::kSrc);
     drawContext->fillRectToRect(clip, paint, SkMatrix::I(), SkRect::Make(dstRect),
                                 SkRect::Make(srcRect));
 }

@@ -100,7 +100,7 @@ static SkBitmap createBitmap(int n) {
     canvas.drawOval(r, paint);
 
     r.inset(SK_Scalar1*n/4, SK_Scalar1*n/4);
-    paint.setXfermodeMode(SkXfermode::kSrc_Mode);
+    paint.setBlendMode(SkBlendMode::kSrc);
     paint.setColor(0x800000FF);
     canvas.drawOval(r, paint);
 

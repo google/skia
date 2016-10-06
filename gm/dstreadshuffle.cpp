@@ -159,8 +159,8 @@ protected:
                             p.setColor(color);
                             // In order to get some batching on the GPU backend we do 2 src over for
                             // each xfer mode which requires a dst read
-                            p.setXfermodeMode(r % 3 == 0 ? SkXfermode::kLighten_Mode :
-                                                           SkXfermode::kSrcOver_Mode);
+                            p.setBlendMode(r % 3 == 0 ? SkBlendMode::kLighten :
+                                                        SkBlendMode::kSrcOver);
                             SetStyle(&p, style, width);
                             canvas->save();
                             canvas->translate(x, y);
