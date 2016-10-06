@@ -541,7 +541,7 @@ void SkFormatDumper::dump(SkDumpCanvas* canvas, SkDumpCanvas::Verb verb,
     if (p) {
         msg.appendf(" color:0x%08X flags:%X", p->getColor(), p->getFlags());
         if (!p->isSrcOver()) {
-            msg.appendf(" blendmode:%d", p->getBlendMode());
+            msg.appendf(" blendmode:%d", (int)p->getBlendMode());
         }
         appendFlattenable(&msg, p->getShader(), "shader");
         appendFlattenable(&msg, p->getPathEffect(), "pathEffect");
