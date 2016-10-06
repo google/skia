@@ -22,6 +22,24 @@
       "revId": "dfccf7a96c2dfb285b340f4c2adb1e3bc6942f25",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "3f6930e5_b796689a",
+        "filename": "src/gpu/GrOvalRenderer.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 1713,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2016-10-06T14:23:39Z",
+      "side": 1,
+      "message": "Done\n\nThe FillWithDist \u0026 Overstroke cases do have a difference usage pattern for the \"maxOffset\". I\u0027ve broken it out into a static method which is, hopefully, clearer.",
+      "parentUuid": "825001f1_31e8f0cc",
+      "revId": "dfccf7a96c2dfb285b340f4c2adb1e3bc6942f25",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
