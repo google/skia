@@ -212,7 +212,7 @@ public:
     bool expand(DEBUG_COIN_DECLARE_ONLY_PARAMS());
     bool extend(const SkOpPtT* coinPtTStart, const SkOpPtT* coinPtTEnd, const SkOpPtT* oppPtTStart,
                 const SkOpPtT* oppPtTEnd);
-    void findOverlaps(SkOpCoincidence*  DEBUG_COIN_DECLARE_PARAMS()) const;
+    bool findOverlaps(SkOpCoincidence*  DEBUG_COIN_DECLARE_PARAMS()) const;
     void fixUp(SkOpPtT* deleted, const SkOpPtT* kept);
 
     SkOpGlobalState* globalState() {
