@@ -55,6 +55,23 @@ struct SkNx {
         fHi.store(ptr + N/2*sizeof(T));
     }
 
+    static void Load4(const void* vptr, SkNx* a, SkNx* b, SkNx* c, SkNx* d) {
+        auto ptr = (const char*)vptr;
+        Half al, bl, cl, dl,
+             ah, bh, ch, dh;
+        Half::Load4(ptr                  , &al, &bl, &cl, &dl);
+        Half::Load4(ptr + 4*N/2*sizeof(T), &ah, &bh, &ch, &dh);
+        *a = SkNx{al, ah};
+        *b = SkNx{bl, bh};
+        *c = SkNx{cl, ch};
+        *d = SkNx{dl, dh};
+    }
+    static void Store4(void* vptr, const SkNx& a, const SkNx& b, const SkNx& c, const SkNx& d) {
+        auto ptr = (char*)vptr;
+        Half::Store4(ptr,                   a.fLo, b.fLo, c.fLo, d.fLo);
+        Half::Store4(ptr + 4*N/2*sizeof(T), a.fHi, b.fHi, c.fHi, d.fHi);
+    }
+
     bool anyTrue() const { return fLo.anyTrue() || fHi.anyTrue(); }
     bool allTrue() const { return fLo.allTrue() && fHi.allTrue(); }
 
@@ -122,6 +139,21 @@ struct SkNx<1,T> {
         return v;
     }
     void store(void* ptr) const { memcpy(ptr, &fVal, sizeof(T)); }
+
+    static void Load4(const void* vptr, SkNx* a, SkNx* b, SkNx* c, SkNx* d) {
+        auto ptr = (const char*)vptr;
+        *a = Load(ptr + 0*sizeof(T));
+        *b = Load(ptr + 1*sizeof(T));
+        *c = Load(ptr + 2*sizeof(T));
+        *d = Load(ptr + 3*sizeof(T));
+    }
+    static void Store4(void* vptr, const SkNx& a, const SkNx& b, const SkNx& c, const SkNx& d) {
+        auto ptr = (char*)vptr;
+        a.store(ptr + 0*sizeof(T));
+        b.store(ptr + 1*sizeof(T));
+        c.store(ptr + 2*sizeof(T));
+        d.store(ptr + 3*sizeof(T));
+    }
 
     bool anyTrue() const { return fVal != 0; }
     bool allTrue() const { return fVal != 0; }
@@ -308,50 +340,6 @@ SI Sk4i Sk4f_round(const Sk4f& x) {
              (int) lrintf (x[1]),
              (int) lrintf (x[2]),
              (int) lrintf (x[3]), };
-}
-
-// Load 4 Sk4h and transpose them (256 bits total).
-SI void Sk4h_load4(const void* vptr, Sk4h* r, Sk4h* g, Sk4h* b, Sk4h* a) {
-    const uint64_t* ptr = (const uint64_t*)vptr;
-    auto p0 = Sk4h::Load(ptr+0),
-         p1 = Sk4h::Load(ptr+1),
-         p2 = Sk4h::Load(ptr+2),
-         p3 = Sk4h::Load(ptr+3);
-    *r = { p0[0], p1[0], p2[0], p3[0] };
-    *g = { p0[1], p1[1], p2[1], p3[1] };
-    *b = { p0[2], p1[2], p2[2], p3[2] };
-    *a = { p0[3], p1[3], p2[3], p3[3] };
-}
-
-// Transpose 4 Sk4h and store (256 bits total).
-SI void Sk4h_store4(void* dst, const Sk4h& r, const Sk4h& g, const Sk4h& b, const Sk4h& a) {
-    uint64_t* dst64 = (uint64_t*) dst;
-    Sk4h(r[0], g[0], b[0], a[0]).store(dst64 + 0);
-    Sk4h(r[1], g[1], b[1], a[1]).store(dst64 + 1);
-    Sk4h(r[2], g[2], b[2], a[2]).store(dst64 + 2);
-    Sk4h(r[3], g[3], b[3], a[3]).store(dst64 + 3);
-}
-
-// Load 4 Sk4f and transpose them (512 bits total).
-SI void Sk4f_load4(const void* vptr, Sk4f* r, Sk4f* g, Sk4f* b, Sk4f* a) {
-    const float* ptr = (const float*) vptr;
-    auto p0 = Sk4f::Load(ptr +  0),
-         p1 = Sk4f::Load(ptr +  4),
-         p2 = Sk4f::Load(ptr +  8),
-         p3 = Sk4f::Load(ptr + 12);
-    *r = { p0[0], p1[0], p2[0], p3[0] };
-    *g = { p0[1], p1[1], p2[1], p3[1] };
-    *b = { p0[2], p1[2], p2[2], p3[2] };
-    *a = { p0[3], p1[3], p2[3], p3[3] };
-}
-
-// Transpose 4 Sk4f and store (512 bits total).
-SI void Sk4f_store4(void* vdst, const Sk4f& r, const Sk4f& g, const Sk4f& b, const Sk4f& a) {
-    float* dst = (float*) vdst;
-    Sk4f(r[0], g[0], b[0], a[0]).store(dst +  0);
-    Sk4f(r[1], g[1], b[1], a[1]).store(dst +  4);
-    Sk4f(r[2], g[2], b[2], a[2]).store(dst +  8);
-    Sk4f(r[3], g[3], b[3], a[3]).store(dst + 12);
 }
 
 #endif

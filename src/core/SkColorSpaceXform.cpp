@@ -905,10 +905,10 @@ template <Order kOrder>
 static inline void store_f16(void* dst, const uint32_t* src,
                              Sk4f& dr, Sk4f& dg, Sk4f& db, Sk4f& da,
                              const uint8_t* const[3]) {
-    Sk4h_store4(dst, SkFloatToHalf_finite_ftz(dr),
-                     SkFloatToHalf_finite_ftz(dg),
-                     SkFloatToHalf_finite_ftz(db),
-                     SkFloatToHalf_finite_ftz(da));
+    Sk4h::Store4(dst, SkFloatToHalf_finite_ftz(dr),
+                      SkFloatToHalf_finite_ftz(dg),
+                      SkFloatToHalf_finite_ftz(db),
+                      SkFloatToHalf_finite_ftz(da));
 }
 
 template <Order kOrder>
@@ -923,7 +923,7 @@ template <Order kOrder>
 static inline void store_f32(void* dst, const uint32_t* src,
                              Sk4f& dr, Sk4f& dg, Sk4f& db, Sk4f& da,
                              const uint8_t* const[3]) {
-    Sk4f_store4(dst, dr, dg, db, da);
+    Sk4f::Store4(dst, dr, dg, db, da);
 }
 
 template <Order kOrder>
@@ -938,10 +938,10 @@ template <Order kOrder>
 static inline void store_f16_opaque(void* dst, const uint32_t* src,
                                     Sk4f& dr, Sk4f& dg, Sk4f& db, Sk4f&,
                                     const uint8_t* const[3]) {
-    Sk4h_store4(dst, SkFloatToHalf_finite_ftz(dr),
-                     SkFloatToHalf_finite_ftz(dg),
-                     SkFloatToHalf_finite_ftz(db),
-                     SK_Half1);
+    Sk4h::Store4(dst, SkFloatToHalf_finite_ftz(dr),
+                      SkFloatToHalf_finite_ftz(dg),
+                      SkFloatToHalf_finite_ftz(db),
+                      SK_Half1);
 }
 
 template <Order kOrder>
