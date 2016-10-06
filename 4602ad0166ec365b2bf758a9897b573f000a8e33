@@ -1,0 +1,73 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "dfbf34c0_d49f1c00",
+        "filename": "src/core/SkHalf.h",
+        "patchSetId": 36
+      },
+      "lineNbr": 14,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2016-10-06T22:19:26Z",
+      "side": 1,
+      "message": "We don\u0027t need to include this file on Windows?  It\u0027s included automatically?",
+      "range": {
+        "startLine": 14,
+        "startChar": 4,
+        "endLine": 14,
+        "endChar": 22
+      },
+      "revId": "4602ad0166ec365b2bf758a9897b573f000a8e33",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9fcdbc7b_76257869",
+        "filename": "src/core/SkNx.h",
+        "patchSetId": 36
+      },
+      "lineNbr": 312,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2016-10-06T22:19:26Z",
+      "side": 1,
+      "message": "Variable names :)",
+      "range": {
+        "startLine": 312,
+        "startChar": 11,
+        "endLine": 312,
+        "endChar": 16
+      },
+      "revId": "4602ad0166ec365b2bf758a9897b573f000a8e33",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "bf60c01c_d3eab465",
+        "filename": "src/opts/SkRasterPipeline_opts.h",
+        "patchSetId": 36
+      },
+      "lineNbr": 97,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2016-10-06T22:19:26Z",
+      "side": 1,
+      "message": "I hate that this is necessary...  I probably need to fix some code in SkColorSpaceXform that allows r, g, b \u003e a.",
+      "range": {
+        "startLine": 97,
+        "startChar": 4,
+        "endLine": 97,
+        "endChar": 80
+      },
+      "revId": "4602ad0166ec365b2bf758a9897b573f000a8e33",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
