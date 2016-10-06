@@ -8,7 +8,10 @@
 #include "SkOpts.h"
 #include "SkRasterPipeline.h"
 
-SkRasterPipeline::SkRasterPipeline() {}
+SkRasterPipeline::SkRasterPipeline() {
+    fBodyStart = SkOpts::body[just_return];
+    fTailStart = SkOpts::tail[just_return];
+}
 
 void SkRasterPipeline::append(SkRasterPipeline::Fn body,
                               SkRasterPipeline::Fn tail,
@@ -20,12 +23,12 @@ void SkRasterPipeline::append(SkRasterPipeline::Fn body,
 
     // Each last stage starts with its next function set to JustReturn as a safety net.
     // It'll be overwritten by the next call to append().
-    fBody.push_back({ &JustReturn, ctx });
-    fTail.push_back({ &JustReturn, ctx });
+    fBody.push_back({ SkOpts::body[just_return], ctx });
+    fTail.push_back({ SkOpts::tail[just_return], ctx });
 }
 
 void SkRasterPipeline::append(StockStage stage, void* ctx) {
-    this->append(SkOpts::stages_4[stage], SkOpts::stages_1_3[stage], ctx);
+    this->append(SkOpts::body[stage], SkOpts::tail[stage], ctx);
 }
 
 void SkRasterPipeline::extend(const SkRasterPipeline& src) {
@@ -42,18 +45,5 @@ void SkRasterPipeline::extend(const SkRasterPipeline& src) {
 }
 
 void SkRasterPipeline::run(size_t x, size_t n) {
-    // It's fastest to start uninitialized if the compilers all let us.  If not, next fastest is 0.
-    Sk4f v;
-
-    while (n >= 4) {
-        fBodyStart(fBody.begin(), x,0, v,v,v,v, v,v,v,v);
-        x += 4;
-        n -= 4;
-    }
-    if (n > 0) {
-        fTailStart(fTail.begin(), x,n, v,v,v,v, v,v,v,v);
-    }
+    SkOpts::run_pipeline(x,n, fBodyStart,fBody.begin(), fTailStart,fTail.begin());
 }
-
-void SK_VECTORCALL SkRasterPipeline::JustReturn(Stage*, size_t, size_t, Sk4f,Sk4f,Sk4f,Sk4f,
-                                                                        Sk4f,Sk4f,Sk4f,Sk4f) {}
