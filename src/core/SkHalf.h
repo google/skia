@@ -85,4 +85,16 @@ static inline Sk4h SkFloatToHalf_finite_ftz(const Sk4f& fs) {
 #endif
 }
 
+static inline Sk8f SkHalfToFloat_finite_ftz(const Sk8h& hs) {
+#if !defined(SKNX_NO_SIMD) && SK_CPU_SSE_LEVEL >= SK_CPU_SSE_LEVEL_AVX2
+    return _mm256_cvtph_ps(hs.fVec);
+
+#else
+    Sk4h lo, hi;
+    SkNx_split(hs, &lo, &hi);
+    return SkNx_join(SkHalfToFloat_finite_ftz(lo), SkHalfToFloat_finite_ftz(hi));
+
+#endif
+}
+
 #endif
