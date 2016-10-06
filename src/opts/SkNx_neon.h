@@ -106,11 +106,29 @@ public:
     SkNx(float32x4_t vec) : fVec(vec) {}
 
     SkNx() {}
-    SkNx(float val)           : fVec(vdupq_n_f32(val)) {}
-    static SkNx Load(const void* ptr) { return vld1q_f32((const float*)ptr); }
+    SkNx(float val) : fVec(vdupq_n_f32(val)) {}
     SkNx(float a, float b, float c, float d) { fVec = (float32x4_t) { a, b, c, d }; }
 
+    static SkNx Load(const void* ptr) { return vld1q_f32((const float*)ptr); }
     void store(void* ptr) const { vst1q_f32((float*)ptr, fVec); }
+
+    static void Load4(const void* ptr, SkNx* r, SkNx* g, SkNx* b, SkNx* a) {
+        float32x4x4_t rgba = vld4q_f32((const float*) ptr);
+        *r = rgba.val[0];
+        *g = rgba.val[1];
+        *b = rgba.val[2];
+        *a = rgba.val[3];
+    }
+    static void Store4(void* dst, const SkNx& r, const SkNx& g, const SkNx& b, const SkNx& a) {
+        float32x4x4_t rgba = {{
+            r.fVec,
+            g.fVec,
+            b.fVec,
+            a.fVec,
+        }};
+        vst4q_f32((float*) dst, rgba);
+    }
+
     SkNx invert() const {
         float32x4_t est0 = vrecpeq_f32(fVec),
                     est1 = vmulq_f32(vrecpsq_f32(est0, fVec), est0);
@@ -203,13 +221,30 @@ public:
 
     SkNx() {}
     SkNx(uint16_t val) : fVec(vdup_n_u16(val)) {}
-    static SkNx Load(const void* ptr) { return vld1_u16((const uint16_t*)ptr); }
-
     SkNx(uint16_t a, uint16_t b, uint16_t c, uint16_t d) {
         fVec = (uint16x4_t) { a,b,c,d };
     }
 
+    static SkNx Load(const void* ptr) { return vld1_u16((const uint16_t*)ptr); }
     void store(void* ptr) const { vst1_u16((uint16_t*)ptr, fVec); }
+
+    static void Load4(const void* ptr, SkNx* r, SkNx* g, SkNx* b, SkNx* a) {
+        uint16x4x4_t rgba = vld4_u16((const uint16_t*)ptr);
+        *r = rgba.val[0];
+        *g = rgba.val[1];
+        *b = rgba.val[2];
+        *a = rgba.val[3];
+    }
+
+    static void Store4(void* dst, const SkNx& r, const SkNx& g, const SkNx& b, const SkNx& a) {
+        uint16x4x4_t rgba = {{
+            r.fVec,
+            g.fVec,
+            b.fVec,
+            a.fVec,
+        }};
+        vst4_u16((uint16_t*) dst, rgba);
+    }
 
     SkNx operator + (const SkNx& o) const { return vadd_u16(fVec, o.fVec); }
     SkNx operator - (const SkNx& o) const { return vsub_u16(fVec, o.fVec); }
@@ -513,44 +548,6 @@ template<> /*static*/ inline Sk4i SkNx_cast<int32_t, uint32_t>(const Sk4u& src) 
 
 static inline Sk4i Sk4f_round(const Sk4f& x) {
     return vcvtq_s32_f32((x + 0.5f).fVec);
-}
-
-static inline void Sk4h_load4(const void* ptr, Sk4h* r, Sk4h* g, Sk4h* b, Sk4h* a) {
-    uint16x4x4_t rgba = vld4_u16((const uint16_t*)ptr);
-    *r = rgba.val[0];
-    *g = rgba.val[1];
-    *b = rgba.val[2];
-    *a = rgba.val[3];
-}
-
-static inline void Sk4h_store4(void* dst, const Sk4h& r, const Sk4h& g, const Sk4h& b,
-                               const Sk4h& a) {
-    uint16x4x4_t rgba = {{
-        r.fVec,
-        g.fVec,
-        b.fVec,
-        a.fVec,
-    }};
-    vst4_u16((uint16_t*) dst, rgba);
-}
-
-static inline void Sk4f_load4(const void* ptr, Sk4f* r, Sk4f* g, Sk4f* b, Sk4f* a) {
-    float32x4x4_t rgba = vld4q_f32((const float*) ptr);
-    *r = rgba.val[0];
-    *g = rgba.val[1];
-    *b = rgba.val[2];
-    *a = rgba.val[3];
-}
-
-static inline void Sk4f_store4(void* dst, const Sk4f& r, const Sk4f& g, const Sk4f& b,
-                               const Sk4f& a) {
-    float32x4x4_t rgba = {{
-        r.fVec,
-        g.fVec,
-        b.fVec,
-        a.fVec,
-    }};
-    vst4q_f32((float*) dst, rgba);
 }
 
 #endif//SkNx_neon_DEFINED
