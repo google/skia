@@ -220,7 +220,7 @@ bool VulkanWindowContext::createSwapchain(int width, int height,
         swapchainCreateInfo.pQueueFamilyIndices = nullptr;
     }
 
-    swapchainCreateInfo.preTransform = caps.currentTransform;;
+    swapchainCreateInfo.preTransform = VK_SURFACE_TRANSFORM_IDENTITY_BIT_KHR;
     swapchainCreateInfo.compositeAlpha = composite_alpha;
     swapchainCreateInfo.presentMode = mode;
     swapchainCreateInfo.clipped = true;
