@@ -10,6 +10,7 @@
 #include "SkPathOpsLine.h"
 #include "SkPathOpsQuad.h"
 #include "SkReduceOrder.h"
+#include "SkString.h"
 
 static int doIntersect(SkIntersections& intersections, const SkDQuad& quad, const SkDLine& line,
                        bool& flipped) {
@@ -40,14 +41,12 @@ static int doIntersect(SkIntersections& intersections, const SkDQuad& quad, cons
 
 static void testLineIntersect(skiatest::Reporter* reporter, const SkDQuad& quad,
                               const SkDLine& line, const double x, const double y) {
-    char pathStr[1024];
-    sk_bzero(pathStr, sizeof(pathStr));
-    char* str = pathStr;
-    str += sprintf(str, "    path.moveTo(%1.9g, %1.9g);\n", quad[0].fX, quad[0].fY);
-    str += sprintf(str, "    path.quadTo(%1.9g, %1.9g, %1.9g, %1.9g);\n", quad[1].fX,
+    SkString pathStr;
+    pathStr.appendf("    path.moveTo(%1.9g, %1.9g);\n", quad[0].fX, quad[0].fY);
+    pathStr.appendf("    path.quadTo(%1.9g, %1.9g, %1.9g, %1.9g);\n", quad[1].fX,
             quad[1].fY, quad[2].fX, quad[2].fY);
-    str += sprintf(str, "    path.moveTo(%1.9g, %1.9g);\n", line[0].fX, line[0].fY);
-    str += sprintf(str, "    path.lineTo(%1.9g, %1.9g);\n", line[1].fX, line[1].fY);
+    pathStr.appendf("    path.moveTo(%1.9g, %1.9g);\n", line[0].fX, line[0].fY);
+    pathStr.appendf("    path.lineTo(%1.9g, %1.9g);\n", line[1].fX, line[1].fY);
 
     SkIntersections intersections;
     bool flipped = false;

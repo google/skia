@@ -6,16 +6,14 @@
  */
 #include "PathOpsExtendedTest.h"
 #include "PathOpsThreadedCommon.h"
+#include "SkString.h"
+
+static int loopNo = 4;
 
 static void testOpCirclesMain(PathOpsThreadState* data) {
         SkASSERT(data);
     PathOpsThreadState& state = *data;
-    char pathStr[1024];
-    bool progress = state.fReporter->verbose(); // FIXME: break out into its own parameter?
-    if (progress) {
-        sk_bzero(pathStr, sizeof(pathStr));
-    }
-
+    SkString pathStr;
     for (int a = 0 ; a < 6; ++a) {
         for (int b = a + 1 ; b < 7; ++b) {
             for (int c = 0 ; c < 6; ++c) {
@@ -23,26 +21,6 @@ static void testOpCirclesMain(PathOpsThreadState* data) {
                     for (int e = SkPath::kWinding_FillType ; e <= SkPath::kEvenOdd_FillType; ++e) {
     for (int f = SkPath::kWinding_FillType ; f <= SkPath::kEvenOdd_FillType; ++f) {
         SkPath pathA, pathB;
-        if (progress) {
-            char* str = pathStr;
-            const int loopNo = 4;
-            str += sprintf(str, "static void circlesOp%d(skiatest::Reporter* reporter,"
-                    " const char* filename) {\n", loopNo);
-            str += sprintf(str, "    SkPath path, pathB;\n");
-            str += sprintf(str, "    path.setFillType(SkPath::k%s_FillType);\n",
-                    e == SkPath::kWinding_FillType ? "Winding" : e == SkPath::kEvenOdd_FillType
-                    ? "EvenOdd" : "?UNDEFINED");
-            str += sprintf(str, "    path.addCircle(%d, %d, %d, %s);\n", state.fA, state.fB,
-                    state.fC, state.fD ? "SkPath::kCW_Direction" : "SkPath::kCCW_Direction");
-            str += sprintf(str, "    pathB.setFillType(SkPath::k%s_FillType);\n",
-                    f == SkPath::kWinding_FillType ? "Winding" : f == SkPath::kEvenOdd_FillType
-                    ? "EvenOdd" : "?UNDEFINED");
-            str += sprintf(str, "    pathB.addCircle(%d, %d, %d, %s);\n", a, b,
-                    c, d ? "SkPath::kCW_Direction" : "SkPath::kCCW_Direction");
-            str += sprintf(str, "    testPathOp(reporter, path, pathB, kDifference_SkPathOp,"
-                    " filename);\n");
-            str += sprintf(str, "}\n");
-        }
         pathA.setFillType((SkPath::FillType) e);
         pathA.addCircle(SkIntToScalar(state.fA), SkIntToScalar(state.fB), SkIntToScalar(state.fC),
                 state.fD ? SkPath::kCW_Direction : SkPath::kCCW_Direction);
@@ -50,13 +28,35 @@ static void testOpCirclesMain(PathOpsThreadState* data) {
         pathB.addCircle(SkIntToScalar(a), SkIntToScalar(b), SkIntToScalar(c),
                 d ? SkPath::kCW_Direction : SkPath::kCCW_Direction);
         for (int op = 0 ; op <= kXOR_SkPathOp; ++op)    {
-            if (progress) {
-                outputProgress(state.fPathStr, pathStr, (SkPathOp) op);
+            if (state.fReporter->verbose()) {
+                pathStr.printf("static void circlesOp%d(skiatest::Reporter* reporter,"
+                        " const char* filename) {\n", loopNo);
+                pathStr.appendf("    SkPath path, pathB;\n");
+                pathStr.appendf("    path.setFillType(SkPath::k%s_FillType);\n",
+                        e == SkPath::kWinding_FillType ? "Winding" : e == SkPath::kEvenOdd_FillType
+                        ? "EvenOdd" : "?UNDEFINED");
+                pathStr.appendf("    path.addCircle(%d, %d, %d, %s);\n", state.fA, state.fB,
+                        state.fC, state.fD ? "SkPath::kCW_Direction" : "SkPath::kCCW_Direction");
+                pathStr.appendf("    pathB.setFillType(SkPath::k%s_FillType);\n",
+                        f == SkPath::kWinding_FillType ? "Winding" : f == SkPath::kEvenOdd_FillType
+                        ? "EvenOdd" : "?UNDEFINED");
+                pathStr.appendf("    pathB.addCircle(%d, %d, %d, %s);\n", a, b,
+                        c, d ? "SkPath::kCW_Direction" : "SkPath::kCCW_Direction");
+                pathStr.appendf("    testPathOp(reporter, path, pathB, %s, filename);\n",
+                        SkPathOpsDebug::OpStr((SkPathOp) op));
+                pathStr.appendf("}\n");
+                outputProgress(state.fPathStr, pathStr.c_str(), (SkPathOp) op);
             }
-            testPathOp(state.fReporter, pathA, pathB, (SkPathOp) op, "circles");
+            if (!testPathOp(state.fReporter, pathA, pathB, (SkPathOp) op, "circles")) {
+                if (state.fReporter->verbose()) {
+                    ++loopNo;
+                    goto skipToNext;
+                }
+            }
         }
     }
                     }
+skipToNext: ;
                 }
             }
         }

@@ -6,6 +6,7 @@
  */
 #include "PathOpsExtendedTest.h"
 #include "PathOpsThreadedCommon.h"
+#include "SkString.h"
 
 // four rects, of four sizes
 // for 3 smaller sizes, tall, wide
@@ -18,11 +19,6 @@ static void testSimplify4x4RectsMain(PathOpsThreadState* data)
 {
     SkASSERT(data);
     PathOpsThreadState& state = *data;
-    char pathStr[1024];  // gdb: set print elements 400
-    bool progress = state.fReporter->verbose(); // FIXME: break out into its own parameter?
-    if (progress) {
-        sk_bzero(pathStr, sizeof(pathStr));
-    }
     int aShape = state.fA & 0x03;
     SkPath::Direction aCW = state.fA >> 2 ? SkPath::kCCW_Direction : SkPath::kCW_Direction;
     int bShape = state.fB & 0x03;
@@ -39,8 +35,8 @@ static void testSimplify4x4RectsMain(PathOpsThreadState* data)
                          for (int cYAlign = 0; cYAlign < 5; ++cYAlign) {
                             for (int dXAlign = 0; dXAlign < 5; ++dXAlign) {
     for (int dYAlign = 0; dYAlign < 5; ++dYAlign) {
+        SkString pathStr;
         SkPath path, out;
-        char* str = pathStr;
         path.setFillType(SkPath::kWinding_FillType);
         int l SK_INIT_TO_AVOID_WARNING, t SK_INIT_TO_AVOID_WARNING,
             r SK_INIT_TO_AVOID_WARNING, b SK_INIT_TO_AVOID_WARNING;
@@ -67,8 +63,8 @@ static void testSimplify4x4RectsMain(PathOpsThreadState* data)
             }
             path.addRect(SkIntToScalar(l), SkIntToScalar(t), SkIntToScalar(r), SkIntToScalar(b),
                     aCW);
-            if (progress) {
-                str += sprintf(str, "    path.addRect(%d, %d, %d, %d,"
+            if (state.fReporter->verbose()) {
+                pathStr.appendf("    path.addRect(%d, %d, %d, %d,"
                         " SkPath::kC%sW_Direction);\n", l, t, r, b, aCW ? "C" : "");
             }
         } else {
@@ -98,8 +94,8 @@ static void testSimplify4x4RectsMain(PathOpsThreadState* data)
             }
             path.addRect(SkIntToScalar(l), SkIntToScalar(t), SkIntToScalar(r), SkIntToScalar(b),
                     bCW);
-            if (progress) {
-                str += sprintf(str, "    path.addRect(%d, %d, %d, %d,"
+            if (state.fReporter->verbose()) {
+                pathStr.appendf("    path.addRect(%d, %d, %d, %d,"
                         " SkPath::kC%sW_Direction);\n", l, t, r, b, bCW ? "C" : "");
             }
         } else {
@@ -129,8 +125,8 @@ static void testSimplify4x4RectsMain(PathOpsThreadState* data)
             }
             path.addRect(SkIntToScalar(l), SkIntToScalar(t), SkIntToScalar(r), SkIntToScalar(b),
                     cCW);
-            if (progress) {
-                str += sprintf(str, "    path.addRect(%d, %d, %d, %d,"
+            if (state.fReporter->verbose()) {
+                pathStr.appendf("    path.addRect(%d, %d, %d, %d,"
                         " SkPath::kC%sW_Direction);\n", l, t, r, b, cCW ? "C" : "");
             }
         } else {
@@ -160,8 +156,8 @@ static void testSimplify4x4RectsMain(PathOpsThreadState* data)
             }
             path.addRect(SkIntToScalar(l), SkIntToScalar(t), SkIntToScalar(r), SkIntToScalar(b),
                     dCW);
-            if (progress) {
-                str += sprintf(str, "    path.addRect(%d, %d, %d, %d,"
+            if (state.fReporter->verbose()) {
+                pathStr.appendf("    path.addRect(%d, %d, %d, %d,"
                         " SkPath::kC%sW_Direction);\n", l, t, r, b, dCW ? "C" : "");
             }
         } else {
@@ -169,14 +165,14 @@ static void testSimplify4x4RectsMain(PathOpsThreadState* data)
             dYAlign = 5;
         }
         path.close();
-        if (progress) {
-            outputProgress(state.fPathStr, pathStr, SkPath::kWinding_FillType);
+        if (state.fReporter->verbose()) {
+            outputProgress(state.fPathStr, pathStr.c_str(), SkPath::kWinding_FillType);
         }
-        testSimplify(path, false, out, state, pathStr);
-        if (progress) {
-            outputProgress(state.fPathStr, pathStr, SkPath::kEvenOdd_FillType);
+        testSimplify(path, false, out, state, pathStr.c_str());
+        if (state.fReporter->verbose()) {
+            outputProgress(state.fPathStr, pathStr.c_str(), SkPath::kEvenOdd_FillType);
         }
-        testSimplify(path, true, out, state, pathStr);
+        testSimplify(path, true, out, state, pathStr.c_str());
     }
                             }
                         }
