@@ -96,7 +96,7 @@ public:
               SkDebugf("\nFAILED: %s", failure.toString().c_str());
               fError = true;
           }
-          void* stats() { return fStats; }
+          void* stats() const override { return fStats; }
           void* fStats;
           bool fError;
           int fTestCount;
