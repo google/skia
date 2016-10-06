@@ -210,7 +210,7 @@ SkCanvas::SaveLayerStrategy SkDumpCanvas::getSaveLayerStrategy(const SaveLayerRe
             str.appendf(" alpha:0x%02X", paint->getAlpha());
         }
         if (!paint->isSrcOver()) {
-            str.appendf(" blendmode:%d", paint->getBlendMode());
+            str.appendf(" blendmode:%d", (int)paint->getBlendMode());
         }
     }
     this->dump(kSave_Verb, paint, str.c_str());
