@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "3f6930e5_9a8ee92e",
+        "filename": "src/utils/SkDeferredCanvas.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 541,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2016-10-06T16:45:45Z",
+      "side": 1,
+      "message": "I am unclear on this, but it seems safe..",
+      "range": {
+        "startLine": 541,
+        "startChar": 41,
+        "endLine": 541,
+        "endChar": 53
+      },
+      "revId": "681395f2fb97deb1ee3fb9bd0a89a60b99afe563",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
