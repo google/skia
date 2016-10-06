@@ -67,11 +67,33 @@ public:
 
     SkNx() {}
     SkNx(float val)           : fVec( _mm_set1_ps(val) ) {}
-    static SkNx Load(const void* ptr) { return _mm_loadu_ps((const float*)ptr); }
-
     SkNx(float a, float b, float c, float d) : fVec(_mm_setr_ps(a,b,c,d)) {}
 
+    static SkNx Load(const void* ptr) { return _mm_loadu_ps((const float*)ptr); }
     void store(void* ptr) const { _mm_storeu_ps((float*)ptr, fVec); }
+
+    static void Load4(const void* ptr, SkNx* r, SkNx* g, SkNx* b, SkNx* a) {
+        __m128 v0 = _mm_loadu_ps(((float*)ptr) +  0),
+               v1 = _mm_loadu_ps(((float*)ptr) +  4),
+               v2 = _mm_loadu_ps(((float*)ptr) +  8),
+               v3 = _mm_loadu_ps(((float*)ptr) + 12);
+        _MM_TRANSPOSE4_PS(v0, v1, v2, v3);
+        *r = v0;
+        *g = v1;
+        *b = v2;
+        *a = v3;
+    }
+    static void Store4(void* dst, const SkNx& r, const SkNx& g, const SkNx& b, const SkNx& a) {
+        __m128 v0 = r.fVec,
+               v1 = g.fVec,
+               v2 = b.fVec,
+               v3 = a.fVec;
+        _MM_TRANSPOSE4_PS(v0, v1, v2, v3);
+        _mm_storeu_ps(((float*) dst) +  0, v0);
+        _mm_storeu_ps(((float*) dst) +  4, v1);
+        _mm_storeu_ps(((float*) dst) +  8, v2);
+        _mm_storeu_ps(((float*) dst) + 12, v3);
+    }
 
     SkNx operator + (const SkNx& o) const { return _mm_add_ps(fVec, o.fVec); }
     SkNx operator - (const SkNx& o) const { return _mm_sub_ps(fVec, o.fVec); }
@@ -231,10 +253,31 @@ public:
 
     SkNx() {}
     SkNx(uint16_t val) : fVec(_mm_set1_epi16(val)) {}
-    static SkNx Load(const void* ptr) { return _mm_loadl_epi64((const __m128i*)ptr); }
     SkNx(uint16_t a, uint16_t b, uint16_t c, uint16_t d) : fVec(_mm_setr_epi16(a,b,c,d,0,0,0,0)) {}
 
+    static SkNx Load(const void* ptr) { return _mm_loadl_epi64((const __m128i*)ptr); }
     void store(void* ptr) const { _mm_storel_epi64((__m128i*)ptr, fVec); }
+
+    static void Load4(const void* ptr, SkNx* r, SkNx* g, SkNx* b, SkNx* a) {
+        __m128i lo = _mm_loadu_si128(((__m128i*)ptr) + 0),
+                hi = _mm_loadu_si128(((__m128i*)ptr) + 1);
+        __m128i even = _mm_unpacklo_epi16(lo, hi),   // r0 r2 g0 g2 b0 b2 a0 a2
+                 odd = _mm_unpackhi_epi16(lo, hi);   // r1 r3 ...
+        __m128i rg = _mm_unpacklo_epi16(even, odd),  // r0 r1 r2 r3 g0 g1 g2 g3
+                ba = _mm_unpackhi_epi16(even, odd);  // b0 b1 ...   a0 a1 ...
+        *r = rg;
+        *g = _mm_srli_si128(rg, 8);
+        *b = ba;
+        *a = _mm_srli_si128(ba, 8);
+    }
+    static void Store4(void* dst, const SkNx& r, const SkNx& g, const SkNx& b, const SkNx& a) {
+        __m128i rg = _mm_unpacklo_epi16(r.fVec, g.fVec);
+        __m128i ba = _mm_unpacklo_epi16(b.fVec, a.fVec);
+        __m128i lo = _mm_unpacklo_epi32(rg, ba);
+        __m128i hi = _mm_unpackhi_epi32(rg, ba);
+        _mm_storeu_si128(((__m128i*) dst) + 0, lo);
+        _mm_storeu_si128(((__m128i*) dst) + 1, hi);
+    }
 
     SkNx operator + (const SkNx& o) const { return _mm_add_epi16(fVec, o.fVec); }
     SkNx operator - (const SkNx& o) const { return _mm_sub_epi16(fVec, o.fVec); }
@@ -453,54 +496,6 @@ template<> /*static*/ inline Sk4i SkNx_cast<int32_t, uint32_t>(const Sk4u& src) 
 
 static inline Sk4i Sk4f_round(const Sk4f& x) {
     return _mm_cvtps_epi32(x.fVec);
-}
-
-static inline void Sk4h_load4(const void* ptr, Sk4h* r, Sk4h* g, Sk4h* b, Sk4h* a) {
-    __m128i lo = _mm_loadu_si128(((__m128i*)ptr) + 0),
-            hi = _mm_loadu_si128(((__m128i*)ptr) + 1);
-    __m128i even = _mm_unpacklo_epi16(lo, hi),   // r0 r2 g0 g2 b0 b2 a0 a2
-             odd = _mm_unpackhi_epi16(lo, hi);   // r1 r3 ...
-    __m128i rg = _mm_unpacklo_epi16(even, odd),  // r0 r1 r2 r3 g0 g1 g2 g3
-            ba = _mm_unpackhi_epi16(even, odd);  // b0 b1 ...   a0 a1 ...
-    *r = rg;
-    *g = _mm_srli_si128(rg, 8);
-    *b = ba;
-    *a = _mm_srli_si128(ba, 8);
-}
-
-static inline void Sk4h_store4(void* dst, const Sk4h& r, const Sk4h& g, const Sk4h& b,
-                               const Sk4h& a) {
-    __m128i rg = _mm_unpacklo_epi16(r.fVec, g.fVec);
-    __m128i ba = _mm_unpacklo_epi16(b.fVec, a.fVec);
-    __m128i lo = _mm_unpacklo_epi32(rg, ba);
-    __m128i hi = _mm_unpackhi_epi32(rg, ba);
-    _mm_storeu_si128(((__m128i*) dst) + 0, lo);
-    _mm_storeu_si128(((__m128i*) dst) + 1, hi);
-}
-
-static inline void Sk4f_load4(const void* ptr, Sk4f* r, Sk4f* g, Sk4f* b, Sk4f* a) {
-    __m128 v0 = _mm_loadu_ps(((float*)ptr) +  0),
-           v1 = _mm_loadu_ps(((float*)ptr) +  4),
-           v2 = _mm_loadu_ps(((float*)ptr) +  8),
-           v3 = _mm_loadu_ps(((float*)ptr) + 12);
-    _MM_TRANSPOSE4_PS(v0, v1, v2, v3);
-    *r = v0;
-    *g = v1;
-    *b = v2;
-    *a = v3;
-}
-
-static inline void Sk4f_store4(void* dst, const Sk4f& r, const Sk4f& g, const Sk4f& b,
-                               const Sk4f& a) {
-    __m128 v0 = r.fVec,
-           v1 = g.fVec,
-           v2 = b.fVec,
-           v3 = a.fVec;
-    _MM_TRANSPOSE4_PS(v0, v1, v2, v3);
-    _mm_storeu_ps(((float*) dst) +  0, v0);
-    _mm_storeu_ps(((float*) dst) +  4, v1);
-    _mm_storeu_ps(((float*) dst) +  8, v2);
-    _mm_storeu_ps(((float*) dst) + 12, v3);
 }
 
 #endif//SkNx_sse_DEFINED
