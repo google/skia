@@ -25,6 +25,24 @@
     },
     {
       "key": {
+        "uuid": "dfbf34c0_b40b80df",
+        "filename": "src/core/SkHalf.h",
+        "patchSetId": 36
+      },
+      "lineNbr": 14,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2016-10-07T12:51:29Z",
+      "side": 1,
+      "message": "Right, on MSVC _mm256_cvtph_ps and _mm256_cvtps_ph come in through \u003cimmintrin.h\u003e, included for us by SkNx.h when we need it.  Depending on the compiler, that\u0027s true on Linux too, but on Mac they\u0027re in x86intrin.h.   It\u0027s a little messy... x86intrin.h is actually meant to be the broader header than even immintrin.h, but it\u0027s not present at all on MSVC.",
+      "parentUuid": "dfbf34c0_d49f1c00",
+      "revId": "4602ad0166ec365b2bf758a9897b573f000a8e33",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "9fcdbc7b_76257869",
         "filename": "src/core/SkNx.h",
         "patchSetId": 36
@@ -65,6 +83,24 @@
         "endLine": 97,
         "endChar": 80
       },
+      "revId": "4602ad0166ec365b2bf758a9897b573f000a8e33",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "dfbf34c0_34477009",
+        "filename": "src/opts/SkRasterPipeline_opts.h",
+        "patchSetId": 36
+      },
+      "lineNbr": 97,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2016-10-07T12:51:29Z",
+      "side": 1,
+      "message": "Yeah, if all the stages and data are well-behaved, this isn\u0027t necessary.  On the other hand, it\u0027s sort of foolproof to do it once here rather than every place we might accidentally go out of range or unpremul.  (The plus xfermode and the old arithmetic xfermode come to mind, and basically any color filter.)\n\nIt\u0027s definitely on my mind to detect situations where a clamp\u0027s needed and add it only then.",
+      "parentUuid": "bf60c01c_d3eab465",
       "revId": "4602ad0166ec365b2bf758a9897b573f000a8e33",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
