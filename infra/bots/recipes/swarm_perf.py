@@ -44,7 +44,7 @@ TEST_BUILDERS = {
 }
 
 
-import calendar
+import time
 
 
 def nanobench_flags(bot):
@@ -190,10 +190,13 @@ def perf_steps(api):
       '--undefok',   # This helps branches that may not know new flags.
       '-i',       api.flavor.device_dirs.resource_dir,
       '--skps',   api.flavor.device_dirs.skp_dir,
-      '--svgs',   api.flavor.device_dirs.svg_dir,
       '--images', api.flavor.device_path_join(
           api.flavor.device_dirs.images_dir, 'nanobench'),
   ]
+
+  # Do not run svgs on Valgrind.
+  if 'Valgrind' not in api.vars.builder_name:
+    args.extend(['--svgs',  api.flavor.device_dirs.svg_dir])
 
   skip_flag = None
   if api.vars.builder_cfg.get('cpu_or_gpu') == 'CPU':
@@ -206,7 +209,7 @@ def perf_steps(api):
 
   if api.vars.upload_perf_results:
     now = api.time.utcnow()
-    ts = int(calendar.timegm(now.utctimetuple()))
+    ts = int(time.mktime(now.utctimetuple()))
     json_path = api.flavor.device_path_join(
         api.flavor.device_dirs.perf_data_dir,
         'nanobench_%s_%d.json' % (api.vars.got_revision, ts))
