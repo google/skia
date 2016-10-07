@@ -174,6 +174,8 @@ private:
     static const uint32_t     MIN_PICTURE_VERSION = 56;     // august 2017
     static const uint32_t CURRENT_PICTURE_VERSION = 62;
 
+    static_assert(MIN_PICTURE_VERSION <= 62, "Remove kFontAxes_bad from SkFontDescriptor.cpp");
+
     static bool IsValidPictInfo(const SkPictInfo& info);
     static sk_sp<SkPicture> Forwardport(const SkPictInfo&,
                                         const SkPictureData*,

@@ -80,24 +80,25 @@ bool SkPicture::StreamIsSKP(SkStream* stream, SkPictInfo* pInfo) {
 
     SkPictInfo info;
     SkASSERT(sizeof(kMagic) == sizeof(info.fMagic));
-    if (!stream->read(&info.fMagic, sizeof(kMagic))) {
+    if (stream->read(&info.fMagic, sizeof(kMagic)) != sizeof(kMagic)) {
         return false;
     }
 
-    info.setVersion(         stream->readU32());
-    info.fCullRect.fLeft   = stream->readScalar();
-    info.fCullRect.fTop    = stream->readScalar();
-    info.fCullRect.fRight  = stream->readScalar();
-    info.fCullRect.fBottom = stream->readScalar();
+    uint32_t version;
+    if (!stream->readU32(&version)) { return false; }
+    info.setVersion(version);
+    if (!stream->readScalar(&info.fCullRect.fLeft  )) { return false; }
+    if (!stream->readScalar(&info.fCullRect.fTop   )) { return false; }
+    if (!stream->readScalar(&info.fCullRect.fRight )) { return false; }
+    if (!stream->readScalar(&info.fCullRect.fBottom)) { return false; }
     if (info.getVersion() < SkReadBuffer::kRemoveHeaderFlags_Version) {
-        (void)stream->readU32();    // used to be flags
+        if (!stream->readU32(nullptr)) { return false; }
     }
 
-    if (IsValidPictInfo(info)) {
-        if (pInfo) { *pInfo = info; }
-        return true;
-    }
-    return false;
+    if (!IsValidPictInfo(info)) { return false; }
+
+    if (pInfo) { *pInfo = info; }
+    return true;
 }
 bool SkPicture_StreamIsSKP(SkStream* stream, SkPictInfo* pInfo) {
     return SkPicture::StreamIsSKP(stream, pInfo);
@@ -171,15 +172,17 @@ sk_sp<SkPicture> SkPicture::MakeFromStream(SkStream* stream, const SkDeserialPro
         procs = *procsPtr;
     }
 
-    switch (stream->readU8()) {
+    uint8_t trailingStreamByteAfterPictInfo;
+    if (!stream->readU8(&trailingStreamByteAfterPictInfo)) { return nullptr; }
+    switch (trailingStreamByteAfterPictInfo) {
         case kPictureData_TrailingStreamByteAfterPictInfo: {
             std::unique_ptr<SkPictureData> data(
                     SkPictureData::CreateFromStream(stream, info, procs, typefaces));
             return Forwardport(info, data.get(), nullptr);
         }
         case kCustom_TrailingStreamByteAfterPictInfo: {
-            int32_t ssize = stream->readS32();
-            if (ssize >= 0 || !procs.fPictureProc) {
+            int32_t ssize;
+            if (!stream->readS32(&ssize) || ssize >= 0 || !procs.fPictureProc) {
                 return nullptr;
             }
             size_t size = sk_negate_to_size_t(ssize);
