@@ -109,6 +109,60 @@ DEF_TEST(TypefaceRoundTrip, reporter) {
     REPORTER_ASSERT(reporter, typeface2);
 }
 
+DEF_TEST(TypefaceNegativeVariationSerialize, reporter) {
+    auto distortable = GetResourceAsStream("fonts/DistortableNegativeAxis.ttf");
+    if (!distortable) {
+        REPORT_FAILURE(reporter, "distortable negative axis", SkString());
+        return;
+    }
+
+    constexpr int numberOfAxesInDistortable = 1;
+
+    sk_sp<SkFontMgr> fm = SkFontMgr::RefDefault();
+    const SkFontArguments::VariationPosition::Coordinate position[] = {
+        { SkSetFourByteTag('w','g','h','t'), -1.0f },
+    };
+    SkFontArguments params;
+    params.setVariationDesignPosition({position, SK_ARRAY_COUNT(position)});
+    // TODO: if axes are set and the back-end doesn't support them, should we create the typeface?
+    sk_sp<SkTypeface> typeface = fm->makeFromStream(std::move(distortable), params);
+
+    if (!typeface) {
+        // Not all SkFontMgr can makeFromStream().
+        return;
+    }
+
+    int count = typeface->getVariationDesignPosition(nullptr, 0);
+    if (count == -1) {
+        return;
+    }
+    REPORTER_ASSERT(reporter, count == numberOfAxesInDistortable);
+
+    SkFontArguments::VariationPosition::Coordinate positionRead[numberOfAxesInDistortable];
+    count = typeface->getVariationDesignPosition(positionRead, SK_ARRAY_COUNT(positionRead));
+    REPORTER_ASSERT(reporter, count == SK_ARRAY_COUNT(positionRead));
+
+    REPORTER_ASSERT(reporter, positionRead[0].axis == position[0].axis);
+
+    SkDynamicMemoryWStream stream;
+    typeface->serialize(&stream);
+    sk_sp<SkTypeface> typefaceD = SkTypeface::MakeDeserialize(stream.detachAsStream().get());
+
+    int countD = typefaceD->getVariationDesignPosition(nullptr, 0);
+    REPORTER_ASSERT(reporter, countD == numberOfAxesInDistortable);
+
+    SkFontArguments::VariationPosition::Coordinate positionReadD[numberOfAxesInDistortable];
+    countD = typefaceD->getVariationDesignPosition(positionReadD, SK_ARRAY_COUNT(positionReadD));
+    REPORTER_ASSERT(reporter, countD == SK_ARRAY_COUNT(positionReadD));
+
+    REPORTER_ASSERT(reporter, positionReadD[0].axis == position[0].axis);
+
+    // Convert to fixed for "almost equal".
+    SkFixed fixedRead = SkScalarToFixed(positionReadD[0].value);
+    SkFixed fixedOriginal = SkScalarToFixed(position[0].value);
+    REPORTER_ASSERT(reporter, fixedRead == fixedOriginal);
+};
+
 DEF_TEST(TypefaceAxes, reporter) {
     std::unique_ptr<SkStreamAsset> distortable(GetResourceAsStream("fonts/Distortable.ttf"));
     if (!distortable) {

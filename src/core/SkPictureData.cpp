@@ -276,11 +276,12 @@ bool SkPictureData::parseStreamTag(SkStream* stream,
             break;
         case SK_PICT_FACTORY_TAG: {
             SkASSERT(!haveBuffer);
-            size = stream->readU32();
+            if (!stream->readU32(&size)) { return false; }
             fFactoryPlayback = skstd::make_unique<SkFactoryPlayback>(size);
             for (size_t i = 0; i < size; i++) {
                 SkString str;
-                const size_t len = stream->readPackedUInt();
+                size_t len;
+                if (!stream->readPackedUInt(&len)) { return false; }
                 str.resize(len);
                 if (stream->read(str.writable_str(), len) != len) {
                     return false;
@@ -480,12 +481,14 @@ bool SkPictureData::parseStream(SkStream* stream,
                                 const SkDeserialProcs& procs,
                                 SkTypefacePlayback* topLevelTFPlayback) {
     for (;;) {
-        uint32_t tag = stream->readU32();
+        uint32_t tag;
+        if (!stream->readU32(&tag)) { return false; }
         if (SK_PICT_EOF_TAG == tag) {
             break;
         }
 
-        uint32_t size = stream->readU32();
+        uint32_t size;
+        if (!stream->readU32(&size)) { return false; }
         if (!this->parseStreamTag(stream, tag, size, procs, topLevelTFPlayback)) {
             return false; // we're invalid
         }
