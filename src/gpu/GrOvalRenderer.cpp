@@ -555,6 +555,49 @@ sk_sp<GrGeometryProcessor> DIEllipseGeometryProcessor::TestCreate(GrProcessorTes
 
 ///////////////////////////////////////////////////////////////////////////////
 
+// We have two possible cases for geometry for a circle:
+
+// In the case of a normal fill, we draw geometry for the circle as an octagon.
+static const uint16_t gFillCircleIndices[] = {
+    // enter the octagon
+    0, 1, 8, 1, 2, 8,
+    2, 3, 8, 3, 4, 8,
+    4, 5, 8, 5, 6, 8,
+    6, 7, 8, 7, 0, 8,
+};
+
+// For stroked circles, we use two nested octagons.
+static const uint16_t gStrokeCircleIndices[] = {
+    // enter the octagon
+    0, 1, 9, 0, 9, 8,
+    1, 2, 10, 1, 10, 9,
+    2, 3, 11, 2, 11, 10,
+    3, 4, 12, 3, 12, 11,
+    4, 5, 13, 4, 13, 12,
+    5, 6, 14, 5, 14, 13,
+    6, 7, 15, 6, 15, 14,
+    7, 0, 8, 7, 8, 15,
+};
+
+static const int kIndicesPerFillCircle = SK_ARRAY_COUNT(gFillCircleIndices);
+static const int kIndicesPerStrokeCircle = SK_ARRAY_COUNT(gStrokeCircleIndices);
+static const int kVertsPerStrokeCircle = 16;
+static const int kVertsPerFillCircle = 9;
+
+static int circle_type_to_vert_count(bool stroked) {
+    return stroked ? kVertsPerStrokeCircle : kVertsPerFillCircle;
+}
+
+static int circle_type_to_index_count(bool stroked) {
+    return stroked ? kIndicesPerStrokeCircle : kIndicesPerFillCircle;
+}
+
+static const uint16_t* circle_type_to_indices(bool stroked) {
+    return stroked ? gStrokeCircleIndices : gFillCircleIndices;
+}
+
+///////////////////////////////////////////////////////////////////////////////
+
 class CircleBatch : public GrVertexBatch {
 public:
     DEFINE_BATCH_CLASS_ID
@@ -601,7 +644,7 @@ public:
                             SkStrokeRec::kHairline_Style == recStyle;
         bool hasStroke = isStrokeOnly || SkStrokeRec::kStrokeAndFill_Style == recStyle;
 
-        SkScalar innerRadius = 0.0f;
+        SkScalar innerRadius = -SK_ScalarHalf;
         SkScalar outerRadius = radius;
         SkScalar halfWidth = 0;
         if (hasStroke) {
@@ -623,6 +666,7 @@ public:
         // rendered and the outset ensures the box will cover all partially covered by the circle.
         outerRadius += SK_ScalarHalf;
         innerRadius -= SK_ScalarHalf;
+        bool stroked = isStrokeOnly && innerRadius > 0.0f;
         CircleBatch* batch = new CircleBatch();
         batch->fViewMatrixIfUsingLocalCoords = viewMatrix;
 
@@ -632,7 +676,6 @@ public:
         static constexpr SkScalar kUnusedUnionPlane[] = {0.f, 0.f, 0.f};
         SkRect devBounds = SkRect::MakeLTRB(center.fX - outerRadius, center.fY - outerRadius,
                                             center.fX + outerRadius, center.fY + outerRadius);
-
         if (arcParams) {
             // The shader operates in a space where the circle is translated to be centered at the
             // origin. Here we compute points on the unit circle at the starting and ending angles.
@@ -665,7 +708,8 @@ public:
                             {norm0.fX, norm0.fY, 0.5f},
                             {kUnusedIsectPlane[0], kUnusedIsectPlane[1], kUnusedIsectPlane[2]},
                             {norm1.fX, norm1.fY, 0.5f},
-                            devBounds
+                            devBounds,
+                            stroked
                     });
                     batch->fClipPlaneIsect = false;
                     batch->fClipPlaneUnion = true;
@@ -677,7 +721,8 @@ public:
                             {norm0.fX, norm0.fY, 0.5f},
                             {norm1.fX, norm1.fY, 0.5f},
                             {kUnusedUnionPlane[0], kUnusedUnionPlane[1], kUnusedUnionPlane[2]},
-                            devBounds
+                            devBounds,
+                            stroked
                     });
                     batch->fClipPlaneIsect = true;
                     batch->fClipPlaneUnion = false;
@@ -700,7 +745,8 @@ public:
                         {norm.fX, norm.fY, d},
                         {kUnusedIsectPlane[0], kUnusedIsectPlane[1], kUnusedIsectPlane[2]},
                         {kUnusedUnionPlane[0], kUnusedUnionPlane[1], kUnusedUnionPlane[2]},
-                        devBounds
+                        devBounds,
+                        stroked
                 });
                 batch->fClipPlane = true;
                 batch->fClipPlaneIsect = false;
@@ -714,7 +760,8 @@ public:
                 {kUnusedIsectPlane[0], kUnusedIsectPlane[1], kUnusedIsectPlane[2]},
                 {kUnusedIsectPlane[0], kUnusedIsectPlane[1], kUnusedIsectPlane[2]},
                 {kUnusedUnionPlane[0], kUnusedUnionPlane[1], kUnusedUnionPlane[2]},
-                devBounds
+                devBounds,
+                stroked
             });
             batch->fClipPlane = false;
             batch->fClipPlaneIsect = false;
@@ -726,7 +773,9 @@ public:
         batch->setBounds({center.fX - radius, center.fY - radius,
                           center.fX + radius, center.fY + radius},
                           HasAABloat::kYes, IsZeroArea::kNo);
-        batch->fStroked = isStrokeOnly && innerRadius > 0;
+        batch->fVertCount = circle_type_to_vert_count(stroked);
+        batch->fIndexCount = circle_type_to_index_count(stroked);
+        batch->fAllFill = !stroked;
         return batch;
     }
 
@@ -772,7 +821,7 @@ private:
         }
 
         // Setup geometry processor
-        SkAutoTUnref<GrGeometryProcessor> gp(new CircleGeometryProcessor(fStroked, fClipPlane,
+        SkAutoTUnref<GrGeometryProcessor> gp(new CircleGeometryProcessor(!fAllFill, fClipPlane,
                                                                          fClipPlaneIsect,
                                                                          fClipPlaneUnion,
                                                                          localMatrix));
@@ -792,12 +841,25 @@ private:
         SkASSERT(vertexStride == sizeof(CircleVertex) - (fClipPlane ? 0 : 3 * sizeof(SkScalar))
                                                       - (fClipPlaneIsect? 0 : 3 * sizeof(SkScalar))
                                                       - (fClipPlaneUnion? 0 : 3 * sizeof(SkScalar)));
-        QuadHelper helper;
-        char* vertices = reinterpret_cast<char*>(helper.init(target, vertexStride, instanceCount));
+
+        const GrBuffer* vertexBuffer;
+        int firstVertex;
+        char* vertices = (char*)target->makeVertexSpace(vertexStride, fVertCount,
+                                                        &vertexBuffer, &firstVertex);
         if (!vertices) {
+            SkDebugf("Could not allocate vertices\n");
             return;
         }
 
+        const GrBuffer* indexBuffer = nullptr;
+        int firstIndex = 0;
+        uint16_t* indices = target->makeIndexSpace(fIndexCount, &indexBuffer, &firstIndex);
+        if (!indices) {
+            SkDebugf("Could not allocate indices\n");
+            return;
+        }
+
+        int currStartVertex = 0;
         for (int i = 0; i < instanceCount; i++) {
             const Geometry& geom = fGeoData[i];
 
@@ -806,42 +868,79 @@ private:
             SkScalar outerRadius = geom.fOuterRadius;
 
             const SkRect& bounds = geom.fDevBounds;
-            CircleVertex* v0 = reinterpret_cast<CircleVertex*>(vertices + (4 * i + 0)*vertexStride);
-            CircleVertex* v1 = reinterpret_cast<CircleVertex*>(vertices + (4 * i + 1)*vertexStride);
-            CircleVertex* v2 = reinterpret_cast<CircleVertex*>(vertices + (4 * i + 2)*vertexStride);
-            CircleVertex* v3 = reinterpret_cast<CircleVertex*>(vertices + (4 * i + 3)*vertexStride);
+            CircleVertex* v0 = reinterpret_cast<CircleVertex*>(vertices + 0*vertexStride);
+            CircleVertex* v1 = reinterpret_cast<CircleVertex*>(vertices + 1*vertexStride);
+            CircleVertex* v2 = reinterpret_cast<CircleVertex*>(vertices + 2*vertexStride);
+            CircleVertex* v3 = reinterpret_cast<CircleVertex*>(vertices + 3*vertexStride);
+            CircleVertex* v4 = reinterpret_cast<CircleVertex*>(vertices + 4*vertexStride);
+            CircleVertex* v5 = reinterpret_cast<CircleVertex*>(vertices + 5*vertexStride);
+            CircleVertex* v6 = reinterpret_cast<CircleVertex*>(vertices + 6*vertexStride);
+            CircleVertex* v7 = reinterpret_cast<CircleVertex*>(vertices + 7*vertexStride);
 
             // The inner radius in the vertex data must be specified in normalized space.
             innerRadius = innerRadius / outerRadius;
-            v0->fPos = SkPoint::Make(bounds.fLeft,  bounds.fTop);
+
+            SkPoint center = SkPoint::Make(bounds.centerX(), bounds.centerY());
+            SkScalar halfWidth = 0.5f*bounds.width();
+            SkScalar octOffset = 0.41421356237f;  // sqrt(2) - 1
+            
+            v0->fPos = center + SkPoint::Make(-octOffset*halfWidth, -halfWidth);
             v0->fColor = color;
-            v0->fOffset = SkPoint::Make(-1, -1);
+            v0->fOffset = SkPoint::Make(-octOffset, -1);
             v0->fOuterRadius = outerRadius;
             v0->fInnerRadius = innerRadius;
 
-            v1->fPos = SkPoint::Make(bounds.fLeft,  bounds.fBottom);
+            v1->fPos = center + SkPoint::Make(octOffset*halfWidth, -halfWidth);
             v1->fColor = color;
-            v1->fOffset = SkPoint::Make(-1, 1);
+            v1->fOffset = SkPoint::Make(octOffset, -1);
             v1->fOuterRadius = outerRadius;
             v1->fInnerRadius = innerRadius;
 
-            v2->fPos = SkPoint::Make(bounds.fRight, bounds.fBottom);
+            v2->fPos = center + SkPoint::Make(halfWidth, -octOffset*halfWidth);
             v2->fColor = color;
-            v2->fOffset = SkPoint::Make(1, 1);
+            v2->fOffset = SkPoint::Make(1, -octOffset);
             v2->fOuterRadius = outerRadius;
             v2->fInnerRadius = innerRadius;
 
-            v3->fPos = SkPoint::Make(bounds.fRight, bounds.fTop);
+            v3->fPos = center + SkPoint::Make(halfWidth, octOffset*halfWidth);
             v3->fColor = color;
-            v3->fOffset = SkPoint::Make(1, -1);
+            v3->fOffset = SkPoint::Make(1, octOffset);
             v3->fOuterRadius = outerRadius;
             v3->fInnerRadius = innerRadius;
+
+            v4->fPos = center + SkPoint::Make(octOffset*halfWidth, halfWidth);
+            v4->fColor = color;
+            v4->fOffset = SkPoint::Make(octOffset, 1);
+            v4->fOuterRadius = outerRadius;
+            v4->fInnerRadius = innerRadius;
+
+            v5->fPos = center + SkPoint::Make(-octOffset*halfWidth, halfWidth);
+            v5->fColor = color;
+            v5->fOffset = SkPoint::Make(-octOffset, 1);
+            v5->fOuterRadius = outerRadius;
+            v5->fInnerRadius = innerRadius;
+
+            v6->fPos = center + SkPoint::Make(-halfWidth, octOffset*halfWidth);
+            v6->fColor = color;
+            v6->fOffset = SkPoint::Make(-1, octOffset);
+            v6->fOuterRadius = outerRadius;
+            v6->fInnerRadius = innerRadius;
+
+            v7->fPos = center + SkPoint::Make(-halfWidth, -octOffset*halfWidth);
+            v7->fColor = color;
+            v7->fOffset = SkPoint::Make(-1, -octOffset);
+            v7->fOuterRadius = outerRadius;
+            v7->fInnerRadius = innerRadius;
 
             if (fClipPlane) {
                 memcpy(v0->fHalfPlanes[0], geom.fClipPlane, 3 * sizeof(SkScalar));
                 memcpy(v1->fHalfPlanes[0], geom.fClipPlane, 3 * sizeof(SkScalar));
                 memcpy(v2->fHalfPlanes[0], geom.fClipPlane, 3 * sizeof(SkScalar));
                 memcpy(v3->fHalfPlanes[0], geom.fClipPlane, 3 * sizeof(SkScalar));
+                memcpy(v4->fHalfPlanes[0], geom.fClipPlane, 3 * sizeof(SkScalar));
+                memcpy(v5->fHalfPlanes[0], geom.fClipPlane, 3 * sizeof(SkScalar));
+                memcpy(v6->fHalfPlanes[0], geom.fClipPlane, 3 * sizeof(SkScalar));
+                memcpy(v7->fHalfPlanes[0], geom.fClipPlane, 3 * sizeof(SkScalar));
             }
             int unionIdx = 1;
             if (fClipPlaneIsect) {
@@ -849,6 +948,10 @@ private:
                 memcpy(v1->fHalfPlanes[1], geom.fIsectPlane, 3 * sizeof(SkScalar));
                 memcpy(v2->fHalfPlanes[1], geom.fIsectPlane, 3 * sizeof(SkScalar));
                 memcpy(v3->fHalfPlanes[1], geom.fIsectPlane, 3 * sizeof(SkScalar));
+                memcpy(v4->fHalfPlanes[1], geom.fIsectPlane, 3 * sizeof(SkScalar));
+                memcpy(v5->fHalfPlanes[1], geom.fIsectPlane, 3 * sizeof(SkScalar));
+                memcpy(v6->fHalfPlanes[1], geom.fIsectPlane, 3 * sizeof(SkScalar));
+                memcpy(v7->fHalfPlanes[1], geom.fIsectPlane, 3 * sizeof(SkScalar));
                 unionIdx = 2;
             }
             if (fClipPlaneUnion) {
@@ -856,9 +959,143 @@ private:
                 memcpy(v1->fHalfPlanes[unionIdx], geom.fUnionPlane, 3 * sizeof(SkScalar));
                 memcpy(v2->fHalfPlanes[unionIdx], geom.fUnionPlane, 3 * sizeof(SkScalar));
                 memcpy(v3->fHalfPlanes[unionIdx], geom.fUnionPlane, 3 * sizeof(SkScalar));
+                memcpy(v4->fHalfPlanes[unionIdx], geom.fUnionPlane, 3 * sizeof(SkScalar));
+                memcpy(v5->fHalfPlanes[unionIdx], geom.fUnionPlane, 3 * sizeof(SkScalar));
+                memcpy(v6->fHalfPlanes[unionIdx], geom.fUnionPlane, 3 * sizeof(SkScalar));
+                memcpy(v7->fHalfPlanes[unionIdx], geom.fUnionPlane, 3 * sizeof(SkScalar));
             }
+
+            if (geom.fStroked) {
+                // compute the inner ring
+                CircleVertex* v0 = reinterpret_cast<CircleVertex*>(vertices + 8 * vertexStride);
+                CircleVertex* v1 = reinterpret_cast<CircleVertex*>(vertices + 9 * vertexStride);
+                CircleVertex* v2 = reinterpret_cast<CircleVertex*>(vertices + 10 * vertexStride);
+                CircleVertex* v3 = reinterpret_cast<CircleVertex*>(vertices + 11 * vertexStride);
+                CircleVertex* v4 = reinterpret_cast<CircleVertex*>(vertices + 12 * vertexStride);
+                CircleVertex* v5 = reinterpret_cast<CircleVertex*>(vertices + 13 * vertexStride);
+                CircleVertex* v6 = reinterpret_cast<CircleVertex*>(vertices + 14 * vertexStride);
+                CircleVertex* v7 = reinterpret_cast<CircleVertex*>(vertices + 15 * vertexStride);
+
+                // cosine and sine of pi/8
+                SkScalar c = 0.923579533f;
+                SkScalar s = 0.382683432f;
+                SkScalar r = geom.fInnerRadius;
+
+                v0->fPos = center + SkPoint::Make(-s*r, -c*r);
+                v0->fColor = color;
+                v0->fOffset = SkPoint::Make(-s*innerRadius, -c*innerRadius);
+                v0->fOuterRadius = outerRadius;
+                v0->fInnerRadius = innerRadius;
+
+                v1->fPos = center + SkPoint::Make(s*r, -c*r);
+                v1->fColor = color;
+                v1->fOffset = SkPoint::Make(s*innerRadius, -c*innerRadius);
+                v1->fOuterRadius = outerRadius;
+                v1->fInnerRadius = innerRadius;
+
+                v2->fPos = center + SkPoint::Make(c*r, -s*r);
+                v2->fColor = color;
+                v2->fOffset = SkPoint::Make(c*innerRadius, -s*innerRadius);
+                v2->fOuterRadius = outerRadius;
+                v2->fInnerRadius = innerRadius;
+
+                v3->fPos = center + SkPoint::Make(c*r, s*r);
+                v3->fColor = color;
+                v3->fOffset = SkPoint::Make(c*innerRadius, s*innerRadius);
+                v3->fOuterRadius = outerRadius;
+                v3->fInnerRadius = innerRadius;
+
+                v4->fPos = center + SkPoint::Make(s*r, c*r);
+                v4->fColor = color;
+                v4->fOffset = SkPoint::Make(s*innerRadius, c*innerRadius);
+                v4->fOuterRadius = outerRadius;
+                v4->fInnerRadius = innerRadius;
+
+                v5->fPos = center + SkPoint::Make(-s*r, c*r);
+                v5->fColor = color;
+                v5->fOffset = SkPoint::Make(-s*innerRadius, c*innerRadius);
+                v5->fOuterRadius = outerRadius;
+                v5->fInnerRadius = innerRadius;
+
+                v6->fPos = center + SkPoint::Make(-c*r, s*r);
+                v6->fColor = color;
+                v6->fOffset = SkPoint::Make(-c*innerRadius, s*innerRadius);
+                v6->fOuterRadius = outerRadius;
+                v6->fInnerRadius = innerRadius;
+
+                v7->fPos = center + SkPoint::Make(-c*r, -s*r);
+                v7->fColor = color;
+                v7->fOffset = SkPoint::Make(-c*innerRadius, -s*innerRadius);
+                v7->fOuterRadius = outerRadius;
+                v7->fInnerRadius = innerRadius;
+
+                if (fClipPlane) {
+                    memcpy(v0->fHalfPlanes[0], geom.fClipPlane, 3 * sizeof(SkScalar));
+                    memcpy(v1->fHalfPlanes[0], geom.fClipPlane, 3 * sizeof(SkScalar));
+                    memcpy(v2->fHalfPlanes[0], geom.fClipPlane, 3 * sizeof(SkScalar));
+                    memcpy(v3->fHalfPlanes[0], geom.fClipPlane, 3 * sizeof(SkScalar));
+                    memcpy(v4->fHalfPlanes[0], geom.fClipPlane, 3 * sizeof(SkScalar));
+                    memcpy(v5->fHalfPlanes[0], geom.fClipPlane, 3 * sizeof(SkScalar));
+                    memcpy(v6->fHalfPlanes[0], geom.fClipPlane, 3 * sizeof(SkScalar));
+                    memcpy(v7->fHalfPlanes[0], geom.fClipPlane, 3 * sizeof(SkScalar));
+                }
+                int unionIdx = 1;
+                if (fClipPlaneIsect) {
+                    memcpy(v0->fHalfPlanes[1], geom.fIsectPlane, 3 * sizeof(SkScalar));
+                    memcpy(v1->fHalfPlanes[1], geom.fIsectPlane, 3 * sizeof(SkScalar));
+                    memcpy(v2->fHalfPlanes[1], geom.fIsectPlane, 3 * sizeof(SkScalar));
+                    memcpy(v3->fHalfPlanes[1], geom.fIsectPlane, 3 * sizeof(SkScalar));
+                    memcpy(v4->fHalfPlanes[1], geom.fIsectPlane, 3 * sizeof(SkScalar));
+                    memcpy(v5->fHalfPlanes[1], geom.fIsectPlane, 3 * sizeof(SkScalar));
+                    memcpy(v6->fHalfPlanes[1], geom.fIsectPlane, 3 * sizeof(SkScalar));
+                    memcpy(v7->fHalfPlanes[1], geom.fIsectPlane, 3 * sizeof(SkScalar));
+                    unionIdx = 2;
+                }
+                if (fClipPlaneUnion) {
+                    memcpy(v0->fHalfPlanes[unionIdx], geom.fUnionPlane, 3 * sizeof(SkScalar));
+                    memcpy(v1->fHalfPlanes[unionIdx], geom.fUnionPlane, 3 * sizeof(SkScalar));
+                    memcpy(v2->fHalfPlanes[unionIdx], geom.fUnionPlane, 3 * sizeof(SkScalar));
+                    memcpy(v3->fHalfPlanes[unionIdx], geom.fUnionPlane, 3 * sizeof(SkScalar));
+                    memcpy(v4->fHalfPlanes[unionIdx], geom.fUnionPlane, 3 * sizeof(SkScalar));
+                    memcpy(v5->fHalfPlanes[unionIdx], geom.fUnionPlane, 3 * sizeof(SkScalar));
+                    memcpy(v6->fHalfPlanes[unionIdx], geom.fUnionPlane, 3 * sizeof(SkScalar));
+                    memcpy(v7->fHalfPlanes[unionIdx], geom.fUnionPlane, 3 * sizeof(SkScalar));
+                }
+            } else {
+                // filled
+                CircleVertex* v8 = reinterpret_cast<CircleVertex*>(vertices + 8 * vertexStride);
+                v8->fPos = center;
+                v8->fColor = color;
+                v8->fOffset = SkPoint::Make(0, 0);
+                v8->fOuterRadius = outerRadius;
+                v8->fInnerRadius = innerRadius;
+                if (fClipPlane) {
+                    memcpy(v8->fHalfPlanes[0], geom.fClipPlane, 3 * sizeof(SkScalar));
+                }
+                int unionIdx = 1;
+                if (fClipPlaneIsect) {
+                    memcpy(v8->fHalfPlanes[1], geom.fIsectPlane, 3 * sizeof(SkScalar));
+                    unionIdx = 2;
+                }
+                if (fClipPlaneUnion) {
+                    memcpy(v8->fHalfPlanes[unionIdx], geom.fUnionPlane, 3 * sizeof(SkScalar));
+                }
+            }
+
+            const uint16_t* primIndices = circle_type_to_indices(geom.fStroked);
+            const int primIndexCount = circle_type_to_index_count(geom.fStroked);
+            for (int i = 0; i < primIndexCount; ++i) {
+                *indices++ = primIndices[i] + currStartVertex;
+            }
+
+            currStartVertex += circle_type_to_vert_count(geom.fStroked);
+            vertices += circle_type_to_vert_count(geom.fStroked)*vertexStride;
         }
-        helper.recordDraw(target, gp);
+
+        GrMesh mesh;
+        mesh.initIndexed(kTriangles_GrPrimitiveType, vertexBuffer, indexBuffer, firstVertex,
+                         firstIndex, fVertCount, fIndexCount);
+        target->draw(gp.get(), mesh);
     }
 
     bool onCombineIfPossible(GrBatch* t, const GrCaps& caps) override {
@@ -868,7 +1105,7 @@ private:
             return false;
         }
 
-        if (this->fStroked != that->fStroked) {
+        if (!fViewMatrixIfUsingLocalCoords.cheapEqualTo(that->fViewMatrixIfUsingLocalCoords)) {
             return false;
         }
 
@@ -878,12 +1115,11 @@ private:
         fClipPlaneIsect |= that->fClipPlaneIsect;
         fClipPlaneUnion |= that->fClipPlaneUnion;
 
-        if (!fViewMatrixIfUsingLocalCoords.cheapEqualTo(that->fViewMatrixIfUsingLocalCoords)) {
-            return false;
-        }
-
         fGeoData.push_back_n(that->fGeoData.count(), that->fGeoData.begin());
         this->joinBounds(*that);
+        fVertCount += that->fVertCount;
+        fIndexCount += that->fIndexCount;
+        fAllFill = fAllFill && that->fAllFill;
         return true;
     }
 
@@ -895,14 +1131,17 @@ private:
         SkScalar fIsectPlane[3];
         SkScalar fUnionPlane[3];
         SkRect   fDevBounds;
+        bool     fStroked;
     };
 
-    bool                         fStroked;
+    SkSTArray<1, Geometry, true> fGeoData;
+    SkMatrix                     fViewMatrixIfUsingLocalCoords;
+    int                          fVertCount;
+    int                          fIndexCount;
+    bool                         fAllFill;
     bool                         fClipPlane;
     bool                         fClipPlaneIsect;
     bool                         fClipPlaneUnion;
-    SkMatrix                     fViewMatrixIfUsingLocalCoords;
-    SkSTArray<1, Geometry, true> fGeoData;
 
     typedef GrVertexBatch INHERITED;
 };
