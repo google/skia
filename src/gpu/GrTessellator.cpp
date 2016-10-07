@@ -260,6 +260,36 @@ inline void round(SkPoint* p) {
     p->fY = SkScalarRoundToScalar(p->fY * SkFloatToScalar(4.0f)) * SkFloatToScalar(0.25f);
 }
 
+// A line equation in implicit form. fA * x + fB * y + fC = 0, for all points (x, y) on the line.
+struct Line {
+    Line(Vertex* p, Vertex* q) : Line(p->fPoint, q->fPoint) {}
+    Line(const SkPoint& p, const SkPoint& q)
+        : fA(static_cast<double>(q.fY) - p.fY)      // a = dY
+        , fB(static_cast<double>(p.fX) - q.fX)      // b = -dX
+        , fC(static_cast<double>(p.fY) * q.fX -     // c = cross(q, p)
+             static_cast<double>(p.fX) * q.fY) {}
+    double dist(const SkPoint& p) const {
+        return fA * p.fX + fB * p.fY + fC;
+    }
+    double magSq() const {
+        return fA * fA + fB * fB;
+    }
+
+    // Compute the intersection of two (infinite) Lines.
+    bool intersect(const Line& other, SkPoint* point) {
+        double denom = fA * other.fB - fB * other.fA;
+        if (denom == 0.0) {
+            return false;
+        }
+        double scale = 1.0f / denom;
+        point->fX = SkDoubleToScalar((fB * other.fC - other.fB * fC) * scale);
+        point->fY = SkDoubleToScalar((other.fA * fC - fA * other.fC) * scale);
+        round(point);
+        return true;
+    }
+    double fA, fB, fC;
+};
+
 /**
  * An Edge joins a top Vertex to a bottom Vertex. Edge ordering for the list of "edges above" and
  * "edge below" a vertex as well as for the active edge list is handled by isLeftOf()/isRightOf().
@@ -296,8 +326,8 @@ struct Edge {
         , fRightPolyPrev(nullptr)
         , fRightPolyNext(nullptr)
         , fUsedInLeftPoly(false)
-        , fUsedInRightPoly(false) {
-            recompute();
+        , fUsedInRightPoly(false)
+        , fLine(top, bottom) {
         }
     int      fWinding;          // 1 == edge goes downward; -1 = edge goes upward.
     Vertex*  fTop;              // The top vertex in vertex-sort-order (sweep_lt).
@@ -316,23 +346,18 @@ struct Edge {
     Edge*    fRightPolyNext;
     bool     fUsedInLeftPoly;
     bool     fUsedInRightPoly;
-    double   fDX;               // The line equation for this edge, in implicit form.
-    double   fDY;               // fDY * x + fDX * y + fC = 0, for point (x, y) on the line.
-    double   fC;
+    Line     fLine;
     double dist(const SkPoint& p) const {
-        return fDY * p.fX - fDX * p.fY + fC;
+        return fLine.dist(p);
     }
     bool isRightOf(Vertex* v) const {
-        return dist(v->fPoint) < 0.0;
+        return fLine.dist(v->fPoint) < 0.0;
     }
     bool isLeftOf(Vertex* v) const {
-        return dist(v->fPoint) > 0.0;
+        return fLine.dist(v->fPoint) > 0.0;
     }
     void recompute() {
-        fDX = static_cast<double>(fBottom->fPoint.fX) - fTop->fPoint.fX;
-        fDY = static_cast<double>(fBottom->fPoint.fY) - fTop->fPoint.fY;
-        fC = static_cast<double>(fTop->fPoint.fY) * fBottom->fPoint.fX -
-             static_cast<double>(fTop->fPoint.fX) * fBottom->fPoint.fY;
+        fLine = Line(fTop, fBottom);
     }
     bool intersect(const Edge& other, SkPoint* p) {
         LOG("intersecting %g -> %g with %g -> %g\n",
@@ -341,14 +366,14 @@ struct Edge {
         if (fTop == other.fTop || fBottom == other.fBottom) {
             return false;
         }
-        double denom = fDX * other.fDY - fDY * other.fDX;
+        double denom = fLine.fA * other.fLine.fB - fLine.fB * other.fLine.fA;
         if (denom == 0.0) {
             return false;
         }
         double dx = static_cast<double>(fTop->fPoint.fX) - other.fTop->fPoint.fX;
         double dy = static_cast<double>(fTop->fPoint.fY) - other.fTop->fPoint.fY;
-        double sNumer = dy * other.fDX - dx * other.fDY;
-        double tNumer = dy * fDX - dx * fDY;
+        double sNumer = -dy * other.fLine.fB - dx * other.fLine.fA;
+        double tNumer = -dy * fLine.fB - dx * fLine.fA;
         // If (sNumer / denom) or (tNumer / denom) is not in [0..1], exit early.
         // This saves us doing the divide below unless absolutely necessary.
         if (denom > 0.0 ? (sNumer < 0.0 || sNumer > denom || tNumer < 0.0 || tNumer > denom)
@@ -357,8 +382,8 @@ struct Edge {
         }
         double s = sNumer / denom;
         SkASSERT(s >= 0.0 && s <= 1.0);
-        p->fX = SkDoubleToScalar(fTop->fPoint.fX + s * fDX);
-        p->fY = SkDoubleToScalar(fTop->fPoint.fY + s * fDY);
+        p->fX = SkDoubleToScalar(fTop->fPoint.fX - s * fLine.fB);
+        p->fY = SkDoubleToScalar(fTop->fPoint.fY + s * fLine.fA);
         return true;
     }
 };
@@ -1423,22 +1448,9 @@ Vertex* remove_non_boundary_edges(Vertex* vertices, SkPath::FillType fillType,
     return vertices;
 }
 
-// This is different from Edge::intersect, in that it intersects lines, not line segments.
-bool intersect(const Edge& a, const Edge& b, SkPoint* point) {
-    double denom = a.fDX * b.fDY - a.fDY * b.fDX;
-    if (denom == 0.0) {
-        return false;
-    }
-    double scale = 1.0f / denom;
-    point->fX = SkDoubleToScalar((b.fDX * a.fC - a.fDX * b.fC) * scale);
-    point->fY = SkDoubleToScalar((b.fDY * a.fC - a.fDY * b.fC) * scale);
-    round(point);
-    return true;
-}
-
 void get_edge_normal(const Edge* e, SkVector* normal) {
-    normal->setNormalize(SkDoubleToScalar(e->fDX) * e->fWinding,
-                         SkDoubleToScalar(e->fDY) * e->fWinding);
+    normal->setNormalize(SkDoubleToScalar(-e->fLine.fB) * e->fWinding,
+                         SkDoubleToScalar(e->fLine.fA) * e->fWinding);
 }
 
 // Stage 5c: detect and remove "pointy" vertices whose edge normals point in opposite directions
@@ -1455,7 +1467,7 @@ void simplify_boundary(EdgeList* boundary, Comparator& c, SkChunkAlloc& alloc) {
         double dist = e->dist(prev->fPoint);
         SkVector normal;
         get_edge_normal(e, &normal);
-        float denom = 0.25f * static_cast<float>(e->fDX * e->fDX + e->fDY * e->fDY);
+        float denom = 0.25f * static_cast<float>(e->fLine.magSq());
         if (prevNormal.dot(normal) < 0.0 && (dist * dist) <= denom) {
             Edge* join = new_edge(prev, next, alloc, c);
             insert_edge(join, e, boundary);
@@ -1485,24 +1497,23 @@ void boundary_to_aa_mesh(EdgeList* boundary, VertexList* mesh, Comparator& c, Sk
     EdgeList outerContour;
     Edge* prevEdge = boundary->fTail;
     float radius = 0.5f;
-    double offset = radius * sqrt(prevEdge->fDX * prevEdge->fDX + prevEdge->fDY * prevEdge->fDY)
-                           * prevEdge->fWinding;
-    Edge prevInner(prevEdge->fTop, prevEdge->fBottom, prevEdge->fWinding);
+    double offset = radius * sqrt(prevEdge->fLine.magSq()) * prevEdge->fWinding;
+    Line prevInner(prevEdge->fTop, prevEdge->fBottom);
     prevInner.fC -= offset;
-    Edge prevOuter(prevEdge->fTop, prevEdge->fBottom, prevEdge->fWinding);
+    Line prevOuter(prevEdge->fTop, prevEdge->fBottom);
     prevOuter.fC += offset;
     VertexList innerVertices;
     VertexList outerVertices;
     SkScalar innerCount = SK_Scalar1, outerCount = SK_Scalar1;
     for (Edge* e = boundary->fHead; e != nullptr; e = e->fRight) {
-        double offset = radius * sqrt(e->fDX * e->fDX + e->fDY * e->fDY) * e->fWinding;
-        Edge inner(e->fTop, e->fBottom, e->fWinding);
+        double offset = radius * sqrt(e->fLine.magSq()) * e->fWinding;
+        Line inner(e->fTop, e->fBottom);
         inner.fC -= offset;
-        Edge outer(e->fTop, e->fBottom, e->fWinding);
+        Line outer(e->fTop, e->fBottom);
         outer.fC += offset;
         SkPoint innerPoint, outerPoint;
-        if (intersect(prevInner, inner, &innerPoint) &&
-            intersect(prevOuter, outer, &outerPoint)) {
+        if (prevInner.intersect(inner, &innerPoint) &&
+            prevOuter.intersect(outer, &outerPoint)) {
             Vertex* innerVertex = ALLOC_NEW(Vertex, (innerPoint, 255), alloc);
             Vertex* outerVertex = ALLOC_NEW(Vertex, (outerPoint, 0), alloc);
             if (innerVertices.fTail && outerVertices.fTail) {
