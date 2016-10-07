@@ -109,7 +109,7 @@ public:
 
     void setOppPtTStart(const SkOpPtT* ptT) {
         SkASSERT(ptT == ptT->span()->ptT());
-        SkASSERT(!fOppPtTEnd || ptT->fT != fOppPtTEnd->fT);
+        SkOPASSERT(!fOppPtTEnd || ptT->fT != fOppPtTEnd->fT);
         SkASSERT(!fOppPtTEnd || fOppPtTEnd->segment() == ptT->segment());
         fOppPtTStart = ptT;
         ptT->setCoincident();

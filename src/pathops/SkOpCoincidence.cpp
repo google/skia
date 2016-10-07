@@ -842,6 +842,7 @@ bool SkOpCoincidence::addOverlap(const SkOpSegment* seg1, const SkOpSegment* seg
         const SkOpPtT* overS, const SkOpPtT* overE) {
     const SkOpPtT* s1 = overS->find(seg1);
     const SkOpPtT* e1 = overE->find(seg1);
+    FAIL_IF(!s1);
     FAIL_IF(!e1);
     if (!s1->starter(e1)->span()->upCast()->windValue()) {
         s1 = overS->find(seg1o);
