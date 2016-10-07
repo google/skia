@@ -770,7 +770,7 @@ bool SkOpCoincidence::addMissing(bool* added  DEBUG_COIN_DECLARE_PARAMS()) {
             this->debugValidate();
             double overS, overE;
             const SkOpPtT* ics = inner->coinPtTStart();
-            SkASSERT(!ics->deleted());
+            FAIL_IF(ics->deleted());
             const SkOpSegment* innerCoin = ics->segment();
             SkASSERT(!innerCoin->done());
             const SkOpPtT* ios = inner->oppPtTStart();
@@ -846,6 +846,7 @@ bool SkOpCoincidence::addOverlap(const SkOpSegment* seg1, const SkOpSegment* seg
     if (!s1->starter(e1)->span()->upCast()->windValue()) {
         s1 = overS->find(seg1o);
         e1 = overE->find(seg1o);
+        FAIL_IF(!s1);
         FAIL_IF(!e1);
         if (!s1->starter(e1)->span()->upCast()->windValue()) {
             return true;

@@ -1594,6 +1594,9 @@ void SkTSect<TCurve, OppCurve>::mergeCoincidence(SkTSect<OppCurve, TCurve>* sect
         SkTSpan<TCurve, OppCurve>* smaller = nullptr;
         SkTSpan<TCurve, OppCurve>* test = fCoincident;
         do {
+            if (!test) {
+                return;
+            }
             if (test->fStartT < smallLimit) {
                 continue;
             }
@@ -1615,7 +1618,7 @@ void SkTSect<TCurve, OppCurve>::mergeCoincidence(SkTSect<OppCurve, TCurve>* sect
             if (test->fStartT < smaller->fEndT) {
                 continue;
             }
-            SkASSERT(test->fStartT != smaller->fEndT);
+            SkOPASSERT(test->fStartT != smaller->fEndT);
             if (larger && larger->fStartT < test->fStartT) {
                 continue;
             }
@@ -2224,6 +2227,9 @@ void SkTSect<TCurve, OppCurve>::BinarySearch(SkTSect<TCurve, OppCurve>* sect1,
         }
         SkASSERT(sect2->fCoincident);  // courtesy check : coincidence only looks at sect 1
         do {
+            if (!coincident) {
+                return;
+            }
             if (!coincident->fCoinStart.isMatch()) {
                 continue;
             }
