@@ -20,50 +20,43 @@
 
 ///////////////////////////////////////////////////////////////////////////////
 
-int8_t SkStream::readS8() {
-    int8_t value;
-    SkDEBUGCODE(size_t len =) this->read(&value, 1);
-    SkASSERT(1 == len);
-    return value;
+bool SkStream::readS8(int8_t* i) {
+    return this->read(i, sizeof(*i)) == sizeof(*i);
 }
 
-int16_t SkStream::readS16() {
-    int16_t value;
-    SkDEBUGCODE(size_t len =) this->read(&value, 2);
-    SkASSERT(2 == len);
-    return value;
+bool SkStream::readS16(int16_t* i) {
+    return this->read(i, sizeof(*i)) == sizeof(*i);
 }
 
-int32_t SkStream::readS32() {
-    int32_t value;
-    SkDEBUGCODE(size_t len =) this->read(&value, 4);
-    SkASSERT(4 == len);
-    return value;
+bool SkStream::readS32(int32_t* i) {
+    return this->read(i, sizeof(*i)) == sizeof(*i);
 }
 
-SkScalar SkStream::readScalar() {
-    SkScalar value;
-    SkDEBUGCODE(size_t len =) this->read(&value, sizeof(SkScalar));
-    SkASSERT(sizeof(SkScalar) == len);
-    return value;
+bool SkStream::readScalar(SkScalar* i) {
+    return this->read(i, sizeof(*i)) == sizeof(*i);
 }
 
 #define SK_MAX_BYTE_FOR_U8          0xFD
 #define SK_BYTE_SENTINEL_FOR_U16    0xFE
 #define SK_BYTE_SENTINEL_FOR_U32    0xFF
 
-size_t SkStream::readPackedUInt() {
+bool SkStream::readPackedUInt(size_t* i) {
     uint8_t byte;
     if (!this->read(&byte, 1)) {
-        return 0;
+        return false;
     }
     if (SK_BYTE_SENTINEL_FOR_U16 == byte) {
-        return this->readU16();
+        uint16_t i16;
+        if (!this->readU16(&i16)) { return false; }
+        *i = i16;
     } else if (SK_BYTE_SENTINEL_FOR_U32 == byte) {
-        return this->readU32();
+        uint32_t i32;
+        if (!this->readU32(&i32)) { return false; }
+        *i = i32;
     } else {
-        return byte;
+        *i = byte;
     }
+    return true;
 }
 
 //////////////////////////////////////////////////////////////////////////////////////

@@ -8,6 +8,7 @@
 #include "SkAdvancedTypefaceMetrics.h"
 #include "SkData.h"
 #include "SkFixed.h"
+#include "SkFontDescriptor.h"
 #include "SkFontMgr.h"
 #include "SkMakeUnique.h"
 #include "SkOTTable_OS_2.h"
@@ -108,6 +109,30 @@ DEF_TEST(TypefaceRoundTrip, reporter) {
     sk_sp<SkTypeface> typeface2 = fm->makeFromStream(std::move(stream), fontIndex);
     REPORTER_ASSERT(reporter, typeface2);
 }
+
+DEF_TEST(FontDescriptorNegativeVariationSerialize, reporter) {
+    SkFontDescriptor desc;
+    SkFixed axis = -SK_Fixed1;
+    auto font = skstd::make_unique<SkMemoryStream>("a", 1, false);
+    desc.setFontData(skstd::make_unique<SkFontData>(std::move(font), 0, &axis, 1));
+
+    SkDynamicMemoryWStream stream;
+    desc.serialize(&stream);
+    SkFontDescriptor descD;
+    SkFontDescriptor::Deserialize(stream.detachAsStream().get(), &descD);
+    std::unique_ptr<SkFontData> fontData = descD.detachFontData();
+    if (!fontData) {
+        REPORT_FAILURE(reporter, "fontData", SkString());
+        return;
+    }
+
+    if (fontData->getAxisCount() != 1) {
+        REPORT_FAILURE(reporter, "fontData->getAxisCount() != 1", SkString());
+        return;
+    }
+
+    REPORTER_ASSERT(reporter, fontData->getAxis()[0] == -SK_Fixed1);
+};
 
 DEF_TEST(TypefaceAxes, reporter) {
     std::unique_ptr<SkStreamAsset> distortable(GetResourceAsStream("fonts/Distortable.ttf"));

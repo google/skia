@@ -11,6 +11,8 @@
 #include "SkData.h"
 
 enum {
+    kInvalid        = 0x00,
+
     // these must match the sfnt 'name' enums
     kFontFamilyName = 0x01,
     kFullName       = 0x04,
@@ -18,40 +20,45 @@ enum {
 
     // These count backwards from 0xFF, so as not to collide with the SFNT
     // defines for names in its 'name' table.
-    kFontAxes       = 0xFC,
+    kFontAxes       = 0xFB,
+    kFontAxes_bad   = 0xFC, // Broken negative axes, remove when MIN_PICTURE_VERSION > 62.
     kFontIndex      = 0xFD,
     kSentinel       = 0xFF,
 };
 
 SkFontDescriptor::SkFontDescriptor() { }
 
-static void read_string(SkStream* stream, SkString* string) {
-    const uint32_t length = SkToU32(stream->readPackedUInt());
+static bool SK_WARN_UNUSED_RESULT read_string(SkStream* stream, SkString* string) {
+    size_t length;
+    if (!stream->readPackedUInt(&length)) { return false; }
     if (length > 0) {
         string->resize(length);
-        stream->read(string->writable_str(), length);
+        if (stream->read(string->writable_str(), length) != length) { return false; }
     }
+    return true;
 }
 
-static void write_string(SkWStream* stream, const SkString& string, uint32_t id) {
-    if (!string.isEmpty()) {
-        stream->writePackedUInt(id);
-        stream->writePackedUInt(string.size());
-        stream->write(string.c_str(), string.size());
-    }
+static bool write_string(SkWStream* stream, const SkString& string, uint32_t id) {
+    if (string.isEmpty()) { return true; }
+    return stream->writePackedUInt(id) &&
+           stream->writePackedUInt(string.size()) &&
+           stream->write(string.c_str(), string.size());
 }
 
-static size_t read_uint(SkStream* stream) {
-    return stream->readPackedUInt();
+static bool write_uint(SkWStream* stream, size_t n, uint32_t id) {
+    return stream->writePackedUInt(id) &&
+           stream->writePackedUInt(n);
 }
 
-static void write_uint(SkWStream* stream, size_t n, uint32_t id) {
-    stream->writePackedUInt(id);
-    stream->writePackedUInt(n);
+static size_t SK_WARN_UNUSED_RESULT read_id(SkStream* stream) {
+    size_t i;
+    if (!stream->readPackedUInt(&i)) { return kInvalid; }
+    return i;
 }
 
 bool SkFontDescriptor::Deserialize(SkStream* stream, SkFontDescriptor* result) {
-    size_t styleBits = stream->readPackedUInt();
+    size_t styleBits;
+    if (!stream->readPackedUInt(&styleBits)) { return false; }
     result->fStyle = SkFontStyle((styleBits >> 16) & 0xFFFF,
                                  (styleBits >> 8 ) & 0xFF,
                                  static_cast<SkFontStyle::Slant>(styleBits & 0xFF));
@@ -59,26 +66,35 @@ bool SkFontDescriptor::Deserialize(SkStream* stream, SkFontDescriptor* result) {
     SkAutoSTMalloc<4, SkFixed> axis;
     size_t axisCount = 0;
     size_t index = 0;
-    for (size_t id; (id = stream->readPackedUInt()) != kSentinel;) {
+    for (size_t id; (id = read_id(stream)) != kSentinel;) {
         switch (id) {
             case kFontFamilyName:
-                read_string(stream, &result->fFamilyName);
+                if (!read_string(stream, &result->fFamilyName)) { return false; }
                 break;
             case kFullName:
-                read_string(stream, &result->fFullName);
+                if (!read_string(stream, &result->fFullName)) { return false; }
                 break;
             case kPostscriptName:
-                read_string(stream, &result->fPostscriptName);
+                if (!read_string(stream, &result->fPostscriptName)) { return false; }
                 break;
             case kFontAxes:
-                axisCount = read_uint(stream);
+                if (!stream->readPackedUInt(&axisCount)) { return false; }
                 axis.reset(axisCount);
                 for (size_t i = 0; i < axisCount; ++i) {
-                    axis[i] = read_uint(stream);
+                    if (!stream->readS32(&axis[i])) { return false; }
+                }
+                break;
+            case kFontAxes_bad:
+                if (!stream->readPackedUInt(&axisCount)) { return false; }
+                axis.reset(axisCount);
+                for (size_t i = 0; i < axisCount; ++i) {
+                    size_t packedAxis;
+                    if (!stream->readPackedUInt(&packedAxis)) { return false; }
+                    axis[i] = packedAxis;
                 }
                 break;
             case kFontIndex:
-                index = read_uint(stream);
+                if (!stream->readPackedUInt(&index)) { return false; }
                 break;
             default:
                 SkDEBUGFAIL("Unknown id used by a font descriptor");
@@ -86,16 +102,16 @@ bool SkFontDescriptor::Deserialize(SkStream* stream, SkFontDescriptor* result) {
         }
     }
 
-    size_t length = stream->readPackedUInt();
+    size_t length;
+    if (!stream->readPackedUInt(&length)) { return false; }
     if (length > 0) {
         sk_sp<SkData> data(SkData::MakeUninitialized(length));
-        if (stream->read(data->writable_data(), length) == length) {
-            result->fFontData = skstd::make_unique<SkFontData>(
-                                   SkMemoryStream::Make(std::move(data)), index, axis, axisCount);
-        } else {
+        if (stream->read(data->writable_data(), length) != length) {
             SkDEBUGFAIL("Could not read font data");
             return false;
         }
+        result->fFontData = skstd::make_unique<SkFontData>(
+            SkMemoryStream::Make(std::move(data)), index, axis, axisCount);
     }
     return true;
 }
@@ -114,7 +130,7 @@ void SkFontDescriptor::serialize(SkWStream* stream) {
         if (fFontData->getAxisCount()) {
             write_uint(stream, fFontData->getAxisCount(), kFontAxes);
             for (int i = 0; i < fFontData->getAxisCount(); ++i) {
-                stream->writePackedUInt(fFontData->getAxis()[i]);
+                stream->write32(fFontData->getAxis()[i]);
             }
         }
     }
