@@ -83,17 +83,22 @@ public:
      */
     virtual bool isAtEnd() const = 0;
 
-    int8_t   readS8();
-    int16_t  readS16();
-    int32_t  readS32();
+    bool SK_WARN_UNUSED_RESULT readS8(int8_t*);
+    bool SK_WARN_UNUSED_RESULT readS16(int16_t*);
+    bool SK_WARN_UNUSED_RESULT readS32(int32_t*);
 
-    uint8_t  readU8() { return (uint8_t)this->readS8(); }
-    uint16_t readU16() { return (uint16_t)this->readS16(); }
-    uint32_t readU32() { return (uint32_t)this->readS32(); }
+    bool SK_WARN_UNUSED_RESULT readU8(uint8_t* i) { return this->readS8((int8_t*)i); }
+    bool SK_WARN_UNUSED_RESULT readU16(uint16_t* i) { return this->readS16((int16_t*)i); }
+    bool SK_WARN_UNUSED_RESULT readU32(uint32_t* i) { return this->readS32((int32_t*)i); }
 
-    bool     readBool() { return this->readU8() != 0; }
-    SkScalar readScalar();
-    size_t   readPackedUInt();
+    bool SK_WARN_UNUSED_RESULT readBool(bool* b) {
+        uint8_t i;
+        if (!this->readU8(&i)) { return false; }
+        *b = (i != 0);
+        return true;
+    }
+    bool SK_WARN_UNUSED_RESULT readScalar(SkScalar*);
+    bool SK_WARN_UNUSED_RESULT readPackedUInt(size_t*);
 
 //SkStreamRewindable
     /** Rewinds to the beginning of the stream. Returns true if the stream is known
@@ -247,16 +252,16 @@ public:
 
     bool newline() { return this->write("\n", strlen("\n")); }
 
-    bool    writeDecAsText(int32_t);
-    bool    writeBigDecAsText(int64_t, int minDigits = 0);
-    bool    writeHexAsText(uint32_t, int minDigits = 0);
-    bool    writeScalarAsText(SkScalar);
+    bool writeDecAsText(int32_t);
+    bool writeBigDecAsText(int64_t, int minDigits = 0);
+    bool writeHexAsText(uint32_t, int minDigits = 0);
+    bool writeScalarAsText(SkScalar);
 
-    bool    writeBool(bool v) { return this->write8(v); }
-    bool    writeScalar(SkScalar);
-    bool    writePackedUInt(size_t);
+    bool writeBool(bool v) { return this->write8(v); }
+    bool writeScalar(SkScalar);
+    bool writePackedUInt(size_t);
 
-    bool    writeStream(SkStream* input, size_t length);
+    bool writeStream(SkStream* input, size_t length);
 
     /**
      * This returns the number of bytes in the stream required to store
