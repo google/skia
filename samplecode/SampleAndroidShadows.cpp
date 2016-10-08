@@ -371,26 +371,26 @@ protected:
 
         SkPoint3 lightPos = fLightPos;
 
-        paint.setColor(SK_ColorWHITE);
-        canvas->translate(200, 90);
-        lightPos.fX += 200;
-        lightPos.fY += 90;
-        this->drawShadowedPath(canvas, fRectPath, 2, paint, kAmbientAlpha, 
-                               lightPos, kLightWidth, kSpotAlpha);
-
-        paint.setColor(SK_ColorRED);
-        canvas->translate(250, 0);
-        lightPos.fX += 250;
-        this->drawShadowedPath(canvas, fRRPath, 4, paint, kAmbientAlpha,
-                               lightPos, kLightWidth, kSpotAlpha);
-
-        paint.setColor(SK_ColorBLUE);
-        canvas->translate(-250, 110);
-        lightPos.fX -= 250;
-        lightPos.fY += 110;
-        this->drawShadowedPath(canvas, fCirclePath, 8, paint, 0.0f,
-                               lightPos, kLightWidth, 0.5f);
-
+//        paint.setColor(SK_ColorWHITE);
+//        canvas->translate(200, 90);
+//        lightPos.fX += 200;
+//        lightPos.fY += 90;
+//        this->drawShadowedPath(canvas, fRectPath, 2, paint, kAmbientAlpha, 
+//                               lightPos, kLightWidth, kSpotAlpha);
+//
+//        paint.setColor(SK_ColorRED);
+//        canvas->translate(250, 0);
+//        lightPos.fX += 250;
+//        this->drawShadowedPath(canvas, fRRPath, 4, paint, kAmbientAlpha,
+//                               lightPos, kLightWidth, kSpotAlpha);
+//
+//        paint.setColor(SK_ColorBLUE);
+//        canvas->translate(-250, 110);
+//        lightPos.fX -= 250;
+//        lightPos.fY += 110;
+//        this->drawShadowedPath(canvas, fCirclePath, 8, paint, 0.0f,
+//                               lightPos, kLightWidth, 0.5f);
+//
         paint.setColor(SK_ColorGREEN);
         canvas->translate(250, 0);
         lightPos.fX += 250;
