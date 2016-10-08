@@ -20,6 +20,7 @@
 #include "GrXferProcessor.h"
 #include "GrYUVProvider.h"
 
+#include "SkBlendModePriv.h"
 #include "SkColorFilter.h"
 #include "SkConfig8888.h"
 #include "SkCanvas.h"
@@ -437,6 +438,33 @@ sk_sp<GrTexture> GrMakeCachedBitmapTexture(GrContext* ctx, const SkBitmap& bitma
 
 ///////////////////////////////////////////////////////////////////////////////
 
+GrColor4f SkColorToPremulGrColor4f(SkColor c, bool gammaCorrect, GrColorSpaceXform* gamutXform) {
+    // We want to premultiply after linearizing, so this is easy:
+    return SkColorToUnpremulGrColor4f(c, gammaCorrect, gamutXform).premul();
+}
+
+GrColor4f SkColorToUnpremulGrColor4f(SkColor c, bool gammaCorrect, GrColorSpaceXform* gamutXform) {
+    // You can't be color-space aware in legacy mode
+    SkASSERT(gammaCorrect || !gamutXform);
+
+    GrColor4f color;
+    if (gammaCorrect) {
+        // SkColor4f::FromColor does sRGB -> Linear
+        color = GrColor4f::FromSkColor4f(SkColor4f::FromColor(c));
+    } else {
+        // GrColor4f::FromGrColor just multiplies by 1/255
+        color = GrColor4f::FromGrColor(SkColorToUnpremulGrColor(c));
+    }
+
+    if (gamutXform) {
+        color = gamutXform->apply(color);
+    }
+
+    return color;
+}
+
+///////////////////////////////////////////////////////////////////////////////
+
 // alphatype is ignore for now, but if GrPixelConfig is expanded to encompass
 // alpha info, that will be considered.
 GrPixelConfig SkImageInfo2GrPixelConfig(SkColorType ct, SkAlphaType, const SkColorSpace* cs,
@@ -508,6 +536,19 @@ bool GrPixelConfigToColorType(GrPixelConfig config, SkColorType* ctOut) {
     return true;
 }
 
+GrPixelConfig GrRenderableConfigForColorSpace(const SkColorSpace* colorSpace) {
+    if (!colorSpace) {
+        return kRGBA_8888_GrPixelConfig;
+    } else if (colorSpace->gammaIsLinear()) {
+        return kRGBA_half_GrPixelConfig;
+    } else if (colorSpace->gammaCloseToSRGB()) {
+        return kSRGBA_8888_GrPixelConfig;
+    } else {
+        SkDEBUGFAIL("No renderable config exists for color space with strange gamma");
+        return kUnknown_GrPixelConfig;
+    }
+}
+
 ////////////////////////////////////////////////////////////////////////////////////////////////
 
 static inline bool blend_requires_shader(const SkXfermode::Mode mode, bool primitiveIsSrc) {
@@ -529,15 +570,9 @@ static inline bool skpaint_to_grpaint_impl(GrContext* context,
     grPaint->setAntiAlias(skPaint.isAntiAlias());
     grPaint->setAllowSRGBInputs(dc->isGammaCorrect());
 
-    // Raw translation of the SkPaint color to our 4f format:
-    GrColor4f origColor = GrColor4f::FromGrColor(SkColorToUnpremulGrColor(skPaint.getColor()));
-
-    // Linearize, if the color is meant to be in sRGB gamma:
-    if (dc->isGammaCorrect()) {
-        origColor.fRGBA[0] = exact_srgb_to_linear(origColor.fRGBA[0]);
-        origColor.fRGBA[1] = exact_srgb_to_linear(origColor.fRGBA[1]);
-        origColor.fRGBA[2] = exact_srgb_to_linear(origColor.fRGBA[2]);
-    }
+    // Convert SkPaint color to 4f format, including optional linearizing and gamut conversion.
+    GrColor4f origColor = SkColorToUnpremulGrColor4f(skPaint.getColor(), dc->isGammaCorrect(),
+                                                     dc->getColorXformFromSRGB());
 
     // Setup the initial color considering the shader, the SkPaint color, and the presence or not
     // of per-vertex colors.
@@ -646,9 +681,8 @@ static inline bool skpaint_to_grpaint_impl(GrContext* context,
     // When the xfermode is null on the SkPaint (meaning kSrcOver) we need the XPFactory field on
     // the GrPaint to also be null (also kSrcOver).
     SkASSERT(!grPaint->getXPFactory());
-    SkXfermode* xfermode = skPaint.getXfermode();
-    if (xfermode) {
-        grPaint->setXPFactory(xfermode->asXPFactory());
+    if (!skPaint.isSrcOver()) {
+        grPaint->setXPFactory(SkBlendMode_AsXPFactory(skPaint.getBlendMode()));
     }
 
 #ifndef SK_IGNORE_GPU_DITHER

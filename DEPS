@@ -3,15 +3,14 @@ use_relative_paths = True
 # Dependencies on outside packages.
 #
 deps = {
-  "buildtools":  "https://chromium.googlesource.com/chromium/buildtools.git@adb8bf4e8fc92aa1717bf151b862d58e6f27c4f2",
+  "buildtools":  "https://chromium.googlesource.com/chromium/buildtools.git@5fd66957f08bb752dca714a591c84587c9d70762",
 
   "common": "https://skia.googlesource.com/common.git@c282fe0b6e392b14f88d647cbd86e1a3ef5498e0",
 
   # There is some duplication here that might be worth cleaning up:
   #   - can use use our existing t_p/e/libjpeg instead of pulling it for Android?
 
-  "third_party/externals/angle2"  : "https://chromium.googlesource.com/angle/angle.git@55033e583ba1bc5cbfafbab11d3255fecdfe9056",
-  "third_party/externals/cmake"   : "https://cmake.googlesource.com/cmake.git@v3.3.1",
+  "third_party/externals/angle2"  : "https://chromium.googlesource.com/angle/angle.git@d445357315299e30c18c756f657ff928653128c2",
   "third_party/externals/freetype": "https://skia.googlesource.com/third_party/freetype2.git@4d3f7ca8cedbddad40b9e93a82926618e3fb4265",
   "third_party/externals/gyp"     : "https://chromium.googlesource.com/external/gyp.git@87ac4d0e63fc7dd8152a350327fea8dcf031bf56",
   "third_party/externals/harfbuzz": "https://skia.googlesource.com/third_party/harfbuzz.git@1.3.0",

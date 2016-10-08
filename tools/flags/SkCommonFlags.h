@@ -25,12 +25,14 @@ DECLARE_bool(preAbandonGpuContext);
 DECLARE_bool(abandonGpuContext);
 DECLARE_bool(releaseAndAbandonGpuContext);
 DECLARE_string(skps);
+DECLARE_string(svgs);
 DECLARE_int32(threads);
 DECLARE_string(resourcePath);
 DECLARE_bool(verbose);
 DECLARE_bool(veryVerbose);
 DECLARE_string(writePath);
 DECLARE_bool(pre_log);
+DECLARE_bool(analyticAA);
 
 DECLARE_string(key);
 DECLARE_string(properties);

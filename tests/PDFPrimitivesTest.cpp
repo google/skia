@@ -106,7 +106,7 @@ static void TestPDFStream(skiatest::Reporter* reporter) {
         compressedByteStream.writeToStream(&expected);
         compressedByteStream.reset();
         expected.writeText("\nendstream");
-        sk_sp<SkData> expectedResultData2(expected.copyToData());
+        sk_sp<SkData> expectedResultData2(expected.detachAsData());
         SkString result = emit_to_string(*stream);
         #ifndef SK_PDF_LESS_COMPRESSION
         assert_eql(reporter,

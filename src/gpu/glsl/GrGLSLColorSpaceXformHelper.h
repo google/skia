@@ -26,18 +26,15 @@ public:
             *handle = uniformHandler->addUniform(kFragment_GrShaderFlag, kMat44f_GrSLType,
                                                  kDefault_GrSLPrecision, "ColorXform",
                                                  &fXformMatrix);
-            fAlphaType = colorSpaceXform->alphaType();
         } else {
             fXformMatrix = nullptr;
         }
     }
 
     const char* getXformMatrix() const { return fXformMatrix; }
-    SkAlphaType alphaType() const { return fAlphaType; }
 
 private:
     const char* fXformMatrix;
-    SkAlphaType fAlphaType;
 };
 
 #endif

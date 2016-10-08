@@ -189,6 +189,7 @@ public:
 
     const SkColorLookUpTable* colorLUT() const { return fColorLUT.get(); }
 
+    const SkMatrix44& toXYZD50() const { return fToXYZD50; }
     const SkMatrix44& fromXYZD50() const;
 
 private:
@@ -214,6 +215,7 @@ private:
     sk_sp<SkGammas>           fGammas;
     sk_sp<SkData>             fProfileData;
 
+    const SkMatrix44          fToXYZD50;
     mutable SkMatrix44        fFromXYZD50;
     mutable SkOnce            fFromXYZOnce;
 

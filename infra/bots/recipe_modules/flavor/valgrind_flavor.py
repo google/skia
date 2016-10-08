@@ -3,13 +3,13 @@
 # found in the LICENSE file.
 
 
-import default_flavor
+import gn_flavor
 
 
 """Utils for running under Valgrind."""
 
 
-class ValgrindFlavorUtils(default_flavor.DefaultFlavorUtils):
+class ValgrindFlavorUtils(gn_flavor.GNFlavorUtils):
   def __init__(self, m):
     super(ValgrindFlavorUtils, self).__init__(m)
     self._suppressions_file = self.m.vars.skia_dir.join(

@@ -15,7 +15,7 @@ class GrTextureUnitObj;
 
 ////////////////////////////////////////////////////////////////////////////////
 class GrTextureObj : public GrFBBindableObj {
-    GR_DEFINE_CREATOR(GrTextureObj);
+    GR_DEFINE_CREATOR(GrTextureObj)
 
 public:
     GrTextureObj()

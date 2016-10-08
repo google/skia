@@ -21,7 +21,7 @@ public:
         , fLine(&l)
         , fIntersections(i)
         , fAllowNear(true) {
-        i->setMax(3);  // allow short partial coincidence plus discrete intersection
+        i->setMax(4);  // allow short partial coincidence plus discrete intersection
     }
 
     LineConicIntersections(const SkDConic& c)

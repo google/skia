@@ -11,7 +11,7 @@
 
 static void do_draw(SkCanvas* canvas, const SkRect& r) {
     SkPaint paint;
-    paint.setXfermodeMode(SkXfermode::kSrc_Mode);
+    paint.setBlendMode(SkBlendMode::kSrc);
     paint.setColor(0x800000FF);
     canvas->drawRect(r, paint);
 }
@@ -85,7 +85,7 @@ static void draw(SkCanvas* canvas, SkRect& target, int x, int y) {
     canvas->drawRect(target, borderPaint);
     target.inset(SkIntToScalar(2), SkIntToScalar(2));
     canvas->drawRect(target, backgroundPaint);
-    canvas->clipRect(target, SkRegion::kIntersect_Op, true);
+    canvas->clipRect(target, true);
     target.inset(SkIntToScalar(-4), SkIntToScalar(-4));
     canvas->drawRect(target, foregroundPaint);
     canvas->restore();

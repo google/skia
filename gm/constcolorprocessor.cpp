@@ -99,7 +99,6 @@ protected:
                     } else {
                         skPaint.setColor(kPaintColors[paintType]);
                     }
-                    // SRGBTODO: No sRGB inputs allowed here?
                     SkAssertResult(SkPaintToGrPaint(context, drawContext, skPaint, viewMatrix,
                                                     &grPaint));
 

@@ -154,25 +154,13 @@ private:
     typedef skiagm::GM INHERITED;
 };
 
-class TypefaceRenderingGM : public skiagm::GM {
-    sk_sp<SkTypeface> fFace;
+DEF_GM( return new TypefaceStylesGM(false); )
+DEF_GM( return new TypefaceStylesGM(true); )
 
-protected:
-    void onOnceBeforeDraw() override {
-        fFace = MakeResourceAsTypeface("/fonts/hintgasp.ttf");
-    }
+////////////////////////////////////////////////////////////////////////////////
 
-    SkString onShortName() override {
-        SkString name("typefacerendering");
-        name.append(sk_tool_utils::major_platform_os_name());
-        return name;
-    }
-
-    SkISize onISize() override {
-        return SkISize::Make(640, 680);
-    }
-
-    void onDraw(SkCanvas* canvas) override {
+static void draw_typeface_rendering_gm(SkCanvas* canvas, sk_sp<SkTypeface> face,
+                                       char character = 'A') {
         struct AliasType {
             bool antiAlias;
             bool subpixelAntitalias;
@@ -226,7 +214,7 @@ protected:
         constexpr bool rotateABitTypes[] = { false, true };
 
         SkPaint paint;
-        paint.setTypeface(fFace);
+        paint.setTypeface(face);
         paint.setEmbeddedBitmapText(true);
 
         SkScalar x = 0;
@@ -260,10 +248,12 @@ protected:
                                 canvas->rotate(2, x + subpixel.offset.x(),
                                                   y + subpixel.offset.y());
                             }
-                            canvas->drawText("A", 1, x + subpixel.offset.x(),
-                                                     y + subpixel.offset.y(), paint);
+                            canvas->drawText(&character, 1,
+                                             x + subpixel.offset.x(),
+                                             y + subpixel.offset.y(), paint);
 
-                            SkScalar dx = SkScalarCeilToScalar(paint.measureText("A", 1)) + 5;
+                            SkScalar dx = SkScalarCeilToScalar(
+                                    paint.measureText(&character, 1)) + 5;
                             x += dx;
                             xMax = SkTMax(x, xMax);
                         }
@@ -273,14 +263,34 @@ protected:
             }
             xBase = xMax;
         }
+}
+
+DEF_SIMPLE_GM_BG_NAME(typefacerendering, canvas, 640, 680, SK_ColorWHITE,
+                      SkStringPrintf("typefacerendering%s",
+                                     sk_tool_utils::major_platform_os_name().c_str())) {
+    if (sk_sp<SkTypeface> face = MakeResourceAsTypeface("/fonts/hintgasp.ttf")) {
+        draw_typeface_rendering_gm(canvas, std::move(face));
     }
+}
 
-private:
-    typedef skiagm::GM INHERITED;
-};
+// Type1 fonts don't currently work in Skia on Windows.
+#ifndef SK_BUILD_FOR_WIN
 
-///////////////////////////////////////////////////////////////////////////////
+DEF_SIMPLE_GM_BG_NAME(typefacerendering_pfa, canvas, 640, 680, SK_ColorWHITE,
+                      SkStringPrintf("typefacerendering_pfa%s",
+                                     sk_tool_utils::major_platform_os_name().c_str())) {
+    if (sk_sp<SkTypeface> face = MakeResourceAsTypeface("fonts/Roboto2-Regular.pfa")) {
+        // This subsetted typeface doesn't have the character 'A'.
+        draw_typeface_rendering_gm(canvas, std::move(face), 'O');
+    }
+}
 
-DEF_GM( return new TypefaceStylesGM(false); )
-DEF_GM( return new TypefaceStylesGM(true); )
-DEF_GM( return new TypefaceRenderingGM(); )
+DEF_SIMPLE_GM_BG_NAME(typefacerendering_pfb, canvas, 640, 680, SK_ColorWHITE,
+                      SkStringPrintf("typefacerendering_pfb%s",
+                                     sk_tool_utils::major_platform_os_name().c_str())) {
+    if (sk_sp<SkTypeface> face = MakeResourceAsTypeface("fonts/Roboto2-Regular.pfb")) {
+        draw_typeface_rendering_gm(canvas, std::move(face), 'O');
+    }
+}
+
+#endif

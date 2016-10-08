@@ -11,13 +11,13 @@ PRE-GIT DOCUMENT VERSION HISTORY
 -->
 
 
-To make use of Skia's PDF backend, see
-[Using Skia's PDF Backend](../../user/sample/pdf).
+Internally, SkPDFDocument and SkPDFDevice represents PDF documents and
+pages.  This document describes how the backend operates, but **these
+interfaces are not part of the public API and are subject to perpetual
+change.**
 
-Internally, Skia uses SkPDFDocument and SkPDFDevice to represent PDF
-documents and pages.  This document describes how the backend
-operates, but **these interfaces are not part of the public API and
-are subject to perpetual change.**
+See [Using Skia's PDF Backend](../../user/sample/pdf) to find out how
+to use SkPDF as a client calling Skia's public API.
 
 * * *
 
@@ -30,7 +30,6 @@ are subject to perpetual change.**
 *   [Graphic States](#Graphic_States)
 *   [Clip and Transform](#Clip_and_Transform)
 *   [Generating a content stream](#Generating_a_content_stream)
-*   [Margins and content area](#Margins_and_content_area)
 *   [Drawing details](#Drawing_details)
     +   [Layers](#Layers)
     +   [Fonts](#Fonts)
@@ -38,38 +37,22 @@ are subject to perpetual change.**
     +   [Xfer modes](#Xfer_modes)
 *   [Known issues](#Known_issues)
 
-<a name="Typical_usage_of_the_PDF_backend"></a>
-Typical usage of the PDF backend
---------------------------------
+
+<span id="Typical_usage_of_the_PDF_backend">Typical usage of the PDF backend</span>
+-----------------------------------------------------------------------------------
 
 SkPDFDevice is the main interface to the PDF backend. This child of
-SkDevice can be set on an SkCanvas and drawn to. It requires no more
-care and feeding than SkDevice. Once drawing is complete, the device
-should be added to an SkPDFDocument as a page of the desired PDF. A
-new SkPDFDevice should be created for each page desired in the
-document. After all the pages have been added to the document,
-`SkPDFDocument::emitPDF()` can be called to get a PDF file. One of the
-special features of the PDF backend is that the same device can be
-added to multiple documents. This for example, would let you generate
-a PDF with the single page you just drew as well as adding it to a
-longer document with a bunch of other pages.
+SkDevice can be set on an SkPDFCanvas and drawn to.  Once drawing to
+the canvas is complete (SkDocument::onEndPage() is called), the
+device's content and resouces are added to the SkPDFDocument that owns
+the device.  A new SkPDFDevice should be created for each page or
+layer desired in the document.  After all the pages have been added to
+the document, `SkPDFDocument::onClose()` is called to finish
+serializing the PDF file.
 
-<!--?prettify lang=cc?-->
 
-    SkPDFCanon canon;
-    SkAutoUnref<SkPDFDevice> pdfDevice(
-        SkPDFDevice::Create(SkISize::Make(width, height), 72.0f, &canon));
-
-    SkCanvas canvas(pdfDevice);
-    draw_content(&canvas);
-
-    SkPDFDocument doc;
-    doc.appendPage(dev);
-    doc.emitPDF(&pdf_stream);
-
-<a name="PDF_Objects_and_Document_Structure"></a>
-PDF Objects and Document Structure
-----------------------------------
+<span id="PDF_Objects_and_Document_Structure">PDF Objects and Document Structure</span>
+---------------------------------------------------------------------------------------
 
 ![PDF Logical Document Structure](/dev/design/PdfLogicalDocumentStructure.png)
 
@@ -80,8 +63,9 @@ lists the specific byte position for each object. The objects may have
 references to other objects and the ASCII size of those references is
 dependent on the object number assigned to the referenced object;
 therefore we can’t calculate the table of contents until the size of
-objects is known, which requires assignment of object
-numbers.
+objects is known, which requires assignment of object numbers.  The
+document uses SkWStream::bytesWritten() to query the offsets of each
+object and build the cross-reference table.
 
 Furthermore, PDF files can support a *linearized* mode, where objects
 are in a specific order so that pdf-viewers can more easily retrieve
@@ -92,10 +76,6 @@ numbers before the rest of the objects. Consequently, before
 generating a linearized PDF, all objects, their sizes, and object
 references must be known.  Skia has no plans to implement linearized
 PDFs.
-
-<!-- <del>At this point, linearized PDFs are not generated. The
-framework to generate them is in place, but the final bits of code
-have not been written.</del> -->
 
     %PDF-1.4
     …objects...
@@ -111,15 +91,16 @@ have not been written.</del> -->
     210399  % Byte offset to the start of the table of contents.
     %%EOF
 
-The class SkPDFCatalog and the virtual class SkPDFObject are used to
+The class SkPDFObjNumMap and the virtual class SkPDFObject are used to
 manage the needs of the file format. Any object that will represent a
 PDF object must inherit from SkPDFObject and implement the methods to
 generate the binary representation and report any other SkPDFObjects
-used as resources. SkPDFTypes.h defines most of the basic PDF objects
-types: bool, int, scalar, string, name, array, dictionary, and object
-reference. The stream type is defined in SkPDFStream.h. A stream is a
-dictionary containing at least a Length entry followed by the data of
-the stream. All of these types except the stream type can be used in
+used as resources. SkPDFTypes.h defines most of the basic PDF object
+types: bool, int, scalar, string, name, array, dictionary, and stream.
+(A stream is a dictionary containing at least a Length entry followed
+by the data of the stream.)
+
+All of these PDF object types except the stream type can be used in
 both a direct and an indirect fashion, i.e. an array can have an int
 or a dictionary as an inline entry, which does not require an object
 number. The stream type, cannot be inlined and must be referred to
@@ -148,19 +129,22 @@ have an object number assigned.
     endstream`
 
 The PDF backend requires all indirect objects used in a PDF to be
-added to the SkPDFCatalog of the SkPDFDocument. The catalog is
+added to the SkPDFObjNumMap of the SkPDFDocument. The catalog is
 responsible for assigning object numbers and generating the table of
 contents required at the end of PDF files. In some sense, generating a
 PDF is a three step process. In the first step all the objects and
 references among them are created (mostly done by SkPDFDevice). In the
-second step, object numbers are assigned and SkPDFCatalog is informed
-of the file offset of each indirect object. Finally, in the third
+second step, SkPDFObjNumMap assigns and remembers object numbers.
+Finally, in the third
 step, the header is printed, each object is printed, and then the
 table of contents and trailer are printed. SkPDFDocument takes care of
 collecting all the objects from the various SkPDFDevice instances,
-adding them to an SkPDFCatalog, iterating through the objects once to
+adding them to an SkPDFObjNumMap, iterating through the objects once to
 set their file positions, and iterating again to generate the final
 PDF.
+
+As an optimization, many leaf nodes in the direct graph of indirect
+objects can be assigned object numbers and serialized early.
 
     %PDF-1.4
     2 0 obj <<
@@ -198,9 +182,9 @@ PDF.
     299
     %%EOF
 
-<a name="PDF_drawing"></a>
-PDF drawing
------------
+
+<span id="PDF_drawing">PDF drawing</span>
+-----------------------------------------
 
 Most drawing in PDF is specified by the text of a stream, referred to
 as a content stream. The syntax of the content stream is different
@@ -243,9 +227,8 @@ stream.
     endstream
     endobj
 
-<a name="Interned_objects"></a>
-Interned objects
-----------------
+<span id="Interned_objects">Interned objects</span>
+---------------------------------------------------
 
 There are a number of high level PDF objects (like fonts, graphic
 states, etc) that are likely to be referenced multiple times in a
@@ -254,16 +237,15 @@ instance these objects an implemented with an
 [interning pattern](http://en.wikipedia.org/wiki/String_interning).
 As such, the classes representing these objects (like
 SkPDFGraphicState) have private constructors and static methods to
-retrieve an instance of the class. Internally, the class has a list of
-unique instances that it consults before returning a new instance of
-the class. If the requested instance already exists, the existing one
-is returned. For obvious reasons, the returned instance should not be
-modified. A mechanism to ensure that interned classes are immutable is
-needed.  See [issue 2683](https://bug.skia.org/2683).
+retrieve an instance of the class.
 
-<a name="Graphic_States"></a>
-Graphic States
---------------
+The SkPDFCanon object owns the interned objects.  For obvious reasons,
+the returned instance should not be modified. A mechanism to ensure
+that interned classes are immutable is needed.  See [issue
+2683](https://bug.skia.org/2683).
+
+<span id="Graphic_States">Graphic States</span>
+-----------------------------------------------
 
 PDF has a number of parameters that affect how things are drawn. The
 ones that correspond to drawing options in Skia are: color, alpha,
@@ -288,9 +270,8 @@ directly in the content stream.
     >>
     endobj
 
-<a name="Clip_and_Transform"></a>
-Clip and Transform
-------------------
+<span id="Clip_and_Transform">Clip and Transform</span>
+-------------------------------------------------------
 
 Similar to Skia, PDF allows drawing to be clipped or
 transformed. However, there are a few caveats that affect the design
@@ -315,9 +296,8 @@ the best transition from one state to the next. A global optimization
 could improve things by more effectively using the graphics state
 stack provided in the PDF format.
 
-<a name="Generating_a_content_stream"></a>
-Generating a content stream
----------------------------
+<span id="Generating_a_content_stream">Generating a content stream</span>
+-------------------------------------------------------------------------
 
 For each draw call on an SkPDFDevice, a new ContentEntry is created,
 which stores the matrix, clip region, and clip stack as well as the
@@ -332,7 +312,7 @@ appropriate draw call is allowed to append to the content stream
 snippet in the ContentEntry to affect the core of the drawing call,
 i.e. drawing a shape, an image, text, etc.
 
-When all drawing is complete, SkPDFDocument::emitPDF() will call
+When all drawing is complete, SkPDFDocument::onEndPage() will call
 SkPDFDevice::content() to request the complete content stream for the
 page. The first thing done is to apply the initial transform specified
 in part in the constructor, this transform takes care of changing the
@@ -350,24 +330,8 @@ specified in the ContentEntry, similarly the Matrix and drawing state
 (color, line joins, etc) are updated, then the content entry fragment
 (the actual drawing operation) is appended.
 
-<a name="Margins_and_content_area"></a>
-Margins and content area
-------------------------
-
-The above procedure does not permit drawing in the margins. This is
-done in order to contain any rendering problems in WebKit. In order to
-support headers and footers, which are drawn in the margin, a second
-set of ContentEntry’s are maintained. The
-methodSkPDFDevice::setDrawingArea() selects which set of
-ContentEntry’s are drawn into. Then, in the SkPDFDevice::content()
-method, just before the clip to the content area is applied the margin
-ContentEntry's are played back.
-
-<!-- TODO(halcanary): update this documentation. -->
-
-<a name="Drawing_details"></a>
-Drawing details
----------------
+<span id="Drawing_details">Drawing details</span>
+-------------------------------------------------
 
 Certain objects have specific properties that need to be dealt
 with. Images, layers (see below), and fonts assume the standard PDF
@@ -377,14 +341,13 @@ inverted paths, so filling an inverted path will give the wrong result
 ([issue 241](https://bug.skia.org/241)). PDF doesn’t draw zero length
 lines that have butt of square caps, so that is emulated.
 
-<a name="Layers"></a>
-### Layers ###
+### <span id="Layers">Layers</span> ###
 
 PDF has a higher level object called a form x-object (form external
 object) that is basically a PDF page, with resources and a content
 stream, but can be transformed and drawn on an existing page. This is
-used to implement layers. SkDevice has a method,
-createFormXObjectFromDevice, which uses the SkPDFDevice::content()
+used to implement layers. SkPDFDevice has a method,
+makeFormXObjectFromDevice(), which uses the SkPDFDevice::content()
 method to construct a form x-object from the the
 device. SkPDFDevice::drawDevice() works by creating a form x-object of
 the passed device and then drawing that form x-object in the root
@@ -398,8 +361,7 @@ drawn as a single operation onto the base layer, we can assume that
 all of those clips are in effect and need not apply them within the
 layer.
 
-<a name="Fonts"></a>
-### Fonts ###
+### <span id="Fonts">Fonts</span> ###
 
 There are many details for dealing with fonts, so this document will
 only talk about some of the more important ones. A couple short
@@ -439,36 +401,9 @@ to 255 glyphs.
 
 Many fonts, especially fonts with CJK support are fairly large, so it
 is desirable to subset them. Chrome uses the SFNTLY package to provide
-subsetting support to Skia for TrueType fonts. However, there is a
-conflict between font subsetting and interned objects. If the object
-is immutable, how can it be subsetted? This conflict is resolved by
-using a substitution mechanism in SkPDFCatalog. Font objects are still
-interned, but the interned objects aren’t internally
-populated. Subsetting starts while drawing text to an SkPDFDevice; a
-bit set indicating which glyphs have been used is maintained. Later,
-when SkPDFDocument::emitPDF() is rendering the PDF, it queries each
-device (each page) for the set of fonts used and the glyphs used from
-each font and combines the information. It then asks the interned
-(unpopulated) font objects to create a populated instance with the
-calculated subset of the font - this instance is not interned. The
-subsetted instance is then set as a substitute for the interned font
-object in the SkPDFCatalog. All future references to those fonts
-within that document will refer to the subsetted instances, resulting
-in a final PDF with exactly one instance of each used font that
-includes only the glyphs used.
+subsetting support to Skia for TrueType fonts.
 
-The substitution mechanism is a little complicated, but is needed to
-support the use case of an SkPDFDevice being added to multiple
-documents. If fonts were subsetted in-situ, concurrent PDF generation
-would have to be explicitly handled. Instead, by giving each document
-its own subsetted instance, there is no need to worry about concurrent
-PDF generation. The substitution method is also used to support
-optional stream compression. A stream can used by different documents
-in both a compressed and uncompressed form, leading to the same
-potential difficulties faced by the concurrent font use case.
-
-<a name="Shaders"></a>
-### Shaders ###
+### <span id="Shaders">Shaders</span> ###
 
 Skia has two types of predefined shaders, image shaders and gradient
 shaders. In both cases, shaders are effectively positioned absolutely,
@@ -497,8 +432,7 @@ postscript code is somewhat obtuse, since it is trying to generate
 optimized (for space) postscript code, but there is a significant
 number of comments to explain the intent.
 
-<a name="Xfer_modes"></a>
-### Xfer modes ###
+### <span id="Xfer_modes">Xfer modes</span> ###
 
 PDF supports some of the xfer modes used in Skia directly. For those,
 it is simply a matter of setting the blend mode in the graphic state
@@ -571,15 +505,9 @@ as a mask. DstIn is SrcMode with Dst drawn with Src as a
 mask. Finally, DstOut is SrcMode with Dst draw with an inverted Src as
 a mask.
 
-<a name="Known_issues"></a>
-Known issues
-------------
+<span id="Known_issues">Known issues</span>
+-------------------------------------------
 
-*   [issue 241](https://bug.skia.org/241)
-    As previously noted, a boolean geometry library
-    would improve clip fidelity in some places, add supported for
-    inverted fill types, as well as simplify code.
-    This is fixed, but behind a flag until path ops is production ready.
 *   [issue 237](https://bug.skia.org/237)
     SkMaskFilter is not supported.
 *   [issue 238](https://bug.skia.org/238)
@@ -589,8 +517,8 @@ Known issues
 *   [issue 240](https://bug.skia.org/240)
     drawVerticies is not implemented.
 *   [issue 244](https://bug.skia.org/244)
-    Mostly, only TTF fonts are directly supported.  (User metrics 
-    show that almost all fonts are truetype.
+    Mostly, only TTF fonts are *directly* supported.
+    (User metrics show that almost all fonts are truetype.)
 *   [issue 260](https://bug.skia.org/260)
     Page rotation is accomplished by specifying a different
     size page instead of including the appropriate rotation

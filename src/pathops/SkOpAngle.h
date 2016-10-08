@@ -107,27 +107,23 @@ private:
     bool midToSide(const SkOpAngle* rh, bool* inside) const;
     bool oppositePlanes(const SkOpAngle* rh) const;
     bool orderable(SkOpAngle* rh);  // false == this < rh ; true == this > rh
-    void setCurveHullSweep();
     void setSector();
     void setSpans();
     bool tangentsDiverge(const SkOpAngle* rh, double s0xt0) const;
 
     SkDCurve fOriginalCurvePart;  // the curve from start to end
-    SkDCurve fCurvePart;  // the curve from start to end offset as needed
+    SkDCurveSweep fPart;  // the curve from start to end offset as needed
     double fSide;
     SkLineParameters fTangentHalf;  // used only to sort a pair of lines or line-like sections
     SkOpAngle* fNext;
     SkOpSpanBase* fLastMarked;
-    SkDVector fSweep[2];
     SkOpSpanBase* fStart;
     SkOpSpanBase* fEnd;
     SkOpSpanBase* fComputedEnd;
     int fSectorMask;
     int8_t fSectorStart;  // in 32nds of a circle
     int8_t fSectorEnd;
-    bool fIsCurve;
     bool fUnorderable;
-    bool fUnorderedSweep;  // set when a cubic's first control point between the sweep vectors
     bool fComputeSector;
     bool fComputedSector;
     bool fCheckCoincidence;

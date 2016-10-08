@@ -28,6 +28,7 @@
 #include "SkFontDescriptor.h"
 #include "SkFontMgr.h"
 #include "SkGlyph.h"
+#include "SkMakeUnique.h"
 #include "SkMaskGamma.h"
 #include "SkMathPriv.h"
 #include "SkMutex.h"
@@ -322,12 +323,17 @@ static bool supports_LCD() {
     AutoCFRelease<CGColorSpaceRef> colorspace(CGColorSpaceCreateDeviceRGB());
     AutoCFRelease<CGContextRef> cgContext(CGBitmapContextCreate(&rgb, 1, 1, 8, 4,
                                                                 colorspace, BITMAP_INFO_RGB));
-    CGContextSelectFont(cgContext, "Helvetica", 16, kCGEncodingMacRoman);
+    AutoCFRelease<CTFontRef> ctFont(CTFontCreateWithName(CFSTR("Helvetica"), 16, nullptr));
     CGContextSetShouldSmoothFonts(cgContext, true);
     CGContextSetShouldAntialias(cgContext, true);
     CGContextSetTextDrawingMode(cgContext, kCGTextFill);
     CGContextSetGrayFillColor(cgContext, 1, 1);
-    CGContextShowTextAtPoint(cgContext, -1, 0, "|", 1);
+    CGPoint point = CGPointMake(-1, 0);
+    static const UniChar pipeChar = '|';
+    CGGlyph pipeGlyph;
+    CTFontGetGlyphsForCharacters(ctFont, &pipeChar, &pipeGlyph, 1);
+    CTFontDrawGlyphs(ctFont, &pipeGlyph, &point, 1, cgContext);
+
     uint32_t r = (rgb >> 16) & 0xFF;
     uint32_t g = (rgb >>  8) & 0xFF;
     uint32_t b = (rgb >>  0) & 0xFF;
@@ -511,7 +517,7 @@ public:
 protected:
     int onGetUPEM() const override;
     SkStreamAsset* onOpenStream(int* ttcIndex) const override;
-    SkFontData* onCreateFontData() const override;
+    std::unique_ptr<SkFontData> onMakeFontData() const override;
     void onGetFamilyName(SkString* familyName) const override;
     SkTypeface::LocalizedStrings* onCreateFamilyNameIterator() const override;
     int onGetTableTags(SkFontTableTag tags[]) const override;
@@ -840,28 +846,9 @@ SkScalerContext_Mac::SkScalerContext_Mac(SkTypeface_Mac* typeface,
     fFUnitMatrix.preScale(emPerFUnit, -emPerFUnit);
 }
 
-/** This is an implementation of CTFontDrawGlyphs for 10.6; it was introduced in 10.7. */
-static void legacy_CTFontDrawGlyphs(CTFontRef, const CGGlyph glyphs[], const CGPoint points[],
-                                    size_t count, CGContextRef cg) {
-    CGContextShowGlyphsAtPositions(cg, glyphs, points, count);
-}
-
-typedef decltype(legacy_CTFontDrawGlyphs) CTFontDrawGlyphsProc;
-
-static CTFontDrawGlyphsProc* choose_CTFontDrawGlyphs() {
-    if (void* real = dlsym(RTLD_DEFAULT, "CTFontDrawGlyphs")) {
-        return (CTFontDrawGlyphsProc*)real;
-    }
-    return &legacy_CTFontDrawGlyphs;
-}
-
 CGRGBPixel* Offscreen::getCG(const SkScalerContext_Mac& context, const SkGlyph& glyph,
                              CGGlyph glyphID, size_t* rowBytesPtr,
                              bool generateA8FromLCD) {
-    static SkOnce once;
-    static CTFontDrawGlyphsProc* ctFontDrawGlyphs;
-    once([]{ ctFontDrawGlyphs = choose_CTFontDrawGlyphs(); });
-
     if (!fRGBSpace) {
         //It doesn't appear to matter what color space is specified.
         //Regular blends and antialiased text are always (s*a + d*(1-a))
@@ -929,12 +916,6 @@ CGRGBPixel* Offscreen::getCG(const SkScalerContext_Mac& context, const SkGlyph& 
         fDoAA = !doAA;
         fDoLCD = !doLCD;
 
-        if (legacy_CTFontDrawGlyphs == ctFontDrawGlyphs) {
-            // CTFontDrawGlyphs will apply the font, font size, and font matrix to the CGContext.
-            // Our 'fake' one does not, so set up the CGContext here.
-            CGContextSetFont(fCG, context.fCGFont);
-            CGContextSetFontSize(fCG, CTFontGetSize(context.fCTFont));
-        }
         CGContextSetTextMatrix(fCG, context.fTransform);
     }
 
@@ -980,7 +961,7 @@ CGRGBPixel* Offscreen::getCG(const SkScalerContext_Mac& context, const SkGlyph& 
     // So always make the font transform identity and place the transform on the context.
     point = CGPointApplyAffineTransform(point, context.fInvTransform);
 
-    ctFontDrawGlyphs(context.fCTFont, &glyphID, &point, 1, fCG);
+    CTFontDrawGlyphs(context.fCTFont, &glyphID, &point, 1, fCG);
 
     SkASSERT(rowBytesPtr);
     *rowBytesPtr = rowBytes;
@@ -1885,16 +1866,17 @@ static bool get_variations(CTFontRef fFontRef, CFIndex* cgAxisCount,
 
     return true;
 }
-SkFontData* SkTypeface_Mac::onCreateFontData() const {
+std::unique_ptr<SkFontData> SkTypeface_Mac::onMakeFontData() const {
     int index;
-    SkAutoTDelete<SkStreamAsset> stream(this->onOpenStream(&index));
+    std::unique_ptr<SkStreamAsset> stream(this->onOpenStream(&index));
 
     CFIndex cgAxisCount;
     SkAutoSTMalloc<4, SkFixed> axisValues;
     if (get_variations(fFontRef, &cgAxisCount, &axisValues)) {
-        return new SkFontData(stream.release(), index, axisValues.get(), cgAxisCount);
+        return skstd::make_unique<SkFontData>(std::move(stream), index,
+                                              axisValues.get(), cgAxisCount);
     }
-    return new SkFontData(stream.release(), index, nullptr, 0);
+    return skstd::make_unique<SkFontData>(std::move(stream), index, nullptr, 0);
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -2367,15 +2349,16 @@ protected:
     }
 
     SkTypeface* onCreateFromData(SkData* data, int ttcIndex) const override {
-        AutoCFRelease<CGDataProviderRef> pr(SkCreateDataProviderFromData(data));
+        AutoCFRelease<CGDataProviderRef> pr(SkCreateDataProviderFromData(sk_ref_sp(data)));
         if (nullptr == pr) {
             return nullptr;
         }
         return create_from_dataProvider(pr);
     }
 
-    SkTypeface* onCreateFromStream(SkStreamAsset* stream, int ttcIndex) const override {
-        AutoCFRelease<CGDataProviderRef> pr(SkCreateDataProviderFromStream(stream));
+    SkTypeface* onCreateFromStream(SkStreamAsset* bareStream, int ttcIndex) const override {
+        std::unique_ptr<SkStreamAsset> stream(bareStream);
+        AutoCFRelease<CGDataProviderRef> pr(SkCreateDataProviderFromStream(std::move(stream)));
         if (nullptr == pr) {
             return nullptr;
         }
@@ -2493,8 +2476,9 @@ protected:
         }
         return dict;
     }
-    SkTypeface* onCreateFromStream(SkStreamAsset* s, const FontParameters& params) const override {
-        AutoCFRelease<CGDataProviderRef> provider(SkCreateDataProviderFromStream(s));
+    SkTypeface* onCreateFromStream(SkStreamAsset* bs, const FontParameters& params) const override {
+        std::unique_ptr<SkStreamAsset> s(bs);
+        AutoCFRelease<CGDataProviderRef> provider(SkCreateDataProviderFromStream(std::move(s)));
         if (nullptr == provider) {
             return nullptr;
         }
@@ -2574,10 +2558,9 @@ protected:
         }
         return dict;
     }
-    SkTypeface* onCreateFromFontData(SkFontData* data) const override {
-        SkAutoTDelete<SkFontData> fontData(data);
-        SkStreamAsset* stream = fontData->detachStream();
-        AutoCFRelease<CGDataProviderRef> provider(SkCreateDataProviderFromStream(stream));
+    SkTypeface* onCreateFromFontData(std::unique_ptr<SkFontData> fontData) const override {
+        AutoCFRelease<CGDataProviderRef> provider(
+                SkCreateDataProviderFromStream(fontData->detachStream()));
         if (nullptr == provider) {
             return nullptr;
         }
@@ -2586,7 +2569,7 @@ protected:
             return nullptr;
         }
 
-        AutoCFRelease<CFDictionaryRef> cgVariations(get_axes(cg, fontData));
+        AutoCFRelease<CFDictionaryRef> cgVariations(get_axes(cg, fontData.get()));
         // The CGFontRef returned by CGFontCreateCopyWithVariations when the passed CGFontRef was
         // created from a data provider does not appear to have any ownership of the underlying
         // data. The original CGFontRef must be kept alive until the copy will no longer be used.

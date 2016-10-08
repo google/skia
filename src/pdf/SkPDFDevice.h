@@ -21,7 +21,7 @@
 #include "SkTDArray.h"
 #include "SkTextBlob.h"
 
-class SkImageBitmap;
+class SkImageSubset;
 class SkPath;
 class SkPDFArray;
 class SkPDFCanon;
@@ -170,13 +170,6 @@ public:
         SkPaint::Style fTextFill;  // Only if TextScaleX is non-zero.
         int fShaderIndex;
         int fGraphicStateIndex;
-
-        // We may change the font (i.e. for Type1 support) within a
-        // ContentEntry.  This is the one currently in effect, or nullptr if none.
-        SkPDFFont* fFont;
-        // In PDF, text size has no default value. It is only valid if fFont is
-        // not nullptr.
-        SkScalar fTextSize;
     };
 
 protected:
@@ -188,6 +181,7 @@ protected:
     sk_sp<SkSpecialImage> makeSpecial(const SkBitmap&) override;
     sk_sp<SkSpecialImage> makeSpecial(const SkImage*) override;
     sk_sp<SkSpecialImage> snapSpecial() override;
+    SkImageFilterCache* getImageFilterCache() override;
 
 private:
     struct RectWithData {
@@ -252,7 +246,7 @@ private:
                                  sk_sp<SkPDFObject> mask,
                                  const SkClipStack* clipStack,
                                  const SkRegion& clipRegion,
-                                 SkXfermode::Mode mode,
+                                 SkBlendMode,
                                  bool invertClip);
 
     // If the paint or clip is such that we shouldn't draw anything, this
@@ -265,9 +259,7 @@ private:
                                     const SkPaint& paint,
                                     bool hasText,
                                     sk_sp<SkPDFObject>* dst);
-    void finishContentEntry(SkXfermode::Mode xfermode,
-                            sk_sp<SkPDFObject> dst,
-                            SkPath* shape);
+    void finishContentEntry(SkBlendMode, sk_sp<SkPDFObject> dst, SkPath* shape);
     bool isContentEmpty();
 
     void populateGraphicStateEntryFromPaint(const SkMatrix& matrix,
@@ -279,11 +271,6 @@ private:
     int addGraphicStateResource(SkPDFObject* gs);
     int addXObjectResource(SkPDFObject* xObject);
 
-    // returns nullptr when a valid SkFont can not be produced
-    SkPDFFont* updateFont(SkTypeface* typeface,
-                          SkScalar textSize,
-                          uint16_t glyphID,
-                          ContentEntry* contentEntry);
     int getFontResourceIndex(SkTypeface* typeface, uint16_t glyphID);
 
 
@@ -296,7 +283,7 @@ private:
     void internalDrawImage(const SkMatrix& origMatrix,
                            const SkClipStack* clipStack,
                            const SkRegion& origClipRegion,
-                           SkImageBitmap imageBitmap,
+                           SkImageSubset imageSubset,
                            const SkPaint& paint);
 
     bool handleInversePath(const SkDraw& d, const SkPath& origPath,

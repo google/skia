@@ -12,10 +12,18 @@
  /** \class SkGaussianEdgeShaderImpl
  This subclass of shader applies a Gaussian to shadow edge
 
+ If largerBlur is false:
  The radius of the Gaussian blur is specified by the g value of the color, in 6.2 fixed point.
  For spot shadows, we increase the stroke width to set the shadow against the shape. This pad
  is specified by b, also in 6.2 fixed point. The r value represents the max final alpha.
  The incoming alpha should be 1.
+
+ If largerBlur is true:
+ The radius of the Gaussian blur is specified by the r & g values of the color in 14.2 fixed point.
+ For spot shadows, we increase the stroke width to set the shadow against the shape. This pad
+ is specified by b, also in 6.2 fixed point. The a value represents the max final alpha.
+
+ LargerBlur will be removed once Android is migrated to the updated shader.
  */
 class SkGaussianEdgeShaderImpl : public SkShader {
 public:
@@ -73,17 +81,16 @@ public:
                 fragBuilder->codeAppendf("// GP does not implement fsDistanceVector - "
                                          " returning grey in GLSLGaussianEdgeFP\n");
                 fragBuilder->codeAppendf("vec4 color = %s;", args.fInputColor);
-                fragBuilder->codeAppendf("%s = vec4(0, 0, 0, color.r);", args.fOutputColor);
+                fragBuilder->codeAppendf("%s = vec4(0.0, 0.0, 0.0, color.r);", args.fOutputColor);
             } else {
                 fragBuilder->codeAppendf("vec4 color = %s;", args.fInputColor);
-                fragBuilder->codeAppend("float radius = color.g*64.0;");
+                fragBuilder->codeAppend("float radius = color.r*256.0*64.0 + color.g*64.0;");
                 fragBuilder->codeAppend("float pad = color.b*64.0;");
 
-                fragBuilder->codeAppendf("float factor = 1.0 - clamp((%s.z - pad)/radius,"
-                                                                    "0.0, 1.0);",
+                fragBuilder->codeAppendf("float factor = 1.0 - clamp((%s.z - pad)/radius, 0.0, 1.0);",
                                          fragBuilder->distanceVectorName());
                 fragBuilder->codeAppend("factor = exp(-factor * factor * 4.0) - 0.018;");
-                fragBuilder->codeAppendf("%s = factor*vec4(0.0, 0.0, 0.0, color.r);",
+                fragBuilder->codeAppendf("%s = factor*vec4(0.0, 0.0, 0.0, color.a);",
                                          args.fOutputColor);
             }
         }
@@ -96,6 +103,8 @@ public:
 
     protected:
         void onSetData(const GrGLSLProgramDataManager& pdman, const GrProcessor& proc) override {}
+
+        bool fLargerBlur;
     };
 
     void onGetGLSLProcessorKey(const GrGLSLCaps& caps, GrProcessorKeyBuilder* b) const override {
@@ -109,14 +118,16 @@ public:
     }
 
 private:
-    GrGLSLFragmentProcessor* onCreateGLSLInstance() const override { return new GLSLGaussianEdgeFP; }
+    GrGLSLFragmentProcessor* onCreateGLSLInstance() const override {
+        return new GLSLGaussianEdgeFP();
+    }
 
     bool onIsEqual(const GrFragmentProcessor& proc) const override { return true; }
 };
 
 ////////////////////////////////////////////////////////////////////////////
 
-sk_sp<GrFragmentProcessor> SkGaussianEdgeShaderImpl::asFragmentProcessor(const AsFPArgs& args) const {
+sk_sp<GrFragmentProcessor> SkGaussianEdgeShaderImpl::asFragmentProcessor(const AsFPArgs&) const {
     return sk_make_sp<GaussianEdgeFP>();
 }
 

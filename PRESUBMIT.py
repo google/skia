@@ -41,8 +41,6 @@ GOLD_TRYBOT_URL = 'https://gold.skia.org/search?issue='
 # Path to CQ bots feature is described in https://bug.skia.org/4364
 PATH_PREFIX_TO_EXTRA_TRYBOTS = {
     # pylint: disable=line-too-long
-    'cmake/': 'master.client.skia.compile:Build-Mac-Clang-x86_64-Release-CMake-Trybot,Build-Ubuntu-GCC-x86_64-Release-CMake-Trybot',
-    # pylint: disable=line-too-long
     'src/opts/': 'master.client.skia:Test-Ubuntu-GCC-GCE-CPU-AVX2-x86_64-Release-SKNX_NO_SIMD-Trybot',
 
     'include/private/SkAtomics.h': ('master.client.skia:'
@@ -185,6 +183,24 @@ def _RecipeSimulationTest(input_api, output_api):
         '`%s` failed:\n%s' % (' '.join(cmd), e.output)))
   return results
 
+
+def _GenTasksTest(input_api, output_api):
+  """Run gen_tasks.go test."""
+  results = []
+  if not any(f.LocalPath().startswith('infra')
+             for f in input_api.AffectedFiles()):
+    return results
+
+  gen_tasks = os.path.join('infra', 'bots', 'gen_tasks.go')
+  cmd = ['go', 'run', gen_tasks, '--test']
+  try:
+    subprocess.check_output(cmd)
+  except subprocess.CalledProcessError as e:
+    results.append(output_api.PresubmitError(
+        '`%s` failed:\n%s' % (' '.join(cmd), e.output)))
+  return results
+
+
 def _CheckGNFormatted(input_api, output_api):
   """Make sure any .gn files we're changing have been formatted."""
   results = []
@@ -236,8 +252,10 @@ def CheckChangeOnUpload(input_api, output_api):
   results = []
   results.extend(_CommonChecks(input_api, output_api))
   # Run on upload, not commit, since the presubmit bot apparently doesn't have
-  # coverage installed.
+  # coverage or Go installed.
   results.extend(_RecipeSimulationTest(input_api, output_api))
+  results.extend(_GenTasksTest(input_api, output_api))
+
   results.extend(_CheckGNFormatted(input_api, output_api))
   return results
 
@@ -316,11 +334,20 @@ class CodeReview(object):
     else:
       return self._rietveld_properties['cq_dry_run']
 
+  def GetReviewers(self):
+    if self._gerrit:
+      code_review_label = (
+          self._gerrit.GetChangeInfo(self._issue)['labels']['Code-Review'])
+      return [r['email'] for r in code_review_label.get('all', [])]
+    else:
+      return self._rietveld_properties['reviewers']
+
   def GetApprovers(self):
     approvers = []
     if self._gerrit:
-      for m in self._gerrit.GetChangeInfo(
-                   self._issue)['labels']['Code-Review']['all']:
+      code_review_label = (
+          self._gerrit.GetChangeInfo(self._issue)['labels']['Code-Review'])
+      for m in code_review_label.get('all', []):
         if m.get("value") == 1:
           approvers.append(m["email"])
     else:
@@ -395,14 +422,22 @@ def _CheckLGTMsForPublicAPI(input_api, output_api):
       # going to be committed.
       return results
 
-    match = re.search(r'^TBR=(.*)$', cr.GetDescription(), re.M)
-    if match:
-      tbr_entries = match.group(1).strip().split(',')
-      for owner in PUBLIC_API_OWNERS:
-        if owner in tbr_entries or owner.split('@')[0] in tbr_entries:
-          # If an owner is specified in the TBR= line then ignore the public
-          # api owners check.
+    if input_api.gerrit:
+      for reviewer in cr.GetReviewers():
+        if reviewer in PUBLIC_API_OWNERS:
+          # If an owner is specified as an reviewer in Gerrit then ignore the
+          # public api owners check.
           return results
+    else:
+      match = re.search(r'^TBR=(.*)$', cr.GetDescription(), re.M)
+      if match:
+        tbr_section = match.group(1).strip().split(' ')[0]
+        tbr_entries = tbr_section.split(',')
+        for owner in PUBLIC_API_OWNERS:
+          if owner in tbr_entries or owner.split('@')[0] in tbr_entries:
+            # If an owner is specified in the TBR= line then ignore the public
+            # api owners check.
+            return results
 
     if cr.GetOwnerEmail() in PUBLIC_API_OWNERS:
       # An owner created the CL that is an automatic LGTM.
@@ -419,10 +454,11 @@ def _CheckLGTMsForPublicAPI(input_api, output_api):
         output_api.PresubmitError(
             "If this CL adds to or changes Skia's public API, you need an LGTM "
             "from any of %s.  If this CL only removes from or doesn't change "
-            "Skia's public API, please add a short note to the CL saying so "
-            "and add one of those reviewers on a TBR= line.  If you don't know "
-            "if this CL affects Skia's public API, treat it like it does."
-            % str(PUBLIC_API_OWNERS)))
+            "Skia's public API, please add a short note to the CL saying so. "
+            "Add one of the owners as a reviewer to your CL. For Rietveld CLs "
+            "you also need to add one of those owners on a TBR= line.  If you "
+            "don't know if this CL affects Skia's public API, treat it like it "
+            "does." % str(PUBLIC_API_OWNERS)))
   return results
 
 

@@ -23,6 +23,7 @@ public:
     virtual ~GrVkBuffer() {
         // either release or abandon should have been called by the owner of this object.
         SkASSERT(!fResource);
+        delete [] (unsigned char*)fMapPtr;
     }
 
     VkBuffer                    buffer() const { return fResource->fBuffer; }
@@ -83,8 +84,12 @@ protected:
         : fDesc(desc), fResource(resource), fOffset(0), fMapPtr(nullptr) {
     }
 
-    void* vkMap(const GrVkGpu* gpu);
-    void vkUnmap(GrVkGpu* gpu);
+    void* vkMap(GrVkGpu* gpu) {
+        this->internalMap(gpu, fDesc.fSizeInBytes);
+        return fMapPtr;
+    }
+    void vkUnmap(GrVkGpu* gpu) { this->internalUnmap(gpu, this->size()); }
+
     // If the caller passes in a non null createdNewBuffer, this function will set the bool to true
     // if it creates a new VkBuffer to upload the data to.
     bool vkUpdateData(GrVkGpu* gpu, const void* src, size_t srcSizeInBytes,
@@ -98,6 +103,9 @@ private:
                                            const Desc& descriptor) {
         return Create(gpu, descriptor);
     }
+
+    void internalMap(GrVkGpu* gpu, size_t size, bool* createdNewBuffer = nullptr);
+    void internalUnmap(GrVkGpu* gpu, size_t size);
 
     void validate() const;
     bool vkIsMapped() const;

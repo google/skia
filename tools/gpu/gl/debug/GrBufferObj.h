@@ -14,7 +14,7 @@
 
 ////////////////////////////////////////////////////////////////////////////////
 class GrBufferObj : public GrFakeRefObj {
-    GR_DEFINE_CREATOR(GrBufferObj);
+    GR_DEFINE_CREATOR(GrBufferObj)
 
 public:
     GrBufferObj()

@@ -12,6 +12,7 @@
 #include "SkPaint.h"
 #include "SkPoint.h"
 #include "SkScalar.h"
+#include "SkStrokeRec.h"
 #include "SkTDArray.h"
 
 class SkCanvas;
@@ -31,11 +32,13 @@ class GrAAConvexTessellator;
 // computeDepthFromEdge requests.
 class GrAAConvexTessellator {
 public:
-    GrAAConvexTessellator(SkScalar strokeWidth = -1.0f,
+    GrAAConvexTessellator(SkStrokeRec::Style style = SkStrokeRec::kFill_Style,
+                          SkScalar strokeWidth = -1.0f,
                           SkPaint::Join join = SkPaint::Join::kBevel_Join,
                           SkScalar miterLimit = 0.0f)
         : fSide(SkPoint::kOn_Side)
         , fStrokeWidth(strokeWidth)
+        , fStyle(style)
         , fJoin(join)
         , fMiterLimit(miterLimit) {
     }
@@ -136,6 +139,13 @@ private:
             pt->fOrigEdgeId = origEdgeId;
         }
 
+        // Upgrade this ring so that it can behave like an originating ring
+        void makeOriginalRing() {
+            for (int i = 0; i < fPts.count(); ++i) {
+                fPts[i].fOrigEdgeId = fPts[i].fIndex;
+            }            
+        }
+
         // init should be called after all the indices have been added (via addIdx)
         void init(const GrAAConvexTessellator& tess);
         void init(const SkTDArray<SkVector>& norms, const SkTDArray<SkVector>& bisectors);
@@ -203,11 +213,11 @@ private:
                                 int edgeIdx, SkScalar desiredDepth,
                                 SkPoint* result) const;
 
-    void lineTo(SkPoint p, CurveState curve);
+    void lineTo(const SkPoint& p, CurveState curve);
 
     void lineTo(const SkMatrix& m, SkPoint p, CurveState curve);
 
-    void quadTo(SkPoint pts[3]);
+    void quadTo(const SkPoint pts[3]);
 
     void quadTo(const SkMatrix& m, SkPoint pts[3]);
 
@@ -237,21 +247,20 @@ private:
 
     void validate() const;
 
-    // fPts, fCoverages & fMovable should always have the same # of elements
+    // fPts, fCoverages, fMovable & fCurveState should always have the same # of elements
     SkTDArray<SkPoint>    fPts;
     SkTDArray<SkScalar>   fCoverages;
     // movable points are those that can be slid further along their bisector
     SkTDArray<bool>       fMovable;
+    // Tracks whether a given point is interior to a curve. Such points are
+    // assumed to have shallow curvature.
+    SkTDArray<CurveState> fCurveState;
 
     // The outward facing normals for the original polygon
     SkTDArray<SkVector>   fNorms;
     // The inward facing bisector at each point in the original polygon. Only
     // needed for exterior ring creation and then handed off to the initial ring.
     SkTDArray<SkVector>   fBisectors;
-
-    // Tracks whether a given point is interior to a curve. Such points are
-    // assumed to have shallow curvature.
-    SkTDArray<CurveState> fCurveState;
 
     SkPoint::Side         fSide;    // winding of the original polygon
 
@@ -267,8 +276,9 @@ private:
 #endif
     CandidateVerts        fCandidateVerts;
 
-    // < 0 means filling rather than stroking
+    // the stroke width is only used for stroke or stroke-and-fill styles
     SkScalar              fStrokeWidth;
+    SkStrokeRec::Style    fStyle;
 
     SkPaint::Join         fJoin;
 

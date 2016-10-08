@@ -78,9 +78,8 @@ DEF_TEST(SkPDF_JpegEmbedTest, r) {
     canvas->flush();
     document->endPage();
     document->close();
-    sk_sp<SkData> pdfData(pdf.copyToData());
+    sk_sp<SkData> pdfData(pdf.detachAsData());
     SkASSERT(pdfData);
-    pdf.reset();
 
     REPORTER_ASSERT(r, is_subset_of(mandrillData.get(), pdfData.get()));
 
@@ -102,9 +101,8 @@ DEF_TEST(SkPDF_JpegEmbedTest, r) {
     canvas->flush();
     document->endPage();
     document->close();
-    pdfData.reset(pdf.copyToData());
+    pdfData = pdf.detachAsData();
     SkASSERT(pdfData);
-    pdf.reset();
 
     REPORTER_ASSERT(r, is_subset_of(mandrillData.get(), pdfData.get()));
 

@@ -305,7 +305,7 @@ public:
     bool transferPixels(GrSurface* surface,
                         int left, int top, int width, int height,
                         GrPixelConfig config, GrBuffer* transferBuffer,
-                        size_t offset, size_t rowBytes);
+                        size_t offset, size_t rowBytes, GrFence* fence);
 
     /**
      * This is can be called before allocating a texture to be a dst for copySurface. This is only
@@ -370,6 +370,10 @@ public:
     // Called by drawtarget when flushing.
     // Provides a hook for post-flush actions (e.g. PLS reset and Vulkan command buffer submits).
     virtual void finishDrawTarget() {}
+
+    virtual GrFence SK_WARN_UNUSED_RESULT insertFence() const = 0;
+    virtual bool waitFence(GrFence, uint64_t timeout = 1000) const = 0;
+    virtual void deleteFence(GrFence) const = 0;
 
     ///////////////////////////////////////////////////////////////////////////
     // Debugging and Stats

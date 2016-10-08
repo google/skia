@@ -44,6 +44,7 @@ public:
 
     // common data structures
     SkFlattenable* readFlattenable(SkFlattenable::Type type) override;
+    void readColor4f(SkColor4f* color) override;
     void readPoint(SkPoint* point) override;
     void readMatrix(SkMatrix* matrix) override;
     void readIRect(SkIRect* rect) override;
@@ -55,6 +56,7 @@ public:
     // binary data and arrays
     bool readByteArray(void* value, size_t size) override;
     bool readColorArray(SkColor* colors, size_t size) override;
+    bool readColor4fArray(SkColor4f* colors, size_t size) override;
     bool readIntArray(int32_t* values, size_t size) override;
     bool readPointArray(SkPoint* points, size_t size) override;
     bool readScalarArray(SkScalar* values, size_t size) override;

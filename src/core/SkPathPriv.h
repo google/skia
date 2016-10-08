@@ -98,6 +98,29 @@ public:
      */
     static void CreateDrawArcPath(SkPath* path, const SkRect& oval, SkScalar startAngle,
                                   SkScalar sweepAngle, bool useCenter, bool isFillNoPathEffect);
+
+    /**
+     * Returns a pointer to the verb data. Note that the verbs are stored backwards in memory and
+     * thus the returned pointer is the last verb.
+     */
+    static const uint8_t* VerbData(const SkPath& path) {
+        return path.fPathRef->verbsMemBegin();
+    }
+
+    /** Returns a raw pointer to the path points */
+    static const SkPoint* PointData(const SkPath& path) {
+        return path.fPathRef->points();
+    }
+
+    /** Returns the number of conic weights in the path */
+    static int ConicWeightCnt(const SkPath& path) {
+        return path.fPathRef->countWeights();
+    }
+
+    /** Returns a raw pointer to the path conic weights. */
+    static const SkScalar* ConicWeightData(const SkPath& path) {
+        return path.fPathRef->conicWeights();
+    }
 };
 
 #endif

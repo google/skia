@@ -6,11 +6,14 @@
  */
 
 #include "Benchmark.h"
-#include "GrContext.h"
 #include "sk_tool_utils.h"
 #include "SkCanvas.h"
 #include "SkImage.h"
 #include "SkSurface.h"
+
+#if SK_SUPPORT_GPU
+
+#include "GrContext.h"
 
 /** These benchmarks were designed to measure changes to GrResourceCache's replacement policy */
 
@@ -255,3 +258,5 @@ private:
 
 DEF_BENCH( return new ImageCacheBudgetDynamicBench(ImageCacheBudgetDynamicBench::Mode::kPingPong); )
 DEF_BENCH( return new ImageCacheBudgetDynamicBench(ImageCacheBudgetDynamicBench::Mode::kFlipFlop); )
+
+#endif

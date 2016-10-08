@@ -239,10 +239,11 @@ void SkRecorder::onDrawImageNine(const SkImage* image, const SkIRect& center,
 void SkRecorder::onDrawImageLattice(const SkImage* image, const Lattice& lattice, const SkRect& dst,
                                     const SkPaint* paint) {
     int flagCount = lattice.fFlags ? (lattice.fXCount + 1) * (lattice.fYCount + 1) : 0;
+    SkASSERT(lattice.fBounds);
     APPEND(DrawImageLattice, this->copy(paint), sk_ref_sp(image),
            lattice.fXCount, this->copy(lattice.fXDivs, lattice.fXCount),
            lattice.fYCount, this->copy(lattice.fYDivs, lattice.fYCount),
-           flagCount, this->copy(lattice.fFlags, flagCount), dst);
+           flagCount, this->copy(lattice.fFlags, flagCount), *lattice.fBounds, dst);
 }
 
 void SkRecorder::onDrawText(const void* text, size_t byteLength,
@@ -402,25 +403,25 @@ void SkRecorder::didTranslateZ(SkScalar z) {
 #endif
 }
 
-void SkRecorder::onClipRect(const SkRect& rect, SkRegion::Op op, ClipEdgeStyle edgeStyle) {
+void SkRecorder::onClipRect(const SkRect& rect, ClipOp op, ClipEdgeStyle edgeStyle) {
     INHERITED(onClipRect, rect, op, edgeStyle);
-    SkRecords::RegionOpAndAA opAA(op, kSoft_ClipEdgeStyle == edgeStyle);
+    SkRecords::ClipOpAndAA opAA(op, kSoft_ClipEdgeStyle == edgeStyle);
     APPEND(ClipRect, this->devBounds(), rect, opAA);
 }
 
-void SkRecorder::onClipRRect(const SkRRect& rrect, SkRegion::Op op, ClipEdgeStyle edgeStyle) {
+void SkRecorder::onClipRRect(const SkRRect& rrect, ClipOp op, ClipEdgeStyle edgeStyle) {
     INHERITED(onClipRRect, rrect, op, edgeStyle);
-    SkRecords::RegionOpAndAA opAA(op, kSoft_ClipEdgeStyle == edgeStyle);
+    SkRecords::ClipOpAndAA opAA(op, kSoft_ClipEdgeStyle == edgeStyle);
     APPEND(ClipRRect, this->devBounds(), rrect, opAA);
 }
 
-void SkRecorder::onClipPath(const SkPath& path, SkRegion::Op op, ClipEdgeStyle edgeStyle) {
+void SkRecorder::onClipPath(const SkPath& path, ClipOp op, ClipEdgeStyle edgeStyle) {
     INHERITED(onClipPath, path, op, edgeStyle);
-    SkRecords::RegionOpAndAA opAA(op, kSoft_ClipEdgeStyle == edgeStyle);
+    SkRecords::ClipOpAndAA opAA(op, kSoft_ClipEdgeStyle == edgeStyle);
     APPEND(ClipPath, this->devBounds(), path, opAA);
 }
 
-void SkRecorder::onClipRegion(const SkRegion& deviceRgn, SkRegion::Op op) {
+void SkRecorder::onClipRegion(const SkRegion& deviceRgn, ClipOp op) {
     INHERITED(onClipRegion, deviceRgn, op);
     APPEND(ClipRegion, this->devBounds(), deviceRgn, op);
 }

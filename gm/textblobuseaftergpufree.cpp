@@ -47,18 +47,18 @@ protected:
 
         sk_tool_utils::add_to_text_blob(&builder, text, paint, 10, 10);
 
-        SkAutoTUnref<const SkTextBlob> blob(builder.build());
+        sk_sp<SkTextBlob> blob(builder.make());
 
         // draw textblob
         SkRect rect = SkRect::MakeLTRB(0.f, 0.f, SkIntToScalar(kWidth), kHeight / 2.f);
         SkPaint rectPaint;
         rectPaint.setColor(0xffffffff);
         canvas->drawRect(rect, rectPaint);
-        canvas->drawTextBlob(blob.get(), 10, 50, paint);
+        canvas->drawTextBlob(blob, 10, 50, paint);
 
         // This text should look fine
         canvas->getGrContext()->freeGpuResources();
-        canvas->drawTextBlob(blob.get(), 10, 150, paint);
+        canvas->drawTextBlob(blob, 10, 150, paint);
     }
 
 private:

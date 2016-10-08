@@ -9,6 +9,7 @@
 #define GrDrawContext_DEFINED
 
 #include "GrColor.h"
+#include "GrContext.h"
 #include "GrPaint.h"
 #include "GrRenderTarget.h"
 #include "SkRefCnt.h"
@@ -19,7 +20,6 @@
 
 class GrAuditTrail;
 class GrClip;
-class GrContext;
 class GrDrawBatch;
 class GrDrawContextPriv;
 class GrDrawPathBatchBase;
@@ -323,6 +323,7 @@ public:
         return paint.isAntiAlias() && fRenderTarget->isUnifiedMultisampled();
     }
 
+    const GrCaps* caps() const { return fContext->caps(); }
     const GrSurfaceDesc& desc() const { return fRenderTarget->desc(); }
     int width() const { return fRenderTarget->width(); }
     int height() const { return fRenderTarget->height(); }
@@ -335,6 +336,7 @@ public:
     }
     const SkSurfaceProps& surfaceProps() const { return fSurfaceProps; }
     SkColorSpace* getColorSpace() const { return fColorSpace.get(); }
+    GrColorSpaceXform* getColorXformFromSRGB() const { return fColorXformFromSRGB.get(); }
     GrSurfaceOrigin origin() const { return fRenderTarget->origin(); }
 
     bool wasAbandoned() const;
@@ -425,6 +427,7 @@ private:
     GrInstancedPipelineInfo           fInstancedPipelineInfo;
 
     sk_sp<SkColorSpace>               fColorSpace;
+    sk_sp<GrColorSpaceXform>          fColorXformFromSRGB;
     SkSurfaceProps                    fSurfaceProps;
     GrAuditTrail*                     fAuditTrail;
 

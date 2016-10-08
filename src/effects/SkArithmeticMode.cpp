@@ -5,7 +5,7 @@
  * found in the LICENSE file.
  */
 
-#include "SkArithmeticMode.h"
+#include "SkArithmeticModePriv.h"
 #include "SkColorPriv.h"
 #include "SkNx.h"
 #include "SkRasterPipeline.h"
@@ -30,11 +30,6 @@ public:
 
     void xfer32(SkPMColor[], const SkPMColor[], int count, const SkAlpha[]) const override;
 
-    bool onAppendStages(SkRasterPipeline* p) const override {
-        p->append(&Stage, this);
-        return true;
-    }
-
     SK_TO_STRING_OVERRIDE()
     SK_DECLARE_PUBLIC_FLATTENABLE_DESERIALIZATION_PROCS(SkArithmeticMode_scalar)
 
@@ -44,11 +39,15 @@ public:
     sk_sp<GrXPFactory> asXPFactory() const override;
 #endif
 
-private:
-    static void SK_VECTORCALL Stage(SkRasterPipeline::Stage* st, size_t x,
-                                    Sk4f  r, Sk4f  g, Sk4f  b, Sk4f  a,
-                                    Sk4f dr, Sk4f dg, Sk4f db, Sk4f da);
+    bool isArithmetic(SkArithmeticParams* params) const override {
+        if (params) {
+            memcpy(params->fK, fK, 4 * sizeof(float));
+            params->fEnforcePMColor = fEnforcePMColor;
+        }
+        return true;
+    }
 
+private:
     void flatten(SkWriteBuffer& buffer) const override {
         buffer.writeScalar(fK[0]);
         buffer.writeScalar(fK[1]);
@@ -72,26 +71,6 @@ sk_sp<SkFlattenable> SkArithmeticMode_scalar::CreateProc(SkReadBuffer& buffer) {
     const SkScalar k4 = buffer.readScalar();
     const bool enforcePMColor = buffer.readBool();
     return SkArithmeticMode::Make(k1, k2, k3, k4, enforcePMColor);
-}
-
-void SK_VECTORCALL SkArithmeticMode_scalar::Stage(SkRasterPipeline::Stage* st, size_t x,
-                                                  Sk4f  r, Sk4f  g, Sk4f  b, Sk4f  a,
-                                                  Sk4f dr, Sk4f dg, Sk4f db, Sk4f da) {
-    auto self = st->ctx<const SkArithmeticMode_scalar*>();
-
-    const Sk4f k1 = self->fK[0],
-               k2 = self->fK[1],
-               k3 = self->fK[2],
-               k4 = self->fK[3];
-
-    r = k1*r*dr + k2*r + k3*dr + k4;
-    g = k1*g*dg + k2*g + k3*dg + k4;
-    b = k1*b*db + k2*b + k3*db + k4;
-    a = k1*a*da + k2*a + k3*da + k4;
-
-    // A later stage (clamp_01_premul) will pin and fEnforcePMColor for us.
-
-    st->next(x, r,g,b,a, dr,dg,db,da);
 }
 
 void SkArithmeticMode_scalar::xfer32(SkPMColor dst[], const SkPMColor src[],

@@ -12,6 +12,8 @@
 #include "SkScalar.h"
 #include "SkXfermode.h"
 
+#ifdef SK_SUPPORT_LEGACY_ARITHMETICMODE
+
 class SK_API SkArithmeticMode {
 public:
     /**
@@ -36,5 +38,7 @@ public:
 private:
     SkArithmeticMode(); // can't be instantiated
 };
+
+#endif
 
 #endif

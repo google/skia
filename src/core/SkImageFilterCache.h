@@ -48,6 +48,8 @@ struct SkImageFilterCacheKey {
 // (result, offset).
 class SkImageFilterCache : public SkRefCnt {
 public:
+    enum { kDefaultTransientSize = 32 * 1024 * 1024 };
+
     virtual ~SkImageFilterCache() {}
     static SkImageFilterCache* Create(size_t maxBytes);
     static SkImageFilterCache* Get();

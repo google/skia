@@ -16,5 +16,6 @@ args=$@
 set -e
 set -x
 
-adb push $path resources /data/local/tmp/
+adb push $path /data/local/tmp/
+adb push resources /data/local/tmp/
 adb shell "cd /data/local/tmp; ./$name $args"

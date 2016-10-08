@@ -74,7 +74,7 @@ GrReducedClip::GrReducedClip(const SkClipStack& stack, const SkRect& queryBounds
         fHasIBounds = true;
 
         // Implement the clip with an AA rect element.
-        fElements.addToHead(stackBounds, SkRegion::kReplace_Op, true/*doAA*/);
+        fElements.addToHead(stackBounds, SkCanvas::kReplace_Op, true/*doAA*/);
         fElementsGenID = stack.getTopmostGenID();
         fRequiresAA = true;
 
@@ -146,7 +146,7 @@ void GrReducedClip::walkStack(const SkClipStack& stack, const SkRect& queryBound
         bool isFlip = false; // does this op just flip the in/out state of every point in the bounds
 
         switch (element->getOp()) {
-            case SkRegion::kDifference_Op:
+            case SkCanvas::kDifference_Op:
                 // check if the shape subtracted either contains the entire bounds (and makes
                 // the clip empty) or is outside the bounds and therefore can be skipped.
                 if (element->isInverseFilled()) {
@@ -172,7 +172,7 @@ void GrReducedClip::walkStack(const SkClipStack& stack, const SkRect& queryBound
                     emsmallens = true;
                 }
                 break;
-            case SkRegion::kIntersect_Op:
+            case SkCanvas::kIntersect_Op:
                 // check if the shape intersected contains the entire bounds and therefore can
                 // be skipped or it is outside the entire bounds and therefore makes the clip
                 // empty.
@@ -205,7 +205,7 @@ void GrReducedClip::walkStack(const SkClipStack& stack, const SkRect& queryBound
                     emsmallens = true;
                 }
                 break;
-            case SkRegion::kUnion_Op:
+            case SkCanvas::kUnion_Op:
                 // If the union-ed shape contains the entire bounds then after this element
                 // the bounds is entirely inside the clip. If the union-ed shape is outside the
                 // bounds then this op can be skipped.
@@ -228,7 +228,7 @@ void GrReducedClip::walkStack(const SkClipStack& stack, const SkRect& queryBound
                     embiggens = true;
                 }
                 break;
-            case SkRegion::kXOR_Op:
+            case SkCanvas::kXOR_Op:
                 // If the bounds is entirely inside the shape being xor-ed then the effect is
                 // to flip the inside/outside state of every point in the bounds. We may be
                 // able to take advantage of this in the forward pass. If the xor-ed shape
@@ -250,7 +250,7 @@ void GrReducedClip::walkStack(const SkClipStack& stack, const SkRect& queryBound
                     emsmallens = embiggens = true;
                 }
                 break;
-            case SkRegion::kReverseDifference_Op:
+            case SkCanvas::kReverseDifference_Op:
                 // When the bounds is entirely within the rev-diff shape then this behaves like xor
                 // and reverses every point inside the bounds. If the shape is completely outside
                 // the bounds then we know after this element is applied that the bounds will be
@@ -275,7 +275,7 @@ void GrReducedClip::walkStack(const SkClipStack& stack, const SkRect& queryBound
                 }
                 break;
 
-            case SkRegion::kReplace_Op:
+            case SkCanvas::kReplace_Op:
                 // Replace will always terminate our walk. We will either begin the forward walk
                 // at the replace op or detect here than the shape is either completely inside
                 // or completely outside the bounds. In this latter case it can be skipped by
@@ -325,9 +325,9 @@ void GrReducedClip::walkStack(const SkClipStack& stack, const SkRect& queryBound
 
             // if it is a flip, change it to a bounds-filling rect
             if (isFlip) {
-                SkASSERT(SkRegion::kXOR_Op == element->getOp() ||
-                         SkRegion::kReverseDifference_Op == element->getOp());
-                fElements.addToHead(SkRect::Make(fIBounds), SkRegion::kReverseDifference_Op, false);
+                SkASSERT(SkCanvas::kXOR_Op == element->getOp() ||
+                         SkCanvas::kReverseDifference_Op == element->getOp());
+                fElements.addToHead(SkRect::Make(fIBounds), SkCanvas::kReverseDifference_Op, false);
             } else {
                 Element* newElement = fElements.addToHead(*element);
                 if (newElement->isAA()) {
@@ -336,11 +336,11 @@ void GrReducedClip::walkStack(const SkClipStack& stack, const SkRect& queryBound
                 // Intersecting an inverse shape is the same as differencing the non-inverse shape.
                 // Replacing with an inverse shape is the same as setting initialState=kAllIn and
                 // differencing the non-inverse shape.
-                bool isReplace = SkRegion::kReplace_Op == newElement->getOp();
+                bool isReplace = SkCanvas::kReplace_Op == newElement->getOp();
                 if (newElement->isInverseFilled() &&
-                    (SkRegion::kIntersect_Op == newElement->getOp() || isReplace)) {
+                    (SkCanvas::kIntersect_Op == newElement->getOp() || isReplace)) {
                     newElement->invertShapeFillType();
-                    newElement->setOp(SkRegion::kDifference_Op);
+                    newElement->setOp(SkCanvas::kDifference_Op);
                     if (isReplace) {
                         SkASSERT(InitialTriState::kAllOut == initialTriState);
                         initialTriState = InitialTriState::kAllIn;
@@ -359,36 +359,36 @@ void GrReducedClip::walkStack(const SkClipStack& stack, const SkRect& queryBound
         while (element) {
             bool skippable = false;
             switch (element->getOp()) {
-                case SkRegion::kDifference_Op:
+                case SkCanvas::kDifference_Op:
                     // subtracting from the empty set yields the empty set.
                     skippable = InitialTriState::kAllOut == initialTriState;
                     break;
-                case SkRegion::kIntersect_Op:
+                case SkCanvas::kIntersect_Op:
                     // intersecting with the empty set yields the empty set
                     if (InitialTriState::kAllOut == initialTriState) {
                         skippable = true;
                     } else {
                         // We can clear to zero and then simply draw the clip element.
                         initialTriState = InitialTriState::kAllOut;
-                        element->setOp(SkRegion::kReplace_Op);
+                        element->setOp(SkCanvas::kReplace_Op);
                     }
                     break;
-                case SkRegion::kUnion_Op:
+                case SkCanvas::kUnion_Op:
                     if (InitialTriState::kAllIn == initialTriState) {
                         // unioning the infinite plane with anything is a no-op.
                         skippable = true;
                     } else {
                         // unioning the empty set with a shape is the shape.
-                        element->setOp(SkRegion::kReplace_Op);
+                        element->setOp(SkCanvas::kReplace_Op);
                     }
                     break;
-                case SkRegion::kXOR_Op:
+                case SkCanvas::kXOR_Op:
                     if (InitialTriState::kAllOut == initialTriState) {
                         // xor could be changed to diff in the kAllIn case, not sure it's a win.
-                        element->setOp(SkRegion::kReplace_Op);
+                        element->setOp(SkCanvas::kReplace_Op);
                     }
                     break;
-                case SkRegion::kReverseDifference_Op:
+                case SkCanvas::kReverseDifference_Op:
                     if (InitialTriState::kAllIn == initialTriState) {
                         // subtracting the whole plane will yield the empty set.
                         skippable = true;
@@ -401,11 +401,11 @@ void GrReducedClip::walkStack(const SkClipStack& stack, const SkRect& queryBound
                         if (skippable) {
                             initialTriState = InitialTriState::kAllIn;
                         } else {
-                            element->setOp(SkRegion::kReplace_Op);
+                            element->setOp(SkCanvas::kReplace_Op);
                         }
                     }
                     break;
-                case SkRegion::kReplace_Op:
+                case SkCanvas::kReplace_Op:
                     skippable = false; // we would have skipped it in the backwards walk if we
                                        // could've.
                     break;
@@ -430,12 +430,12 @@ void GrReducedClip::walkStack(const SkClipStack& stack, const SkRect& queryBound
     fInitialState = static_cast<GrReducedClip::InitialState>(initialTriState);
 }
 
-static bool element_is_pure_subtract(SkRegion::Op op) {
+static bool element_is_pure_subtract(SkCanvas::ClipOp op) {
     SkASSERT(op >= 0);
-    return op <= SkRegion::kIntersect_Op;
+    return op <= SkCanvas::kIntersect_Op;
 
-    GR_STATIC_ASSERT(0 == SkRegion::kDifference_Op);
-    GR_STATIC_ASSERT(1 == SkRegion::kIntersect_Op);
+    GR_STATIC_ASSERT(0 == SkCanvas::kDifference_Op);
+    GR_STATIC_ASSERT(1 == SkCanvas::kIntersect_Op);
 }
 
 void GrReducedClip::addInteriorWindowRectangles(int maxWindowRectangles) {
@@ -445,7 +445,7 @@ void GrReducedClip::addInteriorWindowRectangles(int maxWindowRectangles) {
     ElementList::Iter iter(fElements, ElementList::Iter::kTail_IterStart);
     for (; iter.get() && element_is_pure_subtract(iter.get()->getOp()); iter.prev()) {
         const Element* element = iter.get();
-        if (SkRegion::kDifference_Op != element->getOp()) {
+        if (SkCanvas::kDifference_Op != element->getOp()) {
             continue;
         }
 
@@ -536,7 +536,7 @@ static bool stencil_element(GrDrawContext* dc,
             break;
         case Element::kRect_Type:
             return dc->drawContextPriv().drawAndStencilRect(clip, ss,
-                                                            element->getOp(),
+                                                            (SkRegion::Op)element->getOp(),
                                                             element->isInverseFilled(),
                                                             element->isAA(),
                                                             viewMatrix, element->getRect());
@@ -549,7 +549,7 @@ static bool stencil_element(GrDrawContext* dc,
             }
 
             return dc->drawContextPriv().drawAndStencilPath(clip, ss,
-                                                            element->getOp(),
+                                                            (SkRegion::Op)element->getOp(),
                                                             element->isInverseFilled(),
                                                             element->isAA(), viewMatrix, path);
             break;
@@ -608,7 +608,7 @@ bool GrReducedClip::drawAlphaClipMask(GrDrawContext* dc) const {
     // walk through each clip element and perform its set op
     for (ElementList::Iter iter(fElements); iter.get(); iter.next()) {
         const Element* element = iter.get();
-        SkRegion::Op op = element->getOp();
+        SkRegion::Op op = (SkRegion::Op)element->getOp();
         bool invert = element->isInverseFilled();
         if (invert || SkRegion::kIntersect_Op == op || SkRegion::kReverseDifference_Op == op) {
             // draw directly into the result with the stencil set to make the pixels affected
@@ -722,7 +722,7 @@ bool GrReducedClip::drawStencilClipMask(GrContext* context,
         // stencil with arbitrary stencil settings.
         GrPathRenderer::StencilSupport stencilSupport;
 
-        SkRegion::Op op = element->getOp();
+        SkRegion::Op op = (SkRegion::Op)element->getOp();
 
         GrPathRenderer* pr = nullptr;
         SkPath clipPath;

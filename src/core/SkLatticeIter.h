@@ -23,8 +23,7 @@ public:
 
     static bool Valid(int imageWidth, int imageHeight, const SkCanvas::Lattice& lattice);
 
-    SkLatticeIter(int imageWidth, int imageHeight, const SkCanvas::Lattice& lattice,
-                  const SkRect& dst);
+    SkLatticeIter(const SkCanvas::Lattice& lattice, const SkRect& dst);
 
     static bool Valid(int imageWidth, int imageHeight, const SkIRect& center);
 

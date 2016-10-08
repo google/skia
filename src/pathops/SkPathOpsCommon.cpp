@@ -198,223 +198,16 @@ bool SortContourList(SkOpContourHead** contourList, bool evenOdd, bool oppEvenOd
     return true;
 }
 
-class DistanceLessThan {
-public:
-    DistanceLessThan(double* distances) : fDistances(distances) { }
-    double* fDistances;
-    bool operator()(const int one, const int two) {
-        return fDistances[one] < fDistances[two];
-    }
-};
-
-    /*
-        check start and end of each contour
-        if not the same, record them
-        match them up
-        connect closest
-        reassemble contour pieces into new path
-    */
-void Assemble(const SkPathWriter& path, SkPathWriter* simple) {
-    SkChunkAlloc allocator(4096);  // FIXME: constant-ize, tune
-    SkOpContourHead contour;
-    SkOpGlobalState globalState(&contour, &allocator  SkDEBUGPARAMS(false)
-                                SkDEBUGPARAMS(nullptr));
-#if DEBUG_SHOW_TEST_NAME
-    SkDebugf("</div>\n");
-#endif
-#if DEBUG_PATH_CONSTRUCTION
-    SkDebugf("%s\n", __FUNCTION__);
-#endif
-    SkOpEdgeBuilder builder(path, &contour, &globalState);
-    builder.finish();
-    SkTDArray<const SkOpContour* > runs;  // indices of partial contours
-    const SkOpContour* eContour = builder.head();
-    do {
-        if (!eContour->count()) {
-            continue;
-        }
-        const SkPoint& eStart = eContour->start();
-        const SkPoint& eEnd = eContour->end();
-#if DEBUG_ASSEMBLE
-        SkDebugf("%s contour", __FUNCTION__);
-        if (!SkDPoint::ApproximatelyEqual(eStart, eEnd)) {
-            SkDebugf("[%d]", runs.count());
-        } else {
-            SkDebugf("   ");
-        }
-        SkDebugf(" start=(%1.9g,%1.9g) end=(%1.9g,%1.9g)\n",
-                eStart.fX, eStart.fY, eEnd.fX, eEnd.fY);
-#endif
-        if (SkDPoint::ApproximatelyEqual(eStart, eEnd)) {
-            eContour->toPath(simple);
-            continue;
-        }
-        *runs.append() = eContour;
-    } while ((eContour = eContour->next()));
-    int count = runs.count();
-    if (count == 0) {
-        return;
-    }
-    SkTDArray<int> sLink, eLink;
-    sLink.append(count);
-    eLink.append(count);
-    int rIndex, iIndex;
-    for (rIndex = 0; rIndex < count; ++rIndex) {
-        sLink[rIndex] = eLink[rIndex] = SK_MaxS32;
-    }
-    const int ends = count * 2;  // all starts and ends
-    const int entries = (ends - 1) * count;  // folded triangle : n * (n - 1) / 2
-    SkTDArray<double> distances;
-    distances.append(entries);
-    for (rIndex = 0; rIndex < ends - 1; ++rIndex) {
-        const SkOpContour* oContour = runs[rIndex >> 1];
-        const SkPoint& oPt = rIndex & 1 ? oContour->end() : oContour->start();
-        const int row = rIndex < count - 1 ? rIndex * ends : (ends - rIndex - 2)
-                * ends - rIndex - 1;
-        for (iIndex = rIndex + 1; iIndex < ends; ++iIndex) {
-            const SkOpContour* iContour = runs[iIndex >> 1];
-            const SkPoint& iPt = iIndex & 1 ? iContour->end() : iContour->start();
-            double dx = iPt.fX - oPt.fX;
-            double dy = iPt.fY - oPt.fY;
-            double dist = dx * dx + dy * dy;
-            distances[row + iIndex] = dist;  // oStart distance from iStart
-        }
-    }
-    SkTDArray<int> sortedDist;
-    sortedDist.append(entries);
-    for (rIndex = 0; rIndex < entries; ++rIndex) {
-        sortedDist[rIndex] = rIndex;
-    }
-    SkTQSort<int>(sortedDist.begin(), sortedDist.end() - 1, DistanceLessThan(distances.begin()));
-    int remaining = count;  // number of start/end pairs
-    for (rIndex = 0; rIndex < entries; ++rIndex) {
-        int pair = sortedDist[rIndex];
-        int row = pair / ends;
-        int col = pair - row * ends;
-        int thingOne = row < col ? row : ends - row - 2;
-        int ndxOne = thingOne >> 1;
-        bool endOne = thingOne & 1;
-        int* linkOne = endOne ? eLink.begin() : sLink.begin();
-        if (linkOne[ndxOne] != SK_MaxS32) {
-            continue;
-        }
-        int thingTwo = row < col ? col : ends - row + col - 1;
-        int ndxTwo = thingTwo >> 1;
-        bool endTwo = thingTwo & 1;
-        int* linkTwo = endTwo ? eLink.begin() : sLink.begin();
-        if (linkTwo[ndxTwo] != SK_MaxS32) {
-            continue;
-        }
-        SkASSERT(&linkOne[ndxOne] != &linkTwo[ndxTwo]);
-        bool flip = endOne == endTwo;
-        linkOne[ndxOne] = flip ? ~ndxTwo : ndxTwo;
-        linkTwo[ndxTwo] = flip ? ~ndxOne : ndxOne;
-        if (!--remaining) {
-            break;
-        }
-    }
-    SkASSERT(!remaining);
-#if DEBUG_ASSEMBLE
-    for (rIndex = 0; rIndex < count; ++rIndex) {
-        int s = sLink[rIndex];
-        int e = eLink[rIndex];
-        SkDebugf("%s %c%d <- s%d - e%d -> %c%d\n", __FUNCTION__, s < 0 ? 's' : 'e',
-                s < 0 ? ~s : s, rIndex, rIndex, e < 0 ? 'e' : 's', e < 0 ? ~e : e);
-    }
-#endif
-    rIndex = 0;
-    do {
-        bool forward = true;
-        bool first = true;
-        int sIndex = sLink[rIndex];
-        SkASSERT(sIndex != SK_MaxS32);
-        sLink[rIndex] = SK_MaxS32;
-        int eIndex;
-        if (sIndex < 0) {
-            eIndex = sLink[~sIndex];
-            sLink[~sIndex] = SK_MaxS32;
-        } else {
-            eIndex = eLink[sIndex];
-            eLink[sIndex] = SK_MaxS32;
-        }
-        SkASSERT(eIndex != SK_MaxS32);
-#if DEBUG_ASSEMBLE
-        SkDebugf("%s sIndex=%c%d eIndex=%c%d\n", __FUNCTION__, sIndex < 0 ? 's' : 'e',
-                    sIndex < 0 ? ~sIndex : sIndex, eIndex < 0 ? 's' : 'e',
-                    eIndex < 0 ? ~eIndex : eIndex);
-#endif
-        do {
-            const SkOpContour* contour = runs[rIndex];
-            if (first) {
-                first = false;
-                const SkPoint* startPtr = &contour->start();
-                simple->deferredMove(startPtr[0]);
-            }
-            if (forward) {
-                contour->toPartialForward(simple);
-            } else {
-                contour->toPartialBackward(simple);
-            }
-#if DEBUG_ASSEMBLE
-            SkDebugf("%s rIndex=%d eIndex=%s%d close=%d\n", __FUNCTION__, rIndex,
-                eIndex < 0 ? "~" : "", eIndex < 0 ? ~eIndex : eIndex,
-                sIndex == ((rIndex != eIndex) ^ forward ? eIndex : ~eIndex));
-#endif
-            if (sIndex == ((rIndex != eIndex) ^ forward ? eIndex : ~eIndex)) {
-                simple->close();
-                break;
-            }
-            if (forward) {
-                eIndex = eLink[rIndex];
-                SkASSERT(eIndex != SK_MaxS32);
-                eLink[rIndex] = SK_MaxS32;
-                if (eIndex >= 0) {
-                    SkASSERT(sLink[eIndex] == rIndex);
-                    sLink[eIndex] = SK_MaxS32;
-                } else {
-                    SkASSERT(eLink[~eIndex] == ~rIndex);
-                    eLink[~eIndex] = SK_MaxS32;
-                }
-            } else {
-                eIndex = sLink[rIndex];
-                SkASSERT(eIndex != SK_MaxS32);
-                sLink[rIndex] = SK_MaxS32;
-                if (eIndex >= 0) {
-                    SkASSERT(eLink[eIndex] == rIndex);
-                    eLink[eIndex] = SK_MaxS32;
-                } else {
-                    SkASSERT(sLink[~eIndex] == ~rIndex);
-                    sLink[~eIndex] = SK_MaxS32;
-                }
-            }
-            rIndex = eIndex;
-            if (rIndex < 0) {
-                forward ^= 1;
-                rIndex = ~rIndex;
-            }
-        } while (true);
-        for (rIndex = 0; rIndex < count; ++rIndex) {
-            if (sLink[rIndex] != SK_MaxS32) {
-                break;
-            }
-        }
-    } while (rIndex < count);
-#if DEBUG_ASSEMBLE
-    for (rIndex = 0; rIndex < count; ++rIndex) {
-       SkASSERT(sLink[rIndex] == SK_MaxS32);
-       SkASSERT(eLink[rIndex] == SK_MaxS32);
-    }
-#endif
-}
-
-static void calcAngles(SkOpContourHead* contourList) {
+static void calc_angles(SkOpContourHead* contourList  DEBUG_COIN_DECLARE_PARAMS()) {
+    DEBUG_STATIC_SET_PHASE(contourList);
     SkOpContour* contour = contourList;
     do {
         contour->calcAngles();
     } while ((contour = contour->next()));
 }
 
-static bool missingCoincidence(SkOpContourHead* contourList) {
+static bool missing_coincidence(SkOpContourHead* contourList  DEBUG_COIN_DECLARE_PARAMS()) {
+    DEBUG_STATIC_SET_PHASE(contourList);
     SkOpContour* contour = contourList;
     bool result = false;
     do {
@@ -423,7 +216,8 @@ static bool missingCoincidence(SkOpContourHead* contourList) {
     return result;
 }
 
-static bool moveMultiples(SkOpContourHead* contourList) {
+static bool move_multiples(SkOpContourHead* contourList  DEBUG_COIN_DECLARE_PARAMS()) {
+    DEBUG_STATIC_SET_PHASE(contourList);
     SkOpContour* contour = contourList;
     do {
         if (!contour->moveMultiples()) {
@@ -433,14 +227,15 @@ static bool moveMultiples(SkOpContourHead* contourList) {
     return true;
 }
 
-static void moveNearby(SkOpContourHead* contourList) {
+static void move_nearby(SkOpContourHead* contourList  DEBUG_COIN_DECLARE_PARAMS()) {
+    DEBUG_STATIC_SET_PHASE(contourList);
     SkOpContour* contour = contourList;
     do {
         contour->moveNearby();
     } while ((contour = contour->next()));
 }
 
-static void sortAngles(SkOpContourHead* contourList) {
+static void sort_angles(SkOpContourHead* contourList) {
     SkOpContour* contour = contourList;
     do {
         contour->sortAngles();
@@ -449,43 +244,27 @@ static void sortAngles(SkOpContourHead* contourList) {
 
 bool HandleCoincidence(SkOpContourHead* contourList, SkOpCoincidence* coincidence) {
     SkOpGlobalState* globalState = contourList->globalState();
-    DEBUG_COINCIDENCE_HEALTH(contourList, "start");
-#if DEBUG_VALIDATE
-    globalState->setPhase(SkOpGlobalState::kIntersecting);
-#endif
-
     // match up points within the coincident runs
-    if (!coincidence->addExpanded()) {
+    if (!coincidence->addExpanded(DEBUG_PHASE_ONLY_PARAMS(kIntersecting))) {
         return false;
     }
-    DEBUG_COINCIDENCE_HEALTH(contourList, "addExpanded");
-#if DEBUG_VALIDATE
-    globalState->setPhase(SkOpGlobalState::kWalking);
-#endif
     // combine t values when multiple intersections occur on some segments but not others
-    if (!moveMultiples(contourList)) {
+    if (!move_multiples(contourList  DEBUG_PHASE_PARAMS(kWalking))) {
         return false;
     }
-    DEBUG_COINCIDENCE_HEALTH(contourList, "moveMultiples");
     // move t values and points together to eliminate small/tiny gaps
-    (void) moveNearby(contourList);
-    DEBUG_COINCIDENCE_HEALTH(contourList, "moveNearby");
-#if DEBUG_VALIDATE
-    globalState->setPhase(SkOpGlobalState::kIntersecting);
-#endif
+    move_nearby(contourList  DEBUG_COIN_PARAMS());
     // add coincidence formed by pairing on curve points and endpoints
-    coincidence->correctEnds();
-    if (!coincidence->addEndMovedSpans()) {
+    coincidence->correctEnds(DEBUG_PHASE_ONLY_PARAMS(kIntersecting));
+    if (!coincidence->addEndMovedSpans(DEBUG_COIN_ONLY_PARAMS())) {
         return false;
     }
-    DEBUG_COINCIDENCE_HEALTH(contourList, "addEndMovedSpans");
-
-    const int SAFETY_COUNT = 100;  // FIXME: tune
+    const int SAFETY_COUNT = 3;
     int safetyHatch = SAFETY_COUNT;
     // look for coincidence present in A-B and A-C but missing in B-C
     do {
         bool added;
-        if (!coincidence->addMissing(&added)) {
+        if (!coincidence->addMissing(&added  DEBUG_ITER_PARAMS(SAFETY_COUNT - safetyHatch))) {
             return false;
         }
         if (!added) {
@@ -495,101 +274,58 @@ bool HandleCoincidence(SkOpContourHead* contourList, SkOpCoincidence* coincidenc
             SkASSERT(globalState->debugSkipAssert());
             return false;
         }
-        DEBUG_COINCIDENCE_HEALTH(contourList, "addMissing");
-        moveNearby(contourList);
-        DEBUG_COINCIDENCE_HEALTH(contourList, "moveNearby");
+        move_nearby(contourList  DEBUG_ITER_PARAMS(SAFETY_COUNT - safetyHatch - 1));
     } while (true);
-    DEBUG_COINCIDENCE_HEALTH(contourList, "addMissing2");
-    // FIXME: only call this if addMissing modified something when returning false
-    moveNearby(contourList);
-    DEBUG_COINCIDENCE_HEALTH(contourList, "moveNearby2");
     // check to see if, loosely, coincident ranges may be expanded
-    if (coincidence->expand()) {
-        DEBUG_COINCIDENCE_HEALTH(contourList, "expand1");
+    if (coincidence->expand(DEBUG_COIN_ONLY_PARAMS())) {
         bool added;
-        if (!coincidence->addMissing(&added)) {
+        if (!coincidence->addMissing(&added  DEBUG_COIN_PARAMS())) {
             return false;
         }
-        DEBUG_COINCIDENCE_HEALTH(contourList, "addMissing2");
-        if (!coincidence->addExpanded()) {
+        if (!coincidence->addExpanded(DEBUG_COIN_ONLY_PARAMS())) {
             return false;
         }
-        DEBUG_COINCIDENCE_HEALTH(contourList, "addExpanded2");
-        if (!moveMultiples(contourList)) {
+        if (!move_multiples(contourList  DEBUG_COIN_PARAMS())) {
             return false;
         }
-        DEBUG_COINCIDENCE_HEALTH(contourList, "moveMultiples2");
-        moveNearby(contourList);
+        move_nearby(contourList  DEBUG_COIN_PARAMS());
     }
-#if DEBUG_VALIDATE
-    globalState->setPhase(SkOpGlobalState::kWalking);
-#endif
-    DEBUG_COINCIDENCE_HEALTH(contourList, "expand2");
     // the expanded ranges may not align -- add the missing spans
-    if (!coincidence->addExpanded()) {
+    if (!coincidence->addExpanded(DEBUG_PHASE_ONLY_PARAMS(kWalking))) {
         return false;
     }
-    DEBUG_COINCIDENCE_HEALTH(contourList, "addExpanded3");
-    coincidence->correctEnds();
-    if (!coincidence->mark()) {  // mark spans of coincident segments as coincident
-        return false;
-    }
-    DEBUG_COINCIDENCE_HEALTH(contourList, "mark1");
+    // mark spans of coincident segments as coincident
+    coincidence->mark(DEBUG_COIN_ONLY_PARAMS());
     // look for coincidence lines and curves undetected by intersection
-    if (missingCoincidence(contourList)) {
-#if DEBUG_VALIDATE
-        globalState->setPhase(SkOpGlobalState::kIntersecting);
-#endif
-        DEBUG_COINCIDENCE_HEALTH(contourList, "missingCoincidence1");
-        (void) coincidence->expand();
-        DEBUG_COINCIDENCE_HEALTH(contourList, "expand3");
-        if (!coincidence->addExpanded()) {
+    if (missing_coincidence(contourList  DEBUG_COIN_PARAMS())) {
+        (void) coincidence->expand(DEBUG_PHASE_ONLY_PARAMS(kIntersecting));
+        if (!coincidence->addExpanded(DEBUG_COIN_ONLY_PARAMS())) {
             return false;
         }
-#if DEBUG_VALIDATE
-        globalState->setPhase(SkOpGlobalState::kWalking);
-#endif
-        DEBUG_COINCIDENCE_HEALTH(contourList, "addExpanded3");
-        if (!coincidence->mark()) {
-            return false;
-        }
+        coincidence->mark(DEBUG_PHASE_ONLY_PARAMS(kWalking));
     } else {
-        DEBUG_COINCIDENCE_HEALTH(contourList, "missingCoincidence2");
-        (void) coincidence->expand();
+        (void) coincidence->expand(DEBUG_COIN_ONLY_PARAMS());
     }
-    DEBUG_COINCIDENCE_HEALTH(contourList, "missingCoincidence3");
+    (void) coincidence->expand(DEBUG_COIN_ONLY_PARAMS());
 
-    (void) coincidence->expand();
-
-#if 0  // under development
-    // coincident runs may cross two or more spans, but the opposite spans may be out of order
-    if (!coincidence->reorder()) {
-      return false;
-    }
-#endif
-    DEBUG_COINCIDENCE_HEALTH(contourList, "coincidence.reorder");
     SkOpCoincidence overlaps(globalState);
+    safetyHatch = SAFETY_COUNT;
     do {
         SkOpCoincidence* pairs = overlaps.isEmpty() ? coincidence : &overlaps;
-        if (!pairs->apply()) {  // adjust the winding value to account for coincident edges
-            return false;
-        }
-        DEBUG_COINCIDENCE_HEALTH(contourList, "pairs->apply");
+        // adjust the winding value to account for coincident edges
+        pairs->apply(DEBUG_ITER_ONLY_PARAMS(SAFETY_COUNT - safetyHatch));  
         // For each coincident pair that overlaps another, when the receivers (the 1st of the pair)
         // are different, construct a new pair to resolve their mutual span
-        if (!pairs->findOverlaps(&overlaps)) {
+        if (!pairs->findOverlaps(&overlaps  DEBUG_ITER_PARAMS(SAFETY_COUNT - safetyHatch))) {
             return false;
         }
-        DEBUG_COINCIDENCE_HEALTH(contourList, "pairs->findOverlaps");
+        if (!--safetyHatch) {
+            SkASSERT(globalState->debugSkipAssert());
+            return false;
+        }
     } while (!overlaps.isEmpty());
-    calcAngles(contourList);
-    sortAngles(contourList);
-    if (globalState->angleCoincidence()) {
-        (void) missingCoincidence(contourList);
-        if (!coincidence->apply()) {
-            return false;
-        }
-    }
+    calc_angles(contourList  DEBUG_COIN_PARAMS());
+    sort_angles(contourList);
 #if DEBUG_COINCIDENCE_VERBOSE
     coincidence->debugShowCoincidence();
 #endif

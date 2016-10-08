@@ -70,7 +70,8 @@ void GrGLProgram::setData(const GrPrimitiveProcessor& primProc, const GrPipeline
     // we set the textures, and uniforms for installed processors in a generic way, but subclasses
     // of GLProgram determine how to set coord transforms
     int nextSamplerIdx = 0;
-    fGeometryProcessor->setData(fProgramDataManager, primProc);
+    fGeometryProcessor->setData(fProgramDataManager, primProc,
+                                GrFragmentProcessor::CoordTransformIter(pipeline));
     this->bindTextures(primProc, pipeline.getAllowSRGBInputs(), &nextSamplerIdx);
 
     this->setFragmentData(primProc, pipeline, &nextSamplerIdx);
@@ -87,10 +88,9 @@ void GrGLProgram::generateMipmaps(const GrPrimitiveProcessor& primProc,
                                   const GrPipeline& pipeline) {
     this->generateMipmaps(primProc, pipeline.getAllowSRGBInputs());
 
-    int numProcessors = fFragmentProcessors.count();
-    for (int i = 0; i < numProcessors; ++i) {
-        const GrFragmentProcessor& processor = pipeline.getFragmentProcessor(i);
-        this->generateMipmaps(processor, pipeline.getAllowSRGBInputs());
+    GrFragmentProcessor::Iter iter(pipeline);
+    while (const GrFragmentProcessor* fp  = iter.next()) {
+        this->generateMipmaps(*fp, pipeline.getAllowSRGBInputs());
     }
 
     if (primProc.getPixelLocalStorageState() !=
@@ -103,20 +103,20 @@ void GrGLProgram::generateMipmaps(const GrPrimitiveProcessor& primProc,
 void GrGLProgram::setFragmentData(const GrPrimitiveProcessor& primProc,
                                   const GrPipeline& pipeline,
                                   int* nextSamplerIdx) {
-    int numProcessors = fFragmentProcessors.count();
-    for (int i = 0; i < numProcessors; ++i) {
-        const GrFragmentProcessor& processor = pipeline.getFragmentProcessor(i);
-        fFragmentProcessors[i]->setData(fProgramDataManager, processor);
-        this->setTransformData(primProc, processor, i);
-        this->bindTextures(processor, pipeline.getAllowSRGBInputs(), nextSamplerIdx);
+    GrFragmentProcessor::Iter iter(pipeline);
+    GrGLSLFragmentProcessor::Iter glslIter(fFragmentProcessors.begin(),
+                                           fFragmentProcessors.count());
+    const GrFragmentProcessor* fp = iter.next();
+    GrGLSLFragmentProcessor* glslFP = glslIter.next();
+    while (fp && glslFP) {
+        glslFP->setData(fProgramDataManager, *fp);
+        this->bindTextures(*fp, pipeline.getAllowSRGBInputs(), nextSamplerIdx);
+        fp = iter.next();
+        glslFP = glslIter.next();
     }
+    SkASSERT(!fp && !glslFP);
 }
-void GrGLProgram::setTransformData(const GrPrimitiveProcessor& primProc,
-                                   const GrFragmentProcessor& processor,
-                                   int index) {
-    fGeometryProcessor->setTransformData(primProc, fProgramDataManager, index,
-                                         processor.coordTransforms());
-}
+
 
 void GrGLProgram::setRenderTargetState(const GrPrimitiveProcessor& primProc,
                                        const GrPipeline& pipeline) {

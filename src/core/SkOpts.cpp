@@ -43,6 +43,7 @@
 #include "SkChecksum_opts.h"
 #include "SkColorCubeFilter_opts.h"
 #include "SkMorphologyImageFilter_opts.h"
+#include "SkRasterPipeline_opts.h"
 #include "SkSwizzler_opts.h"
 #include "SkTextureCompressor_opts.h"
 #include "SkXfermode_opts.h"
@@ -87,14 +88,116 @@ namespace SkOpts {
     DEFINE_DEFAULT(srcover_srgb_srgb);
 
     DEFINE_DEFAULT(hash_fn);
+
+    DEFINE_DEFAULT(run_pipeline);
 #undef DEFINE_DEFAULT
+
+    SkOpts::VoidFn body[] = {
+        (SkOpts::VoidFn)SK_OPTS_NS::just_return,
+
+        (SkOpts::VoidFn)SK_OPTS_NS::store_565,
+        (SkOpts::VoidFn)SK_OPTS_NS::store_srgb,
+        (SkOpts::VoidFn)SK_OPTS_NS::store_f16,
+
+        (SkOpts::VoidFn)SK_OPTS_NS::load_s_565,
+        (SkOpts::VoidFn)SK_OPTS_NS::load_s_srgb,
+        (SkOpts::VoidFn)SK_OPTS_NS::load_s_f16,
+
+        (SkOpts::VoidFn)SK_OPTS_NS::load_d_565,
+        (SkOpts::VoidFn)SK_OPTS_NS::load_d_srgb,
+        (SkOpts::VoidFn)SK_OPTS_NS::load_d_f16,
+
+        (SkOpts::VoidFn)SK_OPTS_NS::scale_u8,
+
+        (SkOpts::VoidFn)SK_OPTS_NS::lerp_u8,
+        (SkOpts::VoidFn)SK_OPTS_NS::lerp_565,
+        (SkOpts::VoidFn)SK_OPTS_NS::lerp_constant_float,
+
+        (SkOpts::VoidFn)SK_OPTS_NS::constant_color,
+
+        (SkOpts::VoidFn)SK_OPTS_NS::dst,
+        (SkOpts::VoidFn)SK_OPTS_NS::dstatop,
+        (SkOpts::VoidFn)SK_OPTS_NS::dstin,
+        (SkOpts::VoidFn)SK_OPTS_NS::dstout,
+        (SkOpts::VoidFn)SK_OPTS_NS::dstover,
+        (SkOpts::VoidFn)SK_OPTS_NS::srcatop,
+        (SkOpts::VoidFn)SK_OPTS_NS::srcin,
+        (SkOpts::VoidFn)SK_OPTS_NS::srcout,
+        (SkOpts::VoidFn)SK_OPTS_NS::srcover,
+        (SkOpts::VoidFn)SK_OPTS_NS::clear,
+        (SkOpts::VoidFn)SK_OPTS_NS::modulate,
+        (SkOpts::VoidFn)SK_OPTS_NS::multiply,
+        (SkOpts::VoidFn)SK_OPTS_NS::plus_,
+        (SkOpts::VoidFn)SK_OPTS_NS::screen,
+        (SkOpts::VoidFn)SK_OPTS_NS::xor_,
+        (SkOpts::VoidFn)SK_OPTS_NS::colorburn,
+        (SkOpts::VoidFn)SK_OPTS_NS::colordodge,
+        (SkOpts::VoidFn)SK_OPTS_NS::darken,
+        (SkOpts::VoidFn)SK_OPTS_NS::difference,
+        (SkOpts::VoidFn)SK_OPTS_NS::exclusion,
+        (SkOpts::VoidFn)SK_OPTS_NS::hardlight,
+        (SkOpts::VoidFn)SK_OPTS_NS::lighten,
+        (SkOpts::VoidFn)SK_OPTS_NS::overlay,
+        (SkOpts::VoidFn)SK_OPTS_NS::softlight,
+    };
+    static_assert(SK_ARRAY_COUNT(body) == SkRasterPipeline::kNumStockStages, "");
+
+    SkOpts::VoidFn tail[] = {
+        (SkOpts::VoidFn)SK_OPTS_NS::just_return,
+
+        (SkOpts::VoidFn)SK_OPTS_NS::store_565_tail,
+        (SkOpts::VoidFn)SK_OPTS_NS::store_srgb_tail,
+        (SkOpts::VoidFn)SK_OPTS_NS::store_f16_tail,
+
+        (SkOpts::VoidFn)SK_OPTS_NS::load_s_565_tail,
+        (SkOpts::VoidFn)SK_OPTS_NS::load_s_srgb_tail,
+        (SkOpts::VoidFn)SK_OPTS_NS::load_s_f16_tail,
+
+        (SkOpts::VoidFn)SK_OPTS_NS::load_d_565_tail,
+        (SkOpts::VoidFn)SK_OPTS_NS::load_d_srgb_tail,
+        (SkOpts::VoidFn)SK_OPTS_NS::load_d_f16_tail,
+
+        (SkOpts::VoidFn)SK_OPTS_NS::scale_u8_tail,
+
+        (SkOpts::VoidFn)SK_OPTS_NS::lerp_u8_tail,
+        (SkOpts::VoidFn)SK_OPTS_NS::lerp_565_tail,
+        (SkOpts::VoidFn)SK_OPTS_NS::lerp_constant_float,
+
+        (SkOpts::VoidFn)SK_OPTS_NS::constant_color,
+
+        (SkOpts::VoidFn)SK_OPTS_NS::dst,
+        (SkOpts::VoidFn)SK_OPTS_NS::dstatop,
+        (SkOpts::VoidFn)SK_OPTS_NS::dstin,
+        (SkOpts::VoidFn)SK_OPTS_NS::dstout,
+        (SkOpts::VoidFn)SK_OPTS_NS::dstover,
+        (SkOpts::VoidFn)SK_OPTS_NS::srcatop,
+        (SkOpts::VoidFn)SK_OPTS_NS::srcin,
+        (SkOpts::VoidFn)SK_OPTS_NS::srcout,
+        (SkOpts::VoidFn)SK_OPTS_NS::srcover,
+        (SkOpts::VoidFn)SK_OPTS_NS::clear,
+        (SkOpts::VoidFn)SK_OPTS_NS::modulate,
+        (SkOpts::VoidFn)SK_OPTS_NS::multiply,
+        (SkOpts::VoidFn)SK_OPTS_NS::plus_,
+        (SkOpts::VoidFn)SK_OPTS_NS::screen,
+        (SkOpts::VoidFn)SK_OPTS_NS::xor_,
+        (SkOpts::VoidFn)SK_OPTS_NS::colorburn,
+        (SkOpts::VoidFn)SK_OPTS_NS::colordodge,
+        (SkOpts::VoidFn)SK_OPTS_NS::darken,
+        (SkOpts::VoidFn)SK_OPTS_NS::difference,
+        (SkOpts::VoidFn)SK_OPTS_NS::exclusion,
+        (SkOpts::VoidFn)SK_OPTS_NS::hardlight,
+        (SkOpts::VoidFn)SK_OPTS_NS::lighten,
+        (SkOpts::VoidFn)SK_OPTS_NS::overlay,
+        (SkOpts::VoidFn)SK_OPTS_NS::softlight,
+    };
+    static_assert(SK_ARRAY_COUNT(tail) == SkRasterPipeline::kNumStockStages, "");
 
     // Each Init_foo() is defined in src/opts/SkOpts_foo.cpp.
     void Init_ssse3();
     void Init_sse41();
     void Init_sse42();
     void Init_avx();
-    void Init_avx2() {}
+    void Init_hsw();
     void Init_crc32();
 
     static void init() {
@@ -104,7 +207,7 @@ namespace SkOpts {
         if (SkCpu::Supports(SkCpu::SSE41)) { Init_sse41(); }
         if (SkCpu::Supports(SkCpu::SSE42)) { Init_sse42(); }
         if (SkCpu::Supports(SkCpu::AVX  )) { Init_avx();   }
-        if (SkCpu::Supports(SkCpu::AVX2 )) { Init_avx2();  }
+        if (SkCpu::Supports(SkCpu::HSW  )) { Init_hsw();   }
 
     #elif defined(SK_CPU_ARM64)
         if (SkCpu::Supports(SkCpu::CRC32)) { Init_crc32(); }

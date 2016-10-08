@@ -74,47 +74,21 @@ GrResourceCache::GrResourceCache(const GrCaps* caps)
     , fBudgetedCount(0)
     , fBudgetedBytes(0)
     , fRequestFlush(false)
-    , fFlushTimestamps(nullptr)
-    , fLastFlushTimestampIndex(0)
+    , fExternalFlushCnt(0)
     , fPreferVRAMUseOverFlushes(caps->preferVRAMUseOverFlushes()) {
     SkDEBUGCODE(fCount = 0;)
     SkDEBUGCODE(fNewlyPurgeableResourceForValidation = nullptr;)
-    this->resetFlushTimestamps();
 }
 
 GrResourceCache::~GrResourceCache() {
     this->releaseAll();
-    delete[] fFlushTimestamps;
 }
 
 void GrResourceCache::setLimits(int count, size_t bytes, int maxUnusedFlushes) {
     fMaxCount = count;
     fMaxBytes = bytes;
     fMaxUnusedFlushes = maxUnusedFlushes;
-    this->resetFlushTimestamps();
     this->purgeAsNeeded();
-}
-
-void GrResourceCache::resetFlushTimestamps() {
-    delete[] fFlushTimestamps;
-
-    // We assume this number is a power of two when wrapping indices into the timestamp array.
-    fMaxUnusedFlushes = SkNextPow2(fMaxUnusedFlushes);
-
-    // Since our implementation is to store the timestamps of the last fMaxUnusedFlushes flush calls
-    // we just turn the feature off if that array would be large.
-    static const int kMaxSupportedTimestampHistory = 128;
-
-    if (fMaxUnusedFlushes > kMaxSupportedTimestampHistory) {
-        fFlushTimestamps = nullptr;
-        return;
-    }
-
-    fFlushTimestamps = new uint32_t[fMaxUnusedFlushes];
-    fLastFlushTimestampIndex = 0;
-    // Set all the historical flush timestamps to initially be at the beginning of time (timestamp
-    // 0).
-    sk_bzero(fFlushTimestamps, fMaxUnusedFlushes * sizeof(uint32_t));
 }
 
 void GrResourceCache::insertResource(GrGpuResource* resource) {
@@ -390,6 +364,7 @@ void GrResourceCache::notifyCntReachedZero(GrGpuResource* resource, uint32_t fla
     SkASSERT(resource->isPurgeable());
     this->removeFromNonpurgeableArray(resource);
     fPurgeableQueue.insert(resource);
+    resource->cacheAccess().setFlushCntWhenResourceBecamePurgeable(fExternalFlushCnt);
 
     if (SkBudgeted::kNo == resource->resourcePriv().isBudgeted()) {
         // Check whether this resource could still be used as a scratch resource.
@@ -474,20 +449,29 @@ void GrResourceCache::purgeAsNeeded() {
         this->processInvalidUniqueKeys(invalidKeyMsgs);
     }
 
-    if (fFlushTimestamps) {
-        // Assuming kNumFlushesToDeleteUnusedResource is a power of 2.
-        SkASSERT(SkIsPow2(fMaxUnusedFlushes));
-        int oldestFlushIndex = (fLastFlushTimestampIndex + 1) & (fMaxUnusedFlushes - 1);
-
-        uint32_t oldestAllowedTimestamp = fFlushTimestamps[oldestFlushIndex];
-        while (fPurgeableQueue.count()) {
-            uint32_t oldestResourceTimestamp = fPurgeableQueue.peek()->cacheAccess().timestamp();
-            if (oldestAllowedTimestamp < oldestResourceTimestamp) {
-                break;
+    if (fMaxUnusedFlushes > 0) {
+        // We want to know how many complete flushes have occurred without the resource being used.
+        // If the resource was tagged when fExternalFlushCnt was N then this means it became
+        // purgeable during activity that became the N+1th flush. So when the flush count is N+2
+        // it has sat in the purgeable queue for one entire flush.
+        uint32_t oldestAllowedFlushCnt = fExternalFlushCnt - fMaxUnusedFlushes - 1;
+        // check for underflow
+        if (oldestAllowedFlushCnt < fExternalFlushCnt) {
+            while (fPurgeableQueue.count()) {
+                uint32_t flushWhenResourceBecamePurgeable =
+                        fPurgeableQueue.peek()->cacheAccess().flushCntWhenResourceBecamePurgeable();
+                if (oldestAllowedFlushCnt < flushWhenResourceBecamePurgeable) {
+                    // Resources were given both LRU timestamps and tagged with a flush cnt when
+                    // they first became purgeable. The LRU timestamp won't change again until the
+                    // resource is made non-purgeable again. So, at this point all the remaining
+                    // resources in the timestamp-sorted queue will have a flush count >= to this
+                    // one.
+                    break;
+                }
+                GrGpuResource* resource = fPurgeableQueue.peek();
+                SkASSERT(resource->isPurgeable());
+                resource->cacheAccess().release();
             }
-            GrGpuResource* resource = fPurgeableQueue.peek();
-            SkASSERT(resource->isPurgeable());
-            resource->cacheAccess().release();
         }
     }
 
@@ -566,13 +550,8 @@ uint32_t GrResourceCache::getNextTimestamp() {
                 fPurgeableQueue.pop();
             }
 
-            struct Less {
-                bool operator()(GrGpuResource* a, GrGpuResource* b) {
-                    return CompareTimestamp(a,b);
-                }
-            };
-            Less less;
-            SkTQSort(fNonpurgeableResources.begin(), fNonpurgeableResources.end() - 1, less);
+            SkTQSort(fNonpurgeableResources.begin(), fNonpurgeableResources.end() - 1,
+                     CompareTimestamp);
 
             // Pick resources out of the purgeable and non-purgeable arrays based on lowest
             // timestamp and assign new timestamps.
@@ -611,9 +590,6 @@ uint32_t GrResourceCache::getNextTimestamp() {
 
             // count should be the next timestamp we return.
             SkASSERT(fTimestamp == SkToU32(count));
-
-            // The historical timestamps of flushes are now invalid.
-            this->resetFlushTimestamps();
         }
     }
     return fTimestamp++;
@@ -628,13 +604,12 @@ void GrResourceCache::notifyFlushOccurred(FlushType type) {
             fRequestFlush = false;
             break;
         case FlushType::kExternal:
-            if (fFlushTimestamps) {
-                SkASSERT(SkIsPow2(fMaxUnusedFlushes));
-                fLastFlushTimestampIndex = (fLastFlushTimestampIndex + 1) & (fMaxUnusedFlushes - 1);
-                // get the timestamp before accessing fFlushTimestamps because getNextTimestamp will
-                // reallocate fFlushTimestamps on timestamp overflow.
-                uint32_t timestamp = this->getNextTimestamp();
-                fFlushTimestamps[fLastFlushTimestampIndex] = timestamp;
+            ++fExternalFlushCnt;
+            if (0 == fExternalFlushCnt) {
+                // When this wraps just reset all the purgeable resources' last used flush state.
+                for (int i = 0; i < fPurgeableQueue.count(); ++i) {
+                    fPurgeableQueue.at(i)->cacheAccess().setFlushCntWhenResourceBecamePurgeable(0);
+                }
             }
             break;
     }

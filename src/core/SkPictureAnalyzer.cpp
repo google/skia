@@ -38,11 +38,11 @@ void SkPictureGpuAnalyzer::analyzePicture(const SkPicture* picture) {
     fNumSlowPaths += picture->numSlowPaths();
 }
 
-void SkPictureGpuAnalyzer::analyzeClipPath(const SkPath& path, SkRegion::Op op, bool doAntiAlias) {
+void SkPictureGpuAnalyzer::analyzeClipPath(const SkPath& path, SkCanvas::ClipOp op, bool doAntiAlias) {
     const SkRecords::ClipPath clipOp = {
         SkIRect::MakeEmpty(), // Willie don't care.
         path,
-        SkRecords::RegionOpAndAA(op, doAntiAlias)
+        SkRecords::ClipOpAndAA(op, doAntiAlias)
     };
 
     SkPathCounter counter;

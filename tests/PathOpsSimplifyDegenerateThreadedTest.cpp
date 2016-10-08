@@ -6,15 +6,11 @@
  */
 #include "PathOpsExtendedTest.h"
 #include "PathOpsThreadedCommon.h"
+#include "SkString.h"
 
 static void testSimplifyDegeneratesMain(PathOpsThreadState* data) {
     SkASSERT(data);
     PathOpsThreadState& state = *data;
-    char pathStr[1024];
-    bool progress = state.fReporter->verbose(); // FIXME: break out into its own parameter?
-    if (progress) {
-        sk_bzero(pathStr, sizeof(pathStr));
-    }
     int ax = state.fA & 0x03;
     int ay = state.fA >> 2;
     int bx = state.fB & 0x03;
@@ -34,6 +30,7 @@ static void testSimplifyDegeneratesMain(PathOpsThreadState* data) {
                         != (ey - dy) * (fx - dx)) {
                     continue;
                 }
+                SkString pathStr;
                 SkPath path, out;
                 path.setFillType(SkPath::kWinding_FillType);
                 path.moveTo(SkIntToScalar(ax), SkIntToScalar(ay));
@@ -44,24 +41,23 @@ static void testSimplifyDegeneratesMain(PathOpsThreadState* data) {
                 path.lineTo(SkIntToScalar(ex), SkIntToScalar(ey));
                 path.lineTo(SkIntToScalar(fx), SkIntToScalar(fy));
                 path.close();
-                if (progress) {
-                    char* str = pathStr;
-                    str += sprintf(str, "    path.moveTo(%d, %d);\n", ax, ay);
-                    str += sprintf(str, "    path.lineTo(%d, %d);\n", bx, by);
-                    str += sprintf(str, "    path.lineTo(%d, %d);\n", cx, cy);
-                    str += sprintf(str, "    path.close();\n");
-                    str += sprintf(str, "    path.moveTo(%d, %d);\n", dx, dy);
-                    str += sprintf(str, "    path.lineTo(%d, %d);\n", ex, ey);
-                    str += sprintf(str, "    path.lineTo(%d, %d);\n", fx, fy);
-                    str += sprintf(str, "    path.close();\n");
-                    outputProgress(state.fPathStr, pathStr, SkPath::kWinding_FillType);
+                if (state.fReporter->verbose()) {
+                    pathStr.appendf("    path.moveTo(%d, %d);\n", ax, ay);
+                    pathStr.appendf("    path.lineTo(%d, %d);\n", bx, by);
+                    pathStr.appendf("    path.lineTo(%d, %d);\n", cx, cy);
+                    pathStr.appendf("    path.close();\n");
+                    pathStr.appendf("    path.moveTo(%d, %d);\n", dx, dy);
+                    pathStr.appendf("    path.lineTo(%d, %d);\n", ex, ey);
+                    pathStr.appendf("    path.lineTo(%d, %d);\n", fx, fy);
+                    pathStr.appendf("    path.close();\n");
+                    outputProgress(state.fPathStr, pathStr.c_str(), SkPath::kWinding_FillType);
                 }
-                testSimplify(path, false, out, state, pathStr);
+                testSimplify(path, false, out, state, pathStr.c_str());
                 path.setFillType(SkPath::kEvenOdd_FillType);
-                if (progress) {
-                    outputProgress(state.fPathStr, pathStr, SkPath::kEvenOdd_FillType);
+                if (state.fReporter->verbose()) {
+                    outputProgress(state.fPathStr, pathStr.c_str(), SkPath::kEvenOdd_FillType);
                 }
-                testSimplify(path, true, out, state, pathStr);
+                testSimplify(path, true, out, state, pathStr.c_str());
             }
         }
     }

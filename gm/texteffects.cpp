@@ -25,7 +25,7 @@ static void r0(SkLayerRasterizer::Builder* rastBuilder, SkPaint& p) {
 
     p.setAlpha(0x11);
     p.setStyle(SkPaint::kFill_Style);
-    p.setXfermodeMode(SkXfermode::kSrc_Mode);
+    p.setBlendMode(SkBlendMode::kSrc);
     rastBuilder->addLayer(p);
 }
 
@@ -33,7 +33,7 @@ static void r1(SkLayerRasterizer::Builder* rastBuilder, SkPaint& p) {
     rastBuilder->addLayer(p);
 
     p.setAlpha(0x40);
-    p.setXfermodeMode(SkXfermode::kSrc_Mode);
+    p.setBlendMode(SkBlendMode::kSrc);
     p.setStyle(SkPaint::kStroke_Style);
     p.setStrokeWidth(SK_Scalar1*2);
     rastBuilder->addLayer(p);
@@ -46,7 +46,7 @@ static void r2(SkLayerRasterizer::Builder* rastBuilder, SkPaint& p) {
 
     p.setStyle(SkPaint::kStroke_Style);
     p.setStrokeWidth(SK_Scalar1*3/2);
-    p.setXfermodeMode(SkXfermode::kClear_Mode);
+    p.setBlendMode(SkBlendMode::kClear);
     rastBuilder->addLayer(p);
 }
 
@@ -57,7 +57,7 @@ static void r3(SkLayerRasterizer::Builder* rastBuilder, SkPaint& p) {
 
     p.setAlpha(0x20);
     p.setStyle(SkPaint::kFill_Style);
-    p.setXfermodeMode(SkXfermode::kSrc_Mode);
+    p.setBlendMode(SkBlendMode::kSrc);
     rastBuilder->addLayer(p);
 }
 
@@ -66,10 +66,10 @@ static void r4(SkLayerRasterizer::Builder* rastBuilder, SkPaint& p) {
     rastBuilder->addLayer(p, SkIntToScalar(3), SkIntToScalar(3));
 
     p.setAlpha(0xFF);
-    p.setXfermodeMode(SkXfermode::kClear_Mode);
+    p.setBlendMode(SkBlendMode::kClear);
     rastBuilder->addLayer(p, SK_Scalar1*3/2, SK_Scalar1*3/2);
 
-    p.setXfermode(nullptr);
+    p.setBlendMode(SkBlendMode::kSrcOver);
     rastBuilder->addLayer(p);
 }
 
@@ -79,7 +79,7 @@ static void r5(SkLayerRasterizer::Builder* rastBuilder, SkPaint& p) {
     rastBuilder->addLayer(p);
 
     p.setPathEffect(SkDiscretePathEffect::Make(SK_Scalar1*4, SK_Scalar1*3));
-    p.setXfermodeMode(SkXfermode::kSrcOut_Mode);
+    p.setBlendMode(SkBlendMode::kSrcOut);
     rastBuilder->addLayer(p);
 }
 
@@ -90,7 +90,7 @@ static void r6(SkLayerRasterizer::Builder* rastBuilder, SkPaint& p) {
     SkLayerRasterizer::Builder rastBuilder2;
     r5(&rastBuilder2, p);
     p.setRasterizer(rastBuilder2.detach());
-    p.setXfermodeMode(SkXfermode::kClear_Mode);
+    p.setBlendMode(SkBlendMode::kClear);
     rastBuilder->addLayer(p);
 }
 
@@ -117,11 +117,11 @@ static void r8(SkLayerRasterizer::Builder* rastBuilder, SkPaint& p) {
     lattice.setScale(SK_Scalar1*6, SK_Scalar1*6, 0, 0);
     lattice.postSkew(SK_Scalar1/3, 0, 0, 0);
     p.setPathEffect(MakeDotEffect(SK_Scalar1*2, lattice));
-    p.setXfermodeMode(SkXfermode::kClear_Mode);
+    p.setBlendMode(SkBlendMode::kClear);
     rastBuilder->addLayer(p);
 
     p.setPathEffect(nullptr);
-    p.setXfermode(nullptr);
+    p.setBlendMode(SkBlendMode::kSrcOver);
     p.setStyle(SkPaint::kStroke_Style);
     p.setStrokeWidth(SK_Scalar1);
     rastBuilder->addLayer(p);
@@ -134,11 +134,11 @@ static void r9(SkLayerRasterizer::Builder* rastBuilder, SkPaint& p) {
     lattice.setScale(SK_Scalar1, SK_Scalar1*6, 0, 0);
     lattice.postRotate(SkIntToScalar(30), 0, 0);
     p.setPathEffect(SkLine2DPathEffect::Make(SK_Scalar1*2, lattice));
-    p.setXfermodeMode(SkXfermode::kClear_Mode);
+    p.setBlendMode(SkBlendMode::kClear);
     rastBuilder->addLayer(p);
 
     p.setPathEffect(nullptr);
-    p.setXfermode(nullptr);
+    p.setBlendMode(SkBlendMode::kSrcOver);
     p.setStyle(SkPaint::kStroke_Style);
     p.setStrokeWidth(SK_Scalar1);
     rastBuilder->addLayer(p);
@@ -351,7 +351,7 @@ DEF_SIMPLE_GM(fancyposunderline, canvas, 900, 1350) {
 
 namespace {
 
-sk_sp<const SkTextBlob> MakeFancyBlob(const SkPaint& paint, const char* text) {
+sk_sp<SkTextBlob> MakeFancyBlob(const SkPaint& paint, const char* text) {
     SkPaint blobPaint(paint);
 
     const size_t textLen = strlen(text);
@@ -411,7 +411,7 @@ sk_sp<const SkTextBlob> MakeFancyBlob(const SkPaint& paint, const char* text) {
         }
     }
 
-    return sk_sp<const SkTextBlob>(blobBuilder.build());
+    return blobBuilder.make();
 }
 
 } // anonymous ns
@@ -431,8 +431,8 @@ DEF_SIMPLE_GM(fancyblobunderline, canvas, 1480, 1380) {
             paint.setStrokeWidth(uWidth);
             paint.setStyle(SkPaint::kFill_Style);
 
-            sk_sp<const SkTextBlob> blob = MakeFancyBlob(paint, test);
-            canvas->drawTextBlob(blob.get(), blobOffset.x(), blobOffset.y(), paint);
+            sk_sp<SkTextBlob> blob = MakeFancyBlob(paint, test);
+            canvas->drawTextBlob(blob, blobOffset.x(), blobOffset.y(), paint);
 
             const SkScalar uPos = uWidth;
             const SkScalar bounds[2] = { uPos - uWidth / 2, uPos + uWidth / 2 };

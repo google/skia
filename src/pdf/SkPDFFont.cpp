@@ -161,8 +161,9 @@ const SkAdvancedTypefaceMetrics* SkPDFFont::GetMetrics(SkTypeface* typeface,
     return *canon->fTypefaceMetrics.set(id, metrics.release());
 }
 
-SkAdvancedTypefaceMetrics::FontType font_type(const SkAdvancedTypefaceMetrics& metrics) {
-    if (SkToBool(metrics.fFlags & SkAdvancedTypefaceMetrics::kMultiMaster_FontFlag)) {
+SkAdvancedTypefaceMetrics::FontType SkPDFFont::FontType(const SkAdvancedTypefaceMetrics& metrics) {
+    if (SkToBool(metrics.fFlags & SkAdvancedTypefaceMetrics::kMultiMaster_FontFlag) ||
+        SkToBool(metrics.fFlags & SkAdvancedTypefaceMetrics::kNotEmbeddable_FontFlag)) {
         // force Type3 fallback.
         return SkAdvancedTypefaceMetrics::kOther_Font;
     }
@@ -182,7 +183,7 @@ SkPDFFont* SkPDFFont::GetFontResource(SkPDFCanon* canon,
     SkASSERT(fontMetrics);  // SkPDFDevice::internalDrawText ensures the typeface is good.
                             // GetMetrics only returns null to signify a bad typeface.
     const SkAdvancedTypefaceMetrics& metrics = *fontMetrics;
-    SkAdvancedTypefaceMetrics::FontType type = font_type(metrics);
+    SkAdvancedTypefaceMetrics::FontType type = SkPDFFont::FontType(metrics);
     bool multibyte = SkPDFFont::IsMultiByte(type);
     SkGlyphID subsetCode = multibyte ? 0 : first_nonzero_glyph_for_single_byte_encoding(glyphID);
     uint64_t fontID = (SkTypeface::UniqueID(face) << 16) | subsetCode;
@@ -368,9 +369,11 @@ void SkPDFType0Font::getFontSubset(SkPDFCanon* canon) {
     int ttcIndex;
     std::unique_ptr<SkStreamAsset> fontAsset(face->openStream(&ttcIndex));
     size_t fontSize = fontAsset ? fontAsset->getLength() : 0;
-    SkASSERT(fontAsset);
-    SkASSERT(fontSize > 0);
-    if (fontSize > 0) {
+    if (0 == fontSize) {
+        SkDebugf("Error: (SkTypeface)(%p)::openStream() returned "
+                 "empty stream (%p) when identified as kType1CID_Font "
+                 "or kTrueType_Font.\n", face, fontAsset.get());
+    } else {
         switch (type) {
             case SkAdvancedTypefaceMetrics::kTrueType_Font: {
                 #ifdef SK_PDF_USE_SFNTLY
@@ -727,5 +730,7 @@ bool SkPDFFont::CanEmbedTypeface(SkTypeface* typeface, SkPDFCanon* canon) {
 
 void SkPDFFont::drop() {
     fTypeface = nullptr;
+    fGlyphUsage.~SkBitSet();
+    new (&fGlyphUsage) SkBitSet(0);
     this->SkPDFDict::drop();
 }

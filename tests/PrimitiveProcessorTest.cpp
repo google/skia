@@ -58,7 +58,7 @@ private:
                 for (auto i = 0; i < numAttribs; ++i) {
                     this->addVertexAttrib(fAttribNames[i].c_str(), kVec2f_GrVertexAttribType);
                 }
-            };
+            }
             const char* name() const override { return "Dummy GP"; }
 
             GrGLSLPrimitiveProcessor* createGLSLInstance(const GrGLSLCaps&) const override {
@@ -70,7 +70,8 @@ private:
                         this->setupPosition(args.fVertBuilder, gpArgs, gp.fAttribs[0].fName);
                     }
                     void setData(const GrGLSLProgramDataManager& pdman,
-                                 const GrPrimitiveProcessor& primProc) override {}
+                                 const GrPrimitiveProcessor& primProc,
+                                 FPCoordTransformIter&&) override {}
                 };
                 return new GLSLGP();
             }

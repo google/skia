@@ -975,7 +975,8 @@ static void ratquad_mapTo3D(const SkPoint src[3], SkScalar w, SkP3D dst[]) {
     dst[2].set(src[2].fX * 1, src[2].fY * 1, 1);
 }
 
-void SkConic::chopAt(SkScalar t, SkConic dst[2]) const {
+// return false if infinity or NaN is generated; caller must check
+bool SkConic::chopAt(SkScalar t, SkConic dst[2]) const {
     SkP3D tmp[3], tmp2[3];
 
     ratquad_mapTo3D(fPts, fW, tmp);
@@ -1001,18 +1002,23 @@ void SkConic::chopAt(SkScalar t, SkConic dst[2]) const {
     SkScalar root = SkScalarSqrt(tmp2[1].fZ);
     dst[0].fW = tmp2[0].fZ / root;
     dst[1].fW = tmp2[2].fZ / root;
+    SkASSERT(sizeof(dst[0]) == sizeof(SkScalar) * 7);
+    SkASSERT(0 == offsetof(SkConic, fPts[0].fX));
+    return SkScalarsAreFinite(&dst[0].fPts[0].fX, 7 * 2);
 }
 
 void SkConic::chopAt(SkScalar t1, SkScalar t2, SkConic* dst) const {
     if (0 == t1 || 1 == t2) {
         if (0 == t1 && 1 == t2) {
             *dst = *this;
+            return;
         } else {
             SkConic pair[2];
-            this->chopAt(t1 ? t1 : t2, pair);
-            *dst = pair[SkToBool(t1)];
+            if (this->chopAt(t1 ? t1 : t2, pair)) {
+                *dst = pair[SkToBool(t1)];
+                return;
+            }
         }
-        return;
     }
     SkConicCoeff coeff(*this);
     Sk2s tt1(t1);
@@ -1153,6 +1159,12 @@ int SkConic::computeQuadPOW2(SkScalar tol) const {
     return pow2;
 }
 
+// This was originally developed and tested for pathops: see SkOpTypes.h 
+// returns true if (a <= b <= c) || (a >= b >= c)
+static bool between(SkScalar a, SkScalar b, SkScalar c) {
+    return (a - b) * (c - b) <= 0;
+}
+
 static SkPoint* subdivide(const SkConic& src, SkPoint pts[], int level) {
     SkASSERT(level >= 0);
 
@@ -1162,6 +1174,32 @@ static SkPoint* subdivide(const SkConic& src, SkPoint pts[], int level) {
     } else {
         SkConic dst[2];
         src.chop(dst);
+        const SkScalar startY = src.fPts[0].fY;
+        const SkScalar endY = src.fPts[2].fY;
+        if (between(startY, src.fPts[1].fY, endY)) {
+            // If the input is monotonic and the output is not, the scan converter hangs.
+            // Ensure that the chopped conics maintain their y-order.
+            SkScalar midY = dst[0].fPts[2].fY;
+            if (!between(startY, midY, endY)) {
+                // If the computed midpoint is outside the ends, move it to the closer one.
+                SkScalar closerY = SkTAbs(midY - startY) < SkTAbs(midY - endY) ? startY : endY;
+                dst[0].fPts[2].fY = dst[1].fPts[0].fY = closerY;
+            }
+            if (!between(startY, dst[0].fPts[1].fY, dst[0].fPts[2].fY)) {
+                // If the 1st control is not between the start and end, put it at the start.
+                // This also reduces the quad to a line.
+                dst[0].fPts[1].fY = startY;
+            }
+            if (!between(dst[1].fPts[0].fY, dst[1].fPts[1].fY, endY)) {
+                // If the 2nd control is not between the start and end, put it at the end.
+                // This also reduces the quad to a line.
+                dst[1].fPts[1].fY = endY;
+            }
+            // Verify that all five points are in order.
+            SkASSERT(between(startY, dst[0].fPts[1].fY, dst[0].fPts[2].fY));
+            SkASSERT(between(dst[0].fPts[1].fY, dst[0].fPts[2].fY, dst[1].fPts[1].fY));
+            SkASSERT(between(dst[0].fPts[2].fY, dst[1].fPts[1].fY, endY));
+        }
         --level;
         pts = subdivide(dst[0], pts, level);
         return subdivide(dst[1], pts, level);
@@ -1211,7 +1249,10 @@ bool SkConic::findYExtrema(SkScalar* t) const {
 bool SkConic::chopAtXExtrema(SkConic dst[2]) const {
     SkScalar t;
     if (this->findXExtrema(&t)) {
-        this->chopAt(t, dst);
+        if (!this->chopAt(t, dst)) {
+            // if chop can't return finite values, don't chop
+            return false;
+        }
         // now clean-up the middle, since we know t was meant to be at
         // an X-extrema
         SkScalar value = dst[0].fPts[2].fX;
@@ -1226,7 +1267,10 @@ bool SkConic::chopAtXExtrema(SkConic dst[2]) const {
 bool SkConic::chopAtYExtrema(SkConic dst[2]) const {
     SkScalar t;
     if (this->findYExtrema(&t)) {
-        this->chopAt(t, dst);
+        if (!this->chopAt(t, dst)) {
+            // if chop can't return finite values, don't chop
+            return false;
+        }
         // now clean-up the middle, since we know t was meant to be at
         // an Y-extrema
         SkScalar value = dst[0].fPts[2].fY;

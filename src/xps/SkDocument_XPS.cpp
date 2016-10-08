@@ -49,9 +49,9 @@ protected:
         fDevice.endSheet();
     }
 
-    bool onClose(SkWStream*) override {
+    void onClose(SkWStream*) override {
         SkASSERT(!fCanvas.get());
-        return fDevice.endPortfolio();
+        (void)fDevice.endPortfolio();
     }
 
     void onAbort() override {}

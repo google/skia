@@ -24,19 +24,19 @@ DEPS = [
 TEST_BUILDERS = {
   'client.skia': {
     'skiabot-linux-swarm-000': [
-      'Test-Android-GCC-AndroidOne-GPU-Mali400MP2-Arm7-Release',
-      'Test-Android-GCC-GalaxyS3-GPU-Mali400-Arm7-Debug',
-      'Test-Android-GCC-Nexus10-GPU-MaliT604-Arm7-Release',
-      'Test-Android-GCC-Nexus6-GPU-Adreno420-Arm7-Debug',
-      'Test-Android-GCC-Nexus7-GPU-Tegra3-Arm7-Debug',
-      'Test-Android-GCC-Nexus9-CPU-Denver-Arm64-Debug',
-      'Test-Android-GCC-NexusPlayer-CPU-SSE4-x86-Release',
-      'Test-Android-GCC-NVIDIA_Shield-GPU-TegraX1-Arm64-Debug',
-      'Test-iOS-Clang-iPad4-GPU-SGX554-Arm7-Debug',
+      'Test-Android-Clang-AndroidOne-CPU-MT6582-arm-Release-GN_Android',
+      'Test-Android-Clang-AndroidOne-GPU-Mali400MP2-arm-Release-GN_Android',
+      'Test-Android-Clang-GalaxyS3-GPU-Mali400-arm-Debug-GN_Android',
+      'Test-Android-Clang-NVIDIA_Shield-GPU-TegraX1-arm64-Debug-GN_Android',
+      'Test-Android-Clang-Nexus10-GPU-MaliT604-arm-Release-GN_Android',
+      'Test-Android-Clang-Nexus6-GPU-Adreno420-arm-Debug-GN_Android',
+      'Test-Android-Clang-Nexus6p-GPU-Adreno430-arm64-Debug-GN_Android_Vulkan',
+      'Test-Android-Clang-Nexus7-GPU-Tegra3-arm-Debug-GN_Android',
+      'Test-Android-Clang-Nexus9-CPU-Denver-arm64-Debug-GN_Android',
+      'Test-Android-Clang-NexusPlayer-CPU-SSE4-x86-Release-GN_Android',
       'Test-Mac-Clang-MacMini4.1-GPU-GeForce320M-x86_64-Debug',
       'Test-Mac-Clang-MacMini6.2-CPU-AVX-x86_64-Debug',
       'Test-Mac-Clang-MacMini6.2-GPU-HD4000-x86_64-Debug-CommandBuffer',
-      'Test-Ubuntu-Clang-GCE-CPU-AVX2-x86_64-Coverage-Trybot',
       'Test-Ubuntu-GCC-GCE-CPU-AVX2-x86-Debug',
       'Test-Ubuntu-GCC-GCE-CPU-AVX2-x86_64-Debug',
       'Test-Ubuntu-GCC-GCE-CPU-AVX2-x86_64-Debug-ASAN',
@@ -47,6 +47,7 @@ TEST_BUILDERS = {
       'Test-Win10-MSVC-ShuttleA-GPU-GTX660-x86_64-Debug-Vulkan',
       'Test-Win8-MSVC-ShuttleB-CPU-AVX2-x86_64-Release-Trybot',
       'Test-Win8-MSVC-ShuttleB-GPU-GTX960-x86_64-Debug-ANGLE',
+      'Test-iOS-Clang-iPad4-GPU-SGX554-Arm7-Debug',
     ],
   },
 }
@@ -62,7 +63,7 @@ def dm_flags(bot):
 
   # These are the canonical configs that we would ideally run on all bots. We
   # may opt out or substitute some below for specific bots
-  configs = ['565', '8888', 'gpu', 'gpusrgb', 'pdf']
+  configs = ['8888', 'gpu', 'gpusrgb', 'pdf']
   # Add in either msaa4 or msaa16 to the canonical set of configs to run
   if 'Android' in bot or 'iOS' in bot:
     configs.append('msaa4')
@@ -76,7 +77,9 @@ def dm_flags(bot):
   if ('GalaxyS4'    in bot or
       'NexusPlayer' in bot or
       'Tegra3'      in bot or
-      'iOS'         in bot):
+      'iOS'         in bot or
+      # skia:5792
+      'iHD530'      in bot):
     configs = [x for x in configs if 'msaa' not in x]
 
   # Runs out of memory on Android bots and Daisy.  Everyone else seems fine.
@@ -84,6 +87,7 @@ def dm_flags(bot):
     configs.remove('pdf')
 
   if '-GCE-' in bot:
+    configs.extend(['565'])
     configs.extend(['f16', 'srgb'])              # Gamma-correct formats.
     configs.extend(['sp-8888', '2ndpic-8888'])   # Test niche uses of SkPicture.
     configs.extend(['lite-8888'])                # Experimental display list.
@@ -144,69 +148,94 @@ def dm_flags(bot):
   if 'GalaxyS' in bot:
     args.extend(('--threads', '0'))
 
-  blacklist = []
+  blacklisted = []
+  def blacklist(quad):
+    config, src, options, name = quad.split(' ') if type(quad) is str else quad
+    if config == '_' or config in configs:
+      blacklisted.extend([config, src, options, name])
 
   # TODO: ???
-  blacklist.extend('f16 _ _ dstreadshuffle'.split(' '))
-  blacklist.extend('f16 image _ _'.split(' '))
-  blacklist.extend('srgb image _ _'.split(' '))
-  blacklist.extend('gpusrgb image _ _'.split(' '))
+  blacklist('f16 _ _ dstreadshuffle')
+  blacklist('f16 image _ _')
+  blacklist('srgb image _ _')
+  blacklist('gpusrgb image _ _')
+  blacklist('glsrgb image _ _')
 
   if 'Valgrind' in bot:
     # These take 18+ hours to run.
-    blacklist.extend('pdf gm _ fontmgr_iter'.split(' '))
-    blacklist.extend('pdf _ _ PANO_20121023_214540.jpg'.split(' '))
-    blacklist.extend('pdf skp _ worldjournal'.split(' '))
-    blacklist.extend('pdf skp _ desk_baidu.skp'.split(' '))
-    blacklist.extend('pdf skp _ desk_wikipedia.skp'.split(' '))
+    blacklist('pdf gm _ fontmgr_iter')
+    blacklist('pdf _ _ PANO_20121023_214540.jpg')
+    blacklist('pdf skp _ worldjournal')
+    blacklist('pdf skp _ desk_baidu.skp')
+    blacklist('pdf skp _ desk_wikipedia.skp')
+    blacklist('_ svg _ _')
 
   if 'iOS' in bot:
-    blacklist.extend('gpu skp _ _ msaa skp _ _'.split(' '))
-    blacklist.extend('msaa16 gm _ tilemodesProcess'.split(' '))
+    blacklist('gpu skp _ _')
+    blacklist('msaa skp _ _')
+    blacklist('msaa16 gm _ tilemodesProcess')
 
   if 'Mac' in bot or 'iOS' in bot:
     # CG fails on questionable bmps
-    blacklist.extend('_ image gen_platf rgba32abf.bmp'.split(' '))
-    blacklist.extend('_ image gen_platf rgb24prof.bmp'.split(' '))
-    blacklist.extend('_ image gen_platf rgb24lprof.bmp'.split(' '))
-    blacklist.extend('_ image gen_platf 8bpp-pixeldata-cropped.bmp'.split(' '))
-    blacklist.extend('_ image gen_platf 4bpp-pixeldata-cropped.bmp'.split(' '))
-    blacklist.extend('_ image gen_platf 32bpp-pixeldata-cropped.bmp'.split(' '))
-    blacklist.extend('_ image gen_platf 24bpp-pixeldata-cropped.bmp'.split(' '))
+    blacklist('_ image gen_platf rgba32abf.bmp')
+    blacklist('_ image gen_platf rgb24prof.bmp')
+    blacklist('_ image gen_platf rgb24lprof.bmp')
+    blacklist('_ image gen_platf 8bpp-pixeldata-cropped.bmp')
+    blacklist('_ image gen_platf 4bpp-pixeldata-cropped.bmp')
+    blacklist('_ image gen_platf 32bpp-pixeldata-cropped.bmp')
+    blacklist('_ image gen_platf 24bpp-pixeldata-cropped.bmp')
 
     # CG has unpredictable behavior on this questionable gif
     # It's probably using uninitialized memory
-    blacklist.extend('_ image gen_platf frame_larger_than_image.gif'.split(' '))
+    blacklist('_ image gen_platf frame_larger_than_image.gif')
+
+    # CG has unpredictable behavior on incomplete pngs
+    # skbug.com/5774
+    blacklist('_ image gen_platf inc0.png')
+    blacklist('_ image gen_platf inc1.png')
+    blacklist('_ image gen_platf inc2.png')
+    blacklist('_ image gen_platf inc3.png')
+    blacklist('_ image gen_platf inc4.png')
+    blacklist('_ image gen_platf inc5.png')
+    blacklist('_ image gen_platf inc6.png')
+    blacklist('_ image gen_platf inc7.png')
+    blacklist('_ image gen_platf inc8.png')
+    blacklist('_ image gen_platf inc9.png')
+    blacklist('_ image gen_platf inc10.png')
+    blacklist('_ image gen_platf inc11.png')
+    blacklist('_ image gen_platf inc12.png')
+    blacklist('_ image gen_platf inc13.png')
+    blacklist('_ image gen_platf inc14.png')
 
   # WIC fails on questionable bmps
   if 'Win' in bot:
-    blacklist.extend('_ image gen_platf rle8-height-negative.bmp'.split(' '))
-    blacklist.extend('_ image gen_platf rle4-height-negative.bmp'.split(' '))
-    blacklist.extend('_ image gen_platf pal8os2v2.bmp'.split(' '))
-    blacklist.extend('_ image gen_platf pal8os2v2-16.bmp'.split(' '))
-    blacklist.extend('_ image gen_platf rgba32abf.bmp'.split(' '))
-    blacklist.extend('_ image gen_platf rgb24prof.bmp'.split(' '))
-    blacklist.extend('_ image gen_platf rgb24lprof.bmp'.split(' '))
-    blacklist.extend('_ image gen_platf 8bpp-pixeldata-cropped.bmp'.split(' '))
-    blacklist.extend('_ image gen_platf 4bpp-pixeldata-cropped.bmp'.split(' '))
-    blacklist.extend('_ image gen_platf 32bpp-pixeldata-cropped.bmp'.split(' '))
-    blacklist.extend('_ image gen_platf 24bpp-pixeldata-cropped.bmp'.split(' '))
+    blacklist('_ image gen_platf rle8-height-negative.bmp')
+    blacklist('_ image gen_platf rle4-height-negative.bmp')
+    blacklist('_ image gen_platf pal8os2v2.bmp')
+    blacklist('_ image gen_platf pal8os2v2-16.bmp')
+    blacklist('_ image gen_platf rgba32abf.bmp')
+    blacklist('_ image gen_platf rgb24prof.bmp')
+    blacklist('_ image gen_platf rgb24lprof.bmp')
+    blacklist('_ image gen_platf 8bpp-pixeldata-cropped.bmp')
+    blacklist('_ image gen_platf 4bpp-pixeldata-cropped.bmp')
+    blacklist('_ image gen_platf 32bpp-pixeldata-cropped.bmp')
+    blacklist('_ image gen_platf 24bpp-pixeldata-cropped.bmp')
     if 'x86_64' in bot and 'CPU' in bot:
       # This GM triggers a SkSmallAllocator assert.
-      blacklist.extend('_ gm _ composeshader_bitmap'.split(' '))
+      blacklist('_ gm _ composeshader_bitmap')
 
   if 'Android' in bot or 'iOS' in bot:
     # This test crashes the N9 (perhaps because of large malloc/frees). It also
     # is fairly slow and not platform-specific. So we just disable it on all of
     # Android and iOS. skia:5438
-    blacklist.extend('_ test _ GrShape'.split(' '))
+    blacklist('_ test _ GrShape')
 
   if 'Win8' in bot:
     # bungeman: "Doesn't work on Windows anyway, produces unstable GMs with
     # 'Unexpected error' from DirectWrite"
-    blacklist.extend('_ gm _ fontscalerdistortable'.split(' '))
+    blacklist('_ gm _ fontscalerdistortable')
     # skia:5636
-    blacklist.extend('_ svg _ Nebraska-StateSeal.svg'.split(' '))
+    blacklist('_ svg _ Nebraska-StateSeal.svg')
 
   # skia:4095
   bad_serialize_gms = ['bleed_image',
@@ -237,39 +266,41 @@ def dm_flags(bot):
   bad_serialize_gms.extend(['composeshader_bitmap',
                             'scaled_tilemodes_npot',
                             'scaled_tilemodes'])
+  # skia:5778
+  bad_serialize_gms.append('typefacerendering_pfaMac')
   for test in bad_serialize_gms:
-    blacklist.extend(['serialize-8888', 'gm', '_', test])
+    blacklist(['serialize-8888', 'gm', '_', test])
 
   if 'Mac' not in bot:
     for test in ['bleed_alpha_image', 'bleed_alpha_image_shader']:
-      blacklist.extend(['serialize-8888', 'gm', '_', test])
+      blacklist(['serialize-8888', 'gm', '_', test])
   # It looks like we skip these only for out-of-memory concerns.
   if 'Win' in bot or 'Android' in bot:
     for test in ['verylargebitmap', 'verylarge_picture_image']:
-      blacklist.extend(['serialize-8888', 'gm', '_', test])
+      blacklist(['serialize-8888', 'gm', '_', test])
 
   # skia:4769
   for test in ['drawfilter']:
-    blacklist.extend([    'sp-8888', 'gm', '_', test])
-    blacklist.extend([   'pic-8888', 'gm', '_', test])
-    blacklist.extend(['2ndpic-8888', 'gm', '_', test])
-    blacklist.extend([  'lite-8888', 'gm', '_', test])
+    blacklist([    'sp-8888', 'gm', '_', test])
+    blacklist([   'pic-8888', 'gm', '_', test])
+    blacklist(['2ndpic-8888', 'gm', '_', test])
+    blacklist([  'lite-8888', 'gm', '_', test])
   # skia:4703
   for test in ['image-cacherator-from-picture',
                'image-cacherator-from-raster',
                'image-cacherator-from-ctable']:
-    blacklist.extend([       'sp-8888', 'gm', '_', test])
-    blacklist.extend([      'pic-8888', 'gm', '_', test])
-    blacklist.extend([   '2ndpic-8888', 'gm', '_', test])
-    blacklist.extend(['serialize-8888', 'gm', '_', test])
+    blacklist([       'sp-8888', 'gm', '_', test])
+    blacklist([      'pic-8888', 'gm', '_', test])
+    blacklist([   '2ndpic-8888', 'gm', '_', test])
+    blacklist(['serialize-8888', 'gm', '_', test])
 
   # GM that requires raster-backed canvas
   for test in ['gamut']:
-    blacklist.extend([       'sp-8888', 'gm', '_', test])
-    blacklist.extend([      'pic-8888', 'gm', '_', test])
-    blacklist.extend([     'lite-8888', 'gm', '_', test])
-    blacklist.extend([   '2ndpic-8888', 'gm', '_', test])
-    blacklist.extend(['serialize-8888', 'gm', '_', test])
+    blacklist([       'sp-8888', 'gm', '_', test])
+    blacklist([      'pic-8888', 'gm', '_', test])
+    blacklist([     'lite-8888', 'gm', '_', test])
+    blacklist([   '2ndpic-8888', 'gm', '_', test])
+    blacklist(['serialize-8888', 'gm', '_', test])
 
   # Extensions for RAW images
   r = ["arw", "cr2", "dng", "nef", "nrw", "orf", "raf", "rw2", "pef", "srw",
@@ -279,20 +310,20 @@ def dm_flags(bot):
   # Blacklist RAW images (and a few large PNGs) on GPU bots
   # until we can resolve failures
   if 'GPU' in bot:
-    blacklist.extend('_ image _ interlaced1.png'.split(' '))
-    blacklist.extend('_ image _ interlaced2.png'.split(' '))
-    blacklist.extend('_ image _ interlaced3.png'.split(' '))
+    blacklist('_ image _ interlaced1.png')
+    blacklist('_ image _ interlaced2.png')
+    blacklist('_ image _ interlaced3.png')
     for raw_ext in r:
-      blacklist.extend(('_ image _ .%s' % raw_ext).split(' '))
+      blacklist('_ image _ .%s' % raw_ext)
 
   if 'Nexus9' in bot:
     for raw_ext in r:
-      blacklist.extend(('_ image _ .%s' % raw_ext).split(' '))
+      blacklist('_ image _ .%s' % raw_ext)
 
   # Large image that overwhelms older Mac bots
   if 'MacMini4.1-GPU' in bot:
-    blacklist.extend('_ image _ abnormal.wbmp'.split(' '))
-    blacklist.extend(['msaa16', 'gm', '_', 'blurcircles'])
+    blacklist('_ image _ abnormal.wbmp')
+    blacklist(['msaa16', 'gm', '_', 'blurcircles'])
 
   match = []
   if 'Valgrind' in bot: # skia:3021
@@ -319,9 +350,15 @@ def dm_flags(bot):
   if 'TSAN' in bot:
     match.extend(['~ReadWriteAlpha'])   # Flaky on TSAN-covered on nvidia bots.
 
-  if blacklist:
+  if 'Vulkan' in bot and 'Adreno' in bot:
+    # skia:5777
+    match.extend(['~XfermodeImageFilterCroppedInput',
+                  '~GrTextureStripAtlasFlush',
+                  '~CopySurface'])
+
+  if blacklisted:
     args.append('--blacklist')
-    args.extend(blacklist)
+    args.extend(blacklisted)
 
   if match:
     args.append('--match')
@@ -492,46 +529,15 @@ def test_steps(api):
 
 def RunSteps(api):
   api.core.setup()
-  api.flavor.install()
-  test_steps(api)
-  api.flavor.cleanup_steps()
+  try:
+    api.flavor.install()
+    test_steps(api)
+  finally:
+    api.flavor.cleanup_steps()
   api.run.check_failure()
 
 
 def GenTests(api):
-  def AndroidTestData(builder, adb=None):
-    test_data = (
-        api.step_data(
-            'get EXTERNAL_STORAGE dir',
-            stdout=api.raw_io.output('/storage/emulated/legacy')) +
-        api.step_data(
-            'read SKP_VERSION',
-            stdout=api.raw_io.output('42')) +
-        api.step_data(
-            'read SK_IMAGE_VERSION',
-            stdout=api.raw_io.output('42')) +
-        api.step_data(
-            'read SVG_VERSION',
-            stdout=api.raw_io.output('42')) +
-        api.step_data(
-            'exists skia_dm',
-            stdout=api.raw_io.output(''))
-    )
-    if 'GalaxyS3' not in builder:
-      test_data += api.step_data(
-          'adb root',
-          stdout=api.raw_io.output('restarting adbd as root'))
-    if adb:
-      test_data += api.step_data(
-          'which adb',
-          stdout=api.raw_io.output(adb))
-    else:
-      test_data += api.step_data(
-        'which adb',
-        retcode=1)
-
-    return test_data
-
   for mastername, slaves in TEST_BUILDERS.iteritems():
     for slavename, builders_by_slave in slaves.iteritems():
       for builder in builders_by_slave:
@@ -555,10 +561,6 @@ def GenTests(api):
               api.path['slave_build'].join('tmp', 'uninteresting_hashes.txt')
           )
         )
-        if ('Android' in builder and
-            ('Test' in builder or 'Perf' in builder) and
-            not 'Appurify' in builder):
-          test += AndroidTestData(builder)
         if 'Trybot' in builder:
           test += api.properties(issue=500,
                                  patchset=1,
@@ -592,7 +594,7 @@ def GenTests(api):
     api.step_data('dm', retcode=1)
   )
 
-  builder = 'Test-Android-GCC-Nexus7-GPU-Tegra3-Arm7-Debug'
+  builder = 'Test-Android-Clang-Nexus7-GPU-Tegra3-arm-Debug-GN_Android'
   yield (
     api.test('failed_get_hashes') +
     api.properties(buildername=builder,
@@ -612,47 +614,10 @@ def GenTests(api):
                                      'svg', 'VERSION'),
         api.path['slave_build'].join('tmp', 'uninteresting_hashes.txt')
     ) +
-    AndroidTestData(builder) +
-    api.step_data('read SKP_VERSION',
-                  stdout=api.raw_io.output('42')) +
-    api.step_data('read SK_IMAGE_VERSION',
-                  stdout=api.raw_io.output('42')) +
-    api.step_data('read SVG_VERSION',
-                  stdout=api.raw_io.output('42')) +
     api.step_data('get uninteresting hashes', retcode=1)
   )
 
-  yield (
-    api.test('download_and_push_skps') +
-    api.properties(buildername=builder,
-                   mastername='client.skia',
-                   slavename='skiabot-linux-swarm-000',
-                   buildnumber=6,
-                   revision='abc123',
-                   path_config='kitchen',
-                   swarm_out_dir='[SWARM_OUT_DIR]') +
-    api.path.exists(
-        api.path['slave_build'].join('skia'),
-        api.path['slave_build'].join('skia', 'infra', 'bots', 'assets',
-                                     'skimage', 'VERSION'),
-        api.path['slave_build'].join('skia', 'infra', 'bots', 'assets',
-                                     'skp', 'VERSION'),
-        api.path['slave_build'].join('skia', 'infra', 'bots', 'assets',
-                                     'svg', 'VERSION'),
-        api.path['slave_build'].join('tmp', 'uninteresting_hashes.txt')
-    ) +
-    AndroidTestData(builder) +
-    api.step_data('read SKP_VERSION',
-                  stdout=api.raw_io.output('2')) +
-    api.step_data('read SK_IMAGE_VERSION',
-                  stdout=api.raw_io.output('42')) +
-    api.step_data('read SVG_VERSION',
-                  stdout=api.raw_io.output('42')) +
-    api.step_data(
-        'exists skps',
-        stdout=api.raw_io.output(''))
-  )
-
+  builder = 'Test-iOS-Clang-iPad4-GPU-SGX554-Arm7-Debug'
   yield (
     api.test('missing_SKP_VERSION_device') +
     api.properties(buildername=builder,
@@ -672,168 +637,7 @@ def GenTests(api):
                                      'svg', 'VERSION'),
         api.path['slave_build'].join('tmp', 'uninteresting_hashes.txt')
     ) +
-    AndroidTestData(builder) +
-    api.step_data('read SKP_VERSION',
-                  retcode=1) +
-    api.step_data('read SK_IMAGE_VERSION',
-                  stdout=api.raw_io.output('42')) +
-    api.step_data('read SVG_VERSION',
-                  stdout=api.raw_io.output('42')) +
-    api.step_data(
-        'exists skps',
-        stdout=api.raw_io.output(''))
-  )
-
-  yield (
-    api.test('download_and_push_skimage') +
-    api.properties(buildername=builder,
-                   mastername='client.skia',
-                   slavename='skiabot-linux-swarm-000',
-                   buildnumber=6,
-                   revision='abc123',
-                   path_config='kitchen',
-                   swarm_out_dir='[SWARM_OUT_DIR]') +
-    api.path.exists(
-        api.path['slave_build'].join('skia'),
-        api.path['slave_build'].join('skia', 'infra', 'bots', 'assets',
-                                     'skimage', 'VERSION'),
-        api.path['slave_build'].join('skia', 'infra', 'bots', 'assets',
-                                     'skp', 'VERSION'),
-        api.path['slave_build'].join('skia', 'infra', 'bots', 'assets',
-                                     'svg', 'VERSION'),
-        api.path['slave_build'].join('tmp', 'uninteresting_hashes.txt')
-    ) +
-    AndroidTestData(builder) +
-    api.step_data('read SKP_VERSION',
-                  stdout=api.raw_io.output('42')) +
-    api.step_data('read SK_IMAGE_VERSION',
-                  stdout=api.raw_io.output('2')) +
-    api.step_data('read SVG_VERSION',
-                  stdout=api.raw_io.output('42')) +
-    api.step_data(
-        'exists skia_images',
-        stdout=api.raw_io.output(''))
-  )
-
-  yield (
-    api.test('missing_SK_IMAGE_VERSION_device') +
-    api.properties(buildername=builder,
-                   mastername='client.skia',
-                   slavename='skiabot-linux-swarm-000',
-                   buildnumber=6,
-                   revision='abc123',
-                   path_config='kitchen',
-                   swarm_out_dir='[SWARM_OUT_DIR]') +
-    api.path.exists(
-        api.path['slave_build'].join('skia'),
-        api.path['slave_build'].join('skia', 'infra', 'bots', 'assets',
-                                     'skimage', 'VERSION'),
-        api.path['slave_build'].join('skia', 'infra', 'bots', 'assets',
-                                     'skp', 'VERSION'),
-        api.path['slave_build'].join('skia', 'infra', 'bots', 'assets',
-                                     'svg', 'VERSION'),
-        api.path['slave_build'].join('tmp', 'uninteresting_hashes.txt')
-    ) +
-    AndroidTestData(builder) +
-    api.step_data('read SKP_VERSION',
-                  stdout=api.raw_io.output('42')) +
-    api.step_data('read SK_IMAGE_VERSION',
-                  retcode=1) +
-    api.step_data('read SVG_VERSION',
-                  stdout=api.raw_io.output('42')) +
-    api.step_data(
-        'exists skia_images',
-        stdout=api.raw_io.output(''))
-  )
-
-  yield (
-    api.test('download_and_push_svgs') +
-    api.properties(buildername=builder,
-                   mastername='client.skia',
-                   slavename='skiabot-linux-swarm-000',
-                   buildnumber=6,
-                   revision='abc123',
-                   path_config='kitchen',
-                   swarm_out_dir='[SWARM_OUT_DIR]') +
-    api.path.exists(
-        api.path['slave_build'].join('skia'),
-        api.path['slave_build'].join('skia', 'infra', 'bots', 'assets',
-                                     'skimage', 'VERSION'),
-        api.path['slave_build'].join('skia', 'infra', 'bots', 'assets',
-                                     'skp', 'VERSION'),
-        api.path['slave_build'].join('skia', 'infra', 'bots', 'assets',
-                                     'svg', 'VERSION'),
-        api.path['slave_build'].join('tmp', 'uninteresting_hashes.txt')
-    ) +
-    AndroidTestData(builder) +
-    api.step_data('read SKP_VERSION',
-                  stdout=api.raw_io.output('42')) +
-    api.step_data('read SK_IMAGE_VERSION',
-                  stdout=api.raw_io.output('42')) +
-    api.step_data('read SVG_VERSION',
-                  stdout=api.raw_io.output('2')) +
-    api.step_data(
-        'exists svgs',
-        stdout=api.raw_io.output(''))
-  )
-
-  yield (
-    api.test('missing_SVG_VERSION_device') +
-    api.properties(buildername=builder,
-                   mastername='client.skia',
-                   slavename='skiabot-linux-swarm-000',
-                   buildnumber=6,
-                   revision='abc123',
-                   path_config='kitchen',
-                   swarm_out_dir='[SWARM_OUT_DIR]') +
-    api.path.exists(
-        api.path['slave_build'].join('skia'),
-        api.path['slave_build'].join('skia', 'infra', 'bots', 'assets',
-                                     'skimage', 'VERSION'),
-        api.path['slave_build'].join('skia', 'infra', 'bots', 'assets',
-                                     'skp', 'VERSION'),
-        api.path['slave_build'].join('skia', 'infra', 'bots', 'assets',
-                                     'svg', 'VERSION'),
-        api.path['slave_build'].join('tmp', 'uninteresting_hashes.txt')
-    ) +
-    AndroidTestData(builder) +
-    api.step_data('read SKP_VERSION',
-                  stdout=api.raw_io.output('42')) +
-    api.step_data('read SK_IMAGE_VERSION',
-                  stdout=api.raw_io.output('42')) +
-    api.step_data('read SVG_VERSION',
-                  retcode=1) +
-    api.step_data(
-        'exists svgs',
-        stdout=api.raw_io.output(''))
-  )
-
-  yield (
-    api.test('adb_in_path') +
-    api.properties(buildername=builder,
-                   mastername='client.skia',
-                   slavename='skiabot-linux-swarm-000',
-                   buildnumber=6,
-                   revision='abc123',
-                   path_config='kitchen',
-                   swarm_out_dir='[SWARM_OUT_DIR]') +
-    api.path.exists(
-        api.path['slave_build'].join('skia'),
-        api.path['slave_build'].join('skia', 'infra', 'bots', 'assets',
-                                     'skimage', 'VERSION'),
-        api.path['slave_build'].join('skia', 'infra', 'bots', 'assets',
-                                     'skp', 'VERSION'),
-        api.path['slave_build'].join('skia', 'infra', 'bots', 'assets',
-                                     'svg', 'VERSION'),
-        api.path['slave_build'].join('tmp', 'uninteresting_hashes.txt')
-    ) +
-    AndroidTestData(builder, adb='/usr/bin/adb') +
-    api.step_data('read SKP_VERSION',
-                  stdout=api.raw_io.output('42')) +
-    api.step_data('read SK_IMAGE_VERSION',
-                  stdout=api.raw_io.output('42')) +
-    api.step_data('read SVG_VERSION',
-                  stdout=api.raw_io.output('42'))
+    api.step_data('read SKP_VERSION', retcode=1)
   )
 
   builder = 'Test-Win8-MSVC-ShuttleB-CPU-AVX2-x86_64-Release-Trybot'

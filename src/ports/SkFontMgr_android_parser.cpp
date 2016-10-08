@@ -98,7 +98,7 @@ struct FamilyData {
         , fDepth(1)
         , fSkip(0)
         , fHandler(&topLevelHandler, 1)
-    { };
+    { }
 
     XML_Parser fParser;                       // The expat parser doing the work, owned by caller
     SkTDArray<FontFamily*>& fFamilies;        // The array to append families, owned by caller

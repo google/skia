@@ -707,28 +707,6 @@
     "cmd": [
       "python",
       "-u",
-      "\nimport os, sys\nfrom common import chromium_utils # Error? See https://crbug.com/584783.\n\n\nif os.path.exists(sys.argv[1]):\n  chromium_utils.RemoveDirectory(sys.argv[1])\n",
-      "[SLAVE_BUILD]/swarming_temp_dir/outputs/test_skia"
-    ],
-    "env": {
-      "PYTHONPATH": "[SLAVE_BUILD]/skia/infra/bots/.recipe_deps/build/scripts"
-    },
-    "name": "rmtree test_skia",
-    "~followup_annotations": [
-      "@@@STEP_LOG_LINE@python.inline@@@@",
-      "@@@STEP_LOG_LINE@python.inline@import os, sys@@@",
-      "@@@STEP_LOG_LINE@python.inline@from common import chromium_utils # Error? See https://crbug.com/584783.@@@",
-      "@@@STEP_LOG_LINE@python.inline@@@@",
-      "@@@STEP_LOG_LINE@python.inline@@@@",
-      "@@@STEP_LOG_LINE@python.inline@if os.path.exists(sys.argv[1]):@@@",
-      "@@@STEP_LOG_LINE@python.inline@  chromium_utils.RemoveDirectory(sys.argv[1])@@@",
-      "@@@STEP_LOG_END@python.inline@@@"
-    ]
-  },
-  {
-    "cmd": [
-      "python",
-      "-u",
       "[SLAVE_BUILD]/swarming.client/swarming.py",
       "collect",
       "--swarming",
@@ -738,9 +716,7 @@
       "--json",
       "{\"base_task_name\": \"test_skia/Android/def456/Test-Android-Clang-AndroidOne-CPU-MT6582-arm-Debug-GN_Android/5\", \"tasks\": {\"test_skia/Android/def456/Test-Android-Clang-AndroidOne-CPU-MT6582-arm-Debug-GN_Android/5\": {\"shard_index\": 0, \"task_id\": \"10000\", \"view_url\": \"https://chromium-swarm.appspot.com/user/task/10000\"}}}",
       "--task-summary-json",
-      "/path/to/tmp/json",
-      "--task-output-dir",
-      "[SLAVE_BUILD]/swarming_temp_dir/outputs/test_skia"
+      "/path/to/tmp/json"
     ],
     "name": "test_skia on Android",
     "~followup_annotations": [
@@ -791,21 +767,21 @@
     "cmd": [
       "python",
       "-u",
-      "\nimport os, sys\nfrom common import chromium_utils # Error? See https://crbug.com/584783.\n\n\nif os.path.exists(sys.argv[1]):\n  chromium_utils.RemoveDirectory(sys.argv[1])\n",
-      "[SLAVE_BUILD]/dm"
+      "\nimport sys, os\npath = sys.argv[1]\nmode = int(sys.argv[2])\nif not os.path.isdir(path):\n  if os.path.exists(path):\n    print \"%s exists but is not a dir\" % path\n    sys.exit(1)\n  os.makedirs(path, mode)\n",
+      "[SLAVE_BUILD]/swarming_temp_dir",
+      "511"
     ],
-    "env": {
-      "PYTHONPATH": "[SLAVE_BUILD]/skia/infra/bots/.recipe_deps/build/scripts"
-    },
-    "name": "rmtree dm",
+    "name": "makedirs swarming tmp dir (3)",
     "~followup_annotations": [
       "@@@STEP_LOG_LINE@python.inline@@@@",
-      "@@@STEP_LOG_LINE@python.inline@import os, sys@@@",
-      "@@@STEP_LOG_LINE@python.inline@from common import chromium_utils # Error? See https://crbug.com/584783.@@@",
-      "@@@STEP_LOG_LINE@python.inline@@@@",
-      "@@@STEP_LOG_LINE@python.inline@@@@",
-      "@@@STEP_LOG_LINE@python.inline@if os.path.exists(sys.argv[1]):@@@",
-      "@@@STEP_LOG_LINE@python.inline@  chromium_utils.RemoveDirectory(sys.argv[1])@@@",
+      "@@@STEP_LOG_LINE@python.inline@import sys, os@@@",
+      "@@@STEP_LOG_LINE@python.inline@path = sys.argv[1]@@@",
+      "@@@STEP_LOG_LINE@python.inline@mode = int(sys.argv[2])@@@",
+      "@@@STEP_LOG_LINE@python.inline@if not os.path.isdir(path):@@@",
+      "@@@STEP_LOG_LINE@python.inline@  if os.path.exists(path):@@@",
+      "@@@STEP_LOG_LINE@python.inline@    print \"%s exists but is not a dir\" % path@@@",
+      "@@@STEP_LOG_LINE@python.inline@    sys.exit(1)@@@",
+      "@@@STEP_LOG_LINE@python.inline@  os.makedirs(path, mode)@@@",
       "@@@STEP_LOG_END@python.inline@@@"
     ]
   },
@@ -813,31 +789,218 @@
     "cmd": [
       "python",
       "-u",
-      "\nimport shutil\nimport sys\nshutil.copytree(sys.argv[1], sys.argv[2], symlinks=bool(sys.argv[3]))\n",
-      "[SLAVE_BUILD]/swarming_temp_dir/outputs/test_skia/0/dm",
-      "[SLAVE_BUILD]/dm",
-      "0"
+      "\nimport shutil\nimport sys\nshutil.copy(sys.argv[1], sys.argv[2])\n",
+      "{\n    \"args\": [\n        \"--isolate\", \n        \"[SLAVE_BUILD]/skia/infra/bots/upload_dm_results.isolate\", \n        \"--isolated\", \n        \"[SLAVE_BUILD]/swarming_temp_dir/skia-task-upload_dm_results_skia.isolated\", \n        \"--config-variable\", \n        \"OS\", \n        \"Linux\", \n        \"--blacklist\", \n        \".git\", \n        \"--blacklist\", \n        \"out\", \n        \"--blacklist\", \n        \"*.pyc\", \n        \"--blacklist\", \n        \".recipe_deps\", \n        \"--extra-variable\", \n        \"WORKDIR\", \n        \"[SLAVE_BUILD]\"\n    ], \n    \"dir\": \"[SLAVE_BUILD]\", \n    \"version\": 1\n}",
+      "[SLAVE_BUILD]/swarming_temp_dir/upload_dm_results_skia.isolated.gen.json"
     ],
-    "name": "dm_dir"
+    "name": "Write upload_dm_results_skia.isolated.gen.json"
   },
   {
     "cmd": [
       "python",
       "-u",
-      "RECIPE_MODULE[skia::core]/resources/upload_dm_results.py",
-      "[SLAVE_BUILD]/dm",
-      "abc123",
-      "Test-Android-Clang-AndroidOne-CPU-MT6582-arm-Debug-GN_Android",
-      "5",
-      "",
-      "[SLAVE_BUILD]/skia/common/py/utils"
+      "RECIPE_MODULE[build::isolate]/resources/isolate.py",
+      "[SLAVE_BUILD]/swarming.client",
+      "batcharchive",
+      "--dump-json",
+      "/path/to/tmp/json",
+      "--isolate-server",
+      "https://isolateserver.appspot.com",
+      "--verbose",
+      "[SLAVE_BUILD]/swarming_temp_dir/upload_dm_results_skia.isolated.gen.json"
     ],
-    "cwd": "[SLAVE_BUILD]/skia",
-    "env": {
-      "AWS_CREDENTIAL_FILE": "[HOME]/chromium-skia-gm.boto",
-      "BOTO_CONFIG": "[HOME]/chromium-skia-gm.boto"
-    },
-    "name": "Upload DM Results"
+    "name": "isolate tests (3)",
+    "~followup_annotations": [
+      "@@@STEP_LOG_LINE@json.output@{@@@",
+      "@@@STEP_LOG_LINE@json.output@  \"upload_dm_results_skia\": \"[dummy hash for upload_dm_results_skia]\"@@@",
+      "@@@STEP_LOG_LINE@json.output@}@@@",
+      "@@@STEP_LOG_END@json.output@@@",
+      "@@@SET_BUILD_PROPERTY@swarm_hashes@{\"upload_dm_results_skia\": \"[dummy hash for upload_dm_results_skia]\"}@@@"
+    ]
+  },
+  {
+    "cmd": [
+      "python",
+      "-u",
+      "\nimport json\nimport sys\nwith open(sys.argv[1]) as f:\n  isolated = json.load(f)\nif not isolated.get('includes'):\n  isolated['includes'] = []\nfor h in sys.argv[2:]:\n  isolated['includes'].append(h)\nwith open(sys.argv[1], 'w') as f:\n  json.dump(isolated, f, sort_keys=True)\n",
+      "[SLAVE_BUILD]/swarming_temp_dir/skia-task-upload_dm_results_skia.isolated",
+      "abc123"
+    ],
+    "name": "add_isolated_input (2)",
+    "~followup_annotations": [
+      "@@@STEP_LOG_LINE@python.inline@@@@",
+      "@@@STEP_LOG_LINE@python.inline@import json@@@",
+      "@@@STEP_LOG_LINE@python.inline@import sys@@@",
+      "@@@STEP_LOG_LINE@python.inline@with open(sys.argv[1]) as f:@@@",
+      "@@@STEP_LOG_LINE@python.inline@  isolated = json.load(f)@@@",
+      "@@@STEP_LOG_LINE@python.inline@if not isolated.get('includes'):@@@",
+      "@@@STEP_LOG_LINE@python.inline@  isolated['includes'] = []@@@",
+      "@@@STEP_LOG_LINE@python.inline@for h in sys.argv[2:]:@@@",
+      "@@@STEP_LOG_LINE@python.inline@  isolated['includes'].append(h)@@@",
+      "@@@STEP_LOG_LINE@python.inline@with open(sys.argv[1], 'w') as f:@@@",
+      "@@@STEP_LOG_LINE@python.inline@  json.dump(isolated, f, sort_keys=True)@@@",
+      "@@@STEP_LOG_END@python.inline@@@"
+    ]
+  },
+  {
+    "cmd": [
+      "python",
+      "-u",
+      "[SLAVE_BUILD]/swarming.client/isolateserver.py",
+      "archive",
+      "--isolate-server",
+      "https://isolateserver.appspot.com",
+      "[SLAVE_BUILD]/swarming_temp_dir/skia-task-upload_dm_results_skia.isolated"
+    ],
+    "name": "upload new .isolated file for upload_dm_results_skia",
+    "stdout": "/path/to/tmp/"
+  },
+  {
+    "cmd": [
+      "python",
+      "-u",
+      "[SLAVE_BUILD]/swarming.client/swarming.py",
+      "trigger",
+      "--swarming",
+      "https://chromium-swarm.appspot.com",
+      "--isolate-server",
+      "https://isolateserver.appspot.com",
+      "--priority",
+      "90",
+      "--shards",
+      "1",
+      "--task-name",
+      "upload_dm_results_skia/Linux/def456/Test-Android-Clang-AndroidOne-CPU-MT6582-arm-Debug-GN_Android/5",
+      "--dump-json",
+      "/path/to/tmp/json",
+      "--expiration",
+      "72000",
+      "--io-timeout",
+      "2400",
+      "--hard-timeout",
+      "14400",
+      "--dimension",
+      "cpu",
+      "x86-64-avx2",
+      "--dimension",
+      "gpu",
+      "none",
+      "--dimension",
+      "os",
+      "Linux",
+      "--dimension",
+      "pool",
+      "Skia",
+      "--tag",
+      "allow_milo:1",
+      "--tag",
+      "buildername:Test-Android-Clang-AndroidOne-CPU-MT6582-arm-Debug-GN_Android",
+      "--tag",
+      "buildnumber:5",
+      "--tag",
+      "data:def456",
+      "--tag",
+      "master:client.skia",
+      "--tag",
+      "name:upload_dm_results_skia",
+      "--tag",
+      "os:Linux",
+      "--tag",
+      "revision:abc123",
+      "--tag",
+      "slavename:skiabot-linux-swarm-000",
+      "--tag",
+      "stepname:upload_dm_results_skia on Linux",
+      "--idempotent",
+      "def456",
+      "--",
+      "--workdir",
+      "../../..",
+      "upload_dm_results",
+      "buildername=Test-Android-Clang-AndroidOne-CPU-MT6582-arm-Debug-GN_Android",
+      "mastername=client.skia",
+      "buildnumber=5",
+      "slavename=skiabot-linux-swarm-000",
+      "reason=Triggered by Skia swarm_trigger Recipe",
+      "swarm_out_dir=${ISOLATED_OUTDIR}",
+      "revision=abc123"
+    ],
+    "name": "[trigger] upload_dm_results_skia on Linux",
+    "~followup_annotations": [
+      "@@@STEP_LOG_LINE@json.output@{@@@",
+      "@@@STEP_LOG_LINE@json.output@  \"base_task_name\": \"upload_dm_results_skia/Linux/def456/Test-Android-Clang-AndroidOne-CPU-MT6582-arm-Debug-GN_Android/5\", @@@",
+      "@@@STEP_LOG_LINE@json.output@  \"tasks\": {@@@",
+      "@@@STEP_LOG_LINE@json.output@    \"upload_dm_results_skia/Linux/def456/Test-Android-Clang-AndroidOne-CPU-MT6582-arm-Debug-GN_Android/5\": {@@@",
+      "@@@STEP_LOG_LINE@json.output@      \"shard_index\": 0, @@@",
+      "@@@STEP_LOG_LINE@json.output@      \"task_id\": \"10000\", @@@",
+      "@@@STEP_LOG_LINE@json.output@      \"view_url\": \"https://chromium-swarm.appspot.com/user/task/10000\"@@@",
+      "@@@STEP_LOG_LINE@json.output@    }@@@",
+      "@@@STEP_LOG_LINE@json.output@  }@@@",
+      "@@@STEP_LOG_LINE@json.output@}@@@",
+      "@@@STEP_LOG_END@json.output@@@",
+      "@@@STEP_LINK@shard #0@https://chromium-swarm.appspot.com/user/task/10000@@@",
+      "@@@STEP_LINK@view steps on Milo@https://luci-milo.appspot.com/swarming/task/10000@@@"
+    ]
+  },
+  {
+    "cmd": [
+      "python",
+      "-u",
+      "[SLAVE_BUILD]/swarming.client/swarming.py",
+      "collect",
+      "--swarming",
+      "https://chromium-swarm.appspot.com",
+      "--decorate",
+      "--print-status-updates",
+      "--json",
+      "{\"base_task_name\": \"upload_dm_results_skia/Linux/def456/Test-Android-Clang-AndroidOne-CPU-MT6582-arm-Debug-GN_Android/5\", \"tasks\": {\"upload_dm_results_skia/Linux/def456/Test-Android-Clang-AndroidOne-CPU-MT6582-arm-Debug-GN_Android/5\": {\"shard_index\": 0, \"task_id\": \"10000\", \"view_url\": \"https://chromium-swarm.appspot.com/user/task/10000\"}}}",
+      "--task-summary-json",
+      "/path/to/tmp/json"
+    ],
+    "name": "upload_dm_results_skia on Linux",
+    "~followup_annotations": [
+      "@@@STEP_TEXT@swarming pending 71s@@@",
+      "@@@STEP_LOG_LINE@json.output@{@@@",
+      "@@@STEP_LOG_LINE@json.output@  \"shards\": [@@@",
+      "@@@STEP_LOG_LINE@json.output@    {@@@",
+      "@@@STEP_LOG_LINE@json.output@      \"abandoned_ts\": null, @@@",
+      "@@@STEP_LOG_LINE@json.output@      \"bot_id\": \"vm30\", @@@",
+      "@@@STEP_LOG_LINE@json.output@      \"completed_ts\": \"2014-09-25T01:42:00.123\", @@@",
+      "@@@STEP_LOG_LINE@json.output@      \"created_ts\": \"2014-09-25T01:41:00.123\", @@@",
+      "@@@STEP_LOG_LINE@json.output@      \"durations\": [@@@",
+      "@@@STEP_LOG_LINE@json.output@        5.7, @@@",
+      "@@@STEP_LOG_LINE@json.output@        31.5@@@",
+      "@@@STEP_LOG_LINE@json.output@      ], @@@",
+      "@@@STEP_LOG_LINE@json.output@      \"exit_codes\": [@@@",
+      "@@@STEP_LOG_LINE@json.output@        0, @@@",
+      "@@@STEP_LOG_LINE@json.output@        0@@@",
+      "@@@STEP_LOG_LINE@json.output@      ], @@@",
+      "@@@STEP_LOG_LINE@json.output@      \"failure\": false, @@@",
+      "@@@STEP_LOG_LINE@json.output@      \"id\": \"148aa78d7aa0000\", @@@",
+      "@@@STEP_LOG_LINE@json.output@      \"internal_failure\": false, @@@",
+      "@@@STEP_LOG_LINE@json.output@      \"isolated_out\": {@@@",
+      "@@@STEP_LOG_LINE@json.output@        \"isolated\": \"abc123\", @@@",
+      "@@@STEP_LOG_LINE@json.output@        \"isolatedserver\": \"https://isolateserver.appspot.com\", @@@",
+      "@@@STEP_LOG_LINE@json.output@        \"namespace\": \"default-gzip\", @@@",
+      "@@@STEP_LOG_LINE@json.output@        \"view_url\": \"blah\"@@@",
+      "@@@STEP_LOG_LINE@json.output@      }, @@@",
+      "@@@STEP_LOG_LINE@json.output@      \"modified_ts\": \"2014-09-25 01:42:00\", @@@",
+      "@@@STEP_LOG_LINE@json.output@      \"name\": \"heartbeat-canary-2014-09-25_01:41:55-os=Windows\", @@@",
+      "@@@STEP_LOG_LINE@json.output@      \"outputs\": [@@@",
+      "@@@STEP_LOG_LINE@json.output@        \"Heart beat succeeded on win32.\\n\", @@@",
+      "@@@STEP_LOG_LINE@json.output@        \"Foo\"@@@",
+      "@@@STEP_LOG_LINE@json.output@      ], @@@",
+      "@@@STEP_LOG_LINE@json.output@      \"started_ts\": \"2014-09-25T01:42:11.123\", @@@",
+      "@@@STEP_LOG_LINE@json.output@      \"state\": 112, @@@",
+      "@@@STEP_LOG_LINE@json.output@      \"try_number\": 1, @@@",
+      "@@@STEP_LOG_LINE@json.output@      \"user\": \"unknown\"@@@",
+      "@@@STEP_LOG_LINE@json.output@    }@@@",
+      "@@@STEP_LOG_LINE@json.output@  ]@@@",
+      "@@@STEP_LOG_LINE@json.output@}@@@",
+      "@@@STEP_LOG_END@json.output@@@",
+      "@@@STEP_LINK@shard #0 isolated out@blah@@@",
+      "@@@STEP_LINK@view steps on Milo@https://luci-milo.appspot.com/swarming/task/148aa78d7aa0000@@@"
+    ]
   },
   {
     "name": "$result",

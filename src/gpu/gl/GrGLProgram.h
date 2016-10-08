@@ -120,7 +120,6 @@ protected:
 
     // A helper to loop over effects, set the transforms (via subclass) and bind textures
     void setFragmentData(const GrPrimitiveProcessor&, const GrPipeline&, int* nextSamplerIdx);
-    void setTransformData(const GrPrimitiveProcessor&, const GrFragmentProcessor&, int index);
 
     // Helper for setData() that sets the view matrix and loads the render target height uniform
     void setRenderTargetState(const GrPrimitiveProcessor&, const GrPipeline&);

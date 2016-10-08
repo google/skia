@@ -1,198 +1,43 @@
 [
   {
     "cmd": [
-      "which",
-      "adb"
-    ],
-    "name": "which adb",
-    "stdout": "/path/to/tmp/",
-    "~followup_annotations": [
-      "step returned non-zero exit code: 1",
-      "@@@STEP_EXCEPTION@@@"
-    ]
-  },
-  {
-    "cmd": [
-      "[SLAVE_BUILD]/skia/platform_tools/android/bin/adb_wait_for_device"
-    ],
-    "env": {
-      "ANDROID_HOME": "[SLAVE_BUILD]/android_sdk/android-sdk",
-      "ANDROID_SDK_ROOT": "[SLAVE_BUILD]/android_sdk/android-sdk",
-      "BUILDTYPE": "Debug",
-      "CHROME_HEADLESS": "1",
-      "SKIA_ANDROID_VERBOSE_SETUP": "1",
-      "SKIA_OUT": "[SLAVE_BUILD]/out"
-    },
-    "name": "wait for device (1)"
-  },
-  {
-    "cmd": [
-      "[SLAVE_BUILD]/skia/platform_tools/android/bin/adb_wait_for_charge"
-    ],
-    "env": {
-      "ANDROID_HOME": "[SLAVE_BUILD]/android_sdk/android-sdk",
-      "ANDROID_SDK_ROOT": "[SLAVE_BUILD]/android_sdk/android-sdk",
-      "BUILDTYPE": "Debug",
-      "CHROME_HEADLESS": "1",
-      "SKIA_ANDROID_VERBOSE_SETUP": "1",
-      "SKIA_OUT": "[SLAVE_BUILD]/out"
-    },
-    "name": "wait for charge (1)"
-  },
-  {
-    "cmd": [
-      "[SLAVE_BUILD]/android_sdk/android-sdk/platform-tools/adb",
+      "adb",
       "shell",
-      "echo",
-      "$EXTERNAL_STORAGE"
+      "mkdir",
+      "-p",
+      "/sdcard/revenge_of_the_skiabot/resources"
     ],
-    "env": {
-      "BUILDTYPE": "Debug",
-      "CHROME_HEADLESS": "1",
-      "SKIA_OUT": "[SLAVE_BUILD]/out"
-    },
-    "name": "get EXTERNAL_STORAGE dir",
-    "stdout": "/path/to/tmp/"
+    "cwd": "[SLAVE_BUILD]/skia",
+    "name": "mkdir /sdcard/revenge_of_the_skiabot/resources"
   },
   {
     "cmd": [
-      "[SLAVE_BUILD]/android_sdk/android-sdk/platform-tools/adb",
-      "root"
-    ],
-    "env": {
-      "BUILDTYPE": "Debug",
-      "CHROME_HEADLESS": "1",
-      "SKIA_OUT": "[SLAVE_BUILD]/out"
-    },
-    "name": "adb root",
-    "stdout": "/path/to/tmp/"
-  },
-  {
-    "cmd": [
-      "sleep",
-      "10"
-    ],
-    "env": {
-      "BUILDTYPE": "Debug",
-      "CHROME_HEADLESS": "1",
-      "SKIA_OUT": "[SLAVE_BUILD]/out"
-    },
-    "name": "wait"
-  },
-  {
-    "cmd": [
-      "[SLAVE_BUILD]/skia/platform_tools/android/bin/adb_wait_for_device"
-    ],
-    "env": {
-      "ANDROID_HOME": "[SLAVE_BUILD]/android_sdk/android-sdk",
-      "ANDROID_SDK_ROOT": "[SLAVE_BUILD]/android_sdk/android-sdk",
-      "BUILDTYPE": "Debug",
-      "CHROME_HEADLESS": "1",
-      "SKIA_ANDROID_VERBOSE_SETUP": "1",
-      "SKIA_OUT": "[SLAVE_BUILD]/out"
-    },
-    "name": "wait for device (2)"
-  },
-  {
-    "cmd": [
-      "[SLAVE_BUILD]/skia/platform_tools/android/bin/adb_wait_for_charge"
-    ],
-    "env": {
-      "ANDROID_HOME": "[SLAVE_BUILD]/android_sdk/android-sdk",
-      "ANDROID_SDK_ROOT": "[SLAVE_BUILD]/android_sdk/android-sdk",
-      "BUILDTYPE": "Debug",
-      "CHROME_HEADLESS": "1",
-      "SKIA_ANDROID_VERBOSE_SETUP": "1",
-      "SKIA_OUT": "[SLAVE_BUILD]/out"
-    },
-    "name": "wait for charge (2)"
-  },
-  {
-    "cmd": [
-      "[SLAVE_BUILD]/skia/platform_tools/android/bin/android_kill_skia",
-      "--verbose"
-    ],
-    "env": {
-      "ANDROID_HOME": "[SLAVE_BUILD]/android_sdk/android-sdk",
-      "ANDROID_SDK_ROOT": "[SLAVE_BUILD]/android_sdk/android-sdk",
-      "BUILDTYPE": "Debug",
-      "CHROME_HEADLESS": "1",
-      "SKIA_ANDROID_VERBOSE_SETUP": "1",
-      "SKIA_OUT": "[SLAVE_BUILD]/out"
-    },
-    "name": "kill skia"
-  },
-  {
-    "cmd": [
-      "[SLAVE_BUILD]/android_sdk/android-sdk/platform-tools/adb",
-      "shell",
-      "stop"
-    ],
-    "env": {
-      "BUILDTYPE": "Debug",
-      "CHROME_HEADLESS": "1",
-      "SKIA_OUT": "[SLAVE_BUILD]/out"
-    },
-    "name": "stop shell"
-  },
-  {
-    "cmd": [
-      "[SLAVE_BUILD]/android_sdk/android-sdk/platform-tools/adb",
-      "shell",
-      "dumpsys",
-      "batteryproperties"
-    ],
-    "env": {
-      "BUILDTYPE": "Debug",
-      "CHROME_HEADLESS": "1",
-      "SKIA_OUT": "[SLAVE_BUILD]/out"
-    },
-    "name": "starting battery stats"
-  },
-  {
-    "cmd": [
-      "[SLAVE_BUILD]/android_sdk/android-sdk/platform-tools/adb",
-      "shell",
-      "cat",
-      "/sys/devices/system/cpu/cpu0/cpufreq/scaling_governor"
-    ],
-    "env": {
-      "BUILDTYPE": "Debug",
-      "CHROME_HEADLESS": "1",
-      "SKIA_OUT": "[SLAVE_BUILD]/out"
-    },
-    "name": "cat scaling_governor"
-  },
-  {
-    "cmd": [
-      "[SLAVE_BUILD]/android_sdk/android-sdk/platform-tools/adb",
-      "shell",
-      "cat",
-      "/sys/devices/system/cpu/cpu0/cpufreq/scaling_cur_freq"
-    ],
-    "env": {
-      "BUILDTYPE": "Debug",
-      "CHROME_HEADLESS": "1",
-      "SKIA_OUT": "[SLAVE_BUILD]/out"
-    },
-    "name": "cat cpu_freq"
-  },
-  {
-    "cmd": [
-      "[SLAVE_BUILD]/skia/platform_tools/android/bin/adb_push_if_needed",
-      "--verbose",
+      "python",
+      "-u",
+      "\nimport os\nimport subprocess\nimport sys\nhost   = sys.argv[1]\ndevice = sys.argv[2]\nfor d, _, fs in os.walk(host):\n  p = os.path.relpath(d, host)\n  if p != '.' and p.startswith('.'):\n    continue\n  for f in fs:\n    print os.path.join(p,f)\n    subprocess.check_call(['adb', 'push',\n                           os.path.realpath(os.path.join(host, p, f)),\n                           os.path.join(device, p, f)])\n",
       "[SLAVE_BUILD]/skia/resources",
-      "/storage/emulated/legacy/skiabot/skia_resources"
+      "/sdcard/revenge_of_the_skiabot/resources"
     ],
-    "env": {
-      "ANDROID_HOME": "[SLAVE_BUILD]/android_sdk/android-sdk",
-      "ANDROID_SDK_ROOT": "[SLAVE_BUILD]/android_sdk/android-sdk",
-      "BUILDTYPE": "Debug",
-      "CHROME_HEADLESS": "1",
-      "SKIA_ANDROID_VERBOSE_SETUP": "1",
-      "SKIA_OUT": "[SLAVE_BUILD]/out"
-    },
-    "name": "push resources"
+    "cwd": "[SLAVE_BUILD]/skia",
+    "name": "push [SLAVE_BUILD]/skia/resources/* /sdcard/revenge_of_the_skiabot/resources",
+    "~followup_annotations": [
+      "@@@STEP_LOG_LINE@python.inline@@@@",
+      "@@@STEP_LOG_LINE@python.inline@import os@@@",
+      "@@@STEP_LOG_LINE@python.inline@import subprocess@@@",
+      "@@@STEP_LOG_LINE@python.inline@import sys@@@",
+      "@@@STEP_LOG_LINE@python.inline@host   = sys.argv[1]@@@",
+      "@@@STEP_LOG_LINE@python.inline@device = sys.argv[2]@@@",
+      "@@@STEP_LOG_LINE@python.inline@for d, _, fs in os.walk(host):@@@",
+      "@@@STEP_LOG_LINE@python.inline@  p = os.path.relpath(d, host)@@@",
+      "@@@STEP_LOG_LINE@python.inline@  if p != '.' and p.startswith('.'):@@@",
+      "@@@STEP_LOG_LINE@python.inline@    continue@@@",
+      "@@@STEP_LOG_LINE@python.inline@  for f in fs:@@@",
+      "@@@STEP_LOG_LINE@python.inline@    print os.path.join(p,f)@@@",
+      "@@@STEP_LOG_LINE@python.inline@    subprocess.check_call(['adb', 'push',@@@",
+      "@@@STEP_LOG_LINE@python.inline@                           os.path.realpath(os.path.join(host, p, f)),@@@",
+      "@@@STEP_LOG_LINE@python.inline@                           os.path.join(device, p, f)])@@@",
+      "@@@STEP_LOG_END@python.inline@@@"
+    ]
   },
   {
     "cmd": [
@@ -216,18 +61,86 @@
   },
   {
     "cmd": [
-      "[SLAVE_BUILD]/android_sdk/android-sdk/platform-tools/adb",
+      "adb",
       "shell",
       "cat",
-      "/storage/emulated/legacy/skiabot/skia_tmp_dir/SKP_VERSION"
+      "/sdcard/revenge_of_the_skiabot/SKP_VERSION"
     ],
-    "env": {
-      "BUILDTYPE": "Debug",
-      "CHROME_HEADLESS": "1",
-      "SKIA_OUT": "[SLAVE_BUILD]/out"
-    },
-    "name": "read SKP_VERSION",
+    "cwd": "[SLAVE_BUILD]/skia",
+    "name": "read /sdcard/revenge_of_the_skiabot/SKP_VERSION",
     "stdout": "/path/to/tmp/"
+  },
+  {
+    "cmd": [
+      "adb",
+      "shell",
+      "rm",
+      "-f",
+      "/sdcard/revenge_of_the_skiabot/SKP_VERSION"
+    ],
+    "cwd": "[SLAVE_BUILD]/skia",
+    "name": "rm /sdcard/revenge_of_the_skiabot/SKP_VERSION"
+  },
+  {
+    "cmd": [
+      "adb",
+      "shell",
+      "rm",
+      "-rf",
+      "/sdcard/revenge_of_the_skiabot/skps"
+    ],
+    "cwd": "[SLAVE_BUILD]/skia",
+    "name": "rm /sdcard/revenge_of_the_skiabot/skps"
+  },
+  {
+    "cmd": [
+      "adb",
+      "shell",
+      "mkdir",
+      "-p",
+      "/sdcard/revenge_of_the_skiabot/skps"
+    ],
+    "cwd": "[SLAVE_BUILD]/skia",
+    "name": "mkdir /sdcard/revenge_of_the_skiabot/skps"
+  },
+  {
+    "cmd": [
+      "python",
+      "-u",
+      "\nimport os\nimport subprocess\nimport sys\nhost   = sys.argv[1]\ndevice = sys.argv[2]\nfor d, _, fs in os.walk(host):\n  p = os.path.relpath(d, host)\n  if p != '.' and p.startswith('.'):\n    continue\n  for f in fs:\n    print os.path.join(p,f)\n    subprocess.check_call(['adb', 'push',\n                           os.path.realpath(os.path.join(host, p, f)),\n                           os.path.join(device, p, f)])\n",
+      "[SLAVE_BUILD]/skp",
+      "/sdcard/revenge_of_the_skiabot/skps"
+    ],
+    "cwd": "[SLAVE_BUILD]/skia",
+    "name": "push [SLAVE_BUILD]/skp/* /sdcard/revenge_of_the_skiabot/skps",
+    "~followup_annotations": [
+      "@@@STEP_LOG_LINE@python.inline@@@@",
+      "@@@STEP_LOG_LINE@python.inline@import os@@@",
+      "@@@STEP_LOG_LINE@python.inline@import subprocess@@@",
+      "@@@STEP_LOG_LINE@python.inline@import sys@@@",
+      "@@@STEP_LOG_LINE@python.inline@host   = sys.argv[1]@@@",
+      "@@@STEP_LOG_LINE@python.inline@device = sys.argv[2]@@@",
+      "@@@STEP_LOG_LINE@python.inline@for d, _, fs in os.walk(host):@@@",
+      "@@@STEP_LOG_LINE@python.inline@  p = os.path.relpath(d, host)@@@",
+      "@@@STEP_LOG_LINE@python.inline@  if p != '.' and p.startswith('.'):@@@",
+      "@@@STEP_LOG_LINE@python.inline@    continue@@@",
+      "@@@STEP_LOG_LINE@python.inline@  for f in fs:@@@",
+      "@@@STEP_LOG_LINE@python.inline@    print os.path.join(p,f)@@@",
+      "@@@STEP_LOG_LINE@python.inline@    subprocess.check_call(['adb', 'push',@@@",
+      "@@@STEP_LOG_LINE@python.inline@                           os.path.realpath(os.path.join(host, p, f)),@@@",
+      "@@@STEP_LOG_LINE@python.inline@                           os.path.join(device, p, f)])@@@",
+      "@@@STEP_LOG_END@python.inline@@@"
+    ]
+  },
+  {
+    "cmd": [
+      "adb",
+      "push",
+      "[SLAVE_BUILD]/tmp/SKP_VERSION",
+      "/sdcard/revenge_of_the_skiabot/SKP_VERSION"
+    ],
+    "cwd": "[SLAVE_BUILD]/skia",
+    "name": "push [SLAVE_BUILD]/tmp/SKP_VERSION /sdcard/revenge_of_the_skiabot/SKP_VERSION"
   },
   {
     "cmd": [
@@ -251,18 +164,86 @@
   },
   {
     "cmd": [
-      "[SLAVE_BUILD]/android_sdk/android-sdk/platform-tools/adb",
+      "adb",
       "shell",
       "cat",
-      "/storage/emulated/legacy/skiabot/skia_tmp_dir/SK_IMAGE_VERSION"
+      "/sdcard/revenge_of_the_skiabot/SK_IMAGE_VERSION"
     ],
-    "env": {
-      "BUILDTYPE": "Debug",
-      "CHROME_HEADLESS": "1",
-      "SKIA_OUT": "[SLAVE_BUILD]/out"
-    },
-    "name": "read SK_IMAGE_VERSION",
+    "cwd": "[SLAVE_BUILD]/skia",
+    "name": "read /sdcard/revenge_of_the_skiabot/SK_IMAGE_VERSION",
     "stdout": "/path/to/tmp/"
+  },
+  {
+    "cmd": [
+      "adb",
+      "shell",
+      "rm",
+      "-f",
+      "/sdcard/revenge_of_the_skiabot/SK_IMAGE_VERSION"
+    ],
+    "cwd": "[SLAVE_BUILD]/skia",
+    "name": "rm /sdcard/revenge_of_the_skiabot/SK_IMAGE_VERSION"
+  },
+  {
+    "cmd": [
+      "adb",
+      "shell",
+      "rm",
+      "-rf",
+      "/sdcard/revenge_of_the_skiabot/images"
+    ],
+    "cwd": "[SLAVE_BUILD]/skia",
+    "name": "rm /sdcard/revenge_of_the_skiabot/images"
+  },
+  {
+    "cmd": [
+      "adb",
+      "shell",
+      "mkdir",
+      "-p",
+      "/sdcard/revenge_of_the_skiabot/images"
+    ],
+    "cwd": "[SLAVE_BUILD]/skia",
+    "name": "mkdir /sdcard/revenge_of_the_skiabot/images"
+  },
+  {
+    "cmd": [
+      "python",
+      "-u",
+      "\nimport os\nimport subprocess\nimport sys\nhost   = sys.argv[1]\ndevice = sys.argv[2]\nfor d, _, fs in os.walk(host):\n  p = os.path.relpath(d, host)\n  if p != '.' and p.startswith('.'):\n    continue\n  for f in fs:\n    print os.path.join(p,f)\n    subprocess.check_call(['adb', 'push',\n                           os.path.realpath(os.path.join(host, p, f)),\n                           os.path.join(device, p, f)])\n",
+      "[SLAVE_BUILD]/skimage",
+      "/sdcard/revenge_of_the_skiabot/images"
+    ],
+    "cwd": "[SLAVE_BUILD]/skia",
+    "name": "push [SLAVE_BUILD]/skimage/* /sdcard/revenge_of_the_skiabot/images",
+    "~followup_annotations": [
+      "@@@STEP_LOG_LINE@python.inline@@@@",
+      "@@@STEP_LOG_LINE@python.inline@import os@@@",
+      "@@@STEP_LOG_LINE@python.inline@import subprocess@@@",
+      "@@@STEP_LOG_LINE@python.inline@import sys@@@",
+      "@@@STEP_LOG_LINE@python.inline@host   = sys.argv[1]@@@",
+      "@@@STEP_LOG_LINE@python.inline@device = sys.argv[2]@@@",
+      "@@@STEP_LOG_LINE@python.inline@for d, _, fs in os.walk(host):@@@",
+      "@@@STEP_LOG_LINE@python.inline@  p = os.path.relpath(d, host)@@@",
+      "@@@STEP_LOG_LINE@python.inline@  if p != '.' and p.startswith('.'):@@@",
+      "@@@STEP_LOG_LINE@python.inline@    continue@@@",
+      "@@@STEP_LOG_LINE@python.inline@  for f in fs:@@@",
+      "@@@STEP_LOG_LINE@python.inline@    print os.path.join(p,f)@@@",
+      "@@@STEP_LOG_LINE@python.inline@    subprocess.check_call(['adb', 'push',@@@",
+      "@@@STEP_LOG_LINE@python.inline@                           os.path.realpath(os.path.join(host, p, f)),@@@",
+      "@@@STEP_LOG_LINE@python.inline@                           os.path.join(device, p, f)])@@@",
+      "@@@STEP_LOG_END@python.inline@@@"
+    ]
+  },
+  {
+    "cmd": [
+      "adb",
+      "push",
+      "[SLAVE_BUILD]/tmp/SK_IMAGE_VERSION",
+      "/sdcard/revenge_of_the_skiabot/SK_IMAGE_VERSION"
+    ],
+    "cwd": "[SLAVE_BUILD]/skia",
+    "name": "push [SLAVE_BUILD]/tmp/SK_IMAGE_VERSION /sdcard/revenge_of_the_skiabot/SK_IMAGE_VERSION"
   },
   {
     "cmd": [
@@ -286,18 +267,86 @@
   },
   {
     "cmd": [
-      "[SLAVE_BUILD]/android_sdk/android-sdk/platform-tools/adb",
+      "adb",
       "shell",
       "cat",
-      "/storage/emulated/legacy/skiabot/skia_tmp_dir/SVG_VERSION"
+      "/sdcard/revenge_of_the_skiabot/SVG_VERSION"
     ],
-    "env": {
-      "BUILDTYPE": "Debug",
-      "CHROME_HEADLESS": "1",
-      "SKIA_OUT": "[SLAVE_BUILD]/out"
-    },
-    "name": "read SVG_VERSION",
+    "cwd": "[SLAVE_BUILD]/skia",
+    "name": "read /sdcard/revenge_of_the_skiabot/SVG_VERSION",
     "stdout": "/path/to/tmp/"
+  },
+  {
+    "cmd": [
+      "adb",
+      "shell",
+      "rm",
+      "-f",
+      "/sdcard/revenge_of_the_skiabot/SVG_VERSION"
+    ],
+    "cwd": "[SLAVE_BUILD]/skia",
+    "name": "rm /sdcard/revenge_of_the_skiabot/SVG_VERSION"
+  },
+  {
+    "cmd": [
+      "adb",
+      "shell",
+      "rm",
+      "-rf",
+      "/sdcard/revenge_of_the_skiabot/svgs"
+    ],
+    "cwd": "[SLAVE_BUILD]/skia",
+    "name": "rm /sdcard/revenge_of_the_skiabot/svgs"
+  },
+  {
+    "cmd": [
+      "adb",
+      "shell",
+      "mkdir",
+      "-p",
+      "/sdcard/revenge_of_the_skiabot/svgs"
+    ],
+    "cwd": "[SLAVE_BUILD]/skia",
+    "name": "mkdir /sdcard/revenge_of_the_skiabot/svgs"
+  },
+  {
+    "cmd": [
+      "python",
+      "-u",
+      "\nimport os\nimport subprocess\nimport sys\nhost   = sys.argv[1]\ndevice = sys.argv[2]\nfor d, _, fs in os.walk(host):\n  p = os.path.relpath(d, host)\n  if p != '.' and p.startswith('.'):\n    continue\n  for f in fs:\n    print os.path.join(p,f)\n    subprocess.check_call(['adb', 'push',\n                           os.path.realpath(os.path.join(host, p, f)),\n                           os.path.join(device, p, f)])\n",
+      "[SLAVE_BUILD]/svg",
+      "/sdcard/revenge_of_the_skiabot/svgs"
+    ],
+    "cwd": "[SLAVE_BUILD]/skia",
+    "name": "push [SLAVE_BUILD]/svg/* /sdcard/revenge_of_the_skiabot/svgs",
+    "~followup_annotations": [
+      "@@@STEP_LOG_LINE@python.inline@@@@",
+      "@@@STEP_LOG_LINE@python.inline@import os@@@",
+      "@@@STEP_LOG_LINE@python.inline@import subprocess@@@",
+      "@@@STEP_LOG_LINE@python.inline@import sys@@@",
+      "@@@STEP_LOG_LINE@python.inline@host   = sys.argv[1]@@@",
+      "@@@STEP_LOG_LINE@python.inline@device = sys.argv[2]@@@",
+      "@@@STEP_LOG_LINE@python.inline@for d, _, fs in os.walk(host):@@@",
+      "@@@STEP_LOG_LINE@python.inline@  p = os.path.relpath(d, host)@@@",
+      "@@@STEP_LOG_LINE@python.inline@  if p != '.' and p.startswith('.'):@@@",
+      "@@@STEP_LOG_LINE@python.inline@    continue@@@",
+      "@@@STEP_LOG_LINE@python.inline@  for f in fs:@@@",
+      "@@@STEP_LOG_LINE@python.inline@    print os.path.join(p,f)@@@",
+      "@@@STEP_LOG_LINE@python.inline@    subprocess.check_call(['adb', 'push',@@@",
+      "@@@STEP_LOG_LINE@python.inline@                           os.path.realpath(os.path.join(host, p, f)),@@@",
+      "@@@STEP_LOG_LINE@python.inline@                           os.path.join(device, p, f)])@@@",
+      "@@@STEP_LOG_END@python.inline@@@"
+    ]
+  },
+  {
+    "cmd": [
+      "adb",
+      "push",
+      "[SLAVE_BUILD]/tmp/SVG_VERSION",
+      "/sdcard/revenge_of_the_skiabot/SVG_VERSION"
+    ],
+    "cwd": "[SLAVE_BUILD]/skia",
+    "name": "push [SLAVE_BUILD]/tmp/SVG_VERSION /sdcard/revenge_of_the_skiabot/SVG_VERSION"
   },
   {
     "cmd": [
@@ -345,55 +394,25 @@
   },
   {
     "cmd": [
-      "[SLAVE_BUILD]/android_sdk/android-sdk/platform-tools/adb",
+      "adb",
       "shell",
       "rm",
-      "-r",
-      "/storage/emulated/legacy/skiabot/skia_dm"
+      "-rf",
+      "/sdcard/revenge_of_the_skiabot/dm_out"
     ],
-    "env": {
-      "BUILDTYPE": "Debug",
-      "CHROME_HEADLESS": "1",
-      "SKIA_OUT": "[SLAVE_BUILD]/out"
-    },
-    "name": "rmdir skia_dm"
+    "cwd": "[SLAVE_BUILD]/skia",
+    "name": "rm /sdcard/revenge_of_the_skiabot/dm_out"
   },
   {
     "cmd": [
-      "[SLAVE_BUILD]/android_sdk/android-sdk/platform-tools/adb",
-      "shell",
-      "if",
-      "[",
-      "-e",
-      "/storage/emulated/legacy/skiabot/skia_dm",
-      "];",
-      "then",
-      "echo",
-      "FILE_EXISTS;",
-      "fi"
-    ],
-    "env": {
-      "BUILDTYPE": "Debug",
-      "CHROME_HEADLESS": "1",
-      "SKIA_OUT": "[SLAVE_BUILD]/out"
-    },
-    "name": "exists skia_dm",
-    "stdout": "/path/to/tmp/"
-  },
-  {
-    "cmd": [
-      "[SLAVE_BUILD]/android_sdk/android-sdk/platform-tools/adb",
+      "adb",
       "shell",
       "mkdir",
       "-p",
-      "/storage/emulated/legacy/skiabot/skia_dm"
+      "/sdcard/revenge_of_the_skiabot/dm_out"
     ],
-    "env": {
-      "BUILDTYPE": "Debug",
-      "CHROME_HEADLESS": "1",
-      "SKIA_OUT": "[SLAVE_BUILD]/out"
-    },
-    "name": "mkdir skia_dm"
+    "cwd": "[SLAVE_BUILD]/skia",
+    "name": "mkdir /sdcard/revenge_of_the_skiabot/dm_out"
   },
   {
     "cmd": [
@@ -425,11 +444,6 @@
       "[SLAVE_BUILD]/tmp/uninteresting_hashes.txt"
     ],
     "cwd": "[SLAVE_BUILD]/skia",
-    "env": {
-      "BUILDTYPE": "Debug",
-      "CHROME_HEADLESS": "1",
-      "SKIA_OUT": "[SLAVE_BUILD]/out"
-    },
     "name": "get uninteresting hashes",
     "~followup_annotations": [
       "step returned non-zero exit code: 1",
@@ -469,501 +483,130 @@
   },
   {
     "cmd": [
-      "[SLAVE_BUILD]/android_sdk/android-sdk/platform-tools/adb",
+      "adb",
       "push",
       "[SLAVE_BUILD]/tmp/uninteresting_hashes.txt",
-      "/storage/emulated/legacy/skiabot/skia_tmp_dir/uninteresting_hashes.txt"
+      "/sdcard/revenge_of_the_skiabot/uninteresting_hashes.txt"
     ],
-    "env": {
-      "BUILDTYPE": "Debug",
-      "CHROME_HEADLESS": "1",
-      "SKIA_OUT": "[SLAVE_BUILD]/out"
-    },
-    "name": "push uninteresting_hashes.txt"
+    "cwd": "[SLAVE_BUILD]/skia",
+    "name": "push [SLAVE_BUILD]/tmp/uninteresting_hashes.txt /sdcard/revenge_of_the_skiabot/uninteresting_hashes.txt"
   },
   {
     "cmd": [
-      "[SLAVE_BUILD]/skia/platform_tools/android/bin/android_run_skia",
-      "--verbose",
-      "--logcat",
-      "-d",
-      "arm_v7_neon",
-      "-t",
-      "Debug",
-      "dm",
-      "--undefok",
-      "--resourcePath",
-      "/storage/emulated/legacy/skiabot/skia_resources",
-      "--skps",
-      "/storage/emulated/legacy/skiabot/skia_skp/skps",
-      "--images",
-      "/storage/emulated/legacy/skiabot/skia_images/dm",
-      "--colorImages",
-      "/storage/emulated/legacy/skiabot/skia_images/colorspace",
-      "--nameByHash",
-      "--properties",
-      "gitHash",
-      "abc123",
-      "master",
-      "client.skia",
-      "builder",
-      "Test-Android-GCC-Nexus7-GPU-Tegra3-Arm7-Debug",
-      "build_number",
-      "6",
-      "--svgs",
-      "/storage/emulated/legacy/skiabot/skia_svg/svgs",
-      "--key",
-      "arch",
-      "Arm7",
-      "compiler",
-      "GCC",
-      "configuration",
-      "Debug",
-      "cpu_or_gpu",
-      "GPU",
-      "cpu_or_gpu_value",
-      "Tegra3",
-      "model",
-      "Nexus7",
-      "os",
-      "Android",
-      "--uninterestingHashesFile",
-      "/storage/emulated/legacy/skiabot/skia_tmp_dir/uninteresting_hashes.txt",
-      "--writePath",
-      "/storage/emulated/legacy/skiabot/skia_dm",
-      "--nocpu",
-      "--config",
-      "565",
-      "8888",
-      "gpu",
-      "gpusrgb",
-      "serialize-8888",
-      "tiles_rt-8888",
-      "pic-8888",
-      "--src",
-      "tests",
-      "gm",
-      "image",
-      "colorImage",
-      "svg",
-      "--blacklist",
-      "f16",
-      "_",
-      "_",
-      "dstreadshuffle",
-      "f16",
-      "image",
-      "_",
-      "_",
-      "srgb",
-      "image",
-      "_",
-      "_",
-      "gpusrgb",
-      "image",
-      "_",
-      "_",
-      "_",
-      "test",
-      "_",
-      "GrShape",
-      "serialize-8888",
-      "gm",
-      "_",
-      "bleed_image",
-      "serialize-8888",
-      "gm",
-      "_",
-      "c_gms",
-      "serialize-8888",
-      "gm",
-      "_",
-      "colortype",
-      "serialize-8888",
-      "gm",
-      "_",
-      "colortype_xfermodes",
-      "serialize-8888",
-      "gm",
-      "_",
-      "drawfilter",
-      "serialize-8888",
-      "gm",
-      "_",
-      "fontmgr_bounds_0.75_0",
-      "serialize-8888",
-      "gm",
-      "_",
-      "fontmgr_bounds_1_-0.25",
-      "serialize-8888",
-      "gm",
-      "_",
-      "fontmgr_bounds",
-      "serialize-8888",
-      "gm",
-      "_",
-      "fontmgr_match",
-      "serialize-8888",
-      "gm",
-      "_",
-      "fontmgr_iter",
-      "serialize-8888",
-      "gm",
-      "_",
-      "imagemasksubset",
-      "serialize-8888",
-      "gm",
-      "_",
-      "bitmapfilters",
-      "serialize-8888",
-      "gm",
-      "_",
-      "bitmapshaders",
-      "serialize-8888",
-      "gm",
-      "_",
-      "bleed",
-      "serialize-8888",
-      "gm",
-      "_",
-      "bleed_alpha_bmp",
-      "serialize-8888",
-      "gm",
-      "_",
-      "bleed_alpha_bmp_shader",
-      "serialize-8888",
-      "gm",
-      "_",
-      "convex_poly_clip",
-      "serialize-8888",
-      "gm",
-      "_",
-      "extractalpha",
-      "serialize-8888",
-      "gm",
-      "_",
-      "filterbitmap_checkerboard_32_32_g8",
-      "serialize-8888",
-      "gm",
-      "_",
-      "filterbitmap_image_mandrill_64",
-      "serialize-8888",
-      "gm",
-      "_",
-      "shadows",
-      "serialize-8888",
-      "gm",
-      "_",
-      "simpleaaclip_aaclip",
-      "serialize-8888",
-      "gm",
-      "_",
-      "composeshader_bitmap",
-      "serialize-8888",
-      "gm",
-      "_",
-      "scaled_tilemodes_npot",
-      "serialize-8888",
-      "gm",
-      "_",
-      "scaled_tilemodes",
-      "serialize-8888",
-      "gm",
-      "_",
-      "bleed_alpha_image",
-      "serialize-8888",
-      "gm",
-      "_",
-      "bleed_alpha_image_shader",
-      "serialize-8888",
-      "gm",
-      "_",
-      "verylargebitmap",
-      "serialize-8888",
-      "gm",
-      "_",
-      "verylarge_picture_image",
-      "sp-8888",
-      "gm",
-      "_",
-      "drawfilter",
-      "pic-8888",
-      "gm",
-      "_",
-      "drawfilter",
-      "2ndpic-8888",
-      "gm",
-      "_",
-      "drawfilter",
-      "lite-8888",
-      "gm",
-      "_",
-      "drawfilter",
-      "sp-8888",
-      "gm",
-      "_",
-      "image-cacherator-from-picture",
-      "pic-8888",
-      "gm",
-      "_",
-      "image-cacherator-from-picture",
-      "2ndpic-8888",
-      "gm",
-      "_",
-      "image-cacherator-from-picture",
-      "serialize-8888",
-      "gm",
-      "_",
-      "image-cacherator-from-picture",
-      "sp-8888",
-      "gm",
-      "_",
-      "image-cacherator-from-raster",
-      "pic-8888",
-      "gm",
-      "_",
-      "image-cacherator-from-raster",
-      "2ndpic-8888",
-      "gm",
-      "_",
-      "image-cacherator-from-raster",
-      "serialize-8888",
-      "gm",
-      "_",
-      "image-cacherator-from-raster",
-      "sp-8888",
-      "gm",
-      "_",
-      "image-cacherator-from-ctable",
-      "pic-8888",
-      "gm",
-      "_",
-      "image-cacherator-from-ctable",
-      "2ndpic-8888",
-      "gm",
-      "_",
-      "image-cacherator-from-ctable",
-      "serialize-8888",
-      "gm",
-      "_",
-      "image-cacherator-from-ctable",
-      "sp-8888",
-      "gm",
-      "_",
-      "gamut",
-      "pic-8888",
-      "gm",
-      "_",
-      "gamut",
-      "lite-8888",
-      "gm",
-      "_",
-      "gamut",
-      "2ndpic-8888",
-      "gm",
-      "_",
-      "gamut",
-      "serialize-8888",
-      "gm",
-      "_",
-      "gamut",
-      "_",
-      "image",
-      "_",
-      "interlaced1.png",
-      "_",
-      "image",
-      "_",
-      "interlaced2.png",
-      "_",
-      "image",
-      "_",
-      "interlaced3.png",
-      "_",
-      "image",
-      "_",
-      ".arw",
-      "_",
-      "image",
-      "_",
-      ".cr2",
-      "_",
-      "image",
-      "_",
-      ".dng",
-      "_",
-      "image",
-      "_",
-      ".nef",
-      "_",
-      "image",
-      "_",
-      ".nrw",
-      "_",
-      "image",
-      "_",
-      ".orf",
-      "_",
-      "image",
-      "_",
-      ".raf",
-      "_",
-      "image",
-      "_",
-      ".rw2",
-      "_",
-      "image",
-      "_",
-      ".pef",
-      "_",
-      "image",
-      "_",
-      ".srw",
-      "_",
-      "image",
-      "_",
-      ".ARW",
-      "_",
-      "image",
-      "_",
-      ".CR2",
-      "_",
-      "image",
-      "_",
-      ".DNG",
-      "_",
-      "image",
-      "_",
-      ".NEF",
-      "_",
-      "image",
-      "_",
-      ".NRW",
-      "_",
-      "image",
-      "_",
-      ".ORF",
-      "_",
-      "image",
-      "_",
-      ".RAF",
-      "_",
-      "image",
-      "_",
-      ".RW2",
-      "_",
-      "image",
-      "_",
-      ".PEF",
-      "_",
-      "image",
-      "_",
-      ".SRW"
+      "adb",
+      "push",
+      "[SLAVE_BUILD]/out/Debug/dm",
+      "/data/local/tmp/"
     ],
-    "env": {
-      "ANDROID_HOME": "[SLAVE_BUILD]/android_sdk/android-sdk",
-      "ANDROID_SDK_ROOT": "[SLAVE_BUILD]/android_sdk/android-sdk",
-      "BUILDTYPE": "Debug",
-      "CHROME_HEADLESS": "1",
-      "SKIA_ANDROID_VERBOSE_SETUP": "1",
-      "SKIA_OUT": "[SLAVE_BUILD]/out"
-    },
-    "name": "dm"
+    "cwd": "[SLAVE_BUILD]/skia",
+    "name": "push dm"
   },
   {
     "cmd": [
-      "[SLAVE_BUILD]/skia/platform_tools/android/bin/adb_pull_if_needed",
-      "--verbose",
-      "/storage/emulated/legacy/skiabot/skia_dm",
+      "python",
+      "-u",
+      "\nimport shutil\nimport sys\nshutil.copy(sys.argv[1], sys.argv[2])\n",
+      "set -x; /data/local/tmp/dm --undefok --resourcePath /sdcard/revenge_of_the_skiabot/resources --skps /sdcard/revenge_of_the_skiabot/skps --images /sdcard/revenge_of_the_skiabot/images/dm --colorImages /sdcard/revenge_of_the_skiabot/images/colorspace --nameByHash --properties gitHash abc123 master client.skia builder Test-Android-Clang-Nexus7-GPU-Tegra3-arm-Debug-GN_Android build_number 6 --svgs /sdcard/revenge_of_the_skiabot/svgs --key arch arm compiler Clang configuration Debug cpu_or_gpu GPU cpu_or_gpu_value Tegra3 extra_config GN_Android model Nexus7 os Android --uninterestingHashesFile /sdcard/revenge_of_the_skiabot/uninteresting_hashes.txt --writePath /sdcard/revenge_of_the_skiabot/dm_out --nocpu --config 8888 gpu gpusrgb serialize-8888 tiles_rt-8888 pic-8888 --src tests gm image colorImage svg --blacklist gpusrgb image _ _ _ test _ GrShape serialize-8888 gm _ bleed_image serialize-8888 gm _ c_gms serialize-8888 gm _ colortype serialize-8888 gm _ colortype_xfermodes serialize-8888 gm _ drawfilter serialize-8888 gm _ fontmgr_bounds_0.75_0 serialize-8888 gm _ fontmgr_bounds_1_-0.25 serialize-8888 gm _ fontmgr_bounds serialize-8888 gm _ fontmgr_match serialize-8888 gm _ fontmgr_iter serialize-8888 gm _ imagemasksubset serialize-8888 gm _ bitmapfilters serialize-8888 gm _ bitmapshaders serialize-8888 gm _ bleed serialize-8888 gm _ bleed_alpha_bmp serialize-8888 gm _ bleed_alpha_bmp_shader serialize-8888 gm _ convex_poly_clip serialize-8888 gm _ extractalpha serialize-8888 gm _ filterbitmap_checkerboard_32_32_g8 serialize-8888 gm _ filterbitmap_image_mandrill_64 serialize-8888 gm _ shadows serialize-8888 gm _ simpleaaclip_aaclip serialize-8888 gm _ composeshader_bitmap serialize-8888 gm _ scaled_tilemodes_npot serialize-8888 gm _ scaled_tilemodes serialize-8888 gm _ typefacerendering_pfaMac serialize-8888 gm _ bleed_alpha_image serialize-8888 gm _ bleed_alpha_image_shader serialize-8888 gm _ verylargebitmap serialize-8888 gm _ verylarge_picture_image pic-8888 gm _ drawfilter pic-8888 gm _ image-cacherator-from-picture serialize-8888 gm _ image-cacherator-from-picture pic-8888 gm _ image-cacherator-from-raster serialize-8888 gm _ image-cacherator-from-raster pic-8888 gm _ image-cacherator-from-ctable serialize-8888 gm _ image-cacherator-from-ctable pic-8888 gm _ gamut serialize-8888 gm _ gamut _ image _ interlaced1.png _ image _ interlaced2.png _ image _ interlaced3.png _ image _ .arw _ image _ .cr2 _ image _ .dng _ image _ .nef _ image _ .nrw _ image _ .orf _ image _ .raf _ image _ .rw2 _ image _ .pef _ image _ .srw _ image _ .ARW _ image _ .CR2 _ image _ .DNG _ image _ .NEF _ image _ .NRW _ image _ .ORF _ image _ .RAF _ image _ .RW2 _ image _ .PEF _ image _ .SRW; echo $? >/data/local/tmp/rc",
+      "[SLAVE_BUILD]/tmp/dm.sh"
+    ],
+    "name": "write dm.sh"
+  },
+  {
+    "cmd": [
+      "adb",
+      "push",
+      "[SLAVE_BUILD]/tmp/dm.sh",
+      "/data/local/tmp/"
+    ],
+    "cwd": "[SLAVE_BUILD]/skia",
+    "name": "push dm.sh"
+  },
+  {
+    "cmd": [
+      "adb",
+      "logcat",
+      "-c"
+    ],
+    "cwd": "[SLAVE_BUILD]/skia",
+    "name": "clear log"
+  },
+  {
+    "cmd": [
+      "python",
+      "-u",
+      "\nimport subprocess\nimport sys\nbin_dir = sys.argv[1]\nsh      = sys.argv[2]\nsubprocess.check_call(['adb', 'shell', 'sh', bin_dir + sh])\ntry:\n  sys.exit(int(subprocess.check_output(['adb', 'shell', 'cat',\n                                        bin_dir + 'rc'])))\nexcept ValueError:\n  print \"Couldn't read the return code.  Probably killed for OOM.\"\n  sys.exit(1)\n",
+      "/data/local/tmp/",
+      "dm.sh"
+    ],
+    "name": "dm",
+    "~followup_annotations": [
+      "@@@STEP_LOG_LINE@python.inline@@@@",
+      "@@@STEP_LOG_LINE@python.inline@import subprocess@@@",
+      "@@@STEP_LOG_LINE@python.inline@import sys@@@",
+      "@@@STEP_LOG_LINE@python.inline@bin_dir = sys.argv[1]@@@",
+      "@@@STEP_LOG_LINE@python.inline@sh      = sys.argv[2]@@@",
+      "@@@STEP_LOG_LINE@python.inline@subprocess.check_call(['adb', 'shell', 'sh', bin_dir + sh])@@@",
+      "@@@STEP_LOG_LINE@python.inline@try:@@@",
+      "@@@STEP_LOG_LINE@python.inline@  sys.exit(int(subprocess.check_output(['adb', 'shell', 'cat',@@@",
+      "@@@STEP_LOG_LINE@python.inline@                                        bin_dir + 'rc'])))@@@",
+      "@@@STEP_LOG_LINE@python.inline@except ValueError:@@@",
+      "@@@STEP_LOG_LINE@python.inline@  print \"Couldn't read the return code.  Probably killed for OOM.\"@@@",
+      "@@@STEP_LOG_LINE@python.inline@  sys.exit(1)@@@",
+      "@@@STEP_LOG_END@python.inline@@@"
+    ]
+  },
+  {
+    "cmd": [
+      "adb",
+      "pull",
+      "/sdcard/revenge_of_the_skiabot/dm_out",
       "[CUSTOM_[SWARM_OUT_DIR]]/dm"
     ],
-    "env": {
-      "ANDROID_HOME": "[SLAVE_BUILD]/android_sdk/android-sdk",
-      "ANDROID_SDK_ROOT": "[SLAVE_BUILD]/android_sdk/android-sdk",
-      "BUILDTYPE": "Debug",
-      "CHROME_HEADLESS": "1",
-      "SKIA_ANDROID_VERBOSE_SETUP": "1",
-      "SKIA_OUT": "[SLAVE_BUILD]/out"
-    },
-    "name": "pull skia_dm"
+    "cwd": "[SLAVE_BUILD]/skia",
+    "name": "pull /sdcard/revenge_of_the_skiabot/dm_out [CUSTOM_[SWARM_OUT_DIR]]/dm"
   },
   {
     "cmd": [
-      "[SLAVE_BUILD]/android_sdk/android-sdk/platform-tools/adb",
-      "shell",
-      "dumpsys",
-      "batteryproperties"
+      "python",
+      "-u",
+      "\nimport os\nimport subprocess\nimport sys\nout = sys.argv[1]\nlog = subprocess.check_output(['adb', 'logcat', '-d'])\nfor line in log.split('\\n'):\n  tokens = line.split()\n  if len(tokens) == 11 and tokens[-7] == 'F' and tokens[-3] == 'pc':\n    addr, path = tokens[-2:]\n    local = os.path.join(out, os.path.basename(path))\n    if os.path.exists(local):\n      sym = subprocess.check_output(['addr2line', '-Cfpe', local, addr])\n      line = line.replace(addr, addr + ' ' + sym.strip())\n  print line\n",
+      "[SLAVE_BUILD]/out/Debug"
     ],
-    "env": {
-      "BUILDTYPE": "Debug",
-      "CHROME_HEADLESS": "1",
-      "SKIA_OUT": "[SLAVE_BUILD]/out"
-    },
-    "name": "final battery stats"
+    "name": "dump log",
+    "~followup_annotations": [
+      "@@@STEP_LOG_LINE@python.inline@@@@",
+      "@@@STEP_LOG_LINE@python.inline@import os@@@",
+      "@@@STEP_LOG_LINE@python.inline@import subprocess@@@",
+      "@@@STEP_LOG_LINE@python.inline@import sys@@@",
+      "@@@STEP_LOG_LINE@python.inline@out = sys.argv[1]@@@",
+      "@@@STEP_LOG_LINE@python.inline@log = subprocess.check_output(['adb', 'logcat', '-d'])@@@",
+      "@@@STEP_LOG_LINE@python.inline@for line in log.split('\\n'):@@@",
+      "@@@STEP_LOG_LINE@python.inline@  tokens = line.split()@@@",
+      "@@@STEP_LOG_LINE@python.inline@  if len(tokens) == 11 and tokens[-7] == 'F' and tokens[-3] == 'pc':@@@",
+      "@@@STEP_LOG_LINE@python.inline@    addr, path = tokens[-2:]@@@",
+      "@@@STEP_LOG_LINE@python.inline@    local = os.path.join(out, os.path.basename(path))@@@",
+      "@@@STEP_LOG_LINE@python.inline@    if os.path.exists(local):@@@",
+      "@@@STEP_LOG_LINE@python.inline@      sym = subprocess.check_output(['addr2line', '-Cfpe', local, addr])@@@",
+      "@@@STEP_LOG_LINE@python.inline@      line = line.replace(addr, addr + ' ' + sym.strip())@@@",
+      "@@@STEP_LOG_LINE@python.inline@  print line@@@",
+      "@@@STEP_LOG_END@python.inline@@@"
+    ]
   },
   {
     "cmd": [
-      "[SLAVE_BUILD]/android_sdk/android-sdk/platform-tools/adb",
+      "adb",
       "reboot"
     ],
-    "env": {
-      "BUILDTYPE": "Debug",
-      "CHROME_HEADLESS": "1",
-      "SKIA_OUT": "[SLAVE_BUILD]/out"
-    },
+    "cwd": "[SLAVE_BUILD]/skia",
     "name": "reboot"
   },
   {
     "cmd": [
-      "sleep",
-      "10"
-    ],
-    "env": {
-      "BUILDTYPE": "Debug",
-      "CHROME_HEADLESS": "1",
-      "SKIA_OUT": "[SLAVE_BUILD]/out"
-    },
-    "name": "wait for reboot"
-  },
-  {
-    "cmd": [
-      "[SLAVE_BUILD]/skia/platform_tools/android/bin/adb_wait_for_device"
-    ],
-    "env": {
-      "ANDROID_HOME": "[SLAVE_BUILD]/android_sdk/android-sdk",
-      "ANDROID_SDK_ROOT": "[SLAVE_BUILD]/android_sdk/android-sdk",
-      "BUILDTYPE": "Debug",
-      "CHROME_HEADLESS": "1",
-      "SKIA_ANDROID_VERBOSE_SETUP": "1",
-      "SKIA_OUT": "[SLAVE_BUILD]/out"
-    },
-    "name": "wait for device (3)"
-  },
-  {
-    "cmd": [
-      "[SLAVE_BUILD]/skia/platform_tools/android/bin/adb_wait_for_charge"
-    ],
-    "env": {
-      "ANDROID_HOME": "[SLAVE_BUILD]/android_sdk/android-sdk",
-      "ANDROID_SDK_ROOT": "[SLAVE_BUILD]/android_sdk/android-sdk",
-      "BUILDTYPE": "Debug",
-      "CHROME_HEADLESS": "1",
-      "SKIA_ANDROID_VERBOSE_SETUP": "1",
-      "SKIA_OUT": "[SLAVE_BUILD]/out"
-    },
-    "name": "wait for charge (3)"
-  },
-  {
-    "cmd": [
-      "[SLAVE_BUILD]/android_sdk/android-sdk/platform-tools/adb",
+      "adb",
       "kill-server"
     ],
-    "env": {
-      "BUILDTYPE": "Debug",
-      "CHROME_HEADLESS": "1",
-      "SKIA_OUT": "[SLAVE_BUILD]/out"
-    },
-    "name": "kill-server"
+    "cwd": "[SLAVE_BUILD]/skia",
+    "name": "kill adb server"
   },
   {
     "name": "$result",

@@ -65,17 +65,17 @@ sk_sp<SkData> Request::writeCanvasToPng(SkCanvas* canvas) {
     SkDynamicMemoryWStream buffer;
     SkDrawCommand::WritePNG((const png_bytep) encodedBitmap->bytes(), bmp->width(), bmp->height(),
                             buffer, true);
-    return sk_sp<SkData>(buffer.copyToData());
+    return buffer.detachAsData();
 }
 
 SkCanvas* Request::getCanvas() {
 #if SK_SUPPORT_GPU
     GrContextFactory* factory = fContextFactory;
     GLTestContext* gl = factory->getContextInfo(GrContextFactory::kNativeGL_ContextType,
-                                                GrContextFactory::kNone_ContextOptions).glContext();
+                                               GrContextFactory::ContextOptions::kNone).glContext();
     if (!gl) {
         gl = factory->getContextInfo(GrContextFactory::kMESA_ContextType,
-                                     GrContextFactory::kNone_ContextOptions).glContext();
+                                     GrContextFactory::ContextOptions::kNone).glContext();
     }
     if (gl) {
         gl->makeCurrent();
@@ -117,16 +117,16 @@ sk_sp<SkData> Request::writeOutSkp() {
     SkAutoTUnref<SkPixelSerializer> serializer(SkImageEncoder::CreatePixelSerializer());
     picture->serialize(&outStream, serializer);
 
-    return sk_sp<SkData>(outStream.copyToData());
+    return outStream.detachAsData();
 }
 
 GrContext* Request::getContext() {
 #if SK_SUPPORT_GPU
     GrContext* result = fContextFactory->get(GrContextFactory::kNativeGL_ContextType,
-                                             GrContextFactory::kNone_ContextOptions);
+                                             GrContextFactory::ContextOptions::kNone);
     if (!result) {
         result = fContextFactory->get(GrContextFactory::kMESA_ContextType,
-                                      GrContextFactory::kNone_ContextOptions);
+                                      GrContextFactory::ContextOptions::kNone);
     }
     return result;
 #else
@@ -257,7 +257,7 @@ sk_sp<SkData> Request::getJsonOps(int n) {
     SkDynamicMemoryWStream stream;
     stream.writeText(Json::FastWriter().write(root).c_str());
 
-    return sk_sp<SkData>(stream.copyToData());
+    return stream.detachAsData();
 }
 
 sk_sp<SkData> Request::getJsonBatchList(int n) {
@@ -269,7 +269,7 @@ sk_sp<SkData> Request::getJsonBatchList(int n) {
     SkDynamicMemoryWStream stream;
     stream.writeText(Json::FastWriter().write(result).c_str());
 
-    return sk_sp<SkData>(stream.copyToData());
+    return stream.detachAsData();
 }
 
 sk_sp<SkData> Request::getJsonInfo(int n) {
@@ -301,7 +301,7 @@ SkColor Request::getPixel(int x, int y) {
 
     // Convert to format suitable for inspection
     sk_sp<SkData> encodedBitmap = sk_tools::encode_bitmap_for_png(*bitmap);
-    SkASSERT(encodedBitmap.get());
+    SkASSERT(encodedBitmap);
 
     const uint8_t* start = encodedBitmap->bytes() + ((y * bitmap->width() + x) * 4);
     SkColor result = SkColorSetARGB(start[3], start[0], start[1], start[2]);

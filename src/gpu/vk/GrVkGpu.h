@@ -14,6 +14,7 @@
 #include "GrGpuFactory.h"
 #include "vk/GrVkBackendContext.h"
 #include "GrVkCaps.h"
+#include "GrVkCopyManager.h"
 #include "GrVkIndexBuffer.h"
 #include "GrVkMemory.h"
 #include "GrVkResourceProvider.h"
@@ -59,7 +60,9 @@ public:
         return fPhysDevMemProps;
     }
 
-    GrVkResourceProvider& resourceProvider() { return fResourceProvider;  }
+    GrVkResourceProvider& resourceProvider() { return fResourceProvider; }
+
+    GrVkPrimaryCommandBuffer* currentCommandBuffer() { return fCurrentCmdBuffer; }
 
     enum SyncQueue {
         kForce_SyncQueue,
@@ -137,6 +140,10 @@ public:
                                       const SkIRect& bounds);
 
     void finishDrawTarget() override;
+
+    GrFence SK_WARN_UNUSED_RESULT insertFence() const override;
+    bool waitFence(GrFence, uint64_t timeout) const override;
+    void deleteFence(GrFence) const override;
 
     void generateMipmap(GrVkTexture* tex);
 
@@ -261,6 +268,8 @@ private:
     VkPhysicalDeviceMemoryProperties       fPhysDevMemProps;
 
     SkAutoTDelete<GrVkHeap>                fHeaps[kHeapCount];
+
+    GrVkCopyManager                        fCopyManager;
 
 #ifdef SK_ENABLE_VK_LAYERS
     // For reporting validation layer errors

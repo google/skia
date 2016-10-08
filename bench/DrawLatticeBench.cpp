@@ -22,6 +22,7 @@ public:
         fLattice.fYDivs = yDivs;
         fLattice.fYCount = yCount;
         fLattice.fFlags = nullptr;
+        fLattice.fBounds = nullptr;
 
         fName = SkStringPrintf("DrawLattice_%s", desc);
     }

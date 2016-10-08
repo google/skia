@@ -9,11 +9,14 @@
 #ifndef TestContext_DEFINED
 #define TestContext_DEFINED
 
+#include "FenceSync.h"
 #include "GrTypes.h"
-#include "../private/SkGpuFenceSync.h"
 #include "../private/SkTemplates.h"
 
 namespace sk_gpu_test {
+
+class GpuTimer;
+
 /**
  * An offscreen 3D context. This class is intended for Skia's internal testing needs and not
  * for general use.
@@ -25,6 +28,10 @@ public:
     virtual bool isValid() const = 0;
 
     bool fenceSyncSupport() const { return fFenceSync != nullptr; }
+    FenceSync* fenceSync() { SkASSERT(fFenceSync); return fFenceSync; }
+
+    bool gpuTimingSupport() const { return fGpuTimer != nullptr; }
+    GpuTimer* gpuTimer() const { SkASSERT(fGpuTimer); return fGpuTimer; }
 
     bool getMaxGpuFrameLag(int *maxFrameLag) const {
         if (!fFenceSync) {
@@ -73,13 +80,9 @@ public:
     /** Wait until all GPU work is finished. */
     virtual void finish() = 0;
 
-    /**
-     * returns the fencesync object owned by this GLTestContext
-     */
-    SkGpuFenceSync *fenceSync() { return fFenceSync; }
-
 protected:
-    SkGpuFenceSync* fFenceSync;
+    SkAutoTDelete<FenceSync>   fFenceSync;
+    SkAutoTDelete<GpuTimer>    fGpuTimer;
 
     TestContext();
 
@@ -94,7 +97,7 @@ private:
         kMaxFrameLag = 3
     };
 
-    SkPlatformGpuFence fFrameFences[kMaxFrameLag - 1];
+    PlatformFence fFrameFences[kMaxFrameLag - 1];
     int fCurrentFenceIdx;
 
     typedef SkNoncopyable INHERITED;

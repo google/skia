@@ -25,7 +25,7 @@ void CheckShader(SkPaint* paint) {
         return;
     }
 
-    if (shader->isABitmap()) {
+    if (shader->isAImage()) {
         return;
     }
     if (shader->asACompose(nullptr)) {
@@ -46,11 +46,9 @@ void Filter(SkPaint* paint) {
     flags &= ~SkPaint::kLCDRenderText_Flag;
     paint->setFlags(flags);
 
-    // Android doesn't support Xfermodes above kLighten_Mode
-    SkXfermode::Mode mode;
-    SkXfermode::AsMode(paint->getXfermode(), &mode);
-    if (mode > SkXfermode::kLighten_Mode) {
-        paint->setXfermode(nullptr);
+    // Android doesn't support blend modes above kLighten_Mode
+    if (paint->getBlendMode() > SkBlendMode::kLighten) {
+        paint->setBlendMode(SkBlendMode::kSrcOver);
     }
 
     // Force bilinear scaling or none
@@ -344,24 +342,24 @@ void SkAndroidSDKCanvas::didSetMatrix(const SkMatrix& m) {
 }
 
 void SkAndroidSDKCanvas::onClipRect(const SkRect& rect,
-                                             SkRegion::Op op,
+                                             ClipOp op,
                                              ClipEdgeStyle style) {
     fProxyTarget->clipRect(rect, op, style);
 }
 
 void SkAndroidSDKCanvas::onClipRRect(const SkRRect& rrect,
-                                              SkRegion::Op op,
+                                              ClipOp op,
                                               ClipEdgeStyle style) {
     fProxyTarget->clipRRect(rrect, op, style);
 }
 
 void SkAndroidSDKCanvas::onClipPath(const SkPath& path,
-                                             SkRegion::Op op,
+                                             ClipOp op,
                                              ClipEdgeStyle style) {
     fProxyTarget->clipPath(path, op, style);
 }
 
-void SkAndroidSDKCanvas::onClipRegion(const SkRegion& region, SkRegion::Op op) {
+void SkAndroidSDKCanvas::onClipRegion(const SkRegion& region, ClipOp op) {
     fProxyTarget->clipRegion(region, op);
 }
 

@@ -12,6 +12,7 @@
 #include "SkRect.h"
 #include "SkSize.h"
 #include "SkSVGAttribute.h"
+#include "SkSVGIDMapper.h"
 #include "SkTLazy.h"
 #include "SkTypes.h"
 
@@ -56,7 +57,8 @@ struct SkSVGPresentationContext {
 
 class SkSVGRenderContext {
 public:
-    SkSVGRenderContext(SkCanvas*, const SkSVGLengthContext&, const SkSVGPresentationContext&);
+    SkSVGRenderContext(SkCanvas*, const SkSVGIDMapper&, const SkSVGLengthContext&,
+                       const SkSVGPresentationContext&);
     SkSVGRenderContext(const SkSVGRenderContext&);
     ~SkSVGRenderContext();
 
@@ -65,7 +67,12 @@ public:
 
     SkCanvas* canvas() const { return fCanvas; }
 
-    void applyPresentationAttributes(const SkSVGPresentationAttributes&);
+    enum ApplyFlags {
+        kLeaf = 1 << 0, // the target node doesn't have descendants
+    };
+    void applyPresentationAttributes(const SkSVGPresentationAttributes&, uint32_t flags);
+
+    const SkSVGNode* findNodeById(const SkString&) const;
 
     const SkPaint* fillPaint() const;
     const SkPaint* strokePaint() const;
@@ -76,6 +83,9 @@ private:
     void* operator new(size_t, void*)                        = delete;
     SkSVGRenderContext& operator=(const SkSVGRenderContext&) = delete;
 
+    void applyOpacity(SkScalar opacity, uint32_t flags);
+
+    const SkSVGIDMapper&                          fIDMapper;
     SkTCopyOnFirstWrite<SkSVGLengthContext>       fLengthContext;
     SkTCopyOnFirstWrite<SkSVGPresentationContext> fPresentationContext;
     SkCanvas*                                     fCanvas;

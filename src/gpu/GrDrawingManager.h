@@ -64,9 +64,11 @@ public:
 
 private:
     GrDrawingManager(GrContext* context, const GrDrawTarget::Options& optionsForDrawTargets,
+                     const GrPathRendererChain::Options& optionsForPathRendererChain,
                      bool isImmediateMode, GrSingleOwner* singleOwner)
         : fContext(context)
         , fOptionsForDrawTargets(optionsForDrawTargets)
+        , fOptionsForPathRendererChain(optionsForPathRendererChain)
         , fSingleOwner(singleOwner)
         , fAbandoned(false)
         , fAtlasTextContext(nullptr)
@@ -90,6 +92,7 @@ private:
 
     GrContext*                        fContext;
     GrDrawTarget::Options             fOptionsForDrawTargets;
+    GrPathRendererChain::Options      fOptionsForPathRendererChain;
 
     // In debug builds we guard against improper thread handling
     GrSingleOwner*                    fSingleOwner;

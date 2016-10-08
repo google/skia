@@ -486,7 +486,7 @@ SkTextBlobBuilder::~SkTextBlobBuilder() {
     if (nullptr != fStorage.get()) {
         // We are abandoning runs and must destruct the associated font data.
         // The easiest way to accomplish that is to use the blob destructor.
-        build()->unref();
+        this->make();
     }
 }
 

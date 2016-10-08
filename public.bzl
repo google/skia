@@ -134,7 +134,9 @@ BASE_SRCS_ALL = struct(
 
         # Currently exclude all vulkan specific files
         "src/gpu/vk/*",
-        "src/sksl/**/*",
+
+        # Defines main.
+        "src/sksl/SkSLMain.cpp",
     ],
 )
 
@@ -161,8 +163,9 @@ BASE_SRCS_UNIX = struct(
         # Included in :opts_sse4 library.
         "src/opts/*SSE4*",
         "src/opts/*sse4*",
-        # Included in :opts_avx or :opts_avx2
+        # Included in :opts_avx or :opts_hsw
         "src/opts/*avx*",
+        "src/opts/*hsw*",
         "src/opts/SkBitmapProcState_opts_none.cpp",
         "src/opts/SkBlitMask_opts_none.cpp",
         "src/opts/SkBlitRow_opts_none.cpp",
@@ -174,7 +177,6 @@ BASE_SRCS_UNIX = struct(
         "src/ports/*mozalloc*",
         "src/ports/*nacl*",
         "src/ports/*win*",
-        "src/ports/SkFontConfigInterface_direct_factory.cpp",
         "src/ports/SkFontMgr_custom_directory_factory.cpp",
         "src/ports/SkFontMgr_custom_embedded_factory.cpp",
         "src/ports/SkFontMgr_custom_empty_factory.cpp",
@@ -286,7 +288,7 @@ BASE_SRCS_IOS = struct(
 )
 
 ################################################################################
-## SSSE3/SSE4/AVX/AVX2 SRCS
+## SSSE3/SSE4/AVX/HSW SRCS
 ################################################################################
 
 SSSE3_SRCS = struct(
@@ -309,9 +311,9 @@ AVX_SRCS = struct(
     ],
 )
 
-AVX2_SRCS = struct(
+HSW_SRCS = struct(
     include = [
-        "src/opts/*_avx2.cpp",
+        "src/opts/*_hsw.cpp",
     ],
 )
 
@@ -340,7 +342,7 @@ BASE_DEPS_UNIX = [
     ":opts_ssse3",
     ":opts_sse4",
     ":opts_avx",
-    ":opts_avx2",
+    ":opts_hsw",
 ]
 
 BASE_DEPS_ANDROID = []
@@ -380,6 +382,7 @@ INCLUDES = [
     "src/ports",
     "src/pdf",
     "src/sfnt",
+    "src/sksl",
     "src/utils",
     "third_party/etc1",
     "third_party/ktx",
@@ -435,10 +438,8 @@ DM_SRCS_ALL = struct(
         "tests/PathOpsSkpClipTest.cpp",  # Alternate main.
         "tests/skia_test.cpp",  # Old main.
         "tests/SkpSkGrTest.cpp",  # Alternate main.
-        "tests/SkSL*.cpp",  # Excluded along with Vulkan.
         "tests/SVGDeviceTest.cpp",
         "tools/gpu/gl/angle/*",
-        "tools/gpu/gl/command_buffer/*",
         "tools/gpu/gl/egl/*",
         "tools/gpu/gl/glx/*",
         "tools/gpu/gl/iOS/*",
@@ -599,6 +600,7 @@ DEFINES_ALL = [
     "GOOGLE3",
     # Staging flags for API changes
     "SK_SUPPORT_LEGACY_ACCESSBITMAP",
+    "SK_SUPPORT_LEGACY_ARITHMETICMODE",
     "SK_SUPPORT_LEGACY_COLORFILTER_PTR",
     "SK_SUPPORT_LEGACY_CREATESHADER_PTR",
     "SK_SUPPORT_LEGACY_IMAGEFACTORY",
@@ -611,6 +613,10 @@ DEFINES_ALL = [
     "SK_SUPPORT_LEGACY_TYPEFACE_PTR",
     "SK_SUPPORT_LEGACY_XFERMODE_PTR",
     "SK_SUPPORT_LEGACY_PICTUREINSTALLPIXELREF",
+    "SK_SUPPORT_LEGACY_STREAM_DATA",
+    "SK_SUPPORT_LEGACY_CLIP_REGIONOPS",
+    "SK_SUPPORT_LEGACY_SHADER_ISABITMAP",
+    "SK_SUPPORT_LEGACY_XFERMODE_OBJECT",
 ]
 
 ################################################################################

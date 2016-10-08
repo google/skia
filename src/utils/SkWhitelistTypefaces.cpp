@@ -63,7 +63,7 @@ static int whitelist_name_index(const SkTypeface* tf) {
 }
 
 static uint32_t compute_checksum(const SkTypeface* tf) {
-    SkFontData* fontData = tf->createFontData();
+    std::unique_ptr<SkFontData> fontData = tf->makeFontData();
     if (!fontData) {
         return 0;
     }
@@ -118,7 +118,7 @@ static void serialize_full(const SkTypeface* tf, SkWStream* wstream) {
 
     // Embed font data if it's a local font.
     if (isLocal && !desc.hasFontData()) {
-        desc.setFontData(tf->createFontData());
+        desc.setFontData(tf->makeFontData());
     }
     desc.serialize(wstream);
 }
@@ -190,9 +190,9 @@ sk_sp<SkTypeface> WhitelistDeserializeTypeface(SkStream* stream) {
         return nullptr;
     }
 
-    SkFontData* data = desc.detachFontData();
+    std::unique_ptr<SkFontData> data = desc.detachFontData();
     if (data) {
-        sk_sp<SkTypeface> typeface(SkTypeface::MakeFromFontData(data));
+        sk_sp<SkTypeface> typeface(SkTypeface::MakeFromFontData(std::move(data)));
         if (typeface) {
             return typeface;
         }

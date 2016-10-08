@@ -35,7 +35,10 @@ protected:
             return;
         }
 
-        fDom = SkSVGDOM::MakeFromDOM(xmlDom, SkSize::Make(this->width(), this->height()));
+        fDom = SkSVGDOM::MakeFromDOM(xmlDom);
+        if (fDom) {
+            fDom->setContainerSize(SkSize::Make(this->width(), this->height()));
+        }
     }
 
     void onDrawContent(SkCanvas* canvas) override {

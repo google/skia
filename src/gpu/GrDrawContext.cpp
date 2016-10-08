@@ -86,12 +86,18 @@ GrDrawContext::GrDrawContext(GrContext* context,
     , fContext(context)
     , fInstancedPipelineInfo(fRenderTarget.get())
     , fColorSpace(std::move(colorSpace))
+    , fColorXformFromSRGB(nullptr)
     , fSurfaceProps(SkSurfacePropsCopyOrDefault(surfaceProps))
     , fAuditTrail(auditTrail)
 #ifdef SK_DEBUG
     , fSingleOwner(singleOwner)
 #endif
 {
+    if (fColorSpace) {
+        // sRGB sources are very common (SkColor, etc...), so we cache that gamut transformation
+        auto srgbColorSpace = SkColorSpace::NewNamed(SkColorSpace::kSRGB_Named);
+        fColorXformFromSRGB = GrColorSpaceXform::Make(srgbColorSpace.get(), fColorSpace.get());
+    }
     SkDEBUGCODE(this->validate();)
 }
 
@@ -235,7 +241,7 @@ void GrDrawContext::internalClear(const GrFixedClip& clip,
 
         GrPaint paint;
         paint.setColor4f(GrColor4f::FromGrColor(color));
-        paint.setXPFactory(GrPorterDuffXPFactory::Make(SkXfermode::kSrc_Mode));
+        paint.setXPFactory(GrPorterDuffXPFactory::Make(SkXfermode::Mode::kSrc_Mode));
 
         this->drawRect(clip, paint, SkMatrix::I(), clearRect);
     } else if (isFull) {
@@ -764,14 +770,6 @@ void GrDrawContext::drawVertices(const GrClip& clip,
 
     viewMatrix.mapRect(&bounds);
 
-    // If we don't have AA then we outset for a half pixel in each direction to account for
-    // snapping. We also do this for the "hair" primitive types: lines and points since they have
-    // a 1 pixel thickness in device space.
-    if (!paint.isAntiAlias() || GrIsPrimTypeLines(primitiveType) ||
-        kPoints_GrPrimitiveType == primitiveType) {
-        bounds.outset(0.5f, 0.5f);
-    }
-
     SkAutoTUnref<GrDrawBatch> batch(new GrDrawVerticesBatch(paint.getColor(),
                                                             primitiveType, viewMatrix, positions,
                                                             vertexCount, indices, indexCount,
@@ -853,11 +851,13 @@ void GrDrawContext::drawRRect(const GrClip& origClip,
 
     if (should_apply_coverage_aa(paint, fRenderTarget.get(), &useHWAA)) {
         GrShaderCaps* shaderCaps = fContext->caps()->shaderCaps();
-        SkAutoTUnref<GrDrawBatch> batch(GrOvalRenderer::CreateRRectBatch(paint.getColor(),
-                                                                         viewMatrix,
-                                                                         rrect,
-                                                                         stroke,
-                                                                         shaderCaps));
+        SkAutoTUnref<GrDrawBatch> batch(GrOvalRenderer::CreateRRectBatch(
+                                                                paint.getColor(),
+                                                                paint.usesDistanceVectorField(),
+                                                                viewMatrix,
+                                                                rrect,
+                                                                stroke,
+                                                                shaderCaps));
         if (batch) {
             GrPipelineBuilder pipelineBuilder(paint, useHWAA);
             this->getDrawTarget()->drawBatch(pipelineBuilder, this, *clip, batch);

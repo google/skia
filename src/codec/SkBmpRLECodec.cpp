@@ -451,6 +451,7 @@ int SkBmpRLECodec::decodeRows(const SkImageInfo& info, void* dst, size_t dstRowB
                                 setRGBPixel(dst, dstRowBytes, dstInfo,
                                             x++, y, red, green, blue);
                                 numPixels--;
+                                break;
                             }
                             default:
                                 SkASSERT(false);

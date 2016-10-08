@@ -550,6 +550,15 @@ void GrGLCaps::init(const GrContextOptions& contextOptions,
         fSampleShadingSupport = true;
     }
 
+    // TODO: support CHROMIUM_sync_point and maybe KHR_fence_sync
+    if (kGL_GrGLStandard == standard) {
+        if (version >= GR_GL_VER(3, 2) || ctxInfo.hasExtension("GL_ARB_sync")) {
+            fFenceSyncSupport = true;
+        }
+    } else if (version >= GR_GL_VER(3, 0)) {
+        fFenceSyncSupport = true;
+    }
+
     // We support manual mip-map generation (via iterative downsampling draw calls). This fixes
     // bugs on some cards/drivers that produce incorrect mip-maps for sRGB textures when using
     // glGenerateMipmap. Our implementation requires mip-level sampling control. Additionally,
@@ -655,6 +664,13 @@ void GrGLCaps::initGLSL(const GrGLContextInfo& ctxInfo) {
             glslCaps->fFBFetchExtensionString = "GL_ARM_shader_framebuffer_fetch";
         }
         glslCaps->fUsesPrecisionModifiers = true;
+    }
+
+    // Currently the extension is advertised but fb fetch is broken on 500 series Adrenos like the
+    // Galaxy S7.
+    // TODO: Once this is fixed we can update the check here to look at a driver version number too.
+    if (kAdreno5xx_GrGLRenderer == ctxInfo.renderer()) {
+        glslCaps->fFBFetchSupport = false;
     }
 
     glslCaps->fBindlessTextureSupport = ctxInfo.hasExtension("GL_NV_bindless_texture");
@@ -1659,13 +1675,6 @@ void GrGLCaps::initConfigTable(const GrGLContextInfo& ctxInfo, const GrGLInterfa
                 hasHalfFPTextures = true;
             }
         }
-    }
-
-    if (kANGLE_GrGLDriver == ctxInfo.driver()) {
-        // ANGLE reports the wrong format for half-float (See http://anglebug.com/1478), but
-        // validates creation against the correct format. Rather than work around those bugs,
-        // just black-list support entirely for now.
-        hasHalfFPTextures = false;
     }
 
     fConfigTable[kRGBA_float_GrPixelConfig].fFormats.fBaseInternalFormat = GR_GL_RGBA;

@@ -6,23 +6,24 @@
  */
 #include "PathOpsExtendedTest.h"
 #include "PathOpsThreadedCommon.h"
+#include "SkString.h"
 
-static int add_point(char* str, SkScalar x, SkScalar y) {
-    int result;
+static int loopNo = 17;
+
+static void add_point(SkString* str, SkScalar x, SkScalar y) {
     int asInt = SkScalarRoundToInt(x);
     if (SkIntToScalar(asInt) == x) {
-        result = sprintf(str, "%d", asInt);
+        str->appendf("%d", asInt);
     } else {
-        result = sprintf(str, "%1.9gf", x);
+        str->appendf("%1.9gf", x);
     }
-    result += sprintf(str + result, ",");
+    str->appendf(",");
     asInt = SkScalarRoundToInt(y);
     if (SkIntToScalar(asInt) == y) {
-        result += sprintf(str + result, "%d", asInt);
+        str->appendf("%d", asInt);
     } else {
-        result += sprintf(str + result, "%1.9gf", y);
+        str->appendf("%1.9gf", y);
     }
-    return result;
 }
 
 static void testOpLoopsMain(PathOpsThreadState* data) {
@@ -31,11 +32,7 @@ static void testOpLoopsMain(PathOpsThreadState* data) {
 #endif
     SkASSERT(data);
     PathOpsThreadState& state = *data;
-    char pathStr[1024];  // gdb: set print elements 400
-    bool progress = state.fReporter->verbose(); // FIXME: break out into its own parameter?
-    if (progress) {
-        sk_bzero(pathStr, sizeof(pathStr));
-    }
+    SkString pathStr;
     for (int a = 0 ; a < 6; ++a) {
         for (int b = a + 1 ; b < 7; ++b) {
             for (int c = 0 ; c < 6; ++c) {
@@ -51,30 +48,6 @@ static void testOpLoopsMain(PathOpsThreadState* data) {
         SkPoint endD = { midB.fX - v.fY * state.fD / 3,
                           midB.fY + v.fX * state.fD / 3 };
         SkPath pathA, pathB;
-        if (progress) {
-            char* str = pathStr;
-            const int loopNo = 17;
-            str += sprintf(str, "static void loop%d(skiatest::Reporter* reporter,"
-                    " const char* filename) {\n", loopNo);
-            str += sprintf(str, "    SkPath path, pathB;\n");
-            str += sprintf(str, "    path.moveTo(%d,%d);\n", a, b);
-            str += sprintf(str, "    path.cubicTo(%d,%d, ", c, d);
-            str += add_point(str, endC.fX, endC.fY);
-            str += sprintf(str, ", ");
-            str += add_point(str, endD.fX, endD.fY);
-            str += sprintf(str, ");\n");
-            str += sprintf(str, "    path.close();\n");
-            str += sprintf(str, "    pathB.moveTo(%d,%d);\n", c, d);
-            str += sprintf(str, "    pathB.cubicTo(");
-            str += add_point(str, endC.fX, endC.fY);
-            str += sprintf(str, ", ");
-            str += add_point(str, endD.fX, endD.fY);
-            str += sprintf(str, ", %d,%d);\n", a, b);
-            str += sprintf(str, "    pathB.close();\n");
-            str += sprintf(str, "    testPathOp(reporter, path, pathB, kIntersect_SkPathOp,"
-                    " filename);\n");
-            str += sprintf(str, "}\n");
-        }
         pathA.moveTo(SkIntToScalar(a), SkIntToScalar(b));
         pathA.cubicTo(SkIntToScalar(c), SkIntToScalar(d), endC.fX, endC.fY, endD.fX, endD.fY);
         pathA.close();
@@ -82,8 +55,28 @@ static void testOpLoopsMain(PathOpsThreadState* data) {
         pathB.cubicTo(endC.fX, endC.fY, endD.fX, endD.fY, SkIntToScalar(a), SkIntToScalar(b));
         pathB.close();
 //        SkDebugf("%s\n", pathStr);
-        if (progress) {
-            outputProgress(state.fPathStr, pathStr, kIntersect_SkPathOp);
+        if (state.fReporter->verbose()) {
+            pathStr.printf("static void loop%d(skiatest::Reporter* reporter,"
+                    " const char* filename) {\n", loopNo);
+            pathStr.appendf("    SkPath path, pathB;\n");
+            pathStr.appendf("    path.moveTo(%d,%d);\n", a, b);
+            pathStr.appendf("    path.cubicTo(%d,%d, ", c, d);
+            add_point(&pathStr, endC.fX, endC.fY);
+            pathStr.appendf(", ");
+            add_point(&pathStr, endD.fX, endD.fY);
+            pathStr.appendf(");\n");
+            pathStr.appendf("    path.close();\n");
+            pathStr.appendf("    pathB.moveTo(%d,%d);\n", c, d);
+            pathStr.appendf("    pathB.cubicTo(");
+            add_point(&pathStr, endC.fX, endC.fY);
+            pathStr.appendf(", ");
+            add_point(&pathStr, endD.fX, endD.fY);
+            pathStr.appendf(", %d,%d);\n", a, b);
+            pathStr.appendf("    pathB.close();\n");
+            pathStr.appendf("    testPathOp(reporter, path, pathB, kIntersect_SkPathOp,"
+                    " filename);\n");
+            pathStr.appendf("}\n");
+            outputProgress(state.fPathStr, pathStr.c_str(), kIntersect_SkPathOp);
         }
         testPathOp(state.fReporter, pathA, pathB, kIntersect_SkPathOp, "loops");
                 }

@@ -55,11 +55,11 @@ struct Segment {
     const SkPoint& endPt() const {
         GR_STATIC_ASSERT(0 == kLine && 1 == kQuad);
         return fPts[fType];
-    };
+    }
     const SkPoint& endNorm() const {
         GR_STATIC_ASSERT(0 == kLine && 1 == kQuad);
         return fNorms[fType];
-    };
+    }
 };
 
 typedef SkTArray<Segment, true> SegmentArray;
@@ -577,8 +577,7 @@ public:
                                  gpArgs->fPositionVar,
                                  qe.inPosition()->fName,
                                  qe.localMatrix(),
-                                 args.fTransformsIn,
-                                 args.fTransformsOut);
+                                 args.fFPCoordTransformHandler);
 
             SkAssertResult(fragBuilder->enableFeature(
                     GrGLSLFragmentShaderBuilder::kStandardDerivatives_GLSLFeature));
@@ -614,7 +613,8 @@ public:
         }
 
         void setData(const GrGLSLProgramDataManager& pdman,
-                     const GrPrimitiveProcessor& gp) override {
+                     const GrPrimitiveProcessor& gp,
+                     FPCoordTransformIter&& transformIter) override {
             const QuadEdgeEffect& qe = gp.cast<QuadEdgeEffect>();
             if (qe.color() != fColor) {
                 float c[4];
@@ -622,14 +622,7 @@ public:
                 pdman.set4fv(fColorUniform, 1, c);
                 fColor = qe.color();
             }
-        }
-
-        void setTransformData(const GrPrimitiveProcessor& primProc,
-                              const GrGLSLProgramDataManager& pdman,
-                              int index,
-                              const SkTArray<const GrCoordTransform*, true>& transforms) override {
-            this->setTransformDataHelper(primProc.cast<QuadEdgeEffect>().fLocalMatrix, pdman, index,
-                                         transforms);
+            this->setTransformDataHelper(qe.fLocalMatrix, pdman, &transformIter);
         }
 
     private:

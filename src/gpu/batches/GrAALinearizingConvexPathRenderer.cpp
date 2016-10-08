@@ -50,12 +50,17 @@ bool GrAALinearizingConvexPathRenderer::onCanDrawPath(const CanDrawPathArgs& arg
         return false;
     }
     const SkStrokeRec& stroke = args.fShape->style().strokeRec();
-    if (stroke.getStyle() == SkStrokeRec::kStroke_Style) {
+
+    if (stroke.getStyle() == SkStrokeRec::kStroke_Style ||
+        stroke.getStyle() == SkStrokeRec::kStrokeAndFill_Style) {
         if (!args.fViewMatrix->isSimilarity()) {
             return false;
         }
         SkScalar strokeWidth = args.fViewMatrix->getMaxScale() * stroke.getWidth();
-        return strokeWidth >= 1.0f && strokeWidth <= kMaxStrokeWidth &&
+        if (strokeWidth < 1.0f && stroke.getStyle() == SkStrokeRec::kStroke_Style) {
+            return false;
+        }
+        return strokeWidth <= kMaxStrokeWidth &&
                args.fShape->knownToBeClosed() &&
                stroke.getJoin() != SkPaint::Join::kRound_Join;
     }
@@ -126,9 +131,11 @@ public:
                                 const SkMatrix& viewMatrix,
                                 const SkPath& path,
                                 SkScalar strokeWidth,
+                                SkStrokeRec::Style style,
                                 SkPaint::Join join,
                                 SkScalar miterLimit) : INHERITED(ClassID()) {
-        fGeoData.emplace_back(Geometry{color, viewMatrix, path, strokeWidth, join, miterLimit});
+        fGeoData.emplace_back(Geometry{ color, viewMatrix, path,
+                                        strokeWidth, style, join, miterLimit });
 
         // compute bounds
         SkRect bounds = path.getBounds();
@@ -229,7 +236,8 @@ private:
         uint16_t* indices = (uint16_t*) sk_malloc_throw(maxIndices * sizeof(uint16_t));
         for (int i = 0; i < instanceCount; i++) {
             const Geometry& args = fGeoData[i];
-            GrAAConvexTessellator tess(args.fStrokeWidth, args.fJoin, args.fMiterLimit);
+            GrAAConvexTessellator tess(args.fStyle, args.fStrokeWidth,
+                                       args.fJoin, args.fMiterLimit);
 
             if (!tess.tessellate(args.fViewMatrix, args.fPath)) {
                 continue;
@@ -309,6 +317,7 @@ private:
         SkMatrix fViewMatrix;
         SkPath fPath;
         SkScalar fStrokeWidth;
+        SkStrokeRec::Style fStyle;
         SkPaint::Join fJoin;
         SkScalar fMiterLimit;
     };
@@ -324,6 +333,7 @@ bool GrAALinearizingConvexPathRenderer::onDrawPath(const DrawPathArgs& args) {
                               "GrAALinearizingConvexPathRenderer::onDrawPath");
     SkASSERT(!args.fDrawContext->isUnifiedMultisampled());
     SkASSERT(!args.fShape->isEmpty());
+    SkASSERT(!args.fShape->style().pathEffect());
 
     SkPath path;
     args.fShape->asPath(&path);
@@ -335,8 +345,9 @@ bool GrAALinearizingConvexPathRenderer::onDrawPath(const DrawPathArgs& args) {
 
     SkAutoTUnref<GrDrawBatch> batch(new AAFlatteningConvexPathBatch(args.fPaint->getColor(),
                                                                     *args.fViewMatrix,
-                                                                    path, strokeWidth, join,
-                                                                    miterLimit));
+                                                                    path, strokeWidth,
+                                                                    stroke.getStyle(),
+                                                                    join, miterLimit));
 
     GrPipelineBuilder pipelineBuilder(*args.fPaint);
     pipelineBuilder.setUserStencil(args.fUserStencilSettings);
@@ -354,10 +365,29 @@ DRAW_BATCH_TEST_DEFINE(AAFlatteningConvexPathBatch) {
     GrColor color = GrRandomColor(random);
     SkMatrix viewMatrix = GrTest::TestMatrixInvertible(random);
     SkPath path = GrTest::TestPathConvex(random);
-    SkScalar strokeWidth = random->nextBool() ? -1.f : 2.f;
+
+    SkStrokeRec::Style styles[3] = { SkStrokeRec::kFill_Style,
+                                     SkStrokeRec::kStroke_Style, 
+                                     SkStrokeRec::kStrokeAndFill_Style };
+
+    SkStrokeRec::Style style = styles[random->nextU() % 3];
+
+    SkScalar strokeWidth = -1.f;
     SkPaint::Join join = SkPaint::kMiter_Join;
     SkScalar miterLimit = 0.5f;
-    return new AAFlatteningConvexPathBatch(color, viewMatrix, path, strokeWidth, join, miterLimit);
+
+    if (SkStrokeRec::kFill_Style != style) {
+        strokeWidth = random->nextRangeF(1.0f, 10.0f);
+        if (random->nextBool()) {
+            join = SkPaint::kMiter_Join;
+        } else {
+            join = SkPaint::kBevel_Join;
+        }
+        miterLimit = random->nextRangeF(0.5f, 2.0f);
+    }
+
+    return new AAFlatteningConvexPathBatch(color, viewMatrix, path, strokeWidth, 
+                                           style, join, miterLimit);
 }
 
 #endif

@@ -13,6 +13,7 @@
 #include "SkImage.h"
 #include "SkImageSource.h"
 #include "SkLightingShader.h"
+#include "SkMakeUnique.h"
 #include "SkMallocPixelRef.h"
 #include "SkNormalSource.h"
 #include "SkOSFile.h"
@@ -103,6 +104,15 @@ template<> struct SerializationUtils<SkColor> {
     }
 };
 
+template<> struct SerializationUtils<SkColor4f> {
+    static void Write(SkWriteBuffer& writer, SkColor4f* data, uint32_t arraySize) {
+        writer.writeColor4fArray(data, arraySize);
+    }
+    static bool Read(SkValidatingReadBuffer& reader, SkColor4f* data, uint32_t arraySize) {
+        return reader.readColor4fArray(data, arraySize);
+    }
+};
+
 template<> struct SerializationUtils<int32_t> {
     static void Write(SkWriteBuffer& writer, int32_t* data, uint32_t arraySize) {
         writer.writeIntArray(data, arraySize);
@@ -160,15 +170,15 @@ static void TestObjectSerializationNoAlign(T* testObj, skiatest::Reporter* repor
 
     // Make sure this succeeds when it should
     SkValidatingReadBuffer buffer2(dataWritten, bytesWritten);
-    const unsigned char* peekBefore = static_cast<const unsigned char*>(buffer2.skip(0));
+    size_t offsetBefore = buffer2.offset();
     T obj2;
     SerializationUtils<T>::Read(buffer2, &obj2);
-    const unsigned char* peekAfter = static_cast<const unsigned char*>(buffer2.skip(0));
+    size_t offsetAfter = buffer2.offset();
     // This should have succeeded, since there are enough bytes to read this
     REPORTER_ASSERT(reporter, buffer2.isValid() == !testInvalid);
     // Note: This following test should always succeed, regardless of whether the buffer is valid,
     // since if it is invalid, it will simply skip to the end, as if it had read the whole buffer.
-    REPORTER_ASSERT(reporter, static_cast<size_t>(peekAfter - peekBefore) == bytesWritten);
+    REPORTER_ASSERT(reporter, offsetAfter - offsetBefore == bytesWritten);
 }
 
 template<typename T>
@@ -224,7 +234,7 @@ static void TestArraySerialization(T* data, skiatest::Reporter* reporter) {
     // This should write the length (in 4 bytes) and the array
     REPORTER_ASSERT(reporter, (4 + kArraySize * sizeof(T)) == bytesWritten);
 
-    unsigned char dataWritten[1024];
+    unsigned char dataWritten[2048];
     writer.writeToMemory(dataWritten);
 
     // Make sure this fails when it should
@@ -250,7 +260,7 @@ static void TestBitmapSerialization(const SkBitmap& validBitmap,
     sk_sp<SkImage> invalidImage(SkImage::MakeFromBitmap(invalidBitmap));
     sk_sp<SkImageFilter> invalidBitmapSource(SkImageSource::Make(std::move(invalidImage)));
     sk_sp<SkImageFilter> xfermodeImageFilter(
-        SkXfermodeImageFilter::Make(SkXfermode::Make(SkXfermode::kSrcOver_Mode),
+        SkXfermodeImageFilter::Make(SkBlendMode::kSrcOver,
                                     std::move(invalidBitmapSource),
                                     std::move(validBitmapSource), nullptr));
 
@@ -370,13 +380,13 @@ static void TestPictureTypefaceSerialization(skiatest::Reporter* reporter) {
 
     {
         // Load typeface as stream to create with axis settings.
-        SkAutoTDelete<SkStreamAsset> distortable(GetResourceAsStream("/fonts/Distortable.ttf"));
+        std::unique_ptr<SkStreamAsset> distortable(GetResourceAsStream("/fonts/Distortable.ttf"));
         if (!distortable) {
             INFOF(reporter, "Could not run fontstream test because Distortable.ttf not found.");
         } else {
             SkFixed axis = SK_FixedSqrt2;
             sk_sp<SkTypeface> typeface(SkTypeface::MakeFromFontData(
-                new SkFontData(distortable.release(), 0, &axis, 1)));
+                skstd::make_unique<SkFontData>(std::move(distortable), 0, &axis, 1)));
             if (!typeface) {
                 INFOF(reporter, "Could not run fontstream test because Distortable.ttf not created.");
             } else {
@@ -493,6 +503,17 @@ DEF_TEST(Serialization, reporter) {
         TestArraySerialization(data, reporter);
     }
 
+    // Test readColor4fArray
+    {
+        SkColor4f data[kArraySize] = {
+            SkColor4f::FromColor(SK_ColorBLACK),
+            SkColor4f::FromColor(SK_ColorWHITE),
+            SkColor4f::FromColor(SK_ColorRED),
+            { 1.f, 2.f, 4.f, 8.f }
+        };
+        TestArraySerialization(data, reporter);
+    }
+
     // Test readIntArray
     {
         int32_t data[kArraySize] = { 1, 2, 4, 8 };
@@ -545,6 +566,7 @@ DEF_TEST(Serialization, reporter) {
         // Deserialize picture
         SkValidatingReadBuffer reader(static_cast<void*>(data.get()), size);
         sk_sp<SkPicture> readPict(SkPicture::MakeFromBuffer(reader));
+        REPORTER_ASSERT(reporter, reader.isValid());
         REPORTER_ASSERT(reporter, readPict.get());
     }
 

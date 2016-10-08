@@ -402,8 +402,9 @@ bool GrGpu::writePixels(GrSurface* surface,
 bool GrGpu::transferPixels(GrSurface* surface,
                            int left, int top, int width, int height,
                            GrPixelConfig config, GrBuffer* transferBuffer,
-                           size_t offset, size_t rowBytes) {
+                           size_t offset, size_t rowBytes, GrFence* fence) {
     SkASSERT(transferBuffer);
+    SkASSERT(fence);
 
     this->handleDirtyContext();
     if (this->onTransferPixels(surface, left, top, width, height, config,
@@ -411,6 +412,12 @@ bool GrGpu::transferPixels(GrSurface* surface,
         SkIRect rect = SkIRect::MakeXYWH(left, top, width, height);
         this->didWriteToSurface(surface, &rect);
         fStats.incTransfersToTexture();
+
+        if (*fence) {
+            this->deleteFence(*fence);
+        }
+        *fence = this->insertFence();
+
         return true;
     }
     return false;

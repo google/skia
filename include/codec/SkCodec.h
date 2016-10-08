@@ -24,10 +24,10 @@ class SkPngChunkReader;
 class SkSampler;
 
 namespace DM {
+class CodecSrc;
 class ColorCodecSrc;
 }
 class ColorCodecBench;
-
 
 /**
  *  Abstraction layer directly on top of an image codec.
@@ -95,10 +95,11 @@ public:
      *      failure to decode the image.
      *      If the PNG does not contain unknown chunks, the SkPngChunkReader
      *      will not be used or modified.
-     *
-     *  Will take a ref if it returns a codec, else will not affect the data.
      */
-    static SkCodec* NewFromData(SkData*, SkPngChunkReader* = NULL);
+    static SkCodec* NewFromData(sk_sp<SkData>, SkPngChunkReader* = NULL);
+    static SkCodec* NewFromData(SkData* data, SkPngChunkReader* reader) {
+        return NewFromData(sk_ref_sp(data), reader);
+    }
 
     virtual ~SkCodec();
 
@@ -252,8 +253,8 @@ public:
          *  If the EncodedFormat is kWEBP_SkEncodedFormat (the only one which
          *  currently supports subsets), the top and left values must be even.
          *
-         *  In getPixels, we will attempt to decode the exact rectangular
-         *  subset specified by fSubset.
+         *  In getPixels and incremental decode, we will attempt to decode the
+         *  exact rectangular subset specified by fSubset.
          *
          *  In a scanline decode, it does not make sense to specify a subset
          *  top or subset height, since the client already controls which rows
@@ -351,6 +352,67 @@ public:
         }
 
         return this->onGetYUV8Planes(sizeInfo, planes);
+    }
+
+    /**
+     *  Prepare for an incremental decode with the specified options.
+     *
+     *  This may require a rewind.
+     *
+     *  @param dstInfo Info of the destination. If the dimensions do not match
+     *      those of getInfo, this implies a scale.
+     *  @param dst Memory to write to. Needs to be large enough to hold the subset,
+     *      if present, or the full image as described in dstInfo.
+     *  @param options Contains decoding options, including if memory is zero
+     *      initialized and whether to decode a subset.
+     *  @param ctable A pointer to a color table.  When dstInfo.colorType() is
+     *      kIndex8, this should be non-NULL and have enough storage for 256
+     *      colors.  The color table will be populated after decoding the palette.
+     *  @param ctableCount A pointer to the size of the color table.  When
+     *      dstInfo.colorType() is kIndex8, this should be non-NULL.  It will
+     *      be modified to the true size of the color table (<= 256) after
+     *      decoding the palette.
+     *  @return Enum representing success or reason for failure.
+     */
+    Result startIncrementalDecode(const SkImageInfo& dstInfo, void* dst, size_t rowBytes,
+            const SkCodec::Options*, SkPMColor* ctable, int* ctableCount);
+
+    Result startIncrementalDecode(const SkImageInfo& dstInfo, void* dst, size_t rowBytes,
+            const SkCodec::Options* options) {
+        return this->startIncrementalDecode(dstInfo, dst, rowBytes, options, nullptr, nullptr);
+    }
+
+    Result startIncrementalDecode(const SkImageInfo& dstInfo, void* dst, size_t rowBytes) {
+        return this->startIncrementalDecode(dstInfo, dst, rowBytes, nullptr, nullptr, nullptr);
+    }
+
+    /**
+     *  Start/continue the incremental decode.
+     *
+     *  Not valid to call before calling startIncrementalDecode().
+     *
+     *  After the first call, should only be called again if more data has been
+     *  provided to the source SkStream.
+     *
+     *  Unlike getPixels and getScanlines, this does not do any filling. This is
+     *  left up to the caller, since they may be skipping lines or continuing the
+     *  decode later. In the latter case, they may choose to initialize all lines
+     *  first, or only initialize the remaining lines after the first call.
+     *
+     *  @param rowsDecoded Optional output variable returning the total number of
+     *      lines initialized. Only meaningful if this method returns kIncompleteInput.
+     *      Otherwise the implementation may not set it.
+     *      Note that some implementations may have initialized this many rows, but
+     *      not necessarily finished those rows (e.g. interlaced PNG). This may be
+     *      useful for determining what rows the client needs to initialize.
+     *  @return kSuccess if all lines requested in startIncrementalDecode have
+     *      been completely decoded. kIncompleteInput otherwise.
+     */
+    Result incrementalDecode(int* rowsDecoded = nullptr) {
+        if (!fStartedIncrementalDecode) {
+            return kInvalidParameters;
+        }
+        return this->onIncrementalDecode(rowsDecoded);
     }
 
     /**
@@ -473,17 +535,6 @@ public:
          * Interlaced gifs are an example.
          */
         kOutOfOrder_SkScanlineOrder,
-
-        /*
-         * Indicates that the entire image must be decoded in order to output
-         * any amount of scanlines.  In this case, it is a REALLY BAD IDEA to
-         * request scanlines 1-by-1 or in small chunks.  The client should
-         * determine which scanlines are needed and ask for all of them in
-         * a single call to getScanlines().
-         *
-         * Interlaced pngs are an example.
-         */
-        kNone_SkScanlineOrder,
     };
 
     /**
@@ -600,30 +651,30 @@ protected:
      * On an incomplete input, getPixels() and getScanlines() will fill any uninitialized
      * scanlines.  This allows the subclass to indicate what value to fill with.
      *
-     * @param colorType Destination color type.
+     * @param dstInfo   Describes the destination.
      * @return          The value with which to fill uninitialized pixels.
      *
-     * Note that we can interpret the return value as an SkPMColor, a 16-bit 565 color,
-     * an 8-bit gray color, or an 8-bit index into a color table, depending on the color
-     * type.
+     * Note that we can interpret the return value as a 64-bit Float16 color, a SkPMColor,
+     * a 16-bit 565 color, an 8-bit gray color, or an 8-bit index into a color table,
+     * depending on the color type.
      */
-    uint32_t getFillValue(SkColorType colorType) const {
-        return this->onGetFillValue(colorType);
+    uint64_t getFillValue(const SkImageInfo& dstInfo) const {
+        return this->onGetFillValue(dstInfo);
     }
 
     /**
      * Some subclasses will override this function, but this is a useful default for the color
-     * types that we support.  Note that for color types that do not use the full 32-bits,
+     * types that we support.  Note that for color types that do not use the full 64-bits,
      * we will simply take the low bits of the fill value.
      *
+     * The defaults are:
+     * kRGBA_F16_SkColorType: Transparent or Black, depending on the src alpha type
      * kN32_SkColorType: Transparent or Black, depending on the src alpha type
      * kRGB_565_SkColorType: Black
      * kGray_8_SkColorType: Black
      * kIndex_8_SkColorType: First color in color table
      */
-    virtual uint32_t onGetFillValue(SkColorType /*colorType*/) const {
-        return kOpaque_SkAlphaType == fSrcInfo.alphaType() ? SK_ColorBLACK : SK_ColorTRANSPARENT;
-    }
+    virtual uint64_t onGetFillValue(const SkImageInfo& dstInfo) const;
 
     /**
      * Get method for the input stream
@@ -640,11 +691,6 @@ protected:
      *  Most images types will be kTopDown and will not need to override this function.
      */
     virtual SkScanlineOrder onGetScanlineOrder() const { return kTopDown_SkScanlineOrder; }
-
-    /**
-     *  Update the current scanline. Used by interlaced png.
-     */
-    void updateCurrScanline(int newY) { fCurrScanline = newY; }
 
     const SkImageInfo& dstInfo() const { return fDstInfo; }
 
@@ -672,10 +718,13 @@ private:
     bool                        fNeedsRewind;
     const Origin                fOrigin;
 
-    // These fields are only meaningful during scanline decodes.
     SkImageInfo                 fDstInfo;
     SkCodec::Options            fOptions;
+
+    // Only meaningful during scanline decodes.
     int                         fCurrScanline;
+
+    bool                        fStartedIncrementalDecode;
 
     /**
      *  Return whether these dimensions are supported as a scale.
@@ -695,6 +744,16 @@ private:
             const SkCodec::Options& /*options*/, SkPMColor* /*ctable*/, int* /*ctableCount*/) {
         return kUnimplemented;
     }
+
+    virtual Result onStartIncrementalDecode(const SkImageInfo& /*dstInfo*/, void*, size_t,
+            const SkCodec::Options&, SkPMColor*, int*) {
+        return kUnimplemented;
+    }
+
+    virtual Result onIncrementalDecode(int*) {
+        return kUnimplemented;
+    }
+
 
     virtual bool onSkipScanlines(int /*countLines*/) { return false; }
 
@@ -732,6 +791,7 @@ private:
     friend class DM::ColorCodecSrc;
     friend class ColorCodecBench;
 
+    friend class DM::CodecSrc;  // for fillIncompleteImage
     friend class SkSampledCodec;
     friend class SkIcoCodec;
 };

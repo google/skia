@@ -31,6 +31,12 @@ public:
          *  Often used by images and monitors.
          */
         kAdobeRGB_Named,
+
+        /**
+         *  Colorspace with the sRGB primaries, but a linear (1.0) gamma. Commonly used for
+         *  half-float surfaces, and high precision individual colors (gradient stops, etc...)
+         */
+        kSRGBLinear_Named,
     };
 
     enum RenderTargetGamma : uint8_t {
@@ -64,11 +70,6 @@ public:
     sk_sp<SkColorSpace> makeLinearGamma();
 
     /**
-     *  Returns the matrix used to transform src gamut to XYZ D50.
-     */
-    const SkMatrix44& toXYZD50() const { return fToXYZD50; }
-
-    /**
      *  Returns true if the color space gamma is near enough to be approximated as sRGB.
      */
     bool gammaCloseToSRGB() const;
@@ -99,9 +100,7 @@ public:
     static bool Equals(const SkColorSpace* src, const SkColorSpace* dst);
 
 protected:
-    SkColorSpace(const SkMatrix44& toXYZD50);
-
-    const SkMatrix44 fToXYZD50;
+    SkColorSpace() {}
 };
 
 #endif

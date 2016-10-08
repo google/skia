@@ -75,7 +75,7 @@ void GrGLBicubicEffect::emitCode(EmitArgs& args) {
         GrGLSLShaderVar("c3",            kVec4f_GrSLType),
     };
     GrGLSLFPFragmentBuilder* fragBuilder = args.fFragBuilder;
-    SkString coords2D = fragBuilder->ensureFSCoords2D(args.fCoords, 0);
+    SkString coords2D = fragBuilder->ensureCoords2D(args.fTransformedCoords[0]);
     fragBuilder->emitFunction(kVec4f_GrSLType,
                               "cubicBlend",
                               SK_ARRAY_COUNT(gCubicBlendArgs),
@@ -134,7 +134,7 @@ void GrGLBicubicEffect::onSetData(const GrGLSLProgramDataManager& pdman,
     pdman.setMatrix4f(fCoefficientsUni, bicubicEffect.coefficients());
     fDomain.setData(pdman, bicubicEffect.domain(), texture.origin());
     if (SkToBool(bicubicEffect.colorSpaceXform())) {
-        pdman.setMatrix4f(fColorSpaceXformUni, bicubicEffect.colorSpaceXform()->srcToDst());
+        pdman.setSkMatrix44(fColorSpaceXformUni, bicubicEffect.colorSpaceXform()->srcToDst());
     }
 }
 
@@ -205,7 +205,8 @@ sk_sp<GrFragmentProcessor> GrBicubicEffect::TestCreate(GrProcessorTestData* d) {
     for (int i = 0; i < 16; i++) {
         coefficients[i] = d->fRandom->nextSScalar1();
     }
-    return GrBicubicEffect::Make(d->fTextures[texIdx], nullptr, coefficients);
+    auto colorSpaceXform = GrTest::TestColorXform(d->fRandom);
+    return GrBicubicEffect::Make(d->fTextures[texIdx], colorSpaceXform, coefficients);
 }
 
 //////////////////////////////////////////////////////////////////////////////

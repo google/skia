@@ -14,54 +14,131 @@ declare_args() {
     cxx = "$ndk/toolchains/llvm/prebuilt/$ndk_host/bin/clang++"
   }
 
-  extra_cflags = ""
-  extra_cflags_c = ""
-  extra_cflags_cc = ""
-  extra_ldflags = ""
+  windk = ""
 
-  compiler_prefix = ""
+  extra_cflags = []
+  extra_cflags_c = []
+  extra_cflags_cc = []
+  extra_ldflags = []
+
+  cc_wrapper = ""
 }
 
-config("no_rtti") {
-  if (sanitize != "ASAN") {  # -fsanitize=vptr requires RTTI
-    cflags_cc = [ "-fno-rtti" ]
-  }
-}
+is_clang = exec_script("is_clang.py",
+                       [
+                         cc,
+                         cxx,
+                       ],
+                       "value")
 
 config("default") {
-  cflags = [
-    "-O1",
-    "-fstrict-aliasing",
-    "-fPIC",
-    "-fvisibility=hidden",
-
-    "-Werror",
-    "-Wall",
-    "-Wextra",
-    "-Winit-self",
-    "-Wpointer-arith",
-    "-Wsign-compare",
-    "-Wvla",
-
-    "-Wno-deprecated-declarations",
-    "-Wno-unused-parameter",
-  ]
-  cflags_cc = [
-    "-std=c++11",
-    "-fno-exceptions",
-    "-fno-threadsafe-statics",
-    "-fvisibility-inlines-hidden",
-
-    "-Wnon-virtual-dtor",
-  ]
+  asmflags = []
+  cflags = []
+  cflags_c = []
+  cflags_cc = []
+  defines = []
   ldflags = []
 
-  # It's annoying to wait for full debug symbols to push over
-  # to Android devices.  -gline-tables-only is a lot slimmer.
-  if (is_android) {
-    cflags += [ "-gline-tables-only" ]
+  if (is_win) {
+    cflags += [
+      "/FS",  # Preserve previous PDB behavior.
+      "/bigobj",  # Some of our files are bigger than the regular limits.
+    ]
+    cflags_c += [ "/TC" ]
+    cflags_cc += [ "/TP" ]
+    defines += [
+      "_HAS_EXCEPTIONS=0",
+      "WIN32_LEAN_AND_MEAN",
+      "NOMINMAX",
+    ]
   } else {
-    cflags += [ "-g" ]
+    cflags += [
+      "-O1",
+      "-fstrict-aliasing",
+      "-fPIC",
+      "-fvisibility=hidden",
+
+      "-Werror",
+      "-Wall",
+      "-Wextra",
+      "-Winit-self",
+      "-Wpointer-arith",
+      "-Wsign-compare",
+      "-Wvla",
+
+      "-Wno-deprecated-declarations",
+      "-Wno-unused-parameter",
+    ]
+    cflags_cc += [
+      "-std=c++11",
+      "-fno-exceptions",
+      "-fno-threadsafe-statics",
+      "-fvisibility-inlines-hidden",
+
+      "-Wnon-virtual-dtor",
+    ]
+    if (is_clang) {
+      cflags += [
+        "-Weverything",
+        "-Wno-unknown-warning-option",  # Let older Clangs ignore newer Clangs' warnings.
+      ]
+
+      if (is_android && target_cpu == "x86") {
+        # Clang seems to think new/malloc will only be 4-byte aligned on x86 Android.
+        # We're pretty sure it's actually 8-byte alignment.
+        cflags += [ "-Wno-over-aligned" ]
+      }
+
+      cflags += [
+        "-Wno-cast-align",
+        "-Wno-conditional-uninitialized",
+        "-Wno-conversion",
+        "-Wno-disabled-macro-expansion",
+        "-Wno-documentation",
+        "-Wno-documentation-unknown-command",
+        "-Wno-double-promotion",
+        "-Wno-exit-time-destructors",  # TODO: OK outside libskia
+        "-Wno-float-conversion",
+        "-Wno-float-equal",
+        "-Wno-format-nonliteral",
+        "-Wno-global-constructors",  # TODO: OK outside libskia
+        "-Wno-gnu-zero-variadic-macro-arguments",
+        "-Wno-missing-prototypes",
+        "-Wno-missing-variable-declarations",
+        "-Wno-pedantic",
+        "-Wno-reserved-id-macro",
+        "-Wno-shadow",
+        "-Wno-shift-sign-overflow",
+        "-Wno-sign-conversion",
+        "-Wno-switch-enum",
+        "-Wno-undef",
+        "-Wno-unreachable-code",
+        "-Wno-unreachable-code-break",
+        "-Wno-unreachable-code-return",
+        "-Wno-unused-macros",
+        "-Wno-unused-member-function",
+      ]
+      cflags_cc += [
+        "-Wno-abstract-vbase-init",
+        "-Wno-range-loop-analysis",
+        "-Wno-weak-vtables",
+      ]
+
+      # We are unlikely to want to fix these.
+      cflags += [
+        "-Wno-covered-switch-default",
+        "-Wno-deprecated",
+        "-Wno-implicit-fallthrough",
+        "-Wno-missing-noreturn",
+        "-Wno-old-style-cast",
+        "-Wno-padded",
+      ]
+      cflags_cc += [
+        "-Wno-c++98-compat",
+        "-Wno-c++98-compat-pedantic",
+        "-Wno-undefined-func-template",
+      ]
+    }
   }
 
   if (current_cpu == "arm") {
@@ -75,10 +152,18 @@ config("default") {
       "-march=mips32r2",
       "-mdspr2",
     ]
+  } else if (current_cpu == "x86") {
+    asmflags += [ "-m32" ]
+    cflags += [
+      "-m32",
+      "-msse2",
+      "-mfpmath=sse",
+    ]
+    ldflags += [ "-m32" ]
   }
 
   if (is_android) {
-    asmflags = [
+    asmflags += [
       "--target=$ndk_target",
       "-B$ndk/toolchains/$ndk_gccdir-4.9/prebuilt/$ndk_host/$ndk_target/bin",
     ]
@@ -101,6 +186,7 @@ config("default") {
       "$ndk/sources/cxx-stl/llvm-libc++/libs/$ndk_stdlib",
       "$ndk/toolchains/$ndk_gccdir-4.9/prebuilt/$ndk_host/lib/gcc/$ndk_target/4.9.x",
     ]
+
     libs = [
       # Order matters here!  Keep these three in exactly this order.
       "c++_static",
@@ -142,8 +228,35 @@ config("default") {
   }
 }
 
+config("extra_flags") {
+  cflags = extra_cflags
+  cflags_c = extra_cflags_c
+  cflags_cc = extra_cflags_cc
+  ldflags = extra_ldflags
+}
+
+config("debug_symbols") {
+  # It's annoying to wait for full debug symbols to push over
+  # to Android devices.  -gline-tables-only is a lot slimmer.
+  if (is_android) {
+    cflags = [ "-gline-tables-only" ]
+  } else if (!is_win) {
+    cflags = [ "-g" ]
+  }
+}
+
+config("no_rtti") {
+  if (sanitize != "ASAN") {  # -fsanitize=vptr requires RTTI
+    if (!is_win) {
+      cflags_cc = [ "-fno-rtti" ]
+    }
+  }
+}
+
 config("release") {
-  cflags = [ "-O3" ]
+  if (!is_win) {
+    cflags = [ "-O3" ]
+  }
   defines = [ "NDEBUG" ]
 }
 
@@ -151,7 +264,105 @@ config("executable") {
   if (is_mac) {
     ldflags = [ "-Wl,-rpath,@loader_path/." ]
   } else if (is_linux) {
-    ldflags = [ "-Wl,-rpath,\$ORIGIN" ]
+    ldflags = [
+      "-rdynamic",
+      "-Wl,-rpath,\$ORIGIN",
+    ]
+  }
+}
+
+toolchain("msvc") {
+  vc = "$windk\VC\bin\amd64\cl.exe"
+  vlink = "$windk\VC\bin\amd64\link.exe"
+  vlib = "$windk\VC\bin\amd64\lib.exe"
+
+  # TODO: add a python function that generates the includes using <VSPATH>/win_sdk/bin/SetEnv.<cpu>.json
+  windk_include_dirs = "/I$windk\win_sdk\bin\..\..\win_sdk\Include\10.0.10586.0\um /I$windk\win_sdk\bin\..\..\win_sdk\Include\10.0.10586.0\shared /I$windk\win_sdk\bin\..\..\win_sdk\Include\10.0.10586.0\winrt /I$windk\win_sdk\bin\..\..\win_sdk\Include\10.0.10586.0\ucrt /I$windk\win_sdk\bin\..\..\VC\include /I$windk\win_sdk\bin\..\..\VC\atlmfc\include "
+
+  tool("cc") {
+    rspfile = "{{output}}.rsp"
+    precompiled_header_type = "msvc"
+    pdbname = "{{target_out_dir}}/{{label_name}}_c.pdb"
+
+    # Label names may have spaces in them so the pdbname must be quoted. The
+    # source and output don't need to be quoted because GN knows they're a
+    # full file name and will quote automatically when necessary.
+
+    command = "$vc /nologo /showIncludes /FC @$rspfile /c {{source}} /Fo{{output}} /Fd\"$pdbname\""
+    depsformat = "msvc"
+    description = "CC {{output}}"
+    outputs = [
+      "{{source_out_dir}}/{{target_output_name}}.{{source_name_part}}.obj",
+      # "$object_subdir/{{source_name_part}}.obj",
+    ]
+    rspfile_content = "$windk_include_dirs {{defines}} {{include_dirs}} {{cflags}} {{cflags_c}}"
+  }
+
+  tool("cxx") {
+    rspfile = "{{output}}.rsp"
+    precompiled_header_type = "msvc"
+    pdbname = "{{target_out_dir}}/{{label_name}}_c.pdb"
+
+    # Label names may have spaces in them so the pdbname must be quoted. The
+    # source and output don't need to be quoted because GN knows they're a
+    # full file name and will quote automatically when necessary.
+    command = "$vc /nologo /showIncludes /FC @$rspfile /c {{source}} /Fo{{output}} /Fd\"$pdbname\""
+    depsformat = "msvc"
+    description = "C++ {{output}}"
+    outputs = [
+      "{{source_out_dir}}/{{target_output_name}}.{{source_name_part}}.obj",
+    ]
+    rspfile_content = "$windk_include_dirs {{defines}} {{include_dirs}} {{cflags}} {{cflags_cc}}"
+  }
+
+  tool("alink") {
+    rspfile = "{{output}}.rsp"
+
+    # gyp_win_tool_path = rebase_path("../third_party/externals/gyp/pylib/gyp/win_tool.py")
+    command = "$vlib /nologo {{arflags}} /OUT:{{output}} @$rspfile"
+    description = "LIB {{output}}"
+    outputs = [
+      # Ignore {{output_extension}} and always use .lib, there's no reason to
+      # allow targets to override this extension on Windows.
+      "{{root_out_dir}}/{{target_output_name}}{{output_extension}}",
+    ]
+    default_output_extension = ".lib"
+    default_output_dir = "{{target_out_dir}}"
+
+    # The use of inputs_newline is to work around a fixed per-line buffer
+    # size in the linker.
+    rspfile_content = "{{inputs_newline}}"
+  }
+
+  tool("link") {
+    exename = "{{root_out_dir}}/{{target_output_name}}{{output_extension}}"
+    pdbname = "$exename.pdb"
+    rspfile = "$exename.rsp"
+
+    # gyp_win_tool_path = rebase_path("../third_party/externals/gyp/pylib/gyp/win_tool.py")
+    command = "$vlink /nologo /OUT:$exename /PDB:$pdbname @$rspfile"
+
+    default_output_extension = ".exe"
+    default_output_dir = "{{root_out_dir}}"
+    description = "LINK {{output}}"
+    outputs = [
+      #"{{root_out_dir}}/{{target_output_name}}{{output_extension}}",
+      exename,
+    ]
+
+    #if (symbol_level != 0) {
+    #  outputs += [ pdbname ]
+    #}
+    #runtime_outputs = outputs
+
+    # The use of inputs_newline is to work around a fixed per-line buffer
+    # size in the linker.
+    rspfile_content = "{{inputs_newline}} {{libs}} {{solibs}} {{ldflags}}"
+  }
+
+  tool("stamp") {
+    win_stamp_path = rebase_path("win_stamp.py")
+    command = "python $win_stamp_path {{output}}"
   }
 }
 
@@ -161,34 +372,32 @@ toolchain("gcc_like") {
 
   tool("cc") {
     depfile = "{{output}}.d"
-    command = "$compiler_prefix $cc -MMD -MF $depfile {{defines}} {{include_dirs}} {{cflags}} {{cflags_c}} $extra_cflags $extra_cflags_c -c {{source}} -o {{output}}"
+    command = "$cc_wrapper $cc -MMD -MF $depfile {{defines}} {{include_dirs}} {{cflags}} {{cflags_c}} -c {{source}} -o {{output}}"
     depsformat = "gcc"
     outputs = [
       "{{source_out_dir}}/{{target_output_name}}.{{source_name_part}}.o",
     ]
-    description =
-        "$compiler_prefix $cc ... $extra_cflags $extra_cflags_c -o {{output}}"
+    description = "$cc_wrapper $cc ... -o {{output}}"
   }
 
   tool("cxx") {
     depfile = "{{output}}.d"
-    command = "$compiler_prefix $cxx -MMD -MF $depfile {{defines}} {{include_dirs}} {{cflags}} {{cflags_cc}} $extra_cflags $extra_cflags_cc -c {{source}} -o {{output}}"
+    command = "$cc_wrapper $cxx -MMD -MF $depfile {{defines}} {{include_dirs}} {{cflags}} {{cflags_cc}} -c {{source}} -o {{output}}"
     depsformat = "gcc"
     outputs = [
       "{{source_out_dir}}/{{target_output_name}}.{{source_name_part}}.o",
     ]
-    description =
-        "$compiler_prefix $cxx ... $extra_cflags $extra_cflags_cc -o {{output}}"
+    description = "$cc_wrapper $cxx ... -o {{output}}"
   }
 
   tool("asm") {
     depfile = "{{output}}.d"
-    command = "$compiler_prefix $cc -MMD -MF $depfile {{defines}} {{include_dirs}} {{asmflags}} -c {{source}} -o {{output}}"
+    command = "$cc_wrapper $cc -MMD -MF $depfile {{defines}} {{include_dirs}} {{asmflags}} -c {{source}} -o {{output}}"
     depsformat = "gcc"
     outputs = [
       "{{source_out_dir}}/{{target_output_name}}.{{source_name_part}}.o",
     ]
-    description = "$compiler_prefix $cc ... -o {{output}}"
+    description = "$cc_wrapper $cc ... -o {{output}}"
   }
 
   tool("alink") {
@@ -209,22 +418,21 @@ toolchain("gcc_like") {
       rpath = "-Wl,-install_name,@rpath/$soname"
     }
 
-    command = "$compiler_prefix $cxx -shared {{ldflags}} {{inputs}} {{solibs}} {{libs}} $rpath $extra_ldflags -o {{output}}"
+    command = "$cc_wrapper $cxx -shared {{ldflags}} {{inputs}} {{solibs}} {{libs}} $rpath -o {{output}}"
     outputs = [
       "{{root_out_dir}}/$soname",
     ]
     output_prefix = "lib"
     default_output_extension = ".so"
-    description =
-        "$compiler_prefix $cxx -shared ... $extra_ldflags -o {{output}}"
+    description = "$cc_wrapper $cxx -shared ... -o {{output}}"
   }
 
   tool("link") {
-    command = "$compiler_prefix $cxx {{ldflags}} {{inputs}} {{solibs}} {{libs}} $extra_ldflags -o {{output}}"
+    command = "$cc_wrapper $cxx {{ldflags}} {{inputs}} {{solibs}} {{libs}} -o {{output}}"
     outputs = [
       "{{root_out_dir}}/{{target_output_name}}{{output_extension}}",
     ]
-    description = "$compiler_prefix $cxx ... $extra_ldflags -o {{output}}"
+    description = "$cc_wrapper $cxx ... -o {{output}}"
   }
 
   tool("stamp") {

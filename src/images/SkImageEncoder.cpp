@@ -31,7 +31,7 @@ SkData* SkImageEncoder::encodeData(const SkBitmap& bm, int quality) {
     SkDynamicMemoryWStream stream;
     quality = SkMin32(100, SkMax32(0, quality));
     if (this->onEncode(&stream, bm, quality)) {
-        return stream.copyToData();
+        return stream.detachAsData().release();
     }
     return nullptr;
 }

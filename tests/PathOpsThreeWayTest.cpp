@@ -75,6 +75,6 @@ DEF_TEST(PathOpsThreeWay, reporter) {
 }
 
 DEF_TEST(PathOpsThreeWayOneOff, reporter) {
-    int index = 1;
+    int index = 0;
     testSetTest(reporter, index);
 }

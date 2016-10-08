@@ -193,8 +193,8 @@ DEF_TEST(SkPDF_pdfa_document, r) {
                                    pdfMetadata, nullptr, /* pdfa = */ true);
     doc->beginPage(64, 64)->drawColor(SK_ColorRED);
     doc->close();
-    sk_sp<SkData> data(buffer.copyToData());
-    buffer.reset();
+    sk_sp<SkData> data(buffer.detachAsData());
+
     static const char* expectations[] = {
         "sRGB IEC61966-2.1",
         "<dc:title><rdf:Alt><rdf:li xml:lang=\"x-default\">test document",
@@ -212,8 +212,7 @@ DEF_TEST(SkPDF_pdfa_document, r) {
                               pdfMetadata, nullptr, /* pdfa = */ true);
     doc->beginPage(64, 64)->drawColor(SK_ColorRED);
     doc->close();
-    data.reset(buffer.copyToData());
-    buffer.reset();
+    data = buffer.detachAsData();
 
     static const char* moreExpectations[] = {
         "/Producer (phoney library)",

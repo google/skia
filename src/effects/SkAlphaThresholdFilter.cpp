@@ -107,7 +107,7 @@ sk_sp<GrTexture> SkAlphaThresholdFilterImpl::createMaskTexture(GrContext* contex
     }
 
     GrPaint grPaint;
-    grPaint.setPorterDuffXPFactory(SkXfermode::kSrc_Mode);
+    grPaint.setPorterDuffXPFactory(SkBlendMode::kSrc);
     SkRegion::Iterator iter(fRegion);
     drawContext->clear(nullptr, 0x0, true);
 
@@ -166,18 +166,21 @@ sk_sp<SkSpecialImage> SkAlphaThresholdFilterImpl::onFilterImage(SkSpecialImage* 
             return nullptr;
         }
 
-        // SRGBTODO: handle sRGB here
+        const OutputProperties& outProps = ctx.outputProperties();
+        sk_sp<GrColorSpaceXform> colorSpaceXform = GrColorSpaceXform::Make(input->getColorSpace(),
+                                                                           outProps.colorSpace());
         sk_sp<GrFragmentProcessor> fp(GrAlphaThresholdFragmentProcessor::Make(
-                                                                   inputTexture.get(),
-                                                                   maskTexture.get(),
-                                                                   fInnerThreshold,
-                                                                   fOuterThreshold,
-                                                                   bounds));
+                                                                         inputTexture.get(),
+                                                                         std::move(colorSpaceXform),
+                                                                         maskTexture.get(),
+                                                                         fInnerThreshold,
+                                                                         fOuterThreshold,
+                                                                         bounds));
         if (!fp) {
             return nullptr;
         }
 
-        return DrawWithFP(context, std::move(fp), bounds, sk_ref_sp(input->getColorSpace()));
+        return DrawWithFP(context, std::move(fp), bounds, outProps);
     }
 #endif
 

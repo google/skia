@@ -313,19 +313,19 @@ SkString* SkObjectParser::RRectToString(const SkRRect& rrect, const char* title)
     return mRRect;
 }
 
-SkString* SkObjectParser::RegionOpToString(SkRegion::Op op) {
+SkString* SkObjectParser::ClipOpToString(SkCanvas::ClipOp op) {
     SkString* mOp = new SkString("SkRegion::Op: ");
-    if (op == SkRegion::kDifference_Op) {
+    if (op == SkCanvas::kDifference_Op) {
         mOp->append("kDifference_Op");
-    } else if (op == SkRegion::kIntersect_Op) {
+    } else if (op == SkCanvas::kIntersect_Op) {
         mOp->append("kIntersect_Op");
-    } else if (op == SkRegion::kUnion_Op) {
+    } else if (op == SkCanvas::kUnion_Op) {
         mOp->append("kUnion_Op");
-    } else if (op == SkRegion::kXOR_Op) {
+    } else if (op == SkCanvas::kXOR_Op) {
         mOp->append("kXOR_Op");
-    } else if (op == SkRegion::kReverseDifference_Op) {
+    } else if (op == SkCanvas::kReverseDifference_Op) {
         mOp->append("kReverseDifference_Op");
-    } else if (op == SkRegion::kReplace_Op) {
+    } else if (op == SkCanvas::kReplace_Op) {
         mOp->append("kReplace_Op");
     } else {
         mOp->append("Unknown Type");

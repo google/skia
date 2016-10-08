@@ -79,7 +79,7 @@ public:
      * to combine draws. Therefore we take a param that indicates whether coord transforms should be
      * compared."
      */
-    static bool AreEqual(const GrPipeline& a, const GrPipeline& b, bool ignoreCoordTransforms);
+    static bool AreEqual(const GrPipeline& a, const GrPipeline& b);
 
     /**
      * Allows a GrBatch subclass to determine whether two GrBatches can combine. This is a stricter
@@ -88,9 +88,8 @@ public:
      */
     static bool CanCombine(const GrPipeline& a, const SkRect& aBounds,
                            const GrPipeline& b, const SkRect& bBounds,
-                           const GrCaps& caps,
-                           bool ignoreCoordTransforms = false)  {
-        if (!AreEqual(a, b, ignoreCoordTransforms)) {
+                           const GrCaps& caps)  {
+        if (!AreEqual(a, b)) {
             return false;
         }
         if (a.xferBarrierType(caps)) {

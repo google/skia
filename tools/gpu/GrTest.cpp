@@ -299,7 +299,7 @@ public:
     bool onCopySurface(GrSurface* dst,
                        GrSurface* src,
                        const SkIRect& srcRect,
-                       const SkIPoint& dstPoint) override { return false; };
+                       const SkIPoint& dstPoint) override { return false; }
 
     void onGetMultisampleSpecs(GrRenderTarget* rt, const GrStencilSettings&,
                                int* effectiveSampleCnt, SamplePattern*) override {
@@ -316,7 +316,11 @@ public:
         return nullptr;
     }
 
-    void drawDebugWireRect(GrRenderTarget*, const SkIRect&, GrColor) override {};
+    void drawDebugWireRect(GrRenderTarget*, const SkIRect&, GrColor) override {}
+
+    GrFence SK_WARN_UNUSED_RESULT insertFence() const override { return 0; }
+    bool waitFence(GrFence, uint64_t) const override { return true; }
+    void deleteFence(GrFence) const override {}
 
 private:
     void onResetContext(uint32_t resetBits) override {}

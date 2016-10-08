@@ -6,6 +6,7 @@
  */
 
 #include "SkCommonFlagsConfig.h"
+#include "SkImageInfo.h"
 
 #include <stdlib.h>
 
@@ -14,7 +15,7 @@ using sk_gpu_test::GrContextFactory;
 #endif
 
 static const char defaultConfigs[] =
-    "565 8888 gpu nonrendering"
+    "8888 gpu nonrendering"
 #if SK_ANGLE
 #ifdef SK_BUILD_FOR_WIN
     " angle"
@@ -24,122 +25,12 @@ static const char defaultConfigs[] =
     " hwui"
 #endif
     ;
-
-static const char configHelp[] =
-    "Options: 565 8888 debug gpu gl gpudebug gpudft gpunull "
-    "msaa16 msaa4 glmsaa4 gpuf16 gpusrgb glsrgb nonrendering null nullgpu "
-    "nvpr16 nvpr4 nvprdit16 nvprdit4 glnvpr4 glnvprdit4 pdf skp svg xps"
-    "glinst glinst4 glinstdit4 glinst16 glinstdit16 esinst esinst4 esinsdit4"
-#if SK_ANGLE
-#ifdef SK_BUILD_FOR_WIN
-    " angle"
-#endif
-    " angle-gl"
-#endif
-#if SK_COMMAND_BUFFER
-    " commandbuffer"
-#endif
-#if SK_MESA
-    " mesa"
-#endif
-#ifdef SK_BUILD_FOR_ANDROID_FRAMEWORK
-    " hwui"
-#endif
-#ifdef SK_VULKAN
-    " vk vksrgb"
-#endif
-    " or use extended form 'backend(option=value,...)'.\n";
-
-static const char configExtendedHelp[] =
-    "Extended form: 'backend(option=value,...)'\n\n"
-    "Possible backends and options:\n"
-#if SK_SUPPORT_GPU
-    "\n"
-    "gpu(api=string,color=string,dit=bool,nvpr=bool,inst=bool,samples=int)\tGPU backend\n"
-    "\tapi\ttype: string\tdefault: native.\n"
-    "\t    Select graphics API to use with gpu backend.\n"
-    "\t    Options:\n"
-    "\t\tnative\t\t\tUse platform default OpenGL or OpenGL ES backend.\n"
-    "\t\tgl    \t\t\tUse OpenGL.\n"
-    "\t\tgles  \t\t\tUse OpenGL ES.\n"
-    "\t\tdebug \t\t\tUse debug OpenGL.\n"
-    "\t\tnull  \t\t\tUse null OpenGL.\n"
-#if SK_ANGLE
-#ifdef SK_BUILD_FOR_WIN
-    "\t\tangle\t\t\tUse ANGLE DirectX.\n"
-#endif
-    "\t\tangle-gl\t\t\tUse ANGLE OpenGL.\n"
-#endif
-#if SK_COMMAND_BUFFER
-    "\t\tcommandbuffer\t\tUse command buffer.\n"
-#endif
-#if SK_MESA
-    "\t\tmesa\t\t\tUse MESA.\n"
-#endif
-#ifdef SK_VULKAN
-    "\t\tvulkan\t\t\tUse Vulkan.\n"
-#endif
-    "\tcolor\ttype: string\tdefault: 8888.\n"
-    "\t    Select framebuffer color format.\n"
-    "\t    Options:\n"
-    "\t\t8888\t\t\tLinear 8888.\n"
-    "\t\tf16 \t\t\tLinear 16-bit floating point.\n"
-    "\t\tsrgb\t\t\tsRGB 8888.\n"
-    "\tdit\ttype: bool\tdefault: false.\n"
-    "\t    Use device independent text.\n"
-    "\tnvpr\ttype: bool\tdefault: false.\n"
-    "\t    Use NV_path_rendering OpenGL and OpenGL ES extension.\n"
-    "\tsamples\ttype: int\tdefault: 0.\n"
-    "\t    Use multisampling with N samples.\n"
-    "\n"
-    "Predefined configs:\n\n"
-    "\tgpu       \t= gpu()\n"
-    "\tgl        \t= gpu(api=gl)\n"
-    "\tmsaa4     \t= gpu(samples=4)\n"
-    "\tglmsaa4   \t= gpu(api=gl,samples=4)\n"
-    "\tmsaa16    \t= gpu(samples=16)\n"
-    "\tnvpr4     \t= gpu(nvpr=true,samples=4)\n"
-    "\tglnvpr4   \t= gpu(api=gl,nvpr=true,samples=4)\n"
-    "\tnvpr16    \t= gpu(nvpr=true,samples=16)\n"
-    "\tnvprdit4  \t= gpu(nvpr=true,samples=4,dit=true)\n"
-    "\tglnvprdit4\t= gpu(api=gl,nvpr=true,samples=4,dit=true)\n"
-    "\tnvprdit16 \t= gpu(nvpr=true,samples=16,dit=true)\n"
-    "\tgpuf16    \t= gpu(color=f16)\n"
-    "\tgpusrgb   \t= gpu(color=srgb)\n"
-    "\tglsrgb    \t= gpu(api=gl,color=srgb)\n"
-    "\tgpudft    \t= gpu(dit=true)\n"
-    "\tgpudebug  \t= gpu(api=debug)\n"
-    "\tgpunull   \t= gpu(api=null)\n"
-    "\tdebug     \t= gpu(api=debug)\n"
-    "\tnullgpu   \t= gpu(api=null)\n"
-#if SK_ANGLE
-#ifdef SK_BUILD_FOR_WIN
-    "\tangle     \t= gpu(api=angle)\n"
-#endif
-    "\tangle-gl  \t= gpu(api=angle-gl)\n"
-#endif
-#if SK_COMMAND_BUFFER
-    "\tcommandbuffer\t= gpu(api=commandbuffer)\n"
-#endif
-#if SK_MESA
-    "\tmesa      \t= gpu(api=mesa)\n"
-#endif
-#ifdef SK_VULKAN
-    "\tvk        \t= gpu(api=vulkan)\n"
-    "\tvksrgb    \t= gpu(api=vulkan,color=srgb)\n"
-    "\tvkmsaa4   \t= gpu(api=gl,samples=4)\n"
-    "\tvkmsaa16  \t= gpu(api=gl,samples=16)\n"
-#endif
-#endif
-    ;
-
-DEFINE_extended_string(config, defaultConfigs, configHelp, configExtendedHelp);
 
 static const struct {
     const char* predefinedConfig;
     const char* backend;
     const char* options;
-} gPredefinedConfigs[] = {
+} gPredefinedConfigs[] ={
 #if SK_SUPPORT_GPU
     { "gpu",         "gpu", "" },
     { "gl",          "gpu", "api=gl" },
@@ -163,6 +54,7 @@ static const struct {
     { "gpuf16",      "gpu", "color=f16" },
     { "gpusrgb",     "gpu", "color=srgb" },
     { "glsrgb",      "gpu", "api=gl,color=srgb" },
+    { "glwide",      "gpu", "api=gl,color=f16_wide" },
     { "gpudft",      "gpu", "dit=true" },
     { "gpudebug",    "gpu", "api=debug" },
     { "gpunull",     "gpu", "api=null" },
@@ -170,27 +62,104 @@ static const struct {
     { "nullgpu",     "gpu", "api=null" }
 #if SK_ANGLE
 #ifdef SK_BUILD_FOR_WIN
-    , { "angle",      "gpu", "api=angle" }
+    ,{ "angle",      "gpu", "api=angle" }
 #endif
-    , { "angle-gl",   "gpu", "api=angle-gl" }
+    ,{ "angle-gl",   "gpu", "api=angle-gl" }
 #endif
-#if SK_COMMAND_BUFFER
-    , { "commandbuffer", "gpu", "api=commandbuffer" }
-#endif
+    ,{ "commandbuffer", "gpu", "api=commandbuffer" }
 #if SK_MESA
-    , { "mesa", "gpu", "api=mesa" }
+    ,{ "mesa", "gpu", "api=mesa" }
 #endif
 #ifdef SK_VULKAN
-    , { "vk",       "gpu", "api=vulkan" }
-    , { "vksrgb",   "gpu", "api=vulkan,color=srgb" }
-    , { "vkmsaa4",  "gpu", "api=vulkan,samples=4" }
-    , { "vkmsaa16", "gpu", "api=vulkan,samples=16" }
+    ,{ "vk",       "gpu", "api=vulkan" }
+    ,{ "vksrgb",   "gpu", "api=vulkan,color=srgb" }
+    ,{ "vkwide",   "gpu", "api=vulkan,color=f16_wide" }
+    ,{ "vkmsaa4",  "gpu", "api=vulkan,samples=4" }
+    ,{ "vkmsaa16", "gpu", "api=vulkan,samples=16" }
 #endif
 
 #else
-    { "", "", "" }
+{ "", "", "" }
 #endif
 };
+
+static const char configHelp[] =
+    "Options: 565 8888 srgb f16 nonrendering null pdf pdfa skp pipe svg xps"
+#ifdef SK_BUILD_FOR_ANDROID_FRAMEWORK
+    " hwui"
+#endif
+    ;
+
+static const char* config_help_fn() {
+    static SkString helpString;
+    helpString.set(configHelp);
+    for (const auto& config : gPredefinedConfigs) {
+        helpString.appendf(" %s", config.predefinedConfig);
+    }
+    helpString.append(" or use extended form 'backend[option=value,...]'.\n");
+    return helpString.c_str();
+}
+
+static const char configExtendedHelp[] =
+    "Extended form: 'backend(option=value,...)'\n\n"
+    "Possible backends and options:\n"
+#if SK_SUPPORT_GPU
+    "\n"
+    "gpu[api=string,color=string,dit=bool,nvpr=bool,inst=bool,samples=int]\n"
+    "\tapi\ttype: string\tdefault: native.\n"
+    "\t    Select graphics API to use with gpu backend.\n"
+    "\t    Options:\n"
+    "\t\tnative\t\t\tUse platform default OpenGL or OpenGL ES backend.\n"
+    "\t\tgl    \t\t\tUse OpenGL.\n"
+    "\t\tgles  \t\t\tUse OpenGL ES.\n"
+    "\t\tdebug \t\t\tUse debug OpenGL.\n"
+    "\t\tnull  \t\t\tUse null OpenGL.\n"
+#if SK_ANGLE
+#ifdef SK_BUILD_FOR_WIN
+    "\t\tangle\t\t\tUse ANGLE DirectX.\n"
+#endif
+    "\t\tangle-gl\t\t\tUse ANGLE OpenGL.\n"
+#endif
+    "\t\tcommandbuffer\t\tUse command buffer.\n"
+#if SK_MESA
+    "\t\tmesa\t\t\tUse MESA.\n"
+#endif
+#ifdef SK_VULKAN
+    "\t\tvulkan\t\t\tUse Vulkan.\n"
+#endif
+    "\tcolor\ttype: string\tdefault: 8888.\n"
+    "\t    Select framebuffer color format.\n"
+    "\t    Options:\n"
+    "\t\t8888\t\t\tLinear 8888.\n"
+    "\t\tf16{_gamut}\t\tLinear 16-bit floating point.\n"
+    "\t\tsrgb{_gamut}\t\tsRGB 8888.\n"
+    "\t  gamut\ttype: string\tdefault: srgb.\n"
+    "\t    Select color gamut for f16 or sRGB format buffers.\n"
+    "\t    Options:\n"
+    "\t\tsrgb\t\t\tsRGB gamut.\n"
+    "\t\twide\t\t\tWide Gamut RGB.\n"
+    "\tdit\ttype: bool\tdefault: false.\n"
+    "\t    Use device independent text.\n"
+    "\tnvpr\ttype: bool\tdefault: false.\n"
+    "\t    Use NV_path_rendering OpenGL and OpenGL ES extension.\n"
+    "\tsamples\ttype: int\tdefault: 0.\n"
+    "\t    Use multisampling with N samples.\n"
+    "\n"
+    "Predefined configs:\n\n"
+    // Help text for pre-defined configs is auto-generated from gPredefinedConfigs
+#endif
+    ;
+
+static const char* config_extended_help_fn() {
+    static SkString helpString;
+    helpString.set(configExtendedHelp);
+    for (const auto& config : gPredefinedConfigs) {
+        helpString.appendf("\t%-10s\t= gpu(%s)\n", config.predefinedConfig, config.options);
+    }
+    return helpString.c_str();
+}
+
+DEFINE_extended_string(config, defaultConfigs, config_help_fn(), config_extended_help_fn());
 
 SkCommandLineConfig::SkCommandLineConfig(const SkString& tag, const SkString& backend,
                                          const SkTArray<SkString>& viaParts)
@@ -208,12 +177,20 @@ SkCommandLineConfigGpu::SkCommandLineConfigGpu(
     sk_sp<SkColorSpace> colorSpace)
         : SkCommandLineConfig(tag, SkString("gpu"), viaParts)
         , fContextType(contextType)
-        , fUseNVPR(useNVPR)
-        , fUseInstanced(useInstanced)
+        , fContextOptions(ContextOptions::kNone)
         , fUseDIText(useDIText)
         , fSamples(samples)
         , fColorType(colorType)
         , fColorSpace(std::move(colorSpace)) {
+    if (useNVPR) {
+        fContextOptions |= ContextOptions::kEnableNVPR;
+    }
+    if (useInstanced) {
+        fContextOptions |= ContextOptions::kUseInstanced;
+    }
+    if (SkColorAndColorSpaceAreGammaCorrect(colorType, colorSpace.get())) {
+        fContextOptions |= ContextOptions::kRequireSRGBSupport;
+    }
 }
 static bool parse_option_int(const SkString& value, int* outInt) {
     if (value.isEmpty()) {
@@ -268,12 +245,10 @@ static bool parse_option_gpu_api(const SkString& value,
         return true;
     }
 #endif
-#if SK_COMMAND_BUFFER
     if (value.equals("commandbuffer")) {
         *outContextType = GrContextFactory::kCommandBuffer_ContextType;
         return true;
     }
-#endif
 #if SK_MESA
     if (value.equals("mesa")) {
         *outContextType = GrContextFactory::kMESA_ContextType;
@@ -292,18 +267,48 @@ static bool parse_option_gpu_color(const SkString& value,
                                    SkColorType* outColorType,
                                    sk_sp<SkColorSpace>* outColorSpace) {
     if (value.equals("8888")) {
-        *outColorType = kN32_SkColorType;
+        *outColorType = kRGBA_8888_SkColorType;
         *outColorSpace = nullptr;
         return true;
     }
-    if (value.equals("f16")) {
+
+    SkTArray<SkString> commands;
+    SkStrSplit(value.c_str(), "_", &commands);
+    if (commands.count() < 1 || commands.count() > 2) {
+        return false;
+    }
+
+    // First, figure out color gamut that we'll work in (default to sRGB)
+    sk_sp<SkColorSpace> colorSpace = SkColorSpace::NewNamed(SkColorSpace::kSRGB_Named);
+    if (commands.count() == 2) {
+        if (commands[1].equals("srgb")) {
+            // sRGB gamut (which is our default)
+        } else if (commands[1].equals("wide")) {
+            // WideGamut RGB
+            const float gWideGamutRGB_toXYZD50[]{
+                0.7161046f, 0.1009296f, 0.1471858f,  // -> X
+                0.2581874f, 0.7249378f, 0.0168748f,  // -> Y
+                0.0000000f, 0.0517813f, 0.7734287f,  // -> Z
+            };
+            SkMatrix44 wideGamutRGBMatrix(SkMatrix44::kUninitialized_Constructor);
+            wideGamutRGBMatrix.set3x3RowMajorf(gWideGamutRGB_toXYZD50);
+            colorSpace = SkColorSpace::NewRGB(SkColorSpace::kSRGB_RenderTargetGamma,
+                                              wideGamutRGBMatrix);
+        } else {
+            // Unknown color gamut
+            return false;
+        }
+    }
+
+    // Now pick a color type
+    if (commands[0].equals("f16")) {
         *outColorType = kRGBA_F16_SkColorType;
-        *outColorSpace = SkColorSpace::NewNamed(SkColorSpace::kSRGB_Named)->makeLinearGamma();
+        *outColorSpace = colorSpace->makeLinearGamma();
         return true;
     }
-    if (value.equals("srgb")) {
-        *outColorType = kN32_SkColorType;
-        *outColorSpace = SkColorSpace::NewNamed(SkColorSpace::kSRGB_Named);
+    if (commands[0].equals("srgb")) {
+        *outColorType = kRGBA_8888_SkColorType;
+        *outColorSpace = colorSpace;
         return true;
     }
     return false;
@@ -324,7 +329,7 @@ SkCommandLineConfigGpu* parse_command_line_config_gpu(const SkString& tag,
     bool seenSamples = false;
     int samples = 0;
     bool seenColor = false;
-    SkColorType colorType = kN32_SkColorType;
+    SkColorType colorType = kRGBA_8888_SkColorType;
     sk_sp<SkColorSpace> colorSpace = nullptr;
 
     SkTArray<SkString> optionParts;
@@ -377,10 +382,10 @@ void ParseConfigs(const SkCommandLineFlags::StringArray& configs,
 
         SkString tag(configs[i]);
         SkTArray<SkString> parts;
-        SkStrSplit(tag.c_str(), "(", kStrict_SkStrSplitMode, &parts);
+        SkStrSplit(tag.c_str(), "[", kStrict_SkStrSplitMode, &parts);
         if (parts.count() == 2) {
             SkTArray<SkString> parts2;
-            SkStrSplit(parts[1].c_str(), ")", kStrict_SkStrSplitMode, &parts2);
+            SkStrSplit(parts[1].c_str(), "]", kStrict_SkStrSplitMode, &parts2);
             if (parts2.count() == 2 && parts2[1].isEmpty()) {
                 SkStrSplit(parts[0].c_str(), "-", kStrict_SkStrSplitMode, &vias);
                 if (vias.count()) {
@@ -390,7 +395,7 @@ void ParseConfigs(const SkCommandLineFlags::StringArray& configs,
                     extendedBackend = parts[0];
                 }
                 extendedOptions = parts2[0];
-                simpleBackend.printf("%s(%s)", extendedBackend.c_str(), extendedOptions.c_str());
+                simpleBackend.printf("%s[%s]", extendedBackend.c_str(), extendedOptions.c_str());
             }
         }
 

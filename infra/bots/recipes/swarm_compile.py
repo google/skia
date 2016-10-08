@@ -22,23 +22,21 @@ DEPS = [
 TEST_BUILDERS = {
   'client.skia.compile': {
     'skiabot-linux-swarm-000': [
-      'Build-Mac-Clang-Arm7-Debug-Android',
       'Build-Mac-Clang-Arm7-Release-iOS',
       'Build-Mac-Clang-mipsel-Debug-GN_Android',
       'Build-Mac-Clang-x86_64-Debug-CommandBuffer',
       'Build-Mac-Clang-x86_64-Release-CMake',
       'Build-Mac-Clang-x86_64-Release-GN',
       'Build-Ubuntu-Clang-arm64-Release-GN_Android',
+      'Build-Ubuntu-Clang-arm64-Release-GN_Android_Vulkan',
       'Build-Ubuntu-Clang-x86_64-Debug-ASAN',
       'Build-Ubuntu-Clang-x86_64-Debug-GN',
-      'Build-Ubuntu-GCC-Arm7-Debug-Android-Trybot',
-      'Build-Ubuntu-GCC-Arm7-Debug-Android_FrameworkDefs',
-      'Build-Ubuntu-GCC-Arm7-Debug-Android_NoNeon',
-      'Build-Ubuntu-GCC-Arm7-Release-Android',
-      'Build-Ubuntu-GCC-Arm7-Release-Android_Vulkan',
+      'Build-Ubuntu-Clang-arm64-Debug-GN_Android-Trybot',
+      'Build-Ubuntu-Clang-arm64-Debug-GN_Android_FrameworkDefs',
       'Build-Ubuntu-GCC-x86-Debug',
       'Build-Ubuntu-GCC-x86_64-Debug-GN',
       'Build-Ubuntu-GCC-x86_64-Debug-MSAN',
+      'Build-Ubuntu-GCC-x86_64-Debug-NoGPU',
       'Build-Ubuntu-GCC-x86_64-Debug-SK_USE_DISCARDABLE_SCALEDIMAGECACHE',
       'Build-Ubuntu-GCC-x86_64-Release-ANGLE',
       'Build-Ubuntu-GCC-x86_64-Release-CMake',
@@ -166,10 +164,6 @@ def get_gyp_defines(builder_dict):
       builder_dict.get('cpu_or_gpu_value') == 'Mesa'):
     gyp_defs['skia_mesa'] = '1'
 
-  # skia_use_android_framework_defines.
-  if builder_dict.get('extra_config') == 'Android_FrameworkDefs':
-    gyp_defs['skia_use_android_framework_defines'] = '1'
-
   # CommandBuffer.
   if builder_dict.get('extra_config') == 'CommandBuffer':
     gyp_defs['skia_command_buffer'] = '1'
@@ -178,6 +172,10 @@ def get_gyp_defines(builder_dict):
   if builder_dict.get('extra_config') == 'Vulkan':
     gyp_defs['skia_vulkan'] = '1'
     gyp_defs['skia_vulkan_debug_layers'] = '0'
+
+  # NoGPU.
+  if 'NoGPU' in builder_dict.get('extra_config', ''):
+    gyp_defs['skia_gpu'] = 0
 
   return gyp_defs
 
@@ -242,14 +240,6 @@ def GenTests(api):
           test += api.platform('mac', 64)
         else:
           test += api.platform('linux', 64)
-        if 'Android' in builder and 'GN' not in builder:
-          ccache = '/usr/bin/ccache'
-          test += api.step_data('has ccache?',
-                                stdout=api.json.output({'ccache':ccache}))
-        if 'Android' in builder and 'GN_Android' not in builder:
-          test += api.step_data(
-            'which adb',
-            retcode=1)
         if 'Trybot' in builder:
           test += api.properties(issue=500,
                                  patchset=1,
@@ -259,7 +249,7 @@ def GenTests(api):
 
   mastername = 'client.skia.compile'
   slavename = 'skiabot-win-compile-000'
-  buildername = 'Build-Ubuntu-GCC-x86-Debug'
+  buildername = 'Build-Ubuntu-GCC-x86_64-Debug'
   yield (
       api.test('failed_compile') +
       api.properties(buildername=buildername,

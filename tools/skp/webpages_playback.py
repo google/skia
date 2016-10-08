@@ -564,7 +564,7 @@ if '__main__' == __name__:
     help=('The location of the file storage to use to download and upload '
           'files. Can be \'gs://<bucket>\' for Google Storage, or '
           'a directory for local filesystem storage'),
-      default='gs://chromium-skia-gm')
+      default='gs://skia-skps')
   option_parser.add_option(
       '', '--alternate_upload_dir',
       help= ('Uploads to a different directory in Google Storage or local '

@@ -11,31 +11,6 @@
 #include "SkXfermode.h"
 #include "SkPM4f.h"
 
-#include "SkArithmeticMode.h"
-
-#define kCustomShift    16
-#define kCustomMask     (~0xFFFF)
-
-enum CustomModes {
-    kArithmetic_CustomMode  = 1 << kCustomShift,
-};
-
-static sk_sp<SkXfermode> make_custom(int customMode) {
-    switch (customMode) {
-        case kArithmetic_CustomMode: {
-            const SkScalar k1 = 0.25;
-            const SkScalar k2 = 0.75;
-            const SkScalar k3 = 0.75;
-            const SkScalar k4 = -0.25;
-            return SkArithmeticMode::Make(k1, k2, k3, k4);
-        }
-        default:
-            break;
-    }
-    SkASSERT(false);
-    return nullptr;
-}
-
 enum SrcType {
     //! A WxH image with a rectangle in the lower right.
     kRectangleImage_SrcType               = 0x01,
@@ -59,47 +34,45 @@ enum SrcType {
 };
 
 const struct {
-    SkXfermode::Mode  fMode;
-    const char*       fLabel;
-    int               fSourceTypeMask;  // The source types to use this
+    SkBlendMode fMode;
+    const char* fLabel;
+    int         fSourceTypeMask;  // The source types to use this
     // mode with. See draw_mode for
     // an explanation of each type.
     // PDF has to play some tricks
     // to support the base modes,
     // test those more extensively.
 } gModes[] = {
-    { SkXfermode::kClear_Mode,        "Clear",        kAll_SrcType   },
-    { SkXfermode::kSrc_Mode,          "Src",          kAll_SrcType   },
-    { SkXfermode::kDst_Mode,          "Dst",          kAll_SrcType   },
-    { SkXfermode::kSrcOver_Mode,      "SrcOver",      kAll_SrcType   },
-    { SkXfermode::kDstOver_Mode,      "DstOver",      kAll_SrcType   },
-    { SkXfermode::kSrcIn_Mode,        "SrcIn",        kAll_SrcType   },
-    { SkXfermode::kDstIn_Mode,        "DstIn",        kAll_SrcType   },
-    { SkXfermode::kSrcOut_Mode,       "SrcOut",       kAll_SrcType   },
-    { SkXfermode::kDstOut_Mode,       "DstOut",       kAll_SrcType   },
-    { SkXfermode::kSrcATop_Mode,      "SrcATop",      kAll_SrcType   },
-    { SkXfermode::kDstATop_Mode,      "DstATop",      kAll_SrcType   },
+    { SkBlendMode::kClear,        "Clear",        kAll_SrcType   },
+    { SkBlendMode::kSrc,          "Src",          kAll_SrcType   },
+    { SkBlendMode::kDst,          "Dst",          kAll_SrcType   },
+    { SkBlendMode::kSrcOver,      "SrcOver",      kAll_SrcType   },
+    { SkBlendMode::kDstOver,      "DstOver",      kAll_SrcType   },
+    { SkBlendMode::kSrcIn,        "SrcIn",        kAll_SrcType   },
+    { SkBlendMode::kDstIn,        "DstIn",        kAll_SrcType   },
+    { SkBlendMode::kSrcOut,       "SrcOut",       kAll_SrcType   },
+    { SkBlendMode::kDstOut,       "DstOut",       kAll_SrcType   },
+    { SkBlendMode::kSrcATop,      "SrcATop",      kAll_SrcType   },
+    { SkBlendMode::kDstATop,      "DstATop",      kAll_SrcType   },
 
-    { SkXfermode::kXor_Mode,          "Xor",          kBasic_SrcType },
-    { SkXfermode::kPlus_Mode,         "Plus",         kBasic_SrcType },
-    { SkXfermode::kModulate_Mode,     "Modulate",     kAll_SrcType   },
-    { SkXfermode::kScreen_Mode,       "Screen",       kBasic_SrcType },
-    { SkXfermode::kOverlay_Mode,      "Overlay",      kBasic_SrcType },
-    { SkXfermode::kDarken_Mode,       "Darken",       kBasic_SrcType },
-    { SkXfermode::kLighten_Mode,      "Lighten",      kBasic_SrcType },
-    { SkXfermode::kColorDodge_Mode,   "ColorDodge",   kBasic_SrcType },
-    { SkXfermode::kColorBurn_Mode,    "ColorBurn",    kBasic_SrcType },
-    { SkXfermode::kHardLight_Mode,    "HardLight",    kBasic_SrcType },
-    { SkXfermode::kSoftLight_Mode,    "SoftLight",    kBasic_SrcType },
-    { SkXfermode::kDifference_Mode,   "Difference",   kBasic_SrcType },
-    { SkXfermode::kExclusion_Mode,    "Exclusion",    kBasic_SrcType },
-    { SkXfermode::kMultiply_Mode,     "Multiply",     kAll_SrcType   },
-    { SkXfermode::kHue_Mode,          "Hue",          kBasic_SrcType },
-    { SkXfermode::kSaturation_Mode,   "Saturation",   kBasic_SrcType },
-    { SkXfermode::kColor_Mode,        "Color",        kBasic_SrcType },
-    { SkXfermode::kLuminosity_Mode,   "Luminosity",   kBasic_SrcType },
-
-    { SkXfermode::Mode(0xFFFF),       "Arithmetic",   kBasic_SrcType + kArithmetic_CustomMode   },
+    { SkBlendMode::kXor,          "Xor",          kBasic_SrcType },
+    { SkBlendMode::kPlus,         "Plus",         kBasic_SrcType },
+    { SkBlendMode::kModulate,     "Modulate",     kAll_SrcType   },
+    { SkBlendMode::kScreen,       "Screen",       kBasic_SrcType },
+    { SkBlendMode::kOverlay,      "Overlay",      kBasic_SrcType },
+    { SkBlendMode::kDarken,       "Darken",       kBasic_SrcType },
+    { SkBlendMode::kLighten,      "Lighten",      kBasic_SrcType },
+    { SkBlendMode::kColorDodge,   "ColorDodge",   kBasic_SrcType },
+    { SkBlendMode::kColorBurn,    "ColorBurn",    kBasic_SrcType },
+    { SkBlendMode::kHardLight,    "HardLight",    kBasic_SrcType },
+    { SkBlendMode::kSoftLight,    "SoftLight",    kBasic_SrcType },
+    { SkBlendMode::kDifference,   "Difference",   kBasic_SrcType },
+    { SkBlendMode::kExclusion,    "Exclusion",    kBasic_SrcType },
+    { SkBlendMode::kMultiply,     "Multiply",     kAll_SrcType   },
+    { SkBlendMode::kHue,          "Hue",          kBasic_SrcType },
+    { SkBlendMode::kSaturation,   "Saturation",   kBasic_SrcType },
+    { SkBlendMode::kColor,        "Color",        kBasic_SrcType },
+    { SkBlendMode::kLuminosity,   "Luminosity",   kBasic_SrcType },
 };
 
 static void make_bitmaps(int w, int h, SkBitmap* src, SkBitmap* dst,
@@ -145,15 +118,14 @@ class XfermodesGM : public skiagm::GM {
      * uses the implied shape of the drawing command and these modes
      * demonstrate that.
      */
-    void draw_mode(SkCanvas* canvas, sk_sp<SkXfermode> mode, SrcType srcType,
-                   SkScalar x, SkScalar y) {
+    void draw_mode(SkCanvas* canvas, SkBlendMode mode, SrcType srcType, SkScalar x, SkScalar y) {
         SkPaint p;
         SkMatrix m;
         bool restoreNeeded = false;
         m.setTranslate(x, y);
 
         canvas->drawBitmap(fSrcB, x, y, &p);
-        p.setXfermode(std::move(mode));
+        p.setBlendMode(mode);
         switch (srcType) {
             case kSmallTransparentImage_SrcType: {
                 m.postScale(SK_ScalarHalf, SK_ScalarHalf, x, y);
@@ -168,7 +140,7 @@ class XfermodesGM : public skiagm::GM {
                                                  SkIntToScalar(H));
                 canvas->saveLayer(&bounds, &p);
                 restoreNeeded = true;
-                p.setXfermodeMode(SkXfermode::kSrcOver_Mode);
+                p.setBlendMode(SkBlendMode::kSrcOver);
                 // Fall through.
             }
             case kQuarterClear_SrcType: {
@@ -241,7 +213,7 @@ protected:
     }
 
     SkISize onISize() override {
-        return SkISize::Make(1990, 660);
+        return SkISize::Make(1990, 570);
     }
 
     void onDraw(SkCanvas* canvas) override {
@@ -269,14 +241,7 @@ protected:
                 if ((gModes[i].fSourceTypeMask & sourceType) == 0) {
                     continue;
                 }
-                sk_sp<SkXfermode> mode;
-                if (gModes[i].fSourceTypeMask & kCustomMask) {
-                    mode = make_custom(gModes[i].fSourceTypeMask & kCustomMask);
-                } else {
-                    mode = SkXfermode::Make(gModes[i].fMode);
-                }
-                SkRect r;
-                r.set(x, y, x+w, y+h);
+                SkRect r{ x, y, x+w, y+h };
 
                 SkPaint p;
                 p.setStyle(SkPaint::kFill_Style);
@@ -284,7 +249,7 @@ protected:
                 canvas->drawRect(r, p);
 
                 canvas->saveLayer(&r, nullptr);
-                draw_mode(canvas, std::move(mode), static_cast<SrcType>(sourceType),
+                draw_mode(canvas, gModes[i].fMode, static_cast<SrcType>(sourceType),
                           r.fLeft, r.fTop);
                 canvas->restore();
 

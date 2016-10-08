@@ -63,6 +63,7 @@ private:
     VkClearValue                fColorClearValue;
 
     bool                        fIsEmpty;
+    bool                        fStartsWithClear;
 
     typedef GrGpuCommandBuffer INHERITED;
 };

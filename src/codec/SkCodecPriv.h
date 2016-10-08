@@ -9,6 +9,7 @@
 #define SkCodecPriv_DEFINED
 
 #include "SkColorPriv.h"
+#include "SkColorSpaceXform.h"
 #include "SkColorTable.h"
 #include "SkImageInfo.h"
 #include "SkTypes.h"
@@ -143,13 +144,27 @@ static inline const SkPMColor* get_color_ptr(SkColorTable* colorTable) {
      return nullptr != colorTable ? colorTable->readColors() : nullptr;
 }
 
+static inline SkColorSpaceXform::ColorFormat select_xform_format(SkColorType colorType) {
+    switch (colorType) {
+        case kRGBA_8888_SkColorType:
+            return SkColorSpaceXform::kRGBA_8888_ColorFormat;
+        case kBGRA_8888_SkColorType:
+            return SkColorSpaceXform::kBGRA_8888_ColorFormat;
+        case kRGBA_F16_SkColorType:
+            return SkColorSpaceXform::kRGBA_F16_ColorFormat;
+        default:
+            SkASSERT(false);
+            return SkColorSpaceXform::kRGBA_8888_ColorFormat;
+    }
+}
+
 /*
  * Given that the encoded image uses a color table, return the fill value
  */
-static inline uint32_t get_color_table_fill_value(SkColorType colorType, const SkPMColor* colorPtr,
-        uint8_t fillIndex) {
+static inline uint64_t get_color_table_fill_value(SkColorType dstColorType, SkAlphaType alphaType,
+        const SkPMColor* colorPtr, uint8_t fillIndex, SkColorSpaceXform* colorXform) {
     SkASSERT(nullptr != colorPtr);
-    switch (colorType) {
+    switch (dstColorType) {
         case kRGBA_8888_SkColorType:
         case kBGRA_8888_SkColorType:
             return colorPtr[fillIndex];
@@ -157,6 +172,14 @@ static inline uint32_t get_color_table_fill_value(SkColorType colorType, const S
             return SkPixel32ToPixel16(colorPtr[fillIndex]);
         case kIndex_8_SkColorType:
             return fillIndex;
+        case kRGBA_F16_SkColorType: {
+            SkASSERT(colorXform);
+            uint64_t dstColor;
+            uint32_t srcColor = colorPtr[fillIndex];
+            colorXform->apply(&dstColor, &srcColor, 1, select_xform_format(dstColorType),
+                              SkColorSpaceXform::kRGBA_8888_ColorFormat, alphaType);
+            return dstColor;
+        }
         default:
             SkASSERT(false);
             return 0;
@@ -335,7 +358,7 @@ static inline bool needs_color_xform(const SkImageInfo& dstInfo, const SkImageIn
     return !isLegacy && (needsPremul || isF16 || srcDstNotEqual);
 }
 
-static inline SkAlphaType select_alpha_xform(SkAlphaType dstAlphaType, SkAlphaType srcAlphaType) {
+static inline SkAlphaType select_xform_alpha(SkAlphaType dstAlphaType, SkAlphaType srcAlphaType) {
     return (kOpaque_SkAlphaType == srcAlphaType) ? kOpaque_SkAlphaType : dstAlphaType;
 }
 

@@ -106,9 +106,11 @@ public:
      */
     sk_sp<SkTextBlob> make();
 
+#ifdef SK_SUPPORT_LEGACY_TEXTBLOB_BUILDER
     const SkTextBlob* build() {
         return this->make().release();
     }
+#endif
 
     /**
      *  Glyph and position buffers associated with a run.

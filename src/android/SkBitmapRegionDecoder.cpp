@@ -12,7 +12,7 @@
 #include "SkCodecPriv.h"
 
 SkBitmapRegionDecoder* SkBitmapRegionDecoder::Create(
-        SkData* data, Strategy strategy) {
+        sk_sp<SkData> data, Strategy strategy) {
     return SkBitmapRegionDecoder::Create(new SkMemoryStream(data),
             strategy);
 }

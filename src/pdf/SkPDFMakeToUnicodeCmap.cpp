@@ -69,16 +69,6 @@ struct BFRange {
 };
 }  // namespace
 
-static void write_utf16be(SkDynamicMemoryWStream* wStream, SkUnichar utf32) {
-    SkGlyphID utf16[2] = {0, 0};
-    size_t len = SkUTF16_FromUnichar(utf32, utf16);
-    SkASSERT(len == 1 || len == 2);
-    SkPDFUtils::WriteUInt16BE(wStream, utf16[0]);
-    if (len == 2) {
-        SkPDFUtils::WriteUInt16BE(wStream, utf16[1]);
-    }
-}
-
 static void write_glyph(SkDynamicMemoryWStream* cmap,
                         bool multiByte,
                         SkGlyphID gid) {
@@ -102,7 +92,7 @@ static void append_bfchar_section(const SkTDArray<BFChar>& bfchar,
             cmap->writeText("<");
             write_glyph(cmap, multiByte, bfchar[i + j].fGlyphId);
             cmap->writeText("> <");
-            write_utf16be(cmap, bfchar[i + j].fUnicode);
+            SkPDFUtils::WriteUTF16beHex(cmap, bfchar[i + j].fUnicode);
             cmap->writeText(">\n");
         }
         cmap->writeText("endbfchar\n");
@@ -124,7 +114,7 @@ static void append_bfrange_section(const SkTDArray<BFRange>& bfrange,
             cmap->writeText("> <");
             write_glyph(cmap, multiByte, bfrange[i + j].fEnd);
             cmap->writeText("> <");
-            write_utf16be(cmap, bfrange[i + j].fUnicode);
+            SkPDFUtils::WriteUTF16beHex(cmap, bfrange[i + j].fUnicode);
             cmap->writeText(">\n");
         }
         cmap->writeText("endbfrange\n");

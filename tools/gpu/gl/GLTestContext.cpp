@@ -6,25 +6,31 @@
  */
 
 #include "GLTestContext.h"
+
+#include "GpuTimer.h"
 #include "gl/GrGLUtil.h"
 
-namespace sk_gpu_test {
-class GLTestContext::GLFenceSync : public SkGpuFenceSync {
-public:
-    static GLFenceSync* CreateIfSupported(const GLTestContext*);
+namespace {
 
-    SkPlatformGpuFence SK_WARN_UNUSED_RESULT insertFence() const override;
-    bool waitFence(SkPlatformGpuFence fence) const override;
-    void deleteFence(SkPlatformGpuFence fence) const override;
+class GLFenceSync : public sk_gpu_test::FenceSync {
+public:
+    static GLFenceSync* CreateIfSupported(const sk_gpu_test::GLTestContext*);
+
+    sk_gpu_test::PlatformFence SK_WARN_UNUSED_RESULT insertFence() const override;
+    bool waitFence(sk_gpu_test::PlatformFence fence) const override;
+    void deleteFence(sk_gpu_test::PlatformFence fence) const override;
 
 private:
-    GLFenceSync() {}
+    GLFenceSync(const sk_gpu_test::GLTestContext*, const char* ext = "");
 
-    static const GrGLenum GL_SYNC_GPU_COMMANDS_COMPLETE  = 0x9117;
-    static const GrGLenum GL_WAIT_FAILED                 = 0x911d;
-    static const GrGLbitfield GL_SYNC_FLUSH_COMMANDS_BIT = 0x00000001;
+    bool validate() { return fGLFenceSync && fGLClientWaitSync && fGLDeleteSync; }
+
+    static constexpr GrGLenum GL_SYNC_GPU_COMMANDS_COMPLETE  = 0x9117;
+    static constexpr GrGLenum GL_WAIT_FAILED                 = 0x911d;
+    static constexpr GrGLbitfield GL_SYNC_FLUSH_COMMANDS_BIT = 0x00000001;
 
     typedef struct __GLsync *GLsync;
+    GR_STATIC_ASSERT(sizeof(GLsync) <= sizeof(sk_gpu_test::PlatformFence));
 
     typedef GLsync (GR_GL_FUNCTION_TYPE* GLFenceSyncProc) (GrGLenum, GrGLbitfield);
     typedef GrGLenum (GR_GL_FUNCTION_TYPE* GLClientWaitSyncProc) (GLsync, GrGLbitfield, GrGLuint64);
@@ -34,8 +40,178 @@ private:
     GLClientWaitSyncProc   fGLClientWaitSync;
     GLDeleteSyncProc       fGLDeleteSync;
 
-    typedef SkGpuFenceSync INHERITED;
+    typedef FenceSync INHERITED;
 };
+
+GLFenceSync* GLFenceSync::CreateIfSupported(const sk_gpu_test::GLTestContext* ctx) {
+    SkAutoTDelete<GLFenceSync> ret;
+    if (kGL_GrGLStandard == ctx->gl()->fStandard) {
+        if (GrGLGetVersion(ctx->gl()) < GR_GL_VER(3,2) && !ctx->gl()->hasExtension("GL_ARB_sync")) {
+            return nullptr;
+        }
+        ret.reset(new GLFenceSync(ctx));
+    } else {
+        if (!ctx->gl()->hasExtension("GL_APPLE_sync")) {
+            return nullptr;
+        }
+        ret.reset(new GLFenceSync(ctx, "APPLE"));
+    }
+    return ret->validate() ? ret.release() : nullptr;
+}
+
+GLFenceSync::GLFenceSync(const sk_gpu_test::GLTestContext* ctx, const char* ext) {
+    ctx->getGLProcAddress(&fGLFenceSync, "glFenceSync");
+    ctx->getGLProcAddress(&fGLClientWaitSync, "glClientWaitSync");
+    ctx->getGLProcAddress(&fGLDeleteSync, "glDeleteSync");
+}
+
+sk_gpu_test::PlatformFence GLFenceSync::insertFence() const {
+    __GLsync* glsync = fGLFenceSync(GL_SYNC_GPU_COMMANDS_COMPLETE, 0);
+    return reinterpret_cast<sk_gpu_test::PlatformFence>(glsync);
+}
+
+bool GLFenceSync::waitFence(sk_gpu_test::PlatformFence fence) const {
+    GLsync glsync = reinterpret_cast<GLsync>(fence);
+    return GL_WAIT_FAILED != fGLClientWaitSync(glsync, GL_SYNC_FLUSH_COMMANDS_BIT, -1);
+}
+
+void GLFenceSync::deleteFence(sk_gpu_test::PlatformFence fence) const {
+    GLsync glsync = reinterpret_cast<GLsync>(fence);
+    fGLDeleteSync(glsync);
+}
+
+class GLGpuTimer : public sk_gpu_test::GpuTimer {
+public:
+    static GLGpuTimer* CreateIfSupported(const sk_gpu_test::GLTestContext*);
+
+    QueryStatus checkQueryStatus(sk_gpu_test::PlatformTimerQuery) override;
+    std::chrono::nanoseconds getTimeElapsed(sk_gpu_test::PlatformTimerQuery) override;
+    void deleteQuery(sk_gpu_test::PlatformTimerQuery) override;
+
+private:
+    GLGpuTimer(bool disjointSupport, const sk_gpu_test::GLTestContext*, const char* ext = "");
+
+    bool validate() const;
+
+    sk_gpu_test::PlatformTimerQuery onQueueTimerStart() const override;
+    void onQueueTimerStop(sk_gpu_test::PlatformTimerQuery) const override;
+
+    static constexpr GrGLenum GL_QUERY_RESULT            = 0x8866;
+    static constexpr GrGLenum GL_QUERY_RESULT_AVAILABLE  = 0x8867;
+    static constexpr GrGLenum GL_TIME_ELAPSED            = 0x88bf;
+    static constexpr GrGLenum GL_GPU_DISJOINT            = 0x8fbb;
+
+    typedef void (GR_GL_FUNCTION_TYPE* GLGetIntegervProc) (GrGLenum, GrGLint*);
+    typedef void (GR_GL_FUNCTION_TYPE* GLGenQueriesProc) (GrGLsizei, GrGLuint*);
+    typedef void (GR_GL_FUNCTION_TYPE* GLDeleteQueriesProc) (GrGLsizei, const GrGLuint*);
+    typedef void (GR_GL_FUNCTION_TYPE* GLBeginQueryProc) (GrGLenum, GrGLuint);
+    typedef void (GR_GL_FUNCTION_TYPE* GLEndQueryProc) (GrGLenum);
+    typedef void (GR_GL_FUNCTION_TYPE* GLGetQueryObjectuivProc) (GrGLuint, GrGLenum, GrGLuint*);
+    typedef void (GR_GL_FUNCTION_TYPE* GLGetQueryObjectui64vProc) (GrGLuint, GrGLenum, GrGLuint64*);
+
+    GLGetIntegervProc           fGLGetIntegerv;
+    GLGenQueriesProc            fGLGenQueries;
+    GLDeleteQueriesProc         fGLDeleteQueries;
+    GLBeginQueryProc            fGLBeginQuery;
+    GLEndQueryProc              fGLEndQuery;
+    GLGetQueryObjectuivProc     fGLGetQueryObjectuiv;
+    GLGetQueryObjectui64vProc   fGLGetQueryObjectui64v;
+
+
+    typedef sk_gpu_test::GpuTimer INHERITED;
+};
+
+GLGpuTimer* GLGpuTimer::CreateIfSupported(const sk_gpu_test::GLTestContext* ctx) {
+    SkAutoTDelete<GLGpuTimer> ret;
+    const GrGLInterface* gl = ctx->gl();
+    if (gl->fExtensions.has("GL_EXT_disjoint_timer_query")) {
+        ret.reset(new GLGpuTimer(true, ctx, "EXT"));
+    } else if (kGL_GrGLStandard == gl->fStandard &&
+               (GrGLGetVersion(gl) > GR_GL_VER(3,3) || gl->fExtensions.has("GL_ARB_timer_query"))) {
+        ret.reset(new GLGpuTimer(false, ctx));
+    } else if (gl->fExtensions.has("GL_EXT_timer_query")) {
+        ret.reset(new GLGpuTimer(false, ctx, "EXT"));
+    }
+    return ret && ret->validate() ? ret.release() : nullptr;
+}
+
+GLGpuTimer::GLGpuTimer(bool disjointSupport, const sk_gpu_test::GLTestContext* ctx, const char* ext)
+    : INHERITED(disjointSupport) {
+    ctx->getGLProcAddress(&fGLGetIntegerv, "glGetIntegerv");
+    ctx->getGLProcAddress(&fGLGenQueries, "glGenQueries", ext);
+    ctx->getGLProcAddress(&fGLDeleteQueries, "glDeleteQueries", ext);
+    ctx->getGLProcAddress(&fGLBeginQuery, "glBeginQuery", ext);
+    ctx->getGLProcAddress(&fGLEndQuery, "glEndQuery", ext);
+    ctx->getGLProcAddress(&fGLGetQueryObjectuiv, "glGetQueryObjectuiv", ext);
+    ctx->getGLProcAddress(&fGLGetQueryObjectui64v, "glGetQueryObjectui64v", ext);
+}
+
+bool GLGpuTimer::validate() const {
+    return fGLGetIntegerv && fGLGenQueries && fGLDeleteQueries && fGLBeginQuery && fGLEndQuery &&
+           fGLGetQueryObjectuiv && fGLGetQueryObjectui64v;
+}
+
+sk_gpu_test::PlatformTimerQuery GLGpuTimer::onQueueTimerStart() const {
+    GrGLuint queryID;
+    fGLGenQueries(1, &queryID);
+    if (!queryID) {
+        return sk_gpu_test::kInvalidTimerQuery;
+    }
+    if (this->disjointSupport()) {
+        // Clear the disjoint flag.
+        GrGLint disjoint;
+        fGLGetIntegerv(GL_GPU_DISJOINT, &disjoint);
+    }
+    fGLBeginQuery(GL_TIME_ELAPSED, queryID);
+    return static_cast<sk_gpu_test::PlatformTimerQuery>(queryID);
+}
+
+void GLGpuTimer::onQueueTimerStop(sk_gpu_test::PlatformTimerQuery platformTimer) const {
+    if (sk_gpu_test::kInvalidTimerQuery == platformTimer) {
+        return;
+    }
+    fGLEndQuery(GL_TIME_ELAPSED);
+}
+
+sk_gpu_test::GpuTimer::QueryStatus
+GLGpuTimer::checkQueryStatus(sk_gpu_test::PlatformTimerQuery platformTimer) {
+    const GrGLuint queryID = static_cast<GrGLuint>(platformTimer);
+    if (!queryID) {
+        return QueryStatus::kInvalid;
+    }
+    GrGLuint available = 0;
+    fGLGetQueryObjectuiv(queryID, GL_QUERY_RESULT_AVAILABLE, &available);
+    if (!available) {
+        return QueryStatus::kPending;
+    }
+    if (this->disjointSupport()) {
+        GrGLint disjoint = 1;
+        fGLGetIntegerv(GL_GPU_DISJOINT, &disjoint);
+        if (disjoint) {
+            return QueryStatus::kDisjoint;
+        }
+    }
+    return QueryStatus::kAccurate;
+}
+
+std::chrono::nanoseconds GLGpuTimer::getTimeElapsed(sk_gpu_test::PlatformTimerQuery platformTimer) {
+    SkASSERT(this->checkQueryStatus(platformTimer) >= QueryStatus::kDisjoint);
+    const GrGLuint queryID = static_cast<GrGLuint>(platformTimer);
+    GrGLuint64 nanoseconds;
+    fGLGetQueryObjectui64v(queryID, GL_QUERY_RESULT, &nanoseconds);
+    return std::chrono::nanoseconds(nanoseconds);
+}
+
+void GLGpuTimer::deleteQuery(sk_gpu_test::PlatformTimerQuery platformTimer) {
+    const GrGLuint queryID = static_cast<GrGLuint>(platformTimer);
+    fGLDeleteQueries(1, &queryID);
+}
+
+GR_STATIC_ASSERT(sizeof(GrGLuint) <= sizeof(sk_gpu_test::PlatformTimerQuery));
+
+}  // anonymous namespace
+
+namespace sk_gpu_test {
 
 GLTestContext::GLTestContext() : TestContext() {}
 
@@ -43,10 +219,11 @@ GLTestContext::~GLTestContext() {
     SkASSERT(nullptr == fGL.get());
 }
 
-void GLTestContext::init(const GrGLInterface* gl, SkGpuFenceSync* fenceSync) {
+void GLTestContext::init(const GrGLInterface* gl, FenceSync* fenceSync) {
     SkASSERT(!fGL.get());
     fGL.reset(gl);
     fFenceSync = fenceSync ? fenceSync : GLFenceSync::CreateIfSupported(this);
+    fGpuTimer = GLGpuTimer::CreateIfSupported(this);
 }
 
 void GLTestContext::teardown() {
@@ -71,55 +248,6 @@ void GLTestContext::finish() {
     if (fGL) {
         GR_GL_CALL(fGL.get(), Finish());
     }
-}
-
-GLTestContext::GLFenceSync* GLTestContext::GLFenceSync::CreateIfSupported(const GLTestContext* ctx) {
-    SkAutoTDelete<GLFenceSync> ret(new GLFenceSync);
-
-    if (kGL_GrGLStandard == ctx->gl()->fStandard) {
-        const GrGLubyte* versionStr;
-        GR_GL_CALL_RET(ctx->gl(), versionStr, GetString(GR_GL_VERSION));
-        GrGLVersion version = GrGLGetVersionFromString(reinterpret_cast<const char*>(versionStr));
-        if (version < GR_GL_VER(3,2) && !ctx->gl()->hasExtension("GL_ARB_sync")) {
-            return nullptr;
-        }
-        ret->fGLFenceSync = reinterpret_cast<GLFenceSyncProc>(
-            ctx->onPlatformGetProcAddress("glFenceSync"));
-        ret->fGLClientWaitSync = reinterpret_cast<GLClientWaitSyncProc>(
-            ctx->onPlatformGetProcAddress("glClientWaitSync"));
-        ret->fGLDeleteSync = reinterpret_cast<GLDeleteSyncProc>(
-            ctx->onPlatformGetProcAddress("glDeleteSync"));
-    } else {
-        if (!ctx->gl()->hasExtension("GL_APPLE_sync")) {
-            return nullptr;
-        }
-        ret->fGLFenceSync = reinterpret_cast<GLFenceSyncProc>(
-            ctx->onPlatformGetProcAddress("glFenceSyncAPPLE"));
-        ret->fGLClientWaitSync = reinterpret_cast<GLClientWaitSyncProc>(
-            ctx->onPlatformGetProcAddress("glClientWaitSyncAPPLE"));
-        ret->fGLDeleteSync = reinterpret_cast<GLDeleteSyncProc>(
-            ctx->onPlatformGetProcAddress("glDeleteSyncAPPLE"));
-    }
-
-    if (!ret->fGLFenceSync || !ret->fGLClientWaitSync || !ret->fGLDeleteSync) {
-        return nullptr;
-    }
-
-    return ret.release();
-}
-
-SkPlatformGpuFence GLTestContext::GLFenceSync::insertFence() const {
-    return fGLFenceSync(GL_SYNC_GPU_COMMANDS_COMPLETE, 0);
-}
-
-bool GLTestContext::GLFenceSync::waitFence(SkPlatformGpuFence fence) const {
-    GLsync glsync = static_cast<GLsync>(fence);
-    return GL_WAIT_FAILED != fGLClientWaitSync(glsync, GL_SYNC_FLUSH_COMMANDS_BIT, -1);
-}
-
-void GLTestContext::GLFenceSync::deleteFence(SkPlatformGpuFence fence) const {
-    GLsync glsync = static_cast<GLsync>(fence);
-    fGLDeleteSync(glsync);
 }
 
 GrGLint GLTestContext::createTextureRectangle(int width, int height, GrGLenum internalFormat,

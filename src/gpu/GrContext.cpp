@@ -95,7 +95,11 @@ void GrContext::initCommon(const GrContextOptions& options) {
     dtOptions.fDrawBatchBounds = options.fDrawBatchBounds;
     dtOptions.fMaxBatchLookback = options.fMaxBatchLookback;
     dtOptions.fMaxBatchLookahead = options.fMaxBatchLookahead;
-    fDrawingManager.reset(new GrDrawingManager(this, dtOptions, options.fImmediateMode,
+    GrPathRendererChain::Options prcOptions;
+    prcOptions.fDisableDistanceFieldRenderer = options.fDisableDistanceFieldPaths;
+    prcOptions.fAllowPathMaskCaching = options.fAllowPathMaskCaching;
+    prcOptions.fDisableAllPathRenderers = options.fForceSWPathMasks;
+    fDrawingManager.reset(new GrDrawingManager(this, dtOptions, prcOptions, options.fImmediateMode,
                                                &fSingleOwner));
 
     // GrBatchFontCache will eventually replace GrFontCache
@@ -352,7 +356,7 @@ bool GrContext::writeSurfacePixels(GrSurface* surface,
             }
             GrPaint paint;
             paint.addColorFragmentProcessor(std::move(fp));
-            paint.setPorterDuffXPFactory(SkXfermode::kSrc_Mode);
+            paint.setPorterDuffXPFactory(SkBlendMode::kSrc);
             paint.setAllowSRGBInputs(true);
             SkRect rect = SkRect::MakeWH(SkIntToScalar(width), SkIntToScalar(height));
             drawContext->drawRect(GrNoClip(), paint, matrix, rect, nullptr);
@@ -467,7 +471,7 @@ bool GrContext::readSurfacePixels(GrSurface* src,
             if (fp) {
                 GrPaint paint;
                 paint.addColorFragmentProcessor(std::move(fp));
-                paint.setPorterDuffXPFactory(SkXfermode::kSrc_Mode);
+                paint.setPorterDuffXPFactory(SkBlendMode::kSrc);
                 paint.setAllowSRGBInputs(true);
                 SkRect rect = SkRect::MakeWH(SkIntToScalar(width), SkIntToScalar(height));
                 tempDC->drawRect(GrNoClip(), paint, SkMatrix::I(), rect, nullptr);

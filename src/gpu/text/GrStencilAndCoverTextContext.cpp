@@ -344,7 +344,7 @@ public:
 
     void appendGlyph(uint16_t glyphId, const SkPoint& pos);
 
-    const SkTextBlob* buildIfNeeded(int* count);
+    sk_sp<SkTextBlob> makeIfNeeded(int* count);
 
 private:
     enum { kWriteBufferSize = 1024 };
@@ -521,7 +521,7 @@ void GrStencilAndCoverTextContext::TextRun::setText(const char text[], size_t by
         y += SkFloatToScalar(glyph.fAdvanceY) * fTextRatio;
     }
 
-    fFallbackTextBlob.reset(fallback.buildIfNeeded(&fFallbackGlyphCount));
+    fFallbackTextBlob = fallback.makeIfNeeded(&fFallbackGlyphCount);
 }
 
 void GrStencilAndCoverTextContext::TextRun::setPosText(const char text[], size_t byteLength,
@@ -557,7 +557,7 @@ void GrStencilAndCoverTextContext::TextRun::setPosText(const char text[], size_t
         pos += scalarsPerPosition;
     }
 
-    fFallbackTextBlob.reset(fallback.buildIfNeeded(&fFallbackGlyphCount));
+    fFallbackTextBlob = fallback.makeIfNeeded(&fFallbackGlyphCount);
 }
 
 GrPathRange* GrStencilAndCoverTextContext::TextRun::createGlyphs(GrContext* ctx) const {
@@ -654,7 +654,8 @@ void GrStencilAndCoverTextContext::TextRun::draw(GrContext* ctx,
         }
 
         fallbackTextContext->drawTextBlob(ctx, drawContext, clip, fallbackSkPaint, viewMatrix,
-                                          props, fFallbackTextBlob, x, y, nullptr, clipBounds);
+                                          props, fFallbackTextBlob.get(), x, y, nullptr,
+                                          clipBounds);
     }
 }
 
@@ -728,11 +729,11 @@ void GrStencilAndCoverTextContext::FallbackBlobBuilder::flush() {
     fBuffIdx = 0;
 }
 
-const SkTextBlob* GrStencilAndCoverTextContext::FallbackBlobBuilder::buildIfNeeded(int *count) {
+sk_sp<SkTextBlob> GrStencilAndCoverTextContext::FallbackBlobBuilder::makeIfNeeded(int *count) {
     *count = fCount;
     if (fCount) {
         this->flush();
-        return fBuilder->build();
+        return fBuilder->make();
     }
     return nullptr;
 }

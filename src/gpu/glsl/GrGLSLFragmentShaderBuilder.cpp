@@ -125,19 +125,16 @@ bool GrGLSLFragmentShaderBuilder::enableFeature(GLSLFeature feature) {
     }
 }
 
-SkString GrGLSLFragmentShaderBuilder::ensureFSCoords2D(const GrGLSLTransformedCoordsArray& coords,
-                                                       int index) {
-    if (kVec3f_GrSLType != coords[index].getType()) {
-        SkASSERT(kVec2f_GrSLType == coords[index].getType());
-        return coords[index].getName();
+SkString GrGLSLFragmentShaderBuilder::ensureCoords2D(const GrShaderVar& coords) {
+    if (kVec3f_GrSLType != coords.getType()) {
+        SkASSERT(kVec2f_GrSLType == coords.getType());
+        return coords.getName();
     }
 
-    SkString coords2D("coords2D");
-    if (0 != index) {
-        coords2D.appendf("_%i", index);
-    }
-    this->codeAppendf("\tvec2 %s = %s.xy / %s.z;",
-                      coords2D.c_str(), coords[index].c_str(), coords[index].c_str());
+    SkString coords2D;
+    coords2D.printf("%s_ensure2D", coords.c_str());
+    this->codeAppendf("\tvec2 %s = %s.xy / %s.z;", coords2D.c_str(), coords.c_str(),
+                      coords.c_str());
     return coords2D;
 }
 

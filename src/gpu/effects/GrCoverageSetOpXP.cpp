@@ -68,7 +68,7 @@ public:
         const CoverageSetOpXP& xp = processor.cast<CoverageSetOpXP>();
         uint32_t key = xp.invertCoverage() ?  0x0 : 0x1;
         b->add32(key);
-    };
+    }
 
 private:
     void emitOutputsForBlendState(const EmitArgs& args) override {
@@ -82,7 +82,7 @@ private:
         }
     }
 
-    void onSetData(const GrGLSLProgramDataManager&, const GrXferProcessor&) override {};
+    void onSetData(const GrGLSLProgramDataManager&, const GrXferProcessor&) override {}
 
     typedef GrGLSLXferProcessor INHERITED;
 };

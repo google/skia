@@ -72,7 +72,7 @@ static GrTexture* copy_on_gpu(GrTexture* inputTexture, const SkIRect* subset,
         GrTextureParams params(SkShader::kClamp_TileMode, copyParams.fFilter);
         paint.addColorTextureProcessor(inputTexture, nullptr, SkMatrix::I(), params);
     }
-    paint.setPorterDuffXPFactory(SkXfermode::kSrc_Mode);
+    paint.setPorterDuffXPFactory(SkBlendMode::kSrc);
 
     SkRect localRect;
     if (subset) {
@@ -424,8 +424,7 @@ sk_sp<GrFragmentProcessor> GrTextureAdjuster::createFragmentProcessor(
              (domain.fLeft <= domain.fRight && domain.fTop <= domain.fBottom));
     textureMatrix.postIDiv(texture->width(), texture->height());
     sk_sp<GrColorSpaceXform> colorSpaceXform = GrColorSpaceXform::Make(this->getColorSpace(),
-                                                                       dstColorSpace,
-                                                                       this->alphaType());
+                                                                       dstColorSpace);
     return create_fp_for_domain_and_filter(texture, std::move(colorSpaceXform), textureMatrix,
                                            domainMode, domain, filterOrNullForBicubic);
 }
@@ -507,8 +506,7 @@ sk_sp<GrFragmentProcessor> GrTextureMaker::createFragmentProcessor(
     SkMatrix normalizedTextureMatrix = textureMatrix;
     normalizedTextureMatrix.postIDiv(texture->width(), texture->height());
     sk_sp<GrColorSpaceXform> colorSpaceXform = GrColorSpaceXform::Make(this->getColorSpace(),
-                                                                       dstColorSpace,
-                                                                       this->alphaType());
+                                                                       dstColorSpace);
     return create_fp_for_domain_and_filter(texture, std::move(colorSpaceXform),
                                            normalizedTextureMatrix, domainMode, domain,
                                            filterOrNullForBicubic);

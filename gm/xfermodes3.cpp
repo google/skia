@@ -69,7 +69,7 @@ protected:
         };
         for (size_t s = 0; s < SK_ARRAY_COUNT(kStrokes); ++s) {
             for (size_t m = 0; m <= SkXfermode::kLastMode; ++m) {
-                SkXfermode::Mode mode = static_cast<SkXfermode::Mode>(m);
+                SkBlendMode mode = static_cast<SkBlendMode>(m);
                 canvas->drawText(SkXfermode::ModeName(mode),
                                  strlen(SkXfermode::ModeName(mode)),
                                  SkIntToScalar(x),
@@ -77,7 +77,7 @@ protected:
                                  labelP);
                 for (size_t c = 0; c < SK_ARRAY_COUNT(kSolidColors); ++c) {
                     SkPaint modePaint;
-                    modePaint.setXfermodeMode(mode);
+                    modePaint.setBlendMode(mode);
                     modePaint.setColor(kSolidColors[c]);
                     modePaint.setStyle(kStrokes[s].fStyle);
                     modePaint.setStrokeWidth(kStrokes[s].fWidth);
@@ -93,7 +93,7 @@ protected:
                 }
                 for (size_t a = 0; a < SK_ARRAY_COUNT(kBmpAlphas); ++a) {
                     SkPaint modePaint;
-                    modePaint.setXfermodeMode(mode);
+                    modePaint.setBlendMode(mode);
                     modePaint.setAlpha(kBmpAlphas[a]);
                     modePaint.setShader(fBmpShader);
                     modePaint.setStyle(kStrokes[s].fStyle);

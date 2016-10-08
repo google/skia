@@ -44,9 +44,11 @@ const void* SkValidatingReadBuffer::skip(size_t size) {
     size_t inc = SkAlign4(size);
     const void* addr = fReader.peek();
     this->validate(IsPtrAlign4(addr) && fReader.isAvailable(inc));
-    if (!fError) {
-        fReader.skip(size);
+    if (fError) {
+        return nullptr;
     }
+
+    fReader.skip(size);
     return addr;
 }
 
@@ -110,6 +112,13 @@ void SkValidatingReadBuffer::readString(SkString* string) {
     }
 }
 
+void SkValidatingReadBuffer::readColor4f(SkColor4f* color) {
+    const void* ptr = this->skip(sizeof(SkColor4f));
+    if (!fError) {
+        memcpy(color, ptr, sizeof(SkColor4f));
+    }
+}
+
 void SkValidatingReadBuffer::readPoint(SkPoint* point) {
     point->fX = this->readScalar();
     point->fY = this->readScalar();
@@ -144,6 +153,11 @@ void SkValidatingReadBuffer::readRRect(SkRRect* rrect) {
     const void* ptr = this->skip(sizeof(SkRRect));
     if (!fError) {
         memcpy(rrect, ptr, sizeof(SkRRect));
+        this->validate(rrect->isValid());
+    }
+
+    if (fError) {
+        rrect->setEmpty();
     }
 }
 
@@ -190,6 +204,10 @@ bool SkValidatingReadBuffer::readByteArray(void* value, size_t size) {
 
 bool SkValidatingReadBuffer::readColorArray(SkColor* colors, size_t size) {
     return readArray(colors, size, sizeof(SkColor));
+}
+
+bool SkValidatingReadBuffer::readColor4fArray(SkColor4f* colors, size_t size) {
+    return readArray(colors, size, sizeof(SkColor4f));
 }
 
 bool SkValidatingReadBuffer::readIntArray(int32_t* values, size_t size) {

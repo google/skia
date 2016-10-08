@@ -39,13 +39,11 @@ enum Shape {
     kLast_Shape = kConcave_Shape
 };
 
-namespace skiagm {
-
 /**
  * Verifies AA works properly on all Xfermodes, including arithmetic, with both opaque and unknown
  * src colors.
  */
-class AAXfermodesGM : public GM {
+class AAXfermodesGM : public skiagm::GM {
 public:
     AAXfermodesGM() {}
 
@@ -120,7 +118,10 @@ protected:
             canvas->translate(0, kSubtitleSpacing + kShapeSpacing/2);
 
             for (size_t m = 0; m <= SkXfermode::kLastCoeffMode; m++) {
-                SkXfermode::Mode mode = static_cast<SkXfermode::Mode>(firstMode + m);
+                if (firstMode + m > SkXfermode::kLastMode) {
+                    break;
+                }
+                SkBlendMode mode = static_cast<SkBlendMode>(firstMode + m);
                 canvas->save();
 
                 if (kShape_Pass == drawingPass) {
@@ -143,7 +144,7 @@ protected:
                                         10);
                             } else {
                                 SkASSERT(kBackground_Pass == drawingPass);
-                                canvas->drawColor(kBGColor, SkXfermode::kSrc_Mode);
+                                canvas->drawColor(kBGColor, SkBlendMode::kSrc);
                             }
                             canvas->restore();
                         } else {
@@ -189,18 +190,17 @@ protected:
         canvas->restore();
     }
 
-    void drawModeName(SkCanvas* canvas, SkXfermode::Mode mode) {
-        const char* modeName = mode <= SkXfermode::kLastMode ? SkXfermode::ModeName(mode)
-                                                             : "Arithmetic";
+    void drawModeName(SkCanvas* canvas, SkBlendMode mode) {
+        const char* modeName = SkXfermode::ModeName(mode);
         fLabelPaint.setTextAlign(SkPaint::kRight_Align);
         canvas->drawText(modeName, strlen(modeName), kLabelSpacing - kShapeSize / 4,
                          fLabelPaint.getTextSize() / 4, fLabelPaint);
     }
 
-    void setupShapePaint(SkCanvas* canvas, GrColor color, SkXfermode::Mode mode, SkPaint* paint) {
+    void setupShapePaint(SkCanvas* canvas, GrColor color, SkBlendMode mode, SkPaint* paint) {
         paint->setColor(color);
 
-        if (mode == SkXfermode::kPlus_Mode) {
+        if (mode == SkBlendMode::kPlus) {
             // Check for overflow, otherwise we might get confusing AA artifacts.
             int maxSum = SkTMax(SkTMax(SkColorGetA(kBGColor) + SkColorGetA(color),
                                        SkColorGetR(kBGColor) + SkColorGetR(color)),
@@ -210,7 +210,7 @@ protected:
             if (maxSum > 255) {
                 SkPaint dimPaint;
                 dimPaint.setAntiAlias(false);
-                dimPaint.setXfermode(SkXfermode::Make(SkXfermode::kDstIn_Mode));
+                dimPaint.setBlendMode(SkBlendMode::kDstIn);
                 if (255 != paint->getAlpha()) {
                     // Dim the src and dst colors.
                     dimPaint.setARGB(255 * 255 / maxSum, 0, 0, 0);
@@ -226,17 +226,11 @@ protected:
         }
     }
 
-    void drawShape(SkCanvas* canvas, Shape shape, const SkPaint& paint, SkXfermode::Mode mode) {
+    void drawShape(SkCanvas* canvas, Shape shape, const SkPaint& paint, SkBlendMode mode) {
+        SkASSERT(mode <= SkBlendMode::kLastMode);
         SkPaint shapePaint(paint);
         shapePaint.setAntiAlias(kSquare_Shape != shape);
-
-        sk_sp<SkXfermode> xfermode;
-        if (mode <= SkXfermode::kLastMode) {
-            xfermode = SkXfermode::Make(mode);
-        } else {
-            xfermode = SkArithmeticMode::Make(+1.0f, +0.25f, -0.5f, +0.1f);
-        }
-        shapePaint.setXfermode(std::move(xfermode));
+        shapePaint.setBlendMode(mode);
 
         switch (shape) {
             case kSquare_Shape:
@@ -254,7 +248,7 @@ protected:
 
             case kOval_Shape:
                 canvas->save();
-                canvas->rotate(static_cast<SkScalar>((511 * mode + 257) % 360));
+                canvas->rotate(static_cast<SkScalar>((511 * (int)mode + 257) % 360));
                 canvas->drawPath(fOval, shapePaint);
                 canvas->restore();
                 break;
@@ -273,12 +267,6 @@ private:
     SkPath    fOval;
     SkPath    fConcave;
 
-    typedef GM INHERITED;
+    typedef skiagm::GM INHERITED;
 };
-
-//////////////////////////////////////////////////////////////////////////////
-
-static GM* MyFactory(void*) { return new AAXfermodesGM; }
-static GMRegistry reg(MyFactory);
-
-}
+DEF_GM( return new AAXfermodesGM; )

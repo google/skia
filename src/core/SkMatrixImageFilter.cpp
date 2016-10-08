@@ -70,9 +70,7 @@ sk_sp<SkSpecialImage> SkMatrixImageFilter::onFilterImage(SkSpecialImage* source,
     SkIRect dstBounds;
     dstRect.roundOut(&dstBounds);
 
-    const SkImageInfo info = SkImageInfo::MakeN32Premul(dstBounds.width(), dstBounds.height());
-
-    sk_sp<SkSpecialSurface> surf(input->makeSurface(info));
+    sk_sp<SkSpecialSurface> surf(input->makeSurface(ctx.outputProperties(), dstBounds.size()));
     if (!surf) {
         return nullptr;
     }
@@ -87,7 +85,7 @@ sk_sp<SkSpecialImage> SkMatrixImageFilter::onFilterImage(SkSpecialImage* source,
 
     SkPaint paint;
     paint.setAntiAlias(true);
-    paint.setXfermodeMode(SkXfermode::kSrc_Mode);
+    paint.setBlendMode(SkBlendMode::kSrc);
     paint.setFilterQuality(fFilterQuality);
 
     input->draw(canvas, srcRect.x(), srcRect.y(), &paint);

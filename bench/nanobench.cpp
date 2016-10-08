@@ -40,9 +40,11 @@
 #include "SkPictureUtils.h"
 #include "SkString.h"
 #include "SkSurface.h"
+#include "SkSVGDOM.h"
 #include "SkTaskGroup.h"
 #include "SkThreadUtils.h"
 #include "ThermalManager.h"
+#include "SkScan.h"
 
 #include <stdlib.h>
 
@@ -390,7 +392,7 @@ static int setup_gpu_bench(Target* target, Benchmark* bench, int maxGpuFrameLag)
 
 #if SK_SUPPORT_GPU
 #define kBogusContextType GrContextFactory::kNativeGL_ContextType
-#define kBogusContextOptions GrContextFactory::kNone_ContextOptions
+#define kBogusContextOptions GrContextFactory::ContextOptions::kNone
 #else
 #define kBogusContextType 0
 #define kBogusContextOptions 0
@@ -403,21 +405,8 @@ static void create_config(const SkCommandLineConfig* config, SkTArray<Config>* c
         if (!FLAGS_gpu)
             return;
 
-        auto ctxOptions = GrContextFactory::kNone_ContextOptions;
-        if (gpuConfig->getUseNVPR()) {
-            ctxOptions = static_cast<GrContextFactory::ContextOptions>(
-                ctxOptions | GrContextFactory::kEnableNVPR_ContextOptions);
-        }
-        if (gpuConfig->getUseInstanced()) {
-            ctxOptions = static_cast<GrContextFactory::ContextOptions>(
-                ctxOptions | GrContextFactory::kUseInstanced_ContextOptions);
-        }
-        if (SkColorAndColorSpaceAreGammaCorrect(gpuConfig->getColorType(),
-                                                gpuConfig->getColorSpace())) {
-            ctxOptions = static_cast<GrContextFactory::ContextOptions>(
-                ctxOptions | GrContextFactory::kRequireSRGBSupport_ContextOptions);
-        }
         const auto ctxType = gpuConfig->getContextType();
+        const auto ctxOptions = gpuConfig->getContextOptions();
         const auto sampleCount = gpuConfig->getSamples();
 
         if (const GrContext* ctx = gGrFactory->get(ctxType, ctxOptions)) {
@@ -495,6 +484,12 @@ void create_configs(SkTArray<Config>* configs) {
     }
 }
 
+// disable warning : switch statement contains default but no 'case' labels
+#if defined _WIN32
+#pragma warning ( push )
+#pragma warning ( disable : 4065 )
+#endif
+
 // If bench is enabled for config, returns a Target* for it, otherwise nullptr.
 static Target* is_enabled(Benchmark* bench, const Config& config) {
     if (!bench->isSuitableFor(config.backend)) {
@@ -529,7 +524,11 @@ static Target* is_enabled(Benchmark* bench, const Config& config) {
     return target;
 }
 
-static bool valid_brd_bench(SkData* encoded, SkColorType colorType, uint32_t sampleSize,
+#if defined _WIN32
+#pragma warning ( pop )
+#endif
+
+static bool valid_brd_bench(sk_sp<SkData> encoded, SkColorType colorType, uint32_t sampleSize,
         uint32_t minOutputSize, int* width, int* height) {
     SkAutoTDelete<SkBitmapRegionDecoder> brd(
             SkBitmapRegionDecoder::Create(encoded, SkBitmapRegionDecoder::kAndroidCodec_Strategy));
@@ -563,6 +562,21 @@ static void cleanup_run(Target* target) {
 #endif
 }
 
+static void collect_files(const SkCommandLineFlags::StringArray& paths, const char* ext,
+                          SkTArray<SkString>* list) {
+    for (int i = 0; i < paths.count(); ++i) {
+        if (SkStrEndsWith(paths[i], ext)) {
+            list->push_back(SkString(paths[i]));
+        } else {
+            SkOSFile::Iter it(paths[i], ext);
+            SkString path;
+            while (it.next(&path)) {
+                list->push_back(SkOSPath::Join(paths[i], path.c_str()));
+            }
+        }
+    }
+}
+
 class BenchmarkStream {
 public:
     BenchmarkStream() : fBenches(BenchRegistry::Head())
@@ -570,6 +584,7 @@ public:
                       , fCurrentRecording(0)
                       , fCurrentScale(0)
                       , fCurrentSKP(0)
+                      , fCurrentSVG(0)
                       , fCurrentUseMPD(0)
                       , fCurrentCodec(0)
                       , fCurrentAndroidCodec(0)
@@ -580,17 +595,8 @@ public:
                       , fCurrentSubsetType(0)
                       , fCurrentSampleSize(0)
                       , fCurrentAnimSKP(0) {
-        for (int i = 0; i < FLAGS_skps.count(); i++) {
-            if (SkStrEndsWith(FLAGS_skps[i], ".skp")) {
-                fSKPs.push_back() = FLAGS_skps[i];
-            } else {
-                SkOSFile::Iter it(FLAGS_skps[i], ".skp");
-                SkString path;
-                while (it.next(&path)) {
-                    fSKPs.push_back() = SkOSPath::Join(FLAGS_skps[0], path.c_str());
-                }
-            }
-        }
+        collect_files(FLAGS_skps, ".skp", &fSKPs);
+        collect_files(FLAGS_svgs, ".svg", &fSVGs);
 
         if (4 != sscanf(FLAGS_clip[0], "%d,%d,%d,%d",
                         &fClip.fLeft, &fClip.fTop, &fClip.fRight, &fClip.fBottom)) {
@@ -640,13 +646,38 @@ public:
             return nullptr;
         }
 
-        SkAutoTDelete<SkStream> stream(SkStream::NewFromFile(path));
-        if (stream.get() == nullptr) {
+        std::unique_ptr<SkStream> stream = SkStream::MakeFromFile(path);
+        if (!stream) {
             SkDebugf("Could not read %s.\n", path);
             return nullptr;
         }
 
         return SkPicture::MakeFromStream(stream.get());
+    }
+
+    static sk_sp<SkPicture> ReadSVGPicture(const char* path) {
+        SkFILEStream stream(path);
+        if (!stream.isValid()) {
+            SkDebugf("Could not read %s.\n", path);
+            return nullptr;
+        }
+
+        sk_sp<SkSVGDOM> svgDom = SkSVGDOM::MakeFromStream(stream);
+        if (!svgDom) {
+            SkDebugf("Could not parse %s.\n", path);
+            return nullptr;
+        }
+
+        // Use the intrinsic SVG size if available, otherwise fall back to a default value.
+        static const SkSize kDefaultContainerSize = SkSize::Make(128, 128);
+        if (svgDom->containerSize().isEmpty()) {
+            svgDom->setContainerSize(kDefaultContainerSize);
+        }
+
+        SkPictureRecorder recorder;
+        svgDom->render(recorder.beginRecording(svgDom->containerSize().width(),
+                                               svgDom->containerSize().height()));
+        return recorder.finishRecordingAsPicture();
     }
 
     Benchmark* next() {
@@ -725,7 +756,19 @@ public:
                 fCurrentUseMPD = 0;
                 fCurrentSKP++;
             }
+
+            while (fCurrentSVG++ < fSVGs.count()) {
+                const char* path = fSVGs[fCurrentSVG - 1].c_str();
+                if (sk_sp<SkPicture> pic = ReadSVGPicture(path)) {
+                    fSourceType = "svg";
+                    fBenchType = "playback";
+                    return new SKPBench(SkOSPath::Basename(path).c_str(), pic.get(), fClip,
+                                        fScales[fCurrentScale], false, FLAGS_loopSKP);
+                }
+            }
+
             fCurrentSKP = 0;
+            fCurrentSVG = 0;
             fCurrentScale++;
         }
 
@@ -756,7 +799,7 @@ public:
                 continue;
             }
             sk_sp<SkData> encoded(SkData::MakeFromFileName(path.c_str()));
-            SkAutoTDelete<SkCodec> codec(SkCodec::NewFromData(encoded.get()));
+            SkAutoTDelete<SkCodec> codec(SkCodec::NewFromData(encoded));
             if (!codec) {
                 // Nothing to time.
                 SkDebugf("Cannot find codec for %s\n", path.c_str());
@@ -840,7 +883,7 @@ public:
                 continue;
             }
             sk_sp<SkData> encoded(SkData::MakeFromFileName(path.c_str()));
-            SkAutoTDelete<SkAndroidCodec> codec(SkAndroidCodec::NewFromData(encoded.get()));
+            SkAutoTDelete<SkAndroidCodec> codec(SkAndroidCodec::NewFromData(encoded));
             if (!codec) {
                 // Nothing to time.
                 SkDebugf("Cannot find codec for %s\n", path.c_str());
@@ -896,7 +939,7 @@ public:
 
                         int width = 0;
                         int height = 0;
-                        if (!valid_brd_bench(encoded.get(), colorType, sampleSize, minOutputSize,
+                        if (!valid_brd_bench(encoded, colorType, sampleSize, minOutputSize,
                                 &width, &height)) {
                             break;
                         }
@@ -1000,6 +1043,7 @@ private:
     SkIRect            fClip;
     SkTArray<SkScalar> fScales;
     SkTArray<SkString> fSKPs;
+    SkTArray<SkString> fSVGs;
     SkTArray<bool>     fUseMPDs;
     SkTArray<SkString> fImages;
     SkTArray<SkString> fColorImages;
@@ -1014,6 +1058,7 @@ private:
     int fCurrentRecording;
     int fCurrentScale;
     int fCurrentSKP;
+    int fCurrentSVG;
     int fCurrentUseMPD;
     int fCurrentCodec;
     int fCurrentAndroidCodec;
@@ -1132,6 +1177,10 @@ int nanobench_main() {
 
     if (FLAGS_keepAlive) {
         start_keepalive();
+    }
+
+    if (FLAGS_analyticAA) {
+        gSkUseAnalyticAA = true;
     }
 
     int runs = 0;

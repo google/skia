@@ -52,7 +52,7 @@ static bool test_bounds_by_rasterizing(const SkPath& path, const SkRect& bounds)
     SkMatrix matrix;
     matrix.setRectToRect(bounds, clip, SkMatrix::kFill_ScaleToFit);
     clip.outset(SkIntToScalar(kTol), SkIntToScalar(kTol));
-    surface->getCanvas()->clipRect(clip, SkRegion::kDifference_Op);
+    surface->getCanvas()->clipRect(clip, SkCanvas::kDifference_Op);
     surface->getCanvas()->concat(matrix);
     SkPaint whitePaint;
     whitePaint.setColor(SK_ColorWHITE);
@@ -84,7 +84,7 @@ namespace {
  */
 class Geo {
 public:
-    virtual ~Geo() {};
+    virtual ~Geo() {}
     virtual GrShape makeShape(const SkPaint&) const = 0;
     virtual SkPath path() const = 0;
     // These functions allow tests to check for special cases where style gets
@@ -1078,14 +1078,16 @@ void test_unknown_path_effect(skiatest::Reporter* reporter, const Geo& geo) {
         bool filterPath(SkPath* dst, const SkPath& src, SkStrokeRec*,
                         const SkRect* cullR) const override {
             *dst = src;
-            dst->lineTo(0, 0);
-            dst->lineTo(10, 10);
+            // To avoid triggering data-based keying of paths with few verbs we add many segments.
+            for (int i = 0; i < 100; ++i) {
+                dst->lineTo(SkIntToScalar(i), SkIntToScalar(i));
+            }
             return true;
         }
         void computeFastBounds(SkRect* dst, const SkRect& src) const override {
             *dst = src;
             dst->growToInclude(0, 0);
-            dst->growToInclude(10, 10);
+            dst->growToInclude(100, 100);
         }
         static sk_sp<SkPathEffect> Make() { return sk_sp<SkPathEffect>(new AddLineTosPathEffect); }
         Factory getFactory() const override { return nullptr; }
@@ -1156,6 +1158,9 @@ void test_make_hairline_path_effect(skiatest::Reporter* reporter, const Geo& geo
         a.setFillType(b.getFillType());
         REPORTER_ASSERT(reporter, a == b);
         REPORTER_ASSERT(reporter, a == c);
+        // If the resulting path is small enough then it will have a key.
+        REPORTER_ASSERT(reporter, paths_fill_same(a, b));
+        REPORTER_ASSERT(reporter, paths_fill_same(a, c));
         REPORTER_ASSERT(reporter, peCase.appliedPathEffectKey().empty());
         REPORTER_ASSERT(reporter, peCase.appliedFullStyleKey().empty());
     }
@@ -1768,6 +1773,70 @@ static void test_stroked_lines(skiatest::Reporter* r) {
         TestCase::kAllSame_ComparisonExpecation);
 }
 
+static void test_short_path_keys(skiatest::Reporter* r) {
+    SkPaint paints[4];
+    paints[1].setStyle(SkPaint::kStroke_Style);
+    paints[1].setStrokeWidth(5.f);
+    paints[2].setStyle(SkPaint::kStroke_Style);
+    paints[2].setStrokeWidth(0.f);
+    paints[3].setStyle(SkPaint::kStrokeAndFill_Style);
+    paints[3].setStrokeWidth(5.f);
+
+    auto compare = [r, &paints] (const SkPath& pathA, const SkPath& pathB,
+                                 TestCase::ComparisonExpecation expectation) {
+        SkPath volatileA = pathA;
+        SkPath volatileB = pathB;
+        volatileA.setIsVolatile(true);
+        volatileB.setIsVolatile(true);
+        for (const SkPaint& paint : paints) {
+            REPORTER_ASSERT(r, !GrShape(volatileA, paint).hasUnstyledKey());
+            REPORTER_ASSERT(r, !GrShape(volatileB, paint).hasUnstyledKey());
+            for (PathGeo::Invert invert : {PathGeo::Invert::kNo, PathGeo::Invert::kYes}) {
+                TestCase caseA(PathGeo(pathA, invert), paint, r);
+                TestCase caseB(PathGeo(pathB, invert), paint, r);
+                caseA.compare(r, caseB, expectation);
+            }
+        }
+    };
+
+    SkPath pathA;
+    SkPath pathB;
+
+    // Two identical paths
+    pathA.lineTo(10.f, 10.f);
+    pathA.conicTo(20.f, 20.f, 20.f, 30.f, 0.7f);
+
+    pathB.lineTo(10.f, 10.f);
+    pathB.conicTo(20.f, 20.f, 20.f, 30.f, 0.7f);
+    compare(pathA, pathB, TestCase::kAllSame_ComparisonExpecation);
+
+    // Give path b a different point
+    pathB.reset();
+    pathB.lineTo(10.f, 10.f);
+    pathB.conicTo(21.f, 20.f, 20.f, 30.f, 0.7f);
+    compare(pathA, pathB, TestCase::kAllDifferent_ComparisonExpecation);
+
+    // Give path b a different conic weight
+    pathB.reset();
+    pathB.lineTo(10.f, 10.f);
+    pathB.conicTo(20.f, 20.f, 20.f, 30.f, 0.6f);
+    compare(pathA, pathB, TestCase::kAllDifferent_ComparisonExpecation);
+
+    // Give path b an extra lineTo verb
+    pathB.reset();
+    pathB.lineTo(10.f, 10.f);
+    pathB.conicTo(20.f, 20.f, 20.f, 30.f, 0.6f);
+    pathB.lineTo(50.f, 50.f);
+    compare(pathA, pathB, TestCase::kAllDifferent_ComparisonExpecation);
+
+    // Give path b a close
+    pathB.reset();
+    pathB.lineTo(10.f, 10.f);
+    pathB.conicTo(20.f, 20.f, 20.f, 30.f, 0.7f);
+    pathB.close();
+    compare(pathA, pathB, TestCase::kAllDifferent_ComparisonExpecation);
+}
+
 DEF_TEST(GrShape, reporter) {
     SkTArray<std::unique_ptr<Geo>> geos;
     SkTArray<std::unique_ptr<RRectPathGeo>> rrectPathGeos;
@@ -1894,6 +1963,8 @@ DEF_TEST(GrShape, reporter) {
     test_lines(reporter);
 
     test_stroked_lines(reporter);
+
+    test_short_path_keys(reporter);
 }
 
 #endif

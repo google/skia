@@ -215,7 +215,7 @@ struct SkConic {
      *  be used.
      */
     void evalAt(SkScalar t, SkPoint* pos, SkVector* tangent = nullptr) const;
-    void chopAt(SkScalar t, SkConic dst[2]) const;
+    bool SK_WARN_UNUSED_RESULT chopAt(SkScalar t, SkConic dst[2]) const;
     void chopAt(SkScalar t1, SkScalar t2, SkConic* dst) const;
     void chop(SkConic dst[2]) const;
 

@@ -51,7 +51,7 @@ configuration you might be expecting it to run.
 
 Don't worry about the "skps: Couldn't read skps." messages either, you won't
 have those by default and can do without them. If you wish to test with them
-too, you can [download them separately](https://skia.org/dev/testing/skps).
+too, you can download them separately.
 
 The next line is an overview of the work DM is about to do.
 ~~~

@@ -7,6 +7,7 @@
 
 #include "Resources.h"
 #include "SkCodec.h"
+#include "SkCodecPriv.h"
 #include "SkColorPriv.h"
 #include "SkColorSpace.h"
 #include "SkColorSpace_Base.h"
@@ -21,7 +22,7 @@ public:
                 nullptr, kNonStandard_SkGammaNamed, gammas, SkMatrix::I(), nullptr));
 
         // Use special testing entry point, so we don't skip the xform, even though src == dst.
-        return SlowIdentityXform(space);
+        return SlowIdentityXform(space.get());
     }
 };
 
@@ -39,17 +40,18 @@ static void test_identity_xform(skiatest::Reporter* r, const sk_sp<SkGammas>& ga
 
     // Create and perform an identity xform.
     std::unique_ptr<SkColorSpaceXform> xform = ColorSpaceXformTest::CreateIdentityXform(gammas);
-    xform->apply(dstPixels, srcPixels, width, kN32_SkColorType, kOpaque_SkAlphaType);
+    xform->apply(dstPixels, srcPixels, width, select_xform_format(kN32_SkColorType),
+                 SkColorSpaceXform::kBGRA_8888_ColorFormat, kOpaque_SkAlphaType);
 
     // Since the src->dst matrix is the identity, and the gamma curves match,
     // the pixels should be unchanged.
     for (int i = 0; i < width; i++) {
         REPORTER_ASSERT(r, almost_equal(((srcPixels[i] >>  0) & 0xFF),
-                                        SkGetPackedR32(dstPixels[i])));
+                                        SkGetPackedB32(dstPixels[i])));
         REPORTER_ASSERT(r, almost_equal(((srcPixels[i] >>  8) & 0xFF),
                                         SkGetPackedG32(dstPixels[i])));
         REPORTER_ASSERT(r, almost_equal(((srcPixels[i] >> 16) & 0xFF),
-                                        SkGetPackedB32(dstPixels[i])));
+                                        SkGetPackedR32(dstPixels[i])));
         REPORTER_ASSERT(r, almost_equal(((srcPixels[i] >> 24) & 0xFF),
                                         SkGetPackedA32(dstPixels[i])));
     }
@@ -161,4 +163,25 @@ DEF_TEST(ColorSpaceXform_NonMatchingGamma, r) {
     gammas->fBlueData.fParamOffset = sizeof(float) * tableSize;
 
     test_identity_xform(r, gammas);
+}
+
+DEF_TEST(ColorSpaceXform_applyCLUTMemoryAccess, r) {
+    // buffers larger than 1024 (or 256 in GOOGLE3) will force ColorSpaceXform_Base::apply()
+    // to heap-allocate a buffer that is used for CLUT application, and this test is here to
+    // ensure that it no longer causes potential invalid memory accesses when this happens
+    const size_t len = 2048;
+    SkAutoTMalloc<uint32_t> src(len);
+    SkAutoTMalloc<uint32_t> dst(len);
+    for (uint32_t i = 0; i < len; ++i) {
+        src[i] = i;
+    }
+    // this ICC profile has a CLUT in it
+    const SkString filename(GetResourcePath("icc_profiles/upperRight.icc"));
+    sk_sp<SkData> iccData = SkData::MakeFromFileName(filename.c_str());
+    REPORTER_ASSERT_MESSAGE(r, iccData, "upperRight.icc profile required for test");
+    sk_sp<SkColorSpace> srcSpace = SkColorSpace::NewICC(iccData->bytes(), iccData->size());
+    sk_sp<SkColorSpace> dstSpace = SkColorSpace::NewNamed(SkColorSpace::kSRGB_Named);
+    auto xform = SkColorSpaceXform::New(srcSpace.get(), dstSpace.get());
+    xform->apply(dst.get(), src.get(), len, SkColorSpaceXform::kRGBA_8888_ColorFormat,
+                 SkColorSpaceXform::kRGBA_8888_ColorFormat, kUnpremul_SkAlphaType);
 }

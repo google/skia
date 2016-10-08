@@ -106,14 +106,15 @@ int GrGLGpu::ProgramCache::search(const GrProgramDesc& desc) const {
 
 GrGLProgram* GrGLGpu::ProgramCache::refProgram(const GrGLGpu* gpu,
                                                const GrPipeline& pipeline,
-                                               const GrPrimitiveProcessor& primProc) {
+                                               const GrPrimitiveProcessor& primProc,
+                                               bool isPoints) {
 #ifdef PROGRAM_CACHE_STATS
     ++fTotalRequests;
 #endif
 
     // Get GrGLProgramDesc
     GrProgramDesc desc;
-    if (!GrProgramDesc::Build(&desc, primProc, pipeline, *gpu->glCaps().glslCaps())) {
+    if (!GrProgramDesc::Build(&desc, primProc, isPoints, pipeline, *gpu->glCaps().glslCaps())) {
         GrCapsDebugf(gpu->caps(), "Failed to gl program descriptor!\n");
         return nullptr;
     }

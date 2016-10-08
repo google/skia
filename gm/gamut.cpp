@@ -58,9 +58,10 @@ protected:
 };
 
 struct GradientCellRenderer : public CellRenderer {
-    GradientCellRenderer(SkColor colorOne, SkColor colorTwo) {
+    GradientCellRenderer(SkColor colorOne, SkColor colorTwo, bool manyStops) {
         fColors[0] = colorOne;
         fColors[1] = colorTwo;
+        fManyStops = manyStops;
     }
     void draw(SkCanvas* canvas) override {
         SkPoint points[2] = {
@@ -68,8 +69,16 @@ struct GradientCellRenderer : public CellRenderer {
             SkPoint::Make(0, gScalarSize)
         };
         SkPaint paint;
-        paint.setShader(SkGradientShader::MakeLinear(points, fColors, nullptr, 2,
-                                                     SkShader::kClamp_TileMode));
+        if (fManyStops) {
+            SkColor colors[4] ={
+                fColors[0], fColors[0], fColors[1], fColors[1]
+            };
+            paint.setShader(SkGradientShader::MakeLinear(points, colors, nullptr, 4,
+                                                         SkShader::kClamp_TileMode));
+        } else {
+            paint.setShader(SkGradientShader::MakeLinear(points, fColors, nullptr, 2,
+                                                         SkShader::kClamp_TileMode));
+        }
         canvas->drawPaint(paint);
     }
     const char* label() override {
@@ -77,6 +86,7 @@ struct GradientCellRenderer : public CellRenderer {
     }
 protected:
     SkColor fColors[2];
+    bool fManyStops;
 };
 
 struct VerticesCellRenderer : public CellRenderer {
@@ -198,9 +208,16 @@ DEF_SIMPLE_GM_BG(gamut, canvas, gTestWidth, gTestHeight, SK_ColorBLACK) {
     renderers.push_back(new BitmapCellRenderer(SK_ColorGREEN, kHigh_SkFilterQuality, 0.5f));
 
     // Various gradients involving sRGB primaries and white/black
-    renderers.push_back(new GradientCellRenderer(SK_ColorRED, SK_ColorGREEN));
-    renderers.push_back(new GradientCellRenderer(SK_ColorGREEN, SK_ColorBLACK));
-    renderers.push_back(new GradientCellRenderer(SK_ColorGREEN, SK_ColorWHITE));
+
+    // First with just two stops (implemented with uniforms on GPU)
+    renderers.push_back(new GradientCellRenderer(SK_ColorRED, SK_ColorGREEN, false));
+    renderers.push_back(new GradientCellRenderer(SK_ColorGREEN, SK_ColorBLACK, false));
+    renderers.push_back(new GradientCellRenderer(SK_ColorGREEN, SK_ColorWHITE, false));
+
+    // ... and then with four stops (implemented with textures on GPU)
+    renderers.push_back(new GradientCellRenderer(SK_ColorRED, SK_ColorGREEN, true));
+    renderers.push_back(new GradientCellRenderer(SK_ColorGREEN, SK_ColorBLACK, true));
+    renderers.push_back(new GradientCellRenderer(SK_ColorGREEN, SK_ColorWHITE, true));
 
     // Vertex colors
     renderers.push_back(new VerticesCellRenderer(SK_ColorRED, SK_ColorRED));

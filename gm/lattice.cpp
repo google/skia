@@ -8,31 +8,39 @@
 #include "gm.h"
 #include "SkSurface.h"
 
-static sk_sp<SkSurface> make_surface(SkCanvas* root, int N) {
-    SkImageInfo info = SkImageInfo::MakeN32Premul(N, N);
+static sk_sp<SkSurface> make_surface(SkCanvas* root, int N, int padLeft, int padTop,
+                                     int padRight, int padBottom) {
+    SkImageInfo info = SkImageInfo::MakeN32Premul(N + padLeft + padRight, N + padTop + padBottom);
     auto surface = root->makeSurface(info);
     if (!surface) {
         surface = SkSurface::MakeRaster(info);
     }
+
     return surface;
 }
 
-static sk_sp<SkImage> make_image(SkCanvas* root, int* xDivs, int* yDivs) {
+static sk_sp<SkImage> make_image(SkCanvas* root, int* xDivs, int* yDivs, int padLeft, int padTop,
+                                 int padRight, int padBottom) {
     const int kCap = 28;
     const int kMid = 8;
     const int kSize = 2*kCap + 3*kMid;
 
-    auto surface(make_surface(root, kSize));
+    auto surface(make_surface(root, kSize, padLeft, padTop, padRight, padBottom));
     SkCanvas* canvas = surface->getCanvas();
+    canvas->translate((float) padLeft, (float) padTop);
 
     SkRect r = SkRect::MakeWH(SkIntToScalar(kSize), SkIntToScalar(kSize));
     const SkScalar strokeWidth = SkIntToScalar(6);
     const SkScalar radius = SkIntToScalar(kCap) - strokeWidth/2;
 
-    xDivs[0] = yDivs[0] = kCap;
-    xDivs[1] = yDivs[1] = kCap + kMid;
-    xDivs[2] = yDivs[2] = kCap + 2 * kMid;
-    xDivs[3] = yDivs[3] = kCap + 3 * kMid;
+    xDivs[0] = kCap + padLeft;
+    yDivs[0] = kCap + padTop;
+    xDivs[1] = kCap + kMid + padLeft;
+    yDivs[1] = kCap + kMid + padTop;
+    xDivs[2] = kCap + 2 * kMid + padLeft;
+    yDivs[2] = kCap + 2 * kMid + padTop;
+    xDivs[3] = kCap + 3 * kMid + padLeft;
+    yDivs[3] = kCap + 3 * kMid + padTop;
 
     SkPaint paint;
     paint.setAntiAlias(true);
@@ -83,17 +91,20 @@ protected:
     }
 
     SkISize onISize() override {
-        return SkISize::Make(800, 400);
+        return SkISize::Make(800, 800);
     }
 
-    void onDraw(SkCanvas* canvas) override {
+    void onDrawHelper(SkCanvas* canvas, int padLeft, int padTop, int padRight, int padBottom) {
+        canvas->save();
+
         int xDivs[5];
         int yDivs[5];
-        xDivs[0] = 0;
-        yDivs[0] = 0;
+        xDivs[0] = padLeft;
+        yDivs[0] = padTop;
 
         SkBitmap bitmap;
-        sk_sp<SkImage> image = make_image(canvas, xDivs + 1, yDivs + 1);
+        sk_sp<SkImage> image = make_image(canvas, xDivs + 1, yDivs + 1, padLeft, padTop,
+                                          padRight, padBottom);
         image_to_bitmap(image.get(), &bitmap);
 
         const SkTSize<SkScalar> size[] = {
@@ -114,6 +125,11 @@ protected:
         lattice.fYCount = 4;
         lattice.fYDivs = yDivs + 1;
         lattice.fFlags = nullptr;
+
+        SkIRect bounds = SkIRect::MakeLTRB(padLeft, padTop,
+                                           image->width() - padRight, image->height() - padBottom);
+        lattice.fBounds = (bounds == SkIRect::MakeWH(image->width(), image->height())) ?
+                nullptr : &bounds;
 
         for (int iy = 0; iy < 2; ++iy) {
             for (int ix = 0; ix < 2; ++ix) {
@@ -149,6 +165,14 @@ protected:
                 canvas->drawImageLattice(image.get(), lattice, r);
             }
         }
+
+        canvas->restore();
+    }
+
+    void onDraw(SkCanvas* canvas) override {
+        this->onDrawHelper(canvas, 0, 0, 0, 0);
+        canvas->translate(0.0f, 400.0f);
+        this->onDrawHelper(canvas, 3, 7, 4, 11);
     }
 
 private:

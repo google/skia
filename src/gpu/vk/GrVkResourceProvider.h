@@ -26,6 +26,7 @@
 class GrPipeline;
 class GrPrimitiveProcessor;
 class GrTextureParams;
+class GrVkCopyPipeline;
 class GrVkGpu;
 class GrVkPipeline;
 class GrVkPrimaryCommandBuffer;
@@ -50,6 +51,10 @@ public:
                                  const GrVkRenderPass& renderPass,
                                  VkPipelineLayout layout);
 
+    GrVkCopyPipeline* findOrCreateCopyPipeline(const GrVkRenderTarget* dst,
+                                               VkPipelineShaderStageCreateInfo*,
+                                               VkPipelineLayout);
+
     GR_DEFINE_RESOURCE_HANDLE_CLASS(CompatibleRPHandle);
 
     // Finds or creates a simple render pass that matches the target, increments the refcount,
@@ -68,7 +73,6 @@ public:
     // return a GrVkRenderPasses without the need inspecting a GrVkRenderTarget.
     const GrVkRenderPass* findRenderPass(const GrVkRenderTarget& target,
                                          const GrVkRenderPass::LoadStoreOps& colorOps,
-                                         const GrVkRenderPass::LoadStoreOps& resolveOps,
                                          const GrVkRenderPass::LoadStoreOps& stencilOps,
                                          CompatibleRPHandle* compatibleHandle = nullptr);
 
@@ -76,7 +80,6 @@ public:
     // findCompatibleRenderPass.
     const GrVkRenderPass* findRenderPass(const CompatibleRPHandle& compatibleHandle,
                                          const GrVkRenderPass::LoadStoreOps& colorOps,
-                                         const GrVkRenderPass::LoadStoreOps& resolveOps,
                                          const GrVkRenderPass::LoadStoreOps& stencilOps);
 
     GrVkPrimaryCommandBuffer* findOrCreatePrimaryCommandBuffer();
@@ -223,6 +226,9 @@ private:
 
     // Central cache for creating pipelines
     VkPipelineCache fPipelineCache;
+
+    // Cache of previously created copy pipelines
+    SkTArray<GrVkCopyPipeline*> fCopyPipelines;
 
     SkSTArray<4, CompatibleRenderPassSet> fRenderPassArray;
 

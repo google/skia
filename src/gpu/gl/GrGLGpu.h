@@ -144,6 +144,10 @@ public:
 
     void finishDrawTarget() override;
 
+    GrFence SK_WARN_UNUSED_RESULT insertFence() const override;
+    bool waitFence(GrFence, uint64_t timeout) const override;
+    void deleteFence(GrFence) const override;
+
 private:
     GrGLGpu(GrGLContext* ctx, GrContext* context);
 
@@ -230,7 +234,8 @@ private:
     void setTextureSwizzle(int unitIdx, GrGLenum target, const GrGLenum swizzle[]);
 
     // Flushes state from GrPipeline to GL. Returns false if the state couldn't be set.
-    bool flushGLState(const GrPipeline& pipeline, const GrPrimitiveProcessor& primProc);
+    // willDrawPoints must be true if point primitives will be rendered after setting the GL state.
+    bool flushGLState(const GrPipeline&, const GrPrimitiveProcessor&, bool willDrawPoints);
 
     // Sets up vertex attribute pointers and strides. On return indexOffsetInBytes gives the offset
     // an into the index buffer. It does not account for vertices.startIndex() but rather the start
@@ -269,7 +274,8 @@ private:
         ~ProgramCache();
 
         void abandon();
-        GrGLProgram* refProgram(const GrGLGpu* gpu, const GrPipeline&, const GrPrimitiveProcessor&);
+        GrGLProgram* refProgram(const GrGLGpu*, const GrPipeline&, const GrPrimitiveProcessor&,
+                                bool hasPointSize);
 
     private:
         enum {
@@ -428,7 +434,10 @@ private:
         bool valid() const { return kInvalidSurfaceOrigin != fRTOrigin; }
         void invalidate() { fRTOrigin = kInvalidSurfaceOrigin; }
         bool knownDisabled() const { return this->valid() && !fWindowState.enabled(); }
-        void setDisabled() { fRTOrigin = kDefault_GrSurfaceOrigin, fWindowState.setDisabled(); }
+        void setDisabled() {
+            fRTOrigin = kDefault_GrSurfaceOrigin;
+            fWindowState.setDisabled();
+        }
 
         void set(GrSurfaceOrigin rtOrigin, const GrGLIRect& viewport,
                  const GrWindowRectsState& windowState) {

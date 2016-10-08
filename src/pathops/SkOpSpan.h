@@ -41,7 +41,6 @@ public:
 
     bool alias() const;
     bool coincident() const { return fCoincident; }
-    bool collapsed(const SkOpPtT* ) const;
     bool contains(const SkOpPtT* ) const;
     bool contains(const SkOpSegment*, const SkPoint& ) const;
     bool contains(const SkOpSegment*, double t) const;
@@ -137,8 +136,6 @@ public:
 
     bool ptAlreadySeen(const SkOpPtT* head) const;
     SkOpPtT* prev();
-    SkOpPtT* remove(const SkOpPtT* kept);
-    void removeNext(const SkOpPtT* kept);
 
     const SkOpSegment* segment() const;
     SkOpSegment* segment();
@@ -223,14 +220,14 @@ public:
         return SkDEBUGRELEASE(fID, -1);
     }
 
-#if DEBUG_COINCIDENCE_VERBOSE
-    void debugAddOpp(const char* id, SkPathOpsDebug::GlitchLog* , const SkOpSpanBase* opp) const;
+#if DEBUG_COIN
+    void debugAddOpp(SkPathOpsDebug::GlitchLog* , const SkOpSpanBase* opp) const;
 #endif
     bool debugAlignedEnd(double t, const SkPoint& pt) const;
     bool debugAlignedInner() const;
     const SkOpAngle* debugAngle(int id) const;
-#if DEBUG_COINCIDENCE_VERBOSE
-    void debugCheckForCollapsedCoincidence(const char* id, SkPathOpsDebug::GlitchLog* ) const;
+#if DEBUG_COIN
+    void debugCheckForCollapsedCoincidence(SkPathOpsDebug::GlitchLog* ) const;
 #endif
     const SkOpCoincidence* debugCoincidence() const;
     bool debugCoinEndLoopCheck() const;
@@ -238,12 +235,10 @@ public:
 #ifdef SK_DEBUG
     bool debugDeleted() const { return fDebugDeleted; }
 #endif
-#if DEBUG_COINCIDENCE_VERBOSE
-    void debugInsertCoinEnd(const char* id, SkPathOpsDebug::GlitchLog* ,
+#if DEBUG_COIN
+    void debugInsertCoinEnd(SkPathOpsDebug::GlitchLog* ,
                             const SkOpSpanBase* ) const;
-    void debugMergeContained(const char* id, SkPathOpsDebug::GlitchLog* ,
-                             const SkPathOpsBounds& bounds, bool* deleted) const;
-    void debugMergeMatches(const char* id, SkPathOpsDebug::GlitchLog* log,
+    void debugMergeMatches(SkPathOpsDebug::GlitchLog* log,
                            const SkOpSpanBase* opp) const;
 #endif
     const SkOpPtT* debugPtT(int id) const;
@@ -293,7 +288,6 @@ public:
     }
 
     void merge(SkOpSpan* span);
-    void mergeContained(const SkPathOpsBounds& bounds);
     void mergeMatches(SkOpSpanBase* opp);
 
     const SkOpSpan* prev() const {
@@ -426,10 +420,6 @@ public:
         return false;
     }
 
-    bool checkAlreadyAdded() const {
-        return fAlreadyAdded;
-    }
-
     bool clearCoincident() {
         SkASSERT(!final());
         if (fCoincident == this) {
@@ -454,10 +444,10 @@ public:
     }
 
     bool debugCoinLoopCheck() const;
-#if DEBUG_COINCIDENCE_VERBOSE
-    void debugInsertCoincidence(const char* , SkPathOpsDebug::GlitchLog* , const SkOpSpan* ) const;
-    void debugInsertCoincidence(const char* , SkPathOpsDebug::GlitchLog* ,
-                                const SkOpSegment* , bool flipped) const;
+#if DEBUG_COIN
+    void debugInsertCoincidence(SkPathOpsDebug::GlitchLog* , const SkOpSpan* ) const;
+    void debugInsertCoincidence(SkPathOpsDebug::GlitchLog* ,
+                                const SkOpSegment* , bool flipped, bool ordered) const;
 #endif
     void dumpCoin() const;
     bool dumpSpan() const;

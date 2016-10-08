@@ -1290,6 +1290,25 @@ void SkPath::arcTo(const SkRect& oval, SkScalar startAngle, SkScalar sweepAngle,
     angles_to_unit_vectors(startAngle, sweepAngle, &startV, &stopV, &dir);
 
     SkPoint singlePt;
+
+    // At this point, we know that the arc is not a lone point, but startV == stopV
+    // indicates that the sweepAngle is too small such that angles_to_unit_vectors
+    // cannot handle it.
+    if (startV == stopV) {
+        SkScalar endAngle = SkDegreesToRadians(startAngle + sweepAngle);
+        SkScalar radiusX = oval.width() / 2;
+        SkScalar radiusY = oval.height() / 2;
+        // We cannot use SkScalarSinCos function in the next line because
+        // SkScalarSinCos has a threshold *SkScalarNearlyZero*. When sin(startAngle)
+        // is 0 and sweepAngle is very small and radius is huge, the expected
+        // behavior here is to draw a line. But calling SkScalarSinCos will 
+        // make sin(endAngle) to be 0 which will then draw a dot.
+        singlePt.set(oval.centerX() + radiusX * sk_float_cos(endAngle),
+            oval.centerY() + radiusY * sk_float_sin(endAngle));
+        forceMoveTo ? this->moveTo(singlePt) : this->lineTo(singlePt);
+        return;
+    }
+
     SkConic conics[SkConic::kMaxConicsForArc];
     int count = build_arc_conics(oval, startV, stopV, dir, conics, &singlePt);
     if (count) {
@@ -1783,7 +1802,10 @@ void SkPath::Iter::setPath(const SkPath& path, bool forceClose) {
     fPts = path.fPathRef->points();
     fVerbs = path.fPathRef->verbs();
     fVerbStop = path.fPathRef->verbsMemBegin();
-    fConicWeights = path.fPathRef->conicWeights() - 1; // begin one behind
+    fConicWeights = path.fPathRef->conicWeights();
+    if (fConicWeights) {
+      fConicWeights -= 1;  // begin one behind
+    }
     fLastPt.fX = fLastPt.fY = 0;
     fMoveTo.fX = fMoveTo.fY = 0;
     fForceClose = SkToU8(forceClose);

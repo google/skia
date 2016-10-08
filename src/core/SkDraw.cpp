@@ -7,6 +7,7 @@
 #define __STDC_LIMIT_MACROS
 
 #include "SkDraw.h"
+#include "SkBlendModePriv.h"
 #include "SkBlitter.h"
 #include "SkCanvas.h"
 #include "SkColorPriv.h"
@@ -163,31 +164,27 @@ static BitmapXferProc ChooseBitmapXferProc(const SkPixmap& dst, const SkPaint& p
         return nullptr;
     }
 
-    SkXfermode::Mode mode;
-    if (!SkXfermode::AsMode(paint.getXfermode(), &mode)) {
-        return nullptr;
-    }
-
+    SkBlendMode mode = paint.getBlendMode();
     SkColor color = paint.getColor();
 
     // collaps modes based on color...
-    if (SkXfermode::kSrcOver_Mode == mode) {
+    if (SkBlendMode::kSrcOver == mode) {
         unsigned alpha = SkColorGetA(color);
         if (0 == alpha) {
-            mode = SkXfermode::kDst_Mode;
+            mode = SkBlendMode::kDst;
         } else if (0xFF == alpha) {
-            mode = SkXfermode::kSrc_Mode;
+            mode = SkBlendMode::kSrc;
         }
     }
 
     switch (mode) {
-        case SkXfermode::kClear_Mode:
+        case SkBlendMode::kClear:
 //            SkDebugf("--- D_Clear_BitmapXferProc\n");
             return D_Clear_BitmapXferProc;  // ignore data
-        case SkXfermode::kDst_Mode:
+        case SkBlendMode::kDst:
 //            SkDebugf("--- D_Dst_BitmapXferProc\n");
             return D_Dst_BitmapXferProc;    // ignore data
-        case SkXfermode::kSrc_Mode: {
+        case SkBlendMode::kSrc: {
             /*
                 should I worry about dithering for the lower depths?
             */
@@ -1143,7 +1140,7 @@ void SkDraw::drawPath(const SkPath& origSrcPath, const SkPaint& origPaint,
         if (SkDrawTreatAsHairline(origPaint, *matrix, &coverage)) {
             if (SK_Scalar1 == coverage) {
                 paint.writable()->setStrokeWidth(0);
-            } else if (SkXfermode::SupportsCoverageAsAlpha(origPaint.getXfermode())) {
+            } else if (SkBlendMode_SupportsCoverageAsAlpha(origPaint.getBlendMode())) {
                 U8CPU newAlpha;
 #if 0
                 newAlpha = SkToU8(SkScalarRoundToInt(coverage *
@@ -1302,8 +1299,10 @@ void SkDraw::drawBitmap(const SkBitmap& bitmap, const SkMatrix& prematrix,
         return;
     }
 
-    SkPaint paint(origPaint);
-    paint.setStyle(SkPaint::kFill_Style);
+    SkTCopyOnFirstWrite<SkPaint> paint(origPaint);
+    if (origPaint.getStyle() != SkPaint::kFill_Style) {
+        paint.writable()->setStyle(SkPaint::kFill_Style);
+    }
 
     SkMatrix matrix;
     matrix.setConcat(*fMatrix, prematrix);
@@ -1313,7 +1312,7 @@ void SkDraw::drawBitmap(const SkBitmap& bitmap, const SkMatrix& prematrix,
     }
 
     if (bitmap.colorType() != kAlpha_8_SkColorType
-        && SkTreatAsSprite(matrix, bitmap.dimensions(), paint)) {
+        && SkTreatAsSprite(matrix, bitmap.dimensions(), *paint)) {
         //
         // It is safe to call lock pixels now, since we know the matrix is
         // (more or less) identity.
@@ -1328,7 +1327,7 @@ void SkDraw::drawBitmap(const SkBitmap& bitmap, const SkMatrix& prematrix,
         if (clipHandlesSprite(*fRC, ix, iy, pmap)) {
             SkTBlitterAllocator allocator;
             // blitter will be owned by the allocator.
-            SkBlitter* blitter = SkBlitter::ChooseSprite(fDst, paint, pmap, ix, iy, &allocator);
+            SkBlitter* blitter = SkBlitter::ChooseSprite(fDst, *paint, pmap, ix, iy, &allocator);
             if (blitter) {
                 SkScan::FillIRect(SkIRect::MakeXYWH(ix, iy, pmap.width(), pmap.height()),
                                   *fRC, blitter);
@@ -1344,9 +1343,9 @@ void SkDraw::drawBitmap(const SkBitmap& bitmap, const SkMatrix& prematrix,
     draw.fMatrix = &matrix;
 
     if (bitmap.colorType() == kAlpha_8_SkColorType) {
-        draw.drawBitmapAsMask(bitmap, paint);
+        draw.drawBitmapAsMask(bitmap, *paint);
     } else {
-        SkAutoBitmapShaderInstall install(bitmap, paint);
+        SkAutoBitmapShaderInstall install(bitmap, *paint);
         const SkPaint& paintWithShader = install.paintWithShader();
         const SkRect srcBounds = SkRect::MakeIWH(bitmap.width(), bitmap.height());
         if (dstBounds) {

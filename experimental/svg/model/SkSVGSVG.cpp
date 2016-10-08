@@ -95,3 +95,15 @@ void SkSVGSVG::onSetAttribute(SkSVGAttribute attr, const SkSVGValue& v) {
         this->INHERITED::onSetAttribute(attr, v);
     }
 }
+
+// https://www.w3.org/TR/SVG/coords.html#IntrinsicSizing
+SkSize SkSVGSVG::intrinsicSize(const SkSVGLengthContext& lctx) const {
+    // Percentage values do not provide an intrinsic size.
+    if (fWidth.unit() == SkSVGLength::Unit::kPercentage ||
+        fHeight.unit() == SkSVGLength::Unit::kPercentage) {
+        return SkSize::Make(0, 0);
+    }
+
+    return SkSize::Make(lctx.resolve(fWidth, SkSVGLengthContext::LengthType::kHorizontal),
+                        lctx.resolve(fHeight, SkSVGLengthContext::LengthType::kVertical));
+}

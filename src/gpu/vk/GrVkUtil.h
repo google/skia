@@ -10,9 +10,10 @@
 
 #include "GrColor.h"
 #include "GrTypes.h"
+#include "vk/GrVkDefines.h"
 #include "vk/GrVkInterface.h"
 
-#include "vk/GrVkDefines.h"
+class GrVkGpu;
 
 // makes a Vk call on the interface
 #define GR_VK_CALL(IFACE, X) (IFACE)->fFunctions.f##X;
@@ -42,5 +43,11 @@ bool GrVkFormatToPixelConfig(VkFormat format, GrPixelConfig* config);
 bool GrVkFormatIsSRGB(VkFormat format, VkFormat* linearFormat);
 
 bool GrSampleCountToVkSampleCount(uint32_t samples, VkSampleCountFlagBits* vkSamples);
+
+bool GrCompileVkShaderModule(const GrVkGpu* gpu,
+                             const char* shaderString,
+                             VkShaderStageFlagBits stage,
+                             VkShaderModule* shaderModule,
+                             VkPipelineShaderStageCreateInfo* stageInfo);
 
 #endif

@@ -70,4 +70,8 @@ third_party("sfntly") {
     "../externals/sfntly/cpp/src/sfntly/tools/subsetter/subsetter.cc",
     "../externals/sfntly/cpp/src/sfntly/tools/subsetter/table_subsetter_impl.cc",
   ]
+
+  if (is_win) {
+    defines += [ "WIN32", ]
+  }
 }

@@ -353,7 +353,10 @@ private:
             if (dst) {
                 SkConic conic;
                 conic.set(src, weight);
-                conic.chopAt(t, dst);
+                if (!conic.chopAt(t, dst)) {
+                    dst[0].set(src, weight);
+                    return 1;
+                }
             }
             return 2;
         }

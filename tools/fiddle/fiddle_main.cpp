@@ -140,7 +140,7 @@ int main() {
             srand(0);
             draw(document->beginPage(options.size.width(), options.size.height()));
             document->close();
-            pdfData.reset(pdfStream.copyToData());
+            pdfData = pdfStream.detachAsData();
         }
     }
     if (options.skp) {
@@ -152,7 +152,7 @@ int main() {
         auto picture = recorder.finishRecordingAsPicture();
         SkDynamicMemoryWStream skpStream;
         picture->serialize(&skpStream);
-        skpData.reset(skpStream.copyToData());
+        skpData = skpStream.detachAsData();
     }
 
     printf("{\n");

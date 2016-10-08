@@ -28,6 +28,7 @@ public:
     * on the returned GrProgramDesc.
     *
     * @param GrPrimitiveProcessor The geometry
+    * @param hasPointSize Controls whether the shader will output a point size.
     * @param GrPipeline  The optimized drawstate.  The descriptor will represent a program
     *                        which this optstate can use to draw with.  The optstate contains
     *                        general draw information, as well as the specific color, geometry,
@@ -38,6 +39,7 @@ public:
     **/
     static bool Build(GrProgramDesc*,
                       const GrPrimitiveProcessor&,
+                      bool hasPointSize,
                       const GrPipeline&,
                       const GrGLSLCaps&);
 
@@ -92,28 +94,21 @@ public:
     }
 
     struct KeyHeader {
-        // Set to uniquely identify the rt's origin, or 0 if the shader does not require this info.
-        uint8_t                     fSurfaceOriginKey;
         // Set to uniquely identify the sample pattern, or 0 if the shader doesn't use sample
         // locations.
         uint8_t                     fSamplePatternKey;
         // Set to uniquely idenitify any swizzling of the shader's output color(s).
         uint8_t                     fOutputSwizzle;
-        uint8_t                     fSnapVerticesToPixelCenters;
-        int8_t                      fColorEffectCnt;
-        int8_t                      fCoverageEffectCnt;
-        uint8_t                     fIgnoresCoverage;
+        uint8_t                     fColorFragmentProcessorCnt : 4;
+        uint8_t                     fCoverageFragmentProcessorCnt : 4;
+        // Set to uniquely identify the rt's origin, or 0 if the shader does not require this info.
+        uint8_t                     fSurfaceOriginKey : 2;
+        uint8_t                     fIgnoresCoverage : 1;
+        uint8_t                     fSnapVerticesToPixelCenters : 1;
+        uint8_t                     fHasPointSize : 1;
+        uint8_t                     fPad : 3;
     };
-
-    int numColorEffects() const {
-        return this->header().fColorEffectCnt;
-    }
-
-    int numCoverageEffects() const {
-        return this->header().fCoverageEffectCnt;
-    }
-
-    int numTotalEffects() const { return this->numColorEffects() + this->numCoverageEffects(); }
+    GR_STATIC_ASSERT(sizeof(KeyHeader) == 4);
 
     // This should really only be used internally, base classes should return their own headers
     const KeyHeader& header() const { return *this->atOffset<KeyHeader, kHeaderOffset>(); }

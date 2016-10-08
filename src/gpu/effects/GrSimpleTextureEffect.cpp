@@ -24,8 +24,8 @@ public:
         fragBuilder->codeAppendf("%s = ", args.fOutputColor);
         fragBuilder->appendTextureLookupAndModulate(args.fInputColor,
                                                     args.fTexSamplers[0],
-                                                    args.fCoords[0].c_str(),
-                                                    args.fCoords[0].getType(),
+                                                    args.fTransformedCoords[0].c_str(),
+                                                    args.fTransformedCoords[0].getType(),
                                                     &colorSpaceHelper);
         fragBuilder->codeAppend(";");
     }
@@ -40,7 +40,7 @@ protected:
     void onSetData(const GrGLSLProgramDataManager& pdman, const GrProcessor& processor) override {
         const GrSimpleTextureEffect& textureEffect = processor.cast<GrSimpleTextureEffect>();
         if (SkToBool(textureEffect.colorSpaceXform())) {
-            pdman.setMatrix4f(fColorSpaceXformUni, textureEffect.colorSpaceXform()->srcToDst());
+            pdman.setSkMatrix44(fColorSpaceXformUni, textureEffect.colorSpaceXform()->srcToDst());
         }
     }
 
@@ -84,12 +84,7 @@ sk_sp<GrFragmentProcessor> GrSimpleTextureEffect::TestCreate(GrProcessorTestData
     GrTextureParams params(tileModes, d->fRandom->nextBool() ? GrTextureParams::kBilerp_FilterMode :
                                                                GrTextureParams::kNone_FilterMode);
 
-    static const GrCoordSet kCoordSets[] = {
-        kLocal_GrCoordSet,
-        kDevice_GrCoordSet
-    };
-    GrCoordSet coordSet = kCoordSets[d->fRandom->nextULessThan(SK_ARRAY_COUNT(kCoordSets))];
-
     const SkMatrix& matrix = GrTest::TestMatrix(d->fRandom);
-    return GrSimpleTextureEffect::Make(d->fTextures[texIdx], nullptr, matrix, coordSet);
+    auto colorSpaceXform = GrTest::TestColorXform(d->fRandom);
+    return GrSimpleTextureEffect::Make(d->fTextures[texIdx], colorSpaceXform, matrix);
 }

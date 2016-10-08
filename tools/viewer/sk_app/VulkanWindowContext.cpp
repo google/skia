@@ -220,7 +220,7 @@ bool VulkanWindowContext::createSwapchain(int width, int height,
         swapchainCreateInfo.pQueueFamilyIndices = nullptr;
     }
 
-    swapchainCreateInfo.preTransform = caps.currentTransform;;
+    swapchainCreateInfo.preTransform = VK_SURFACE_TRANSFORM_IDENTITY_BIT_KHR;
     swapchainCreateInfo.compositeAlpha = composite_alpha;
     swapchainCreateInfo.presentMode = mode;
     swapchainCreateInfo.clipped = true;
@@ -262,7 +262,7 @@ void VulkanWindowContext::createBuffers(VkFormat format) {
         GrBackendRenderTargetDesc desc;
         GrVkImageInfo info;
         info.fImage = fImages[i];
-        info.fAlloc = { VK_NULL_HANDLE, 0, 0 };
+        info.fAlloc = { VK_NULL_HANDLE, 0, 0, 0 };
         info.fImageLayout = VK_IMAGE_LAYOUT_UNDEFINED;
         info.fImageTiling = VK_IMAGE_TILING_OPTIMAL;
         info.fFormat = format;

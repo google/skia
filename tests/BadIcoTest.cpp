@@ -26,11 +26,9 @@ DEF_TEST(BadImage, reporter) {
 
     const char* badImagesFolder = "invalid_images";
 
-    SkString resourcePath = GetResourcePath(badImagesFolder);
-
     for (size_t i = 0; i < SK_ARRAY_COUNT(badImages); ++i) {
-        SkString fullPath = SkOSPath::Join(resourcePath.c_str(), badImages[i]);
-        SkAutoTDelete<SkStream> stream(SkStream::NewFromFile(fullPath.c_str()));
+        SkString resourcePath = SkOSPath::Join(badImagesFolder, badImages[i]);
+        SkAutoTDelete<SkStream> stream(GetResourceAsStream(resourcePath.c_str()));
         SkAutoTDelete<SkCodec> codec(SkCodec::NewFromStream(stream.release()));
 
         // These images are corrupt.  It's not important whether we succeed/fail in codec

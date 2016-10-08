@@ -175,9 +175,8 @@ public:
      *  or stream holding the document's contents. After close() the document
      *  can no longer add new pages. Deleting the document will automatically
      *  call close() if need be.
-     *  Returns true on success or false on failure.
      */
-    bool close();
+    void close();
 
     /**
      *  Call abort() to stop producing the document immediately.
@@ -195,7 +194,7 @@ protected:
     virtual SkCanvas* onBeginPage(SkScalar width, SkScalar height,
                                   const SkRect& content) = 0;
     virtual void onEndPage() = 0;
-    virtual bool onClose(SkWStream*) = 0;
+    virtual void onClose(SkWStream*) = 0;
     virtual void onAbort() = 0;
 
     // Allows subclasses to write to the stream as pages are written.

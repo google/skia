@@ -121,7 +121,7 @@ void RasterWindowContext_mac::onSwapBuffers() {
                        (fDisplayParams.fColorSpace != nullptr ||
                         kRGBA_F16_SkColorType == fDisplayParams.fColorType);
         SkPaint gammaPaint;
-        gammaPaint.setXfermodeMode(SkXfermode::kSrc_Mode);
+        gammaPaint.setBlendMode(SkBlendMode::kSrc);
         if (doGamma) {
             gammaPaint.setColorFilter(SkGammaColorFilter::Make(1.0f / 2.2f));
         }

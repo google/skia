@@ -27,19 +27,11 @@
 #include "GrContext.h"
 #include "GrTest.h"
 
-struct TextBlobWrapper {
-    // This class assumes it 'owns' the textblob it wraps, and thus does not need to take a ref
-    explicit TextBlobWrapper(const SkTextBlob* blob) : fBlob(blob) {}
-    TextBlobWrapper(const TextBlobWrapper& blob) : fBlob(SkRef(blob.fBlob.get())) {}
-
-    SkAutoTUnref<const SkTextBlob> fBlob;
-};
-
-static void draw(SkCanvas* canvas, int redraw, const SkTArray<TextBlobWrapper>& blobs) {
+static void draw(SkCanvas* canvas, int redraw, const SkTArray<sk_sp<SkTextBlob>>& blobs) {
     int yOffset = 0;
     for (int r = 0; r < redraw; r++) {
         for (int i = 0; i < blobs.count(); i++) {
-            const SkTextBlob* blob = blobs[i].fBlob.get();
+            const auto& blob = blobs[i];
             const SkRect& bounds = blob->bounds();
             yOffset += SkScalarCeilToInt(bounds.height());
             SkPaint paint;
@@ -85,7 +77,7 @@ static void text_blob_cache_inner(skiatest::Reporter* reporter, GrContext* conte
     }
 
     // generate textblobs
-    SkTArray<TextBlobWrapper> blobs;
+    SkTArray<sk_sp<SkTextBlob>> blobs;
     for (int i = 0; i < count; i++) {
         SkPaint paint;
         paint.setTextEncoding(SkPaint::kGlyphID_TextEncoding);
@@ -124,7 +116,7 @@ static void text_blob_cache_inner(skiatest::Reporter* reporter, GrContext* conte
                     }
                 }
             }
-            blobs.emplace_back(builder.build());
+            blobs.emplace_back(builder.make());
         }
     }
 

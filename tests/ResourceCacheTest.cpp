@@ -1137,8 +1137,8 @@ static void test_flush(skiatest::Reporter* reporter) {
         }
 
         // Send flush notifications to the cache. Each flush should purge the oldest resource.
-        for (int i = 0; i < kFlushCount - 1; ++i) {
-            // The first resource was purged after the last flush in the initial loop, hence the -1.
+        for (int i = 0; i < kFlushCount; ++i) {
+            cache->notifyFlushOccurred(GrResourceCache::kExternal);
             REPORTER_ASSERT(reporter, kFlushCount - i - 1 == cache->getResourceCount());
             for (int j = 0; j < i; ++j) {
                 GrUniqueKey k;
@@ -1147,7 +1147,6 @@ static void test_flush(skiatest::Reporter* reporter) {
                 REPORTER_ASSERT(reporter, !SkToBool(r));
                 SkSafeUnref(r);
             }
-            cache->notifyFlushOccurred(GrResourceCache::kExternal);
         }
 
         REPORTER_ASSERT(reporter, 0 == cache->getResourceCount());
@@ -1174,8 +1173,8 @@ static void test_flush(skiatest::Reporter* reporter) {
 
         for (int i = 0; i < kFlushCount; ++i) {
             // Should get a resource purged every other flush.
-            REPORTER_ASSERT(reporter, kFlushCount - i/2 - 1 == cache->getResourceCount());
             cache->notifyFlushOccurred(GrResourceCache::kExternal);
+            REPORTER_ASSERT(reporter, kFlushCount - i/2 - 1 == cache->getResourceCount());
         }
 
         // Unref all the resources that we kept refs on in the first loop.
@@ -1183,9 +1182,9 @@ static void test_flush(skiatest::Reporter* reporter) {
             refedResources[i]->unref();
         }
 
-        // When we unref'ed them their timestamps got updated. So nothing should be purged until we
-        // get kFlushCount additional flushes. Then everything should be purged.
-        for (int i = 0; i < kFlushCount; ++i) {
+        // After kFlushCount + 1 flushes they all will have sat in the purgeable queue for
+        // kFlushCount full flushes.
+        for (int i = 0; i < kFlushCount + 1; ++i) {
             REPORTER_ASSERT(reporter, kFlushCount >> 1 == cache->getResourceCount());
             cache->notifyFlushOccurred(GrResourceCache::kExternal);
         }

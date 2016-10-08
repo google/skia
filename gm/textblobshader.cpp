@@ -56,7 +56,7 @@ protected:
             run->pos[i * 2 + 1] = 150 + 5 * sinf((float)i * 8 / glyphCount);
         }
 
-        fBlob.reset(builder.build());
+        fBlob = builder.make();
 
         SkColor  colors[2];
         colors[0] = SK_ColorRED;
@@ -102,9 +102,9 @@ protected:
     }
 
 private:
-    SkTDArray<uint16_t>            fGlyphs;
-    SkAutoTUnref<const SkTextBlob> fBlob;
-    sk_sp<SkShader>                fShader;
+    SkTDArray<uint16_t> fGlyphs;
+    sk_sp<SkTextBlob>   fBlob;
+    sk_sp<SkShader>     fShader;
 
     typedef skiagm::GM INHERITED;
 };

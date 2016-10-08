@@ -40,12 +40,6 @@ class SkTraceMemoryDump;
  * A unique key always takes precedence over a scratch key when a resource has both types of keys.
  * If a resource has neither key type then it will be deleted as soon as the last reference to it
  * is dropped.
- *
- * When proactive purging is enabled, on every flush, the timestamp of that flush is stored in a
- * n-sized ring buffer. When purging occurs each purgeable resource's timestamp is compared to the
- * timestamp of the n-th prior flush. If the resource's last use timestamp is older than the old
- * flush then the resource is proactively purged even when the cache is under budget. By default
- * this feature is disabled, though it can be enabled by calling GrResourceCache::setLimits.
  */
 class GrResourceCache {
 public:
@@ -56,11 +50,12 @@ public:
     static const int    kDefaultMaxCount            = 2 * (1 << 12);
     // Default maximum number of bytes of gpu memory of budgeted resources in the cache.
     static const size_t kDefaultMaxSize             = 96 * (1 << 20);
-    // Default number of flushes a budgeted resources can go unused in the cache before it is
-    // purged. Large values disable the feature (as the ring buffer of flush timestamps would be
-    // large). This is currently the default until we decide to enable this feature
-    // of the cache by default.
-    static const int    kDefaultMaxUnusedFlushes    = 64;
+    // Default number of external flushes a budgeted resources can go unused in the cache before it 
+    // is purged. Using a value <= 0 disables this feature.
+    static const int    kDefaultMaxUnusedFlushes =
+            1  * /* flushes per frame */
+            60 * /* fps */
+            30;  /* seconds */
 
     /** Used to access functionality needed by GrGpuResource for lifetime management. */
     class ResourceAccess;
@@ -68,9 +63,9 @@ public:
 
     /**
      * Sets the cache limits in terms of number of resources, max gpu memory byte size, and number
-     * of GrContext flushes that a resource can be unused before it is evicted. The latter value is
-     * a suggestion and there is no promise that a resource will be purged immediately after it
-     * hasn't been used in maxUnusedFlushes flushes.
+     * of external GrContext flushes that a resource can be unused before it is evicted. The latter
+     * value is a suggestion and there is no promise that a resource will be purged immediately
+     * after it hasn't been used in maxUnusedFlushes flushes.
      */
     void setLimits(int count, size_t bytes, int maxUnusedFlushes = kDefaultMaxUnusedFlushes);
 
@@ -237,7 +232,6 @@ private:
     void refAndMakeResourceMRU(GrGpuResource*);
     /// @}
 
-    void resetFlushTimestamps();
     void processInvalidUniqueKeys(const SkTArray<GrUniqueKeyInvalidatedMessage>&);
     void addToNonpurgeableArray(GrGpuResource*);
     void removeFromNonpurgeableArray(GrGpuResource*);
@@ -321,11 +315,7 @@ private:
     size_t                              fBudgetedBytes;
 
     bool                                fRequestFlush;
-
-    // We keep track of the "timestamps" of the last n flushes. If a resource hasn't been used in
-    // that time then we well preemptively purge it to reduce memory usage.
-    uint32_t*                           fFlushTimestamps;
-    int                                 fLastFlushTimestampIndex;
+    uint32_t                            fExternalFlushCnt;
 
     InvalidUniqueKeyInbox               fInvalidUniqueKeyInbox;
 
