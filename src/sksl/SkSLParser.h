@@ -35,7 +35,6 @@ struct ASTInterfaceBlock;
 struct ASTLayout;
 struct ASTModifiers;
 struct ASTParameter;
-struct ASTPrecision;
 struct ASTReturnStatement;
 struct ASTStatement;
 struct ASTSuffix;
@@ -101,7 +100,7 @@ private:
     // don't need to call any of these outside of the parser. The function declarations in the .cpp
     // file have comments describing the grammar rules.
 
-    std::unique_ptr<ASTDeclaration> precision();
+    void precision();
 
     std::unique_ptr<ASTDeclaration> directive();
 

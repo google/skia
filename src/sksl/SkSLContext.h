@@ -60,7 +60,6 @@ public:
     , fSampler1D_Type(new Type("sampler1D", SpvDim1D, false, false, false, true))
     , fSampler2D_Type(new Type("sampler2D", SpvDim2D, false, false, false, true))
     , fSampler3D_Type(new Type("sampler3D", SpvDim3D, false, false, false, true))
-    , fSamplerExternalOES_Type(new Type("samplerExternalOES", SpvDim2D, false, false, false, true))
     , fSamplerCube_Type(new Type("samplerCube"))
     , fSampler2DRect_Type(new Type("sampler2DRect"))
     , fSampler1DArray_Type(new Type("sampler1DArray"))
@@ -170,7 +169,6 @@ public:
     const std::unique_ptr<Type> fSampler1D_Type;
     const std::unique_ptr<Type> fSampler2D_Type;
     const std::unique_ptr<Type> fSampler3D_Type;
-    const std::unique_ptr<Type> fSamplerExternalOES_Type;
     const std::unique_ptr<Type> fSamplerCube_Type;
     const std::unique_ptr<Type> fSampler2DRect_Type;
     const std::unique_ptr<Type> fSampler1DArray_Type;

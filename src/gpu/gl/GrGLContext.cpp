@@ -7,7 +7,6 @@
 
 #include "GrGLContext.h"
 #include "GrGLGLSL.h"
-#include "SkSLCompiler.h"
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -62,17 +61,6 @@ GrGLContext* GrGLContext::Create(const GrGLInterface* interface, const GrContext
     args.fContextOptions = &options;
 
     return new GrGLContext(args);
-}
-
-GrGLContext::~GrGLContext() {
-    delete fCompiler;
-}
-
-SkSL::Compiler* GrGLContext::compiler() const {
-    if (!fCompiler) {
-        fCompiler = new SkSL::Compiler();
-    }
-    return fCompiler;
 }
 
 GrGLContextInfo::GrGLContextInfo(const ConstructorArgs& args) {

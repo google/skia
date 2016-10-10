@@ -11,7 +11,6 @@
 #include <vector>
 #include <memory>
 
-#include "SkSLModifiers.h"
 #include "SkSLProgramElement.h"
 #include "SkSLSymbolTable.h"
 
@@ -26,18 +25,14 @@ struct Program {
         kVertex_Kind
     };
 
-    Program(Kind kind, 
-            Modifiers::Flag defaultPrecision,
-            std::vector<std::unique_ptr<ProgramElement>> elements, 
+    Program(Kind kind, std::vector<std::unique_ptr<ProgramElement>> elements, 
             std::shared_ptr<SymbolTable> symbols)
     : fKind(kind) 
-    , fDefaultPrecision(defaultPrecision)
     , fElements(std::move(elements))
     , fSymbols(symbols) {}
 
     Kind fKind;
-    // FIXME handle different types; currently it assumes this is for floats
-    Modifiers::Flag fDefaultPrecision;
+
     std::vector<std::unique_ptr<ProgramElement>> fElements;
     std::shared_ptr<SymbolTable> fSymbols;
 };

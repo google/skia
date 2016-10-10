@@ -15,9 +15,6 @@
 #include "GrGLUtil.h"
 
 struct GrContextOptions;
-namespace SkSL {
-    class Compiler;
-}
 
 /**
  * Encapsulates information about an OpenGL context including the OpenGL
@@ -41,8 +38,6 @@ public:
     }
 
     const GrGLExtensions& extensions() const { return fInterface->fExtensions; }
-
-    virtual ~GrGLContextInfo() {}
 
 protected:
     struct ConstructorArgs {
@@ -69,7 +64,7 @@ protected:
 };
 
 /**
- * Extension of GrGLContextInfo that also provides access to GrGLInterface and SkSL::Compiler.
+ * Extension of GrGLContextInfo that also provides access to GrGLInterface.
  */
 class GrGLContext : public GrGLContextInfo {
 public:
@@ -81,16 +76,8 @@ public:
 
     const GrGLInterface* interface() const { return fInterface; }
 
-    SkSL::Compiler* compiler() const;
-
-    ~GrGLContext() override;
-
 private:
-    GrGLContext(const ConstructorArgs& args) 
-    : INHERITED(args)
-    , fCompiler(nullptr) {}
-
-    mutable SkSL::Compiler* fCompiler;
+    GrGLContext(const ConstructorArgs& args) : INHERITED(args) {}
 
     typedef GrGLContextInfo INHERITED;
 };

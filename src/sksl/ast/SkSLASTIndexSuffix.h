@@ -14,27 +14,17 @@
 namespace SkSL {
 
 /**
- * A bracketed expression, as in '[0]', indicating an array access. Empty brackets (as occur in
- * 'float[](5, 6)' are represented with a null fExpression.
+ * A bracketed expression, as in '[0]', indicating an array access. 
  */
 struct ASTIndexSuffix : public ASTSuffix {
-    ASTIndexSuffix(Position position) 
-    : INHERITED(position, ASTSuffix::kIndex_Kind)
-    , fExpression(nullptr) {}
-
     ASTIndexSuffix(std::unique_ptr<ASTExpression> expression) 
-    : INHERITED(expression ? expression->fPosition : Position(), ASTSuffix::kIndex_Kind)
+    : INHERITED(expression->fPosition, ASTSuffix::kIndex_Kind)
     , fExpression(std::move(expression)) {}
 
     std::string description() const override {
-        if (fExpression) {
-            return "[" + fExpression->description() + "]";
-        } else {
-            return "[]";
-        }
+        return "[" + fExpression->description() + "]";
     }
 
-    // may be null
     std::unique_ptr<ASTExpression> fExpression;
 
     typedef ASTSuffix INHERITED;
