@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "ff45d8e5_6023acc5",
+        "filename": "infra/bots/recipes/swarm_compile.expected/buildbotless_trybot_gerrit.json",
+        "patchSetId": 3
+      },
+      "lineNbr": 130,
+      "author": {
+        "id": 5120
+      },
+      "writtenOn": "2016-10-10T00:30:15Z",
+      "side": 1,
+      "message": "This doesn\u0027t look right.",
+      "revId": "8adf909ae587fca9654525e4b180db489b49961f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
