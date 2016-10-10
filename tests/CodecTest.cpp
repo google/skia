@@ -1332,3 +1332,32 @@ DEF_TEST(Codec_reusePng, r) {
     result = codec->getAndroidPixels(info, bm.getPixels(), bm.rowBytes(), &opts);
     REPORTER_ASSERT(r, result == SkCodec::kSuccess);
 }
+
+DEF_TEST(Codec_rowsDecoded, r) {
+    auto file = "plane_interlaced.png";
+    std::unique_ptr<SkStream> stream(GetResourceAsStream(file));
+    if (!stream) {
+        return;
+    }
+
+    // This is enough to read the header etc, but no rows.
+    auto data = SkData::MakeFromStream(stream.get(), 99);
+    std::unique_ptr<SkCodec> codec(SkCodec::NewFromData(data));
+    if (!codec) {
+        ERRORF(r, "Failed to create codec\n");
+        return;
+    }
+
+    auto info = codec->getInfo().makeColorType(kN32_SkColorType);
+    SkBitmap bm;
+    bm.allocPixels(info);
+    auto result = codec->startIncrementalDecode(info, bm.getPixels(), bm.rowBytes());
+    REPORTER_ASSERT(r, result == SkCodec::kSuccess);
+
+    // This is an arbitrary value. The important fact is that it is not zero, and rowsDecoded
+    // should get set to zero by incrementalDecode.
+    int rowsDecoded = 77;
+    result = codec->incrementalDecode(&rowsDecoded);
+    REPORTER_ASSERT(r, result == SkCodec::kIncompleteInput);
+    REPORTER_ASSERT(r, rowsDecoded == 0);
+}

@@ -766,6 +766,9 @@ private:
 
         // Now apply Xforms on all the rows that were decoded.
         if (!fLinesDecoded) {
+            if (rowsDecoded) {
+                *rowsDecoded = 0;
+            }
             return SkCodec::kIncompleteInput;
         }
         const int lastRow = fLinesDecoded + fFirstRow - 1;
