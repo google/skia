@@ -81,7 +81,7 @@ private:
 
     bool onCombineIfPossible(GrBatch* t, const GrCaps& caps) override { return false; }
 
-    void onDraw(GrBatchFlushState* state) override;
+    void onDraw(GrBatchFlushState* state, const SkRect& bounds) override;
 
     GrPendingIOResource<const GrPath, kRead_GrIOType> fPath;
 
@@ -174,7 +174,7 @@ private:
 
     bool onCombineIfPossible(GrBatch* t, const GrCaps& caps) override;
 
-    void onDraw(GrBatchFlushState* state) override;
+    void onDraw(GrBatchFlushState* state, const SkRect& bounds) override;
 
     struct Draw {
         void set(const InstanceData* instanceData, SkScalar x, SkScalar y) {

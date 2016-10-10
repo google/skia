@@ -43,8 +43,8 @@ private:
 
     void onPrepare(GrBatchFlushState*) override {}
 
-    void onDraw(GrBatchFlushState* state) override {
-        state->commandBuffer()->discard(fRenderTarget.get());
+    void onDraw(GrBatchFlushState* state, const SkRect& /*bounds*/) override {
+        state->commandBuffer()->discard();
     }
 
     GrPendingIOResource<GrRenderTarget, kWrite_GrIOType> fRenderTarget;
