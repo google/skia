@@ -229,7 +229,6 @@ bool GrDrawTarget::drawBatches(GrBatchFlushState* flushState) {
     SkRandom random;
     GrRenderTarget* currentRT = nullptr;
     SkAutoTDelete<GrGpuCommandBuffer> commandBuffer;
-    SkRect bounds = SkRect::MakeEmpty();
     for (int i = 0; i < fRecordedBatches.count(); ++i) {
         if (!fRecordedBatches[i].fBatch) {
             continue;
@@ -237,16 +236,9 @@ bool GrDrawTarget::drawBatches(GrBatchFlushState* flushState) {
         if (fRecordedBatches[i].fBatch->renderTarget() != currentRT) {
             if (commandBuffer) {
                 commandBuffer->end();
-                if (bounds.intersect(0, 0,
-                                     SkIntToScalar(currentRT->width()),
-                                     SkIntToScalar(currentRT->height()))) {
-                    SkIRect iBounds;
-                    bounds.roundOut(&iBounds);
-                    commandBuffer->submit(iBounds);
-                }
+                commandBuffer->submit();
                 commandBuffer.reset();
             }
-            bounds.setEmpty();
             currentRT = fRecordedBatches[i].fBatch->renderTarget();
             if (currentRT) {
                 static const GrGpuCommandBuffer::LoadAndStoreInfo kBasicLoadStoreInfo
@@ -258,9 +250,6 @@ bool GrDrawTarget::drawBatches(GrBatchFlushState* flushState) {
             }
             flushState->setCommandBuffer(commandBuffer);
         }
-        if (commandBuffer) {
-            bounds.join(fRecordedBatches[i].fClippedBounds);
-        }
         if (fDrawBatchBounds) {
             const SkRect& bounds = fRecordedBatches[i].fClippedBounds;
             SkIRect ibounds;
@@ -271,17 +260,11 @@ bool GrDrawTarget::drawBatches(GrBatchFlushState* flushState) {
                 fGpu->drawDebugWireRect(rt, ibounds, 0xFF000000 | random.nextU());
             }
         }
-        fRecordedBatches[i].fBatch->draw(flushState);
+        fRecordedBatches[i].fBatch->draw(flushState, fRecordedBatches[i].fClippedBounds);
     }
     if (commandBuffer) {
         commandBuffer->end();
-        if (bounds.intersect(0, 0,
-                             SkIntToScalar(currentRT->width()),
-                             SkIntToScalar(currentRT->height()))) {
-            SkIRect iBounds;
-            bounds.roundOut(&iBounds);
-            commandBuffer->submit(iBounds);
-        }
+        commandBuffer->submit();
         flushState->setCommandBuffer(nullptr);
     }
 

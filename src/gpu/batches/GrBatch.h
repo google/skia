@@ -125,7 +125,7 @@ public:
     void prepare(GrBatchFlushState* state) { this->onPrepare(state); }
 
     /** Issues the batches commands to GrGpu. */
-    void draw(GrBatchFlushState* state) { this->onDraw(state); }
+    void draw(GrBatchFlushState* state, const SkRect& bounds) { this->onDraw(state, bounds); }
 
     /** Used to block batching across render target changes. Remove this once we store
         GrBatches for different RTs in different targets. */
@@ -191,7 +191,7 @@ private:
     virtual bool onCombineIfPossible(GrBatch*, const GrCaps& caps) = 0;
 
     virtual void onPrepare(GrBatchFlushState*) = 0;
-    virtual void onDraw(GrBatchFlushState*) = 0;
+    virtual void onDraw(GrBatchFlushState*, const SkRect& bounds) = 0;
 
     static uint32_t GenID(int32_t* idCounter) {
         // The atomic inc returns the old value not the incremented value. So we add
