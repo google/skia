@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "dfc1f4c3_0acf5fad",
+        "filename": "tools/gpu/vk/VkTestContext.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 80,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2016-10-10T22:26:13Z",
+      "side": 1,
+      "message": "Would a static_cast work in both 32 and 64 bit? The C++ casts can generate meaningful warnings in case something changes, that might not be caught by the c-style casts.",
+      "range": {
+        "startLine": 80,
+        "startChar": 16,
+        "endLine": 80,
+        "endChar": 27
+      },
+      "revId": "920b1093f397baac71635fc3c32a949f435622bf",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
