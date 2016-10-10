@@ -77,18 +77,18 @@ public:
         submitInfo.pSignalSemaphores = nullptr;
         GR_VK_CALL_ERRCHECK(fVk, QueueSubmit(fQueue, 1, &submitInfo, fence));
         SkDEBUGCODE(++fUnfinishedSyncs;)
-        return reinterpret_cast<sk_gpu_test::PlatformFence>(fence);
+        return (sk_gpu_test::PlatformFence)fence;
     }
 
     bool waitFence(sk_gpu_test::PlatformFence opaqueFence) const override {
-        VkFence fence = reinterpret_cast<VkFence>(opaqueFence);
+        VkFence fence = (VkFence)opaqueFence;
         static constexpr uint64_t kForever = ~((uint64_t)0);
         auto result = GR_VK_CALL(fVk, WaitForFences(fDevice, 1, &fence, true, kForever));
         return result != VK_TIMEOUT;
     }
 
     void deleteFence(sk_gpu_test::PlatformFence opaqueFence) const override {
-        VkFence fence = reinterpret_cast<VkFence>(opaqueFence);
+        VkFence fence = (VkFence)opaqueFence;
         GR_VK_CALL(fVk, DestroyFence(fDevice, fence, nullptr));
         SkDEBUGCODE(--fUnfinishedSyncs;)
     }
