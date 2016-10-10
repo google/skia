@@ -42,6 +42,7 @@ namespace SkOpts {
         body[SkRasterPipeline::stage] = (SkOpts::VoidFn)SK_OPTS_NS::stage; \
         tail[SkRasterPipeline::stage] = (SkOpts::VoidFn)SK_OPTS_NS::stage
 
+        STAGE(just_return);
         STAGE(lerp_constant_float);
         STAGE(constant_color);
 
