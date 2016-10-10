@@ -12,6 +12,8 @@
 
 #include "GrGLGpu.h"
 
+class GrGLRenderTarget;
+
 class GrGLGpuCommandBuffer : public GrGpuCommandBuffer {
 /**
  * We do not actually buffer up draws or do any work in the this class for GL. Instead commands
@@ -19,16 +21,17 @@ class GrGLGpuCommandBuffer : public GrGpuCommandBuffer {
  * pass through functions to corresponding calls in the GrGLGpu class.
  */
 public:
-    GrGLGpuCommandBuffer(GrGLGpu* gpu) : fGpu(gpu) {}
+    GrGLGpuCommandBuffer(GrGLGpu* gpu, GrGLRenderTarget* rt) : fGpu(gpu), fRenderTarget(rt) {}
 
     virtual ~GrGLGpuCommandBuffer() {}
 
     void end() override {}
 
-    void discard(GrRenderTarget* rt) override {}
+    void discard() override {}
 
 private:
     GrGpu* gpu() override { return fGpu; }
+    GrRenderTarget* renderTarget() override { return fRenderTarget; }
 
     void onSubmit(const SkIRect& bounds) override {}
 
@@ -39,17 +42,17 @@ private:
         fGpu->draw(pipeline, primProc, mesh, meshCount);
     }
 
-    void onClear(GrRenderTarget* rt, const GrFixedClip& clip, GrColor color) override {
-        fGpu->clear(clip, color, rt);
+    void onClear(const GrFixedClip& clip, GrColor color) override {
+        fGpu->clear(clip, color, fRenderTarget);
     }
 
-    void onClearStencilClip(GrRenderTarget* rt,
-                            const GrFixedClip& clip,
+    void onClearStencilClip(const GrFixedClip& clip,
                             bool insideStencilMask) override {
-        fGpu->clearStencilClip(clip, insideStencilMask, rt);
+        fGpu->clearStencilClip(clip, insideStencilMask, fRenderTarget);
     }
 
     GrGLGpu*                    fGpu;
+    GrGLRenderTarget*           fRenderTarget;
 
     typedef GrGpuCommandBuffer INHERITED;
 };
