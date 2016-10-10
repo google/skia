@@ -25,6 +25,7 @@
 #include "ast/SkSLASTIfStatement.h"
 #include "ast/SkSLASTInterfaceBlock.h"
 #include "ast/SkSLASTModifiers.h"
+#include "ast/SkSLASTModifiersDeclaration.h"
 #include "ast/SkSLASTPrefixExpression.h"
 #include "ast/SkSLASTReturnStatement.h"
 #include "ast/SkSLASTStatement.h"
@@ -39,6 +40,7 @@
 #include "ir/SkSLFunctionDefinition.h"
 #include "ir/SkSLInterfaceBlock.h"
 #include "ir/SkSLModifiers.h"
+#include "ir/SkSLModifiersDeclaration.h"
 #include "ir/SkSLSymbolTable.h"
 #include "ir/SkSLStatement.h"
 #include "ir/SkSLType.h"
@@ -61,6 +63,8 @@ public:
     std::unique_ptr<FunctionDefinition> convertFunction(const ASTFunction& f);
     std::unique_ptr<Statement> convertStatement(const ASTStatement& statement);
     std::unique_ptr<Expression> convertExpression(const ASTExpression& expression);
+    std::unique_ptr<ModifiersDeclaration> convertModifiersDeclaration(
+                                                                  const ASTModifiersDeclaration& m);
 
 private:
     void pushSymbolTable();
