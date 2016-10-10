@@ -62,7 +62,7 @@ void* GrVertexBatch::QuadHelper::init(Target* target, size_t vertexStride,
                                  quadIndexBuffer, kVerticesPerQuad, kIndicesPerQuad, quadsToDraw);
 }
 
-void GrVertexBatch::onDraw(GrBatchFlushState* state) {
+void GrVertexBatch::onDraw(GrBatchFlushState* state, const SkRect& bounds) {
     int currUploadIdx = 0;
     int currMeshIdx = 0;
 
@@ -76,7 +76,7 @@ void GrVertexBatch::onDraw(GrBatchFlushState* state) {
         }
         const QueuedDraw &draw = fQueuedDraws[currDrawIdx];
         state->commandBuffer()->draw(*this->pipeline(), *draw.fGeometryProcessor.get(),
-                                     fMeshes.begin() + currMeshIdx, draw.fMeshCnt);
+                                     fMeshes.begin() + currMeshIdx, draw.fMeshCnt, bounds);
         currMeshIdx += draw.fMeshCnt;
         state->flushToken();
     }
