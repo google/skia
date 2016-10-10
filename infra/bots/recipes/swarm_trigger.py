@@ -119,21 +119,21 @@ def swarm_dimensions(builder_cfg):
   if builder_cfg['role'] in ('Test', 'Perf'):
     if 'Android' in builder_cfg['os']:
       # For Android, the device type is a better dimension than CPU or GPU.
-      dimensions['device_type'] = {
-        'AndroidOne':    'sprout',
-        'GalaxyS3':      'm0',  #'smdk4x12', Detected incorrectly by swarming?
-        'GalaxyS4':      None,  # TODO(borenet,kjlubick)
-        'GalaxyS7':      'heroqlteatt',
-        'NVIDIA_Shield': 'foster',
-        'Nexus10':       'manta',
-        'Nexus5':        'hammerhead',
-        'Nexus6':        'shamu',
-        'Nexus6p':       'angler',
-        'Nexus7':        'grouper',
-        'Nexus7v2':      'flo',
-        'Nexus9':        'flounder',
-        'NexusPlayer':   'fugu',
+      device_type, device_os = {
+        'AndroidOne':    ('sprout',     'MOB30Q'),
+        'GalaxyS7':      ('heroqlteatt','MMB29M'),
+        'NVIDIA_Shield': ('foster',     'MRA58K'),
+        'Nexus10':       ('manta',      'LMY49J'),
+        'Nexus5':        ('hammerhead', 'MOB31E'),
+        'Nexus6':        ('shamu',      'M'),
+        'Nexus6p':       ('angler',     'NRD91E'),
+        'Nexus7':        ('grouper',    'LMY47V'),
+        'Nexus7v2':      ('flo',        'M'),
+        'Nexus9':        ('flounder',   'NRD91D'),
+        'NexusPlayer':   ('fugu',       'NRD90R'),
       }[builder_cfg['model']]
+      dimensions['device_type'] = device_type
+      dimensions['device_os'] = device_os
     elif 'iOS' in builder_cfg['os']:
       # For iOS, the device type is a better dimension than CPU or GPU.
       dimensions['device'] = {
