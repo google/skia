@@ -1,0 +1,55 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "ff45d8e5_40c9d0a4",
+        "filename": "src/gpu/GrOvalRenderer.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 1800,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2016-10-10T16:22:37Z",
+      "side": 1,
+      "message": "Why not just do \"xOffset *\u003d SK_ScalarRoot2Over2;\" here and use it raw in the following w/o yOuterRadii array or the if tests ?",
+      "revId": "f86831b398ab65d6520fb184c4dce1d1ca072349",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ff45d8e5_004e683c",
+        "filename": "src/gpu/GrOvalRenderer.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 1803,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2016-10-10T16:22:37Z",
+      "side": 1,
+      "message": "const ?",
+      "revId": "f86831b398ab65d6520fb184c4dce1d1ca072349",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ff45d8e5_20ccc4b5",
+        "filename": "src/gpu/GrOvalRenderer.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 1809,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2016-10-10T16:22:37Z",
+      "side": 1,
+      "message": "i -\u003e yIndex ?",
+      "revId": "f86831b398ab65d6520fb184c4dce1d1ca072349",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
