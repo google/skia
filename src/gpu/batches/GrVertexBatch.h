@@ -63,7 +63,7 @@ protected:
 
 private:
     void onPrepare(GrBatchFlushState* state) final;
-    void onDraw(GrBatchFlushState* state) final;
+    void onDraw(GrBatchFlushState* state, const SkRect& bounds) final;
 
     virtual void onPrepareDraws(Target*) const = 0;
 
