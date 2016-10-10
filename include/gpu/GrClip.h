@@ -127,6 +127,9 @@ private:
     bool quickContains(const SkRect&) const final {
         return true;
     }
+    bool quickContains(const SkRRect&) const final {
+        return true;
+    }
     void getConservativeBounds(int width, int height, SkIRect* devResult,
                                bool* isIntersectionOfRects) const final {
         devResult->setXYWH(0, 0, width, height);
