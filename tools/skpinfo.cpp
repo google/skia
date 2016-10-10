@@ -87,7 +87,9 @@ int tool_main(int argc, char** argv) {
         SkDebugf("\n");
     }
 
-    if (!stream.readBool()) {
+    bool hasData;
+    if (!stream.readBool(&hasData)) { return kTruncatedFile; }
+    if (!hasData) {
         // If we read true there's a picture playback object flattened
         // in the file; if false, there isn't a playback, so we're done
         // reading the file.
@@ -95,12 +97,14 @@ int tool_main(int argc, char** argv) {
     }
 
     for (;;) {
-        uint32_t tag = stream.readU32();
+        uint32_t tag;
+        if (!stream.readU32(&tag)) { return kTruncatedFile; }
         if (SK_PICT_EOF_TAG == tag) {
             break;
         }
 
-        uint32_t chunkSize = stream.readU32();
+        uint32_t chunkSize;
+        if (!stream.readU32(&chunkSize)) { return kTruncatedFile; }
         size_t curPos = stream.getPosition();
 
         // "move" doesn't error out when seeking beyond the end of file

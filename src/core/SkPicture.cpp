@@ -119,22 +119,23 @@ bool SkPicture::InternalOnly_StreamIsSKP(SkStream* stream, SkPictInfo* pInfo) {
 
     SkPictInfo info;
     SkASSERT(sizeof(kMagic) == sizeof(info.fMagic));
-    if (!stream->read(&info.fMagic, sizeof(kMagic))) {
+    if (stream->read(&info.fMagic, sizeof(kMagic)) != sizeof(kMagic)) {
         return false;
     }
 
-    info.setVersion(         stream->readU32());
-    info.fCullRect.fLeft   = stream->readScalar();
-    info.fCullRect.fTop    = stream->readScalar();
-    info.fCullRect.fRight  = stream->readScalar();
-    info.fCullRect.fBottom = stream->readScalar();
-    info.fFlags            = stream->readU32();
+    uint32_t version;
+    if (!stream->readU32(&version)) { return false; }
+    info.setVersion(version);
+    if (!stream->readScalar(&info.fCullRect.fLeft)) { return false; }
+    if (!stream->readScalar(&info.fCullRect.fTop)) { return false; }
+    if (!stream->readScalar(&info.fCullRect.fRight)) { return false; }
+    if (!stream->readScalar(&info.fCullRect.fBottom)) { return false; }
+    if (!stream->readU32(&info.fFlags)) { return false; }
 
-    if (IsValidPictInfo(info)) {
-        if (pInfo) { *pInfo = info; }
-        return true;
-    }
-    return false;
+    if (!IsValidPictInfo(info)) { return false; }
+
+    if (pInfo) { *pInfo = info; }
+    return true;
 }
 
 bool SkPicture::InternalOnly_BufferIsSKP(SkReadBuffer* buffer, SkPictInfo* pInfo) {
@@ -193,7 +194,8 @@ sk_sp<SkPicture> SkPicture::MakeFromData(const SkData* data, SkImageDeserializer
 sk_sp<SkPicture> SkPicture::MakeFromStream(SkStream* stream, SkImageDeserializer* factory,
                                            SkTypefacePlayback* typefaces) {
     SkPictInfo info;
-    if (!InternalOnly_StreamIsSKP(stream, &info) || !stream->readBool()) {
+    bool hasData;
+    if (!InternalOnly_StreamIsSKP(stream, &info) || !stream->readBool(&hasData) || !hasData) {
         return nullptr;
     }
     SkAutoTDelete<SkPictureData> data(
