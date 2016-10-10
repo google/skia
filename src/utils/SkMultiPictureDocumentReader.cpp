@@ -21,15 +21,16 @@ bool SkMultiPictureDocumentReader::init(SkStreamSeekable* stream) {
     char buffer[size];
     if (size != stream->read(buffer, size) ||
         0 != memcmp(SkMultiPictureDocumentProtocol::kMagic, buffer, size)) {
-        stream = nullptr;
         return false;
     }
     bool good = true;
-    uint32_t versionNumber = stream->readU32();
+    uint32_t versionNumber;
+    if (!stream->readU32(&versionNumber)) { return false; }
     if (versionNumber != SkMultiPictureDocumentProtocol::kVersion) {
         return false;
     }
-    uint32_t pageCount = stream->readU32();
+    uint32_t pageCount;
+    if (!stream->readU32(&pageCount)) { return false; }
     fSizes.reset(pageCount);
     for (uint32_t i = 0; i < pageCount; ++i) {
         SkSize size;
