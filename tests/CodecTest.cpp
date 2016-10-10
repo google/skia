@@ -1302,3 +1302,33 @@ DEF_TEST(Codec_fallBack, r) {
         }
     }
 }
+
+// This test verifies that we fixed an assert statement that fired when reusing a png codec
+// after scaling.
+DEF_TEST(Codec_reusePng, r) {
+    std::unique_ptr<SkStream> stream(GetResourceAsStream("plane.png"));
+    if (!stream) {
+        return;
+    }
+
+    std::unique_ptr<SkAndroidCodec> codec(SkAndroidCodec::NewFromStream(stream.release()));
+    if (!codec) {
+        ERRORF(r, "Failed to create codec\n");
+        return;
+    }
+
+    SkAndroidCodec::AndroidOptions opts;
+    opts.fSampleSize = 5;
+    auto size = codec->getSampledDimensions(opts.fSampleSize);
+    auto info = codec->getInfo().makeWH(size.fWidth, size.fHeight).makeColorType(kN32_SkColorType);
+    SkBitmap bm;
+    bm.allocPixels(info);
+    auto result = codec->getAndroidPixels(info, bm.getPixels(), bm.rowBytes(), &opts);
+    REPORTER_ASSERT(r, result == SkCodec::kSuccess);
+
+    info = codec->getInfo().makeColorType(kN32_SkColorType);
+    bm.allocPixels(info);
+    opts.fSampleSize = 1;
+    result = codec->getAndroidPixels(info, bm.getPixels(), bm.rowBytes(), &opts);
+    REPORTER_ASSERT(r, result == SkCodec::kSuccess);
+}

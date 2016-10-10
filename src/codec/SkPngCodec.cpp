@@ -563,6 +563,8 @@ private:
         fRowBytes = rowBytes;
 
         fLinesDecoded = 0;
+        fFirstRow = 0;
+        fLastRow = height - 1;
 
         this->processData();
 
@@ -578,7 +580,7 @@ private:
     }
 
     void allRowsCallback(png_bytep row, int rowNum) {
-        SkASSERT(rowNum - fFirstRow == fLinesDecoded);
+        SkASSERT(rowNum == fLinesDecoded);
         fLinesDecoded++;
         this->applyXformRow(fDst, row);
         fDst = SkTAddOffset<void>(fDst, fRowBytes);
