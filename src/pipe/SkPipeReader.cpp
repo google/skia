@@ -660,19 +660,30 @@ static sk_sp<SkImage> make_from_skiaimageformat(const void* encoded, size_t enco
         return nullptr;
     }
 
-    int width = stream.readU32();
-    int height = stream.readU32();
-    SkColorType ct = (SkColorType)stream.readU16();
-    SkAlphaType at = (SkAlphaType)stream.readU16();
+    uint32_t width_raw;
+    uint32_t height_raw;
+    uint16_t ct_raw;
+    uint16_t at_raw;
+    if (!stream.readU32(&width_raw)) { return nullptr; }
+    if (!stream.readU32(&height_raw)) { return nullptr; }
+    if (!stream.readU16(&ct_raw)) { return nullptr; }
+    if (!stream.readU16(&at_raw)) { return nullptr; }
+
+    int width = SkTo<int>(width_raw);
+    int height = SkTo<int>(height_raw);
+    SkColorType ct = SkTo<SkColorType>(ct_raw);
+    SkAlphaType at = SkTo<SkAlphaType>(at_raw);
+
     SkASSERT(kAlpha_8_SkColorType == ct);
 
-    SkDEBUGCODE(size_t colorSpaceSize =) stream.readU32();
+    uint32_t colorSpaceSize;
+    if (!stream.readU32(&colorSpaceSize)) { return nullptr; }
     SkASSERT(0 == colorSpaceSize);
 
     SkImageInfo info = SkImageInfo::Make(width, height, ct, at);
     size_t size = width * height;
     sk_sp<SkData> pixels = SkData::MakeUninitialized(size);
-    stream.read(pixels->writable_data(), size);
+    if (!stream.read(pixels->writable_data(), size) == size) { return nullptr; }
     SkASSERT(encodedSize == SkAlign4(stream.getPosition()));
     return SkImage::MakeRasterData(info, pixels, width);
 }
