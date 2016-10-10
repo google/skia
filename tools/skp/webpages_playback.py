@@ -466,7 +466,7 @@ class DataStore:
 
 class GoogleStorageDataStore(DataStore):
   def __init__(self, data_store_url):
-    self._url = data_store_url
+    self._url = data_store_url.rstrip('/')
 
   def target_name(self):
     return self._url
