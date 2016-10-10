@@ -43,7 +43,7 @@ private:
 
     void onPrepare(GrBatchFlushState*) override {}
 
-    void onDraw(GrBatchFlushState* state) override {
+    void onDraw(GrBatchFlushState* state, const SkRect& /*bounds*/) override {
         state->commandBuffer()->discard();
     }
 

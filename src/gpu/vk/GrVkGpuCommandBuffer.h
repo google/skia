@@ -38,30 +38,37 @@ private:
     GrGpu* gpu() override;
     GrRenderTarget* renderTarget() override;
 
-    void onSubmit(const SkIRect& bounds) override;
+    void onSubmit() override;
 
     // Bind vertex and index buffers
     void bindGeometry(const GrPrimitiveProcessor&, const GrNonInstancedMesh&);
 
     sk_sp<GrVkPipelineState> prepareDrawState(const GrPipeline&,
                                               const GrPrimitiveProcessor&,
-                                              GrPrimitiveType,
-                                              const GrVkRenderPass&);
+                                              GrPrimitiveType);
 
     void onDraw(const GrPipeline& pipeline,
                 const GrPrimitiveProcessor& primProc,
                 const GrMesh* mesh,
-                int meshCount) override;
+                int meshCount,
+                const SkRect& bounds) override;
 
     void onClear(const GrFixedClip&, GrColor color) override;
 
     void onClearStencilClip(const GrFixedClip&, bool insideStencilMask) override;
 
-    const GrVkRenderPass*       fRenderPass;
-    GrVkSecondaryCommandBuffer* fCommandBuffer;
+    struct CommandBufferInfo {
+        const GrVkRenderPass*       fRenderPass;
+        GrVkSecondaryCommandBuffer* fCommandBuffer;
+        VkClearValue                fColorClearValue;
+        SkRect                      fBounds;
+    };
+
+    SkTArray<CommandBufferInfo> fCommandBufferInfos;
+    int                         fCurrentCmdBuffer;
+
     GrVkGpu*                    fGpu;
     GrVkRenderTarget*           fRenderTarget;
-    VkClearValue                fColorClearValue;
 
     bool                        fIsEmpty;
     bool                        fStartsWithClear;

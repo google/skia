@@ -17,6 +17,7 @@ class GrPipeline;
 class GrPrimitiveProcessor;
 class GrRenderTarget;
 struct SkIRect;
+struct SkRect;
 
 /**
  * The GrGpuCommandBuffer is a series of commands (draws, clears, and discards), which all target
@@ -51,8 +52,7 @@ public:
 
     // Sends the command buffer off to the GPU object to execute the commands built up in the
     // buffer. The gpu object is allowed to defer execution of the commands until it is flushed.
-    // The bounds should represent the bounds of all the draws put into the command buffer.
-    void submit(const SkIRect& bounds);
+    void submit();
 
     // We pass in an array of meshCount GrMesh to the draw. The backend should loop over each
     // GrMesh object and emit a draw for it. Each draw will use the same GrPipeline and
@@ -61,7 +61,8 @@ public:
     bool draw(const GrPipeline&,
               const GrPrimitiveProcessor&,
               const GrMesh*,
-              int meshCount);
+              int meshCount,
+              const SkRect& bounds);
 
     /**
     * Clear the passed in render target. Ignores the draw state and clip.
@@ -69,6 +70,7 @@ public:
     void clear(const GrFixedClip&, GrColor);
 
     void clearStencilClip(const GrFixedClip&, bool insideStencilMask);
+
     /**
     * Discards the contents render target. nullptr indicates that the current render target should
     * be discarded.
@@ -80,13 +82,14 @@ private:
     virtual GrGpu* gpu() = 0;
     virtual GrRenderTarget* renderTarget() = 0;
 
-    virtual void onSubmit(const SkIRect& bounds) = 0;
+    virtual void onSubmit() = 0;
 
     // overridden by backend-specific derived class to perform the draw call.
     virtual void onDraw(const GrPipeline&,
                         const GrPrimitiveProcessor&,
                         const GrMesh*,
-                        int meshCount) = 0;
+                        int meshCount,
+                        const SkRect& bounds) = 0;
 
     // overridden by backend-specific derived class to perform the clear.
     virtual void onClear(const GrFixedClip&, GrColor) = 0;
