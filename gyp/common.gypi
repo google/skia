@@ -101,7 +101,7 @@
         'configurations': {
           'Debug':   { 'defines': [ 'SK_DEBUG=1' ] },
           'Release': { 'defines': [ 'NDEBUG' ] },
-          'Release_Developer': {
+          'ReleaseDeveloper': {
             'inherit_from': ['Release'],
             'defines': [ 'SK_DEBUG=1' ],
             'conditions': [
