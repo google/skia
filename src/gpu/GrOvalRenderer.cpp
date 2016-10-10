@@ -1579,13 +1579,13 @@ private:
 // For circular roundrects, in the case where the stroke width is greater than twice
 // the corner radius (overstroke), we add additional geometry to mark out the rectangle
 // in the center. The shared vertices are duplicated so we can set a different outer radius
-// for the fill calculation.
+// for the fill calculation. The outer edge quads are triangulated to avoid T-vertices.
 //    ____________
 //   |_|________|_|
-//   | |\ ____ /| |
+//   | |_|____|_| |
 //   | | |    | | |
-//   | | |____| | |
-//   |_|/______\|_|
+//   | |_|____|_| |
+//   |_|_|____|_|_|
 //   |_|________|_|
 //
 // We don't draw the center quad from the fill rect in this case.
@@ -1595,13 +1595,43 @@ private:
 // vertical line).
 
 static const uint16_t gOverstrokeRRectIndices[] = {
-    // overstroke quads
-    // we place this at the beginning so that we can skip these indices when rendering normally
-    16, 17, 19, 16, 19, 18,
-    19, 17, 23, 19, 23, 21,
-    21, 23, 22, 21, 22, 20,
-    22, 16, 18, 22, 18, 20,
+    // outer quads
+    // corners
+    0, 1, 5, 0, 5, 4,
+    2, 3, 7, 2, 7, 6,
+    8, 9, 13, 8, 13, 12,
+    10, 11, 15, 10, 15, 14,
 
+    // edges
+    1, 2, 6, 1, 6, 18,
+    1, 18, 17, 1, 17, 5,
+
+    4, 5, 20, 4, 20, 24,
+    4, 24, 8, 8, 24, 9,
+
+    6, 7, 23, 7, 27, 23,
+    7, 11, 27, 11, 10, 27,
+
+    9, 29, 13, 13, 29, 30,
+    14, 13, 30, 14, 30, 10,
+
+    // inner quads
+    // we place this at the beginning so that we can skip these indices when rendering normally
+    // corners
+    16, 17, 21, 16, 21, 20,
+    18, 19, 22, 19, 23, 22,
+    24, 25, 28, 25, 29, 28,
+    26, 27, 31, 26, 31, 30,
+    
+    // edges
+    17, 18, 22, 17, 22, 21,
+    20, 21, 25, 20, 25, 24,
+    22, 23, 27, 22, 27, 26,
+    25, 26, 30, 25, 30, 29,
+};
+
+static const uint16_t gStandardRRectIndices[] = {
+    // normal quads
     // corners
     0, 1, 5, 0, 5, 4,
     2, 3, 7, 2, 7, 6,
@@ -1618,17 +1648,15 @@ static const uint16_t gOverstrokeRRectIndices[] = {
     // we place this at the end so that we can ignore these indices when not rendering as filled
     5, 6, 10, 5, 10, 9,
 };
-// fill and standard stroke indices skip the overstroke "ring"
-static const uint16_t* gStandardRRectIndices = gOverstrokeRRectIndices + 6*4;
 
-// overstroke count is arraysize minus the center indices
-static const int kIndicesPerOverstrokeRRect = SK_ARRAY_COUNT(gOverstrokeRRectIndices) - 6;
-// fill count skips overstroke indices and includes center
-static const int kIndicesPerFillRRect = kIndicesPerOverstrokeRRect - 6*4 + 6;
+// overstroke count
+static const int kIndicesPerOverstrokeRRect = SK_ARRAY_COUNT(gOverstrokeRRectIndices);
+// fill count
+static const int kIndicesPerFillRRect = SK_ARRAY_COUNT(gStandardRRectIndices);
 // stroke count is fill count minus center indices
 static const int kIndicesPerStrokeRRect = kIndicesPerFillRRect - 6;
 static const int kVertsPerStandardRRect = 16;
-static const int kVertsPerOverstrokeRRect = 24;
+static const int kVertsPerOverstrokeRRect = 32;
 
 enum RRectType {
     kFill_RRectType,
@@ -1790,65 +1818,50 @@ private:
                                       SkScalar outerRadius, SkScalar innerRadius, GrColor color) {
         SkASSERT(smInset < bigInset);
 
-        // TL
-        (*verts)->fPos = SkPoint::Make(bounds.fLeft + smInset, bounds.fTop + smInset);
-        (*verts)->fColor = color;
-        (*verts)->fOffset = SkPoint::Make(xOffset, 0);
-        (*verts)->fOuterRadius = outerRadius;
-        (*verts)->fInnerRadius = innerRadius;
-        (*verts)++;
-
-        // TR
-        (*verts)->fPos = SkPoint::Make(bounds.fRight - smInset,  bounds.fTop + smInset);
-        (*verts)->fColor = color;
-        (*verts)->fOffset = SkPoint::Make(xOffset, 0);
-        (*verts)->fOuterRadius = outerRadius;
-        (*verts)->fInnerRadius = innerRadius;
-        (*verts)++;
-
-        (*verts)->fPos = SkPoint::Make(bounds.fLeft + bigInset,  bounds.fTop + bigInset);
-        (*verts)->fColor = color;
-        (*verts)->fOffset = SkPoint::Make(0, 0);
-        (*verts)->fOuterRadius = outerRadius;
-        (*verts)->fInnerRadius = innerRadius;
-        (*verts)++;
-
-        (*verts)->fPos = SkPoint::Make(bounds.fRight - bigInset,  bounds.fTop + bigInset);
-        (*verts)->fColor = color;
-        (*verts)->fOffset = SkPoint::Make(0, 0);
-        (*verts)->fOuterRadius = outerRadius;
-        (*verts)->fInnerRadius = innerRadius;
-        (*verts)++;
-
-        (*verts)->fPos = SkPoint::Make(bounds.fLeft + bigInset, bounds.fBottom - bigInset);
-        (*verts)->fColor = color;
-        (*verts)->fOffset = SkPoint::Make(0, 0);
-        (*verts)->fOuterRadius = outerRadius;
-        (*verts)->fInnerRadius = innerRadius;
-        (*verts)++;
-
-        (*verts)->fPos = SkPoint::Make(bounds.fRight - bigInset, bounds.fBottom - bigInset);
-        (*verts)->fColor = color;
-        (*verts)->fOffset = SkPoint::Make(0, 0);
-        (*verts)->fOuterRadius = outerRadius;
-        (*verts)->fInnerRadius = innerRadius;
-        (*verts)++;
-
-        // BL
-        (*verts)->fPos = SkPoint::Make(bounds.fLeft + smInset, bounds.fBottom - smInset);
-        (*verts)->fColor = color;
-        (*verts)->fOffset = SkPoint::Make(xOffset, 0);
-        (*verts)->fOuterRadius = outerRadius;
-        (*verts)->fInnerRadius = innerRadius;
-        (*verts)++;
-
-        // BR
-        (*verts)->fPos = SkPoint::Make(bounds.fRight - smInset, bounds.fBottom - smInset);
-        (*verts)->fColor = color;
-        (*verts)->fOffset = SkPoint::Make(xOffset, 0);
-        (*verts)->fOuterRadius = outerRadius;
-        (*verts)->fInnerRadius = innerRadius;
-        (*verts)++;
+        SkScalar yOuterRadii[4] = {-xOffset, 0, 0, xOffset };
+        
+        SkScalar yCoords[4] = {
+            bounds.fTop + smInset,
+            bounds.fTop + bigInset,
+            bounds.fBottom - bigInset,
+            bounds.fBottom - smInset
+        };
+        
+        for (int i = 0; i < 4; ++i) {
+            (*verts)->fPos = SkPoint::Make(bounds.fLeft + smInset, yCoords[i]);
+            (*verts)->fColor = color;
+            (*verts)->fOffset = SkPoint::Make(-xOffset, yOuterRadii[i]);
+            if (i == 0 || i == 3) {
+                (*verts)->fOffset.scale(1.0f/SK_ScalarSqrt2);
+            }
+            (*verts)->fOuterRadius = outerRadius;
+            (*verts)->fInnerRadius = innerRadius;
+            (*verts)++;
+            
+            (*verts)->fPos = SkPoint::Make(bounds.fLeft + bigInset, yCoords[i]);
+            (*verts)->fColor = color;
+            (*verts)->fOffset = SkPoint::Make(0, yOuterRadii[i]);
+            (*verts)->fOuterRadius = outerRadius;
+            (*verts)->fInnerRadius = innerRadius;
+            (*verts)++;
+            
+            (*verts)->fPos = SkPoint::Make(bounds.fRight - bigInset, yCoords[i]);
+            (*verts)->fColor = color;
+            (*verts)->fOffset = SkPoint::Make(0, yOuterRadii[i]);
+            (*verts)->fOuterRadius = outerRadius;
+            (*verts)->fInnerRadius = innerRadius;
+            (*verts)++;
+            
+            (*verts)->fPos = SkPoint::Make(bounds.fRight - smInset, yCoords[i]);
+            (*verts)->fColor = color;
+            (*verts)->fOffset = SkPoint::Make(xOffset, yOuterRadii[i]);
+            if (i == 0 || i == 3) {
+                (*verts)->fOffset.scale(1.0f/SK_ScalarSqrt2);
+            }
+            (*verts)->fOuterRadius = outerRadius;
+            (*verts)->fInnerRadius = innerRadius;
+            (*verts)++;
+        }
     }
 
     void onPrepareDraws(Target* target) const override {
