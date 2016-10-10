@@ -400,15 +400,14 @@ public:
     }
 
 protected:
-    /** Populates a pair of arrays with colors and stop info to construct a random gradient.
-        The function decides whether stop values should be used or not. The return value indicates
-        the number of colors, which will be capped by kMaxRandomGradientColors. colors should be
-        sized to be at least kMaxRandomGradientColors. stops is a pointer to an array of at least
-        size kMaxRandomGradientColors. It may be updated to nullptr, indicating that nullptr should
-        be passed to the gradient factory rather than the array.
+    /** Helper struct that stores (and populates) parameters to construct a random gradient.
+        The constructor decides whether stop values should be used or not (fStops may be nullptr
+        after construction). fColorCount will be the number of color stops, and fColors and fStops
+        can be passed to the gradient factory.
     */
-    static const int kMaxRandomGradientColors = 4;
     struct RandomGradientParams {
+        static const int kMaxRandomGradientColors = 4;
+
         RandomGradientParams(SkRandom* r);
 
         SkColor fColors[kMaxRandomGradientColors];
