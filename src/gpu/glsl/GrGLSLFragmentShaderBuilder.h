@@ -203,7 +203,7 @@ private:
     }
 #endif
 
-    static const char* DeclaredColorOutputName() { return "fsColorOut"; }
+    static const char* DeclaredColorOutputName() { return "sk_FragColor"; }
     static const char* DeclaredSecondaryColorOutputName() { return "fsSecondaryColorOut"; }
 
     GrSurfaceOrigin getSurfaceOrigin() const;

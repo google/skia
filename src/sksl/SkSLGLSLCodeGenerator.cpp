@@ -14,7 +14,10 @@
 #include "ir/SkSLExpressionStatement.h"
 #include "ir/SkSLExtension.h"
 #include "ir/SkSLIndexExpression.h"
+#include "ir/SkSLModifiersDeclaration.h"
 #include "ir/SkSLVariableReference.h"
+
+#define SK_FRAGCOLOR_BUILTIN 10001
 
 namespace SkSL {
 
@@ -66,7 +69,7 @@ void GLSLCodeGenerator::writeType(const Type& type) {
         this->writeLine("struct " + type.name() + " {");
         fIndentation++;
         for (const auto& f : type.fields()) {
-            this->writeModifiers(f.fModifiers);
+            this->writeModifiers(f.fModifiers, false);
             // sizes (which must be static in structs) are part of the type name here
             this->writeType(*f.fType);
             this->writeLine(" " + f.fName + ";");
@@ -124,7 +127,42 @@ void GLSLCodeGenerator::writeExpression(const Expression& expr, Precedence paren
     }
 }
 
+static bool is_abs(Expression& expr) {
+    if (expr.fKind != Expression::kFunctionCall_Kind) {
+        return false;
+    }
+    return ((FunctionCall&) expr).fFunction.fName == "abs";
+}
+
+// turns min(abs(x), y) into ((tmpVar1 = abs(x)) < (tmpVar2 = y) ? tmpVar1 : tmpVar2) to avoid a 
+// Tegra3 compiler bug.
+void GLSLCodeGenerator::writeMinAbsHack(Expression& absExpr, Expression& otherExpr) {
+    ASSERT(!fCaps.fCanUseMinAndAbsTogether);
+    std::string tmpVar1 = "minAbsHackVar" + to_string(fVarCount++);
+    std::string tmpVar2 = "minAbsHackVar" + to_string(fVarCount++);
+    this->fFunctionHeader += "    " + absExpr.fType.name() + " " + tmpVar1 + ";\n";
+    this->fFunctionHeader += "    " + otherExpr.fType.name() + " " + tmpVar2 + ";\n";
+    this->write("((" + tmpVar1 + " = ");
+    this->writeExpression(absExpr, kTopLevel_Precedence);
+    this->write(") < (" + tmpVar2 + " = ");
+    this->writeExpression(otherExpr, kAssignment_Precedence);
+    this->write(") ? " + tmpVar1 + " : " + tmpVar2 + ")");
+}
+
 void GLSLCodeGenerator::writeFunctionCall(const FunctionCall& c) {
+    if (!fCaps.fCanUseMinAndAbsTogether && c.fFunction.fName == "min") {
+        ASSERT(c.fArguments.size() == 2);
+        if (is_abs(*c.fArguments[0])) {
+            this->writeMinAbsHack(*c.fArguments[0], *c.fArguments[1]);
+            return;
+        }
+        if (is_abs(*c.fArguments[1])) {
+            // note that this violates the GLSL left-to-right evaluation semantics. I doubt it will
+            // ever end up mattering, but it's worth calling out.
+            this->writeMinAbsHack(*c.fArguments[1], *c.fArguments[0]);
+            return;
+        }
+    }
     this->write(c.fFunction.fName + "(");
     const char* separator = "";
     for (const auto& arg : c.fArguments) {
@@ -147,7 +185,15 @@ void GLSLCodeGenerator::writeConstructor(const Constructor& c) {
 }
 
 void GLSLCodeGenerator::writeVariableReference(const VariableReference& ref) {
-    this->write(ref.fVariable.fName);
+    if (ref.fVariable.fModifiers.fLayout.fBuiltin == SK_FRAGCOLOR_BUILTIN) {
+        if (fCaps.fMustDeclareFragmentShaderOutput) {
+            this->write("sk_FragColor");
+        } else {
+            this->write("gl_FragColor");
+        }
+    } else {
+        this->write(ref.fVariable.fName);
+    }
 }
 
 void GLSLCodeGenerator::writeIndexExpression(const IndexExpression& expr) {
@@ -270,7 +316,11 @@ void GLSLCodeGenerator::writeBoolLiteral(const BoolLiteral& b) {
 }
 
 void GLSLCodeGenerator::writeIntLiteral(const IntLiteral& i) {
-    this->write(to_string(i.fValue));
+    if (i.fType == *fContext.fUInt_Type) {
+        this->write(to_string(i.fValue & 0xffffffff) + "u");
+    } else {
+        this->write(to_string((int32_t) i.fValue));
+    }
 }
 
 void GLSLCodeGenerator::writeFloatLiteral(const FloatLiteral& f) {
@@ -284,28 +334,99 @@ void GLSLCodeGenerator::writeFunction(const FunctionDefinition& f) {
     for (const auto& param : f.fDeclaration.fParameters) {
         this->write(separator);
         separator = ", ";
-        this->writeModifiers(param->fModifiers);
-        this->writeType(param->fType);
+        this->writeModifiers(param->fModifiers, false);
+        std::vector<int> sizes;
+        const Type* type = &param->fType;
+        while (type->kind() == Type::kArray_Kind) {
+            sizes.push_back(type->columns());
+            type = &type->componentType();
+        }
+        this->writeType(*type);
         this->write(" " + param->fName);
+        for (int s : sizes) {
+            if (s <= 0) {
+                this->write("[]");
+            } else {
+                this->write("[" + to_string(s) + "]");
+            }
+        }
     }
-    this->write(") ");
-    this->writeBlock(*f.fBody);
-    this->writeLine();
+    this->writeLine(") {");
+
+    fFunctionHeader = "";
+    std::ostream* oldOut = fOut;
+    std::stringstream buffer;
+    fOut = &buffer;
+    fIndentation++;
+    for (const auto& s : f.fBody->fStatements) {
+        this->writeStatement(*s);
+        this->writeLine();
+    }
+    fIndentation--;
+    this->writeLine("}");
+
+    fOut = oldOut;
+    this->write(fFunctionHeader);
+    this->write(buffer.str());
 }
 
-void GLSLCodeGenerator::writeModifiers(const Modifiers& modifiers) {
-    this->write(modifiers.description());
+void GLSLCodeGenerator::writeModifiers(const Modifiers& modifiers, 
+                                       bool globalContext) {
+    if (modifiers.fFlags & Modifiers::kNoPerspective_Flag) {
+        this->write("noperspective ");
+    }
+    if (modifiers.fFlags & Modifiers::kFlat_Flag) {
+        this->write("flat ");
+    }
+    std::string layout = modifiers.fLayout.description();
+    if (layout.length()) {
+        this->write(layout + " ");
+    }
+    if ((modifiers.fFlags & Modifiers::kIn_Flag) && 
+        (modifiers.fFlags & Modifiers::kOut_Flag)) {
+        this->write("inout ");
+    } else if (modifiers.fFlags & Modifiers::kIn_Flag) {
+        if (globalContext && fCaps.fVersion < 130) {
+            this->write(fProgramKind == Program::kVertex_Kind ? "attribute "
+                                                              : "varying ");
+        } else {
+            this->write("in ");
+        }
+    } else if (modifiers.fFlags & Modifiers::kOut_Flag) {
+        if (globalContext && fCaps.fVersion < 130) {
+            this->write("varying ");
+        } else {
+            this->write("out ");
+        }
+    }
+    if (modifiers.fFlags & Modifiers::kUniform_Flag) {
+        this->write("uniform ");
+    }
+    if (modifiers.fFlags & Modifiers::kConst_Flag) {
+        this->write("const ");
+    }
+    if (fCaps.fUsesPrecisionModifiers) {
+        if (modifiers.fFlags & Modifiers::kLowp_Flag) {
+            this->write("lowp ");
+        }
+        if (modifiers.fFlags & Modifiers::kMediump_Flag) {
+            this->write("mediump ");
+        }
+        if (modifiers.fFlags & Modifiers::kHighp_Flag) {
+            this->write("highp ");
+        }
+    }
 }
 
 void GLSLCodeGenerator::writeInterfaceBlock(const InterfaceBlock& intf) {
     if (intf.fVariable.fName == "gl_PerVertex") {
         return;
     }
-    this->writeModifiers(intf.fVariable.fModifiers);
+    this->writeModifiers(intf.fVariable.fModifiers, true);
     this->writeLine(intf.fVariable.fType.name() + " {");
     fIndentation++;
     for (const auto& f : intf.fVariable.fType.fields()) {
-        this->writeModifiers(f.fModifiers);
+        this->writeModifiers(f.fModifiers, false);
         this->writeType(*f.fType);
         this->writeLine(" " + f.fName + ";");
     }
@@ -313,9 +434,9 @@ void GLSLCodeGenerator::writeInterfaceBlock(const InterfaceBlock& intf) {
     this->writeLine("};");
 }
 
-void GLSLCodeGenerator::writeVarDeclarations(const VarDeclarations& decl) {
+void GLSLCodeGenerator::writeVarDeclarations(const VarDeclarations& decl, bool global) {
     ASSERT(decl.fVars.size() > 0);
-    this->writeModifiers(decl.fVars[0].fVar->fModifiers);
+    this->writeModifiers(decl.fVars[0].fVar->fModifiers, global);
     this->writeType(decl.fBaseType);
     std::string separator = " ";
     for (const auto& var : decl.fVars) {
@@ -325,7 +446,9 @@ void GLSLCodeGenerator::writeVarDeclarations(const VarDeclarations& decl) {
         this->write(var.fVar->fName);
         for (const auto& size : var.fSizes) {
             this->write("[");
-            this->writeExpression(*size, kTopLevel_Precedence);
+            if (size) {
+                this->writeExpression(*size, kTopLevel_Precedence);
+            }
             this->write("]");
         }
         if (var.fValue) {
@@ -349,7 +472,7 @@ void GLSLCodeGenerator::writeStatement(const Statement& s) {
             this->writeReturnStatement((ReturnStatement&) s);
             break;
         case Statement::kVarDeclarations_Kind:
-            this->writeVarDeclarations(*((VarDeclarationsStatement&) s).fDeclaration);
+            this->writeVarDeclarations(*((VarDeclarationsStatement&) s).fDeclaration, false);
             break;
         case Statement::kIf_Kind:
             this->writeIfStatement((IfStatement&) s);
@@ -444,22 +567,57 @@ void GLSLCodeGenerator::writeReturnStatement(const ReturnStatement& r) {
 void GLSLCodeGenerator::generateCode(const Program& program, std::ostream& out) {
     ASSERT(fOut == nullptr);
     fOut = &out;
+    fProgramKind = program.fKind;
     this->write("#version " + to_string(fCaps.fVersion));
-    if (fCaps.fStandard == GLCaps::kGLES_Standard) {
+    if (fCaps.fStandard == GLCaps::kGLES_Standard && fCaps.fVersion >= 300) {
         this->write(" es");
+    } else if (fCaps.fIsCoreProfile) {
+        this->write(" core");
     }
     this->writeLine();
     for (const auto& e : program.fElements) {
+        if (e->fKind == ProgramElement::kExtension_Kind) {
+            this->writeExtension((Extension&) *e);
+        }
+    }
+    if (fCaps.fStandard == GLCaps::kGLES_Standard) {
+        this->write("precision ");
+        switch (program.fDefaultPrecision) {
+            case Modifiers::kLowp_Flag:
+                this->write("lowp");
+                break;
+            case Modifiers::kMediump_Flag:
+                this->write("mediump");
+                break;
+            case Modifiers::kHighp_Flag:
+                this->write("highp");
+                break;
+            default:
+                ASSERT(false);
+                this->write("<error>");
+        }
+        this->writeLine(" float;");
+    }
+    for (const auto& e : program.fElements) {
         switch (e->fKind) {
             case ProgramElement::kExtension_Kind:
-                this->writeExtension((Extension&) *e);
                 break;
             case ProgramElement::kVar_Kind: {
                 VarDeclarations& decl = (VarDeclarations&) *e;
-                if (decl.fVars.size() > 0 && 
-                    decl.fVars[0].fVar->fModifiers.fLayout.fBuiltin == -1) {
-                    this->writeVarDeclarations(decl);
-                    this->writeLine();
+                if (decl.fVars.size() > 0) {
+                    int builtin = decl.fVars[0].fVar->fModifiers.fLayout.fBuiltin;
+                    if (builtin == -1) {
+                        // normal var
+                        this->writeVarDeclarations(decl, true);
+                        this->writeLine();
+                    } else if (builtin == SK_FRAGCOLOR_BUILTIN &&
+                               fCaps.fMustDeclareFragmentShaderOutput) {
+                        this->write("out ");
+                        if (fCaps.fUsesPrecisionModifiers) {
+                            this->write("mediump ");
+                        }
+                        this->writeLine("vec4 sk_FragColor;");
+                    }
                 }
                 break;
             }
@@ -468,6 +626,10 @@ void GLSLCodeGenerator::generateCode(const Program& program, std::ostream& out) 
                 break;
             case ProgramElement::kFunction_Kind:
                 this->writeFunction((FunctionDefinition&) *e);
+                break;
+            case ProgramElement::kModifiers_Kind:
+                this->writeModifiers(((ModifiersDeclaration&) *e).fModifiers, true);
+                this->writeLine(";");
                 break;
             default:
                 printf("%s\n", e->description().c_str());
