@@ -14,6 +14,7 @@
 #include "SkPictureRecorder.h"
 #include "SkScalar.h"
 #include "SkStream.h"
+#include "SkSurface.h"
 #include "SkTDArray.h"
 #include "SkTouchGesture.h"
 #include "SkWindow.h"
