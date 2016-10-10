@@ -102,7 +102,7 @@ RETRY_RECORD_WPR_COUNT = 5
 RETRY_RUN_MEASUREMENT_COUNT = 5
 
 # Location of the credentials.json file in Google Storage.
-CREDENTIALS_GS_PATH = '/playback/credentials/credentials.json'
+CREDENTIALS_GS_PATH = 'playback/credentials/credentials.json'
 
 X11_DISPLAY = os.getenv('DISPLAY', ':0')
 
@@ -480,7 +480,7 @@ class GoogleStorageDataStore(DataStore):
           'gsutil', 'ls', '/'.join((self._url, name))])
     except subprocess.CalledProcessError:
       return False
-    if len(output.splitlines) != 1:
+    if len(output.splitlines()) != 1:
       return False
     return True
 
