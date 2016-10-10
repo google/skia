@@ -517,6 +517,7 @@ public:
             SkPngChunkReader* reader, png_structp png_ptr, png_infop info_ptr, int bitDepth)
         : INHERITED(info, imageInfo, stream, reader, png_ptr, info_ptr, bitDepth)
         , fLinesDecoded(0)
+        , fRowsWrittenToOutput(0)
         , fDst(nullptr)
         , fRowBytes(0)
         , fFirstRow(0)
@@ -538,7 +539,13 @@ public:
 #endif
 
 private:
-    int                         fLinesDecoded; // FIXME: Move to baseclass?
+    // This represents the number of lines reported by libpng, minus any we skipped at the
+    // beginning. Only used when we are skipping lines (i.e. not in decodeAllRows).
+    int                         fLinesDecoded;
+    // While fLinesDecoded include lines that we skipped, this only includes lines written to the
+    // output so we can report it to the caller for filling.
+    // FIXME: Can we remove fLinesDecoded and just rely on fRowsWrittenToOutput?
+    int                         fRowsWrittenToOutput;
     void*                       fDst;
     size_t                      fRowBytes;
 
@@ -562,26 +569,26 @@ private:
         fDst = dst;
         fRowBytes = rowBytes;
 
-        fLinesDecoded = 0;
+        fRowsWrittenToOutput = 0;
         fFirstRow = 0;
         fLastRow = height - 1;
 
         this->processData();
 
-        if (fLinesDecoded == height) {
+        if (fRowsWrittenToOutput == height) {
             return SkCodec::kSuccess;
         }
 
         if (rowsDecoded) {
-            *rowsDecoded = fLinesDecoded;
+            *rowsDecoded = fRowsWrittenToOutput;
         }
 
         return SkCodec::kIncompleteInput;
     }
 
     void allRowsCallback(png_bytep row, int rowNum) {
-        SkASSERT(rowNum == fLinesDecoded);
-        fLinesDecoded++;
+        SkASSERT(rowNum == fRowsWrittenToOutput);
+        fRowsWrittenToOutput++;
         this->applyXformRow(fDst, row);
         fDst = SkTAddOffset<void>(fDst, fRowBytes);
     }
@@ -597,6 +604,7 @@ private:
         fDst = dst;
         fRowBytes = rowBytes;
         fLinesDecoded = 0;
+        fRowsWrittenToOutput = 0;
     }
 
     SkCodec::Result decode(int* rowsDecoded) override {
@@ -607,7 +615,7 @@ private:
         }
 
         if (rowsDecoded) {
-            *rowsDecoded = fLinesDecoded;
+            *rowsDecoded = fRowsWrittenToOutput;
         }
 
         return SkCodec::kIncompleteInput;
@@ -625,6 +633,7 @@ private:
         if (!this->swizzler() || this->swizzler()->rowNeeded(fLinesDecoded)) {
             this->applyXformRow(fDst, row);
             fDst = SkTAddOffset<void>(fDst, fRowBytes);
+            fRowsWrittenToOutput++;
         }
 
         fLinesDecoded++;
@@ -774,6 +783,8 @@ private:
         const int lastRow = fLinesDecoded + fFirstRow - 1;
         SkASSERT(lastRow <= fLastRow);
 
+        int rowsWrittenToOutput = 0;
+
         // FIXME: For resuming interlace, we may swizzle a row that hasn't changed. But it
         // may be too tricky/expensive to handle that correctly.
         png_bytep srcRow = fInterlaceBuffer.get();
@@ -783,6 +794,7 @@ private:
             this->applyXformRow(dst, srcRow);
             dst = SkTAddOffset<void>(dst, fRowBytes);
             srcRow = SkTAddOffset<png_byte>(srcRow, fPng_rowbytes * sampleY);
+            rowsWrittenToOutput++;
         }
 
         if (fInterlacedComplete) {
@@ -790,7 +802,7 @@ private:
         }
 
         if (rowsDecoded) {
-            *rowsDecoded = fLinesDecoded;
+            *rowsDecoded = rowsWrittenToOutput;
         }
         return SkCodec::kIncompleteInput;
     }

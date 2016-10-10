@@ -258,10 +258,9 @@ SkCodec::Result SkSampledCodec::sampledDecode(const SkImageInfo& info, void* pix
             }
             SkASSERT(incResult == SkCodec::kIncompleteInput);
 
-            // Count the rows that we decoded, and also did not skip.
-            const int trueRowsDecoded = (rowsDecoded + sampleY - 1) / sampleY;
+            SkASSERT(rowsDecoded <= info.height());
             this->codec()->fillIncompleteImage(info, pixels, rowBytes, options.fZeroInitialized,
-                                               info.height(), trueRowsDecoded);
+                                               info.height(), rowsDecoded);
             return SkCodec::kIncompleteInput;
         } else if (startResult != SkCodec::kUnimplemented) {
             return startResult;
