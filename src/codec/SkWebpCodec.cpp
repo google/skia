@@ -315,8 +315,9 @@ SkCodec::Result SkWebpCodec::onGetPixels(const SkImageInfo& dstInfo, void* dst, 
         uint32_t* src = (uint32_t*) config.output.u.RGBA.rgba;
         size_t srcRowBytes = config.output.u.RGBA.stride;
         for (int y = 0; y < rowsDecoded; y++) {
-            colorXform->apply(dst, src, dstInfo.width(), dstColorFormat,
-                              SkColorSpaceXform::kBGRA_8888_ColorFormat, xformAlphaType);
+            SkAssertResult(colorXform->apply(dstColorFormat, dst,
+                                             SkColorSpaceXform::kBGRA_8888_ColorFormat, src,
+                                             dstInfo.width(), xformAlphaType));
             dst = SkTAddOffset<void>(dst, rowBytes);
             src = SkTAddOffset<uint32_t>(src, srcRowBytes);
         }

@@ -8,7 +8,7 @@
 #include "SkColorPriv.h"
 #include "SkColorSpace_Base.h"
 #include "SkColorSpacePriv.h"
-#include "SkColorSpaceXform.h"
+#include "SkColorSpaceXform_Base.h"
 #include "SkHalf.h"
 #include "SkOpts.h"
 #include "SkSRGB.h"
@@ -584,8 +584,9 @@ static void interp_3d_clut(float dst[3], float src[3], const SkColorLookUpTable*
     }
 }
 
-static void handle_color_lut(uint32_t* dst, const uint32_t* src, int len,
+static void handle_color_lut(uint32_t* dst, const void* vsrc, int len,
                              SkColorLookUpTable* colorLUT) {
+    const uint32_t* src = (const uint32_t*) vsrc;
     while (len-- > 0) {
         uint8_t r = (*src >>  0) & 0xFF,
                 g = (*src >>  8) & 0xFF,
@@ -1012,10 +1013,11 @@ typedef decltype(store_generic_1<kRGBA_Order>       )* Store1Fn;
 
 template <SkAlphaType kAlphaType,
           ColorSpaceMatch kCSM>
-static inline void do_color_xform(void* dst, const uint32_t* src, int len,
+static inline void do_color_xform(void* dst, const void* vsrc, int len,
                                   const float* const srcTables[3], const float matrix[16],
                                   const uint8_t* const dstTables[3], LoadFn load, Load1Fn load_1,
                                   StoreFn store, Store1Fn store_1, size_t sizeOfDstPixel) {
+    const uint32_t* src = (const uint32_t*) vsrc;
     Sk4f rXgXbX, rYgYbY, rZgZbZ, rTgTbT;
     load_matrix(matrix, rXgXbX, rYgYbY, rZgZbZ, rTgTbT);
 
@@ -1117,7 +1119,7 @@ template <SrcFormat kSrc,
           DstFormat kDst,
           SkAlphaType kAlphaType,
           ColorSpaceMatch kCSM>
-static void color_xform_RGBA(void* dst, const uint32_t* src, int len,
+static void color_xform_RGBA(void* dst, const void* src, int len,
                              const float* const srcTables[3], const float matrix[16],
                              const uint8_t* const dstTables[3]) {
     LoadFn load;
@@ -1276,27 +1278,29 @@ SkColorSpaceXform_Base<kSrc, kDst, kCSM>
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
 template <SrcFormat kSrc, DstFormat kDst, ColorSpaceMatch kCSM>
-static inline void apply_set_alpha(void* dst, const uint32_t* src, int len, SkAlphaType alphaType,
+static inline bool apply_set_alpha(void* dst, const void* src, int len, SkAlphaType alphaType,
                                    const float* const srcTables[3], const float matrix[16],
                                    const uint8_t* const dstTables[3]) {
     switch (alphaType) {
         case kOpaque_SkAlphaType:
-            return color_xform_RGBA<kSrc, kDst, kOpaque_SkAlphaType, kCSM>
+            color_xform_RGBA<kSrc, kDst, kOpaque_SkAlphaType, kCSM>
                     (dst, src, len, srcTables, matrix, dstTables);
+            return true;
         case kPremul_SkAlphaType:
-            return color_xform_RGBA<kSrc, kDst, kPremul_SkAlphaType, kCSM>
+            color_xform_RGBA<kSrc, kDst, kPremul_SkAlphaType, kCSM>
                     (dst, src, len, srcTables, matrix, dstTables);
+            return true;
         case kUnpremul_SkAlphaType:
-            return color_xform_RGBA<kSrc, kDst, kUnpremul_SkAlphaType, kCSM>
+            color_xform_RGBA<kSrc, kDst, kUnpremul_SkAlphaType, kCSM>
                     (dst, src, len, srcTables, matrix, dstTables);
+            return true;
         default:
-            SkASSERT(false);
-            return;
+            return false;
     }
 }
 
 template <SrcGamma kSrc, DstFormat kDst, ColorSpaceMatch kCSM>
-static inline void apply_set_src(void* dst, const uint32_t* src, int len, SkAlphaType alphaType,
+static inline bool apply_set_src(void* dst, const void* src, int len, SkAlphaType alphaType,
                                  const float* const srcTables[3], const float matrix[16],
                                  const uint8_t* const dstTables[3],
                                  SkColorSpaceXform::ColorFormat srcColorFormat) {
@@ -1320,15 +1324,14 @@ static inline void apply_set_src(void* dst, const uint32_t* src, int len, SkAlph
                             (dst, src, len, alphaType, srcTables, matrix, dstTables);
             }
         default:
-            SkASSERT(false);
+            return false;
     }
 }
 
 template <SrcGamma kSrc, DstGamma kDst, ColorSpaceMatch kCSM>
-void SkColorSpaceXform_Base<kSrc, kDst, kCSM>
-::apply(void* dst, const uint32_t* src, int len, ColorFormat dstColorFormat,
-        ColorFormat srcColorFormat, SkAlphaType alphaType)
-const
+bool SkColorSpaceXform_Base<kSrc, kDst, kCSM>
+::onApply(ColorFormat dstColorFormat, void* dst, ColorFormat srcColorFormat, const void* src,
+          int len, SkAlphaType alphaType) const
 {
     if (kFull_ColorSpaceMatch == kCSM) {
         switch (alphaType) {
@@ -1339,16 +1342,17 @@ const
             default:
                 switch (dstColorFormat) {
                     case kRGBA_8888_ColorFormat:
-                        return (void) memcpy(dst, src, len * sizeof(uint32_t));
+                        memcpy(dst, src, len * sizeof(uint32_t));
+                        return true;
                     case kBGRA_8888_ColorFormat:
-                        return SkOpts::RGBA_to_BGRA((uint32_t*) dst, src, len);
+                        SkOpts::RGBA_to_BGRA((uint32_t*) dst, src, len);
+                        return true;
                     case kRGBA_F16_ColorFormat:
                     case kRGBA_F32_ColorFormat:
                         // There's still work to do to xform to linear floats.
                         break;
                     default:
-                        SkASSERT(false);
-                        return;
+                        return false;
                 }
         }
     }
@@ -1412,8 +1416,7 @@ const
                             (dst, src, len, alphaType, fSrcGammaTables, fSrcToDst, nullptr,
                              srcColorFormat);
                 default:
-                    SkASSERT(false);
-                    return;
+                    return false;
             }
         case kRGBA_F32_ColorFormat:
             switch (kDst) {
@@ -1422,12 +1425,10 @@ const
                             (dst, src, len, alphaType, fSrcGammaTables, fSrcToDst, nullptr,
                              srcColorFormat);
                 default:
-                    SkASSERT(false);
-                    return;
+                    return false;
             }
         default:
-            SkASSERT(false);
-            return;
+            return false;
     }
 }
 

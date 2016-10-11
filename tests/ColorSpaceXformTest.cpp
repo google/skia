@@ -11,7 +11,7 @@
 #include "SkColorPriv.h"
 #include "SkColorSpace.h"
 #include "SkColorSpace_Base.h"
-#include "SkColorSpaceXform.h"
+#include "SkColorSpaceXform_Base.h"
 #include "Test.h"
 
 class ColorSpaceXformTest {
@@ -40,8 +40,10 @@ static void test_identity_xform(skiatest::Reporter* r, const sk_sp<SkGammas>& ga
 
     // Create and perform an identity xform.
     std::unique_ptr<SkColorSpaceXform> xform = ColorSpaceXformTest::CreateIdentityXform(gammas);
-    xform->apply(dstPixels, srcPixels, width, select_xform_format(kN32_SkColorType),
-                 SkColorSpaceXform::kBGRA_8888_ColorFormat, kOpaque_SkAlphaType);
+    bool result = xform->apply(select_xform_format(kN32_SkColorType), dstPixels,
+                               SkColorSpaceXform::kBGRA_8888_ColorFormat, srcPixels, width,
+                               kOpaque_SkAlphaType);
+    REPORTER_ASSERT(r, result);
 
     // Since the src->dst matrix is the identity, and the gamma curves match,
     // the pixels should be unchanged.
@@ -182,6 +184,8 @@ DEF_TEST(ColorSpaceXform_applyCLUTMemoryAccess, r) {
     sk_sp<SkColorSpace> srcSpace = SkColorSpace::NewICC(iccData->bytes(), iccData->size());
     sk_sp<SkColorSpace> dstSpace = SkColorSpace::NewNamed(SkColorSpace::kSRGB_Named);
     auto xform = SkColorSpaceXform::New(srcSpace.get(), dstSpace.get());
-    xform->apply(dst.get(), src.get(), len, SkColorSpaceXform::kRGBA_8888_ColorFormat,
-                 SkColorSpaceXform::kRGBA_8888_ColorFormat, kUnpremul_SkAlphaType);
+    bool result = xform->apply(SkColorSpaceXform::kRGBA_8888_ColorFormat, dst.get(),
+                               SkColorSpaceXform::kRGBA_8888_ColorFormat, src.get(), len,
+                               kUnpremul_SkAlphaType);
+    REPORTER_ASSERT(r, result);
 }
