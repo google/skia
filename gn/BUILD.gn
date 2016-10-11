@@ -174,7 +174,8 @@ config("default") {
     ]
     cflags_cc += [
       "-isystem$ndk/sources/android/support/include",
-      "-isystem$ndk/sources/cxx-stl/llvm-libc++/libcxx/include",
+      "-isystem$ndk/sources/cxx-stl/llvm-libc++/libcxx/include",  # Through r12b.
+      "-isystem$ndk/sources/cxx-stl/llvm-libc++/include",  # Since r13.
     ]
     ldflags += [
       "--sysroot=$ndk/platforms/$ndk_platform",
