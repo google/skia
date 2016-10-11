@@ -174,10 +174,11 @@ private:
 
             if (args.fDistanceVectorName) {
                 const char* innerEdgeDistance = cgp.fStroke ? "distanceToInnerEdge" : "0.0";
-                fragBuilder->codeAppend ("if (d == 0.0) {"); // if on the center of the circle
-                fragBuilder->codeAppendf("    %s = vec4(1.0, 0.0, distanceToOuterEdge, "
-                                         "%s);", // no normalize
+                fragBuilder->codeAppend ("if (circleEdge.z * d <= 0.0) {"); // if on the center of the circle
+                fragBuilder->codeAppend("     distanceToOuterEdge = abs(circleEdge.z) * (d + 1.0);");
+                fragBuilder->codeAppendf("    %s = vec4(1.0, 0.0, distanceToOuterEdge, %s);",
                                          args.fDistanceVectorName, innerEdgeDistance);
+                fragBuilder->codeAppend("     edgeAlpha = 1.0;");
                 fragBuilder->codeAppend ("} else {");
                 fragBuilder->codeAppendf("    %s = vec4(normalize(circleEdge.xy), distanceToOuterEdge, %s);",
                                          args.fDistanceVectorName, innerEdgeDistance);
@@ -1786,14 +1787,15 @@ private:
     };
 
     static void FillInOverstrokeVerts(CircleVertex** verts, const SkRect& bounds,
-                                      SkScalar smInset, SkScalar bigInset, SkScalar xOffset,
+                                      SkScalar smInset, SkScalar bigInset,
+                                      const SkPoint offsets[2],
                                       SkScalar outerRadius, SkScalar innerRadius, GrColor color) {
         SkASSERT(smInset < bigInset);
 
         // TL
         (*verts)->fPos = SkPoint::Make(bounds.fLeft + smInset, bounds.fTop + smInset);
         (*verts)->fColor = color;
-        (*verts)->fOffset = SkPoint::Make(xOffset, 0);
+        (*verts)->fOffset = offsets[0];
         (*verts)->fOuterRadius = outerRadius;
         (*verts)->fInnerRadius = innerRadius;
         (*verts)++;
@@ -1801,35 +1803,35 @@ private:
         // TR
         (*verts)->fPos = SkPoint::Make(bounds.fRight - smInset,  bounds.fTop + smInset);
         (*verts)->fColor = color;
-        (*verts)->fOffset = SkPoint::Make(xOffset, 0);
+        (*verts)->fOffset = offsets[0];
         (*verts)->fOuterRadius = outerRadius;
         (*verts)->fInnerRadius = innerRadius;
         (*verts)++;
 
         (*verts)->fPos = SkPoint::Make(bounds.fLeft + bigInset,  bounds.fTop + bigInset);
         (*verts)->fColor = color;
-        (*verts)->fOffset = SkPoint::Make(0, 0);
+        (*verts)->fOffset = offsets[1];
         (*verts)->fOuterRadius = outerRadius;
         (*verts)->fInnerRadius = innerRadius;
         (*verts)++;
 
         (*verts)->fPos = SkPoint::Make(bounds.fRight - bigInset,  bounds.fTop + bigInset);
         (*verts)->fColor = color;
-        (*verts)->fOffset = SkPoint::Make(0, 0);
+        (*verts)->fOffset = offsets[1];
         (*verts)->fOuterRadius = outerRadius;
         (*verts)->fInnerRadius = innerRadius;
         (*verts)++;
 
         (*verts)->fPos = SkPoint::Make(bounds.fLeft + bigInset, bounds.fBottom - bigInset);
         (*verts)->fColor = color;
-        (*verts)->fOffset = SkPoint::Make(0, 0);
+        (*verts)->fOffset = offsets[1];
         (*verts)->fOuterRadius = outerRadius;
         (*verts)->fInnerRadius = innerRadius;
         (*verts)++;
 
         (*verts)->fPos = SkPoint::Make(bounds.fRight - bigInset, bounds.fBottom - bigInset);
         (*verts)->fColor = color;
-        (*verts)->fOffset = SkPoint::Make(0, 0);
+        (*verts)->fOffset = offsets[1];
         (*verts)->fOuterRadius = outerRadius;
         (*verts)->fInnerRadius = innerRadius;
         (*verts)++;
@@ -1837,7 +1839,7 @@ private:
         // BL
         (*verts)->fPos = SkPoint::Make(bounds.fLeft + smInset, bounds.fBottom - smInset);
         (*verts)->fColor = color;
-        (*verts)->fOffset = SkPoint::Make(xOffset, 0);
+        (*verts)->fOffset = offsets[0];
         (*verts)->fOuterRadius = outerRadius;
         (*verts)->fInnerRadius = innerRadius;
         (*verts)++;
@@ -1845,7 +1847,7 @@ private:
         // BR
         (*verts)->fPos = SkPoint::Make(bounds.fRight - smInset, bounds.fBottom - smInset);
         (*verts)->fColor = color;
-        (*verts)->fOffset = SkPoint::Make(xOffset, 0);
+        (*verts)->fOffset = offsets[0];
         (*verts)->fOuterRadius = outerRadius;
         (*verts)->fInnerRadius = innerRadius;
         (*verts)++;
@@ -1953,17 +1955,28 @@ private:
                 // geometry to the outer edge
                 SkScalar maxOffset = -args.fInnerRadius / overstrokeOuterRadius;
 
+                // corner, middle
+                SkPoint offsets[2] = { { maxOffset, 0.0f }, { 0.0f, 0.0f } };
+
                 FillInOverstrokeVerts(&verts, bounds, outerRadius, overstrokeOuterRadius,
-                                      maxOffset, overstrokeOuterRadius, 0.0f, color);
+                                      offsets,
+                                      overstrokeOuterRadius, 0.0f, // circleEdge.zw for all the points
+                                      color);
             }
 
             if (kFillWithDist_RRectType == args.fType) {
                 SkScalar halfMinDim = 0.5f * SkTMin(bounds.width(), bounds.height());
 
-                SkScalar xOffset = 1.0f - outerRadius / halfMinDim;
+//                SkScalar xOffset = outerRadius / halfMinDim;
+
+                // circleEdge.xy: corners, middle points
+                SkPoint offsets[2] = { { 0.0f, 0.0f },
+                                       { (halfMinDim-outerRadius)/outerRadius, (halfMinDim-outerRadius)/outerRadius } };
 
                 FillInOverstrokeVerts(&verts, bounds, outerRadius, halfMinDim,
-                                      xOffset, halfMinDim, -1.0f, color);
+                                      offsets,
+                                      -outerRadius, -1.0f, // circleEdge.zw for all the points
+                                      color);
             }
 
             const uint16_t* primIndices = rrect_type_to_indices(args.fType);
