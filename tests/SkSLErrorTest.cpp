@@ -263,8 +263,8 @@ DEF_TEST(SkSLBadIndex, r) {
                  "void main() { int x = 2[0]; }",
                  "error: 1: expected array, but found 'int'\n1 error\n");
     test_failure(r,
-                 "void main() { vec2 x = vec2(0); int y = x[0]; }",
-                 "error: 1: expected array, but found 'vec2'\n1 error\n");
+                 "void main() { vec2 x = vec2(0); int y = x[0][0]; }",
+                 "error: 1: expected array, but found 'float'\n1 error\n");
 }
 
 DEF_TEST(SkSLTernaryMismatch, r) {
