@@ -565,8 +565,7 @@ static inline void blit_two_alphas(AdditiveBlitter* blitter, int y, int x,
         addAlpha(maskRow[x + 1], a2);
     } else {
         if (fullAlpha == 0xFF) {
-            blitter->getRealBlitter()->blitV(x, y, 1, a1);
-            blitter->getRealBlitter()->blitV(x + 1, y, 1, a2);
+            blitter->getRealBlitter()->blitAntiH2(x, y, a1, a2);
         } else {
             blitter->blitAntiH(x, y, a1);
             blitter->blitAntiH(x + 1, y, a2);

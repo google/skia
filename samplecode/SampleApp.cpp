@@ -1804,6 +1804,7 @@ bool SampleWindow::onHandleChar(SkUnichar uni) {
         case 'A':
             gSkUseAnalyticAA = !gSkUseAnalyticAA.load();
             this->inval(nullptr);
+            this->updateTitle();
             break;
         case 'B':
             post_event_to_sink(new SkEvent("PictFileView::toggleBBox"), curr_view(this));
@@ -2154,6 +2155,9 @@ void SampleWindow::updateTitle() {
 
     title.prepend(gDeviceTypePrefix[fDeviceType]);
 
+    if (gSkUseAnalyticAA) {
+        title.prepend("<AAA> ");
+    }
     if (fTilingMode != kNo_Tiling) {
         title.prependf("<T: %s> ", gTilingInfo[fTilingMode].label);
     }
