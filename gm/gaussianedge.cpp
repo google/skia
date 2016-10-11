@@ -9,7 +9,7 @@
 #include "SkRRect.h"
 #include "SkGaussianEdgeShader.h"
 
-//#define VIZ 1
+#define VIZ 1
 
 #ifdef VIZ
 #include "SkStroke.h"
@@ -192,7 +192,7 @@ protected:
             return;
         }
 
-        const int blurRadii[kNumRows] = { kRRRad/2, kRRRad, 2*kRRRad };
+        const int blurRadii[kNumRows] = { kRRRad/2, kRRRad, 5*kRRRad/3 };
 
         canvas->translate(SkIntToScalar(kPad), SkIntToScalar(kPad));
         for (int i = 0; i < kNumRows; ++i) {
