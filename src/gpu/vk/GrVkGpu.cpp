@@ -80,6 +80,10 @@ GrGpu* GrVkGpu::Create(GrBackendContext backendContext, const GrContextOptions& 
         vkBackendContext->ref();
     }
 
+    if (!vkBackendContext->fInterface->validate(vkBackendContext->fExtensions)) {
+        return nullptr;
+    }
+
     return new GrVkGpu(context, options, vkBackendContext);
 }
 
