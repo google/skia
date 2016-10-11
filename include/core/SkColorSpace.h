@@ -13,6 +13,22 @@
 
 class SkData;
 
+/**
+ *  Describes a color gamut with primaries and a white point.
+ */
+struct SK_API SkColorSpacePrimaries {
+    float fRX, fRY;
+    float fGX, fGY;
+    float fBX, fBY;
+    float fWX, fWY;
+
+    /**
+     *  Convert primaries and a white point to a toXYZD50 matrix, the preferred color gamut
+     *  representation of SkColorSpace.
+     */
+    bool toXYZD50(SkMatrix44* toXYZD50) const;
+};
+
 class SK_API SkColorSpace : public SkRefCnt {
 public:
 
@@ -50,7 +66,10 @@ public:
     };
 
     /**
-     *  Create an SkColorSpace from a transfer function and a color gamut transform to D50 XYZ.
+     *  Create an SkColorSpace from a transfer function and a color gamut.
+     *
+     *  Transfer function is specified as linear or sRGB.
+     *  Gamut is specified using the matrix transformation to XYZ D50.
      */
     static sk_sp<SkColorSpace> NewRGB(RenderTargetGamma gamma, const SkMatrix44& toXYZD50);
 

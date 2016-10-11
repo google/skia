@@ -9,6 +9,82 @@
 #include "SkColorSpace_Base.h"
 #include "SkColorSpacePriv.h"
 #include "SkOnce.h"
+#include "SkPoint3.h"
+
+static inline bool is_zero_to_one(float v) {
+    return (0.0f <= v) && (v <= 1.0f);
+}
+
+bool SkColorSpacePrimaries::toXYZD50(SkMatrix44* toXYZ_D50) const {
+    if (!is_zero_to_one(fRX) || !is_zero_to_one(fRY) ||
+        !is_zero_to_one(fGX) || !is_zero_to_one(fGY) ||
+        !is_zero_to_one(fBX) || !is_zero_to_one(fBY) ||
+        !is_zero_to_one(fWX) || !is_zero_to_one(fWY))
+    {
+        return false;
+    }
+
+    // First, we need to convert xy values (primaries) to XYZ.
+    SkMatrix primaries;
+    primaries.setAll(             fRX,              fGX,              fBX,
+                                  fRY,              fGY,              fBY,
+                     1.0f - fRX - fRY, 1.0f - fGX - fGY, 1.0f - fBX - fBY);
+    SkMatrix primariesInv;
+    if (!primaries.invert(&primariesInv)) {
+        return false;
+    }
+
+    // Assumes that Y is 1.0f.
+    SkVector3 wXYZ = SkVector3::Make(fWX / fWY, 1.0f, (1.0f - fWX - fWY) / fWY);
+    SkVector3 XYZ;
+    XYZ.fX = primariesInv[0] * wXYZ.fX + primariesInv[1] * wXYZ.fY + primariesInv[2] * wXYZ.fZ;
+    XYZ.fY = primariesInv[3] * wXYZ.fX + primariesInv[4] * wXYZ.fY + primariesInv[5] * wXYZ.fZ;
+    XYZ.fZ = primariesInv[6] * wXYZ.fX + primariesInv[7] * wXYZ.fY + primariesInv[8] * wXYZ.fZ;
+    SkMatrix toXYZ;
+    toXYZ.setAll(XYZ.fX,   0.0f,   0.0f,
+                   0.0f, XYZ.fY,   0.0f,
+                   0.0f,   0.0f, XYZ.fZ);
+    toXYZ.postConcat(primaries);
+
+    // Now convert toXYZ matrix to toXYZD50.
+    SkVector3 wXYZD50 = SkVector3::Make(0.96422f, 1.0f, 0.82521f);
+
+    // Calculate the chromatic adaptation matrix.  We will use the Bradford method, thus
+    // the matrices below.  The Bradford method is used by Adobe and is widely considered
+    // to be the best.
+    SkMatrix mA, mAInv;
+    mA.setAll(+0.8951f, +0.2664f, -0.1614f,
+              -0.7502f, +1.7135f, +0.0367f,
+              +0.0389f, -0.0685f, +1.0296f);
+    mAInv.setAll(+0.9869929f, -0.1470543f, +0.1599627f,
+                 +0.4323053f, +0.5183603f, +0.0492912f,
+                 -0.0085287f, +0.0400428f, +0.9684867f);
+
+    SkVector3 srcCone;
+    srcCone.fX = mA[0] * wXYZ.fX + mA[1] * wXYZ.fY + mA[2] * wXYZ.fZ;
+    srcCone.fY = mA[3] * wXYZ.fX + mA[4] * wXYZ.fY + mA[5] * wXYZ.fZ;
+    srcCone.fZ = mA[6] * wXYZ.fX + mA[7] * wXYZ.fY + mA[8] * wXYZ.fZ;
+    SkVector3 dstCone;
+    dstCone.fX = mA[0] * wXYZD50.fX + mA[1] * wXYZD50.fY + mA[2] * wXYZD50.fZ;
+    dstCone.fY = mA[3] * wXYZD50.fX + mA[4] * wXYZD50.fY + mA[5] * wXYZD50.fZ;
+    dstCone.fZ = mA[6] * wXYZD50.fX + mA[7] * wXYZD50.fY + mA[8] * wXYZD50.fZ;
+
+    SkMatrix DXToD50;
+    DXToD50.setIdentity();
+    DXToD50[0] = dstCone.fX / srcCone.fX;
+    DXToD50[4] = dstCone.fY / srcCone.fY;
+    DXToD50[8] = dstCone.fZ / srcCone.fZ;
+    DXToD50.postConcat(mAInv);
+    DXToD50.preConcat(mA);
+
+    toXYZ.postConcat(DXToD50);
+    toXYZ_D50->set3x3(toXYZ[0], toXYZ[3], toXYZ[6],
+                      toXYZ[1], toXYZ[4], toXYZ[7],
+                      toXYZ[2], toXYZ[5], toXYZ[8]);
+    return true;
+}
+
+///////////////////////////////////////////////////////////////////////////////////////////////////
 
 SkColorSpace_Base::SkColorSpace_Base(SkGammaNamed gammaNamed, const SkMatrix44& toXYZD50)
     : fGammaNamed(gammaNamed)

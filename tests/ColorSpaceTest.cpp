@@ -271,3 +271,23 @@ DEF_TEST(ColorSpace_Equals, r) {
     REPORTER_ASSERT(r, !SkColorSpace::Equals(upperRight.get(), adobe.get()));
     REPORTER_ASSERT(r, !SkColorSpace::Equals(rgb1.get(), rgb2.get()));
 }
+
+DEF_TEST(ColorSpace_Primaries, r) {
+    // sRGB primaries
+    SkColorSpacePrimaries primaries;
+    primaries.fRX = 0.64f;
+    primaries.fRY = 0.33f;
+    primaries.fGX = 0.30f;
+    primaries.fGY = 0.60f;
+    primaries.fBX = 0.15f;
+    primaries.fBY = 0.06f;
+    primaries.fWX = 0.3127f;
+    primaries.fWY = 0.3290f;
+
+    SkMatrix44 toXYZ(SkMatrix44::kUninitialized_Constructor);
+    bool result = primaries.toXYZD50(&toXYZ);
+    REPORTER_ASSERT(r, result);
+
+    sk_sp<SkColorSpace> space = SkColorSpace::NewRGB(SkColorSpace::kSRGB_RenderTargetGamma, toXYZ);
+    REPORTER_ASSERT(r, SkColorSpace::NewNamed(SkColorSpace::kSRGB_Named) == space);
+}
