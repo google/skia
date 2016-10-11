@@ -11,7 +11,9 @@ import("../third_party.gni")
 third_party("icu") {
   public_include_dirs = [ "../externals/icu/source/common" ]
   configs -= [ "//gn:no_rtti" ]
-  libs = [ "dl" ]
+  if (!is_win) {
+    libs = [ "dl" ]
+  }
   defines = [
     # http://userguide.icu-project.org/howtouseicu
     "U_COMMON_IMPLEMENTATION",

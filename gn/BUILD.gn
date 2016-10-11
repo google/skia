@@ -55,9 +55,14 @@ config("default") {
     ]
     include_dirs = [
       "$windk/../Windows Kits/10/Include/10.0.10150.0/ucrt",
-      "$windk/../Windows Kits/8.1/Include/um",
       "$windk/../Windows Kits/8.1/Include/shared",
+      "$windk/../Windows Kits/8.1/Include/um",
       "$windk/VC/include",
+    ]
+    lib_dirs = [
+      "$windk/../Windows Kits/10/Lib/10.0.10150.0/ucrt/x64",
+      "$windk/../Windows Kits/8.1/Lib/winv6.3/um/x64",
+      "$windk/VC/lib/amd64",
     ]
   } else {
     cflags += [
@@ -294,6 +299,8 @@ config("executable") {
 }
 
 toolchain("msvc") {
+  lib_dir_switch = "/LIBPATH:"
+
   cl_exe = "$windk/VC/bin/amd64/cl.exe"
   link_exe = "$windk/VC/bin/amd64/link.exe"
   lib_exe = "$windk/VC/bin/amd64/lib.exe"
