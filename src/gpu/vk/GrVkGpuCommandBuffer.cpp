@@ -91,6 +91,7 @@ GrVkGpuCommandBuffer::~GrVkGpuCommandBuffer() {
 }
 
 GrGpu* GrVkGpuCommandBuffer::gpu() { return fGpu; }
+GrRenderTarget* GrVkGpuCommandBuffer::renderTarget() { return fRenderTarget; }
 
 void GrVkGpuCommandBuffer::end() {
     fCommandBuffer->end(fGpu);
@@ -136,7 +137,7 @@ void GrVkGpuCommandBuffer::onSubmit(const SkIRect& bounds) {
                                        fRenderTarget, bounds);
 }
 
-void GrVkGpuCommandBuffer::discard(GrRenderTarget* target) {
+void GrVkGpuCommandBuffer::discard() {
     if (fIsEmpty) {
         // We will change the render pass to do a clear load instead
         GrVkRenderPass::LoadStoreOps vkColorOps(VK_ATTACHMENT_LOAD_OP_DONT_CARE,
@@ -146,15 +147,14 @@ void GrVkGpuCommandBuffer::discard(GrRenderTarget* target) {
 
         const GrVkRenderPass* oldRP = fRenderPass;
 
-        GrVkRenderTarget* vkRT = static_cast<GrVkRenderTarget*>(target);
         const GrVkResourceProvider::CompatibleRPHandle& rpHandle =
-            vkRT->compatibleRenderPassHandle();
+            fRenderTarget->compatibleRenderPassHandle();
         if (rpHandle.isValid()) {
             fRenderPass = fGpu->resourceProvider().findRenderPass(rpHandle,
                                                                   vkColorOps,
                                                                   vkStencilOps);
         } else {
-            fRenderPass = fGpu->resourceProvider().findRenderPass(*vkRT,
+            fRenderPass = fGpu->resourceProvider().findRenderPass(*fRenderTarget,
                                                                   vkColorOps,
                                                                   vkStencilOps);
         }
@@ -165,14 +165,11 @@ void GrVkGpuCommandBuffer::discard(GrRenderTarget* target) {
     }
 }
 
-void GrVkGpuCommandBuffer::onClearStencilClip(GrRenderTarget* target,
-                                              const GrFixedClip& clip,
+void GrVkGpuCommandBuffer::onClearStencilClip(const GrFixedClip& clip,
                                               bool insideStencilMask) {
-    SkASSERT(target);
     SkASSERT(!clip.hasWindowRectangles());
 
-    GrVkRenderTarget* vkRT = static_cast<GrVkRenderTarget*>(target);
-    GrStencilAttachment* sb = target->renderTargetPriv().getStencilAttachment();
+    GrStencilAttachment* sb = fRenderTarget->renderTargetPriv().getStencilAttachment();
     // this should only be called internally when we know we have a
     // stencil buffer.
     SkASSERT(sb);
@@ -193,13 +190,13 @@ void GrVkGpuCommandBuffer::onClearStencilClip(GrRenderTarget* target,
     // Flip rect if necessary
     SkIRect vkRect;
     if (!clip.scissorEnabled()) {
-        vkRect.setXYWH(0, 0, vkRT->width(), vkRT->height());
-    } else if (kBottomLeft_GrSurfaceOrigin != vkRT->origin()) {
+        vkRect.setXYWH(0, 0, fRenderTarget->width(), fRenderTarget->height());
+    } else if (kBottomLeft_GrSurfaceOrigin != fRenderTarget->origin()) {
         vkRect = clip.scissorRect();
     } else {
         const SkIRect& scissor = clip.scissorRect();
-        vkRect.setLTRB(scissor.fLeft, vkRT->height() - scissor.fBottom,
-                       scissor.fRight, vkRT->height() - scissor.fTop);
+        vkRect.setLTRB(scissor.fLeft, fRenderTarget->height() - scissor.fBottom,
+                       scissor.fRight, fRenderTarget->height() - scissor.fTop);
     }
 
     clearRect.rect.offset = { vkRect.fLeft, vkRect.fTop };
@@ -220,15 +217,12 @@ void GrVkGpuCommandBuffer::onClearStencilClip(GrRenderTarget* target,
     fIsEmpty = false;
 }
 
-void GrVkGpuCommandBuffer::onClear(GrRenderTarget* target, const GrFixedClip& clip, GrColor color) {
+void GrVkGpuCommandBuffer::onClear(const GrFixedClip& clip, GrColor color) {
     // parent class should never let us get here with no RT
-    SkASSERT(target);
     SkASSERT(!clip.hasWindowRectangles());
 
     VkClearColorValue vkColor;
     GrColorToRGBAFloat(color, vkColor.float32);
-
-    GrVkRenderTarget* vkRT = static_cast<GrVkRenderTarget*>(target);
 
     if (fIsEmpty && !clip.scissorEnabled()) {
         // We will change the render pass to do a clear load instead
@@ -240,13 +234,13 @@ void GrVkGpuCommandBuffer::onClear(GrRenderTarget* target, const GrFixedClip& cl
         const GrVkRenderPass* oldRP = fRenderPass;
 
         const GrVkResourceProvider::CompatibleRPHandle& rpHandle =
-            vkRT->compatibleRenderPassHandle();
+            fRenderTarget->compatibleRenderPassHandle();
         if (rpHandle.isValid()) {
             fRenderPass = fGpu->resourceProvider().findRenderPass(rpHandle,
                                                                   vkColorOps,
                                                                   vkStencilOps);
         } else {
-            fRenderPass = fGpu->resourceProvider().findRenderPass(*vkRT,
+            fRenderPass = fGpu->resourceProvider().findRenderPass(*fRenderTarget,
                                                                   vkColorOps,
                                                                   vkStencilOps);
         }
@@ -264,13 +258,13 @@ void GrVkGpuCommandBuffer::onClear(GrRenderTarget* target, const GrFixedClip& cl
     // Flip rect if necessary
     SkIRect vkRect;
     if (!clip.scissorEnabled()) {
-        vkRect.setXYWH(0, 0, vkRT->width(), vkRT->height());
-    } else if (kBottomLeft_GrSurfaceOrigin != vkRT->origin()) {
+        vkRect.setXYWH(0, 0, fRenderTarget->width(), fRenderTarget->height());
+    } else if (kBottomLeft_GrSurfaceOrigin != fRenderTarget->origin()) {
         vkRect = clip.scissorRect();
     } else {
         const SkIRect& scissor = clip.scissorRect();
-        vkRect.setLTRB(scissor.fLeft, vkRT->height() - scissor.fBottom,
-                       scissor.fRight, vkRT->height() - scissor.fTop);
+        vkRect.setLTRB(scissor.fLeft, fRenderTarget->height() - scissor.fBottom,
+                       scissor.fRight, fRenderTarget->height() - scissor.fTop);
     }
     clearRect.rect.offset = { vkRect.fLeft, vkRect.fTop };
     clearRect.rect.extent = { (uint32_t)vkRect.width(), (uint32_t)vkRect.height() };
@@ -378,9 +372,7 @@ void GrVkGpuCommandBuffer::onDraw(const GrPipeline& pipeline,
     if (!meshCount) {
         return;
     }
-    GrRenderTarget* rt = pipeline.getRenderTarget();
-    GrVkRenderTarget* vkRT = static_cast<GrVkRenderTarget*>(rt);
-    const GrVkRenderPass* renderPass = vkRT->simpleRenderPass();
+    const GrVkRenderPass* renderPass = fRenderTarget->simpleRenderPass();
     SkASSERT(renderPass);
 
     prepare_sampled_images(primProc, fGpu);

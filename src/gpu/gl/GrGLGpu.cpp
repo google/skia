@@ -2642,7 +2642,7 @@ GrGpuCommandBuffer* GrGLGpu::createCommandBuffer(
         GrRenderTarget* target,
         const GrGpuCommandBuffer::LoadAndStoreInfo& colorInfo,
         const GrGpuCommandBuffer::LoadAndStoreInfo& stencilInfo) {
-    return new GrGLGpuCommandBuffer(this);
+    return new GrGLGpuCommandBuffer(this, static_cast<GrGLRenderTarget*>(target));
 }
 
 void GrGLGpu::finishDrawTarget() {
