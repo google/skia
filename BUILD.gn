@@ -182,43 +182,59 @@ opts("crc32") {
 opts("sse2") {
   enabled = is_x86
   sources = skia_opts.sse2_sources
-  cflags = [ "-msse2" ]
+  if (!is_win) {
+    cflags = [ "-msse2" ]
+  }
 }
 
 opts("ssse3") {
   enabled = is_x86
   sources = skia_opts.ssse3_sources
-  cflags = [ "-mssse3" ]
+  if (!is_win) {
+    cflags = [ "-mssse3" ]
+  }
 }
 
 opts("sse41") {
   enabled = is_x86
   sources = skia_opts.sse41_sources
-  cflags = [ "-msse4.1" ]
+  if (!is_win) {
+    cflags = [ "-msse4.1" ]
+  }
 }
 
 opts("sse42") {
   enabled = is_x86
   sources = skia_opts.sse42_sources
-  cflags = [ "-msse4.2" ]
+  if (!is_win) {
+    cflags = [ "-msse4.2" ]
+  }
 }
 
 opts("avx") {
   enabled = is_x86
   sources = skia_opts.avx_sources
-  cflags = [ "-mavx" ]
+  if (is_win) {
+    cflags = [ "/arch:AVX" ]
+  } else {
+    cflags = [ "-mavx" ]
+  }
 }
 
 opts("hsw") {
   enabled = is_x86
   sources = skia_opts.hsw_sources
-  cflags = [
-    "-mavx2",
-    "-mbmi",
-    "-mbmi2",
-    "-mf16c",
-    "-mfma",
-  ]
+  if (is_win) {
+    cflags = [ "/arch:AVX2" ]
+  } else {
+    cflags = [
+      "-mavx2",
+      "-mbmi",
+      "-mbmi2",
+      "-mf16c",
+      "-mfma",
+    ]
+  }
 }
 
 opts("dsp") {
