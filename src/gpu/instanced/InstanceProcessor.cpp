@@ -107,10 +107,10 @@ public:
 
     void initParams(const SamplerHandle paramsBuffer) {
         fParamsBuffer = paramsBuffer;
+        fVertexBuilder->definef("PARAMS_IDX_MASK", "0x%xu", kParamsIdx_InfoMask);
         fVertexBuilder->appendPrecisionModifier(kHigh_GrSLPrecision);
-        fVertexBuilder->codeAppendf("int paramsIdx = int(%s & 0x%x);",
-                                    this->attr(Attrib::kInstanceInfo),
-                                    kParamsIdx_InfoMask);
+        fVertexBuilder->codeAppendf("int paramsIdx = int(%s & PARAMS_IDX_MASK);",
+                                    this->attr(Attrib::kInstanceInfo));
     }
 
     const char* attr(Attrib attr) const { return fInstProc.getAttrib((int)attr).fName; }
@@ -224,10 +224,10 @@ void GLSLInstanceProcessor::onEmitCode(EmitArgs& args, GrGPArgs* gpArgs) {
         v->codeAppendf("mat2x3 shapeMatrix = mat2x3(%s, %s);",
                        inputs.attr(Attrib::kShapeMatrixX), inputs.attr(Attrib::kShapeMatrixY));
     } else {
-        v->defineConstantf("int", "PERSPECTIVE_FLAG", "0x%x", kPerspective_InfoFlag);
+        v->definef("PERSPECTIVE_FLAG", "0x%xu", kPerspective_InfoFlag);
         v->codeAppendf("mat3 shapeMatrix = mat3(%s, %s, vec3(0, 0, 1));",
                        inputs.attr(Attrib::kShapeMatrixX), inputs.attr(Attrib::kShapeMatrixY));
-        v->codeAppendf("if (0 != (%s & PERSPECTIVE_FLAG)) {",
+        v->codeAppendf("if (0u != (%s & PERSPECTIVE_FLAG)) {",
                        inputs.attr(Attrib::kInstanceInfo));
         v->codeAppend (    "shapeMatrix[2] = ");
         inputs.fetchNextParam(kVec3f_GrSLType);
@@ -237,7 +237,7 @@ void GLSLInstanceProcessor::onEmitCode(EmitArgs& args, GrGPArgs* gpArgs) {
 
     bool hasSingleShapeType = SkIsPow2(ip.batchInfo().fShapeTypes);
     if (!hasSingleShapeType) {
-        v->defineConstant("SHAPE_TYPE_BIT", kShapeType_InfoBit);
+        v->define("SHAPE_TYPE_BIT", kShapeType_InfoBit);
         v->codeAppendf("uint shapeType = %s >> SHAPE_TYPE_BIT;",
                        inputs.attr(Attrib::kInstanceInfo));
     }
@@ -285,8 +285,8 @@ void GLSLInstanceProcessor::onEmitCode(EmitArgs& args, GrGPArgs* gpArgs) {
     if (ip.batchInfo().fInnerShapeTypes) {
         bool hasSingleInnerShapeType = SkIsPow2(ip.batchInfo().fInnerShapeTypes);
         if (!hasSingleInnerShapeType) {
-            v->defineConstantf("int", "INNER_SHAPE_TYPE_MASK", "0x%x", kInnerShapeType_InfoMask);
-            v->defineConstant("INNER_SHAPE_TYPE_BIT", kInnerShapeType_InfoBit);
+            v->definef("INNER_SHAPE_TYPE_MASK", "0x%xu", kInnerShapeType_InfoMask);
+            v->define("INNER_SHAPE_TYPE_BIT", kInnerShapeType_InfoBit);
             v->codeAppendf("uint innerShapeType = ((%s & INNER_SHAPE_TYPE_MASK) >> "
                                                   "INNER_SHAPE_TYPE_BIT);",
                            inputs.attr(Attrib::kInstanceInfo));
@@ -346,13 +346,13 @@ void GLSLInstanceProcessor::onEmitCode(EmitArgs& args, GrGPArgs* gpArgs) {
     }
 
     if (usedShapeDefinitions & kOval_ShapeFlag) {
-        v->defineConstant("OVAL_SHAPE_TYPE", (int)ShapeType::kOval);
+        v->definef("OVAL_SHAPE_TYPE", "%du", (int)ShapeType::kOval);
     }
     if (usedShapeDefinitions & kSimpleRRect_ShapeFlag) {
-        v->defineConstant("SIMPLE_R_RECT_SHAPE_TYPE", (int)ShapeType::kSimpleRRect);
+        v->definef("SIMPLE_R_RECT_SHAPE_TYPE", "%du", (int)ShapeType::kSimpleRRect);
     }
     if (usedShapeDefinitions & kNinePatch_ShapeFlag) {
-        v->defineConstant("NINE_PATCH_SHAPE_TYPE", (int)ShapeType::kNinePatch);
+        v->definef("NINE_PATCH_SHAPE_TYPE", "%du", (int)ShapeType::kNinePatch);
     }
     SkASSERT(!(usedShapeDefinitions & (kRect_ShapeFlag | kComplexRRect_ShapeFlag)));
 
@@ -367,8 +367,8 @@ void GLSLInstanceProcessor::onEmitCode(EmitArgs& args, GrGPArgs* gpArgs) {
                        inputs.attr(Attrib::kLocalRect), inputs.attr(Attrib::kLocalRect));
     }
     if (ip.batchInfo().fHasLocalMatrix && ip.batchInfo().fHasParams) {
-        v->defineConstantf("int", "LOCAL_MATRIX_FLAG", "0x%x", kLocalMatrix_InfoFlag);
-        v->codeAppendf("if (0 != (%s & LOCAL_MATRIX_FLAG)) {",
+        v->definef("LOCAL_MATRIX_FLAG", "0x%xu", kLocalMatrix_InfoFlag);
+        v->codeAppendf("if (0u != (%s & LOCAL_MATRIX_FLAG)) {",
                        inputs.attr(Attrib::kInstanceInfo));
         if (!ip.batchInfo().fUsesLocalCoords) {
             inputs.skipParams(2);
@@ -1179,7 +1179,7 @@ void GLSLInstanceProcessor::BackendMultisample::onInit(GrGLSLVaryingHandler* var
             }
         }
         if (kRect_ShapeFlag != fBatchInfo.fShapeTypes) {
-           v->defineConstantf("int", "SAMPLE_MASK_ALL", "0x%x", (1 << fEffectiveSampleCnt) - 1);
+           v->definef("SAMPLE_MASK_ALL", "0x%x", (1 << fEffectiveSampleCnt) - 1);
            varyingHandler->addFlatVarying("earlyAccept", &fEarlyAccept, kHigh_GrSLPrecision);
         }
     }
@@ -1360,10 +1360,10 @@ void GLSLInstanceProcessor::BackendMultisample::onSetupInnerSimpleRRect(GrGLSLVe
 void GLSLInstanceProcessor::BackendMultisample::onEmitCode(GrGLSLVertexBuilder*,
                                                            GrGLSLPPFragmentBuilder* f,
                                                            const char*, const char*) {
-    f->defineConstant("SAMPLE_COUNT", fEffectiveSampleCnt);
+    f->define("SAMPLE_COUNT", fEffectiveSampleCnt);
     if (this->isMixedSampled()) {
-        f->defineConstantf("int", "SAMPLE_MASK_ALL", "0x%x", (1 << fEffectiveSampleCnt) - 1);
-        f->defineConstantf("int", "SAMPLE_MASK_MSB", "0x%x", 1 << (fEffectiveSampleCnt - 1));
+        f->definef("SAMPLE_MASK_ALL", "0x%x", (1 << fEffectiveSampleCnt) - 1);
+        f->definef("SAMPLE_MASK_MSB", "0x%x", 1 << (fEffectiveSampleCnt - 1));
     }
 
     if (kRect_ShapeFlag != (fBatchInfo.fShapeTypes | fBatchInfo.fInnerShapeTypes)) {

@@ -291,10 +291,10 @@ void GrGLSLFragmentShaderBuilder::enableCustomOutput() {
     if (!fHasCustomColorOutput) {
         fHasCustomColorOutput = true;
         fCustomColorOutputIndex = fOutputs.count();
-        fOutputs.push_back().set(kVec4f_GrSLType,  
-                                 GrGLSLShaderVar::kOut_TypeModifier,   
-                                 DeclaredColorOutputName());   
-        fProgramBuilder->finalizeFragmentOutputColor(fOutputs.back()); 
+        fOutputs.push_back().set(kVec4f_GrSLType,
+                                 GrGLSLShaderVar::kOut_TypeModifier,
+                                 DeclaredColorOutputName());
+        fProgramBuilder->finalizeFragmentOutputColor(fOutputs.back());
     }
 }
 
@@ -318,7 +318,7 @@ void GrGLSLFragmentShaderBuilder::enableSecondaryOutput() {
 }
 
 const char* GrGLSLFragmentShaderBuilder::getPrimaryColorOutputName() const {
-    return fHasCustomColorOutput ? DeclaredColorOutputName() : "sk_FragColor";
+    return fHasCustomColorOutput ? DeclaredColorOutputName() : "gl_FragColor";
 }
 
 void GrGLSLFragmentBuilder::declAppendf(const char* fmt, ...) {

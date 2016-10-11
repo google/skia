@@ -50,11 +50,6 @@ struct GLCaps {
         kGL_Standard,
         kGLES_Standard
     } fStandard;
-    bool fIsCoreProfile;
-    bool fUsesPrecisionModifiers;
-    bool fMustDeclareFragmentShaderOutput;
-    // The Tegra3 compiler will sometimes never return if we have min(abs(x), y)
-    bool fCanUseMinAndAbsTogether;
 };
 
 /**
@@ -86,8 +81,6 @@ public:
     GLSLCodeGenerator(const Context* context, GLCaps caps)
     : fContext(*context)
     , fCaps(caps)
-    , fOut(nullptr)
-    , fVarCount(0)
     , fIndentation(0)
     , fAtLineStart(true) {}
 
@@ -118,19 +111,17 @@ private:
 
     void writeLayout(const Layout& layout);
 
-    void writeModifiers(const Modifiers& modifiers, bool globalContext);
+    void writeModifiers(const Modifiers& modifiers);
     
     void writeGlobalVars(const VarDeclaration& vs);
 
-    void writeVarDeclarations(const VarDeclarations& decl, bool global);
+    void writeVarDeclarations(const VarDeclarations& decl);
 
     void writeVariableReference(const VariableReference& ref);
 
     void writeExpression(const Expression& expr, Precedence parentPrecedence);
     
     void writeIntrinsicCall(const FunctionCall& c);
-
-    void writeMinAbsHack(Expression& absExpr, Expression& otherExpr);
 
     void writeFunctionCall(const FunctionCall& c);
 
@@ -173,9 +164,6 @@ private:
     const Context& fContext;
     const GLCaps fCaps;
     std::ostream* fOut;
-    std::string fFunctionHeader;
-    Program::Kind fProgramKind;
-    int fVarCount;
     int fIndentation;
     bool fAtLineStart;
     // Keeps track of which struct types we have written. Given that we are unlikely to ever write 
