@@ -1780,7 +1780,7 @@ void GrGLCaps::initConfigTable(const GrGLContextInfo& ctxInfo, const GrGLInterfa
     fConfigTable[kIndex_8_GrPixelConfig].fFormats.fExternalType = 0;
     fConfigTable[kIndex_8_GrPixelConfig].fFormatType = kNormalizedFixedPoint_FormatType;
     // Disable this for now, while we investigate https://bug.skia.org/4333
-    if (false) {
+    if ((false)) {
         // Check for 8-bit palette..
         GrGLint numFormats;
         GR_GL_GetIntegerv(gli, GR_GL_NUM_COMPRESSED_TEXTURE_FORMATS, &numFormats);
