@@ -953,9 +953,8 @@ if (skia_enable_tools) {
     }
   }
 
-  # Clang 3.8 crashes while compiling hb-icu.cc for mipsel.
   # We can't yet build ICU on Windows.
-  if (current_cpu != "mipsel" && !is_win) {
+  if (!is_win) {
     executable("sktexttopdf-hb") {
       sources = [
         "tools/SkShaper_harfbuzz.cpp",
