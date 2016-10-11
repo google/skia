@@ -204,7 +204,7 @@ inline void* emit_vertex(Vertex* v, const AAParams* aaParams, void* data) {
     if (aaParams->fTweakAlpha) {
         auto d = static_cast<GrDefaultGeoProcFactory::PositionColorAttr*>(data);
         d->fPosition = v->fPoint;
-        d->fColor = SkAlphaMulQ(aaParams->fColor, v->fAlpha);
+        d->fColor = SkAlphaMulQ(aaParams->fColor, SkAlpha255To256(v->fAlpha));
         d++;
         return d;
     }
