@@ -34,6 +34,24 @@
       "revId": "8adf909ae587fca9654525e4b180db489b49961f",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7f82c883_2a0f83ee",
+        "filename": "infra/bots/recipes/swarm_compile.expected/buildbotless_trybot_gerrit.json",
+        "patchSetId": 3
+      },
+      "lineNbr": 130,
+      "author": {
+        "id": 5145
+      },
+      "writtenOn": "2016-10-11T11:51:01Z",
+      "side": 1,
+      "message": "https://bugs.chromium.org/p/chromium/issues/detail?id\u003d599931",
+      "parentUuid": "7f82c883_8a7b2f48",
+      "revId": "8adf909ae587fca9654525e4b180db489b49961f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
