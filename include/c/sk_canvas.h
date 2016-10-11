@@ -185,7 +185,7 @@ SK_API void sk_canvas_restore_to_count(sk_canvas_t*, int saveCount);
 /**
     Draws with the specified color and mode.
 **/
-SK_API void sk_canvas_draw_color(sk_canvas_t* ccanvas, sk_color_t color, sk_xfermode_mode_t mode);
+SK_API void sk_canvas_draw_color(sk_canvas_t* ccanvas, sk_color_t color, sk_blendmode_t mode);
 /**
    Draw a series of points, interpreted based on the sk_point_mode_t mode. For
    all modes, the count parameter is interpreted as the total number of
@@ -308,11 +308,11 @@ SK_API void sk_canvas_draw_round_rect(sk_canvas_t*, const sk_rect_t*, float rx, 
 /**
     Modify the current clip with the specified rectangle.
 */
-SK_API void sk_canvas_clip_rect_with_operation(sk_canvas_t* t, const sk_rect_t* crect, sk_region_op_t op, bool doAA);
+SK_API void sk_canvas_clip_rect_with_operation(sk_canvas_t* t, const sk_rect_t* crect, sk_clipop_t op, bool doAA);
 /**
     Modify the current clip with the specified path.
 */
-SK_API void sk_canvas_clip_path_with_operation(sk_canvas_t* t, const sk_path_t* crect, sk_region_op_t op, bool doAA);
+SK_API void sk_canvas_clip_path_with_operation(sk_canvas_t* t, const sk_path_t* crect, sk_clipop_t op, bool doAA);
 
 /**
     Return the bounds of the current clip (in local coordinates) in the
@@ -337,8 +337,8 @@ SK_API void sk_canvas_flush(sk_canvas_t* ccanvas);
 
 SK_API sk_canvas_t* sk_canvas_new_from_bitmap(const sk_bitmap_t* bitmap);
 
-SK_API void sk_canvas_draw_bitmap_lattice(sk_canvas_t* t, const sk_bitmap_t* bitmap, const int* xDivs, int xCount, const int* yDivs, int yCount, const sk_rect_t* dst, const sk_paint_t* paint);
-SK_API void sk_canvas_draw_image_lattice(sk_canvas_t* t, const sk_image_t* image, const int* xDivs, int xCount, const int* yDivs, int yCount, const sk_rect_t* dst, const sk_paint_t* paint);
+SK_API void sk_canvas_draw_bitmap_lattice(sk_canvas_t* t, const sk_bitmap_t* bitmap, const sk_lattice_t* lattice, const sk_rect_t* dst, const sk_paint_t* paint);
+SK_API void sk_canvas_draw_image_lattice(sk_canvas_t* t, const sk_image_t* image, const sk_lattice_t* lattice, const sk_rect_t* dst, const sk_paint_t* paint);
 
 SK_C_PLUS_PLUS_END_GUARD
 

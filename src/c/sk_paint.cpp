@@ -85,9 +85,9 @@ void sk_paint_set_stroke_join(sk_paint_t* cpaint, sk_stroke_join_t cjoin) {
     AsPaint(cpaint)->setStrokeJoin((SkPaint::Join)cjoin);
 }
 
-void sk_paint_set_xfermode_mode(sk_paint_t* paint, sk_xfermode_mode_t mode) {
+void sk_paint_set_blendmode(sk_paint_t* paint, sk_blendmode_t mode) {
     SkASSERT(paint);
-    AsPaint(paint)->setXfermodeMode((SkXfermode::Mode)mode);
+    AsPaint(paint)->setBlendMode((SkBlendMode)mode);
 }
 
 bool sk_paint_is_dither(const sk_paint_t* cpaint) {
@@ -130,13 +130,9 @@ sk_imagefilter_t* sk_paint_get_imagefilter(sk_paint_t* cpaint) {
     return ToImageFilter(AsPaint(cpaint)->getImageFilter());
 }
 
-sk_xfermode_mode_t sk_paint_get_xfermode_mode(sk_paint_t* paint) {
+sk_blendmode_t sk_paint_get_blendmode(sk_paint_t* paint) {
     SkASSERT(paint);
-    SkXfermode::Mode mode;
-    if (SkXfermode::AsMode(AsPaint(paint)->getXfermode(), &mode)) {
-        return (sk_xfermode_mode_t)mode;
-    }
-    return SRCOVER_SK_XFERMODE_MODE;
+    return (sk_blendmode_t)AsPaint(paint)->getBlendMode();
 }
 
 void sk_paint_set_filter_quality(sk_paint_t* cpaint, sk_filter_quality_t filterQuality)

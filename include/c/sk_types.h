@@ -216,6 +216,38 @@ typedef enum {
     LUMINOSITY_SK_XFERMODE_MODE,
 } sk_xfermode_mode_t;
 
+typedef enum {
+    CLEAR_SK_BLENDMODE,
+    SRC_SK_BLENDMODE,
+    DST_SK_BLENDMODE,
+    SRCOVER_SK_BLENDMODE,
+    DSTOVER_SK_BLENDMODE,
+    SRCIN_SK_BLENDMODE,
+    DSTIN_SK_BLENDMODE,
+    SRCOUT_SK_BLENDMODE,
+    DSTOUT_SK_BLENDMODE,
+    SRCATOP_SK_BLENDMODE,
+    DSTATOP_SK_BLENDMODE,
+    XOR_SK_BLENDMODE,
+    PLUS_SK_BLENDMODE,
+    MODULATE_SK_BLENDMODE,
+    SCREEN_SK_BLENDMODE,
+    OVERLAY_SK_BLENDMODE,
+    DARKEN_SK_BLENDMODE,
+    LIGHTEN_SK_BLENDMODE,
+    COLORDODGE_SK_BLENDMODE,
+    COLORBURN_SK_BLENDMODE,
+    HARDLIGHT_SK_BLENDMODE,
+    SOFTLIGHT_SK_BLENDMODE,
+    DIFFERENCE_SK_BLENDMODE,
+    EXCLUSION_SK_BLENDMODE,
+    MULTIPLY_SK_BLENDMODE,
+    HUE_SK_BLENDMODE,
+    SATURATION_SK_BLENDMODE,
+    COLOR_SK_BLENDMODE,
+    LUMINOSITY_SK_BLENDMODE,
+} sk_blendmode_t;
+
 //////////////////////////////////////////////////////////////////////////////////////////
 
 typedef struct {
@@ -406,6 +438,11 @@ typedef enum {
     REPLACE_SK_REGION_OP,             //!< replace the dst region with the op region
 } sk_region_op_t;
 
+typedef enum {
+    DIFFERENCE_SK_CLIPOP,
+    INTERSECT_SK_CLIPOP,
+} sk_clipop_t;
+
 /**
  *  Enum describing format of encoded data.
  */
@@ -453,8 +490,7 @@ typedef enum {
 
 typedef struct {
     sk_codec_zero_initialized_t fZeroInitialized;
-    sk_irect_t fSubset;
-    bool fHasSubset;
+    sk_irect_t* fSubset;
 } sk_codec_options_t;
 
 // The verbs that can be foudn on a path
@@ -637,6 +673,20 @@ typedef enum {
     CONVEX_SK_PATH_CONVEXITY,
     CONCAVE_SK_PATH_CONVEXITY,
 } sk_path_convexity_t;
+
+typedef enum {
+    DEFAULT_SK_LATTICE_FLAGS,
+    TRANSPARENT_SK_LATTICE_FLAGS = 1 << 0,
+} sk_lattice_flags_t;
+
+typedef struct {
+    const int* fXDivs;
+    const int* fYDivs;
+    const sk_lattice_flags_t* fFlags;
+    int fXCount;
+    int fYCount;
+    const sk_irect_t* fBounds;
+} sk_lattice_t;
 
 SK_C_PLUS_PLUS_END_GUARD
 

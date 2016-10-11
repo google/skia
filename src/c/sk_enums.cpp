@@ -138,6 +138,37 @@ static_assert ((int)SkXfermode::Mode::kSaturation_Mode   == (int)SATURATION_SK_X
 static_assert ((int)SkXfermode::Mode::kColor_Mode        == (int)COLOR_SK_XFERMODE_MODE,        ASSERT_MSG(SkXfermode::Mode, sk_xfermode_mode_t));
 static_assert ((int)SkXfermode::Mode::kLuminosity_Mode   == (int)LUMINOSITY_SK_XFERMODE_MODE,   ASSERT_MSG(SkXfermode::Mode, sk_xfermode_mode_t));
 
+// sk_blendmode_t
+static_assert ((int)SkBlendMode::kClear        == (int)CLEAR_SK_BLENDMODE,        ASSERT_MSG(SkBlendMode, sk_blendmode_t));
+static_assert ((int)SkBlendMode::kSrc          == (int)SRC_SK_BLENDMODE,          ASSERT_MSG(SkBlendMode, sk_blendmode_t));
+static_assert ((int)SkBlendMode::kDst          == (int)DST_SK_BLENDMODE,          ASSERT_MSG(SkBlendMode, sk_blendmode_t));
+static_assert ((int)SkBlendMode::kSrcOver      == (int)SRCOVER_SK_BLENDMODE,      ASSERT_MSG(SkBlendMode, sk_blendmode_t));
+static_assert ((int)SkBlendMode::kDstOver      == (int)DSTOVER_SK_BLENDMODE,      ASSERT_MSG(SkBlendMode, sk_blendmode_t));
+static_assert ((int)SkBlendMode::kSrcIn        == (int)SRCIN_SK_BLENDMODE,        ASSERT_MSG(SkBlendMode, sk_blendmode_t));
+static_assert ((int)SkBlendMode::kDstIn        == (int)DSTIN_SK_BLENDMODE,        ASSERT_MSG(SkBlendMode, sk_blendmode_t));
+static_assert ((int)SkBlendMode::kSrcOut       == (int)SRCOUT_SK_BLENDMODE,       ASSERT_MSG(SkBlendMode, sk_blendmode_t));
+static_assert ((int)SkBlendMode::kDstOut       == (int)DSTOUT_SK_BLENDMODE,       ASSERT_MSG(SkBlendMode, sk_blendmode_t));
+static_assert ((int)SkBlendMode::kSrcATop      == (int)SRCATOP_SK_BLENDMODE,      ASSERT_MSG(SkBlendMode, sk_blendmode_t));
+static_assert ((int)SkBlendMode::kDstATop      == (int)DSTATOP_SK_BLENDMODE,      ASSERT_MSG(SkBlendMode, sk_blendmode_t));
+static_assert ((int)SkBlendMode::kXor          == (int)XOR_SK_BLENDMODE,          ASSERT_MSG(SkBlendMode, sk_blendmode_t));
+static_assert ((int)SkBlendMode::kPlus         == (int)PLUS_SK_BLENDMODE,         ASSERT_MSG(SkBlendMode, sk_blendmode_t));
+static_assert ((int)SkBlendMode::kModulate     == (int)MODULATE_SK_BLENDMODE,     ASSERT_MSG(SkBlendMode, sk_blendmode_t));
+static_assert ((int)SkBlendMode::kScreen       == (int)SCREEN_SK_BLENDMODE,       ASSERT_MSG(SkBlendMode, sk_blendmode_t));
+static_assert ((int)SkBlendMode::kOverlay      == (int)OVERLAY_SK_BLENDMODE,      ASSERT_MSG(SkBlendMode, sk_blendmode_t));
+static_assert ((int)SkBlendMode::kDarken       == (int)DARKEN_SK_BLENDMODE,       ASSERT_MSG(SkBlendMode, sk_blendmode_t));
+static_assert ((int)SkBlendMode::kLighten      == (int)LIGHTEN_SK_BLENDMODE,      ASSERT_MSG(SkBlendMode, sk_blendmode_t));
+static_assert ((int)SkBlendMode::kColorDodge   == (int)COLORDODGE_SK_BLENDMODE,   ASSERT_MSG(SkBlendMode, sk_blendmode_t));
+static_assert ((int)SkBlendMode::kColorBurn    == (int)COLORBURN_SK_BLENDMODE,    ASSERT_MSG(SkBlendMode, sk_blendmode_t));
+static_assert ((int)SkBlendMode::kHardLight    == (int)HARDLIGHT_SK_BLENDMODE,    ASSERT_MSG(SkBlendMode, sk_blendmode_t));
+static_assert ((int)SkBlendMode::kSoftLight    == (int)SOFTLIGHT_SK_BLENDMODE,    ASSERT_MSG(SkBlendMode, sk_blendmode_t));
+static_assert ((int)SkBlendMode::kDifference   == (int)DIFFERENCE_SK_BLENDMODE,   ASSERT_MSG(SkBlendMode, sk_blendmode_t));
+static_assert ((int)SkBlendMode::kExclusion    == (int)EXCLUSION_SK_BLENDMODE,    ASSERT_MSG(SkBlendMode, sk_blendmode_t));
+static_assert ((int)SkBlendMode::kMultiply     == (int)MULTIPLY_SK_BLENDMODE,     ASSERT_MSG(SkBlendMode, sk_blendmode_t));
+static_assert ((int)SkBlendMode::kHue          == (int)HUE_SK_BLENDMODE,          ASSERT_MSG(SkBlendMode, sk_blendmode_t));
+static_assert ((int)SkBlendMode::kSaturation   == (int)SATURATION_SK_BLENDMODE,   ASSERT_MSG(SkBlendMode, sk_blendmode_t));
+static_assert ((int)SkBlendMode::kColor        == (int)COLOR_SK_BLENDMODE,        ASSERT_MSG(SkBlendMode, sk_blendmode_t));
+static_assert ((int)SkBlendMode::kLuminosity   == (int)LUMINOSITY_SK_BLENDMODE,   ASSERT_MSG(SkBlendMode, sk_blendmode_t));
+
 // sk_colortype_t
 static_assert ((int)SkColorType::kUnknown_SkColorType     == (int)UNKNOWN_SK_COLORTYPE,     ASSERT_MSG(SkColorType, sk_colortype_t));
 static_assert ((int)SkColorType::kAlpha_8_SkColorType     == (int)ALPHA_8_SK_COLORTYPE,     ASSERT_MSG(SkColorType, sk_colortype_t));
@@ -190,6 +221,10 @@ static_assert ((int)SkRegion::Op::kUnion_Op               == (int)UNION_SK_REGIO
 static_assert ((int)SkRegion::Op::kXOR_Op                 == (int)XOR_SK_REGION_OP,                  ASSERT_MSG(SkRegion::Op, sk_region_op_t));
 static_assert ((int)SkRegion::Op::kReverseDifference_Op   == (int)REVERSE_DIFFERENCE_SK_REGION_OP,   ASSERT_MSG(SkRegion::Op, sk_region_op_t));
 static_assert ((int)SkRegion::Op::kReplace_Op             == (int)REPLACE_SK_REGION_OP,              ASSERT_MSG(SkRegion::Op, sk_region_op_t));
+
+// sk_clipop_t
+static_assert ((int)SkClipOp::kDifference_SkClipOp   == (int)DIFFERENCE_SK_CLIPOP,           ASSERT_MSG(SkClipOp, sk_clipop_t));
+static_assert ((int)SkClipOp::kIntersect_SkClipOp    == (int)INTERSECT_SK_CLIPOP,            ASSERT_MSG(SkClipOp, sk_clipop_t));
 
 // sk_encoded_format_t
 static_assert ((int)SkEncodedFormat::kUnknown_SkEncodedFormat   == (int)UNKNOWN_SK_ENCODED_FORMAT,   ASSERT_MSG(SkEncodedFormat, sk_encoded_format_t));
@@ -287,10 +322,6 @@ static_assert ((int)GrBackend::kVulkan_GrBackend   == (int)VULKAN_GR_BACKEND,   
 static_assert ((bool)SkBudgeted::kNo    == (bool)false,   ASSERT_MSG(SkBudgeted, bool));
 static_assert ((bool)SkBudgeted::kYes   == (bool)true,    ASSERT_MSG(SkBudgeted, bool));
 
-// gr_context_flushbits_t
-static_assert ((int)0                                         == (int)NONE_GR_CONTEXT_FLUSHBITS,      ASSERT_MSG(GrContext::FlushBits, gr_context_flushbits_t));
-static_assert ((int)GrContext::FlushBits::kDiscard_FlushBit   == (int)DISCARD_GR_CONTEXT_FLUSHBITS,   ASSERT_MSG(GrContext::FlushBits, gr_context_flushbits_t));
-
 // sk_pathop_t
 static_assert ((int)SkPathOp::kDifference_SkPathOp          == (int)DIFFERENCE_SK_PATHOP,           ASSERT_MSG(SkPathOp, sk_pathop_t));
 static_assert ((int)SkPathOp::kIntersect_SkPathOp           == (int)INTERSECT_SK_PATHOP,            ASSERT_MSG(SkPathOp, sk_pathop_t));
@@ -302,5 +333,9 @@ static_assert ((int)SkPathOp::kReverseDifference_SkPathOp   == (int)REVERSE_DIFF
 static_assert ((int)SkPath::Convexity::kUnknown_Convexity   == (int)UNKNOWN_SK_PATH_CONVEXITY,   ASSERT_MSG(SkPath::Convexity, sk_path_convexity_t));
 static_assert ((int)SkPath::Convexity::kConvex_Convexity    == (int)CONVEX_SK_PATH_CONVEXITY,    ASSERT_MSG(SkPath::Convexity, sk_path_convexity_t));
 static_assert ((int)SkPath::Convexity::kConcave_Convexity   == (int)CONCAVE_SK_PATH_CONVEXITY,   ASSERT_MSG(SkPath::Convexity, sk_path_convexity_t));
+
+// gr_backendtexture_flags_t
+static_assert ((int)0                                              == (int)DEFAULT_SK_LATTICE_FLAGS,       ASSERT_MSG(GrBackendTextureFlags, sk_lattice_flags_t));
+static_assert ((int)SkCanvas::Lattice::Flags::kTransparent_Flags   == (int)TRANSPARENT_SK_LATTICE_FLAGS,   ASSERT_MSG(GrBackendTextureFlags, sk_lattice_flags_t));
 
 #endif

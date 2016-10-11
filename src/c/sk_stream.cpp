@@ -45,7 +45,7 @@ sk_stream_memorystream_t* sk_memorystream_new_with_data (const void* data, size_
 }
 sk_stream_memorystream_t* sk_memorystream_new_with_skdata (sk_data_t* data)
 {
-    return ToMemoryStream(new SkMemoryStream(AsData(data)));
+    return ToMemoryStream(new SkMemoryStream(sk_ref_sp(AsData(data))));
 }
 void sk_memorystream_set_memory (sk_stream_memorystream_t* cmemorystream, const void* data, size_t length, bool copyData)
 {
@@ -152,7 +152,7 @@ sk_wstream_dynamicmemorystream_t* sk_dynamicmemorywstream_new()
 
 sk_data_t* sk_dynamicmemorywstream_copy_to_data(sk_wstream_dynamicmemorystream_t* cstream)
 {
-    return ToData(AsDynamicMemoryWStream(cstream)->copyToData());
+    return ToData(AsDynamicMemoryWStream(cstream)->snapshotAsData().release());
 }
 
 sk_stream_asset_t* sk_dynamicmemorywstream_detach_as_stream(sk_wstream_dynamicmemorystream_t* cstream)

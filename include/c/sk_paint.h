@@ -112,9 +112,9 @@ SK_API void sk_paint_set_shader(sk_paint_t*, sk_shader_t*);
  */
 SK_API void sk_paint_set_maskfilter(sk_paint_t*, sk_maskfilter_t*);
 /**
- *  Set the paint's xfermode to the specified parameter.
+ *  Set the paint's blend mode to the specified parameter.
  */
-SK_API void sk_paint_set_xfermode_mode(sk_paint_t*, sk_xfermode_mode_t);
+SK_API void sk_paint_set_blendmode(sk_paint_t*, sk_blendmode_t);
 /**
  *  Return true iff the paint has dithering enabled.
  */
@@ -158,9 +158,9 @@ SK_API void sk_paint_set_imagefilter(sk_paint_t*, sk_imagefilter_t*);
  */
 SK_API sk_imagefilter_t* sk_paint_get_imagefilter(sk_paint_t*);
 /**
- *  Get the paint's xfermode object.
+ *  Get the paint's blend mode.
  */
-SK_API sk_xfermode_mode_t sk_paint_get_xfermode_mode(sk_paint_t*);
+SK_API sk_blendmode_t sk_paint_get_blendmode(sk_paint_t*);
 /**
  *  Set the paint's filter quality.
  */

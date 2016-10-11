@@ -196,6 +196,10 @@ static inline sk_codec_t* ToCodec(SkCodec* codec) {
     return reinterpret_cast<sk_codec_t*>(codec);
 }
 
+static inline const SkCodec::Options* AsCodecOptions(const sk_codec_options_t* t) {
+    return reinterpret_cast<const SkCodec::Options*>(t);
+}
+
 static inline SkTypeface* AsTypeface(sk_typeface_t* typeface) {
     return reinterpret_cast<SkTypeface*>(typeface);
 }
@@ -496,6 +500,10 @@ static inline SkOpBuilder* AsOpBuilder(sk_opbuilder_t* p) {
     return reinterpret_cast<SkOpBuilder*>(p);
 }
 
+static inline const SkCanvas::Lattice& AsLattice(const sk_lattice_t& p) {
+    return reinterpret_cast<const SkCanvas::Lattice&>(p);
+}
+
 static inline void from_c(const sk_matrix_t* cmatrix, SkMatrix* matrix) {
     matrix->setAll(
         cmatrix->mat[0], cmatrix->mat[1], cmatrix->mat[2],
@@ -505,17 +513,6 @@ static inline void from_c(const sk_matrix_t* cmatrix, SkMatrix* matrix) {
 
 static inline void from_sk(const SkMatrix* matrix, sk_matrix_t* cmatrix) {
     matrix->get9(cmatrix->mat);
-}
-
-static inline bool from_c(const sk_codec_options_t& coptions, SkCodec::Options* options) {
-    if (options) {
-        *options = SkCodec::Options();
-        options->fZeroInitialized = (SkCodec::ZeroInitialized)coptions.fZeroInitialized;
-        if (coptions.fHasSubset) {
-            options->fSubset = AsIRect((sk_irect_t*)&coptions.fSubset);
-        }
-    }
-    return true;
 }
 
 static inline bool from_c(const sk_imageinfo_t& cinfo, SkImageInfo* info) {

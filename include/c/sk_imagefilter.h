@@ -157,7 +157,13 @@ SK_API sk_imagefilter_t* sk_imagefilter_new_tile(
     const sk_rect_t* dst,
     sk_imagefilter_t* input);
 SK_API sk_imagefilter_t* sk_imagefilter_new_xfermode(
-    sk_xfermode_mode_t mode, 
+    sk_blendmode_t mode,
+    sk_imagefilter_t* background,
+    sk_imagefilter_t* foreground /*NULL*/,
+    const sk_imagefilter_croprect_t* cropRect /*NULL*/);
+SK_API sk_imagefilter_t* sk_imagefilter_new_arithmetic(
+    float k1, float k2, float k3, float k4,
+    bool enforcePMColor,
     sk_imagefilter_t* background,
     sk_imagefilter_t* foreground /*NULL*/,
     const sk_imagefilter_croprect_t* cropRect /*NULL*/);
