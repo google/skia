@@ -86,12 +86,13 @@ DEF_TEST(ColorSpaceXform_TableGamma, r) {
 
 DEF_TEST(ColorSpaceXform_ParametricGamma, r) {
     // Parametric gamma curves
-    void* memory = sk_malloc_throw(sizeof(SkGammas) + sizeof(SkGammas::Params));
+    void* memory = sk_malloc_throw(sizeof(SkGammas) + sizeof(SkColorSpaceTransferFn));
     sk_sp<SkGammas> gammas = sk_sp<SkGammas>(new (memory) SkGammas());
     gammas->fRedType = gammas->fGreenType = gammas->fBlueType = SkGammas::Type::kParam_Type;
     gammas->fRedData.fParamOffset = gammas->fGreenData.fParamOffset =
             gammas->fBlueData.fParamOffset = 0;
-    SkGammas::Params* params = SkTAddOffset<SkGammas::Params>(memory, sizeof(SkGammas));
+    SkColorSpaceTransferFn* params = SkTAddOffset<SkColorSpaceTransferFn>
+            (memory, sizeof(SkGammas));
 
     // Interval, switch xforms at 0.0031308f
     params->fD = 0.04045f;
@@ -129,7 +130,7 @@ DEF_TEST(ColorSpaceXform_NamedGamma, r) {
 DEF_TEST(ColorSpaceXform_NonMatchingGamma, r) {
     constexpr size_t tableSize = 10;
     void* memory = sk_malloc_throw(sizeof(SkGammas) + sizeof(float) * tableSize +
-                                   sizeof(SkGammas::Params));
+                                   sizeof(SkColorSpaceTransferFn));
     sk_sp<SkGammas> gammas = sk_sp<SkGammas>(new (memory) SkGammas());
 
     float* table = SkTAddOffset<float>(memory, sizeof(SkGammas));
@@ -144,8 +145,8 @@ DEF_TEST(ColorSpaceXform_NonMatchingGamma, r) {
     table[8] = 0.85f;
     table[9] = 1.00f;
 
-    SkGammas::Params* params = SkTAddOffset<SkGammas::Params>(memory, sizeof(SkGammas) +
-                                                              sizeof(float) * tableSize);
+    SkColorSpaceTransferFn* params = SkTAddOffset<SkColorSpaceTransferFn>(memory,
+            sizeof(SkGammas) + sizeof(float) * tableSize);
     params->fA = 1.0f / 1.055f;
     params->fB = 0.055f / 1.055f;
     params->fC = 0.0f;
