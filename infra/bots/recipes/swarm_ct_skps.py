@@ -39,6 +39,13 @@ TOOL_TO_DEFAULT_SKPS_PER_SLAVE = {
 # The SKP repository to use.
 DEFAULT_SKPS_CHROMIUM_BUILD = 'fad657e-276e633'
 
+FAILURE_MSG_TEMPLATE = """
+How to find and download failing SKPs:
+* Copy names of the failing SKPs
+* Find their rankings from %s
+* Download them via %s
+"""
+
 
 def RunSteps(api):
   # Figure out which repository to use.
@@ -89,10 +96,17 @@ def RunSteps(api):
   skps_chromium_build = api.properties.get(
       'skps_chromium_build', DEFAULT_SKPS_CHROMIUM_BUILD)
 
-  # Set build property to make finding SKPs convenient.
-  api.step.active_result.presentation.properties['Location of SKPs'] = (
+  # Set build properties to make finding SKPs convenient.
+  webpage_rankings_link = (
+      'https://storage.cloud.google.com/%s/csv/top-1m.csv'
+          % api.ct.CT_GS_BUCKET)
+  api.step.active_result.presentation.properties['Webpage rankings'] = (
+      webpage_rankings_link)
+  download_skps_link = (
       'https://pantheon.corp.google.com/storage/browser/%s/swarming/skps/%s/%s/'
           % (api.ct.CT_GS_BUCKET, ct_page_type, skps_chromium_build))
+  api.step.active_result.presentation.properties['Download SKPs by rank'] = (
+      download_skps_link)
 
   # Delete swarming_temp_dir to ensure it starts from a clean slate.
   api.run.rmtree(api.swarming.swarming_temp_dir)
@@ -218,8 +232,11 @@ def RunSteps(api):
       failed_tasks.append(e)
 
   if failed_tasks:
-    raise api.step.StepFailure(
-        'Failed steps: %s' % ', '.join([f.name for f in failed_tasks]))
+    failure_msg = 'Failed steps: %s\n' % ', '.join(
+                      [f.name for f in failed_tasks])
+    failure_msg += FAILURE_MSG_TEMPLATE % (
+                       webpage_rankings_link, download_skps_link)
+    raise api.step.StepFailure(failure_msg)
 
 
 def GenTests(api):
