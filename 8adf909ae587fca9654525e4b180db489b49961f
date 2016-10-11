@@ -16,6 +16,24 @@
       "revId": "8adf909ae587fca9654525e4b180db489b49961f",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7f82c883_8a7b2f48",
+        "filename": "infra/bots/recipes/swarm_compile.expected/buildbotless_trybot_gerrit.json",
+        "patchSetId": 3
+      },
+      "lineNbr": 130,
+      "author": {
+        "id": 5015
+      },
+      "writtenOn": "2016-10-11T11:48:32Z",
+      "side": 1,
+      "message": "Yeah, I\u0027m not entirely sure what to do about Gerrit right now.  It\u0027s hard to test because \"git cl try\" fails out immediately for Gerrit CLs.",
+      "parentUuid": "ff45d8e5_6023acc5",
+      "revId": "8adf909ae587fca9654525e4b180db489b49961f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
