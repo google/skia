@@ -20,7 +20,7 @@
 #include "SkJSONCPP.h"
 #include "UrlDataManager.h"
 
-class SK_API SkDrawCommand {
+class SkDrawCommand {
 public:
     enum OpType {
         kBeginDrawPicture_OpType,

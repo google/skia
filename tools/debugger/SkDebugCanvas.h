@@ -21,7 +21,7 @@
 class GrAuditTrail;
 class SkNWayCanvas;
 
-class SK_API SkDebugCanvas : public SkCanvas {
+class SkDebugCanvas : public SkCanvas {
 public:
     SkDebugCanvas(int width, int height);
 
@@ -205,7 +205,7 @@ protected:
     void didSetMatrix(const SkMatrix &) override;
 
 #ifdef SK_EXPERIMENTAL_SHADOWING
-    void didTranslateZ(SkScalar) override; 
+    void didTranslateZ(SkScalar) override;
 #else
     void didTranslateZ(SkScalar);
 #endif

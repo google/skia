@@ -14,7 +14,7 @@ declare_args() {
     cxx = "$ndk/toolchains/llvm/prebuilt/$ndk_host/bin/clang++"
   }
 
-  windk = ""
+  windk = "C:/Program Files (x86)/Microsoft Visual Studio 14.0"
 
   extra_cflags = []
   extra_cflags_c = []
@@ -52,6 +52,12 @@ config("default") {
       "_HAS_EXCEPTIONS=0",
       "WIN32_LEAN_AND_MEAN",
       "NOMINMAX",
+    ]
+    include_dirs = [
+      "$windk/../Windows Kits/10/Include/10.0.10150.0/ucrt",
+      "$windk/../Windows Kits/8.1/Include/um",
+      "$windk/../Windows Kits/8.1/Include/shared",
+      "$windk/VC/include",
     ]
   } else {
     cflags += [
@@ -288,30 +294,22 @@ config("executable") {
 }
 
 toolchain("msvc") {
-  vc = "$windk\VC\bin\amd64\cl.exe"
-  vlink = "$windk\VC\bin\amd64\link.exe"
-  vlib = "$windk\VC\bin\amd64\lib.exe"
-
-  # TODO: add a python function that generates the includes using <VSPATH>/win_sdk/bin/SetEnv.<cpu>.json
-  windk_include_dirs = "/I$windk\win_sdk\bin\..\..\win_sdk\Include\10.0.10586.0\um /I$windk\win_sdk\bin\..\..\win_sdk\Include\10.0.10586.0\shared /I$windk\win_sdk\bin\..\..\win_sdk\Include\10.0.10586.0\winrt /I$windk\win_sdk\bin\..\..\win_sdk\Include\10.0.10586.0\ucrt /I$windk\win_sdk\bin\..\..\VC\include /I$windk\win_sdk\bin\..\..\VC\atlmfc\include "
+  cl_exe = "$windk/VC/bin/amd64/cl.exe"
+  link_exe = "$windk/VC/bin/amd64/link.exe"
+  lib_exe = "$windk/VC/bin/amd64/lib.exe"
 
   tool("cc") {
     rspfile = "{{output}}.rsp"
     precompiled_header_type = "msvc"
     pdbname = "{{target_out_dir}}/{{label_name}}_c.pdb"
 
-    # Label names may have spaces in them so the pdbname must be quoted. The
-    # source and output don't need to be quoted because GN knows they're a
-    # full file name and will quote automatically when necessary.
-
-    command = "$vc /nologo /showIncludes /FC @$rspfile /c {{source}} /Fo{{output}} /Fd\"$pdbname\""
+    # Label names may have spaces so pdbname must be quoted.
+    command = "$cl_exe /nologo /showIncludes /FC @$rspfile /c {{source}} /Fo{{output}} /Fd\"$pdbname\""
     depsformat = "msvc"
-    description = "CC {{output}}"
     outputs = [
       "{{source_out_dir}}/{{target_output_name}}.{{source_name_part}}.obj",
-      # "$object_subdir/{{source_name_part}}.obj",
     ]
-    rspfile_content = "$windk_include_dirs {{defines}} {{include_dirs}} {{cflags}} {{cflags_c}}"
+    rspfile_content = "{{defines}} {{include_dirs}} {{cflags}} {{cflags_c}}"
   }
 
   tool("cxx") {
@@ -319,24 +317,19 @@ toolchain("msvc") {
     precompiled_header_type = "msvc"
     pdbname = "{{target_out_dir}}/{{label_name}}_c.pdb"
 
-    # Label names may have spaces in them so the pdbname must be quoted. The
-    # source and output don't need to be quoted because GN knows they're a
-    # full file name and will quote automatically when necessary.
-    command = "$vc /nologo /showIncludes /FC @$rspfile /c {{source}} /Fo{{output}} /Fd\"$pdbname\""
+    # Label names may have spaces so pdbname must be quoted.
+    command = "$cl_exe /nologo /showIncludes /FC @$rspfile /c {{source}} /Fo{{output}} /Fd\"$pdbname\""
     depsformat = "msvc"
-    description = "C++ {{output}}"
     outputs = [
       "{{source_out_dir}}/{{target_output_name}}.{{source_name_part}}.obj",
     ]
-    rspfile_content = "$windk_include_dirs {{defines}} {{include_dirs}} {{cflags}} {{cflags_cc}}"
+    rspfile_content = "{{defines}} {{include_dirs}} {{cflags}} {{cflags_cc}}"
   }
 
   tool("alink") {
     rspfile = "{{output}}.rsp"
 
-    # gyp_win_tool_path = rebase_path("../third_party/externals/gyp/pylib/gyp/win_tool.py")
-    command = "$vlib /nologo {{arflags}} /OUT:{{output}} @$rspfile"
-    description = "LIB {{output}}"
+    command = "$lib_exe /nologo {{arflags}} /OUT:{{output}} @$rspfile"
     outputs = [
       # Ignore {{output_extension}} and always use .lib, there's no reason to
       # allow targets to override this extension on Windows.
@@ -345,8 +338,7 @@ toolchain("msvc") {
     default_output_extension = ".lib"
     default_output_dir = "{{target_out_dir}}"
 
-    # The use of inputs_newline is to work around a fixed per-line buffer
-    # size in the linker.
+    # inputs_newline works around a fixed per-line buffer size in the linker.
     rspfile_content = "{{inputs_newline}}"
   }
 
@@ -355,24 +347,15 @@ toolchain("msvc") {
     pdbname = "$exename.pdb"
     rspfile = "$exename.rsp"
 
-    # gyp_win_tool_path = rebase_path("../third_party/externals/gyp/pylib/gyp/win_tool.py")
-    command = "$vlink /nologo /OUT:$exename /PDB:$pdbname @$rspfile"
+    command = "$link_exe /nologo /OUT:$exename /PDB:$pdbname @$rspfile"
 
     default_output_extension = ".exe"
     default_output_dir = "{{root_out_dir}}"
-    description = "LINK {{output}}"
     outputs = [
-      #"{{root_out_dir}}/{{target_output_name}}{{output_extension}}",
       exename,
     ]
 
-    #if (symbol_level != 0) {
-    #  outputs += [ pdbname ]
-    #}
-    #runtime_outputs = outputs
-
-    # The use of inputs_newline is to work around a fixed per-line buffer
-    # size in the linker.
+    # inputs_newline works around a fixed per-line buffer size in the linker.
     rspfile_content = "{{inputs_newline}} {{libs}} {{solibs}} {{ldflags}}"
   }
 

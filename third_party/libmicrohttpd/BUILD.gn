@@ -32,5 +32,12 @@ third_party("libmicrohttpd") {
       "HAVE_SYS_SOCKET_H=1",
       "MHD_USE_POSIX_THREADS=1",
     ]
+  } else {
+    defines += [
+      "HAVE_SYS_TYPES_H=1",
+      "HAVE_TIME_H=1",
+      "MHD_USE_W32_THREADS=1",
+      "WINDOWS",
+    ]
   }
 }
