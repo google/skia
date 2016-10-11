@@ -208,7 +208,8 @@ def _CheckGNFormatted(input_api, output_api):
     if not f.LocalPath().endswith('.gn'):
       continue
 
-    cmd = ['gn', 'format', '--dry-run', f.LocalPath()]
+    gn = 'gn.bat' if 'win32' in sys.platform else 'gn'
+    cmd = [gn, 'format', '--dry-run', f.LocalPath()]
     try:
       subprocess.check_output(cmd)
     except subprocess.CalledProcessError:
