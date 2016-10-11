@@ -5,6 +5,9 @@
 
 template("third_party") {
   config(target_name + "_public") {
+    if (defined(invoker.public_defines)) {
+      defines = invoker.public_defines
+    }
     include_dirs = invoker.public_include_dirs
   }
   source_set(target_name) {
