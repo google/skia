@@ -422,7 +422,7 @@ bool SkKTXFile::WriteBitmapToKTX(SkWStream* stream, const SkBitmap& bitmap) {
     SkAutoLockPixels alp(bitmap);
 
     const int width = bitmap.width();
-    const int height = bitmap.width();
+    const int height = bitmap.height();
     const uint8_t* src = reinterpret_cast<uint8_t*>(bitmap.getPixels());
     if (NULL == bitmap.getPixels()) {
         return false;

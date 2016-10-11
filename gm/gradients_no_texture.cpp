@@ -15,11 +15,11 @@ struct GradData {
     const SkScalar* fPos;
 };
 
-static const SkColor gColors[] = {
+constexpr SkColor gColors[] = {
     SK_ColorRED, SK_ColorGREEN, SK_ColorBLUE, SK_ColorWHITE,
 };
 
-static const GradData gGradData[] = {
+constexpr GradData gGradData[] = {
     { 1, gColors, nullptr },
     { 2, gColors, nullptr },
     { 3, gColors, nullptr },
@@ -71,7 +71,7 @@ static sk_sp<SkShader> Make2Conical(const SkPoint pts[2], const GradData& data, 
 
 typedef sk_sp<SkShader> (*GradMaker)(const SkPoint pts[2], const GradData& data, SkShader::TileMode tm);
 
-static const GradMaker gGradMakers[] = {
+constexpr GradMaker gGradMakers[] = {
     MakeLinear, MakeRadial, MakeSweep, Make2Radial, Make2Conical,
 };
 
@@ -92,16 +92,16 @@ protected:
     SkISize onISize() override { return SkISize::Make(640, 615); }
 
     void onDraw(SkCanvas* canvas) override {
-        static const SkPoint kPts[2] = { { 0, 0 },
+        constexpr SkPoint kPts[2] = { { 0, 0 },
                                          { SkIntToScalar(50), SkIntToScalar(50) } };
-        static const SkShader::TileMode kTM = SkShader::kClamp_TileMode;
+        constexpr SkShader::TileMode kTM = SkShader::kClamp_TileMode;
         SkRect kRect = { 0, 0, SkIntToScalar(50), SkIntToScalar(50) };
         SkPaint paint;
         paint.setAntiAlias(true);
         paint.setDither(fDither);
 
         canvas->translate(SkIntToScalar(20), SkIntToScalar(20));
-        static const uint8_t kAlphas[] = { 0xff, 0x40 };
+        constexpr uint8_t kAlphas[] = { 0xff, 0x40 };
         for (size_t a = 0; a < SK_ARRAY_COUNT(kAlphas); ++a) {
             for (size_t i = 0; i < SK_ARRAY_COUNT(gGradData); ++i) {
                 canvas->save();

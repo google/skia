@@ -38,11 +38,10 @@ static void make_test_image(SkBitmap* bm) {
 /**
  * encode this bitmap into some data via SkImageEncoder
  */
-static SkData* create_data_from_bitmap(const SkBitmap& bm,
-                                       SkImageEncoder::Type type) {
+static sk_sp<SkData> create_data_from_bitmap(const SkBitmap& bm, SkImageEncoder::Type type) {
     SkDynamicMemoryWStream stream;
     if (SkImageEncoder::EncodeStream(&stream, bm, type, 100)) {
-        return stream.copyToData();
+        return stream.detachAsData();
     }
     return nullptr;
 }
@@ -107,7 +106,7 @@ static void test_three_encodings(skiatest::Reporter* reporter,
     };
     for (size_t i = 0; i < SK_ARRAY_COUNT(types); i++) {
         SkImageEncoder::Type type = types[i];
-        sk_sp<SkData> encoded(create_data_from_bitmap(original, type));
+        sk_sp<SkData> encoded = create_data_from_bitmap(original, type);
         REPORTER_ASSERT(reporter, encoded.get() != nullptr);
         if (nullptr == encoded.get()) {
             continue;

@@ -49,7 +49,7 @@ protected:
         sk_tool_utils::add_to_text_blob(&builder, text, paint, xOffset, -yOffset - 10);
 
         // build
-        fBlob.reset(builder.build());
+        fBlob = builder.make();
     }
 
     SkString onShortName() override {
@@ -158,10 +158,10 @@ protected:
     }
 
 private:
-    SkAutoTUnref<const SkTextBlob> fBlob;
+    sk_sp<SkTextBlob> fBlob;
 
-    static const int kWidth = 1000;
-    static const int kHeight = 1200;
+    static constexpr int kWidth = 1000;
+    static constexpr int kHeight = 1200;
 
     typedef GM INHERITED;
 };

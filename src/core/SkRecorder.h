@@ -105,6 +105,7 @@ public:
     void onDrawPaint(const SkPaint&) override;
     void onDrawPoints(PointMode, size_t count, const SkPoint pts[], const SkPaint&) override;
     void onDrawRect(const SkRect&, const SkPaint&) override;
+    void onDrawRegion(const SkRegion&, const SkPaint&) override;
     void onDrawOval(const SkRect&, const SkPaint&) override;
     void onDrawArc(const SkRect&, SkScalar, SkScalar, bool, const SkPaint&) override;
     void onDrawRRect(const SkRRect&, const SkPaint&) override;
@@ -131,21 +132,23 @@ public:
     void onDrawAtlas(const SkImage*, const SkRSXform[], const SkRect[], const SkColor[],
                      int count, SkXfermode::Mode, const SkRect* cull, const SkPaint*) override;
 
-    void onClipRect(const SkRect& rect, SkRegion::Op op, ClipEdgeStyle edgeStyle) override;
-    void onClipRRect(const SkRRect& rrect, SkRegion::Op op, ClipEdgeStyle edgeStyle) override;
-    void onClipPath(const SkPath& path, SkRegion::Op op, ClipEdgeStyle edgeStyle) override;
-    void onClipRegion(const SkRegion& deviceRgn, SkRegion::Op op) override;
+    void onClipRect(const SkRect& rect, ClipOp, ClipEdgeStyle) override;
+    void onClipRRect(const SkRRect& rrect, ClipOp, ClipEdgeStyle) override;
+    void onClipPath(const SkPath& path, ClipOp, ClipEdgeStyle) override;
+    void onClipRegion(const SkRegion& deviceRgn, ClipOp) override;
 
     void onDrawPicture(const SkPicture*, const SkMatrix*, const SkPaint*) override;
 
 #ifdef SK_EXPERIMENTAL_SHADOWING
     void onDrawShadowedPicture(const SkPicture*,
                                const SkMatrix*,
-                               const SkPaint*) override;
+                               const SkPaint*,
+                               const SkShadowParams& params) override;
 #else
     void onDrawShadowedPicture(const SkPicture*,
                                const SkMatrix*,
-                               const SkPaint*);
+                               const SkPaint*,
+                               const SkShadowParams& params);
 #endif
 
     void onDrawAnnotation(const SkRect&, const char[], SkData*) override;

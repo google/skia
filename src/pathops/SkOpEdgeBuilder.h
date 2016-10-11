@@ -12,7 +12,8 @@
 
 class SkOpEdgeBuilder {
 public:
-    SkOpEdgeBuilder(const SkPathWriter& path, SkOpContour* contours2, SkOpGlobalState* globalState)
+    SkOpEdgeBuilder(const SkPathWriter& path, SkOpContourHead* contours2,
+            SkOpGlobalState* globalState)
         : fGlobalState(globalState)
         , fPath(path.nativePath())
         , fContoursHead(contours2)
@@ -20,7 +21,7 @@ public:
         init();
     }
 
-    SkOpEdgeBuilder(const SkPath& path, SkOpContour* contours2, SkOpGlobalState* globalState)
+    SkOpEdgeBuilder(const SkPath& path, SkOpContourHead* contours2, SkOpGlobalState* globalState)
         : fGlobalState(globalState)
         , fPath(&path)
         , fContoursHead(contours2)
@@ -37,7 +38,6 @@ public:
         }
     }
 
-    int count() const;
     bool finish();
 
     const SkOpContour* head() const {
@@ -60,7 +60,7 @@ private:
     SkTDArray<SkScalar> fWeights;
     SkTDArray<uint8_t> fPathVerbs;
     SkOpContour* fCurrentContour;
-    SkOpContour* fContoursHead;
+    SkOpContourHead* fContoursHead;
     SkPathOpsMask fXorMask[2];
     int fSecondHalf;
     bool fOperand;

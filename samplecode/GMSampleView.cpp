@@ -26,6 +26,15 @@ bool GMSampleView::onQuery(SkEvent* evt) {
         SampleCode::TitleR(evt, name.c_str());
         return true;
     }
+
+    SkUnichar uni;
+    if (SampleCode::CharQ(*evt, &uni)) {
+        if (fGM->handleKey(uni)) {
+            this->inval(nullptr);
+            return true;
+        }
+    }
+
     return this->INHERITED::onQuery(evt);
 }
 
@@ -38,12 +47,8 @@ bool GMSampleView::onEvent(const SkEvent& evt) {
 }
 
 #include "SkPicture.h"
-#include "SkStream.h"
 static sk_sp<SkPicture> round_trip_serialize(SkPicture* src) {
-    SkDynamicMemoryWStream stream;
-    src->serialize(&stream);
-    SkAutoTDelete<SkStream> reader(stream.detachAsStream());
-    return SkPicture::MakeFromStream(reader);
+    return SkPicture::MakeFromData(src->serialize().get());
 }
 
 #include "SkPictureRecorder.h"

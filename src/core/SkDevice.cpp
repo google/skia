@@ -16,6 +16,7 @@
 #include "SkLatticeIter.h"
 #include "SkMetaData.h"
 #include "SkPatchUtils.h"
+#include "SkPathPriv.h"
 #include "SkPathMeasure.h"
 #include "SkRasterClip.h"
 #include "SkRSXform.h"
@@ -72,18 +73,35 @@ SkPixelGeometry SkBaseDevice::CreateInfo::AdjustGeometry(const SkImageInfo& info
     return geo;
 }
 
+static inline bool is_int(float x) {
+    return x == (float) sk_float_round2int(x);
+}
+
+void SkBaseDevice::drawRegion(const SkDraw& draw, const SkRegion& region, const SkPaint& paint) {
+    bool isNonTranslate = draw.fMatrix->getType() & ~(SkMatrix::kTranslate_Mask);
+    bool complexPaint = paint.getStyle() != SkPaint::kFill_Style || paint.getMaskFilter() ||
+                        paint.getPathEffect();
+    bool antiAlias = paint.isAntiAlias() && (!is_int(draw.fMatrix->getTranslateX()) ||
+                                             !is_int(draw.fMatrix->getTranslateY()));
+    if (isNonTranslate || complexPaint || antiAlias) {
+        SkPath path;
+        region.getBoundaryPath(&path);
+        return this->drawPath(draw, path, paint, nullptr, false);
+    }
+
+    SkRegion::Iterator it(region);
+    while (!it.done()) {
+        this->drawRect(draw, SkRect::Make(it.rect()), paint);
+        it.next();
+    }
+}
+
 void SkBaseDevice::drawArc(const SkDraw& draw, const SkRect& oval, SkScalar startAngle,
                            SkScalar sweepAngle, bool useCenter, const SkPaint& paint) {
-    SkASSERT(SkScalarAbs(sweepAngle) >= 0.f && SkScalarAbs(sweepAngle) < 360.f);
     SkPath path;
-    if (useCenter) {
-        path.moveTo(oval.centerX(), oval.centerY());
-    }
-    path.arcTo(oval, startAngle, sweepAngle, !useCenter);
-    if (useCenter) {
-        path.close();
-    }
-    path.setIsVolatile(true);
+    bool isFillNoPathEffect = SkPaint::kFill_Style == paint.getStyle() && !paint.getPathEffect();
+    SkPathPriv::CreateDrawArcPath(&path, oval, startAngle, sweepAngle, useCenter,
+                                  isFillNoPathEffect);
     this->drawPath(draw, path, paint);
 }
 
@@ -201,7 +219,7 @@ void SkBaseDevice::drawBitmapNine(const SkDraw& draw, const SkBitmap& bitmap, co
 void SkBaseDevice::drawImageLattice(const SkDraw& draw, const SkImage* image,
                                     const SkCanvas::Lattice& lattice, const SkRect& dst,
                                     const SkPaint& paint) {
-    SkLatticeIter iter(image->width(), image->height(), lattice, dst);
+    SkLatticeIter iter(lattice, dst);
 
     SkRect srcR, dstR;
     while (iter.next(&srcR, &dstR)) {
@@ -212,7 +230,7 @@ void SkBaseDevice::drawImageLattice(const SkDraw& draw, const SkImage* image,
 void SkBaseDevice::drawBitmapLattice(const SkDraw& draw, const SkBitmap& bitmap,
                                      const SkCanvas::Lattice& lattice, const SkRect& dst,
                                      const SkPaint& paint) {
-    SkLatticeIter iter(bitmap.width(), bitmap.height(), lattice, dst);
+    SkLatticeIter iter(lattice, dst);
 
     SkRect srcR, dstR;
     while (iter.next(&srcR, &dstR)) {

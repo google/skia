@@ -39,7 +39,7 @@ protected:
 
     void onDraw(SkCanvas* canvas) override {
 
-        static const struct {
+        constexpr struct {
             SkFilterQuality fQuality;
             const char* fName;
         } kQualities[] = {
@@ -59,7 +59,7 @@ protected:
             lm.setTranslateX(423);
             lm.setTranslateY(330);
 
-            static const SkShader::TileMode kTM = SkShader::kRepeat_TileMode;
+            constexpr SkShader::TileMode kTM = SkShader::kRepeat_TileMode;
             bmpPaint.setShader(SkShader::MakeBitmapShader(fBmp, kTM, kTM, &lm));
             SkRect rect = SkRect::MakeLTRB(20, 60, 220, 210);
             canvas->drawRect(rect, bmpPaint);

@@ -98,10 +98,10 @@ protected:
         // Stroke widths are:
         // 0(may use hairline rendering), 10(common case for stroke-style)
         // 40(>= geometry width/height, make the contour filled in fact)
-        static const int kStrokeWidths[] = {0, 10, 40};
+        constexpr int kStrokeWidths[] = {0, 10, 40};
         SkASSERT(kNumStrokeWidths == SK_ARRAY_COUNT(kStrokeWidths));
 
-        static const SkPaint::Join kJoins[] = {
+        constexpr SkPaint::Join kJoins[] = {
             SkPaint::kMiter_Join, SkPaint::kRound_Join, SkPaint::kBevel_Join
         };
         SkASSERT(kNumJoins == SK_ARRAY_COUNT(kJoins));
@@ -131,7 +131,7 @@ protected:
         }
 
         // For stroke-and-fill style painter and fill style painter
-        static const SkPaint::Style kStyles[] = {
+        constexpr SkPaint::Style kStyles[] = {
             SkPaint::kStrokeAndFill_Style, SkPaint::kFill_Style
         };
         SkASSERT(kNumExtraStyles == SK_ARRAY_COUNT(kStyles));
@@ -152,11 +152,11 @@ protected:
     }
 
 private:
-    static const int kNumPolygons = 8;
-    static const int kCellSize = 100;
-    static const int kNumExtraStyles = 2;
-    static const int kNumStrokeWidths = 3;
-    static const int kNumJoins = 3;
+    static constexpr int kNumPolygons = 8;
+    static constexpr int kCellSize = 100;
+    static constexpr int kNumExtraStyles = 2;
+    static constexpr int kNumStrokeWidths = 3;
+    static constexpr int kNumJoins = 3;
 
     SkTArray<SkPath> fPolygons;
     typedef GM INHERITED;

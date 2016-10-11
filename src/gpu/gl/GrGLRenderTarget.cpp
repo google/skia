@@ -190,7 +190,7 @@ void GrGLRenderTarget::dumpMemoryStatistics(SkTraceMemoryDump* traceMemoryDump) 
         // Due to this resource having both a texture and a renderbuffer component, dump as
         // skia/gpu_resources/resource_#/renderbuffer
         SkString dumpName("skia/gpu_resources/resource_");
-        dumpName.appendS32(this->getUniqueID());
+        dumpName.appendS32(this->uniqueID());
         dumpName.append("/renderbuffer");
 
         traceMemoryDump->dumpNumericValue(dumpName.c_str(), "size", "bytes", size);

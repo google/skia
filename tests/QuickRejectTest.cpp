@@ -29,7 +29,7 @@ public:
     }
 #endif
 
-    SK_DECLARE_PUBLIC_FLATTENABLE_DESERIALIZATION_PROCS(TestLooper);
+    SK_DECLARE_PUBLIC_FLATTENABLE_DESERIALIZATION_PROCS(TestLooper)
 
 private:
     class TestDrawLooperContext : public SkDrawLooper::Context {

@@ -65,7 +65,7 @@ static void draw_45(SkCanvas* canvas, SkRRect::Corner corner,
     SkRRect::Corner left = SkRRect::kUpperLeft_Corner, right = SkRRect::kUpperLeft_Corner;
     SkVector dir = { 0, 0 };
 
-    static const SkScalar kSize = 64.0f / SK_ScalarSqrt2;
+    constexpr SkScalar kSize = 64.0f / SK_ScalarSqrt2;
 
     switch (corner) {
     case SkRRect::kUpperLeft_Corner:
@@ -88,11 +88,11 @@ static void draw_45(SkCanvas* canvas, SkRRect::Corner corner,
         left = SkRRect::kLowerRight_Corner;
         right = SkRRect::kUpperLeft_Corner;
         dir.set(-SK_ScalarRoot2Over2, SK_ScalarRoot2Over2);
-        break;   
+        break;
     default:
         SkFAIL("Invalid shape.");
     }
-    
+
     SkRect r = SkRect::MakeWH(kSize, kSize);
     // UL, UR, LR, LL
     SkVector radii[4] = { { 0.0f, 0.0f }, { 0.0f, 0.0f }, { 0.0f, 0.0f }, { 0.0f, 0.0f } };
@@ -110,9 +110,9 @@ static void draw_45(SkCanvas* canvas, SkRRect::Corner corner,
             radii);
 
     draw_rrect(canvas, rr, occRR);
-}    
+}
 
-static void draw_45_simple(SkCanvas* canvas, const SkVector& v, 
+static void draw_45_simple(SkCanvas* canvas, const SkVector& v,
                            SkScalar dist, const SkPoint& center) {
     SkIRect r = SkIRect::MakeWH(64, 64);
     SkRRect rr = SkRRect::MakeRectXY(
@@ -121,14 +121,14 @@ static void draw_45_simple(SkCanvas* canvas, const SkVector& v,
 
     dist -= 10.0f;
     SkRRect occRR = SkRRect::MakeRectXY(
-                            offset_center_to(r, center.fX + dist*v.fX, center.fY + dist*v.fY), 
+                            offset_center_to(r, center.fX + dist*v.fX, center.fY + dist*v.fY),
                             8, 8);
 
     draw_rrect(canvas, rr, occRR);
 }
 
 static void draw_90(SkCanvas* canvas, const SkVector& v, SkScalar dist, const SkPoint& center) {
-    static const int kWidth = 25;
+    constexpr int kWidth = 25;
 
     SkIRect r;
     if (fabs(v.fX) < fabs(v.fY)) {
@@ -148,10 +148,10 @@ static void draw_90(SkCanvas* canvas, const SkVector& v, SkScalar dist, const Sk
 
 static void draw_90_simple(SkCanvas* canvas, const SkVector& v,
                            SkScalar dist, const SkPoint& center) {
-    static const int kLength = 128;
+    constexpr int kLength = 128;
     // The width needs to be larger than 2*3*blurRadii+2*cornerRadius for the analytic
     // RRect blur to kick in
-    static const int kWidth = 47;
+    constexpr int kWidth = 47;
 
     SkIRect r;
     if (fabs(v.fX) < fabs(v.fY)) {
@@ -175,8 +175,8 @@ static void draw_30_60(SkCanvas* canvas, SkRRect::Corner corner, const SkVector&
                        SkScalar dist, const SkPoint& center) {
     SkRRect::Corner left = SkRRect::kUpperLeft_Corner, right = SkRRect::kUpperLeft_Corner;
 
-    static const int kLength = 64;
-    static const int kWidth = 30;
+    constexpr int kLength = 64;
+    constexpr int kWidth = 30;
 
     switch (corner) {
     case SkRRect::kUpperLeft_Corner:
@@ -194,7 +194,7 @@ static void draw_30_60(SkCanvas* canvas, SkRRect::Corner corner, const SkVector&
     case SkRRect::kLowerLeft_Corner:
         left = SkRRect::kLowerRight_Corner;
         right = SkRRect::kUpperLeft_Corner;
-        break;    
+        break;
     default:
         SkFAIL("Invalid shape.");
     }
@@ -215,7 +215,7 @@ static void draw_30_60(SkCanvas* canvas, SkRRect::Corner corner, const SkVector&
     dist -= 10.0f;
     SkRRect occRR;
     occRR.setRectRadii(offset_center_to(r, center.fX + dist*v.fX, center.fY + dist*v.fY), radii);
-    draw_rrect(canvas, rr, occRR);        
+    draw_rrect(canvas, rr, occRR);
 }
 
 namespace skiagm {
@@ -272,7 +272,7 @@ protected:
         draw_90(canvas, SkVector::Make(1.0f, 0.0f), 64, center);
         draw_90(canvas, SkVector::Make(0.0f, 1.0f), 64, center);
 
-        static const SkScalar kRoot3Over2 = 0.8660254037844386f;
+        constexpr SkScalar kRoot3Over2 = 0.8660254037844386f;
 
         draw_30_60(canvas, SkRRect::kLowerLeft_Corner,
                    SkVector::Make(0.5f, kRoot3Over2), 120, center);
@@ -310,8 +310,8 @@ protected:
     }
 
 private:
-    static const int kWidth = 440;
-    static const int kHeight = 440;
+    static constexpr int kWidth = 440;
+    static constexpr int kHeight = 440;
 
     typedef GM INHERITED;
 };

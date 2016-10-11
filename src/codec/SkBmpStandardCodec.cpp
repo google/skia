@@ -48,7 +48,7 @@ SkCodec::Result SkBmpStandardCodec::onGetPixels(const SkImageInfo& dstInfo,
         SkCodecPrintf("Error: scaling not supported.\n");
         return kInvalidScale;
     }
-    if (!conversion_possible(dstInfo, this->getInfo())) {
+    if (!conversion_possible_ignore_color_space(dstInfo, this->getInfo())) {
         SkCodecPrintf("Error: cannot convert input type to output type.\n");
         return kInvalidConversion;
     }
@@ -302,10 +302,11 @@ void SkBmpStandardCodec::decodeIcoMask(SkStream* stream, const SkImageInfo& dstI
     }
 }
 
-uint32_t SkBmpStandardCodec::onGetFillValue(SkColorType colorType) const {
+uint64_t SkBmpStandardCodec::onGetFillValue(const SkImageInfo& dstInfo) const {
     const SkPMColor* colorPtr = get_color_ptr(fColorTable.get());
     if (colorPtr) {
-        return get_color_table_fill_value(colorType, colorPtr, 0);
+        return get_color_table_fill_value(dstInfo.colorType(), dstInfo.alphaType(), colorPtr, 0,
+                                          nullptr);
     }
-    return INHERITED::onGetFillValue(colorType);
+    return INHERITED::onGetFillValue(dstInfo);
 }

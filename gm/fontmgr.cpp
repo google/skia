@@ -188,7 +188,7 @@ protected:
         paint.setSubpixelText(true);
         paint.setTextSize(17);
 
-        static const char* gNames[] = {
+        const char* gNames[] = {
             "Helvetica Neue", "Arial"
         };
 

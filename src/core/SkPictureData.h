@@ -34,8 +34,23 @@ struct SkPictInfo {
         kPtrIs64Bit_Flag        = 1 << 2,
     };
 
+    SkPictInfo() : fVersion(~0U) {}
+
+    uint32_t getVersion() const {
+        SkASSERT(fVersion != ~0U);
+        return fVersion;
+    }
+
+    void setVersion(uint32_t version) {
+        SkASSERT(version != ~0U);
+        fVersion = version;
+    }
+
+public:
     char        fMagic[8];
+private:
     uint32_t    fVersion;
+public:
     SkRect      fCullRect;
     uint32_t    fFlags;
 };
@@ -117,6 +132,9 @@ public:
 
     const SkPaint* getPaint(SkReadBuffer* reader) const {
         const int index = reader->readInt() - 1;
+        if (index == -1) {  // recorder wrote a zero for no paint (likely drawimage)
+            return nullptr;
+        }
         return reader->validateIndex(index, fPaints.count()) ? &fPaints[index] : nullptr;
     }
 

@@ -142,6 +142,7 @@ const int kBackendCount = kLast_GrBackend + 1;
 /**
  * Backend-specific 3D context handle
  *      GrGLInterface* for OpenGL. If NULL will use the default GL interface.
+ *      GrVkBackendContext* for Vulkan.
  */
 typedef intptr_t GrBackendContext;
 
@@ -569,6 +570,7 @@ struct GrBackendTextureDesc {
     /**
      * Handle to the 3D API object.
      * OpenGL: Texture ID.
+     * Vulkan: GrVkImageInfo*
      */
     GrBackendObject                 fTextureHandle;
 };
@@ -603,6 +605,7 @@ struct GrBackendRenderTargetDesc {
     /**
      * Handle to the 3D API object.
      * OpenGL: FBO ID
+     * Vulkan: GrVkImageInfo*
      */
     GrBackendObject                 fRenderTargetHandle;
 };

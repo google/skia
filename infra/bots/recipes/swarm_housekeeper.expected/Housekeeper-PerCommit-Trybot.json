@@ -43,7 +43,7 @@
       "--githash",
       "abc123",
       "--gsutil_path",
-      "[DEPOT_TOOLS]/third_party/gsutil/gsutil",
+      "[DEPOT_TOOLS]/gsutil.py",
       "--issue_number",
       "500"
     ],

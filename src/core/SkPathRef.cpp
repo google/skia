@@ -619,7 +619,10 @@ void SkPathRef::Iter::setPathRef(const SkPathRef& path) {
     fPts = path.points();
     fVerbs = path.verbs();
     fVerbStop = path.verbsMemBegin();
-    fConicWeights = path.conicWeights() - 1; // begin one behind
+    fConicWeights = path.conicWeights();
+    if (fConicWeights) {
+      fConicWeights -= 1;  // begin one behind
+    }
 }
 
 uint8_t SkPathRef::Iter::next(SkPoint pts[4]) {
@@ -674,6 +677,9 @@ uint8_t SkPathRef::Iter::peek() const {
 }
 
 #ifdef SK_DEBUG
+
+#include "SkNx.h"
+
 void SkPathRef::validate() const {
     SkASSERT(static_cast<ptrdiff_t>(fFreeSpace) >= 0);
     SkASSERT(reinterpret_cast<intptr_t>(fVerbs) - reinterpret_cast<intptr_t>(fPoints) >= 0);
@@ -697,11 +703,13 @@ void SkPathRef::validate() const {
 
     if (!fBoundsIsDirty && !fBounds.isEmpty()) {
         bool isFinite = true;
+        Sk2s leftTop = Sk2s(fBounds.fLeft, fBounds.fTop);
+        Sk2s rightBot = Sk2s(fBounds.fRight, fBounds.fBottom);
         for (int i = 0; i < fPointCnt; ++i) {
+            Sk2s point = Sk2s(fPoints[i].fX, fPoints[i].fY);
 #ifdef SK_DEBUG
             if (fPoints[i].isFinite() &&
-                (fPoints[i].fX < fBounds.fLeft || fPoints[i].fX > fBounds.fRight ||
-                 fPoints[i].fY < fBounds.fTop || fPoints[i].fY > fBounds.fBottom)) {
+                ((point < leftTop).anyTrue() || (point > rightBot).anyTrue())) {
                 SkDebugf("bounds: %f %f %f %f\n",
                          fBounds.fLeft, fBounds.fTop, fBounds.fRight, fBounds.fBottom);
                 for (int j = 0; j < fPointCnt; ++j) {
@@ -714,8 +722,7 @@ void SkPathRef::validate() const {
 #endif
 
             SkASSERT(!fPoints[i].isFinite() ||
-		     (fPoints[i].fX >= fBounds.fLeft && fPoints[i].fX <= fBounds.fRight &&
-		      fPoints[i].fY >= fBounds.fTop && fPoints[i].fY <= fBounds.fBottom));
+                    (!(point < leftTop).anyTrue() && !(point > rightBot).anyTrue()));
             if (!fPoints[i].isFinite()) {
                 isFinite = false;
             }

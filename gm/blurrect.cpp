@@ -125,7 +125,7 @@ protected:
                 SkPaint paintWithRadial = paint;
                 paintWithRadial.setShader(MakeRadial());
 
-                static const Proc procs[] = {
+                constexpr Proc procs[] = {
                     fill_rect, draw_donut, draw_donut_skewed
                 };
 

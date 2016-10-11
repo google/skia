@@ -77,9 +77,7 @@ sk_sp<SkSpecialImage> SkDropShadowImageFilter::onFilterImage(SkSpecialImage* sou
         return nullptr;
     }
 
-    const SkImageInfo info = SkImageInfo::MakeN32(bounds.width(), bounds.height(),
-                                                  kPremul_SkAlphaType);
-    sk_sp<SkSpecialSurface> surf(source->makeSurface(info));
+    sk_sp<SkSpecialSurface> surf(source->makeSurface(ctx.outputProperties(), bounds.size()));
     if (!surf) {
         return nullptr;
     }
@@ -97,7 +95,6 @@ sk_sp<SkSpecialImage> SkDropShadowImageFilter::onFilterImage(SkSpecialImage* sou
     SkPaint paint;
     paint.setImageFilter(SkBlurImageFilter::Make(sigma.fX, sigma.fY, nullptr));
     paint.setColorFilter(SkColorFilter::MakeModeFilter(fColor, SkXfermode::kSrcIn_Mode));
-    paint.setXfermodeMode(SkXfermode::kSrcOver_Mode);
 
     SkVector offsetVec = SkVector::Make(fDx, fDy);
     ctx.ctm().mapVectors(&offsetVec, 1);

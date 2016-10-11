@@ -808,9 +808,7 @@ void SkScalerContext_DW::generateColorGlyphImage(const SkGlyph& glyph) {
             // the 'current brush' is used. fRec.getLuminanceColor() is kinda sorta what is wanted
             // here, but not really, it will often be the wrong value because it wan't designed for
             // this.
-            // In practice, I've not encountered a color glyph that uses the current brush color.
-            // If this assert ever fires, we should verify that the color is rendered properly.
-            SkASSERT(false);
+            // TODO: implement this fully, bug.skia.org/5788
             color = fRec.getLuminanceColor();
         }
         paint.setColor(color);

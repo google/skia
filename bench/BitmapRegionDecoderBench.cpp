@@ -36,8 +36,7 @@ bool BitmapRegionDecoderBench::isSuitableFor(Backend backend) {
 }
 
 void BitmapRegionDecoderBench::onDelayedSetup() {
-    fBRD.reset(SkBitmapRegionDecoder::Create(fData.get(),
-                                             SkBitmapRegionDecoder::kAndroidCodec_Strategy));
+    fBRD.reset(SkBitmapRegionDecoder::Create(fData, SkBitmapRegionDecoder::kAndroidCodec_Strategy));
 }
 
 void BitmapRegionDecoderBench::onDraw(int n, SkCanvas* canvas) {

@@ -53,8 +53,8 @@ public:
             SkFixed fMaximum;
         };
         using AxisDefinitions = SkSTArray<4, AxisDefinition, true>;
-        bool recognizedFont(SkStream* stream, int* numFonts) const;
-        bool scanFont(SkStream* stream, int ttcIndex,
+        bool recognizedFont(SkStreamAsset* stream, int* numFonts) const;
+        bool scanFont(SkStreamAsset* stream, int ttcIndex,
                       SkString* name, SkFontStyle* style, bool* isFixedPitch,
                       AxisDefinitions* axes) const;
         static void computeAxisValues(
@@ -64,7 +64,7 @@ public:
             const SkString& name);
 
     private:
-        FT_Face openFace(SkStream* stream, int ttcIndex, FT_Stream ftStream) const;
+        FT_Face openFace(SkStreamAsset* stream, int ttcIndex, FT_Stream ftStream) const;
         FT_Library fLibrary;
         mutable SkMutex fLibraryMutex;
     };

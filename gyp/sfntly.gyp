@@ -15,9 +15,6 @@
       },
       'direct_dependent_settings': {
         'include_dirs': [ '<(sfntly_src_path)', ],
-        'defines': [
-          'SK_SFNTLY_SUBSETTER="sample/chromium/font_subsetter.h"',
-        ],
       },
       'sources': [
         '<(sfntly_src_path)/sample/chromium/font_subsetter.cc',

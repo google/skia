@@ -14,6 +14,7 @@
 #include "GrGpuFactory.h"
 #include "vk/GrVkBackendContext.h"
 #include "GrVkCaps.h"
+#include "GrVkCopyManager.h"
 #include "GrVkIndexBuffer.h"
 #include "GrVkMemory.h"
 #include "GrVkResourceProvider.h"
@@ -59,7 +60,9 @@ public:
         return fPhysDevMemProps;
     }
 
-    GrVkResourceProvider& resourceProvider() { return fResourceProvider;  }
+    GrVkResourceProvider& resourceProvider() { return fResourceProvider; }
+
+    GrVkPrimaryCommandBuffer* currentCommandBuffer() { return fCurrentCmdBuffer; }
 
     enum SyncQueue {
         kForce_SyncQueue,
@@ -82,7 +85,7 @@ public:
     void onGetMultisampleSpecs(GrRenderTarget* rt, const GrStencilSettings&,
                                int* effectiveSampleCnt, SamplePattern*) override;
 
-    bool initCopySurfaceDstDesc(const GrSurface* src, GrSurfaceDesc* desc) const override;
+    bool initDescForDstCopy(const GrRenderTarget* src, GrSurfaceDesc* desc) const override;
 
     void xferBarrier(GrRenderTarget*, GrXferBarrierType) override {}
 
@@ -137,6 +140,10 @@ public:
                                       const SkIRect& bounds);
 
     void finishDrawTarget() override;
+
+    GrFence SK_WARN_UNUSED_RESULT insertFence() const override;
+    bool waitFence(GrFence, uint64_t timeout) const override;
+    void deleteFence(GrFence) const override;
 
     void generateMipmap(GrVkTexture* tex);
 
@@ -220,6 +227,11 @@ private:
                            const SkIRect& srcRect,
                            const SkIPoint& dstPoint);
 
+    void copySurfaceAsResolve(GrSurface* dst,
+                              GrSurface* src,
+                              const SkIRect& srcRect,
+                              const SkIPoint& dstPoint);
+
     void copySurfaceAsDraw(GrSurface* dst,
                            GrSurface* src,
                            const SkIRect& srcRect,
@@ -236,6 +248,11 @@ private:
                               GrPixelConfig dataConfig,
                               const SkTArray<GrMipLevel>&);
 
+    void resolveImage(GrVkRenderTarget* dst,
+                      GrVkRenderTarget* src,
+                      const SkIRect& srcRect,
+                      const SkIPoint& dstPoint);
+
     SkAutoTUnref<const GrVkBackendContext> fBackendContext;
     SkAutoTUnref<GrVkCaps>                 fVkCaps;
 
@@ -251,6 +268,8 @@ private:
     VkPhysicalDeviceMemoryProperties       fPhysDevMemProps;
 
     SkAutoTDelete<GrVkHeap>                fHeaps[kHeapCount];
+
+    GrVkCopyManager                        fCopyManager;
 
 #ifdef SK_ENABLE_VK_LAYERS
     // For reporting validation layer errors

@@ -125,7 +125,7 @@ private:
 
 const SkScalar SkBlurMaskFilterImpl::kMAX_BLUR_SIGMA = SkIntToScalar(128);
 
-sk_sp<SkMaskFilter> SkBlurMaskFilter::Make(SkBlurStyle style, SkScalar sigma, 
+sk_sp<SkMaskFilter> SkBlurMaskFilter::Make(SkBlurStyle style, SkScalar sigma,
                                            const SkRect& occluder, uint32_t flags) {
     if (!SkScalarIsFinite(sigma) || sigma <= 0) {
         return nullptr;
@@ -184,7 +184,7 @@ static uint32_t insert_into_arrays(SkScalar* array1, SkScalar* array2,
                 (*num)++;
             }
             break;
-        } 
+        }
     }
 
     return skipMask;
@@ -1072,7 +1072,7 @@ public:
                                            float sigma, float xformedSigma,
                                            const SkRRect& srcRRect, const SkRRect& devRRect);
 
-    virtual ~GrRRectBlurEffect() {};
+    virtual ~GrRRectBlurEffect() {}
     const char* name() const override { return "GrRRectBlur"; }
 
     const SkRRect& getRRect() const { return fRRect; }
@@ -1120,21 +1120,15 @@ static sk_sp<GrTexture> find_or_create_rrect_blur_mask(GrContext* context,
 
     sk_sp<GrTexture> mask(context->textureProvider()->findAndRefTextureByUniqueKey(key));
     if (!mask) {
-        GrPixelConfig config;
-        if (context->caps()->isConfigRenderable(kAlpha_8_GrPixelConfig, false)) {
-            config = kAlpha_8_GrPixelConfig;
-        } else {
-            config = kRGBA_8888_GrPixelConfig;
-        }
-
         // TODO: this could be approx but the texture coords will need to be updated
-        sk_sp<GrDrawContext> dc(context->makeDrawContext(SkBackingFit::kExact,
-                                                         size.fWidth, size.fHeight,
-                                                         config, nullptr));
+        sk_sp<GrDrawContext> dc(context->makeDrawContextWithFallback(SkBackingFit::kExact,
+                                                                     size.fWidth, size.fHeight,
+                                                                     kAlpha_8_GrPixelConfig,
+                                                                     nullptr));
         if (!dc) {
             return nullptr;
         }
-                
+
         GrPaint grPaint;
         grPaint.setAntiAlias(doAA);
 
@@ -1181,13 +1175,13 @@ sk_sp<GrFragmentProcessor> GrRRectBlurEffect::Make(GrContext* context,
     int ignoredSize;
     uint32_t ignored32;
 
-    bool ninePatchable = SkBlurMaskFilter::ComputeBlurredRRectParams(srcRRect, devRRect, 
+    bool ninePatchable = SkBlurMaskFilter::ComputeBlurredRRectParams(srcRRect, devRRect,
                                                                      SkRect::MakeEmpty(),
                                                                      sigma, xformedSigma,
                                                                      &rrectToDraw, &size,
                                                                      ignored, ignored,
-                                                                     ignored, ignored, 
-                                                                     &ignoredSize, &ignoredSize, 
+                                                                     ignored, ignored,
+                                                                     &ignoredSize, &ignoredSize,
                                                                      &ignored32);
     if (!ninePatchable) {
         return nullptr;
@@ -1429,7 +1423,7 @@ bool SkBlurMaskFilterImpl::directFilterRRectMaskGPU(GrContext* context,
             static const uint16_t fullI[6] = { 0, 1, 2, 0, 2, 3 };
             memcpy(indices, fullI, sizeof(fullI));
             numIndices = 6;
-        } 
+        }
 
         drawContext->drawVertices(clip, newPaint, viewMatrix, kTriangles_GrPrimitiveType,
                                   numPoints, points, nullptr, nullptr, indices, numIndices);

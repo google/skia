@@ -33,7 +33,7 @@ static void draw(SkCanvas* canvas, bool doClose) {
             SkPath::FillType fFill;
             const char*      fName;
         };
-        static const FillAndName gFills[] = {
+        constexpr FillAndName gFills[] = {
             {SkPath::kWinding_FillType, "Winding"},
             {SkPath::kEvenOdd_FillType, "Even / Odd"},
             {SkPath::kInverseWinding_FillType, "Inverse Winding"},
@@ -43,7 +43,7 @@ static void draw(SkCanvas* canvas, bool doClose) {
             SkPaint::Style fStyle;
             const char*    fName;
         };
-        static const StyleAndName gStyles[] = {
+        constexpr StyleAndName gStyles[] = {
             {SkPaint::kFill_Style, "Fill"},
             {SkPaint::kStroke_Style, "Stroke"},
             {SkPaint::kStrokeAndFill_Style, "Stroke And Fill"},
@@ -53,7 +53,7 @@ static void draw(SkCanvas* canvas, bool doClose) {
             SkPaint::Join fJoin;
             const char*   fName;
         };
-        static const CapAndName gCaps[] = {
+        constexpr CapAndName gCaps[] = {
             {SkPaint::kButt_Cap, SkPaint::kBevel_Join, "Butt"},
             {SkPaint::kRound_Cap, SkPaint::kRound_Join, "Round"},
             {SkPaint::kSquare_Cap, SkPaint::kBevel_Join, "Square"}

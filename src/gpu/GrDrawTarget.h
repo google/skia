@@ -96,10 +96,11 @@ public:
     void reset();
 
     /**
-     * Together these two functions flush all queued up draws to the Gpu.
+     * Together these two functions flush all queued up draws to GrCommandBuffer. The return value
+     * of drawBatches() indicates whether any commands were actually issued to the GPU.
      */
     void prepareBatches(GrBatchFlushState* flushState);
-    void drawBatches(GrBatchFlushState* flushState);
+    bool drawBatches(GrBatchFlushState* flushState);
 
     /**
      * Gets the capabilities of the draw target.
@@ -214,7 +215,7 @@ private:
     void addDependency(GrDrawTarget* dependedOn);
 
     // Used only by drawContextPriv.
-    void clearStencilClip(const SkIRect&, bool insideClip, GrRenderTarget*);
+    void clearStencilClip(const GrFixedClip&, bool insideStencilMask, GrRenderTarget*);
 
     struct RecordedBatch {
         sk_sp<GrBatch> fBatch;

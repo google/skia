@@ -74,7 +74,7 @@ private:
 static Display* get_display() {
     class AutoDisplay {
     public:
-        AutoDisplay() { fDisplay = XOpenDisplay(nullptr); };
+        AutoDisplay() { fDisplay = XOpenDisplay(nullptr); }
         ~AutoDisplay() {
             if (fDisplay) {
                 XCloseDisplay(fDisplay);
@@ -149,8 +149,10 @@ GLXGLTestContext::GLXGLTestContext(GrGLStandard forcedGpuAPI, GLXGLTestContext* 
             //       " SAMPLES = %d\n",
             //        i, (unsigned int)vi->visualid, samp_buf, samples);
 
-            if (best_fbc < 0 || (samp_buf && samples > best_num_samp))
-                best_fbc = i, best_num_samp = samples;
+            if (best_fbc < 0 || (samp_buf && samples > best_num_samp)) {
+                best_fbc = i;
+                best_num_samp = samples;
+            }
         }
         XFree(vi);
     }

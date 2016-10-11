@@ -8,12 +8,13 @@
 #ifndef GrGLSLColorSpaceXformHelper_DEFINED
 #define GrGLSLColorSpaceXformHelper_DEFINED
 
+#include "GrColorSpaceXform.h"
 #include "GrGLSLUniformHandler.h"
-
-class GrColorSpaceXform;
 
 /**
  * Stack helper class to assist with using GrColorSpaceXform within an FP's emitCode function.
+ * This injects the uniform declaration, and stores the information needed to generate correct
+ * gamut-transformation shader code.
  */
 class GrGLSLColorSpaceXformHelper : public SkNoncopyable {
 public:

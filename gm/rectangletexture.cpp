@@ -127,9 +127,9 @@ protected:
             return;
         }
 
-        static const int kWidth = 50;
-        static const int kHeight = 50;
-        static const SkScalar kPad = 5.f;
+        constexpr int kWidth = 50;
+        constexpr int kHeight = 50;
+        constexpr SkScalar kPad = 5.f;
 
         SkPMColor pixels[kWidth * kHeight];
         this->fillPixels(kWidth, kHeight, pixels);
@@ -138,19 +138,19 @@ protected:
         if (!rectImg) {
             SkPaint paint;
             paint.setAntiAlias(true);
-            static const char* kMsg = "Could not create rectangle texture image.";
+            const char* kMsg = "Could not create rectangle texture image.";
             canvas->drawText(kMsg, strlen(kMsg), 10, 100, paint);
             return;
         }
 
-        static const SkFilterQuality kQualities[] = {
+        constexpr SkFilterQuality kQualities[] = {
             kNone_SkFilterQuality,
             kLow_SkFilterQuality,
             kMedium_SkFilterQuality,
             kHigh_SkFilterQuality,
         };
 
-        static const SkScalar kScales[] = { 1.0f, 1.2f, 0.75f };
+        constexpr SkScalar kScales[] = { 1.0f, 1.2f, 0.75f };
 
         canvas->translate(kPad, kPad);
         for (auto s : kScales) {

@@ -26,8 +26,8 @@ protected:
     SkISize onISize() { return SkISize::Make(100, 100); }
 
     virtual void onDraw(SkCanvas* canvas) {
-        static const SkScalar kOffset = 35000.0f;
-        static const SkScalar kExtents = 1000.0f;
+        constexpr SkScalar kOffset = 35000.0f;
+        constexpr SkScalar kExtents = 1000.0f;
 
         SkPictureRecorder recorder;
         // We record a picture of huge vertical extents in which we clear the canvas to red, create
@@ -39,7 +39,7 @@ protected:
         SkRect r = SkRect::MakeXYWH(-kExtents, kOffset - kExtents, 2 * kExtents, 2 * kExtents);
         SkPath p;
         p.addRoundRect(r, 5, 5);
-        rec->clipPath(p, SkRegion::kIntersect_Op, true);
+        rec->clipPath(p, true);
         rec->drawColor(SK_ColorGREEN);
         rec->restore();
         sk_sp<SkPicture> pict(recorder.finishRecordingAsPicture());

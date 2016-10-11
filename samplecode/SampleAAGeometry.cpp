@@ -220,7 +220,9 @@ static void add_path_segment(int index, SkPath* path) {
                     SkConic chop[2];
                     SkConic conic;
                     conic.set(pts, iter.conicWeight());
-                    conic.chopAt(0.5f, chop);
+                    if (!conic.chopAt(0.5f, chop)) {
+                        return;
+                    }
                     result.conicTo(chop[0].fPts[1], chop[0].fPts[2], chop[0].fW);
                     pts[1] = chop[1].fPts[1];
                     weight = chop[1].fW;
@@ -1360,9 +1362,10 @@ public:
         SkConic split[2];
         SkConic conic;
         conic.set(pts, weight);
-        conic.chopAt(0.5f, split);
-        conic_coverage(split[0].fPts, split[0].fW, distanceMap, w, h);
-        conic_coverage(split[1].fPts, split[1].fW, distanceMap, w, h);
+        if (conic.chopAt(0.5f, split)) {
+            conic_coverage(split[0].fPts, split[0].fW, distanceMap, w, h);
+            conic_coverage(split[1].fPts, split[1].fW, distanceMap, w, h);
+        }
     }
 
     void cubic_coverage(SkPoint pts[4], uint8_t* distanceMap, int w, int h) {

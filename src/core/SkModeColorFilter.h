@@ -45,7 +45,7 @@ protected:
         fColor = color;
         fMode = mode;
         this->updateCache();
-    };
+    }
 
     void flatten(SkWriteBuffer&) const override;
 

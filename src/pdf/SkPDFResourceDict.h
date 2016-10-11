@@ -32,6 +32,8 @@ public:
         kResourceTypeCount
     };
 
+    static char GetResourceTypePrefix(SkPDFResourceDict::SkPDFResourceType type);
+
     /** Create a PDF resource dictionary.
      *  The full set of ProcSet entries is automatically created for backwards
      *  compatibility, as recommended by the PDF spec.

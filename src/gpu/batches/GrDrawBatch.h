@@ -76,7 +76,7 @@ public:
 
     uint32_t renderTargetUniqueID() const final {
         SkASSERT(fPipelineInstalled);
-        return this->pipeline()->getRenderTarget()->getUniqueID();
+        return this->pipeline()->getRenderTarget()->uniqueID();
     }
 
     GrRenderTarget* renderTarget() const final {

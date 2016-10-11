@@ -8,15 +8,13 @@
 
 from recipe_engine import recipe_api
 
-from . import android_flavor
 from . import cmake_flavor
-from . import coverage_flavor
 from . import default_flavor
+from . import gn_android_flavor
 from . import gn_flavor
 from . import ios_flavor
 from . import pdfium_flavor
 from . import valgrind_flavor
-from . import xsan_flavor
 
 
 TEST_EXPECTED_SKP_VERSION = '42'
@@ -28,12 +26,6 @@ VERSION_FILE_SKP = 'SKP_VERSION'
 VERSION_FILE_SVG = 'SVG_VERSION'
 
 VERSION_NONE = -1
-
-
-def is_android(builder_cfg):
-  """Determine whether the given builder is an Android builder."""
-  return ('Android' in builder_cfg.get('extra_config', '') or
-          builder_cfg.get('os') == 'Android')
 
 
 def is_cmake(builder_cfg):
@@ -53,22 +45,18 @@ def is_valgrind(builder_cfg):
   return 'Valgrind' in builder_cfg.get('extra_config', '')
 
 
-def is_xsan(builder_cfg):
-  return ('ASAN' in builder_cfg.get('extra_config', '') or
-          'MSAN' in builder_cfg.get('extra_config', '') or
-          'TSAN' in builder_cfg.get('extra_config', ''))
-
-
 class SkiaFlavorApi(recipe_api.RecipeApi):
   def get_flavor(self, builder_cfg):
     """Return a flavor utils object specific to the given builder."""
+    gn_android = gn_android_flavor.GNAndroidFlavorUtils(self.m)
+    if gn_android.supported():
+      return gn_android
+
     gn = gn_flavor.GNFlavorUtils(self.m)
     if gn.supported():
       return gn
 
-    if is_android(builder_cfg):
-      return android_flavor.AndroidFlavorUtils(self.m)
-    elif is_cmake(builder_cfg):
+    if is_cmake(builder_cfg):
       return cmake_flavor.CMakeFlavorUtils(self.m)
     elif is_ios(builder_cfg):
       return ios_flavor.iOSFlavorUtils(self.m)
@@ -76,10 +64,6 @@ class SkiaFlavorApi(recipe_api.RecipeApi):
       return pdfium_flavor.PDFiumFlavorUtils(self.m)
     elif is_valgrind(builder_cfg):
       return valgrind_flavor.ValgrindFlavorUtils(self.m)
-    elif is_xsan(builder_cfg):
-      return xsan_flavor.XSanFlavorUtils(self.m)
-    elif builder_cfg.get('configuration') == 'Coverage':
-      return coverage_flavor.CoverageFlavorUtils(self.m)
     else:
       return default_flavor.DefaultFlavorUtils(self.m)
 

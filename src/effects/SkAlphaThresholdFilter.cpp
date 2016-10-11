@@ -96,22 +96,18 @@ SkAlphaThresholdFilterImpl::SkAlphaThresholdFilterImpl(const SkRegion& region,
 sk_sp<GrTexture> SkAlphaThresholdFilterImpl::createMaskTexture(GrContext* context,
                                                                const SkMatrix& inMatrix,
                                                                const SkIRect& bounds) const {
-    GrPixelConfig config;
-    if (context->caps()->isConfigRenderable(kAlpha_8_GrPixelConfig, false)) {
-        config = kAlpha_8_GrPixelConfig;
-    } else {
-        config = kRGBA_8888_GrPixelConfig;
-    }
 
-    sk_sp<GrDrawContext> drawContext(context->makeDrawContext(SkBackingFit::kApprox,
-                                                              bounds.width(), bounds.height(),
-                                                              config, nullptr));
+    sk_sp<GrDrawContext> drawContext(context->makeDrawContextWithFallback(SkBackingFit::kApprox,
+                                                                          bounds.width(),
+                                                                          bounds.height(),
+                                                                          kAlpha_8_GrPixelConfig,
+                                                                          nullptr));
     if (!drawContext) {
         return nullptr;
     }
 
     GrPaint grPaint;
-    grPaint.setPorterDuffXPFactory(SkXfermode::kSrc_Mode);
+    grPaint.setPorterDuffXPFactory(SkBlendMode::kSrc);
     SkRegion::Iterator iter(fRegion);
     drawContext->clear(nullptr, 0x0, true);
 
@@ -170,18 +166,21 @@ sk_sp<SkSpecialImage> SkAlphaThresholdFilterImpl::onFilterImage(SkSpecialImage* 
             return nullptr;
         }
 
-        // SRGBTODO: handle sRGB here
+        const OutputProperties& outProps = ctx.outputProperties();
+        sk_sp<GrColorSpaceXform> colorSpaceXform = GrColorSpaceXform::Make(input->getColorSpace(),
+                                                                           outProps.colorSpace());
         sk_sp<GrFragmentProcessor> fp(GrAlphaThresholdFragmentProcessor::Make(
-                                                                   inputTexture.get(),
-                                                                   maskTexture.get(),
-                                                                   fInnerThreshold,
-                                                                   fOuterThreshold,
-                                                                   bounds));
+                                                                         inputTexture.get(),
+                                                                         std::move(colorSpaceXform),
+                                                                         maskTexture.get(),
+                                                                         fInnerThreshold,
+                                                                         fOuterThreshold,
+                                                                         bounds));
         if (!fp) {
             return nullptr;
         }
 
-        return DrawWithFP(context, std::move(fp), bounds, sk_ref_sp(input->getColorSpace()));
+        return DrawWithFP(context, std::move(fp), bounds, outProps);
     }
 #endif
 

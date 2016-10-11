@@ -12,7 +12,7 @@
 
 class SK_API SkColorMatrixFilterRowMajor255 : public SkColorFilter {
 public:
-    SkColorMatrixFilterRowMajor255() {};
+    SkColorMatrixFilterRowMajor255() {}
     explicit SkColorMatrixFilterRowMajor255(const SkScalar array[20]);
 
     /** Creates a color matrix filter that returns the same value in all four channels. */

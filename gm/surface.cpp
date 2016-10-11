@@ -65,8 +65,7 @@ protected:
         GrContext* ctx = canvas->getGrContext();
 
         // must be opaque to have a hope of testing LCD text
-        const SkImageInfo info = SkImageInfo::MakeN32(W, H, kOpaque_SkAlphaType,
-                                                      sk_ref_sp(canvas->imageInfo().colorSpace()));
+        const SkImageInfo info = SkImageInfo::MakeN32(W, H, kOpaque_SkAlphaType);
 
         const struct {
             SkPixelGeometry fGeo;

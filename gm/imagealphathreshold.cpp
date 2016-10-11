@@ -45,7 +45,7 @@ namespace skiagm {
 
 class ImageAlphaThresholdGM : public GM {
 public:
-    ImageAlphaThresholdGM(bool useCropRect) : fUseCropRect(true) { 
+    ImageAlphaThresholdGM(bool useCropRect) : fUseCropRect(useCropRect) {
         this->setBGColor(0xFFFFFFFF);
     }
 
@@ -104,7 +104,7 @@ protected:
     }
 
     void onDraw(SkCanvas* canvas) override {
-        SkImageInfo info = SkImageInfo::MakeN32(WIDTH, HEIGHT, kOpaque_SkAlphaType);
+        SkImageInfo info = SkImageInfo::MakeS32(WIDTH, HEIGHT, kOpaque_SkAlphaType);
         auto surface(canvas->makeSurface(info));
         if (nullptr == surface) {
             surface = SkSurface::MakeRaster(info);

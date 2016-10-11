@@ -95,7 +95,7 @@ protected:
     }
 
     bool onAnimate(const SkAnimTimer& timer) override {
-        static const SkScalar kDesiredDurationSecs = 100.0f;
+        constexpr SkScalar kDesiredDurationSecs = 100.0f;
 
         fRotation = timer.scaled(360.0f/kDesiredDurationSecs, 360.0f);
         return true;

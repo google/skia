@@ -12,6 +12,7 @@
 #include "SkDocument.h"
 #include "SkDeflate.h"
 #include "SkImageEncoder.h"
+#include "SkMakeUnique.h"
 #include "SkMatrix.h"
 #include "SkPDFCanon.h"
 #include "SkPDFDevice.h"
@@ -75,8 +76,8 @@ static void assert_emit_eq(skiatest::Reporter* reporter,
 
 static void TestPDFStream(skiatest::Reporter* reporter) {
     char streamBytes[] = "Test\nFoo\tBar";
-    std::unique_ptr<SkStreamAsset> streamData(new SkMemoryStream(
-        streamBytes, strlen(streamBytes), true));
+    auto streamData = skstd::make_unique<SkMemoryStream>(
+            streamBytes, strlen(streamBytes), true);
     auto stream = sk_make_sp<SkPDFStream>(std::move(streamData));
     assert_emit_eq(reporter,
                    *stream,
@@ -105,7 +106,7 @@ static void TestPDFStream(skiatest::Reporter* reporter) {
         compressedByteStream.writeToStream(&expected);
         compressedByteStream.reset();
         expected.writeText("\nendstream");
-        sk_sp<SkData> expectedResultData2(expected.copyToData());
+        sk_sp<SkData> expectedResultData2(expected.detachAsData());
         SkString result = emit_to_string(*stream);
         #ifndef SK_PDF_LESS_COMPRESSION
         assert_eql(reporter,
@@ -333,7 +334,7 @@ static void TestPDFDict(skiatest::Reporter* reporter) {
     assert_eq(reporter, result, "<</Type /DType\n/n1 1 0 R>>");
 }
 
-DEF_TEST(PDFPrimitives, reporter) {
+DEF_TEST(SkPDF_Primitives, reporter) {
     TestPDFUnion(reporter);
     TestPDFArray(reporter);
     TestPDFDict(reporter);
@@ -388,7 +389,8 @@ void DummyImageFilter::toString(SkString* str) const {
 
 // Check that PDF rendering of image filters successfully falls back to
 // CPU rasterization.
-DEF_TEST(PDFImageFilter, reporter) {
+DEF_TEST(SkPDF_ImageFilter, reporter) {
+    REQUIRE_PDF_DOCUMENT(SkPDF_ImageFilter, reporter);
     SkDynamicMemoryWStream stream;
     sk_sp<SkDocument> doc(SkDocument::MakePDF(&stream));
     SkCanvas* canvas = doc->beginPage(100.0f, 100.0f);
@@ -408,7 +410,7 @@ DEF_TEST(PDFImageFilter, reporter) {
 
 // Check that PDF rendering of image filters successfully falls back to
 // CPU rasterization.
-DEF_TEST(PDFFontCanEmbedTypeface, reporter) {
+DEF_TEST(SkPDF_FontCanEmbedTypeface, reporter) {
     SkPDFCanon canon;
 
     const char resource[] = "fonts/Roboto2-Regular_NoEmbed.ttf";
@@ -452,7 +454,7 @@ static void check_pdf_scalar_serialization(
 }
 
 // Test SkPDFUtils::AppendScalar for accuracy.
-DEF_TEST(PDFPrimitives_Scalar, reporter) {
+DEF_TEST(SkPDF_Primitives_Scalar, reporter) {
     SkRandom random(0x5EED);
     int iterationCount = 512;
     while (iterationCount-- > 0) {
@@ -473,7 +475,7 @@ DEF_TEST(PDFPrimitives_Scalar, reporter) {
 }
 
 // Test SkPDFUtils:: for accuracy.
-DEF_TEST(PDFPrimitives_Color, reporter) {
+DEF_TEST(SkPDF_Primitives_Color, reporter) {
     char buffer[5];
     for (int i = 0; i < 256; ++i) {
         size_t len = SkPDFUtils::ColorToDecimal(i, buffer);

@@ -38,6 +38,8 @@ TAG_PROJECT_SKIA = 'project:skia'
 TAG_VERSION_PREFIX = 'version:'
 TAG_VERSION_TMPL = '%s%%s' % TAG_VERSION_PREFIX
 
+WHICH = 'where' if sys.platform.startswith('win') else 'which'
+
 VERSION_FILENAME = 'VERSION'
 ZIP_BLACKLIST = ['.git', '.svn', '*.pyc', '.DS_STORE']
 
@@ -146,7 +148,10 @@ class CIPDStore(object):
 class GSStore(object):
   """Wrapper object for interacting with Google Storage."""
   def __init__(self, gsutil=None, bucket=DEFAULT_GS_BUCKET):
-    gsutil = os.path.abspath(gsutil) if gsutil else 'gsutil'
+    if gsutil:
+      gsutil = os.path.abspath(gsutil)
+    else:
+      gsutil = subprocess.check_output([WHICH, 'gsutil']).rstrip()
     self._gsutil = [gsutil]
     if gsutil.endswith('.py'):
       self._gsutil = ['python', gsutil]
@@ -198,11 +203,11 @@ class GSStore(object):
     gs_path = GS_SUBDIR_TMPL % (self._gs_bucket, name)
     attempt_delete = True
     try:
-      subprocess.check_call(['gsutil', 'ls', gs_path])
+      subprocess.check_call(self._gsutil + ['ls', gs_path])
     except subprocess.CalledProcessError:
       attempt_delete = False
     if attempt_delete:
-      subprocess.check_call(['gsutil', 'rm', '-rf', gs_path])
+      subprocess.check_call(self._gsutil + ['rm', '-rf', gs_path])
 
 
 class MultiStore(object):
@@ -220,7 +225,7 @@ class MultiStore(object):
     self._gs.upload(name, version, target_dir)
 
   def download(self, name, version, target_dir):
-    self._cipd.download(name, version, target_dir)
+    self._gs.download(name, version, target_dir)
 
   def delete_contents(self, name):
     self._cipd.delete_contents(name)

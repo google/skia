@@ -93,11 +93,7 @@ sk_sp<SkSpecialImage> SkImageSource::onFilterImage(SkSpecialImage* source, const
 
     const SkIRect dstIRect = dstRect.roundOut();
 
-    // SRGBTODO: Propagate SkColorType?
-    const SkImageInfo info = SkImageInfo::MakeN32(dstIRect.width(), dstIRect.height(),
-                                                  kPremul_SkAlphaType);
-
-    sk_sp<SkSpecialSurface> surf(source->makeSurface(info));
+    sk_sp<SkSpecialSurface> surf(source->makeSurface(ctx.outputProperties(), dstIRect.size()));
     if (!surf) {
         return nullptr;
     }
@@ -112,7 +108,7 @@ sk_sp<SkSpecialImage> SkImageSource::onFilterImage(SkSpecialImage* source, const
 
     // Subtract off the integer component of the translation (will be applied in offset, below).
     dstRect.offset(-SkIntToScalar(dstIRect.fLeft), -SkIntToScalar(dstIRect.fTop));
-    paint.setXfermodeMode(SkXfermode::kSrc_Mode);
+    paint.setBlendMode(SkBlendMode::kSrc);
     // FIXME: this probably shouldn't be necessary, but drawImageRect asserts
     // None filtering when it's translate-only
     paint.setFilterQuality(

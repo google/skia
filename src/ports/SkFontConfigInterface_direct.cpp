@@ -161,11 +161,9 @@ static void fontconfiginterface_unittest() {
 ///////////////////////////////////////////////////////////////////////////////
 
 // Returns the string from the pattern, or nullptr
-static const char* get_name(FcPattern* pattern, const char field[],
-                            int index = 0) {
+static const char* get_string(FcPattern* pattern, const char field[], int index = 0) {
     const char* name;
-    if (FcPatternGetString(pattern, field, index,
-                           (FcChar8**)&name) != FcResultMatch) {
+    if (FcPatternGetString(pattern, field, index, (FcChar8**)&name) != FcResultMatch) {
         name = nullptr;
     }
     return name;
@@ -496,6 +494,10 @@ static void fcpattern_from_skfontstyle(SkFontStyle style, FcPattern* pattern) {
 ///////////////////////////////////////////////////////////////////////////////
 
 #define kMaxFontFamilyLength    2048
+#ifdef SK_FONT_CONFIG_INTERFACE_ONLY_ALLOW_SFNT_FONTS
+const char* kFontFormatTrueType = "TrueType";
+const char* kFontFormatCFF = "CFF";
+#endif
 
 SkFontConfigInterfaceDirect::SkFontConfigInterfaceDirect() {
     FCLocker lock;
@@ -516,16 +518,18 @@ bool SkFontConfigInterfaceDirect::isAccessible(const char* filename) {
 }
 
 bool SkFontConfigInterfaceDirect::isValidPattern(FcPattern* pattern) {
-#ifdef SK_FONT_CONFIG_ONLY_ALLOW_SCALABLE_FONTS
-    FcBool is_scalable;
-    if (FcPatternGetBool(pattern, FC_SCALABLE, 0, &is_scalable) != FcResultMatch
-        || !is_scalable) {
+#ifdef SK_FONT_CONFIG_INTERFACE_ONLY_ALLOW_SFNT_FONTS
+    const char* font_format = get_string(pattern, FC_FONTFORMAT);
+    if (font_format
+        && strcmp(font_format, kFontFormatTrueType) != 0
+        && strcmp(font_format, kFontFormatCFF) != 0)
+    {
         return false;
     }
 #endif
 
     // fontconfig can also return fonts which are unreadable
-    const char* c_filename = get_name(pattern, FC_FILE);
+    const char* c_filename = get_string(pattern, FC_FILE);
     if (!c_filename) {
         return false;
     }
@@ -550,7 +554,7 @@ FcPattern* SkFontConfigInterfaceDirect::MatchFont(FcFontSet* font_set,
   if (match && !IsFallbackFontAllowed(family)) {
     bool acceptable_substitute = false;
     for (int id = 0; id < 255; ++id) {
-      const char* post_match_family = get_name(match, FC_FAMILY, id);
+      const char* post_match_family = get_string(match, FC_FAMILY, id);
       if (!post_match_family)
         break;
       acceptable_substitute =
@@ -593,6 +597,11 @@ bool SkFontConfigInterfaceDirect::matchFamilyName(const char familyName[],
 
     FcPatternAddBool(pattern, FC_SCALABLE, FcTrue);
 
+#ifdef SK_FONT_CONFIG_INTERFACE_ONLY_ALLOW_SFNT_FONTS
+    FcPatternAddString(pattern, FC_FONTFORMAT, reinterpret_cast<const FcChar8*>(kFontFormatTrueType));
+    FcPatternAddString(pattern, FC_FONTFORMAT, reinterpret_cast<const FcChar8*>(kFontFormatCFF));
+#endif
+
     FcConfigSubstitute(nullptr, pattern, FcMatchPattern);
     FcDefaultSubstitute(pattern);
 
@@ -625,7 +634,7 @@ bool SkFontConfigInterfaceDirect::matchFamilyName(const char familyName[],
     //
     // However, we special-case fallback fonts; see IsFallbackFontAllowed().
 
-    const char* post_config_family = get_name(pattern, FC_FAMILY);
+    const char* post_config_family = get_string(pattern, FC_FAMILY);
     if (!post_config_family) {
         // we can just continue with an empty name, e.g. default font
         post_config_family = "";
@@ -649,23 +658,19 @@ bool SkFontConfigInterfaceDirect::matchFamilyName(const char familyName[],
 
     // From here out we just extract our results from 'match'
 
-    post_config_family = get_name(match, FC_FAMILY);
+    post_config_family = get_string(match, FC_FAMILY);
     if (!post_config_family) {
         FcFontSetDestroy(font_set);
         return false;
     }
 
-    const char* c_filename = get_name(match, FC_FILE);
+    const char* c_filename = get_string(match, FC_FILE);
     if (!c_filename) {
         FcFontSetDestroy(font_set);
         return false;
     }
 
-    int face_index;
-    if (FcPatternGetInteger(match, FC_INDEX, 0, &face_index) != FcResultMatch) {
-        FcFontSetDestroy(font_set);
-        return false;
-    }
+    int face_index = get_int(match, FC_INDEX, 0);
 
     FcFontSetDestroy(font_set);
 
@@ -683,7 +688,7 @@ bool SkFontConfigInterfaceDirect::matchFamilyName(const char familyName[],
 }
 
 SkStreamAsset* SkFontConfigInterfaceDirect::openStream(const FontIdentity& identity) {
-    return SkStream::NewFromFile(identity.fString.c_str());
+    return SkStream::MakeFromFile(identity.fString.c_str()).release();
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -723,7 +728,7 @@ sk_sp<SkDataTable> SkFontConfigInterfaceDirect::getFamilyNames() {
     SkTDArray<size_t> sizes;
     for (int i = 0; i < fs->nfont; ++i) {
         FcPattern* match = fs->fonts[i];
-        const char* famName = get_name(match, FC_FAMILY);
+        const char* famName = get_string(match, FC_FAMILY);
         if (famName && !find_name(names, famName)) {
             *names.append() = famName;
             *sizes.append() = strlen(famName) + 1;

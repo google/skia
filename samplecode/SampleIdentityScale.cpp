@@ -65,7 +65,7 @@ protected:
           SkRect r = { 100, 100, 356, 356 };
           SkPath clipPath;
           clipPath.addRoundRect(r, SkIntToScalar(5), SkIntToScalar(5));
-          canvas->clipPath(clipPath, SkRegion::kIntersect_Op, SkToBool(1));
+          canvas->clipPath(clipPath, SkCanvas::kIntersect_Op, SkToBool(1));
           text = "Scaled = 0";
         }
         canvas->drawBitmap( fBM, 100, 100, &paint );

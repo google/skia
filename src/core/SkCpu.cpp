@@ -52,6 +52,8 @@
 
             cpuid7(abcd);
             if (abcd[1] & (1<<5)) { features |= SkCpu::AVX2; }
+            if (abcd[1] & (1<<3)) { features |= SkCpu::BMI1; }
+            if (abcd[1] & (1<<8)) { features |= SkCpu::BMI2; }
         }
         return features;
     }
@@ -59,7 +61,7 @@
 #elif defined(SK_CPU_ARM32)         && \
       defined(SK_BUILD_FOR_ANDROID) && \
      !defined(SK_BUILD_FOR_ANDROID_FRAMEWORK)
-    #include <cpu-features.h>
+    #include "cpu-features.h"
 
     static uint32_t read_cpu_features() {
         uint32_t features = 0;
@@ -74,7 +76,7 @@
 #elif defined(SK_CPU_ARM64)         && \
       defined(SK_BUILD_FOR_ANDROID) && \
      !defined(SK_BUILD_FOR_ANDROID_FRAMEWORK)
-    #include <cpu-features.h>
+    #include "cpu-features.h"
 
     static uint32_t read_cpu_features() {
         uint32_t features = 0;

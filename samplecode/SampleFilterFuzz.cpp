@@ -157,8 +157,8 @@ static SkMatrix make_matrix() {
     return m;
 }
 
-static SkXfermode::Mode make_xfermode() {
-    return static_cast<SkXfermode::Mode>(R(SkXfermode::kLastMode+1));
+static SkBlendMode make_xfermode() {
+    return static_cast<SkBlendMode>(R(SkXfermode::kLastMode+1));
 }
 
 static SkPaint::Align make_paint_align() {
@@ -508,7 +508,7 @@ static SkPaint make_paint() {
     paint.setStrokeCap(make_paint_cap());
     paint.setStrokeJoin(make_paint_join());
     paint.setColorFilter(make_color_filter());
-    paint.setXfermodeMode(make_xfermode());
+    paint.setBlendMode(make_xfermode());
     paint.setPathEffect(make_path_effect());
     paint.setMaskFilter(make_mask_filter());
 
@@ -558,7 +558,7 @@ static sk_sp<SkImageFilter> make_image_filter(bool canBeNull) {
     case MERGE:
         filter = SkMergeImageFilter::Make(make_image_filter(),
                                           make_image_filter(),
-                                          make_xfermode());
+                                          (SkXfermode::Mode)make_xfermode());
         break;
     case COLOR: {
         sk_sp<SkColorFilter> cf(make_color_filter());
@@ -585,7 +585,7 @@ static sk_sp<SkImageFilter> make_image_filter(bool canBeNull) {
                                               make_image_filter());
         break;
     case XFERMODE:
-        filter = SkXfermodeImageFilter::Make(SkXfermode::Make(make_xfermode()),
+        filter = SkXfermodeImageFilter::Make(make_xfermode(),
                                              make_image_filter(),
                                              make_image_filter(),
                                              nullptr);

@@ -8,6 +8,7 @@
 #include "ColorCodecBench.h"
 #include "Resources.h"
 #include "SkCodec.h"
+#include "SkCodecPriv.h"
 #include "SkColorSpaceXform.h"
 #include "SkCommandLineFlags.h"
 
@@ -40,7 +41,7 @@ bool ColorCodecBench::isSuitableFor(Backend backend) {
 }
 
 void ColorCodecBench::decodeAndXform() {
-    SkAutoTDelete<SkCodec> codec(SkCodec::NewFromData(fEncoded.get()));
+    SkAutoTDelete<SkCodec> codec(SkCodec::NewFromData(fEncoded));
     SkASSERT(codec);
 
 #ifdef SK_DEBUG
@@ -52,7 +53,7 @@ void ColorCodecBench::decodeAndXform() {
 
 #if defined(SK_TEST_QCMS)
 void ColorCodecBench::decodeAndXformQCMS() {
-    SkAutoTDelete<SkCodec> codec(SkCodec::NewFromData(fEncoded.get()));
+    SkAutoTDelete<SkCodec> codec(SkCodec::NewFromData(fEncoded));
 #ifdef SK_DEBUG
     const SkCodec::Result result =
 #endif
@@ -93,14 +94,16 @@ void ColorCodecBench::xformOnly() {
     if (!srcSpace) {
         srcSpace = SkColorSpace::NewNamed(SkColorSpace::kSRGB_Named);
     }
-    std::unique_ptr<SkColorSpaceXform> xform = SkColorSpaceXform::New(srcSpace, fDstSpace);
+    std::unique_ptr<SkColorSpaceXform> xform = SkColorSpaceXform::New(srcSpace.get(),
+                                                                      fDstSpace.get());
     SkASSERT(xform);
 
     void* dst = fDst.get();
     void* src = fSrc.get();
     for (int y = 0; y < fSrcInfo.height(); y++) {
-        xform->apply(dst, (uint32_t*) src, fSrcInfo.width(), fDstInfo.colorType(),
-                     fDstInfo.alphaType());
+        xform->apply(dst, (uint32_t*) src, fSrcInfo.width(),
+                     select_xform_format(fDstInfo.colorType()),
+                     SkColorSpaceXform::kRGBA_8888_ColorFormat, fDstInfo.alphaType());
         dst = SkTAddOffset<void>(dst, fDstInfo.minRowBytes());
         src = SkTAddOffset<void>(src, fSrcInfo.minRowBytes());
     }
@@ -135,7 +138,7 @@ void ColorCodecBench::xformOnlyQCMS() {
 #endif
 
 void ColorCodecBench::onDelayedSetup() {
-    SkAutoTDelete<SkCodec> codec(SkCodec::NewFromData(fEncoded.get()));
+    SkAutoTDelete<SkCodec> codec(SkCodec::NewFromData(fEncoded));
     fSrcData = codec->getICCData();
     sk_sp<SkData> dstData = SkData::MakeFromFileName(
             GetResourcePath("icc_profiles/HP_ZR30w.icc").c_str());
@@ -161,11 +164,15 @@ void ColorCodecBench::onDelayedSetup() {
     }
 
     fSrcInfo = codec->getInfo().makeColorType(kRGBA_8888_SkColorType);
+    fDstInfo = fSrcInfo;
 
-    fDstInfo = fSrcInfo.makeColorSpace(fDstSpace);
     if (FLAGS_half) {
         fDstInfo = fDstInfo.makeColorType(kRGBA_F16_SkColorType);
+        fDstSpace = fDstSpace->makeLinearGamma();
     }
+
+    fDstInfo = fDstInfo.makeColorSpace(fDstSpace);
+
     fDst.reset(fDstInfo.getSafeSize(fDstInfo.minRowBytes()));
 
     if (FLAGS_xform_only) {

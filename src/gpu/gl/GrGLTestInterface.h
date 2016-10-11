@@ -66,6 +66,7 @@ public:
     virtual GrGLvoid drawElements(GrGLenum mode, GrGLsizei count, GrGLenum type, const GrGLvoid* indices) {}
     virtual GrGLvoid drawElementsInstanced(GrGLenum mode, GrGLsizei count, GrGLenum type, const GrGLvoid *indices, GrGLsizei primcount) {}
     virtual GrGLvoid drawElementsIndirect(GrGLenum mode, GrGLenum type, const GrGLvoid* indirect) {}
+    virtual GrGLvoid drawRangeElements(GrGLenum mode, GrGLuint start, GrGLuint end, GrGLsizei count, GrGLenum type, const GrGLvoid* indices) {}
     virtual GrGLvoid enable(GrGLenum cap) {}
     virtual GrGLvoid enableVertexAttribArray(GrGLuint index) {}
     virtual GrGLvoid endQuery(GrGLenum target) {}
@@ -316,6 +317,9 @@ public:
     virtual GrGLvoid* mapNamedBufferRange(GrGLuint buffer, GrGLintptr offset, GrGLsizeiptr length, GrGLbitfield access) { return nullptr; }
     virtual GrGLvoid flushMappedNamedBufferRange(GrGLuint buffer, GrGLintptr offset, GrGLsizeiptr length) {}
     virtual GrGLvoid textureBuffer(GrGLuint texture, GrGLenum target, GrGLenum internalformat, GrGLuint buffer) {}
+    virtual GrGLsync fenceSync(GrGLenum condition, GrGLbitfield flags) { return nullptr;  }
+    virtual GrGLenum clientWaitSync(GrGLsync sync, GrGLbitfield flags, GrGLuint64 timeout) { return GR_GL_WAIT_FAILED;  }
+    virtual GrGLvoid deleteSync(GrGLsync sync) {}
     virtual GrGLvoid debugMessageControl(GrGLenum source, GrGLenum type, GrGLenum severity, GrGLsizei count, const GrGLuint* ids, GrGLboolean enabled) {}
     virtual GrGLvoid debugMessageInsert(GrGLenum source, GrGLenum type, GrGLuint id, GrGLenum severity, GrGLsizei length,  const GrGLchar* buf) {}
     virtual GrGLvoid debugMessageCallback(GRGLDEBUGPROC callback, const GrGLvoid* userParam) {}

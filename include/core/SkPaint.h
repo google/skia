@@ -8,10 +8,13 @@
 #ifndef SkPaint_DEFINED
 #define SkPaint_DEFINED
 
+#include "SkBlendMode.h"
 #include "SkColor.h"
 #include "SkFilterQuality.h"
 #include "SkMatrix.h"
 #include "SkXfermode.h"
+
+//#define SK_SUPPORT_LEGACY_XFERMODE_OBJECT
 
 class SkAutoDescriptor;
 class SkAutoGlyphCache;
@@ -525,12 +528,13 @@ public:
 #endif
     void setColorFilter(sk_sp<SkColorFilter>);
 
+#ifdef SK_SUPPORT_LEGACY_XFERMODE_OBJECT
     /** Get the paint's xfermode object.
         <p />
       The xfermode's reference count is not affected.
         @return the paint's xfermode (or NULL)
     */
-    SkXfermode* getXfermode() const { return fXfermode.get(); }
+    SkXfermode* getXfermode() const;
 
     /** Set or clear the xfermode object.
         <p />
@@ -552,6 +556,11 @@ public:
         the paint's xfermode is set to null.
      */
     SkXfermode* setXfermodeMode(SkXfermode::Mode);
+#endif
+
+    SkBlendMode getBlendMode() const { return (SkBlendMode)fBlendMode; }
+    bool isSrcOver() const { return (SkBlendMode)fBlendMode == SkBlendMode::kSrcOver; }
+    void setBlendMode(SkBlendMode mode) { fBlendMode = (unsigned)mode; }
 
     /** Get the paint's patheffect object.
         <p />
@@ -653,19 +662,18 @@ public:
      *  Return the paint's SkDrawLooper (if any). Does not affect the looper's
      *  reference count.
      */
-    SkDrawLooper* getLooper() const { return fLooper.get(); }
-
+    SkDrawLooper* getDrawLooper() const { return fDrawLooper.get(); }
+    SkDrawLooper* getLooper() const { return fDrawLooper.get(); }
     /**
      *  Set or clear the looper object.
      *  <p />
      *  Pass NULL to clear any previous looper.
-     *  As a convenience, the parameter passed is also returned.
      *  If a previous looper exists in the paint, its reference count is
      *  decremented. If looper is not NULL, its reference count is
      *  incremented.
      *  @param looper May be NULL. The new looper to be installed in the paint.
-     *  @return looper
      */
+    void setDrawLooper(sk_sp<SkDrawLooper>);
 #ifdef SK_SUPPORT_LEGACY_MINOR_EFFECT_PTR
     SkDrawLooper* setLooper(SkDrawLooper* looper);
 #endif
@@ -1091,11 +1099,10 @@ private:
     sk_sp<SkTypeface>     fTypeface;
     sk_sp<SkPathEffect>   fPathEffect;
     sk_sp<SkShader>       fShader;
-    sk_sp<SkXfermode>     fXfermode;
     sk_sp<SkMaskFilter>   fMaskFilter;
     sk_sp<SkColorFilter>  fColorFilter;
     sk_sp<SkRasterizer>   fRasterizer;
-    sk_sp<SkDrawLooper>   fLooper;
+    sk_sp<SkDrawLooper>   fDrawLooper;
     sk_sp<SkImageFilter>  fImageFilter;
 
     SkScalar        fTextSize;
@@ -1104,6 +1111,7 @@ private:
     SkColor         fColor;
     SkScalar        fWidth;
     SkScalar        fMiterLimit;
+    uint32_t        fBlendMode; // just need 5-6 bits for SkXfermode::Mode
     union {
         struct {
             // all of these bitfields should add up to 32

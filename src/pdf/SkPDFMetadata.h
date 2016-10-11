@@ -26,11 +26,5 @@ sk_sp<SkPDFObject> MakePdfId(const UUID& doc, const UUID& instance);
 sk_sp<SkPDFObject> MakeXMPObject(const SkDocument::PDFMetadata&,
                                  const UUID& doc,
                                  const UUID& instance);
-
-#ifdef SK_SUPPORT_LEGACY_DOCUMENT_API
-void SetMetadataByKey(const SkString& key,
-                      const SkString& value,
-                      SkDocument::PDFMetadata*);
-#endif
 }
 #endif  // SkPDFMetadata_DEFINED

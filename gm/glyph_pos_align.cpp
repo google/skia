@@ -12,10 +12,10 @@
 /**
  * This test exercises drawPosTextH and drawPosText with every text align.
  */
-static const int kWidth = 480;
-static const int kHeight = 600;
-static const SkScalar kTextHeight = 64.0f;
-static const int kMaxStringLength = 12;
+constexpr int kWidth = 480;
+constexpr int kHeight = 600;
+constexpr SkScalar kTextHeight = 64.0f;
+constexpr int kMaxStringLength = 12;
 
 static void drawTestCase(SkCanvas*, const char*, SkScalar, const SkPaint&);
 

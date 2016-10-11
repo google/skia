@@ -78,7 +78,9 @@ sk_sp<SkFlattenable> SkRecordedDrawable::CreateProc(SkReadBuffer& buffer) {
 
     // Unflatten into a SkPictureData.
     SkPictInfo info;
+    info.setVersion(buffer.getVersion());
     info.fCullRect = bounds;
+    info.fFlags = 0;    // ???
     SkAutoTDelete<SkPictureData> pictureData(SkPictureData::CreateFromBuffer(buffer, info));
     if (!pictureData) {
         return nullptr;

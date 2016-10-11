@@ -16,15 +16,18 @@ static void check_isabitmap(skiatest::Reporter* reporter, SkShader* shader,
                             int expectedW, int expectedH,
                             SkShader::TileMode expectedX, SkShader::TileMode expectedY,
                             const SkMatrix& expectedM) {
-    SkBitmap bm;
     SkShader::TileMode tileModes[2];
     SkMatrix localM;
+
+#ifdef SK_SUPPORT_LEGACY_SHADER_ISABITMAP
+    SkBitmap bm;
     REPORTER_ASSERT(reporter, shader->isABitmap(&bm, &localM, tileModes));
     REPORTER_ASSERT(reporter, bm.width() == expectedW);
     REPORTER_ASSERT(reporter, bm.height() == expectedH);
     REPORTER_ASSERT(reporter, localM == expectedM);
     REPORTER_ASSERT(reporter, tileModes[0] == expectedX);
     REPORTER_ASSERT(reporter, tileModes[1] == expectedY);
+#endif
 
     // wack these so we don't get a false positive
     localM.setScale(9999, -9999);

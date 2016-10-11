@@ -31,4 +31,11 @@ third_party("libpng") {
     "pngwtran.c",
     "pngwutil.c",
   ]
+
+  if (current_cpu == "arm" || current_cpu == "arm64") {
+    sources += [
+      "arm/arm_init.c",
+      "arm/filter_neon_intrinsics.c",
+    ]
+  }
 }

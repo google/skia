@@ -13,8 +13,8 @@
 #include "SkColorFilterImageFilter.h"
 #include "SkPictureImageFilter.h"
 
-static const int kTestRectSize = 50;
-static const int kDetectorGreenValue = 50;
+constexpr int kTestRectSize = 50;
+constexpr int kDetectorGreenValue = 50;
 
 // Below are few functions to install "detector" color filters. The filter is there to assert that
 // the color value it sees is the expected. It will trigger only with kDetectorGreenValue, and

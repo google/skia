@@ -13,12 +13,12 @@
 #include "SkPath.h"
 #include "SkPoint3.h"
 
-static const int kNumColumns = 6;
-static const int kNumRows = 8;
-static const int kRadius = 40;  // radius of the snowflake
-static const int kPad = 5;      // padding on both sides of the snowflake
-static const int kNumSpokes = 6;
-static const SkScalar kStrokeWidth = 5.0f;
+constexpr int kNumColumns = 6;
+constexpr int kNumRows = 8;
+constexpr int kRadius = 40;  // radius of the snowflake
+constexpr int kPad = 5;      // padding on both sides of the snowflake
+constexpr int kNumSpokes = 6;
+constexpr SkScalar kStrokeWidth = 5.0f;
 
 static void draw_fins(SkCanvas* canvas, const SkPoint& offset, float angle, const SkPaint& paint) {
     SkScalar cos, sin;

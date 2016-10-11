@@ -9,6 +9,7 @@
 #define GrDrawContext_DEFINED
 
 #include "GrColor.h"
+#include "GrContext.h"
 #include "GrPaint.h"
 #include "GrRenderTarget.h"
 #include "SkRefCnt.h"
@@ -19,12 +20,12 @@
 
 class GrAuditTrail;
 class GrClip;
-class GrContext;
 class GrDrawBatch;
 class GrDrawContextPriv;
 class GrDrawPathBatchBase;
 class GrDrawingManager;
 class GrDrawTarget;
+class GrFixedClip;
 class GrPaint;
 class GrPathProcessor;
 class GrPipelineBuilder;
@@ -216,7 +217,21 @@ public:
                    const SkRSXform xform[],
                    const SkRect texRect[],
                    const SkColor colors[]);
-    
+
+    /**
+     * Draws a region.
+     *
+     * @param paint         describes how to color pixels
+     * @param viewMatrix    transformation matrix
+     * @param region        the region to be drawn
+     * @param style         style to apply to the region
+     */
+    void drawRegion(const GrClip&,
+                    const GrPaint& paint,
+                    const SkMatrix& viewMatrix,
+                    const SkRegion& region,
+                    const GrStyle& style);
+
     /**
      * Draws an oval.
      *
@@ -270,6 +285,34 @@ public:
      */
     void prepareForExternalIO();
 
+    /**
+     * Reads a rectangle of pixels from the draw context.
+     * @param dstInfo       image info for the destination
+     * @param dstBuffer     destination pixels for the read
+     * @param dstRowBytes   bytes in a row of 'dstBuffer'
+     * @param x             x offset w/in the draw context from which to read
+     * @param y             y offset w/in the draw context from which to read
+     *
+     * @return true if the read succeeded, false if not. The read can fail because of an
+     *              unsupported pixel config.
+     */
+    bool readPixels(const SkImageInfo& dstInfo, void* dstBuffer, size_t dstRowBytes, int x, int y);
+
+    /**
+     * Writes a rectangle of pixels [srcInfo, srcBuffer, srcRowbytes] into the 
+     * drawContext at the specified position.
+     * @param srcInfo       image info for the source pixels
+     * @param srcBuffer     source for the write
+     * @param srcRowBytes   bytes in a row of 'srcBuffer'
+     * @param x             x offset w/in the draw context at which to write
+     * @param y             y offset w/in the draw context at which to write
+     *
+     * @return true if the write succeeded, false if not. The write can fail because of an
+     *              unsupported pixel config.
+     */
+    bool writePixels(const SkImageInfo& srcInfo, const void* srcBuffer, size_t srcRowBytes,
+                     int x, int y);
+
     bool isStencilBufferMultisampled() const {
         return fRenderTarget->isStencilBufferMultisampled();
     }
@@ -280,6 +323,7 @@ public:
         return paint.isAntiAlias() && fRenderTarget->isUnifiedMultisampled();
     }
 
+    const GrCaps* caps() const { return fContext->caps(); }
     const GrSurfaceDesc& desc() const { return fRenderTarget->desc(); }
     int width() const { return fRenderTarget->width(); }
     int height() const { return fRenderTarget->height(); }
@@ -292,13 +336,12 @@ public:
     }
     const SkSurfaceProps& surfaceProps() const { return fSurfaceProps; }
     SkColorSpace* getColorSpace() const { return fColorSpace.get(); }
+    GrColorSpaceXform* getColorXformFromSRGB() const { return fColorXformFromSRGB.get(); }
     GrSurfaceOrigin origin() const { return fRenderTarget->origin(); }
 
     bool wasAbandoned() const;
 
     GrRenderTarget* accessRenderTarget() { return fRenderTarget.get(); }
-
-    sk_sp<GrRenderTarget> renderTarget() { return fRenderTarget; }
 
     sk_sp<GrTexture> asTexture() { return sk_ref_sp(fRenderTarget->asTexture()); }
 
@@ -338,6 +381,8 @@ private:
     friend class GrMSAAPathRenderer;             // for access to drawBatch
     friend class GrStencilAndCoverPathRenderer;  // for access to drawBatch
     friend class GrTessellatingPathRenderer;     // for access to drawBatch
+
+    void internalClear(const GrFixedClip&, const GrColor, bool canIgnoreClip);
 
     bool drawFilledDRRect(const GrClip& clip,
                           const GrPaint& paint,
@@ -382,6 +427,7 @@ private:
     GrInstancedPipelineInfo           fInstancedPipelineInfo;
 
     sk_sp<SkColorSpace>               fColorSpace;
+    sk_sp<GrColorSpaceXform>          fColorXformFromSRGB;
     SkSurfaceProps                    fSurfaceProps;
     GrAuditTrail*                     fAuditTrail;
 

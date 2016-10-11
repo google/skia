@@ -158,6 +158,11 @@ GradientShaderBase4fContext::GradientShaderBase4fContext(const SkGradientShaderB
         || shader.fColorsAreOpaque;
 }
 
+bool SkGradientShaderBase::
+GradientShaderBase4fContext::isValid() const {
+    return fDstToPos.isFinite();
+}
+
 void SkGradientShaderBase::
 GradientShaderBase4fContext::buildIntervals(const SkGradientShaderBase& shader,
                                             const ContextRec& rec, bool reverse) {

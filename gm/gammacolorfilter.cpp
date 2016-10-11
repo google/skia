@@ -88,9 +88,9 @@ protected:
     }
 
 private:
-    static const int kCellWidth = 64;
-    static const int kCellHeight = 64;
-    static const int kNumGreySteps = 16;
+    static constexpr int kCellWidth = 64;
+    static constexpr int kCellHeight = 64;
+    static constexpr int kNumGreySteps = 16;
 
     typedef GM INHERITED;
 };

@@ -229,7 +229,7 @@ template <typename T> void* operator new(size_t, GrTAllocator<T>*);
 
 template <typename T> class GrTAllocator : SkNoncopyable {
 public:
-    virtual ~GrTAllocator() { this->reset(); };
+    virtual ~GrTAllocator() { this->reset(); }
 
     /**
      * Create an allocator

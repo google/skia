@@ -11,7 +11,7 @@
 #include "SkUtils.h"
 
 void SkSampler::Fill(const SkImageInfo& info, void* dst, size_t rowBytes,
-        uint32_t colorOrIndex, SkCodec::ZeroInitialized zeroInit) {
+        uint64_t colorOrIndex, SkCodec::ZeroInitialized zeroInit) {
     SkASSERT(dst != nullptr);
 
     // Calculate bytes to fill.  We use getSafeSize since the last row may not be padded.
@@ -24,26 +24,15 @@ void SkSampler::Fill(const SkImageInfo& info, void* dst, size_t rowBytes,
         case kRGBA_8888_SkColorType:
         case kBGRA_8888_SkColorType: {
             // If memory is zero initialized, we may not need to fill
-            uint32_t color = colorOrIndex;
+            uint32_t color = (uint32_t) colorOrIndex;
             if (SkCodec::kYes_ZeroInitialized == zeroInit && 0 == color) {
                 return;
             }
 
-            // We must fill row by row in the case of unaligned row bytes
-            if (SkIsAlign4((size_t) dst) && SkIsAlign4(rowBytes)) {
-                sk_memset32((uint32_t*) dst, color,
-                        (uint32_t) bytesToFill / sizeof(SkPMColor));
-            } else {
-                // We must fill row by row in the case of unaligned row bytes.  This is an
-                // unlikely, slow case.
-                SkCodecPrintf("Warning: Strange number of row bytes, fill will be slow.\n");
-                uint32_t* dstRow = (uint32_t*) dst;
-                for (int row = 0; row < numRows; row++) {
-                    for (int col = 0; col < width; col++) {
-                        dstRow[col] = color;
-                    }
-                    dstRow = SkTAddOffset<uint32_t>(dstRow, rowBytes);
-                }
+            uint32_t* dstRow = (uint32_t*) dst;
+            for (int row = 0; row < numRows; row++) {
+                sk_memset32((uint32_t*) dstRow, color, width);
+                dstRow = SkTAddOffset<uint32_t>(dstRow, rowBytes);
             }
             break;
         }
@@ -61,19 +50,10 @@ void SkSampler::Fill(const SkImageInfo& info, void* dst, size_t rowBytes,
                 return;
             }
 
-            if (SkIsAlign2((size_t) dst) && SkIsAlign2(rowBytes)) {
-                sk_memset16((uint16_t*) dst, color, (uint32_t) bytesToFill / sizeof(uint16_t));
-            } else {
-                // We must fill row by row in the case of unaligned row bytes.  This is an
-                // unlikely, slow case.
-                SkCodecPrintf("Warning: Strange number of row bytes, fill will be slow.\n");
-                uint16_t* dstRow = (uint16_t*) dst;
-                for (int row = 0; row < numRows; row++) {
-                    for (int col = 0; col < width; col++) {
-                        dstRow[col] = color;
-                    }
-                    dstRow = SkTAddOffset<uint16_t>(dstRow, rowBytes);
-                }
+            uint16_t* dstRow = (uint16_t*) dst;
+            for (int row = 0; row < numRows; row++) {
+                sk_memset16((uint16_t*) dstRow, color, width);
+                dstRow = SkTAddOffset<uint16_t>(dstRow, rowBytes);
             }
             break;
         }
@@ -95,6 +75,19 @@ void SkSampler::Fill(const SkImageInfo& info, void* dst, size_t rowBytes,
 
             memset(dst, (uint8_t) colorOrIndex, bytesToFill);
             break;
+        case kRGBA_F16_SkColorType: {
+            uint64_t color = colorOrIndex;
+            if (SkCodec::kYes_ZeroInitialized == zeroInit && 0 == color) {
+                return;
+            }
+
+            uint64_t* dstRow = (uint64_t*) dst;
+            for (int row = 0; row < numRows; row++) {
+                sk_memset64((uint64_t*) dstRow, color, width);
+                dstRow = SkTAddOffset<uint64_t>(dstRow, rowBytes);
+            }
+            break;
+        }
         default:
             SkCodecPrintf("Error: Unsupported dst color type for fill().  Doing nothing.\n");
             SkASSERT(false);

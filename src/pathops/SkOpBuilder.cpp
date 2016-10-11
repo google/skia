@@ -53,11 +53,14 @@ bool FixWinding(SkPath* path) {
     if (!contourHead.count()) {
         return true;
     }
-    SkASSERT(contourHead.next());
+    if (!contourHead.next()) {
+        return false;
+    }
+    contourHead.joinAllSegments();
     contourHead.resetReverse();
     bool writePath = false;
     SkOpSpan* topSpan;
-    globalState.setPhase(SkOpGlobalState::kFixWinding);
+    globalState.setPhase(SkOpPhase::kFixWinding);
     while ((topSpan = FindSortableTop(&contourHead))) {
         SkOpSegment* topSegment = topSpan->segment();
         SkOpContour* topContour = topSegment->contour();

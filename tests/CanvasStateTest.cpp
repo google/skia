@@ -304,7 +304,7 @@ DEF_TEST(CanvasState_test_soft_clips, reporter) {
     SkRRect roundRect;
     roundRect.setOval(SkRect::MakeWH(5, 5));
 
-    canvas.clipRRect(roundRect, SkRegion::kIntersect_Op, true);
+    canvas.clipRRect(roundRect, SkCanvas::kIntersect_Op, true);
 
     SkSetErrorCallback(error_callback, nullptr);
 

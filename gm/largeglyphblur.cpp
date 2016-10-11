@@ -23,7 +23,7 @@ DEF_SIMPLE_GM(largeglyphblur, canvas, 1920, 600) {
         paint.setAntiAlias(true);
 
         // setup up maskfilter
-        static const SkScalar kSigma = SkBlurMask::ConvertRadiusToSigma(SkIntToScalar(40));
+        const SkScalar kSigma = SkBlurMask::ConvertRadiusToSigma(SkIntToScalar(40));
 
         SkPaint blurPaint(paint);
         blurPaint.setMaskFilter(SkBlurMaskFilter::Make(kNormal_SkBlurStyle, kSigma));
@@ -32,9 +32,9 @@ DEF_SIMPLE_GM(largeglyphblur, canvas, 1920, 600) {
 
         sk_tool_utils::add_to_text_blob(&builder, text, paint, 0, 0);
 
-        SkAutoTUnref<const SkTextBlob> blob(builder.build());
-        canvas->drawTextBlob(blob.get(), 10, 200, blurPaint);
-        canvas->drawTextBlob(blob.get(), 10, 200, paint);
+        sk_sp<SkTextBlob> blob(builder.make());
+        canvas->drawTextBlob(blob, 10, 200, blurPaint);
+        canvas->drawTextBlob(blob, 10, 200, paint);
 
         size_t len = strlen(text);
         canvas->drawText(text, len, 10, 500, blurPaint);

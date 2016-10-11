@@ -46,12 +46,13 @@
     '../gm/gm.cpp',
 
     '../src/utils/SkMultiPictureDocumentReader.cpp',
+    '../tools/LsanSuppressions.cpp',
     '../tools/debugger/SkDebugCanvas.cpp',
     '../tools/debugger/SkDrawCommand.cpp',
     '../tools/debugger/SkJsonWriteBuffer.cpp',
     '../tools/debugger/SkObjectParser.cpp',
-    '../tools/debugger/SkOverdrawMode.h',
     '../tools/debugger/SkOverdrawMode.cpp',
+    '../tools/debugger/SkOverdrawMode.h',
   ],
   'conditions': [
     [ 'skia_gpu == 1', {

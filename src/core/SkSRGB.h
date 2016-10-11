@@ -62,4 +62,23 @@ static inline Sk4i sk_linear_to_srgb_noclamp(const Sk4f& x) {
     return SkNx_cast<int>(f);
 }
 
+// sRGB -> linear, using math instead of table lookups, scaling better to larger SIMD vectors.
+static inline Sk4f sk_linear_from_srgb_math(const Sk4i& s) {
+    auto x = SkNx_cast<float>(s);
+
+    const float u = 1/255.0f;  // x is [0,255], so x^n needs scaling by u^n.
+
+    // Non-linear segment of sRGB curve approximated by
+    // l = 0.0025 + 0.6975x^2 + 0.3x^3
+    const float k0 = 0.0025f,
+                k2 = 0.6975f * u*u,
+                k3 = 0.3000f * u*u*u;
+    auto hi = k0 + (k2 + k3*x) * (x*x);
+
+    // Linear segment of sRGB curve: the normal slope, extended a little further than normal.
+    auto lo = x * (u/12.92f);
+
+    return (x < 14.025f).thenElse(lo, hi);
+}
+
 #endif//SkSRGB_DEFINED

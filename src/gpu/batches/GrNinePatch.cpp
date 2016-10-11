@@ -82,7 +82,7 @@ private:
         int patchCnt = fPatches.count();
         int numRects = 0;
         for (int i = 0; i < patchCnt; i++) {
-            numRects += fPatches[i].fIter->numRects();
+            numRects += fPatches[i].fIter->numRectsToDraw();
         }
 
         SkAutoTUnref<const GrBuffer> indexBuffer(
@@ -132,7 +132,7 @@ private:
             if (!isScaleTranslate) {
                 SkPoint* positions = reinterpret_cast<SkPoint*>(patchVerts);
                 patch.fViewMatrix.mapPointsWithStride(positions, vertexStride,
-                                                      kVertsPerRect * patch.fIter->numRects());
+                        kVertsPerRect * patch.fIter->numRectsToDraw());
             }
         }
         helper.recordDraw(target, gp.get());

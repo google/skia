@@ -72,7 +72,7 @@ DEF_SIMPLE_GM_BG(imagemagnifier_cropped, canvas, WIDTH_HEIGHT, WIDTH_HEIGHT, SK_
                                     SkIntToScalar(WIDTH_HEIGHT-32));
     srcRect.inset(64.0f, 64.0f);
 
-    static const SkScalar kInset = 64.0f;
+    constexpr SkScalar kInset = 64.0f;
 
     // Crop out a 16 pixel ring around the result
     const SkRect rect = SkRect::MakeXYWH(16, 16, WIDTH_HEIGHT-32, WIDTH_HEIGHT-32);

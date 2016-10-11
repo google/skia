@@ -136,7 +136,8 @@ protected:
         // Handle everything in a normalized 1x1 space.
         root->setViewBox(SkSVGViewBoxType(SkRect::MakeWH(1, 1)));
 
-        fDom = sk_sp<SkSVGDOM>(new SkSVGDOM(SkSize::Make(this->width(), this->height())));
+        fDom = sk_sp<SkSVGDOM>(new SkSVGDOM());
+        fDom->setContainerSize(SkSize::Make(this->width(), this->height()));
         fDom->setRoot(std::move(root));
 
         // Off we go.

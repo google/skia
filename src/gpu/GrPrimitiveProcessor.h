@@ -201,12 +201,6 @@ public:
 
     virtual bool isPathRendering() const { return false; }
 
-    /**
-     * No Local Coord Transformation is needed in the shader, instead transformed local coords will
-     * be provided via vertex attribute.
-     */
-    virtual bool hasTransformedLocalCoords() const = 0;
-
     virtual GrPixelLocalStorageState getPixelLocalStorageState() const {
         return kDisabled_GrPixelLocalStorageState;
     }
@@ -232,7 +226,7 @@ protected:
     size_t fVertexStride;
 
 private:
-    void notifyRefCntIsZero() const final {};
+    void notifyRefCntIsZero() const final {}
     virtual bool hasExplicitLocalCoords() const = 0;
 
     typedef GrProcessor INHERITED;

@@ -220,8 +220,6 @@ bool GrBatchAtlas::addToAtlas(AtlasID* id, GrDrawBatch::Target* target,
         return false;
     }
 
-    SkASSERT(!plot->unique());  // The GrPlotUpdater should have a ref too
-
     this->processEviction(plot->id());
     fPlotList.remove(plot);
     SkAutoTUnref<BatchPlot>& newPlot = fPlotArray[plot->index()];

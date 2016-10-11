@@ -154,8 +154,8 @@ static SkMatrix make_matrix() {
     return m;
 }
 
-static SkXfermode::Mode make_xfermode() {
-    return static_cast<SkXfermode::Mode>(R(SkXfermode::kLastMode+1));
+static SkBlendMode make_blendmode() {
+    return static_cast<SkBlendMode>(R((int)SkBlendMode::kLastMode+1));
 }
 
 static SkPaint::Align make_paint_align() {
@@ -369,7 +369,7 @@ static sk_sp<SkColorFilter> make_color_filter() {
             return SkTableColorFilter::MakeARGB(tableA, tableR, tableG, tableB);
         }
         case 3:
-            return SkColorFilter::MakeModeFilter(make_color(), make_xfermode());
+            return SkColorFilter::MakeModeFilter(make_color(), (SkXfermode::Mode)make_blendmode());
         case 4:
             return SkColorMatrixFilter::MakeLightingFilter(make_color(), make_color());
         case 5:
@@ -505,7 +505,7 @@ static SkPaint make_paint() {
     paint.setStrokeCap(make_paint_cap());
     paint.setStrokeJoin(make_paint_join());
     paint.setColorFilter(make_color_filter());
-    paint.setXfermodeMode(make_xfermode());
+    paint.setBlendMode(make_blendmode());
     paint.setPathEffect(make_path_effect());
     paint.setMaskFilter(make_mask_filter());
 
@@ -540,7 +540,7 @@ static sk_sp<SkImageFilter> make_image_filter(bool canBeNull) {
     }
 
     enum { ALPHA_THRESHOLD, MERGE, COLOR, LUT3D, BLUR, MAGNIFIER,
-           XFERMODE, OFFSET, MATRIX, MATRIX_CONVOLUTION, COMPOSE,
+           BLENDMODE, OFFSET, MATRIX, MATRIX_CONVOLUTION, COMPOSE,
            DISTANT_LIGHT, POINT_LIGHT, SPOT_LIGHT, NOISE, DROP_SHADOW,
            MORPHOLOGY, BITMAP, DISPLACE, TILE, PICTURE, PAINT, NUM_FILTERS };
 
@@ -554,7 +554,7 @@ static sk_sp<SkImageFilter> make_image_filter(bool canBeNull) {
     case MERGE:
         filter = SkMergeImageFilter::Make(make_image_filter(),
                                           make_image_filter(),
-                                          make_xfermode());
+                                          (SkXfermode::Mode)make_blendmode());
         break;
     case COLOR: {
         sk_sp<SkColorFilter> cf(make_color_filter());
@@ -580,8 +580,8 @@ static sk_sp<SkImageFilter> make_image_filter(bool canBeNull) {
                                               make_scalar(true),
                                               make_image_filter());
         break;
-    case XFERMODE:
-        filter = SkXfermodeImageFilter::Make(SkXfermode::Make(make_xfermode()),
+    case BLENDMODE:
+        filter = SkXfermodeImageFilter::Make(make_blendmode(),
                                              make_image_filter(),
                                              make_image_filter(),
                                              nullptr);

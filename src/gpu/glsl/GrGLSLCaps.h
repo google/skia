@@ -217,10 +217,10 @@ private:
     const char* fFBFetchColorName;
     const char* fFBFetchExtensionString;
 
-    uint32_t fMaxVertexSamplers;
-    uint32_t fMaxGeometrySamplers;
-    uint32_t fMaxFragmentSamplers;
-    uint32_t fMaxCombinedSamplers;
+    int fMaxVertexSamplers;
+    int fMaxGeometrySamplers;
+    int fMaxFragmentSamplers;
+    int fMaxCombinedSamplers;
 
     AdvBlendEqInteraction fAdvBlendEqInteraction;
 

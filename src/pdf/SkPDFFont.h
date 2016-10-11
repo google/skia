@@ -40,6 +40,8 @@ public:
      */
     SkAdvancedTypefaceMetrics::FontType getType() const { return fFontType; }
 
+    static SkAdvancedTypefaceMetrics::FontType FontType(const SkAdvancedTypefaceMetrics&);
+
     static bool IsMultiByte(SkAdvancedTypefaceMetrics::FontType type) {
         return type == SkAdvancedTypefaceMetrics::kType1CID_Font ||
                type == SkAdvancedTypefaceMetrics::kTrueType_Font;
@@ -63,24 +65,6 @@ public:
         SkASSERT(gid >= fFirstGlyphID && gid <= fLastGlyphID);
         SkASSERT(fFirstGlyphID > 0);
         return gid - fFirstGlyphID + 1;
-    }
-
-    /** Count the number of glyphIDs that can be encoded with this font.
-     *  glyphIDs > maxGlyphID are considered okay. */
-    int countStretch(const SkGlyphID* glyphIDs,
-                     int numGlyphs,
-                     SkGlyphID maxGlyphID) const {
-        if (this->multiByteGlyphs()) {
-            return numGlyphs;
-        }
-        for (int i = 0; i < numGlyphs; i++) {
-            SkGlyphID gid = glyphIDs[i];
-            if (gid != 0 && gid <= maxGlyphID &&
-                (gid < fFirstGlyphID || gid > fLastGlyphID)) {
-                return i;
-            }
-        }
-        return numGlyphs;
     }
 
     void noteGlyphUsage(SkGlyphID glyph) {

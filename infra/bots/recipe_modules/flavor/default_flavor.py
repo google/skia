@@ -117,18 +117,6 @@ class DefaultFlavorUtils(object):
               '--depot_tools_parent_dir',
               self._win_toolchain_dir])
 
-  def build_command_buffer(self, **kwargs):
-    """Build command_buffer."""
-    script = self.m.vars.skia_dir.join('tools', 'build_command_buffer.py')
-    self.m.run(
-        self.m.python, 'build command_buffer',
-        script=script,
-        args=['--chrome-dir', self.m.vars.checkout_root,
-              '--output-dir', self.out_dir,
-              '--chrome-build-type', self.m.vars.configuration,
-              '--no-sync'],
-        **kwargs)
-
   def compile(self, target, **kwargs):
     """Build the given target."""
     env = kwargs.pop('env', {})
@@ -139,7 +127,7 @@ class DefaultFlavorUtils(object):
       make_cmd = ['python', 'make.py']
       self.m.run.run_once(self.bootstrap_win_toolchain)
       if 'Vulkan' in self.m.vars.builder_name:
-        env['VK_SDK_PATH'] = self.m.vars.slave_dir.join('win_vulkan_sdk')
+        env['VULKAN_SDK'] = self.m.vars.slave_dir.join('win_vulkan_sdk')
     else:
       make_cmd = ['make']
     cmd = make_cmd + [target]
@@ -153,8 +141,6 @@ class DefaultFlavorUtils(object):
                    env=env, cwd=self.m.path['checkout'], **kwargs)
       else:
         raise
-    if 'CommandBuffer' in self.m.vars.builder_name:
-      self.m.run.run_once(self.build_command_buffer, env=env)
 
   def copy_extra_build_products(self, swarming_out_dir):
     """Copy extra build products to specified directory.

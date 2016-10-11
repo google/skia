@@ -1133,12 +1133,12 @@ static void test_flush(skiatest::Reporter* reporter) {
             make_unique_key<1>(&k, i);
             r->resourcePriv().setUniqueKey(k);
             r->unref();
-            cache->notifyFlushOccurred();
+            cache->notifyFlushOccurred(GrResourceCache::kExternal);
         }
 
         // Send flush notifications to the cache. Each flush should purge the oldest resource.
-        for (int i = 0; i < kFlushCount - 1; ++i) {
-            // The first resource was purged after the last flush in the initial loop, hence the -1.
+        for (int i = 0; i < kFlushCount; ++i) {
+            cache->notifyFlushOccurred(GrResourceCache::kExternal);
             REPORTER_ASSERT(reporter, kFlushCount - i - 1 == cache->getResourceCount());
             for (int j = 0; j < i; ++j) {
                 GrUniqueKey k;
@@ -1147,7 +1147,6 @@ static void test_flush(skiatest::Reporter* reporter) {
                 REPORTER_ASSERT(reporter, !SkToBool(r));
                 SkSafeUnref(r);
             }
-            cache->notifyFlushOccurred();
         }
 
         REPORTER_ASSERT(reporter, 0 == cache->getResourceCount());
@@ -1169,13 +1168,13 @@ static void test_flush(skiatest::Reporter* reporter) {
             } else {
                 r->unref();
             }
-            cache->notifyFlushOccurred();
+            cache->notifyFlushOccurred(GrResourceCache::kExternal);
         }
 
         for (int i = 0; i < kFlushCount; ++i) {
             // Should get a resource purged every other flush.
+            cache->notifyFlushOccurred(GrResourceCache::kExternal);
             REPORTER_ASSERT(reporter, kFlushCount - i/2 - 1 == cache->getResourceCount());
-            cache->notifyFlushOccurred();
         }
 
         // Unref all the resources that we kept refs on in the first loop.
@@ -1183,11 +1182,11 @@ static void test_flush(skiatest::Reporter* reporter) {
             refedResources[i]->unref();
         }
 
-        // When we unref'ed them their timestamps got updated. So nothing should be purged until we
-        // get kFlushCount additional flushes. Then everything should be purged.
-        for (int i = 0; i < kFlushCount; ++i) {
+        // After kFlushCount + 1 flushes they all will have sat in the purgeable queue for
+        // kFlushCount full flushes.
+        for (int i = 0; i < kFlushCount + 1; ++i) {
             REPORTER_ASSERT(reporter, kFlushCount >> 1 == cache->getResourceCount());
-            cache->notifyFlushOccurred();
+            cache->notifyFlushOccurred(GrResourceCache::kExternal);
         }
         REPORTER_ASSERT(reporter, 0 == cache->getResourceCount());
 
@@ -1195,6 +1194,22 @@ static void test_flush(skiatest::Reporter* reporter) {
     }
 
     REPORTER_ASSERT(reporter, 0 == cache->getResourceCount());
+
+    // Verify that calling flush() on a GrContext with nothing to do will not trigger resource
+    // eviction.
+    context->flush();
+    for (int i = 0; i < 10; ++i) {
+        TestResource* r = new TestResource(context->getGpu());
+        GrUniqueKey k;
+        make_unique_key<1>(&k, i);
+        r->resourcePriv().setUniqueKey(k);
+        r->unref();
+    }
+    REPORTER_ASSERT(reporter, 10 == cache->getResourceCount());
+    for (int i = 0; i < 10 * kFlushCount; ++i) {
+        context->flush();
+    }
+    REPORTER_ASSERT(reporter, 10 == cache->getResourceCount());
 }
 
 static void test_large_resource_count(skiatest::Reporter* reporter) {
@@ -1280,11 +1295,7 @@ static void test_abandoned(skiatest::Reporter* reporter) {
 
     // Call all the public methods on resource in the abandoned state. They shouldn't crash.
 
-    int foo = 4132;
-    sk_sp<SkData> data(SkData::MakeWithCopy(&foo, sizeof(foo)));
-    resource->setCustomData(data.get());
-    resource->getCustomData();
-    resource->getUniqueID();
+    resource->uniqueID();
     resource->getUniqueKey();
     resource->wasDestroyed();
     resource->gpuMemorySize();

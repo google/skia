@@ -79,7 +79,7 @@ protected:
 
     void onDraw(SkCanvas* canvas) override {
         // start with the center of a 3x3 grid
-        static const uint16_t fan[] = {
+        constexpr uint16_t fan[] = {
             4,
             0, 1, 2, 5, 8, 7, 6, 3, 0
         };

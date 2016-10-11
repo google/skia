@@ -958,7 +958,8 @@ static sk_sp<SkPDFStream> make_image_shader(SkPDFDocument* doc,
                                             SkScalar dpi,
                                             const SkPDFShader::State& state,
                                             SkBitmap image) {
-    SkASSERT(state.fBitmapKey == SkBitmapKey(image));
+    SkASSERT(state.fBitmapKey ==
+             (SkBitmapKey{image.getSubset(), image.getGenerationID()}));
     SkAutoLockPixels SkAutoLockPixels(image);
 
     // The image shader pattern cell will be drawn into a separate device
@@ -1167,7 +1168,7 @@ bool SkPDFShader::State::operator==(const SkPDFShader::State& b) const {
 
     if (fType == SkShader::kNone_GradientType) {
         if (fBitmapKey != b.fBitmapKey ||
-                fBitmapKey.id() == 0 ||
+                fBitmapKey.fID == 0 ||
                 fImageTileModes[0] != b.fImageTileModes[0] ||
                 fImageTileModes[1] != b.fImageTileModes[1]) {
             return false;
@@ -1219,59 +1220,65 @@ SkPDFShader::State::State(SkShader* shader, const SkMatrix& canvasTransform,
     fInfo.fColorCount = 0;
     fInfo.fColors = nullptr;
     fInfo.fColorOffsets = nullptr;
-    fShaderTransform = shader->getLocalMatrix();
     fImageTileModes[0] = fImageTileModes[1] = SkShader::kClamp_TileMode;
-
     fType = shader->asAGradient(&fInfo);
 
-    if (fType == SkShader::kNone_GradientType) {
-        if (!shader->isABitmap(imageDst, nullptr, fImageTileModes)) {
-            // Generic fallback for unsupported shaders:
-            //  * allocate a bbox-sized bitmap
-            //  * shade the whole area
-            //  * use the result as a bitmap shader
-
-            // bbox is in device space. While that's exactly what we
-            // want for sizing our bitmap, we need to map it into
-            // shader space for adjustments (to match
-            // MakeImageShader's behavior).
-            SkRect shaderRect = SkRect::Make(bbox);
-            if (!inverse_transform_bbox(canvasTransform, &shaderRect)) {
-                imageDst->reset();
-                return;
-            }
-
-            // Clamp the bitmap size to about 1M pixels
-            static const SkScalar kMaxBitmapArea = 1024 * 1024;
-            SkScalar bitmapArea = rasterScale * bbox.width() * rasterScale * bbox.height();
-            if (bitmapArea > kMaxBitmapArea) {
-                rasterScale *= SkScalarSqrt(kMaxBitmapArea / bitmapArea);
-            }
-
-            SkISize size = SkISize::Make(SkScalarRoundToInt(rasterScale * bbox.width()),
-                                         SkScalarRoundToInt(rasterScale * bbox.height()));
-            SkSize scale = SkSize::Make(SkIntToScalar(size.width()) / shaderRect.width(),
-                                        SkIntToScalar(size.height()) / shaderRect.height());
-
-            imageDst->allocN32Pixels(size.width(), size.height());
-            imageDst->eraseColor(SK_ColorTRANSPARENT);
-
-            SkPaint p;
-            p.setShader(sk_ref_sp(shader));
-
-            SkCanvas canvas(*imageDst);
-            canvas.scale(scale.width(), scale.height());
-            canvas.translate(-shaderRect.x(), -shaderRect.y());
-            canvas.drawPaint(p);
-
-            fShaderTransform.setTranslate(shaderRect.x(), shaderRect.y());
-            fShaderTransform.preScale(1 / scale.width(), 1 / scale.height());
-        }
-        fBitmapKey = SkBitmapKey(*imageDst);
-    } else {
+    if (fType != SkShader::kNone_GradientType) {
+        fBitmapKey = SkBitmapKey{{0, 0, 0, 0}, 0};
+        fShaderTransform = shader->getLocalMatrix();
         this->allocateGradientInfoStorage();
         shader->asAGradient(&fInfo);
+        return;
     }
+    if (SkImage* skimg = shader->isAImage(&fShaderTransform, fImageTileModes)) {
+        // TODO(halcanary): delay converting to bitmap.
+        if (skimg->asLegacyBitmap(imageDst, SkImage::kRO_LegacyBitmapMode)) {
+            fBitmapKey = SkBitmapKey{imageDst->getSubset(), imageDst->getGenerationID()};
+            return;
+        }
+    }
+    fShaderTransform = shader->getLocalMatrix();
+    // Generic fallback for unsupported shaders:
+    //  * allocate a bbox-sized bitmap
+    //  * shade the whole area
+    //  * use the result as a bitmap shader
+
+    // bbox is in device space. While that's exactly what we
+    // want for sizing our bitmap, we need to map it into
+    // shader space for adjustments (to match
+    // MakeImageShader's behavior).
+    SkRect shaderRect = SkRect::Make(bbox);
+    if (!inverse_transform_bbox(canvasTransform, &shaderRect)) {
+        imageDst->reset();
+        return;
+    }
+
+    // Clamp the bitmap size to about 1M pixels
+    static const SkScalar kMaxBitmapArea = 1024 * 1024;
+    SkScalar bitmapArea = rasterScale * bbox.width() * rasterScale * bbox.height();
+    if (bitmapArea > kMaxBitmapArea) {
+        rasterScale *= SkScalarSqrt(kMaxBitmapArea / bitmapArea);
+    }
+
+    SkISize size = SkISize::Make(SkScalarRoundToInt(rasterScale * bbox.width()),
+                                 SkScalarRoundToInt(rasterScale * bbox.height()));
+    SkSize scale = SkSize::Make(SkIntToScalar(size.width()) / shaderRect.width(),
+                                SkIntToScalar(size.height()) / shaderRect.height());
+
+    imageDst->allocN32Pixels(size.width(), size.height());
+    imageDst->eraseColor(SK_ColorTRANSPARENT);
+
+    SkPaint p;
+    p.setShader(sk_ref_sp(shader));
+
+    SkCanvas canvas(*imageDst);
+    canvas.scale(scale.width(), scale.height());
+    canvas.translate(-shaderRect.x(), -shaderRect.y());
+    canvas.drawPaint(p);
+
+    fShaderTransform.setTranslate(shaderRect.x(), shaderRect.y());
+    fShaderTransform.preScale(1 / scale.width(), 1 / scale.height());
+    fBitmapKey = SkBitmapKey{imageDst->getSubset(), imageDst->getGenerationID()};
 }
 
 SkPDFShader::State::State(const SkPDFShader::State& other)
@@ -1300,7 +1307,7 @@ SkPDFShader::State::State(const SkPDFShader::State& other)
  * Only valid for gradient states.
  */
 SkPDFShader::State SkPDFShader::State::MakeAlphaToLuminosityState() const {
-    SkASSERT(fBitmapKey == SkBitmapKey());
+    SkASSERT(fBitmapKey == (SkBitmapKey{{0, 0, 0, 0}, 0}));
     SkASSERT(fType != SkShader::kNone_GradientType);
 
     SkPDFShader::State newState(*this);
@@ -1318,7 +1325,7 @@ SkPDFShader::State SkPDFShader::State::MakeAlphaToLuminosityState() const {
  * Only valid for gradient states.
  */
 SkPDFShader::State SkPDFShader::State::MakeOpaqueState() const {
-    SkASSERT(fBitmapKey == SkBitmapKey());
+    SkASSERT(fBitmapKey == (SkBitmapKey{{0, 0, 0, 0}, 0}));
     SkASSERT(fType != SkShader::kNone_GradientType);
 
     SkPDFShader::State newState(*this);

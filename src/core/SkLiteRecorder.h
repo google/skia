@@ -19,6 +19,10 @@ public:
 
     sk_sp<SkSurface> onNewSurface(const SkImageInfo&, const SkSurfaceProps&) override;
 
+#ifdef SK_SUPPORT_LEGACY_DRAWFILTER
+    SkDrawFilter* setDrawFilter(SkDrawFilter*) override;
+#endif
+
     void willSave() override;
     SaveLayerStrategy getSaveLayerStrategy(const SaveLayerRec&) override;
     void willRestore() override;
@@ -27,15 +31,16 @@ public:
     void didSetMatrix(const SkMatrix&) override;
     void didTranslate(SkScalar, SkScalar) override;
 
-    void onClipRect  (const   SkRect&, SkRegion::Op, ClipEdgeStyle) override;
-    void onClipRRect (const  SkRRect&, SkRegion::Op, ClipEdgeStyle) override;
-    void onClipPath  (const   SkPath&, SkRegion::Op, ClipEdgeStyle) override;
-    void onClipRegion(const SkRegion&, SkRegion::Op) override;
+    void onClipRect  (const   SkRect&, ClipOp, ClipEdgeStyle) override;
+    void onClipRRect (const  SkRRect&, ClipOp, ClipEdgeStyle) override;
+    void onClipPath  (const   SkPath&, ClipOp, ClipEdgeStyle) override;
+    void onClipRegion(const SkRegion&, ClipOp) override;
 
     void onDrawPaint (const SkPaint&) override;
-    void onDrawPath  (const SkPath&,  const SkPaint&) override;
-    void onDrawRect  (const SkRect&,  const SkPaint&) override;
-    void onDrawOval  (const SkRect&,  const SkPaint&) override;
+    void onDrawPath  (const SkPath&, const SkPaint&) override;
+    void onDrawRect  (const SkRect&, const SkPaint&) override;
+    void onDrawRegion(const SkRegion&, const SkPaint&) override;
+    void onDrawOval  (const SkRect&, const SkPaint&) override;
     void onDrawArc(const SkRect&, SkScalar, SkScalar, bool, const SkPaint&) override;
     void onDrawRRect (const SkRRect&, const SkPaint&) override;
     void onDrawDRRect(const SkRRect&, const SkRRect&, const SkPaint&) override;
@@ -76,10 +81,12 @@ public:
 
 #ifdef SK_EXPERIMENTAL_SHADOWING
     void didTranslateZ(SkScalar) override;
-    void onDrawShadowedPicture(const SkPicture*, const SkMatrix*, const SkPaint*) override;
+    void onDrawShadowedPicture(const SkPicture*, const SkMatrix*,
+                               const SkPaint*, const SkShadowParams& params) override;
 #else
     void didTranslateZ(SkScalar);
-    void onDrawShadowedPicture(const SkPicture*, const SkMatrix*, const SkPaint*);
+    void onDrawShadowedPicture(const SkPicture*, const SkMatrix*,
+                               const SkPaint*, const SkShadowParams& params);
 #endif
 
 private:

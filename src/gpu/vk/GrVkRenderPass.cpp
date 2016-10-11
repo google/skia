@@ -46,12 +46,11 @@ void GrVkRenderPass::initSimple(const GrVkGpu* gpu, const GrVkRenderTarget& targ
     static const GrVkRenderPass::LoadStoreOps kBasicLoadStoreOps(VK_ATTACHMENT_LOAD_OP_LOAD,
                                                                  VK_ATTACHMENT_STORE_OP_STORE);
 
-    this->init(gpu, target, kBasicLoadStoreOps, kBasicLoadStoreOps, kBasicLoadStoreOps);
+    this->init(gpu, target, kBasicLoadStoreOps, kBasicLoadStoreOps);
 }
 
 void GrVkRenderPass::init(const GrVkGpu* gpu,
                           const LoadStoreOps& colorOp,
-                          const LoadStoreOps& resolveOp,
                           const LoadStoreOps& stencilOp) {
     uint32_t numAttachments = fAttachmentsDescriptor.fAttachmentCount;
     // Attachment descriptions to be set on the render pass
@@ -62,11 +61,10 @@ void GrVkRenderPass::init(const GrVkGpu* gpu,
     // Refs to attachments on the render pass (as described by teh VkAttachmentDescription above),
     // that are used by the subpass.
     VkAttachmentReference colorRef;
-    VkAttachmentReference resolveRef;
     VkAttachmentReference stencilRef;
     uint32_t currentAttachment = 0;
 
-    // Go through each of the attachment types (color, resolve, stencil) and set the necessary
+    // Go through each of the attachment types (color, stencil) and set the necessary
     // on the various Vk structs.
     VkSubpassDescription subpassDesc;
     memset(&subpassDesc, 0, sizeof(VkSubpassDescription));
@@ -74,6 +72,8 @@ void GrVkRenderPass::init(const GrVkGpu* gpu,
     subpassDesc.pipelineBindPoint = VK_PIPELINE_BIND_POINT_GRAPHICS;
     subpassDesc.inputAttachmentCount = 0;
     subpassDesc.pInputAttachments = nullptr;
+    subpassDesc.pResolveAttachments = nullptr;
+
     if (fAttachmentFlags & kColor_AttachmentFlag) {
         // set up color attachment
         fAttachmentsDescriptor.fColor.fLoadStoreOps = colorOp;
@@ -92,21 +92,6 @@ void GrVkRenderPass::init(const GrVkGpu* gpu,
         subpassDesc.colorAttachmentCount = 0;
     }
     subpassDesc.pColorAttachments = &colorRef;
-
-    if (fAttachmentFlags & kResolve_AttachmentFlag) {
-        // set up resolve attachment
-        fAttachmentsDescriptor.fResolve.fLoadStoreOps = resolveOp;
-        setup_vk_attachment_description(&attachments[currentAttachment],
-                                        fAttachmentsDescriptor.fResolve,
-                                        VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL);
-        // setup subpass use of attachment
-        resolveRef.attachment = currentAttachment++;
-        // I'm really not sure what the layout should be for the resolve textures.
-        resolveRef.layout = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
-        subpassDesc.pResolveAttachments = &resolveRef;
-    } else {
-        subpassDesc.pResolveAttachments = nullptr;
-    }
 
     if (fAttachmentFlags & kStencil_AttachmentFlag) {
         // set up stencil attachment
@@ -155,22 +140,20 @@ void GrVkRenderPass::init(const GrVkGpu* gpu,
 void GrVkRenderPass::init(const GrVkGpu* gpu,
                           const GrVkRenderPass& compatibleRenderPass,
                           const LoadStoreOps& colorOp,
-                          const LoadStoreOps& resolveOp,
                           const LoadStoreOps& stencilOp) {
     fAttachmentFlags = compatibleRenderPass.fAttachmentFlags;
     fAttachmentsDescriptor = compatibleRenderPass.fAttachmentsDescriptor;
-    this->init(gpu, colorOp, resolveOp, stencilOp);
+    this->init(gpu, colorOp, stencilOp);
 }
 
 void GrVkRenderPass::init(const GrVkGpu* gpu,
                           const GrVkRenderTarget& target, 
                           const LoadStoreOps& colorOp,
-                          const LoadStoreOps& resolveOp,
                           const LoadStoreOps& stencilOp) {
     // Get attachment information from render target. This includes which attachments the render
-    // target has (color, resolve, stencil) and the attachments format and sample count.
+    // target has (color, stencil) and the attachments format and sample count.
     target.getAttachmentsDescriptor(&fAttachmentsDescriptor, &fAttachmentFlags);
-    this->init(gpu, colorOp, resolveOp, stencilOp);
+    this->init(gpu, colorOp, stencilOp);
 }
 
 void GrVkRenderPass::freeGPUData(const GrVkGpu* gpu) const {
@@ -187,26 +170,11 @@ bool GrVkRenderPass::colorAttachmentIndex(uint32_t* index) const {
     return false;
 }
 
-// Works under the assumption that resolve attachment will always be after the color attachment.
-bool GrVkRenderPass::resolveAttachmentIndex(uint32_t* index) const {
-    *index = 0;
-    if (fAttachmentFlags & kColor_AttachmentFlag) {
-        ++(*index);
-    }
-    if (fAttachmentFlags & kResolve_AttachmentFlag) {
-        return true;
-    }
-    return false;
-}
-
 // Works under the assumption that stencil attachment will always be after the color and resolve
 // attachment.
 bool GrVkRenderPass::stencilAttachmentIndex(uint32_t* index) const {
     *index = 0;
     if (fAttachmentFlags & kColor_AttachmentFlag) {
-        ++(*index);
-    }
-    if (fAttachmentFlags & kResolve_AttachmentFlag) {
         ++(*index);
     }
     if (fAttachmentFlags & kStencil_AttachmentFlag) {
@@ -249,11 +217,6 @@ bool GrVkRenderPass::isCompatible(const AttachmentsDescriptor& desc,
             return false;
         }
     }
-    if (fAttachmentFlags & kResolve_AttachmentFlag) {
-        if (!fAttachmentsDescriptor.fResolve.isCompatible(desc.fResolve)) {
-            return false;
-        }
-    }
     if (fAttachmentFlags & kStencil_AttachmentFlag) {
         if (!fAttachmentsDescriptor.fStencil.isCompatible(desc.fStencil)) {
             return false;
@@ -276,15 +239,9 @@ bool GrVkRenderPass::isCompatible(const GrVkRenderPass& renderPass) const {
 }
 
 bool GrVkRenderPass::equalLoadStoreOps(const LoadStoreOps& colorOps,
-                                       const LoadStoreOps& resolveOps,
                                        const LoadStoreOps& stencilOps) const {
     if (fAttachmentFlags & kColor_AttachmentFlag) {
         if (fAttachmentsDescriptor.fColor.fLoadStoreOps != colorOps) {
-            return false;
-        }
-    }
-    if (fAttachmentFlags & kResolve_AttachmentFlag) {
-        if (fAttachmentsDescriptor.fResolve.fLoadStoreOps != resolveOps) {
             return false;
         }
     }
@@ -301,10 +258,6 @@ void GrVkRenderPass::genKey(GrProcessorKeyBuilder* b) const {
     if (fAttachmentFlags & kColor_AttachmentFlag) {
         b->add32(fAttachmentsDescriptor.fColor.fFormat);
         b->add32(fAttachmentsDescriptor.fColor.fSamples);
-    }
-    if (fAttachmentFlags & kResolve_AttachmentFlag) {
-        b->add32(fAttachmentsDescriptor.fResolve.fFormat);
-        b->add32(fAttachmentsDescriptor.fResolve.fSamples);
     }
     if (fAttachmentFlags & kStencil_AttachmentFlag) {
         b->add32(fAttachmentsDescriptor.fStencil.fFormat);

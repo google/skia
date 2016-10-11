@@ -122,11 +122,9 @@ public:
     LightingFP(sk_sp<GrFragmentProcessor> normalFP, sk_sp<SkLights> lights) {
 
         // fuse all ambient lights into a single one
-        fAmbientColor.set(0.0f, 0.0f, 0.0f);
+        fAmbientColor = lights->ambientLightColor();
         for (int i = 0; i < lights->numLights(); ++i) {
-            if (SkLights::Light::kAmbient_LightType == lights->light(i).type()) {
-                fAmbientColor += lights->light(i).color();
-            } else if (SkLights::Light::kDirectional_LightType == lights->light(i).type()) {
+            if (SkLights::Light::kDirectional_LightType == lights->light(i).type()) {
                 fDirectionalLights.push_back(lights->light(i));
                 // TODO get the handle to the shadow map if there is one
             } else {
@@ -386,6 +384,12 @@ void SkLightingShaderImpl::LightingShaderContext::shadeSpan(int x, int y,
             }
 
             SkColor3f accum = SkColor3f::Make(0.0f, 0.0f, 0.0f);
+
+            // Adding ambient light
+            accum.fX += lightShader.fLights->ambientLightColor().fX * SkColorGetR(diffColor);
+            accum.fY += lightShader.fLights->ambientLightColor().fY * SkColorGetG(diffColor);
+            accum.fZ += lightShader.fLights->ambientLightColor().fZ * SkColorGetB(diffColor);
+
             // This is all done in linear unpremul color space (each component 0..255.0f though)
             for (int l = 0; l < lightShader.fLights->numLights(); ++l) {
                 const SkLights::Light& light = lightShader.fLights->light(l);

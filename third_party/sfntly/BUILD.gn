@@ -14,7 +14,6 @@ third_party("sfntly") {
   deps = [
     "//third_party/icu",
   ]
-  libs = [ "pthread" ]
   sources = [
     "../externals/sfntly/cpp/src/sample/chromium/font_subsetter.cc",
     "../externals/sfntly/cpp/src/sample/chromium/subsetter_impl.cc",
@@ -71,4 +70,8 @@ third_party("sfntly") {
     "../externals/sfntly/cpp/src/sfntly/tools/subsetter/subsetter.cc",
     "../externals/sfntly/cpp/src/sfntly/tools/subsetter/table_subsetter_impl.cc",
   ]
+
+  if (is_win) {
+    defines += [ "WIN32", ]
+  }
 }

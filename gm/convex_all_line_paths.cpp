@@ -28,12 +28,17 @@ namespace skiagm {
 // paths
 class ConvexLineOnlyPathsGM : public GM {
 public:
-    ConvexLineOnlyPathsGM() {
+    ConvexLineOnlyPathsGM(bool doStrokeAndFill) : fDoStrokeAndFill(doStrokeAndFill) {
         this->setBGColor(0xFFFFFFFF);
     }
 
 protected:
-    SkString onShortName() override { return SkString("convex-lineonly-paths"); }
+    SkString onShortName() override {
+        if (fDoStrokeAndFill) {
+            return SkString("convex-lineonly-paths-stroke-and-fill");
+        }
+        return SkString("convex-lineonly-paths");
+    }
     SkISize onISize() override { return SkISize::Make(kGMWidth, kGMHeight); }
     bool runAsBench() const override { return true; }
 
@@ -258,20 +263,35 @@ protected:
             if (offset->fX+path.getBounds().width() > kGMWidth) {
                 offset->fX = 0;
                 offset->fY += kMaxPathHeight;
+                if (fDoStrokeAndFill) {
+                    offset->fX += kStrokeWidth / 2.0f;
+                    offset->fY += kStrokeWidth / 2.0f;
+                }
             }
             center = { offset->fX + SkScalarHalf(path.getBounds().width()), offset->fY};
             offset->fX += path.getBounds().width();
+            if (fDoStrokeAndFill) {
+                offset->fX += kStrokeWidth;
+            }
         }
 
         const SkColor colors[2] = { SK_ColorBLACK, SK_ColorWHITE };
         const SkPath::Direction dirs[2] = { SkPath::kCW_Direction, SkPath::kCCW_Direction };
         const float scales[] = { 1.0f, 0.75f, 0.5f, 0.25f, 0.1f, 0.01f, 0.001f };
+        const SkPaint::Join joins[3] = { SkPaint::kRound_Join,
+                                         SkPaint::kBevel_Join,
+                                         SkPaint::kMiter_Join };
 
         SkPaint paint;
         paint.setAntiAlias(true);
 
         for (size_t i = 0; i < SK_ARRAY_COUNT(scales); ++i) {
             SkPath path = GetPath(index, (int) i, dirs[i%2]);
+            if (fDoStrokeAndFill) {
+                paint.setStyle(SkPaint::kStrokeAndFill_Style);
+                paint.setStrokeJoin(joins[i%3]);
+                paint.setStrokeWidth(SkIntToScalar(kStrokeWidth));
+            }
 
             canvas->save();
                 canvas->translate(center.fX, center.fY);
@@ -285,6 +305,10 @@ protected:
     void onDraw(SkCanvas* canvas) override {
         // the right edge of the last drawn path
         SkPoint offset = { 0, SkScalarHalf(kMaxPathHeight) };
+        if (fDoStrokeAndFill) {
+            offset.fX += kStrokeWidth / 2.0f;
+            offset.fY += kStrokeWidth / 2.0f;
+        }
 
         for (int i = 0; i < kNumPaths; ++i) {
             this->drawPath(canvas, i, &offset);
@@ -296,6 +320,11 @@ protected:
 
             SkPaint p;
             p.setAntiAlias(true);
+            if (fDoStrokeAndFill) {
+                p.setStyle(SkPaint::kStrokeAndFill_Style);
+                p.setStrokeJoin(SkPaint::kMiter_Join);
+                p.setStrokeWidth(SkIntToScalar(kStrokeWidth));
+            }
 
             SkPath p1;
             p1.moveTo(60.8522949f, 364.671021f);
@@ -307,15 +336,19 @@ protected:
     }
 
 private:
-    static const int kNumPaths      = 20;
-    static const int kMaxPathHeight = 100;
-    static const int kGMWidth       = 512;
-    static const int kGMHeight      = 512;
+    static constexpr int kStrokeWidth   = 10;
+    static constexpr int kNumPaths      = 20;
+    static constexpr int kMaxPathHeight = 100;
+    static constexpr int kGMWidth       = 512;
+    static constexpr int kGMHeight      = 512;
+
+    bool fDoStrokeAndFill;
 
     typedef GM INHERITED;
 };
 
 //////////////////////////////////////////////////////////////////////////////
 
-DEF_GM(return new ConvexLineOnlyPathsGM;)
+DEF_GM(return new ConvexLineOnlyPathsGM(false);)
+DEF_GM(return new ConvexLineOnlyPathsGM(true);)
 }

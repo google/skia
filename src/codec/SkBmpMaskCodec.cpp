@@ -39,7 +39,7 @@ SkCodec::Result SkBmpMaskCodec::onGetPixels(const SkImageInfo& dstInfo,
         return kInvalidScale;
     }
 
-    if (!conversion_possible(dstInfo, this->getInfo())) {
+    if (!conversion_possible_ignore_color_space(dstInfo, this->getInfo())) {
         SkCodecPrintf("Error: cannot convert input type to output type.\n");
         return kInvalidConversion;
     }

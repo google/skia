@@ -3,14 +3,16 @@
 # Use of this source code is governed by a BSD-style license that can be
 # found in the LICENSE file.
 {
+  'variables': {
+    'includes': [ 'skia_sources.gypi' ]
+  },
   'targets': [
     {
       'target_name': 'sksl',
       'type': 'static_library',
       'standalone_static_library': 1,
-      'includes': [
-        'sksl.gypi',
-      ],
+      'sources': [ '<@(sksl_sources)' ],
+      'include_dirs': [ '<@(sksl_include_dirs)' ],
       'defines': [
         'SKIA'
       ],

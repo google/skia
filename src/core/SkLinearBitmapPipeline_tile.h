@@ -410,7 +410,7 @@ public:
         SkScalar answer = SkMinScalar(SkScalarAbs(unbias), fYsCap[0]);
         SkASSERT(0 <= answer && answer < fYMax);
         return answer;
-    };
+    }
 
 private:
     SkScalar fYMax;

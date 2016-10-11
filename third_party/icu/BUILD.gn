@@ -199,9 +199,5 @@ third_party("icu") {
     "../externals/icu/source/common/uvectr64.cpp",
     "../externals/icu/source/common/wintz.c",
   ]
-  if (is_linux) {
-    sources += [ "../externals/icu/linux/icudtl_dat.S" ]
-  } else if (is_mac) {
-    sources += [ "../externals/icu/mac/icudtl_dat.S" ]
-  }
+  sources += [ "../externals/icu/$current_os/icudtl_dat.S" ]
 }

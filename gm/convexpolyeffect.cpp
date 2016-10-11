@@ -110,7 +110,7 @@ protected:
         fPaths.addToTail(tri);
 
         SkPath ngon;
-        static const SkScalar kRadius = 50.f;
+        constexpr SkScalar kRadius = 50.f;
         const SkPoint center = { kRadius, kRadius };
         for (int i = 0; i < GrConvexPolyEffect::kMaxEdges; ++i) {
             SkScalar angle = 2 * SK_ScalarPI * i / GrConvexPolyEffect::kMaxEdges;
@@ -160,7 +160,7 @@ protected:
         }
 
         SkScalar y = 0;
-        static const SkScalar kDX = 12.f;
+        constexpr SkScalar kDX = 12.f;
         for (PathList::Iter iter(fPaths, PathList::Iter::kHead_IterStart);
              iter.get();
              iter.next()) {

@@ -64,7 +64,7 @@ static SkData* encode_snapshot(const sk_sp<SkSurface>& surface) {
     return img ? img->encode() : nullptr;
 }
 
-#if defined(__linux)
+#if defined(__linux) && !defined(__ANDROID__)
     #include <GL/osmesa.h>
     static sk_sp<GrContext> create_grcontext() {
         // We just leak the OSMesaContext... the process will die soon anyway.
@@ -136,10 +136,12 @@ int main() {
     if (options.pdf) {
         SkDynamicMemoryWStream pdfStream;
         sk_sp<SkDocument> document(SkDocument::MakePDF(&pdfStream));
-        srand(0);
-        draw(document->beginPage(options.size.width(), options.size.height()));
-        document->close();
-        pdfData.reset(pdfStream.copyToData());
+        if (document) {
+            srand(0);
+            draw(document->beginPage(options.size.width(), options.size.height()));
+            document->close();
+            pdfData = pdfStream.detachAsData();
+        }
     }
     if (options.skp) {
         SkSize size;
@@ -150,7 +152,7 @@ int main() {
         auto picture = recorder.finishRecordingAsPicture();
         SkDynamicMemoryWStream skpStream;
         picture->serialize(&skpStream);
-        skpData.reset(skpStream.copyToData());
+        skpData = skpStream.detachAsData();
     }
 
     printf("{\n");

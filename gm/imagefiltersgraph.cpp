@@ -7,7 +7,6 @@
 
 #include "gm.h"
 
-#include "SkArithmeticMode.h"
 #include "SkBlurImageFilter.h"
 #include "SkColorFilter.h"
 #include "SkColorFilterImageFilter.h"
@@ -70,9 +69,8 @@ protected:
             sk_sp<SkImageFilter> colorMorph(SkColorFilterImageFilter::Make(std::move(matrixFilter),
                                                                            std::move(morph)));
             SkPaint paint;
-            paint.setImageFilter(SkXfermodeImageFilter::Make(
-                                        SkXfermode::Make(SkXfermode::kSrcOver_Mode),
-                                        std::move(colorMorph)));
+            paint.setImageFilter(SkXfermodeImageFilter::Make(SkBlendMode::kSrcOver,
+                                                             std::move(colorMorph)));
 
             DrawClippedImage(canvas, fImage.get(), paint);
             canvas->translate(SkIntToScalar(100), 0);
@@ -90,7 +88,7 @@ protected:
 
             SkPaint paint;
             paint.setImageFilter(
-                SkXfermodeImageFilter::Make(SkArithmeticMode::Make(0, SK_Scalar1, SK_Scalar1, 0),
+                SkXfermodeImageFilter::MakeArithmetic(0, 1, 1, 0, true,
                                             std::move(matrixFilter),
                                             std::move(offsetFilter),
                                             nullptr));
@@ -106,9 +104,8 @@ protected:
             SkImageFilter::CropRect cropRect(SkRect::MakeWH(SkIntToScalar(95), SkIntToScalar(100)));
             SkPaint paint;
             paint.setImageFilter(
-                SkXfermodeImageFilter::Make(SkXfermode::Make(SkXfermode::kSrcIn_Mode),
-                                            std::move(blur),
-                                            nullptr, &cropRect));
+                SkXfermodeImageFilter::Make(SkBlendMode::kSrcIn, std::move(blur), nullptr,
+                                            &cropRect));
             DrawClippedImage(canvas, fImage.get(), paint);
             canvas->translate(SkIntToScalar(100), 0);
         }

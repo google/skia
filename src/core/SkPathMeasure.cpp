@@ -85,14 +85,16 @@ void SkPathMeasure_segTo(const SkPoint pts[], unsigned segType,
                     dst->conicTo(conic.fPts[1], conic.fPts[2], conic.fW);
                 } else {
                     SkConic tmp[2];
-                    conic.chopAt(stopT, tmp);
-                    dst->conicTo(tmp[0].fPts[1], tmp[0].fPts[2], tmp[0].fW);
+                    if (conic.chopAt(stopT, tmp)) {
+                        dst->conicTo(tmp[0].fPts[1], tmp[0].fPts[2], tmp[0].fW);
+                    }
                 }
             } else {
                 if (SK_Scalar1 == stopT) {
                     SkConic tmp1[2];
-                    conic.chopAt(startT, tmp1);
-                    dst->conicTo(tmp1[1].fPts[1], tmp1[1].fPts[2], tmp1[1].fW);
+                    if (conic.chopAt(startT, tmp1)) {
+                        dst->conicTo(tmp1[1].fPts[1], tmp1[1].fPts[2], tmp1[1].fW);
+                    }
                 } else {
                     SkConic tmp;
                     conic.chopAt(startT, stopT, &tmp);
@@ -407,14 +409,15 @@ void SkPathMeasure::buildSegments() {
         const Segment* stop = fSegments.end();
         unsigned        ptIndex = 0;
         SkScalar        distance = 0;
-
+        // limit the loop to a reasonable number; pathological cases can run for minutes
+        int             maxChecks = 10000000;  // set to INT_MAX to defeat the check
         while (seg < stop) {
             SkASSERT(seg->fDistance > distance);
             SkASSERT(seg->fPtIndex >= ptIndex);
             SkASSERT(seg->fTValue > 0);
 
             const Segment* s = seg;
-            while (s < stop - 1 && s[0].fPtIndex == s[1].fPtIndex) {
+            while (s < stop - 1 && s[0].fPtIndex == s[1].fPtIndex && --maxChecks > 0) {
                 SkASSERT(s[0].fType == s[1].fType);
                 SkASSERT(s[0].fTValue < s[1].fTValue);
                 s += 1;

@@ -30,12 +30,9 @@ public:
     GrTexture* instantiate(GrTextureProvider* texProvider);
 
 private:
-    GrTextureProxy(const GrSurfaceDesc& desc, SkBackingFit fit, SkBudgeted budgeted,
-                   const void* /*srcData*/, size_t /*rowBytes*/)
-        : INHERITED(desc, fit, budgeted) {
-        // TODO: Handle 'srcData' here
-    }
-
+    // Deferred version
+    GrTextureProxy(const GrSurfaceDesc& srcDesc, SkBackingFit, SkBudgeted,
+                   const void* srcData, size_t srcRowBytes);
     // Wrapped version
     GrTextureProxy(sk_sp<GrTexture> tex);
 

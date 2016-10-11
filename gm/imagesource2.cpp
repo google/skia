@@ -31,7 +31,7 @@ protected:
 
     // Create an image with high frequency vertical stripes
     void onOnceBeforeDraw() override {
-        static const SkPMColor gColors[] = {
+        constexpr SkPMColor gColors[] = {
             SK_ColorRED,     SK_ColorGRAY,
             SK_ColorGREEN,   SK_ColorGRAY,
             SK_ColorBLUE,    SK_ColorGRAY,
@@ -73,7 +73,7 @@ protected:
     }
 
 private:
-    static const int kImageSize = 503;
+    static constexpr int kImageSize = 503;
 
     SkString fSuffix;
     SkFilterQuality fFilter;

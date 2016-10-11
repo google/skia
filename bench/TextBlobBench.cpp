@@ -44,7 +44,7 @@ protected:
                                                                    nullptr);
         memcpy(run.glyphs, glyphs.begin(), glyphs.count() * sizeof(uint16_t));
 
-        fBlob.reset(builder.build());
+        fBlob = builder.make();
     }
 
     const char* onGetName() override {
@@ -62,9 +62,9 @@ protected:
 
 private:
 
-    SkAutoTUnref<const SkTextBlob>  fBlob;
-    SkTDArray<uint16_t>             fGlyphs;
-    sk_sp<SkTypeface>               fTypeface;
+    sk_sp<SkTextBlob>   fBlob;
+    SkTDArray<uint16_t> fGlyphs;
+    sk_sp<SkTypeface>   fTypeface;
 
     typedef Benchmark INHERITED;
 };

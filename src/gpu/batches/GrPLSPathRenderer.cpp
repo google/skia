@@ -333,8 +333,8 @@ public:
 
             // emit transforms
             this->emitTransforms(vsBuilder, varyingHandler, uniformHandler, gpArgs->fPositionVar,
-                                 te.inPosition()->fName, te.localMatrix(), args.fTransformsIn,
-                                 args.fTransformsOut);
+                                 te.inPosition()->fName, te.localMatrix(),
+                                 args.fFPCoordTransformHandler);
 
             GrGLSLPPFragmentBuilder* fsBuilder = args.fFragBuilder;
             SkAssertResult(fsBuilder->enableFeature(
@@ -391,16 +391,10 @@ public:
             b->add32(key);
         }
 
-        virtual void setData(const GrGLSLProgramDataManager& pdman,
-                             const GrPrimitiveProcessor& gp) override {
-        }
-
-        void setTransformData(const GrPrimitiveProcessor& primProc,
-                              const GrGLSLProgramDataManager& pdman,
-                              int index,
-                              const SkTArray<const GrCoordTransform*, true>& transforms) override {
-            this->setTransformDataHelper(primProc.cast<PLSAATriangleEffect>().fLocalMatrix, pdman,
-                                         index, transforms);
+        void setData(const GrGLSLProgramDataManager& pdman, const GrPrimitiveProcessor& gp,
+                     FPCoordTransformIter&& transformIter) override {
+            this->setTransformDataHelper(gp.cast<PLSAATriangleEffect>().fLocalMatrix, pdman,
+                                         &transformIter);
         }
 
     private:
@@ -522,8 +516,8 @@ public:
 
             // emit transforms
             this->emitTransforms(vsBuilder, varyingHandler, uniformHandler, gpArgs->fPositionVar,
-                                 qe.inPosition()->fName, qe.localMatrix(), args.fTransformsIn,
-                                 args.fTransformsOut);
+                                 qe.inPosition()->fName, qe.localMatrix(),
+                                 args.fFPCoordTransformHandler);
 
             GrGLSLPPFragmentBuilder* fsBuilder = args.fFragBuilder;
             SkAssertResult(fsBuilder->enableFeature(
@@ -581,16 +575,10 @@ public:
             b->add32(key);
         }
 
-        virtual void setData(const GrGLSLProgramDataManager& pdman,
-                             const GrPrimitiveProcessor& gp) override {
-        }
-
-        void setTransformData(const GrPrimitiveProcessor& primProc,
-                              const GrGLSLProgramDataManager& pdman,
-                              int index,
-                              const SkTArray<const GrCoordTransform*, true>& transforms) override {
-            this->setTransformDataHelper(primProc.cast<PLSQuadEdgeEffect>().fLocalMatrix, pdman,
-                                         index, transforms);
+        void setData(const GrGLSLProgramDataManager& pdman, const GrPrimitiveProcessor& gp,
+                             FPCoordTransformIter&& transformIter) override {
+            this->setTransformDataHelper(gp.cast<PLSQuadEdgeEffect>().fLocalMatrix, pdman,
+                                         &transformIter);
         }
 
     private:
@@ -680,8 +668,8 @@ public:
             varyingHandler->emitAttributes(fe);
             this->setupPosition(vsBuilder, gpArgs, fe.inPosition()->fName);
             this->emitTransforms(vsBuilder, varyingHandler, uniformHandler, gpArgs->fPositionVar,
-                                 fe.inPosition()->fName, fe.localMatrix(), args.fTransformsIn,
-                                 args.fTransformsOut);
+                                 fe.inPosition()->fName, fe.localMatrix(),
+                                 args.fFPCoordTransformHandler);
 
             GrGLSLPPFragmentBuilder* fsBuilder = args.fFragBuilder;
             SkAssertResult(fsBuilder->enableFeature(
@@ -716,8 +704,8 @@ public:
             b->add32(key);
         }
 
-        virtual void setData(const GrGLSLProgramDataManager& pdman,
-                             const GrPrimitiveProcessor& gp) override {
+        void setData(const GrGLSLProgramDataManager& pdman, const GrPrimitiveProcessor& gp,
+                     FPCoordTransformIter&& transformIter) override {
             const PLSFinishEffect& fe = gp.cast<PLSFinishEffect>();
             pdman.set1f(fUseEvenOdd, fe.fUseEvenOdd);
             if (fe.color() != fColor && !fe.colorIgnored()) {
@@ -726,14 +714,7 @@ public:
                 pdman.set4fv(fColorUniform, 1, c);
                 fColor = fe.color();
             }
-        }
-
-        void setTransformData(const GrPrimitiveProcessor& primProc,
-                              const GrGLSLProgramDataManager& pdman,
-                              int index,
-                              const SkTArray<const GrCoordTransform*, true>& transforms) override {
-            this->setTransformDataHelper(primProc.cast<PLSFinishEffect>().fLocalMatrix, pdman,
-                                         index, transforms);
+            this->setTransformDataHelper(fe.fLocalMatrix, pdman, &transformIter);
         }
 
     private:

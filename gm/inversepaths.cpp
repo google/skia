@@ -47,7 +47,7 @@ struct Style {
 };
 
 sk_sp<SkPathEffect> make_dash() {
-    static constexpr SkScalar kIntervals[] = { 4.f, 3.f };
+    constexpr SkScalar kIntervals[] = { 4.f, 3.f };
     return SkDashPathEffect::Make(kIntervals, SK_ARRAY_COUNT(kIntervals), 0);
 }
 

@@ -35,8 +35,9 @@ sk_sp<SkFlattenable> SkSweepGradient::CreateProc(SkReadBuffer& buffer) {
         return nullptr;
     }
     const SkPoint center = buffer.readPoint();
-    return SkGradientShader::MakeSweep(center.x(), center.y(), desc.fColors, desc.fPos,
-                                       desc.fCount, desc.fGradFlags, desc.fLocalMatrix);
+    return SkGradientShader::MakeSweep(center.x(), center.y(), desc.fColors,
+                                       std::move(desc.fColorSpace), desc.fPos, desc.fCount,
+                                       desc.fGradFlags, desc.fLocalMatrix);
 }
 
 void SkSweepGradient::flatten(SkWriteBuffer& buffer) const {
@@ -49,7 +50,7 @@ size_t SkSweepGradient::onContextSize(const ContextRec&) const {
 }
 
 SkShader::Context* SkSweepGradient::onCreateContext(const ContextRec& rec, void* storage) const {
-    return new (storage) SweepGradientContext(*this, rec);
+    return CheckedCreateContext<SweepGradientContext>(storage, *this, rec);
 }
 
 SkSweepGradient::SweepGradientContext::SweepGradientContext(
@@ -129,19 +130,16 @@ class GrSweepGradient : public GrGradientEffect {
 public:
     class GLSLSweepProcessor;
 
-    static sk_sp<GrFragmentProcessor> Make(GrContext* ctx, const SkSweepGradient& shader,
-                                           const SkMatrix& m) {
-        return sk_sp<GrFragmentProcessor>(new GrSweepGradient(ctx, shader, m));
+    static sk_sp<GrFragmentProcessor> Make(const CreateArgs& args) {
+        return sk_sp<GrFragmentProcessor>(new GrSweepGradient(args));
     }
     virtual ~GrSweepGradient() { }
 
     const char* name() const override { return "Sweep Gradient"; }
 
 private:
-    GrSweepGradient(GrContext* ctx,
-                    const SkSweepGradient& shader,
-                    const SkMatrix& matrix)
-    : INHERITED(ctx, shader, matrix, SkShader::kClamp_TileMode) {
+    GrSweepGradient(const CreateArgs& args)
+    : INHERITED(args) {
         this->initClassID<GrSweepGradient>();
     }
 
@@ -200,8 +198,9 @@ sk_sp<GrFragmentProcessor> GrSweepGradient::TestCreate(GrProcessorTestData* d) {
     sk_sp<SkShader> shader(SkGradientShader::MakeSweep(center.fX, center.fY,  colors, stops,
                                                        colorCount));
     SkMatrix viewMatrix = GrTest::TestMatrix(d->fRandom);
+    auto dstColorSpace = GrTest::TestColorSpace(d->fRandom);
     sk_sp<GrFragmentProcessor> fp = shader->asFragmentProcessor(SkShader::AsFPArgs(
-        d->fContext, &viewMatrix, NULL, kNone_SkFilterQuality, nullptr,
+        d->fContext, &viewMatrix, NULL, kNone_SkFilterQuality, dstColorSpace.get(),
         SkSourceGammaTreatment::kRespect));
     GrAlwaysAssert(fp);
     return fp;
@@ -212,7 +211,7 @@ sk_sp<GrFragmentProcessor> GrSweepGradient::TestCreate(GrProcessorTestData* d) {
 void GrSweepGradient::GLSLSweepProcessor::emitCode(EmitArgs& args) {
     const GrSweepGradient& ge = args.fFp.cast<GrSweepGradient>();
     this->emitUniforms(args.fUniformHandler, ge);
-    SkString coords2D = args.fFragBuilder->ensureFSCoords2D(args.fCoords, 0);
+    SkString coords2D = args.fFragBuilder->ensureCoords2D(args.fTransformedCoords[0]);
     SkString t;
     // 0.1591549430918 is 1/(2*pi), used since atan returns values [-pi, pi]
     // On Intel GPU there is an issue where it reads the second arguement to atan "- %s.x" as an int
@@ -250,7 +249,11 @@ sk_sp<GrFragmentProcessor> SkSweepGradient::asFragmentProcessor(const AsFPArgs& 
     }
     matrix.postConcat(fPtsToUnit);
 
-    sk_sp<GrFragmentProcessor> inner(GrSweepGradient::Make(args.fContext, *this, matrix));
+    sk_sp<GrColorSpaceXform> colorSpaceXform = GrColorSpaceXform::Make(fColorSpace.get(),
+                                                                       args.fDstColorSpace);
+    sk_sp<GrFragmentProcessor> inner(GrSweepGradient::Make(
+        GrGradientEffect::CreateArgs(args.fContext, this, &matrix, SkShader::kClamp_TileMode,
+                                     std::move(colorSpaceXform), SkToBool(args.fDstColorSpace))));
     return GrFragmentProcessor::MulOutputByInputAlpha(std::move(inner));
 }
 

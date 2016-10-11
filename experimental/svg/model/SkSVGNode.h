@@ -13,18 +13,22 @@
 
 class SkCanvas;
 class SkMatrix;
+class SkPaint;
 class SkSVGRenderContext;
 class SkSVGValue;
 
 enum class SkSVGTag {
     kCircle,
+    kDefs,
     kEllipse,
     kG,
     kLine,
+    kLinearGradient,
     kPath,
     kPolygon,
     kPolyline,
     kRect,
+    kStop,
     kSvg
 };
 
@@ -37,6 +41,7 @@ public:
     virtual void appendChild(sk_sp<SkSVGNode>) = 0;
 
     void render(const SkSVGRenderContext&) const;
+    bool asPaint(const SkSVGRenderContext&, SkPaint*) const;
 
     void setAttribute(SkSVGAttribute, const SkSVGValue&);
 
@@ -60,7 +65,11 @@ protected:
 
     virtual void onRender(const SkSVGRenderContext&) const = 0;
 
+    virtual bool onAsPaint(const SkSVGRenderContext&, SkPaint*) const { return false; }
+
     virtual void onSetAttribute(SkSVGAttribute, const SkSVGValue&);
+
+    virtual bool hasChildren() const { return false; }
 
 private:
     SkSVGTag                    fTag;

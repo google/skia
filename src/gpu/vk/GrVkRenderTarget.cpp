@@ -135,7 +135,9 @@ GrVkRenderTarget::Create(GrVkGpu* gpu,
         msImageDesc.fLevels = 1;
         msImageDesc.fSamples = desc.fSampleCnt;
         msImageDesc.fImageTiling = VK_IMAGE_TILING_OPTIMAL;
-        msImageDesc.fUsageFlags = VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT;
+        msImageDesc.fUsageFlags = VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT |
+                                  VK_IMAGE_USAGE_TRANSFER_DST_BIT |
+                                  VK_IMAGE_USAGE_TRANSFER_SRC_BIT;
         msImageDesc.fMemProps = VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT;
 
         if (!GrVkImage::InitImageInfo(gpu, msImageDesc, &msInfo)) {
@@ -239,7 +241,7 @@ void GrVkRenderTarget::createFramebuffer(GrVkGpu* gpu) {
     const GrVkImageView* stencilView = this->stencilAttachmentView();
     fFramebuffer = GrVkFramebuffer::Create(gpu, this->width(), this->height(),
                                            fCachedSimpleRenderPass, fColorAttachmentView,
-                                           fResolveAttachmentView, stencilView);
+                                           stencilView);
     SkASSERT(fFramebuffer);
 }
 
@@ -253,12 +255,6 @@ void GrVkRenderTarget::getAttachmentsDescriptor(
     desc->fColor.fSamples = colorSamples ? colorSamples : 1;
     *attachmentFlags = GrVkRenderPass::kColor_AttachmentFlag;
     uint32_t attachmentCount = 1;
-    if (colorSamples > 0) {
-        desc->fResolve.fFormat = colorFormat;
-        desc->fResolve.fSamples = 1;
-        *attachmentFlags |= GrVkRenderPass::kResolve_AttachmentFlag;
-        ++attachmentCount;
-    }
 
     const GrStencilAttachment* stencil = this->renderTargetPriv().getStencilAttachment();
     if (stencil) {
@@ -284,12 +280,9 @@ GrVkRenderTarget::~GrVkRenderTarget() {
 
 void GrVkRenderTarget::addResources(GrVkCommandBuffer& commandBuffer) const {
     commandBuffer.addResource(this->framebuffer());
-    commandBuffer.addResource(this->resource());
     commandBuffer.addResource(this->colorAttachmentView());
-    if (this->msaaImageResource()) {
-        commandBuffer.addResource(this->msaaImageResource());
-        commandBuffer.addResource(this->resolveAttachmentView());
-    }
+    commandBuffer.addResource(this->msaaImageResource() ? this->msaaImageResource()
+                                                        : this->resource());
     if (this->stencilImageResource()) {
         commandBuffer.addResource(this->stencilImageResource());
         commandBuffer.addResource(this->stencilAttachmentView());
@@ -360,8 +353,10 @@ void GrVkRenderTarget::onAbandon() {
 
 
 GrBackendObject GrVkRenderTarget::getRenderTargetHandle() const {
-    // Currently just passing back the pointer to the main Image::Resource as the handle
-    return (GrBackendObject)&fResource;
+    // If the render target is multisampled, we currently return the ImageInfo for the resolved
+    // image. If we only wrap the msaa target (currently not implemented) we should return a handle
+    // to that instead.
+    return (GrBackendObject)&fInfo;
 }
 
 const GrVkResource* GrVkRenderTarget::stencilImageResource() const {

@@ -9,7 +9,6 @@
 #define GrTypesPriv_DEFINED
 
 #include "GrTypes.h"
-#include "SkRect.h"
 #include "SkRefCnt.h"
 
  /**
@@ -420,32 +419,6 @@ enum GrIOType {
     kRW_GrIOType
 };
 
-struct GrScissorState {
-    GrScissorState() : fEnabled(false) {}
-    GrScissorState(const SkIRect& rect) : fEnabled(true), fRect(rect) {}
-    void setDisabled() { fEnabled = false; }
-    void set(const SkIRect& rect) { fRect = rect; fEnabled = true; }
-    bool SK_WARN_UNUSED_RESULT intersect(const SkIRect& rect) {
-        if (!fEnabled) {
-            this->set(rect);
-            return true;
-        }
-        return fRect.intersect(rect);
-    }
-    bool operator==(const GrScissorState& other) const {
-        return fEnabled == other.fEnabled &&
-                (false == fEnabled || fRect == other.fRect);
-    }
-    bool operator!=(const GrScissorState& other) const { return !(*this == other); }
-
-    bool enabled() const { return fEnabled; }
-    const SkIRect& rect() const { return fRect; }
-
-private:
-    bool    fEnabled;
-    SkIRect fRect;
-};
-
 /**
 * Indicates the type of data that a GPU buffer will be used for.
 */
@@ -508,5 +481,10 @@ template <typename T> T * const * sk_sp_address_as_pointer_address(sk_sp<T> cons
     static_assert(sizeof(T*) == sizeof(sk_sp<T>), "sk_sp not expected size.");
     return reinterpret_cast<T * const *>(sp);
 }
+
+/*
+ * Object for CPU-GPU synchronization
+ */
+typedef intptr_t GrFence;
 
 #endif

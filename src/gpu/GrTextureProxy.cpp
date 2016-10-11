@@ -10,8 +10,15 @@
 #include "GrTextureProvider.h"
 #include "GrGpuResourcePriv.h"
 
+GrTextureProxy::GrTextureProxy(const GrSurfaceDesc& srcDesc, SkBackingFit fit, SkBudgeted budgeted,
+                               const void* /*srcData*/, size_t /*rowBytes*/)
+    : INHERITED(srcDesc, fit, budgeted) {
+    // TODO: Handle 'srcData' here
+}
+
 GrTextureProxy::GrTextureProxy(sk_sp<GrTexture> tex)
-    : INHERITED(tex->desc(), SkBackingFit::kExact, tex->resourcePriv().isBudgeted())
+    : INHERITED(tex->desc(), SkBackingFit::kExact,
+                tex->resourcePriv().isBudgeted(), tex->uniqueID())
     , fTexture(std::move(tex)) {
 }
 

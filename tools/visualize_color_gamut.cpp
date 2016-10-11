@@ -10,7 +10,7 @@
 #include "SkBitmap.h"
 #include "SkCanvas.h"
 #include "SkCodec.h"
-#include "SkColorSpace.h"
+#include "SkColorSpace_Base.h"
 #include "SkCommandLineFlags.h"
 #include "SkForceLinking.h"
 #include "SkImageEncoder.h"
@@ -32,15 +32,15 @@ static void load_gamut(SkPoint rgb[], const SkMatrix44& xyz) {
     // rx = rX / (rX + rY + rZ)
     // ry = rX / (rX + rY + rZ)
     // gx, gy, bx, and gy are calulcated similarly.
-    float rSum = xyz.get(0, 0) + xyz.get(0, 1) + xyz.get(0, 2);
-    float gSum = xyz.get(1, 0) + xyz.get(1, 1) + xyz.get(1, 2);
-    float bSum = xyz.get(2, 0) + xyz.get(2, 1) + xyz.get(2, 2);
+    float rSum = xyz.get(0, 0) + xyz.get(1, 0) + xyz.get(2, 0);
+    float gSum = xyz.get(0, 1) + xyz.get(1, 1) + xyz.get(2, 1);
+    float bSum = xyz.get(0, 2) + xyz.get(1, 2) + xyz.get(2, 2);
     rgb[0].fX = xyz.get(0, 0) / rSum;
-    rgb[0].fY = xyz.get(0, 1) / rSum;
-    rgb[1].fX = xyz.get(1, 0) / gSum;
+    rgb[0].fY = xyz.get(1, 0) / rSum;
+    rgb[1].fX = xyz.get(0, 1) / gSum;
     rgb[1].fY = xyz.get(1, 1) / gSum;
-    rgb[2].fX = xyz.get(2, 0) / bSum;
-    rgb[2].fY = xyz.get(2, 1) / bSum;
+    rgb[2].fX = xyz.get(0, 2) / bSum;
+    rgb[2].fY = xyz.get(1, 2) / bSum;
 }
 
 /**
@@ -57,10 +57,10 @@ static void draw_gamut(SkCanvas* canvas, const SkMatrix44& xyz, const char* name
                        bool label) {
     // Report the XYZ values.
     SkDebugf("%s\n", name);
-    SkDebugf("          X     Y     Z\n");
-    SkDebugf("Red   %.3f %.3f %.3f\n", xyz.get(0, 0), xyz.get(0, 1), xyz.get(0, 2));
-    SkDebugf("Green %.3f %.3f %.3f\n", xyz.get(1, 0), xyz.get(1, 1), xyz.get(1, 2));
-    SkDebugf("Blue  %.3f %.3f %.3f\n", xyz.get(2, 0), xyz.get(2, 1), xyz.get(2, 2));
+    SkDebugf("       R     G     B\n");
+    SkDebugf("X  %.3f %.3f %.3f\n", xyz.get(0, 0), xyz.get(0, 1), xyz.get(0, 2));
+    SkDebugf("Y  %.3f %.3f %.3f\n", xyz.get(1, 0), xyz.get(1, 1), xyz.get(1, 2));
+    SkDebugf("Z  %.3f %.3f %.3f\n", xyz.get(2, 0), xyz.get(2, 1), xyz.get(2, 2));
 
     // Calculate the points in the gamut from the XYZ values.
     SkPoint rgb[4];
@@ -124,7 +124,7 @@ int main(int argc, char** argv) {
         SkDebugf("Cannot find input image.\n");
         return -1;
     }
-    SkAutoTDelete<SkCodec> codec(SkCodec::NewFromData(data.get()));
+    SkAutoTDelete<SkCodec> codec(SkCodec::NewFromData(data));
     if (!codec) {
         SkDebugf("Invalid input image.\n");
         return -1;
@@ -141,13 +141,13 @@ int main(int argc, char** argv) {
     // Draw the sRGB gamut if requested.
     if (FLAGS_sRGB) {
         sk_sp<SkColorSpace> sRGBSpace = SkColorSpace::NewNamed(SkColorSpace::kSRGB_Named);
-        draw_gamut(&canvas, sRGBSpace->xyz(), "sRGB", 0xFFFF9394, false);
+        draw_gamut(&canvas, as_CSB(sRGBSpace)->toXYZD50(), "sRGB", 0xFFFF9394, false);
     }
 
     // Draw the Adobe RGB gamut if requested.
     if (FLAGS_adobeRGB) {
         sk_sp<SkColorSpace> adobeRGBSpace = SkColorSpace::NewNamed(SkColorSpace::kAdobeRGB_Named);
-        draw_gamut(&canvas, adobeRGBSpace->xyz(), "Adobe RGB", 0xFF31a9e1, false);
+        draw_gamut(&canvas, as_CSB(adobeRGBSpace)->toXYZD50(), "Adobe RGB", 0xFF31a9e1, false);
     }
 
     // Draw gamut for the input image.
@@ -156,7 +156,7 @@ int main(int argc, char** argv) {
         SkDebugf("Image had no embedded color space information.  Defaulting to sRGB.\n");
         colorSpace = SkColorSpace::NewNamed(SkColorSpace::kSRGB_Named);
     }
-    draw_gamut(&canvas, colorSpace->xyz(), input, 0xFF000000, true);
+    draw_gamut(&canvas, as_CSB(colorSpace)->toXYZD50(), input, 0xFF000000, true);
 
     // Finally, encode the result to the output file.
     sk_sp<SkData> out(SkImageEncoder::EncodeData(gamut, SkImageEncoder::kPNG_Type, 100));

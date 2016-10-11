@@ -56,15 +56,14 @@ struct MultiPictureDocument final : public SkDocument {
         fSizes.push_back(fCurrentPageSize);
         fPages.push_back(fPictureRecorder.finishRecordingAsPicture());
     }
-    bool onClose(SkWStream* wStream) override {
+    void onClose(SkWStream* wStream) override {
         SkASSERT(wStream);
         SkASSERT(wStream->bytesWritten() == 0);
-        bool good = true;
-        good &= wStream->writeText(SkMultiPictureDocumentProtocol::kMagic);
-        good &= wStream->write32(SkMultiPictureDocumentProtocol::kVersion);
-        good &= wStream->write32(SkToU32(fPages.count()));
+        wStream->writeText(SkMultiPictureDocumentProtocol::kMagic);
+        wStream->write32(SkMultiPictureDocumentProtocol::kVersion);
+        wStream->write32(SkToU32(fPages.count()));
         for (SkSize s : fSizes) {
-            good &= wStream->write(&s, sizeof(s));
+            wStream->write(&s, sizeof(s));
         }
         SkSize bigsize = SkMultiPictureDocumentProtocol::Join(fSizes);
         SkCanvas* c = fPictureRecorder.beginRecording(SkRect::MakeSize(bigsize));
@@ -78,7 +77,7 @@ struct MultiPictureDocument final : public SkDocument {
         p->serialize(wStream);
         fPages.reset();
         fSizes.reset();
-        return good;
+        return;
     }
     void onAbort() override {
         fPages.reset();

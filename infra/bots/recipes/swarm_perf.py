@@ -14,6 +14,7 @@ DEPS = [
   'recipe_engine/platform',
   'recipe_engine/properties',
   'recipe_engine/raw_io',
+  'recipe_engine/time',
   'run',
   'flavor',
   'vars',
@@ -23,22 +24,27 @@ DEPS = [
 TEST_BUILDERS = {
   'client.skia': {
     'skiabot-linux-swarm-000': [
-      'Perf-Android-GCC-GalaxyS3-GPU-Mali400-Arm7-Release',
-      'Perf-Android-GCC-Nexus5-GPU-Adreno330-Arm7-Debug',
-      'Perf-Android-GCC-Nexus6-GPU-Adreno420-Arm7-Release',
-      'Perf-Android-GCC-Nexus7-GPU-Tegra3-Arm7-Release',
-      'Perf-Android-GCC-NexusPlayer-GPU-PowerVR-x86-Release',
-      'Perf-Android-GCC-NVIDIA_Shield-GPU-TegraX1-Arm64-Debug-Vulkan',
-      'Perf-iOS-Clang-iPad4-GPU-SGX554-Arm7-Debug',
+      ('Perf-Android-Clang-NVIDIA_Shield-GPU-TegraX1-arm64-Debug' +
+       '-GN_Android_Vulkan'),
+      'Perf-Android-Clang-Nexus5-GPU-Adreno330-arm-Debug-GN_Android',
+      'Perf-Android-Clang-Nexus6-GPU-Adreno420-arm-Release-GN_Android',
+      'Perf-Android-Clang-Nexus7-GPU-Tegra3-arm-Release-GN_Android',
+      'Perf-Android-Clang-NexusPlayer-GPU-PowerVR-x86-Release-GN_Android',
       'Perf-Mac-Clang-MacMini6.2-CPU-AVX-x86_64-Release-GN',
+      'Perf-Mac-Clang-MacMini6.2-GPU-HD4000-x86_64-Debug-CommandBuffer',
+      'Perf-Ubuntu-Clang-GCE-CPU-AVX2-x86_64-Release-GN',
       'Perf-Ubuntu-GCC-ShuttleA-GPU-GTX550Ti-x86_64-Release-Valgrind',
       'Perf-Ubuntu-GCC-ShuttleA-GPU-GTX550Ti-x86_64-Release-VisualBench',
-      'Perf-Win-MSVC-GCE-CPU-AVX2-x86_64-Release',
       'Perf-Win-MSVC-GCE-CPU-AVX2-x86_64-Debug',
+      'Perf-Win-MSVC-GCE-CPU-AVX2-x86_64-Release',
       'Perf-Win8-MSVC-ShuttleB-GPU-HD4600-x86_64-Release-Trybot',
+      'Perf-iOS-Clang-iPad4-GPU-SGX554-Arm7-Debug',
     ],
   },
 }
+
+
+import calendar
 
 
 def nanobench_flags(bot):
@@ -56,8 +62,11 @@ def nanobench_flags(bot):
   if 'iOS' in bot:
     args.extend(['--skps', 'ignore_skps'])
 
-  config = ['565', '8888', 'gpu', 'nonrendering', 'angle', 'hwui' ]
-  config += [ 'f16', 'srgb' ]
+  config = ['8888', 'gpu', 'nonrendering', 'angle', 'hwui' ]
+  if 'AndroidOne' not in bot:
+    config += [ 'f16', 'srgb' ]
+  if '-GCE-' in bot:
+    config += [ '565' ]
   # The S4 crashes and the NP produces a long error stream when we run with
   # MSAA.
   if ('GalaxyS4'    not in bot and
@@ -81,6 +90,8 @@ def nanobench_flags(bot):
   elif 'MacMini6.2' in bot:
     config.extend(['glinst', 'glinst16'])
 
+  if 'CommandBuffer' in bot:
+    config = ['commandbuffer']
   if 'Vulkan' in bot:
     config = ['vk']
 
@@ -122,11 +133,6 @@ def nanobench_flags(bot):
     match.append('~interlaced1.png')
     match.append('~interlaced2.png')
     match.append('~interlaced3.png')
-
-  # This low-end Android bot crashes about 25% of the time while running the
-  # (somewhat intense) shapes benchmarks.
-  if 'Perf-Android-GCC-GalaxyS3-GPU-Mali400-Arm7-Release' in bot:
-    match.append('~shapes_')
 
   # We do not need or want to benchmark the decodes of incomplete images.
   # In fact, in nanobench we assert that the full image decode succeeds.
@@ -184,6 +190,7 @@ def perf_steps(api):
       '--undefok',   # This helps branches that may not know new flags.
       '-i',       api.flavor.device_dirs.resource_dir,
       '--skps',   api.flavor.device_dirs.skp_dir,
+      '--svgs',   api.flavor.device_dirs.svg_dir,
       '--images', api.flavor.device_path_join(
           api.flavor.device_dirs.images_dir, 'nanobench'),
   ]
@@ -198,9 +205,11 @@ def perf_steps(api):
   args.extend(nanobench_flags(api.vars.builder_name))
 
   if api.vars.upload_perf_results:
+    now = api.time.utcnow()
+    ts = int(calendar.timegm(now.utctimetuple()))
     json_path = api.flavor.device_path_join(
         api.flavor.device_dirs.perf_data_dir,
-        'nanobench_%s.json' % api.vars.got_revision)
+        'nanobench_%s_%d.json' % (api.vars.got_revision, ts))
     args.extend(['--outResultsFile', json_path])
     args.extend(properties)
 
@@ -234,41 +243,15 @@ def perf_steps(api):
 
 def RunSteps(api):
   api.core.setup()
-  api.flavor.install()
-  perf_steps(api)
-  api.flavor.cleanup_steps()
+  try:
+    api.flavor.install()
+    perf_steps(api)
+  finally:
+    api.flavor.cleanup_steps()
   api.run.check_failure()
 
 
 def GenTests(api):
-  def AndroidTestData(builder):
-    test_data = (
-        api.step_data(
-            'get EXTERNAL_STORAGE dir',
-            stdout=api.raw_io.output('/storage/emulated/legacy')) +
-        api.step_data(
-            'read SKP_VERSION',
-            stdout=api.raw_io.output('42')) +
-        api.step_data(
-            'read SK_IMAGE_VERSION',
-            stdout=api.raw_io.output('42')) +
-        api.step_data(
-            'read SVG_VERSION',
-            stdout=api.raw_io.output('42')) +
-        api.step_data(
-            'which adb',
-            retcode=1)
-    )
-    if not 'Debug' in builder:
-      test_data += api.step_data(
-          'exists skia_perf',
-          stdout=api.raw_io.output(''))
-    if not 'GalaxyS3' in builder:
-      test_data += api.step_data(
-          'adb root',
-          stdout=api.raw_io.output('restarting adbd as root'))
-    return test_data
-
   for mastername, slaves in TEST_BUILDERS.iteritems():
     for slavename, builders_by_slave in slaves.iteritems():
       for builder in builders_by_slave:
@@ -290,10 +273,6 @@ def GenTests(api):
               api.path['slave_build'].join('tmp', 'uninteresting_hashes.txt')
           )
         )
-        if ('Android' in builder and
-            ('Test' in builder or 'Perf' in builder) and
-            not 'Appurify' in builder):
-          test += AndroidTestData(builder)
         if 'Trybot' in builder:
           test += api.properties(issue=500,
                                  patchset=1,

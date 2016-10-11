@@ -25,7 +25,7 @@ class BlurRoundRectBench : public Benchmark {
 public:
     BlurRoundRectBench(int width, int height, int cornerRadius)
         : fName("blurroundrect") {
-        fName.appendf("_WH[%ix%i]_cr[%i]", width, height, cornerRadius);
+        fName.appendf("_WH_%ix%i_cr_%i", width, height, cornerRadius);
         SkRect r = SkRect::MakeWH(SkIntToScalar(width), SkIntToScalar(height));
         fRRect.setRectXY(r, SkIntToScalar(cornerRadius), SkIntToScalar(cornerRadius));
     }

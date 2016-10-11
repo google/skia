@@ -478,9 +478,9 @@ DEF_TEST(PathOpsAngleAfter, reporter) {
 
 void SkOpSegment::debugAddAngle(double startT, double endT) {
     SkOpPtT* startPtT = startT == 0 ? fHead.ptT() : startT == 1 ? fTail.ptT()
-            : this->addT(startT, nullptr);
+            : this->addT(startT);
     SkOpPtT* endPtT = endT == 0 ? fHead.ptT() : endT == 1 ? fTail.ptT()
-            : this->addT(endT, nullptr);
+            : this->addT(endT);
     SkOpAngle* angle = SkOpTAllocator<SkOpAngle>::Allocate(this->globalState()->allocator());
     SkOpSpanBase* startSpan = &fHead;
     while (startSpan->ptT() != startPtT) {

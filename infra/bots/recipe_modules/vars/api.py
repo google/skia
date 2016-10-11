@@ -9,8 +9,6 @@
 from recipe_engine import recipe_api
 
 
-BOTO_CHROMIUM_SKIA_GM = 'chromium-skia-gm.boto'
-
 CONFIG_DEBUG = 'Debug'
 CONFIG_RELEASE = 'Release'
 
@@ -50,7 +48,8 @@ class SkiaVarsApi(recipe_api.RecipeApi):
     # Compile bots keep a persistent checkout.
     self.persistent_checkout = (self.is_compile_bot or
                                 'RecreateSKPs' in self.builder_name or
-                                '-CT_' in self.builder_name)
+                                '-CT_' in self.builder_name or
+                                'Presubmit' in self.builder_name)
     if self.persistent_checkout:
       if 'Win' in self.builder_name:
         self.checkout_root = self.make_path('C:\\', 'b', 'work')
@@ -82,16 +81,14 @@ class SkiaVarsApi(recipe_api.RecipeApi):
     self.tmp_dir = self.m.path['slave_build'].join('tmp')
 
     # Some bots also require a checkout of chromium.
-    self.need_chromium_checkout = 'CommandBuffer' in self.builder_name
+    self.need_chromium_checkout = False
     if 'CommandBuffer' in self.builder_name:
-      self.gclient_env['GYP_CHROMIUM_NO_ACTION'] = '0'
-    if ((self.is_compile_bot and
-         'SAN' in self.builder_name) or
-        'RecreateSKPs' in self.builder_name):
       self.need_chromium_checkout = True
-      if 'RecreateSKPs' in self.builder_name:
-        self.gclient_env['CPPFLAGS'] = (
-            '-DSK_ALLOW_CROSSPROCESS_PICTUREIMAGEFILTERS=1')
+      self.gclient_env['GYP_CHROMIUM_NO_ACTION'] = '0'
+    if 'RecreateSKPs' in self.builder_name:
+      self.need_chromium_checkout = True
+      self.gclient_env['CPPFLAGS'] = (
+          '-DSK_ALLOW_CROSSPROCESS_PICTUREIMAGEFILTERS=1')
 
     # Some bots also require a checkout of PDFium.
     self.need_pdfium_checkout = 'PDFium' in self.builder_name
@@ -110,7 +107,7 @@ class SkiaVarsApi(recipe_api.RecipeApi):
     self.default_env.update({'SKIA_OUT': self.skia_out,
                              'BUILDTYPE': self.configuration})
     self.is_trybot = self.builder_cfg['is_trybot']
-    self.patch_storage = self.m.properties.get('patch_storage', '')
+    self.patch_storage = self.m.properties.get('patch_storage', 'rietveld')
     self.issue = None
     self.patchset = None
     if self.is_trybot:
@@ -146,4 +143,19 @@ class SkiaVarsApi(recipe_api.RecipeApi):
   @property
   def upload_perf_results(self):
     # TODO(borenet): Move this into the swarm_perf recipe.
-    return ('Release' in self.m.properties['buildername'])
+    if 'Release' not in self.m.properties['buildername']:
+      return False
+    skip_upload_bots = [
+      'ASAN',
+      'Coverage',
+      'MSAN',
+      'TSAN',
+      'UBSAN',
+      'Valgrind',
+    ]
+    upload_perf_results = True
+    for s in skip_upload_bots:
+      if s in self.m.properties['buildername']:
+        upload_perf_results = False
+        break
+    return upload_perf_results

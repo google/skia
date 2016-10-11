@@ -8,14 +8,17 @@
 #ifndef SkXfermode_DEFINED
 #define SkXfermode_DEFINED
 
-#include "SkFlattenable.h"
+#include "SkBlendMode.h"
 #include "SkColor.h"
+#include "SkFlattenable.h"
 
 class GrFragmentProcessor;
 class GrTexture;
 class GrXPFactory;
 class SkRasterPipeline;
 class SkString;
+
+struct SkArithmeticParams;
 
 struct SkPM4f;
 typedef SkPM4f (*SkXfermodeProc4f)(const SkPM4f& src, const SkPM4f& dst);
@@ -112,6 +115,9 @@ public:
      * Gets the name of the Mode as a string.
      */
     static const char* ModeName(Mode);
+    static const char* ModeName(SkBlendMode mode) {
+        return ModeName(Mode(mode));
+    }
 
     /**
      *  If the xfermode is one of the modes in the Mode enum, then asMode()
@@ -156,6 +162,31 @@ public:
         return AsMode(xfer, mode);
     }
 #endif
+
+    /**
+     *  Skia maintains global xfermode objects corresponding to each BlendMode. This returns a
+     *  ptr to that global xfermode (or null if the mode is srcover). Thus the caller may use
+     *  the returned ptr, but it should leave its refcnt untouched.
+     */
+    static SkXfermode* Peek(SkBlendMode mode) {
+        sk_sp<SkXfermode> xfer = Make(mode);
+        if (!xfer) {
+            SkASSERT(SkBlendMode::kSrcOver == mode);
+            return nullptr;
+        }
+        SkASSERT(!xfer->unique());
+        return xfer.get();
+    }
+
+    static sk_sp<SkXfermode> Make(SkBlendMode bm) {
+        return Make((Mode)bm);
+    }
+
+    SkBlendMode blend() const {
+        Mode mode;
+        SkAssertResult(this->asMode(&mode));
+        return (SkBlendMode)mode;
+    }
 
     /** Return a function pointer to a routine that applies the specified
         porter-duff transfer mode.
@@ -215,6 +246,7 @@ public:
     static bool IsOpaque(const sk_sp<SkXfermode>& xfer, SrcColorOpacity opacityType) {
         return IsOpaque(xfer.get(), opacityType);
     }
+    static bool IsOpaque(SkBlendMode, SrcColorOpacity);
 
 #if SK_SUPPORT_GPU
     /** Used by the SkXfermodeImageFilter to blend two colors via a GrFragmentProcessor.
@@ -269,6 +301,8 @@ public:
     typedef void (*LCDF16Proc)(uint64_t* dst, const SkPM4f* src, int count, const uint16_t lcd[]);
     static LCD32Proc GetLCD32Proc(uint32_t flags);
     static LCDF16Proc GetLCDF16Proc(uint32_t) { return nullptr; }
+
+    virtual bool isArithmetic(SkArithmeticParams*) const { return false; }
 
 protected:
     SkXfermode() {}

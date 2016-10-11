@@ -24,8 +24,15 @@ void SkSVGNode::render(const SkSVGRenderContext& ctx) const {
     }
 }
 
+bool SkSVGNode::asPaint(const SkSVGRenderContext& ctx, SkPaint* paint) const {
+    SkSVGRenderContext localContext(ctx);
+
+    return this->onPrepareToRender(&localContext) && this->onAsPaint(localContext, paint);
+}
+
 bool SkSVGNode::onPrepareToRender(SkSVGRenderContext* ctx) const {
-    ctx->applyPresentationAttributes(fPresentationAttributes);
+    ctx->applyPresentationAttributes(fPresentationAttributes,
+                                     this->hasChildren() ? 0 : SkSVGRenderContext::kLeaf);
     return true;
 }
 

@@ -5,6 +5,7 @@
  * found in the LICENSE file.
  */
 
+#include "SkMakeUnique.h"
 #include "SkPDFCanon.h"
 #include "SkPDFCanvas.h"
 #include "SkPDFDevice.h"
@@ -167,7 +168,6 @@ static sk_sp<SkPDFDict> generate_page_tree(SkTArray<sk_sp<SkPDFDict>>* pages) {
     return std::move(curNodes[0]);
 }
 
-template <typename T> static T* clone(const T* o) { return o ? new T(*o) : nullptr; }
 ////////////////////////////////////////////////////////////////////////////////
 
 SkPDFDocument::SkPDFDocument(SkWStream* stream,
@@ -255,26 +255,6 @@ void SkPDFDocument::reset() {
     renew(&fObjectSerializer);
     fFonts.reset();
 }
-
-#ifdef SK_SUPPORT_LEGACY_DOCUMENT_API
-void SkPDFDocument::setMetadata(const SkDocument::Attribute info[],
-                                int infoCount,
-                                const SkTime::DateTime* creationDate,
-                                const SkTime::DateTime* modifiedDate) {
-    for (int i = 0; i < infoCount; ++i) {
-        const SkDocument::Attribute& kv = info[i];
-        SkPDFMetadata::SetMetadataByKey(kv.fKey, kv.fValue, &fMetadata);
-    }
-    if (creationDate) {
-        fMetadata.fCreation.fEnabled = true;
-        fMetadata.fCreation.fDateTime = *creationDate;
-    }
-    if (modifiedDate) {
-        fMetadata.fModified.fEnabled = true;
-        fMetadata.fModified.fDateTime = *modifiedDate;
-    }
-}
-#endif  // SK_SUPPORT_LEGACY_DOCUMENT_API
 
 static sk_sp<SkData> SkSrgbIcm() {
     // Source: http://www.argyllcms.com/icclibsrc.html
@@ -419,11 +399,11 @@ static sk_sp<SkPDFArray> make_srgb_output_intents() {
     return intentArray;
 }
 
-bool SkPDFDocument::onClose(SkWStream* stream) {
+void SkPDFDocument::onClose(SkWStream* stream) {
     SkASSERT(!fCanvas.get());
     if (fPages.empty()) {
         this->reset();
-        return false;
+        return;
     }
     auto docCatalog = sk_make_sp<SkPDFDict>("Catalog");
     if (fPDFA) {
@@ -448,7 +428,6 @@ bool SkPDFDocument::onClose(SkWStream* stream) {
     fObjectSerializer.serializeObjects(this->getStream());
     fObjectSerializer.serializeFooter(this->getStream(), docCatalog, fID);
     this->reset();
-    return true;
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -466,7 +445,7 @@ sk_sp<SkDocument> SkPDFMakeDocument(SkWStream* stream,
 
 sk_sp<SkDocument> SkDocument::MakePDF(const char path[], SkScalar dpi) {
     auto delete_wstream = [](SkWStream* stream, bool) { delete stream; };
-    std::unique_ptr<SkFILEWStream> stream(new SkFILEWStream(path));
+    auto stream = skstd::make_unique<SkFILEWStream>(path);
     return stream->isValid()
                    ? SkPDFMakeDocument(stream.release(), delete_wstream, dpi,
                                        SkDocument::PDFMetadata(), nullptr,

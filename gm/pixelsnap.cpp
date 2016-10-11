@@ -17,15 +17,15 @@ public:
 
 protected:
     // kTrans should be even or checkboards wont agree in different test cases.
-    static const int kTrans = 14;
-    static const int kLabelPad = 4;
+    static constexpr int kTrans = 14;
+    static constexpr int kLabelPad = 4;
     // The inverse of this value should be a perfect SkScalar.
-    static const int kSubPixelSteps = 8;
-    static const int kLabelTextSize = 9;
+    static constexpr int kSubPixelSteps = 8;
+    static constexpr int kLabelTextSize = 9;
 
     static_assert(kSubPixelSteps < 99, "label_offset_too_small");
-    static const int kLabelOffsetX = 2 * kLabelTextSize + kLabelPad;
-    static const int kLabelOffsetY = kLabelTextSize + kLabelPad;
+    static constexpr int kLabelOffsetX = 2 * kLabelTextSize + kLabelPad;
+    static constexpr int kLabelOffsetY = kLabelTextSize + kLabelPad;
 
     SkISize onISize() override {
         return SkISize::Make((kSubPixelSteps + 1) * kTrans + kLabelOffsetX + kLabelPad,

@@ -16,7 +16,7 @@ class GrFBBindableObj;
 // TODO: when a framebuffer obj is bound the GL_SAMPLES query must return 0
 // TODO: GL_STENCIL_BITS must also be redirected to the framebuffer
 class GrFrameBufferObj : public GrFakeRefObj {
-    GR_DEFINE_CREATOR(GrFrameBufferObj);
+    GR_DEFINE_CREATOR(GrFrameBufferObj)
 
 public:
     GrFrameBufferObj()

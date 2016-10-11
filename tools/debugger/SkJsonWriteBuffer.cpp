@@ -83,6 +83,18 @@ void SkJsonWriteBuffer::writeColorArray(const SkColor* color, uint32_t count) {
     this->append("colorArray", jsonArray);
 }
 
+void SkJsonWriteBuffer::writeColor4f(const SkColor4f& color) {
+    this->append("color", SkDrawCommand::MakeJsonColor4f(color));
+}
+
+void SkJsonWriteBuffer::writeColor4fArray(const SkColor4f* color, uint32_t count) {
+    Json::Value jsonArray(Json::arrayValue);
+    for (uint32_t i = 0; i < count; ++i) {
+        jsonArray.append(SkDrawCommand::MakeJsonColor4f(color[i]));
+    }
+    this->append("colorArray", jsonArray);
+}
+
 void SkJsonWriteBuffer::writePoint(const SkPoint& point) {
     this->append("point", SkDrawCommand::MakeJsonPoint(point));
 }
