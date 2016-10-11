@@ -124,6 +124,8 @@ GrGLuint GLVec4ScalarBench::setupShader(const GrGLContext* ctx) {
             "    o_color = a_color;\n"
             "}\n");
 
+    const GrGLInterface* gl = ctx->interface();
+
     // set up fragment shader; this fragment shader will have fNumStages coverage stages plus an
     // XP stage at the end.  Each coverage stage computes the pixel's distance from some hard-
     // coded center and compare that to some hard-coded circle radius to compute a coverage.
@@ -184,7 +186,7 @@ GrGLuint GLVec4ScalarBench::setupShader(const GrGLContext* ctx) {
             "}\n",
             fsOutName);
 
-    return CreateProgram(ctx, vshaderTxt.c_str(), fshaderTxt.c_str());
+    return CreateProgram(gl, vshaderTxt.c_str(), fshaderTxt.c_str());
 }
 
 template<typename Func>

@@ -49,11 +49,10 @@ struct Token {
         BITWISEOR,
         BITWISEXOR,
         BITWISEAND,
-        BITWISENOT,
         LOGICALOR,
         LOGICALXOR,
         LOGICALAND,
-        LOGICALNOT,
+        NOT,
         QUESTION,
         COLON,
         EQ,
@@ -112,11 +111,9 @@ struct Token {
             case Token::PERCENT:      return "%";
             case Token::SHL:          return "<<";
             case Token::SHR:          return ">>";
-            case Token::LOGICALNOT:   return "!";
             case Token::LOGICALAND:   return "&&";
             case Token::LOGICALOR:    return "||";
             case Token::LOGICALXOR:   return "^^";
-            case Token::BITWISENOT:   return "~";
             case Token::BITWISEAND:   return "&";
             case Token::BITWISEOR:    return "|";
             case Token::BITWISEXOR:   return "^";
@@ -142,6 +139,7 @@ struct Token {
             case Token::BITWISEXOREQ: return "^=";
             case Token::PLUSPLUS:     return "++";
             case Token::MINUSMINUS:   return "--";
+            case Token::NOT:          return "!";
             default:
                 ABORT("unsupported operator: %d\n", kind); 
         }        

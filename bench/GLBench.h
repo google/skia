@@ -35,8 +35,8 @@ protected:
     virtual void teardown(const GrGLInterface*)=0;
     void onDraw(int loops, SkCanvas*) override;
     virtual void glDraw(int loops, const GrGLContext*)=0;
-    static GrGLuint CompileShader(const GrGLContext*, const char* shaderSrc, GrGLenum type);
-    static GrGLuint CreateProgram(const GrGLContext*, const char* vshader, const char* fshader);
+    static GrGLuint CompileShader(const GrGLInterface*, const char* shaderSrc, GrGLenum type);
+    static GrGLuint CreateProgram(const GrGLInterface*, const char* vshader, const char* fshader);
     static GrGLuint SetupFramebuffer(const GrGLInterface*, int screenWidth, int screenHeight);
     static void DumpImage(const GrGLInterface* gl, uint32_t screenWidth, uint32_t screenHeight,
                           const char* filename);

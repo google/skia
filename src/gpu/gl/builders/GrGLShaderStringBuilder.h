@@ -11,10 +11,7 @@
 #include "GrAllocator.h"
 #include "GrGpu.h"
 #include "gl/GrGLContext.h"
-#include "SkSLGLSLCodeGenerator.h"
 #include "SkTypes.h"
-
-SkSL::GLCaps GrGLSkSLCapsForContext(const GrGLContext& context);
 
 GrGLuint GrGLCompileAndAttachShader(const GrGLContext& glCtx,
                                     GrGLuint programId,
