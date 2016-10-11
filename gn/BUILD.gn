@@ -24,12 +24,14 @@ declare_args() {
   cc_wrapper = ""
 }
 
-is_clang = exec_script("is_clang.py",
-                       [
-                         cc,
-                         cxx,
-                       ],
-                       "value")
+if (!is_win) {
+  is_clang = exec_script("is_clang.py",
+                         [
+                           cc,
+                           cxx,
+                         ],
+                         "value")
+}
 
 config("default") {
   asmflags = []
