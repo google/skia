@@ -230,6 +230,8 @@ def run_benchmarks(configs, skps, hardware):
                         skpbench.best_result))
 
       except HardwareException as exception:
+        if FLAGS.verbosity >= 5:
+          hardware.print_debug_diagnostics()
         skpbench.terminate()
         naptime = max(hardware.kick_in_time, exception.sleeptime)
         if FLAGS.verbosity >= 1:

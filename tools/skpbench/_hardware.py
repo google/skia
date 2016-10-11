@@ -33,6 +33,10 @@ class Hardware:
     """Raises a HardwareException if any hardware state is not as expected."""
     pass
 
+  def print_debug_diagnostics(self):
+    """Prints any info that may help improve or debug hardware monitoring."""
+    pass
+
   def sleep(self, sleeptime):
     """Puts the hardware into a resting state for a fixed amount of time."""
     time.sleep(sleeptime)

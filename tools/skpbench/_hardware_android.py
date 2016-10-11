@@ -89,5 +89,30 @@ class HardwareAndroid(Hardware):
   def sanity_check(self):
     Hardware.sanity_check(self)
 
+  def print_debug_diagnostics(self):
+    # search for and print thermal trip points that may have been exceeded.
+    self._adb.shell('''\
+      THERMALDIR=/sys/class/thermal
+      if [ -e $THERMALDIR ]; then
+        for ZONE in $(cd $THERMALDIR; echo thermal_zone*); do
+          cd $THERMALDIR/$ZONE
+          if [ -e mode ] && grep -Fxq enabled mode; then
+            TEMP=$(cat temp)
+            TRIPPOINT=
+            let i=0
+            while [ -e trip_point_${i}_temp ] &&
+                  [ $TEMP -gt $(cat trip_point_${i}_temp) ]; do
+              TRIPPOINT=trip_point_${i}_temp
+              let i=i+1
+            done
+            if [ $TRIPPOINT ]; then
+              echo "$ZONE ($(cat type)): temp=$TEMP > $TRIPPOINT=$(cat $TRIPPOINT)"
+            fi
+          fi
+        done
+      fi''')
+
+    Hardware.print_debug_diagnostics(self)
+
   def sleep(self, sleeptime):
     Hardware.sleep(self, sleeptime)
