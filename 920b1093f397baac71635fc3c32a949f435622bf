@@ -22,6 +22,24 @@
       "revId": "920b1093f397baac71635fc3c32a949f435622bf",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7f82c883_d0aa4a84",
+        "filename": "tools/gpu/vk/VkTestContext.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 80,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2016-10-11T17:49:11Z",
+      "side": 1,
+      "message": "I don\u0027t think that will work - the 64-bit version is a pointer-to-struct.",
+      "parentUuid": "dfc1f4c3_0acf5fad",
+      "revId": "920b1093f397baac71635fc3c32a949f435622bf",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
