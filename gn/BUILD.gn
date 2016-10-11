@@ -174,7 +174,8 @@ config("default") {
     ]
     cflags_cc += [
       "-isystem$ndk/sources/android/support/include",
-      "-isystem$ndk/sources/cxx-stl/llvm-libc++/libcxx/include",
+      "-isystem$ndk/sources/cxx-stl/llvm-libc++/libcxx/include",  # Through r12b.
+      "-isystem$ndk/sources/cxx-stl/llvm-libc++/include",  # Since r13.
     ]
     ldflags += [
       "--sysroot=$ndk/platforms/$ndk_platform",
@@ -186,6 +187,19 @@ config("default") {
       "$ndk/sources/cxx-stl/llvm-libc++/libs/$ndk_stdlib",
       "$ndk/toolchains/$ndk_gccdir-4.9/prebuilt/$ndk_host/lib/gcc/$ndk_target/4.9.x",
     ]
+
+    if (current_cpu == "mips64el") {
+      # The r13 NDK omits /usr/lib from the MIPS64 sysroots, but Clang searches
+      # for /usr/lib64 as $PATH_TO_USR_LIB/../lib64.  If there's no /usr/lib,
+      # it can't find /usr/lib64.  We must point Clang at /usr/lib64 manually.
+      lib_dirs += [ "$ndk/platforms/$ndk_platform/usr/lib64" ]
+      ldflags += [
+        # Clang will try to link these two files, but not find them.  Again, do it manually.
+        "-nostartfiles",
+        "$ndk/platforms/$ndk_platform/usr/lib64/crtbegin_dynamic.o",
+        "$ndk/platforms/$ndk_platform/usr/lib64/crtend_android.o",
+      ]
+    }
 
     libs = [
       # Order matters here!  Keep these three in exactly this order.
