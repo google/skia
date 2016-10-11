@@ -89,8 +89,11 @@ def RunSteps(api):
   skps_chromium_build = api.properties.get(
       'skps_chromium_build', DEFAULT_SKPS_CHROMIUM_BUILD)
 
-  # Set build property to make finding SKPs convenient.
-  api.step.active_result.presentation.properties['Location of SKPs'] = (
+  # Set build properties to make finding SKPs convenient.
+  api.step.active_result.presentation.properties['Webpage rankings'] = (
+      'https://storage.cloud.google.com/%s/csv/top-1m.csv'
+          % api.ct.CT_GS_BUCKET)
+  api.step.active_result.presentation.properties['Download SKPs by rank'] = (
       'https://pantheon.corp.google.com/storage/browser/%s/swarming/skps/%s/%s/'
           % (api.ct.CT_GS_BUCKET, ct_page_type, skps_chromium_build))
 
