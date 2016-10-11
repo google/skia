@@ -42,19 +42,6 @@ struct SkGammas : SkRefCnt {
         }
     };
 
-    // Contains the parameters for a parametric curve.
-    struct Params {
-        //     Y = (aX + b)^g + c  for X >= d
-        //     Y = eX + f          otherwise
-        float                    fG;
-        float                    fA;
-        float                    fB;
-        float                    fC;
-        float                    fD;
-        float                    fE;
-        float                    fF;
-    };
-
     // Contains the actual gamma curve information.  Should be interpreted
     // based on the type of the gamma curve.
     union Data {
@@ -72,8 +59,9 @@ struct SkGammas : SkRefCnt {
         Table                    fTable;
         size_t                   fParamOffset;
 
-        const Params& params(const SkGammas* base) const {
-            return *SkTAddOffset<const Params>(base, sizeof(SkGammas) + fParamOffset);
+        const SkColorSpaceTransferFn& params(const SkGammas* base) const {
+            return *SkTAddOffset<const SkColorSpaceTransferFn>(
+                    base, sizeof(SkGammas) + fParamOffset);
         }
     };
 
@@ -112,7 +100,7 @@ struct SkGammas : SkRefCnt {
         return this->data(i).fTable.table(this);
     }
 
-    const Params& params(int i) const {
+    const SkColorSpaceTransferFn& params(int i) const {
         SkASSERT(isParametric(i));
         return this->data(i).params(this);
     }

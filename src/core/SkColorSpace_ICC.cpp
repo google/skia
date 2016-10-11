@@ -274,8 +274,8 @@ static float read_big_endian_16_dot_16(const uint8_t buf[4]) {
  *
  *  @return            kNone_Type on failure, otherwise the type of the gamma tag.
  */
-static SkGammas::Type parse_gamma(SkGammas::Data* outData, SkGammas::Params* outParams,
-                                      size_t* outTagBytes, const uint8_t* src, size_t len) {
+static SkGammas::Type parse_gamma(SkGammas::Data* outData, SkColorSpaceTransferFn* outParams,
+                                  size_t* outTagBytes, const uint8_t* src, size_t len) {
     if (len < 12) {
         SkColorSpacePrintf("gamma tag is too small (%d bytes)", len);
         return SkGammas::Type::kNone_Type;
@@ -478,49 +478,6 @@ static SkGammas::Type parse_gamma(SkGammas::Data* outData, SkGammas::Params* out
                     return SkGammas::Type::kNone_Type;
             }
 
-            // Recognize and simplify a very common parametric representation of sRGB gamma.
-            if (color_space_almost_equal(0.9479f, a) &&
-                    color_space_almost_equal(0.0521f, b) &&
-                    color_space_almost_equal(0.0000f, c) &&
-                    color_space_almost_equal(0.0405f, d) &&
-                    color_space_almost_equal(0.0774f, e) &&
-                    color_space_almost_equal(0.0000f, f) &&
-                    color_space_almost_equal(2.4000f, g)) {
-                outData->fNamed = kSRGB_SkGammaNamed;
-                return SkGammas::Type::kNamed_Type;
-            }
-
-            // Fail on invalid gammas.
-            if (SkScalarIsNaN(d)) {
-                return SkGammas::Type::kNone_Type;
-            }
-
-            if (d <= 0.0f) {
-                // Y = (aX + b)^g + c  for always
-                if (0.0f == a || 0.0f == g) {
-                    SkColorSpacePrintf("A or G is zero, constant gamma function "
-                                       "is nonsense");
-                    return SkGammas::Type::kNone_Type;
-                }
-            }
-
-            if (d >= 1.0f) {
-                // Y = eX + f          for always
-                if (0.0f == e) {
-                    SkColorSpacePrintf("E is zero, constant gamma function is "
-                                       "nonsense");
-                    return SkGammas::Type::kNone_Type;
-                }
-            }
-
-            if ((0.0f == a || 0.0f == g) && 0.0f == e) {
-                SkColorSpacePrintf("A or G, and E are zero, constant gamma function "
-                                   "is nonsense");
-                return SkGammas::Type::kNone_Type;
-            }
-
-            *outTagBytes = tagBytes;
-
             outParams->fG = g;
             outParams->fA = a;
             outParams->fB = b;
@@ -528,6 +485,22 @@ static SkGammas::Type parse_gamma(SkGammas::Data* outData, SkGammas::Params* out
             outParams->fD = d;
             outParams->fE = e;
             outParams->fF = f;
+
+            if (!is_valid_transfer_fn(*outParams)) {
+                return SkGammas::Type::kNone_Type;
+            }
+
+            if (is_almost_srgb(*outParams)) {
+                outData->fNamed = kSRGB_SkGammaNamed;
+                return SkGammas::Type::kNamed_Type;
+            }
+
+            if (is_almost_2dot2(*outParams)) {
+                outData->fNamed = k2Dot2Curve_SkGammaNamed;
+                return SkGammas::Type::kNamed_Type;
+            }
+
+            *outTagBytes = tagBytes;
             return SkGammas::Type::kParam_Type;
         }
         default:
@@ -547,7 +520,7 @@ static size_t gamma_alloc_size(SkGammas::Type type, const SkGammas::Data& data) 
         case SkGammas::Type::kTable_Type:
             return sizeof(float) * data.fTable.fSize;
         case SkGammas::Type::kParam_Type:
-            return sizeof(SkGammas::Params);
+            return sizeof(SkColorSpaceTransferFn);
         default:
             SkASSERT(false);
             return 0;
@@ -584,7 +557,7 @@ static void handle_invalid_gamma(SkGammas::Type* type, SkGammas::Data* data) {
  *  @return       Additional bytes of memory that are being used by this gamma curve.
  */
 static size_t load_gammas(void* memory, size_t offset, SkGammas::Type type,
-                        SkGammas::Data* data, const SkGammas::Params& params,
+                        SkGammas::Data* data, const SkColorSpaceTransferFn& params,
                         const uint8_t* src) {
     void* storage = SkTAddOffset<void>(memory, offset + sizeof(SkGammas));
 
@@ -606,8 +579,8 @@ static size_t load_gammas(void* memory, size_t offset, SkGammas::Type type,
         }
         case SkGammas::Type::kParam_Type:
             data->fTable.fOffset = offset;
-            memcpy(storage, &params, sizeof(SkGammas::Params));
-            return sizeof(SkGammas::Params);
+            memcpy(storage, &params, sizeof(SkColorSpaceTransferFn));
+            return sizeof(SkColorSpaceTransferFn);
         default:
             SkASSERT(false);
             return 0;
@@ -785,7 +758,7 @@ static bool load_a2b0(sk_sp<SkColorLookUpTable>* colorLUT, SkGammaNamed* gammaNa
         size_t tagLen = len - offsetToMCurves;
 
         SkGammas::Data rData;
-        SkGammas::Params rParams;
+        SkColorSpaceTransferFn rParams;
 
         // On an invalid first gamma, tagBytes remains set as zero.  This causes the two
         // subsequent to be treated as identical (which is what we want).
@@ -820,17 +793,17 @@ static bool load_a2b0(sk_sp<SkColorLookUpTable>* colorLUT, SkGammaNamed* gammaNa
             const uint8_t* gTagPtr = rTagPtr + alignedTagBytes;
             tagLen = tagLen > alignedTagBytes ? tagLen - alignedTagBytes : 0;
             SkGammas::Data gData;
-            SkGammas::Params gParams;
+            SkColorSpaceTransferFn gParams;
             tagBytes = 0;
             SkGammas::Type gType = parse_gamma(&gData, &gParams, &tagBytes, gTagPtr,
-                                                       tagLen);
+                                               tagLen);
             handle_invalid_gamma(&gType, &gData);
 
             alignedTagBytes = SkAlign4(tagBytes);
             const uint8_t* bTagPtr = gTagPtr + alignedTagBytes;
             tagLen = tagLen > alignedTagBytes ? tagLen - alignedTagBytes : 0;
             SkGammas::Data bData;
-            SkGammas::Params bParams;
+            SkColorSpaceTransferFn bParams;
             SkGammas::Type bType = parse_gamma(&bData, &bParams, &tagBytes, bTagPtr,
                                                        tagLen);
             handle_invalid_gamma(&bType, &bData);
@@ -993,7 +966,7 @@ sk_sp<SkColorSpace> SkColorSpace::NewICC(const void* input, size_t len) {
                 if (r && g && b) {
                     if (tag_equals(r, g, base) && tag_equals(g, b, base)) {
                         SkGammas::Data data;
-                        SkGammas::Params params;
+                        SkColorSpaceTransferFn params;
                         SkGammas::Type type =
                                 parse_gamma(&data, &params, &tagBytes, r->addr(base), r->fLength);
                         handle_invalid_gamma(&type, &data);
@@ -1019,19 +992,19 @@ sk_sp<SkColorSpace> SkColorSpace::NewICC(const void* input, size_t len) {
                         }
                     } else {
                         SkGammas::Data rData;
-                        SkGammas::Params rParams;
+                        SkColorSpaceTransferFn rParams;
                         SkGammas::Type rType =
                                 parse_gamma(&rData, &rParams, &tagBytes, r->addr(base), r->fLength);
                         handle_invalid_gamma(&rType, &rData);
 
                         SkGammas::Data gData;
-                        SkGammas::Params gParams;
+                        SkColorSpaceTransferFn gParams;
                         SkGammas::Type gType =
                                 parse_gamma(&gData, &gParams, &tagBytes, g->addr(base), g->fLength);
                         handle_invalid_gamma(&gType, &gData);
 
                         SkGammas::Data bData;
-                        SkGammas::Params bParams;
+                        SkColorSpaceTransferFn bParams;
                         SkGammas::Type bType =
                                 parse_gamma(&bData, &bParams, &tagBytes, b->addr(base), b->fLength);
                         handle_invalid_gamma(&bType, &bData);
