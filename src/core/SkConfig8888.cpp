@@ -167,6 +167,64 @@ static void copy_32_to_g8(void* dst, size_t dstRB, const void* src, size_t srcRB
     }
 }
 
+static bool extract_alpha(void* dst, size_t dstRB, const void* src, size_t srcRB,
+                          const SkImageInfo& srcInfo, SkColorTable* ctable) {
+    uint8_t* SK_RESTRICT dst8 = (uint8_t*)dst;
+
+    const int w = srcInfo.width();
+    const int h = srcInfo.height();
+    if (srcInfo.isOpaque()) {
+        // src is opaque, so just fill alpha with 0xFF
+        for (int y = 0; y < h; ++y) {
+           memset(dst8, 0xFF, w);
+           dst8 += dstRB;
+        }
+        return true;
+    }
+    switch (srcInfo.colorType()) {
+        case kN32_SkColorType: {
+            const SkPMColor* SK_RESTRICT src32 = (const SkPMColor*)src;
+            for (int y = 0; y < h; ++y) {
+                for (int x = 0; x < w; ++x) {
+                    dst8[x] = SkGetPackedA32(src32[x]);
+                }
+                dst8 += dstRB;
+                src32 = (const SkPMColor*)((const char*)src32 + srcRB);
+            }
+            break;
+        }
+        case kARGB_4444_SkColorType: {
+            const SkPMColor16* SK_RESTRICT src16 = (const SkPMColor16*)src;
+            for (int y = 0; y < h; ++y) {
+                for (int x = 0; x < w; ++x) {
+                    dst8[x] = SkPacked4444ToA32(src16[x]);
+                }
+                dst8 += dstRB;
+                src16 = (const SkPMColor16*)((const char*)src16 + srcRB);
+            }
+            break;
+        }
+        case kIndex_8_SkColorType: {
+            if (nullptr == ctable) {
+                return false;
+            }
+            const SkPMColor* SK_RESTRICT table = ctable->readColors();
+            const uint8_t* SK_RESTRICT src8 = (const uint8_t*)src;
+            for (int y = 0; y < h; ++y) {
+                for (int x = 0; x < w; ++x) {
+                    dst8[x] = SkGetPackedA32(table[src8[x]]);
+                }
+                dst8 += dstRB;
+                src8 += srcRB;
+            }
+            break;
+        }
+        default:
+            return false;
+    }
+    return true;
+}
+
 bool SkPixelInfo::CopyPixels(const SkImageInfo& dstInfo, void* dstPixels, size_t dstRB,
                              const SkImageInfo& srcInfo, const void* srcPixels, size_t srcRB,
                              SkColorTable* ctable) {
@@ -238,6 +296,11 @@ bool SkPixelInfo::CopyPixels(const SkImageInfo& dstInfo, void* dstPixels, size_t
     }
     if (kGray_8_SkColorType == dstInfo.colorType() && 4 == srcInfo.bytesPerPixel()) {
         copy_32_to_g8(dstPixels, dstRB, srcPixels, srcRB, srcInfo);
+        return true;
+    }
+
+    if (kAlpha_8_SkColorType == dstInfo.colorType() &&
+        extract_alpha(dstPixels, dstRB, srcPixels, srcRB, srcInfo, ctable)) {
         return true;
     }
 

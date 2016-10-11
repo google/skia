@@ -135,8 +135,14 @@ static void fill_dst_bmp_with_init_data(SkBitmap* bitmap) {
     intptr_t pixels = reinterpret_cast<intptr_t>(bitmap->getPixels());
     for (int y = 0; y < h; ++y) {
         for (int x = 0; x < w; ++x) {
-            SkPMColor* pixel = reinterpret_cast<SkPMColor*>(pixels + y * bitmap->rowBytes() + x * bitmap->bytesPerPixel());
-            *pixel = get_dst_bmp_init_color(x, y, w);
+            SkPMColor initColor = get_dst_bmp_init_color(x, y, w);
+            if (kAlpha_8_SkColorType == bitmap->colorType()) {
+                uint8_t* alpha = reinterpret_cast<uint8_t*>(pixels + y * bitmap->rowBytes() + x);
+                *alpha = SkGetPackedA32(initColor);
+            } else {
+                SkPMColor* pixel = reinterpret_cast<SkPMColor*>(pixels + y * bitmap->rowBytes() + x * bitmap->bytesPerPixel());
+                *pixel = initColor;
+            }
         }
     }
 }
@@ -168,13 +174,12 @@ static bool check_read(skiatest::Reporter* reporter,
                        const SkBitmap& bitmap,
                        int x, int y,
                        bool checkCanvasPixels,
-                       bool checkBitmapPixels) {
-    SkASSERT(4 == bitmap.bytesPerPixel());
+                       bool checkBitmapPixels,
+                       SkColorType ct,
+                       SkAlphaType at) {
+    SkASSERT(ct == bitmap.colorType() && at == bitmap.alphaType());
     SkASSERT(!bitmap.isNull());
     SkASSERT(checkCanvasPixels || checkBitmapPixels);
-
-    const SkColorType ct = bitmap.colorType();
-    const SkAlphaType at = bitmap.alphaType();
 
     int bw = bitmap.width();
     int bh = bitmap.height();
@@ -185,6 +190,34 @@ static bool check_read(skiatest::Reporter* reporter,
         clippedSrcRect.setEmpty();
     }
     SkAutoLockPixels alp(bitmap);
+    if (kAlpha_8_SkColorType == ct) {
+        for (int by = 0; by < bh; ++by) {
+            for (int bx = 0; bx < bw; ++bx) {
+                int devx = bx + srcRect.fLeft;
+                int devy = by + srcRect.fTop;
+                const uint8_t* alpha = bitmap.getAddr8(bx, by);
+
+                if (clippedSrcRect.contains(devx, devy)) {
+                    if (checkCanvasPixels) {
+                        uint8_t canvasAlpha = SkGetPackedA32(get_src_color(devx, devy));
+                        if (canvasAlpha != *alpha) {
+                            ERRORF(reporter, "Expected readback alpha (%d, %d) value 0x%02x, got 0x%02x. ",
+                                   bx, by, canvasAlpha, *alpha);
+                            return false;
+                        }
+                    }
+                } else if (checkBitmapPixels) {
+                    uint32_t origDstAlpha = SkGetPackedA32(get_dst_bmp_init_color(bx, by, bw));
+                    if (origDstAlpha != *alpha) {
+                        ERRORF(reporter, "Expected clipped out area of readback to be unchanged. "
+                            "Expected 0x%02x, got 0x%02x", origDstAlpha, *alpha);
+                        return false;
+                    }
+                }
+            }
+        }
+        return true;
+    }
     for (int by = 0; by < bh; ++by) {
         for (int bx = 0; bx < bw; ++bx) {
             int devx = bx + srcRect.fLeft;
@@ -249,10 +282,10 @@ static void init_bitmap(SkBitmap* bitmap, const SkIRect& rect, BitmapInit init, 
         case kTight_BitmapInit:
             break;
         case kRowBytes_BitmapInit:
-            rowBytes = (info.width() + 16) * sizeof(SkPMColor);
+            rowBytes = SkAlign4((info.width() + 16) * info.bytesPerPixel());
             break;
         case kRowBytesOdd_BitmapInit:
-            rowBytes = (info.width() * sizeof(SkPMColor)) + 3;
+            rowBytes = SkAlign4(info.width() * info.bytesPerPixel()) + 3;
             break;
         default:
             SkASSERT(0);
@@ -274,6 +307,7 @@ static const struct {
     { kRGBA_8888_SkColorType,   kUnpremul_SkAlphaType },
     { kBGRA_8888_SkColorType,   kPremul_SkAlphaType },
     { kBGRA_8888_SkColorType,   kUnpremul_SkAlphaType },
+    { kAlpha_8_SkColorType,     kPremul_SkAlphaType },
 };
 const SkIRect gReadPixelsTestRects[] = {
     // entire thing
@@ -354,7 +388,8 @@ static void test_readpixels(skiatest::Reporter* reporter, const sk_sp<SkSurface>
 
                 if (success || startsWithPixels) {
                     check_read(reporter, bmp, srcRect.fLeft, srcRect.fTop,
-                               success, startsWithPixels);
+                               success, startsWithPixels,
+                               gReadPixelsConfigs[c].fColorType, gReadPixelsConfigs[c].fAlphaType);
                 } else {
                     // if we had no pixels beforehand and the readPixels
                     // failed then our bitmap should still not have pixels
@@ -371,7 +406,8 @@ static void test_readpixels(skiatest::Reporter* reporter, const sk_sp<SkSurface>
                 REPORTER_ASSERT(reporter, kN32_SkColorType == wkbmp.colorType());
                 REPORTER_ASSERT(reporter, kPremul_SkAlphaType == wkbmp.alphaType());
                 check_read(reporter, wkbmp, clippedRect.fLeft,
-                           clippedRect.fTop, true, false);
+                           clippedRect.fTop, true, false,
+                           kN32_SkColorType, kPremul_SkAlphaType);
             } else {
                 REPORTER_ASSERT(reporter, !success);
             }
@@ -427,7 +463,8 @@ static void test_readpixels_texture(skiatest::Reporter* reporter, GrTexture* tex
                                                        bmp.rowBytes(), flags);
                     bmp.unlockPixels();
                     check_read(reporter, bmp, srcRect.fLeft, srcRect.fTop,
-                               success, true);
+                               success, true,
+                               gReadPixelsConfigs[c].fColorType, gReadPixelsConfigs[c].fAlphaType);
                 }
             }
         }
