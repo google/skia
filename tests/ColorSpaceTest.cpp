@@ -229,6 +229,16 @@ DEF_TEST(ColorSpace_Serialize, r) {
     const float gammas[] = { 1.1f, 1.2f, 1.7f, };
     SkMatrix44 toXYZ(SkMatrix44::kIdentity_Constructor);
     test_serialize(r, SkColorSpace_Base::NewRGB(gammas, toXYZ).get(), false);
+
+    SkColorSpaceTransferFn fn;
+    fn.fA = 1.0f;
+    fn.fB = 0.0f;
+    fn.fC = 0.0f;
+    fn.fD = 0.5f;
+    fn.fE = 1.0f;
+    fn.fF = 0.0f;
+    fn.fG = 1.0f;
+    test_serialize(r, SkColorSpace::NewRGB(fn, toXYZ).get(), false);
 }
 
 DEF_TEST(ColorSpace_Equals, r) {
@@ -250,6 +260,16 @@ DEF_TEST(ColorSpace_Equals, r) {
     sk_sp<SkColorSpace> rgb2 = SkColorSpace_Base::NewRGB(gammas2, toXYZ);
     sk_sp<SkColorSpace> rgb3 = SkColorSpace_Base::NewRGB(gammas1, toXYZ);
 
+    SkColorSpaceTransferFn fn;
+    fn.fA = 1.0f;
+    fn.fB = 0.0f;
+    fn.fC = 0.0f;
+    fn.fD = 0.5f;
+    fn.fE = 1.0f;
+    fn.fF = 0.0f;
+    fn.fG = 1.0f;
+    sk_sp<SkColorSpace> rgb4 = SkColorSpace::NewRGB(fn, toXYZ);
+
     REPORTER_ASSERT(r, SkColorSpace::Equals(nullptr, nullptr));
     REPORTER_ASSERT(r, SkColorSpace::Equals(srgb.get(), srgb.get()));
     REPORTER_ASSERT(r, SkColorSpace::Equals(adobe.get(), adobe.get()));
@@ -259,6 +279,7 @@ DEF_TEST(ColorSpace_Equals, r) {
     REPORTER_ASSERT(r, SkColorSpace::Equals(upperRight.get(), upperRight.get()));
     REPORTER_ASSERT(r, SkColorSpace::Equals(rgb1.get(), rgb1.get()));
     REPORTER_ASSERT(r, SkColorSpace::Equals(rgb1.get(), rgb3.get()));
+    REPORTER_ASSERT(r, SkColorSpace::Equals(rgb4.get(), rgb4.get()));
 
     REPORTER_ASSERT(r, !SkColorSpace::Equals(nullptr, srgb.get()));
     REPORTER_ASSERT(r, !SkColorSpace::Equals(srgb.get(), nullptr));
@@ -270,6 +291,7 @@ DEF_TEST(ColorSpace_Equals, r) {
     REPORTER_ASSERT(r, !SkColorSpace::Equals(z30.get(), upperRight.get()));
     REPORTER_ASSERT(r, !SkColorSpace::Equals(upperRight.get(), adobe.get()));
     REPORTER_ASSERT(r, !SkColorSpace::Equals(rgb1.get(), rgb2.get()));
+    REPORTER_ASSERT(r, !SkColorSpace::Equals(rgb1.get(), rgb4.get()));
 }
 
 DEF_TEST(ColorSpace_Primaries, r) {

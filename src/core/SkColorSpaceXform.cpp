@@ -303,7 +303,7 @@ static void build_gamma_tables(const T* outGammaTables[3], T* gammaTableStorage,
                     outGammaTables[i] = &gammaTableStorage[i * gammaTableSize];
                 } else {
                     SkASSERT(gammas->isParametric(i));
-                    const SkGammas::Params& params = gammas->params(i);
+                    const SkColorSpaceTransferFn& params = gammas->params(i);
                     (*fns.fBuildFromParam)(&gammaTableStorage[i * gammaTableSize], params.fG,
                                            params.fA, params.fB, params.fC, params.fD, params.fE,
                                            params.fF);
