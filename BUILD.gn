@@ -551,10 +551,16 @@ component("skia") {
       "src/ports/SkTLS_win.cpp",
       "src/ports/SkTypeface_win_dw.cpp",
       "src/xps/SkDocument_XPS.cpp",
+      "src/xps/SkXPSDevice.cpp",
     ]
     sources -=
         [ get_path_info("src/utils/SkThreadUtils_pthread.cpp", "abspath") ]
-    libs += [ "User32.lib" ]  # For SkFontMgr_win_dw.cpp.
+    libs += [
+      "FontSub.lib",
+      "Ole32.lib",
+      "OleAut32.lib",
+      "User32.lib",
+    ]
   } else {
     sources += [
       "src/ports/SkOSFile_posix.cpp",
@@ -703,6 +709,12 @@ if (skia_enable_tools) {
         sources += [ "tools/gpu/gl/glx/CreatePlatformGLTestContext_glx.cpp" ]
       } else if (is_mac) {
         sources += [ "tools/gpu/gl/mac/CreatePlatformGLTestContext_mac.cpp" ]
+      } else if (is_win) {
+        sources += [ "tools/gpu/gl/win/CreatePlatformGLTestContext_win.cpp" ]
+        libs += [
+          "Gdi32.lib",
+          "OpenGL32.lib",
+        ]
       }
 
       if (skia_use_angle) {
@@ -941,7 +953,9 @@ if (skia_enable_tools) {
     }
   }
 
-  if (current_cpu != "mipsel") {  # Clang 3.8 crashes while compiling hb-icu.cc for mipsel.
+  # Clang 3.8 crashes while compiling hb-icu.cc for mipsel.
+  # We can't yet build ICU on Windows.
+  if (current_cpu != "mipsel" && !is_win) {
     executable("sktexttopdf-hb") {
       sources = [
         "tools/SkShaper_harfbuzz.cpp",
