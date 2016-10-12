@@ -1,0 +1,123 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "9c6eaae8_1d873771",
+        "filename": "src/gpu/GrTracing.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 26,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2016-10-12T16:50:48Z",
+      "side": 1,
+      "message": "Why don\u0027t we make SkTrace and/or SK_TRACE, which either calls into ATrace when we\u0027ve got it or uses SkTraceEvent.h if not?",
+      "revId": "b211b4076138598ffad08376326e2301ce36c2bc",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9c6eaae8_3d055bee",
+        "filename": "src/gpu/GrTracing.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 28,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2016-10-12T16:50:48Z",
+      "side": 1,
+      "message": "These types don\u0027t look right to me.  Reading https://developer.android.com/ndk/reference/trace_8h.html, I think you want to type:\n\nstatic void (*ATrace_beginSection)(const char*) \u003d nullptr;\nstatic void (*ATrace_endSection)()              \u003d nullptr;\nstatic bool (*ATrace_isEnabled)()               \u003d nullptr;",
+      "revId": "b211b4076138598ffad08376326e2301ce36c2bc",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9c6eaae8_dde9bf0c",
+        "filename": "src/gpu/GrTracing.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 37,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2016-10-12T16:50:48Z",
+      "side": 1,
+      "message": "We generally write void* lib.",
+      "revId": "b211b4076138598ffad08376326e2301ce36c2bc",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9c6eaae8_9df347f9",
+        "filename": "src/gpu/GrTracing.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 38,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2016-10-12T16:50:48Z",
+      "side": 1,
+      "message": "We don\u0027t really type NULL anymore.  if (lib) or if (lib !\u003d nullptr) or if (nullptr !\u003d lib)?\n\nOr even tidier:\n\nif (void* lib \u003d dlopen(...)) {\n  ... code using lib ...\n}",
+      "revId": "b211b4076138598ffad08376326e2301ce36c2bc",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9c6eaae8_9d9a67bf",
+        "filename": "src/gpu/GrTracing.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 39,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2016-10-12T16:50:48Z",
+      "side": 1,
+      "message": "Probably easier to write:\n\nATrace_beginSection \u003d (decltype(ATrace_beginSection))dlsym(...);\n\nThat way you don\u0027t need any fp_ typedefs.",
+      "revId": "b211b4076138598ffad08376326e2301ce36c2bc",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9c6eaae8_fd9da3b9",
+        "filename": "src/gpu/GrTracing.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 45,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2016-10-12T16:50:48Z",
+      "side": 1,
+      "message": "Let\u0027s default to a function we can call?\n\nATrace_isEnabled \u003d []{ return false; };\n\nThat way we don\u0027t need a nullptr check.",
+      "revId": "b211b4076138598ffad08376326e2301ce36c2bc",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9c6eaae8_dda0dff2",
+        "filename": "src/gpu/GrTracing.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 61,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2016-10-12T16:50:48Z",
+      "side": 1,
+      "message": "This probably doesn\u0027t need to be a macro...  instead just make an empty impl:\n\nstruct GrGpuATrace { static void Init() {} };",
+      "revId": "b211b4076138598ffad08376326e2301ce36c2bc",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
