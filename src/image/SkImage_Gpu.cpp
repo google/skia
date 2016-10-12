@@ -492,7 +492,7 @@ size_t SkImage::getDeferredTextureImageData(const GrContextThreadSafeProxy& prox
         if (!data && !this->peekPixels(nullptr)) {
             return 0;
         }
-        info = SkImageInfo::MakeN32(scaledSize.width(), scaledSize.height(), this->alphaType());
+        info = as_IB(this)->onImageInfo().makeWH(scaledSize.width(), scaledSize.height());
         pixelSize = SkAlign8(SkAutoPixmapStorage::AllocSize(info, nullptr));
         if (fillMode) {
             pixmap.alloc(info);
