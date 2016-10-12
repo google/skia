@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "5c051249_f0940047",
+        "filename": "infra/bots/recipes/swarm_ct_skps.py",
+        "patchSetId": 3
+      },
+      "lineNbr": 103,
+      "author": {
+        "id": 5015
+      },
+      "writtenOn": "2016-10-12T16:44:59Z",
+      "side": 1,
+      "message": "Why do you want this on the \"copy Go binary\" step?",
+      "range": {
+        "startLine": 103,
+        "startChar": 11,
+        "endLine": 103,
+        "endChar": 24
+      },
+      "revId": "8b9de16ba9ccec2d12bae0b973caeba232598fcf",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "5c051249_d3a3c698",
+        "filename": "infra/bots/recipes/swarm_ct_skps.py",
+        "patchSetId": 3
+      },
+      "lineNbr": 239,
+      "author": {
+        "id": 5015
+      },
+      "writtenOn": "2016-10-12T16:44:59Z",
+      "side": 1,
+      "message": "This gets kind of lost in the \"Failure Reason\" step. Why not insert it into the step_text of the failed step?",
+      "range": {
+        "startLine": 239,
+        "startChar": 10,
+        "endLine": 239,
+        "endChar": 13
+      },
+      "revId": "8b9de16ba9ccec2d12bae0b973caeba232598fcf",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
