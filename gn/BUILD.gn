@@ -46,8 +46,6 @@ config("default") {
       "/FS",  # Preserve previous PDB behavior.
       "/bigobj",  # Some of our files are bigger than the regular limits.
     ]
-    cflags_c += [ "/TC" ]
-    cflags_cc += [ "/TP" ]
     defines += [
       "_HAS_EXCEPTIONS=0",
       "WIN32_LEAN_AND_MEAN",
@@ -178,7 +176,7 @@ config("default") {
       "-march=mips32r2",
       "-mdspr2",
     ]
-  } else if (current_cpu == "x86") {
+  } else if (current_cpu == "x86" && !is_win) {
     asmflags += [ "-m32" ]
     cflags += [
       "-m32",
