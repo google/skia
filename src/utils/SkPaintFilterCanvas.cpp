@@ -29,8 +29,6 @@ private:
     bool                         fShouldDraw;
 };
 
-SkPaintFilterCanvas::SkPaintFilterCanvas(int width, int height) : INHERITED(width, height) { }
-
 SkPaintFilterCanvas::SkPaintFilterCanvas(SkCanvas *canvas)
     : INHERITED(canvas->imageInfo().width(), canvas->imageInfo().height()) {
 
