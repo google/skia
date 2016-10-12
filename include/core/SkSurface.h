@@ -51,10 +51,14 @@ public:
                                                  void* context, const SkSurfaceProps* = nullptr);
 
     /**
-     *  Return a new surface, with the memory for the pixels automatically allocated and
-     *  zero-initialized, but respecting the specified rowBytes. If rowBytes==0, then a default
-     *  value will be chosen. If a non-zero rowBytes is specified, then any images snapped off of
-     *  this surface (via makeImageSnapshot()) are guaranteed to have the same rowBytes.
+     *  Return a new surface, with the memory for the pixels automatically allocated but respecting
+     *  the specified rowBytes. If rowBytes==0, then a default value will be chosen. If a non-zero
+     *  rowBytes is specified, then any images snapped off of this surface (via makeImageSnapshot())
+     *  are guaranteed to have the same rowBytes.
+     *
+     *  If the requested alpha type is not opaque, then the surface's pixel memory will be
+     *  zero-initialized. If it is opaque, then it will be left uninitialized, and the caller is
+     *  responsible for initially clearing the surface.
      *
      *  If the requested surface cannot be created, or the request is not a
      *  supported configuration, NULL will be returned.
