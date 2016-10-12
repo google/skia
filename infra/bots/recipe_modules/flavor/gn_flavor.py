@@ -57,7 +57,9 @@ class GNFlavorUtils(default_flavor.DefaultFlavorUtils):
     target_arch   = self.m.vars.builder_cfg.get('target_arch',   '')
 
     clang_linux   = str(self.m.vars.slave_dir.join('clang_linux'))
-    win_toolchain = str(self.m.vars.slave_dir.join('t'))
+    win_toolchain = str(self.m.vars.slave_dir.join(
+      't', 'depot_tools', 'win_toolchain', 'vs_files',
+      '95ddda401ec5678f15eeed01d2bee08fcbc5ee97'))
 
     cc, cxx = None, None
     extra_cflags = []
