@@ -16,6 +16,7 @@ class GNFlavorUtils(default_flavor.DefaultFlavorUtils):
       'SAN' in extra_config,
       extra_config == 'ANGLE' and 'Win' not in os,
       extra_config == 'CommandBuffer',
+      extra_config == 'Exceptions',
       extra_config == 'Fast',
       extra_config == 'GN',
       extra_config == 'Mesa',
@@ -74,6 +75,8 @@ class GNFlavorUtils(default_flavor.DefaultFlavorUtils):
     elif compiler == 'GCC':
       cc, cxx = 'gcc', 'g++'
 
+    if extra_config == 'Exceptions':
+      extra_cflags.append('/EHsc')
     if extra_config == 'Fast':
       extra_cflags.extend(['-march=native', '-fomit-frame-pointer', '-O3',
                            '-ffp-contract=off'])
