@@ -145,7 +145,7 @@ GrGLuint GLVec4ScalarBench::setupShader(const GrGLContext* ctx) {
         fshaderTxt.append(";\n");
         fsOutName = oFragColor.c_str();
     } else {
-        fsOutName = "gl_FragColor";
+        fsOutName = "sk_FragColor";
     }
 
 
