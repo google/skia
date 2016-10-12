@@ -15,6 +15,8 @@
 #include "SkSLErrorReporter.h"
 #include "SkSLGLSLCodeGenerator.h"
 
+#define SK_FRAGCOLOR_BUILTIN 10001
+
 namespace SkSL {
 
 class IRGenerator;
@@ -24,6 +26,8 @@ class IRGenerator;
  * file into an abstract syntax tree (a tree of ASTNodes), then performs semantic analysis to 
  * produce a Program (a tree of IRNodes), then feeds the Program into a CodeGenerator to produce
  * compiled output.
+ *
+ * See the README for information about SkSL.
  */
 class Compiler : public ErrorReporter {
 public:
@@ -50,6 +54,7 @@ public:
 private:
 
     void internalConvertProgram(std::string text,
+                                Modifiers::Flag* defaultPrecision,
                                 std::vector<std::unique_ptr<ProgramElement>>* result);
 
     std::shared_ptr<SymbolTable> fTypes;
