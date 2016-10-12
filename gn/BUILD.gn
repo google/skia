@@ -55,10 +55,12 @@ config("default") {
     ]
     include_dirs = [
       "$windk/VC/include",
+
       # For local builds.
       "$windk/../Windows Kits/10/Include/10.0.10150.0/ucrt",
       "$windk/../Windows Kits/8.1/Include/shared",
       "$windk/../Windows Kits/8.1/Include/um",
+
       # For builds using win_toolchain asset.
       "$windk/win_sdk/Include/10.0.10586.0/shared",
       "$windk/win_sdk/Include/10.0.10586.0/ucrt",
@@ -66,9 +68,11 @@ config("default") {
     ]
     lib_dirs = [
       "$windk/VC/lib/amd64",
+
       # For local builds.
       "$windk/../Windows Kits/10/Lib/10.0.10150.0/ucrt/x64",
       "$windk/../Windows Kits/8.1/Lib/winv6.3/um/x64",
+
       # For builds using win_toolchain asset.
       "$windk/win_sdk/Lib/10.0.10586.0/ucrt/x64",
       "$windk/win_sdk/Lib/10.0.10586.0/um/x64",
@@ -276,21 +280,27 @@ config("debug_symbols") {
   # to Android devices.  -gline-tables-only is a lot slimmer.
   if (is_android) {
     cflags = [ "-gline-tables-only" ]
-  } else if (!is_win) {
+  } else if (is_win) {
+    cflags = [ "/Zi" ]
+  } else {
     cflags = [ "-g" ]
   }
 }
 
 config("no_rtti") {
   if (sanitize != "ASAN") {  # -fsanitize=vptr requires RTTI
-    if (!is_win) {
+    if (is_win) {
+      cflags_cc = [ "/GR-" ]
+    } else {
       cflags_cc = [ "-fno-rtti" ]
     }
   }
 }
 
 config("release") {
-  if (!is_win) {
+  if (is_win) {
+    cflags = [ "/O2" ]
+  } else {
     cflags = [ "-O3" ]
   }
   defines = [ "NDEBUG" ]
