@@ -25,6 +25,24 @@
     },
     {
       "key": {
+        "uuid": "5c051249_f331aa59",
+        "filename": "infra/bots/recipes/swarm_ct_skps.py",
+        "patchSetId": 3
+      },
+      "lineNbr": 103,
+      "author": {
+        "id": 5145
+      },
+      "writtenOn": "2016-10-12T18:33:43Z",
+      "side": 1,
+      "message": "I was just looking for any step to add the property. Is there a better place to add these presentation properties?",
+      "parentUuid": "5c051249_f0940047",
+      "revId": "8b9de16ba9ccec2d12bae0b973caeba232598fcf",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "5c051249_d3a3c698",
         "filename": "infra/bots/recipes/swarm_ct_skps.py",
         "patchSetId": 3
@@ -42,6 +60,24 @@
         "endLine": 239,
         "endChar": 13
       },
+      "revId": "8b9de16ba9ccec2d12bae0b973caeba232598fcf",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "5c051249_96b48c3b",
+        "filename": "infra/bots/recipes/swarm_ct_skps.py",
+        "patchSetId": 3
+      },
+      "lineNbr": 239,
+      "author": {
+        "id": 5145
+      },
+      "writtenOn": "2016-10-12T18:33:43Z",
+      "side": 1,
+      "message": "Is that in api.step.active_result.presentation.step_text ?",
+      "parentUuid": "5c051249_d3a3c698",
       "revId": "8b9de16ba9ccec2d12bae0b973caeba232598fcf",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
