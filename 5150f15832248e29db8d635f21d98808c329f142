@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "1c99da37_477ac478",
+        "filename": "tools/skiaserve/Request.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 100,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2016-10-12T20:19:59Z",
+      "side": 1,
+      "message": "Uncommenting these calls shows the overdraw view. Adding the UI and controller around these is left to a future CL. I have these here because I was sure the previous patchset wasn\u0027t entirely correct (it wasn\u0027t) and adding this allowed for testing it and bringing the overdraw almost back to life.",
+      "range": {
+        "startLine": 100,
+        "startChar": 4,
+        "endLine": 100,
+        "endChar": 41
+      },
+      "revId": "5150f15832248e29db8d635f21d98808c329f142",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
