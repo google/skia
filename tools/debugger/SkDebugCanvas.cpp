@@ -27,12 +27,11 @@
 
 class DebugPaintFilterCanvas : public SkPaintFilterCanvas {
 public:
-    DebugPaintFilterCanvas(int width,
-                           int height,
+    DebugPaintFilterCanvas(SkCanvas* canvas,
                            bool overdrawViz,
                            bool overrideFilterQuality,
                            SkFilterQuality quality)
-        : INHERITED(width, height)
+        : INHERITED(canvas)
         , fOverdrawXfermode(overdrawViz ? SkOverdrawMode::Make() : nullptr)
         , fOverrideFilterQuality(overrideFilterQuality)
         , fFilterQuality(quality) {}
@@ -520,8 +519,7 @@ void SkDebugCanvas::updatePaintFilterCanvas() {
         return;
     }
 
-    const SkImageInfo info = this->imageInfo();
-    fPaintFilterCanvas.reset(new DebugPaintFilterCanvas(info.width(), info.height(), fOverdrawViz,
+    fPaintFilterCanvas.reset(new DebugPaintFilterCanvas(this, fOverdrawViz,
                                                         fOverrideFilterQuality, fFilterQuality));
 }
 
@@ -531,16 +529,6 @@ void SkDebugCanvas::setOverdrawViz(bool overdrawViz) {
     }
 
     fOverdrawViz = overdrawViz;
-    this->updatePaintFilterCanvas();
-}
-
-void SkDebugCanvas::overrideTexFiltering(bool overrideTexFiltering, SkFilterQuality quality) {
-    if (fOverrideFilterQuality == overrideTexFiltering && fFilterQuality == quality) {
-        return;
-    }
-
-    fOverrideFilterQuality = overrideTexFiltering;
-    fFilterQuality = quality;
     this->updatePaintFilterCanvas();
 }
 

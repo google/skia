@@ -57,10 +57,6 @@ public:
 
     void setPicture(SkPicture *picture) { fPicture = picture; }
 
-    /**
-     * Enable or disable texure filtering override
-     */
-    void overrideTexFiltering(bool overrideTexFiltering, SkFilterQuality);
 
     /**
         Executes all draw calls to the canvas.
