@@ -54,15 +54,24 @@ config("default") {
       "NOMINMAX",
     ]
     include_dirs = [
+      "$windk/VC/include",
+      # For local builds.
       "$windk/../Windows Kits/10/Include/10.0.10150.0/ucrt",
       "$windk/../Windows Kits/8.1/Include/shared",
       "$windk/../Windows Kits/8.1/Include/um",
-      "$windk/VC/include",
+      # For builds using win_toolchain asset.
+      "$windk/win_sdk/Include/10.0.10586.0/shared",
+      "$windk/win_sdk/Include/10.0.10586.0/ucrt",
+      "$windk/win_sdk/Include/10.0.10586.0/um",
     ]
     lib_dirs = [
+      "$windk/VC/lib/amd64",
+      # For local builds.
       "$windk/../Windows Kits/10/Lib/10.0.10150.0/ucrt/x64",
       "$windk/../Windows Kits/8.1/Lib/winv6.3/um/x64",
-      "$windk/VC/lib/amd64",
+      # For builds using win_toolchain asset.
+      "$windk/win_sdk/Lib/10.0.10586.0/ucrt/x64",
+      "$windk/win_sdk/Lib/10.0.10586.0/um/x64",
     ]
   } else {
     cflags += [
@@ -367,8 +376,7 @@ toolchain("msvc") {
   }
 
   tool("stamp") {
-    win_stamp_path = rebase_path("win_stamp.py")
-    command = "python $win_stamp_path {{output}}"
+    command = "cmd.exe /c echo > {{output}}"
   }
 }
 
