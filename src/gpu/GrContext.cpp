@@ -14,6 +14,7 @@
 #include "GrResourceProvider.h"
 #include "GrSoftwarePathRenderer.h"
 #include "GrSurfacePriv.h"
+#include "GrTracing.h"
 
 #include "SkConfig8888.h"
 #include "SkGrPriv.h"
@@ -72,6 +73,8 @@ bool GrContext::init(GrBackend backend, GrBackendContext backendContext,
                      const GrContextOptions& options) {
     ASSERT_SINGLE_OWNER
     SkASSERT(!fGpu);
+
+    GR_INIT_ATRACE;
 
     fGpu = GrGpu::Create(backend, backendContext, options, this);
     if (!fGpu) {
