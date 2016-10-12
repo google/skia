@@ -121,6 +121,8 @@
   },
   {
     "cmd": [
+      "python",
+      "-u",
       "[CUSTOM_C:\\_B_WORK]\\skia\\bin\\fetch-gn"
     ],
     "cwd": "[CUSTOM_C:\\_B_WORK]\\skia",
@@ -131,10 +133,10 @@
   },
   {
     "cmd": [
-      "gn",
+      "gn.bat",
       "gen",
       "[CUSTOM_C:\\_B_WORK]\\skia\\out\\Build-Win-MSVC-x86-Release-GN\\Release",
-      "--args=is_debug=false target_cpu=\"x86\""
+      "--args=is_debug=false target_cpu=\"x86\" windk=\"[SLAVE_BUILD]\\t\""
     ],
     "cwd": "[CUSTOM_C:\\_B_WORK]\\skia",
     "env": {
@@ -144,7 +146,7 @@
   },
   {
     "cmd": [
-      "ninja",
+      "ninja.exe",
       "-C",
       "[CUSTOM_C:\\_B_WORK]\\skia\\out\\Build-Win-MSVC-x86-Release-GN\\Release"
     ],
