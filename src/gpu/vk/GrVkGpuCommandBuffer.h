@@ -32,10 +32,11 @@ public:
 
     void end() override;
 
-    void discard(GrRenderTarget* rt) override;
+    void discard() override;
 
 private:
     GrGpu* gpu() override;
+    GrRenderTarget* renderTarget() override;
 
     void onSubmit(const SkIRect& bounds) override;
 
@@ -52,9 +53,9 @@ private:
                 const GrMesh* mesh,
                 int meshCount) override;
 
-    void onClear(GrRenderTarget* rt, const GrFixedClip&, GrColor color) override;
+    void onClear(const GrFixedClip&, GrColor color) override;
 
-    void onClearStencilClip(GrRenderTarget*, const GrFixedClip&, bool insideStencilMask) override;
+    void onClearStencilClip(const GrFixedClip&, bool insideStencilMask) override;
 
     const GrVkRenderPass*       fRenderPass;
     GrVkSecondaryCommandBuffer* fCommandBuffer;

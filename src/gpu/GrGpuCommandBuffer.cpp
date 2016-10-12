@@ -19,21 +19,21 @@ void GrGpuCommandBuffer::submit(const SkIRect& bounds) {
     this->onSubmit(bounds);
 }
 
-void GrGpuCommandBuffer::clear(const GrFixedClip& clip, GrColor color, GrRenderTarget* rt) {
+void GrGpuCommandBuffer::clear(const GrFixedClip& clip, GrColor color) {
+#ifdef SK_DEBUG
+    GrRenderTarget* rt = this->renderTarget();
     SkASSERT(rt);
     SkASSERT(!clip.scissorEnabled() ||
              (SkIRect::MakeWH(rt->width(), rt->height()).contains(clip.scissorRect()) &&
               SkIRect::MakeWH(rt->width(), rt->height()) != clip.scissorRect()));
-    this->onClear(rt, clip, color);
+#endif
+    this->onClear(clip, color);
 }
 
 void GrGpuCommandBuffer::clearStencilClip(const GrFixedClip& clip,
-                                          bool insideStencilMask,
-                                          GrRenderTarget* rt) {
-    SkASSERT(rt);
-    this->onClearStencilClip(rt, clip, insideStencilMask);
+                                          bool insideStencilMask) {
+    this->onClearStencilClip(clip, insideStencilMask);
 }
-
 
 bool GrGpuCommandBuffer::draw(const GrPipeline& pipeline,
                               const GrPrimitiveProcessor& primProc,

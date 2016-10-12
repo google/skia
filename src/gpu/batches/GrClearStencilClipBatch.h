@@ -51,7 +51,7 @@ private:
     void onPrepare(GrBatchFlushState*) override {}
 
     void onDraw(GrBatchFlushState* state) override {
-        state->commandBuffer()->clearStencilClip(fClip, fInsideStencilMask, fRenderTarget.get());
+        state->commandBuffer()->clearStencilClip(fClip, fInsideStencilMask);
     }
 
     const GrFixedClip                                       fClip;

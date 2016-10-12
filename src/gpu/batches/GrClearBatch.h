@@ -95,7 +95,7 @@ private:
     void onPrepare(GrBatchFlushState*) override {}
 
     void onDraw(GrBatchFlushState* state) override {
-        state->commandBuffer()->clear(fClip, fColor, fRenderTarget.get());
+        state->commandBuffer()->clear(fClip, fColor);
     }
 
     GrFixedClip                                             fClip;
