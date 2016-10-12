@@ -288,8 +288,6 @@ private:
     SkColor fClipVizColor;
     bool fDrawGpuBatchBounds;
 
-    SkAutoTUnref<SkNWayCanvas> fPaintFilterCanvas;
-
     /**
         The active saveLayer commands at a given point in the renderering.
         Only used when "mega" visualization is enabled.
@@ -320,7 +318,6 @@ private:
 
     GrAuditTrail* getAuditTrail(SkCanvas*);
 
-    void updatePaintFilterCanvas();
     void drawAndCollectBatches(int n, SkCanvas*);
     void cleanupAuditTrail(SkCanvas*);
 

@@ -771,7 +771,6 @@ if (skia_enable_tools) {
       "tools/debugger/SkDrawCommand.cpp",
       "tools/debugger/SkJsonWriteBuffer.cpp",
       "tools/debugger/SkObjectParser.cpp",
-      "tools/debugger/SkOverdrawMode.cpp",
       "tools/picture_utils.cpp",
       "tools/random_parse_path.cpp",
       "tools/sk_tool_utils.cpp",

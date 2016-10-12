@@ -97,7 +97,9 @@ void Request::drawToCanvas(int n, int m) {
 }
 
 sk_sp<SkData> Request::drawToPng(int n, int m) {
+    //fDebugCanvas->setOverdrawViz(true);
     this->drawToCanvas(n, m);
+    //fDebugCanvas->setOverdrawViz(false);
     return writeCanvasToPng(this->getCanvas());
 }
 
