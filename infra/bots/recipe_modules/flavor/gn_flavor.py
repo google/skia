@@ -24,11 +24,19 @@ class GNFlavorUtils(default_flavor.DefaultFlavorUtils):
       os == 'Ubuntu' and target_arch == 'x86',
     ])
 
-  def _run(self, title, cmd, env=None, infra_step=False):
+  def _strip_environment(self):
     self.m.vars.default_env = {k: v for (k,v)
                                in self.m.vars.default_env.iteritems()
                                if k in ['PATH']}
+
+  def _run(self, title, cmd, env=None, infra_step=False):
+    self._strip_environment()
     self.m.run(self.m.step, title, cmd=cmd,
+               env=env, cwd=self.m.vars.skia_dir, infra_step=infra_step)
+
+  def _py(self, title, script, env=None, infra_step=True):
+    self._strip_environment()
+    self.m.run(self.m.python, title, script=script,
                env=env, cwd=self.m.vars.skia_dir, infra_step=infra_step)
 
   def build_command_buffer(self):
@@ -48,7 +56,8 @@ class GNFlavorUtils(default_flavor.DefaultFlavorUtils):
     os            = self.m.vars.builder_cfg.get('os',            '')
     target_arch   = self.m.vars.builder_cfg.get('target_arch',   '')
 
-    clang_linux = str(self.m.vars.slave_dir.join('clang_linux'))
+    clang_linux   = str(self.m.vars.slave_dir.join('clang_linux'))
+    win_toolchain = str(self.m.vars.slave_dir.join('t'))
 
     cc, cxx = None, None
     extra_cflags = []
@@ -91,6 +100,7 @@ class GNFlavorUtils(default_flavor.DefaultFlavorUtils):
       'cxx': cxx,
       'sanitize': extra_config if 'SAN' in extra_config else '',
       'target_cpu': 'x86' if target_arch == 'x86' else '',
+      'windk': win_toolchain if 'Win' in os else '',
     }.iteritems():
       if v:
         args[k] = '"%s"' % v
@@ -101,10 +111,12 @@ class GNFlavorUtils(default_flavor.DefaultFlavorUtils):
 
     gn_args = ' '.join('%s=%s' % (k,v) for (k,v) in sorted(args.iteritems()))
 
-    self._run('fetch-gn', [self.m.vars.skia_dir.join('bin', 'fetch-gn')],
-              infra_step=True)
-    self._run('gn gen', ['gn', 'gen', self.out_dir, '--args=' + gn_args])
-    self._run('ninja', ['ninja', '-C', self.out_dir])
+    gn    = 'gn.bat'    if 'Win' in os else 'gn'
+    ninja = 'ninja.exe' if 'Win' in os else 'ninja'
+
+    self._py('fetch-gn', self.m.vars.skia_dir.join('bin', 'fetch-gn'))
+    self._run('gn gen', [gn, 'gen', self.out_dir, '--args=' + gn_args])
+    self._run('ninja', [ninja, '-C', self.out_dir])
 
   def step(self, name, cmd, env=None, **kwargs):
     app = self.m.vars.skia_out.join(self.m.vars.configuration, cmd[0])
