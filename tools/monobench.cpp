@@ -10,6 +10,7 @@
 #include "SkTaskGroup.h"
 #include <algorithm>
 #include <chrono>
+#include <limits>
 #include <regex>
 #include <stdio.h>
 #include <stdlib.h>
@@ -42,7 +43,8 @@ int main(int argc, char** argv) {
         if (std::regex_search(name, pattern) &&
                 bench->isSuitableFor(Benchmark::kNonRendering_Backend)) {
             bench->delayedSetup();
-            benches.emplace_back(Bench{std::move(bench), name, ns{1.0/0.0}});
+            benches.emplace_back(Bench{std::move(bench), name,
+                                       ns{std::numeric_limits<double>::infinity()}});
         }
     }
 
