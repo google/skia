@@ -11,7 +11,7 @@ import time
 class HardwareAndroid(Hardware):
   def __init__(self, adb):
     Hardware.__init__(self)
-    self.kick_in_time = 5
+    self.warmup_time = 5
     self._adb = adb
     self._is_root = self._adb.attempt_root()
     if self._is_root:

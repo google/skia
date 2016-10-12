@@ -21,7 +21,7 @@ class Hardware:
   """
 
   def __init__(self):
-    self.kick_in_time = 0
+    self.warmup_time = 0
 
   def __enter__(self):
     return self
