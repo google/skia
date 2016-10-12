@@ -94,6 +94,7 @@ namespace SkOpts {
 
     SkOpts::VoidFn body[] = {
         (SkOpts::VoidFn)SK_OPTS_NS::just_return,
+        (SkOpts::VoidFn)SK_OPTS_NS::swap_src_dst,
 
         (SkOpts::VoidFn)SK_OPTS_NS::store_565,
         (SkOpts::VoidFn)SK_OPTS_NS::store_srgb,
@@ -144,6 +145,7 @@ namespace SkOpts {
 
     SkOpts::VoidFn tail[] = {
         (SkOpts::VoidFn)SK_OPTS_NS::just_return,
+        (SkOpts::VoidFn)SK_OPTS_NS::swap_src_dst,
 
         (SkOpts::VoidFn)SK_OPTS_NS::store_565_tail,
         (SkOpts::VoidFn)SK_OPTS_NS::store_srgb_tail,

@@ -91,6 +91,7 @@ public:
 
     enum StockStage {
         just_return,
+        swap_src_dst,
 
         store_565,
         store_srgb,
