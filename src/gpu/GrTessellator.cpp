@@ -676,7 +676,7 @@ void path_to_contours(const SkPath& path, SkScalar tolerance, const SkRect& clip
     if (path.isInverseFillType()) {
         SkPoint quad[4];
         clipBounds.toQuad(quad);
-        for (int i = 0; i < 4; i++) {
+        for (int i = 3; i >= 0; i--) {
             prev = append_point_to_contour(quad[i], prev, &head, alloc);
         }
         head->fPrev = prev;
@@ -758,7 +758,7 @@ inline bool apply_fill_type(SkPath::FillType fillType, Poly* poly) {
         case SkPath::kEvenOdd_FillType:
             return (winding & 1) != 0;
         case SkPath::kInverseWinding_FillType:
-            return winding == -1;
+            return winding == 1;
         case SkPath::kInverseEvenOdd_FillType:
             return (winding & 1) == 1;
         default:
@@ -1637,8 +1637,7 @@ Vertex* contours_to_mesh(Vertex** contours, int contourCnt, bool antialias,
     return build_edges(contours, contourCnt, c, alloc);
 }
 
-Poly* mesh_to_polys(Vertex** vertices, SkPath::FillType fillType, Comparator& c,
-                    SkChunkAlloc& alloc) {
+Poly* mesh_to_polys(Vertex** vertices, Comparator& c, SkChunkAlloc& alloc) {
     if (!vertices || !*vertices) {
         return nullptr;
     }
@@ -1668,7 +1667,7 @@ Poly* contours_to_polys(Vertex** contours, int contourCnt, SkPath::FillType fill
         c.sweep_gt = sweep_gt_vert;
     }
     Vertex* mesh = contours_to_mesh(contours, contourCnt, antialias, c, alloc);
-    Poly* polys = mesh_to_polys(&mesh, fillType, c, alloc);
+    Poly* polys = mesh_to_polys(&mesh, c, alloc);
     if (antialias) {
         EdgeList* boundaries = extract_boundaries(mesh, fillType, alloc);
         VertexList aaMesh;
@@ -1678,7 +1677,7 @@ Poly* contours_to_polys(Vertex** contours, int contourCnt, SkPath::FillType fill
                 boundary_to_aa_mesh(boundary, &aaMesh, c, alloc);
             }
         }
-        return mesh_to_polys(&aaMesh.fHead, SkPath::kWinding_FillType, c, alloc);
+        return mesh_to_polys(&aaMesh.fHead, c, alloc);
     }
     return polys;
 }
@@ -1755,7 +1754,7 @@ int PathToTriangles(const SkPath& path, SkScalar tolerance, const SkRect& clipBo
     SkChunkAlloc alloc(sizeEstimate);
     Poly* polys = path_to_polys(path, tolerance, clipBounds, contourCnt, alloc, antialias,
                                 isLinear);
-    SkPath::FillType fillType = path.getFillType();
+    SkPath::FillType fillType = antialias ? SkPath::kWinding_FillType : path.getFillType();
     int count = count_points(polys, fillType);
     if (0 == count) {
         return 0;
