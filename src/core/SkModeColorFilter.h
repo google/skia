@@ -6,6 +6,7 @@
  */
 
 #include "SkColorFilter.h"
+#include "SkPM4f.h"
 #include "SkXfermode.h"
 
 #ifndef SkModeColorFilter_DEFINED
@@ -49,12 +50,15 @@ protected:
 
     void flatten(SkWriteBuffer&) const override;
 
+    bool onAppendStages(SkRasterPipeline*) const override;
+
 private:
     SkColor             fColor;
     SkXfermode::Mode    fMode;
     // cache
     SkPMColor           fPMColor;
     SkXfermodeProc      fProc;
+    SkPM4f              fPM4f;
 
     void updateCache();
 
