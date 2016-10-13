@@ -121,7 +121,8 @@ class GNFlavorUtils(default_flavor.DefaultFlavorUtils):
 
     self._py('fetch-gn', self.m.vars.skia_dir.join('bin', 'fetch-gn'))
     self._run('gn gen', [gn, 'gen', self.out_dir, '--args=' + gn_args])
-    self._run('ninja', [ninja, '-C', self.out_dir])
+    self._run('ninja', [ninja, '-C', self.out_dir],
+              env={'NINJA_STATUS': '%%e [%%f/%%t] '})
 
   def step(self, name, cmd, env=None, **kwargs):
     app = self.m.vars.skia_out.join(self.m.vars.configuration, cmd[0])

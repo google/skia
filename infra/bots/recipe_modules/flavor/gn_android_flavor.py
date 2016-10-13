@@ -33,7 +33,7 @@ class GNAndroidFlavorUtils(default_flavor.DefaultFlavorUtils):
                                in self.m.vars.default_env.iteritems()
                                if k in ['PATH']}
     return self.m.run(self.m.step, title, cmd=list(cmd),
-                      cwd=self.m.vars.skia_dir, env={}, **kwargs)
+                      cwd=self.m.vars.skia_dir, **kwargs)
 
   def _adb(self, title, *cmd, **kwargs):
     self._ever_ran_adb = True
@@ -72,7 +72,8 @@ class GNAndroidFlavorUtils(default_flavor.DefaultFlavorUtils):
     self._run('fetch-gn', self.m.vars.skia_dir.join('bin', 'fetch-gn'),
               infra_step=True)
     self._run('gn gen', 'gn', 'gen', self.out_dir, '--args=' + gn_args)
-    self._run('ninja', 'ninja', '-C', self.out_dir)
+    self._run('ninja', 'ninja', '-C', self.out_dir,
+              env={'NINJA_STATUS': '%%e [%%f/%%t] '})
 
   def install(self):
     self._adb('mkdir ' + self.device_dirs.resource_dir,
