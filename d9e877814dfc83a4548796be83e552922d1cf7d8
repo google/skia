@@ -40,6 +40,24 @@
       "revId": "d9e877814dfc83a4548796be83e552922d1cf7d8",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9c6eaae8_09aff598",
+        "filename": "src/core/SkTrace.h",
+        "patchSetId": 5
+      },
+      "lineNbr": 14,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2016-10-13T14:39:44Z",
+      "side": 1,
+      "message": "Why don\u0027t you try to write an ATrace implementation of SkEventTracer?\n\nThat way we can treat Chrome tracing and ATrace uniformly, choosing which we want to turn on in our tools via SkEventTracer::SetInstance() like Chrome does with their tracer.  All the existing TRACE_EVENT macros will be routed to directly the chosen backend... there\u0027d be no need for the extra SK_TRACE() layer.",
+      "parentUuid": "fc8b2631_42336016",
+      "revId": "d9e877814dfc83a4548796be83e552922d1cf7d8",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
