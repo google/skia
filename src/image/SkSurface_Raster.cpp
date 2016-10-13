@@ -208,11 +208,7 @@ sk_sp<SkSurface> SkSurface::MakeRaster(const SkImageInfo& info, size_t rowBytes,
         return nullptr;
     }
 
-    // If the requested alpha type is opaque, then leave the pixels uninitialized.
-    // Alpha formats can be safely initialiezd to zero.
-    SkAutoTUnref<SkPixelRef> pr(info.isOpaque()
-                                ? SkMallocPixelRef::NewAllocate(info, rowBytes, nullptr)
-                                : SkMallocPixelRef::NewZeroed(info, rowBytes, nullptr));
+    SkAutoTUnref<SkPixelRef> pr(SkMallocPixelRef::NewZeroed(info, rowBytes, nullptr));
     if (nullptr == pr.get()) {
         return nullptr;
     }
