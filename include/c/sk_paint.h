@@ -277,6 +277,8 @@ SK_API void sk_paint_set_fake_bold_text(sk_paint_t*, bool);
 SK_API bool sk_paint_is_dev_kern_text(const sk_paint_t*);
 SK_API void sk_paint_set_dev_kern_text(sk_paint_t*, bool);
 
+SK_API bool sk_paint_get_fill_path(const sk_paint_t*, const sk_path_t* src, sk_path_t* dst, const sk_rect_t* cullRect, float resScale);
+
 SK_C_PLUS_PLUS_END_GUARD
 
 #endif

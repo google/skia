@@ -312,3 +312,7 @@ bool sk_paint_is_dev_kern_text(const sk_paint_t* cpaint) {
 void sk_paint_set_dev_kern_text(sk_paint_t* cpaint, bool devKernText) {
     AsPaint(cpaint)->setDevKernText(devKernText);
 }
+
+bool sk_paint_get_fill_path(const sk_paint_t* cpaint, const sk_path_t* src, sk_path_t* dst, const sk_rect_t* cullRect, float resScale) {
+    return AsPaint(cpaint)->getFillPath(AsPath(*src), AsPath(dst), AsRect(cullRect), resScale);
+}
