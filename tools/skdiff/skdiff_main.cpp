@@ -66,7 +66,7 @@ struct DiffSummary {
         : fNumMatches(0)
         , fNumMismatches(0)
         , fMaxMismatchV(0)
-        , fMaxMismatchPercent(0) { };
+        , fMaxMismatchPercent(0) { }
 
     ~DiffSummary() {
         for (int i = 0; i < DiffRecord::kResultCount; ++i) {
