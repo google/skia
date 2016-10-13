@@ -61,6 +61,24 @@
     },
     {
       "key": {
+        "uuid": "fc8b2631_c2a9107c",
+        "filename": "infra/bots/recipes/swarm_ct_skps.py",
+        "patchSetId": 3
+      },
+      "lineNbr": 103,
+      "author": {
+        "id": 5145
+      },
+      "writtenOn": "2016-10-13T14:40:14Z",
+      "side": 1,
+      "message": "Leaving these as build properties and also adding them as links in step_result. These build properties are mainly there as an FYI. The links in the failure step will be the most frequently used I imagine.",
+      "parentUuid": "fc8b2631_47ac529f",
+      "revId": "8b9de16ba9ccec2d12bae0b973caeba232598fcf",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "5c051249_d3a3c698",
         "filename": "infra/bots/recipes/swarm_ct_skps.py",
         "patchSetId": 3
@@ -114,6 +132,24 @@
       "side": 1,
       "message": "step_result.presentation.links[name] \u003d url\n\nSee https://skia.googlesource.com/skia/+/master/infra/bots/recipe_modules/swarming/api.py#278 for an example",
       "parentUuid": "5c051249_96b48c3b",
+      "revId": "8b9de16ba9ccec2d12bae0b973caeba232598fcf",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fc8b2631_021b187c",
+        "filename": "infra/bots/recipes/swarm_ct_skps.py",
+        "patchSetId": 3
+      },
+      "lineNbr": 239,
+      "author": {
+        "id": 5145
+      },
+      "writtenOn": "2016-10-13T14:40:14Z",
+      "side": 1,
+      "message": "Done.",
+      "parentUuid": "fc8b2631_67a14ea6",
       "revId": "8b9de16ba9ccec2d12bae0b973caeba232598fcf",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
