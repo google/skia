@@ -65,16 +65,19 @@ config("default") {
       "$windk/win_sdk/Include/10.0.10586.0/um",
     ]
     lib_dirs = [
-      "$windk/VC/lib/amd64",
-
       # For local builds.
-      "$windk/../Windows Kits/10/Lib/10.0.10150.0/ucrt/x64",
-      "$windk/../Windows Kits/8.1/Lib/winv6.3/um/x64",
+      "$windk/../Windows Kits/10/Lib/10.0.10150.0/ucrt/$target_cpu",
+      "$windk/../Windows Kits/8.1/Lib/winv6.3/um/$target_cpu",
 
       # For builds using win_toolchain asset.
-      "$windk/win_sdk/Lib/10.0.10586.0/ucrt/x64",
-      "$windk/win_sdk/Lib/10.0.10586.0/um/x64",
+      "$windk/win_sdk/Lib/10.0.10586.0/ucrt/$target_cpu",
+      "$windk/win_sdk/Lib/10.0.10586.0/um/$target_cpu",
     ]
+    if (target_cpu == "x86") {
+      lib_dirs += [ "$windk/VC/lib" ]
+    } else {
+      lib_dirs += [ "$windk/VC/lib/amd64" ]
+    }
   } else {
     cflags += [
       "-O1",
@@ -318,9 +321,12 @@ config("executable") {
 toolchain("msvc") {
   lib_dir_switch = "/LIBPATH:"
 
-  cl_exe = "$windk/VC/bin/amd64/cl.exe"
-  link_exe = "$windk/VC/bin/amd64/link.exe"
-  lib_exe = "$windk/VC/bin/amd64/lib.exe"
+  bin = "$windk/VC/bin/amd64"
+  env_setup = ""
+  if (target_cpu == "x86") {
+    bin += "_x86"
+    env_setup = "cmd /c $windk/win_sdk/bin/SetEnv.cmd /x86 && "
+  }
 
   tool("cc") {
     rspfile = "{{output}}.rsp"
@@ -328,7 +334,7 @@ toolchain("msvc") {
     pdbname = "{{target_out_dir}}/{{label_name}}_c.pdb"
 
     # Label names may have spaces so pdbname must be quoted.
-    command = "$cl_exe /nologo /showIncludes /FC @$rspfile /c {{source}} /Fo{{output}} /Fd\"$pdbname\""
+    command = "$env_setup$bin/cl.exe /nologo /showIncludes /FC @$rspfile /c {{source}} /Fo{{output}} /Fd\"$pdbname\""
     depsformat = "msvc"
     outputs = [
       "{{source_out_dir}}/{{target_output_name}}.{{source_name_part}}.obj",
@@ -342,7 +348,7 @@ toolchain("msvc") {
     pdbname = "{{target_out_dir}}/{{label_name}}_c.pdb"
 
     # Label names may have spaces so pdbname must be quoted.
-    command = "$cl_exe /nologo /showIncludes /FC @$rspfile /c {{source}} /Fo{{output}} /Fd\"$pdbname\""
+    command = "$env_setup$bin/cl.exe /nologo /showIncludes /FC @$rspfile /c {{source}} /Fo{{output}} /Fd\"$pdbname\""
     depsformat = "msvc"
     outputs = [
       "{{source_out_dir}}/{{target_output_name}}.{{source_name_part}}.obj",
@@ -353,7 +359,8 @@ toolchain("msvc") {
   tool("alink") {
     rspfile = "{{output}}.rsp"
 
-    command = "$lib_exe /nologo {{arflags}} /OUT:{{output}} @$rspfile"
+    command =
+        "$env_setup$bin/lib.exe /nologo {{arflags}} /OUT:{{output}} @$rspfile"
     outputs = [
       # Ignore {{output_extension}} and always use .lib, there's no reason to
       # allow targets to override this extension on Windows.
@@ -371,7 +378,8 @@ toolchain("msvc") {
     pdbname = "$exename.pdb"
     rspfile = "$exename.rsp"
 
-    command = "$link_exe /nologo /OUT:$exename /PDB:$pdbname @$rspfile"
+    command =
+        "$env_setup$bin/link.exe /nologo /OUT:$exename /PDB:$pdbname @$rspfile"
 
     default_output_extension = ".exe"
     default_output_dir = "{{root_out_dir}}"
