@@ -315,8 +315,8 @@ static_assert ((int)GrBackendTextureFlags::kNone_GrBackendTextureFlag           
 static_assert ((int)GrBackendTextureFlags::kRenderTarget_GrBackendTextureFlag   == (int)RENDER_TARGET_GR_BACKEND_TEXTURE_FLAGS,   ASSERT_MSG(GrBackendTextureFlags, gr_backendtexture_flags_t));
 
 // gr_backend_t
-static_assert ((int)GrBackend::kOpenGL_GrBackend   == (int)OPENGL_GR_BACKEND,   ASSERT_MSG(GrBackendTextureFlags, gr_backend_t));
-static_assert ((int)GrBackend::kVulkan_GrBackend   == (int)VULKAN_GR_BACKEND,   ASSERT_MSG(GrBackendTextureFlags, gr_backend_t));
+static_assert ((int)GrBackend::kOpenGL_GrBackend   == (int)OPENGL_GR_BACKEND,   ASSERT_MSG(GrBackend, gr_backend_t));
+static_assert ((int)GrBackend::kVulkan_GrBackend   == (int)VULKAN_GR_BACKEND,   ASSERT_MSG(GrBackend, gr_backend_t));
 
 // SkBudgeted
 static_assert ((bool)SkBudgeted::kNo    == (bool)false,   ASSERT_MSG(SkBudgeted, bool));
@@ -335,7 +335,7 @@ static_assert ((int)SkPath::Convexity::kConvex_Convexity    == (int)CONVEX_SK_PA
 static_assert ((int)SkPath::Convexity::kConcave_Convexity   == (int)CONCAVE_SK_PATH_CONVEXITY,   ASSERT_MSG(SkPath::Convexity, sk_path_convexity_t));
 
 // gr_backendtexture_flags_t
-static_assert ((int)0                                              == (int)DEFAULT_SK_LATTICE_FLAGS,       ASSERT_MSG(GrBackendTextureFlags, sk_lattice_flags_t));
-static_assert ((int)SkCanvas::Lattice::Flags::kTransparent_Flags   == (int)TRANSPARENT_SK_LATTICE_FLAGS,   ASSERT_MSG(GrBackendTextureFlags, sk_lattice_flags_t));
+static_assert ((int)0                                              == (int)DEFAULT_SK_LATTICE_FLAGS,       ASSERT_MSG(SkCanvas::Lattice::Flags, sk_lattice_flags_t));
+static_assert ((int)SkCanvas::Lattice::Flags::kTransparent_Flags   == (int)TRANSPARENT_SK_LATTICE_FLAGS,   ASSERT_MSG(SkCanvas::Lattice::Flags, sk_lattice_flags_t));
 
 #endif
