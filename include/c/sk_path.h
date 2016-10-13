@@ -239,6 +239,8 @@ SK_API void sk_opbuilder_add(sk_opbuilder_t* builder, const sk_path_t* path, sk_
 
 SK_API bool sk_opbuilder_resolve(sk_opbuilder_t* builder, sk_path_t* result);
 
+SK_API int sk_path_convert_conic_to_quads(const sk_point_t* p0, const sk_point_t* p1, const sk_point_t* p2, float w, sk_point_t* pts, int pow2);
+
 SK_C_PLUS_PLUS_END_GUARD
 
 #endif

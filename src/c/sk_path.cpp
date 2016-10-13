@@ -299,3 +299,7 @@ void sk_opbuilder_add(sk_opbuilder_t* builder, const sk_path_t* path, sk_pathop_
 bool sk_opbuilder_resolve(sk_opbuilder_t* builder, sk_path_t* result) {
     return AsOpBuilder(builder)->resolve(AsPath(result));
 }
+
+int sk_path_convert_conic_to_quads(const sk_point_t* p0, const sk_point_t* p1, const sk_point_t* p2, float w, sk_point_t* pts, int pow2) {
+    return SkPath::ConvertConicToQuads(AsPoint(*p0), AsPoint(*p1), AsPoint(*p2), w, AsPoint(pts), pow2);
+}
