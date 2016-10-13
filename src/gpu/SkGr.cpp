@@ -25,7 +25,6 @@
 #include "SkConfig8888.h"
 #include "SkCanvas.h"
 #include "SkData.h"
-#include "SkErrorInternals.h"
 #include "SkMessageBus.h"
 #include "SkMipMap.h"
 #include "SkPixelRef.h"
@@ -801,10 +800,7 @@ GrTextureParams::FilterMode GrSkFilterQualityToGrFilterMode(SkFilterQuality pain
             break;
         }
         default:
-            SkErrorInternals::SetError( kInvalidPaint_SkError,
-                                        "Sorry, I don't understand the filtering "
-                                        "mode you asked for.  Falling back to "
-                                        "MIPMaps.");
+            // Should be unreachable.  If not, fall back to mipmaps.
             textureFilterMode = GrTextureParams::kMipMap_FilterMode;
             break;
 
