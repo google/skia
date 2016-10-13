@@ -49,17 +49,6 @@ def RunSteps(api):
   builder_name = api.properties['buildername']
   revision = api.properties['revision']
 
-  patch_storage = api.properties.get('patch_storage', 'rietveld')
-  issue = None
-  patchset = None
-  if builder_name.endswith('-Trybot'):
-    if patch_storage == 'gerrit':
-      issue = str(api.properties['event.change.number'])
-      patchset = str(api.properties['event.patchSet.ref'].split('/')[-1])
-    else:
-      issue = str(api.properties['issue'])
-      patchset = str(api.properties['patchset'])
-
   results_dir = api.path['cwd'].join('dm')
 
   # Move dm.json and verbose.log to their own directory.
@@ -95,10 +84,15 @@ def RunSteps(api):
       str(int(calendar.timegm(now.utctimetuple())))])
 
   # Trybot results are further siloed by issue/patchset.
-  if builder_name.endswith('-Trybot'):
-    if not (issue and patchset):  # pragma: nocover
-      raise Exception('issue and patchset properties are required for trybots.')
-    summary_dest_path = '/'.join(('trybot', summary_dest_path, issue, patchset))
+  issue = str(api.properties.get('issue', ''))
+  patchset = str(api.properties.get('patchset', ''))
+  if (api.properties.get('patch_storage', '') == 'gerrit' and
+      api.properties.get('nobuildbot', '') != 'True'):
+    issue = str(api.properties['event.change.number'])
+    patchset = str(api.properties['event.patchSet.ref']).split('/')[-1]
+  if issue and patchset:
+    summary_dest_path = '/'.join((
+        'trybot', summary_dest_path, issue, patchset))
 
   summary_dest_path = '/'.join((GS_BUCKET, summary_dest_path))
 

@@ -319,3 +319,41 @@ def GenTests(api):
           **gerrit_kwargs) +
       api.platform('win', 64)
   )
+
+  yield (
+      api.test('buildbotless_trybot_rietveld') +
+      api.properties(
+          repository='skia',
+          buildername=buildername,
+          mastername=mastername,
+          slavename=slavename,
+          buildnumber=5,
+          path_config='kitchen',
+          swarm_out_dir='[SWARM_OUT_DIR]',
+          revision='abc123',
+          nobuildbot='True',
+          issue=500,
+          patchset=1,
+          patch_storage='rietveld',
+          rietveld='https://codereview.chromium.org') +
+      api.platform('win', 64)
+  )
+
+  yield (
+      api.test('buildbotless_trybot_gerrit') +
+      api.properties(
+          repository='skia',
+          buildername=buildername,
+          mastername=mastername,
+          slavename=slavename,
+          buildnumber=5,
+          path_config='kitchen',
+          swarm_out_dir='[SWARM_OUT_DIR]',
+          revision='abc123',
+          nobuildbot='True',
+          issue=500,
+          patchset=1,
+          patch_storage='gerrit',
+          gerrit='https://skia-review.googlesource.com') +
+      api.platform('win', 64)
+  )

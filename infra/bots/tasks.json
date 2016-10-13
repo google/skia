@@ -30,12 +30,18 @@
         "--workdir",
         "../../..",
         "swarm_compile",
+        "repository=skia",
         "buildername=Build-Ubuntu-GCC-x86_64-Release-GN",
         "mastername=fake-master",
         "buildnumber=2",
         "slavename=fake-buildslave",
+        "nobuildbot=True",
         "swarm_out_dir=${ISOLATED_OUTDIR}",
-        "revision=<(REVISION)"
+        "revision=<(REVISION)",
+        "patch_storage=<(PATCH_STORAGE)",
+        "<(PATCH_STORAGE)=<(CODEREVIEW_SERVER)",
+        "issue=<(ISSUE)",
+        "patchset=<(PATCHSET)"
       ],
       "isolate": "compile_skia.isolate",
       "priority": 0.8
@@ -71,12 +77,18 @@
         "--workdir",
         "../../..",
         "swarm_perf",
+        "repository=skia",
         "buildername=Perf-Ubuntu-GCC-GCE-CPU-AVX2-x86_64-Release-GN",
         "mastername=fake-master",
         "buildnumber=2",
         "slavename=fake-buildslave",
+        "nobuildbot=True",
         "swarm_out_dir=${ISOLATED_OUTDIR}",
-        "revision=<(REVISION)"
+        "revision=<(REVISION)",
+        "patch_storage=<(PATCH_STORAGE)",
+        "<(PATCH_STORAGE)=<(CODEREVIEW_SERVER)",
+        "issue=<(ISSUE)",
+        "patchset=<(PATCHSET)"
       ],
       "isolate": "perf_skia.isolate",
       "priority": 0.8
@@ -112,12 +124,18 @@
         "--workdir",
         "../../..",
         "swarm_test",
+        "repository=skia",
         "buildername=Test-Ubuntu-GCC-GCE-CPU-AVX2-x86_64-Release-GN",
         "mastername=fake-master",
         "buildnumber=2",
         "slavename=fake-buildslave",
+        "nobuildbot=True",
         "swarm_out_dir=${ISOLATED_OUTDIR}",
-        "revision=<(REVISION)"
+        "revision=<(REVISION)",
+        "patch_storage=<(PATCH_STORAGE)",
+        "<(PATCH_STORAGE)=<(CODEREVIEW_SERVER)",
+        "issue=<(ISSUE)",
+        "patchset=<(PATCHSET)"
       ],
       "isolate": "test_skia.isolate",
       "priority": 0.8
@@ -136,12 +154,18 @@
         "--workdir",
         "../../..",
         "upload_nano_results",
+        "repository=skia",
         "buildername=Perf-Ubuntu-GCC-GCE-CPU-AVX2-x86_64-Release-GN",
         "mastername=fake-master",
         "buildnumber=2",
         "slavename=fake-buildslave",
+        "nobuildbot=True",
         "swarm_out_dir=${ISOLATED_OUTDIR}",
-        "revision=<(REVISION)"
+        "revision=<(REVISION)",
+        "patch_storage=<(PATCH_STORAGE)",
+        "<(PATCH_STORAGE)=<(CODEREVIEW_SERVER)",
+        "issue=<(ISSUE)",
+        "patchset=<(PATCHSET)"
       ],
       "isolate": "upload_nano_results.isolate",
       "priority": 0.8
@@ -160,12 +184,18 @@
         "--workdir",
         "../../..",
         "upload_dm_results",
+        "repository=skia",
         "buildername=Test-Ubuntu-GCC-GCE-CPU-AVX2-x86_64-Release-GN",
         "mastername=fake-master",
         "buildnumber=2",
         "slavename=fake-buildslave",
+        "nobuildbot=True",
         "swarm_out_dir=${ISOLATED_OUTDIR}",
-        "revision=<(REVISION)"
+        "revision=<(REVISION)",
+        "patch_storage=<(PATCH_STORAGE)",
+        "<(PATCH_STORAGE)=<(CODEREVIEW_SERVER)",
+        "issue=<(ISSUE)",
+        "patchset=<(PATCHSET)"
       ],
       "isolate": "upload_dm_results.isolate",
       "priority": 0.8
