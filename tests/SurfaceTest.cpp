@@ -923,7 +923,7 @@ static void test_surface_creation_and_snapshot_with_color_space(
     auto adobeColorSpace = SkColorSpace::NewNamed(SkColorSpace::kAdobeRGB_Named);
     SkMatrix44 srgbMatrix = as_CSB(srgbColorSpace)->toXYZD50();
     const float oddGamma[] = { 2.4f, 2.4f, 2.4f };
-    auto oddColorSpace = SkColorSpace_Base::NewRGB(oddGamma, srgbMatrix);
+    auto oddColorSpace = SkColorSpace::NewRGB(oddGamma, srgbMatrix);
     auto linearColorSpace = SkColorSpace::NewNamed(SkColorSpace::kSRGBLinear_Named);
 
     const struct {
