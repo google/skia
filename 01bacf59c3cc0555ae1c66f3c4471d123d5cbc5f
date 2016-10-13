@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "3c405ed3_5f844b10",
+        "filename": "src/core/SkGraphics.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 11,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2016-10-13T20:22:20Z",
+      "side": 1,
+      "message": "Probably can revert this?",
+      "revId": "01bacf59c3cc0555ae1c66f3c4471d123d5cbc5f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
