@@ -116,6 +116,24 @@
       "revId": "01bacf59c3cc0555ae1c66f3c4471d123d5cbc5f",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fcd24643_fb70a76c",
+        "filename": "tools/viewer/Viewer.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 141,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2016-10-13T20:39:39Z",
+      "side": 1,
+      "message": "In chrome the categories we use not enabled by default so they exit early. Does atrace parse the disabled-by-default thing?\n\nI\u0027m ok with a flag, was just thinking that if there is no noticeable perf hit and no other tracing options then we might as well run with it all the time.",
+      "parentUuid": "fcd24643_9bb2d34f",
+      "revId": "01bacf59c3cc0555ae1c66f3c4471d123d5cbc5f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
