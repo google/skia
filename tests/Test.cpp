@@ -8,7 +8,6 @@
 #include "Test.h"
 
 #include "SkCommandLineFlags.h"
-#include "SkError.h"
 #include "SkString.h"
 #include "SkTime.h"
 

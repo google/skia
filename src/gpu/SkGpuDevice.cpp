@@ -17,7 +17,6 @@
 
 #include "SkCanvasPriv.h"
 #include "SkDraw.h"
-#include "SkErrorInternals.h"
 #include "SkGlyphCache.h"
 #include "SkGr.h"
 #include "SkGrPriv.h"
@@ -242,7 +241,7 @@ void SkGpuDevice::replaceDrawContext(bool shouldRetainContent) {
 
     SkBudgeted budgeted = fDrawContext->drawContextPriv().isBudgeted();
 
-    sk_sp<GrDrawContext> newDC(MakeDrawContext(this->context(), 
+    sk_sp<GrDrawContext> newDC(MakeDrawContext(this->context(),
                                                budgeted,
                                                this->imageInfo(),
                                                fDrawContext->numColorSamples(),
@@ -1123,7 +1122,7 @@ void SkGpuDevice::drawSprite(const SkDraw& draw, const SkBitmap& bitmap,
 }
 
 
-void SkGpuDevice::drawSpecial(const SkDraw& draw, 
+void SkGpuDevice::drawSpecial(const SkDraw& draw,
                               SkSpecialImage* special1,
                               int left, int top,
                               const SkPaint& paint) {
@@ -1791,10 +1790,7 @@ SkBaseDevice* SkGpuDevice::onCreateDevice(const CreateInfo& cinfo, const SkPaint
                                                       kDefault_GrSurfaceOrigin,
                                                       &props));
     if (!dc) {
-        SkErrorInternals::SetError( kInternalError_SkError,
-                                    "---- failed to create gpu device texture [%d %d]\n",
-                                    cinfo.fInfo.width(), cinfo.fInfo.height());
-        return nullptr;    
+        return nullptr;
     }
 
     // Skia's convention is to only clear a device if it is non-opaque.

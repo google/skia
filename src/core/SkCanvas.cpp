@@ -14,7 +14,6 @@
 #include "SkDrawable.h"
 #include "SkDrawFilter.h"
 #include "SkDrawLooper.h"
-#include "SkErrorInternals.h"
 #include "SkImage.h"
 #include "SkImage_Base.h"
 #include "SkImageFilter.h"
@@ -1263,8 +1262,6 @@ void SkCanvas::internalSaveLayer(const SaveLayerRec& rec, SaveLayerStrategy stra
                                                                              preserveLCDText);
         newDevice.reset(priorDevice->onCreateDevice(createInfo, paint));
         if (!newDevice) {
-            SkErrorInternals::SetError(kInternalError_SkError,
-                                       "Unable to create device for layer.");
             return;
         }
     }
