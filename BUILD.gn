@@ -363,16 +363,19 @@ optional("gpu") {
                              "src/gpu/gl/GrGLDefaultInterface_none.cpp",
                            ],
                            "abspath")
+  libs = []
   if (is_android) {
     sources += [ "src/gpu/gl/android/GrGLCreateNativeInterface_android.cpp" ]
   } else if (is_linux) {
     sources += [ "src/gpu/gl/glx/GrGLCreateNativeInterface_glx.cpp" ]
   } else if (is_mac) {
     sources += [ "src/gpu/gl/mac/GrGLCreateNativeInterface_mac.cpp" ]
+  } else if (is_win) {
+    sources += [ "src/gpu/gl/win/GrGLCreateNativeInterface_win.cpp" ]
+    libs += [ "OpenGL32.lib" ]
   } else {
     sources += [ "src/gpu/gl/GrGLCreateNativeInterface_none.cpp" ]
   }
-  libs = []
 
   if (skia_use_vulkan) {
     public_defines += [ "SK_VULKAN" ]
