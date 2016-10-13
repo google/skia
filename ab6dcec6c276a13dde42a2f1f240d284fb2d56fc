@@ -69,6 +69,24 @@
       "revId": "ab6dcec6c276a13dde42a2f1f240d284fb2d56fc",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fcd24643_db8e0be3",
+        "filename": "src/effects/gradients/SkGradientShader.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 1408,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2016-10-13T20:07:15Z",
+      "side": 1,
+      "message": "I agree that parsing the substitutions can make this hard to read. Reverted to separate codeAppends for each line.",
+      "parentUuid": "fcd24643_1508d487",
+      "revId": "ab6dcec6c276a13dde42a2f1f240d284fb2d56fc",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
