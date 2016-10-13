@@ -14,6 +14,7 @@ declare_args() {
   skia_use_expat = true
   skia_use_fontconfig = is_linux
   skia_use_freetype = is_android || is_fuchsia || is_linux
+  skia_use_gdi = false
   skia_use_giflib = !is_fuchsia
   skia_use_libjpeg_turbo = true
   skia_use_libpng = true
@@ -542,7 +543,6 @@ component("skia") {
       "src/ports/SkDebug_win.cpp",
       "src/ports/SkFontHost_win.cpp",
       "src/ports/SkFontMgr_win_dw.cpp",
-      "src/ports/SkFontMgr_win_dw_factory.cpp",
       "src/ports/SkImageEncoder_WIC.cpp",
       "src/ports/SkImageGeneratorWIC.cpp",
       "src/ports/SkOSFile_win.cpp",
@@ -553,6 +553,15 @@ component("skia") {
       "src/xps/SkDocument_XPS.cpp",
       "src/xps/SkXPSDevice.cpp",
     ]
+    if (skia_use_gdi) {
+      sources += [ "src/ports/SkFontMgr_win_gdi_factory.cpp" ]
+      libs += [
+        "Gdi32.lib",
+        "Usp10.lib",
+      ]
+    } else {
+      sources += [ "src/ports/SkFontMgr_win_dw_factory.cpp" ]
+    }
     sources -=
         [ get_path_info("src/utils/SkThreadUtils_pthread.cpp", "abspath") ]
     libs += [
