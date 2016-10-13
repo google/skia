@@ -8,6 +8,7 @@
 
 #include "SkGraphics.h"
 
+#include "SkATrace.h"
 #include "SkBlitter.h"
 #include "SkCanvas.h"
 #include "SkCpu.h"
