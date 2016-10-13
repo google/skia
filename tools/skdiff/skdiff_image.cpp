@@ -10,8 +10,6 @@
 #include "SkData.h"
 #include "SkImageEncoder.h"
 #include "SkOSFile.h"
-#include "SkTDArray.h"
-#include "SkTemplates.h"
 #include "SkTypes.h"
 
 #include <stdio.h>
@@ -35,11 +33,11 @@ static void create_diff_images (DiffMetricProc dmp,
     drp->fComparison.fFullPath = comparisonFile;
     drp->fComparison.fStatus = DiffResource::kSpecified_Status;
 
-    SkAutoDataUnref baseFileBits(read_file(drp->fBase.fFullPath.c_str()));
+    sk_sp<SkData> baseFileBits = read_file(drp->fBase.fFullPath.c_str());
     if (baseFileBits) {
         drp->fBase.fStatus = DiffResource::kRead_Status;
     }
-    SkAutoDataUnref comparisonFileBits(read_file(drp->fComparison.fFullPath.c_str()));
+    sk_sp<SkData> comparisonFileBits = read_file(drp->fComparison.fFullPath.c_str());
     if (comparisonFileBits) {
         drp->fComparison.fStatus = DiffResource::kRead_Status;
     }
@@ -54,7 +52,7 @@ static void create_diff_images (DiffMetricProc dmp,
         return;
     }
 
-    if (are_buffers_equal(baseFileBits, comparisonFileBits)) {
+    if (are_buffers_equal(baseFileBits.get(), comparisonFileBits.get())) {
         drp->fResult = DiffRecord::kEqualBits_Result;
         return;
     }
