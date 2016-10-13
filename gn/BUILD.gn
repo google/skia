@@ -45,8 +45,14 @@ config("default") {
     cflags += [
       "/FS",  # Preserve previous PDB behavior.
       "/bigobj",  # Some of our files are bigger than the regular limits.
+      "/W3",  # Turn on lots of warnings.
+      "/WX",  # Treat warnings as errors.
+
+      # Disable a bunch of warnings:
+      "/wd4267",  # conversion from 'size_t' to 'int', possible loss of data
     ]
     defines += [
+      "_CRT_SECURE_NO_WARNINGS",  # Disables warnings about sscanf().
       "_HAS_EXCEPTIONS=0",
       "WIN32_LEAN_AND_MEAN",
       "NOMINMAX",
