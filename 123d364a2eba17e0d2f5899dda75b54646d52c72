@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "3c405ed3_ff1e7f20",
+        "filename": "src/core/SkColorSpaceXform.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 1287,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2016-10-13T21:43:00Z",
+      "side": 1,
+      "message": "Alternatively, I could have my own instance of SkResourceCache (rather than using this statically).  This seems easier and fine.\n\nJust wanted to check that this won\u0027t mess with caching of other things.",
+      "range": {
+        "startLine": 1287,
+        "startChar": 9,
+        "endLine": 1287,
+        "endChar": 24
+      },
+      "revId": "123d364a2eba17e0d2f5899dda75b54646d52c72",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
