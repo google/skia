@@ -43,7 +43,6 @@ config("default") {
 
   if (is_win) {
     cflags += [
-      "/FS",  # Preserve previous PDB behavior.
       "/bigobj",  # Some of our files are bigger than the regular limits.
       "/WX",  # Treat warnings as errors.
     ]
