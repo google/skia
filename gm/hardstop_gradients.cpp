@@ -14,15 +14,16 @@
  * order to highlight the differences between tile modes, the gradient
  * starts and ends at 30 pixel inset from either side of the rectangle.
  *
- *                            | Clamp         Repeat          Mirror
- * ___________________________|___________________________________________
- * 2-color                    | rect00        rect01          rect02
- * 3-color even               | rect10        rect11          rect12
- * 3-color texture            | rect20        rect21          rect22
- * 5-color hard stop          | rect30        rect31          rect32
- * 4-color hard stop centered | rect40        rect41          rect42
- * 3-color hard stop 001      | rect50        rect51          rect52
- * 3-color hard stop 011      | rect60        rect61          rect62
+ *                              | Clamp         Repeat          Mirror
+ * _____________________________|___________________________________________
+ * 2-color                      | rect00        rect01          rect02
+ * 3-color even                 | rect10        rect11          rect12
+ * 3-color texture              | rect20        rect21          rect22
+ * 5-color hard stop            | rect30        rect31          rect32
+ * 4-color hard stop centered   | rect40        rect41          rect42
+ * 3-color hard stop 001        | rect50        rect51          rect52
+ * 3-color hard stop 011        | rect60        rect61          rect62
+ * 4-color hard stop off-center | rect70        rect71          rect72
  *
  * The first three rows are cases covered by pre-hard-stop code; simple
  * 2-color gradients, 3-color gradients with the middle color centered,
@@ -32,7 +33,7 @@
  * is a generic hard stop gradient, while the three subsequent rows deal
  * with special cases of hard stop gradients; centered hard stop gradients
  * (with t-values 0, 0.5, 0.5, 1), and two edge cases (with t-values
- * 0, 0, 1 and 0, 1, 1).
+ * 0, 0, 1 and 0, 1, 1). The final row has a single off-center hard stop.
  */
 
 #include "gm.h"
@@ -42,7 +43,7 @@
 const int WIDTH  = 500;
 const int HEIGHT = 500;
 
-const int NUM_ROWS = 7;
+const int NUM_ROWS = 8;
 const int NUM_COLS = 3;
 
 const int CELL_WIDTH  = WIDTH  / NUM_COLS;
@@ -108,6 +109,7 @@ protected:
         SkScalar row5[] = {0.00f, 0.50f, 0.50f, 1.00f};
         SkScalar row6[] = {0.00f, 0.00f, 1.00f};
         SkScalar row7[] = {0.00f, 1.00f, 1.00f};
+        SkScalar row8[] = {0.00f, 0.30f, 0.30f, 1.00f};
 
         SkScalar* positions[NUM_ROWS] = {
             nullptr,
@@ -117,6 +119,7 @@ protected:
             row5,
             row6,
             row7,
+            row8,
         };
 
         int numGradientColors[NUM_ROWS] = {
@@ -127,6 +130,7 @@ protected:
             4,
             3,
             3,
+            4,
         };
 
         SkShader::TileMode tilemodes[NUM_COLS] = {
