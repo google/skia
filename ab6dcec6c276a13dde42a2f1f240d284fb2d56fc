@@ -2,6 +2,23 @@
   "comments": [
     {
       "key": {
+        "uuid": "1c78fafe_a97a39bb",
+        "filename": "gm/hardstop_gradients.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 26,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2016-10-13T18:07:14Z",
+      "side": 1,
+      "message": "nit: The new case is a 4-color hard stop off-center, to be consistent with the terminology used above in this table.",
+      "revId": "ab6dcec6c276a13dde42a2f1f240d284fb2d56fc",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "1c78fafe_66422ef8",
         "filename": "src/effects/gradients/SkGradientShader.cpp",
         "patchSetId": 2
@@ -13,6 +30,24 @@
       "writtenOn": "2016-10-13T17:19:26Z",
       "side": 1,
       "message": "Curious about how you feel about this R\"()\" usage. I\u0027d be happy to modify some of the other longer string appends in this file for consistency if people prefer it to lots of codeAppendfs() or separately quoting every line.",
+      "revId": "ab6dcec6c276a13dde42a2f1f240d284fb2d56fc",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1c78fafe_890add32",
+        "filename": "src/effects/gradients/SkGradientShader.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 1408,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2016-10-13T18:07:14Z",
+      "side": 1,
+      "message": "I like the R\"()\" usage, just to reduce the repetitive nature of the code, but without positional string formatting, it gets tough to see what\u0027s getting substituted everywhere. I\u0027m fine with it either way.",
+      "parentUuid": "1c78fafe_66422ef8",
       "revId": "ab6dcec6c276a13dde42a2f1f240d284fb2d56fc",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
