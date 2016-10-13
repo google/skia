@@ -364,6 +364,7 @@ toolchain("msvc") {
       "{{source_out_dir}}/{{target_output_name}}.{{source_name_part}}.obj",
     ]
     rspfile_content = "{{defines}} {{include_dirs}} {{cflags}} {{cflags_c}}"
+    description = "compile {{source}}"
   }
 
   tool("cxx") {
@@ -378,13 +379,13 @@ toolchain("msvc") {
       "{{source_out_dir}}/{{target_output_name}}.{{source_name_part}}.obj",
     ]
     rspfile_content = "{{defines}} {{include_dirs}} {{cflags}} {{cflags_cc}}"
+    description = "compile {{source}}"
   }
 
   tool("alink") {
     rspfile = "{{output}}.rsp"
 
-    command =
-        "$env_setup$bin/lib.exe /nologo {{arflags}} /OUT:{{output}} @$rspfile"
+    command = "$env_setup$bin/lib.exe /nologo /ignore:4221 {{arflags}} /OUT:{{output}} @$rspfile"
     outputs = [
       # Ignore {{output_extension}} and always use .lib, there's no reason to
       # allow targets to override this extension on Windows.
@@ -395,6 +396,7 @@ toolchain("msvc") {
 
     # inputs_newline works around a fixed per-line buffer size in the linker.
     rspfile_content = "{{inputs_newline}}"
+    description = "link {{output}}"
   }
 
   tool("link") {
@@ -413,10 +415,12 @@ toolchain("msvc") {
 
     # inputs_newline works around a fixed per-line buffer size in the linker.
     rspfile_content = "{{inputs_newline}} {{libs}} {{solibs}} {{ldflags}}"
+    description = "link {{output}}"
   }
 
   tool("stamp") {
     command = "cmd.exe /c echo > {{output}}"
+    description = "stamp {{output}}"
   }
 }
 
