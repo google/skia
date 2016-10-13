@@ -2,6 +2,29 @@
   "comments": [
     {
       "key": {
+        "uuid": "fcd24643_bb10ef65",
+        "filename": "src/core/SkATrace.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 66,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2016-10-13T20:23:50Z",
+      "side": 1,
+      "message": "will",
+      "range": {
+        "startLine": 66,
+        "startChar": 71,
+        "endLine": 66,
+        "endChar": 74
+      },
+      "revId": "01bacf59c3cc0555ae1c66f3c4471d123d5cbc5f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "3c405ed3_5f844b10",
         "filename": "src/core/SkGraphics.cpp",
         "patchSetId": 5
@@ -13,6 +36,29 @@
       "writtenOn": "2016-10-13T20:22:20Z",
       "side": 1,
       "message": "Probably can revert this?",
+      "revId": "01bacf59c3cc0555ae1c66f3c4471d123d5cbc5f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fcd24643_7b14974e",
+        "filename": "tools/viewer/Viewer.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 141,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2016-10-13T20:23:50Z",
+      "side": 1,
+      "message": "Would it hurt us to do this unconditionally in our tools?",
+      "range": {
+        "startLine": 141,
+        "startChar": 8,
+        "endLine": 141,
+        "endChar": 20
+      },
       "revId": "01bacf59c3cc0555ae1c66f3c4471d123d5cbc5f",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
