@@ -45,6 +45,8 @@ config("default") {
     cflags += [
       "/FS",  # Preserve previous PDB behavior.
       "/bigobj",  # Some of our files are bigger than the regular limits.
+      "/W3",
+      "/WX",
     ]
     defines += [
       "_HAS_EXCEPTIONS=0",
