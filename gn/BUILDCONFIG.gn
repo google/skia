@@ -110,6 +110,7 @@ template("component") {
 default_configs = [
   "//gn:default",
   "//gn:no_rtti",
+  "//gn:warnings",
 ]
 if (!is_debug) {
   default_configs += [ "//gn:release" ]

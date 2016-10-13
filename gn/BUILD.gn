@@ -45,9 +45,11 @@ config("default") {
     cflags += [
       "/FS",  # Preserve previous PDB behavior.
       "/bigobj",  # Some of our files are bigger than the regular limits.
+      "/WX",  # Treat warnings as errors.
     ]
     defines += [
-      "_HAS_EXCEPTIONS=0",
+      "_CRT_SECURE_NO_WARNINGS",  # Disables warnings about sscanf().
+      "_HAS_EXCEPTIONS=0",  # Disables exceptions in MSVC STL.
       "WIN32_LEAN_AND_MEAN",
       "NOMINMAX",
     ]
@@ -84,88 +86,14 @@ config("default") {
       "-fstrict-aliasing",
       "-fPIC",
       "-fvisibility=hidden",
-
       "-Werror",
-      "-Wall",
-      "-Wextra",
-      "-Winit-self",
-      "-Wpointer-arith",
-      "-Wsign-compare",
-      "-Wvla",
-
-      "-Wno-deprecated-declarations",
-      "-Wno-unused-parameter",
     ]
     cflags_cc += [
       "-std=c++11",
       "-fno-exceptions",
       "-fno-threadsafe-statics",
       "-fvisibility-inlines-hidden",
-
-      "-Wnon-virtual-dtor",
     ]
-    if (is_clang) {
-      cflags += [
-        "-Weverything",
-        "-Wno-unknown-warning-option",  # Let older Clangs ignore newer Clangs' warnings.
-      ]
-
-      if (is_android && target_cpu == "x86") {
-        # Clang seems to think new/malloc will only be 4-byte aligned on x86 Android.
-        # We're pretty sure it's actually 8-byte alignment.
-        cflags += [ "-Wno-over-aligned" ]
-      }
-
-      cflags += [
-        "-Wno-cast-align",
-        "-Wno-conditional-uninitialized",
-        "-Wno-conversion",
-        "-Wno-disabled-macro-expansion",
-        "-Wno-documentation",
-        "-Wno-documentation-unknown-command",
-        "-Wno-double-promotion",
-        "-Wno-exit-time-destructors",  # TODO: OK outside libskia
-        "-Wno-float-conversion",
-        "-Wno-float-equal",
-        "-Wno-format-nonliteral",
-        "-Wno-global-constructors",  # TODO: OK outside libskia
-        "-Wno-gnu-zero-variadic-macro-arguments",
-        "-Wno-missing-prototypes",
-        "-Wno-missing-variable-declarations",
-        "-Wno-pedantic",
-        "-Wno-reserved-id-macro",
-        "-Wno-shadow",
-        "-Wno-shift-sign-overflow",
-        "-Wno-sign-conversion",
-        "-Wno-switch-enum",
-        "-Wno-undef",
-        "-Wno-unreachable-code",
-        "-Wno-unreachable-code-break",
-        "-Wno-unreachable-code-return",
-        "-Wno-unused-macros",
-        "-Wno-unused-member-function",
-      ]
-      cflags_cc += [
-        "-Wno-abstract-vbase-init",
-        "-Wno-range-loop-analysis",
-        "-Wno-weak-vtables",
-      ]
-
-      # We are unlikely to want to fix these.
-      cflags += [
-        "-Wno-covered-switch-default",
-        "-Wno-deprecated",
-        "-Wno-implicit-fallthrough",
-        "-Wno-missing-noreturn",
-        "-Wno-old-style-cast",
-        "-Wno-padded",
-      ]
-      cflags_cc += [
-        "-Wno-c++98-compat",
-        "-Wno-c++98-compat-pedantic",
-        "-Wno-undefined-func-template",
-      ]
-    }
   }
 
   if (current_cpu == "arm") {
@@ -265,6 +193,101 @@ config("default") {
       cflags += [ "-fsanitize-memory-track-origins" ]
       cflags_cc += [ "-stdlib=libc++" ]
       ldflags += [ "-stdlib=libc++" ]
+    }
+  }
+}
+
+config("warnings") {
+  cflags = []
+  cflags_cc = []
+  if (is_win) {
+    cflags += [
+      "/W3",  # Turn on lots of warnings.
+
+      # Disable a bunch of warnings:
+      "/wd4244",  # conversion from 'float' to 'int', possible loss of data
+      "/wd4267",  # conversion from 'size_t' to 'int', possible loss of data
+      "/wd4800",  # forcing value to bool 'true' or 'false' (performance warning)
+
+      # Probably only triggers when /EHsc is enabled.
+      "/wd4291",  # no matching operator delete found;
+                  # memory will not be freed if initialization throws an exception
+    ]
+  } else {
+    cflags += [
+      "-Wall",
+      "-Wextra",
+      "-Winit-self",
+      "-Wpointer-arith",
+      "-Wsign-compare",
+      "-Wvla",
+
+      "-Wno-deprecated-declarations",
+      "-Wno-unused-parameter",
+    ]
+    cflags_cc += [ "-Wnon-virtual-dtor" ]
+
+    if (is_clang) {
+      cflags += [
+        "-Weverything",
+        "-Wno-unknown-warning-option",  # Let older Clangs ignore newer Clangs' warnings.
+      ]
+
+      if (is_android && target_cpu == "x86") {
+        # Clang seems to think new/malloc will only be 4-byte aligned on x86 Android.
+        # We're pretty sure it's actually 8-byte alignment.
+        cflags += [ "-Wno-over-aligned" ]
+      }
+
+      cflags += [
+        "-Wno-cast-align",
+        "-Wno-conditional-uninitialized",
+        "-Wno-conversion",
+        "-Wno-disabled-macro-expansion",
+        "-Wno-documentation",
+        "-Wno-documentation-unknown-command",
+        "-Wno-double-promotion",
+        "-Wno-exit-time-destructors",  # TODO: OK outside libskia
+        "-Wno-float-conversion",
+        "-Wno-float-equal",
+        "-Wno-format-nonliteral",
+        "-Wno-global-constructors",  # TODO: OK outside libskia
+        "-Wno-gnu-zero-variadic-macro-arguments",
+        "-Wno-missing-prototypes",
+        "-Wno-missing-variable-declarations",
+        "-Wno-pedantic",
+        "-Wno-reserved-id-macro",
+        "-Wno-shadow",
+        "-Wno-shift-sign-overflow",
+        "-Wno-sign-conversion",
+        "-Wno-switch-enum",
+        "-Wno-undef",
+        "-Wno-unreachable-code",
+        "-Wno-unreachable-code-break",
+        "-Wno-unreachable-code-return",
+        "-Wno-unused-macros",
+        "-Wno-unused-member-function",
+      ]
+      cflags_cc += [
+        "-Wno-abstract-vbase-init",
+        "-Wno-range-loop-analysis",
+        "-Wno-weak-vtables",
+      ]
+
+      # We are unlikely to want to fix these.
+      cflags += [
+        "-Wno-covered-switch-default",
+        "-Wno-deprecated",
+        "-Wno-implicit-fallthrough",
+        "-Wno-missing-noreturn",
+        "-Wno-old-style-cast",
+        "-Wno-padded",
+      ]
+      cflags_cc += [
+        "-Wno-c++98-compat",
+        "-Wno-c++98-compat-pedantic",
+        "-Wno-undefined-func-template",
+      ]
     }
   }
 }
