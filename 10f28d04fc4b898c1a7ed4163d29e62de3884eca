@@ -16,6 +16,24 @@
       "revId": "10f28d04fc4b898c1a7ed4163d29e62de3884eca",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fcd24643_db604b06",
+        "filename": "src/core/SkATrace.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 40,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2016-10-13T20:12:42Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "9c6eaae8_ef1081b4",
+      "revId": "10f28d04fc4b898c1a7ed4163d29e62de3884eca",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
