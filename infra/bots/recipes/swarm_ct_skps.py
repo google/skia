@@ -89,10 +89,17 @@ def RunSteps(api):
   skps_chromium_build = api.properties.get(
       'skps_chromium_build', DEFAULT_SKPS_CHROMIUM_BUILD)
 
-  # Set build property to make finding SKPs convenient.
-  api.step.active_result.presentation.properties['Location of SKPs'] = (
+  # Set build properties to make finding SKPs convenient.
+  webpage_rankings_link = (
+      'https://storage.cloud.google.com/%s/csv/top-1m.csv'
+          % api.ct.CT_GS_BUCKET)
+  api.step.active_result.presentation.properties['Webpage rankings'] = (
+      webpage_rankings_link)
+  download_skps_link = (
       'https://pantheon.corp.google.com/storage/browser/%s/swarming/skps/%s/%s/'
           % (api.ct.CT_GS_BUCKET, ct_page_type, skps_chromium_build))
+  api.step.active_result.presentation.properties['Download SKPs by rank'] = (
+      download_skps_link)
 
   # Delete swarming_temp_dir to ensure it starts from a clean slate.
   api.run.rmtree(api.swarming.swarming_temp_dir)
@@ -215,6 +222,11 @@ def RunSteps(api):
           )
 
     except api.step.StepFailure as e:
+      # Add SKP links for convenience.
+      api.step.active_result.presentation.links['Webpage rankings'] = (
+          webpage_rankings_link)
+      api.step.active_result.presentation.links['Download SKPs by rank'] = (
+          download_skps_link)
       failed_tasks.append(e)
 
   if failed_tasks:
