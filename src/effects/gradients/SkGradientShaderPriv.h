@@ -363,7 +363,7 @@ public:
         kTexture_ColorType,
 
 #if GR_GL_USE_ACCURATE_HARD_STOP_GRADIENTS
-        kHardStopCentered_ColorType,   // 0, 0.5, 0.5, 1
+        kSingleHardStop_ColorType,     // 0, t, t, 1
         kHardStopLeftEdged_ColorType,  // 0, 0, 1
         kHardStopRightEdged_ColorType, // 0, 1, 1
 #endif
@@ -510,6 +510,7 @@ private:
 
     SkScalar fCachedYCoord;
     GrGLSLProgramDataManager::UniformHandle fColorsUni;
+    GrGLSLProgramDataManager::UniformHandle fHardStopT;
     GrGLSLProgramDataManager::UniformHandle fFSYUni;
     GrGLSLProgramDataManager::UniformHandle fColorSpaceXformUni;
 
