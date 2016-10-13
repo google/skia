@@ -51,6 +51,24 @@
       "revId": "ab6dcec6c276a13dde42a2f1f240d284fb2d56fc",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fcd24643_1508d487",
+        "filename": "src/effects/gradients/SkGradientShader.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 1408,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2016-10-13T18:34:52Z",
+      "side": 1,
+      "message": "Going off of what Brian O said, I think it can be nice for long blocks of code without any substations. But once a line has a %* in it, I really want to be able to see the variable right next to that line. And the more substitutions in a block the worse this gets.",
+      "parentUuid": "1c78fafe_890add32",
+      "revId": "ab6dcec6c276a13dde42a2f1f240d284fb2d56fc",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
