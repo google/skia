@@ -45,8 +45,11 @@ config("default") {
     cflags += [
       "/FS",  # Preserve previous PDB behavior.
       "/bigobj",  # Some of our files are bigger than the regular limits.
+      "/W3",
+      "/WX",
     ]
     defines += [
+      "_CRT_SECURE_NO_WARNINGS",
       "_HAS_EXCEPTIONS=0",
       "WIN32_LEAN_AND_MEAN",
       "NOMINMAX",
