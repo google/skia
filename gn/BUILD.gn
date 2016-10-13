@@ -306,6 +306,7 @@ config("debug_symbols") {
     cflags = [ "-gline-tables-only" ]
   } else if (is_win) {
     cflags = [ "/Zi" ]
+    ldflags = [ "/DEBUG" ]
   } else {
     cflags = [ "-g" ]
   }
