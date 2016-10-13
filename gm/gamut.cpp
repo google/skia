@@ -7,9 +7,10 @@
 
 #include "gm.h"
 
-#include "SkSurface.h"
+#include "SkColorSpace_Base.h"
 #include "SkGradientShader.h"
 #include "SkPM4fPriv.h"
+#include "SkSurface.h"
 
 static const int gRectSize = 50;
 static const SkScalar gScalarSize = SkIntToScalar(gRectSize);
@@ -134,8 +135,8 @@ static void draw_gamut_grid(SkCanvas* canvas, SkTArray<SkAutoTDelete<CellRendere
         case kBGRA_8888_SkColorType:
             break;
         case kRGBA_F16_SkColorType:
-            srgbCS = srgbCS->makeLinearGamma();
-            wideCS = wideCS->makeLinearGamma();
+            srgbCS = as_CSB(srgbCS.get())->makeLinearGamma();
+            wideCS = as_CSB(wideCS.get())->makeLinearGamma();
             break;
         default:
             return;

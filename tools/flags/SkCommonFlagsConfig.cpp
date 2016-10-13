@@ -5,6 +5,7 @@
  * found in the LICENSE file.
  */
 
+#include "SkColorSpace_Base.h"
 #include "SkCommonFlagsConfig.h"
 #include "SkImageInfo.h"
 
@@ -303,7 +304,7 @@ static bool parse_option_gpu_color(const SkString& value,
     // Now pick a color type
     if (commands[0].equals("f16")) {
         *outColorType = kRGBA_F16_SkColorType;
-        *outColorSpace = colorSpace->makeLinearGamma();
+        *outColorSpace = as_CSB(colorSpace)->makeLinearGamma();
         return true;
     }
     if (commands[0].equals("srgb")) {

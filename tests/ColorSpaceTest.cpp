@@ -121,7 +121,7 @@ DEF_TEST(ColorSpaceSRGBLinearCompare, r) {
 
     // Create the linear sRGB color space via the sRGB color space's makeLinearGamma()
     sk_sp<SkColorSpace> viaSrgbColorSpace =
-        SkColorSpace::NewNamed(SkColorSpace::kSRGB_Named)->makeLinearGamma();
+        as_CSB(SkColorSpace::NewNamed(SkColorSpace::kSRGB_Named))->makeLinearGamma();
     REPORTER_ASSERT(r, namedColorSpace == viaSrgbColorSpace);
 
     // Create a linear sRGB color space by value

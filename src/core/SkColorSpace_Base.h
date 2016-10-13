@@ -179,6 +179,11 @@ public:
 
     const SkMatrix44& toXYZD50() const { return fToXYZD50; }
     const SkMatrix44& fromXYZD50() const;
+    
+    /**
+     *  Create an SkColorSpace with the same gamut as this color space, but with linear gamma.
+     */
+    sk_sp<SkColorSpace> makeLinearGamma();
 
 private:
 

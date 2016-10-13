@@ -287,7 +287,7 @@ sk_sp<SkColorSpace> SkColorSpace::NewNamed(Named named) {
     return nullptr;
 }
 
-sk_sp<SkColorSpace> SkColorSpace::makeLinearGamma() {
+sk_sp<SkColorSpace> SkColorSpace_Base::makeLinearGamma() {
     if (this->gammaIsLinear()) {
         return sk_ref_sp(this);
     }

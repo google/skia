@@ -12,6 +12,7 @@
 #include "SampleCode.h"
 #include "SkAnimTimer.h"
 #include "SkCanvas.h"
+#include "SkColorSpace_Base.h"
 #include "SkCommandLineFlags.h"
 #include "SkData.h"
 #include "SkDocument.h"
@@ -1675,7 +1676,7 @@ bool SampleWindow::onEvent(const SkEvent& evt) {
         }
         if (kRGBA_F16_SkColorType == gConfig[selected].fColorType) {
             SkASSERT(colorSpace);
-            colorSpace = colorSpace->makeLinearGamma();
+            colorSpace = as_CSB(colorSpace)->makeLinearGamma();
         }
         this->setDeviceColorType(gConfig[selected].fColorType, colorSpace);
         return true;

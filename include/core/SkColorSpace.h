@@ -107,11 +107,6 @@ public:
     static sk_sp<SkColorSpace> NewICC(const void*, size_t);
 
     /**
-     *  Create an SkColorSpace with the same gamut as this color space, but with linear gamma.
-     */
-    sk_sp<SkColorSpace> makeLinearGamma();
-
-    /**
      *  Returns true if the color space gamma is near enough to be approximated as sRGB.
      */
     bool gammaCloseToSRGB() const;

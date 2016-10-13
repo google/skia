@@ -459,8 +459,9 @@ static void create_config(const SkCommandLineConfig* config, SkTArray<Config>* c
         auto srgbColorSpace = SkColorSpace::NewNamed(SkColorSpace::kSRGB_Named);
         CPU_CONFIG(srgb, kRaster_Backend,
                    kN32_SkColorType,  kPremul_SkAlphaType, srgbColorSpace)
+        auto srgbLinearColorSpace = SkColorSpace::NewNamed(SkColorSpace::kSRGBLinear_Named);
         CPU_CONFIG(f16,  kRaster_Backend,
-                   kRGBA_F16_SkColorType, kPremul_SkAlphaType, srgbColorSpace->makeLinearGamma())
+                   kRGBA_F16_SkColorType, kPremul_SkAlphaType, srgbLinearColorSpace)
     }
 
     #undef CPU_CONFIG
