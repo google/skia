@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "9c6eaae8_ef1081b4",
+        "filename": "src/core/SkATrace.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 40,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2016-10-13T19:59:45Z",
+      "side": 1,
+      "message": "These would make much more sense now as object members.",
+      "revId": "10f28d04fc4b898c1a7ed4163d29e62de3884eca",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
