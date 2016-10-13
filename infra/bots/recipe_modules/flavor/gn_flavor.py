@@ -7,11 +7,13 @@ import default_flavor
 """GN flavor utils, used for building Skia with GN."""
 class GNFlavorUtils(default_flavor.DefaultFlavorUtils):
   def supported(self):
+    cpu_or_gpu   = self.m.vars.builder_cfg.get('cpu_or_gpu',   '')
     extra_config = self.m.vars.builder_cfg.get('extra_config', '')
     os           = self.m.vars.builder_cfg.get('os',           '')
     target_arch  = self.m.vars.builder_cfg.get('target_arch',  '')
 
     return any([
+      'CPU' == cpu_or_gpu and 'Win' in os,
       'CT' in extra_config,
       'SAN' in extra_config,
       extra_config == 'ANGLE' and 'Win' not in os,
