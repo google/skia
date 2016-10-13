@@ -98,7 +98,6 @@ class GNAndroidFlavorUtils(default_flavor.DefaultFlavorUtils):
       """,
       args=[self.m.vars.skia_out.join(self.m.vars.configuration)],
       infra_step=True)
-      self._adb('reboot', 'reboot')
       self._adb('kill adb server', 'kill-server')
 
   def step(self, name, cmd, env=None, **kwargs):

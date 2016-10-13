@@ -442,14 +442,6 @@
   {
     "cmd": [
       "adb",
-      "reboot"
-    ],
-    "cwd": "[SLAVE_BUILD]/skia",
-    "name": "reboot"
-  },
-  {
-    "cmd": [
-      "adb",
       "kill-server"
     ],
     "cwd": "[SLAVE_BUILD]/skia",
