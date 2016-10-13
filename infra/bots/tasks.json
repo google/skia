@@ -39,7 +39,7 @@
         "swarm_out_dir=${ISOLATED_OUTDIR}",
         "revision=<(REVISION)",
         "patch_storage=<(PATCH_STORAGE)",
-        "<(PATCH_STORAGE)=<(CODEREVIEW_SERVER)",
+        "rietveld=<(CODEREVIEW_SERVER)",
         "issue=<(ISSUE)",
         "patchset=<(PATCHSET)"
       ],
@@ -86,7 +86,7 @@
         "swarm_out_dir=${ISOLATED_OUTDIR}",
         "revision=<(REVISION)",
         "patch_storage=<(PATCH_STORAGE)",
-        "<(PATCH_STORAGE)=<(CODEREVIEW_SERVER)",
+        "rietveld=<(CODEREVIEW_SERVER)",
         "issue=<(ISSUE)",
         "patchset=<(PATCHSET)"
       ],
@@ -133,7 +133,7 @@
         "swarm_out_dir=${ISOLATED_OUTDIR}",
         "revision=<(REVISION)",
         "patch_storage=<(PATCH_STORAGE)",
-        "<(PATCH_STORAGE)=<(CODEREVIEW_SERVER)",
+        "rietveld=<(CODEREVIEW_SERVER)",
         "issue=<(ISSUE)",
         "patchset=<(PATCHSET)"
       ],
@@ -163,7 +163,7 @@
         "swarm_out_dir=${ISOLATED_OUTDIR}",
         "revision=<(REVISION)",
         "patch_storage=<(PATCH_STORAGE)",
-        "<(PATCH_STORAGE)=<(CODEREVIEW_SERVER)",
+        "rietveld=<(CODEREVIEW_SERVER)",
         "issue=<(ISSUE)",
         "patchset=<(PATCHSET)"
       ],
@@ -193,7 +193,7 @@
         "swarm_out_dir=${ISOLATED_OUTDIR}",
         "revision=<(REVISION)",
         "patch_storage=<(PATCH_STORAGE)",
-        "<(PATCH_STORAGE)=<(CODEREVIEW_SERVER)",
+        "rietveld=<(CODEREVIEW_SERVER)",
         "issue=<(ISSUE)",
         "patchset=<(PATCHSET)"
       ],
