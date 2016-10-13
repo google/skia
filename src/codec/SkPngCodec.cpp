@@ -8,7 +8,7 @@
 #include "SkBitmap.h"
 #include "SkCodecPriv.h"
 #include "SkColorPriv.h"
-#include "SkColorSpace_Base.h"
+#include "SkColorSpace.h"
 #include "SkColorTable.h"
 #include "SkMath.h"
 #include "SkOpts.h"
@@ -387,7 +387,7 @@ sk_sp<SkColorSpace> read_color_space(png_structp png_ptr, png_infop info_ptr) {
             gammas[1] = value;
             gammas[2] = value;
 
-            return SkColorSpace_Base::NewRGB(gammas, toXYZD50);
+            return SkColorSpace::NewRGB(gammas, toXYZD50);
         }
 
         // Default to sRGB gamma if the image has color space information,
@@ -408,7 +408,7 @@ sk_sp<SkColorSpace> read_color_space(png_structp png_ptr, png_infop info_ptr) {
         SkMatrix44 toXYZD50(SkMatrix44::kUninitialized_Constructor);
         toXYZD50.set3x3RowMajorf(gSRGB_toXYZD50);
 
-        return SkColorSpace_Base::NewRGB(gammas, toXYZD50);
+        return SkColorSpace::NewRGB(gammas, toXYZD50);
     }
 
 #endif // LIBPNG >= 1.6

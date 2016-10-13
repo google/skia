@@ -228,7 +228,7 @@ DEF_TEST(ColorSpace_Serialize, r) {
 
     const float gammas[] = { 1.1f, 1.2f, 1.7f, };
     SkMatrix44 toXYZ(SkMatrix44::kIdentity_Constructor);
-    test_serialize(r, SkColorSpace_Base::NewRGB(gammas, toXYZ).get(), false);
+    test_serialize(r, SkColorSpace::NewRGB(gammas, toXYZ).get(), false);
 
     SkColorSpaceTransferFn fn;
     fn.fA = 1.0f;
@@ -256,9 +256,9 @@ DEF_TEST(ColorSpace_Equals, r) {
     const float gammas1[] = { 1.1f, 1.2f, 1.3f, };
     const float gammas2[] = { 1.1f, 1.2f, 1.7f, };
     SkMatrix44 toXYZ(SkMatrix44::kIdentity_Constructor);
-    sk_sp<SkColorSpace> rgb1 = SkColorSpace_Base::NewRGB(gammas1, toXYZ);
-    sk_sp<SkColorSpace> rgb2 = SkColorSpace_Base::NewRGB(gammas2, toXYZ);
-    sk_sp<SkColorSpace> rgb3 = SkColorSpace_Base::NewRGB(gammas1, toXYZ);
+    sk_sp<SkColorSpace> rgb1 = SkColorSpace::NewRGB(gammas1, toXYZ);
+    sk_sp<SkColorSpace> rgb2 = SkColorSpace::NewRGB(gammas2, toXYZ);
+    sk_sp<SkColorSpace> rgb3 = SkColorSpace::NewRGB(gammas1, toXYZ);
 
     SkColorSpaceTransferFn fn;
     fn.fA = 1.0f;
