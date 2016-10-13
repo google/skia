@@ -9,7 +9,6 @@
 #include "SkBitmapProcState.h"
 #include "SkColor.h"
 #include "SkEmptyShader.h"
-#include "SkErrorInternals.h"
 #include "SkLightingShader.h"
 #include "SkMathPriv.h"
 #include "SkNormalSource.h"

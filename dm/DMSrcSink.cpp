@@ -17,7 +17,6 @@
 #include "SkData.h"
 #include "SkDeferredCanvas.h"
 #include "SkDocument.h"
-#include "SkError.h"
 #include "SkImageGenerator.h"
 #include "SkImageGeneratorCG.h"
 #include "SkImageGeneratorWIC.h"
@@ -1181,8 +1180,6 @@ GPUSink::GPUSink(GrContextFactory::ContextType ct,
     , fColorSpace(std::move(colorSpace))
     , fThreaded(threaded) {}
 
-void PreAbandonGpuContextErrorHandler(SkError, void*) {}
-
 DEFINE_bool(imm, false, "Run gpu configs in immediate mode.");
 DEFINE_bool(batchClip, false, "Clip each GrBatch to its device bounds for testing.");
 DEFINE_bool(batchBounds, false, "Draw a wireframe bounds of each GrBatch.");
@@ -1219,7 +1216,6 @@ Error GPUSink::draw(const Src& src, SkBitmap* dst, SkWStream*, SkString* log) co
         return "Could not create a surface.";
     }
     if (FLAGS_preAbandonGpuContext) {
-        SkSetErrorCallback(&PreAbandonGpuContextErrorHandler, nullptr);
         factory.abandonContexts();
     }
     SkCanvas* canvas = surface->getCanvas();

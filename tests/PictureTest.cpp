@@ -14,7 +14,6 @@
 #include "SkDashPathEffect.h"
 #include "SkData.h"
 #include "SkImageGenerator.h"
-#include "SkError.h"
 #include "SkImageEncoder.h"
 #include "SkImageGenerator.h"
 #include "SkMD5.h"
@@ -640,17 +639,6 @@ struct ErrorContext {
     skiatest::Reporter* fReporter;
 };
 
-static void assert_one_parse_error_cb(SkError error, void* context) {
-    ErrorContext* errorContext = static_cast<ErrorContext*>(context);
-    errorContext->fErrors++;
-    // This test only expects one error, and that is a kParseError. If there are others,
-    // there is some unknown problem.
-    REPORTER_ASSERT_MESSAGE(errorContext->fReporter, 1 == errorContext->fErrors,
-                            "This threw more errors than expected.");
-    REPORTER_ASSERT_MESSAGE(errorContext->fReporter, kParseError_SkError == error,
-                            SkGetLastErrorString());
-}
-
 static void md5(const SkBitmap& bm, SkMD5::Digest* digest) {
     SkAutoLockPixels autoLockPixels(bm);
     SkASSERT(bm.getPixels());
@@ -688,13 +676,9 @@ DEF_TEST(Picture_EncodedData, reporter) {
     ErrorContext context;
     context.fErrors = 0;
     context.fReporter = reporter;
-    SkSetErrorCallback(assert_one_parse_error_cb, &context);
     SkMemoryStream pictureStream(std::move(picture1));
-    SkClearLastError();
     sk_sp<SkPicture> pictureFromStream(SkPicture::MakeFromStream(&pictureStream));
     REPORTER_ASSERT(reporter, pictureFromStream.get() != nullptr);
-    SkClearLastError();
-    SkSetErrorCallback(nullptr, nullptr);
 
     // Test that using the version of CreateFromStream that just takes a stream also decodes the
     // bitmap. Drawing this picture should look exactly like the original bitmap.

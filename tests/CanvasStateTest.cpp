@@ -10,7 +10,6 @@
 #include "SkCanvasStateUtils.h"
 #include "SkCommandLineFlags.h"
 #include "SkDrawFilter.h"
-#include "SkError.h"
 #include "SkPaint.h"
 #include "SkRRect.h"
 #include "SkRect.h"
@@ -293,9 +292,6 @@ DEF_TEST(CanvasState_test_draw_filters, reporter) {
 
 ////////////////////////////////////////////////////////////////////////////////
 
-// we need this function to prevent SkError from printing to stdout
-static void error_callback(SkError code, void* ctx) {}
-
 DEF_TEST(CanvasState_test_soft_clips, reporter) {
     SkBitmap bitmap;
     bitmap.allocN32Pixels(10, 10);
@@ -306,13 +302,8 @@ DEF_TEST(CanvasState_test_soft_clips, reporter) {
 
     canvas.clipRRect(roundRect, SkCanvas::kIntersect_Op, true);
 
-    SkSetErrorCallback(error_callback, nullptr);
-
     SkCanvasState* state = SkCanvasStateUtils::CaptureCanvasState(&canvas);
     REPORTER_ASSERT(reporter, !state);
-
-    REPORTER_ASSERT(reporter, kInvalidOperation_SkError == SkGetLastError());
-    SkClearLastError();
 }
 
 #ifdef SK_SUPPORT_LEGACY_CLIPTOLAYERFLAG

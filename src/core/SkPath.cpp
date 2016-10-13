@@ -8,7 +8,6 @@
 #include <cmath>
 #include "SkBuffer.h"
 #include "SkCubicClipper.h"
-#include "SkErrorInternals.h"
 #include "SkGeometry.h"
 #include "SkMath.h"
 #include "SkPathPriv.h"
@@ -1205,10 +1204,6 @@ void SkPath::addRoundRect(const SkRect& rect, SkScalar rx, SkScalar ry,
     assert_known_direction(dir);
 
     if (rx < 0 || ry < 0) {
-        SkErrorInternals::SetError( kInvalidArgument_SkError,
-                                    "I got %f and %f as radii to SkPath::AddRoundRect, "
-                                    "but negative radii are not allowed.",
-                                    SkScalarToDouble(rx), SkScalarToDouble(ry) );
         return;
     }
 
@@ -1301,7 +1296,7 @@ void SkPath::arcTo(const SkRect& oval, SkScalar startAngle, SkScalar sweepAngle,
         // We cannot use SkScalarSinCos function in the next line because
         // SkScalarSinCos has a threshold *SkScalarNearlyZero*. When sin(startAngle)
         // is 0 and sweepAngle is very small and radius is huge, the expected
-        // behavior here is to draw a line. But calling SkScalarSinCos will 
+        // behavior here is to draw a line. But calling SkScalarSinCos will
         // make sin(endAngle) to be 0 which will then draw a dot.
         singlePt.set(oval.centerX() + radiusX * sk_float_cos(endAngle),
             oval.centerY() + radiusY * sk_float_sin(endAngle));
