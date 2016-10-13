@@ -324,6 +324,8 @@
         '<(skia_src_path)/core/SkTLList.h',
         '<(skia_src_path)/core/SkTLS.cpp',
         '<(skia_src_path)/core/SkTMultiMap.h',
+        '<(skia_src_path)/core/SkTrace.cpp',
+        '<(skia_src_path)/core/SkTrace.h',
         '<(skia_src_path)/core/SkTraceEvent.h',
         '<(skia_src_path)/core/SkTraceEventCommon.h',
         '<(skia_src_path)/core/SkTSearch.cpp',

@@ -15,6 +15,7 @@
 #include "SkCanvas.h"
 #include "SkCommonFlags.h"
 #include "SkDashPathEffect.h"
+#include "SkGraphics.h"
 #include "SkMetaData.h"
 #include "SkOSFile.h"
 #include "SkRandom.h"
@@ -123,6 +124,7 @@ Viewer::Viewer(int argc, char** argv, void* platformData)
     , fZoomLevel(0.0f)
     , fZoomScale(SK_Scalar1)
 {
+    SkGraphics::Init();
     memset(fMeasurements, 0, sizeof(fMeasurements));
 
     SkDebugf("Command line arguments: ");
