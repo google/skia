@@ -19,7 +19,7 @@ typedef SkLongArray(SkScriptCallBack*) SkTDScriptCallBackArray;
 
 class SkScriptRuntime {
 public:
-    enum SkError {
+    enum Error {
         kNoError,
         kArrayIndexOutOfBounds,
         kCouldNotFindReferencedID,
@@ -39,7 +39,7 @@ private:
     void track(SkOpArray* array);
     void track(SkString* string);
     SkTDScriptCallBackArray& fCallBackArray;
-    SkError fError;
+    Error fError;
     SkTDStack<SkOperand2> fRunStack;
     SkLongArray(SkOpArray*) fTrackArray;
     SkTDStringArray fTrackString;

@@ -10,7 +10,6 @@
 #include "SkCanvas.h"
 #include "SkCanvasStack.h"
 #include "SkDevice.h"
-#include "SkErrorInternals.h"
 #include "SkRasterClip.h"
 #include "SkWriter32.h"
 
@@ -202,8 +201,6 @@ SkCanvasState* SkCanvasStateUtils::CaptureCanvasState(SkCanvas* canvas) {
     ClipValidator validator;
     canvas->replayClips(&validator);
     if (validator.failed()) {
-        SkErrorInternals::SetError(kInvalidOperation_SkError,
-                "CaptureCanvasState does not support canvases with antialiased clips.\n");
         return nullptr;
     }
 
