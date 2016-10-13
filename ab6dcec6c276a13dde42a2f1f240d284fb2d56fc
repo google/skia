@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "fcd24643_fbb2e79a",
+        "filename": "gm/hardstop_gradients.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 26,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2016-10-13T20:09:05Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "1c78fafe_a97a39bb",
+      "revId": "ab6dcec6c276a13dde42a2f1f240d284fb2d56fc",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "1c78fafe_66422ef8",
         "filename": "src/effects/gradients/SkGradientShader.cpp",
         "patchSetId": 2
