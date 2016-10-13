@@ -1061,4 +1061,18 @@ if (skia_enable_tools) {
     ]
     testonly = true
   }
+
+  executable("skdiff") {
+    sources = [
+      "tools/skdiff/skdiff.cpp",
+      "tools/skdiff/skdiff_html.cpp",
+      "tools/skdiff/skdiff_main.cpp",
+      "tools/skdiff/skdiff_utils.cpp",
+    ]
+    deps = [
+      ":skia",
+      ":tool_utils",
+    ]
+    testonly = true
+  }
 }

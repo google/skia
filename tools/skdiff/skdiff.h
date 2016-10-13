@@ -73,7 +73,7 @@ struct DiffResource {
      */
     static bool getMatchingStatuses(char* selector, bool statuses[kStatusCount]);
 
-    DiffResource() : fFilename(), fFullPath(), fBitmap(), fStatus(kUnknown_Status) { };
+    DiffResource() : fFilename(), fFullPath(), fBitmap(), fStatus(kUnknown_Status) { }
 
     /** If isEmpty() indicates no filename available. */
     SkString fFilename;
@@ -125,7 +125,7 @@ struct DiffRecord {
         , fMaxMismatchG(0)
         , fMaxMismatchB(0)
         , fResult(kUnknown_Result) {
-    };
+    }
 
     DiffResource fBase;
     DiffResource fComparison;
