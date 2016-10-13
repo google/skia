@@ -62,6 +62,24 @@
       "revId": "01bacf59c3cc0555ae1c66f3c4471d123d5cbc5f",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fcd24643_9bb2d34f",
+        "filename": "tools/viewer/Viewer.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 141,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2016-10-13T20:32:52Z",
+      "side": 1,
+      "message": "I guess that idea is if we wanted to have other tracing backends that you can choose from when running a tool. In the current world there would be \"some\" but generally minimal overhead of just enabling this always.",
+      "parentUuid": "fcd24643_7b14974e",
+      "revId": "01bacf59c3cc0555ae1c66f3c4471d123d5cbc5f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
