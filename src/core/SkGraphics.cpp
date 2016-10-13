@@ -25,6 +25,7 @@
 #include "SkScalerContext.h"
 #include "SkShader.h"
 #include "SkStream.h"
+#include "SkTrace.h"
 #include "SkTSearch.h"
 #include "SkTime.h"
 #include "SkUtils.h"
@@ -48,6 +49,8 @@ void SkGraphics::Init() {
     // SkGraphics::Init() must be thread-safe and idempotent.
     SkCpu::CacheRuntimeFeatures();
     SkOpts::Init();
+    // Init SkTrace support
+    SkTrace::Init();
 }
 
 ///////////////////////////////////////////////////////////////////////////////

@@ -10,7 +10,7 @@
 #include "SkPictureCommon.h"
 #include "SkRecord.h"
 #include "SkRecordDraw.h"
-#include "SkTraceEvent.h"
+#include "SkTrace.h"
 
 SkBigPicture::SkBigPicture(const SkRect& cull,
                            SkRecord* record,
@@ -79,7 +79,7 @@ SkPicture const* const* SkBigPicture::drawablePicts() const {
 }
 
 void SkBigPicture::Analysis::init(const SkRecord& record) {
-    TRACE_EVENT0("disabled-by-default-skia", "SkBigPicture::Analysis::init()");
+    SK_TRACE("SkBigPicture::Analysis::init()");
     SkBitmapHunter bitmap;
     SkPathCounter  path;
 
