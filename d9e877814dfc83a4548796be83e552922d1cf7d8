@@ -22,6 +22,24 @@
       "revId": "d9e877814dfc83a4548796be83e552922d1cf7d8",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fc8b2631_42336016",
+        "filename": "src/core/SkTrace.h",
+        "patchSetId": 5
+      },
+      "lineNbr": 14,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2016-10-13T14:13:46Z",
+      "side": 1,
+      "message": "Probably, is chrome tracing actually used by Skia on Android currently? Or will we ever want to be doing a chrome trace instead of ATrace on android for local testing? I can easily add an else clause in the ctor that calls the chrome tracing when Atrace is no enabled if that is preferable.",
+      "parentUuid": "fc8b2631_a2a6c45b",
+      "revId": "d9e877814dfc83a4548796be83e552922d1cf7d8",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
