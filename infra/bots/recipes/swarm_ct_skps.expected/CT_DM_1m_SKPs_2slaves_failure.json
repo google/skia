@@ -387,7 +387,8 @@
     ],
     "name": "Copy Go binary",
     "~followup_annotations": [
-      "@@@SET_BUILD_PROPERTY@Location of SKPs@\"https://pantheon.corp.google.com/storage/browser/cluster-telemetry/swarming/skps/All/fad657e-276e633/\"@@@"
+      "@@@SET_BUILD_PROPERTY@Webpage rankings@\"https://storage.cloud.google.com/cluster-telemetry/csv/top-1m.csv\"@@@",
+      "@@@SET_BUILD_PROPERTY@Download SKPs by rank@\"https://pantheon.corp.google.com/storage/browser/cluster-telemetry/swarming/skps/All/fad657e-276e633/\"@@@"
     ]
   },
   {
@@ -1360,6 +1361,8 @@
       "@@@STEP_LOG_END@json.output@@@",
       "@@@STEP_LINK@shard #0 isolated out@blah@@@",
       "@@@STEP_LINK@view steps on Milo@https://luci-milo.appspot.com/swarming/task/148aa78d7aa0000@@@",
+      "@@@STEP_LINK@Webpage rankings@https://storage.cloud.google.com/cluster-telemetry/csv/top-1m.csv@@@",
+      "@@@STEP_LINK@Download SKPs by rank@https://pantheon.corp.google.com/storage/browser/cluster-telemetry/swarming/skps/All/fad657e-276e633/@@@",
       "@@@STEP_FAILURE@@@"
     ]
   },
@@ -1486,6 +1489,8 @@
       "@@@STEP_LOG_END@json.output@@@",
       "@@@STEP_LINK@shard #0 isolated out@blah@@@",
       "@@@STEP_LINK@view steps on Milo@https://luci-milo.appspot.com/swarming/task/148aa78d7aa0000@@@",
+      "@@@STEP_LINK@Webpage rankings@https://storage.cloud.google.com/cluster-telemetry/csv/top-1m.csv@@@",
+      "@@@STEP_LINK@Download SKPs by rank@https://pantheon.corp.google.com/storage/browser/cluster-telemetry/swarming/skps/All/fad657e-276e633/@@@",
       "@@@STEP_FAILURE@@@"
     ]
   },
@@ -1615,7 +1620,7 @@
   },
   {
     "name": "$result",
-    "reason": "Failed steps: ct-dm-1 on Ubuntu-14.04, ct-dm-3 on Ubuntu-14.04",
+    "reason": "Failed steps: ct-dm-1 on Ubuntu-14.04, ct-dm-3 on Ubuntu-14.04\n",
     "recipe_result": null,
     "status_code": 1
   }
