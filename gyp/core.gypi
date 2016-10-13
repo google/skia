@@ -21,6 +21,8 @@
         '<(skia_src_path)/core/SkAdvancedTypefaceMetrics.h',
         '<(skia_src_path)/core/SkAlphaRuns.cpp',
         '<(skia_src_path)/core/SkAntiRun.h',
+        '<(skia_src_path)/core/SkATrace.cpp',
+        '<(skia_src_path)/core/SkATrace.h',
         '<(skia_src_path)/core/SkAutoKern.h',
         '<(skia_src_path)/core/SkAutoPixmapStorage.h',
         '<(skia_src_path)/core/SkAutoPixmapStorage.cpp',
