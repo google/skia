@@ -43,6 +43,24 @@
     },
     {
       "key": {
+        "uuid": "fc8b2631_47ac529f",
+        "filename": "infra/bots/recipes/swarm_ct_skps.py",
+        "patchSetId": 3
+      },
+      "lineNbr": 103,
+      "author": {
+        "id": 5015
+      },
+      "writtenOn": "2016-10-13T11:20:47Z",
+      "side": 1,
+      "message": "I guess if you\u0027re adding build properties it doesn\u0027t matter which step adds them.  It might as well be as early as possible in case something gets interrupted.  Any reason why these aren\u0027t added to step_text? Personally I tend to ignore the build properties in favor of links in the step text.",
+      "parentUuid": "5c051249_f331aa59",
+      "revId": "8b9de16ba9ccec2d12bae0b973caeba232598fcf",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "5c051249_d3a3c698",
         "filename": "infra/bots/recipes/swarm_ct_skps.py",
         "patchSetId": 3
@@ -78,6 +96,24 @@
       "side": 1,
       "message": "Is that in api.step.active_result.presentation.step_text ?",
       "parentUuid": "5c051249_d3a3c698",
+      "revId": "8b9de16ba9ccec2d12bae0b973caeba232598fcf",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fc8b2631_67a14ea6",
+        "filename": "infra/bots/recipes/swarm_ct_skps.py",
+        "patchSetId": 3
+      },
+      "lineNbr": 239,
+      "author": {
+        "id": 5015
+      },
+      "writtenOn": "2016-10-13T11:20:47Z",
+      "side": 1,
+      "message": "step_result.presentation.links[name] \u003d url\n\nSee https://skia.googlesource.com/skia/+/master/infra/bots/recipe_modules/swarming/api.py#278 for an example",
+      "parentUuid": "5c051249_96b48c3b",
       "revId": "8b9de16ba9ccec2d12bae0b973caeba232598fcf",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
