@@ -89,12 +89,14 @@ public:
     /**
      *  Create an SkColorSpace from a transfer function and a color gamut.
      *
-     *  Transfer function can be specified as a render target or as the coefficients to an equation.
+     *  Transfer function can be specified as a render target, as the coefficients to an equation,
+     *  or as three exponents (R, G, B).
      *  Gamut is specified using the matrix transformation to XYZ D50.
      */
     static sk_sp<SkColorSpace> NewRGB(RenderTargetGamma gamma, const SkMatrix44& toXYZD50);
     static sk_sp<SkColorSpace> NewRGB(const SkColorSpaceTransferFn& coeffs,
                                       const SkMatrix44& toXYZD50);
+    static sk_sp<SkColorSpace> NewRGB(const float exponents[3], const SkMatrix44& toXYZD50);
 
     /**
      *  Create a common, named SkColorSpace.

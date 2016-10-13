@@ -138,7 +138,7 @@ static bool xyz_almost_equal(const SkMatrix44& toXYZD50, const float* standard) 
            color_space_almost_equal(toXYZD50.getFloat(3, 3), 1.0f);
 }
 
-sk_sp<SkColorSpace> SkColorSpace_Base::NewRGB(const float values[3], const SkMatrix44& toXYZD50) {
+sk_sp<SkColorSpace> SkColorSpace::NewRGB(const float values[3], const SkMatrix44& toXYZD50) {
     if (0.0f > values[0] || 0.0f > values[1] || 0.0f > values[2]) {
         return nullptr;
     }
@@ -560,7 +560,7 @@ sk_sp<SkColorSpace> SkColorSpace::Deserialize(const void* data, size_t length) {
 
             SkMatrix44 toXYZ(SkMatrix44::kUninitialized_Constructor);
             toXYZ.set3x4RowMajorf((const float*) data);
-            return SkColorSpace_Base::NewRGB(gammas, toXYZ);
+            return SkColorSpace::NewRGB(gammas, toXYZ);
         }
         case ColorSpaceHeader::kTransferFn_Flag: {
             if (length < 19 * sizeof(float)) {

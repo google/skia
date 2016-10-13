@@ -169,9 +169,6 @@ struct SkColorLookUpTable : public SkRefCnt {
 
 class SkColorSpace_Base : public SkColorSpace {
 public:
-
-    static sk_sp<SkColorSpace> NewRGB(const float gammas[3], const SkMatrix44& toXYZD50);
-
     SkGammaNamed gammaNamed() const { return fGammaNamed; }
     const SkGammas* gammas() const { return fGammas.get(); }
 
