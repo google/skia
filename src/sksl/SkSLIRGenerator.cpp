@@ -42,8 +42,8 @@
 #include "ir/SkSLTernaryExpression.h"
 #include "ir/SkSLUnresolvedFunction.h"
 #include "ir/SkSLVariable.h"
-#include "ir/SkSLVarDeclaration.h"
-#include "ir/SkSLVarDeclarationStatement.h"
+#include "ir/SkSLVarDeclarations.h"
+#include "ir/SkSLVarDeclarationsStatement.h"
 #include "ir/SkSLVariableReference.h"
 #include "ir/SkSLWhileStatement.h"
 
@@ -66,11 +66,26 @@ public:
     std::shared_ptr<SymbolTable> fPrevious;
 };
 
+class AutoLoopLevel {
+public:
+    AutoLoopLevel(IRGenerator* ir) 
+    : fIR(ir) {
+        fIR->fLoopLevel++;
+    }
+
+    ~AutoLoopLevel() {
+        fIR->fLoopLevel--;
+    }
+
+    IRGenerator* fIR;
+};
+
 IRGenerator::IRGenerator(const Context* context, std::shared_ptr<SymbolTable> symbolTable, 
                          ErrorReporter& errorReporter)
 : fContext(*context)
 , fCurrentFunction(nullptr)
 , fSymbolTable(std::move(symbolTable))
+, fLoopLevel(0)
 , fErrors(errorReporter) {}
 
 void IRGenerator::pushSymbolTable() {
@@ -235,21 +250,30 @@ std::unique_ptr<Statement> IRGenerator::convertIf(const ASTIfStatement& s) {
 }
 
 std::unique_ptr<Statement> IRGenerator::convertFor(const ASTForStatement& f) {
+    AutoLoopLevel level(this);
     AutoSymbolTable table(this);
-    std::unique_ptr<Statement> initializer = this->convertStatement(*f.fInitializer);
-    if (!initializer) {
-        return nullptr;
+    std::unique_ptr<Statement> initializer;
+    if (f.fInitializer) {
+        initializer = this->convertStatement(*f.fInitializer);
+        if (!initializer) {
+            return nullptr;
+        }
     }
-    std::unique_ptr<Expression> test = this->coerce(this->convertExpression(*f.fTest), 
-                                                    *fContext.fBool_Type);
-    if (!test) {
-        return nullptr;
+    std::unique_ptr<Expression> test;
+    if (f.fTest) {
+        test = this->coerce(this->convertExpression(*f.fTest), *fContext.fBool_Type);
+        if (!test) {
+            return nullptr;
+        }
     }
-    std::unique_ptr<Expression> next = this->convertExpression(*f.fNext);
-    if (!next) {
-        return nullptr;
+    std::unique_ptr<Expression> next;
+    if (f.fNext) {
+        next = this->convertExpression(*f.fNext);
+        if (!next) {
+            return nullptr;
+        }
+        this->checkValid(*next);
     }
-    this->checkValid(*next);
     std::unique_ptr<Statement> statement = this->convertStatement(*f.fStatement);
     if (!statement) {
         return nullptr;
@@ -260,6 +284,7 @@ std::unique_ptr<Statement> IRGenerator::convertFor(const ASTForStatement& f) {
 }
 
 std::unique_ptr<Statement> IRGenerator::convertWhile(const ASTWhileStatement& w) {
+    AutoLoopLevel level(this);
     std::unique_ptr<Expression> test = this->coerce(this->convertExpression(*w.fTest), 
                                                     *fContext.fBool_Type);
     if (!test) {
@@ -274,6 +299,7 @@ std::unique_ptr<Statement> IRGenerator::convertWhile(const ASTWhileStatement& w)
 }
 
 std::unique_ptr<Statement> IRGenerator::convertDo(const ASTDoStatement& d) {
+    AutoLoopLevel level(this);
     std::unique_ptr<Expression> test = this->coerce(this->convertExpression(*d.fTest),
                                                     *fContext.fBool_Type);
     if (!test) {
@@ -323,11 +349,21 @@ std::unique_ptr<Statement> IRGenerator::convertReturn(const ASTReturnStatement& 
 }
 
 std::unique_ptr<Statement> IRGenerator::convertBreak(const ASTBreakStatement& b) {
-    return std::unique_ptr<Statement>(new BreakStatement(b.fPosition));
+    if (fLoopLevel > 0) {
+        return std::unique_ptr<Statement>(new BreakStatement(b.fPosition));
+    } else {
+        fErrors.error(b.fPosition, "break statement must be inside a loop");
+        return nullptr;
+    }
 }
 
 std::unique_ptr<Statement> IRGenerator::convertContinue(const ASTContinueStatement& c) {
-    return std::unique_ptr<Statement>(new ContinueStatement(c.fPosition));
+    if (fLoopLevel > 0) {
+        return std::unique_ptr<Statement>(new ContinueStatement(c.fPosition));
+    } else {
+        fErrors.error(c.fPosition, "continue statement must be inside a loop");
+        return nullptr;
+    }
 }
 
 std::unique_ptr<Statement> IRGenerator::convertDiscard(const ASTDiscardStatement& d) {

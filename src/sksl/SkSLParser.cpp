@@ -806,6 +806,7 @@ std::unique_ptr<ASTForStatement> Parser::forStatement() {
     Token nextToken = this->peek();
     switch (nextToken.fKind) {
         case Token::SEMICOLON: 
+            this->nextToken();
             break;
         case Token::CONST:
             initializer = std::unique_ptr<ASTStatement>(new ASTVarDeclarationStatement(
@@ -832,7 +833,7 @@ std::unique_ptr<ASTForStatement> Parser::forStatement() {
         return nullptr;
     }
     std::unique_ptr<ASTExpression> next;
-    if (this->peek().fKind != Token::SEMICOLON) {
+    if (this->peek().fKind != Token::RPAREN) {
         next = this->expression();
         if (!next) {
             return nullptr;

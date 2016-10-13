@@ -45,7 +45,7 @@
 #include "ir/SkSLStatement.h"
 #include "ir/SkSLType.h"
 #include "ir/SkSLTypeReference.h"
-#include "ir/SkSLVarDeclaration.h"
+#include "ir/SkSLVarDeclarations.h"
 
 namespace SkSL {
 
@@ -116,9 +116,11 @@ private:
     const Context& fContext;
     const FunctionDeclaration* fCurrentFunction;
     std::shared_ptr<SymbolTable> fSymbolTable;
+    int fLoopLevel;
     ErrorReporter& fErrors;
 
     friend class AutoSymbolTable;
+    friend class AutoLoopLevel;
     friend class Compiler;
 };
 

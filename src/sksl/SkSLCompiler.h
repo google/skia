@@ -8,9 +8,11 @@
 #ifndef SKSL_COMPILER
 #define SKSL_COMPILER
 
+#include <set>
 #include <vector>
 #include "ir/SkSLProgram.h"
 #include "ir/SkSLSymbolTable.h"
+#include "SkSLCFGGenerator.h"
 #include "SkSLContext.h"
 #include "SkSLErrorReporter.h"
 #include "SkSLGLSLCodeGenerator.h"
@@ -52,6 +54,15 @@ public:
     void writeErrorCount();
 
 private:
+    void addDefinition(const Expression* lvalue, const Expression* expr,
+                       std::unordered_map<const Variable*, const Expression*>* definitions);
+ 
+    void addDefinitions(const BasicBlock::Node& node, 
+                        std::unordered_map<const Variable*, const Expression*>* definitions);
+
+    void scanCFG(CFG* cfg, BlockId block, std::set<BlockId>* workList);
+
+    void scanCFG(const FunctionDefinition& f);
 
     void internalConvertProgram(std::string text,
                                 Modifiers::Flag* defaultPrecision,

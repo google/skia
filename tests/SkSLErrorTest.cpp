@@ -181,7 +181,7 @@ DEF_TEST(SkSLUsingInvalidValue, r) {
 }
 DEF_TEST(SkSLDifferentReturnType, r) {
     test_failure(r,
-                 "int main() { } void main() { }", 
+                 "int main() { return 1; } void main() { }", 
                  "error: 1: functions 'void main()' and 'int main()' differ only in return type\n1 "
                  "error\n");
 }
@@ -277,4 +277,58 @@ DEF_TEST(SkSLInterfaceBlockStorageModifiers, r) {
     test_failure(r,
                  "uniform foo { out int x; };",
                  "error: 1: interface block fields may not have storage qualifiers\n1 error\n");
+}
+
+DEF_TEST(SkSLUseWithoutInitialize, r) {
+    test_failure(r,
+                 "void main() { int x; if (5 == 2) x = 3; x++; }",
+                 "error: 1: 'x' has not been assigned\n1 error\n");
+    test_failure(r,
+                 "void main() { int x[2][2]; int i; x[i][1] = 4; }",
+                 "error: 1: 'i' has not been assigned\n1 error\n");
+    test_failure(r,
+                 "int main() { int r; return r; }",
+                 "error: 1: 'r' has not been assigned\n1 error\n");
+    test_failure(r,
+                 "void main() { int x; int y = x; }",
+                 "error: 1: 'x' has not been assigned\n1 error\n");
+    test_failure(r,
+                 "void main() { bool x; if (true && (false || x)) return; }",
+                 "error: 1: 'x' has not been assigned\n1 error\n");
+}
+
+DEF_TEST(SkSLUnreachable, r) {
+    test_failure(r,
+                 "void main() { return; return; }",
+                 "error: 1: unreachable\n1 error\n");
+    test_failure(r,
+                 "void main() { for (;;) { continue; int x = 1; } }",
+                 "error: 1: unreachable\n1 error\n");
+    test_failure(r,
+                 "void main() { for (;;) { } return; }",
+                 "error: 1: unreachable\n1 error\n");
+    test_failure(r,
+                 "void main() { if (true) return; else discard; return; }",
+                 "error: 1: unreachable\n1 error\n");
+    test_failure(r,
+                 "void main() { return; while (true); }",
+                 "error: 1: unreachable\n1 error\n");
+}
+
+DEF_TEST(SkSLNoReturn, r) {
+    test_failure(r,
+                 "int foo() { if (2 > 5) return 3; }",
+                 "error: 1: function can exit without returning a value\n1 error\n");
+}
+
+DEF_TEST(SkSLBreakOutsideLoop, r) {
+    test_failure(r,
+                 "void foo() { while(true) {} if (true) break; }",
+                 "error: 1: break statement must be inside a loop\n1 error\n");
+}
+
+DEF_TEST(SkSLContinueOutsideLoop, r) {
+    test_failure(r,
+                 "void foo() { for(;;); continue; }",
+                 "error: 1: continue statement must be inside a loop\n1 error\n");
 }

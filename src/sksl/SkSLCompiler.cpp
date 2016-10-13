@@ -11,6 +11,7 @@
 #include <streambuf>
 
 #include "ast/SkSLASTPrecision.h"
+#include "SkSLCFGGenerator.h"
 #include "SkSLIRGenerator.h"
 #include "SkSLParser.h"
 #include "SkSLSPIRVCodeGenerator.h"
@@ -18,7 +19,7 @@
 #include "ir/SkSLIntLiteral.h"
 #include "ir/SkSLModifiersDeclaration.h"
 #include "ir/SkSLSymbolTable.h"
-#include "ir/SkSLVarDeclaration.h"
+#include "ir/SkSLVarDeclarations.h"
 #include "SkMutex.h"
 
 #define STRINGIFY(x) #x
@@ -141,6 +142,180 @@ Compiler::~Compiler() {
     delete fIRGenerator;
 }
 
+// add the definition created by assigning to the lvalue to the definition set
+void Compiler::addDefinition(const Expression* lvalue, const Expression* expr,
+                           std::unordered_map<const Variable*, const Expression*>* definitions) {
+    switch (lvalue->fKind) {
+        case Expression::kVariableReference_Kind: {
+            const Variable& var = ((VariableReference*) lvalue)->fVariable;
+            if (var.fStorage == Variable::kLocal_Storage) {
+                (*definitions)[&var] = expr;
+            }
+            break;
+        }
+        case Expression::kSwizzle_Kind:
+            // We consider the variable written to as long as at least some of its components have
+            // been written to. This will lead to some false negatives (we won't catch it if you
+            // write to foo.x and then read foo.y), but being stricter could lead to false positives
+            // (we write to foo.x, and then pass foo to a function which happens to only read foo.x, 
+            // but since we pass foo as a whole it is flagged as an error) unless we perform a much 
+            // more complicated whole-program analysis. This is probably good enough.
+            this->addDefinition(((Swizzle*) lvalue)->fBase.get(), 
+                                fContext.fDefined_Expression.get(), 
+                                definitions);
+            break;
+        case Expression::kIndex_Kind:
+            // see comments in Swizzle
+            this->addDefinition(((IndexExpression*) lvalue)->fBase.get(), 
+                                fContext.fDefined_Expression.get(), 
+                                definitions);
+            break;
+        case Expression::kFieldAccess_Kind:
+            // see comments in Swizzle
+            this->addDefinition(((FieldAccess*) lvalue)->fBase.get(), 
+                                fContext.fDefined_Expression.get(), 
+                                definitions);
+            break;
+        default:
+            // not an lvalue, can't happen
+            ASSERT(false);
+    }
+}
+
+// add local variables defined by this node to the set
+void Compiler::addDefinitions(const BasicBlock::Node& node, 
+                              std::unordered_map<const Variable*, const Expression*>* definitions) {
+    switch (node.fKind) {
+        case BasicBlock::Node::kExpression_Kind: {
+            const Expression* expr = (Expression*) node.fNode;
+            if (expr->fKind == Expression::kBinary_Kind) {
+                const BinaryExpression* b = (BinaryExpression*) expr;
+                if (b->fOperator == Token::EQ) {
+                    this->addDefinition(b->fLeft.get(), b->fRight.get(), definitions);
+                }
+            }
+            break;
+        }
+        case BasicBlock::Node::kStatement_Kind: {
+            const Statement* stmt = (Statement*) node.fNode;
+            if (stmt->fKind == Statement::kVarDeclarations_Kind) {
+                const VarDeclarationsStatement* vd = (VarDeclarationsStatement*) stmt;
+                for (const VarDeclaration& decl : vd->fDeclaration->fVars) {
+                    if (decl.fValue) {
+                        (*definitions)[decl.fVar] = decl.fValue.get();
+                    }
+                }
+            }
+            break;
+        }
+    }
+}
+
+void Compiler::scanCFG(CFG* cfg, BlockId blockId, std::set<BlockId>* workList) {
+    BasicBlock& block = cfg->fBlocks[blockId];
+
+    // compute definitions after this block
+    std::unordered_map<const Variable*, const Expression*> after = block.fBefore;
+    for (const BasicBlock::Node& n : block.fNodes) {
+        this->addDefinitions(n, &after);
+    }
+
+    // propagate definitions to exits
+    for (BlockId exitId : block.fExits) {
+        BasicBlock& exit = cfg->fBlocks[exitId];
+        for (const auto& pair : after) {
+            const Expression* e1 = pair.second;
+            if (exit.fBefore.find(pair.first) == exit.fBefore.end()) {
+                exit.fBefore[pair.first] = e1;
+            } else {
+                const Expression* e2 = exit.fBefore[pair.first];
+                if (e1 != e2) {
+                    // definition has changed, merge and add exit block to worklist
+                    workList->insert(exitId);
+                    if (!e1 || !e2) {
+                        exit.fBefore[pair.first] = nullptr;
+                    } else {
+                        exit.fBefore[pair.first] = fContext.fDefined_Expression.get();
+                    }
+                }
+            }
+        }
+    }
+}
+
+// returns a map which maps all local variables in the function to null, indicating that their value
+// is initially unknown
+static std::unordered_map<const Variable*, const Expression*> compute_start_state(const CFG& cfg) {
+    std::unordered_map<const Variable*, const Expression*> result;
+    for (const auto block : cfg.fBlocks) {
+        for (const auto node : block.fNodes) {
+            if (node.fKind == BasicBlock::Node::kStatement_Kind) {
+                const Statement* s = (Statement*) node.fNode;
+                if (s->fKind == Statement::kVarDeclarations_Kind) {
+                    const VarDeclarationsStatement* vd = (const VarDeclarationsStatement*) s;
+                    for (const VarDeclaration& decl : vd->fDeclaration->fVars) {
+                        result[decl.fVar] = nullptr;
+                    } 
+                }
+            }
+        }
+    }
+    return result;
+}
+
+void Compiler::scanCFG(const FunctionDefinition& f) {
+    CFG cfg = CFGGenerator().getCFG(f);
+
+    // compute the data flow
+    cfg.fBlocks[cfg.fStart].fBefore = compute_start_state(cfg);
+    std::set<BlockId> workList;
+    for (BlockId i = 0; i < cfg.fBlocks.size(); i++) {
+        workList.insert(i);
+    }
+    while (workList.size()) {
+        BlockId next = *workList.begin();
+        workList.erase(workList.begin());
+        this->scanCFG(&cfg, next, &workList);
+    }
+
+    // check for unreachable code
+    for (size_t i = 0; i < cfg.fBlocks.size(); i++) {
+        if (i != cfg.fStart && !cfg.fBlocks[i].fEntrances.size() && 
+            cfg.fBlocks[i].fNodes.size()) {
+            this->error(cfg.fBlocks[i].fNodes[0].fNode->fPosition, "unreachable");
+        }
+    }
+    if (fErrorCount) {
+        return;
+    }
+
+    // check for undefined variables
+    for (const BasicBlock& b : cfg.fBlocks) {
+        std::unordered_map<const Variable*, const Expression*> definitions = b.fBefore;
+        for (const BasicBlock::Node& n : b.fNodes) {
+            if (n.fKind == BasicBlock::Node::kExpression_Kind) {
+                const Expression* expr = (const Expression*) n.fNode;
+                if (expr->fKind == Expression::kVariableReference_Kind) {
+                    const Variable& var = ((VariableReference*) expr)->fVariable;
+                    if (var.fStorage == Variable::kLocal_Storage && 
+                        !definitions[&var]) {
+                        this->error(expr->fPosition,
+                                    "'" + var.fName + "' has not been assigned");
+                    } 
+                }
+            }
+            this->addDefinitions(n, &definitions);
+        }
+    }
+
+    // check for missing return
+    if (f.fDeclaration.fReturnType != *fContext.fVoid_Type) {
+        if (cfg.fBlocks[cfg.fExit].fEntrances.size()) {
+            this->error(f.fPosition, "function can exit without returning a value");
+        }
+    }
+}
+
 void Compiler::internalConvertProgram(std::string text,
                                       Modifiers::Flag* defaultPrecision,
                                       std::vector<std::unique_ptr<ProgramElement>>* result) {
@@ -165,7 +340,8 @@ void Compiler::internalConvertProgram(std::string text,
             case ASTDeclaration::kFunction_Kind: {
                 std::unique_ptr<FunctionDefinition> f = fIRGenerator->convertFunction(
                                                                                (ASTFunction&) decl);
-                if (f) {
+                if (!fErrorCount && f) {
+                    this->scanCFG(*f);
                     result->push_back(std::move(f));
                 }
                 break;

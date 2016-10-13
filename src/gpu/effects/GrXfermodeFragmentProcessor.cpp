@@ -98,10 +98,10 @@ void GLComposeTwoFragmentProcessor::emitCode(EmitArgs& args) {
     }
 
     // declare outputColor and emit the code for each of the two children
-    SkString srcColor("src");
+    SkString srcColor("xfer_src");
     this->emitChild(0, inputColor, &srcColor, args);
 
-    SkString dstColor("dst");
+    SkString dstColor("xfer_dst");
     this->emitChild(1, inputColor, &dstColor, args);
 
     // emit blend code

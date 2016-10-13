@@ -5,11 +5,11 @@
  * found in the LICENSE file.
  */
  
-#ifndef SKSL_VARDECLARATIONSTATEMENT
-#define SKSL_VARDECLARATIONSTATEMENT
+#ifndef SKSL_VARDECLARATIONSSTATEMENT
+#define SKSL_VARDECLARATIONSSTATEMENT
 
 #include "SkSLStatement.h"
-#include "SkSLVarDeclaration.h"
+#include "SkSLVarDeclarations.h"
 
 namespace SkSL {
 

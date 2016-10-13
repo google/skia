@@ -8,6 +8,7 @@
 #ifndef SKSL_INDEX
 #define SKSL_INDEX
 
+#include "SkSLContext.h"
 #include "SkSLExpression.h"
 #include "SkSLUtil.h"
 

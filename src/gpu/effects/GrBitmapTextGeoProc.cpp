@@ -63,13 +63,15 @@ public:
                              args.fFPCoordTransformHandler);
 
         if (cte.maskFormat() == kARGB_GrMaskFormat) {
-            fragBuilder->codeAppendf("%s = ", args.fOutputColor);
-            fragBuilder->appendTextureLookupAndModulate(args.fOutputColor,
-                                                        args.fTexSamplers[0],
-                                                        v.fsIn(),
-                                                        kVec2f_GrSLType);
-            fragBuilder->codeAppend(";");
-            fragBuilder->codeAppendf("%s = vec4(1);", args.fOutputCoverage);
+            if (!cte.colorIgnored()) {
+                fragBuilder->codeAppendf("%s = ", args.fOutputColor);
+                fragBuilder->appendTextureLookupAndModulate(args.fOutputColor,
+                                                            args.fTexSamplers[0],
+                                                            v.fsIn(),
+                                                            kVec2f_GrSLType);
+                fragBuilder->codeAppend(";");
+                fragBuilder->codeAppendf("%s = vec4(1);", args.fOutputCoverage);
+            }
         } else {
             fragBuilder->codeAppendf("%s = ", args.fOutputCoverage);
             fragBuilder->appendTextureLookup(args.fTexSamplers[0], v.fsIn(), kVec2f_GrSLType);

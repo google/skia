@@ -9,6 +9,7 @@
 #define SKSL_CONTEXT
 
 #include "ir/SkSLType.h"
+#include "ir/SkSLExpression.h"
 
 namespace SkSL {
 
@@ -114,7 +115,8 @@ public:
     , fUVec_Type(new Type("$uvec"))
     , fBVec_Type(new Type("$bvec", { fBVec2_Type.get(), fBVec2_Type.get(), fBVec3_Type.get(), 
                                      fBVec4_Type.get() }))
-    , fInvalid_Type(new Type("<INVALID>")) {}
+    , fInvalid_Type(new Type("<INVALID>"))
+    , fDefined_Expression(new Defined(*fInvalid_Type)) {}
 
     static std::vector<const Type*> static_type(const Type& t) {
         return { &t, &t, &t, &t };   
@@ -222,6 +224,24 @@ public:
     const std::unique_ptr<Type> fBVec_Type;
 
     const std::unique_ptr<Type> fInvalid_Type;
+
+    // dummy expression used to mark that a variable has a value during dataflow analysis (when it 
+    // could have several different values, or the analyzer is otherwise unable to assign it a
+    // specific expression)
+    const std::unique_ptr<Expression> fDefined_Expression;
+
+private:    
+    class Defined : public Expression {
+    public:
+        Defined(const Type& type)
+        : INHERITED(Position(), kDefined_Kind, type) {}
+
+        virtual std::string description() const override {
+            return "<defined>";
+        }
+
+        typedef Expression INHERITED;
+    };
 };
 
 } // namespace

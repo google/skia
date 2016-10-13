@@ -2529,8 +2529,10 @@ void SPIRVCodeGenerator::writeForStatement(const ForStatement& f, std::ostream& 
     this->writeInstruction(SpvOpLoopMerge, end, next, SpvLoopControlMaskNone, out);
     this->writeInstruction(SpvOpBranch, start, out);
     this->writeLabel(start, out);
-    SpvId test = this->writeExpression(*f.fTest, out);
-    this->writeInstruction(SpvOpBranchConditional, test, body, end, out);
+    if (f.fTest) {
+        SpvId test = this->writeExpression(*f.fTest, out);
+        this->writeInstruction(SpvOpBranchConditional, test, body, end, out);
+    }
     this->writeLabel(body, out);
     this->writeStatement(*f.fStatement, out);
     if (fCurrentBlock) {

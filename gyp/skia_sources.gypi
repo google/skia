@@ -124,6 +124,7 @@
     '../src/sksl',
   ],
   'sksl_sources': [
+    '../src/sksl/SkSLCFGGenerator.cpp',
     '../src/sksl/SkSLCompiler.cpp',
     '../src/sksl/SkSLIRGenerator.cpp',
     '../src/sksl/SkSLParser.cpp',
