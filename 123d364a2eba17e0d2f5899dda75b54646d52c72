@@ -22,6 +22,29 @@
       "revId": "123d364a2eba17e0d2f5899dda75b54646d52c72",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "3c405ed3_a292204c",
+        "filename": "src/core/SkColorSpaceXform_Base.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 103,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2016-10-13T21:43:54Z",
+      "side": 1,
+      "message": "This is a bit misleading.  Is it important for me to report the size of the allocation as well?",
+      "range": {
+        "startLine": 103,
+        "startChar": 47,
+        "endLine": 103,
+        "endChar": 75
+      },
+      "revId": "123d364a2eba17e0d2f5899dda75b54646d52c72",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
