@@ -24,6 +24,7 @@ class GNFlavorUtils(default_flavor.DefaultFlavorUtils):
       extra_config == 'NoGPU',
       extra_config.startswith('SK'),
       os == 'Ubuntu' and target_arch == 'x86',
+      'Win' in os and extra_config != 'Vulkan',
     ])
 
   def _strip_environment(self):

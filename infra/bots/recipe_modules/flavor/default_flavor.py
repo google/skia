@@ -131,16 +131,8 @@ class DefaultFlavorUtils(object):
     else:
       make_cmd = ['make']
     cmd = make_cmd + [target]
-    try:
-      self.m.run(self.m.step, 'build %s' % target, cmd=cmd,
-                 env=env, cwd=self.m.path['checkout'], **kwargs)
-    except self.m.step.StepFailure:
-      if self.m.platform.is_win:
-        # The linker occasionally crashes on Windows. Try again.
-        self.m.run(self.m.step, 'build %s' % target, cmd=cmd,
-                   env=env, cwd=self.m.path['checkout'], **kwargs)
-      else:
-        raise
+    self.m.run(self.m.step, 'build %s' % target, cmd=cmd,
+               env=env, cwd=self.m.path['checkout'], **kwargs)
 
   def copy_extra_build_products(self, swarming_out_dir):
     """Copy extra build products to specified directory.
