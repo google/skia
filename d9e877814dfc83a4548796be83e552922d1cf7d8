@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "fc8b2631_a2a6c45b",
+        "filename": "src/core/SkTrace.h",
+        "patchSetId": 5
+      },
+      "lineNbr": 14,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2016-10-13T13:57:59Z",
+      "side": 1,
+      "message": "Is this defined in clank builds? Concerned that we will wind up disabling chrome tracing there.",
+      "range": {
+        "startLine": 14,
+        "startChar": 7,
+        "endLine": 14,
+        "endChar": 27
+      },
+      "revId": "d9e877814dfc83a4548796be83e552922d1cf7d8",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
