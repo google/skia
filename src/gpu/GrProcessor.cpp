@@ -48,12 +48,13 @@ GrProcessorTestFactory<GrGeometryProcessor>::GetFactories() {
  * we verify the count is as expected.  If a new factory is added, then these numbers must be
  * manually adjusted.
  */
-static const int kFPFactoryCount = 41;
+static const int kFPFactoryCount = 40;
 static const int kGPFactoryCount = 14;
-static const int kXPFactoryCount = 6;
+static const int kXPFactoryCount = 5;
 
 template<>
 void GrProcessorTestFactory<GrFragmentProcessor>::VerifyFactoryCount() {
+    SkDebugf("GrFragmentProcessor: %d\n", GetFactories()->count());
     if (kFPFactoryCount != GetFactories()->count()) {
         SkFAIL("Wrong number of fragment processor factories!");
     }
@@ -61,6 +62,7 @@ void GrProcessorTestFactory<GrFragmentProcessor>::VerifyFactoryCount() {
 
 template<>
 void GrProcessorTestFactory<GrGeometryProcessor>::VerifyFactoryCount() {
+    SkDebugf("GrGeometryProcessor: %d\n", GetFactories()->count());
     if (kGPFactoryCount != GetFactories()->count()) {
         SkFAIL("Wrong number of geometry processor factories!");
     }
@@ -68,6 +70,7 @@ void GrProcessorTestFactory<GrGeometryProcessor>::VerifyFactoryCount() {
 
 template<>
 void GrProcessorTestFactory<GrXPFactory>::VerifyFactoryCount() {
+    SkDebugf("GrXPFactory: %d\n", GetFactories()->count());
     if (kXPFactoryCount != GetFactories()->count()) {
         SkFAIL("Wrong number of xp factory factories!");
     }

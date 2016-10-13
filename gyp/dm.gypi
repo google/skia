@@ -51,8 +51,6 @@
     '../tools/debugger/SkDrawCommand.cpp',
     '../tools/debugger/SkJsonWriteBuffer.cpp',
     '../tools/debugger/SkObjectParser.cpp',
-    '../tools/debugger/SkOverdrawMode.cpp',
-    '../tools/debugger/SkOverdrawMode.h',
   ],
   'conditions': [
     [ 'skia_gpu == 1', {
