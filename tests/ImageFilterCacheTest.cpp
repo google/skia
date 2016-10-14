@@ -197,7 +197,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(ImageFilterCache_ImageBackedGPU, reporter, ct
     }
 
     GrBackendTextureDesc backendDesc;
-    backendDesc.fConfig = kSkia8888_GrPixelConfig;
+    backendDesc.fConfig = kRGBA_8888_GrPixelConfig;
     backendDesc.fFlags = kNone_GrBackendTextureFlag;
     backendDesc.fWidth = kFullSize;
     backendDesc.fHeight = kFullSize;

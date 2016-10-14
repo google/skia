@@ -33,7 +33,7 @@ static const int gHeight = 480;
 DEF_GPUTEST_FOR_RENDERING_CONTEXTS(ResourceCacheCache, reporter, ctxInfo) {
     GrContext* context = ctxInfo.grContext();
     GrSurfaceDesc desc;
-    desc.fConfig = kSkia8888_GrPixelConfig;
+    desc.fConfig = kRGBA_8888_GrPixelConfig;
     desc.fFlags = kRenderTarget_GrSurfaceFlag;
     desc.fWidth = gWidth;
     desc.fHeight = gHeight;
@@ -84,7 +84,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(ResourceCacheStencilBuffers, reporter, ctxInf
     GrContext* context = ctxInfo.grContext();
     GrSurfaceDesc smallDesc;
     smallDesc.fFlags = kRenderTarget_GrSurfaceFlag;
-    smallDesc.fConfig = kSkia8888_GrPixelConfig;
+    smallDesc.fConfig = kRGBA_8888_GrPixelConfig;
     smallDesc.fWidth = 4;
     smallDesc.fHeight = 4;
     smallDesc.fSampleCnt = 0;
@@ -122,7 +122,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(ResourceCacheStencilBuffers, reporter, ctxInf
     // An RT with a much larger size should not share.
     GrSurfaceDesc bigDesc;
     bigDesc.fFlags = kRenderTarget_GrSurfaceFlag;
-    bigDesc.fConfig = kSkia8888_GrPixelConfig;
+    bigDesc.fConfig = kRGBA_8888_GrPixelConfig;
     bigDesc.fWidth = 400;
     bigDesc.fHeight = 200;
     bigDesc.fSampleCnt = 0;
