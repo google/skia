@@ -338,7 +338,7 @@
     ],
     "cwd": "[SLAVE_BUILD]/skia",
     "env": {
-      "ASAN_OPTIONS": "symbolize=1 detect_leaks=1",
+      "ASAN_OPTIONS": "symbolize=1 detect_leaks=1 detect_odr_violation=2",
       "LSAN_OPTIONS": "symbolize=1 print_suppressions=1",
       "PATH": "%(PATH)s:[SLAVE_BUILD]/clang_linux/bin",
       "UBSAN_OPTIONS": "symbolize=1 print_stacktrace=1"

@@ -142,7 +142,8 @@ class GNFlavorUtils(default_flavor.DefaultFlavorUtils):
       cmd = ['catchsegv'] + cmd
 
     if 'ASAN' == extra_config:
-      env[ 'ASAN_OPTIONS'] = 'symbolize=1 detect_leaks=1'
+      env[ 'ASAN_OPTIONS'] = \
+          'symbolize=1 detect_leaks=1 detect_odr_violation=2'
       env[ 'LSAN_OPTIONS'] = 'symbolize=1 print_suppressions=1'
       env['UBSAN_OPTIONS'] = 'symbolize=1 print_stacktrace=1'
 
