@@ -8,7 +8,6 @@
 #include "SkPM4fPriv.h"
 #include "SkUtils.h"
 #include "SkXfermode.h"
-#include "Sk4x4f.h"
 
 static SkPM4f rgba_to_pmcolor_order(const SkPM4f& x) {
 #ifdef SK_PMCOLOR_IS_BGRA
@@ -37,38 +36,6 @@ template <DstType D> Sk4f load_dst(SkPMColor dstC) {
 
 template <DstType D> uint32_t store_dst(const Sk4f& x4) {
     return (D == kSRGB_Dst) ? Sk4f_toS32(x4) : Sk4f_toL32(x4);
-}
-
-static Sk4x4f load_4_srgb(const void* vptr) {
-    auto ptr = (const uint32_t*)vptr;
-
-    Sk4x4f rgba;
-
-    rgba.r = { sk_linear_from_srgb[(ptr[0] >>  0) & 0xff],
-               sk_linear_from_srgb[(ptr[1] >>  0) & 0xff],
-               sk_linear_from_srgb[(ptr[2] >>  0) & 0xff],
-               sk_linear_from_srgb[(ptr[3] >>  0) & 0xff] };
-
-    rgba.g = { sk_linear_from_srgb[(ptr[0] >>  8) & 0xff],
-               sk_linear_from_srgb[(ptr[1] >>  8) & 0xff],
-               sk_linear_from_srgb[(ptr[2] >>  8) & 0xff],
-               sk_linear_from_srgb[(ptr[3] >>  8) & 0xff] };
-
-    rgba.b = { sk_linear_from_srgb[(ptr[0] >> 16) & 0xff],
-               sk_linear_from_srgb[(ptr[1] >> 16) & 0xff],
-               sk_linear_from_srgb[(ptr[2] >> 16) & 0xff],
-               sk_linear_from_srgb[(ptr[3] >> 16) & 0xff] };
-
-    rgba.a = SkNx_cast<float>((Sk4i::Load(ptr) >> 24) & 0xff) * (1/255.0f);
-
-    return rgba;
-}
-
-static void store_4_srgb(void* ptr, const Sk4x4f& p) {
-    ( sk_linear_to_srgb(p.r) <<  0
-    | sk_linear_to_srgb(p.g) <<  8
-    | sk_linear_to_srgb(p.b) << 16
-    | Sk4f_round(255.0f*p.a) << 24).store(ptr);
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
@@ -251,22 +218,6 @@ template <DstType D> void srcover_n(const SkXfermode*, uint32_t dst[],
             dst[i] = store_dst<D>(r4);
         }
     } else {
-        while (count >= 4 && D == kSRGB_Dst) {
-            auto d = load_4_srgb(dst);
-            auto s = Sk4x4f::Transpose(src->fVec);
-        #if defined(SK_PMCOLOR_IS_BGRA)
-            SkTSwap(s.r, s.b);
-        #endif
-            auto invSA = 1.0f - s.a;
-            auto r = s.r + d.r * invSA,
-                 g = s.g + d.g * invSA,
-                 b = s.b + d.b * invSA,
-                 a = s.a + d.a * invSA;
-            store_4_srgb(dst, Sk4x4f{r,g,b,a});
-            count -= 4;
-            dst += 4;
-            src += 4;
-        }
         for (int i = 0; i < count; ++i) {
             Sk4f s4 = src[i].to4f_pmorder();
             Sk4f d4 = load_dst<D>(dst[i]);
@@ -328,21 +279,6 @@ static void srcover_srgb_dst_1(const SkXfermode*, uint32_t dst[],
             dst[i] = Sk4f_toS32(r4);
         }
     } else {
-        while (count >= 4) {
-            auto d = load_4_srgb(dst);
-            auto s = Sk4x4f{{ src->r() }, { src->g() }, { src->b() }, { src->a() }};
-        #if defined(SK_PMCOLOR_IS_BGRA)
-            SkTSwap(s.r, s.b);
-        #endif
-            auto invSA = 1.0f - s.a;
-            auto r = s.r + d.r * invSA,
-                 g = s.g + d.g * invSA,
-                 b = s.b + d.b * invSA,
-                 a = s.a + d.a * invSA;
-            store_4_srgb(dst, Sk4x4f{r,g,b,a});
-            count -= 4;
-            dst += 4;
-        }
         for (int i = 0; i < count; ++i) {
             Sk4f d4 = Sk4f_fromS32(dst[i]);
             dst[i] = Sk4f_toS32(s4 + d4 * dst_scale);

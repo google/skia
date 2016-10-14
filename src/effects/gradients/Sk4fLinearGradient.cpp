@@ -6,7 +6,6 @@
  */
 
 #include "Sk4fLinearGradient.h"
-#include "Sk4x4f.h"
 #include "SkXfermode.h"
 
 namespace {
@@ -48,20 +47,26 @@ template<>
 void ramp<DstType::S32, ApplyPremul::False>(const Sk4f& c, const Sk4f& dc, SkPMColor dst[], int n) {
     SkASSERT(n > 0);
 
-    const Sk4f    dc4 = dc * 4;
-    const Sk4x4f dc4x = { Sk4f(dc4[0]), Sk4f(dc4[1]), Sk4f(dc4[2]), Sk4f(dc4[3]) };
-    Sk4x4f        c4x = Sk4x4f::Transpose(c, c + dc, c + dc * 2, c + dc * 3);
+    const Sk4f dc4  = dc * 4;
+    const Sk4f dc4r = dc4[0],
+               dc4g = dc4[1],
+               dc4b = dc4[2],
+               dc4a = dc4[3];
+    Sk4f c4r = { c[0], (c+dc)[0], (c+dc*2)[0], (c+dc*3)[0] },
+         c4g = { c[1], (c+dc)[1], (c+dc*2)[1], (c+dc*3)[1] },
+         c4b = { c[2], (c+dc)[2], (c+dc*2)[2], (c+dc*3)[2] },
+         c4a = { c[3], (c+dc)[3], (c+dc*2)[3], (c+dc*3)[3] };
 
     while (n >= 4) {
-        ( sk_linear_to_srgb(c4x.r) <<  0
-        | sk_linear_to_srgb(c4x.g) <<  8
-        | sk_linear_to_srgb(c4x.b) << 16
-        | Sk4f_round(255.0f*c4x.a) << 24).store(dst);
+        ( sk_linear_to_srgb(c4r) <<  0
+        | sk_linear_to_srgb(c4g) <<  8
+        | sk_linear_to_srgb(c4b) << 16
+        | Sk4f_round(255.0f*c4a) << 24).store(dst);
 
-        c4x.r += dc4x.r;
-        c4x.g += dc4x.g;
-        c4x.b += dc4x.b;
-        c4x.a += dc4x.a;
+        c4r += dc4r;
+        c4g += dc4g;
+        c4b += dc4b;
+        c4a += dc4a;
 
         dst += 4;
         n   -= 4;
@@ -69,14 +74,14 @@ void ramp<DstType::S32, ApplyPremul::False>(const Sk4f& c, const Sk4f& dc, SkPMC
 
     if (n & 2) {
         DstTraits<DstType::S32, ApplyPremul::False>
-            ::store(Sk4f(c4x.r[0], c4x.g[0], c4x.b[0], c4x.a[0]), dst++);
+            ::store(Sk4f(c4r[0], c4g[0], c4b[0], c4a[0]), dst++);
         DstTraits<DstType::S32, ApplyPremul::False>
-            ::store(Sk4f(c4x.r[1], c4x.g[1], c4x.b[1], c4x.a[1]), dst++);
+            ::store(Sk4f(c4r[1], c4g[1], c4b[1], c4a[1]), dst++);
     }
 
     if (n & 1) {
         DstTraits<DstType::S32, ApplyPremul::False>
-            ::store(Sk4f(c4x.r[n & 2], c4x.g[n & 2], c4x.b[n & 2], c4x.a[n & 2]), dst);
+            ::store(Sk4f(c4r[n & 2], c4g[n & 2], c4b[n & 2], c4a[n & 2]), dst);
     }
 }
 
