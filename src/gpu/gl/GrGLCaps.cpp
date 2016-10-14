@@ -52,7 +52,7 @@ GrGLCaps::GrGLCaps(const GrContextOptions& contextOptions,
     fRGBAToBGRAReadbackConversionsAreSlow = false;
     fDoManualMipmapping = false;
 
-    fBlitFramebufferSupport = kNone_BlitFramebufferSupport;
+    fBlitFramebufferFlags = kNoSupport_BlitFramebufferFlag;
 
     fShaderCaps.reset(new GrGLSLCaps(contextOptions));
 
@@ -919,8 +919,6 @@ bool GrGLCaps::readPixelsSupported(GrPixelConfig rtConfig,
 }
 
 void GrGLCaps::initFSAASupport(const GrGLContextInfo& ctxInfo, const GrGLInterface* gli) {
-
-    fMSFBOType = kNone_MSFBOType;
     if (kGL_GrGLStandard != ctxInfo.standard()) {
         // We prefer the EXT/IMG extension over ES3 MSAA because we've observed
         // ES3 driver bugs on at least one device with a tiled GPU (N10).
@@ -940,24 +938,28 @@ void GrGLCaps::initFSAASupport(const GrGLContextInfo& ctxInfo, const GrGLInterfa
         // Above determined the preferred MSAA approach, now decide whether glBlitFramebuffer
         // is available.
         if (ctxInfo.version() >= GR_GL_VER(3, 0)) {
-            fBlitFramebufferSupport = kFull_BlitFramebufferSupport;
+            fBlitFramebufferFlags = kNoFormatConversionForMSAASrc_BlitFramebufferFlag |
+                                    kRectsMustMatchForMSAASrc_BlitFramebufferFlag;
         } else if (ctxInfo.hasExtension("GL_CHROMIUM_framebuffer_multisample")) {
             // The CHROMIUM extension uses the ANGLE version of glBlitFramebuffer and includes its
             // limitations.
-            fBlitFramebufferSupport = kNoScalingNoMirroring_BlitFramebufferSupport;
+            fBlitFramebufferFlags = kNoScalingOrMirroring_BlitFramebufferFlag |
+                                    kResolveMustBeFull_BlitFrambufferFlag |
+                                    kNoMSAADst_BlitFramebufferFlag |
+                                    kNoFormatConversion_BlitFramebufferFlag;
         }
     } else {
         if (fUsesMixedSamples) {
             fMSFBOType = kMixedSamples_MSFBOType;
-            fBlitFramebufferSupport = kFull_BlitFramebufferSupport;
+            fBlitFramebufferFlags = 0;
         } else if (ctxInfo.version() >= GR_GL_VER(3,0) ||
                    ctxInfo.hasExtension("GL_ARB_framebuffer_object")) {
             fMSFBOType = kStandard_MSFBOType;
-            fBlitFramebufferSupport = kFull_BlitFramebufferSupport;
+            fBlitFramebufferFlags = 0;
         } else if (ctxInfo.hasExtension("GL_EXT_framebuffer_multisample") &&
                    ctxInfo.hasExtension("GL_EXT_framebuffer_blit")) {
             fMSFBOType = kEXT_MSFBOType;
-            fBlitFramebufferSupport = kFull_BlitFramebufferSupport;
+            fBlitFramebufferFlags = 0;
         }
     }
 }
