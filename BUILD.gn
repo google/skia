@@ -118,10 +118,19 @@ config("skia_private") {
   lib_dirs = []
   if (skia_use_vulkan) {
     if (skia_vulkan_sdk != "") {
-      include_dirs += [ "$skia_vulkan_sdk/x86_64/include/" ]
-      lib_dirs += [ "$skia_vulkan_sdk/x86_64/lib/" ]
+      if (is_win) {
+        include_dirs += [ "$skia_vulkan_sdk/Include/" ]
+        lib_dirs += [ "$skia_vulkan_sdk/Bin" ]
+      } else {
+        include_dirs += [ "$skia_vulkan_sdk/x86_64/include/" ]
+        lib_dirs += [ "$skia_vulkan_sdk/x86_64/lib/" ]
+      }
     }
-    libs += [ "vulkan" ]
+    if (is_win) {
+      libs += [ "vulkan-1.lib" ]
+    } else {
+      libs += [ "vulkan" ]
+    }
   }
 }
 
