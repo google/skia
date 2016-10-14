@@ -73,19 +73,14 @@ public:
         kLast_MSFBOType = kMixedSamples_MSFBOType
     };
 
-    enum BlitFramebufferSupport {
-        kNone_BlitFramebufferSupport,
-        /**
-         * ANGLE exposes a limited blit framebuffer extension that does not allow for stretching
-         * or mirroring.
-         */
-        kNoScalingNoMirroring_BlitFramebufferSupport,
-        /**
-         * ES3 has restricted support when the src is MSAA: src rect == dst rect, dst format == src
-         * format.
-         */
-        kRectsAndFormatsMatchForMSAASrc_BlitFramebufferSupport,
-        kFull_BlitFramebufferSupport
+    enum BlitFramebufferFlags {
+        kNoSupport_BlitFramebufferFlag                    = 1 << 0,
+        kNoScalingOrMirroring_BlitFramebufferFlag         = 1 << 1,
+        kResolveMustBeFull_BlitFrambufferFlag             = 1 << 2,
+        kNoMSAADst_BlitFramebufferFlag                    = 1 << 3,
+        kNoFormatConversion_BlitFramebufferFlag           = 1 << 4,
+        kNoFormatConversionForMSAASrc_BlitFramebufferFlag = 1 << 5,
+        kRectsMustMatchForMSAASrc_BlitFramebufferFlag     = 1 << 6,
     };
 
     enum InvalidateFBType {
@@ -235,7 +230,7 @@ public:
     /**
      * What functionality is supported by glBlitFramebuffer.
      */
-    BlitFramebufferSupport blitFramebufferSupport() const { return fBlitFramebufferSupport; }
+    uint32_t blitFramebufferSupportFlags() const { return fBlitFramebufferFlags; }
 
     /**
      * Is the MSAA FBO extension one where the texture is multisampled when bound to an FBO and
@@ -419,7 +414,7 @@ private:
     bool fRGBAToBGRAReadbackConversionsAreSlow : 1;
     bool fDoManualMipmapping : 1;
 
-    BlitFramebufferSupport fBlitFramebufferSupport;
+    uint32_t fBlitFramebufferFlags;
 
     /** Number type of the components (with out considering number of bits.) */
     enum FormatType {

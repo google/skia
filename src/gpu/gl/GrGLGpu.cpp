@@ -2921,18 +2921,27 @@ void GrGLGpu::onResolveRenderTarget(GrRenderTarget* target) {
                 this->disableWindowRectangles();
                 GL_CALL(ResolveMultisampleFramebuffer());
             } else {
-                GrGLIRect r;
-                r.setRelativeTo(vp, dirtyRect.fLeft, dirtyRect.fTop,
-                                dirtyRect.width(), dirtyRect.height(), target->origin());
-
-                int right = r.fLeft + r.fWidth;
-                int top = r.fBottom + r.fHeight;
+                int l, b, r, t;
+                if (GrGLCaps::kResolveMustBeFull_BlitFrambufferFlag &
+                    this->glCaps().blitFramebufferSupportFlags()) {
+                    l = 0;
+                    b = 0;
+                    r = target->width();
+                    t = target->height();
+                } else {
+                    GrGLIRect rect;
+                    rect.setRelativeTo(vp, dirtyRect.fLeft, dirtyRect.fTop,
+                                       dirtyRect.width(), dirtyRect.height(), target->origin());
+                    l = rect.fLeft;
+                    b = rect.fBottom;
+                    r = rect.fLeft + rect.fWidth;
+                    t = rect.fBottom + rect.fHeight;
+                }
 
                 // BlitFrameBuffer respects the scissor, so disable it.
                 this->disableScissor();
                 this->disableWindowRectangles();
-                GL_CALL(BlitFramebuffer(r.fLeft, r.fBottom, right, top,
-                                        r.fLeft, r.fBottom, right, top,
+                GL_CALL(BlitFramebuffer(l, b, r, t, l, b, r, t,
                                         GR_GL_COLOR_BUFFER_BIT, GR_GL_NEAREST));
             }
         }
@@ -3472,45 +3481,64 @@ void GrGLGpu::setScratchTextureUnit() {
     fHWBoundTextureUniqueIDs[lastUnitIdx] = SK_InvalidUniqueID;
 }
 
-// Determines whether glBlitFramebuffer could be used between src and dst.
-static inline bool can_blit_framebuffer(const GrSurface* dst,
-                                        const GrSurface* src,
-                                        const GrGLGpu* gpu) {
-    if (gpu->glCaps().isConfigRenderable(dst->config(), dst->desc().fSampleCnt > 0) &&
-        gpu->glCaps().isConfigRenderable(src->config(), src->desc().fSampleCnt > 0)) {
-        switch (gpu->glCaps().blitFramebufferSupport()) {
-            case GrGLCaps::kNone_BlitFramebufferSupport:
-                return false;
-            case GrGLCaps::kNoScalingNoMirroring_BlitFramebufferSupport:
-                // Our copy surface doesn't support scaling so just check for mirroring.
-                if (dst->origin() != src->origin()) {
-                    return false;
-                }
-                break;
-                // ES3 doesn't allow framebuffer blits when the src has MSAA and the configs don't
-                // match or the rects are not the same (not just the same size but have the same
-                // edges).
-            case GrGLCaps::kRectsAndFormatsMatchForMSAASrc_BlitFramebufferSupport:
-                if ((src->desc().fSampleCnt > 0 || src->config() != dst->config())) {
-                    return false;
-                }
-                break;
-
-            case GrGLCaps::kFull_BlitFramebufferSupport:
-                return true;
-        }
-        const GrGLTexture* dstTex = static_cast<const GrGLTexture*>(dst->asTexture());
-        if (dstTex && dstTex->target() != GR_GL_TEXTURE_2D) {
-            return false;
-        }
-        const GrGLTexture* srcTex = static_cast<const GrGLTexture*>(dst->asTexture());
-        if (srcTex && srcTex->target() != GR_GL_TEXTURE_2D) {
-            return false;
-        }
-        return true;
-    } else {
+// Determines whether glBlitFramebuffer could be used between src and dst by onCopySurface.
+static inline bool can_blit_framebuffer_for_copy_surface(const GrSurface* dst,
+                                                         const GrSurface* src,
+                                                         const SkIRect& srcRect,
+                                                         const SkIPoint& dstPoint,
+                                                         const GrGLGpu* gpu) {
+    auto blitFramebufferFlags = gpu->glCaps().blitFramebufferSupportFlags();
+    if (!gpu->glCaps().isConfigRenderable(dst->config(), dst->desc().fSampleCnt > 0) ||
+        !gpu->glCaps().isConfigRenderable(src->config(), src->desc().fSampleCnt > 0)) {
         return false;
     }
+    const GrGLTexture* dstTex = static_cast<const GrGLTexture*>(dst->asTexture());
+    const GrGLTexture* srcTex = static_cast<const GrGLTexture*>(dst->asTexture());
+    const GrRenderTarget* dstRT = dst->asRenderTarget();
+    const GrRenderTarget* srcRT = src->asRenderTarget();
+    if (dstTex && dstTex->target() != GR_GL_TEXTURE_2D) {
+        return false;
+    }
+    if (srcTex && srcTex->target() != GR_GL_TEXTURE_2D) {
+        return false;
+    }
+    if (GrGLCaps::kNoSupport_BlitFramebufferFlag & blitFramebufferFlags) {
+        return false;
+    }
+    if (GrGLCaps::kNoScalingOrMirroring_BlitFramebufferFlag & blitFramebufferFlags) {
+        // We would mirror to compensate for origin changes. Note that copySurface is
+        // specified such that the src and dst rects are the same.
+        if (dst->origin() != src->origin()) {
+            return false;
+        }
+    }
+    if (GrGLCaps::kResolveMustBeFull_BlitFrambufferFlag & blitFramebufferFlags) {
+        if (srcRT && srcRT->numColorSamples() && dstRT && !dstRT->numColorSamples()) {
+            return false;
+        }
+    }
+    if (GrGLCaps::kNoMSAADst_BlitFramebufferFlag & blitFramebufferFlags) {
+        if (dstRT && dstRT->numColorSamples() > 0) {
+            return false;
+        }
+    }    
+    if (GrGLCaps::kNoFormatConversion_BlitFramebufferFlag & blitFramebufferFlags) {
+        if (dst->config() != src->config()) {
+            return false;
+        }
+    } else if (GrGLCaps::kNoFormatConversionForMSAASrc_BlitFramebufferFlag & blitFramebufferFlags) {
+        const GrRenderTarget* srcRT = src->asRenderTarget();
+        if (srcRT && srcRT->numColorSamples() && dst->config() != src->config()) {
+            return false;
+        }
+    }
+    if (GrGLCaps::kRectsMustMatchForMSAASrc_BlitFramebufferFlag & blitFramebufferFlags) {
+        if (srcRT && srcRT->numColorSamples() &&
+            (dstPoint.fX != srcRect.fLeft || dstPoint.fY != srcRect.fTop)) {
+            return false;
+        }
+    }
+    return true;
 }
 
 static inline bool can_copy_texsubimage(const GrSurface* dst,
@@ -3627,8 +3655,8 @@ bool GrGLGpu::initDescForDstCopy(const GrRenderTarget* src, GrSurfaceDesc* desc)
     // creation. It isn't clear that avoiding temporary fbo creation is actually optimal.
 
     GrSurfaceOrigin originForBlitFramebuffer = kDefault_GrSurfaceOrigin;
-    if (this->glCaps().blitFramebufferSupport() ==
-        GrGLCaps::kNoScalingNoMirroring_BlitFramebufferSupport) {
+    if (this->glCaps().blitFramebufferSupportFlags() &
+        GrGLCaps::kNoScalingOrMirroring_BlitFramebufferFlag) {
         originForBlitFramebuffer = src->origin();
     }
 
@@ -3689,7 +3717,7 @@ bool GrGLGpu::onCopySurface(GrSurface* dst,
         return true;
     }
 
-    if (can_blit_framebuffer(dst, src, this)) {
+    if (can_blit_framebuffer_for_copy_surface(dst, src, srcRect, dstPoint, this)) {
         return this->copySurfaceAsBlitFramebuffer(dst, src, srcRect, dstPoint);
     }
 
@@ -4279,7 +4307,7 @@ bool GrGLGpu::copySurfaceAsBlitFramebuffer(GrSurface* dst,
                                            GrSurface* src,
                                            const SkIRect& srcRect,
                                            const SkIPoint& dstPoint) {
-    SkASSERT(can_blit_framebuffer(dst, src, this));
+    SkASSERT(can_blit_framebuffer_for_copy_surface(dst, src, srcRect, dstPoint, this));
     SkIRect dstRect = SkIRect::MakeXYWH(dstPoint.fX, dstPoint.fY,
                                         srcRect.width(), srcRect.height());
     if (dst == src) {
