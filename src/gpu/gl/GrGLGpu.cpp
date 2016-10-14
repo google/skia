@@ -1472,10 +1472,9 @@ static bool renderbuffer_storage_msaa(const GrGLContext& ctx,
     CLEAR_ERROR_BEFORE_ALLOC(ctx.interface());
     SkASSERT(GrGLCaps::kNone_MSFBOType != ctx.caps()->msFBOType());
     switch (ctx.caps()->msFBOType()) {
-        case GrGLCaps::kDesktop_ARB_MSFBOType:
-        case GrGLCaps::kDesktop_EXT_MSFBOType:
+        case GrGLCaps::kEXT_MSFBOType:
+        case GrGLCaps::kStandard_MSFBOType:
         case GrGLCaps::kMixedSamples_MSFBOType:
-        case GrGLCaps::kES_3_0_MSFBOType:
             GL_ALLOC_CALL(ctx.interface(),
                             RenderbufferStorageMultisample(GR_GL_RENDERBUFFER,
                                                             sampleCount,
@@ -3488,14 +3487,17 @@ static inline bool can_blit_framebuffer(const GrSurface* dst,
                     return false;
                 }
                 break;
-            case GrGLCaps::kFull_BlitFramebufferSupport:
+                // ES3 doesn't allow framebuffer blits when the src has MSAA and the configs don't
+                // match or the rects are not the same (not just the same size but have the same
+                // edges).
+            case GrGLCaps::kRectsAndFormatsMatchForMSAASrc_BlitFramebufferSupport:
+                if ((src->desc().fSampleCnt > 0 || src->config() != dst->config())) {
+                    return false;
+                }
                 break;
-        }
-        // ES3 doesn't allow framebuffer blits when the src has MSAA and the configs don't match
-        // or the rects are not the same (not just the same size but have the same edges).
-        if (GrGLCaps::kES_3_0_MSFBOType == gpu->glCaps().msFBOType() &&
-            (src->desc().fSampleCnt > 0 || src->config() != dst->config())) {
-           return false;
+
+            case GrGLCaps::kFull_BlitFramebufferSupport:
+                return true;
         }
         const GrGLTexture* dstTex = static_cast<const GrGLTexture*>(dst->asTexture());
         if (dstTex && dstTex->target() != GR_GL_TEXTURE_2D) {
