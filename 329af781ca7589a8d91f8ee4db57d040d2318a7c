@@ -25,6 +25,24 @@
     },
     {
       "key": {
+        "uuid": "1c91dace_bee5999d",
+        "filename": "src/core/SkColorSpace.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 92,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2016-10-14T16:38:11Z",
+      "side": 1,
+      "message": "Removed.",
+      "parentUuid": "5ce7d256_03ae10ee",
+      "revId": "329af781ca7589a8d91f8ee4db57d040d2318a7c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "5ce7d256_e3b20c50",
         "filename": "src/core/SkColorSpace.cpp",
         "patchSetId": 6
@@ -48,6 +66,24 @@
     },
     {
       "key": {
+        "uuid": "1c91dace_deda65dc",
+        "filename": "src/core/SkColorSpace.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 102,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2016-10-14T16:38:11Z",
+      "side": 1,
+      "message": "Yeah it appears to be.  Removed.",
+      "parentUuid": "5ce7d256_e3b20c50",
+      "revId": "329af781ca7589a8d91f8ee4db57d040d2318a7c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "5ce7d256_63bf1c14",
         "filename": "src/core/SkNextID.h",
         "patchSetId": 6
@@ -65,6 +101,24 @@
         "endLine": 20,
         "endChar": 35
       },
+      "revId": "329af781ca7589a8d91f8ee4db57d040d2318a7c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1c91dace_1ef5ad46",
+        "filename": "src/core/SkNextID.h",
+        "patchSetId": 6
+      },
+      "lineNbr": 20,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2016-10-14T16:38:11Z",
+      "side": 1,
+      "message": "Yeah, that\u0027s simpler.  Thanks, done.",
+      "parentUuid": "5ce7d256_63bf1c14",
       "revId": "329af781ca7589a8d91f8ee4db57d040d2318a7c",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
