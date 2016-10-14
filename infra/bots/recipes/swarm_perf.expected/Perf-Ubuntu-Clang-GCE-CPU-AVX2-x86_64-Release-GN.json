@@ -178,7 +178,6 @@
       "os",
       "Ubuntu"
     ],
-    "cwd": "[SLAVE_BUILD]/skia",
     "name": "nanobench"
   },
   {

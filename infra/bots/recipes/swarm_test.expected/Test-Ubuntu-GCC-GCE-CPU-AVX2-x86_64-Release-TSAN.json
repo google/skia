@@ -338,7 +338,6 @@
       "--match",
       "~ReadWriteAlpha"
     ],
-    "cwd": "[SLAVE_BUILD]/skia",
     "env": {
       "PATH": "%(PATH)s:[SLAVE_BUILD]/clang_linux/bin"
     },

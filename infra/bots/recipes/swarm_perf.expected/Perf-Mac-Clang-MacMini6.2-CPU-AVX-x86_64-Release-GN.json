@@ -178,7 +178,6 @@
       "os",
       "Mac"
     ],
-    "cwd": "[SLAVE_BUILD]/skia",
     "name": "nanobench"
   },
   {

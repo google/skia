@@ -339,7 +339,6 @@
       "~Once",
       "~Shared"
     ],
-    "cwd": "[SLAVE_BUILD]/skia",
     "env": {
       "LD_LIBRARY_PATH": "[SLAVE_BUILD]/clang_linux/msan",
       "PATH": "%(PATH)s:[SLAVE_BUILD]/clang_linux/bin"

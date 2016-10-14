@@ -336,7 +336,6 @@
       "_",
       "gamut"
     ],
-    "cwd": "[SLAVE_BUILD]/skia",
     "env": {
       "ASAN_OPTIONS": "symbolize=1 detect_leaks=1",
       "LSAN_OPTIONS": "symbolize=1 print_suppressions=1",
