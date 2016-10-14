@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "1c32ba87_ebdeb161",
+        "filename": "infra/bots/recipes/swarm_compile.expected/Build-Win-MSVC-x86-Debug-Exceptions.json",
+        "patchSetId": 4
+      },
+      "lineNbr": 130,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2016-10-14T14:15:42Z",
+      "side": 1,
+      "message": "This line seems mysterious to me, but I don\u0027t know windowsish. Maybe a comment or is this a common idiom?",
+      "range": {
+        "startLine": 130,
+        "startChar": 24,
+        "endLine": 130,
+        "endChar": 43
+      },
+      "revId": "a213640f18f192031e58cd6935d393fea5423954",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
