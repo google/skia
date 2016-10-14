@@ -89,7 +89,6 @@
       "msaa16",
       "nvpr16",
       "nvprdit16",
-      "angle_gl_es2",
       "angle_d3d11_es2",
       "--match",
       "~interlaced1.png",
