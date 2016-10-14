@@ -344,7 +344,7 @@ sk_sp<SkSurface> SkWindow::makeGpuBackedSurface(const AttachmentInfo& attachment
         grContext->caps()->srgbSupport() &&
         SkImageInfoIsGammaCorrect(info()) &&
         (attachmentInfo.fColorBits != 30)
-        ? kSkiaGamma8888_GrPixelConfig : kSkia8888_GrPixelConfig;
+        ? kSRGBA_8888_GrPixelConfig : kRGBA_8888_GrPixelConfig;
     desc.fOrigin = kBottomLeft_GrSurfaceOrigin;
     desc.fSampleCnt = attachmentInfo.fSampleCount;
     desc.fStencilBits = attachmentInfo.fStencilBits;
