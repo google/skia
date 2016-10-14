@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "1cfabb31_407f30d0",
+        "filename": "src/gpu/gl/GrGLCaps.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 933,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2016-10-14T20:58:55Z",
+      "side": 1,
+      "message": "Is this the right extension to check here? Seems like we want ANGLE_framebuffer_multisample?",
+      "revId": "9576ecb0cf1484d0437e9a6eee30aec9226c9309",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
