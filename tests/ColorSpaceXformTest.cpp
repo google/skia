@@ -30,7 +30,8 @@ static bool almost_equal(int x, int y) {
     return SkTAbs(x - y) <= 1;
 }
 
-static void test_identity_xform(skiatest::Reporter* r, const sk_sp<SkGammas>& gammas) {
+static void test_identity_xform(skiatest::Reporter* r, const sk_sp<SkGammas>& gammas,
+                                bool repeat) {
     // Arbitrary set of 10 pixels
     constexpr int width = 10;
     constexpr uint32_t srcPixels[width] = {
@@ -57,6 +58,12 @@ static void test_identity_xform(skiatest::Reporter* r, const sk_sp<SkGammas>& ga
         REPORTER_ASSERT(r, almost_equal(((srcPixels[i] >> 24) & 0xFF),
                                         SkGetPackedA32(dstPixels[i])));
     }
+
+    if (repeat) {
+        // We should cache part of the transform after the run.  So it is interesting
+        // to make sure it still runs correctly the second time.
+        test_identity_xform(r, gammas, false);
+    }
 }
 
 DEF_TEST(ColorSpaceXform_TableGamma, r) {
@@ -81,7 +88,7 @@ DEF_TEST(ColorSpaceXform_TableGamma, r) {
     table[7] = 0.60f;
     table[8] = 0.75f;
     table[9] = 1.00f;
-    test_identity_xform(r, gammas);
+    test_identity_xform(r, gammas, true);
 }
 
 DEF_TEST(ColorSpaceXform_ParametricGamma, r) {
@@ -107,7 +114,7 @@ DEF_TEST(ColorSpaceXform_ParametricGamma, r) {
     params->fB = 0.055f / 1.055f;
     params->fC = 0.0f;
     params->fG = 2.4f;
-    test_identity_xform(r, gammas);
+    test_identity_xform(r, gammas, true);
 }
 
 DEF_TEST(ColorSpaceXform_ExponentialGamma, r) {
@@ -115,7 +122,7 @@ DEF_TEST(ColorSpaceXform_ExponentialGamma, r) {
     sk_sp<SkGammas> gammas = sk_sp<SkGammas>(new SkGammas());
     gammas->fRedType = gammas->fGreenType = gammas->fBlueType = SkGammas::Type::kValue_Type;
     gammas->fRedData.fValue = gammas->fGreenData.fValue = gammas->fBlueData.fValue = 1.4f;
-    test_identity_xform(r, gammas);
+    test_identity_xform(r, gammas, true);
 }
 
 DEF_TEST(ColorSpaceXform_NamedGamma, r) {
@@ -124,7 +131,7 @@ DEF_TEST(ColorSpaceXform_NamedGamma, r) {
     gammas->fRedData.fNamed = kSRGB_SkGammaNamed;
     gammas->fGreenData.fNamed = k2Dot2Curve_SkGammaNamed;
     gammas->fBlueData.fNamed = kLinear_SkGammaNamed;
-    test_identity_xform(r, gammas);
+    test_identity_xform(r, gammas, true);
 }
 
 DEF_TEST(ColorSpaceXform_NonMatchingGamma, r) {
@@ -165,7 +172,7 @@ DEF_TEST(ColorSpaceXform_NonMatchingGamma, r) {
     gammas->fBlueType = SkGammas::Type::kParam_Type;
     gammas->fBlueData.fParamOffset = sizeof(float) * tableSize;
 
-    test_identity_xform(r, gammas);
+    test_identity_xform(r, gammas, true);
 }
 
 DEF_TEST(ColorSpaceXform_applyCLUTMemoryAccess, r) {
