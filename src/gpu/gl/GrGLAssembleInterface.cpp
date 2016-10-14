@@ -748,12 +748,19 @@ const GrGLInterface* GrGLAssembleGLESInterface(void* ctx, GrGLGetProc get) {
     GET_PROC(FramebufferRenderbuffer);
     GET_PROC(FramebufferTexture2D);
 
-    if (extensions.has("GL_CHROMIUM_framebuffer_multisample")) {
-        GET_PROC_SUFFIX(RenderbufferStorageMultisample, CHROMIUM);
-        GET_PROC_SUFFIX(BlitFramebuffer, CHROMIUM);
-    } else if (version >= GR_GL_VER(3,0)) {
+    if (version >= GR_GL_VER(3,0)) {
         GET_PROC(RenderbufferStorageMultisample);
         GET_PROC(BlitFramebuffer);
+    } else if (extensions.has("GL_CHROMIUM_framebuffer_multisample")) {
+        GET_PROC_SUFFIX(RenderbufferStorageMultisample, CHROMIUM);
+        GET_PROC_SUFFIX(BlitFramebuffer, CHROMIUM);
+    } else {
+        if (extensions.has("GL_ANGLE_framebuffer_multisample")) {
+            GET_PROC_SUFFIX(RenderbufferStorageMultisample, ANGLE);
+        }
+        if (extensions.has("GL_ANGLE_framebuffer_blit")) {
+            GET_PROC_SUFFIX(BlitFramebuffer, ANGLE);
+        }
     }
 
     if (extensions.has("GL_CHROMIUM_map_sub")) {
