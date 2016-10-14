@@ -15,6 +15,8 @@
 
 #define SKNX_IS_FAST
 
+namespace {
+
 template <>
 class SkNx<2, float> {
 public:
@@ -718,5 +720,7 @@ template<> /*static*/ inline Sk4i SkNx_cast<int32_t, uint32_t>(const Sk4u& src) 
 static inline Sk4i Sk4f_round(const Sk4f& x) {
     return _mm_cvtps_epi32(x.fVec);
 }
+
+}  // namespace
 
 #endif//SkNx_sse_DEFINED
