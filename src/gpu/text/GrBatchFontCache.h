@@ -194,7 +194,7 @@ private:
             case kA565_GrMaskFormat:
                 return kRGB_565_GrPixelConfig;
             case kARGB_GrMaskFormat:
-                return caps.srgbSupport() ? kSkiaGamma8888_GrPixelConfig : kSkia8888_GrPixelConfig;
+                return caps.srgbSupport() ? kSRGBA_8888_GrPixelConfig : kRGBA_8888_GrPixelConfig;
             default:
                 SkDEBUGFAIL("unsupported GrMaskFormat");
                 return kAlpha_8_GrPixelConfig;
