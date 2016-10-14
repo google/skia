@@ -42,17 +42,13 @@ public:
          */
         kNone_MSFBOType = 0,
         /**
-         * GL3.0-style MSAA FBO (GL_ARB_framebuffer_object).
+         * OpenGL < 3.0 with GL_EXT_framebuffer_object. Doesn't allow rendering to ALPHA.
          */
-        kDesktop_ARB_MSFBOType,
+        kEXT_MSFBOType,
         /**
-         * earlier GL_EXT_framebuffer* extensions
+         * OpenGL 3.0+, OpenGL ES 3.0+, and GL_ARB_framebuffer_object.
          */
-        kDesktop_EXT_MSFBOType,
-        /**
-         * Similar to kDesktop_ARB but with additional restrictions on glBlitFramebuffer.
-         */
-        kES_3_0_MSFBOType,
+        kStandard_MSFBOType,
         /**
          * GL_APPLE_framebuffer_multisample ES extension
          */
@@ -84,6 +80,11 @@ public:
          * or mirroring.
          */
         kNoScalingNoMirroring_BlitFramebufferSupport,
+        /**
+         * ES3 has restricted support when the src is MSAA: src rect == dst rect, dst format == src
+         * format.
+         */
+        kRectsAndFormatsMatchForMSAASrc_BlitFramebufferSupport,
         kFull_BlitFramebufferSupport
     };
 

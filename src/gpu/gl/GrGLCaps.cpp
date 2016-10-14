@@ -930,12 +930,9 @@ void GrGLCaps::initFSAASupport(const GrGLContextInfo& ctxInfo, const GrGLInterfa
             fMSFBOType = kES_IMG_MsToTexture_MSFBOType;
         } else if (fUsesMixedSamples) {
             fMSFBOType = kMixedSamples_MSFBOType;
-        } else if (ctxInfo.version() >= GR_GL_VER(3,0)) {
-            fMSFBOType = GrGLCaps::kES_3_0_MSFBOType;
-        } else if (ctxInfo.hasExtension("GL_CHROMIUM_framebuffer_multisample")) {
-            // chrome's extension is equivalent to the EXT msaa
-            // and fbo_blit extensions.
-            fMSFBOType = kDesktop_EXT_MSFBOType;
+        } else if (ctxInfo.version() >= GR_GL_VER(3,0) ||
+                   ctxInfo.hasExtension("GL_CHROMIUM_framebuffer_multisample")) {
+            fMSFBOType = kStandard_MSFBOType;
         } else if (ctxInfo.hasExtension("GL_APPLE_framebuffer_multisample")) {
             fMSFBOType = kES_Apple_MSFBOType;
         }
@@ -953,13 +950,13 @@ void GrGLCaps::initFSAASupport(const GrGLContextInfo& ctxInfo, const GrGLInterfa
         if (fUsesMixedSamples) {
             fMSFBOType = kMixedSamples_MSFBOType;
             fBlitFramebufferSupport = kFull_BlitFramebufferSupport;
-        } else if ((ctxInfo.version() >= GR_GL_VER(3,0)) ||
-            ctxInfo.hasExtension("GL_ARB_framebuffer_object")) {
-            fMSFBOType = GrGLCaps::kDesktop_ARB_MSFBOType;
+        } else if (ctxInfo.version() >= GR_GL_VER(3,0) ||
+                   ctxInfo.hasExtension("GL_ARB_framebuffer_object")) {
+            fMSFBOType = kStandard_MSFBOType;
             fBlitFramebufferSupport = kFull_BlitFramebufferSupport;
         } else if (ctxInfo.hasExtension("GL_EXT_framebuffer_multisample") &&
                    ctxInfo.hasExtension("GL_EXT_framebuffer_blit")) {
-            fMSFBOType = GrGLCaps::kDesktop_EXT_MSFBOType;
+            fMSFBOType = kEXT_MSFBOType;
             fBlitFramebufferSupport = kFull_BlitFramebufferSupport;
         }
     }
@@ -1082,22 +1079,20 @@ SkString GrGLCaps::dump() const {
 
     static const char* kMSFBOExtStr[] = {
         "None",
-        "ARB",
         "EXT",
-        "ES 3.0",
+        "Standard",
         "Apple",
         "IMG MS To Texture",
         "EXT MS To Texture",
         "MixedSamples",
     };
     GR_STATIC_ASSERT(0 == kNone_MSFBOType);
-    GR_STATIC_ASSERT(1 == kDesktop_ARB_MSFBOType);
-    GR_STATIC_ASSERT(2 == kDesktop_EXT_MSFBOType);
-    GR_STATIC_ASSERT(3 == kES_3_0_MSFBOType);
-    GR_STATIC_ASSERT(4 == kES_Apple_MSFBOType);
-    GR_STATIC_ASSERT(5 == kES_IMG_MsToTexture_MSFBOType);
-    GR_STATIC_ASSERT(6 == kES_EXT_MsToTexture_MSFBOType);
-    GR_STATIC_ASSERT(7 == kMixedSamples_MSFBOType);
+    GR_STATIC_ASSERT(1 == kEXT_MSFBOType);
+    GR_STATIC_ASSERT(2 == kStandard_MSFBOType);
+    GR_STATIC_ASSERT(3 == kES_Apple_MSFBOType);
+    GR_STATIC_ASSERT(4 == kES_IMG_MsToTexture_MSFBOType);
+    GR_STATIC_ASSERT(5 == kES_EXT_MsToTexture_MSFBOType);
+    GR_STATIC_ASSERT(6 == kMixedSamples_MSFBOType);
     GR_STATIC_ASSERT(SK_ARRAY_COUNT(kMSFBOExtStr) == kLast_MSFBOType + 1);
 
     static const char* kInvalidateFBTypeStr[] = {
@@ -1635,9 +1630,8 @@ void GrGLCaps::initConfigTable(const GrGLContextInfo& ctxInfo, const GrGLInterfa
     fConfigTable[kAlpha_8_GrPixelConfig].fFormatType = kNormalizedFixedPoint_FormatType;
     fConfigTable[kAlpha_8_GrPixelConfig].fFlags = ConfigInfo::kTextureable_Flag;
     if (this->textureRedSupport() ||
-        (kDesktop_ARB_MSFBOType == this->msFBOType() &&
-         ctxInfo.renderer() != kOSMesa_GrGLRenderer)) {
-        // desktop ARB extension/3.0+ supports ALPHA8 as renderable.
+        (kStandard_MSFBOType == this->msFBOType() && ctxInfo.renderer() != kOSMesa_GrGLRenderer)) {
+        // OpenGL 3.0+ (and GL_ARB_framebuffer_object) supports ALPHA8 as renderable.
         // However, osmesa fails if it used even when GL_ARB_framebuffer_object is present.
         // Core profile removes ALPHA8 support, but we should have chosen R8 in that case.
         fConfigTable[kAlpha_8_GrPixelConfig].fFlags |= allRenderFlags;
