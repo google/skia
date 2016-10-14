@@ -105,7 +105,6 @@
       "~inc0.webp",
       "~inc1.webp"
     ],
-    "cwd": "[SLAVE_BUILD]/skia",
     "name": "nanobench"
   },
   {

@@ -34,12 +34,12 @@ class GNFlavorUtils(default_flavor.DefaultFlavorUtils):
   def _run(self, title, cmd, env=None, infra_step=False):
     self._strip_environment()
     self.m.run(self.m.step, title, cmd=cmd,
-               env=env, cwd=self.m.vars.skia_dir, infra_step=infra_step)
+               env=env, infra_step=infra_step)
 
   def _py(self, title, script, env=None, infra_step=True):
     self._strip_environment()
     self.m.run(self.m.python, title, script=script,
-               env=env, cwd=self.m.vars.skia_dir, infra_step=infra_step)
+               env=env, infra_step=infra_step)
 
   def build_command_buffer(self):
     self.m.run(self.m.python, 'build command_buffer',
