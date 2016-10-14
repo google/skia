@@ -12,6 +12,8 @@
 
 #define SKNX_IS_FAST
 
+namespace {
+
 // ARMv8 has vrndmq_f32 to floor 4 floats.  Here we emulate it:
 //   - roundtrip through integers via truncation
 //   - subtract 1 if that's too big (possible for negative values).
@@ -549,5 +551,7 @@ template<> /*static*/ inline Sk4i SkNx_cast<int32_t, uint32_t>(const Sk4u& src) 
 static inline Sk4i Sk4f_round(const Sk4f& x) {
     return vcvtq_s32_f32((x + 0.5f).fVec);
 }
+
+}  // namespace
 
 #endif//SkNx_neon_DEFINED

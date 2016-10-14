@@ -16,6 +16,8 @@
 #include <math.h>
 #include <type_traits>
 
+namespace {
+
 #define SI static inline
 
 // The default SkNx<N,T> just proxies down to a pair of SkNx<N/2, T>.
@@ -311,6 +313,8 @@ template <int N, typename T>
 SI SkNx<N,T> SkNx_fma(const SkNx<N,T>& f, const SkNx<N,T>& m, const SkNx<N,T>& a) {
     return f*m+a;
 }
+
+}  // namespace
 
 typedef SkNx<2,     float> Sk2f;
 typedef SkNx<4,     float> Sk4f;
