@@ -35,6 +35,7 @@ TEST_BUILDERS = {
       'Perf-Ubuntu-Clang-GCE-CPU-AVX2-x86_64-Release-GN',
       'Perf-Ubuntu-GCC-ShuttleA-GPU-GTX550Ti-x86_64-Release-Valgrind',
       'Perf-Ubuntu-GCC-ShuttleA-GPU-GTX550Ti-x86_64-Release-VisualBench',
+      'Perf-Ubuntu-GCC-ShuttleA-GPU-GTX550Ti-x86_64-Release-ANGLE',
       'Perf-Win-MSVC-GCE-CPU-AVX2-x86_64-Debug',
       'Perf-Win-MSVC-GCE-CPU-AVX2-x86_64-Release',
       'Perf-Win8-MSVC-ShuttleB-GPU-HD4600-x86_64-Release-Trybot',
@@ -97,7 +98,10 @@ def nanobench_flags(bot):
     config = ['vk']
 
   if 'ANGLE' in bot:
-    config.extend(['angle_gl_es2', 'angle_d3d11_es2'])
+    config.extend(['angle_d3d11_es2'])
+    # The GL backend of ANGLE crashes on the perf bot currently.
+    if 'Win' not in bot:
+      config.extend(['angle_gl_es2'])
 
   args.append('--config')
   args.extend(config)
