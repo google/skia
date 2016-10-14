@@ -420,6 +420,43 @@ DEF_TEST(ReadPixels, reporter) {
     // SW readback fails a premul check when reading back to an unaligned rowbytes.
     test_readpixels(reporter, surface, kLastAligned_BitmapInit);
 }
+
+// See skbug.com/5853
+DEF_TEST(ReadF16Pixels, reporter) {
+    auto linearSrgb = SkColorSpace::NewNamed(SkColorSpace::kSRGBLinear_Named);
+    const SkImageInfo surfaceInfo = SkImageInfo::Make(DEV_W, DEV_H, kRGBA_F16_SkColorType,
+                                                      kPremul_SkAlphaType, linearSrgb);
+    auto surface(SkSurface::MakeRaster(surfaceInfo));
+
+    auto srgb = SkColorSpace::NewNamed(SkColorSpace::kSRGB_Named);
+    const SkImageInfo bitmapInfo = SkImageInfo::Make(DEV_W, DEV_H, kRGBA_8888_SkColorType,
+                                                     kUnpremul_SkAlphaType, srgb);
+    SkBitmap bitmap;
+    bitmap.allocPixels(bitmapInfo);
+
+    bool success = surface->getCanvas()->readPixels(&bitmap, 0, 0);
+    REPORTER_ASSERT(reporter, success);
+}
+
+// See skbug.com/5853
+#if SK_SUPPORT_GPU
+DEF_GPUTEST_FOR_RENDERING_CONTEXTS(ReadF16Pixels_Gpu, reporter, ctxInfo) {
+    auto linearSrgb = SkColorSpace::NewNamed(SkColorSpace::kSRGBLinear_Named);
+    const SkImageInfo surfaceInfo = SkImageInfo::Make(DEV_W, DEV_H, kRGBA_F16_SkColorType,
+                                                      kPremul_SkAlphaType, linearSrgb);
+    auto surface(SkSurface::MakeRenderTarget(ctxInfo.grContext(), SkBudgeted::kNo, surfaceInfo));
+
+    auto srgb = SkColorSpace::NewNamed(SkColorSpace::kSRGB_Named);
+    const SkImageInfo bitmapInfo = SkImageInfo::Make(DEV_W, DEV_H, kRGBA_8888_SkColorType,
+                                                     kUnpremul_SkAlphaType, srgb);
+    SkBitmap bitmap;
+    bitmap.allocPixels(bitmapInfo);
+
+    bool success = surface->getCanvas()->readPixels(&bitmap, 0, 0);
+    REPORTER_ASSERT(reporter, success);
+}
+#endif
+
 #if SK_SUPPORT_GPU
 DEF_GPUTEST_FOR_RENDERING_CONTEXTS(ReadPixels_Gpu, reporter, ctxInfo) {
     const SkImageInfo ii = SkImageInfo::MakeN32Premul(DEV_W, DEV_H);
