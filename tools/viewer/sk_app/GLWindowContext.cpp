@@ -45,7 +45,7 @@ void GLWindowContext::initializeContext() {
     fPixelConfig = fContext->caps()->srgbSupport() &&
                    SkColorAndColorSpaceAreGammaCorrect(fDisplayParams.fColorType,
                                                        fDisplayParams.fColorSpace.get()) &&
-                   (fColorBits != 30) ? kSkiaGamma8888_GrPixelConfig : kSkia8888_GrPixelConfig;
+                   (fColorBits != 30) ? kSRGBA_8888_GrPixelConfig : kRGBA_8888_GrPixelConfig;
 }
 
 void GLWindowContext::destroyContext() {

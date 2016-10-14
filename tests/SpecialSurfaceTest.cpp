@@ -81,7 +81,7 @@ DEF_TEST(SpecialSurface_Raster2, reporter) {
 DEF_GPUTEST_FOR_RENDERING_CONTEXTS(SpecialSurface_Gpu1, reporter, ctxInfo) {
     sk_sp<SkSpecialSurface> surf(SkSpecialSurface::MakeRenderTarget(ctxInfo.grContext(),
                                                                     kSmallerSize, kSmallerSize,
-                                                                    kSkia8888_GrPixelConfig,
+                                                                    kRGBA_8888_GrPixelConfig,
                                                                     nullptr));
 
     test_surface(surf, reporter, 0);

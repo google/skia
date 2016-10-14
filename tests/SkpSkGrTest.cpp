@@ -439,7 +439,7 @@ void TestResult::testOne() {
         SkCanvas skCanvas(bitmap);
         drawPict(pic, &skCanvas, fScaleOversized ? scale : 1);
         GrTextureDesc desc;
-        desc.fConfig = kSkia8888_GrPixelConfig;
+        desc.fConfig = kRGBA_8888_GrPixelConfig;
         desc.fFlags = kRenderTarget_GrTextureFlagBit;
         desc.fWidth = dim.fX;
         desc.fHeight = dim.fY;

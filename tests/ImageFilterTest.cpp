@@ -367,7 +367,7 @@ static sk_sp<SkSpecialSurface> create_empty_special_surface(GrContext* context, 
     if (context) {
         return SkSpecialSurface::MakeRenderTarget(context,
                                                   widthHeight, widthHeight,
-                                                  kSkia8888_GrPixelConfig, nullptr);
+                                                  kRGBA_8888_GrPixelConfig, nullptr);
     } else
 #endif
     {
