@@ -43,6 +43,24 @@
     },
     {
       "key": {
+        "uuid": "1c32ba87_eba6b1c0",
+        "filename": "src/core/SkColorSpaceXform.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 1287,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2016-10-14T15:15:44Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "5ce7d256_c3b2689b",
+      "revId": "123d364a2eba17e0d2f5899dda75b54646d52c72",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "5ce7d256_63771cc5",
         "filename": "src/core/SkColorSpaceXform_Base.h",
         "patchSetId": 4
@@ -54,6 +72,42 @@
       "writtenOn": "2016-10-14T14:47:13Z",
       "side": 1,
       "message": "Let\u0027s add a note about why it\u0027s safe for nothing here to ref fDstSpace?  Same deal with the dstTables pointers?",
+      "revId": "123d364a2eba17e0d2f5899dda75b54646d52c72",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1c32ba87_0bda0d3e",
+        "filename": "src/core/SkColorSpaceXform_Base.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 78,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2016-10-14T15:15:44Z",
+      "side": 1,
+      "message": "Done, kind of.\n\nDo we need to ref fDstSpace?  What if an SkColorSpace is allocated and freed, and then a new one is allocated with exactly the same ptr?\n\nI think that maybe SkColorSpaces should have a unique id.\n\nI\u0027m going to try reffing it - maybe this explains the bot failure that I can\u0027t reproduce.",
+      "parentUuid": "5ce7d256_63771cc5",
+      "revId": "123d364a2eba17e0d2f5899dda75b54646d52c72",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1c32ba87_cbfad59f",
+        "filename": "src/core/SkColorSpaceXform_Base.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 78,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2016-10-14T15:15:44Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "5ce7d256_63771cc5",
       "revId": "123d364a2eba17e0d2f5899dda75b54646d52c72",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
@@ -95,6 +149,24 @@
       "side": 1,
       "message": "The more accurately you can represent the cost of the thing, the better.  This is what\u0027s used to   determine how much of the cache budget we\u0027ve consumed.\n\nIf we take things to its extreme, if everyone returned zero the cache would never purge anything and we\u0027d run way over the budget, probably out of memory.",
       "parentUuid": "3c405ed3_a292204c",
+      "revId": "123d364a2eba17e0d2f5899dda75b54646d52c72",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1c32ba87_8baffd96",
+        "filename": "src/core/SkColorSpaceXform_Base.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 103,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2016-10-14T15:15:44Z",
+      "side": 1,
+      "message": "Got it.  I was a bit conflicted here - was thinking I should maybe have a private cache and count exactly how many xforms I wanted to cache (rather than the actual size of what I was caching).  But now I think it\u0027s better to use the shared cache and be honest.",
+      "parentUuid": "5ce7d256_437018cf",
       "revId": "123d364a2eba17e0d2f5899dda75b54646d52c72",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
