@@ -1,0 +1,73 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "5ce7d256_03ae10ee",
+        "filename": "src/core/SkColorSpace.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 92,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2016-10-14T15:58:33Z",
+      "side": 1,
+      "message": "Why not?",
+      "range": {
+        "startLine": 92,
+        "startChar": 49,
+        "endLine": 92,
+        "endChar": 74
+      },
+      "revId": "329af781ca7589a8d91f8ee4db57d040d2318a7c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "5ce7d256_e3b20c50",
+        "filename": "src/core/SkColorSpace.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 102,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2016-10-14T15:58:33Z",
+      "side": 1,
+      "message": "Is this not implicit?",
+      "range": {
+        "startLine": 102,
+        "startChar": 6,
+        "endLine": 102,
+        "endChar": 17
+      },
+      "revId": "329af781ca7589a8d91f8ee4db57d040d2318a7c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "5ce7d256_63bf1c14",
+        "filename": "src/core/SkNextID.h",
+        "patchSetId": 6
+      },
+      "lineNbr": 20,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2016-10-14T15:58:33Z",
+      "side": 1,
+      "message": "Are these shared by two different types?  If not, this is probably more complex than you need.  I think you can have it all packaged up neatly in your color space .cpp:\n\nstatic std::atomic\u003cuint32_t\u003e gNextColorSpaceID{1};\nstatic uint32_t next_colorspace_id() {\n  uint32_t id;\n  do { id \u003d gNextColorSpaceID++; } while (id \u003d\u003d 0);\n  return id;  \n}",
+      "range": {
+        "startLine": 20,
+        "startChar": 4,
+        "endLine": 20,
+        "endChar": 35
+      },
+      "revId": "329af781ca7589a8d91f8ee4db57d040d2318a7c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
