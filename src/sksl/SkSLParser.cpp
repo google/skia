@@ -331,8 +331,9 @@ std::unique_ptr<ASTType> Parser::structDeclaration() {
         for (const auto& var : decl->fVars) {
             auto type = (const Type*) fTypes[decl->fType->fName];
             for (int i = (int) var.fSizes.size() - 1; i >= 0; i--) {
-                if (var.fSizes[i]->fKind != ASTExpression::kInt_Kind) {
+                if (!var.fSizes[i] || var.fSizes[i]->fKind != ASTExpression::kInt_Kind) {
                     this->error(decl->fPosition, "array size in struct field must be a constant");
+                    return nullptr;
                 }
                 uint64_t columns = ((ASTIntLiteral&) *var.fSizes[i]).fValue;
                 std::string name = type->name() + "[" + to_string(columns) + "]";
