@@ -50,7 +50,8 @@ class SkiaVarsApi(recipe_api.RecipeApi):
     self.persistent_checkout = (self.is_compile_bot or
                                 'RecreateSKPs' in self.builder_name or
                                 '-CT_' in self.builder_name or
-                                'Presubmit' in self.builder_name)
+                                'Presubmit' in self.builder_name or
+                                'InfraTests' in self.builder_name)
     if self.persistent_checkout:
       if 'Win' in self.builder_name:
         self.checkout_root = self.make_path('C:\\', 'b', 'work')

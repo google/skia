@@ -44,7 +44,7 @@ TEST_BUILDERS = {
 }
 
 
-import time
+import calendar
 
 
 def nanobench_flags(bot):
@@ -209,7 +209,7 @@ def perf_steps(api):
 
   if api.vars.upload_perf_results:
     now = api.time.utcnow()
-    ts = int(time.mktime(now.utctimetuple()))
+    ts = int(calendar.timegm(now.utctimetuple()))
     json_path = api.flavor.device_path_join(
         api.flavor.device_dirs.perf_data_dir,
         'nanobench_%s_%d.json' % (api.vars.got_revision, ts))

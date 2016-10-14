@@ -44,6 +44,7 @@ var (
 		"Build-Ubuntu-GCC-x86_64-Release-GN",
 		"Perf-Ubuntu-GCC-GCE-CPU-AVX2-x86_64-Release-GN",
 		"Test-Ubuntu-GCC-GCE-CPU-AVX2-x86_64-Release-GN",
+		"Housekeeper-PerCommit-InfraTests",
 	}
 
 	// UPLOAD_DIMENSIONS are the Swarming dimensions for upload tasks.
@@ -287,6 +288,33 @@ func housekeeper(cfg *specs.TasksCfg, name, compileTaskName string) string {
 	return name
 }
 
+// infra generates an infra_tests task. Returns the name of the last task in the
+// generated chain of tasks, which the Job should add as a dependency.
+func infra(cfg *specs.TasksCfg, name string) string {
+	cfg.Tasks[name] = &specs.TaskSpec{
+		CipdPackages: []*specs.CipdPackage{},
+		Dimensions:   UPLOAD_DIMENSIONS,
+		ExtraArgs: []string{
+			"--workdir", "../../..", "swarm_infra",
+			"repository=skia",
+			fmt.Sprintf("buildername=%s", name),
+			"mastername=fake-master",
+			"buildnumber=2",
+			"slavename=fake-buildslave",
+			"nobuildbot=True",
+			fmt.Sprintf("swarm_out_dir=%s", specs.PLACEHOLDER_ISOLATED_OUTDIR),
+			fmt.Sprintf("revision=%s", specs.PLACEHOLDER_REVISION),
+			fmt.Sprintf("patch_storage=%s", specs.PLACEHOLDER_PATCH_STORAGE),
+			fmt.Sprintf("rietveld=%s", specs.PLACEHOLDER_CODEREVIEW_SERVER),
+			fmt.Sprintf("issue=%s", specs.PLACEHOLDER_ISSUE),
+			fmt.Sprintf("patchset=%s", specs.PLACEHOLDER_PATCHSET),
+		},
+		Isolate:  "infra_skia.isolate",
+		Priority: 0.8,
+	}
+	return name
+}
+
 // doUpload indicates whether the given Job should upload its results.
 func doUpload(name string) bool {
 	skipUploadBots := []string{
@@ -435,6 +463,11 @@ func process(cfg *specs.TasksCfg, name string) {
 		deps = append(deps, ctSKPs(cfg, name))
 	}
 
+	// Infra tests.
+	if name == "Housekeeper-PerCommit-InfraTests" {
+		deps = append(deps, infra(cfg, name))
+	}
+
 	// Compile bots.
 	if parts["role"] == "Build" {
 		deps = append(deps, compile(cfg, name, parts))
@@ -444,7 +477,7 @@ func process(cfg *specs.TasksCfg, name string) {
 	compileTaskName := deriveCompileTaskName(name, parts)
 
 	// Housekeeper.
-	if parts["role"] == "Housekeeper" {
+	if parts["role"] == "Housekeeper" && name != "Housekeeper-PerCommit-InfraTests" {
 		deps = append(deps, housekeeper(cfg, name, compileTaskName))
 	}
 

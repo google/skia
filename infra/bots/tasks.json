@@ -6,6 +6,12 @@
         "Build-Ubuntu-GCC-x86_64-Release-GN"
       ]
     },
+    "Housekeeper-PerCommit-InfraTests": {
+      "priority": 0.8,
+      "tasks": [
+        "Housekeeper-PerCommit-InfraTests"
+      ]
+    },
     "Perf-Ubuntu-GCC-GCE-CPU-AVX2-x86_64-Release-GN": {
       "priority": 0.8,
       "tasks": [
@@ -44,6 +50,33 @@
         "patchset=<(PATCHSET)"
       ],
       "isolate": "compile_skia.isolate",
+      "priority": 0.8
+    },
+    "Housekeeper-PerCommit-InfraTests": {
+      "dimensions": [
+        "cpu:x86-64-avx2",
+        "gpu:none",
+        "os:Ubuntu",
+        "pool:Skia"
+      ],
+      "extra_args": [
+        "--workdir",
+        "../../..",
+        "swarm_infra",
+        "repository=skia",
+        "buildername=Housekeeper-PerCommit-InfraTests",
+        "mastername=fake-master",
+        "buildnumber=2",
+        "slavename=fake-buildslave",
+        "nobuildbot=True",
+        "swarm_out_dir=${ISOLATED_OUTDIR}",
+        "revision=<(REVISION)",
+        "patch_storage=<(PATCH_STORAGE)",
+        "rietveld=<(CODEREVIEW_SERVER)",
+        "issue=<(ISSUE)",
+        "patchset=<(PATCHSET)"
+      ],
+      "isolate": "infra_skia.isolate",
       "priority": 0.8
     },
     "Perf-Ubuntu-GCC-GCE-CPU-AVX2-x86_64-Release-GN": {
