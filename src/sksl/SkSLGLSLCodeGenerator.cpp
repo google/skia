@@ -163,6 +163,18 @@ void GLSLCodeGenerator::writeFunctionCall(const FunctionCall& c) {
             return;
         }
     }
+    if (fCaps.fMustForceNegatedAtanParamToFloat && c.fFunction.fName == "atan" && 
+        c.fArguments.size() == 2 && c.fArguments[1]->fKind == Expression::kPrefix_Kind) {
+        const PrefixExpression& p = (PrefixExpression&) *c.fArguments[1];
+        if (p.fOperator == Token::MINUS) {
+            this->write("atan(");
+            this->writeExpression(*c.fArguments[0], kSequence_Precedence);
+            this->write(", -1.0 * ");
+            this->writeExpression(*p.fOperand, kMultiplicative_Precedence);
+            this->write(")");
+            return;
+        }
+    }
     this->write(c.fFunction.fName + "(");
     const char* separator = "";
     for (const auto& arg : c.fArguments) {

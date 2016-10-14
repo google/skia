@@ -23,7 +23,8 @@ static SkSL::GLCaps default_caps() {
              false, // isCoreProfile
              false, // usesPrecisionModifiers;
              false, // mustDeclareFragmentShaderOutput
-             true   // canUseMinAndAbsTogether
+             true,  // canUseMinAndAbsTogether
+             false  // mustForceNegatedAtanParamToFloat
            };
 }
 

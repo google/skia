@@ -33,7 +33,8 @@ static SkSL::GLCaps default_caps() {
              false, // isCoreProfile
              false, // usesPrecisionModifiers;
              false, // mustDeclareFragmentShaderOutput
-             true   // canUseMinAndAbsTogether
+             true,  // canUseMinAndAbsTogether
+             false  // mustForceNegatedAtanParamToFloat
            };
 }
 
@@ -312,6 +313,27 @@ DEF_TEST(SkSLMinAbs, r) {
          "    float x = -5.0;\n"
          "    x = ((minAbsHackVar0 = abs(x)) < (minAbsHackVar1 = 6.0) ? minAbsHackVar0 : "
                                                                                 "minAbsHackVar1);\n"
+         "}\n");
+}
+
+DEF_TEST(SkSLNegatedAtan, r) {
+    test(r,
+         "void main() { vec2 x = vec2(1, 2); float y = atan(x.x, -(2 * x.y)); }",
+         default_caps(),
+         "#version 400\n"
+         "void main() {\n"
+         "    vec2 x = vec2(1.0, 2.0);\n"
+         "    float y = atan(x.x, -(2.0 * x.y));\n"
+         "}\n");
+    SkSL::GLCaps caps = default_caps();
+    caps.fMustForceNegatedAtanParamToFloat = true;
+    test(r,
+         "void main() { vec2 x = vec2(1, 2); float y = atan(x.x, -(2 * x.y)); }",
+         caps,
+         "#version 400\n"
+         "void main() {\n"
+         "    vec2 x = vec2(1.0, 2.0);\n"
+         "    float y = atan(x.x, -1.0 * (2.0 * x.y));\n"
          "}\n");
 }
 

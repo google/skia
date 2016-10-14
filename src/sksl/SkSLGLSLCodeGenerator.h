@@ -55,6 +55,10 @@ struct GLCaps {
     bool fMustDeclareFragmentShaderOutput;
     // The Tegra3 compiler will sometimes never return if we have min(abs(x), y)
     bool fCanUseMinAndAbsTogether;
+    // On Intel GPU there is an issue where it misinterprets an atan argument (second argument only,
+    // apparently) of the form "-<expr>" as an int, so we rewrite it as "-1.0 * <expr>" to avoid
+    // this problem
+    bool fMustForceNegatedAtanParamToFloat;
 };
 
 /**
