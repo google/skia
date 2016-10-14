@@ -5,9 +5,11 @@
  * found in the LICENSE file.
  */
 
+#include "SkAtomics.h"
 #include "SkColorSpace.h"
 #include "SkColorSpace_Base.h"
 #include "SkColorSpacePriv.h"
+#include "SkNextID.h"
 #include "SkOnce.h"
 #include "SkPoint3.h"
 
@@ -81,6 +83,17 @@ bool SkColorSpacePrimaries::toXYZD50(SkMatrix44* toXYZ_D50) const {
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
+
+static std::atomic<uint32_t> gNextColorSpaceID{1};
+static uint32_t next_colorspace_id() {
+    uint32_t id;
+    do { id = gNextColorSpaceID++; } while (id == 0);
+    return id;
+}
+
+SkColorSpace::SkColorSpace()
+    : fUniqueID(next_colorspace_id())
+{}
 
 SkColorSpace_Base::SkColorSpace_Base(SkGammaNamed gammaNamed, const SkMatrix44& toXYZD50)
     : fGammaNamed(gammaNamed)
