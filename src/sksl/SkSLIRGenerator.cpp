@@ -525,6 +525,9 @@ std::unique_ptr<InterfaceBlock> IRGenerator::convertInterfaceBlock(const ASTInte
         std::unique_ptr<VarDeclarations> decl = this->convertVarDeclarations(
                                                                          *intf.fDeclarations[i], 
                                                                          Variable::kGlobal_Storage);
+        if (!decl) {
+            return nullptr;
+        }
         for (const auto& var : decl->fVars) {
             fields.push_back(Type::Field(var.fVar->fModifiers, var.fVar->fName, 
                                          &var.fVar->fType));
@@ -1024,11 +1027,17 @@ std::unique_ptr<Expression> IRGenerator::convertConstructor(
                 int rows = args[i]->fType.rows();
                 args[i] = this->coerce(std::move(args[i]), 
                                        type.componentType().toCompound(fContext, columns, rows));
+                if (!args[i]) {
+                    return nullptr;
+                }
                 actual += args[i]->fType.rows() * args[i]->fType.columns();
             } else if (args[i]->fType.kind() == Type::kScalar_Kind) {
                 actual += 1;
                 if (type.kind() != Type::kScalar_Kind) {
                     args[i] = this->coerce(std::move(args[i]), type.componentType());
+                    if (!args[i]) {
+                        return nullptr;
+                    }
                 }
             } else {
                 fErrors.error(position, "'" + args[i]->fType.description() + "' is not a valid "
