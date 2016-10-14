@@ -240,12 +240,12 @@ LinearGradient4fContext::shadeSpanInternal(int x, int y,
                   &pt);
     const SkScalar fx = pinFx<tileMode>(pt.x());
     const SkScalar dx = fDstToPos.getScaleX();
-    LinearIntervalProcessor<dstType, tileMode> proc(fIntervals.begin(),
-                                                    fIntervals.end() - 1,
-                                                    this->findInterval(fx),
-                                                    fx,
-                                                    dx,
-                                                    SkScalarNearlyZero(dx * count));
+    LinearIntervalProcessor<dstType, premul, tileMode> proc(fIntervals.begin(),
+                                                            fIntervals.end() - 1,
+                                                            this->findInterval(fx),
+                                                            fx,
+                                                            dx,
+                                                            SkScalarNearlyZero(dx * count));
     while (count > 0) {
         // What we really want here is SkTPin(advance, 1, count)
         // but that's a significant perf hit for >> stops; investigate.
@@ -274,7 +274,7 @@ LinearGradient4fContext::shadeSpanInternal(int x, int y,
     }
 }
 
-template<DstType dstType, SkShader::TileMode tileMode>
+template<DstType dstType, ApplyPremul premul, SkShader::TileMode tileMode>
 class SkLinearGradient::
 LinearGradient4fContext::LinearIntervalProcessor {
 public:
@@ -322,8 +322,8 @@ public:
 
 private:
     void compute_interval_props(SkScalar t) {
-        const Sk4f dC = DstTraits<dstType>::load(fInterval->fDc);
-        fCc           = DstTraits<dstType>::load(fInterval->fC0);
+        const Sk4f dC = DstTraits<dstType, premul>::load(fInterval->fDc);
+        fCc           = DstTraits<dstType, premul>::load(fInterval->fC0);
         fCc           = fCc + dC * Sk4f(t);
         fDcDx         = dC * fDx;
         fZeroRamp     = fIsVertical || fInterval->isZeroRamp();

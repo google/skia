@@ -326,7 +326,7 @@ GradientShaderBase4fContext::shadeSpanInternal(int x, int y,
                                                int count) const {
     static const int kBufSize = 128;
     SkScalar ts[kBufSize];
-    TSampler<dstType, tileMode> sampler(*this);
+    TSampler<dstType, premul, tileMode> sampler(*this);
 
     SkASSERT(count > 0);
     do {
@@ -341,7 +341,7 @@ GradientShaderBase4fContext::shadeSpanInternal(int x, int y,
     } while (count > 0);
 }
 
-template<DstType dstType, SkShader::TileMode tileMode>
+template<DstType dstType, ApplyPremul premul, SkShader::TileMode tileMode>
 class SkGradientShaderBase::GradientShaderBase4fContext::TSampler {
 public:
     TSampler(const GradientShaderBase4fContext& ctx)
@@ -424,8 +424,8 @@ private:
     }
 
     void loadIntervalData(const Interval* i) {
-        fCc = DstTraits<dstType>::load(i->fC0);
-        fDc = DstTraits<dstType>::load(i->fDc);
+        fCc = DstTraits<dstType, premul>::load(i->fC0);
+        fDc = DstTraits<dstType, premul>::load(i->fDc);
     }
 
     const Interval* fFirstInterval;
