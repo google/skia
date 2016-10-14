@@ -1011,90 +1011,6 @@ typedef decltype(load_rgb_from_tables_1<kRGBA_Order>)* Load1Fn;
 typedef decltype(store_generic<kRGBA_Order>         )* StoreFn;
 typedef decltype(store_generic_1<kRGBA_Order>       )* Store1Fn;
 
-template <SkAlphaType kAlphaType,
-          ColorSpaceMatch kCSM>
-static inline void do_color_xform(void* dst, const void* vsrc, int len,
-                                  const float* const srcTables[3], const float matrix[16],
-                                  const uint8_t* const dstTables[3], LoadFn load, Load1Fn load_1,
-                                  StoreFn store, Store1Fn store_1, size_t sizeOfDstPixel) {
-    const uint32_t* src = (const uint32_t*) vsrc;
-    Sk4f rXgXbX, rYgYbY, rZgZbZ, rTgTbT;
-    load_matrix(matrix, rXgXbX, rYgYbY, rZgZbZ, rTgTbT);
-
-    if (len >= 4) {
-        // Naively this would be a loop of load-transform-store, but we found it faster to
-        // move the N+1th load ahead of the Nth store.  We don't bother doing this for N<4.
-        Sk4f r, g, b, a;
-        load(src, r, g, b, a, srcTables);
-        src += 4;
-        len -= 4;
-
-        Sk4f dr, dg, db, da;
-        while (len >= 4) {
-            if (kNone_ColorSpaceMatch == kCSM) {
-                transform_gamut(r, g, b, a, rXgXbX, rYgYbY, rZgZbZ, dr, dg, db, da);
-                translate_gamut(rTgTbT, dr, dg, db);
-            } else {
-                dr = r;
-                dg = g;
-                db = b;
-                da = a;
-            }
-
-            if (kPremul_SkAlphaType == kAlphaType) {
-                premultiply(dr, dg, db, da);
-            }
-
-            load(src, r, g, b, a, srcTables);
-
-            store(dst, src - 4, dr, dg, db, da, dstTables);
-            dst = SkTAddOffset<void>(dst, 4 * sizeOfDstPixel);
-            src += 4;
-            len -= 4;
-        }
-
-        if (kNone_ColorSpaceMatch == kCSM) {
-            transform_gamut(r, g, b, a, rXgXbX, rYgYbY, rZgZbZ, dr, dg, db, da);
-            translate_gamut(rTgTbT, dr, dg, db);
-        } else {
-            dr = r;
-            dg = g;
-            db = b;
-            da = a;
-        }
-
-        if (kPremul_SkAlphaType == kAlphaType) {
-            premultiply(dr, dg, db, da);
-        }
-
-        store(dst, src - 4, dr, dg, db, da, dstTables);
-        dst = SkTAddOffset<void>(dst, 4 * sizeOfDstPixel);
-    }
-
-    while (len > 0) {
-        Sk4f r, g, b, a;
-        load_1(src, r, g, b, a, srcTables);
-
-        Sk4f rgba;
-        if (kNone_ColorSpaceMatch == kCSM) {
-            transform_gamut_1(r, g, b, rXgXbX, rYgYbY, rZgZbZ, rgba);
-            translate_gamut_1(rTgTbT, rgba);
-        } else {
-            rgba = Sk4f(r[0], g[0], b[0], a[0]);
-        }
-
-        if (kPremul_SkAlphaType == kAlphaType) {
-            premultiply_1(a, rgba);
-        }
-
-        store_1(dst, src, rgba, a, dstTables);
-
-        src += 1;
-        len -= 1;
-        dst = SkTAddOffset<void>(dst, sizeOfDstPixel);
-    }
-}
-
 enum SrcFormat {
     kRGBA_8888_Linear_SrcFormat,
     kRGBA_8888_Table_SrcFormat,
@@ -1119,7 +1035,7 @@ template <SrcFormat kSrc,
           DstFormat kDst,
           SkAlphaType kAlphaType,
           ColorSpaceMatch kCSM>
-static void color_xform_RGBA(void* dst, const void* src, int len,
+static void color_xform_RGBA(void* dst, const void* vsrc, int len,
                              const float* const srcTables[3], const float matrix[16],
                              const uint8_t* const dstTables[3]) {
     LoadFn load;
@@ -1224,9 +1140,82 @@ static void color_xform_RGBA(void* dst, const void* src, int len,
             break;
     }
 
-    do_color_xform<kAlphaType, kCSM>
-            (dst, src, len, srcTables, matrix, dstTables, load, load_1, store, store_1,
-             sizeOfDstPixel);
+    const uint32_t* src = (const uint32_t*) vsrc;
+    Sk4f rXgXbX, rYgYbY, rZgZbZ, rTgTbT;
+    load_matrix(matrix, rXgXbX, rYgYbY, rZgZbZ, rTgTbT);
+
+    if (len >= 4) {
+        // Naively this would be a loop of load-transform-store, but we found it faster to
+        // move the N+1th load ahead of the Nth store.  We don't bother doing this for N<4.
+        Sk4f r, g, b, a;
+        load(src, r, g, b, a, srcTables);
+        src += 4;
+        len -= 4;
+
+        Sk4f dr, dg, db, da;
+        while (len >= 4) {
+            if (kNone_ColorSpaceMatch == kCSM) {
+                transform_gamut(r, g, b, a, rXgXbX, rYgYbY, rZgZbZ, dr, dg, db, da);
+                translate_gamut(rTgTbT, dr, dg, db);
+            } else {
+                dr = r;
+                dg = g;
+                db = b;
+                da = a;
+            }
+
+            if (kPremul_SkAlphaType == kAlphaType) {
+                premultiply(dr, dg, db, da);
+            }
+
+            load(src, r, g, b, a, srcTables);
+
+            store(dst, src - 4, dr, dg, db, da, dstTables);
+            dst = SkTAddOffset<void>(dst, 4 * sizeOfDstPixel);
+            src += 4;
+            len -= 4;
+        }
+
+        if (kNone_ColorSpaceMatch == kCSM) {
+            transform_gamut(r, g, b, a, rXgXbX, rYgYbY, rZgZbZ, dr, dg, db, da);
+            translate_gamut(rTgTbT, dr, dg, db);
+        } else {
+            dr = r;
+            dg = g;
+            db = b;
+            da = a;
+        }
+
+        if (kPremul_SkAlphaType == kAlphaType) {
+            premultiply(dr, dg, db, da);
+        }
+
+        store(dst, src - 4, dr, dg, db, da, dstTables);
+        dst = SkTAddOffset<void>(dst, 4 * sizeOfDstPixel);
+    }
+
+    while (len > 0) {
+        Sk4f r, g, b, a;
+        load_1(src, r, g, b, a, srcTables);
+
+        Sk4f rgba;
+        if (kNone_ColorSpaceMatch == kCSM) {
+            transform_gamut_1(r, g, b, rXgXbX, rYgYbY, rZgZbZ, rgba);
+            translate_gamut_1(rTgTbT, rgba);
+        } else {
+            rgba = Sk4f(r[0], g[0], b[0], a[0]);
+        }
+
+        if (kPremul_SkAlphaType == kAlphaType) {
+            premultiply_1(a, rgba);
+        }
+
+        store_1(dst, src, rgba, a, dstTables);
+
+        src += 1;
+        len -= 1;
+        dst = SkTAddOffset<void>(dst, sizeOfDstPixel);
+    }
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
