@@ -23,6 +23,7 @@ class GNFlavorUtils(default_flavor.DefaultFlavorUtils):
       extra_config == 'Mesa',
       extra_config == 'NoGPU',
       extra_config.startswith('SK'),
+      extra_config == 'Vulkan',
       os == 'Ubuntu' and target_arch == 'x86',
     ])
 
@@ -62,6 +63,7 @@ class GNFlavorUtils(default_flavor.DefaultFlavorUtils):
     win_toolchain = str(self.m.vars.slave_dir.join(
       't', 'depot_tools', 'win_toolchain', 'vs_files',
       '95ddda401ec5678f15eeed01d2bee08fcbc5ee97'))
+    win_vulkan_sdk = str(self.m.vars.slave_dir.join('win_vulkan_sdk'))
 
     cc, cxx = None, None
     extra_cflags = []
@@ -107,6 +109,7 @@ class GNFlavorUtils(default_flavor.DefaultFlavorUtils):
       'cc':  cc,
       'cxx': cxx,
       'sanitize': extra_config if 'SAN' in extra_config else '',
+      'skia_vulkan_sdk': win_vulkan_sdk if extra_config == 'Vulkan' else '',
       'target_cpu': 'x86' if target_arch == 'x86' else '',
       'windk': win_toolchain if 'Win' in os else '',
     }.iteritems():
@@ -126,6 +129,17 @@ class GNFlavorUtils(default_flavor.DefaultFlavorUtils):
     self._run('gn gen', [gn, 'gen', self.out_dir, '--args=' + gn_args])
     self._run('ninja', [ninja, '-C', self.out_dir],
               env={'NINJA_STATUS': '%%e [%%f/%%t] '})
+
+  def copy_extra_build_products(self, swarming_out_dir):
+    configuration = self.m.vars.builder_cfg.get('configuration', '')
+    extra_config  = self.m.vars.builder_cfg.get('extra_config',  '')
+    os            = self.m.vars.builder_cfg.get('os',            '')
+
+    win_vulkan_sdk = str(self.m.vars.slave_dir.join('win_vulkan_sdk'))
+    if 'Win' in os and extra_config == 'Vulkan':
+      self.m.run.copy_build_products(
+          win_vulkan_sdk,
+          swarming_out_dir.join('out', configuration + '_x64'))
 
   def step(self, name, cmd, env=None, **kwargs):
     app = self.m.vars.skia_out.join(self.m.vars.configuration, cmd[0])
