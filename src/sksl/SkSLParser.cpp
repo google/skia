@@ -808,17 +808,26 @@ std::unique_ptr<ASTForStatement> Parser::forStatement() {
         case Token::SEMICOLON: 
             this->nextToken();
             break;
-        case Token::CONST:
+        case Token::CONST: {
+            std::unique_ptr<ASTVarDeclarations> vd = this->varDeclarations();
+            if (!vd) {
+                return nullptr;
+            }
             initializer = std::unique_ptr<ASTStatement>(new ASTVarDeclarationStatement(
-                                                                          this->varDeclarations()));
+                                                                                    std::move(vd)));
             break;
-        case Token::IDENTIFIER: 
+        }
+        case Token::IDENTIFIER: {
             if (this->isType(nextToken.fText)) {
+                std::unique_ptr<ASTVarDeclarations> vd = this->varDeclarations();
+                if (!vd) {
+                    return nullptr;
+                }
                 initializer = std::unique_ptr<ASTStatement>(new ASTVarDeclarationStatement(
-                                                                          this->varDeclarations()));
+                                                                                    std::move(vd)));
                 break;
             }
-            // fall through
+        } // fall through
         default:
             initializer = this->expressionStatement();
     }

@@ -1228,6 +1228,7 @@ std::unique_ptr<Expression> IRGenerator::convertSuffixExpression(
                                                                      *newType));
             } else {
                 fErrors.error(expression.fPosition, "'[]' must follow a type name");
+                return nullptr;
             }
         }
         case ASTSuffix::kCall_Kind: {
