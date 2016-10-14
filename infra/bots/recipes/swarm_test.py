@@ -115,7 +115,7 @@ def dm_flags(bot):
                    ['serialize', 'tiles_rt', 'pic'])
 
   if 'ANGLE' in bot:
-    configs.append('angle')
+    configs.append('angle_d3d11_es2')
 
   # We want to run gpudft on atleast the mali 400
   if 'GalaxyS3' in bot:

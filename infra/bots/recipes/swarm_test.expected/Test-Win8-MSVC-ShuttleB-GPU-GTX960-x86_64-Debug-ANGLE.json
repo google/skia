@@ -228,7 +228,7 @@
       "serialize-8888",
       "tiles_rt-8888",
       "pic-8888",
-      "angle",
+      "angle_d3d11_es2",
       "--src",
       "tests",
       "gm",

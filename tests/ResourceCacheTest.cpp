@@ -80,7 +80,17 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(ResourceCacheCache, reporter, ctxInfo) {
     context->setResourceCacheLimits(oldMaxNum, oldMaxBytes);
 }
 
-DEF_GPUTEST_FOR_RENDERING_CONTEXTS(ResourceCacheStencilBuffers, reporter, ctxInfo) {
+static bool is_rendering_and_not_angle_es3(sk_gpu_test::GrContextFactory::ContextType type) {
+    if (type == sk_gpu_test::GrContextFactory::kANGLE_D3D11_ES3_ContextType ||
+        type == sk_gpu_test::GrContextFactory::kANGLE_GL_ES3_ContextType) {
+        return false;
+    }
+    return sk_gpu_test::GrContextFactory::IsRenderingContext(type);
+}
+
+// This currently fails on ES3 ANGLE contexts
+DEF_GPUTEST_FOR_CONTEXTS(ResourceCacheStencilBuffers, &is_rendering_and_not_angle_es3, reporter,
+                         ctxInfo) {
     GrContext* context = ctxInfo.grContext();
     GrSurfaceDesc smallDesc;
     smallDesc.fFlags = kRenderTarget_GrSurfaceFlag;

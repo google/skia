@@ -38,6 +38,7 @@ TEST_BUILDERS = {
       'Perf-Win-MSVC-GCE-CPU-AVX2-x86_64-Debug',
       'Perf-Win-MSVC-GCE-CPU-AVX2-x86_64-Release',
       'Perf-Win8-MSVC-ShuttleB-GPU-HD4600-x86_64-Release-Trybot',
+      'Perf-Win8-MSVC-ShuttleB-GPU-GTX960-x86_64-Debug-ANGLE',
       'Perf-iOS-Clang-iPad4-GPU-SGX554-Arm7-Debug',
     ],
   },
@@ -62,7 +63,7 @@ def nanobench_flags(bot):
   if 'iOS' in bot:
     args.extend(['--skps', 'ignore_skps'])
 
-  config = ['8888', 'gpu', 'nonrendering', 'angle', 'hwui' ]
+  config = ['8888', 'gpu', 'nonrendering', 'hwui' ]
   if 'AndroidOne' not in bot:
     config += [ 'f16', 'srgb' ]
   if '-GCE-' in bot:
@@ -94,6 +95,9 @@ def nanobench_flags(bot):
     config = ['commandbuffer']
   if 'Vulkan' in bot:
     config = ['vk']
+
+  if 'ANGLE' in bot:
+    config.extend(['angle_gl_es2', 'angle_d3d11_es2'])
 
   args.append('--config')
   args.extend(config)
