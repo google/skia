@@ -126,8 +126,6 @@ class DefaultFlavorUtils(object):
     if self.m.platform.is_win:
       make_cmd = ['python', 'make.py']
       self.m.run.run_once(self.bootstrap_win_toolchain)
-      if 'Vulkan' in self.m.vars.builder_name:
-        env['VULKAN_SDK'] = self.m.vars.slave_dir.join('win_vulkan_sdk')
     else:
       make_cmd = ['make']
     cmd = make_cmd + [target]
@@ -143,17 +141,7 @@ class DefaultFlavorUtils(object):
         raise
 
   def copy_extra_build_products(self, swarming_out_dir):
-    """Copy extra build products to specified directory.
-
-    Copy flavor-specific build products to swarming_out_dir for use in test and
-    perf steps."""
-    if ("Win" in self.m.vars.builder_name and
-        "Vulkan" in self.m.vars.builder_name):
-      # This copies vulkan-1.dll that has been bundled into win_vulkan_sdk
-      # since version 2  See skia/api BUILD_PRODUCTS_ISOLATE_WHITELIST
-      self.m.run.copy_build_products(
-          self.m.path['slave_build'].join('win_vulkan_sdk'),
-          swarming_out_dir)
+    pass
 
   @property
   def out_dir(self):
