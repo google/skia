@@ -597,11 +597,6 @@ bool SkFontConfigInterfaceDirect::matchFamilyName(const char familyName[],
 
     FcPatternAddBool(pattern, FC_SCALABLE, FcTrue);
 
-#ifdef SK_FONT_CONFIG_INTERFACE_ONLY_ALLOW_SFNT_FONTS
-    FcPatternAddString(pattern, FC_FONTFORMAT, reinterpret_cast<const FcChar8*>(kFontFormatTrueType));
-    FcPatternAddString(pattern, FC_FONTFORMAT, reinterpret_cast<const FcChar8*>(kFontFormatCFF));
-#endif
-
     FcConfigSubstitute(nullptr, pattern, FcMatchPattern);
     FcDefaultSubstitute(pattern);
 
