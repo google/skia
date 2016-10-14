@@ -138,8 +138,13 @@ public:
      */
     static bool Equals(const SkColorSpace* src, const SkColorSpace* dst);
 
+    uint32_t uniqueID() const { return fUniqueID; }
+
 protected:
-    SkColorSpace() {}
+    SkColorSpace();
+
+private:
+    const uint32_t fUniqueID;
 };
 
 #endif

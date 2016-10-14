@@ -16,6 +16,8 @@ public:
      *  Shared between SkPixelRef's generationID and SkImage's uniqueID
      */
     static uint32_t ImageID();
+
+    static uint32_t ColorSpaceID();
 };
 
 #endif

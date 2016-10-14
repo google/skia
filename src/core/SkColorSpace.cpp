@@ -5,9 +5,11 @@
  * found in the LICENSE file.
  */
 
+#include "SkAtomics.h"
 #include "SkColorSpace.h"
 #include "SkColorSpace_Base.h"
 #include "SkColorSpacePriv.h"
+#include "SkNextID.h"
 #include "SkOnce.h"
 #include "SkPoint3.h"
 
@@ -82,8 +84,23 @@ bool SkColorSpacePrimaries::toXYZD50(SkMatrix44* toXYZ_D50) const {
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
+uint32_t SkNextID::ColorSpaceID() {
+    static uint32_t gID = 0;
+    uint32_t id;
+    // Loop in case our global wraps around, as we never want to return a 0.
+    do {
+        id = sk_atomic_fetch_add(&gID, 2u) + 2;  // Never set the low bit.
+    } while (0 == id);
+    return id;
+}
+
+SkColorSpace::SkColorSpace()
+    : fUniqueID(SkNextID::ColorSpaceID())
+{}
+
 SkColorSpace_Base::SkColorSpace_Base(SkGammaNamed gammaNamed, const SkMatrix44& toXYZD50)
-    : fGammaNamed(gammaNamed)
+    : INHERITED()
+    , fGammaNamed(gammaNamed)
     , fGammas(nullptr)
     , fProfileData(nullptr)
     , fToXYZD50(toXYZD50)
@@ -93,7 +110,8 @@ SkColorSpace_Base::SkColorSpace_Base(SkGammaNamed gammaNamed, const SkMatrix44& 
 SkColorSpace_Base::SkColorSpace_Base(sk_sp<SkColorLookUpTable> colorLUT, SkGammaNamed gammaNamed,
                                      sk_sp<SkGammas> gammas, const SkMatrix44& toXYZD50,
                                      sk_sp<SkData> profileData)
-    : fColorLUT(std::move(colorLUT))
+    : INHERITED()
+    , fColorLUT(std::move(colorLUT))
     , fGammaNamed(gammaNamed)
     , fGammas(std::move(gammas))
     , fProfileData(std::move(profileData))
