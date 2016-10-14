@@ -23,6 +23,7 @@ class GNFlavorUtils(default_flavor.DefaultFlavorUtils):
       extra_config == 'Mesa',
       extra_config == 'NoGPU',
       extra_config.startswith('SK'),
+      extra_config == 'Vulkan',
       os == 'Ubuntu' and target_arch == 'x86',
     ])
 
@@ -62,6 +63,7 @@ class GNFlavorUtils(default_flavor.DefaultFlavorUtils):
     win_toolchain = str(self.m.vars.slave_dir.join(
       't', 'depot_tools', 'win_toolchain', 'vs_files',
       '95ddda401ec5678f15eeed01d2bee08fcbc5ee97'))
+    win_vulkan_sdk = str(self.m.vars.slave_dir.join('win_vulkan_sdk'))
 
     cc, cxx = None, None
     extra_cflags = []
@@ -107,6 +109,7 @@ class GNFlavorUtils(default_flavor.DefaultFlavorUtils):
       'cc':  cc,
       'cxx': cxx,
       'sanitize': extra_config if 'SAN' in extra_config else '',
+      'skia_vulkan_sdk': win_vulkan_sdk if extra_config == 'Vulkan' else '',
       'target_cpu': 'x86' if target_arch == 'x86' else '',
       'windk': win_toolchain if 'Win' in os else '',
     }.iteritems():
