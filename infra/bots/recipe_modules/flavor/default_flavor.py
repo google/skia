@@ -126,8 +126,6 @@ class DefaultFlavorUtils(object):
     if self.m.platform.is_win:
       make_cmd = ['python', 'make.py']
       self.m.run.run_once(self.bootstrap_win_toolchain)
-      if 'Vulkan' in self.m.vars.builder_name:
-        env['VULKAN_SDK'] = self.m.vars.slave_dir.join('win_vulkan_sdk')
     else:
       make_cmd = ['make']
     cmd = make_cmd + [target]
