@@ -12,9 +12,11 @@
 #include "SampleSlide.h"
 #include "SKPSlide.h"
 
+#include "SkATrace.h"
 #include "SkCanvas.h"
 #include "SkCommonFlags.h"
 #include "SkDashPathEffect.h"
+#include "SkGraphics.h"
 #include "SkMetaData.h"
 #include "SkOSFile.h"
 #include "SkRandom.h"
@@ -75,6 +77,8 @@ DEFINE_string(jpgs, "jpgs", "Directory to read jpgs from.");
 
 DEFINE_string2(backend, b, "sw", "Backend to use. Allowed values are " BACKENDS_STR ".");
 
+DEFINE_bool(atrace, false, "Enable support for using ATrace. ATrace is only supported on Android.");
+
 const char *kBackendTypeStrings[sk_app::Window::kBackendTypeCount] = {
     " [OpenGL]",
 #ifdef SK_VULKAN
@@ -123,6 +127,7 @@ Viewer::Viewer(int argc, char** argv, void* platformData)
     , fZoomLevel(0.0f)
     , fZoomScale(SK_Scalar1)
 {
+    SkGraphics::Init();
     memset(fMeasurements, 0, sizeof(fMeasurements));
 
     SkDebugf("Command line arguments: ");
@@ -132,6 +137,10 @@ Viewer::Viewer(int argc, char** argv, void* platformData)
     SkDebugf("\n");
 
     SkCommandLineFlags::Parse(argc, argv);
+
+    if (FLAGS_atrace) {
+        SkEventTracer::SetInstance(new SkATrace());
+    }
 
     fBackendType = get_backend_type(FLAGS_backend[0]);
     fWindow = Window::CreateNativeWindow(platformData);
