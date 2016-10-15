@@ -165,30 +165,39 @@
     "cmd": [
       "python",
       "-u",
-      "[CUSTOM_C:\\_B_WORK]\\skia\\infra\\bots\\bootstrap_win_toolchain_json.py",
-      "--win_toolchain_json",
-      "[SLAVE_BUILD]\\src\\build\\win_toolchain.json",
-      "--depot_tools_parent_dir",
-      "[SLAVE_BUILD]"
-    ],
-    "name": "bootstrap win toolchain"
-  },
-  {
-    "cmd": [
-      "python",
-      "make.py",
-      "most"
+      "[CUSTOM_C:\\_B_WORK]\\skia\\bin\\fetch-gn"
     ],
     "cwd": "[CUSTOM_C:\\_B_WORK]\\skia",
     "env": {
-      "BUILDTYPE": "Debug",
-      "CHROME_HEADLESS": "1",
-      "CHROME_PATH": "[SLAVE_BUILD]\\src",
-      "GYP_DEFINES": "qt_sdk=C:/Qt/4.8.5/ skia_arch_type=x86 skia_warnings_as_errors=1 skia_win_debuggers_path=c:/DbgHelp skia_win_ltcg=0",
-      "PATH": "%(PATH)s;RECIPE_PACKAGE_REPO[depot_tools];RECIPE_PACKAGE_REPO[depot_tools];RECIPE_PACKAGE_REPO[depot_tools];RECIPE_PACKAGE_REPO[depot_tools]",
-      "SKIA_OUT": "[CUSTOM_C:\\_B_WORK]\\skia\\out\\Build-Win-MSVC-x86-Debug"
+      "PATH": "%(PATH)s;RECIPE_PACKAGE_REPO[depot_tools];RECIPE_PACKAGE_REPO[depot_tools];RECIPE_PACKAGE_REPO[depot_tools];RECIPE_PACKAGE_REPO[depot_tools]"
     },
-    "name": "build most"
+    "name": "fetch-gn"
+  },
+  {
+    "cmd": [
+      "gn.bat",
+      "gen",
+      "[CUSTOM_C:\\_B_WORK]\\skia\\out\\Build-Win-MSVC-x86-Debug\\Debug",
+      "--args=target_cpu=\"x86\" windk=\"[SLAVE_BUILD]\\t\\depot_tools\\win_toolchain\\vs_files\\95ddda401ec5678f15eeed01d2bee08fcbc5ee97\""
+    ],
+    "cwd": "[CUSTOM_C:\\_B_WORK]\\skia",
+    "env": {
+      "PATH": "%(PATH)s;RECIPE_PACKAGE_REPO[depot_tools];RECIPE_PACKAGE_REPO[depot_tools];RECIPE_PACKAGE_REPO[depot_tools];RECIPE_PACKAGE_REPO[depot_tools]"
+    },
+    "name": "gn gen"
+  },
+  {
+    "cmd": [
+      "ninja.exe",
+      "-C",
+      "[CUSTOM_C:\\_B_WORK]\\skia\\out\\Build-Win-MSVC-x86-Debug\\Debug"
+    ],
+    "cwd": "[CUSTOM_C:\\_B_WORK]\\skia",
+    "env": {
+      "NINJA_STATUS": "%%e [%%f/%%t] ",
+      "PATH": "%(PATH)s;RECIPE_PACKAGE_REPO[depot_tools];RECIPE_PACKAGE_REPO[depot_tools];RECIPE_PACKAGE_REPO[depot_tools];RECIPE_PACKAGE_REPO[depot_tools]"
+    },
+    "name": "ninja"
   },
   {
     "cmd": [

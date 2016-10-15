@@ -46,6 +46,7 @@ TEST_BUILDERS = {
       'Build-Ubuntu-GCC-x86_64-Release-Shared',
       'Build-Ubuntu-GCC-x86_64-Release-Valgrind',
       'Build-Win-MSVC-x86-Debug',
+      'Build-Win-MSVC-x86-Debug-ANGLE',
       'Build-Win-MSVC-x86-Debug-Exceptions',
       'Build-Win-MSVC-x86-Release-GDI',
       'Build-Win-MSVC-x86-Release-GN',
@@ -265,7 +266,7 @@ def GenTests(api):
       api.step_data('build most', retcode=1)
   )
 
-  buildername = 'Build-Win-MSVC-x86-Debug'
+  buildername = 'Build-Win-MSVC-x86-Debug-ANGLE'
   yield (
       api.test('win_retry_failed_compile') +
       api.properties(buildername=buildername,
@@ -282,6 +283,7 @@ def GenTests(api):
       api.step_data('build most', retcode=1)
   )
 
+  buildername = 'Build-Win-MSVC-x86-Debug'
   yield (
       api.test('big_issue_number') +
       api.properties(buildername=buildername,
