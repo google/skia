@@ -16,6 +16,9 @@
 #define SKNX_IS_FAST
 
 template <> struct SkNx_abi<4,float> { __m128 vec; };
+#if SK_CPU_SSE_LEVEL >= SK_CPU_SSE_LEVEL_AVX2
+    template <> struct SkNx_abi<8,float> { __m256 vec; };
+#endif
 
 namespace {
 
@@ -557,6 +560,9 @@ public:
         I SkNx(float val) : fVec(_mm256_set1_ps(val)) {}
         I SkNx(float a, float b, float c, float d,
                float e, float f, float g, float h) : fVec(_mm256_setr_ps(a,b,c,d,e,f,g,h)) {}
+
+        SkNx(const SkNx_abi<8,float>& a) : fVec(a.vec) {}
+        operator SkNx_abi<8,float>() const { return { fVec }; }
 
         I static SkNx Load(const void* ptr) { return _mm256_loadu_ps((const float*)ptr); }
         I void store(void* ptr) const { _mm256_storeu_ps((float*)ptr, fVec); }
