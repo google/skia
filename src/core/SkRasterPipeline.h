@@ -57,9 +57,9 @@ class SkRasterPipeline {
 public:
     struct Stage;
 #if SK_CPU_SSE_LEVEL >= SK_CPU_SSE_LEVEL_AVX2
-    using V = Sk8f;
+    using V = SkNx_abi<8,float>;
 #else
-    using V = Sk4f;
+    using V = SkNx_abi<4,float>;
 #endif
     using Fn = void(SK_VECTORCALL *)(Stage*, size_t, size_t, V,V,V,V,
                                                              V,V,V,V);
