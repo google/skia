@@ -16,6 +16,11 @@
 #include <math.h>
 #include <type_traits>
 
+// These _abi types are data-only, and so can be used to store SkNx in structs or
+// pass them as function parameters or return values, even across compilation units.
+template <int N, typename T> struct SkNx_abi      { SkNx_abi<N/2,T> lo, hi; };
+template <       typename T> struct SkNx_abi<1,T> {              T     val; };
+
 namespace {
 
 #define SI static inline
@@ -41,6 +46,9 @@ struct SkNx {
          T i, T j, T k, T l,  T m, T n, T o, T p) : fLo(a,b,c,d, e,f,g,h), fHi(i,j,k,l, m,n,o,p) {
         static_assert(N==16, "");
     }
+
+    SkNx(const SkNx_abi<N,T>& a) : fLo(a.lo), fHi(a.hi) {}
+    operator SkNx_abi<N,T>() const { return { (SkNx_abi<N/2,T>)fLo, (SkNx_abi<N/2,T>)fHi }; }
 
     T operator[](int k) const {
         SkASSERT(0 <= k && k < N);
@@ -128,6 +136,9 @@ struct SkNx<1,T> {
 
     SkNx() = default;
     SkNx(T v) : fVal(v) {}
+
+    SkNx(const SkNx_abi<1,T>& a) : fVal(a.val) {}
+    operator SkNx_abi<1,T>() const { return { fVal }; }
 
     // Android complains against unused parameters, so we guard it
     T operator[](int SkDEBUGCODE(k)) const {
