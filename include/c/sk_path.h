@@ -241,6 +241,26 @@ SK_API bool sk_opbuilder_resolve(sk_opbuilder_t* builder, sk_path_t* result);
 
 SK_API int sk_path_convert_conic_to_quads(const sk_point_t* p0, const sk_point_t* p1, const sk_point_t* p2, float w, sk_point_t* pts, int pow2);
 
+SK_API sk_pathmeasure_t* sk_pathmeasure_new();
+
+SK_API sk_pathmeasure_t* sk_pathmeasure_new_with_path(const sk_path_t* path, bool forceClosed, float resScale);
+
+SK_API void sk_pathmeasure_destroy(sk_pathmeasure_t* pathMeasure);
+
+SK_API void sk_pathmeasure_set_path(sk_pathmeasure_t* pathMeasure, const sk_path_t* path, bool forceClosed);
+
+SK_API float sk_pathmeasure_get_length(sk_pathmeasure_t* pathMeasure);
+
+SK_API bool sk_pathmeasure_get_pos_tan(sk_pathmeasure_t* pathMeasure, float distance, sk_point_t* position, sk_vector_t* tangent);
+
+SK_API bool sk_pathmeasure_get_matrix(sk_pathmeasure_t* pathMeasure, float distance, sk_matrix_t* matrix, sk_pathmeasure_matrixflags_t flags);
+
+SK_API bool sk_pathmeasure_get_segment(sk_pathmeasure_t* pathMeasure, float start, float stop, sk_path_t* dst, bool startWithMoveTo);
+
+SK_API bool sk_pathmeasure_is_closed(sk_pathmeasure_t* pathMeasure);
+
+SK_API bool sk_pathmeasure_next_contour(sk_pathmeasure_t* pathMeasure);
+
 SK_C_PLUS_PLUS_END_GUARD
 
 #endif

@@ -105,6 +105,8 @@ typedef struct {
     float   y;
 } sk_point_t;
 
+typedef sk_point_t sk_vector_t;
+
 typedef struct {
     int32_t left;
     int32_t top;
@@ -687,6 +689,14 @@ typedef struct {
     int fYCount;
     const sk_irect_t* fBounds;
 } sk_lattice_t;
+
+typedef struct sk_pathmeasure_t sk_pathmeasure_t;
+
+typedef enum {
+    GET_POSITION_SK_PATHMEASURE_MATRIXFLAGS = 0x01,
+    GET_TANGENT_SK_PATHMEASURE_MATRIXFLAGS = 0x02,
+    GET_POS_AND_TAN_SK_PATHMEASURE_MATRIXFLAGS = GET_POSITION_SK_PATHMEASURE_MATRIXFLAGS | GET_TANGENT_SK_PATHMEASURE_MATRIXFLAGS,
+} sk_pathmeasure_matrixflags_t;
 
 SK_C_PLUS_PLUS_END_GUARD
 

@@ -13,6 +13,7 @@
 #include "SkDocument.h"
 #include "SkPaint.h"
 #include "SkPath.h"
+#include "SkPathMeasure.h"
 #include "SkCodec.h"
 #include "SkPicture.h"
 #include "SkPictureRecorder.h"
@@ -122,6 +123,10 @@ static inline const SkPath& AsPath(const sk_path_t& cpath) {
 
 static inline SkPath* AsPath(sk_path_t* cpath) {
     return reinterpret_cast<SkPath*>(cpath);
+}
+
+static inline const SkPath* AsPath(const sk_path_t* cpath) {
+    return reinterpret_cast<const SkPath*>(cpath);
 }
 
 static inline const SkImage* AsImage(const sk_image_t* cimage) {
@@ -502,6 +507,14 @@ static inline SkOpBuilder* AsOpBuilder(sk_opbuilder_t* p) {
 
 static inline const SkCanvas::Lattice& AsLattice(const sk_lattice_t& p) {
     return reinterpret_cast<const SkCanvas::Lattice&>(p);
+}
+
+static inline sk_pathmeasure_t* ToPathMeasure(SkPathMeasure* p) {
+    return reinterpret_cast<sk_pathmeasure_t*>(p);
+}
+
+static inline SkPathMeasure* AsPathMeasure(sk_pathmeasure_t* p) {
+    return reinterpret_cast<SkPathMeasure*>(p);
 }
 
 static inline void from_c(const sk_matrix_t* cmatrix, SkMatrix* matrix) {

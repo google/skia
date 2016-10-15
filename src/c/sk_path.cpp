@@ -6,6 +6,7 @@
  */
 
 #include "SkPath.h"
+#include "SkPathMeasure.h"
 #include "SkPathOps.h"
 #include "SkParsePath.h"
 
@@ -256,11 +257,11 @@ void sk_path_set_convexity (sk_path_t* cpath, sk_path_convexity_t convexity) {
     AsPath(cpath)->setConvexity((SkPath::Convexity)convexity);
 }
 
-SK_API bool sk_path_parse_svg_string (sk_path_t* cpath, const char* str) {
+bool sk_path_parse_svg_string (sk_path_t* cpath, const char* str) {
     return SkParsePath::FromSVGString(str, AsPath(cpath));
 }
 
-SK_API void sk_path_to_svg_string (const sk_path_t* cpath, sk_string_t* str) {
+void sk_path_to_svg_string (const sk_path_t* cpath, sk_string_t* str) {
     SkParsePath::ToSVGString(AsPath(*cpath), AsString(str));
 }
 
@@ -302,4 +303,47 @@ bool sk_opbuilder_resolve(sk_opbuilder_t* builder, sk_path_t* result) {
 
 int sk_path_convert_conic_to_quads(const sk_point_t* p0, const sk_point_t* p1, const sk_point_t* p2, float w, sk_point_t* pts, int pow2) {
     return SkPath::ConvertConicToQuads(AsPoint(*p0), AsPoint(*p1), AsPoint(*p2), w, AsPoint(pts), pow2);
+}
+
+sk_pathmeasure_t* sk_pathmeasure_new() {
+    return ToPathMeasure(new SkPathMeasure());
+}
+
+sk_pathmeasure_t* sk_pathmeasure_new_with_path(const sk_path_t* path, bool forceClosed, float resScale) {
+    return ToPathMeasure(new SkPathMeasure(AsPath(*path), forceClosed, resScale));
+}
+
+void sk_pathmeasure_destroy(sk_pathmeasure_t* pathMeasure) {
+    delete AsPathMeasure(pathMeasure);
+}
+
+void sk_pathmeasure_set_path(sk_pathmeasure_t* pathMeasure, const sk_path_t* path, bool forceClosed) {
+    AsPathMeasure(pathMeasure)->setPath(AsPath(path), forceClosed);
+}
+
+float sk_pathmeasure_get_length(sk_pathmeasure_t* pathMeasure) {
+    return AsPathMeasure(pathMeasure)->getLength();
+}
+
+bool sk_pathmeasure_get_pos_tan(sk_pathmeasure_t* pathMeasure, float distance, sk_point_t* position, sk_vector_t* tangent) {
+    return AsPathMeasure(pathMeasure)->getPosTan(distance, AsPoint(position), AsPoint(tangent));
+}
+
+bool sk_pathmeasure_get_matrix(sk_pathmeasure_t* pathMeasure, float distance, sk_matrix_t* matrix, sk_pathmeasure_matrixflags_t flags) {
+    SkMatrix skmatrix;
+    bool result = AsPathMeasure(pathMeasure)->getMatrix(distance, &skmatrix, (SkPathMeasure::MatrixFlags)flags);
+    from_sk(&skmatrix, matrix);
+    return result;
+}
+
+bool sk_pathmeasure_get_segment(sk_pathmeasure_t* pathMeasure, float start, float stop, sk_path_t* dst, bool startWithMoveTo) {
+    return AsPathMeasure(pathMeasure)->getSegment(start, stop, AsPath(dst), startWithMoveTo);
+}
+
+bool sk_pathmeasure_is_closed(sk_pathmeasure_t* pathMeasure) {
+    return AsPathMeasure(pathMeasure)->isClosed();
+}
+
+bool sk_pathmeasure_next_contour(sk_pathmeasure_t* pathMeasure) {
+    return AsPathMeasure(pathMeasure)->nextContour();
 }
