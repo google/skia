@@ -28,6 +28,10 @@ sk_picture_t* sk_picture_recorder_end_recording(sk_picture_recorder_t* crec) {
     return ToPicture(AsPictureRecorder(crec)->finishRecordingAsPicture().release());
 }
 
+sk_canvas_t* sk_picture_get_recording_canvas(sk_picture_recorder_t* crec) {
+    return ToCanvas(AsPictureRecorder(crec)->getRecordingCanvas());
+}
+
 void sk_picture_ref(sk_picture_t* cpic) {
     SkSafeRef(AsPicture(cpic));
 }

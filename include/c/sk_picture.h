@@ -42,6 +42,8 @@ SK_API sk_canvas_t* sk_picture_recorder_begin_recording(sk_picture_recorder_t*, 
 */
 SK_API sk_picture_t* sk_picture_recorder_end_recording(sk_picture_recorder_t*);
 
+SK_API sk_canvas_t* sk_picture_get_recording_canvas(sk_picture_recorder_t* crec);
+
 /**
     Increment the reference count on the given sk_picture_t. Must be
     balanced by a call to sk_picture_unref().
