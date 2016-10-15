@@ -15,6 +15,8 @@
 
 #define SKNX_IS_FAST
 
+template <> struct SkNx_abi<4,float> { __m128 vec; };
+
 namespace {
 
 template <>
@@ -70,6 +72,9 @@ public:
     SkNx() {}
     SkNx(float val)           : fVec( _mm_set1_ps(val) ) {}
     SkNx(float a, float b, float c, float d) : fVec(_mm_setr_ps(a,b,c,d)) {}
+
+    SkNx(const SkNx_abi<4,float>& a) : fVec(a.vec) {}
+    operator SkNx_abi<4,float>() const { return { fVec }; }
 
     static SkNx Load(const void* ptr) { return _mm_loadu_ps((const float*)ptr); }
     void store(void* ptr) const { _mm_storeu_ps((float*)ptr, fVec); }
