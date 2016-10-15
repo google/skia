@@ -175,11 +175,7 @@
       "os",
       "Win"
     ],
-    "env": {
-      "BUILDTYPE": "Release_x64",
-      "CHROME_HEADLESS": "1",
-      "SKIA_OUT": "[SLAVE_BUILD]\\out"
-    },
+    "cwd": "[SLAVE_BUILD]\\skia",
     "name": "nanobench"
   },
   {

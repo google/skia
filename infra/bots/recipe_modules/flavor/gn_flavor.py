@@ -15,6 +15,7 @@ class GNFlavorUtils(default_flavor.DefaultFlavorUtils):
       'CT' in extra_config,
       'SAN' in extra_config,
       extra_config == 'ANGLE' and 'Win' not in os,
+      extra_config != 'ANGLE' and 'Win' in os,
       extra_config == 'CommandBuffer',
       extra_config == 'Exceptions',
       extra_config == 'Fast',
