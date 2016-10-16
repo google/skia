@@ -8,6 +8,7 @@
 #include "SkColorSpace.h"
 #include "SkColorSpace_Base.h"
 #include "SkColorSpacePriv.h"
+#include "SkColorSpaceXform_Base.h"
 #include "SkOnce.h"
 #include "SkPoint3.h"
 
@@ -317,6 +318,23 @@ const SkMatrix44& SkColorSpace_Base::fromXYZD50() const {
         }
     });
     return fFromXYZD50;
+}
+
+void SkColorSpace_Base::toDstGammaTables(const uint8_t* tables[3], sk_sp<SkData>* storage,
+                                         int numTables) const {
+    fToDstGammaOnce([this, numTables] {
+        const bool gammasAreMatching = numTables <= 1;
+        fDstStorage =
+                SkData::MakeUninitialized(numTables * SkColorSpaceXform_Base::kDstGammaTableSize);
+        SkColorSpaceXform_Base::BuildDstGammaTables(fToDstGammaTables,
+                                                    (uint8_t*) fDstStorage->writable_data(), this,
+                                                    gammasAreMatching);
+    });
+
+    *storage = fDstStorage;
+    tables[0] = fToDstGammaTables[0];
+    tables[1] = fToDstGammaTables[1];
+    tables[2] = fToDstGammaTables[2];
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
