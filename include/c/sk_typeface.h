@@ -24,6 +24,10 @@ SK_API sk_typeface_t* sk_typeface_create_from_stream(sk_stream_asset_t* stream, 
 SK_API int sk_typeface_chars_to_glyphs(sk_typeface_t* typeface, const char *chars, sk_encoding_t encoding, uint16_t glyphs[], int glyphCount);
 
 SK_API sk_string_t* sk_typeface_get_family_name(sk_typeface_t* typeface);
+SK_API int sk_typeface_get_font_weight(sk_typeface_t* typeface);
+SK_API int sk_typeface_get_font_width(sk_typeface_t* typeface);
+SK_API sk_font_style_slant_t sk_typeface_get_font_slant(sk_typeface_t* typeface);
+SK_API sk_typeface_style_t sk_typeface_get_style(sk_typeface_t* typeface);
 
 SK_API int sk_typeface_count_tables(sk_typeface_t* typeface);
 SK_API int sk_typeface_get_table_tags(sk_typeface_t* typeface, sk_font_table_tag_t tags[]);
