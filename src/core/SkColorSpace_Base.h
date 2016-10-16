@@ -177,6 +177,8 @@ public:
     const SkMatrix44& toXYZD50() const { return fToXYZD50; }
     const SkMatrix44& fromXYZD50() const;
     
+    void toDstGammaTables(const uint8_t* tables[3], sk_sp<SkData>* storage, int numTables) const;
+
     /**
      *  Create an SkColorSpace with the same gamut as this color space, but with linear gamma.
      */
@@ -200,14 +202,18 @@ private:
     SkColorSpace_Base(sk_sp<SkColorLookUpTable> colorLUT, SkGammaNamed gammaNamed,
                       sk_sp<SkGammas> gammas, const SkMatrix44& toXYZ, sk_sp<SkData> profileData);
 
-    sk_sp<SkColorLookUpTable> fColorLUT;
-    const SkGammaNamed        fGammaNamed;
-    sk_sp<SkGammas>           fGammas;
-    sk_sp<SkData>             fProfileData;
+    sk_sp<SkColorLookUpTable>      fColorLUT;
+    const SkGammaNamed             fGammaNamed;
+    sk_sp<SkGammas>                fGammas;
+    sk_sp<SkData>                  fProfileData;
 
-    const SkMatrix44          fToXYZD50;
-    mutable SkMatrix44        fFromXYZD50;
-    mutable SkOnce            fFromXYZOnce;
+    const SkMatrix44               fToXYZD50;
+    mutable SkMatrix44             fFromXYZD50;
+    mutable SkOnce                 fFromXYZOnce;
+
+    mutable sk_sp<SkData>          fDstStorage;
+    mutable const uint8_t*         fToDstGammaTables[3];
+    mutable SkOnce                 fToDstGammaOnce;
 
     friend class SkColorSpace;
     friend class ColorSpaceXformTest;

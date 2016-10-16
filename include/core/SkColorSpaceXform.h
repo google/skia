@@ -50,17 +50,11 @@ public:
      *
      */
     bool apply(ColorFormat dstFormat, void* dst, ColorFormat srcFormat, const void* src, int count,
-               SkAlphaType alphaType) const {
-        return this->onApply(dstFormat, dst, srcFormat, src, count, alphaType);
-    }
-
+               SkAlphaType alphaType) const;
 
     virtual ~SkColorSpaceXform() {}
 
 protected:
-    virtual bool onApply(ColorFormat dstFormat, void* dst, ColorFormat srcFormat, const void* src,
-                         int count, SkAlphaType alphaType) const = 0;
-
     SkColorSpaceXform() {}
 };
 

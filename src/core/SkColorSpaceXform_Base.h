@@ -11,6 +11,23 @@
 #include "SkColorSpace.h"
 #include "SkColorSpace_Base.h"
 #include "SkColorSpaceXform.h"
+#include "SkResourceCache.h"
+
+class SkColorSpaceXform_Base : public SkColorSpaceXform {
+public:
+    static constexpr int kDstGammaTableSize = 1024;
+
+protected:
+    virtual bool onApply(ColorFormat dstFormat, void* dst, ColorFormat srcFormat, const void* src,
+                         int count, SkAlphaType alphaType) const = 0;
+
+private:
+    static void BuildDstGammaTables(const uint8_t* outGammaTables[3], uint8_t* gammaTableStorage,
+                                    const SkColorSpace* space, bool gammasAreMatching);
+
+    friend class SkColorSpaceXform;
+    friend class SkColorSpace_Base;
+};
 
 enum SrcGamma {
     kLinear_SrcGamma,
@@ -31,24 +48,22 @@ enum ColorSpaceMatch {
 };
 
 template <SrcGamma kSrc, DstGamma kDst, ColorSpaceMatch kCSM>
-class SkColorSpaceXform_Base : public SkColorSpaceXform {
-public:
-    static constexpr int kDstGammaTableSize = 1024;
-
+class SkColorSpaceXform_XYZ : public SkColorSpaceXform_Base {
 protected:
     bool onApply(ColorFormat dstFormat, void* dst, ColorFormat srcFormat, const void* src,
                  int count, SkAlphaType alphaType) const override;
 
 private:
-    SkColorSpaceXform_Base(SkColorSpace* srcSpace, const SkMatrix44& srcToDst,
-                           SkColorSpace* dstSpace);
+    SkColorSpaceXform_XYZ(SkColorSpace* srcSpace, const SkMatrix44& srcToDst,
+                          SkColorSpace* dstSpace);
 
     sk_sp<SkColorLookUpTable> fColorLUT;
 
     // Contain pointers into storage or pointers into precomputed tables.
     const float*              fSrcGammaTables[3];
+    SkAutoTMalloc<float>      fSrcStorage;
     const uint8_t*            fDstGammaTables[3];
-    SkAutoMalloc              fStorage;
+    sk_sp<SkData>             fDstStorage;
 
     float                     fSrcToDst[16];
 
