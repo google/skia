@@ -84,37 +84,6 @@ class DefaultFlavorUtils(object):
     if not self.m.path.exists(win_toolchain_asset_path):
       self._win_toolchain_dir = self.m.vars.slave_dir
 
-
-  def step(self, name, cmd, **kwargs):
-    """Wrapper for the Step API; runs a step as appropriate for this flavor."""
-    path_to_app = self.m.vars.skia_out.join(
-        self.m.vars.configuration, cmd[0])
-    if (self.m.platform.is_linux and
-        'x86_64' in self.m.vars.builder_name and
-        not 'TSAN' in self.m.vars.builder_name):
-      new_cmd = ['catchsegv', path_to_app]
-    else:
-      new_cmd = [path_to_app]
-    new_cmd.extend(cmd[1:])
-    return self.m.run(self.m.step,
-                              name, cmd=new_cmd, **kwargs)
-
-  @property
-  def chrome_path(self):
-    """Path to a checkout of Chrome on this machine."""
-    return self._win_toolchain_dir.join('src')
-
-  def compile(self, target, **kwargs):
-    """Build the given target."""
-    env = kwargs.pop('env', {})
-    # The CHROME_PATH environment variable is needed for builders that use
-    # toolchains downloaded by Chrome.
-    env['CHROME_PATH'] = self.chrome_path
-    make_cmd = ['make']
-    cmd = make_cmd + [target]
-    self.m.run(self.m.step, 'build %s' % target, cmd=cmd,
-               env=env, cwd=self.m.path['checkout'], **kwargs)
-
   def copy_extra_build_products(self, swarming_out_dir):
     pass
 
