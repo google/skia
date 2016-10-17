@@ -455,11 +455,7 @@
       "_",
       "gamut"
     ],
-    "env": {
-      "BUILDTYPE": "Release",
-      "CHROME_HEADLESS": "1",
-      "SKIA_OUT": "[SLAVE_BUILD]/out"
-    },
+    "cwd": "[SLAVE_BUILD]/skia",
     "name": "dm"
   },
   {
