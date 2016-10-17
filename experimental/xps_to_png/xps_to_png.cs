@@ -19,13 +19,17 @@ Compile with:
 */
 // logic inspired by this example: https://goo.gl/nCxrjQ
 class Program {
-    static void convert(string path, string out_path) {
+    static int ceil(double x) { return (int)System.Math.Ceiling(x); }
+    static void convert(double dpi, string path, string out_path) {
+        double scale = dpi / 96.0;
         System.Windows.Xps.Packaging.XpsDocument xpsDoc =
-            new System.Windows.Xps.Packaging.XpsDocument(path, System.IO.FileAccess.Read);
+                new System.Windows.Xps.Packaging.XpsDocument(
+                        path, System.IO.FileAccess.Read);
         if (xpsDoc == null) {
             throw new System.Exception("XpsDocumentfailed");
         }
-        System.Windows.Documents.FixedDocumentSequence docSeq = xpsDoc.GetFixedDocumentSequence();
+        System.Windows.Documents.FixedDocumentSequence docSeq =
+                xpsDoc.GetFixedDocumentSequence();
         if (docSeq == null) {
             throw new System.Exception("GetFixedDocumentSequence failed");
         }
@@ -39,37 +43,50 @@ class Program {
                 double height = fixedPage.Height;
                 System.Windows.Size sz = new System.Windows.Size(width, height);
                 fixedPage.Measure(sz);
-                fixedPage.Arrange(new System.Windows.Rect(new System.Windows.Point(), sz));
+                fixedPage.Arrange(
+                        new System.Windows.Rect(new System.Windows.Point(), sz));
                 fixedPage.UpdateLayout();
-                System.Windows.Media.Imaging.BitmapImage bitmap = new System.Windows.Media.Imaging.BitmapImage();
+                System.Windows.Media.Imaging.BitmapImage bitmap =
+                        new System.Windows.Media.Imaging.BitmapImage();
                 System.Windows.Media.Imaging.RenderTargetBitmap renderTarget =
-                    new System.Windows.Media.Imaging.RenderTargetBitmap((int)width, (int)height, 96, 96,
-                                                                        System.Windows.Media.PixelFormats.Default);
+                        new System.Windows.Media.Imaging.RenderTargetBitmap(
+                            ceil(scale * width), ceil(scale * height), dpi, dpi,
+                            System.Windows.Media.PixelFormats.Default);
                 renderTarget.Render(fixedPage);
-                System.Windows.Media.Imaging.BitmapEncoder encoder = new System.Windows.Media.Imaging.PngBitmapEncoder();
-                encoder.Frames.Add(System.Windows.Media.Imaging.BitmapFrame.Create(renderTarget));
+                System.Windows.Media.Imaging.BitmapEncoder encoder =
+                    new System.Windows.Media.Imaging.PngBitmapEncoder();
+                encoder.Frames.Add(
+                        System.Windows.Media.Imaging.BitmapFrame.Create(renderTarget));
+                string filename = string.Format("{0}_{1}.png", out_path, index);
                 System.IO.FileStream pageOutStream = new System.IO.FileStream(
-                    string.Format("{0}_{1}.png", out_path, index),
-                    System.IO.FileMode.Create, System.IO.FileAccess.Write);
+                    filename, System.IO.FileMode.Create, System.IO.FileAccess.Write);
                 encoder.Save(pageOutStream);
                 pageOutStream.Close();
+                System.Console.WriteLine(filename);
                 ++index;
             }
         }
     }
-        // Executes convert, catching thrown exceptions, and printing them to stdout, and exiting immediately
-    static void try_convert(string path, string out_path) {
+    // Executes convert, catching thrown exceptions, and printing them
+    // to stdout, and exiting immediately.
+    static void try_convert(double dpi, string path, string out_path) {
         try {
-            convert(path, out_path);
+            convert(dpi, path, out_path);
         } catch (System.Exception e) {
             System.Console.WriteLine(e);
             System.Environment.Exit(1);
         }
     }
-        // For each command line argument, convert xps to sequence of pngs
+    // For each command line argument, convert xps to sequence of pngs.
     static void Main(string[] args) {
+        const double dpi = 72.0;
+        if (args.Length == 0) {
+            System.Console.WriteLine("usage:\n\txps_to_png [XPS_FILES]\n\n");
+            System.Environment.Exit(1);
+        }
         foreach (string arg in args) {
-            System.Threading.Thread t = new System.Threading.Thread(() => try_convert(arg, arg));
+            System.Threading.Thread t = new System.Threading.Thread(
+                    () => try_convert(dpi, arg, arg));
             t.SetApartmentState(System.Threading.ApartmentState.STA);
             t.Start();
         }
