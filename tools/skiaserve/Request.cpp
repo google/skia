@@ -24,6 +24,7 @@ Request::Request(SkString rootUrl)
     : fUploadContext(nullptr)
     , fUrlDataManager(rootUrl)
     , fGPUEnabled(false)
+    , fOverdraw(false)
     , fColorMode(0) {
     // create surface
 #if SK_SUPPORT_GPU
@@ -97,7 +98,9 @@ void Request::drawToCanvas(int n, int m) {
 }
 
 sk_sp<SkData> Request::drawToPng(int n, int m) {
+    //fDebugCanvas->setOverdrawViz(true);
     this->drawToCanvas(n, m);
+    //fDebugCanvas->setOverdrawViz(false);
     return writeCanvasToPng(this->getCanvas());
 }
 
@@ -193,6 +196,11 @@ SkSurface* Request::createGPUSurface() {
                                          kPremul_SkAlphaType, cap.fSRGB ? colorSpace: nullptr);
     SkSurface* surface = SkSurface::MakeRenderTarget(context, SkBudgeted::kNo, info).release();
     return surface;
+}
+
+bool Request::setOverdraw(bool enable) {
+    fOverdraw = enable;
+    return true;
 }
 
 bool Request::setColorMode(int mode) {
