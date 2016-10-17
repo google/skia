@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "fc632725_b7d722d8",
+        "filename": "src/gpu/gl/builders/GrGLShaderStringBuilder.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 88,
+      "author": {
+        "id": 5640
+      },
+      "writtenOn": "2016-10-17T21:11:58Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "5c90b309_2b30a401",
+      "revId": "f8d899748b9092d1ab8166e9388370803d6b917a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "5c90b309_ebd87cd7",
         "filename": "src/sksl/SkSLCompiler.cpp",
         "patchSetId": 3
@@ -30,6 +48,24 @@
       "writtenOn": "2016-10-17T19:40:01Z",
       "side": 1,
       "message": "nit: Seems cleaner to make this a method of SymbolTable so Compiler doesn\u0027t need to be a friend.\n\nnit: Maybe rename \"markAllFunctionsBuiltin\"",
+      "revId": "f8d899748b9092d1ab8166e9388370803d6b917a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fc632725_f48998b1",
+        "filename": "src/sksl/SkSLCompiler.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 147,
+      "author": {
+        "id": 5640
+      },
+      "writtenOn": "2016-10-17T21:11:58Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "5c90b309_ebd87cd7",
       "revId": "f8d899748b9092d1ab8166e9388370803d6b917a",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
@@ -53,6 +89,24 @@
     },
     {
       "key": {
+        "uuid": "fc632725_d41f3c1d",
+        "filename": "src/sksl/SkSLGLSLCodeGenerator.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 620,
+      "author": {
+        "id": 5640
+      },
+      "writtenOn": "2016-10-17T21:11:58Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "5c90b309_4b4de8af",
+      "revId": "f8d899748b9092d1ab8166e9388370803d6b917a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "5c90b309_eb6f1c17",
         "filename": "src/sksl/SkSLGLSLCodeGenerator.h",
         "patchSetId": 3
@@ -64,6 +118,24 @@
       "writtenOn": "2016-10-17T19:40:01Z",
       "side": 1,
       "message": "nit: I prefer default initializers on fields rather than in constructor.",
+      "revId": "f8d899748b9092d1ab8166e9388370803d6b917a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fc632725_d4861c9f",
+        "filename": "src/sksl/SkSLGLSLCodeGenerator.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 48,
+      "author": {
+        "id": 5640
+      },
+      "writtenOn": "2016-10-17T21:11:58Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "5c90b309_eb6f1c17",
       "revId": "f8d899748b9092d1ab8166e9388370803d6b917a",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
@@ -93,6 +165,24 @@
     },
     {
       "key": {
+        "uuid": "fc632725_54520c52",
+        "filename": "src/sksl/SkSLGLSLCodeGenerator.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 67,
+      "author": {
+        "id": 5640
+      },
+      "writtenOn": "2016-10-17T21:11:58Z",
+      "side": 1,
+      "message": "Eh, I suppose it would be more consistent. Done.",
+      "parentUuid": "5c90b309_2b8d04be",
+      "revId": "f8d899748b9092d1ab8166e9388370803d6b917a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "5c90b309_8b2a10ae",
         "filename": "src/sksl/SkSLMain.cpp",
         "patchSetId": 3
@@ -110,6 +200,24 @@
     },
     {
       "key": {
+        "uuid": "fc632725_54296cb6",
+        "filename": "src/sksl/SkSLMain.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 19,
+      "author": {
+        "id": 5640
+      },
+      "writtenOn": "2016-10-17T21:11:58Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "5c90b309_8b2a10ae",
+      "revId": "f8d899748b9092d1ab8166e9388370803d6b917a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "5c90b309_2b3bc401",
         "filename": "src/sksl/SkSLMain.cpp",
         "patchSetId": 3
@@ -121,6 +229,24 @@
       "writtenOn": "2016-10-17T19:40:01Z",
       "side": 1,
       "message": "Need to make the same change in fuzzer?",
+      "revId": "f8d899748b9092d1ab8166e9388370803d6b917a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fc632725_d4345c0f",
+        "filename": "src/sksl/SkSLMain.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 20,
+      "author": {
+        "id": 5640
+      },
+      "writtenOn": "2016-10-17T21:11:58Z",
+      "side": 1,
+      "message": "Doesn\u0027t look like the fuzzer has landed yet, but I\u0027ll coordinate with Kevin to make sure it gets changed.",
+      "parentUuid": "5c90b309_2b3bc401",
       "revId": "f8d899748b9092d1ab8166e9388370803d6b917a",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
