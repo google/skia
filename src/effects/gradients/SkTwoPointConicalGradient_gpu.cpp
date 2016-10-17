@@ -200,9 +200,13 @@ sk_sp<GrFragmentProcessor> Edge2PtConicalEffect::TestCreate(GrProcessorTestData*
     radius2 = radius1 + diffLen;
 
     RandomGradientParams params(d->fRandom);
-    auto shader = SkGradientShader::MakeTwoPointConical(center1, radius1, center2, radius2,
-                                                        params.fColors, params.fStops,
-                                                        params.fColorCount, params.fTileMode);
+    auto shader = params.fUseColors4f ?
+        SkGradientShader::MakeTwoPointConical(center1, radius1, center2, radius2,
+                                              params.fColors4f, params.fColorSpace, params.fStops,
+                                              params.fColorCount, params.fTileMode) :
+        SkGradientShader::MakeTwoPointConical(center1, radius1, center2, radius2,
+                                              params.fColors, params.fStops,
+                                              params.fColorCount, params.fTileMode);
     SkMatrix viewMatrix = GrTest::TestMatrix(d->fRandom);
     auto dstColorSpace = GrTest::TestColorSpace(d->fRandom);
     sk_sp<GrFragmentProcessor> fp = shader->asFragmentProcessor(SkShader::AsFPArgs(
@@ -474,9 +478,13 @@ sk_sp<GrFragmentProcessor> FocalOutside2PtConicalEffect::TestCreate(GrProcessorT
     radius2 = d->fRandom->nextRangeF(0.f, diffLen);
 
     RandomGradientParams params(d->fRandom);
-    auto shader = SkGradientShader::MakeTwoPointConical(center1, radius1, center2, radius2,
-                                                        params.fColors, params.fStops,
-                                                        params.fColorCount, params.fTileMode);
+    auto shader = params.fUseColors4f ?
+        SkGradientShader::MakeTwoPointConical(center1, radius1, center2, radius2,
+                                              params.fColors4f, params.fColorSpace, params.fStops,
+                                              params.fColorCount, params.fTileMode) :
+        SkGradientShader::MakeTwoPointConical(center1, radius1, center2, radius2,
+                                              params.fColors, params.fStops,
+                                              params.fColorCount, params.fTileMode);
     SkMatrix viewMatrix = GrTest::TestMatrix(d->fRandom);
     auto dstColorSpace = GrTest::TestColorSpace(d->fRandom);
     sk_sp<GrFragmentProcessor> fp = shader->asFragmentProcessor(SkShader::AsFPArgs(
@@ -676,9 +684,13 @@ sk_sp<GrFragmentProcessor> FocalInside2PtConicalEffect::TestCreate(GrProcessorTe
     } while (radius1 == radius2 && center1 == center2);
 
     RandomGradientParams params(d->fRandom);
-    auto shader = SkGradientShader::MakeTwoPointConical(center1, radius1, center2, radius2,
-                                                        params.fColors, params.fStops,
-                                                        params.fColorCount, params.fTileMode);
+    auto shader = params.fUseColors4f ?
+        SkGradientShader::MakeTwoPointConical(center1, radius1, center2, radius2,
+                                              params.fColors4f, params.fColorSpace, params.fStops,
+                                              params.fColorCount, params.fTileMode) :
+        SkGradientShader::MakeTwoPointConical(center1, radius1, center2, radius2,
+                                              params.fColors, params.fStops,
+                                              params.fColorCount, params.fTileMode);
     SkMatrix viewMatrix = GrTest::TestMatrix(d->fRandom);
     auto dstColorSpace = GrTest::TestColorSpace(d->fRandom);
     sk_sp<GrFragmentProcessor> fp = shader->asFragmentProcessor(SkShader::AsFPArgs(
@@ -920,9 +932,13 @@ sk_sp<GrFragmentProcessor> CircleInside2PtConicalEffect::TestCreate(GrProcessorT
     } while (radius1 == radius2 && center1 == center2);
 
     RandomGradientParams params(d->fRandom);
-    auto shader = SkGradientShader::MakeTwoPointConical(center1, radius1, center2, radius2,
-                                                        params.fColors, params.fStops,
-                                                        params.fColorCount, params.fTileMode);
+    auto shader = params.fUseColors4f ?
+        SkGradientShader::MakeTwoPointConical(center1, radius1, center2, radius2,
+                                              params.fColors4f, params.fColorSpace, params.fStops,
+                                              params.fColorCount, params.fTileMode) :
+        SkGradientShader::MakeTwoPointConical(center1, radius1, center2, radius2,
+                                              params.fColors, params.fStops,
+                                              params.fColorCount, params.fTileMode);
     SkMatrix viewMatrix = GrTest::TestMatrix(d->fRandom);
     auto dstColorSpace = GrTest::TestColorSpace(d->fRandom);
     sk_sp<GrFragmentProcessor> fp = shader->asFragmentProcessor(SkShader::AsFPArgs(
@@ -1151,9 +1167,13 @@ sk_sp<GrFragmentProcessor> CircleOutside2PtConicalEffect::TestCreate(GrProcessor
     radius2 = radius1 + d->fRandom->nextRangeF(0.f, diffLen);
 
     RandomGradientParams params(d->fRandom);
-    auto shader = SkGradientShader::MakeTwoPointConical(center1, radius1, center2, radius2,
-                                                        params.fColors, params.fStops,
-                                                        params.fColorCount, params.fTileMode);
+    auto shader = params.fUseColors4f ?
+        SkGradientShader::MakeTwoPointConical(center1, radius1, center2, radius2,
+                                              params.fColors4f, params.fColorSpace, params.fStops,
+                                              params.fColorCount, params.fTileMode) :
+        SkGradientShader::MakeTwoPointConical(center1, radius1, center2, radius2,
+                                              params.fColors, params.fStops,
+                                              params.fColorCount, params.fTileMode);
     SkMatrix viewMatrix = GrTest::TestMatrix(d->fRandom);
     auto dstColorSpace = GrTest::TestColorSpace(d->fRandom);
     sk_sp<GrFragmentProcessor> fp = shader->asFragmentProcessor(SkShader::AsFPArgs(
