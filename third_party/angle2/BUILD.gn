@@ -29,10 +29,10 @@ gles_gypi = exec_script("//gn/gypi_to_gn.py",
                         [])
 
 config("common") {
-  cflags = [ "-w" ]
   defines = [
     "ANGLE_ENABLE_ESSL",
     "ANGLE_ENABLE_GLSL",
+    "ANGLE_ENABLE_HLSL",
     "ANGLE_ENABLE_OPENGL",
     "EGL_EGLEXT_PROTOTYPES",
     "GL_GLEXT_PROTOTYPES",
@@ -74,7 +74,10 @@ copy("commit_id") {
 shared_library("libGLESv2") {
   configs += [ ":common" ]
   configs -= [ "//gn:warnings" ]
-  defines = [ "LIBGLESV2_IMPLEMENTATION" ]
+  defines = [
+    "LIBANGLE_IMPLEMENTATION",
+    "LIBGLESV2_IMPLEMENTATION",
+  ]
   deps = [
     ":commit_id",
   ]
@@ -85,6 +88,7 @@ shared_library("libGLESv2") {
               compiler_gypi.angle_translator_lib_sources +
               compiler_gypi.angle_translator_lib_essl_sources +
               compiler_gypi.angle_translator_lib_glsl_sources +
+              compiler_gypi.angle_translator_lib_hlsl_sources +
               gles_gypi.libangle_sources + gles_gypi.libangle_common_sources +
               gles_gypi.libangle_image_util_sources +
               gles_gypi.libglesv2_sources + gles_gypi.libangle_gl_sources,
@@ -121,6 +125,8 @@ shared_library("libGLESv2") {
     libs += [
       "d3d9.lib",
       "dxguid.lib",
+      "gdi32.lib",
+      "user32.lib",
     ]
     deps += [
       # TODO: copy_compiler_dll?
