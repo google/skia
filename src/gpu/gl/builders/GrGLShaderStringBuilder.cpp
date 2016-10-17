@@ -85,6 +85,7 @@ SkSL::GLCaps GrGLSkSLCapsForContext(const GrGLContext& context) {
     result.fIsCoreProfile = caps->isCoreProfile();
     result.fUsesPrecisionModifiers = glslCaps->usesPrecisionModifiers();
     result.fMustDeclareFragmentShaderOutput = glslCaps->mustDeclareFragmentShaderOutput();
+    result.fShaderDerivativeExtensionString = glslCaps->shaderDerivativeExtensionString();
     result.fCanUseMinAndAbsTogether = glslCaps->canUseMinAndAbsTogether();
     result.fMustForceNegatedAtanParamToFloat = glslCaps->mustForceNegatedAtanParamToFloat();
     return result;

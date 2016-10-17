@@ -19,6 +19,7 @@
 #include "ir/SkSLIntLiteral.h"
 #include "ir/SkSLModifiersDeclaration.h"
 #include "ir/SkSLSymbolTable.h"
+#include "ir/SkSLUnresolvedFunction.h"
 #include "ir/SkSLVarDeclarations.h"
 #include "SkMutex.h"
 
@@ -132,14 +133,32 @@ Compiler::Compiler()
     ADD_TYPE(GSampler2DArrayShadow);
     ADD_TYPE(GSamplerCubeArrayShadow);
 
-    Modifiers::Flag ignored1;
-    std::vector<std::unique_ptr<ProgramElement>> ignored2;
-    this->internalConvertProgram(SKSL_INCLUDE, &ignored1, &ignored2);
+    Modifiers::Flag ignored;
+    std::vector<std::unique_ptr<ProgramElement>> elements;
+    this->internalConvertProgram(SKSL_INCLUDE, &ignored, &elements);
+    this->markBuiltin(fIRGenerator->fSymbolTable.get());
     ASSERT(!fErrorCount);
 }
 
 Compiler::~Compiler() {
     delete fIRGenerator;
+}
+
+void Compiler::markBuiltin(SymbolTable* s) {
+    for (const auto& pair : s->fSymbols) {
+        switch (pair.second->fKind) {
+            case Symbol::kFunctionDeclaration_Kind:
+                ((FunctionDeclaration&) *pair.second).fBuiltin = true;
+                break;
+            case Symbol::kUnresolvedFunction_Kind:
+                for (auto& f : ((UnresolvedFunction&) *pair.second).fFunctions) {
+                    ((FunctionDeclaration*) f)->fBuiltin = true;
+                }
+                break;
+            default:
+                break;
+        }
+    }
 }
 
 // add the definition created by assigning to the lvalue to the definition set
@@ -393,10 +412,11 @@ std::unique_ptr<Program> Compiler::convertProgram(Program::Kind kind, std::strin
             this->internalConvertProgram(SKSL_FRAG_INCLUDE, &ignored, &elements);
             break;
     }
+    this->markBuiltin(fIRGenerator->fSymbolTable.get());
     Modifiers::Flag defaultPrecision;
     this->internalConvertProgram(text, &defaultPrecision, &elements);
     auto result = std::unique_ptr<Program>(new Program(kind, defaultPrecision, std::move(elements), 
-                                                       fIRGenerator->fSymbolTable));;
+                                                       fIRGenerator->fSymbolTable));
     fIRGenerator->popSymbolTable();
     this->writeErrorCount();
     return result;

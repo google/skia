@@ -1408,7 +1408,6 @@ void GLSLInstanceProcessor::BackendMultisample::onEmitCode(GrGLSLVertexBuilder*,
         if (arcTest && fBatchInfo.fHasPerspective) {
             // The non-perspective version accounts for fwidth() in the vertex shader.
             // We make sure to take the derivative here, before a neighbor pixel may early accept.
-            f->enableFeature(GrGLSLPPFragmentBuilder::kStandardDerivatives_GLSLFeature);
             f->appendPrecisionModifier(kHigh_GrSLPrecision);
             f->codeAppendf("vec2 arcTest = %s - 0.5 * fwidth(%s);",
                            fArcTest.fsIn(), fArcTest.fsIn());

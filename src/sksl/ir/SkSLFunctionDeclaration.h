@@ -24,6 +24,7 @@ struct FunctionDeclaration : public Symbol {
                         std::vector<const Variable*> parameters, const Type& returnType)
     : INHERITED(position, kFunctionDeclaration_Kind, std::move(name))
     , fDefined(false)
+    , fBuiltin(false)
     , fParameters(std::move(parameters))
     , fReturnType(returnType) {}
 
@@ -55,6 +56,7 @@ struct FunctionDeclaration : public Symbol {
     }
 
     mutable bool fDefined;
+    bool fBuiltin;
     const std::vector<const Variable*> fParameters;
     const Type& fReturnType;
 

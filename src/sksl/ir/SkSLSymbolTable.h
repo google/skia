@@ -49,6 +49,8 @@ private:
     std::unordered_map<std::string, const Symbol*> fSymbols;
 
     ErrorReporter& fErrorReporter;
+
+    friend class Compiler;
 };
 
 } // namespace

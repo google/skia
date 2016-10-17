@@ -54,6 +54,8 @@ public:
     void writeErrorCount();
 
 private:
+    void markBuiltin(SymbolTable* s);
+
     void addDefinition(const Expression* lvalue, const Expression* expr,
                        std::unordered_map<const Variable*, const Expression*>* definitions);
  
