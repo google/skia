@@ -579,8 +579,6 @@ public:
                                  qe.localMatrix(),
                                  args.fFPCoordTransformHandler);
 
-            SkAssertResult(fragBuilder->enableFeature(
-                    GrGLSLFragmentShaderBuilder::kStandardDerivatives_GLSLFeature));
             fragBuilder->codeAppendf("float edgeAlpha;");
 
             // keep the derivative instructions outside the conditional
