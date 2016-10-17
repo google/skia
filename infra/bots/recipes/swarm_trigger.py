@@ -448,6 +448,8 @@ def get_timeouts(builder_cfg):
   if builder_cfg.get('extra_config', '').startswith('CT_'):
     hard_timeout = 24*60*60
     io_timeout = 60*60
+  if 'MSAN' in builder_cfg.get('extra_config', ''):
+    hard_timeout = 9*60*60
   return expiration, hard_timeout, io_timeout
 
 
