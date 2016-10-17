@@ -25,9 +25,6 @@ class GNAndroidFlavorUtils(default_flavor.DefaultFlavorUtils):
         svg_dir       = _data_dir + 'svgs',
         tmp_dir       = _data_dir)
 
-  def supported(self):
-    return 'GN_Android' in self.m.vars.builder_cfg.get('extra_config', '')
-
   def _run(self, title, *cmd, **kwargs):
     self.m.vars.default_env = {k: v for (k,v)
                                in self.m.vars.default_env.iteritems()

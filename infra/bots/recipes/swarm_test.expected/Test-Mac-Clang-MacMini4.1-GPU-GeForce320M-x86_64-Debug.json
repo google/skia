@@ -175,7 +175,6 @@
   },
   {
     "cmd": [
-      "catchsegv",
       "[SLAVE_BUILD]/out/Debug/dm",
       "--undefok",
       "--resourcePath",
@@ -571,11 +570,7 @@
       "_",
       "blurcircles"
     ],
-    "env": {
-      "BUILDTYPE": "Debug",
-      "CHROME_HEADLESS": "1",
-      "SKIA_OUT": "[SLAVE_BUILD]/out"
-    },
+    "cwd": "[SLAVE_BUILD]/skia",
     "name": "dm"
   },
   {
