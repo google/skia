@@ -485,7 +485,7 @@ class GoogleStorageDataStore(DataStore):
     return True
 
   def delete_path(self, path):
-    subprocess.check_call(['gsutil', 'rm', '-r', path])
+    subprocess.check_call(['gsutil', 'rm', '-r', '/'.join((self._url, path))])
 
   def download_file(self, name, local_path):
     subprocess.check_call([
