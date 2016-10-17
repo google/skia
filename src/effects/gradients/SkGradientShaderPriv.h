@@ -401,16 +401,20 @@ public:
 
 protected:
     /** Helper struct that stores (and populates) parameters to construct a random gradient.
-        The constructor decides whether stop values should be used or not (fStops may be nullptr
-        after construction). fColorCount will be the number of color stops, and fColors and fStops
-        can be passed to the gradient factory.
-    */
+        If fUseColors4f is true, then the SkColor4f factory should be called, with fColors4f and
+        fColorSpace. Otherwise, the SkColor factory should be called, with fColors. fColorCount
+        will be the number of color stops in either case, and fColors and fStops can be passed to
+        the gradient factory. (The constructor may decide not to use stops, in which case fStops
+        will be nullptr). */
     struct RandomGradientParams {
         static const int kMaxRandomGradientColors = 4;
 
         RandomGradientParams(SkRandom* r);
 
+        bool fUseColors4f;
         SkColor fColors[kMaxRandomGradientColors];
+        SkColor4f fColors4f[kMaxRandomGradientColors];
+        sk_sp<SkColorSpace> fColorSpace;
         SkScalar fStopStorage[kMaxRandomGradientColors];
         SkShader::TileMode fTileMode;
         int fColorCount;

@@ -415,8 +415,11 @@ sk_sp<GrFragmentProcessor> GrLinearGradient::TestCreate(GrProcessorTestData* d) 
                         {d->fRandom->nextUScalar1(), d->fRandom->nextUScalar1()}};
 
     RandomGradientParams params(d->fRandom);
-    auto shader = SkGradientShader::MakeLinear(points, params.fColors, params.fStops,
-                                               params.fColorCount, params.fTileMode);
+    auto shader = params.fUseColors4f ?
+        SkGradientShader::MakeLinear(points, params.fColors4f, params.fColorSpace, params.fStops,
+                                     params.fColorCount, params.fTileMode) :
+        SkGradientShader::MakeLinear(points, params.fColors, params.fStops,
+                                     params.fColorCount, params.fTileMode);
     SkMatrix viewMatrix = GrTest::TestMatrix(d->fRandom);
     auto dstColorSpace = GrTest::TestColorSpace(d->fRandom);
     sk_sp<GrFragmentProcessor> fp = shader->asFragmentProcessor(SkShader::AsFPArgs(
