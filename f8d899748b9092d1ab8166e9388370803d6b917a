@@ -1,0 +1,112 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "5c90b309_ebd87cd7",
+        "filename": "src/sksl/SkSLCompiler.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 147,
+      "author": {
+        "id": 5120
+      },
+      "writtenOn": "2016-10-17T19:40:01Z",
+      "side": 1,
+      "message": "nit: Seems cleaner to make this a method of SymbolTable so Compiler doesn\u0027t need to be a friend.\n\nnit: Maybe rename \"markAllFunctionsBuiltin\"",
+      "revId": "f8d899748b9092d1ab8166e9388370803d6b917a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "5c90b309_4b4de8af",
+        "filename": "src/sksl/SkSLGLSLCodeGenerator.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 620,
+      "author": {
+        "id": 5120
+      },
+      "writtenOn": "2016-10-17T19:40:01Z",
+      "side": 1,
+      "message": "nit: fBody could be a local",
+      "revId": "f8d899748b9092d1ab8166e9388370803d6b917a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "5c90b309_eb6f1c17",
+        "filename": "src/sksl/SkSLGLSLCodeGenerator.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 48,
+      "author": {
+        "id": 5120
+      },
+      "writtenOn": "2016-10-17T19:40:01Z",
+      "side": 1,
+      "message": "nit: I prefer default initializers on fields rather than in constructor.",
+      "revId": "f8d899748b9092d1ab8166e9388370803d6b917a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "5c90b309_2b8d04be",
+        "filename": "src/sksl/SkSLGLSLCodeGenerator.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 67,
+      "author": {
+        "id": 5120
+      },
+      "writtenOn": "2016-10-17T19:40:01Z",
+      "side": 1,
+      "message": "Any reason not to use std::string and let \"\" mean unnecessary?",
+      "range": {
+        "startLine": 67,
+        "startChar": 4,
+        "endLine": 67,
+        "endChar": 15
+      },
+      "revId": "f8d899748b9092d1ab8166e9388370803d6b917a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "5c90b309_8b2a10ae",
+        "filename": "src/sksl/SkSLMain.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 19,
+      "author": {
+        "id": 5120
+      },
+      "writtenOn": "2016-10-17T19:40:01Z",
+      "side": 1,
+      "message": "nit: remove function?",
+      "revId": "f8d899748b9092d1ab8166e9388370803d6b917a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "5c90b309_2b3bc401",
+        "filename": "src/sksl/SkSLMain.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 20,
+      "author": {
+        "id": 5120
+      },
+      "writtenOn": "2016-10-17T19:40:01Z",
+      "side": 1,
+      "message": "Need to make the same change in fuzzer?",
+      "revId": "f8d899748b9092d1ab8166e9388370803d6b917a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
