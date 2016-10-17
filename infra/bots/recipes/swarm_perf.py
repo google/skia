@@ -34,7 +34,6 @@ TEST_BUILDERS = {
       'Perf-Mac-Clang-MacMini6.2-GPU-HD4000-x86_64-Debug-CommandBuffer',
       'Perf-Ubuntu-Clang-GCE-CPU-AVX2-x86_64-Release-GN',
       'Perf-Ubuntu-GCC-ShuttleA-GPU-GTX550Ti-x86_64-Release-Valgrind',
-      'Perf-Ubuntu-GCC-ShuttleA-GPU-GTX550Ti-x86_64-Release-VisualBench',
       'Perf-Ubuntu-GCC-ShuttleA-GPU-GTX550Ti-x86_64-Release-ANGLE',
       'Perf-Win-MSVC-GCE-CPU-AVX2-x86_64-Debug',
       'Perf-Win-MSVC-GCE-CPU-AVX2-x86_64-Release',
@@ -191,8 +190,6 @@ def perf_steps(api):
     ])
 
   target = 'nanobench'
-  if 'VisualBench' in api.vars.builder_name:
-    target = 'visualbench'
   args = [
       target,
       '--undefok',   # This helps branches that may not know new flags.
