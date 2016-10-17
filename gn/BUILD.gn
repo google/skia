@@ -399,6 +399,36 @@ toolchain("msvc") {
     description = "link {{output}}"
   }
 
+  tool("solink") {
+    dllname = "{{output_dir}}/{{target_output_name}}{{output_extension}}"
+    libname = "${dllname}.lib"
+    pdbname = "${dllname}.pdb"
+    rspfile = "${dllname}.rsp"
+
+    command = "$env_setup$bin/link.exe /nologo /IMPLIB:$libname /DLL /OUT:$dllname /PDB:$pdbname @$rspfile"
+    outputs = [
+      dllname,
+      libname,
+      pdbname,
+    ]
+    default_output_extension = ".dll"
+    default_output_dir = "{{root_out_dir}}"
+
+    link_output = libname
+    depend_output = libname
+    runtime_outputs = [
+      dllname,
+      pdbname,
+    ]
+
+    # I don't quite understand this.  Aping Chrome's toolchain/win/BUILD.gn.
+    restat = true
+
+    # inputs_newline works around a fixed per-line buffer size in the linker.
+    rspfile_content = "{{inputs_newline}} {{libs}} {{solibs}} {{ldflags}}"
+    description = "link {{output}}"
+  }
+
   tool("link") {
     exename = "{{root_out_dir}}/{{target_output_name}}{{output_extension}}"
     pdbname = "$exename.pdb"
@@ -421,6 +451,12 @@ toolchain("msvc") {
   tool("stamp") {
     command = "cmd.exe /c echo > {{output}}"
     description = "stamp {{output}}"
+  }
+
+  tool("copy") {
+    cp_py = rebase_path("cp.py")
+    command = "python.exe $cp_py {{source}} {{output}}"
+    description = "copy {{source}} {{output}}"
   }
 }
 
@@ -499,7 +535,8 @@ toolchain("gcc_like") {
   }
 
   tool("copy") {
-    command = "ln -f {{source}} {{output}} 2>/dev/null || (rm -rf {{output}} && cp -af {{source}} {{output}})"
+    cp_py = rebase_path("cp.py")
+    command = "python $cp_py {{source}} {{output}}"
     description = "copy {{source}} {{output}}"
   }
 }
