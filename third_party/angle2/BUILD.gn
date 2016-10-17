@@ -33,23 +33,31 @@ config("common") {
   defines = [
     "ANGLE_ENABLE_ESSL",
     "ANGLE_ENABLE_GLSL",
-    "GL_GLEXT_PROTOTYPES",
+    "ANGLE_ENABLE_OPENGL",
     "EGL_EGLEXT_PROTOTYPES",
+    "GL_GLEXT_PROTOTYPES",
   ]
   include_dirs = [
     "$root_gen_dir/angle2",
     "$angle_root/include",
     "$angle_root/src",
     "$angle_root/src/common/third_party/numerics",
+    "$angle_root/src/third_party/khronos",
   ]
 
-  assert(is_linux)  # TODO: is_win, of course, maybe is_mac?
+  assert(is_linux || is_win)  # TODO: is_mac?
   if (is_linux) {
     defines += [
-      "ANGLE_ENABLE_OPENGL",
       "ANGLE_USE_X11",
       "GL_APICALL=__attribute__((visibility(\"default\")))",
       "EGLAPI=__attribute__((visibility(\"default\")))",
+    ]
+  } else if (is_win) {
+    defines += [
+      "ANGLE_ENABLE_D3D11",
+      "ANGLE_ENABLE_D3D9",
+      "GL_APICALL=",
+      "EGLAPI=",
     ]
   }
 }
@@ -65,25 +73,27 @@ copy("commit_id") {
 
 shared_library("libGLESv2") {
   configs += [ ":common" ]
+  configs -= [ "//gn:warnings" ]
   defines = [ "LIBGLESV2_IMPLEMENTATION" ]
   deps = [
     ":commit_id",
   ]
   libs = []
-  sources = rebase_path(compiler_gypi.angle_preprocessor_sources +
-                            compiler_gypi.angle_translator_lib_sources +
-                            compiler_gypi.angle_translator_lib_essl_sources +
-                            compiler_gypi.angle_translator_lib_glsl_sources +
-                            gles_gypi.libangle_sources +
-                            gles_gypi.libangle_common_sources +
-                            gles_gypi.libangle_image_util_sources +
-                            gles_gypi.libglesv2_sources,
-                        ".",
-                        "$angle_root/src") +
-            [
-              "$angle_root/src/compiler/translator/ShaderLang.cpp",
-              "$angle_root/src/compiler/translator/ShaderVars.cpp",
-            ]
+  sources =
+      rebase_path(
+          compiler_gypi.angle_preprocessor_sources +
+              compiler_gypi.angle_translator_lib_sources +
+              compiler_gypi.angle_translator_lib_essl_sources +
+              compiler_gypi.angle_translator_lib_glsl_sources +
+              gles_gypi.libangle_sources + gles_gypi.libangle_common_sources +
+              gles_gypi.libangle_image_util_sources +
+              gles_gypi.libglesv2_sources + gles_gypi.libangle_gl_sources,
+          ".",
+          "$angle_root/src") +
+      [
+        "$angle_root/src/compiler/translator/ShaderLang.cpp",
+        "$angle_root/src/compiler/translator/ShaderVars.cpp",
+      ]
   if (!is_win) {
     sources -= [ "$angle_root/src/libGLESv2/libGLESv2.def" ]
   }
@@ -94,16 +104,33 @@ shared_library("libGLESv2") {
       "Xi",
       "Xext",
     ]
-    sources += rebase_path(gles_gypi.libangle_gl_sources +
-                               gles_gypi.libangle_gl_glx_sources,
+    sources +=
+        rebase_path(gles_gypi.libangle_gl_glx_sources, ".", "$angle_root/src") +
+        [ "$angle_root/src/third_party/libXNVCtrl/NVCtrl.c" ]
+  } else if (is_win) {
+    defines += [
+      # TODO: ANGLE_PRELOADED_D3DCOMPILER_MODULE_NAMES
+    ]
+    sources += rebase_path(gles_gypi.libangle_gl_wgl_sources +
+                               gles_gypi.libangle_d3d_shared_sources +
+                               gles_gypi.libangle_d3d9_sources +
+                               gles_gypi.libangle_d3d11_sources +
+                               gles_gypi.libangle_d3d11_win32_sources,
                            ".",
-                           "$angle_root/src") +
-               [ "$angle_root/src/third_party/libXNVCtrl/NVCtrl.c" ]
+                           "$angle_root/src")
+    libs += [
+      "d3d9.lib",
+      "dxguid.lib",
+    ]
+    deps += [
+      # TODO: copy_compiler_dll?
+    ]
   }
 }
 
 shared_library("libEGL") {
   configs += [ ":common" ]
+  configs -= [ "//gn:warnings" ]
   defines = [ "LIBEGL_IMPLEMENTATION" ]
   deps = [
     ":libGLESv2",
