@@ -7,6 +7,7 @@ import default_flavor
 """GN flavor utils, used for building Skia with GN."""
 class GNFlavorUtils(default_flavor.DefaultFlavorUtils):
   def supported(self):
+    # TODO: simplify!
     extra_config = self.m.vars.builder_cfg.get('extra_config', '')
     os           = self.m.vars.builder_cfg.get('os',           '')
     target_arch  = self.m.vars.builder_cfg.get('target_arch',  '')
@@ -14,8 +15,7 @@ class GNFlavorUtils(default_flavor.DefaultFlavorUtils):
     return any([
       'CT' in extra_config,
       'SAN' in extra_config,
-      extra_config == 'ANGLE' and 'Win' not in os,
-      extra_config != 'ANGLE' and 'Win' in os,
+      extra_config == 'ANGLE',
       extra_config == 'CommandBuffer',
       extra_config == 'Exceptions',
       extra_config == 'Fast',
@@ -26,6 +26,7 @@ class GNFlavorUtils(default_flavor.DefaultFlavorUtils):
       extra_config.startswith('SK'),
       extra_config == 'Vulkan',
       os == 'Ubuntu' and target_arch == 'x86',
+      'Win' in os,
     ])
 
   def _strip_environment(self):

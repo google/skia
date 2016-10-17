@@ -104,41 +104,16 @@ class DefaultFlavorUtils(object):
     """Path to a checkout of Chrome on this machine."""
     return self._win_toolchain_dir.join('src')
 
-  def bootstrap_win_toolchain(self):
-    """Run bootstrapping script for the Windows toolchain."""
-    bootstrap_script = self.m.vars.infrabots_dir.join(
-        'bootstrap_win_toolchain_json.py')
-    win_toolchain_json = self._win_toolchain_dir.join(
-        'src', 'build', 'win_toolchain.json')
-    self.m.python(
-        'bootstrap win toolchain',
-        script=bootstrap_script,
-        args=['--win_toolchain_json', win_toolchain_json,
-              '--depot_tools_parent_dir',
-              self._win_toolchain_dir])
-
   def compile(self, target, **kwargs):
     """Build the given target."""
     env = kwargs.pop('env', {})
     # The CHROME_PATH environment variable is needed for builders that use
     # toolchains downloaded by Chrome.
     env['CHROME_PATH'] = self.chrome_path
-    if self.m.platform.is_win:
-      make_cmd = ['python', 'make.py']
-      self.m.run.run_once(self.bootstrap_win_toolchain)
-    else:
-      make_cmd = ['make']
+    make_cmd = ['make']
     cmd = make_cmd + [target]
-    try:
-      self.m.run(self.m.step, 'build %s' % target, cmd=cmd,
-                 env=env, cwd=self.m.path['checkout'], **kwargs)
-    except self.m.step.StepFailure:
-      if self.m.platform.is_win:
-        # The linker occasionally crashes on Windows. Try again.
-        self.m.run(self.m.step, 'build %s' % target, cmd=cmd,
-                   env=env, cwd=self.m.path['checkout'], **kwargs)
-      else:
-        raise
+    self.m.run(self.m.step, 'build %s' % target, cmd=cmd,
+               env=env, cwd=self.m.path['checkout'], **kwargs)
 
   def copy_extra_build_products(self, swarming_out_dir):
     pass
