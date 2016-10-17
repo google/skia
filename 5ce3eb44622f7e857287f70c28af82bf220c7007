@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "fc632725_74cbc85d",
+        "filename": "src/gpu/SkGr.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 669,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2016-10-17T21:00:06Z",
+      "side": 1,
+      "message": "That\u0027s true for this particular filter, but not all color filters necessarily have a stored color.  I think the more general idea here is that 4f color filters work in sRGB gamut (today) and treat any SkColor parameters as sRGB gamma+gamut, while legacy color filters work in who-knows-what-the-hell-gamut-legacy-is and treat any SkColor parameters as linear+wkwthgli.",
+      "range": {
+        "startLine": 669,
+        "startChar": 28,
+        "endLine": 669,
+        "endChar": 88
+      },
+      "revId": "5ce3eb44622f7e857287f70c28af82bf220c7007",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
