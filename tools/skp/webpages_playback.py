@@ -493,7 +493,7 @@ class GoogleStorageDataStore(DataStore):
 
   def upload_dir_contents(self, source_dir, dest_dir):
     subprocess.check_call([
-        'gsutil', 'cp', '-r', source_dir, '/'.join(self._url, dest_dir)])
+        'gsutil', 'cp', '-r', source_dir, '/'.join((self._url, dest_dir))])
 
 
 class LocalFileSystemDataStore(DataStore):
