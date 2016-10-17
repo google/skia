@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "5c90b309_eee16f86",
+        "filename": "src/codec/SkIcoCodec.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 160,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2016-10-17T15:10:47Z",
+      "side": 1,
+      "message": "Why did these change?",
+      "range": {
+        "startLine": 160,
+        "startChar": 4,
+        "endLine": 160,
+        "endChar": 7
+      },
+      "revId": "b7358c22d36b690c78aedc68541a84d7ccd811c4",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "5c90b309_4ecdfb16",
+        "filename": "src/codec/SkIcoCodec.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 165,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2016-10-17T15:10:47Z",
+      "side": 1,
+      "message": "Alternatively, this could be:\n\nconst size_t size \u003d info.getSafeSize(info.minRowBytes());\nif (0 \u003d\u003d size) {\n  continue;\n}",
+      "range": {
+        "startLine": 165,
+        "startChar": 13,
+        "endLine": 165,
+        "endChar": 24
+      },
+      "revId": "b7358c22d36b690c78aedc68541a84d7ccd811c4",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
