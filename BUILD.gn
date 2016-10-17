@@ -1084,4 +1084,16 @@ if (skia_enable_tools) {
     ]
     testonly = true
   }
+
+  executable("skp_parser") {
+    sources = [
+      "tools/skp_parser.cpp",
+    ]
+    deps = [
+      ":skia",
+      ":tool_utils",
+      "//third_party/jsoncpp",
+    ]
+    testonly = true
+  }
 }
