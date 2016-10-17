@@ -157,12 +157,11 @@ SkCodec* SkIcoCodec::NewFromStream(SkStream* stream) {
     }
 
     // Use the largest codec as a "suggestion" for image info
-    size_t maxSize = 0;
-    int maxIndex = 0;
-    for (int i = 0; i < codecs->count(); i++) {
+    uint32_t maxSize = 0;
+    uint32_t maxIndex = 0;
+    for (int32_t i = 0; i < codecs->count(); i++) {
         SkImageInfo info = codecs->operator[](i)->getInfo();
-        size_t size = info.getSafeSize(info.minRowBytes());
-
+        uint32_t size = info.width() * info.height();
         if (size > maxSize) {
             maxSize = size;
             maxIndex = i;

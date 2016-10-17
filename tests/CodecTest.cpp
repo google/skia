@@ -1362,10 +1362,3 @@ DEF_TEST(Codec_rowsDecoded, r) {
     REPORTER_ASSERT(r, result == SkCodec::kIncompleteInput);
     REPORTER_ASSERT(r, rowsDecoded == 0);
 }
-
-DEF_TEST(Codec_IcoIntOverflow, r) {
-    // ASAN will complain if there is an issue.
-    SkBitmap bitmap;
-    const bool success = GetResourceAsBitmap("invalid_images/int_overflow.ico", &bitmap);
-    REPORTER_ASSERT(r, !success);
-}
