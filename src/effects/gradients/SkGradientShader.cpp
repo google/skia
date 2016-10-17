@@ -6,6 +6,7 @@
  */
 
 #include "Sk4fLinearGradient.h"
+#include "SkColorSpace_Base.h"
 #include "SkGradientShaderPriv.h"
 #include "SkHalf.h"
 #include "SkLinearGradient.h"
@@ -1733,6 +1734,7 @@ void GrGradientEffect::onComputeInvariantOutput(GrInvariantOutput* inout) const 
 
 GrGradientEffect::RandomGradientParams::RandomGradientParams(SkRandom* random) {
     fColorCount = random->nextRangeU(1, kMaxRandomGradientColors);
+    fUseColors4f = random->nextBool();
 
     // if one color, omit stops, otherwise randomly decide whether or not to
     if (fColorCount == 1 || (fColorCount >= 2 && random->nextBool())) {
@@ -1741,9 +1743,24 @@ GrGradientEffect::RandomGradientParams::RandomGradientParams(SkRandom* random) {
         fStops = fStopStorage;
     }
 
+    // if using SkColor4f, attach a random (possibly null) color space (with linear gamma)
+    if (fUseColors4f) {
+        fColorSpace = GrTest::TestColorSpace(random);
+        if (fColorSpace) {
+            fColorSpace = as_CSB(fColorSpace)->makeLinearGamma();
+        }
+    }
+
     SkScalar stop = 0.f;
     for (int i = 0; i < fColorCount; ++i) {
-        fColors[i] = random->nextU();
+        if (fUseColors4f) {
+            fColors4f[i].fR = random->nextUScalar1();
+            fColors4f[i].fG = random->nextUScalar1();
+            fColors4f[i].fB = random->nextUScalar1();
+            fColors4f[i].fA = random->nextUScalar1();
+        } else {
+            fColors[i] = random->nextU();
+        }
         if (fStops) {
             fStops[i] = stop;
             stop = i < fColorCount - 1 ? stop + random->nextUScalar1() * (1.f - stop) : 1.f;

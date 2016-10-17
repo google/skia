@@ -309,8 +309,11 @@ sk_sp<GrFragmentProcessor> GrRadialGradient::TestCreate(GrProcessorTestData* d) 
     SkScalar radius = d->fRandom->nextUScalar1();
 
     RandomGradientParams params(d->fRandom);
-    auto shader = SkGradientShader::MakeRadial(center, radius, params.fColors, params.fStops,
-                                               params.fColorCount, params.fTileMode);
+    auto shader = params.fUseColors4f ?
+        SkGradientShader::MakeRadial(center, radius, params.fColors4f, params.fColorSpace,
+                                     params.fStops, params.fColorCount, params.fTileMode) :
+        SkGradientShader::MakeRadial(center, radius, params.fColors,
+                                     params.fStops, params.fColorCount, params.fTileMode);
     SkMatrix viewMatrix = GrTest::TestMatrix(d->fRandom);
     auto dstColorSpace = GrTest::TestColorSpace(d->fRandom);
     sk_sp<GrFragmentProcessor> fp = shader->asFragmentProcessor(SkShader::AsFPArgs(
