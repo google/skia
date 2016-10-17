@@ -68,7 +68,6 @@ struct SkQuadraticEdge : public SkEdge {
     SkFixed fQDDx, fQDDy;
     SkFixed fQLastX, fQLastY;
 
-    bool setQuadraticWithoutUpdate(const SkPoint pts[3], int shiftUp);
     int setQuadratic(const SkPoint pts[3], int shiftUp);
     int updateQuadratic();
 };
@@ -80,7 +79,6 @@ struct SkCubicEdge : public SkEdge {
     SkFixed fCDDDx, fCDDDy;
     SkFixed fCLastX, fCLastY;
 
-    bool setCubicWithoutUpdate(const SkPoint pts[4], int shiftUp);
     int setCubic(const SkPoint pts[4], int shiftUp);
     int updateCubic();
 };
@@ -131,5 +129,6 @@ int SkEdge::setLine(const SkPoint& p0, const SkPoint& p1, int shift) {
     fCurveShift = 0;
     return 1;
 }
+
 
 #endif

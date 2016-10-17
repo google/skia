@@ -44,7 +44,6 @@
 #include "SkTaskGroup.h"
 #include "SkThreadUtils.h"
 #include "ThermalManager.h"
-#include "SkScan.h"
 
 #include <stdlib.h>
 
@@ -1177,10 +1176,6 @@ int nanobench_main() {
 
     if (FLAGS_keepAlive) {
         start_keepalive();
-    }
-
-    if (FLAGS_analyticAA) {
-        gSkUseAnalyticAA = true;
     }
 
     int runs = 0;
