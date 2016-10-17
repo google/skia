@@ -51,8 +51,6 @@ SkGlyphCache::SkGlyphCache(SkTypeface* typeface, const SkDescriptor* desc, SkSca
     fScalerContext->getFontMetrics(&fFontMetrics);
 
     fMemoryUsed = sizeof(*this);
-
-    fAuxProcList = nullptr;
 }
 
 SkGlyphCache::~SkGlyphCache() {
@@ -62,7 +60,6 @@ SkGlyphCache::~SkGlyphCache() {
         } } );
     SkDescriptor::Free(fDesc);
     delete fScalerContext;
-    this->invokeAndRemoveAuxProcs();
 }
 
 SkGlyphCache::CharGlyphRec* SkGlyphCache::getCharGlyphRec(PackedUnicharID packedUnicharID) {
@@ -423,53 +420,6 @@ void SkGlyphCache::dump() const {
                rec.fLumBits & 0xFF, rec.fDeviceGamma, rec.fPaintGamma, rec.fContrast,
                fGlyphMap.count());
     SkDebugf("%s\n", msg.c_str());
-}
-
-///////////////////////////////////////////////////////////////////////////////
-
-bool SkGlyphCache::getAuxProcData(void (*proc)(void*), void** dataPtr) const {
-    const AuxProcRec* rec = fAuxProcList;
-    while (rec) {
-        if (rec->fProc == proc) {
-            if (dataPtr) {
-                *dataPtr = rec->fData;
-            }
-            return true;
-        }
-        rec = rec->fNext;
-    }
-    return false;
-}
-
-void SkGlyphCache::setAuxProc(void (*proc)(void*), void* data) {
-    if (proc == nullptr) {
-        return;
-    }
-
-    AuxProcRec* rec = fAuxProcList;
-    while (rec) {
-        if (rec->fProc == proc) {
-            rec->fData = data;
-            return;
-        }
-        rec = rec->fNext;
-    }
-    // not found, create a new rec
-    rec = new AuxProcRec;
-    rec->fProc = proc;
-    rec->fData = data;
-    rec->fNext = fAuxProcList;
-    fAuxProcList = rec;
-}
-
-void SkGlyphCache::invokeAndRemoveAuxProcs() {
-    AuxProcRec* rec = fAuxProcList;
-    while (rec) {
-        rec->fProc(rec->fData);
-        AuxProcRec* next = rec->fNext;
-        delete rec;
-        rec = next;
-    }
 }
 
 ///////////////////////////////////////////////////////////////////////////////
