@@ -45,6 +45,16 @@ namespace SkSL {
 #define kLast_Capability SpvCapabilityMultiViewport
 
 struct GLCaps {
+    GLCaps()
+    : fVersion(400)
+    , fStandard(kGL_Standard)
+    , fIsCoreProfile(false)
+    , fUsesPrecisionModifiers(false)
+    , fMustDeclareFragmentShaderOutput(false)
+    , fShaderDerivativeExtensionString(nullptr)
+    , fCanUseMinAndAbsTogether(true)
+    , fMustForceNegatedAtanParamToFloat(false) {}
+
     int fVersion;
     enum {
         kGL_Standard,
@@ -53,6 +63,8 @@ struct GLCaps {
     bool fIsCoreProfile;
     bool fUsesPrecisionModifiers;
     bool fMustDeclareFragmentShaderOutput;
+    // extension string to enable derivative support, or null if unnecessary
+    const char* fShaderDerivativeExtensionString;
     // The Tegra3 compiler will sometimes never return if we have min(abs(x), y)
     bool fCanUseMinAndAbsTogether;
     // On Intel GPU there is an issue where it misinterprets an atan argument (second argument only,
@@ -93,7 +105,8 @@ public:
     , fOut(nullptr)
     , fVarCount(0)
     , fIndentation(0)
-    , fAtLineStart(true) {}
+    , fAtLineStart(true)
+    , fFoundDerivatives(false) {}
 
     void generateCode(const Program& program, std::ostream& out) override;
 
@@ -177,6 +190,8 @@ private:
     const Context& fContext;
     const GLCaps fCaps;
     std::ostream* fOut;
+    std::stringstream fHeader;
+    std::stringstream fBody;
     std::string fFunctionHeader;
     Program::Kind fProgramKind;
     int fVarCount;
@@ -186,6 +201,8 @@ private:
     // more than one or two structs per shader, a simple linear search will be faster than anything 
     // fancier.
     std::vector<const Type*> fWrittenStructs;
+    // true if we have run into usages of dFdx / dFdy
+    bool fFoundDerivatives;
 };
 
 }
