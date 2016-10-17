@@ -75,7 +75,7 @@ void SkModeColorFilter::flatten(SkWriteBuffer& buffer) const {
 void SkModeColorFilter::updateCache() {
     fPMColor = SkPreMultiplyColor(fColor);
     fProc = SkXfermode::GetProc(fMode);
-    fPM4f = SkPM4f::FromPMColor(fPMColor);
+    fPM4f = SkColor4f::FromColor(fColor).premul();
 }
 
 sk_sp<SkFlattenable> SkModeColorFilter::CreateProc(SkReadBuffer& buffer) {
