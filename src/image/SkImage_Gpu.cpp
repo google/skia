@@ -430,7 +430,7 @@ private:
 size_t SkImage::getDeferredTextureImageData(const GrContextThreadSafeProxy& proxy,
                                             const DeferredTextureImageUsageParams params[],
                                             int paramCnt, void* buffer,
-                                            SkSourceGammaTreatment gammaTreatment) const {
+                                            SkColorSpace* dstColorSpace) const {
     // Extract relevant min/max values from the params array.
     int lowestPreScaleMipLevel = params[0].fPreScaleMipLevel;
     SkFilterQuality highestFilterQuality = params[0].fQuality;
@@ -563,6 +563,15 @@ size_t SkImage::getDeferredTextureImageData(const GrContextThreadSafeProxy& prox
                                    pixmap.addr(), pixmap.getSafeSize());
     if (ctSize) {
         memcpy(ct, pixmap.ctable()->readColors(), ctSize);
+    }
+
+    // If the context has sRGB support, and we're intending to render to a surface with an attached
+    // color space, and the image has an sRGB-like color space attached, then use our gamma (sRGB)
+    // aware mip-mapping.
+    SkSourceGammaTreatment gammaTreatment = SkSourceGammaTreatment::kIgnore;
+    if (proxy.fCaps->srgbSupport() && SkToBool(dstColorSpace) &&
+        info.colorSpace() && info.colorSpace()->gammaCloseToSRGB()) {
+        gammaTreatment = SkSourceGammaTreatment::kRespect;
     }
 
     SkASSERT(info == pixmap.info());

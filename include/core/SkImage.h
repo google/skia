@@ -392,13 +392,16 @@ public:
      * When buffer is not null this fills in the deferred texture data for this image in the
      * provided buffer (assuming this is an appropriate candidate image and the buffer is
      * appropriately aligned). Upon success the size written is returned, otherwise 0.
+     *
+     * dstColorSpace is the color space of the surface where this texture will ultimately be used.
+     * If the method determines that mip-maps are needed, this helps determine the correct strategy
+     * for building them (gamma-correct or not).
      */
     size_t getDeferredTextureImageData(const GrContextThreadSafeProxy&,
                                        const DeferredTextureImageUsageParams[],
                                        int paramCnt,
                                        void* buffer,
-                                       SkSourceGammaTreatment treatment =
-                                       SkSourceGammaTreatment::kIgnore) const;
+                                       SkColorSpace* dstColorSpace = nullptr) const;
 
     /**
      * Returns a texture-backed image from data produced in SkImage::getDeferredTextureImageData.
