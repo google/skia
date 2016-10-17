@@ -43,6 +43,7 @@ var (
 	JOBS = []string{
 		"Build-Ubuntu-GCC-x86_64-Release-GN",
 		"Perf-Ubuntu-GCC-GCE-CPU-AVX2-x86_64-Release-GN",
+		"Test-Android-Clang-AndroidOne-GPU-Mali400MP2-arm-Release-GN_Android",
 		"Test-Ubuntu-GCC-GCE-CPU-AVX2-x86_64-Release-GN",
 		"Housekeeper-PerCommit-InfraTests",
 	}
@@ -83,7 +84,7 @@ func deriveCompileTaskName(jobName string, parts map[string]string) string {
 			} else if !strings.Contains(ec, "GN_Android") {
 				ec = task_os
 			}
-			task_os = "Android"
+			task_os = "Ubuntu"
 		} else if task_os == "iOS" {
 			ec = task_os
 			task_os = "Mac"
@@ -475,6 +476,15 @@ func process(cfg *specs.TasksCfg, name string) {
 
 	// Any remaining bots need a compile task.
 	compileTaskName := deriveCompileTaskName(name, parts)
+	compileTaskParts, err := jobNameSchema.ParseJobName(compileTaskName)
+	if err != nil {
+		glog.Fatal(err)
+	}
+	// Temporarily disable the Housekeeper's compile Task, since we aren't
+	// yet running that Job.
+	if parts["role"] != "Housekeeper" {
+		compile(cfg, compileTaskName, compileTaskParts)
+	}
 
 	// Housekeeper.
 	if parts["role"] == "Housekeeper" && name != "Housekeeper-PerCommit-InfraTests" {
