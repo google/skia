@@ -3,12 +3,12 @@
 @rem Use of this source code is governed by a BSD-style license that can be
 @rem found in the LICENSE file.
 
-"C:\PROGRA~2\MSBUILD\14.0\BIN\AMD64\CSC.EXE" ^
-/lib:"\PROGRA~2\REFERE~1\MICROS~1\FRAMEW~1\NETFRA~1\V4.5.2" ^
-/reference:"ReachFramework.dll" ^
-/reference:"WindowsBase.dll" ^
+@set CSC="C:\Program Files (x86)\MSBuild\14.0\Bin\amd64\csc.exe"
+@set LIB="C:\Program Files (x86)\Reference Assemblies\Microsoft\Framework\.NETFramework\v4.5.2"
+
+%CSC% /lib:%LIB% ^
 /reference:"PresentationCore.dll" ^
 /reference:"PresentationFramework.dll" ^
+/reference:"ReachFramework.dll" ^
+/reference:"WindowsBase.dll" ^
 "%~dp0%xps_to_png.cs"
-
-
