@@ -17,15 +17,7 @@ bool endsWith(const std::string& s, const std::string& ending) {
 }
 
 static SkSL::GLCaps default_caps() {
-    return { 
-             400, 
-             SkSL::GLCaps::kGL_Standard,
-             false, // isCoreProfile
-             false, // usesPrecisionModifiers;
-             false, // mustDeclareFragmentShaderOutput
-             true,  // canUseMinAndAbsTogether
-             false  // mustForceNegatedAtanParamToFloat
-           };
+    return SkSL::GLCaps();
 }
 
 /**
