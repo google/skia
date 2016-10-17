@@ -139,10 +139,19 @@ DEF_TEST(SkSLSwizzleDuplicateOutput, r) {
                  "void main() { vec4 test = vec4(1); test.xyyz = vec4(1); }",
                  "error: 1: cannot write to the same swizzle field more than once\n1 error\n");
 }
+
 DEF_TEST(SkSLAssignmentTypeMismatch, r) {
     test_failure(r,
                  "void main() { int x = 1.0; }",
                  "error: 1: expected 'int', but found 'float'\n1 error\n");
+    test_failure(r,
+                 "void main() { int x; x = 1.0; }",
+                 "error: 1: type mismatch: '=' cannot operate on 'int', 'float'\n1 error\n");
+    test_success(r,
+                 "void main() { vec3 x = vec3(0); x *= 1.0; }");
+    test_failure(r,
+                 "void main() { ivec3 x = ivec3(0); x *= 1.0; }",
+                 "error: 1: type mismatch: '*=' cannot operate on 'ivec3', 'float'\n1 error\n");
 }
 
 DEF_TEST(SkSLReturnFromVoid, r) {

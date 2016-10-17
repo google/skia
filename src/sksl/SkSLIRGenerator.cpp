@@ -204,10 +204,11 @@ std::unique_ptr<VarDeclarations> IRGenerator::convertVarDeclarations(const ASTVa
             }
             value = this->coerce(std::move(value), *type);
         }
-        if ("sk_FragColor" == varDecl.fName && (*fSymbolTable)[varDecl.fName]) {
+        if (storage == Variable::kGlobal_Storage && "sk_FragColor" == varDecl.fName && 
+            (*fSymbolTable)[varDecl.fName]) {
             // already defined, ignore
-        } else if ((*fSymbolTable)[varDecl.fName] && 
-                   (*fSymbolTable)[varDecl.fName]->fKind == Symbol::kVariable_Kind && 
+        } else if (storage == Variable::kGlobal_Storage && (*fSymbolTable)[varDecl.fName] &&
+                   (*fSymbolTable)[varDecl.fName]->fKind == Symbol::kVariable_Kind &&
                    ((Variable*) (*fSymbolTable)[varDecl.fName])->fModifiers.fLayout.fBuiltin >= 0) {
             // already defined, just update the modifiers
             Variable* old = (Variable*) (*fSymbolTable)[varDecl.fName];
@@ -677,6 +678,29 @@ static bool is_matrix_multiply(const Type& left, const Type& right) {
     }
     return left.kind() == Type::kVector_Kind && right.kind() == Type::kMatrix_Kind;
 }
+
+static bool is_assignment(Token::Kind op) {
+    switch (op) {
+        case Token::EQ:           // fall through
+        case Token::PLUSEQ:       // fall through
+        case Token::MINUSEQ:      // fall through
+        case Token::STAREQ:       // fall through
+        case Token::SLASHEQ:      // fall through
+        case Token::PERCENTEQ:    // fall through
+        case Token::SHLEQ:        // fall through
+        case Token::SHREQ:        // fall through
+        case Token::BITWISEOREQ:  // fall through
+        case Token::BITWISEXOREQ: // fall through
+        case Token::BITWISEANDEQ: // fall through
+        case Token::LOGICALOREQ:  // fall through
+        case Token::LOGICALXOREQ: // fall through
+        case Token::LOGICALANDEQ: 
+            return true;
+        default:
+            return false;
+    }
+}
+
 /**
  * Determines the operand and result types of a binary expression. Returns true if the expression is
  * legal, false otherwise. If false, the values of the out parameters are undefined.
@@ -690,14 +714,24 @@ static bool determine_binary_type(const Context& context,
                                   const Type** outResultType,
                                   bool tryFlipped) {
     bool isLogical;
+    bool validMatrixOrVectorOp;
     switch (op) {
+        case Token::EQ:
+            *outLeftType = &left;
+            *outRightType = &left;
+            *outResultType = &left;
+            return right.canCoerceTo(left);
         case Token::EQEQ: // fall through
-        case Token::NEQ:  // fall through
+        case Token::NEQ:
+            isLogical = true;
+            validMatrixOrVectorOp = true;
+            break;
         case Token::LT:   // fall through
         case Token::GT:   // fall through
         case Token::LTEQ: // fall through
         case Token::GTEQ:
             isLogical = true;
+            validMatrixOrVectorOp = false;
             break;
         case Token::LOGICALOR: // fall through
         case Token::LOGICALAND: // fall through
@@ -748,30 +782,32 @@ static bool determine_binary_type(const Context& context,
                     return false;
                 }
             }
-            // fall through
+            isLogical = false;
+            validMatrixOrVectorOp = true;
+            break;
+        case Token::PLUS:    // fall through
+        case Token::PLUSEQ:  // fall through
+        case Token::MINUS:   // fall through
+        case Token::MINUSEQ: // fall through
+        case Token::SLASH:   // fall through
+        case Token::SLASHEQ:
+            isLogical = false;
+            validMatrixOrVectorOp = true;
+            break;
         default:
             isLogical = false;
+            validMatrixOrVectorOp = false;
     }
-    // FIXME: need to disallow illegal operations like vec3 > vec3. Also do not currently have
-    // full support for numbers other than float.
-    if (left == right) {
+    bool isVectorOrMatrix = left.kind() == Type::kVector_Kind || left.kind() == Type::kMatrix_Kind;
+    // FIXME: incorrect for shift
+    if (right.canCoerceTo(left) && (left.kind() == Type::kScalar_Kind || 
+                                   (isVectorOrMatrix && validMatrixOrVectorOp))) {
         *outLeftType = &left;
         *outRightType = &left;
         if (isLogical) {
             *outResultType = context.fBool_Type.get();
         } else {
             *outResultType = &left;
-        }
-        return true;
-    }
-    // FIXME: incorrect for shift operations
-    if (left.canCoerceTo(right)) {
-        *outLeftType = &right;
-        *outRightType = &right;
-        if (isLogical) {
-            *outResultType = context.fBool_Type.get();
-        } else {
-            *outResultType = &right;
         }
         return true;
     }
@@ -809,38 +845,25 @@ std::unique_ptr<Expression> IRGenerator::convertBinaryExpression(
     const Type* rightType;
     const Type* resultType;
     if (!determine_binary_type(fContext, expression.fOperator, left->fType, right->fType, &leftType,
-                               &rightType, &resultType, true)) {
+                               &rightType, &resultType, !is_assignment(expression.fOperator))) {
         fErrors.error(expression.fPosition, "type mismatch: '" + 
                                             Token::OperatorName(expression.fOperator) + 
                                             "' cannot operate on '" + left->fType.fName + 
                                             "', '" + right->fType.fName + "'");
         return nullptr;
     }
-    switch (expression.fOperator) {
-        case Token::EQ:           // fall through
-        case Token::PLUSEQ:       // fall through
-        case Token::MINUSEQ:      // fall through
-        case Token::STAREQ:       // fall through
-        case Token::SLASHEQ:      // fall through
-        case Token::PERCENTEQ:    // fall through
-        case Token::SHLEQ:        // fall through
-        case Token::SHREQ:        // fall through
-        case Token::BITWISEOREQ:  // fall through
-        case Token::BITWISEXOREQ: // fall through
-        case Token::BITWISEANDEQ: // fall through
-        case Token::LOGICALOREQ:  // fall through
-        case Token::LOGICALXOREQ: // fall through
-        case Token::LOGICALANDEQ: 
-            this->markWrittenTo(*left);
-        default:
-            break;
+    if (is_assignment(expression.fOperator)) {
+        this->markWrittenTo(*left);
+    }
+    left = this->coerce(std::move(left), *leftType);
+    right = this->coerce(std::move(right), *rightType);
+    if (!left || !right) {
+        return nullptr;
     }
     return std::unique_ptr<Expression>(new BinaryExpression(expression.fPosition, 
-                                                            this->coerce(std::move(left), 
-                                                                         *leftType), 
+                                                            std::move(left), 
                                                             expression.fOperator, 
-                                                            this->coerce(std::move(right), 
-                                                                         *rightType), 
+                                                            std::move(right), 
                                                             *resultType));
 }
 
@@ -894,6 +917,9 @@ std::unique_ptr<Expression> IRGenerator::call(Position position,
     }
     for (size_t i = 0; i < arguments.size(); i++) {
         arguments[i] = this->coerce(std::move(arguments[i]), function.fParameters[i]->fType);
+        if (!arguments[i]) {
+            return nullptr;
+        }
         if (arguments[i] && (function.fParameters[i]->fModifiers.fFlags & Modifiers::kOut_Flag)) {
             this->markWrittenTo(*arguments[i]);
         }
@@ -991,6 +1017,7 @@ std::unique_ptr<Expression> IRGenerator::convertConstructor(
             fErrors.error(position, "invalid arguments to '" + type.description() + 
                                     "' constructor, (expected exactly 1 argument, but found " +
                                     to_string((uint64_t) args.size()) + ")");
+            return nullptr;
         }
         if (args[0]->fType == *fContext.fBool_Type) {
             std::unique_ptr<IntLiteral> zero(new IntLiteral(fContext, position, 0));
@@ -1016,6 +1043,9 @@ std::unique_ptr<Expression> IRGenerator::convertConstructor(
         const Type& base = type.componentType();
         for (size_t i = 0; i < args.size(); i++) {
             args[i] = this->coerce(std::move(args[i]), base);
+            if (!args[i]) {
+                return nullptr;
+            }
         }
     } else {
         ASSERT(kind == Type::kVector_Kind || kind == Type::kMatrix_Kind);
@@ -1299,8 +1329,9 @@ void IRGenerator::checkValid(const Expression& expr) {
             fErrors.error(expr.fPosition, "expected '(' to begin constructor invocation");
             break;
         default:
-            ASSERT(expr.fType != *fContext.fInvalid_Type);
-            break;
+            if (expr.fType == *fContext.fInvalid_Type) {
+                fErrors.error(expr.fPosition, "invalid expression");
+            }
     }
 }
 
