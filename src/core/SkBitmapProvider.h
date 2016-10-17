@@ -15,10 +15,10 @@
 class SkBitmapProvider {
 public:
     explicit SkBitmapProvider(const SkBitmap& bm) : fBitmap(bm) {}
-    explicit SkBitmapProvider(const SkImage* img) : fImage(SkSafeRef(img)) {}
+    explicit SkBitmapProvider(const SkImage* img) : fImage(img) {}
     SkBitmapProvider(const SkBitmapProvider& other)
         : fBitmap(other.fBitmap)
-        , fImage(SkSafeRef(other.fImage.get()))
+        , fImage(other.fImage)
     {}
 
     int width() const;
@@ -38,8 +38,14 @@ public:
     bool asBitmap(SkBitmap*) const;
 
 private:
-    SkBitmap fBitmap;
-    SkAutoTUnref<const SkImage> fImage;
+    // Stack-allocated only.
+    void* operator new(size_t) = delete;
+    void* operator new(size_t, void*) = delete;
+
+    SkBitmap       fBitmap;
+    // SkBitmapProvider is always short-lived/stack allocated, and the source image is guaranteed
+    // to outlive its scope => we can store a raw ptr to avoid ref churn.
+    const SkImage* fImage;
 };
 
 #endif
