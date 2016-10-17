@@ -25,6 +25,24 @@
     },
     {
       "key": {
+        "uuid": "5c90b309_ae728700",
+        "filename": "src/codec/SkIcoCodec.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 160,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2016-10-17T15:29:08Z",
+      "side": 1,
+      "message": "Skia uses \"int\" for width and height.  I have a habit of using uint32_t (since it makes more sense to me).  I am trying to be better about \"Skia style\" here.\n\nAlso, when we try to allocate memory for these pixels, the same overflow check will be performed again (using int).  So we might as well be as strict as that check.\n\nAlso \"count()\" is an int, not an int32_t.",
+      "parentUuid": "5c90b309_eee16f86",
+      "revId": "b7358c22d36b690c78aedc68541a84d7ccd811c4",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "5c90b309_4ecdfb16",
         "filename": "src/codec/SkIcoCodec.cpp",
         "patchSetId": 2
@@ -42,6 +60,42 @@
         "endLine": 165,
         "endChar": 24
       },
+      "revId": "b7358c22d36b690c78aedc68541a84d7ccd811c4",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "5c90b309_4e52db52",
+        "filename": "src/codec/SkIcoCodec.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 165,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2016-10-17T15:29:08Z",
+      "side": 1,
+      "message": "Hmm nice.  I don\u0027t think we even need the \"continue\".",
+      "parentUuid": "5c90b309_4ecdfb16",
+      "revId": "b7358c22d36b690c78aedc68541a84d7ccd811c4",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "5c90b309_ce6fcb17",
+        "filename": "src/codec/SkIcoCodec.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 165,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2016-10-17T15:29:08Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "5c90b309_4ecdfb16",
       "revId": "b7358c22d36b690c78aedc68541a84d7ccd811c4",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
