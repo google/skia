@@ -302,7 +302,9 @@ bool HandleCoincidence(SkOpContourHead* contourList, SkOpCoincidence* coincidenc
         if (!coincidence->addExpanded(DEBUG_COIN_ONLY_PARAMS())) {
             return false;
         }
-        coincidence->mark(DEBUG_PHASE_ONLY_PARAMS(kWalking));
+        if (!coincidence->mark(DEBUG_PHASE_ONLY_PARAMS(kWalking))) {
+            return false;
+        }
     } else {
         (void) coincidence->expand(DEBUG_COIN_ONLY_PARAMS());
     }

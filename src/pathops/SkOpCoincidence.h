@@ -227,7 +227,7 @@ public:
         return !fHead && !fTop;
     }
 
-    void mark(DEBUG_COIN_DECLARE_ONLY_PARAMS());
+    bool mark(DEBUG_COIN_DECLARE_ONLY_PARAMS());
     void markCollapsed(SkOpPtT* );
 
     static bool Ordered(const SkOpPtT* coinPtTStart, const SkOpPtT* oppPtTStart) {

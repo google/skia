@@ -277,7 +277,7 @@ static void move_nearby(SkPathOpsDebug::GlitchLog* glitches, const SkOpContourHe
 void SkOpGlobalState::debugAddToCoinChangedDict() {
 
 #if DEBUG_COINCIDENCE
-    CheckHealth(contourList);
+    SkPathOpsDebug::CheckHealth(fContourHead);
 #endif
     // see if next coincident operation makes a change; if so, record it
     SkPathOpsDebug::GlitchLog glitches;
@@ -476,14 +476,6 @@ void SkPathOpsDebug::MathematicaIze(char* str, size_t bufferLen) {
         num = str[idx] >= '0' && str[idx] <= '9';
     }
 }
-
-#if DEBUG_VALIDATE
-void SkPathOpsDebug::SetPhase(SkOpContourHead* contourList, CoinID next,
-        int lineNumber, SkOpPhase phase) {
-    AddedCoin(contourList, next, 0, lineNumber);
-    contourList->globalState()->setPhase(phase);
-}
-#endif
 
 bool SkPathOpsDebug::ValidWind(int wind) {
     return wind > SK_MinS32 + 0xFFFF && wind < SK_MaxS32 - 0xFFFF;
@@ -1685,21 +1677,6 @@ void SkOpCoincidence::debugAddExpanded(SkPathOpsDebug::GlitchLog* log) const {
             }
         }
     } while ((coin = coin->next()));
-    return;
-}
-
-/* Commented-out lines keep this in sync with addIfMissing() */
-void SkOpCoincidence::debugAddIfMissing(SkPathOpsDebug::GlitchLog* log, const SkCoincidentSpans* outer, const SkOpPtT* over1s,
-            const SkOpPtT* over1e) const {
-//     SkASSERT(fTop);
-    if (fTop && alreadyAdded(fTop, outer, over1s, over1e)) {  // in debug, fTop may be null
-        return;
-    }
-    if (fHead && alreadyAdded(fHead, outer, over1s, over1e)) {
-        return;
-    }
-    log->record(SkPathOpsDebug::kAddIfMissingCoin_Glitch, outer->coinPtTStart(), outer->coinPtTEnd(), over1s, over1e);
-    this->debugValidate();
     return;
 }
 
