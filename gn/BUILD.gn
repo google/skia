@@ -435,7 +435,7 @@ toolchain("gcc_like") {
     outputs = [
       "{{source_out_dir}}/{{target_output_name}}.{{source_name_part}}.o",
     ]
-    description = "$cc_wrapper $cc ... -o {{output}}"
+    description = "compile {{source}}"
   }
 
   tool("cxx") {
@@ -445,7 +445,7 @@ toolchain("gcc_like") {
     outputs = [
       "{{source_out_dir}}/{{target_output_name}}.{{source_name_part}}.o",
     ]
-    description = "$cc_wrapper $cxx ... -o {{output}}"
+    description = "compile {{source}}"
   }
 
   tool("asm") {
@@ -455,7 +455,7 @@ toolchain("gcc_like") {
     outputs = [
       "{{source_out_dir}}/{{target_output_name}}.{{source_name_part}}.o",
     ]
-    description = "$cc_wrapper $cc ... -o {{output}}"
+    description = "compile {{source}}"
   }
 
   tool("alink") {
@@ -465,7 +465,7 @@ toolchain("gcc_like") {
     ]
     default_output_extension = ".a"
     output_prefix = "lib"
-    description = "$ar {{output}} ..."
+    description = "link {{output}}"
   }
 
   tool("solink") {
@@ -482,7 +482,7 @@ toolchain("gcc_like") {
     ]
     output_prefix = "lib"
     default_output_extension = ".so"
-    description = "$cc_wrapper $cxx -shared ... -o {{output}}"
+    description = "link {{output}}"
   }
 
   tool("link") {
@@ -490,14 +490,16 @@ toolchain("gcc_like") {
     outputs = [
       "{{root_out_dir}}/{{target_output_name}}{{output_extension}}",
     ]
-    description = "$cc_wrapper $cxx ... -o {{output}}"
+    description = "link {{output}}"
   }
 
   tool("stamp") {
     command = "touch {{output}}"
+    description = "stamp {{output}}"
   }
 
   tool("copy") {
     command = "ln -f {{source}} {{output}} 2>/dev/null || (rm -rf {{output}} && cp -af {{source}} {{output}})"
+    description = "copy {{source}} {{output}}"
   }
 }
