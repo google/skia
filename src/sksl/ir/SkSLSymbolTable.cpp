@@ -97,4 +97,22 @@ void SymbolTable::addWithoutOwnership(const std::string& name, const Symbol* sym
     }
 }
 
+
+void SymbolTable::markAllFunctionsBuiltin() {
+    for (const auto& pair : fSymbols) {
+        switch (pair.second->fKind) {
+            case Symbol::kFunctionDeclaration_Kind:
+                ((FunctionDeclaration&) *pair.second).fBuiltin = true;
+                break;
+            case Symbol::kUnresolvedFunction_Kind:
+                for (auto& f : ((UnresolvedFunction&) *pair.second).fFunctions) {
+                    ((FunctionDeclaration*) f)->fBuiltin = true;
+                }
+                break;
+            default:
+                break;
+        }
+    }
+}
+
 } // namespace
