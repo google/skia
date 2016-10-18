@@ -75,16 +75,16 @@ class HardwareAndroid(Hardware):
         setprop ctl.start surfaceflinger &&
         setprop ctl.start zygote &&
         setprop ctl.start media''')
+    else:
+      # restore GPS (doesn't seem to work if we killed the gui).
+      self._adb.shell('''\
+        for PROVIDER in %s; do
+          settings put secure location_providers_allowed +$PROVIDER
+        done''' % self._initial_location_providers)
 
-    # restore GPS (doesn't seem to work if we killed the gui).
-    self._adb.shell('''\
-      for PROVIDER in %s; do
-        settings put secure location_providers_allowed +$PROVIDER
-      done''' % self._initial_location_providers)
-
-    # restore airplane mode (doesn't seem to work if we killed the gui).
-    self._adb.shell('settings put global airplane_mode_on %s' %
-                    self._initial_airplane_mode)
+      # restore airplane mode (doesn't seem to work if we killed the gui).
+      self._adb.shell('settings put global airplane_mode_on %s' %
+                      self._initial_airplane_mode)
 
   def sanity_check(self):
     Hardware.sanity_check(self)
@@ -93,24 +93,28 @@ class HardwareAndroid(Hardware):
     # search for and print thermal trip points that may have been exceeded.
     self._adb.shell('''\
       THERMALDIR=/sys/class/thermal
-      if [ -e $THERMALDIR ]; then
-        for ZONE in $(cd $THERMALDIR; echo thermal_zone*); do
-          cd $THERMALDIR/$ZONE
-          if [ -e mode ] && grep -Fxq enabled mode; then
-            TEMP=$(cat temp)
-            TRIPPOINT=
-            let i=0
-            while [ -e trip_point_${i}_temp ] &&
-                  [ $TEMP -gt $(cat trip_point_${i}_temp) ]; do
-              TRIPPOINT=trip_point_${i}_temp
-              let i=i+1
-            done
-            if [ $TRIPPOINT ]; then
-              echo "$ZONE ($(cat type)): temp=$TEMP > $TRIPPOINT=$(cat $TRIPPOINT)"
-            fi
-          fi
-        done
-      fi''')
+      if [ ! -d $THERMALDIR ]; then
+        exit
+      fi
+      for ZONE in $(cd $THERMALDIR; echo thermal_zone*); do
+        cd $THERMALDIR/$ZONE
+        if [ ! -e mode ] || grep -Fxqv enabled mode || [ ! -e trip_point_0_temp ]; then
+          continue
+        fi
+        TEMP=$(cat temp)
+        TRIPPOINT=trip_point_0_temp
+        if [ $TEMP -le $(cat $TRIPPOINT) ]; then
+          echo "$ZONE ($(cat type)): temp=$TEMP <= $TRIPPOINT=$(cat $TRIPPOINT)" 1>&2
+        else
+          let i=1
+          while [ -e trip_point_${i}_temp ] &&
+                [ $TEMP -gt $(cat trip_point_${i}_temp) ]; do
+            TRIPPOINT=trip_point_${i}_temp
+            let i=i+1
+          done
+          echo "$ZONE ($(cat type)): temp=$TEMP > $TRIPPOINT=$(cat $TRIPPOINT)" 1>&2
+        fi
+      done''')
 
     Hardware.print_debug_diagnostics(self)
 

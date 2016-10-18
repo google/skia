@@ -124,7 +124,7 @@ class SKPBench:
   def run_warmup(cls, warmup_time):
     if not warmup_time:
       return
-    print('running %i second warmup...' % warmup_time)
+    print('running %i second warmup...' % warmup_time, file=sys.stderr)
     commandline = cls.ARGV + ['--duration', str(warmup_time * 1000),
                               '--config', 'gpu',
                               '--skp', 'warmup']
@@ -180,7 +180,7 @@ class SKPBench:
           hardware.sanity_check()
           self._process_result(result)
         else:
-          print(message.value)
+          print(message.value, file=sys.stderr)
         sys.stdout.flush()
         continue
       if message.message == Message.POLL_HARDWARE:
@@ -252,14 +252,16 @@ def run_benchmarks(configs, skps, hardware):
                         skpbench.best_result))
 
       except HardwareException as exception:
+        skpbench.terminate()
         if FLAGS.verbosity >= 5:
           hardware.print_debug_diagnostics()
-        skpbench.terminate()
         if FLAGS.verbosity >= 1:
           print("%s; taking a %i second nap..." %
                 (exception.message, exception.sleeptime), file=sys.stderr)
         benches.appendleft(benchargs) # retry the same bench next time.
         hardware.sleep(exception.sleeptime)
+        if FLAGS.verbosity >= 5:
+          hardware.print_debug_diagnostics()
         SKPBench.run_warmup(hardware.warmup_time)
 
 
@@ -275,6 +277,9 @@ def main():
     if model == 'Pixel C':
       from _hardware_pixel_c import HardwarePixelC
       hardware = HardwarePixelC(adb)
+    elif model == 'Nexus 6P':
+      from _hardware_nexus_6p import HardwareNexus6P
+      hardware = HardwareNexus6P(adb)
     else:
       from _hardware_android import HardwareAndroid
       print("WARNING: %s: don't know how to monitor this hardware; results "
