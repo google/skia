@@ -25,6 +25,24 @@
     },
     {
       "key": {
+        "uuid": "fc632725_9bc5ec9a",
+        "filename": "src/effects/SkRRectsGaussianEdgeShader.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 212,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2016-10-18T17:06:13Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "dc6ae32c_86680c14",
+      "revId": "8647d929cc6b458fe571f94b763ec0a0910a78f8",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "dc6ae32c_a665083b",
         "filename": "src/effects/SkRRectsGaussianEdgeShader.cpp",
         "patchSetId": 5
@@ -42,6 +60,24 @@
         "endLine": 317,
         "endChar": 27
       },
+      "revId": "8647d929cc6b458fe571f94b763ec0a0910a78f8",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fc632725_9bd4cc07",
+        "filename": "src/effects/SkRRectsGaussianEdgeShader.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 317,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2016-10-18T17:06:13Z",
+      "side": 1,
+      "message": "The short answer is to minimize the number of multiplies by 2.0 \u0026 0.5. The old algorithm used more rad/2 while the new one usually uses just the radius.\n\nThe longer answer is that the old algorithm computed a \"rad\" x \"rad\" box for the corner in order to have a mask to switch between the circular and rectangular areas. This computation used rad/2 a lot. In the new algorithm the computation of the triangular portion of the ice cream cone uses the full radius.",
+      "parentUuid": "dc6ae32c_a665083b",
       "revId": "8647d929cc6b458fe571f94b763ec0a0910a78f8",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
