@@ -150,7 +150,7 @@ void GLSLCodeGenerator::writeMinAbsHack(Expression& absExpr, Expression& otherEx
 }
 
 void GLSLCodeGenerator::writeFunctionCall(const FunctionCall& c) {
-    if (!fCaps.fCanUseMinAndAbsTogether && c.fFunction.fName == "min" && c.fFunction.fBuiltin) {
+    if (!fCaps.fCanUseMinAndAbsTogether && c.fFunction.fName == "min") {
         ASSERT(c.fArguments.size() == 2);
         if (is_abs(*c.fArguments[0])) {
             this->writeMinAbsHack(*c.fArguments[0], *c.fArguments[1]);
@@ -164,8 +164,7 @@ void GLSLCodeGenerator::writeFunctionCall(const FunctionCall& c) {
         }
     }
     if (fCaps.fMustForceNegatedAtanParamToFloat && c.fFunction.fName == "atan" && 
-        c.fFunction.fBuiltin && c.fArguments.size() == 2 && 
-        c.fArguments[1]->fKind == Expression::kPrefix_Kind) {
+        c.fArguments.size() == 2 && c.fArguments[1]->fKind == Expression::kPrefix_Kind) {
         const PrefixExpression& p = (PrefixExpression&) *c.fArguments[1];
         if (p.fOperator == Token::MINUS) {
             this->write("atan(");
@@ -175,12 +174,6 @@ void GLSLCodeGenerator::writeFunctionCall(const FunctionCall& c) {
             this->write(")");
             return;
         }
-    }
-    if (!fFoundDerivatives && fCaps.fShaderDerivativeExtensionString != "" && 
-        (c.fFunction.fName == "dFdx" || c.fFunction.fName == "dFdy") && c.fFunction.fBuiltin) {
-        ASSERT(fCaps.fShaderDerivativeSupport);
-        fHeader << "#extension " << fCaps.fShaderDerivativeExtensionString << " : require\n";
-        fFoundDerivatives = true;
     }
     this->write(c.fFunction.fName + "(");
     const char* separator = "";
@@ -585,7 +578,7 @@ void GLSLCodeGenerator::writeReturnStatement(const ReturnStatement& r) {
 
 void GLSLCodeGenerator::generateCode(const Program& program, std::ostream& out) {
     ASSERT(fOut == nullptr);
-    fOut = &fHeader;
+    fOut = &out;
     fProgramKind = program.fKind;
     this->write("#version " + to_string(fCaps.fVersion));
     if (fCaps.fStandard == GLCaps::kGLES_Standard && fCaps.fVersion >= 300) {
@@ -617,8 +610,6 @@ void GLSLCodeGenerator::generateCode(const Program& program, std::ostream& out) 
         }
         this->writeLine(" float;");
     }
-    std::stringstream body;
-    fOut = &body;
     for (const auto& e : program.fElements) {
         switch (e->fKind) {
             case ProgramElement::kExtension_Kind:
@@ -658,9 +649,6 @@ void GLSLCodeGenerator::generateCode(const Program& program, std::ostream& out) 
         }
     }
     fOut = nullptr;
-
-    out << fHeader.str();
-    out << body.str();
 }
 
 }
