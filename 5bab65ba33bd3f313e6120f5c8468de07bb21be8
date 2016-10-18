@@ -84,6 +84,24 @@
     },
     {
       "key": {
+        "uuid": "fc632725_3b4bf877",
+        "filename": "infra/bots/recipe_modules/flavor/default_flavor.py",
+        "patchSetId": 5
+      },
+      "lineNbr": 107,
+      "author": {
+        "id": 5015
+      },
+      "writtenOn": "2016-10-18T16:47:01Z",
+      "side": 0,
+      "message": "Okay, I think I prefer for \"default\" to mean the thing that most bots use, while other flavors simply override the methods they need to override, but this isn\u0027t a big deal.",
+      "parentUuid": "dc6ae32c_86b00cc5",
+      "revId": "5bab65ba33bd3f313e6120f5c8468de07bb21be8",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fc632725_292f35c0",
         "filename": "infra/bots/recipes/swarm_compile.py",
         "patchSetId": 5
@@ -119,6 +137,24 @@
       "side": 0,
       "message": "-Shared doesn\u0027t really build anything useful to us.  Can we change that Housekeeper-PerCommit bot?",
       "parentUuid": "fc632725_292f35c0",
+      "revId": "5bab65ba33bd3f313e6120f5c8468de07bb21be8",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fc632725_dbce44bb",
+        "filename": "infra/bots/recipes/swarm_compile.py",
+        "patchSetId": 5
+      },
+      "lineNbr": 46,
+      "author": {
+        "id": 5015
+      },
+      "writtenOn": "2016-10-18T16:47:01Z",
+      "side": 0,
+      "message": "The run_binary_size_analysis.py script uses libskia.so.  That script hasn\u0027t succeeded in a long time, so we probably don\u0027t care about it.  If I\u0027m eyeballing that recipe correctly, it seems we could remove the run_binary_size_analysis step and no longer need the compile task at all for the housekeeper.",
+      "parentUuid": "dc6ae32c_a67fc81b",
       "revId": "5bab65ba33bd3f313e6120f5c8468de07bb21be8",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
@@ -201,6 +237,24 @@
       "side": 0,
       "message": "Why Ubuntu?  You tell me!\n\nGenerally I think this was just a test to simulate build failure.  Not sure why it exists.  I figured it was to cover a branch of an if-else in some old recipe version.  No conditions to cover now.",
       "parentUuid": "fc632725_492a71b0",
+      "revId": "5bab65ba33bd3f313e6120f5c8468de07bb21be8",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fc632725_9b404c51",
+        "filename": "infra/bots/recipes/swarm_compile.py",
+        "patchSetId": 5
+      },
+      "lineNbr": 253,
+      "author": {
+        "id": 5015
+      },
+      "writtenOn": "2016-10-18T16:47:01Z",
+      "side": 0,
+      "message": "I was asking why we\u0027d remove this test case.",
+      "parentUuid": "dc6ae32c_e689c008",
       "revId": "5bab65ba33bd3f313e6120f5c8468de07bb21be8",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
