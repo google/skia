@@ -34,6 +34,8 @@ public:
 
     void discard() override;
 
+    void inlineUpload(GrBatchFlushState* state, GrDrawBatch::DeferredUploadFn& upload) override;
+
 private:
     GrGpu* gpu() override;
     GrRenderTarget* renderTarget() override;
@@ -57,11 +59,25 @@ private:
 
     void onClearStencilClip(const GrFixedClip&, bool insideStencilMask) override;
 
+    void addAdditionalCommandBuffer();
+
+    struct InlineUploadInfo {
+        InlineUploadInfo(GrBatchFlushState* state, const GrDrawBatch::DeferredUploadFn& upload)
+                : fFlushState(state)
+                , fUpload(upload) {}
+
+        GrBatchFlushState*            fFlushState;
+        GrDrawBatch::DeferredUploadFn fUpload;
+    };
+
     struct CommandBufferInfo {
-        const GrVkRenderPass*       fRenderPass;
-        GrVkSecondaryCommandBuffer* fCommandBuffer;
-        VkClearValue                fColorClearValue;
-        SkRect                      fBounds;
+        const GrVkRenderPass*        fRenderPass;
+        GrVkSecondaryCommandBuffer*  fCommandBuffer;
+        VkClearValue                 fColorClearValue;
+        SkRect                       fBounds;
+        bool                         fIsEmpty;
+        bool                         fStartsWithClear;
+        SkTArray<InlineUploadInfo>   fPreDrawUploads;
     };
 
     SkTArray<CommandBufferInfo> fCommandBufferInfos;
@@ -69,9 +85,6 @@ private:
 
     GrVkGpu*                    fGpu;
     GrVkRenderTarget*           fRenderTarget;
-
-    bool                        fIsEmpty;
-    bool                        fStartsWithClear;
 
     typedef GrGpuCommandBuffer INHERITED;
 };

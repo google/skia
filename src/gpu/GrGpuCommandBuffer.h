@@ -9,7 +9,9 @@
 #define GrGpuCommandBuffer_DEFINED
 
 #include "GrColor.h"
+#include "batches/GrDrawBatch.h"
 
+class GrBatchFlushState;
 class GrFixedClip;
 class GrGpu;
 class GrMesh;
@@ -64,17 +66,20 @@ public:
               int meshCount,
               const SkRect& bounds);
 
+    // Performs an upload of vertex data in the middle of a set of a set of draws
+    virtual void inlineUpload(GrBatchFlushState* state, GrDrawBatch::DeferredUploadFn& upload) = 0;
+
     /**
-    * Clear the passed in render target. Ignores the draw state and clip.
-    */
+     * Clear the passed in render target. Ignores the draw state and clip.
+     */
     void clear(const GrFixedClip&, GrColor);
 
     void clearStencilClip(const GrFixedClip&, bool insideStencilMask);
 
     /**
-    * Discards the contents render target. nullptr indicates that the current render target should
-    * be discarded.
-    **/
+     * Discards the contents render target. nullptr indicates that the current render target should
+     * be discarded.
+     */
     // TODO: This should be removed in the future to favor using the load and store ops for discard
     virtual void discard() = 0;
 

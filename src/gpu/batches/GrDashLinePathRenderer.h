@@ -10,6 +10,8 @@
 
 #include "GrPathRenderer.h"
 
+#include "GrGpu.h"
+
 class GrDashLinePathRenderer : public GrPathRenderer {
 private:
     bool onCanDrawPath(const CanDrawPathArgs&) const override;

@@ -8,6 +8,7 @@
 #ifndef gr_instanced_InstancedRendering_DEFINED
 #define gr_instanced_InstancedRendering_DEFINED
 
+#include "GrGpu.h"
 #include "GrMemoryPool.h"
 #include "SkTInternalLList.h"
 #include "batches/GrDrawBatch.h"

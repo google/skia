@@ -10,6 +10,7 @@
 
 #include "GrGpuCommandBuffer.h"
 
+#include "GrBatchFlushState.h"
 #include "GrGLGpu.h"
 
 class GrGLRenderTarget;
@@ -28,6 +29,10 @@ public:
     void end() override {}
 
     void discard() override {}
+
+    void inlineUpload(GrBatchFlushState* state, GrDrawBatch::DeferredUploadFn& upload) override {
+        state->doUpload(upload);
+    }
 
 private:
     GrGpu* gpu() override { return fGpu; }
