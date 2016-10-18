@@ -96,14 +96,6 @@ GrGLSLFragmentShaderBuilder::GrGLSLFragmentShaderBuilder(GrGLSLProgramBuilder* p
 bool GrGLSLFragmentShaderBuilder::enableFeature(GLSLFeature feature) {
     const GrGLSLCaps& glslCaps = *fProgramBuilder->glslCaps();
     switch (feature) {
-        case kStandardDerivatives_GLSLFeature:
-            if (!glslCaps.shaderDerivativeSupport()) {
-                return false;
-            }
-            if (const char* extension = glslCaps.shaderDerivativeExtensionString()) {
-                this->addFeature(1 << kStandardDerivatives_GLSLFeature, extension);
-            }
-            return true;
         case kPixelLocalStorage_GLSLFeature:
             if (glslCaps.pixelLocalStorageSize() <= 0) {
                 return false;
