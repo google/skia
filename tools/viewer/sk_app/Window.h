@@ -25,7 +25,7 @@ class Window {
 public:
     static Window* CreateNativeWindow(void* platformData);
 
-    virtual ~Window() { this->detach(); };
+    virtual ~Window() { this->detach(); }
 
     virtual void setTitle(const char*) = 0;
     virtual void show() = 0;
