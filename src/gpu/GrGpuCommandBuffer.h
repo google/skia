@@ -8,14 +8,18 @@
 #ifndef GrGpuCommandBuffer_DEFINED
 #define GrGpuCommandBuffer_DEFINED
 
+#include <functional>
 #include "GrColor.h"
+#include "GrTypes.h"
 
+class GrBatchFlushState;
 class GrFixedClip;
 class GrGpu;
 class GrMesh;
 class GrPipeline;
 class GrPrimitiveProcessor;
 class GrRenderTarget;
+class GrSurface;
 struct SkIRect;
 struct SkRect;
 
@@ -64,17 +68,28 @@ public:
               int meshCount,
               const SkRect& bounds);
 
+    /** Method that performs an upload on behalf of a DeferredUploadFn. */
+    using WritePixelsFn = std::function<bool(GrSurface* texture,
+                                             int left, int top, int width, int height,
+                                             GrPixelConfig config, const void* buffer,
+                                             size_t rowBytes)>;
+    /** See comments before GrDrawBatch::Target definition on how deferred uploaders work. */
+    using DeferredUploadFn = std::function<void(WritePixelsFn&)>;
+
+    // Performs an upload of vertex data in the middle of a set of a set of draws
+    virtual void inlineUpload(GrBatchFlushState* state, DeferredUploadFn& upload) = 0;
+
     /**
-    * Clear the passed in render target. Ignores the draw state and clip.
-    */
+     * Clear the passed in render target. Ignores the draw state and clip.
+     */
     void clear(const GrFixedClip&, GrColor);
 
     void clearStencilClip(const GrFixedClip&, bool insideStencilMask);
 
     /**
-    * Discards the contents render target. nullptr indicates that the current render target should
-    * be discarded.
-    **/
+     * Discards the contents render target. nullptr indicates that the current render target should
+     * be discarded.
+     */
     // TODO: This should be removed in the future to favor using the load and store ops for discard
     virtual void discard() = 0;
 
