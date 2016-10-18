@@ -339,8 +339,6 @@ public:
             GrGLSLPPFragmentBuilder* fsBuilder = args.fFragBuilder;
             SkAssertResult(fsBuilder->enableFeature(
                            GrGLSLFragmentShaderBuilder::kPixelLocalStorage_GLSLFeature));
-            SkAssertResult(fsBuilder->enableFeature(
-                    GrGLSLFragmentShaderBuilder::kStandardDerivatives_GLSLFeature));
             fsBuilder->declAppendf(GR_GL_PLS_PATH_DATA_DECL);
             // Compute four subsamples, each shifted a quarter pixel along x and y from
             // gl_FragCoord. The oriented box positioning of the subsamples is of course not
@@ -522,8 +520,6 @@ public:
             GrGLSLPPFragmentBuilder* fsBuilder = args.fFragBuilder;
             SkAssertResult(fsBuilder->enableFeature(
                            GrGLSLFragmentShaderBuilder::kPixelLocalStorage_GLSLFeature));
-            SkAssertResult(fsBuilder->enableFeature(
-                    GrGLSLFragmentShaderBuilder::kStandardDerivatives_GLSLFeature));
             static const int QUAD_ARGS = 2;
             GrGLSLShaderVar inQuadArgs[QUAD_ARGS] = {
                 GrGLSLShaderVar("dot", kFloat_GrSLType, 0, kHigh_GrSLPrecision),
