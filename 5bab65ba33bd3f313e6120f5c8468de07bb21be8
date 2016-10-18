@@ -161,6 +161,24 @@
     },
     {
       "key": {
+        "uuid": "fc632725_9b616cc2",
+        "filename": "infra/bots/recipes/swarm_compile.py",
+        "patchSetId": 5
+      },
+      "lineNbr": 46,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2016-10-18T16:53:21Z",
+      "side": 0,
+      "message": "Yeah, let\u0027s kill that.  We can also just switch it to look at libskia.a from a non-Shared build if you like.  Shouldn\u0027t be anything special about the .so there.",
+      "parentUuid": "fc632725_dbce44bb",
+      "revId": "5bab65ba33bd3f313e6120f5c8468de07bb21be8",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fc632725_e95d3d5f",
         "filename": "infra/bots/recipes/swarm_compile.py",
         "patchSetId": 5
@@ -255,6 +273,24 @@
       "side": 0,
       "message": "I was asking why we\u0027d remove this test case.",
       "parentUuid": "dc6ae32c_e689c008",
+      "revId": "5bab65ba33bd3f313e6120f5c8468de07bb21be8",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fc632725_bb6708d1",
+        "filename": "infra/bots/recipes/swarm_compile.py",
+        "patchSetId": 5
+      },
+      "lineNbr": 253,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2016-10-18T16:53:21Z",
+      "side": 0,
+      "message": "Ah.  The highlighted \u0027Ubuntu\u0027 threw me there.",
+      "parentUuid": "fc632725_9b404c51",
       "revId": "5bab65ba33bd3f313e6120f5c8468de07bb21be8",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
