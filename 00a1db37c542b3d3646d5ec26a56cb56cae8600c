@@ -43,6 +43,24 @@
     },
     {
       "key": {
+        "uuid": "fc632725_a93ce588",
+        "filename": "src/gpu/GrGpuCommandBuffer.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 77,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2016-10-18T15:52:28Z",
+      "side": 1,
+      "message": "So the original issue was GrGpuCB-\u003eGrDrawBatch-\u003eGrPipeline-\u003eGrGpu-\u003eGrGpuCB. But I realized the GrPipeline-\u003eGrGpu include was not needed so with that gone I moved the function back (and after fighting very unhelpful compiler errors).",
+      "parentUuid": "fc632725_a9150501",
+      "revId": "00a1db37c542b3d3646d5ec26a56cb56cae8600c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fc632725_a98ea548",
         "filename": "src/gpu/batches/GrDrawBatch.h",
         "patchSetId": 3
