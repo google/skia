@@ -1174,7 +1174,7 @@ if (skia_enable_tools) {
     testonly = true
   }
 
-  if (is_linux || is_win) {
+  if (skia_enable_gpu && (is_linux || is_win)) {
     executable("viewer") {
       sources = [
         "tools/viewer/GMSlide.cpp",
