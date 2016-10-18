@@ -230,6 +230,7 @@
       "pic-8888",
       "angle_d3d11_es2",
       "angle_d3d9_es2",
+      "angle_d3d11_es2_msaa4",
       "--src",
       "tests",
       "gm",
