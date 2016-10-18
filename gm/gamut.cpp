@@ -127,20 +127,25 @@ static void draw_gamut_grid(SkCanvas* canvas, SkTArray<SkAutoTDelete<CellRendere
 
     // Use the original canvas' color type, but account for gamma requirements
     SkImageInfo origInfo = canvas->imageInfo();
-    auto srgbCS = SkColorSpace::NewNamed(SkColorSpace::kSRGB_Named);
-    auto wideCS = SkColorSpace::NewRGB(SkColorSpace::kSRGB_RenderTargetGamma,
-                                       wideGamutRGB_toXYZD50);
+    sk_sp<SkColorSpace> srgbCS;
+    sk_sp<SkColorSpace> wideCS;
     switch (origInfo.colorType()) {
         case kRGBA_8888_SkColorType:
         case kBGRA_8888_SkColorType:
+            srgbCS = SkColorSpace::NewNamed(SkColorSpace::kSRGB_Named);
+            wideCS = SkColorSpace::NewRGB(SkColorSpace::kSRGB_RenderTargetGamma,
+                                          wideGamutRGB_toXYZD50);
             break;
         case kRGBA_F16_SkColorType:
-            srgbCS = as_CSB(srgbCS.get())->makeLinearGamma();
-            wideCS = as_CSB(wideCS.get())->makeLinearGamma();
+            srgbCS = SkColorSpace::NewNamed(SkColorSpace::kSRGBLinear_Named);
+            wideCS = SkColorSpace::NewRGB(SkColorSpace::kLinear_RenderTargetGamma,
+                                          wideGamutRGB_toXYZD50);
             break;
         default:
             return;
     }
+    SkASSERT(srgbCS);
+    SkASSERT(wideCS);
 
     // Make our two working surfaces (one sRGB, one Adobe)
     SkImageInfo srgbGamutInfo = SkImageInfo::Make(gRectSize, gRectSize, origInfo.colorType(),

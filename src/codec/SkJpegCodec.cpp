@@ -412,7 +412,9 @@ bool SkJpegCodec::setOutputColorSpace(const SkImageInfo& dstInfo) {
             fDecoderMgr->dinfo()->out_color_space = JCS_GRAYSCALE;
             return true;
         case kRGBA_F16_SkColorType:
-            SkASSERT(fColorXform);
+            if (!fColorXform) {
+                return false;
+            }
             if (!dstInfo.colorSpace()->gammaIsLinear()) {
                 return false;
             }
@@ -635,7 +637,6 @@ void SkJpegCodec::initializeSwizzler(const SkImageInfo& dstInfo, const Options& 
 void SkJpegCodec::initializeColorXform(const SkImageInfo& dstInfo) {
     if (needs_color_xform(dstInfo, this->getInfo())) {
         fColorXform = SkColorSpaceXform::New(this->getInfo().colorSpace(), dstInfo.colorSpace());
-        SkASSERT(fColorXform);
     }
 }
 

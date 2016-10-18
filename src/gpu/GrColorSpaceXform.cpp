@@ -49,8 +49,15 @@ sk_sp<GrColorSpaceXform> GrColorSpaceXform::Make(SkColorSpace* src, SkColorSpace
         return nullptr;
     }
 
+    
+    const SkMatrix44* toXYZD50   = as_CSB(src)->toXYZD50();
+    const SkMatrix44* fromXYZD50 = as_CSB(dst)->fromXYZD50();
+    if (!toXYZD50 || !fromXYZD50) {
+        // unsupported colour spaces -- cannot specify gamut as a matrix
+        return nullptr;
+    }
     SkMatrix44 srcToDst(SkMatrix44::kUninitialized_Constructor);
-    srcToDst.setConcat(as_CSB(dst)->fromXYZD50(), as_CSB(src)->toXYZD50());
+    srcToDst.setConcat(*fromXYZD50, *toXYZD50);
 
     if (matrix_is_almost_identity(srcToDst)) {
         return nullptr;

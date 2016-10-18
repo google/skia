@@ -13,6 +13,8 @@
 #include "SkColorSpaceXform.h"
 #include "SkResourceCache.h"
 
+class SkColorSpace_XYZ;
+
 class SkColorSpaceXform_Base : public SkColorSpaceXform {
 public:
     static constexpr int kDstGammaTableSize = 1024;
@@ -23,10 +25,10 @@ protected:
 
 private:
     static void BuildDstGammaTables(const uint8_t* outGammaTables[3], uint8_t* gammaTableStorage,
-                                    const SkColorSpace* space, bool gammasAreMatching);
+                                    const SkColorSpace_XYZ* space, bool gammasAreMatching);
 
     friend class SkColorSpaceXform;
-    friend class SkColorSpace_Base;
+    friend class SkColorSpace_XYZ;
 };
 
 enum SrcGamma {
@@ -54,10 +56,8 @@ protected:
                  int count, SkAlphaType alphaType) const override;
 
 private:
-    SkColorSpaceXform_XYZ(SkColorSpace* srcSpace, const SkMatrix44& srcToDst,
-                          SkColorSpace* dstSpace);
-
-    sk_sp<SkColorLookUpTable> fColorLUT;
+    SkColorSpaceXform_XYZ(SkColorSpace_XYZ* srcSpace, const SkMatrix44& srcToDst,
+                          SkColorSpace_XYZ* dstSpace);
 
     // Contain pointers into storage or pointers into precomputed tables.
     const float*              fSrcGammaTables[3];
@@ -68,10 +68,10 @@ private:
     float                     fSrcToDst[16];
 
     friend class SkColorSpaceXform;
-    friend std::unique_ptr<SkColorSpaceXform> SlowIdentityXform(SkColorSpace* space);
+    friend std::unique_ptr<SkColorSpaceXform> SlowIdentityXform(SkColorSpace_XYZ* space);
 };
 
 // For testing.  Bypasses opts for when src and dst color spaces are equal.
-std::unique_ptr<SkColorSpaceXform> SlowIdentityXform(SkColorSpace* space);
+std::unique_ptr<SkColorSpaceXform> SlowIdentityXform(SkColorSpace_XYZ* space);
 
 #endif

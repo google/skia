@@ -169,20 +169,32 @@ struct SkColorLookUpTable : public SkRefCnt {
 
 class SkColorSpace_Base : public SkColorSpace {
 public:
-    SkGammaNamed gammaNamed() const { return fGammaNamed; }
-    const SkGammas* gammas() const { return fGammas.get(); }
-
-    const SkColorLookUpTable* colorLUT() const { return fColorLUT.get(); }
-
-    const SkMatrix44& toXYZD50() const { return fToXYZD50; }
-    const SkMatrix44& fromXYZD50() const;
-    
-    void toDstGammaTables(const uint8_t* tables[3], sk_sp<SkData>* storage, int numTables) const;
 
     /**
-     *  Create an SkColorSpace with the same gamut as this color space, but with linear gamma.
+     *  Describes color space gamut as a transformation to XYZ D50.
+     *  Returns nullptr if color gamut cannot be described in terms of XYZ D50.
      */
-    sk_sp<SkColorSpace> makeLinearGamma();
+    virtual const SkMatrix44* toXYZD50() const = 0;
+
+    /**
+     *  Describes color space gamut as a transformation from XYZ D50
+     *  Returns nullptr if color gamut cannot be described in terms of XYZ D50.
+     */
+    virtual const SkMatrix44* fromXYZD50() const = 0;
+    
+    virtual bool onGammaCloseToSRGB() const = 0;
+    
+    virtual bool onGammaIsLinear() const = 0;
+    
+    enum class Type : uint8_t {
+        kXYZ,
+        kA2B
+    };
+    
+    virtual Type type() const = 0;
+    
+protected:
+    SkColorSpace_Base(sk_sp<SkData> profileData);
 
 private:
 
@@ -199,23 +211,10 @@ private:
 
     SkColorSpace_Base(SkGammaNamed gammaNamed, const SkMatrix44& toXYZ);
 
-    SkColorSpace_Base(sk_sp<SkColorLookUpTable> colorLUT, SkGammaNamed gammaNamed,
-                      sk_sp<SkGammas> gammas, const SkMatrix44& toXYZ, sk_sp<SkData> profileData);
-
-    sk_sp<SkColorLookUpTable>      fColorLUT;
-    const SkGammaNamed             fGammaNamed;
-    sk_sp<SkGammas>                fGammas;
-    sk_sp<SkData>                  fProfileData;
-
-    const SkMatrix44               fToXYZD50;
-    mutable SkMatrix44             fFromXYZD50;
-    mutable SkOnce                 fFromXYZOnce;
-
-    mutable sk_sp<SkData>          fDstStorage;
-    mutable const uint8_t*         fToDstGammaTables[3];
-    mutable SkOnce                 fToDstGammaOnce;
+    sk_sp<SkData> fProfileData;
 
     friend class SkColorSpace;
+    friend class SkColorSpace_XYZ;
     friend class ColorSpaceXformTest;
     friend class ColorSpaceTest;
     typedef SkColorSpace INHERITED;

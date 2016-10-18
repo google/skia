@@ -6,7 +6,9 @@
  */
 
 #include "SkColorPriv.h"
+#include "SkColorSpace_A2B.h"
 #include "SkColorSpace_Base.h"
+#include "SkColorSpace_XYZ.h"
 #include "SkColorSpacePriv.h"
 #include "SkColorSpaceXform_Base.h"
 #include "SkHalf.h"
@@ -254,10 +256,10 @@ static const GammaFns<uint8_t> kFromLinear {
 // Build tables to transform src gamma to linear.
 template <typename T>
 static void build_gamma_tables(const T* outGammaTables[3], T* gammaTableStorage, int gammaTableSize,
-                               const SkColorSpace* space, const GammaFns<T>& fns,
+                               const SkColorSpace_XYZ* space, const GammaFns<T>& fns,
                                bool gammasAreMatching)
 {
-    switch (as_CSB(space)->gammaNamed()) {
+    switch (space->gammaNamed()) {
         case kSRGB_SkGammaNamed:
             outGammaTables[0] = outGammaTables[1] = outGammaTables[2] = fns.fSRGBTable;
             break;
@@ -268,7 +270,7 @@ static void build_gamma_tables(const T* outGammaTables[3], T* gammaTableStorage,
             outGammaTables[0] = outGammaTables[1] = outGammaTables[2] = nullptr;
             break;
         default: {
-            const SkGammas* gammas = as_CSB(space)->gammas();
+            const SkGammas* gammas = space->gammas();
             SkASSERT(gammas);
 
             auto build_table = [=](int i) {
@@ -326,7 +328,8 @@ static void build_gamma_tables(const T* outGammaTables[3], T* gammaTableStorage,
 }
 
 void SkColorSpaceXform_Base::BuildDstGammaTables(const uint8_t* dstGammaTables[3],
-                                                 uint8_t* dstStorage, const SkColorSpace* space,
+                                                 uint8_t* dstStorage,
+                                                 const SkColorSpace_XYZ* space,
                                                  bool gammasAreMatching) {
     build_gamma_tables(dstGammaTables, dstStorage, kDstGammaTableSize, space, kFromLinear,
                        gammasAreMatching);
@@ -355,13 +358,30 @@ std::unique_ptr<SkColorSpaceXform> SkColorSpaceXform::New(SkColorSpace* srcSpace
         return nullptr;
     }
 
+    if (SkColorSpace_Base::Type::kA2B == as_CSB(dstSpace)->type()) {
+        SkColorSpacePrintf("A2B destinations not supported\n");
+        return nullptr;
+    }
+
+    if (SkColorSpace_Base::Type::kA2B == as_CSB(srcSpace)->type()) {
+        // TODO (raftias): return an A2B-supporting SkColorSpaceXform here once the xform.
+        // is implemented. SkColorSpaceXform_Base only supports XYZ+TRC based SkColorSpaces
+        //SkColorSpace_A2B* src = static_cast<SkColorSpace_A2B*>(srcSpace);
+        //SkColorSpace_XYZ* dst = static_cast<SkColorSpace_XYZ*>(dstSpace);
+        //return std::unique_ptr<SkColorSpaceXform>(new SkColorSpaceXform_A2B(src, dst));
+        SkColorSpacePrintf("A2B sources not supported (yet)\n");
+        return nullptr;
+    }
+    SkColorSpace_XYZ* srcSpaceXYZ = static_cast<SkColorSpace_XYZ*>(srcSpace);
+    SkColorSpace_XYZ* dstSpaceXYZ = static_cast<SkColorSpace_XYZ*>(dstSpace);
+
     ColorSpaceMatch csm = kNone_ColorSpaceMatch;
     SkMatrix44 srcToDst(SkMatrix44::kUninitialized_Constructor);
     if (SkColorSpace::Equals(srcSpace, dstSpace)) {
         srcToDst.setIdentity();
         csm = kFull_ColorSpaceMatch;
     } else {
-        srcToDst.setConcat(as_CSB(dstSpace)->fromXYZD50(), as_CSB(srcSpace)->toXYZD50());
+        srcToDst.setConcat(*dstSpaceXYZ->fromXYZD50(), *srcSpaceXYZ->toXYZD50());
 
         if (is_almost_identity(srcToDst)) {
             srcToDst.setIdentity();
@@ -371,109 +391,109 @@ std::unique_ptr<SkColorSpaceXform> SkColorSpaceXform::New(SkColorSpace* srcSpace
 
     switch (csm) {
         case kNone_ColorSpaceMatch:
-            switch (as_CSB(dstSpace)->gammaNamed()) {
+            switch (dstSpaceXYZ->gammaNamed()) {
                 case kSRGB_SkGammaNamed:
-                    if (srcSpace->gammaIsLinear()) {
+                    if (srcSpaceXYZ->gammaIsLinear()) {
                         return std::unique_ptr<SkColorSpaceXform>(new SkColorSpaceXform_XYZ
                                 <kLinear_SrcGamma, kSRGB_DstGamma, kNone_ColorSpaceMatch>
-                                (srcSpace, srcToDst, dstSpace));
+                                (srcSpaceXYZ, srcToDst, dstSpaceXYZ));
                     } else {
                         return std::unique_ptr<SkColorSpaceXform>(new SkColorSpaceXform_XYZ
                                 <kTable_SrcGamma, kSRGB_DstGamma, kNone_ColorSpaceMatch>
-                                (srcSpace, srcToDst, dstSpace));
+                                (srcSpaceXYZ, srcToDst, dstSpaceXYZ));
                     }
                 case k2Dot2Curve_SkGammaNamed:
-                    if (srcSpace->gammaIsLinear()) {
+                    if (srcSpaceXYZ->gammaIsLinear()) {
                         return std::unique_ptr<SkColorSpaceXform>(new SkColorSpaceXform_XYZ
                                 <kLinear_SrcGamma, k2Dot2_DstGamma, kNone_ColorSpaceMatch>
-                                (srcSpace, srcToDst, dstSpace));
+                                (srcSpaceXYZ, srcToDst, dstSpaceXYZ));
                     } else {
                         return std::unique_ptr<SkColorSpaceXform>(new SkColorSpaceXform_XYZ
                                 <kTable_SrcGamma, k2Dot2_DstGamma, kNone_ColorSpaceMatch>
-                                (srcSpace, srcToDst, dstSpace));
+                                (srcSpaceXYZ, srcToDst, dstSpaceXYZ));
                     }
                 case kLinear_SkGammaNamed:
-                    if (srcSpace->gammaIsLinear()) {
+                    if (srcSpaceXYZ->gammaIsLinear()) {
                         return std::unique_ptr<SkColorSpaceXform>(new SkColorSpaceXform_XYZ
                                 <kLinear_SrcGamma, kLinear_DstGamma, kNone_ColorSpaceMatch>
-                                (srcSpace, srcToDst, dstSpace));
+                                (srcSpaceXYZ, srcToDst, dstSpaceXYZ));
                     } else {
                         return std::unique_ptr<SkColorSpaceXform>(new SkColorSpaceXform_XYZ
                                 <kTable_SrcGamma, kLinear_DstGamma, kNone_ColorSpaceMatch>
-                                (srcSpace, srcToDst, dstSpace));
+                                (srcSpaceXYZ, srcToDst, dstSpaceXYZ));
                     }
                 default:
-                    if (srcSpace->gammaIsLinear()) {
+                    if (srcSpaceXYZ->gammaIsLinear()) {
                         return std::unique_ptr<SkColorSpaceXform>(new SkColorSpaceXform_XYZ
                                 <kLinear_SrcGamma, kTable_DstGamma, kNone_ColorSpaceMatch>
-                                (srcSpace, srcToDst, dstSpace));
+                                (srcSpaceXYZ, srcToDst, dstSpaceXYZ));
                     } else {
                         return std::unique_ptr<SkColorSpaceXform>(new SkColorSpaceXform_XYZ
                                 <kTable_SrcGamma, kTable_DstGamma, kNone_ColorSpaceMatch>
-                                (srcSpace, srcToDst, dstSpace));
+                                (srcSpaceXYZ, srcToDst, dstSpaceXYZ));
                     }
             }
         case kGamut_ColorSpaceMatch:
-            switch (as_CSB(dstSpace)->gammaNamed()) {
+            switch (dstSpaceXYZ->gammaNamed()) {
                 case kSRGB_SkGammaNamed:
-                    if (srcSpace->gammaIsLinear()) {
+                    if (srcSpaceXYZ->gammaIsLinear()) {
                         return std::unique_ptr<SkColorSpaceXform>(new SkColorSpaceXform_XYZ
                                 <kLinear_SrcGamma, kSRGB_DstGamma, kGamut_ColorSpaceMatch>
-                                (srcSpace, srcToDst, dstSpace));
+                                (srcSpaceXYZ, srcToDst, dstSpaceXYZ));
                     } else {
                         return std::unique_ptr<SkColorSpaceXform>(new SkColorSpaceXform_XYZ
                                 <kTable_SrcGamma, kSRGB_DstGamma, kGamut_ColorSpaceMatch>
-                                (srcSpace, srcToDst, dstSpace));
+                                (srcSpaceXYZ, srcToDst, dstSpaceXYZ));
                     }
                 case k2Dot2Curve_SkGammaNamed:
-                    if (srcSpace->gammaIsLinear()) {
+                    if (srcSpaceXYZ->gammaIsLinear()) {
                         return std::unique_ptr<SkColorSpaceXform>(new SkColorSpaceXform_XYZ
                                 <kLinear_SrcGamma, k2Dot2_DstGamma, kGamut_ColorSpaceMatch>
-                                (srcSpace, srcToDst, dstSpace));
+                                (srcSpaceXYZ, srcToDst, dstSpaceXYZ));
                     } else {
                         return std::unique_ptr<SkColorSpaceXform>(new SkColorSpaceXform_XYZ
                                 <kTable_SrcGamma, k2Dot2_DstGamma, kGamut_ColorSpaceMatch>
-                                (srcSpace, srcToDst, dstSpace));
+                                (srcSpaceXYZ, srcToDst, dstSpaceXYZ));
                     }
                 case kLinear_SkGammaNamed:
-                    if (srcSpace->gammaIsLinear()) {
+                    if (srcSpaceXYZ->gammaIsLinear()) {
                         return std::unique_ptr<SkColorSpaceXform>(new SkColorSpaceXform_XYZ
                                 <kLinear_SrcGamma, kLinear_DstGamma, kGamut_ColorSpaceMatch>
-                                (srcSpace, srcToDst, dstSpace));
+                                (srcSpaceXYZ, srcToDst, dstSpaceXYZ));
                     } else {
                         return std::unique_ptr<SkColorSpaceXform>(new SkColorSpaceXform_XYZ
                                 <kTable_SrcGamma, kLinear_DstGamma, kGamut_ColorSpaceMatch>
-                                (srcSpace, srcToDst, dstSpace));
+                                (srcSpaceXYZ, srcToDst, dstSpaceXYZ));
                     }
                 default:
-                    if (srcSpace->gammaIsLinear()) {
+                    if (srcSpaceXYZ->gammaIsLinear()) {
                         return std::unique_ptr<SkColorSpaceXform>(new SkColorSpaceXform_XYZ
                                 <kLinear_SrcGamma, kTable_DstGamma, kGamut_ColorSpaceMatch>
-                                (srcSpace, srcToDst, dstSpace));
+                                (srcSpaceXYZ, srcToDst, dstSpaceXYZ));
                     } else {
                         return std::unique_ptr<SkColorSpaceXform>(new SkColorSpaceXform_XYZ
                                 <kTable_SrcGamma, kTable_DstGamma, kGamut_ColorSpaceMatch>
-                                (srcSpace, srcToDst, dstSpace));
+                                (srcSpaceXYZ, srcToDst, dstSpaceXYZ));
                     }
             }
         case kFull_ColorSpaceMatch:
-            switch (as_CSB(dstSpace)->gammaNamed()) {
+            switch (dstSpaceXYZ->gammaNamed()) {
                 case kSRGB_SkGammaNamed:
                     return std::unique_ptr<SkColorSpaceXform>(new SkColorSpaceXform_XYZ
                             <kTable_SrcGamma, kSRGB_DstGamma, kFull_ColorSpaceMatch>
-                            (srcSpace, srcToDst, dstSpace));
+                            (srcSpaceXYZ, srcToDst, dstSpaceXYZ));
                 case k2Dot2Curve_SkGammaNamed:
                     return std::unique_ptr<SkColorSpaceXform>(new SkColorSpaceXform_XYZ
                             <kTable_SrcGamma, k2Dot2_DstGamma, kFull_ColorSpaceMatch>
-                            (srcSpace, srcToDst, dstSpace));
+                            (srcSpaceXYZ, srcToDst, dstSpaceXYZ));
                 case kLinear_SkGammaNamed:
                     return std::unique_ptr<SkColorSpaceXform>(new SkColorSpaceXform_XYZ
                             <kLinear_SrcGamma, kLinear_DstGamma, kFull_ColorSpaceMatch>
-                            (srcSpace, srcToDst, dstSpace));
+                            (srcSpaceXYZ, srcToDst, dstSpaceXYZ));
                 default:
                     return std::unique_ptr<SkColorSpaceXform>(new SkColorSpaceXform_XYZ
                             <kTable_SrcGamma, kTable_DstGamma, kFull_ColorSpaceMatch>
-                            (srcSpace, srcToDst, dstSpace));
+                            (srcSpaceXYZ, srcToDst, dstSpaceXYZ));
             }
         default:
             SkASSERT(false);
@@ -482,138 +502,6 @@ std::unique_ptr<SkColorSpaceXform> SkColorSpaceXform::New(SkColorSpace* srcSpace
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
-
-static float byte_to_float(uint8_t byte) {
-    return ((float) byte) * (1.0f / 255.0f);
-}
-
-// Clamp to the 0-1 range.
-static float clamp_normalized_float(float v) {
-    if (v > 1.0f) {
-        return 1.0f;
-    } else if ((v < 0.0f) || (v != v)) {
-        return 0.0f;
-    } else {
-        return v;
-    }
-}
-
-static void interp_3d_clut(float dst[3], float src[3], const SkColorLookUpTable* colorLUT) {
-    // Call the src components x, y, and z.
-    uint8_t maxX = colorLUT->fGridPoints[0] - 1;
-    uint8_t maxY = colorLUT->fGridPoints[1] - 1;
-    uint8_t maxZ = colorLUT->fGridPoints[2] - 1;
-
-    // An approximate index into each of the three dimensions of the table.
-    float x = src[0] * maxX;
-    float y = src[1] * maxY;
-    float z = src[2] * maxZ;
-
-    // This gives us the low index for our interpolation.
-    int ix = sk_float_floor2int(x);
-    int iy = sk_float_floor2int(y);
-    int iz = sk_float_floor2int(z);
-
-    // Make sure the low index is not also the max index.
-    ix = (maxX == ix) ? ix - 1 : ix;
-    iy = (maxY == iy) ? iy - 1 : iy;
-    iz = (maxZ == iz) ? iz - 1 : iz;
-
-    // Weighting factors for the interpolation.
-    float diffX = x - ix;
-    float diffY = y - iy;
-    float diffZ = z - iz;
-
-    // Constants to help us navigate the 3D table.
-    // Ex: Assume x = a, y = b, z = c.
-    //     table[a * n001 + b * n010 + c * n100] logically equals table[a][b][c].
-    const int n000 = 0;
-    const int n001 = 3 * colorLUT->fGridPoints[1] * colorLUT->fGridPoints[2];
-    const int n010 = 3 * colorLUT->fGridPoints[2];
-    const int n011 = n001 + n010;
-    const int n100 = 3;
-    const int n101 = n100 + n001;
-    const int n110 = n100 + n010;
-    const int n111 = n110 + n001;
-
-    // Base ptr into the table.
-    const float* ptr = &(colorLUT->table()[ix*n001 + iy*n010 + iz*n100]);
-
-    // The code below performs a tetrahedral interpolation for each of the three
-    // dst components.  Once the tetrahedron containing the interpolation point is
-    // identified, the interpolation is a weighted sum of grid values at the
-    // vertices of the tetrahedron.  The claim is that tetrahedral interpolation
-    // provides a more accurate color conversion.
-    // blogs.mathworks.com/steve/2006/11/24/tetrahedral-interpolation-for-colorspace-conversion/
-    //
-    // I have one test image, and visually I can't tell the difference between
-    // tetrahedral and trilinear interpolation.  In terms of computation, the
-    // tetrahedral code requires more branches but less computation.  The
-    // SampleICC library provides an option for the client to choose either
-    // tetrahedral or trilinear.
-    for (int i = 0; i < 3; i++) {
-        if (diffZ < diffY) {
-            if (diffZ < diffX) {
-                dst[i] = (ptr[n000] + diffZ * (ptr[n110] - ptr[n010]) +
-                                      diffY * (ptr[n010] - ptr[n000]) +
-                                      diffX * (ptr[n111] - ptr[n110]));
-            } else if (diffY < diffX) {
-                dst[i] = (ptr[n000] + diffZ * (ptr[n111] - ptr[n011]) +
-                                      diffY * (ptr[n011] - ptr[n001]) +
-                                      diffX * (ptr[n001] - ptr[n000]));
-            } else {
-                dst[i] = (ptr[n000] + diffZ * (ptr[n111] - ptr[n011]) +
-                                      diffY * (ptr[n010] - ptr[n000]) +
-                                      diffX * (ptr[n011] - ptr[n010]));
-            }
-        } else {
-            if (diffZ < diffX) {
-                dst[i] = (ptr[n000] + diffZ * (ptr[n101] - ptr[n001]) +
-                                      diffY * (ptr[n111] - ptr[n101]) +
-                                      diffX * (ptr[n001] - ptr[n000]));
-            } else if (diffY < diffX) {
-                dst[i] = (ptr[n000] + diffZ * (ptr[n100] - ptr[n000]) +
-                                      diffY * (ptr[n111] - ptr[n101]) +
-                                      diffX * (ptr[n101] - ptr[n100]));
-            } else {
-                dst[i] = (ptr[n000] + diffZ * (ptr[n100] - ptr[n000]) +
-                                      diffY * (ptr[n110] - ptr[n100]) +
-                                      diffX * (ptr[n111] - ptr[n110]));
-            }
-        }
-
-        // Increment the table ptr in order to handle the next component.
-        // Note that this is the how table is designed: all of nXXX
-        // variables are multiples of 3 because there are 3 output
-        // components.
-        ptr++;
-    }
-}
-
-static void handle_color_lut(uint32_t* dst, const void* vsrc, int len,
-                             SkColorLookUpTable* colorLUT) {
-    const uint32_t* src = (const uint32_t*) vsrc;
-    while (len-- > 0) {
-        uint8_t r = (*src >>  0) & 0xFF,
-                g = (*src >>  8) & 0xFF,
-                b = (*src >> 16) & 0xFF;
-
-        float in[3];
-        float out[3];
-        in[0] = byte_to_float(r);
-        in[1] = byte_to_float(g);
-        in[2] = byte_to_float(b);
-        interp_3d_clut(out, in, colorLUT);
-
-        r = sk_float_round2int(255.0f * clamp_normalized_float(out[0]));
-        g = sk_float_round2int(255.0f * clamp_normalized_float(out[1]));
-        b = sk_float_round2int(255.0f * clamp_normalized_float(out[2]));
-        *dst = SkPackARGB_as_RGBA(0xFF, r, g, b);
-
-        src++;
-        dst++;
-    }
-}
 
 static inline void load_matrix(const float matrix[16],
                                Sk4f& rXgXbX, Sk4f& rYgYbY, Sk4f& rZgZbZ, Sk4f& rTgTbT) {
@@ -1226,14 +1114,14 @@ static void color_xform_RGBA(void* dst, const void* vsrc, int len,
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
-static inline int num_tables(SkColorSpace* space) {
-    switch (as_CSB(space)->gammaNamed()) {
+static inline int num_tables(SkColorSpace_XYZ* space) {
+    switch (space->gammaNamed()) {
         case kSRGB_SkGammaNamed:
         case k2Dot2Curve_SkGammaNamed:
         case kLinear_SkGammaNamed:
             return 0;
         default: {
-            const SkGammas* gammas = as_CSB(space)->gammas();
+            const SkGammas* gammas = space->gammas();
             SkASSERT(gammas);
 
             bool gammasAreMatching = (gammas->type(0) == gammas->type(1)) &&
@@ -1250,8 +1138,8 @@ static inline int num_tables(SkColorSpace* space) {
 
 template <SrcGamma kSrc, DstGamma kDst, ColorSpaceMatch kCSM>
 SkColorSpaceXform_XYZ<kSrc, kDst, kCSM>
-::SkColorSpaceXform_XYZ(SkColorSpace* srcSpace, const SkMatrix44& srcToDst, SkColorSpace* dstSpace)
-    : fColorLUT(sk_ref_sp((SkColorLookUpTable*) as_CSB(srcSpace)->colorLUT()))
+::SkColorSpaceXform_XYZ(SkColorSpace_XYZ* srcSpace, const SkMatrix44& srcToDst,
+                        SkColorSpace_XYZ* dstSpace)
 {
     srcToDst.asColMajorf(fSrcToDst);
 
@@ -1263,7 +1151,7 @@ SkColorSpaceXform_XYZ<kSrc, kDst, kCSM>
                        srcGammasAreMatching);
 
     const int numDstTables = num_tables(dstSpace);
-    as_CSB(dstSpace)->toDstGammaTables(fDstGammaTables, &fDstStorage, numDstTables);
+    dstSpace->toDstGammaTables(fDstGammaTables, &fDstStorage, numDstTables);
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
@@ -1348,19 +1236,6 @@ bool SkColorSpaceXform_XYZ<kSrc, kDst, kCSM>
         }
     }
 
-#if defined(GOOGLE3)
-    // Stack frame size is limited in GOOGLE3.
-    SkAutoSMalloc<256 * sizeof(uint32_t)> storage;
-#else
-    SkAutoSMalloc<1024 * sizeof(uint32_t)> storage;
-#endif
-    if (fColorLUT) {
-        size_t storageBytes = len * sizeof(uint32_t);
-        storage.reset(storageBytes);
-        handle_color_lut((uint32_t*) storage.get(), src, len, fColorLUT.get());
-        src = (const uint32_t*) storage.get();
-    }
-
     switch (dstColorFormat) {
         case kRGBA_8888_ColorFormat:
             switch (kDst) {
@@ -1431,7 +1306,7 @@ bool SkColorSpaceXform::apply(ColorFormat dstColorFormat, void* dst, ColorFormat
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
-std::unique_ptr<SkColorSpaceXform> SlowIdentityXform(SkColorSpace* space) {
+std::unique_ptr<SkColorSpaceXform> SlowIdentityXform(SkColorSpace_XYZ* space) {
         return std::unique_ptr<SkColorSpaceXform>(new SkColorSpaceXform_XYZ
                 <kTable_SrcGamma, kTable_DstGamma, kNone_ColorSpaceMatch>
                 (space, SkMatrix::I(), space));

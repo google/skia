@@ -10,7 +10,7 @@
 #include "SkBitmap.h"
 #include "SkCodec.h"
 #include "SkCodecImageGenerator.h"
-#include "SkColorSpace_Base.h"
+#include "SkColorSpace_XYZ.h"
 #include "SkData.h"
 #include "SkImageEncoder.h"
 #include "SkFrontBufferedStream.h"
@@ -1192,7 +1192,9 @@ static void test_conversion_possible(skiatest::Reporter* r, const char* path,
         REPORTER_ASSERT(r, SkCodec::kUnimplemented == result);
     }
 
-    infoF16 = infoF16.makeColorSpace(as_CSB(infoF16.colorSpace())->makeLinearGamma());
+    SkASSERT(SkColorSpace_Base::Type::kXYZ == as_CSB(infoF16.colorSpace())->type());
+    SkColorSpace_XYZ* csXYZ = static_cast<SkColorSpace_XYZ*>(infoF16.colorSpace());
+    infoF16 = infoF16.makeColorSpace(csXYZ->makeLinearGamma());
     result = codec->getPixels(infoF16, bm.getPixels(), bm.rowBytes());
     REPORTER_ASSERT(r, SkCodec::kSuccess == result);
     result = codec->startScanlineDecode(infoF16);

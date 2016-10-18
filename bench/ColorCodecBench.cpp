@@ -9,7 +9,7 @@
 #include "Resources.h"
 #include "SkCodec.h"
 #include "SkCodecPriv.h"
-#include "SkColorSpace_Base.h"
+#include "SkColorSpace_XYZ.h"
 #include "SkColorSpaceXform.h"
 #include "SkCommandLineFlags.h"
 
@@ -170,7 +170,8 @@ void ColorCodecBench::onDelayedSetup() {
 
     if (FLAGS_half) {
         fDstInfo = fDstInfo.makeColorType(kRGBA_F16_SkColorType);
-        fDstSpace = as_CSB(fDstSpace)->makeLinearGamma();
+        SkASSERT(SkColorSpace_Base::Type::kXYZ == as_CSB(fDstSpace)->type());
+        fDstSpace = static_cast<SkColorSpace_XYZ*>(fDstSpace.get())->makeLinearGamma();
     }
 
     if (FLAGS_nonstd) {

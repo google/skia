@@ -11,7 +11,7 @@
 #include "SkCodec.h"
 #include "SkCodecImageGenerator.h"
 #include "SkColorSpace.h"
-#include "SkColorSpace_Base.h"
+#include "SkColorSpace_XYZ.h"
 #include "SkColorSpaceXform.h"
 #include "SkCommonFlags.h"
 #include "SkData.h"
@@ -920,7 +920,9 @@ Error ColorCodecSrc::draw(SkCanvas* canvas) const {
         decodeInfo = decodeInfo.makeAlphaType(kPremul_SkAlphaType);
     }
     if (kRGBA_F16_SkColorType == fColorType) {
-        decodeInfo = decodeInfo.makeColorSpace(as_CSB(decodeInfo.colorSpace())->makeLinearGamma());
+        SkASSERT(SkColorSpace_Base::Type::kXYZ == as_CSB(decodeInfo.colorSpace())->type());
+        SkColorSpace_XYZ* csXYZ = static_cast<SkColorSpace_XYZ*>(decodeInfo.colorSpace());
+        decodeInfo = decodeInfo.makeColorSpace(csXYZ->makeLinearGamma());
     }
 
     SkImageInfo bitmapInfo = decodeInfo;
@@ -939,7 +941,15 @@ Error ColorCodecSrc::draw(SkCanvas* canvas) const {
     size_t rowBytes = bitmap.rowBytes();
     SkCodec::Result r = codec->getPixels(decodeInfo, bitmap.getPixels(), rowBytes);
     if (SkCodec::kSuccess != r && SkCodec::kIncompleteInput != r) {
-        return SkStringPrintf("Couldn't getPixels %s. Error code %d", fPath.c_str(), r);
+        if (kRGBA_F16_SkColorType == decodeInfo.colorType()) {
+            // FIXME (raftias):
+            // Get the codecs to not fail when there is no color xform,
+            // which currently happens in F16 mode.
+            return Error::Nonfatal(SkStringPrintf("Couldn't getPixels %s in F16. Error code %d",
+                                                  fPath.c_str()));
+        } else {
+            return SkStringPrintf("Couldn't getPixels %s. Error code %d", fPath.c_str(), r);
+        }
     }
 
     switch (fMode) {

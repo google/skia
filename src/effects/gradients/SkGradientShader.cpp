@@ -6,7 +6,7 @@
  */
 
 #include "Sk4fLinearGradient.h"
-#include "SkColorSpace_Base.h"
+#include "SkColorSpace_XYZ.h"
 #include "SkGradientShaderPriv.h"
 #include "SkHalf.h"
 #include "SkLinearGradient.h"
@@ -1747,7 +1747,8 @@ GrGradientEffect::RandomGradientParams::RandomGradientParams(SkRandom* random) {
     if (fUseColors4f) {
         fColorSpace = GrTest::TestColorSpace(random);
         if (fColorSpace) {
-            fColorSpace = as_CSB(fColorSpace)->makeLinearGamma();
+            SkASSERT(SkColorSpace_Base::Type::kXYZ == as_CSB(fColorSpace)->type());
+            fColorSpace = static_cast<SkColorSpace_XYZ*>(fColorSpace.get())->makeLinearGamma();
         }
     }
 

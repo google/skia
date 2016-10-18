@@ -11,6 +11,7 @@
 #include "SkColorPriv.h"
 #include "SkColorSpace.h"
 #include "SkColorSpace_Base.h"
+#include "SkColorSpace_XYZ.h"
 #include "SkColorSpaceXform_Base.h"
 #include "Test.h"
 
@@ -18,11 +19,11 @@ class ColorSpaceXformTest {
 public:
     static std::unique_ptr<SkColorSpaceXform> CreateIdentityXform(const sk_sp<SkGammas>& gammas) {
         // Logically we can pass any matrix here.  For simplicty, pass I(), i.e. D50 XYZ gamut.
-        sk_sp<SkColorSpace> space(new SkColorSpace_Base(
-                nullptr, kNonStandard_SkGammaNamed, gammas, SkMatrix::I(), nullptr));
+        sk_sp<SkColorSpace> space(new SkColorSpace_XYZ(
+                kNonStandard_SkGammaNamed, gammas, SkMatrix::I(), nullptr));
 
         // Use special testing entry point, so we don't skip the xform, even though src == dst.
-        return SlowIdentityXform(space.get());
+        return SlowIdentityXform(static_cast<SkColorSpace_XYZ*>(space.get()));
     }
 };
 
@@ -175,25 +176,3 @@ DEF_TEST(ColorSpaceXform_NonMatchingGamma, r) {
     test_identity_xform(r, gammas, true);
 }
 
-DEF_TEST(ColorSpaceXform_applyCLUTMemoryAccess, r) {
-    // buffers larger than 1024 (or 256 in GOOGLE3) will force ColorSpaceXform_Base::apply()
-    // to heap-allocate a buffer that is used for CLUT application, and this test is here to
-    // ensure that it no longer causes potential invalid memory accesses when this happens
-    const size_t len = 2048;
-    SkAutoTMalloc<uint32_t> src(len);
-    SkAutoTMalloc<uint32_t> dst(len);
-    for (uint32_t i = 0; i < len; ++i) {
-        src[i] = i;
-    }
-    // this ICC profile has a CLUT in it
-    const SkString filename(GetResourcePath("icc_profiles/upperRight.icc"));
-    sk_sp<SkData> iccData = SkData::MakeFromFileName(filename.c_str());
-    REPORTER_ASSERT_MESSAGE(r, iccData, "upperRight.icc profile required for test");
-    sk_sp<SkColorSpace> srcSpace = SkColorSpace::NewICC(iccData->bytes(), iccData->size());
-    sk_sp<SkColorSpace> dstSpace = SkColorSpace::NewNamed(SkColorSpace::kSRGB_Named);
-    auto xform = SkColorSpaceXform::New(srcSpace.get(), dstSpace.get());
-    bool result = xform->apply(SkColorSpaceXform::kRGBA_8888_ColorFormat, dst.get(),
-                               SkColorSpaceXform::kRGBA_8888_ColorFormat, src.get(), len,
-                               kUnpremul_SkAlphaType);
-    REPORTER_ASSERT(r, result);
-}

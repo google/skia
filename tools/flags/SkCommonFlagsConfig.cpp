@@ -134,7 +134,6 @@ static const char configExtendedHelp[] =
     "\t    Options:\n"
     "\t\tsrgb\t\t\tsRGB gamut.\n"
     "\t\twide\t\t\tWide Gamut RGB.\n"
-    "\t\tnarrow\t\t\tNarrow Gamut RGB.\n"
     "\tdit\ttype: bool\tdefault: false.\n"
     "\t    Use device independent text.\n"
     "\tnvpr\ttype: bool\tdefault: false.\n"
@@ -284,7 +283,9 @@ static bool parse_option_gpu_color(const SkString& value,
     }
 
     // First, figure out color gamut that we'll work in (default to sRGB)
-    sk_sp<SkColorSpace> colorSpace = SkColorSpace::NewNamed(SkColorSpace::kSRGB_Named);
+    const bool linearGamma = commands[0].equals("f16");
+    *outColorSpace = SkColorSpace::NewNamed(linearGamma ? SkColorSpace::kSRGBLinear_Named
+                                                        : SkColorSpace::kSRGB_Named);
     if (commands.count() == 2) {
         if (commands[1].equals("srgb")) {
             // sRGB gamut (which is our default)
@@ -297,8 +298,10 @@ static bool parse_option_gpu_color(const SkString& value,
             };
             SkMatrix44 wideGamutRGBMatrix(SkMatrix44::kUninitialized_Constructor);
             wideGamutRGBMatrix.set3x3RowMajorf(gWideGamutRGB_toXYZD50);
-            colorSpace = SkColorSpace::NewRGB(SkColorSpace::kSRGB_RenderTargetGamma,
-                                              wideGamutRGBMatrix);
+            *outColorSpace = SkColorSpace::NewRGB(linearGamma
+                                                          ? SkColorSpace::kLinear_RenderTargetGamma
+                                                          : SkColorSpace::kSRGB_RenderTargetGamma,
+                                                  wideGamutRGBMatrix);
         } else if (commands[1].equals("narrow")) {
             // NarrowGamut RGB (an artifically smaller than sRGB gamut)
             SkColorSpacePrimaries primaries ={
@@ -309,8 +312,10 @@ static bool parse_option_gpu_color(const SkString& value,
             };
             SkMatrix44 narrowGamutRGBMatrix(SkMatrix44::kUninitialized_Constructor);
             primaries.toXYZD50(&narrowGamutRGBMatrix);
-            colorSpace = SkColorSpace::NewRGB(SkColorSpace::kSRGB_RenderTargetGamma,
-                                              narrowGamutRGBMatrix);
+            *outColorSpace = SkColorSpace::NewRGB(linearGamma
+                                                          ? SkColorSpace::kLinear_RenderTargetGamma
+                                                          : SkColorSpace::kSRGB_RenderTargetGamma,
+                                                  narrowGamutRGBMatrix);
         } else {
             // Unknown color gamut
             return false;
@@ -320,12 +325,10 @@ static bool parse_option_gpu_color(const SkString& value,
     // Now pick a color type
     if (commands[0].equals("f16")) {
         *outColorType = kRGBA_F16_SkColorType;
-        *outColorSpace = as_CSB(colorSpace)->makeLinearGamma();
         return true;
     }
     if (commands[0].equals("srgb")) {
         *outColorType = kRGBA_8888_SkColorType;
-        *outColorSpace = colorSpace;
         return true;
     }
     return false;
