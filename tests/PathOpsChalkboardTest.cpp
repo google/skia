@@ -142,7 +142,7 @@ static void chalkboard_threaded(skiatest::Reporter* reporter, const char* filena
                     for (int i = 0; i < bitCount; ++i) {
                         int bit;
                         do {
-                            bit = r.nextRangeU(0, 64);
+                            bit = r.nextRangeU(0, 63);
                         } while (testlines & (1LL << bit));
                         testlines |= 1LL << bit;
                     }
