@@ -52,6 +52,7 @@
       ],
       'dependencies': [
         'flags.gyp:flags',
+        'flags.gyp:flags_common',
         'gputest.gyp:skgputest',
         'jsoncpp.gyp:jsoncpp',
         'skia_lib.gyp:skia_lib',
