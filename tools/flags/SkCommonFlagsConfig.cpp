@@ -31,48 +31,50 @@ static const struct {
     const char* options;
 } gPredefinedConfigs[] ={
 #if SK_SUPPORT_GPU
-    { "gpu",             "gpu", "" },
-    { "gl",              "gpu", "api=gl" },
-    { "msaa4",           "gpu", "samples=4" },
-    { "glmsaa4",         "gpu", "api=gl,samples=4" },
-    { "msaa16",          "gpu", "samples=16" },
-    { "nvpr4",           "gpu", "nvpr=true,samples=4" },
-    { "glnvpr4",         "gpu", "api=gl,nvpr=true,samples=4" },
-    { "nvpr16",          "gpu", "nvpr=true,samples=16" },
-    { "nvprdit4",        "gpu", "nvpr=true,samples=4,dit=true" },
-    { "glnvprdit4",      "gpu", "api=gl,nvpr=true,samples=4,dit=true" },
-    { "nvprdit16",       "gpu", "nvpr=true,samples=16,dit=true" },
-    { "glinst",          "gpu", "api=gl,inst=true" },
-    { "glinst4",         "gpu", "api=gl,inst=true,samples=4" },
-    { "glinstdit4",      "gpu", "api=gl,inst=true,samples=4,dit=true" },
-    { "glinst16",        "gpu", "api=gl,inst=true,samples=16" },
-    { "glinstdit16",     "gpu", "api=gl,inst=true,samples=16,dit=true" },
-    { "esinst",          "gpu", "api=gles,inst=true" },
-    { "esinst4",         "gpu", "api=gles,inst=true,samples=4" },
-    { "esinstdit4",      "gpu", "api=gles,inst=true,samples=4,dit=true" },
-    { "gpuf16",          "gpu", "color=f16" },
-    { "gpusrgb",         "gpu", "color=srgb" },
-    { "glsrgb",          "gpu", "api=gl,color=srgb" },
-    { "glwide",          "gpu", "api=gl,color=f16_wide" },
-    { "glnarrow",        "gpu", "api=gl,color=f16_narrow" },
-    { "gpudft",          "gpu", "dit=true" },
-    { "gpudebug",        "gpu", "api=debug" },
-    { "gpunull",         "gpu", "api=null" },
-    { "debug",           "gpu", "api=debug" },
-    { "nullgpu",         "gpu", "api=null" },
-    { "angle_d3d11_es2", "gpu", "api=angle_d3d11_es2" },
-    { "angle_d3d9_es2",  "gpu", "api=angle_d3d9_es2" },
-    { "angle_gl_es2",    "gpu", "api=angle_gl_es2" },
-    { "commandbuffer",   "gpu", "api=commandbuffer" }
+    { "gpu",                   "gpu", "" },
+    { "gl",                    "gpu", "api=gl" },
+    { "msaa4",                 "gpu", "samples=4" },
+    { "glmsaa4",               "gpu", "api=gl,samples=4" },
+    { "msaa16",                "gpu", "samples=16" },
+    { "nvpr4",                 "gpu", "nvpr=true,samples=4" },
+    { "glnvpr4",               "gpu", "api=gl,nvpr=true,samples=4" },
+    { "nvpr16",                "gpu", "nvpr=true,samples=16" },
+    { "nvprdit4",              "gpu", "nvpr=true,samples=4,dit=true" },
+    { "glnvprdit4",            "gpu", "api=gl,nvpr=true,samples=4,dit=true" },
+    { "nvprdit16",             "gpu", "nvpr=true,samples=16,dit=true" },
+    { "glinst",                "gpu", "api=gl,inst=true" },
+    { "glinst4",               "gpu", "api=gl,inst=true,samples=4" },
+    { "glinstdit4",            "gpu", "api=gl,inst=true,samples=4,dit=true" },
+    { "glinst16",              "gpu", "api=gl,inst=true,samples=16" },
+    { "glinstdit16",           "gpu", "api=gl,inst=true,samples=16,dit=true" },
+    { "esinst",                "gpu", "api=gles,inst=true" },
+    { "esinst4",               "gpu", "api=gles,inst=true,samples=4" },
+    { "esinstdit4",            "gpu", "api=gles,inst=true,samples=4,dit=true" },
+    { "gpuf16",                "gpu", "color=f16" },
+    { "gpusrgb",               "gpu", "color=srgb" },
+    { "glsrgb",                "gpu", "api=gl,color=srgb" },
+    { "glwide",                "gpu", "api=gl,color=f16_wide" },
+    { "glnarrow",              "gpu", "api=gl,color=f16_narrow" },
+    { "gpudft",                "gpu", "dit=true" },
+    { "gpudebug",              "gpu", "api=debug" },
+    { "gpunull",               "gpu", "api=null" },
+    { "debug",                 "gpu", "api=debug" },
+    { "nullgpu",               "gpu", "api=null" },
+    { "angle_d3d11_es2",       "gpu", "api=angle_d3d11_es2" },
+    { "angle_d3d9_es2",        "gpu", "api=angle_d3d9_es2" },
+    { "angle_d3d11_es2_msaa4", "gpu", "api=angle_d3d11_es2,samples=4" },
+    { "angle_gl_es2",          "gpu", "api=angle_gl_es2" },
+    { "angle_gl_es2",          "gpu", "api=angle_gl_es2" },
+    { "commandbuffer",         "gpu", "api=commandbuffer" }
 #if SK_MESA
-    ,{ "mesa",           "gpu", "api=mesa" }
+    ,{ "mesa",                 "gpu", "api=mesa" }
 #endif
 #ifdef SK_VULKAN
-    ,{ "vk",             "gpu", "api=vulkan" }
-    ,{ "vksrgb",         "gpu", "api=vulkan,color=srgb" }
-    ,{ "vkwide",         "gpu", "api=vulkan,color=f16_wide" }
-    ,{ "vkmsaa4",        "gpu", "api=vulkan,samples=4" }
-    ,{ "vkmsaa16",       "gpu", "api=vulkan,samples=16" }
+    ,{ "vk",                   "gpu", "api=vulkan" }
+    ,{ "vksrgb",               "gpu", "api=vulkan,color=srgb" }
+    ,{ "vkwide",               "gpu", "api=vulkan,color=f16_wide" }
+    ,{ "vkmsaa4",              "gpu", "api=vulkan,samples=4" }
+    ,{ "vkmsaa16",             "gpu", "api=vulkan,samples=16" }
 #endif
 
 #else
