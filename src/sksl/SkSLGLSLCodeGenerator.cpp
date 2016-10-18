@@ -599,6 +599,8 @@ void GLSLCodeGenerator::generateCode(const Program& program, std::ostream& out) 
             this->writeExtension((Extension&) *e);
         }
     }
+    std::stringstream body;
+    fOut = &body;
     if (fCaps.fStandard == GLCaps::kGLES_Standard) {
         this->write("precision ");
         switch (program.fDefaultPrecision) {
@@ -617,8 +619,6 @@ void GLSLCodeGenerator::generateCode(const Program& program, std::ostream& out) 
         }
         this->writeLine(" float;");
     }
-    std::stringstream body;
-    fOut = &body;
     for (const auto& e : program.fElements) {
         switch (e->fKind) {
             case ProgramElement::kExtension_Kind:
