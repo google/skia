@@ -2,6 +2,23 @@
   "comments": [
     {
       "key": {
+        "uuid": "fc632725_516fb36f",
+        "filename": "BUILD.gn",
+        "patchSetId": 2
+      },
+      "lineNbr": 911,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2016-10-18T18:07:31Z",
+      "side": 1,
+      "message": "I think I\u0027d fold this stuff directly into :samples.  If we do have to keep this here, let\u0027s give it a name like experimental_setpoly3to3.  It reads like it\u0027s going to be everything under experimental/ right now.",
+      "revId": "87d7fab964fe67656be3607c857934b94434e8cd",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "dc6ae32c_a6e0a811",
         "filename": "BUILD.gn",
         "patchSetId": 2
@@ -60,6 +77,23 @@
       "side": 1,
       "message": "Compile them directly into a SampleApp target instead of into this \"samples\" target?  Ditto for the skia_foo.cpp above.",
       "parentUuid": "dc6ae32c_86e3ac1d",
+      "revId": "87d7fab964fe67656be3607c857934b94434e8cd",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fc632725_b17f271c",
+        "filename": "BUILD.gn",
+        "patchSetId": 2
+      },
+      "lineNbr": 983,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2016-10-18T18:07:31Z",
+      "side": 1,
+      "message": "Let\u0027s kill all the # lines?",
       "revId": "87d7fab964fe67656be3607c857934b94434e8cd",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
