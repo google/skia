@@ -862,6 +862,15 @@ protected:
     }
 };
 
+static sk_sp<SkData> default_image_serializer(SkImage* image) {
+    A8Serializer serial;
+    sk_sp<SkData> data(image->encode(&serial));
+    if (!data) {
+        data.reset(image->encode());
+    }
+    return data;
+}
+
 static bool show_deduper_traffic = false;
 
 int SkPipeDeduper::findOrDefineImage(SkImage* image) {
@@ -874,11 +883,8 @@ int SkPipeDeduper::findOrDefineImage(SkImage* image) {
         return index;
     }
 
-    A8Serializer serial;
-    sk_sp<SkData> data(image->encode(&serial));
-    if (!data) {
-        data.reset(image->encode());
-    }
+    sk_sp<SkData> data = fIMSerializer ? fIMSerializer->serialize(image)
+                                       : default_image_serializer(image);
     if (data) {
         index = fImages.add(image->uniqueID());
         SkASSERT(index > 0);
@@ -1015,6 +1021,10 @@ SkPipeSerializer::~SkPipeSerializer() {
 
 void SkPipeSerializer::setTypefaceSerializer(SkTypefaceSerializer* tfs) {
     fImpl->fDeduper.setTypefaceSerializer(tfs);
+}
+
+void SkPipeSerializer::setImageSerializer(SkImageSerializer* ims) {
+    fImpl->fDeduper.setImageSerializer(ims);
 }
 
 void SkPipeSerializer::resetCache() {
