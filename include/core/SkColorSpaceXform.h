@@ -12,7 +12,7 @@
 
 class SkColorSpace;
 
-class SkColorSpaceXform : SkNoncopyable {
+class SK_API SkColorSpaceXform : SkNoncopyable {
 public:
 
     /**
