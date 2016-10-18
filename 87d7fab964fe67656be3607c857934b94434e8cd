@@ -45,6 +45,24 @@
       "revId": "87d7fab964fe67656be3607c857934b94434e8cd",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fc632725_beb1b6e8",
+        "filename": "BUILD.gn",
+        "patchSetId": 2
+      },
+      "lineNbr": 971,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2016-10-18T18:01:45Z",
+      "side": 1,
+      "message": "Compile them directly into a SampleApp target instead of into this \"samples\" target?  Ditto for the skia_foo.cpp above.",
+      "parentUuid": "dc6ae32c_86e3ac1d",
+      "revId": "87d7fab964fe67656be3607c857934b94434e8cd",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
