@@ -114,11 +114,6 @@ def dm_flags(bot):
     configs.extend(mode + '-8888' for mode in
                    ['serialize', 'tiles_rt', 'pic'])
 
-  if 'ANGLE' in bot:
-    configs.extend(['angle_d3d11_es2',
-                    'angle_d3d9_es2',
-                    'angle_d3d11_es2_msaa4'])
-
   # We want to run gpudft on atleast the mali 400
   if 'GalaxyS3' in bot:
     configs.append('gpudft')
@@ -136,6 +131,10 @@ def dm_flags(bot):
   # CommandBuffer bot *only* runs the command_buffer config.
   if 'CommandBuffer' in bot:
     configs = ['commandbuffer']
+
+  # ANGLE bot *only* runs the angle configs
+  if 'ANGLE' in bot:
+    configs = ['angle_d3d11_es2', 'angle_d3d9_es2', 'angle_d3d11_es2_msaa4']
 
   # Vulkan bot *only* runs the vk config.
   if 'Vulkan' in bot:
