@@ -25,6 +25,24 @@
     },
     {
       "key": {
+        "uuid": "dc6ae32c_0696dc28",
+        "filename": "infra/bots/recipe_modules/flavor/default_flavor.py",
+        "patchSetId": 5
+      },
+      "lineNbr": 88,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2016-10-18T12:38:50Z",
+      "side": 0,
+      "message": "Done!  As written, step(), chrome_path(), and compile() will all throw exceptions if we fall through.\n\nI tried writing something that threw explicitly, but then the tests complain those paths are not covered.  Seems silly to add lines of code that exist just to fail if they\u0027re called, then add tests to test that they do fail when you call them.",
+      "parentUuid": "fc632725_6952cd52",
+      "revId": "5bab65ba33bd3f313e6120f5c8468de07bb21be8",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fc632725_0961991b",
         "filename": "infra/bots/recipe_modules/flavor/default_flavor.py",
         "patchSetId": 5
@@ -42,6 +60,24 @@
         "endLine": 107,
         "endChar": 13
       },
+      "revId": "5bab65ba33bd3f313e6120f5c8468de07bb21be8",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "dc6ae32c_86b00cc5",
+        "filename": "infra/bots/recipe_modules/flavor/default_flavor.py",
+        "patchSetId": 5
+      },
+      "lineNbr": 107,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2016-10-18T12:38:50Z",
+      "side": 0,
+      "message": "We could do that.  I usually find it easier to understand code that keeps separate classes that exist to share code and classes that exist to be used directly.  This change leaves DefaultFlavorUtils a mixin of defaults for helper all these helper methods, leaving the main step() and compile() to each flavor.",
+      "parentUuid": "fc632725_0961991b",
       "revId": "5bab65ba33bd3f313e6120f5c8468de07bb21be8",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
@@ -71,6 +107,24 @@
     },
     {
       "key": {
+        "uuid": "dc6ae32c_a67fc81b",
+        "filename": "infra/bots/recipes/swarm_compile.py",
+        "patchSetId": 5
+      },
+      "lineNbr": 46,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2016-10-18T12:38:50Z",
+      "side": 0,
+      "message": "-Shared doesn\u0027t really build anything useful to us.  Can we change that Housekeeper-PerCommit bot?",
+      "parentUuid": "fc632725_292f35c0",
+      "revId": "5bab65ba33bd3f313e6120f5c8468de07bb21be8",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fc632725_e95d3d5f",
         "filename": "infra/bots/recipes/swarm_compile.py",
         "patchSetId": 5
@@ -94,6 +148,24 @@
     },
     {
       "key": {
+        "uuid": "dc6ae32c_c68cc41b",
+        "filename": "infra/bots/recipes/swarm_compile.py",
+        "patchSetId": 5
+      },
+      "lineNbr": 83,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2016-10-18T12:38:50Z",
+      "side": 0,
+      "message": "Don\u0027t need any of it!  Most is now in gn_flavor, some in gn_android_flavor, some\u0027s moot with GN, and little bit always been moot.",
+      "parentUuid": "fc632725_e95d3d5f",
+      "revId": "5bab65ba33bd3f313e6120f5c8468de07bb21be8",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fc632725_492a71b0",
         "filename": "infra/bots/recipes/swarm_compile.py",
         "patchSetId": 5
@@ -111,6 +183,24 @@
         "endLine": 253,
         "endChar": 29
       },
+      "revId": "5bab65ba33bd3f313e6120f5c8468de07bb21be8",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "dc6ae32c_e689c008",
+        "filename": "infra/bots/recipes/swarm_compile.py",
+        "patchSetId": 5
+      },
+      "lineNbr": 253,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2016-10-18T12:38:50Z",
+      "side": 0,
+      "message": "Why Ubuntu?  You tell me!\n\nGenerally I think this was just a test to simulate build failure.  Not sure why it exists.  I figured it was to cover a branch of an if-else in some old recipe version.  No conditions to cover now.",
+      "parentUuid": "fc632725_492a71b0",
       "revId": "5bab65ba33bd3f313e6120f5c8468de07bb21be8",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
