@@ -93,8 +93,8 @@ protected:
     virtual bool onHandleChar(SkUnichar);
     virtual bool onHandleKey(SkKey);
     virtual bool onHandleKeyUp(SkKey);
-    virtual void onAddMenu(const SkOSMenu*) {};
-    virtual void onUpdateMenu(const SkOSMenu*) {};
+    virtual void onAddMenu(const SkOSMenu*) {}
+    virtual void onUpdateMenu(const SkOSMenu*) {}
     virtual void onSetTitle(const char title[]) {}
 
     // overrides from SkView

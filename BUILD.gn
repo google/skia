@@ -905,6 +905,79 @@ if (skia_enable_tools) {
     ]
   }
 
+  test_lib("views") {
+    public_include_dirs = [ "include/views" ]
+    sources = [
+      "src/views/SkEvent.cpp",
+      "src/views/SkEventSink.cpp",
+      "src/views/SkOSMenu.cpp",
+      "src/views/SkTagList.cpp",
+      "src/views/SkTouchGesture.cpp",
+      "src/views/SkView.cpp",
+      "src/views/SkViewPriv.cpp",
+    ]
+    libs = []
+    if (!is_android) {
+      sources += [ "src/views/SkWindow.cpp" ]
+    }
+    if (is_android) {
+    } else if (is_linux) {
+      sources += [ "src/views/unix/SkOSWindow_Unix.cpp" ]
+    } else if (is_mac) {
+      sources += [
+        "src/views/mac/SkEventNotifier.mm",
+        "src/views/mac/SkNSView.mm",
+        "src/views/mac/SkOSWindow_Mac.mm",
+        "src/views/mac/SkTextFieldCell.m",
+      ]
+      libs += [
+        "QuartzCore.framework",
+        "Cocoa.framework",
+        "Foundation.framework",
+      ]
+    } else if (is_win) {
+      sources += [ "src/views/win/SkOSWindow_win.cpp" ]
+    }
+  }
+
+  sample_sources = exec_script("gyp/find.py",
+                               [
+                                 "*.c*",
+                                 rebase_path("samplecode"),
+                               ],
+                               "list lines",
+                               [])
+
+  test_lib("samples") {
+    include_dirs = [ "experimental" ]
+    public_include_dirs = [ "samplecode" ]
+    sources = sample_sources
+    sources -= [
+      rebase_path("samplecode/SampleAnimator.cpp"),  # relies on animator
+      rebase_path("samplecode/SampleApp.cpp"),  # part of SampleApp exe, not samples lib
+      rebase_path("samplecode/SampleClamp.cpp"),
+      rebase_path("samplecode/SampleDash.cpp"),
+      rebase_path("samplecode/SampleLua.cpp"),  # no Lua yet in GN
+      rebase_path("samplecode/SamplePathFill.cpp"),
+      rebase_path("samplecode/SamplePictFile.cpp"),  # relies on SK_SUPPORT_LEGACY_DRAWFILTER
+      rebase_path("samplecode/SampleSkLayer.cpp"),  # relies on SkMatrix44 which doesn't compile?
+      rebase_path("samplecode/SampleFontCache.cpp"),  # relies on pthread.h
+    ]
+    sources += [
+      "experimental/SkPerlinNoiseShader2/SkPerlinNoiseShader2.cpp",
+      "experimental/SkSetPoly3To3.cpp",
+      "experimental/SkSetPoly3To3_A.cpp",
+      "experimental/SkSetPoly3To3_D.cpp",
+    ]
+    deps = [
+      ":experimental_svg_model",
+      ":gm",  # Why does SampleFilterQuality.cpp include gm.h ???
+      ":tool_utils",
+      ":views",
+      ":xml",
+    ]
+  }
+
   executable("dm") {
     sources = [
       "dm/DM.cpp",
@@ -1095,5 +1168,50 @@ if (skia_enable_tools) {
       "//third_party/jsoncpp",
     ]
     testonly = true
+  }
+
+  if (is_win) {
+    executable("viewer") {
+      sources = [
+        "tools/viewer/GMSlide.cpp",
+        "tools/viewer/ImageSlide.cpp",
+        "tools/viewer/SKPSlide.cpp",
+        "tools/viewer/SampleSlide.cpp",
+        "tools/viewer/Viewer.cpp",
+        "tools/viewer/sk_app/CommandSet.cpp",
+        "tools/viewer/sk_app/GLWindowContext.cpp",
+        "tools/viewer/sk_app/Window.cpp",
+        "tools/viewer/sk_app/WindowContext.cpp",
+      ]
+
+      if (is_win) {
+        sources += [
+          "tools/viewer/sk_app/win/GLWindowContext_win.cpp",
+          "tools/viewer/sk_app/win/RasterWindowContext_win.cpp",
+          "tools/viewer/sk_app/win/Window_win.cpp",
+          "tools/viewer/sk_app/win/main_win.cpp",
+        ]
+      }
+
+      if (skia_use_vulkan) {
+        sources += [ "tools/viewer/sk_app/VulkanWindowContext.cpp" ]
+        if (is_win) {
+          sources += [ "tools/viewer/sk_app/win/VulkanWindowContext_win.cpp" ]
+        }
+      }
+
+      include_dirs = []
+      deps = [
+        ":flags",
+        ":gm",
+        ":gpu_tool_utils",
+        ":samples",
+        ":skia",
+        ":tool_utils",
+        ":views",
+        "//third_party/jsoncpp",
+      ]
+      testonly = true
+    }
   }
 }

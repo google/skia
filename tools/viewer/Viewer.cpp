@@ -50,7 +50,8 @@ static void on_ui_state_changed_handler(const SkString& stateName, const SkStrin
 }
 
 DEFINE_bool2(fullscreen, f, true, "Run fullscreen.");
-DEFINE_string(key, "", "Space-separated key/value pairs to add to JSON identifying this builder.");
+
+static
 DEFINE_string2(match, m, nullptr,
                "[~][^]substring[$] [...] of bench name to run.\n"
                "Multiple matches may be separated by spaces.\n"
@@ -68,9 +69,11 @@ DEFINE_string2(match, m, nullptr,
 #endif
 
 #ifdef SK_BUILD_FOR_ANDROID
+static
 DEFINE_string(skps, "/data/local/tmp/skia", "Directory to read skps from.");
 DEFINE_string(jpgs, "/data/local/tmp/skia", "Directory to read jpgs from.");
 #else
+static
 DEFINE_string(skps, "skps", "Directory to read skps from.");
 DEFINE_string(jpgs, "jpgs", "Directory to read jpgs from.");
 #endif
