@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "fc632725_0975197a",
+        "filename": "src/gpu/GrGpuCommandBuffer.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 77,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2016-10-18T14:51:09Z",
+      "side": 1,
+      "message": "These functions were moved in here cause otherwise we end up with a dependency loop in includes. This was the cleanest way of removing the loop, but happy to consider other suggestions as well.",
+      "range": {
+        "startLine": 72,
+        "startChar": 4,
+        "endLine": 77,
+        "endChar": 65
+      },
+      "revId": "00a1db37c542b3d3646d5ec26a56cb56cae8600c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
