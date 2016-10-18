@@ -10,6 +10,7 @@
 #include "SkClipStack.h"
 #include "SkPath.h"
 #include "SkPathOps.h"
+#include "SkString.h"
 
 #include <new>
 
@@ -34,6 +35,7 @@ SkClipStack::Element::Element(const Element& that) {
             break;
     }
 
+    fMatrix = that.fMatrix;
     fSaveCount = that.fSaveCount;
     fOp = that.fOp;
     fType = that.fType;
@@ -44,23 +46,24 @@ SkClipStack::Element::Element(const Element& that) {
     fGenID = that.fGenID;
 }
 
-bool SkClipStack::Element::operator== (const Element& element) const {
-    if (this == &element) {
+bool SkClipStack::Element::operator==(const Element& that) const {
+    if (this == &that) {
         return true;
     }
-    if (fOp != element.fOp ||
-        fType != element.fType ||
-        fDoAA != element.fDoAA ||
-        fSaveCount != element.fSaveCount) {
+    if (fMatrix != that.fMatrix ||
+        fOp != that.fOp ||
+        fType != that.fType ||
+        fDoAA != that.fDoAA ||
+        fSaveCount != that.fSaveCount) {
         return false;
     }
     switch (fType) {
         case kPath_Type:
-            return this->getPath() == element.getPath();
+            return this->getPath() == that.getPath();
         case kRRect_Type:
-            return fRRect == element.fRRect;
+            return fRRect == that.fRRect;
         case kRect_Type:
-            return this->getRect() == element.getRect();
+            return this->getRect() == that.getRect();
         case kEmpty_Type:
             return true;
         default:
@@ -74,16 +77,16 @@ void SkClipStack::Element::replay(SkCanvasClipVisitor* visitor) const {
 
     switch (fType) {
         case kPath_Type:
-            visitor->clipPath(this->getPath(), this->getOp(), this->isAA());
+            visitor->clipPath(this->getPath(), this->getMatrix(), this->getOp(), this->isAA());
             break;
         case kRRect_Type:
-            visitor->clipRRect(this->getRRect(), this->getOp(), this->isAA());
+            visitor->clipRRect(this->getRRect(), this->getMatrix(), this->getOp(), this->isAA());
             break;
         case kRect_Type:
-            visitor->clipRect(this->getRect(), this->getOp(), this->isAA());
+            visitor->clipRect(this->getRect(), this->getMatrix(), this->getOp(), this->isAA());
             break;
         case kEmpty_Type:
-            visitor->clipRect(kEmptyRect, SkCanvas::kIntersect_Op, false);
+            visitor->clipRect(kEmptyRect, SkMatrix::I(), SkCanvas::kIntersect_Op, false);
             break;
     }
 }
@@ -111,26 +114,26 @@ void SkClipStack::Element::invertShapeFillType() {
     }
 }
 
-void SkClipStack::Element::initPath(int saveCount, const SkPath& path, SkCanvas::ClipOp op,
-                                    bool doAA) {
+void SkClipStack::Element::initPath(int saveCount, const SkPath& path, const SkMatrix& matrix,
+                                    SkCanvas::ClipOp op, bool doAA) {
     if (!path.isInverseFillType()) {
         SkRect r;
         if (path.isRect(&r)) {
-            this->initRect(saveCount, r, op, doAA);
+            this->initRect(saveCount, r, matrix, op, doAA);
             return;
         }
         SkRect ovalRect;
         if (path.isOval(&ovalRect)) {
             SkRRect rrect;
             rrect.setOval(ovalRect);
-            this->initRRect(saveCount, rrect, op, doAA);
+            this->initRRect(saveCount, rrect, matrix, op, doAA);
             return;
         }
     }
     fPath.set(path);
     fPath.get()->setIsVolatile(true);
     fType = kPath_Type;
-    this->initCommon(saveCount, op, doAA);
+    this->initCommon(saveCount, matrix, op, doAA);
 }
 
 void SkClipStack::Element::asPath(SkPath* path) const {
@@ -397,6 +400,7 @@ void SkClipStack::Element::updateBoundAndGenID(const Element* prior) {
     switch (fType) {
         case kRect_Type:
             fFiniteBound = this->getRect();
+            fMatrix.mapRect(&fFiniteBound);
             fFiniteBoundType = kNormal_BoundsType;
 
             if (SkCanvas::kReplace_Op == fOp ||
@@ -408,10 +412,12 @@ void SkClipStack::Element::updateBoundAndGenID(const Element* prior) {
             break;
         case kRRect_Type:
             fFiniteBound = fRRect.getBounds();
+            fMatrix.mapRect(&fFiniteBound);
             fFiniteBoundType = kNormal_BoundsType;
             break;
         case kPath_Type:
             fFiniteBound = fPath.get()->getBounds();
+            fMatrix.mapRect(&fFiniteBound);
 
             if (fPath.get()->isInverseFillType()) {
                 fFiniteBoundType = kInsideOut_BoundsType;
@@ -729,39 +735,19 @@ void SkClipStack::pushElement(const Element& element) {
 
 void SkClipStack::clipRRect(const SkRRect& rrect, const SkMatrix& matrix, SkCanvas::ClipOp op,
                             bool doAA) {
-    SkRRect transformedRRect;
-    if (rrect.transform(matrix, &transformedRRect)) {
-        Element element(fSaveCount, transformedRRect, op, doAA);
-        this->pushElement(element);
-        return;
-    }
-    SkPath path;
-    path.addRRect(rrect);
-    path.setIsVolatile(true);
-    this->clipPath(path, matrix, op, doAA);
+    Element element(fSaveCount, rrect, matrix, op, doAA);
+    this->pushElement(element);
 }
 
 void SkClipStack::clipRect(const SkRect& rect, const SkMatrix& matrix, SkCanvas::ClipOp op,
                            bool doAA) {
-    if (matrix.rectStaysRect()) {
-        SkRect devRect;
-        matrix.mapRect(&devRect, rect);
-        Element element(fSaveCount, devRect, op, doAA);
-        this->pushElement(element);
-        return;
-    }
-    SkPath path;
-    path.addRect(rect);
-    path.setIsVolatile(true);
-    this->clipPath(path, matrix, op, doAA);
+    Element element(fSaveCount, rect, matrix, op, doAA);
+    this->pushElement(element);
 }
 
 void SkClipStack::clipPath(const SkPath& path, const SkMatrix& matrix, SkCanvas::ClipOp op,
                            bool doAA) {
-    SkPath devPath;
-    path.transform(matrix, &devPath);
-
-    Element element(fSaveCount, devPath, op, doAA);
+    Element element(fSaveCount, path, matrix, op, doAA);
     this->pushElement(element);
 }
 
@@ -959,8 +945,10 @@ void SkClipStack::Element::dump() const {
     static_assert(5 == SkCanvas::kReplace_Op, "op_str");
     static_assert(SK_ARRAY_COUNT(kOpStrings) == SkRegion::kOpCnt, "op_str");
 
-    SkDebugf("Type: %s, Op: %s, AA: %s, Save Count: %d\n", kTypeStrings[fType],
-             kOpStrings[fOp], (fDoAA ? "yes" : "no"), fSaveCount);
+    SkString matrixStr;
+    fMatrix.toString(&matrixStr);
+    SkDebugf("Type: %s, Op: %s, AA: %s, Save Count: %d, M: %s\n", kTypeStrings[fType],
+             kOpStrings[fOp], (fDoAA ? "yes" : "no"), fSaveCount, matrixStr.c_str());
     switch (fType) {
         case kEmpty_Type:
             SkDebugf("\n");

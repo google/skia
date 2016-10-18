@@ -54,42 +54,72 @@ public:
         static const int kTypeCnt = kLastType + 1;
 
         Element() {
-            this->initCommon(0, SkCanvas::kReplace_Op, false);
+            this->initCommon(0, SkMatrix::I(), SkCanvas::kReplace_Op, false);
             this->setEmpty();
         }
 
         Element(const Element&);
 
-        Element(const SkRect& rect, SkCanvas::ClipOp op, bool doAA) {
-            this->initRect(0, rect, op, doAA);
+        Element(const SkRect& rect, const SkMatrix& matrix, SkCanvas::ClipOp op, bool doAA) {
+            this->initRect(0, rect, matrix, op, doAA);
         }
 
-        Element(const SkRRect& rrect, SkCanvas::ClipOp op, bool doAA) {
-            this->initRRect(0, rrect, op, doAA);
+        Element(const SkRRect& rrect, const SkMatrix& matrix, SkCanvas::ClipOp op, bool doAA) {
+            this->initRRect(0, rrect, matrix, op, doAA);
         }
 
-        Element(const SkPath& path, SkCanvas::ClipOp op, bool doAA) {
-            this->initPath(0, path, op, doAA);
+        Element(const SkPath& path, const SkMatrix& matrix, SkCanvas::ClipOp op, bool doAA) {
+            this->initPath(0, path, matrix, op, doAA);
         }
 
-        bool operator== (const Element& element) const;
-        bool operator!= (const Element& element) const { return !(*this == element); }
+        bool operator==(const Element& element) const;
+        bool operator!=(const Element& element) const { return !(*this == element); }
+
+        //!< Call to get the transformation of the clip geometry into root device space.
+        const SkMatrix& getMatrix() const { return fMatrix; }
 
         //!< Call to get the type of the clip element.
         Type getType() const { return fType; }
+        Type getDIType() const { return fType; }
 
         //!< Call to get the save count associated with this clip element.
         int getSaveCount() const { return fSaveCount; }
 
         //!< Call if getType() is kPath to get the path.
-        const SkPath& getPath() const { SkASSERT(kPath_Type == fType); return *fPath.get(); }
+        SkPath getPath() const {
+            SkASSERT(kPath_Type == this->getType());
+            SkPath path;
+            fPath.get()->transform(fMatrix, &path);
+            return path;
+        }
+        const SkPath& getDIPath() const {
+            SkASSERT(kPath_Type == this->getDIType()); return *fPath.get();
+        }
 
         //!< Call if getType() is kRRect to get the round-rect.
-        const SkRRect& getRRect() const { SkASSERT(kRRect_Type == fType); return fRRect; }
+        SkRRect getRRect() const {
+            SkASSERT(kRRect_Type == this->getType());
+            SkRRect rrect;
+            if (!fRRect.transform(fMatrix, &rrect)) {
+                SkDebugf("Can't transform rrect.\n");
+            }
+            return rrect;
+
+        }
+        const SkRRect& getDIRRect() const {
+            SkASSERT(kRRect_Type == this->getDIType());
+            return fRRect;
+        }
 
         //!< Call if getType() is kRect to get the rect.
-        const SkRect& getRect() const {
-            SkASSERT(kRect_Type == fType && (fRRect.isRect() || fRRect.isEmpty()));
+        SkRect getRect() const {
+            SkASSERT(kRect_Type == this->getType() && (fRRect.isRect() || fRRect.isEmpty()));
+            SkRect rect;
+            fMatrix.mapRect(&rect, fRRect.getBounds());
+            return rect;
+        }
+        const SkRect& getDIRect() const {
+            SkASSERT(kRect_Type == this->getDIType() && (fRRect.isRect() || fRRect.isEmpty()));
             return fRRect.getBounds();
         }
 
@@ -98,9 +128,18 @@ public:
 
         //!< Call to get the element as a path, regardless of its type.
         void asPath(SkPath* path) const;
+        void asDIPath(SkPath* path) const;
 
         //!< Call if getType() is not kPath to get the element as a round rect.
-        const SkRRect& asRRect() const { SkASSERT(kPath_Type != fType); return fRRect; }
+        const SkRRect& asRRect() const {
+            SkASSERT(kPath_Type != this->getType());
+            SkRRect rrect;
+            if (!fRRect.transform(fMatrix, &rrect)) {
+                SkDebugf("Can't transform rrect.\n");
+            }
+            return fRRect;
+        }
+        const SkRRect& asDIRRect() const { SkASSERT(kPath_Type != fType); return fRRect; }
 
         /** If getType() is not kEmpty this indicates whether the clip shape should be anti-aliased
             when it is rasterized. */
@@ -123,7 +162,27 @@ public:
          * Gets the bounds of the clip element, either the rect or path bounds. (Whether the shape
          * is inverse filled is not considered.)
          */
-        const SkRect& getBounds() const {
+        SkRect getBounds() const {
+            static const SkRect kEmpty = { 0, 0, 0, 0 };
+            SkRect rect;
+            switch (fType) {
+                case kRect_Type:  // fallthrough
+                case kRRect_Type:
+                    rect = fRRect.getBounds();
+                    break;
+                case kPath_Type:
+                    rect = fPath.get()->getBounds();
+                    break;
+                case kEmpty_Type:
+                    return kEmpty;
+                default:
+                    SkDEBUGFAIL("Unexpected type.");
+                    return kEmpty;
+            }
+            fMatrix.mapRect(&rect);
+            return rect;
+        }
+        const SkRect& getDIBounds() const {
             static const SkRect kEmpty = { 0, 0, 0, 0 };
             switch (fType) {
                 case kRect_Type:  // fallthrough
@@ -199,6 +258,7 @@ public:
     private:
         friend class SkClipStack;
 
+        SkMatrix        fMatrix;
         SkTLazy<SkPath> fPath;
         SkRRect         fRRect;
         int             fSaveCount; // save count of stack when this element was added.
@@ -226,23 +286,27 @@ public:
         int                     fGenID;
 
         Element(int saveCount) {
-            this->initCommon(saveCount, SkCanvas::kReplace_Op, false);
+            this->initCommon(saveCount, SkMatrix::I(), SkCanvas::kReplace_Op, false);
             this->setEmpty();
         }
 
-        Element(int saveCount, const SkRRect& rrect, SkCanvas::ClipOp op, bool doAA) {
-            this->initRRect(saveCount, rrect, op, doAA);
+        Element(int saveCount, const SkRRect& rrect, const SkMatrix& matrix, SkCanvas::ClipOp op,
+                bool doAA) {
+            this->initRRect(saveCount, rrect, matrix, op, doAA);
         }
 
-        Element(int saveCount, const SkRect& rect, SkCanvas::ClipOp op, bool doAA) {
-            this->initRect(saveCount, rect, op, doAA);
+        Element(int saveCount, const SkRect& rect, const SkMatrix& matrix, SkCanvas::ClipOp op,
+                bool doAA) {
+            this->initRect(saveCount, rect, matrix, op, doAA);
         }
 
-        Element(int saveCount, const SkPath& path, SkCanvas::ClipOp op, bool doAA) {
-            this->initPath(saveCount, path, op, doAA);
+        Element(int saveCount, const SkPath& path, const SkMatrix& matrix, SkCanvas::ClipOp op,
+                bool doAA) {
+            this->initPath(saveCount, path, matrix, op, doAA);
         }
 
-        void initCommon(int saveCount, SkCanvas::ClipOp op, bool doAA) {
+        void initCommon(int saveCount, const SkMatrix& matrix, SkCanvas::ClipOp op, bool doAA) {
+            fMatrix = matrix;
             fSaveCount = saveCount;
             fOp = op;
             fDoAA = doAA;
@@ -254,13 +318,15 @@ public:
             fGenID = kInvalidGenID;
         }
 
-        void initRect(int saveCount, const SkRect& rect, SkCanvas::ClipOp op, bool doAA) {
+        void initRect(int saveCount, const SkRect& rect, const SkMatrix& matrix,
+                      SkCanvas::ClipOp op, bool doAA) {
             fRRect.setRect(rect);
             fType = kRect_Type;
-            this->initCommon(saveCount, op, doAA);
+            this->initCommon(saveCount, matrix, op, doAA);
         }
 
-        void initRRect(int saveCount, const SkRRect& rrect, SkCanvas::ClipOp op, bool doAA) {
+        void initRRect(int saveCount, const SkRRect& rrect, const SkMatrix& matrix,
+                       SkCanvas::ClipOp op, bool doAA) {
             SkRRect::Type type = rrect.getType();
             fRRect = rrect;
             if (SkRRect::kRect_Type == type || SkRRect::kEmpty_Type == type) {
@@ -268,10 +334,11 @@ public:
             } else {
                 fType = kRRect_Type;
             }
-            this->initCommon(saveCount, op, doAA);
+            this->initCommon(saveCount, matrix, op, doAA);
         }
 
-        void initPath(int saveCount, const SkPath& path, SkCanvas::ClipOp op, bool doAA);
+        void initPath(int saveCount, const SkPath& path, const SkMatrix& matrix,
+                      SkCanvas::ClipOp op, bool doAA);
 
         void setEmpty();
 

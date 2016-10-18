@@ -74,7 +74,7 @@ GrReducedClip::GrReducedClip(const SkClipStack& stack, const SkRect& queryBounds
         fHasIBounds = true;
 
         // Implement the clip with an AA rect element.
-        fElements.addToHead(stackBounds, SkCanvas::kReplace_Op, true/*doAA*/);
+        fElements.addToHead(stackBounds, SkMatrix::I(), SkCanvas::kReplace_Op, true/*doAA*/);
         fElementsGenID = stack.getTopmostGenID();
         fRequiresAA = true;
 
@@ -327,7 +327,8 @@ void GrReducedClip::walkStack(const SkClipStack& stack, const SkRect& queryBound
             if (isFlip) {
                 SkASSERT(SkCanvas::kXOR_Op == element->getOp() ||
                          SkCanvas::kReverseDifference_Op == element->getOp());
-                fElements.addToHead(SkRect::Make(fIBounds), SkCanvas::kReverseDifference_Op, false);
+                fElements.addToHead(SkRect::Make(fIBounds), SkMatrix::I(),
+                                    SkCanvas::kReverseDifference_Op, false);
             } else {
                 Element* newElement = fElements.addToHead(*element);
                 if (newElement->isAA()) {

@@ -173,14 +173,23 @@ class Canvas2CanvasClipVisitor : public SkCanvas::ClipVisitor {
 public:
     Canvas2CanvasClipVisitor(SkCanvas* target) : fTarget(target) {}
 
-    void clipRect(const SkRect& r, SkCanvas::ClipOp op, bool aa) override {
+    void clipRect(const SkRect& r, const SkMatrix& m, SkCanvas::ClipOp op, bool aa) override {
+        fTarget->save();
+        fTarget->concat(m);
         fTarget->clipRect(r, op, aa);
+        fTarget->restore();
     }
-    void clipRRect(const SkRRect& r, SkCanvas::ClipOp op, bool aa) override {
+    void clipRRect(const SkRRect& r, const SkMatrix& m, SkCanvas::ClipOp op, bool aa) override {
+        fTarget->save();
+        fTarget->concat(m);
         fTarget->clipRRect(r, op, aa);
+        fTarget->restore();
     }
-    void clipPath(const SkPath& p, SkCanvas::ClipOp op, bool aa) override {
+    void clipPath(const SkPath& p, const SkMatrix& m, SkCanvas::ClipOp op, bool aa) override {
+        fTarget->save();
+        fTarget->concat(m);
         fTarget->clipPath(p, op, aa);
+        fTarget->restore();
     }
 
 private:
