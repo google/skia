@@ -973,6 +973,94 @@ if (skia_enable_tools) {
     }
   }
 
+  executable("viewer") {
+    sources = [
+      "tools/viewer/GMSlide.cpp",
+      "tools/viewer/GMSlide.h",
+      "tools/viewer/ImageSlide.cpp",
+      "tools/viewer/ImageSlide.h",
+      "tools/viewer/SKPSlide.cpp",
+      "tools/viewer/SKPSlide.h",
+      "tools/viewer/SampleSlide.cpp",
+      "tools/viewer/SampleSlide.h",
+      "tools/viewer/Viewer.cpp",
+      "tools/viewer/Viewer.h",
+      "tools/viewer/sk_app/Application.h",
+      "tools/viewer/sk_app/CommandSet.cpp",
+      "tools/viewer/sk_app/CommandSet.h",
+      "tools/viewer/sk_app/DisplayParams.h",
+      "tools/viewer/sk_app/GLWindowContext.cpp",
+      "tools/viewer/sk_app/GLWindowContext.h",
+      "tools/viewer/sk_app/RasterWindowContext.h",
+      "tools/viewer/sk_app/Window.cpp",
+      "tools/viewer/sk_app/Window.h",
+      "tools/viewer/sk_app/WindowContext.cpp",
+      "tools/viewer/sk_app/WindowContext.h",
+    ]
+
+    if (!is_mac) {
+      sources += [
+        "tools/viewer/sk_app/VulkanWindowContext.cpp",
+        "tools/viewer/sk_app/VulkanWindowContext.h",
+      ]
+    }
+
+    if (is_android) {
+      sources += [ "tools/viewer/sk_app/android/GLWindowContext_android.cpp" ]
+      sources += [ "tools/viewer/sk_app/android/main_android.cpp" ]
+      sources +=
+          [ "tools/viewer/sk_app/android/RasterWindowContext_android.cpp" ]
+      sources += [ "tools/viewer/sk_app/android/surface_glue_android.cpp" ]
+      sources += [ "tools/viewer/sk_app/android/surface_glue_android.h" ]
+      sources +=
+          [ "tools/viewer/sk_app/android/VulkanWindowContext_android.cpp" ]
+      sources += [ "tools/viewer/sk_app/android/Window_android.cpp" ]
+      sources += [ "tools/viewer/sk_app/android/Window_android.h" ]
+      sources +=
+          [ "tools/viewer/sk_app/android/WindowContextFactory_android.h" ]
+    } else if (is_linux) {
+      sources += [ "tools/viewer/sk_app/unix/GLWindowContext_unix.cpp" ]
+      sources += [ "tools/viewer/sk_app/unix/main_unix.cpp" ]
+      sources += [ "tools/viewer/sk_app/unix/RasterWindowContext_unix.cpp" ]
+      sources += [ "tools/viewer/sk_app/unix/VulkanWindowContext_unix.cpp" ]
+      sources += [ "tools/viewer/sk_app/unix/Window_unix.cpp" ]
+      sources += [ "tools/viewer/sk_app/unix/Window_unix.h" ]
+      sources += [ "tools/viewer/sk_app/unix/WindowContextFactory_unix.h" ]
+    } else if (is_mac) {
+      sources += [ "tools/viewer/sk_app/mac/GLWindowContext_mac.cpp" ]
+      sources += [ "tools/viewer/sk_app/mac/main_mac.cpp" ]
+      sources += [ "tools/viewer/sk_app/mac/RasterWindowContext_mac.cpp" ]
+      sources += [ "tools/viewer/sk_app/mac/Window_mac.cpp" ]
+      sources += [ "tools/viewer/sk_app/mac/Window_mac.h" ]
+      sources += [ "tools/viewer/sk_app/mac/WindowContextFactory_mac.h" ]
+    } else if (is_win) {
+      sources += [ "tools/viewer/sk_app/win/GLWindowContext_win.cpp" ]
+      sources += [ "tools/viewer/sk_app/win/main_win.cpp" ]
+      sources += [ "tools/viewer/sk_app/win/RasterWindowContext_win.cpp" ]
+      sources += [ "tools/viewer/sk_app/win/VulkanWindowContext_win.cpp" ]
+      sources += [ "tools/viewer/sk_app/win/Window_win.cpp" ]
+      sources += [ "tools/viewer/sk_app/win/Window_win.h" ]
+      sources += [ "tools/viewer/sk_app/win/WindowContextFactory_win.h" ]
+      libs += [
+        "Gdi32.lib",
+        "OpenGL32.lib",
+      ]
+    }
+
+    deps = [
+      ":common_flags",
+      ":experimental_svg_model",
+      ":flags",
+      ":gm",
+      ":gpu_tool_utils",
+      ":skia",
+      ":tests",
+      ":tool_utils",
+      "//third_party/jsoncpp",
+    ]
+    testonly = true
+  }
+
   # We can't yet build ICU on Windows.
   if (!is_win) {
     executable("sktexttopdf-hb") {
