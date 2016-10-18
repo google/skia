@@ -66,7 +66,7 @@ private:
 
     void onPrepare(GrBatchFlushState*) override {}
 
-    void onDraw(GrBatchFlushState* state) override {
+    void onDraw(GrBatchFlushState* state, const SkRect& /*bounds*/) override {
         if (!state->commandBuffer()) {
             state->gpu()->copySurface(fDst.get(), fSrc.get(), fSrcRect, fDstPoint);
         } else {

@@ -14,9 +14,9 @@
 #include "GrRenderTarget.h"
 #include "SkRect.h"
 
-void GrGpuCommandBuffer::submit(const SkIRect& bounds) {
+void GrGpuCommandBuffer::submit() {
     this->gpu()->handleDirtyContext();
-    this->onSubmit(bounds);
+    this->onSubmit();
 }
 
 void GrGpuCommandBuffer::clear(const GrFixedClip& clip, GrColor color) {
@@ -38,12 +38,13 @@ void GrGpuCommandBuffer::clearStencilClip(const GrFixedClip& clip,
 bool GrGpuCommandBuffer::draw(const GrPipeline& pipeline,
                               const GrPrimitiveProcessor& primProc,
                               const GrMesh* mesh,
-                              int meshCount) {
+                              int meshCount,
+                              const SkRect& bounds) {
     if (primProc.numAttribs() > this->gpu()->caps()->maxVertexAttributes()) {
         this->gpu()->stats()->incNumFailedDraws();
         return false;
     }
-    this->onDraw(pipeline, primProc, mesh, meshCount);
+    this->onDraw(pipeline, primProc, mesh, meshCount, bounds);
     return true;
 }
 

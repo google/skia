@@ -33,12 +33,13 @@ private:
     GrGpu* gpu() override { return fGpu; }
     GrRenderTarget* renderTarget() override { return fRenderTarget; }
 
-    void onSubmit(const SkIRect& bounds) override {}
+    void onSubmit() override {}
 
     void onDraw(const GrPipeline& pipeline,
                 const GrPrimitiveProcessor& primProc,
                 const GrMesh* mesh,
-                int meshCount) override {
+                int meshCount,
+                const SkRect& bounds) override {
         fGpu->draw(pipeline, primProc, mesh, meshCount);
     }
 
