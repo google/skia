@@ -16,6 +16,7 @@
 #include "SkScalerContext.h"
 #include "SkTemplates.h"
 #include "SkTDArray.h"
+#include <memory>
 
 class SkTraceMemoryDump;
 
@@ -231,7 +232,7 @@ private:
 
     SkGlyphCache*          fNext;
     SkGlyphCache*          fPrev;
-    SkDescriptor* const    fDesc;
+    const std::unique_ptr<SkDescriptor> fDesc;
     SkScalerContext* const fScalerContext;
     SkPaint::FontMetrics   fFontMetrics;
 
