@@ -58,7 +58,6 @@ SkGlyphCache::~SkGlyphCache() {
         if (g->fPathData) {
             delete g->fPathData->fPath;
         } } );
-    SkDescriptor::Free(fDesc);
     delete fScalerContext;
 }
 

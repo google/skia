@@ -53,12 +53,6 @@ public:
 #endif
     {}
 
-    virtual ~GlyphGenerator() {
-#ifdef SK_DEBUG
-        SkDescriptor::Free(fDesc);
-#endif
-    }
-
     int getNumPaths() override {
         return fScalerContext->getGlyphCount();
     }
@@ -76,7 +70,7 @@ public:
 private:
     const SkAutoTDelete<SkScalerContext> fScalerContext;
 #ifdef SK_DEBUG
-    SkDescriptor* const fDesc;
+    const std::unique_ptr<SkDescriptor> fDesc;
 #endif
 };
 
