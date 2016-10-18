@@ -1,0 +1,119 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "fc632725_6952cd52",
+        "filename": "infra/bots/recipe_modules/flavor/default_flavor.py",
+        "patchSetId": 5
+      },
+      "lineNbr": 88,
+      "author": {
+        "id": 5015
+      },
+      "writtenOn": "2016-10-18T11:33:17Z",
+      "side": 0,
+      "message": "So the intention here was that this method gets optionally overridden by subclasses.  I guess we never reach this point any more. Can we instead have it raise a \"not implemented\" error in case we fall through in the future?",
+      "range": {
+        "startLine": 88,
+        "startChar": 10,
+        "endLine": 88,
+        "endChar": 11
+      },
+      "revId": "5bab65ba33bd3f313e6120f5c8468de07bb21be8",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fc632725_0961991b",
+        "filename": "infra/bots/recipe_modules/flavor/default_flavor.py",
+        "patchSetId": 5
+      },
+      "lineNbr": 107,
+      "author": {
+        "id": 5015
+      },
+      "writtenOn": "2016-10-18T11:33:17Z",
+      "side": 0,
+      "message": "Same thing here. Also just curious, why not have default_flavor become gn_flavor?",
+      "range": {
+        "startLine": 107,
+        "startChar": 6,
+        "endLine": 107,
+        "endChar": 13
+      },
+      "revId": "5bab65ba33bd3f313e6120f5c8468de07bb21be8",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fc632725_292f35c0",
+        "filename": "infra/bots/recipes/swarm_compile.py",
+        "patchSetId": 5
+      },
+      "lineNbr": 46,
+      "author": {
+        "id": 5015
+      },
+      "writtenOn": "2016-10-18T11:33:17Z",
+      "side": 0,
+      "message": "This configuration is still used by the Housekeeper-PerCommit bot. I\u0027d like to keep this case in if possible.",
+      "range": {
+        "startLine": 46,
+        "startChar": 39,
+        "endLine": 46,
+        "endChar": 45
+      },
+      "revId": "5bab65ba33bd3f313e6120f5c8468de07bb21be8",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fc632725_e95d3d5f",
+        "filename": "infra/bots/recipes/swarm_compile.py",
+        "patchSetId": 5
+      },
+      "lineNbr": 83,
+      "author": {
+        "id": 5015
+      },
+      "writtenOn": "2016-10-18T11:33:17Z",
+      "side": 0,
+      "message": "So where did all this logic go?",
+      "range": {
+        "startLine": 83,
+        "startChar": 4,
+        "endLine": 83,
+        "endChar": 18
+      },
+      "revId": "5bab65ba33bd3f313e6120f5c8468de07bb21be8",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fc632725_492a71b0",
+        "filename": "infra/bots/recipes/swarm_compile.py",
+        "patchSetId": 5
+      },
+      "lineNbr": 253,
+      "author": {
+        "id": 5015
+      },
+      "writtenOn": "2016-10-18T11:33:17Z",
+      "side": 0,
+      "message": "Why?",
+      "range": {
+        "startLine": 253,
+        "startChar": 23,
+        "endLine": 253,
+        "endChar": 29
+      },
+      "revId": "5bab65ba33bd3f313e6120f5c8468de07bb21be8",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
