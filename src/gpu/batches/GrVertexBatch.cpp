@@ -72,7 +72,7 @@ void GrVertexBatch::onDraw(GrBatchFlushState* state, const SkRect& bounds) {
         GrBatchDrawToken drawToken = state->nextTokenToFlush();
         while (currUploadIdx < fInlineUploads.count() &&
                fInlineUploads[currUploadIdx].fUploadBeforeToken == drawToken) {
-            state->doUpload(fInlineUploads[currUploadIdx++].fUpload);
+            state->commandBuffer()->inlineUpload(state, fInlineUploads[currUploadIdx++].fUpload);
         }
         const QueuedDraw &draw = fQueuedDraws[currDrawIdx];
         state->commandBuffer()->draw(*this->pipeline(), *draw.fGeometryProcessor.get(),

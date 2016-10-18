@@ -387,6 +387,7 @@ void GrVkPrimaryCommandBuffer::endRenderPass(const GrVkGpu* gpu) {
 void GrVkPrimaryCommandBuffer::executeCommands(const GrVkGpu* gpu,
                                                GrVkSecondaryCommandBuffer* buffer) {
     SkASSERT(fIsActive);
+    SkASSERT(!buffer->fIsActive);
     SkASSERT(fActiveRenderPass);
     SkASSERT(fActiveRenderPass->isCompatible(*buffer->fActiveRenderPass));
 

@@ -10,6 +10,7 @@
 
 #include "GrBatchAtlas.h"
 #include "GrBuffer.h"
+#include "GrGpu.h"
 #include "GrTextureProvider.h"
 #include "GrPathRange.h"
 

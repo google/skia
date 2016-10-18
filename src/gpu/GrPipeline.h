@@ -10,7 +10,6 @@
 
 #include "GrColor.h"
 #include "GrFragmentProcessor.h"
-#include "GrGpu.h"
 #include "GrNonAtomicRef.h"
 #include "GrPendingProgramElement.h"
 #include "GrPrimitiveProcessor.h"
