@@ -371,7 +371,7 @@ public:
                        int* maxWinding, int* sumWinding);
     void setUpWindings(SkOpSpanBase* start, SkOpSpanBase* end, int* sumMiWinding, int* sumSuWinding,
                        int* maxWinding, int* sumWinding, int* oppMaxWinding, int* oppSumWinding);
-    void sortAngles();
+    bool sortAngles();
     bool spansNearby(const SkOpSpanBase* ref, const SkOpSpanBase* check) const;
 
     static int SpanSign(const SkOpSpanBase* start, const SkOpSpanBase* end) {

@@ -855,7 +855,7 @@ bool SkOpSegment::markAndChaseWinding(SkOpSpanBase* start, SkOpSpanBase* end, in
     SkOpSegment* other = this;
     while ((other = other->nextChase(&start, &step, &spanStart, &last))) {
         if (spanStart->windSum() != SK_MinS32) {
-            SkASSERT(spanStart->windSum() == winding);
+//            SkASSERT(spanStart->windSum() == winding);   // FIXME: is this assert too aggressive?
             SkASSERT(!last);
             break;
         }
@@ -1459,7 +1459,7 @@ void SkOpSegment::setUpWindings(SkOpSpanBase* start, SkOpSpanBase* end, int* sum
     SkASSERT(!DEBUG_LIMIT_WIND_SUM || SkTAbs(*oppSumWinding) <= DEBUG_LIMIT_WIND_SUM);
 }
 
-void SkOpSegment::sortAngles() {
+bool SkOpSegment::sortAngles() {
     SkOpSpanBase* span = &this->fHead;
     do {
         SkOpAngle* fromAngle = span->fromAngle();
@@ -1477,7 +1477,7 @@ void SkOpSegment::sortAngles() {
                     span->debugID());
             wroteAfterHeader = true;
 #endif
-            fromAngle->insert(toAngle);
+            FAIL_IF(!fromAngle->insert(toAngle));
         } else if (!fromAngle) {
             baseAngle = toAngle;
         }
@@ -1527,6 +1527,7 @@ void SkOpSegment::sortAngles() {
         SkASSERT(!baseAngle || baseAngle->loopCount() > 1);
 #endif
     } while (!span->final() && (span = span->upCast()->next()));
+    return true;
 }
 
 bool SkOpSegment::subDivide(const SkOpSpanBase* start, const SkOpSpanBase* end,

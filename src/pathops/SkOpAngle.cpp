@@ -320,7 +320,7 @@ recomputeSector:
     return !fUnorderable;
 }
 
-int SkOpAngle::convexHullOverlaps(const SkOpAngle* rh) const {
+int SkOpAngle::convexHullOverlaps(const SkOpAngle* rh) {
     const SkDVector* sweep = this->fPart.fSweep;
     const SkDVector* tweep = rh->fPart.fSweep;
     double s0xs1 = sweep[0].crossCheck(sweep[1]);
@@ -593,20 +593,20 @@ SkOpGlobalState* SkOpAngle::globalState() const {
 
 // OPTIMIZE: if this loops to only one other angle, after first compare fails, insert on other side
 // OPTIMIZE: return where insertion succeeded. Then, start next insertion on opposite side
-void SkOpAngle::insert(SkOpAngle* angle) {
+bool SkOpAngle::insert(SkOpAngle* angle) {
     if (angle->fNext) {
         if (loopCount() >= angle->loopCount()) {
             if (!merge(angle)) {
-                return;
+                return true;
             }
         } else if (fNext) {
             if (!angle->merge(this)) {
-                return;
+                return true;
             }
         } else {
             angle->insert(this);
         }
-        return;
+        return true;
     }
     bool singleton = nullptr == fNext;
     if (singleton) {
@@ -622,20 +622,27 @@ void SkOpAngle::insert(SkOpAngle* angle) {
             angle->fNext = this;
         }
         debugValidateNext();
-        return;
+        return true;
     }
     SkOpAngle* last = this;
+    bool flipAmbiguity = false;
     do {
         SkASSERT(last->fNext == next);
-        if (angle->after(last)) {
+        if (angle->after(last) ^ (angle->tangentsAmbiguous() & flipAmbiguity)) {
             last->fNext = angle;
             angle->fNext = next;
             debugValidateNext();
-            return;
+            return true;
         }
         last = next;
+        if (last == this) {
+            FAIL_IF(flipAmbiguity);
+            // We're in a loop. If a sort was ambiguous, flip it to end the loop.
+            flipAmbiguity = true;
+        }
         next = next->fNext;
     } while (true);
+    return true;
 }
 
 SkOpSpanBase* SkOpAngle::lastMarked() const {
@@ -815,7 +822,7 @@ void SkOpAngle::set(SkOpSpanBase* start, SkOpSpanBase* end) {
     fComputedEnd = fEnd = end;
     SkASSERT(start != end);
     fNext = nullptr;
-    fComputeSector = fComputedSector = fCheckCoincidence = false;
+    fComputeSector = fComputedSector = fCheckCoincidence = fTangentsAmbiguous = false;
     setSpans();
     setSector();
     SkDEBUGCODE(fID = start ? start->globalState()->nextAngleID() : -1);
@@ -966,7 +973,7 @@ SkOpSpan* SkOpAngle::starter() {
     return fStart->starter(fEnd);
 }
 
-bool SkOpAngle::tangentsDiverge(const SkOpAngle* rh, double s0xt0) const {
+bool SkOpAngle::tangentsDiverge(const SkOpAngle* rh, double s0xt0) {
     if (s0xt0 == 0) {
         return false;
     }
@@ -991,5 +998,6 @@ bool SkOpAngle::tangentsDiverge(const SkOpAngle* rh, double s0xt0) const {
     double tDist = tweep[0].length() * m;
     bool useS = fabs(sDist) < fabs(tDist);
     double mFactor = fabs(useS ? this->distEndRatio(sDist) : rh->distEndRatio(tDist));
+    fTangentsAmbiguous = mFactor >= 50 && mFactor < 200;
     return mFactor < 50;   // empirically found limit
 }

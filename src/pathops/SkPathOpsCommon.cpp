@@ -235,11 +235,14 @@ static void move_nearby(SkOpContourHead* contourList  DEBUG_COIN_DECLARE_PARAMS(
     } while ((contour = contour->next()));
 }
 
-static void sort_angles(SkOpContourHead* contourList) {
+static bool sort_angles(SkOpContourHead* contourList) {
     SkOpContour* contour = contourList;
     do {
-        contour->sortAngles();
+        if (!contour->sortAngles()) {
+            return false;
+        }
     } while ((contour = contour->next()));
+    return true;
 }
 
 bool HandleCoincidence(SkOpContourHead* contourList, SkOpCoincidence* coincidence) {
@@ -327,7 +330,9 @@ bool HandleCoincidence(SkOpContourHead* contourList, SkOpCoincidence* coincidenc
         }
     } while (!overlaps.isEmpty());
     calc_angles(contourList  DEBUG_COIN_PARAMS());
-    sort_angles(contourList);
+    if (!sort_angles(contourList)) {
+        return false;
+    }
 #if DEBUG_COINCIDENCE_VERBOSE
     coincidence->debugShowCoincidence();
 #endif

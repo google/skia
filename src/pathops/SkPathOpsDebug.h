@@ -22,7 +22,7 @@ class SkOpContourHead;
 #define FORCE_RELEASE 1  // set force release to 1 for multiple thread -- no debugging
 #endif
 
-#define DEBUG_UNDER_DEVELOPMENT 1
+#define DEBUG_UNDER_DEVELOPMENT 0
 
 #define ONE_OFF_DEBUG 0
 #define ONE_OFF_DEBUG_MATHEMATICA 0
