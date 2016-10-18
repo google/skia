@@ -106,8 +106,7 @@ class GNFlavorUtils(default_flavor.DefaultFlavorUtils):
 
     self._py('fetch-gn', self.m.vars.skia_dir.join('bin', 'fetch-gn'))
     self._run('gn gen', [gn, 'gen', self.out_dir, '--args=' + gn_args])
-    self._run('ninja', [ninja, '-C', self.out_dir],
-              env={'NINJA_STATUS': '%%e [%%f/%%t] '})
+    self._run('ninja', [ninja, '-C', self.out_dir])
 
   def copy_extra_build_products(self, swarming_out_dir):
     configuration = self.m.vars.builder_cfg.get('configuration', '')
