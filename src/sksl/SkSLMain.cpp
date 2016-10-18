@@ -16,6 +16,18 @@ bool endsWith(const std::string& s, const std::string& ending) {
     return false;
 }
 
+static SkSL::GLCaps default_caps() {
+    return { 
+             400, 
+             SkSL::GLCaps::kGL_Standard,
+             false, // isCoreProfile
+             false, // usesPrecisionModifiers;
+             false, // mustDeclareFragmentShaderOutput
+             true,  // canUseMinAndAbsTogether
+             false  // mustForceNegatedAtanParamToFloat
+           };
+}
+
 /**
  * Very simple standalone executable to facilitate testing.
  */
@@ -57,7 +69,7 @@ int main(int argc, const char** argv) {
     } else if (endsWith(name, ".glsl")) {
         std::ofstream out(argv[2], std::ofstream::binary);
         SkSL::Compiler compiler;
-        if (!compiler.toGLSL(kind, text, SkSL::GLCaps(), out)) {
+        if (!compiler.toGLSL(kind, text, default_caps(), out)) {
             printf("%s", compiler.errorText().c_str());
             exit(3);
         }

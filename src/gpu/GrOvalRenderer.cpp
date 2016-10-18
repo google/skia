@@ -463,6 +463,8 @@ private:
                                  diegp.fInPosition->fName,
                                  args.fFPCoordTransformHandler);
 
+            SkAssertResult(fragBuilder->enableFeature(
+                    GrGLSLFragmentShaderBuilder::kStandardDerivatives_GLSLFeature));
             // for outer curve
             fragBuilder->codeAppendf("vec2 scaledOffset = %s.xy;", offsets0.fsIn());
             fragBuilder->codeAppend("float test = dot(scaledOffset, scaledOffset) - 1.0;");

@@ -29,7 +29,8 @@ public:
      * if code is added that uses one of these features without calling enableFeature()
      */
     enum GLSLFeature {
-        kPixelLocalStorage_GLSLFeature = kLastGLSLPrivateFeature + 1,
+        kStandardDerivatives_GLSLFeature = kLastGLSLPrivateFeature + 1,
+        kPixelLocalStorage_GLSLFeature,
         kMultisampleInterpolation_GLSLFeature
     };
 
