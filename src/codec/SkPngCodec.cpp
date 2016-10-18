@@ -726,14 +726,16 @@ private:
 
         // FIXME: For resuming interlace, we may swizzle a row that hasn't changed. But it
         // may be too tricky/expensive to handle that correctly.
-        png_bytep srcRow = fInterlaceBuffer.get();
+
+        // Offset srcRow by get_start_coord rows. We do not need to account for fFirstRow,
+        // since the first row in fInterlaceBuffer corresponds to fFirstRow.
+        png_bytep srcRow = SkTAddOffset<png_byte>(fInterlaceBuffer.get(),
+                                                  fPng_rowbytes * get_start_coord(sampleY));
         void* dst = fDst;
-        for (int rowNum = fFirstRow + get_start_coord(sampleY); rowsWrittenToOutput < rowsNeeded;
-                rowNum += sampleY) {
+        for (; rowsWrittenToOutput < rowsNeeded; rowsWrittenToOutput++) {
             this->applyXformRow(dst, srcRow);
             dst = SkTAddOffset<void>(dst, fRowBytes);
             srcRow = SkTAddOffset<png_byte>(srcRow, fPng_rowbytes * sampleY);
-            rowsWrittenToOutput++;
         }
 
         if (fInterlacedComplete) {
