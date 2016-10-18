@@ -929,7 +929,8 @@ void GrGLCaps::initFSAASupport(const GrGLContextInfo& ctxInfo, const GrGLInterfa
         } else if (fUsesMixedSamples) {
             fMSFBOType = kMixedSamples_MSFBOType;
         } else if (ctxInfo.version() >= GR_GL_VER(3,0) ||
-                   ctxInfo.hasExtension("GL_CHROMIUM_framebuffer_multisample")) {
+                   ctxInfo.hasExtension("GL_CHROMIUM_framebuffer_multisample") ||
+                   ctxInfo.hasExtension("GL_ANGLE_framebuffer_multisample")) {
             fMSFBOType = kStandard_MSFBOType;
         } else if (ctxInfo.hasExtension("GL_APPLE_framebuffer_multisample")) {
             fMSFBOType = kES_Apple_MSFBOType;
@@ -940,7 +941,8 @@ void GrGLCaps::initFSAASupport(const GrGLContextInfo& ctxInfo, const GrGLInterfa
         if (ctxInfo.version() >= GR_GL_VER(3, 0)) {
             fBlitFramebufferFlags = kNoFormatConversionForMSAASrc_BlitFramebufferFlag |
                                     kRectsMustMatchForMSAASrc_BlitFramebufferFlag;
-        } else if (ctxInfo.hasExtension("GL_CHROMIUM_framebuffer_multisample")) {
+        } else if (ctxInfo.hasExtension("GL_CHROMIUM_framebuffer_multisample") ||
+                   ctxInfo.hasExtension("GL_ANGLE_framebuffer_blit")) {
             // The CHROMIUM extension uses the ANGLE version of glBlitFramebuffer and includes its
             // limitations.
             fBlitFramebufferFlags = kNoScalingOrMirroring_BlitFramebufferFlag |
