@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "dc6ae32c_86680c14",
+        "filename": "src/effects/SkRRectsGaussianEdgeShader.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 212,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2016-10-18T15:30:54Z",
+      "side": 1,
+      "message": "Hard core. I\u0027m not sure if it makes a difference, but you might want to multiply by 0.5 here instead.",
+      "range": {
+        "startLine": 210,
+        "startChar": 1,
+        "endLine": 212,
+        "endChar": 0
+      },
+      "revId": "8647d929cc6b458fe571f94b763ec0a0910a78f8",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "dc6ae32c_a665083b",
+        "filename": "src/effects/SkRRectsGaussianEdgeShader.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 317,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2016-10-18T15:30:54Z",
+      "side": 1,
+      "message": "It\u0027s unclear to me why you switched from half to full radii.",
+      "range": {
+        "startLine": 317,
+        "startChar": 15,
+        "endLine": 317,
+        "endChar": 27
+      },
+      "revId": "8647d929cc6b458fe571f94b763ec0a0910a78f8",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
