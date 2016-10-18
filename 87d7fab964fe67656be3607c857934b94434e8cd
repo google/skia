@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "dc6ae32c_a6e0a811",
+        "filename": "BUILD.gn",
+        "patchSetId": 2
+      },
+      "lineNbr": 951,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2016-10-18T17:59:12Z",
+      "side": 1,
+      "message": "I think we\u0027ll want this for SampleApp at some point.",
+      "range": {
+        "startLine": 951,
+        "startChar": 19,
+        "endLine": 951,
+        "endChar": 47
+      },
+      "revId": "87d7fab964fe67656be3607c857934b94434e8cd",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "dc6ae32c_86e3ac1d",
+        "filename": "BUILD.gn",
+        "patchSetId": 2
+      },
+      "lineNbr": 971,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2016-10-18T17:59:12Z",
+      "side": 1,
+      "message": "We\u0027ll probably want these for SampleApp. Is there a way to exclude just for viewer?",
+      "range": {
+        "startLine": 971,
+        "startChar": 4,
+        "endLine": 971,
+        "endChar": 11
+      },
+      "revId": "87d7fab964fe67656be3607c857934b94434e8cd",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
