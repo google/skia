@@ -19,7 +19,6 @@
 #include "ir/SkSLIntLiteral.h"
 #include "ir/SkSLModifiersDeclaration.h"
 #include "ir/SkSLSymbolTable.h"
-#include "ir/SkSLUnresolvedFunction.h"
 #include "ir/SkSLVarDeclarations.h"
 #include "SkMutex.h"
 
@@ -136,7 +135,6 @@ Compiler::Compiler()
     Modifiers::Flag ignored1;
     std::vector<std::unique_ptr<ProgramElement>> ignored2;
     this->internalConvertProgram(SKSL_INCLUDE, &ignored1, &ignored2);
-    fIRGenerator->fSymbolTable->markAllFunctionsBuiltin();
     ASSERT(!fErrorCount);
 }
 
@@ -395,11 +393,10 @@ std::unique_ptr<Program> Compiler::convertProgram(Program::Kind kind, std::strin
             this->internalConvertProgram(SKSL_FRAG_INCLUDE, &ignored, &elements);
             break;
     }
-    fIRGenerator->fSymbolTable->markAllFunctionsBuiltin();
     Modifiers::Flag defaultPrecision;
     this->internalConvertProgram(text, &defaultPrecision, &elements);
     auto result = std::unique_ptr<Program>(new Program(kind, defaultPrecision, std::move(elements), 
-                                                       fIRGenerator->fSymbolTable));
+                                                       fIRGenerator->fSymbolTable));;
     fIRGenerator->popSymbolTable();
     this->writeErrorCount();
     return result;

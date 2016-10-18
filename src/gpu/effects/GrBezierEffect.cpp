@@ -136,6 +136,8 @@ void GrGLConicEffect::onEmitCode(EmitArgs& args, GrGPArgs* gpArgs) {
 
     switch (fEdgeType) {
         case kHairlineAA_GrProcessorEdgeType: {
+            SkAssertResult(fragBuilder->enableFeature(
+                    GrGLSLFragmentShaderBuilder::kStandardDerivatives_GLSLFeature));
             fragBuilder->codeAppendf("%s = dFdx(%s.xyz);", dklmdx.c_str(), v.fsIn());
             fragBuilder->codeAppendf("%s = dFdy(%s.xyz);", dklmdy.c_str(), v.fsIn());
             fragBuilder->codeAppendf("%s = 2.0 * %s.x * %s.x - %s.y * %s.z - %s.z * %s.y;",
@@ -163,6 +165,8 @@ void GrGLConicEffect::onEmitCode(EmitArgs& args, GrGPArgs* gpArgs) {
             break;
         }
         case kFillAA_GrProcessorEdgeType: {
+            SkAssertResult(fragBuilder->enableFeature(
+                    GrGLSLFragmentShaderBuilder::kStandardDerivatives_GLSLFeature));
             fragBuilder->codeAppendf("%s = dFdx(%s.xyz);", dklmdx.c_str(), v.fsIn());
             fragBuilder->codeAppendf("%s = dFdy(%s.xyz);", dklmdy.c_str(), v.fsIn());
             fragBuilder->codeAppendf("%s ="
@@ -370,6 +374,8 @@ void GrGLQuadEffect::onEmitCode(EmitArgs& args, GrGPArgs* gpArgs) {
 
     switch (fEdgeType) {
         case kHairlineAA_GrProcessorEdgeType: {
+            SkAssertResult(fragBuilder->enableFeature(
+                    GrGLSLFragmentShaderBuilder::kStandardDerivatives_GLSLFeature));
             fragBuilder->codeAppendf("vec2 duvdx = dFdx(%s.xy);", v.fsIn());
             fragBuilder->codeAppendf("vec2 duvdy = dFdy(%s.xy);", v.fsIn());
             fragBuilder->codeAppendf("vec2 gF = vec2(2.0 * %s.x * duvdx.x - duvdx.y,"
@@ -384,6 +390,8 @@ void GrGLQuadEffect::onEmitCode(EmitArgs& args, GrGPArgs* gpArgs) {
             break;
         }
         case kFillAA_GrProcessorEdgeType: {
+            SkAssertResult(fragBuilder->enableFeature(
+                    GrGLSLFragmentShaderBuilder::kStandardDerivatives_GLSLFeature));
             fragBuilder->codeAppendf("vec2 duvdx = dFdx(%s.xy);", v.fsIn());
             fragBuilder->codeAppendf("vec2 duvdy = dFdy(%s.xy);", v.fsIn());
             fragBuilder->codeAppendf("vec2 gF = vec2(2.0 * %s.x * duvdx.x - duvdx.y,"
@@ -584,6 +592,8 @@ void GrGLCubicEffect::onEmitCode(EmitArgs& args, GrGPArgs* gpArgs) {
 
     switch (fEdgeType) {
         case kHairlineAA_GrProcessorEdgeType: {
+            SkAssertResult(fragBuilder->enableFeature(
+                    GrGLSLFragmentShaderBuilder::kStandardDerivatives_GLSLFeature));
             fragBuilder->codeAppendf("%s = dFdx(%s.xyz);", dklmdx.c_str(), v.fsIn());
             fragBuilder->codeAppendf("%s = dFdy(%s.xyz);", dklmdy.c_str(), v.fsIn());
             fragBuilder->codeAppendf("%s = 3.0 * %s.x * %s.x * %s.x - %s.y * %s.z - %s.z * %s.y;",
@@ -610,6 +620,8 @@ void GrGLCubicEffect::onEmitCode(EmitArgs& args, GrGPArgs* gpArgs) {
             break;
         }
         case kFillAA_GrProcessorEdgeType: {
+            SkAssertResult(fragBuilder->enableFeature(
+                    GrGLSLFragmentShaderBuilder::kStandardDerivatives_GLSLFeature));
             fragBuilder->codeAppendf("%s = dFdx(%s.xyz);", dklmdx.c_str(), v.fsIn());
             fragBuilder->codeAppendf("%s = dFdy(%s.xyz);", dklmdy.c_str(), v.fsIn());
             fragBuilder->codeAppendf("%s ="
