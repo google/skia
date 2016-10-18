@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "5c2353ec_27113a78",
+        "filename": "infra/bots/recipes/swarm_test.py",
+        "patchSetId": 4
+      },
+      "lineNbr": 118,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2016-10-18T14:37:03Z",
+      "side": 1,
+      "message": "Skipping config angle_d39_es2: Don\u0027t understand \u0027angle_d39_es2\u0027.",
+      "range": {
+        "startLine": 118,
+        "startChar": 40,
+        "endLine": 118,
+        "endChar": 53
+      },
+      "revId": "d682282dd2c8bedd46fa2e446ca68e6d34cb514d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
