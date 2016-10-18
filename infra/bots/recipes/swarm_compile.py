@@ -38,7 +38,6 @@ TEST_BUILDERS = {
       'Build-Ubuntu-GCC-x86_64-Debug-MSAN',
       'Build-Ubuntu-GCC-x86_64-Debug-NoGPU',
       'Build-Ubuntu-GCC-x86_64-Debug-SK_USE_DISCARDABLE_SCALEDIMAGECACHE',
-      'Build-Ubuntu-GCC-x86_64-Release-ANGLE',
       'Build-Ubuntu-GCC-x86_64-Release-CMake',
       'Build-Ubuntu-GCC-x86_64-Release-Fast',
       'Build-Ubuntu-GCC-x86_64-Release-Mesa',
@@ -46,7 +45,6 @@ TEST_BUILDERS = {
       'Build-Ubuntu-GCC-x86_64-Release-Shared',
       'Build-Ubuntu-GCC-x86_64-Release-Valgrind',
       'Build-Win-MSVC-x86-Debug',
-      'Build-Win-MSVC-x86-Debug-ANGLE',
       'Build-Win-MSVC-x86-Debug-Exceptions',
       'Build-Win-MSVC-x86-Release-GDI',
       'Build-Win-MSVC-x86-Release-GN',
@@ -118,13 +116,6 @@ def get_gyp_defines(builder_dict):
   # Qt SDK (Win).
   if 'Win' in builder_dict.get('os', ''):
     gyp_defs['qt_sdk'] = 'C:/Qt/4.8.5/'
-
-  # ANGLE.
-  if builder_dict.get('extra_config') == 'ANGLE':
-    gyp_defs['skia_angle'] = '1'
-    if builder_dict.get('os', '') in ('Ubuntu', 'Linux'):
-      gyp_defs['use_x11'] = '1'
-      gyp_defs['chromeos'] = '0'
 
   # GDI.
   if builder_dict.get('extra_config') == 'GDI':
