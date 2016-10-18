@@ -16,6 +16,7 @@
 #include "SkPicture.h"
 #include "SkPicture.h"
 #include "SkPicture.h"
+#include "SkSLCompiler.h"
 #include "SkStream.h"
 
 #include <cmath>
@@ -39,6 +40,7 @@ static int fuzz_img(sk_sp<SkData>, uint8_t, uint8_t);
 static int fuzz_skp(sk_sp<SkData>);
 static int fuzz_icc(sk_sp<SkData>);
 static int fuzz_color_deserialize(sk_sp<SkData>);
+static int fuzz_sksl2glsl(sk_sp<SkData>);
 
 int main(int argc, char** argv) {
     SkCommandLineFlags::Parse(argc, argv);
@@ -53,22 +55,26 @@ int main(int argc, char** argv) {
     uint8_t option = calculate_option(bytes.get());
 
     if (!FLAGS_type.isEmpty()) {
-        switch (FLAGS_type[0][0]) {
-            case 'a': return fuzz_api(bytes);
-
-            case 'c': return fuzz_color_deserialize(bytes);
-
-            case 'i':
-                if (FLAGS_type[0][1] == 'c') { //icc
-                    return fuzz_icc(bytes);
-                }
-                // We only allow one degree of freedom to avoid a search space explosion for afl-fuzz.
-                if (FLAGS_type[0][6] == 's') { // image_scale
-                    return fuzz_img(bytes, option, 0);
-                }
-                // image_mode
-                return fuzz_img(bytes, 0, option);
-            case 's': return fuzz_skp(bytes);
+        if (0 == strcmp("api", FLAGS_type[0])) {
+            return fuzz_api(bytes);
+        }
+        if (0 == strcmp("color_deserialize", FLAGS_type[0])) {
+            return fuzz_color_deserialize(bytes);
+        }
+        if (0 == strcmp("icc", FLAGS_type[0])) {
+            return fuzz_icc(bytes);
+        }
+        if (0 == strcmp("image_scale", FLAGS_type[0])) {
+            return fuzz_img(bytes, option, 0);
+        }
+        if (0 == strcmp("image_mode", FLAGS_type[0])) {
+            return fuzz_img(bytes, 0, option);
+        }
+        if (0 == strcmp("skp", FLAGS_type[0])) {
+            return fuzz_skp(bytes);
+        }
+        if (0 == strcmp("sksl2glsl", FLAGS_type[0])) {
+            return fuzz_sksl2glsl(bytes);
         }
     }
     return printUsage(argv[0]);
@@ -397,6 +403,32 @@ int fuzz_color_deserialize(sk_sp<SkData> bytes) {
         return 1;
     }
     SkDebugf("[terminated] Success! deserialized Colorspace.\n");
+    return 0;
+}
+
+static SkSL::GLCaps default_caps() {
+    return {
+             400,
+             SkSL::GLCaps::kGL_Standard,
+             false, // isCoreProfile
+             false, // usesPrecisionModifiers;
+             false, // mustDeclareFragmentShaderOutput
+             true,   // canUseMinAndAbsTogether
+             false  // mustForceNegatedAtanParamToFloat
+           };
+}
+
+int fuzz_sksl2glsl(sk_sp<SkData> bytes) {
+    SkSL::Compiler compiler;
+    std::string output;
+    bool result = compiler.toGLSL(SkSL::Program::kFragment_Kind,
+        (const char*)bytes->data(), default_caps(), &output);
+
+    if (!result) {
+        SkDebugf("[terminated] Couldn't compile input.\n");
+        return 1;
+    }
+    SkDebugf("[terminated] Success! Compiled input.\n");
     return 0;
 }
 
