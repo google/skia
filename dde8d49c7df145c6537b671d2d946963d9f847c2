@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "fc632725_91d4ab07",
+        "filename": "BUILD.gn",
+        "patchSetId": 4
+      },
+      "lineNbr": 952,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2016-10-18T18:35:20Z",
+      "side": 1,
+      "message": "Can any of these be downgraded to just include_dirs (only affecting this target)?",
+      "revId": "dde8d49c7df145c6537b671d2d946963d9f847c2",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
