@@ -61,6 +61,7 @@ static const struct {
     { "debug",           "gpu", "api=debug" },
     { "nullgpu",         "gpu", "api=null" },
     { "angle_d3d11_es2", "gpu", "api=angle_d3d11_es2" },
+    { "angle_d3d9_es2",  "gpu", "api=angle_d3d9_es2" },
     { "angle_gl_es2",    "gpu", "api=angle_gl_es2" },
     { "commandbuffer",   "gpu", "api=commandbuffer" }
 #if SK_MESA
