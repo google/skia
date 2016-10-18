@@ -19,7 +19,7 @@ constexpr int kNumCols = 2;
 constexpr int kNumRows = 5;
 constexpr int kCellSize = 128;
 constexpr SkScalar kPad = 8.0f;
-constexpr SkScalar kBlurRadius = 8.0f;
+constexpr SkScalar kInitialBlurRadius = 8.0f;
 constexpr SkScalar kPeriod = 8.0f;
 constexpr int kClipOffset = 32;
 
@@ -292,7 +292,11 @@ public:
 
     static const int kModeCount = kLast_Mode + 1;
 
-    RevealGM() : fFraction(0.5f), fMode(kRRectsGaussianEdge_Mode), fPause(false) {
+    RevealGM()
+        : fFraction(0.5f)
+        , fMode(kRRectsGaussianEdge_Mode)
+        , fPause(false)
+        , fBlurRadius(kInitialBlurRadius) {
         this->setBGColor(sk_tool_utils::color_to_565(0xFFCCCCCC));
     }
 
@@ -349,14 +353,15 @@ protected:
                         SkPaint paint;
                         paint.setAntiAlias(true);
                         // G channel is an F6.2 radius
-                        paint.setColor(SkColorSetARGB(255, 0, (unsigned char)(4*kBlurRadius), 0));
+                        int iBlurRad = (int)(4.0f * fBlurRadius);
+                        paint.setColor(SkColorSetARGB(255, iBlurRad >> 8, iBlurRad & 0xFF, 0));
                         paint.setShader(SkGaussianEdgeShader::Make());
                         drawObj->draw(canvas, paint);
                     canvas->restore();
                 } else if (kBlurMask_Mode == fMode) {
                     SkPath clippedPath;
 
-                    SkScalar sigma = kBlurRadius / 4.0f;
+                    SkScalar sigma = fBlurRadius / 4.0f;
 
                     if (clipObj->contains(drawObj->bounds())) {
                         clippedPath = drawObj->asPath(2.0f*sigma);
@@ -383,7 +388,7 @@ protected:
 
                     if (clipObj->asRRect(&clipRR) && drawObj->asRRect(&drawnRR)) {
                         paint.setShader(SkRRectsGaussianEdgeShader::Make(clipRR, drawnRR,
-                                                                         kBlurRadius));
+                                                                         fBlurRadius));
                     }
 
                     canvas->drawRect(cover, paint);
@@ -408,6 +413,12 @@ protected:
             case 'C':
                 fMode = (Mode)((fMode + 1) % kModeCount);
                 return true;
+            case '+':
+                fBlurRadius += 1.0f;
+                return true;
+            case '-':
+                fBlurRadius = SkTMax(1.0f, fBlurRadius - 1.0f);
+                return true;
             case 'p':
                 fPause = !fPause;
                 return true;
@@ -427,6 +438,7 @@ private:
     SkScalar fFraction;
     Mode     fMode;
     bool     fPause;
+    float    fBlurRadius;
 
     typedef GM INHERITED;
 };

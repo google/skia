@@ -111,8 +111,9 @@ public:
                           const char* outputName,
                           const char  indices[2]) { // how to access the params for the 2 rrects
 
-            // positive distance is towards the center of the circle
-            fragBuilder->codeAppendf("vec2 delta = %s.xy - %s.%s;",
+            // Positive distance is towards the center of the circle.
+            // Map all the cases to the lower right quadrant.
+            fragBuilder->codeAppendf("vec2 delta = abs(%s.xy - %s.%s);",
                                      fragBuilder->fragmentPosition(), posName, indices);
 
             switch (mode) {
@@ -126,44 +127,95 @@ public:
                 break;
             case kRect_Mode:
                 fragBuilder->codeAppendf(
-                    "vec2 rectDist = vec2(1.0 - clamp((%s.%c - abs(delta.x))/%s, 0.0, 1.0),"
-                                         "1.0 - clamp((%s.%c - abs(delta.y))/%s, 0.0, 1.0));",
+                    "vec2 rectDist = vec2(1.0 - clamp((%s.%c - delta.x)/%s, 0.0, 1.0),"
+                                         "1.0 - clamp((%s.%c - delta.y)/%s, 0.0, 1.0));",
                     sizesName, indices[0], radName,
                     sizesName, indices[1], radName);
                 fragBuilder->codeAppendf("%s = clamp(1.0 - length(rectDist), 0.0, 1.0);",
                                          outputName);
                 break;
             case kSimpleCircular_Mode:
-                // For the circular round rect we first compute the distance
-                // to the rect. Then we compute a multiplier that is 1 if the
-                // point is in one of the circular corners. We then compute the
-                // distance from the corner and then use the multiplier to mask
-                // between the two distances.
-                fragBuilder->codeAppendf("float xDist = clamp((%s.%c - abs(delta.x))/%s,"
-                                                             "0.0, 1.0);",
+                // For the circular round rect we combine 2 distances:
+                //    the fractional position from the corner inset point to the corner's circle
+                //    the minimum perpendicular distance to the bounding rectangle
+                // The first distance is used when the pixel is inside the ice-cream-cone-shaped
+                // portion of a corner. The second is used everywhere else.
+                // This is intended to approximate the interpolation pattern if we had tessellated
+                // this geometry into a RRect outside and a rect inside.
+
+                //----------------
+                // rect distance computation
+                fragBuilder->codeAppendf("float xDist = (%s.%c - delta.x) / %s;",
                                          sizesName, indices[0], radName);
-                fragBuilder->codeAppendf("float yDist = clamp((%s.%c - abs(delta.y))/%s,"
-                                                             "0.0, 1.0);",
+                fragBuilder->codeAppendf("float yDist = (%s.%c - delta.y) / %s;",
                                          sizesName, indices[1], radName);
-                fragBuilder->codeAppend("float rectDist = min(xDist, yDist);");
+                fragBuilder->codeAppend("float rectDist = clamp(min(xDist, yDist), 0.0, 1.0);");
 
-                fragBuilder->codeAppendf("vec2 cornerCenter = %s.%s - %s.%s;",
-                                         sizesName, indices, radiiName, indices);
-                fragBuilder->codeAppend("delta = vec2(abs(delta.x) - cornerCenter.x,"
-                                                     "abs(delta.y) - cornerCenter.y);");
-                fragBuilder->codeAppendf("xDist = %s.%c - abs(delta.x);", radiiName, indices[0]);
-                fragBuilder->codeAppendf("yDist = %s.%c - abs(delta.y);", radiiName, indices[1]);
-                fragBuilder->codeAppend("float cornerDist = min(xDist, yDist);");
-                fragBuilder->codeAppend("float multiplier = step(0.0, cornerDist);");
+                //----------------
+                // ice-cream-cone fractional distance computation
 
-                fragBuilder->codeAppendf("delta += %s.%s;", radiiName, indices);
+                // When the blurRadius is larger than the corner radius we want to use it to
+                // compute the pointy end of the ice cream cone. If it smaller we just want to use
+                // the center of the corner's circle. When using the blurRadius the inset amount
+                // can't exceed the halfwidths of the RRect.
+                fragBuilder->codeAppendf("float insetDist = min(max(%s, %s.%c),min(%s.%c, %s.%c));",
+                                         radName, radiiName, indices[0],
+                                         sizesName, indices[0], sizesName, indices[1]);
+                // "maxValue" is a correction term for if the blurRadius is larger than the
+                // size of the RRect. In that case we don't want to go all the way to black.
+                fragBuilder->codeAppendf("float maxValue = insetDist/%s;", radName);
 
-                fragBuilder->codeAppendf("cornerDist = clamp((2.0 * %s.%c - length(delta))/%s,"
-                                                             "0.0, 1.0);",
-                                         radiiName, indices[0], radName);
+                fragBuilder->codeAppendf("vec2 coneBottom = vec2(%s.%c - insetDist,"
+                                                                "%s.%c - insetDist);",
+                                         sizesName, indices[0], sizesName, indices[1]);
 
-                fragBuilder->codeAppendf("%s = (multiplier * cornerDist) +"
-                                              "((1.0-multiplier) * rectDist);",
+                fragBuilder->codeAppendf("vec2 cornerTop = vec2(%s.%c - %s.%c, %s.%c) -"
+                                                                    "coneBottom;",
+                                         sizesName, indices[0], radiiName, indices[0],
+                                         sizesName, indices[1]);
+                fragBuilder->codeAppendf("vec2 cornerRight = vec2(%s.%c, %s.%c - %s.%c) -"
+                                                                    "coneBottom;",
+                                         sizesName, indices[0],
+                                         sizesName, indices[1], radiiName, indices[1]);
+
+                fragBuilder->codeAppend("vec2 ptInConeSpace = delta - coneBottom;");
+                fragBuilder->codeAppend("float distToPtInConeSpace = length(ptInConeSpace);");
+
+                fragBuilder->codeAppend("float cross1 =  ptInConeSpace.x * cornerTop.y -"
+                                                        "ptInConeSpace.y * cornerTop.x;");
+                fragBuilder->codeAppend("float cross2 = -ptInConeSpace.x * cornerRight.y + "
+                                                        "ptInConeSpace.y * cornerRight.x;");
+
+                fragBuilder->codeAppend("float inCone = step(0.0, cross1) * step(0.0, cross2);");
+
+                fragBuilder->codeAppendf("vec2 cornerCenterInConeSpace = vec2(insetDist - %s.%c);",
+                                         radiiName, indices[0]);
+
+                fragBuilder->codeAppend("vec2 connectingVec = ptInConeSpace -"
+                                                                    "cornerCenterInConeSpace;");
+                fragBuilder->codeAppend("ptInConeSpace = normalize(ptInConeSpace);");
+
+                // "a" (i.e., dot(ptInConeSpace, ptInConeSpace) should always be 1.0f since
+                // ptInConeSpace is now normalized
+                fragBuilder->codeAppend("float b = 2.0 * dot(ptInConeSpace, connectingVec);");
+                fragBuilder->codeAppendf("float c = dot(connectingVec, connectingVec) - "
+                                                                                "%s.%c * %s.%c;",
+                                         radiiName, indices[0], radiiName, indices[0]);
+
+                fragBuilder->codeAppend("float fourAC = 4*c;");
+                // This max prevents sqrt(-1) when outside the cone
+                fragBuilder->codeAppend("float bSq = max(b*b, fourAC);");
+
+                // lop off negative values that are outside the cone
+                fragBuilder->codeAppend("float coneDist = max(0.0, "
+                                                             "0.5 * (-b + sqrt(bSq - fourAC)));");
+                // make the coneDist a fraction of how far it is from the edge to the cone's base
+                fragBuilder->codeAppend("coneDist = (maxValue*coneDist) /"
+                                                               "(coneDist+distToPtInConeSpace);");
+                fragBuilder->codeAppend("coneDist = clamp(coneDist, 0.0, 1.0);");
+
+                //----------------
+                fragBuilder->codeAppendf("%s = (inCone * coneDist) + ((1.0-inCone) * rectDist);",
                                          outputName);
                 break;
             }
@@ -247,10 +299,8 @@ public:
                 // This is a bit of overkill since fX should equal fY for both round rects but it
                 // makes the shader code simpler.
                 pdman.set4f(fRadiiUni, 
-                             0.5f * first.getSimpleRadii().fX,
-                             0.5f * first.getSimpleRadii().fY,
-                             0.5f * second.getSimpleRadii().fX,
-                             0.5f * second.getSimpleRadii().fY);
+                             first.getSimpleRadii().fX,  first.getSimpleRadii().fY,
+                             second.getSimpleRadii().fX, second.getSimpleRadii().fY);
             }
 
             pdman.set1f(fRadiusUni, edgeFP.radius());
@@ -264,7 +314,7 @@ public:
         // For circles we still upload both width & height to simplify things
         GrGLSLProgramDataManager::UniformHandle fSizesUni;
 
-        // The half corner radii of the two round rects (rx1/2, ry1/2, rx2/2, ry2/2)
+        // The corner radii of the two round rects (rx1, ry1, rx2, ry2)
         // We upload both the x&y radii (although they are currently always the same) to make
         // the indexing in the shader code simpler. In some future world we could also support
         // non-circular corner round rects & ellipses.
