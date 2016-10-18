@@ -14,7 +14,7 @@
 
 #include "SkATrace.h"
 #include "SkCanvas.h"
-#include "SkCommonFlags.h"
+#include "SkCommandLineFlags.h"
 #include "SkDashPathEffect.h"
 #include "SkGraphics.h"
 #include "SkMetaData.h"
@@ -49,10 +49,9 @@ static void on_ui_state_changed_handler(const SkString& stateName, const SkStrin
     return viewer->onUIStateChanged(stateName, stateValue);
 }
 
-DEFINE_bool2(fullscreen, f, true, "Run fullscreen.");
+static DEFINE_bool2(fullscreen, f, true, "Run fullscreen.");
 
-static
-DEFINE_string2(match, m, nullptr,
+static DEFINE_string2(match, m, nullptr,
                "[~][^]substring[$] [...] of bench name to run.\n"
                "Multiple matches may be separated by spaces.\n"
                "~ causes a matching bench to always be skipped\n"
@@ -69,18 +68,16 @@ DEFINE_string2(match, m, nullptr,
 #endif
 
 #ifdef SK_BUILD_FOR_ANDROID
-static
-DEFINE_string(skps, "/data/local/tmp/skia", "Directory to read skps from.");
-DEFINE_string(jpgs, "/data/local/tmp/skia", "Directory to read jpgs from.");
+static DEFINE_string(skps, "/data/local/tmp/skia", "Directory to read skps from.");
+static DEFINE_string(jpgs, "/data/local/tmp/skia", "Directory to read jpgs from.");
 #else
-static
-DEFINE_string(skps, "skps", "Directory to read skps from.");
-DEFINE_string(jpgs, "jpgs", "Directory to read jpgs from.");
+static DEFINE_string(skps, "skps", "Directory to read skps from.");
+static DEFINE_string(jpgs, "jpgs", "Directory to read jpgs from.");
 #endif
 
-DEFINE_string2(backend, b, "sw", "Backend to use. Allowed values are " BACKENDS_STR ".");
+static DEFINE_string2(backend, b, "sw", "Backend to use. Allowed values are " BACKENDS_STR ".");
 
-DEFINE_bool(atrace, false, "Enable support for using ATrace. ATrace is only supported on Android.");
+static DEFINE_bool(atrace, false, "Enable support for using ATrace. ATrace is only supported on Android.");
 
 const char *kBackendTypeStrings[sk_app::Window::kBackendTypeCount] = {
     " [OpenGL]",
