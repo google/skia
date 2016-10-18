@@ -8,8 +8,8 @@
 #ifndef GrDrawBatch_DEFINED
 #define GrDrawBatch_DEFINED
 
-#include <functional>
 #include "GrBatch.h"
+#include "GrGpuCommandBuffer.h"
 #include "GrPipeline.h"
 
 struct GrInitInvariantOutput;
@@ -46,13 +46,8 @@ private:
  */
 class GrDrawBatch : public GrBatch {
 public:
-    /** Method that performs an upload on behalf of a DeferredUploadFn. */
-    using WritePixelsFn = std::function<bool(GrSurface* texture,
-                                             int left, int top, int width, int height,
-                                             GrPixelConfig config, const void* buffer,
-                                             size_t rowBytes)>;
-    /** See comments before GrDrawBatch::Target definition on how deferred uploaders work. */
-    using DeferredUploadFn = std::function<void(WritePixelsFn&)>;
+    typedef GrGpuCommandBuffer::WritePixelsFn WritePixelsFn;
+    typedef GrGpuCommandBuffer::DeferredUploadFn DeferredUploadFn;
 
     class Target;
 
