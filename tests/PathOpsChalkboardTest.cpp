@@ -6,6 +6,7 @@
  */
 #include "PathOpsExtendedTest.h"
 #include "PathOpsThreadedCommon.h"
+#include "SkRandom.h"
 
 #define TEST(name) { name, #name }
 
@@ -150,7 +151,7 @@ static void chalkboard_threaded(skiatest::Reporter* reporter, const char* filena
                 testlines ^= 0xFFFFFFFFFFFFFFFFLL;
             }
             *testRunner.fRunnables.append() =
-                    new PathOpsThreadedRunnable(&testChalkboard, 
+                    new PathOpsThreadedRunnable(&testChalkboard,
                                                 (int) (unsigned) (testlines & 0xFFFFFFFF),
                                                 (int) (unsigned) (testlines >> 32),
                                                 0, 0, &testRunner);
