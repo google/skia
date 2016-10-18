@@ -105,11 +105,11 @@ private:
 
     // Overriden by sub-class to handle clicks. Do not call directly, click() modulates by relative
     // position. Return true if holding mouse capture
-    virtual bool onClick(const SkPoint& clickPos) { return false; };
+    virtual bool onClick(const SkPoint& clickPos) { return false; }
 
     // Overriden by sub-classes with controls. Should return true if clickPos lands inside a control
     // region, to enable mouse caputre.
-    virtual bool onIsInCtrlRegion(const SkPoint& clickPos) const { return false; };
+    virtual bool onIsInCtrlRegion(const SkPoint& clickPos) const { return false; }
 
     // The position of the control relative to it's parent
     SkPoint fRelativePos;
