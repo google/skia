@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "fc632725_75e450ca",
+        "filename": "src/effects/SkRRectsGaussianEdgeMaskFilter.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 92,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2016-10-19T17:56:13Z",
+      "side": 1,
+      "message": "I\u0027ve added the un-optimized version I currently have. It is pretty much a straight transcription of the GPU code.",
+      "parentUuid": "fc632725_1a3a6be2",
+      "revId": "c541b65fc37e081d568412310332f37aac77607e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fc632725_ba409750",
         "filename": "src/effects/SkRRectsGaussianEdgeMaskFilter.cpp",
         "patchSetId": 5
@@ -30,6 +48,24 @@
       "writtenOn": "2016-10-19T17:15:41Z",
       "side": 1,
       "message": "tab cases?",
+      "revId": "c541b65fc37e081d568412310332f37aac77607e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fc632725_55e954a0",
+        "filename": "src/effects/SkRRectsGaussianEdgeMaskFilter.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 162,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2016-10-19T17:56:13Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "fc632725_ba409750",
       "revId": "c541b65fc37e081d568412310332f37aac77607e",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
@@ -53,6 +89,24 @@
     },
     {
       "key": {
+        "uuid": "fc632725_d565643a",
+        "filename": "src/effects/SkRRectsGaussianEdgeMaskFilter.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 313,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2016-10-19T17:56:13Z",
+      "side": 1,
+      "message": "I\u0027m pretty neutral. I think it is good for the key generation to be associated with the GLSL*FP class but it is pretty boilerplate-ish.",
+      "parentUuid": "fc632725_9a45db61",
+      "revId": "c541b65fc37e081d568412310332f37aac77607e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fc632725_3a548711",
         "filename": "src/gpu/GrBlurUtils.cpp",
         "patchSetId": 5
@@ -64,6 +118,24 @@
       "writtenOn": "2016-10-19T17:15:41Z",
       "side": 1,
       "message": "comment about already handled?",
+      "revId": "c541b65fc37e081d568412310332f37aac77607e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fc632725_75a7305f",
+        "filename": "src/gpu/GrBlurUtils.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 289,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2016-10-19T17:56:13Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "fc632725_3a548711",
       "revId": "c541b65fc37e081d568412310332f37aac77607e",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
