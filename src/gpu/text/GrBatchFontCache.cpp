@@ -14,6 +14,7 @@
 #include "SkString.h"
 
 #include "SkDistanceFieldGen.h"
+#include "GrDistanceFieldGenFromVector.h"
 
 bool GrBatchFontCache::initAtlas(GrMaskFormat format) {
     int index = MaskFormatToAtlasIndex(format);
@@ -269,30 +270,20 @@ static bool get_packed_glyph_df_image(SkGlyphCache* cache, const SkGlyph& glyph,
                                       int width, int height, void* dst) {
     SkASSERT(glyph.fWidth + 2*SK_DistanceFieldPad == width);
     SkASSERT(glyph.fHeight + 2*SK_DistanceFieldPad == height);
-    const void* image = cache->findImage(glyph);
-    if (nullptr == image) {
-        return false;
-    }
-    // now generate the distance field
-    SkASSERT(dst);
-    SkMask::Format maskFormat = static_cast<SkMask::Format>(glyph.fMaskFormat);
-    if (SkMask::kA8_Format == maskFormat) {
-        // make the distance field from the image
-        SkGenerateDistanceFieldFromA8Image((unsigned char*)dst,
-                                           (unsigned char*)image,
-                                           glyph.fWidth, glyph.fHeight,
-                                           glyph.rowBytes());
-    } else if (SkMask::kBW_Format == maskFormat) {
-        // make the distance field from the image
-        SkGenerateDistanceFieldFromBWImage((unsigned char*)dst,
-                                           (unsigned char*)image,
-                                           glyph.fWidth, glyph.fHeight,
-                                           glyph.rowBytes());
-    } else {
+    const SkPath* path = cache->findPath(glyph);
+    if (nullptr == path) {
         return false;
     }
 
-    return true;
+    // now generate the distance field
+    SkASSERT(dst);
+    SkMatrix drawMatrix;
+    drawMatrix.setTranslate((SkScalar)-glyph.fLeft, (SkScalar)-glyph.fTop);
+
+    // Generate signed distance field directly from SkPath
+    return GrGenerateDistanceFieldFromPath((unsigned char*)dst,
+                                           *path, drawMatrix,
+                                           width, height, width * sizeof(unsigned char));
 }
 
 ///////////////////////////////////////////////////////////////////////////////
