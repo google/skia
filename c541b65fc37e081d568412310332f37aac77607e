@@ -1,0 +1,72 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "fc632725_1a3a6be2",
+        "filename": "src/effects/SkRRectsGaussianEdgeMaskFilter.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 92,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2016-10-19T17:15:41Z",
+      "side": 1,
+      "message": "Is this just copying the input mask to the created mask?",
+      "revId": "c541b65fc37e081d568412310332f37aac77607e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fc632725_ba409750",
+        "filename": "src/effects/SkRRectsGaussianEdgeMaskFilter.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 162,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2016-10-19T17:15:41Z",
+      "side": 1,
+      "message": "tab cases?",
+      "revId": "c541b65fc37e081d568412310332f37aac77607e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fc632725_9a45db61",
+        "filename": "src/effects/SkRRectsGaussianEdgeMaskFilter.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 313,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2016-10-19T17:15:41Z",
+      "side": 1,
+      "message": "Do we like this GenKey pattern?",
+      "revId": "c541b65fc37e081d568412310332f37aac77607e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fc632725_3a548711",
+        "filename": "src/gpu/GrBlurUtils.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 289,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2016-10-19T17:15:41Z",
+      "side": 1,
+      "message": "comment about already handled?",
+      "revId": "c541b65fc37e081d568412310332f37aac77607e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
