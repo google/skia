@@ -327,6 +327,7 @@ public:
 
 #if SK_SUPPORT_GPU
     struct AsFPArgs {
+        AsFPArgs() {}
         AsFPArgs(GrContext* context,
                  const SkMatrix* viewMatrix,
                  const SkMatrix* localMatrix,

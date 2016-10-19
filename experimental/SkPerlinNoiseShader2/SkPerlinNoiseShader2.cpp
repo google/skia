@@ -727,12 +727,8 @@ sk_sp<GrFragmentProcessor> GrPerlinNoise2Effect::TestCreate(GrProcessorTestData*
         SkPerlinNoiseShader2::MakeTurbulence(baseFrequencyX, baseFrequencyY, numOctaves, seed,
                                              stitchTiles ? &tileSize : nullptr));
 
-    GrPaint grPaint;
-    SkMatrix viewMatrix = GrTest::TestMatrix(d->fRandom);
-    auto colorSpace = GrTest::TestColorSpace(d->fRandom);
-    return shader->asFragmentProcessor(SkShader::AsFPArgs(d->fContext, &viewMatrix, nullptr,
-                                                          kNone_SkFilterQuality, colorSpace.get(),
-                                                          SkSourceGammaTreatment::kRespect));
+    GrTest::TestAsFPArgs asFPArgs(d);
+    return shader->asFragmentProcessor(asFPArgs.args());
 }
 
 void GrGLPerlinNoise2::emitCode(EmitArgs& args) {
@@ -1136,12 +1132,8 @@ sk_sp<GrFragmentProcessor> GrImprovedPerlinNoiseEffect::TestCreate(GrProcessorTe
                                                                    numOctaves,
                                                                    z));
 
-    GrPaint grPaint;
-    SkMatrix viewMatrix = GrTest::TestMatrix(d->fRandom);
-    auto colorSpace = GrTest::TestColorSpace(d->fRandom);
-    return shader->asFragmentProcessor(SkShader::AsFPArgs(d->fContext, &viewMatrix, nullptr,
-                                                          kNone_SkFilterQuality, colorSpace.get(),
-                                                          SkSourceGammaTreatment::kRespect));
+    GrTest::TestAsFPArgs asFPArgs(d);
+    return shader->asFragmentProcessor(asFPArgs.args());
 }
 
 void GrGLImprovedPerlinNoise::emitCode(EmitArgs& args) {
