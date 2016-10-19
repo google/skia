@@ -195,7 +195,9 @@ opts("crc32") {
 opts("sse2") {
   enabled = is_x86
   sources = skia_opts.sse2_sources
-  if (!is_win) {
+  if (is_win) {
+    defines = [ "SK_CPU_SSE_LEVEL=SK_CPU_SSE_LEVEL_SSE2" ]
+  } else {
     cflags = [ "-msse2" ]
   }
 }
@@ -203,7 +205,9 @@ opts("sse2") {
 opts("ssse3") {
   enabled = is_x86
   sources = skia_opts.ssse3_sources
-  if (!is_win) {
+  if (is_win) {
+    defines = [ "SK_CPU_SSE_LEVEL=SK_CPU_SSE_LEVEL_SSSE3" ]
+  } else {
     cflags = [ "-mssse3" ]
   }
 }
@@ -211,7 +215,9 @@ opts("ssse3") {
 opts("sse41") {
   enabled = is_x86
   sources = skia_opts.sse41_sources
-  if (!is_win) {
+  if (is_win) {
+    defines = [ "SK_CPU_SSE_LEVEL=SK_CPU_SSE_LEVEL_SSE41" ]
+  } else {
     cflags = [ "-msse4.1" ]
   }
 }
@@ -219,7 +225,9 @@ opts("sse41") {
 opts("sse42") {
   enabled = is_x86
   sources = skia_opts.sse42_sources
-  if (!is_win) {
+  if (is_win) {
+    defines = [ "SK_CPU_SSE_LEVEL=SK_CPU_SSE_LEVEL_SSE42" ]
+  } else {
     cflags = [ "-msse4.2" ]
   }
 }
