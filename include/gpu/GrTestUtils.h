@@ -56,6 +56,7 @@ private:
     SkShader::AsFPArgs fArgs;
     SkMatrix fViewMatrixStorage;
     sk_sp<SkColorSpace> fColorSpaceStorage;
+    sk_sp<GrColorSpaceXform> fColorXformFromSRGBStorage;
 };
 
 // We have a simplified dash path effect here to avoid relying on SkDashPathEffect which

@@ -583,6 +583,7 @@ static inline bool skpaint_to_grpaint_impl(GrContext* context,
             shaderFP = shader->asFragmentProcessor(SkShader::AsFPArgs(context, &viewM, nullptr,
                                                                       skPaint.getFilterQuality(),
                                                                       dc->getColorSpace(),
+                                                                      dc->getColorXformFromSRGB(),
                                                                       dc->sourceGammaTreatment()));
             if (!shaderFP) {
                 return false;
@@ -757,6 +758,7 @@ bool SkPaintToGrPaintWithTexture(GrContext* context,
                                                                       nullptr,
                                                                       paint.getFilterQuality(),
                                                                       dc->getColorSpace(),
+                                                                      dc->getColorXformFromSRGB(),
                                                                       dc->sourceGammaTreatment()));
             if (!shaderFP) {
                 return false;

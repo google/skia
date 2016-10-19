@@ -283,6 +283,10 @@ bool SkColorSpace::gammaIsLinear() const {
     return as_CSB(this)->onGammaIsLinear();
 }
 
+bool SkColorSpace_Base::gamutIsSRGB() const {
+    return this == gSRGB || this == gSRGBLinear;
+}
+
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
 enum Version {

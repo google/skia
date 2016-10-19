@@ -23,6 +23,14 @@ public:
 
     static sk_sp<GrColorSpaceXform> Make(SkColorSpace* src, SkColorSpace* dst);
 
+    /**
+     * Factory that also takes a cached transform from sRGB gamut to the destination. If the source
+     * is sRGB, this avoids constructing a new transform, and just returns fromSRGB. Otherwise,
+     * it behaves like Make(src, dst).
+     */
+    static sk_sp<GrColorSpaceXform> MakeOrPrecomputedFromSRGB(SkColorSpace* src, SkColorSpace* dst,
+                                                              GrColorSpaceXform* fromSRGB);
+
     const SkMatrix44& srcToDst() const { return fSrcToDst; }
 
     /**

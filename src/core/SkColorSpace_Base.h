@@ -192,7 +192,13 @@ public:
     };
     
     virtual Type type() const = 0;
-    
+
+    /**
+     * If this returns true, the gamut of this color space is definitely sRGB. Some sRGB gamut
+     * color spaces may return false, though. This is intended for use in optimization.
+     */
+    bool gamutIsSRGB() const;
+
 protected:
     SkColorSpace_Base(sk_sp<SkData> profileData);
 

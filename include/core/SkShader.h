@@ -22,6 +22,7 @@ class SkImage;
 class SkPath;
 class SkPicture;
 class SkXfermode;
+class GrColorSpaceXform;
 class GrContext;
 class GrFragmentProcessor;
 
@@ -333,12 +334,14 @@ public:
                  const SkMatrix* localMatrix,
                  SkFilterQuality filterQuality,
                  SkColorSpace* dstColorSpace,
+                 GrColorSpaceXform* colorXformFromSRGB,
                  SkSourceGammaTreatment gammaTreatment)
             : fContext(context)
             , fViewMatrix(viewMatrix)
             , fLocalMatrix(localMatrix)
             , fFilterQuality(filterQuality)
             , fDstColorSpace(dstColorSpace)
+            , fColorXformFromSRGB(colorXformFromSRGB)
             , fGammaTreatment(gammaTreatment) {}
 
         GrContext*             fContext;
@@ -346,6 +349,7 @@ public:
         const SkMatrix*        fLocalMatrix;
         SkFilterQuality        fFilterQuality;
         SkColorSpace*          fDstColorSpace;
+        GrColorSpaceXform*     fColorXformFromSRGB;
         SkSourceGammaTreatment fGammaTreatment;
     };
 

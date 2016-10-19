@@ -217,8 +217,8 @@ sk_sp<GrFragmentProcessor> SkImageShader::asFragmentProcessor(const AsFPArgs& ar
     }
 
     SkImageInfo info = as_IB(fImage)->onImageInfo();
-    sk_sp<GrColorSpaceXform> colorSpaceXform = GrColorSpaceXform::Make(info.colorSpace(),
-                                                                       args.fDstColorSpace);
+    sk_sp<GrColorSpaceXform> colorSpaceXform = GrColorSpaceXform::MakeOrPrecomputedFromSRGB(
+        info.colorSpace(), args.fDstColorSpace, args.fColorXformFromSRGB);
     sk_sp<GrFragmentProcessor> inner;
     if (doBicubic) {
         inner = GrBicubicEffect::Make(texture, std::move(colorSpaceXform), matrix, tm);

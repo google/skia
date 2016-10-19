@@ -354,8 +354,8 @@ sk_sp<GrFragmentProcessor> SkRadialGradient::asFragmentProcessor(const AsFPArgs&
         matrix.postConcat(inv);
     }
     matrix.postConcat(fPtsToUnit);
-    sk_sp<GrColorSpaceXform> colorSpaceXform = GrColorSpaceXform::Make(fColorSpace.get(),
-                                                                       args.fDstColorSpace);
+    sk_sp<GrColorSpaceXform> colorSpaceXform = GrColorSpaceXform::MakeOrPrecomputedFromSRGB(
+        fColorSpace.get(), args.fDstColorSpace, args.fColorXformFromSRGB);
     sk_sp<GrFragmentProcessor> inner(GrRadialGradient::Make(
         GrGradientEffect::CreateArgs(args.fContext, this, &matrix, fTileMode,
                                      std::move(colorSpaceXform), SkToBool(args.fDstColorSpace))));

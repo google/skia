@@ -361,8 +361,8 @@ sk_sp<GrFragmentProcessor> SkTwoPointConicalGradient::asFragmentProcessor(
         const AsFPArgs& args) const {
     SkASSERT(args.fContext);
     SkASSERT(fPtsToUnit.isIdentity());
-    sk_sp<GrColorSpaceXform> colorSpaceXform = GrColorSpaceXform::Make(fColorSpace.get(),
-                                                                       args.fDstColorSpace);
+    sk_sp<GrColorSpaceXform> colorSpaceXform = GrColorSpaceXform::MakeOrPrecomputedFromSRGB(
+        fColorSpace.get(), args.fDstColorSpace, args.fColorXformFromSRGB);
     sk_sp<GrFragmentProcessor> inner(Gr2PtConicalGradientEffect::Make(
         GrGradientEffect::CreateArgs(args.fContext, this, args.fLocalMatrix, fTileMode,
                                      std::move(colorSpaceXform), SkToBool(args.fDstColorSpace))));

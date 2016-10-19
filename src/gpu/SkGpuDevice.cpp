@@ -1025,8 +1025,8 @@ void SkGpuDevice::drawBitmapTile(const SkBitmap& bitmap,
     if (nullptr == texture) {
         return;
     }
-    sk_sp<GrColorSpaceXform> colorSpaceXform =
-        GrColorSpaceXform::Make(bitmap.colorSpace(), fDrawContext->getColorSpace());
+    sk_sp<GrColorSpaceXform> colorSpaceXform = GrColorSpaceXform::MakeOrPrecomputedFromSRGB(
+        bitmap.colorSpace(), fDrawContext->getColorSpace(), fDrawContext->getColorXformFromSRGB());
 
     SkScalar iw = 1.f / texture->width();
     SkScalar ih = 1.f / texture->height();
@@ -1150,8 +1150,9 @@ void SkGpuDevice::drawSpecial(const SkDraw& draw,
     SkPaint tmpUnfiltered(paint);
     tmpUnfiltered.setImageFilter(nullptr);
 
-    sk_sp<GrColorSpaceXform> colorSpaceXform =
-        GrColorSpaceXform::Make(result->getColorSpace(), fDrawContext->getColorSpace());
+    sk_sp<GrColorSpaceXform> colorSpaceXform = GrColorSpaceXform::MakeOrPrecomputedFromSRGB(
+        result->getColorSpace(), fDrawContext->getColorSpace(),
+        fDrawContext->getColorXformFromSRGB());
     GrPaint grPaint;
     sk_sp<GrFragmentProcessor> fp(GrSimpleTextureEffect::Make(texture.get(),
                                                               std::move(colorSpaceXform),
@@ -1439,6 +1440,7 @@ void SkGpuDevice::drawProducerNine(const SkDraw& draw, GrTextureProducer* produc
                                           SkRect::MakeIWH(producer->width(), producer->height()),
                                           GrTextureProducer::kNo_FilterConstraint, true,
                                           &kMode, fDrawContext->getColorSpace(),
+                                          fDrawContext->getColorXformFromSRGB(),
                                           fDrawContext->sourceGammaTreatment()));
     GrPaint grPaint;
     if (!SkPaintToGrPaintWithTexture(this->context(), fDrawContext.get(), paint, *draw.fMatrix,
@@ -1492,6 +1494,7 @@ void SkGpuDevice::drawProducerLattice(const SkDraw& draw, GrTextureProducer* pro
                                           SkRect::MakeIWH(producer->width(), producer->height()),
                                           GrTextureProducer::kNo_FilterConstraint, true,
                                           &kMode, fDrawContext->getColorSpace(),
+                                          fDrawContext->getColorXformFromSRGB(),
                                           fDrawContext->sourceGammaTreatment()));
     GrPaint grPaint;
     if (!SkPaintToGrPaintWithTexture(this->context(), fDrawContext.get(), paint, *draw.fMatrix,
