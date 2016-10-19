@@ -25,6 +25,9 @@ public:
         return std::unique_ptr<SkDescriptor>(static_cast<SkDescriptor*>(::operator new (length)));
     }
 
+    // Ensure the unsized delete is called.
+    void operator delete(void* p) { ::operator delete(p); }
+
     void init() {
         fLength = sizeof(SkDescriptor);
         fCount  = 0;
