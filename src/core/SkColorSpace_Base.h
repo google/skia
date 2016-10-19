@@ -177,6 +177,13 @@ public:
     virtual const SkMatrix44* toXYZD50() const = 0;
 
     /**
+     *  Returns a hash of the gamut transofmration to XYZ D50. Allows for fast equality checking
+     *  of gamuts, at the (very small) risk of collision.
+     *  Returns 0 if color gamut cannot be described in terms of XYZ D50.
+     */
+    virtual uint32_t toXYZD50Hash() const = 0;
+
+    /**
      *  Describes color space gamut as a transformation from XYZ D50
      *  Returns nullptr if color gamut cannot be described in terms of XYZ D50.
      */

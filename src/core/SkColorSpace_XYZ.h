@@ -15,7 +15,8 @@
 class SkColorSpace_XYZ : public SkColorSpace_Base {
 public:
     const SkMatrix44* toXYZD50() const override { return &fToXYZD50; }
-    
+    uint32_t toXYZD50Hash() const override { return fToXYZD50Hash; }
+
     const SkMatrix44* fromXYZD50() const override;
 
     bool onGammaCloseToSRGB() const override;
@@ -41,6 +42,7 @@ private:
     const SkGammaNamed     fGammaNamed;
     sk_sp<SkGammas>        fGammas;
     const SkMatrix44       fToXYZD50;
+    uint32_t               fToXYZD50Hash;
     
     mutable SkMatrix44     fFromXYZD50;
     mutable SkOnce         fFromXYZOnce;
