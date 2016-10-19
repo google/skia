@@ -304,16 +304,32 @@ protected:
 
         canvas->translate(50, 50);
 
-        SkPath path;
-        path.moveTo(50, 20);
-        path.lineTo(50, 0);
-        // A combination of tiny sweepAngle + large radius, we should draw a line.
-        html_canvas_arc(&path, 50, 100000, 100000, 270, 270.0f - 0.00572957795f,
-                        false, true);
-        path.lineTo(60, 20);
-        html_canvas_arc(&path, 50, 100000, 99980, 270.0f - 0.00572957795f, 270,
-                        false, false);
-        canvas->drawPath(path, paint);
+        SkScalar outerRadius = 100000.0f;
+        SkScalar innerRadius = outerRadius - 20.0f;
+        SkScalar centerX = 50;
+        SkScalar centerY = outerRadius;
+        SkScalar startAngles[] = { 1.5f * SK_ScalarPI , 1.501f * SK_ScalarPI  };
+        SkScalar sweepAngle = 10.0f / outerRadius;
+
+        for (size_t i = 0; i < SK_ARRAY_COUNT(startAngles); ++i) {
+            SkPath path;
+            SkScalar endAngle = startAngles[i] + sweepAngle;
+            path.moveTo(centerX + innerRadius * sk_float_cos(startAngles[i]),
+                        centerY + innerRadius * sk_float_sin(startAngles[i]));
+            path.lineTo(centerX + outerRadius * sk_float_cos(startAngles[i]),
+                        centerY + outerRadius * sk_float_sin(startAngles[i]));
+            // A combination of tiny sweepAngle + large radius, we should draw a line.
+            html_canvas_arc(&path, centerX, outerRadius, outerRadius,
+                            startAngles[i] * 180 / SK_ScalarPI, endAngle * 180 / SK_ScalarPI,
+                            true, true);
+            path.lineTo(centerX + innerRadius * sk_float_cos(endAngle),
+                        centerY + innerRadius * sk_float_sin(endAngle));
+            html_canvas_arc(&path, centerX, outerRadius, innerRadius,
+                            endAngle * 180 / SK_ScalarPI, startAngles[i] * 180 / SK_ScalarPI,
+                            true, false);
+            canvas->drawPath(path, paint);
+            canvas->translate(20, 0);
+        }
     }
 
 private:
