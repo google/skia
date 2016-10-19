@@ -200,7 +200,9 @@ SkCodec::Result SkWebpCodec::onGetPixels(const SkImageInfo& dstInfo, void* dst, 
     std::unique_ptr<SkColorSpaceXform> colorXform = nullptr;
     if (needs_color_xform(dstInfo, this->getInfo())) {
         colorXform = SkColorSpaceXform::New(this->getInfo().colorSpace(), dstInfo.colorSpace());
-        SkASSERT(colorXform);
+        if (!colorXform) {
+            return kInvalidConversion;
+        }
     }
 
     WebPDecoderConfig config;
