@@ -6,16 +6,23 @@
  */
 
 #include "Benchmark.h"
+#include "OverwriteLine.h"
 #include "SkGraphics.h"
 #include "SkTaskGroup.h"
 #include <algorithm>
 #include <chrono>
 #include <limits>
 #include <regex>
-#include <stdio.h>
 #include <stdlib.h>
 #include <string>
 #include <vector>
+
+
+#if defined(SK_BUILD_FOR_WIN32)
+static const char* kEllipsis = "...";
+#else
+static const char* kEllipsis = "…";
+#endif
 
 int main(int argc, char** argv) {
     SkGraphics::Init();
@@ -49,7 +56,7 @@ int main(int argc, char** argv) {
     }
 
     if (benches.size() == 0) {
-        printf("No bench matched.\n");
+        SkDebugf("No bench matched.\n");
         return 1;
     }
 
@@ -64,7 +71,7 @@ int main(int argc, char** argv) {
         std::string prefix = benches[0].name.substr(0, common_prefix);
         if (common_prefix) {
             for (auto& bench : benches) {
-                bench.name.replace(0, common_prefix, "…");
+                bench.name.replace(0, common_prefix, kEllipsis);
             }
         }
 
@@ -78,11 +85,11 @@ int main(int argc, char** argv) {
         std::string suffix = benches[0].name.substr(benches[0].name.size() - common_suffix);
         if (common_suffix) {
             for (auto& bench : benches) {
-                bench.name.replace(bench.name.size() - common_suffix, common_suffix, "…");
+                bench.name.replace(bench.name.size() - common_suffix, common_suffix, kEllipsis);
             }
         }
 
-        printf("%s…%s\n", prefix.c_str(), suffix.c_str());
+        SkDebugf("%s%s%s\n", prefix.c_str(), kEllipsis, suffix.c_str());
     }
 
     int samples = 0;
@@ -106,15 +113,14 @@ int main(int argc, char** argv) {
                 std::sort(benches.begin(), benches.end(), [](const Bench& a, const Bench& b) {
                     return a.best < b.best;
                 });
-                printf("\r\033[K%d", samples);
+                SkDebugf("%s%d", kSkOverwriteLine, samples);
                 for (auto& bench : benches) {
                     if (benches.size() == 1) {
-                        printf("  %s %gns" , bench.name.c_str(), bench.best.count());
+                        SkDebugf("  %s %gns" , bench.name.c_str(), bench.best.count());
                     } else {
-                        printf("  %s %.3gx", bench.name.c_str(), bench.best / benches[0].best);
+                        SkDebugf("  %s %.3gx", bench.name.c_str(), bench.best / benches[0].best);
                     }
                 }
-                fflush(stdout);
                 break;
             }
         }
