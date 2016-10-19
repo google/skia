@@ -22,6 +22,7 @@ using SkNh = SkNx<N, uint16_t>;
 #define SI static inline
 
 #define STAGE(name, kCallNext)                                                              \
+    template <bool kIsTail>                                                                 \
     static SK_ALWAYS_INLINE void name##_kernel(void* ctx, size_t x, size_t tail,            \
                                                SkNf&  r, SkNf&  g, SkNf&  b, SkNf&  a,      \
                                                SkNf& dr, SkNf& dg, SkNf& db, SkNf& da);     \
@@ -29,7 +30,7 @@ using SkNh = SkNx<N, uint16_t>;
                                SkNf_abi  R, SkNf_abi  G, SkNf_abi  B, SkNf_abi  A,          \
                                SkNf_abi DR, SkNf_abi DG, SkNf_abi DB, SkNf_abi DA) {        \
         SkNf r=R,g=G,b=B,a=A, dr=DR,dg=DG,db=DB,da=DA;                                      \
-        name##_kernel(st->ctx<void*>(), x,0, r,g,b,a, dr,dg,db,da);                         \
+        name##_kernel<false>(st->ctx<void*>(), x,0, r,g,b,a, dr,dg,db,da);                  \
         if (kCallNext) {                                                                    \
             st->next(x,tail, r,g,b,a, dr,dg,db,da);                                         \
         }                                                                                   \
@@ -38,11 +39,12 @@ using SkNh = SkNx<N, uint16_t>;
                                       SkNf_abi  R, SkNf_abi  G, SkNf_abi  B, SkNf_abi  A,   \
                                       SkNf_abi DR, SkNf_abi DG, SkNf_abi DB, SkNf_abi DA) { \
         SkNf r=R,g=G,b=B,a=A, dr=DR,dg=DG,db=DB,da=DA;                                      \
-        name##_kernel(st->ctx<void*>(), x,tail, r,g,b,a, dr,dg,db,da);                      \
+        name##_kernel<true>(st->ctx<void*>(), x,tail, r,g,b,a, dr,dg,db,da);                \
         if (kCallNext) {                                                                    \
             st->next(x,tail, r,g,b,a, dr,dg,db,da);                                         \
         }                                                                                   \
     }                                                                                       \
+    template <bool kIsTail>                                                                 \
     static SK_ALWAYS_INLINE void name##_kernel(void* ctx, size_t x, size_t tail,            \
                                                SkNf&  r, SkNf&  g, SkNf&  b, SkNf&  a,      \
                                                SkNf& dr, SkNf& dg, SkNf& db, SkNf& da)
@@ -120,23 +122,25 @@ namespace SK_OPTS_NS {
         return SkNx_fma(to-from, cov, from);
     }
 
-    template <typename T>
-    SI SkNx<N,T> load_tail(size_t tail, const T* src) {
+    template <bool kIsTail, typename T>
+    SI SkNx<N,T> load(size_t tail, const T* src) {
+        SkASSERT(kIsTail == (tail > 0));
         // TODO: better tail, maskload for 32- and 64-bit T
         T buf[N] = {0};
-        if (tail) {
+        if (kIsTail) {
             memcpy(buf, src, tail*sizeof(T));
             src = buf;
         }
         return SkNx<N,T>::Load(src);
     }
 
-    template <typename T>
-    SI void store_tail(size_t tail, const SkNx<N,T>& v, T* dst) {
+    template <bool kIsTail, typename T>
+    SI void store(size_t tail, const SkNx<N,T>& v, T* dst) {
+        SkASSERT(kIsTail == (tail > 0));
         // TODO: better tail, maskstore for 32- and 64-bit T
         T buf[N] = {0};
-        v.store(tail ? buf : dst);
-        if (tail) {
+        v.store(kIsTail ? buf : dst);
+        if (kIsTail) {
             memcpy(dst, buf, tail*sizeof(T));
         }
     }
@@ -187,7 +191,7 @@ namespace SK_OPTS_NS {
     STAGE(scale_u8, true) {
         auto ptr = (const uint8_t*)ctx + x;
 
-        SkNf c = SkNx_cast<float>(load_tail(tail, ptr)) * (1/255.0f);
+        SkNf c = SkNx_cast<float>(load<kIsTail>(tail, ptr)) * (1/255.0f);
         r = r*c;
         g = g*c;
         b = b*c;
@@ -198,7 +202,7 @@ namespace SK_OPTS_NS {
     STAGE(lerp_u8, true) {
         auto ptr = (const uint8_t*)ctx + x;
 
-        SkNf c = SkNx_cast<float>(load_tail(tail, ptr)) * (1/255.0f);
+        SkNf c = SkNx_cast<float>(load<kIsTail>(tail, ptr)) * (1/255.0f);
         r = lerp(dr, r, c);
         g = lerp(dg, g, c);
         b = lerp(db, b, c);
@@ -209,7 +213,7 @@ namespace SK_OPTS_NS {
     STAGE(lerp_565, true) {
         auto ptr = (const uint16_t*)ctx + x;
         SkNf cr, cg, cb;
-        from_565(load_tail(tail, ptr), &cr, &cg, &cb);
+        from_565(load<kIsTail>(tail, ptr), &cr, &cg, &cb);
 
         r = lerp(dr, r, cr);
         g = lerp(dg, g, cg);
@@ -219,27 +223,27 @@ namespace SK_OPTS_NS {
 
     STAGE(load_d_565, true) {
         auto ptr = (const uint16_t*)ctx + x;
-        from_565(load_tail(tail, ptr), &dr,&dg,&db);
+        from_565(load<kIsTail>(tail, ptr), &dr,&dg,&db);
         da = 1.0f;
     }
 
     STAGE(load_s_565, true) {
         auto ptr = (const uint16_t*)ctx + x;
-        from_565(load_tail(tail, ptr), &r,&g,&b);
+        from_565(load<kIsTail>(tail, ptr), &r,&g,&b);
         a = 1.0f;
     }
 
     STAGE(store_565, false) {
         clamp_01_premul(r,g,b,a);
         auto ptr = (uint16_t*)ctx + x;
-        store_tail(tail, to_565(r,g,b), ptr);
+        store<kIsTail>(tail, to_565(r,g,b), ptr);
     }
 
     STAGE(load_d_f16, true) {
         auto ptr = (const uint64_t*)ctx + x;
 
         uint64_t buf[N] = {0};
-        if (tail) {
+        if (kIsTail) {
             memcpy(buf, ptr, tail*sizeof(uint64_t));
             ptr = buf;
         }
@@ -256,7 +260,7 @@ namespace SK_OPTS_NS {
         auto ptr = (const uint64_t*)ctx + x;
 
         uint64_t buf[N] = {0};
-        if (tail) {
+        if (kIsTail) {
             memcpy(buf, ptr, tail*sizeof(uint64_t));
             ptr = buf;
         }
@@ -274,11 +278,11 @@ namespace SK_OPTS_NS {
         auto ptr = (uint64_t*)ctx + x;
 
         uint64_t buf[N] = {0};
-        SkNh::Store4(tail ? buf : ptr, SkFloatToHalf_finite_ftz(r),
-                                       SkFloatToHalf_finite_ftz(g),
-                                       SkFloatToHalf_finite_ftz(b),
-                                       SkFloatToHalf_finite_ftz(a));
-        if (tail) {
+        SkNh::Store4(kIsTail ? buf : ptr, SkFloatToHalf_finite_ftz(r),
+                                          SkFloatToHalf_finite_ftz(g),
+                                          SkFloatToHalf_finite_ftz(b),
+                                          SkFloatToHalf_finite_ftz(a));
+        if (kIsTail) {
             memcpy(ptr, buf, tail*sizeof(uint64_t));
         }
     }
@@ -288,7 +292,7 @@ namespace SK_OPTS_NS {
     STAGE(load_d_srgb, true) {
         auto ptr = (const uint32_t*)ctx + x;
 
-        auto px = load_tail(tail, ptr);
+        auto px = load<kIsTail>(tail, ptr);
         auto to_int = [](const SkNx<N, uint32_t>& v) { return SkNi::Load(&v); };
         dr =    sk_linear_from_srgb_math(to_int((px >> SK_R32_SHIFT) & 0xff));
         dg =    sk_linear_from_srgb_math(to_int((px >> SK_G32_SHIFT) & 0xff));
@@ -299,7 +303,7 @@ namespace SK_OPTS_NS {
     STAGE(load_s_srgb, true) {
         auto ptr = (const uint32_t*)ctx + x;
 
-        auto px = load_tail(tail, ptr);
+        auto px = load<kIsTail>(tail, ptr);
         auto to_int = [](const SkNx<N, uint32_t>& v) { return SkNi::Load(&v); };
         r =    sk_linear_from_srgb_math(to_int((px >> SK_R32_SHIFT) & 0xff));
         g =    sk_linear_from_srgb_math(to_int((px >> SK_G32_SHIFT) & 0xff));
@@ -310,10 +314,10 @@ namespace SK_OPTS_NS {
     STAGE(store_srgb, false) {
         clamp_01_premul(r,g,b,a);
         auto ptr = (uint32_t*)ctx + x;
-        store_tail(tail, (      sk_linear_to_srgb_noclamp(r) << SK_R32_SHIFT
-                         |      sk_linear_to_srgb_noclamp(g) << SK_G32_SHIFT
-                         |      sk_linear_to_srgb_noclamp(b) << SK_B32_SHIFT
-                         | SkNx_cast<int>(255.0f * a + 0.5f) << SK_A32_SHIFT ), (int*)ptr);
+        store<kIsTail>(tail, (      sk_linear_to_srgb_noclamp(r) << SK_R32_SHIFT
+                             |      sk_linear_to_srgb_noclamp(g) << SK_G32_SHIFT
+                             |      sk_linear_to_srgb_noclamp(b) << SK_B32_SHIFT
+                             | SkNx_cast<int>(255.0f * a + 0.5f) << SK_A32_SHIFT ), (int*)ptr);
     }
 
     RGBA_XFERMODE(clear)    { return 0.0f; }
