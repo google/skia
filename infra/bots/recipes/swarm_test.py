@@ -350,6 +350,8 @@ def dm_flags(bot):
 
   if 'TSAN' in bot:
     match.extend(['~ReadWriteAlpha'])   # Flaky on TSAN-covered on nvidia bots.
+    match.extend(['~RGBA4444TextureTest',  # Flakier than they are important.
+                  '~RGB565TextureTest'])
 
   if 'Vulkan' in bot and 'Adreno' in bot:
     # skia:5777
