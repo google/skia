@@ -1072,7 +1072,12 @@ bool SkPngCodec::initializeXforms(const SkImageInfo& dstInfo, const Options& opt
 
     if (needs_color_xform(dstInfo, this->getInfo())) {
         fColorXform = SkColorSpaceXform::New(this->getInfo().colorSpace(), dstInfo.colorSpace());
-        SkASSERT(fColorXform);
+
+        // This above call will return nullptr on unsupported color xforms.  In some cases,
+        // we can still go ahead and decode the raw pixels, but in the F16 case, we must fail.
+        if (!fColorXform && kRGBA_F16_SkColorType == dstInfo.colorType()) {
+            return false;
+        }
     }
 
     // If the image is RGBA and we have a color xform, we can skip the swizzler.
