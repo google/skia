@@ -1072,7 +1072,9 @@ bool SkPngCodec::initializeXforms(const SkImageInfo& dstInfo, const Options& opt
 
     if (needs_color_xform(dstInfo, this->getInfo())) {
         fColorXform = SkColorSpaceXform::New(this->getInfo().colorSpace(), dstInfo.colorSpace());
-        SkASSERT(fColorXform);
+        if (!fColorXform) {
+            return false;
+        }
     }
 
     // If the image is RGBA and we have a color xform, we can skip the swizzler.
