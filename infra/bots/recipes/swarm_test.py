@@ -475,6 +475,10 @@ def test_steps(api):
       'patchset',      api.vars.patchset,
       'patch_storage', api.vars.patch_storage,
     ])
+  if api.vars.no_buildbot:
+    properties.extend(['no_buildbot', 'True'])
+    properties.extend(['swarming_bot_id', api.vars.swarming_bot_id])
+    properties.extend(['swarming_task_id', api.vars.swarming_task_id])
 
   args = [
     'dm',
@@ -688,3 +692,21 @@ def GenTests(api):
           revision='abc123',
           **gerrit_kwargs)
   )
+
+  yield (
+      api.test('nobuildbot') +
+      api.properties(
+          buildername=builder,
+          mastername='client.skia',
+          slavename='skiabot-linux-swarm-000',
+          buildnumber=5,
+          path_config='kitchen',
+          swarm_out_dir='[SWARM_OUT_DIR]',
+          revision='abc123',
+          nobuildbot='True',
+          **gerrit_kwargs) +
+      api.step_data('get swarming bot id',
+          stdout=api.raw_io.output('skia-bot-123')) +
+      api.step_data('get swarming task id', stdout=api.raw_io.output('123456'))
+  )
+
