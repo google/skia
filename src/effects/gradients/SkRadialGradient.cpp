@@ -314,11 +314,8 @@ sk_sp<GrFragmentProcessor> GrRadialGradient::TestCreate(GrProcessorTestData* d) 
                                      params.fStops, params.fColorCount, params.fTileMode) :
         SkGradientShader::MakeRadial(center, radius, params.fColors,
                                      params.fStops, params.fColorCount, params.fTileMode);
-    SkMatrix viewMatrix = GrTest::TestMatrix(d->fRandom);
-    auto dstColorSpace = GrTest::TestColorSpace(d->fRandom);
-    sk_sp<GrFragmentProcessor> fp = shader->asFragmentProcessor(SkShader::AsFPArgs(
-        d->fContext, &viewMatrix, NULL, kNone_SkFilterQuality, dstColorSpace.get(),
-        SkSourceGammaTreatment::kRespect));
+    GrTest::TestAsFPArgs asFPArgs(d);
+    sk_sp<GrFragmentProcessor> fp = shader->asFragmentProcessor(asFPArgs.args());
     GrAlwaysAssert(fp);
     return fp;
 }
