@@ -336,7 +336,9 @@
       "_",
       "gamut",
       "--match",
-      "~ReadWriteAlpha"
+      "~ReadWriteAlpha",
+      "~RGBA4444TextureTest",
+      "~RGB565TextureTest"
     ],
     "cwd": "[SLAVE_BUILD]/skia",
     "env": {
