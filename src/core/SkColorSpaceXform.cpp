@@ -337,20 +337,6 @@ void SkColorSpaceXform_Base::BuildDstGammaTables(const uint8_t* dstGammaTables[3
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
-static inline bool is_almost_identity(const SkMatrix44& srcToDst) {
-    for (int i = 0; i < 4; i++) {
-        for (int j = 0; j < 4; j++) {
-            float expected = (i == j) ? 1.0f : 0.0f;
-            if (!color_space_almost_equal(srcToDst.getFloat(i,j), expected)) {
-                return false;
-            }
-        }
-    }
-    return true;
-}
-
-///////////////////////////////////////////////////////////////////////////////////////////////////
-
 std::unique_ptr<SkColorSpaceXform> SkColorSpaceXform::New(SkColorSpace* srcSpace,
                                                           SkColorSpace* dstSpace) {
     if (!srcSpace || !dstSpace) {
@@ -381,11 +367,12 @@ std::unique_ptr<SkColorSpaceXform> SkColorSpaceXform::New(SkColorSpace* srcSpace
         srcToDst.setIdentity();
         csm = kFull_ColorSpaceMatch;
     } else {
-        srcToDst.setConcat(*dstSpaceXYZ->fromXYZD50(), *srcSpaceXYZ->toXYZD50());
-
-        if (is_almost_identity(srcToDst)) {
+        if (srcSpaceXYZ->toXYZD50Hash() == dstSpaceXYZ->toXYZD50Hash()) {
+            SkASSERT(*srcSpaceXYZ->toXYZD50() == *dstSpaceXYZ->toXYZD50() && "Hash collision");
             srcToDst.setIdentity();
             csm = kGamut_ColorSpaceMatch;
+        } else {
+            srcToDst.setConcat(*dstSpaceXYZ->fromXYZD50(), *srcSpaceXYZ->toXYZD50());
         }
     }
 

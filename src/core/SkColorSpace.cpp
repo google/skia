@@ -576,16 +576,20 @@ bool SkColorSpace::Equals(const SkColorSpace* src, const SkColorSpace* dst) {
     const SkColorSpace_XYZ* srcXYZ = static_cast<const SkColorSpace_XYZ*>(src);
     const SkColorSpace_XYZ* dstXYZ = static_cast<const SkColorSpace_XYZ*>(dst);
 
+    if (srcXYZ->gammaNamed() != dstXYZ->gammaNamed()) {
+        return false;
+    }
+
     switch (srcXYZ->gammaNamed()) {
         case kSRGB_SkGammaNamed:
         case k2Dot2Curve_SkGammaNamed:
         case kLinear_SkGammaNamed:
-            return (srcXYZ->gammaNamed() == dstXYZ->gammaNamed()) &&
-                   (*srcXYZ->toXYZD50() == *dstXYZ->toXYZD50());
-        default:
-            if (srcXYZ->gammaNamed() != dstXYZ->gammaNamed()) {
-                return false;
+            if (srcXYZ->toXYZD50Hash() == dstXYZ->toXYZD50Hash()) {
+                SkASSERT(*srcXYZ->toXYZD50() == *dstXYZ->toXYZD50() && "Hash collision");
+                return true;
             }
+            return false;
+        default:
             // It is unlikely that we will reach this case.
             sk_sp<SkData> serializedSrcData = src->serialize();
             sk_sp<SkData> serializedDstData = dst->serialize();

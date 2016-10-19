@@ -175,6 +175,7 @@ DEF_TEST(ColorSpaceWriteICC, r) {
     SkASSERT(SkColorSpace_Base::Type::kXYZ == as_CSB(newMonitorSpace)->type());
     SkColorSpace_XYZ* newMonitorSpaceXYZ = static_cast<SkColorSpace_XYZ*>(newMonitorSpace.get());
     REPORTER_ASSERT(r, *monitorSpaceXYZ->toXYZD50() == *newMonitorSpaceXYZ->toXYZD50());
+    REPORTER_ASSERT(r, monitorSpaceXYZ->toXYZD50Hash() == newMonitorSpaceXYZ->toXYZD50Hash());
     REPORTER_ASSERT(r, monitorSpaceXYZ->gammaNamed() == newMonitorSpaceXYZ->gammaNamed());
 }
 
