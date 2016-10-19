@@ -114,6 +114,7 @@ class SkiaVarsApi(recipe_api.RecipeApi):
     self.issue = None
     self.patchset = None
     if self.no_buildbot:
+      self.is_trybot = False
       if (self.m.properties.get('issue', '') and
           self.m.properties.get('patchset', '')):
         self.is_trybot = True
