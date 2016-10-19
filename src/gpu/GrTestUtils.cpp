@@ -6,6 +6,7 @@
  */
 
 #include "GrTestUtils.h"
+#include "GrProcessorUnitTest.h"
 #include "GrStyle.h"
 #include "SkColorSpace.h"
 #include "SkDashPathPriv.h"
@@ -319,6 +320,19 @@ sk_sp<GrColorSpaceXform> TestColorXform(SkRandom* random) {
         gXforms[2] = GrColorSpaceXform::Make(adobe.get(), srgb.get());
     }
     return gXforms[random->nextULessThan(static_cast<uint32_t>(SK_ARRAY_COUNT(gXforms)))];
+}
+
+TestAsFPArgs::TestAsFPArgs(GrProcessorTestData* d) {
+    fViewMatrixStorage = TestMatrix(d->fRandom);
+    fColorSpaceStorage = TestColorSpace(d->fRandom);
+
+    fArgs.fContext = d->fContext;
+    fArgs.fViewMatrix = &fViewMatrixStorage;
+    fArgs.fLocalMatrix = nullptr;
+    fArgs.fFilterQuality = kNone_SkFilterQuality;
+    fArgs.fDstColorSpace = fColorSpaceStorage.get();
+    fArgs.fGammaTreatment = SkToBool(fArgs.fDstColorSpace)
+        ? SkSourceGammaTreatment::kRespect : SkSourceGammaTreatment::kIgnore;
 }
 
 }  // namespace GrTest

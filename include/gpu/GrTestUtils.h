@@ -16,9 +16,11 @@
 #include "GrColorSpaceXform.h"
 #include "SkPathEffect.h"
 #include "SkRandom.h"
+#include "SkShader.h"
 #include "SkStrokeRec.h"
 #include "../private/SkTemplates.h"
 
+struct GrProcessorTestData;
 class GrStyle;
 class SkMatrix;
 class SkPath;
@@ -44,6 +46,17 @@ SkStrokeRec TestStrokeRec(SkRandom*);
 void TestStyle(SkRandom*, GrStyle*);
 sk_sp<SkColorSpace> TestColorSpace(SkRandom*);
 sk_sp<GrColorSpaceXform> TestColorXform(SkRandom*);
+
+class TestAsFPArgs {
+public:
+    TestAsFPArgs(GrProcessorTestData*);
+    const SkShader::AsFPArgs& args() const { return fArgs; }
+
+private:
+    SkShader::AsFPArgs fArgs;
+    SkMatrix fViewMatrixStorage;
+    sk_sp<SkColorSpace> fColorSpaceStorage;
+};
 
 // We have a simplified dash path effect here to avoid relying on SkDashPathEffect which
 // is in the optional build target effects.
