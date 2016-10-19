@@ -412,9 +412,8 @@ bool SkJpegCodec::setOutputColorSpace(const SkImageInfo& dstInfo) {
             fDecoderMgr->dinfo()->out_color_space = JCS_GRAYSCALE;
             return true;
         case kRGBA_F16_SkColorType:
-            if (!fColorXform) {
-                return false;
-            }
+            SkASSERT(fColorXform);
+
             if (!dstInfo.colorSpace()->gammaIsLinear()) {
                 return false;
             }
@@ -552,7 +551,9 @@ SkCodec::Result SkJpegCodec::onGetPixels(const SkImageInfo& dstInfo,
         return fDecoderMgr->returnFailure("setjmp", kInvalidInput);
     }
 
-    this->initializeColorXform(dstInfo);
+    if (!this->initializeColorXform(dstInfo)) {
+        return kInvalidConversion;
+    }
 
     // Check if we can decode to the requested destination and set the output color space
     if (!this->setOutputColorSpace(dstInfo)) {
@@ -634,10 +635,15 @@ void SkJpegCodec::initializeSwizzler(const SkImageInfo& dstInfo, const Options& 
     SkASSERT(fSwizzler);
 }
 
-void SkJpegCodec::initializeColorXform(const SkImageInfo& dstInfo) {
+bool SkJpegCodec::initializeColorXform(const SkImageInfo& dstInfo) {
     if (needs_color_xform(dstInfo, this->getInfo())) {
         fColorXform = SkColorSpaceXform::New(this->getInfo().colorSpace(), dstInfo.colorSpace());
+        if (!fColorXform) {
+            return false;
+        }
     }
+
+    return true;
 }
 
 SkSampler* SkJpegCodec::getSampler(bool createIfNecessary) {
@@ -659,7 +665,9 @@ SkCodec::Result SkJpegCodec::onStartScanlineDecode(const SkImageInfo& dstInfo,
         return kInvalidInput;
     }
 
-    this->initializeColorXform(dstInfo);
+    if (!this->initializeColorXform(dstInfo)) {
+        return kInvalidConversion;
+    }
 
     // Check if we can decode to the requested destination and set the output color space
     if (!this->setOutputColorSpace(dstInfo)) {
