@@ -66,6 +66,7 @@ public:
                                     bool coordsLimitedToConstraintRect,
                                     const GrTextureParams::FilterMode* filterOrNullForBicubic,
                                     SkColorSpace* dstColorSpace,
+                                    GrColorSpaceXform* colorXformFromSRGB,
                                     SkSourceGammaTreatment) = 0;
 
     virtual ~GrTextureProducer() {}
@@ -141,6 +142,7 @@ public:
                                 bool coordsLimitedToConstraintRect,
                                 const GrTextureParams::FilterMode* filterOrNullForBicubic,
                                 SkColorSpace* dstColorSpace,
+                                GrColorSpaceXform* colorXformFromSRGB,
                                 SkSourceGammaTreatment) override;
 
     // We do not ref the texture nor the colorspace, so the caller must keep them in scope while
@@ -189,6 +191,7 @@ public:
                                 bool coordsLimitedToConstraintRect,
                                 const GrTextureParams::FilterMode* filterOrNullForBicubic,
                                 SkColorSpace* dstColorSpace,
+                                GrColorSpaceXform* colorXformFromSRGB,
                                 SkSourceGammaTreatment) override;
 
 protected:

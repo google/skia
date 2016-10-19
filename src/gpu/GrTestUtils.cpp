@@ -325,12 +325,15 @@ sk_sp<GrColorSpaceXform> TestColorXform(SkRandom* random) {
 TestAsFPArgs::TestAsFPArgs(GrProcessorTestData* d) {
     fViewMatrixStorage = TestMatrix(d->fRandom);
     fColorSpaceStorage = TestColorSpace(d->fRandom);
+    sk_sp<SkColorSpace> srgb = SkColorSpace::NewNamed(SkColorSpace::kSRGB_Named);
+    fColorXformFromSRGBStorage = GrColorSpaceXform::Make(srgb.get(), fColorSpaceStorage.get());
 
     fArgs.fContext = d->fContext;
     fArgs.fViewMatrix = &fViewMatrixStorage;
     fArgs.fLocalMatrix = nullptr;
     fArgs.fFilterQuality = kNone_SkFilterQuality;
     fArgs.fDstColorSpace = fColorSpaceStorage.get();
+    fArgs.fColorXformFromSRGB = fColorXformFromSRGBStorage.get();
     fArgs.fGammaTreatment = SkToBool(fArgs.fDstColorSpace)
         ? SkSourceGammaTreatment::kRespect : SkSourceGammaTreatment::kIgnore;
 }

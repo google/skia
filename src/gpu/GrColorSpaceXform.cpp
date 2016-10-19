@@ -66,6 +66,16 @@ sk_sp<GrColorSpaceXform> GrColorSpaceXform::Make(SkColorSpace* src, SkColorSpace
     return sk_make_sp<GrColorSpaceXform>(srcToDst);
 }
 
+sk_sp<GrColorSpaceXform> GrColorSpaceXform::MakeOrPrecomputedFromSRGB(SkColorSpace* src,
+                                                                      SkColorSpace* dst,
+                                                                      GrColorSpaceXform* fromSRGB) {
+    if (src && as_CSB(src)->gamutIsSRGB()) {
+        return sk_ref_sp(fromSRGB);
+    }
+
+    return Make(src, dst);
+}
+
 bool GrColorSpaceXform::Equals(const GrColorSpaceXform* a, const GrColorSpaceXform* b) {
     if (a == b) {
         return true;
