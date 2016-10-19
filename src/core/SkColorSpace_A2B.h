@@ -34,6 +34,11 @@ public:
         return nullptr;
     }
 
+    uint32_t toXYZD50Hash() const override {
+        // See toXYZD50()'s comment.
+        return 0;
+    }
+
     const SkMatrix44* fromXYZD50() const override {
         // See toXYZD50()'s comment. Also, A2B0 profiles are not supported
         // as destination color spaces, so an inverse matrix is never wanted.

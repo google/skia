@@ -6,6 +6,7 @@
  */
 
 #include "SkColorSpace_XYZ.h"
+#include "SkChecksum.h"
 #include "SkColorSpaceXform_Base.h"
 
 static constexpr float gSRGB_toXYZD50[] {
@@ -19,6 +20,7 @@ SkColorSpace_XYZ::SkColorSpace_XYZ(SkGammaNamed gammaNamed, const SkMatrix44& to
     , fGammaNamed(gammaNamed)
     , fGammas(nullptr)
     , fToXYZD50(toXYZD50)
+    , fToXYZD50Hash(SkGoodHash()(toXYZD50))
     , fFromXYZD50(SkMatrix44::kUninitialized_Constructor)
 {}
 
@@ -28,6 +30,7 @@ SkColorSpace_XYZ::SkColorSpace_XYZ(SkGammaNamed gammaNamed, sk_sp<SkGammas> gamm
     , fGammaNamed(gammaNamed)
     , fGammas(std::move(gammas))
     , fToXYZD50(toXYZD50)
+    , fToXYZD50Hash(SkGoodHash()(toXYZD50))
     , fFromXYZD50(SkMatrix44::kUninitialized_Constructor)
 {}
 
