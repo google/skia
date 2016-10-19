@@ -124,6 +124,9 @@ private:
 
     // private so no one can create one except our factories
     SkDescriptor() {}
+
+    // Ensure the unsized delete is called.
+    void operator delete(void* p) { ::operator delete(p); }
 };
 
 #include "SkScalerContext.h"
