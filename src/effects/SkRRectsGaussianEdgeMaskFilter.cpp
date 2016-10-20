@@ -160,7 +160,6 @@ bool SkRRectsGaussianEdgeMaskFilterImpl::filterMask(SkMask* dst, const SkMask& s
         uint8_t* dstPixels = dst->fImage = SkMask::AllocImage(dstSize);
 
         SkPoint basePt = { SkIntToScalar(src.fBounds.fLeft), SkIntToScalar(src.fBounds.fTop) };
-        matrix.mapPoints(&basePt, 1);
 
         for (int y = 0; y < dst->fBounds.height(); ++y) {
             const uint8_t* srcRow = srcPixels + y * dst->fRowBytes;
