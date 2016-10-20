@@ -55,32 +55,12 @@
 
 class SkRasterPipeline {
 public:
-    struct Stage;
-#if SK_CPU_SSE_LEVEL >= SK_CPU_SSE_LEVEL_AVX2
-    using V = SkNx_abi<8,float>;
-#else
-    using V = SkNx_abi<4,float>;
-#endif
-    using Fn = void(SK_VECTORCALL *)(Stage*, size_t, size_t, V,V,V,V,
-                                                             V,V,V,V);
-
     struct Stage {
-        template <typename T>
-        T ctx() { return static_cast<T>(fCtx); }
-
-        void SK_VECTORCALL next(size_t x, size_t tail, V v0, V v1, V v2, V v3,
-                                                       V v4, V v5, V v6, V v7) {
-            // Stages are logically a pipeline, and physically are contiguous in an array.
-            // To get to the next stage, we just increment our pointer to the next array element.
-            ((Fn)fNext)(this+1, x,tail, v0,v1,v2,v3, v4,v5,v6,v7);
-        }
-
         // It makes next() a good bit cheaper if we hold the next function to call here,
         // rather than logically simpler choice of the function implementing this stage.
         void (*fNext)();
         void* fCtx;
     };
-
 
     SkRasterPipeline();
 
