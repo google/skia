@@ -116,13 +116,6 @@ sk_sp<SkShader> SkImage::makeShader(SkShader::TileMode tileX, SkShader::TileMode
     return SkImageShader::Make(sk_ref_sp(const_cast<SkImage*>(this)), tileX, tileY, localMatrix);
 }
 
-#ifdef SK_SUPPORT_LEGACY_CREATESHADER_PTR
-SkShader* SkImage::newShader(SkShader::TileMode tileX, SkShader::TileMode tileY,
-                             const SkMatrix* localMatrix) const {
-    return this->makeShader(tileX, tileY, localMatrix).release();
-}
-#endif
-
 SkData* SkImage::encode(SkImageEncoder::Type type, int quality) const {
     SkBitmap bm;
     if (as_IB(this)->getROPixels(&bm)) {

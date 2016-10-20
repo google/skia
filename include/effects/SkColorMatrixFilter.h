@@ -20,18 +20,6 @@ public:
      *  are ignored.
      */
     static sk_sp<SkColorFilter> MakeLightingFilter(SkColor mul, SkColor add);
-
-#ifdef SK_SUPPORT_LEGACY_COLORFILTER_PTR
-    static SkColorFilter* Create(const SkColorMatrix& cm) {
-        return SkColorFilter::MakeMatrixFilterRowMajor255(cm.fMat).release();
-    }
-    static SkColorFilter* Create(const SkScalar array[20]) {
-        return SkColorFilter::MakeMatrixFilterRowMajor255(array).release();
-    }
-    static SkColorFilter* CreateLightingFilter(SkColor mul, SkColor add) {
-        return MakeLightingFilter(mul, add).release();
-    }
-#endif
 };
 
 #endif

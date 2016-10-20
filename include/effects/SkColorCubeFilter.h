@@ -22,10 +22,6 @@ public:
      */
     static sk_sp<SkColorFilter> Make(sk_sp<SkData> cubeData, int cubeDimension);
 
-#ifdef SK_SUPPORT_LEGACY_COLORFILTER_PTR
-    static SkColorFilter* Create(SkData* cubeData, int cubeDimension);
-#endif
-
     void filterSpan(const SkPMColor src[], int count, SkPMColor[]) const override;
     uint32_t getFlags() const override;
 

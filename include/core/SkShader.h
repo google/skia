@@ -423,24 +423,6 @@ public:
     static sk_sp<SkShader> MakeComposeShader(sk_sp<SkShader> dst, sk_sp<SkShader> src,
                                              SkXfermode::Mode);
 
-#ifdef SK_SUPPORT_LEGACY_CREATESHADER_PTR
-    static SkShader* CreateEmptyShader() { return MakeEmptyShader().release(); }
-    static SkShader* CreateColorShader(SkColor c) { return MakeColorShader(c).release(); }
-    static SkShader* CreateBitmapShader(const SkBitmap& src, TileMode tmx, TileMode tmy,
-                                        const SkMatrix* localMatrix = nullptr) {
-        return MakeBitmapShader(src, tmx, tmy, localMatrix).release();
-    }
-    static SkShader* CreateComposeShader(SkShader* dst, SkShader* src, SkXfermode::Mode mode);
-    static SkShader* CreateComposeShader(SkShader* dst, SkShader* src, SkXfermode* xfer);
-    static SkShader* CreatePictureShader(const SkPicture* src, TileMode tmx, TileMode tmy,
-                                         const SkMatrix* localMatrix, const SkRect* tile);
-
-    SkShader* newWithLocalMatrix(const SkMatrix& matrix) const {
-        return this->makeWithLocalMatrix(matrix).release();
-    }
-    SkShader* newWithColorFilter(SkColorFilter* filter) const;
-#endif
-
     /**
      *  Create a new compose shader, given shaders dst, src, and a combining xfermode mode.
      *  The xfermode is called with the output of the two shaders, and its output is returned.
@@ -450,10 +432,6 @@ public:
      */
     static sk_sp<SkShader> MakeComposeShader(sk_sp<SkShader> dst, sk_sp<SkShader> src,
                                              sk_sp<SkXfermode> xfer);
-#ifdef SK_SUPPORT_LEGACY_XFERMODE_PTR
-    static sk_sp<SkShader> MakeComposeShader(sk_sp<SkShader> dst, sk_sp<SkShader> src,
-                                             SkXfermode* xfer);
-#endif
 
     /** Call this to create a new shader that will draw with the specified bitmap.
      *

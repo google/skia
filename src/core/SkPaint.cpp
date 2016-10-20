@@ -379,18 +379,6 @@ SET_PTR(Typeface)
 SET_PTR(Rasterizer)
 #endif
 SET_PTR(ImageFilter)
-#ifdef SK_SUPPORT_LEGACY_CREATESHADER_PTR
-SET_PTR(Shader)
-#endif
-#ifdef SK_SUPPORT_LEGACY_COLORFILTER_PTR
-SET_PTR(ColorFilter)
-#endif
-#ifdef SK_SUPPORT_LEGACY_XFERMODE_PTR
-SkXfermode* SkPaint::setXfermode(SkXfermode* xfer) {
-    this->setBlendMode(xfer ? xfer->blend() : SkBlendMode::kSrcOver);
-    return this->getXfermode();
-}
-#endif
 #ifdef SK_SUPPORT_LEGACY_PATHEFFECT_PTR
 SET_PTR(PathEffect)
 #endif

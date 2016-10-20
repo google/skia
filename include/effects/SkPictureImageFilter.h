@@ -35,22 +35,6 @@ public:
                                                   const SkRect& cropRect,
                                                   SkFilterQuality filterQuality);
 
-#ifdef SK_SUPPORT_LEGACY_IMAGEFILTER_PTR
-    static SkImageFilter* Create(const SkPicture* picture) {
-        return Make(sk_ref_sp(const_cast<SkPicture*>(picture))).release();
-    }
-    static SkImageFilter* Create(const SkPicture* picture, const SkRect& cropRect) {
-        return Make(sk_ref_sp(const_cast<SkPicture*>(picture)), cropRect).release();
-    }
-    static SkImageFilter* CreateForLocalSpace(const SkPicture* picture,
-                                              const SkRect& cropRect,
-                                              SkFilterQuality filterQuality) {
-        return MakeForLocalSpace(sk_ref_sp(const_cast<SkPicture*>(picture)),
-                                           cropRect,
-                                           filterQuality).release();
-    }
-#endif
-
     SK_TO_STRING_OVERRIDE()
     SK_DECLARE_PUBLIC_FLATTENABLE_DESERIALIZATION_PROCS(SkPictureImageFilter)
 

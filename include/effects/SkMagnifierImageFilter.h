@@ -21,13 +21,6 @@ public:
     SK_TO_STRING_OVERRIDE()
     SK_DECLARE_PUBLIC_FLATTENABLE_DESERIALIZATION_PROCS(SkMagnifierImageFilter)
 
-#ifdef SK_SUPPORT_LEGACY_IMAGEFILTER_PTR
-    static SkImageFilter* Create(const SkRect& src, SkScalar inset,
-                                 SkImageFilter* input = nullptr) {
-        return Make(src, inset, sk_ref_sp<SkImageFilter>(input)).release();
-    }
-#endif
-
 protected:
     SkMagnifierImageFilter(const SkRect& srcRect,
                            SkScalar inset,
