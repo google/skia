@@ -285,9 +285,11 @@ void GrBlurUtils::drawPathWithMaskFilter(GrContext* context,
         return;
     }
 
-    if (paint.getMaskFilter()) {
+    SkMaskFilter* mf = paint.getMaskFilter();
+    if (mf && !mf->asFragmentProcessor(nullptr, nullptr, viewMatrix)) {
+        // The MaskFilter wasn't already handled in SkPaintToGrPaint
         draw_path_with_mask_filter(context, drawContext, clip, &grPaint, viewMatrix,
-                                   paint.getMaskFilter(), style,
+                                   mf, style,
                                    path, pathIsMutable);
     } else {
         drawContext->drawPath(clip, grPaint, viewMatrix, *path, style);

@@ -25,6 +25,7 @@
 #include "SkDropShadowImageFilter.h"
 #include "SkEmbossMaskFilter.h"
 #include "SkGaussianEdgeShader.h"
+#include "SkRRectsGaussianEdgeMaskFilter.h"
 #include "SkRRectsGaussianEdgeShader.h"
 #include "SkGradientShader.h"
 #include "SkImageSource.h"
@@ -70,6 +71,7 @@ void SkFlattenable::PrivateInitializer::InitEffects() {
     // MaskFilter
     SK_DEFINE_FLATTENABLE_REGISTRAR_ENTRY(SkEmbossMaskFilter)
     SkBlurMaskFilter::InitializeFlattenables();
+    SkRRectsGaussianEdgeMaskFilter::InitializeFlattenables();
 
     // DrawLooper
     SK_DEFINE_FLATTENABLE_REGISTRAR_ENTRY(SkBlurDrawLooper)
