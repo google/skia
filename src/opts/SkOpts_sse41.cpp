@@ -21,6 +21,8 @@ namespace SkOpts {
         srcover_srgb_srgb    = sse41::srcover_srgb_srgb;
         blit_row_s32a_opaque = sse41::blit_row_s32a_opaque;
 
+        run_pipeline = SK_OPTS_NS::run_pipeline;
+
     #define STAGE(stage)                                                        \
         body[SkRasterPipeline::stage] = (SkOpts::VoidFn)SK_OPTS_NS::stage;      \
         tail[SkRasterPipeline::stage] = (SkOpts::VoidFn)SK_OPTS_NS::stage##_tail
