@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "5c8ef381_98df34c0",
+        "filename": "BUILD.gn",
+        "patchSetId": 2
+      },
+      "lineNbr": 932,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2016-10-20T19:49:51Z",
+      "side": 1,
+      "message": "Usually we like to add or remove each file or flag only once if the logic\u0027s not too bad.\n\nMaybe\n\nif (!is_win) {   # or (is_android || is_linux) if you like.\n  public_include_dirs +\u003d [ \"src/views/unix\" ]\n  sources +\u003d [ \"src/views/unix/keysm2ucs.c\" ]\n}\n\nif (is_linux) {\n   ...\n} else if (is_mac) {\n   ...\n} else if (is_win) {\n   ...\n}\n\n?",
+      "revId": "a6567fd48978fd013477043245c91702984e90c3",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
