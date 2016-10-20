@@ -11,11 +11,7 @@
 #include "SkPath.h"
 #include "SkPathOpsPoint.h"
 
-struct SkDCubicPair {
-    const SkDCubic& first() const { return (const SkDCubic&) pts[0]; }
-    const SkDCubic& second() const { return (const SkDCubic&) pts[3]; }
-    SkDPoint pts[7];
-};
+struct SkDCubicPair;
 
 struct SkDCubic {
     static const int kPointCount = 4;
@@ -156,5 +152,27 @@ given that:
 inline int other_two(int one, int two) {
     return 1 >> (3 - (one ^ two)) ^ 3;
 }
+
+struct SkDCubicPair {
+    const SkDCubic first() const {
+#ifdef SK_DEBUG
+        SkDCubic result;
+        result.debugSet(&pts[0]);
+        return result;
+#else
+        return (const SkDCubic&) pts[0];
+#endif
+    }
+    const SkDCubic second() const {
+#ifdef SK_DEBUG
+        SkDCubic result;
+        result.debugSet(&pts[3]);
+        return result;
+#else
+        return (const SkDCubic&) pts[3];
+#endif
+    }
+    SkDPoint pts[7];
+};
 
 #endif
