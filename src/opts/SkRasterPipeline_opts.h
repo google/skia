@@ -33,12 +33,19 @@ using Tail = void(SK_VECTORCALL *)(SkRasterPipeline::Stage*, size_t, size_t,
 
 #define SI static inline
 
-template <typename Fn, typename... Args>
-SI void next(SkRasterPipeline::Stage* st, Args&&... args) {
-    // Stages are logically a pipeline, and physically are contiguous in an array.
-    // To get to the next stage, we just increment our pointer to the next array element.
-    ((Fn)st->fNext)(st+1, std::forward<Args>(args)...);
+// Stages are logically a pipeline, and physically are contiguous in an array.
+// To get to the next stage, we just increment our pointer to the next array element.
+SI void SK_VECTORCALL next_body(SkRasterPipeline::Stage* st, size_t x,
+                                SkNf  r, SkNf  g, SkNf  b, SkNf  a,
+                                SkNf dr, SkNf dg, SkNf db, SkNf da) {
+    ((Body)st->fNext)(st+1, x, r,g,b,a, dr,dg,db,da);
 }
+SI void SK_VECTORCALL next_tail(SkRasterPipeline::Stage* st, size_t x, size_t tail,
+                                SkNf  r, SkNf  g, SkNf  b, SkNf  a,
+                                SkNf dr, SkNf dg, SkNf db, SkNf da) {
+    ((Tail)st->fNext)(st+1, x,tail, r,g,b,a, dr,dg,db,da);
+}
+
 
 #define STAGE(name, kCallNext)                                                              \
     template <bool kIsTail>                                                                 \
@@ -50,7 +57,7 @@ SI void next(SkRasterPipeline::Stage* st, Args&&... args) {
                                SkNf dr, SkNf dg, SkNf db, SkNf da) {                        \
         name##_kernel<false>(st->fCtx, x,0, r,g,b,a, dr,dg,db,da);                          \
         if (kCallNext) {                                                                    \
-            next<Body>(st, x, r,g,b,a, dr,dg,db,da);                                        \
+            next_body(st, x, r,g,b,a, dr,dg,db,da);                                         \
         }                                                                                   \
     }                                                                                       \
     SI void SK_VECTORCALL name##_tail(SkRasterPipeline::Stage* st, size_t x, size_t tail,   \
@@ -58,7 +65,7 @@ SI void next(SkRasterPipeline::Stage* st, Args&&... args) {
                                       SkNf dr, SkNf dg, SkNf db, SkNf da) {                 \
         name##_kernel<true>(st->fCtx, x,tail, r,g,b,a, dr,dg,db,da);                        \
         if (kCallNext) {                                                                    \
-            next<Tail>(st, x,tail, r,g,b,a, dr,dg,db,da);                                   \
+            next_tail(st, x,tail, r,g,b,a, dr,dg,db,da);                                    \
         }                                                                                   \
     }                                                                                       \
     template <bool kIsTail>                                                                 \
@@ -78,7 +85,7 @@ SI void next(SkRasterPipeline::Stage* st, Args&&... args) {
         g = name##_kernel(g,a,dg,da);                                                      \
         b = name##_kernel(b,a,db,da);                                                      \
         a = name##_kernel(a,a,da,da);                                                      \
-        next<Body>(st, x, r,g,b,a, dr,dg,db,da);                                           \
+        next_body(st, x, r,g,b,a, dr,dg,db,da);                                            \
     }                                                                                      \
     SI void SK_VECTORCALL name##_tail(SkRasterPipeline::Stage* st, size_t x, size_t tail,  \
                                       SkNf  r, SkNf  g, SkNf  b, SkNf  a,                  \
@@ -87,7 +94,7 @@ SI void next(SkRasterPipeline::Stage* st, Args&&... args) {
         g = name##_kernel(g,a,dg,da);                                                      \
         b = name##_kernel(b,a,db,da);                                                      \
         a = name##_kernel(a,a,da,da);                                                      \
-        next<Tail>(st, x,tail, r,g,b,a, dr,dg,db,da);                                      \
+        next_tail(st, x,tail, r,g,b,a, dr,dg,db,da);                                       \
     }                                                                                      \
     static SK_ALWAYS_INLINE SkNf name##_kernel(const SkNf& s, const SkNf& sa,              \
                                                const SkNf& d, const SkNf& da)
@@ -103,7 +110,7 @@ SI void next(SkRasterPipeline::Stage* st, Args&&... args) {
         g = name##_kernel(g,a,dg,da);                                                      \
         b = name##_kernel(b,a,db,da);                                                      \
         a = a + (da * (1.0f-a));                                                           \
-        next<Body>(st, x, r,g,b,a, dr,dg,db,da);                                           \
+        next_body(st, x, r,g,b,a, dr,dg,db,da);                                            \
     }                                                                                      \
     SI void SK_VECTORCALL name##_tail(SkRasterPipeline::Stage* st, size_t x, size_t tail,  \
                                       SkNf  r, SkNf  g, SkNf  b, SkNf  a,                  \
@@ -112,7 +119,7 @@ SI void next(SkRasterPipeline::Stage* st, Args&&... args) {
         g = name##_kernel(g,a,dg,da);                                                      \
         b = name##_kernel(b,a,db,da);                                                      \
         a = a + (da * (1.0f-a));                                                           \
-        next<Tail>(st, x,tail, r,g,b,a, dr,dg,db,da);                                      \
+        next_tail(st, x,tail, r,g,b,a, dr,dg,db,da);                                       \
     }                                                                                      \
     static SK_ALWAYS_INLINE SkNf name##_kernel(const SkNf& s, const SkNf& sa,              \
                                                const SkNf& d, const SkNf& da)
