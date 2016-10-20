@@ -9,9 +9,56 @@
 #include "SkColorSpace.h"
 #include "SkColorSpace_Base.h"
 #include "SkMatrix44.h"
+#include "SkMutex.h"
+
+class GrColorSpaceXformCache {
+public:
+    using NewValueFn = std::function<sk_sp<GrColorSpaceXform>(void)>;
+
+    GrColorSpaceXformCache(int maxEntries)
+        : fEntryCount(maxEntries)
+        , fEntries(maxEntries)
+        , fSequence(0) {}
+
+    sk_sp<GrColorSpaceXform> findOrAdd(uint64_t key, NewValueFn newValue) {
+        int oldest = 0;
+        for (int i = 0; i < fEntryCount; ++i) {
+            if (fEntries[i].fKey == key) {
+                fEntries[i].fLastUse = fSequence++;
+                return fEntries[i].fXform;
+            }
+            if (fEntries[i].fLastUse < fEntries[oldest].fLastUse) {
+                oldest = i;
+            }
+        }
+        fEntries[oldest].fKey = key;
+        fEntries[oldest].fXform = newValue();
+        fEntries[oldest].fLastUse = fSequence++;
+        return fEntries[oldest].fXform;
+    }
+
+private:
+    struct Entry {
+        // The default Entry is "valid". Any 64-bit key that is the same 32-bit value repeated
+        // implies no xform is necessary, so nullptr should be returned. This particular case should
+        // never happen, but by initializing all entries with this data, we can avoid special cases
+        // for the array not yet being full.
+        Entry() : fKey(0), fXform(nullptr), fLastUse(0) {}
+
+        uint64_t fKey;
+        sk_sp<GrColorSpaceXform> fXform;
+        uint64_t fLastUse;
+    };
+
+    int fEntryCount;
+    SkAutoTArray<Entry> fEntries;
+    uint64_t fSequence;
+};
 
 GrColorSpaceXform::GrColorSpaceXform(const SkMatrix44& srcToDst) 
     : fSrcToDst(srcToDst) {}
+
+SK_DECLARE_STATIC_MUTEX(gColorSpaceXformCacheMutex);
 
 sk_sp<GrColorSpaceXform> GrColorSpaceXform::Make(SkColorSpace* src, SkColorSpace* dst) {
     if (!src || !dst) {
@@ -23,7 +70,7 @@ sk_sp<GrColorSpaceXform> GrColorSpaceXform::Make(SkColorSpace* src, SkColorSpace
         // Quick equality check - no conversion needed in this case
         return nullptr;
     }
-    
+
     const SkMatrix44* toXYZD50   = as_CSB(src)->toXYZD50();
     const SkMatrix44* fromXYZD50 = as_CSB(dst)->fromXYZD50();
     if (!toXYZD50 || !fromXYZD50) {
@@ -31,16 +78,28 @@ sk_sp<GrColorSpaceXform> GrColorSpaceXform::Make(SkColorSpace* src, SkColorSpace
         return nullptr;
     }
 
-    if (as_CSB(src)->toXYZD50Hash() == as_CSB(dst)->toXYZD50Hash()) {
+    uint32_t srcHash = as_CSB(src)->toXYZD50Hash();
+    uint32_t dstHash = as_CSB(dst)->toXYZD50Hash();
+    if (srcHash == dstHash) {
         // Identical gamut - no conversion needed in this case
         SkASSERT(*toXYZD50 == *as_CSB(dst)->toXYZD50() && "Hash collision");
         return nullptr;
     }
 
-    SkMatrix44 srcToDst(SkMatrix44::kUninitialized_Constructor);
-    srcToDst.setConcat(*fromXYZD50, *toXYZD50);
+    static GrColorSpaceXformCache* gCache;
+    static const int kCacheSize = 32;
+    SkAutoMutexAcquire ama(gColorSpaceXformCacheMutex);
 
-    return sk_make_sp<GrColorSpaceXform>(srcToDst);
+    if (nullptr == gCache) {
+        gCache = new GrColorSpaceXformCache(kCacheSize);
+    }
+
+    uint64_t key = static_cast<uint64_t>(srcHash) << 32 | static_cast<uint64_t>(dstHash);
+    return gCache->findOrAdd(key, [=]() {
+        SkMatrix44 srcToDst(SkMatrix44::kUninitialized_Constructor);
+        srcToDst.setConcat(*fromXYZD50, *toXYZD50);
+        return sk_make_sp<GrColorSpaceXform>(srcToDst);
+    });
 }
 
 bool GrColorSpaceXform::Equals(const GrColorSpaceXform* a, const GrColorSpaceXform* b) {
