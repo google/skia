@@ -1132,7 +1132,7 @@ void SkScan::aaa_fill_path(const SkPath& path, const SkIRect* clipRect, Additive
 
     if (path.isInverseFillType() || !path.isConvex()) {
         // fall back to supersampling AA
-        SkScan::AntiFillPath(path, clipRgn, blitter->getRealBlitter(true), false);
+        SkScan::AntiFillPath(path, clipRgn, blitter->getRealBlitter(true), forceRLE);
         return;
     }
 
