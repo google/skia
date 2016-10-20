@@ -14,6 +14,7 @@
 #include "SkYUVSizeInfo.h"
 
 class GrContext;
+class GrContextThreadSafeProxy;
 class GrTexture;
 class GrTextureParams;
 class SkBitmap;
@@ -152,6 +153,15 @@ public:
     bool getYUV8Planes(const SkYUVSizeInfo& sizeInfo, void* planes[3]);
 
     /**
+     *  Returns true if the generate can efficiently return a texture (given the properties of the
+     *  proxy). By default, simple codecs will usually return false, since they must be decoded
+     *  on the CPU and then uploaded to become a texture.
+     */
+    bool canGenerateTexture(const GrContextThreadSafeProxy& proxy) {
+        return this->onCanGenerateTexture(proxy);
+    }
+
+    /**
      *  If the generator can natively/efficiently return its pixels as a GPU image (backed by a
      *  texture) this will return that image. If not, this will return NULL.
      *
@@ -269,6 +279,9 @@ protected:
         return false;
     }
 
+    virtual bool onCanGenerateTexture(const GrContextThreadSafeProxy&) {
+        return false;
+    }
     virtual GrTexture* onGenerateTexture(GrContext*, const SkIRect*) {
         return nullptr;
     }
