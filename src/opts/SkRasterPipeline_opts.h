@@ -9,6 +9,7 @@
 #define SkRasterPipeline_opts_DEFINED
 
 #include "SkHalf.h"
+#include "SkMSAN.h"
 #include "SkPM4f.h"
 #include "SkRasterPipeline.h"
 #include "SkSRGB.h"
@@ -160,6 +161,7 @@ namespace SK_OPTS_NS {
         SkASSERT(kIsTail == (tail > 0));
         // TODO: maskload for 32- and 64-bit T
         T buf[8];
+        sk_msan_mark_initialized(buf,buf+8, "The top lanes are safely uninitialized.");
         if (kIsTail) {
             switch (tail & (N-1)) {
                 case 7: buf[6] = src[6];
@@ -292,6 +294,7 @@ namespace SK_OPTS_NS {
         auto ptr = (const uint64_t*)ctx + x;
 
         uint64_t buf[8];
+        sk_msan_mark_initialized(buf,buf+8, "The top lanes are safely uninitialized.");
         if (kIsTail) {
             switch (tail & (N-1)) {
                 case 7: buf[6] = ptr[6];
@@ -317,6 +320,7 @@ namespace SK_OPTS_NS {
         auto ptr = (const uint64_t*)ctx + x;
 
         uint64_t buf[8];
+        sk_msan_mark_initialized(buf,buf+8, "The top lanes are safely uninitialized.");
         if (kIsTail) {
             switch (tail & (N-1)) {
                 case 7: buf[6] = ptr[6];
