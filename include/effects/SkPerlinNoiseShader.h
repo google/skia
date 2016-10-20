@@ -62,24 +62,6 @@ public:
                                           int numOctaves, SkScalar seed,
                                           const SkISize* tileSize = nullptr);
 
-#ifdef SK_SUPPORT_LEGACY_CREATESHADER_PTR
-    static SkShader* CreateFractalNoise(SkScalar baseFrequencyX, SkScalar baseFrequencyY,
-                                        int numOctaves, SkScalar seed,
-                                        const SkISize* tileSize = NULL) {
-        return MakeFractalNoise(baseFrequencyX, baseFrequencyY, numOctaves, seed, tileSize).release();
-    }
-    static SkShader* CreateTurbulence(SkScalar baseFrequencyX, SkScalar baseFrequencyY,
-                                      int numOctaves, SkScalar seed,
-                                      const SkISize* tileSize = NULL) {
-        return MakeTurbulence(baseFrequencyX, baseFrequencyY, numOctaves, seed, tileSize).release();
-    }
-    static SkShader* CreateTubulence(SkScalar baseFrequencyX, SkScalar baseFrequencyY,
-                                     int numOctaves, SkScalar seed,
-                                     const SkISize* tileSize = NULL) {
-        return CreateTurbulence(baseFrequencyX, baseFrequencyY, numOctaves, seed, tileSize);
-    }
-#endif
-
     class PerlinNoiseShaderContext : public SkShader::Context {
     public:
         PerlinNoiseShaderContext(const SkPerlinNoiseShader& shader, const ContextRec&);

@@ -30,14 +30,6 @@ public:
     SK_TO_STRING_OVERRIDE()
     SK_DECLARE_PUBLIC_FLATTENABLE_DESERIALIZATION_PROCS(SkBlurImageFilterImpl)
 
-#ifdef SK_SUPPORT_LEGACY_IMAGEFILTER_PTR
-    static SkImageFilter* Create(SkScalar sigmaX, SkScalar sigmaY, SkImageFilter* input = nullptr,
-                                 const CropRect* cropRect = nullptr) {
-        return SkImageFilter::MakeBlur(sigmaX, sigmaY, sk_ref_sp<SkImageFilter>(input),
-                                     cropRect).release();
-    }
-#endif
-
 protected:
     void flatten(SkWriteBuffer&) const override;
     sk_sp<SkSpecialImage> onFilterImage(SkSpecialImage* source, const Context&,
