@@ -16,6 +16,7 @@
 #include "SkFontDescriptor.h"
 #include "SkGlyph.h"
 #include "SkHRESULT.h"
+#include "SkMakeUnique.h"
 #include "SkMaskGamma.h"
 #include "SkMatrix22.h"
 #include "SkOTTable_maxp.h"
@@ -530,7 +531,9 @@ const void* HDCOffscreen::draw(const SkGlyph& glyph, bool isBW,
 
 class SkScalerContext_GDI : public SkScalerContext {
 public:
-    SkScalerContext_GDI(SkTypeface*, const SkScalerContextEffects&, const SkDescriptor* desc);
+    SkScalerContext_GDI(sk_sp<LogFontTypeface>,
+                        const SkScalerContextEffects&,
+                        const SkDescriptor* desc);
     virtual ~SkScalerContext_GDI();
 
     // Returns true if the constructor was able to complete all of its
@@ -600,17 +603,17 @@ static BYTE compute_quality(const SkScalerContext::Rec& rec) {
     }
 }
 
-SkScalerContext_GDI::SkScalerContext_GDI(SkTypeface* rawTypeface,
+SkScalerContext_GDI::SkScalerContext_GDI(sk_sp<LogFontTypeface> rawTypeface,
                                          const SkScalerContextEffects& effects,
                                          const SkDescriptor* desc)
-        : SkScalerContext(rawTypeface, effects, desc)
+        : SkScalerContext(std::move(rawTypeface), effects, desc)
         , fDDC(0)
         , fSavefont(0)
         , fFont(0)
         , fSC(0)
         , fGlyphCount(-1)
 {
-    LogFontTypeface* typeface = reinterpret_cast<LogFontTypeface*>(rawTypeface);
+    LogFontTypeface* typeface = static_cast<LogFontTypeface*>(this->getTypeface());
 
     fDDC = ::CreateCompatibleDC(nullptr);
     if (!fDDC) {
@@ -2254,13 +2257,12 @@ size_t LogFontTypeface::onGetTableData(SkFontTableTag tag, size_t offset,
 
 SkScalerContext* LogFontTypeface::onCreateScalerContext(const SkScalerContextEffects& effects,
                                                         const SkDescriptor* desc) const {
-    SkScalerContext_GDI* ctx = new SkScalerContext_GDI(const_cast<LogFontTypeface*>(this),
-                                                       effects, desc);
+    auto ctx = skstd::make_unique<SkScalerContext_GDI>(
+            sk_ref_sp(const_cast<LogFontTypeface*>(this)), effects, desc);
     if (!ctx->isValid()) {
-        delete ctx;
         ctx = nullptr;
     }
-    return ctx;
+    return ctx.release();
 }
 
 void LogFontTypeface::onFilterRec(SkScalerContextRec* rec) const {

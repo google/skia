@@ -38,13 +38,12 @@ static SkGlyphCache_Globals& get_globals() {
 #define kMinGlyphImageSize  (16*2)
 #define kMinAllocAmount     ((sizeof(SkGlyph) + kMinGlyphImageSize) * kMinGlyphCount)
 
-SkGlyphCache::SkGlyphCache(SkTypeface* typeface, const SkDescriptor* desc, SkScalerContext* ctx)
+SkGlyphCache::SkGlyphCache(const SkDescriptor* desc, std::unique_ptr<SkScalerContext> ctx)
     : fDesc(desc->copy())
-    , fScalerContext(ctx)
+    , fScalerContext(std::move(ctx))
     , fGlyphAlloc(kMinAllocAmount) {
-    SkASSERT(typeface);
     SkASSERT(desc);
-    SkASSERT(ctx);
+    SkASSERT(fScalerContext);
 
     fPrev = fNext = nullptr;
 
@@ -54,11 +53,11 @@ SkGlyphCache::SkGlyphCache(SkTypeface* typeface, const SkDescriptor* desc, SkSca
 }
 
 SkGlyphCache::~SkGlyphCache() {
-    fGlyphMap.foreach ([](SkGlyph* g) {
+    fGlyphMap.foreach([](SkGlyph* g) {
         if (g->fPathData) {
             delete g->fPathData->fPath;
-        } } );
-    delete fScalerContext;
+        }
+    });
 }
 
 SkGlyphCache::CharGlyphRec* SkGlyphCache::getCharGlyphRec(PackedUnicharID packedUnicharID) {
@@ -528,13 +527,13 @@ SkGlyphCache* SkGlyphCache::VisitCache(SkTypeface* typeface,
     {
         // pass true the first time, to notice if the scalercontext failed,
         // so we can try the purge.
-        SkScalerContext* ctx = typeface->createScalerContext(effects, desc, true);
+        std::unique_ptr<SkScalerContext> ctx = typeface->createScalerContext(effects, desc, true);
         if (!ctx) {
             get_globals().purgeAll();
             ctx = typeface->createScalerContext(effects, desc, false);
             SkASSERT(ctx);
         }
-        cache = new SkGlyphCache(typeface, desc, ctx);
+        cache = new SkGlyphCache(desc, std::move(ctx));
     }
 
     AutoValidate av(cache);

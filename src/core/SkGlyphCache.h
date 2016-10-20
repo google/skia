@@ -110,7 +110,7 @@ public:
 
     void dump() const;
 
-    SkScalerContext* getScalerContext() const { return fScalerContext; }
+    SkScalerContext* getScalerContext() const { return fScalerContext.get(); }
 
     /** Find a matching cache entry, and call proc() with it. If none is found create a new one.
         If the proc() returns true, detach the cache and return it, otherwise leave it and return
@@ -195,8 +195,7 @@ private:
         PackedGlyphID      fPackedGlyphID;
     };
 
-    // SkGlyphCache takes ownership of the scalercontext.
-    SkGlyphCache(SkTypeface*, const SkDescriptor*, SkScalerContext*);
+    SkGlyphCache(const SkDescriptor*, std::unique_ptr<SkScalerContext>);
     ~SkGlyphCache();
 
     // Return the SkGlyph* associated with MakeID. The id parameter is the
@@ -233,7 +232,7 @@ private:
     SkGlyphCache*          fNext;
     SkGlyphCache*          fPrev;
     const std::unique_ptr<SkDescriptor> fDesc;
-    SkScalerContext* const fScalerContext;
+    const std::unique_ptr<SkScalerContext> fScalerContext;
     SkPaint::FontMetrics   fFontMetrics;
 
     // Map from a combined GlyphID and sub-pixel position to a SkGlyph.
