@@ -25,6 +25,24 @@
     },
     {
       "key": {
+        "uuid": "5c8ef381_03e99ea1",
+        "filename": "dm/DMSrcSink.cpp",
+        "patchSetId": 8
+      },
+      "lineNbr": 947,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2016-10-20T14:27:32Z",
+      "side": 1,
+      "message": "It\u0027s no longer correct.  Fixing.",
+      "parentUuid": "3ca3ff16_6e6b8fce",
+      "revId": "18f4fcc73fce8e348aef953a363b2e70feff88c9",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "3ca3ff16_4e6853d0",
         "filename": "src/codec/SkPngCodec.cpp",
         "patchSetId": 8
@@ -42,6 +60,24 @@
         "endLine": 1073,
         "endChar": 25
       },
+      "revId": "18f4fcc73fce8e348aef953a363b2e70feff88c9",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "5c8ef381_23d2a2e7",
+        "filename": "src/codec/SkPngCodec.cpp",
+        "patchSetId": 8
+      },
+      "lineNbr": 1073,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2016-10-20T14:27:32Z",
+      "side": 1,
+      "message": "I\u0027ve moved the colorXform stuff to the base class.  I think this is a good change, I was feeling a bit guilty about duplicating the code...",
+      "parentUuid": "3ca3ff16_4e6853d0",
       "revId": "18f4fcc73fce8e348aef953a363b2e70feff88c9",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
