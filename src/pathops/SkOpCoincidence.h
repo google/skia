@@ -73,7 +73,7 @@ public:
     // to a new span pair
     SkOpPtT* oppPtTStartWritable() const { return const_cast<SkOpPtT*>(fOppPtTStart); }
     SkOpPtT* oppPtTEndWritable() const { return const_cast<SkOpPtT*>(fOppPtTEnd); }
-    bool ordered() const;
+    bool ordered(bool* result) const;
 
     void set(SkCoincidentSpans* next, const SkOpPtT* coinPtTStart, const SkOpPtT* coinPtTEnd,
             const SkOpPtT* oppPtTStart, const SkOpPtT* oppPtTEnd);
@@ -108,7 +108,7 @@ public:
     }
 
     void setOppPtTStart(const SkOpPtT* ptT) {
-        SkASSERT(ptT == ptT->span()->ptT());
+        SkOPASSERT(ptT == ptT->span()->ptT());
         SkOPASSERT(!fOppPtTEnd || ptT->fT != fOppPtTEnd->fT);
         SkASSERT(!fOppPtTEnd || fOppPtTEnd->segment() == ptT->segment());
         fOppPtTStart = ptT;
@@ -150,7 +150,7 @@ public:
     bool addEndMovedSpans(DEBUG_COIN_DECLARE_ONLY_PARAMS());
     bool addExpanded(DEBUG_COIN_DECLARE_ONLY_PARAMS());
     bool addMissing(bool* added  DEBUG_COIN_DECLARE_PARAMS());
-    void apply(DEBUG_COIN_DECLARE_ONLY_PARAMS());
+    bool apply(DEBUG_COIN_DECLARE_ONLY_PARAMS());
     bool contains(const SkOpPtT* coinPtTStart, const SkOpPtT* coinPtTEnd,
                   const SkOpPtT* oppPtTStart, const SkOpPtT* oppPtTEnd) const;
     void correctEnds(DEBUG_COIN_DECLARE_ONLY_PARAMS());

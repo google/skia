@@ -58,6 +58,8 @@ struct SkDCubic {
         sk_bzero(fPts, sizeof(fPts));
     }
 
+    void debugSet(const SkDPoint* pts);
+
     void dump() const;  // callable from the debugger when the implementation code is linked in
     void dumpID(int id) const;
     void dumpInner() const;
@@ -72,6 +74,11 @@ struct SkDCubic {
     }
 
     int findMaxCurvature(double tValues[]) const;
+
+#ifdef SK_DEBUG
+    SkOpGlobalState* globalState() const { return fDebugGlobalState; }
+#endif
+
     bool hullIntersects(const SkDCubic& c2, bool* isLinear) const;
     bool hullIntersects(const SkDConic& c, bool* isLinear) const;
     bool hullIntersects(const SkDQuad& c2, bool* isLinear) const;
@@ -98,11 +105,14 @@ struct SkDCubic {
      */
     int verticalIntersect(double xIntercept, double roots[3]) const;
 
-    const SkDCubic& set(const SkPoint pts[kPointCount]) {
+// add debug only global pointer so asserts can be skipped by fuzzers
+    const SkDCubic& set(const SkPoint pts[kPointCount]
+            SkDEBUGPARAMS(SkOpGlobalState* state = nullptr)) {
         fPts[0] = pts[0];
         fPts[1] = pts[1];
         fPts[2] = pts[2];
         fPts[3] = pts[3];
+        SkDEBUGCODE(fDebugGlobalState = state);
         return *this;
     }
 
@@ -125,8 +135,8 @@ struct SkDCubic {
     SkDQuad toQuad() const;
 
     static const int gPrecisionUnit;
-
     SkDPoint fPts[kPointCount];
+    SkDEBUGCODE(SkOpGlobalState* fDebugGlobalState);
 };
 
 /* Given the set [0, 1, 2, 3], and two of the four members, compute an XOR mask

@@ -12,8 +12,8 @@
 #include "Test.h"
 
 static struct cubicConic {
-    SkDCubic cubic;
-    SkDConic conic;
+    CubicPts cubic;
+    ConicPts conic;
 } cubicConicTests[] = {
     {{{{188.60000610351562, 2041.5999755859375}, {188.60000610351562, 2065.39990234375},
         {208, 2084.800048828125}, {231.80000305175781, 2084.800048828125}}},
@@ -29,9 +29,13 @@ static struct cubicConic {
 static const int cubicConicTests_count = (int) SK_ARRAY_COUNT(cubicConicTests);
 
 static void cubicConicIntersection(skiatest::Reporter* reporter, int index) {
-    const SkDCubic& cubic = cubicConicTests[index].cubic;
+    const CubicPts& cu = cubicConicTests[index].cubic;
+    SkDCubic cubic;
+    cubic.debugSet(cu.fPts);
     SkASSERT(ValidCubic(cubic));
-    const SkDConic& conic = cubicConicTests[index].conic;
+    const ConicPts& co = cubicConicTests[index].conic;
+    SkDConic conic;
+    conic.debugSet(co.fPts.fPts, co.fWeight);
     SkASSERT(ValidConic(conic));
     SkReduceOrder reduce1;
     SkReduceOrder reduce2;

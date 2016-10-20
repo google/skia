@@ -77,7 +77,7 @@ static void orderQuads(skiatest::Reporter* reporter, const SkDQuad& quad, double
     double s = r * SK_ScalarTanPIOver8;
     double m = r * SK_ScalarRoot2Over2;
     // construct circle from quads
-    const SkDQuad circle[8] = {{{{ r,  0}, { r, -s}, { m, -m}}},
+    const QuadPts circle[8] = {{{{ r,  0}, { r, -s}, { m, -m}}},
                                 {{{ m, -m}, { s, -r}, { 0, -r}}},
                                 {{{ 0, -r}, {-s, -r}, {-m, -m}}},
                                 {{{-m, -m}, {-r, -s}, {-r,  0}}},
@@ -86,7 +86,9 @@ static void orderQuads(skiatest::Reporter* reporter, const SkDQuad& quad, double
                                 {{{ 0,  r}, { s,  r}, { m,  m}}},
                                 {{{ m,  m}, { r,  s}, { r,  0}}}};
     for (int octant = 0; octant < 8; ++octant) {
-        double t = testArc(reporter, quad, circle[octant], octant);
+        SkDQuad cQuad;
+        cQuad.debugSet(circle[octant].fPts);
+        double t = testArc(reporter, quad, cQuad, octant);
         if (t < 0) {
             continue;
         }
@@ -332,6 +334,9 @@ static bool bruteMinT(skiatest::Reporter* reporter, const SkDQuad& quad1, const 
             rStep /= 2;
         } while (rStep > FLT_EPSILON);
         if (bestCCW < 0) {
+            if (bestR >= maxRadius) {
+                SkDebugf("");
+            }
             REPORTER_ASSERT(reporter, bestR < maxRadius);
             return false;
         }
@@ -555,12 +560,15 @@ static void testQuadAngles(skiatest::Reporter* reporter, const SkDQuad& quad1, c
 DEF_TEST(PathOpsAngleOverlapHullsOne, reporter) {
     SkChunkAlloc allocator(4096);
 //    gPathOpsAngleIdeasVerbose = true;
-    const SkDQuad quads[] = {
+    const QuadPts quads[] = {
 {{{939.4808349609375, 914.355224609375}, {-357.7921142578125, 590.842529296875}, {736.8936767578125, -350.717529296875}}},
 {{{939.4808349609375, 914.355224609375}, {-182.85418701171875, 634.4552001953125}, {-509.62615966796875, 576.1182861328125}}}
     };
     for (int index = 0; index < (int) SK_ARRAY_COUNT(quads); index += 2) {
-        testQuadAngles(reporter, quads[index], quads[index + 1], 0, &allocator);
+        SkDQuad quad0, quad1;
+        quad0.debugSet(quads[index].fPts);
+        quad1.debugSet(quads[index + 1].fPts);
+        testQuadAngles(reporter, quad0, quad1, 0, &allocator);
     }
 }
 
@@ -573,23 +581,26 @@ DEF_TEST(PathOpsAngleOverlapHulls, reporter) {
     for (int index = 0; index < 100000; ++index) {
         if (index % 1000 == 999) SkDebugf(".");
         SkDPoint origin = {ran.nextRangeF(-1000, 1000), ran.nextRangeF(-1000, 1000)};
-        SkDQuad quad1 = {{origin, {ran.nextRangeF(-1000, 1000), ran.nextRangeF(-1000, 1000)},
+        QuadPts quad1 = {{origin, {ran.nextRangeF(-1000, 1000), ran.nextRangeF(-1000, 1000)},
             {ran.nextRangeF(-1000, 1000), ran.nextRangeF(-1000, 1000)}}};
-        if (quad1[0] == quad1[2]) {
+        if (quad1.fPts[0] == quad1.fPts[2]) {
             continue;
         }
-        SkDQuad quad2 = {{origin, {ran.nextRangeF(-1000, 1000), ran.nextRangeF(-1000, 1000)},
+        QuadPts quad2 = {{origin, {ran.nextRangeF(-1000, 1000), ran.nextRangeF(-1000, 1000)},
             {ran.nextRangeF(-1000, 1000), ran.nextRangeF(-1000, 1000)}}};
-        if (quad2[0] == quad2[2]) {
+        if (quad2.fPts[0] == quad2.fPts[2]) {
             continue;
         }
         SkIntersections i;
-        i.intersect(quad1, quad2);
+        SkDQuad q1, q2;
+        q1.debugSet(quad1.fPts);
+        q2.debugSet(quad2.fPts);
+        i.intersect(q1, q2);
         REPORTER_ASSERT(reporter, i.used() >= 1);
         if (i.used() > 1) {
             continue;
         }
-        testQuadAngles(reporter, quad1, quad2, index, &allocator);
+        testQuadAngles(reporter, q1, q2, index, &allocator);
     }
 }
 
@@ -603,29 +614,32 @@ DEF_TEST(PathOpsAngleBruteT, reporter) {
     SkDEBUGCODE(int smallIndex);
     for (int index = 0; index < 100000; ++index) {
         SkDPoint origin = {ran.nextRangeF(-1000, 1000), ran.nextRangeF(-1000, 1000)};
-        SkDQuad quad1 = {{origin, {ran.nextRangeF(-1000, 1000), ran.nextRangeF(-1000, 1000)},
+        QuadPts quad1 = {{origin, {ran.nextRangeF(-1000, 1000), ran.nextRangeF(-1000, 1000)},
             {ran.nextRangeF(-1000, 1000), ran.nextRangeF(-1000, 1000)}}};
-        if (quad1[0] == quad1[2]) {
+        if (quad1.fPts[0] == quad1.fPts[2]) {
             continue;
         }
-        SkDQuad quad2 = {{origin, {ran.nextRangeF(-1000, 1000), ran.nextRangeF(-1000, 1000)},
+        QuadPts quad2 = {{origin, {ran.nextRangeF(-1000, 1000), ran.nextRangeF(-1000, 1000)},
             {ran.nextRangeF(-1000, 1000), ran.nextRangeF(-1000, 1000)}}};
-        if (quad2[0] == quad2[2]) {
+        if (quad2.fPts[0] == quad2.fPts[2]) {
             continue;
         }
+        SkDQuad q1, q2;
+        q1.debugSet(quad1.fPts);
+        q2.debugSet(quad2.fPts);
         SkIntersections i;
-        i.intersect(quad1, quad2);
+        i.intersect(q1, q2);
         REPORTER_ASSERT(reporter, i.used() >= 1);
         if (i.used() > 1) {
             continue;
         }
         TRange lowerRange, upperRange;
-        bool result = bruteMinT(reporter, quad1, quad2, &lowerRange, &upperRange);
+        bool result = bruteMinT(reporter, q1, q2, &lowerRange, &upperRange);
         REPORTER_ASSERT(reporter, result);
         double min = SkTMin(upperRange.t1, upperRange.t2);
         if (smaller > min) {
-            small[0] = quad1;
-            small[1] = quad2;
+            small[0] = q1;
+            small[1] = q2;
             SkDEBUGCODE(smallIndex = index);
             smaller = min;
         }
@@ -637,7 +651,7 @@ DEF_TEST(PathOpsAngleBruteT, reporter) {
 
 DEF_TEST(PathOpsAngleBruteTOne, reporter) {
 //    gPathOpsAngleIdeasVerbose = true;
-    const SkDQuad quads[] = {
+    const QuadPts qPts[] = {
 {{{-770.8492431640625, 948.2369384765625}, {-853.37066650390625, 972.0301513671875}, {-200.62042236328125, -26.7174072265625}}},
 {{{-770.8492431640625, 948.2369384765625}, {513.602783203125, 578.8681640625}, {960.641357421875, -813.69757080078125}}},
 {{{563.8267822265625, -107.4566650390625}, {-44.67724609375, -136.57452392578125}, {492.3856201171875, -268.79644775390625}}},
@@ -646,6 +660,10 @@ DEF_TEST(PathOpsAngleBruteTOne, reporter) {
 {{{598.857421875, 846.345458984375}, {715.7142333984375, 955.3599853515625}, {-919.9478759765625, 691.611328125}}},
     };
     TRange lowerRange, upperRange;
+    SkDQuad quads[SK_ARRAY_COUNT(qPts)];
+    for (int index = 0; index < (int) SK_ARRAY_COUNT(qPts); ++index) {
+        quads[index].debugSet(qPts[index].fPts);
+    }
     bruteMinT(reporter, quads[0], quads[1], &lowerRange, &upperRange);
     bruteMinT(reporter, quads[2], quads[3], &lowerRange, &upperRange);
     bruteMinT(reporter, quads[4], quads[5], &lowerRange, &upperRange);
@@ -666,7 +684,7 @@ We need to determine how short is extremely short. Move the control point a set 
 the largest length to determine how stable the curve is vis-a-vis the initial tangent.
 */
 
-static const SkDQuad extremeTests[][2] = {
+static const QuadPts extremeTests[][2] = {
     {
         {{{-708.0077926931004,-154.61669472244046},
             {-707.9234268635319,-154.30459999551294},
@@ -793,8 +811,11 @@ DEF_TEST(PathOpsAngleExtreme, reporter) {
     }
     double maxR = SK_ScalarMax;
     for (int index = 0; index < (int) SK_ARRAY_COUNT(extremeTests); ++index) {
-        const SkDQuad& quad1 = extremeTests[index][0];
-        const SkDQuad& quad2 = extremeTests[index][1];
+        const QuadPts& qu1 = extremeTests[index][0];
+        const QuadPts& qu2 = extremeTests[index][1];
+        SkDQuad quad1, quad2;
+        quad1.debugSet(qu1.fPts);
+        quad2.debugSet(qu2.fPts);
         if (gPathOpsAngleIdeasVerbose) {
             SkDebugf("%s %d\n", __FUNCTION__, index);
         }

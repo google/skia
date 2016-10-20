@@ -221,8 +221,8 @@ private:
 #define SkOPASSERT(cond) SkASSERT((this->globalState() && \
         this->globalState()->debugSkipAssert()) || (cond))
 #endif
-#define SkOPOBJASSERT(obj, cond) SkASSERT((obj->debugGlobalState() && \
-        obj->debugGlobalState()->debugSkipAssert()) || (cond))
+#define SkOPOBJASSERT(obj, cond) SkASSERT((obj->globalState() && \
+        obj->globalState()->debugSkipAssert()) || (cond))
 #else
 #define SkOPASSERT(cond)
 #define SkOPOBJASSERT(obj, cond)

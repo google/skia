@@ -691,8 +691,8 @@ void SkIntersections::debugResetLoopCount() {
 }
 #endif
 
+#include "SkPathOpsConic.h"
 #include "SkPathOpsCubic.h"
-#include "SkPathOpsQuad.h"
 
 SkDCubic SkDQuad::debugToCubic() const {
     SkDCubic cubic;
@@ -704,6 +704,21 @@ SkDCubic SkDQuad::debugToCubic() const {
     cubic[2].fX = (cubic[3].fX + cubic[2].fX * 2) / 3;
     cubic[2].fY = (cubic[3].fY + cubic[2].fY * 2) / 3;
     return cubic;
+}
+
+void SkDQuad::debugSet(const SkDPoint* pts) {
+    memcpy(fPts, pts, sizeof(fPts));
+    SkDEBUGCODE(fDebugGlobalState = nullptr);
+}
+
+void SkDCubic::debugSet(const SkDPoint* pts) {
+    memcpy(fPts, pts, sizeof(fPts));
+    SkDEBUGCODE(fDebugGlobalState = nullptr);
+}
+
+void SkDConic::debugSet(const SkDPoint* pts, SkScalar weight) {
+    fPts.debugSet(pts);
+    fWeight = weight;
 }
 
 void SkDRect::debugInit() {
@@ -1595,6 +1610,7 @@ void SkOpCoincidence::debugAddEndMovedSpans(SkPathOpsDebug::GlitchLog* log) cons
 // for each coincident pair, match the spans
 // if the spans don't match, add the mssing pt to the segment and loop it in the opposite span
 void SkOpCoincidence::debugAddExpanded(SkPathOpsDebug::GlitchLog* log) const {
+//    DEBUG_SET_PHASE();
     const SkCoincidentSpans* coin = this->fHead;
     if (!coin) {
         return;
@@ -1639,14 +1655,15 @@ void SkOpCoincidence::debugAddExpanded(SkPathOpsDebug::GlitchLog* log) const {
                         walk = walk->upCast()->next();
                     } while (!(walkOpp = walk->ptT()->contains(oSeg))
                             && walk != coin->coinPtTEnd()->span());
+                    FAIL_IF(!walkOpp, coin);
                     nextT = walk->t();
                     oNextT = walkOpp->fT;
                 }
                 // use t ranges to guess which one is missing
-                double startRange = coin->coinPtTEnd()->fT - startPtT->fT;
+                double startRange = nextT - priorT;
                 FAIL_IF(!startRange, coin);
-                double startPart = (test->t() - startPtT->fT) / startRange;
-                double oStartRange = coin->oppPtTEnd()->fT - oStartPtT->fT;
+                double startPart = (test->t() - priorT) / startRange;
+                double oStartRange = oNextT - oPriorT;
                 FAIL_IF(!oStartRange, coin);
                 double oStartPart = (oTest->t() - oStartPtT->fT) / oStartRange;
                 FAIL_IF(startPart == oStartPart, coin);
@@ -2029,7 +2046,8 @@ void SkOpCoincidence::debugMark(SkPathOpsDebug::GlitchLog* log) const {
         const SkOpSegment* oSegment = oStart->segment();
         const SkOpSpanBase* next = start;
         const SkOpSpanBase* oNext = oStart;
-        bool ordered = coin->ordered();
+        bool ordered;
+        FAIL_IF(!coin->ordered(&ordered), coin);
         while ((next = next->upCast()->next()) != end) {
             FAIL_IF(!next->upCastable(), coin);
             if (next->upCast()->debugInsertCoincidence(log, oSegment, flipped, ordered), false) {

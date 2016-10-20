@@ -11,7 +11,7 @@
 #include "SkPathOpsRect.h"
 #include "Test.h"
 
-static const SkDQuad quadTests[] = {
+static const QuadPts quadTests[] = {
     {{{1, 1}, {2, 1}, {0, 2}}},
     {{{0, 0}, {1, 1}, {3, 1}}},
     {{{2, 0}, {1, 1}, {2, 2}}},
@@ -19,7 +19,7 @@ static const SkDQuad quadTests[] = {
     {{{0, 0}, {0, 1}, {1, 1}}},
 };
 
-static const SkDCubic cubicTests[] = {
+static const CubicPts cubicTests[] = {
     {{{2, 0}, {3, 1}, {2, 2}, {1, 1}}},
     {{{3, 1}, {2, 2}, {1, 1}, {2, 0}}},
     {{{3, 0}, {2, 1}, {3, 2}, {1, 1}}},
@@ -45,7 +45,9 @@ DEF_TEST(PathOpsDRect, reporter) {
     size_t index;
     SkDRect rect, rect2;
     for (index = 0; index < quadTests_count; ++index) {
-        const SkDQuad& quad = quadTests[index];
+        const QuadPts& q = quadTests[index];
+        SkDQuad quad;
+        quad.debugSet(q.fPts);
         SkASSERT(ValidQuad(quad));
         setRawBounds(quad, &rect);
         rect2.setBounds(quad);
@@ -57,7 +59,9 @@ DEF_TEST(PathOpsDRect, reporter) {
         REPORTER_ASSERT(reporter, rect.contains(rightBottom));
     }
     for (index = 0; index < cubicTests_count; ++index) {
-        const SkDCubic& cubic = cubicTests[index];
+        const CubicPts& c = cubicTests[index];
+        SkDCubic cubic;
+        cubic.debugSet(c.fPts);
         SkASSERT(ValidCubic(cubic));
         setRawBounds(cubic, &rect);
         rect2.setBounds(cubic);

@@ -3589,8 +3589,11 @@ static void loop1(skiatest::Reporter* reporter, const char* filename) {
 #include "SkPathOpsCubic.h"
 
 static void loop1asQuad(skiatest::Reporter* reporter, const char* filename) {
-    SkDCubic c1 = {{{0,1}, {1,5}, {-5.66666651f,3.33333349f}, {8.83333302f,2.33333349f}}};
-    SkDCubic c2 = {{{1,5}, {-5.66666651f,3.33333349f}, {8.83333302f,2.33333349f}, {0,1}}};
+    CubicPts cubic1 = {{{0,1}, {1,5}, {-5.66666651f,3.33333349f}, {8.83333302f,2.33333349f}}};
+    CubicPts cubic2 = {{{1,5}, {-5.66666651f,3.33333349f}, {8.83333302f,2.33333349f}, {0,1}}};
+    SkDCubic c1, c2;
+    c1.debugSet(cubic1.fPts);
+    c2.debugSet(cubic2.fPts);
     double c1InflectionTs[2], c2InflectionTs[2];
     SkDEBUGCODE(int c1InfTCount =) c1.findInflections(c1InflectionTs);
     SkASSERT(c1InfTCount == 2);
