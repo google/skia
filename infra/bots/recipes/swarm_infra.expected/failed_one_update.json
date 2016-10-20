@@ -129,7 +129,23 @@
     "env": {
       "GOPATH": "[CUSTOM_/_B_WORK]/gopath"
     },
-    "name": "update go pkgs"
+    "name": "update go pkgs",
+    "~followup_annotations": [
+      "step returned non-zero exit code: 1",
+      "@@@STEP_FAILURE@@@"
+    ]
+  },
+  {
+    "cmd": [
+      "go",
+      "get",
+      "-u",
+      "go.skia.org/infra/..."
+    ],
+    "env": {
+      "GOPATH": "[CUSTOM_/_B_WORK]/gopath"
+    },
+    "name": "update go pkgs (attempt 2)"
   },
   {
     "cmd": [

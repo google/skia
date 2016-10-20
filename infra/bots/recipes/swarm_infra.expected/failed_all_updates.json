@@ -129,22 +129,80 @@
     "env": {
       "GOPATH": "[CUSTOM_/_B_WORK]/gopath"
     },
-    "name": "update go pkgs"
+    "name": "update go pkgs",
+    "~followup_annotations": [
+      "step returned non-zero exit code: 1",
+      "@@@STEP_FAILURE@@@"
+    ]
   },
   {
     "cmd": [
-      "python",
-      "[CUSTOM_/_B_WORK]/skia/infra/bots/infra_tests.py"
+      "go",
+      "get",
+      "-u",
+      "go.skia.org/infra/..."
     ],
-    "cwd": "[CUSTOM_/_B_WORK]/skia",
     "env": {
       "GOPATH": "[CUSTOM_/_B_WORK]/gopath"
     },
-    "name": "infra_tests"
+    "name": "update go pkgs (attempt 2)",
+    "~followup_annotations": [
+      "step returned non-zero exit code: 1",
+      "@@@STEP_FAILURE@@@"
+    ]
+  },
+  {
+    "cmd": [
+      "go",
+      "get",
+      "-u",
+      "go.skia.org/infra/..."
+    ],
+    "env": {
+      "GOPATH": "[CUSTOM_/_B_WORK]/gopath"
+    },
+    "name": "update go pkgs (attempt 3)",
+    "~followup_annotations": [
+      "step returned non-zero exit code: 1",
+      "@@@STEP_FAILURE@@@"
+    ]
+  },
+  {
+    "cmd": [
+      "go",
+      "get",
+      "-u",
+      "go.skia.org/infra/..."
+    ],
+    "env": {
+      "GOPATH": "[CUSTOM_/_B_WORK]/gopath"
+    },
+    "name": "update go pkgs (attempt 4)",
+    "~followup_annotations": [
+      "step returned non-zero exit code: 1",
+      "@@@STEP_FAILURE@@@"
+    ]
+  },
+  {
+    "cmd": [
+      "go",
+      "get",
+      "-u",
+      "go.skia.org/infra/..."
+    ],
+    "env": {
+      "GOPATH": "[CUSTOM_/_B_WORK]/gopath"
+    },
+    "name": "update go pkgs (attempt 5)",
+    "~followup_annotations": [
+      "step returned non-zero exit code: 1",
+      "@@@STEP_FAILURE@@@"
+    ]
   },
   {
     "name": "$result",
+    "reason": "Step('update go pkgs (attempt 5)') failed with return_code 1",
     "recipe_result": null,
-    "status_code": 0
+    "status_code": 1
   }
 ]
