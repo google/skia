@@ -35,11 +35,6 @@ namespace SkOpts {
 
         STAGE(lerp_u8);
         STAGE(lerp_565);
-    #undef STAGE
-
-    #define STAGE(stage)                                                   \
-        body[SkRasterPipeline::stage] = (SkOpts::VoidFn)SK_OPTS_NS::stage; \
-        tail[SkRasterPipeline::stage] = (SkOpts::VoidFn)SK_OPTS_NS::stage
 
         STAGE(just_return);
         STAGE(swap_src_dst);
