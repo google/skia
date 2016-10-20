@@ -9,11 +9,8 @@ package main
 */
 
 import (
-	"bytes"
 	"encoding/json"
-	"flag"
 	"fmt"
-	"io/ioutil"
 	"os"
 	"path"
 	"path/filepath"
@@ -21,7 +18,6 @@ import (
 	"strings"
 
 	"github.com/skia-dev/glog"
-	"go.skia.org/infra/go/common"
 	"go.skia.org/infra/go/util"
 	"go.skia.org/infra/task_scheduler/go/specs"
 )
@@ -58,16 +54,6 @@ var (
 
 	// Defines the structure of job names.
 	jobNameSchema *JobNameSchema
-
-	// Caches CIPD package info so that we don't have to re-read VERSION
-	// files.
-	cipdPackages = map[string]*specs.CipdPackage{}
-
-	// Path to the infra/bots directory.
-	infrabotsDir = ""
-
-	// Flags.
-	testing = flag.Bool("test", false, "Run in test mode: verify that the output hasn't changed.")
 )
 
 // deriveCompileTaskName returns the name of a compile task based on the given
@@ -190,60 +176,37 @@ func swarmDimensions(parts map[string]string) []string {
 	return rv
 }
 
-// getCipdPackage finds and returns the given CIPD package and version.
-func getCipdPackage(assetName string) *specs.CipdPackage {
-	if pkg, ok := cipdPackages[assetName]; ok {
-		return pkg
-	}
-	versionFile := path.Join(infrabotsDir, "assets", assetName, "VERSION")
-	contents, err := ioutil.ReadFile(versionFile)
-	if err != nil {
-		glog.Fatal(err)
-	}
-	version := strings.TrimSpace(string(contents))
-	pkg := &specs.CipdPackage{
-		Name:    fmt.Sprintf("skia/bots/%s", assetName),
-		Path:    assetName,
-		Version: fmt.Sprintf("version:%s", version),
-	}
-	if assetName == "win_toolchain" {
-		pkg.Path = "t" // Workaround for path length limit on Windows.
-	}
-	cipdPackages[assetName] = pkg
-	return pkg
-}
-
 // compile generates a compile task. Returns the name of the last task in the
 // generated chain of tasks, which the Job should add as a dependency.
-func compile(cfg *specs.TasksCfg, name string, parts map[string]string) string {
+func compile(b *specs.TasksCfgBuilder, name string, parts map[string]string) string {
 	// Collect the necessary CIPD packages.
 	pkgs := []*specs.CipdPackage{}
 
 	// Android bots require a toolchain.
 	if strings.Contains(name, "Android") {
-		pkgs = append(pkgs, getCipdPackage("android_sdk"))
+		pkgs = append(pkgs, b.MustGetCipdPackageFromAsset("android_sdk"))
 		if strings.Contains(name, "Mac") {
-			pkgs = append(pkgs, getCipdPackage("android_ndk_darwin"))
+			pkgs = append(pkgs, b.MustGetCipdPackageFromAsset("android_ndk_darwin"))
 		} else {
-			pkgs = append(pkgs, getCipdPackage("android_ndk_linux"))
+			pkgs = append(pkgs, b.MustGetCipdPackageFromAsset("android_ndk_linux"))
 		}
 	}
 
 	// Clang on Linux.
 	if strings.Contains(name, "Ubuntu") && strings.Contains(name, "Clang") {
-		pkgs = append(pkgs, getCipdPackage("clang_linux"))
+		pkgs = append(pkgs, b.MustGetCipdPackageFromAsset("clang_linux"))
 	}
 
 	// Windows toolchain.
 	if strings.Contains(name, "Win") {
-		pkgs = append(pkgs, getCipdPackage("win_toolchain"))
+		pkgs = append(pkgs, b.MustGetCipdPackageFromAsset("win_toolchain"))
 		if strings.Contains(name, "Vulkan") {
-			pkgs = append(pkgs, getCipdPackage("win_vulkan_sdk"))
+			pkgs = append(pkgs, b.MustGetCipdPackageFromAsset("win_vulkan_sdk"))
 		}
 	}
 
 	// Add the task.
-	cfg.Tasks[name] = &specs.TaskSpec{
+	b.MustAddTask(name, &specs.TaskSpec{
 		CipdPackages: pkgs,
 		Dimensions:   swarmDimensions(parts),
 		ExtraArgs: []string{
@@ -263,36 +226,36 @@ func compile(cfg *specs.TasksCfg, name string, parts map[string]string) string {
 		},
 		Isolate:  "compile_skia.isolate",
 		Priority: 0.8,
-	}
+	})
 	return name
 }
 
 // recreateSKPs generates a RecreateSKPs task. Returns the name of the last
 // task in the generated chain of tasks, which the Job should add as a
 // dependency.
-func recreateSKPs(cfg *specs.TasksCfg, name string) string {
+func recreateSKPs(b *specs.TasksCfgBuilder, name string) string {
 	// TODO
 	return name
 }
 
 // ctSKPs generates a CT SKPs task. Returns the name of the last task in the
 // generated chain of tasks, which the Job should add as a dependency.
-func ctSKPs(cfg *specs.TasksCfg, name string) string {
+func ctSKPs(b *specs.TasksCfgBuilder, name string) string {
 	// TODO
 	return name
 }
 
 // housekeeper generates a Housekeeper task. Returns the name of the last task
 // in the generated chain of tasks, which the Job should add as a dependency.
-func housekeeper(cfg *specs.TasksCfg, name, compileTaskName string) string {
+func housekeeper(b *specs.TasksCfgBuilder, name, compileTaskName string) string {
 	// TODO
 	return name
 }
 
 // infra generates an infra_tests task. Returns the name of the last task in the
 // generated chain of tasks, which the Job should add as a dependency.
-func infra(cfg *specs.TasksCfg, name string) string {
-	cfg.Tasks[name] = &specs.TaskSpec{
+func infra(b *specs.TasksCfgBuilder, name string) string {
+	b.MustAddTask(name, &specs.TaskSpec{
 		CipdPackages: []*specs.CipdPackage{},
 		Dimensions:   UPLOAD_DIMENSIONS,
 		ExtraArgs: []string{
@@ -312,7 +275,7 @@ func infra(cfg *specs.TasksCfg, name string) string {
 		},
 		Isolate:  "infra_skia.isolate",
 		Priority: 0.8,
-	}
+	})
 	return name
 }
 
@@ -336,8 +299,8 @@ func doUpload(name string) bool {
 
 // test generates a Test task. Returns the name of the last task in the
 // generated chain of tasks, which the Job should add as a dependency.
-func test(cfg *specs.TasksCfg, name string, parts map[string]string, compileTaskName string, pkgs []*specs.CipdPackage) string {
-	cfg.Tasks[name] = &specs.TaskSpec{
+func test(b *specs.TasksCfgBuilder, name string, parts map[string]string, compileTaskName string, pkgs []*specs.CipdPackage) string {
+	b.MustAddTask(name, &specs.TaskSpec{
 		CipdPackages: pkgs,
 		Dependencies: []string{compileTaskName},
 		Dimensions:   swarmDimensions(parts),
@@ -358,11 +321,11 @@ func test(cfg *specs.TasksCfg, name string, parts map[string]string, compileTask
 		},
 		Isolate:  "test_skia.isolate",
 		Priority: 0.8,
-	}
+	})
 	// Upload results if necessary.
 	if doUpload(name) {
 		uploadName := fmt.Sprintf("%s%s%s", PREFIX_UPLOAD, jobNameSchema.Sep, name)
-		cfg.Tasks[uploadName] = &specs.TaskSpec{
+		b.MustAddTask(uploadName, &specs.TaskSpec{
 			Dependencies: []string{name},
 			Dimensions:   UPLOAD_DIMENSIONS,
 			ExtraArgs: []string{
@@ -382,7 +345,7 @@ func test(cfg *specs.TasksCfg, name string, parts map[string]string, compileTask
 			},
 			Isolate:  "upload_dm_results.isolate",
 			Priority: 0.8,
-		}
+		})
 		return uploadName
 	}
 	return name
@@ -390,8 +353,8 @@ func test(cfg *specs.TasksCfg, name string, parts map[string]string, compileTask
 
 // perf generates a Perf task. Returns the name of the last task in the
 // generated chain of tasks, which the Job should add as a dependency.
-func perf(cfg *specs.TasksCfg, name string, parts map[string]string, compileTaskName string, pkgs []*specs.CipdPackage) string {
-	cfg.Tasks[name] = &specs.TaskSpec{
+func perf(b *specs.TasksCfgBuilder, name string, parts map[string]string, compileTaskName string, pkgs []*specs.CipdPackage) string {
+	b.MustAddTask(name, &specs.TaskSpec{
 		CipdPackages: pkgs,
 		Dependencies: []string{compileTaskName},
 		Dimensions:   swarmDimensions(parts),
@@ -412,11 +375,11 @@ func perf(cfg *specs.TasksCfg, name string, parts map[string]string, compileTask
 		},
 		Isolate:  "perf_skia.isolate",
 		Priority: 0.8,
-	}
+	})
 	// Upload results if necessary.
 	if strings.Contains(name, "Release") && doUpload(name) {
 		uploadName := fmt.Sprintf("%s%s%s", PREFIX_UPLOAD, jobNameSchema.Sep, name)
-		cfg.Tasks[uploadName] = &specs.TaskSpec{
+		b.MustAddTask(uploadName, &specs.TaskSpec{
 			Dependencies: []string{name},
 			Dimensions:   UPLOAD_DIMENSIONS,
 			ExtraArgs: []string{
@@ -436,17 +399,14 @@ func perf(cfg *specs.TasksCfg, name string, parts map[string]string, compileTask
 			},
 			Isolate:  "upload_nano_results.isolate",
 			Priority: 0.8,
-		}
+		})
 		return uploadName
 	}
 	return name
 }
 
 // process generates tasks and jobs for the given job name.
-func process(cfg *specs.TasksCfg, name string) {
-	if _, ok := cfg.Jobs[name]; ok {
-		glog.Fatalf("Duplicate job %q", name)
-	}
+func process(b *specs.TasksCfgBuilder, name string) {
 	deps := []string{}
 
 	parts, err := jobNameSchema.ParseJobName(name)
@@ -456,22 +416,22 @@ func process(cfg *specs.TasksCfg, name string) {
 
 	// RecreateSKPs.
 	if strings.Contains(name, "RecreateSKPs") {
-		deps = append(deps, recreateSKPs(cfg, name))
+		deps = append(deps, recreateSKPs(b, name))
 	}
 
 	// CT bots.
 	if strings.Contains(name, "-CT_") {
-		deps = append(deps, ctSKPs(cfg, name))
+		deps = append(deps, ctSKPs(b, name))
 	}
 
 	// Infra tests.
 	if name == "Housekeeper-PerCommit-InfraTests" {
-		deps = append(deps, infra(cfg, name))
+		deps = append(deps, infra(b, name))
 	}
 
 	// Compile bots.
 	if parts["role"] == "Build" {
-		deps = append(deps, compile(cfg, name, parts))
+		deps = append(deps, compile(b, name, parts))
 	}
 
 	// Any remaining bots need a compile task.
@@ -483,36 +443,36 @@ func process(cfg *specs.TasksCfg, name string) {
 	// Temporarily disable the Housekeeper's compile Task, since we aren't
 	// yet running that Job.
 	if parts["role"] != "Housekeeper" {
-		compile(cfg, compileTaskName, compileTaskParts)
+		compile(b, compileTaskName, compileTaskParts)
 	}
 
 	// Housekeeper.
 	if parts["role"] == "Housekeeper" && name != "Housekeeper-PerCommit-InfraTests" {
-		deps = append(deps, housekeeper(cfg, name, compileTaskName))
+		deps = append(deps, housekeeper(b, name, compileTaskName))
 	}
 
 	// Common assets needed by the remaining bots.
 	pkgs := []*specs.CipdPackage{
-		getCipdPackage("skimage"),
-		getCipdPackage("skp"),
-		getCipdPackage("svg"),
+		b.MustGetCipdPackageFromAsset("skimage"),
+		b.MustGetCipdPackageFromAsset("skp"),
+		b.MustGetCipdPackageFromAsset("svg"),
 	}
 
 	// Test bots.
 	if parts["role"] == "Test" {
-		deps = append(deps, test(cfg, name, parts, compileTaskName, pkgs))
+		deps = append(deps, test(b, name, parts, compileTaskName, pkgs))
 	}
 
 	// Perf bots.
 	if parts["role"] == "Perf" {
-		deps = append(deps, perf(cfg, name, parts, compileTaskName, pkgs))
+		deps = append(deps, perf(b, name, parts, compileTaskName, pkgs))
 	}
 
 	// Add the Job spec.
-	cfg.Jobs[name] = &specs.JobSpec{
+	b.MustAddJob(name, &specs.JobSpec{
 		Priority:  0.8,
 		TaskSpecs: deps,
-	}
+	})
 }
 
 // getCheckoutRoot returns the path of the root of the Skia checkout, or an
@@ -538,61 +498,20 @@ func getCheckoutRoot() string {
 
 // Regenerate the tasks.json file.
 func main() {
-	common.Init()
-	defer common.LogPanic()
-
-	// Where are we?
-	root := getCheckoutRoot()
-	infrabotsDir = path.Join(root, "infra", "bots")
-
+	b := specs.MustNewTasksCfgBuilder()
 	// Create the JobNameSchema.
-	schema, err := NewJobNameSchema(path.Join(infrabotsDir, "recipe_modules", "builder_name_schema", "builder_name_schema.json"))
+	schema, err := NewJobNameSchema(path.Join(b.CheckoutRoot(), "infra", "bots", "recipe_modules", "builder_name_schema", "builder_name_schema.json"))
 	if err != nil {
 		glog.Fatal(err)
 	}
 	jobNameSchema = schema
 
-	// Create the config.
-	cfg := &specs.TasksCfg{
-		Jobs:  map[string]*specs.JobSpec{},
-		Tasks: map[string]*specs.TaskSpec{},
-	}
-
 	// Create Tasks and Jobs.
-	for _, j := range JOBS {
-		process(cfg, j)
+	for _, name := range JOBS {
+		process(b, name)
 	}
 
-	// Validate the config.
-	if err := cfg.Validate(); err != nil {
-		glog.Fatal(err)
-	}
-
-	// Write the tasks.json file.
-	b, err := json.MarshalIndent(cfg, "", "  ")
-	if err != nil {
-		glog.Fatal(err)
-	}
-	// The json package escapes HTML characters, which makes our output
-	// much less readable. Replace the escape characters with the real
-	// character.
-	b = bytes.Replace(b, []byte("\\u003c"), []byte("<"), -1)
-
-	outFile := path.Join(root, specs.TASKS_CFG_FILE)
-	if *testing {
-		// Don't write the file; read it and compare.
-		expect, err := ioutil.ReadFile(outFile)
-		if err != nil {
-			glog.Fatal(err)
-		}
-		if !bytes.Equal(expect, b) {
-			glog.Fatalf("Expected no changes, but changes were found!")
-		}
-	} else {
-		if err := ioutil.WriteFile(outFile, b, os.ModePerm); err != nil {
-			glog.Fatal(err)
-		}
-	}
+	b.MustFinish()
 }
 
 // TODO(borenet): The below really belongs in its own file, probably next to the
