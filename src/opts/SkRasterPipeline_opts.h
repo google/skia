@@ -158,10 +158,18 @@ namespace SK_OPTS_NS {
     template <bool kIsTail, typename T>
     SI SkNx<N,T> load(size_t tail, const T* src) {
         SkASSERT(kIsTail == (tail > 0));
-        // TODO: better tail, maskload for 32- and 64-bit T
-        T buf[N] = {0};
+        // TODO: maskload for 32- and 64-bit T
+        T buf[8];
         if (kIsTail) {
-            memcpy(buf, src, tail*sizeof(T));
+            switch (tail & (N-1)) {
+                case 7: buf[6] = src[6];
+                case 6: buf[5] = src[5];
+                case 5: buf[4] = src[4];
+                case 4: buf[3] = src[3];
+                case 3: buf[2] = src[2];
+                case 2: buf[1] = src[1];
+            }
+            buf[0] = src[0];
             src = buf;
         }
         return SkNx<N,T>::Load(src);
@@ -170,12 +178,20 @@ namespace SK_OPTS_NS {
     template <bool kIsTail, typename T>
     SI void store(size_t tail, const SkNx<N,T>& v, T* dst) {
         SkASSERT(kIsTail == (tail > 0));
-        // TODO: better tail, maskstore for 32- and 64-bit T
-        T buf[N] = {0};
-        v.store(kIsTail ? buf : dst);
+        // TODO: maskstore for 32- and 64-bit T
         if (kIsTail) {
-            memcpy(dst, buf, tail*sizeof(T));
+            switch (tail & (N-1)) {
+                case 7: dst[6] = v[6];
+                case 6: dst[5] = v[5];
+                case 5: dst[4] = v[4];
+                case 4: dst[3] = v[3];
+                case 3: dst[2] = v[2];
+                case 2: dst[1] = v[1];
+            }
+            dst[0] = v[0];
+            return;
         }
+        v.store(dst);
     }
 
     SI void from_565(const SkNh& _565, SkNf* r, SkNf* g, SkNf* b) {
@@ -275,9 +291,17 @@ namespace SK_OPTS_NS {
     STAGE(load_d_f16, true) {
         auto ptr = (const uint64_t*)ctx + x;
 
-        uint64_t buf[N] = {0};
+        uint64_t buf[8];
         if (kIsTail) {
-            memcpy(buf, ptr, tail*sizeof(uint64_t));
+            switch (tail & (N-1)) {
+                case 7: buf[6] = ptr[6];
+                case 6: buf[5] = ptr[5];
+                case 5: buf[4] = ptr[4];
+                case 4: buf[3] = ptr[3];
+                case 3: buf[2] = ptr[2];
+                case 2: buf[1] = ptr[1];
+            }
+            buf[0] = ptr[0];
             ptr = buf;
         }
 
@@ -292,9 +316,17 @@ namespace SK_OPTS_NS {
     STAGE(load_s_f16, true) {
         auto ptr = (const uint64_t*)ctx + x;
 
-        uint64_t buf[N] = {0};
+        uint64_t buf[8];
         if (kIsTail) {
-            memcpy(buf, ptr, tail*sizeof(uint64_t));
+            switch (tail & (N-1)) {
+                case 7: buf[6] = ptr[6];
+                case 6: buf[5] = ptr[5];
+                case 5: buf[4] = ptr[4];
+                case 4: buf[3] = ptr[3];
+                case 3: buf[2] = ptr[2];
+                case 2: buf[1] = ptr[1];
+            }
+            buf[0] = ptr[0];
             ptr = buf;
         }
 
@@ -310,13 +342,21 @@ namespace SK_OPTS_NS {
         clamp_01_premul(r,g,b,a);
         auto ptr = (uint64_t*)ctx + x;
 
-        uint64_t buf[N] = {0};
+        uint64_t buf[8];
         SkNh::Store4(kIsTail ? buf : ptr, SkFloatToHalf_finite_ftz(r),
                                           SkFloatToHalf_finite_ftz(g),
                                           SkFloatToHalf_finite_ftz(b),
                                           SkFloatToHalf_finite_ftz(a));
         if (kIsTail) {
-            memcpy(ptr, buf, tail*sizeof(uint64_t));
+            switch (tail & (N-1)) {
+                case 7: ptr[6] = buf[6];
+                case 6: ptr[5] = buf[5];
+                case 5: ptr[4] = buf[4];
+                case 4: ptr[3] = buf[3];
+                case 3: ptr[2] = buf[2];
+                case 2: ptr[1] = buf[1];
+            }
+            ptr[0] = buf[0];
         }
     }
 
