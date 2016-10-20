@@ -1037,8 +1037,10 @@ public:
 
     void addAntiRectRun(int x, int y, int width, int height,
                         SkAlpha leftAlpha, SkAlpha rightAlpha) {
-        SkASSERT(fBounds.contains(x + width - 1 +
-                 (leftAlpha > 0 ? 1 : 0) + (rightAlpha > 0 ? 1 : 0),
+        // According to SkBlitter.cpp, no matter whether leftAlpha is 0 or positive,
+        // we should always consider [x, x+1] as the left-most column and [x+1, x+1+width]
+        // as the rect with full alpha.
+        SkASSERT(fBounds.contains(x + width + (rightAlpha > 0 ? 1 : 0),
                  y + height - 1));
         SkASSERT(width >= 0);
 
@@ -1048,6 +1050,9 @@ public:
             width++;
         } else if (leftAlpha > 0) {
           this->addRun(x++, y, leftAlpha, 1);
+        } else {
+          // leftAlpha is 0, ignore the left column
+          x++;
         }
         if (rightAlpha == 0xFF) {
             width++;
@@ -1274,9 +1279,17 @@ public:
        any failure cases that misses may have minor artifacts.
     */
     void blitV(int x, int y, int height, SkAlpha alpha) override {
-        this->recordMinY(y);
-        fBuilder->addColumn(x, y, alpha, height);
-        fLastY = y + height - 1;
+        if (height == 1) {
+            // We're still in scan-line order if height is 1
+            // This is useful for Analytic AA
+            const SkAlpha alphas[2] = {alpha, 0};
+            const int16_t runs[2] = {1, 0};
+            this->blitAntiH(x, y, alphas, runs);
+        } else {
+            this->recordMinY(y);
+            fBuilder->addColumn(x, y, alpha, height);
+            fLastY = y + height - 1;
+        }
     }
 
     void blitRect(int x, int y, int width, int height) override {
@@ -1398,7 +1411,11 @@ bool SkAAClip::setPath(const SkPath& path, const SkRegion* clip, bool doAA) {
     BuilderBlitter blitter(&builder);
 
     if (doAA) {
-        SkScan::AntiFillPath(path, *clip, &blitter, true);
+        if (gSkUseAnalyticAA.load()) {
+            SkScan::AAAFillPath(path, *clip, &blitter, true);
+        } else {
+            SkScan::AntiFillPath(path, *clip, &blitter, true);
+        }
     } else {
         SkScan::FillPath(path, *clip, &blitter);
     }
