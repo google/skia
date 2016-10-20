@@ -387,13 +387,11 @@ def compile_steps_swarm(api, builder_cfg, got_revision, infrabots_dir):
 
   # Android bots require a toolchain.
   if 'Android' in builder_name:
-    cipd_packages.append(cipd_pkg(api, infrabots_dir, 'android_sdk'))
     if 'Mac' in builder_name:
       cipd_packages.append(cipd_pkg(api, infrabots_dir, 'android_ndk_darwin'))
     else:
       cipd_packages.append(cipd_pkg(api, infrabots_dir, 'android_ndk_linux'))
-
-  if 'Ubuntu' in builder_name and 'Clang' in builder_name:
+  elif 'Ubuntu' in builder_name and 'Clang' in builder_name:
     cipd_packages.append(cipd_pkg(api, infrabots_dir, 'clang_linux'))
 
   # Windows bots require a toolchain.
@@ -701,9 +699,6 @@ def test_for_bot(api, builder, mastername, slavename, testname=None):
     test += api.properties(issue=500,
                            patchset=1,
                            rietveld='https://codereview.chromium.org')
-  if 'Android' in builder:
-    paths.append(api.path['slave_build'].join(
-        'skia', 'infra', 'bots', 'assets', 'android_sdk', 'VERSION'))
   if 'Test' in builder and 'Coverage' not in builder:
     test += api.step_data(
         'upload new .isolated file for test_skia',
