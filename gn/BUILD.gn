@@ -331,7 +331,10 @@ config("release") {
   if (is_win) {
     cflags = [ "/O2" ]
   } else {
-    cflags = [ "-O3" ]
+    cflags = [
+      "-O3",
+      "-momit-leaf-frame-pointer",
+    ]
   }
   defines = [ "NDEBUG" ]
 }
