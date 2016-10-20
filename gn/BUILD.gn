@@ -329,7 +329,10 @@ config("no_rtti") {
 
 config("release") {
   if (is_win) {
-    cflags = [ "/O2" ]
+    cflags = [
+      "/O2",
+      "/Zc:inline",
+    ]
   } else {
     cflags = [
       "-O3",
