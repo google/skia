@@ -929,6 +929,8 @@ if (skia_enable_tools) {
       sources += [ "src/views/SkWindow.cpp" ]
     }
     if (is_android) {
+      public_include_dirs += [ "src/views/unix" ]
+      sources += [ "src/views/unix/keysym2ucs.c" ]
     } else if (is_linux) {
       public_include_dirs += [ "src/views/unix" ]
       sources += [
@@ -1182,7 +1184,7 @@ if (skia_enable_tools) {
     testonly = true
   }
 
-  if (skia_enable_gpu && (is_linux || is_win || is_mac)) {
+  if (skia_enable_gpu) {
     executable("viewer") {
       sources = [
         "tools/viewer/GMSlide.cpp",
@@ -1197,7 +1199,15 @@ if (skia_enable_tools) {
       ]
       libs = []
 
-      if (is_linux) {
+      if (is_android) {
+        sources += [
+          "tools/viewer/sk_app/android/GLWindowContext_android.cpp",
+          "tools/viewer/sk_app/android/RasterWindowContext_android.cpp",
+          "tools/viewer/sk_app/android/Window_android.cpp",
+          "tools/viewer/sk_app/android/main_android.cpp",
+          "tools/viewer/sk_app/android/surface_glue_android.cpp",
+        ]
+      } else if (is_linux) {
         sources += [
           "tools/viewer/sk_app/unix/GLWindowContext_unix.cpp",
           "tools/viewer/sk_app/unix/RasterWindowContext_unix.cpp",
@@ -1222,7 +1232,10 @@ if (skia_enable_tools) {
 
       if (skia_use_vulkan) {
         sources += [ "tools/viewer/sk_app/VulkanWindowContext.cpp" ]
-        if (is_linux) {
+        if (is_android) {
+          sources +=
+              [ "tools/viewer/sk_app/android/VulkanWindowContext_android.cpp" ]
+        } else if (is_linux) {
           sources += [ "tools/viewer/sk_app/unix/VulkanWindowContext_unix.cpp" ]
           libs += [ "X11-xcb" ]
         } else if (is_win) {
