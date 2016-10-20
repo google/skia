@@ -72,11 +72,6 @@ typedef enum {
 } sk_alphatype_t;
 
 typedef enum {
-    INTERSECT_SK_CLIPTYPE,
-    DIFFERENCE_SK_CLIPTYPE,
-} sk_cliptype_t;
-
-typedef enum {
     UNKNOWN_SK_PIXELGEOMETRY,
     RGB_H_SK_PIXELGEOMETRY,
     BGR_H_SK_PIXELGEOMETRY,
