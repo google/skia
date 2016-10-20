@@ -25,6 +25,7 @@
 #include "SkConfig8888.h"
 #include "SkCanvas.h"
 #include "SkData.h"
+#include "SkMaskFilter.h"
 #include "SkMessageBus.h"
 #include "SkMipMap.h"
 #include "SkPixelRef.h"
@@ -681,6 +682,14 @@ static inline bool skpaint_to_grpaint_impl(GrContext* context,
             } else {
                 return false;
             }
+        }
+    }
+
+    SkMaskFilter* maskFilter = skPaint.getMaskFilter();
+    if (maskFilter) {
+        GrFragmentProcessor* mfFP;
+        if (maskFilter->asFragmentProcessor(&mfFP, nullptr, viewM)) {
+            grPaint->addCoverageFragmentProcessor(sk_sp<GrFragmentProcessor>(mfFP));
         }
     }
 
