@@ -16,6 +16,24 @@
       "revId": "a6567fd48978fd013477043245c91702984e90c3",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "3ca3ff16_71389203",
+        "filename": "BUILD.gn",
+        "patchSetId": 2
+      },
+      "lineNbr": 932,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2016-10-20T20:36:12Z",
+      "side": 1,
+      "message": "Turns out it wasn\u0027t needed.",
+      "parentUuid": "5c8ef381_98df34c0",
+      "revId": "a6567fd48978fd013477043245c91702984e90c3",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
