@@ -23,7 +23,9 @@ class SkDescriptor;
 
 class SkScalerContext_DW : public SkScalerContext {
 public:
-    SkScalerContext_DW(DWriteFontTypeface*, const SkScalerContextEffects&, const SkDescriptor*);
+    SkScalerContext_DW(sk_sp<DWriteFontTypeface>,
+                       const SkScalerContextEffects&,
+                       const SkDescriptor*);
     virtual ~SkScalerContext_DW();
 
 protected:
@@ -46,6 +48,10 @@ private:
                            RECT* bbox);
 
     bool isColorGlyph(const SkGlyph& glyph);
+
+    DWriteFontTypeface* getDWriteTypeface() {
+        return static_cast<DWriteFontTypeface*>(this->getTypeface());
+    }
 
 #if SK_HAS_DWRITE_2_H
     bool getColorGlyphRun(const SkGlyph& glyph, IDWriteColorGlyphRunEnumerator** colorGlyph);
@@ -70,7 +76,6 @@ private:
     SkScalar fTextSizeRender;
     /** The text size to measure with. */
     SkScalar fTextSizeMeasure;
-    SkAutoTUnref<DWriteFontTypeface> fTypeface;
     int fGlyphCount;
     DWRITE_RENDERING_MODE fRenderingMode;
     DWRITE_TEXTURE_TYPE fTextureType;
