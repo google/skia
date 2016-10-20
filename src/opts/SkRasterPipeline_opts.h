@@ -166,8 +166,8 @@ namespace SK_OPTS_NS {
     SI SkNx<N,T> load(size_t tail, const T* src) {
         SkASSERT(kIsTail == (tail > 0));
         // TODO: maskload for 32- and 64-bit T
-        T buf[8];
         if (kIsTail) {
+            T buf[8] = {0};
             switch (tail & (N-1)) {
                 case 7: buf[6] = src[6];
                 case 6: buf[5] = src[5];
@@ -177,7 +177,7 @@ namespace SK_OPTS_NS {
                 case 2: buf[1] = src[1];
             }
             buf[0] = src[0];
-            src = buf;
+            return SkNx<N,T>::Load(buf);
         }
         return SkNx<N,T>::Load(src);
     }
@@ -298,8 +298,9 @@ namespace SK_OPTS_NS {
     STAGE(load_d_f16, true) {
         auto ptr = (const uint64_t*)ctx + x;
 
-        uint64_t buf[8];
+        SkNh rh, gh, bh, ah;
         if (kIsTail) {
+            uint64_t buf[8] = {0};
             switch (tail & (N-1)) {
                 case 7: buf[6] = ptr[6];
                 case 6: buf[5] = ptr[5];
@@ -309,11 +310,11 @@ namespace SK_OPTS_NS {
                 case 2: buf[1] = ptr[1];
             }
             buf[0] = ptr[0];
-            ptr = buf;
+            SkNh::Load4(buf, &rh, &gh, &bh, &ah);
+        } else {
+            SkNh::Load4(ptr, &rh, &gh, &bh, &ah);
         }
 
-        SkNh rh, gh, bh, ah;
-        SkNh::Load4(ptr, &rh, &gh, &bh, &ah);
         dr = SkHalfToFloat_finite_ftz(rh);
         dg = SkHalfToFloat_finite_ftz(gh);
         db = SkHalfToFloat_finite_ftz(bh);
@@ -323,8 +324,9 @@ namespace SK_OPTS_NS {
     STAGE(load_s_f16, true) {
         auto ptr = (const uint64_t*)ctx + x;
 
-        uint64_t buf[8];
+        SkNh rh, gh, bh, ah;
         if (kIsTail) {
+            uint64_t buf[8] = {0};
             switch (tail & (N-1)) {
                 case 7: buf[6] = ptr[6];
                 case 6: buf[5] = ptr[5];
@@ -334,11 +336,11 @@ namespace SK_OPTS_NS {
                 case 2: buf[1] = ptr[1];
             }
             buf[0] = ptr[0];
-            ptr = buf;
+            SkNh::Load4(buf, &rh, &gh, &bh, &ah);
+        } else {
+            SkNh::Load4(ptr, &rh, &gh, &bh, &ah);
         }
 
-        SkNh rh, gh, bh, ah;
-        SkNh::Load4(ptr, &rh, &gh, &bh, &ah);
         r = SkHalfToFloat_finite_ftz(rh);
         g = SkHalfToFloat_finite_ftz(gh);
         b = SkHalfToFloat_finite_ftz(bh);
