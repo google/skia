@@ -25,13 +25,6 @@ public:
      */
     static sk_sp<SkXfermode> Make(SkScalar k1, SkScalar k2, SkScalar k3, SkScalar k4,
                                   bool enforcePMColor = true);
-#ifdef SK_SUPPORT_LEGACY_XFERMODE_PTR
-    static SkXfermode* Create(SkScalar k1, SkScalar k2,
-                              SkScalar k3, SkScalar k4,
-                              bool enforcePMColor = true) {
-        return Make(k1, k2, k3, k4, enforcePMColor).release();
-    }
-#endif
 
     SK_DECLARE_FLATTENABLE_REGISTRAR_GROUP();
 

@@ -176,11 +176,6 @@ public:
     bool readYUV8Planes(const SkISize[3], void* const planes[3], const size_t rowBytes[3],
                         SkYUVColorSpace) const;
 
-#ifdef SK_SUPPORT_LEGACY_CREATESHADER_PTR
-    SkShader* newShader(SkShader::TileMode, SkShader::TileMode,
-                        const SkMatrix* localMatrix = nullptr) const;
-#endif
-
     sk_sp<SkShader> makeShader(SkShader::TileMode, SkShader::TileMode,
                                const SkMatrix* localMatrix = nullptr) const;
 

@@ -153,15 +153,6 @@ public:
     /** Return an SkXfermode object for the specified mode.
      */
     static sk_sp<SkXfermode> Make(Mode);
-#ifdef SK_SUPPORT_LEGACY_XFERMODE_PTR
-    static SkXfermode* Create(Mode mode) {
-        return Make(mode).release();
-    }
-    SK_ATTR_DEPRECATED("use AsMode(...)")
-    static bool IsMode(const SkXfermode* xfer, Mode* mode) {
-        return AsMode(xfer, mode);
-    }
-#endif
 
     /**
      *  Skia maintains global xfermode objects corresponding to each BlendMode. This returns a

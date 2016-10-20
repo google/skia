@@ -24,18 +24,6 @@ public:
     SK_TO_STRING_OVERRIDE()
     SK_DECLARE_PUBLIC_FLATTENABLE_DESERIALIZATION_PROCS(SkImageSource)
 
-#ifdef SK_SUPPORT_LEGACY_IMAGEFILTER_PTR
-    static SkImageFilter* Create(SkImage* image) {
-        return Make(sk_ref_sp<SkImage>(image)).release();
-    }
-    static SkImageFilter* Create(SkImage* image,
-                                 const SkRect& srcRect,
-                                 const SkRect& dstRect,
-                                 SkFilterQuality filterQuality) {
-        return Make(sk_ref_sp<SkImage>(image), srcRect, dstRect, filterQuality).release();
-   }
-#endif
-
 protected:
     void flatten(SkWriteBuffer&) const override;
 

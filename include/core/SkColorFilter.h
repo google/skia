@@ -134,21 +134,6 @@ public:
      */
     static sk_sp<SkColorFilter> MakeMatrixFilterRowMajor255(const SkScalar array[20]);
 
-#ifdef SK_SUPPORT_LEGACY_COLORFILTER_PTR
-    static SkColorFilter* CreateModeFilter(SkColor c, SkXfermode::Mode mode) {
-        return MakeModeFilter(c, mode).release();
-    }
-    static SkColorFilter* CreateComposeFilter(SkColorFilter* outer, SkColorFilter* inner) {
-        return MakeComposeFilter(sk_ref_sp(outer), sk_ref_sp(inner)).release();
-    }
-    static SkColorFilter* CreateMatrixFilterRowMajor255(const SkScalar array[20]) {
-        return MakeMatrixFilterRowMajor255(array).release();
-    }
-    virtual SkColorFilter* newComposed(const SkColorFilter* inner) const {
-        return this->makeComposed(sk_ref_sp(const_cast<SkColorFilter*>(inner))).release();
-    }
-#endif
-
 #if SK_SUPPORT_GPU
     /**
      *  A subclass may implement this factory function to work with the GPU backend. It returns

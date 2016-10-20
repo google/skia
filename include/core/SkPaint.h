@@ -503,12 +503,8 @@ public:
      *  If a previous shader exists, its reference count is decremented.
      *  If shader is not NULL, its reference count is incremented.
      *  @param shader   May be NULL. The shader to be installed in the paint
-     *  @return         shader
      */
     void setShader(sk_sp<SkShader>);
-#ifdef SK_SUPPORT_LEGACY_CREATESHADER_PTR
-    SkShader* setShader(SkShader* shader);
-#endif
 
     /** Get the paint's colorfilter. If there is a colorfilter, its reference
         count is not changed.
@@ -516,16 +512,12 @@ public:
     */
     SkColorFilter* getColorFilter() const { return fColorFilter.get(); }
 
-    /** Set or clear the paint's colorfilter, returning the parameter.
+    /** Set or clear the paint's colorfilter.
         <p />
         If the paint already has a filter, its reference count is decremented.
         If filter is not NULL, its reference count is incremented.
         @param filter   May be NULL. The filter to be installed in the paint
-        @return         filter
     */
-#ifdef SK_SUPPORT_LEGACY_COLORFILTER_PTR
-    SkColorFilter* setColorFilter(SkColorFilter* filter);
-#endif
     void setColorFilter(sk_sp<SkColorFilter>);
 
 #ifdef SK_SUPPORT_LEGACY_XFERMODE_OBJECT
@@ -544,12 +536,8 @@ public:
         If xfermode is not NULL, its reference count is incremented.
         @param xfermode May be NULL. The new xfermode to be installed in the
                         paint
-        @return         xfermode
     */
     void setXfermode(sk_sp<SkXfermode>);
-#ifdef SK_SUPPORT_LEGACY_XFERMODE_PTR
-    SkXfermode* setXfermode(SkXfermode* xfermode);
-#endif
 
     /** Create an xfermode based on the specified Mode, and assign it into the
         paint, returning the mode that was set. If the Mode is SrcOver, then

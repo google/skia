@@ -36,18 +36,6 @@ public:
                                          const uint8_t tableG[256],
                                          const uint8_t tableB[256]);
 
-#ifdef SK_SUPPORT_LEGACY_COLORFILTER_PTR
-    static SkColorFilter* Create(const uint8_t table[256]) {
-        return Make(table).release();
-    }
-    static SkColorFilter* CreateARGB(const uint8_t tableA[256],
-                                     const uint8_t tableR[256],
-                                     const uint8_t tableG[256],
-                                     const uint8_t tableB[256]) {
-        return MakeARGB(tableA, tableR, tableG, tableB).release();
-    }
-#endif
-    
     SK_DECLARE_FLATTENABLE_REGISTRAR_GROUP()
 };
 

@@ -39,19 +39,6 @@ public:
 
     SK_TO_STRING_OVERRIDE()
 
-#ifdef SK_SUPPORT_LEGACY_IMAGEFILTER_PTR
-    static SkImageFilter* Create(ChannelSelectorType xChannelSelector,
-                                 ChannelSelectorType yChannelSelector,
-                                 SkScalar scale, SkImageFilter* displacement,
-                                 SkImageFilter* color = nullptr,
-                                 const CropRect* cropRect = nullptr) {
-        return Make(xChannelSelector, yChannelSelector, scale, 
-                    sk_ref_sp<SkImageFilter>(displacement),
-                    sk_ref_sp<SkImageFilter>(color),
-                    cropRect).release();
-    }
-#endif
-
 protected:
     sk_sp<SkSpecialImage> onFilterImage(SkSpecialImage* source, const Context&,
                                         SkIPoint* offset) const override;
