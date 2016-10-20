@@ -941,15 +941,11 @@ Error ColorCodecSrc::draw(SkCanvas* canvas) const {
     size_t rowBytes = bitmap.rowBytes();
     SkCodec::Result r = codec->getPixels(decodeInfo, bitmap.getPixels(), rowBytes);
     if (SkCodec::kSuccess != r && SkCodec::kIncompleteInput != r) {
-        if (kRGBA_F16_SkColorType == decodeInfo.colorType()) {
-            // FIXME (raftias):
-            // Get the codecs to not fail when there is no color xform,
-            // which currently happens in F16 mode.
-            return Error::Nonfatal(SkStringPrintf("Couldn't getPixels %s in F16. Error code %d",
-                                                  fPath.c_str()));
-        } else {
-            return SkStringPrintf("Couldn't getPixels %s. Error code %d", fPath.c_str(), r);
-        }
+        // FIXME (raftias):
+        // This should be a fatal error.  We need to add support for
+        // A2B images in SkColorSpaceXform.
+        return Error::Nonfatal(SkStringPrintf("Couldn't getPixels %s. Error code %d",
+                                              fPath.c_str(), r));
     }
 
     switch (fMode) {

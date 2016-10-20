@@ -107,7 +107,6 @@ private:
     bool setOutputColorSpace(const SkImageInfo& dst);
 
     void initializeSwizzler(const SkImageInfo& dstInfo, const Options& options);
-    void initializeColorXform(const SkImageInfo& dstInfo);
     void allocateStorage(const SkImageInfo& dstInfo);
     int readRows(const SkImageInfo& dstInfo, void* dst, size_t rowBytes, int count);
 
@@ -137,7 +136,6 @@ private:
     SkIRect                            fSwizzlerSubset;
 
     SkAutoTDelete<SkSwizzler>          fSwizzler;
-    std::unique_ptr<SkColorSpaceXform> fColorXform;
 
     sk_sp<SkData>                      fICCData;
 

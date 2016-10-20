@@ -19,6 +19,7 @@
 #include "SkYUVSizeInfo.h"
 
 class SkColorSpace;
+class SkColorSpaceXform;
 class SkData;
 class SkPngChunkReader;
 class SkSampler;
@@ -706,25 +707,30 @@ protected:
 
     virtual int onOutputScanline(int inputScanline) const;
 
+    bool initializeColorXform(const SkImageInfo& dstInfo);
+    SkColorSpaceXform* colorXform() const { return fColorXform.get(); }
+
     /**
      *  Used for testing with qcms.
      *  FIXME: Remove this when we are done comparing with qcms.
      */
     virtual sk_sp<SkData> getICCData() const { return nullptr; }
-private:
-    const SkEncodedInfo         fEncodedInfo;
-    const SkImageInfo           fSrcInfo;
-    SkAutoTDelete<SkStream>     fStream;
-    bool                        fNeedsRewind;
-    const Origin                fOrigin;
 
-    SkImageInfo                 fDstInfo;
-    SkCodec::Options            fOptions;
+private:
+    const SkEncodedInfo                fEncodedInfo;
+    const SkImageInfo                  fSrcInfo;
+    SkAutoTDelete<SkStream>            fStream;
+    bool                               fNeedsRewind;
+    const Origin                       fOrigin;
+
+    SkImageInfo                        fDstInfo;
+    SkCodec::Options                   fOptions;
+    std::unique_ptr<SkColorSpaceXform> fColorXform;
 
     // Only meaningful during scanline decodes.
-    int                         fCurrScanline;
+    int                                fCurrScanline;
 
-    bool                        fStartedIncrementalDecode;
+    bool                               fStartedIncrementalDecode;
 
     /**
      *  Return whether these dimensions are supported as a scale.
