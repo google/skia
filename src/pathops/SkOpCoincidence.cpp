@@ -481,7 +481,12 @@ bool SkOpCoincidence::addExpanded(DEBUG_COIN_DECLARE_ONLY_PARAMS()) {
             }
             if (oTest != oEnd) {
                 oPriorT = oTest->t();
-                oTest = coin->flipped() ? oTest->prev() : oTest->upCast()->next();
+                if (coin->flipped()) {
+                    oTest = oTest->prev();
+                } else {
+                    FAIL_IF(!oTest->upCastable());
+                    oTest = oTest->upCast()->next();
+                }
                 FAIL_IF(!oTest);
             }
 
@@ -864,6 +869,7 @@ bool SkOpCoincidence::addOverlap(const SkOpSegment* seg1, const SkOpSegment* seg
         s2 = overS->find(seg2o);
         e2 = overE->find(seg2o);
         FAIL_IF(!s2);
+        FAIL_IF(!e2);
         if (!s2->starter(e2)->span()->upCast()->windValue()) {
             return true;
         }

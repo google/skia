@@ -215,7 +215,6 @@ path.close();
     testSimplifyFuzz(reporter, path, filename);
 }
 
-
 #define TEST(test) test(reporter, #test)
 
 DEF_TEST(PathOpsSimplifyFail, reporter) {

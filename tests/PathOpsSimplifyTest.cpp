@@ -5558,11 +5558,32 @@ path.cubicTo(SkBits2Float(0x42e7999a), SkBits2Float(0x43de8000), SkBits2Float(0x
     testSimplify(reporter, path, filename);
 }
 
+// triggers angle assert from distance field code
+static void carsvg_1(skiatest::Reporter* reporter, const char* filename) {
+    SkPath path;
+    path.setFillType((SkPath::FillType) 0);
+path.moveTo(SkBits2Float(0x4393d61e), SkBits2Float(0x43e768f9));  // 295.673f, 462.82f
+path.cubicTo(SkBits2Float(0x4396b50e), SkBits2Float(0x43e63c20), SkBits2Float(0x43998931), SkBits2Float(0x43e6c43e), SkBits2Float(0x439cb6a8), SkBits2Float(0x43e70ef9));  // 301.414f, 460.47f, 307.072f, 461.533f, 313.427f, 462.117f
+path.cubicTo(SkBits2Float(0x439dfc1e), SkBits2Float(0x43e72ce0), SkBits2Float(0x439a285c), SkBits2Float(0x43e717fb), SkBits2Float(0x4398e23c), SkBits2Float(0x43e7027c));  // 315.97f, 462.351f, 308.315f, 462.187f, 305.767f, 462.019f
+path.cubicTo(SkBits2Float(0x4398136f), SkBits2Float(0x43e6f4db), SkBits2Float(0x439a7e14), SkBits2Float(0x43e6d390), SkBits2Float(0x439b4ba9), SkBits2Float(0x43e6b956));  // 304.152f, 461.913f, 308.985f, 461.653f, 310.591f, 461.448f
+path.cubicTo(SkBits2Float(0x439c2b19), SkBits2Float(0x43e68603), SkBits2Float(0x43abf4df), SkBits2Float(0x43e9ca9e), SkBits2Float(0x43a1daea), SkBits2Float(0x43e912a5));  // 312.337f, 461.047f, 343.913f, 467.583f, 323.71f, 466.146f
+path.cubicTo(SkBits2Float(0x43a4f45a), SkBits2Float(0x43e78baf), SkBits2Float(0x43a2a391), SkBits2Float(0x43e86a82), SkBits2Float(0x43a946bd), SkBits2Float(0x43e90c56));  // 329.909f, 463.091f, 325.278f, 464.832f, 338.553f, 466.096f
+path.lineTo(SkBits2Float(0x43a4250b), SkBits2Float(0x43e998dc));  // 328.289f, 467.194f
+path.cubicTo(SkBits2Float(0x43a8a9c8), SkBits2Float(0x43e8f06c), SkBits2Float(0x43a95cb5), SkBits2Float(0x43e84ea6), SkBits2Float(0x43a6f7c1), SkBits2Float(0x43e9bdb5));  // 337.326f, 465.878f, 338.724f, 464.614f, 333.936f, 467.482f
+path.cubicTo(SkBits2Float(0x43a59ed0), SkBits2Float(0x43e9d2ca), SkBits2Float(0x4395ea4d), SkBits2Float(0x43e92afe), SkBits2Float(0x43a06569), SkBits2Float(0x43e7773d));  // 331.241f, 467.647f, 299.83f, 466.336f, 320.792f, 462.932f
+path.cubicTo(SkBits2Float(0x438bf0ff), SkBits2Float(0x43ea0fef), SkBits2Float(0x43a0e17a), SkBits2Float(0x43e5f41b), SkBits2Float(0x4398f3fb), SkBits2Float(0x43e804c8));  // 279.883f, 468.124f, 321.762f, 459.907f, 305.906f, 464.037f
+path.lineTo(SkBits2Float(0x4393d61e), SkBits2Float(0x43e768f9));  // 295.673f, 462.82f
+path.close();
+
+    testSimplify(reporter, path, filename);
+}
+
 static void (*skipTest)(skiatest::Reporter* , const char* filename) = 0;
 static void (*firstTest)(skiatest::Reporter* , const char* filename) = 0;
 static void (*stopTest)(skiatest::Reporter* , const char* filename) = 0;
 
 static TestDesc tests[] = {
+    TEST(carsvg_1),
     TEST(tiger8_393),
     TEST(bug5169),
     TEST(testQuads73),
