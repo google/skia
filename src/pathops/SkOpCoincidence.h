@@ -80,7 +80,7 @@ public:
 
     void setCoinPtTEnd(const SkOpPtT* ptT) {
         SkOPASSERT(ptT == ptT->span()->ptT());
-        SkASSERT(!fCoinPtTStart || ptT->fT != fCoinPtTStart->fT);
+        SkOPASSERT(!fCoinPtTStart || ptT->fT != fCoinPtTStart->fT);
         SkASSERT(!fCoinPtTStart || fCoinPtTStart->segment() == ptT->segment());
         fCoinPtTEnd = ptT;
         ptT->setCoincident();
