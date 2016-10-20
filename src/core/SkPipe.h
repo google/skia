@@ -101,11 +101,4 @@ public:
     virtual sk_sp<SkTypeface> deserialize(const void* data, size_t size) = 0;
 };
 
-class SkImageDeserializer {
-public:
-    virtual ~SkImageDeserializer() {}
-
-    virtual sk_sp<SkImage> deserialize(const void*, size_t) = 0;
-};
-
 #endif

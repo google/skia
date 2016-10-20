@@ -7,6 +7,7 @@
 
 #include "SkCanvas.h"
 #include "SkDeduper.h"
+#include "SkImageDeserializer.h"
 #include "SkPicture.h"
 #include "SkPictureRecorder.h"
 #include "SkPipe.h"
@@ -686,7 +687,7 @@ static sk_sp<SkImage> make_from_skiaimageformat(const void* encoded, size_t enco
 
 sk_sp<SkImage> SkPipeInflator::makeImage(const sk_sp<SkData>& data) {
     if (fIMDeserializer) {
-        return fIMDeserializer->deserialize(data->data(), data->size());
+        return fIMDeserializer->makeFromData(data.get(), nullptr);
     }
     sk_sp<SkImage> image = make_from_skiaimageformat(data->data(), data->size());
     if (!image) {
