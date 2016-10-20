@@ -72,6 +72,24 @@
     },
     {
       "key": {
+        "uuid": "5c8ef381_a9b0b196",
+        "filename": "src/gpu/GrColorSpaceXform.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 91,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2016-10-20T17:29:26Z",
+      "side": 1,
+      "message": "Chrome does have multiple GrContexts (on different threads).\n\nSkSpinlock could be augmented to have fastAcquireOrFail() method.",
+      "parentUuid": "5c8ef381_3ee5d5ee",
+      "revId": "ec44ddaccab32bca173881c53f4f7538e1d2d09d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "5c8ef381_1e549110",
         "filename": "src/gpu/GrColorSpaceXform.cpp",
         "patchSetId": 5
