@@ -16,9 +16,17 @@ template("third_party") {
 
     # Warnings are just noise if we're not maintaining the code.
     if (is_win) {
-      cflags = [ "/w" ]
+      if (defined(invoker.cflags)) {
+        cflags += [ "/w" ]
+      } else {
+        cflags = [ "/w" ]
+      }
     } else {
-      cflags = [ "-w" ]
+      if (defined(invoker.cflags)) {
+        cflags += [ "-w" ]
+      } else {
+        cflags = [ "-w" ]
+      }
     }
   }
 }
