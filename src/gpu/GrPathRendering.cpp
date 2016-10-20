@@ -68,7 +68,7 @@ public:
     bool isEqualTo(const SkDescriptor& desc) const override { return *fDesc == desc; }
 #endif
 private:
-    const SkAutoTDelete<SkScalerContext> fScalerContext;
+    const std::unique_ptr<SkScalerContext> fScalerContext;
 #ifdef SK_DEBUG
     const std::unique_ptr<SkDescriptor> fDesc;
 #endif

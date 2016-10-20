@@ -802,10 +802,10 @@ static CTFontRef ctfont_create_exact_copy(CTFontRef baseFont, CGFloat textSize,
     return CTFontCreateWithGraphicsFont(baseCGFont, textSize, transform, nullptr);
 }
 
-SkScalerContext_Mac::SkScalerContext_Mac(SkTypeface_Mac* typeface,
+SkScalerContext_Mac::SkScalerContext_Mac(sk_sp<SkTypeface_Mac> typeface,
                                          const SkScalerContextEffects& effects,
                                          const SkDescriptor* desc)
-        : INHERITED(typeface, effects, desc)
+        : INHERITED(std::move(typeface), effects, desc)
         , fFBoundingBoxes()
         , fFBoundingBoxesGlyphOffset(0)
         , fGeneratedFBoundingBoxes(false)
@@ -815,7 +815,7 @@ SkScalerContext_Mac::SkScalerContext_Mac(SkTypeface_Mac* typeface,
 {
     AUTO_CG_LOCK();
 
-    CTFontRef ctFont = typeface->fFontRef.get();
+    CTFontRef ctFont = static_cast<SkTypeface_Mac>(this->getTypeface())->typeface->fFontRef.get();
     CFIndex numGlyphs = CTFontGetGlyphCount(ctFont);
     SkASSERT(numGlyphs >= 1 && numGlyphs <= 0xFFFF);
     fGlyphCount = SkToU16(numGlyphs);
