@@ -262,30 +262,10 @@
       "python",
       "-u",
       "\nimport shutil\nimport sys\nshutil.copy(sys.argv[1], sys.argv[2])\n",
-      "[SLAVE_BUILD]/skia/infra/bots/assets/android_sdk/VERSION",
-      "/path/to/tmp/"
-    ],
-    "name": "read android_sdk VERSION"
-  },
-  {
-    "cmd": [
-      "python",
-      "-u",
-      "\nimport shutil\nimport sys\nshutil.copy(sys.argv[1], sys.argv[2])\n",
       "[SLAVE_BUILD]/skia/infra/bots/assets/android_ndk_linux/VERSION",
       "/path/to/tmp/"
     ],
     "name": "read android_ndk_linux VERSION"
-  },
-  {
-    "cmd": [
-      "python",
-      "-u",
-      "\nimport shutil\nimport sys\nshutil.copy(sys.argv[1], sys.argv[2])\n",
-      "[SLAVE_BUILD]/skia/infra/bots/assets/clang_linux/VERSION",
-      "/path/to/tmp/"
-    ],
-    "name": "read clang_linux VERSION"
   },
   {
     "cmd": [
@@ -397,11 +377,7 @@
       "stepname:compile_skia on Ubuntu",
       "--idempotent",
       "--cipd-package",
-      "android_sdk:skia/bots/android_sdk:version:0",
-      "--cipd-package",
       "android_ndk_linux:skia/bots/android_ndk_linux:version:0",
-      "--cipd-package",
-      "clang_linux:skia/bots/clang_linux:version:0",
       "[dummy hash for compile_skia]",
       "--",
       "--workdir",
