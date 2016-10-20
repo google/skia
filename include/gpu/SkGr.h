@@ -42,6 +42,14 @@ static inline GrColor SkColorToUnpremulGrColor(SkColor c) {
     return GrColorPackRGBA(r, g, b, a);
 }
 
+/** Transform an SkColor (sRGB bytes) to GrColor4f for the specified color space. */
+GrColor4f SkColorToPremulGrColor4f(SkColor c, SkColorSpace* dstColorSpace);
+GrColor4f SkColorToUnpremulGrColor4f(SkColor c, SkColorSpace* dstColorSpace);
+
+/**
+ * As above, but with explicit control over the linearization and gamut xform steps.
+ * Typically used when you have easy access to a pre-computed xform.
+ */
 GrColor4f SkColorToPremulGrColor4f(SkColor c, bool gammaCorrect, GrColorSpaceXform* gamutXform);
 GrColor4f SkColorToUnpremulGrColor4f(SkColor c, bool gammaCorrect, GrColorSpaceXform* gamutXform);
 
