@@ -406,23 +406,11 @@ int fuzz_color_deserialize(sk_sp<SkData> bytes) {
     return 0;
 }
 
-static SkSL::GLCaps default_caps() {
-    return {
-             400,
-             SkSL::GLCaps::kGL_Standard,
-             false, // isCoreProfile
-             false, // usesPrecisionModifiers;
-             false, // mustDeclareFragmentShaderOutput
-             true,   // canUseMinAndAbsTogether
-             false  // mustForceNegatedAtanParamToFloat
-           };
-}
-
 int fuzz_sksl2glsl(sk_sp<SkData> bytes) {
     SkSL::Compiler compiler;
     std::string output;
     bool result = compiler.toGLSL(SkSL::Program::kFragment_Kind,
-        (const char*)bytes->data(), default_caps(), &output);
+        (const char*)bytes->data(), SkSL::GLCaps(), &output);
 
     if (!result) {
         SkDebugf("[terminated] Couldn't compile input.\n");

@@ -45,20 +45,25 @@ namespace SkSL {
 #define kLast_Capability SpvCapabilityMultiViewport
 
 struct GLCaps {
-    int fVersion;
+    GLCaps() {}
+
+    int fVersion = 400;
     enum {
         kGL_Standard,
         kGLES_Standard
-    } fStandard;
-    bool fIsCoreProfile;
-    bool fUsesPrecisionModifiers;
-    bool fMustDeclareFragmentShaderOutput;
+    } fStandard = kGL_Standard;
+    bool fIsCoreProfile = false;
+    bool fUsesPrecisionModifiers = false;
+    bool fMustDeclareFragmentShaderOutput = false;
+    bool fShaderDerivativeSupport = true;
+    // extension string to enable derivative support, or null if unnecessary
+    std::string fShaderDerivativeExtensionString;
     // The Tegra3 compiler will sometimes never return if we have min(abs(x), y)
-    bool fCanUseMinAndAbsTogether;
+    bool fCanUseMinAndAbsTogether = true;
     // On Intel GPU there is an issue where it misinterprets an atan argument (second argument only,
     // apparently) of the form "-<expr>" as an int, so we rewrite it as "-1.0 * <expr>" to avoid
     // this problem
-    bool fMustForceNegatedAtanParamToFloat;
+    bool fMustForceNegatedAtanParamToFloat = false;
 };
 
 /**
@@ -89,11 +94,7 @@ public:
 
     GLSLCodeGenerator(const Context* context, GLCaps caps)
     : fContext(*context)
-    , fCaps(caps)
-    , fOut(nullptr)
-    , fVarCount(0)
-    , fIndentation(0)
-    , fAtLineStart(true) {}
+    , fCaps(caps) {}
 
     void generateCode(const Program& program, std::ostream& out) override;
 
@@ -176,16 +177,19 @@ private:
 
     const Context& fContext;
     const GLCaps fCaps;
-    std::ostream* fOut;
+    std::ostream* fOut = nullptr;
+    std::stringstream fHeader;
     std::string fFunctionHeader;
     Program::Kind fProgramKind;
-    int fVarCount;
-    int fIndentation;
-    bool fAtLineStart;
+    int fVarCount = 0;
+    int fIndentation = 0;
+    bool fAtLineStart = false;
     // Keeps track of which struct types we have written. Given that we are unlikely to ever write 
     // more than one or two structs per shader, a simple linear search will be faster than anything 
     // fancier.
     std::vector<const Type*> fWrittenStructs;
+    // true if we have run into usages of dFdx / dFdy
+    bool fFoundDerivatives = false;
 };
 
 }
