@@ -1182,7 +1182,7 @@ if (skia_enable_tools) {
     testonly = true
   }
 
-  if (skia_enable_gpu && (is_linux || is_win)) {
+  if (skia_enable_gpu && (is_linux || is_win || is_mac)) {
     executable("viewer") {
       sources = [
         "tools/viewer/GMSlide.cpp",
@@ -1211,6 +1211,13 @@ if (skia_enable_tools) {
           "tools/viewer/sk_app/win/Window_win.cpp",
           "tools/viewer/sk_app/win/main_win.cpp",
         ]
+      } else if (is_mac) {
+        sources += [
+          "tools/viewer/sk_app/mac/GLWindowContext_mac.cpp",
+          "tools/viewer/sk_app/mac/RasterWindowContext_mac.cpp",
+          "tools/viewer/sk_app/mac/Window_mac.cpp",
+          "tools/viewer/sk_app/mac/main_mac.cpp",
+        ]
       }
 
       if (skia_use_vulkan) {
@@ -1234,6 +1241,9 @@ if (skia_enable_tools) {
         ":views",
         "//third_party/jsoncpp",
       ]
+      if (is_mac) {
+        deps += [ "//third_party/libsdl" ]
+      }
       testonly = true
     }
   }

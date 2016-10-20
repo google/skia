@@ -200,6 +200,7 @@ config("default") {
 config("warnings") {
   cflags = []
   cflags_cc = []
+  cflags_objc = []
   if (is_win) {
     cflags += [
       "/W3",  # Turn on lots of warnings.
@@ -287,6 +288,10 @@ config("warnings") {
         "-Wno-c++98-compat",
         "-Wno-c++98-compat-pedantic",
         "-Wno-undefined-func-template",
+      ]
+      cflags_objc += [
+        "-Wno-direct-ivar-access",
+        "-Wno-objc-interface-ivars",
       ]
     }
   }
@@ -477,6 +482,26 @@ toolchain("gcc_like") {
   tool("cxx") {
     depfile = "{{output}}.d"
     command = "$cc_wrapper $cxx -MMD -MF $depfile {{defines}} {{include_dirs}} {{cflags}} {{cflags_cc}} -c {{source}} -o {{output}}"
+    depsformat = "gcc"
+    outputs = [
+      "{{source_out_dir}}/{{target_output_name}}.{{source_name_part}}.o",
+    ]
+    description = "compile {{source}}"
+  }
+
+  tool("objc") {
+    depfile = "{{output}}.d"
+    command = "$cc_wrapper $cc -MMD -MF $depfile {{defines}} {{include_dirs}} {{cflags}} {{cflags_objc}} -c {{source}} -o {{output}}"
+    depsformat = "gcc"
+    outputs = [
+      "{{source_out_dir}}/{{target_output_name}}.{{source_name_part}}.o",
+    ]
+    description = "compile {{source}}"
+  }
+
+  tool("objcxx") {
+    depfile = "{{output}}.d"
+    command = "$cc_wrapper $cxx -MMD -MF $depfile {{defines}} {{include_dirs}} {{cflags}} {{cflags_cc}} {{cflags_objc}} -c {{source}} -o {{output}}"
     depsformat = "gcc"
     outputs = [
       "{{source_out_dir}}/{{target_output_name}}.{{source_name_part}}.o",
