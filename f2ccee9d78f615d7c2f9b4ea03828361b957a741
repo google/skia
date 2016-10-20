@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "3ca3ff16_51d916d9",
+        "filename": "include/core/SkImageGenerator.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 160,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2016-10-20T20:12:31Z",
+      "side": 1,
+      "message": "So the difference compared to generateTexture() is in efficiency only?",
+      "range": {
+        "startLine": 160,
+        "startChar": 9,
+        "endLine": 160,
+        "endChar": 27
+      },
+      "revId": "f2ccee9d78f615d7c2f9b4ea03828361b957a741",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
