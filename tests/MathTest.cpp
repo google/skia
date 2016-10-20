@@ -534,6 +534,12 @@ DEF_TEST(Math, reporter) {
         REPORTER_ASSERT(reporter, result == 3);
     }
 
+    {
+        REPORTER_ASSERT(reporter, (SkFixedRoundToFixed(-SK_Fixed1 * 10) >> 1) == -SK_Fixed1 * 5);
+        REPORTER_ASSERT(reporter, (SkFixedFloorToFixed(-SK_Fixed1 * 10) >> 1) == -SK_Fixed1 * 5);
+        REPORTER_ASSERT(reporter, (SkFixedCeilToFixed(-SK_Fixed1 * 10) >> 1) == -SK_Fixed1 * 5);
+    }
+
     unittest_fastfloat(reporter);
     unittest_isfinite(reporter);
     unittest_half(reporter);
