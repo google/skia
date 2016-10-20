@@ -11,8 +11,8 @@
 #include "SkDescriptor.h"
 #include "SkFontDescriptor.h"
 #include "SkGlyph.h"
+#include "SkMakeUnique.h"
 #include "SkMask.h"
-// #include "SkOTUtils.h"
 #include "SkScalerContext.h"
 #include "SkTestScalerContext.h"
 #include "SkTypefaceCache.h"
@@ -116,9 +116,9 @@ void SkTestFont::init(const SkScalar* pts, const unsigned char* verbs) {
     }
 }
 
-SkTestTypeface::SkTestTypeface(SkTestFont* testFont, const SkFontStyle& style)
+SkTestTypeface::SkTestTypeface(sk_sp<SkTestFont> testFont, const SkFontStyle& style)
     : SkTypeface(style, false)
-    , fTestFont(testFont) {
+    , fTestFont(std::move(testFont)) {
 }
 
 void SkTestTypeface::getAdvance(SkGlyph* glyph) {
@@ -194,31 +194,32 @@ SkASSERT(0);  // incomplete
 
 class SkTestScalerContext : public SkScalerContext {
 public:
-    SkTestScalerContext(SkTestTypeface* face, const SkScalerContextEffects& effects,
+    SkTestScalerContext(sk_sp<SkTestTypeface> face, const SkScalerContextEffects& effects,
                         const SkDescriptor* desc)
-        : SkScalerContext(face, effects, desc)
-        , fFace(face)
+        : SkScalerContext(std::move(face), effects, desc)
     {
         fRec.getSingleMatrix(&fMatrix);
         this->forceGenerateImageFromPath();
     }
 
-    virtual ~SkTestScalerContext() {
+protected:
+    SkTestTypeface* getTestTypeface() const {
+        return static_cast<SkTestTypeface*>(this->getTypeface());
     }
 
-protected:
     unsigned generateGlyphCount() override {
-        return fFace->onCountGlyphs();
+        return this->getTestTypeface()->onCountGlyphs();
     }
 
     uint16_t generateCharToGlyph(SkUnichar uni) override {
         uint16_t glyph;
-        (void) fFace->onCharsToGlyphs((const void *) &uni, SkTypeface::kUTF16_Encoding, &glyph, 1);
+        (void) this->getTestTypeface()->onCharsToGlyphs((const void *) &uni,
+                                                        SkTypeface::kUTF16_Encoding, &glyph, 1);
         return glyph;
     }
 
     void generateAdvance(SkGlyph* glyph) override {
-        fFace->getAdvance(glyph);
+        this->getTestTypeface()->getAdvance(glyph);
 
         const SkVector advance = fMatrix.mapXY(SkFloatToScalar(glyph->fAdvanceX),
                                                SkFloatToScalar(glyph->fAdvanceY));
@@ -227,7 +228,7 @@ protected:
     }
 
     void generateMetrics(SkGlyph* glyph) override {
-        fFace->getMetrics(glyph);
+        this->getTestTypeface()->getMetrics(glyph);
 
         const SkVector advance = fMatrix.mapXY(SkFloatToScalar(glyph->fAdvanceX),
                                                SkFloatToScalar(glyph->fAdvanceY));
@@ -235,7 +236,7 @@ protected:
         glyph->fAdvanceY = SkScalarToFloat(advance.fY);
 
         SkPath path;
-        fFace->getPath(*glyph, &path);
+        this->getTestTypeface()->getPath(*glyph, &path);
         path.transform(fMatrix);
 
         SkRect storage;
@@ -253,7 +254,7 @@ protected:
 
     void generateImage(const SkGlyph& glyph) override {
         SkPath path;
-        fFace->getPath(glyph, &path);
+        this->getTestTypeface()->getPath(glyph, &path);
 
         SkBitmap bm;
         bm.installPixels(SkImageInfo::MakeN32Premul(glyph.fWidth, glyph.fHeight),
@@ -270,12 +271,12 @@ protected:
     }
 
     void generatePath(const SkGlyph& glyph, SkPath* path) override {
-        fFace->getPath(glyph, path);
+        this->getTestTypeface()->getPath(glyph, path);
         path->transform(fMatrix);
     }
 
     void generateFontMetrics(SkPaint::FontMetrics* metrics) override {
-        fFace->getFontMetrics(metrics);
+        this->getTestTypeface()->getFontMetrics(metrics);
         if (metrics) {
             SkScalar scale = fMatrix.getScaleY();
             metrics->fTop = SkScalarMul(metrics->fTop, scale);
@@ -291,11 +292,11 @@ protected:
     }
 
 private:
-    SkTestTypeface*  fFace;
     SkMatrix         fMatrix;
 };
 
-SkScalerContext* SkTestTypeface::onCreateScalerContext(const SkScalerContextEffects& effects,
-                                                       const SkDescriptor* desc) const {
-    return new SkTestScalerContext(const_cast<SkTestTypeface*>(this), effects, desc);
+SkScalerContext* SkTestTypeface::onCreateScalerContext(
+    const SkScalerContextEffects& effects, const SkDescriptor* desc) const
+{
+    return new SkTestScalerContext(sk_ref_sp(const_cast<SkTestTypeface*>(this)), effects, desc);
 }
