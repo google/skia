@@ -1,0 +1,61 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "5c8ef381_3e7f1584",
+        "filename": "src/gpu/GrColorSpaceXform.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 53,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2016-10-20T16:56:27Z",
+      "side": 1,
+      "message": "Not really important, but why not just have the cache size baked into the class and use plain old \"Entry fEntries[kEntryCount]\"?",
+      "revId": "ec44ddaccab32bca173881c53f4f7538e1d2d09d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "5c8ef381_beeea506",
+        "filename": "src/gpu/GrColorSpaceXform.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 91,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2016-10-20T16:56:27Z",
+      "side": 1,
+      "message": "Wondering if you get here and the mutex is held, would it make sense to just create a new GrCSXForm rather than wait?",
+      "revId": "ec44ddaccab32bca173881c53f4f7538e1d2d09d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "5c8ef381_1e549110",
+        "filename": "src/gpu/GrColorSpaceXform.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 98,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2016-10-20T16:56:27Z",
+      "side": 1,
+      "message": "I\u0027d lean towards [fromXYZD50, toXYTZD50] (in case later modification accidentally uses something that invokes a copy cons).",
+      "range": {
+        "startLine": 98,
+        "startChar": 34,
+        "endLine": 98,
+        "endChar": 37
+      },
+      "revId": "ec44ddaccab32bca173881c53f4f7538e1d2d09d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
