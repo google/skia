@@ -346,13 +346,14 @@ bool SkTypeface::onComputeBounds(SkRect* bounds) const {
     desc->addEntry(kRec_SkDescriptorTag, sizeof(rec), &rec);
 
     SkScalerContextEffects noeffects;
-    SkAutoTDelete<SkScalerContext> ctx(this->createScalerContext(noeffects, desc, true));
-    if (ctx.get()) {
-        SkPaint::FontMetrics fm;
-        ctx->getFontMetrics(&fm);
-        bounds->set(fm.fXMin * invTextSize, fm.fTop * invTextSize,
-                    fm.fXMax * invTextSize, fm.fBottom * invTextSize);
-        return true;
+    std::unique_ptr<SkScalerContext> ctx = this->createScalerContext(noeffects, desc, true);
+    if (!ctx) {
+        return false;
     }
-    return false;
+
+    SkPaint::FontMetrics fm;
+    ctx->getFontMetrics(&fm);
+    bounds->set(fm.fXMin * invTextSize, fm.fTop * invTextSize,
+                fm.fXMax * invTextSize, fm.fBottom * invTextSize);
+    return true;
 }

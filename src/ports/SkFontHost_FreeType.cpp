@@ -14,6 +14,7 @@
 #include "SkFontDescriptor.h"
 #include "SkFontHost_FreeType_common.h"
 #include "SkGlyph.h"
+#include "SkMakeUnique.h"
 #include "SkMask.h"
 #include "SkMaskGamma.h"
 #include "SkMatrix22.h"
@@ -179,7 +180,9 @@ static void unref_ft_library() {
 
 class SkScalerContext_FreeType : public SkScalerContext_FreeType_Base {
 public:
-    SkScalerContext_FreeType(SkTypeface*, const SkScalerContextEffects&, const SkDescriptor* desc);
+    SkScalerContext_FreeType(sk_sp<SkTypeface>,
+                             const SkScalerContextEffects&,
+                             const SkDescriptor* desc);
     virtual ~SkScalerContext_FreeType();
 
     bool success() const {
@@ -612,13 +615,12 @@ static bool isAxisAligned(const SkScalerContext::Rec& rec) {
 
 SkScalerContext* SkTypeface_FreeType::onCreateScalerContext(const SkScalerContextEffects& effects,
                                                             const SkDescriptor* desc) const {
-    SkScalerContext_FreeType* c =
-            new SkScalerContext_FreeType(const_cast<SkTypeface_FreeType*>(this), effects, desc);
+    auto c = skstd::make_unique<SkScalerContext_FreeType>(
+            sk_ref_sp(const_cast<SkTypeface_FreeType*>(this)), effects, desc);
     if (!c->success()) {
-        delete c;
         c = nullptr;
     }
-    return c;
+    return c.release();
 }
 
 void SkTypeface_FreeType::onFilterRec(SkScalerContextRec* rec) const {
@@ -725,10 +727,10 @@ static FT_Int chooseBitmapStrike(FT_Face face, FT_F26Dot6 scaleY) {
     return chosenStrikeIndex;
 }
 
-SkScalerContext_FreeType::SkScalerContext_FreeType(SkTypeface* typeface,
+SkScalerContext_FreeType::SkScalerContext_FreeType(sk_sp<SkTypeface> typeface,
                                                    const SkScalerContextEffects& effects,
                                                    const SkDescriptor* desc)
-    : SkScalerContext_FreeType_Base(typeface, effects, desc)
+    : SkScalerContext_FreeType_Base(std::move(typeface), effects, desc)
     , fFace(nullptr)
     , fFTSize(nullptr)
     , fStrikeIndex(-1)
@@ -741,7 +743,8 @@ SkScalerContext_FreeType::SkScalerContext_FreeType(SkTypeface* typeface,
 
     // load the font file
     using UnrefFTFace = SkFunctionWrapper<void, skstd::remove_pointer_t<FT_Face>, unref_ft_face>;
-    std::unique_ptr<skstd::remove_pointer_t<FT_Face>, UnrefFTFace> ftFace(ref_ft_face(typeface));
+    using FT_FaceRef = skstd::remove_pointer_t<FT_Face>;
+    std::unique_ptr<FT_FaceRef, UnrefFTFace> ftFace(ref_ft_face(this->getTypeface()));
     if (nullptr == ftFace) {
         SkDEBUGF(("Could not create FT_Face.\n"));
         return;
