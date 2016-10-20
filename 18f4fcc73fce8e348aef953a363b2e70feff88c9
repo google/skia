@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "3ca3ff16_6e6b8fce",
+        "filename": "dm/DMSrcSink.cpp",
+        "patchSetId": 8
+      },
+      "lineNbr": 947,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2016-10-20T12:12:36Z",
+      "side": 1,
+      "message": "Is this error message still correct? This used to happen only if the color type is kRGBA_F16, but that check has been removed.",
+      "range": {
+        "startLine": 947,
+        "startChar": 72,
+        "endLine": 947,
+        "endChar": 75
+      },
+      "revId": "18f4fcc73fce8e348aef953a363b2e70feff88c9",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "3ca3ff16_4e6853d0",
+        "filename": "src/codec/SkPngCodec.cpp",
+        "patchSetId": 8
+      },
+      "lineNbr": 1073,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2016-10-20T12:12:36Z",
+      "side": 1,
+      "message": "Should initializeColorXform be a protected method on SkCodec? I guess it\u0027s only a few lines of duplicated code, so maybe it\u0027s fine as is?",
+      "range": {
+        "startLine": 1073,
+        "startChar": 8,
+        "endLine": 1073,
+        "endChar": 25
+      },
+      "revId": "18f4fcc73fce8e348aef953a363b2e70feff88c9",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
