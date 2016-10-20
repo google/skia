@@ -333,6 +333,10 @@ config("release") {
       "/O2",
       "/Zc:inline",
     ]
+    ldflags = [
+      "/OPT:ICF",
+      "/OPT:REF",
+    ]
   } else {
     cflags = [
       "-O3",
