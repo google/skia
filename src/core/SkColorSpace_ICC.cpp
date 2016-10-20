@@ -656,7 +656,7 @@ static bool load_color_lut(sk_sp<SkColorLookUpTable>* colorLUT, uint32_t inputCh
     const uint8_t* ptr = src + kColorLUTHeaderSize;
     for (uint32_t i = 0; i < numEntries; i++, ptr += precision) {
         if (1 == precision) {
-            table[i] = ((float) ptr[i]) / 255.0f;
+            table[i] = ((float) *ptr) / 255.0f;
         } else {
             table[i] = ((float) read_big_endian_u16(ptr)) / 65535.0f;
         }
