@@ -191,6 +191,14 @@ void sk_path_rarc_to(sk_path_t* cpath, float rx, float ry, float xAxisRotate, sk
     AsPath(cpath)->rArcTo(rx, ry, xAxisRotate, (SkPath::ArcSize)largeArc, (SkPath::Direction)sweep, x, y);
 }
 
+void sk_path_arc_to_with_oval(sk_path_t* cpath, const sk_rect_t* oval, float startAngle, float sweepAngle, bool forceMoveTo) {
+    AsPath(cpath)->arcTo(AsRect(*oval), startAngle, sweepAngle, forceMoveTo);
+}
+
+void sk_path_arc_to_with_points(sk_path_t* cpath, float x1, float y1, float x2, float y2, float radius) {
+    AsPath(cpath)->arcTo(x1, y1, x2, y2, radius);
+}
+
 void sk_path_close(sk_path_t* cpath) {
     AsPath(cpath)->close();
 }

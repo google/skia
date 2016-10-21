@@ -63,6 +63,11 @@ SK_API void sk_path_arc_to(sk_path_t*, float rx, float ry, float xAxisRotate, sk
  *  moveTo(0,0) is inserted automatically.
  */
 SK_API void sk_path_rarc_to(sk_path_t*, float rx, float ry, float xAxisRotate, sk_path_arc_size_t largeArc, sk_path_direction_t sweep, float x, float y);
+
+SK_API void sk_path_arc_to_with_oval(sk_path_t*, const sk_rect_t* oval, float startAngle, float sweepAngle, bool forceMoveTo);
+
+SK_API void sk_path_arc_to_with_points(sk_path_t*, float x1, float y1, float x2, float y2, float radius);
+
 /**
    Close the current contour. If the current point is not equal to the
    first point of the contour, a line segment is automatically added.
