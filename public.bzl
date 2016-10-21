@@ -613,6 +613,7 @@ DEFINES_ALL = [
     "SK_SUPPORT_LEGACY_CLIP_REGIONOPS",
     "SK_SUPPORT_LEGACY_SHADER_ISABITMAP",
     "SK_SUPPORT_LEGACY_XFERMODE_OBJECT",
+    "SK_SUPPORT_LEGACY_COLOR_SPACE_FACTORIES",
 ]
 
 ################################################################################

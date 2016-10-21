@@ -162,7 +162,7 @@ protected:
         if (iccData == nullptr) {
             return;
         }
-        sk_sp<SkColorSpace> colorSpace = SkColorSpace::NewICC(iccData->bytes(), iccData->size());
+        sk_sp<SkColorSpace> colorSpace = SkColorSpace::MakeICC(iccData->bytes(), iccData->size());
 
         const int imageWidth = codec->getInfo().width();
         const int imageHeight = codec->getInfo().height();

@@ -90,7 +90,7 @@ struct CommonBitmapFPBenchmark : public Benchmark {
         sk_ignore_unused_variable(trash);
 
         fInfo = SkImageInfo::MakeN32Premul(width, height, fIsSRGB ?
-                                       SkColorSpace::NewNamed(SkColorSpace::kSRGB_Named) : nullptr);
+                                      SkColorSpace::MakeNamed(SkColorSpace::kSRGB_Named) : nullptr);
     }
 
     bool isSuitableFor(Backend backend) override {
