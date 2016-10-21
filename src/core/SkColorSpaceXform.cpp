@@ -581,13 +581,14 @@ static inline void load_rgba_linear(const uint32_t* src,
 
 template <Order kOrder>
 static inline void load_rgb_from_tables_1(const uint32_t* src,
-                                          Sk4f& r, Sk4f& g, Sk4f& b, Sk4f&,
+                                          Sk4f& r, Sk4f& g, Sk4f& b, Sk4f& a,
                                           const float* const srcTables[3]) {
     int kRShift, kGShift = 8, kBShift;
     set_rb_shifts(kOrder, &kRShift, &kBShift);
     r = Sk4f(srcTables[0][(*src >> kRShift) & 0xFF]);
     g = Sk4f(srcTables[1][(*src >> kGShift) & 0xFF]);
     b = Sk4f(srcTables[2][(*src >> kBShift) & 0xFF]);
+    a = 0.0f; // Don't let MSAN complain that |a| is uninitialized.
 }
 
 template <Order kOrder>
@@ -604,13 +605,14 @@ static inline void load_rgba_from_tables_1(const uint32_t* src,
 
 template <Order kOrder>
 static inline void load_rgb_linear_1(const uint32_t* src,
-                                     Sk4f& r, Sk4f& g, Sk4f& b, Sk4f&,
+                                     Sk4f& r, Sk4f& g, Sk4f& b, Sk4f& a,
                                      const float* const srcTables[3]) {
     int kRShift, kGShift = 8, kBShift;
     set_rb_shifts(kOrder, &kRShift, &kBShift);
     r = Sk4f((1.0f / 255.0f) * ((*src >> kRShift) & 0xFF));
     g = Sk4f((1.0f / 255.0f) * ((*src >> kGShift) & 0xFF));
     b = Sk4f((1.0f / 255.0f) * ((*src >> kBShift) & 0xFF));
+    a = 0.0f; // Don't let MSAN complain that |a| is uninitialized.
 }
 
 template <Order kOrder>
