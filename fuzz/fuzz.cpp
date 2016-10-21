@@ -387,7 +387,7 @@ int fuzz_skp(sk_sp<SkData> bytes) {
 }
 
 int fuzz_icc(sk_sp<SkData> bytes) {
-    sk_sp<SkColorSpace> space(SkColorSpace::NewICC(bytes->data(), bytes->size()));
+    sk_sp<SkColorSpace> space(SkColorSpace::MakeICC(bytes->data(), bytes->size()));
     if (!space) {
         SkDebugf("[terminated] Couldn't decode ICC.\n");
         return 1;

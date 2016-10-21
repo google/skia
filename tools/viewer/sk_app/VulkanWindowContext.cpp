@@ -170,7 +170,7 @@ bool VulkanWindowContext::createSwapchain(int width, int height,
     // Pick our surface format. For now, just make sure it matches our sRGB request:
     VkFormat surfaceFormat = VK_FORMAT_UNDEFINED;
     VkColorSpaceKHR colorSpace = VK_COLORSPACE_SRGB_NONLINEAR_KHR;
-    auto srgbColorSpace = SkColorSpace::NewNamed(SkColorSpace::kSRGB_Named);
+    auto srgbColorSpace = SkColorSpace::MakeNamed(SkColorSpace::kSRGB_Named);
     bool wantSRGB = srgbColorSpace == params.fColorSpace;
     for (uint32_t i = 0; i < surfaceFormatCount; ++i) {
         GrPixelConfig config;
