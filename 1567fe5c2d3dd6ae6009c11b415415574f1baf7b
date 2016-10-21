@@ -105,6 +105,24 @@
     },
     {
       "key": {
+        "uuid": "fc6fa7a9_ddddfffb",
+        "filename": "gm/colorspacexform.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 41,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2016-10-21T19:08:11Z",
+      "side": 1,
+      "message": "Is Make just for sk_sp or also for std::unique_ptr?",
+      "parentUuid": "fc6fa7a9_bac5a94a",
+      "revId": "1567fe5c2d3dd6ae6009c11b415415574f1baf7b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fc6fa7a9_3a31994f",
         "filename": "gm/colorspacexform.cpp",
         "patchSetId": 2
