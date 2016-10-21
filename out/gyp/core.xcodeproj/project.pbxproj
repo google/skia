@@ -1602,7 +1602,7 @@
 					../src/gpu,
 				);
 				MACOSX_DEPLOYMENT_TARGET = 10.6;
-				ONLY_ACTIVE_ARCH = YES;
+				ONLY_ACTIVE_ARCH = NO;
 				PRODUCT_NAME = skia_core;
 				SKIP_INSTALL = YES;
 				SYMROOT = ../xcodebuild;
@@ -1665,7 +1665,7 @@
 					../src/gpu,
 				);
 				MACOSX_DEPLOYMENT_TARGET = 10.6;
-				ONLY_ACTIVE_ARCH = YES;
+				ONLY_ACTIVE_ARCH = NO;
 				PRODUCT_NAME = skia_core;
 				SKIP_INSTALL = YES;
 				SYMROOT = ../xcodebuild;
@@ -1748,7 +1748,7 @@
 					../src/gpu,
 				);
 				MACOSX_DEPLOYMENT_TARGET = 10.6;
-				ONLY_ACTIVE_ARCH = YES;
+				ONLY_ACTIVE_ARCH = NO;
 				PRODUCT_NAME = skia_core;
 				SKIP_INSTALL = YES;
 				SYMROOT = ../xcodebuild;
@@ -1812,7 +1812,7 @@
 					../src/gpu,
 				);
 				MACOSX_DEPLOYMENT_TARGET = 10.6;
-				ONLY_ACTIVE_ARCH = YES;
+				ONLY_ACTIVE_ARCH = NO;
 				PRODUCT_NAME = skia_core;
 				SKIP_INSTALL = YES;
 				SYMROOT = ../xcodebuild;
