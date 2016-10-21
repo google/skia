@@ -127,7 +127,14 @@ Interval::Interval(const Sk4f& c0, SkScalar p0,
     , fZeroRamp((c0 == c1).allTrue()) {
 
     SkASSERT(p0 != p1);
-    const Sk4f dc = (c1 - c0) / (p1 - p0);
+    // Either p0 or p1 can be (-)inf for synthetic clamp edge intervals.
+    SkASSERT(SkScalarIsFinite(p0) || SkScalarIsFinite(p1));
+
+    const auto dp = p1 - p0;
+
+    // Clamp edge intervals are always zero-ramp.
+    SkASSERT(SkScalarIsFinite(dp) || fZeroRamp);
+    const Sk4f dc = SkScalarIsFinite(dp) ? (c1 - c0) / dp : 0;
 
     c0.store(&fC0.fVec);
     dc.store(&fDc.fVec);
@@ -223,7 +230,7 @@ GradientShaderBase4fContext::buildIntervals(const SkGradientShaderBase& shader,
         // synthetic edge interval: -/+inf .. P0
         const Sk4f clamp_color = pack_color(shader.fOrigColors[first_index],
                                             fColorsArePremul, componentScale);
-        const SkScalar clamp_pos = reverse ? SK_ScalarMax : SK_ScalarMin;
+        const SkScalar clamp_pos = reverse ? SK_ScalarInfinity : SK_ScalarNegativeInfinity;
         fIntervals.emplace_back(clamp_color, clamp_pos,
                                 clamp_color, first_pos);
     } else if (shader.fTileMode == SkShader::kMirror_TileMode && reverse) {
@@ -248,7 +255,7 @@ GradientShaderBase4fContext::buildIntervals(const SkGradientShaderBase& shader,
         // synthetic edge interval: Pn .. +/-inf
         const Sk4f clamp_color = pack_color(shader.fOrigColors[last_index],
                                             fColorsArePremul, componentScale);
-        const SkScalar clamp_pos = reverse ? SK_ScalarMin : SK_ScalarMax;
+        const SkScalar clamp_pos = reverse ? SK_ScalarNegativeInfinity : SK_ScalarInfinity;
         fIntervals.emplace_back(clamp_color, last_pos,
                                 clamp_color, clamp_pos);
     } else if (shader.fTileMode == SkShader::kMirror_TileMode && !reverse) {

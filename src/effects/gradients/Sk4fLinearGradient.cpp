@@ -322,11 +322,16 @@ public:
 
 private:
     void compute_interval_props(SkScalar t) {
-        const Sk4f dC = DstTraits<dstType, premul>::load(fInterval->fDc);
-        fCc           = DstTraits<dstType, premul>::load(fInterval->fC0);
-        fCc           = fCc + dC * Sk4f(t);
-        fDcDx         = dC * fDx;
         fZeroRamp     = fIsVertical || fInterval->isZeroRamp();
+        fCc           = DstTraits<dstType, premul>::load(fInterval->fC0);
+
+        if (fInterval->isZeroRamp()) {
+            fDcDx = 0;
+        } else {
+            const Sk4f dC = DstTraits<dstType, premul>::load(fInterval->fDc);
+            fCc           = fCc + dC * Sk4f(t);
+            fDcDx         = dC * fDx;
+        }
     }
 
     const Interval* next_interval(const Interval* i) const {
