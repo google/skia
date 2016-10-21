@@ -194,6 +194,16 @@ public:
                                          const SkSurfaceProps* surfaceProps = nullptr,
                                          SkBudgeted = SkBudgeted::kYes);
 
+    // Create a new draw context as above but have it backed by a GrRenderTargetProxy
+    // rather than a GrRenderTarget
+    sk_sp<GrDrawContext> makeDeferredDrawContext(SkBackingFit fit, 
+                                                 int width, int height,
+                                                 GrPixelConfig config,
+                                                 sk_sp<SkColorSpace> colorSpace,
+                                                 int sampleCnt = 0,
+                                                 GrSurfaceOrigin origin = kDefault_GrSurfaceOrigin,
+                                                 const SkSurfaceProps* surfaceProps = nullptr,
+                                                 SkBudgeted = SkBudgeted::kYes);
     /*
      * This method will attempt to create a drawContext that has, at least, the number of
      * channels and precision per channel as requested in 'config' (e.g., A8 and 888 can be
