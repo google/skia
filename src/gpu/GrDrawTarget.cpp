@@ -44,14 +44,14 @@
 static const int kDefaultMaxBatchLookback  = 10;
 static const int kDefaultMaxBatchLookahead = 10;
 
-GrDrawTarget::GrDrawTarget(GrRenderTarget* rt, GrGpu* gpu, GrResourceProvider* resourceProvider,
+GrDrawTarget::GrDrawTarget(GrRenderTargetProxy* rtp, GrGpu* gpu, GrResourceProvider* resourceProvider,
                            GrAuditTrail* auditTrail, const Options& options)
     : fLastFullClearBatch(nullptr)
     , fGpu(SkRef(gpu))
     , fResourceProvider(resourceProvider)
     , fAuditTrail(auditTrail)
     , fFlags(0)
-    , fRenderTarget(rt) {
+    , fRenderTargetProxy(rtp) {
     // TODO: Stop extracting the context (currently needed by GrClip)
     fContext = fGpu->getContext();
 
@@ -66,7 +66,7 @@ GrDrawTarget::GrDrawTarget(GrRenderTarget* rt, GrGpu* gpu, GrResourceProvider* r
         fInstancedRendering.reset(fGpu->createInstancedRendering());
     }
 
-    rt->setLastDrawTarget(this);
+    rtp->setLastDrawTarget(this);
 
 #ifdef SK_DEBUG
     static int debugID = 0;
@@ -75,8 +75,8 @@ GrDrawTarget::GrDrawTarget(GrRenderTarget* rt, GrGpu* gpu, GrResourceProvider* r
 }
 
 GrDrawTarget::~GrDrawTarget() {
-    if (fRenderTarget && this == fRenderTarget->getLastDrawTarget()) {
-        fRenderTarget->setLastDrawTarget(nullptr);
+    if (fRenderTargetProxy && this == fRenderTargetProxy->getLastDrawTarget()) {
+        fRenderTargetProxy->setLastDrawTarget(nullptr);
     }
 
     fGpu->unref();
@@ -116,7 +116,8 @@ void GrDrawTarget::addDependency(GrSurface* dependedOn) {
 #ifdef SK_DEBUG
 void GrDrawTarget::dump() const {
     SkDebugf("--------------------------------------------------------------\n");
-    SkDebugf("node: %d -> RT: %d\n", fDebugID, fRenderTarget ? fRenderTarget->uniqueID() : -1);
+    SkDebugf("node: %d -> RT: %d\n", fDebugID, fRenderTargetProxy ? fRenderTargetProxy->uniqueID() 
+                                                                  : -1);
     SkDebugf("relies On (%d): ", fDependencies.count());
     for (int i = 0; i < fDependencies.count(); ++i) {
         SkDebugf("%d, ", fDependencies[i]->fDebugID);

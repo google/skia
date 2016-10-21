@@ -11,6 +11,7 @@
 #include "GrDrawContext.h"
 #include "GrDrawTarget.h"
 #include "GrPathRenderingDrawContext.h"
+#include "GrRenderTargetProxy.h"
 #include "GrResourceProvider.h"
 #include "GrSoftwarePathRenderer.h"
 #include "GrSurfacePriv.h"
@@ -27,7 +28,7 @@ using gr_instanced::InstancedRendering;
 void GrDrawingManager::cleanup() {
     for (int i = 0; i < fDrawTargets.count(); ++i) {
         fDrawTargets[i]->makeClosed();  // no drawTarget should receive a new command after this
-        fDrawTargets[i]->clearRT();
+        fDrawTargets[i]->clearRTP();
 
         // We shouldn't need to do this, but it turns out some clients still hold onto drawtargets
         // after a cleanup
@@ -153,7 +154,7 @@ void GrDrawingManager::prepareSurfaceForExternalIO(GrSurface* surface) {
     }
 }
 
-GrDrawTarget* GrDrawingManager::newDrawTarget(GrRenderTarget* rt) {
+GrDrawTarget* GrDrawingManager::newDrawTarget(GrRenderTargetProxy* rtp) {
     SkASSERT(fContext);
 
 #ifndef ENABLE_MDB
@@ -162,13 +163,13 @@ GrDrawTarget* GrDrawingManager::newDrawTarget(GrRenderTarget* rt) {
         SkASSERT(fDrawTargets.count() == 1);
         // In the non-MDB-world the same drawTarget gets reused for multiple render targets.
         // Update this pointer so all the asserts are happy
-        rt->setLastDrawTarget(fDrawTargets[0]);
+        rtp->setLastDrawTarget(fDrawTargets[0]);
         // DrawingManager gets the creation ref - this ref is for the caller
         return SkRef(fDrawTargets[0]);
     }
 #endif
 
-    GrDrawTarget* dt = new GrDrawTarget(rt, fContext->getGpu(), fContext->resourceProvider(),
+    GrDrawTarget* dt = new GrDrawTarget(rtp, fContext->getGpu(), fContext->resourceProvider(),
                                         fContext->getAuditTrail(), fOptionsForDrawTargets);
 
     *fDrawTargets.append() = dt;
@@ -213,7 +214,7 @@ GrPathRenderer* GrDrawingManager::getPathRenderer(const GrPathRenderer::CanDrawP
     return pr;
 }
 
-sk_sp<GrDrawContext> GrDrawingManager::makeDrawContext(sk_sp<GrRenderTarget> rt,
+sk_sp<GrDrawContext> GrDrawingManager::makeDrawContext(sk_sp<GrRenderTargetProxy> rtp,
                                                        sk_sp<SkColorSpace> colorSpace,
                                                        const SkSurfaceProps* surfaceProps) {
     if (this->wasAbandoned()) {
@@ -223,7 +224,7 @@ sk_sp<GrDrawContext> GrDrawingManager::makeDrawContext(sk_sp<GrRenderTarget> rt,
     // SkSurface catches bad color space usage at creation. This check handles anything that slips
     // by, including internal usage. We allow a null color space here, for read/write pixels and
     // other special code paths. If a color space is provided, though, enforce all other rules.
-    if (colorSpace && !SkSurface_Gpu::Valid(fContext, rt->config(), colorSpace.get())) {
+    if (colorSpace && !SkSurface_Gpu::Valid(fContext, rtp->config(), colorSpace.get())) {
         SkDEBUGFAIL("Invalid config and colorspace combination");
         return nullptr;
     }
@@ -234,17 +235,19 @@ sk_sp<GrDrawContext> GrDrawingManager::makeDrawContext(sk_sp<GrRenderTarget> rt,
     }
 
     if (useDIF && fContext->caps()->shaderCaps()->pathRenderingSupport() &&
-        rt->isStencilBufferMultisampled()) {
+        rtp->isStencilBufferMultisampled()) {
+        // TODO: defer stencil buffer attachment for PathRenderingDrawContext
+        sk_sp<GrRenderTarget> rt(rtp->instantiate(fContext->textureProvider()));
         GrStencilAttachment* sb = fContext->resourceProvider()->attachStencilAttachment(rt.get());
         if (sb) {
             return sk_sp<GrDrawContext>(new GrPathRenderingDrawContext(
-                                                        fContext, this, std::move(rt),
+                                                        fContext, this, std::move(rtp),
                                                         std::move(colorSpace), surfaceProps,
                                                         fContext->getAuditTrail(), fSingleOwner));
         }
     }
 
-    return sk_sp<GrDrawContext>(new GrDrawContext(fContext, this, std::move(rt),
+    return sk_sp<GrDrawContext>(new GrDrawContext(fContext, this, std::move(rtp),
                                                   std::move(colorSpace), surfaceProps,
                                                   fContext->getAuditTrail(),
                                                   fSingleOwner));

@@ -30,7 +30,7 @@ GrRenderTarget::GrRenderTarget(GrGpu* gpu, const GrSurfaceDesc& desc, Flags flag
 
 GrRenderTarget::~GrRenderTarget() {
     if (fLastDrawTarget) {
-        fLastDrawTarget->clearRT();
+        fLastDrawTarget->clearRTP();
     }
     SkSafeUnref(fLastDrawTarget);
 }
@@ -97,7 +97,7 @@ void GrRenderTarget::setLastDrawTarget(GrDrawTarget* dt) {
 #ifdef ENABLE_MDB
         SkASSERT(fLastDrawTarget->isClosed());
 #endif
-        fLastDrawTarget->clearRT();
+        fLastDrawTarget->clearRTP();
     }
 
     SkRefCnt_SafeAssign(fLastDrawTarget, dt);
