@@ -87,6 +87,24 @@
     },
     {
       "key": {
+        "uuid": "fc6fa7a9_bac5a94a",
+        "filename": "gm/colorspacexform.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 41,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2016-10-21T19:01:30Z",
+      "side": 1,
+      "message": "That\u0027s a different class (SkColorSpaceXform), but the answer is probably yes. Follow-up CL, I think.",
+      "parentUuid": "fc6fa7a9_da39853c",
+      "revId": "1567fe5c2d3dd6ae6009c11b415415574f1baf7b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fc6fa7a9_3a31994f",
         "filename": "gm/colorspacexform.cpp",
         "patchSetId": 2
