@@ -16,6 +16,24 @@
       "revId": "3fc4f2ed651ddea6ef6ba1db506a76f5df746999",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "3cccdff8_fa2e1158",
+        "filename": "src/gpu/SkGr.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 447,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2016-10-21T13:05:10Z",
+      "side": 1,
+      "message": "IIUC, these objects will be premade or cached almost all the time. Agree that the naming of factories in SkColorSpace is inconsistent, using \"New\" where we would usually use \"Make\"",
+      "parentUuid": "3cccdff8_fa77317c",
+      "revId": "3fc4f2ed651ddea6ef6ba1db506a76f5df746999",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
