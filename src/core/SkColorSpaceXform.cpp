@@ -1097,7 +1097,7 @@ static void color_xform_RGBA(void* dst, const void* vsrc, int len,
             transform_gamut_1(r, g, b, rXgXbX, rYgYbY, rZgZbZ, rgba);
             translate_gamut_1(rTgTbT, rgba);
         } else {
-            rgba = Sk4f(r[0], g[0], b[0], a[0]);
+            rgba = Sk4f(r[0], g[0], b[0], 0.0f);
         }
 
         if (kPremul_SkAlphaType == kAlphaType) {
