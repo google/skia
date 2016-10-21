@@ -1130,11 +1130,8 @@ void SkScan::aaa_fill_path(const SkPath& path, const SkIRect* clipRect, Additive
                    bool forceRLE) { // forceRLE implies that SkAAClip is calling us
     SkASSERT(blitter);
 
-    if (path.isInverseFillType() || !path.isConvex()) {
-        // fall back to supersampling AA
-        SkScan::AntiFillPath(path, clipRgn, blitter->getRealBlitter(true), forceRLE);
-        return;
-    }
+    // we only implemented the convex shapes yet
+    SkASSERT(!path.isInverseFillType() && path.isConvex());
 
     SkEdgeBuilder   builder;
 
@@ -1215,6 +1212,11 @@ void SkScan::aaa_fill_path(const SkPath& path, const SkIRect* clipRect, Additive
 void SkScan::AAAFillPath(const SkPath& path, const SkRegion& origClip, SkBlitter* blitter,
                          bool forceRLE) {
     if (origClip.isEmpty()) {
+        return;
+    }
+    if (path.isInverseFillType() || !path.isConvex()) {
+        // Fall back as we only implemented the algorithm for convex shapes yet.
+        SkScan::AntiFillPath(path, origClip, blitter, forceRLE);
         return;
     }
 
