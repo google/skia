@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "3cccdff8_fa77317c",
+        "filename": "src/gpu/SkGr.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 447,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2016-10-21T13:02:13Z",
+      "side": 1,
+      "message": "Two sk_sp\u003c\u003e newed \u0026 freed objects per call :(\nShouldn\u0027t SkColorSpace::NewNamed be MakeNamed ?",
+      "revId": "3fc4f2ed651ddea6ef6ba1db506a76f5df746999",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
