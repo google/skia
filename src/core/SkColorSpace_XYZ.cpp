@@ -60,7 +60,7 @@ sk_sp<SkColorSpace> SkColorSpace_XYZ::makeLinearGamma() {
     if (this->gammaIsLinear()) {
         return sk_ref_sp(this);
     }
-    return SkColorSpace_Base::NewRGB(kLinear_SkGammaNamed, fToXYZD50);
+    return SkColorSpace_Base::MakeRGB(kLinear_SkGammaNamed, fToXYZD50);
 }
 
 void SkColorSpace_XYZ::toDstGammaTables(const uint8_t* tables[3], sk_sp<SkData>* storage,

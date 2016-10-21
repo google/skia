@@ -36,8 +36,9 @@ protected:
             if (nullptr == context) {
                 return;
             }
+            auto srgb = SkColorSpace::MakeNamed(SkColorSpace::kSRGB_Named);
             SkImageInfo info = SkImageInfo::Make(fW, fH, kN32_SkColorType, kPremul_SkAlphaType,
-                                                 SkColorSpace::NewNamed(SkColorSpace::kSRGB_Named));
+                                                 srgb);
             fSurface = SkSurface::MakeRenderTarget(context, SkBudgeted::kNo, info);
         }
 
