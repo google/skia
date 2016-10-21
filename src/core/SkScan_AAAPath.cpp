@@ -1310,6 +1310,6 @@ void SkScan::AAAFillPath(const SkPath& path, const SkRasterClip& clip, SkBlitter
 
         tmp.setRect(clip.getBounds());
         aaBlitter.init(blitter, &clip.aaRgn());
-        AAAFillPath(path, tmp, &aaBlitter);
+        AAAFillPath(path, tmp, &aaBlitter, true);
     }
 }
