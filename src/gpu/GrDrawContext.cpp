@@ -75,16 +75,16 @@ bool GrDrawContext::wasAbandoned() const {
 // when the drawContext attempts to use it (via getDrawTarget).
 GrDrawContext::GrDrawContext(GrContext* context,
                              GrDrawingManager* drawingMgr,
-                             sk_sp<GrRenderTarget> rt,
+                             sk_sp<GrRenderTargetProxy> rtp,
                              sk_sp<SkColorSpace> colorSpace,
                              const SkSurfaceProps* surfaceProps,
                              GrAuditTrail* auditTrail,
                              GrSingleOwner* singleOwner)
     : fDrawingManager(drawingMgr)
-    , fRenderTarget(std::move(rt))
-    , fDrawTarget(SkSafeRef(fRenderTarget->getLastDrawTarget()))
+    , fRenderTargetProxy(std::move(rtp))
+    , fDrawTarget(SkSafeRef(fRenderTargetProxy->getLastDrawTarget()))
     , fContext(context)
-    , fInstancedPipelineInfo(fRenderTarget.get())
+    , fInstancedPipelineInfo(fRenderTargetProxy.get())
     , fColorSpace(std::move(colorSpace))
     , fColorXformFromSRGB(nullptr)
     , fSurfaceProps(SkSurfacePropsCopyOrDefault(surfaceProps))
@@ -103,11 +103,11 @@ GrDrawContext::GrDrawContext(GrContext* context,
 
 #ifdef SK_DEBUG
 void GrDrawContext::validate() const {
-    SkASSERT(fRenderTarget);
-    ASSERT_OWNED_RESOURCE(fRenderTarget);
+    SkASSERT(fRenderTargetProxy);
+    fRenderTargetProxy->validate(fContext);
 
     if (fDrawTarget && !fDrawTarget->isClosed()) {
-        SkASSERT(fRenderTarget->getLastDrawTarget() == fDrawTarget);
+        SkASSERT(fRenderTargetProxy->getLastDrawTarget() == fDrawTarget);
     }
 }
 #endif
@@ -122,7 +122,7 @@ GrDrawTarget* GrDrawContext::getDrawTarget() {
     SkDEBUGCODE(this->validate();)
 
     if (!fDrawTarget || fDrawTarget->isClosed()) {
-        fDrawTarget = fDrawingManager->newDrawTarget(fRenderTarget.get());
+        fDrawTarget = fDrawingManager->newDrawTarget(fRenderTargetProxy.get());
     }
 
     return fDrawTarget;
@@ -134,7 +134,10 @@ bool GrDrawContext::copySurface(GrSurface* src, const SkIRect& srcRect, const Sk
     SkDEBUGCODE(this->validate();)
     GR_AUDIT_TRAIL_AUTO_FRAME(fAuditTrail, "GrDrawContext::copySurface");
 
-    return this->getDrawTarget()->copySurface(fRenderTarget.get(), src, srcRect, dstPoint);
+    // TODO: this needs to be fixed up since it ends the deferrable of the GrRenderTarget
+    sk_sp<GrRenderTarget> rt(fRenderTargetProxy->instantiate(fContext->textureProvider()));
+
+    return this->getDrawTarget()->copySurface(rt.get(), src, srcRect, dstPoint);
 }
 
 void GrDrawContext::drawText(const GrClip& clip, const GrPaint& grPaint,
@@ -191,7 +194,11 @@ void GrDrawContext::discard() {
     GR_AUDIT_TRAIL_AUTO_FRAME(fAuditTrail, "GrDrawContext::discard");
 
     AutoCheckFlush acf(fDrawingManager);
-    this->getDrawTarget()->discard(fRenderTarget.get());
+
+    // TODO: this needs to be fixed up since it ends the deferrable of the GrRenderTarget
+    sk_sp<GrRenderTarget> rt(fRenderTargetProxy->instantiate(fContext->textureProvider()));
+
+    this->getDrawTarget()->discard(rt.get());
 }
 
 void GrDrawContext::clear(const SkIRect* rect,
@@ -266,7 +273,7 @@ void GrDrawContext::drawPaint(const GrClip& clip,
     // set rect to be big enough to fill the space, but not super-huge, so we
     // don't overflow fixed-point implementations
 
-    SkRect r = fRenderTarget->getBoundsRect();
+    SkRect r = fRenderTargetProxy->getBoundsRect();
     SkTCopyOnFirstWrite<GrPaint> paint(origPaint);
 
     SkRRect rrect;
@@ -322,7 +329,7 @@ static bool view_matrix_ok_for_aa_fill_rect(const SkMatrix& viewMatrix) {
     return viewMatrix.preservesRightAngles();
 }
 
-static bool should_apply_coverage_aa(const GrPaint& paint, GrRenderTarget* rt,
+static bool should_apply_coverage_aa(const GrPaint& paint, GrRenderTargetProxy* rtp,
                                      bool* useHWAA = nullptr) {
     if (!paint.isAntiAlias()) {
         if (useHWAA) {
@@ -331,9 +338,9 @@ static bool should_apply_coverage_aa(const GrPaint& paint, GrRenderTarget* rt,
         return false;
     } else {
         if (useHWAA) {
-            *useHWAA = rt->isUnifiedMultisampled();
+            *useHWAA = rtp->isUnifiedMultisampled();
         }
-        return !rt->isUnifiedMultisampled();
+        return !rtp->isUnifiedMultisampled();
     }
 }
 
@@ -410,7 +417,7 @@ bool GrDrawContext::drawFilledRect(const GrClip& clip,
         }
     }
 
-    if (should_apply_coverage_aa(paint, fRenderTarget.get(), &useHWAA)) {
+    if (should_apply_coverage_aa(paint, fRenderTargetProxy.get(), &useHWAA)) {
         // The fill path can handle rotation but not skew.
         if (view_matrix_ok_for_aa_fill_rect(viewMatrix)) {
             SkRect devBoundRect;
@@ -460,7 +467,7 @@ void GrDrawContext::drawRect(const GrClip& clip,
         if (!fContext->caps()->useDrawInsteadOfClear()) {
             // Check if this is a full RT draw and can be replaced with a clear. We don't bother
             // checking cases where the RT is fully inside a stroke.
-            SkRect rtRect = fRenderTarget->getBoundsRect();
+            SkRect rtRect = fRenderTargetProxy->getBoundsRect();
             // Does the clip contain the entire RT?
             if (clip.quickContains(rtRect)) {
                 SkMatrix invM;
@@ -526,7 +533,7 @@ void GrDrawContext::drawRect(const GrClip& clip,
         SkAutoTUnref<GrDrawBatch> batch;
 
         GrColor color = paint.getColor();
-        if (should_apply_coverage_aa(paint, fRenderTarget.get(), &useHWAA)) {
+        if (should_apply_coverage_aa(paint, fRenderTargetProxy.get(), &useHWAA)) {
             // The stroke path needs the rect to remain axis aligned (no rotation or skew).
             if (viewMatrix.rectStaysRect()) {
                 batch.reset(GrRectBatchFactory::CreateAAStroke(color, viewMatrix, rect, stroke));
@@ -536,7 +543,7 @@ void GrDrawContext::drawRect(const GrClip& clip,
             // hairline rects. We jam all the vertices to pixel centers to avoid this, but not
             // when MSAA is enabled because it can cause ugly artifacts.
             snapToPixelCenters = stroke.getStyle() == SkStrokeRec::kHairline_Style &&
-                                 !fRenderTarget->isUnifiedMultisampled();
+                                 !fRenderTargetProxy->isUnifiedMultisampled();
             batch.reset(GrRectBatchFactory::CreateNonAAStroke(color, viewMatrix, rect,
                                                               stroke, snapToPixelCenters));
         }
@@ -657,7 +664,7 @@ void GrDrawContext::fillRectToRect(const GrClip& clip,
         }
     }
 
-    if (!should_apply_coverage_aa(paint, fRenderTarget.get(), &useHWAA)) {
+    if (!should_apply_coverage_aa(paint, fRenderTargetProxy.get(), &useHWAA)) {
         this->drawNonAAFilledRect(clip, paint, viewMatrix, croppedRect, &croppedLocalRect,
                                   nullptr, nullptr, useHWAA);
         return;
@@ -716,7 +723,7 @@ void GrDrawContext::fillRectWithLocalMatrix(const GrClip& clip,
         }
     }
 
-    if (!should_apply_coverage_aa(paint, fRenderTarget.get(), &useHWAA)) {
+    if (!should_apply_coverage_aa(paint, fRenderTargetProxy.get(), &useHWAA)) {
         this->drawNonAAFilledRect(clip, paint, viewMatrix, croppedRect, nullptr,
                                   &localMatrix, nullptr, useHWAA);
         return;
@@ -849,7 +856,7 @@ void GrDrawContext::drawRRect(const GrClip& origClip,
         }
     }
 
-    if (should_apply_coverage_aa(paint, fRenderTarget.get(), &useHWAA)) {
+    if (should_apply_coverage_aa(paint, fRenderTargetProxy.get(), &useHWAA)) {
         GrShaderCaps* shaderCaps = fContext->caps()->shaderCaps();
         SkAutoTUnref<GrDrawBatch> batch(GrOvalRenderer::CreateRRectBatch(
                                                                 paint.getColor(),
@@ -892,7 +899,7 @@ bool GrDrawContext::drawFilledDRRect(const GrClip& clip,
         }
     }
 
-    bool applyAA = paintIn.isAntiAlias() && !fRenderTarget->isUnifiedMultisampled();
+    bool applyAA = paintIn.isAntiAlias() && !fRenderTargetProxy->isUnifiedMultisampled();
 
     GrPrimitiveEdgeType innerEdgeType = applyAA ? kInverseFillAA_GrProcessorEdgeType :
                                                   kInverseFillBW_GrProcessorEdgeType;
@@ -1033,7 +1040,7 @@ void GrDrawContext::drawOval(const GrClip& clip,
         }
     }
 
-    if (should_apply_coverage_aa(paint, fRenderTarget.get(), &useHWAA)) {
+    if (should_apply_coverage_aa(paint, fRenderTargetProxy.get(), &useHWAA)) {
         GrShaderCaps* shaderCaps = fContext->caps()->shaderCaps();
         SkAutoTUnref<GrDrawBatch> batch(GrOvalRenderer::CreateOvalBatch(paint.getColor(),
                                                                         viewMatrix,
@@ -1062,7 +1069,7 @@ void GrDrawContext::drawArc(const GrClip& clip,
                             bool useCenter,
                             const GrStyle& style) {
     bool useHWAA;
-    if (should_apply_coverage_aa(paint, fRenderTarget.get(), &useHWAA)) {
+    if (should_apply_coverage_aa(paint, fRenderTargetProxy.get(), &useHWAA)) {
         GrShaderCaps* shaderCaps = fContext->caps()->shaderCaps();
         SkAutoTUnref<GrDrawBatch> batch(GrOvalRenderer::CreateArcBatch(paint.getColor(),
                                                                        viewMatrix,
@@ -1113,9 +1120,12 @@ void GrDrawContext::prepareForExternalIO() {
     SkDEBUGCODE(this->validate();)
     GR_AUDIT_TRAIL_AUTO_FRAME(fAuditTrail, "GrDrawContext::prepareForExternalIO");
 
-    ASSERT_OWNED_RESOURCE(fRenderTarget);
+    // Deferral of the VRAM resources must end in this instance anyway
+    sk_sp<GrRenderTarget> rt(fRenderTargetProxy->instantiate(fContext->textureProvider()));
 
-    fDrawingManager->prepareSurfaceForExternalIO(fRenderTarget.get());
+    ASSERT_OWNED_RESOURCE(rt);
+
+    fDrawingManager->prepareSurfaceForExternalIO(rt.get());
 }
 
 void GrDrawContext::drawNonAAFilledRect(const GrClip& clip,
@@ -1150,8 +1160,11 @@ bool GrDrawContext::readPixels(const SkImageInfo& dstInfo, void* dstBuffer, size
         flags = GrContext::kUnpremul_PixelOpsFlag;
     }
 
-    return fRenderTarget->readPixels(x, y, dstInfo.width(), dstInfo.height(),
-                                     config, dstBuffer, dstRowBytes, flags);
+    // Deferral of the VRAM resources must end in this instance anyway
+    sk_sp<GrRenderTarget> rt(fRenderTargetProxy->instantiate(fContext->textureProvider()));
+
+    return rt->readPixels(x, y, dstInfo.width(), dstInfo.height(),
+                          config, dstBuffer, dstRowBytes, flags);
 }
 
 bool GrDrawContext::writePixels(const SkImageInfo& srcInfo, const void* srcBuffer,
@@ -1166,8 +1179,11 @@ bool GrDrawContext::writePixels(const SkImageInfo& srcInfo, const void* srcBuffe
         flags = GrContext::kUnpremul_PixelOpsFlag;
     }
 
-    return fRenderTarget->writePixels(x, y, srcInfo.width(), srcInfo.height(),
-                                      config, srcBuffer, srcRowBytes, flags);
+    // Deferral of the VRAM resources must end in this instance anyway
+    sk_sp<GrRenderTarget> rt(fRenderTargetProxy->instantiate(fContext->textureProvider()));
+
+    return rt->writePixels(x, y, srcInfo.width(), srcInfo.height(),
+                           config, srcBuffer, srcRowBytes, flags);
 }
 
 // Can 'path' be drawn as a pair of filled nested rectangles?
@@ -1236,7 +1252,8 @@ void GrDrawContext::drawPath(const GrClip& clip,
     AutoCheckFlush acf(fDrawingManager);
 
     bool useHWAA;
-    if (should_apply_coverage_aa(paint, fRenderTarget.get(), &useHWAA) && !style.pathEffect()) {
+    if (should_apply_coverage_aa(paint, fRenderTargetProxy.get(), &useHWAA) &&
+                                                                            !style.pathEffect()) {
         if (style.isSimpleFill() && !path.isConvex()) {
             // Concave AA paths are expensive - try to avoid them for special cases
             SkRect rects[2];
@@ -1351,7 +1368,7 @@ SkBudgeted GrDrawContextPriv::isBudgeted() const {
 
     SkDEBUGCODE(fDrawContext->validate();)
 
-    return fDrawContext->fRenderTarget->resourcePriv().isBudgeted();
+    return fDrawContext->fRenderTargetProxy->isBudgeted();
 }
 
 void GrDrawContext::internalDrawPath(const GrClip& clip,
@@ -1363,7 +1380,7 @@ void GrDrawContext::internalDrawPath(const GrClip& clip,
     RETURN_IF_ABANDONED
     SkASSERT(!path.isEmpty());
 
-    bool useCoverageAA = should_apply_coverage_aa(paint, fRenderTarget.get());
+    bool useCoverageAA = should_apply_coverage_aa(paint, fRenderTargetProxy.get());
     constexpr bool kHasUserStencilSettings = false;
     bool isStencilBufferMSAA = this->isStencilBufferMultisampled();
 
