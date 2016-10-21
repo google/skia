@@ -17,7 +17,7 @@
 		C1DB12BA08579ABADBE74A0D /* SkTime_Unix.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 0C93E2A5818E38CF74AA058C /* SkTime_Unix.cpp */; };
 		C751D07CF6DCEAB3302AE5FD /* SkOSFile_stdio.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 9EE2D3D27F6F0C97E942A870 /* SkOSFile_stdio.cpp */; };
 		D7AA1DD23CEAAF67AFA3CD04 /* SkTLS_pthread.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 169CCC00B3C14F4058B7AB54 /* SkTLS_pthread.cpp */; };
-		DE70A9E21BC835520039C99D /* SkFontHost_mac.cpp in Sources */ = {isa = PBXBuildFile; fileRef = DE70A9E11BC835520039C99D /* SkFontHost_mac.cpp */; settings = {ASSET_TAGS = (); }; };
+		DE70A9E21BC835520039C99D /* SkFontHost_mac.cpp in Sources */ = {isa = PBXBuildFile; fileRef = DE70A9E11BC835520039C99D /* SkFontHost_mac.cpp */; };
 		E15815EAE2B54A569CE20FD1 /* SkDebug_stdio.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D75B8440274C14D0E7624731 /* SkDebug_stdio.cpp */; };
 		F5DA6423DB237957CD85EE19 /* SkFontMgr_indirect.cpp in Sources */ = {isa = PBXBuildFile; fileRef = ADBC605BBED75075A7796131 /* SkFontMgr_indirect.cpp */; };
 /* End PBXBuildFile section */
@@ -345,7 +345,7 @@
 				);
 				IPHONEOS_DEPLOYMENT_TARGET = 8.0;
 				MACOSX_DEPLOYMENT_TARGET = 10.6;
-				ONLY_ACTIVE_ARCH = YES;
+				ONLY_ACTIVE_ARCH = NO;
 				PRODUCT_NAME = skia_ports;
 				SKIP_INSTALL = YES;
 				SYMROOT = ../xcodebuild;
@@ -420,7 +420,7 @@
 				);
 				IPHONEOS_DEPLOYMENT_TARGET = 8.0;
 				MACOSX_DEPLOYMENT_TARGET = 10.6;
-				ONLY_ACTIVE_ARCH = YES;
+				ONLY_ACTIVE_ARCH = NO;
 				PRODUCT_NAME = skia_ports;
 				SKIP_INSTALL = YES;
 				SYMROOT = ../xcodebuild;
@@ -485,7 +485,7 @@
 				);
 				IPHONEOS_DEPLOYMENT_TARGET = 8.0;
 				MACOSX_DEPLOYMENT_TARGET = 10.6;
-				ONLY_ACTIVE_ARCH = YES;
+				ONLY_ACTIVE_ARCH = NO;
 				PRODUCT_NAME = skia_ports;
 				SKIP_INSTALL = YES;
 				SYMROOT = ../xcodebuild;
@@ -551,7 +551,7 @@
 				);
 				IPHONEOS_DEPLOYMENT_TARGET = 8.0;
 				MACOSX_DEPLOYMENT_TARGET = 10.6;
-				ONLY_ACTIVE_ARCH = YES;
+				ONLY_ACTIVE_ARCH = NO;
 				PRODUCT_NAME = skia_ports;
 				SKIP_INSTALL = YES;
 				SYMROOT = ../xcodebuild;
