@@ -41,7 +41,7 @@ GrRenderTargetProxy::GrRenderTargetProxy(const GrCaps& caps, sk_sp<GrRenderTarge
 
 GrRenderTargetProxy::~GrRenderTargetProxy() {
     if (fLastDrawTarget) {
-        fLastDrawTarget->clearRT();
+        fLastDrawTarget->clearRTP();
     }
     SkSafeUnref(fLastDrawTarget);
 }
@@ -79,11 +79,19 @@ void GrRenderTargetProxy::setLastDrawTarget(GrDrawTarget* dt) {
 #ifdef ENABLE_MDB
         SkASSERT(fLastDrawTarget->isClosed());
 #endif
-        fLastDrawTarget->clearRT();
+        fLastDrawTarget->clearRTP();
     }
 
     SkRefCnt_SafeAssign(fLastDrawTarget, dt);
 }
+
+#ifdef SK_DEBUG
+void GrRenderTargetProxy::validate(GrContext* context) const {
+    if (fTarget) {
+        SkASSERT(fTarget->getContext() == context);
+    }
+}
+#endif
 
 sk_sp<GrRenderTargetProxy> GrRenderTargetProxy::Make(const GrCaps& caps,
                                                      const GrSurfaceDesc& desc,

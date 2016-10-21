@@ -37,6 +37,7 @@ class GrCaps;
 class GrPath;
 class GrDrawPathBatchBase;
 class GrPipelineBuilder;
+class GrRenderTargetProxy;
 
 class GrDrawTarget final : public SkRefCnt {
 public:
@@ -53,7 +54,7 @@ public:
         int  fMaxBatchLookahead;
     };
 
-    GrDrawTarget(GrRenderTarget*, GrGpu*, GrResourceProvider*, GrAuditTrail*, const Options&);
+    GrDrawTarget(GrRenderTargetProxy*, GrGpu*, GrResourceProvider*, GrAuditTrail*, const Options&);
 
     ~GrDrawTarget() override;
 
@@ -71,7 +72,7 @@ public:
 
     // TODO: this entry point is only needed in the non-MDB world. Remove when
     // we make the switch to MDB
-    void clearRT() { fRenderTarget = nullptr; }
+    void clearRTP() { fRenderTargetProxy = nullptr; }
 
     /*
      * Notify this drawTarget that it relies on the contents of 'dependedOn'
@@ -234,7 +235,7 @@ private:
 
     // 'this' drawTarget relies on the output of the drawTargets in 'fDependencies'
     SkTDArray<GrDrawTarget*>                        fDependencies;
-    GrRenderTarget*                                 fRenderTarget;
+    GrRenderTargetProxy*                            fRenderTargetProxy;
 
     bool                                            fClipBatchToBounds;
     bool                                            fDrawBatchBounds;

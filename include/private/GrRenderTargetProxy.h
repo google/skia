@@ -65,6 +65,8 @@ public:
 
     GrRenderTargetPriv::Flags testingOnly_getFlags() const;
 
+    SkDEBUGCODE(void validate(GrContext*) const;)
+
 private:
     // Deferred version
     GrRenderTargetProxy(const GrCaps&, const GrSurfaceDesc&, SkBackingFit, SkBudgeted);
