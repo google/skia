@@ -5,7 +5,7 @@ use_relative_paths = True
 deps = {
   "buildtools":  "https://chromium.googlesource.com/chromium/buildtools.git@5fd66957f08bb752dca714a591c84587c9d70762",
 
-  "common": "https://skia.googlesource.com/common.git@c282fe0b6e392b14f88d647cbd86e1a3ef5498e0",
+  "common": "https://skia.googlesource.com/common.git@9737551d7a52c3db3262db5856e6bcd62c462b92",
 
   # There is some duplication here that might be worth cleaning up:
   #   - can use use our existing t_p/e/libjpeg instead of pulling it for Android?
