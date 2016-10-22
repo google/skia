@@ -12,6 +12,7 @@
 #include "SampleCode.h"
 #include "SkAnimTimer.h"
 #include "SkCanvas.h"
+#include "SkColorSpace_XYZ.h"
 #include "SkCommandLineFlags.h"
 #include "SkData.h"
 #include "SkDocument.h"
@@ -1675,7 +1676,9 @@ bool SampleWindow::onEvent(const SkEvent& evt) {
         }
         if (kRGBA_F16_SkColorType == gConfig[selected].fColorType) {
             SkASSERT(colorSpace);
-            colorSpace = colorSpace->makeLinearGamma();
+            SkASSERT(SkColorSpace_Base::Type::kXYZ == as_CSB(colorSpace)->type());
+            SkColorSpace_XYZ* csXYZ = static_cast<SkColorSpace_XYZ*>(colorSpace.get());
+            colorSpace = csXYZ->makeLinearGamma();
         }
         this->setDeviceColorType(gConfig[selected].fColorType, colorSpace);
         return true;
@@ -1804,6 +1807,7 @@ bool SampleWindow::onHandleChar(SkUnichar uni) {
         case 'A':
             gSkUseAnalyticAA = !gSkUseAnalyticAA.load();
             this->inval(nullptr);
+            this->updateTitle();
             break;
         case 'B':
             post_event_to_sink(new SkEvent("PictFileView::toggleBBox"), curr_view(this));
@@ -2154,6 +2158,9 @@ void SampleWindow::updateTitle() {
 
     title.prepend(gDeviceTypePrefix[fDeviceType]);
 
+    if (gSkUseAnalyticAA) {
+        title.prepend("<AAA> ");
+    }
     if (fTilingMode != kNo_Tiling) {
         title.prependf("<T: %s> ", gTilingInfo[fTilingMode].label);
     }

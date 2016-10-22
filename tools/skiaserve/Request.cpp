@@ -24,6 +24,7 @@ Request::Request(SkString rootUrl)
     : fUploadContext(nullptr)
     , fUrlDataManager(rootUrl)
     , fGPUEnabled(false)
+    , fOverdraw(false)
     , fColorMode(0) {
     // create surface
 #if SK_SUPPORT_GPU
@@ -63,7 +64,7 @@ sk_sp<SkData> Request::writeCanvasToPng(SkCanvas* canvas) {
 
     // write to an opaque png (black background)
     SkDynamicMemoryWStream buffer;
-    SkDrawCommand::WritePNG((const png_bytep) encodedBitmap->bytes(), bmp->width(), bmp->height(),
+    SkDrawCommand::WritePNG(encodedBitmap->bytes(), bmp->width(), bmp->height(),
                             buffer, true);
     return buffer.detachAsData();
 }
@@ -97,7 +98,9 @@ void Request::drawToCanvas(int n, int m) {
 }
 
 sk_sp<SkData> Request::drawToPng(int n, int m) {
+    //fDebugCanvas->setOverdrawViz(true);
     this->drawToCanvas(n, m);
+    //fDebugCanvas->setOverdrawViz(false);
     return writeCanvasToPng(this->getCanvas());
 }
 
@@ -174,10 +177,9 @@ ColorAndProfile ColorModes[] = {
 SkSurface* Request::createCPUSurface() {
     SkIRect bounds = this->getBounds();
     ColorAndProfile cap = ColorModes[fColorMode];
-    auto colorSpace = SkColorSpace::NewNamed(SkColorSpace::kSRGB_Named);
-    if (kRGBA_F16_SkColorType == cap.fColorType) {
-        colorSpace = colorSpace->makeLinearGamma();
-    }
+    auto colorSpace = kRGBA_F16_SkColorType == cap.fColorType
+                    ? SkColorSpace::NewNamed(SkColorSpace::kSRGBLinear_Named)
+                    : SkColorSpace::NewNamed(SkColorSpace::kSRGB_Named);
     SkImageInfo info = SkImageInfo::Make(bounds.width(), bounds.height(), cap.fColorType,
                                          kPremul_SkAlphaType, cap.fSRGB ? colorSpace : nullptr);
     return SkSurface::MakeRaster(info).release();
@@ -187,14 +189,18 @@ SkSurface* Request::createGPUSurface() {
     GrContext* context = this->getContext();
     SkIRect bounds = this->getBounds();
     ColorAndProfile cap = ColorModes[fColorMode];
-    auto colorSpace = SkColorSpace::NewNamed(SkColorSpace::kSRGB_Named);
-    if (kRGBA_F16_SkColorType == cap.fColorType) {
-        colorSpace = colorSpace->makeLinearGamma();
-    }
+    auto colorSpace = kRGBA_F16_SkColorType == cap.fColorType
+                    ? SkColorSpace::NewNamed(SkColorSpace::kSRGBLinear_Named)
+                    : SkColorSpace::NewNamed(SkColorSpace::kSRGB_Named);
     SkImageInfo info = SkImageInfo::Make(bounds.width(), bounds.height(), cap.fColorType,
                                          kPremul_SkAlphaType, cap.fSRGB ? colorSpace: nullptr);
     SkSurface* surface = SkSurface::MakeRenderTarget(context, SkBudgeted::kNo, info).release();
     return surface;
+}
+
+bool Request::setOverdraw(bool enable) {
+    fOverdraw = enable;
+    return true;
 }
 
 bool Request::setColorMode(int mode) {

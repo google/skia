@@ -407,7 +407,9 @@ bool SkOpSpan::insertCoincidence(const SkOpSegment* segment, bool flipped, bool 
             SkOpSpan* span;
             SkOpSpanBase* base = next->span();
             if (!ordered) {
-                const SkOpSpanBase* spanEnd = fNext->contains(segment)->span();
+                const SkOpPtT* spanEndPtT = fNext->contains(segment);
+                FAIL_IF(!spanEndPtT);
+                const SkOpSpanBase* spanEnd = spanEndPtT->span();
                 const SkOpPtT* start = base->ptT()->starter(spanEnd->ptT());
                 FAIL_IF(!start->span()->upCastable());
                 span = const_cast<SkOpSpan*>(start->span()->upCast());

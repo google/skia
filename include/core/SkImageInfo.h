@@ -277,7 +277,11 @@ public:
     }
 
     size_t minRowBytes() const {
-        return (size_t)this->minRowBytes64();
+        uint64_t minRowBytes = this->minRowBytes64();
+        if (!sk_64_isS32(minRowBytes)) {
+            return 0;
+        }
+        return sk_64_asS32(minRowBytes);
     }
 
     size_t computeOffset(int x, int y, size_t rowBytes) const {
@@ -302,7 +306,7 @@ public:
         if (0 == fHeight) {
             return 0;
         }
-        return sk_64_mul(fHeight - 1, rowBytes) + fWidth * this->bytesPerPixel();
+        return sk_64_mul(fHeight - 1, rowBytes) + sk_64_mul(fWidth, this->bytesPerPixel());
     }
 
     size_t getSafeSize(size_t rowBytes) const {

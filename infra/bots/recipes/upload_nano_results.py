@@ -19,17 +19,6 @@ def RunSteps(api):
   # Upload the nanobench resuls.
   builder_name = api.properties['buildername']
 
-  patch_storage = api.properties.get('patch_storage', 'rietveld')
-  issue = None
-  patchset = None
-  if builder_name.endswith('-Trybot'):
-    if patch_storage == 'gerrit':
-      issue = str(api.properties['event.change.number'])
-      patchset = str(api.properties['event.patchSet.ref'].split('/')[-1])
-    else:
-      issue = str(api.properties['issue'])
-      patchset = str(api.properties['patchset'])
-
   now = api.time.utcnow()
 
   src_path = api.path['cwd'].join(
@@ -50,9 +39,13 @@ def RunSteps(api):
       str(now.month).zfill(2), str(now.day).zfill(2), str(now.hour).zfill(2),
       builder_name))
 
-  if builder_name.endswith('-Trybot'):
-    if not (issue and patchset):  # pragma: nocover
-      raise Exception('issue and patchset properties are required for trybots.')
+  issue = str(api.properties.get('issue', ''))
+  patchset = str(api.properties.get('patchset', ''))
+  if (api.properties.get('patch_storage', '') == 'gerrit' and
+      api.properties.get('nobuildbot', '') != 'True'):
+    issue = str(api.properties['event.change.number'])
+    patchset = str(api.properties['event.patchSet.ref']).split('/')[-1]
+  if issue and patchset:
     gs_path = '/'.join(('trybot', gs_path, issue, patchset))
 
   dst = '/'.join(('gs://skia-perf', gs_path, basename))

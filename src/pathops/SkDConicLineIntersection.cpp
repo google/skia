@@ -105,8 +105,8 @@ public:
             double conicT = rootVals[index];
             double lineT = this->findLineT(conicT);
 #ifdef SK_DEBUG
-            if (!fIntersections->debugGlobalState()
-                    || !fIntersections->debugGlobalState()->debugSkipAssert()) {
+            if (!fIntersections->globalState()
+                    || !fIntersections->globalState()->debugSkipAssert()) {
                 SkDEBUGCODE(SkDPoint conicPt = fConic.ptAtT(conicT));
                 SkDEBUGCODE(SkDPoint linePt = fLine->ptAtT(lineT));
                 SkASSERT(conicPt.approximatelyDEqual(linePt));

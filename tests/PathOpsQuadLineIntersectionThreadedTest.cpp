@@ -5,6 +5,7 @@
  * found in the LICENSE file.
  */
 #include "PathOpsExtendedTest.h"
+#include "PathOpsTestCommon.h"
 #include "PathOpsThreadedCommon.h"
 #include "SkIntersections.h"
 #include "SkPathOpsLine.h"
@@ -79,8 +80,10 @@ static void testQuadLineIntersectMain(PathOpsThreadState* data)
     int by = state.fB >> 2;
     int cx = state.fC & 0x03;
     int cy = state.fC >> 2;
-    SkDQuad quad = {{{(double) ax, (double) ay}, {(double) bx, (double) by},
+    QuadPts q = {{{(double) ax, (double) ay}, {(double) bx, (double) by},
             {(double) cx, (double) cy}}};
+    SkDQuad quad;
+    quad.debugSet(q.fPts);
     SkReduceOrder reducer;
     int order = reducer.reduce(quad);
     if (order < 3) {

@@ -8,7 +8,6 @@
 
 from recipe_engine import recipe_api
 
-from . import cmake_flavor
 from . import default_flavor
 from . import gn_android_flavor
 from . import gn_flavor
@@ -27,9 +26,8 @@ VERSION_FILE_SVG = 'SVG_VERSION'
 
 VERSION_NONE = -1
 
-
-def is_cmake(builder_cfg):
-  return 'CMake' in builder_cfg.get('extra_config', '')
+def is_android(builder_cfg):
+  return 'Android' in builder_cfg.get('extra_config', '')
 
 
 def is_ios(builder_cfg):
@@ -48,16 +46,8 @@ def is_valgrind(builder_cfg):
 class SkiaFlavorApi(recipe_api.RecipeApi):
   def get_flavor(self, builder_cfg):
     """Return a flavor utils object specific to the given builder."""
-    gn_android = gn_android_flavor.GNAndroidFlavorUtils(self.m)
-    if gn_android.supported():
-      return gn_android
-
-    gn = gn_flavor.GNFlavorUtils(self.m)
-    if gn.supported():
-      return gn
-
-    if is_cmake(builder_cfg):
-      return cmake_flavor.CMakeFlavorUtils(self.m)
+    if is_android(builder_cfg):
+      return gn_android_flavor.GNAndroidFlavorUtils(self.m)
     elif is_ios(builder_cfg):
       return ios_flavor.iOSFlavorUtils(self.m)
     elif is_pdfium(builder_cfg):
@@ -65,7 +55,7 @@ class SkiaFlavorApi(recipe_api.RecipeApi):
     elif is_valgrind(builder_cfg):
       return valgrind_flavor.ValgrindFlavorUtils(self.m)
     else:
-      return default_flavor.DefaultFlavorUtils(self.m)
+      return gn_flavor.GNFlavorUtils(self.m)
 
   def setup(self):
     self._f = self.get_flavor(self.m.vars.builder_cfg)

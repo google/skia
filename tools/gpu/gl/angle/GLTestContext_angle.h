@@ -13,18 +13,24 @@
 namespace sk_gpu_test {
 
 /**
- * Creates a GrGLInterface for the currently ANGLE GL context currently bound in ANGLE's EGL
- * implementation.
+ * Creates a GrGLInterface for the current ANGLE GLES Context. Here current means bound in ANGLE's
+ * implementation of EGL.
  */
 const GrGLInterface* CreateANGLEGLInterface();
 
-#ifdef SK_BUILD_FOR_WIN
-/** Creates a GLTestContext backed by ANGLE's Direct3D backend. */
-GLTestContext* CreateANGLEDirect3DGLTestContext();
-#endif
+enum class ANGLEBackend {
+    kD3D9,
+    kD3D11,
+    kOpenGL
+};
 
-/** Creates a GLTestContext backed by ANGLE's OpenGL backend. */
-GLTestContext* CreateANGLEOpenGLGLTestContext();
+enum class ANGLEContextVersion {
+    kES2,
+    kES3
+};
+
+/** Creates a GLTestContext backed by ANGLE. */
+GLTestContext* CreateANGLETestContext(ANGLEBackend, ANGLEContextVersion);
 
 }  // namespace sk_gpu_test
 #endif

@@ -34,9 +34,9 @@ This is the format of the values of this keyword:
 
 Here are some real world examples:
 
-    CQ_INCLUDE_TRYBOTS=tryserver.chromium:linux_layout_rel
+    CQ_INCLUDE_TRYBOTS=master.tryserver.chromium.linux:linux_chromium_asan_rel_ng
 
-    CQ_INCLUDE_TRYBOTS=tryserver.skia:Build-Mac10.9-Clang-x86_64-Debug
+    CQ_INCLUDE_TRYBOTS=master.client.skia:Test-Win-MSVC-ShuttleC-GPU-GTX960-x86_64-Debug-ANGLE-Trybot
 
 TBR
 ---

@@ -4,6 +4,7 @@
  * Use of this source code is governed by a BSD-style license that can be
  * found in the LICENSE file.
  */
+#include "PathOpsTestCommon.h"
 #include "SkIntersections.h"
 #include "SkTDArray.h"
 #include "Test.h"
@@ -12,7 +13,7 @@
 
 struct Curve {
     int ptCount;
-    SkDCubic curve;  // largest can hold lines / quads/ cubics
+    CubicPts curve;  // largest can hold lines / quads/ cubics
 };
 
 static const Curve testSet0[] = {  // extracted from skpClip2
@@ -49,16 +50,19 @@ static void testSetTest(skiatest::Reporter* reporter, int index) {
             const Curve& iTest = testSet.tests[inner];
             SkIntersections* i = combos.append();
             sk_bzero(i, sizeof(SkIntersections));
-            SkDLine oLine = {{ oTest.curve[0], oTest.curve[1] }};
-            SkDLine iLine = {{ iTest.curve[0], iTest.curve[1] }};
+            SkDLine oLine = {{ oTest.curve.fPts[0], oTest.curve.fPts[1] }};
+            SkDLine iLine = {{ iTest.curve.fPts[0], iTest.curve.fPts[1] }};
+            SkDCubic iCurve, oCurve;
+            iCurve.debugSet(iTest.curve.fPts);
+            oCurve.debugSet(oTest.curve.fPts);
             if (oTest.ptCount == 1 && iTest.ptCount == 1) {
                 i->intersect(oLine, iLine);
             } else if (oTest.ptCount == 1 && iTest.ptCount == 4) {
-                i->intersect(iTest.curve, oLine);
+                i->intersect(iCurve, oLine);
             } else if (oTest.ptCount == 4 && iTest.ptCount == 1) {
-                i->intersect(oTest.curve, iLine);
+                i->intersect(oCurve, iLine);
             } else if (oTest.ptCount == 4 && iTest.ptCount == 4) {
-                i->intersect(oTest.curve, iTest.curve);
+                i->intersect(oCurve, iCurve);
             } else {
                 SkASSERT(0);
             }

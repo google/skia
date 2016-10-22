@@ -12,8 +12,8 @@
 #include "Test.h"
 
 static struct conicQuad {
-    SkDConic conic;
-    SkDQuad quad;
+    ConicPts conic;
+    QuadPts quad;
 } conicQuadTests[] = {
    {{{{{494.348663,224.583771}, {494.365143,224.633194}, {494.376404,224.684067}}}, 0.998645842f},
     {{{494.30481,224.474213}, {494.334961,224.538284}, {494.355774,224.605927}}}},
@@ -25,9 +25,13 @@ static struct conicQuad {
 static const int conicQuadTests_count = (int) SK_ARRAY_COUNT(conicQuadTests);
 
 static void conicQuadIntersection(skiatest::Reporter* reporter, int index) {
-    const SkDConic& conic = conicQuadTests[index].conic;
+    const ConicPts& c = conicQuadTests[index].conic;
+    SkDConic conic;
+    conic.debugSet(c.fPts.fPts, c.fWeight);
     SkASSERT(ValidConic(conic));
-    const SkDQuad& quad = conicQuadTests[index].quad;
+    const QuadPts& q = conicQuadTests[index].quad;
+    SkDQuad quad;
+    quad.debugSet(q.fPts);
     SkASSERT(ValidQuad(quad));
     SkReduceOrder reduce1;
     SkReduceOrder reduce2;

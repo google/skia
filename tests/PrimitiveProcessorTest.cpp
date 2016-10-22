@@ -19,6 +19,7 @@
 #include "GrGpu.h"
 #include "GrTextureProvider.h"
 #include "glsl/GrGLSLGeometryProcessor.h"
+#include "glsl/GrGLSLFragmentShaderBuilder.h"
 #include "glsl/GrGLSLVarying.h"
 #include "batches/GrVertexBatch.h"
 #include "SkString.h"
@@ -68,6 +69,9 @@ private:
                         const GP& gp = args.fGP.cast<GP>();
                         args.fVaryingHandler->emitAttributes(gp);
                         this->setupPosition(args.fVertBuilder, gpArgs, gp.fAttribs[0].fName);
+                        GrGLSLPPFragmentBuilder* fragBuilder = args.fFragBuilder;
+                        fragBuilder->codeAppendf("%s = vec4(1);", args.fOutputColor);
+                        fragBuilder->codeAppendf("%s = vec4(1);", args.fOutputCoverage);
                     }
                     void setData(const GrGLSLProgramDataManager& pdman,
                                  const GrPrimitiveProcessor& primProc,

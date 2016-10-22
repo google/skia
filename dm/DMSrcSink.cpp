@@ -11,13 +11,12 @@
 #include "SkCodec.h"
 #include "SkCodecImageGenerator.h"
 #include "SkColorSpace.h"
-#include "SkColorSpace_Base.h"
+#include "SkColorSpace_XYZ.h"
 #include "SkColorSpaceXform.h"
 #include "SkCommonFlags.h"
 #include "SkData.h"
 #include "SkDeferredCanvas.h"
 #include "SkDocument.h"
-#include "SkError.h"
 #include "SkImageGenerator.h"
 #include "SkImageGeneratorCG.h"
 #include "SkImageGeneratorWIC.h"
@@ -921,7 +920,9 @@ Error ColorCodecSrc::draw(SkCanvas* canvas) const {
         decodeInfo = decodeInfo.makeAlphaType(kPremul_SkAlphaType);
     }
     if (kRGBA_F16_SkColorType == fColorType) {
-        decodeInfo = decodeInfo.makeColorSpace(decodeInfo.colorSpace()->makeLinearGamma());
+        SkASSERT(SkColorSpace_Base::Type::kXYZ == as_CSB(decodeInfo.colorSpace())->type());
+        SkColorSpace_XYZ* csXYZ = static_cast<SkColorSpace_XYZ*>(decodeInfo.colorSpace());
+        decodeInfo = decodeInfo.makeColorSpace(csXYZ->makeLinearGamma());
     }
 
     SkImageInfo bitmapInfo = decodeInfo;
@@ -940,7 +941,11 @@ Error ColorCodecSrc::draw(SkCanvas* canvas) const {
     size_t rowBytes = bitmap.rowBytes();
     SkCodec::Result r = codec->getPixels(decodeInfo, bitmap.getPixels(), rowBytes);
     if (SkCodec::kSuccess != r && SkCodec::kIncompleteInput != r) {
-        return SkStringPrintf("Couldn't getPixels %s. Error code %d", fPath.c_str(), r);
+        // FIXME (raftias):
+        // This should be a fatal error.  We need to add support for
+        // A2B images in SkColorSpaceXform.
+        return Error::Nonfatal(SkStringPrintf("Couldn't getPixels %s. Error code %d",
+                                              fPath.c_str(), r));
     }
 
     switch (fMode) {
@@ -1181,8 +1186,6 @@ GPUSink::GPUSink(GrContextFactory::ContextType ct,
     , fColorSpace(std::move(colorSpace))
     , fThreaded(threaded) {}
 
-void PreAbandonGpuContextErrorHandler(SkError, void*) {}
-
 DEFINE_bool(imm, false, "Run gpu configs in immediate mode.");
 DEFINE_bool(batchClip, false, "Clip each GrBatch to its device bounds for testing.");
 DEFINE_bool(batchBounds, false, "Draw a wireframe bounds of each GrBatch.");
@@ -1219,7 +1222,6 @@ Error GPUSink::draw(const Src& src, SkBitmap* dst, SkWStream*, SkString* log) co
         return "Could not create a surface.";
     }
     if (FLAGS_preAbandonGpuContext) {
-        SkSetErrorCallback(&PreAbandonGpuContextErrorHandler, nullptr);
         factory.abandonContexts();
     }
     SkCanvas* canvas = surface->getCanvas();

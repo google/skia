@@ -42,17 +42,13 @@ public:
          */
         kNone_MSFBOType = 0,
         /**
-         * GL3.0-style MSAA FBO (GL_ARB_framebuffer_object).
+         * OpenGL < 3.0 with GL_EXT_framebuffer_object. Doesn't allow rendering to ALPHA.
          */
-        kDesktop_ARB_MSFBOType,
+        kEXT_MSFBOType,
         /**
-         * earlier GL_EXT_framebuffer* extensions
+         * OpenGL 3.0+, OpenGL ES 3.0+, and GL_ARB_framebuffer_object.
          */
-        kDesktop_EXT_MSFBOType,
-        /**
-         * Similar to kDesktop_ARB but with additional restrictions on glBlitFramebuffer.
-         */
-        kES_3_0_MSFBOType,
+        kStandard_MSFBOType,
         /**
          * GL_APPLE_framebuffer_multisample ES extension
          */
@@ -77,14 +73,14 @@ public:
         kLast_MSFBOType = kMixedSamples_MSFBOType
     };
 
-    enum BlitFramebufferSupport {
-        kNone_BlitFramebufferSupport,
-        /**
-         * ANGLE exposes a limited blit framebuffer extension that does not allow for stretching
-         * or mirroring.
-         */
-        kNoScalingNoMirroring_BlitFramebufferSupport,
-        kFull_BlitFramebufferSupport
+    enum BlitFramebufferFlags {
+        kNoSupport_BlitFramebufferFlag                    = 1 << 0,
+        kNoScalingOrMirroring_BlitFramebufferFlag         = 1 << 1,
+        kResolveMustBeFull_BlitFrambufferFlag             = 1 << 2,
+        kNoMSAADst_BlitFramebufferFlag                    = 1 << 3,
+        kNoFormatConversion_BlitFramebufferFlag           = 1 << 4,
+        kNoFormatConversionForMSAASrc_BlitFramebufferFlag = 1 << 5,
+        kRectsMustMatchForMSAASrc_BlitFramebufferFlag     = 1 << 6,
     };
 
     enum InvalidateFBType {
@@ -234,7 +230,7 @@ public:
     /**
      * What functionality is supported by glBlitFramebuffer.
      */
-    BlitFramebufferSupport blitFramebufferSupport() const { return fBlitFramebufferSupport; }
+    uint32_t blitFramebufferSupportFlags() const { return fBlitFramebufferFlags; }
 
     /**
      * Is the MSAA FBO extension one where the texture is multisampled when bound to an FBO and
@@ -418,7 +414,7 @@ private:
     bool fRGBAToBGRAReadbackConversionsAreSlow : 1;
     bool fDoManualMipmapping : 1;
 
-    BlitFramebufferSupport fBlitFramebufferSupport;
+    uint32_t fBlitFramebufferFlags;
 
     /** Number type of the components (with out considering number of bits.) */
     enum FormatType {

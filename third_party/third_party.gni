@@ -5,6 +5,9 @@
 
 template("third_party") {
   config(target_name + "_public") {
+    if (defined(invoker.public_defines)) {
+      defines = invoker.public_defines
+    }
     include_dirs = invoker.public_include_dirs
   }
   source_set(target_name) {
@@ -21,5 +24,5 @@ template("third_party") {
 }
 
 set_defaults("third_party") {
-  configs = default_configs
+  configs = default_configs - [ "//gn:warnings" ]
 }

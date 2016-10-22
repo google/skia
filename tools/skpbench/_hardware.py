@@ -21,7 +21,7 @@ class Hardware:
   """
 
   def __init__(self):
-    self.kick_in_time = 0
+    self.warmup_time = 0
 
   def __enter__(self):
     return self
@@ -31,6 +31,10 @@ class Hardware:
 
   def sanity_check(self):
     """Raises a HardwareException if any hardware state is not as expected."""
+    pass
+
+  def print_debug_diagnostics(self):
+    """Prints any info that may help improve or debug hardware monitoring."""
     pass
 
   def sleep(self, sleeptime):

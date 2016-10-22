@@ -11,7 +11,7 @@ declare_args() {
   is_official_build = false
   is_component_build = false
   ndk = ""
-  ndk_api = 0  # 0 == picked automatically for target_cpu.
+  ndk_api = 21
   sanitize = ""
 }
 declare_args() {
@@ -54,14 +54,6 @@ if (is_android) {
   ndk_platform = ""
   ndk_stdlib = ""
   ndk_gccdir = ""
-
-  if (ndk_api == 0) {
-    ndk_api = 18
-    if (target_cpu == "arm64" || target_cpu == "mips64el" ||
-        target_cpu == "x64") {
-      ndk_api = 21
-    }
-  }
 
   if (host_os == "linux") {
     ndk_host = "linux-x86_64"
@@ -118,6 +110,7 @@ template("component") {
 default_configs = [
   "//gn:default",
   "//gn:no_rtti",
+  "//gn:warnings",
 ]
 if (!is_debug) {
   default_configs += [ "//gn:release" ]

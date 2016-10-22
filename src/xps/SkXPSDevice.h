@@ -149,7 +149,7 @@ private:
         explicit TypefaceUse();
         ~TypefaceUse();
     };
-    friend static HRESULT subset_typeface(TypefaceUse* current);
+    friend HRESULT subset_typeface(TypefaceUse* current);
 
     SkXPSDevice(IXpsOMObjectFactory* xpsFactory);
 

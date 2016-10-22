@@ -9,11 +9,14 @@
 #include "GrContextFactory.h"
 #include "SkCanvas.h"
 #include "SkOSFile.h"
+#include "SkPerlinNoiseShader.h"
 #include "SkPicture.h"
+#include "SkPictureRecorder.h"
 #include "SkStream.h"
 #include "SkSurface.h"
 #include "SkSurfaceProps.h"
 #include "picture_utils.h"
+#include "sk_tool_utils.h"
 #include "flags/SkCommandLineFlags.h"
 #include "flags/SkCommonFlagsConfig.h"
 #include <stdlib.h>
@@ -38,7 +41,7 @@ DEFINE_int32(duration, 5000, "number of milliseconds to run the benchmark");
 DEFINE_int32(sampleMs, 50, "minimum duration of a sample");
 DEFINE_bool(gpuClock, false, "time on the gpu clock (gpu work only)");
 DEFINE_bool(fps, false, "use fps instead of ms");
-DEFINE_string(skp, "", "path to a single .skp file to benchmark");
+DEFINE_string(skp, "", "path to a single .skp file, or 'warmup' for a builtin warmup run");
 DEFINE_string(png, "", "if set, save a .png proof to disk at this file location");
 DEFINE_int32(verbosity, 4, "level of verbosity (0=none to 5=debug)");
 DEFINE_bool(suppressHeader, false, "don't print a header row before the results");
@@ -86,6 +89,7 @@ enum class ExitErr {
 };
 
 static void draw_skp_and_flush(SkCanvas*, const SkPicture*);
+static sk_sp<SkPicture> create_warmup_skp();
 static bool mkdir_p(const SkString& name);
 static SkString join(const SkCommandLineFlags::StringArray&);
 static void exitf(ExitErr, const char* format, ...);
@@ -230,31 +234,38 @@ int main(int argc, char** argv) {
     SkCommandLineConfigArray configs;
     ParseConfigs(FLAGS_config, &configs);
     if (configs.count() != 1 || !(config = configs[0]->asConfigGpu())) {
-        exitf(ExitErr::kUsage, "invalid config %s, must specify one (and only one) GPU config",
+        exitf(ExitErr::kUsage, "invalid config '%s': must specify one (and only one) GPU config",
                                join(FLAGS_config).c_str());
     }
 
     // Parse the skp.
     if (FLAGS_skp.count() != 1) {
-        exitf(ExitErr::kUsage, "invalid skp %s, must specify (and only one) skp path name.",
+        exitf(ExitErr::kUsage, "invalid skp '%s': must specify a single skp file, or 'warmup'",
                                join(FLAGS_skp).c_str());
     }
-    const char* skpfile = FLAGS_skp[0];
-    std::unique_ptr<SkStream> skpstream(SkStream::MakeFromFile(skpfile));
-    if (!skpstream) {
-        exitf(ExitErr::kIO, "failed to open skp file %s", skpfile);
-    }
-    sk_sp<SkPicture> skp = SkPicture::MakeFromStream(skpstream.get());
-    if (!skp) {
-        exitf(ExitErr::kData, "failed to parse skp file %s", skpfile);
+    sk_sp<SkPicture> skp;
+    SkString skpname;
+    if (0 == strcmp(FLAGS_skp[0], "warmup")) {
+        skp = create_warmup_skp();
+        skpname = "warmup";
+    } else {
+        const char* skpfile = FLAGS_skp[0];
+        std::unique_ptr<SkStream> skpstream(SkStream::MakeFromFile(skpfile));
+        if (!skpstream) {
+            exitf(ExitErr::kIO, "failed to open skp file %s", skpfile);
+        }
+        skp = SkPicture::MakeFromStream(skpstream.get());
+        if (!skp) {
+            exitf(ExitErr::kData, "failed to parse skp file %s", skpfile);
+        }
+        skpname = SkOSPath::Basename(skpfile);
     }
     int width = SkTMin(SkScalarCeilToInt(skp->cullRect().width()), 2048),
         height = SkTMin(SkScalarCeilToInt(skp->cullRect().height()), 2048);
     if (FLAGS_verbosity >= 3 &&
         (width != skp->cullRect().width() || height != skp->cullRect().height())) {
         fprintf(stderr, "%s is too large (%ix%i), cropping to %ix%i.\n",
-                        SkOSPath::Basename(skpfile).c_str(),
-                        SkScalarCeilToInt(skp->cullRect().width()),
+                        skpname.c_str(), SkScalarCeilToInt(skp->cullRect().width()),
                         SkScalarCeilToInt(skp->cullRect().height()), width, height);
     }
 
@@ -295,6 +306,7 @@ int main(int argc, char** argv) {
                                      width, height, config->getTag().c_str());
     }
 
+    // Run the benchmark.
     std::vector<Sample> samples;
     if (FLAGS_sampleMs > 0) {
         // +1 because we might take one more sample in order to have an odd number.
@@ -302,8 +314,6 @@ int main(int argc, char** argv) {
     } else {
         samples.reserve(2 * FLAGS_duration);
     }
-
-    // Run the benchmark.
     SkCanvas* canvas = surface->getCanvas();
     canvas->translate(-skp->cullRect().x(), -skp->cullRect().y());
     if (!FLAGS_gpuClock) {
@@ -315,7 +325,7 @@ int main(int argc, char** argv) {
         run_gpu_time_benchmark(testCtx->gpuTimer(), testCtx->fenceSync(), canvas, skp.get(),
                                &samples);
     }
-    print_result(samples, config->getTag().c_str(), SkOSPath::Basename(skpfile).c_str());
+    print_result(samples, config->getTag().c_str(), skpname.c_str());
 
     // Save a proof (if one was requested).
     if (!FLAGS_png.isEmpty()) {
@@ -342,6 +352,30 @@ static void draw_skp_and_flush(SkCanvas* canvas, const SkPicture* skp) {
     canvas->flush();
 }
 
+static sk_sp<SkPicture> create_warmup_skp() {
+    static constexpr SkRect bounds{0, 0, 500, 500};
+    SkPictureRecorder recorder;
+    SkCanvas* recording = recorder.beginRecording(bounds);
+
+    recording->clear(SK_ColorWHITE);
+
+    SkPaint stroke;
+    stroke.setStyle(SkPaint::kStroke_Style);
+    stroke.setStrokeWidth(2);
+
+    // Use a big path to (theoretically) warmup the CPU.
+    SkPath bigPath;
+    sk_tool_utils::make_big_path(bigPath);
+    recording->drawPath(bigPath, stroke);
+
+    // Use a perlin shader to warmup the GPU.
+    SkPaint perlin;
+    perlin.setShader(SkPerlinNoiseShader::MakeTurbulence(0.1f, 0.1f, 1, 0, nullptr));
+    recording->drawRect(bounds, perlin);
+
+    return recorder.finishRecordingAsPicture();
+}
+
 bool mkdir_p(const SkString& dirname) {
     if (dirname.isEmpty()) {
         return true;
@@ -351,8 +385,8 @@ bool mkdir_p(const SkString& dirname) {
 
 static SkString join(const SkCommandLineFlags::StringArray& stringArray) {
     SkString joined;
-    for (int i = 0; i < FLAGS_config.count(); ++i) {
-        joined.appendf(i ? " %s" : "%s", FLAGS_config[i]);
+    for (int i = 0; i < stringArray.count(); ++i) {
+        joined.appendf(i ? " %s" : "%s", stringArray[i]);
     }
     return joined;
 }

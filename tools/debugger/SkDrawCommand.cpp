@@ -7,6 +7,8 @@
 
 #include "SkDrawCommand.h"
 
+#include "png.h"
+
 #include "SkBlurMaskFilter.h"
 #include "SkColorFilter.h"
 #include "SkDashPathEffect.h"
@@ -661,7 +663,7 @@ static void write_png_callback(png_structp png_ptr, png_bytep data, png_size_t l
     out->write(data, length);
 }
 
-void SkDrawCommand::WritePNG(const png_bytep rgba, png_uint_32 width, png_uint_32 height,
+void SkDrawCommand::WritePNG(const uint8_t* rgba, unsigned width, unsigned height,
                              SkWStream& out, bool isOpaque) {
     png_structp png = png_create_write_struct(PNG_LIBPNG_VER_STRING, NULL, NULL, NULL);
     SkASSERT(png != nullptr);
@@ -678,7 +680,7 @@ void SkDrawCommand::WritePNG(const png_bytep rgba, png_uint_32 width, png_uint_3
     png_bytepp rows = (png_bytepp) sk_malloc_throw(height * sizeof(png_byte*));
     png_bytep pixels = (png_bytep) sk_malloc_throw(width * height * 4);
     for (png_size_t y = 0; y < height; ++y) {
-        const png_bytep src = rgba + y * width * 4;
+        const uint8_t* src = rgba + y * width * 4;
         rows[y] = pixels + y * width * 4;
         for (png_size_t x = 0; x < width; ++x) {
             rows[y][x * 4] = src[x * 4];
@@ -714,7 +716,7 @@ bool SkDrawCommand::flatten(const SkImage& image, Json::Value* target,
     sk_sp<SkData> encodedBitmap = sk_tools::encode_bitmap_for_png(bm);
 
     SkDynamicMemoryWStream out;
-    SkDrawCommand::WritePNG((const png_bytep) encodedBitmap->bytes(), image.width(), image.height(),
+    SkDrawCommand::WritePNG(encodedBitmap->bytes(), image.width(), image.height(),
                             out, false);
     sk_sp<SkData> encoded = out.detachAsData();
     Json::Value jsonData;

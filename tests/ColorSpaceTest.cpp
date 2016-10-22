@@ -9,6 +9,7 @@
 #include "SkCodec.h"
 #include "SkColorSpace.h"
 #include "SkColorSpace_Base.h"
+#include "SkColorSpace_XYZ.h"
 #include "Test.h"
 
 #include "png.h"
@@ -22,9 +23,11 @@ static void test_space(skiatest::Reporter* r, SkColorSpace* space,
                        const SkGammaNamed expectedGamma) {
 
     REPORTER_ASSERT(r, nullptr != space);
-    REPORTER_ASSERT(r, expectedGamma == as_CSB(space)->gammaNamed());
+    SkASSERT(SkColorSpace_Base::Type::kXYZ == as_CSB(space)->type());
+    SkColorSpace_XYZ* csXYZ = static_cast<SkColorSpace_XYZ*>(space);
+    REPORTER_ASSERT(r, expectedGamma == csXYZ->gammaNamed());
 
-    const SkMatrix44& mat = as_CSB(space)->toXYZD50();
+    const SkMatrix44& mat = *csXYZ->toXYZD50();
     const float src[] = {
         1, 0, 0, 1,
         0, 1, 0, 1,
@@ -120,8 +123,9 @@ DEF_TEST(ColorSpaceSRGBLinearCompare, r) {
     sk_sp<SkColorSpace> namedColorSpace = SkColorSpace::NewNamed(SkColorSpace::kSRGBLinear_Named);
 
     // Create the linear sRGB color space via the sRGB color space's makeLinearGamma()
-    sk_sp<SkColorSpace> viaSrgbColorSpace =
-        SkColorSpace::NewNamed(SkColorSpace::kSRGB_Named)->makeLinearGamma();
+    auto srgb = SkColorSpace::NewNamed(SkColorSpace::kSRGB_Named);
+    auto srgbXYZ = static_cast<SkColorSpace_XYZ*>(srgb.get());
+    sk_sp<SkColorSpace> viaSrgbColorSpace = srgbXYZ->makeLinearGamma();
     REPORTER_ASSERT(r, namedColorSpace == viaSrgbColorSpace);
 
     // Create a linear sRGB color space by value
@@ -166,8 +170,13 @@ DEF_TEST(ColorSpaceWriteICC, r) {
     sk_sp<SkData> newMonitorData = ColorSpaceTest::WriteToICC(monitorSpace.get());
     sk_sp<SkColorSpace> newMonitorSpace = SkColorSpace::NewICC(newMonitorData->data(),
                                                                newMonitorData->size());
-    REPORTER_ASSERT(r, as_CSB(monitorSpace)->toXYZD50() == as_CSB(newMonitorSpace)->toXYZD50());
-    REPORTER_ASSERT(r, as_CSB(monitorSpace)->gammaNamed() == as_CSB(newMonitorSpace)->gammaNamed());
+    SkASSERT(SkColorSpace_Base::Type::kXYZ == as_CSB(monitorSpace)->type());
+    SkColorSpace_XYZ* monitorSpaceXYZ = static_cast<SkColorSpace_XYZ*>(monitorSpace.get());
+    SkASSERT(SkColorSpace_Base::Type::kXYZ == as_CSB(newMonitorSpace)->type());
+    SkColorSpace_XYZ* newMonitorSpaceXYZ = static_cast<SkColorSpace_XYZ*>(newMonitorSpace.get());
+    REPORTER_ASSERT(r, *monitorSpaceXYZ->toXYZD50() == *newMonitorSpaceXYZ->toXYZD50());
+    REPORTER_ASSERT(r, monitorSpaceXYZ->toXYZD50Hash() == newMonitorSpaceXYZ->toXYZD50Hash());
+    REPORTER_ASSERT(r, monitorSpaceXYZ->gammaNamed() == newMonitorSpaceXYZ->gammaNamed());
 }
 
 DEF_TEST(ColorSpace_Named, r) {
@@ -184,7 +193,9 @@ DEF_TEST(ColorSpace_Named, r) {
         auto cs = SkColorSpace::NewNamed(rec.fNamed);
         REPORTER_ASSERT(r, cs);
         if (cs) {
-            REPORTER_ASSERT(r, rec.fExpectedGamma == as_CSB(cs)->gammaNamed());
+            SkASSERT(SkColorSpace_Base::Type::kXYZ == as_CSB(cs)->type());
+            SkColorSpace_XYZ* csXYZ = static_cast<SkColorSpace_XYZ*>(cs.get());
+            REPORTER_ASSERT(r, rec.fExpectedGamma == csXYZ->gammaNamed());
         }
     }
 
@@ -228,7 +239,17 @@ DEF_TEST(ColorSpace_Serialize, r) {
 
     const float gammas[] = { 1.1f, 1.2f, 1.7f, };
     SkMatrix44 toXYZ(SkMatrix44::kIdentity_Constructor);
-    test_serialize(r, SkColorSpace_Base::NewRGB(gammas, toXYZ).get(), false);
+    test_serialize(r, SkColorSpace::NewRGB(gammas, toXYZ).get(), false);
+
+    SkColorSpaceTransferFn fn;
+    fn.fA = 1.0f;
+    fn.fB = 0.0f;
+    fn.fC = 0.0f;
+    fn.fD = 0.5f;
+    fn.fE = 1.0f;
+    fn.fF = 0.0f;
+    fn.fG = 1.0f;
+    test_serialize(r, SkColorSpace::NewRGB(fn, toXYZ).get(), false);
 }
 
 DEF_TEST(ColorSpace_Equals, r) {
@@ -246,9 +267,19 @@ DEF_TEST(ColorSpace_Equals, r) {
     const float gammas1[] = { 1.1f, 1.2f, 1.3f, };
     const float gammas2[] = { 1.1f, 1.2f, 1.7f, };
     SkMatrix44 toXYZ(SkMatrix44::kIdentity_Constructor);
-    sk_sp<SkColorSpace> rgb1 = SkColorSpace_Base::NewRGB(gammas1, toXYZ);
-    sk_sp<SkColorSpace> rgb2 = SkColorSpace_Base::NewRGB(gammas2, toXYZ);
-    sk_sp<SkColorSpace> rgb3 = SkColorSpace_Base::NewRGB(gammas1, toXYZ);
+    sk_sp<SkColorSpace> rgb1 = SkColorSpace::NewRGB(gammas1, toXYZ);
+    sk_sp<SkColorSpace> rgb2 = SkColorSpace::NewRGB(gammas2, toXYZ);
+    sk_sp<SkColorSpace> rgb3 = SkColorSpace::NewRGB(gammas1, toXYZ);
+
+    SkColorSpaceTransferFn fn;
+    fn.fA = 1.0f;
+    fn.fB = 0.0f;
+    fn.fC = 0.0f;
+    fn.fD = 0.5f;
+    fn.fE = 1.0f;
+    fn.fF = 0.0f;
+    fn.fG = 1.0f;
+    sk_sp<SkColorSpace> rgb4 = SkColorSpace::NewRGB(fn, toXYZ);
 
     REPORTER_ASSERT(r, SkColorSpace::Equals(nullptr, nullptr));
     REPORTER_ASSERT(r, SkColorSpace::Equals(srgb.get(), srgb.get()));
@@ -259,6 +290,7 @@ DEF_TEST(ColorSpace_Equals, r) {
     REPORTER_ASSERT(r, SkColorSpace::Equals(upperRight.get(), upperRight.get()));
     REPORTER_ASSERT(r, SkColorSpace::Equals(rgb1.get(), rgb1.get()));
     REPORTER_ASSERT(r, SkColorSpace::Equals(rgb1.get(), rgb3.get()));
+    REPORTER_ASSERT(r, SkColorSpace::Equals(rgb4.get(), rgb4.get()));
 
     REPORTER_ASSERT(r, !SkColorSpace::Equals(nullptr, srgb.get()));
     REPORTER_ASSERT(r, !SkColorSpace::Equals(srgb.get(), nullptr));
@@ -270,4 +302,25 @@ DEF_TEST(ColorSpace_Equals, r) {
     REPORTER_ASSERT(r, !SkColorSpace::Equals(z30.get(), upperRight.get()));
     REPORTER_ASSERT(r, !SkColorSpace::Equals(upperRight.get(), adobe.get()));
     REPORTER_ASSERT(r, !SkColorSpace::Equals(rgb1.get(), rgb2.get()));
+    REPORTER_ASSERT(r, !SkColorSpace::Equals(rgb1.get(), rgb4.get()));
+}
+
+DEF_TEST(ColorSpace_Primaries, r) {
+    // sRGB primaries
+    SkColorSpacePrimaries primaries;
+    primaries.fRX = 0.64f;
+    primaries.fRY = 0.33f;
+    primaries.fGX = 0.30f;
+    primaries.fGY = 0.60f;
+    primaries.fBX = 0.15f;
+    primaries.fBY = 0.06f;
+    primaries.fWX = 0.3127f;
+    primaries.fWY = 0.3290f;
+
+    SkMatrix44 toXYZ(SkMatrix44::kUninitialized_Constructor);
+    bool result = primaries.toXYZD50(&toXYZ);
+    REPORTER_ASSERT(r, result);
+
+    sk_sp<SkColorSpace> space = SkColorSpace::NewRGB(SkColorSpace::kSRGB_RenderTargetGamma, toXYZ);
+    REPORTER_ASSERT(r, SkColorSpace::NewNamed(SkColorSpace::kSRGB_Named) == space);
 }

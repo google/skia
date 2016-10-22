@@ -12,9 +12,11 @@
 #include "SampleSlide.h"
 #include "SKPSlide.h"
 
+#include "SkATrace.h"
 #include "SkCanvas.h"
-#include "SkCommonFlags.h"
+#include "SkCommandLineFlags.h"
 #include "SkDashPathEffect.h"
+#include "SkGraphics.h"
 #include "SkMetaData.h"
 #include "SkOSFile.h"
 #include "SkRandom.h"
@@ -47,9 +49,9 @@ static void on_ui_state_changed_handler(const SkString& stateName, const SkStrin
     return viewer->onUIStateChanged(stateName, stateValue);
 }
 
-DEFINE_bool2(fullscreen, f, true, "Run fullscreen.");
-DEFINE_string(key, "", "Space-separated key/value pairs to add to JSON identifying this builder.");
-DEFINE_string2(match, m, nullptr,
+static DEFINE_bool2(fullscreen, f, true, "Run fullscreen.");
+
+static DEFINE_string2(match, m, nullptr,
                "[~][^]substring[$] [...] of bench name to run.\n"
                "Multiple matches may be separated by spaces.\n"
                "~ causes a matching bench to always be skipped\n"
@@ -66,14 +68,16 @@ DEFINE_string2(match, m, nullptr,
 #endif
 
 #ifdef SK_BUILD_FOR_ANDROID
-DEFINE_string(skps, "/data/local/tmp/skia", "Directory to read skps from.");
-DEFINE_string(jpgs, "/data/local/tmp/skia", "Directory to read jpgs from.");
+static DEFINE_string(skps, "/data/local/tmp/skia", "Directory to read skps from.");
+static DEFINE_string(jpgs, "/data/local/tmp/skia", "Directory to read jpgs from.");
 #else
-DEFINE_string(skps, "skps", "Directory to read skps from.");
-DEFINE_string(jpgs, "jpgs", "Directory to read jpgs from.");
+static DEFINE_string(skps, "skps", "Directory to read skps from.");
+static DEFINE_string(jpgs, "jpgs", "Directory to read jpgs from.");
 #endif
 
-DEFINE_string2(backend, b, "sw", "Backend to use. Allowed values are " BACKENDS_STR ".");
+static DEFINE_string2(backend, b, "sw", "Backend to use. Allowed values are " BACKENDS_STR ".");
+
+static DEFINE_bool(atrace, false, "Enable support for using ATrace. ATrace is only supported on Android.");
 
 const char *kBackendTypeStrings[sk_app::Window::kBackendTypeCount] = {
     " [OpenGL]",
@@ -123,6 +127,7 @@ Viewer::Viewer(int argc, char** argv, void* platformData)
     , fZoomLevel(0.0f)
     , fZoomScale(SK_Scalar1)
 {
+    SkGraphics::Init();
     memset(fMeasurements, 0, sizeof(fMeasurements));
 
     SkDebugf("Command line arguments: ");
@@ -132,6 +137,10 @@ Viewer::Viewer(int argc, char** argv, void* platformData)
     SkDebugf("\n");
 
     SkCommandLineFlags::Parse(argc, argv);
+
+    if (FLAGS_atrace) {
+        SkEventTracer::SetInstance(new SkATrace());
+    }
 
     fBackendType = get_backend_type(FLAGS_backend[0]);
     fWindow = Window::CreateNativeWindow(platformData);

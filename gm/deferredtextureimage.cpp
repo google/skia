@@ -33,7 +33,7 @@ static void DrawDeferredTextureImageData(SkCanvas* canvas,
     }
 
     size_t requiredMemoryInBytes = encodedImage->getDeferredTextureImageData(
-        *proxy, params, 1, nullptr, SkSourceGammaTreatment::kRespect);
+        *proxy, params, 1, nullptr, canvas->imageInfo().colorSpace());
     if (requiredMemoryInBytes == 0) {
         SkDebugf("\nCould not create DeferredTextureImageData.\n");
         return;
@@ -42,7 +42,7 @@ static void DrawDeferredTextureImageData(SkCanvas* canvas,
     std::vector<uint8_t> memory;
     memory.resize(requiredMemoryInBytes);
     encodedImage->getDeferredTextureImageData(
-        *proxy, params, 1, memory.data(), SkSourceGammaTreatment::kRespect);
+        *proxy, params, 1, memory.data(), canvas->imageInfo().colorSpace());
     sk_sp<SkImage> uploadedEncodedImage = SkImage::MakeFromDeferredTextureImageData(
         context, memory.data(), SkBudgeted::kNo);
 
@@ -58,7 +58,7 @@ static void DrawDeferredTextureImageData(SkCanvas* canvas,
     sk_sp<SkImage> decodedImage = SkImage::MakeFromBitmap(bitmap);
 
     requiredMemoryInBytes = decodedImage->getDeferredTextureImageData(
-        *proxy, params, 1, nullptr, SkSourceGammaTreatment::kRespect);
+        *proxy, params, 1, nullptr, canvas->imageInfo().colorSpace());
     if (requiredMemoryInBytes == 0) {
         SkDebugf("\nCould not create DeferredTextureImageData.\n");
         return;
@@ -66,7 +66,7 @@ static void DrawDeferredTextureImageData(SkCanvas* canvas,
 
     memory.resize(requiredMemoryInBytes);
     decodedImage->getDeferredTextureImageData(
-        *proxy, params, 1, memory.data(), SkSourceGammaTreatment::kRespect);
+        *proxy, params, 1, memory.data(), canvas->imageInfo().colorSpace());
     sk_sp<SkImage> uploadedDecodedImage = SkImage::MakeFromDeferredTextureImageData(
         context, memory.data(), SkBudgeted::kNo);
 
@@ -87,7 +87,7 @@ static void DrawDeferredTextureImageMipMapTree(SkCanvas* canvas, SkImage* image,
 
     int mipLevelCount = SkMipMap::ComputeLevelCount(512, 512);
     size_t requiredMemoryInBytes = image->getDeferredTextureImageData(
-        *proxy, params, 1, nullptr, SkSourceGammaTreatment::kRespect);
+        *proxy, params, 1, nullptr, canvas->imageInfo().colorSpace());
     if (requiredMemoryInBytes == 0) {
         SkDebugf("\nCould not create DeferredTextureImageData.\n");
         return;
@@ -96,7 +96,7 @@ static void DrawDeferredTextureImageMipMapTree(SkCanvas* canvas, SkImage* image,
     std::vector<uint8_t> memory;
     memory.resize(requiredMemoryInBytes);
     image->getDeferredTextureImageData(
-        *proxy, params, 1, memory.data(), SkSourceGammaTreatment::kRespect);
+        *proxy, params, 1, memory.data(), canvas->imageInfo().colorSpace());
     sk_sp<SkImage> uploadedImage = SkImage::MakeFromDeferredTextureImageData(
         context, memory.data(), SkBudgeted::kNo);
 

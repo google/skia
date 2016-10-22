@@ -34,17 +34,18 @@ TEST_BUILDERS = {
       'Perf-Mac-Clang-MacMini6.2-GPU-HD4000-x86_64-Debug-CommandBuffer',
       'Perf-Ubuntu-Clang-GCE-CPU-AVX2-x86_64-Release-GN',
       'Perf-Ubuntu-GCC-ShuttleA-GPU-GTX550Ti-x86_64-Release-Valgrind',
-      'Perf-Ubuntu-GCC-ShuttleA-GPU-GTX550Ti-x86_64-Release-VisualBench',
+      'Perf-Ubuntu-GCC-ShuttleA-GPU-GTX550Ti-x86_64-Release-ANGLE',
       'Perf-Win-MSVC-GCE-CPU-AVX2-x86_64-Debug',
       'Perf-Win-MSVC-GCE-CPU-AVX2-x86_64-Release',
       'Perf-Win8-MSVC-ShuttleB-GPU-HD4600-x86_64-Release-Trybot',
+      'Perf-Win8-MSVC-ShuttleB-GPU-GTX960-x86_64-Debug-ANGLE',
       'Perf-iOS-Clang-iPad4-GPU-SGX554-Arm7-Debug',
     ],
   },
 }
 
 
-import time
+import calendar
 
 
 def nanobench_flags(bot):
@@ -62,7 +63,7 @@ def nanobench_flags(bot):
   if 'iOS' in bot:
     args.extend(['--skps', 'ignore_skps'])
 
-  config = ['8888', 'gpu', 'nonrendering', 'angle', 'hwui' ]
+  config = ['8888', 'gpu', 'nonrendering', 'hwui' ]
   if 'AndroidOne' not in bot:
     config += [ 'f16', 'srgb' ]
   if '-GCE-' in bot:
@@ -94,6 +95,12 @@ def nanobench_flags(bot):
     config = ['commandbuffer']
   if 'Vulkan' in bot:
     config = ['vk']
+
+  if 'ANGLE' in bot:
+    config.extend(['angle_d3d11_es2'])
+    # The GL backend of ANGLE crashes on the perf bot currently.
+    if 'Win' not in bot:
+      config.extend(['angle_gl_es2'])
 
   args.append('--config')
   args.extend(config)
@@ -181,10 +188,12 @@ def perf_steps(api):
       'patchset', api.vars.patchset,
       'patch_storage', api.vars.patch_storage,
     ])
+  if api.vars.no_buildbot:
+    properties.extend(['no_buildbot', 'True'])
+    properties.extend(['swarming_bot_id', api.vars.swarming_bot_id])
+    properties.extend(['swarming_task_id', api.vars.swarming_task_id])
 
   target = 'nanobench'
-  if 'VisualBench' in api.vars.builder_name:
-    target = 'visualbench'
   args = [
       target,
       '--undefok',   # This helps branches that may not know new flags.
@@ -209,7 +218,7 @@ def perf_steps(api):
 
   if api.vars.upload_perf_results:
     now = api.time.utcnow()
-    ts = int(time.mktime(now.utctimetuple()))
+    ts = int(calendar.timegm(now.utctimetuple()))
     json_path = api.flavor.device_path_join(
         api.flavor.device_dirs.perf_data_dir,
         'nanobench_%s_%d.json' % (api.vars.got_revision, ts))
@@ -330,3 +339,31 @@ def GenTests(api):
           revision='abc123',
           **gerrit_kwargs)
   )
+
+  yield (
+      api.test('nobuildbot') +
+      api.properties(buildername=builder,
+                     mastername='client.skia',
+                     slavename='skiabot-linux-swarm-000',
+                     buildnumber=5,
+                     revision='abc123',
+                     path_config='kitchen',
+                     nobuildbot='True',
+                     swarm_out_dir='[SWARM_OUT_DIR]',
+                     **gerrit_kwargs) +
+      api.path.exists(
+          api.path['slave_build'].join('skia'),
+          api.path['slave_build'].join('skia', 'infra', 'bots', 'assets',
+                                       'skimage', 'VERSION'),
+          api.path['slave_build'].join('skia', 'infra', 'bots', 'assets',
+                                       'skp', 'VERSION'),
+          api.path['slave_build'].join('skia', 'infra', 'bots', 'assets',
+                                       'svg', 'VERSION'),
+          api.path['slave_build'].join('tmp', 'uninteresting_hashes.txt')
+      ) +
+      api.platform('win', 64) +
+      api.step_data('get swarming bot id',
+          stdout=api.raw_io.output('skia-bot-123')) +
+      api.step_data('get swarming task id', stdout=api.raw_io.output('123456'))
+  )
+

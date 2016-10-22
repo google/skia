@@ -38,31 +38,26 @@ static SkGlyphCache_Globals& get_globals() {
 #define kMinGlyphImageSize  (16*2)
 #define kMinAllocAmount     ((sizeof(SkGlyph) + kMinGlyphImageSize) * kMinGlyphCount)
 
-SkGlyphCache::SkGlyphCache(SkTypeface* typeface, const SkDescriptor* desc, SkScalerContext* ctx)
+SkGlyphCache::SkGlyphCache(const SkDescriptor* desc, std::unique_ptr<SkScalerContext> ctx)
     : fDesc(desc->copy())
-    , fScalerContext(ctx)
+    , fScalerContext(std::move(ctx))
     , fGlyphAlloc(kMinAllocAmount) {
-    SkASSERT(typeface);
     SkASSERT(desc);
-    SkASSERT(ctx);
+    SkASSERT(fScalerContext);
 
     fPrev = fNext = nullptr;
 
     fScalerContext->getFontMetrics(&fFontMetrics);
 
     fMemoryUsed = sizeof(*this);
-
-    fAuxProcList = nullptr;
 }
 
 SkGlyphCache::~SkGlyphCache() {
-    fGlyphMap.foreach ([](SkGlyph* g) {
+    fGlyphMap.foreach([](SkGlyph* g) {
         if (g->fPathData) {
             delete g->fPathData->fPath;
-        } } );
-    SkDescriptor::Free(fDesc);
-    delete fScalerContext;
-    this->invokeAndRemoveAuxProcs();
+        }
+    });
 }
 
 SkGlyphCache::CharGlyphRec* SkGlyphCache::getCharGlyphRec(PackedUnicharID packedUnicharID) {
@@ -426,53 +421,6 @@ void SkGlyphCache::dump() const {
 }
 
 ///////////////////////////////////////////////////////////////////////////////
-
-bool SkGlyphCache::getAuxProcData(void (*proc)(void*), void** dataPtr) const {
-    const AuxProcRec* rec = fAuxProcList;
-    while (rec) {
-        if (rec->fProc == proc) {
-            if (dataPtr) {
-                *dataPtr = rec->fData;
-            }
-            return true;
-        }
-        rec = rec->fNext;
-    }
-    return false;
-}
-
-void SkGlyphCache::setAuxProc(void (*proc)(void*), void* data) {
-    if (proc == nullptr) {
-        return;
-    }
-
-    AuxProcRec* rec = fAuxProcList;
-    while (rec) {
-        if (rec->fProc == proc) {
-            rec->fData = data;
-            return;
-        }
-        rec = rec->fNext;
-    }
-    // not found, create a new rec
-    rec = new AuxProcRec;
-    rec->fProc = proc;
-    rec->fData = data;
-    rec->fNext = fAuxProcList;
-    fAuxProcList = rec;
-}
-
-void SkGlyphCache::invokeAndRemoveAuxProcs() {
-    AuxProcRec* rec = fAuxProcList;
-    while (rec) {
-        rec->fProc(rec->fData);
-        AuxProcRec* next = rec->fNext;
-        delete rec;
-        rec = next;
-    }
-}
-
-///////////////////////////////////////////////////////////////////////////////
 ///////////////////////////////////////////////////////////////////////////////
 
 size_t SkGlyphCache_Globals::getTotalMemoryUsed() const {
@@ -579,13 +527,13 @@ SkGlyphCache* SkGlyphCache::VisitCache(SkTypeface* typeface,
     {
         // pass true the first time, to notice if the scalercontext failed,
         // so we can try the purge.
-        SkScalerContext* ctx = typeface->createScalerContext(effects, desc, true);
+        std::unique_ptr<SkScalerContext> ctx = typeface->createScalerContext(effects, desc, true);
         if (!ctx) {
             get_globals().purgeAll();
             ctx = typeface->createScalerContext(effects, desc, false);
             SkASSERT(ctx);
         }
-        cache = new SkGlyphCache(typeface, desc, ctx);
+        cache = new SkGlyphCache(desc, std::move(ctx));
     }
 
     AutoValidate av(cache);

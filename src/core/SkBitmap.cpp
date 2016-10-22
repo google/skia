@@ -8,6 +8,7 @@
 #include "SkAtomics.h"
 #include "SkBitmap.h"
 #include "SkColorPriv.h"
+#include "SkConfig8888.h"
 #include "SkData.h"
 #include "SkFilterQuality.h"
 #include "SkMallocPixelRef.h"
@@ -906,72 +907,21 @@ bool SkBitmap::deepCopyTo(SkBitmap* dst) const {
 
 ///////////////////////////////////////////////////////////////////////////////
 
-static void rect_memset(uint8_t* array, U8CPU value, SkISize size, size_t rowBytes) {
-    for (int y = 0; y < size.height(); ++y) {
-        memset(array, value, size.width());
-        array += rowBytes;
-    }
-}
-
-static void get_bitmap_alpha(const SkPixmap& pmap, uint8_t* SK_RESTRICT alpha, int alphaRowBytes) {
-    SkColorType colorType = pmap.colorType();
-    int         w = pmap.width();
-    int         h = pmap.height();
-    size_t      rb = pmap.rowBytes();
-
-    if (kAlpha_8_SkColorType == colorType && !pmap.isOpaque()) {
-        const uint8_t* s = pmap.addr8(0, 0);
-        while (--h >= 0) {
-            memcpy(alpha, s, w);
-            s += rb;
-            alpha += alphaRowBytes;
-        }
-    } else if (kN32_SkColorType == colorType && !pmap.isOpaque()) {
-        const SkPMColor* SK_RESTRICT s = pmap.addr32(0, 0);
-        while (--h >= 0) {
-            for (int x = 0; x < w; x++) {
-                alpha[x] = SkGetPackedA32(s[x]);
-            }
-            s = (const SkPMColor*)((const char*)s + rb);
-            alpha += alphaRowBytes;
-        }
-    } else if (kARGB_4444_SkColorType == colorType && !pmap.isOpaque()) {
-        const SkPMColor16* SK_RESTRICT s = pmap.addr16(0, 0);
-        while (--h >= 0) {
-            for (int x = 0; x < w; x++) {
-                alpha[x] = SkPacked4444ToA32(s[x]);
-            }
-            s = (const SkPMColor16*)((const char*)s + rb);
-            alpha += alphaRowBytes;
-        }
-    } else if (kIndex_8_SkColorType == colorType && !pmap.isOpaque()) {
-        const SkColorTable* ct = pmap.ctable();
-        if (ct) {
-            const SkPMColor* SK_RESTRICT table = ct->readColors();
-            const uint8_t* SK_RESTRICT s = pmap.addr8(0, 0);
-            while (--h >= 0) {
-                for (int x = 0; x < w; x++) {
-                    alpha[x] = SkGetPackedA32(table[s[x]]);
-                }
-                s += rb;
-                alpha += alphaRowBytes;
-            }
-        }
-    } else {    // src is opaque, so just fill alpha[] with 0xFF
-        rect_memset(alpha, 0xFF, pmap.info().dimensions(), alphaRowBytes);
-    }
-}
-
 static bool GetBitmapAlpha(const SkBitmap& src, uint8_t* SK_RESTRICT alpha, int alphaRowBytes) {
     SkASSERT(alpha != nullptr);
     SkASSERT(alphaRowBytes >= src.width());
 
     SkAutoPixmapUnlock apl;
     if (!src.requestLock(&apl)) {
-        rect_memset(alpha, 0, src.info().dimensions(), alphaRowBytes);
+        for (int y = 0; y < src.height(); ++y) {
+            memset(alpha, 0, src.width());
+            alpha += alphaRowBytes;
+        }
         return false;
     }
-    get_bitmap_alpha(apl.pixmap(), alpha, alphaRowBytes);
+    const SkPixmap& pmap = apl.pixmap();
+    SkPixelInfo::CopyPixels(SkImageInfo::MakeA8(pmap.width(), pmap.height()), alpha, alphaRowBytes,
+                            pmap.info(), pmap.addr(), pmap.rowBytes(), pmap.ctable());
     return true;
 }
 

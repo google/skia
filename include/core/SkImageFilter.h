@@ -223,12 +223,6 @@ public:
      */
     sk_sp<SkImageFilter> makeWithLocalMatrix(const SkMatrix&) const;
 
-#ifdef SK_SUPPORT_LEGACY_IMAGEFILTER_PTR
-    SkImageFilter* newWithLocalMatrix(const SkMatrix& matrix) const {
-        return this->makeWithLocalMatrix(matrix).release();
-    }
-#endif
-
     /**
      *  ImageFilters can natively handle scaling and translate components in the CTM. Only some of
      *  them can handle affine (or more complex) matrices. This call returns true iff the filter
@@ -242,14 +236,6 @@ public:
     static sk_sp<SkImageFilter> MakeMatrixFilter(const SkMatrix& matrix,
                                                  SkFilterQuality quality,
                                                  sk_sp<SkImageFilter> input);
-
-#ifdef SK_SUPPORT_LEGACY_IMAGEFILTER_PTR
-    static SkImageFilter* CreateMatrixFilter(const SkMatrix& matrix,
-                                             SkFilterQuality filterQuality,
-                                             SkImageFilter* input = nullptr) {
-        return MakeMatrixFilter(matrix, filterQuality, sk_ref_sp<SkImageFilter>(input)).release();
-    }
-#endif
 
     SK_TO_STRING_PUREVIRT()
     SK_DEFINE_FLATTENABLE_TYPE(SkImageFilter)

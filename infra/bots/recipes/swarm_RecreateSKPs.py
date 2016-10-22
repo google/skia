@@ -110,28 +110,6 @@ def RunSteps(api):
            ['ninja', '-C', out_dir, 'chrome'],
            cwd=src_dir)
 
-  # Download boto file (needed by recreate_skps.py) to tmp dir.
-  boto_file = api.path['slave_build'].join('tmp', '.boto')
-  api.python.inline(
-      'download boto file',
-      """
-import os
-import urllib2
-
-BOTO_URL = 'http://metadata/computeMetadata/v1/project/attributes/boto-file'
-
-dest_path = '%s'
-dest_dir = os.path.dirname(dest_path)
-if not os.path.exists(dest_dir):
-  os.makedirs(dest_dir)
-
-req = urllib2.Request(BOTO_URL, headers={'Metadata-Flavor': 'Google'})
-contents = urllib2.urlopen(req).read()
-
-with open(dest_path, 'w') as f:
-  f.write(contents)
-        """ % boto_file)
-
   # Clean up the output dir.
   output_dir = api.path['slave_build'].join('skp_output')
   if api.path.exists(output_dir):
@@ -144,13 +122,6 @@ with open(dest_path, 'w') as f:
       'CHROME_HEADLESS': '1',
       'PATH': path_var,
   }
-  boto_env = {
-      'AWS_CREDENTIAL_FILE': boto_file,
-      'BOTO_CONFIG': boto_file,
-  }
-  recreate_skps_env = {}
-  recreate_skps_env.update(env)
-  recreate_skps_env.update(boto_env)
   asset_dir = api.vars.infrabots_dir.join('assets', 'skp')
   cmd = ['python', asset_dir.join('create.py'),
          '--chrome_src_path', src_dir,
@@ -161,7 +132,7 @@ with open(dest_path, 'w') as f:
   api.step('Recreate SKPs',
            cmd=cmd,
            cwd=api.vars.skia_dir,
-           env=recreate_skps_env)
+           env=env)
 
   # Upload the SKPs.
   if 'Canary' not in api.properties['buildername']:

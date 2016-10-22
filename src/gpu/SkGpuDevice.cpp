@@ -17,7 +17,6 @@
 
 #include "SkCanvasPriv.h"
 #include "SkDraw.h"
-#include "SkErrorInternals.h"
 #include "SkGlyphCache.h"
 #include "SkGr.h"
 #include "SkGrPriv.h"
@@ -242,7 +241,7 @@ void SkGpuDevice::replaceDrawContext(bool shouldRetainContent) {
 
     SkBudgeted budgeted = fDrawContext->drawContextPriv().isBudgeted();
 
-    sk_sp<GrDrawContext> newDC(MakeDrawContext(this->context(), 
+    sk_sp<GrDrawContext> newDC(MakeDrawContext(this->context(),
                                                budgeted,
                                                this->imageInfo(),
                                                fDrawContext->numColorSamples(),
@@ -420,32 +419,30 @@ void SkGpuDevice::drawRRect(const SkDraw& draw, const SkRRect& rrect,
         return;
     }
 
+    SkMaskFilter* mf = paint.getMaskFilter();
+    if (mf && mf->asFragmentProcessor(nullptr, nullptr, *draw.fMatrix)) {
+        mf = nullptr; // already handled in SkPaintToGrPaint
+    }
+
     GrStyle style(paint);
-    if (paint.getMaskFilter()) {
+    if (mf) {
         // try to hit the fast path for drawing filtered round rects
 
         SkRRect devRRect;
         if (rrect.transform(*draw.fMatrix, &devRRect)) {
             if (devRRect.allCornersCircular()) {
                 SkRect maskRect;
-                if (paint.getMaskFilter()->canFilterMaskGPU(devRRect,
-                                                            draw.fRC->getBounds(),
-                                                            *draw.fMatrix,
-                                                            &maskRect)) {
+                if (mf->canFilterMaskGPU(devRRect, draw.fRC->getBounds(),
+                                         *draw.fMatrix, &maskRect)) {
                     SkIRect finalIRect;
                     maskRect.roundOut(&finalIRect);
                     if (draw.fRC->quickReject(finalIRect)) {
                         // clipped out
                         return;
                     }
-                    if (paint.getMaskFilter()->directFilterRRectMaskGPU(fContext,
-                                                                        fDrawContext.get(),
-                                                                        &grPaint,
-                                                                        fClip,
-                                                                        *draw.fMatrix,
-                                                                        style.strokeRec(),
-                                                                        rrect,
-                                                                        devRRect)) {
+                    if (mf->directFilterRRectMaskGPU(fContext, fDrawContext.get(), &grPaint, fClip,
+                                                     *draw.fMatrix, style.strokeRec(), rrect,
+                                                     devRRect)) {
                         return;
                     }
                 }
@@ -454,7 +451,7 @@ void SkGpuDevice::drawRRect(const SkDraw& draw, const SkRRect& rrect,
         }
     }
 
-    if (paint.getMaskFilter() || style.pathEffect()) {
+    if (mf || style.pathEffect()) {
         // The only mask filter the native rrect drawing code could've handle was taken
         // care of above.
         // A path effect will presumably transform this rrect into something else.
@@ -1123,7 +1120,7 @@ void SkGpuDevice::drawSprite(const SkDraw& draw, const SkBitmap& bitmap,
 }
 
 
-void SkGpuDevice::drawSpecial(const SkDraw& draw, 
+void SkGpuDevice::drawSpecial(const SkDraw& draw,
                               SkSpecialImage* special1,
                               int left, int top,
                               const SkPaint& paint) {
@@ -1791,10 +1788,7 @@ SkBaseDevice* SkGpuDevice::onCreateDevice(const CreateInfo& cinfo, const SkPaint
                                                       kDefault_GrSurfaceOrigin,
                                                       &props));
     if (!dc) {
-        SkErrorInternals::SetError( kInternalError_SkError,
-                                    "---- failed to create gpu device texture [%d %d]\n",
-                                    cinfo.fInfo.width(), cinfo.fInfo.height());
-        return nullptr;    
+        return nullptr;
     }
 
     // Skia's convention is to only clear a device if it is non-opaque.

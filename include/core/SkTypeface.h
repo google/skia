@@ -308,8 +308,9 @@ public:
      *  if allowFailure is true, this returns NULL, else it returns a
      *  dummy scalercontext that will not crash, but will draw nothing.
      */
-    SkScalerContext* createScalerContext(const SkScalerContextEffects&, const SkDescriptor*,
-                                         bool allowFailure = false) const;
+    std::unique_ptr<SkScalerContext> createScalerContext(const SkScalerContextEffects&,
+                                                         const SkDescriptor*,
+                                                         bool allowFailure = false) const;
 
     /**
      *  Return a rectangle (scaled to 1-pt) that represents the union of the bounds of all

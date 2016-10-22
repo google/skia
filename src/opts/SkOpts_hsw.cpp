@@ -7,7 +7,6 @@
 
 #include "SkOpts.h"
 
-
 #define SK_OPTS_NS hsw
 #include "SkRasterPipeline_opts.h"
 
@@ -16,7 +15,7 @@ namespace SkOpts {
 
         run_pipeline = SK_OPTS_NS::run_pipeline;
 
-    #define STAGE(stage)                                                       \
+    #define STAGE(stage)                                                        \
         body[SkRasterPipeline::stage] = (SkOpts::VoidFn)SK_OPTS_NS::stage;      \
         tail[SkRasterPipeline::stage] = (SkOpts::VoidFn)SK_OPTS_NS::stage##_tail
 
@@ -36,12 +35,9 @@ namespace SkOpts {
 
         STAGE(lerp_u8);
         STAGE(lerp_565);
-    #undef STAGE
 
-    #define STAGE(stage) \
-        body[SkRasterPipeline::stage] = (SkOpts::VoidFn)SK_OPTS_NS::stage; \
-        tail[SkRasterPipeline::stage] = (SkOpts::VoidFn)SK_OPTS_NS::stage
-
+        STAGE(just_return);
+        STAGE(swap_src_dst);
         STAGE(lerp_constant_float);
         STAGE(constant_color);
 

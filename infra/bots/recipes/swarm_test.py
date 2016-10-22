@@ -114,9 +114,6 @@ def dm_flags(bot):
     configs.extend(mode + '-8888' for mode in
                    ['serialize', 'tiles_rt', 'pic'])
 
-  if 'ANGLE' in bot:
-    configs.append('angle')
-
   # We want to run gpudft on atleast the mali 400
   if 'GalaxyS3' in bot:
     configs.append('gpudft')
@@ -134,6 +131,13 @@ def dm_flags(bot):
   # CommandBuffer bot *only* runs the command_buffer config.
   if 'CommandBuffer' in bot:
     configs = ['commandbuffer']
+
+  # ANGLE bot *only* runs the angle configs
+  if 'ANGLE' in bot:
+    configs = ['angle_d3d11_es2',
+               'angle_d3d9_es2',
+               'angle_d3d11_es2_msaa4',
+               'angle_gl_es2']
 
   # Vulkan bot *only* runs the vk config.
   if 'Vulkan' in bot:
@@ -349,6 +353,8 @@ def dm_flags(bot):
 
   if 'TSAN' in bot:
     match.extend(['~ReadWriteAlpha'])   # Flaky on TSAN-covered on nvidia bots.
+    match.extend(['~RGBA4444TextureTest',  # Flakier than they are important.
+                  '~RGB565TextureTest'])
 
   if 'Vulkan' in bot and 'Adreno' in bot:
     # skia:5777
@@ -472,6 +478,10 @@ def test_steps(api):
       'patchset',      api.vars.patchset,
       'patch_storage', api.vars.patch_storage,
     ])
+  if api.vars.no_buildbot:
+    properties.extend(['no_buildbot', 'True'])
+    properties.extend(['swarming_bot_id', api.vars.swarming_bot_id])
+    properties.extend(['swarming_task_id', api.vars.swarming_task_id])
 
   args = [
     'dm',
@@ -685,3 +695,21 @@ def GenTests(api):
           revision='abc123',
           **gerrit_kwargs)
   )
+
+  yield (
+      api.test('nobuildbot') +
+      api.properties(
+          buildername=builder,
+          mastername='client.skia',
+          slavename='skiabot-linux-swarm-000',
+          buildnumber=5,
+          path_config='kitchen',
+          swarm_out_dir='[SWARM_OUT_DIR]',
+          revision='abc123',
+          nobuildbot='True',
+          **gerrit_kwargs) +
+      api.step_data('get swarming bot id',
+          stdout=api.raw_io.output('skia-bot-123')) +
+      api.step_data('get swarming task id', stdout=api.raw_io.output('123456'))
+  )
+

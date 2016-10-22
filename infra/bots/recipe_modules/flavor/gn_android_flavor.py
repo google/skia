@@ -25,15 +25,12 @@ class GNAndroidFlavorUtils(default_flavor.DefaultFlavorUtils):
         svg_dir       = _data_dir + 'svgs',
         tmp_dir       = _data_dir)
 
-  def supported(self):
-    return 'GN_Android' in self.m.vars.builder_cfg.get('extra_config', '')
-
   def _run(self, title, *cmd, **kwargs):
     self.m.vars.default_env = {k: v for (k,v)
                                in self.m.vars.default_env.iteritems()
                                if k in ['PATH']}
     return self.m.run(self.m.step, title, cmd=list(cmd),
-                      cwd=self.m.vars.skia_dir, env={}, **kwargs)
+                      cwd=self.m.vars.skia_dir, **kwargs)
 
   def _adb(self, title, *cmd, **kwargs):
     self._ever_ran_adb = True
@@ -98,7 +95,6 @@ class GNAndroidFlavorUtils(default_flavor.DefaultFlavorUtils):
       """,
       args=[self.m.vars.skia_out.join(self.m.vars.configuration)],
       infra_step=True)
-      self._adb('reboot', 'reboot')
       self._adb('kill adb server', 'kill-server')
 
   def step(self, name, cmd, env=None, **kwargs):

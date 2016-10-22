@@ -42,19 +42,6 @@ struct SkGammas : SkRefCnt {
         }
     };
 
-    // Contains the parameters for a parametric curve.
-    struct Params {
-        //     Y = (aX + b)^g + c  for X >= d
-        //     Y = eX + f          otherwise
-        float                    fG;
-        float                    fA;
-        float                    fB;
-        float                    fC;
-        float                    fD;
-        float                    fE;
-        float                    fF;
-    };
-
     // Contains the actual gamma curve information.  Should be interpreted
     // based on the type of the gamma curve.
     union Data {
@@ -72,8 +59,9 @@ struct SkGammas : SkRefCnt {
         Table                    fTable;
         size_t                   fParamOffset;
 
-        const Params& params(const SkGammas* base) const {
-            return *SkTAddOffset<const Params>(base, sizeof(SkGammas) + fParamOffset);
+        const SkColorSpaceTransferFn& params(const SkGammas* base) const {
+            return *SkTAddOffset<const SkColorSpaceTransferFn>(
+                    base, sizeof(SkGammas) + fParamOffset);
         }
     };
 
@@ -112,7 +100,7 @@ struct SkGammas : SkRefCnt {
         return this->data(i).fTable.table(this);
     }
 
-    const Params& params(int i) const {
+    const SkColorSpaceTransferFn& params(int i) const {
         SkASSERT(isParametric(i));
         return this->data(i).params(this);
     }
@@ -182,15 +170,38 @@ struct SkColorLookUpTable : public SkRefCnt {
 class SkColorSpace_Base : public SkColorSpace {
 public:
 
-    static sk_sp<SkColorSpace> NewRGB(const float gammas[3], const SkMatrix44& toXYZD50);
+    /**
+     *  Describes color space gamut as a transformation to XYZ D50.
+     *  Returns nullptr if color gamut cannot be described in terms of XYZ D50.
+     */
+    virtual const SkMatrix44* toXYZD50() const = 0;
 
-    SkGammaNamed gammaNamed() const { return fGammaNamed; }
-    const SkGammas* gammas() const { return fGammas.get(); }
+    /**
+     *  Returns a hash of the gamut transofmration to XYZ D50. Allows for fast equality checking
+     *  of gamuts, at the (very small) risk of collision.
+     *  Returns 0 if color gamut cannot be described in terms of XYZ D50.
+     */
+    virtual uint32_t toXYZD50Hash() const = 0;
 
-    const SkColorLookUpTable* colorLUT() const { return fColorLUT.get(); }
-
-    const SkMatrix44& toXYZD50() const { return fToXYZD50; }
-    const SkMatrix44& fromXYZD50() const;
+    /**
+     *  Describes color space gamut as a transformation from XYZ D50
+     *  Returns nullptr if color gamut cannot be described in terms of XYZ D50.
+     */
+    virtual const SkMatrix44* fromXYZD50() const = 0;
+    
+    virtual bool onGammaCloseToSRGB() const = 0;
+    
+    virtual bool onGammaIsLinear() const = 0;
+    
+    enum class Type : uint8_t {
+        kXYZ,
+        kA2B
+    };
+    
+    virtual Type type() const = 0;
+    
+protected:
+    SkColorSpace_Base(sk_sp<SkData> profileData);
 
 private:
 
@@ -207,19 +218,10 @@ private:
 
     SkColorSpace_Base(SkGammaNamed gammaNamed, const SkMatrix44& toXYZ);
 
-    SkColorSpace_Base(sk_sp<SkColorLookUpTable> colorLUT, SkGammaNamed gammaNamed,
-                      sk_sp<SkGammas> gammas, const SkMatrix44& toXYZ, sk_sp<SkData> profileData);
-
-    sk_sp<SkColorLookUpTable> fColorLUT;
-    const SkGammaNamed        fGammaNamed;
-    sk_sp<SkGammas>           fGammas;
-    sk_sp<SkData>             fProfileData;
-
-    const SkMatrix44          fToXYZD50;
-    mutable SkMatrix44        fFromXYZD50;
-    mutable SkOnce            fFromXYZOnce;
+    sk_sp<SkData> fProfileData;
 
     friend class SkColorSpace;
+    friend class SkColorSpace_XYZ;
     friend class ColorSpaceXformTest;
     friend class ColorSpaceTest;
     typedef SkColorSpace INHERITED;

@@ -8,8 +8,6 @@
 #ifndef SKDRAWCOMMAND_H_
 #define SKDRAWCOMMAND_H_
 
-#include "png.h"
-
 #include "SkCanvas.h"
 #include "SkTLazy.h"
 #include "SkPath.h"
@@ -20,7 +18,7 @@
 #include "SkJSONCPP.h"
 #include "UrlDataManager.h"
 
-class SK_API SkDrawCommand {
+class SkDrawCommand {
 public:
     enum OpType {
         kBeginDrawPicture_OpType,
@@ -65,7 +63,7 @@ public:
 
     static const int kOpTypeCount = kLast_OpType + 1;
 
-    static void WritePNG(const png_bytep rgba, png_uint_32 width, png_uint_32 height,
+    static void WritePNG(const uint8_t* rgba, unsigned width, unsigned height,
                          SkWStream& out, bool isOpaque);
 
     SkDrawCommand(OpType opType);

@@ -60,7 +60,7 @@ private:
     void addMirrorIntervals(const SkGradientShaderBase&,
                             const Sk4f& componentScale, bool reverse);
 
-    template<DstType, SkShader::TileMode tileMode>
+    template<DstType, ApplyPremul, SkShader::TileMode tileMode>
     class TSampler;
 
     template <DstType dstType, ApplyPremul premul>

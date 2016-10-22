@@ -49,30 +49,6 @@ public:
 
 #endif
 
-#ifdef SK_SUPPORT_LEGACY_XFERMODE_PTR
-    static SkImageFilter* Create(SkXfermode* mode, SkImageFilter* background,
-                                 SkImageFilter* foreground = NULL,
-                                 const SkImageFilter::CropRect* cropRect = NULL) {
-        return Make(sk_ref_sp(mode), 
-                    sk_ref_sp(background),
-                    sk_ref_sp(foreground),
-                    cropRect).release();
-    }
-#endif
-#ifdef SK_SUPPORT_LEGACY_IMAGEFILTER_PTR
-    static sk_sp<SkImageFilter> Make(sk_sp<SkXfermode> mode, SkImageFilter* background,
-                                     SkImageFilter* foreground,
-                                     const SkImageFilter::CropRect* cropRect) {
-        return Make(std::move(mode),
-                    sk_ref_sp(background),
-                    sk_ref_sp(foreground),
-                    cropRect);
-    }
-    static sk_sp<SkImageFilter> Make(sk_sp<SkXfermode> mode, SkImageFilter* background) {
-        return Make(std::move(mode), sk_ref_sp(background));
-    }
-#endif
-
     SK_DECLARE_FLATTENABLE_REGISTRAR_GROUP();
 
 private:

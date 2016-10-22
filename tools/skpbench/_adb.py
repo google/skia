@@ -5,6 +5,7 @@
 
 import re
 import subprocess
+import sys
 
 class Adb:
   def __init__(self, device_serial=None):
@@ -13,7 +14,7 @@ class Adb:
       self.__invocation.extend(['-s', device_serial])
 
   def shell(self, cmd):
-    subprocess.call(self.__invocation + ['shell', cmd])
+    subprocess.call(self.__invocation + ['shell', cmd], stdout=sys.stderr)
 
   def check(self, cmd):
     result = subprocess.check_output(self.__invocation + ['shell', cmd])
@@ -29,13 +30,13 @@ class Adb:
     return result.group(1) if result else 'unknown_product'
 
   def is_root(self):
-    return self.check('echo $USER') == 'root'
+    return self.check('whoami') == 'root'
 
   def attempt_root(self):
     if self.is_root():
       return True
-    subprocess.call(self.__invocation + ['root'])
+    subprocess.call(self.__invocation + ['root'], stdout=sys.stderr)
     return self.is_root()
 
   def remount(self):
-    subprocess.call(self.__invocation + ['remount'])
+    subprocess.call(self.__invocation + ['remount'], stdout=sys.stderr)

@@ -11,11 +11,7 @@
 #include "SkPath.h"
 #include "SkPathOpsPoint.h"
 
-struct SkDCubicPair {
-    const SkDCubic& first() const { return (const SkDCubic&) pts[0]; }
-    const SkDCubic& second() const { return (const SkDCubic&) pts[3]; }
-    SkDPoint pts[7];
-};
+struct SkDCubicPair;
 
 struct SkDCubic {
     static const int kPointCount = 4;
@@ -58,6 +54,8 @@ struct SkDCubic {
         sk_bzero(fPts, sizeof(fPts));
     }
 
+    void debugSet(const SkDPoint* pts);
+
     void dump() const;  // callable from the debugger when the implementation code is linked in
     void dumpID(int id) const;
     void dumpInner() const;
@@ -72,6 +70,11 @@ struct SkDCubic {
     }
 
     int findMaxCurvature(double tValues[]) const;
+
+#ifdef SK_DEBUG
+    SkOpGlobalState* globalState() const { return fDebugGlobalState; }
+#endif
+
     bool hullIntersects(const SkDCubic& c2, bool* isLinear) const;
     bool hullIntersects(const SkDConic& c, bool* isLinear) const;
     bool hullIntersects(const SkDQuad& c2, bool* isLinear) const;
@@ -98,11 +101,14 @@ struct SkDCubic {
      */
     int verticalIntersect(double xIntercept, double roots[3]) const;
 
-    const SkDCubic& set(const SkPoint pts[kPointCount]) {
+// add debug only global pointer so asserts can be skipped by fuzzers
+    const SkDCubic& set(const SkPoint pts[kPointCount]
+            SkDEBUGPARAMS(SkOpGlobalState* state = nullptr)) {
         fPts[0] = pts[0];
         fPts[1] = pts[1];
         fPts[2] = pts[2];
         fPts[3] = pts[3];
+        SkDEBUGCODE(fDebugGlobalState = state);
         return *this;
     }
 
@@ -125,8 +131,8 @@ struct SkDCubic {
     SkDQuad toQuad() const;
 
     static const int gPrecisionUnit;
-
     SkDPoint fPts[kPointCount];
+    SkDEBUGCODE(SkOpGlobalState* fDebugGlobalState);
 };
 
 /* Given the set [0, 1, 2, 3], and two of the four members, compute an XOR mask
@@ -146,5 +152,27 @@ given that:
 inline int other_two(int one, int two) {
     return 1 >> (3 - (one ^ two)) ^ 3;
 }
+
+struct SkDCubicPair {
+    const SkDCubic first() const {
+#ifdef SK_DEBUG
+        SkDCubic result;
+        result.debugSet(&pts[0]);
+        return result;
+#else
+        return (const SkDCubic&) pts[0];
+#endif
+    }
+    const SkDCubic second() const {
+#ifdef SK_DEBUG
+        SkDCubic result;
+        result.debugSet(&pts[3]);
+        return result;
+#else
+        return (const SkDCubic&) pts[3];
+#endif
+    }
+    SkDPoint pts[7];
+};
 
 #endif

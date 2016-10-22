@@ -363,7 +363,7 @@ public:
         kTexture_ColorType,
 
 #if GR_GL_USE_ACCURATE_HARD_STOP_GRADIENTS
-        kHardStopCentered_ColorType,   // 0, 0.5, 0.5, 1
+        kSingleHardStop_ColorType,     // 0, t, t, 1
         kHardStopLeftEdged_ColorType,  // 0, 0, 1
         kHardStopRightEdged_ColorType, // 0, 1, 1
 #endif
@@ -400,18 +400,26 @@ public:
     }
 
 protected:
-    /** Populates a pair of arrays with colors and stop info to construct a random gradient.
-        The function decides whether stop values should be used or not. The return value indicates
-        the number of colors, which will be capped by kMaxRandomGradientColors. colors should be
-        sized to be at least kMaxRandomGradientColors. stops is a pointer to an array of at least
-        size kMaxRandomGradientColors. It may be updated to nullptr, indicating that nullptr should
-        be passed to the gradient factory rather than the array.
-    */
-    static const int kMaxRandomGradientColors = 4;
-    static int RandomGradientParams(SkRandom* r,
-                                    SkColor colors[kMaxRandomGradientColors],
-                                    SkScalar** stops,
-                                    SkShader::TileMode* tm);
+    /** Helper struct that stores (and populates) parameters to construct a random gradient.
+        If fUseColors4f is true, then the SkColor4f factory should be called, with fColors4f and
+        fColorSpace. Otherwise, the SkColor factory should be called, with fColors. fColorCount
+        will be the number of color stops in either case, and fColors and fStops can be passed to
+        the gradient factory. (The constructor may decide not to use stops, in which case fStops
+        will be nullptr). */
+    struct RandomGradientParams {
+        static const int kMaxRandomGradientColors = 4;
+
+        RandomGradientParams(SkRandom* r);
+
+        bool fUseColors4f;
+        SkColor fColors[kMaxRandomGradientColors];
+        SkColor4f fColors4f[kMaxRandomGradientColors];
+        sk_sp<SkColorSpace> fColorSpace;
+        SkScalar fStopStorage[kMaxRandomGradientColors];
+        SkShader::TileMode fTileMode;
+        int fColorCount;
+        SkScalar* fStops;
+    };
 
     bool onIsEqual(const GrFragmentProcessor&) const override;
 
@@ -506,6 +514,7 @@ private:
 
     SkScalar fCachedYCoord;
     GrGLSLProgramDataManager::UniformHandle fColorsUni;
+    GrGLSLProgramDataManager::UniformHandle fHardStopT;
     GrGLSLProgramDataManager::UniformHandle fFSYUni;
     GrGLSLProgramDataManager::UniformHandle fColorSpaceXformUni;
 

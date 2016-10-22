@@ -9,6 +9,7 @@
 #include "SkColorFilter.h"
 #include "SkColorPriv.h"
 #include "SkModeColorFilter.h"
+#include "SkRasterPipeline.h"
 #include "SkReadBuffer.h"
 #include "SkWriteBuffer.h"
 #include "SkUtils.h"
@@ -59,11 +60,10 @@ void SkModeColorFilter::filterSpan(const SkPMColor shader[], int count, SkPMColo
 }
 
 void SkModeColorFilter::filterSpan4f(const SkPM4f shader[], int count, SkPM4f result[]) const {
-    SkPM4f            color = SkPM4f::FromPMColor(fPMColor);
     SkXfermodeProc4f  proc = SkXfermode::GetProc4f(fMode);
 
     for (int i = 0; i < count; i++) {
-        result[i] = proc(color, shader[i]);
+        result[i] = proc(fPM4f, shader[i]);
     }
 }
 
@@ -75,12 +75,27 @@ void SkModeColorFilter::flatten(SkWriteBuffer& buffer) const {
 void SkModeColorFilter::updateCache() {
     fPMColor = SkPreMultiplyColor(fColor);
     fProc = SkXfermode::GetProc(fMode);
+    fPM4f = SkColor4f::FromColor(fColor).premul();
 }
 
 sk_sp<SkFlattenable> SkModeColorFilter::CreateProc(SkReadBuffer& buffer) {
     SkColor color = buffer.readColor();
     SkXfermode::Mode mode = (SkXfermode::Mode)buffer.readUInt();
     return SkColorFilter::MakeModeFilter(color, mode);
+}
+
+bool SkModeColorFilter::onAppendStages(SkRasterPipeline* p) const {
+    // TODO: For some modes we can cut a stage by loading the fPM4f into dr,dg,db,da
+    // and applying the opposite xfermode, e.g. dst-in instead of src-in.
+    p->append(SkRasterPipeline::swap_src_dst);
+    p->append(SkRasterPipeline::constant_color, &fPM4f);
+
+    // TODO: This is ugly.  I think we want static SkXfermode::AppendStages(Mode).
+    if (auto xfermode = SkXfermode::Make(fMode)) {
+        return xfermode->appendStages(p);
+    }
+    p->append(SkRasterPipeline::srcover);
+    return true;
 }
 
 ///////////////////////////////////////////////////////////////////////////////

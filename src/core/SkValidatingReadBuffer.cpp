@@ -6,7 +6,6 @@
  */
 
 #include "SkBitmap.h"
-#include "SkErrorInternals.h"
 #include "SkValidatingReadBuffer.h"
 #include "SkStream.h"
 #include "SkTypeface.h"

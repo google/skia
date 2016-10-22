@@ -67,6 +67,11 @@ if FLAGS.adb:
 else:
   import _os_path as _path
 
+def dump_commandline_if_verbose(commandline):
+  if FLAGS.verbosity >= 4:
+    quoted = ['\'%s\'' % re.sub(r'([\\\'])', r'\\\1', x) for x in commandline]
+    print(' '.join(quoted), file=sys.stderr)
+
 
 class StddevException(Exception):
   pass
@@ -111,7 +116,26 @@ class SKPBench:
 
   @classmethod
   def print_header(cls):
-    subprocess.call(cls.ARGV + ['--duration', '0'])
+    commandline = cls.ARGV + ['--duration', '0']
+    dump_commandline_if_verbose(commandline)
+    subprocess.call(commandline)
+
+  @classmethod
+  def run_warmup(cls, warmup_time):
+    if not warmup_time:
+      return
+    print('running %i second warmup...' % warmup_time, file=sys.stderr)
+    commandline = cls.ARGV + ['--duration', str(warmup_time * 1000),
+                              '--config', 'gpu',
+                              '--skp', 'warmup']
+    dump_commandline_if_verbose(commandline)
+    output = subprocess.check_output(commandline).decode('utf-8')
+    # validate the warmup run output.
+    for line in output.split('\n'):
+      match = BenchResult.match(line.rstrip())
+      if match and match.bench == 'warmup':
+        return
+    raise Exception('Invalid warmup output:\n%s' % output)
 
   def __init__(self, skp, config, max_stddev, best_result=None):
     self.skp = skp
@@ -143,9 +167,7 @@ class SKPBench:
       pngfile = _path.join(FLAGS.write_path, self.config,
                            _path.basename(self.skp) + '.png')
       commandline.extend(['--png', pngfile])
-    if (FLAGS.verbosity >= 4):
-      quoted = ['\'%s\'' % re.sub(r'([\\\'])', r'\\\1', x) for x in commandline]
-      print(' '.join(quoted), file=sys.stderr)
+    dump_commandline_if_verbose(commandline)
     self._proc = subprocess.Popen(commandline, stdout=subprocess.PIPE)
     self._monitor = SubprocessMonitor(self._queue, self._proc)
     self._monitor.start()
@@ -158,7 +180,7 @@ class SKPBench:
           hardware.sanity_check()
           self._process_result(result)
         else:
-          print(message.value)
+          print(message.value, file=sys.stderr)
         sys.stdout.flush()
         continue
       if message.message == Message.POLL_HARDWARE:
@@ -231,13 +253,16 @@ def run_benchmarks(configs, skps, hardware):
 
       except HardwareException as exception:
         skpbench.terminate()
-        naptime = max(hardware.kick_in_time, exception.sleeptime)
+        if FLAGS.verbosity >= 5:
+          hardware.print_debug_diagnostics()
         if FLAGS.verbosity >= 1:
           print("%s; taking a %i second nap..." %
-                (exception.message, naptime), file=sys.stderr)
+                (exception.message, exception.sleeptime), file=sys.stderr)
         benches.appendleft(benchargs) # retry the same bench next time.
-        hardware.sleep(naptime - hardware.kick_in_time)
-        time.sleep(hardware.kick_in_time)
+        hardware.sleep(exception.sleeptime)
+        if FLAGS.verbosity >= 5:
+          hardware.print_debug_diagnostics()
+        SKPBench.run_warmup(hardware.warmup_time)
 
 
 def main():
@@ -252,6 +277,9 @@ def main():
     if model == 'Pixel C':
       from _hardware_pixel_c import HardwarePixelC
       hardware = HardwarePixelC(adb)
+    elif model == 'Nexus 6P':
+      from _hardware_nexus_6p import HardwareNexus6P
+      hardware = HardwareNexus6P(adb)
     else:
       from _hardware_android import HardwareAndroid
       print("WARNING: %s: don't know how to monitor this hardware; results "
@@ -261,10 +289,7 @@ def main():
     hardware = Hardware()
 
   with hardware:
-    if hardware.kick_in_time:
-      print("sleeping %i seconds to allow hardware settings to kick in..." %
-            hardware.kick_in_time, file=sys.stderr)
-      time.sleep(hardware.kick_in_time)
+    SKPBench.run_warmup(hardware.warmup_time)
     run_benchmarks(configs, skps, hardware)
 
 

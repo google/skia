@@ -211,7 +211,7 @@ public:
         kHinting_Mask   = kHintingBit1_Flag | kHintingBit2_Flag,
     };
 
-    SkScalerContext(SkTypeface*, const SkScalerContextEffects&, const SkDescriptor*);
+    SkScalerContext(sk_sp<SkTypeface>, const SkScalerContextEffects&, const SkDescriptor*);
     virtual ~SkScalerContext();
 
     SkTypeface* getTypeface() const { return fTypeface.get(); }
@@ -352,11 +352,6 @@ private:
 
     void internalGetPath(const SkGlyph& glyph, SkPath* fillPath,
                          SkPath* devPath, SkMatrix* fillToDevMatrix);
-
-    // returns the right context from our link-list for this char. If no match
-    // is found it returns nullptr. If a match is found then the glyphID param is
-    // set to the glyphID that maps to the provided char.
-    SkScalerContext* getContextFromChar(SkUnichar uni, uint16_t* glyphID);
 
     // SkMaskGamma::PreBlend converts linear masks to gamma correcting masks.
 protected:

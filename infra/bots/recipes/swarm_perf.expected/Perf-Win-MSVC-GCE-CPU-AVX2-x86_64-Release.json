@@ -124,7 +124,6 @@
       "8888",
       "gpu",
       "nonrendering",
-      "angle",
       "hwui",
       "f16",
       "srgb",
@@ -156,7 +155,7 @@
       "~inc0.webp",
       "~inc1.webp",
       "--outResultsFile",
-      "[CUSTOM_[SWARM_OUT_DIR]]\\perfdata\\Perf-Win-MSVC-GCE-CPU-AVX2-x86_64-Release\\data\\nanobench_abc123_1337018001.json",
+      "[CUSTOM_[SWARM_OUT_DIR]]\\perfdata\\Perf-Win-MSVC-GCE-CPU-AVX2-x86_64-Release\\data\\nanobench_abc123_1337000001.json",
       "--properties",
       "gitHash",
       "abc123",
@@ -176,11 +175,7 @@
       "os",
       "Win"
     ],
-    "env": {
-      "BUILDTYPE": "Release_x64",
-      "CHROME_HEADLESS": "1",
-      "SKIA_OUT": "[SLAVE_BUILD]\\out"
-    },
+    "cwd": "[SLAVE_BUILD]\\skia",
     "name": "nanobench"
   },
   {

@@ -11,10 +11,11 @@ way to build Skia.
 Supported Features
 ----------
 
-    * Linux, Mac, Android
-    * Software and GL rendering
+    * Linux, Mac, Android, Windows
+    * Software, GL, Vulkan rendering
     * libskia.a, libskia.so
-    * DM, nanobench
+    * DM, nanobench, a few other tools
+    * (Pretty much everything but iOS and some complicated tools.)
 
 Quickstart
 ----------
@@ -90,3 +91,30 @@ and run it as normal.  You may find `bin/droid` convenient.
     adb push out/arm64/dm /data/local/tmp
     adb push resources /data/local/tmp
     adb shell "cd /data/local/tmp; ./dm --src gm --config gpu"
+
+Windows
+-------
+
+Skia should build on Windows with Visual Studio 2015 Update 3.  No other
+version, older or newer, is supported.  If you use Visual Studio, you may
+want to pass `--ide=vs` to `gn gen` to generate `all.sln`.
+
+The bots use a packaged toolchain, which you may be able to download like this:
+
+<!--?prettify lang=sh?-->
+
+    python infra/bots/assets/win_toolchain/download.py -t C:/toolchain
+
+If you pass that downloaded path to GN via `windk`, you can build using that
+toolchain instead of your own from Visual Studio.  This toolchain is the only
+way we support 32-bit builds, by also setting `target_cpu="x86"`.
+
+CMake
+-----
+
+We have added a GN-to-CMake translator mainly for use with IDEs that like CMake
+project descriptions.  This is not meant for any purpose beyond development.
+
+<!--?prettify lang=sh?-->
+
+    gn gen out/config --ide=json --json-ide-script=../../gn/gn_to_cmake.py

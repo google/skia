@@ -6,10 +6,22 @@
         "Build-Ubuntu-GCC-x86_64-Release-GN"
       ]
     },
+    "Housekeeper-PerCommit-InfraTests": {
+      "priority": 0.8,
+      "tasks": [
+        "Housekeeper-PerCommit-InfraTests"
+      ]
+    },
     "Perf-Ubuntu-GCC-GCE-CPU-AVX2-x86_64-Release-GN": {
       "priority": 0.8,
       "tasks": [
         "Upload-Perf-Ubuntu-GCC-GCE-CPU-AVX2-x86_64-Release-GN"
+      ]
+    },
+    "Test-Android-Clang-AndroidOne-GPU-Mali400MP2-arm-Release-GN_Android": {
+      "priority": 0.8,
+      "tasks": [
+        "Upload-Test-Android-Clang-AndroidOne-GPU-Mali400MP2-arm-Release-GN_Android"
       ]
     },
     "Test-Ubuntu-GCC-GCE-CPU-AVX2-x86_64-Release-GN": {
@@ -20,6 +32,49 @@
     }
   },
   "tasks": {
+    "Build-Ubuntu-Clang-arm-Release-GN_Android": {
+      "cipd_packages": [
+        {
+          "name": "skia/bots/android_sdk",
+          "path": "android_sdk",
+          "version": "version:0"
+        },
+        {
+          "name": "skia/bots/android_ndk_linux",
+          "path": "android_ndk_linux",
+          "version": "version:5"
+        },
+        {
+          "name": "skia/bots/clang_linux",
+          "path": "clang_linux",
+          "version": "version:4"
+        }
+      ],
+      "dimensions": [
+        "gpu:none",
+        "os:Ubuntu",
+        "pool:Skia"
+      ],
+      "extra_args": [
+        "--workdir",
+        "../../..",
+        "swarm_compile",
+        "repository=skia",
+        "buildername=Build-Ubuntu-Clang-arm-Release-GN_Android",
+        "mastername=fake-master",
+        "buildnumber=2",
+        "slavename=fake-buildslave",
+        "nobuildbot=True",
+        "swarm_out_dir=${ISOLATED_OUTDIR}",
+        "revision=<(REVISION)",
+        "patch_storage=<(PATCH_STORAGE)",
+        "rietveld=<(CODEREVIEW_SERVER)",
+        "issue=<(ISSUE)",
+        "patchset=<(PATCHSET)"
+      ],
+      "isolate": "compile_skia.isolate",
+      "priority": 0.8
+    },
     "Build-Ubuntu-GCC-x86_64-Release-GN": {
       "dimensions": [
         "gpu:none",
@@ -30,14 +85,47 @@
         "--workdir",
         "../../..",
         "swarm_compile",
+        "repository=skia",
         "buildername=Build-Ubuntu-GCC-x86_64-Release-GN",
         "mastername=fake-master",
         "buildnumber=2",
         "slavename=fake-buildslave",
+        "nobuildbot=True",
         "swarm_out_dir=${ISOLATED_OUTDIR}",
-        "revision=<(REVISION)"
+        "revision=<(REVISION)",
+        "patch_storage=<(PATCH_STORAGE)",
+        "rietveld=<(CODEREVIEW_SERVER)",
+        "issue=<(ISSUE)",
+        "patchset=<(PATCHSET)"
       ],
       "isolate": "compile_skia.isolate",
+      "priority": 0.8
+    },
+    "Housekeeper-PerCommit-InfraTests": {
+      "dimensions": [
+        "cpu:x86-64-avx2",
+        "gpu:none",
+        "os:Ubuntu",
+        "pool:Skia"
+      ],
+      "extra_args": [
+        "--workdir",
+        "../../..",
+        "swarm_infra",
+        "repository=skia",
+        "buildername=Housekeeper-PerCommit-InfraTests",
+        "mastername=fake-master",
+        "buildnumber=2",
+        "slavename=fake-buildslave",
+        "nobuildbot=True",
+        "swarm_out_dir=${ISOLATED_OUTDIR}",
+        "revision=<(REVISION)",
+        "patch_storage=<(PATCH_STORAGE)",
+        "rietveld=<(CODEREVIEW_SERVER)",
+        "issue=<(ISSUE)",
+        "patchset=<(PATCHSET)"
+      ],
+      "isolate": "infra_skia.isolate",
       "priority": 0.8
     },
     "Perf-Ubuntu-GCC-GCE-CPU-AVX2-x86_64-Release-GN": {
@@ -50,7 +138,7 @@
         {
           "name": "skia/bots/skp",
           "path": "skp",
-          "version": "version:10"
+          "version": "version:12"
         },
         {
           "name": "skia/bots/svg",
@@ -71,14 +159,66 @@
         "--workdir",
         "../../..",
         "swarm_perf",
+        "repository=skia",
         "buildername=Perf-Ubuntu-GCC-GCE-CPU-AVX2-x86_64-Release-GN",
         "mastername=fake-master",
         "buildnumber=2",
         "slavename=fake-buildslave",
+        "nobuildbot=True",
         "swarm_out_dir=${ISOLATED_OUTDIR}",
-        "revision=<(REVISION)"
+        "revision=<(REVISION)",
+        "patch_storage=<(PATCH_STORAGE)",
+        "rietveld=<(CODEREVIEW_SERVER)",
+        "issue=<(ISSUE)",
+        "patchset=<(PATCHSET)"
       ],
       "isolate": "perf_skia.isolate",
+      "priority": 0.8
+    },
+    "Test-Android-Clang-AndroidOne-GPU-Mali400MP2-arm-Release-GN_Android": {
+      "cipd_packages": [
+        {
+          "name": "skia/bots/skimage",
+          "path": "skimage",
+          "version": "version:8"
+        },
+        {
+          "name": "skia/bots/skp",
+          "path": "skp",
+          "version": "version:12"
+        },
+        {
+          "name": "skia/bots/svg",
+          "path": "svg",
+          "version": "version:3"
+        }
+      ],
+      "dependencies": [
+        "Build-Ubuntu-Clang-arm-Release-GN_Android"
+      ],
+      "dimensions": [
+        "device_type:sprout",
+        "os:Android",
+        "pool:Skia"
+      ],
+      "extra_args": [
+        "--workdir",
+        "../../..",
+        "swarm_test",
+        "repository=skia",
+        "buildername=Test-Android-Clang-AndroidOne-GPU-Mali400MP2-arm-Release-GN_Android",
+        "mastername=fake-master",
+        "buildnumber=2",
+        "slavename=fake-buildslave",
+        "nobuildbot=True",
+        "swarm_out_dir=${ISOLATED_OUTDIR}",
+        "revision=<(REVISION)",
+        "patch_storage=<(PATCH_STORAGE)",
+        "rietveld=<(CODEREVIEW_SERVER)",
+        "issue=<(ISSUE)",
+        "patchset=<(PATCHSET)"
+      ],
+      "isolate": "test_skia.isolate",
       "priority": 0.8
     },
     "Test-Ubuntu-GCC-GCE-CPU-AVX2-x86_64-Release-GN": {
@@ -91,7 +231,7 @@
         {
           "name": "skia/bots/skp",
           "path": "skp",
-          "version": "version:10"
+          "version": "version:12"
         },
         {
           "name": "skia/bots/svg",
@@ -112,12 +252,18 @@
         "--workdir",
         "../../..",
         "swarm_test",
+        "repository=skia",
         "buildername=Test-Ubuntu-GCC-GCE-CPU-AVX2-x86_64-Release-GN",
         "mastername=fake-master",
         "buildnumber=2",
         "slavename=fake-buildslave",
+        "nobuildbot=True",
         "swarm_out_dir=${ISOLATED_OUTDIR}",
-        "revision=<(REVISION)"
+        "revision=<(REVISION)",
+        "patch_storage=<(PATCH_STORAGE)",
+        "rietveld=<(CODEREVIEW_SERVER)",
+        "issue=<(ISSUE)",
+        "patchset=<(PATCHSET)"
       ],
       "isolate": "test_skia.isolate",
       "priority": 0.8
@@ -136,14 +282,50 @@
         "--workdir",
         "../../..",
         "upload_nano_results",
+        "repository=skia",
         "buildername=Perf-Ubuntu-GCC-GCE-CPU-AVX2-x86_64-Release-GN",
         "mastername=fake-master",
         "buildnumber=2",
         "slavename=fake-buildslave",
+        "nobuildbot=True",
         "swarm_out_dir=${ISOLATED_OUTDIR}",
-        "revision=<(REVISION)"
+        "revision=<(REVISION)",
+        "patch_storage=<(PATCH_STORAGE)",
+        "rietveld=<(CODEREVIEW_SERVER)",
+        "issue=<(ISSUE)",
+        "patchset=<(PATCHSET)"
       ],
       "isolate": "upload_nano_results.isolate",
+      "priority": 0.8
+    },
+    "Upload-Test-Android-Clang-AndroidOne-GPU-Mali400MP2-arm-Release-GN_Android": {
+      "dependencies": [
+        "Test-Android-Clang-AndroidOne-GPU-Mali400MP2-arm-Release-GN_Android"
+      ],
+      "dimensions": [
+        "cpu:x86-64-avx2",
+        "gpu:none",
+        "os:Ubuntu",
+        "pool:Skia"
+      ],
+      "extra_args": [
+        "--workdir",
+        "../../..",
+        "upload_dm_results",
+        "repository=skia",
+        "buildername=Test-Android-Clang-AndroidOne-GPU-Mali400MP2-arm-Release-GN_Android",
+        "mastername=fake-master",
+        "buildnumber=2",
+        "slavename=fake-buildslave",
+        "nobuildbot=True",
+        "swarm_out_dir=${ISOLATED_OUTDIR}",
+        "revision=<(REVISION)",
+        "patch_storage=<(PATCH_STORAGE)",
+        "rietveld=<(CODEREVIEW_SERVER)",
+        "issue=<(ISSUE)",
+        "patchset=<(PATCHSET)"
+      ],
+      "isolate": "upload_dm_results.isolate",
       "priority": 0.8
     },
     "Upload-Test-Ubuntu-GCC-GCE-CPU-AVX2-x86_64-Release-GN": {
@@ -160,12 +342,18 @@
         "--workdir",
         "../../..",
         "upload_dm_results",
+        "repository=skia",
         "buildername=Test-Ubuntu-GCC-GCE-CPU-AVX2-x86_64-Release-GN",
         "mastername=fake-master",
         "buildnumber=2",
         "slavename=fake-buildslave",
+        "nobuildbot=True",
         "swarm_out_dir=${ISOLATED_OUTDIR}",
-        "revision=<(REVISION)"
+        "revision=<(REVISION)",
+        "patch_storage=<(PATCH_STORAGE)",
+        "rietveld=<(CODEREVIEW_SERVER)",
+        "issue=<(ISSUE)",
+        "patchset=<(PATCHSET)"
       ],
       "isolate": "upload_dm_results.isolate",
       "priority": 0.8

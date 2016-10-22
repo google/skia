@@ -47,7 +47,8 @@ static void DrawTheText(SkCanvas* canvas, const char text[], size_t length, SkSc
         SkScalar xpos = x;
         SkASSERT(length <= SK_ARRAY_COUNT(pts));
         for (size_t i = 0; i < length; i++) {
-            pts[i].set(xpos, y), xpos += paint.getTextSize();
+            pts[i].set(xpos, y);
+            xpos += paint.getTextSize();
         }
         canvas->drawPosText(text, length, pts, paint);
     }

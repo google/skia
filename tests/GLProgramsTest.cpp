@@ -294,7 +294,7 @@ bool GrDrawingManager::ProgramUnitTest(GrContext* context, int maxStages) {
     // setup dummy textures
     GrSurfaceDesc dummyDesc;
     dummyDesc.fFlags = kRenderTarget_GrSurfaceFlag;
-    dummyDesc.fConfig = kSkia8888_GrPixelConfig;
+    dummyDesc.fConfig = kRGBA_8888_GrPixelConfig;
     dummyDesc.fWidth = 34;
     dummyDesc.fHeight = 18;
     SkAutoTUnref<GrTexture> dummyTexture1(

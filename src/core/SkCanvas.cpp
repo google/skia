@@ -14,7 +14,6 @@
 #include "SkDrawable.h"
 #include "SkDrawFilter.h"
 #include "SkDrawLooper.h"
-#include "SkErrorInternals.h"
 #include "SkImage.h"
 #include "SkImage_Base.h"
 #include "SkImageFilter.h"
@@ -1263,8 +1262,6 @@ void SkCanvas::internalSaveLayer(const SaveLayerRec& rec, SaveLayerStrategy stra
                                                                              preserveLCDText);
         newDevice.reset(priorDevice->onCreateDevice(createInfo, paint));
         if (!newDevice) {
-            SkErrorInternals::SetError(kInternalError_SkError,
-                                       "Unable to create device for layer.");
             return;
         }
     }
@@ -3335,6 +3332,7 @@ static bool supported_for_raster_canvas(const SkImageInfo& info) {
         case kAlpha_8_SkColorType:
         case kRGB_565_SkColorType:
         case kN32_SkColorType:
+        case kRGBA_F16_SkColorType:
             break;
         default:
             return false;

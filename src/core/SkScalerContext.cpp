@@ -12,6 +12,7 @@
 #include "SkDescriptor.h"
 #include "SkDraw.h"
 #include "SkGlyph.h"
+#include "SkMakeUnique.h"
 #include "SkMaskFilter.h"
 #include "SkMaskGamma.h"
 #include "SkMatrix22.h"
@@ -62,11 +63,11 @@ void SkGlyph::zeroMetrics() {
     #define DUMP_RECx
 #endif
 
-SkScalerContext::SkScalerContext(SkTypeface* typeface, const SkScalerContextEffects& effects,
+SkScalerContext::SkScalerContext(sk_sp<SkTypeface> typeface, const SkScalerContextEffects& effects,
                                  const SkDescriptor* desc)
     : fRec(*static_cast<const Rec*>(desc->findEntry(kRec_SkDescriptorTag, nullptr)))
 
-    , fTypeface(sk_ref_sp(typeface))
+    , fTypeface(std::move(typeface))
     , fPathEffect(sk_ref_sp(effects.fPathEffect))
     , fMaskFilter(sk_ref_sp(effects.fMaskFilter))
     , fRasterizer(sk_ref_sp(effects.fRasterizer))
@@ -831,9 +832,9 @@ SkAxisAlignment SkScalerContext::computeAxisAlignmentForHText() {
 
 class SkScalerContext_Empty : public SkScalerContext {
 public:
-    SkScalerContext_Empty(SkTypeface* typeface, const SkScalerContextEffects& effects,
+    SkScalerContext_Empty(sk_sp<SkTypeface> typeface, const SkScalerContextEffects& effects,
                           const SkDescriptor* desc)
-        : SkScalerContext(typeface, effects, desc) {}
+        : SkScalerContext(std::move(typeface), effects, desc) {}
 
 protected:
     unsigned generateGlyphCount() override {
@@ -859,13 +860,13 @@ protected:
 
 extern SkScalerContext* SkCreateColorScalerContext(const SkDescriptor* desc);
 
-SkScalerContext* SkTypeface::createScalerContext(const SkScalerContextEffects& effects,
-                                                 const SkDescriptor* desc,
-                                                 bool allowFailure) const {
-    SkScalerContext* c = this->onCreateScalerContext(effects, desc);
-
+std::unique_ptr<SkScalerContext> SkTypeface::createScalerContext(
+    const SkScalerContextEffects& effects, const SkDescriptor* desc, bool allowFailure) const
+{
+    std::unique_ptr<SkScalerContext> c(this->onCreateScalerContext(effects, desc));
     if (!c && !allowFailure) {
-        c = new SkScalerContext_Empty(const_cast<SkTypeface*>(this), effects, desc);
+        c = skstd::make_unique<SkScalerContext_Empty>(sk_ref_sp(const_cast<SkTypeface*>(this)),
+                                                      effects, desc);
     }
     return c;
 }

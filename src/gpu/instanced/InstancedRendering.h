@@ -8,6 +8,7 @@
 #ifndef gr_instanced_InstancedRendering_DEFINED
 #define gr_instanced_InstancedRendering_DEFINED
 
+#include "GrGpu.h"
 #include "GrMemoryPool.h"
 #include "SkTInternalLList.h"
 #include "batches/GrDrawBatch.h"
@@ -124,7 +125,7 @@ protected:
                                           GrBatchToXPOverrides*) const override;
 
         void onPrepare(GrBatchFlushState*) override {}
-        void onDraw(GrBatchFlushState*) override;
+        void onDraw(GrBatchFlushState*, const SkRect& bounds) override;
 
         InstancedRendering* const         fInstancedRendering;
         BatchInfo                         fInfo;

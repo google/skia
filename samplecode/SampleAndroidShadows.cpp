@@ -28,13 +28,15 @@ class ShadowsView : public SampleView {
     bool      fShowSpot;
     bool      fUseAlt;
     bool      fShowObject;
+    bool      fIgnoreShadowAlpha;
 
 public:
     ShadowsView() 
         : fShowAmbient(true)
         , fShowSpot(true)
         , fUseAlt(true)
-        , fShowObject(true) {}
+        , fShowObject(true)
+        , fIgnoreShadowAlpha(false) {}
 
 protected:
     void onOnceBeforeDraw() override {
@@ -71,6 +73,9 @@ protected:
                     break;
                 case '<':
                     fLightPos.fZ -= 10;
+                    break;
+                case '?':
+                    fIgnoreShadowAlpha = !fIgnoreShadowAlpha;
                     break;
                 default:
                     break;
@@ -124,7 +129,9 @@ protected:
         SkPaint paint;
         paint.setAntiAlias(true);
         paint.setMaskFilter(std::move(mf));
-        paint.setColor(SkColorSetARGB((unsigned char)(ambientAlpha*umbraAlpha*255.999f), 0, 0, 0));
+        paint.setColor(SkColorSetARGB(fIgnoreShadowAlpha
+                                    ? 255
+                                    : (unsigned char)(ambientAlpha*umbraAlpha*255.999f), 0, 0, 0));
         canvas->drawPath(path, paint);
 
         // draw occlusion rect
@@ -196,7 +203,8 @@ protected:
         // Convert pad to 6.2 fixed point and place in the B component.
         uint16_t iRadius = (uint16_t)(radius*4.0f);
         unsigned char alpha = (unsigned char)(ambientAlpha*255.999f);
-        paint.setColor(SkColorSetARGB(alpha, iRadius >> 8, iRadius & 0xff,
+        paint.setColor(SkColorSetARGB(fIgnoreShadowAlpha ? 255 : alpha,
+                                      iRadius >> 8, iRadius & 0xff,
                                       (unsigned char)(4.0f*pad)));
 
         paint.setShader(SkGaussianEdgeShader::Make());
@@ -238,7 +246,9 @@ protected:
         SkPaint paint;
         paint.setAntiAlias(true);
         paint.setMaskFilter(std::move(mf));
-        paint.setColor(SkColorSetARGB((unsigned char)(spotAlpha*255.999f), 0, 0, 0));
+        paint.setColor(SkColorSetARGB(fIgnoreShadowAlpha
+                                                ? 255 
+                                                : (unsigned char)(spotAlpha*255.999f), 0, 0, 0));
 
         // apply transformation to shadow
         canvas->scale(scale, scale);
@@ -275,7 +285,7 @@ protected:
         }
 
         // For all of these, we need to ensure we have a rrect with radius >= 0.5f in device space
-        SkScalar minRadius = SK_ScalarHalf/scaleFactors[0];
+        const SkScalar minRadius = SK_ScalarHalf/scaleFactors[0];
         if (path.isOval(nullptr)) {
             pathRRect = SkRRect::MakeOval(pathRect);
         } else if (path.isRect(nullptr)) {
@@ -303,20 +313,33 @@ protected:
 
         SkPaint paint;
         paint.setAntiAlias(true);
-        // We outset the stroke by the length of the translation so the shadow extends to
-        // the edge of the shape. We also add 1/2 to cover up AA on the interior edge.
-        SkScalar pad = offset.length() + 0.5f;
+        // We want to extend the stroked area in so that it meets up with the caster
+        // geometry. The stroked geometry will, by definition already be inset half the
+        // stroke width but we also have to account for the scaling.
+        // We also add 1/2 to cover up AA on the interior edge.
+        SkScalar scaleOffset = (scale - 1.0f) * SkTMax(SkTMax(SkTAbs(pathRect.fLeft),
+                                                              SkTAbs(pathRect.fRight)),
+                                                       SkTMax(SkTAbs(pathRect.fTop),
+                                                              SkTAbs(pathRect.fBottom)));
+        SkScalar insetAmount = offset.length() - (0.5f * radius) + scaleOffset + 0.5f;
+
         // compute area
-        SkScalar strokeWidth = radius + 2.0f*pad/scaleFactors[0];
+        SkScalar strokeWidth = radius + insetAmount;
         SkScalar strokedArea = 2.0f*strokeWidth*(shadowRRect.width() + shadowRRect.height());
         SkScalar filledArea = (shadowRRect.height() + radius)*(shadowRRect.width() + radius);
         // If the area of the stroked geometry is larger than the fill geometry, or
         // if our pad is too big to convert to 6.2 fixed point, just fill it.
-        if (strokedArea > filledArea || pad >= 64) {
-            pad = 0;
+        if (strokedArea > filledArea) {
             paint.setStyle(SkPaint::kStrokeAndFill_Style);
             paint.setStrokeWidth(radius);
         } else {
+            // Since we can't have unequal strokes, inset the shadow rect so the inner
+            // and outer edges of the stroke will land where we want.
+            SkRect insetRect = shadowRRect.rect().makeInset(insetAmount/2.0f, insetAmount/2.0f);
+            SkScalar insetRad = SkTMax(shadowRRect.getSimpleRadii().fX - insetAmount/2.0f,
+                                       minRadius);
+
+            shadowRRect = SkRRect::MakeRectXY(insetRect, insetRad, insetRad);
             paint.setStyle(SkPaint::kStroke_Style);
             paint.setStrokeWidth(strokeWidth);
         }
@@ -325,12 +348,14 @@ protected:
         radius *= scaleFactors[0];
         // don't need to scale pad as it was computed from the transformed offset
         SkASSERT(radius < 16384);
+        SkScalar pad = 0;
         SkASSERT(pad < 64);
         // Convert radius to 14.2 fixed point and place in the R & G components.
         // Convert pad to 6.2 fixed point and place in the B component.
         uint16_t iRadius = (uint16_t)(radius*4.0f);
         unsigned char alpha = (unsigned char)(spotAlpha*255.999f);
-        paint.setColor(SkColorSetARGB(alpha, iRadius >> 8, iRadius & 0xff,
+        paint.setColor(SkColorSetARGB(fIgnoreShadowAlpha ? 255 : alpha,
+                                      iRadius >> 8, iRadius & 0xff,
                                       (unsigned char)(4.0f*pad)));
 
         // apply transformation to shadow
@@ -357,6 +382,13 @@ protected:
         }
         if (fShowObject) {
             canvas->drawPath(path, paint);
+        } else {
+            SkPaint strokePaint;
+
+            strokePaint.setColor(paint.getColor());
+            strokePaint.setStyle(SkPaint::kStroke_Style);
+
+            canvas->drawPath(path, strokePaint);
         }
     }
 

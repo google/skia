@@ -9,6 +9,7 @@
 #include "Resources.h"
 #include "SkCodec.h"
 #include "SkCodecPriv.h"
+#include "SkColorSpace_XYZ.h"
 #include "SkColorSpaceXform.h"
 #include "SkCommandLineFlags.h"
 
@@ -17,6 +18,7 @@ DEFINE_bool(qcms,       false, "Bench qcms color conversion");
 #endif
 DEFINE_bool(xform_only, false, "Only time the color xform, do not include the decode time");
 DEFINE_bool(srgb,       false, "Convert to srgb dst space");
+DEFINE_bool(nonstd,     false, "Convert to non-standard dst space");
 DEFINE_bool(half,       false, "Convert to half floats");
 
 ColorCodecBench::ColorCodecBench(const char* name, sk_sp<SkData> encoded)
@@ -101,9 +103,9 @@ void ColorCodecBench::xformOnly() {
     void* dst = fDst.get();
     void* src = fSrc.get();
     for (int y = 0; y < fSrcInfo.height(); y++) {
-        xform->apply(dst, (uint32_t*) src, fSrcInfo.width(),
-                     select_xform_format(fDstInfo.colorType()),
-                     SkColorSpaceXform::kRGBA_8888_ColorFormat, fDstInfo.alphaType());
+        SkAssertResult(xform->apply(select_xform_format(fDstInfo.colorType()), dst,
+                                    SkColorSpaceXform::kRGBA_8888_ColorFormat, src,
+                                    fSrcInfo.width(), fDstInfo.alphaType()));
         dst = SkTAddOffset<void>(dst, fDstInfo.minRowBytes());
         src = SkTAddOffset<void>(src, fSrcInfo.minRowBytes());
     }
@@ -168,7 +170,15 @@ void ColorCodecBench::onDelayedSetup() {
 
     if (FLAGS_half) {
         fDstInfo = fDstInfo.makeColorType(kRGBA_F16_SkColorType);
-        fDstSpace = fDstSpace->makeLinearGamma();
+        SkASSERT(SkColorSpace_Base::Type::kXYZ == as_CSB(fDstSpace)->type());
+        fDstSpace = static_cast<SkColorSpace_XYZ*>(fDstSpace.get())->makeLinearGamma();
+    }
+
+    if (FLAGS_nonstd) {
+        float gammas[3] = { 1.8f, 2.0f, 2.5f, };
+        SkMatrix44 matrix = SkMatrix44(SkMatrix44::kUninitialized_Constructor);
+        matrix.set3x3(0.30f, 0.31f, 0.28f, 0.32f, 0.33f, 0.29f, 0.27f, 0.30f, 0.30f);
+        fDstSpace = SkColorSpace::NewRGB(gammas, matrix);
     }
 
     fDstInfo = fDstInfo.makeColorSpace(fDstSpace);

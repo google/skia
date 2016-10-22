@@ -9,6 +9,7 @@
 #define GrBatchBuffer_DEFINED
 
 #include "GrBufferAllocPool.h"
+#include "GrGpu.h"
 #include "batches/GrVertexBatch.h"
 
 class GrGpuCommandBuffer;

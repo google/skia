@@ -41,9 +41,9 @@ protected:
         std::unique_ptr<SkColorSpaceXform> xform = SkColorSpaceXform::New(srcSpace.get(),
                                                                           dstSpace.get());
 
-        xform->apply(fWideGamutColors, colors, kNumColors,
-                     SkColorSpaceXform::kRGBA_F32_ColorFormat,
-                     SkColorSpaceXform::kBGRA_8888_ColorFormat, kOpaque_SkAlphaType);
+        xform->apply(SkColorSpaceXform::kRGBA_F32_ColorFormat, fWideGamutColors,
+                     SkColorSpaceXform::kBGRA_8888_ColorFormat, colors, kNumColors,
+                     kOpaque_SkAlphaType);
     }
 
     SkString onShortName() override {

@@ -348,6 +348,15 @@ bool GrGLInterface::validate() const {
                 nullptr == fFunctions.fBlitFramebuffer) {
                 RETURN_FALSE_INTERFACE
             }
+        } else {
+            if (fExtensions.has("GL_ANGLE_framebuffer_multisample") &&
+                nullptr == fFunctions.fRenderbufferStorageMultisample) {
+                RETURN_FALSE_INTERFACE
+            }
+            if (fExtensions.has("GL_ANGLE_framebuffer_blit") &&
+                nullptr == fFunctions.fBlitFramebuffer) {
+                RETURN_FALSE_INTERFACE
+            }
         }
         if (fExtensions.has("GL_APPLE_framebuffer_multisample")) {
             if (nullptr == fFunctions.fRenderbufferStorageMultisampleES2APPLE ||

@@ -25,7 +25,7 @@
 #include "SkConfig8888.h"
 #include "SkCanvas.h"
 #include "SkData.h"
-#include "SkErrorInternals.h"
+#include "SkMaskFilter.h"
 #include "SkMessageBus.h"
 #include "SkMipMap.h"
 #include "SkPixelRef.h"
@@ -438,6 +438,21 @@ sk_sp<GrTexture> GrMakeCachedBitmapTexture(GrContext* ctx, const SkBitmap& bitma
 
 ///////////////////////////////////////////////////////////////////////////////
 
+GrColor4f SkColorToPremulGrColor4f(SkColor c, SkColorSpace* dstColorSpace) {
+    // We want to premultiply after linearizing, so this is easy:
+    return SkColorToUnpremulGrColor4f(c, dstColorSpace).premul();
+}
+
+GrColor4f SkColorToUnpremulGrColor4f(SkColor c, SkColorSpace* dstColorSpace) {
+    if (dstColorSpace) {
+        auto srgbColorSpace = SkColorSpace::NewNamed(SkColorSpace::kSRGB_Named);
+        auto gamutXform = GrColorSpaceXform::Make(srgbColorSpace.get(), dstColorSpace);
+        return SkColorToUnpremulGrColor4f(c, true, gamutXform.get());
+    } else {
+        return SkColorToUnpremulGrColor4f(c, false, nullptr);
+    }
+}
+
 GrColor4f SkColorToPremulGrColor4f(SkColor c, bool gammaCorrect, GrColorSpaceXform* gamutXform) {
     // We want to premultiply after linearizing, so this is easy:
     return SkColorToUnpremulGrColor4f(c, gammaCorrect, gamutXform).premul();
@@ -666,8 +681,15 @@ static inline bool skpaint_to_grpaint_impl(GrContext* context,
     SkColorFilter* colorFilter = skPaint.getColorFilter();
     if (colorFilter) {
         if (applyColorFilterToPaintColor) {
-            grPaint->setColor4f(GrColor4f::FromSkColor4f(
-                colorFilter->filterColor4f(origColor.toSkColor4f())).premul());
+            // If we're in legacy mode, we *must* avoid using the 4f version of the color filter,
+            // because that will combine with the linearized version of the stored color.
+            if (dc->isGammaCorrect()) {
+                grPaint->setColor4f(GrColor4f::FromSkColor4f(
+                    colorFilter->filterColor4f(origColor.toSkColor4f())).premul());
+            } else {
+                grPaint->setColor4f(SkColorToPremulGrColor4f(
+                    colorFilter->filterColor(skPaint.getColor()), false, nullptr));
+            }
         } else {
             sk_sp<GrFragmentProcessor> cfFP(colorFilter->asFragmentProcessor(context));
             if (cfFP) {
@@ -675,6 +697,14 @@ static inline bool skpaint_to_grpaint_impl(GrContext* context,
             } else {
                 return false;
             }
+        }
+    }
+
+    SkMaskFilter* maskFilter = skPaint.getMaskFilter();
+    if (maskFilter) {
+        GrFragmentProcessor* mfFP;
+        if (maskFilter->asFragmentProcessor(&mfFP, nullptr, viewM)) {
+            grPaint->addCoverageFragmentProcessor(sk_sp<GrFragmentProcessor>(mfFP));
         }
     }
 
@@ -801,10 +831,7 @@ GrTextureParams::FilterMode GrSkFilterQualityToGrFilterMode(SkFilterQuality pain
             break;
         }
         default:
-            SkErrorInternals::SetError( kInvalidPaint_SkError,
-                                        "Sorry, I don't understand the filtering "
-                                        "mode you asked for.  Falling back to "
-                                        "MIPMaps.");
+            // Should be unreachable.  If not, fall back to mipmaps.
             textureFilterMode = GrTextureParams::kMipMap_FilterMode;
             break;
 

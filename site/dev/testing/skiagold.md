@@ -1,8 +1,30 @@
 Skia Gold
 =========
 
-Recommended Workflows 
---------------------- 
+Overview
+--------
+
+Gold is a web application that compares the images produced by our bots against
+known baseline images.  
+Key features:  
+
+* Baselines are managed in Gold outside of Git, but in lockstep with Git commits.
+* Each commit creates >500k images.
+* Deviations from the baseline are triaged after a CL lands and images are triaged
+  as either `positive` or `negative`. If a CL causes Skia to break it is reverted
+  or an additional CL is landed to fix the problem.
+* We test across a range of dimensions, e.g.:
+
+  - OS (Windows, Linux, Mac, Android, iOS)
+  - Architectures (Intel, ARM)
+  - Backends (CPU, OpenGL, Vulkan etc.)
+  - etc.
+
+* Written in Go, Polymer and deployed on the Google Cloud.  The code
+  is in the [Skia Infra Repository](https://github.com/google/skia-buildbot).
+
+Recommended Workflows
+---------------------
 ### How to best use Gold for commonly faced problems ###
 
 These instructions will refer to various views which are accessible via the left
@@ -146,5 +168,3 @@ Solution:
 *   Select any parameters desired to search across tests
 
 <img src=Search.png style="margin-left:30px" align="left" width="800"/> <br clear="left">
-
-

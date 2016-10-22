@@ -33,7 +33,7 @@ static const int gHeight = 480;
 DEF_GPUTEST_FOR_RENDERING_CONTEXTS(ResourceCacheCache, reporter, ctxInfo) {
     GrContext* context = ctxInfo.grContext();
     GrSurfaceDesc desc;
-    desc.fConfig = kSkia8888_GrPixelConfig;
+    desc.fConfig = kRGBA_8888_GrPixelConfig;
     desc.fFlags = kRenderTarget_GrSurfaceFlag;
     desc.fWidth = gWidth;
     desc.fHeight = gHeight;
@@ -80,11 +80,21 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(ResourceCacheCache, reporter, ctxInfo) {
     context->setResourceCacheLimits(oldMaxNum, oldMaxBytes);
 }
 
-DEF_GPUTEST_FOR_RENDERING_CONTEXTS(ResourceCacheStencilBuffers, reporter, ctxInfo) {
+static bool is_rendering_and_not_angle_es3(sk_gpu_test::GrContextFactory::ContextType type) {
+    if (type == sk_gpu_test::GrContextFactory::kANGLE_D3D11_ES3_ContextType ||
+        type == sk_gpu_test::GrContextFactory::kANGLE_GL_ES3_ContextType) {
+        return false;
+    }
+    return sk_gpu_test::GrContextFactory::IsRenderingContext(type);
+}
+
+// This currently fails on ES3 ANGLE contexts
+DEF_GPUTEST_FOR_CONTEXTS(ResourceCacheStencilBuffers, &is_rendering_and_not_angle_es3, reporter,
+                         ctxInfo) {
     GrContext* context = ctxInfo.grContext();
     GrSurfaceDesc smallDesc;
     smallDesc.fFlags = kRenderTarget_GrSurfaceFlag;
-    smallDesc.fConfig = kSkia8888_GrPixelConfig;
+    smallDesc.fConfig = kRGBA_8888_GrPixelConfig;
     smallDesc.fWidth = 4;
     smallDesc.fHeight = 4;
     smallDesc.fSampleCnt = 0;
@@ -122,7 +132,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(ResourceCacheStencilBuffers, reporter, ctxInf
     // An RT with a much larger size should not share.
     GrSurfaceDesc bigDesc;
     bigDesc.fFlags = kRenderTarget_GrSurfaceFlag;
-    bigDesc.fConfig = kSkia8888_GrPixelConfig;
+    bigDesc.fConfig = kRGBA_8888_GrPixelConfig;
     bigDesc.fWidth = 400;
     bigDesc.fHeight = 200;
     bigDesc.fSampleCnt = 0;

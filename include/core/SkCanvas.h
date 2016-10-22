@@ -1637,6 +1637,7 @@ private:
     friend class SkPictureImageFilter;  // SkCanvas(SkBaseDevice*, SkSurfaceProps*, InitFlags)
     friend class SkPictureRecord;   // predrawNotify (why does it need it? <reed>)
     friend class SkPicturePlayback; // SaveFlagsToSaveLayerFlags
+    friend class SkPipeCanvas;      // InitFlags
     friend class SkDeferredCanvas;  // For use of resetForNextPicture
 
     enum InitFlags {

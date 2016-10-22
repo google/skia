@@ -23,7 +23,7 @@ public:
     void assemble();
     void conicTo(const SkPoint& pt1, const SkOpPtT* pt2, SkScalar weight);
     void cubicTo(const SkPoint& pt1, const SkPoint& pt2, const SkOpPtT* pt3);
-    void deferredLine(const SkOpPtT* pt);
+    bool deferredLine(const SkOpPtT* pt);
     void deferredMove(const SkOpPtT* pt);
     void finishContour();
     bool hasMove() const { return !fFirstPtT; }

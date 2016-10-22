@@ -1472,10 +1472,9 @@ static bool renderbuffer_storage_msaa(const GrGLContext& ctx,
     CLEAR_ERROR_BEFORE_ALLOC(ctx.interface());
     SkASSERT(GrGLCaps::kNone_MSFBOType != ctx.caps()->msFBOType());
     switch (ctx.caps()->msFBOType()) {
-        case GrGLCaps::kDesktop_ARB_MSFBOType:
-        case GrGLCaps::kDesktop_EXT_MSFBOType:
+        case GrGLCaps::kEXT_MSFBOType:
+        case GrGLCaps::kStandard_MSFBOType:
         case GrGLCaps::kMixedSamples_MSFBOType:
-        case GrGLCaps::kES_3_0_MSFBOType:
             GL_ALLOC_CALL(ctx.interface(),
                             RenderbufferStorageMultisample(GR_GL_RENDERBUFFER,
                                                             sampleCount,
@@ -2642,7 +2641,7 @@ GrGpuCommandBuffer* GrGLGpu::createCommandBuffer(
         GrRenderTarget* target,
         const GrGpuCommandBuffer::LoadAndStoreInfo& colorInfo,
         const GrGpuCommandBuffer::LoadAndStoreInfo& stencilInfo) {
-    return new GrGLGpuCommandBuffer(this);
+    return new GrGLGpuCommandBuffer(this, static_cast<GrGLRenderTarget*>(target));
 }
 
 void GrGLGpu::finishDrawTarget() {
@@ -2922,18 +2921,27 @@ void GrGLGpu::onResolveRenderTarget(GrRenderTarget* target) {
                 this->disableWindowRectangles();
                 GL_CALL(ResolveMultisampleFramebuffer());
             } else {
-                GrGLIRect r;
-                r.setRelativeTo(vp, dirtyRect.fLeft, dirtyRect.fTop,
-                                dirtyRect.width(), dirtyRect.height(), target->origin());
-
-                int right = r.fLeft + r.fWidth;
-                int top = r.fBottom + r.fHeight;
+                int l, b, r, t;
+                if (GrGLCaps::kResolveMustBeFull_BlitFrambufferFlag &
+                    this->glCaps().blitFramebufferSupportFlags()) {
+                    l = 0;
+                    b = 0;
+                    r = target->width();
+                    t = target->height();
+                } else {
+                    GrGLIRect rect;
+                    rect.setRelativeTo(vp, dirtyRect.fLeft, dirtyRect.fTop,
+                                       dirtyRect.width(), dirtyRect.height(), target->origin());
+                    l = rect.fLeft;
+                    b = rect.fBottom;
+                    r = rect.fLeft + rect.fWidth;
+                    t = rect.fBottom + rect.fHeight;
+                }
 
                 // BlitFrameBuffer respects the scissor, so disable it.
                 this->disableScissor();
                 this->disableWindowRectangles();
-                GL_CALL(BlitFramebuffer(r.fLeft, r.fBottom, right, top,
-                                        r.fLeft, r.fBottom, right, top,
+                GL_CALL(BlitFramebuffer(l, b, r, t, l, b, r, t,
                                         GR_GL_COLOR_BUFFER_BIT, GR_GL_NEAREST));
             }
         }
@@ -3473,42 +3481,64 @@ void GrGLGpu::setScratchTextureUnit() {
     fHWBoundTextureUniqueIDs[lastUnitIdx] = SK_InvalidUniqueID;
 }
 
-// Determines whether glBlitFramebuffer could be used between src and dst.
-static inline bool can_blit_framebuffer(const GrSurface* dst,
-                                        const GrSurface* src,
-                                        const GrGLGpu* gpu) {
-    if (gpu->glCaps().isConfigRenderable(dst->config(), dst->desc().fSampleCnt > 0) &&
-        gpu->glCaps().isConfigRenderable(src->config(), src->desc().fSampleCnt > 0)) {
-        switch (gpu->glCaps().blitFramebufferSupport()) {
-            case GrGLCaps::kNone_BlitFramebufferSupport:
-                return false;
-            case GrGLCaps::kNoScalingNoMirroring_BlitFramebufferSupport:
-                // Our copy surface doesn't support scaling so just check for mirroring.
-                if (dst->origin() != src->origin()) {
-                    return false;
-                }
-                break;
-            case GrGLCaps::kFull_BlitFramebufferSupport:
-                break;
-        }
-        // ES3 doesn't allow framebuffer blits when the src has MSAA and the configs don't match
-        // or the rects are not the same (not just the same size but have the same edges).
-        if (GrGLCaps::kES_3_0_MSFBOType == gpu->glCaps().msFBOType() &&
-            (src->desc().fSampleCnt > 0 || src->config() != dst->config())) {
-           return false;
-        }
-        const GrGLTexture* dstTex = static_cast<const GrGLTexture*>(dst->asTexture());
-        if (dstTex && dstTex->target() != GR_GL_TEXTURE_2D) {
-            return false;
-        }
-        const GrGLTexture* srcTex = static_cast<const GrGLTexture*>(dst->asTexture());
-        if (srcTex && srcTex->target() != GR_GL_TEXTURE_2D) {
-            return false;
-        }
-        return true;
-    } else {
+// Determines whether glBlitFramebuffer could be used between src and dst by onCopySurface.
+static inline bool can_blit_framebuffer_for_copy_surface(const GrSurface* dst,
+                                                         const GrSurface* src,
+                                                         const SkIRect& srcRect,
+                                                         const SkIPoint& dstPoint,
+                                                         const GrGLGpu* gpu) {
+    auto blitFramebufferFlags = gpu->glCaps().blitFramebufferSupportFlags();
+    if (!gpu->glCaps().isConfigRenderable(dst->config(), dst->desc().fSampleCnt > 0) ||
+        !gpu->glCaps().isConfigRenderable(src->config(), src->desc().fSampleCnt > 0)) {
         return false;
     }
+    const GrGLTexture* dstTex = static_cast<const GrGLTexture*>(dst->asTexture());
+    const GrGLTexture* srcTex = static_cast<const GrGLTexture*>(dst->asTexture());
+    const GrRenderTarget* dstRT = dst->asRenderTarget();
+    const GrRenderTarget* srcRT = src->asRenderTarget();
+    if (dstTex && dstTex->target() != GR_GL_TEXTURE_2D) {
+        return false;
+    }
+    if (srcTex && srcTex->target() != GR_GL_TEXTURE_2D) {
+        return false;
+    }
+    if (GrGLCaps::kNoSupport_BlitFramebufferFlag & blitFramebufferFlags) {
+        return false;
+    }
+    if (GrGLCaps::kNoScalingOrMirroring_BlitFramebufferFlag & blitFramebufferFlags) {
+        // We would mirror to compensate for origin changes. Note that copySurface is
+        // specified such that the src and dst rects are the same.
+        if (dst->origin() != src->origin()) {
+            return false;
+        }
+    }
+    if (GrGLCaps::kResolveMustBeFull_BlitFrambufferFlag & blitFramebufferFlags) {
+        if (srcRT && srcRT->numColorSamples() && dstRT && !dstRT->numColorSamples()) {
+            return false;
+        }
+    }
+    if (GrGLCaps::kNoMSAADst_BlitFramebufferFlag & blitFramebufferFlags) {
+        if (dstRT && dstRT->numColorSamples() > 0) {
+            return false;
+        }
+    }    
+    if (GrGLCaps::kNoFormatConversion_BlitFramebufferFlag & blitFramebufferFlags) {
+        if (dst->config() != src->config()) {
+            return false;
+        }
+    } else if (GrGLCaps::kNoFormatConversionForMSAASrc_BlitFramebufferFlag & blitFramebufferFlags) {
+        const GrRenderTarget* srcRT = src->asRenderTarget();
+        if (srcRT && srcRT->numColorSamples() && dst->config() != src->config()) {
+            return false;
+        }
+    }
+    if (GrGLCaps::kRectsMustMatchForMSAASrc_BlitFramebufferFlag & blitFramebufferFlags) {
+        if (srcRT && srcRT->numColorSamples() &&
+            (dstPoint.fX != srcRect.fLeft || dstPoint.fY != srcRect.fTop)) {
+            return false;
+        }
+    }
+    return true;
 }
 
 static inline bool can_copy_texsubimage(const GrSurface* dst,
@@ -3625,8 +3655,8 @@ bool GrGLGpu::initDescForDstCopy(const GrRenderTarget* src, GrSurfaceDesc* desc)
     // creation. It isn't clear that avoiding temporary fbo creation is actually optimal.
 
     GrSurfaceOrigin originForBlitFramebuffer = kDefault_GrSurfaceOrigin;
-    if (this->glCaps().blitFramebufferSupport() ==
-        GrGLCaps::kNoScalingNoMirroring_BlitFramebufferSupport) {
+    if (this->glCaps().blitFramebufferSupportFlags() &
+        GrGLCaps::kNoScalingOrMirroring_BlitFramebufferFlag) {
         originForBlitFramebuffer = src->origin();
     }
 
@@ -3687,7 +3717,7 @@ bool GrGLGpu::onCopySurface(GrSurface* dst,
         return true;
     }
 
-    if (can_blit_framebuffer(dst, src, this)) {
+    if (can_blit_framebuffer_for_copy_surface(dst, src, srcRect, dstPoint, this)) {
         return this->copySurfaceAsBlitFramebuffer(dst, src, srcRect, dstPoint);
     }
 
@@ -3790,20 +3820,11 @@ bool GrGLGpu::createCopyProgram(int progIdx) {
     fshaderTxt.append(";");
     uTexture.appendDecl(glslCaps, &fshaderTxt);
     fshaderTxt.append(";");
-    const char* fsOutName;
-    if (glslCaps->mustDeclareFragmentShaderOutput()) {
-        oFragColor.appendDecl(glslCaps, &fshaderTxt);
-        fshaderTxt.append(";");
-        fsOutName = oFragColor.c_str();
-    } else {
-        fsOutName = "gl_FragColor";
-    }
     fshaderTxt.appendf(
         "// Copy Program FS\n"
         "void main() {"
-        "  %s = %s(u_texture, v_texCoord);"
+        "  sk_FragColor = %s(u_texture, v_texCoord);"
         "}",
-        fsOutName,
         GrGLSLTexture2DFunctionName(kVec2f_GrSLType, kSamplerTypes[progIdx], this->glslGeneration())
     );
 
@@ -3936,14 +3957,6 @@ bool GrGLGpu::createMipmapProgram(int progIdx) {
     }
     uTexture.appendDecl(glslCaps, &fshaderTxt);
     fshaderTxt.append(";");
-    const char* fsOutName;
-    if (glslCaps->mustDeclareFragmentShaderOutput()) {
-        oFragColor.appendDecl(glslCaps, &fshaderTxt);
-        fshaderTxt.append(";");
-        fsOutName = oFragColor.c_str();
-    } else {
-        fsOutName = "gl_FragColor";
-    }
     const char* sampleFunction = GrGLSLTexture2DFunctionName(kVec2f_GrSLType,
                                                              kTexture2DSampler_GrSLType,
                                                              this->glslGeneration());
@@ -3954,19 +3967,19 @@ bool GrGLGpu::createMipmapProgram(int progIdx) {
 
     if (oddWidth && oddHeight) {
         fshaderTxt.appendf(
-            "  %s = (%s(u_texture, v_texCoord0) + %s(u_texture, v_texCoord1) + "
-            "        %s(u_texture, v_texCoord2) + %s(u_texture, v_texCoord3)) * 0.25;",
-            fsOutName, sampleFunction, sampleFunction, sampleFunction, sampleFunction
+            "  sk_FragColor = (%s(u_texture, v_texCoord0) + %s(u_texture, v_texCoord1) + "
+            "                  %s(u_texture, v_texCoord2) + %s(u_texture, v_texCoord3)) * 0.25;",
+            sampleFunction, sampleFunction, sampleFunction, sampleFunction
         );
     } else if (oddWidth || oddHeight) {
         fshaderTxt.appendf(
-            "  %s = (%s(u_texture, v_texCoord0) + %s(u_texture, v_texCoord1)) * 0.5;",
-            fsOutName, sampleFunction, sampleFunction
+            "  sk_FragColor = (%s(u_texture, v_texCoord0) + %s(u_texture, v_texCoord1)) * 0.5;",
+            sampleFunction, sampleFunction
         );
     } else {
         fshaderTxt.appendf(
-            "  %s = %s(u_texture, v_texCoord0);",
-            fsOutName, sampleFunction
+            "  sk_FragColor = %s(u_texture, v_texCoord0);",
+            sampleFunction
         );
     }
 
@@ -4053,20 +4066,11 @@ bool GrGLGpu::createWireRectProgram() {
                                                  &fshaderTxt);
     uColor.appendDecl(this->glCaps().glslCaps(), &fshaderTxt);
     fshaderTxt.append(";");
-    const char* fsOutName;
-    if (this->glCaps().glslCaps()->mustDeclareFragmentShaderOutput()) {
-        oFragColor.appendDecl(this->glCaps().glslCaps(), &fshaderTxt);
-        fshaderTxt.append(";");
-        fsOutName = oFragColor.c_str();
-    } else {
-        fsOutName = "gl_FragColor";
-    }
     fshaderTxt.appendf(
         "// Write Rect Program FS\n"
         "void main() {"
-        "  %s = %s;"
+        "  sk_FragColor = %s;"
         "}",
-        fsOutName,
         uColor.c_str()
     );
 
@@ -4303,7 +4307,7 @@ bool GrGLGpu::copySurfaceAsBlitFramebuffer(GrSurface* dst,
                                            GrSurface* src,
                                            const SkIRect& srcRect,
                                            const SkIPoint& dstPoint) {
-    SkASSERT(can_blit_framebuffer(dst, src, this));
+    SkASSERT(can_blit_framebuffer_for_copy_surface(dst, src, srcRect, dstPoint, this));
     SkIRect dstRect = SkIRect::MakeXYWH(dstPoint.fX, dstPoint.fY,
                                         srcRect.width(), srcRect.height());
     if (dst == src) {

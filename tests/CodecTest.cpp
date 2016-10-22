@@ -10,6 +10,7 @@
 #include "SkBitmap.h"
 #include "SkCodec.h"
 #include "SkCodecImageGenerator.h"
+#include "SkColorSpace_XYZ.h"
 #include "SkData.h"
 #include "SkImageEncoder.h"
 #include "SkFrontBufferedStream.h"
@@ -1191,7 +1192,9 @@ static void test_conversion_possible(skiatest::Reporter* r, const char* path,
         REPORTER_ASSERT(r, SkCodec::kUnimplemented == result);
     }
 
-    infoF16 = infoF16.makeColorSpace(infoF16.colorSpace()->makeLinearGamma());
+    SkASSERT(SkColorSpace_Base::Type::kXYZ == as_CSB(infoF16.colorSpace())->type());
+    SkColorSpace_XYZ* csXYZ = static_cast<SkColorSpace_XYZ*>(infoF16.colorSpace());
+    infoF16 = infoF16.makeColorSpace(csXYZ->makeLinearGamma());
     result = codec->getPixels(infoF16, bm.getPixels(), bm.rowBytes());
     REPORTER_ASSERT(r, SkCodec::kSuccess == result);
     result = codec->startScanlineDecode(infoF16);
@@ -1301,4 +1304,70 @@ DEF_TEST(Codec_fallBack, r) {
             ERRORF(r, "Scanline decoding failed for %s with %i", file, result);
         }
     }
+}
+
+// This test verifies that we fixed an assert statement that fired when reusing a png codec
+// after scaling.
+DEF_TEST(Codec_reusePng, r) {
+    std::unique_ptr<SkStream> stream(GetResourceAsStream("plane.png"));
+    if (!stream) {
+        return;
+    }
+
+    std::unique_ptr<SkAndroidCodec> codec(SkAndroidCodec::NewFromStream(stream.release()));
+    if (!codec) {
+        ERRORF(r, "Failed to create codec\n");
+        return;
+    }
+
+    SkAndroidCodec::AndroidOptions opts;
+    opts.fSampleSize = 5;
+    auto size = codec->getSampledDimensions(opts.fSampleSize);
+    auto info = codec->getInfo().makeWH(size.fWidth, size.fHeight).makeColorType(kN32_SkColorType);
+    SkBitmap bm;
+    bm.allocPixels(info);
+    auto result = codec->getAndroidPixels(info, bm.getPixels(), bm.rowBytes(), &opts);
+    REPORTER_ASSERT(r, result == SkCodec::kSuccess);
+
+    info = codec->getInfo().makeColorType(kN32_SkColorType);
+    bm.allocPixels(info);
+    opts.fSampleSize = 1;
+    result = codec->getAndroidPixels(info, bm.getPixels(), bm.rowBytes(), &opts);
+    REPORTER_ASSERT(r, result == SkCodec::kSuccess);
+}
+
+DEF_TEST(Codec_rowsDecoded, r) {
+    auto file = "plane_interlaced.png";
+    std::unique_ptr<SkStream> stream(GetResourceAsStream(file));
+    if (!stream) {
+        return;
+    }
+
+    // This is enough to read the header etc, but no rows.
+    auto data = SkData::MakeFromStream(stream.get(), 99);
+    std::unique_ptr<SkCodec> codec(SkCodec::NewFromData(data));
+    if (!codec) {
+        ERRORF(r, "Failed to create codec\n");
+        return;
+    }
+
+    auto info = codec->getInfo().makeColorType(kN32_SkColorType);
+    SkBitmap bm;
+    bm.allocPixels(info);
+    auto result = codec->startIncrementalDecode(info, bm.getPixels(), bm.rowBytes());
+    REPORTER_ASSERT(r, result == SkCodec::kSuccess);
+
+    // This is an arbitrary value. The important fact is that it is not zero, and rowsDecoded
+    // should get set to zero by incrementalDecode.
+    int rowsDecoded = 77;
+    result = codec->incrementalDecode(&rowsDecoded);
+    REPORTER_ASSERT(r, result == SkCodec::kIncompleteInput);
+    REPORTER_ASSERT(r, rowsDecoded == 0);
+}
+
+DEF_TEST(Codec_IcoIntOverflow, r) {
+    // ASAN will complain if there is an issue.
+    SkBitmap bitmap;
+    const bool success = GetResourceAsBitmap("invalid_images/int_overflow.ico", &bitmap);
+    REPORTER_ASSERT(r, !success);
 }

@@ -430,7 +430,7 @@ private:
 size_t SkImage::getDeferredTextureImageData(const GrContextThreadSafeProxy& proxy,
                                             const DeferredTextureImageUsageParams params[],
                                             int paramCnt, void* buffer,
-                                            SkSourceGammaTreatment gammaTreatment) const {
+                                            SkColorSpace* dstColorSpace) const {
     // Extract relevant min/max values from the params array.
     int lowestPreScaleMipLevel = params[0].fPreScaleMipLevel;
     SkFilterQuality highestFilterQuality = params[0].fQuality;
@@ -492,7 +492,7 @@ size_t SkImage::getDeferredTextureImageData(const GrContextThreadSafeProxy& prox
         if (!data && !this->peekPixels(nullptr)) {
             return 0;
         }
-        info = SkImageInfo::MakeN32(scaledSize.width(), scaledSize.height(), this->alphaType());
+        info = as_IB(this)->onImageInfo().makeWH(scaledSize.width(), scaledSize.height());
         pixelSize = SkAlign8(SkAutoPixmapStorage::AllocSize(info, nullptr));
         if (fillMode) {
             pixmap.alloc(info);
@@ -509,7 +509,6 @@ size_t SkImage::getDeferredTextureImageData(const GrContextThreadSafeProxy& prox
             SkASSERT(!pixmap.ctable());
         }
     }
-    SkAlphaType at = this->isOpaque() ? kOpaque_SkAlphaType : kPremul_SkAlphaType;
     int mipMapLevelCount = 1;
     if (useMipMaps) {
         // SkMipMap only deals with the mipmap levels it generates, which does
@@ -528,7 +527,7 @@ size_t SkImage::getDeferredTextureImageData(const GrContextThreadSafeProxy& prox
              currentMipMapLevelIndex--) {
             SkISize mipSize = SkMipMap::ComputeLevelSize(scaledSize.width(), scaledSize.height(),
                                                          currentMipMapLevelIndex);
-            SkImageInfo mipInfo = SkImageInfo::MakeN32(mipSize.fWidth, mipSize.fHeight, at);
+            SkImageInfo mipInfo = info.makeWH(mipSize.fWidth, mipSize.fHeight);
             pixelSize += SkAlign8(SkAutoPixmapStorage::AllocSize(mipInfo, nullptr));
         }
     }
@@ -564,6 +563,15 @@ size_t SkImage::getDeferredTextureImageData(const GrContextThreadSafeProxy& prox
                                    pixmap.addr(), pixmap.getSafeSize());
     if (ctSize) {
         memcpy(ct, pixmap.ctable()->readColors(), ctSize);
+    }
+
+    // If the context has sRGB support, and we're intending to render to a surface with an attached
+    // color space, and the image has an sRGB-like color space attached, then use our gamma (sRGB)
+    // aware mip-mapping.
+    SkSourceGammaTreatment gammaTreatment = SkSourceGammaTreatment::kIgnore;
+    if (proxy.fCaps->srgbSupport() && SkToBool(dstColorSpace) &&
+        info.colorSpace() && info.colorSpace()->gammaCloseToSRGB()) {
+        gammaTreatment = SkSourceGammaTreatment::kRespect;
     }
 
     SkASSERT(info == pixmap.info());
@@ -614,10 +622,6 @@ size_t SkImage::getDeferredTextureImageData(const GrContextThreadSafeProxy& prox
         // range 0-(x-1).
         for (int generatedMipLevelIndex = 0; generatedMipLevelIndex < mipMapLevelCount - 1;
              generatedMipLevelIndex++) {
-            SkISize mipSize = SkMipMap::ComputeLevelSize(scaledSize.width(), scaledSize.height(),
-                                                         generatedMipLevelIndex);
-
-            SkImageInfo mipInfo = SkImageInfo::MakeN32(mipSize.fWidth, mipSize.fHeight, at);
             SkMipMap::Level mipLevel;
             mipmaps->getLevel(generatedMipLevelIndex, &mipLevel);
 

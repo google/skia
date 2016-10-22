@@ -6,6 +6,7 @@
  */
 
 #include "SkColorFilter.h"
+#include "SkPM4f.h"
 #include "SkXfermode.h"
 
 #ifndef SkModeColorFilter_DEFINED
@@ -16,11 +17,6 @@ public:
     static sk_sp<SkColorFilter> Make(SkColor color, SkXfermode::Mode mode) {
         return sk_sp<SkColorFilter>(new SkModeColorFilter(color, mode));
     }
-#ifdef SK_SUPPORT_LEGACY_COLORFILTER_PTR
-    static SkColorFilter* Create(SkColor color, SkXfermode::Mode mode) {
-        return Make(color, mode).release();
-    }
-#endif
 
     SkColor getColor() const { return fColor; }
     SkXfermode::Mode getMode() const { return fMode; }
@@ -49,12 +45,15 @@ protected:
 
     void flatten(SkWriteBuffer&) const override;
 
+    bool onAppendStages(SkRasterPipeline*) const override;
+
 private:
     SkColor             fColor;
     SkXfermode::Mode    fMode;
     // cache
     SkPMColor           fPMColor;
     SkXfermodeProc      fProc;
+    SkPM4f              fPM4f;
 
     void updateCache();
 

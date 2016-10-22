@@ -12,7 +12,7 @@
 #include "Test.h"
 
 struct lineCubic {
-    SkDCubic cubic;
+    CubicPts cubic;
     SkDLine line;
 };
 
@@ -25,7 +25,9 @@ static lineCubic failLineCubicTests[] = {
 static const size_t failLineCubicTests_count = SK_ARRAY_COUNT(failLineCubicTests);
 
 static void testFail(skiatest::Reporter* reporter, int iIndex) {
-    const SkDCubic& cubic = failLineCubicTests[iIndex].cubic;
+    const CubicPts& cuPts = failLineCubicTests[iIndex].cubic;
+    SkDCubic cubic;
+    cubic.debugSet(cuPts.fPts);
     SkASSERT(ValidCubic(cubic));
     const SkDLine& line = failLineCubicTests[iIndex].line;
     SkASSERT(ValidLine(line));
@@ -123,7 +125,9 @@ static int doIntersect(SkIntersections& intersections, const SkDCubic& cubic, co
 }
 
 static void testOne(skiatest::Reporter* reporter, int iIndex) {
-    const SkDCubic& cubic = lineCubicTests[iIndex].cubic;
+    const CubicPts& cuPts = lineCubicTests[iIndex].cubic;
+    SkDCubic cubic;
+    cubic.debugSet(cuPts.fPts);
     SkASSERT(ValidCubic(cubic));
     const SkDLine& line = lineCubicTests[iIndex].line;
     SkASSERT(ValidLine(line));
@@ -188,7 +192,9 @@ DEF_TEST(PathOpsCubicLineIntersection, reporter) {
 DEF_TEST(PathOpsCubicLineIntersectionOneOff, reporter) {
     int iIndex = 0;
     testOne(reporter, iIndex);
-    const SkDCubic& cubic = lineCubicTests[iIndex].cubic;
+    const CubicPts& cuPts = lineCubicTests[iIndex].cubic;
+    SkDCubic cubic;
+    cubic.debugSet(cuPts.fPts);
     const SkDLine& line = lineCubicTests[iIndex].line;
     SkIntersections i;
     i.intersect(cubic, line);

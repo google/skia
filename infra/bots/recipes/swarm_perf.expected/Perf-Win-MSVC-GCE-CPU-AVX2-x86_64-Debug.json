@@ -80,7 +80,6 @@
       "8888",
       "gpu",
       "nonrendering",
-      "angle",
       "hwui",
       "f16",
       "srgb",
@@ -112,11 +111,7 @@
       "~inc0.webp",
       "~inc1.webp"
     ],
-    "env": {
-      "BUILDTYPE": "Debug_x64",
-      "CHROME_HEADLESS": "1",
-      "SKIA_OUT": "[SLAVE_BUILD]\\out"
-    },
+    "cwd": "[SLAVE_BUILD]\\skia",
     "name": "nanobench"
   },
   {

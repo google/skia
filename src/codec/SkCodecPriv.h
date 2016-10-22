@@ -176,8 +176,8 @@ static inline uint64_t get_color_table_fill_value(SkColorType dstColorType, SkAl
             SkASSERT(colorXform);
             uint64_t dstColor;
             uint32_t srcColor = colorPtr[fillIndex];
-            colorXform->apply(&dstColor, &srcColor, 1, select_xform_format(dstColorType),
-                              SkColorSpaceXform::kRGBA_8888_ColorFormat, alphaType);
+            SkAssertResult(colorXform->apply(select_xform_format(dstColorType), &dstColor,
+                    SkColorSpaceXform::kRGBA_8888_ColorFormat, &srcColor, 1, alphaType));
             return dstColor;
         }
         default:
