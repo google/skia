@@ -26,16 +26,6 @@ DEFINE_bool(simpleCodec, false, "Runs of a subset of the codec tests.  "
                                 "canvas color type.  "
                                 "For nanobench, this means always N32, Premul or Opaque.");
 
-DEFINE_string2(match, m, nullptr,
-               "[~][^]substring[$] [...] of GM name to run.\n"
-               "Multiple matches may be separated by spaces.\n"
-               "~ causes a matching GM to always be skipped\n"
-               "^ requires the start of the GM to match\n"
-               "$ requires the end of the GM to match\n"
-               "^ and $ requires an exact match\n"
-               "If a GM does not match any list entry,\n"
-               "it is skipped unless some list entry starts with ~");
-
 DEFINE_bool2(quiet, q, false, "if true, don't print status updates.");
 
 DEFINE_bool(preAbandonGpuContext, false, "Test abandoning the GrContext before running the test.");
@@ -45,8 +35,6 @@ DEFINE_bool(abandonGpuContext, false, "Test abandoning the GrContext after runni
 DEFINE_bool(releaseAndAbandonGpuContext, false,
             "Test releasing all gpu resources and abandoning the GrContext after running each "
             "test");
-
-DEFINE_string(skps, "skps", "Directory to read skps from.");
 
 DEFINE_string(svgs, "", "Directory to read SVGs from, or a single SVG file.");
 

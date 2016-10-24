@@ -93,6 +93,17 @@ static SkString to_string(int n) {
     return str;
 }
 
+DEFINE_string2(match, m, nullptr,
+               "[~][^]substring[$] [...] of GM name to run.\n"
+               "Multiple matches may be separated by spaces.\n"
+               "~ causes a matching GM to always be skipped\n"
+               "^ requires the start of the GM to match\n"
+               "$ requires the end of the GM to match\n"
+               "^ and $ requires an exact match\n"
+               "If a GM does not match any list entry,\n"
+               "it is skipped unless some list entry starts with ~");
+DEFINE_string(skps, "skps", "Directory to read skps from.");
+
 DEFINE_int32(loops, kDefaultLoops, loops_help_txt().c_str());
 
 DEFINE_int32(samples, 10, "Number of samples to measure for each bench.");

@@ -48,6 +48,17 @@ extern void SkPDFImageDumpStats();
     #include <unistd.h>
 #endif
 
+DEFINE_string2(match, m, nullptr,
+               "[~][^]substring[$] [...] of GM name to run.\n"
+               "Multiple matches may be separated by spaces.\n"
+               "~ causes a matching GM to always be skipped\n"
+               "^ requires the start of the GM to match\n"
+               "$ requires the end of the GM to match\n"
+               "^ and $ requires an exact match\n"
+               "If a GM does not match any list entry,\n"
+               "it is skipped unless some list entry starts with ~");
+DEFINE_string(skps, "skps", "Directory to read skps from.");
+
 DEFINE_string(src, "tests gm skp image", "Source types to test.");
 DEFINE_bool(nameByHash, false,
             "If true, write to FLAGS_writePath[0]/<hash>.png instead of "
