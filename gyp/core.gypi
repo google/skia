@@ -104,7 +104,6 @@
         '<(skia_src_path)/core/SkDeviceProfile.cpp',
         '<(skia_src_path)/core/SkDiscardableMemory.h',
         '<(skia_src_path)/lazy/SkDiscardableMemoryPool.cpp',
-        '<(skia_src_path)/lazy/SkDiscardablePixelRef.cpp',
         '<(skia_src_path)/core/SkDistanceFieldGen.cpp',
         '<(skia_src_path)/core/SkDistanceFieldGen.h',
         '<(skia_src_path)/core/SkDither.cpp',
