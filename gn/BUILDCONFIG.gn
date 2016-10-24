@@ -59,6 +59,8 @@ if (is_android) {
     ndk_host = "linux-x86_64"
   } else if (host_os == "mac") {
     ndk_host = "darwin-x86_64"
+  } else if (host_os == "win") {
+    ndk_host = "windows-x86_64"
   }
 
   if (target_cpu == "arm64") {
