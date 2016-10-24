@@ -16,9 +16,9 @@ class GrFragmentProcessor;
 
 class SkLocalMatrixShader : public SkShader {
 public:
-    SkLocalMatrixShader(SkShader* proxy, const SkMatrix& localMatrix)
+    SkLocalMatrixShader(sk_sp<SkShader> proxy, const SkMatrix& localMatrix)
     : INHERITED(&localMatrix)
-    , fProxyShader(SkRef(proxy))
+    , fProxyShader(std::move(proxy))
     {}
 
     GradientType asAGradient(GradientInfo* info) const override {
@@ -29,11 +29,11 @@ public:
     sk_sp<GrFragmentProcessor> asFragmentProcessor(const AsFPArgs&) const override;
 #endif
 
-    SkShader* refAsALocalMatrixShader(SkMatrix* localMatrix) const override {
+    sk_sp<SkShader> makeAsALocalMatrixShader(SkMatrix* localMatrix) const override {
         if (localMatrix) {
             *localMatrix = this->getLocalMatrix();
         }
-        return SkRef(fProxyShader.get());
+        return fProxyShader;
     }
 
     SK_TO_STRING_OVERRIDE()
@@ -58,7 +58,7 @@ protected:
 #endif
 
 private:
-    SkAutoTUnref<SkShader> fProxyShader;
+    sk_sp<SkShader> fProxyShader;
 
     typedef SkShader INHERITED;
 };
