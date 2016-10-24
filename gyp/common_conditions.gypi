@@ -15,7 +15,6 @@
     # are missing some of the required decoding libraries may choose
     # not to define these.  This will disable some decoder and encoder
     # features.
-    'SK_HAS_GIF_LIBRARY',
     'SK_HAS_JPEG_LIBRARY',
     'SK_HAS_PNG_LIBRARY',
     'SK_HAS_WEBP_LIBRARY',
