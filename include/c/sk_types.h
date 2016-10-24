@@ -183,6 +183,12 @@ typedef struct sk_shader_t sk_shader_t;
     For GPU drawing, the destination is a texture or a framebuffer.
 */
 typedef struct sk_surface_t sk_surface_t;
+/**
+    The sk_region encapsulates the geometric region used to specify
+    clipping areas for drawing.
+*/
+typedef struct sk_region_t sk_region_t;
+
 
 typedef enum {
     CLEAR_SK_XFERMODE_MODE,
