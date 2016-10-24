@@ -98,6 +98,7 @@ private:
     }
 
     void onDrawBackground(SkCanvas* canvas) override {
+        canvas->clear(SK_ColorWHITE);
         if (this->initCodec()) {
             SkAutoCanvasRestore acr(canvas, true);
             for (size_t frameIndex = 0; frameIndex < fTotalFrames; frameIndex++) {
