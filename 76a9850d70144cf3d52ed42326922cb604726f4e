@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "6190700a_02f90cd6",
+        "filename": "BUILD.gn",
+        "patchSetId": 3
+      },
+      "lineNbr": 310,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2016-10-24T21:15:27Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "6190700a_bf0cf7e7",
+      "revId": "76a9850d70144cf3d52ed42326922cb604726f4e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "6190700a_dfee9bd6",
         "filename": "gn/BUILD.gn",
         "patchSetId": 3
@@ -30,6 +48,24 @@
       "writtenOn": "2016-10-24T19:41:51Z",
       "side": 1,
       "message": "MSVC is no-exception by default and needs /EHsc to turn on exceptions.  You may also want/need to not define _HAS_EXCEPTIONS\u003d0, which affects the MSVC standard library.",
+      "revId": "76a9850d70144cf3d52ed42326922cb604726f4e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "6190700a_627fb859",
+        "filename": "gn/BUILD.gn",
+        "patchSetId": 3
+      },
+      "lineNbr": 299,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2016-10-24T21:15:27Z",
+      "side": 1,
+      "message": "Acknowledged.",
+      "parentUuid": "6190700a_dfee9bd6",
       "revId": "76a9850d70144cf3d52ed42326922cb604726f4e",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
@@ -53,6 +89,24 @@
     },
     {
       "key": {
+        "uuid": "6190700a_e292e870",
+        "filename": "third_party/openexr/BUILD.gn",
+        "patchSetId": 3
+      },
+      "lineNbr": 12,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2016-10-24T21:15:27Z",
+      "side": 1,
+      "message": "Not sure yet, I plan to look into it.  I know Android compiles the RAW libraries (that have exceptions).",
+      "parentUuid": "6190700a_7fc50f49",
+      "revId": "76a9850d70144cf3d52ed42326922cb604726f4e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "6190700a_bfe5d7f1",
         "filename": "third_party/openexr/BUILD.gn",
         "patchSetId": 3
@@ -70,6 +124,24 @@
     },
     {
       "key": {
+        "uuid": "6190700a_82299c52",
+        "filename": "third_party/openexr/BUILD.gn",
+        "patchSetId": 3
+      },
+      "lineNbr": 15,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2016-10-24T21:15:27Z",
+      "side": 1,
+      "message": "This should be include_dirs, thanks.",
+      "parentUuid": "6190700a_bfe5d7f1",
+      "revId": "76a9850d70144cf3d52ed42326922cb604726f4e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "6190700a_dfb3fbef",
         "filename": "third_party/openexr/BUILD.gn",
         "patchSetId": 3
@@ -81,6 +153,24 @@
       "writtenOn": "2016-10-24T19:41:51Z",
       "side": 1,
       "message": "(You\u0027re gonna have to get all this right for the bots unless you set skia_use_exr to something more restrictive than true.)",
+      "revId": "76a9850d70144cf3d52ed42326922cb604726f4e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "6190700a_222e9059",
+        "filename": "third_party/openexr/BUILD.gn",
+        "patchSetId": 3
+      },
+      "lineNbr": 41,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2016-10-24T21:15:27Z",
+      "side": 1,
+      "message": "Agreed.",
+      "parentUuid": "6190700a_dfb3fbef",
       "revId": "76a9850d70144cf3d52ed42326922cb604726f4e",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
