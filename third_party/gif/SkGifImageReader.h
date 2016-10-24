@@ -35,8 +35,8 @@
  *
  * ***** END LICENSE BLOCK ***** */
 
-#ifndef GIFImageReader_h
-#define GIFImageReader_h
+#ifndef SkGifImageReader_h
+#define SkGifImageReader_h
 
 // Define ourselves as the clientPtr.  Mozilla just hacked their C++ callback class into this old C decoder,
 // so we will too.
@@ -275,10 +275,10 @@ private:
     bool m_isDataSizeDefined;
 };
 
-class GIFImageReader final : public SkNoncopyable {
+class SkGifImageReader final : public SkNoncopyable {
 public:
     // This takes ownership of stream.
-    GIFImageReader(SkStream* stream)
+    SkGifImageReader(SkStream* stream)
         : m_client(nullptr)
         , m_state(GIFType)
         , m_bytesToConsume(6) // Number of bytes for GIF type, either "GIF87a" or "GIF89a".
@@ -293,7 +293,7 @@ public:
     {
     }
 
-    ~GIFImageReader()
+    ~SkGifImageReader()
     {
     }
 

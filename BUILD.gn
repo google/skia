@@ -541,7 +541,7 @@ component("skia") {
     "src/svg/SkSVGDevice.cpp",
     "src/utils/mac/SkStream_mac.cpp",
     "third_party/etc1/etc1.cpp",
-    "third_party/gif/GIFImageReader.cpp",
+    "third_party/gif/SkGifImageReader.cpp",
     "third_party/ktx/ktx.cpp",
   ]
 

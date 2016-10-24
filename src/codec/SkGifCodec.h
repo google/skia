@@ -12,7 +12,7 @@
 #include "SkImageInfo.h"
 #include "SkSwizzler.h"
 
-#include "GIFImageReader.h"
+#include "SkGifImageReader.h"
 
 /*
  *
@@ -30,7 +30,7 @@ public:
      */
     static SkCodec* NewFromStream(SkStream*);
 
-    // Callback for GIFImageReader when a row is available.
+    // Callback for SkGifImageReader when a row is available.
     bool haveDecodedRow(size_t frameIndex, const unsigned char* rowBegin,
                         size_t rowNumber, unsigned repeatCount, bool writeTransparentPixels);
 protected:
@@ -127,31 +127,31 @@ private:
     /*
      * Creates an instance of the decoder
      * Called only by NewFromStream
-     * Takes ownership of the GIFImageReader
+     * Takes ownership of the SkGifImageReader
      */
-    SkGifCodec(const SkEncodedInfo&, const SkImageInfo&, GIFImageReader*);
+    SkGifCodec(const SkEncodedInfo&, const SkImageInfo&, SkGifImageReader*);
 
-    std::unique_ptr<GIFImageReader>         fReader;
-    std::unique_ptr<uint8_t[]>              fTmpBuffer;
-    std::unique_ptr<SkSwizzler>             fSwizzler;
-    sk_sp<SkColorTable>                     fCurrColorTable;
+    std::unique_ptr<SkGifImageReader>   fReader;
+    std::unique_ptr<uint8_t[]>          fTmpBuffer;
+    std::unique_ptr<SkSwizzler>         fSwizzler;
+    sk_sp<SkColorTable>                 fCurrColorTable;
     // We may create a dummy table if there is not a Map in the input data. In
     // that case, we set this value to false, and we can skip a lot of decoding
     // work (which would not be meaningful anyway). We create a "fake"/"dummy"
     // one in that case, so the client and the swizzler have something to draw.
-    bool                                    fCurrColorTableIsReal;
+    bool                                fCurrColorTableIsReal;
     // Whether the background was filled.
-    bool                                    fFilledBackground;
+    bool                                fFilledBackground;
     // True on the first call to onIncrementalDecode. This value is passed to
     // decodeFrame.
-    bool                                    fFirstCallToIncrementalDecode;
+    bool                                fFirstCallToIncrementalDecode;
 
-    void*                                   fDst;
-    size_t                                  fDstRowBytes;
+    void*                               fDst;
+    size_t                              fDstRowBytes;
 
     // Updated inside haveDecodedRow when rows are decoded, unless we filled
     // the background, in which case it is set once and left alone.
-    int                                     fRowsDecoded;
+    int                                 fRowsDecoded;
 
     typedef SkCodec INHERITED;
 };

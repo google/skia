@@ -55,7 +55,7 @@
         '../src/codec/SkCodecImageGenerator.cpp',
         '../src/ports/SkImageGenerator_skia.cpp',
 
-        '../third_party/gif/GIFImageReader.cpp',
+        '../third_party/gif/SkGifImageReader.cpp',
       ],
       'direct_dependent_settings': {
         'include_dirs': [

@@ -72,7 +72,7 @@ or revised. This service is offered free of charge; please provide us with your
 mailing address.
 */
 
-#include "GIFImageReader.h"
+#include "SkGifImageReader.h"
 #include "SkColorPriv.h"
 #include "SkGifCodec.h"
 
@@ -85,7 +85,7 @@ mailing address.
 // Note, the hold will never need to be bigger than 256 bytes to gather up in the hold,
 // as each GIF block (except colormaps) can never be bigger than 256 bytes.
 // Colormaps are directly copied in the resp. global_colormap or dynamically allocated local_colormap.
-// So a fixed buffer in GIFImageReader is good enough.
+// So a fixed buffer in SkGifImageReader is good enough.
 // This buffer is only needed to copy left-over data from one GifWrite call to the next
 #define GETN(n, s) \
     do { \
@@ -198,7 +198,7 @@ bool GIFLZWContext::outputRow(const unsigned char* rowBegin)
 
 // Perform Lempel-Ziv-Welch decoding.
 // Returns true if decoding was successful. In this case the block will have been completely consumed and/or rowsRemaining will be 0.
-// Otherwise, decoding failed; returns false in this case, which will always cause the GIFImageReader to set the "decode failed" flag.
+// Otherwise, decoding failed; returns false in this case, which will always cause the SkGifImageReader to set the "decode failed" flag.
 bool GIFLZWContext::doLZW(const unsigned char* block, size_t bytesInBlock)
 {
     const size_t width = m_frameContext->width();
@@ -340,7 +340,7 @@ sk_sp<SkColorTable> GIFColorMap::buildTable(SkColorType colorType, size_t transp
     return m_table;
 }
 
-sk_sp<SkColorTable> GIFImageReader::getColorTable(SkColorType colorType, size_t index) const {
+sk_sp<SkColorTable> SkGifImageReader::getColorTable(SkColorType colorType, size_t index) const {
     if (index >= m_frames.size()) {
         return nullptr;
     }
@@ -357,7 +357,7 @@ sk_sp<SkColorTable> GIFImageReader::getColorTable(SkColorType colorType, size_t 
 }
 
 // Perform decoding for this frame. frameComplete will be true if the entire frame is decoded.
-// Returns false if a decoding error occurred. This is a fatal error and causes the GIFImageReader to set the "decode failed" flag.
+// Returns false if a decoding error occurred. This is a fatal error and causes the SkGifImageReader to set the "decode failed" flag.
 // Otherwise, either not enough data is available to decode further than before, or the new data has been decoded successfully; returns true in this case.
 bool GIFFrameContext::decode(SkGifCodec* client, bool* frameComplete)
 {
@@ -397,7 +397,7 @@ bool GIFFrameContext::decode(SkGifCodec* client, bool* frameComplete)
 // Decode a frame.
 // This method uses GIFFrameContext:decode() to decode the frame; decoding error is reported to client as a critical failure.
 // Return true if decoding has progressed. Return false if an error has occurred.
-bool GIFImageReader::decode(size_t frameIndex, bool* frameComplete)
+bool SkGifImageReader::decode(size_t frameIndex, bool* frameComplete)
 {
     GIFFrameContext* currentFrame = m_frames[frameIndex].get();
 
@@ -407,7 +407,7 @@ bool GIFImageReader::decode(size_t frameIndex, bool* frameComplete)
 // Parse incoming GIF data stream into internal data structures.
 // Return true if parsing has progressed or there is not enough data.
 // Return false if a fatal error is encountered.
-bool GIFImageReader::parse(GIFImageReader::GIFParseQuery query)
+bool SkGifImageReader::parse(SkGifImageReader::GIFParseQuery query)
 {
     if (m_parseCompleted) {
         return true;
@@ -849,7 +849,7 @@ bool GIFImageReader::parse(GIFImageReader::GIFParseQuery query)
     return true;
 }
 
-void GIFImageReader::addFrameIfNecessary()
+void SkGifImageReader::addFrameIfNecessary()
 {
     if (m_frames.empty() || m_frames.back()->isComplete()) {
         const size_t i = m_frames.size();

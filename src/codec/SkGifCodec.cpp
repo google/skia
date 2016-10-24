@@ -72,8 +72,8 @@ static SkCodec::Result gif_error(const char* msg, SkCodec::Result result = SkCod
  * Reads enough of the stream to determine the image format
  */
 SkCodec* SkGifCodec::NewFromStream(SkStream* stream) {
-    std::unique_ptr<GIFImageReader> reader(new GIFImageReader(stream));
-    if (!reader->parse(GIFImageReader::GIFSizeQuery)) {
+    std::unique_ptr<SkGifImageReader> reader(new SkGifImageReader(stream));
+    if (!reader->parse(SkGifImageReader::GIFSizeQuery)) {
         // Not enough data to determine the size.
         return nullptr;
     }
@@ -110,7 +110,7 @@ bool SkGifCodec::onRewind() {
 }
 
 SkGifCodec::SkGifCodec(const SkEncodedInfo& encodedInfo, const SkImageInfo& imageInfo,
-                       GIFImageReader* reader)
+                       SkGifImageReader* reader)
     : INHERITED(encodedInfo, imageInfo, nullptr)
     , fReader(reader)
     , fTmpBuffer(nullptr)
@@ -127,7 +127,7 @@ SkGifCodec::SkGifCodec(const SkEncodedInfo& encodedInfo, const SkImageInfo& imag
 }
 
 std::vector<SkCodec::FrameInfo> SkGifCodec::onGetFrameInfo() {
-    fReader->parse(GIFImageReader::GIFFrameCountQuery);
+    fReader->parse(SkGifImageReader::GIFFrameCountQuery);
     const size_t size = fReader->imagesCount();
     std::vector<FrameInfo> result(size);
     for (size_t i = 0; i < size; i++) {
@@ -184,7 +184,7 @@ SkCodec::Result SkGifCodec::prepareToDecode(const SkImageInfo& dstInfo, SkPMColo
                          kInvalidConversion);
     }
 
-    fReader->parse((GIFImageReader::GIFParseQuery) frameIndex);
+    fReader->parse((SkGifImageReader::GIFParseQuery) frameIndex);
 
     if (frameIndex >= fReader->imagesCount()) {
         return gif_error("frame index out of range!\n", kIncompleteInput);
@@ -269,7 +269,7 @@ SkCodec::Result SkGifCodec::onIncrementalDecode(int* rowsDecoded) {
     // It is possible the client has appended more data. Parse, if needed.
     const auto& options = this->options();
     const size_t frameIndex = options.fFrameIndex;
-    fReader->parse((GIFImageReader::GIFParseQuery) frameIndex);
+    fReader->parse((SkGifImageReader::GIFParseQuery) frameIndex);
 
     const bool firstCallToIncrementalDecode = fFirstCallToIncrementalDecode;
     fFirstCallToIncrementalDecode = false;
@@ -357,7 +357,7 @@ SkCodec::Result SkGifCodec::decodeFrame(bool firstAttempt, const Options& opts, 
         }
     }
 
-    // Note: there is a difference between the following call to GIFImageReader::decode
+    // Note: there is a difference between the following call to SkGifImageReader::decode
     // returning false and leaving frameDecoded false:
     // - If the method returns false, there was an error in the stream. We still treat this as
     //   incomplete, since we have already decoded some rows.
