@@ -36,6 +36,24 @@
     },
     {
       "key": {
+        "uuid": "3ca3ff16_0918fa58",
+        "filename": "src/pipe/SkPipeReader.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 983,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2016-10-24T18:07:12Z",
+      "side": 1,
+      "message": "I think the answer is tied to how we want to expose stats. I explicitly added null-support for callers that just wanted stats. (Could be a different entry-point I guess).",
+      "parentUuid": "3ca3ff16_c971d2c4",
+      "revId": "4726e3ceff3dc5ed1a0ea7a49462ee81fac650af",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "3ca3ff16_a982864a",
         "filename": "src/pipe/SkPipeReader.cpp",
         "patchSetId": 2
@@ -47,6 +65,24 @@
       "writtenOn": "2016-10-24T18:01:23Z",
       "side": 1,
       "message": "This seems like an awful lot of debugging code we\u0027ve had to shove into SkPipe instead of debugging tools.\n\nI\u0027d rather see something like:\n\n// Called for each verb we see, with the Verb type and byte length of that verb.\nSkPipeDeserializer::setStatsCallback(std::function\u003cvoid(Verb, size_t)\u003e);\n\nand the rest of all this moved to dump_record().",
+      "revId": "4726e3ceff3dc5ed1a0ea7a49462ee81fac650af",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "3ca3ff16_69fd3ec4",
+        "filename": "src/pipe/SkPipeReader.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 998,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2016-10-24T18:07:12Z",
+      "side": 1,
+      "message": "Maybe. At this point deliberately didn\u0027t want to expose the structure/details of the status (since the verb breakdown is private today).",
+      "parentUuid": "3ca3ff16_a982864a",
       "revId": "4726e3ceff3dc5ed1a0ea7a49462ee81fac650af",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
