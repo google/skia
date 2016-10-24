@@ -1,0 +1,339 @@
+[
+  {
+    "cmd": [
+      "python",
+      "-u",
+      "\nimport sys, os\npath = sys.argv[1]\nmode = int(sys.argv[2])\nif not os.path.isdir(path):\n  if os.path.exists(path):\n    print \"%s exists but is not a dir\" % path\n    sys.exit(1)\n  os.makedirs(path, mode)\n",
+      "[CUSTOM_/_B_WORK]",
+      "511"
+    ],
+    "name": "makedirs checkout_path",
+    "~followup_annotations": [
+      "@@@STEP_LOG_LINE@python.inline@@@@",
+      "@@@STEP_LOG_LINE@python.inline@import sys, os@@@",
+      "@@@STEP_LOG_LINE@python.inline@path = sys.argv[1]@@@",
+      "@@@STEP_LOG_LINE@python.inline@mode = int(sys.argv[2])@@@",
+      "@@@STEP_LOG_LINE@python.inline@if not os.path.isdir(path):@@@",
+      "@@@STEP_LOG_LINE@python.inline@  if os.path.exists(path):@@@",
+      "@@@STEP_LOG_LINE@python.inline@    print \"%s exists but is not a dir\" % path@@@",
+      "@@@STEP_LOG_LINE@python.inline@    sys.exit(1)@@@",
+      "@@@STEP_LOG_LINE@python.inline@  os.makedirs(path, mode)@@@",
+      "@@@STEP_LOG_END@python.inline@@@"
+    ]
+  },
+  {
+    "cmd": [
+      "python",
+      "-u",
+      "RECIPE_PACKAGE_REPO[depot_tools]/gclient.py",
+      "config",
+      "--spec",
+      "cache_dir = '[CUSTOM_/_B_CACHE]'\nsolutions = [{'deps_file': '.DEPS.git', 'managed': False, 'name': 'skia', 'url': 'https://skia.googlesource.com/skia.git'}, {'deps_file': '.DEPS.git', 'managed': False, 'name': 'src', 'url': 'https://chromium.googlesource.com/chromium/src.git'}]"
+    ],
+    "cwd": "[CUSTOM_/_B_WORK]",
+    "env": {
+      "BUILDTYPE": "Release",
+      "CHROME_HEADLESS": "1",
+      "PATH": "%(PATH)s:RECIPE_PACKAGE_REPO[depot_tools]",
+      "SKIA_OUT": "[SLAVE_BUILD]/out"
+    },
+    "name": "gclient setup"
+  },
+  {
+    "cmd": [
+      "python",
+      "-u",
+      "RECIPE_PACKAGE_REPO[depot_tools]/gclient.py",
+      "sync",
+      "--verbose",
+      "--with_branch_heads",
+      "--nohooks",
+      "-j8",
+      "--reset",
+      "--force",
+      "--upstream",
+      "--no-nag-max",
+      "--delete_unversioned_trees",
+      "--revision",
+      "skia@abc123",
+      "--revision",
+      "src@origin/lkgr",
+      "--output-json",
+      "/path/to/tmp/json"
+    ],
+    "cwd": "[CUSTOM_/_B_WORK]",
+    "env": {
+      "BUILDTYPE": "Release",
+      "CHROME_HEADLESS": "1",
+      "PATH": "%(PATH)s:RECIPE_PACKAGE_REPO[depot_tools]:RECIPE_PACKAGE_REPO[depot_tools]",
+      "SKIA_OUT": "[SLAVE_BUILD]/out"
+    },
+    "name": "gclient sync",
+    "~followup_annotations": [
+      "@@@STEP_LOG_LINE@json.output@{@@@",
+      "@@@STEP_LOG_LINE@json.output@  \"solutions\": {@@@",
+      "@@@STEP_LOG_LINE@json.output@    \"skia/\": {@@@",
+      "@@@STEP_LOG_LINE@json.output@      \"revision\": \"9046e2e693bb92a76e972b694580e5d17ad10748\"@@@",
+      "@@@STEP_LOG_LINE@json.output@    }, @@@",
+      "@@@STEP_LOG_LINE@json.output@    \"src/\": {@@@",
+      "@@@STEP_LOG_LINE@json.output@      \"revision\": \"f27fede2220bcd326aee3e86ddfd4ebd0fe58cb9\"@@@",
+      "@@@STEP_LOG_LINE@json.output@    }@@@",
+      "@@@STEP_LOG_LINE@json.output@  }@@@",
+      "@@@STEP_LOG_LINE@json.output@}@@@",
+      "@@@STEP_LOG_END@json.output@@@",
+      "@@@SET_BUILD_PROPERTY@got_revision@\"9046e2e693bb92a76e972b694580e5d17ad10748\"@@@"
+    ]
+  },
+  {
+    "cmd": [
+      "python",
+      "-u",
+      "RECIPE_PACKAGE_REPO[depot_tools]/gclient.py",
+      "recurse",
+      "git",
+      "config",
+      "user.name",
+      "local_bot"
+    ],
+    "cwd": "[CUSTOM_/_B_WORK]",
+    "env": {
+      "BUILDTYPE": "Release",
+      "CHROME_HEADLESS": "1",
+      "PATH": "%(PATH)s:RECIPE_PACKAGE_REPO[depot_tools]:RECIPE_PACKAGE_REPO[depot_tools]:RECIPE_PACKAGE_REPO[depot_tools]",
+      "SKIA_OUT": "[SLAVE_BUILD]/out"
+    },
+    "name": "gclient recurse (git config user.name)"
+  },
+  {
+    "cmd": [
+      "python",
+      "-u",
+      "RECIPE_PACKAGE_REPO[depot_tools]/gclient.py",
+      "recurse",
+      "git",
+      "config",
+      "user.email",
+      "local_bot@example.com"
+    ],
+    "cwd": "[CUSTOM_/_B_WORK]",
+    "env": {
+      "BUILDTYPE": "Release",
+      "CHROME_HEADLESS": "1",
+      "PATH": "%(PATH)s:RECIPE_PACKAGE_REPO[depot_tools]:RECIPE_PACKAGE_REPO[depot_tools]:RECIPE_PACKAGE_REPO[depot_tools]:RECIPE_PACKAGE_REPO[depot_tools]",
+      "SKIA_OUT": "[SLAVE_BUILD]/out"
+    },
+    "name": "gclient recurse (git config user.email)"
+  },
+  {
+    "cmd": [
+      "python",
+      "-u",
+      "RECIPE_PACKAGE_REPO[depot_tools]/gclient.py",
+      "runhooks"
+    ],
+    "cwd": "[CUSTOM_/_B_WORK]",
+    "env": {
+      "CPPFLAGS": "-DSK_ALLOW_CROSSPROCESS_PICTUREIMAGEFILTERS=1",
+      "PATH": "%(PATH)s:RECIPE_PACKAGE_REPO[depot_tools]"
+    },
+    "name": "gclient runhooks"
+  },
+  {
+    "cmd": [
+      "python",
+      "-u",
+      "\nimport sys, os\npath = sys.argv[1]\nmode = int(sys.argv[2])\nif not os.path.isdir(path):\n  if os.path.exists(path):\n    print \"%s exists but is not a dir\" % path\n    sys.exit(1)\n  os.makedirs(path, mode)\n",
+      "[SLAVE_BUILD]/tmp",
+      "511"
+    ],
+    "name": "makedirs tmp_dir",
+    "~followup_annotations": [
+      "@@@STEP_LOG_LINE@python.inline@@@@",
+      "@@@STEP_LOG_LINE@python.inline@import sys, os@@@",
+      "@@@STEP_LOG_LINE@python.inline@path = sys.argv[1]@@@",
+      "@@@STEP_LOG_LINE@python.inline@mode = int(sys.argv[2])@@@",
+      "@@@STEP_LOG_LINE@python.inline@if not os.path.isdir(path):@@@",
+      "@@@STEP_LOG_LINE@python.inline@  if os.path.exists(path):@@@",
+      "@@@STEP_LOG_LINE@python.inline@    print \"%s exists but is not a dir\" % path@@@",
+      "@@@STEP_LOG_LINE@python.inline@    sys.exit(1)@@@",
+      "@@@STEP_LOG_LINE@python.inline@  os.makedirs(path, mode)@@@",
+      "@@@STEP_LOG_END@python.inline@@@"
+    ]
+  },
+  {
+    "cmd": [
+      "[CUSTOM_/_B_WORK]/src/buildtools/linux64/gn",
+      "gen",
+      "[CUSTOM_/_B_WORK]/src/out/Release"
+    ],
+    "cwd": "[CUSTOM_/_B_WORK]/src",
+    "env": {
+      "CPPFLAGS": "-DSK_ALLOW_CROSSPROCESS_PICTUREIMAGEFILTERS=1",
+      "GYP_GENERATORS": "ninja"
+    },
+    "name": "GN"
+  },
+  {
+    "cmd": [
+      "ninja",
+      "-C",
+      "[CUSTOM_/_B_WORK]/src/out/Release",
+      "chrome"
+    ],
+    "cwd": "[CUSTOM_/_B_WORK]/src",
+    "name": "Build Chrome"
+  },
+  {
+    "cmd": [
+      "python",
+      "-u",
+      "\nimport os, sys\nfrom common import chromium_utils # Error? See https://crbug.com/584783.\n\n\nif os.path.exists(sys.argv[1]):\n  chromium_utils.RemoveDirectory(sys.argv[1])\n",
+      "[SLAVE_BUILD]/skp_output"
+    ],
+    "name": "rmtree skp_output",
+    "~followup_annotations": [
+      "@@@STEP_LOG_LINE@python.inline@@@@",
+      "@@@STEP_LOG_LINE@python.inline@import os, sys@@@",
+      "@@@STEP_LOG_LINE@python.inline@from common import chromium_utils # Error? See https://crbug.com/584783.@@@",
+      "@@@STEP_LOG_LINE@python.inline@@@@",
+      "@@@STEP_LOG_LINE@python.inline@@@@",
+      "@@@STEP_LOG_LINE@python.inline@if os.path.exists(sys.argv[1]):@@@",
+      "@@@STEP_LOG_LINE@python.inline@  chromium_utils.RemoveDirectory(sys.argv[1])@@@",
+      "@@@STEP_LOG_END@python.inline@@@"
+    ]
+  },
+  {
+    "cmd": [
+      "python",
+      "-u",
+      "\nimport sys, os\npath = sys.argv[1]\nmode = int(sys.argv[2])\nif not os.path.isdir(path):\n  if os.path.exists(path):\n    print \"%s exists but is not a dir\" % path\n    sys.exit(1)\n  os.makedirs(path, mode)\n",
+      "[SLAVE_BUILD]/skp_output",
+      "511"
+    ],
+    "name": "makedirs skp_output",
+    "~followup_annotations": [
+      "@@@STEP_LOG_LINE@python.inline@@@@",
+      "@@@STEP_LOG_LINE@python.inline@import sys, os@@@",
+      "@@@STEP_LOG_LINE@python.inline@path = sys.argv[1]@@@",
+      "@@@STEP_LOG_LINE@python.inline@mode = int(sys.argv[2])@@@",
+      "@@@STEP_LOG_LINE@python.inline@if not os.path.isdir(path):@@@",
+      "@@@STEP_LOG_LINE@python.inline@  if os.path.exists(path):@@@",
+      "@@@STEP_LOG_LINE@python.inline@    print \"%s exists but is not a dir\" % path@@@",
+      "@@@STEP_LOG_LINE@python.inline@    sys.exit(1)@@@",
+      "@@@STEP_LOG_LINE@python.inline@  os.makedirs(path, mode)@@@",
+      "@@@STEP_LOG_END@python.inline@@@"
+    ]
+  },
+  {
+    "cmd": [
+      "python",
+      "[CUSTOM_/_B_WORK]/skia/infra/bots/assets/skp/create.py",
+      "--chrome_src_path",
+      "[CUSTOM_/_B_WORK]/src",
+      "--browser_executable",
+      "[CUSTOM_/_B_WORK]/src/out/Release/chrome",
+      "--target_dir",
+      "[SLAVE_BUILD]/skp_output",
+      "--upload_to_partner_bucket"
+    ],
+    "cwd": "[CUSTOM_/_B_WORK]/skia",
+    "env": {
+      "CHROME_HEADLESS": "1",
+      "PATH": "[DEPOT_TOOLS]:%(PATH)s"
+    },
+    "name": "Recreate SKPs"
+  },
+  {
+    "cmd": [
+      "go",
+      "get",
+      "-u",
+      "go.skia.org/infra/..."
+    ],
+    "env": {
+      "GOPATH": "[CUSTOM_/_B_WORK]/gopath"
+    },
+    "name": "update go pkgs"
+  },
+  {
+    "cmd": [
+      "python",
+      "-u",
+      "\nimport os\nimport urllib2\n\nTOKEN_FILE = '.depot_tools_oauth2_tokens'\nTOKEN_FILE_BACKUP = '.depot_tools_oauth2_tokens.old'\nTOKEN_URL = 'http://metadata/computeMetadata/v1/project/attributes/depot_tools_auth_update_skps'\n\nreq = urllib2.Request(TOKEN_URL, headers={'Metadata-Flavor': 'Google'})\ncontents = urllib2.urlopen(req).read()\n\nhome = os.path.expanduser('~')\ntoken_file = os.path.join(home, TOKEN_FILE)\nif os.path.isfile(token_file):\n  os.rename(token_file, os.path.join(home, TOKEN_FILE_BACKUP))\n\nwith open(token_file, 'w') as f:\n  f.write(contents)\n"
+    ],
+    "name": "depot-tools-auth login",
+    "~followup_annotations": [
+      "@@@STEP_LOG_LINE@python.inline@@@@",
+      "@@@STEP_LOG_LINE@python.inline@import os@@@",
+      "@@@STEP_LOG_LINE@python.inline@import urllib2@@@",
+      "@@@STEP_LOG_LINE@python.inline@@@@",
+      "@@@STEP_LOG_LINE@python.inline@TOKEN_FILE = '.depot_tools_oauth2_tokens'@@@",
+      "@@@STEP_LOG_LINE@python.inline@TOKEN_FILE_BACKUP = '.depot_tools_oauth2_tokens.old'@@@",
+      "@@@STEP_LOG_LINE@python.inline@TOKEN_URL = 'http://metadata/computeMetadata/v1/project/attributes/depot_tools_auth_update_skps'@@@",
+      "@@@STEP_LOG_LINE@python.inline@@@@",
+      "@@@STEP_LOG_LINE@python.inline@req = urllib2.Request(TOKEN_URL, headers={'Metadata-Flavor': 'Google'})@@@",
+      "@@@STEP_LOG_LINE@python.inline@contents = urllib2.urlopen(req).read()@@@",
+      "@@@STEP_LOG_LINE@python.inline@@@@",
+      "@@@STEP_LOG_LINE@python.inline@home = os.path.expanduser('~')@@@",
+      "@@@STEP_LOG_LINE@python.inline@token_file = os.path.join(home, TOKEN_FILE)@@@",
+      "@@@STEP_LOG_LINE@python.inline@if os.path.isfile(token_file):@@@",
+      "@@@STEP_LOG_LINE@python.inline@  os.rename(token_file, os.path.join(home, TOKEN_FILE_BACKUP))@@@",
+      "@@@STEP_LOG_LINE@python.inline@@@@",
+      "@@@STEP_LOG_LINE@python.inline@with open(token_file, 'w') as f:@@@",
+      "@@@STEP_LOG_LINE@python.inline@  f.write(contents)@@@",
+      "@@@STEP_LOG_END@python.inline@@@"
+    ]
+  },
+  {
+    "cmd": [
+      "python",
+      "[CUSTOM_/_B_WORK]/skia/infra/bots/upload_skps.py",
+      "--target_dir",
+      "[SLAVE_BUILD]/skp_output"
+    ],
+    "cwd": "[CUSTOM_/_B_WORK]/skia",
+    "env": {
+      "CHROME_HEADLESS": "1",
+      "GOPATH": "[CUSTOM_/_B_WORK]/gopath",
+      "PATH": "[DEPOT_TOOLS]:%(PATH)s"
+    },
+    "name": "Upload SKPs",
+    "~followup_annotations": [
+      "step returned non-zero exit code: 1",
+      "@@@STEP_FAILURE@@@"
+    ]
+  },
+  {
+    "cmd": [
+      "python",
+      "-u",
+      "\nimport os\n\n\nTOKEN_FILE = '.depot_tools_oauth2_tokens'\nTOKEN_FILE_BACKUP = '.depot_tools_oauth2_tokens.old'\n\n\nhome = os.path.expanduser('~')\ntoken_file = os.path.join(home, TOKEN_FILE)\nif os.path.isfile(token_file):\n  os.remove(token_file)\n\nbackup_file = os.path.join(home, TOKEN_FILE_BACKUP)\nif os.path.isfile(backup_file):\n  os.rename(backup_file, token_file)\n"
+    ],
+    "name": "depot-tools-auth logout",
+    "~followup_annotations": [
+      "@@@STEP_LOG_LINE@python.inline@@@@",
+      "@@@STEP_LOG_LINE@python.inline@import os@@@",
+      "@@@STEP_LOG_LINE@python.inline@@@@",
+      "@@@STEP_LOG_LINE@python.inline@@@@",
+      "@@@STEP_LOG_LINE@python.inline@TOKEN_FILE = '.depot_tools_oauth2_tokens'@@@",
+      "@@@STEP_LOG_LINE@python.inline@TOKEN_FILE_BACKUP = '.depot_tools_oauth2_tokens.old'@@@",
+      "@@@STEP_LOG_LINE@python.inline@@@@",
+      "@@@STEP_LOG_LINE@python.inline@@@@",
+      "@@@STEP_LOG_LINE@python.inline@home = os.path.expanduser('~')@@@",
+      "@@@STEP_LOG_LINE@python.inline@token_file = os.path.join(home, TOKEN_FILE)@@@",
+      "@@@STEP_LOG_LINE@python.inline@if os.path.isfile(token_file):@@@",
+      "@@@STEP_LOG_LINE@python.inline@  os.remove(token_file)@@@",
+      "@@@STEP_LOG_LINE@python.inline@@@@",
+      "@@@STEP_LOG_LINE@python.inline@backup_file = os.path.join(home, TOKEN_FILE_BACKUP)@@@",
+      "@@@STEP_LOG_LINE@python.inline@if os.path.isfile(backup_file):@@@",
+      "@@@STEP_LOG_LINE@python.inline@  os.rename(backup_file, token_file)@@@",
+      "@@@STEP_LOG_END@python.inline@@@"
+    ]
+  },
+  {
+    "name": "$result",
+    "reason": "Step('Upload SKPs') failed with return_code 1",
+    "recipe_result": null,
+    "status_code": 1
+  }
+]

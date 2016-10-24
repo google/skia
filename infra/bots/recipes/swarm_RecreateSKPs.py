@@ -68,7 +68,7 @@ with open(token_file, 'w') as f:
     )
 
   def __exit__(self, t, v, tb):
-    return self.m.python.inline(
+    self.m.python.inline(
         'depot-tools-auth logout',
         """
 import os
@@ -89,6 +89,7 @@ if os.path.isfile(backup_file):
         """ % (DEPOT_TOOLS_AUTH_TOKEN_FILE,
                DEPOT_TOOLS_AUTH_TOKEN_FILE_BACKUP),
     )
+    return v is None
 
 
 def RunSteps(api):
@@ -150,18 +151,43 @@ def RunSteps(api):
 
 
 def GenTests(api):
-  for mastername, slaves in TEST_BUILDERS.iteritems():
-    for slavename, builders_by_slave in slaves.iteritems():
-      for builder in builders_by_slave:
-        test = (
-            api.test(builder) +
-            api.properties(buildername=builder,
-                           mastername=mastername,
-                           slavename=slavename,
-                           revision='abc123',
-                           buildnumber=2,
-                           path_config='kitchen',
-                           swarm_out_dir='[SWARM_OUT_DIR]') +
-            api.path.exists(api.path['slave_build'].join('skp_output'))
-        )
-        yield test
+  mastername = 'client.skia.compile'
+  slavename = 'skiabot-linux-swarm-000'
+  builder = 'Housekeeper-Nightly-RecreateSKPs_Canary'
+  yield (
+      api.test(builder) +
+      api.properties(buildername=builder,
+                     mastername=mastername,
+                     slavename=slavename,
+                     revision='abc123',
+                     buildnumber=2,
+                     path_config='kitchen',
+                     swarm_out_dir='[SWARM_OUT_DIR]') +
+      api.path.exists(api.path['slave_build'].join('skp_output'))
+  )
+
+  builder = 'Housekeeper-Weekly-RecreateSKPs'
+  yield (
+      api.test(builder) +
+      api.properties(buildername=builder,
+                     mastername=mastername,
+                     slavename=slavename,
+                     revision='abc123',
+                     buildnumber=2,
+                     path_config='kitchen',
+                     swarm_out_dir='[SWARM_OUT_DIR]') +
+      api.path.exists(api.path['slave_build'].join('skp_output'))
+  )
+
+  yield (
+      api.test('failed_upload') +
+      api.properties(buildername=builder,
+                     mastername=mastername,
+                     slavename=slavename,
+                     revision='abc123',
+                     buildnumber=2,
+                     path_config='kitchen',
+                     swarm_out_dir='[SWARM_OUT_DIR]') +
+      api.path.exists(api.path['slave_build'].join('skp_output')) +
+      api.step_data('Upload SKPs', retcode=1)
+  )
