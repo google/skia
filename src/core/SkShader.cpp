@@ -230,7 +230,7 @@ sk_sp<GrFragmentProcessor> SkShader::asFragmentProcessor(const AsFPArgs&) const 
 }
 #endif
 
-SkShader* SkShader::refAsALocalMatrixShader(SkMatrix*) const {
+sk_sp<SkShader> SkShader::makeAsALocalMatrixShader(SkMatrix*) const {
     return nullptr;
 }
 

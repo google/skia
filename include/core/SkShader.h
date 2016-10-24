@@ -469,6 +469,7 @@ public:
     static sk_sp<SkShader> MakePictureShader(sk_sp<SkPicture> src, TileMode tmx, TileMode tmy,
                                              const SkMatrix* localMatrix, const SkRect* tile);
 
+#ifdef SK_SUPPORT_LEGACY_SHADER_ASALOCALMATRIXSHADER
     /**
      *  If this shader can be represented by another shader + a localMatrix, return that shader
      *  and, if not NULL, the localMatrix. If not, return NULL and ignore the localMatrix parameter.
@@ -476,7 +477,15 @@ public:
      *  Note: the returned shader (if not NULL) will have been ref'd, and it is the responsibility
      *  of the caller to balance that with unref() when they are done.
      */
-    virtual SkShader* refAsALocalMatrixShader(SkMatrix* localMatrix) const;
+    SkShader* refAsALocalMatrixShader(SkMatrix* localMatrix) const {
+        return this->makeAsALocalMatrixShader(localMatrix).release();
+    }
+#endif
+    /**
+     *  If this shader can be represented by another shader + a localMatrix, return that shader and
+     *  the localMatrix. If not, return nullptr and ignore the localMatrix parameter.
+     */
+    virtual sk_sp<SkShader> makeAsALocalMatrixShader(SkMatrix* localMatrix) const;
 
     SK_TO_STRING_VIRT()
     SK_DEFINE_FLATTENABLE_TYPE(SkShader)
