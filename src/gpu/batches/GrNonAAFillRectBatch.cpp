@@ -16,6 +16,7 @@
 #include "GrVertexBatch.h"
 
 #include "SkMatrixPriv.h"
+#include "SkExchange.h"
 
 static const int kVertsPerInstance = 4;
 static const int kIndicesPerInstance = 6;
@@ -77,36 +78,48 @@ public:
 
     NonAAFillRectBatch(GrColor color, const SkMatrix& viewMatrix, const SkRect& rect,
                        const SkRect* localRect, const SkMatrix* localMatrix)
-            : INHERITED(ClassID()) {
+            : INHERITED(ClassID())
+            , fHead(this->makeT<RectInfo>())
+            , fTail(fHead)
+            , fCount(1) {
         SkASSERT(!viewMatrix.hasPerspective() && (!localMatrix ||
                                                   !localMatrix->hasPerspective()));
-        RectInfo& info = fRects.push_back();
-        info.fColor = color;
-        info.fViewMatrix = viewMatrix;
-        info.fRect = rect;
+        fHead->fColor = color;
+        fHead->fViewMatrix = viewMatrix;
+        fHead->fRect = rect;
         if (localRect && localMatrix) {
-            info.fLocalQuad.setFromMappedRect(*localRect, *localMatrix);
+            fHead->fLocalQuad.setFromMappedRect(*localRect, *localMatrix);
         } else if (localRect) {
-            info.fLocalQuad.set(*localRect);
+            fHead->fLocalQuad.set(*localRect);
         } else if (localMatrix) {
-            info.fLocalQuad.setFromMappedRect(rect, *localMatrix);
+            fHead->fLocalQuad.setFromMappedRect(rect, *localMatrix);
         } else {
-            info.fLocalQuad.set(rect);
+            fHead->fLocalQuad.set(rect);
         }
-        this->setTransformedBounds(fRects[0].fRect, viewMatrix, HasAABloat::kNo, IsZeroArea::kNo);
+        this->setTransformedBounds(fHead->fRect, viewMatrix, HasAABloat::kNo, IsZeroArea::kNo);
+    }
+
+    ~NonAAFillRectBatch() override {
+        while(fHead) {
+            this->freeSpace(skstd::exchange(fHead, fHead->fNext));
+        }
     }
 
     const char* name() const override { return "NonAAFillRectBatch"; }
 
     SkString dumpInfo() const override {
         SkString str;
-        str.appendf("# batched: %d\n", fRects.count());
-        for (int i = 0; i < fRects.count(); ++i) {
-            const RectInfo& info = fRects[i];
+        const RectInfo* r = fHead;
+        int i = 0;
+        str.printf("# batched: %d\n", fCount);
+        do {
             str.appendf("%d: Color: 0x%08x, Rect [L: %.2f, T: %.2f, R: %.2f, B: %.2f]\n",
-                        i, info.fColor,
-                        info.fRect.fLeft, info.fRect.fTop, info.fRect.fRight, info.fRect.fBottom);
-        }
+                        i, r->fColor,
+                        r->fRect.fLeft, r->fRect.fTop, r->fRect.fRight, r->fRect.fBottom);
+            ++i;
+
+        } while ((r = r->fNext));
+        SkASSERT(i == fCount - 1);
         str.append(INHERITED::dumpInfo());
         return str;
     }
@@ -115,12 +128,12 @@ public:
                                       GrInitInvariantOutput* coverage,
                                       GrBatchToXPOverrides* overrides) const override {
         // When this is called on a batch, there is only one geometry bundle
-        color->setKnownFourComponents(fRects[0].fColor);
+        color->setKnownFourComponents(fHead->fColor);
         coverage->setKnownSingleComponent(0xff);
     }
 
     void initBatchTracker(const GrXPOverridesForBatch& overrides) override {
-        overrides.getOverrideColorIfSet(&fRects[0].fColor);
+        overrides.getOverrideColorIfSet(&fHead->fColor);
         fOverrides = overrides;
     }
 
@@ -137,24 +150,25 @@ private:
                  sizeof(GrDefaultGeoProcFactory::PositionColorLocalCoordAttr));
 
         size_t vertexStride = gp->getVertexStride();
-        int instanceCount = fRects.count();
 
         SkAutoTUnref<const GrBuffer> indexBuffer(target->resourceProvider()->refQuadIndexBuffer());
         InstancedHelper helper;
         void* vertices = helper.init(target, kTriangles_GrPrimitiveType, vertexStride,
                                      indexBuffer, kVertsPerInstance,
-                                     kIndicesPerInstance, instanceCount);
+                                     kIndicesPerInstance, fCount);
         if (!vertices || !indexBuffer) {
             SkDebugf("Could not allocate vertices\n");
             return;
         }
 
-        for (int i = 0; i < instanceCount; i++) {
+        const RectInfo* r = fHead;
+        int i = 0;
+        do {
             intptr_t verts = reinterpret_cast<intptr_t>(vertices) +
                              i * kVertsPerInstance * vertexStride;
-            tesselate(verts, vertexStride, fRects[i].fColor, &fRects[i].fViewMatrix,
-                      fRects[i].fRect, &fRects[i].fLocalQuad);
-        }
+            tesselate(verts, vertexStride, r->fColor, &r->fViewMatrix, r->fRect, &r->fLocalQuad);
+            ++i;
+        } while ((r = r->fNext));
         helper.recordDraw(target, gp.get());
     }
 
@@ -171,7 +185,12 @@ private:
             fOverrides = that->fOverrides;
         }
 
-        fRects.push_back_n(that->fRects.count(), that->fRects.begin());
+        SkASSERT(!fTail->fNext);
+        fTail->fNext = that->fHead;
+        fTail = that->fTail;
+        fCount += that->fCount;
+        that->fHead = nullptr;
+        SkASSERT(!fTail->fNext);
         this->joinBounds(*that);
         return true;
     }
@@ -181,10 +200,14 @@ private:
         SkMatrix fViewMatrix;
         SkRect fRect;
         GrQuad fLocalQuad;
+        RectInfo* fNext = nullptr;
     };
 
+    RectInfo* fHead;
+    RectInfo* fTail;
+    int fCount;
+
     GrXPOverridesForBatch fOverrides;
-    SkSTArray<1, RectInfo, true> fRects;
 
     typedef GrVertexBatch INHERITED;
 };
