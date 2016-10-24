@@ -171,18 +171,16 @@ static void print_status() {
     }
 }
 
-#if !defined(SK_BUILD_FOR_ANDROID)
-    static void find_culprit() {
-        // Assumes gMutex is locked.
-        SkThreadID thisThread = SkGetThreadID();
-        for (auto& task : gRunning) {
-            if (task.thread == thisThread) {
-                info("Likely culprit:\n");
-                task.dump();
-            }
+static void find_culprit() {
+    // Assumes gMutex is locked.
+    SkThreadID thisThread = SkGetThreadID();
+    for (auto& task : gRunning) {
+        if (task.thread == thisThread) {
+            info("Likely culprit:\n");
+            task.dump();
         }
     }
-#endif
+}
 
 #if defined(SK_BUILD_FOR_WIN32)
     static LONG WINAPI crash_handler(EXCEPTION_POINTERS* e) {
@@ -218,12 +216,15 @@ static void print_status() {
         // Execute default exception handler... hopefully, exit.
         return EXCEPTION_EXECUTE_HANDLER;
     }
-    static void setup_crash_handler() { SetUnhandledExceptionFilter(crash_handler); }
 
-#elif !defined(SK_BUILD_FOR_ANDROID)
-    #include <execinfo.h>
+    static void setup_crash_handler() {
+        SetUnhandledExceptionFilter(crash_handler);
+    }
+#else
     #include <signal.h>
-    #include <stdlib.h>
+    #if !defined(SK_BUILD_FOR_ANDROID)
+        #include <execinfo.h>
+    #endif
 
     static void crash_handler(int sig) {
         SkAutoMutexAcquire lock(gMutex);
@@ -234,6 +235,7 @@ static void print_status() {
         }
         find_culprit();
 
+    #if !defined(SK_BUILD_FOR_ANDROID)
         void* stack[64];
         int count = backtrace(stack, SK_ARRAY_COUNT(stack));
         char** symbols = backtrace_symbols(stack, count);
@@ -241,9 +243,12 @@ static void print_status() {
         for (int i = 0; i < count; i++) {
             info("    %s\n", symbols[i]);
         }
+    #endif
         fflush(stdout);
 
-        _Exit(sig);
+        // Register the default signal handler and re-raise the signal (i.e. crash normally).
+        signal(sig, SIG_DFL);
+        raise(sig);
     }
 
     static void setup_crash_handler() {
@@ -252,9 +257,6 @@ static void print_status() {
             signal(sig, crash_handler);
         }
     }
-
-#else  // Android
-    static void setup_crash_handler() {}
 #endif
 
 /*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
