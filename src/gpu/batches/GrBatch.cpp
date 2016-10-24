@@ -48,8 +48,8 @@ void* GrBatch::operator new(size_t size) {
     return MemoryPoolAccessor().pool()->allocate(size);
 }
 
-void GrBatch::operator delete(void* target) {
-    return MemoryPoolAccessor().pool()->release(target);
+void GrBatch::operator delete(void* batchMem) {
+    return MemoryPoolAccessor().pool()->release(batchMem);
 }
 
 GrBatch::GrBatch(uint32_t classID)
@@ -61,3 +61,11 @@ GrBatch::GrBatch(uint32_t classID)
 }
 
 GrBatch::~GrBatch() {}
+
+void *GrBatch::makeSpace(size_t size) {
+    return MemoryPoolAccessor().pool()->allocate(size);
+}
+
+void GrBatch::freeSpace(void* mem) {
+    return MemoryPoolAccessor().pool()->release(mem);
+}

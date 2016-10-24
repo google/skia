@@ -104,7 +104,7 @@ public:
     static sk_sp<SkColorSpace> MakeNamed(Named);
 
     /**
-     *  Create an SkColorSpace from an ICC profile.
+     *  Create an SkColorSpace from an ICC profile.it gr
      */
     static sk_sp<SkColorSpace> MakeICC(const void*, size_t);
 
