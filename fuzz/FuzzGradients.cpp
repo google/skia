@@ -17,15 +17,15 @@ const int MAX_COUNT = 400;
 
 bool makeMatrix(Fuzz* fuzz, SkMatrix* m) {
     SkScalar scaleX, skewX, transX, skewY, scaleY, transY, persp0, persp1, persp2;
-    if (!fuzz->next<SkScalar>(&scaleX) ||
-            !fuzz->next<SkScalar>(&skewX)  ||
-            !fuzz->next<SkScalar>(&transX) ||
-            !fuzz->next<SkScalar>(&skewY)  ||
-            !fuzz->next<SkScalar>(&scaleY) ||
-            !fuzz->next<SkScalar>(&transY) ||
-            !fuzz->next<SkScalar>(&persp0) ||
-            !fuzz->next<SkScalar>(&persp1) ||
-            !fuzz->next<SkScalar>(&persp2)) {
+    if (!fuzz->next(&scaleX) ||
+        !fuzz->next(&skewX)  ||
+        !fuzz->next(&transX) ||
+        !fuzz->next(&skewY)  ||
+        !fuzz->next(&scaleY) ||
+        !fuzz->next(&transY) ||
+        !fuzz->next(&persp0) ||
+        !fuzz->next(&persp1) ||
+        !fuzz->next(&persp2)) {
         return false;
     }
     m->setAll(scaleX, skewX, transX, skewY, scaleY, transY, persp0, persp1, persp2);
@@ -52,8 +52,8 @@ bool initGradientParams(Fuzz* fuzz, uint32_t* count, SkColor** colors, SkScalar*
     t_colors = new SkColor[t_count];
     t_pos = new SkScalar[t_count];
     for (uint32_t i = 0; i < t_count; i++) {
-        fuzz->next<SkColor>(&t_colors[i]);
-        fuzz->next<SkScalar>(&t_pos[i]);
+        fuzz->next(&t_colors[i]);
+        fuzz->next(&t_pos[i]);
     }
 
     if (t_count == 0) {
@@ -76,12 +76,12 @@ bool initGradientParams(Fuzz* fuzz, uint32_t* count, SkColor** colors, SkScalar*
 void fuzzLinearGradient(Fuzz* fuzz) {
         SkScalar a, b, c, d;
         bool useLocalMatrix, useGlobalMatrix;
-        if (!fuzz->next<SkScalar>(&a)          ||
-                !fuzz->next<SkScalar>(&b)          ||
-                !fuzz->next<SkScalar>(&c)          ||
-                !fuzz->next<SkScalar>(&d)          ||
-                !fuzz->next<bool>(&useLocalMatrix) ||
-                !fuzz->next<bool>(&useGlobalMatrix)) {
+        if (!fuzz->next(&a)               ||
+            !fuzz->next(&b)               ||
+            !fuzz->next(&c)               ||
+            !fuzz->next(&d)               ||
+            !fuzz->next(&useLocalMatrix)  ||
+            !fuzz->next(&useGlobalMatrix)) {
             return;
         }
         SkPoint pts[2] = {SkPoint::Make(a,b), SkPoint::Make(c, d)};
@@ -124,11 +124,11 @@ void fuzzLinearGradient(Fuzz* fuzz) {
 void fuzzRadialGradient(Fuzz* fuzz) {
         SkScalar a, b, radius;
         bool useLocalMatrix, useGlobalMatrix;
-        if (!fuzz->next<SkScalar>(&a)          ||
-                !fuzz->next<SkScalar>(&b)          ||
-                !fuzz->next<SkScalar>(&radius)     ||
-                !fuzz->next<bool>(&useLocalMatrix) ||
-                !fuzz->next<bool>(&useGlobalMatrix)) {
+        if (!fuzz->next(&a)               ||
+            !fuzz->next(&b)               ||
+            !fuzz->next(&radius)          ||
+            !fuzz->next(&useLocalMatrix)  ||
+            !fuzz->next(&useGlobalMatrix)) {
             return;
         }
         SkPoint center = SkPoint::Make(a,b);
@@ -172,14 +172,14 @@ void fuzzRadialGradient(Fuzz* fuzz) {
 void fuzzTwoPointConicalGradient(Fuzz* fuzz) {
         SkScalar a, b, startRadius, c, d, endRadius;
         bool useLocalMatrix, useGlobalMatrix;
-        if (!fuzz->next<SkScalar>(&a)           ||
-                !fuzz->next<SkScalar>(&b)           ||
-                !fuzz->next<SkScalar>(&startRadius) ||
-                !fuzz->next<SkScalar>(&c)           ||
-                !fuzz->next<SkScalar>(&d)           ||
-                !fuzz->next<SkScalar>(&endRadius)   ||
-                !fuzz->next<bool>(&useLocalMatrix)  ||
-                !fuzz->next<bool>(&useGlobalMatrix)) {
+        if (!fuzz->next(&a)               ||
+            !fuzz->next(&b)               ||
+            !fuzz->next(&startRadius)     ||
+            !fuzz->next(&c)               ||
+            !fuzz->next(&d)               ||
+            !fuzz->next(&endRadius)       ||
+            !fuzz->next(&useLocalMatrix)  ||
+            !fuzz->next(&useGlobalMatrix)) {
             return;
         }
         SkPoint start = SkPoint::Make(a, b);
@@ -223,10 +223,10 @@ void fuzzTwoPointConicalGradient(Fuzz* fuzz) {
 void fuzzSweepGradient(Fuzz* fuzz) {
         SkScalar cx, cy;
         bool useLocalMatrix, useGlobalMatrix;
-        if (!fuzz->next<SkScalar>(&cx)         ||
-                !fuzz->next<SkScalar>(&cy)         ||
-                !fuzz->next<bool>(&useLocalMatrix) ||
-                !fuzz->next<bool>(&useGlobalMatrix)) {
+        if (!fuzz->next(&cx)              ||
+            !fuzz->next(&cy)              ||
+            !fuzz->next(&useLocalMatrix)  ||
+            !fuzz->next(&useGlobalMatrix)) {
             return;
         }
 
@@ -270,7 +270,7 @@ void fuzzSweepGradient(Fuzz* fuzz) {
 
 DEF_FUZZ(Gradients, fuzz) {
     uint8_t i;
-    if (!fuzz->next<uint8_t>(&i)) {
+    if (!fuzz->next(&i)) {
         return;
     }
 

@@ -24,6 +24,18 @@ public:
     template <typename T>
     bool next(T* n);
 
+    // UBSAN reminds us that bool can only legally hold 0 or 1.
+    bool next(bool* b) {
+        uint8_t byte;
+        if (!this->next(&byte)) {
+            return false;
+        }
+        *b = (byte & 1) == 1;
+        return true;
+    }
+
+    // The nextFoo methods are deprecated.
+    // TODO(kjlubick): replace existing uses with next() and remove these.
     bool nextBool();
     uint8_t  nextB();
     uint32_t nextU();
