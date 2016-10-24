@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "6190700a_5fa60b65",
+        "filename": "bench/nanobench.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 96,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2016-10-24T18:24:40Z",
+      "side": 1,
+      "message": "I think two will have to be static here and in nanobench, or the iOS build will break.",
+      "revId": "4dd0b4ea48b44d40d2dd79d48080762c867a1f67",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
