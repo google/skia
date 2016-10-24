@@ -794,7 +794,7 @@ bool SkOpCoincidence::addMissing(bool* added  DEBUG_COIN_DECLARE_PARAMS()) {
                     return true;
                 }
                 const SkOpPtT* ice = inner->coinPtTEnd();
-                SkASSERT(!ice->deleted());
+                FAIL_IF(ice->deleted());
                 if (outerOpp != innerOpp && this->overlap(ocs, oce, ics, ice, &overS, &overE)) {
                     (void) this->addIfMissing(ocs->starter(oce), ics->starter(ice),
                             overS, overE, outerOppWritable, innerOppWritable, added
