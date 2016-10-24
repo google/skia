@@ -5,6 +5,7 @@
  * found in the LICENSE file.
  */
 
+#include "SkBitmap.h"
 #include "SkCodec.h"
 #include "SkStream.h"
 
