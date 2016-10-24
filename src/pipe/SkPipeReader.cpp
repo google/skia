@@ -12,6 +12,7 @@
 #include "SkPictureRecorder.h"
 #include "SkPipe.h"
 #include "SkPipeFormat.h"
+#include "SkPipeStats.h"
 #include "SkReadBuffer.h"
 #include "SkRefSet.h"
 #include "SkRSXform.h"
@@ -20,7 +21,7 @@
 
 class SkPipeReader;
 
-static bool do_playback(SkPipeReader& reader, SkCanvas* canvas, int* endPictureIndex = nullptr);
+bool do_playback(SkPipeReader& reader, SkCanvas* canvas, int* endPictureIndex = nullptr);
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -197,11 +198,12 @@ static SkPaint read_paint(SkReadBuffer& reader) {
     return paint;
 }
 
+
 class SkPipeReader : public SkReadBuffer {
 public:
     SkPipeReader(SkPipeDeserializer* sink, const void* data, size_t size)
-    : SkReadBuffer(data, size)
-    , fSink(sink)
+        : SkReadBuffer(data, size)
+        , fSink(sink)
     {}
 
     SkPipeDeserializer* fSink;
@@ -846,6 +848,8 @@ public:
 
     SkTypefaceDeserializer*             fTFDeserializer = nullptr;
     SkImageDeserializer*                fIMDeserializer = nullptr;
+
+    std::unique_ptr<SkPipeStats>        fStats;
 };
 
 SkPipeDeserializer::SkPipeDeserializer() : fImpl(new Impl) {}
@@ -919,7 +923,7 @@ sk_sp<SkPicture> SkPipeDeserializer::readPicture(const void* data, size_t size) 
     return sk_ref_sp(fImpl->fPictures.get(index - 1));
 }
 
-static bool do_playback(SkPipeReader& reader, SkCanvas* canvas, int* endPictureIndex) {
+bool do_playback(SkPipeReader& reader, SkCanvas* canvas, int* endPictureIndex) {
     int indent = 0;
 
     const bool showEachVerb = false;
@@ -945,6 +949,11 @@ static bool do_playback(SkPipeReader& reader, SkCanvas* canvas, int* endPictureI
         }
         HandlerRec rec = gPipeHandlers[(unsigned)verb];
         rec.fProc(reader, packedVerb, canvas);
+
+        if (reader.fSink->fImpl->fStats) {
+            reader.fSink->fImpl->fStats->record(verb, reader.offset() - prevOffset);
+        }
+
         if (showEachVerb) {
             for (int i = 0; i < indent; ++i) {
                 SkDebugf("    ");
@@ -968,7 +977,14 @@ static bool do_playback(SkPipeReader& reader, SkCanvas* canvas, int* endPictureI
     return true;
 }
 
+#include "SkNWayCanvas.h"
+
 bool SkPipeDeserializer::playback(const void* data, size_t size, SkCanvas* canvas) {
+    SkNWayCanvas nullCanvas(0, 0);
+    if (!canvas) {
+        canvas = &nullCanvas;
+    }
+
     SkPipeInflator inflator(&fImpl->fImages, &fImpl->fPictures,
                             &fImpl->fTypefaces, &fImpl->fFactories,
                             fImpl->fTFDeserializer, fImpl->fIMDeserializer);
@@ -977,3 +993,31 @@ bool SkPipeDeserializer::playback(const void* data, size_t size, SkCanvas* canva
     return do_playback(reader, canvas);
 }
 
+///////////////////////////////////////////////////////////////////////////////////////////////////
+
+void SkPipeDeserializer::startStats() {
+    fImpl->fStats.reset(new SkPipeStats);
+}
+
+void SkPipeDeserializer::dumpStats() {
+    if (fImpl->fStats) {
+        fImpl->fStats->dump();
+    }
+}
+
+void SkPipeDeserializer::stopStats() {
+    fImpl->fStats = nullptr;
+}
+
+void SkPipeStats::dump() const {
+    int count = 0;
+    int64_t bytes = 0;
+    for (int i = 0; i < static_cast<int>(SkPipeVerb::kLastEnum); ++i) {
+        if (fStats[i].fCount) {
+            printf(" %4d, %8lld, %s\n", fStats[i].fCount, fStats[i].fBytes, gPipeHandlers[i].fName);
+            count += fStats[i].fCount;
+            bytes += fStats[i].fBytes;
+        }
+    }
+    printf(" %4d, %8lld, totals\n", count, bytes);
+}

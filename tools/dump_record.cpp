@@ -10,6 +10,7 @@
 #include "SkDeferredCanvas.h"
 #include "SkPicture.h"
 #include "SkPictureRecorder.h"
+#include "SkPipe.h"
 #include "SkRecordDraw.h"
 #include "SkRecordOpts.h"
 #include "SkRecorder.h"
@@ -24,6 +25,7 @@ DEFINE_int32(tile, 1000000000, "Simulated tile size.");
 DEFINE_bool(timeWithCommand, false, "If true, print time next to command, else in first column.");
 DEFINE_string2(write, w, "", "Write the (optimized) picture to the named file.");
 DEFINE_bool(defer, false, "Defer clips and translates");
+DEFINE_bool(pipe, false, "Dump stats for SkPipe");
 
 static void dump(const char* name, int w, int h, const SkRecord& record) {
     SkBitmap bitmap;
@@ -40,6 +42,12 @@ static void dump(const char* name, int w, int h, const SkRecord& record) {
 int tool_main(int argc, char** argv);
 int tool_main(int argc, char** argv) {
     SkCommandLineFlags::Parse(argc, argv);
+
+    SkPipeSerializer serializer;
+    SkPipeDeserializer deserializer;
+    if (FLAGS_pipe) {
+        deserializer.startStats();
+    }
 
     for (int i = 0; i < FLAGS_skps.count(); i++) {
         if (SkCommandLineFlags::ShouldSkip(FLAGS_match, FLAGS_skps[i])) {
@@ -76,6 +84,14 @@ int tool_main(int argc, char** argv) {
             SkRecordOptimize2(&record);
         }
 
+        if (FLAGS_pipe) {
+            SkDynamicMemoryWStream stream;
+            src->playback(serializer.beginWrite(src->cullRect(), &stream));
+            serializer.endWrite();
+            sk_sp<SkData> data = stream.detachAsData();
+            deserializer.playback(data->data(), data->size(), nullptr);
+        }
+
         dump(FLAGS_skps[i], w, h, record);
 
         if (FLAGS_write.count() > 0) {
@@ -91,6 +107,10 @@ int tool_main(int argc, char** argv) {
             SkFILEWStream ostream(FLAGS_write[0]);
             dst->serialize(&ostream);
         }
+    }
+
+    if (FLAGS_pipe) {
+        deserializer.dumpStats();
     }
 
     return 0;
