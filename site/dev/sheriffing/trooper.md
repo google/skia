@@ -69,9 +69,9 @@ Tips for troopers
   - slave11-c3 is a Chrome infra GCE machine (not to be confused with the Skia
     Buildbots GCE, which we refer to as simply "GCE")
 
-- The [chrome-infra IRC channel](https://comlink.googleplex.com/chrome-infra) is
-  useful for questions regarding bots managed by the Chrome Infra team and to
-  get visibility into upstream failures that cause problems for us.
+- The [chrome-infra hangout](https://goto.google.com/cit-hangout) is useful for
+  questions regarding bots managed by the Chrome Infra team and to get
+  visibility into upstream failures that cause problems for us.
 
 - To log in to a Linux buildbot in GCE, use `gcloud compute ssh default@<machine
   name>`. Choose the zone listed for the
