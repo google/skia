@@ -315,6 +315,12 @@ private:
     bool removeSpan(SkTSpan<TCurve, OppCurve>* span);
     void removeSpanRange(SkTSpan<TCurve, OppCurve>* first, SkTSpan<TCurve, OppCurve>* last);
     void removeSpans(SkTSpan<TCurve, OppCurve>* span, SkTSect<OppCurve, TCurve>* opp);
+    void removedEndCheck(SkTSpan<TCurve, OppCurve>* span);
+
+    void resetRemovedEnds() { 
+        fRemovedStartT = fRemovedEndT = false;
+    }
+
     SkTSpan<TCurve, OppCurve>* spanAtT(double t, SkTSpan<TCurve, OppCurve>** priorSpan);
     SkTSpan<TCurve, OppCurve>* tail();
     bool trim(SkTSpan<TCurve, OppCurve>* span, SkTSect<OppCurve, TCurve>* opp);
@@ -865,7 +871,8 @@ SkTSect<TCurve, OppCurve>::SkTSect(const TCurve& c
     PATH_OPS_DEBUG_T_SECT_PARAMS(fDebugCount(0))
     PATH_OPS_DEBUG_T_SECT_PARAMS(fDebugAllocatedCount(0))
 {
-    fHead = addOne();
+    this->resetRemovedEnds();
+    fHead = this->addOne();
     SkDEBUGCODE(fHead->debugSetGlobalState(debugGlobalState));
     fHead->init(c);
 }
@@ -1360,7 +1367,9 @@ int SkTSect<TCurve, OppCurve>::intersects(SkTSpan<TCurve, OppCurve>* span,
         if (!sects) {
             return -1;
         }
+        this->removedEndCheck(span);
         span->fStartT = span->fEndT = i[0][0];
+        opp->removedEndCheck(oppSpan);
         oppSpan->fStartT = oppSpan->fEndT = i[1][0];
         return *oppResult = 2;
     }
@@ -1735,13 +1744,18 @@ void SkTSect<TCurve, OppCurve>::removeCoincident(SkTSpan<TCurve, OppCurve>* span
 }
 
 template<typename TCurve, typename OppCurve>
-bool SkTSect<TCurve, OppCurve>::removeSpan(SkTSpan<TCurve, OppCurve>* span) {
+void SkTSect<TCurve, OppCurve>::removedEndCheck(SkTSpan<TCurve, OppCurve>* span) {
     if (!span->fStartT) {
         fRemovedStartT = true;
     }
     if (1 == span->fEndT) {
         fRemovedEndT = true;
     }
+}
+
+template<typename TCurve, typename OppCurve>
+bool SkTSect<TCurve, OppCurve>::removeSpan(SkTSpan<TCurve, OppCurve>* span) {\
+    this->removedEndCheck(span);
     this->unlinkSpan(span);
     return this->markSpanGone(span);
 }
@@ -2141,14 +2155,14 @@ void SkTSect<TCurve, OppCurve>::BinarySearch(SkTSect<TCurve, OppCurve>* sect1,
             break;
         }
         SkTSpan<OppCurve, TCurve>* largest2 = sect2->boundsMax();
-        sect1->fRemovedStartT = sect1->fRemovedEndT = false;
-        sect2->fRemovedStartT = sect2->fRemovedEndT = false;
         // split it
         if (!largest2 || (largest1 && (largest1->fBoundsMax > largest2->fBoundsMax
                 || (!largest1->fCollapsed && largest2->fCollapsed)))) {
             if (largest1->fCollapsed) {
                 break;
             }
+            sect1->resetRemovedEnds();
+            sect2->resetRemovedEnds();
             // trim parts that don't intersect the opposite
             SkTSpan<TCurve, OppCurve>* half1 = sect1->addOne();
             SkDEBUGCODE(half1->debugSetGlobalState(sect1->globalState()));
@@ -2167,6 +2181,8 @@ void SkTSect<TCurve, OppCurve>::BinarySearch(SkTSect<TCurve, OppCurve>* sect1,
             if (largest2->fCollapsed) {
                 break;
             }
+            sect1->resetRemovedEnds();
+            sect2->resetRemovedEnds();
             // trim parts that don't intersect the opposite
             SkTSpan<OppCurve, TCurve>* half2 = sect2->addOne();
             SkDEBUGCODE(half2->debugSetGlobalState(sect2->globalState()));
@@ -2262,7 +2278,7 @@ void SkTSect<TCurve, OppCurve>::BinarySearch(SkTSect<TCurve, OppCurve>* sect1,
         } while ((coincident = coincident->fNext));
     }
     int zeroOneSet = EndsEqual(sect1, sect2, intersections);
-    if (!sect1->fHead || !sect2->fHead) {
+//    if (!sect1->fHead || !sect2->fHead) {
         // if the final iteration contains an end (0 or 1),
         if (sect1->fRemovedStartT && !(zeroOneSet & kZeroS1Set)) {
             SkTCoincident<TCurve, OppCurve> perp;   // intersect perpendicular with opposite curve
@@ -2292,6 +2308,8 @@ void SkTSect<TCurve, OppCurve>::BinarySearch(SkTSect<TCurve, OppCurve>* sect1,
                 intersections->insert(perp.perpT(), 1, perp.perpPt());
             }
         }
+//    }
+    if (!sect1->fHead || !sect2->fHead) {
         return;
     }
     sect1->recoverCollapsed();
