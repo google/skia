@@ -173,18 +173,16 @@ static void print_status() {
     }
 }
 
-#if !defined(SK_BUILD_FOR_ANDROID)
-    static void find_culprit() {
-        // Assumes gMutex is locked.
-        SkThreadID thisThread = SkGetThreadID();
-        for (auto& task : gRunning) {
-            if (task.thread == thisThread) {
-                info("Likely culprit:\n");
-                task.dump();
-            }
+static void find_culprit() {
+    // Assumes gMutex is locked.
+    SkThreadID thisThread = SkGetThreadID();
+    for (auto& task : gRunning) {
+        if (task.thread == thisThread) {
+            info("Likely culprit:\n");
+            task.dump();
         }
     }
-#endif
+}
 
 #if defined(SK_BUILD_FOR_WIN32)
     static LONG WINAPI crash_handler(EXCEPTION_POINTERS* e) {
@@ -220,12 +218,23 @@ static void print_status() {
         // Execute default exception handler... hopefully, exit.
         return EXCEPTION_EXECUTE_HANDLER;
     }
-    static void setup_crash_handler() { SetUnhandledExceptionFilter(crash_handler); }
 
-#elif !defined(SK_BUILD_FOR_ANDROID)
-    #include <execinfo.h>
+    static void setup_crash_handler() {
+        SetUnhandledExceptionFilter(crash_handler);
+    }
+#else
     #include <signal.h>
-    #include <stdlib.h>
+    #if !defined(SK_BUILD_FOR_ANDROID)
+        #include <execinfo.h>
+    #endif
+
+    static constexpr int max_of() { return 0; }
+    template <typename... Rest>
+    static constexpr int max_of(int x, Rest... rest) {
+        return x > max_of(rest...) ? x : max_of(rest...);
+    }
+
+    static void (*previous_handler[max_of(SIGABRT,SIGBUS,SIGFPE,SIGILL,SIGSEGV)+1])(int);
 
     static void crash_handler(int sig) {
         SkAutoMutexAcquire lock(gMutex);
@@ -236,6 +245,7 @@ static void print_status() {
         }
         find_culprit();
 
+    #if !defined(SK_BUILD_FOR_ANDROID)
         void* stack[64];
         int count = backtrace(stack, SK_ARRAY_COUNT(stack));
         char** symbols = backtrace_symbols(stack, count);
@@ -243,20 +253,19 @@ static void print_status() {
         for (int i = 0; i < count; i++) {
             info("    %s\n", symbols[i]);
         }
+    #endif
         fflush(stdout);
 
-        _Exit(sig);
+        signal(sig, previous_handler[sig]);
+        raise(sig);
     }
 
     static void setup_crash_handler() {
         const int kSignals[] = { SIGABRT, SIGBUS, SIGFPE, SIGILL, SIGSEGV };
         for (int sig : kSignals) {
-            signal(sig, crash_handler);
+            previous_handler[sig] = signal(sig, crash_handler);
         }
     }
-
-#else  // Android
-    static void setup_crash_handler() {}
 #endif
 
 /*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
