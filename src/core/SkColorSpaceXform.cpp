@@ -920,9 +920,9 @@ template <SrcFormat kSrc,
           DstFormat kDst,
           SkAlphaType kAlphaType,
           ColorSpaceMatch kCSM>
-static AI void color_xform_RGBA(void* dst, const void* vsrc, int len,
-                                const float* const srcTables[3], const float matrix[16],
-                                const uint8_t* const dstTables[3]) {
+static void color_xform_RGBA(void* dst, const void* vsrc, int len,
+                             const float* const srcTables[3], const float matrix[16],
+                             const uint8_t* const dstTables[3]) {
     LoadFn load;
     Load1Fn load_1;
     static constexpr bool loadAlpha = (kPremul_SkAlphaType == kAlphaType) ||
