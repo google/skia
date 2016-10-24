@@ -245,6 +245,18 @@
   },
   {
     "cmd": [
+      "go",
+      "get",
+      "-u",
+      "go.skia.org/infra/..."
+    ],
+    "env": {
+      "GOPATH": "[CUSTOM_/_B_WORK]/gopath"
+    },
+    "name": "update go pkgs"
+  },
+  {
+    "cmd": [
       "python",
       "-u",
       "\nimport os\nimport urllib2\n\nTOKEN_FILE = '.depot_tools_oauth2_tokens'\nTOKEN_FILE_BACKUP = '.depot_tools_oauth2_tokens.old'\nTOKEN_URL = 'http://metadata/computeMetadata/v1/project/attributes/depot_tools_auth_update_skps'\n\nreq = urllib2.Request(TOKEN_URL, headers={'Metadata-Flavor': 'Google'})\ncontents = urllib2.urlopen(req).read()\n\nhome = os.path.expanduser('~')\ntoken_file = os.path.join(home, TOKEN_FILE)\nif os.path.isfile(token_file):\n  os.rename(token_file, os.path.join(home, TOKEN_FILE_BACKUP))\n\nwith open(token_file, 'w') as f:\n  f.write(contents)\n"
@@ -282,6 +294,7 @@
     "cwd": "[CUSTOM_/_B_WORK]/skia",
     "env": {
       "CHROME_HEADLESS": "1",
+      "GOPATH": "[CUSTOM_/_B_WORK]/gopath",
       "PATH": "[DEPOT_TOOLS]:%(PATH)s"
     },
     "name": "Upload SKPs"

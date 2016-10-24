@@ -10,6 +10,7 @@ DEPS = [
   'build/file',
   'core',
   'depot_tools/gclient',
+  'infra',
   'recipe_engine/path',
   'recipe_engine/properties',
   'recipe_engine/python',
@@ -136,9 +137,11 @@ def RunSteps(api):
 
   # Upload the SKPs.
   if 'Canary' not in api.properties['buildername']:
+    api.infra.update_go_deps()
     cmd = ['python',
            api.vars.skia_dir.join('infra', 'bots', 'upload_skps.py'),
            '--target_dir', output_dir]
+    env.update(api.infra.go_env)
     with depot_tools_auth(api, UPDATE_SKPS_KEY):
       api.step('Upload SKPs',
                cmd=cmd,

@@ -115,3 +115,15 @@ for pattern in build_products_whitelist:
 ''' % str(BUILD_PRODUCTS_ISOLATE_WHITELIST),
         args=[src, dst],
         infra_step=True)
+
+  def with_retry(self, steptype, name, attempts, *args, **kwargs):
+    for attempt in xrange(attempts):
+      step_name = name
+      if attempt > 0:
+        step_name += ' (attempt %d)' % (attempt + 1)
+      try:
+        steptype(step_name, *args, **kwargs)
+        return
+      except self.m.step.StepFailure:
+        if attempt == attempts - 1:
+          raise

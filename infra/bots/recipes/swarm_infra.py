@@ -8,37 +8,19 @@
 
 DEPS = [
   'core',
+  'infra',
   'recipe_engine/path',
   'recipe_engine/properties',
   'recipe_engine/step',
+  'run',
   'vars',
 ]
-
-
-UPDATE_GO_ATTEMPTS = 5
 
 
 def RunSteps(api):
   api.vars.setup()
   api.core.checkout_steps()
-
-  # Attempt to update go dependencies. This fails flakily sometimes, so perform
-  # multiple attempts.
-  gopath = api.vars.checkout_root.join('gopath')
-  env = {'GOPATH': gopath}
-  name = 'update go pkgs'
-  for attempt in xrange(UPDATE_GO_ATTEMPTS):
-    step_name = name
-    if attempt > 0:
-      step_name += ' (attempt %d)' % (attempt + 1)
-    try:
-      api.step(step_name,
-               cmd=['go', 'get', '-u', 'go.skia.org/infra/...'],
-               env=env)
-      break
-    except api.step.StepFailure:
-      if attempt == UPDATE_GO_ATTEMPTS - 1:
-        raise
+  api.infra.update_go_deps()
 
   # Run the infra tests.
   infra_tests = api.vars.skia_dir.join(
@@ -46,7 +28,7 @@ def RunSteps(api):
   api.step('infra_tests',
            cmd=['python', infra_tests],
            cwd=api.vars.skia_dir,
-           env=env)
+           env=api.infra.go_env)
 
 
 def GenTests(api):
