@@ -721,8 +721,13 @@ SkISize CodecSrc::size() const {
 
 Name CodecSrc::name() const {
     if (1.0f == fScale) {
-        return SkOSPath::Basename(fPath.c_str());
+        Name name = SkOSPath::Basename(fPath.c_str());
+        if (fMode == kAnimated_Mode) {
+            name.append("_animated");
+        }
+        return name;
     }
+    SkASSERT(fMode != kAnimated_Mode);
     return get_scaled_name(fPath, fScale);
 }
 
