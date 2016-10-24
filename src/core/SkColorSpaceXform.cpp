@@ -490,8 +490,10 @@ std::unique_ptr<SkColorSpaceXform> SkColorSpaceXform::New(SkColorSpace* srcSpace
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
-static inline void load_matrix(const float matrix[16],
-                               Sk4f& rXgXbX, Sk4f& rYgYbY, Sk4f& rZgZbZ, Sk4f& rTgTbT) {
+#define AI SK_ALWAYS_INLINE
+
+static AI void load_matrix(const float matrix[16],
+                           Sk4f& rXgXbX, Sk4f& rYgYbY, Sk4f& rZgZbZ, Sk4f& rTgTbT) {
     rXgXbX = Sk4f::Load(matrix +  0);
     rYgYbY = Sk4f::Load(matrix +  4);
     rZgZbZ = Sk4f::Load(matrix +  8);
@@ -503,7 +505,7 @@ enum Order {
     kBGRA_Order,
 };
 
-static inline void set_rb_shifts(Order kOrder, int* kRShift, int* kBShift) {
+static AI void set_rb_shifts(Order kOrder, int* kRShift, int* kBShift) {
     if (kRGBA_Order == kOrder) {
         *kRShift = 0;
         *kBShift = 16;
@@ -514,9 +516,9 @@ static inline void set_rb_shifts(Order kOrder, int* kRShift, int* kBShift) {
 }
 
 template <Order kOrder>
-static inline void load_rgb_from_tables(const uint32_t* src,
-                                        Sk4f& r, Sk4f& g, Sk4f& b, Sk4f& a,
-                                        const float* const srcTables[3]) {
+static AI void load_rgb_from_tables(const uint32_t* src,
+                                    Sk4f& r, Sk4f& g, Sk4f& b, Sk4f& a,
+                                    const float* const srcTables[3]) {
     int kRShift, kGShift = 8, kBShift;
     set_rb_shifts(kOrder, &kRShift, &kBShift);
     r = { srcTables[0][(src[0] >> kRShift) & 0xFF],
@@ -535,9 +537,9 @@ static inline void load_rgb_from_tables(const uint32_t* src,
 }
 
 template <Order kOrder>
-static inline void load_rgba_from_tables(const uint32_t* src,
-                                         Sk4f& r, Sk4f& g, Sk4f& b, Sk4f& a,
-                                         const float* const srcTables[3]) {
+static AI void load_rgba_from_tables(const uint32_t* src,
+                                     Sk4f& r, Sk4f& g, Sk4f& b, Sk4f& a,
+                                     const float* const srcTables[3]) {
     int kRShift, kGShift = 8, kBShift;
     set_rb_shifts(kOrder, &kRShift, &kBShift);
     r = { srcTables[0][(src[0] >> kRShift) & 0xFF],
@@ -556,9 +558,9 @@ static inline void load_rgba_from_tables(const uint32_t* src,
 }
 
 template <Order kOrder>
-static inline void load_rgb_linear(const uint32_t* src,
-                                   Sk4f& r, Sk4f& g, Sk4f& b, Sk4f& a,
-                                   const float* const[3]) {
+static AI void load_rgb_linear(const uint32_t* src,
+                               Sk4f& r, Sk4f& g, Sk4f& b, Sk4f& a,
+                               const float* const[3]) {
     int kRShift, kGShift = 8, kBShift;
     set_rb_shifts(kOrder, &kRShift, &kBShift);
     r = (1.0f / 255.0f) * SkNx_cast<float>((Sk4u::Load(src) >> kRShift) & 0xFF);
@@ -568,9 +570,9 @@ static inline void load_rgb_linear(const uint32_t* src,
 }
 
 template <Order kOrder>
-static inline void load_rgba_linear(const uint32_t* src,
-                                    Sk4f& r, Sk4f& g, Sk4f& b, Sk4f& a,
-                                    const float* const[3]) {
+static AI void load_rgba_linear(const uint32_t* src,
+                                Sk4f& r, Sk4f& g, Sk4f& b, Sk4f& a,
+                                const float* const[3]) {
     int kRShift, kGShift = 8, kBShift;
     set_rb_shifts(kOrder, &kRShift, &kBShift);
     r = (1.0f / 255.0f) * SkNx_cast<float>((Sk4u::Load(src) >> kRShift) & 0xFF);
@@ -580,9 +582,9 @@ static inline void load_rgba_linear(const uint32_t* src,
 }
 
 template <Order kOrder>
-static inline void load_rgb_from_tables_1(const uint32_t* src,
-                                          Sk4f& r, Sk4f& g, Sk4f& b, Sk4f& a,
-                                          const float* const srcTables[3]) {
+static AI void load_rgb_from_tables_1(const uint32_t* src,
+                                      Sk4f& r, Sk4f& g, Sk4f& b, Sk4f& a,
+                                      const float* const srcTables[3]) {
     int kRShift, kGShift = 8, kBShift;
     set_rb_shifts(kOrder, &kRShift, &kBShift);
     r = Sk4f(srcTables[0][(*src >> kRShift) & 0xFF]);
@@ -592,9 +594,9 @@ static inline void load_rgb_from_tables_1(const uint32_t* src,
 }
 
 template <Order kOrder>
-static inline void load_rgba_from_tables_1(const uint32_t* src,
-                                           Sk4f& r, Sk4f& g, Sk4f& b, Sk4f& a,
-                                           const float* const srcTables[3]) {
+static AI void load_rgba_from_tables_1(const uint32_t* src,
+                                       Sk4f& r, Sk4f& g, Sk4f& b, Sk4f& a,
+                                       const float* const srcTables[3]) {
     int kRShift, kGShift = 8, kBShift;
     set_rb_shifts(kOrder, &kRShift, &kBShift);
     r = Sk4f(srcTables[0][(*src >> kRShift) & 0xFF]);
@@ -604,9 +606,9 @@ static inline void load_rgba_from_tables_1(const uint32_t* src,
 }
 
 template <Order kOrder>
-static inline void load_rgb_linear_1(const uint32_t* src,
-                                     Sk4f& r, Sk4f& g, Sk4f& b, Sk4f& a,
-                                     const float* const srcTables[3]) {
+static AI void load_rgb_linear_1(const uint32_t* src,
+                                 Sk4f& r, Sk4f& g, Sk4f& b, Sk4f& a,
+                                 const float* const srcTables[3]) {
     int kRShift, kGShift = 8, kBShift;
     set_rb_shifts(kOrder, &kRShift, &kBShift);
     r = Sk4f((1.0f / 255.0f) * ((*src >> kRShift) & 0xFF));
@@ -616,9 +618,9 @@ static inline void load_rgb_linear_1(const uint32_t* src,
 }
 
 template <Order kOrder>
-static inline void load_rgba_linear_1(const uint32_t* src,
-                                      Sk4f& r, Sk4f& g, Sk4f& b, Sk4f& a,
-                                      const float* const srcTables[3]) {
+static AI void load_rgba_linear_1(const uint32_t* src,
+                                  Sk4f& r, Sk4f& g, Sk4f& b, Sk4f& a,
+                                  const float* const srcTables[3]) {
     int kRShift, kGShift = 8, kBShift;
     set_rb_shifts(kOrder, &kRShift, &kBShift);
     r = Sk4f((1.0f / 255.0f) * ((*src >> kRShift) & 0xFF));
@@ -627,45 +629,45 @@ static inline void load_rgba_linear_1(const uint32_t* src,
     a = Sk4f((1.0f / 255.0f) * ((*src >> 24)));
 }
 
-static inline void transform_gamut(const Sk4f& r, const Sk4f& g, const Sk4f& b, const Sk4f& a,
-                                   const Sk4f& rXgXbX, const Sk4f& rYgYbY, const Sk4f& rZgZbZ,
-                                   Sk4f& dr, Sk4f& dg, Sk4f& db, Sk4f& da) {
+static AI void transform_gamut(const Sk4f& r, const Sk4f& g, const Sk4f& b, const Sk4f& a,
+                               const Sk4f& rXgXbX, const Sk4f& rYgYbY, const Sk4f& rZgZbZ,
+                               Sk4f& dr, Sk4f& dg, Sk4f& db, Sk4f& da) {
     dr = rXgXbX[0]*r + rYgYbY[0]*g + rZgZbZ[0]*b;
     dg = rXgXbX[1]*r + rYgYbY[1]*g + rZgZbZ[1]*b;
     db = rXgXbX[2]*r + rYgYbY[2]*g + rZgZbZ[2]*b;
     da = a;
 }
 
-static inline void transform_gamut_1(const Sk4f& r, const Sk4f& g, const Sk4f& b,
-                                     const Sk4f& rXgXbX, const Sk4f& rYgYbY, const Sk4f& rZgZbZ,
-                                     Sk4f& rgba) {
+static AI void transform_gamut_1(const Sk4f& r, const Sk4f& g, const Sk4f& b,
+                                 const Sk4f& rXgXbX, const Sk4f& rYgYbY, const Sk4f& rZgZbZ,
+                                 Sk4f& rgba) {
     rgba = rXgXbX*r + rYgYbY*g + rZgZbZ*b;
 }
 
-static inline void translate_gamut(const Sk4f& rTgTbT, Sk4f& dr, Sk4f& dg, Sk4f& db) {
+static AI void translate_gamut(const Sk4f& rTgTbT, Sk4f& dr, Sk4f& dg, Sk4f& db) {
     dr = dr + rTgTbT[0];
     dg = dg + rTgTbT[1];
     db = db + rTgTbT[2];
 }
 
-static inline void translate_gamut_1(const Sk4f& rTgTbT, Sk4f& rgba) {
+static AI void translate_gamut_1(const Sk4f& rTgTbT, Sk4f& rgba) {
     rgba = rgba + rTgTbT;
 }
 
-static inline void premultiply(Sk4f& dr, Sk4f& dg, Sk4f& db, const Sk4f& da) {
+static AI void premultiply(Sk4f& dr, Sk4f& dg, Sk4f& db, const Sk4f& da) {
     dr = da * dr;
     dg = da * dg;
     db = da * db;
 }
 
-static inline void premultiply_1(const Sk4f& a, Sk4f& rgba) {
+static AI void premultiply_1(const Sk4f& a, Sk4f& rgba) {
     rgba = a * rgba;
 }
 
 template <Order kOrder>
-static inline void store_srgb(void* dst, const uint32_t* src,
-                              Sk4f& dr, Sk4f& dg, Sk4f& db, Sk4f&,
-                              const uint8_t* const[3]) {
+static AI void store_srgb(void* dst, const uint32_t* src,
+                          Sk4f& dr, Sk4f& dg, Sk4f& db, Sk4f&,
+                          const uint8_t* const[3]) {
     int kRShift, kGShift = 8, kBShift;
     set_rb_shifts(kOrder, &kRShift, &kBShift);
     dr = sk_linear_to_srgb_needs_trunc(dr);
@@ -686,9 +688,9 @@ static inline void store_srgb(void* dst, const uint32_t* src,
 }
 
 template <Order kOrder>
-static inline void store_srgb_1(void* dst, const uint32_t* src,
-                                Sk4f& rgba, const Sk4f&,
-                                const uint8_t* const[3]) {
+static AI void store_srgb_1(void* dst, const uint32_t* src,
+                            Sk4f& rgba, const Sk4f&,
+                            const uint8_t* const[3]) {
     rgba = sk_clamp_0_255(sk_linear_to_srgb_needs_trunc(rgba));
 
     uint32_t tmp;
@@ -701,7 +703,7 @@ static inline void store_srgb_1(void* dst, const uint32_t* src,
     *(uint32_t*)dst = tmp;
 }
 
-static inline Sk4f linear_to_2dot2(const Sk4f& x) {
+static AI Sk4f linear_to_2dot2(const Sk4f& x) {
     // x^(29/64) is a very good approximation of the true value, x^(1/2.2).
     auto x2  = x.rsqrt(),                            // x^(-1/2)
          x32 = x2.rsqrt().rsqrt().rsqrt().rsqrt(),   // x^(-1/32)
@@ -712,9 +714,9 @@ static inline Sk4f linear_to_2dot2(const Sk4f& x) {
 }
 
 template <Order kOrder>
-static inline void store_2dot2(void* dst, const uint32_t* src,
-                               Sk4f& dr, Sk4f& dg, Sk4f& db, Sk4f&,
-                               const uint8_t* const[3]) {
+static AI void store_2dot2(void* dst, const uint32_t* src,
+                           Sk4f& dr, Sk4f& dg, Sk4f& db, Sk4f&,
+                           const uint8_t* const[3]) {
     int kRShift, kGShift = 8, kBShift;
     set_rb_shifts(kOrder, &kRShift, &kBShift);
     dr = linear_to_2dot2(dr);
@@ -735,9 +737,9 @@ static inline void store_2dot2(void* dst, const uint32_t* src,
 }
 
 template <Order kOrder>
-static inline void store_2dot2_1(void* dst, const uint32_t* src,
-                                 Sk4f& rgba, const Sk4f&,
-                                 const uint8_t* const[3]) {
+static AI void store_2dot2_1(void* dst, const uint32_t* src,
+                             Sk4f& rgba, const Sk4f&,
+                             const uint8_t* const[3]) {
     rgba = sk_clamp_0_255(linear_to_2dot2(rgba));
 
     uint32_t tmp;
@@ -751,9 +753,9 @@ static inline void store_2dot2_1(void* dst, const uint32_t* src,
 }
 
 template <Order kOrder>
-static inline void store_linear(void* dst, const uint32_t* src,
-                               Sk4f& dr, Sk4f& dg, Sk4f& db, Sk4f&,
-                               const uint8_t* const[3]) {
+static AI void store_linear(void* dst, const uint32_t* src,
+                            Sk4f& dr, Sk4f& dg, Sk4f& db, Sk4f&,
+                            const uint8_t* const[3]) {
     int kRShift, kGShift = 8, kBShift;
     set_rb_shifts(kOrder, &kRShift, &kBShift);
     dr = sk_clamp_0_255(255.0f * dr);
@@ -770,9 +772,9 @@ static inline void store_linear(void* dst, const uint32_t* src,
 }
 
 template <Order kOrder>
-static inline void store_linear_1(void* dst, const uint32_t* src,
-                                  Sk4f& rgba, const Sk4f&,
-                                  const uint8_t* const[3]) {
+static AI void store_linear_1(void* dst, const uint32_t* src,
+                              Sk4f& rgba, const Sk4f&,
+                              const uint8_t* const[3]) {
     rgba = sk_clamp_0_255(255.0f * rgba);
 
     uint32_t tmp;
@@ -786,7 +788,7 @@ static inline void store_linear_1(void* dst, const uint32_t* src,
 }
 
 template <Order kOrder>
-static inline void store_f16(void* dst, const uint32_t* src,
+static AI void store_f16(void* dst, const uint32_t* src,
                              Sk4f& dr, Sk4f& dg, Sk4f& db, Sk4f& da,
                              const uint8_t* const[3]) {
     Sk4h::Store4(dst, SkFloatToHalf_finite_ftz(dr),
@@ -796,32 +798,32 @@ static inline void store_f16(void* dst, const uint32_t* src,
 }
 
 template <Order kOrder>
-static inline void store_f16_1(void* dst, const uint32_t* src,
-                               Sk4f& rgba, const Sk4f& a,
-                               const uint8_t* const[3]) {
+static AI void store_f16_1(void* dst, const uint32_t* src,
+                           Sk4f& rgba, const Sk4f& a,
+                           const uint8_t* const[3]) {
     rgba = Sk4f(rgba[0], rgba[1], rgba[2], a[3]);
     SkFloatToHalf_finite_ftz(rgba).store((uint64_t*) dst);
 }
 
 template <Order kOrder>
-static inline void store_f32(void* dst, const uint32_t* src,
-                             Sk4f& dr, Sk4f& dg, Sk4f& db, Sk4f& da,
-                             const uint8_t* const[3]) {
+static AI void store_f32(void* dst, const uint32_t* src,
+                         Sk4f& dr, Sk4f& dg, Sk4f& db, Sk4f& da,
+                         const uint8_t* const[3]) {
     Sk4f::Store4(dst, dr, dg, db, da);
 }
 
 template <Order kOrder>
-static inline void store_f32_1(void* dst, const uint32_t* src,
-                               Sk4f& rgba, const Sk4f& a,
-                               const uint8_t* const[3]) {
+static AI void store_f32_1(void* dst, const uint32_t* src,
+                           Sk4f& rgba, const Sk4f& a,
+                           const uint8_t* const[3]) {
     rgba = Sk4f(rgba[0], rgba[1], rgba[2], a[3]);
     rgba.store((float*) dst);
 }
 
 template <Order kOrder>
-static inline void store_f16_opaque(void* dst, const uint32_t* src,
-                                    Sk4f& dr, Sk4f& dg, Sk4f& db, Sk4f&,
-                                    const uint8_t* const[3]) {
+static AI void store_f16_opaque(void* dst, const uint32_t* src,
+                                Sk4f& dr, Sk4f& dg, Sk4f& db, Sk4f&,
+                                const uint8_t* const[3]) {
     Sk4h::Store4(dst, SkFloatToHalf_finite_ftz(dr),
                       SkFloatToHalf_finite_ftz(dg),
                       SkFloatToHalf_finite_ftz(db),
@@ -829,9 +831,9 @@ static inline void store_f16_opaque(void* dst, const uint32_t* src,
 }
 
 template <Order kOrder>
-static inline void store_f16_1_opaque(void* dst, const uint32_t* src,
-                                      Sk4f& rgba, const Sk4f&,
-                                      const uint8_t* const[3]) {
+static AI void store_f16_1_opaque(void* dst, const uint32_t* src,
+                                  Sk4f& rgba, const Sk4f&,
+                                  const uint8_t* const[3]) {
     uint64_t tmp;
     SkFloatToHalf_finite_ftz(rgba).store(&tmp);
     tmp |= static_cast<uint64_t>(SK_Half1) << 48;
@@ -839,7 +841,7 @@ static inline void store_f16_1_opaque(void* dst, const uint32_t* src,
 }
 
 template <Order kOrder>
-static inline void store_generic(void* dst, const uint32_t* src,
+static AI void store_generic(void* dst, const uint32_t* src,
                                  Sk4f& dr, Sk4f& dg, Sk4f& db, Sk4f&,
                                  const uint8_t* const dstTables[3]) {
     int kRShift, kGShift = 8, kBShift;
@@ -874,9 +876,9 @@ static inline void store_generic(void* dst, const uint32_t* src,
 }
 
 template <Order kOrder>
-static inline void store_generic_1(void* dst, const uint32_t* src,
-                                   Sk4f& rgba, const Sk4f&,
-                                   const uint8_t* const dstTables[3]) {
+static AI void store_generic_1(void* dst, const uint32_t* src,
+                               Sk4f& rgba, const Sk4f&,
+                               const uint8_t* const dstTables[3]) {
     int kRShift, kGShift = 8, kBShift;
     set_rb_shifts(kOrder, &kRShift, &kBShift);
     rgba = Sk4f::Min(Sk4f::Max(1023.0f * rgba, 0.0f), 1023.0f);
@@ -918,9 +920,9 @@ template <SrcFormat kSrc,
           DstFormat kDst,
           SkAlphaType kAlphaType,
           ColorSpaceMatch kCSM>
-static void color_xform_RGBA(void* dst, const void* vsrc, int len,
-                             const float* const srcTables[3], const float matrix[16],
-                             const uint8_t* const dstTables[3]) {
+static AI void color_xform_RGBA(void* dst, const void* vsrc, int len,
+                                const float* const srcTables[3], const float matrix[16],
+                                const uint8_t* const dstTables[3]) {
     LoadFn load;
     Load1Fn load_1;
     static constexpr bool loadAlpha = (kPremul_SkAlphaType == kAlphaType) ||
@@ -1146,9 +1148,9 @@ SkColorSpaceXform_XYZ<kSrc, kDst, kCSM>
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
 template <SrcFormat kSrc, DstFormat kDst, ColorSpaceMatch kCSM>
-static inline bool apply_set_alpha(void* dst, const void* src, int len, SkAlphaType alphaType,
-                                   const float* const srcTables[3], const float matrix[16],
-                                   const uint8_t* const dstTables[3]) {
+static AI bool apply_set_alpha(void* dst, const void* src, int len, SkAlphaType alphaType,
+                               const float* const srcTables[3], const float matrix[16],
+                               const uint8_t* const dstTables[3]) {
     switch (alphaType) {
         case kOpaque_SkAlphaType:
             color_xform_RGBA<kSrc, kDst, kOpaque_SkAlphaType, kCSM>
@@ -1168,10 +1170,10 @@ static inline bool apply_set_alpha(void* dst, const void* src, int len, SkAlphaT
 }
 
 template <SrcGamma kSrc, DstFormat kDst, ColorSpaceMatch kCSM>
-static inline bool apply_set_src(void* dst, const void* src, int len, SkAlphaType alphaType,
-                                 const float* const srcTables[3], const float matrix[16],
-                                 const uint8_t* const dstTables[3],
-                                 SkColorSpaceXform::ColorFormat srcColorFormat) {
+static AI bool apply_set_src(void* dst, const void* src, int len, SkAlphaType alphaType,
+                             const float* const srcTables[3], const float matrix[16],
+                             const uint8_t* const dstTables[3],
+                             SkColorSpaceXform::ColorFormat srcColorFormat) {
     switch (srcColorFormat) {
         case SkColorSpaceXform::kRGBA_8888_ColorFormat:
             switch (kSrc) {
@@ -1195,6 +1197,8 @@ static inline bool apply_set_src(void* dst, const void* src, int len, SkAlphaTyp
             return false;
     }
 }
+
+#undef AI
 
 template <SrcGamma kSrc, DstGamma kDst, ColorSpaceMatch kCSM>
 bool SkColorSpaceXform_XYZ<kSrc, kDst, kCSM>
