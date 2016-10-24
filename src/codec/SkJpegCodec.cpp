@@ -229,14 +229,14 @@ bool SkJpegCodec::ReadHeader(SkStream* stream, SkCodec** codecOut,
         sk_sp<SkData> iccData = get_icc_profile(decoderMgr->dinfo());
         sk_sp<SkColorSpace> colorSpace = nullptr;
         if (iccData) {
-            colorSpace = SkColorSpace::NewICC(iccData->data(), iccData->size());
+            colorSpace = SkColorSpace::MakeICC(iccData->data(), iccData->size());
             if (!colorSpace) {
                 SkCodecPrintf("Could not create SkColorSpace from ICC data.\n");
             }
         }
         if (!colorSpace) {
             // Treat unmarked jpegs as sRGB.
-            colorSpace = SkColorSpace::NewNamed(SkColorSpace::kSRGB_Named);
+            colorSpace = SkColorSpace::MakeNamed(SkColorSpace::kSRGB_Named);
         }
 
         const int width = decoderMgr->dinfo()->image_width;

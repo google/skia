@@ -285,8 +285,8 @@ static bool parse_option_gpu_color(const SkString& value,
 
     // First, figure out color gamut that we'll work in (default to sRGB)
     const bool linearGamma = commands[0].equals("f16");
-    *outColorSpace = SkColorSpace::NewNamed(linearGamma ? SkColorSpace::kSRGBLinear_Named
-                                                        : SkColorSpace::kSRGB_Named);
+    *outColorSpace = SkColorSpace::MakeNamed(linearGamma ? SkColorSpace::kSRGBLinear_Named
+                                                         : SkColorSpace::kSRGB_Named);
     if (commands.count() == 2) {
         if (commands[1].equals("srgb")) {
             // sRGB gamut (which is our default)
@@ -299,10 +299,10 @@ static bool parse_option_gpu_color(const SkString& value,
             };
             SkMatrix44 wideGamutRGBMatrix(SkMatrix44::kUninitialized_Constructor);
             wideGamutRGBMatrix.set3x3RowMajorf(gWideGamutRGB_toXYZD50);
-            *outColorSpace = SkColorSpace::NewRGB(linearGamma
+            *outColorSpace = SkColorSpace::MakeRGB(linearGamma
                                                           ? SkColorSpace::kLinear_RenderTargetGamma
                                                           : SkColorSpace::kSRGB_RenderTargetGamma,
-                                                  wideGamutRGBMatrix);
+                                                   wideGamutRGBMatrix);
         } else if (commands[1].equals("narrow")) {
             // NarrowGamut RGB (an artifically smaller than sRGB gamut)
             SkColorSpacePrimaries primaries ={
@@ -313,10 +313,10 @@ static bool parse_option_gpu_color(const SkString& value,
             };
             SkMatrix44 narrowGamutRGBMatrix(SkMatrix44::kUninitialized_Constructor);
             primaries.toXYZD50(&narrowGamutRGBMatrix);
-            *outColorSpace = SkColorSpace::NewRGB(linearGamma
+            *outColorSpace = SkColorSpace::MakeRGB(linearGamma
                                                           ? SkColorSpace::kLinear_RenderTargetGamma
                                                           : SkColorSpace::kSRGB_RenderTargetGamma,
-                                                  narrowGamutRGBMatrix);
+                                                   narrowGamutRGBMatrix);
         } else {
             // Unknown color gamut
             return false;

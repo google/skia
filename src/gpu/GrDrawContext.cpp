@@ -95,7 +95,7 @@ GrDrawContext::GrDrawContext(GrContext* context,
 {
     if (fColorSpace) {
         // sRGB sources are very common (SkColor, etc...), so we cache that gamut transformation
-        auto srgbColorSpace = SkColorSpace::NewNamed(SkColorSpace::kSRGB_Named);
+        auto srgbColorSpace = SkColorSpace::MakeNamed(SkColorSpace::kSRGB_Named);
         fColorXformFromSRGB = GrColorSpaceXform::Make(srgbColorSpace.get(), fColorSpace.get());
     }
     SkDEBUGCODE(this->validate();)

@@ -217,7 +217,7 @@ SkGradientShaderBase::SkGradientShaderBase(const Descriptor& desc, const SkMatri
 
     if (!desc.fColorSpace) {
         // This happens if we were constructed from SkColors, so our colors are really sRGB
-        fColorSpace = SkColorSpace::NewNamed(SkColorSpace::kSRGBLinear_Named);
+        fColorSpace = SkColorSpace::MakeNamed(SkColorSpace::kSRGBLinear_Named);
     } else {
         // The color space refers to the float colors, so it must be linear gamma
         SkASSERT(desc.fColorSpace->gammaIsLinear());
@@ -741,12 +741,12 @@ void SkGradientShaderBase::getGradientTableBitmap(SkBitmap* bitmap,
                 case GradientBitmapType::kSRGB:
                     info = SkImageInfo::Make(kCache32Count, 1, kRGBA_8888_SkColorType,
                                              kPremul_SkAlphaType,
-                                             SkColorSpace::NewNamed(SkColorSpace::kSRGB_Named));
+                                             SkColorSpace::MakeNamed(SkColorSpace::kSRGB_Named));
                     break;
                 case GradientBitmapType::kHalfFloat:
                     info = SkImageInfo::Make(
                         kCache32Count, 1, kRGBA_F16_SkColorType, kPremul_SkAlphaType,
-                        SkColorSpace::NewNamed(SkColorSpace::kSRGBLinear_Named));
+                        SkColorSpace::MakeNamed(SkColorSpace::kSRGBLinear_Named));
                     break;
                 default:
                     SkFAIL("Unexpected bitmap type");

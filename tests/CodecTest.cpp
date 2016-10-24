@@ -1046,7 +1046,7 @@ static void check_color_xform(skiatest::Reporter* r, const char* path) {
     const int dstHeight = subsetHeight / opts.fSampleSize;
     sk_sp<SkData> data = SkData::MakeFromFileName(
             GetResourcePath("icc_profiles/HP_ZR30w.icc").c_str());
-    sk_sp<SkColorSpace> colorSpace = SkColorSpace::NewICC(data->data(), data->size());
+    sk_sp<SkColorSpace> colorSpace = SkColorSpace::MakeICC(data->data(), data->size());
     SkImageInfo dstInfo = codec->getInfo().makeWH(dstWidth, dstHeight)
                                           .makeColorType(kN32_SkColorType)
                                           .makeColorSpace(colorSpace);

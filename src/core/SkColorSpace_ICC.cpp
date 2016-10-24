@@ -898,7 +898,7 @@ static bool tag_equals(const ICCTag* a, const ICCTag* b, const uint8_t* base) {
     return !memcmp(a->addr(base), b->addr(base), a->fLength);
 }
 
-sk_sp<SkColorSpace> SkColorSpace::NewICC(const void* input, size_t len) {
+sk_sp<SkColorSpace> SkColorSpace::MakeICC(const void* input, size_t len) {
     if (!input || len < kICCHeaderSize) {
         return_null("Data is null or not large enough to contain an ICC profile");
     }
@@ -1083,7 +1083,7 @@ sk_sp<SkColorSpace> SkColorSpace::NewICC(const void* input, size_t len) {
                                                                     mat, std::move(data)));
                 }
 
-                return SkColorSpace_Base::NewRGB(gammaNamed, mat);
+                return SkColorSpace_Base::MakeRGB(gammaNamed, mat);
             }
 
             // Recognize color profile specified by A2B0 tag.

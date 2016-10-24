@@ -92,9 +92,9 @@ void ColorCodecBench::decodeAndXformQCMS() {
 #endif
 
 void ColorCodecBench::xformOnly() {
-    sk_sp<SkColorSpace> srcSpace = SkColorSpace::NewICC(fSrcData->data(), fSrcData->size());
+    sk_sp<SkColorSpace> srcSpace = SkColorSpace::MakeICC(fSrcData->data(), fSrcData->size());
     if (!srcSpace) {
-        srcSpace = SkColorSpace::NewNamed(SkColorSpace::kSRGB_Named);
+        srcSpace = SkColorSpace::MakeNamed(SkColorSpace::kSRGB_Named);
     }
     std::unique_ptr<SkColorSpaceXform> xform = SkColorSpaceXform::New(srcSpace.get(),
                                                                       fDstSpace.get());
@@ -160,8 +160,8 @@ void ColorCodecBench::onDelayedSetup() {
     } else
 #endif
     {
-        fDstSpace = FLAGS_srgb ? SkColorSpace::NewNamed(SkColorSpace::kSRGB_Named) :
-                                 SkColorSpace::NewICC(dstData->data(), dstData->size());
+        fDstSpace = FLAGS_srgb ? SkColorSpace::MakeNamed(SkColorSpace::kSRGB_Named) :
+                                 SkColorSpace::MakeICC(dstData->data(), dstData->size());
         SkASSERT(fDstSpace);
     }
 
@@ -178,7 +178,7 @@ void ColorCodecBench::onDelayedSetup() {
         float gammas[3] = { 1.8f, 2.0f, 2.5f, };
         SkMatrix44 matrix = SkMatrix44(SkMatrix44::kUninitialized_Constructor);
         matrix.set3x3(0.30f, 0.31f, 0.28f, 0.32f, 0.33f, 0.29f, 0.27f, 0.30f, 0.30f);
-        fDstSpace = SkColorSpace::NewRGB(gammas, matrix);
+        fDstSpace = SkColorSpace::MakeRGB(gammas, matrix);
     }
 
     fDstInfo = fDstInfo.makeColorSpace(fDstSpace);

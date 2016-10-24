@@ -75,7 +75,7 @@ DEF_SIMPLE_GM(color4f, canvas, 1024, 260) {
 
     sk_sp<SkColorSpace> colorSpaces[]{
         nullptr,
-        SkColorSpace::NewNamed(SkColorSpace::kSRGB_Named)
+        SkColorSpace::MakeNamed(SkColorSpace::kSRGB_Named)
     };
     for (auto colorSpace : colorSpaces) {
         const SkImageInfo info = SkImageInfo::Make(1024, 100, kN32_SkColorType, kPremul_SkAlphaType,
@@ -111,9 +111,9 @@ DEF_SIMPLE_GM(color4shader, canvas, 1024, 260) {
     for (const auto& c4 : colors) {
         sk_sp<SkShader> shaders[] {
             SkShader::MakeColorShader(c4, nullptr),
-            SkShader::MakeColorShader(c4, SkColorSpace::NewNamed(SkColorSpace::kSRGB_Named)),
+            SkShader::MakeColorShader(c4, SkColorSpace::MakeNamed(SkColorSpace::kSRGB_Named)),
             SkShader::MakeColorShader(c4,
-                    SkColorSpace::NewRGB(SkColorSpace::kLinear_RenderTargetGamma, mat)),
+                    SkColorSpace::MakeRGB(SkColorSpace::kLinear_RenderTargetGamma, mat)),
         };
 
         canvas->save();

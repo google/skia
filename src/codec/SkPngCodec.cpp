@@ -344,7 +344,7 @@ sk_sp<SkColorSpace> read_color_space(png_structp png_ptr, png_infop info_ptr) {
     int compression;
     if (PNG_INFO_iCCP == png_get_iCCP(png_ptr, info_ptr, &name, &compression, &profile,
             &length)) {
-        return SkColorSpace::NewICC(profile, length);
+        return SkColorSpace::MakeICC(profile, length);
     }
 
     // Second, check for sRGB.
@@ -355,7 +355,7 @@ sk_sp<SkColorSpace> read_color_space(png_structp png_ptr, png_infop info_ptr) {
         // FIXME (msarett): Extract this information from the sRGB chunk once
         //                  we are able to handle this information in
         //                  SkColorSpace.
-        return SkColorSpace::NewNamed(SkColorSpace::kSRGB_Named);
+        return SkColorSpace::MakeNamed(SkColorSpace::kSRGB_Named);
     }
 
     // Next, check for chromaticities.
@@ -386,12 +386,12 @@ sk_sp<SkColorSpace> read_color_space(png_structp png_ptr, png_infop info_ptr) {
             gammas[1] = value;
             gammas[2] = value;
 
-            return SkColorSpace::NewRGB(gammas, toXYZD50);
+            return SkColorSpace::MakeRGB(gammas, toXYZD50);
         }
 
         // Default to sRGB gamma if the image has color space information,
         // but does not specify gamma.
-        return SkColorSpace::NewRGB(SkColorSpace::kSRGB_RenderTargetGamma, toXYZD50);
+        return SkColorSpace::MakeRGB(SkColorSpace::kSRGB_RenderTargetGamma, toXYZD50);
     }
 
     // Last, check for gamma.
@@ -407,7 +407,7 @@ sk_sp<SkColorSpace> read_color_space(png_structp png_ptr, png_infop info_ptr) {
         SkMatrix44 toXYZD50(SkMatrix44::kUninitialized_Constructor);
         toXYZD50.set3x3RowMajorf(gSRGB_toXYZD50);
 
-        return SkColorSpace::NewRGB(gammas, toXYZD50);
+        return SkColorSpace::MakeRGB(gammas, toXYZD50);
     }
 
 #endif // LIBPNG >= 1.6
@@ -988,7 +988,7 @@ void AutoCleanPng::infoCallback() {
         sk_sp<SkColorSpace> colorSpace = read_color_space(fPng_ptr, fInfo_ptr);
         if (!colorSpace) {
             // Treat unmarked pngs as sRGB.
-            colorSpace = SkColorSpace::NewNamed(SkColorSpace::kSRGB_Named);
+            colorSpace = SkColorSpace::MakeNamed(SkColorSpace::kSRGB_Named);
         }
 
         SkEncodedInfo encodedInfo = SkEncodedInfo::Make(color, alpha, 8);

@@ -164,7 +164,7 @@ Viewer::Viewer(int argc, char** argv, void* platformData)
     fCommands.addCommand('c', "Modes", "Toggle sRGB color mode", [this]() {
         DisplayParams params = fWindow->getDisplayParams();
         params.fColorSpace = (nullptr == params.fColorSpace)
-            ? SkColorSpace::NewNamed(SkColorSpace::kSRGB_Named) : nullptr;
+            ? SkColorSpace::MakeNamed(SkColorSpace::kSRGB_Named) : nullptr;
         fWindow->setDisplayParams(params);
         this->updateTitle();
         fWindow->inval();

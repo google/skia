@@ -42,7 +42,7 @@ sk_sp<SkSurface> WindowContext::createSurface(
             fWidth, fHeight,
             fDisplayParams.fColorType,
             kPremul_SkAlphaType,
-            forceSRGB ? SkColorSpace::NewNamed(SkColorSpace::kSRGB_Named)
+            forceSRGB ? SkColorSpace::MakeNamed(SkColorSpace::kSRGB_Named)
                       : fDisplayParams.fColorSpace
         );
         if (this->isGpuContext()) {

@@ -334,7 +334,7 @@ public:
                 // Instead, we readPixels into a buffer that we claim is sRGB (readPixels doesn't
                 // do gamut conversion), so these pixels then get thrown directly at the monitor,
                 // giving us the expected results (the output is adapted to the monitor's gamut).
-                auto srgb = SkColorSpace::NewNamed(SkColorSpace::kSRGB_Named);
+                auto srgb = SkColorSpace::MakeNamed(SkColorSpace::kSRGB_Named);
                 offscreenInfo = offscreenInfo.makeColorSpace(srgb);
             }
             SkBitmap bm;
@@ -1593,7 +1593,7 @@ static sk_sp<SkColorSpace> getMonitorColorSpace() {
     const uint8_t* data = CFDataGetBytePtr(dataRef);
     size_t size = CFDataGetLength(dataRef);
 
-    sk_sp<SkColorSpace> colorSpace = SkColorSpace::NewICC(data, size);
+    sk_sp<SkColorSpace> colorSpace = SkColorSpace::MakeICC(data, size);
 
     CFRelease(cs);
     CFRelease(dataRef);
@@ -1618,7 +1618,7 @@ static sk_sp<SkColorSpace> getMonitorColorSpace() {
                 DeleteDC(dc);
                 if (success) {
                     sk_sp<SkData> iccData = SkData::MakeFromFileName(icmPath);
-                    return SkColorSpace::NewICC(iccData->data(), iccData->size());
+                    return SkColorSpace::MakeICC(iccData->data(), iccData->size());
                 }
             }
         }
@@ -1660,13 +1660,13 @@ bool SampleWindow::onEvent(const SkEvent& evt) {
         sk_sp<SkColorSpace> colorSpace = nullptr;
         switch (gConfig[selected].fColorSpace) {
             case kSRGB_OutputColorSpace:
-                colorSpace = SkColorSpace::NewNamed(SkColorSpace::kSRGB_Named);
+                colorSpace = SkColorSpace::MakeNamed(SkColorSpace::kSRGB_Named);
                 break;
             case kMonitor_OutputColorSpace:
                 colorSpace = getMonitorColorSpace();
                 if (!colorSpace) {
                     // Fallback for platforms / machines where we can't get a monitor profile
-                    colorSpace = SkColorSpace::NewNamed(SkColorSpace::kSRGB_Named);
+                    colorSpace = SkColorSpace::MakeNamed(SkColorSpace::kSRGB_Named);
                 }
                 break;
             case kLegacy_OutputColorSpace:

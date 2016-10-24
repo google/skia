@@ -46,7 +46,7 @@ void ImageSlide::load(SkScalar, SkScalar) {
     codec->getPixels(codec->getInfo(), fOriginalBitmap.getPixels(), fOriginalBitmap.rowBytes());
 
     SkImageInfo xformedInfo = codec->getInfo().makeColorSpace(
-            SkColorSpace::NewNamed(SkColorSpace::kAdobeRGB_Named));
+            SkColorSpace::MakeNamed(SkColorSpace::kAdobeRGB_Named));
     fXformedBitmap.allocPixels(xformedInfo);
     codec->getPixels(xformedInfo, fXformedBitmap.getPixels(), fXformedBitmap.rowBytes());
 }

@@ -140,7 +140,7 @@ int main(int argc, char** argv) {
 
     // Draw the sRGB gamut if requested.
     if (FLAGS_sRGB) {
-        sk_sp<SkColorSpace> sRGBSpace = SkColorSpace::NewNamed(SkColorSpace::kSRGB_Named);
+        sk_sp<SkColorSpace> sRGBSpace = SkColorSpace::MakeNamed(SkColorSpace::kSRGB_Named);
         const SkMatrix44* mat = as_CSB(sRGBSpace)->toXYZD50();
         SkASSERT(mat);
         draw_gamut(&canvas, *mat, "sRGB", 0xFFFF9394, false);
@@ -148,7 +148,7 @@ int main(int argc, char** argv) {
 
     // Draw the Adobe RGB gamut if requested.
     if (FLAGS_adobeRGB) {
-        sk_sp<SkColorSpace> adobeRGBSpace = SkColorSpace::NewNamed(SkColorSpace::kAdobeRGB_Named);
+        sk_sp<SkColorSpace> adobeRGBSpace = SkColorSpace::MakeNamed(SkColorSpace::kAdobeRGB_Named);
         const SkMatrix44* mat = as_CSB(adobeRGBSpace)->toXYZD50();
         SkASSERT(mat);
         draw_gamut(&canvas, *mat, "Adobe RGB", 0xFF31a9e1, false);
@@ -158,7 +158,7 @@ int main(int argc, char** argv) {
     sk_sp<SkColorSpace> colorSpace = sk_ref_sp(codec->getInfo().colorSpace());
     if (!colorSpace) {
         SkDebugf("Image had no embedded color space information.  Defaulting to sRGB.\n");
-        colorSpace = SkColorSpace::NewNamed(SkColorSpace::kSRGB_Named);
+        colorSpace = SkColorSpace::MakeNamed(SkColorSpace::kSRGB_Named);
     }
     const SkMatrix44* mat = as_CSB(colorSpace)->toXYZD50();
     SkASSERT(mat);

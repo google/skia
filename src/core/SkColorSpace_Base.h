@@ -214,7 +214,12 @@ private:
      */
     sk_sp<SkData> writeToICC() const;
 
-    static sk_sp<SkColorSpace> NewRGB(SkGammaNamed gammaNamed, const SkMatrix44& toXYZD50);
+    static sk_sp<SkColorSpace> MakeRGB(SkGammaNamed gammaNamed, const SkMatrix44& toXYZD50);
+#ifdef SK_SUPPORT_LEGACY_COLOR_SPACE_FACTORIES
+    static sk_sp<SkColorSpace> NewRGB(SkGammaNamed gammaNamed, const SkMatrix44& toXYZD50) {
+        return MakeRGB(gammaNamed, toXYZD50);
+    }
+#endif
 
     SkColorSpace_Base(SkGammaNamed gammaNamed, const SkMatrix44& toXYZ);
 
