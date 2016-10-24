@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "6142304e_efe4e128",
+        "filename": "dm/DMSrcSink.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 1353,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2016-10-24T15:09:21Z",
+      "side": 1,
+      "message": "It seems a lot simpler to use an intermediate string.\n\ndst-\u003ewriteText(Json::StyledWriter().write(json).c_str());",
+      "revId": "904f1c0a343cf3c3d979cff4055e635a3fc893ae",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
