@@ -84,8 +84,11 @@ BASE_SRCS_ALL = struct(
         # Third Party
         "third_party/etc1/*.cpp",
         "third_party/etc1/*.h",
+        "third_party/gif/*.cpp",
+        "third_party/gif/*.h",
         "third_party/ktx/*.cpp",
         "third_party/ktx/*.h",
+    ],
     ],
     # Note: PRIVATE_HDRS_INCLUDE_LIST is excluded from BASE_SRCS_ALL here
     # because they are required to appear in srcs for some rules but hdrs for
@@ -385,6 +388,7 @@ INCLUDES = [
     "src/sksl",
     "src/utils",
     "third_party/etc1",
+    "third_party/gif",
     "third_party/ktx",
 ]
 
@@ -570,7 +574,6 @@ DEFINES_UNIX = [
     "SK_SAMPLES_FOR_X",
     "SK_PDF_USE_SFNTLY",
     "SK_CODEC_DECODES_RAW",
-    "SK_HAS_GIF_LIBRARY",
     "SK_HAS_JPEG_LIBRARY",
     "SK_HAS_PNG_LIBRARY",
     "SK_HAS_WEBP_LIBRARY",
@@ -579,7 +582,6 @@ DEFINES_UNIX = [
 DEFINES_ANDROID = [
     "SK_BUILD_FOR_ANDROID",
     "SK_CODEC_DECODES_RAW",
-    "SK_HAS_GIF_LIBRARY",
     "SK_HAS_JPEG_LIBRARY",
     "SK_HAS_PNG_LIBRARY",
     "SK_HAS_WEBP_LIBRARY",
