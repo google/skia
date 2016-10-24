@@ -12,6 +12,11 @@ declare_args() {
     ar = "$ndk/toolchains/$ndk_gccdir-4.9/prebuilt/$ndk_host/$ndk_target/bin/ar"
     cc = "$ndk/toolchains/llvm/prebuilt/$ndk_host/bin/clang"
     cxx = "$ndk/toolchains/llvm/prebuilt/$ndk_host/bin/clang++"
+    if (host_os == "win") {
+      ar = ar + ".exe"
+      cc = cc + ".exe"
+      cxx = cxx + ".exe"
+    }
   }
 
   windk = "C:/Program Files (x86)/Microsoft Visual Studio 14.0"
@@ -22,6 +27,14 @@ declare_args() {
   extra_ldflags = []
 
   cc_wrapper = ""
+}
+
+if (host_os == "win") {
+  python = "python.bat"
+  stamp = "cmd.exe /c echo >"
+} else {
+  python = "python"
+  stamp = "touch"
 }
 
 if (!is_win) {
@@ -465,13 +478,13 @@ toolchain("msvc") {
   }
 
   tool("stamp") {
-    command = "cmd.exe /c echo > {{output}}"
+    command = "$stamp {{output}}"
     description = "stamp {{output}}"
   }
 
   tool("copy") {
     cp_py = rebase_path("cp.py")
-    command = "python.bat $cp_py {{source}} {{output}}"
+    command = "$python $cp_py {{source}} {{output}}"
     description = "copy {{source}} {{output}}"
   }
 }
@@ -531,7 +544,15 @@ toolchain("gcc_like") {
   }
 
   tool("alink") {
-    command = "rm -f {{output}} && $ar rcs {{output}} {{inputs}}"
+    if (host_os == "win") {
+      rspfile = "{{output}}.rsp"
+      rspfile_content = "{{inputs}}"
+      ar_py = rebase_path("ar.py")
+      command = "$python $ar_py $ar {{output}} $rspfile"
+    } else {
+      # We'd use ar.py all the time, but Mac ar doesn't support @rspfile syntax.  :(
+      command = "rm -f {{output}} && $ar rcs {{output}} {{inputs}}"
+    }
     outputs = [
       "{{root_out_dir}}/{{target_output_name}}{{output_extension}}",
     ]
@@ -566,13 +587,13 @@ toolchain("gcc_like") {
   }
 
   tool("stamp") {
-    command = "touch {{output}}"
+    command = "$stamp {{output}}"
     description = "stamp {{output}}"
   }
 
   tool("copy") {
     cp_py = rebase_path("cp.py")
-    command = "python $cp_py {{source}} {{output}}"
+    command = "$python $cp_py {{source}} {{output}}"
     description = "copy {{source}} {{output}}"
   }
 }

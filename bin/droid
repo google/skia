@@ -16,6 +16,7 @@ args=$@
 set -e
 set -x
 
-adb push $path /data/local/tmp/
-adb push resources /data/local/tmp/
-adb shell "cd /data/local/tmp; ./$name $args"
+adb push $path //data/local/tmp/
+adb push resources //data/local/tmp/
+adb shell "chmod +x //data/local/tmp/$name"
+adb shell "cd //data/local/tmp; ./$name $args"
