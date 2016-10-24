@@ -1,0 +1,89 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "6190700a_bf0cf7e7",
+        "filename": "BUILD.gn",
+        "patchSetId": 3
+      },
+      "lineNbr": 310,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2016-10-24T19:41:51Z",
+      "side": 1,
+      "message": "Drop the :openexr.  Just //third_party/openexr.  It\u0027s cleaner.",
+      "revId": "76a9850d70144cf3d52ed42326922cb604726f4e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "6190700a_dfee9bd6",
+        "filename": "gn/BUILD.gn",
+        "patchSetId": 3
+      },
+      "lineNbr": 299,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2016-10-24T19:41:51Z",
+      "side": 1,
+      "message": "MSVC is no-exception by default and needs /EHsc to turn on exceptions.  You may also want/need to not define _HAS_EXCEPTIONS\u003d0, which affects the MSVC standard library.",
+      "revId": "76a9850d70144cf3d52ed42326922cb604726f4e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "6190700a_7fc50f49",
+        "filename": "third_party/openexr/BUILD.gn",
+        "patchSetId": 3
+      },
+      "lineNbr": 12,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2016-10-24T19:41:51Z",
+      "side": 1,
+      "message": "Are there not ways to build openexr without exceptions or RTTI?  Isn\u0027t this a deal breaker for most clients?",
+      "revId": "76a9850d70144cf3d52ed42326922cb604726f4e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "6190700a_bfe5d7f1",
+        "filename": "third_party/openexr/BUILD.gn",
+        "patchSetId": 3
+      },
+      "lineNbr": 15,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2016-10-24T19:41:51Z",
+      "side": 1,
+      "message": "Which directories do users of openexr need to have on their path to use it?  That\u0027s all that goes in public_include_dirs.  Things you need to compile openexr go in include_dirs.",
+      "revId": "76a9850d70144cf3d52ed42326922cb604726f4e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "6190700a_dfb3fbef",
+        "filename": "third_party/openexr/BUILD.gn",
+        "patchSetId": 3
+      },
+      "lineNbr": 41,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2016-10-24T19:41:51Z",
+      "side": 1,
+      "message": "(You\u0027re gonna have to get all this right for the bots unless you set skia_use_exr to something more restrictive than true.)",
+      "revId": "76a9850d70144cf3d52ed42326922cb604726f4e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
