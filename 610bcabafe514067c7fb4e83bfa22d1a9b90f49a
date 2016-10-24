@@ -16,6 +16,24 @@
       "revId": "610bcabafe514067c7fb4e83bfa22d1a9b90f49a",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "6190700a_ff3d9f83",
+        "filename": "tools/flags/SkCommandLineFlags.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 298,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2016-10-24T19:31:48Z",
+      "side": 1,
+      "message": "I included this check because I think it makes things simpler. Although unlikely, the logic assumes that all instances of SkFlagInfo will consume argc/argv equally. Consider:\n\nA.cpp:\nDEFINE_string(a)\nDEFINE_bool(10)\n\nB.cpp:\nDEFINE_int(a)\nDEFINE_bool(10)\n\ntool -a -10",
+      "parentUuid": "6190700a_5fa36beb",
+      "revId": "610bcabafe514067c7fb4e83bfa22d1a9b90f49a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
