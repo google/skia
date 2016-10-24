@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "6190700a_9fa4938e",
+        "filename": "public.bzl",
+        "patchSetId": 4
+      },
+      "lineNbr": 390,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2016-10-24T18:18:13Z",
+      "side": 1,
+      "message": "Thanks - this is correct, except we don\u0027t yet have those files in Google3. Waiting on cl/137046456",
+      "range": {
+        "startLine": 390,
+        "startChar": 5,
+        "endLine": 390,
+        "endChar": 20
+      },
+      "revId": "d8b891bc6274a9f6ec57b581dd06bccc8b7df457",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}

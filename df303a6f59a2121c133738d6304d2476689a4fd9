@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "6190700a_9fb9f3af",
+        "filename": "cmake/CMakeLists.txt",
+        "patchSetId": 4
+      },
+      "lineNbr": 187,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2016-10-24T18:18:13Z",
+      "side": 0,
+      "message": "I\u0027m guessing that we should put this around the code in SkGIFMovie, instead of removing it entirely.\n\n(OTOH, the only client of SkGIFMovie is Android, which doesn\u0027t use CMake. Since we don\u0027t like it anyway, I was considering moving it into Android, so they can continue to support it there...)",
+      "range": {
+        "startLine": 187,
+        "startChar": 21,
+        "endLine": 187,
+        "endChar": 40
+      },
+      "revId": "df303a6f59a2121c133738d6304d2476689a4fd9",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
