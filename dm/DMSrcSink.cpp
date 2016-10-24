@@ -15,6 +15,7 @@
 #include "SkColorSpaceXform.h"
 #include "SkCommonFlags.h"
 #include "SkData.h"
+#include "SkDebugCanvas.h"
 #include "SkDeferredCanvas.h"
 #include "SkDocument.h"
 #include "SkImageGenerator.h"
@@ -38,6 +39,7 @@
 #include "SkTLogic.h"
 #include "SkSwizzler.h"
 #include <functional>
+#include <ostream>
 
 #if defined(SK_BUILD_FOR_WIN)
     #include "SkAutoCoInitialize.h"
@@ -1316,6 +1318,41 @@ Error SKPSink::draw(const Src& src, SkBitmap*, SkWStream* dst, SkString*) const 
         return err;
     }
     recorder.finishRecordingAsPicture()->serialize(dst);
+    return "";
+}
+
+/*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
+
+namespace {
+struct WStreamStreambuf : public std::streambuf {
+    SkWStream* fWStream;
+    WStreamStreambuf(SkWStream* s) : fWStream(s) {}
+    std::streamsize xsputn(const char_type* s, std::streamsize n) override {
+        return fWStream->write(s, SkToSizeT(n)) ? n : 0;
+    }
+    int overflow (int c) override {
+        if (c >= 0 && c <= 0xFF) {
+            char value = (char)c;
+            return fWStream->write(&value, sizeof(value)) ? (int)value : EOF;
+        }
+        return c;
+    }
+};
+}
+
+Error DebugSink::draw(const Src& src, SkBitmap*, SkWStream* dst, SkString*) const {
+    SkDebugCanvas debugCanvas(src.size().width(), src.size().height());
+    Error err = src.draw(&debugCanvas);
+    if (!err.isEmpty()) {
+        return err;
+    }
+    sk_sp<SkCanvas> nullCanvas(SkCreateNullCanvas());
+    UrlDataManager dataManager(SkString("data"));
+    Json::Value json = debugCanvas.toJSON(
+            dataManager, debugCanvas.getSize(), nullCanvas.get());
+    WStreamStreambuf wStreamStreambuf(dst);
+    std::ostream outputStream(&wStreamStreambuf);
+    Json::StyledStreamWriter("  ").write(outputStream, json);
     return "";
 }
 
