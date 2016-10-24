@@ -63,11 +63,11 @@ SkCodec* SkWebpCodec::NewFromStream(SkStream* stream) {
     SkAutoTCallVProc<WebPChunkIterator, WebPDemuxReleaseChunkIterator> autoCI(&chunkIterator);
     sk_sp<SkColorSpace> colorSpace = nullptr;
     if (WebPDemuxGetChunk(demux, "ICCP", 1, &chunkIterator)) {
-        colorSpace = SkColorSpace::NewICC(chunkIterator.chunk.bytes, chunkIterator.chunk.size);
+        colorSpace = SkColorSpace::MakeICC(chunkIterator.chunk.bytes, chunkIterator.chunk.size);
     }
 
     if (!colorSpace) {
-        colorSpace = SkColorSpace::NewNamed(SkColorSpace::kSRGB_Named);
+        colorSpace = SkColorSpace::MakeNamed(SkColorSpace::kSRGB_Named);
     }
 
     // Since we do not yet support animation, we get the |width|, |height|, |color|, and |alpha|

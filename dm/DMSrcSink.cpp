@@ -910,9 +910,9 @@ Error ColorCodecSrc::draw(SkCanvas* canvas) const {
 
     sk_sp<SkColorSpace> dstSpace = nullptr;
     if (kDst_sRGB_Mode == fMode) {
-        dstSpace = SkColorSpace::NewNamed(SkColorSpace::kSRGB_Named);
+        dstSpace = SkColorSpace::MakeNamed(SkColorSpace::kSRGB_Named);
     } else if (kDst_HPZR30w_Mode == fMode) {
-        dstSpace = SkColorSpace::NewICC(dstData->data(), dstData->size());
+        dstSpace = SkColorSpace::MakeICC(dstData->data(), dstData->size());
     }
 
     SkImageInfo decodeInfo = codec->getInfo().makeColorType(fColorType).makeColorSpace(dstSpace);

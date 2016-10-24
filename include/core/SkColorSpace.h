@@ -93,20 +93,35 @@ public:
      *  or as three exponents (R, G, B).
      *  Gamut is specified using the matrix transformation to XYZ D50.
      */
-    static sk_sp<SkColorSpace> NewRGB(RenderTargetGamma gamma, const SkMatrix44& toXYZD50);
-    static sk_sp<SkColorSpace> NewRGB(const SkColorSpaceTransferFn& coeffs,
+    static sk_sp<SkColorSpace> MakeRGB(RenderTargetGamma gamma, const SkMatrix44& toXYZD50);
+    static sk_sp<SkColorSpace> MakeRGB(const SkColorSpaceTransferFn& coeffs,
                                       const SkMatrix44& toXYZD50);
-    static sk_sp<SkColorSpace> NewRGB(const float exponents[3], const SkMatrix44& toXYZD50);
+    static sk_sp<SkColorSpace> MakeRGB(const float exponents[3], const SkMatrix44& toXYZD50);
 
     /**
      *  Create a common, named SkColorSpace.
      */
-    static sk_sp<SkColorSpace> NewNamed(Named);
+    static sk_sp<SkColorSpace> MakeNamed(Named);
 
     /**
      *  Create an SkColorSpace from an ICC profile.
      */
-    static sk_sp<SkColorSpace> NewICC(const void*, size_t);
+    static sk_sp<SkColorSpace> MakeICC(const void*, size_t);
+
+#ifdef SK_SUPPORT_LEGACY_COLOR_SPACE_FACTORIES
+    static sk_sp<SkColorSpace> NewRGB(RenderTargetGamma gamma, const SkMatrix44& toXYZD50) {
+        return MakeRGB(gamma, toXYZD50);
+    }
+    static sk_sp<SkColorSpace> NewRGB(const SkColorSpaceTransferFn& coeffs,
+                                      const SkMatrix44& toXYZD50) {
+        return MakeRGB(coeffs, toXYZD50);
+    }
+    static sk_sp<SkColorSpace> NewRGB(const float exponents[3], const SkMatrix44& toXYZD50) {
+        return MakeRGB(exponents, toXYZD50);
+    }
+    static sk_sp<SkColorSpace> NewNamed(Named named) { return MakeNamed(named); }
+    static sk_sp<SkColorSpace> NewICC(const void* input, size_t len) { return MakeICC(input, len); }
+#endif
 
     /**
      *  Returns true if the color space gamma is near enough to be approximated as sRGB.
