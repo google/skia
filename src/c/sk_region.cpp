@@ -13,7 +13,7 @@
 sk_region_t *sk_region_new() { return (sk_region_t *)new SkRegion(); }
 
 sk_region_t *sk_region_new2(const sk_region_t *region) {
-  return (sk_region_t *)new SkRegion(*AsRegion(region));
+  return ToRegion(new SkRegion(*AsRegion(region)));
 }
 
 void sk_region_delete(sk_region_t *cpath) { delete AsRegion(cpath); }
