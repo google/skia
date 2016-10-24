@@ -614,6 +614,7 @@ DEFINES_ALL = [
     "SK_SUPPORT_LEGACY_SHADER_ISABITMAP",
     "SK_SUPPORT_LEGACY_XFERMODE_OBJECT",
     "SK_SUPPORT_LEGACY_COLOR_SPACE_FACTORIES",
+    "SK_SUPPORT_LEGACY_SHADER_ASALOCALMATRIXSHADER",
 ]
 
 ################################################################################

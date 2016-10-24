@@ -70,14 +70,16 @@ sk_sp<SkShader> SkShader::makeWithLocalMatrix(const SkMatrix& localMatrix) const
 
     const SkMatrix* lm = &localMatrix;
 
-    SkShader* baseShader = const_cast<SkShader*>(this);
+    sk_sp<SkShader> baseShader;
     SkMatrix otherLocalMatrix;
-    SkAutoTUnref<SkShader> proxy(this->refAsALocalMatrixShader(&otherLocalMatrix));
+    sk_sp<SkShader> proxy(this->makeAsALocalMatrixShader(&otherLocalMatrix));
     if (proxy) {
         otherLocalMatrix.preConcat(localMatrix);
         lm = &otherLocalMatrix;
-        baseShader = proxy.get();
+        baseShader = proxy;
+    } else {
+        baseShader = sk_ref_sp(const_cast<SkShader*>(this));
     }
 
-    return sk_make_sp<SkLocalMatrixShader>(baseShader, *lm);
+    return sk_make_sp<SkLocalMatrixShader>(std::move(baseShader), *lm);
 }
