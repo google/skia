@@ -143,6 +143,15 @@ public:
     virtual GrRenderTarget* renderTarget() const = 0;
 
 protected:
+
+    /**
+     * These methods allow batch classes to make space for variable length data in the same
+     * preallocated space as the batch object itself.
+     */
+    void* makeSpace(size_t);
+    template<typename T> T* makeT() { return new (this->makeSpace(sizeof(T))) T; }
+    void freeSpace(void*);
+
     /**
      * Indicates that the batch will produce geometry that extends beyond its bounds for the
      * purpose of ensuring that the fragment shader runs on partially covered pixels for
