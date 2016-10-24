@@ -288,11 +288,18 @@ void SkCommandLineFlags::Parse(int argc, char** argv) {
             helpPrinted = true;
         }
         if (!helpPrinted) {
-            bool flagMatched = false;
+            SkFlagInfo* matchedFlag = nullptr;
             SkFlagInfo* flag = gHead;
+            int startI = i;
             while (flag != nullptr) {
-                if (flag->match(argv[i])) {
-                    flagMatched = true;
+                if (flag->match(argv[startI])) {
+                    i = startI;
+                    if (matchedFlag) {
+                        // Don't redefine the same flag with different types.
+                        SkASSERT(matchedFlag->getFlagType() == flag->getFlagType());
+                    } else {
+                        matchedFlag = flag;
+                    }
                     switch (flag->getFlagType()) {
                         case SkFlagInfo::kBool_FlagType:
                             // Can be handled by match, above, but can also be set by the next
@@ -330,11 +337,10 @@ void SkCommandLineFlags::Parse(int argc, char** argv) {
                         default:
                             SkDEBUGFAIL("Invalid flag type");
                     }
-                    break;
                 }
                 flag = flag->next();
             }
-            if (!flagMatched) {
+            if (!matchedFlag) {
 #if defined(SK_BUILD_FOR_MAC)
                 if (SkStrStartsWith(argv[i], "NSDocumentRevisions")
                         || SkStrStartsWith(argv[i], "-NSDocumentRevisions")) {
