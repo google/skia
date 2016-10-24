@@ -175,14 +175,27 @@ protected:
         if (convertLabToXYZ) {
             SkASSERT(SkColorSpace_Base::Type::kA2B == as_CSB(colorSpace)->type());
             SkColorSpace_A2B& cs = *static_cast<SkColorSpace_A2B*>(colorSpace.get());
+            const SkColorLookUpTable* colorLUT = nullptr;
             bool printConversions = false;
-            SkASSERT(cs.colorLUT());
             // We're skipping evaluating the TRCs and the matrix here since they aren't
             // in the ICC profile initially used here.
-            SkASSERT(kLinear_SkGammaNamed == cs.aCurveNamed());
-            SkASSERT(kLinear_SkGammaNamed == cs.mCurveNamed());
-            SkASSERT(kLinear_SkGammaNamed == cs.bCurveNamed());
-            SkASSERT(cs.matrix().isIdentity());
+            for (size_t e = 0; e < cs.count(); ++e) {
+                switch (cs.element(e).type()) {
+                    case SkColorSpace_A2B::Element::Type::kGammaNamed:
+                        SkASSERT(kLinear_SkGammaNamed == cs.element(e).gammaNamed());
+                        break;
+                    case SkColorSpace_A2B::Element::Type::kGammas:
+                        SkASSERT(false);
+                        break;
+                    case SkColorSpace_A2B::Element::Type::kCLUT:
+                        colorLUT = &cs.element(e).colorLUT();
+                        break;
+                    case SkColorSpace_A2B::Element::Type::kMatrix:
+                        SkASSERT(cs.element(e).matrix().isIdentity());
+                        break;
+                }
+            }
+            SkASSERT(colorLUT);
             for (int y = 0; y < imageHeight; ++y) {
                 for (int x = 0; x < imageWidth; ++x) {
                     uint32_t& p = *bitmap.getAddr32(x, y);
@@ -195,7 +208,7 @@ protected:
 
                     float lab[4] = { r * (1.f/255.f), g * (1.f/255.f), b * (1.f/255.f), 1.f };
                     
-                    interp_3d_clut(lab, lab, cs.colorLUT());
+                    interp_3d_clut(lab, lab, colorLUT);
                     
                     // Lab has ranges [0,100] for L and [-128,127] for a and b
                     // but the ICC profile loader stores as [0,1]. The ICC

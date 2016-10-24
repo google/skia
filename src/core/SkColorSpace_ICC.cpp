@@ -131,9 +131,18 @@ struct ICCProfileHeader {
         // All the profiles we've tested so far use RGB as the input color space.
         return_if_false(fInputColorSpace == kRGB_ColorSpace, "Unsupported color space");
 
-        // TODO (msarett):
-        // All the profiles we've tested so far use XYZ as the profile connection space.
-        return_if_false(fPCS == kXYZ_PCSSpace || fPCS == kLAB_PCSSpace, "Unsupported PCS space");
+        switch (fPCS) {
+            case kXYZ_PCSSpace:
+                SkColorSpacePrintf("XYZ PCS\n");
+                break;
+            case kLAB_PCSSpace:
+                SkColorSpacePrintf("Lab PCS\n");
+                break;
+            default:
+                // ICC currently (V4.3) only specifices XYZ and Lab PCS spaces
+                SkColorSpacePrintf("Unsupported PCS space\n");
+                return false;
+        }
 
         return_if_false(fSignature == kACSP_Signature, "Bad signature");
 
@@ -724,6 +733,8 @@ static bool parse_and_load_gamma(SkGammaNamed* gammaNamed, sk_sp<SkGammas>* gamm
     SkGammas::Data rData;
     SkColorSpaceTransferFn rParams;
 
+    *gammaNamed = kNonStandard_SkGammaNamed;
+
     // On an invalid first gamma, tagBytes remains set as zero.  This causes the two
     // subsequent to be treated as identical (which is what we want).
     size_t tagBytes = 0;
@@ -807,27 +818,12 @@ static bool parse_and_load_gamma(SkGammaNamed* gammaNamed, sk_sp<SkGammas>* gamm
     return true;
 }
 
-static bool load_a2b0(sk_sp<SkColorLookUpTable>* colorLUT,
-                      SkGammaNamed* aCurveNamed, sk_sp<SkGammas>* aCurve,
-                      SkGammaNamed* mCurveNamed, sk_sp<SkGammas>* mCurve,
-                      SkGammaNamed* bCurveNamed, sk_sp<SkGammas>* bCurve,
-                      SkMatrix44* matrix, const uint8_t* src, size_t len) {
-    if (len < 32) {
-        SkColorSpacePrintf("A to B tag is too small (%d bytes).", len);
-        return false;
-    }
-
-    uint32_t type = read_big_endian_u32(src);
-    if (kTAG_AtoBType != type) {
-        // FIXME (msarett): Need to support lut8Type and lut16Type.
-        SkColorSpacePrintf("Unsupported A to B tag type.\n");
-        return false;
-    }
-
-    // Read the number of channels.  The four bytes that we skipped are reserved and
+bool load_a2b0_a_to_b_type(std::vector<SkColorSpace_A2B::Element>* elements, const uint8_t* src,
+                           size_t len) {
+    // Read the number of channels.  The four bytes (4-7) that we skipped are reserved and
     // must be zero.
-    uint8_t inputChannels = src[8];
-    uint8_t outputChannels = src[9];
+    const uint8_t inputChannels = src[8];
+    const uint8_t outputChannels = src[9];
     if (3 != inputChannels || SkColorLookUpTable::kOutputChannels != outputChannels) {
         // We only handle (supposedly) RGB inputs and RGB outputs.  The numbers of input
         // channels and output channels both must be 3.
@@ -836,50 +832,96 @@ static bool load_a2b0(sk_sp<SkColorLookUpTable>* colorLUT,
         SkColorSpacePrintf("Input and output channels must equal 3 in A to B tag.\n");
         return false;
     }
+    
+    // It is important that these are loaded in the order of application, as the
+    // order you construct an A2B color space's elements is the order it is applied
 
     // If the offset is non-zero it indicates that the element is present.
-    uint32_t offsetToACurves = read_big_endian_i32(src + 28);
+    const uint32_t offsetToACurves = read_big_endian_i32(src + 28);
     if (0 != offsetToACurves && offsetToACurves < len) {
         const size_t tagLen = len - offsetToACurves;
-        if (!parse_and_load_gamma(aCurveNamed, aCurve, src + offsetToACurves, tagLen)) {
+        SkGammaNamed gammaNamed;
+        sk_sp<SkGammas> gammas;
+        if (!parse_and_load_gamma(&gammaNamed, &gammas, src + offsetToACurves, tagLen)) {
             return false;
+        }
+        if (gammas) {
+            elements->push_back(SkColorSpace_A2B::Element(std::move(gammas)));
+        } else {
+            elements->push_back(SkColorSpace_A2B::Element(gammaNamed));
         }
     }
 
-    uint32_t offsetToColorLUT = read_big_endian_i32(src + 24);
+    const uint32_t offsetToColorLUT = read_big_endian_i32(src + 24);
     if (0 != offsetToColorLUT && offsetToColorLUT < len) {
-        if (!load_color_lut(colorLUT, inputChannels, src + offsetToColorLUT,
+        sk_sp<SkColorLookUpTable> colorLUT;
+        if (!load_color_lut(&colorLUT, inputChannels, src + offsetToColorLUT,
                             len - offsetToColorLUT)) {
             SkColorSpacePrintf("Failed to read color LUT from A to B tag.\n");
             return false;
         }
+        elements->push_back(SkColorSpace_A2B::Element(std::move(colorLUT)));
     }
 
-    uint32_t offsetToMCurves = read_big_endian_i32(src + 20);
+    const uint32_t offsetToMCurves = read_big_endian_i32(src + 20);
     if (0 != offsetToMCurves && offsetToMCurves < len) {
         const size_t tagLen = len - offsetToMCurves;
-        if (!parse_and_load_gamma(mCurveNamed, mCurve, src + offsetToMCurves, tagLen)) {
+        SkGammaNamed gammaNamed;
+        sk_sp<SkGammas> gammas;
+        if (!parse_and_load_gamma(&gammaNamed, &gammas, src + offsetToMCurves, tagLen)) {
             return false;
+        }
+        if (gammas) {
+            elements->push_back(SkColorSpace_A2B::Element(std::move(gammas)));
+        } else {
+            elements->push_back(SkColorSpace_A2B::Element(gammaNamed));
         }
     }
 
-    uint32_t offsetToMatrix = read_big_endian_i32(src + 16);
+    const uint32_t offsetToMatrix = read_big_endian_i32(src + 16);
     if (0 != offsetToMatrix && offsetToMatrix < len) {
-        if (!load_matrix(matrix, src + offsetToMatrix, len - offsetToMatrix)) {
+        SkMatrix44 matrix(SkMatrix44::kUninitialized_Constructor);
+        if (!load_matrix(&matrix, src + offsetToMatrix, len - offsetToMatrix)) {
             SkColorSpacePrintf("Failed to read matrix from A to B tag.\n");
-            matrix->setIdentity();
+        } else {
+            elements->push_back(SkColorSpace_A2B::Element(matrix));
         }
     }
     
-    uint32_t offsetToBCurves = read_big_endian_i32(src + 12);
+    const uint32_t offsetToBCurves = read_big_endian_i32(src + 12);
     if (0 != offsetToBCurves && offsetToBCurves < len) {
         const size_t tagLen = len - offsetToBCurves;
-        if (!parse_and_load_gamma(bCurveNamed, bCurve, src + offsetToBCurves, tagLen)) {
+        SkGammaNamed gammaNamed;
+        sk_sp<SkGammas> gammas;
+        if (!parse_and_load_gamma(&gammaNamed, &gammas, src + offsetToBCurves, tagLen)) {
             return false;
+        }
+        if (gammas) {
+            elements->push_back(SkColorSpace_A2B::Element(std::move(gammas)));
+        } else {
+            elements->push_back(SkColorSpace_A2B::Element(gammaNamed));
         }
     }
 
     return true;
+}
+
+static bool load_a2b0(std::vector<SkColorSpace_A2B::Element>* elements, const uint8_t* src,
+                      size_t len) {
+    const uint32_t type = read_big_endian_u32(src);
+    switch (type) {
+        case kTAG_AtoBType:
+            if (len < 32) {
+                SkColorSpacePrintf("A to B tag is too small (%d bytes).", len);
+                return false;
+            }
+            SkColorSpacePrintf("A2B0 tag is of type lutAtoBType\n");
+            return load_a2b0_a_to_b_type(elements, src, len);
+        default:
+            SkColorSpacePrintf("Unsupported A to B tag type: %c%c%c%c\n", (type>>24)&0xFF,
+                               (type>>16)&0xFF, (type>>8)&0xFF, type&0xFF);
+    }
+    return false;
 }
 
 static bool tag_equals(const ICCTag* a, const ICCTag* b, const uint8_t* base) {
@@ -952,12 +994,9 @@ sk_sp<SkColorSpace> SkColorSpace::MakeICC(const void* input, size_t len) {
             const ICCTag* r = ICCTag::Find(tags.get(), tagCount, kTAG_rXYZ);
             const ICCTag* g = ICCTag::Find(tags.get(), tagCount, kTAG_gXYZ);
             const ICCTag* b = ICCTag::Find(tags.get(), tagCount, kTAG_bXYZ);
-            if (r && g && b) {
-                // Lab PCS means the profile is required to be an n-component LUT-based
-                // profile, so 3-component matrix-based profiles can only have an XYZ PCS
-                if (kXYZ_PCSSpace != header.fPCS) {
-                    return_null("Unsupported PCS space");
-                }
+            // Lab PCS means the profile is required to be an n-component LUT-based
+            // profile, so 3-component matrix-based profiles can only have an XYZ PCS
+            if (r && g && b && kXYZ_PCSSpace == header.fPCS) {
                 float toXYZ[9];
                 if (!load_xyz(&toXYZ[0], r->addr(base), r->fLength) ||
                     !load_xyz(&toXYZ[3], g->addr(base), g->fLength) ||
@@ -1089,32 +1128,15 @@ sk_sp<SkColorSpace> SkColorSpace::MakeICC(const void* input, size_t len) {
             // Recognize color profile specified by A2B0 tag.
             const ICCTag* a2b0 = ICCTag::Find(tags.get(), tagCount, kTAG_A2B0);
             if (a2b0) {
-                // default to Linear transforms for when the curves are not
-                // in the profile (which is legal behavior for a profile)
-                SkGammaNamed aCurveNamed = kLinear_SkGammaNamed;
-                SkGammaNamed mCurveNamed = kLinear_SkGammaNamed;
-                SkGammaNamed bCurveNamed = kLinear_SkGammaNamed;
-                sk_sp<SkGammas> aCurve = nullptr;
-                sk_sp<SkGammas> mCurve = nullptr;
-                sk_sp<SkGammas> bCurve = nullptr;
-                sk_sp<SkColorLookUpTable> colorLUT = nullptr;
-                SkMatrix44 matrix(SkMatrix44::kUninitialized_Constructor);
-                if (!load_a2b0(&colorLUT, &aCurveNamed, &aCurve, &mCurveNamed, &mCurve,
-                               &bCurveNamed, &bCurve, &matrix, a2b0->addr(base), a2b0->fLength)) {
+                const SkColorSpace_A2B::PCS pcs = kXYZ_PCSSpace == header.fPCS
+                                                ? SkColorSpace_A2B::PCS::kXYZ
+                                                : SkColorSpace_A2B::PCS::kLAB;
+                std::vector<SkColorSpace_A2B::Element> elements;
+                if (!load_a2b0(&elements, a2b0->addr(base), a2b0->fLength)) {
                     return_null("Failed to parse A2B0 tag");
                 }
-
-                SkColorSpace_A2B::PCS pcs = SkColorSpace_A2B::PCS::kLAB;
-                if (header.fPCS == kXYZ_PCSSpace) {
-                    pcs = SkColorSpace_A2B::PCS::kXYZ;
-                }
-
-                return sk_sp<SkColorSpace>(new SkColorSpace_A2B(aCurveNamed, std::move(aCurve),
-                                                                std::move(colorLUT),
-                                                                mCurveNamed, std::move(mCurve),
-                                                                matrix,
-                                                                bCurveNamed, std::move(bCurve),
-                                                                pcs, std::move(data)));
+                return sk_sp<SkColorSpace>(new SkColorSpace_A2B(pcs, std::move(data),
+                                                                std::move(elements)));
             }
         }
         default:
