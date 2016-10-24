@@ -30,36 +30,6 @@ class SkPicture;
     #define SK_REFENCODEDDATA_CTXPARAM  GrContext* ctx
 #endif
 
-/**
- *  Takes ownership of SkImageGenerator.  If this method fails for
- *  whatever reason, it will return false and immediatetely delete
- *  the generator.  If it succeeds, it will modify destination
- *  bitmap.
- *
- *  If generator is NULL, will safely return false.
- *
- *  If this fails or when the SkDiscardablePixelRef that is
- *  installed into destination is destroyed, it will
- *  delete the generator.  Therefore, generator should be
- *  allocated with new.
- *
- *  @param destination Upon success, this bitmap will be
- *  configured and have a pixelref installed.
- *
- *  @return true iff successful.
- */
-SK_API bool SkDEPRECATED_InstallDiscardablePixelRef(SkImageGenerator*, SkBitmap* destination);
-
-/**
- *  On success, installs a discardable pixelref into destination, based on encoded data.
- *  Regardless of success or failure, the caller must still balance their ownership of encoded.
- */
-SK_API bool SkDEPRECATED_InstallDiscardablePixelRef(SkData* encoded, SkBitmap* destination);
-
-/**
- *  An interface that allows a purgeable PixelRef (such as a
- *  SkDiscardablePixelRef) to decode and re-decode an image as needed.
- */
 class SK_API SkImageGenerator : public SkNoncopyable {
 public:
     /**
