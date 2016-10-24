@@ -524,10 +524,8 @@ DEF_TEST(PathOpsQuadIntersection, reporter) {
     if (false) QuadraticIntersection_IntersectionFinder();
 }
 
-#include "SkCommonFlags.h"
-
 DEF_TEST(PathOpsQuadBinaryProfile, reporter) {
-    if (!FLAGS_veryVerbose) {
+    if (!SkPathOpsDebug::gVeryVerbose) {
             return;
     }
     SkIntersections intersections;

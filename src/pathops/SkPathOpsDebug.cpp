@@ -8,9 +8,18 @@
 #include "SkMutex.h"
 #include "SkOpCoincidence.h"
 #include "SkOpContour.h"
+#include "SkOSFile.h"
 #include "SkPath.h"
 #include "SkPathOpsDebug.h"
 #include "SkString.h"
+
+#ifdef SK_DEBUG
+bool SkPathOpsDebug::gDumpOp;  // set to true to write op to file before a crash
+bool SkPathOpsDebug::gVerifyOp;  // set to true to compare result against regions
+#endif
+
+bool SkPathOpsDebug::gRunFail;  // set to true to check for success on tests known to fail
+bool SkPathOpsDebug::gVeryVerbose;  // set to true to run extensive checking tests
 
 #undef FAIL_IF
 #define FAIL_IF(cond, coin) \
@@ -26,10 +35,6 @@
          } while (false)
 
 class SkCoincidentSpans;
-
-#if DEBUG_VALIDATE
-extern bool FLAGS_runFail;
-#endif
 
 #if DEBUG_SORT
 int SkPathOpsDebug::gSortCountDefault = SK_MaxS32;
@@ -647,15 +652,9 @@ void SkOpGlobalState::debugResetLoopCounts() {
 }
 #endif
 
-#ifdef SK_DEBUG
-bool SkOpGlobalState::debugRunFail() const {
-#if DEBUG_VALIDATE
-    return FLAGS_runFail;
-#else
-    return false;
-#endif
+bool SkOpGlobalState::DebugRunFail() {
+    return SkPathOpsDebug::gRunFail;
 }
-#endif
 
 // this is const so it can be called by const methods that overwise don't alter state
 #if DEBUG_VALIDATE || DEBUG_COIN
@@ -1362,8 +1361,8 @@ void SkOpAngle::debugValidate() const {
         }
         next = next->fNext;
     } while (next && next != first);
-    SkASSERT(wind == 0 || !FLAGS_runFail);
-    SkASSERT(opp == 0 || !FLAGS_runFail);
+    SkASSERT(wind == 0 || !SkPathOpsDebug::gRunFail);
+    SkASSERT(opp == 0 || !SkPathOpsDebug::gRunFail);
 #endif
 }
 
@@ -1390,8 +1389,8 @@ void SkOpAngle::debugValidateNext() const {
 #ifdef SK_DEBUG
 void SkCoincidentSpans::debugStartCheck(const SkOpSpanBase* outer, const SkOpSpanBase* over,
         const SkOpGlobalState* debugState) const {
-    SkASSERT(coinPtTEnd()->span() == over || !debugState->debugRunFail());
-    SkASSERT(oppPtTEnd()->span() == outer || !debugState->debugRunFail());
+    SkASSERT(coinPtTEnd()->span() == over || !SkOpGlobalState::DebugRunFail());
+    SkASSERT(oppPtTEnd()->span() == outer || !SkOpGlobalState::DebugRunFail());
 }
 #endif
 
@@ -2906,3 +2905,203 @@ void SkPathOpsDebug::ShowOnePath(const SkPath& path, const char* name, bool incl
     iter.setPath(path);
     showPathContours(iter, name);
 }
+
+#ifdef SK_DEBUG
+#include "SkData.h"
+#include "SkStream.h"
+
+static void dump_path(FILE* file, const SkPath& path, bool force, bool dumpAsHex) {
+    SkDynamicMemoryWStream wStream;
+    path.dump(&wStream, force, dumpAsHex);
+    sk_sp<SkData> data(wStream.detachAsData());
+    fprintf(file, "%.*s\n", (int) data->size(), (char*) data->data());
+}
+
+static int dumpID = 0;
+
+void SkPathOpsDebug::DumpOp(const SkPath& one, const SkPath& two, SkPathOp op,
+        const char* testName) {
+    FILE* file = sk_fopen("op_dump.txt", kWrite_SkFILE_Flag);
+    DumpOp(file, one, two, op, testName);
+}
+
+void SkPathOpsDebug::DumpOp(FILE* file, const SkPath& one, const SkPath& two, SkPathOp op,
+        const char* testName) {
+    const char* name = testName ? testName : "op";
+    fprintf(file,
+            "\nstatic void %s_%d(skiatest::Reporter* reporter, const char* filename) {\n",
+            name, ++dumpID);
+    fprintf(file, "    SkPath path;\n");
+    fprintf(file, "    path.setFillType((SkPath::FillType) %d);\n", one.getFillType());
+    dump_path(file, one, false, true);
+    fprintf(file, "    SkPath path1(path);\n");
+    fprintf(file, "    path.reset();\n");
+    fprintf(file, "    path.setFillType((SkPath::FillType) %d);\n", two.getFillType());
+    dump_path(file, two, false, true);
+    fprintf(file, "    SkPath path2(path);\n");
+    fprintf(file, "    testPathOp(reporter, path1, path2, (SkPathOp) %d, filename);\n", op);
+    fprintf(file, "}\n\n");
+    fclose(file);
+}
+
+void SkPathOpsDebug::DumpSimplify(const SkPath& path, const char* testName) {
+    FILE* file = sk_fopen("simplify_dump.txt", kWrite_SkFILE_Flag);
+    DumpSimplify(file, path, testName);
+}
+
+void SkPathOpsDebug::DumpSimplify(FILE* file, const SkPath& path, const char* testName) {
+    const char* name = testName ? testName : "simplify";
+    fprintf(file,
+            "\nstatic void %s_%d(skiatest::Reporter* reporter, const char* filename) {\n",
+            name, ++dumpID);
+    fprintf(file, "    SkPath path;\n");
+    fprintf(file, "    path.setFillType((SkPath::FillType) %d);\n", path.getFillType());
+    dump_path(file, path, false, true);
+    fprintf(file, "    testSimplify(reporter, path, filename);\n");
+    fprintf(file, "}\n\n");
+    fclose(file);
+}
+
+#include "SkBitmap.h"
+#include "SkCanvas.h"
+#include "SkPaint.h"
+
+const int bitWidth = 64;
+const int bitHeight = 64;
+
+static void debug_scale_matrix(const SkPath& one, const SkPath* two, SkMatrix& scale) {
+    SkRect larger = one.getBounds();
+    if (two) {
+        larger.join(two->getBounds());
+    }
+    SkScalar largerWidth = larger.width();
+    if (largerWidth < 4) {
+        largerWidth = 4;
+    }
+    SkScalar largerHeight = larger.height();
+    if (largerHeight < 4) {
+        largerHeight = 4;
+    }
+    SkScalar hScale = (bitWidth - 2) / largerWidth;
+    SkScalar vScale = (bitHeight - 2) / largerHeight;
+    scale.reset();
+    scale.preScale(hScale, vScale);
+    larger.fLeft *= hScale;
+    larger.fRight *= hScale;
+    larger.fTop *= vScale;
+    larger.fBottom *= vScale;
+    SkScalar dx = -16000 > larger.fLeft ? -16000 - larger.fLeft
+            : 16000 < larger.fRight ? 16000 - larger.fRight : 0;
+    SkScalar dy = -16000 > larger.fTop ? -16000 - larger.fTop
+            : 16000 < larger.fBottom ? 16000 - larger.fBottom : 0;
+    scale.preTranslate(dx, dy);
+}
+
+static int debug_paths_draw_the_same(const SkPath& one, const SkPath& two, SkBitmap& bits) {
+    if (bits.width() == 0) {
+        bits.allocN32Pixels(bitWidth * 2, bitHeight);
+    }
+    SkCanvas canvas(bits);
+    canvas.drawColor(SK_ColorWHITE);
+    SkPaint paint;
+    canvas.save();
+    const SkRect& bounds1 = one.getBounds();
+    canvas.translate(-bounds1.fLeft + 1, -bounds1.fTop + 1);
+    canvas.drawPath(one, paint);
+    canvas.restore();
+    canvas.save();
+    canvas.translate(-bounds1.fLeft + 1 + bitWidth, -bounds1.fTop + 1);
+    canvas.drawPath(two, paint);
+    canvas.restore();
+    int errors = 0;
+    for (int y = 0; y < bitHeight - 1; ++y) {
+        uint32_t* addr1 = bits.getAddr32(0, y);
+        uint32_t* addr2 = bits.getAddr32(0, y + 1);
+        uint32_t* addr3 = bits.getAddr32(bitWidth, y);
+        uint32_t* addr4 = bits.getAddr32(bitWidth, y + 1);
+        for (int x = 0; x < bitWidth - 1; ++x) {
+            // count 2x2 blocks
+            bool err = addr1[x] != addr3[x];
+            if (err) {
+                errors += addr1[x + 1] != addr3[x + 1]
+                        && addr2[x] != addr4[x] && addr2[x + 1] != addr4[x + 1];
+            }
+        }
+    }
+    return errors;
+}
+
+void SkPathOpsDebug::ReportOpFail(const SkPath& one, const SkPath& two, SkPathOp op) {
+    SkDebugf("// Op did not expect failure\n");
+    DumpOp(stderr, one, two, op, "opTest");
+    fflush(stderr);
+}
+
+void SkPathOpsDebug::VerifyOp(const SkPath& one, const SkPath& two, SkPathOp op,
+        const SkPath& result) {
+    SkPath pathOut, scaledPathOut;
+    SkRegion rgnA, rgnB, openClip, rgnOut;
+    openClip.setRect(-16000, -16000, 16000, 16000);
+    rgnA.setPath(one, openClip);
+    rgnB.setPath(two, openClip);
+    rgnOut.op(rgnA, rgnB, (SkRegion::Op) op);
+    rgnOut.getBoundaryPath(&pathOut);
+    SkMatrix scale;
+    debug_scale_matrix(one, &two, scale);
+    SkRegion scaledRgnA, scaledRgnB, scaledRgnOut;
+    SkPath scaledA, scaledB;
+    scaledA.addPath(one, scale);
+    scaledA.setFillType(one.getFillType());
+    scaledB.addPath(two, scale);
+    scaledB.setFillType(two.getFillType());
+    scaledRgnA.setPath(scaledA, openClip);
+    scaledRgnB.setPath(scaledB, openClip);
+    scaledRgnOut.op(scaledRgnA, scaledRgnB, (SkRegion::Op) op);
+    scaledRgnOut.getBoundaryPath(&scaledPathOut);
+    SkBitmap bitmap;
+    SkPath scaledOut;
+    scaledOut.addPath(result, scale);
+    scaledOut.setFillType(result.getFillType());
+    int errors = debug_paths_draw_the_same(scaledPathOut, scaledOut, bitmap);
+    const int MAX_ERRORS = 9;
+    if (errors > MAX_ERRORS) {
+        fprintf(stderr, "// Op did not expect errors=%d\n", errors);
+        DumpOp(stderr, one, two, op, "opTest");
+        fflush(stderr);
+    }
+}
+
+void SkPathOpsDebug::ReportSimplifyFail(const SkPath& path) {
+    SkDebugf("// Simplify did not expect failure\n");
+    DumpSimplify(stderr, path, "simplifyTest");
+    fflush(stderr);
+}
+
+void SkPathOpsDebug::VerifySimplify(const SkPath& path, const SkPath& result) {
+    SkPath pathOut, scaledPathOut;
+    SkRegion rgnA, openClip, rgnOut;
+    openClip.setRect(-16000, -16000, 16000, 16000);
+    rgnA.setPath(path, openClip);
+    rgnOut.getBoundaryPath(&pathOut);
+    SkMatrix scale;
+    debug_scale_matrix(path, nullptr, scale);
+    SkRegion scaledRgnA;
+    SkPath scaledA;
+    scaledA.addPath(path, scale);
+    scaledA.setFillType(path.getFillType());
+    scaledRgnA.setPath(scaledA, openClip);
+    scaledRgnA.getBoundaryPath(&scaledPathOut);
+    SkBitmap bitmap;
+    SkPath scaledOut;
+    scaledOut.addPath(result, scale);
+    scaledOut.setFillType(result.getFillType());
+    int errors = debug_paths_draw_the_same(scaledPathOut, scaledOut, bitmap);
+    const int MAX_ERRORS = 9;
+    if (errors > MAX_ERRORS) {
+        fprintf(stderr, "// Simplify did not expect errors=%d\n", errors);
+        DumpSimplify(stderr, path, "simplifyTest");
+        fflush(stderr);
+    }
+}
+
+#endif

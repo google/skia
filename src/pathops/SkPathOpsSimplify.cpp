@@ -158,6 +158,11 @@ bool SimplifyDebug(const SkPath& path, SkPath* result
     SkOpGlobalState globalState(contourList, &allocator
             SkDEBUGPARAMS(skipAssert) SkDEBUGPARAMS(testName));
     SkOpCoincidence coincidence(&globalState);
+#ifdef SK_DEBUG
+    if (SkPathOpsDebug::gDumpOp) {
+        SkPathOpsDebug::DumpSimplify(path, testName);
+    }
+#endif
     SkScalar scaleFactor = ScaleFactor(path);
     SkPath scaledPath;
     const SkPath* workingPath;
@@ -218,5 +223,15 @@ bool SimplifyDebug(const SkPath& path, SkPath* result
 }
 
 bool Simplify(const SkPath& path, SkPath* result) {
+#ifdef SK_DEBUG
+    if (SkPathOpsDebug::gVerifyOp) {
+        if (!SimplifyDebug(path, result  SkDEBUGPARAMS(false) SkDEBUGPARAMS(nullptr))) {
+            SkPathOpsDebug::ReportSimplifyFail(path);
+            return false;
+        }
+        SkPathOpsDebug::VerifySimplify(path, *result);
+        return true;
+    }
+#endif
     return SimplifyDebug(path, result  SkDEBUGPARAMS(true) SkDEBUGPARAMS(nullptr));
 }

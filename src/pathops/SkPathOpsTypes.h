@@ -75,7 +75,11 @@ public:
     const SkOpCoincidence* debugCoincidence() const;
     SkOpContour* debugContour(int id) const;
     const class SkOpPtT* debugPtT(int id) const;
-    bool debugRunFail() const;
+#endif
+
+    static bool DebugRunFail();
+
+#ifdef SK_DEBUG
     const class SkOpSegment* debugSegment(int id) const;
     bool debugSkipAssert() const { return fDebugSkipAssert; }
     const class SkOpSpanBase* debugSpan(int id) const;

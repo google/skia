@@ -88,6 +88,8 @@ static void setupOne(skiatest::Reporter* reporter, int col, int row, int rot, in
     testOne(reporter, set);
 }
 
+#include "SkCommandLineFlags.h"
+
 DEFINE_int32(processOffset, 0, "Offset the test by this value. This permits multiple processes "
                           "to exercise the same test in parallel with different test values.");
 DEFINE_int32(processCount, 1, "Test iteration count. This permits multiple "
