@@ -15,7 +15,6 @@ declare_args() {
   skia_use_fontconfig = is_linux
   skia_use_freetype = is_android || is_fuchsia || is_linux
   skia_use_gdi = false
-  skia_use_giflib = !is_fuchsia
   skia_use_libjpeg_turbo = true
   skia_use_libpng = true
   skia_use_libwebp = !is_fuchsia
@@ -100,6 +99,7 @@ config("skia_private") {
     "src/utils",
     "src/utils/win",
     "third_party/etc1",
+    "third_party/gif",
     "third_party/ktx",
   ]
 
@@ -356,18 +356,6 @@ optional("fontmgr_fuchsia") {
   ]
 }
 
-optional("gif") {
-  enabled = skia_use_giflib
-  public_defines = [ "SK_HAS_GIF_LIBRARY" ]
-
-  deps = [
-    "//third_party/giflib",
-  ]
-  sources = [
-    "src/codec/SkGifCodec.cpp",
-  ]
-}
-
 optional("gpu") {
   enabled = skia_enable_gpu
   public_defines = []
@@ -501,7 +489,6 @@ component("skia") {
     ":fontmgr_custom",
     ":fontmgr_fontconfig",
     ":fontmgr_fuchsia",
-    ":gif",
     ":gpu",
     ":hsw",
     ":jpeg",
@@ -532,10 +519,12 @@ component("skia") {
     "src/codec/SkBmpStandardCodec.cpp",
     "src/codec/SkCodec.cpp",
     "src/codec/SkCodecImageGenerator.cpp",
+    "src/codec/SkGifCodec.cpp",
     "src/codec/SkMaskSwizzler.cpp",
     "src/codec/SkMasks.cpp",
     "src/codec/SkSampledCodec.cpp",
     "src/codec/SkSampler.cpp",
+    "src/codec/SkStreamBuffer.cpp",
     "src/codec/SkSwizzler.cpp",
     "src/codec/SkWbmpCodec.cpp",
     "src/images/SkImageEncoder.cpp",
@@ -552,6 +541,7 @@ component("skia") {
     "src/svg/SkSVGDevice.cpp",
     "src/utils/mac/SkStream_mac.cpp",
     "third_party/etc1/etc1.cpp",
+    "third_party/gif/GIFImageReader.cpp",
     "third_party/ktx/ktx.cpp",
   ]
 
@@ -827,6 +817,7 @@ if (skia_enable_tools) {
     public_include_dirs = [ "gm" ]
     sources = gm_sources
     deps = [
+      ":flags",
       ":gpu_tool_utils",
       ":skia",
       ":tool_utils",

@@ -409,7 +409,8 @@ Error CodecSrc::draw(SkCanvas* canvas) const {
 
     const int bpp = SkColorTypeBytesPerPixel(decodeInfo.colorType());
     const size_t rowBytes = size.width() * bpp;
-    SkAutoMalloc pixels(decodeInfo.getSafeSize(rowBytes));
+    const size_t safeSize = decodeInfo.getSafeSize(rowBytes);
+    SkAutoMalloc pixels(safeSize);
     SkPMColor colorPtr[256];
     int colorCount = 256;
 
@@ -426,6 +427,56 @@ Error CodecSrc::draw(SkCanvas* canvas) const {
     }
 
     switch (fMode) {
+        case kAnimated_Mode: {
+            std::vector<SkCodec::FrameInfo> frameInfos = codec->getFrameInfo();
+            if (frameInfos.size() <= 1) {
+                return SkStringPrintf("%s is not an animated image.", fPath.c_str());
+            }
+
+            SkAutoCanvasRestore acr(canvas, true);
+            // Used to cache a frame that future frames will depend on.
+            SkAutoMalloc priorFramePixels;
+            size_t cachedFrame = SkCodec::kNone;
+            for (size_t i = 0; i < frameInfos.size(); i++) {
+                options.fFrameIndex = i;
+                // Check for a prior frame
+                const size_t reqFrame = frameInfos[i].fRequiredFrame;
+                if (reqFrame != SkCodec::kNone && reqFrame == cachedFrame
+                        && priorFramePixels.get()) {
+                    // Copy into pixels
+                    memcpy(pixels.get(), priorFramePixels.get(), safeSize);
+                    options.fHasPriorFrame = true;
+                } else {
+                    options.fHasPriorFrame = false;
+                }
+                const SkCodec::Result result = codec->getPixels(decodeInfo, pixels.get(),
+                                                                rowBytes, &options,
+                                                                colorPtr, &colorCount);
+                switch (result) {
+                    case SkCodec::kSuccess:
+                    case SkCodec::kIncompleteInput:
+                        draw_to_canvas(canvas, bitmapInfo, pixels.get(), rowBytes,
+                                       colorPtr, colorCount, fDstColorType);
+                        if (result == SkCodec::kIncompleteInput) {
+                            return "";
+                        }
+                        break;
+                    default:
+                        return SkStringPrintf("Couldn't getPixels for frame %i in %s.",
+                                              i, fPath.c_str());
+                }
+
+                // If a future frame depends on this one, store it in priorFrame.
+                // (Note that if i+1 does *not* depend on i, then no future frame can.)
+                if (i+1 < frameInfos.size() && frameInfos[i+1].fRequiredFrame == i) {
+                    memcpy(priorFramePixels.reset(safeSize), pixels.get(), safeSize);
+                    cachedFrame = i;
+                }
+
+                canvas->translate(SkIntToScalar(0), SkIntToScalar(decodeInfo.height()));
+            }
+            break;
+        }
         case kCodecZeroInit_Mode:
         case kCodec_Mode: {
             switch (codec->getPixels(decodeInfo, pixels.get(), rowBytes, &options,
@@ -447,10 +498,20 @@ Error CodecSrc::draw(SkCanvas* canvas) const {
         case kScanline_Mode: {
             void* dst = pixels.get();
             uint32_t height = decodeInfo.height();
-            const bool png = fPath.endsWith("png");
+            const bool useIncremental = [this]() {
+                auto exts = { "png", "PNG", "gif", "GIF" };
+                for (auto ext : exts) {
+                    if (fPath.endsWith(ext)) {
+                        return true;
+                    }
+                }
+                return false;
+            }();
+            // ico may use the old scanline method or the new one, depending on whether it
+            // internally holds a bmp or a png.
             const bool ico = fPath.endsWith("ico");
-            bool useOldScanlineMethod = !png && !ico;
-            if (png || ico) {
+            bool useOldScanlineMethod = !useIncremental && !ico;
+            if (useIncremental || ico) {
                 if (SkCodec::kSuccess == codec->startIncrementalDecode(decodeInfo, dst,
                         rowBytes, nullptr, colorPtr, &colorCount)) {
                     int rowsDecoded;
@@ -460,8 +521,8 @@ Error CodecSrc::draw(SkCanvas* canvas) const {
                                                    rowsDecoded);
                     }
                 } else {
-                    if (png) {
-                        // Error: PNG should support incremental decode.
+                    if (useIncremental) {
+                        // Error: These should support incremental decode.
                         return "Could not start incremental decode";
                     }
                     // Otherwise, this is an ICO. Since incremental failed, it must contain a BMP,
@@ -483,17 +544,6 @@ Error CodecSrc::draw(SkCanvas* canvas) const {
                         // image, memory will be filled with a default value.
                         codec->getScanlines(dst, height, rowBytes);
                         break;
-                    case SkCodec::kOutOfOrder_SkScanlineOrder: {
-                        for (int y = 0; y < decodeInfo.height(); y++) {
-                            int dstY = codec->outputScanline(y);
-                            void* dstPtr = SkTAddOffset<void>(dst, rowBytes * dstY);
-                            // We complete the loop, even if this call begins to fail
-                            // due to an incomplete image.  This ensures any uninitialized
-                            // memory will be filled with the proper value.
-                            codec->getScanlines(dstPtr, 1, rowBytes);
-                        }
-                        break;
-                    }
                 }
             }
 
@@ -659,7 +709,14 @@ SkISize CodecSrc::size() const {
     if (nullptr == codec) {
         return SkISize::Make(0, 0);
     }
-    return codec->getScaledDimensions(fScale);
+
+    auto imageSize = codec->getScaledDimensions(fScale);
+    if (fMode == kAnimated_Mode) {
+        // We'll draw one of each frame, so make it big enough to hold them all.
+        const size_t count = codec->getFrameInfo().size();
+        imageSize.fHeight = imageSize.fHeight * count;
+    }
+    return imageSize;
 }
 
 Name CodecSrc::name() const {

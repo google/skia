@@ -36,9 +36,7 @@ SkAndroidCodec* SkAndroidCodec::NewFromStream(SkStream* stream, SkPngChunkReader
 #ifdef SK_HAS_JPEG_LIBRARY
         case kJPEG_SkEncodedFormat:
 #endif
-#ifdef SK_HAS_GIF_LIBRARY
         case kGIF_SkEncodedFormat:
-#endif
         case kBMP_SkEncodedFormat:
         case kWBMP_SkEncodedFormat:
             return new SkSampledCodec(codec.release());

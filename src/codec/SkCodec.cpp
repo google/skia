@@ -35,9 +35,7 @@ static const DecoderProc gDecoderProcs[] = {
 #ifdef SK_HAS_WEBP_LIBRARY
     { SkWebpCodec::IsWebp, SkWebpCodec::NewFromStream },
 #endif
-#ifdef SK_HAS_GIF_LIBRARY
     { SkGifCodec::IsGif, SkGifCodec::NewFromStream },
-#endif
 #ifdef SK_HAS_PNG_LIBRARY
     { SkIcoCodec::IsIco, SkIcoCodec::NewFromStream },
 #endif
@@ -143,12 +141,6 @@ SkCodec::SkCodec(const SkEncodedInfo& info, const SkImageInfo& imageInfo, SkStre
 SkCodec::~SkCodec() {}
 
 bool SkCodec::rewindIfNeeded() {
-    if (!fStream) {
-        // Some codecs do not have a stream.  They may hold onto their own data or another codec.
-        // They must handle rewinding themselves.
-        return true;
-    }
-
     // Store the value of fNeedsRewind so we can update it. Next read will
     // require a rewind.
     const bool needsRewind = fNeedsRewind;
@@ -162,7 +154,9 @@ bool SkCodec::rewindIfNeeded() {
     // startIncrementalDecode will need to be called before incrementalDecode.
     fStartedIncrementalDecode = false;
 
-    if (!fStream->rewind()) {
+    // Some codecs do not have a stream.  They may hold onto their own data or another codec.
+    // They must handle rewinding themselves.
+    if (fStream && !fStream->rewind()) {
         return false;
     }
 
@@ -471,15 +465,6 @@ void SkCodec::fillIncompleteImage(const SkImageInfo& info, void* dst, size_t row
             fillDst = dst;
             const SkImageInfo fillInfo = info.makeWH(fillWidth, linesRemaining);
             fill_proc(fillInfo, fillDst, rowBytes, fillValue, zeroInit, sampler);
-            break;
-        }
-        case kOutOfOrder_SkScanlineOrder: {
-            SkASSERT(1 == linesRequested || this->getInfo().height() == linesRequested);
-            const SkImageInfo fillInfo = info.makeWH(fillWidth, 1);
-            for (int srcY = linesDecoded; srcY < linesRequested; srcY++) {
-                fillDst = SkTAddOffset<void>(dst, this->outputScanline(srcY) * rowBytes);
-                fill_proc(fillInfo, fillDst, rowBytes, fillValue, zeroInit, sampler);
-            }
             break;
         }
     }

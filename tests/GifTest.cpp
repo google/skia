@@ -52,7 +52,7 @@ static void test_gif_data_no_colormap(skiatest::Reporter* r,
     REPORTER_ASSERT(r, bm.height() == 1);
     REPORTER_ASSERT(r, !(bm.empty()));
     if (!(bm.empty())) {
-        REPORTER_ASSERT(r, bm.getColor(0, 0) == 0xFF000000);
+        REPORTER_ASSERT(r, bm.getColor(0, 0) == 0x00000000);
     }
 }
 static void test_gif_data(skiatest::Reporter* r, void* data, size_t size) {

@@ -1,0 +1,941 @@
+/* -*- Mode: C; tab-width: 2; indent-tabs-mode: nil; c-basic-offset: 2 -*- */
+/* ***** BEGIN LICENSE BLOCK *****
+ * Version: MPL 1.1/GPL 2.0/LGPL 2.1
+ *
+ * The contents of this file are subject to the Mozilla Public License Version
+ * 1.1 (the "License"); you may not use this file except in compliance with
+ * the License. You may obtain a copy of the License at
+ * http://www.mozilla.org/MPL/
+ *
+ * Software distributed under the License is distributed on an "AS IS" basis,
+ * WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License
+ * for the specific language governing rights and limitations under the
+ * License.
+ *
+ * The Original Code is mozilla.org code.
+ *
+ * The Initial Developer of the Original Code is
+ * Netscape Communications Corporation.
+ * Portions created by the Initial Developer are Copyright (C) 1998
+ * the Initial Developer. All Rights Reserved.
+ *
+ * Contributor(s):
+ *   Chris Saari <saari@netscape.com>
+ *   Apple Computer
+ *
+ * Alternatively, the contents of this file may be used under the terms of
+ * either the GNU General Public License Version 2 or later (the "GPL"), or
+ * the GNU Lesser General Public License Version 2.1 or later (the "LGPL"),
+ * in which case the provisions of the GPL or the LGPL are applicable instead
+ * of those above. If you wish to allow use of your version of this file only
+ * under the terms of either the GPL or the LGPL, and not to allow others to
+ * use your version of this file under the terms of the MPL, indicate your
+ * decision by deleting the provisions above and replace them with the notice
+ * and other provisions required by the GPL or the LGPL. If you do not delete
+ * the provisions above, a recipient may use your version of this file under
+ * the terms of any one of the MPL, the GPL or the LGPL.
+ *
+ * ***** END LICENSE BLOCK ***** */
+
+/*
+The Graphics Interchange Format(c) is the copyright property of CompuServe
+Incorporated. Only CompuServe Incorporated is authorized to define, redefine,
+enhance, alter, modify or change in any way the definition of the format.
+
+CompuServe Incorporated hereby grants a limited, non-exclusive, royalty-free
+license for the use of the Graphics Interchange Format(sm) in computer
+software; computer software utilizing GIF(sm) must acknowledge ownership of the
+Graphics Interchange Format and its Service Mark by CompuServe Incorporated, in
+User and Technical Documentation. Computer software utilizing GIF, which is
+distributed or may be distributed without User or Technical Documentation must
+display to the screen or printer a message acknowledging ownership of the
+Graphics Interchange Format and the Service Mark by CompuServe Incorporated; in
+this case, the acknowledgement may be displayed in an opening screen or leading
+banner, or a closing screen or trailing banner. A message such as the following
+may be used:
+
+    "The Graphics Interchange Format(c) is the Copyright property of
+    CompuServe Incorporated. GIF(sm) is a Service Mark property of
+    CompuServe Incorporated."
+
+For further information, please contact :
+
+    CompuServe Incorporated
+    Graphics Technology Department
+    5000 Arlington Center Boulevard
+    Columbus, Ohio  43220
+    U. S. A.
+
+CompuServe Incorporated maintains a mailing list with all those individuals and
+organizations who wish to receive copies of this document when it is corrected
+or revised. This service is offered free of charge; please provide us with your
+mailing address.
+*/
+
+#include "GIFImageReader.h"
+#include "SkColorPriv.h"
+#include "SkGifCodec.h"
+
+#include <algorithm>
+#include <string.h>
+
+
+// GETN(n, s) requests at least 'n' bytes available from 'q', at start of state 's'.
+//
+// Note, the hold will never need to be bigger than 256 bytes to gather up in the hold,
+// as each GIF block (except colormaps) can never be bigger than 256 bytes.
+// Colormaps are directly copied in the resp. global_colormap or dynamically allocated local_colormap.
+// So a fixed buffer in GIFImageReader is good enough.
+// This buffer is only needed to copy left-over data from one GifWrite call to the next
+#define GETN(n, s) \
+    do { \
+        m_bytesToConsume = (n); \
+        m_state = (s); \
+    } while (0)
+
+// Get a 16-bit value stored in little-endian format.
+#define GETINT16(p)   ((p)[1]<<8|(p)[0])
+
+// Send the data to the display front-end.
+bool GIFLZWContext::outputRow(const unsigned char* rowBegin)
+{
+    int drowStart = irow;
+    int drowEnd = irow;
+
+    // Haeberli-inspired hack for interlaced GIFs: Replicate lines while
+    // displaying to diminish the "venetian-blind" effect as the image is
+    // loaded. Adjust pixel vertical positions to avoid the appearance of the
+    // image crawling up the screen as successive passes are drawn.
+    if (m_frameContext->progressiveDisplay() && m_frameContext->interlaced() && ipass < 4) {
+        unsigned rowDup = 0;
+        unsigned rowShift = 0;
+
+        switch (ipass) {
+        case 1:
+            rowDup = 7;
+            rowShift = 3;
+            break;
+        case 2:
+            rowDup = 3;
+            rowShift = 1;
+            break;
+        case 3:
+            rowDup = 1;
+            rowShift = 0;
+            break;
+        default:
+            break;
+        }
+
+        drowStart -= rowShift;
+        drowEnd = drowStart + rowDup;
+
+        // Extend if bottom edge isn't covered because of the shift upward.
+        if (((m_frameContext->height() - 1) - drowEnd) <= rowShift)
+            drowEnd = m_frameContext->height() - 1;
+
+        // Clamp first and last rows to upper and lower edge of image.
+        if (drowStart < 0)
+            drowStart = 0;
+
+        if ((unsigned)drowEnd >= m_frameContext->height())
+            drowEnd = m_frameContext->height() - 1;
+    }
+
+    // Protect against too much image data.
+    if ((unsigned)drowStart >= m_frameContext->height())
+        return true;
+
+    // CALLBACK: Let the client know we have decoded a row.
+    if (!m_client->haveDecodedRow(m_frameContext->frameId(), rowBegin,
+        drowStart, drowEnd - drowStart + 1, m_frameContext->progressiveDisplay() && m_frameContext->interlaced() && ipass > 1))
+        return false;
+
+    if (!m_frameContext->interlaced())
+        irow++;
+    else {
+        do {
+            switch (ipass) {
+            case 1:
+                irow += 8;
+                if (irow >= m_frameContext->height()) {
+                    ipass++;
+                    irow = 4;
+                }
+                break;
+
+            case 2:
+                irow += 8;
+                if (irow >= m_frameContext->height()) {
+                    ipass++;
+                    irow = 2;
+                }
+                break;
+
+            case 3:
+                irow += 4;
+                if (irow >= m_frameContext->height()) {
+                    ipass++;
+                    irow = 1;
+                }
+                break;
+
+            case 4:
+                irow += 2;
+                if (irow >= m_frameContext->height()) {
+                    ipass++;
+                    irow = 0;
+                }
+                break;
+
+            default:
+                break;
+            }
+        } while (irow > (m_frameContext->height() - 1));
+    }
+    return true;
+}
+
+// Perform Lempel-Ziv-Welch decoding.
+// Returns true if decoding was successful. In this case the block will have been completely consumed and/or rowsRemaining will be 0.
+// Otherwise, decoding failed; returns false in this case, which will always cause the GIFImageReader to set the "decode failed" flag.
+bool GIFLZWContext::doLZW(const unsigned char* block, size_t bytesInBlock)
+{
+    const size_t width = m_frameContext->width();
+
+    if (rowIter == rowBuffer.end())
+        return true;
+
+    for (const unsigned char* ch = block; bytesInBlock-- > 0; ch++) {
+        // Feed the next byte into the decoder's 32-bit input buffer.
+        datum += ((int) *ch) << bits;
+        bits += 8;
+
+        // Check for underflow of decoder's 32-bit input buffer.
+        while (bits >= codesize) {
+            // Get the leading variable-length symbol from the data stream.
+            int code = datum & codemask;
+            datum >>= codesize;
+            bits -= codesize;
+
+            // Reset the dictionary to its original state, if requested.
+            if (code == clearCode) {
+                codesize = m_frameContext->dataSize() + 1;
+                codemask = (1 << codesize) - 1;
+                avail = clearCode + 2;
+                oldcode = -1;
+                continue;
+            }
+
+            // Check for explicit end-of-stream code.
+            if (code == (clearCode + 1)) {
+                // end-of-stream should only appear after all image data.
+                if (!rowsRemaining)
+                    return true;
+                return false;
+            }
+
+            const int tempCode = code;
+            unsigned short codeLength = 0;
+            if (code < avail) {
+                // This is a pre-existing code, so we already know what it
+                // encodes.
+                codeLength = suffixLength[code];
+                rowIter += codeLength;
+            } else if (code == avail && oldcode != -1) {
+                // This is a new code just being added to the dictionary.
+                // It must encode the contents of the previous code, plus
+                // the first character of the previous code again.
+                codeLength = suffixLength[oldcode] + 1;
+                rowIter += codeLength;
+                *--rowIter = firstchar;
+                code = oldcode;
+            } else {
+                // This is an invalid code. The dictionary is just initialized
+                // and the code is incomplete. We don't know how to handle
+                // this case.
+                return false;
+            }
+
+            while (code >= clearCode) {
+                *--rowIter = suffix[code];
+                code = prefix[code];
+            }
+
+            *--rowIter = firstchar = suffix[code];
+
+            // Define a new codeword in the dictionary as long as we've read
+            // more than one value from the stream.
+            if (avail < MAX_DICTIONARY_ENTRIES && oldcode != -1) {
+                prefix[avail] = oldcode;
+                suffix[avail] = firstchar;
+                suffixLength[avail] = suffixLength[oldcode] + 1;
+                ++avail;
+
+                // If we've used up all the codewords of a given length
+                // increase the length of codewords by one bit, but don't
+                // exceed the specified maximum codeword size.
+                if (!(avail & codemask) && avail < MAX_DICTIONARY_ENTRIES) {
+                    ++codesize;
+                    codemask += avail;
+                }
+            }
+            oldcode = tempCode;
+            rowIter += codeLength;
+
+            // Output as many rows as possible.
+            unsigned char* rowBegin = rowBuffer.begin();
+            for (; rowBegin + width <= rowIter; rowBegin += width) {
+                if (!outputRow(rowBegin))
+                    return false;
+                rowsRemaining--;
+                if (!rowsRemaining)
+                    return true;
+            }
+
+            if (rowBegin != rowBuffer.begin()) {
+                // Move the remaining bytes to the beginning of the buffer.
+                const size_t bytesToCopy = rowIter - rowBegin;
+                memcpy(&rowBuffer.front(), rowBegin, bytesToCopy);
+                rowIter = rowBuffer.begin() + bytesToCopy;
+            }
+        }
+    }
+    return true;
+}
+
+sk_sp<SkColorTable> GIFColorMap::buildTable(SkColorType colorType, size_t transparentPixel) const
+{
+    if (!m_isDefined)
+        return nullptr;
+
+    const PackColorProc proc = choose_pack_color_proc(false, colorType);
+    if (m_table) {
+        if (transparentPixel > (unsigned) m_table->count()
+                || m_table->operator[](transparentPixel) == SK_ColorTRANSPARENT) {
+            if (proc == m_packColorProc) {
+                // This SkColorTable has already been built with the same transparent color and
+                // packing proc. Reuse it.
+                return m_table;
+            }
+        }
+    }
+    m_packColorProc = proc;
+
+    SkASSERT(m_colors <= MAX_COLORS);
+    const uint8_t* srcColormap = m_rawData->bytes();
+    SkPMColor colorStorage[MAX_COLORS];
+    for (size_t i = 0; i < m_colors; i++) {
+        if (i == transparentPixel) {
+            colorStorage[i] = SK_ColorTRANSPARENT;
+        } else {
+            colorStorage[i] = proc(255, srcColormap[0], srcColormap[1], srcColormap[2]);
+        }
+        srcColormap += BYTES_PER_COLORMAP_ENTRY;
+    }
+    for (size_t i = m_colors; i < MAX_COLORS; i++) {
+        colorStorage[i] = SK_ColorTRANSPARENT;
+    }
+    m_table = sk_sp<SkColorTable>(new SkColorTable(colorStorage, MAX_COLORS));
+    return m_table;
+}
+
+sk_sp<SkColorTable> GIFImageReader::getColorTable(SkColorType colorType, size_t index) const {
+    if (index >= m_frames.size()) {
+        return nullptr;
+    }
+
+    const GIFFrameContext* frameContext = m_frames[index].get();
+    const GIFColorMap& localColorMap = frameContext->localColorMap();
+    if (localColorMap.isDefined()) {
+        return localColorMap.buildTable(colorType, frameContext->transparentPixel());
+    }
+    if (m_globalColorMap.isDefined()) {
+        return m_globalColorMap.buildTable(colorType, frameContext->transparentPixel());
+    }
+    return nullptr;
+}
+
+// Perform decoding for this frame. frameComplete will be true if the entire frame is decoded.
+// Returns false if a decoding error occurred. This is a fatal error and causes the GIFImageReader to set the "decode failed" flag.
+// Otherwise, either not enough data is available to decode further than before, or the new data has been decoded successfully; returns true in this case.
+bool GIFFrameContext::decode(SkGifCodec* client, bool* frameComplete)
+{
+    *frameComplete = false;
+    if (!m_lzwContext) {
+        // Wait for more data to properly initialize GIFLZWContext.
+        if (!isDataSizeDefined() || !isHeaderDefined())
+            return true;
+
+        m_lzwContext.reset(new GIFLZWContext(client, this));
+        if (!m_lzwContext->prepareToDecode()) {
+            m_lzwContext.reset();
+            return false;
+        }
+
+        m_currentLzwBlock = 0;
+    }
+
+    // Some bad GIFs have extra blocks beyond the last row, which we don't want to decode.
+    while (m_currentLzwBlock < m_lzwBlocks.size() && m_lzwContext->hasRemainingRows()) {
+        if (!m_lzwContext->doLZW(reinterpret_cast<const unsigned char*>(m_lzwBlocks[m_currentLzwBlock]->data()),
+                                                                        m_lzwBlocks[m_currentLzwBlock]->size())) {
+            return false;
+        }
+        ++m_currentLzwBlock;
+    }
+
+    // If this frame is data complete then the previous loop must have completely decoded all LZW blocks.
+    // There will be no more decoding for this frame so it's time to cleanup.
+    if (isComplete()) {
+        *frameComplete = true;
+        m_lzwContext.reset();
+    }
+    return true;
+}
+
+// Decode a frame.
+// This method uses GIFFrameContext:decode() to decode the frame; decoding error is reported to client as a critical failure.
+// Return true if decoding has progressed. Return false if an error has occurred.
+bool GIFImageReader::decode(size_t frameIndex, bool* frameComplete)
+{
+    GIFFrameContext* currentFrame = m_frames[frameIndex].get();
+
+    return currentFrame->decode(m_client, frameComplete);
+}
+
+// Parse incoming GIF data stream into internal data structures.
+// Return true if parsing has progressed or there is not enough data.
+// Return false if a fatal error is encountered.
+bool GIFImageReader::parse(GIFImageReader::GIFParseQuery query)
+{
+    if (m_parseCompleted) {
+        return true;
+    }
+
+    // GIFSizeQuery and GIFFrameCountQuery are negative, so this is only meaningful when >= 0.
+    const int lastFrameToParse = (int) query;
+    if (lastFrameToParse >= 0 && (int) m_frames.size() > lastFrameToParse
+                && m_frames[lastFrameToParse]->isComplete()) {
+        // We have already parsed this frame.
+        return true;
+    }
+
+    while (true) {
+        const size_t bytesBuffered = m_streamBuffer.buffer(m_bytesToConsume);
+        if (bytesBuffered < m_bytesToConsume) {
+            // The stream does not yet have enough data. Mark that we need less next time around,
+            // and return.
+            m_bytesToConsume -= bytesBuffered;
+            return true;
+        }
+
+        switch (m_state) {
+        case GIFLZW:
+            SkASSERT(!m_frames.empty());
+            // FIXME: All this copying might be wasteful for e.g. SkMemoryStream
+            m_frames.back()->addLzwBlock(m_streamBuffer.get(), m_streamBuffer.bytesBuffered());
+            GETN(1, GIFSubBlock);
+            break;
+
+        case GIFLZWStart: {
+            SkASSERT(!m_frames.empty());
+            m_frames.back()->setDataSize(this->getOneByte());
+            GETN(1, GIFSubBlock);
+            break;
+        }
+
+        case GIFType: {
+            const char* currentComponent = m_streamBuffer.get();
+
+            // All GIF files begin with "GIF87a" or "GIF89a".
+            if (!memcmp(currentComponent, "GIF89a", 6))
+                m_version = 89;
+            else if (!memcmp(currentComponent, "GIF87a", 6))
+                m_version = 87;
+            else {
+                // This prevents attempting to continue reading this invalid stream.
+                GETN(0, GIFDone);
+                return false;
+            }
+            GETN(7, GIFGlobalHeader);
+            break;
+        }
+
+        case GIFGlobalHeader: {
+            const unsigned char* currentComponent =
+                reinterpret_cast<const unsigned char*>(m_streamBuffer.get());
+
+            // This is the height and width of the "screen" or frame into which
+            // images are rendered. The individual images can be smaller than
+            // the screen size and located with an origin anywhere within the
+            // screen.
+            // Note that we don't inform the client of the size yet, as it might
+            // change after we read the first frame's image header.
+            m_screenWidth = GETINT16(currentComponent);
+            m_screenHeight = GETINT16(currentComponent + 2);
+
+            const size_t globalColorMapColors = 2 << (currentComponent[4] & 0x07);
+
+            if ((currentComponent[4] & 0x80) && globalColorMapColors > 0) { /* global map */
+                m_globalColorMap.setNumColors(globalColorMapColors);
+                GETN(BYTES_PER_COLORMAP_ENTRY * globalColorMapColors, GIFGlobalColormap);
+                break;
+            }
+
+            GETN(1, GIFImageStart);
+            break;
+        }
+
+        case GIFGlobalColormap: {
+            m_globalColorMap.setRawData(m_streamBuffer.get(), m_streamBuffer.bytesBuffered());
+            GETN(1, GIFImageStart);
+            break;
+        }
+
+        case GIFImageStart: {
+            const char currentComponent = m_streamBuffer.get()[0];
+
+            if (currentComponent == '!') { // extension.
+                GETN(2, GIFExtension);
+                break;
+            }
+
+            if (currentComponent == ',') { // image separator.
+                GETN(9, GIFImageHeader);
+                break;
+            }
+
+            // If we get anything other than ',' (image separator), '!'
+            // (extension), or ';' (trailer), there is extraneous data
+            // between blocks. The GIF87a spec tells us to keep reading
+            // until we find an image separator, but GIF89a says such
+            // a file is corrupt. We follow Mozilla's implementation and
+            // proceed as if the file were correctly terminated, so the
+            // GIF will display.
+            GETN(0, GIFDone);
+            break;
+        }
+
+        case GIFExtension: {
+            const unsigned char* currentComponent =
+                reinterpret_cast<const unsigned char*>(m_streamBuffer.get());
+
+            size_t bytesInBlock = currentComponent[1];
+            GIFState exceptionState = GIFSkipBlock;
+
+            switch (*currentComponent) {
+            case 0xf9:
+                exceptionState = GIFControlExtension;
+                // The GIF spec mandates that the GIFControlExtension header block length is 4 bytes,
+                // and the parser for this block reads 4 bytes, so we must enforce that the buffer
+                // contains at least this many bytes. If the GIF specifies a different length, we
+                // allow that, so long as it's larger; the additional data will simply be ignored.
+                bytesInBlock = std::max(bytesInBlock, static_cast<size_t>(4));
+                break;
+
+            // The GIF spec also specifies the lengths of the following two extensions' headers
+            // (as 12 and 11 bytes, respectively). Because we ignore the plain text extension entirely
+            // and sanity-check the actual length of the application extension header before reading it,
+            // we allow GIFs to deviate from these values in either direction. This is important for
+            // real-world compatibility, as GIFs in the wild exist with application extension headers
+            // that are both shorter and longer than 11 bytes.
+            case 0x01:
+                // ignoring plain text extension
+                break;
+
+            case 0xff:
+                exceptionState = GIFApplicationExtension;
+                break;
+
+            case 0xfe:
+                exceptionState = GIFConsumeComment;
+                break;
+            }
+
+            if (bytesInBlock)
+                GETN(bytesInBlock, exceptionState);
+            else
+                GETN(1, GIFImageStart);
+            break;
+        }
+
+        case GIFConsumeBlock: {
+            const unsigned char currentComponent = this->getOneByte();
+            if (!currentComponent)
+                GETN(1, GIFImageStart);
+            else
+                GETN(currentComponent, GIFSkipBlock);
+            break;
+        }
+
+        case GIFSkipBlock: {
+            GETN(1, GIFConsumeBlock);
+            break;
+        }
+
+        case GIFControlExtension: {
+            const unsigned char* currentComponent =
+                reinterpret_cast<const unsigned char*>(m_streamBuffer.get());
+
+            addFrameIfNecessary();
+            GIFFrameContext* currentFrame = m_frames.back().get();
+            if (*currentComponent & 0x1)
+                currentFrame->setTransparentPixel(currentComponent[3]);
+
+            // We ignore the "user input" bit.
+
+            // NOTE: This relies on the values in the FrameDisposalMethod enum
+            // matching those in the GIF spec!
+            int rawDisposalMethod = ((*currentComponent) >> 2) & 0x7;
+            switch (rawDisposalMethod) {
+            case 1:
+            case 2:
+            case 3:
+                currentFrame->setDisposalMethod((SkCodecAnimation::DisposalMethod) rawDisposalMethod);
+                break;
+            case 4:
+                // Some specs say that disposal method 3 is "overwrite previous", others that setting
+                // the third bit of the field (i.e. method 4) is. We map both to the same value.
+                currentFrame->setDisposalMethod(SkCodecAnimation::RestorePrevious_DisposalMethod);
+                break;
+            default:
+                // Other values use the default.
+                currentFrame->setDisposalMethod(SkCodecAnimation::Keep_DisposalMethod);
+                break;
+            }
+            currentFrame->setDelayTime(GETINT16(currentComponent + 1) * 10);
+            GETN(1, GIFConsumeBlock);
+            break;
+        }
+
+        case GIFCommentExtension: {
+            const unsigned char currentComponent = this->getOneByte();
+            if (currentComponent)
+                GETN(currentComponent, GIFConsumeComment);
+            else
+                GETN(1, GIFImageStart);
+            break;
+        }
+
+        case GIFConsumeComment: {
+            GETN(1, GIFCommentExtension);
+            break;
+        }
+
+        case GIFApplicationExtension: {
+            // Check for netscape application extension.
+            if (m_streamBuffer.bytesBuffered() == 11) {
+                const unsigned char* currentComponent =
+                    reinterpret_cast<const unsigned char*>(m_streamBuffer.get());
+
+                if (!memcmp(currentComponent, "NETSCAPE2.0", 11) || !memcmp(currentComponent, "ANIMEXTS1.0", 11))
+                    GETN(1, GIFNetscapeExtensionBlock);
+            }
+
+            if (m_state != GIFNetscapeExtensionBlock)
+                GETN(1, GIFConsumeBlock);
+            break;
+        }
+
+        // Netscape-specific GIF extension: animation looping.
+        case GIFNetscapeExtensionBlock: {
+            const int currentComponent = this->getOneByte();
+            // GIFConsumeNetscapeExtension always reads 3 bytes from the stream; we should at least wait for this amount.
+            if (currentComponent)
+                GETN(std::max(3, currentComponent), GIFConsumeNetscapeExtension);
+            else
+                GETN(1, GIFImageStart);
+            break;
+        }
+
+        // Parse netscape-specific application extensions
+        case GIFConsumeNetscapeExtension: {
+            const unsigned char* currentComponent =
+                reinterpret_cast<const unsigned char*>(m_streamBuffer.get());
+
+            int netscapeExtension = currentComponent[0] & 7;
+
+            // Loop entire animation specified # of times. Only read the loop count during the first iteration.
+            if (netscapeExtension == 1) {
+                m_loopCount = GETINT16(currentComponent + 1);
+
+                // Zero loop count is infinite animation loop request.
+                if (!m_loopCount)
+                    m_loopCount = SkCodecAnimation::kAnimationLoopInfinite;
+
+                GETN(1, GIFNetscapeExtensionBlock);
+            } else if (netscapeExtension == 2) {
+                // Wait for specified # of bytes to enter buffer.
+
+                // Don't do this, this extension doesn't exist (isn't used at all)
+                // and doesn't do anything, as our streaming/buffering takes care of it all...
+                // See: http://semmix.pl/color/exgraf/eeg24.htm
+                GETN(1, GIFNetscapeExtensionBlock);
+            } else {
+                // 0,3-7 are yet to be defined netscape extension codes
+                // This prevents attempting to continue reading this invalid stream.
+                GETN(0, GIFDone);
+                return false;
+            }
+            break;
+        }
+
+        case GIFImageHeader: {
+            unsigned height, width, xOffset, yOffset;
+            const unsigned char* currentComponent =
+                reinterpret_cast<const unsigned char*>(m_streamBuffer.get());
+
+            /* Get image offsets, with respect to the screen origin */
+            xOffset = GETINT16(currentComponent);
+            yOffset = GETINT16(currentComponent + 2);
+
+            /* Get image width and height. */
+            width  = GETINT16(currentComponent + 4);
+            height = GETINT16(currentComponent + 6);
+
+            // Some GIF files have frames that don't fit in the specified
+            // overall image size. For the first frame, we can simply enlarge
+            // the image size to allow the frame to be visible.  We can't do
+            // this on subsequent frames because the rest of the decoding
+            // infrastructure assumes the image size won't change as we
+            // continue decoding, so any subsequent frames that are even
+            // larger will be cropped.
+            // Luckily, handling just the first frame is sufficient to deal
+            // with most cases, e.g. ones where the image size is erroneously
+            // set to zero, since usually the first frame completely fills
+            // the image.
+            if (currentFrameIsFirstFrame()) {
+                m_screenHeight = std::max(m_screenHeight, yOffset + height);
+                m_screenWidth = std::max(m_screenWidth, xOffset + width);
+            }
+
+            // NOTE: Chromium placed this block after setHeaderDefined, down
+            // below we returned true when asked for the size. So Chromium
+            // created an image which would fail. Is this the correct behavior?
+            // We choose to return false early, so we will not create an
+            // SkCodec.
+
+            // Work around more broken GIF files that have zero image width or
+            // height.
+            if (!height || !width) {
+                height = m_screenHeight;
+                width = m_screenWidth;
+                if (!height || !width) {
+                    // This prevents attempting to continue reading this invalid stream.
+                    GETN(0, GIFDone);
+                    return false;
+                }
+            }
+
+            const bool isLocalColormapDefined = currentComponent[8] & 0x80;
+            // The three low-order bits of currentComponent[8] specify the bits per pixel.
+            const size_t numColors = 2 << (currentComponent[8] & 0x7);
+            if (currentFrameIsFirstFrame()) {
+                bool hasTransparentPixel;
+                if (m_frames.size() == 0) {
+                    // We did not see a Graphics Control Extension, so no transparent
+                    // pixel was specified.
+                    hasTransparentPixel = false;
+                } else {
+                    // This means we did see a Graphics Control Extension, which specifies
+                    // the transparent pixel
+                    const size_t transparentPixel = m_frames[0]->transparentPixel();
+                    if (isLocalColormapDefined) {
+                        hasTransparentPixel = transparentPixel < numColors;
+                    } else {
+                        const size_t globalColors = m_globalColorMap.numColors();
+                        if (!globalColors) {
+                            // No color table for this frame, so the frame is empty.
+                            // This is technically different from having a transparent
+                            // pixel, but we'll treat it the same - nothing to draw here.
+                            hasTransparentPixel = true;
+                        } else {
+                            hasTransparentPixel = transparentPixel < globalColors;
+                        }
+                    }
+                }
+
+                if (hasTransparentPixel) {
+                    m_firstFrameHasAlpha = true;
+                    m_firstFrameSupportsIndex8 = true;
+                } else {
+                    const bool frameIsSubset = xOffset > 0 || yOffset > 0
+                            || xOffset + width < m_screenWidth
+                            || yOffset + height < m_screenHeight;
+                    m_firstFrameHasAlpha = frameIsSubset;
+                    m_firstFrameSupportsIndex8 = !frameIsSubset;
+                }
+            }
+
+            if (query == GIFSizeQuery) {
+                // The decoder needs to stop, so we return here, before
+                // flushing the buffer. Next time through, we'll be in the same
+                // state, requiring the same amount in the buffer.
+                m_bytesToConsume = 0;
+                return true;
+            }
+
+            addFrameIfNecessary();
+            GIFFrameContext* currentFrame = m_frames.back().get();
+
+            currentFrame->setHeaderDefined();
+
+            currentFrame->setRect(xOffset, yOffset, width, height);
+            currentFrame->setInterlaced(currentComponent[8] & 0x40);
+
+            // Overlaying interlaced, transparent GIFs over
+            // existing image data using the Haeberli display hack
+            // requires saving the underlying image in order to
+            // avoid jaggies at the transparency edges. We are
+            // unprepared to deal with that, so don't display such
+            // images progressively. Which means only the first
+            // frame can be progressively displayed.
+            // FIXME: It is possible that a non-transparent frame
+            // can be interlaced and progressively displayed.
+            currentFrame->setProgressiveDisplay(currentFrameIsFirstFrame());
+
+            if (isLocalColormapDefined) {
+                currentFrame->localColorMap().setNumColors(numColors);
+                GETN(BYTES_PER_COLORMAP_ENTRY * numColors, GIFImageColormap);
+                break;
+            }
+
+            GETN(1, GIFLZWStart);
+            break;
+        }
+
+        case GIFImageColormap: {
+            SkASSERT(!m_frames.empty());
+            m_frames.back()->localColorMap().setRawData(m_streamBuffer.get(), m_streamBuffer.bytesBuffered());
+            GETN(1, GIFLZWStart);
+            break;
+        }
+
+        case GIFSubBlock: {
+            const size_t bytesInBlock = this->getOneByte();
+            if (bytesInBlock)
+                GETN(bytesInBlock, GIFLZW);
+            else {
+                // Finished parsing one frame; Process next frame.
+                SkASSERT(!m_frames.empty());
+                // Note that some broken GIF files do not have enough LZW blocks to fully
+                // decode all rows but we treat it as frame complete.
+                m_frames.back()->setComplete();
+                GETN(1, GIFImageStart);
+                if (lastFrameToParse >= 0 && (int) m_frames.size() > lastFrameToParse) {
+                    m_streamBuffer.flush();
+                    return true;
+                }
+            }
+            break;
+        }
+
+        case GIFDone: {
+            m_parseCompleted = true;
+            return true;
+        }
+
+        default:
+            // We shouldn't ever get here.
+            // This prevents attempting to continue reading this invalid stream.
+            GETN(0, GIFDone);
+            return false;
+            break;
+        }   // switch
+        m_streamBuffer.flush();
+    }
+
+    return true;
+}
+
+void GIFImageReader::addFrameIfNecessary()
+{
+    if (m_frames.empty() || m_frames.back()->isComplete()) {
+        const size_t i = m_frames.size();
+        std::unique_ptr<GIFFrameContext> frame(new GIFFrameContext(i));
+        if (0 == i) {
+            frame->setRequiredFrame(SkCodec::kNone);
+        } else {
+            // FIXME: We could correct these after decoding (i.e. some frames may turn out to be
+            // independent although we did not determine that here).
+            const GIFFrameContext* prevFrameContext = m_frames[i - 1].get();
+            switch (prevFrameContext->getDisposalMethod()) {
+                case SkCodecAnimation::Keep_DisposalMethod:
+                    frame->setRequiredFrame(i - 1);
+                    break;
+                case SkCodecAnimation::RestorePrevious_DisposalMethod:
+                    frame->setRequiredFrame(prevFrameContext->getRequiredFrame());
+                    break;
+                case SkCodecAnimation::RestoreBGColor_DisposalMethod:
+                    // If the prior frame covers the whole image
+                    if (prevFrameContext->frameRect() == SkIRect::MakeWH(m_screenWidth,
+                                                                         m_screenHeight)
+                            // Or the prior frame was independent
+                            || prevFrameContext->getRequiredFrame() == SkCodec::kNone)
+                    {
+                        // This frame is independent, since we clear everything
+                        // prior frame to the BG color
+                        frame->setRequiredFrame(SkCodec::kNone);
+                    } else {
+                        frame->setRequiredFrame(i - 1);
+                    }
+                    break;
+            }
+        }
+        m_frames.push_back(std::move(frame));
+    }
+}
+
+// FIXME: Move this method to close to doLZW().
+bool GIFLZWContext::prepareToDecode()
+{
+    SkASSERT(m_frameContext->isDataSizeDefined() && m_frameContext->isHeaderDefined());
+
+    // Since we use a codesize of 1 more than the datasize, we need to ensure
+    // that our datasize is strictly less than the MAX_DICTIONARY_ENTRY_BITS.
+    if (m_frameContext->dataSize() >= MAX_DICTIONARY_ENTRY_BITS)
+        return false;
+    clearCode = 1 << m_frameContext->dataSize();
+    avail = clearCode + 2;
+    oldcode = -1;
+    codesize = m_frameContext->dataSize() + 1;
+    codemask = (1 << codesize) - 1;
+    datum = bits = 0;
+    ipass = m_frameContext->interlaced() ? 1 : 0;
+    irow = 0;
+
+    // We want to know the longest sequence encodable by a dictionary with
+    // MAX_DICTIONARY_ENTRIES entries. If we ignore the need to encode the base
+    // values themselves at the beginning of the dictionary, as well as the need
+    // for a clear code or a termination code, we could use every entry to
+    // encode a series of multiple values. If the input value stream looked
+    // like "AAAAA..." (a long string of just one value), the first dictionary
+    // entry would encode AA, the next AAA, the next AAAA, and so forth. Thus
+    // the longest sequence would be MAX_DICTIONARY_ENTRIES + 1 values.
+    //
+    // However, we have to account for reserved entries. The first |datasize|
+    // bits are reserved for the base values, and the next two entries are
+    // reserved for the clear code and termination code. In theory a GIF can
+    // set the datasize to 0, meaning we have just two reserved entries, making
+    // the longest sequence (MAX_DICTIONARY_ENTIRES + 1) - 2 values long. Since
+    // each value is a byte, this is also the number of bytes in the longest
+    // encodable sequence.
+    const size_t maxBytes = MAX_DICTIONARY_ENTRIES - 1;
+
+    // Now allocate the output buffer. We decode directly into this buffer
+    // until we have at least one row worth of data, then call outputRow().
+    // This means worst case we may have (row width - 1) bytes in the buffer
+    // and then decode a sequence |maxBytes| long to append.
+    rowBuffer.reset(m_frameContext->width() - 1 + maxBytes);
+    rowIter = rowBuffer.begin();
+    rowsRemaining = m_frameContext->height();
+
+    // Clearing the whole suffix table lets us be more tolerant of bad data.
+    for (int i = 0; i < clearCode; ++i) {
+        suffix[i] = i;
+        suffixLength[i] = 1;
+    }
+    return true;
+}
+

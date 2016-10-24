@@ -304,7 +304,6 @@ SkCodec::Result SkSampledCodec::sampledDecode(const SkImageInfo& info, void* pix
             }
             return SkCodec::kSuccess;
         }
-        case SkCodec::kOutOfOrder_SkScanlineOrder:
         case SkCodec::kBottomUp_SkScanlineOrder: {
             // Note that these modes do not support subsetting.
             SkASSERT(0 == subsetY && nativeSize.height() == subsetHeight);

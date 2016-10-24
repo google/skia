@@ -187,7 +187,6 @@ if (GIF_FOUND)
     add_definitions(-DSK_HAS_GIF_LIBRARY)
 else()
     remove_srcs(../src/images/*GIF*)
-    remove_srcs(../src/codec/*Gif*)
 endif()
 
 if (JPEG_TURBO_FOUND)

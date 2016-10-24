@@ -206,17 +206,6 @@ int fuzz_img(sk_sp<SkData> bytes, uint8_t scale, uint8_t mode) {
                     // image, memory will be filled with a default value.
                     codec->getScanlines(dst, height, rowBytes);
                     break;
-                case SkCodec::kOutOfOrder_SkScanlineOrder: {
-                    for (int y = 0; y < decodeInfo.height(); y++) {
-                        int dstY = codec->outputScanline(y);
-                        void* dstPtr = bitmap.getAddr(0, dstY);
-                        // We complete the loop, even if this call begins to fail
-                        // due to an incomplete image.  This ensures any uninitialized
-                        // memory will be filled with the proper value.
-                        codec->getScanlines(dstPtr, 1, bitmap.rowBytes());
-                    }
-                    break;
-                }
             }
             SkDebugf("[terminated] Success!\n");
             break;

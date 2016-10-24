@@ -118,6 +118,7 @@ public:
         kStripe_Mode, // Tests the skipping of scanlines
         kCroppedScanline_Mode, // Tests (jpeg) cropped scanline optimization
         kSubset_Mode, // For codecs that support subsets directly.
+        kAnimated_Mode, // For codecs that support animation.
     };
     enum DstColorType {
         kGetFromCanvas_DstColorType,

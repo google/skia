@@ -6,13 +6,13 @@
  */
 
 #include "SkCodec.h"
+#include "SkCodecAnimation.h"
 #include "SkColorSpace.h"
 #include "SkColorTable.h"
 #include "SkImageInfo.h"
 #include "SkSwizzler.h"
 
-struct GifFileType;
-struct SavedImage;
+#include "GIFImageReader.h"
 
 /*
  *
@@ -30,30 +30,10 @@ public:
      */
     static SkCodec* NewFromStream(SkStream*);
 
+    // Callback for GIFImageReader when a row is available.
+    bool haveDecodedRow(size_t frameIndex, const unsigned char* rowBegin,
+                        size_t rowNumber, unsigned repeatCount, bool writeTransparentPixels);
 protected:
-
-    /*
-     * Read enough of the stream to initialize the SkGifCodec.
-     * Returns a bool representing success or failure.
-     *
-     * @param codecOut
-     * If it returned true, and codecOut was not nullptr,
-     * codecOut will be set to a new SkGifCodec.
-     *
-     * @param gifOut
-     * If it returned true, and codecOut was nullptr,
-     * gifOut must be non-nullptr and gifOut will be set to a new
-     * GifFileType pointer.
-     *
-     * @param stream
-     * Deleted on failure.
-     * codecOut will take ownership of it in the case where we created a codec.
-     * Ownership is unchanged when we returned a gifOut.
-     *
-     */
-    static bool ReadHeader(SkStream* stream, SkCodec** codecOut,
-            GifFileType** gifOut);
-
     /*
      * Performs the full gif decode
      */
@@ -68,55 +48,37 @@ protected:
 
     uint64_t onGetFillValue(const SkImageInfo&) const override;
 
-    int onOutputScanline(int inputScanline) const override;
+    std::vector<FrameInfo> onGetFrameInfo() override;
+
+    Result onStartIncrementalDecode(const SkImageInfo& /*dstInfo*/, void*, size_t,
+            const SkCodec::Options&, SkPMColor*, int*) override;
+
+    Result onIncrementalDecode(int*) override;
 
 private:
-
-    /*
-     * A gif can contain multiple image frames.  We will only decode the first
-     * frame.  This function reads up to the first image frame, processing
-     * transparency and/or animation information that comes before the image
-     * data.
-     *
-     * @param gif        Pointer to the library type that manages the gif decode
-     * @param transIndex This call will set the transparent index based on the
-     *                   extension data.
-     */
-     static Result ReadUpToFirstImage(GifFileType* gif, uint32_t* transIndex);
-
-     /*
-      * A gif may contain many image frames, all of different sizes.
-      * This function checks if the gif dimensions are valid, based on the frame
-      * dimensions, and corrects the gif dimensions if necessary.
-      *
-      * @param gif       Pointer to the library type that manages the gif decode
-      * @param size      Size of the image that we will decode.
-      *                  Will be set by this function if the return value is true.
-      * @param frameRect Contains the dimenions and offset of the first image frame.
-      *                  Will be set by this function if the return value is true.
-      *
-      * @return true on success, false otherwise
-      */
-     static bool GetDimensions(GifFileType* gif, SkISize* size, SkIRect* frameRect);
 
     /*
      * Initializes the color table that we will use for decoding.
      *
      * @param dstInfo         Contains the requested dst color type.
+     * @param frameIndex      Frame whose color table to use.
      * @param inputColorPtr   Copies the encoded color table to the client's
      *                        input color table if the client requests kIndex8.
-     * @param inputColorCount If the client requests kIndex8, sets
-     *                        inputColorCount to 256.  Since gifs always
-     *                        contain 8-bit indices, we need a 256 entry color
-     *                        table to ensure that indexing is always in
-     *                        bounds.
+     * @param inputColorCount If the client requests kIndex8, this will be set
+     *                        to the number of colors in the array that
+     *                        inputColorPtr now points to. This will typically
+     *                        be 256. Since gifs may have up to 8-bit indices,
+     *                        using a 256-entry table means a pixel will never
+     *                        be out of range. This will be set to 1 if there
+     *                        is no color table, since that will be a
+     *                        transparent frame.
      */
-    void initializeColorTable(const SkImageInfo& dstInfo, SkPMColor* colorPtr,
-            int* inputColorCount);
+    void initializeColorTable(const SkImageInfo& dstInfo, size_t frameIndex,
+            SkPMColor* colorPtr, int* inputColorCount);
 
    /*
-    * Checks for invalid inputs and calls setFrameDimensions(), and
-    * initializeColorTable() in the proper sequence.
+    * Does necessary setup, including setting up the color table and swizzler,
+    * and reports color info to the client.
     */
     Result prepareToDecode(const SkImageInfo& dstInfo, SkPMColor* inputColorPtr,
             int* inputColorCount, const Options& opts);
@@ -124,82 +86,72 @@ private:
     /*
      * Initializes the swizzler.
      *
-     * @param dstInfo  Output image information.  Dimensions may have been
-     *                 adjusted if the image frame size does not match the size
-     *                 indicated in the header.
-     * @param options  Informs the swizzler if destination memory is zero initialized.
-     *                 Contains subset information.
+     * @param dstInfo    Output image information.  Dimensions may have been
+     *                   adjusted if the image frame size does not match the size
+     *                   indicated in the header.
+     * @param frameIndex Which frame we are decoding. This determines the frameRect
+     *                   to use.
      */
-    void initializeSwizzler(const SkImageInfo& dstInfo,
-            const Options& options);
+    void initializeSwizzler(const SkImageInfo& dstInfo, size_t frameIndex);
 
     SkSampler* getSampler(bool createIfNecessary) override {
         SkASSERT(fSwizzler);
-        return fSwizzler;
+        return fSwizzler.get();
     }
 
     /*
-     * @return true if the read is successful and false if the read fails.
-     */
-    bool readRow();
-
-    Result onStartScanlineDecode(const SkImageInfo& dstInfo, const Options& opts,
-                   SkPMColor inputColorPtr[], int* inputColorCount) override;
-
-    int onGetScanlines(void* dst, int count, size_t rowBytes) override;
-
-    bool onSkipScanlines(int count) override;
-
-    /*
-     * For a scanline decode of "count" lines, this function indicates how
-     * many of the "count" lines should be skipped until we reach the top of
-     * the image frame and how many of the "count" lines are actually inside
-     * the image frame.
+     * Recursive function to decode a frame.
      *
-     * @param count           The number of scanlines requested.
-     * @param rowsBeforeFrame Output variable.  The number of lines before
-     *                        we reach the top of the image frame.
-     * @param rowsInFrame     Output variable.  The number of lines to decode
-     *                        inside the image frame.
+     * @param firstAttempt Whether this is the first call to decodeFrame since
+     *                     starting. e.g. true in onGetPixels, and true in the
+     *                     first call to onIncrementalDecode after calling
+     *                     onStartIncrementalDecode.
+     *                     When true, this method may have to initialize the
+     *                     frame, for example by filling or decoding the prior
+     *                     frame.
+     * @param opts         Options for decoding. May be different from
+     *                     this->options() for decoding prior frames. Specifies
+     *                     the frame to decode and whether the prior frame has
+     *                     already been decoded to fDst. If not, and the frame
+     *                     is not independent, this method will recursively
+     *                     decode the frame it depends on.
+     * @param rowsDecoded  Out-parameter to report the total number of rows
+     *                     that have been decoded (or at least written to, if
+     *                     it had to fill), including rows decoded by prior
+     *                     calls to onIncrementalDecode.
+     * @return             kSuccess if the frame is complete, kIncompleteInput
+     *                     otherwise.
      */
-    void handleScanlineFrame(int count, int* rowsBeforeFrame, int* rowsInFrame);
-
-    SkScanlineOrder onGetScanlineOrder() const override;
-
-    /*
-     * This function cleans up the gif object after the decode completes
-     * It is used in a SkAutoTCallIProc template
-     */
-    static void CloseGif(GifFileType* gif);
-
-    /*
-     * Frees any extension data used in the decode
-     * Used in a SkAutoTCallVProc
-     */
-    static void FreeExtension(SavedImage* image);
+    Result decodeFrame(bool firstAttempt, const Options& opts, int* rowsDecoded);
 
     /*
      * Creates an instance of the decoder
      * Called only by NewFromStream
-     *
-     * @param info contains properties of the encoded data
-     * @param stream the stream of image data
-     * @param gif pointer to library type that manages gif decode
-     *            takes ownership
-     * @param transIndex  The transparent index.  An invalid value
-     *            indicates that there is no transparent index.
+     * Takes ownership of the GIFImageReader
      */
-    SkGifCodec(int width, int height, const SkEncodedInfo& info, SkStream* stream,
-            GifFileType* gif, uint32_t transIndex, const SkIRect& frameRect, bool frameIsSubset);
+    SkGifCodec(const SkEncodedInfo&, const SkImageInfo&, GIFImageReader*);
 
-    SkAutoTCallVProc<GifFileType, CloseGif> fGif; // owned
-    SkAutoTDeleteArray<uint8_t>             fSrcBuffer;
-    const SkIRect                           fFrameRect;
-    const uint32_t                          fTransIndex;
-    uint32_t                                fFillIndex;
-    const bool                              fFrameIsSubset;
-    SkAutoTDelete<SkSwizzler>               fSwizzler;
-    SkAutoTUnref<SkColorTable>              fColorTable;
+    std::unique_ptr<GIFImageReader>         fReader;
+    std::unique_ptr<uint8_t[]>              fTmpBuffer;
+    std::unique_ptr<SkSwizzler>             fSwizzler;
+    sk_sp<SkColorTable>                     fCurrColorTable;
+    // We may create a dummy table if there is not a Map in the input data. In
+    // that case, we set this value to false, and we can skip a lot of decoding
+    // work (which would not be meaningful anyway). We create a "fake"/"dummy"
+    // one in that case, so the client and the swizzler have something to draw.
+    bool                                    fCurrColorTableIsReal;
+    // Whether the background was filled.
+    bool                                    fFilledBackground;
+    // True on the first call to onIncrementalDecode. This value is passed to
+    // decodeFrame.
+    bool                                    fFirstCallToIncrementalDecode;
+
+    void*                                   fDst;
+    size_t                                  fDstRowBytes;
+
+    // Updated inside haveDecodedRow when rows are decoded, unless we filled
+    // the background, in which case it is set once and left alone.
+    int                                     fRowsDecoded;
 
     typedef SkCodec INHERITED;
 };

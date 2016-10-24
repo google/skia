@@ -290,7 +290,12 @@ static void check(skiatest::Reporter* r,
 
     if (supportsNewScanlineDecoding && !isIncomplete) {
         test_incremental_decode(r, codec, info, codecDigest);
-        test_in_stripes(r, codec, info, codecDigest);
+        // This is only supported by codecs that use incremental decoding to
+        // support subset decodes - png and jpeg (once SkJpegCodec is
+        // converted).
+        if (SkStrEndsWith(path, "png") || SkStrEndsWith(path, "PNG")) {
+            test_in_stripes(r, codec, info, codecDigest);
+        }
     }
 
     // Need to call startScanlineDecode() first.
@@ -470,11 +475,10 @@ DEF_TEST(Codec, r) {
     check(r, "google_chrome.ico", SkISize::Make(256, 256), false, false, false, true);
 
     // GIF
-    // FIXME: We are not ready to test incomplete GIFs
-    check(r, "box.gif", SkISize::Make(200, 55), true, false, false);
-    check(r, "color_wheel.gif", SkISize::Make(128, 128), true, false, false);
+    check(r, "box.gif", SkISize::Make(200, 55), false, false, true, true);
+    check(r, "color_wheel.gif", SkISize::Make(128, 128), false, false, true, true);
     // randPixels.gif is too small to test incomplete
-    check(r, "randPixels.gif", SkISize::Make(8, 8), true, false, false);
+    check(r, "randPixels.gif", SkISize::Make(8, 8), false, false, false, true);
 
     // JPG
     check(r, "CMYK.jpg", SkISize::Make(642, 516), true, false, true);
@@ -1218,6 +1222,67 @@ DEF_TEST(Codec_F16ConversionPossible, r) {
     test_conversion_possible(r, "yellow_rose.png", false, true);
 }
 
+static void decode_frame(skiatest::Reporter* r, SkCodec* codec, size_t frame) {
+    SkBitmap bm;
+    auto info = codec->getInfo().makeColorType(kN32_SkColorType);
+    bm.allocPixels(info);
+
+    SkCodec::Options opts;
+    opts.fFrameIndex = frame;
+    REPORTER_ASSERT(r, SkCodec::kSuccess == codec->getPixels(info,
+            bm.getPixels(), bm.rowBytes(), &opts, nullptr, nullptr));
+}
+
+// For an animated image, we should only read enough to decode the requested
+// frame if the client never calls getFrameInfo.
+DEF_TEST(Codec_skipFullParse, r) {
+    auto path = "test640x479.gif";
+    SkStream* stream(GetResourceAsStream(path));
+    if (!stream) {
+        return;
+    }
+
+    // Note that we cheat and hold on to the stream pointer, but SkCodec will
+    // take ownership. We will not refer to the stream after the SkCodec
+    // deletes it.
+    std::unique_ptr<SkCodec> codec(SkCodec::NewFromStream(stream));
+    if (!codec) {
+        ERRORF(r, "Failed to create codec for %s", path);
+        return;
+    }
+
+    REPORTER_ASSERT(r, stream->hasPosition());
+    const size_t sizePosition = stream->getPosition();
+    REPORTER_ASSERT(r, stream->hasLength() && sizePosition < stream->getLength());
+
+    // This should read more of the stream, but not the whole stream.
+    decode_frame(r, codec.get(), 0);
+    const size_t positionAfterFirstFrame = stream->getPosition();
+    REPORTER_ASSERT(r, positionAfterFirstFrame > sizePosition
+                       && positionAfterFirstFrame < stream->getLength());
+
+    // Again, this should read more of the stream.
+    decode_frame(r, codec.get(), 2);
+    const size_t positionAfterThirdFrame = stream->getPosition();
+    REPORTER_ASSERT(r, positionAfterThirdFrame > positionAfterFirstFrame
+                       && positionAfterThirdFrame < stream->getLength());
+
+    // This does not need to read any more of the stream, since it has already
+    // parsed the second frame.
+    decode_frame(r, codec.get(), 1);
+    REPORTER_ASSERT(r, stream->getPosition() == positionAfterThirdFrame);
+
+    // This should read the rest of the frames.
+    decode_frame(r, codec.get(), 3);
+    const size_t finalPosition = stream->getPosition();
+    REPORTER_ASSERT(r, finalPosition > positionAfterThirdFrame);
+
+    // There may be more data in the stream.
+    auto frameInfo = codec->getFrameInfo();
+    REPORTER_ASSERT(r, frameInfo.size() == 4);
+    REPORTER_ASSERT(r, stream->getPosition() >= finalPosition);
+}
+
 // Only rewinds up to a limit.
 class LimitedRewindingStream : public SkStream {
 public:
@@ -1269,7 +1334,6 @@ DEF_TEST(Codec_fallBack, r) {
 
     // Formats that currently do not support incremental decoding
     auto files = {
-            "box.gif",
             "CMYK.jpg",
             "color_wheel.ico",
             "mandrill.wbmp",

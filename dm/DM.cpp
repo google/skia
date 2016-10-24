@@ -36,6 +36,8 @@
 #include "sk_tool_utils.h"
 #include "SkScan.h"
 
+#include <vector>
+
 #ifdef SK_PDF_IMAGE_STATS
 extern void SkPDFImageDumpStats();
 #endif
@@ -357,10 +359,11 @@ static void push_src(const char* tag, ImplicitString options, Src* s) {
 static void push_codec_src(Path path, CodecSrc::Mode mode, CodecSrc::DstColorType dstColorType,
         SkAlphaType dstAlphaType, float scale) {
     if (FLAGS_simpleCodec) {
-        if (mode != CodecSrc::kCodec_Mode || dstColorType != CodecSrc::kGetFromCanvas_DstColorType
-                || scale != 1.0f)
+        const bool simple = CodecSrc::kCodec_Mode == mode || CodecSrc::kAnimated_Mode == mode;
+        if (!simple || dstColorType != CodecSrc::kGetFromCanvas_DstColorType || scale != 1.0f) {
             // Only decode in the simple case.
             return;
+        }
     }
     SkString folder;
     switch (mode) {
@@ -381,6 +384,9 @@ static void push_codec_src(Path path, CodecSrc::Mode mode, CodecSrc::DstColorTyp
             break;
         case CodecSrc::kSubset_Mode:
             folder.append("codec_subset");
+            break;
+        case CodecSrc::kAnimated_Mode:
+            folder.append("codec_animated");
             break;
     }
 
@@ -572,6 +578,15 @@ static void push_codec_srcs(Path path) {
                 }
             }
         }
+    }
+
+    {
+        std::vector<SkCodec::FrameInfo> frameInfos = codec->getFrameInfo();
+        if (frameInfos.size() > 1) {
+            push_codec_src(path, CodecSrc::kAnimated_Mode, CodecSrc::kGetFromCanvas_DstColorType,
+                           kPremul_SkAlphaType, 1.0f);
+        }
+
     }
 
     if (FLAGS_simpleCodec) {
