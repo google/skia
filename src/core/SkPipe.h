@@ -13,6 +13,7 @@
 class SkCanvas;
 class SkImage;
 class SkPicture;
+class SkPipeReader;
 class SkTypefaceSerializer;
 class SkTypefaceDeserializer;
 class SkImageSerializer;
@@ -72,9 +73,16 @@ public:
 
     bool playback(const void*, size_t, SkCanvas*);
 
+    // testing only
+    void startStats();
+    void dumpStats();
+    void stopStats();
+
 private:
     class Impl;
     std::unique_ptr<Impl> fImpl;
+
+    friend bool do_playback(SkPipeReader&, SkCanvas*, int*);
 };
 
 //////////////////////////////////////////////////////////////////////////////////////////////////

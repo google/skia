@@ -58,6 +58,8 @@ enum class SkPipeVerb : uint8_t {
     kEndPicture,        // extra == picture_index
     kWriteImage,        // extra == image_index
     kWritePicture,      // extra == picture_index
+
+    kLastEnum = kWritePicture
 };
 
 enum PaintUsage {
