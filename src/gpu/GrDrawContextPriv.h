@@ -9,7 +9,7 @@
 #define GrDrawContextPriv_DEFINED
 
 #include "GrDrawContext.h"
-#include "GrDrawTarget.h"
+#include "GrRenderTargetOpList.h"
 #include "GrPathRendering.h"
 
 class GrFixedClip;
@@ -22,7 +22,7 @@ struct GrUserStencilSettings;
 class GrDrawContextPriv {
 public:
     gr_instanced::InstancedRendering* accessInstancedRendering() const {
-        return fDrawContext->getDrawTarget()->instancedRendering();
+        return fDrawContext->getOpList()->instancedRendering();
     }
 
     void clear(const GrFixedClip&, const GrColor, bool canIgnoreClip);

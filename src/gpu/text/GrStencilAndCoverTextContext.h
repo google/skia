@@ -25,7 +25,7 @@ class SkSurfaceProps;
 
 /*
  * This class implements text rendering using stencil and cover path rendering
- * (by the means of GrDrawTarget::drawPath).
+ * (by the means of GrOpList::drawPath).
  */
 class GrStencilAndCoverTextContext {
 public:

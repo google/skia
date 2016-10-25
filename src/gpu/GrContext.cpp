@@ -90,7 +90,7 @@ void GrContext::initCommon(const GrContextOptions& options) {
 
     fDidTestPMConversions = false;
 
-    GrDrawTarget::Options dtOptions;
+    GrRenderTargetOpList::Options dtOptions;
     dtOptions.fClipBatchToBounds = options.fClipBatchToBounds;
     dtOptions.fDrawBatchBounds = options.fDrawBatchBounds;
     dtOptions.fMaxBatchLookback = options.fMaxBatchLookback;

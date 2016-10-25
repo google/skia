@@ -22,7 +22,7 @@ class GrFixedClip;
 struct GrPoint;
 
 /**
- *  Base class for drawing paths into a GrDrawTarget.
+ *  Base class for drawing paths into a GrOpList.
  *
  *  Derived classes can use stages GrPaint::kTotalStages through GrPipelineBuilder::kNumStages-1.
  *  The stages before GrPaint::kTotalStages are reserved for setting up the draw (i.e., textures and

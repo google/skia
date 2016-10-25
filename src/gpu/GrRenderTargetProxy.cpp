@@ -8,8 +8,9 @@
 #include "GrRenderTargetProxy.h"
 
 #include "GrCaps.h"
-#include "GrDrawTarget.h"
 #include "GrGpuResourcePriv.h"
+#include "GrRenderTargetOpList.h"
+#include "GrTextureProvider.h"
 
 // Deferred version
 // TODO: we can probably munge the 'desc' in both the wrapped and deferred
@@ -19,7 +20,7 @@ GrRenderTargetProxy::GrRenderTargetProxy(const GrCaps& caps, const GrSurfaceDesc
     : INHERITED(desc, fit, budgeted)
     , fTarget(nullptr)
     , fFlags(GrRenderTargetPriv::Flags::kNone)
-    , fLastDrawTarget(nullptr) {
+    , fLastOpList(nullptr) {
     // Since we know the newly created render target will be internal, we are able to precompute
     // what the flags will ultimately end up being.
     if (caps.usesMixedSamples() && fDesc.fSampleCnt > 0) {
@@ -36,14 +37,14 @@ GrRenderTargetProxy::GrRenderTargetProxy(const GrCaps& caps, sk_sp<GrRenderTarge
                 rt->resourcePriv().isBudgeted(), rt->uniqueID())
     , fTarget(std::move(rt))
     , fFlags(fTarget->renderTargetPriv().flags())
-    , fLastDrawTarget(nullptr) {
+    , fLastOpList(nullptr) {
 }
 
 GrRenderTargetProxy::~GrRenderTargetProxy() {
-    if (fLastDrawTarget) {
-        fLastDrawTarget->clearRT();
+    if (fLastOpList) {
+        fLastOpList->clearTarget();
     }
-    SkSafeUnref(fLastDrawTarget);
+    SkSafeUnref(fLastOpList);
 }
 
 GrRenderTarget* GrRenderTargetProxy::instantiate(GrTextureProvider* texProvider) {
@@ -73,16 +74,16 @@ GrRenderTarget* GrRenderTargetProxy::instantiate(GrTextureProvider* texProvider)
     return fTarget.get();
 }
 
-void GrRenderTargetProxy::setLastDrawTarget(GrDrawTarget* dt) {
-    if (fLastDrawTarget) {
+void GrRenderTargetProxy::setLastOpList(GrRenderTargetOpList* opList) {
+    if (fLastOpList) {
         // The non-MDB world never closes so we can't check this condition
 #ifdef ENABLE_MDB
-        SkASSERT(fLastDrawTarget->isClosed());
+        SkASSERT(fLastOpList->isClosed());
 #endif
-        fLastDrawTarget->clearRT();
+        fLastOpList->clearTarget();
     }
 
-    SkRefCnt_SafeAssign(fLastDrawTarget, dt);
+    SkRefCnt_SafeAssign(fLastOpList, opList);
 }
 
 sk_sp<GrRenderTargetProxy> GrRenderTargetProxy::Make(const GrCaps& caps,
