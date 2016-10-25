@@ -464,6 +464,10 @@ bool SkGifCodec::haveDecodedRow(size_t frameIndex, const unsigned char* rowBegin
         if (!foundNecessaryRow) {
             return true;
         }
+    } else {
+        // Make sure the repeatCount does not take us beyond the end of the dst
+        SkASSERT(this->dstInfo().height() >= yBegin);
+        repeatCount = SkTMin(repeatCount, (unsigned) (this->dstInfo().height() - yBegin));
     }
 
     if (!fFilledBackground) {
