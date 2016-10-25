@@ -25,6 +25,7 @@
 #include "glsl/GrGLSLCaps.h"
 #include "glsl/GrGLSLPLSPathRendering.h"
 #include "instanced/GLInstancedRendering.h"
+#include "SkMakeUnique.h"
 #include "SkMipMap.h"
 #include "SkPixmap.h"
 #include "SkStrokeRec.h"
@@ -625,33 +626,16 @@ static GrSurfaceOrigin resolve_origin(GrSurfaceOrigin origin, bool renderTarget)
 
 GrTexture* GrGLGpu::onWrapBackendTexture(const GrBackendTextureDesc& desc,
                                          GrWrapOwnership ownership) {
-#ifdef SK_IGNORE_GL_TEXTURE_TARGET
-    if (!desc.fTextureHandle) {
-        return nullptr;
-    }
-#else
     const GrGLTextureInfo* info = reinterpret_cast<const GrGLTextureInfo*>(desc.fTextureHandle);
     if (!info || !info->fID) {
         return nullptr;
     }
-#endif
 
     // next line relies on GrBackendTextureDesc's flags matching GrTexture's
     bool renderTarget = SkToBool(desc.fFlags & kRenderTarget_GrBackendTextureFlag);
 
     GrGLTexture::IDDesc idDesc;
-    GrSurfaceDesc surfDesc;
-
-#ifdef SK_IGNORE_GL_TEXTURE_TARGET
-    idDesc.fInfo.fID = static_cast<GrGLuint>(desc.fTextureHandle);
-    // When we create the texture, we only
-    // create GL_TEXTURE_2D at the moment.
-    // External clients can do something different.
-
-    idDesc.fInfo.fTarget = GR_GL_TEXTURE_2D;
-#else
     idDesc.fInfo = *info;
-#endif
 
     if (GR_GL_TEXTURE_EXTERNAL == idDesc.fInfo.fTarget) {
         if (renderTarget) {
@@ -681,6 +665,7 @@ GrTexture* GrGLGpu::onWrapBackendTexture(const GrBackendTextureDesc& desc,
         idDesc.fOwnership = GrBackendObjectOwnership::kBorrowed;
     }
 
+    GrSurfaceDesc surfDesc;
     surfDesc.fFlags = (GrSurfaceFlags) desc.fFlags;
     surfDesc.fWidth = desc.fWidth;
     surfDesc.fHeight = desc.fHeight;
@@ -738,27 +723,13 @@ GrRenderTarget* GrGLGpu::onWrapBackendRenderTarget(const GrBackendRenderTargetDe
 }
 
 GrRenderTarget* GrGLGpu::onWrapBackendTextureAsRenderTarget(const GrBackendTextureDesc& desc) {
-#ifdef SK_IGNORE_GL_TEXTURE_TARGET
-    if (!desc.fTextureHandle) {
-        return nullptr;
-    }
-#else
     const GrGLTextureInfo* info = reinterpret_cast<const GrGLTextureInfo*>(desc.fTextureHandle);
     if (!info || !info->fID) {
         return nullptr;
     }
-#endif
 
     GrGLTextureInfo texInfo;
-    GrSurfaceDesc surfDesc;
-
-#ifdef SK_IGNORE_GL_TEXTURE_TARGET
-    texInfo.fID = static_cast<GrGLuint>(desc.fTextureHandle);
-    // We only support GL_TEXTURE_2D at the moment.
-    texInfo.fTarget = GR_GL_TEXTURE_2D;
-#else
     texInfo = *info;
-#endif
 
     if (GR_GL_TEXTURE_RECTANGLE != texInfo.fTarget &&
         GR_GL_TEXTURE_2D != texInfo.fTarget) {
@@ -768,6 +739,7 @@ GrRenderTarget* GrGLGpu::onWrapBackendTextureAsRenderTarget(const GrBackendTextu
         return nullptr;
     }
 
+    GrSurfaceDesc surfDesc;
     surfDesc.fFlags = (GrSurfaceFlags) desc.fFlags;
     surfDesc.fWidth = desc.fWidth;
     surfDesc.fHeight = desc.fHeight;
@@ -4576,7 +4548,7 @@ GrBackendObject GrGLGpu::createTestingOnlyBackendTexture(void* pixels, int w, in
     if (!this->caps()->isConfigTexturable(config)) {
         return false;
     }
-    GrGLTextureInfo* info = new GrGLTextureInfo;
+    std::unique_ptr<GrGLTextureInfo> info = skstd::make_unique<GrGLTextureInfo>();
     info->fTarget = GR_GL_TEXTURE_2D;
     info->fID = 0;
     GL_CALL(GenTextures(1, &info->fID));
@@ -4595,32 +4567,17 @@ GrBackendObject GrGLGpu::createTestingOnlyBackendTexture(void* pixels, int w, in
 
     if (!this->glCaps().getTexImageFormats(config, config, &internalFormat, &externalFormat,
                                            &externalType)) {
-        delete info;
-#ifdef SK_IGNORE_GL_TEXTURE_TARGET
-        return 0;
-#else
         return reinterpret_cast<GrBackendObject>(nullptr);
-#endif
     }
 
     GL_CALL(TexImage2D(info->fTarget, 0, internalFormat, w, h, 0, externalFormat,
                        externalType, pixels));
 
-#ifdef SK_IGNORE_GL_TEXTURE_TARGET
-    GrGLuint id = info->fID;
-    delete info;
-    return id;
-#else
-    return reinterpret_cast<GrBackendObject>(info);
-#endif
+    return reinterpret_cast<GrBackendObject>(info.release());
 }
 
 bool GrGLGpu::isTestingOnlyBackendTexture(GrBackendObject id) const {
-#ifdef SK_IGNORE_GL_TEXTURE_TARGET
-    GrGLuint texID = (GrGLuint)id;
-#else
     GrGLuint texID = reinterpret_cast<const GrGLTextureInfo*>(id)->fID;
-#endif
 
     GrGLboolean result;
     GL_CALL_RET(result, IsTexture(texID));
@@ -4629,20 +4586,12 @@ bool GrGLGpu::isTestingOnlyBackendTexture(GrBackendObject id) const {
 }
 
 void GrGLGpu::deleteTestingOnlyBackendTexture(GrBackendObject id, bool abandonTexture) {
-#ifdef SK_IGNORE_GL_TEXTURE_TARGET
-    GrGLuint texID = (GrGLuint)id;
-#else
-    const GrGLTextureInfo* info = reinterpret_cast<const GrGLTextureInfo*>(id);
+    std::unique_ptr<const GrGLTextureInfo> info(reinterpret_cast<const GrGLTextureInfo*>(id));
     GrGLuint texID = info->fID;
-#endif
 
     if (!abandonTexture) {
         GL_CALL(DeleteTextures(1, &texID));
     }
-
-#ifndef SK_IGNORE_GL_TEXTURE_TARGET
-    delete info;
-#endif
 }
 
 void GrGLGpu::resetShaderCacheForTesting() const {
