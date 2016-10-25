@@ -92,6 +92,11 @@ and run it as normal.  You may find `bin/droid` convenient.
     adb push resources /data/local/tmp
     adb shell "cd /data/local/tmp; ./dm --src gm --config gpu"
 
+Mac
+---
+
+Mac users may want to pass `--ide=xcode` to `gn gen` to generate an Xcode project.
+
 Windows
 -------
 
