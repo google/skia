@@ -32,44 +32,35 @@ bool makeMatrix(Fuzz* fuzz, SkMatrix* m) {
     return true;
 }
 
-bool initGradientParams(Fuzz* fuzz, uint32_t* count, SkColor** colors, SkScalar** pos,
-    SkShader::TileMode* mode) {
+bool initGradientParams(Fuzz* fuzz, std::vector<SkColor>* colors,
+    std::vector<SkScalar>* pos, SkShader::TileMode* mode) {
     if (fuzz->remaining() < sizeof(uint32_t)) {
         return false;
     }
-    uint32_t t_count;
-    SkColor* t_colors;
-    SkScalar* t_pos;
+    uint32_t count = fuzz->nextRangeU(0, MAX_COUNT);
 
-    t_count = fuzz->nextRangeU(0, MAX_COUNT);
-    if (t_count == 1) {
-        t_count = 2;
-    }
-
-    if (fuzz->remaining() < (1 + t_count * (sizeof(SkColor) + sizeof(SkScalar)))) {
+    if (fuzz->remaining() < sizeof(uint32_t)) {
         return false;
     }
-    t_colors = new SkColor[t_count];
-    t_pos = new SkScalar[t_count];
-    for (uint32_t i = 0; i < t_count; i++) {
-        fuzz->next(&t_colors[i]);
-        fuzz->next(&t_pos[i]);
-    }
-
-    if (t_count == 0) {
-        *count = 0;
-        *colors = NULL;
-        *pos = NULL;
-    } else {
-        std::sort(t_pos, t_pos + t_count);
-        t_pos[0] = 0;
-        t_pos[t_count - 1] = 1;
-        *count = t_count;
-        *colors = t_colors;
-        *pos = t_pos;
-    }
-
     *mode = static_cast<SkShader::TileMode>(fuzz->nextRangeU(0, 3));
+
+    colors->clear();
+    pos   ->clear();
+    for (uint32_t i = 0; i < count; i++) {
+        SkColor c;
+        SkScalar s;
+        if (!fuzz->next(&c) || !fuzz->next(&s)) {
+            return false;
+        }
+        colors->push_back(c);
+        pos   ->push_back(s);
+    }
+    if (count) {
+        std::sort(pos->begin(), pos->end());
+        // The order matters.  If count == 1, we want pos == 0.
+        (*pos)[count - 1] = 1;
+        (*pos)[0]         = 0;
+    }
     return true;
 }
 
@@ -86,11 +77,10 @@ void fuzzLinearGradient(Fuzz* fuzz) {
         }
         SkPoint pts[2] = {SkPoint::Make(a,b), SkPoint::Make(c, d)};
 
-        uint32_t count;
-        SkColor* colors;
-        SkScalar* pos;
+        std::vector<SkColor> colors;
+        std::vector<SkScalar> pos;
         SkShader::TileMode mode;
-        if (!initGradientParams(fuzz, &count, &colors, &pos, &mode)) {
+        if (!initGradientParams(fuzz, &colors, &pos, &mode)) {
             return;
         }
 
@@ -104,8 +94,8 @@ void fuzzLinearGradient(Fuzz* fuzz) {
         if (useLocalMatrix && !makeMatrix(fuzz, localMatrix.init())) {
             return;
         }
-        p.setShader(SkGradientShader::MakeLinear(pts, colors, pos, count, mode,
-            flags, localMatrix.getMaybeNull()));
+        p.setShader(SkGradientShader::MakeLinear(pts, colors.data(), pos.data(),
+            colors.size(), mode, flags, localMatrix.getMaybeNull()));
 
         sk_sp<SkSurface> surface(SkSurface::MakeRasterN32Premul(50, 50));
         if (useGlobalMatrix) {
@@ -133,11 +123,10 @@ void fuzzRadialGradient(Fuzz* fuzz) {
         }
         SkPoint center = SkPoint::Make(a,b);
 
-        uint32_t count;
-        SkColor* colors;
-        SkScalar* pos;
+        std::vector<SkColor> colors;
+        std::vector<SkScalar> pos;
         SkShader::TileMode mode;
-        if (!initGradientParams(fuzz, &count, &colors, &pos, &mode)) {
+        if (!initGradientParams(fuzz, &colors, &pos, &mode)) {
             return;
         }
 
@@ -151,8 +140,8 @@ void fuzzRadialGradient(Fuzz* fuzz) {
         if (useLocalMatrix && !makeMatrix(fuzz, localMatrix.init())) {
             return;
         }
-        p.setShader(SkGradientShader::MakeRadial(center, radius, colors, pos,
-            count, mode, flags, localMatrix.getMaybeNull()));
+        p.setShader(SkGradientShader::MakeRadial(center, radius, colors.data(),
+            pos.data(), colors.size(), mode, flags, localMatrix.getMaybeNull()));
 
 
         sk_sp<SkSurface> surface(SkSurface::MakeRasterN32Premul(50, 50));
@@ -185,11 +174,10 @@ void fuzzTwoPointConicalGradient(Fuzz* fuzz) {
         SkPoint start = SkPoint::Make(a, b);
         SkPoint end = SkPoint::Make(c, d);
 
-        uint32_t count;
-        SkColor* colors;
-        SkScalar* pos;
+        std::vector<SkColor> colors;
+        std::vector<SkScalar> pos;
         SkShader::TileMode mode;
-        if (!initGradientParams(fuzz, &count, &colors, &pos, &mode)) {
+        if (!initGradientParams(fuzz, &colors, &pos, &mode)) {
             return;
         }
 
@@ -203,8 +191,9 @@ void fuzzTwoPointConicalGradient(Fuzz* fuzz) {
         if (useLocalMatrix && !makeMatrix(fuzz, localMatrix.init())) {
             return;
         }
-        p.setShader(SkGradientShader::MakeTwoPointConical(start, startRadius, end,
-            endRadius, colors, pos, count, mode, flags, localMatrix.getMaybeNull()));
+        p.setShader(SkGradientShader::MakeTwoPointConical(start, startRadius,
+            end, endRadius, colors.data(), pos.data(), colors.size(), mode,
+            flags, localMatrix.getMaybeNull()));
 
         sk_sp<SkSurface> surface(SkSurface::MakeRasterN32Premul(50, 50));
         if (useGlobalMatrix) {
@@ -230,11 +219,10 @@ void fuzzSweepGradient(Fuzz* fuzz) {
             return;
         }
 
-        uint32_t count;
-        SkColor* colors;
-        SkScalar* pos;
+        std::vector<SkColor> colors;
+        std::vector<SkScalar> pos;
         SkShader::TileMode mode;
-        if (!initGradientParams(fuzz, &count, &colors, &pos, &mode)) {
+        if (!initGradientParams(fuzz, &colors, &pos, &mode)) {
             return;
         }
 
@@ -248,9 +236,11 @@ void fuzzSweepGradient(Fuzz* fuzz) {
             if (!fuzz->next(&flags)) {
                 return;
             }
-            p.setShader(SkGradientShader::MakeSweep(cx, cy, colors, pos, count, flags, &m));
+            p.setShader(SkGradientShader::MakeSweep(cx, cy, colors.data(),
+                pos.data(), colors.size(), flags, &m));
         } else {
-            p.setShader(SkGradientShader::MakeSweep(cx, cy, colors, pos, count));
+            p.setShader(SkGradientShader::MakeSweep(cx, cy, colors.data(),
+                pos.data(), colors.size()));
         }
 
 

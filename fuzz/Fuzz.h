@@ -12,6 +12,8 @@
 #include "SkTRegistry.h"
 #include "SkTypes.h"
 
+#include <vector>
+
 class Fuzz : SkNoncopyable {
 public:
     explicit Fuzz(sk_sp<SkData>);
@@ -22,10 +24,10 @@ public:
     size_t remaining();
 
     template <typename T>
-    bool next(T* n);
+    bool SK_WARN_UNUSED_RESULT next(T* n);
 
     // UBSAN reminds us that bool can only legally hold 0 or 1.
-    bool next(bool* b) {
+    bool SK_WARN_UNUSED_RESULT next(bool* b) {
         uint8_t byte;
         if (!this->next(&byte)) {
             return false;
