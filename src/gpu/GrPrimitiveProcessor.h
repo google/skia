@@ -171,7 +171,7 @@ public:
     const Attribute& getAttrib(int index) const { return fAttribs[index]; }
 
     // Returns the vertex stride of the GP.  A common use case is to request geometry from a
-    // drawtarget based off of the stride, and to populate this memory using an implicit array of
+    // GrOpList based off of the stride, and to populate this memory using an implicit array of
     // structs.  In this case, it is best to assert the vertexstride == sizeof(VertexStruct).
     size_t getVertexStride() const { return fVertexStride; }
 

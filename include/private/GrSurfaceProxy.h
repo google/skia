@@ -11,6 +11,7 @@
 #include "GrGpuResource.h"
 #include "SkRect.h"
 
+class GrOpList;
 class GrTextureProxy;
 class GrRenderTargetProxy;
 
@@ -51,13 +52,17 @@ public:
      */
     SkBudgeted isBudgeted() const { return fBudgeted; }
 
+    void setLastOpList(GrOpList* opList);
+    GrOpList* getLastOpList() { return fLastOpList; }
+
 protected:
     // Deferred version
     GrSurfaceProxy(const GrSurfaceDesc& desc, SkBackingFit fit, SkBudgeted budgeted)
         : fDesc(desc)
         , fFit(fit)
         , fBudgeted(budgeted)
-        , fUniqueID(GrGpuResource::CreateUniqueID()) {
+        , fUniqueID(GrGpuResource::CreateUniqueID())
+        , fLastOpList(nullptr) {
     }
 
     // Wrapped version
@@ -66,10 +71,12 @@ protected:
         : fDesc(desc)
         , fFit(fit)
         , fBudgeted(budgeted)
-        , fUniqueID(uniqueID) {
+        , fUniqueID(uniqueID)
+        , fLastOpList(nullptr) {
     }
 
-    virtual ~GrSurfaceProxy() {}
+    virtual ~GrSurfaceProxy();
+
 
     // For wrapped resources, 'fDesc' will always be filled in from the wrapped resource.
     const GrSurfaceDesc fDesc;
@@ -82,6 +89,14 @@ private:
     // See comment in GrGpuResource.h.
     void notifyAllCntsAreZero(CntType) const { delete this; }
     bool notifyRefCountIsZero() const { return true; }
+
+    // The last opList that wrote to or is currently going to write to this surface
+    // The opList can be closed (e.g., no draw context is currently bound
+    // to this renderTarget).
+    // This back-pointer is required so that we can add a dependancy between
+    // the opList used to create the current contents of this surface
+    // and the opList of a destination surface to which this one is being drawn or copied.
+    GrOpList* fLastOpList;
 
     typedef GrIORef<GrSurfaceProxy> INHERITED;
 

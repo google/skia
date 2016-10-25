@@ -20,8 +20,8 @@ namespace GrTest {
 };
 
 /** TODO Please do not use this if you can avoid it.  We are in the process of deleting it.
-    Allows a test to temporarily draw to a GrDrawTarget owned by a GrContext. Tests that use this
-    should be careful not to mix using the GrDrawTarget directly and drawing via SkCanvas or
+    Allows a test to temporarily draw to a GrOpList owned by a GrContext. Tests that use this
+    should be careful not to mix using the GrOpList directly and drawing via SkCanvas or
     GrContext. In the future this object may provide some guards to prevent this. */
 class GrTestTarget {
 public:

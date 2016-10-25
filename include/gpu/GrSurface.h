@@ -14,6 +14,7 @@
 #include "SkImageInfo.h"
 #include "SkRect.h"
 
+class GrOpList;
 class GrRenderTarget;
 class GrSurfacePriv;
 class GrTexture;
@@ -127,6 +128,9 @@ public:
 
     static size_t WorstCaseSize(const GrSurfaceDesc& desc);
 
+    void setLastOpList(GrOpList* opList);
+    GrOpList* getLastOpList() { return fLastOpList; }
+
 protected:
     // Methods made available via GrSurfacePriv
     bool savePixels(const char* filename);
@@ -142,12 +146,9 @@ protected:
         , fDesc(desc)
         , fReleaseProc(NULL)
         , fReleaseCtx(NULL)
-    {}
-
-    ~GrSurface() override {
-        // check that invokeReleaseProc has been called (if needed)
-        SkASSERT(NULL == fReleaseProc);
+        , fLastOpList(nullptr) {
     }
+    ~GrSurface() override;
 
     GrSurfaceDesc fDesc;
 
@@ -164,6 +165,14 @@ private:
 
     ReleaseProc fReleaseProc;
     ReleaseCtx  fReleaseCtx;
+
+    // The last opList that wrote to or is currently going to write to this surface
+    // The opList can be closed (e.g., no draw or copy context is currently bound
+    // to this renderTarget or texture).
+    // This back-pointer is required so that we can add a dependancy between
+    // the opList used to create the current contents of this surface
+    // and the opList of a destination surface to which this one is being drawn or copied.
+    GrOpList* fLastOpList;
 
     typedef GrGpuResource INHERITED;
 };
