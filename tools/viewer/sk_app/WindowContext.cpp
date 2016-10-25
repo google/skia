@@ -52,7 +52,10 @@ sk_sp<SkSurface> WindowContext::createSurface(
             return SkSurface::MakeRaster(info, &fSurfaceProps);
         }
     } else {
-        return SkSurface::MakeFromBackendRenderTarget(fContext, *rtDesc, &fSurfaceProps);
+        sk_sp<SkColorSpace> colorSpace = GrPixelConfigIsSRGB(rtDesc->fConfig)
+            ? SkColorSpace::MakeNamed(SkColorSpace::kSRGB_Named) : nullptr;
+        return SkSurface::MakeFromBackendRenderTarget(fContext, *rtDesc, colorSpace,
+                                                      &fSurfaceProps);
     }
 }
 
