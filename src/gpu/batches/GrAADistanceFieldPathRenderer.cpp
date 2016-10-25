@@ -1,5 +1,6 @@
 /*
  * Copyright 2014 Google Inc.
+ * Copyright 2016 ARM Ltd.
  *
  * Use of this source code is governed by a BSD-style license that can be
  * found in the LICENSE file.
@@ -19,7 +20,9 @@
 #include "batches/GrVertexBatch.h"
 #include "effects/GrDistanceFieldGeoProc.h"
 
+#include "SkPathOps.h"
 #include "SkDistanceFieldGen.h"
+#include "GrDistanceFieldGenFromVector.h"
 
 #define ATLAS_TEXTURE_WIDTH 2048
 #define ATLAS_TEXTURE_HEIGHT 2048
@@ -111,7 +114,24 @@ bool GrAADistanceFieldPathRenderer::onCanDrawPath(const CanDrawPathArgs& args) c
     SkRect bounds = args.fShape->styledBounds();
     SkScalar maxDim = SkMaxScalar(bounds.width(), bounds.height());
 
-    return maxDim <= kMediumMIP && maxDim * maxScale <= 2.0f*kLargeMIP;
+    if (!(maxDim <= kMediumMIP && maxDim * maxScale <= 2.0f*kLargeMIP)) {
+        return false;
+    }
+
+    // Only support even-odd fill type. (Checked by the IsDistanceFieldSupportedFillType function)
+    // The Simplify operation can convert some paths into even-odd fill type.
+    // Check whether we can generate distance field from this path after Simplify.
+    // TODO: Cache the simplifiedPath/workingPath somewhere for later use.
+    SkPath path;
+    args.fShape->asPath(&path);
+    SkPath simplifiedPath;
+    const SkPath* workingPath;
+    if (Simplify(path, &simplifiedPath)) {
+        workingPath = &simplifiedPath;
+    } else {
+        workingPath = &path;
+    }
+    return IsDistanceFieldSupportedFillType(workingPath->getFillType());
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -326,45 +346,23 @@ private:
         drawMatrix.postScale(scale, scale);
         drawMatrix.postTranslate(kAntiAliasPad, kAntiAliasPad);
 
-        // setup bitmap backing
         SkASSERT(devPathBounds.fLeft == 0);
         SkASSERT(devPathBounds.fTop == 0);
-        SkAutoPixmapStorage dst;
-        if (!dst.tryAlloc(SkImageInfo::MakeA8(devPathBounds.width(),
-                                              devPathBounds.height()))) {
-            return false;
-        }
-        sk_bzero(dst.writable_addr(), dst.getSafeSize());
-
-        // rasterize path
-        SkPaint paint;
-        paint.setStyle(SkPaint::kFill_Style);
-        paint.setAntiAlias(antiAlias);
-
-        SkDraw draw;
-        sk_bzero(&draw, sizeof(draw));
-
-        SkRasterClip rasterClip;
-        rasterClip.setRect(devPathBounds);
-        draw.fRC = &rasterClip;
-        draw.fMatrix = &drawMatrix;
-        draw.fDst = dst;
 
         SkPath path;
         shape.asPath(&path);
-        draw.drawPathCoverage(path, paint);
 
-        // generate signed distance field
+        // setup signed distance field storage
         devPathBounds.outset(SK_DistanceFieldPad, SK_DistanceFieldPad);
         width = devPathBounds.width();
         height = devPathBounds.height();
         // TODO We should really generate this directly into the plot somehow
         SkAutoSMalloc<1024> dfStorage(width * height * sizeof(unsigned char));
 
-        // Generate signed distance field
-        SkGenerateDistanceFieldFromA8Image((unsigned char*)dfStorage.get(),
-                                           (const unsigned char*)dst.addr(),
-                                           dst.width(), dst.height(), dst.rowBytes());
+        // Generate signed distance field directly from SkPath
+        GrGenerateDistanceFieldFromPath((unsigned char*)dfStorage.get(),
+                                        path, drawMatrix,
+                                        width, height, width * sizeof(unsigned char));
 
         // add to atlas
         SkIPoint16 atlasLocation;
