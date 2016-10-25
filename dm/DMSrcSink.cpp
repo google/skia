@@ -38,6 +38,7 @@
 #include "SkTLogic.h"
 #include "SkSwizzler.h"
 #include <functional>
+#include <cmath>
 
 #if defined(SK_BUILD_FOR_WIN)
     #include "SkAutoCoInitialize.h"
@@ -433,7 +434,12 @@ Error CodecSrc::draw(SkCanvas* canvas) const {
                 return SkStringPrintf("%s is not an animated image.", fPath.c_str());
             }
 
-            SkAutoCanvasRestore acr(canvas, true);
+            // As in CodecSrc::size(), compute a roughly square grid to draw the frames
+            // into. "factor" is the number of frames to draw on one row. There will be
+            // up to "factor" rows as well.
+            const float root = sqrt((float) frameInfos.size());
+            const int factor = sk_float_ceil2int(root);
+
             // Used to cache a frame that future frames will depend on.
             SkAutoMalloc priorFramePixels;
             size_t cachedFrame = SkCodec::kNone;
@@ -454,13 +460,18 @@ Error CodecSrc::draw(SkCanvas* canvas) const {
                                                                 colorPtr, &colorCount);
                 switch (result) {
                     case SkCodec::kSuccess:
-                    case SkCodec::kIncompleteInput:
+                    case SkCodec::kIncompleteInput: {
+                        SkAutoCanvasRestore acr(canvas, true);
+                        const int xTranslate = (i % factor) * decodeInfo.width();
+                        const int yTranslate = (i / factor) * decodeInfo.height();
+                        canvas->translate(SkIntToScalar(xTranslate), SkIntToScalar(yTranslate));
                         draw_to_canvas(canvas, bitmapInfo, pixels.get(), rowBytes,
                                        colorPtr, colorCount, fDstColorType);
                         if (result == SkCodec::kIncompleteInput) {
                             return "";
                         }
                         break;
+                    }
                     default:
                         return SkStringPrintf("Couldn't getPixels for frame %i in %s.",
                                               i, fPath.c_str());
@@ -472,8 +483,6 @@ Error CodecSrc::draw(SkCanvas* canvas) const {
                     memcpy(priorFramePixels.reset(safeSize), pixels.get(), safeSize);
                     cachedFrame = i;
                 }
-
-                canvas->translate(SkIntToScalar(0), SkIntToScalar(decodeInfo.height()));
             }
             break;
         }
@@ -712,9 +721,14 @@ SkISize CodecSrc::size() const {
 
     auto imageSize = codec->getScaledDimensions(fScale);
     if (fMode == kAnimated_Mode) {
-        // We'll draw one of each frame, so make it big enough to hold them all.
+        // We'll draw one of each frame, so make it big enough to hold them all
+        // in a grid. The grid will be roughly square, with "factor" frames per
+        // row and up to "factor" rows.
         const size_t count = codec->getFrameInfo().size();
-        imageSize.fHeight = imageSize.fHeight * count;
+        const float root = sqrt((float) count);
+        const int factor = sk_float_ceil2int(root);
+        imageSize.fWidth  = imageSize.fWidth  * factor;
+        imageSize.fHeight = imageSize.fHeight * sk_float_ceil2int((float) count / (float) factor);
     }
     return imageSize;
 }
