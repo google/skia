@@ -32,7 +32,7 @@ bool SkColorFilter::asComponentTable(SkBitmap*) const {
 }
 
 #if SK_SUPPORT_GPU
-sk_sp<GrFragmentProcessor> SkColorFilter::asFragmentProcessor(GrContext*) const {
+sk_sp<GrFragmentProcessor> SkColorFilter::asFragmentProcessor(GrContext*, SkColorSpace*) const {
     return nullptr;
 }
 #endif
@@ -114,9 +114,10 @@ public:
 #endif
 
 #if SK_SUPPORT_GPU
-    sk_sp<GrFragmentProcessor> asFragmentProcessor(GrContext* context) const override {
-        sk_sp<GrFragmentProcessor> innerFP(fInner->asFragmentProcessor(context));
-        sk_sp<GrFragmentProcessor> outerFP(fOuter->asFragmentProcessor(context));
+    sk_sp<GrFragmentProcessor> asFragmentProcessor(GrContext* context,
+                                                   SkColorSpace* dstColorSpace) const override {
+        sk_sp<GrFragmentProcessor> innerFP(fInner->asFragmentProcessor(context, dstColorSpace));
+        sk_sp<GrFragmentProcessor> outerFP(fOuter->asFragmentProcessor(context, dstColorSpace));
         if (!innerFP || !outerFP) {
             return nullptr;
         }

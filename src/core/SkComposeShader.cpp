@@ -192,7 +192,7 @@ sk_sp<GrFragmentProcessor> SkComposeShader::asFragmentProcessor(const AsFPArgs& 
 
     switch (mode) {
         case SkXfermode::kClear_Mode:
-            return GrConstColorProcessor::Make(GrColor_TRANSPARENT_BLACK,
+            return GrConstColorProcessor::Make(GrColor4f::TransparentBlack(),
                                                GrConstColorProcessor::kIgnore_InputMode);
             break;
         case SkXfermode::kSrc_Mode:

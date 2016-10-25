@@ -123,7 +123,7 @@ sk_sp<GrFragmentProcessor> GrXfermodeFragmentProcessor::MakeFromTwoProcessors(
          sk_sp<GrFragmentProcessor> src, sk_sp<GrFragmentProcessor> dst, SkXfermode::Mode mode) {
     switch (mode) {
         case SkXfermode::kClear_Mode:
-            return GrConstColorProcessor::Make(GrColor_TRANSPARENT_BLACK,
+            return GrConstColorProcessor::Make(GrColor4f::TransparentBlack(),
                                                GrConstColorProcessor::kIgnore_InputMode);
         case SkXfermode::kSrc_Mode:
             return src;
@@ -285,7 +285,7 @@ sk_sp<GrFragmentProcessor> GrXfermodeFragmentProcessor::MakeFromDstProcessor(
     sk_sp<GrFragmentProcessor> dst, SkXfermode::Mode mode) {
     switch (mode) {
         case SkXfermode::kClear_Mode:
-            return GrConstColorProcessor::Make(GrColor_TRANSPARENT_BLACK,
+            return GrConstColorProcessor::Make(GrColor4f::TransparentBlack(),
                                                  GrConstColorProcessor::kIgnore_InputMode);
         case SkXfermode::kSrc_Mode:
             return nullptr;
@@ -300,7 +300,7 @@ sk_sp<GrFragmentProcessor> GrXfermodeFragmentProcessor::MakeFromSrcProcessor(
     sk_sp<GrFragmentProcessor> src, SkXfermode::Mode mode) {
     switch (mode) {
         case SkXfermode::kClear_Mode:
-            return GrConstColorProcessor::Make(GrColor_TRANSPARENT_BLACK,
+            return GrConstColorProcessor::Make(GrColor4f::TransparentBlack(),
                                                  GrConstColorProcessor::kIgnore_InputMode);
         case SkXfermode::kDst_Mode:
             return nullptr;

@@ -106,13 +106,14 @@ bool SkModeColorFilter::onAppendStages(SkRasterPipeline* p) const {
 #include "effects/GrConstColorProcessor.h"
 #include "SkGr.h"
 
-sk_sp<GrFragmentProcessor> SkModeColorFilter::asFragmentProcessor(GrContext*) const {
+sk_sp<GrFragmentProcessor> SkModeColorFilter::asFragmentProcessor(
+                                                    GrContext*, SkColorSpace* dstColorSpace) const {
     if (SkXfermode::kDst_Mode == fMode) {
         return nullptr;
     }
 
     sk_sp<GrFragmentProcessor> constFP(
-        GrConstColorProcessor::Make(SkColorToPremulGrColor(fColor),
+        GrConstColorProcessor::Make(SkColorToPremulGrColor4f(fColor, dstColorSpace),
                                     GrConstColorProcessor::kIgnore_InputMode));
     sk_sp<GrFragmentProcessor> fp(
         GrXfermodeFragmentProcessor::MakeFromSrcProcessor(std::move(constFP), fMode));

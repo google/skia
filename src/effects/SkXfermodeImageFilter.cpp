@@ -268,8 +268,8 @@ sk_sp<SkSpecialImage> SkXfermodeImageFilter_Base::filterImageGPU(
                             GrTextureDomain::kDecal_Mode,
                             GrTextureParams::kNone_FilterMode);
     } else {
-        bgFP = GrConstColorProcessor::Make(GrColor_TRANSPARENT_BLACK,
-                                             GrConstColorProcessor::kIgnore_InputMode);
+        bgFP = GrConstColorProcessor::Make(GrColor4f::TransparentBlack(),
+                                           GrConstColorProcessor::kIgnore_InputMode);
     }
 
     if (foregroundTex) {

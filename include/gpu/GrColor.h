@@ -185,6 +185,24 @@ struct GrColor4f {
         fRGBA[3] = a;
     }
 
+    enum Illegal_Constructor {
+        kIllegalConstructor
+    };
+    GrColor4f(Illegal_Constructor) {
+        fRGBA[0] = SK_FloatNaN;
+        fRGBA[1] = SK_FloatNaN;
+        fRGBA[2] = SK_FloatNaN;
+        fRGBA[3] = SK_FloatNaN;
+    }
+
+    static GrColor4f OpaqueWhite() {
+        return GrColor4f(1.0f, 1.0f, 1.0f, 1.0f);
+    }
+
+    static GrColor4f TransparentBlack() {
+        return GrColor4f(0.0f, 0.0f, 0.0f, 0.0f);
+    }
+
     static GrColor4f FromGrColor(GrColor color) {
         GrColor4f result;
         GrColorToRGBAFloat(color, result.fRGBA);
