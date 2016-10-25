@@ -9,7 +9,7 @@
 #include "SkCanvas.h"
 #include "SkData.h"
 #include "SkDiscardableMemoryPool.h"
-#include "SkImageGeneratorPriv.h"
+#include "SkImageGenerator.h"
 #include "SkMatrixUtils.h"
 #include "SkPaint.h"
 #include "SkPath.h"
