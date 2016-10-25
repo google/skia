@@ -300,9 +300,11 @@ SkCodec::Result SkGifCodec::decodeFrame(bool firstAttempt, const Options& opts, 
             // - The frame is interlaced. There is no obvious way to fill
             //   afterwards for an incomplete image. (FIXME: Does the first pass
             //   cover all rows? If so, we do not have to fill here.)
+            // - There is no color table for this frame. In that case will not
+            //   draw anything, so we need to fill.
             if (frameContext->frameRect() != this->getInfo().bounds()
                     || frameContext->transparentPixel() < SK_MAX_COLORS
-                    || frameContext->interlaced()) {
+                    || frameContext->interlaced() || !fCurrColorTableIsReal) {
                 // fill ignores the width (replaces it with the actual, scaled width).
                 // But we need to scale in Y.
                 const int scaledHeight = get_scaled_dimension(dstInfo.height(),
