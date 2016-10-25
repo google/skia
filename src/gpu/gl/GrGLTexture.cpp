@@ -81,11 +81,7 @@ void GrGLTexture::onAbandon() {
 }
 
 GrBackendObject GrGLTexture::getTextureHandle() const {
-#ifdef SK_IGNORE_GL_TEXTURE_TARGET
-    return static_cast<GrBackendObject>(this->textureID());
-#else
     return reinterpret_cast<GrBackendObject>(&fInfo);
-#endif
 }
 
 void GrGLTexture::setMemoryBacking(SkTraceMemoryDump* traceMemoryDump,
