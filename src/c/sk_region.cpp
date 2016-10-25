@@ -10,7 +10,9 @@
 #include "sk_types_priv.h"
 
 
-sk_region_t *sk_region_new() { return (sk_region_t *)new SkRegion(); }
+sk_region_t *sk_region_new() {
+  return ToRegion(new SkRegion());
+}
 
 sk_region_t *sk_region_new2(const sk_region_t *region) {
   return ToRegion(new SkRegion(*AsRegion(region)));
@@ -30,9 +32,9 @@ bool sk_region_intersects(sk_region_t *r, const sk_region_t *src) {
   return AsRegion(r)->intersects(*AsRegion(src));
 }
 
-bool sk_region_set_path(sk_region_t *dst, const sk_path_t *t) {
+bool sk_region_set_path(sk_region_t *dst, const sk_path_t *t, const sk_region_t* clip) {
   SkRegion region = *AsRegion(dst);
-  return region.setPath(AsPath(*t), region);
+  return region.setPath(AsPath(*t), *AsRegion(clip));
 }
 
 bool sk_region_set_rect(sk_region_t *dst, const sk_irect_t *rect) {
