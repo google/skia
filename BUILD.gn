@@ -1134,6 +1134,31 @@ if (skia_enable_tools) {
     testonly = true
   }
 
+  pathops_tests_sources = exec_script("gyp/find.py",
+                                      [
+                                        "PathOps*.cpp",
+                                        rebase_path("tests"),
+                                      ],
+                                      "list lines",
+                                      [])
+
+  executable("pathops_unittest") {
+    sources =
+        pathops_tests_sources -
+        [ rebase_path("tests/PathOpsSkpClipTest.cpp") ] +  # alternate main
+        [
+          rebase_path("tests/skia_test.cpp"),
+          rebase_path("tests/Test.cpp"),
+        ]
+    deps = [
+      ":flags",
+      ":gpu_tool_utils",
+      ":skia",
+      ":tool_utils",
+    ]
+    testonly = true
+  }
+
   executable("dump_record") {
     sources = [
       "tools/DumpRecord.cpp",

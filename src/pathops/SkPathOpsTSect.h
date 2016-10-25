@@ -992,6 +992,9 @@ SkTSpan<TCurve, OppCurve>* SkTSect<TCurve, OppCurve>::boundsMax() const {
 template<typename TCurve, typename OppCurve>
 bool SkTSect<TCurve, OppCurve>::coincidentCheck(SkTSect<OppCurve, TCurve>* sect2) {
     SkTSpan<TCurve, OppCurve>* first = fHead;
+    if (!first) {
+        return false;
+    }
     SkTSpan<TCurve, OppCurve>* last, * next;
     do {
         int consecutive = this->countConsecutiveSpans(first, &last);

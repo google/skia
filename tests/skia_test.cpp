@@ -171,7 +171,7 @@ int test_main() {
         if (FLAGS_dumpOp) {
             header.appendf(" -d");
         }
-#if SK_DEBUG
+#ifdef SK_DEBUG
         if (FLAGS_runFail) {
             header.appendf(" -f");
         }
