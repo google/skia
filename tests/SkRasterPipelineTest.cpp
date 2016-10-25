@@ -16,11 +16,15 @@ DEF_TEST(SkRasterPipeline, r) {
              blue = 0x3800380000000000ull,
              result;
 
+    void* load_s_ctx = &blue;
+    void* load_d_ctx = &red;
+    void* store_ctx  = &result;
+
     SkRasterPipeline p;
-    p.append(SkRasterPipeline::load_s_f16, &blue);
-    p.append(SkRasterPipeline::load_d_f16, &red);
+    p.append(SkRasterPipeline::load_s_f16, &load_s_ctx);
+    p.append(SkRasterPipeline::load_d_f16, &load_d_ctx);
     p.append(SkRasterPipeline::srcover);
-    p.append(SkRasterPipeline::store_f16, &result);
+    p.append(SkRasterPipeline::store_f16, &store_ctx);
     p.compile()(0, 1);
 
     // We should see half-intensity magenta.

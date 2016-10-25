@@ -32,14 +32,18 @@ public:
     }
 
     void onDraw(int loops, SkCanvas*) override {
+        void* mask_ctx = mask;
+        void*  src_ctx = src;
+        void*  dst_ctx = dst;
+
         SkRasterPipeline p;
-        p.append(SkRasterPipeline::load_s_srgb, src);
-        p.append(SkRasterPipeline::   scale_u8, mask);
+        p.append(SkRasterPipeline::load_s_srgb, &src_ctx);
+        p.append(SkRasterPipeline::scale_u8, &mask_ctx);
         p.append(kF16 ? SkRasterPipeline::load_d_f16
-                      : SkRasterPipeline::load_d_srgb, dst);
-        p.append(SkRasterPipeline::    srcover);
+                      : SkRasterPipeline::load_d_srgb, &dst_ctx);
+        p.append(SkRasterPipeline::srcover);
         p.append(kF16 ? SkRasterPipeline::store_f16
-                      : SkRasterPipeline::store_srgb, dst);
+                      : SkRasterPipeline::store_srgb, &dst_ctx);
         auto compiled = p.compile();
 
         while (loops --> 0) {
