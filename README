@@ -1,3 +1,16 @@
-Skia is a complete 2D graphic library for drawing Text, Geometries, and Images.
 
-See full details, and build instructions, at https://skia.org.
+![alt tag](https://skia.org/res/img/logo.png)
+
+
+
+
+Skia is a complete 2D graphic library for Drawing Text, Geometries, and Images.
+
+Can be used on:
+Android 4.4 or above
+iOS
+Desktop
+Mac OS X
+Windows
+
+For full details, build instructions, sample visit https://skia.org.
