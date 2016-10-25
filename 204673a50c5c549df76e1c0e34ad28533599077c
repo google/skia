@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "e1af00ab_fb554fdd",
+        "filename": "include/gpu/effects/GrConstColorProcessor.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 37,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2016-10-25T18:30:14Z",
+      "side": 1,
+      "message": "Not important now but should we make all these debug prints output floats?",
+      "revId": "204673a50c5c549df76e1c0e34ad28533599077c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
