@@ -12,6 +12,7 @@
 #include "SkTextureCompressor.h"
 #include "SkTypes.h"
 #include "SkXfermode.h"
+#include <functional>
 
 struct ProcCoeff;
 
@@ -73,13 +74,8 @@ namespace SkOpts {
         return hash_fn(data, bytes, seed);
     }
 
-    // SkRasterPipeline::Fn has different types in different files (notably, in SkOpts_hsw.cpp
-    // they're all in terms of Sk8f.)  We store them with a type everyone can agree on, void(*)().
-    using VoidFn = void(*)();
-    extern VoidFn body[SkRasterPipeline::kNumStockStages],
-                  tail[SkRasterPipeline::kNumStockStages];
-    extern void (*run_pipeline)(size_t, size_t, void(*)(), SkRasterPipeline::Stage*,
-                                                void(*)(), SkRasterPipeline::Stage*);
+    extern
+    std::function<void(size_t, size_t)> (*compile_pipeline)(const SkRasterPipeline::Stage*, int);
 }
 
 #endif//SkOpts_DEFINED
