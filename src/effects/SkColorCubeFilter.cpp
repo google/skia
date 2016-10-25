@@ -298,7 +298,8 @@ void GrColorCubeEffect::GLSLProcessor::GenKey(const GrProcessor& proc,
                                               const GrGLSLCaps&, GrProcessorKeyBuilder* b) {
 }
 
-sk_sp<GrFragmentProcessor> SkColorCubeFilter::asFragmentProcessor(GrContext* context) const {
+sk_sp<GrFragmentProcessor> SkColorCubeFilter::asFragmentProcessor(GrContext* context,
+                                                                  SkColorSpace*) const {
     static const GrUniqueKey::Domain kDomain = GrUniqueKey::GenerateDomain();
     GrUniqueKey key;
     GrUniqueKey::Builder builder(&key, kDomain, 2);

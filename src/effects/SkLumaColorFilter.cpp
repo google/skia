@@ -111,7 +111,7 @@ private:
     }
 };
 
-sk_sp<GrFragmentProcessor> SkLumaColorFilter::asFragmentProcessor(GrContext*) const {
+sk_sp<GrFragmentProcessor> SkLumaColorFilter::asFragmentProcessor(GrContext*, SkColorSpace*) const {
     return LumaColorFilterEffect::Make();
 }
 #endif

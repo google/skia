@@ -253,10 +253,11 @@ sk_sp<GrFragmentProcessor> GrConvexPolyEffect::Make(GrPrimitiveEdgeType type, co
     // skip the draw or omit the clip element.
     if (!SkPathPriv::CheapComputeFirstDirection(path, &dir)) {
         if (GrProcessorEdgeTypeIsInverseFill(type)) {
-            return GrConstColorProcessor::Make(0xFFFFFFFF,
+            return GrConstColorProcessor::Make(GrColor4f::OpaqueWhite(),
                                                GrConstColorProcessor::kModulateRGBA_InputMode);
         }
-        return GrConstColorProcessor::Make(0, GrConstColorProcessor::kIgnore_InputMode);
+        return GrConstColorProcessor::Make(GrColor4f::TransparentBlack(),
+                                           GrConstColorProcessor::kIgnore_InputMode);
     }
 
     SkVector t;

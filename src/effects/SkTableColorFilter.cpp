@@ -49,7 +49,7 @@ public:
     sk_sp<SkColorFilter> makeComposed(sk_sp<SkColorFilter> inner) const override;
 
 #if SK_SUPPORT_GPU
-    sk_sp<GrFragmentProcessor> asFragmentProcessor(GrContext*) const override;
+    sk_sp<GrFragmentProcessor> asFragmentProcessor(GrContext*, SkColorSpace*) const override;
 #endif
 
     void filterSpan(const SkPMColor src[], int count, SkPMColor dst[]) const override;
@@ -561,13 +561,14 @@ sk_sp<GrFragmentProcessor> ColorTableEffect::TestCreate(GrProcessorTestData* d) 
         (flags & (1 << 2)) ? luts[2] : nullptr,
         (flags & (1 << 3)) ? luts[3] : nullptr
     ));
-
-    sk_sp<GrFragmentProcessor> fp = filter->asFragmentProcessor(d->fContext);
+    sk_sp<SkColorSpace> colorSpace = GrTest::TestColorSpace(d->fRandom);
+    sk_sp<GrFragmentProcessor> fp = filter->asFragmentProcessor(d->fContext, colorSpace.get());
     SkASSERT(fp);
     return fp;
 }
 
-sk_sp<GrFragmentProcessor> SkTable_ColorFilter::asFragmentProcessor(GrContext* context) const {
+sk_sp<GrFragmentProcessor> SkTable_ColorFilter::asFragmentProcessor(GrContext* context,
+                                                                    SkColorSpace*) const {
     SkBitmap bitmap;
     this->asComponentTable(&bitmap);
 
