@@ -76,7 +76,7 @@ bool SkTTopoSort_Visit(T* node, SkTDArray<T*>* result) {
 //
 // TODO: potentially add a version that takes a seed node and just outputs that
 // node and all the nodes on which it depends. This could be used to partially
-// flush a drawTarget DAG.
+// flush a GrOpList DAG.
 template <typename T, typename Traits = T>
 bool SkTTopoSort(SkTDArray<T*>* graph) {
     SkTDArray<T*> result;

@@ -9,12 +9,13 @@
 #define GrDrawingManager_DEFINED
 
 #include "text/GrAtlasTextContext.h"
-#include "GrDrawTarget.h"
 #include "GrBatchFlushState.h"
 #include "GrPathRendererChain.h"
 #include "GrPathRenderer.h"
+#include "GrRenderTargetOpList.h"
 #include "GrResourceCache.h"
 #include "SkTDArray.h"
+
 
 class GrContext;
 class GrDrawContext;
@@ -22,10 +23,10 @@ class GrSingleOWner;
 class GrSoftwarePathRenderer;
 
 // The GrDrawingManager allocates a new GrDrawContext for each GrRenderTarget
-// but all of them still land in the same GrDrawTarget!
+// but all of them still land in the same GrOpList!
 //
 // In the future this class will allocate a new GrDrawContext for
-// each GrRenderTarget/GrDrawTarget and manage the DAG.
+// each GrRenderTarget/GrOpList and manage the DAG.
 class GrDrawingManager {
 public:
     ~GrDrawingManager();
@@ -37,9 +38,9 @@ public:
                                          sk_sp<SkColorSpace>,
                                          const SkSurfaceProps*);
 
-    // The caller automatically gets a ref on the returned drawTarget. It must
+    // The caller automatically gets a ref on the returned opList. It must
     // be balanced by an unref call.
-    GrDrawTarget* newDrawTarget(GrRenderTarget* rt);
+    GrRenderTargetOpList* newOpList(GrRenderTarget* rt);
 
     GrContext* getContext() { return fContext; }
 
@@ -63,11 +64,12 @@ public:
     void prepareSurfaceForExternalIO(GrSurface*);
 
 private:
-    GrDrawingManager(GrContext* context, const GrDrawTarget::Options& optionsForDrawTargets,
+    GrDrawingManager(GrContext* context,
+                     const GrRenderTargetOpList::Options& optionsForOpLists,
                      const GrPathRendererChain::Options& optionsForPathRendererChain,
                      bool isImmediateMode, GrSingleOwner* singleOwner)
         : fContext(context)
-        , fOptionsForDrawTargets(optionsForDrawTargets)
+        , fOptionsForOpLists(optionsForOpLists)
         , fOptionsForPathRendererChain(optionsForPathRendererChain)
         , fSingleOwner(singleOwner)
         , fAbandoned(false)
@@ -91,14 +93,14 @@ private:
     static const int kNumDFTOptions = 2;      // DFT or no DFT
 
     GrContext*                        fContext;
-    GrDrawTarget::Options             fOptionsForDrawTargets;
+    GrRenderTargetOpList::Options     fOptionsForOpLists;
     GrPathRendererChain::Options      fOptionsForPathRendererChain;
 
     // In debug builds we guard against improper thread handling
     GrSingleOwner*                    fSingleOwner;
 
     bool                              fAbandoned;
-    SkTDArray<GrDrawTarget*>          fDrawTargets;
+    SkTDArray<GrOpList*>              fOpLists;
 
     SkAutoTDelete<GrAtlasTextContext> fAtlasTextContext;
 

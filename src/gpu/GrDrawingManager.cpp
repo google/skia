@@ -9,7 +9,6 @@
 
 #include "GrContext.h"
 #include "GrDrawContext.h"
-#include "GrDrawTarget.h"
 #include "GrPathRenderingDrawContext.h"
 #include "GrResourceProvider.h"
 #include "GrSoftwarePathRenderer.h"
@@ -17,25 +16,21 @@
 #include "SkSurface_Gpu.h"
 #include "SkTTopoSort.h"
 
-#include "instanced/InstancedRendering.h"
-
 #include "text/GrAtlasTextContext.h"
 #include "text/GrStencilAndCoverTextContext.h"
 
-using gr_instanced::InstancedRendering;
-
 void GrDrawingManager::cleanup() {
-    for (int i = 0; i < fDrawTargets.count(); ++i) {
-        fDrawTargets[i]->makeClosed();  // no drawTarget should receive a new command after this
-        fDrawTargets[i]->clearRT();
+    for (int i = 0; i < fOpLists.count(); ++i) {
+        fOpLists[i]->makeClosed();  // no opList should receive a new command after this
+        fOpLists[i]->clearTarget();
 
-        // We shouldn't need to do this, but it turns out some clients still hold onto drawtargets
+        // We shouldn't need to do this, but it turns out some clients still hold onto opLists
         // after a cleanup
-        fDrawTargets[i]->reset();
-        fDrawTargets[i]->unref();
+        fOpLists[i]->reset();
+        fOpLists[i]->unref();
     }
 
-    fDrawTargets.reset();
+    fOpLists.reset();
 
     delete fPathRendererChain;
     fPathRendererChain = nullptr;
@@ -48,11 +43,8 @@ GrDrawingManager::~GrDrawingManager() {
 
 void GrDrawingManager::abandon() {
     fAbandoned = true;
-    for (int i = 0; i < fDrawTargets.count(); ++i) {
-        if (GrCaps::InstancedSupport::kNone != fContext->caps()->instancedSupport()) {
-            InstancedRendering* ir = fDrawTargets[i]->instancedRendering();
-            ir->resetGpuResources(InstancedRendering::ResetType::kAbandon);
-        }
+    for (int i = 0; i < fOpLists.count(); ++i) {
+        fOpLists[i]->abandonGpuResources();
     }
     this->cleanup();
 }
@@ -62,17 +54,14 @@ void GrDrawingManager::freeGpuResources() {
     delete fPathRendererChain;
     fPathRendererChain = nullptr;
     SkSafeSetNull(fSoftwarePathRenderer);
-    for (int i = 0; i < fDrawTargets.count(); ++i) {
-        if (GrCaps::InstancedSupport::kNone != fContext->caps()->instancedSupport()) {
-            InstancedRendering* ir = fDrawTargets[i]->instancedRendering();
-            ir->resetGpuResources(InstancedRendering::ResetType::kDestroy);
-        }
+    for (int i = 0; i < fOpLists.count(); ++i) {
+        fOpLists[i]->freeGpuResources();
     }
 }
 
 void GrDrawingManager::reset() {
-    for (int i = 0; i < fDrawTargets.count(); ++i) {
-        fDrawTargets[i]->reset();
+    for (int i = 0; i < fOpLists.count(); ++i) {
+        fOpLists[i]->reset();
     }
     fFlushState.reset();
 }
@@ -84,48 +73,48 @@ void GrDrawingManager::internalFlush(GrResourceCache::FlushType type) {
     fFlushing = true;
     bool flushed = false;
     SkDEBUGCODE(bool result =)
-                        SkTTopoSort<GrDrawTarget, GrDrawTarget::TopoSortTraits>(&fDrawTargets);
+                        SkTTopoSort<GrOpList, GrOpList::TopoSortTraits>(&fOpLists);
     SkASSERT(result);
 
-    for (int i = 0; i < fDrawTargets.count(); ++i) {
-        fDrawTargets[i]->prepareBatches(&fFlushState);
+    for (int i = 0; i < fOpLists.count(); ++i) {
+        fOpLists[i]->prepareBatches(&fFlushState);
     }
 
     // Enable this to print out verbose batching information
 #if 0
-    for (int i = 0; i < fDrawTargets.count(); ++i) {
-        SkDEBUGCODE(fDrawTargets[i]->dump();)
+    for (int i = 0; i < fOpLists.count(); ++i) {
+        SkDEBUGCODE(fOpLists[i]->dump();)
     }
 #endif
 
     // Upload all data to the GPU
     fFlushState.preIssueDraws();
 
-    for (int i = 0; i < fDrawTargets.count(); ++i) {
-        if (fDrawTargets[i]->drawBatches(&fFlushState)) {
+    for (int i = 0; i < fOpLists.count(); ++i) {
+        if (fOpLists[i]->drawBatches(&fFlushState)) {
             flushed = true;
         }
     }
 
     SkASSERT(fFlushState.nextDrawToken() == fFlushState.nextTokenToFlush());
 
-    for (int i = 0; i < fDrawTargets.count(); ++i) {
-        fDrawTargets[i]->reset();
+    for (int i = 0; i < fOpLists.count(); ++i) {
+        fOpLists[i]->reset();
 #ifdef ENABLE_MDB
-        fDrawTargets[i]->unref();
+        fOpLists[i]->unref();
 #endif
     }
 
 #ifndef ENABLE_MDB
-    // When MDB is disabled we keep reusing the same drawTarget
-    if (fDrawTargets.count()) {
-        SkASSERT(fDrawTargets.count() == 1);
+    // When MDB is disabled we keep reusing the same GrOpList
+    if (fOpLists.count()) {
+        SkASSERT(fOpLists.count() == 1);
         // Clear out this flag so the topological sort's SkTTopoSort_CheckAllUnmarked check
         // won't bark
-        fDrawTargets[0]->resetFlag(GrDrawTarget::kWasOutput_Flag);
+        fOpLists[0]->resetFlag(GrOpList::kWasOutput_Flag);
     }
 #else
-    fDrawTargets.reset();
+    fOpLists.reset();
 #endif
 
     fFlushState.reset();
@@ -153,28 +142,33 @@ void GrDrawingManager::prepareSurfaceForExternalIO(GrSurface* surface) {
     }
 }
 
-GrDrawTarget* GrDrawingManager::newDrawTarget(GrRenderTarget* rt) {
+GrRenderTargetOpList* GrDrawingManager::newOpList(GrRenderTarget* rt) {
     SkASSERT(fContext);
 
 #ifndef ENABLE_MDB
-    // When MDB is disabled we always just return the single drawTarget
-    if (fDrawTargets.count()) {
-        SkASSERT(fDrawTargets.count() == 1);
-        // In the non-MDB-world the same drawTarget gets reused for multiple render targets.
+    // When MDB is disabled we always just return the single GrOpList
+    if (fOpLists.count()) {
+        SkASSERT(fOpLists.count() == 1);
+        // In the non-MDB-world the same GrOpList gets reused for multiple render targets.
         // Update this pointer so all the asserts are happy
-        rt->setLastDrawTarget(fDrawTargets[0]);
+        rt->setLastOpList(fOpLists[0]);
         // DrawingManager gets the creation ref - this ref is for the caller
-        return SkRef(fDrawTargets[0]);
+
+        // TODO: although this is true right now it isn't cool
+        return SkRef((GrRenderTargetOpList*) fOpLists[0]);
     }
 #endif
 
-    GrDrawTarget* dt = new GrDrawTarget(rt, fContext->getGpu(), fContext->resourceProvider(),
-                                        fContext->getAuditTrail(), fOptionsForDrawTargets);
+    GrRenderTargetOpList* opList = new GrRenderTargetOpList(rt,
+                                                            fContext->getGpu(),
+                                                            fContext->resourceProvider(),
+                                                            fContext->getAuditTrail(),
+                                                            fOptionsForOpLists);
 
-    *fDrawTargets.append() = dt;
+    *fOpLists.append() = opList;
 
     // DrawingManager gets the creation ref - this ref is for the caller
-    return SkRef(dt);
+    return SkRef(opList);
 }
 
 GrAtlasTextContext* GrDrawingManager::getAtlasTextContext() {

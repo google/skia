@@ -90,17 +90,17 @@ void GrContext::initCommon(const GrContextOptions& options) {
 
     fDidTestPMConversions = false;
 
-    GrDrawTarget::Options dtOptions;
-    dtOptions.fClipBatchToBounds = options.fClipBatchToBounds;
-    dtOptions.fDrawBatchBounds = options.fDrawBatchBounds;
-    dtOptions.fMaxBatchLookback = options.fMaxBatchLookback;
-    dtOptions.fMaxBatchLookahead = options.fMaxBatchLookahead;
+    GrRenderTargetOpList::Options rtOpListOptions;
+    rtOpListOptions.fClipBatchToBounds = options.fClipBatchToBounds;
+    rtOpListOptions.fDrawBatchBounds = options.fDrawBatchBounds;
+    rtOpListOptions.fMaxBatchLookback = options.fMaxBatchLookback;
+    rtOpListOptions.fMaxBatchLookahead = options.fMaxBatchLookahead;
     GrPathRendererChain::Options prcOptions;
     prcOptions.fDisableDistanceFieldRenderer = options.fDisableDistanceFieldPaths;
     prcOptions.fAllowPathMaskCaching = options.fAllowPathMaskCaching;
     prcOptions.fDisableAllPathRenderers = options.fForceSWPathMasks;
-    fDrawingManager.reset(new GrDrawingManager(this, dtOptions, prcOptions, options.fImmediateMode,
-                                               &fSingleOwner));
+    fDrawingManager.reset(new GrDrawingManager(this, rtOpListOptions, prcOptions,
+                                               options.fImmediateMode, &fSingleOwner));
 
     // GrBatchFontCache will eventually replace GrFontCache
     fBatchFontCache = new GrBatchFontCache(this);
