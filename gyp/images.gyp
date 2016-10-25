@@ -13,7 +13,6 @@
       'standalone_static_library': 1,
       'dependencies': [
         'core.gyp:*',
-        'giflib.gyp:giflib',
         'libjpeg-turbo-selector.gyp:libjpeg-turbo-selector',
         'etc1.gyp:libetc1',
         'ktx.gyp:libSkKTX',
@@ -59,9 +58,6 @@
         [ 'skia_os == "win"', {
           'sources!': [
             '../src/images/SkGIFMovie.cpp',
-          ],
-          'dependencies!': [
-            'giflib.gyp:giflib'
           ],
           'link_settings': {
             'libraries': [
