@@ -458,46 +458,47 @@ SI Fn enum_to_Fn(SkRasterPipeline::StockStage st) {
 
 namespace SK_OPTS_NS {
 
-    SI void run_pipeline(size_t x, size_t n,
-                         const SkRasterPipeline::Stage* stages, int nstages) {
-        SkASSERT(nstages <= SkRasterPipeline::kMaxStages);
-        if (nstages == 0) {
-            return;
-        }
+    SI std::function<void(size_t, size_t)> compile_pipeline(const SkRasterPipeline::Stage* stages,
+                                                            int nstages) {
+        struct Compiled {
+            Compiled(const SkRasterPipeline::Stage* stages, int nstages) {
+                if (nstages == 0) {
+                    return;
+                }
 
-        SkNf v;  // Fastest to start uninitialized.
-
-        if (n >= N) {
-            BodyStage body[SkRasterPipeline::kMaxStages];
-
-            Body start = enum_to_Fn<Body>(stages[0].stage);
-            for (int i = 0; i < nstages-1; i++) {
-                body[i].next = enum_to_Fn<Body>(stages[i+1].stage);
-                body[i].ctx  = stages[i].ctx;
+                fBodyStart = enum_to_Fn<Body>(stages[0].stage);
+                fTailStart = enum_to_Fn<Tail>(stages[0].stage);
+                for (int i = 0; i < nstages-1; i++) {
+                    fBody[i].next = enum_to_Fn<Body>(stages[i+1].stage);
+                    fTail[i].next = enum_to_Fn<Tail>(stages[i+1].stage);
+                    fBody[i].ctx = fTail[i].ctx = stages[i].ctx;
+                }
+                fBody[nstages-1].next = just_return;
+                fTail[nstages-1].next = just_return;
+                fBody[nstages-1].ctx = fTail[nstages-1].ctx = stages[nstages-1].ctx;
             }
-            body[nstages-1].next = just_return;
-            body[nstages-1].ctx  = stages[nstages-1].ctx;
 
-            do {
-                start(body, x, v,v,v,v, v,v,v,v);
-                x += N;
-                n -= N;
-            } while (n >= N);
-        }
+            void operator()(size_t x, size_t n) {
+                SkNf v;  // Fastest to start uninitialized.
 
-        if (n > 0) {
-            TailStage tail[SkRasterPipeline::kMaxStages];
-
-            Tail start = enum_to_Fn<Tail>(stages[0].stage);
-            for (int i = 0; i < nstages-1; i++) {
-                tail[i].next = enum_to_Fn<Tail>(stages[i+1].stage);
-                tail[i].ctx  = stages[i].ctx;
+                while (n >= N) {
+                    fBodyStart(fBody, x, v,v,v,v, v,v,v,v);
+                    x += N;
+                    n -= N;
+                }
+                if (n) {
+                    fTailStart(fTail, x,n, v,v,v,v, v,v,v,v);
+                }
             }
-            tail[nstages-1].next = just_return;
-            tail[nstages-1].ctx  = stages[nstages-1].ctx;
 
-            start(tail, x,n, v,v,v,v, v,v,v,v);
-        }
+            Body fBodyStart = just_return;
+            Tail fTailStart = just_return;
+
+            BodyStage fBody[SkRasterPipeline::kMaxStages];
+            TailStage fTail[SkRasterPipeline::kMaxStages];
+
+        } fn { stages, nstages };
+        return fn;
     }
 
 }  // namespace SK_OPTS_NS

@@ -11,6 +11,7 @@
 #include "SkNx.h"
 #include "SkTArray.h"
 #include "SkTypes.h"
+#include <functional>
 
 /**
  * SkRasterPipeline provides a cheap way to chain together a pixel processing pipeline.
@@ -85,11 +86,8 @@ public:
     // Append all stages to this pipeline.
     void extend(const SkRasterPipeline&);
 
-    // Run the pipeline constructed with append(), walking x through [x,x+n),
-    // generally in 4-pixel steps, with perhaps one jagged tail step.
-    void run(size_t x, size_t n) const;
-    void run(size_t n) const { this->run(0, n); }
-
+    // Runs the pipeline walking x through [x,x+n).
+    std::function<void(size_t x, size_t n)> compile() const;
 
     struct Stage {
         StockStage stage;

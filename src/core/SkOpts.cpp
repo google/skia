@@ -89,7 +89,7 @@ namespace SkOpts {
 
     DEFINE_DEFAULT(hash_fn);
 
-    DEFINE_DEFAULT(run_pipeline);
+    DEFINE_DEFAULT(compile_pipeline);
 #undef DEFINE_DEFAULT
 
     // Each Init_foo() is defined in src/opts/SkOpts_foo.cpp.

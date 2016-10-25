@@ -149,6 +149,8 @@ void SkRasterPipelineBlitter::append_store(SkRasterPipeline* p, void* dst) const
     }
 }
 
+// TODO: Figure out how to cache some of the compiled pipelines.
+
 void SkRasterPipelineBlitter::blitH(int x, int y, int w) {
     auto dst = fDst.writable_addr(0,y);
 
@@ -159,7 +161,7 @@ void SkRasterPipelineBlitter::blitH(int x, int y, int w) {
     p.extend(fXfermode);
     this->append_store(&p, dst);
 
-    p.run(x, w);
+    p.compile()(x,w);
 }
 
 void SkRasterPipelineBlitter::blitAntiH(int x, int y, const SkAlpha aa[], const int16_t runs[]) {
@@ -176,7 +178,7 @@ void SkRasterPipelineBlitter::blitAntiH(int x, int y, const SkAlpha aa[], const 
 
     for (int16_t run = *runs; run > 0; run = *runs) {
         coverage = *aa * (1/255.0f);
-        p.run(x, run);
+        p.compile()(x, run);
 
         x    += run;
         runs += run;
@@ -210,6 +212,6 @@ void SkRasterPipelineBlitter::blitMask(const SkMask& mask, const SkIRect& clip) 
         }
         this->append_store(&p, dst);
 
-        p.run(x, clip.width());
+        p.compile()(x, clip.width());
     }
 }
