@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "c15afc67_e951c122",
+        "filename": "gm/color4f.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 101,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2016-10-25T15:46:43Z",
+      "side": 1,
+      "message": "Note that creating a color space with a simple permutation matrix like this actually does some combination of (R, G, B) -\u003e (X, Y, Z).",
+      "revId": "aee37c776d4d75bcdf722352e400a9fceee70f9b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
