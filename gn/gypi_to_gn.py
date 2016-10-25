@@ -4,7 +4,7 @@
 # Use of this source code is governed by a BSD-style license that can be
 # found in the LICENSE file.
 
-"""Converts a given gypi file to a python scope and writes the result to stdout.
+"""Converts a set of gypi files to a gn scope and writes the result to stdout.
 
 USING THIS SCRIPT IN CHROMIUM
 
@@ -72,7 +72,7 @@ Read the values into a target like this:
 Sometimes your .gypi file will include paths relative to a different
 directory than the current .gn file. In this case, you can rebase them to
 be relative to the current directory.
-  sources = rebase_path(gypi_values.sources, ".",
+  sources = rebase_path(gypi_values.your_files_sources, ".",
                         "//path/gypi/input/values/are/relative/to")
 
 This script will tolerate a 'variables' in the toplevel dictionary or not. If
@@ -92,11 +92,16 @@ the input will be replaced with "bar":
                             "scope",
                             [ "your_file.gypi" ])
 
+This script can also prefix each variable in the resulting scope with the name
+of the gypi file. This is useful when processing multiple gypi files that define
+the same variable name such as 'sources'.
 """
 
 import gn_helpers
 from optparse import OptionParser
 import sys
+import os.path
+
 
 def LoadPythonDictionary(path):
   file_string = open(path).read()
@@ -154,34 +159,46 @@ def ReplaceSubstrings(values, search_for, replace_with):
   # Assume everything else is unchanged.
   return values
 
+
 def main():
   parser = OptionParser()
   parser.add_option("-r", "--replace", action="append",
     help="Replaces substrings. If passed a=b, replaces all substrs a with b.")
+  parser.add_option("--prefix", action="store_true",
+    help="Prefix all variables with name of the gypi file")
   (options, args) = parser.parse_args()
 
-  if len(args) != 1:
-    raise Exception("Need one argument which is the .gypi file to read.")
+  if len(args) < 1:
+    raise Exception("Need at least one .gypi file to read.")
 
-  data = LoadPythonDictionary(args[0])
-  if options.replace:
-    # Do replacements for all specified patterns.
-    for replace in options.replace:
-      split = replace.split('=')
-      # Allow "foo=" to replace with nothing.
-      if len(split) == 1:
-        split.append('')
-      assert len(split) == 2, "Replacement must be of the form 'key=value'."
-      data = ReplaceSubstrings(data, split[0], split[1])
+  data = {}
 
-  # Sometimes .gypi files use the GYP syntax with percents at the end of the
-  # variable name (to indicate not to overwrite a previously-defined value):
-  #   'foo%': 'bar',
-  # Convert these to regular variables.
-  for key in data:
-    if len(key) > 1 and key[len(key) - 1] == '%':
-      data[key[:-1]] = data[key]
-      del data[key]
+  for gypi in args:
+    gypi_data = LoadPythonDictionary(gypi)
+    if options.replace:
+      # Do replacements for all specified patterns.
+      for replace in options.replace:
+        split = replace.split('=')
+        # Allow "foo=" to replace with nothing.
+        if len(split) == 1:
+          split.append('')
+        assert len(split) == 2, "Replacement must be of the form 'key=value'."
+        gypi_data = ReplaceSubstrings(gypi_data, split[0], split[1])
+
+    # Sometimes .gypi files use the GYP syntax with percents at the end of the
+    # variable name (to indicate not to overwrite a previously-defined value):
+    #   'foo%': 'bar',
+    # Convert these to regular variables.
+    # Then add the values to the global data, optionally prefixing them.
+    gypi_name = os.path.basename(gypi)[:-len(".gypi")]
+    for key in gypi_data:
+      if len(key) > 1 and key[len(key) - 1] == '%':
+        gypi_data[key[:-1]] = gypi_data[key]
+        del gypi_data[key]
+      if options.prefix:
+        data[gypi_name + "_" + key] = gypi_data[key]
+      else:
+        data[key] = gypi_data[key]
 
   print gn_helpers.ToGNString(data)
 

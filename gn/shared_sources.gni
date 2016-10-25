@@ -10,41 +10,38 @@
 _path_to_include = get_path_info("../include", "abspath")
 _path_to_src = get_path_info("../src", "abspath")
 
+# Calling out to python is relatively expensive compared to processing the GN
+# file so we call gypi_to_gn.py once with all of the gypi files we may care
+# about then extract the results into exported variables.
+_gypis = [
+  "../gyp/core.gypi",
+  "../gyp/effects.gypi",
+  "../gyp/gpu.gypi",
+  "../gyp/pdf.gypi",
+  "../gyp/skia_sources.gypi",
+  "../gyp/skia_for_android_framework_defines.gypi",
+]
+
+_gypi_contents =
+    exec_script("gypi_to_gn.py",
+                rebase_path(_gypis) + [
+                      "--replace=<(skia_include_path)=$_path_to_include",
+                      "--replace=<(skia_src_path)=$_path_to_src",
+                      "--prefix",
+                    ],
+                "scope",
+                _gypis)
+
 # Core.
-_core_gypi = exec_script("gypi_to_gn.py",
-                         [
-                           rebase_path("../gyp/core.gypi"),
-                           "--replace=<(skia_include_path)=$_path_to_include",
-                           "--replace=<(skia_src_path)=$_path_to_src",
-                         ],
-                         "scope",
-                         [ "../gyp/core.gypi" ])
-skia_core_sources = _core_gypi.sources
+skia_core_sources = _gypi_contents.core_sources
 
 # Effects.
-_effects_gypi =
-    exec_script("gypi_to_gn.py",
-                [
-                  rebase_path("../gyp/effects.gypi"),
-                  "--replace=<(skia_include_path)=$_path_to_include",
-                  "--replace=<(skia_src_path)=$_path_to_src",
-                ],
-                "scope",
-                [ "../gyp/effects.gypi" ])
-skia_effects_sources = _effects_gypi.sources
+skia_effects_sources = _gypi_contents.effects_sources
 
 # GPU.
-_gpu_gypi = exec_script("gypi_to_gn.py",
-                        [
-                          rebase_path("../gyp/gpu.gypi"),
-                          "--replace=<(skia_include_path)=$_path_to_include",
-                          "--replace=<(skia_src_path)=$_path_to_src",
-                        ],
-                        "scope",
-                        [ "../gyp/gpu.gypi" ])
-skia_gpu_sources = _gpu_gypi.skgpu_sources
-skia_null_gpu_sources = _gpu_gypi.skgpu_null_gl_sources
-skia_vk_sources = _gpu_gypi.skgpu_vk_sources
+skia_gpu_sources = _gypi_contents.gpu_skgpu_sources
+skia_null_gpu_sources = _gypi_contents.gpu_skgpu_null_gl_sources
+skia_vk_sources = _gypi_contents.gpu_skgpu_vk_sources
 
 # Opts.
 #
@@ -60,32 +57,15 @@ skia_opts = exec_script("gypi_to_gn.py",
                         [ "../gyp/opts.gypi" ])
 
 # PDF.
-_pdf_gypi = exec_script("gypi_to_gn.py",
-                        [
-                          rebase_path("../gyp/pdf.gypi"),
-                          "--replace=<(skia_include_path)=$_path_to_include",
-                          "--replace=<(skia_src_path)=$_path_to_src",
-                        ],
-                        "scope",
-                        [ "../gyp/pdf.gypi" ])
-skia_pdf_sources = _pdf_gypi.sources
+skia_pdf_sources = _gypi_contents.pdf_sources
 
-_sources_gypi = exec_script("gypi_to_gn.py",
-                            [ rebase_path("../gyp/skia_sources.gypi") ],
-                            "scope",
-                            [ "../gyp/skia_sources.gypi" ])
-skia_sksl_sources = get_path_info(_sources_gypi.sksl_sources, "abspath")
-skia_utils_sources = get_path_info(_sources_gypi.utils_sources, "abspath")
+skia_sksl_sources =
+    get_path_info(_gypi_contents.skia_sources_sksl_sources, "abspath")
+skia_utils_sources =
+    get_path_info(_gypi_contents.skia_sources_utils_sources, "abspath")
 
 # Skia Chromium defines. These flags will be defined in chromium If these
 # become 'permanent', they should be moved into Chrome's skia build file.
 skia_for_chromium_defines = [ "SK_IGNORE_LINEONLY_AA_CONVEX_PATH_OPTS" ]
 
-_android_framework_defines =
-    exec_script(
-        "gypi_to_gn.py",
-        [ rebase_path("../gyp/skia_for_android_framework_defines.gypi") ],
-        "scope",
-        [ "../gyp/core.gypi" ])
-skia_android_framework_defines =
-    _android_framework_defines.skia_for_android_framework_defines
+skia_android_framework_defines = _gypi_contents.skia_for_android_framework_defines_skia_for_android_framework_defines
