@@ -42,13 +42,12 @@ bool sk_region_set_rect(sk_region_t *dst, const sk_irect_t *rect) {
   return region.setRect(AsIRect(*rect));
 }
 
-bool sk_region_op(sk_region_t *dst, int left, int top, int right, int bottom,
-                  sk_region_op_t* op) {
+bool sk_region_op(sk_region_t *dst, int left, int top, int right, int bottom, sk_region_op_t op) {
   SkRegion region = *AsRegion(dst);
   return region.op(left, top, right, bottom, (SkRegion::Op)op);
 }
 
-bool sk_region_op2(sk_region_t *dst, sk_region_t *src, sk_region_op_t* op) {
+bool sk_region_op2(sk_region_t *dst, sk_region_t *src, sk_region_op_t op) {
   SkRegion region = *AsRegion(dst);
   return region.op(*AsRegion(src), (SkRegion::Op)op);
 }
