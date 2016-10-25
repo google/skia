@@ -42,7 +42,7 @@ private:
 };
 
 /**
- * Base class for GrBatches that draw. These batches have a GrPipeline installed by GrDrawTarget.
+ * Base class for GrBatches that draw. These batches have a GrPipeline installed by GrOpList.
  */
 class GrDrawBatch : public GrBatch {
 public:

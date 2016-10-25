@@ -1323,7 +1323,7 @@ void GrVkGpu::addImageMemoryBarrier(VkPipelineStageFlags srcStageMask,
                                        barrier);
 }
 
-void GrVkGpu::finishDrawTarget() {
+void GrVkGpu::finishOpList() {
     // Submit the current command buffer to the Queue
     this->submitCommandBuffer(kSkip_SyncQueue);
 }

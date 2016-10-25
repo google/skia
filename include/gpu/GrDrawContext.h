@@ -24,12 +24,12 @@ class GrDrawBatch;
 class GrDrawContextPriv;
 class GrDrawPathBatchBase;
 class GrDrawingManager;
-class GrDrawTarget;
 class GrFixedClip;
 class GrPaint;
 class GrPathProcessor;
 class GrPipelineBuilder;
 class GrRenderTarget;
+class GrRenderTargetOpList;
 class GrStyle;
 class GrSurface;
 struct GrUserStencilSettings;
@@ -366,7 +366,7 @@ private:
 
     friend class GrDrawingManager; // for ctor
     friend class GrDrawContextPriv;
-    friend class GrTestTarget;  // for access to getDrawTarget
+    friend class GrTestTarget;  // for access to getOpList
     friend class GrSWMaskHelper;                 // for access to drawBatch
 
     // All the path renderers currently make their own batches
@@ -412,17 +412,17 @@ private:
                           const GrStyle& style);
 
     // This entry point allows the GrTextContext-derived classes to add their batches to
-    // the drawTarget.
+    // the GrOpList.
     void drawBatch(const GrPipelineBuilder& pipelineBuilder, const GrClip&, GrDrawBatch* batch);
 
-    GrDrawTarget* getDrawTarget();
+    GrRenderTargetOpList* getOpList();
 
     GrDrawingManager*                 fDrawingManager;
     sk_sp<GrRenderTarget>             fRenderTarget;
 
-    // In MDB-mode the drawTarget can be closed by some other drawContext that has picked
-    // it up. For this reason, the drawTarget should only ever be accessed via 'getDrawTarget'.
-    GrDrawTarget*                     fDrawTarget;
+    // In MDB-mode the GrOpList can be closed by some other drawContext that has picked
+    // it up. For this reason, the GrOpList should only ever be accessed via 'getOpList'.
+    GrRenderTargetOpList*             fOpList;
     GrContext*                        fContext;
     GrInstancedPipelineInfo           fInstancedPipelineInfo;
 

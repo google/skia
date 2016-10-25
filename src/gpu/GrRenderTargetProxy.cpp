@@ -8,8 +8,9 @@
 #include "GrRenderTargetProxy.h"
 
 #include "GrCaps.h"
-#include "GrDrawTarget.h"
 #include "GrGpuResourcePriv.h"
+#include "GrRenderTargetOpList.h"
+#include "GrTextureProvider.h"
 
 // Deferred version
 // TODO: we can probably munge the 'desc' in both the wrapped and deferred
@@ -18,8 +19,7 @@ GrRenderTargetProxy::GrRenderTargetProxy(const GrCaps& caps, const GrSurfaceDesc
                                          SkBackingFit fit, SkBudgeted budgeted)
     : INHERITED(desc, fit, budgeted)
     , fTarget(nullptr)
-    , fFlags(GrRenderTargetPriv::Flags::kNone)
-    , fLastDrawTarget(nullptr) {
+    , fFlags(GrRenderTargetPriv::Flags::kNone) {
     // Since we know the newly created render target will be internal, we are able to precompute
     // what the flags will ultimately end up being.
     if (caps.usesMixedSamples() && fDesc.fSampleCnt > 0) {
@@ -35,15 +35,7 @@ GrRenderTargetProxy::GrRenderTargetProxy(const GrCaps& caps, sk_sp<GrRenderTarge
     : INHERITED(rt->desc(), SkBackingFit::kExact,
                 rt->resourcePriv().isBudgeted(), rt->uniqueID())
     , fTarget(std::move(rt))
-    , fFlags(fTarget->renderTargetPriv().flags())
-    , fLastDrawTarget(nullptr) {
-}
-
-GrRenderTargetProxy::~GrRenderTargetProxy() {
-    if (fLastDrawTarget) {
-        fLastDrawTarget->clearRT();
-    }
-    SkSafeUnref(fLastDrawTarget);
+    , fFlags(fTarget->renderTargetPriv().flags()) {
 }
 
 GrRenderTarget* GrRenderTargetProxy::instantiate(GrTextureProvider* texProvider) {
@@ -71,18 +63,6 @@ GrRenderTarget* GrRenderTargetProxy::instantiate(GrTextureProvider* texProvider)
     SkASSERT(fFlags == fTarget->renderTargetPriv().flags());
 
     return fTarget.get();
-}
-
-void GrRenderTargetProxy::setLastDrawTarget(GrDrawTarget* dt) {
-    if (fLastDrawTarget) {
-        // The non-MDB world never closes so we can't check this condition
-#ifdef ENABLE_MDB
-        SkASSERT(fLastDrawTarget->isClosed());
-#endif
-        fLastDrawTarget->clearRT();
-    }
-
-    SkRefCnt_SafeAssign(fLastDrawTarget, dt);
 }
 
 sk_sp<GrRenderTargetProxy> GrRenderTargetProxy::Make(const GrCaps& caps,

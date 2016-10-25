@@ -7,12 +7,23 @@
 
 #include "GrSurface.h"
 #include "GrContext.h"
+#include "GrOpList.h"
 #include "GrSurfacePriv.h"
 
 #include "SkBitmap.h"
 #include "SkGrPriv.h"
 #include "SkImageEncoder.h"
 #include <stdio.h>
+
+GrSurface::~GrSurface() {
+    if (fLastOpList) {
+        fLastOpList->clearTarget();
+    }
+    SkSafeUnref(fLastOpList);
+
+    // check that invokeReleaseProc has been called (if needed)
+    SkASSERT(NULL == fReleaseProc);
+}
 
 size_t GrSurface::WorstCaseSize(const GrSurfaceDesc& desc) {
     size_t size;
@@ -194,4 +205,16 @@ void GrSurface::onRelease() {
 void GrSurface::onAbandon() {
     this->invokeReleaseProc();
     this->INHERITED::onAbandon();
+}
+
+void GrSurface::setLastOpList(GrOpList* opList) {
+    if (fLastOpList) {
+        // The non-MDB world never closes so we can't check this condition
+#ifdef ENABLE_MDB
+        SkASSERT(fLastOpList->isClosed());
+#endif
+        fLastOpList->clearTarget();
+    }
+
+    SkRefCnt_SafeAssign(fLastOpList, opList);
 }

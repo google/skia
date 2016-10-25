@@ -65,9 +65,9 @@ void GrTestTarget::init(GrContext* ctx, sk_sp<GrDrawContext> drawContext) {
 void GrContext::getTestTarget(GrTestTarget* tar, sk_sp<GrDrawContext> drawContext) {
     this->flush();
     SkASSERT(drawContext);
-    // We could create a proxy GrDrawTarget that passes through to fGpu until ~GrTextTarget() and
+    // We could create a proxy GrOpList that passes through to fGpu until ~GrTextTarget() and
     // then disconnects. This would help prevent test writers from mixing using the returned
-    // GrDrawTarget and regular drawing. We could also assert or fail in GrContext drawing methods
+    // GrOpList and regular drawing. We could also assert or fail in GrContext drawing methods
     // until ~GrTestTarget().
     tar->init(this, std::move(drawContext));
 }
@@ -252,7 +252,7 @@ void GrDrawContextPriv::testingOnly_drawBatch(const GrPaint& paint,
         pipelineBuilder.setState(GrPipelineBuilder::kSnapVerticesToPixelCenters_Flag, true);
     }
 
-    fDrawContext->getDrawTarget()->drawBatch(pipelineBuilder, fDrawContext, GrNoClip(), batch);
+    fDrawContext->getOpList()->drawBatch(pipelineBuilder, fDrawContext, GrNoClip(), batch);
 }
 
 #undef ASSERT_SINGLE_OWNER

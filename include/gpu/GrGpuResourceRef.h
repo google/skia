@@ -63,7 +63,7 @@ private:
         execution. It can only be called once. */
     void markPendingIO() const;
 
-    /** Called when the program element/draw state is no longer owned by GrDrawTarget-client code.
+    /** Called when the program element/draw state is no longer owned by GrOpList-client code.
         This lets the cache know that the drawing code will no longer schedule additional reads or
         writes to the resource using the program element or draw state. It can only be called once.
       */

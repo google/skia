@@ -11,8 +11,8 @@
 #include "GrContext.h"
 #include "GrContextPriv.h"
 #include "GrDrawContext.h"
-#include "GrDrawTarget.h"
 #include "GrGpu.h"
+#include "GrRenderTargetOpList.h"
 #include "GrRenderTargetPriv.h"
 #include "GrStencilAttachment.h"
 
@@ -21,18 +21,10 @@ GrRenderTarget::GrRenderTarget(GrGpu* gpu, const GrSurfaceDesc& desc, Flags flag
     : INHERITED(gpu, desc)
     , fStencilAttachment(stencil)
     , fMultisampleSpecsID(0)
-    , fFlags(flags)
-    , fLastDrawTarget(nullptr) {
+    , fFlags(flags) {
     SkASSERT(!(fFlags & Flags::kMixedSampled) || fDesc.fSampleCnt > 0);
     SkASSERT(!(fFlags & Flags::kWindowRectsSupport) || gpu->caps()->maxWindowRectangles() > 0);
     fResolveRect.setLargestInverted();
-}
-
-GrRenderTarget::~GrRenderTarget() {
-    if (fLastDrawTarget) {
-        fLastDrawTarget->clearRT();
-    }
-    SkSafeUnref(fLastDrawTarget);
 }
 
 void GrRenderTarget::discard() {
@@ -85,22 +77,10 @@ void GrRenderTarget::onAbandon() {
     SkSafeSetNull(fStencilAttachment);
 
     // The contents of this renderTarget are gone/invalid. It isn't useful to point back
-    // the creating drawTarget.
-    this->setLastDrawTarget(nullptr);
+    // the creating opList.
+    this->setLastOpList(nullptr);
 
     INHERITED::onAbandon();
-}
-
-void GrRenderTarget::setLastDrawTarget(GrDrawTarget* dt) {
-    if (fLastDrawTarget) {
-        // The non-MDB world never closes so we can't check this condition
-#ifdef ENABLE_MDB
-        SkASSERT(fLastDrawTarget->isClosed());
-#endif
-        fLastDrawTarget->clearRT();
-    }
-
-    SkRefCnt_SafeAssign(fLastDrawTarget, dt);
 }
 
 ///////////////////////////////////////////////////////////////////////////////

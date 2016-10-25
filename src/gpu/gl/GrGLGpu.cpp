@@ -2238,7 +2238,7 @@ void GrGLGpu::clearStencilClip(const GrFixedClip& clip,
 #else
     // we could just clear the clip bit but when we go through
     // ANGLE a partial stencil mask will cause clears to be
-    // turned into draws. Our contract on GrDrawTarget says that
+    // turned into draws. Our contract on GrOpList says that
     // changing the clip between stencil passes may or may not
     // zero the client's clip bits. So we just clear the whole thing.
     static const GrGLint clipStencilMask  = ~0;
@@ -2616,7 +2616,7 @@ GrGpuCommandBuffer* GrGLGpu::createCommandBuffer(
     return new GrGLGpuCommandBuffer(this, static_cast<GrGLRenderTarget*>(target));
 }
 
-void GrGLGpu::finishDrawTarget() {
+void GrGLGpu::finishOpList() {
     if (fPLSHasBeenUsed) {
         /* There is an ARM driver bug where if we use PLS, and then draw a frame which does not
          * use PLS, it leaves garbage all over the place. As a workaround, we use PLS in a

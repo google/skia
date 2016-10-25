@@ -9,10 +9,10 @@
 
 #include "GrCaps.h"
 #include "GrDrawContext.h"
-#include "GrDrawTarget.h"
 #include "GrGpu.h"
 #include "GrPipelineBuilder.h"
 #include "GrProcOptInfo.h"
+#include "GrRenderTargetOpList.h"
 #include "GrRenderTargetPriv.h"
 #include "GrXferProcessor.h"
 
@@ -178,8 +178,8 @@ GrPipeline* GrPipeline::CreateAt(void* memory, const CreateArgs& args,
 static void add_dependencies_for_processor(const GrFragmentProcessor* proc, GrRenderTarget* rt) {
     GrFragmentProcessor::TextureAccessIter iter(proc);
     while (const GrTextureAccess* access = iter.next()) {
-        SkASSERT(rt->getLastDrawTarget());
-        rt->getLastDrawTarget()->addDependency(access->getTexture());
+        SkASSERT(rt->getLastOpList());
+        rt->getLastOpList()->addDependency(access->getTexture());
     }
 }
 
@@ -192,8 +192,8 @@ void GrPipeline::addDependenciesTo(GrRenderTarget* rt) const {
 
     for (int i = 0; i < xfer.numTextures(); ++i) {
         GrTexture* texture = xfer.textureAccess(i).getTexture();
-        SkASSERT(rt->getLastDrawTarget());
-        rt->getLastDrawTarget()->addDependency(texture);
+        SkASSERT(rt->getLastOpList());
+        rt->getLastOpList()->addDependency(texture);
     }
 }
 

@@ -28,8 +28,6 @@ public:
                                            SkBackingFit, SkBudgeted);
     static sk_sp<GrRenderTargetProxy> Make(const GrCaps&, sk_sp<GrRenderTarget>);
 
-    ~GrRenderTargetProxy() override;
-
     // TODO: add asTextureProxy variants
     GrRenderTargetProxy* asRenderTargetProxy() override { return this; }
     const GrRenderTargetProxy* asRenderTargetProxy() const override { return this; }
@@ -60,9 +58,6 @@ public:
      */
     int numColorSamples() const { return this->isMixedSampled() ? 0 : fDesc.fSampleCnt; }
 
-    void setLastDrawTarget(GrDrawTarget* dt);
-    GrDrawTarget* getLastDrawTarget() { return fLastDrawTarget; }
-
     GrRenderTargetPriv::Flags testingOnly_getFlags() const;
 
 private:
@@ -82,14 +77,6 @@ private:
     // flags will ultimately end up being. In the wrapped case we just copy the wrapped
     // rendertarget's info here.
     GrRenderTargetPriv::Flags   fFlags;
-
-    // The last drawTarget that wrote to or is currently going to write to this renderTarget
-    // The drawTarget can be closed (e.g., no draw context is currently bound
-    // to this renderTarget).
-    // This back-pointer is required so that we can add a dependancy between
-    // the drawTarget used to create the current contents of this renderTarget
-    // and the drawTarget of a destination renderTarget to which this one is being drawn.
-    GrDrawTarget* fLastDrawTarget;
 
     typedef GrSurfaceProxy INHERITED;
 };

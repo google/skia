@@ -15,7 +15,7 @@
 class GrGpuCommandBuffer;
 class GrResourceProvider;
 
-/** Tracks the state across all the GrBatches in a GrDrawTarget flush. */
+/** Tracks the state across all the GrBatches in a GrOpList flush. */
 class GrBatchFlushState {
 public:
     GrBatchFlushState(GrGpu*, GrResourceProvider*);

@@ -139,7 +139,7 @@ public:
                                       GrVkRenderTarget*,
                                       const SkIRect& bounds);
 
-    void finishDrawTarget() override;
+    void finishOpList() override;
 
     GrFence SK_WARN_UNUSED_RESULT insertFence() const override;
     bool waitFence(GrFence, uint64_t timeout) const override;
