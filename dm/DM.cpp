@@ -883,6 +883,7 @@ static Sink* create_sink(const SkCommandLineConfig* config) {
         SINK("null", NullSink);
         SINK("xps",  XPSSink);
         SINK("pdfa", PDFSink, true);
+        SINK("jsdebug", DebugSink);
     }
 #undef SINK
     return nullptr;

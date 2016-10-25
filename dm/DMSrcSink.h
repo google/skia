@@ -374,6 +374,13 @@ public:
     SinkFlags flags() const override { return SinkFlags{ SinkFlags::kVector, SinkFlags::kDirect }; }
 };
 
+class DebugSink : public Sink {
+public:
+    Error draw(const Src&, SkBitmap*, SkWStream*, SkString*) const override;
+    const char* fileExtension() const override { return "json"; }
+    SinkFlags flags() const override { return SinkFlags{ SinkFlags::kVector, SinkFlags::kDirect }; }
+};
+
 class SVGSink : public Sink {
 public:
     SVGSink();

@@ -15,6 +15,7 @@
 #include "SkColorSpaceXform.h"
 #include "SkCommonFlags.h"
 #include "SkData.h"
+#include "SkDebugCanvas.h"
 #include "SkDeferredCanvas.h"
 #include "SkDocument.h"
 #include "SkImageGenerator.h"
@@ -1393,6 +1394,22 @@ Error SKPSink::draw(const Src& src, SkBitmap*, SkWStream* dst, SkString*) const 
     }
     recorder.finishRecordingAsPicture()->serialize(dst);
     return "";
+}
+
+/*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
+
+Error DebugSink::draw(const Src& src, SkBitmap*, SkWStream* dst, SkString*) const {
+    SkDebugCanvas debugCanvas(src.size().width(), src.size().height());
+    Error err = src.draw(&debugCanvas);
+    if (!err.isEmpty()) {
+        return err;
+    }
+    sk_sp<SkCanvas> nullCanvas(SkCreateNullCanvas());
+    UrlDataManager dataManager(SkString("data"));
+    Json::Value json = debugCanvas.toJSON(
+            dataManager, debugCanvas.getSize(), nullCanvas.get());
+    std::string value = Json::StyledWriter().write(json);
+    return dst->write(value.c_str(), value.size()) ? "" : "SkWStream Error";
 }
 
 /*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
