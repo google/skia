@@ -233,7 +233,7 @@ STAGE(lerp_constant_float, true) {
 
 // s' = sc for 8-bit c.
 STAGE(scale_u8, true) {
-    auto ptr = (const uint8_t*)ctx + x;
+    auto ptr = *(const uint8_t**)ctx + x;
 
     SkNf c = SkNx_cast<float>(load<kIsTail>(tail, ptr)) * (1/255.0f);
     r = r*c;
@@ -244,7 +244,7 @@ STAGE(scale_u8, true) {
 
 // s' = d(1-c) + sc for 8-bit c.
 STAGE(lerp_u8, true) {
-    auto ptr = (const uint8_t*)ctx + x;
+    auto ptr = *(const uint8_t**)ctx + x;
 
     SkNf c = SkNx_cast<float>(load<kIsTail>(tail, ptr)) * (1/255.0f);
     r = lerp(dr, r, c);
@@ -255,7 +255,7 @@ STAGE(lerp_u8, true) {
 
 // s' = d(1-c) + sc for 565 c.
 STAGE(lerp_565, true) {
-    auto ptr = (const uint16_t*)ctx + x;
+    auto ptr = *(const uint16_t**)ctx + x;
     SkNf cr, cg, cb;
     from_565(load<kIsTail>(tail, ptr), &cr, &cg, &cb);
 
@@ -266,25 +266,25 @@ STAGE(lerp_565, true) {
 }
 
 STAGE(load_d_565, true) {
-    auto ptr = (const uint16_t*)ctx + x;
+    auto ptr = *(const uint16_t**)ctx + x;
     from_565(load<kIsTail>(tail, ptr), &dr,&dg,&db);
     da = 1.0f;
 }
 
 STAGE(load_s_565, true) {
-    auto ptr = (const uint16_t*)ctx + x;
+    auto ptr = *(const uint16_t**)ctx + x;
     from_565(load<kIsTail>(tail, ptr), &r,&g,&b);
     a = 1.0f;
 }
 
 STAGE(store_565, false) {
     clamp_01_premul(r,g,b,a);
-    auto ptr = (uint16_t*)ctx + x;
+    auto ptr = *(uint16_t**)ctx + x;
     store<kIsTail>(tail, to_565(r,g,b), ptr);
 }
 
 STAGE(load_d_f16, true) {
-    auto ptr = (const uint64_t*)ctx + x;
+    auto ptr = *(const uint64_t**)ctx + x;
 
     SkNh rh, gh, bh, ah;
     if (kIsTail) {
@@ -310,7 +310,7 @@ STAGE(load_d_f16, true) {
 }
 
 STAGE(load_s_f16, true) {
-    auto ptr = (const uint64_t*)ctx + x;
+    auto ptr = *(const uint64_t**)ctx + x;
 
     SkNh rh, gh, bh, ah;
     if (kIsTail) {
@@ -337,7 +337,7 @@ STAGE(load_s_f16, true) {
 
 STAGE(store_f16, false) {
     clamp_01_premul(r,g,b,a);
-    auto ptr = (uint64_t*)ctx + x;
+    auto ptr = *(uint64_t**)ctx + x;
 
     uint64_t buf[8];
     SkNh::Store4(kIsTail ? buf : ptr, SkFloatToHalf_finite_ftz(r),
@@ -360,7 +360,7 @@ STAGE(store_f16, false) {
 
 // Load 8-bit SkPMColor-order sRGB.
 STAGE(load_d_srgb, true) {
-    auto ptr = (const uint32_t*)ctx + x;
+    auto ptr = *(const uint32_t**)ctx + x;
 
     auto px = load<kIsTail>(tail, ptr);
     auto to_int = [](const SkNx<N, uint32_t>& v) { return SkNi::Load(&v); };
@@ -371,7 +371,7 @@ STAGE(load_d_srgb, true) {
 }
 
 STAGE(load_s_srgb, true) {
-    auto ptr = (const uint32_t*)ctx + x;
+    auto ptr = *(const uint32_t**)ctx + x;
 
     auto px = load<kIsTail>(tail, ptr);
     auto to_int = [](const SkNx<N, uint32_t>& v) { return SkNi::Load(&v); };
@@ -383,7 +383,7 @@ STAGE(load_s_srgb, true) {
 
 STAGE(store_srgb, false) {
     clamp_01_premul(r,g,b,a);
-    auto ptr = (uint32_t*)ctx + x;
+    auto ptr = *(uint32_t**)ctx + x;
     store<kIsTail>(tail, (      sk_linear_to_srgb_noclamp(r) << SK_R32_SHIFT
                          |      sk_linear_to_srgb_noclamp(g) << SK_G32_SHIFT
                          |      sk_linear_to_srgb_noclamp(b) << SK_B32_SHIFT
