@@ -331,7 +331,7 @@ public:
     ResetTimestamp getResetTimestamp() const { return fResetTimestamp; }
 
     // Called to perform a surface to surface copy. Fallbacks to issuing a draw from the src to dst
-    // take place at the GrDrawTarget level and this function implement faster copy paths. The rect
+    // take place at the GrOpList level and this function implement faster copy paths. The rect
     // and point are pre-clipped. The src rect and implied dst rect are guaranteed to be within the
     // src/dst bounds and non-empty.
     bool copySurface(GrSurface* dst,
@@ -360,16 +360,16 @@ public:
     // multisample information itself.
     const MultisampleSpecs& getMultisampleSpecs(GrRenderTarget*, const GrStencilSettings&);
 
-    // Creates a GrGpuCommandBuffer in which the GrDrawTarget can send draw commands to instead of
+    // Creates a GrGpuCommandBuffer in which the GrOpList can send draw commands to instead of
     // directly to the Gpu object.
     virtual GrGpuCommandBuffer* createCommandBuffer(
             GrRenderTarget* target,
             const GrGpuCommandBuffer::LoadAndStoreInfo& colorInfo,
             const GrGpuCommandBuffer::LoadAndStoreInfo& stencilInfo) = 0;
 
-    // Called by drawtarget when flushing.
+    // Called by GrOpList when flushing.
     // Provides a hook for post-flush actions (e.g. PLS reset and Vulkan command buffer submits).
-    virtual void finishDrawTarget() {}
+    virtual void finishOpList() {}
 
     virtual GrFence SK_WARN_UNUSED_RESULT insertFence() const = 0;
     virtual bool waitFence(GrFence, uint64_t timeout = 1000) const = 0;

@@ -105,8 +105,8 @@ public:
     ///////////////////////////////////////////////////////////////////////////
     /// @name GrFragmentProcessors
 
-    // Make the renderTarget's drawTarget (if it exists) be dependent on any
-    // drawTargets in this pipeline
+    // Make the renderTarget's GrOpList (if it exists) be dependent on any
+    // GrOpLists in this pipeline
     void addDependenciesTo(GrRenderTarget* rt) const;
 
     int numColorFragmentProcessors() const { return fNumColorProcessors; }

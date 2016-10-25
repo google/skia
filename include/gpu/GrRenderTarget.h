@@ -12,9 +12,9 @@
 #include "SkRect.h"
 
 class GrCaps;
-class GrDrawTarget;
-class GrStencilAttachment;
+class GrRenderTargetOpList;
 class GrRenderTargetPriv;
+class GrStencilAttachment;
 
 /**
  * GrRenderTarget represents a 2D buffer of pixels that can be rendered to.
@@ -115,8 +115,9 @@ public:
     GrRenderTargetPriv renderTargetPriv();
     const GrRenderTargetPriv renderTargetPriv() const;
 
-    void setLastDrawTarget(GrDrawTarget* dt);
-    GrDrawTarget* getLastDrawTarget() { return fLastDrawTarget; }
+    GrRenderTargetOpList* getLastRenderTargetOpList() {
+        return (GrRenderTargetOpList*) this->getLastOpList();
+    }
 
 protected:
     enum class Flags {
@@ -129,7 +130,6 @@ protected:
 
     GrRenderTarget(GrGpu*, const GrSurfaceDesc&, Flags = Flags::kNone,
                    GrStencilAttachment* = nullptr);
-    ~GrRenderTarget() override;
 
     // override of GrResource
     void onAbandon() override;
@@ -149,14 +149,6 @@ private:
     Flags                 fFlags;
 
     SkIRect               fResolveRect;
-
-    // The last drawTarget that wrote to or is currently going to write to this renderTarget
-    // The drawTarget can be closed (e.g., no draw context is currently bound
-    // to this renderTarget).
-    // This back-pointer is required so that we can add a dependancy between
-    // the drawTarget used to create the current contents of this renderTarget
-    // and the drawTarget of a destination renderTarget to which this one is being drawn.
-    GrDrawTarget* fLastDrawTarget;
 
     typedef GrSurface INHERITED;
 };

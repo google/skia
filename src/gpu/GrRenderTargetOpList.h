@@ -5,11 +5,12 @@
  * found in the LICENSE file.
  */
 
-#ifndef GrDrawTarget_DEFINED
-#define GrDrawTarget_DEFINED
+#ifndef GrRenderTargetOpList_DEFINED
+#define GrRenderTargetOpList_DEFINED
 
 #include "GrClip.h"
 #include "GrContext.h"
+#include "GrOpList.h"
 #include "GrPathProcessor.h"
 #include "GrPrimitiveProcessor.h"
 #include "GrPathRendering.h"
@@ -27,8 +28,6 @@
 #include "SkTypes.h"
 #include "SkXfermode.h"
 
-//#define ENABLE_MDB 1
-
 class GrAuditTrail;
 class GrBatch;
 class GrClearBatch;
@@ -38,9 +37,9 @@ class GrPath;
 class GrDrawPathBatchBase;
 class GrPipelineBuilder;
 
-class GrDrawTarget final : public SkRefCnt {
+class GrRenderTargetOpList final : public GrOpList {
 public:
-    /** Options for GrDrawTarget behavior. */
+    /** Options for GrRenderTargetOpList behavior. */
     struct Options {
         Options ()
             : fClipBatchToBounds(false)
@@ -53,54 +52,32 @@ public:
         int  fMaxBatchLookahead;
     };
 
-    GrDrawTarget(GrRenderTarget*, GrGpu*, GrResourceProvider*, GrAuditTrail*, const Options&);
+    GrRenderTargetOpList(GrRenderTarget*, GrGpu*, GrResourceProvider*,
+                         GrAuditTrail*, const Options&);
 
-    ~GrDrawTarget() override;
+    ~GrRenderTargetOpList() override;
 
-    void makeClosed() {
+    void makeClosed() override {
+        INHERITED::makeClosed();
+
         fLastFullClearBatch = nullptr;
-        // We only close drawTargets When MDB is enabled. When MDB is disabled there is only
-        // ever one drawTarget and all calls will be funnelled into it.
-#ifdef ENABLE_MDB
-        this->setFlag(kClosed_Flag);
-#endif
         this->forwardCombine();
     }
-
-    bool isClosed() const { return this->isSetFlag(kClosed_Flag); }
-
-    // TODO: this entry point is only needed in the non-MDB world. Remove when
-    // we make the switch to MDB
-    void clearRT() { fRenderTarget = nullptr; }
-
-    /*
-     * Notify this drawTarget that it relies on the contents of 'dependedOn'
-     */
-    void addDependency(GrSurface* dependedOn);
-
-    /*
-     * Does this drawTarget depend on 'dependedOn'?
-     */
-    bool dependsOn(GrDrawTarget* dependedOn) const {
-        return fDependencies.find(dependedOn) >= 0;
-    }
-
-    /*
-     * Dump out the drawTarget dependency DAG
-     */
-    SkDEBUGCODE(void dump() const;)
 
     /**
      * Empties the draw buffer of any queued up draws.
      */
-    void reset();
+    void reset() override;
+
+    void abandonGpuResources() override;
+    void freeGpuResources() override;
 
     /**
      * Together these two functions flush all queued up draws to GrCommandBuffer. The return value
      * of drawBatches() indicates whether any commands were actually issued to the GPU.
      */
-    void prepareBatches(GrBatchFlushState* flushState);
-    bool drawBatches(GrBatchFlushState* flushState);
+    void prepareBatches(GrBatchFlushState* flushState) override;
+    bool drawBatches(GrBatchFlushState* flushState) override;
 
     /**
      * Gets the capabilities of the draw target.
@@ -150,52 +127,10 @@ public:
         return fInstancedRendering;
     }
 
+    SkDEBUGCODE(void dump() const override;)
+
 private:
-    friend class GrDrawingManager; // for resetFlag & TopoSortTraits
     friend class GrDrawContextPriv; // for clearStencilClip
-
-    enum Flags {
-        kClosed_Flag    = 0x01,   //!< This drawTarget can't accept any more batches
-
-        kWasOutput_Flag = 0x02,   //!< Flag for topological sorting
-        kTempMark_Flag  = 0x04,   //!< Flag for topological sorting
-    };
-
-    void setFlag(uint32_t flag) {
-        fFlags |= flag;
-    }
-
-    void resetFlag(uint32_t flag) {
-        fFlags &= ~flag;
-    }
-
-    bool isSetFlag(uint32_t flag) const {
-        return SkToBool(fFlags & flag);
-    }
-
-    struct TopoSortTraits {
-        static void Output(GrDrawTarget* dt, int /* index */) {
-            dt->setFlag(GrDrawTarget::kWasOutput_Flag);
-        }
-        static bool WasOutput(const GrDrawTarget* dt) {
-            return dt->isSetFlag(GrDrawTarget::kWasOutput_Flag);
-        }
-        static void SetTempMark(GrDrawTarget* dt) {
-            dt->setFlag(GrDrawTarget::kTempMark_Flag);
-        }
-        static void ResetTempMark(GrDrawTarget* dt) {
-            dt->resetFlag(GrDrawTarget::kTempMark_Flag);
-        }
-        static bool IsTempMarked(const GrDrawTarget* dt) {
-            return dt->isSetFlag(GrDrawTarget::kTempMark_Flag);
-        }
-        static int NumDependencies(const GrDrawTarget* dt) {
-            return dt->fDependencies.count();
-        }
-        static GrDrawTarget* Dependency(GrDrawTarget* dt, int index) {
-            return dt->fDependencies[index];
-        }
-    };
 
     // Returns the batch that the input batch was combined with or the input batch if it wasn't
     // combined.
@@ -212,8 +147,6 @@ private:
                                  GrXferProcessor::DstTexture*,
                                  const SkRect& batchBounds);
 
-    void addDependency(GrDrawTarget* dependedOn);
-
     // Used only by drawContextPriv.
     void clearStencilClip(const GrFixedClip&, bool insideStencilMask, GrRenderTarget*);
 
@@ -229,13 +162,6 @@ private:
     GrResourceProvider*                             fResourceProvider;
     GrAuditTrail*                                   fAuditTrail;
 
-    SkDEBUGCODE(int                                 fDebugID;)
-    uint32_t                                        fFlags;
-
-    // 'this' drawTarget relies on the output of the drawTargets in 'fDependencies'
-    SkTDArray<GrDrawTarget*>                        fDependencies;
-    GrRenderTarget*                                 fRenderTarget;
-
     bool                                            fClipBatchToBounds;
     bool                                            fDrawBatchBounds;
     int                                             fMaxBatchLookback;
@@ -243,7 +169,7 @@ private:
 
     SkAutoTDelete<gr_instanced::InstancedRendering> fInstancedRendering;
 
-    typedef SkRefCnt INHERITED;
+    typedef GrOpList INHERITED;
 };
 
 #endif
