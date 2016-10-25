@@ -47,6 +47,18 @@ private:
     SkRasterPipeline fShader, fColorFilter, fXfermode;
     SkPM4f           fPaintColor;
 
+    // These functions are compiled lazily when first used.
+    std::function<void(size_t, size_t)> fBlitH         = nullptr,
+                                        fBlitAntiH     = nullptr,
+                                        fBlitMaskA8    = nullptr,
+                                        fBlitMaskLCD16 = nullptr;
+
+    // These values are pointed to by the compiled blit functions
+    // above, which allows us to adjust them from call to call.
+    void*       fDstPtr           = nullptr;
+    const void* fMaskPtr          = nullptr;
+    float       fConstantCoverage = 0.0f;
+
     typedef SkBlitter INHERITED;
 };
 
@@ -152,33 +164,36 @@ void SkRasterPipelineBlitter::append_store(SkRasterPipeline* p, void* dst) const
 // TODO: Figure out how to cache some of the compiled pipelines.
 
 void SkRasterPipelineBlitter::blitH(int x, int y, int w) {
-    auto dst = fDst.writable_addr(0,y);
+    if (!fBlitH) {
+        SkRasterPipeline p;
+        p.extend(fShader);
+        p.extend(fColorFilter);
+        this->append_load_d(&p, &fDstPtr);
+        p.extend(fXfermode);
+        this->append_store(&p, &fDstPtr);
+        fBlitH = p.compile();
+    }
 
-    SkRasterPipeline p;
-    p.extend(fShader);
-    p.extend(fColorFilter);
-    this->append_load_d(&p, dst);
-    p.extend(fXfermode);
-    this->append_store(&p, dst);
-
-    p.compile()(x,w);
+    fDstPtr = fDst.writable_addr(0,y);
+    fBlitH(x,w);
 }
 
 void SkRasterPipelineBlitter::blitAntiH(int x, int y, const SkAlpha aa[], const int16_t runs[]) {
-    auto dst = fDst.writable_addr(0,y);
-    float coverage;
+    if (!fBlitAntiH) {
+        SkRasterPipeline p;
+        p.extend(fShader);
+        p.extend(fColorFilter);
+        this->append_load_d(&p, &fDstPtr);
+        p.extend(fXfermode);
+        p.append(SkRasterPipeline::lerp_constant_float, &fConstantCoverage);
+        this->append_store(&p, &fDstPtr);
+        fBlitAntiH = p.compile();
+    }
 
-    SkRasterPipeline p;
-    p.extend(fShader);
-    p.extend(fColorFilter);
-    this->append_load_d(&p, dst);
-    p.extend(fXfermode);
-    p.append(SkRasterPipeline::lerp_constant_float, &coverage);
-    this->append_store(&p, dst);
-
+    fDstPtr = fDst.writable_addr(0,y);
     for (int16_t run = *runs; run > 0; run = *runs) {
-        coverage = *aa * (1/255.0f);
-        p.compile()(x, run);
+        fConstantCoverage = *aa * (1/255.0f);
+        fBlitAntiH(x, run);
 
         x    += run;
         runs += run;
@@ -192,26 +207,44 @@ void SkRasterPipelineBlitter::blitMask(const SkMask& mask, const SkIRect& clip) 
         return INHERITED::blitMask(mask, clip);
     }
 
-    int x = clip.left();
-    for (int y = clip.top(); y < clip.bottom(); y++) {
-        auto dst = fDst.writable_addr(0,y);
-
+    if (mask.fFormat == SkMask::kA8_Format && !fBlitMaskA8) {
         SkRasterPipeline p;
         p.extend(fShader);
         p.extend(fColorFilter);
-        this->append_load_d(&p, dst);
+        this->append_load_d(&p, &fDstPtr);
         p.extend(fXfermode);
+        p.append(SkRasterPipeline::lerp_u8, &fMaskPtr);
+        this->append_store(&p, &fDstPtr);
+        fBlitMaskA8 = p.compile();
+    }
+
+    if (mask.fFormat == SkMask::kLCD16_Format && !fBlitMaskLCD16) {
+        SkRasterPipeline p;
+        p.extend(fShader);
+        p.extend(fColorFilter);
+        this->append_load_d(&p, &fDstPtr);
+        p.extend(fXfermode);
+        p.append(SkRasterPipeline::lerp_565, &fMaskPtr);
+        this->append_store(&p, &fDstPtr);
+        fBlitMaskLCD16 = p.compile();
+    }
+
+    int x = clip.left();
+    for (int y = clip.top(); y < clip.bottom(); y++) {
+        fDstPtr = fDst.writable_addr(0,y);
+
         switch (mask.fFormat) {
             case SkMask::kA8_Format:
-                p.append(SkRasterPipeline::lerp_u8, mask.getAddr8(x,y)-x);
+                fMaskPtr = mask.getAddr8(x,y)-x;
+                fBlitMaskA8(x, clip.width());
                 break;
             case SkMask::kLCD16_Format:
-                p.append(SkRasterPipeline::lerp_565, mask.getAddrLCD16(x,y)-x);
+                fMaskPtr = mask.getAddrLCD16(x,y)-x;
+                fBlitMaskLCD16(x, clip.width());
                 break;
-            default: break;
+            default:
+                // TODO
+                break;
         }
-        this->append_store(&p, dst);
-
-        p.compile()(x, clip.width());
     }
 }
