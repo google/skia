@@ -108,40 +108,18 @@ class SkiaApi(recipe_api.RecipeApi):
       pdfium.revision = 'origin/master'
       self.update_repo(self.m.vars.checkout_root, pdfium)
 
-    # Run 'gclient sync'.
+    # Run bot_update.
     gclient_cfg.got_revision_mapping['skia'] = 'got_revision'
     checkout_kwargs = {}
     checkout_kwargs['env'] = self.m.vars.default_env
 
-    # api.gclient.revert() assumes things about the layout of the code, so it
-    # fails for us. Run an appropriate revert sequence for trybots instead.
-    gclient_file = self.m.vars.checkout_root.join('.gclient')
-    if (self.m.tryserver.is_tryserver and
-        self.m.path.exists(gclient_file)):  # pragma: no cover
-      # These steps taken from:
-      # https://chromium.googlesource.com/chromium/tools/build/+/
-      #    81a696760ab7c25f6606c54fc781b90b8af9fdd2/scripts/slave/
-      #    gclient_safe_revert.py
-      if self.m.path.exists(entries_file):
-        self.m.gclient('recurse', [
-            'recurse', '-i', 'sh', '-c',
-            'if [ -e .git ]; then git remote update; fi'])
-      self.m.gclient(
-          'revert',
-          ['revert', '-v', '-v', '-v', '--nohooks', '--upstream'],
-          cwd=self.m.vars.checkout_root)
-
-    update_step = self.m.gclient.checkout(gclient_config=gclient_cfg,
-                                          cwd=self.m.vars.checkout_root,
-                                          revert=False,
-                                          **checkout_kwargs)
+    update_step = self.m.bot_update.ensure_checkout(
+        gclient_config=gclient_cfg,
+        cwd=self.m.vars.checkout_root,
+        **checkout_kwargs)
 
     self.m.vars.got_revision = (
         update_step.presentation.properties['got_revision'])
-    self.m.tryserver.maybe_apply_issue()
-    if self.m.properties.get('patch_storage') == 'gerrit':
-      self.m.bot_update.apply_gerrit_ref(
-          root=str(self.m.vars.checkout_root.join('skia')))
 
     if self.m.vars.need_chromium_checkout:
       self.m.gclient.runhooks(cwd=self.m.vars.checkout_root,
