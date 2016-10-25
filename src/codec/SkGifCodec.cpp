@@ -145,8 +145,8 @@ void SkGifCodec::initializeColorTable(const SkImageInfo& dstInfo, size_t frameIn
     fCurrColorTableIsReal = fCurrColorTable;
     if (!fCurrColorTable) {
         // This is possible for an empty frame. Create a dummy with all transparent.
-        SkPMColor colors[MAX_COLORS];
-        sk_memset32(colors, SK_ColorTRANSPARENT, MAX_COLORS);
+        SkPMColor colors[SK_MAX_COLORS];
+        sk_memset32(colors, SK_ColorTRANSPARENT, SK_MAX_COLORS);
         fCurrColorTable.reset(new SkColorTable(colors, 256));
     }
 
