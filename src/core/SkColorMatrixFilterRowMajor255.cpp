@@ -396,7 +396,8 @@ sk_sp<GrFragmentProcessor> ColorMatrixEffect::TestCreate(GrProcessorTestData* d)
     return ColorMatrixEffect::Make(colorMatrix);
 }
 
-sk_sp<GrFragmentProcessor> SkColorMatrixFilterRowMajor255::asFragmentProcessor(GrContext*) const {
+sk_sp<GrFragmentProcessor> SkColorMatrixFilterRowMajor255::asFragmentProcessor(
+                                                                  GrContext*, SkColorSpace*) const {
     return ColorMatrixEffect::Make(fMatrix);
 }
 

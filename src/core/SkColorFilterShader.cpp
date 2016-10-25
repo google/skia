@@ -104,7 +104,8 @@ sk_sp<GrFragmentProcessor> SkColorFilterShader::asFragmentProcessor(const AsFPAr
         return nullptr;
     }
 
-    sk_sp<GrFragmentProcessor> fp2(fFilter->asFragmentProcessor(args.fContext));
+    sk_sp<GrFragmentProcessor> fp2(fFilter->asFragmentProcessor(args.fContext,
+                                                                args.fDstColorSpace));
     if (!fp2) {
         return fp1;
     }
