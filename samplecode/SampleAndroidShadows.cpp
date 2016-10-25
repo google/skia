@@ -12,6 +12,7 @@
 #include "SkGaussianEdgeShader.h"
 #include "SkPath.h"
 #include "SkPoint3.h"
+#include "SkShadowMaskFilter.h"
 #include "SkUtils.h"
 #include "SkView.h"
 #include "sk_tool_utils.h"
@@ -366,20 +367,26 @@ protected:
     void drawShadowedPath(SkCanvas* canvas, const SkPath& path, SkScalar zValue,
                           const SkPaint& paint, SkScalar ambientAlpha,
                           const SkPoint3& lightPos, SkScalar lightWidth, SkScalar spotAlpha) {
-        if (fShowAmbient) {
-            if (fUseAlt) {
-                this->drawAmbientShadowAlt(canvas, path, zValue, ambientAlpha);
-            } else {
-                this->drawAmbientShadow(canvas, path, zValue, ambientAlpha);
-            }
-        }
-        if (fShowSpot) {
-            if (fUseAlt) {
-                this->drawSpotShadowAlt(canvas, path, zValue, lightPos, lightWidth, spotAlpha);
-            } else {
-                this->drawSpotShadow(canvas, path, zValue, lightPos, lightWidth, spotAlpha);
-            }
-        }
+        //if (fShowAmbient) {
+        //    if (fUseAlt) {
+        //        this->drawAmbientShadowAlt(canvas, path, zValue, ambientAlpha);
+        //    } else {
+        //        this->drawAmbientShadow(canvas, path, zValue, ambientAlpha);
+        //    }
+        //}
+        //if (fShowSpot) {
+        //    if (fUseAlt) {
+        //        this->drawSpotShadowAlt(canvas, path, zValue, lightPos, lightWidth, spotAlpha);
+        //    } else {
+        //        this->drawSpotShadow(canvas, path, zValue, lightPos, lightWidth, spotAlpha);
+        //    }
+        //}
+        SkPaint newPaint;
+        newPaint.setColor(SK_ColorBLACK);
+        newPaint.setMaskFilter(SkShadowMaskFilter::Make(zValue, lightPos, lightWidth, ambientAlpha, spotAlpha));
+
+        canvas->drawPath(path, newPaint);
+
         if (fShowObject) {
             canvas->drawPath(path, paint);
         } else {
