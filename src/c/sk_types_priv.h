@@ -26,6 +26,7 @@
 #include "SkFontStyle.h"
 #include "GrContext.h"
 #include "SkPathOps.h"
+#include "SkRegion.h"
 #include "SkTypeface.h"
 #include "gl/GrGLInterface.h"
 
@@ -91,6 +92,24 @@ static inline const SkIRect* AsIRect(const sk_irect_t* crect) {
 static inline const SkIRect& AsIRect(const sk_irect_t& crect) {
     return reinterpret_cast<const SkIRect&>(crect);
 }
+
+/* SkRegion */
+static inline SkRegion* AsRegion(sk_region_t* creg) {
+    return reinterpret_cast<SkRegion*>(creg);
+}
+
+static inline const SkRegion* AsRegion(const sk_region_t* creg) {
+    return reinterpret_cast<const SkRegion*>(creg);
+}
+
+static inline const SkRegion& AsRegion(const sk_region_t& creg) {
+    return reinterpret_cast<const SkRegion&>(creg);
+}
+
+static inline sk_region_t* ToRegion(SkRegion* reg) {
+    return reinterpret_cast<sk_region_t*>(reg);
+}
+/* End SkRegion */
 
 static inline const SkBitmap* AsBitmap(const sk_bitmap_t* cbitmap) {
     return reinterpret_cast<const SkBitmap*>(cbitmap);
