@@ -250,7 +250,6 @@ BASE_SRCS_IOS = struct(
         "src/utils/mac/*.cpp",
     ],
     exclude = [
-        "src/codec/*Gif*.cpp",
         "src/codec/*Ico*.cpp",
         "src/codec/*Jpeg*.cpp",
         "src/codec/*Webp*.cpp",
