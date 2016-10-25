@@ -73,7 +73,7 @@ static SkCodec::Result gif_error(const char* msg, SkCodec::Result result = SkCod
  */
 SkCodec* SkGifCodec::NewFromStream(SkStream* stream) {
     std::unique_ptr<SkGifImageReader> reader(new SkGifImageReader(stream));
-    if (!reader->parse(SkGifImageReader::GIFSizeQuery)) {
+    if (!reader->parse(SkGifImageReader::SkGIFSizeQuery)) {
         // Not enough data to determine the size.
         return nullptr;
     }
@@ -127,11 +127,11 @@ SkGifCodec::SkGifCodec(const SkEncodedInfo& encodedInfo, const SkImageInfo& imag
 }
 
 std::vector<SkCodec::FrameInfo> SkGifCodec::onGetFrameInfo() {
-    fReader->parse(SkGifImageReader::GIFFrameCountQuery);
+    fReader->parse(SkGifImageReader::SkGIFFrameCountQuery);
     const size_t size = fReader->imagesCount();
     std::vector<FrameInfo> result(size);
     for (size_t i = 0; i < size; i++) {
-        const GIFFrameContext* frameContext = fReader->frameContext(i);
+        const SkGIFFrameContext* frameContext = fReader->frameContext(i);
         result[i].fDuration = frameContext->delayTime();
         result[i].fRequiredFrame = frameContext->getRequiredFrame();
     }
@@ -184,7 +184,7 @@ SkCodec::Result SkGifCodec::prepareToDecode(const SkImageInfo& dstInfo, SkPMColo
                          kInvalidConversion);
     }
 
-    fReader->parse((SkGifImageReader::GIFParseQuery) frameIndex);
+    fReader->parse((SkGifImageReader::SkGIFParseQuery) frameIndex);
 
     if (frameIndex >= fReader->imagesCount()) {
         return gif_error("frame index out of range!\n", kIncompleteInput);
@@ -199,7 +199,7 @@ SkCodec::Result SkGifCodec::prepareToDecode(const SkImageInfo& dstInfo, SkPMColo
 }
 
 void SkGifCodec::initializeSwizzler(const SkImageInfo& dstInfo, size_t frameIndex) {
-    const GIFFrameContext* frame = fReader->frameContext(frameIndex);
+    const SkGIFFrameContext* frame = fReader->frameContext(frameIndex);
     // This is only called by prepareToDecode, which ensures frameIndex is in range.
     SkASSERT(frame);
 
@@ -269,7 +269,7 @@ SkCodec::Result SkGifCodec::onIncrementalDecode(int* rowsDecoded) {
     // It is possible the client has appended more data. Parse, if needed.
     const auto& options = this->options();
     const size_t frameIndex = options.fFrameIndex;
-    fReader->parse((SkGifImageReader::GIFParseQuery) frameIndex);
+    fReader->parse((SkGifImageReader::SkGIFParseQuery) frameIndex);
 
     const bool firstCallToIncrementalDecode = fFirstCallToIncrementalDecode;
     fFirstCallToIncrementalDecode = false;
@@ -280,7 +280,7 @@ SkCodec::Result SkGifCodec::decodeFrame(bool firstAttempt, const Options& opts, 
     const SkImageInfo& dstInfo = this->dstInfo();
     const size_t frameIndex = opts.fFrameIndex;
     SkASSERT(frameIndex < fReader->imagesCount());
-    const GIFFrameContext* frameContext = fReader->frameContext(frameIndex);
+    const SkGIFFrameContext* frameContext = fReader->frameContext(frameIndex);
     if (firstAttempt) {
         // rowsDecoded reports how many rows have been initialized, so a layer above
         // can fill the rest. In some cases, we fill the background before decoding
@@ -299,7 +299,7 @@ SkCodec::Result SkGifCodec::decodeFrame(bool firstAttempt, const Options& opts, 
             //   afterwards for an incomplete image. (FIXME: Does the first pass
             //   cover all rows? If so, we do not have to fill here.)
             if (frameContext->frameRect() != this->getInfo().bounds()
-                    || frameContext->transparentPixel() < MAX_COLORS
+                    || frameContext->transparentPixel() < SK_MAX_COLORS
                     || frameContext->interlaced()) {
                 // fill ignores the width (replaces it with the actual, scaled width).
                 // But we need to scale in Y.
@@ -406,7 +406,7 @@ uint64_t SkGifCodec::onGetFillValue(const SkImageInfo& dstInfo) const {
 bool SkGifCodec::haveDecodedRow(size_t frameIndex, const unsigned char* rowBegin,
                                 size_t rowNumber, unsigned repeatCount, bool writeTransparentPixels)
 {
-    const GIFFrameContext* frameContext = fReader->frameContext(frameIndex);
+    const SkGIFFrameContext* frameContext = fReader->frameContext(frameIndex);
     // The pixel data and coordinates supplied to us are relative to the frame's
     // origin within the entire image size, i.e.
     // (frameContext->xOffset, frameContext->yOffset). There is no guarantee

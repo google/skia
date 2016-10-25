@@ -53,47 +53,44 @@ class SkGifCodec;
 #include <memory>
 #include <vector>
 
-typedef SkTArray<unsigned char, true> GIFRow;
+typedef SkTArray<unsigned char, true> SkGIFRow;
 
 
-#define MAX_DICTIONARY_ENTRY_BITS 12
-#define MAX_DICTIONARY_ENTRIES    4096 // 2^MAX_DICTIONARY_ENTRY_BITS
-#define MAX_COLORS                256
-#define BYTES_PER_COLORMAP_ENTRY  3
-
-constexpr int cLoopCountNotSeen = -2;
-constexpr size_t kNotFound = static_cast<size_t>(-1);
+#define SK_MAX_DICTIONARY_ENTRY_BITS 12
+#define SK_MAX_DICTIONARY_ENTRIES    4096 // 2^SK_MAX_DICTIONARY_ENTRY_BITS
+#define SK_MAX_COLORS                256
+#define SK_BYTES_PER_COLORMAP_ENTRY  3
 
 // List of possible parsing states.
-enum GIFState {
-    GIFType,
-    GIFGlobalHeader,
-    GIFGlobalColormap,
-    GIFImageStart,
-    GIFImageHeader,
-    GIFImageColormap,
-    GIFImageBody,
-    GIFLZWStart,
-    GIFLZW,
-    GIFSubBlock,
-    GIFExtension,
-    GIFControlExtension,
-    GIFConsumeBlock,
-    GIFSkipBlock,
-    GIFDone,
-    GIFCommentExtension,
-    GIFApplicationExtension,
-    GIFNetscapeExtensionBlock,
-    GIFConsumeNetscapeExtension,
-    GIFConsumeComment
+enum SkGIFState {
+    SkGIFType,
+    SkGIFGlobalHeader,
+    SkGIFGlobalColormap,
+    SkGIFImageStart,
+    SkGIFImageHeader,
+    SkGIFImageColormap,
+    SkGIFImageBody,
+    SkGIFLZWStart,
+    SkGIFLZW,
+    SkGIFSubBlock,
+    SkGIFExtension,
+    SkGIFControlExtension,
+    SkGIFConsumeBlock,
+    SkGIFSkipBlock,
+    SkGIFDone,
+    SkGIFCommentExtension,
+    SkGIFApplicationExtension,
+    SkGIFNetscapeExtensionBlock,
+    SkGIFConsumeNetscapeExtension,
+    SkGIFConsumeComment
 };
 
-struct GIFFrameContext;
+struct SkGIFFrameContext;
 
 // LZW decoder state machine.
-class GIFLZWContext final : public SkNoncopyable {
+class SkGIFLZWContext final : public SkNoncopyable {
 public:
-    GIFLZWContext(SkGifCodec* client, const GIFFrameContext* frameContext)
+    SkGIFLZWContext(SkGifCodec* client, const SkGIFFrameContext* frameContext)
         : codesize(0)
         , codemask(0)
         , clearCode(0)
@@ -129,19 +126,19 @@ private:
     size_t irow; // Current output row, starting at zero.
     size_t rowsRemaining; // Rows remaining to be output.
 
-    unsigned short prefix[MAX_DICTIONARY_ENTRIES];
-    unsigned char suffix[MAX_DICTIONARY_ENTRIES];
-    unsigned short suffixLength[MAX_DICTIONARY_ENTRIES];
-    GIFRow rowBuffer; // Single scanline temporary buffer.
+    unsigned short prefix[SK_MAX_DICTIONARY_ENTRIES];
+    unsigned char suffix[SK_MAX_DICTIONARY_ENTRIES];
+    unsigned short suffixLength[SK_MAX_DICTIONARY_ENTRIES];
+    SkGIFRow rowBuffer; // Single scanline temporary buffer.
     unsigned char* rowIter;
 
     SkGifCodec* const m_client;
-    const GIFFrameContext* m_frameContext;
+    const SkGIFFrameContext* m_frameContext;
 };
 
-class GIFColorMap final {
+class SkGIFColorMap final {
 public:
-    GIFColorMap()
+    SkGIFColorMap()
         : m_isDefined(false)
         , m_colors(0)
         , m_packColorProc(nullptr)
@@ -158,7 +155,7 @@ public:
     {
         // FIXME: Can we avoid this copy?
         m_rawData = SkData::MakeWithCopy(data, size);
-        SkASSERT(m_colors * BYTES_PER_COLORMAP_ENTRY == size);
+        SkASSERT(m_colors * SK_BYTES_PER_COLORMAP_ENTRY == size);
         m_isDefined = true;
     }
     bool isDefined() const { return m_isDefined; }
@@ -175,9 +172,9 @@ private:
 };
 
 // LocalFrame output state machine.
-struct GIFFrameContext : SkNoncopyable {
+struct SkGIFFrameContext : SkNoncopyable {
 public:
-    GIFFrameContext(int id)
+    SkGIFFrameContext(int id)
         : m_frameId(id)
         , m_xOffset(0)
         , m_yOffset(0)
@@ -197,7 +194,9 @@ public:
     {
     }
 
-    ~GIFFrameContext()
+    static constexpr size_t kNotFound = static_cast<size_t>(-1);
+
+    ~SkGIFFrameContext()
     {
     }
 
@@ -246,8 +245,8 @@ public:
     void setInterlaced(bool interlaced) { m_interlaced = interlaced; }
 
     void clearDecodeState() { m_lzwContext.reset(); }
-    const GIFColorMap& localColorMap() const { return m_localColorMap; }
-    GIFColorMap& localColorMap() { return m_localColorMap; }
+    const SkGIFColorMap& localColorMap() const { return m_localColorMap; }
+    SkGIFColorMap& localColorMap() { return m_localColorMap; }
 
 private:
     int m_frameId;
@@ -265,9 +264,9 @@ private:
 
     unsigned m_delayTime; // Display time, in milliseconds, for this image in a multi-image GIF.
 
-    std::unique_ptr<GIFLZWContext> m_lzwContext;
+    std::unique_ptr<SkGIFLZWContext> m_lzwContext;
     std::vector<sk_sp<SkData>> m_lzwBlocks; // LZW blocks for this frame.
-    GIFColorMap m_localColorMap;
+    SkGIFColorMap m_localColorMap;
 
     size_t m_currentLzwBlock;
     bool m_isComplete;
@@ -280,7 +279,7 @@ public:
     // This takes ownership of stream.
     SkGifImageReader(SkStream* stream)
         : m_client(nullptr)
-        , m_state(GIFType)
+        , m_state(SkGIFType)
         , m_bytesToConsume(6) // Number of bytes for GIF type, either "GIF87a" or "GIF89a".
         , m_version(0)
         , m_screenWidth(0)
@@ -293,6 +292,8 @@ public:
     {
     }
 
+    static constexpr int cLoopCountNotSeen = -2;
+
     ~SkGifImageReader()
     {
     }
@@ -304,19 +305,19 @@ public:
 
     // Option to pass to parse(). All enums are negative, because a non-negative value is used to
     // indicate that the Reader should parse up to and including the frame indicated.
-    enum GIFParseQuery {
+    enum SkGIFParseQuery {
         // Parse enough to determine the size. Note that this parses the first frame's header,
         // since we may decide to expand based on the frame's dimensions.
-        GIFSizeQuery        = -1,
+        SkGIFSizeQuery        = -1,
         // Parse to the end, so we know about all frames.
-        GIFFrameCountQuery  = -2,
+        SkGIFFrameCountQuery  = -2,
     };
 
     // Parse incoming GIF data stream into internal data structures.
     // Non-negative values are used to indicate to parse through that frame.
     // Return true if parsing has progressed or there is not enough data.
     // Return false if a fatal error is encountered.
-    bool parse(GIFParseQuery);
+    bool parse(SkGIFParseQuery);
 
     // Decode the frame indicated by frameIndex.
     // frameComplete will be set to true if the frame is completely decoded.
@@ -329,18 +330,18 @@ public:
             return 0;
 
         // This avoids counting an empty frame when the file is truncated right after
-        // GIFControlExtension but before GIFImageHeader.
+        // SkGIFControlExtension but before SkGIFImageHeader.
         // FIXME: This extra complexity is not necessary and we should just report m_frames.size().
         return m_frames.back()->isHeaderDefined() ? m_frames.size() : m_frames.size() - 1;
     }
     int loopCount() const { return m_loopCount; }
 
-    const GIFColorMap& globalColorMap() const
+    const SkGIFColorMap& globalColorMap() const
     {
         return m_globalColorMap;
     }
 
-    const GIFFrameContext* frameContext(size_t index) const
+    const SkGIFFrameContext* frameContext(size_t index) const
     {
         return index < m_frames.size() ? m_frames[index].get() : 0;
     }
@@ -374,22 +375,22 @@ private:
     SkGifCodec* m_client;
 
     // Parsing state machine.
-    GIFState m_state; // Current decoder master state.
+    SkGIFState m_state; // Current decoder master state.
     size_t m_bytesToConsume; // Number of bytes to consume for next stage of parsing.
 
     // Global (multi-image) state.
     int m_version; // Either 89 for GIF89 or 87 for GIF87.
     unsigned m_screenWidth; // Logical screen width & height.
     unsigned m_screenHeight;
-    GIFColorMap m_globalColorMap;
+    SkGIFColorMap m_globalColorMap;
     int m_loopCount; // Netscape specific extension block to control the number of animation loops a GIF renders.
 
-    std::vector<std::unique_ptr<GIFFrameContext>> m_frames;
+    std::vector<std::unique_ptr<SkGIFFrameContext>> m_frames;
 
     SkStreamBuffer m_streamBuffer;
     bool m_parseCompleted;
 
-    // These values can be computed before we create a GIFFrameContext, so we
+    // These values can be computed before we create a SkGIFFrameContext, so we
     // store them here instead of on m_frames[0].
     bool m_firstFrameHasAlpha;
     bool m_firstFrameSupportsIndex8;

@@ -97,7 +97,7 @@ mailing address.
 #define GETINT16(p)   ((p)[1]<<8|(p)[0])
 
 // Send the data to the display front-end.
-bool GIFLZWContext::outputRow(const unsigned char* rowBegin)
+bool SkGIFLZWContext::outputRow(const unsigned char* rowBegin)
 {
     int drowStart = irow;
     int drowEnd = irow;
@@ -199,7 +199,7 @@ bool GIFLZWContext::outputRow(const unsigned char* rowBegin)
 // Perform Lempel-Ziv-Welch decoding.
 // Returns true if decoding was successful. In this case the block will have been completely consumed and/or rowsRemaining will be 0.
 // Otherwise, decoding failed; returns false in this case, which will always cause the SkGifImageReader to set the "decode failed" flag.
-bool GIFLZWContext::doLZW(const unsigned char* block, size_t bytesInBlock)
+bool SkGIFLZWContext::doLZW(const unsigned char* block, size_t bytesInBlock)
 {
     const size_t width = m_frameContext->width();
 
@@ -266,7 +266,7 @@ bool GIFLZWContext::doLZW(const unsigned char* block, size_t bytesInBlock)
 
             // Define a new codeword in the dictionary as long as we've read
             // more than one value from the stream.
-            if (avail < MAX_DICTIONARY_ENTRIES && oldcode != -1) {
+            if (avail < SK_MAX_DICTIONARY_ENTRIES && oldcode != -1) {
                 prefix[avail] = oldcode;
                 suffix[avail] = firstchar;
                 suffixLength[avail] = suffixLength[oldcode] + 1;
@@ -275,7 +275,7 @@ bool GIFLZWContext::doLZW(const unsigned char* block, size_t bytesInBlock)
                 // If we've used up all the codewords of a given length
                 // increase the length of codewords by one bit, but don't
                 // exceed the specified maximum codeword size.
-                if (!(avail & codemask) && avail < MAX_DICTIONARY_ENTRIES) {
+                if (!(avail & codemask) && avail < SK_MAX_DICTIONARY_ENTRIES) {
                     ++codesize;
                     codemask += avail;
                 }
@@ -304,7 +304,7 @@ bool GIFLZWContext::doLZW(const unsigned char* block, size_t bytesInBlock)
     return true;
 }
 
-sk_sp<SkColorTable> GIFColorMap::buildTable(SkColorType colorType, size_t transparentPixel) const
+sk_sp<SkColorTable> SkGIFColorMap::buildTable(SkColorType colorType, size_t transparentPixel) const
 {
     if (!m_isDefined)
         return nullptr;
@@ -322,21 +322,21 @@ sk_sp<SkColorTable> GIFColorMap::buildTable(SkColorType colorType, size_t transp
     }
     m_packColorProc = proc;
 
-    SkASSERT(m_colors <= MAX_COLORS);
+    SkASSERT(m_colors <= SK_MAX_COLORS);
     const uint8_t* srcColormap = m_rawData->bytes();
-    SkPMColor colorStorage[MAX_COLORS];
+    SkPMColor colorStorage[SK_MAX_COLORS];
     for (size_t i = 0; i < m_colors; i++) {
         if (i == transparentPixel) {
             colorStorage[i] = SK_ColorTRANSPARENT;
         } else {
             colorStorage[i] = proc(255, srcColormap[0], srcColormap[1], srcColormap[2]);
         }
-        srcColormap += BYTES_PER_COLORMAP_ENTRY;
+        srcColormap += SK_BYTES_PER_COLORMAP_ENTRY;
     }
-    for (size_t i = m_colors; i < MAX_COLORS; i++) {
+    for (size_t i = m_colors; i < SK_MAX_COLORS; i++) {
         colorStorage[i] = SK_ColorTRANSPARENT;
     }
-    m_table = sk_sp<SkColorTable>(new SkColorTable(colorStorage, MAX_COLORS));
+    m_table = sk_sp<SkColorTable>(new SkColorTable(colorStorage, SK_MAX_COLORS));
     return m_table;
 }
 
@@ -345,8 +345,8 @@ sk_sp<SkColorTable> SkGifImageReader::getColorTable(SkColorType colorType, size_
         return nullptr;
     }
 
-    const GIFFrameContext* frameContext = m_frames[index].get();
-    const GIFColorMap& localColorMap = frameContext->localColorMap();
+    const SkGIFFrameContext* frameContext = m_frames[index].get();
+    const SkGIFColorMap& localColorMap = frameContext->localColorMap();
     if (localColorMap.isDefined()) {
         return localColorMap.buildTable(colorType, frameContext->transparentPixel());
     }
@@ -359,15 +359,15 @@ sk_sp<SkColorTable> SkGifImageReader::getColorTable(SkColorType colorType, size_
 // Perform decoding for this frame. frameComplete will be true if the entire frame is decoded.
 // Returns false if a decoding error occurred. This is a fatal error and causes the SkGifImageReader to set the "decode failed" flag.
 // Otherwise, either not enough data is available to decode further than before, or the new data has been decoded successfully; returns true in this case.
-bool GIFFrameContext::decode(SkGifCodec* client, bool* frameComplete)
+bool SkGIFFrameContext::decode(SkGifCodec* client, bool* frameComplete)
 {
     *frameComplete = false;
     if (!m_lzwContext) {
-        // Wait for more data to properly initialize GIFLZWContext.
+        // Wait for more data to properly initialize SkGIFLZWContext.
         if (!isDataSizeDefined() || !isHeaderDefined())
             return true;
 
-        m_lzwContext.reset(new GIFLZWContext(client, this));
+        m_lzwContext.reset(new SkGIFLZWContext(client, this));
         if (!m_lzwContext->prepareToDecode()) {
             m_lzwContext.reset();
             return false;
@@ -395,11 +395,11 @@ bool GIFFrameContext::decode(SkGifCodec* client, bool* frameComplete)
 }
 
 // Decode a frame.
-// This method uses GIFFrameContext:decode() to decode the frame; decoding error is reported to client as a critical failure.
+// This method uses SkGIFFrameContext:decode() to decode the frame; decoding error is reported to client as a critical failure.
 // Return true if decoding has progressed. Return false if an error has occurred.
 bool SkGifImageReader::decode(size_t frameIndex, bool* frameComplete)
 {
-    GIFFrameContext* currentFrame = m_frames[frameIndex].get();
+    SkGIFFrameContext* currentFrame = m_frames[frameIndex].get();
 
     return currentFrame->decode(m_client, frameComplete);
 }
@@ -407,13 +407,13 @@ bool SkGifImageReader::decode(size_t frameIndex, bool* frameComplete)
 // Parse incoming GIF data stream into internal data structures.
 // Return true if parsing has progressed or there is not enough data.
 // Return false if a fatal error is encountered.
-bool SkGifImageReader::parse(SkGifImageReader::GIFParseQuery query)
+bool SkGifImageReader::parse(SkGifImageReader::SkGIFParseQuery query)
 {
     if (m_parseCompleted) {
         return true;
     }
 
-    // GIFSizeQuery and GIFFrameCountQuery are negative, so this is only meaningful when >= 0.
+    // SkGIFSizeQuery and SkGIFFrameCountQuery are negative, so this is only meaningful when >= 0.
     const int lastFrameToParse = (int) query;
     if (lastFrameToParse >= 0 && (int) m_frames.size() > lastFrameToParse
                 && m_frames[lastFrameToParse]->isComplete()) {
@@ -431,21 +431,21 @@ bool SkGifImageReader::parse(SkGifImageReader::GIFParseQuery query)
         }
 
         switch (m_state) {
-        case GIFLZW:
+        case SkGIFLZW:
             SkASSERT(!m_frames.empty());
             // FIXME: All this copying might be wasteful for e.g. SkMemoryStream
             m_frames.back()->addLzwBlock(m_streamBuffer.get(), m_streamBuffer.bytesBuffered());
-            GETN(1, GIFSubBlock);
+            GETN(1, SkGIFSubBlock);
             break;
 
-        case GIFLZWStart: {
+        case SkGIFLZWStart: {
             SkASSERT(!m_frames.empty());
             m_frames.back()->setDataSize(this->getOneByte());
-            GETN(1, GIFSubBlock);
+            GETN(1, SkGIFSubBlock);
             break;
         }
 
-        case GIFType: {
+        case SkGIFType: {
             const char* currentComponent = m_streamBuffer.get();
 
             // All GIF files begin with "GIF87a" or "GIF89a".
@@ -455,14 +455,14 @@ bool SkGifImageReader::parse(SkGifImageReader::GIFParseQuery query)
                 m_version = 87;
             else {
                 // This prevents attempting to continue reading this invalid stream.
-                GETN(0, GIFDone);
+                GETN(0, SkGIFDone);
                 return false;
             }
-            GETN(7, GIFGlobalHeader);
+            GETN(7, SkGIFGlobalHeader);
             break;
         }
 
-        case GIFGlobalHeader: {
+        case SkGIFGlobalHeader: {
             const unsigned char* currentComponent =
                 reinterpret_cast<const unsigned char*>(m_streamBuffer.get());
 
@@ -479,30 +479,30 @@ bool SkGifImageReader::parse(SkGifImageReader::GIFParseQuery query)
 
             if ((currentComponent[4] & 0x80) && globalColorMapColors > 0) { /* global map */
                 m_globalColorMap.setNumColors(globalColorMapColors);
-                GETN(BYTES_PER_COLORMAP_ENTRY * globalColorMapColors, GIFGlobalColormap);
+                GETN(SK_BYTES_PER_COLORMAP_ENTRY * globalColorMapColors, SkGIFGlobalColormap);
                 break;
             }
 
-            GETN(1, GIFImageStart);
+            GETN(1, SkGIFImageStart);
             break;
         }
 
-        case GIFGlobalColormap: {
+        case SkGIFGlobalColormap: {
             m_globalColorMap.setRawData(m_streamBuffer.get(), m_streamBuffer.bytesBuffered());
-            GETN(1, GIFImageStart);
+            GETN(1, SkGIFImageStart);
             break;
         }
 
-        case GIFImageStart: {
+        case SkGIFImageStart: {
             const char currentComponent = m_streamBuffer.get()[0];
 
             if (currentComponent == '!') { // extension.
-                GETN(2, GIFExtension);
+                GETN(2, SkGIFExtension);
                 break;
             }
 
             if (currentComponent == ',') { // image separator.
-                GETN(9, GIFImageHeader);
+                GETN(9, SkGIFImageHeader);
                 break;
             }
 
@@ -513,21 +513,21 @@ bool SkGifImageReader::parse(SkGifImageReader::GIFParseQuery query)
             // a file is corrupt. We follow Mozilla's implementation and
             // proceed as if the file were correctly terminated, so the
             // GIF will display.
-            GETN(0, GIFDone);
+            GETN(0, SkGIFDone);
             break;
         }
 
-        case GIFExtension: {
+        case SkGIFExtension: {
             const unsigned char* currentComponent =
                 reinterpret_cast<const unsigned char*>(m_streamBuffer.get());
 
             size_t bytesInBlock = currentComponent[1];
-            GIFState exceptionState = GIFSkipBlock;
+            SkGIFState exceptionState = SkGIFSkipBlock;
 
             switch (*currentComponent) {
             case 0xf9:
-                exceptionState = GIFControlExtension;
                 // The GIF spec mandates that the GIFControlExtension header block length is 4 bytes,
+                exceptionState = SkGIFControlExtension;
                 // and the parser for this block reads 4 bytes, so we must enforce that the buffer
                 // contains at least this many bytes. If the GIF specifies a different length, we
                 // allow that, so long as it's larger; the additional data will simply be ignored.
@@ -545,41 +545,41 @@ bool SkGifImageReader::parse(SkGifImageReader::GIFParseQuery query)
                 break;
 
             case 0xff:
-                exceptionState = GIFApplicationExtension;
+                exceptionState = SkGIFApplicationExtension;
                 break;
 
             case 0xfe:
-                exceptionState = GIFConsumeComment;
+                exceptionState = SkGIFConsumeComment;
                 break;
             }
 
             if (bytesInBlock)
                 GETN(bytesInBlock, exceptionState);
             else
-                GETN(1, GIFImageStart);
+                GETN(1, SkGIFImageStart);
             break;
         }
 
-        case GIFConsumeBlock: {
+        case SkGIFConsumeBlock: {
             const unsigned char currentComponent = this->getOneByte();
             if (!currentComponent)
-                GETN(1, GIFImageStart);
+                GETN(1, SkGIFImageStart);
             else
-                GETN(currentComponent, GIFSkipBlock);
+                GETN(currentComponent, SkGIFSkipBlock);
             break;
         }
 
-        case GIFSkipBlock: {
-            GETN(1, GIFConsumeBlock);
+        case SkGIFSkipBlock: {
+            GETN(1, SkGIFConsumeBlock);
             break;
         }
 
-        case GIFControlExtension: {
+        case SkGIFControlExtension: {
             const unsigned char* currentComponent =
                 reinterpret_cast<const unsigned char*>(m_streamBuffer.get());
 
             addFrameIfNecessary();
-            GIFFrameContext* currentFrame = m_frames.back().get();
+            SkGIFFrameContext* currentFrame = m_frames.back().get();
             if (*currentComponent & 0x1)
                 currentFrame->setTransparentPixel(currentComponent[3]);
 
@@ -605,52 +605,52 @@ bool SkGifImageReader::parse(SkGifImageReader::GIFParseQuery query)
                 break;
             }
             currentFrame->setDelayTime(GETINT16(currentComponent + 1) * 10);
-            GETN(1, GIFConsumeBlock);
+            GETN(1, SkGIFConsumeBlock);
             break;
         }
 
-        case GIFCommentExtension: {
+        case SkGIFCommentExtension: {
             const unsigned char currentComponent = this->getOneByte();
             if (currentComponent)
-                GETN(currentComponent, GIFConsumeComment);
+                GETN(currentComponent, SkGIFConsumeComment);
             else
-                GETN(1, GIFImageStart);
+                GETN(1, SkGIFImageStart);
             break;
         }
 
-        case GIFConsumeComment: {
-            GETN(1, GIFCommentExtension);
+        case SkGIFConsumeComment: {
+            GETN(1, SkGIFCommentExtension);
             break;
         }
 
-        case GIFApplicationExtension: {
+        case SkGIFApplicationExtension: {
             // Check for netscape application extension.
             if (m_streamBuffer.bytesBuffered() == 11) {
                 const unsigned char* currentComponent =
                     reinterpret_cast<const unsigned char*>(m_streamBuffer.get());
 
                 if (!memcmp(currentComponent, "NETSCAPE2.0", 11) || !memcmp(currentComponent, "ANIMEXTS1.0", 11))
-                    GETN(1, GIFNetscapeExtensionBlock);
+                    GETN(1, SkGIFNetscapeExtensionBlock);
             }
 
-            if (m_state != GIFNetscapeExtensionBlock)
-                GETN(1, GIFConsumeBlock);
+            if (m_state != SkGIFNetscapeExtensionBlock)
+                GETN(1, SkGIFConsumeBlock);
             break;
         }
 
         // Netscape-specific GIF extension: animation looping.
-        case GIFNetscapeExtensionBlock: {
+        case SkGIFNetscapeExtensionBlock: {
             const int currentComponent = this->getOneByte();
-            // GIFConsumeNetscapeExtension always reads 3 bytes from the stream; we should at least wait for this amount.
+            // SkGIFConsumeNetscapeExtension always reads 3 bytes from the stream; we should at least wait for this amount.
             if (currentComponent)
-                GETN(std::max(3, currentComponent), GIFConsumeNetscapeExtension);
+                GETN(std::max(3, currentComponent), SkGIFConsumeNetscapeExtension);
             else
-                GETN(1, GIFImageStart);
+                GETN(1, SkGIFImageStart);
             break;
         }
 
         // Parse netscape-specific application extensions
-        case GIFConsumeNetscapeExtension: {
+        case SkGIFConsumeNetscapeExtension: {
             const unsigned char* currentComponent =
                 reinterpret_cast<const unsigned char*>(m_streamBuffer.get());
 
@@ -664,24 +664,24 @@ bool SkGifImageReader::parse(SkGifImageReader::GIFParseQuery query)
                 if (!m_loopCount)
                     m_loopCount = SkCodecAnimation::kAnimationLoopInfinite;
 
-                GETN(1, GIFNetscapeExtensionBlock);
+                GETN(1, SkGIFNetscapeExtensionBlock);
             } else if (netscapeExtension == 2) {
                 // Wait for specified # of bytes to enter buffer.
 
                 // Don't do this, this extension doesn't exist (isn't used at all)
                 // and doesn't do anything, as our streaming/buffering takes care of it all...
                 // See: http://semmix.pl/color/exgraf/eeg24.htm
-                GETN(1, GIFNetscapeExtensionBlock);
+                GETN(1, SkGIFNetscapeExtensionBlock);
             } else {
                 // 0,3-7 are yet to be defined netscape extension codes
                 // This prevents attempting to continue reading this invalid stream.
-                GETN(0, GIFDone);
+                GETN(0, SkGIFDone);
                 return false;
             }
             break;
         }
 
-        case GIFImageHeader: {
+        case SkGIFImageHeader: {
             unsigned height, width, xOffset, yOffset;
             const unsigned char* currentComponent =
                 reinterpret_cast<const unsigned char*>(m_streamBuffer.get());
@@ -723,7 +723,7 @@ bool SkGifImageReader::parse(SkGifImageReader::GIFParseQuery query)
                 width = m_screenWidth;
                 if (!height || !width) {
                     // This prevents attempting to continue reading this invalid stream.
-                    GETN(0, GIFDone);
+                    GETN(0, SkGIFDone);
                     return false;
                 }
             }
@@ -768,7 +768,7 @@ bool SkGifImageReader::parse(SkGifImageReader::GIFParseQuery query)
                 }
             }
 
-            if (query == GIFSizeQuery) {
+            if (query == SkGIFSizeQuery) {
                 // The decoder needs to stop, so we return here, before
                 // flushing the buffer. Next time through, we'll be in the same
                 // state, requiring the same amount in the buffer.
@@ -777,7 +777,7 @@ bool SkGifImageReader::parse(SkGifImageReader::GIFParseQuery query)
             }
 
             addFrameIfNecessary();
-            GIFFrameContext* currentFrame = m_frames.back().get();
+            SkGIFFrameContext* currentFrame = m_frames.back().get();
 
             currentFrame->setHeaderDefined();
 
@@ -797,32 +797,32 @@ bool SkGifImageReader::parse(SkGifImageReader::GIFParseQuery query)
 
             if (isLocalColormapDefined) {
                 currentFrame->localColorMap().setNumColors(numColors);
-                GETN(BYTES_PER_COLORMAP_ENTRY * numColors, GIFImageColormap);
+                GETN(SK_BYTES_PER_COLORMAP_ENTRY * numColors, SkGIFImageColormap);
                 break;
             }
 
-            GETN(1, GIFLZWStart);
+            GETN(1, SkGIFLZWStart);
             break;
         }
 
-        case GIFImageColormap: {
+        case SkGIFImageColormap: {
             SkASSERT(!m_frames.empty());
             m_frames.back()->localColorMap().setRawData(m_streamBuffer.get(), m_streamBuffer.bytesBuffered());
-            GETN(1, GIFLZWStart);
+            GETN(1, SkGIFLZWStart);
             break;
         }
 
-        case GIFSubBlock: {
+        case SkGIFSubBlock: {
             const size_t bytesInBlock = this->getOneByte();
             if (bytesInBlock)
-                GETN(bytesInBlock, GIFLZW);
+                GETN(bytesInBlock, SkGIFLZW);
             else {
                 // Finished parsing one frame; Process next frame.
                 SkASSERT(!m_frames.empty());
                 // Note that some broken GIF files do not have enough LZW blocks to fully
                 // decode all rows but we treat it as frame complete.
                 m_frames.back()->setComplete();
-                GETN(1, GIFImageStart);
+                GETN(1, SkGIFImageStart);
                 if (lastFrameToParse >= 0 && (int) m_frames.size() > lastFrameToParse) {
                     m_streamBuffer.flush();
                     return true;
@@ -831,7 +831,7 @@ bool SkGifImageReader::parse(SkGifImageReader::GIFParseQuery query)
             break;
         }
 
-        case GIFDone: {
+        case SkGIFDone: {
             m_parseCompleted = true;
             return true;
         }
@@ -839,7 +839,7 @@ bool SkGifImageReader::parse(SkGifImageReader::GIFParseQuery query)
         default:
             // We shouldn't ever get here.
             // This prevents attempting to continue reading this invalid stream.
-            GETN(0, GIFDone);
+            GETN(0, SkGIFDone);
             return false;
             break;
         }   // switch
@@ -853,13 +853,13 @@ void SkGifImageReader::addFrameIfNecessary()
 {
     if (m_frames.empty() || m_frames.back()->isComplete()) {
         const size_t i = m_frames.size();
-        std::unique_ptr<GIFFrameContext> frame(new GIFFrameContext(i));
+        std::unique_ptr<SkGIFFrameContext> frame(new SkGIFFrameContext(i));
         if (0 == i) {
             frame->setRequiredFrame(SkCodec::kNone);
         } else {
             // FIXME: We could correct these after decoding (i.e. some frames may turn out to be
             // independent although we did not determine that here).
-            const GIFFrameContext* prevFrameContext = m_frames[i - 1].get();
+            const SkGIFFrameContext* prevFrameContext = m_frames[i - 1].get();
             switch (prevFrameContext->getDisposalMethod()) {
                 case SkCodecAnimation::Keep_DisposalMethod:
                     frame->setRequiredFrame(i - 1);
@@ -888,13 +888,13 @@ void SkGifImageReader::addFrameIfNecessary()
 }
 
 // FIXME: Move this method to close to doLZW().
-bool GIFLZWContext::prepareToDecode()
+bool SkGIFLZWContext::prepareToDecode()
 {
     SkASSERT(m_frameContext->isDataSizeDefined() && m_frameContext->isHeaderDefined());
 
     // Since we use a codesize of 1 more than the datasize, we need to ensure
-    // that our datasize is strictly less than the MAX_DICTIONARY_ENTRY_BITS.
-    if (m_frameContext->dataSize() >= MAX_DICTIONARY_ENTRY_BITS)
+    // that our datasize is strictly less than the SK_MAX_DICTIONARY_ENTRY_BITS.
+    if (m_frameContext->dataSize() >= SK_MAX_DICTIONARY_ENTRY_BITS)
         return false;
     clearCode = 1 << m_frameContext->dataSize();
     avail = clearCode + 2;
@@ -906,22 +906,22 @@ bool GIFLZWContext::prepareToDecode()
     irow = 0;
 
     // We want to know the longest sequence encodable by a dictionary with
-    // MAX_DICTIONARY_ENTRIES entries. If we ignore the need to encode the base
+    // SK_MAX_DICTIONARY_ENTRIES entries. If we ignore the need to encode the base
     // values themselves at the beginning of the dictionary, as well as the need
     // for a clear code or a termination code, we could use every entry to
     // encode a series of multiple values. If the input value stream looked
     // like "AAAAA..." (a long string of just one value), the first dictionary
     // entry would encode AA, the next AAA, the next AAAA, and so forth. Thus
-    // the longest sequence would be MAX_DICTIONARY_ENTRIES + 1 values.
+    // the longest sequence would be SK_MAX_DICTIONARY_ENTRIES + 1 values.
     //
     // However, we have to account for reserved entries. The first |datasize|
     // bits are reserved for the base values, and the next two entries are
     // reserved for the clear code and termination code. In theory a GIF can
     // set the datasize to 0, meaning we have just two reserved entries, making
-    // the longest sequence (MAX_DICTIONARY_ENTIRES + 1) - 2 values long. Since
+    // the longest sequence (SK_MAX_DICTIONARY_ENTIRES + 1) - 2 values long. Since
     // each value is a byte, this is also the number of bytes in the longest
     // encodable sequence.
-    const size_t maxBytes = MAX_DICTIONARY_ENTRIES - 1;
+    const size_t maxBytes = SK_MAX_DICTIONARY_ENTRIES - 1;
 
     // Now allocate the output buffer. We decode directly into this buffer
     // until we have at least one row worth of data, then call outputRow().
