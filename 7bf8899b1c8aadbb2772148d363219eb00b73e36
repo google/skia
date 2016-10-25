@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "e1af00ab_9b2c0bb0",
+        "filename": "src/codec/SkGifCodec.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 552,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2016-10-25T18:17:16Z",
+      "side": 1,
+      "message": "We already attempt to do this up above on line 453 - and there we take the scaled height into account. If this is necessary, I think it should be closer to there. And why is it necessary? Is this the non-sampled case? Or is the former computation incorrect?",
+      "range": {
+        "startLine": 552,
+        "startChar": 4,
+        "endLine": 552,
+        "endChar": 15
+      },
+      "revId": "7bf8899b1c8aadbb2772148d363219eb00b73e36",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
