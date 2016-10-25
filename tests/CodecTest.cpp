@@ -1429,9 +1429,14 @@ DEF_TEST(Codec_rowsDecoded, r) {
     REPORTER_ASSERT(r, rowsDecoded == 0);
 }
 
-DEF_TEST(Codec_IcoIntOverflow, r) {
-    // ASAN will complain if there is an issue.
+static void test_invalid_images(skiatest::Reporter* r, const char* path, bool shouldSucceed) {
     SkBitmap bitmap;
-    const bool success = GetResourceAsBitmap("invalid_images/int_overflow.ico", &bitmap);
-    REPORTER_ASSERT(r, !success);
+    const bool success = GetResourceAsBitmap(path, &bitmap);
+    REPORTER_ASSERT(r, success == shouldSucceed);
+}
+
+DEF_TEST(Codec_InvalidImages, r) {
+    // ASAN will complain if there is an issue.
+    test_invalid_images(r, "invalid_images/int_overflow.ico", false);
+    test_invalid_images(r, "invalid_images/skbug5887.gif", true);
 }

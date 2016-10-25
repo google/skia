@@ -548,6 +548,8 @@ bool SkGifCodec::haveDecodedRow(size_t frameIndex, const unsigned char* rowBegin
     }
 
     // Tell the frame to copy the row data if need be.
+    SkASSERT(this->dstInfo().height() >= yBegin);
+    repeatCount = SkTMin(repeatCount, (unsigned) (this->dstInfo().height() - yBegin));
     if (repeatCount > 1) {
         const size_t bytesPerPixel = SkColorTypeBytesPerPixel(this->dstInfo().colorType());
         const size_t bytesToCopy = fSwizzler->swizzleWidth() * bytesPerPixel;
