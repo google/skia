@@ -269,11 +269,7 @@ config("warnings") {
         "-Wno-unused-macros",
         "-Wno-unused-member-function",
       ]
-      cflags_cc += [
-        "-Wno-abstract-vbase-init",
-        "-Wno-range-loop-analysis",
-        "-Wno-weak-vtables",
-      ]
+      cflags_cc += [ "-Wno-weak-vtables" ]
 
       # We are unlikely to want to fix these.
       cflags += [
