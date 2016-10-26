@@ -30,7 +30,6 @@
         '../src/utils', # needed to get SkBitSet.h
       ],
       'sources': [
-        '../gn/pdf.gni', # Makes the .gni appear in IDEs.
         '<!@(python read_gni.py ../gn/pdf.gni skia_pdf_sources)',
       ],
       'conditions': [
