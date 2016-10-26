@@ -96,6 +96,8 @@ protected:
 
         SkScalar tx = 0, ty = 0;
 
+	for (int x = 0; x < 1000; ++x) {
+	loops = 200;
         for (int i = 0; i < loops; ++i) {
             canvas->save();
             canvas->translate(tx, ty);
@@ -117,6 +119,8 @@ protected:
 
             m.postConcat(rotate);
         }
+        }
+        canvas->flush();
     }
 
 private:
