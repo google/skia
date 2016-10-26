@@ -341,6 +341,7 @@ private:
     void flushViewport(const GrGLIRect&);
 
     void flushStencil(const GrStencilSettings&);
+    void disableStencil();
 
     // rt is used only if useHWAA is true.
     void flushHWAAState(GrRenderTarget* rt, bool useHWAA, bool stencilEnabled);

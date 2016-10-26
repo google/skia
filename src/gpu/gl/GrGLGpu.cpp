@@ -2738,9 +2738,7 @@ void GrGLGpu::draw(const GrPipeline& pipeline,
         fHWPLSEnabled = true;
     }
     if (plsState == GrPixelLocalStorageState::kFinish_GrPixelLocalStorageState) {
-        GrStencilSettings stencil;
-        stencil.setDisabled();
-        this->flushStencil(stencil);
+        this->disableStencil();
     }
 
     for (int i = 0; i < meshCount; ++i) {
@@ -2973,34 +2971,35 @@ void set_gl_stencil(const GrGLInterface* gl,
 }
 
 void GrGLGpu::flushStencil(const GrStencilSettings& stencilSettings) {
-    if (fHWStencilSettings != stencilSettings) {
-        if (stencilSettings.isDisabled()) {
-            if (kNo_TriState != fHWStencilTestEnabled) {
-                GL_CALL(Disable(GR_GL_STENCIL_TEST));
-                fHWStencilTestEnabled = kNo_TriState;
-            }
-        } else {
-            if (kYes_TriState != fHWStencilTestEnabled) {
-                GL_CALL(Enable(GR_GL_STENCIL_TEST));
-                fHWStencilTestEnabled = kYes_TriState;
-            }
+    if (stencilSettings.isDisabled()) {
+        this->disableStencil();
+    } else if (fHWStencilSettings != stencilSettings) {
+        if (kYes_TriState != fHWStencilTestEnabled) {
+            GL_CALL(Enable(GR_GL_STENCIL_TEST));
+            fHWStencilTestEnabled = kYes_TriState;
         }
-        if (!stencilSettings.isDisabled()) {
-            if (stencilSettings.isTwoSided()) {
-                SkASSERT(this->caps()->twoSidedStencilSupport());
-                set_gl_stencil(this->glInterface(),
-                               stencilSettings.front(),
-                               GR_GL_FRONT);
-                set_gl_stencil(this->glInterface(),
-                               stencilSettings.back(),
-                               GR_GL_BACK);
-            } else {
-                set_gl_stencil(this->glInterface(),
-                               stencilSettings.front(),
-                               GR_GL_FRONT_AND_BACK);
-            }
+        if (stencilSettings.isTwoSided()) {
+            SkASSERT(this->caps()->twoSidedStencilSupport());
+            set_gl_stencil(this->glInterface(),
+                           stencilSettings.front(),
+                           GR_GL_FRONT);
+            set_gl_stencil(this->glInterface(),
+                           stencilSettings.back(),
+                           GR_GL_BACK);
+        } else {
+            set_gl_stencil(this->glInterface(),
+                           stencilSettings.front(),
+                           GR_GL_FRONT_AND_BACK);
         }
         fHWStencilSettings = stencilSettings;
+    }
+}
+
+void GrGLGpu::disableStencil() {
+    if (kNo_TriState != fHWStencilTestEnabled) {
+        GL_CALL(Disable(GR_GL_STENCIL_TEST));
+        fHWStencilTestEnabled = kNo_TriState;
+        fHWStencilSettings.invalidate();
     }
 }
 
@@ -4138,9 +4137,7 @@ void GrGLGpu::drawDebugWireRect(GrRenderTarget* rt, const SkIRect& rect, GrColor
     this->flushHWAAState(glRT, false, false);
     this->disableScissor();
     this->disableWindowRectangles();
-    GrStencilSettings stencil;
-    stencil.setDisabled();
-    this->flushStencil(stencil);
+    this->disableStencil();
 
     GL_CALL(DrawArrays(GR_GL_LINE_LOOP, 0, 4));
 }
@@ -4227,9 +4224,7 @@ bool GrGLGpu::copySurfaceAsDraw(GrSurface* dst,
     this->flushHWAAState(nullptr, false, false);
     this->disableScissor();
     this->disableWindowRectangles();
-    GrStencilSettings stencil;
-    stencil.setDisabled();
-    this->flushStencil(stencil);
+    this->disableStencil();
 
     GL_CALL(DrawArrays(GR_GL_TRIANGLE_STRIP, 0, 4));
     this->unbindTextureFBOForCopy(GR_GL_FRAMEBUFFER, dst);
@@ -4437,9 +4432,7 @@ bool GrGLGpu::generateMipmap(GrGLTexture* texture, bool gammaCorrect) {
     this->flushHWAAState(nullptr, false, false);
     this->disableScissor();
     this->disableWindowRectangles();
-    GrStencilSettings stencil;
-    stencil.setDisabled();
-    this->flushStencil(stencil);
+    this->disableStencil();
 
     // Do all the blits:
     width = texture->width();
