@@ -170,6 +170,10 @@ void sk_canvas_clip_rect(sk_canvas_t* ccanvas, const sk_rect_t* crect) {
     AsCanvas(ccanvas)->clipRect(AsRect(*crect));
 }
 
+void sk_canvas_clip_region(sk_canvas_t* ccanvas, const sk_region_t* region, sk_clipop_t op) {
+    AsCanvas(ccanvas)->clipRegion(AsRegion(*region), (SkClipOp)op);
+}
+
 void sk_canvas_clip_path(sk_canvas_t* ccanvas, const sk_path_t* cpath) {
     AsCanvas(ccanvas)->clipPath(AsPath(*cpath));
 }

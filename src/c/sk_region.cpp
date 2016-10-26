@@ -42,6 +42,10 @@ bool sk_region_set_rect(sk_region_t *dst, const sk_irect_t *rect) {
   return AsRegion(dst)->setRect(AsIRect(*rect));
 }
 
+bool sk_region_set_region(sk_region_t* dst, const sk_region_t* region) {
+  return AsRegion(dst)->setRegion(AsRegion(*region));
+}
+
 bool sk_region_op(sk_region_t *dst, int left, int top, int right, int bottom, sk_region_op_t op) {
   return AsRegion(dst)->op(left, top, right, bottom, (SkRegion::Op)op);
 }

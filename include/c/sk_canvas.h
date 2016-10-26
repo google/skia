@@ -83,6 +83,7 @@ SK_API void sk_canvas_concat(sk_canvas_t*, const sk_matrix_t*);
     rectange.
 */
 SK_API void sk_canvas_clip_rect(sk_canvas_t*, const sk_rect_t*);
+SK_API void sk_canvas_clip_region(sk_canvas_t* canvas, const sk_region_t* region, sk_clipop_t op);
 /**
     Modify the current clip with the specified path.  The new
     current clip will be the intersection of the old clip and the
