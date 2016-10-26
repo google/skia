@@ -92,10 +92,10 @@ public:
     void drawTextBlob(const SkDraw&, const SkTextBlob*, SkScalar x, SkScalar y,
                       const SkPaint& paint, SkDrawFilter* drawFilter) override;
     void drawVertices(const SkDraw&, SkCanvas::VertexMode, int vertexCount, const SkPoint verts[],
-                      const SkPoint texs[], const SkColor colors[], SkXfermode* xmode,
+                      const SkPoint texs[], const SkColor colors[], SK_XFERMODE_PARAM,
                       const uint16_t indices[], int indexCount, const SkPaint&) override;
     void drawAtlas(const SkDraw&, const SkImage* atlas, const SkRSXform[], const SkRect[],
-                   const SkColor[], int count, SkXfermode::Mode, const SkPaint&) override;
+                   const SkColor[], int count, SK_XFERMODE_MODE_PARAM, const SkPaint&) override;
     void drawDevice(const SkDraw&, SkBaseDevice*, int x, int y, const SkPaint&) override;
 
     void drawImage(const SkDraw&, const SkImage*, SkScalar x, SkScalar y, const SkPaint&) override;
