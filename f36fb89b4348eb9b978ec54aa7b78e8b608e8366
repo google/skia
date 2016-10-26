@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "6105d0c2_a02f60bc",
+        "filename": "fuzz/Fuzz.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 87,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2016-10-26T18:22:25Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "21c918eb_68609b19",
+      "revId": "f36fb89b4348eb9b978ec54aa7b78e8b608e8366",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "21c918eb_485ddf5b",
         "filename": "fuzz/FuzzGradients.cpp",
         "patchSetId": 2
@@ -30,6 +48,24 @@
       "writtenOn": "2016-10-26T15:00:29Z",
       "side": 1,
       "message": "If we use setjmp and longjmp, we really just go back to where we were on the stack.  The destructors for objects in scope are not called.  This means, e.g. ~vector() is not called on these vectors, and they\u0027ll never free their memory.  Are we okay with leaking memory, leaving mutexes permanently locked, etc?\n\nIf not I think we should look at using exceptions instead.  They\u0027ll act a lot like setjmp (try-catch) and longjmp (throw), but will call destructors as they unwind the stack back up to the catch.",
+      "revId": "f36fb89b4348eb9b978ec54aa7b78e8b608e8366",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "6105d0c2_00256cdc",
+        "filename": "fuzz/FuzzGradients.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 94,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2016-10-26T18:22:25Z",
+      "side": 1,
+      "message": "The code has been updated to use exceptions.",
+      "parentUuid": "21c918eb_485ddf5b",
       "revId": "f36fb89b4348eb9b978ec54aa7b78e8b608e8366",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
