@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "6105d0c2_3d35373d",
+        "filename": "src/gpu/GrDistanceFieldGenFromVector.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 807,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2016-10-26T13:58:06Z",
+      "side": 1,
+      "message": "Do you really want SkScalar, or do you want float? I think eventually we plan to add support for SkScalar as double.",
+      "range": {
+        "startLine": 807,
+        "startChar": 56,
+        "endLine": 807,
+        "endChar": 69
+      },
+      "revId": "0d2f77440c72cc758542eed300d3af83ebf6cbbb",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
