@@ -69,6 +69,11 @@ static void skqsort_sort(int array[N]) {
     SkTQSort<int>(array, array + N - 1);
 }
 
+static void skqsort_sort1(int array[N]) {
+    // End is inclusive for SkTQSort!
+    SkTQSort1<int>(array, array + N - 1);
+}
+
 static void skheap_sort(int array[N]) {
     SkTHeapSort<int>(array, N);
 }
@@ -86,7 +91,7 @@ static void qsort_sort(int array[N]) {
 }
 
 enum SortType {
-    kSKQSort, kSKHeap, kQSort
+    kSKQSort, kSKQSort1, kSKHeap, kQSort
 };
 
 static const struct {
@@ -94,6 +99,7 @@ static const struct {
     SortProc    fProc;
 } gSorts[] = {
     { "skqsort", skqsort_sort },
+    { "skqsort1", skqsort_sort1 },
     { "skheap", skheap_sort },
     { "qsort", qsort_sort },
 };
@@ -146,6 +152,9 @@ private:
 static Benchmark* NewSkQSort(Type t) {
     return new SortBench(t, kSKQSort);
 }
+static Benchmark* NewSkQSort1(Type t) {
+    return new SortBench(t, kSKQSort1);
+}
 static Benchmark* NewSkHeap(Type t) {
     return new SortBench(t, kSKHeap);
 }
@@ -154,21 +163,26 @@ static Benchmark* NewQSort(Type t) {
 }
 
 DEF_BENCH( return NewSkQSort(kRand); )
+DEF_BENCH( return NewSkQSort1(kRand); )
 DEF_BENCH( return NewSkHeap(kRand); )
 DEF_BENCH( return NewQSort(kRand); )
 
 DEF_BENCH( return NewSkQSort(kRandN); )
+DEF_BENCH( return NewSkQSort1(kRandN); )
 DEF_BENCH( return NewSkHeap(kRandN); )
 DEF_BENCH( return NewQSort(kRandN); )
 
 DEF_BENCH( return NewSkQSort(kFore); )
+DEF_BENCH( return NewSkQSort1(kFore); )
 DEF_BENCH( return NewSkHeap(kFore); )
 DEF_BENCH( return NewQSort(kFore); )
 
 DEF_BENCH( return NewSkQSort(kBack); )
+DEF_BENCH( return NewSkQSort1(kBack); )
 DEF_BENCH( return NewSkHeap(kBack); )
 DEF_BENCH( return NewQSort(kBack); )
 
 DEF_BENCH( return NewSkQSort(kSame); )
+DEF_BENCH( return NewSkQSort1(kSame); )
 DEF_BENCH( return NewSkHeap(kSame); )
 DEF_BENCH( return NewQSort(kSame); )
