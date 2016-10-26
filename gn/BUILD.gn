@@ -271,7 +271,6 @@ config("warnings") {
       ]
       cflags_cc += [
         "-Wno-abstract-vbase-init",
-        "-Wno-range-loop-analysis",
         "-Wno-weak-vtables",
       ]
 
