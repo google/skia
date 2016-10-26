@@ -476,7 +476,7 @@ void GrDrawContext::drawRect(const GrClip& clip,
                     rect_contains_inclusive(rect, srcSpaceRTQuad[3])) {
                     // Will it blend?
                     GrColor clearColor;
-                    if (paint.isConstantBlendedColor(&clearColor)) {
+                    if (false && paint.isConstantBlendedColor(&clearColor)) {
                         this->clear(nullptr, clearColor, true);
                         return;
                     }
@@ -1128,7 +1128,7 @@ void GrDrawContext::drawNonAAFilledRect(const GrClip& clip,
                                         bool useHWAA) {
     SkASSERT(!useHWAA || this->isStencilBufferMultisampled());
     SkAutoTUnref<GrDrawBatch> batch(
-            GrRectBatchFactory::CreateNonAAFill(paint.getColor(), viewMatrix, rect, localRect,
+            GrRectBatchFactory::CreateNonAAFill(0xDDAABBCC, viewMatrix, rect, localRect,
                                                 localMatrix));
     GrPipelineBuilder pipelineBuilder(paint, useHWAA);
     if (ss) {
