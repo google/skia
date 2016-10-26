@@ -83,9 +83,6 @@
         'ktx.gyp:libSkKTX',
         'sksl.gyp:sksl',
       ],
-      'includes': [
-        'gpu.gypi',
-      ],
       'include_dirs': [
         '../include/gpu',
         '../include/private',
@@ -95,10 +92,9 @@
         '../src/sksl',
       ],
       'sources': [
-        '<@(skgpu_sources)',
-        '<@(skgpu_native_gl_sources)',
-        '<@(skgpu_vk_sources)',
-        'gpu.gypi', # Makes the gypi appear in IDEs (but does not modify the build).
+        '<!@(python read_gni.py ../gn/gpu.gni skia_gpu_sources)',
+        '<!@(python read_gni.py ../gn/gpu.gni skia_native_gpu_sources)',
+        '<!@(python read_gni.py ../gn/gpu.gni skia_vk_sources)',
       ],
       'conditions': [
         [ 'skia_gpu_extra_dependency_path', {
@@ -252,7 +248,7 @@
           ],
         }, {
           'sources!': [
-            '<@(skgpu_vk_sources)',
+            '<!@(python read_gni.py ../gn/gpu.gni skia_vk_sources)',
           ],
         }],
       ],
