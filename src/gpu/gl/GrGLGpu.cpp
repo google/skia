@@ -497,20 +497,20 @@ void GrGLGpu::onResetContext(uint32_t resetBits) {
         if (kGL_GrGLStandard == this->glStandard()) {
             // Desktop-only state that we never change
             if (!this->glCaps().isCoreProfile()) {
-                GL_CALL(Disable(GR_GL_POINT_SMOOTH));
-                GL_CALL(Disable(GR_GL_LINE_SMOOTH));
-                GL_CALL(Disable(GR_GL_POLYGON_SMOOTH));
-                GL_CALL(Disable(GR_GL_POLYGON_STIPPLE));
-                GL_CALL(Disable(GR_GL_COLOR_LOGIC_OP));
-                GL_CALL(Disable(GR_GL_INDEX_LOGIC_OP));
+                //GL_CALL(Disable(GR_GL_POINT_SMOOTH));
+                //GL_CALL(Disable(GR_GL_LINE_SMOOTH));
+                //GL_CALL(Disable(GR_GL_POLYGON_SMOOTH));
+                //GL_CALL(Disable(GR_GL_POLYGON_STIPPLE));
+                //GL_CALL(Disable(GR_GL_COLOR_LOGIC_OP));
+                //GL_CALL(Disable(GR_GL_INDEX_LOGIC_OP));
             }
             // The windows NVIDIA driver has GL_ARB_imaging in the extension string when using a
             // core profile. This seems like a bug since the core spec removes any mention of
             // GL_ARB_imaging.
             if (this->glCaps().imagingSupport() && !this->glCaps().isCoreProfile()) {
-                GL_CALL(Disable(GR_GL_COLOR_TABLE));
+                //GL_CALL(Disable(GR_GL_COLOR_TABLE));
             }
-            GL_CALL(Disable(GR_GL_POLYGON_OFFSET_FILL));
+            //GL_CALL(Disable(GR_GL_POLYGON_OFFSET_FILL));
             // Since ES doesn't support glPointSize at all we always use the VS to
             // set the point size
             GL_CALL(Enable(GR_GL_VERTEX_PROGRAM_POINT_SIZE));
