@@ -1193,7 +1193,7 @@ void SkDraw::drawPath(const SkPath& origSrcPath, const SkPaint& origPaint,
 void SkDraw::drawBitmapAsMask(const SkBitmap& bitmap, const SkPaint& paint) const {
     SkASSERT(bitmap.colorType() == kAlpha_8_SkColorType);
 
-    if (SkTreatAsSprite(*fMatrix, bitmap.dimensions(), paint)) {
+    if (SkTreatAsSprite(*fMatrix, bitmap.dimensions(), paint) && false) {
         int ix = SkScalarRoundToInt(fMatrix->getTranslateX());
         int iy = SkScalarRoundToInt(fMatrix->getTranslateY());
 
@@ -1288,6 +1288,15 @@ static bool clipHandlesSprite(const SkRasterClip& clip, int x, int y, const SkPi
     return clip.isBW() || clip.quickContains(x, y, x + pmap.width(), y + pmap.height());
 }
 
+static inline bool needs_copy_to_N32(const SkBitmap& bitmap, const SkPaint& paint) {
+    switch (bitmap.colorType()) {
+        case kAlpha_8_SkColorType:
+            return paint.getColorFilter() || paint.getShader();
+        default:
+            return false;
+    }
+}
+
 void SkDraw::drawBitmap(const SkBitmap& bitmap, const SkMatrix& prematrix,
                         const SkRect* dstBounds, const SkPaint& origPaint) const {
     SkDEBUGCODE(this->validate();)
@@ -1311,14 +1320,21 @@ void SkDraw::drawBitmap(const SkBitmap& bitmap, const SkMatrix& prematrix,
         return;
     }
 
-    if (bitmap.colorType() != kAlpha_8_SkColorType
-        && SkTreatAsSprite(matrix, bitmap.dimensions(), *paint)) {
+    const SkBitmap* bitmapPtr = &bitmap;
+    SkBitmap bitmapN32;
+    if (needs_copy_to_N32(bitmap, origPaint)) {
+        bitmap.copyTo(&bitmapN32, kN32_SkColorType);
+        bitmapPtr = &bitmapN32;
+    }
+
+    if (bitmapPtr->colorType() != kAlpha_8_SkColorType
+        && SkTreatAsSprite(matrix, bitmapPtr->dimensions(), *paint)) {
         //
         // It is safe to call lock pixels now, since we know the matrix is
         // (more or less) identity.
         //
         SkAutoPixmapUnlock unlocker;
-        if (!bitmap.requestLock(&unlocker)) {
+        if (!bitmapPtr->requestLock(&unlocker)) {
             return;
         }
         const SkPixmap& pmap = unlocker.pixmap();
@@ -1342,12 +1358,12 @@ void SkDraw::drawBitmap(const SkBitmap& bitmap, const SkMatrix& prematrix,
     SkDraw draw(*this);
     draw.fMatrix = &matrix;
 
-    if (bitmap.colorType() == kAlpha_8_SkColorType) {
-        draw.drawBitmapAsMask(bitmap, *paint);
+    if (bitmapPtr->colorType() == kAlpha_8_SkColorType) {
+        draw.drawBitmapAsMask(*bitmapPtr, *paint);
     } else {
-        SkAutoBitmapShaderInstall install(bitmap, *paint);
+        SkAutoBitmapShaderInstall install(*bitmapPtr, *paint);
         const SkPaint& paintWithShader = install.paintWithShader();
-        const SkRect srcBounds = SkRect::MakeIWH(bitmap.width(), bitmap.height());
+        const SkRect srcBounds = SkRect::MakeIWH(bitmapPtr->width(), bitmapPtr->height());
         if (dstBounds) {
             this->drawRect(srcBounds, paintWithShader, &prematrix, dstBounds);
         } else {
