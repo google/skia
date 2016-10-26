@@ -10,19 +10,6 @@
 _path_to_include = get_path_info("../include", "abspath")
 _path_to_src = get_path_info("../src", "abspath")
 
-# GPU.
-_gpu_gypi = exec_script("gypi_to_gn.py",
-                        [
-                          rebase_path("../gyp/gpu.gypi"),
-                          "--replace=<(skia_include_path)=$_path_to_include",
-                          "--replace=<(skia_src_path)=$_path_to_src",
-                        ],
-                        "scope",
-                        [ "../gyp/gpu.gypi" ])
-skia_gpu_sources = _gpu_gypi.skgpu_sources
-skia_null_gpu_sources = _gpu_gypi.skgpu_null_gl_sources
-skia_vk_sources = _gpu_gypi.skgpu_vk_sources
-
 # Opts.
 #
 # Unlike the other variables here, this is a "scope" consisting of many
@@ -37,6 +24,7 @@ skia_opts = exec_script("gypi_to_gn.py",
                         [ "../gyp/opts.gypi" ])
 import("core.gni")
 import("effects.gni")
+import("gpu.gni")
 import("pdf.gni")
 import("sksl.gni")
 import("utils.gni")
