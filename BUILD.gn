@@ -1119,6 +1119,9 @@ if (skia_enable_tools) {
   }
 
   executable("fuzz") {
+    if (is_skia_standalone) {
+      configs -= [ "//gn:no_exceptions" ]
+    }
     sources = [
       "fuzz/FilterFuzz.cpp",
       "fuzz/FuzzGradients.cpp",
@@ -1143,13 +1146,12 @@ if (skia_enable_tools) {
                                       [])
 
   executable("pathops_unittest") {
-    sources =
-        pathops_tests_sources -
-        [ rebase_path("tests/PathOpsSkpClipTest.cpp") ] +  # alternate main
-        [
-          rebase_path("tests/skia_test.cpp"),
-          rebase_path("tests/Test.cpp"),
-        ]
+    sources = pathops_tests_sources -
+              [ rebase_path("tests/PathOpsSkpClipTest.cpp") ] +
+              [
+                rebase_path("tests/skia_test.cpp"),
+                rebase_path("tests/Test.cpp"),
+              ]
     deps = [
       ":flags",
       ":gpu_tool_utils",

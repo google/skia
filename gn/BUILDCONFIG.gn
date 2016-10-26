@@ -111,6 +111,7 @@ template("component") {
 # Default configs
 default_configs = [
   "//gn:default",
+  "//gn:no_exceptions",
   "//gn:no_rtti",
   "//gn:warnings",
 ]
