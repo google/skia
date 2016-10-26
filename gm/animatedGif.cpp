@@ -103,7 +103,7 @@ private:
             SkAutoCanvasRestore acr(canvas, true);
             for (size_t frameIndex = 0; frameIndex < fTotalFrames; frameIndex++) {
                 this->drawFrame(canvas, frameIndex);
-                canvas->translate(fCodec->getInfo().width(), 0);
+                canvas->translate(SkIntToScalar(fCodec->getInfo().width()), 0);
             }
         }
     }
@@ -142,7 +142,7 @@ private:
         }
 
         SkAutoCanvasRestore acr(canvas, true);
-        canvas->translate(0, fCodec->getInfo().height());
+        canvas->translate(0, SkIntToScalar(fCodec->getInfo().height()));
         this->drawFrame(canvas, fFrame);
     }
 

@@ -728,7 +728,7 @@ bool SkGifImageReader::parse(SkGifImageReader::SkGIFParseQuery query)
                 }
             }
 
-            const bool isLocalColormapDefined = currentComponent[8] & 0x80;
+            const bool isLocalColormapDefined = SkToBool(currentComponent[8] & 0x80);
             // The three low-order bits of currentComponent[8] specify the bits per pixel.
             const size_t numColors = 2 << (currentComponent[8] & 0x7);
             if (currentFrameIsFirstFrame()) {
@@ -782,7 +782,7 @@ bool SkGifImageReader::parse(SkGifImageReader::SkGIFParseQuery query)
             currentFrame->setHeaderDefined();
 
             currentFrame->setRect(xOffset, yOffset, width, height);
-            currentFrame->setInterlaced(currentComponent[8] & 0x40);
+            currentFrame->setInterlaced(SkToBool(currentComponent[8] & 0x40));
 
             // Overlaying interlaced, transparent GIFs over
             // existing image data using the Haeberli display hack
