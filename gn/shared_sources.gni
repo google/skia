@@ -10,29 +10,6 @@
 _path_to_include = get_path_info("../include", "abspath")
 _path_to_src = get_path_info("../src", "abspath")
 
-# Core.
-_core_gypi = exec_script("gypi_to_gn.py",
-                         [
-                           rebase_path("../gyp/core.gypi"),
-                           "--replace=<(skia_include_path)=$_path_to_include",
-                           "--replace=<(skia_src_path)=$_path_to_src",
-                         ],
-                         "scope",
-                         [ "../gyp/core.gypi" ])
-skia_core_sources = _core_gypi.sources
-
-# Effects.
-_effects_gypi =
-    exec_script("gypi_to_gn.py",
-                [
-                  rebase_path("../gyp/effects.gypi"),
-                  "--replace=<(skia_include_path)=$_path_to_include",
-                  "--replace=<(skia_src_path)=$_path_to_src",
-                ],
-                "scope",
-                [ "../gyp/effects.gypi" ])
-skia_effects_sources = _effects_gypi.sources
-
 # GPU.
 _gpu_gypi = exec_script("gypi_to_gn.py",
                         [
@@ -58,7 +35,8 @@ skia_opts = exec_script("gypi_to_gn.py",
                         ],
                         "scope",
                         [ "../gyp/opts.gypi" ])
-
+import("core.gni")
+import("effects.gni")
 import("pdf.gni")
 import("sksl.gni")
 import("utils.gni")
@@ -66,12 +44,3 @@ import("utils.gni")
 # Skia Chromium defines. These flags will be defined in chromium If these
 # become 'permanent', they should be moved into Chrome's skia build file.
 skia_for_chromium_defines = [ "SK_IGNORE_LINEONLY_AA_CONVEX_PATH_OPTS" ]
-
-_android_framework_defines =
-    exec_script(
-        "gypi_to_gn.py",
-        [ rebase_path("../gyp/skia_for_android_framework_defines.gypi") ],
-        "scope",
-        [ "../gyp/core.gypi" ])
-skia_android_framework_defines =
-    _android_framework_defines.skia_for_android_framework_defines

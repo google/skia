@@ -12,10 +12,6 @@
       'standalone_static_library': 1,
       'msvs_guid': 'B7760B5E-BFA8-486B-ACFD-49E3A6DE8E76',
 
-      'includes': [
-        'core.gypi',
-      ],
-
       'include_dirs': [
         '../include/c',
         '../include/config',
@@ -33,7 +29,7 @@
         '../src/utils',
       ],
       'sources': [
-        'core.gypi', # Makes the gypi appear in IDEs (but does not modify the build).
+        '<!@(python read_gni.py ../gn/core.gni skia_core_sources)',
       ],
       'msvs_disabled_warnings': [4244, 4267,4345, 4390, 4554, 4800],
       'conditions': [
