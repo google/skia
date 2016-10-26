@@ -17,7 +17,6 @@
 GrRenderTargetProxy::GrRenderTargetProxy(const GrCaps& caps, const GrSurfaceDesc& desc,
                                          SkBackingFit fit, SkBudgeted budgeted)
     : INHERITED(desc, fit, budgeted)
-    , fTarget(nullptr)
     , fFlags(GrRenderTargetPriv::Flags::kNone)
     , fLastDrawTarget(nullptr) {
     // Since we know the newly created render target will be internal, we are able to precompute
@@ -32,45 +31,41 @@ GrRenderTargetProxy::GrRenderTargetProxy(const GrCaps& caps, const GrSurfaceDesc
 
 // Wrapped version
 GrRenderTargetProxy::GrRenderTargetProxy(const GrCaps& caps, sk_sp<GrRenderTarget> rt)
-    : INHERITED(rt->desc(), SkBackingFit::kExact,
+    : INHERITED(std::move(rt), SkBackingFit::kExact,
                 rt->resourcePriv().isBudgeted(), rt->uniqueID())
-    , fTarget(std::move(rt))
-    , fFlags(fTarget->renderTargetPriv().flags())
+    , fFlags(fTarget->asRenderTarget()->renderTargetPriv().flags())
     , fLastDrawTarget(nullptr) {
 }
 
 GrRenderTargetProxy::~GrRenderTargetProxy() {
     if (fLastDrawTarget) {
-        fLastDrawTarget->clearRT();
+        fLastDrawTarget->clearRTP();
     }
     SkSafeUnref(fLastDrawTarget);
 }
 
 GrRenderTarget* GrRenderTargetProxy::instantiate(GrTextureProvider* texProvider) {
     if (fTarget) {
-        return fTarget.get();
+        return fTarget->asRenderTarget();
     }
 
     // TODO: it would be nice to not have to copy the desc here
     GrSurfaceDesc desc = fDesc;
     desc.fFlags |= GrSurfaceFlags::kRenderTarget_GrSurfaceFlag;
 
-    sk_sp<GrTexture> tex;
     if (SkBackingFit::kApprox == fFit) {
-        tex.reset(texProvider->createApproxTexture(desc));
+        fTarget = texProvider->createApproxTexture(desc);
     } else {
-        tex.reset(texProvider->createTexture(desc, fBudgeted));
+        fTarget = texProvider->createTexture(desc, fBudgeted);
     }
-    if (!tex || !tex->asRenderTarget()) {
+    if (!fTarget) {
         return nullptr;
     }
 
-    fTarget = sk_ref_sp(tex->asRenderTarget());
-
     // Check that our a priori computation matched the ultimate reality
-    SkASSERT(fFlags == fTarget->renderTargetPriv().flags());
+    SkASSERT(fFlags == fTarget->asRenderTarget()->renderTargetPriv().flags());
 
-    return fTarget.get();
+    return fTarget->asRenderTarget();
 }
 
 void GrRenderTargetProxy::setLastDrawTarget(GrDrawTarget* dt) {
@@ -79,11 +74,19 @@ void GrRenderTargetProxy::setLastDrawTarget(GrDrawTarget* dt) {
 #ifdef ENABLE_MDB
         SkASSERT(fLastDrawTarget->isClosed());
 #endif
-        fLastDrawTarget->clearRT();
+        fLastDrawTarget->clearRTP();
     }
 
     SkRefCnt_SafeAssign(fLastDrawTarget, dt);
 }
+
+#ifdef SK_DEBUG
+void GrRenderTargetProxy::validate(GrContext* context) const {
+    if (fTarget) {
+        SkASSERT(fTarget->getContext() == context);
+    }
+}
+#endif
 
 sk_sp<GrRenderTargetProxy> GrRenderTargetProxy::Make(const GrCaps& caps,
                                                      const GrSurfaceDesc& desc,

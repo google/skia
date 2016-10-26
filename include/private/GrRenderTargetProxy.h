@@ -65,6 +65,8 @@ public:
 
     GrRenderTargetPriv::Flags testingOnly_getFlags() const;
 
+    SkDEBUGCODE(void validate(GrContext*) const;)
+
 private:
     // Deferred version
     GrRenderTargetProxy(const GrCaps&, const GrSurfaceDesc&, SkBackingFit, SkBudgeted);
@@ -72,9 +74,9 @@ private:
     // Wrapped version
     GrRenderTargetProxy(const GrCaps&, sk_sp<GrRenderTarget> rt);
 
-    // For wrapped render targets we store it here.
-    // For deferred proxies we will fill this in when we need to instantiate the deferred resource
-    sk_sp<GrRenderTarget>       fTarget;
+    // For wrapped render targets the actual GrRenderTarget is stored in the GrIORefProxy class.
+    // For deferred proxies that pointer is filled in when we need to instantiate the
+    // deferred resource.
 
     // These don't usually get computed until the render target is instantiated, but the render
     // target proxy may need to answer queries about it before then. And since in the deferred case
