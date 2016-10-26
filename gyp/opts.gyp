@@ -4,10 +4,9 @@
 # found in the LICENSE file.
 # Gyp file for building opts target.
 {
-  # Source lists live in opts.gypi.  This makes it easier to maintain our Chrome GYP/GN setup.
   # (To be honest, I'm not sure why we need to include common.gypi.  I thought it was automatic.)
   'variables': {
-    'includes': [ 'common.gypi', 'opts.gypi' ],
+    'includes': [ 'common.gypi' ],
   },
 
   # Generally we shove things into one 'opts' target conditioned on platform.
@@ -35,15 +34,15 @@
         [ '"x86" in skia_arch_type and skia_os != "ios"', {
           'cflags': [ '-msse2' ],
           'dependencies': [ 'opts_ssse3', 'opts_sse41', 'opts_sse42', 'opts_avx', 'opts_hsw' ],
-          'sources': [ '<@(sse2_sources)' ],
+          'sources': [ '<!@(python read_gni.py ../gn/opts.gni sse2)' ],
         }],
 
         [ 'skia_arch_type == "mips"', {
           'conditions': [
             [ '(mips_arch_variant == "mips32r2") and (mips_dsp == 1 or mips_dsp == 2)', {
-                'sources': [ '<@(mips_dsp_sources)' ],
+                'sources': [ '<!@(python read_gni.py ../gn/opts.gni mips_dsp)' ],
             },{
-                'sources': [ '<@(none_sources)' ],
+                'sources': [ '<!@(python read_gni.py ../gn/opts.gni none)' ],
             }],
           ]
         }],
@@ -53,7 +52,7 @@
             or (skia_os == "android" \
                 and skia_arch_type not in ["x86", "x86_64", "arm", "mips", \
                                            "arm64"])', {
-          'sources': [ '<@(none_sources)' ],
+          'sources': [ '<!@(python read_gni.py ../gn/opts.gni none)' ],
         }],
 
         [ 'skia_arch_type == "arm" and arm_version >= 7', {
@@ -61,7 +60,7 @@
           # ARM), the compiler doesn't like that.
           'cflags!': [ '-fno-omit-frame-pointer', '-mapcs-frame', '-mapcs' ],
           'cflags':  [ '-fomit-frame-pointer' ],
-          'sources': [ '<@(armv7_sources)' ],
+          'sources': [ '<!@(python read_gni.py ../gn/opts.gni armv7)' ],
           'conditions': [
             [ 'arm_neon == 1', {
               'dependencies': [ 'opts_neon' ]
@@ -70,7 +69,7 @@
         }],
 
         [ 'skia_arch_type == "arm64"', {
-          'sources': [ '<@(arm64_sources)' ],
+          'sources': [ '<!@(python read_gni.py ../gn/opts.gni arm64)' ],
           'dependencies': [ 'opts_crc32' ]
         }],
 
@@ -94,7 +93,7 @@
           '../src/core',
           '../src/utils',
       ],
-      'sources': [ '<@(crc32_sources)' ],
+      'sources': [ '<!@(python read_gni.py ../gn/opts.gni crc32)' ],
       'conditions': [
         [ 'not skia_android_framework', { 'cflags': [ '-march=armv8-a+crc' ] }],
       ],
@@ -110,7 +109,7 @@
           '../src/core',
           '../src/utils',
       ],
-      'sources': [ '<@(ssse3_sources)' ],
+      'sources': [ '<!@(python read_gni.py ../gn/opts.gni ssse3)' ],
       'conditions': [
         [ 'skia_os == "win"', { 'defines' : [ 'SK_CPU_SSE_LEVEL=31' ] }],
         [ 'not skia_android_framework', { 'cflags': [ '-mssse3' ] }],
@@ -127,7 +126,7 @@
           '../src/core',
           '../src/utils',
       ],
-      'sources': [ '<@(sse41_sources)' ],
+      'sources': [ '<!@(python read_gni.py ../gn/opts.gni sse41)' ],
       'xcode_settings': { 'GCC_ENABLE_SSE41_EXTENSIONS': 'YES' },
       'conditions': [
         [ 'skia_os == "win"', { 'defines' : [ 'SK_CPU_SSE_LEVEL=41' ] }],
@@ -145,7 +144,7 @@
           '../src/core',
           '../src/utils',
       ],
-      'sources': [ '<@(sse42_sources)' ],
+      'sources': [ '<!@(python read_gni.py ../gn/opts.gni sse42)' ],
       'xcode_settings': { 'GCC_ENABLE_SSE42_EXTENSIONS': 'YES' },
       'conditions': [
         [ 'skia_os == "win"', { 'defines' : [ 'SK_CPU_SSE_LEVEL=42' ] }],
@@ -163,7 +162,7 @@
           '../src/core',
           '../src/utils',
       ],
-      'sources': [ '<@(avx_sources)' ],
+      'sources': [ '<!@(python read_gni.py ../gn/opts.gni avx)' ],
       'msvs_settings': { 'VCCLCompilerTool': { 'EnableEnhancedInstructionSet': '3' } },
       'xcode_settings': { 'OTHER_CPLUSPLUSFLAGS': [ '-mavx' ] },
       'conditions': [
@@ -181,7 +180,7 @@
           '../src/core',
           '../src/utils',
       ],
-      'sources': [ '<@(hsw_sources)' ],
+      'sources': [ '<!@(python read_gni.py ../gn/opts.gni hsw)' ],
       'msvs_settings': { 'VCCLCompilerTool': { 'EnableEnhancedInstructionSet': '5' } },
       'xcode_settings': {
           'OTHER_CPLUSPLUSFLAGS': [ '-mavx2', '-mbmi', '-mbmi2', '-mf16c', '-mfma' ]
@@ -207,7 +206,7 @@
         '../src/opts',
         '../src/utils',
       ],
-      'sources': [ '<@(neon_sources)' ],
+      'sources': [ '<!@(python read_gni.py ../gn/opts.gni neon)' ],
       'cflags!': [
         '-fno-omit-frame-pointer',
         '-mfpu=vfp',  # remove them all, just in case.
