@@ -44,6 +44,7 @@
 #include "SkTileImageFilter.h"
 #include "SkTypeface.h"
 #include "SkXfermodeImageFilter.h"
+#include <cmath>
 #include <stdio.h>
 #include <time.h>
 
@@ -55,8 +56,8 @@ static const int kBitmapSize = 24;
 static bool return_large = false;
 static bool return_undef = false;
 
-static int R(float x) {
-    return (int)floor(SkScalarToFloat(fuzz->nextF1()) * x);
+static int R(int x) {
+    return abs(fuzz->next<int>()) % x;
 }
 
 #if defined _WIN32
