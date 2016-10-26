@@ -804,7 +804,8 @@ bool GrGenerateDistanceFieldFromPath(unsigned char* distanceField,
             if (col == width - 1 && windingNumber != 0) {
                 for (int col = 0; col < width; ++col) {
                     int idx = (row * width) + col;
-                    dfSign = workingPath.contains(col + 0.5, row + 0.5) ? kInside : kOutside;
+                    dfSign = workingPath.contains(col + SK_ScalarHalf,
+                                                  row + SK_ScalarHalf) ? kInside : kOutside;
                     const float miniDist = sqrt(dataPtr[idx].fDistSq);
                     const float dist = dfSign * miniDist;
 
