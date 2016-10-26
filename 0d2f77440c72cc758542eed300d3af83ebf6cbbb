@@ -22,6 +22,24 @@
       "revId": "0d2f77440c72cc758542eed300d3af83ebf6cbbb",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "21c918eb_884517b4",
+        "filename": "src/gpu/GrDistanceFieldGenFromVector.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 807,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2016-10-26T14:04:14Z",
+      "side": 1,
+      "message": "SkPath::contains() takes SkScalar, SkScalar.",
+      "parentUuid": "6105d0c2_3d35373d",
+      "revId": "0d2f77440c72cc758542eed300d3af83ebf6cbbb",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
