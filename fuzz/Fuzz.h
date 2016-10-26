@@ -12,8 +12,6 @@
 #include "SkTRegistry.h"
 #include "SkTypes.h"
 
-#include <vector>
-
 class Fuzz : SkNoncopyable {
 public:
     explicit Fuzz(sk_sp<SkData>);
@@ -24,35 +22,14 @@ public:
     size_t remaining();
 
     template <typename T>
-    bool SK_WARN_UNUSED_RESULT next(T* n);
+    T next();
 
     // UBSAN reminds us that bool can only legally hold 0 or 1.
-    bool SK_WARN_UNUSED_RESULT next(bool* b) {
-        uint8_t byte;
-        if (!this->next(&byte)) {
-            return false;
-        }
-        *b = (byte & 1) == 1;
-        return true;
-    }
-
-    // The nextFoo methods are deprecated.
-    // TODO(kjlubick): replace existing uses with next() and remove these.
     bool nextBool();
-    uint8_t  nextB();
-    uint32_t nextU();
-    // This can be nan, +- infinity, 0, anything.
-    float    nextF();
-    // Returns a float between [0..1) as a IEEE float
-    float    nextF1();
 
-    // Return the next fuzzed value [min, max) as an unsigned 32bit integer.
-    uint32_t nextRangeU(uint32_t min, uint32_t max);
-    /**
-     *  Returns next fuzzed value [min...max) as a float.
-     *  Will not be Infinity or NaN.
-     */
-    float    nextRangeF(float    min, float    max);
+    // nextRange returns values only in [min, max].
+    template <typename T>
+    T nextRange(T min, T max);
 
     void signalBug   ();  // Tell afl-fuzz these inputs found a bug.
     void signalBoring();  // Tell afl-fuzz these inputs are not worth testing.
@@ -66,14 +43,32 @@ private:
 };
 
 template <typename T>
-bool Fuzz::next(T* n) {
+T Fuzz::next() {
     if (fNextByte + sizeof(T) > fBytes->size()) {
-        return false;
+        this->signalBoring();
     }
-
-    memcpy(n, fBytes->bytes() + fNextByte, sizeof(T));
+    T n;
+    memcpy(&n, fBytes->bytes() + fNextByte, sizeof(T));
     fNextByte += sizeof(T);
-    return true;
+    return n;
+}
+
+template <typename T>
+T Fuzz::nextRange(T min, T max) {
+    if (min > max) {
+        SkDebugf("Check mins and maxes (%d, %d)\n", min, max);
+        this->signalBoring();
+    }
+    T n = this->next<T>();
+    // we don't care about the distribution of these, the fuzzer will learn
+    // what to put in there to make it interesting.
+    if (n < min) {
+        return min;
+    }
+    if (n > max) {
+        return max;
+    }
+    return n;
 }
 
 struct Fuzzable {
@@ -82,8 +77,15 @@ struct Fuzzable {
 };
 
 #define DEF_FUZZ(name, f)                                        \
+    static void fuzz_##name##_for_real(Fuzz*);                   \
     static void fuzz_##name(Fuzz*);                              \
     SkTRegistry<Fuzzable> register_##name({#name, fuzz_##name}); \
-    static void fuzz_##name(Fuzz* f)
+    static void fuzz_##name(Fuzz* f) {                           \
+    try {                                                        \
+        fuzz_##name##_for_real(f);                               \
+    } catch (...) {                                              \
+        SkDebugf("Signal Boring\n");}                            \
+    }                                                            \
+    static void fuzz_##name##_for_real(Fuzz* f)
 
 #endif//Fuzz_DEFINED
