@@ -3,31 +3,28 @@
 # Use of this source code is governed by a BSD-style license that can be
 # found in the LICENSE file.
 
-# This file is used to shared GN source lists between the standalone Skia
-# and Chrome skia build. All paths produced by this header must be
-# source-absolute since it will be included in different contexts in each
-# checkout.
-_path_to_include = get_path_info("../include", "abspath")
-_path_to_src = get_path_info("../src", "abspath")
-
-# Opts.
-#
-# Unlike the other variables here, this is a "scope" consisting of many
-# sub-lists.
-skia_opts = exec_script("gypi_to_gn.py",
-                        [
-                          rebase_path("../gyp/opts.gypi"),
-                          "--replace=<(skia_include_path)=$_path_to_include",
-                          "--replace=<(skia_src_path)=$_path_to_src",
-                        ],
-                        "scope",
-                        [ "../gyp/opts.gypi" ])
 import("core.gni")
 import("effects.gni")
 import("gpu.gni")
+import("opts.gni")
 import("pdf.gni")
 import("sksl.gni")
 import("utils.gni")
+
+skia_opts = {
+  none_sources = none
+  armv7_sources = armv7
+  neon_sources = neon
+  arm64_sources = arm64
+  crc32_sources = crc32
+  mips_dsp_sources = mips_dsp
+  sse2_sources = sse2
+  ssse3_sources = ssse3
+  sse41_sources = sse41
+  sse42_sources = sse42
+  avx_sources = avx
+  hsw_sources = hsw
+}
 
 # Skia Chromium defines. These flags will be defined in chromium If these
 # become 'permanent', they should be moved into Chrome's skia build file.
