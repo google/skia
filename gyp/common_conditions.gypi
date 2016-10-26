@@ -400,11 +400,8 @@
       # specifically requested. These should be temporary staging defines. Any
       # permanent defines should be moved into the skia_android_framework block
       # above.
-      'includes' : [
-        'skia_for_android_framework_defines.gypi',
-      ],
       'defines': [
-        '<@(skia_for_android_framework_defines)',
+        '<!@(python read_gni.py ../gn/android_framework_defines.gni android_framework_defines)'
       ],
     }],
 
