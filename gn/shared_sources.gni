@@ -59,15 +59,9 @@ skia_opts = exec_script("gypi_to_gn.py",
                         "scope",
                         [ "../gyp/opts.gypi" ])
 
-# PDF.
 import("pdf.gni")
-
-_sources_gypi = exec_script("gypi_to_gn.py",
-                            [ rebase_path("../gyp/skia_sources.gypi") ],
-                            "scope",
-                            [ "../gyp/skia_sources.gypi" ])
-skia_sksl_sources = get_path_info(_sources_gypi.sksl_sources, "abspath")
-skia_utils_sources = get_path_info(_sources_gypi.utils_sources, "abspath")
+import("sksl.gni")
+import("utils.gni")
 
 # Skia Chromium defines. These flags will be defined in chromium If these
 # become 'permanent', they should be moved into Chrome's skia build file.

@@ -4,9 +4,6 @@
 # found in the LICENSE file.
 # Gyp for utils.
 {
-  'variables': {
-    'includes': [ 'skia_sources.gypi' ],
-  },
   'targets': [
     {
       'target_name': 'utils',
@@ -33,7 +30,7 @@
         '../src/utils/win',
       ],
       'sources': [
-        '<@(utils_sources)',  # Makes the sources appear in IDEs (but does not modify the build).
+        '<!@(python read_gni.py ../gn/utils.gni skia_utils_sources)',
       ],
       'conditions': [
         [ 'skia_os == "mac"', {
