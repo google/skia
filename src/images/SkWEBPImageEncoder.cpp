@@ -227,10 +227,10 @@ bool SkWEBPImageEncoder::onEncode(SkWStream* stream, const SkBitmap& bm,
     } else {
         ok = SkToBool(WebPPictureImportRGBA(&pic, rgb, rgbStride));
     }
-    delete[] rgb;
 
     ok = ok && WebPEncode(&webp_config, &pic);
     WebPPictureFree(&pic);
+    delete[] rgb;
 
     return ok;
 }
