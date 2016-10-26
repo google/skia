@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "6105d0c2_8b74fd7f",
+        "filename": "src/core/SkTSort.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 128,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2016-10-26T18:21:39Z",
+      "side": 1,
+      "message": "Note that I had intended to write this predicate as\n\n!lessThan(*next, *(next - 1))\n\nwhich is both more efficient and preserves the old stable behavior.",
+      "range": {
+        "startLine": 128,
+        "startChar": 12,
+        "endLine": 128,
+        "endChar": 40
+      },
+      "revId": "7c494c31edb9b9efe2149fa111fde83747584894",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
