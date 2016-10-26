@@ -412,12 +412,16 @@ int fuzz_sksl2glsl(sk_sp<SkData> bytes) {
 Fuzz::Fuzz(sk_sp<SkData> bytes) : fBytes(bytes), fNextByte(0) {}
 
 void Fuzz::signalBug   () { SkDebugf("Signal bug\n"); raise(SIGSEGV); }
-void Fuzz::signalBoring() { SkDebugf("Signal boring\n"); exit(0); }
+void Fuzz::signalBoring() { SkDebugf("Signal boring\n"); longjmp(this->env, true); }
 
 size_t Fuzz::size() { return fBytes->size(); }
 
 size_t Fuzz::remaining() {
     return fBytes->size() - fNextByte;
+}
+
+bool Fuzz::nextBool() {
+    return (this->next<uint8_t>() & 1) == 1;
 }
 
 template <typename T>
@@ -433,7 +437,6 @@ T Fuzz::nextT() {
 }
 
 uint8_t  Fuzz::nextB() { return this->nextT<uint8_t >(); }
-bool  Fuzz::nextBool() { return nextB()&1; }
 uint32_t Fuzz::nextU() { return this->nextT<uint32_t>(); }
 float    Fuzz::nextF() { return this->nextT<float   >(); }
 
