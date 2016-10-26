@@ -131,6 +131,8 @@ def swarm_dimensions(builder_cfg):
         'Nexus7v2':      ('flo',        'M'),
         'Nexus9':        ('flounder',   'NRD91D'),
         'NexusPlayer':   ('fugu',       'NRD90R'),
+        'Pixel':         ('sailfish',   'NDE63P'),
+        'PixelXL':       ('marlin',     'NDE63P'),
       }[builder_cfg['model']]
       dimensions['device_type'] = device_type
       dimensions['device_os'] = device_os
