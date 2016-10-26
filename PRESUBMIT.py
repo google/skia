@@ -187,7 +187,8 @@ def _CheckGNFormatted(input_api, output_api):
   """Make sure any .gn files we're changing have been formatted."""
   results = []
   for f in input_api.AffectedFiles():
-    if not f.LocalPath().endswith('.gn'):
+    if (not f.LocalPath().endswith('.gn') and
+        not f.LocalPath().endswith('.gni')):
       continue
 
     gn = 'gn.bat' if 'win32' in sys.platform else 'gn'
