@@ -187,8 +187,6 @@ public:
 
     virtual SkXfermodeProc4f getProc4f() const;
 
-    bool appendStages(SkRasterPipeline*) const;
-
     /**
      *  If the specified mode can be represented by a pair of Coeff, then return
      *  true and set (if not NULL) the corresponding coeffs. If the mode is
@@ -309,7 +307,6 @@ protected:
 
     virtual D32Proc onGetD32Proc(uint32_t flags) const;
     virtual F16Proc onGetF16Proc(uint32_t flags) const;
-    virtual bool onAppendStages(SkRasterPipeline*) const;
 
 private:
     enum {
