@@ -102,6 +102,7 @@ public:
         , ipass(0)
         , irow(0)
         , rowsRemaining(0)
+        , alwaysWriteTransparentPixels(false)
         , rowIter(0)
         , m_client(client)
         , m_frameContext(frameContext)
@@ -125,6 +126,10 @@ private:
     int ipass; // Interlace pass; Ranges 1-4 if interlaced.
     size_t irow; // Current output row, starting at zero.
     size_t rowsRemaining; // Rows remaining to be output.
+    // This depends on the GIFFrameContext. If the frame is not
+    // interlaced and it is independent, it is always safe to
+    // write transparent pixels.
+    bool alwaysWriteTransparentPixels;
 
     unsigned short prefix[SK_MAX_DICTIONARY_ENTRIES];
     unsigned char suffix[SK_MAX_DICTIONARY_ENTRIES];

@@ -293,17 +293,12 @@ SkCodec::Result SkGifCodec::decodeFrame(bool firstAttempt, const Options& opts, 
             // We may need to clear to transparent for one of the following reasons:
             // - The frameRect does not cover the full bounds. haveDecodedRow will
             //   only draw inside the frameRect, so we need to clear the rest.
-            // - There is a valid transparent pixel value. (FIXME: I'm assuming
-            //   writeTransparentPixels will be false in this case, based on
-            //   Chromium's assumption that it would already be zeroed. If we
-            //   change that behavior, could we skip Filling here?)
             // - The frame is interlaced. There is no obvious way to fill
             //   afterwards for an incomplete image. (FIXME: Does the first pass
             //   cover all rows? If so, we do not have to fill here.)
             // - There is no color table for this frame. In that case will not
             //   draw anything, so we need to fill.
             if (frameContext->frameRect() != this->getInfo().bounds()
-                    || frameContext->transparentPixel() < SK_MAX_COLORS
                     || frameContext->interlaced() || !fCurrColorTableIsReal) {
                 // fill ignores the width (replaces it with the actual, scaled width).
                 // But we need to scale in Y.
@@ -489,12 +484,10 @@ bool SkGifCodec::haveDecodedRow(size_t frameIndex, const unsigned char* rowBegin
     void* dstLine = SkTAddOffset<void>(fDst, dstRow * fDstRowBytes);
 
     // We may or may not need to write transparent pixels to the buffer.
-    // If we're compositing against a previous image, it's wrong, and if
-    // we're writing atop a cleared, fully transparent buffer, it's
-    // unnecessary; but if we're decoding an interlaced gif and
-    // displaying it "Haeberli"-style, we must write these for passes
-    // beyond the first, or the initial passes will "show through" the
-    // later ones.
+    // If we're compositing against a previous image, it's wrong, but if
+    // we're decoding an interlaced gif and displaying it "Haeberli"-style,
+    // we must write these for passes beyond the first, or the initial passes
+    // will "show through" the later ones.
     const auto dstInfo = this->dstInfo();
     if (writeTransparentPixels || dstInfo.colorType() == kRGB_565_SkColorType) {
         fSwizzler->swizzle(dstLine, rowBegin);

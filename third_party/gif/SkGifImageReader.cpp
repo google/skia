@@ -146,9 +146,11 @@ bool SkGIFLZWContext::outputRow(const unsigned char* rowBegin)
     if ((unsigned)drowStart >= m_frameContext->height())
         return true;
 
+    bool writeTransparentPixels = alwaysWriteTransparentPixels ||
+            (m_frameContext->progressiveDisplay() && m_frameContext->interlaced() && ipass > 1);
     // CALLBACK: Let the client know we have decoded a row.
     if (!m_client->haveDecodedRow(m_frameContext->frameId(), rowBegin,
-        drowStart, drowEnd - drowStart + 1, m_frameContext->progressiveDisplay() && m_frameContext->interlaced() && ipass > 1))
+        drowStart, drowEnd - drowStart + 1, writeTransparentPixels))
         return false;
 
     if (!m_frameContext->interlaced())
@@ -904,6 +906,8 @@ bool SkGIFLZWContext::prepareToDecode()
     datum = bits = 0;
     ipass = m_frameContext->interlaced() ? 1 : 0;
     irow = 0;
+    alwaysWriteTransparentPixels = !m_frameContext->interlaced()
+            && m_frameContext->getRequiredFrame() == SkCodec::kNone;
 
     // We want to know the longest sequence encodable by a dictionary with
     // SK_MAX_DICTIONARY_ENTRIES entries. If we ignore the need to encode the base
