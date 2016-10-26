@@ -198,12 +198,12 @@ class ComposeColorFilterGM : public skiagm::GM {
         COLOR_COUNT = 3,
         MODE_COUNT = 4,
     };
-    const SkColor*          fColors;
-    const SkXfermode::Mode* fModes;
-    SkString                fName;
+    const SkColor*      fColors;
+    const SkBlendMode*  fModes;
+    SkString            fName;
 
 public:
-    ComposeColorFilterGM(const SkColor colors[], const SkXfermode::Mode modes[],
+    ComposeColorFilterGM(const SkColor colors[], const SkBlendMode modes[],
                          const char suffix[])
         : fColors(colors), fModes(modes)
     {
@@ -276,19 +276,19 @@ private:
 };
 
 const SkColor gColors0[] = { SK_ColorCYAN, SK_ColorMAGENTA, SK_ColorYELLOW };
-const SkXfermode::Mode gModes0[] = {
-    SkXfermode::kOverlay_Mode,
-    SkXfermode::kDarken_Mode,
-    SkXfermode::kColorBurn_Mode,
-    SkXfermode::kExclusion_Mode,
+const SkBlendMode gModes0[] = {
+    SkBlendMode::kOverlay,
+    SkBlendMode::kDarken,
+    SkBlendMode::kColorBurn,
+    SkBlendMode::kExclusion,
 };
 DEF_GM( return new ComposeColorFilterGM(gColors0, gModes0, "wacky"); )
 
 const SkColor gColors1[] = { 0x80FF0000, 0x8000FF00, 0x800000FF };
-const SkXfermode::Mode gModes1[] = {
-    SkXfermode::kSrcOver_Mode,
-    SkXfermode::kXor_Mode,
-    SkXfermode::kDstOut_Mode,
-    SkXfermode::kSrcATop_Mode,
+const SkBlendMode gModes1[] = {
+    SkBlendMode::kSrcOver,
+    SkBlendMode::kXor,
+    SkBlendMode::kDstOut,
+    SkBlendMode::kSrcATop,
 };
 DEF_GM( return new ComposeColorFilterGM(gColors1, gModes1, "alpha"); )

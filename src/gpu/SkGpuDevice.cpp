@@ -1544,7 +1544,7 @@ static const GrPrimitiveType gVertexMode2PrimitiveType[] = {
 void SkGpuDevice::drawVertices(const SkDraw& draw, SkCanvas::VertexMode vmode,
                               int vertexCount, const SkPoint vertices[],
                               const SkPoint texs[], const SkColor colors[],
-                              SkXfermode* xmode,
+                              SK_XFERMODE_PARAM xmode,
                               const uint16_t indices[], int indexCount,
                               const SkPaint& paint) {
     ASSERT_SINGLE_OWNER
@@ -1625,14 +1625,11 @@ void SkGpuDevice::drawVertices(const SkDraw& draw, SkCanvas::VertexMode vmode,
         if (colors) {
             // When there are texs and colors the shader and colors are combined using xmode. A null
             // xmode is defined to mean modulate.
-            SkXfermode::Mode colorMode;
-            if (xmode) {
-                if (!xmode->asMode(&colorMode)) {
-                    return;
-                }
-            } else {
-                colorMode = SkXfermode::kModulate_Mode;
-            }
+#ifdef SK_SUPPORT_LEGACY_XFERMODE_PARAM
+            SkBlendMode colorMode = xmode ? xmode->blend() : SkBlendMode::kModulate;
+#else
+            SkBlendMode colorMode = xmode;
+#endif
             if (!SkPaintToGrPaintWithXfermode(this->context(), fDrawContext.get(), paint,
                                               *draw.fMatrix, colorMode, false, &grPaint)) {
                 return;
