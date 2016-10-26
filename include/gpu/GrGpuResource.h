@@ -75,6 +75,8 @@ public:
 #endif
     }
 
+    SkDEBUGCODE(int32_t getRefCnt() const { return fRefCnt; })
+
 protected:
     GrIORef() : fRefCnt(1), fPendingReads(0), fPendingWrites(0) { }
 

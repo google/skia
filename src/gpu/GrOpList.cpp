@@ -7,15 +7,15 @@
 
 #include "GrOpList.h"
 
-#include "GrRenderTarget.h"
 #include "GrRenderTargetOpList.h"
 #include "GrSurface.h"
+#include "GrSurfaceProxy.h"
 
-GrOpList::GrOpList(GrSurface* surface) 
+GrOpList::GrOpList(GrSurfaceProxy* surfaceProxy) 
     : fFlags(0)
-    , fTarget(surface) {
+    , fTarget(surfaceProxy) {
 
-    surface->setLastOpList(this);
+    surfaceProxy->setLastOpList(this);
 
 #ifdef SK_DEBUG
     static int debugID = 0;
