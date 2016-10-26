@@ -160,7 +160,6 @@ private:
     GrContext*                                      fContext;
     GrGpu*                                          fGpu;
     GrResourceProvider*                             fResourceProvider;
-    GrAuditTrail*                                   fAuditTrail;
 
     bool                                            fClipBatchToBounds;
     bool                                            fDrawBatchBounds;
