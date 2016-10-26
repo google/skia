@@ -119,13 +119,13 @@ template <typename T> void SkTHeapSort(T array[], size_t count) {
 /** Sorts the array of size count using comparator lessThan using an Insertion Sort algorithm. */
 template <typename T, typename C> static void SkTInsertionSort(T* left, T* right, C lessThan) {
     for (T* next = left + 1; next <= right; ++next) {
-        T insert = *next;
+        T insert = std::move(*next);
         T* hole = next;
         while (left < hole && lessThan(insert, *(hole - 1))) {
-            *hole = *(hole - 1);
+            *hole = std::move(*(hole - 1));
             --hole;
         }
-        *hole = insert;
+        *hole = std::move(insert);
     }
 }
 
