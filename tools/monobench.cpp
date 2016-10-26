@@ -31,7 +31,7 @@ int main(int argc, char** argv) {
     using clock = std::chrono::high_resolution_clock;
     using ns = std::chrono::duration<double, std::nano>;
 
-    std::regex pattern;
+    std::string pattern;
     int limit = 2147483647;
     if (argc > 1) { pattern = argv[1]; }
     if (argc > 2) { limit = atoi(argv[2]); }
@@ -47,8 +47,9 @@ int main(int argc, char** argv) {
         std::unique_ptr<Benchmark> bench{ r->factory()(nullptr) };
 
         std::string name = bench->getName();
-        if (std::regex_search(name, pattern) &&
-                bench->isSuitableFor(Benchmark::kNonRendering_Backend)) {
+        if (0 == name.compare(0, pattern.size(), pattern) &&
+            bench->isSuitableFor(Benchmark::kNonRendering_Backend))
+        {
             bench->delayedSetup();
             benches.emplace_back(Bench{std::move(bench), name,
                                        ns{std::numeric_limits<double>::infinity()}});
