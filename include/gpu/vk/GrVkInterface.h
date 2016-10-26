@@ -21,12 +21,6 @@
 
 struct GrVkInterface;
 
-/**
- * Creates a GrVkInterface.
- */
-const GrVkInterface* GrVkCreateInterface(VkInstance instance, VkDevice device,
-                                         uint32_t extensionFlags);
-
 
 /**
  * GrContext uses the following interface to make all calls into Vulkan. When a
@@ -49,7 +43,8 @@ private:
     typedef SkRefCnt INHERITED;
 
 public:
-    GrVkInterface();
+    using GetProc = std::function<void* /* function ptr */ (const char * /* function name */)>;
+    GrVkInterface(GetProc proc, uint32_t extensionFlags);
 
     // Validates that the GrVkInterface supports its advertised standard. This means the necessary
     // function pointers have been initialized for Vulkan version.

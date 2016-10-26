@@ -39,8 +39,33 @@ const uint32_t kGrVkMinimumVersion = VK_MAKE_VERSION(1, 0, 8);
 #endif
 
 // Create the base Vulkan objects needed by the GrVkGpu object
-const GrVkBackendContext* GrVkBackendContext::Create(uint32_t* presentQueueIndexPtr,
+const GrVkBackendContext* GrVkBackendContext::Create(GrVkInterface::GetProc getProc,
+                                                     uint32_t* presentQueueIndexPtr,
                                                      CanPresentFn canPresent) {
+    if (getProc == nullptr) {
+        return nullptr;
+    }
+
+#define ACQUIRE_VK_PROC(name) PFN_vk##name  grVk##name =                  \
+    reinterpret_cast<PFN_vk##name>(getProc("vk" #name));                  \
+    if (grVk##name == nullptr) {                                          \
+        SkDebugf("Function ptr for vk%s could not be acquired\n", #name); \
+        return nullptr;                                                   \
+    }                                                                     \
+
+    ACQUIRE_VK_PROC(CreateInstance);
+    ACQUIRE_VK_PROC(EnumeratePhysicalDevices);
+    ACQUIRE_VK_PROC(DestroyInstance);
+    ACQUIRE_VK_PROC(GetPhysicalDeviceQueueFamilyProperties);
+    ACQUIRE_VK_PROC(GetPhysicalDeviceFeatures);
+    ACQUIRE_VK_PROC(CreateDevice);
+    ACQUIRE_VK_PROC(GetDeviceQueue);
+    ACQUIRE_VK_PROC(DeviceWaitIdle);
+    ACQUIRE_VK_PROC(DestroyDevice);
+
+#undef ACQUIRE_VK_PROC
+
+
     VkPhysicalDevice physDev;
     VkDevice device;
     VkInstance inst;
@@ -56,7 +81,7 @@ const GrVkBackendContext* GrVkBackendContext::Create(uint32_t* presentQueueIndex
         kGrVkMinimumVersion,                // apiVersion
     };
 
-    GrVkExtensions extensions;
+    GrVkExtensions extensions(getProc);
     extensions.initInstance(kGrVkMinimumVersion);
 
     SkTArray<const char*> instanceLayerNames;
@@ -110,40 +135,40 @@ const GrVkBackendContext* GrVkBackendContext::Create(uint32_t* presentQueueIndex
         instanceExtensionNames.begin(),            // ppEnabledExtensionNames
     };
 
-    err = vkCreateInstance(&instance_create, nullptr, &inst);
+    err = grVkCreateInstance(&instance_create, nullptr, &inst);
     if (err < 0) {
         SkDebugf("vkCreateInstance failed: %d\n", err);
         return nullptr;
     }
 
     uint32_t gpuCount;
-    err = vkEnumeratePhysicalDevices(inst, &gpuCount, nullptr);
+    err = grVkEnumeratePhysicalDevices(inst, &gpuCount, nullptr);
     if (err) {
         SkDebugf("vkEnumeratePhysicalDevices failed: %d\n", err);
-        vkDestroyInstance(inst, nullptr);
+        grVkDestroyInstance(inst, nullptr);
         return nullptr;
     }
     SkASSERT(gpuCount > 0);
     // Just returning the first physical device instead of getting the whole array.
     // TODO: find best match for our needs
     gpuCount = 1;
-    err = vkEnumeratePhysicalDevices(inst, &gpuCount, &physDev);
+    err = grVkEnumeratePhysicalDevices(inst, &gpuCount, &physDev);
     if (err) {
         SkDebugf("vkEnumeratePhysicalDevices failed: %d\n", err);
-        vkDestroyInstance(inst, nullptr);
+        grVkDestroyInstance(inst, nullptr);
         return nullptr;
     }
 
     // query to get the initial queue props size
     uint32_t queueCount;
-    vkGetPhysicalDeviceQueueFamilyProperties(physDev, &queueCount, nullptr);
+    grVkGetPhysicalDeviceQueueFamilyProperties(physDev, &queueCount, nullptr);
     SkASSERT(queueCount >= 1);
 
     SkAutoMalloc queuePropsAlloc(queueCount * sizeof(VkQueueFamilyProperties));
     // now get the actual queue props
     VkQueueFamilyProperties* queueProps = (VkQueueFamilyProperties*)queuePropsAlloc.get();
 
-    vkGetPhysicalDeviceQueueFamilyProperties(physDev, &queueCount, queueProps);
+    grVkGetPhysicalDeviceQueueFamilyProperties(physDev, &queueCount, queueProps);
 
     // iterate to find the graphics queue
     uint32_t graphicsQueueIndex = queueCount;
@@ -188,9 +213,16 @@ const GrVkBackendContext* GrVkBackendContext::Create(uint32_t* presentQueueIndex
         extensionFlags |= kNV_glsl_shader_GrVkExtensionFlag;
     }
 
+    SkAutoTUnref<GrVkInterface> interface(new GrVkInterface(getProc, extensionFlags));
+    if (!interface->validate(extensionFlags)) {
+        SkDebugf("Vulkan interface validation failed\n");
+        grVkDestroyInstance(inst, nullptr);
+        return nullptr;
+    }
+
     // query to get the physical device properties
     VkPhysicalDeviceFeatures deviceFeatures;
-    vkGetPhysicalDeviceFeatures(physDev, &deviceFeatures);
+    grVkGetPhysicalDeviceFeatures(physDev, &deviceFeatures);
     // this looks like it would slow things down,
     // and we can't depend on it on all platforms
     deviceFeatures.robustBufferAccess = VK_FALSE;
@@ -242,15 +274,15 @@ const GrVkBackendContext* GrVkBackendContext::Create(uint32_t* presentQueueIndex
         &deviceFeatures                          // ppEnabledFeatures
     };
 
-    err = vkCreateDevice(physDev, &deviceInfo, nullptr, &device);
+    err = grVkCreateDevice(physDev, &deviceInfo, nullptr, &device);
     if (err) {
         SkDebugf("CreateDevice failed: %d\n", err);
-        vkDestroyInstance(inst, nullptr);
+        grVkDestroyInstance(inst, nullptr);
         return nullptr;
     }
 
     VkQueue queue;
-    vkGetDeviceQueue(device, graphicsQueueIndex, 0, &queue);
+    grVkGetDeviceQueue(device, graphicsQueueIndex, 0, &queue);
 
     GrVkBackendContext* ctx = new GrVkBackendContext();
     ctx->fInstance = inst;
@@ -261,15 +293,19 @@ const GrVkBackendContext* GrVkBackendContext::Create(uint32_t* presentQueueIndex
     ctx->fMinAPIVersion = kGrVkMinimumVersion;
     ctx->fExtensions = extensionFlags;
     ctx->fFeatures = featureFlags;
-    ctx->fInterface.reset(GrVkCreateInterface(inst, device, extensionFlags));
+    ctx->fInterface.reset(interface.release());
 
     return ctx;
 }
 
 GrVkBackendContext::~GrVkBackendContext() {
-    vkDeviceWaitIdle(fDevice);
-    vkDestroyDevice(fDevice, nullptr);
+    if (fInterface == nullptr) {
+        return;
+    }
+
+    fInterface->fFunctions.fDeviceWaitIdle(fDevice);
+    fInterface->fFunctions.fDestroyDevice(fDevice, nullptr);
     fDevice = VK_NULL_HANDLE;
-    vkDestroyInstance(fInstance, nullptr);
+    fInterface->fFunctions.fDestroyInstance(fInstance, nullptr);
     fInstance = VK_NULL_HANDLE;
 }
