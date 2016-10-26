@@ -60,15 +60,7 @@ skia_opts = exec_script("gypi_to_gn.py",
                         [ "../gyp/opts.gypi" ])
 
 # PDF.
-_pdf_gypi = exec_script("gypi_to_gn.py",
-                        [
-                          rebase_path("../gyp/pdf.gypi"),
-                          "--replace=<(skia_include_path)=$_path_to_include",
-                          "--replace=<(skia_src_path)=$_path_to_src",
-                        ],
-                        "scope",
-                        [ "../gyp/pdf.gypi" ])
-skia_pdf_sources = _pdf_gypi.sources
+import("pdf.gni")
 
 _sources_gypi = exec_script("gypi_to_gn.py",
                             [ rebase_path("../gyp/skia_sources.gypi") ],
