@@ -690,7 +690,7 @@ static void test_matchStyleCSS3(skiatest::Reporter* reporter) {
     };
 
     for (StyleSetTest& test : tests) {
-        for (const StyleSetTest::Case testCase : test.cases) {
+        for (const StyleSetTest::Case& testCase : test.cases) {
             SkAutoTUnref<SkTypeface> typeface(test.styleSet.matchStyle(testCase.pattern));
             if (typeface) {
                 REPORTER_ASSERT(reporter, typeface->fontStyle() == testCase.expectedResult);
