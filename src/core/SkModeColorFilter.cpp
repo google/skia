@@ -6,6 +6,7 @@
  */
 
 #include "SkBlitRow.h"
+#include "SkBlendModePriv.h"
 #include "SkColorFilter.h"
 #include "SkColorPriv.h"
 #include "SkModeColorFilter.h"
@@ -89,13 +90,7 @@ bool SkModeColorFilter::onAppendStages(SkRasterPipeline* p) const {
     // and applying the opposite xfermode, e.g. dst-in instead of src-in.
     p->append(SkRasterPipeline::swap_src_dst);
     p->append(SkRasterPipeline::constant_color, &fPM4f);
-
-    // TODO: This is ugly.  I think we want static SkXfermode::AppendStages(Mode).
-    if (auto xfermode = SkXfermode::Make(fMode)) {
-        return xfermode->appendStages(p);
-    }
-    p->append(SkRasterPipeline::srcover);
-    return true;
+    return SkBlendMode_AppendStages((SkBlendMode)fMode, p);
 }
 
 ///////////////////////////////////////////////////////////////////////////////
