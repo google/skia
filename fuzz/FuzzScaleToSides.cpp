@@ -16,9 +16,9 @@
 #include <cmath>
 
 DEF_FUZZ(ScaleToSides, fuzz) {
-    float radius1 = fuzz->nextF(),
-          radius2 = fuzz->nextF(),
-          width   = fuzz->nextF();
+    float radius1 = fuzz->next<float>(),
+          radius2 = fuzz->next<float>(),
+          width   = fuzz->next<float>();
 
     if (!std::isfinite(radius1) ||
         !std::isfinite(radius2) ||
