@@ -5,6 +5,7 @@
  * found in the LICENSE file.
  */
 
+test
 #include "SkBitmap.h"
 #include "SkBitmapCache.h"
 #include "SkCanvas.h"
@@ -194,7 +195,7 @@ GrBackendObject SkImage::getTextureHandle(bool flushPendingGrContextIO) const {
     GrTexture* texture = as_IB(this)->peekTexture();
     if (texture) {
         GrContext* context = texture->getContext();
-        if (context) {            
+        if (context) {
             if (flushPendingGrContextIO) {
                 context->prepareSurfaceForExternalIO(texture);
             }
