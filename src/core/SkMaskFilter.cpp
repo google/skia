@@ -310,6 +310,7 @@ bool SkMaskFilter::canFilterMaskGPU(const SkRRect& devRRect,
                                     const SkIRect& clipBounds,
                                     const SkMatrix& ctm,
                                     SkRect* maskRect) const {
+    *maskRect = devRRect.rect();
     return false;
 }
 
