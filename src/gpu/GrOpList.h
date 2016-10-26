@@ -15,10 +15,11 @@
 
 class GrBatchFlushState;
 class GrSurface;
+class GrSurfaceProxy;
 
 class GrOpList : public SkRefCnt {
 public:
-    GrOpList(GrSurface* surface);
+    GrOpList(GrSurfaceProxy* surfaceProxy);
     ~GrOpList() override;
 
     virtual void prepareBatches(GrBatchFlushState* flushState) = 0;
@@ -113,7 +114,7 @@ private:
 
     SkDEBUGCODE(int                                 fDebugID;)
     uint32_t                                        fFlags;
-    GrSurface*                                      fTarget;
+    GrSurfaceProxy*                                 fTarget;
 
     // 'this' GrOpList relies on the output of the GrOpLists in 'fDependencies'
     SkTDArray<GrOpList*>                            fDependencies;
