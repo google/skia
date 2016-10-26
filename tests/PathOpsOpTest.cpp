@@ -8349,6 +8349,7 @@ path.conicTo(SkBits2Float(0x552d5b5b), SkBits2Float(0x3b5a6839), SkBits2Float(0x
 }
 
 static struct TestDesc failTests[] = {
+    TEST(fuzz763_33),
     TEST(fuzz763_57),
     TEST(fuzz763_56),
     TEST(fuzz763_55),
@@ -8373,7 +8374,6 @@ static struct TestDesc failTests[] = {
     TEST(fuzz763_36),
     TEST(fuzz763_35),
     TEST(fuzz763_34),
-    TEST(fuzz763_33),
     TEST(fuzz763_32),
     TEST(fuzz763_31),
     TEST(fuzz763_30),
@@ -8427,7 +8427,7 @@ static struct TestDesc failTests[] = {
     TEST(bufferOverflow),
 };
 
-static const size_t failTestCount = SK_ARRAY_COUNT(failTests);
+static const size_t failTestCount = 1; //SK_ARRAY_COUNT(failTests);
 
 DEF_TEST(PathOpsFailOp, reporter) {
 #if DEBUG_SHOW_TEST_NAME

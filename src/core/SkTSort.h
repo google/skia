@@ -116,6 +116,29 @@ template <typename T> void SkTHeapSort(T array[], size_t count) {
 
 ///////////////////////////////////////////////////////////////////////////////
 
+template <typename T, typename C> static void SkTAssertSorted(T* left, T* right, C lessThan) {
+    for (T* e = left; e < right; ++e) {
+        SkASSERT(!lessThan(*(e + 1), *e));
+    }
+}
+
+/** Sorts the array of size count using comparator lessThan using an Insertion Sort algorithm. */
+template <typename T, typename C> static void SkTInsertionSort1(T* left, T* right, C lessThan) {
+    for (T* next = left + 1; next <= right; ++next) {
+        if (!lessThan(*next, *(next - 1))) {
+            continue;
+        }
+        T insert = std::move(*next);
+        T* hole = next;
+        do {
+            *hole = std::move(*(hole - 1));
+            --hole;
+        } while (left < hole && lessThan(insert, *(hole - 1)));
+        *hole = std::move(insert);
+    }
+    SkTAssertSorted(left, right, lessThan);
+}
+
 /** Sorts the array of size count using comparator lessThan using an Insertion Sort algorithm. */
 template <typename T, typename C> static void SkTInsertionSort(T* left, T* right, C lessThan) {
     for (T* next = left + 1; next <= right; ++next) {
@@ -127,6 +150,7 @@ template <typename T, typename C> static void SkTInsertionSort(T* left, T* right
         }
         *hole = std::move(insert);
     }
+    SkTAssertSorted(left, right, lessThan);
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -180,6 +204,27 @@ template <typename T, typename C> void SkTIntroSort(int depth, T* left, T* right
     }
 }
 
+template <typename T, typename C> void SkTIntroSort1(int depth, T* left, T* right, C lessThan) {
+    while (true) {
+        if (right - left < 32) {
+            SkTInsertionSort1(left, right, lessThan);
+            return;
+        }
+
+        if (depth == 0) {
+            SkTHeapSort<T>(left, right - left + 1, lessThan);
+            return;
+        }
+        --depth;
+
+        T* pivot = left + ((right - left) >> 1);
+        pivot = SkTQSort_Partition(left, right, pivot, lessThan);
+
+        SkTIntroSort(depth, left, pivot - 1, lessThan);
+        left = pivot + 1;
+    }
+}
+
 /** Sorts the region from left to right using comparator lessThan using a Quick Sort algorithm. Be
  *  sure to specialize SkTSwap if T has an efficient swap operation.
  *
@@ -196,9 +241,22 @@ template <typename T, typename C> void SkTQSort(T* left, T* right, C lessThan) {
     SkTIntroSort(depth, left, right, lessThan);
 }
 
+template <typename T, typename C> void SkTQSort1(T* left, T* right, C lessThan) {
+    if (left >= right) {
+        return;
+    }
+    // Limit Intro Sort recursion depth to no more than 2 * ceil(log2(n)).
+    int depth = 2 * SkNextLog2(SkToU32(right - left));
+    SkTIntroSort1(depth, left, right, lessThan);
+}
+
 /** Sorts the region from left to right using comparator '<' using a Quick Sort algorithm. */
 template <typename T> void SkTQSort(T* left, T* right) {
     SkTQSort(left, right, SkTCompareLT<T>());
+}
+
+template <typename T> void SkTQSort1(T* left, T* right) {
+    SkTQSort1(left, right, SkTCompareLT<T>());
 }
 
 /** Sorts the region from left to right using comparator '* < *' using a Quick Sort algorithm. */
