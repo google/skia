@@ -184,6 +184,8 @@
       '<(skia_src_path)/gpu/GrStyle.h',
       '<(skia_src_path)/gpu/GrTessellator.cpp',
       '<(skia_src_path)/gpu/GrTessellator.h',
+      '<(skia_src_path)/gpu/GrTextureOpList.cpp',
+      '<(skia_src_path)/gpu/GrTextureOpList.h',
       '<(skia_src_path)/gpu/GrTraceMarker.cpp',
       '<(skia_src_path)/gpu/GrTraceMarker.h',
       '<(skia_src_path)/gpu/GrTracing.h',

@@ -11,9 +11,10 @@
 #include "GrRenderTargetOpList.h"
 #include "GrSurface.h"
 
-GrOpList::GrOpList(GrSurface* surface) 
+GrOpList::GrOpList(GrSurface* surface, GrAuditTrail* auditTrail) 
     : fFlags(0)
-    , fTarget(surface) {
+    , fTarget(surface)
+    , fAuditTrail(auditTrail) {
 
     surface->setLastOpList(this);
 

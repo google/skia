@@ -13,12 +13,13 @@
 
 //#define ENABLE_MDB 1
 
+class GrAuditTrail;
 class GrBatchFlushState;
 class GrSurface;
 
 class GrOpList : public SkRefCnt {
 public:
-    GrOpList(GrSurface* surface);
+    GrOpList(GrSurface* surface, GrAuditTrail* auditTrail);
     ~GrOpList() override;
 
     virtual void prepareBatches(GrBatchFlushState* flushState) = 0;
@@ -117,6 +118,9 @@ private:
 
     // 'this' GrOpList relies on the output of the GrOpLists in 'fDependencies'
     SkTDArray<GrOpList*>                            fDependencies;
+
+protected:
+    GrAuditTrail*                                   fAuditTrail;
 
     typedef SkRefCnt INHERITED;
 };

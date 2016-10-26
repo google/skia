@@ -49,11 +49,10 @@ static const int kDefaultMaxBatchLookahead = 10;
 GrRenderTargetOpList::GrRenderTargetOpList(GrRenderTarget* rt, GrGpu* gpu,
                                            GrResourceProvider* resourceProvider,
                                            GrAuditTrail* auditTrail, const Options& options)
-    : INHERITED(rt)
+    : INHERITED(rt, auditTrail)
     , fLastFullClearBatch(nullptr)
     , fGpu(SkRef(gpu))
-    , fResourceProvider(resourceProvider)
-    , fAuditTrail(auditTrail) {
+    , fResourceProvider(resourceProvider) {
     // TODO: Stop extracting the context (currently needed by GrClip)
     fContext = fGpu->getContext();
 
