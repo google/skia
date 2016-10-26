@@ -113,3 +113,4 @@ DEF_FUZZ(ParsePath, fuzz) {
         fuzz->signalBug();
     }
 }
+END_FUZZ

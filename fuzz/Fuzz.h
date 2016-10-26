@@ -13,6 +13,7 @@
 #include "SkTypes.h"
 
 #include <vector>
+#include <setjmp.h>
 
 class Fuzz : SkNoncopyable {
 public:
@@ -24,21 +25,14 @@ public:
     size_t remaining();
 
     template <typename T>
-    bool SK_WARN_UNUSED_RESULT next(T* n);
+    T next();
 
     // UBSAN reminds us that bool can only legally hold 0 or 1.
-    bool SK_WARN_UNUSED_RESULT next(bool* b) {
-        uint8_t byte;
-        if (!this->next(&byte)) {
-            return false;
-        }
-        *b = (byte & 1) == 1;
-        return true;
-    }
+    bool nextBool();
 
     // The nextFoo methods are deprecated.
     // TODO(kjlubick): replace existing uses with next() and remove these.
-    bool nextBool();
+    //bool nextBool();
     uint8_t  nextB();
     uint32_t nextU();
     // This can be nan, +- infinity, 0, anything.
@@ -57,6 +51,8 @@ public:
     void signalBug   ();  // Tell afl-fuzz these inputs found a bug.
     void signalBoring();  // Tell afl-fuzz these inputs are not worth testing.
 
+    // for signalBoring()
+    jmp_buf env;
 private:
     template <typename T>
     T nextT();
@@ -66,14 +62,14 @@ private:
 };
 
 template <typename T>
-bool Fuzz::next(T* n) {
+T Fuzz::next() {
     if (fNextByte + sizeof(T) > fBytes->size()) {
-        return false;
+        this->signalBoring();
     }
-
-    memcpy(n, fBytes->bytes() + fNextByte, sizeof(T));
+    T n;
+    memcpy(&n, fBytes->bytes() + fNextByte, sizeof(T));
     fNextByte += sizeof(T);
-    return true;
+    return n;
 }
 
 struct Fuzzable {
@@ -84,6 +80,10 @@ struct Fuzzable {
 #define DEF_FUZZ(name, f)                                        \
     static void fuzz_##name(Fuzz*);                              \
     SkTRegistry<Fuzzable> register_##name({#name, fuzz_##name}); \
-    static void fuzz_##name(Fuzz* f)
+    static void fuzz_##name(Fuzz* f) {                           \
+    bool exit = setjmp(f->env); \
+    if (!exit)
+
+#define END_FUZZ }
 
 #endif//Fuzz_DEFINED
