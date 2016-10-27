@@ -68,7 +68,18 @@ public:
                               int srcX, int srcY);
 
 private:
-    SkImageCacherator(SkImageGenerator*, const SkImageInfo&, const SkIPoint&, uint32_t uniqueID);
+    struct Validator {
+        Validator(SkImageGenerator*, const SkIRect* subset);
+
+        operator bool() const { return fGenerator.get(); }
+
+        std::unique_ptr<SkImageGenerator> fGenerator;
+        SkImageInfo                       fInfo;
+        SkIPoint                          fOrigin;
+        uint32_t                          fUniqueID;
+    };
+
+    SkImageCacherator(Validator*);
 
     bool generateBitmap(SkBitmap*);
     bool tryLockAsBitmap(SkBitmap*, const SkImage*, SkImage::CachingHint);
@@ -100,6 +111,8 @@ private:
     const uint32_t      fUniqueID;
 
     friend class GrImageTextureMaker;
+    friend class SkImage;
+    friend class SkImage_Generator;
 };
 
 #endif

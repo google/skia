@@ -32,49 +32,55 @@
 // see skbug.com/ 4971, 5128, ...
 //#define SK_SUPPORT_COMPRESSED_TEXTURES_IN_CACHERATOR
 
-SkImageCacherator* SkImageCacherator::NewFromGenerator(SkImageGenerator* gen,
-                                                       const SkIRect* subset) {
-    if (!gen) {
-        return nullptr;
-    }
+SkImageCacherator::Validator::Validator(SkImageGenerator* gen, const SkIRect* subset)
+    // We are required to take ownership of gen, regardless of whether we instantiate a cacherator
+    // or not.  On instantiation, the client is responsible for transferring ownership.
+    : fGenerator(gen) {
 
-    // We are required to take ownership of gen, regardless of if we return a cacherator or not
-    SkAutoTDelete<SkImageGenerator> genHolder(gen);
+    if (!gen) {
+        return;
+    }
 
     const SkImageInfo& info = gen->getInfo();
     if (info.isEmpty()) {
-        return nullptr;
+        fGenerator.reset();
+        return;
     }
 
-    uint32_t uniqueID = gen->uniqueID();
+    fUniqueID = gen->uniqueID();
     const SkIRect bounds = SkIRect::MakeWH(info.width(), info.height());
     if (subset) {
         if (!bounds.contains(*subset)) {
-            return nullptr;
+            fGenerator.reset();
+            return;
         }
         if (*subset != bounds) {
             // we need a different uniqueID since we really are a subset of the raw generator
-            uniqueID = SkNextID::ImageID();
+            fUniqueID = SkNextID::ImageID();
         }
     } else {
         subset = &bounds;
     }
 
-    // Now that we know we can hand-off the generator (to be owned by the cacherator) we can
-    // release our holder. (we DONT want to delete it here anymore)
-    genHolder.release();
-
-    return new SkImageCacherator(gen, gen->getInfo().makeWH(subset->width(), subset->height()),
-                                 SkIPoint::Make(subset->x(), subset->y()), uniqueID);
+    fInfo   = info.makeWH(subset->width(), subset->height());
+    fOrigin = SkIPoint::Make(subset->x(), subset->y());
 }
 
-SkImageCacherator::SkImageCacherator(SkImageGenerator* gen, const SkImageInfo& info,
-                                     const SkIPoint& origin, uint32_t uniqueID)
-    : fNotThreadSafeGenerator(gen)
-    , fInfo(info)
-    , fOrigin(origin)
-    , fUniqueID(uniqueID)
-{}
+SkImageCacherator* SkImageCacherator::NewFromGenerator(SkImageGenerator* gen,
+                                                       const SkIRect* subset) {
+    Validator validator(gen, subset);
+
+    return validator ? new SkImageCacherator(&validator) : nullptr;
+}
+
+SkImageCacherator::SkImageCacherator(Validator* validator)
+    : fNotThreadSafeGenerator(validator->fGenerator.release()) // we take ownership
+    , fInfo(validator->fInfo)
+    , fOrigin(validator->fOrigin)
+    , fUniqueID(validator->fUniqueID)
+{
+    SkASSERT(fNotThreadSafeGenerator);
+}
 
 SkData* SkImageCacherator::refEncoded(GrContext* ctx) {
     ScopedGenerator generator(this);
