@@ -1,0 +1,225 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "6105d0c2_74fce1c7",
+        "filename": "gm/bigrrectaaeffect.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 93,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2016-10-27T18:17:47Z",
+      "side": 1,
+      "message": "It seems like, in the future, this could be surfaceContext-\u003epriv().testingOnly_addBatch()",
+      "revId": "f922e4a389458073b151b0c8e847b6a4c39c4f88",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "6105d0c2_d4f5edd8",
+        "filename": "gm/croppedrects.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 19,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2016-10-27T18:17:47Z",
+      "side": 1,
+      "message": "This test seems a bit questionable. It should probably be directly using the GrRenderTargetContext rather than assuming the flow through the SkCanvas::SkGpuDevice",
+      "revId": "f922e4a389458073b151b0c8e847b6a4c39c4f88",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "6105d0c2_d45a0d0b",
+        "filename": "gm/windowrectangles.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 220,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2016-10-27T18:17:47Z",
+      "side": 1,
+      "message": "Maybe, in a separate CL, we could go with just \u0027priv\u0027 rather than \u0027renderTargetContextPriv\u0027 ?",
+      "revId": "f922e4a389458073b151b0c8e847b6a4c39c4f88",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "6105d0c2_d4832d25",
+        "filename": "include/gpu/GrContext.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 188,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2016-10-27T18:17:47Z",
+      "side": 1,
+      "message": "put \u0027fit\u0027 down with the others ?",
+      "revId": "f922e4a389458073b151b0c8e847b6a4c39c4f88",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "6105d0c2_342ee958",
+        "filename": "src/core/SkBlurImageFilter.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 167,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2016-10-27T18:17:47Z",
+      "side": 1,
+      "message": "Doesn\u0027t the rtC have a colorSpace object now ?",
+      "revId": "f922e4a389458073b151b0c8e847b6a4c39c4f88",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "6105d0c2_f44c713f",
+        "filename": "src/core/SkGpuBlurUtils.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 115,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2016-10-27T18:17:47Z",
+      "side": 1,
+      "message": "\\t over ?",
+      "revId": "f922e4a389458073b151b0c8e847b6a4c39c4f88",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "6105d0c2_54155dfe",
+        "filename": "src/core/SkGpuBlurUtils.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 25,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2016-10-27T18:17:47Z",
+      "side": 1,
+      "message": "\\n ?",
+      "revId": "f922e4a389458073b151b0c8e847b6a4c39c4f88",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "86081a1d_587cbdd9",
+        "filename": "src/effects/SkMagnifierImageFilter.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 20,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2016-10-27T18:17:47Z",
+      "side": 1,
+      "message": "Do we need this here ?",
+      "revId": "f922e4a389458073b151b0c8e847b6a4c39c4f88",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "86081a1d_38810996",
+        "filename": "src/effects/SkMatrixConvolutionImageFilter.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 20,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2016-10-27T18:17:47Z",
+      "side": 1,
+      "message": "here too ?",
+      "revId": "f922e4a389458073b151b0c8e847b6a4c39c4f88",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "86081a1d_988815af",
+        "filename": "src/gpu/GrPathRenderer.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 132,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2016-10-27T18:17:47Z",
+      "side": 1,
+      "message": "re-line up ?",
+      "revId": "f922e4a389458073b151b0c8e847b6a4c39c4f88",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "86081a1d_7841c17e",
+        "filename": "src/gpu/GrPathRenderer.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 180,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2016-10-27T18:17:47Z",
+      "side": 1,
+      "message": "re-line up ?",
+      "revId": "f922e4a389458073b151b0c8e847b6a4c39c4f88",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "86081a1d_384b49a1",
+        "filename": "src/gpu/GrPathRenderer.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 187,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2016-10-27T18:17:47Z",
+      "side": 1,
+      "message": "line these guys up ?",
+      "revId": "f922e4a389458073b151b0c8e847b6a4c39c4f88",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "86081a1d_382229d7",
+        "filename": "src/gpu/GrPipeline.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 58,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2016-10-27T18:17:47Z",
+      "side": 1,
+      "message": "line up ?",
+      "revId": "f922e4a389458073b151b0c8e847b6a4c39c4f88",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
