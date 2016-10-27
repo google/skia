@@ -17,23 +17,22 @@ GrTextureProxy::GrTextureProxy(const GrSurfaceDesc& srcDesc, SkBackingFit fit, S
 }
 
 GrTextureProxy::GrTextureProxy(sk_sp<GrTexture> tex)
-    : INHERITED(tex->desc(), SkBackingFit::kExact,
-                tex->resourcePriv().isBudgeted(), tex->uniqueID())
-    , fTexture(std::move(tex)) {
+    : INHERITED(std::move(tex), SkBackingFit::kExact,
+                tex->resourcePriv().isBudgeted(), tex->uniqueID()) {
 }
 
 GrTexture* GrTextureProxy::instantiate(GrTextureProvider* texProvider) {
-    if (fTexture) {
-        return fTexture.get();
+    if (fTarget) {
+        return fTarget->asTexture();
     }
 
     if (SkBackingFit::kApprox == fFit) {
-        fTexture.reset(texProvider->createApproxTexture(fDesc));
+        fTarget = texProvider->createApproxTexture(fDesc);
     } else {
-        fTexture.reset(texProvider->createTexture(fDesc, fBudgeted));
+        fTarget = texProvider->createTexture(fDesc, fBudgeted);
     }
 
-    return fTexture.get();
+    return fTarget->asTexture();
 }
 
 sk_sp<GrTextureProxy> GrTextureProxy::Make(const GrSurfaceDesc& desc,
