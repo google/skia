@@ -1,0 +1,24 @@
+# Copyright 2016 Google Inc.
+#
+# Use of this source code is governed by a BSD-style license that can be
+# found in the LICENSE file.
+
+declare_args() {
+}
+
+import("../third_party.gni")
+
+third_party("piex") {
+  public_include_dirs = [ "../externals/piex" ]
+
+  defines = [ "BREAK_IF_DEBUGGING_AND_OUT_OF_RANGE" ]
+
+  sources = [
+    "../externals/piex/src/binary_parse/cached_paged_byte_array.cc",
+    "../externals/piex/src/binary_parse/range_checked_byte_ptr.cc",
+    "../externals/piex/src/image_type_recognition/image_type_recognition_lite.cc",
+    "../externals/piex/src/piex.cc",
+    "../externals/piex/src/tiff_directory/tiff_directory.cc",
+    "../externals/piex/src/tiff_parser.cc",
+  ]
+}
