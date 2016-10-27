@@ -1,0 +1,112 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "6105d0c2_f982aa97",
+        "filename": "fuzz/Fuzz.h",
+        "patchSetId": 7
+      },
+      "lineNbr": 24,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2016-10-27T13:45:06Z",
+      "side": 1,
+      "message": "Let\u0027s try the template specialization approach for bools if we\u0027re going to use next\u003cT\u003e().  It\u0027d be a trap to leave next\u003cbool\u003e() around but unsafe to use.\n\nThat\u0027d look something like this I think, down where we define T next():\n\ntemplate \u003c\u003e\ninline bool Fuzz::next\u003cbool\u003e() {\n  return (this-\u003enext\u003cuint8_t\u003e() \u0026 1) \u003d\u003d 1;\n}",
+      "revId": "ff6717d1c072269299bfcdec03cd7471d492bd32",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "6105d0c2_b9467294",
+        "filename": "fuzz/Fuzz.h",
+        "patchSetId": 7
+      },
+      "lineNbr": 30,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2016-10-27T13:45:06Z",
+      "side": 1,
+      "message": "All those ranges went from [min, max) to [min, max].  Is that going to be okay?",
+      "range": {
+        "startLine": 30,
+        "startChar": 40,
+        "endLine": 30,
+        "endChar": 50
+      },
+      "revId": "ff6717d1c072269299bfcdec03cd7471d492bd32",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "6105d0c2_99728e02",
+        "filename": "fuzz/Fuzz.h",
+        "patchSetId": 7
+      },
+      "lineNbr": 84,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2016-10-27T13:45:06Z",
+      "side": 1,
+      "message": "Let\u0027s indent these a line further in like you\u0027d do if you were writing the code not in a macro?",
+      "revId": "ff6717d1c072269299bfcdec03cd7471d492bd32",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "6105d0c2_796fba17",
+        "filename": "fuzz/Fuzz.h",
+        "patchSetId": 7
+      },
+      "lineNbr": 87,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2016-10-27T13:45:06Z",
+      "side": 1,
+      "message": "That trailing } is pretty unusual...",
+      "revId": "ff6717d1c072269299bfcdec03cd7471d492bd32",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "6105d0c2_b9a15234",
+        "filename": "fuzz/FuzzGradients.cpp",
+        "patchSetId": 7
+      },
+      "lineNbr": 114,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2016-10-27T13:45:06Z",
+      "side": 1,
+      "message": "As a follow up, if you like I can show you how to write next() so that you could do something like this:\n\nSkPoint start, end;\nSkScalar startRadius, endRadius;\nbool useLocalMatrix, useGlobalMatrix;\nfuzz-\u003enext(\u0026start, \u0026end, \u0026startRadius, \u0026endRadius, \u0026useLocalMatrix, \u0026useGlobalMatrix);",
+      "revId": "ff6717d1c072269299bfcdec03cd7471d492bd32",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "6105d0c2_19979ed4",
+        "filename": "fuzz/FuzzGradients.cpp",
+        "patchSetId": 7
+      },
+      "lineNbr": 186,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2016-10-27T13:45:06Z",
+      "side": 1,
+      "message": "I have another neat trick we can play, so that you could write\n\n    uint8_t i \u003d fuzz-\u003enext();\n\nand it\u0027d figure out that the type it needed is uint8_t and fuzz that one byte.",
+      "revId": "ff6717d1c072269299bfcdec03cd7471d492bd32",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
