@@ -36,8 +36,8 @@ public:
         this->createSwapchain(fWidth, fHeight, params);
     }
 
-    GrBackendContext getBackendContext() override { 
-        return (GrBackendContext) fBackendContext.get(); 
+    GrBackendContext getBackendContext() override {
+        return (GrBackendContext) fBackendContext.get();
     }
 
     /** Platform specific function that creates a VkSurfaceKHR for a window */

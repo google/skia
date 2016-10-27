@@ -174,7 +174,7 @@
             'libraries': [ '<(vulkan_lib_name)', ],
           },
           'dependencies': [
-            'shaderc.gyp:shaderc_combined',
+            #'shaderc.gyp:shaderc_combined',
           ],
           'conditions': [
             [ 'skia_os == "win"', {
@@ -234,7 +234,7 @@
                 ],
               },
               'dependencies!': [
-                'shaderc.gyp:shaderc_combined',
+                #'shaderc.gyp:shaderc_combined',
               ],
               'sources': [
                 # the gyp -> android.mk generator doesn't seem to like cpp files
