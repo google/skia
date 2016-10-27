@@ -64,8 +64,9 @@ protected:
     }
 
     void onDraw(SkCanvas* canvas) override {
-        GrDrawContext* drawContext = canvas->internal_private_accessTopLayerDrawContext();
-        if (!drawContext) {
+        GrRenderTargetContext* renderTargetContext =
+            canvas->internal_private_accessTopLayerRenderTargetContext();
+        if (!renderTargetContext) {
             skiagm::GM::DrawGpuOnlyMessage(canvas);
             return;
         }

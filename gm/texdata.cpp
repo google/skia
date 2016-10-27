@@ -11,7 +11,7 @@
 
 #if SK_SUPPORT_GPU
 #include "GrContext.h"
-#include "GrDrawContext.h"
+#include "GrRenderTargetContext.h"
 #include "GrFixedClip.h"
 #include "SkColorPriv.h"
 #include "effects/GrPorterDuffXferProcessor.h"
@@ -20,8 +20,9 @@
 constexpr int S = 200;
 
 DEF_SIMPLE_GM_BG(texdata, canvas, 2 * S, 2 * S, SK_ColorBLACK) {
-    GrDrawContext* drawContext = canvas->internal_private_accessTopLayerDrawContext();
-    if (!drawContext) {
+    GrRenderTargetContext* renderTargetContext =
+        canvas->internal_private_accessTopLayerRenderTargetContext();
+    if (!renderTargetContext) {
         skiagm::GM::DrawGpuOnlyMessage(canvas);
         return;
     }
@@ -101,7 +102,7 @@ DEF_SIMPLE_GM_BG(texdata, canvas, 2 * S, 2 * S, SK_ColorBLACK) {
         tm.postIDiv(2*S, 2*S);
         paint.addColorTextureProcessor(texture, nullptr, tm);
 
-        drawContext->drawRect(clip, paint, vm, SkRect::MakeWH(2*S, 2*S));
+        renderTargetContext->drawRect(clip, paint, vm, SkRect::MakeWH(2*S, 2*S));
 
         // now update the lower right of the texture in first pass
         // or upper right in second pass
@@ -115,7 +116,7 @@ DEF_SIMPLE_GM_BG(texdata, canvas, 2 * S, 2 * S, SK_ColorBLACK) {
         texture->writePixels(S, (i ? 0 : S), S, S,
                                 texture->config(), gTextureData.get(),
                                 4 * stride);
-        drawContext->drawRect(clip, paint, vm, SkRect::MakeWH(2*S, 2*S));
+        renderTargetContext->drawRect(clip, paint, vm, SkRect::MakeWH(2*S, 2*S));
     }
 }
 #endif

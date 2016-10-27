@@ -982,9 +982,9 @@ private:
 };
 
 bool GrAAConvexPathRenderer::onDrawPath(const DrawPathArgs& args) {
-    GR_AUDIT_TRAIL_AUTO_FRAME(args.fDrawContext->auditTrail(),
+    GR_AUDIT_TRAIL_AUTO_FRAME(args.fRenderTargetContext->auditTrail(),
                               "GrAAConvexPathRenderer::onDrawPath");
-    SkASSERT(!args.fDrawContext->isUnifiedMultisampled());
+    SkASSERT(!args.fRenderTargetContext->isUnifiedMultisampled());
     SkASSERT(!args.fShape->isEmpty());
 
     SkPath path;
@@ -996,7 +996,7 @@ bool GrAAConvexPathRenderer::onDrawPath(const DrawPathArgs& args) {
     GrPipelineBuilder pipelineBuilder(*args.fPaint);
     pipelineBuilder.setUserStencil(args.fUserStencilSettings);
 
-    args.fDrawContext->drawBatch(pipelineBuilder, *args.fClip, batch);
+    args.fRenderTargetContext->drawBatch(pipelineBuilder, *args.fClip, batch);
 
     return true;
 

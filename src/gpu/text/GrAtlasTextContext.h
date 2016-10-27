@@ -18,7 +18,7 @@
 #endif
 
 class GrDrawBatch;
-class GrDrawContext;
+class GrRenderTargetContext;
 class GrPipelineBuilder;
 class GrTextBlobCache;
 class SkGlyph;
@@ -32,16 +32,16 @@ public:
 
     bool canDraw(const SkPaint&, const SkMatrix& viewMatrix, const SkSurfaceProps&,
                  const GrShaderCaps&);
-    void drawText(GrContext*, GrDrawContext*, const GrClip&, const GrPaint&, const SkPaint&,
+    void drawText(GrContext*, GrRenderTargetContext*, const GrClip&, const GrPaint&, const SkPaint&,
                   const SkMatrix& viewMatrix, const SkSurfaceProps&, const char text[],
                   size_t byteLength, SkScalar x, SkScalar y,
                   const SkIRect& regionClipBounds);
-    void drawPosText(GrContext*, GrDrawContext*, const GrClip&, const GrPaint&,
+    void drawPosText(GrContext*, GrRenderTargetContext*, const GrClip&, const GrPaint&,
                      const SkPaint&, const SkMatrix& viewMatrix, const SkSurfaceProps&,
                      const char text[], size_t byteLength,
                      const SkScalar pos[], int scalarsPerPosition,
                      const SkPoint& offset, const SkIRect& regionClipBounds);
-    void drawTextBlob(GrContext*, GrDrawContext*, const GrClip&, const SkPaint&,
+    void drawTextBlob(GrContext*, GrRenderTargetContext*, const GrClip&, const SkPaint&,
                       const SkMatrix& viewMatrix, const SkSurfaceProps&, const SkTextBlob*,
                       SkScalar x, SkScalar y,
                       SkDrawFilter*, const SkIRect& clipBounds);
@@ -52,7 +52,7 @@ private:
     // sets up the descriptor on the blob and returns a detached cache.  Client must attach
     inline static GrColor ComputeCanonicalColor(const SkPaint&, bool lcd);
     // Determines if we need to use fake gamma (and contrast boost):
-    inline static uint32_t ComputeScalerContextFlags(GrDrawContext*);
+    inline static uint32_t ComputeScalerContextFlags(GrRenderTargetContext*);
     static void RegenerateTextBlob(GrAtlasTextBlob* bmp,
                                    GrBatchFontCache*,
                                    const GrShaderCaps&,

@@ -12,7 +12,7 @@
 #if SK_SUPPORT_GPU
 
 #include "GrContext.h"
-#include "GrDrawContextPriv.h"
+#include "GrRenderTargetContextPriv.h"
 #include "SkBitmap.h"
 #include "SkGr.h"
 #include "SkGradientShader.h"
@@ -68,8 +68,9 @@ protected:
     }
 
     void onDraw(SkCanvas* canvas) override {
-        GrDrawContext* drawContext = canvas->internal_private_accessTopLayerDrawContext();
-        if (!drawContext) {
+        GrRenderTargetContext* renderTargetContext =
+            canvas->internal_private_accessTopLayerRenderTargetContext();
+        if (!renderTargetContext) {
             skiagm::GM::DrawGpuOnlyMessage(canvas);
             return;        
         }
@@ -124,7 +125,8 @@ protected:
                     SkAutoTUnref<GrDrawBatch> batch(
                             GrRectBatchFactory::CreateNonAAFill(GrColor_WHITE, viewMatrix,
                                                                 renderRect, nullptr, nullptr));
-                    drawContext->drawContextPriv().testingOnly_drawBatch(grPaint, batch);
+                    renderTargetContext->renderTargetContextPriv().testingOnly_drawBatch(grPaint,
+                                                                                         batch);
                 }
                 x += renderRect.width() + kTestPad;
             }
@@ -188,8 +190,9 @@ protected:
     }
 
     void onDraw(SkCanvas* canvas) override {
-        GrDrawContext* drawContext = canvas->internal_private_accessTopLayerDrawContext();
-        if (!drawContext) {
+        GrRenderTargetContext* renderTargetContext =
+            canvas->internal_private_accessTopLayerRenderTargetContext();
+        if (!renderTargetContext) {
             skiagm::GM::DrawGpuOnlyMessage(canvas);
             return;
         }
@@ -235,7 +238,8 @@ protected:
                 grPaint.addColorFragmentProcessor(fp);
                 SkAutoTUnref<GrDrawBatch> batch(GrRectBatchFactory::CreateNonAAFill(
                     GrColor_WHITE, viewMatrix, renderRect, nullptr, nullptr));
-                drawContext->drawContextPriv().testingOnly_drawBatch(grPaint, batch);
+                renderTargetContext->renderTargetContextPriv().testingOnly_drawBatch(grPaint,
+                                                                                     batch);
             }
         }
     }

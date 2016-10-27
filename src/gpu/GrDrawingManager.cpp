@@ -8,8 +8,8 @@
 #include "GrDrawingManager.h"
 
 #include "GrContext.h"
-#include "GrDrawContext.h"
-#include "GrPathRenderingDrawContext.h"
+#include "GrRenderTargetContext.h"
+#include "GrPathRenderingRenderTargetContext.h"
 #include "GrResourceProvider.h"
 #include "GrSoftwarePathRenderer.h"
 #include "GrSurfacePriv.h"
@@ -207,9 +207,10 @@ GrPathRenderer* GrDrawingManager::getPathRenderer(const GrPathRenderer::CanDrawP
     return pr;
 }
 
-sk_sp<GrDrawContext> GrDrawingManager::makeDrawContext(sk_sp<GrRenderTarget> rt,
-                                                       sk_sp<SkColorSpace> colorSpace,
-                                                       const SkSurfaceProps* surfaceProps) {
+sk_sp<GrRenderTargetContext> GrDrawingManager::makeRenderTargetContext(
+                                                               sk_sp<GrRenderTarget> rt,
+                                                               sk_sp<SkColorSpace> colorSpace,
+                                                               const SkSurfaceProps* surfaceProps) {
     if (this->wasAbandoned()) {
         return nullptr;
     }
@@ -231,15 +232,16 @@ sk_sp<GrDrawContext> GrDrawingManager::makeDrawContext(sk_sp<GrRenderTarget> rt,
         rt->isStencilBufferMultisampled()) {
         GrStencilAttachment* sb = fContext->resourceProvider()->attachStencilAttachment(rt.get());
         if (sb) {
-            return sk_sp<GrDrawContext>(new GrPathRenderingDrawContext(
+            return sk_sp<GrRenderTargetContext>(new GrPathRenderingRenderTargetContext(
                                                         fContext, this, std::move(rt),
                                                         std::move(colorSpace), surfaceProps,
                                                         fContext->getAuditTrail(), fSingleOwner));
         }
     }
 
-    return sk_sp<GrDrawContext>(new GrDrawContext(fContext, this, std::move(rt),
-                                                  std::move(colorSpace), surfaceProps,
-                                                  fContext->getAuditTrail(),
-                                                  fSingleOwner));
+    return sk_sp<GrRenderTargetContext>(new GrRenderTargetContext(fContext, this, std::move(rt),
+                                                                  std::move(colorSpace),
+                                                                  surfaceProps,
+                                                                  fContext->getAuditTrail(),
+                                                                  fSingleOwner));
 }
