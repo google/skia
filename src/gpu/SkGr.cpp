@@ -586,8 +586,12 @@ static inline bool skpaint_to_grpaint_impl(GrContext* context,
     grPaint->setAllowSRGBInputs(rtc->isGammaCorrect());
 
     // Convert SkPaint color to 4f format, including optional linearizing and gamut conversion.
+#if 0
     GrColor4f origColor = SkColorToUnpremulGrColor4f(skPaint.getColor(), rtc->isGammaCorrect(),
                                                      rtc->getColorXformFromSRGB());
+#else
+    GrColor4f origColor;
+#endif
 
     // Setup the initial color considering the shader, the SkPaint color, and the presence or not
     // of per-vertex colors.
