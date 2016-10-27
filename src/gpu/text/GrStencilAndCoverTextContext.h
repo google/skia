@@ -8,7 +8,7 @@
 #ifndef GrStencilAndCoverTextContext_DEFINED
 #define GrStencilAndCoverTextContext_DEFINED
 
-#include "GrDrawContext.h"
+#include "GrRenderTargetContext.h"
 #include "GrStyle.h"
 #include "SkDrawFilter.h"
 #include "SkOpts.h"
@@ -31,18 +31,18 @@ class GrStencilAndCoverTextContext {
 public:
     static GrStencilAndCoverTextContext* Create(GrAtlasTextContext* fallbackTextContext);
 
-    void drawText(GrContext*, GrDrawContext* dc,
+    void drawText(GrContext*, GrRenderTargetContext* rtc,
                   const GrClip&,  const GrPaint&, const SkPaint&,
                   const SkMatrix& viewMatrix, const SkSurfaceProps&, const char text[],
                   size_t byteLength, SkScalar x,
                   SkScalar y, const SkIRect& clipBounds);
-    void drawPosText(GrContext*, GrDrawContext*,
+    void drawPosText(GrContext*, GrRenderTargetContext*,
                      const GrClip&, const GrPaint&, const SkPaint&,
                      const SkMatrix& viewMatrix, const SkSurfaceProps&,
                      const char text[], size_t byteLength,
                      const SkScalar pos[], int scalarsPerPosition,
                      const SkPoint& offset, const SkIRect& clipBounds);
-    void drawTextBlob(GrContext*, GrDrawContext*, const GrClip&, const SkPaint&,
+    void drawTextBlob(GrContext*, GrRenderTargetContext*, const GrClip&, const SkPaint&,
                       const SkMatrix& viewMatrix, const SkSurfaceProps&, const SkTextBlob*,
                       SkScalar x, SkScalar y,
                       SkDrawFilter*, const SkIRect& clipBounds);
@@ -58,7 +58,7 @@ private:
 
     bool internalCanDraw(const SkPaint&);
 
-    void uncachedDrawTextBlob(GrContext*, GrDrawContext* dc,
+    void uncachedDrawTextBlob(GrContext*, GrRenderTargetContext* rtc,
                               const GrClip& clip, const SkPaint& skPaint,
                               const SkMatrix& viewMatrix,
                               const SkSurfaceProps&,
@@ -79,7 +79,7 @@ private:
         void setPosText(const char text[], size_t byteLength, const SkScalar pos[],
                         int scalarsPerPosition, const SkPoint& offset);
 
-        void draw(GrContext*, GrDrawContext*, const GrPaint&, const GrClip&,
+        void draw(GrContext*, GrRenderTargetContext*, const GrPaint&, const GrClip&,
                   const SkMatrix&, const SkSurfaceProps&,
                   SkScalar x, SkScalar y, const SkIRect& clipBounds,
                   GrAtlasTextContext* fallbackTextContext, const SkPaint& originalSkPaint) const;

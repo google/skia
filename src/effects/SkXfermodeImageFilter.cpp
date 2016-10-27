@@ -17,7 +17,7 @@
 #include "SkXfermode.h"
 #if SK_SUPPORT_GPU
 #include "GrContext.h"
-#include "GrDrawContext.h"
+#include "GrRenderTargetContext.h"
 #include "effects/GrConstColorProcessor.h"
 #include "effects/GrTextureDomain.h"
 #include "effects/GrSimpleTextureEffect.h"
@@ -301,23 +301,23 @@ sk_sp<SkSpecialImage> SkXfermodeImageFilter_Base::filterImageGPU(
 
     paint.setPorterDuffXPFactory(SkBlendMode::kSrc);
 
-    sk_sp<GrDrawContext> drawContext(
-        context->makeDrawContext(SkBackingFit::kApprox, bounds.width(), bounds.height(),
-                                 GrRenderableConfigForColorSpace(outputProperties.colorSpace()),
-                                 sk_ref_sp(outputProperties.colorSpace())));
-    if (!drawContext) {
+    sk_sp<GrRenderTargetContext> renderTargetContext(context->makeRenderTargetContext(
+        SkBackingFit::kApprox, bounds.width(), bounds.height(),
+        GrRenderableConfigForColorSpace(outputProperties.colorSpace()),
+        sk_ref_sp(outputProperties.colorSpace())));
+    if (!renderTargetContext) {
         return nullptr;
     }
-    paint.setGammaCorrect(drawContext->isGammaCorrect());
+    paint.setGammaCorrect(renderTargetContext->isGammaCorrect());
 
     SkMatrix matrix;
     matrix.setTranslate(SkIntToScalar(-bounds.left()), SkIntToScalar(-bounds.top()));
-    drawContext->drawRect(GrNoClip(), paint, matrix, SkRect::Make(bounds));
+    renderTargetContext->drawRect(GrNoClip(), paint, matrix, SkRect::Make(bounds));
 
     return SkSpecialImage::MakeFromGpu(SkIRect::MakeWH(bounds.width(), bounds.height()),
                                        kNeedNewImageUniqueID_SpecialImage,
-                                       drawContext->asTexture(),
-                                       sk_ref_sp(drawContext->getColorSpace()));
+                                       renderTargetContext->asTexture(),
+                                       sk_ref_sp(renderTargetContext->getColorSpace()));
 }
 
 sk_sp<GrFragmentProcessor>

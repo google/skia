@@ -15,7 +15,7 @@
 #include "GrBatchTest.h"
 #include "GrContextFactory.h"
 #include "GrContextPriv.h"
-#include "GrDrawContextPriv.h"
+#include "GrRenderTargetContextPriv.h"
 #include "GrDrawingManager.h"
 #include "GrInvariantOutput.h"
 #include "GrPipeline.h"
@@ -148,21 +148,22 @@ private:
 static const int kRenderTargetHeight = 1;
 static const int kRenderTargetWidth = 1;
 
-static sk_sp<GrDrawContext> random_draw_context(GrContext* context,
-                                                SkRandom* random,
-                                                const GrCaps* caps) {
+static sk_sp<GrRenderTargetContext> random_render_target_context(GrContext* context,
+                                                                 SkRandom* random,
+                                                                 const GrCaps* caps) {
     GrSurfaceOrigin origin = random->nextBool() ? kTopLeft_GrSurfaceOrigin
                                                 : kBottomLeft_GrSurfaceOrigin;
     int sampleCnt = random->nextBool() ? SkTMin(4, caps->maxSampleCount()) : 0;
 
-    sk_sp<GrDrawContext> drawContext(context->makeDrawContext(SkBackingFit::kExact,
-                                                              kRenderTargetWidth,
-                                                              kRenderTargetHeight,
-                                                              kRGBA_8888_GrPixelConfig,
-                                                              nullptr,
-                                                              sampleCnt,
-                                                              origin));
-    return drawContext;
+    sk_sp<GrRenderTargetContext> renderTargetContext(context->makeRenderTargetContext(
+                                                                           SkBackingFit::kExact,
+                                                                           kRenderTargetWidth,
+                                                                           kRenderTargetHeight,
+                                                                           kRGBA_8888_GrPixelConfig,
+                                                                           nullptr,
+                                                                           sampleCnt,
+                                                                           origin));
+    return renderTargetContext;
 }
 
 static void set_random_xpf(GrPaint* paint, GrProcessorTestData* d) {
@@ -320,9 +321,10 @@ bool GrDrawingManager::ProgramUnitTest(GrContext* context, int maxStages) {
     static const int NUM_TESTS = 1024;
     for (int t = 0; t < NUM_TESTS; t++) {
         // setup random render target(can fail)
-        sk_sp<GrDrawContext> drawContext(random_draw_context(context, &random, context->caps()));
-        if (!drawContext) {
-            SkDebugf("Could not allocate drawContext");
+        sk_sp<GrRenderTargetContext> renderTargetContext(random_render_target_context(
+            context, &random, context->caps()));
+        if (!renderTargetContext) {
+            SkDebugf("Could not allocate renderTargetContext");
             return false;
         }
 
@@ -332,25 +334,27 @@ bool GrDrawingManager::ProgramUnitTest(GrContext* context, int maxStages) {
         SkASSERT(batch);
 
         GrProcessorTestData ptd(&random, context, context->caps(),
-                                drawContext.get(), dummyTextures);
+                                renderTargetContext.get(), dummyTextures);
         set_random_color_coverage_stages(&grPaint, &ptd, maxStages);
         set_random_xpf(&grPaint, &ptd);
         bool snapToCenters = set_random_state(&grPaint, &random);
         const GrUserStencilSettings* uss = get_random_stencil(&random);
 
-        drawContext->drawContextPriv().testingOnly_drawBatch(grPaint, batch, uss, snapToCenters);
+        renderTargetContext->renderTargetContextPriv().testingOnly_drawBatch(grPaint, batch, uss,
+                                                                             snapToCenters);
     }
     // Flush everything, test passes if flush is successful(ie, no asserts are hit, no crashes)
     drawingManager->flush();
 
     // Validate that GrFPs work correctly without an input.
-    sk_sp<GrDrawContext> drawContext(context->makeDrawContext(SkBackingFit::kExact,
-                                                              kRenderTargetWidth,
-                                                              kRenderTargetHeight,
-                                                              kRGBA_8888_GrPixelConfig,
-                                                              nullptr));
-    if (!drawContext) {
-        SkDebugf("Could not allocate a drawContext");
+    sk_sp<GrRenderTargetContext> renderTargetContext(context->makeRenderTargetContext(
+                                                                           SkBackingFit::kExact,
+                                                                           kRenderTargetWidth,
+                                                                           kRenderTargetHeight,
+                                                                           kRGBA_8888_GrPixelConfig,
+                                                                           nullptr));
+    if (!renderTargetContext) {
+        SkDebugf("Could not allocate a renderTargetContext");
         return false;
     }
 
@@ -361,7 +365,7 @@ bool GrDrawingManager::ProgramUnitTest(GrContext* context, int maxStages) {
             SkAutoTUnref<GrDrawBatch> batch(GrRandomDrawBatch(&random, context));
             SkASSERT(batch);
             GrProcessorTestData ptd(&random, context, context->caps(),
-                                    drawContext.get(), dummyTextures);
+                                    renderTargetContext.get(), dummyTextures);
             GrPaint grPaint;
             grPaint.setXPFactory(GrPorterDuffXPFactory::Make(SkXfermode::kSrc_Mode));
 
@@ -371,7 +375,7 @@ bool GrDrawingManager::ProgramUnitTest(GrContext* context, int maxStages) {
                 BlockInputFragmentProcessor::Make(std::move(fp)));
             grPaint.addColorFragmentProcessor(std::move(blockFP));
 
-            drawContext->drawContextPriv().testingOnly_drawBatch(grPaint, batch);
+            renderTargetContext->renderTargetContextPriv().testingOnly_drawBatch(grPaint, batch);
             drawingManager->flush();
         }
     }

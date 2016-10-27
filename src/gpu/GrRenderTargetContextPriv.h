@@ -5,10 +5,10 @@
  * found in the LICENSE file.
  */
 
-#ifndef GrDrawContextPriv_DEFINED
-#define GrDrawContextPriv_DEFINED
+#ifndef GrRenderTargetContextPriv_DEFINED
+#define GrRenderTargetContextPriv_DEFINED
 
-#include "GrDrawContext.h"
+#include "GrRenderTargetContext.h"
 #include "GrRenderTargetOpList.h"
 #include "GrPathRendering.h"
 
@@ -16,13 +16,13 @@ class GrFixedClip;
 class GrPath;
 struct GrUserStencilSettings;
 
-/** Class that adds methods to GrDrawContext that are only intended for use internal to Skia.
-    This class is purely a privileged window into GrDrawContext. It should never have additional
-    data members or virtual methods. */
-class GrDrawContextPriv {
+/** Class that adds methods to GrRenderTargetContext that are only intended for use internal to
+    Skia. This class is purely a privileged window into GrRenderTargetContext. It should never have
+    additional data members or virtual methods. */
+class GrRenderTargetContextPriv {
 public:
     gr_instanced::InstancedRendering* accessInstancedRendering() const {
-        return fDrawContext->getOpList()->instancedRendering();
+        return fRenderTargetContext->getOpList()->instancedRendering();
     }
 
     void clear(const GrFixedClip&, const GrColor, bool canIgnoreClip);
@@ -64,23 +64,26 @@ public:
                                bool snapToCenters = false);
 
 private:
-    explicit GrDrawContextPriv(GrDrawContext* drawContext) : fDrawContext(drawContext) {}
-    GrDrawContextPriv(const GrRenderTargetPriv&) {} // unimpl
-    GrDrawContextPriv& operator=(const GrRenderTargetPriv&); // unimpl
+    explicit GrRenderTargetContextPriv(GrRenderTargetContext* renderTargetContext)
+        : fRenderTargetContext(renderTargetContext) {}
+    GrRenderTargetContextPriv(const GrRenderTargetPriv&) {} // unimpl
+    GrRenderTargetContextPriv& operator=(const GrRenderTargetPriv&); // unimpl
 
     // No taking addresses of this type.
-    const GrDrawContextPriv* operator&() const;
-    GrDrawContextPriv* operator&();
+    const GrRenderTargetContextPriv* operator&() const;
+    GrRenderTargetContextPriv* operator&();
 
-    GrDrawContext* fDrawContext;
+    GrRenderTargetContext* fRenderTargetContext;
 
-    friend class GrDrawContext; // to construct/copy this type.
+    friend class GrRenderTargetContext; // to construct/copy this type.
 };
 
-inline GrDrawContextPriv GrDrawContext::drawContextPriv() { return GrDrawContextPriv(this); }
+inline GrRenderTargetContextPriv GrRenderTargetContext::renderTargetContextPriv() {
+    return GrRenderTargetContextPriv(this);
+}
 
-inline const GrDrawContextPriv GrDrawContext::drawContextPriv () const {
-    return GrDrawContextPriv(const_cast<GrDrawContext*>(this));
+inline const GrRenderTargetContextPriv GrRenderTargetContext::renderTargetContextPriv () const {
+    return GrRenderTargetContextPriv(const_cast<GrRenderTargetContext*>(this));
 }
 
 #endif

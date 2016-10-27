@@ -16,7 +16,7 @@
 
 #if SK_SUPPORT_GPU
 #include "GrContext.h"
-#include "GrDrawContext.h"
+#include "GrRenderTargetContext.h"
 #include "GrFixedClip.h"
 #include "GrFragmentProcessor.h"
 #include "GrInvariantOutput.h"
@@ -369,7 +369,7 @@ protected:
 #endif
 private:
 #if SK_SUPPORT_GPU
-    void drawRect(GrDrawContext* drawContext,
+    void drawRect(GrRenderTargetContext* renderTargetContext,
                   GrTexture* src,
                   const SkMatrix& matrix,
                   const GrClip& clip,
@@ -382,7 +382,7 @@ private:
 };
 
 #if SK_SUPPORT_GPU
-void SkLightingImageFilterInternal::drawRect(GrDrawContext* drawContext,
+void SkLightingImageFilterInternal::drawRect(GrRenderTargetContext* renderTargetContext,
                                              GrTexture* src,
                                              const SkMatrix& matrix,
                                              const GrClip& clip,
@@ -392,12 +392,12 @@ void SkLightingImageFilterInternal::drawRect(GrDrawContext* drawContext,
                                              const SkIRect& bounds) const {
     SkRect srcRect = dstRect.makeOffset(SkIntToScalar(bounds.x()), SkIntToScalar(bounds.y()));
     GrPaint paint;
-    paint.setGammaCorrect(drawContext->isGammaCorrect());
+    paint.setGammaCorrect(renderTargetContext->isGammaCorrect());
     sk_sp<GrFragmentProcessor> fp(this->makeFragmentProcessor(src, matrix, srcBounds,
                                                               boundaryMode));
     paint.addColorFragmentProcessor(std::move(fp));
     paint.setPorterDuffXPFactory(SkBlendMode::kSrc);
-    drawContext->fillRectToRect(clip, paint, SkMatrix::I(), dstRect, srcRect);
+    renderTargetContext->fillRectToRect(clip, paint, SkMatrix::I(), dstRect, srcRect);
 }
 
 sk_sp<SkSpecialImage> SkLightingImageFilterInternal::filterImageGPU(
@@ -413,11 +413,11 @@ sk_sp<SkSpecialImage> SkLightingImageFilterInternal::filterImageGPU(
     sk_sp<GrTexture> inputTexture(input->asTextureRef(context));
     SkASSERT(inputTexture);
 
-    sk_sp<GrDrawContext> drawContext(
-        context->makeDrawContext(SkBackingFit::kApprox,offsetBounds.width(), offsetBounds.height(),
-                                 GrRenderableConfigForColorSpace(outputProperties.colorSpace()),
-                                 sk_ref_sp(outputProperties.colorSpace())));
-    if (!drawContext) {
+    sk_sp<GrRenderTargetContext> renderTargetContext(context->makeRenderTargetContext(
+        SkBackingFit::kApprox,offsetBounds.width(), offsetBounds.height(),
+        GrRenderableConfigForColorSpace(outputProperties.colorSpace()),
+        sk_ref_sp(outputProperties.colorSpace())));
+    if (!renderTargetContext) {
         return nullptr;
     }
 
@@ -439,29 +439,29 @@ sk_sp<SkSpecialImage> SkLightingImageFilterInternal::filterImageGPU(
     SkRect bottomRight = SkRect::MakeXYWH(dstRect.width() - 1, dstRect.height() - 1, 1, 1);
 
     const SkIRect* pSrcBounds = inputBounds.contains(offsetBounds) ? nullptr : &inputBounds;
-    this->drawRect(drawContext.get(), inputTexture.get(), matrix, clip, topLeft,
+    this->drawRect(renderTargetContext.get(), inputTexture.get(), matrix, clip, topLeft,
                    kTopLeft_BoundaryMode, pSrcBounds, offsetBounds);
-    this->drawRect(drawContext.get(), inputTexture.get(), matrix, clip, top, kTop_BoundaryMode,
-                   pSrcBounds, offsetBounds);
-    this->drawRect(drawContext.get(), inputTexture.get(), matrix, clip, topRight,
+    this->drawRect(renderTargetContext.get(), inputTexture.get(), matrix, clip, top,
+                   kTop_BoundaryMode, pSrcBounds, offsetBounds);
+    this->drawRect(renderTargetContext.get(), inputTexture.get(), matrix, clip, topRight,
                    kTopRight_BoundaryMode, pSrcBounds, offsetBounds);
-    this->drawRect(drawContext.get(), inputTexture.get(), matrix, clip, left, kLeft_BoundaryMode,
-                   pSrcBounds, offsetBounds);
-    this->drawRect(drawContext.get(), inputTexture.get(), matrix, clip, interior,
+    this->drawRect(renderTargetContext.get(), inputTexture.get(), matrix, clip, left,
+                   kLeft_BoundaryMode, pSrcBounds, offsetBounds);
+    this->drawRect(renderTargetContext.get(), inputTexture.get(), matrix, clip, interior,
                    kInterior_BoundaryMode, pSrcBounds, offsetBounds);
-    this->drawRect(drawContext.get(), inputTexture.get(), matrix, clip, right, kRight_BoundaryMode,
-                   pSrcBounds, offsetBounds);
-    this->drawRect(drawContext.get(), inputTexture.get(), matrix, clip, bottomLeft,
+    this->drawRect(renderTargetContext.get(), inputTexture.get(), matrix, clip, right,
+                   kRight_BoundaryMode, pSrcBounds, offsetBounds);
+    this->drawRect(renderTargetContext.get(), inputTexture.get(), matrix, clip, bottomLeft,
                    kBottomLeft_BoundaryMode, pSrcBounds, offsetBounds);
-    this->drawRect(drawContext.get(), inputTexture.get(), matrix, clip, bottom,
+    this->drawRect(renderTargetContext.get(), inputTexture.get(), matrix, clip, bottom,
                    kBottom_BoundaryMode, pSrcBounds, offsetBounds);
-    this->drawRect(drawContext.get(), inputTexture.get(), matrix, clip, bottomRight,
+    this->drawRect(renderTargetContext.get(), inputTexture.get(), matrix, clip, bottomRight,
                    kBottomRight_BoundaryMode, pSrcBounds, offsetBounds);
 
     return SkSpecialImage::MakeFromGpu(SkIRect::MakeWH(offsetBounds.width(), offsetBounds.height()),
                                        kNeedNewImageUniqueID_SpecialImage,
-                                       drawContext->asTexture(),
-                                       sk_ref_sp(drawContext->getColorSpace()));
+                                       renderTargetContext->asTexture(),
+                                       sk_ref_sp(renderTargetContext->getColorSpace()));
 }
 #endif
 

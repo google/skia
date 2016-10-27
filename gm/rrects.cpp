@@ -8,7 +8,7 @@
 #include "gm.h"
 #if SK_SUPPORT_GPU
 #include "GrContext.h"
-#include "GrDrawContextPriv.h"
+#include "GrRenderTargetContextPriv.h"
 #include "batches/GrDrawBatch.h"
 #include "batches/GrRectBatchFactory.h"
 #include "effects/GrRRectEffect.h"
@@ -62,8 +62,9 @@ protected:
     SkISize onISize() override { return SkISize::Make(kImageWidth, kImageHeight); }
 
     void onDraw(SkCanvas* canvas) override {
-        GrDrawContext* drawContext = canvas->internal_private_accessTopLayerDrawContext();
-        if (kEffect_Type == fType && !drawContext) {
+        GrRenderTargetContext* renderTargetContext =
+            canvas->internal_private_accessTopLayerRenderTargetContext();
+        if (kEffect_Type == fType && !renderTargetContext) {
             skiagm::GM::DrawGpuOnlyMessage(canvas);
             return;
         }
@@ -117,7 +118,8 @@ protected:
                             SkAutoTUnref<GrDrawBatch> batch(
                                     GrRectBatchFactory::CreateNonAAFill(0xff000000, SkMatrix::I(),
                                                                         bounds, nullptr, nullptr));
-                            drawContext->drawContextPriv().testingOnly_drawBatch(grPaint, batch);
+                            renderTargetContext->renderTargetContextPriv().testingOnly_drawBatch(
+                                                                                    grPaint, batch);
                         } else {
                             drew = false;
                         }

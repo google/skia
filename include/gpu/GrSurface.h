@@ -167,7 +167,7 @@ private:
     ReleaseCtx  fReleaseCtx;
 
     // The last opList that wrote to or is currently going to write to this surface
-    // The opList can be closed (e.g., no draw or copy context is currently bound
+    // The opList can be closed (e.g., no render target or texture context is currently bound
     // to this renderTarget or texture).
     // This back-pointer is required so that we can add a dependancy between
     // the opList used to create the current contents of this surface

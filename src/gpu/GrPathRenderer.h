@@ -9,7 +9,7 @@
 #define GrPathRenderer_DEFINED
 
 #include "GrCaps.h"
-#include "GrDrawContext.h"
+#include "GrRenderTargetContext.h"
 #include "GrPaint.h"
 #include "GrResourceProvider.h"
 #include "GrShape.h"
@@ -129,7 +129,7 @@ public:
         const GrPaint*              fPaint;
         const GrUserStencilSettings*fUserStencilSettings;
 
-        GrDrawContext*              fDrawContext;
+        GrRenderTargetContext*      fRenderTargetContext;
         const GrClip*               fClip;
         const SkMatrix*             fViewMatrix;
         const GrShape*              fShape;
@@ -140,7 +140,7 @@ public:
             SkASSERT(fResourceProvider);
             SkASSERT(fPaint);
             SkASSERT(fUserStencilSettings);
-            SkASSERT(fDrawContext);
+            SkASSERT(fRenderTargetContext);
             SkASSERT(fClip);
             SkASSERT(fViewMatrix);
             SkASSERT(fShape);
@@ -162,7 +162,7 @@ public:
         canArgs.fAntiAlias = args.fAntiAlias;
 
         canArgs.fHasUserStencilSettings = !args.fUserStencilSettings->isUnused();
-        canArgs.fIsStencilBufferMSAA = args.fDrawContext->isStencilBufferMultisampled();
+        canArgs.fIsStencilBufferMSAA = args.fRenderTargetContext->isStencilBufferMultisampled();
         SkASSERT(this->canDrawPath(canArgs));
         if (!args.fUserStencilSettings->isUnused()) {
             SkPath path;
@@ -177,23 +177,23 @@ public:
     /* Args to stencilPath().
      *
      * fResourceProvider      The resource provider for creating gpu resources to render the path
-     * fDrawContext           The target of the draws
+     * fRenderTargetContext   The target of the draws
      * fViewMatrix            Matrix applied to the path.
      * fPath                  The path to draw.
      * fIsAA                  Is the path to be drawn AA (only set when MSAA is available)
      */
     struct StencilPathArgs {
-        GrResourceProvider* fResourceProvider;
-        GrDrawContext*      fDrawContext;
-        const GrClip*       fClip;
-        const SkMatrix*     fViewMatrix;
-        bool                fIsAA;
-        const GrShape*      fShape;
+        GrResourceProvider*    fResourceProvider;
+        GrRenderTargetContext* fRenderTargetContext;
+        const GrClip*          fClip;
+        const SkMatrix*        fViewMatrix;
+        bool                   fIsAA;
+        const GrShape*         fShape;
 
 #ifdef SK_DEBUG
         void validate() const {
             SkASSERT(fResourceProvider);
-            SkASSERT(fDrawContext);
+            SkASSERT(fRenderTargetContext);
             SkASSERT(fViewMatrix);
             SkASSERT(fShape);
             SkASSERT(fShape->style().isSimpleFill());
@@ -280,7 +280,7 @@ private:
         drawArgs.fResourceProvider = args.fResourceProvider;
         drawArgs.fPaint = &paint;
         drawArgs.fUserStencilSettings = &kIncrementStencil;
-        drawArgs.fDrawContext = args.fDrawContext;
+        drawArgs.fRenderTargetContext = args.fRenderTargetContext;
         drawArgs.fViewMatrix = args.fViewMatrix;
         drawArgs.fShape = args.fShape;
         drawArgs.fAntiAlias = false;  // In this case the MSAA handles the AA so we want to draw BW

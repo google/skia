@@ -152,7 +152,7 @@ sk_sp<SkSpecialImage> SkBlurImageFilterImpl::onFilterImage(SkSpecialImage* sourc
         // We intentionally use the source's color space, not the destination's (from ctx). We
         // always blur in the source's config, so we need a compatible color space. We also want to
         // avoid doing gamut conversion on every fetch of the texture.
-        sk_sp<GrDrawContext> drawContext(SkGpuBlurUtils::GaussianBlur(
+        sk_sp<GrRenderTargetContext> renderTargetContext(SkGpuBlurUtils::GaussianBlur(
                                                                 context,
                                                                 inputTexture.get(),
                                                                 sk_ref_sp(source->getColorSpace()),
@@ -160,14 +160,14 @@ sk_sp<SkSpecialImage> SkBlurImageFilterImpl::onFilterImage(SkSpecialImage* sourc
                                                                 &inputBounds,
                                                                 sigma.x(),
                                                                 sigma.y()));
-        if (!drawContext) {
+        if (!renderTargetContext) {
             return nullptr;
         }
 
-        // TODO: Get the colorSpace from the drawContext (once it has one)
+        // TODO: Get the colorSpace from the renderTargetContext (once it has one)
         return SkSpecialImage::MakeFromGpu(SkIRect::MakeWH(dstBounds.width(), dstBounds.height()),
                                            kNeedNewImageUniqueID_SpecialImage,
-                                           drawContext->asTexture(),
+                                           renderTargetContext->asTexture(),
                                            sk_ref_sp(input->getColorSpace()), &source->props());
     }
 #endif

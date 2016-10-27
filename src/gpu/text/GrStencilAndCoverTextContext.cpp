@@ -8,7 +8,7 @@
 #include "GrStencilAndCoverTextContext.h"
 #include "GrAtlasTextContext.h"
 #include "GrContext.h"
-#include "GrDrawContext.h"
+#include "GrRenderTargetContext.h"
 #include "GrPath.h"
 #include "GrPathRange.h"
 #include "GrPipelineBuilder.h"
@@ -68,7 +68,7 @@ bool GrStencilAndCoverTextContext::internalCanDraw(const SkPaint& skPaint) {
     return SkPaint::kStroke_Style != skPaint.getStyle() || 0 != skPaint.getStrokeWidth();
 }
 
-void GrStencilAndCoverTextContext::drawText(GrContext* context, GrDrawContext* dc,
+void GrStencilAndCoverTextContext::drawText(GrContext* context, GrRenderTargetContext* rtc,
                                             const GrClip& clip, const GrPaint& paint,
                                             const SkPaint& skPaint, const SkMatrix& viewMatrix,
                                             const SkSurfaceProps& props,
@@ -80,23 +80,23 @@ void GrStencilAndCoverTextContext::drawText(GrContext* context, GrDrawContext* d
         if (skPaint.getTextSize() > 0) {
             TextRun run(skPaint);
             run.setText(text, byteLength, x, y);
-            run.draw(context, dc, paint, clip, viewMatrix, props, 0, 0,
+            run.draw(context, rtc, paint, clip, viewMatrix, props, 0, 0,
                      clipBounds, fFallbackTextContext, skPaint);
         }
         return;
     } else if (fFallbackTextContext->canDraw(skPaint, viewMatrix, props,
                                              *context->caps()->shaderCaps())) {
-        fFallbackTextContext->drawText(context, dc, clip, paint, skPaint, viewMatrix, props, text,
+        fFallbackTextContext->drawText(context, rtc, clip, paint, skPaint, viewMatrix, props, text,
                                        byteLength, x, y, clipBounds);
         return;
     }
 
     // fall back to drawing as a path
-    GrTextUtils::DrawTextAsPath(context, dc, clip, skPaint, viewMatrix, text, byteLength, x, y,
+    GrTextUtils::DrawTextAsPath(context, rtc, clip, skPaint, viewMatrix, text, byteLength, x, y,
                                 clipBounds);
 }
 
-void GrStencilAndCoverTextContext::drawPosText(GrContext* context, GrDrawContext* dc,
+void GrStencilAndCoverTextContext::drawPosText(GrContext* context, GrRenderTargetContext* rtc,
                                                const GrClip& clip,
                                                const GrPaint& paint,
                                                const SkPaint& skPaint,
@@ -114,25 +114,25 @@ void GrStencilAndCoverTextContext::drawPosText(GrContext* context, GrDrawContext
         if (skPaint.getTextSize() > 0) {
             TextRun run(skPaint);
             run.setPosText(text, byteLength, pos, scalarsPerPosition, offset);
-            run.draw(context, dc, paint, clip, viewMatrix, props, 0, 0,
+            run.draw(context, rtc, paint, clip, viewMatrix, props, 0, 0,
                      clipBounds, fFallbackTextContext, skPaint);
         }
         return;
     } else if (fFallbackTextContext->canDraw(skPaint, viewMatrix, props,
                                              *context->caps()->shaderCaps())) {
-        fFallbackTextContext->drawPosText(context, dc, clip, paint, skPaint, viewMatrix, props,
+        fFallbackTextContext->drawPosText(context, rtc, clip, paint, skPaint, viewMatrix, props,
                                           text, byteLength, pos,
                                           scalarsPerPosition, offset, clipBounds);
         return;
     }
 
     // fall back to drawing as a path
-    GrTextUtils::DrawPosTextAsPath(context, dc, props, clip, skPaint, viewMatrix, text,
+    GrTextUtils::DrawPosTextAsPath(context, rtc, props, clip, skPaint, viewMatrix, text,
                                    byteLength, pos, scalarsPerPosition, offset, clipBounds);
 }
 
 void GrStencilAndCoverTextContext::uncachedDrawTextBlob(GrContext* context,
-                                                        GrDrawContext* dc,
+                                                        GrRenderTargetContext* rtc,
                                                         const GrClip& clip,
                                                         const SkPaint& skPaint,
                                                         const SkMatrix& viewMatrix,
@@ -161,24 +161,24 @@ void GrStencilAndCoverTextContext::uncachedDrawTextBlob(GrContext* context,
         runPaint.setFlags(GrTextUtils::FilterTextFlags(props, runPaint));
 
         GrPaint grPaint;
-        if (!SkPaintToGrPaint(context, dc, runPaint, viewMatrix, &grPaint)) {
+        if (!SkPaintToGrPaint(context, rtc, runPaint, viewMatrix, &grPaint)) {
             return;
         }
 
         switch (it.positioning()) {
             case SkTextBlob::kDefault_Positioning:
-                this->drawText(context, dc, clip, grPaint, runPaint, viewMatrix, props,
+                this->drawText(context, rtc, clip, grPaint, runPaint, viewMatrix, props,
                                (const char *)it.glyphs(),
                                textLen, x + offset.x(), y + offset.y(), clipBounds);
                 break;
             case SkTextBlob::kHorizontal_Positioning:
-                this->drawPosText(context, dc, clip, grPaint, runPaint, viewMatrix, props,
+                this->drawPosText(context, rtc, clip, grPaint, runPaint, viewMatrix, props,
                                   (const char*)it.glyphs(),
                                   textLen, it.pos(), 1, SkPoint::Make(x, y + offset.y()),
                                   clipBounds);
                 break;
             case SkTextBlob::kFull_Positioning:
-                this->drawPosText(context, dc, clip, grPaint, runPaint, viewMatrix, props,
+                this->drawPosText(context, rtc, clip, grPaint, runPaint, viewMatrix, props,
                                   (const char*)it.glyphs(),
                                   textLen, it.pos(), 2, SkPoint::Make(x, y), clipBounds);
                 break;
@@ -191,7 +191,7 @@ void GrStencilAndCoverTextContext::uncachedDrawTextBlob(GrContext* context,
     }
 }
 
-void GrStencilAndCoverTextContext::drawTextBlob(GrContext* context, GrDrawContext* dc,
+void GrStencilAndCoverTextContext::drawTextBlob(GrContext* context, GrRenderTargetContext* rtc,
                                                 const GrClip& clip, const SkPaint& skPaint,
                                                 const SkMatrix& viewMatrix,
                                                 const SkSurfaceProps& props,
@@ -203,20 +203,20 @@ void GrStencilAndCoverTextContext::drawTextBlob(GrContext* context, GrDrawContex
     }
 
     if (!this->internalCanDraw(skPaint)) {
-        fFallbackTextContext->drawTextBlob(context, dc, clip, skPaint, viewMatrix, props, skBlob,
+        fFallbackTextContext->drawTextBlob(context, rtc, clip, skPaint, viewMatrix, props, skBlob,
                                            x, y, drawFilter, clipBounds);
         return;
     }
 
     if (drawFilter || skPaint.getPathEffect()) {
         // This draw can't be cached.
-        this->uncachedDrawTextBlob(context, dc, clip, skPaint, viewMatrix, props, skBlob, x, y,
+        this->uncachedDrawTextBlob(context, rtc, clip, skPaint, viewMatrix, props, skBlob, x, y,
                                    drawFilter, clipBounds);
         return;
     }
 
     GrPaint paint;
-    if (!SkPaintToGrPaint(context, dc, skPaint, viewMatrix, &paint)) {
+    if (!SkPaintToGrPaint(context, rtc, skPaint, viewMatrix, &paint)) {
         return;
     }
 
@@ -226,7 +226,7 @@ void GrStencilAndCoverTextContext::drawTextBlob(GrContext* context, GrDrawContex
     for (TextRun* run = iter.get(); run; run = iter.next()) {
         // The run's "font" overrides the anti-aliasing of the passed in paint!
         paint.setAntiAlias(run->isAntiAlias());
-        run->draw(context, dc, paint, clip, viewMatrix, props,  x, y,
+        run->draw(context, rtc, paint, clip, viewMatrix, props,  x, y,
                   clipBounds, fFallbackTextContext, skPaint);
         run->releaseGlyphCache();
     }
@@ -596,7 +596,7 @@ inline void GrStencilAndCoverTextContext::TextRun::appendGlyph(const SkGlyph& gl
 }
 
 void GrStencilAndCoverTextContext::TextRun::draw(GrContext* ctx,
-                                                 GrDrawContext* drawContext,
+                                                 GrRenderTargetContext* renderTargetContext,
                                                  const GrPaint& grPaint,
                                                  const GrClip& clip,
                                                  const SkMatrix& viewMatrix,
@@ -606,7 +606,7 @@ void GrStencilAndCoverTextContext::TextRun::draw(GrContext* ctx,
                                                  GrAtlasTextContext* fallbackTextContext,
                                                  const SkPaint& originalSkPaint) const {
     SkASSERT(fInstanceData);
-    SkASSERT(drawContext->isStencilBufferMultisampled() || !grPaint.isAntiAlias());
+    SkASSERT(renderTargetContext->isStencilBufferMultisampled() || !grPaint.isAntiAlias());
 
     if (fInstanceData->count()) {
         static constexpr GrUserStencilSettings kCoverPass(
@@ -631,7 +631,8 @@ void GrStencilAndCoverTextContext::TextRun::draw(GrContext* ctx,
         // NV_path_rendering will also support NV_blend_equation_advanced.
         // For clipping we'll just skip any optimizations based on the bounds. This does, however,
         // hurt batching.
-        const SkRect bounds = SkRect::MakeIWH(drawContext->width(), drawContext->height());
+        const SkRect bounds = SkRect::MakeIWH(renderTargetContext->width(),
+                                              renderTargetContext->height());
 
         SkAutoTUnref<GrDrawBatch> batch(
             GrDrawPathRangeBatch::Create(viewMatrix, fTextRatio, fTextInverseRatio * x,
@@ -643,7 +644,7 @@ void GrStencilAndCoverTextContext::TextRun::draw(GrContext* ctx,
         pipelineBuilder.setState(GrPipelineBuilder::kHWAntialias_Flag, grPaint.isAntiAlias());
         pipelineBuilder.setUserStencil(&kCoverPass);
 
-        drawContext->drawBatch(pipelineBuilder, clip, batch);
+        renderTargetContext->drawBatch(pipelineBuilder, clip, batch);
     }
 
     if (fFallbackTextBlob) {
@@ -653,8 +654,8 @@ void GrStencilAndCoverTextContext::TextRun::draw(GrContext* ctx,
             fallbackSkPaint.setStrokeWidth(fStyle.strokeRec().getWidth() * fTextRatio);
         }
 
-        fallbackTextContext->drawTextBlob(ctx, drawContext, clip, fallbackSkPaint, viewMatrix,
-                                          props, fFallbackTextBlob.get(), x, y, nullptr,
+        fallbackTextContext->drawTextBlob(ctx, renderTargetContext, clip, fallbackSkPaint,
+                                          viewMatrix, props, fFallbackTextBlob.get(), x, y, nullptr,
                                           clipBounds);
     }
 }

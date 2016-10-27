@@ -27,7 +27,7 @@
 #include "effects/GrSimpleTextureEffect.h"
 
 class GrBatch;
-class GrDrawContext;
+class GrRenderTargetContext;
 class GrDeviceCoordTexture;
 class GrPipelineBuilder;
 
@@ -55,7 +55,7 @@ public:
 
     struct CreateArgs {
         const GrPipelineBuilder*    fPipelineBuilder;
-        GrDrawContext*              fDrawContext;
+        GrRenderTargetContext*      fRenderTargetContext;
         const GrCaps*               fCaps;
         GrPipelineOptimizations     fOpts;
         const GrScissorState*       fScissor;

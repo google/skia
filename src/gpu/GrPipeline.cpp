@@ -8,7 +8,7 @@
 #include "GrPipeline.h"
 
 #include "GrCaps.h"
-#include "GrDrawContext.h"
+#include "GrRenderTargetContext.h"
 #include "GrGpu.h"
 #include "GrPipelineBuilder.h"
 #include "GrProcOptInfo.h"
@@ -23,7 +23,7 @@ GrPipeline* GrPipeline::CreateAt(void* memory, const CreateArgs& args,
     const GrPipelineBuilder& builder = *args.fPipelineBuilder;
 
     GrPipeline* pipeline = new (memory) GrPipeline;
-    GrRenderTarget* rt = args.fDrawContext->accessRenderTarget();
+    GrRenderTarget* rt = args.fRenderTargetContext->accessRenderTarget();
     pipeline->fRenderTarget.reset(rt);
     SkASSERT(pipeline->fRenderTarget);
     pipeline->fScissorState = *args.fScissor;
@@ -57,7 +57,7 @@ GrPipeline* GrPipeline::CreateAt(void* memory, const CreateArgs& args,
     }
 
     // Create XferProcessor from DS's XPFactory
-    bool hasMixedSamples = args.fDrawContext->hasMixedSamples() &&
+    bool hasMixedSamples = args.fRenderTargetContext->hasMixedSamples() &&
                            (builder.isHWAntialias() || !pipeline->fStencilSettings.isDisabled());
     const GrXPFactory* xpFactory = builder.getXPFactory();
     SkAutoTUnref<GrXferProcessor> xferProcessor;

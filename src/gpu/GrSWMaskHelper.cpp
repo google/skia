@@ -10,7 +10,7 @@
 #include "GrCaps.h"
 #include "GrContext.h"
 #include "batches/GrDrawBatch.h"
-#include "GrDrawContext.h"
+#include "GrRenderTargetContext.h"
 #include "GrPipelineBuilder.h"
 #include "GrShape.h"
 
@@ -163,7 +163,7 @@ GrTexture* GrSWMaskHelper::DrawShapeMaskToTexture(GrTextureProvider* texProvider
 }
 
 void GrSWMaskHelper::DrawToTargetWithShapeMask(GrTexture* texture,
-                                               GrDrawContext* drawContext,
+                                               GrRenderTargetContext* renderTargetContext,
                                                const GrPaint& paint,
                                                const GrUserStencilSettings& userStencilSettings,
                                                const GrClip& clip,
@@ -185,7 +185,7 @@ void GrSWMaskHelper::DrawToTargetWithShapeMask(GrTexture* texture,
     maskMatrix.preTranslate(SkIntToScalar(-textureOriginInDeviceSpace.fX),
                             SkIntToScalar(-textureOriginInDeviceSpace.fY));
     maskMatrix.preConcat(viewMatrix);
-    GrPipelineBuilder pipelineBuilder(paint, drawContext->mustUseHWAA(paint));
+    GrPipelineBuilder pipelineBuilder(paint, renderTargetContext->mustUseHWAA(paint));
     pipelineBuilder.setUserStencil(&userStencilSettings);
 
     pipelineBuilder.addCoverageFragmentProcessor(
@@ -197,5 +197,5 @@ void GrSWMaskHelper::DrawToTargetWithShapeMask(GrTexture* texture,
     SkAutoTUnref<GrDrawBatch> batch(GrRectBatchFactory::CreateNonAAFill(paint.getColor(),
                                                                         SkMatrix::I(),
                                                                         dstRect, nullptr, &invert));
-    drawContext->drawBatch(pipelineBuilder, clip, batch);
+    renderTargetContext->drawBatch(pipelineBuilder, clip, batch);
 }

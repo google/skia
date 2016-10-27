@@ -12,7 +12,7 @@
 #include "SkAutoPixmapStorage.h"
 #include "GrCaps.h"
 #include "GrContext.h"
-#include "GrDrawContext.h"
+#include "GrRenderTargetContext.h"
 #include "GrImageIDTextureAdjuster.h"
 #include "GrTexturePriv.h"
 #include "effects/GrYUVEffect.h"
@@ -251,13 +251,14 @@ static sk_sp<SkImage> make_from_yuv_textures_copy(GrContext* ctx, SkYUVColorSpac
     const int height = yuvSizes[0].fHeight;
 
     // Needs to be a render target in order to draw to it for the yuv->rgb conversion.
-    sk_sp<GrDrawContext> drawContext(ctx->makeDrawContext(SkBackingFit::kExact,
-                                                          width, height,
-                                                          kRGBA_8888_GrPixelConfig,
-                                                          std::move(imageColorSpace),
-                                                          0,
-                                                          origin));
-    if (!drawContext) {
+    sk_sp<GrRenderTargetContext> renderTargetContext(ctx->makeRenderTargetContext(
+                                                                         SkBackingFit::kExact,
+                                                                         width, height,
+                                                                         kRGBA_8888_GrPixelConfig,
+                                                                         std::move(imageColorSpace),
+                                                                         0,
+                                                                         origin));
+    if (!renderTargetContext) {
         return nullptr;
     }
 
@@ -268,11 +269,11 @@ static sk_sp<SkImage> make_from_yuv_textures_copy(GrContext* ctx, SkYUVColorSpac
 
     const SkRect rect = SkRect::MakeWH(SkIntToScalar(width), SkIntToScalar(height));
 
-    drawContext->drawRect(GrNoClip(), paint, SkMatrix::I(), rect);
-    ctx->flushSurfaceWrites(drawContext->accessRenderTarget());
+    renderTargetContext->drawRect(GrNoClip(), paint, SkMatrix::I(), rect);
+    ctx->flushSurfaceWrites(renderTargetContext->accessRenderTarget());
     return sk_make_sp<SkImage_Gpu>(width, height, kNeedNewImageUniqueID,
-                                   kOpaque_SkAlphaType, drawContext->asTexture(),
-                                   sk_ref_sp(drawContext->getColorSpace()), budgeted);
+                                   kOpaque_SkAlphaType, renderTargetContext->asTexture(),
+                                   sk_ref_sp(renderTargetContext->getColorSpace()), budgeted);
 }
 
 sk_sp<SkImage> SkImage::MakeFromYUVTexturesCopy(GrContext* ctx, SkYUVColorSpace colorSpace,

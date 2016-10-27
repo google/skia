@@ -10,7 +10,7 @@
 #include "GrAppliedClip.h"
 #include "GrAuditTrail.h"
 #include "GrCaps.h"
-#include "GrDrawContext.h"
+#include "GrRenderTargetContext.h"
 #include "GrGpu.h"
 #include "GrGpuCommandBuffer.h"
 #include "GrPath.h"
@@ -277,14 +277,14 @@ static void batch_bounds(SkRect* bounds, const GrBatch* batch) {
 }
 
 void GrRenderTargetOpList::drawBatch(const GrPipelineBuilder& pipelineBuilder,
-                                     GrDrawContext* drawContext,
+                                     GrRenderTargetContext* renderTargetContext,
                                      const GrClip& clip,
                                      GrDrawBatch* batch) {
     // Setup clip
     SkRect bounds;
     batch_bounds(&bounds, batch);
     GrAppliedClip appliedClip(bounds);
-    if (!clip.apply(fContext, drawContext, pipelineBuilder.isHWAntialias(),
+    if (!clip.apply(fContext, renderTargetContext, pipelineBuilder.isHWAntialias(),
                     pipelineBuilder.hasUserStencilSettings(), &appliedClip)) {
         return;
     }
@@ -297,7 +297,8 @@ void GrRenderTargetOpList::drawBatch(const GrPipelineBuilder& pipelineBuilder,
     }
 
     if (pipelineBuilder.hasUserStencilSettings() || appliedClip.hasStencilClip()) {
-        if (!fResourceProvider->attachStencilAttachment(drawContext->accessRenderTarget())) {
+        if (!fResourceProvider->attachStencilAttachment(
+                renderTargetContext->accessRenderTarget())) {
             SkDebugf("ERROR creating stencil attachment. Draw skipped.\n");
             return;
         }
@@ -305,15 +306,15 @@ void GrRenderTargetOpList::drawBatch(const GrPipelineBuilder& pipelineBuilder,
 
     GrPipeline::CreateArgs args;
     args.fPipelineBuilder = &pipelineBuilder;
-    args.fDrawContext = drawContext;
+    args.fRenderTargetContext = renderTargetContext;
     args.fCaps = this->caps();
     batch->getPipelineOptimizations(&args.fOpts);
     if (args.fOpts.fOverrides.fUsePLSDstRead || fClipBatchToBounds) {
         GrGLIRect viewport;
         viewport.fLeft = 0;
         viewport.fBottom = 0;
-        viewport.fWidth = drawContext->width();
-        viewport.fHeight = drawContext->height();
+        viewport.fWidth = renderTargetContext->width();
+        viewport.fHeight = renderTargetContext->height();
         SkIRect ibounds;
         ibounds.fLeft = SkTPin(SkScalarFloorToInt(batch->bounds().fLeft), viewport.fLeft,
                               viewport.fWidth);
@@ -336,7 +337,7 @@ void GrRenderTargetOpList::drawBatch(const GrPipelineBuilder& pipelineBuilder,
     args.fScissor = &appliedClip.scissorState();
     args.fWindowRectsState = &appliedClip.windowRectsState();
     args.fHasStencilClip = appliedClip.hasStencilClip();
-    if (!this->setupDstReadIfNecessary(pipelineBuilder, drawContext->accessRenderTarget(),
+    if (!this->setupDstReadIfNecessary(pipelineBuilder, renderTargetContext->accessRenderTarget(),
                                        clip, args.fOpts,
                                        &args.fDstTexture, batch->bounds())) {
         return;
@@ -353,7 +354,7 @@ void GrRenderTargetOpList::drawBatch(const GrPipelineBuilder& pipelineBuilder,
     this->recordBatch(batch, appliedClip.clippedDrawBounds());
 }
 
-void GrRenderTargetOpList::stencilPath(GrDrawContext* drawContext,
+void GrRenderTargetOpList::stencilPath(GrRenderTargetContext* renderTargetContext,
                                        const GrClip& clip,
                                        bool useHWAA,
                                        const SkMatrix& viewMatrix,
@@ -364,11 +365,11 @@ void GrRenderTargetOpList::stencilPath(GrDrawContext* drawContext,
 
     // FIXME: Use path bounds instead of this WAR once
     // https://bugs.chromium.org/p/skia/issues/detail?id=5640 is resolved.
-    SkRect bounds = SkRect::MakeIWH(drawContext->width(), drawContext->height());
+    SkRect bounds = SkRect::MakeIWH(renderTargetContext->width(), renderTargetContext->height());
 
     // Setup clip
     GrAppliedClip appliedClip(bounds);
-    if (!clip.apply(fContext, drawContext, useHWAA, true, &appliedClip)) {
+    if (!clip.apply(fContext, renderTargetContext, useHWAA, true, &appliedClip)) {
         return;
     }
     // TODO: respect fClipBatchToBounds if we ever start computing bounds here.
@@ -378,7 +379,7 @@ void GrRenderTargetOpList::stencilPath(GrDrawContext* drawContext,
     SkASSERT(!appliedClip.clipCoverageFragmentProcessor());
 
     GrStencilAttachment* stencilAttachment = fResourceProvider->attachStencilAttachment(
-                                                drawContext->accessRenderTarget());
+                                                renderTargetContext->accessRenderTarget());
     if (!stencilAttachment) {
         SkDebugf("ERROR creating stencil attachment. Draw skipped.\n");
         return;
@@ -390,7 +391,7 @@ void GrRenderTargetOpList::stencilPath(GrDrawContext* drawContext,
                                                 appliedClip.hasStencilClip(),
                                                 stencilAttachment->bits(),
                                                 appliedClip.scissorState(),
-                                                drawContext->accessRenderTarget(),
+                                                renderTargetContext->accessRenderTarget(),
                                                 path);
     this->recordBatch(batch, appliedClip.clippedDrawBounds());
     batch->unref();

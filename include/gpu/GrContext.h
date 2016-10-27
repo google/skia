@@ -27,7 +27,7 @@ struct GrContextOptions;
 class GrContextPriv;
 class GrContextThreadSafeProxy;
 class GrDrawingManager;
-class GrDrawContext;
+class GrRenderTargetContext;
 class GrFragmentProcessor;
 class GrGpu;
 class GrIndexBuffer;
@@ -181,26 +181,27 @@ public:
     int getRecommendedSampleCount(GrPixelConfig config, SkScalar dpi) const;
 
     /**
-     * Create both a GrRenderTarget and a matching GrDrawContext to wrap it.
-     * We guarantee that "asTexture" will succeed for drawContexts created
+     * Create both a GrRenderTarget and a matching GrRenderTargetContext to wrap it.
+     * We guarantee that "asTexture" will succeed for renderTargetContexts created
      * via this entry point.
      */
-    sk_sp<GrDrawContext> makeDrawContext(SkBackingFit fit, 
-                                         int width, int height,
-                                         GrPixelConfig config,
-                                         sk_sp<SkColorSpace> colorSpace,
-                                         int sampleCnt = 0,
-                                         GrSurfaceOrigin origin = kDefault_GrSurfaceOrigin,
-                                         const SkSurfaceProps* surfaceProps = nullptr,
-                                         SkBudgeted = SkBudgeted::kYes);
+    sk_sp<GrRenderTargetContext> makeRenderTargetContext(
+                                                 SkBackingFit fit,
+                                                 int width, int height,
+                                                 GrPixelConfig config,
+                                                 sk_sp<SkColorSpace> colorSpace,
+                                                 int sampleCnt = 0,
+                                                 GrSurfaceOrigin origin = kDefault_GrSurfaceOrigin,
+                                                 const SkSurfaceProps* surfaceProps = nullptr,
+                                                 SkBudgeted = SkBudgeted::kYes);
 
     /*
-     * This method will attempt to create a drawContext that has, at least, the number of
+     * This method will attempt to create a renderTargetContext that has, at least, the number of
      * channels and precision per channel as requested in 'config' (e.g., A8 and 888 can be
      * converted to 8888). It may also swizzle the channels (e.g., BGRA -> RGBA).
      * SRGB-ness will be preserved.
      */
-    sk_sp<GrDrawContext> makeDrawContextWithFallback(
+    sk_sp<GrRenderTargetContext> makeRenderTargetContextWithFallback(
                                                  SkBackingFit fit,
                                                  int width, int height,
                                                  GrPixelConfig config,
@@ -333,8 +334,8 @@ public:
     const GrResourceProvider* resourceProvider() const { return fResourceProvider; }
     GrResourceCache* getResourceCache() { return fResourceCache; }
 
-    // Called by tests that draw directly to the context via GrDrawContext
-    void getTestTarget(GrTestTarget*, sk_sp<GrDrawContext>);
+    // Called by tests that draw directly to the context via GrRenderTargetContext
+    void getTestTarget(GrTestTarget*, sk_sp<GrRenderTargetContext>);
 
     /** Reset GPU stats */
     void resetGpuStats() const ;
@@ -406,7 +407,7 @@ private:
 
     // In debug builds we guard against improper thread handling
     // This guard is passed to the GrDrawingManager and, from there to all the
-    // GrDrawContexts.  It is also passed to the GrTextureProvider and SkGpuDevice.
+    // GrRenderTargetContexts.  It is also passed to the GrTextureProvider and SkGpuDevice.
     mutable GrSingleOwner                   fSingleOwner;
 
     struct CleanUpData {
@@ -422,7 +423,7 @@ private:
 
     GrAuditTrail                            fAuditTrail;
 
-    // TODO: have the GrClipStackClip use drawContexts and rm this friending
+    // TODO: have the GrClipStackClip use renderTargetContexts and rm this friending
     friend class GrContextPriv;
 
     GrContext(); // init must be called after the constructor.

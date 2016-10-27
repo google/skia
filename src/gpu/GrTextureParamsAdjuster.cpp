@@ -10,7 +10,7 @@
 #include "GrCaps.h"
 #include "GrColorSpaceXform.h"
 #include "GrContext.h"
-#include "GrDrawContext.h"
+#include "GrRenderTargetContext.h"
 #include "GrGpu.h"
 #include "GrGpuResourcePriv.h"
 #include "GrResourceKey.h"
@@ -36,10 +36,8 @@ static GrTexture* copy_on_gpu(GrTexture* inputTexture, const SkIRect* subset,
 
     GrPixelConfig config = GrMakePixelConfigUncompressed(inputTexture->config());
 
-    sk_sp<GrDrawContext> copyDC = context->makeDrawContextWithFallback(SkBackingFit::kExact,
-                                                                       copyParams.fWidth,
-                                                                       copyParams.fHeight,
-                                                                       config, nullptr);
+    sk_sp<GrRenderTargetContext> copyDC = context->makeRenderTargetContextWithFallback(
+        SkBackingFit::kExact, copyParams.fWidth, copyParams.fHeight, config, nullptr);
     if (!copyDC) {
         return nullptr;
     }

@@ -10,7 +10,7 @@
 
 #include "GrContext.h"
 #include "GrContextPriv.h"
-#include "GrDrawContext.h"
+#include "GrRenderTargetContext.h"
 #include "GrGpu.h"
 #include "GrRenderTargetOpList.h"
 #include "GrRenderTargetPriv.h"
@@ -34,13 +34,13 @@ void GrRenderTarget::discard() {
         return;
     }
 
-    sk_sp<GrDrawContext> drawContext(context->contextPriv().makeWrappedDrawContext(sk_ref_sp(this),
-                                                                                   nullptr));
-    if (!drawContext) {
+    sk_sp<GrRenderTargetContext> renderTargetContext(
+        context->contextPriv().makeWrappedRenderTargetContext(sk_ref_sp(this), nullptr));
+    if (!renderTargetContext) {
         return;
     }
 
-    drawContext->discard();
+    renderTargetContext->discard();
 }
 
 void GrRenderTarget::flagAsNeedingResolve(const SkIRect* rect) {

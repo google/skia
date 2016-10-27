@@ -5,14 +5,14 @@
  * found in the LICENSE file.
  */
 
-#ifndef GrPathRenderingDrawContext_DEFINED
-#define GrPathRenderingDrawContext_DEFINED
+#ifndef GrPathRenderingRenderTargetContext_DEFINED
+#define GrPathRenderingRenderTargetContext_DEFINED
 
-#include "GrDrawContext.h"
+#include "GrRenderTargetContext.h"
 
 class GrStencilAndCoverTextContext;
 
-class GrPathRenderingDrawContext : public GrDrawContext {
+class GrPathRenderingRenderTargetContext : public GrRenderTargetContext {
 public:
     void drawText(const GrClip&,  const GrPaint&, const SkPaint&,
                   const SkMatrix& viewMatrix, const char text[], size_t byteLength,
@@ -26,9 +26,10 @@ public:
                       SkScalar x, SkScalar y,
                       SkDrawFilter*, const SkIRect& clipBounds) override;
 protected:
-    GrPathRenderingDrawContext(GrContext* ctx, GrDrawingManager* mgr, sk_sp<GrRenderTarget> rt,
-                               sk_sp<SkColorSpace> colorSpace, const SkSurfaceProps* surfaceProps,
-                               GrAuditTrail* at, GrSingleOwner* so)
+    GrPathRenderingRenderTargetContext(GrContext* ctx, GrDrawingManager* mgr,
+                                       sk_sp<GrRenderTarget> rt, sk_sp<SkColorSpace> colorSpace,
+                                       const SkSurfaceProps* surfaceProps, GrAuditTrail* at,
+                                       GrSingleOwner* so)
         : INHERITED(ctx, mgr, std::move(rt), std::move(colorSpace), surfaceProps, at, so) {}
 
 private:
@@ -36,7 +37,7 @@ private:
 
     friend class GrDrawingManager; // for ctor
 
-    typedef GrDrawContext INHERITED;
+    typedef GrRenderTargetContext INHERITED;
 };
 
 #endif

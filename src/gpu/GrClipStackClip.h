@@ -35,7 +35,7 @@ public:
     bool quickContains(const SkRRect&) const final;
     void getConservativeBounds(int width, int height, SkIRect* devResult,
                                bool* isIntersectionOfRects) const final;
-    bool apply(GrContext*, GrDrawContext*, bool useHWAA, bool hasUserStencilSettings,
+    bool apply(GrContext*, GrRenderTargetContext*, bool useHWAA, bool hasUserStencilSettings,
                GrAppliedClip* out) const final;
 
     bool isRRect(const SkRect& rtBounds, SkRRect* rr, bool* aa) const override;
@@ -43,7 +43,7 @@ public:
 private:
     static bool PathNeedsSWRenderer(GrContext* context,
                                     bool hasUserStencilSettings,
-                                    const GrDrawContext*,
+                                    const GrRenderTargetContext*,
                                     const SkMatrix& viewMatrix,
                                     const SkClipStack::Element* element,
                                     GrPathRenderer** prOut,
@@ -58,7 +58,7 @@ private:
 
    static bool UseSWOnlyPath(GrContext*,
                              bool hasUserStencilSettings,
-                             const GrDrawContext*,
+                             const GrRenderTargetContext*,
                              const GrReducedClip&);
 
     static GrTexture* CreateCachedMask(int width, int height, const GrUniqueKey& key,

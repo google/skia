@@ -84,7 +84,7 @@ public:
      */
     const GrCaps* caps() const { return fGpu->caps(); }
 
-    void drawBatch(const GrPipelineBuilder&, GrDrawContext*, const GrClip&, GrDrawBatch*);
+    void drawBatch(const GrPipelineBuilder&, GrRenderTargetContext*, const GrClip&, GrDrawBatch*);
 
     void addBatch(sk_sp<GrBatch>);
 
@@ -95,7 +95,7 @@ public:
      * possible in the 3D API).  Note, we will never have an inverse fill with
      * stencil path.
      */
-    void stencilPath(GrDrawContext*,
+    void stencilPath(GrRenderTargetContext*,
                      const GrClip&,
                      bool useHWAA,
                      const SkMatrix& viewMatrix,
@@ -130,7 +130,7 @@ public:
     SkDEBUGCODE(void dump() const override;)
 
 private:
-    friend class GrDrawContextPriv; // for clearStencilClip
+    friend class GrRenderTargetContextPriv; // for clearStencilClip
 
     // Returns the batch that the input batch was combined with or the input batch if it wasn't
     // combined.
@@ -147,7 +147,7 @@ private:
                                  GrXferProcessor::DstTexture*,
                                  const SkRect& batchBounds);
 
-    // Used only by drawContextPriv.
+    // Used only by renderTargetContextPriv.
     void clearStencilClip(const GrFixedClip&, bool insideStencilMask, GrRenderTarget*);
 
     struct RecordedBatch {

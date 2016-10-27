@@ -16,7 +16,7 @@
 #include "SkRegion.h"
 #include "SkSurface.h"
 #include "GrClipStackClip.h"
-#include "GrDrawContext.h"
+#include "GrRenderTargetContext.h"
 #include "GrContext.h"
 #include "GrSurfacePriv.h"
 #include "GrTypes.h"
@@ -39,10 +39,10 @@ public:
     };
 
     /**
-     * Creates an SkGpuDevice from a GrDrawContext whose backing width/height is
+     * Creates an SkGpuDevice from a GrRenderTargetContext whose backing width/height is
      * different than its actual width/height (e.g., approx-match scratch texture).
      */
-    static sk_sp<SkGpuDevice> Make(sk_sp<GrDrawContext> drawContext,
+    static sk_sp<SkGpuDevice> Make(sk_sp<GrRenderTargetContext> renderTargetContext,
                                    int width, int height,
                                    InitContents);
 
@@ -62,9 +62,9 @@ public:
     // set all pixels to 0
     void clearAll();
 
-    void replaceDrawContext(bool shouldRetainContent);
+    void replaceRenderTargetContext(bool shouldRetainContent);
 
-    GrDrawContext* accessDrawContext() override;
+    GrRenderTargetContext* accessRenderTargetContext() override;
 
     void drawPaint(const SkDraw&, const SkPaint& paint) override;
     void drawPoints(const SkDraw&, SkCanvas::PointMode mode, size_t count, const SkPoint[],
@@ -131,9 +131,9 @@ protected:
     bool onShouldDisableLCD(const SkPaint&) const final;
 
 private:
-    // We want these unreffed in DrawContext, GrContext order.
+    // We want these unreffed in RenderTargetContext, GrContext order.
     SkAutoTUnref<GrContext>         fContext;
-    sk_sp<GrDrawContext>            fDrawContext;
+    sk_sp<GrRenderTargetContext>            fRenderTargetContext;
 
     SkIPoint                        fClipOrigin;
     GrClipStackClip                 fClip;
@@ -148,7 +148,7 @@ private:
     static bool CheckAlphaTypeAndGetFlags(const SkImageInfo* info, InitContents init,
                                           unsigned* flags);
 
-    SkGpuDevice(sk_sp<GrDrawContext>, int width, int height, unsigned flags);
+    SkGpuDevice(sk_sp<GrRenderTargetContext>, int width, int height, unsigned flags);
 
     SkBaseDevice* onCreateDevice(const CreateInfo&, const SkPaint*) override;
 
@@ -239,12 +239,12 @@ private:
     bool drawDashLine(const SkPoint pts[2], const SkPaint& paint);
     void drawStrokedLine(const SkPoint pts[2], const SkDraw&, const SkPaint&);
 
-    static sk_sp<GrDrawContext> MakeDrawContext(GrContext*,
-                                                SkBudgeted,
-                                                const SkImageInfo&,
-                                                int sampleCount,
-                                                GrSurfaceOrigin,
-                                                const SkSurfaceProps*);
+    static sk_sp<GrRenderTargetContext> MakeRenderTargetContext(GrContext*,
+                                                                SkBudgeted,
+                                                                const SkImageInfo&,
+                                                                int sampleCount,
+                                                                GrSurfaceOrigin,
+                                                                const SkSurfaceProps*);
 
     friend class GrAtlasTextContext;
     friend class SkSurface_Gpu;      // for access to surfaceProps

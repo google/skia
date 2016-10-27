@@ -5,7 +5,7 @@
  * found in the LICENSE file.
  */
 
-#include "GrPathRenderingDrawContext.h"
+#include "GrPathRenderingRenderTargetContext.h"
 
 #include "GrDrawingManager.h"
 
@@ -15,15 +15,15 @@
     SkDEBUGCODE(GrSingleOwner::AutoEnforce debug_SingleOwner(this->singleOwner());)
 #define RETURN_IF_ABANDONED        if (this->drawingManager()->wasAbandoned()) { return; }
 
-void GrPathRenderingDrawContext::drawText(const GrClip& clip,  const GrPaint& grPaint,
-                                          const SkPaint& skPaint,
-                                          const SkMatrix& viewMatrix, const char text[],
-                                          size_t byteLength, SkScalar x, SkScalar y,
-                                          const SkIRect& clipBounds) {
+void GrPathRenderingRenderTargetContext::drawText(const GrClip& clip, const GrPaint& grPaint,
+                                                  const SkPaint& skPaint,
+                                                  const SkMatrix& viewMatrix, const char text[],
+                                                  size_t byteLength, SkScalar x, SkScalar y,
+                                                  const SkIRect& clipBounds) {
     ASSERT_SINGLE_OWNER
     RETURN_IF_ABANDONED
     SkDEBUGCODE(this->validate();)
-    GR_AUDIT_TRAIL_AUTO_FRAME(this->auditTrail(), "GrPathRenderingDrawContext::drawText");
+    GR_AUDIT_TRAIL_AUTO_FRAME(this->auditTrail(), "GrPathRenderingRenderTargetContext::drawText");
 
     if (!fStencilAndCoverTextContext) {
         GrAtlasTextContext* fallbackContext = this->drawingManager()->getAtlasTextContext();
@@ -35,16 +35,17 @@ void GrPathRenderingDrawContext::drawText(const GrClip& clip,  const GrPaint& gr
                                           text, byteLength, x, y, clipBounds);
 }
 
-void GrPathRenderingDrawContext::drawPosText(const GrClip& clip, const GrPaint& grPaint,
-                                             const SkPaint& skPaint,
-                                             const SkMatrix& viewMatrix, const char text[],
-                                             size_t byteLength,  const SkScalar pos[],
-                                             int scalarsPerPosition, const SkPoint& offset,
-                                             const SkIRect& clipBounds) {
+void GrPathRenderingRenderTargetContext::drawPosText(const GrClip& clip, const GrPaint& grPaint,
+                                                     const SkPaint& skPaint,
+                                                     const SkMatrix& viewMatrix, const char text[],
+                                                     size_t byteLength,  const SkScalar pos[],
+                                                     int scalarsPerPosition, const SkPoint& offset,
+                                                     const SkIRect& clipBounds) {
     ASSERT_SINGLE_OWNER
     RETURN_IF_ABANDONED
     SkDEBUGCODE(this->validate();)
-    GR_AUDIT_TRAIL_AUTO_FRAME(this->auditTrail(), "GrPathRenderingDrawContext::drawPosText");
+    GR_AUDIT_TRAIL_AUTO_FRAME(this->auditTrail(),
+                              "GrPathRenderingRenderTargetContext::drawPosText");
 
     if (!fStencilAndCoverTextContext) {
         GrAtlasTextContext* fallbackContext = this->drawingManager()->getAtlasTextContext();
@@ -57,14 +58,17 @@ void GrPathRenderingDrawContext::drawPosText(const GrClip& clip, const GrPaint& 
                                              clipBounds);
 }
 
-void GrPathRenderingDrawContext::drawTextBlob(const GrClip& clip, const SkPaint& skPaint,
-                                              const SkMatrix& viewMatrix, const SkTextBlob* blob,
-                                              SkScalar x, SkScalar y,
-                                              SkDrawFilter* filter, const SkIRect& clipBounds) {
+void GrPathRenderingRenderTargetContext::drawTextBlob(const GrClip& clip, const SkPaint& skPaint,
+                                                      const SkMatrix& viewMatrix,
+                                                      const SkTextBlob* blob,
+                                                      SkScalar x, SkScalar y,
+                                                      SkDrawFilter* filter,
+                                                      const SkIRect& clipBounds) {
     ASSERT_SINGLE_OWNER
     RETURN_IF_ABANDONED
     SkDEBUGCODE(this->validate();)
-    GR_AUDIT_TRAIL_AUTO_FRAME(this->auditTrail(), "GrPathRenderingDrawContext::drawTextBlob");
+    GR_AUDIT_TRAIL_AUTO_FRAME(this->auditTrail(),
+                              "GrPathRenderingRenderTargetContext::drawTextBlob");
 
     if (!fStencilAndCoverTextContext) {
         GrAtlasTextContext* fallbackContext = this->drawingManager()->getAtlasTextContext();

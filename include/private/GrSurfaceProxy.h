@@ -91,7 +91,7 @@ private:
     bool notifyRefCountIsZero() const { return true; }
 
     // The last opList that wrote to or is currently going to write to this surface
-    // The opList can be closed (e.g., no draw context is currently bound
+    // The opList can be closed (e.g., no render target context is currently bound
     // to this renderTarget).
     // This back-pointer is required so that we can add a dependancy between
     // the opList used to create the current contents of this surface
