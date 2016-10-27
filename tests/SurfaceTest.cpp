@@ -19,7 +19,7 @@
 
 #if SK_SUPPORT_GPU
 #include "GrContext.h"
-#include "GrDrawContext.h"
+#include "GrRenderTargetContext.h"
 #include "GrGpu.h"
 #include "GrResourceProvider.h"
 #include <vector>
@@ -314,8 +314,9 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(UniqueImageSnapshot_Gpu, reporter, ctxInfo) {
         };
 
         auto surfaceBackingStore = [reporter](SkSurface* surface) {
-            GrDrawContext* dc = surface->getCanvas()->internal_private_accessTopLayerDrawContext();
-            GrRenderTarget* rt = dc->accessRenderTarget();
+            GrRenderTargetContext* rtc =
+                surface->getCanvas()->internal_private_accessTopLayerRenderTargetContext();
+            GrRenderTarget* rt = rtc->accessRenderTarget();
             if (!rt) {
                 ERRORF(reporter, "Not render target backed.");
                 return static_cast<intptr_t>(0);
@@ -566,7 +567,8 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(SurfacepeekTexture_Gpu, reporter, ctxInfo) {
 
 static SkBudgeted is_budgeted(const sk_sp<SkSurface>& surf) {
     SkSurface_Gpu* gsurf = (SkSurface_Gpu*)surf.get();
-    return gsurf->getDevice()->accessDrawContext()->accessRenderTarget()->resourcePriv().isBudgeted();
+    return gsurf->getDevice()->accessRenderTargetContext()
+        ->accessRenderTarget()->resourcePriv().isBudgeted();
 }
 
 static SkBudgeted is_budgeted(SkImage* image) {
@@ -793,8 +795,9 @@ DEF_GPUTEST_FOR_GL_RENDERING_CONTEXTS(SurfaceClear_Gpu, reporter, ctxInfo) {
 
     std::function<GrSurface*(SkSurface*)> grSurfaceGetters[] = {
         [] (SkSurface* s){
-            GrDrawContext* dc = s->getCanvas()->internal_private_accessTopLayerDrawContext();
-            return dc->accessRenderTarget(); },
+            GrRenderTargetContext* rtc =
+                s->getCanvas()->internal_private_accessTopLayerRenderTargetContext();
+            return rtc->accessRenderTarget(); },
         [] (SkSurface* s){ sk_sp<SkImage> i(s->makeImageSnapshot());
                            return as_IB(i)->peekTexture(); }
     };
@@ -903,8 +906,8 @@ DEF_GPUTEST_FOR_GL_RENDERING_CONTEXTS(SurfaceAttachStencil_Gpu, reporter, ctxInf
 
             // Validate that we can attach a stencil buffer to an SkSurface created by either of
             // our surface functions.
-            GrRenderTarget* rt = surface->getCanvas()->internal_private_accessTopLayerDrawContext()
-                ->accessRenderTarget();
+            GrRenderTarget* rt = surface->getCanvas()
+                ->internal_private_accessTopLayerRenderTargetContext()->accessRenderTarget();
             REPORTER_ASSERT(reporter,
                             ctxInfo.grContext()->resourceProvider()->attachStencilAttachment(rt));
             gpu->deleteTestingOnlyBackendTexture(textureObject);

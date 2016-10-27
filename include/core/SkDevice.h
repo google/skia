@@ -343,7 +343,7 @@ private:
     /**
      * Don't call this!
      */
-    virtual GrDrawContext* accessDrawContext() { return nullptr; }
+    virtual GrRenderTargetContext* accessRenderTargetContext() { return nullptr; }
 
     // just called by SkCanvas when built as a layer
     void setOrigin(int x, int y) { fOrigin.set(x, y); }

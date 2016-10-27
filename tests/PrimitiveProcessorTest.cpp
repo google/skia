@@ -12,8 +12,8 @@
 
 #if SK_SUPPORT_GPU
 #include "GrBatchFlushState.h"
-#include "GrDrawContext.h"
-#include "GrDrawContextPriv.h"
+#include "GrRenderTargetContext.h"
+#include "GrRenderTargetContextPriv.h"
 #include "GrContext.h"
 #include "GrGeometryProcessor.h"
 #include "GrGpu.h"
@@ -104,11 +104,12 @@ private:
 DEF_GPUTEST_FOR_ALL_CONTEXTS(VertexAttributeCount, reporter, ctxInfo) {
     GrContext* context = ctxInfo.grContext();
 
-    sk_sp<GrDrawContext> drawContext(context->makeDrawContext(SkBackingFit::kApprox,
-                                                              1, 1, kRGBA_8888_GrPixelConfig,
-                                                              nullptr));
-    if (!drawContext) {
-        ERRORF(reporter, "Could not create draw context.");
+    sk_sp<GrRenderTargetContext> renderTargetContext(context->makeRenderTargetContext(
+                                                                     SkBackingFit::kApprox,
+                                                                     1, 1, kRGBA_8888_GrPixelConfig,
+                                                                     nullptr));
+    if (!renderTargetContext) {
+        ERRORF(reporter, "Could not create render target context.");
         return;
     }
     int attribCnt = context->caps()->maxVertexAttributes();
@@ -126,7 +127,7 @@ DEF_GPUTEST_FOR_ALL_CONTEXTS(VertexAttributeCount, reporter, ctxInfo) {
     GrPaint grPaint;
     // This one should succeed.
     batch.reset(new Batch(attribCnt));
-    drawContext->drawContextPriv().testingOnly_drawBatch(grPaint, batch);
+    renderTargetContext->renderTargetContextPriv().testingOnly_drawBatch(grPaint, batch);
     context->flush();
 #if GR_GPU_STATS
     REPORTER_ASSERT(reporter, context->getGpu()->stats()->numDraws() == 1);
@@ -135,7 +136,7 @@ DEF_GPUTEST_FOR_ALL_CONTEXTS(VertexAttributeCount, reporter, ctxInfo) {
     context->resetGpuStats();
     // This one should fail.
     batch.reset(new Batch(attribCnt+1));
-    drawContext->drawContextPriv().testingOnly_drawBatch(grPaint, batch);
+    renderTargetContext->renderTargetContextPriv().testingOnly_drawBatch(grPaint, batch);
     context->flush();
 #if GR_GPU_STATS
     REPORTER_ASSERT(reporter, context->getGpu()->stats()->numDraws() == 0);

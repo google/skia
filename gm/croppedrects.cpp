@@ -16,8 +16,9 @@ namespace skiagm {
 constexpr SkRect kSrcImageClip{75, 75, 275, 275};
 
 /*
- * The purpose of this test is to exercise all three codepaths in GrDrawContext (drawFilledRect,
- * fillRectToRect, fillRectWithLocalMatrix) that pre-crop filled rects based on the clip.
+ * The purpose of this test is to exercise all three codepaths in GrRenderTargetContext
+ * (drawFilledRect, fillRectToRect, fillRectWithLocalMatrix) that pre-crop filled rects based on the
+ * clip.
  *
  * The test creates an image of a green square surrounded by red background, then draws this image
  * in various ways with the red clipped out. The test is successful if there is no visible red
@@ -54,7 +55,7 @@ private:
         canvas->clear(SK_ColorWHITE);
 
         {
-            // GrDrawContext::drawFilledRect.
+            // GrRenderTargetContext::drawFilledRect.
             SkAutoCanvasRestore acr(canvas, true);
             SkPaint paint;
             paint.setShader(fSrcImageShader);
@@ -64,7 +65,7 @@ private:
         }
 
         {
-            // GrDrawContext::fillRectToRect.
+            // GrRenderTargetContext::fillRectToRect.
             SkAutoCanvasRestore acr(canvas, true);
             SkPaint paint;
             paint.setFilterQuality(kNone_SkFilterQuality);
@@ -78,7 +79,7 @@ private:
         }
 
         {
-            // GrDrawContext::fillRectWithLocalMatrix.
+            // GrRenderTargetContext::fillRectWithLocalMatrix.
             SkAutoCanvasRestore acr(canvas, true);
             SkPath path;
             path.moveTo(kSrcImageClip.fLeft - kSrcImageClip.width(), kSrcImageClip.centerY());

@@ -249,7 +249,8 @@ static SkPath create_path_16() {
     return path;
 }
 
-static void test_path(GrDrawContext* drawContext, GrResourceProvider* rp, const SkPath& path) {
+static void test_path(GrRenderTargetContext* renderTargetContext, GrResourceProvider* rp,
+                      const SkPath& path) {
     GrTessellatingPathRenderer tess;
 
     GrPaint paint;
@@ -260,7 +261,7 @@ static void test_path(GrDrawContext* drawContext, GrResourceProvider* rp, const 
     GrPathRenderer::DrawPathArgs args;
     args.fPaint = &paint;
     args.fUserStencilSettings = &GrUserStencilSettings::kUnused;
-    args.fDrawContext = drawContext;
+    args.fRenderTargetContext = renderTargetContext;
     args.fClip = &noClip;
     args.fResourceProvider = rp;
     args.fViewMatrix = &SkMatrix::I();
@@ -271,36 +272,37 @@ static void test_path(GrDrawContext* drawContext, GrResourceProvider* rp, const 
 }
 
 DEF_GPUTEST_FOR_ALL_CONTEXTS(TessellatingPathRendererTests, reporter, ctxInfo) {
-    sk_sp<GrDrawContext> dc(ctxInfo.grContext()->makeDrawContext(SkBackingFit::kApprox,
-                                                                 800, 800,
-                                                                 kRGBA_8888_GrPixelConfig,
-                                                                 nullptr,
-                                                                 0,
-                                                                 kTopLeft_GrSurfaceOrigin));
-    if (!dc) {
+    sk_sp<GrRenderTargetContext> rtc(ctxInfo.grContext()->makeRenderTargetContext(
+                                                                         SkBackingFit::kApprox,
+                                                                         800, 800,
+                                                                         kRGBA_8888_GrPixelConfig,
+                                                                         nullptr,
+                                                                         0,
+                                                                         kTopLeft_GrSurfaceOrigin));
+    if (!rtc) {
         return;
     }
 
     GrTestTarget tt;
-    ctxInfo.grContext()->getTestTarget(&tt, dc);
+    ctxInfo.grContext()->getTestTarget(&tt, rtc);
     GrResourceProvider* rp = tt.resourceProvider();
 
-    test_path(dc.get(), rp, create_path_0());
-    test_path(dc.get(), rp, create_path_1());
-    test_path(dc.get(), rp, create_path_2());
-    test_path(dc.get(), rp, create_path_3());
-    test_path(dc.get(), rp, create_path_4());
-    test_path(dc.get(), rp, create_path_5());
-    test_path(dc.get(), rp, create_path_6());
-    test_path(dc.get(), rp, create_path_7());
-    test_path(dc.get(), rp, create_path_8());
-    test_path(dc.get(), rp, create_path_9());
-    test_path(dc.get(), rp, create_path_10());
-    test_path(dc.get(), rp, create_path_11());
-    test_path(dc.get(), rp, create_path_12());
-    test_path(dc.get(), rp, create_path_13());
-    test_path(dc.get(), rp, create_path_14());
-    test_path(dc.get(), rp, create_path_15());
-    test_path(dc.get(), rp, create_path_16());
+    test_path(rtc.get(), rp, create_path_0());
+    test_path(rtc.get(), rp, create_path_1());
+    test_path(rtc.get(), rp, create_path_2());
+    test_path(rtc.get(), rp, create_path_3());
+    test_path(rtc.get(), rp, create_path_4());
+    test_path(rtc.get(), rp, create_path_5());
+    test_path(rtc.get(), rp, create_path_6());
+    test_path(rtc.get(), rp, create_path_7());
+    test_path(rtc.get(), rp, create_path_8());
+    test_path(rtc.get(), rp, create_path_9());
+    test_path(rtc.get(), rp, create_path_10());
+    test_path(rtc.get(), rp, create_path_11());
+    test_path(rtc.get(), rp, create_path_12());
+    test_path(rtc.get(), rp, create_path_13());
+    test_path(rtc.get(), rp, create_path_14());
+    test_path(rtc.get(), rp, create_path_15());
+    test_path(rtc.get(), rp, create_path_16());
 }
 #endif
