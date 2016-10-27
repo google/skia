@@ -175,7 +175,7 @@ private:
 
         paint->setMaskFilter(MakeBlur());
 
-        paint->setColorFilter(SkColorFilter::MakeModeFilter(color, SkXfermode::kSrcIn_Mode));
+        paint->setColorFilter(SkColorFilter::MakeModeFilter(color, SkBlendMode::kSrcIn));
 
         return looperBuilder.detach();
     }
@@ -221,8 +221,7 @@ private:
 
             paint->setMaskFilter(MakeBlur());
 
-            paint->setColorFilter(SkColorFilter::MakeModeFilter(gColors[i],
-                                                                SkXfermode::kSrcIn_Mode));
+            paint->setColorFilter(SkColorFilter::MakeModeFilter(gColors[i], SkBlendMode::kSrcIn));
         }
 
         return looperBuilder.detach();

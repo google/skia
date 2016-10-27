@@ -310,7 +310,7 @@ static void drawArc_handler(SkPipeReader& reader, uint32_t packedVerb, SkCanvas*
 
 static void drawAtlas_handler(SkPipeReader& reader, uint32_t packedVerb, SkCanvas* canvas) {
     SkASSERT(SkPipeVerb::kDrawAtlas == unpack_verb(packedVerb));
-    SkXfermode::Mode mode = (SkXfermode::Mode)(packedVerb & kMode_DrawAtlasMask);
+    SkBlendMode mode = (SkBlendMode)(packedVerb & kMode_DrawAtlasMask);
     sk_sp<SkImage> image(reader.readImage());
     int count = reader.read32();
     const SkRSXform* xform = skip<SkRSXform>(reader, count);
@@ -433,16 +433,8 @@ static void drawPatch_handler(SkPipeReader& reader, uint32_t packedVerb, SkCanva
     if (packedVerb & kHasTexture_DrawPatchExtraMask) {
         tex = skip<SkPoint>(reader, 4);
     }
-    sk_sp<SkXfermode> xfer;
-    unsigned mode = packedVerb & kModeEnum_DrawPatchExtraMask;
-    if (kExplicitXfer_DrawPatchExtraValue == mode) {
-        xfer = reader.readXfermode();
-    } else {
-        if (mode != SkXfermode::kSrcOver_Mode) {
-            xfer = SkXfermode::Make((SkXfermode::Mode)mode);
-        }
-    }
-    canvas->drawPatch(cubics, colors, tex, xfer.get(), read_paint(reader));
+    SkBlendMode mode = (SkBlendMode)(packedVerb & kModeEnum_DrawPatchExtraMask);
+    canvas->drawPatch(cubics, colors, tex, mode, read_paint(reader));
 }
 
 static void drawPaint_handler(SkPipeReader& reader, uint32_t packedVerb, SkCanvas* canvas) {
@@ -581,13 +573,8 @@ static void drawVertices_handler(SkPipeReader& reader, uint32_t packedVerb, SkCa
     if (0 == vertexCount) {
         vertexCount = reader.read32();
     }
-    sk_sp<SkXfermode> xfer;
-    unsigned xmode = (packedVerb & kXMode_DrawVerticesMask) >> kXMode_DrawVerticesShift;
-    if (0xFF == xmode) {
-        xfer = reader.readXfermode();
-    } else {
-        xfer = SkXfermode::Make((SkXfermode::Mode)xmode);
-    }
+    SkBlendMode bmode = (SkBlendMode)
+            ((packedVerb & kXMode_DrawVerticesMask) >> kXMode_DrawVerticesShift);
     const SkPoint* vertices = skip<SkPoint>(reader, vertexCount);
     const SkPoint* texs = nullptr;
     if (packedVerb & kHasTex_DrawVerticesMask) {
@@ -604,7 +591,7 @@ static void drawVertices_handler(SkPipeReader& reader, uint32_t packedVerb, SkCa
         indices = skip<uint16_t>(reader, indexCount);
     }
 
-    canvas->drawVertices(vmode, vertexCount, vertices, texs, colors, xfer.get(),
+    canvas->drawVertices(vmode, vertexCount, vertices, texs, colors, bmode,
                          indices, indexCount, read_paint(reader));
 }
 

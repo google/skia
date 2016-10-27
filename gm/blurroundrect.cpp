@@ -61,7 +61,7 @@ public:
                     SkBlurMaskFilter::kHighQuality_BlurFlag));
             paint->setColorFilter(SkColorFilter::MakeModeFilter(
                     sk_tool_utils::color_to_565(SK_ColorLTGRAY),
-                    SkXfermode::kSrcIn_Mode));
+                    SkBlendMode::kSrcIn));
             paint->setColor(sk_tool_utils::color_to_565(SK_ColorGRAY));
         }
         {
