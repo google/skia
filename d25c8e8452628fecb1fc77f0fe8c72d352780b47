@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "6105d0c2_f9f74a1c",
+        "filename": "include/gpu/GrGpuResource.h",
+        "patchSetId": 8
+      },
+      "lineNbr": 78,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2016-10-27T14:10:34Z",
+      "side": 1,
+      "message": "Is this used?",
+      "range": {
+        "startLine": 78,
+        "startChar": 24,
+        "endLine": 78,
+        "endChar": 33
+      },
+      "revId": "d25c8e8452628fecb1fc77f0fe8c72d352780b47",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "6105d0c2_d9f88612",
+        "filename": "include/private/GrSurfaceProxy.h",
+        "patchSetId": 8
+      },
+      "lineNbr": 22,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2016-10-27T14:10:34Z",
+      "side": 1,
+      "message": "Curious why we need this class instead of inheriting from GrIORef?",
+      "range": {
+        "startLine": 22,
+        "startChar": 6,
+        "endLine": 22,
+        "endChar": 18
+      },
+      "revId": "d25c8e8452628fecb1fc77f0fe8c72d352780b47",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
