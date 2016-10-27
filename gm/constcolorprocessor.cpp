@@ -112,8 +112,7 @@ protected:
                     SkAutoTUnref<GrDrawBatch> batch(
                             GrRectBatchFactory::CreateNonAAFill(grPaint.getColor(), viewMatrix,
                                                                 renderRect, nullptr, nullptr));
-                    renderTargetContext->renderTargetContextPriv().testingOnly_drawBatch(grPaint,
-                                                                                         batch);
+                    renderTargetContext->priv().testingOnly_drawBatch(grPaint, batch);
 
                     // Draw labels for the input to the processor and the processor to the right of
                     // the test rect. The input label appears above the processor label.

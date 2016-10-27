@@ -36,9 +36,9 @@ static GrTexture* copy_on_gpu(GrTexture* inputTexture, const SkIRect* subset,
 
     GrPixelConfig config = GrMakePixelConfigUncompressed(inputTexture->config());
 
-    sk_sp<GrRenderTargetContext> copyDC = context->makeRenderTargetContextWithFallback(
+    sk_sp<GrRenderTargetContext> copyRTC = context->makeRenderTargetContextWithFallback(
         SkBackingFit::kExact, copyParams.fWidth, copyParams.fHeight, config, nullptr);
-    if (!copyDC) {
+    if (!copyRTC) {
         return nullptr;
     }
 
@@ -84,8 +84,8 @@ static GrTexture* copy_on_gpu(GrTexture* inputTexture, const SkIRect* subset,
     }
 
     SkRect dstRect = SkRect::MakeIWH(copyParams.fWidth, copyParams.fHeight);
-    copyDC->fillRectToRect(GrNoClip(), paint, SkMatrix::I(), dstRect, localRect);
-    return copyDC->asTexture().release();
+    copyRTC->fillRectToRect(GrNoClip(), paint, SkMatrix::I(), dstRect, localRect);
+    return copyRTC->asTexture().release();
 }
 
 GrTextureAdjuster::GrTextureAdjuster(GrTexture* original, SkAlphaType alphaType,

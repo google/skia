@@ -147,7 +147,7 @@ private:
                                  GrXferProcessor::DstTexture*,
                                  const SkRect& batchBounds);
 
-    // Used only by renderTargetContextPriv.
+    // Used only via GrRenderTargetContextPriv.
     void clearStencilClip(const GrFixedClip&, bool insideStencilMask, GrRenderTarget*);
 
     struct RecordedBatch {
