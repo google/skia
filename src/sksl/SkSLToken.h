@@ -157,6 +157,8 @@ struct Token {
 
     Position fPosition;
     Kind fKind;
+    // will be the empty string unless the token has variable text content (identifiers, numeric
+    // literals, and directives)
     std::string fText;
 };
 

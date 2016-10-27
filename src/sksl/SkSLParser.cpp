@@ -132,9 +132,18 @@ Token Parser::nextToken() {
         return result;
     }
     int token = sksllex(fScanner);
-    return Token(Position(skslget_lineno(fScanner), -1), (Token::Kind) token, 
-                 token == Token::END_OF_FILE ? "<end of file>" : 
-                                               std::string(skslget_text(fScanner)));
+    std::string text;
+    switch ((Token::Kind) token) {
+        case Token::IDENTIFIER:    // fall through
+        case Token::INT_LITERAL:   // fall through
+        case Token::FLOAT_LITERAL: // fall through
+        case Token::DIRECTIVE:
+            text = std::string(skslget_text(fScanner));
+            break;
+        default:
+            break;
+    }
+    return Token(Position(skslget_lineno(fScanner), -1), (Token::Kind) token, text);
 }
 
 void Parser::pushback(Token t) {

@@ -19,7 +19,8 @@ namespace SkSL {
 class Context {
 public:
     Context()
-    : fVoid_Type(new Type("void"))
+    : fInvalid_Type(new Type("<INVALID>"))
+    , fVoid_Type(new Type("void"))
     , fDouble_Type(new Type("double", true))
     , fDVec2_Type(new Type("dvec2", *fDouble_Type, 2))
     , fDVec3_Type(new Type("dvec3", *fDouble_Type, 3))
@@ -104,24 +105,27 @@ public:
     , fGenBType_Type(new Type("$genBType", { fBool_Type.get(), fBVec2_Type.get(), fBVec3_Type.get(), 
                                              fBVec4_Type.get() }))
     , fMat_Type(new Type("$mat"))
-    , fVec_Type(new Type("$vec", { fVec2_Type.get(), fVec2_Type.get(), fVec3_Type.get(),
+    , fVec_Type(new Type("$vec", { fInvalid_Type.get(), fVec2_Type.get(), fVec3_Type.get(),
                                    fVec4_Type.get() }))
     , fGVec_Type(new Type("$gvec"))
     , fGVec2_Type(new Type("$gvec2"))
     , fGVec3_Type(new Type("$gvec3"))
     , fGVec4_Type(new Type("$gvec4", static_type(*fVec4_Type)))
-    , fDVec_Type(new Type("$dvec"))
-    , fIVec_Type(new Type("$ivec"))
-    , fUVec_Type(new Type("$uvec"))
-    , fBVec_Type(new Type("$bvec", { fBVec2_Type.get(), fBVec2_Type.get(), fBVec3_Type.get(), 
+    , fDVec_Type(new Type("$dvec", { fInvalid_Type.get(), fDVec2_Type.get(), fDVec3_Type.get(),
+                                     fDVec4_Type.get() }))
+    , fIVec_Type(new Type("$ivec", { fInvalid_Type.get(), fIVec2_Type.get(), fIVec3_Type.get(),
+                                     fIVec4_Type.get() }))
+    , fUVec_Type(new Type("$uvec", { fInvalid_Type.get(), fUVec2_Type.get(), fUVec3_Type.get(),
+                                     fUVec4_Type.get() }))
+    , fBVec_Type(new Type("$bvec", { fInvalid_Type.get(), fBVec2_Type.get(), fBVec3_Type.get(), 
                                      fBVec4_Type.get() }))
-    , fInvalid_Type(new Type("<INVALID>"))
     , fDefined_Expression(new Defined(*fInvalid_Type)) {}
 
     static std::vector<const Type*> static_type(const Type& t) {
         return { &t, &t, &t, &t };   
     }
 
+    const std::unique_ptr<Type> fInvalid_Type;
     const std::unique_ptr<Type> fVoid_Type;
 
     const std::unique_ptr<Type> fDouble_Type;
@@ -222,8 +226,6 @@ public:
     const std::unique_ptr<Type> fUVec_Type;
 
     const std::unique_ptr<Type> fBVec_Type;
-
-    const std::unique_ptr<Type> fInvalid_Type;
 
     // dummy expression used to mark that a variable has a value during dataflow analysis (when it 
     // could have several different values, or the analyzer is otherwise unable to assign it a
