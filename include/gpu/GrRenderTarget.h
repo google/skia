@@ -143,6 +143,7 @@ private:
     virtual bool completeStencilAttachment() = 0;
 
     friend class GrRenderTargetPriv;
+    friend class GrRenderTargetProxy; // for Flags
 
     GrStencilAttachment*  fStencilAttachment;
     uint8_t               fMultisampleSpecsID;
