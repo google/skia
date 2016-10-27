@@ -22,88 +22,88 @@ $genType log($genType x);
 $genType exp2($genType x);
 $genType log2($genType x);
 $genType sqrt($genType x);
-//$genDType sqrt($genDType x);
+$genDType sqrt($genDType x);
 $genType inversesqrt($genType x);
-//$genDType inversesqrt($genDType x);
+$genDType inversesqrt($genDType x);
 $genType abs($genType x);
 $genIType abs($genIType x);
-//$genDType abs($genDType x);
+$genDType abs($genDType x);
 $genType sign($genType x);
 $genIType sign($genIType x);
-//$genDType sign($genDType x);
+$genDType sign($genDType x);
 $genType floor($genType x);
-//$genDType floor($genDType x);
+$genDType floor($genDType x);
 $genType trunc($genType x);
-//$genDType trunc($genDType x);
+$genDType trunc($genDType x);
 $genType round($genType x);
-//$genDType round($genDType x);
+$genDType round($genDType x);
 $genType roundEven($genType x);
-//$genDType roundEven($genDType x);
+$genDType roundEven($genDType x);
 $genType ceil($genType x);
-//$genDType ceil($genDType x);
+$genDType ceil($genDType x);
 $genType fract($genType x);
-//$genDType fract($genDType x);
+$genDType fract($genDType x);
 $genType mod($genType x, float y);
 $genType mod($genType x, $genType y);
-//$genDType mod($genDType x, double y);
-//$genDType mod($genDType x, $genDType y);
+$genDType mod($genDType x, double y);
+$genDType mod($genDType x, $genDType y);
 $genType modf($genType x, out $genType i);
-//$genDType modf($genDType x, out $genDType i);
+$genDType modf($genDType x, out $genDType i);
 $genType min($genType x, $genType y);
 $genType min($genType x, float y);
-//$genDType min($genDType x, $genDType y);
-//$genDType min($genDType x, double y);
+$genDType min($genDType x, $genDType y);
+$genDType min($genDType x, double y);
 $genIType min($genIType x, $genIType y);
 $genIType min($genIType x, int y);
-//$genUType min($genUType x, $genUType y);
-//$genUType min($genUType x, uint y);
+$genUType min($genUType x, $genUType y);
+$genUType min($genUType x, uint y);
 $genType max($genType x, $genType y);
 $genType max($genType x, float y);
-//$genDType max($genDType x, $genDType y);
-//$genDType max($genDType x, double y);
+$genDType max($genDType x, $genDType y);
+$genDType max($genDType x, double y);
 $genIType max($genIType x, $genIType y);
 $genIType max($genIType x, int y);
-//$genUType max($genUType x, $genUType y);
-//$genUType max($genUType x, uint y);
+$genUType max($genUType x, $genUType y);
+$genUType max($genUType x, uint y);
 $genType clamp($genType x, $genType minVal, $genType maxVal);
 $genType clamp($genType x, float minVal, float maxVal);
-//$genDType clamp($genDType x, $genDType minVal, $genDType maxVal);
-//$genDType clamp($genDType x, double minVal, double maxVal);
+$genDType clamp($genDType x, $genDType minVal, $genDType maxVal);
+$genDType clamp($genDType x, double minVal, double maxVal);
 $genIType clamp($genIType x, $genIType minVal, $genIType maxVal);
 $genIType clamp($genIType x, int minVal, int maxVal);
-//$genUType clamp($genUType x, $genUType minVal, $genUType maxVal);
-//$genUType clamp($genUType x, uint minVal, uint maxVal);
+$genUType clamp($genUType x, $genUType minVal, $genUType maxVal);
+$genUType clamp($genUType x, uint minVal, uint maxVal);
 $genType mix($genType x, $genType y, $genType a);
 $genType mix($genType x, $genType y, float a);
-//$genDType mix($genDType x, $genDType y, $genDType a);
-//$genDType mix($genDType x, $genDType y, double a);
+$genDType mix($genDType x, $genDType y, $genDType a);
+$genDType mix($genDType x, $genDType y, double a);
 $genType mix($genType x, $genType y, $genBType a);
-//$genDType mix($genDType x, $genDType y, $genBType a);
+$genDType mix($genDType x, $genDType y, $genBType a);
 $genIType mix($genIType x, $genIType y, $genBType a);
-//$genUType mix($genUType x, $genUType y, $genBType a);
+$genUType mix($genUType x, $genUType y, $genBType a);
 $genBType mix($genBType x, $genBType y, $genBType a);
 $genType step($genType edge, $genType x);
 $genType step(float edge, $genType x);
-//$genDType step($genDType edge, $genDType x);
-//$genDType step(double edge, $genDType x);
+$genDType step($genDType edge, $genDType x);
+$genDType step(double edge, $genDType x);
 $genType smoothstep($genType edge0, $genType edge1, $genType x);
 $genType smoothstep(float edge0, float edge1, $genType x);
-//$genDType smoothstep($genDType edge0, $genDType edge1, $genDType x);
-//$genDType smoothstep(double edge0, double edge1, $genDType x);
+$genDType smoothstep($genDType edge0, $genDType edge1, $genDType x);
+$genDType smoothstep(double edge0, double edge1, $genDType x);
 $genBType isnan($genType x);
 $genBType isnan($genDType x);
 $genBType isinf($genType x);
 $genBType isinf($genDType x);
 $genIType floatBitsToInt($genType value);
-//$genUType floatBitsToUint($genType value);
+$genUType floatBitsToUint($genType value);
 $genType intBitsToFloat($genIType value);
 $genType uintBitsToFloat($genUType value);
 $genType fma($genType a, $genType b, $genType c);
-//$genDType fma($genDType a, $genDType b, $genDType c);
+$genDType fma($genDType a, $genDType b, $genDType c);
 $genType frexp($genType x, out $genIType exp);
-//$genDType frexp($genDType x, out $genIType exp);
+$genDType frexp($genDType x, out $genIType exp);
 $genType ldexp($genType x, in $genIType exp);
-//$genDType ldexp($genDType x, in $genIType exp);
+$genDType ldexp($genDType x, in $genIType exp);
 uint packUnorm2x16(vec2 v);
 uint packSnorm2x16(vec2 v);
 uint packUnorm4x8(vec4 v);
@@ -112,27 +112,27 @@ vec2 unpackUnorm2x16(uint p);
 vec2 unpackSnorm2x16(uint p);
 vec4 unpackUnorm4x8(uint p);
 vec4 unpackSnorm4x8(uint p);
-//double packDouble2x32(uvec2 v);
+double packDouble2x32(uvec2 v);
 uvec2 unpackDouble2x32(double v);
 uint packHalf2x16(vec2 v);
 vec2 unpackHalf2x16(uint v);
 float length($genType x);
-//double length($genDType x);
+double length($genDType x);
 float distance($genType p0, $genType p1);
-//double distance($genDType p0, $genDType p1);
+double distance($genDType p0, $genDType p1);
 float dot($genType x, $genType y);
-//double dot($genDType x, $genDType y);
+double dot($genDType x, $genDType y);
 vec3 cross(vec3 x, vec3 y);
-//dvec3 cross(dvec3 x, dvec3 y);
+dvec3 cross(dvec3 x, dvec3 y);
 $genType normalize($genType x);
-//$genDType normalize($genDType x);
+$genDType normalize($genDType x);
 vec4 ftransform();
 $genType faceforward($genType N, $genType I, $genType Nref);
-//$genDType faceforward($genDType N, $genDType I, $genDType Nref);
+$genDType faceforward($genDType N, $genDType I, $genDType Nref);
 $genType reflect($genType I, $genType N);
-//$genDType reflect($genDType I, $genDType N);
+$genDType reflect($genDType I, $genDType N);
 $genType refract($genType I, $genType N, float eta);
-//$genDType refract($genDType I, $genDType N, float eta);
+$genDType refract($genDType I, $genDType N, float eta);
 $mat matrixCompMult($mat x, $mat y);
 mat2 outerProduct(vec2 c, vec2 r);
 mat3 outerProduct(vec3 c, vec3 r);
@@ -181,18 +181,16 @@ $bvec notEqual($bvec x, $bvec y);
 bool any($bvec x);
 bool all($bvec x);
 $bvec not($bvec x);
-
-/*
-//$genUType uaddCarry($genUType x, $genUType y, out $genUType carry);
-//$genUType usubBorrow($genUType x, $genUType y, out $genUType borrow);
+$genUType uaddCarry($genUType x, $genUType y, out $genUType carry);
+$genUType usubBorrow($genUType x, $genUType y, out $genUType borrow);
 void umulExtended($genUType x, $genUType y, out $genUType msb, out $genUType lsb);
 void imulExtended($genIType x, $genIType y, out $genIType msb, out $genIType lsb);
 $genIType bitfieldExtract($genIType value, int offset, int bits);
-//$genUType bitfieldExtract($genUType value, int offset, int bits);
+$genUType bitfieldExtract($genUType value, int offset, int bits);
 $genIType bitfieldInsert($genIType base, $genIType insert, int offset, int bits);
-//$genUType bitfieldInsert($genUType base, $genUType insert, int offset, int bits);
+$genUType bitfieldInsert($genUType base, $genUType insert, int offset, int bits);
 $genIType bitfieldReverse($genIType value);
-//$genUType bitfieldReverse($genUType value);
+$genUType bitfieldReverse($genUType value);
 $genIType bitCount($genIType value);
 $genIType bitCount($genUType value);
 $genIType findLSB($genIType value);
@@ -208,9 +206,7 @@ ivec2 textureSize(sampler2DShadow sampler, int lod);
 ivec2 textureSize(samplerCubeShadow sampler, int lod);
 ivec3 textureSize($gsamplerCubeArray sampler, int lod);
 ivec3 textureSize(samplerCubeArrayShadow sampler, int lod);
-*/
 ivec2 textureSize($gsampler2DRect sampler);
-/*
 ivec2 textureSize(sampler2DRectShadow sampler);
 ivec2 textureSize($gsampler1DArray sampler, int lod);
 ivec3 textureSize($gsampler2DArray sampler, int lod);
@@ -245,15 +241,11 @@ int textureQueryLevels(samplerCubeShadow sampler);
 int textureQueryLevels(sampler1DArrayShadow sampler);
 int textureQueryLevels(sampler2DArrayShadow sampler);
 int textureQueryLevels(samplerCubeArrayShadow sampler);
-*/
-
 $gvec4 texture($gsampler1D sampler, float P);
 $gvec4 texture($gsampler1D sampler, float P, float bias);
 $gvec4 texture($gsampler2D sampler, vec2 P);
 vec4 texture(samplerExternalOES sampler, vec2 P, float bias);
 vec4 texture(samplerExternalOES sampler, vec2 P);
-
-/*
 $gvec4 texture($gsampler2D sampler, vec2 P, float bias);
 $gvec4 texture($gsampler3D sampler, vec3 P);
 $gvec4 texture($gsampler3D sampler, vec3 P, float bias);
@@ -274,14 +266,10 @@ $gvec4 texture($gsamplerCubeArray sampler, vec4 P, float bias);
 float texture(sampler1DArrayShadow sampler, vec3 P);
 float texture(sampler1DArrayShadow sampler, vec3 P, float bias);
 float texture(sampler2DArrayShadow sampler, vec4 P);
-*/
-
 $gvec4 texture($gsampler2DRect sampler, vec2 P);
-
-/*
 float texture(sampler2DRectShadow sampler, vec3 P);
 float texture($gsamplerCubeArrayShadow sampler, vec4 P, float compare);
-*/
+
 )
 
 // split into multiple chunks, as MSVC++ complains if a single string is too long
@@ -296,7 +284,6 @@ $gvec4 textureProj($gsampler2D sampler, vec3 P);
 $gvec4 textureProj($gsampler2D sampler, vec3 P, float bias);
 $gvec4 textureProj($gsampler2D sampler, vec4 P);
 $gvec4 textureProj($gsampler2D sampler, vec4 P, float bias);
-/*
 $gvec4 textureProj($gsampler3D sampler, vec4 P);
 $gvec4 textureProj($gsampler3D sampler, vec4 P, float bias);
 float textureProj(sampler1DShadow sampler, vec4 P);
@@ -458,6 +445,7 @@ $gvec4 textureGatherOffset($gsampler2DRect sampler, vec2 P, ivec2 offset, int co
 vec4 textureGatherOffset(sampler2DShadow sampler, vec2 P, float refZ, ivec2 offset);
 vec4 textureGatherOffset(sampler2DArrayShadow sampler, vec3 P, float refZ, ivec2 offset);
 vec4 textureGatherOffset(sampler2DRectShadow sampler, vec2 P, float refZ, ivec2 offset);
+/*
 $gvec4 textureGatherOffsets($gsampler2D sampler, vec2 P, ivec2 offsets[4]);
 $gvec4 textureGatherOffsets($gsampler2D sampler, vec2 P, ivec2 offsets[4], int comp);
 $gvec4 textureGatherOffsets($gsampler2DArray sampler, vec3 P, ivec2 offsets[4]);
@@ -470,7 +458,6 @@ vec4 textureGatherOffsets(sampler2DRectShadow sampler, vec2 P, float refZ, ivec2
 */
 vec4 texture1D(sampler1D sampler, float coord);
 vec4 texture1D(sampler1D sampler, float coord, float bias);
-/*
 vec4 texture1DProj(sampler1D sampler, vec2 coord);
 vec4 texture1DProj(sampler1D sampler, vec2 coord, float bias);
 vec4 texture1DProj(sampler1D sampler, vec4 coord);
@@ -478,11 +465,9 @@ vec4 texture1DProj(sampler1D sampler, vec4 coord, float bias);
 vec4 texture1DLod(sampler1D sampler, float coord, float lod);
 vec4 texture1DProjLod(sampler1D sampler, vec2 coord, float lod);
 vec4 texture1DProjLod(sampler1D sampler, vec4 coord, float lod);
-*/
 vec4 texture2D(sampler2D sampler, vec2 coord);
 vec4 texture2D(samplerExternalOES sampler, vec2 coord);
 vec4 texture2D(sampler2D sampler, vec2 coord, float bias);
-/*
 vec4 texture2DProj(sampler2D sampler, vec3 coord);
 vec4 texture2DProj(sampler2D sampler, vec3 coord, float bias);
 vec4 texture2DProj(sampler2D sampler, vec4 coord);
@@ -511,6 +496,7 @@ vec4 shadow1DLod(sampler1DShadow sampler, vec3 coord, float lod);
 vec4 shadow2DLod(sampler2DShadow sampler, vec3 coord, float lod);
 vec4 shadow1DProjLod(sampler1DShadow sampler, vec4 coord, float lod);
 vec4 shadow2DProjLod(sampler2DShadow sampler, vec4 coord, float lod);
+/*
 uint atomicCounterIncrement(atomic_uint c);
 uint atomicCounter(atomic_uint c);
 uint atomicAdd(inout uint mem, uint data);
@@ -534,8 +520,6 @@ int atomicCompSwap(inout int mem, int compare, int data);
 
 $genType dFdx($genType p);
 $genType dFdy($genType p);
-
-/*
 $genType fwidth($genType p);
 $genType fwidthCoarse($genType p);
 $genType fwidthFine($genType p);
@@ -558,7 +542,6 @@ void memoryBarrierBuffer();
 void memoryBarrierShared();
 void memoryBarrierImage();
 void groupMemoryBarrier();
-*/
 
 )
 
