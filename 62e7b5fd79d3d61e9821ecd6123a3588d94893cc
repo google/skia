@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "6105d0c2_d909a69f",
+        "filename": "src/gpu/GrTextureOpList.h",
+        "patchSetId": 5
+      },
+      "lineNbr": 53,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2016-10-27T12:26:13Z",
+      "side": 1,
+      "message": "I know GrRenderTargetOpList doesn\u0027t provide a good model of this but, wdyt about having the GrTextureContext implement this rather than the OpList? This would keep the OpList more of a dumb holder of batches/GrOps.",
+      "revId": "62e7b5fd79d3d61e9821ecd6123a3588d94893cc",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
