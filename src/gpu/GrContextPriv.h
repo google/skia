@@ -17,21 +17,23 @@ class GrContextPriv {
 public:
     GrDrawingManager* drawingManager() { return fContext->fDrawingManager.get(); }
 
-    // Create a drawContext that wraps an existing renderTarget
-    sk_sp<GrDrawContext> makeWrappedDrawContext(sk_sp<GrRenderTarget> rt,
-                                                sk_sp<SkColorSpace> colorSpace,
-                                                const SkSurfaceProps* = nullptr);
+    // Create a renderTargetContext that wraps an existing renderTarget
+    sk_sp<GrRenderTargetContext> makeWrappedRenderTargetContext(sk_sp<GrRenderTarget> rt,
+                                                                sk_sp<SkColorSpace> colorSpace,
+                                                                const SkSurfaceProps* = nullptr);
 
-    sk_sp<GrDrawContext> makeBackendTextureDrawContext(const GrBackendTextureDesc& desc,
-                                                       sk_sp<SkColorSpace> colorSpace,
-                                                       const SkSurfaceProps* = nullptr,
-                                                       GrWrapOwnership = kBorrow_GrWrapOwnership);
+    sk_sp<GrRenderTargetContext> makeBackendTextureRenderTargetContext(
+                                                         const GrBackendTextureDesc& desc,
+                                                         sk_sp<SkColorSpace> colorSpace,
+                                                         const SkSurfaceProps* = nullptr,
+                                                         GrWrapOwnership = kBorrow_GrWrapOwnership);
 
-    sk_sp<GrDrawContext> makeBackendRenderTargetDrawContext(const GrBackendRenderTargetDesc& desc,
-                                                            sk_sp<SkColorSpace> colorSpace,
-                                                            const SkSurfaceProps* = nullptr);
+    sk_sp<GrRenderTargetContext> makeBackendRenderTargetRenderTargetContext(
+                                                              const GrBackendRenderTargetDesc& desc,
+                                                              sk_sp<SkColorSpace> colorSpace,
+                                                              const SkSurfaceProps* = nullptr);
 
-    sk_sp<GrDrawContext> makeBackendTextureAsRenderTargetDrawContext(
+    sk_sp<GrRenderTargetContext> makeBackendTextureAsRenderTargetRenderTargetContext(
                                                                  const GrBackendTextureDesc& desc,
                                                                  sk_sp<SkColorSpace> colorSpace,
                                                                  const SkSurfaceProps* = nullptr);

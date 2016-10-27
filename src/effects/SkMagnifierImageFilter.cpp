@@ -17,7 +17,6 @@
 ////////////////////////////////////////////////////////////////////////////////
 #if SK_SUPPORT_GPU
 #include "GrContext.h"
-#include "GrDrawContext.h"
 #include "GrInvariantOutput.h"
 #include "effects/GrSingleTextureEffect.h"
 #include "glsl/GrGLSLFragmentProcessor.h"

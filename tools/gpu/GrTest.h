@@ -9,7 +9,7 @@
 #define GrTest_DEFINED
 
 #include "GrContext.h"
-#include "GrDrawContext.h"
+#include "GrRenderTargetContext.h"
 
 namespace GrTest {
     /**
@@ -27,13 +27,13 @@ class GrTestTarget {
 public:
     GrTestTarget() {}
 
-    void init(GrContext*, sk_sp<GrDrawContext>);
+    void init(GrContext*, sk_sp<GrRenderTargetContext>);
 
     GrResourceProvider* resourceProvider() { return fContext->resourceProvider(); }
 
 private:
     SkAutoTUnref<GrContext>                 fContext;
-    sk_sp<GrDrawContext>                    fDrawContext;
+    sk_sp<GrRenderTargetContext>                    fRenderTargetContext;
 };
 
 #endif

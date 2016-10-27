@@ -1813,9 +1813,9 @@ const SkRegion& SkCanvas::internal_private_getTotalClip() const {
     return fMCRec->fRasterClip.forceGetBW();
 }
 
-GrDrawContext* SkCanvas::internal_private_accessTopLayerDrawContext() {
+GrRenderTargetContext* SkCanvas::internal_private_accessTopLayerRenderTargetContext() {
     SkBaseDevice* dev = this->getTopDevice();
-    return dev ? dev->accessDrawContext() : nullptr;
+    return dev ? dev->accessRenderTargetContext() : nullptr;
 }
 
 GrContext* SkCanvas::getGrContext() {
