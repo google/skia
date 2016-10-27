@@ -9,7 +9,6 @@
 #define GrRenderTargetProxy_DEFINED
 
 #include "GrRenderTarget.h"
-#include "GrRenderTargetPriv.h"
 #include "GrSurfaceProxy.h"
 #include "GrTypes.h"
 
@@ -41,7 +40,7 @@ public:
      * For our purposes, "Mixed Sampled" means the stencil buffer is multisampled but the color
      * buffer is not.
      */
-    bool isMixedSampled() const { return fFlags & GrRenderTargetPriv::Flags::kMixedSampled; }
+    bool isMixedSampled() const { return fFlags & GrRenderTarget::Flags::kMixedSampled; }
 
     /**
      * "Unified Sampled" means the stencil and color buffers are both multisampled.
@@ -58,7 +57,13 @@ public:
      */
     int numColorSamples() const { return this->isMixedSampled() ? 0 : fDesc.fSampleCnt; }
 
-    GrRenderTargetPriv::Flags testingOnly_getFlags() const;
+    GrRenderTarget::Flags testingOnly_getFlags() const;
+
+    GrRenderTargetOpList* getLastRenderTargetOpList() {
+        return (GrRenderTargetOpList*) this->getLastOpList();
+    }
+
+    SkDEBUGCODE(void validate(GrContext*) const;)
 
 private:
     // Deferred version
@@ -67,16 +72,16 @@ private:
     // Wrapped version
     GrRenderTargetProxy(const GrCaps&, sk_sp<GrRenderTarget> rt);
 
-    // For wrapped render targets we store it here.
-    // For deferred proxies we will fill this in when we need to instantiate the deferred resource
-    sk_sp<GrRenderTarget>       fTarget;
+    // For wrapped render targets the actual GrRenderTarget is stored in the GrIORefProxy class.
+    // For deferred proxies that pointer is filled in when we need to instantiate the
+    // deferred resource.
 
     // These don't usually get computed until the render target is instantiated, but the render
     // target proxy may need to answer queries about it before then. And since in the deferred case
     // we know the newly created render target will be internal, we are able to precompute what the
     // flags will ultimately end up being. In the wrapped case we just copy the wrapped
     // rendertarget's info here.
-    GrRenderTargetPriv::Flags   fFlags;
+    GrRenderTarget::Flags   fFlags;
 
     typedef GrSurfaceProxy INHERITED;
 };
