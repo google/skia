@@ -36,6 +36,74 @@
     },
     {
       "key": {
+        "uuid": "a63c3ec1_94bfaa60",
+        "filename": "include/effects/SkShadowMaskFilter.h",
+        "patchSetId": 7
+      },
+      "lineNbr": 11,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2016-10-27T19:14:49Z",
+      "side": 1,
+      "message": "Not sure this needs a comment, shouldn\u0027t be too surprising that we include SkMaskFilter\u0027s definition here.",
+      "revId": "ba0068719eec4f2b97f1d5b5118d43b0343edbe8",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "e62d5695_8b878df5",
+        "filename": "include/effects/SkShadowMaskFilter.h",
+        "patchSetId": 7
+      },
+      "lineNbr": 14,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2016-10-27T19:14:49Z",
+      "side": 1,
+      "message": "// This filter implements a pair of shadows simulating blah blah",
+      "revId": "ba0068719eec4f2b97f1d5b5118d43b0343edbe8",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "e62d5695_2b777946",
+        "filename": "include/effects/SkShadowMaskFilter.h",
+        "patchSetId": 7
+      },
+      "lineNbr": 18,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2016-10-27T19:14:49Z",
+      "side": 1,
+      "message": "Maybe something about \"Otherwise the filter may implement optimizations that avoid drawing the portion of the shadow under the geometry assuming that the geometry will be drawn opaquely and unfiltered after being drawn with the filter.\"",
+      "revId": "ba0068719eec4f2b97f1d5b5118d43b0343edbe8",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "e62d5695_2b8e5910",
+        "filename": "include/effects/SkShadowMaskFilter.h",
+        "patchSetId": 7
+      },
+      "lineNbr": 31,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2016-10-27T19:14:49Z",
+      "side": 1,
+      "message": "Alphas might warrant some explanation.",
+      "revId": "ba0068719eec4f2b97f1d5b5118d43b0343edbe8",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "6105d0c2_391b82e5",
         "filename": "samplecode/SampleAndroidShadows.cpp",
         "patchSetId": 7
@@ -370,6 +438,23 @@
       "writtenOn": "2016-10-27T12:57:58Z",
       "side": 1,
       "message": "add code to pass on the devRRect ? Don\u0027t we also need to pass on the viewMatrix ?",
+      "revId": "ba0068719eec4f2b97f1d5b5118d43b0343edbe8",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "e62d5695_6bbfc198",
+        "filename": "src/effects/SkShadowMaskFilter.cpp",
+        "patchSetId": 7
+      },
+      "lineNbr": 465,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2016-10-27T19:14:49Z",
+      "side": 1,
+      "message": "Probably could us a comment here or on the processor class itself about why we\u0027re using paint color.",
       "revId": "ba0068719eec4f2b97f1d5b5118d43b0343edbe8",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
