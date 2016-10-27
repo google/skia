@@ -36,9 +36,9 @@ private:
     // Wrapped version
     GrTextureProxy(sk_sp<GrTexture> tex);
 
-    // For wrapped textures we store it here.
-    // For deferred proxies we will fill this in when we need to instantiate the deferred resource
-    sk_sp<GrTexture> fTexture;
+    // For wrapped proxies the GrTexture pointer is stored in GrIORefProxy.
+    // For deferred proxies that pointer will be filled n when we need to instantiate
+    // the deferred resource
 
     typedef GrSurfaceProxy INHERITED;
 };
