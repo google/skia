@@ -579,6 +579,10 @@ def WriteTarget(out, target, project):
   # Non-OBJECT library dependencies.
   external_libraries = target.properties.get('libs', [])
   if target.cmake_type.is_linkable and (external_libraries or libraries):
+    library_dirs = target.properties.get('lib_dirs', [])
+    if library_dirs:
+      SetVariableList(out, '${target}__library_directories', library_dirs)
+
     system_libraries = []
     for external_library in external_libraries:
       if '/' in external_library:
@@ -586,12 +590,19 @@ def WriteTarget(out, target, project):
       else:
         if external_library.endswith('.framework'):
           external_library = external_library[:-len('.framework')]
-        system_library = external_library + '__library'
+        system_library = 'library__' + external_library
+        if library_dirs:
+          system_library = system_library + '__for_${target}'
         out.write('find_library("')
         out.write(CMakeStringEscape(system_library))
         out.write('" "')
         out.write(CMakeStringEscape(external_library))
-        out.write('")\n')
+        out.write('"')
+        if library_dirs:
+          out.write(' PATHS "')
+          WriteVariable(out, '${target}__library_directories')
+          out.write('"')
+        out.write(')\n')
         system_libraries.append(system_library)
     out.write('target_link_libraries("${target}"')
     for library in libraries:
