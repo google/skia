@@ -549,7 +549,7 @@ private:
     typedef GrVertexBatch INHERITED;
 };
 
-bool GrMSAAPathRenderer::internalDrawPath(GrDrawContext* drawContext,
+bool GrMSAAPathRenderer::internalDrawPath(GrRenderTargetContext* renderTargetContext,
                                           const GrPaint& paint,
                                           const GrUserStencilSettings& userStencilSettings,
                                           const GrClip& clip,
@@ -621,7 +621,8 @@ bool GrMSAAPathRenderer::internalDrawPath(GrDrawContext* drawContext,
     }
 
     SkRect devBounds;
-    GetPathDevBounds(path, drawContext->width(), drawContext->height(), viewMatrix, &devBounds);
+    GetPathDevBounds(path, renderTargetContext->width(), renderTargetContext->height(), viewMatrix,
+                     &devBounds);
 
     SkASSERT(passCount <= kMaxNumPasses);
 
@@ -650,10 +651,10 @@ bool GrMSAAPathRenderer::internalDrawPath(GrDrawContext* drawContext,
                     GrRectBatchFactory::CreateNonAAFill(paint.getColor(), viewM, bounds, nullptr,
                                                         &localMatrix));
 
-            GrPipelineBuilder pipelineBuilder(paint, drawContext->mustUseHWAA(paint));
+            GrPipelineBuilder pipelineBuilder(paint, renderTargetContext->mustUseHWAA(paint));
             pipelineBuilder.setUserStencil(passes[p]);
 
-            drawContext->drawBatch(pipelineBuilder, clip, batch);
+            renderTargetContext->drawBatch(pipelineBuilder, clip, batch);
         } else {
             SkAutoTUnref<MSAAPathBatch> batch(new MSAAPathBatch(paint.getColor(), path,
                                                                 viewMatrix, devBounds));
@@ -661,13 +662,13 @@ bool GrMSAAPathRenderer::internalDrawPath(GrDrawContext* drawContext,
                 return false;
             }
 
-            GrPipelineBuilder pipelineBuilder(paint, drawContext->mustUseHWAA(paint));
+            GrPipelineBuilder pipelineBuilder(paint, renderTargetContext->mustUseHWAA(paint));
             pipelineBuilder.setUserStencil(passes[p]);
             if (passCount > 1) {
                 pipelineBuilder.setDisableColorXPFactory();
             }
 
-            drawContext->drawBatch(pipelineBuilder, clip, batch);
+            renderTargetContext->drawBatch(pipelineBuilder, clip, batch);
         }
     }
     return true;
@@ -681,7 +682,7 @@ bool GrMSAAPathRenderer::onCanDrawPath(const CanDrawPathArgs& args) const {
 }
 
 bool GrMSAAPathRenderer::onDrawPath(const DrawPathArgs& args) {
-    GR_AUDIT_TRAIL_AUTO_FRAME(args.fDrawContext->auditTrail(),
+    GR_AUDIT_TRAIL_AUTO_FRAME(args.fRenderTargetContext->auditTrail(),
                               "GrMSAAPathRenderer::onDrawPath");
     SkTLazy<GrShape> tmpShape;
     const GrShape* shape = args.fShape;
@@ -690,7 +691,7 @@ bool GrMSAAPathRenderer::onDrawPath(const DrawPathArgs& args) {
         tmpShape.init(args.fShape->applyStyle(GrStyle::Apply::kPathEffectAndStrokeRec, styleScale));
         shape = tmpShape.get();
     }
-    return this->internalDrawPath(args.fDrawContext,
+    return this->internalDrawPath(args.fRenderTargetContext,
                                   *args.fPaint,
                                   *args.fUserStencilSettings,
                                   *args.fClip,
@@ -700,7 +701,7 @@ bool GrMSAAPathRenderer::onDrawPath(const DrawPathArgs& args) {
 }
 
 void GrMSAAPathRenderer::onStencilPath(const StencilPathArgs& args) {
-    GR_AUDIT_TRAIL_AUTO_FRAME(args.fDrawContext->auditTrail(),
+    GR_AUDIT_TRAIL_AUTO_FRAME(args.fRenderTargetContext->auditTrail(),
                               "GrMSAAPathRenderer::onStencilPath");
     SkASSERT(args.fShape->style().isSimpleFill());
     SkASSERT(!args.fShape->mayBeInverseFilledAfterStyling());
@@ -709,8 +710,8 @@ void GrMSAAPathRenderer::onStencilPath(const StencilPathArgs& args) {
     paint.setXPFactory(GrDisableColorXPFactory::Make());
     paint.setAntiAlias(args.fIsAA);
 
-    this->internalDrawPath(args.fDrawContext, paint, GrUserStencilSettings::kUnused, *args.fClip,
-                           *args.fViewMatrix, *args.fShape, true);
+    this->internalDrawPath(args.fRenderTargetContext, paint, GrUserStencilSettings::kUnused,
+                           *args.fClip, *args.fViewMatrix, *args.fShape, true);
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////

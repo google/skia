@@ -13,7 +13,7 @@
 #include "SkTLList.h"
 
 class GrContext;
-class GrDrawContext;
+class GrRenderTargetContext;
 
 /**
  * This class takes a clip stack and produces a reduced set of elements that are equivalent to
@@ -70,8 +70,8 @@ public:
 
     InitialState initialState() const { return fInitialState; }
 
-    bool drawAlphaClipMask(GrDrawContext*) const;
-    bool drawStencilClipMask(GrContext*, GrDrawContext*, const SkIPoint& clipOrigin) const;
+    bool drawAlphaClipMask(GrRenderTargetContext*) const;
+    bool drawStencilClipMask(GrContext*, GrRenderTargetContext*, const SkIPoint& clipOrigin) const;
 
 private:
     void walkStack(const SkClipStack&, const SkRect& queryBounds, int maxWindowRectangles);

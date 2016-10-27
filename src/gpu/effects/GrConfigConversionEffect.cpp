@@ -7,7 +7,7 @@
 
 #include "GrConfigConversionEffect.h"
 #include "GrContext.h"
-#include "GrDrawContext.h"
+#include "GrRenderTargetContext.h"
 #include "GrInvariantOutput.h"
 #include "GrSimpleTextureEffect.h"
 #include "SkMatrix.h"
@@ -184,10 +184,12 @@ void GrConfigConversionEffect::TestForPreservingPMConversions(GrContext* context
         }
     }
 
-    sk_sp<GrDrawContext> readDC(context->makeDrawContext(SkBackingFit::kExact, kSize, kSize,
-                                                         kConfig, nullptr));
-    sk_sp<GrDrawContext> tempDC(context->makeDrawContext(SkBackingFit::kExact, kSize, kSize,
-                                                         kConfig, nullptr));
+    sk_sp<GrRenderTargetContext> readDC(context->makeRenderTargetContext(SkBackingFit::kExact,
+                                                                         kSize, kSize,
+                                                                         kConfig, nullptr));
+    sk_sp<GrRenderTargetContext> tempDC(context->makeRenderTargetContext(SkBackingFit::kExact,
+                                                                         kSize, kSize,
+                                                                         kConfig, nullptr));
     if (!readDC || !tempDC) {
         return;
     }

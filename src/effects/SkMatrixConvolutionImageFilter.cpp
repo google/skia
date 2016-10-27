@@ -17,7 +17,7 @@
 
 #if SK_SUPPORT_GPU
 #include "GrContext.h"
-#include "GrDrawContext.h"
+#include "GrRenderTargetContext.h"
 #include "effects/GrMatrixConvolutionEffect.h"
 #endif
 

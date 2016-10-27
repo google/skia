@@ -40,7 +40,7 @@ static GrRenderTarget* prepare_rt_for_external_access(SkSurface_Gpu* surface,
 
     // Grab the render target *after* firing notifications, as it may get switched if CoW kicks in.
     surface->getDevice()->flush();
-    GrDrawContext* dc = surface->getDevice()->accessDrawContext();
+    GrRenderTargetContext* dc = surface->getDevice()->accessRenderTargetContext();
     return dc->accessRenderTarget();
 }
 
@@ -67,8 +67,8 @@ SkCanvas* SkSurface_Gpu::onNewCanvas() {
 }
 
 sk_sp<SkSurface> SkSurface_Gpu::onNewSurface(const SkImageInfo& info) {
-    int sampleCount = fDevice->accessDrawContext()->numColorSamples();
-    GrSurfaceOrigin origin = fDevice->accessDrawContext()->origin();
+    int sampleCount = fDevice->accessRenderTargetContext()->numColorSamples();
+    GrSurfaceOrigin origin = fDevice->accessRenderTargetContext()->origin();
     // TODO: Make caller specify this (change virtual signature of onNewSurface).
     static const SkBudgeted kBudgeted = SkBudgeted::kNo;
     return SkSurface::MakeRenderTarget(fDevice->context(), kBudgeted, info, sampleCount,
@@ -76,7 +76,7 @@ sk_sp<SkSurface> SkSurface_Gpu::onNewSurface(const SkImageInfo& info) {
 }
 
 sk_sp<SkImage> SkSurface_Gpu::onNewImageSnapshot(SkBudgeted budgeted, SkCopyPixelsMode cpm) {
-    GrRenderTarget* rt = fDevice->accessDrawContext()->accessRenderTarget();
+    GrRenderTarget* rt = fDevice->accessRenderTargetContext()->accessRenderTarget();
     SkASSERT(rt);
     GrTexture* tex = rt->asTexture();
     SkAutoTUnref<GrTexture> copy;
@@ -84,7 +84,7 @@ sk_sp<SkImage> SkSurface_Gpu::onNewImageSnapshot(SkBudgeted budgeted, SkCopyPixe
     // want to ever retarget the SkSurface at another buffer we create. Force a copy now to avoid
     // copy-on-write.
     if (kAlways_SkCopyPixelsMode == cpm || !tex || rt->resourcePriv().refsWrappedObjects()) {
-        GrSurfaceDesc desc = fDevice->accessDrawContext()->desc();
+        GrSurfaceDesc desc = fDevice->accessRenderTargetContext()->desc();
         GrContext* ctx = fDevice->context();
         desc.fFlags = desc.fFlags & ~kRenderTarget_GrSurfaceFlag;
         copy.reset(ctx->textureProvider()->createTexture(desc, budgeted));
@@ -110,13 +110,13 @@ sk_sp<SkImage> SkSurface_Gpu::onNewImageSnapshot(SkBudgeted budgeted, SkCopyPixe
 // render target into it. Note that this flushes the SkGpuDevice but
 // doesn't force an OpenGL flush.
 void SkSurface_Gpu::onCopyOnWrite(ContentChangeMode mode) {
-    GrRenderTarget* rt = fDevice->accessDrawContext()->accessRenderTarget();
+    GrRenderTarget* rt = fDevice->accessRenderTargetContext()->accessRenderTarget();
     // are we sharing our render target with the image? Note this call should never create a new
     // image because onCopyOnWrite is only called when there is a cached image.
     sk_sp<SkImage> image(this->refCachedImage(SkBudgeted::kNo, kNo_ForceUnique));
     SkASSERT(image);
     if (rt->asTexture() == as_IB(image)->peekTexture()) {
-        this->fDevice->replaceDrawContext(SkSurface::kRetain_ContentChangeMode == mode);
+        this->fDevice->replaceRenderTargetContext(SkSurface::kRetain_ContentChangeMode == mode);
         SkTextureImageApplyBudgetedDecision(image.get());
     } else if (kDiscard_ContentChangeMode == mode) {
         this->SkSurface_Gpu::onDiscard();
@@ -124,7 +124,7 @@ void SkSurface_Gpu::onCopyOnWrite(ContentChangeMode mode) {
 }
 
 void SkSurface_Gpu::onDiscard() {
-    fDevice->accessDrawContext()->discard();
+    fDevice->accessRenderTargetContext()->discard();
 }
 
 void SkSurface_Gpu::onPrepareForExternalIO() {
@@ -192,7 +192,7 @@ sk_sp<SkSurface> SkSurface::MakeFromBackendTexture(GrContext* context,
         return nullptr;
     }
 
-    sk_sp<GrDrawContext> dc(context->contextPriv().makeBackendTextureDrawContext(
+    sk_sp<GrRenderTargetContext> dc(context->contextPriv().makeBackendTextureRenderTargetContext(
                                                                     desc,
                                                                     std::move(colorSpace),
                                                                     props,
@@ -220,10 +220,10 @@ sk_sp<SkSurface> SkSurface::MakeFromBackendRenderTarget(GrContext* context,
         return nullptr;
     }
 
-    sk_sp<GrDrawContext> dc(context->contextPriv().makeBackendRenderTargetDrawContext(
-                                                                            desc,
-                                                                            std::move(colorSpace),
-                                                                            props));
+    sk_sp<GrRenderTargetContext> dc(
+        context->contextPriv().makeBackendRenderTargetRenderTargetContext(desc,
+                                                                          std::move(colorSpace),
+                                                                          props));
     if (!dc) {
         return nullptr;
     }
@@ -248,10 +248,11 @@ sk_sp<SkSurface> SkSurface::MakeFromBackendTextureAsRenderTarget(GrContext* cont
         return nullptr;
     }
 
-    sk_sp<GrDrawContext> dc(context->contextPriv().makeBackendTextureAsRenderTargetDrawContext(
-                                                                            desc,
-                                                                            std::move(colorSpace),
-                                                                            props));
+    sk_sp<GrRenderTargetContext> dc(
+        context->contextPriv().makeBackendTextureAsRenderTargetRenderTargetContext(
+                                                                              desc,
+                                                                              std::move(colorSpace),
+                                                                              props));
     if (!dc) {
         return nullptr;
     }

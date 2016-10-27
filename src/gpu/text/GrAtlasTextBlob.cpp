@@ -9,7 +9,7 @@
 
 #include "GrBlurUtils.h"
 #include "GrContext.h"
-#include "GrDrawContext.h"
+#include "GrRenderTargetContext.h"
 #include "GrPipelineBuilder.h"
 #include "GrTextUtils.h"
 #include "SkColorFilter.h"
@@ -303,7 +303,7 @@ inline GrDrawBatch* GrAtlasTextBlob::createBatch(
 }
 
 inline
-void GrAtlasTextBlob::flushRun(GrDrawContext* dc, const GrPaint& grPaint,
+void GrAtlasTextBlob::flushRun(GrRenderTargetContext* dc, const GrPaint& grPaint,
                                const GrClip& clip, int run, const SkMatrix& viewMatrix, SkScalar x,
                                SkScalar y,
                                const SkPaint& skPaint, const SkSurfaceProps& props,
@@ -351,7 +351,7 @@ static void calculate_translation(bool applyVM,
 }
 
 
-void GrAtlasTextBlob::flushBigGlyphs(GrContext* context, GrDrawContext* dc,
+void GrAtlasTextBlob::flushBigGlyphs(GrContext* context, GrRenderTargetContext* dc,
                                      const GrClip& clip, const SkPaint& skPaint,
                                      const SkMatrix& viewMatrix, SkScalar x, SkScalar y,
                                      const SkIRect& clipBounds) {
@@ -372,7 +372,7 @@ void GrAtlasTextBlob::flushBigGlyphs(GrContext* context, GrDrawContext* dc,
     }
 }
 
-void GrAtlasTextBlob::flushRunAsPaths(GrContext* context, GrDrawContext* dc,
+void GrAtlasTextBlob::flushRunAsPaths(GrContext* context, GrRenderTargetContext* dc,
                                       const SkSurfaceProps& props,
                                       const SkTextBlobRunIterator& it,
                                       const GrClip& clip, const SkPaint& skPaint,
@@ -412,7 +412,7 @@ void GrAtlasTextBlob::flushRunAsPaths(GrContext* context, GrDrawContext* dc,
 }
 
 void GrAtlasTextBlob::flushCached(GrContext* context,
-                                  GrDrawContext* dc,
+                                  GrRenderTargetContext* dc,
                                   const SkTextBlob* blob,
                                   const SkSurfaceProps& props,
                                   const GrDistanceFieldAdjustTable* distanceAdjustTable,
@@ -441,7 +441,7 @@ void GrAtlasTextBlob::flushCached(GrContext* context,
 }
 
 void GrAtlasTextBlob::flushThrowaway(GrContext* context,
-                                     GrDrawContext* dc,
+                                     GrRenderTargetContext* dc,
                                      const SkSurfaceProps& props,
                                      const GrDistanceFieldAdjustTable* distanceAdjustTable,
                                      const SkPaint& skPaint,
