@@ -15,13 +15,13 @@
 class GrAuditTrail;
 class GrBatch;
 class GrGpu;
-class GrTexture;
+class GrTextureProxy;
 struct SkIPoint;
 struct SkIRect;
 
 class GrTextureOpList final : public GrOpList {
 public:
-    GrTextureOpList(GrTexture*, GrGpu*, GrAuditTrail*);
+    GrTextureOpList(GrTextureProxy*, GrGpu*, GrAuditTrail*);
 
     ~GrTextureOpList() override;
 

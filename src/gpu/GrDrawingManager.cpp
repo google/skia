@@ -10,6 +10,7 @@
 #include "GrContext.h"
 #include "GrRenderTargetContext.h"
 #include "GrPathRenderingRenderTargetContext.h"
+#include "GrRenderTargetProxy.h"
 #include "GrResourceProvider.h"
 #include "GrSoftwarePathRenderer.h"
 #include "GrSurfacePriv.h"
@@ -142,7 +143,7 @@ void GrDrawingManager::prepareSurfaceForExternalIO(GrSurface* surface) {
     }
 }
 
-GrRenderTargetOpList* GrDrawingManager::newOpList(GrRenderTarget* rt) {
+GrRenderTargetOpList* GrDrawingManager::newOpList(GrRenderTargetProxy* rtp) {
     SkASSERT(fContext);
 
 #ifndef ENABLE_MDB
@@ -151,7 +152,7 @@ GrRenderTargetOpList* GrDrawingManager::newOpList(GrRenderTarget* rt) {
         SkASSERT(fOpLists.count() == 1);
         // In the non-MDB-world the same GrOpList gets reused for multiple render targets.
         // Update this pointer so all the asserts are happy
-        rt->setLastOpList(fOpLists[0]);
+        rtp->setLastOpList(fOpLists[0]);
         // DrawingManager gets the creation ref - this ref is for the caller
 
         // TODO: although this is true right now it isn't cool
@@ -159,7 +160,7 @@ GrRenderTargetOpList* GrDrawingManager::newOpList(GrRenderTarget* rt) {
     }
 #endif
 
-    GrRenderTargetOpList* opList = new GrRenderTargetOpList(rt,
+    GrRenderTargetOpList* opList = new GrRenderTargetOpList(rtp,
                                                             fContext->getGpu(),
                                                             fContext->resourceProvider(),
                                                             fContext->getAuditTrail(),
@@ -208,9 +209,9 @@ GrPathRenderer* GrDrawingManager::getPathRenderer(const GrPathRenderer::CanDrawP
 }
 
 sk_sp<GrRenderTargetContext> GrDrawingManager::makeRenderTargetContext(
-                                                               sk_sp<GrRenderTarget> rt,
-                                                               sk_sp<SkColorSpace> colorSpace,
-                                                               const SkSurfaceProps* surfaceProps) {
+                                                            sk_sp<GrRenderTargetProxy> rtp,
+                                                            sk_sp<SkColorSpace> colorSpace,
+                                                            const SkSurfaceProps* surfaceProps) {
     if (this->wasAbandoned()) {
         return nullptr;
     }
@@ -218,7 +219,7 @@ sk_sp<GrRenderTargetContext> GrDrawingManager::makeRenderTargetContext(
     // SkSurface catches bad color space usage at creation. This check handles anything that slips
     // by, including internal usage. We allow a null color space here, for read/write pixels and
     // other special code paths. If a color space is provided, though, enforce all other rules.
-    if (colorSpace && !SkSurface_Gpu::Valid(fContext, rt->config(), colorSpace.get())) {
+    if (colorSpace && !SkSurface_Gpu::Valid(fContext, rtp->config(), colorSpace.get())) {
         SkDEBUGFAIL("Invalid config and colorspace combination");
         return nullptr;
     }
@@ -229,17 +230,19 @@ sk_sp<GrRenderTargetContext> GrDrawingManager::makeRenderTargetContext(
     }
 
     if (useDIF && fContext->caps()->shaderCaps()->pathRenderingSupport() &&
-        rt->isStencilBufferMultisampled()) {
+        rtp->isStencilBufferMultisampled()) {
+        // TODO: defer stencil buffer attachment for PathRenderingDrawContext
+        sk_sp<GrRenderTarget> rt(sk_ref_sp(rtp->instantiate(fContext->textureProvider())));
         GrStencilAttachment* sb = fContext->resourceProvider()->attachStencilAttachment(rt.get());
         if (sb) {
             return sk_sp<GrRenderTargetContext>(new GrPathRenderingRenderTargetContext(
-                                                        fContext, this, std::move(rt),
+                                                        fContext, this, std::move(rtp),
                                                         std::move(colorSpace), surfaceProps,
                                                         fContext->getAuditTrail(), fSingleOwner));
         }
     }
 
-    return sk_sp<GrRenderTargetContext>(new GrRenderTargetContext(fContext, this, std::move(rt),
+    return sk_sp<GrRenderTargetContext>(new GrRenderTargetContext(fContext, this, std::move(rtp),
                                                                   std::move(colorSpace),
                                                                   surfaceProps,
                                                                   fContext->getAuditTrail(),
