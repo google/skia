@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "86081a1d_189d25f0",
+        "filename": "src/core/SkXfermode.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 1437,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2016-10-27T18:12:53Z",
+      "side": 0,
+      "message": "There will be a merge conflict here but I think the fix is, delete all this.",
+      "revId": "82364bae1690d0f4421afa0116441d99ce35b92a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
