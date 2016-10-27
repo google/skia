@@ -1486,6 +1486,8 @@ sk_sp<GrXPFactory> SkBlendMode_AsXPFactory(SkBlendMode mode) {
 }
 #endif
 
+bool SkBlendMode_CanOverflow(SkBlendMode mode) { return mode == SkBlendMode::kPlus; }
+
 bool SkBlendMode_AppendStages(SkBlendMode mode, SkRasterPipeline* p) {
     auto stage = SkRasterPipeline::srcover;
     switch (mode) {

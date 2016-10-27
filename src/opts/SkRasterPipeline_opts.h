@@ -131,19 +131,6 @@ SI void SK_VECTORCALL next(TailStage* st, size_t x, size_t tail,
     static SK_ALWAYS_INLINE SkNf name##_kernel(const SkNf& s, const SkNf& sa,   \
                                                const SkNf& d, const SkNf& da)
 
-// Clamp colors into [0,1] premul (e.g. just before storing back to memory).
-SI void clamp_01_premul(SkNf& r, SkNf& g, SkNf& b, SkNf& a) {
-    a = SkNf::Max(a, 0.0f);
-    r = SkNf::Max(r, 0.0f);
-    g = SkNf::Max(g, 0.0f);
-    b = SkNf::Max(b, 0.0f);
-
-    a = SkNf::Min(a, 1.0f);
-    r = SkNf::Min(r, a);
-    g = SkNf::Min(g, a);
-    b = SkNf::Min(b, a);
-}
-
 SI SkNf inv(const SkNf& x) { return 1.0f - x; }
 
 SI SkNf lerp(const SkNf& from, const SkNf& to, const SkNf& cov) {
@@ -204,6 +191,22 @@ SI SkNh to_565(const SkNf& r, const SkNf& g, const SkNf& b) {
 }
 
 STAGE(just_return, false) { }
+
+/*  We don't seem to have a need for this yet.
+STAGE(clamp_0, true) {
+    a = SkNf::Max(a, 0.0f);
+    r = SkNf::Max(r, 0.0f);
+    g = SkNf::Max(g, 0.0f);
+    b = SkNf::Max(b, 0.0f);
+}
+*/
+
+STAGE(clamp_1, true) {
+    a = SkNf::Min(a, 1.0f);
+    r = SkNf::Min(r, a);
+    g = SkNf::Min(g, a);
+    b = SkNf::Min(b, a);
+}
 
 STAGE(swap_src_dst, true) {
     SkTSwap(r,dr);
@@ -278,7 +281,6 @@ STAGE(load_s_565, true) {
 }
 
 STAGE(store_565, false) {
-    clamp_01_premul(r,g,b,a);
     auto ptr = *(uint16_t**)ctx + x;
     store<kIsTail>(tail, to_565(r,g,b), ptr);
 }
@@ -336,7 +338,6 @@ STAGE(load_s_f16, true) {
 }
 
 STAGE(store_f16, false) {
-    clamp_01_premul(r,g,b,a);
     auto ptr = *(uint64_t**)ctx + x;
 
     uint64_t buf[8];
@@ -382,7 +383,6 @@ STAGE(load_s_srgb, true) {
 }
 
 STAGE(store_srgb, false) {
-    clamp_01_premul(r,g,b,a);
     auto ptr = *(uint32_t**)ctx + x;
     store<kIsTail>(tail, (      sk_linear_to_srgb_noclamp(r) << SK_R32_SHIFT
                          |      sk_linear_to_srgb_noclamp(g) << SK_G32_SHIFT
