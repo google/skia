@@ -730,9 +730,8 @@ DEFINE_string(svgDir, "", "Read SVGs from here.");
 DEFINE_string(sequence, "", "Path to file containing the desired samples/gms to show.");
 DEFINE_bool(sort, false, "Sort samples by title.");
 DEFINE_bool(list, false, "List samples?");
-DEFINE_bool(gpu, false, "Start up with gpu?");
+DEFINE_bool(startgpu, false, "Start up with gpu?");
 DEFINE_bool(redraw, false, "Force continuous redrawing, for profiling or debugging tools.");
-DEFINE_string(key, "", "");  // dummy to enable gm tests that have platform-specific names
 #ifdef SAMPLE_PDF_FILE_VIEWER
 DEFINE_string(pdfPath, "", "Path to direcotry of pdf files.");
 #endif
@@ -852,7 +851,7 @@ SampleWindow::SampleWindow(void* hwnd, int argc, char** argv, DeviceManager* dev
 
     fDeviceType = kRaster_DeviceType;
 #if SK_SUPPORT_GPU
-    if (FLAGS_gpu) {
+    if (FLAGS_startgpu) {
         fDeviceType = kGPU_DeviceType;
     }
 #endif
@@ -1614,7 +1613,7 @@ static sk_sp<SkColorSpace> getMonitorColorSpace() {
             if (dc) {
                 char icmPath[MAX_PATH + 1];
                 DWORD pathLength = MAX_PATH;
-                BOOL success = GetICMProfile(dc, &pathLength, icmPath);
+                BOOL success = GetICMProfileA(dc, &pathLength, icmPath);
                 DeleteDC(dc);
                 if (success) {
                     sk_sp<SkData> iccData = SkData::MakeFromFileName(icmPath);
