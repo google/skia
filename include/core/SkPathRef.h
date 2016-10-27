@@ -26,8 +26,8 @@ class SkWBuffer;
  * modify the contents. To modify or append to the verbs/points wrap the SkPathRef in an
  * SkPathRef::Editor object. Installing the editor resets the generation ID. It also performs
  * copy-on-write if the SkPathRef is shared by multiple SkPaths. The caller passes the Editor's
- * constructor a SkAutoTUnref, which may be updated to point to a new SkPathRef after the editor's
- * constructor returns.
+ * constructor a pointer to a sk_sp<SkPathRef>, which may be updated to point to a new SkPathRef
+ * after the editor's constructor returns.
  *
  * The points and verbs are stored in a single allocation. The points are at the begining of the
  * allocation while the verbs are stored at end of the allocation, in reverse order. Thus the points
@@ -40,7 +40,7 @@ class SK_API SkPathRef final : public SkNVRefCnt<SkPathRef> {
 public:
     class Editor {
     public:
-        Editor(SkAutoTUnref<SkPathRef>* pathRef,
+        Editor(sk_sp<SkPathRef>* pathRef,
                int incReserveVerbs = 0,
                int incReservePoints = 0);
 
@@ -230,7 +230,7 @@ public:
     /**
      * Transforms a path ref by a matrix, allocating a new one only if necessary.
      */
-    static void CreateTransformedCopy(SkAutoTUnref<SkPathRef>* dst,
+    static void CreateTransformedCopy(sk_sp<SkPathRef>* dst,
                                       const SkPathRef& src,
                                       const SkMatrix& matrix);
 
@@ -241,7 +241,7 @@ public:
      * repopulated with approximately the same number of verbs and points. A new path ref is created
      * only if necessary.
      */
-    static void Rewind(SkAutoTUnref<SkPathRef>* pathRef);
+    static void Rewind(sk_sp<SkPathRef>* pathRef);
 
     ~SkPathRef();
     int countPoints() const { SkDEBUGCODE(this->validate();) return fPointCnt; }

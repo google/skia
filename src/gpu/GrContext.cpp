@@ -132,11 +132,11 @@ GrContext::~GrContext() {
     fCaps->unref();
 }
 
-GrContextThreadSafeProxy* GrContext::threadSafeProxy() {
+sk_sp<GrContextThreadSafeProxy> GrContext::threadSafeProxy() {
     if (!fThreadSafeProxy) {
-        fThreadSafeProxy.reset(new GrContextThreadSafeProxy(fCaps, this->uniqueID()));
+        fThreadSafeProxy.reset(new GrContextThreadSafeProxy(sk_ref_sp(fCaps), this->uniqueID()));
     }
-    return SkRef(fThreadSafeProxy.get());
+    return fThreadSafeProxy;
 }
 
 void GrContext::abandonContext() {

@@ -319,15 +319,14 @@ static SkIRect compute_device_bounds(SkBaseDevice* device) {
 class SkDrawIter : public SkDraw {
 public:
     SkDrawIter(SkCanvas* canvas) {
-        canvas = canvas->canvasForDrawIter();
         canvas->updateDeviceCMCache();
 
-        fClipStack = canvas->fClipStack;
+        fClipStack = canvas->getClipStack();
         fCurrLayer = canvas->fMCRec->fTopLayer;
 
         fMultiDeviceCS = nullptr;
         if (fCurrLayer->fNext) {
-            fMultiDeviceCS = canvas->fClipStack;
+            fMultiDeviceCS = canvas->fClipStack.get();
             fMultiDeviceCS->save();
         }
     }
@@ -964,10 +963,6 @@ bool SkCanvas::writePixels(const SkImageInfo& origInfo, const void* pixels, size
 
     // The device can assert that the requested area is always contained in its bounds
     return device->writePixels(info, pixels, rowBytes, target.x(), target.y());
-}
-
-SkCanvas* SkCanvas::canvasForDrawIter() {
-    return this;
 }
 
 //////////////////////////////////////////////////////////////////////////////

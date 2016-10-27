@@ -190,7 +190,8 @@ GrTexture* GrGpu::createTexture(const GrSurfaceDesc& origDesc, SkBudgeted budget
     return tex;
 }
 
-GrTexture* GrGpu::wrapBackendTexture(const GrBackendTextureDesc& desc, GrWrapOwnership ownership) {
+sk_sp<GrTexture> GrGpu::wrapBackendTexture(const GrBackendTextureDesc& desc,
+                                           GrWrapOwnership ownership) {
     this->handleDirtyContext();
     if (!this->caps()->isConfigTexturable(desc.fConfig)) {
         return nullptr;
@@ -203,22 +204,20 @@ GrTexture* GrGpu::wrapBackendTexture(const GrBackendTextureDesc& desc, GrWrapOwn
     if (desc.fWidth > maxSize || desc.fHeight > maxSize) {
         return nullptr;
     }
-    GrTexture* tex = this->onWrapBackendTexture(desc, ownership);
-    if (nullptr == tex) {
+    sk_sp<GrTexture> tex = this->onWrapBackendTexture(desc, ownership);
+    if (!tex) {
         return nullptr;
     }
     // TODO: defer this and attach dynamically
     GrRenderTarget* tgt = tex->asRenderTarget();
     if (tgt && !fContext->resourceProvider()->attachStencilAttachment(tgt)) {
-        tex->unref();
         return nullptr;
-    } else {
-        return tex;
     }
+    return tex;
 }
 
-GrRenderTarget* GrGpu::wrapBackendRenderTarget(const GrBackendRenderTargetDesc& desc,
-                                               GrWrapOwnership ownership) {
+sk_sp<GrRenderTarget> GrGpu::wrapBackendRenderTarget(const GrBackendRenderTargetDesc& desc,
+                                                     GrWrapOwnership ownership) {
     if (!this->caps()->isConfigRenderable(desc.fConfig, desc.fSampleCnt > 0)) {
         return nullptr;
     }
@@ -226,7 +225,7 @@ GrRenderTarget* GrGpu::wrapBackendRenderTarget(const GrBackendRenderTargetDesc& 
     return this->onWrapBackendRenderTarget(desc, ownership);
 }
 
-GrRenderTarget* GrGpu::wrapBackendTextureAsRenderTarget(const GrBackendTextureDesc& desc) {
+sk_sp<GrRenderTarget> GrGpu::wrapBackendTextureAsRenderTarget(const GrBackendTextureDesc& desc) {
     this->handleDirtyContext();
     if (!(desc.fFlags & kRenderTarget_GrBackendTextureFlag)) {
       return nullptr;

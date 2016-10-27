@@ -31,10 +31,10 @@ public:
         bool                       fIsMixedSampled;
     };
 
-    static GrGLRenderTarget* CreateWrapped(GrGLGpu*,
-                                           const GrSurfaceDesc&,
-                                           const IDDesc&,
-                                           int stencilBits);
+    static sk_sp<GrGLRenderTarget> MakeWrapped(GrGLGpu*,
+                                               const GrSurfaceDesc&,
+                                               const IDDesc&,
+                                               int stencilBits);
 
     void setViewport(const GrGLIRect& rect) { fViewport = rect; }
     const GrGLIRect& getViewport() const { return fViewport; }

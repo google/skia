@@ -60,7 +60,7 @@ public:
 
     virtual ~GrContext();
 
-    GrContextThreadSafeProxy* threadSafeProxy();
+    sk_sp<GrContextThreadSafeProxy> threadSafeProxy();
 
     /**
      * The GrContext normally assumes that no outsider is setting state
@@ -327,7 +327,7 @@ public:
     GrGpu* getGpu() { return fGpu; }
     const GrGpu* getGpu() const { return fGpu; }
     GrBatchFontCache* getBatchFontCache() { return fBatchFontCache; }
-    GrTextBlobCache* getTextBlobCache() { return fTextBlobCache; }
+    GrTextBlobCache* getTextBlobCache() { return fTextBlobCache.get(); }
     bool abandoned() const;
     GrResourceProvider* resourceProvider() { return fResourceProvider; }
     const GrResourceProvider* resourceProvider() const { return fResourceProvider; }
@@ -383,10 +383,10 @@ private:
         GrTextureProvider*                  fTextureProvider;
     };
 
-    SkAutoTUnref<GrContextThreadSafeProxy>  fThreadSafeProxy;
+    sk_sp<GrContextThreadSafeProxy>         fThreadSafeProxy;
 
     GrBatchFontCache*                       fBatchFontCache;
-    SkAutoTDelete<GrTextBlobCache>          fTextBlobCache;
+    std::unique_ptr<GrTextBlobCache>        fTextBlobCache;
 
     bool                                    fDidTestPMConversions;
     int                                     fPMToUPMConversion;
@@ -418,7 +418,7 @@ private:
 
     const uint32_t                          fUniqueID;
 
-    SkAutoTDelete<GrDrawingManager>         fDrawingManager;
+    std::unique_ptr<GrDrawingManager>       fDrawingManager;
 
     GrAuditTrail                            fAuditTrail;
 
@@ -463,12 +463,12 @@ private:
  */
 class GrContextThreadSafeProxy : public SkRefCnt {
 private:
-    GrContextThreadSafeProxy(const GrCaps* caps, uint32_t uniqueID)
-        : fCaps(SkRef(caps))
+    GrContextThreadSafeProxy(sk_sp<const GrCaps> caps, uint32_t uniqueID)
+        : fCaps(std::move(caps))
         , fContextUniqueID(uniqueID) {}
 
-    SkAutoTUnref<const GrCaps>  fCaps;
-    uint32_t                    fContextUniqueID;
+    sk_sp<const GrCaps> fCaps;
+    uint32_t            fContextUniqueID;
 
     friend class GrContext;
     friend class SkImage;

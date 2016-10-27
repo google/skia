@@ -164,7 +164,7 @@ public:
       *
       * @return GrRenderTarget object or NULL on failure.
       */
-     GrRenderTarget* wrapBackendTextureAsRenderTarget(const GrBackendTextureDesc& desc);
+     sk_sp<GrRenderTarget> wrapBackendTextureAsRenderTarget(const GrBackendTextureDesc& desc);
 
 private:
     const GrBuffer* createInstancedIndexBuffer(const uint16_t* pattern,

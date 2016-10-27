@@ -22,7 +22,7 @@ static void DrawDeferredTextureImageData(SkCanvas* canvas,
         skiagm::GM::DrawGpuOnlyMessage(canvas);
         return;
     }
-    SkAutoTUnref<GrContextThreadSafeProxy> proxy(context->threadSafeProxy());
+    sk_sp<GrContextThreadSafeProxy> proxy(context->threadSafeProxy());
 
 
 
@@ -80,7 +80,7 @@ static void DrawDeferredTextureImageMipMapTree(SkCanvas* canvas, SkImage* image,
         skiagm::GM::DrawGpuOnlyMessage(canvas);
         return;
     }
-    SkAutoTUnref<GrContextThreadSafeProxy> proxy(context->threadSafeProxy());
+    sk_sp<GrContextThreadSafeProxy> proxy(context->threadSafeProxy());
 
     SkPaint paint;
     paint.setFilterQuality(params->fQuality);

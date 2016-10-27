@@ -4007,7 +4007,7 @@ public:
     static void TestPathRef(skiatest::Reporter* reporter) {
         static const int kRepeatCnt = 10;
 
-        SkAutoTUnref<SkPathRef> pathRef(new SkPathRef);
+        sk_sp<SkPathRef> pathRef(new SkPathRef);
 
         SkPathRef::Editor ed(&pathRef);
 

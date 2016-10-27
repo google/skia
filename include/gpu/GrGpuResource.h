@@ -46,7 +46,7 @@ class SkTraceMemoryDump;
 template <typename DERIVED> class GrIORef : public SkNoncopyable {
 public:
     // Some of the signatures are written to mirror SkRefCnt so that GrGpuResource can work with
-    // templated helper classes (e.g. SkAutoTUnref). However, we have different categories of
+    // templated helper classes (e.g. sk_sp). However, we have different categories of
     // refs (e.g. pending reads). We also don't require thread safety as GrCacheable objects are
     // not intended to cross thread boundaries.
     void ref() const {

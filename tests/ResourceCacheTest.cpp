@@ -221,13 +221,14 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(ResourceCacheWrappedResources, reporter, ctxI
     desc.fHeight = kH;
 
     desc.fTextureHandle = texHandles[0];
-    SkAutoTUnref<GrTexture> borrowed(context->textureProvider()->wrapBackendTexture(
-                                     desc, kBorrow_GrWrapOwnership));
+    sk_sp<GrTexture> borrowed(context->textureProvider()->wrapBackendTexture(
+                              desc, kBorrow_GrWrapOwnership));
 
     desc.fTextureHandle = texHandles[1];
-    SkAutoTUnref<GrTexture> adopted(context->textureProvider()->wrapBackendTexture(
-                                    desc, kAdopt_GrWrapOwnership));
+    sk_sp<GrTexture> adopted(context->textureProvider()->wrapBackendTexture(
+                             desc, kAdopt_GrWrapOwnership));
 
+    printf("\nborrowed: %p, adopted: %p\n", borrowed.get(), adopted.get());
     REPORTER_ASSERT(reporter, borrowed != nullptr && adopted != nullptr);
     if (!borrowed || !adopted) {
         return;

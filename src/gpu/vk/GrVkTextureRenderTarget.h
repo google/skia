@@ -28,10 +28,10 @@ public:
                                                                  const GrSurfaceDesc&,
                                                                  const GrVkImage::ImageDesc&);
 
-    static GrVkTextureRenderTarget* CreateWrappedTextureRenderTarget(GrVkGpu*,
-                                                                     const GrSurfaceDesc&,
-                                                                     GrWrapOwnership,
-                                                                     const GrVkImageInfo*);
+    static sk_sp<GrVkTextureRenderTarget> MakeWrappedTextureRenderTarget(GrVkGpu*,
+                                                                         const GrSurfaceDesc&,
+                                                                         GrWrapOwnership,
+                                                                         const GrVkImageInfo*);
 
     bool updateForMipmap(GrVkGpu* gpu, const GrVkImageInfo& newInfo);
 

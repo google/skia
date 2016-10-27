@@ -28,7 +28,7 @@
  * state 2 to state 3. Calling pendingIOComplete() moves from state 2 to state 1. There is no
  * valid way of going from state 3 back to 2 or 1.
  *
- * Like SkAutoTUnref, its constructor and setter adopt a ref from their caller.
+ * Like sk_sp, its constructor and setter adopt a ref from their caller.
  *
  * TODO: Once GrDODrawState no longer exists and therefore GrDrawState and GrOptDrawState no
  * longer share an instance of this class, attempt to make the resource owned by GrGpuResourceRef

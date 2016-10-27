@@ -40,9 +40,9 @@ public:
 
     void dumpMemoryStatistics(SkTraceMemoryDump* traceMemoryDump) const override;
 
-    static GrGLTextureRenderTarget* CreateWrapped(GrGLGpu* gpu, const GrSurfaceDesc& desc,
-                                                  const GrGLTexture::IDDesc& texIDDesc,
-                                                  const GrGLRenderTarget::IDDesc& rtIDDesc);
+    static sk_sp<GrGLTextureRenderTarget> MakeWrapped(GrGLGpu* gpu, const GrSurfaceDesc& desc,
+                                                      const GrGLTexture::IDDesc& texIDDesc,
+                                                      const GrGLRenderTarget::IDDesc& rtIDDesc);
 protected:
     void onAbandon() override {
         GrGLRenderTarget::onAbandon();

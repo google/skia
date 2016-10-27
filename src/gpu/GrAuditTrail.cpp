@@ -88,7 +88,7 @@ void GrAuditTrail::batchingResultCombined(const GrBatch* consumer, const GrBatch
 
 void GrAuditTrail::copyOutFromBatchList(BatchInfo* outBatchInfo, int batchListID) {
     SkASSERT(batchListID < fBatchList.count());
-    const BatchNode* bn = fBatchList[batchListID];
+    const BatchNode* bn = fBatchList[batchListID].get();
     SkASSERT(bn);
     outBatchInfo->fBounds = bn->fBounds;
     outBatchInfo->fRenderTargetUniqueID = bn->fRenderTargetUniqueID;

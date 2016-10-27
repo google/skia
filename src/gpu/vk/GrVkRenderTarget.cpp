@@ -201,11 +201,11 @@ GrVkRenderTarget::CreateNewRenderTarget(GrVkGpu* gpu,
     return rt;
 }
 
-GrVkRenderTarget*
-GrVkRenderTarget::CreateWrappedRenderTarget(GrVkGpu* gpu,
-                                            const GrSurfaceDesc& desc,
-                                            GrWrapOwnership ownership,
-                                            const GrVkImageInfo* info) {
+sk_sp<GrVkRenderTarget>
+GrVkRenderTarget::MakeWrappedRenderTarget(GrVkGpu* gpu,
+                                          const GrSurfaceDesc& desc,
+                                          GrWrapOwnership ownership,
+                                          const GrVkImageInfo* info) {
     SkASSERT(info);
     // We can wrap a rendertarget without its allocation, as long as we don't take ownership
     SkASSERT(VK_NULL_HANDLE != info->fImage);
@@ -214,9 +214,8 @@ GrVkRenderTarget::CreateWrappedRenderTarget(GrVkGpu* gpu,
     GrVkImage::Wrapped wrapped = kBorrow_GrWrapOwnership == ownership ? GrVkImage::kBorrowed_Wrapped
                                                                       : GrVkImage::kAdopted_Wrapped;
 
-    GrVkRenderTarget* rt = GrVkRenderTarget::Create(gpu, SkBudgeted::kNo, desc, *info, wrapped);
-
-    return rt;
+    return sk_sp<GrVkRenderTarget>(
+        GrVkRenderTarget::Create(gpu, SkBudgeted::kNo, desc, *info, wrapped));
 }
 
 bool GrVkRenderTarget::completeStencilAttachment() {

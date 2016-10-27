@@ -70,7 +70,7 @@ public:
         }
 
         DstTexture& operator=(const DstTexture& other) {
-            fTexture.reset(SkSafeRef(other.fTexture.get()));
+            fTexture = other.fTexture;
             fOffset = other.fOffset;
             return *this;
         }
@@ -82,14 +82,13 @@ public:
 
         GrTexture* texture() const { return fTexture.get(); }
 
-        GrTexture* setTexture(GrTexture* texture) {
-            fTexture.reset(SkSafeRef(texture));
-            return texture;
+        void setTexture(sk_sp<GrTexture> texture) {
+            fTexture = std::move(texture);
         }
 
     private:
-        SkAutoTUnref<GrTexture> fTexture;
-        SkIPoint                fOffset;
+        sk_sp<GrTexture> fTexture;
+        SkIPoint         fOffset;
     };
 
     /**

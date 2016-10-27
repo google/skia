@@ -370,7 +370,7 @@ public:
                                       this->subset().width(), this->subset().height());
 
         auto img = sk_sp<SkImage>(new SkImage_Gpu(fTexture->width(), fTexture->height(),
-                                                  this->uniqueID(), fAlphaType, fTexture.get(),
+                                                  this->uniqueID(), fAlphaType, fTexture,
                                                   fColorSpace, SkBudgeted::kNo));
 
         canvas->drawImageRect(img, this->subset(),
@@ -439,7 +439,7 @@ public:
             // The existing GrTexture is already tight so reuse it in the SkImage
             return sk_make_sp<SkImage_Gpu>(fTexture->width(), fTexture->height(),
                                            kNeedNewImageUniqueID,
-                                           fAlphaType, fTexture.get(), fColorSpace,
+                                           fAlphaType, fTexture, fColorSpace,
                                            SkBudgeted::kYes);
         }
 
@@ -454,7 +454,7 @@ public:
         }
         ctx->copySurface(subTx.get(), fTexture.get(), subset, SkIPoint::Make(0, 0));
         return sk_make_sp<SkImage_Gpu>(desc.fWidth, desc.fHeight, kNeedNewImageUniqueID,
-                                       fAlphaType, subTx.get(), fColorSpace, SkBudgeted::kYes);
+                                       fAlphaType, std::move(subTx), fColorSpace, SkBudgeted::kYes);
     }
 
     sk_sp<SkSurface> onMakeTightSurface(const SkImageFilter::OutputProperties& outProps,

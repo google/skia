@@ -1161,16 +1161,14 @@ DEF_GPUTEST(PorterDuffNoDualSourceBlending, reporter, /*factory*/) {
     }
 
     GrBackendObject backendTex =
-        ctx->getGpu()->createTestingOnlyBackendTexture(nullptr, 100, 100,
-                                                           kRGBA_8888_GrPixelConfig);
+        ctx->getGpu()->createTestingOnlyBackendTexture(nullptr, 100, 100, kRGBA_8888_GrPixelConfig);
     GrBackendTextureDesc fakeDesc;
     fakeDesc.fConfig = kRGBA_8888_GrPixelConfig;
     fakeDesc.fWidth = fakeDesc.fHeight = 100;
     fakeDesc.fTextureHandle = backendTex;
-    SkAutoTUnref<GrTexture> fakeTexture(ctx->textureProvider()->wrapBackendTexture(fakeDesc,
-        kBorrow_GrWrapOwnership));
     GrXferProcessor::DstTexture fakeDstTexture;
-    fakeDstTexture.setTexture(fakeTexture);
+    fakeDstTexture.setTexture(
+        ctx->textureProvider()->wrapBackendTexture(fakeDesc, kBorrow_GrWrapOwnership));
 
     static const GrColor testColors[] = {
         0,

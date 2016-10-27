@@ -236,11 +236,8 @@ SkRefCntSet* SkBinaryWriteBuffer::setTypefaceRecorder(SkRefCntSet* rec) {
     return rec;
 }
 
-void SkBinaryWriteBuffer::setPixelSerializer(SkPixelSerializer* serializer) {
-    fPixelSerializer.reset(serializer);
-    if (serializer) {
-        serializer->ref();
-    }
+void SkBinaryWriteBuffer::setPixelSerializer(sk_sp<SkPixelSerializer> serializer) {
+    fPixelSerializer = std::move(serializer);
 }
 
 void SkBinaryWriteBuffer::writeFlattenable(const SkFlattenable* flattenable) {

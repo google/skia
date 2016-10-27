@@ -775,7 +775,7 @@ protected:
 private:
     const SkEncodedInfo                fEncodedInfo;
     const SkImageInfo                  fSrcInfo;
-    SkAutoTDelete<SkStream>            fStream;
+    std::unique_ptr<SkStream>          fStream;
     bool                               fNeedsRewind;
     const Origin                       fOrigin;
 

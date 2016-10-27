@@ -1357,7 +1357,7 @@ public:
      *  @return the current clip stack ("list" of individual clip elements)
      */
     const SkClipStack* getClipStack() const {
-        return fClipStack;
+        return fClipStack.get();
     }
 
     typedef SkCanvasClipVisitor ClipVisitor;
@@ -1516,12 +1516,6 @@ protected:
                                        const SkShadowParams& params);
 #endif
 
-    // Returns the canvas to be used by DrawIter. Default implementation
-    // returns this. Subclasses that encapsulate an indirect canvas may
-    // need to overload this method. The impl must keep track of this, as it
-    // is not released or deleted by the caller.
-    virtual SkCanvas* canvasForDrawIter();
-
     // Clip rectangle bounds. Called internally by saveLayer.
     // returns false if the entire rectangle is entirely clipped out
     // If non-NULL, The imageFilter parameter will be used to expand the clip
@@ -1592,7 +1586,7 @@ private:
 
     class MCRec;
 
-    SkAutoTUnref<SkClipStack> fClipStack;
+    sk_sp<SkClipStack> fClipStack;
     SkDeque     fMCStack;
     // points to top of stack
     MCRec*      fMCRec;

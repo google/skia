@@ -187,7 +187,7 @@ DEF_GPUTEST_FOR_GL_RENDERING_CONTEXTS(RectangleTexture, reporter, ctxInfo) {
             }
         }
 
-        SkAutoTUnref<GrTexture> rectangleTexture(
+        sk_sp<GrTexture> rectangleTexture(
             context->textureProvider()->wrapBackendTexture(rectangleDesc));
         if (!rectangleTexture) {
             ERRORF(reporter, "Error wrapping rectangle texture in GrTexture.");
@@ -195,15 +195,15 @@ DEF_GPUTEST_FOR_GL_RENDERING_CONTEXTS(RectangleTexture, reporter, ctxInfo) {
             continue;
         }
 
-        test_read_pixels(reporter, context, rectangleTexture, refPixels);
+        test_read_pixels(reporter, context, rectangleTexture.get(), refPixels);
 
-        test_copy_surface_src(reporter, context, rectangleTexture, refPixels);
+        test_copy_surface_src(reporter, context, rectangleTexture.get(), refPixels);
 
-        test_copy_surface_dst(reporter, context, rectangleTexture);
+        test_copy_surface_dst(reporter, context, rectangleTexture.get());
 
-        test_write_pixels(reporter, context, rectangleTexture);
+        test_write_pixels(reporter, context, rectangleTexture.get());
 
-        test_clear(reporter, context, rectangleTexture);
+        test_clear(reporter, context, rectangleTexture.get());
 
         GR_GL_CALL(glContext->gl(), DeleteTextures(1, &rectTexID));
     }

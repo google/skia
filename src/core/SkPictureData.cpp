@@ -268,7 +268,7 @@ void SkPictureData::serialize(SkWStream* stream,
     SkFactorySet factSet;  // buffer refs factSet, so factSet must come first.
     SkBinaryWriteBuffer buffer(SkBinaryWriteBuffer::kCrossProcess_Flag);
     buffer.setFactoryRecorder(&factSet);
-    buffer.setPixelSerializer(pixelSerializer);
+    buffer.setPixelSerializer(sk_ref_sp(pixelSerializer));
     buffer.setTypefaceRecorder(typefaceSet);
     this->flattenToBuffer(buffer);
 

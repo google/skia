@@ -205,8 +205,9 @@ GrStencilAttachment* GrResourceProvider::attachStencilAttachment(GrRenderTarget*
     return rt->renderTargetPriv().getStencilAttachment();
 }
 
-GrRenderTarget* GrResourceProvider::wrapBackendTextureAsRenderTarget(
-        const GrBackendTextureDesc& desc) {
+sk_sp<GrRenderTarget> GrResourceProvider::wrapBackendTextureAsRenderTarget(
+        const GrBackendTextureDesc& desc)
+{
     if (this->isAbandoned()) {
         return nullptr;
     }

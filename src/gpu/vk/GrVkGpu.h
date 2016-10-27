@@ -50,7 +50,7 @@ public:
 
     ~GrVkGpu() override;
 
-    const GrVkInterface* vkInterface() const { return fBackendContext->fInterface; }
+    const GrVkInterface* vkInterface() const { return fBackendContext->fInterface.get(); }
     const GrVkCaps& vkCaps() const { return *fVkCaps; }
 
     VkDevice device() const { return fDevice; }
@@ -182,11 +182,13 @@ private:
     GrTexture* onCreateCompressedTexture(const GrSurfaceDesc& desc, SkBudgeted,
                                          const SkTArray<GrMipLevel>&) override { return NULL; }
 
-    GrTexture* onWrapBackendTexture(const GrBackendTextureDesc&, GrWrapOwnership) override;
+    sk_sp<GrTexture> onWrapBackendTexture(const GrBackendTextureDesc&, GrWrapOwnership) override;
 
-    GrRenderTarget* onWrapBackendRenderTarget(const GrBackendRenderTargetDesc&,
-                                              GrWrapOwnership) override;
-    GrRenderTarget* onWrapBackendTextureAsRenderTarget(const GrBackendTextureDesc&) override { return NULL; }
+    sk_sp<GrRenderTarget> onWrapBackendRenderTarget(const GrBackendRenderTargetDesc&,
+                                                    GrWrapOwnership) override;
+    sk_sp<GrRenderTarget> onWrapBackendTextureAsRenderTarget(const GrBackendTextureDesc&) override {
+        return nullptr;
+    }
 
     GrBuffer* onCreateBuffer(size_t size, GrBufferType type, GrAccessPattern,
                              const void* data) override;

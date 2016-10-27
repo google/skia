@@ -1778,7 +1778,7 @@ Error ViaSingletonPictures::draw(
         SkCanvas* macroCanvas = macroRec.beginRecording(SkIntToScalar(size.width()),
                                                         SkIntToScalar(size.height()));
 
-        SkAutoTDelete<SkDrawableList> drawables(recorder.detachDrawableList());
+        std::unique_ptr<SkDrawableList> drawables(recorder.detachDrawableList());
         const SkDrawableList empty;
 
         DrawsAsSingletonPictures drawsAsSingletonPictures = {

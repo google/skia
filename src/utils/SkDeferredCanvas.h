@@ -35,7 +35,6 @@ protected:
     SkImageInfo onImageInfo() const override;
     bool onGetProps(SkSurfaceProps*) const override;
     void onFlush() override;
-//    SkCanvas* canvasForDrawIter() override;
 
     void willSave() override;
     SaveLayerStrategy getSaveLayerStrategy(const SaveLayerRec&) override;

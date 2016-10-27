@@ -44,9 +44,10 @@ bool GrGLTextureRenderTarget::canAttemptStencilAttachment() const {
     return true;
 }
 
-GrGLTextureRenderTarget* GrGLTextureRenderTarget::CreateWrapped(GrGLGpu* gpu,
-                                                                const GrSurfaceDesc& desc,
-                                                                const GrGLTexture::IDDesc& texIDDesc,
-                                                                const GrGLRenderTarget::IDDesc& rtIDDesc) {
-    return new GrGLTextureRenderTarget(gpu, desc, texIDDesc, rtIDDesc);
+sk_sp<GrGLTextureRenderTarget> GrGLTextureRenderTarget::MakeWrapped(
+    GrGLGpu* gpu, const GrSurfaceDesc& desc,
+    const GrGLTexture::IDDesc& texIDDesc, const GrGLRenderTarget::IDDesc& rtIDDesc)
+{
+    return sk_sp<GrGLTextureRenderTarget>(
+        new GrGLTextureRenderTarget(gpu, desc, texIDDesc, rtIDDesc));
 }

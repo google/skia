@@ -1085,11 +1085,11 @@ SK_API SkFontMgr* SkFontMgr_New_DirectWrite(IDWriteFactory* factory,
 }
 
 #include "SkFontMgr_indirect.h"
-SK_API SkFontMgr* SkFontMgr_New_DirectWriteRenderer(SkRemotableFontMgr* proxy) {
-    SkAutoTUnref<SkFontMgr> impl(SkFontMgr_New_DirectWrite());
-    if (impl.get() == nullptr) {
+SK_API SkFontMgr* SkFontMgr_New_DirectWriteRenderer(sk_sp<SkRemotableFontMgr> proxy) {
+    sk_sp<SkFontMgr> impl(SkFontMgr_New_DirectWrite());
+    if (!impl) {
         return nullptr;
     }
-    return new SkFontMgr_Indirect(impl.get(), proxy);
+    return new SkFontMgr_Indirect(std::move(impl), std::move(proxy));
 }
 #endif//defined(SK_BUILD_FOR_WIN32)

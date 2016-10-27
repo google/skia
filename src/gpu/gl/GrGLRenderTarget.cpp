@@ -64,10 +64,10 @@ void GrGLRenderTarget::init(const GrSurfaceDesc& desc, const IDDesc& idDesc) {
     SkASSERT(fGpuMemorySize <= WorstCaseSize(desc));
 }
 
-GrGLRenderTarget* GrGLRenderTarget::CreateWrapped(GrGLGpu* gpu,
-                                                  const GrSurfaceDesc& desc,
-                                                  const IDDesc& idDesc,
-                                                  int stencilBits) {
+sk_sp<GrGLRenderTarget> GrGLRenderTarget::MakeWrapped(GrGLGpu* gpu,
+                                                      const GrSurfaceDesc& desc,
+                                                      const IDDesc& idDesc,
+                                                      int stencilBits) {
     GrGLStencilAttachment* sb = nullptr;
     if (stencilBits) {
         GrGLStencilAttachment::IDDesc sbDesc;
@@ -80,7 +80,7 @@ GrGLRenderTarget* GrGLRenderTarget::CreateWrapped(GrGLGpu* gpu,
         sb = new GrGLStencilAttachment(gpu, sbDesc, desc.fWidth, desc.fHeight,
                                        desc.fSampleCnt, format);
     }
-    return (new GrGLRenderTarget(gpu, desc, idDesc, sb));
+    return sk_sp<GrGLRenderTarget>(new GrGLRenderTarget(gpu, desc, idDesc, sb));
 }
 
 size_t GrGLRenderTarget::onGpuMemorySize() const {

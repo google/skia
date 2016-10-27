@@ -57,7 +57,7 @@ SK_API SkFontMgr* SkFontMgr_New_DirectWrite(IDWriteFactory* factory,
  *
  *  If DirectWrite could not be initialized, will return NULL.
  */
-SK_API SkFontMgr* SkFontMgr_New_DirectWriteRenderer(SkRemotableFontMgr*);
+SK_API SkFontMgr* SkFontMgr_New_DirectWriteRenderer(sk_sp<SkRemotableFontMgr>);
 
 /**
  *  Creates an SkRemotableFontMgr backed by DirectWrite using the default

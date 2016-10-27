@@ -1121,7 +1121,7 @@ private:
         kCurrent_Version = 2
     };
 
-    SkAutoTUnref<SkPathRef>                            fPathRef;
+    sk_sp<SkPathRef>                                   fPathRef;
     int                                                fLastMoveToIndex;
     uint8_t                                            fFillType;
     mutable uint8_t                                    fConvexity;

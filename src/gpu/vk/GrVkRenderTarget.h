@@ -34,9 +34,9 @@ public:
     static GrVkRenderTarget* CreateNewRenderTarget(GrVkGpu*, SkBudgeted, const GrSurfaceDesc&,
                                                    const GrVkImage::ImageDesc&);
 
-    static GrVkRenderTarget* CreateWrappedRenderTarget(GrVkGpu*, const GrSurfaceDesc&,
-                                                       GrWrapOwnership,
-                                                       const GrVkImageInfo*);
+    static sk_sp<GrVkRenderTarget> MakeWrappedRenderTarget(GrVkGpu*, const GrSurfaceDesc&,
+                                                           GrWrapOwnership,
+                                                           const GrVkImageInfo*);
 
     ~GrVkRenderTarget() override;
 

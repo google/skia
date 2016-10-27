@@ -78,10 +78,10 @@ GrVkTexture* GrVkTexture::CreateNewTexture(GrVkGpu* gpu, SkBudgeted budgeted,
     return new GrVkTexture(gpu, budgeted, desc, info, imageView);
 }
 
-GrVkTexture* GrVkTexture::CreateWrappedTexture(GrVkGpu* gpu,
-                                               const GrSurfaceDesc& desc,
-                                               GrWrapOwnership ownership,
-                                               const GrVkImageInfo* info) {
+sk_sp<GrVkTexture> GrVkTexture::MakeWrappedTexture(GrVkGpu* gpu,
+                                                   const GrSurfaceDesc& desc,
+                                                   GrWrapOwnership ownership,
+                                                   const GrVkImageInfo* info) {
     SkASSERT(info);
     // Wrapped textures require both image and allocation (because they can be mapped)
     SkASSERT(VK_NULL_HANDLE != info->fImage && VK_NULL_HANDLE != info->fAlloc.fMemory);
@@ -96,7 +96,7 @@ GrVkTexture* GrVkTexture::CreateWrappedTexture(GrVkGpu* gpu,
     GrVkImage::Wrapped wrapped = kBorrow_GrWrapOwnership == ownership ? GrVkImage::kBorrowed_Wrapped
                                                                       : GrVkImage::kAdopted_Wrapped;
 
-    return new GrVkTexture(gpu, kWrapped, desc, *info, imageView, wrapped);
+    return sk_sp<GrVkTexture>(new GrVkTexture(gpu, kWrapped, desc, *info, imageView, wrapped));
 }
 
 GrVkTexture::~GrVkTexture() {

@@ -134,7 +134,7 @@ private:
         int fBatchListID;
         int fChildID;
     };
-    typedef SkTArray<SkAutoTDelete<Batch>, true> BatchPool;
+    typedef SkTArray<std::unique_ptr<Batch>, true> BatchPool;
 
     typedef SkTArray<Batch*> Batches;
 
@@ -144,14 +144,14 @@ private:
         Batches fChildren;
         uint32_t fRenderTargetUniqueID;
     };
-    typedef SkTArray<SkAutoTDelete<BatchNode>, true> BatchList;
+    typedef SkTArray<std::unique_ptr<BatchNode>, true> BatchList;
 
     void copyOutFromBatchList(BatchInfo* outBatchInfo, int batchListID);
 
     template <typename T>
     static void JsonifyTArray(SkString* json, const char* name, const T& array,
                               bool addComma);
-    
+
     BatchPool fBatchPool;
     SkTHashMap<uint32_t, int> fIDLookup;
     SkTHashMap<int, Batches*> fClientIDLookup;

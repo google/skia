@@ -133,7 +133,7 @@ public:
 
     virtual SkString dump() const;
 
-    GrShaderCaps* shaderCaps() const { return fShaderCaps; }
+    GrShaderCaps* shaderCaps() const { return fShaderCaps.get(); }
 
     bool npotTextureTileSupport() const { return fNPOTTextureTileSupport; }
     /** To avoid as-yet-unnecessary complexity we don't allow any partial support of MIP Maps (e.g.
@@ -294,7 +294,7 @@ protected:
         expand them. */
     void applyOptionsOverrides(const GrContextOptions& options);
 
-    SkAutoTUnref<GrShaderCaps>    fShaderCaps;
+    sk_sp<GrShaderCaps> fShaderCaps;
 
     bool fNPOTTextureTileSupport                     : 1;
     bool fMipMapSupport                              : 1;

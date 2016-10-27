@@ -79,7 +79,7 @@ sk_sp<SkImage> SkSurface_Gpu::onNewImageSnapshot(SkBudgeted budgeted, SkCopyPixe
     GrRenderTarget* rt = fDevice->accessDrawContext()->accessRenderTarget();
     SkASSERT(rt);
     GrTexture* tex = rt->asTexture();
-    SkAutoTUnref<GrTexture> copy;
+    sk_sp<GrTexture> copy;
     // If the original render target is a buffer originally created by the client, then we don't
     // want to ever retarget the SkSurface at another buffer we create. Force a copy now to avoid
     // copy-on-write.
@@ -91,17 +91,17 @@ sk_sp<SkImage> SkSurface_Gpu::onNewImageSnapshot(SkBudgeted budgeted, SkCopyPixe
         if (!copy) {
             return nullptr;
         }
-        if (!ctx->copySurface(copy, rt)) {
+        if (!ctx->copySurface(copy.get(), rt)) {
             return nullptr;
         }
-        tex = copy;
+        tex = copy.get();
     }
     const SkImageInfo info = fDevice->imageInfo();
     sk_sp<SkImage> image;
     if (tex) {
         image = sk_make_sp<SkImage_Gpu>(info.width(), info.height(), kNeedNewImageUniqueID,
-                                        info.alphaType(), tex, sk_ref_sp(info.colorSpace()),
-                                        budgeted);
+                                        info.alphaType(), sk_ref_sp(tex),
+                                        sk_ref_sp(info.colorSpace()), budgeted);
     }
     return image;
 }

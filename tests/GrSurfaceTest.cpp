@@ -54,10 +54,10 @@ DEF_GPUTEST_FOR_NULLGL_CONTEXT(GrSurface, reporter, ctxInfo) {
     backendDesc.fHeight = 256;
     backendDesc.fSampleCnt = 0;
     backendDesc.fTextureHandle = backendTex;
-    GrSurface* texRT2 = context->textureProvider()->wrapBackendTexture(
+    sk_sp<GrSurface> texRT2 = context->textureProvider()->wrapBackendTexture(
         backendDesc, kBorrow_GrWrapOwnership);
-    REPORTER_ASSERT(reporter, texRT2 == texRT2->asRenderTarget());
-    REPORTER_ASSERT(reporter, texRT2 == texRT2->asTexture());
+    REPORTER_ASSERT(reporter, texRT2.get() == texRT2->asRenderTarget());
+    REPORTER_ASSERT(reporter, texRT2.get() == texRT2->asTexture());
     REPORTER_ASSERT(reporter, static_cast<GrSurface*>(texRT2->asRenderTarget()) ==
                     texRT2->asTexture());
     REPORTER_ASSERT(reporter, texRT2->asRenderTarget() ==
@@ -66,7 +66,6 @@ DEF_GPUTEST_FOR_NULLGL_CONTEXT(GrSurface, reporter, ctxInfo) {
                     static_cast<GrSurface*>(texRT2->asTexture()));
 
     texRT1->unref();
-    texRT2->unref();
     tex1->unref();
     context->getGpu()->deleteTestingOnlyBackendTexture(backendTex);
 }

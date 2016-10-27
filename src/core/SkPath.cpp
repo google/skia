@@ -220,7 +220,7 @@ bool SkPath::interpolate(const SkPath& ending, SkScalar weight, SkPath* out) con
     }
     out->reset();
     out->addPath(*this);
-    fPathRef->interpolate(*ending.fPathRef, weight, out->fPathRef);
+    fPathRef->interpolate(*ending.fPathRef, weight, out->fPathRef.get());
     return true;
 }
 

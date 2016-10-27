@@ -173,7 +173,7 @@ DEF_GPUTEST_FOR_GL_RENDERING_CONTEXTS(EGLImageTest, reporter, ctxInfo) {
     externalDesc.fWidth = kSize;
     externalDesc.fHeight = kSize;
     externalDesc.fTextureHandle = reinterpret_cast<GrBackendObject>(&externalTexture);
-    SkAutoTUnref<GrTexture> externalTextureObj(
+    sk_sp<GrTexture> externalTextureObj(
         context0->textureProvider()->wrapBackendTexture(externalDesc));
     if (!externalTextureObj) {
         ERRORF(reporter, "Error wrapping external texture in GrTexture.");
@@ -183,7 +183,7 @@ DEF_GPUTEST_FOR_GL_RENDERING_CONTEXTS(EGLImageTest, reporter, ctxInfo) {
 
     // Should not be able to wrap as a RT
     externalDesc.fFlags = kRenderTarget_GrBackendTextureFlag;
-    SkAutoTUnref<GrTexture> externalTextureRTObj(
+    sk_sp<GrTexture> externalTextureRTObj(
         context0->textureProvider()->wrapBackendTexture(externalDesc));
     if (externalTextureRTObj) {
         ERRORF(reporter, "Should not be able to wrap an EXTERNAL texture as a RT.");
@@ -192,18 +192,18 @@ DEF_GPUTEST_FOR_GL_RENDERING_CONTEXTS(EGLImageTest, reporter, ctxInfo) {
 
     // Should not be able to wrap with a sample count
     externalDesc.fSampleCnt = 4;
-    SkAutoTUnref<GrTexture> externalTextureMSAAObj(
+    sk_sp<GrTexture> externalTextureMSAAObj(
         context0->textureProvider()->wrapBackendTexture(externalDesc));
     if (externalTextureMSAAObj) {
         ERRORF(reporter, "Should not be able to wrap an EXTERNAL texture with MSAA.");
     }
     externalDesc.fSampleCnt = 0;
 
-    test_read_pixels(reporter, context0, externalTextureObj, pixels.get());
+    test_read_pixels(reporter, context0, externalTextureObj.get(), pixels.get());
 
-    test_write_pixels(reporter, context0, externalTextureObj);
+    test_write_pixels(reporter, context0, externalTextureObj.get());
 
-    test_copy_surface(reporter, context0, externalTextureObj, pixels.get());
+    test_copy_surface(reporter, context0, externalTextureObj.get(), pixels.get());
 
     cleanup(glCtx0, externalTexture.fID, glCtx1, context1, backendTexture1, image);
 }

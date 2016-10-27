@@ -113,7 +113,7 @@ bool GrRenderTargetOpList::setupDstReadIfNecessary(const GrPipelineBuilder& pipe
         if (GrTexture* rtTex = rt->asTexture()) {
             // The render target is a texture, so we can read from it directly in the shader. The XP
             // will be responsible to detect this situation and request a texture barrier.
-            dstTexture->setTexture(rtTex);
+            dstTexture->setTexture(sk_ref_sp(rtTex));
             dstTexture->setOffset(0, 0);
             return true;
         }
@@ -145,15 +145,15 @@ bool GrRenderTargetOpList::setupDstReadIfNecessary(const GrPipelineBuilder& pipe
     desc.fHeight = copyRect.height();
 
     static const uint32_t kFlags = 0;
-    SkAutoTUnref<GrTexture> copy(fResourceProvider->createApproxTexture(desc, kFlags));
+    sk_sp<GrTexture> copy(fResourceProvider->createApproxTexture(desc, kFlags));
 
     if (!copy) {
         SkDebugf("Failed to create temporary copy of destination texture.\n");
         return false;
     }
     SkIPoint dstPoint = {0, 0};
-    this->copySurface(copy, rt, copyRect, dstPoint);
-    dstTexture->setTexture(copy);
+    this->copySurface(copy.get(), rt, copyRect, dstPoint);
+    dstTexture->setTexture(std::move(copy));
     dstTexture->setOffset(copyRect.fLeft, copyRect.fTop);
     return true;
 }

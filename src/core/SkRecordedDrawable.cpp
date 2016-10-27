@@ -21,7 +21,7 @@ void SkRecordedDrawable::onDraw(SkCanvas* canvas) {
         drawables = fDrawableList->begin();
         drawableCount = fDrawableList->count();
     }
-    SkRecordDraw(*fRecord, canvas, nullptr, drawables, drawableCount, fBBH, nullptr/*callback*/);
+    SkRecordDraw(*fRecord, canvas, nullptr, drawables, drawableCount, fBBH.get(), nullptr);
 }
 
 SkPicture* SkRecordedDrawable::onNewPictureSnapshot() {

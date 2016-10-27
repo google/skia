@@ -756,8 +756,8 @@ static GrSurfaceOrigin resolve_origin(GrSurfaceOrigin origin) {
     }
 }
 
-GrTexture* GrVkGpu::onWrapBackendTexture(const GrBackendTextureDesc& desc,
-                                         GrWrapOwnership ownership) {
+sk_sp<GrTexture> GrVkGpu::onWrapBackendTexture(const GrBackendTextureDesc& desc,
+                                               GrWrapOwnership ownership) {
     if (0 == desc.fTextureHandle) {
         return nullptr;
     }
@@ -791,22 +791,14 @@ GrTexture* GrVkGpu::onWrapBackendTexture(const GrBackendTextureDesc& desc,
     // In VK, we don't have this restriction
     surfDesc.fOrigin = resolve_origin(desc.fOrigin);
 
-    GrVkTexture* texture = nullptr;
-    if (renderTarget) {
-        texture = GrVkTextureRenderTarget::CreateWrappedTextureRenderTarget(this, surfDesc,
-                                                                            ownership, info);
-    } else {
-        texture = GrVkTexture::CreateWrappedTexture(this, surfDesc, ownership, info);
+    if (!renderTarget) {
+        return GrVkTexture::MakeWrappedTexture(this, surfDesc, ownership, info);
     }
-    if (!texture) {
-        return nullptr;
-    }
-
-    return texture;
+    return GrVkTextureRenderTarget::MakeWrappedTextureRenderTarget(this, surfDesc, ownership, info);
 }
 
-GrRenderTarget* GrVkGpu::onWrapBackendRenderTarget(const GrBackendRenderTargetDesc& wrapDesc,
-                                                   GrWrapOwnership ownership) {
+sk_sp<GrRenderTarget> GrVkGpu::onWrapBackendRenderTarget(const GrBackendRenderTargetDesc& wrapDesc,
+                                                         GrWrapOwnership ownership) {
 
     const GrVkImageInfo* info =
         reinterpret_cast<const GrVkImageInfo*>(wrapDesc.fRenderTargetHandle);
@@ -824,12 +816,10 @@ GrRenderTarget* GrVkGpu::onWrapBackendRenderTarget(const GrBackendRenderTargetDe
 
     desc.fOrigin = resolve_origin(wrapDesc.fOrigin);
 
-    GrVkRenderTarget* tgt = GrVkRenderTarget::CreateWrappedRenderTarget(this, desc,
-                                                                        ownership,
-                                                                        info);
+    sk_sp<GrVkRenderTarget> tgt = GrVkRenderTarget::MakeWrappedRenderTarget(this, desc,
+                                                                            ownership, info);
     if (tgt && wrapDesc.fStencilBits) {
-        if (!createStencilAttachmentForRenderTarget(tgt, desc.fWidth, desc.fHeight)) {
-            tgt->unref();
+        if (!createStencilAttachmentForRenderTarget(tgt.get(), desc.fWidth, desc.fHeight)) {
             return nullptr;
         }
     }
