@@ -952,8 +952,11 @@ static inline void aaa_walk_convex_edges(SkAnalyticEdge* prevHead, AdditiveBlitt
         }
 
         SkFixed local_bot_fixed = SkMin32(leftE->fLowerY, riteE->fLowerY);
-        // Skip the fractional y if edges are changing smoothly
-        if (isSmoothEnough(leftE, riteE, currE, stop_y)) {
+        // Skip the fractional y if edges are changing smoothly.
+        // If forceRLE is true, we won't skip the fractional y because it
+        // implies that SkAAClip is calling us and there are strict
+        // assertions inside SkAAClip.
+        if (isSmoothEnough(leftE, riteE, currE, stop_y) && !forceRLE) {
             local_bot_fixed = SkFixedCeilToFixed(local_bot_fixed);
         }
         local_bot_fixed = SkMin32(local_bot_fixed, SkIntToFixed(stop_y + 1));
