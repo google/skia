@@ -81,6 +81,24 @@
       "revId": "d25c8e8452628fecb1fc77f0fe8c72d352780b47",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "86081a1d_1be51fc5",
+        "filename": "include/private/GrSurfaceProxy.h",
+        "patchSetId": 8
+      },
+      "lineNbr": 22,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2016-10-27T19:03:43Z",
+      "side": 1,
+      "message": "I see.. I didn\u0027t catch that this didn\u0027t have the other ref types. I assumed it did from \"IO\".",
+      "parentUuid": "86081a1d_b8519921",
+      "revId": "d25c8e8452628fecb1fc77f0fe8c72d352780b47",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
