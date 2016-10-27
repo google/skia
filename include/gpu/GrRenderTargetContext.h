@@ -346,8 +346,8 @@ public:
     sk_sp<GrTexture> asTexture() { return sk_ref_sp(fRenderTarget->asTexture()); }
 
     // Provides access to functions that aren't part of the public API.
-    GrRenderTargetContextPriv renderTargetContextPriv();
-    const GrRenderTargetContextPriv renderTargetContextPriv() const;
+    GrRenderTargetContextPriv priv();
+    const GrRenderTargetContextPriv priv() const;
 
     GrAuditTrail* auditTrail() { return fAuditTrail; }
 

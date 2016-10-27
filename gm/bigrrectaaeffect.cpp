@@ -90,8 +90,7 @@ protected:
                     SkAutoTUnref<GrDrawBatch> batch(
                             GrRectBatchFactory::CreateNonAAFill(0xff000000, SkMatrix::I(), bounds,
                                                                 nullptr, nullptr));
-                    renderTargetContext->renderTargetContextPriv().testingOnly_drawBatch(grPaint,
-                                                                                         batch);
+                    renderTargetContext->priv().testingOnly_drawBatch(grPaint, batch);
                 }
             canvas->restore();
             x = x + fTestOffsetX;

@@ -83,8 +83,7 @@ void GrStencilAndCoverPathRenderer::onStencilPath(const StencilPathArgs& args) {
     SkASSERT(!args.fIsAA || args.fRenderTargetContext->isStencilBufferMultisampled());
 
     SkAutoTUnref<GrPath> p(get_gr_path(fResourceProvider, *args.fShape));
-    args.fRenderTargetContext->renderTargetContextPriv().stencilPath(*args.fClip, args.fIsAA,
-                                                                     *args.fViewMatrix, p);
+    args.fRenderTargetContext->priv().stencilPath(*args.fClip, args.fIsAA, *args.fViewMatrix, p);
 }
 
 bool GrStencilAndCoverPathRenderer::onDrawPath(const DrawPathArgs& args) {
@@ -125,9 +124,8 @@ bool GrStencilAndCoverPathRenderer::onDrawPath(const DrawPathArgs& args) {
                                                     nullptr, &invert));
 
         // fake inverse with a stencil and cover
-        args.fRenderTargetContext->renderTargetContextPriv().stencilPath(*args.fClip,
-                                                                         args.fPaint->isAntiAlias(),
-                                                                         viewMatrix, path);
+        args.fRenderTargetContext->priv().stencilPath(*args.fClip, args.fPaint->isAntiAlias(),
+                                                      viewMatrix, path);
 
         {
             static constexpr GrUserStencilSettings kInvertedCoverPass(

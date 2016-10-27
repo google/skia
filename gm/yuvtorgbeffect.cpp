@@ -125,8 +125,7 @@ protected:
                     SkAutoTUnref<GrDrawBatch> batch(
                             GrRectBatchFactory::CreateNonAAFill(GrColor_WHITE, viewMatrix,
                                                                 renderRect, nullptr, nullptr));
-                    renderTargetContext->renderTargetContextPriv().testingOnly_drawBatch(grPaint,
-                                                                                         batch);
+                    renderTargetContext->priv().testingOnly_drawBatch(grPaint, batch);
                 }
                 x += renderRect.width() + kTestPad;
             }
@@ -238,8 +237,7 @@ protected:
                 grPaint.addColorFragmentProcessor(fp);
                 SkAutoTUnref<GrDrawBatch> batch(GrRectBatchFactory::CreateNonAAFill(
                     GrColor_WHITE, viewMatrix, renderRect, nullptr, nullptr));
-                renderTargetContext->renderTargetContextPriv().testingOnly_drawBatch(grPaint,
-                                                                                     batch);
+                renderTargetContext->priv().testingOnly_drawBatch(grPaint, batch);
             }
         }
     }
