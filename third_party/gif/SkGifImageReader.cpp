@@ -361,7 +361,7 @@ sk_sp<SkColorTable> SkGifImageReader::getColorTable(SkColorType colorType, size_
 // Perform decoding for this frame. frameComplete will be true if the entire frame is decoded.
 // Returns false if a decoding error occurred. This is a fatal error and causes the SkGifImageReader to set the "decode failed" flag.
 // Otherwise, either not enough data is available to decode further than before, or the new data has been decoded successfully; returns true in this case.
-bool SkGIFFrameContext::decode(SkGifCodec* client, bool* frameComplete)
+bool SkGIFFrameContext::decode(SkGifCodec* client, const SkGIFColorMap& globalMap, bool* frameComplete)
 {
     *frameComplete = false;
     if (!m_lzwContext) {
@@ -370,7 +370,7 @@ bool SkGIFFrameContext::decode(SkGifCodec* client, bool* frameComplete)
             return true;
 
         m_lzwContext.reset(new SkGIFLZWContext(client, this));
-        if (!m_lzwContext->prepareToDecode()) {
+        if (!m_lzwContext->prepareToDecode(globalMap)) {
             m_lzwContext.reset();
             return false;
         }
@@ -403,7 +403,7 @@ bool SkGifImageReader::decode(size_t frameIndex, bool* frameComplete)
 {
     SkGIFFrameContext* currentFrame = m_frames[frameIndex].get();
 
-    return currentFrame->decode(m_client, frameComplete);
+    return currentFrame->decode(m_client, m_globalColorMap, frameComplete);
 }
 
 // Parse incoming GIF data stream into internal data structures.
@@ -890,7 +890,7 @@ void SkGifImageReader::addFrameIfNecessary()
 }
 
 // FIXME: Move this method to close to doLZW().
-bool SkGIFLZWContext::prepareToDecode()
+bool SkGIFLZWContext::prepareToDecode(const SkGIFColorMap& globalMap)
 {
     SkASSERT(m_frameContext->isDataSizeDefined() && m_frameContext->isHeaderDefined());
 
@@ -906,8 +906,35 @@ bool SkGIFLZWContext::prepareToDecode()
     datum = bits = 0;
     ipass = m_frameContext->interlaced() ? 1 : 0;
     irow = 0;
-    alwaysWriteTransparentPixels = !m_frameContext->interlaced()
-            && m_frameContext->getRequiredFrame() == SkCodec::kNone;
+    alwaysWriteTransparentPixels = false;
+    if (m_frameContext->getRequiredFrame() == SkCodec::kNone) {
+        if (!m_frameContext->interlaced()) {
+            alwaysWriteTransparentPixels = true;
+        } else {
+            // The frame is interlaced, so we do not want to write transparent
+            // pixels. But if there are no transparent pixels anyway, there is
+            // no harm in taking the alwaysWriteTransparentPixels path, which
+            // is faster, and it also supports 565.
+            // Since the frame is independent, it does not matter whether the
+            // frame is subset (nothing behind it needs to show through). So we
+            // only need to know whether there is a valid transparent pixel.
+            // This is a little counterintuitive - we want to "always write
+            // transparent pixels" if there ARE NO transparent pixels, so we
+            // check to see whether the pixel index is >= numColors.
+            const auto& localMap = m_frameContext->localColorMap();
+            const auto trans = m_frameContext->transparentPixel();
+            if (localMap.isDefined()) {
+                alwaysWriteTransparentPixels = trans >= localMap.numColors();
+            } else {
+                // Note that if the map is not defined, the value of
+                // alwaysWriteTransparentPixels is meaningless, since without
+                // any color table, we will skip drawing entirely.
+                // FIXME: We could even skip calling prepareToDecode in that
+                // case, meaning we can SkASSERT(globalMap.isDefined())
+                alwaysWriteTransparentPixels = trans >= globalMap.numColors();
+            }
+        }
+    }
 
     // We want to know the longest sequence encodable by a dictionary with
     // SK_MAX_DICTIONARY_ENTRIES entries. If we ignore the need to encode the base

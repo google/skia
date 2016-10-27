@@ -175,15 +175,37 @@ SkCodec::Result SkGifCodec::prepareToDecode(const SkImageInfo& dstInfo, SkPMColo
     }
 
     const size_t frameIndex = opts.fFrameIndex;
-    if (frameIndex > 0 && dstInfo.colorType() == kIndex_8_SkColorType) {
-        // FIXME: It is possible that a later frame can be decoded to index8, if it does one of the
-        // following:
-        // - Covers the entire previous frame
-        // - Shares a color table (and transparent index) with any prior frames that are showing.
-        // We must support index8 for the first frame to be backwards compatible on Android, but
-        // we do not (currently) need to support later frames as index8.
-        return gif_error("Cannot decode multiframe gif (except frame 0) as index 8.\n",
-                         kInvalidConversion);
+    if (frameIndex > 0) {
+        switch (dstInfo.colorType()) {
+            case kIndex_8_SkColorType:
+                // FIXME: It is possible that a later frame can be decoded to index8, if it does one
+                // of the following:
+                // - Covers the entire previous frame
+                // - Shares a color table (and transparent index) with any prior frames that are
+                //   showing.
+                // We must support index8 for the first frame to be backwards compatible on Android,
+                // but we do not (currently) need to support later frames as index8.
+                return gif_error("Cannot decode multiframe gif (except frame 0) as index 8.\n",
+                                 kInvalidConversion);
+            case kRGB_565_SkColorType:
+                // FIXME: In theory, we might be able to support this, but it's not clear that it
+                // is necessary (Chromium does not decode to 565, and Android does not decode
+                // frames beyond the first). Disabling it because it is somewhat difficult:
+                // - If there is a transparent pixel, and this frame draws on top of another frame
+                //   (if the frame is independent with a transparent pixel, we should not decode to
+                //   565 anyway, since it is not opaque), we need to skip drawing the transparent
+                //   pixels (see writeTransparentPixels in haveDecodedRow). We currently do this by
+                //   first swizzling into temporary memory, then copying into the destination. (We
+                //   let the swizzler handle it first because it may need to sample.) After
+                //   swizzling to 565, we do not know which pixels in our temporary memory
+                //   correspond to the transparent pixel, so we do not know what to skip. We could
+                //   special case the non-sampled case (no need to swizzle), but as this is
+                //   currently unused we can just not support it.
+                return gif_error("Cannot decode multiframe gif (except frame 0) as 565.\n",
+                                 kInvalidConversion);
+            default:
+                break;
+        }
     }
 
     fReader->parse((SkGifImageReader::SkGIFParseQuery) frameIndex);
@@ -489,7 +511,7 @@ bool SkGifCodec::haveDecodedRow(size_t frameIndex, const unsigned char* rowBegin
     // we must write these for passes beyond the first, or the initial passes
     // will "show through" the later ones.
     const auto dstInfo = this->dstInfo();
-    if (writeTransparentPixels || dstInfo.colorType() == kRGB_565_SkColorType) {
+    if (writeTransparentPixels) {
         fSwizzler->swizzle(dstLine, rowBegin);
     } else {
         // We cannot swizzle directly into the dst, since that will write the transparent pixels.

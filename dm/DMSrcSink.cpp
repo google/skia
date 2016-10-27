@@ -473,6 +473,13 @@ Error CodecSrc::draw(SkCanvas* canvas) const {
                         }
                         break;
                     }
+                    case SkCodec::kInvalidConversion:
+                        if (i > 0 && (decodeInfo.colorType() == kRGB_565_SkColorType
+                                      || decodeInfo.colorType() == kIndex_8_SkColorType)) {
+                            return Error::Nonfatal(SkStringPrintf(
+                                "Cannot decode frame %i to 565/Index8 (%s).", i, fPath.c_str()));
+                        }
+                        // Fall through.
                     default:
                         return SkStringPrintf("Couldn't getPixels for frame %i in %s.",
                                               i, fPath.c_str());
