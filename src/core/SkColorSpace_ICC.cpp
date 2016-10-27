@@ -357,8 +357,8 @@ static SkGammas::Type parse_gamma(SkGammas::Data* outData, SkColorSpaceTransferF
             }
 
             if (26 == count) {
-                // The magic values were chosen because they match a very common LCMS sRGB
-                // gamma table.
+                // The magic values match a clever "minimum size" approach to representing sRGB.
+                // code.facebook.com/posts/411525055626587/under-the-hood-improving-facebook-photos
                 if (0 == read_big_endian_u16((const uint8_t*) &table[0]) &&
                         3062 == read_big_endian_u16((const uint8_t*) &table[6]) &&
                         12824 == read_big_endian_u16((const uint8_t*) &table[12]) &&
@@ -371,7 +371,7 @@ static SkGammas::Type parse_gamma(SkGammas::Data* outData, SkColorSpaceTransferF
 
             if (4096 == count) {
                 // The magic values were chosen because they match Nikon, Epson, and
-                // LCMS sRGB gamma tables (all of which use different rounding rules).
+                // lcms2 sRGB gamma tables (all of which use different rounding rules).
                 if (0 == read_big_endian_u16((const uint8_t*) &table[0]) &&
                         950 == read_big_endian_u16((const uint8_t*) &table[515]) &&
                         3342 == read_big_endian_u16((const uint8_t*) &table[1025]) &&
