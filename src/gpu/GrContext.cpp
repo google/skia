@@ -441,7 +441,7 @@ bool GrContext::readSurfacePixels(GrSurface* src,
         // TODO: Need to decide the semantics of this function for color spaces. Do we support
         // conversion to a passed-in color space? For now, specifying nullptr means that this
         // path will do no conversion, so it will match the behavior of the non-draw path.
-        sk_sp<GrRenderTargetContext> tempDC = this->makeRenderTargetContext(
+        sk_sp<GrRenderTargetContext> tempRTC = this->makeRenderTargetContext(
                                                            tempDrawInfo.fTempSurfaceFit,
                                                            tempDrawInfo.fTempSurfaceDesc.fWidth,
                                                            tempDrawInfo.fTempSurfaceDesc.fHeight,
@@ -449,7 +449,7 @@ bool GrContext::readSurfacePixels(GrSurface* src,
                                                            nullptr,
                                                            tempDrawInfo.fTempSurfaceDesc.fSampleCnt,
                                                            tempDrawInfo.fTempSurfaceDesc.fOrigin);
-        if (tempDC) {
+        if (tempRTC) {
             SkMatrix textureMatrix;
             textureMatrix.setTranslate(SkIntToScalar(left), SkIntToScalar(top));
             textureMatrix.postIDiv(src->width(), src->height());
@@ -462,10 +462,10 @@ bool GrContext::readSurfacePixels(GrSurface* src,
                 } else if (GrGpu::kCallerPrefersDraw_DrawPreference == drawPreference) {
                     // We only wanted to do the draw in order to perform the unpremul so don't
                     // bother.
-                    tempDC.reset(nullptr);
+                    tempRTC.reset(nullptr);
                 }
             }
-            if (!fp && tempDC) {
+            if (!fp && tempRTC) {
                 fp = GrConfigConversionEffect::Make(src->asTexture(), tempDrawInfo.fSwizzle,
                                                     GrConfigConversionEffect::kNone_PMConversion,
                                                     textureMatrix);
@@ -476,8 +476,8 @@ bool GrContext::readSurfacePixels(GrSurface* src,
                 paint.setPorterDuffXPFactory(SkBlendMode::kSrc);
                 paint.setAllowSRGBInputs(true);
                 SkRect rect = SkRect::MakeWH(SkIntToScalar(width), SkIntToScalar(height));
-                tempDC->drawRect(GrNoClip(), paint, SkMatrix::I(), rect, nullptr);
-                surfaceToRead.reset(tempDC->asTexture().release());
+                tempRTC->drawRect(GrNoClip(), paint, SkMatrix::I(), rect, nullptr);
+                surfaceToRead.reset(tempRTC->asTexture().release());
                 left = 0;
                 top = 0;
                 didTempDraw = true;
