@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "e62d5695_eee5ff24",
+        "filename": "BUILD.gn",
+        "patchSetId": 4
+      },
+      "lineNbr": 301,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2016-10-27T21:00:41Z",
+      "side": 1,
+      "message": "Alternatively, maybe when I declare it, I should only do so if (enabled)?",
+      "range": {
+        "startLine": 301,
+        "startChar": 32,
+        "endLine": 301,
+        "endChar": 49
+      },
+      "revId": "5ad93550451cf5e347f6a4f37f373d2518701d33",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
