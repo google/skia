@@ -22,6 +22,24 @@
       "revId": "cc818da1da695d08508f556dea1b321e624f8c51",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "6105d0c2_990e0e4f",
+        "filename": "src/core/SkFix.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 17,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2016-10-27T14:05:12Z",
+      "side": 1,
+      "message": "Yeah, not sure yet.  It\u0027s neither 0.15, 1.15, nor 0.16.",
+      "parentUuid": "6105d0c2_795dfa5b",
+      "revId": "cc818da1da695d08508f556dea1b321e624f8c51",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
