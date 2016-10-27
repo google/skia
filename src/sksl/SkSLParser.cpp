@@ -73,6 +73,31 @@
 
 namespace SkSL {
 
+#define MAX_PARSE_DEPTH 50
+
+class AutoDepth {
+public:
+    AutoDepth(Parser* p)
+    : fParser(p) {
+        fParser->fDepth++;
+    }
+
+    ~AutoDepth() {
+        fParser->fDepth--;
+    }
+
+    bool checkValid() {
+        if (fParser->fDepth > MAX_PARSE_DEPTH) {
+            fParser->error(fParser->peek().fPosition, "exceeded max parse depth");
+            return false;
+        }
+        return true;
+    }
+
+private:
+    Parser* fParser;
+};
+
 Parser::Parser(std::string text, SymbolTable& types, ErrorReporter& errors) 
 : fPushback(Position(-1, -1), Token::INVALID_TOKEN, "")
 , fTypes(types)
@@ -920,6 +945,10 @@ std::unique_ptr<ASTDiscardStatement> Parser::discardStatement() {
 
 /* LBRACE statement* RBRACE */
 std::unique_ptr<ASTBlock> Parser::block() {
+    AutoDepth depth(this);
+    if (!depth.checkValid()) {
+        return nullptr;
+    }
     Token start;
     if (!this->expect(Token::LBRACE, "'{'", &start)) {
         return nullptr;
@@ -959,6 +988,10 @@ std::unique_ptr<ASTExpressionStatement> Parser::expressionStatement() {
 
 /* assignmentExpression */
 std::unique_ptr<ASTExpression> Parser::expression() {
+    AutoDepth depth(this);
+    if (!depth.checkValid()) {
+        return nullptr;
+    }
     return this->assignmentExpression();
 }
 

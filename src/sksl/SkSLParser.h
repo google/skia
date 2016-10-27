@@ -197,12 +197,16 @@ private:
 
     bool identifier(std::string* dest);
 
-
     void* fScanner;
     YY_BUFFER_STATE fBuffer;
+    // current parse depth, used to enforce a recursion limit to try to keep us from overflowing the
+    // stack on pathological inputs
+    int fDepth = 0;
     Token fPushback;
     SymbolTable& fTypes;
     ErrorReporter& fErrors;
+
+    friend class AutoDepth;
 };
 
 } // namespace
