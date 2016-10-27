@@ -46,10 +46,10 @@ using gr_instanced::InstancedRendering;
 static const int kDefaultMaxBatchLookback  = 10;
 static const int kDefaultMaxBatchLookahead = 10;
 
-GrRenderTargetOpList::GrRenderTargetOpList(GrRenderTarget* rt, GrGpu* gpu,
+GrRenderTargetOpList::GrRenderTargetOpList(GrRenderTargetProxy* rtp, GrGpu* gpu,
                                            GrResourceProvider* resourceProvider,
                                            GrAuditTrail* auditTrail, const Options& options)
-    : INHERITED(rt, auditTrail)
+    : INHERITED(rtp, auditTrail)
     , fLastFullClearBatch(nullptr)
     , fGpu(SkRef(gpu))
     , fResourceProvider(resourceProvider) {
