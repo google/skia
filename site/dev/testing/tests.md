@@ -35,6 +35,11 @@ Writing a Unit Test
         ninja -C out/Debug dm
         out/Debug/dm --match NewUnitTest
 
+    or, if you use GN, add `$_tests/NewUnitTest.cpp` to `gn/tests.gni`, then:
+
+        ninja -C out/Debug dm
+        out/Debug/dm --match NewUnitTest
+
 <span id="gm"></span>
 
 Writing a Rendering Test
@@ -64,15 +69,16 @@ Writing a Rendering Test
         ninja -C out/Debug dm
         out/Debug/dm --match newgmtest
 
+    Or, if you ise GN, add `$_gm/newgmtest.cpp` to `gn/gm.gni`, then:
+
+        ninja -C out/Debug dm
+        out/Debug/dm --match newgmtest
+
 3.  Run the GM inside SampleApp:
 
         python bin/sync-and-gyp
         ninja -C out/Debug SampleApp
         out/Debug/SampleApp --slide GM:newgmtest
-
-    On MacOS, try this:
-
-        out/Debug/SampleApp.app/Contents/MacOS/SampleApp --slide GM:newgmtest
 
 <span id="bench"></span>
 
@@ -112,5 +118,10 @@ Writing a Benchmark Test
 2.  Recompile and run nanobench:
 
         python bin/sync-and-gyp
+        ninja -C out/Release nanobench
+        out/Release/nanobench --match Foo
+
+   If you use GN, add `$_bench/FooBench.cpp` to `gn/bench.gni`, then:
+
         ninja -C out/Release nanobench
         out/Release/nanobench --match Foo
