@@ -25,6 +25,24 @@
     },
     {
       "key": {
+        "uuid": "86081a1d_980db558",
+        "filename": "include/gpu/GrGpuResource.h",
+        "patchSetId": 8
+      },
+      "lineNbr": 78,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2016-10-27T18:26:59Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "6105d0c2_f9f74a1c",
+      "revId": "d25c8e8452628fecb1fc77f0fe8c72d352780b47",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "6105d0c2_d9f88612",
         "filename": "include/private/GrSurfaceProxy.h",
         "patchSetId": 8
@@ -42,6 +60,24 @@
         "endLine": 22,
         "endChar": 18
       },
+      "revId": "d25c8e8452628fecb1fc77f0fe8c72d352780b47",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "86081a1d_b8519921",
+        "filename": "include/private/GrSurfaceProxy.h",
+        "patchSetId": 8
+      },
+      "lineNbr": 22,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2016-10-27T18:26:59Z",
+      "side": 1,
+      "message": "This is sufficient for this particular change. Most likely we will end up with this class deriving from GrIORef and buffering up the access information for the resource allocation algorithm.",
+      "parentUuid": "6105d0c2_d9f88612",
       "revId": "d25c8e8452628fecb1fc77f0fe8c72d352780b47",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
