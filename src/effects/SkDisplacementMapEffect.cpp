@@ -15,7 +15,7 @@
 #include "SkColorPriv.h"
 #if SK_SUPPORT_GPU
 #include "GrContext.h"
-#include "GrDrawContext.h"
+#include "GrRenderTargetContext.h"
 #include "GrCoordTransform.h"
 #include "GrInvariantOutput.h"
 #include "SkGr.h"
@@ -348,23 +348,23 @@ sk_sp<SkSpecialImage> SkDisplacementMapEffect::onFilterImage(SkSpecialImage* sou
         matrix.setTranslate(-SkIntToScalar(colorBounds.x()), -SkIntToScalar(colorBounds.y()));
 
         SkColorSpace* colorSpace = ctx.outputProperties().colorSpace();
-        sk_sp<GrDrawContext> drawContext(
-            context->makeDrawContext(SkBackingFit::kApprox, bounds.width(), bounds.height(),
-                                     GrRenderableConfigForColorSpace(colorSpace),
-                                     sk_ref_sp(colorSpace)));
-        if (!drawContext) {
+        sk_sp<GrRenderTargetContext> renderTargetContext(
+            context->makeRenderTargetContext(SkBackingFit::kApprox, bounds.width(), bounds.height(),
+                                             GrRenderableConfigForColorSpace(colorSpace),
+                                             sk_ref_sp(colorSpace)));
+        if (!renderTargetContext) {
             return nullptr;
         }
-        paint.setGammaCorrect(drawContext->isGammaCorrect());
+        paint.setGammaCorrect(renderTargetContext->isGammaCorrect());
 
-        drawContext->drawRect(GrNoClip(), paint, matrix, SkRect::Make(colorBounds));
+        renderTargetContext->drawRect(GrNoClip(), paint, matrix, SkRect::Make(colorBounds));
 
         offset->fX = bounds.left();
         offset->fY = bounds.top();
         return SkSpecialImage::MakeFromGpu(SkIRect::MakeWH(bounds.width(), bounds.height()),
                                            kNeedNewImageUniqueID_SpecialImage,
-                                           drawContext->asTexture(),
-                                           sk_ref_sp(drawContext->getColorSpace()));
+                                           renderTargetContext->asTexture(),
+                                           sk_ref_sp(renderTargetContext->getColorSpace()));
     }
 #endif
 

@@ -5,8 +5,8 @@
  * found in the LICENSE file.
  */
 
-#ifndef GrDrawContext_DEFINED
-#define GrDrawContext_DEFINED
+#ifndef GrRenderTargetContext_DEFINED
+#define GrRenderTargetContext_DEFINED
 
 #include "GrColor.h"
 #include "GrContext.h"
@@ -21,7 +21,7 @@
 class GrAuditTrail;
 class GrClip;
 class GrDrawBatch;
-class GrDrawContextPriv;
+class GrRenderTargetContextPriv;
 class GrDrawPathBatchBase;
 class GrDrawingManager;
 class GrFixedClip;
@@ -49,9 +49,9 @@ class SkTextBlob;
 /*
  * A helper object to orchestrate draws
  */
-class SK_API GrDrawContext : public SkRefCnt {
+class SK_API GrRenderTargetContext : public SkRefCnt {
 public:
-    ~GrDrawContext() override;
+    ~GrRenderTargetContext() override;
 
     bool copySurface(GrSurface* src, const SkIRect& srcRect, const SkIPoint& dstPoint);
 
@@ -300,7 +300,7 @@ public:
 
     /**
      * Writes a rectangle of pixels [srcInfo, srcBuffer, srcRowbytes] into the 
-     * drawContext at the specified position.
+     * renderTargetContext at the specified position.
      * @param srcInfo       image info for the source pixels
      * @param srcBuffer     source for the write
      * @param srcRowBytes   bytes in a row of 'srcBuffer'
@@ -346,14 +346,14 @@ public:
     sk_sp<GrTexture> asTexture() { return sk_ref_sp(fRenderTarget->asTexture()); }
 
     // Provides access to functions that aren't part of the public API.
-    GrDrawContextPriv drawContextPriv();
-    const GrDrawContextPriv drawContextPriv() const;
+    GrRenderTargetContextPriv renderTargetContextPriv();
+    const GrRenderTargetContextPriv renderTargetContextPriv() const;
 
     GrAuditTrail* auditTrail() { return fAuditTrail; }
 
 protected:
-    GrDrawContext(GrContext*, GrDrawingManager*, sk_sp<GrRenderTarget>, sk_sp<SkColorSpace>,
-                  const SkSurfaceProps* surfaceProps, GrAuditTrail*, GrSingleOwner*);
+    GrRenderTargetContext(GrContext*, GrDrawingManager*, sk_sp<GrRenderTarget>, sk_sp<SkColorSpace>,
+                          const SkSurfaceProps* surfaceProps, GrAuditTrail*, GrSingleOwner*);
 
     GrDrawingManager* drawingManager() { return fDrawingManager; }
 
@@ -365,7 +365,7 @@ private:
     friend class GrStencilAndCoverTextContext; // for access to drawBatch
 
     friend class GrDrawingManager; // for ctor
-    friend class GrDrawContextPriv;
+    friend class GrRenderTargetContextPriv;
     friend class GrTestTarget;  // for access to getOpList
     friend class GrSWMaskHelper;                 // for access to drawBatch
 
@@ -420,7 +420,7 @@ private:
     GrDrawingManager*                 fDrawingManager;
     sk_sp<GrRenderTarget>             fRenderTarget;
 
-    // In MDB-mode the GrOpList can be closed by some other drawContext that has picked
+    // In MDB-mode the GrOpList can be closed by some other renderTargetContext that has picked
     // it up. For this reason, the GrOpList should only ever be accessed via 'getOpList'.
     GrRenderTargetOpList*             fOpList;
     GrContext*                        fContext;

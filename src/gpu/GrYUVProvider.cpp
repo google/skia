@@ -6,7 +6,7 @@
  */
 
 #include "GrContext.h"
-#include "GrDrawContext.h"
+#include "GrRenderTargetContext.h"
 #include "GrYUVProvider.h"
 #include "effects/GrGammaEffect.h"
 #include "effects/GrYUVEffect.h"
@@ -114,11 +114,12 @@ sk_sp<GrTexture> GrYUVProvider::refAsTexture(GrContext* ctx,
     }
 
     // We never want to perform color-space conversion during the decode
-    sk_sp<GrDrawContext> drawContext(ctx->makeDrawContext(SkBackingFit::kExact,
-                                                          desc.fWidth, desc.fHeight,
-                                                          desc.fConfig, nullptr,
-                                                          desc.fSampleCnt));
-    if (!drawContext) {
+    sk_sp<GrRenderTargetContext> renderTargetContext(ctx->makeRenderTargetContext(
+                                                                          SkBackingFit::kExact,
+                                                                          desc.fWidth, desc.fHeight,
+                                                                          desc.fConfig, nullptr,
+                                                                          desc.fSampleCnt));
+    if (!renderTargetContext) {
         return nullptr;
     }
 
@@ -146,7 +147,7 @@ sk_sp<GrTexture> GrYUVProvider::refAsTexture(GrContext* ctx,
     const SkRect r = SkRect::MakeIWH(yuvInfo.fSizeInfo.fSizes[SkYUVSizeInfo::kY].fWidth,
             yuvInfo.fSizeInfo.fSizes[SkYUVSizeInfo::kY].fHeight);
 
-    drawContext->drawRect(GrNoClip(), paint, SkMatrix::I(), r);
+    renderTargetContext->drawRect(GrNoClip(), paint, SkMatrix::I(), r);
 
-    return drawContext->asTexture();
+    return renderTargetContext->asTexture();
 }

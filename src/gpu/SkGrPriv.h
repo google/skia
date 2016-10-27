@@ -16,7 +16,7 @@
 
 class GrCaps;
 class GrContext;
-class GrDrawContext;
+class GrRenderTargetContext;
 class GrFragmentProcessor;
 class GrPaint;
 class GrTexture;
@@ -47,14 +47,14 @@ void GrInstallBitmapUniqueKeyInvalidator(const GrUniqueKey& key, SkPixelRef* pix
 /** Converts an SkPaint to a GrPaint for a given GrContext. The matrix is required in order
     to convert the SkShader (if any) on the SkPaint. The primitive itself has no color. */
 bool SkPaintToGrPaint(GrContext*,
-                      GrDrawContext*,
+                      GrRenderTargetContext*,
                       const SkPaint& skPaint,
                       const SkMatrix& viewM,
                       GrPaint* grPaint);
 
 /** Same as above but ignores the SkShader (if any) on skPaint. */
 bool SkPaintToGrPaintNoShader(GrContext* context,
-                              GrDrawContext* dc,
+                              GrRenderTargetContext* dc,
                               const SkPaint& skPaint,
                               GrPaint* grPaint);
 
@@ -62,7 +62,7 @@ bool SkPaintToGrPaintNoShader(GrContext* context,
     should expect an unpremul input color and produce a premultiplied output color. There is
     no primitive color. */
 bool SkPaintToGrPaintReplaceShader(GrContext*,
-                                   GrDrawContext*,
+                                   GrRenderTargetContext*,
                                    const SkPaint& skPaint,
                                    sk_sp<GrFragmentProcessor> shaderFP,
                                    GrPaint* grPaint);
@@ -72,7 +72,7 @@ bool SkPaintToGrPaintReplaceShader(GrContext*,
     primitive color is the dst or src color to the blend in order to work around differences between
     drawVertices and drawAtlas. */
 bool SkPaintToGrPaintWithXfermode(GrContext* context,
-                                  GrDrawContext* dc,
+                                  GrRenderTargetContext* dc,
                                   const SkPaint& skPaint,
                                   const SkMatrix& viewM,
                                   SkXfermode::Mode primColorMode,
@@ -83,7 +83,7 @@ bool SkPaintToGrPaintWithXfermode(GrContext* context,
     the expectation is that the primitive color will be premultiplied, though it really should be
     unpremultiplied so that interpolation is done in unpremul space. The paint's alpha will be
     applied to the primitive color after interpolation. */
-inline bool SkPaintToGrPaintWithPrimitiveColor(GrContext* context, GrDrawContext* dc,
+inline bool SkPaintToGrPaintWithPrimitiveColor(GrContext* context, GrRenderTargetContext* dc,
                                                const SkPaint& skPaint, GrPaint* grPaint) {
     return SkPaintToGrPaintWithXfermode(context, dc, skPaint, SkMatrix::I(), SkXfermode::kDst_Mode,
                                         false, grPaint);
@@ -92,7 +92,7 @@ inline bool SkPaintToGrPaintWithPrimitiveColor(GrContext* context, GrDrawContext
 /** This is used when there may or may not be a shader, and the caller wants to plugin a texture
     lookup.  If there is a shader, then its output will only be used if the texture is alpha8. */
 bool SkPaintToGrPaintWithTexture(GrContext* context,
-                                 GrDrawContext* dc,
+                                 GrRenderTargetContext* dc,
                                  const SkPaint& paint,
                                  const SkMatrix& viewM,
                                  sk_sp<GrFragmentProcessor> fp,

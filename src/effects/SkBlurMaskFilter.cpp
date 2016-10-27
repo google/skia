@@ -18,7 +18,7 @@
 #if SK_SUPPORT_GPU
 #include "GrCircleBlurFragmentProcessor.h"
 #include "GrContext.h"
-#include "GrDrawContext.h"
+#include "GrRenderTargetContext.h"
 #include "GrTexture.h"
 #include "GrFragmentProcessor.h"
 #include "GrInvariantOutput.h"
@@ -50,14 +50,14 @@ public:
                           const SkMatrix& ctm,
                           SkRect* maskRect) const override;
     bool directFilterMaskGPU(GrTextureProvider* texProvider,
-                             GrDrawContext* drawContext,
+                             GrRenderTargetContext* renderTargetContext,
                              GrPaint* grp,
                              const GrClip&,
                              const SkMatrix& viewMatrix,
                              const SkStrokeRec& strokeRec,
                              const SkPath& path) const override;
     bool directFilterRRectMaskGPU(GrContext*,
-                                  GrDrawContext* drawContext,
+                                  GrRenderTargetContext* renderTargetContext,
                                   GrPaint* grp,
                                   const GrClip&,
                                   const SkMatrix& viewMatrix,
@@ -1011,13 +1011,13 @@ sk_sp<GrFragmentProcessor> GrRectBlurEffect::TestCreate(GrProcessorTestData* d) 
 
 
 bool SkBlurMaskFilterImpl::directFilterMaskGPU(GrTextureProvider* texProvider,
-                                               GrDrawContext* drawContext,
+                                               GrRenderTargetContext* renderTargetContext,
                                                GrPaint* grp,
                                                const GrClip& clip,
                                                const SkMatrix& viewMatrix,
                                                const SkStrokeRec& strokeRec,
                                                const SkPath& path) const {
-    SkASSERT(drawContext);
+    SkASSERT(renderTargetContext);
 
     if (fBlurStyle != kNormal_SkBlurStyle) {
         return false;
@@ -1059,7 +1059,7 @@ bool SkBlurMaskFilterImpl::directFilterMaskGPU(GrTextureProvider* texProvider,
         return false;
     }
 
-    drawContext->fillRectWithLocalMatrix(clip, *grp, SkMatrix::I(), rect, inverse);
+    renderTargetContext->fillRectWithLocalMatrix(clip, *grp, SkMatrix::I(), rect, inverse);
     return true;
 }
 
@@ -1121,10 +1121,8 @@ static sk_sp<GrTexture> find_or_create_rrect_blur_mask(GrContext* context,
     sk_sp<GrTexture> mask(context->textureProvider()->findAndRefTextureByUniqueKey(key));
     if (!mask) {
         // TODO: this could be approx but the texture coords will need to be updated
-        sk_sp<GrDrawContext> dc(context->makeDrawContextWithFallback(SkBackingFit::kExact,
-                                                                     size.fWidth, size.fHeight,
-                                                                     kAlpha_8_GrPixelConfig,
-                                                                     nullptr));
+        sk_sp<GrRenderTargetContext> dc(context->makeRenderTargetContextWithFallback(
+            SkBackingFit::kExact, size.fWidth, size.fHeight, kAlpha_8_GrPixelConfig, nullptr));
         if (!dc) {
             return nullptr;
         }
@@ -1136,14 +1134,14 @@ static sk_sp<GrTexture> find_or_create_rrect_blur_mask(GrContext* context,
         dc->drawRRect(GrNoClip(), grPaint, SkMatrix::I(), rrectToDraw, GrStyle::SimpleFill());
 
         sk_sp<GrTexture> srcTexture(dc->asTexture());
-        sk_sp<GrDrawContext> dc2(SkGpuBlurUtils::GaussianBlur(context,
-                                                              srcTexture.get(),
-                                                              nullptr,
-                                                              SkIRect::MakeWH(size.fWidth,
-                                                                              size.fHeight),
-                                                              nullptr,
-                                                              xformedSigma, xformedSigma,
-                                                              SkBackingFit::kExact));
+        sk_sp<GrRenderTargetContext> dc2(SkGpuBlurUtils::GaussianBlur(context,
+                                                                      srcTexture.get(),
+                                                                      nullptr,
+                                                                      SkIRect::MakeWH(size.fWidth,
+                                                                                      size.fHeight),
+                                                                      nullptr,
+                                                                      xformedSigma, xformedSigma,
+                                                                      SkBackingFit::kExact));
         if (!dc2) {
             return nullptr;
         }
@@ -1333,14 +1331,14 @@ GrGLSLFragmentProcessor* GrRRectBlurEffect::onCreateGLSLInstance() const {
 }
 
 bool SkBlurMaskFilterImpl::directFilterRRectMaskGPU(GrContext* context,
-                                                    GrDrawContext* drawContext,
+                                                    GrRenderTargetContext* renderTargetContext,
                                                     GrPaint* grp,
                                                     const GrClip& clip,
                                                     const SkMatrix& viewMatrix,
                                                     const SkStrokeRec& strokeRec,
                                                     const SkRRect& srcRRect,
                                                     const SkRRect& devRRect) const {
-    SkASSERT(drawContext);
+    SkASSERT(renderTargetContext);
 
     if (fBlurStyle != kNormal_SkBlurStyle) {
         return false;
@@ -1380,7 +1378,7 @@ bool SkBlurMaskFilterImpl::directFilterRRectMaskGPU(GrContext* context,
         SkRect srcProxyRect = srcRRect.rect();
         srcProxyRect.outset(3.0f*fSigma, 3.0f*fSigma);
 
-        drawContext->drawRect(clip, newPaint, viewMatrix, srcProxyRect);
+        renderTargetContext->drawRect(clip, newPaint, viewMatrix, srcProxyRect);
         return true;
     }
 
@@ -1425,8 +1423,8 @@ bool SkBlurMaskFilterImpl::directFilterRRectMaskGPU(GrContext* context,
             numIndices = 6;
         }
 
-        drawContext->drawVertices(clip, newPaint, viewMatrix, kTriangles_GrPrimitiveType,
-                                  numPoints, points, nullptr, nullptr, indices, numIndices);
+        renderTargetContext->drawVertices(clip, newPaint, viewMatrix, kTriangles_GrPrimitiveType,
+                                          numPoints, points, nullptr, nullptr, indices, numIndices);
 
     } else {
         SkMatrix inverse;
@@ -1439,7 +1437,8 @@ bool SkBlurMaskFilterImpl::directFilterRRectMaskGPU(GrContext* context,
         proxyRect.outset(extra, extra);
 
 
-        drawContext->fillRectWithLocalMatrix(clip, newPaint, SkMatrix::I(), proxyRect, inverse);
+        renderTargetContext->fillRectWithLocalMatrix(clip, newPaint, SkMatrix::I(), proxyRect,
+                                                     inverse);
     }
 
     return true;
@@ -1502,10 +1501,12 @@ bool SkBlurMaskFilterImpl::filterMaskGPU(GrTexture* src,
     // If we're doing a normal blur, we can clobber the pathTexture in the
     // gaussianBlur.  Otherwise, we need to save it for later compositing.
     bool isNormalBlur = (kNormal_SkBlurStyle == fBlurStyle);
-    sk_sp<GrDrawContext> drawContext(SkGpuBlurUtils::GaussianBlur(context, src, nullptr,
-                                                                  clipRect, nullptr,
-                                                                  xformedSigma, xformedSigma));
-    if (!drawContext) {
+    sk_sp<GrRenderTargetContext> renderTargetContext(SkGpuBlurUtils::GaussianBlur(context, src,
+                                                                                  nullptr, clipRect,
+                                                                                  nullptr,
+                                                                                  xformedSigma,
+                                                                                  xformedSigma));
+    if (!renderTargetContext) {
         return false;
     }
 
@@ -1530,10 +1531,10 @@ bool SkBlurMaskFilterImpl::filterMaskGPU(GrTexture* src,
             paint.setCoverageSetOpXPFactory(SkRegion::kReplace_Op);
         }
 
-        drawContext->drawRect(GrNoClip(), paint, SkMatrix::I(), SkRect::Make(clipRect));
+        renderTargetContext->drawRect(GrNoClip(), paint, SkMatrix::I(), SkRect::Make(clipRect));
     }
 
-    *result = drawContext->asTexture().release();
+    *result = renderTargetContext->asTexture().release();
     return true;
 }
 
