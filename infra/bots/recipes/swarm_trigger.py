@@ -214,8 +214,8 @@ def trigger_task(api, task_name, builder, master, slave, buildnumber,
     if api.properties.get('patch_storage') == 'gerrit':
       properties['patch_storage'] = api.properties['patch_storage']
       properties['repository'] = api.properties['repository']
-      properties['event.patchSet.ref'] = api.properties['event.patchSet.ref']
-      properties['event.change.number'] = api.properties['event.change.number']
+      properties['patch_ref'] = api.properties['patch_ref']
+      properties['patch_issue'] = api.properties['patch_issue']
     else:
       properties['issue'] = str(api.properties['issue'])
       properties['patchset'] = str(api.properties['patchset'])
@@ -749,8 +749,9 @@ def GenTests(api):
   gerrit_kwargs = {
     'patch_storage': 'gerrit',
     'repository': 'skia',
-    'event.patchSet.ref': 'refs/changes/00/2100/2',
-    'event.change.number': '2100',
+    'patch_ref': 'refs/changes/00/2100/2',
+    'patch_issue': '2100',
+    'patch_set': '2',
   }
   yield (
       api.test('recipe_with_gerrit_patch') +

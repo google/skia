@@ -677,12 +677,6 @@ def GenTests(api):
   )
 
   builder = 'Test-Ubuntu-GCC-GCE-CPU-AVX2-x86-Debug-Trybot'
-  gerrit_kwargs = {
-    'patch_storage': 'gerrit',
-    'repository': 'skia',
-    'event.patchSet.ref': 'refs/changes/00/2100/2',
-    'event.change.number': '2100',
-  }
   yield (
       api.test('recipe_with_gerrit_patch') +
       api.properties(
@@ -693,7 +687,12 @@ def GenTests(api):
           path_config='kitchen',
           swarm_out_dir='[SWARM_OUT_DIR]',
           revision='abc123',
-          **gerrit_kwargs)
+          patch_storage='gerrit') +
+      api.properties.tryserver(
+          buildername=builder,
+          gerrit_project='skia',
+          gerrit_url='https://skia-review.googlesource.com/',
+      )
   )
 
   yield (
@@ -707,7 +706,12 @@ def GenTests(api):
           swarm_out_dir='[SWARM_OUT_DIR]',
           revision='abc123',
           nobuildbot='True',
-          **gerrit_kwargs) +
+          patch_storage='gerrit') +
+      api.properties.tryserver(
+          buildername=builder,
+          gerrit_project='skia',
+          gerrit_url='https://skia-review.googlesource.com/',
+      ) +
       api.step_data('get swarming bot id',
           stdout=api.raw_io.output('skia-bot-123')) +
       api.step_data('get swarming task id', stdout=api.raw_io.output('123456'))

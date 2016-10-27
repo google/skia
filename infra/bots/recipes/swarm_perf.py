@@ -320,37 +320,44 @@ def GenTests(api):
     api.platform('win', 64)
   )
 
-  gerrit_kwargs = {
-    'patch_storage': 'gerrit',
-    'repository': 'skia',
-    'event.patchSet.ref': 'refs/changes/00/2100/2',
-    'event.change.number': '2100',
-  }
+  builder = ('Perf-Ubuntu-GCC-ShuttleA-GPU-GTX550Ti-x86_64-Release-Valgrind-'
+             'Trybot')
   yield (
       api.test('recipe_with_gerrit_patch') +
       api.properties(
-          buildername='Perf-Ubuntu-GCC-ShuttleA-GPU-GTX550Ti-x86_64-Release-' +
-                      'Valgrind-Trybot',
+          buildername=builder,
           mastername='client.skia',
           slavename='skiabot-linux-swarm-000',
           buildnumber=5,
           path_config='kitchen',
           swarm_out_dir='[SWARM_OUT_DIR]',
           revision='abc123',
-          **gerrit_kwargs)
+          patch_storage='gerrit') +
+      api.properties.tryserver(
+          buildername=builder,
+          gerrit_project='skia',
+          gerrit_url='https://skia-review.googlesource.com/',
+      )
   )
 
+  builder = 'Perf-Win8-MSVC-ShuttleB-GPU-HD4600-x86_64-Release-Trybot'
   yield (
       api.test('nobuildbot') +
-      api.properties(buildername=builder,
-                     mastername='client.skia',
-                     slavename='skiabot-linux-swarm-000',
-                     buildnumber=5,
-                     revision='abc123',
-                     path_config='kitchen',
-                     nobuildbot='True',
-                     swarm_out_dir='[SWARM_OUT_DIR]',
-                     **gerrit_kwargs) +
+      api.properties(
+          buildername=builder,
+          mastername='client.skia',
+          slavename='skiabot-linux-swarm-000',
+          buildnumber=5,
+          revision='abc123',
+          path_config='kitchen',
+          nobuildbot='True',
+          swarm_out_dir='[SWARM_OUT_DIR]',
+          patch_storage='gerrit') +
+      api.properties.tryserver(
+          buildername=builder,
+          gerrit_project='skia',
+          gerrit_url='https://skia-review.googlesource.com/',
+      ) +
       api.path.exists(
           api.path['slave_build'].join('skia'),
           api.path['slave_build'].join('skia', 'infra', 'bots', 'assets',
