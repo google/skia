@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "86081a1d_d8032d2a",
+        "filename": "include/core/SkTypes.h",
+        "patchSetId": 6
+      },
+      "lineNbr": 38,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2016-10-27T18:20:09Z",
+      "side": 1,
+      "message": "Remove this before landing?\n\nAdd to Chromium if needed?",
+      "range": {
+        "startLine": 38,
+        "startChar": 8,
+        "endLine": 38,
+        "endChar": 40
+      },
+      "revId": "a440db47d7c788cd7ec106b11782b885cd2c9832",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
