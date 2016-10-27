@@ -31,8 +31,6 @@ declare_args() {
   skia_vulkan_sdk = getenv("VULKAN_SDK")
 }
 
-skia_use_vulkan = skia_use_vulkan || skia_vulkan_sdk != ""
-
 # Our tools require static linking (they use non-exported symbols).
 skia_enable_tools = skia_enable_tools && !is_component_build
 
