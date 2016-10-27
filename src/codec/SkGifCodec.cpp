@@ -37,7 +37,6 @@
 #include "SkGifCodec.h"
 #include "SkStream.h"
 #include "SkSwizzler.h"
-#include "SkUtils.h"
 
 #include <algorithm>
 
@@ -144,10 +143,9 @@ void SkGifCodec::initializeColorTable(const SkImageInfo& dstInfo, size_t frameIn
     fCurrColorTable = fReader->getColorTable(dstInfo.colorType(), frameIndex);
     fCurrColorTableIsReal = fCurrColorTable;
     if (!fCurrColorTable) {
-        // This is possible for an empty frame. Create a dummy with all transparent.
-        SkPMColor colors[SK_MAX_COLORS];
-        sk_memset32(colors, SK_ColorTRANSPARENT, SK_MAX_COLORS);
-        fCurrColorTable.reset(new SkColorTable(colors, 256));
+        // This is possible for an empty frame. Create a dummy with one value (transparent).
+        SkPMColor color = SK_ColorTRANSPARENT;
+        fCurrColorTable.reset(new SkColorTable(&color, 1));
     }
 
     if (inputColorCount) {
