@@ -809,13 +809,7 @@ if (skia_enable_tools) {
     ]
   }
 
-  gm_sources = exec_script("gyp/find.py",
-                           [
-                             "*.c*",
-                             rebase_path("gm"),
-                           ],
-                           "list lines",
-                           [])
+  import("gn/gm.gni")
   test_lib("gm") {
     public_include_dirs = [ "gm" ]
     sources = gm_sources
@@ -827,23 +821,12 @@ if (skia_enable_tools) {
     ]
   }
 
-  tests_sources = exec_script("gyp/find.py",
-                              [
-                                "*.c*",
-                                rebase_path("tests"),
-                              ],
-                              "list lines",
-                              [])
-
+  import("gn/tests.gni")
   test_lib("tests") {
     public_include_dirs = [ "tests" ]
-    sources = tests_sources - [
-                rebase_path("tests/PathOpsSkpClipTest.cpp"),  # alternate main
-                rebase_path("tests/SkpSkGrTest.cpp"),  # doesn't compile
-                rebase_path("tests/skia_test.cpp"),  # alternate main
-              ]
+    sources = tests_sources + pathops_tests_sources
     if (!fontmgr_android_enabled) {
-      sources -= [ rebase_path("tests/FontMgrAndroidParserTest.cpp") ]
+      sources -= [ "//tests/FontMgrAndroidParserTest.cpp" ]
     }
     deps = [
       ":experimental_svg_model",
@@ -856,21 +839,10 @@ if (skia_enable_tools) {
     ]
   }
 
-  bench_sources = exec_script("gyp/find.py",
-                              [
-                                "*.c*",
-                                rebase_path("bench"),
-                              ],
-                              "list lines",
-                              [])
-
+  import("gn/bench.gni")
   test_lib("bench") {
     public_include_dirs = [ "bench" ]
     sources = bench_sources
-    sources -= [
-      rebase_path("bench/nanobench.cpp"),
-      rebase_path("bench/nanobenchAndroid.cpp"),
-    ]
     deps = [
       ":flags",
       ":gm",
@@ -945,38 +917,19 @@ if (skia_enable_tools) {
     }
   }
 
-  sample_sources = exec_script("gyp/find.py",
-                               [
-                                 "*.c*",
-                                 rebase_path("samplecode"),
-                               ],
-                               "list lines",
-                               [])
-
+  import("gn/samples.gni")
   test_lib("samples") {
-    include_dirs = [ "experimental" ]
     public_include_dirs = [ "samplecode" ]
-    sources = sample_sources
-    sources -= [
-      rebase_path("samplecode/SampleAnimator.cpp"),  # relies on animator
-      rebase_path("samplecode/SampleApp.cpp"),  # part of SampleApp exe, not samples lib
-      rebase_path("samplecode/SampleClamp.cpp"),
-      rebase_path("samplecode/SampleDash.cpp"),
-      rebase_path("samplecode/SampleLua.cpp"),  # no Lua yet in GN
-      rebase_path("samplecode/SamplePathFill.cpp"),
-      rebase_path("samplecode/SamplePictFile.cpp"),  # relies on SK_SUPPORT_LEGACY_DRAWFILTER
-      rebase_path("samplecode/SampleSkLayer.cpp"),  # relies on SkMatrix44 which doesn't compile?
-      rebase_path("samplecode/SampleFontCache.cpp"),  # relies on pthread.h
-    ]
-    sources += [
-      "experimental/SkPerlinNoiseShader2/SkPerlinNoiseShader2.cpp",
-      "experimental/SkSetPoly3To3.cpp",
-      "experimental/SkSetPoly3To3_A.cpp",
-      "experimental/SkSetPoly3To3_D.cpp",
-    ]
+    include_dirs = [ "experimental" ]
+    sources = samples_sources + [
+                "experimental/SkPerlinNoiseShader2/SkPerlinNoiseShader2.cpp",
+                "experimental/SkSetPoly3To3.cpp",
+                "experimental/SkSetPoly3To3_A.cpp",
+                "experimental/SkSetPoly3To3_D.cpp",
+              ]
     deps = [
       ":experimental_svg_model",
-      ":gm",  # Why does SampleFilterQuality.cpp include gm.h ???
+      ":gm",
       ":tool_utils",
       ":views",
       ":xml",
@@ -1140,18 +1093,8 @@ if (skia_enable_tools) {
     testonly = true
   }
 
-  pathops_tests_sources = exec_script("gyp/find.py",
-                                      [
-                                        "PathOps*.cpp",
-                                        rebase_path("tests"),
-                                      ],
-                                      "list lines",
-                                      [])
-
   executable("pathops_unittest") {
-    sources = pathops_tests_sources -
-              [ rebase_path("tests/PathOpsSkpClipTest.cpp") ] +
-              [
+    sources = pathops_tests_sources + [
                 rebase_path("tests/skia_test.cpp"),
                 rebase_path("tests/Test.cpp"),
               ]
