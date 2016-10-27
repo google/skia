@@ -28,7 +28,7 @@ declare_args() {
   skia_enable_gpu = true
   skia_enable_tools = is_skia_standalone
   skia_enable_vulkan_debug_layers = is_skia_standalone && is_debug
-  skia_vulkan_sdk = ""
+  skia_vulkan_sdk = getenv("VULKAN_SDK")
 }
 
 skia_use_vulkan = skia_use_vulkan || skia_vulkan_sdk != ""
@@ -123,8 +123,8 @@ config("skia_private") {
         include_dirs += [ "$skia_vulkan_sdk/Include/" ]
         lib_dirs += [ "$skia_vulkan_sdk/Bin" ]
       } else {
-        include_dirs += [ "$skia_vulkan_sdk/x86_64/include/" ]
-        lib_dirs += [ "$skia_vulkan_sdk/x86_64/lib/" ]
+        include_dirs += [ "$skia_vulkan_sdk/include/" ]
+        lib_dirs += [ "$skia_vulkan_sdk/lib/" ]
       }
     }
     if (is_win) {
