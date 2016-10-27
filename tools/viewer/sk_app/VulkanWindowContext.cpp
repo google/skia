@@ -310,7 +310,7 @@ void VulkanWindowContext::createBuffers(VkFormat format) {
     fenceInfo.pNext = nullptr;
     fenceInfo.flags = VK_FENCE_CREATE_SIGNALED_BIT;
 
-    // we create one additional backbuffer structure here, because we want to 
+    // we create one additional backbuffer structure here, because we want to
     // give the command buffers they contain a chance to finish before we cycle back
     fBackbuffers = new BackbufferInfo[fImageCount + 1];
     for (uint32_t i = 0; i < fImageCount + 1; ++i) {
@@ -417,7 +417,6 @@ VulkanWindowContext::BackbufferInfo* VulkanWindowContext::getAvailableBackbuffer
     }
 
     BackbufferInfo* backbuffer = fBackbuffers + fCurrentBackbufferIndex;
-
     GR_VK_CALL_ERRCHECK(fBackendContext->fInterface,
                         WaitForFences(fBackendContext->fDevice, 2, backbuffer->fUsageFences,
                                       true, UINT64_MAX));
@@ -444,7 +443,7 @@ sk_sp<SkSurface> VulkanWindowContext::getBackbufferSurface() {
     }
     if (VK_ERROR_OUT_OF_DATE_KHR == res) {
         // tear swapchain down and try again
-        if (!this->createSwapchain(0, 0, fDisplayParams)) {
+        if (!this->createSwapchain(-1, -1, fDisplayParams)) {
             return nullptr;
         }
 
