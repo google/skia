@@ -2,6 +2,23 @@
   "comments": [
     {
       "key": {
+        "uuid": "86081a1d_d8656dcc",
+        "filename": "gyp/effects.gypi",
+        "patchSetId": 7
+      },
+      "lineNbr": 63,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2016-10-27T18:49:22Z",
+      "side": 1,
+      "message": "Does this need to be in a .gni file now?",
+      "revId": "ba0068719eec4f2b97f1d5b5118d43b0343edbe8",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "6105d0c2_1914beb5",
         "filename": "include/effects/SkShadowMaskFilter.h",
         "patchSetId": 7
@@ -87,6 +104,40 @@
     },
     {
       "key": {
+        "uuid": "86081a1d_d817ad04",
+        "filename": "src/effects/SkShadowMaskFilter.cpp",
+        "patchSetId": 7
+      },
+      "lineNbr": 127,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2016-10-27T18:49:22Z",
+      "side": 1,
+      "message": "line up ?",
+      "revId": "ba0068719eec4f2b97f1d5b5118d43b0343edbe8",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "86081a1d_383109b8",
+        "filename": "src/effects/SkShadowMaskFilter.cpp",
+        "patchSetId": 7
+      },
+      "lineNbr": 133,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2016-10-27T18:49:22Z",
+      "side": 1,
+      "message": "1-line ?",
+      "revId": "ba0068719eec4f2b97f1d5b5118d43b0343edbe8",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "6105d0c2_19edde9b",
         "filename": "src/effects/SkShadowMaskFilter.cpp",
         "patchSetId": 7
@@ -121,6 +172,23 @@
     },
     {
       "key": {
+        "uuid": "86081a1d_184d253a",
+        "filename": "src/effects/SkShadowMaskFilter.cpp",
+        "patchSetId": 7
+      },
+      "lineNbr": 147,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2016-10-27T18:49:22Z",
+      "side": 1,
+      "message": "line up ?",
+      "revId": "ba0068719eec4f2b97f1d5b5118d43b0343edbe8",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "6105d0c2_d9f24681",
         "filename": "src/effects/SkShadowMaskFilter.cpp",
         "patchSetId": 7
@@ -149,6 +217,23 @@
       "writtenOn": "2016-10-27T12:57:58Z",
       "side": 1,
       "message": "override instead ?",
+      "revId": "ba0068719eec4f2b97f1d5b5118d43b0343edbe8",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "86081a1d_38fb49a3",
+        "filename": "src/effects/SkShadowMaskFilter.cpp",
+        "patchSetId": 7
+      },
+      "lineNbr": 253,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2016-10-27T18:49:22Z",
+      "side": 1,
+      "message": "rm virtual ?",
       "revId": "ba0068719eec4f2b97f1d5b5118d43b0343edbe8",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
@@ -285,6 +370,23 @@
       "writtenOn": "2016-10-27T12:57:58Z",
       "side": 1,
       "message": "add code to pass on the devRRect ? Don\u0027t we also need to pass on the viewMatrix ?",
+      "revId": "ba0068719eec4f2b97f1d5b5118d43b0343edbe8",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "86081a1d_78c30149",
+        "filename": "src/effects/SkShadowMaskFilter.cpp",
+        "patchSetId": 7
+      },
+      "lineNbr": 475,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2016-10-27T18:49:22Z",
+      "side": 1,
+      "message": "// TODO: switch to coverage processors\n?",
       "revId": "ba0068719eec4f2b97f1d5b5118d43b0343edbe8",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
