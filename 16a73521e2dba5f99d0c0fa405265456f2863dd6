@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "e62d5695_ae5ed757",
+        "filename": "tools/viewer/sk_app/VulkanWindowContext.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 446,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2016-10-27T20:39:04Z",
+      "side": 1,
+      "message": "we can\u0027t actually remove these values since we do use them for resizing of the window.",
+      "range": {
+        "startLine": 446,
+        "startChar": 35,
+        "endLine": 446,
+        "endChar": 41
+      },
+      "revId": "16a73521e2dba5f99d0c0fa405265456f2863dd6",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
