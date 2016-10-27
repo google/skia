@@ -195,8 +195,7 @@ protected:
                     SkAutoTUnref<GrDrawBatch> batch(
                         new BezierCubicOrConicTestBatch(gp, bounds, color, klmEqs, klmSigns[c]));
 
-                    renderTargetContext->renderTargetContextPriv().testingOnly_drawBatch(grPaint,
-                                                                                         batch);
+                    renderTargetContext->priv().testingOnly_drawBatch(grPaint, batch);
                 }
                 ++col;
                 if (numCols == col) {
@@ -328,8 +327,7 @@ protected:
                     SkAutoTUnref<GrDrawBatch> batch(
                         new BezierCubicOrConicTestBatch(gp, bounds, color, klmEqs, 1.f));
 
-                    renderTargetContext->renderTargetContextPriv().testingOnly_drawBatch(grPaint,
-                                                                                         batch);
+                    renderTargetContext->priv().testingOnly_drawBatch(grPaint, batch);
                 }
                 ++col;
                 if (numCols == col) {
@@ -541,8 +539,7 @@ protected:
                     SkAutoTUnref<GrDrawBatch> batch(
                         new BezierQuadTestBatch(gp, bounds, color, DevToUV));
 
-                    renderTargetContext->renderTargetContextPriv().testingOnly_drawBatch(grPaint,
-                                                                                         batch);
+                    renderTargetContext->priv().testingOnly_drawBatch(grPaint, batch);
                 }
                 ++col;
                 if (numCols == col) {

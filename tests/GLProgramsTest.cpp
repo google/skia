@@ -340,8 +340,7 @@ bool GrDrawingManager::ProgramUnitTest(GrContext* context, int maxStages) {
         bool snapToCenters = set_random_state(&grPaint, &random);
         const GrUserStencilSettings* uss = get_random_stencil(&random);
 
-        renderTargetContext->renderTargetContextPriv().testingOnly_drawBatch(grPaint, batch, uss,
-                                                                             snapToCenters);
+        renderTargetContext->priv().testingOnly_drawBatch(grPaint, batch, uss, snapToCenters);
     }
     // Flush everything, test passes if flush is successful(ie, no asserts are hit, no crashes)
     drawingManager->flush();
@@ -375,7 +374,7 @@ bool GrDrawingManager::ProgramUnitTest(GrContext* context, int maxStages) {
                 BlockInputFragmentProcessor::Make(std::move(fp)));
             grPaint.addColorFragmentProcessor(std::move(blockFP));
 
-            renderTargetContext->renderTargetContextPriv().testingOnly_drawBatch(grPaint, batch);
+            renderTargetContext->priv().testingOnly_drawBatch(grPaint, batch);
             drawingManager->flush();
         }
     }

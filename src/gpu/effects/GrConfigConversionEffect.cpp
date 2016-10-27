@@ -184,13 +184,13 @@ void GrConfigConversionEffect::TestForPreservingPMConversions(GrContext* context
         }
     }
 
-    sk_sp<GrRenderTargetContext> readDC(context->makeRenderTargetContext(SkBackingFit::kExact,
-                                                                         kSize, kSize,
-                                                                         kConfig, nullptr));
-    sk_sp<GrRenderTargetContext> tempDC(context->makeRenderTargetContext(SkBackingFit::kExact,
-                                                                         kSize, kSize,
-                                                                         kConfig, nullptr));
-    if (!readDC || !tempDC) {
+    sk_sp<GrRenderTargetContext> readRTC(context->makeRenderTargetContext(SkBackingFit::kExact,
+                                                                          kSize, kSize,
+                                                                          kConfig, nullptr));
+    sk_sp<GrRenderTargetContext> tempRTC(context->makeRenderTargetContext(SkBackingFit::kExact,
+                                                                          kSize, kSize,
+                                                                          kConfig, nullptr));
+    if (!readRTC || !tempRTC) {
         return;
     }
     GrSurfaceDesc desc;
@@ -226,28 +226,28 @@ void GrConfigConversionEffect::TestForPreservingPMConversions(GrContext* context
         sk_sp<GrFragmentProcessor> pmToUPM1(new GrConfigConversionEffect(
                 dataTex, GrSwizzle::RGBA(), *pmToUPMRule, SkMatrix::I()));
         sk_sp<GrFragmentProcessor> upmToPM(new GrConfigConversionEffect(
-                readDC->asTexture().get(), GrSwizzle::RGBA(), *upmToPMRule, SkMatrix::I()));
+                readRTC->asTexture().get(), GrSwizzle::RGBA(), *upmToPMRule, SkMatrix::I()));
         sk_sp<GrFragmentProcessor> pmToUPM2(new GrConfigConversionEffect(
-                tempDC->asTexture().get(), GrSwizzle::RGBA(), *pmToUPMRule, SkMatrix::I()));
+                tempRTC->asTexture().get(), GrSwizzle::RGBA(), *pmToUPMRule, SkMatrix::I()));
 
         paint1.addColorFragmentProcessor(std::move(pmToUPM1));
         paint1.setPorterDuffXPFactory(SkBlendMode::kSrc);
 
-        readDC->fillRectToRect(GrNoClip(), paint1, SkMatrix::I(), kDstRect, kSrcRect);
+        readRTC->fillRectToRect(GrNoClip(), paint1, SkMatrix::I(), kDstRect, kSrcRect);
 
-        readDC->asTexture()->readPixels(0, 0, kSize, kSize, kConfig, firstRead);
+        readRTC->asTexture()->readPixels(0, 0, kSize, kSize, kConfig, firstRead);
 
         paint2.addColorFragmentProcessor(std::move(upmToPM));
         paint2.setPorterDuffXPFactory(SkBlendMode::kSrc);
 
-        tempDC->fillRectToRect(GrNoClip(), paint2, SkMatrix::I(), kDstRect, kSrcRect);
+        tempRTC->fillRectToRect(GrNoClip(), paint2, SkMatrix::I(), kDstRect, kSrcRect);
 
         paint3.addColorFragmentProcessor(std::move(pmToUPM2));
         paint3.setPorterDuffXPFactory(SkBlendMode::kSrc);
 
-        readDC->fillRectToRect(GrNoClip(), paint3, SkMatrix::I(), kDstRect, kSrcRect);
+        readRTC->fillRectToRect(GrNoClip(), paint3, SkMatrix::I(), kDstRect, kSrcRect);
 
-        readDC->asTexture()->readPixels(0, 0, kSize, kSize, kConfig, secondRead);
+        readRTC->asTexture()->readPixels(0, 0, kSize, kSize, kConfig, secondRead);
 
         failed = false;
         for (int y = 0; y < kSize && !failed; ++y) {

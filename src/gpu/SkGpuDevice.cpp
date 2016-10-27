@@ -243,16 +243,16 @@ void SkGpuDevice::clearAll() {
 void SkGpuDevice::replaceRenderTargetContext(bool shouldRetainContent) {
     ASSERT_SINGLE_OWNER
 
-    SkBudgeted budgeted = fRenderTargetContext->renderTargetContextPriv().isBudgeted();
+    SkBudgeted budgeted = fRenderTargetContext->priv().isBudgeted();
 
-    sk_sp<GrRenderTargetContext> newDC(MakeRenderTargetContext(
+    sk_sp<GrRenderTargetContext> newRTC(MakeRenderTargetContext(
                                                             this->context(),
                                                             budgeted,
                                                             this->imageInfo(),
                                                             fRenderTargetContext->numColorSamples(), 
                                                             fRenderTargetContext->origin(), 
                                                             &this->surfaceProps()));
-    if (!newDC) {
+    if (!newRTC) {
         return;
     }
 
@@ -260,12 +260,12 @@ void SkGpuDevice::replaceRenderTargetContext(bool shouldRetainContent) {
         if (fRenderTargetContext->wasAbandoned()) {
             return;
         }
-        newDC->copySurface(fRenderTargetContext->asTexture().get(),
-                           SkIRect::MakeWH(this->width(), this->height()),
-                           SkIPoint::Make(0, 0));
+        newRTC->copySurface(fRenderTargetContext->asTexture().get(),
+                            SkIRect::MakeWH(this->width(), this->height()),
+                            SkIPoint::Make(0, 0));
     }
 
-    fRenderTargetContext = newDC;
+    fRenderTargetContext = newRTC;
 }
 
 ///////////////////////////////////////////////////////////////////////////////

@@ -185,8 +185,7 @@ protected:
 
                 SkAutoTUnref<GrDrawBatch> batch(new PolyBoundsBatch(p.getBounds(), 0xff000000));
 
-                renderTargetContext->renderTargetContextPriv().testingOnly_drawBatch(grPaint,
-                                                                                     batch);
+                renderTargetContext->priv().testingOnly_drawBatch(grPaint, batch);
 
                 x += SkScalarCeilToScalar(path->getBounds().width() + kDX);
             }
@@ -225,8 +224,7 @@ protected:
 
                 SkAutoTUnref<GrDrawBatch> batch(new PolyBoundsBatch(rect, 0xff000000));
 
-                renderTargetContext->renderTargetContextPriv().testingOnly_drawBatch(grPaint,
-                                                                                     batch);
+                renderTargetContext->priv().testingOnly_drawBatch(grPaint, batch);
 
                 x += SkScalarCeilToScalar(rect.width() + kDX);
             }
