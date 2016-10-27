@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "6105d0c2_795dfa5b",
+        "filename": "src/core/SkFix.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 17,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2016-10-27T13:51:07Z",
+      "side": 1,
+      "message": "Perhaps a more descriptive/specific name?\n\nSkFixed15 or SkFixed16 ?\n\nNot perfect, but reminiscent of related skia types",
+      "range": {
+        "startLine": 17,
+        "startChar": 6,
+        "endLine": 17,
+        "endChar": 11
+      },
+      "revId": "cc818da1da695d08508f556dea1b321e624f8c51",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
