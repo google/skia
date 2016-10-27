@@ -23,7 +23,7 @@
 #include "../private/SkShadowParams.h"
 
 class GrContext;
-class GrDrawContext;
+class GrRenderTargetContext;
 class SkBaseDevice;
 class SkCanvasClipVisitor;
 class SkClipStack;
@@ -1371,7 +1371,7 @@ public:
     ///////////////////////////////////////////////////////////////////////////
 
     // don't call
-    GrDrawContext* internal_private_accessTopLayerDrawContext();
+    GrRenderTargetContext* internal_private_accessTopLayerRenderTargetContext();
 
     // don't call
     static void Internal_Private_SetIgnoreSaveLayerBounds(bool);

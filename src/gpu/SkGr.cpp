@@ -11,7 +11,7 @@
 
 #include "GrCaps.h"
 #include "GrContext.h"
-#include "GrDrawContext.h"
+#include "GrRenderTargetContext.h"
 #include "GrGpuResourcePriv.h"
 #include "GrImageIDTextureAdjuster.h"
 #include "GrTextureParamsAdjuster.h"
@@ -575,7 +575,7 @@ static inline bool blend_requires_shader(const SkXfermode::Mode mode, bool primi
 }
 
 static inline bool skpaint_to_grpaint_impl(GrContext* context,
-                                           GrDrawContext* dc,
+                                           GrRenderTargetContext* dc,
                                            const SkPaint& skPaint,
                                            const SkMatrix& viewM,
                                            sk_sp<GrFragmentProcessor>* shaderProcessor,
@@ -729,14 +729,14 @@ static inline bool skpaint_to_grpaint_impl(GrContext* context,
     return true;
 }
 
-bool SkPaintToGrPaint(GrContext* context, GrDrawContext* dc, const SkPaint& skPaint,
+bool SkPaintToGrPaint(GrContext* context, GrRenderTargetContext* dc, const SkPaint& skPaint,
                       const SkMatrix& viewM, GrPaint* grPaint) {
     return skpaint_to_grpaint_impl(context, dc, skPaint, viewM, nullptr, nullptr, false, grPaint);
 }
 
 /** Replaces the SkShader (if any) on skPaint with the passed in GrFragmentProcessor. */
 bool SkPaintToGrPaintReplaceShader(GrContext* context,
-                                   GrDrawContext* dc,
+                                   GrRenderTargetContext* dc,
                                    const SkPaint& skPaint,
                                    sk_sp<GrFragmentProcessor> shaderFP,
                                    GrPaint* grPaint) {
@@ -749,7 +749,7 @@ bool SkPaintToGrPaintReplaceShader(GrContext* context,
 
 /** Ignores the SkShader (if any) on skPaint. */
 bool SkPaintToGrPaintNoShader(GrContext* context,
-                              GrDrawContext* dc,
+                              GrRenderTargetContext* dc,
                               const SkPaint& skPaint,
                               GrPaint* grPaint) {
     // Use a ptr to a nullptr to to indicate that the SkShader is ignored and not replaced.
@@ -762,7 +762,7 @@ bool SkPaintToGrPaintNoShader(GrContext* context,
 /** Blends the SkPaint's shader (or color if no shader) with a per-primitive color which must
 be setup as a vertex attribute using the specified SkXfermode::Mode. */
 bool SkPaintToGrPaintWithXfermode(GrContext* context,
-                                  GrDrawContext* dc,
+                                  GrRenderTargetContext* dc,
                                   const SkPaint& skPaint,
                                   const SkMatrix& viewM,
                                   SkXfermode::Mode primColorMode,
@@ -773,7 +773,7 @@ bool SkPaintToGrPaintWithXfermode(GrContext* context,
 }
 
 bool SkPaintToGrPaintWithTexture(GrContext* context,
-                                 GrDrawContext* dc,
+                                 GrRenderTargetContext* dc,
                                  const SkPaint& paint,
                                  const SkMatrix& viewM,
                                  sk_sp<GrFragmentProcessor> fp,

@@ -7,7 +7,7 @@
 #include "GrAtlasTextContext.h"
 
 #include "GrContext.h"
-#include "GrDrawContext.h"
+#include "GrRenderTargetContext.h"
 #include "GrTextBlobCache.h"
 #include "GrTextUtils.h"
 
@@ -53,7 +53,7 @@ GrColor GrAtlasTextContext::ComputeCanonicalColor(const SkPaint& paint, bool lcd
     return canonicalColor;
 }
 
-uint32_t GrAtlasTextContext::ComputeScalerContextFlags(GrDrawContext* dc) {
+uint32_t GrAtlasTextContext::ComputeScalerContextFlags(GrRenderTargetContext* dc) {
     // If we're doing gamma-correct rendering, then we can disable the gamma hacks.
     // Otherwise, leave them on. In either case, we still want the contrast boost:
     if (dc->isGammaCorrect()) {
@@ -76,7 +76,7 @@ bool GrAtlasTextContext::HasLCD(const SkTextBlob* blob) {
     return false;
 }
 
-void GrAtlasTextContext::drawTextBlob(GrContext* context, GrDrawContext* dc,
+void GrAtlasTextContext::drawTextBlob(GrContext* context, GrRenderTargetContext* dc,
                                       const GrClip& clip, const SkPaint& skPaint,
                                       const SkMatrix& viewMatrix,
                                       const SkSurfaceProps& props, const SkTextBlob* blob,
@@ -313,7 +313,7 @@ GrAtlasTextContext::CreateDrawPosTextBlob(GrTextBlobCache* blobCache, GrBatchFon
 }
 
 void GrAtlasTextContext::drawText(GrContext* context,
-                                  GrDrawContext* dc,
+                                  GrRenderTargetContext* dc,
                                   const GrClip& clip,
                                   const GrPaint& paint, const SkPaint& skPaint,
                                   const SkMatrix& viewMatrix,
@@ -341,7 +341,7 @@ void GrAtlasTextContext::drawText(GrContext* context,
 }
 
 void GrAtlasTextContext::drawPosText(GrContext* context,
-                                     GrDrawContext* dc,
+                                     GrRenderTargetContext* dc,
                                      const GrClip& clip,
                                      const GrPaint& paint, const SkPaint& skPaint,
                                      const SkMatrix& viewMatrix,
@@ -388,9 +388,9 @@ DRAW_BATCH_TEST_DEFINE(TextBlobBatch) {
         gTextContext = GrAtlasTextContext::Create();
     }
 
-    // Setup dummy SkPaint / GrPaint / GrDrawContext
-    sk_sp<GrDrawContext> drawContext(context->makeDrawContext(SkBackingFit::kApprox, 1024, 1024,
-                                                              kRGBA_8888_GrPixelConfig, nullptr));
+    // Setup dummy SkPaint / GrPaint / GrRenderTargetContext
+    sk_sp<GrRenderTargetContext> renderTargetContext(context->makeRenderTargetContext(
+        SkBackingFit::kApprox, 1024, 1024, kRGBA_8888_GrPixelConfig, nullptr));
 
     GrColor color = GrRandomColor(random);
     SkMatrix viewMatrix = GrTest::TestMatrixInvertible(random);
@@ -401,7 +401,7 @@ DRAW_BATCH_TEST_DEFINE(TextBlobBatch) {
     skPaint.setSubpixelText(random->nextBool());
 
     GrPaint grPaint;
-    if (!SkPaintToGrPaint(context, drawContext.get(), skPaint, viewMatrix, &grPaint)) {
+    if (!SkPaintToGrPaint(context, renderTargetContext.get(), skPaint, viewMatrix, &grPaint)) {
         SkFAIL("couldn't convert paint\n");
     }
 

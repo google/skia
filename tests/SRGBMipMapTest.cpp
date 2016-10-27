@@ -9,7 +9,7 @@
 #if SK_SUPPORT_GPU
 #include "GrCaps.h"
 #include "GrContext.h"
-#include "GrDrawContext.h"
+#include "GrRenderTargetContext.h"
 #include "SkCanvas.h"
 #include "SkSurface.h"
 
@@ -121,12 +121,10 @@ DEF_GPUTEST_FOR_GL_RENDERING_CONTEXTS(SRGBMipMaps, reporter, ctxInfo) {
 
     // Create two draw contexts (L32 and S32)
     sk_sp<SkColorSpace> srgbColorSpace = SkColorSpace::MakeNamed(SkColorSpace::kSRGB_Named);
-    sk_sp<GrDrawContext> l32DrawContext = context->makeDrawContext(SkBackingFit::kExact, rtS, rtS,
-                                                                   kRGBA_8888_GrPixelConfig,
-                                                                   nullptr);
-    sk_sp<GrDrawContext> s32DrawContext = context->makeDrawContext(SkBackingFit::kExact, rtS, rtS,
-                                                                   kSRGBA_8888_GrPixelConfig,
-                                                                   std::move(srgbColorSpace));
+    sk_sp<GrRenderTargetContext> l32RenderTargetContext = context->makeRenderTargetContext(
+        SkBackingFit::kExact, rtS, rtS, kRGBA_8888_GrPixelConfig, nullptr);
+    sk_sp<GrRenderTargetContext> s32RenderTargetContext = context->makeRenderTargetContext(
+        SkBackingFit::kExact, rtS, rtS, kSRGBA_8888_GrPixelConfig, std::move(srgbColorSpace));
 
     SkRect rect = SkRect::MakeWH(SkIntToScalar(rtS), SkIntToScalar(rtS));
     GrNoClip noClip;
@@ -137,20 +135,20 @@ DEF_GPUTEST_FOR_GL_RENDERING_CONTEXTS(SRGBMipMaps, reporter, ctxInfo) {
 
     // 1) Draw texture to S32 surface (should generate/use sRGB mips)
     paint.setGammaCorrect(true);
-    s32DrawContext->drawRect(noClip, paint, SkMatrix::I(), rect);
-    read_and_check_pixels(reporter, s32DrawContext->asTexture().get(), expectedSRGB, error,
+    s32RenderTargetContext->drawRect(noClip, paint, SkMatrix::I(), rect);
+    read_and_check_pixels(reporter, s32RenderTargetContext->asTexture().get(), expectedSRGB, error,
                           "first render of sRGB");
 
     // 2) Draw texture to L32 surface (should generate/use linear mips)
     paint.setGammaCorrect(false);
-    l32DrawContext->drawRect(noClip, paint, SkMatrix::I(), rect);
-    read_and_check_pixels(reporter, l32DrawContext->asTexture().get(), expectedLinear, error,
-                          "re-render as linear");
+    l32RenderTargetContext->drawRect(noClip, paint, SkMatrix::I(), rect);
+    read_and_check_pixels(reporter, l32RenderTargetContext->asTexture().get(), expectedLinear,
+                          error, "re-render as linear");
 
     // 3) Go back to sRGB
     paint.setGammaCorrect(true);
-    s32DrawContext->drawRect(noClip, paint, SkMatrix::I(), rect);
-    read_and_check_pixels(reporter, s32DrawContext->asTexture().get(), expectedSRGB, error,
+    s32RenderTargetContext->drawRect(noClip, paint, SkMatrix::I(), rect);
+    read_and_check_pixels(reporter, s32RenderTargetContext->asTexture().get(), expectedSRGB, error,
                           "re-render as sRGB");
 }
 #endif

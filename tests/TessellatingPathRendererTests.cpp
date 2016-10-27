@@ -249,7 +249,8 @@ static SkPath create_path_16() {
     return path;
 }
 
-static void test_path(GrDrawContext* drawContext, GrResourceProvider* rp, const SkPath& path) {
+static void test_path(GrRenderTargetContext* renderTargetContext, GrResourceProvider* rp,
+                      const SkPath& path) {
     GrTessellatingPathRenderer tess;
 
     GrPaint paint;
@@ -260,7 +261,7 @@ static void test_path(GrDrawContext* drawContext, GrResourceProvider* rp, const 
     GrPathRenderer::DrawPathArgs args;
     args.fPaint = &paint;
     args.fUserStencilSettings = &GrUserStencilSettings::kUnused;
-    args.fDrawContext = drawContext;
+    args.fRenderTargetContext = renderTargetContext;
     args.fClip = &noClip;
     args.fResourceProvider = rp;
     args.fViewMatrix = &SkMatrix::I();
@@ -271,12 +272,13 @@ static void test_path(GrDrawContext* drawContext, GrResourceProvider* rp, const 
 }
 
 DEF_GPUTEST_FOR_ALL_CONTEXTS(TessellatingPathRendererTests, reporter, ctxInfo) {
-    sk_sp<GrDrawContext> dc(ctxInfo.grContext()->makeDrawContext(SkBackingFit::kApprox,
-                                                                 800, 800,
-                                                                 kRGBA_8888_GrPixelConfig,
-                                                                 nullptr,
-                                                                 0,
-                                                                 kTopLeft_GrSurfaceOrigin));
+    sk_sp<GrRenderTargetContext> dc(ctxInfo.grContext()->makeRenderTargetContext(
+                                                                         SkBackingFit::kApprox,
+                                                                         800, 800,
+                                                                         kRGBA_8888_GrPixelConfig,
+                                                                         nullptr,
+                                                                         0,
+                                                                         kTopLeft_GrSurfaceOrigin));
     if (!dc) {
         return;
     }

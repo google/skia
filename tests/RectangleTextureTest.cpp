@@ -9,7 +9,7 @@
 #if SK_SUPPORT_GPU
 #include "GrContext.h"
 #include "GrContextPriv.h"
-#include "GrDrawContext.h"
+#include "GrRenderTargetContext.h"
 #include "gl/GrGLGpu.h"
 #include "gl/GrGLUtil.h"
 #include "gl/GLTestContext.h"
@@ -90,11 +90,11 @@ static void test_copy_surface_dst(skiatest::Reporter* reporter, GrContext* conte
 static void test_clear(skiatest::Reporter* reporter, GrContext* context,
                        GrTexture* rectangleTexture) {
     if (rectangleTexture->asRenderTarget()) {
-        sk_sp<GrDrawContext> dc(context->contextPriv().makeWrappedDrawContext(
+        sk_sp<GrRenderTargetContext> dc(context->contextPriv().makeWrappedRenderTargetContext(
                                                     sk_ref_sp(rectangleTexture->asRenderTarget()),
                                                     nullptr));
         if (!dc) {
-            ERRORF(reporter, "Could not get GrDrawContext for rectangle texture.");
+            ERRORF(reporter, "Could not get GrRenderTargetContext for rectangle texture.");
             return;
         }
 

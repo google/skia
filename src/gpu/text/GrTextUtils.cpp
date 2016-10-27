@@ -12,7 +12,7 @@
 #include "GrBlurUtils.h"
 #include "GrCaps.h"
 #include "GrContext.h"
-#include "GrDrawContext.h"
+#include "GrRenderTargetContext.h"
 
 #include "SkDistanceFieldGen.h"
 #include "SkDrawProcs.h"
@@ -468,7 +468,7 @@ bool GrTextUtils::DfAppendGlyph(GrAtlasTextBlob* blob, int runIndex, GrBatchFont
     return true;
 }
 
-void GrTextUtils::DrawTextAsPath(GrContext* context, GrDrawContext* dc,
+void GrTextUtils::DrawTextAsPath(GrContext* context, GrRenderTargetContext* dc,
                                  const GrClip& clip,
                                  const SkPaint& skPaint, const SkMatrix& viewMatrix,
                                  const char text[], size_t byteLength, SkScalar x, SkScalar y,
@@ -494,7 +494,7 @@ void GrTextUtils::DrawTextAsPath(GrContext* context, GrDrawContext* dc,
 }
 
 void GrTextUtils::DrawPosTextAsPath(GrContext* context,
-                                    GrDrawContext* dc,
+                                    GrRenderTargetContext* dc,
                                     const SkSurfaceProps& props,
                                     const GrClip& clip,
                                     const SkPaint& origPaint, const SkMatrix& viewMatrix,
