@@ -9,9 +9,7 @@
 #include "GrContextFactory.h"
 #include "gl/GLTestContext.h"
 
-#if SK_ANGLE
-    #include "gl/angle/GLTestContext_angle.h"
-#endif
+#include "gl/angle/GLTestContext_angle.h"
 #include "gl/command_buffer/GLTestContext_command_buffer.h"
 #include "gl/debug/DebugGLTestContext.h"
 #if SK_MESA
@@ -116,7 +114,6 @@ ContextInfo GrContextFactory::getContextInfo(ContextType type, ContextOptions op
                 case kGLES_ContextType:
                     glCtx = CreatePlatformGLTestContext(kGLES_GrGLStandard);
                     break;
-#if SK_ANGLE
                 case kANGLE_D3D9_ES2_ContextType:
                     glCtx = CreateANGLETestContext(ANGLEBackend::kD3D9, ANGLEContextVersion::kES2);
                     break;
@@ -136,7 +133,6 @@ ContextInfo GrContextFactory::getContextInfo(ContextType type, ContextOptions op
                     glCtx = CreateANGLETestContext(ANGLEBackend::kOpenGL,
                                                    ANGLEContextVersion::kES3);
                     break;
-#endif
                 case kCommandBuffer_ContextType:
                     glCtx = CommandBufferGLTestContext::Create();
                     break;
