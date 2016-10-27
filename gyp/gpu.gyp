@@ -173,9 +173,6 @@
           'link_settings': {
             'libraries': [ '<(vulkan_lib_name)', ],
           },
-          'dependencies': [
-            'shaderc.gyp:shaderc_combined',
-          ],
           'conditions': [
             [ 'skia_os == "win"', {
              'variables': {
@@ -233,9 +230,6 @@
                   '../tools/viewer/sk_app/android',
                 ],
               },
-              'dependencies!': [
-                'shaderc.gyp:shaderc_combined',
-              ],
               'sources': [
                 # the gyp -> android.mk generator doesn't seem to like cpp files
                 # in directories outside of src, bench, or dm.  Until this gets fixed
