@@ -42,6 +42,7 @@ private:
     void append_load_d(SkRasterPipeline*) const;
     void append_store (SkRasterPipeline*) const;
     void append_blend (SkRasterPipeline*) const;
+    void maybe_clamp  (SkRasterPipeline*) const;
 
     SkPixmap         fDst;
     SkRasterPipeline fShader;
@@ -164,12 +165,17 @@ void SkRasterPipelineBlitter::append_blend(SkRasterPipeline* p) const {
     SkAssertResult(SkBlendMode_AppendStages(fBlend, p));
 }
 
+void SkRasterPipelineBlitter::maybe_clamp(SkRasterPipeline* p) const {
+    if (SkBlendMode_CanOverflow(fBlend)) { p->append(SkRasterPipeline::clamp_1); }
+}
+
 void SkRasterPipelineBlitter::blitH(int x, int y, int w) {
     if (!fBlitH) {
         SkRasterPipeline p;
         p.extend(fShader);
         this->append_load_d(&p);
         this->append_blend(&p);
+        this->maybe_clamp(&p);
         this->append_store(&p);
         fBlitH = p.compile();
     }
@@ -185,6 +191,7 @@ void SkRasterPipelineBlitter::blitAntiH(int x, int y, const SkAlpha aa[], const 
         this->append_load_d(&p);
         this->append_blend(&p);
         p.append(SkRasterPipeline::lerp_constant_float, &fConstantCoverage);
+        this->maybe_clamp(&p);
         this->append_store(&p);
         fBlitAntiH = p.compile();
     }
@@ -212,6 +219,7 @@ void SkRasterPipelineBlitter::blitMask(const SkMask& mask, const SkIRect& clip) 
         this->append_load_d(&p);
         this->append_blend(&p);
         p.append(SkRasterPipeline::lerp_u8, &fMaskPtr);
+        this->maybe_clamp(&p);
         this->append_store(&p);
         fBlitMaskA8 = p.compile();
     }
@@ -222,6 +230,7 @@ void SkRasterPipelineBlitter::blitMask(const SkMask& mask, const SkIRect& clip) 
         this->append_load_d(&p);
         this->append_blend(&p);
         p.append(SkRasterPipeline::lerp_565, &fMaskPtr);
+        this->maybe_clamp(&p);
         this->append_store(&p);
         fBlitMaskLCD16 = p.compile();
     }

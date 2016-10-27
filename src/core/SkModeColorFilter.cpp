@@ -90,7 +90,12 @@ bool SkModeColorFilter::onAppendStages(SkRasterPipeline* p) const {
     // and applying the opposite xfermode, e.g. dst-in instead of src-in.
     p->append(SkRasterPipeline::swap_src_dst);
     p->append(SkRasterPipeline::constant_color, &fPM4f);
-    return SkBlendMode_AppendStages((SkBlendMode)fMode, p);
+    auto mode = (SkBlendMode)fMode;
+    if (!SkBlendMode_AppendStages(mode, p)) {
+        return false;
+    }
+    if (SkBlendMode_CanOverflow(mode)) { p->append(SkRasterPipeline::clamp_1); }
+    return true;
 }
 
 ///////////////////////////////////////////////////////////////////////////////
