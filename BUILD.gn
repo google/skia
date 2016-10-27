@@ -21,7 +21,6 @@ declare_args() {
   skia_use_libwebp = !is_fuchsia
   skia_use_mesa = false
   skia_use_sfntly = !is_fuchsia && !is_win  # TODO: icu on Windows, re-enable this.
-  skia_use_vulkan = is_android && defined(ndk_api) && ndk_api >= 24
   skia_use_zlib = true
 
   skia_enable_android_framework_defines = false
@@ -31,7 +30,10 @@ declare_args() {
   skia_vulkan_sdk = getenv("VULKAN_SDK")
 }
 
-skia_use_vulkan = skia_use_vulkan || skia_vulkan_sdk != ""
+declare_args() {
+  skia_use_vulkan =
+      skia_vulkan_sdk != "" || (is_android && defined(ndk_api) && ndk_api >= 24)
+}
 
 # Our tools require static linking (they use non-exported symbols).
 skia_enable_tools = skia_enable_tools && !is_component_build
