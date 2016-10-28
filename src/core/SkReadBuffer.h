@@ -70,6 +70,7 @@ public:
         kBlurMaskFilterWritesOccluder      = 47,
         kGradientShaderFloatColor_Version  = 49,
         kXfermodeToBlendMode_Version       = 50,
+        kXfermodeToBlendMode2_Version      = 51,
     };
 
     /**

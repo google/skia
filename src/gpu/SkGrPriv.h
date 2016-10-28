@@ -75,7 +75,7 @@ bool SkPaintToGrPaintWithXfermode(GrContext* context,
                                   GrRenderTargetContext* rtc,
                                   const SkPaint& skPaint,
                                   const SkMatrix& viewM,
-                                  SkXfermode::Mode primColorMode,
+                                  SkBlendMode primColorMode,
                                   bool primitiveIsSrc,
                                   GrPaint* grPaint);
 
@@ -85,7 +85,7 @@ bool SkPaintToGrPaintWithXfermode(GrContext* context,
     applied to the primitive color after interpolation. */
 inline bool SkPaintToGrPaintWithPrimitiveColor(GrContext* context, GrRenderTargetContext* rtc,
                                                const SkPaint& skPaint, GrPaint* grPaint) {
-    return SkPaintToGrPaintWithXfermode(context, rtc, skPaint, SkMatrix::I(), SkXfermode::kDst_Mode,
+    return SkPaintToGrPaintWithXfermode(context, rtc, skPaint, SkMatrix::I(), SkBlendMode::kDst,
                                         false, grPaint);
 }
 
