@@ -113,7 +113,7 @@ protected:
 
             for (int i = 0; i < 6; ++i) {
                 GrPaint grPaint;
-                grPaint.setXPFactory(GrPorterDuffXPFactory::Make(SkXfermode::kSrc_Mode));
+                grPaint.setXPFactory(GrPorterDuffXPFactory::Make(SkBlendMode::kSrc));
                 sk_sp<GrFragmentProcessor> fp(GrYUVEffect::MakeYUVToRGB(
                     texture[indices[i][0]], texture[indices[i][1]], texture[indices[i][2]], sizes,
                     static_cast<SkYUVColorSpace>(space), false));
@@ -225,7 +225,7 @@ protected:
             SkScalar x = kDrawPad + kTestPad;
 
             GrPaint grPaint;
-            grPaint.setXPFactory(GrPorterDuffXPFactory::Make(SkXfermode::kSrc_Mode));
+            grPaint.setXPFactory(GrPorterDuffXPFactory::Make(SkBlendMode::kSrc));
             sk_sp<GrFragmentProcessor> fp(
                 GrYUVEffect::MakeYUVToRGB(texture[0], texture[1], texture[2], sizes,
                                           static_cast<SkYUVColorSpace>(space), true));
