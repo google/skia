@@ -43,7 +43,12 @@ DEF_TEST(SkSLUndefinedFunction, r) {
 DEF_TEST(SkSLGenericArgumentMismatch, r) {
     test_failure(r,
                  "void main() { float x = sin(1, 2); }", 
-                 "error: 1: no match for sin(int, int)\n1 error\n");
+                 "error: 1: call to 'sin' expected 1 argument, but found 2\n1 error\n");
+    test_failure(r,
+                 "void main() { float x = sin(true); }", 
+                 "error: 1: no match for sin(bool)\n1 error\n");
+    test_success(r,
+                 "void main() { float x = sin(1); }");
 }
 
 DEF_TEST(SkSLArgumentCountMismatch, r) {
