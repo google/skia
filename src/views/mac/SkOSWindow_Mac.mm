@@ -5,8 +5,6 @@
  * found in the LICENSE file.
  */
 
-#if defined(SK_BUILD_FOR_MAC)
-
 #import  <Cocoa/Cocoa.h>
 #include "SkOSWindow_Mac.h"
 #include "SkOSMenu.h"
@@ -91,5 +89,3 @@ bool SkOSWindow::makeFullscreen() {
     return true;
 }
 
-
-#endif

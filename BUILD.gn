@@ -992,7 +992,7 @@ if (skia_enable_tools) {
     testonly = true
   }
 
-  if (is_linux || is_win) {
+  if (is_linux || is_win || is_mac) {
     executable("SampleApp") {
       sources = [
         "samplecode/SampleApp.cpp",
