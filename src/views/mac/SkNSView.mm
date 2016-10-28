@@ -6,6 +6,7 @@
  */
 
 #import "SkNSView.h"
+#include "SkApplication.h"
 #include "SkCanvas.h"
 #include "SkSurface.h"
 #include "SkCGUtils.h"
@@ -19,6 +20,8 @@ static_assert(SK_SUPPORT_GPU, "not_implemented_for_non_gpu_build");
                               MAC_OS_X_VERSION_MAX_ALLOWED >= MAC_OS_X_VERSION_10_7)
 @implementation SkNSView
 @synthesize fWind, fTitle, fOptionsDelegate, fGLContext;
+
+BOOL fRedrawRequestPending;
 
 - (id)initWithCoder:(NSCoder*)coder {
     if ((self = [super initWithCoder:coder])) {
