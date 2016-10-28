@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "61ba3039_c29b674e",
+        "filename": "src/core/SkMathPriv.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 157,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2016-10-28T16:11:57Z",
+      "side": 1,
+      "message": "/**\n * Returns the next power of 2 \u003e\u003d n or n if the next power of 2 can\u0027t be represented by size_t.\n */\n?",
+      "revId": "24132ebb88dde0cba186295386acc7ccab99e843",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "e19380d8_189774d4",
+        "filename": "src/core/SkMathPriv.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 168,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2016-10-28T16:11:57Z",
+      "side": 1,
+      "message": "I guess we have no SkCLZ for size_t?",
+      "revId": "24132ebb88dde0cba186295386acc7ccab99e843",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
