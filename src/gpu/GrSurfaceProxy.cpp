@@ -7,7 +7,17 @@
 
 #include "GrSurfaceProxy.h"
 
+#include "GrGpuResourcePriv.h"
 #include "GrOpList.h"
+
+GrSurfaceProxy::GrSurfaceProxy(sk_sp<GrSurface> surface, SkBackingFit fit)
+    : INHERITED(std::move(surface))
+    , fDesc(fTarget->desc())
+    , fFit(fit)
+    , fBudgeted(fTarget->resourcePriv().isBudgeted())
+    , fUniqueID(fTarget->uniqueID())
+    , fLastOpList(nullptr) {
+}
 
 GrSurfaceProxy::~GrSurfaceProxy() {
     if (fLastOpList) {
