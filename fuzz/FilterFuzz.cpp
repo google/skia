@@ -369,7 +369,7 @@ static sk_sp<SkColorFilter> make_color_filter() {
             return SkTableColorFilter::MakeARGB(tableA, tableR, tableG, tableB);
         }
         case 3:
-            return SkColorFilter::MakeModeFilter(make_color(), (SkXfermode::Mode)make_blendmode());
+            return SkColorFilter::MakeModeFilter(make_color(), make_blendmode());
         case 4:
             return SkColorMatrixFilter::MakeLightingFilter(make_color(), make_color());
         case 5:
@@ -554,7 +554,7 @@ static sk_sp<SkImageFilter> make_image_filter(bool canBeNull) {
     case MERGE:
         filter = SkMergeImageFilter::Make(make_image_filter(),
                                           make_image_filter(),
-                                          (SkXfermode::Mode)make_blendmode());
+                                          make_blendmode());
         break;
     case COLOR: {
         sk_sp<SkColorFilter> cf(make_color_filter());

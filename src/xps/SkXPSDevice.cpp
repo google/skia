@@ -1181,7 +1181,7 @@ void SkXPSDevice::drawPoints(const SkDraw& d, SkCanvas::PointMode mode,
 void SkXPSDevice::drawVertices(const SkDraw&, SkCanvas::VertexMode,
                                int vertexCount, const SkPoint verts[],
                                const SkPoint texs[], const SkColor colors[],
-                               SkXfermode* xmode, const uint16_t indices[],
+                               SK_XFERMODE_PARAM xmode, const uint16_t indices[],
                                int indexCount, const SkPaint& paint) {
     //TODO: override this for XPS
     SkDEBUGF(("XPS drawVertices not yet implemented."));
