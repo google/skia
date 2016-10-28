@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "86373a0c_a37d2424",
+        "filename": "gyp/effects.gypi",
+        "patchSetId": 7
+      },
+      "lineNbr": 63,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2016-10-28T19:42:45Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "86081a1d_d8656dcc",
+      "revId": "ba0068719eec4f2b97f1d5b5118d43b0343edbe8",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "6105d0c2_1914beb5",
         "filename": "include/effects/SkShadowMaskFilter.h",
         "patchSetId": 7
@@ -30,6 +48,24 @@
       "writtenOn": "2016-10-27T12:57:58Z",
       "side": 1,
       "message": "Should these be over a space ?",
+      "revId": "ba0068719eec4f2b97f1d5b5118d43b0343edbe8",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "86373a0c_4394181e",
+        "filename": "include/effects/SkShadowMaskFilter.h",
+        "patchSetId": 7
+      },
+      "lineNbr": 2,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2016-10-28T19:42:45Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "6105d0c2_1914beb5",
       "revId": "ba0068719eec4f2b97f1d5b5118d43b0343edbe8",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
@@ -53,6 +89,24 @@
     },
     {
       "key": {
+        "uuid": "86373a0c_23991456",
+        "filename": "include/effects/SkShadowMaskFilter.h",
+        "patchSetId": 7
+      },
+      "lineNbr": 11,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2016-10-28T19:42:45Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "a63c3ec1_94bfaa60",
+      "revId": "ba0068719eec4f2b97f1d5b5118d43b0343edbe8",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "e62d5695_8b878df5",
         "filename": "include/effects/SkShadowMaskFilter.h",
         "patchSetId": 7
@@ -64,6 +118,24 @@
       "writtenOn": "2016-10-27T19:14:49Z",
       "side": 1,
       "message": "// This filter implements a pair of shadows simulating blah blah",
+      "revId": "ba0068719eec4f2b97f1d5b5118d43b0343edbe8",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "86373a0c_63ef9c97",
+        "filename": "include/effects/SkShadowMaskFilter.h",
+        "patchSetId": 7
+      },
+      "lineNbr": 14,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2016-10-28T19:42:45Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "e62d5695_8b878df5",
       "revId": "ba0068719eec4f2b97f1d5b5118d43b0343edbe8",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
@@ -87,6 +159,24 @@
     },
     {
       "key": {
+        "uuid": "86373a0c_83658060",
+        "filename": "include/effects/SkShadowMaskFilter.h",
+        "patchSetId": 7
+      },
+      "lineNbr": 18,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2016-10-28T19:42:45Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "e62d5695_2b777946",
+      "revId": "ba0068719eec4f2b97f1d5b5118d43b0343edbe8",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "e62d5695_2b8e5910",
         "filename": "include/effects/SkShadowMaskFilter.h",
         "patchSetId": 7
@@ -98,6 +188,24 @@
       "writtenOn": "2016-10-27T19:14:49Z",
       "side": 1,
       "message": "Alphas might warrant some explanation.",
+      "revId": "ba0068719eec4f2b97f1d5b5118d43b0343edbe8",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "86373a0c_636afc2f",
+        "filename": "include/effects/SkShadowMaskFilter.h",
+        "patchSetId": 7
+      },
+      "lineNbr": 31,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2016-10-28T19:42:45Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "e62d5695_2b8e5910",
       "revId": "ba0068719eec4f2b97f1d5b5118d43b0343edbe8",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
@@ -121,6 +229,24 @@
     },
     {
       "key": {
+        "uuid": "86373a0c_a34b64cb",
+        "filename": "samplecode/SampleAndroidShadows.cpp",
+        "patchSetId": 7
+      },
+      "lineNbr": 372,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2016-10-28T19:42:45Z",
+      "side": 1,
+      "message": "I was thinking that we\u0027d use the alpha values.",
+      "parentUuid": "6105d0c2_391b82e5",
+      "revId": "ba0068719eec4f2b97f1d5b5118d43b0343edbe8",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "6105d0c2_591e36d5",
         "filename": "samplecode/SampleAndroidShadows.cpp",
         "patchSetId": 7
@@ -132,6 +258,24 @@
       "writtenOn": "2016-10-27T12:57:58Z",
       "side": 1,
       "message": "\\n ?",
+      "revId": "ba0068719eec4f2b97f1d5b5118d43b0343edbe8",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "86373a0c_c39148db",
+        "filename": "samplecode/SampleAndroidShadows.cpp",
+        "patchSetId": 7
+      },
+      "lineNbr": 373,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2016-10-28T19:42:45Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "6105d0c2_591e36d5",
       "revId": "ba0068719eec4f2b97f1d5b5118d43b0343edbe8",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
@@ -155,6 +299,24 @@
     },
     {
       "key": {
+        "uuid": "86373a0c_a38ec4ba",
+        "filename": "src/effects/SkShadowMaskFilter.cpp",
+        "patchSetId": 7
+      },
+      "lineNbr": 2,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2016-10-28T19:42:45Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "6105d0c2_9928cef9",
+      "revId": "ba0068719eec4f2b97f1d5b5118d43b0343edbe8",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "6105d0c2_7925fa1e",
         "filename": "src/effects/SkShadowMaskFilter.cpp",
         "patchSetId": 7
@@ -166,6 +328,24 @@
       "writtenOn": "2016-10-27T12:57:58Z",
       "side": 1,
       "message": "extra \\t ?",
+      "revId": "ba0068719eec4f2b97f1d5b5118d43b0343edbe8",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "86373a0c_63503c47",
+        "filename": "src/effects/SkShadowMaskFilter.cpp",
+        "patchSetId": 7
+      },
+      "lineNbr": 68,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2016-10-28T19:42:45Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "6105d0c2_7925fa1e",
       "revId": "ba0068719eec4f2b97f1d5b5118d43b0343edbe8",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
@@ -189,6 +369,24 @@
     },
     {
       "key": {
+        "uuid": "86373a0c_432898b8",
+        "filename": "src/effects/SkShadowMaskFilter.cpp",
+        "patchSetId": 7
+      },
+      "lineNbr": 127,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2016-10-28T19:42:45Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "86081a1d_d817ad04",
+      "revId": "ba0068719eec4f2b97f1d5b5118d43b0343edbe8",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "86081a1d_383109b8",
         "filename": "src/effects/SkShadowMaskFilter.cpp",
         "patchSetId": 7
@@ -200,6 +398,24 @@
       "writtenOn": "2016-10-27T18:49:22Z",
       "side": 1,
       "message": "1-line ?",
+      "revId": "ba0068719eec4f2b97f1d5b5118d43b0343edbe8",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "86373a0c_232d94c8",
+        "filename": "src/effects/SkShadowMaskFilter.cpp",
+        "patchSetId": 7
+      },
+      "lineNbr": 133,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2016-10-28T19:42:45Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "86081a1d_383109b8",
       "revId": "ba0068719eec4f2b97f1d5b5118d43b0343edbe8",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
@@ -223,6 +439,24 @@
     },
     {
       "key": {
+        "uuid": "86373a0c_8322a0d4",
+        "filename": "src/effects/SkShadowMaskFilter.cpp",
+        "patchSetId": 7
+      },
+      "lineNbr": 136,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2016-10-28T19:42:45Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "6105d0c2_19edde9b",
+      "revId": "ba0068719eec4f2b97f1d5b5118d43b0343edbe8",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "6105d0c2_f9f10a7b",
         "filename": "src/effects/SkShadowMaskFilter.cpp",
         "patchSetId": 7
@@ -234,6 +468,24 @@
       "writtenOn": "2016-10-27T12:57:58Z",
       "side": 1,
       "message": "This is the default implementation.",
+      "revId": "ba0068719eec4f2b97f1d5b5118d43b0343edbe8",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "86373a0c_03369014",
+        "filename": "src/effects/SkShadowMaskFilter.cpp",
+        "patchSetId": 7
+      },
+      "lineNbr": 140,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2016-10-28T19:42:45Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "6105d0c2_f9f10a7b",
       "revId": "ba0068719eec4f2b97f1d5b5118d43b0343edbe8",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
@@ -257,6 +509,24 @@
     },
     {
       "key": {
+        "uuid": "86373a0c_a303642a",
+        "filename": "src/effects/SkShadowMaskFilter.cpp",
+        "patchSetId": 7
+      },
+      "lineNbr": 147,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2016-10-28T19:42:45Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "86081a1d_184d253a",
+      "revId": "ba0068719eec4f2b97f1d5b5118d43b0343edbe8",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "6105d0c2_d9f24681",
         "filename": "src/effects/SkShadowMaskFilter.cpp",
         "patchSetId": 7
@@ -268,6 +538,24 @@
       "writtenOn": "2016-10-27T12:57:58Z",
       "side": 1,
       "message": "We could just use the default implementations for now.",
+      "revId": "ba0068719eec4f2b97f1d5b5118d43b0343edbe8",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "86373a0c_c306683c",
+        "filename": "src/effects/SkShadowMaskFilter.cpp",
+        "patchSetId": 7
+      },
+      "lineNbr": 150,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2016-10-28T19:42:45Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "6105d0c2_d9f24681",
       "revId": "ba0068719eec4f2b97f1d5b5118d43b0343edbe8",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
@@ -291,6 +579,24 @@
     },
     {
       "key": {
+        "uuid": "86373a0c_23ff54f8",
+        "filename": "src/effects/SkShadowMaskFilter.cpp",
+        "patchSetId": 7
+      },
+      "lineNbr": 245,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2016-10-28T19:42:45Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "6105d0c2_39042279",
+      "revId": "ba0068719eec4f2b97f1d5b5118d43b0343edbe8",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "86081a1d_38fb49a3",
         "filename": "src/effects/SkShadowMaskFilter.cpp",
         "patchSetId": 7
@@ -302,6 +608,24 @@
       "writtenOn": "2016-10-27T18:49:22Z",
       "side": 1,
       "message": "rm virtual ?",
+      "revId": "ba0068719eec4f2b97f1d5b5118d43b0343edbe8",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "86373a0c_83f46019",
+        "filename": "src/effects/SkShadowMaskFilter.cpp",
+        "patchSetId": 7
+      },
+      "lineNbr": 253,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2016-10-28T19:42:45Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "86081a1d_38fb49a3",
       "revId": "ba0068719eec4f2b97f1d5b5118d43b0343edbe8",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
@@ -325,6 +649,24 @@
     },
     {
       "key": {
+        "uuid": "86373a0c_2322b4bf",
+        "filename": "src/effects/SkShadowMaskFilter.cpp",
+        "patchSetId": 7
+      },
+      "lineNbr": 279,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2016-10-28T19:42:45Z",
+      "side": 1,
+      "message": "This will eventually go away overall, added a comment.",
+      "parentUuid": "6105d0c2_9901ee6b",
+      "revId": "ba0068719eec4f2b97f1d5b5118d43b0343edbe8",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "6105d0c2_b95cb297",
         "filename": "src/effects/SkShadowMaskFilter.cpp",
         "patchSetId": 7
@@ -336,6 +678,24 @@
       "writtenOn": "2016-10-27T12:57:58Z",
       "side": 1,
       "message": "GrGLShadowEdgeEffect ?",
+      "revId": "ba0068719eec4f2b97f1d5b5118d43b0343edbe8",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "86373a0c_e3372cf6",
+        "filename": "src/effects/SkShadowMaskFilter.cpp",
+        "patchSetId": 7
+      },
+      "lineNbr": 322,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2016-10-28T19:42:45Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "6105d0c2_b95cb297",
       "revId": "ba0068719eec4f2b97f1d5b5118d43b0343edbe8",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
@@ -359,6 +719,24 @@
     },
     {
       "key": {
+        "uuid": "86373a0c_23491480",
+        "filename": "src/effects/SkShadowMaskFilter.cpp",
+        "patchSetId": 7
+      },
+      "lineNbr": 324,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2016-10-28T19:42:45Z",
+      "side": 1,
+      "message": "It\u0027s copied from your comment. :-) Done.",
+      "parentUuid": "6105d0c2_79fe9a46",
+      "revId": "ba0068719eec4f2b97f1d5b5118d43b0343edbe8",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "6105d0c2_f9662a67",
         "filename": "src/effects/SkShadowMaskFilter.cpp",
         "patchSetId": 7
@@ -370,6 +748,24 @@
       "writtenOn": "2016-10-27T12:57:58Z",
       "side": 1,
       "message": "SkScalarNearlyEqual ?",
+      "revId": "ba0068719eec4f2b97f1d5b5118d43b0343edbe8",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "86373a0c_a35fe425",
+        "filename": "src/effects/SkShadowMaskFilter.cpp",
+        "patchSetId": 7
+      },
+      "lineNbr": 372,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2016-10-28T19:42:45Z",
+      "side": 1,
+      "message": "GrOvalRenderer still requires exact equality for circular corners.",
+      "parentUuid": "6105d0c2_f9662a67",
       "revId": "ba0068719eec4f2b97f1d5b5118d43b0343edbe8",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
@@ -393,6 +789,24 @@
     },
     {
       "key": {
+        "uuid": "86373a0c_23a594ef",
+        "filename": "src/effects/SkShadowMaskFilter.cpp",
+        "patchSetId": 7
+      },
+      "lineNbr": 376,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2016-10-28T19:42:45Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "6105d0c2_594c76e1",
+      "revId": "ba0068719eec4f2b97f1d5b5118d43b0343edbe8",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "6105d0c2_99560e72",
         "filename": "src/effects/SkShadowMaskFilter.cpp",
         "patchSetId": 7
@@ -404,6 +818,24 @@
       "writtenOn": "2016-10-27T12:57:58Z",
       "side": 1,
       "message": "rrect, devRRect ?",
+      "revId": "ba0068719eec4f2b97f1d5b5118d43b0343edbe8",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "86373a0c_43a098df",
+        "filename": "src/effects/SkShadowMaskFilter.cpp",
+        "patchSetId": 7
+      },
+      "lineNbr": 377,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2016-10-28T19:42:45Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "6105d0c2_99560e72",
       "revId": "ba0068719eec4f2b97f1d5b5118d43b0343edbe8",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
@@ -427,6 +859,24 @@
     },
     {
       "key": {
+        "uuid": "86373a0c_839aa0a7",
+        "filename": "src/effects/SkShadowMaskFilter.cpp",
+        "patchSetId": 7
+      },
+      "lineNbr": 380,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2016-10-28T19:42:45Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "6105d0c2_3949c2d1",
+      "revId": "ba0068719eec4f2b97f1d5b5118d43b0343edbe8",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "6105d0c2_79533a83",
         "filename": "src/effects/SkShadowMaskFilter.cpp",
         "patchSetId": 7
@@ -438,6 +888,24 @@
       "writtenOn": "2016-10-27T12:57:58Z",
       "side": 1,
       "message": "add code to pass on the devRRect ? Don\u0027t we also need to pass on the viewMatrix ?",
+      "revId": "ba0068719eec4f2b97f1d5b5118d43b0343edbe8",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "86373a0c_e3aa8cb9",
+        "filename": "src/effects/SkShadowMaskFilter.cpp",
+        "patchSetId": 7
+      },
+      "lineNbr": 381,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2016-10-28T19:42:45Z",
+      "side": 1,
+      "message": "If we\u0027re given a rect, it\u0027s already transformed into device space at this point.",
+      "parentUuid": "6105d0c2_79533a83",
       "revId": "ba0068719eec4f2b97f1d5b5118d43b0343edbe8",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
@@ -461,6 +929,24 @@
     },
     {
       "key": {
+        "uuid": "86373a0c_6364bcd1",
+        "filename": "src/effects/SkShadowMaskFilter.cpp",
+        "patchSetId": 7
+      },
+      "lineNbr": 465,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2016-10-28T19:42:45Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "e62d5695_6bbfc198",
+      "revId": "ba0068719eec4f2b97f1d5b5118d43b0343edbe8",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "86081a1d_78c30149",
         "filename": "src/effects/SkShadowMaskFilter.cpp",
         "patchSetId": 7
@@ -472,6 +958,24 @@
       "writtenOn": "2016-10-27T18:49:22Z",
       "side": 1,
       "message": "// TODO: switch to coverage processors\n?",
+      "revId": "ba0068719eec4f2b97f1d5b5118d43b0343edbe8",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "86373a0c_e36f2ca9",
+        "filename": "src/effects/SkShadowMaskFilter.cpp",
+        "patchSetId": 7
+      },
+      "lineNbr": 475,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2016-10-28T19:42:45Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "86081a1d_78c30149",
       "revId": "ba0068719eec4f2b97f1d5b5118d43b0343edbe8",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
