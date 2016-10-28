@@ -2941,9 +2941,11 @@ SkDrawTextBlobCommand* SkDrawTextBlobCommand::fromJSON(Json::Value& command,
 }
 
 SkDrawPatchCommand::SkDrawPatchCommand(const SkPoint cubics[12], const SkColor colors[4],
-                                       const SkPoint texCoords[4], SkXfermode* xfermode,
+                                       const SkPoint texCoords[4], SkBlendMode bmode,
                                        const SkPaint& paint)
-    : INHERITED(kDrawPatch_OpType) {
+    : INHERITED(kDrawPatch_OpType)
+    , fBlendMode(bmode)
+{
     memcpy(fCubics, cubics, sizeof(fCubics));
     if (colors != nullptr) {
         memcpy(fColors, colors, sizeof(fColors));
@@ -2957,16 +2959,13 @@ SkDrawPatchCommand::SkDrawPatchCommand(const SkPoint cubics[12], const SkColor c
     } else {
         fTexCoordsPtr = nullptr;
     }
-    if (xfermode != nullptr) {
-        fXfermode.reset(SkRef(xfermode));
-    }
     fPaint = paint;
 
     fInfo.push(SkObjectParser::PaintToString(paint));
 }
 
 void SkDrawPatchCommand::execute(SkCanvas* canvas) const {
-    canvas->drawPatch(fCubics, fColorsPtr, fTexCoordsPtr, fXfermode, fPaint);
+    canvas->drawPatch(fCubics, fColorsPtr, fTexCoordsPtr, fBlendMode, fPaint);
 }
 
 Json::Value SkDrawPatchCommand::toJSON(UrlDataManager& urlDataManager) const {
@@ -2990,11 +2989,7 @@ Json::Value SkDrawPatchCommand::toJSON(UrlDataManager& urlDataManager) const {
         }
         result[SKDEBUGCANVAS_ATTRIBUTE_TEXTURECOORDS] = texCoords;
     }
-    if (fXfermode.get() != nullptr) {
-        Json::Value jsonXfermode;
-        flatten(fXfermode, &jsonXfermode, urlDataManager);
-        result[SKDEBUGCANVAS_ATTRIBUTE_XFERMODE] = jsonXfermode;
-    }
+    // fBlendMode
     return result;
 }
 
@@ -3029,14 +3024,12 @@ SkDrawPatchCommand* SkDrawPatchCommand::fromJSON(Json::Value& command,
     else {
         texCoordsPtr = nullptr;
     }
-    SkAutoTUnref<SkXfermode> xfermode;
-    if (command.isMember(SKDEBUGCANVAS_ATTRIBUTE_XFERMODE)) {
-        Json::Value jsonXfermode = command[SKDEBUGCANVAS_ATTRIBUTE_XFERMODE];
-        xfermode.reset((SkXfermode*) load_flattenable(jsonXfermode, urlDataManager));
-    }
+
+    SkBlendMode bmode = SkBlendMode::kSrcOver; // TODO: extract from json
+
     SkPaint paint;
     extract_json_paint(command[SKDEBUGCANVAS_ATTRIBUTE_PAINT], urlDataManager, &paint);
-    return new SkDrawPatchCommand(cubics, colorsPtr, texCoordsPtr, xfermode, paint);
+    return new SkDrawPatchCommand(cubics, colorsPtr, texCoordsPtr, bmode, paint);
 }
 
 SkDrawRectCommand::SkDrawRectCommand(const SkRect& rect, const SkPaint& paint)
@@ -3308,10 +3301,12 @@ SkDrawTextRSXformCommand* SkDrawTextRSXformCommand::fromJSON(Json::Value& comman
 
 SkDrawVerticesCommand::SkDrawVerticesCommand(SkCanvas::VertexMode vmode, int vertexCount,
                                              const SkPoint vertices[], const SkPoint texs[],
-                                             const SkColor colors[], SkXfermode* xfermode,
+                                             const SkColor colors[], SkBlendMode bmode,
                                              const uint16_t indices[], int indexCount,
                                              const SkPaint& paint)
-    : INHERITED(kDrawVertices_OpType) {
+    : INHERITED(kDrawVertices_OpType)
+    , fBlendMode(bmode)
+{
     fVmode = vmode;
 
     fVertexCount = vertexCount;
@@ -3333,11 +3328,6 @@ SkDrawVerticesCommand::SkDrawVerticesCommand(SkCanvas::VertexMode vmode, int ver
         fColors = nullptr;
     }
 
-    fXfermode = xfermode;
-    if (fXfermode) {
-        fXfermode->ref();
-    }
-
     if (indexCount > 0) {
         fIndices = new uint16_t[indexCount];
         memcpy(fIndices, indices, indexCount * sizeof(uint16_t));
@@ -3357,13 +3347,12 @@ SkDrawVerticesCommand::~SkDrawVerticesCommand() {
     delete [] fVertices;
     delete [] fTexs;
     delete [] fColors;
-    SkSafeUnref(fXfermode);
     delete [] fIndices;
 }
 
 void SkDrawVerticesCommand::execute(SkCanvas* canvas) const {
     canvas->drawVertices(fVmode, fVertexCount, fVertices,
-                         fTexs, fColors, fXfermode, fIndices,
+                         fTexs, fColors, fBlendMode, fIndices,
                          fIndexCount, fPaint);
 }
 

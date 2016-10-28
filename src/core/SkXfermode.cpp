@@ -1109,12 +1109,12 @@ sk_sp<SkFlattenable> SkProcCoeffXfermode::CreateProc(SkReadBuffer& buffer) {
 }
 
 void SkProcCoeffXfermode::flatten(SkWriteBuffer& buffer) const {
-    buffer.write32(fMode);
+    buffer.write32((int)fMode);
 }
 
 bool SkProcCoeffXfermode::asMode(Mode* mode) const {
     if (mode) {
-        *mode = fMode;
+        *mode = (Mode)fMode;
     }
     return true;
 }
@@ -1307,32 +1307,33 @@ void SkProcCoeffXfermode::toString(SkString* str) const {
 #endif
 
 
-sk_sp<SkXfermode> SkXfermode::Make(Mode mode) {
-    if ((unsigned)mode >= kModeCount) {
+sk_sp<SkXfermode> SkXfermode::Make(SkBlendMode mode) {
+    if ((unsigned)mode > (unsigned)SkBlendMode::kLastMode) {
         // report error
         return nullptr;
     }
 
     // Skia's "default" mode is srcover. nullptr in SkPaint is interpreted as srcover
     // so we can just return nullptr from the factory.
-    if (kSrcOver_Mode == mode) {
+    if (SkBlendMode::kSrcOver == mode) {
         return nullptr;
     }
 
-    SkASSERT(SK_ARRAY_COUNT(gProcCoeffs) == kModeCount);
+    const int COUNT_BLENDMODES = (int)SkBlendMode::kLastMode + 1;
+    SkASSERT(SK_ARRAY_COUNT(gProcCoeffs) == COUNT_BLENDMODES);
 
-    static SkOnce        once[SkXfermode::kLastMode+1];
-    static SkXfermode* cached[SkXfermode::kLastMode+1];
+    static SkOnce        once[COUNT_BLENDMODES];
+    static SkXfermode* cached[COUNT_BLENDMODES];
 
-    once[mode]([mode] {
-        ProcCoeff rec = gProcCoeffs[mode];
+    once[(int)mode]([mode] {
+        ProcCoeff rec = gProcCoeffs[(int)mode];
         if (auto xfermode = SkOpts::create_xfermode(rec, mode)) {
-            cached[mode] = xfermode;
+            cached[(int)mode] = xfermode;
         } else {
-            cached[mode] = new SkProcCoeffXfermode(rec, mode);
+            cached[(int)mode] = new SkProcCoeffXfermode(rec, mode);
         }
     });
-    return sk_ref_sp(cached[mode]);
+    return sk_ref_sp(cached[(int)mode]);
 }
 
 SkXfermodeProc SkXfermode::GetProc(Mode mode) {
@@ -1481,8 +1482,8 @@ sk_sp<GrXPFactory> SkBlendMode_AsXPFactory(SkBlendMode mode) {
         return result;
     }
 
-    SkASSERT(GrCustomXfermode::IsSupportedMode((SkXfermode::Mode)mode));
-    return GrCustomXfermode::MakeXPFactory((SkXfermode::Mode)mode);
+    SkASSERT(GrCustomXfermode::IsSupportedMode(mode));
+    return GrCustomXfermode::MakeXPFactory(mode);
 }
 #endif
 

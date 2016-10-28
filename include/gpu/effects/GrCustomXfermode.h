@@ -17,8 +17,8 @@ class GrTexture;
  * coefficients.
  */
 namespace GrCustomXfermode {
-    bool IsSupportedMode(SkXfermode::Mode mode);
-    sk_sp<GrXPFactory> MakeXPFactory(SkXfermode::Mode mode);
+    bool IsSupportedMode(SkBlendMode mode);
+    sk_sp<GrXPFactory> MakeXPFactory(SkBlendMode mode);
 };
 
 #endif

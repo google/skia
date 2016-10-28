@@ -15,7 +15,7 @@
 
 SkLayerDrawLooper::LayerInfo::LayerInfo() {
     fPaintBits = 0;                     // ignore our paint fields
-    fColorMode = SkXfermode::kDst_Mode; // ignore our color
+    fColorMode = (SK_XFERMODE_MODE_PARAM)SkBlendMode::kDst; // ignore our color
     fOffset.set(0, 0);
     fPostTranslate = false;
 }
@@ -39,16 +39,16 @@ SkLayerDrawLooper::Context* SkLayerDrawLooper::createContext(SkCanvas* canvas, v
     return new (storage) LayerDrawLooperContext(this);
 }
 
-static SkColor xferColor(SkColor src, SkColor dst, SkXfermode::Mode mode) {
+static SkColor xferColor(SkColor src, SkColor dst, SkBlendMode mode) {
     switch (mode) {
-        case SkXfermode::kSrc_Mode:
+        case SkBlendMode::kSrc:
             return src;
-        case SkXfermode::kDst_Mode:
+        case SkBlendMode::kDst:
             return dst;
         default: {
             SkPMColor pmS = SkPreMultiplyColor(src);
             SkPMColor pmD = SkPreMultiplyColor(dst);
-            SkPMColor result = SkXfermode::GetProc(mode)(pmS, pmD);
+            SkPMColor result = SkXfermode::GetProc((SkXfermode::Mode)mode)(pmS, pmD);
             return SkUnPreMultiply::PMColorToColor(result);
         }
     }
@@ -60,7 +60,7 @@ static SkColor xferColor(SkColor src, SkColor dst, SkXfermode::Mode mode) {
 void SkLayerDrawLooper::LayerDrawLooperContext::ApplyInfo(
         SkPaint* dst, const SkPaint& src, const LayerInfo& info) {
 
-    dst->setColor(xferColor(src.getColor(), dst->getColor(), info.fColorMode));
+    dst->setColor(xferColor(src.getColor(), dst->getColor(), (SkBlendMode)info.fColorMode));
 
     BitFlags bits = info.fPaintBits;
     SkPaint::TextEncoding encoding = dst->getTextEncoding();
@@ -161,7 +161,7 @@ bool SkLayerDrawLooper::asABlurShadow(BlurShadowRec* bsRec) const {
     if ((rec->fInfo.fPaintBits & ~kMaskFilter_Bit)) {
         return false;
     }
-    if (SkXfermode::kSrc_Mode != rec->fInfo.fColorMode) {
+    if (SkBlendMode::kSrc != (SkBlendMode)rec->fInfo.fColorMode) {
         return false;
     }
     const SkMaskFilter* mf = rec->fPaint.getMaskFilter();
@@ -178,7 +178,7 @@ bool SkLayerDrawLooper::asABlurShadow(BlurShadowRec* bsRec) const {
     if (rec->fInfo.fPaintBits) {
         return false;
     }
-    if (SkXfermode::kDst_Mode != rec->fInfo.fColorMode) {
+    if (SkBlendMode::kDst != (SkBlendMode)rec->fInfo.fColorMode) {
         return false;
     }
     if (!rec->fInfo.fOffset.equals(0, 0)) {
@@ -206,7 +206,7 @@ void SkLayerDrawLooper::flatten(SkWriteBuffer& buffer) const {
         buffer.writeInt(0);
 
         buffer.writeInt(rec->fInfo.fPaintBits);
-        buffer.writeInt(rec->fInfo.fColorMode);
+        buffer.writeInt((int)rec->fInfo.fColorMode);
         buffer.writePoint(rec->fInfo.fOffset);
         buffer.writeBool(rec->fInfo.fPostTranslate);
         buffer.writePaint(rec->fPaint);
@@ -224,7 +224,7 @@ sk_sp<SkFlattenable> SkLayerDrawLooper::CreateProc(SkReadBuffer& buffer) {
         (void)buffer.readInt();
 
         info.fPaintBits = buffer.readInt();
-        info.fColorMode = (SkXfermode::Mode)buffer.readInt();
+        info.fColorMode = (SK_XFERMODE_MODE_PARAM)buffer.readInt();
         buffer.readPoint(&info.fOffset);
         info.fPostTranslate = buffer.readBool();
         buffer.readPaint(builder.addLayerOnTop(info));
@@ -262,14 +262,14 @@ void SkLayerDrawLooper::toString(SkString* str) const {
         }
         str->append(") ");
 
-        static const char* gModeStrings[SkXfermode::kLastMode+1] = {
+        static const char* gModeStrings[(int)SkBlendMode::kLastMode+1] = {
             "kClear", "kSrc", "kDst", "kSrcOver", "kDstOver", "kSrcIn", "kDstIn",
             "kSrcOut", "kDstOut", "kSrcATop", "kDstATop", "kXor", "kPlus",
             "kMultiply", "kScreen", "kOverlay", "kDarken", "kLighten", "kColorDodge",
             "kColorBurn", "kHardLight", "kSoftLight", "kDifference", "kExclusion"
         };
 
-        str->appendf("mode: %s ", gModeStrings[rec->fInfo.fColorMode]);
+        str->appendf("mode: %s ", gModeStrings[(int)rec->fInfo.fColorMode]);
 
         str->append("offset: (");
         str->appendScalar(rec->fInfo.fOffset.fX);
