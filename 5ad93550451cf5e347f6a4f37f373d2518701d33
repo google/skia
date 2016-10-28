@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "21c918eb_e2bf7fb6",
+        "filename": "BUILD.gn",
+        "patchSetId": 4
+      },
+      "lineNbr": 26,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2016-10-28T13:19:35Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "e62d5695_f14e00dd",
+      "revId": "5ad93550451cf5e347f6a4f37f373d2518701d33",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "e62d5695_eee5ff24",
         "filename": "BUILD.gn",
         "patchSetId": 4
@@ -77,6 +95,24 @@
     },
     {
       "key": {
+        "uuid": "21c918eb_c2c40350",
+        "filename": "third_party/dng_sdk/BUILD.gn",
+        "patchSetId": 4
+      },
+      "lineNbr": 102,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2016-10-28T13:19:35Z",
+      "side": 1,
+      "message": "I just matched the gyp file. Agreed that this should be fine everywhere.",
+      "parentUuid": "e62d5695_91bfbc60",
+      "revId": "5ad93550451cf5e347f6a4f37f373d2518701d33",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "e62d5695_51aa7429",
         "filename": "third_party/dng_sdk/BUILD.gn",
         "patchSetId": 4
@@ -94,6 +130,24 @@
     },
     {
       "key": {
+        "uuid": "21c918eb_62b42fd9",
+        "filename": "third_party/dng_sdk/BUILD.gn",
+        "patchSetId": 4
+      },
+      "lineNbr": 186,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2016-10-28T13:19:35Z",
+      "side": 1,
+      "message": "Removed x64.",
+      "parentUuid": "e62d5695_51aa7429",
+      "revId": "5ad93550451cf5e347f6a4f37f373d2518701d33",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "e62d5695_11b4ec85",
         "filename": "third_party/dng_sdk/BUILD.gn",
         "patchSetId": 4
@@ -105,6 +159,24 @@
       "writtenOn": "2016-10-27T21:43:13Z",
       "side": 1,
       "message": "probably one \u0027 is enough in can\u0027t and here\u0027s?",
+      "revId": "5ad93550451cf5e347f6a4f37f373d2518701d33",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "21c918eb_42b133e7",
+        "filename": "third_party/dng_sdk/BUILD.gn",
+        "patchSetId": 4
+      },
+      "lineNbr": 187,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2016-10-28T13:19:35Z",
+      "side": 1,
+      "message": "Haha agreed. Thank you search and replace (and the difference between \u0027 in GYP and \" in GN). Fixed.",
+      "parentUuid": "e62d5695_11b4ec85",
       "revId": "5ad93550451cf5e347f6a4f37f373d2518701d33",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
