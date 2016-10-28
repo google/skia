@@ -63,6 +63,24 @@
       "revId": "16a73521e2dba5f99d0c0fa405265456f2863dd6",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "86373a0c_c3eb08c8",
+        "filename": "tools/viewer/sk_app/WindowContext.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 34,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2016-10-28T19:00:40Z",
+      "side": 1,
+      "message": "No, we pass in a nullptr here if we are making an OffscreenSurface.",
+      "parentUuid": "a6eefe70_633eb1d3",
+      "revId": "16a73521e2dba5f99d0c0fa405265456f2863dd6",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
