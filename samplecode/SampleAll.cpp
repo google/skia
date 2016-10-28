@@ -504,7 +504,7 @@ protected:
         auto shaderB = SkGradientShader::MakeLinear(pts, colors2, nullptr,
             2, SkShader::kClamp_TileMode);
         return SkShader::MakeComposeShader(std::move(shaderA), std::move(shaderB),
-                                           SkXfermode::Make(SkXfermode::kDstIn_Mode));
+                                           SkBlendMode::kDstIn);
     }
 
     virtual void startTest() {

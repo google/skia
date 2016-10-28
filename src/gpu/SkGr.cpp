@@ -566,11 +566,11 @@ GrPixelConfig GrRenderableConfigForColorSpace(const SkColorSpace* colorSpace) {
 
 ////////////////////////////////////////////////////////////////////////////////////////////////
 
-static inline bool blend_requires_shader(const SkXfermode::Mode mode, bool primitiveIsSrc) {
+static inline bool blend_requires_shader(const SkBlendMode mode, bool primitiveIsSrc) {
     if (primitiveIsSrc) {
-        return SkXfermode::kSrc_Mode != mode;
+        return SkBlendMode::kSrc != mode;
     } else {
-        return SkXfermode::kDst_Mode != mode;
+        return SkBlendMode::kDst != mode;
     }
 }
 
@@ -579,7 +579,7 @@ static inline bool skpaint_to_grpaint_impl(GrContext* context,
                                            const SkPaint& skPaint,
                                            const SkMatrix& viewM,
                                            sk_sp<GrFragmentProcessor>* shaderProcessor,
-                                           SkXfermode::Mode* primColorMode,
+                                           SkBlendMode* primColorMode,
                                            bool primitiveIsSrc,
                                            GrPaint* grPaint) {
     grPaint->setAntiAlias(skPaint.isAntiAlias());
@@ -760,12 +760,12 @@ bool SkPaintToGrPaintNoShader(GrContext* context,
 }
 
 /** Blends the SkPaint's shader (or color if no shader) with a per-primitive color which must
-be setup as a vertex attribute using the specified SkXfermode::Mode. */
+be setup as a vertex attribute using the specified SkBlendMode. */
 bool SkPaintToGrPaintWithXfermode(GrContext* context,
                                   GrRenderTargetContext* rtc,
                                   const SkPaint& skPaint,
                                   const SkMatrix& viewM,
-                                  SkXfermode::Mode primColorMode,
+                                  SkBlendMode primColorMode,
                                   bool primitiveIsSrc,
                                   GrPaint* grPaint) {
     return skpaint_to_grpaint_impl(context, rtc, skPaint, viewM, nullptr, &primColorMode,

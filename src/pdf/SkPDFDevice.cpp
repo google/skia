@@ -1427,7 +1427,7 @@ void SkPDFDevice::drawTextBlob(const SkDraw& draw, const SkTextBlob* blob, SkSca
 void SkPDFDevice::drawVertices(const SkDraw& d, SkCanvas::VertexMode,
                                int vertexCount, const SkPoint verts[],
                                const SkPoint texs[], const SkColor colors[],
-                               SkXfermode* xmode, const uint16_t indices[],
+                               SK_XFERMODE_PARAM xmode, const uint16_t indices[],
                                int indexCount, const SkPaint& paint) {
     if (d.fRC->isEmpty()) {
         return;

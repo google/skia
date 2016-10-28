@@ -206,7 +206,7 @@ protected:
                              const SkPoint& offset, const SkPaint& paint) = 0;
     virtual void drawVertices(const SkDraw&, SkCanvas::VertexMode, int vertexCount,
                               const SkPoint verts[], const SkPoint texs[],
-                              const SkColor colors[], SkXfermode* xmode,
+                              const SkColor colors[], SK_XFERMODE_PARAM xmode,
                               const uint16_t indices[], int indexCount,
                               const SkPaint& paint) = 0;
     // default implementation unrolls the blob runs.
@@ -214,11 +214,11 @@ protected:
                               const SkPaint& paint, SkDrawFilter* drawFilter);
     // default implementation calls drawVertices
     virtual void drawPatch(const SkDraw&, const SkPoint cubics[12], const SkColor colors[4],
-                           const SkPoint texCoords[4], SkXfermode* xmode, const SkPaint& paint);
+                           const SkPoint texCoords[4], SK_XFERMODE_PARAM, const SkPaint& paint);
 
     // default implementation calls drawPath
     virtual void drawAtlas(const SkDraw&, const SkImage* atlas, const SkRSXform[], const SkRect[],
-                           const SkColor[], int count, SkXfermode::Mode, const SkPaint&);
+                           const SkColor[], int count, SK_XFERMODE_MODE_PARAM, const SkPaint&);
 
     virtual void drawAnnotation(const SkDraw&, const SkRect&, const char[], SkData*) {}
 
