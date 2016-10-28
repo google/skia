@@ -20,6 +20,8 @@ static_assert(SK_SUPPORT_GPU, "not_implemented_for_non_gpu_build");
 @implementation SkNSView
 @synthesize fWind, fTitle, fOptionsDelegate, fGLContext;
 
+BOOL fRedrawRequestPending;
+
 - (id)initWithCoder:(NSCoder*)coder {
     if ((self = [super initWithCoder:coder])) {
         self = [self initWithDefaults];
