@@ -32,7 +32,7 @@ static sk_sp<SkColorFilter> reincarnate_colorfilter(SkFlattenable* obj) {
 
 static sk_sp<SkColorFilter> make_filter() {
     // pick a filter that cannot compose with itself via newComposed()
-    return SkColorFilter::MakeModeFilter(SK_ColorRED, SkXfermode::kColorBurn_Mode);
+    return SkColorFilter::MakeModeFilter(SK_ColorRED, SkBlendMode::kColorBurn);
 }
 
 static void test_composecolorfilter_limit(skiatest::Reporter* reporter) {
@@ -50,43 +50,43 @@ static void test_composecolorfilter_limit(skiatest::Reporter* reporter) {
     REPORTER_ASSERT(reporter, false); // we never saw a nullptr :(
 }
 
-#define ILLEGAL_MODE    ((SkXfermode::Mode)-1)
+#define ILLEGAL_MODE    ((SkBlendMode)-1)
 
 DEF_TEST(ColorFilter, reporter) {
     SkRandom rand;
 
-    for (int mode = 0; mode <= SkXfermode::kLastMode; mode++) {
+    for (int mode = 0; mode <= (int)SkBlendMode::kLastMode; mode++) {
         SkColor color = rand.nextU();
 
         // ensure we always get a filter, by avoiding the possibility of a
         // special case that would return nullptr (if color's alpha is 0 or 0xFF)
         color = SkColorSetA(color, 0x7F);
 
-        auto cf = SkColorFilter::MakeModeFilter(color, (SkXfermode::Mode)mode);
+        auto cf = SkColorFilter::MakeModeFilter(color, (SkBlendMode)mode);
 
         // allow for no filter if we're in Dst mode (its a no op)
-        if (SkXfermode::kDst_Mode == mode && nullptr == cf) {
+        if (SkBlendMode::kDst == (SkBlendMode)mode && nullptr == cf) {
             continue;
         }
 
         REPORTER_ASSERT(reporter, cf);
 
         SkColor c = ~color;
-        SkXfermode::Mode m = ILLEGAL_MODE;
+        SkBlendMode m = ILLEGAL_MODE;
 
         SkColor expectedColor = color;
-        SkXfermode::Mode expectedMode = (SkXfermode::Mode)mode;
+        SkBlendMode expectedMode = (SkBlendMode)mode;
 
 //        SkDebugf("--- mc [%d %x] ", mode, color);
 
-        REPORTER_ASSERT(reporter, cf->asColorMode(&c, &m));
+        REPORTER_ASSERT(reporter, cf->asColorMode(&c, (SK_XFERMODE_MODE_PARAM*)&m));
         // handle special-case folding by the factory
-        if (SkXfermode::kClear_Mode == mode) {
+        if (SkBlendMode::kClear == (SkBlendMode)mode) {
             if (c != expectedColor) {
                 expectedColor = 0;
             }
             if (m != expectedMode) {
-                expectedMode = SkXfermode::kSrc_Mode;
+                expectedMode = SkBlendMode::kSrc;
             }
         }
 
@@ -100,8 +100,8 @@ DEF_TEST(ColorFilter, reporter) {
             REPORTER_ASSERT(reporter, cf2);
 
             SkColor c2 = ~color;
-            SkXfermode::Mode m2 = ILLEGAL_MODE;
-            REPORTER_ASSERT(reporter, cf2->asColorMode(&c2, &m2));
+            SkBlendMode m2 = ILLEGAL_MODE;
+            REPORTER_ASSERT(reporter, cf2->asColorMode(&c2, (SK_XFERMODE_MODE_PARAM*)&m2));
             REPORTER_ASSERT(reporter, c2 == expectedColor);
             REPORTER_ASSERT(reporter, m2 == expectedMode);
         }

@@ -21,7 +21,7 @@ typedef void (*DrawAtlasProc)(SkCanvas*, SkImage*, const SkRSXform[], const SkRe
 static void draw_atlas(SkCanvas* canvas, SkImage* atlas, const SkRSXform xform[],
                        const SkRect tex[], const SkColor colors[], int count, const SkRect* cull,
                        const SkPaint* paint) {
-    canvas->drawAtlas(atlas, xform, tex, colors, count, SkXfermode::kModulate_Mode, cull, paint);
+    canvas->drawAtlas(atlas, xform, tex, colors, count, SkBlendMode::kModulate, cull, paint);
 }
 
 static void draw_atlas_sim(SkCanvas* canvas, SkImage* atlas, const SkRSXform xform[],

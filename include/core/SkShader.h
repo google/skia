@@ -320,7 +320,10 @@ public:
     struct ComposeRec {
         const SkShader*     fShaderA;
         const SkShader*     fShaderB;
+#ifdef SK_SUPPORT_LEGACY_XFERMODE_PARAM
         const SkXfermode*   fMode;
+#endif
+        SkBlendMode         fBlendMode;
     };
 
     virtual bool asACompose(ComposeRec*) const { return false; }
@@ -420,8 +423,13 @@ public:
      */
     static sk_sp<SkShader> MakeColorShader(const SkColor4f&, sk_sp<SkColorSpace>);
 
+    static sk_sp<SkShader> MakeComposeShader(sk_sp<SkShader> dst, sk_sp<SkShader> src, SkBlendMode);
+
+#ifdef SK_SUPPORT_LEGACY_XFERMODE_PARAM
     static sk_sp<SkShader> MakeComposeShader(sk_sp<SkShader> dst, sk_sp<SkShader> src,
-                                             SkXfermode::Mode);
+                                             SkXfermode::Mode mode) {
+        return MakeComposeShader(dst, src, (SkBlendMode)mode);
+    }
 
     /**
      *  Create a new compose shader, given shaders dst, src, and a combining xfermode mode.
@@ -431,7 +439,10 @@ public:
      *  The caller is responsible for managing its reference-count for the xfer (if not null).
      */
     static sk_sp<SkShader> MakeComposeShader(sk_sp<SkShader> dst, sk_sp<SkShader> src,
-                                             sk_sp<SkXfermode> xfer);
+                                             sk_sp<SkXfermode> xfer) {
+        return MakeComposeShader(dst, src, xfer ? xfer->blend() : SkBlendMode::kSrcOver);
+    }
+#endif
 
     /** Call this to create a new shader that will draw with the specified bitmap.
      *

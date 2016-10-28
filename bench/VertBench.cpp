@@ -83,7 +83,7 @@ protected:
 
         for (int i = 0; i < loops; i++) {
             canvas->drawVertices(SkCanvas::kTriangles_VertexMode, PTS,
-                                 fPts, nullptr, fColors, nullptr, fIdx, IDX, paint);
+                                 fPts, nullptr, fColors, fIdx, IDX, paint);
         }
     }
 private:
