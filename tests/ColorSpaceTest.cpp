@@ -305,22 +305,102 @@ DEF_TEST(ColorSpace_Equals, r) {
     REPORTER_ASSERT(r, !SkColorSpace::Equals(rgb1.get(), rgb4.get()));
 }
 
-DEF_TEST(ColorSpace_Primaries, r) {
-    // sRGB primaries
-    SkColorSpacePrimaries primaries;
-    primaries.fRX = 0.64f;
-    primaries.fRY = 0.33f;
-    primaries.fGX = 0.30f;
-    primaries.fGY = 0.60f;
-    primaries.fBX = 0.15f;
-    primaries.fBY = 0.06f;
-    primaries.fWX = 0.3127f;
-    primaries.fWY = 0.3290f;
+static inline bool matrix_almost_equal(const SkMatrix44& a, const SkMatrix44& b) {
+    return almost_equal(a.get(0, 0), b.get(0, 0)) &&
+           almost_equal(a.get(0, 1), b.get(0, 1)) &&
+           almost_equal(a.get(0, 2), b.get(0, 2)) &&
+           almost_equal(a.get(0, 3), b.get(0, 3)) &&
+           almost_equal(a.get(1, 0), b.get(1, 0)) &&
+           almost_equal(a.get(1, 1), b.get(1, 1)) &&
+           almost_equal(a.get(1, 2), b.get(1, 2)) &&
+           almost_equal(a.get(1, 3), b.get(1, 3)) &&
+           almost_equal(a.get(2, 0), b.get(2, 0)) &&
+           almost_equal(a.get(2, 1), b.get(2, 1)) &&
+           almost_equal(a.get(2, 2), b.get(2, 2)) &&
+           almost_equal(a.get(2, 3), b.get(2, 3)) &&
+           almost_equal(a.get(3, 0), b.get(3, 0)) &&
+           almost_equal(a.get(3, 1), b.get(3, 1)) &&
+           almost_equal(a.get(3, 2), b.get(3, 2)) &&
+           almost_equal(a.get(3, 3), b.get(3, 3));
+}
 
+static inline void check_primaries(skiatest::Reporter* r, const SkColorSpacePrimaries& primaries,
+                                   const SkMatrix44& reference) {
     SkMatrix44 toXYZ(SkMatrix44::kUninitialized_Constructor);
     bool result = primaries.toXYZD50(&toXYZ);
     REPORTER_ASSERT(r, result);
+    REPORTER_ASSERT(r, matrix_almost_equal(toXYZ, reference));
+}
 
-    sk_sp<SkColorSpace> space = SkColorSpace::MakeRGB(SkColorSpace::kSRGB_RenderTargetGamma, toXYZ);
+DEF_TEST(ColorSpace_Primaries, r) {
+    // sRGB primaries (D65)
+    SkColorSpacePrimaries srgb;
+    srgb.fRX = 0.64f;
+    srgb.fRY = 0.33f;
+    srgb.fGX = 0.30f;
+    srgb.fGY = 0.60f;
+    srgb.fBX = 0.15f;
+    srgb.fBY = 0.06f;
+    srgb.fWX = 0.3127f;
+    srgb.fWY = 0.3290f;
+    SkMatrix44 srgbToXYZ(SkMatrix44::kUninitialized_Constructor);
+    bool result = srgb.toXYZD50(&srgbToXYZ);
+    REPORTER_ASSERT(r, result);
+
+    sk_sp<SkColorSpace> space = SkColorSpace::MakeRGB(SkColorSpace::kSRGB_RenderTargetGamma,
+                                                      srgbToXYZ);
     REPORTER_ASSERT(r, SkColorSpace::MakeNamed(SkColorSpace::kSRGB_Named) == space);
+
+    // AdobeRGB primaries (D65)
+    SkColorSpacePrimaries adobe;
+    adobe.fRX = 0.64f;
+    adobe.fRY = 0.33f;
+    adobe.fGX = 0.21f;
+    adobe.fGY = 0.71f;
+    adobe.fBX = 0.15f;
+    adobe.fBY = 0.06f;
+    adobe.fWX = 0.3127f;
+    adobe.fWY = 0.3290f;
+    SkMatrix44 adobeToXYZ(SkMatrix44::kUninitialized_Constructor);
+    result = adobe.toXYZD50(&adobeToXYZ);
+    REPORTER_ASSERT(r, result);
+
+    SkColorSpaceTransferFn fn;
+    fn.fA = 1.0f;
+    fn.fB = fn.fC = fn.fD = fn.fE = fn.fF = 0.0f;
+    fn.fG = 2.2f;
+    space = SkColorSpace::MakeRGB(fn, adobeToXYZ);
+    REPORTER_ASSERT(r, SkColorSpace::MakeNamed(SkColorSpace::kAdobeRGB_Named) == space);
+
+    // ProPhoto (D50)
+    SkColorSpacePrimaries proPhoto;
+    proPhoto.fRX = 0.7347f;
+    proPhoto.fRY = 0.2653f;
+    proPhoto.fGX = 0.1596f;
+    proPhoto.fGY = 0.8404f;
+    proPhoto.fBX = 0.0366f;
+    proPhoto.fBY = 0.0001f;
+    proPhoto.fWX = 0.34567f;
+    proPhoto.fWY = 0.35850f;
+    SkMatrix44 proToXYZ(SkMatrix44::kUninitialized_Constructor);
+    proToXYZ.set3x3(0.7976749f, 0.2880402f, 0.0000000f,
+                    0.1351917f, 0.7118741f, 0.0000000f,
+                    0.0313534f, 0.0000857f, 0.8252100f);
+    check_primaries(r, proPhoto, proToXYZ);
+
+    // NTSC (C)
+    SkColorSpacePrimaries ntsc;
+    ntsc.fRX = 0.67f;
+    ntsc.fRY = 0.33f;
+    ntsc.fGX = 0.21f;
+    ntsc.fGY = 0.71f;
+    ntsc.fBX = 0.14f;
+    ntsc.fBY = 0.08f;
+    ntsc.fWX = 0.31006f;
+    ntsc.fWY = 0.31616f;
+    SkMatrix44 ntscToXYZ(SkMatrix44::kUninitialized_Constructor);
+    ntscToXYZ.set3x3(0.6343706f, 0.3109496f, -0.0011817f,
+                     0.1852204f, 0.5915984f, 0.0555518f,
+                     0.1446290f, 0.0974520f, 0.7708399f);
+    check_primaries(r, ntsc, ntscToXYZ);
 }
