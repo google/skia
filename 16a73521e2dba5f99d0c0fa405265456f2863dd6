@@ -22,6 +22,47 @@
       "revId": "16a73521e2dba5f99d0c0fa405265456f2863dd6",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "a16b489a_f60c991e",
+        "filename": "tools/viewer/sk_app/VulkanWindowContext.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 446,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2016-10-28T14:46:52Z",
+      "side": 1,
+      "message": "Got it.",
+      "parentUuid": "e62d5695_ae5ed757",
+      "revId": "16a73521e2dba5f99d0c0fa405265456f2863dd6",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "a6eefe70_633eb1d3",
+        "filename": "tools/viewer/sk_app/WindowContext.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 34,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2016-10-28T14:46:52Z",
+      "side": 1,
+      "message": "Can this be a ref instead?",
+      "range": {
+        "startLine": 34,
+        "startChar": 14,
+        "endLine": 34,
+        "endChar": 40
+      },
+      "revId": "16a73521e2dba5f99d0c0fa405265456f2863dd6",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
