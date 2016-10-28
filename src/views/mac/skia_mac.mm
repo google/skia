@@ -6,36 +6,10 @@
  * found in the LICENSE file.
  */
 
-#include <crt_externs.h>
 #import <Cocoa/Cocoa.h>
 #include "SkApplication.h"
 #include "SkGraphics.h"
 #include "SkNSView.h"
-
-@interface MainView : SkNSView {
-}
-- (id)initWithFrame: (NSRect)frame ;
-- (void)dealloc;
-- (void)begin;
-@end
-
-@implementation MainView : SkNSView
-
-- (id)initWithFrame: (NSRect)frame {
-    self = [super initWithFrame:frame];
-    return self;
-}
-
-- (void)dealloc {
-    delete fWind;
-    [super dealloc];
-}
-
-- (void)begin {
-    fWind = create_sk_window(self, *_NSGetArgc(), *_NSGetArgv());
-    [self setUpWindow];
-}
-@end
 
 @interface AppDelegate : NSObject<NSApplicationDelegate, NSWindowDelegate> {
 }
@@ -68,7 +42,7 @@ int main(int argc, char *argv[]) {
     NSWindow* window = [[NSWindow alloc] initWithContentRect:windowRect styleMask:windowStyle backing:NSBackingStoreBuffered defer:NO];
 
     NSRect rect = [NSWindow contentRectForFrameRect:windowRect styleMask:windowStyle];
-    MainView* customView = [[MainView alloc] initWithFrame:rect];
+    SkNSView* customView = [[SkNSView alloc] initWithFrame:rect];
     [customView setTranslatesAutoresizingMaskIntoConstraints:NO];
     NSView* contentView = window.contentView;
     [contentView addSubview:customView];

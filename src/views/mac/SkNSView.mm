@@ -5,7 +5,9 @@
  * found in the LICENSE file.
  */
 
+#include <crt_externs.h>
 #import "SkNSView.h"
+#include "SkApplication.h"
 #include "SkCanvas.h"
 #include "SkSurface.h"
 #include "SkCGUtils.h"
@@ -19,6 +21,13 @@ static_assert(SK_SUPPORT_GPU, "not_implemented_for_non_gpu_build");
                               MAC_OS_X_VERSION_MAX_ALLOWED >= MAC_OS_X_VERSION_10_7)
 @implementation SkNSView
 @synthesize fWind, fTitle, fOptionsDelegate, fGLContext;
+
+BOOL fRedrawRequestPending;
+
+- (void)begin {
+    fWind = create_sk_window(self, *_NSGetArgc(), *_NSGetArgv());
+    [self setUpWindow];
+}
 
 - (id)initWithCoder:(NSCoder*)coder {
     if ((self = [super initWithCoder:coder])) {
@@ -121,6 +130,7 @@ static_assert(SK_SUPPORT_GPU, "not_implemented_for_non_gpu_build");
     [self freeNativeWind];
     self.fGLContext = nil;
     self.fTitle = nil;
+    delete fWind;
     [super dealloc];
 }
 

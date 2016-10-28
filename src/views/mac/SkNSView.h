@@ -8,6 +8,7 @@
 #import <QuartzCore/QuartzCore.h>
 #import <Cocoa/Cocoa.h>
 #import "SkWindow.h"
+
 class SkEvent;
 @class SkNSView;
 
@@ -19,14 +20,6 @@ class SkEvent;
 @end
 
 @interface SkNSView : NSView {
-    BOOL fRedrawRequestPending;
-
-    NSString* fTitle;
-    SkOSWindow* fWind;
-#if SK_SUPPORT_GPU
-    NSOpenGLContext* fGLContext;
-#endif
-    id<SkNSViewOptionsDelegate> fOptionsDelegate;
 }
 
 @property (nonatomic, readonly) SkOSWindow *fWind;
@@ -37,6 +30,7 @@ class SkEvent;
 @property (nonatomic, assign) id<SkNSViewOptionsDelegate> fOptionsDelegate;
 
 - (id)initWithDefaults;
+- (void)begin;
 - (void)setUpWindow;
 - (void)resizeSkView:(NSSize)newSize;
 - (void)setSkTitle:(const char*)title;
