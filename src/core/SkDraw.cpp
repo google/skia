@@ -1342,7 +1342,8 @@ void SkDraw::drawBitmap(const SkBitmap& bitmap, const SkMatrix& prematrix,
     SkDraw draw(*this);
     draw.fMatrix = &matrix;
 
-    if (bitmap.colorType() == kAlpha_8_SkColorType) {
+    if (bitmap.colorType() == kAlpha_8_SkColorType && !paint->getColorFilter() &&
+            !paint->getShader()) {
         draw.drawBitmapAsMask(bitmap, *paint);
     } else {
         SkAutoBitmapShaderInstall install(bitmap, *paint);

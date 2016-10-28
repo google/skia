@@ -59,6 +59,7 @@ gm_sources = [
   "$_gm/color4f.cpp",
   "$_gm/colorcube.cpp",
   "$_gm/coloremoji.cpp",
+  "$_gm/colorfilteralpha8.cpp",
   "$_gm/colorfilterimagefilter.cpp",
   "$_gm/colorfilters.cpp",
   "$_gm/colormatrix.cpp",
