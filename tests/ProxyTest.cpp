@@ -13,6 +13,7 @@
 #include "GrGpu.h"
 #include "GrSurfaceProxy.h"
 #include "GrTextureProxy.h"
+#include "GrRenderTargetPriv.h"
 #include "GrRenderTargetProxy.h"
 
 // Check that the surface proxy's member vars are set as expected
