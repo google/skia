@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "81b56446_669d6f4f",
+        "filename": "src/core/SkMathPriv.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 157,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2016-10-28T16:16:49Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "61ba3039_c29b674e",
+      "revId": "24132ebb88dde0cba186295386acc7ccab99e843",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "e19380d8_189774d4",
         "filename": "src/core/SkMathPriv.h",
         "patchSetId": 3
@@ -30,6 +48,24 @@
       "writtenOn": "2016-10-28T16:11:57Z",
       "side": 1,
       "message": "I guess we have no SkCLZ for size_t?",
+      "revId": "24132ebb88dde0cba186295386acc7ccab99e843",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "868bbadf_6f279d81",
+        "filename": "src/core/SkMathPriv.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 168,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2016-10-28T16:16:49Z",
+      "side": 1,
+      "message": "Right. This loop works for both 32 \u0026 64 bits. Maybe the compiler will unroll it ...",
+      "parentUuid": "e19380d8_189774d4",
       "revId": "24132ebb88dde0cba186295386acc7ccab99e843",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
