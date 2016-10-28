@@ -1193,7 +1193,7 @@ void SkDraw::drawPath(const SkPath& origSrcPath, const SkPaint& origPaint,
 void SkDraw::drawBitmapAsMask(const SkBitmap& bitmap, const SkPaint& paint) const {
     SkASSERT(bitmap.colorType() == kAlpha_8_SkColorType);
 
-    if (SkTreatAsSprite(*fMatrix, bitmap.dimensions(), paint)) {
+    if (SkTreatAsSprite(*fMatrix, bitmap.dimensions(), paint) && false) {
         int ix = SkScalarRoundToInt(fMatrix->getTranslateX());
         int iy = SkScalarRoundToInt(fMatrix->getTranslateY());
 
@@ -1342,7 +1342,8 @@ void SkDraw::drawBitmap(const SkBitmap& bitmap, const SkMatrix& prematrix,
     SkDraw draw(*this);
     draw.fMatrix = &matrix;
 
-    if (bitmap.colorType() == kAlpha_8_SkColorType) {
+    if (bitmap.colorType() == kAlpha_8_SkColorType && !paint->getColorFilter() &&
+            !paint->getShader()) {
         draw.drawBitmapAsMask(bitmap, *paint);
     } else {
         SkAutoBitmapShaderInstall install(bitmap, *paint);
