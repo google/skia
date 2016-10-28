@@ -127,16 +127,16 @@ protected:
         for (int i = 0; i < loops; i++) {
             switch (fVertexMode) {
                 case kNone_VertexMode:
-                    canvas->drawPatch(fCubics, nullptr, nullptr, nullptr, fPaint);
+                    canvas->drawPatch(fCubics, nullptr, nullptr, fPaint);
                     break;
                 case kColors_VertexMode:
-                    canvas->drawPatch(fCubics, fColors, nullptr, nullptr, fPaint);
+                    canvas->drawPatch(fCubics, fColors, nullptr, fPaint);
                     break;
                 case kTexCoords_VertexMode:
-                    canvas->drawPatch(fCubics, nullptr, fTexCoords, nullptr, fPaint);
+                    canvas->drawPatch(fCubics, nullptr, fTexCoords, fPaint);
                     break;
                 case kBoth_VertexMode:
-                    canvas->drawPatch(fCubics, fColors, fTexCoords, nullptr, fPaint);
+                    canvas->drawPatch(fCubics, fColors, fTexCoords, fPaint);
                     break;
                 default:
                     break;

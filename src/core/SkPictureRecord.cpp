@@ -722,7 +722,7 @@ void SkPictureRecord::onDrawDrawable(SkDrawable* drawable, const SkMatrix* matri
 
 void SkPictureRecord::onDrawVertices(VertexMode vmode, int vertexCount,
                                      const SkPoint vertices[], const SkPoint texs[],
-                                     const SkColor colors[], SkXfermode* xfer,
+                                     const SkColor colors[], SK_XFERMODE_PARAM xmode,
                                      const uint16_t indices[], int indexCount,
                                      const SkPaint& paint) {
     uint32_t flags = 0;
@@ -735,11 +735,16 @@ void SkPictureRecord::onDrawVertices(VertexMode vmode, int vertexCount,
     if (indexCount > 0) {
         flags |= DRAW_VERTICES_HAS_INDICES;
     }
-    if (xfer) {
-        SkXfermode::Mode mode;
-        if (xfer->asMode(&mode) && SkXfermode::kModulate_Mode != mode) {
-            flags |= DRAW_VERTICES_HAS_XFER;
-        }
+    SkBlendMode bmode = SkBlendMode::kModulate;
+#ifdef SK_SUPPORT_LEGACY_XFERMODE_PARAM
+    if (xmode) {
+        bmode = xmode->blend();
+    }
+#else
+    bmode = xmode;
+#endif
+    if (SkBlendMode::kModulate != bmode) {
+        flags |= DRAW_VERTICES_HAS_XFER;
     }
 
     // op + paint index + flags + vmode + vCount + vertices
@@ -775,15 +780,13 @@ void SkPictureRecord::onDrawVertices(VertexMode vmode, int vertexCount,
         fWriter.writePad(indices, indexCount * sizeof(uint16_t));
     }
     if (flags & DRAW_VERTICES_HAS_XFER) {
-        SkXfermode::Mode mode = SkXfermode::kModulate_Mode;
-        (void)xfer->asMode(&mode);
-        this->addInt(mode);
+        this->addInt((int)bmode);
     }
     this->validate(initialOffset, size);
 }
 
 void SkPictureRecord::onDrawPatch(const SkPoint cubics[12], const SkColor colors[4],
-                                  const SkPoint texCoords[4], SkXfermode* xmode,
+                                  const SkPoint texCoords[4], SK_XFERMODE_PARAM xmode,
                                   const SkPaint& paint) {
     // op + paint index + patch 12 control points + flag + patch 4 colors + 4 texture coordinates
     size_t size = 2 * kUInt32Size + SkPatchUtils::kNumCtrlPts * sizeof(SkPoint) + kUInt32Size;
@@ -796,12 +799,17 @@ void SkPictureRecord::onDrawPatch(const SkPoint cubics[12], const SkColor colors
         flag |= DRAW_VERTICES_HAS_TEXS;
         size += SkPatchUtils::kNumCorners * sizeof(SkPoint);
     }
+    SkBlendMode bmode = SkBlendMode::kModulate;
+#ifdef SK_SUPPORT_LEGACY_XFERMODE_PARAM
     if (xmode) {
-        SkXfermode::Mode mode;
-        if (xmode->asMode(&mode) && SkXfermode::kModulate_Mode != mode) {
-            flag |= DRAW_VERTICES_HAS_XFER;
-            size += kUInt32Size;
-        }
+        bmode = xmode->blend();
+    }
+#else
+    bmode = xmode;
+#endif
+    if (SkBlendMode::kModulate != bmode) {
+        flag |= DRAW_VERTICES_HAS_XFER;
+        size += kUInt32Size;
     }
 
     size_t initialOffset = this->addDraw(DRAW_PATCH, &size);
@@ -817,15 +825,13 @@ void SkPictureRecord::onDrawPatch(const SkPoint cubics[12], const SkColor colors
         fWriter.write(texCoords, SkPatchUtils::kNumCorners * sizeof(SkPoint));
     }
     if (flag & DRAW_VERTICES_HAS_XFER) {
-        SkXfermode::Mode mode = SkXfermode::kModulate_Mode;
-        xmode->asMode(&mode);
-        this->addInt(mode);
+        this->addInt((int)bmode);
     }
     this->validate(initialOffset, size);
 }
 
 void SkPictureRecord::onDrawAtlas(const SkImage* atlas, const SkRSXform xform[], const SkRect tex[],
-                                  const SkColor colors[], int count, SkXfermode::Mode mode,
+                                  const SkColor colors[], int count, SK_XFERMODE_MODE_PARAM mode,
                                   const SkRect* cull, const SkPaint* paint) {
     // [op + paint-index + atlas-index + flags + count] + [xform] + [tex] + [*colors + mode] + cull
     size_t size = 5 * kUInt32Size + count * sizeof(SkRSXform) + count * sizeof(SkRect);
@@ -851,7 +857,7 @@ void SkPictureRecord::onDrawAtlas(const SkImage* atlas, const SkRSXform xform[],
     // write optional parameters
     if (colors) {
         fWriter.write(colors, count * sizeof(SkColor));
-        this->addInt(mode);
+        this->addInt((int)mode);
     }
     if (cull) {
         fWriter.write(cull, sizeof(SkRect));

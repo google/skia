@@ -114,7 +114,7 @@ protected:
                 for (int m = 0; m < GrTextureDomain::kModeCount; ++m) {
                     GrTextureDomain::Mode mode = (GrTextureDomain::Mode) m;
                     GrPaint grPaint;
-                    grPaint.setXPFactory(GrPorterDuffXPFactory::Make(SkXfermode::kSrc_Mode));
+                    grPaint.setXPFactory(GrPorterDuffXPFactory::Make(SkBlendMode::kSrc));
                     sk_sp<GrFragmentProcessor> fp(
                         GrTextureDomainEffect::Make(texture, nullptr, textureMatrices[tm],
                                                 GrTextureDomain::MakeTexelDomain(texture,

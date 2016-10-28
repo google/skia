@@ -87,7 +87,7 @@ protected:
         };
 
         sk_sp<SkColorFilter> cf(SkColorFilter::MakeModeFilter(SK_ColorMAGENTA,
-                                                              SkXfermode::kSrcIn_Mode));
+                                                              SkBlendMode::kSrcIn));
         sk_sp<SkImageFilter> cfif(SkColorFilterImageFilter::Make(std::move(cf), nullptr));
         SkImageFilter::CropRect cropRect(SkRect::Make(SkIRect::MakeXYWH(10, 10, 44, 44)),
                                          SkImageFilter::CropRect::kHasAll_CropEdge);
