@@ -175,10 +175,13 @@ void ColorCodecBench::onDelayedSetup() {
     }
 
     if (FLAGS_nonstd) {
-        float gammas[3] = { 1.8f, 2.0f, 2.5f, };
+        SkColorSpaceTransferFn gamma;
+        gamma.fA = 1.0f;
+        gamma.fB = gamma.fC = gamma.fD = gamma.fE = gamma.fF = 0.0f;
+        gamma.fG = 4.0f;
         SkMatrix44 matrix = SkMatrix44(SkMatrix44::kUninitialized_Constructor);
         matrix.set3x3(0.30f, 0.31f, 0.28f, 0.32f, 0.33f, 0.29f, 0.27f, 0.30f, 0.30f);
-        fDstSpace = SkColorSpace::MakeRGB(gammas, matrix);
+        fDstSpace = SkColorSpace::MakeRGB(gamma, matrix);
     }
 
     fDstInfo = fDstInfo.makeColorSpace(fDstSpace);

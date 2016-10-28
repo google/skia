@@ -237,10 +237,6 @@ DEF_TEST(ColorSpace_Serialize, r) {
     monitorData = SkData::MakeFromFileName(GetResourcePath("icc_profiles/upperRight.icc").c_str());
     test_serialize(r, SkColorSpace::MakeICC(monitorData->data(), monitorData->size()).get(), false);
 
-    const float gammas[] = { 1.1f, 1.2f, 1.7f, };
-    SkMatrix44 toXYZ(SkMatrix44::kIdentity_Constructor);
-    test_serialize(r, SkColorSpace::MakeRGB(gammas, toXYZ).get(), false);
-
     SkColorSpaceTransferFn fn;
     fn.fA = 1.0f;
     fn.fB = 0.0f;
@@ -249,6 +245,7 @@ DEF_TEST(ColorSpace_Serialize, r) {
     fn.fE = 1.0f;
     fn.fF = 0.0f;
     fn.fG = 1.0f;
+    SkMatrix44 toXYZ(SkMatrix44::kIdentity_Constructor);
     test_serialize(r, SkColorSpace::MakeRGB(fn, toXYZ).get(), false);
 }
 
@@ -264,12 +261,6 @@ DEF_TEST(ColorSpace_Equals, r) {
     sk_sp<SkColorSpace> upperLeft = SkColorSpace::MakeICC(data->data(), data->size());
     data = SkData::MakeFromFileName(GetResourcePath("icc_profiles/upperRight.icc").c_str());
     sk_sp<SkColorSpace> upperRight = SkColorSpace::MakeICC(data->data(), data->size());
-    const float gammas1[] = { 1.1f, 1.2f, 1.3f, };
-    const float gammas2[] = { 1.1f, 1.2f, 1.7f, };
-    SkMatrix44 toXYZ(SkMatrix44::kIdentity_Constructor);
-    sk_sp<SkColorSpace> rgb1 = SkColorSpace::MakeRGB(gammas1, toXYZ);
-    sk_sp<SkColorSpace> rgb2 = SkColorSpace::MakeRGB(gammas2, toXYZ);
-    sk_sp<SkColorSpace> rgb3 = SkColorSpace::MakeRGB(gammas1, toXYZ);
 
     SkColorSpaceTransferFn fn;
     fn.fA = 1.0f;
@@ -279,6 +270,7 @@ DEF_TEST(ColorSpace_Equals, r) {
     fn.fE = 1.0f;
     fn.fF = 0.0f;
     fn.fG = 1.0f;
+    SkMatrix44 toXYZ(SkMatrix44::kIdentity_Constructor);
     sk_sp<SkColorSpace> rgb4 = SkColorSpace::MakeRGB(fn, toXYZ);
 
     REPORTER_ASSERT(r, SkColorSpace::Equals(nullptr, nullptr));
@@ -288,8 +280,6 @@ DEF_TEST(ColorSpace_Equals, r) {
     REPORTER_ASSERT(r, SkColorSpace::Equals(z32.get(), z32.get()));
     REPORTER_ASSERT(r, SkColorSpace::Equals(upperLeft.get(), upperLeft.get()));
     REPORTER_ASSERT(r, SkColorSpace::Equals(upperRight.get(), upperRight.get()));
-    REPORTER_ASSERT(r, SkColorSpace::Equals(rgb1.get(), rgb1.get()));
-    REPORTER_ASSERT(r, SkColorSpace::Equals(rgb1.get(), rgb3.get()));
     REPORTER_ASSERT(r, SkColorSpace::Equals(rgb4.get(), rgb4.get()));
 
     REPORTER_ASSERT(r, !SkColorSpace::Equals(nullptr, srgb.get()));
@@ -301,8 +291,8 @@ DEF_TEST(ColorSpace_Equals, r) {
     REPORTER_ASSERT(r, !SkColorSpace::Equals(upperLeft.get(), upperRight.get()));
     REPORTER_ASSERT(r, !SkColorSpace::Equals(z30.get(), upperRight.get()));
     REPORTER_ASSERT(r, !SkColorSpace::Equals(upperRight.get(), adobe.get()));
-    REPORTER_ASSERT(r, !SkColorSpace::Equals(rgb1.get(), rgb2.get()));
-    REPORTER_ASSERT(r, !SkColorSpace::Equals(rgb1.get(), rgb4.get()));
+    REPORTER_ASSERT(r, !SkColorSpace::Equals(z30.get(), rgb4.get()));
+    REPORTER_ASSERT(r, !SkColorSpace::Equals(srgb.get(), rgb4.get()));
 }
 
 static inline bool matrix_almost_equal(const SkMatrix44& a, const SkMatrix44& b) {

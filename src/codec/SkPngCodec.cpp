@@ -361,7 +361,6 @@ sk_sp<SkColorSpace> read_color_space(png_structp png_ptr, png_infop info_ptr) {
     // Next, check for chromaticities.
     png_fixed_point chrm[8];
     png_fixed_point gamma;
-    float gammas[3];
     if (png_get_cHRM_fixed(png_ptr, info_ptr, &chrm[0], &chrm[1], &chrm[2], &chrm[3], &chrm[4],
                            &chrm[5], &chrm[6], &chrm[7]))
     {
@@ -381,12 +380,12 @@ sk_sp<SkColorSpace> read_color_space(png_structp png_ptr, png_infop info_ptr) {
         }
 
         if (PNG_INFO_gAMA == png_get_gAMA_fixed(png_ptr, info_ptr, &gamma)) {
-            float value = png_inverted_fixed_point_to_float(gamma);
-            gammas[0] = value;
-            gammas[1] = value;
-            gammas[2] = value;
+            SkColorSpaceTransferFn fn;
+            fn.fA = 1.0f;
+            fn.fB = fn.fC = fn.fD = fn.fE = fn.fF = 0.0f;
+            fn.fG = png_inverted_fixed_point_to_float(gamma);
 
-            return SkColorSpace::MakeRGB(gammas, toXYZD50);
+            return SkColorSpace::MakeRGB(fn, toXYZD50);
         }
 
         // Default to sRGB gamma if the image has color space information,
@@ -396,18 +395,16 @@ sk_sp<SkColorSpace> read_color_space(png_structp png_ptr, png_infop info_ptr) {
 
     // Last, check for gamma.
     if (PNG_INFO_gAMA == png_get_gAMA_fixed(png_ptr, info_ptr, &gamma)) {
-
-        // Set the gammas.
-        float value = png_inverted_fixed_point_to_float(gamma);
-        gammas[0] = value;
-        gammas[1] = value;
-        gammas[2] = value;
+        SkColorSpaceTransferFn fn;
+        fn.fA = 1.0f;
+        fn.fB = fn.fC = fn.fD = fn.fE = fn.fF = 0.0f;
+        fn.fG = png_inverted_fixed_point_to_float(gamma);
 
         // Since there is no cHRM, we will guess sRGB gamut.
         SkMatrix44 toXYZD50(SkMatrix44::kUninitialized_Constructor);
         toXYZD50.set3x3RowMajorf(gSRGB_toXYZD50);
 
-        return SkColorSpace::MakeRGB(gammas, toXYZD50);
+        return SkColorSpace::MakeRGB(fn, toXYZD50);
     }
 
 #endif // LIBPNG >= 1.6

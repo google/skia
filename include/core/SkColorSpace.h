@@ -96,7 +96,6 @@ public:
     static sk_sp<SkColorSpace> MakeRGB(RenderTargetGamma gamma, const SkMatrix44& toXYZD50);
     static sk_sp<SkColorSpace> MakeRGB(const SkColorSpaceTransferFn& coeffs,
                                       const SkMatrix44& toXYZD50);
-    static sk_sp<SkColorSpace> MakeRGB(const float exponents[3], const SkMatrix44& toXYZD50);
 
     /**
      *  Create a common, named SkColorSpace.
@@ -115,9 +114,6 @@ public:
     static sk_sp<SkColorSpace> NewRGB(const SkColorSpaceTransferFn& coeffs,
                                       const SkMatrix44& toXYZD50) {
         return MakeRGB(coeffs, toXYZD50);
-    }
-    static sk_sp<SkColorSpace> NewRGB(const float exponents[3], const SkMatrix44& toXYZD50) {
-        return MakeRGB(exponents, toXYZD50);
     }
     static sk_sp<SkColorSpace> NewNamed(Named named) { return MakeNamed(named); }
     static sk_sp<SkColorSpace> NewICC(const void* input, size_t len) { return MakeICC(input, len); }
