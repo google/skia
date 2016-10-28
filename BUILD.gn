@@ -106,7 +106,10 @@ config("skia_private") {
     "third_party/ktx",
   ]
 
-  defines = [ "SK_GAMMA_APPLY_TO_A8" ]
+  defines = [
+    "SK_GAMMA_APPLY_TO_A8",
+    "SK_INTERNAL",
+  ]
   if (is_android) {
     defines += [
       "SK_GAMMA_EXPONENT=1.4",
@@ -989,18 +992,47 @@ if (skia_enable_tools) {
     testonly = true
   }
 
-  if (skia_enable_gpu) {
-    executable("skpbench") {
+  if (is_linux || is_win) {
+    executable("SampleApp") {
       sources = [
-        "tools/skpbench/skpbench.cpp",
+        "samplecode/SampleApp.cpp",
+        "samplecode/SamplePictFile.cpp",
       ]
+      if (is_mac) {
+        sources += [ "src/views/mac/skia_mac.mm" ]
+      } else if (is_win) {
+        sources += [ "src/views/win/skia_win.cpp" ]
+      } else if (is_linux) {
+        sources += [ "src/views/unix/skia_unix.cpp" ]
+      }
       deps = [
         ":flags",
+        ":gm",
         ":gpu_tool_utils",
+        ":samples",
         ":skia",
         ":tool_utils",
+        ":views",
       ]
+      if (skia_use_angle) {
+        deps += [ "//third_party/angle2" ]
+      }
       testonly = true
+    }
+
+    if (skia_enable_gpu) {
+      executable("skpbench") {
+        sources = [
+          "tools/skpbench/skpbench.cpp",
+        ]
+        deps = [
+          ":flags",
+          ":gpu_tool_utils",
+          ":skia",
+          ":tool_utils",
+        ]
+        testonly = true
+      }
     }
   }
 
