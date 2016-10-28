@@ -12,6 +12,7 @@
 #include "GrRenderTargetContext.h"
 #include "GrResourceCache.h"
 #include "GrResourceProvider.h"
+#include "GrRenderTargetProxy.h"
 #include "GrSoftwarePathRenderer.h"
 #include "GrSurfacePriv.h"
 
@@ -607,7 +608,11 @@ sk_sp<GrRenderTargetContext> GrContextPriv::makeWrappedRenderTargetContext(
                                                                sk_sp<SkColorSpace> colorSpace,
                                                                const SkSurfaceProps* surfaceProps) {
     ASSERT_SINGLE_OWNER_PRIV
-    return this->drawingManager()->makeRenderTargetContext(std::move(rt), std::move(colorSpace),
+
+    sk_sp<GrRenderTargetProxy> rtp(GrRenderTargetProxy::Make(*fContext->caps(), std::move(rt)));
+
+    return this->drawingManager()->makeRenderTargetContext(std::move(rtp),
+                                                           std::move(colorSpace),
                                                            surfaceProps);
 }
 
@@ -624,7 +629,10 @@ sk_sp<GrRenderTargetContext> GrContextPriv::makeBackendTextureRenderTargetContex
         return nullptr;
     }
 
-    return this->drawingManager()->makeRenderTargetContext(sk_ref_sp(surface->asRenderTarget()),
+    sk_sp<GrRenderTargetProxy> rtp(GrRenderTargetProxy::Make(*fContext->caps(),
+                                                            sk_ref_sp(surface->asRenderTarget())));
+
+    return this->drawingManager()->makeRenderTargetContext(std::move(rtp),
                                                            std::move(colorSpace), props);
 }
 
@@ -639,7 +647,10 @@ sk_sp<GrRenderTargetContext> GrContextPriv::makeBackendRenderTargetRenderTargetC
         return nullptr;
     }
 
-    return this->drawingManager()->makeRenderTargetContext(std::move(rt), std::move(colorSpace),
+    sk_sp<GrRenderTargetProxy> rtp(GrRenderTargetProxy::Make(*fContext->caps(), std::move(rt)));
+
+    return this->drawingManager()->makeRenderTargetContext(std::move(rtp),
+                                                           std::move(colorSpace),
                                                            surfaceProps);
 }
 
@@ -655,8 +666,12 @@ sk_sp<GrRenderTargetContext> GrContextPriv::makeBackendTextureAsRenderTargetRend
         return nullptr;
     }
 
-    return this->drawingManager()->makeRenderTargetContext(sk_ref_sp(surface->asRenderTarget()),
-                                                           std::move(colorSpace), surfaceProps);
+    sk_sp<GrRenderTargetProxy> rtp(GrRenderTargetProxy::Make(*fContext->caps(),
+                                                             sk_ref_sp(surface->asRenderTarget())));
+
+    return this->drawingManager()->makeRenderTargetContext(std::move(rtp),
+                                                           std::move(colorSpace),
+                                                           surfaceProps);
 }
 
 static inline GrPixelConfig GrPixelConfigFallback(GrPixelConfig config) {
@@ -754,6 +769,30 @@ sk_sp<GrRenderTargetContext> GrContext::makeRenderTargetContext(SkBackingFit fit
     }
 
     return renderTargetContext;
+}
+
+sk_sp<GrRenderTargetContext> GrContext::makeDeferredRenderTargetContext(
+                                                        SkBackingFit fit,
+                                                        int width, int height,
+                                                        GrPixelConfig config,
+                                                        sk_sp<SkColorSpace> colorSpace,
+                                                        int sampleCnt,
+                                                        GrSurfaceOrigin origin,
+                                                        const SkSurfaceProps* surfaceProps,
+                                                        SkBudgeted budgeted) {
+    GrSurfaceDesc desc;
+    desc.fFlags = kRenderTarget_GrSurfaceFlag;
+    desc.fOrigin = origin;
+    desc.fWidth = width;
+    desc.fHeight = height;
+    desc.fConfig = config;
+    desc.fSampleCnt = sampleCnt;
+
+    sk_sp<GrRenderTargetProxy> rtp = GrRenderTargetProxy::Make(*this->caps(), desc, fit, budgeted);
+
+    return fDrawingManager->makeRenderTargetContext(std::move(rtp),
+                                                    std::move(colorSpace),
+                                                    surfaceProps);
 }
 
 bool GrContext::abandoned() const {

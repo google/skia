@@ -262,7 +262,7 @@ void GrRenderTargetContextPriv::testingOnly_drawBatch(const GrPaint& paint,
 
 ///////////////////////////////////////////////////////////////////////////////
 
-GrRenderTargetPriv::Flags GrRenderTargetProxy::testingOnly_getFlags() const {
+GrRenderTarget::Flags GrRenderTargetProxy::testingOnly_getFlags() const {
     return fFlags;
 }
 

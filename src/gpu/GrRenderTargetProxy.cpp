@@ -8,8 +8,8 @@
 #include "GrRenderTargetProxy.h"
 
 #include "GrCaps.h"
-#include "GrGpuResourcePriv.h"
 #include "GrRenderTargetOpList.h"
+#include "GrRenderTargetPriv.h"
 #include "GrTextureProvider.h"
 
 // Deferred version
@@ -18,52 +18,57 @@
 GrRenderTargetProxy::GrRenderTargetProxy(const GrCaps& caps, const GrSurfaceDesc& desc,
                                          SkBackingFit fit, SkBudgeted budgeted)
     : INHERITED(desc, fit, budgeted)
-    , fTarget(nullptr)
-    , fFlags(GrRenderTargetPriv::Flags::kNone) {
+    , fFlags(GrRenderTarget::Flags::kNone) {
     // Since we know the newly created render target will be internal, we are able to precompute
     // what the flags will ultimately end up being.
     if (caps.usesMixedSamples() && fDesc.fSampleCnt > 0) {
-        fFlags |= GrRenderTargetPriv::Flags::kMixedSampled;
+        fFlags |= GrRenderTarget::Flags::kMixedSampled;
     }
     if (caps.maxWindowRectangles() > 0) {
-        fFlags |= GrRenderTargetPriv::Flags::kWindowRectsSupport;
+        fFlags |= GrRenderTarget::Flags::kWindowRectsSupport;
     }
 }
 
 // Wrapped version
 GrRenderTargetProxy::GrRenderTargetProxy(const GrCaps& caps, sk_sp<GrRenderTarget> rt)
-    : INHERITED(rt->desc(), SkBackingFit::kExact,
-                rt->resourcePriv().isBudgeted(), rt->uniqueID())
-    , fTarget(std::move(rt))
-    , fFlags(fTarget->renderTargetPriv().flags()) {
+    : INHERITED(std::move(rt), SkBackingFit::kExact)
+    , fFlags(fTarget->asRenderTarget()->renderTargetPriv().flags()) {
 }
 
 GrRenderTarget* GrRenderTargetProxy::instantiate(GrTextureProvider* texProvider) {
     if (fTarget) {
-        return fTarget.get();
+        return fTarget->asRenderTarget();
     }
 
     // TODO: it would be nice to not have to copy the desc here
     GrSurfaceDesc desc = fDesc;
     desc.fFlags |= GrSurfaceFlags::kRenderTarget_GrSurfaceFlag;
 
-    sk_sp<GrTexture> tex;
     if (SkBackingFit::kApprox == fFit) {
-        tex.reset(texProvider->createApproxTexture(desc));
+        fTarget = texProvider->createApproxTexture(desc);
     } else {
-        tex.reset(texProvider->createTexture(desc, fBudgeted));
+        fTarget = texProvider->createTexture(desc, fBudgeted);
     }
-    if (!tex || !tex->asRenderTarget()) {
+    if (!fTarget) {
         return nullptr;
     }
 
-    fTarget = sk_ref_sp(tex->asRenderTarget());
-
     // Check that our a priori computation matched the ultimate reality
-    SkASSERT(fFlags == fTarget->renderTargetPriv().flags());
+    SkASSERT(fFlags == fTarget->asRenderTarget()->renderTargetPriv().flags());
 
-    return fTarget.get();
+    return fTarget->asRenderTarget();
 }
+
+
+#ifdef SK_DEBUG
+void GrRenderTargetProxy::validate(GrContext* context) const {
+    if (fTarget) {
+        SkASSERT(fTarget->getContext() == context);
+    }
+
+    INHERITED::validate();
+}
+#endif
 
 sk_sp<GrRenderTargetProxy> GrRenderTargetProxy::Make(const GrCaps& caps,
                                                      const GrSurfaceDesc& desc,

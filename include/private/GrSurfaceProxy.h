@@ -9,13 +9,70 @@
 #define GrSurfaceProxy_DEFINED
 
 #include "GrGpuResource.h"
+#include "GrSurface.h"
 #include "SkRect.h"
 
 class GrOpList;
 class GrTextureProxy;
 class GrRenderTargetProxy;
 
-class GrSurfaceProxy : public GrIORef<GrSurfaceProxy> {
+// This class replicates the functionality GrIORef<GrSurface> but tracks the
+// utilitization for later resource allocation (for the deferred case) and
+// forwards on the utilization in the wrapped case
+class GrIORefProxy : public SkNoncopyable {
+public:
+    void ref() const {
+        this->validate();
+
+        ++fRefCnt;
+        if (fTarget) {
+            fTarget->ref();
+        }
+    }
+
+    void unref() const {
+        this->validate();
+
+        if (fTarget) {
+            fTarget->unref();
+        }
+
+        if (!(--fRefCnt)) {
+            delete this;
+            return;
+        }
+
+        this->validate();
+    }
+
+    void validate() const {
+#ifdef SK_DEBUG    
+        SkASSERT(fRefCnt >= 0);
+#endif
+    }
+
+protected:
+    GrIORefProxy() : fRefCnt(1), fTarget(nullptr) {}
+    GrIORefProxy(sk_sp<GrSurface> surface) : fRefCnt(1) {
+        // Since we're manually forwarding on refs & unrefs we don't want sk_sp doing
+        // anything extra.
+        fTarget = surface.release();
+    }
+    virtual ~GrIORefProxy() {
+        // We don't unref 'fTarget' here since the 'unref' method will already
+        // have forwarded on the unref call that got use here.
+    }
+
+    // TODO: add the IO ref counts. Although if we can delay shader creation to flush time
+    // we may not even need to do that.
+    mutable int32_t fRefCnt;
+
+    // For deferred proxies this will be null. For wrapped proxies it will point to the
+    // wrapped resource.
+    GrSurface* fTarget;
+};
+
+class GrSurfaceProxy : public GrIORefProxy {
 public:
     const GrSurfaceDesc& desc() const { return fDesc; }
 
@@ -25,7 +82,7 @@ public:
         return fDesc.fOrigin;
     }
     int width() const { return fDesc.fWidth; }
-    int height() const { return fDesc.fWidth; }
+    int height() const { return fDesc.fHeight; }
     GrPixelConfig config() const { return fDesc.fConfig; }
 
     uint32_t uniqueID() const { return fUniqueID; }
@@ -66,17 +123,9 @@ protected:
     }
 
     // Wrapped version
-    GrSurfaceProxy(const GrSurfaceDesc& desc, SkBackingFit fit, 
-                   SkBudgeted budgeted, uint32_t uniqueID)
-        : fDesc(desc)
-        , fFit(fit)
-        , fBudgeted(budgeted)
-        , fUniqueID(uniqueID)
-        , fLastOpList(nullptr) {
-    }
+    GrSurfaceProxy(sk_sp<GrSurface> surface, SkBackingFit fit);
 
     virtual ~GrSurfaceProxy();
-
 
     // For wrapped resources, 'fDesc' will always be filled in from the wrapped resource.
     const GrSurfaceDesc fDesc;
@@ -85,11 +134,6 @@ protected:
     const uint32_t      fUniqueID; // set from the backing resource for wrapped resources
 
 private:
-
-    // See comment in GrGpuResource.h.
-    void notifyAllCntsAreZero(CntType) const { delete this; }
-    bool notifyRefCountIsZero() const { return true; }
-
     // The last opList that wrote to or is currently going to write to this surface
     // The opList can be closed (e.g., no render target context is currently bound
     // to this renderTarget).
@@ -98,10 +142,7 @@ private:
     // and the opList of a destination surface to which this one is being drawn or copied.
     GrOpList* fLastOpList;
 
-    typedef GrIORef<GrSurfaceProxy> INHERITED;
-
-    // to access notifyAllCntsAreZero and notifyRefCntIsZero.
-    friend class GrIORef<GrSurfaceProxy>;
+    typedef GrIORefProxy INHERITED;
 };
 
 #endif

@@ -19,6 +19,7 @@
 
 class GrContext;
 class GrRenderTargetContext;
+class GrRenderTargetProxy;
 class GrSingleOWner;
 class GrSoftwarePathRenderer;
 
@@ -34,13 +35,13 @@ public:
     bool wasAbandoned() const { return fAbandoned; }
     void freeGpuResources();
 
-    sk_sp<GrRenderTargetContext> makeRenderTargetContext(sk_sp<GrRenderTarget> rt,
+    sk_sp<GrRenderTargetContext> makeRenderTargetContext(sk_sp<GrRenderTargetProxy> rtp,
                                                          sk_sp<SkColorSpace>,
                                                          const SkSurfaceProps*);
 
     // The caller automatically gets a ref on the returned opList. It must
     // be balanced by an unref call.
-    GrRenderTargetOpList* newOpList(GrRenderTarget* rt);
+    GrRenderTargetOpList* newOpList(GrRenderTargetProxy* rtp);
 
     GrContext* getContext() { return fContext; }
 

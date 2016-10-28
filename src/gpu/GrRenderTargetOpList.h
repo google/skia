@@ -36,6 +36,7 @@ class GrCaps;
 class GrPath;
 class GrDrawPathBatchBase;
 class GrPipelineBuilder;
+class GrRenderTargetProxy;
 
 class GrRenderTargetOpList final : public GrOpList {
 public:
@@ -52,7 +53,7 @@ public:
         int  fMaxBatchLookahead;
     };
 
-    GrRenderTargetOpList(GrRenderTarget*, GrGpu*, GrResourceProvider*,
+    GrRenderTargetOpList(GrRenderTargetProxy*, GrGpu*, GrResourceProvider*,
                          GrAuditTrail*, const Options&);
 
     ~GrRenderTargetOpList() override;

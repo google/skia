@@ -9,13 +9,13 @@
 
 #include "GrAuditTrail.h"
 #include "GrGpu.h"
-#include "GrTexture.h"
+#include "GrTextureProxy.h"
 
 #include "batches/GrCopySurfaceBatch.h"
 
 ////////////////////////////////////////////////////////////////////////////////
 
-GrTextureOpList::GrTextureOpList(GrTexture* tex, GrGpu* gpu, GrAuditTrail* auditTrail)
+GrTextureOpList::GrTextureOpList(GrTextureProxy* tex, GrGpu* gpu, GrAuditTrail* auditTrail)
     : INHERITED(tex, auditTrail)
     , fGpu(SkRef(gpu)) {
 }
