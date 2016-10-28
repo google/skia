@@ -188,6 +188,7 @@ void GrVkGpuCommandBuffer::discard() {
 
         SkASSERT(cbInfo.fRenderPass->isCompatible(*oldRP));
         oldRP->unref(fGpu);
+        cbInfo.fBounds.join(fRenderTarget->getBoundsRect());
         cbInfo.fStartsWithClear = false;
     }
 }
