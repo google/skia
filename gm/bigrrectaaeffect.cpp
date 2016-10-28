@@ -75,7 +75,7 @@ protected:
                 canvas->drawRect(testBounds, paint);
 
                 GrPaint grPaint;
-                grPaint.setXPFactory(GrPorterDuffXPFactory::Make(SkXfermode::kSrc_Mode));
+                grPaint.setXPFactory(GrPorterDuffXPFactory::Make(SkBlendMode::kSrc));
 
                 SkRRect rrect = fRRect;
                 rrect.offset(SkIntToScalar(x + kGap), SkIntToScalar(y + kGap));

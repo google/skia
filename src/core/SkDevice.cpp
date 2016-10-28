@@ -119,7 +119,7 @@ void SkBaseDevice::drawDRRect(const SkDraw& draw, const SkRRect& outer,
 }
 
 void SkBaseDevice::drawPatch(const SkDraw& draw, const SkPoint cubics[12], const SkColor colors[4],
-                             const SkPoint texCoords[4], SkXfermode* xmode, const SkPaint& paint) {
+                             const SkPoint texCoords[4], SK_XFERMODE_PARAM xmode, const SkPaint& paint) {
     SkPatchUtils::VertexData data;
 
     SkISize lod = SkPatchUtils::GetLevelOfDetail(cubics, draw.fMatrix);
@@ -240,7 +240,7 @@ void SkBaseDevice::drawBitmapLattice(const SkDraw& draw, const SkBitmap& bitmap,
 
 void SkBaseDevice::drawAtlas(const SkDraw& draw, const SkImage* atlas, const SkRSXform xform[],
                              const SkRect tex[], const SkColor colors[], int count,
-                             SkXfermode::Mode mode, const SkPaint& paint) {
+                             SK_XFERMODE_MODE_PARAM mode, const SkPaint& paint) {
     SkPath path;
     path.setIsVolatile(true);
 
@@ -262,7 +262,7 @@ void SkBaseDevice::drawAtlas(const SkDraw& draw, const SkImage* atlas, const SkR
         pnt.setShader(std::move(shader));
 
         if (colors) {
-            pnt.setColorFilter(SkColorFilter::MakeModeFilter(colors[i], mode));
+            pnt.setColorFilter(SkColorFilter::MakeModeFilter(colors[i], (SkBlendMode)mode));
         }
 
         path.rewind();

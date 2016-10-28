@@ -67,7 +67,7 @@ enum {
 class GrPorterDuffTest {
 public:
     struct XPInfo {
-        XPInfo(skiatest::Reporter* reporter, SkXfermode::Mode xfermode, const GrCaps& caps,
+        XPInfo(skiatest::Reporter* reporter, SkBlendMode xfermode, const GrCaps& caps,
                const GrPipelineOptimizations& optimizations) {
             sk_sp<GrXPFactory> xpf(GrPorterDuffXPFactory::Make(xfermode));
             SkAutoTUnref<GrXferProcessor> xp(
@@ -104,12 +104,12 @@ static void test_lcd_coverage(skiatest::Reporter* reporter, const GrCaps& caps) 
     SkASSERT(!opt.fCoveragePOI.isSolidWhite());
     SkASSERT(opt.fCoveragePOI.isFourChannelOutput());
 
-    for (int m = 0; m <= SkXfermode::kLastCoeffMode; m++) {
-        SkXfermode::Mode xfermode = static_cast<SkXfermode::Mode>(m);
+    for (int m = 0; m <= (int)SkBlendMode::kLastCoeffMode; m++) {
+        SkBlendMode xfermode = static_cast<SkBlendMode>(m);
         const GrPorterDuffTest::XPInfo xpi(reporter, xfermode, caps, opt);
 
         switch (xfermode) {
-            case SkXfermode::kClear_Mode:
+            case SkBlendMode::kClear:
                 TEST_ASSERT(!xpi.fBlendedColor.fWillBlendWithDst);
                 TEST_ASSERT(0 == xpi.fBlendedColor.fKnownColor);
                 TEST_ASSERT(kRGBA_GrColorComponentFlags == xpi.fBlendedColor.fKnownColorFlags);
@@ -121,7 +121,7 @@ static void test_lcd_coverage(skiatest::Reporter* reporter, const GrCaps& caps) 
                 TEST_ASSERT(kOne_GrBlendCoeff == xpi.fBlendInfo.fDstBlend);
                 TEST_ASSERT(xpi.fBlendInfo.fWriteColor);
                 break;
-            case SkXfermode::kSrc_Mode:
+            case SkBlendMode::kSrc:
                 TEST_ASSERT(!xpi.fBlendedColor.fWillBlendWithDst);
                 TEST_ASSERT(kNone_GrColorComponentFlags == xpi.fBlendedColor.fKnownColorFlags);
                 TEST_ASSERT((kNone_OptFlags) == xpi.fOptFlags);
@@ -132,7 +132,7 @@ static void test_lcd_coverage(skiatest::Reporter* reporter, const GrCaps& caps) 
                 TEST_ASSERT(kIS2C_GrBlendCoeff == xpi.fBlendInfo.fDstBlend);
                 TEST_ASSERT(xpi.fBlendInfo.fWriteColor);
                 break;
-            case SkXfermode::kDst_Mode:
+            case SkBlendMode::kDst:
                 TEST_ASSERT(xpi.fBlendedColor.fWillBlendWithDst);
                 TEST_ASSERT(kNone_GrColorComponentFlags == xpi.fBlendedColor.fKnownColorFlags);
                 TEST_ASSERT((kSkipDraw_OptFlag |
@@ -146,7 +146,7 @@ static void test_lcd_coverage(skiatest::Reporter* reporter, const GrCaps& caps) 
                 TEST_ASSERT(kOne_GrBlendCoeff == xpi.fBlendInfo.fDstBlend);
                 TEST_ASSERT(!xpi.fBlendInfo.fWriteColor);
                 break;
-            case SkXfermode::kSrcOver_Mode:
+            case SkBlendMode::kSrcOver:
                 TEST_ASSERT(xpi.fBlendedColor.fWillBlendWithDst);
                 TEST_ASSERT(kNone_GrColorComponentFlags == xpi.fBlendedColor.fKnownColorFlags);
                 TEST_ASSERT((kNone_OptFlags) == xpi.fOptFlags);
@@ -157,7 +157,7 @@ static void test_lcd_coverage(skiatest::Reporter* reporter, const GrCaps& caps) 
                 TEST_ASSERT(kIS2C_GrBlendCoeff == xpi.fBlendInfo.fDstBlend);
                 TEST_ASSERT(xpi.fBlendInfo.fWriteColor);
                 break;
-            case SkXfermode::kDstOver_Mode:
+            case SkBlendMode::kDstOver:
                 TEST_ASSERT(xpi.fBlendedColor.fWillBlendWithDst);
                 TEST_ASSERT(kNone_GrColorComponentFlags == xpi.fBlendedColor.fKnownColorFlags);
                 TEST_ASSERT((kNone_OptFlags) == xpi.fOptFlags);
@@ -168,7 +168,7 @@ static void test_lcd_coverage(skiatest::Reporter* reporter, const GrCaps& caps) 
                 TEST_ASSERT(kOne_GrBlendCoeff == xpi.fBlendInfo.fDstBlend);
                 TEST_ASSERT(xpi.fBlendInfo.fWriteColor);
                 break;
-            case SkXfermode::kSrcIn_Mode:
+            case SkBlendMode::kSrcIn:
                 TEST_ASSERT(xpi.fBlendedColor.fWillBlendWithDst);
                 TEST_ASSERT(kNone_GrColorComponentFlags == xpi.fBlendedColor.fKnownColorFlags);
                 TEST_ASSERT((kNone_OptFlags) == xpi.fOptFlags);
@@ -179,7 +179,7 @@ static void test_lcd_coverage(skiatest::Reporter* reporter, const GrCaps& caps) 
                 TEST_ASSERT(kIS2C_GrBlendCoeff == xpi.fBlendInfo.fDstBlend);
                 TEST_ASSERT(xpi.fBlendInfo.fWriteColor);
                 break;
-            case SkXfermode::kDstIn_Mode:
+            case SkBlendMode::kDstIn:
                 TEST_ASSERT(xpi.fBlendedColor.fWillBlendWithDst);
                 TEST_ASSERT(kNone_GrColorComponentFlags == xpi.fBlendedColor.fKnownColorFlags);
                 TEST_ASSERT((kNone_OptFlags) == xpi.fOptFlags);
@@ -190,7 +190,7 @@ static void test_lcd_coverage(skiatest::Reporter* reporter, const GrCaps& caps) 
                 TEST_ASSERT(kOne_GrBlendCoeff == xpi.fBlendInfo.fDstBlend);
                 TEST_ASSERT(xpi.fBlendInfo.fWriteColor);
                 break;
-            case SkXfermode::kSrcOut_Mode:
+            case SkBlendMode::kSrcOut:
                 TEST_ASSERT(xpi.fBlendedColor.fWillBlendWithDst);
                 TEST_ASSERT(kNone_GrColorComponentFlags == xpi.fBlendedColor.fKnownColorFlags);
                 TEST_ASSERT((kNone_OptFlags) == xpi.fOptFlags);
@@ -201,7 +201,7 @@ static void test_lcd_coverage(skiatest::Reporter* reporter, const GrCaps& caps) 
                 TEST_ASSERT(kIS2C_GrBlendCoeff == xpi.fBlendInfo.fDstBlend);
                 TEST_ASSERT(xpi.fBlendInfo.fWriteColor);
                 break;
-            case SkXfermode::kDstOut_Mode:
+            case SkBlendMode::kDstOut:
                 TEST_ASSERT(xpi.fBlendedColor.fWillBlendWithDst);
                 TEST_ASSERT(kNone_GrColorComponentFlags == xpi.fBlendedColor.fKnownColorFlags);
                 TEST_ASSERT((kNone_OptFlags) == xpi.fOptFlags);
@@ -212,7 +212,7 @@ static void test_lcd_coverage(skiatest::Reporter* reporter, const GrCaps& caps) 
                 TEST_ASSERT(kISC_GrBlendCoeff == xpi.fBlendInfo.fDstBlend);
                 TEST_ASSERT(xpi.fBlendInfo.fWriteColor);
                 break;
-            case SkXfermode::kSrcATop_Mode:
+            case SkBlendMode::kSrcATop:
                 TEST_ASSERT(xpi.fBlendedColor.fWillBlendWithDst);
                 TEST_ASSERT(kNone_GrColorComponentFlags == xpi.fBlendedColor.fKnownColorFlags);
                 TEST_ASSERT((kNone_OptFlags) == xpi.fOptFlags);
@@ -223,7 +223,7 @@ static void test_lcd_coverage(skiatest::Reporter* reporter, const GrCaps& caps) 
                 TEST_ASSERT(kIS2C_GrBlendCoeff == xpi.fBlendInfo.fDstBlend);
                 TEST_ASSERT(xpi.fBlendInfo.fWriteColor);
                 break;
-            case SkXfermode::kDstATop_Mode:
+            case SkBlendMode::kDstATop:
                 TEST_ASSERT(xpi.fBlendedColor.fWillBlendWithDst);
                 TEST_ASSERT(kNone_GrColorComponentFlags == xpi.fBlendedColor.fKnownColorFlags);
                 TEST_ASSERT((kNone_OptFlags) == xpi.fOptFlags);
@@ -234,7 +234,7 @@ static void test_lcd_coverage(skiatest::Reporter* reporter, const GrCaps& caps) 
                 TEST_ASSERT(kIS2C_GrBlendCoeff == xpi.fBlendInfo.fDstBlend);
                 TEST_ASSERT(xpi.fBlendInfo.fWriteColor);
                 break;
-            case SkXfermode::kXor_Mode:
+            case SkBlendMode::kXor:
                 TEST_ASSERT(xpi.fBlendedColor.fWillBlendWithDst);
                 TEST_ASSERT(kNone_GrColorComponentFlags == xpi.fBlendedColor.fKnownColorFlags);
                 TEST_ASSERT((kNone_OptFlags) == xpi.fOptFlags);
@@ -245,7 +245,7 @@ static void test_lcd_coverage(skiatest::Reporter* reporter, const GrCaps& caps) 
                 TEST_ASSERT(kIS2C_GrBlendCoeff == xpi.fBlendInfo.fDstBlend);
                 TEST_ASSERT(xpi.fBlendInfo.fWriteColor);
                 break;
-            case SkXfermode::kPlus_Mode:
+            case SkBlendMode::kPlus:
                 TEST_ASSERT(xpi.fBlendedColor.fWillBlendWithDst);
                 TEST_ASSERT(kNone_GrColorComponentFlags == xpi.fBlendedColor.fKnownColorFlags);
                 TEST_ASSERT((kNone_OptFlags) == xpi.fOptFlags);
@@ -256,7 +256,7 @@ static void test_lcd_coverage(skiatest::Reporter* reporter, const GrCaps& caps) 
                 TEST_ASSERT(kOne_GrBlendCoeff == xpi.fBlendInfo.fDstBlend);
                 TEST_ASSERT(xpi.fBlendInfo.fWriteColor);
                 break;
-            case SkXfermode::kModulate_Mode:
+            case SkBlendMode::kModulate:
                 TEST_ASSERT(xpi.fBlendedColor.fWillBlendWithDst);
                 TEST_ASSERT(kNone_GrColorComponentFlags == xpi.fBlendedColor.fKnownColorFlags);
                 TEST_ASSERT((kNone_OptFlags) == xpi.fOptFlags);
@@ -267,7 +267,7 @@ static void test_lcd_coverage(skiatest::Reporter* reporter, const GrCaps& caps) 
                 TEST_ASSERT(kOne_GrBlendCoeff == xpi.fBlendInfo.fDstBlend);
                 TEST_ASSERT(xpi.fBlendInfo.fWriteColor);
                 break;
-            case SkXfermode::kScreen_Mode:
+            case SkBlendMode::kScreen:
                 TEST_ASSERT(xpi.fBlendedColor.fWillBlendWithDst);
                 TEST_ASSERT(kNone_GrColorComponentFlags == xpi.fBlendedColor.fKnownColorFlags);
                 TEST_ASSERT((kNone_OptFlags) == xpi.fOptFlags);
@@ -296,13 +296,13 @@ static void test_color_unknown_with_coverage(skiatest::Reporter* reporter, const
     SkASSERT(!optimizations.fCoveragePOI.isSolidWhite());
     SkASSERT(!optimizations.fCoveragePOI.isFourChannelOutput());
 
-    for (int m = 0; m <= SkXfermode::kLastCoeffMode; m++) {
-        SkXfermode::Mode xfermode = static_cast<SkXfermode::Mode>(m);
+    for (int m = 0; m <= (int)SkBlendMode::kLastCoeffMode; m++) {
+        SkBlendMode xfermode = static_cast<SkBlendMode>(m);
         const GrPorterDuffTest::XPInfo xpi(reporter, xfermode, caps, optimizations);
 
 
         switch (xfermode) {
-            case SkXfermode::kClear_Mode:
+            case SkBlendMode::kClear:
                 TEST_ASSERT(!xpi.fBlendedColor.fWillBlendWithDst);
                 TEST_ASSERT(0 == xpi.fBlendedColor.fKnownColor);
                 TEST_ASSERT(kRGBA_GrColorComponentFlags == xpi.fBlendedColor.fKnownColorFlags);
@@ -314,7 +314,7 @@ static void test_color_unknown_with_coverage(skiatest::Reporter* reporter, const
                 TEST_ASSERT(kOne_GrBlendCoeff == xpi.fBlendInfo.fDstBlend);
                 TEST_ASSERT(xpi.fBlendInfo.fWriteColor);
                 break;
-            case SkXfermode::kSrc_Mode:
+            case SkBlendMode::kSrc:
                 TEST_ASSERT(!xpi.fBlendedColor.fWillBlendWithDst);
                 TEST_ASSERT(kNone_GrColorComponentFlags == xpi.fBlendedColor.fKnownColorFlags);
                 TEST_ASSERT((kNone_OptFlags) == xpi.fOptFlags);
@@ -325,7 +325,7 @@ static void test_color_unknown_with_coverage(skiatest::Reporter* reporter, const
                 TEST_ASSERT(kIS2A_GrBlendCoeff == xpi.fBlendInfo.fDstBlend);
                 TEST_ASSERT(xpi.fBlendInfo.fWriteColor);
                 break;
-            case SkXfermode::kDst_Mode:
+            case SkBlendMode::kDst:
                 TEST_ASSERT(xpi.fBlendedColor.fWillBlendWithDst);
                 TEST_ASSERT(kNone_GrColorComponentFlags == xpi.fBlendedColor.fKnownColorFlags);
                 TEST_ASSERT((kSkipDraw_OptFlag |
@@ -339,7 +339,7 @@ static void test_color_unknown_with_coverage(skiatest::Reporter* reporter, const
                 TEST_ASSERT(kOne_GrBlendCoeff == xpi.fBlendInfo.fDstBlend);
                 TEST_ASSERT(!xpi.fBlendInfo.fWriteColor);
                 break;
-            case SkXfermode::kSrcOver_Mode:
+            case SkBlendMode::kSrcOver:
                 TEST_ASSERT(xpi.fBlendedColor.fWillBlendWithDst);
                 TEST_ASSERT(kNone_GrColorComponentFlags == xpi.fBlendedColor.fKnownColorFlags);
                 TEST_ASSERT((kCanTweakAlphaForCoverage_OptFlag) == xpi.fOptFlags);
@@ -350,7 +350,7 @@ static void test_color_unknown_with_coverage(skiatest::Reporter* reporter, const
                 TEST_ASSERT(kISA_GrBlendCoeff == xpi.fBlendInfo.fDstBlend);
                 TEST_ASSERT(xpi.fBlendInfo.fWriteColor);
                 break;
-            case SkXfermode::kDstOver_Mode:
+            case SkBlendMode::kDstOver:
                 TEST_ASSERT(xpi.fBlendedColor.fWillBlendWithDst);
                 TEST_ASSERT(kNone_GrColorComponentFlags == xpi.fBlendedColor.fKnownColorFlags);
                 TEST_ASSERT((kCanTweakAlphaForCoverage_OptFlag) == xpi.fOptFlags);
@@ -361,7 +361,7 @@ static void test_color_unknown_with_coverage(skiatest::Reporter* reporter, const
                 TEST_ASSERT(kOne_GrBlendCoeff == xpi.fBlendInfo.fDstBlend);
                 TEST_ASSERT(xpi.fBlendInfo.fWriteColor);
                 break;
-            case SkXfermode::kSrcIn_Mode:
+            case SkBlendMode::kSrcIn:
                 TEST_ASSERT(xpi.fBlendedColor.fWillBlendWithDst);
                 TEST_ASSERT(kNone_GrColorComponentFlags == xpi.fBlendedColor.fKnownColorFlags);
                 TEST_ASSERT((kNone_OptFlags) == xpi.fOptFlags);
@@ -372,7 +372,7 @@ static void test_color_unknown_with_coverage(skiatest::Reporter* reporter, const
                 TEST_ASSERT(kIS2A_GrBlendCoeff == xpi.fBlendInfo.fDstBlend);
                 TEST_ASSERT(xpi.fBlendInfo.fWriteColor);
                 break;
-            case SkXfermode::kDstIn_Mode:
+            case SkBlendMode::kDstIn:
                 TEST_ASSERT(xpi.fBlendedColor.fWillBlendWithDst);
                 TEST_ASSERT(kNone_GrColorComponentFlags == xpi.fBlendedColor.fKnownColorFlags);
                 TEST_ASSERT((kNone_OptFlags) == xpi.fOptFlags);
@@ -383,7 +383,7 @@ static void test_color_unknown_with_coverage(skiatest::Reporter* reporter, const
                 TEST_ASSERT(kOne_GrBlendCoeff == xpi.fBlendInfo.fDstBlend);
                 TEST_ASSERT(xpi.fBlendInfo.fWriteColor);
                 break;
-            case SkXfermode::kSrcOut_Mode:
+            case SkBlendMode::kSrcOut:
                 TEST_ASSERT(xpi.fBlendedColor.fWillBlendWithDst);
                 TEST_ASSERT(kNone_GrColorComponentFlags == xpi.fBlendedColor.fKnownColorFlags);
                 TEST_ASSERT((kNone_OptFlags) == xpi.fOptFlags);
@@ -394,7 +394,7 @@ static void test_color_unknown_with_coverage(skiatest::Reporter* reporter, const
                 TEST_ASSERT(kIS2A_GrBlendCoeff == xpi.fBlendInfo.fDstBlend);
                 TEST_ASSERT(xpi.fBlendInfo.fWriteColor);
                 break;
-            case SkXfermode::kDstOut_Mode:
+            case SkBlendMode::kDstOut:
                 TEST_ASSERT(xpi.fBlendedColor.fWillBlendWithDst);
                 TEST_ASSERT(kNone_GrColorComponentFlags == xpi.fBlendedColor.fKnownColorFlags);
                 TEST_ASSERT((kCanTweakAlphaForCoverage_OptFlag) == xpi.fOptFlags);
@@ -405,7 +405,7 @@ static void test_color_unknown_with_coverage(skiatest::Reporter* reporter, const
                 TEST_ASSERT(kISA_GrBlendCoeff == xpi.fBlendInfo.fDstBlend);
                 TEST_ASSERT(xpi.fBlendInfo.fWriteColor);
                 break;
-            case SkXfermode::kSrcATop_Mode:
+            case SkBlendMode::kSrcATop:
                 TEST_ASSERT(xpi.fBlendedColor.fWillBlendWithDst);
                 TEST_ASSERT(kNone_GrColorComponentFlags == xpi.fBlendedColor.fKnownColorFlags);
                 TEST_ASSERT((kCanTweakAlphaForCoverage_OptFlag) == xpi.fOptFlags);
@@ -416,7 +416,7 @@ static void test_color_unknown_with_coverage(skiatest::Reporter* reporter, const
                 TEST_ASSERT(kISA_GrBlendCoeff == xpi.fBlendInfo.fDstBlend);
                 TEST_ASSERT(xpi.fBlendInfo.fWriteColor);
                 break;
-            case SkXfermode::kDstATop_Mode:
+            case SkBlendMode::kDstATop:
                 TEST_ASSERT(xpi.fBlendedColor.fWillBlendWithDst);
                 TEST_ASSERT(kNone_GrColorComponentFlags == xpi.fBlendedColor.fKnownColorFlags);
                 TEST_ASSERT((kNone_OptFlags) == xpi.fOptFlags);
@@ -427,7 +427,7 @@ static void test_color_unknown_with_coverage(skiatest::Reporter* reporter, const
                 TEST_ASSERT(kIS2C_GrBlendCoeff == xpi.fBlendInfo.fDstBlend);
                 TEST_ASSERT(xpi.fBlendInfo.fWriteColor);
                 break;
-            case SkXfermode::kXor_Mode:
+            case SkBlendMode::kXor:
                 TEST_ASSERT(xpi.fBlendedColor.fWillBlendWithDst);
                 TEST_ASSERT(kNone_GrColorComponentFlags == xpi.fBlendedColor.fKnownColorFlags);
                 TEST_ASSERT((kCanTweakAlphaForCoverage_OptFlag) == xpi.fOptFlags);
@@ -438,7 +438,7 @@ static void test_color_unknown_with_coverage(skiatest::Reporter* reporter, const
                 TEST_ASSERT(kISA_GrBlendCoeff == xpi.fBlendInfo.fDstBlend);
                 TEST_ASSERT(xpi.fBlendInfo.fWriteColor);
                 break;
-            case SkXfermode::kPlus_Mode:
+            case SkBlendMode::kPlus:
                 TEST_ASSERT(xpi.fBlendedColor.fWillBlendWithDst);
                 TEST_ASSERT(kNone_GrColorComponentFlags == xpi.fBlendedColor.fKnownColorFlags);
                 TEST_ASSERT((kCanTweakAlphaForCoverage_OptFlag) == xpi.fOptFlags);
@@ -449,7 +449,7 @@ static void test_color_unknown_with_coverage(skiatest::Reporter* reporter, const
                 TEST_ASSERT(kOne_GrBlendCoeff == xpi.fBlendInfo.fDstBlend);
                 TEST_ASSERT(xpi.fBlendInfo.fWriteColor);
                 break;
-            case SkXfermode::kModulate_Mode:
+            case SkBlendMode::kModulate:
                 TEST_ASSERT(xpi.fBlendedColor.fWillBlendWithDst);
                 TEST_ASSERT(kNone_GrColorComponentFlags == xpi.fBlendedColor.fKnownColorFlags);
                 TEST_ASSERT((kNone_OptFlags) == xpi.fOptFlags);
@@ -460,7 +460,7 @@ static void test_color_unknown_with_coverage(skiatest::Reporter* reporter, const
                 TEST_ASSERT(kOne_GrBlendCoeff == xpi.fBlendInfo.fDstBlend);
                 TEST_ASSERT(xpi.fBlendInfo.fWriteColor);
                 break;
-            case SkXfermode::kScreen_Mode:
+            case SkBlendMode::kScreen:
                 TEST_ASSERT(xpi.fBlendedColor.fWillBlendWithDst);
                 TEST_ASSERT(kNone_GrColorComponentFlags == xpi.fBlendedColor.fKnownColorFlags);
                 TEST_ASSERT((kCanTweakAlphaForCoverage_OptFlag) == xpi.fOptFlags);
@@ -490,12 +490,12 @@ static void test_color_unknown_no_coverage(skiatest::Reporter* reporter, const G
     SkASSERT(optimizations.fCoveragePOI.isSolidWhite());
     SkASSERT(!optimizations.fCoveragePOI.isFourChannelOutput());
 
-    for (int m = 0; m <= SkXfermode::kLastCoeffMode; m++) {
-        SkXfermode::Mode xfermode = static_cast<SkXfermode::Mode>(m);
+    for (int m = 0; m <= (int)SkBlendMode::kLastCoeffMode; m++) {
+        SkBlendMode xfermode = static_cast<SkBlendMode>(m);
         const GrPorterDuffTest::XPInfo xpi(reporter, xfermode, caps, optimizations);
 
         switch (xfermode) {
-            case SkXfermode::kClear_Mode:
+            case SkBlendMode::kClear:
                 TEST_ASSERT(!xpi.fBlendedColor.fWillBlendWithDst);
                 TEST_ASSERT(0 == xpi.fBlendedColor.fKnownColor);
                 TEST_ASSERT(kRGBA_GrColorComponentFlags == xpi.fBlendedColor.fKnownColorFlags);
@@ -508,7 +508,7 @@ static void test_color_unknown_no_coverage(skiatest::Reporter* reporter, const G
                 TEST_ASSERT(kZero_GrBlendCoeff == xpi.fBlendInfo.fDstBlend);
                 TEST_ASSERT(xpi.fBlendInfo.fWriteColor);
                 break;
-            case SkXfermode::kSrc_Mode:
+            case SkBlendMode::kSrc:
                 TEST_ASSERT(!xpi.fBlendedColor.fWillBlendWithDst);
                 TEST_ASSERT(229 == GrColorUnpackR(xpi.fBlendedColor.fKnownColor));
                 TEST_ASSERT(154 == GrColorUnpackB(xpi.fBlendedColor.fKnownColor));
@@ -522,7 +522,7 @@ static void test_color_unknown_no_coverage(skiatest::Reporter* reporter, const G
                 TEST_ASSERT(kZero_GrBlendCoeff == xpi.fBlendInfo.fDstBlend);
                 TEST_ASSERT(xpi.fBlendInfo.fWriteColor);
                 break;
-            case SkXfermode::kDst_Mode:
+            case SkBlendMode::kDst:
                 TEST_ASSERT(xpi.fBlendedColor.fWillBlendWithDst);
                 TEST_ASSERT(kNone_GrColorComponentFlags == xpi.fBlendedColor.fKnownColorFlags);
                 TEST_ASSERT((kSkipDraw_OptFlag |
@@ -536,7 +536,7 @@ static void test_color_unknown_no_coverage(skiatest::Reporter* reporter, const G
                 TEST_ASSERT(kOne_GrBlendCoeff == xpi.fBlendInfo.fDstBlend);
                 TEST_ASSERT(!xpi.fBlendInfo.fWriteColor);
                 break;
-            case SkXfermode::kSrcOver_Mode:
+            case SkBlendMode::kSrcOver:
                 TEST_ASSERT(xpi.fBlendedColor.fWillBlendWithDst);
                 TEST_ASSERT(kNone_GrColorComponentFlags == xpi.fBlendedColor.fKnownColorFlags);
                 TEST_ASSERT((kIgnoreCoverage_OptFlag |
@@ -548,7 +548,7 @@ static void test_color_unknown_no_coverage(skiatest::Reporter* reporter, const G
                 TEST_ASSERT(kISA_GrBlendCoeff == xpi.fBlendInfo.fDstBlend);
                 TEST_ASSERT(xpi.fBlendInfo.fWriteColor);
                 break;
-            case SkXfermode::kDstOver_Mode:
+            case SkBlendMode::kDstOver:
                 TEST_ASSERT(xpi.fBlendedColor.fWillBlendWithDst);
                 TEST_ASSERT(kNone_GrColorComponentFlags == xpi.fBlendedColor.fKnownColorFlags);
                 TEST_ASSERT((kIgnoreCoverage_OptFlag |
@@ -560,7 +560,7 @@ static void test_color_unknown_no_coverage(skiatest::Reporter* reporter, const G
                 TEST_ASSERT(kOne_GrBlendCoeff == xpi.fBlendInfo.fDstBlend);
                 TEST_ASSERT(xpi.fBlendInfo.fWriteColor);
                 break;
-            case SkXfermode::kSrcIn_Mode:
+            case SkBlendMode::kSrcIn:
                 TEST_ASSERT(xpi.fBlendedColor.fWillBlendWithDst);
                 TEST_ASSERT(kNone_GrColorComponentFlags == xpi.fBlendedColor.fKnownColorFlags);
                 TEST_ASSERT((kIgnoreCoverage_OptFlag) == xpi.fOptFlags);
@@ -571,7 +571,7 @@ static void test_color_unknown_no_coverage(skiatest::Reporter* reporter, const G
                 TEST_ASSERT(kZero_GrBlendCoeff == xpi.fBlendInfo.fDstBlend);
                 TEST_ASSERT(xpi.fBlendInfo.fWriteColor);
                 break;
-            case SkXfermode::kDstIn_Mode:
+            case SkBlendMode::kDstIn:
                 TEST_ASSERT(xpi.fBlendedColor.fWillBlendWithDst);
                 TEST_ASSERT(kNone_GrColorComponentFlags == xpi.fBlendedColor.fKnownColorFlags);
                 TEST_ASSERT((kIgnoreCoverage_OptFlag) == xpi.fOptFlags);
@@ -582,7 +582,7 @@ static void test_color_unknown_no_coverage(skiatest::Reporter* reporter, const G
                 TEST_ASSERT(kSA_GrBlendCoeff == xpi.fBlendInfo.fDstBlend);
                 TEST_ASSERT(xpi.fBlendInfo.fWriteColor);
                 break;
-            case SkXfermode::kSrcOut_Mode:
+            case SkBlendMode::kSrcOut:
                 TEST_ASSERT(xpi.fBlendedColor.fWillBlendWithDst);
                 TEST_ASSERT(kNone_GrColorComponentFlags == xpi.fBlendedColor.fKnownColorFlags);
                 TEST_ASSERT((kIgnoreCoverage_OptFlag) == xpi.fOptFlags);
@@ -593,7 +593,7 @@ static void test_color_unknown_no_coverage(skiatest::Reporter* reporter, const G
                 TEST_ASSERT(kZero_GrBlendCoeff == xpi.fBlendInfo.fDstBlend);
                 TEST_ASSERT(xpi.fBlendInfo.fWriteColor);
                 break;
-            case SkXfermode::kDstOut_Mode:
+            case SkBlendMode::kDstOut:
                 TEST_ASSERT(xpi.fBlendedColor.fWillBlendWithDst);
                 TEST_ASSERT(kNone_GrColorComponentFlags == xpi.fBlendedColor.fKnownColorFlags);
                 TEST_ASSERT((kIgnoreCoverage_OptFlag |
@@ -605,7 +605,7 @@ static void test_color_unknown_no_coverage(skiatest::Reporter* reporter, const G
                 TEST_ASSERT(kISA_GrBlendCoeff == xpi.fBlendInfo.fDstBlend);
                 TEST_ASSERT(xpi.fBlendInfo.fWriteColor);
                 break;
-            case SkXfermode::kSrcATop_Mode:
+            case SkBlendMode::kSrcATop:
                 TEST_ASSERT(xpi.fBlendedColor.fWillBlendWithDst);
                 TEST_ASSERT(kNone_GrColorComponentFlags == xpi.fBlendedColor.fKnownColorFlags);
                 TEST_ASSERT((kIgnoreCoverage_OptFlag |
@@ -617,7 +617,7 @@ static void test_color_unknown_no_coverage(skiatest::Reporter* reporter, const G
                 TEST_ASSERT(kISA_GrBlendCoeff == xpi.fBlendInfo.fDstBlend);
                 TEST_ASSERT(xpi.fBlendInfo.fWriteColor);
                 break;
-            case SkXfermode::kDstATop_Mode:
+            case SkBlendMode::kDstATop:
                 TEST_ASSERT(xpi.fBlendedColor.fWillBlendWithDst);
                 TEST_ASSERT(kNone_GrColorComponentFlags == xpi.fBlendedColor.fKnownColorFlags);
                 TEST_ASSERT((kIgnoreCoverage_OptFlag) == xpi.fOptFlags);
@@ -628,7 +628,7 @@ static void test_color_unknown_no_coverage(skiatest::Reporter* reporter, const G
                 TEST_ASSERT(kSA_GrBlendCoeff == xpi.fBlendInfo.fDstBlend);
                 TEST_ASSERT(xpi.fBlendInfo.fWriteColor);
                 break;
-            case SkXfermode::kXor_Mode:
+            case SkBlendMode::kXor:
                 TEST_ASSERT(xpi.fBlendedColor.fWillBlendWithDst);
                 TEST_ASSERT(kNone_GrColorComponentFlags == xpi.fBlendedColor.fKnownColorFlags);
                 TEST_ASSERT((kIgnoreCoverage_OptFlag |
@@ -640,7 +640,7 @@ static void test_color_unknown_no_coverage(skiatest::Reporter* reporter, const G
                 TEST_ASSERT(kISA_GrBlendCoeff == xpi.fBlendInfo.fDstBlend);
                 TEST_ASSERT(xpi.fBlendInfo.fWriteColor);
                 break;
-            case SkXfermode::kPlus_Mode:
+            case SkBlendMode::kPlus:
                 TEST_ASSERT(xpi.fBlendedColor.fWillBlendWithDst);
                 TEST_ASSERT(kNone_GrColorComponentFlags == xpi.fBlendedColor.fKnownColorFlags);
                 TEST_ASSERT((kIgnoreCoverage_OptFlag |
@@ -652,7 +652,7 @@ static void test_color_unknown_no_coverage(skiatest::Reporter* reporter, const G
                 TEST_ASSERT(kOne_GrBlendCoeff == xpi.fBlendInfo.fDstBlend);
                 TEST_ASSERT(xpi.fBlendInfo.fWriteColor);
                 break;
-            case SkXfermode::kModulate_Mode:
+            case SkBlendMode::kModulate:
                 TEST_ASSERT(xpi.fBlendedColor.fWillBlendWithDst);
                 TEST_ASSERT(kNone_GrColorComponentFlags == xpi.fBlendedColor.fKnownColorFlags);
                 TEST_ASSERT((kIgnoreCoverage_OptFlag) == xpi.fOptFlags);
@@ -663,7 +663,7 @@ static void test_color_unknown_no_coverage(skiatest::Reporter* reporter, const G
                 TEST_ASSERT(kSC_GrBlendCoeff == xpi.fBlendInfo.fDstBlend);
                 TEST_ASSERT(xpi.fBlendInfo.fWriteColor);
                 break;
-            case SkXfermode::kScreen_Mode:
+            case SkBlendMode::kScreen:
                 TEST_ASSERT(xpi.fBlendedColor.fWillBlendWithDst);
                 TEST_ASSERT(kNone_GrColorComponentFlags == xpi.fBlendedColor.fKnownColorFlags);
                 TEST_ASSERT((kIgnoreCoverage_OptFlag |
@@ -694,12 +694,12 @@ static void test_color_opaque_with_coverage(skiatest::Reporter* reporter, const 
     SkASSERT(!optimizations.fCoveragePOI.isSolidWhite());
     SkASSERT(!optimizations.fCoveragePOI.isFourChannelOutput());
 
-    for (int m = 0; m <= SkXfermode::kLastCoeffMode; m++) {
-        SkXfermode::Mode xfermode = static_cast<SkXfermode::Mode>(m);
+    for (int m = 0; m <= (int)SkBlendMode::kLastCoeffMode; m++) {
+        SkBlendMode xfermode = static_cast<SkBlendMode>(m);
         const GrPorterDuffTest::XPInfo xpi(reporter, xfermode, caps, optimizations);
 
         switch (xfermode) {
-            case SkXfermode::kClear_Mode:
+            case SkBlendMode::kClear:
                 TEST_ASSERT(!xpi.fBlendedColor.fWillBlendWithDst);
                 TEST_ASSERT(0 == xpi.fBlendedColor.fKnownColor);
                 TEST_ASSERT(kRGBA_GrColorComponentFlags == xpi.fBlendedColor.fKnownColorFlags);
@@ -711,7 +711,7 @@ static void test_color_opaque_with_coverage(skiatest::Reporter* reporter, const 
                 TEST_ASSERT(kOne_GrBlendCoeff == xpi.fBlendInfo.fDstBlend);
                 TEST_ASSERT(xpi.fBlendInfo.fWriteColor);
                 break;
-            case SkXfermode::kSrc_Mode:
+            case SkBlendMode::kSrc:
                 TEST_ASSERT(!xpi.fBlendedColor.fWillBlendWithDst);
                 TEST_ASSERT(255 == GrColorUnpackA(xpi.fBlendedColor.fKnownColor));
                 TEST_ASSERT(kA_GrColorComponentFlag == xpi.fBlendedColor.fKnownColorFlags);
@@ -723,7 +723,7 @@ static void test_color_opaque_with_coverage(skiatest::Reporter* reporter, const 
                 TEST_ASSERT(kISA_GrBlendCoeff == xpi.fBlendInfo.fDstBlend);
                 TEST_ASSERT(xpi.fBlendInfo.fWriteColor);
                 break;
-            case SkXfermode::kDst_Mode:
+            case SkBlendMode::kDst:
                 TEST_ASSERT(xpi.fBlendedColor.fWillBlendWithDst);
                 TEST_ASSERT(kNone_GrColorComponentFlags == xpi.fBlendedColor.fKnownColorFlags);
                 TEST_ASSERT((kSkipDraw_OptFlag |
@@ -737,7 +737,7 @@ static void test_color_opaque_with_coverage(skiatest::Reporter* reporter, const 
                 TEST_ASSERT(kOne_GrBlendCoeff == xpi.fBlendInfo.fDstBlend);
                 TEST_ASSERT(!xpi.fBlendInfo.fWriteColor);
                 break;
-            case SkXfermode::kSrcOver_Mode:
+            case SkBlendMode::kSrcOver:
                 TEST_ASSERT(!xpi.fBlendedColor.fWillBlendWithDst);
                 TEST_ASSERT(255 == GrColorUnpackA(xpi.fBlendedColor.fKnownColor));
                 TEST_ASSERT(kA_GrColorComponentFlag == xpi.fBlendedColor.fKnownColorFlags);
@@ -749,7 +749,7 @@ static void test_color_opaque_with_coverage(skiatest::Reporter* reporter, const 
                 TEST_ASSERT(kISA_GrBlendCoeff == xpi.fBlendInfo.fDstBlend);
                 TEST_ASSERT(xpi.fBlendInfo.fWriteColor);
                 break;
-            case SkXfermode::kDstOver_Mode:
+            case SkBlendMode::kDstOver:
                 TEST_ASSERT(xpi.fBlendedColor.fWillBlendWithDst);
                 TEST_ASSERT(kNone_GrColorComponentFlags == xpi.fBlendedColor.fKnownColorFlags);
                 TEST_ASSERT((kCanTweakAlphaForCoverage_OptFlag) == xpi.fOptFlags);
@@ -760,7 +760,7 @@ static void test_color_opaque_with_coverage(skiatest::Reporter* reporter, const 
                 TEST_ASSERT(kOne_GrBlendCoeff == xpi.fBlendInfo.fDstBlend);
                 TEST_ASSERT(xpi.fBlendInfo.fWriteColor);
                 break;
-            case SkXfermode::kSrcIn_Mode:
+            case SkBlendMode::kSrcIn:
                 TEST_ASSERT(xpi.fBlendedColor.fWillBlendWithDst);
                 TEST_ASSERT(kNone_GrColorComponentFlags == xpi.fBlendedColor.fKnownColorFlags);
                 TEST_ASSERT((kCanTweakAlphaForCoverage_OptFlag) == xpi.fOptFlags);
@@ -771,7 +771,7 @@ static void test_color_opaque_with_coverage(skiatest::Reporter* reporter, const 
                 TEST_ASSERT(kISA_GrBlendCoeff == xpi.fBlendInfo.fDstBlend);
                 TEST_ASSERT(xpi.fBlendInfo.fWriteColor);
                 break;
-            case SkXfermode::kDstIn_Mode:
+            case SkBlendMode::kDstIn:
                 TEST_ASSERT(xpi.fBlendedColor.fWillBlendWithDst);
                 TEST_ASSERT(kNone_GrColorComponentFlags == xpi.fBlendedColor.fKnownColorFlags);
                 TEST_ASSERT((kSkipDraw_OptFlag |
@@ -785,7 +785,7 @@ static void test_color_opaque_with_coverage(skiatest::Reporter* reporter, const 
                 TEST_ASSERT(kOne_GrBlendCoeff == xpi.fBlendInfo.fDstBlend);
                 TEST_ASSERT(!xpi.fBlendInfo.fWriteColor);
                 break;
-            case SkXfermode::kSrcOut_Mode:
+            case SkBlendMode::kSrcOut:
                 TEST_ASSERT(xpi.fBlendedColor.fWillBlendWithDst);
                 TEST_ASSERT(kNone_GrColorComponentFlags == xpi.fBlendedColor.fKnownColorFlags);
                 TEST_ASSERT((kCanTweakAlphaForCoverage_OptFlag) == xpi.fOptFlags);
@@ -796,7 +796,7 @@ static void test_color_opaque_with_coverage(skiatest::Reporter* reporter, const 
                 TEST_ASSERT(kISA_GrBlendCoeff == xpi.fBlendInfo.fDstBlend);
                 TEST_ASSERT(xpi.fBlendInfo.fWriteColor);
                 break;
-            case SkXfermode::kDstOut_Mode:
+            case SkBlendMode::kDstOut:
                 TEST_ASSERT(!xpi.fBlendedColor.fWillBlendWithDst);
                 TEST_ASSERT(0 == xpi.fBlendedColor.fKnownColor);
                 TEST_ASSERT(kRGBA_GrColorComponentFlags == xpi.fBlendedColor.fKnownColorFlags);
@@ -808,7 +808,7 @@ static void test_color_opaque_with_coverage(skiatest::Reporter* reporter, const 
                 TEST_ASSERT(kOne_GrBlendCoeff == xpi.fBlendInfo.fDstBlend);
                 TEST_ASSERT(xpi.fBlendInfo.fWriteColor);
                 break;
-            case SkXfermode::kSrcATop_Mode:
+            case SkBlendMode::kSrcATop:
                 TEST_ASSERT(xpi.fBlendedColor.fWillBlendWithDst);
                 TEST_ASSERT(kNone_GrColorComponentFlags == xpi.fBlendedColor.fKnownColorFlags);
                 TEST_ASSERT((kCanTweakAlphaForCoverage_OptFlag) == xpi.fOptFlags);
@@ -819,7 +819,7 @@ static void test_color_opaque_with_coverage(skiatest::Reporter* reporter, const 
                 TEST_ASSERT(kISA_GrBlendCoeff == xpi.fBlendInfo.fDstBlend);
                 TEST_ASSERT(xpi.fBlendInfo.fWriteColor);
                 break;
-            case SkXfermode::kDstATop_Mode:
+            case SkBlendMode::kDstATop:
                 TEST_ASSERT(xpi.fBlendedColor.fWillBlendWithDst);
                 TEST_ASSERT(kNone_GrColorComponentFlags == xpi.fBlendedColor.fKnownColorFlags);
                 TEST_ASSERT((kCanTweakAlphaForCoverage_OptFlag) == xpi.fOptFlags);
@@ -830,7 +830,7 @@ static void test_color_opaque_with_coverage(skiatest::Reporter* reporter, const 
                 TEST_ASSERT(kOne_GrBlendCoeff == xpi.fBlendInfo.fDstBlend);
                 TEST_ASSERT(xpi.fBlendInfo.fWriteColor);
                 break;
-            case SkXfermode::kXor_Mode:
+            case SkBlendMode::kXor:
                 TEST_ASSERT(xpi.fBlendedColor.fWillBlendWithDst);
                 TEST_ASSERT(kNone_GrColorComponentFlags == xpi.fBlendedColor.fKnownColorFlags);
                 TEST_ASSERT((kCanTweakAlphaForCoverage_OptFlag) == xpi.fOptFlags);
@@ -841,7 +841,7 @@ static void test_color_opaque_with_coverage(skiatest::Reporter* reporter, const 
                 TEST_ASSERT(kISA_GrBlendCoeff == xpi.fBlendInfo.fDstBlend);
                 TEST_ASSERT(xpi.fBlendInfo.fWriteColor);
                 break;
-            case SkXfermode::kPlus_Mode:
+            case SkBlendMode::kPlus:
                 TEST_ASSERT(xpi.fBlendedColor.fWillBlendWithDst);
                 TEST_ASSERT(kNone_GrColorComponentFlags == xpi.fBlendedColor.fKnownColorFlags);
                 TEST_ASSERT((kCanTweakAlphaForCoverage_OptFlag) == xpi.fOptFlags);
@@ -852,7 +852,7 @@ static void test_color_opaque_with_coverage(skiatest::Reporter* reporter, const 
                 TEST_ASSERT(kOne_GrBlendCoeff == xpi.fBlendInfo.fDstBlend);
                 TEST_ASSERT(xpi.fBlendInfo.fWriteColor);
                 break;
-            case SkXfermode::kModulate_Mode:
+            case SkBlendMode::kModulate:
                 TEST_ASSERT(xpi.fBlendedColor.fWillBlendWithDst);
                 TEST_ASSERT(kNone_GrColorComponentFlags == xpi.fBlendedColor.fKnownColorFlags);
                 TEST_ASSERT((kNone_OptFlags) == xpi.fOptFlags);
@@ -863,7 +863,7 @@ static void test_color_opaque_with_coverage(skiatest::Reporter* reporter, const 
                 TEST_ASSERT(kOne_GrBlendCoeff == xpi.fBlendInfo.fDstBlend);
                 TEST_ASSERT(xpi.fBlendInfo.fWriteColor);
                 break;
-            case SkXfermode::kScreen_Mode:
+            case SkBlendMode::kScreen:
                 TEST_ASSERT(xpi.fBlendedColor.fWillBlendWithDst);
                 TEST_ASSERT(kNone_GrColorComponentFlags == xpi.fBlendedColor.fKnownColorFlags);
                 TEST_ASSERT((kCanTweakAlphaForCoverage_OptFlag) == xpi.fOptFlags);
@@ -893,12 +893,12 @@ static void test_color_opaque_no_coverage(skiatest::Reporter* reporter, const Gr
     SkASSERT(optimizations.fCoveragePOI.isSolidWhite());
     SkASSERT(!optimizations.fCoveragePOI.isFourChannelOutput());
 
-    for (int m = 0; m <= SkXfermode::kLastCoeffMode; m++) {
-        SkXfermode::Mode xfermode = static_cast<SkXfermode::Mode>(m);
+    for (int m = 0; m <= (int)SkBlendMode::kLastCoeffMode; m++) {
+        SkBlendMode xfermode = static_cast<SkBlendMode>(m);
         const GrPorterDuffTest::XPInfo xpi(reporter, xfermode, caps, optimizations);
 
         switch (xfermode) {
-            case SkXfermode::kClear_Mode:
+            case SkBlendMode::kClear:
                 TEST_ASSERT(!xpi.fBlendedColor.fWillBlendWithDst);
                 TEST_ASSERT(0 == xpi.fBlendedColor.fKnownColor);
                 TEST_ASSERT(kRGBA_GrColorComponentFlags == xpi.fBlendedColor.fKnownColorFlags);
@@ -911,7 +911,7 @@ static void test_color_opaque_no_coverage(skiatest::Reporter* reporter, const Gr
                 TEST_ASSERT(kZero_GrBlendCoeff == xpi.fBlendInfo.fDstBlend);
                 TEST_ASSERT(xpi.fBlendInfo.fWriteColor);
                 break;
-            case SkXfermode::kSrc_Mode:
+            case SkBlendMode::kSrc:
                 TEST_ASSERT(!xpi.fBlendedColor.fWillBlendWithDst);
                 TEST_ASSERT(82 == GrColorUnpackG(xpi.fBlendedColor.fKnownColor));
                 TEST_ASSERT(255 == GrColorUnpackA(xpi.fBlendedColor.fKnownColor));
@@ -925,7 +925,7 @@ static void test_color_opaque_no_coverage(skiatest::Reporter* reporter, const Gr
                 TEST_ASSERT(kZero_GrBlendCoeff == xpi.fBlendInfo.fDstBlend);
                 TEST_ASSERT(xpi.fBlendInfo.fWriteColor);
                 break;
-            case SkXfermode::kDst_Mode:
+            case SkBlendMode::kDst:
                 TEST_ASSERT(xpi.fBlendedColor.fWillBlendWithDst);
                 TEST_ASSERT(kNone_GrColorComponentFlags == xpi.fBlendedColor.fKnownColorFlags);
                 TEST_ASSERT((kSkipDraw_OptFlag |
@@ -939,7 +939,7 @@ static void test_color_opaque_no_coverage(skiatest::Reporter* reporter, const Gr
                 TEST_ASSERT(kOne_GrBlendCoeff == xpi.fBlendInfo.fDstBlend);
                 TEST_ASSERT(!xpi.fBlendInfo.fWriteColor);
                 break;
-            case SkXfermode::kSrcOver_Mode:
+            case SkBlendMode::kSrcOver:
                 TEST_ASSERT(!xpi.fBlendedColor.fWillBlendWithDst);
                 TEST_ASSERT(82 == GrColorUnpackG(xpi.fBlendedColor.fKnownColor));
                 TEST_ASSERT(255 == GrColorUnpackA(xpi.fBlendedColor.fKnownColor));
@@ -953,7 +953,7 @@ static void test_color_opaque_no_coverage(skiatest::Reporter* reporter, const Gr
                 TEST_ASSERT(kZero_GrBlendCoeff == xpi.fBlendInfo.fDstBlend);
                 TEST_ASSERT(xpi.fBlendInfo.fWriteColor);
                 break;
-            case SkXfermode::kDstOver_Mode:
+            case SkBlendMode::kDstOver:
                 TEST_ASSERT(xpi.fBlendedColor.fWillBlendWithDst);
                 TEST_ASSERT(kNone_GrColorComponentFlags == xpi.fBlendedColor.fKnownColorFlags);
                 TEST_ASSERT((kIgnoreCoverage_OptFlag |
@@ -965,7 +965,7 @@ static void test_color_opaque_no_coverage(skiatest::Reporter* reporter, const Gr
                 TEST_ASSERT(kOne_GrBlendCoeff == xpi.fBlendInfo.fDstBlend);
                 TEST_ASSERT(xpi.fBlendInfo.fWriteColor);
                 break;
-            case SkXfermode::kSrcIn_Mode:
+            case SkBlendMode::kSrcIn:
                 TEST_ASSERT(xpi.fBlendedColor.fWillBlendWithDst);
                 TEST_ASSERT(kNone_GrColorComponentFlags == xpi.fBlendedColor.fKnownColorFlags);
                 TEST_ASSERT((kIgnoreCoverage_OptFlag) == xpi.fOptFlags);
@@ -976,7 +976,7 @@ static void test_color_opaque_no_coverage(skiatest::Reporter* reporter, const Gr
                 TEST_ASSERT(kZero_GrBlendCoeff == xpi.fBlendInfo.fDstBlend);
                 TEST_ASSERT(xpi.fBlendInfo.fWriteColor);
                 break;
-            case SkXfermode::kDstIn_Mode:
+            case SkBlendMode::kDstIn:
                 TEST_ASSERT(xpi.fBlendedColor.fWillBlendWithDst);
                 TEST_ASSERT(kNone_GrColorComponentFlags == xpi.fBlendedColor.fKnownColorFlags);
                 TEST_ASSERT((kSkipDraw_OptFlag |
@@ -990,7 +990,7 @@ static void test_color_opaque_no_coverage(skiatest::Reporter* reporter, const Gr
                 TEST_ASSERT(kOne_GrBlendCoeff == xpi.fBlendInfo.fDstBlend);
                 TEST_ASSERT(!xpi.fBlendInfo.fWriteColor);
                 break;
-            case SkXfermode::kSrcOut_Mode:
+            case SkBlendMode::kSrcOut:
                 TEST_ASSERT(xpi.fBlendedColor.fWillBlendWithDst);
                 TEST_ASSERT(kNone_GrColorComponentFlags == xpi.fBlendedColor.fKnownColorFlags);
                 TEST_ASSERT((kIgnoreCoverage_OptFlag) == xpi.fOptFlags);
@@ -1001,7 +1001,7 @@ static void test_color_opaque_no_coverage(skiatest::Reporter* reporter, const Gr
                 TEST_ASSERT(kZero_GrBlendCoeff == xpi.fBlendInfo.fDstBlend);
                 TEST_ASSERT(xpi.fBlendInfo.fWriteColor);
                 break;
-            case SkXfermode::kDstOut_Mode:
+            case SkBlendMode::kDstOut:
                 TEST_ASSERT(!xpi.fBlendedColor.fWillBlendWithDst);
                 TEST_ASSERT(0 == xpi.fBlendedColor.fKnownColor);
                 TEST_ASSERT(kRGBA_GrColorComponentFlags == xpi.fBlendedColor.fKnownColorFlags);
@@ -1014,7 +1014,7 @@ static void test_color_opaque_no_coverage(skiatest::Reporter* reporter, const Gr
                 TEST_ASSERT(kZero_GrBlendCoeff == xpi.fBlendInfo.fDstBlend);
                 TEST_ASSERT(xpi.fBlendInfo.fWriteColor);
                 break;
-            case SkXfermode::kSrcATop_Mode:
+            case SkBlendMode::kSrcATop:
                 TEST_ASSERT(xpi.fBlendedColor.fWillBlendWithDst);
                 TEST_ASSERT(kNone_GrColorComponentFlags == xpi.fBlendedColor.fKnownColorFlags);
                 TEST_ASSERT((kIgnoreCoverage_OptFlag) == xpi.fOptFlags);
@@ -1025,7 +1025,7 @@ static void test_color_opaque_no_coverage(skiatest::Reporter* reporter, const Gr
                 TEST_ASSERT(kZero_GrBlendCoeff == xpi.fBlendInfo.fDstBlend);
                 TEST_ASSERT(xpi.fBlendInfo.fWriteColor);
                 break;
-            case SkXfermode::kDstATop_Mode:
+            case SkBlendMode::kDstATop:
                 TEST_ASSERT(xpi.fBlendedColor.fWillBlendWithDst);
                 TEST_ASSERT(kNone_GrColorComponentFlags == xpi.fBlendedColor.fKnownColorFlags);
                 TEST_ASSERT((kIgnoreCoverage_OptFlag |
@@ -1037,7 +1037,7 @@ static void test_color_opaque_no_coverage(skiatest::Reporter* reporter, const Gr
                 TEST_ASSERT(kOne_GrBlendCoeff == xpi.fBlendInfo.fDstBlend);
                 TEST_ASSERT(xpi.fBlendInfo.fWriteColor);
                 break;
-            case SkXfermode::kXor_Mode:
+            case SkBlendMode::kXor:
                 TEST_ASSERT(xpi.fBlendedColor.fWillBlendWithDst);
                 TEST_ASSERT(kNone_GrColorComponentFlags == xpi.fBlendedColor.fKnownColorFlags);
                 TEST_ASSERT((kIgnoreCoverage_OptFlag) == xpi.fOptFlags);
@@ -1048,7 +1048,7 @@ static void test_color_opaque_no_coverage(skiatest::Reporter* reporter, const Gr
                 TEST_ASSERT(kZero_GrBlendCoeff == xpi.fBlendInfo.fDstBlend);
                 TEST_ASSERT(xpi.fBlendInfo.fWriteColor);
                 break;
-            case SkXfermode::kPlus_Mode:
+            case SkBlendMode::kPlus:
                 TEST_ASSERT(xpi.fBlendedColor.fWillBlendWithDst);
                 TEST_ASSERT(kNone_GrColorComponentFlags == xpi.fBlendedColor.fKnownColorFlags);
                 TEST_ASSERT((kIgnoreCoverage_OptFlag |
@@ -1060,7 +1060,7 @@ static void test_color_opaque_no_coverage(skiatest::Reporter* reporter, const Gr
                 TEST_ASSERT(kOne_GrBlendCoeff == xpi.fBlendInfo.fDstBlend);
                 TEST_ASSERT(xpi.fBlendInfo.fWriteColor);
                 break;
-            case SkXfermode::kModulate_Mode:
+            case SkBlendMode::kModulate:
                 TEST_ASSERT(xpi.fBlendedColor.fWillBlendWithDst);
                 TEST_ASSERT(kNone_GrColorComponentFlags == xpi.fBlendedColor.fKnownColorFlags);
                 TEST_ASSERT((kIgnoreCoverage_OptFlag) == xpi.fOptFlags);
@@ -1071,7 +1071,7 @@ static void test_color_opaque_no_coverage(skiatest::Reporter* reporter, const Gr
                 TEST_ASSERT(kSC_GrBlendCoeff == xpi.fBlendInfo.fDstBlend);
                 TEST_ASSERT(xpi.fBlendInfo.fWriteColor);
                 break;
-            case SkXfermode::kScreen_Mode:
+            case SkBlendMode::kScreen:
                 TEST_ASSERT(xpi.fBlendedColor.fWillBlendWithDst);
                 TEST_ASSERT(kNone_GrColorComponentFlags == xpi.fBlendedColor.fKnownColorFlags);
                 TEST_ASSERT((kIgnoreCoverage_OptFlag |
@@ -1121,7 +1121,7 @@ static void test_lcd_coverage_fallback_case(skiatest::Reporter* reporter, const 
     SkASSERT(kRGBA_GrColorComponentFlags == colorPOI.validFlags());
     SkASSERT(covPOI.isFourChannelOutput());
 
-    sk_sp<GrXPFactory> xpf(GrPorterDuffXPFactory::Make(SkXfermode::kSrcOver_Mode));
+    sk_sp<GrXPFactory> xpf(GrPorterDuffXPFactory::Make(SkBlendMode::kSrcOver));
     TEST_ASSERT(!xpf->willNeedDstTexture(caps, opts));
 
     SkAutoTUnref<GrXferProcessor> xp(
@@ -1194,8 +1194,8 @@ DEF_GPUTEST(PorterDuffNoDualSourceBlending, reporter, /*factory*/) {
                 optimizations.fCoveragePOI.calcWithInitialValues(nullptr, 0, GrColorPackA4(255),
                                                                  kRGBA_GrColorComponentFlags, true);
             }
-            for (int m = 0; m <= SkXfermode::kLastCoeffMode; m++) {
-                SkXfermode::Mode xfermode = static_cast<SkXfermode::Mode>(m);
+            for (int m = 0; m <= (int)SkBlendMode::kLastCoeffMode; m++) {
+                SkBlendMode xfermode = static_cast<SkBlendMode>(m);
                 sk_sp<GrXPFactory> xpf(GrPorterDuffXPFactory::Make(xfermode));
                 GrXferProcessor::DstTexture* dstTexture =
                     xpf->willNeedDstTexture(caps, optimizations) ? &fakeDstTexture : 0;

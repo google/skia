@@ -1879,8 +1879,13 @@ void SkCanvas::drawPoints(PointMode mode, size_t count, const SkPoint pts[], con
 }
 
 void SkCanvas::drawVertices(VertexMode vmode, int vertexCount, const SkPoint vertices[],
-                            const SkPoint texs[], const SkColor colors[], SkXfermode* xmode,
+                            const SkPoint texs[], const SkColor colors[], SkBlendMode bmode,
                             const uint16_t indices[], int indexCount, const SkPaint& paint) {
+#ifdef SK_SUPPORT_LEGACY_XFERMODE_PARAM
+    SkXfermode* xmode = SkXfermode::Peek(bmode);
+#else
+    SkBlendMode xmode = bmode;
+#endif
     this->onDrawVertices(vmode, vertexCount, vertices, texs, colors, xmode,
                          indices, indexCount, paint);
 }
@@ -2009,16 +2014,15 @@ void SkCanvas::drawBitmapLattice(const SkBitmap& bitmap, const Lattice& lattice,
 }
 
 void SkCanvas::drawAtlas(const SkImage* atlas, const SkRSXform xform[], const SkRect tex[],
-                         const SkColor colors[], int count, SkXfermode::Mode mode,
+                         const SkColor colors[], int count, SkBlendMode mode,
                          const SkRect* cull, const SkPaint* paint) {
     RETURN_ON_NULL(atlas);
     if (count <= 0) {
         return;
     }
     SkASSERT(atlas);
-    SkASSERT(xform);
     SkASSERT(tex);
-    this->onDrawAtlas(atlas, xform, tex, colors, count, mode, cull, paint);
+    this->onDrawAtlas(atlas, xform, tex, colors, count, (SK_XFERMODE_MODE_PARAM)mode, cull, paint);
 }
 
 void SkCanvas::drawAnnotation(const SkRect& rect, const char key[], SkData* value) {
@@ -2827,7 +2831,7 @@ void SkCanvas::drawTextBlob(const SkTextBlob* blob, SkScalar x, SkScalar y,
 
 void SkCanvas::onDrawVertices(VertexMode vmode, int vertexCount,
                               const SkPoint verts[], const SkPoint texs[],
-                              const SkColor colors[], SkXfermode* xmode,
+                              const SkColor colors[], SK_XFERMODE_PARAM xmode,
                               const uint16_t indices[], int indexCount,
                               const SkPaint& paint) {
     TRACE_EVENT0("disabled-by-default-skia", "SkCanvas::drawVertices()");
@@ -2843,17 +2847,24 @@ void SkCanvas::onDrawVertices(VertexMode vmode, int vertexCount,
 }
 
 void SkCanvas::drawPatch(const SkPoint cubics[12], const SkColor colors[4],
-                         const SkPoint texCoords[4], SkXfermode* xmode, const SkPaint& paint) {
+                         const SkPoint texCoords[4], SkBlendMode bmode,
+                         const SkPaint& paint) {
     TRACE_EVENT0("disabled-by-default-skia", "SkCanvas::drawPatch()");
     if (nullptr == cubics) {
         return;
     }
 
+#ifdef SK_SUPPORT_LEGACY_XFERMODE_PARAM
+    SkXfermode* xmode = SkXfermode::Peek(bmode);
+#else
+    SkBlendMode xmode = bmode;
+#endif
     this->onDrawPatch(cubics, colors, texCoords, xmode, paint);
 }
 
 void SkCanvas::onDrawPatch(const SkPoint cubics[12], const SkColor colors[4],
-                           const SkPoint texCoords[4], SkXfermode* xmode, const SkPaint& paint) {
+                           const SkPoint texCoords[4], SK_XFERMODE_PARAM xmode,
+                           const SkPaint& paint) {
     // Since a patch is always within the convex hull of the control points, we discard it when its
     // bounding rectangle is completely outside the current clip.
     SkRect bounds;
@@ -2896,7 +2907,7 @@ void SkCanvas::onDrawDrawable(SkDrawable* dr, const SkMatrix* matrix) {
 }
 
 void SkCanvas::onDrawAtlas(const SkImage* atlas, const SkRSXform xform[], const SkRect tex[],
-                           const SkColor colors[], int count, SkXfermode::Mode mode,
+                           const SkColor colors[], int count, SK_XFERMODE_MODE_PARAM mode,
                            const SkRect* cull, const SkPaint* paint) {
     if (cull && this->quickReject(*cull)) {
         return;

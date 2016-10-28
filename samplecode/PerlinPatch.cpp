@@ -148,12 +148,10 @@ protected:
             { fTexX - texWidth, fTexY + texHeight}}
         ;
         
-        sk_sp<SkXfermode> xfer(SkXfermode::Make(SkXfermode::kSrc_Mode));
-
         SkScalar scaleFreq = 2.0;
         fShader1 = SkPerlinNoiseShader2::MakeImprovedNoise(fXFreq/scaleFreq, fYFreq/scaleFreq, 4,
                                                              fSeed);
-        fShaderCompose = SkShader::MakeComposeShader(fShader0, fShader1, nullptr);
+        fShaderCompose = SkShader::MakeComposeShader(fShader0, fShader1, SkBlendMode::kSrcOver);
 
         paint.setShader(fShaderCompose);
 
@@ -161,7 +159,7 @@ protected:
         if (fShowGrid) {
             tex = nullptr;
         }
-        canvas->drawPatch(fPts, nullptr, tex, xfer, paint);
+        canvas->drawPatch(fPts, nullptr, tex, SkBlendMode::kSrc, paint);
 
         draw_control_points(canvas, fPts);
     }
