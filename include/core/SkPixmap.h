@@ -89,6 +89,8 @@ public:
     uint64_t getSafeSize64() const { return fInfo.getSafeSize64(fRowBytes); }
     size_t getSafeSize() const { return fInfo.getSafeSize(fRowBytes); }
 
+    SkColor getColor(int x, int y) const;
+
     const void* addr(int x, int y) const {
         return (const char*)fPixels + fInfo.computeOffset(x, y, fRowBytes);
     }
