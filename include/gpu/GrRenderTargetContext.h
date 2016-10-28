@@ -16,6 +16,7 @@
 #include "SkRegion.h"
 #include "SkSurfaceProps.h"
 #include "../private/GrInstancedPipelineInfo.h"
+#include "../private/GrRenderTargetProxy.h"
 #include "../private/GrSingleOwner.h"
 
 class GrAuditTrail;
@@ -314,21 +315,21 @@ public:
                      int x, int y);
 
     bool isStencilBufferMultisampled() const {
-        return fRenderTarget->isStencilBufferMultisampled();
+        return fRenderTargetProxy->isStencilBufferMultisampled();
     }
-    bool isUnifiedMultisampled() const { return fRenderTarget->isUnifiedMultisampled(); }
-    bool hasMixedSamples() const { return fRenderTarget->isMixedSampled(); }
+    bool isUnifiedMultisampled() const { return fRenderTargetProxy->isUnifiedMultisampled(); }
+    bool hasMixedSamples() const { return fRenderTargetProxy->isMixedSampled(); }
 
     bool mustUseHWAA(const GrPaint& paint) const {
-        return paint.isAntiAlias() && fRenderTarget->isUnifiedMultisampled();
+        return paint.isAntiAlias() && fRenderTargetProxy->isUnifiedMultisampled();
     }
 
     const GrCaps* caps() const { return fContext->caps(); }
-    const GrSurfaceDesc& desc() const { return fRenderTarget->desc(); }
-    int width() const { return fRenderTarget->width(); }
-    int height() const { return fRenderTarget->height(); }
-    GrPixelConfig config() const { return fRenderTarget->config(); }
-    int numColorSamples() const { return fRenderTarget->numColorSamples(); }
+    const GrSurfaceDesc& desc() const { return fRenderTargetProxy->desc(); }
+    int width() const { return fRenderTargetProxy->width(); }
+    int height() const { return fRenderTargetProxy->height(); }
+    GrPixelConfig config() const { return fRenderTargetProxy->config(); }
+    int numColorSamples() const { return fRenderTargetProxy->numColorSamples(); }
     bool isGammaCorrect() const { return SkToBool(fColorSpace.get()); }
     SkSourceGammaTreatment sourceGammaTreatment() const {
         return this->isGammaCorrect() ? SkSourceGammaTreatment::kRespect
@@ -337,13 +338,23 @@ public:
     const SkSurfaceProps& surfaceProps() const { return fSurfaceProps; }
     SkColorSpace* getColorSpace() const { return fColorSpace.get(); }
     GrColorSpaceXform* getColorXformFromSRGB() const { return fColorXformFromSRGB.get(); }
-    GrSurfaceOrigin origin() const { return fRenderTarget->origin(); }
+    GrSurfaceOrigin origin() const { return fRenderTargetProxy->origin(); }
 
     bool wasAbandoned() const;
 
-    GrRenderTarget* accessRenderTarget() { return fRenderTarget.get(); }
+    GrRenderTarget* accessRenderTarget() {
+        // TODO: usage of this entry point needs to be reduced and potentially eliminated
+        // since it ends the deferral of the GrRenderTarget's allocation
+        return fRenderTargetProxy->instantiate(fContext->textureProvider());
+    }
 
-    sk_sp<GrTexture> asTexture() { return sk_ref_sp(fRenderTarget->asTexture()); }
+    sk_sp<GrTexture> asTexture() {
+        // TODO: usage of this entry point needs to be reduced and potentially eliminated
+        // since it ends the deferral of the GrRenderTarget's allocation
+        // It's usage should migrate to the soon-to-be-added asDeferredTexture which
+        // returns a GrTextureProxy
+        return sk_ref_sp(this->accessRenderTarget()->asTexture());
+    }
 
     // Provides access to functions that aren't part of the public API.
     GrRenderTargetContextPriv priv();
@@ -352,8 +363,9 @@ public:
     GrAuditTrail* auditTrail() { return fAuditTrail; }
 
 protected:
-    GrRenderTargetContext(GrContext*, GrDrawingManager*, sk_sp<GrRenderTarget>, sk_sp<SkColorSpace>,
-                          const SkSurfaceProps* surfaceProps, GrAuditTrail*, GrSingleOwner*);
+    GrRenderTargetContext(GrContext*, GrDrawingManager*, sk_sp<GrRenderTargetProxy>,
+                          sk_sp<SkColorSpace>, const SkSurfaceProps* surfaceProps, GrAuditTrail*,
+                          GrSingleOwner*);
 
     GrDrawingManager* drawingManager() { return fDrawingManager; }
 
@@ -418,7 +430,7 @@ private:
     GrRenderTargetOpList* getOpList();
 
     GrDrawingManager*                 fDrawingManager;
-    sk_sp<GrRenderTarget>             fRenderTarget;
+    sk_sp<GrRenderTargetProxy>        fRenderTargetProxy;
 
     // In MDB-mode the GrOpList can be closed by some other renderTargetContext that has picked
     // it up. For this reason, the GrOpList should only ever be accessed via 'getOpList'.
