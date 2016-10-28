@@ -96,26 +96,27 @@ protected:
 
         SkScalar tx = 0, ty = 0;
 
-        for (int i = 0; i < loops; ++i) {
-            canvas->save();
-            canvas->translate(tx, ty);
-            canvas->concat(m);
-            paint.setColor(color);
-            color = advance_color(color, fColorType, i);
+        for (int x = 0; x < 1000; ++x) {
+            loops = 200;
+            for (int i = 0; i < loops; ++i) {
+                canvas->save();
+                canvas->translate(tx, ty);
+                paint.setColor(color);
+                color = advance_color(color, fColorType, i);
 
-            canvas->drawRect(SkRect::MakeWH(kRectW, kRectH), paint);
-            canvas->restore();
+                canvas->drawRect(SkRect::MakeWH(kRectW, kRectH), paint);
+                canvas->restore();
 
-            tx += kRectW + 2;
-            if (tx > w) {
-                tx = 0;
-                ty += kRectH + 2;
-                if (ty > h) {
-                    ty = 0;
+                tx += kRectW + 2;
+                if (tx > w) {
+                    tx = 0;
+                    ty += kRectH + 2;
+                    if (ty > h) {
+                        ty = 0;
+                    }
                 }
             }
-
-            m.postConcat(rotate);
+            canvas->flush();
         }
     }
 
