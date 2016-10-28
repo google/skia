@@ -56,14 +56,6 @@ GrGLSLFragmentProcessor* GrFragmentProcessor::createGLSLInstance() const {
     return glFragProc;
 }
 
-void GrFragmentProcessor::addTextureAccess(const GrTextureAccess* textureAccess) {
-    INHERITED::addTextureAccess(textureAccess);
-}
-
-void GrFragmentProcessor::addBufferAccess(const GrBufferAccess* bufferAccess) {
-    INHERITED::addBufferAccess(bufferAccess);
-}
-
 void GrFragmentProcessor::addCoordTransform(const GrCoordTransform* transform) {
     fCoordTransforms.push_back(transform);
     fUsesLocalCoords = true;
