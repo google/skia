@@ -129,10 +129,10 @@ parameter.
         paint.setColor(SK_ColorGREEN);
         canvas->drawPath(path, paint);
 
-        canvas->drawBitmap(source, 128, 128, &paint);
+        canvas->drawImage(image, 128, 128, &paint);
 
         SkRect rect2 = SkRect::MakeXYWH(0, 0, 40, 60);
-        canvas->drawBitmapRect(source, rect2, &paint);
+        canvas->drawImageRect(image, rect2, &paint);
 
         SkPaint paint2;
         const char text[] = "Hello, Skia!";
