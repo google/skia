@@ -109,8 +109,8 @@ GrBuffer* GrResourceProvider::createBuffer(size_t size, GrBufferType intendedTyp
     }
 
     // bin by pow2 with a reasonable min
-    static const uint32_t MIN_SIZE = 1 << 12;
-    size_t allocSize = SkTMax(MIN_SIZE, GrNextPow2(SkToUInt(size)));
+    static const size_t MIN_SIZE = 1 << 12;
+    size_t allocSize = SkTMax(MIN_SIZE, GrNextSizePow2(size));
 
     GrScratchKey key;
     GrBuffer::ComputeScratchKeyForDynamicVBO(allocSize, intendedType, &key);
