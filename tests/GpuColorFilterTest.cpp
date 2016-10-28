@@ -39,7 +39,7 @@ DEF_GPUTEST_FOR_ALL_CONTEXTS(GpuColorFilter, reporter, ctxInfo) {
         GrColor inputColor;       // "[color]"
 
         SkColor filterColor;      // "with filter color [color]"
-        SkXfermode::Mode filterMode; // "in mode [mode]"
+        SkBlendMode filterMode; // "in mode [mode]"
 
         // "produces"
         uint32_t outputComponents; // "rgb of", "red of", "alpha of", ...
@@ -69,30 +69,30 @@ DEF_GPUTEST_FOR_ALL_CONTEXTS(GpuColorFilter, reporter, ctxInfo) {
 
     GetConstantComponentTestCase filterTests[] = {
         // A color filtered with Clear produces black.
-        { kRGBA, gr_white, SK_ColorBLACK, SkXfermode::kClear_Mode, kRGBA, gr_black },
-        { kRGBA, gr_c1,    SK_ColorWHITE, SkXfermode::kClear_Mode, kRGBA, gr_black },
-        { kR,    gr_white, c1,            SkXfermode::kClear_Mode, kRGBA, gr_black },
+        { kRGBA, gr_white, SK_ColorBLACK, SkBlendMode::kClear, kRGBA, gr_black },
+        { kRGBA, gr_c1,    SK_ColorWHITE, SkBlendMode::kClear, kRGBA, gr_black },
+        { kR,    gr_white, c1,            SkBlendMode::kClear, kRGBA, gr_black },
 
         // A color filtered with a color in mode Src, produces the filter color.
-        { kRGBA, gr_c2, c1, SkXfermode::kSrc_Mode, kRGBA, gr_c1 },
-        { kA,    gr_c1, c1, SkXfermode::kSrc_Mode, kRGBA, gr_c1 },
+        { kRGBA, gr_c2, c1, SkBlendMode::kSrc, kRGBA, gr_c1 },
+        { kA,    gr_c1, c1, SkBlendMode::kSrc, kRGBA, gr_c1 },
 
         // A color filtered with SrcOver produces a color.
-        { kRGBA, gr_whiteTrans, SkColorSetARGB(128, 200, 200, 200), SkXfermode::kSrcOver_Mode, kRGBA, GrColorPackRGBA(164, 164, 164, 192)},
+        { kRGBA, gr_whiteTrans, SkColorSetARGB(128, 200, 200, 200), SkBlendMode::kSrcOver, kRGBA, GrColorPackRGBA(164, 164, 164, 192)},
         // An unknown color with known alpha filtered with SrcOver produces an unknown color with known alpha.
-        { kA   , gr_whiteTrans, SkColorSetARGB(128, 200, 200, 200), SkXfermode::kSrcOver_Mode, kA   , GrColorPackRGBA(0, 0, 0, 192)},
+        { kA   , gr_whiteTrans, SkColorSetARGB(128, 200, 200, 200), SkBlendMode::kSrcOver, kA   , GrColorPackRGBA(0, 0, 0, 192)},
         // A color with unknown alpha filtered with SrcOver produces a color with unknown alpha.
-        { kRGB , gr_whiteTrans, SkColorSetARGB(128, 200, 200, 200), SkXfermode::kSrcOver_Mode, kRGB, GrColorPackRGBA(164, 164, 164, 0)},
+        { kRGB , gr_whiteTrans, SkColorSetARGB(128, 200, 200, 200), SkBlendMode::kSrcOver, kRGB, GrColorPackRGBA(164, 164, 164, 0)},
 
         // A color filtered with DstOver produces a color.
-        { kRGBA, gr_whiteTrans, SkColorSetARGB(128, 200, 200, 200), SkXfermode::kDstOver_Mode, kRGBA, GrColorPackRGBA(178, 178, 178, 192)},
+        { kRGBA, gr_whiteTrans, SkColorSetARGB(128, 200, 200, 200), SkBlendMode::kDstOver, kRGBA, GrColorPackRGBA(178, 178, 178, 192)},
         // An unknown color with known alpha filtered with DstOver produces an unknown color with known alpha.
-        { kA   , gr_whiteTrans, SkColorSetARGB(128, 200, 200, 200), SkXfermode::kDstOver_Mode, kA   , GrColorPackRGBA(0, 0, 0, 192)},
+        { kA   , gr_whiteTrans, SkColorSetARGB(128, 200, 200, 200), SkBlendMode::kDstOver, kA   , GrColorPackRGBA(0, 0, 0, 192)},
         // A color with unknown alpha filtered with DstOver produces an unknown color.
-        { kRGB , gr_whiteTrans, SkColorSetARGB(128, 200, 200, 200), SkXfermode::kDstOver_Mode, 0    , gr_black},
+        { kRGB , gr_whiteTrans, SkColorSetARGB(128, 200, 200, 200), SkBlendMode::kDstOver, 0    , gr_black},
 
         // An unknown color with known alpha and red component filtered with Multiply produces an unknown color with known red and alpha.
-        { kR|kA , gr_whiteTrans, SkColorSetARGB(128, 200, 200, 200), SkXfermode::kModulate_Mode, kR|kA, GrColorPackRGBA(50, 0, 0, 64) }
+        { kR|kA , gr_whiteTrans, SkColorSetARGB(128, 200, 200, 200), SkBlendMode::kModulate, kR|kA, GrColorPackRGBA(50, 0, 0, 64) }
     };
 
     GrPaint paint;

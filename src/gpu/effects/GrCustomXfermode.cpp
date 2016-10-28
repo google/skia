@@ -24,33 +24,34 @@
 #include "glsl/GrGLSLUniformHandler.h"
 #include "glsl/GrGLSLXferProcessor.h"
 
-bool GrCustomXfermode::IsSupportedMode(SkXfermode::Mode mode) {
-    return mode > SkXfermode::kLastCoeffMode && mode <= SkXfermode::kLastMode;
+bool GrCustomXfermode::IsSupportedMode(SkBlendMode mode) {
+    return (int)mode  > (int)SkBlendMode::kLastCoeffMode &&
+           (int)mode <= (int)SkBlendMode::kLastMode;
 }
 
 ///////////////////////////////////////////////////////////////////////////////
 // Static helpers
 ///////////////////////////////////////////////////////////////////////////////
 
-static GrBlendEquation hw_blend_equation(SkXfermode::Mode mode) {
-    enum { kOffset = kOverlay_GrBlendEquation - SkXfermode::kOverlay_Mode };
-    return static_cast<GrBlendEquation>(mode + kOffset);
+static GrBlendEquation hw_blend_equation(SkBlendMode mode) {
+    enum { kOffset = kOverlay_GrBlendEquation - (int)SkBlendMode::kOverlay };
+    return static_cast<GrBlendEquation>((int)mode + kOffset);
 
-    GR_STATIC_ASSERT(kOverlay_GrBlendEquation == SkXfermode::kOverlay_Mode + kOffset);
-    GR_STATIC_ASSERT(kDarken_GrBlendEquation == SkXfermode::kDarken_Mode + kOffset);
-    GR_STATIC_ASSERT(kLighten_GrBlendEquation == SkXfermode::kLighten_Mode + kOffset);
-    GR_STATIC_ASSERT(kColorDodge_GrBlendEquation == SkXfermode::kColorDodge_Mode + kOffset);
-    GR_STATIC_ASSERT(kColorBurn_GrBlendEquation == SkXfermode::kColorBurn_Mode + kOffset);
-    GR_STATIC_ASSERT(kHardLight_GrBlendEquation == SkXfermode::kHardLight_Mode + kOffset);
-    GR_STATIC_ASSERT(kSoftLight_GrBlendEquation == SkXfermode::kSoftLight_Mode + kOffset);
-    GR_STATIC_ASSERT(kDifference_GrBlendEquation == SkXfermode::kDifference_Mode + kOffset);
-    GR_STATIC_ASSERT(kExclusion_GrBlendEquation == SkXfermode::kExclusion_Mode + kOffset);
-    GR_STATIC_ASSERT(kMultiply_GrBlendEquation == SkXfermode::kMultiply_Mode + kOffset);
-    GR_STATIC_ASSERT(kHSLHue_GrBlendEquation == SkXfermode::kHue_Mode + kOffset);
-    GR_STATIC_ASSERT(kHSLSaturation_GrBlendEquation == SkXfermode::kSaturation_Mode + kOffset);
-    GR_STATIC_ASSERT(kHSLColor_GrBlendEquation == SkXfermode::kColor_Mode + kOffset);
-    GR_STATIC_ASSERT(kHSLLuminosity_GrBlendEquation == SkXfermode::kLuminosity_Mode + kOffset);
-    GR_STATIC_ASSERT(kGrBlendEquationCnt == SkXfermode::kLastMode + 1 + kOffset);
+    GR_STATIC_ASSERT(kOverlay_GrBlendEquation == (int)SkBlendMode::kOverlay + kOffset);
+    GR_STATIC_ASSERT(kDarken_GrBlendEquation == (int)SkBlendMode::kDarken + kOffset);
+    GR_STATIC_ASSERT(kLighten_GrBlendEquation == (int)SkBlendMode::kLighten + kOffset);
+    GR_STATIC_ASSERT(kColorDodge_GrBlendEquation == (int)SkBlendMode::kColorDodge + kOffset);
+    GR_STATIC_ASSERT(kColorBurn_GrBlendEquation == (int)SkBlendMode::kColorBurn + kOffset);
+    GR_STATIC_ASSERT(kHardLight_GrBlendEquation == (int)SkBlendMode::kHardLight + kOffset);
+    GR_STATIC_ASSERT(kSoftLight_GrBlendEquation == (int)SkBlendMode::kSoftLight + kOffset);
+    GR_STATIC_ASSERT(kDifference_GrBlendEquation == (int)SkBlendMode::kDifference + kOffset);
+    GR_STATIC_ASSERT(kExclusion_GrBlendEquation == (int)SkBlendMode::kExclusion + kOffset);
+    GR_STATIC_ASSERT(kMultiply_GrBlendEquation == (int)SkBlendMode::kMultiply + kOffset);
+    GR_STATIC_ASSERT(kHSLHue_GrBlendEquation == (int)SkBlendMode::kHue + kOffset);
+    GR_STATIC_ASSERT(kHSLSaturation_GrBlendEquation == (int)SkBlendMode::kSaturation + kOffset);
+    GR_STATIC_ASSERT(kHSLColor_GrBlendEquation == (int)SkBlendMode::kColor + kOffset);
+    GR_STATIC_ASSERT(kHSLLuminosity_GrBlendEquation == (int)SkBlendMode::kLuminosity + kOffset);
+    GR_STATIC_ASSERT(kGrBlendEquationCnt == (int)SkBlendMode::kLastMode + 1 + kOffset);
 }
 
 static bool can_use_hw_blend_equation(GrBlendEquation equation,
@@ -77,13 +78,13 @@ static bool can_use_hw_blend_equation(GrBlendEquation equation,
 
 class CustomXP : public GrXferProcessor {
 public:
-    CustomXP(SkXfermode::Mode mode, GrBlendEquation hwBlendEquation)
+    CustomXP(SkBlendMode mode, GrBlendEquation hwBlendEquation)
         : fMode(mode),
           fHWBlendEquation(hwBlendEquation) {
         this->initClassID<CustomXP>();
     }
 
-    CustomXP(const DstTexture* dstTexture, bool hasMixedSamples, SkXfermode::Mode mode)
+    CustomXP(const DstTexture* dstTexture, bool hasMixedSamples, SkBlendMode mode)
         : INHERITED(dstTexture, true, hasMixedSamples),
           fMode(mode),
           fHWBlendEquation(static_cast<GrBlendEquation>(-1)) {
@@ -94,7 +95,7 @@ public:
 
     GrGLSLXferProcessor* createGLSLInstance() const override;
 
-    SkXfermode::Mode mode() const { return fMode; }
+    SkBlendMode mode() const { return fMode; }
     bool hasHWBlendEquation() const { return -1 != static_cast<int>(fHWBlendEquation); }
 
     GrBlendEquation hwBlendEquation() const {
@@ -116,7 +117,7 @@ private:
 
     bool onIsEqual(const GrXferProcessor& xpBase) const override;
 
-    const SkXfermode::Mode fMode;
+    const SkBlendMode      fMode;
     const GrBlendEquation  fHWBlendEquation;
 
     typedef GrXferProcessor INHERITED;
@@ -138,7 +139,7 @@ public:
             GR_STATIC_ASSERT(GrGLSLCaps::kLast_AdvBlendEqInteraction < 4);
         }
         if (!xp.hasHWBlendEquation() || caps.mustEnableSpecificAdvBlendEqs()) {
-            key |= xp.mode() << 3;
+            key |= (int)xp.mode() << 3;
         }
         b->add32(key);
     }
@@ -326,7 +327,7 @@ void CustomXP::onGetBlendInfo(BlendInfo* blendInfo) const {
 ///////////////////////////////////////////////////////////////////////////////
 class CustomXPFactory : public GrXPFactory {
 public:
-    CustomXPFactory(SkXfermode::Mode mode);
+    CustomXPFactory(SkBlendMode mode);
 
     void getInvariantBlendedColor(const GrProcOptInfo& colorPOI,
                                   GrXPFactory::InvariantBlendedColor*) const override;
@@ -346,13 +347,13 @@ private:
 
     GR_DECLARE_XP_FACTORY_TEST;
 
-    SkXfermode::Mode fMode;
-    GrBlendEquation  fHWBlendEquation;
+    SkBlendMode     fMode;
+    GrBlendEquation fHWBlendEquation;
 
     typedef GrXPFactory INHERITED;
 };
 
-CustomXPFactory::CustomXPFactory(SkXfermode::Mode mode)
+CustomXPFactory::CustomXPFactory(SkBlendMode mode)
     : fMode(mode),
       fHWBlendEquation(hw_blend_equation(mode)) {
     SkASSERT(GrCustomXfermode::IsSupportedMode(fMode));
@@ -386,12 +387,12 @@ sk_sp<GrXPFactory> CustomXPFactory::TestCreate(GrProcessorTestData* d) {
     int mode = d->fRandom->nextRangeU(SkXfermode::kLastCoeffMode + 1,
                                       SkXfermode::kLastSeparableMode);
 
-    return sk_sp<GrXPFactory>(new CustomXPFactory(static_cast<SkXfermode::Mode>(mode)));
+    return sk_sp<GrXPFactory>(new CustomXPFactory(static_cast<SkBlendMode>(mode)));
 }
 
 ///////////////////////////////////////////////////////////////////////////////
 
-sk_sp<GrXPFactory> GrCustomXfermode::MakeXPFactory(SkXfermode::Mode mode) {
+sk_sp<GrXPFactory> GrCustomXfermode::MakeXPFactory(SkBlendMode mode) {
     if (!GrCustomXfermode::IsSupportedMode(mode)) {
         return nullptr;
     } else {

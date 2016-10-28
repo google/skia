@@ -237,7 +237,7 @@ static void add_sat_function(GrGLSLFragmentBuilder* fsBuilder, SkString* setSatF
 
 static void emit_advanced_xfermode_code(GrGLSLFragmentBuilder* fsBuilder, const char* srcColor,
                                         const char* dstColor, const char* outputColor,
-                                        SkXfermode::Mode mode) {
+                                        SkBlendMode mode) {
     SkASSERT(srcColor);
     SkASSERT(dstColor);
     SkASSERT(outputColor);
@@ -246,38 +246,38 @@ static void emit_advanced_xfermode_code(GrGLSLFragmentBuilder* fsBuilder, const 
                            outputColor, srcColor, srcColor, dstColor);
 
     switch (mode) {
-        case SkXfermode::kOverlay_Mode:
+        case SkBlendMode::kOverlay:
             // Overlay is Hard-Light with the src and dst reversed
             hard_light(fsBuilder, outputColor, dstColor, srcColor);
             break;
-        case SkXfermode::kDarken_Mode:
+        case SkBlendMode::kDarken:
             fsBuilder->codeAppendf("%s.rgb = min((1.0 - %s.a) * %s.rgb + %s.rgb, "
                                    "(1.0 - %s.a) * %s.rgb + %s.rgb);",
                                    outputColor,
                                    srcColor, dstColor, srcColor,
                                    dstColor, srcColor, dstColor);
             break;
-        case SkXfermode::kLighten_Mode:
+        case SkBlendMode::kLighten:
             fsBuilder->codeAppendf("%s.rgb = max((1.0 - %s.a) * %s.rgb + %s.rgb, "
                                    "(1.0 - %s.a) * %s.rgb + %s.rgb);",
                                    outputColor,
                                    srcColor, dstColor, srcColor,
                                    dstColor, srcColor, dstColor);
             break;
-        case SkXfermode::kColorDodge_Mode:
+        case SkBlendMode::kColorDodge:
             color_dodge_component(fsBuilder, outputColor, srcColor, dstColor, 'r');
             color_dodge_component(fsBuilder, outputColor, srcColor, dstColor, 'g');
             color_dodge_component(fsBuilder, outputColor, srcColor, dstColor, 'b');
             break;
-        case SkXfermode::kColorBurn_Mode:
+        case SkBlendMode::kColorBurn:
             color_burn_component(fsBuilder, outputColor, srcColor, dstColor, 'r');
             color_burn_component(fsBuilder, outputColor, srcColor, dstColor, 'g');
             color_burn_component(fsBuilder, outputColor, srcColor, dstColor, 'b');
             break;
-        case SkXfermode::kHardLight_Mode:
+        case SkBlendMode::kHardLight:
             hard_light(fsBuilder, outputColor, srcColor, dstColor);
             break;
-        case SkXfermode::kSoftLight_Mode:
+        case SkBlendMode::kSoftLight:
             fsBuilder->codeAppendf("if (0.0 == %s.a) {", dstColor);
             fsBuilder->codeAppendf("%s.rgba = %s;", outputColor, srcColor);
             fsBuilder->codeAppendf("} else {");
@@ -286,25 +286,25 @@ static void emit_advanced_xfermode_code(GrGLSLFragmentBuilder* fsBuilder, const 
             soft_light_component_pos_dst_alpha(fsBuilder, outputColor, srcColor, dstColor, 'b');
             fsBuilder->codeAppendf("}");
             break;
-        case SkXfermode::kDifference_Mode:
+        case SkBlendMode::kDifference:
             fsBuilder->codeAppendf("%s.rgb = %s.rgb + %s.rgb -"
                                    "2.0 * min(%s.rgb * %s.a, %s.rgb * %s.a);",
                                    outputColor, srcColor, dstColor, srcColor, dstColor,
                                    dstColor, srcColor);
             break;
-        case SkXfermode::kExclusion_Mode:
+        case SkBlendMode::kExclusion:
             fsBuilder->codeAppendf("%s.rgb = %s.rgb + %s.rgb - "
                                    "2.0 * %s.rgb * %s.rgb;",
                                    outputColor, dstColor, srcColor, dstColor, srcColor);
             break;
-        case SkXfermode::kMultiply_Mode:
+        case SkBlendMode::kMultiply:
             fsBuilder->codeAppendf("%s.rgb = (1.0 - %s.a) * %s.rgb + "
                                    "(1.0 - %s.a) * %s.rgb + "
                                    "%s.rgb * %s.rgb;",
                                    outputColor, srcColor, dstColor, dstColor, srcColor,
                                    srcColor, dstColor);
             break;
-        case SkXfermode::kHue_Mode: {
+        case SkBlendMode::kHue: {
             //  SetLum(SetSat(S * Da, Sat(D * Sa)), Sa*Da, D*Sa) + (1 - Sa) * D + (1 - Da) * S
             SkString setSat, setLum;
             add_sat_function(fsBuilder, &setSat);
@@ -319,7 +319,7 @@ static void emit_advanced_xfermode_code(GrGLSLFragmentBuilder* fsBuilder, const 
                                    outputColor, srcColor, dstColor, dstColor, srcColor);
             break;
         }
-        case SkXfermode::kSaturation_Mode: {
+        case SkBlendMode::kSaturation: {
             // SetLum(SetSat(D * Sa, Sat(S * Da)), Sa*Da, D*Sa)) + (1 - Sa) * D + (1 - Da) * S
             SkString setSat, setLum;
             add_sat_function(fsBuilder, &setSat);
@@ -334,7 +334,7 @@ static void emit_advanced_xfermode_code(GrGLSLFragmentBuilder* fsBuilder, const 
                                    outputColor, srcColor, dstColor, dstColor, srcColor);
             break;
         }
-        case SkXfermode::kColor_Mode: {
+        case SkBlendMode::kColor: {
             //  SetLum(S * Da, Sa* Da, D * Sa) + (1 - Sa) * D + (1 - Da) * S
             SkString setLum;
             add_lum_function(fsBuilder, &setLum);
@@ -346,7 +346,7 @@ static void emit_advanced_xfermode_code(GrGLSLFragmentBuilder* fsBuilder, const 
                                    outputColor, srcColor, dstColor, dstColor, srcColor);
             break;
         }
-        case SkXfermode::kLuminosity_Mode: {
+        case SkBlendMode::kLuminosity: {
             //  SetLum(D * Sa, Sa* Da, S * Da) + (1 - Sa) * D + (1 - Da) * S
             SkString setLum;
             add_lum_function(fsBuilder, &setLum);
@@ -416,7 +416,7 @@ static bool append_porterduff_term(GrGLSLFragmentBuilder* fsBuilder, SkXfermode:
 
 void GrGLSLBlend::AppendMode(GrGLSLFragmentBuilder* fsBuilder, const char* srcColor,
                              const char* dstColor, const char* outColor,
-                             SkXfermode::Mode mode) {
+                             SkBlendMode mode) {
 
     SkXfermode::Coeff srcCoeff, dstCoeff;
     if (SkXfermode::ModeAsCoeff(mode, &srcCoeff, &dstCoeff)) {

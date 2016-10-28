@@ -513,7 +513,7 @@ void SkDeferredCanvas::onDrawDrawable(SkDrawable* drawable, const SkMatrix* matr
 
 void SkDeferredCanvas::onDrawAtlas(const SkImage* image, const SkRSXform xform[],
                                    const SkRect rects[], const SkColor colors[],
-                                   int count, SkXfermode::Mode mode,
+                                   int count, SK_XFERMODE_MODE_PARAM mode,
                                    const SkRect* cull, const SkPaint* paint) {
     this->flush_before_saves();
     fCanvas->drawAtlas(image, xform, rects, colors, count, mode, cull, paint);
@@ -521,7 +521,7 @@ void SkDeferredCanvas::onDrawAtlas(const SkImage* image, const SkRSXform xform[]
 
 void SkDeferredCanvas::onDrawVertices(VertexMode vmode, int vertexCount,
                                   const SkPoint vertices[], const SkPoint texs[],
-                                  const SkColor colors[], SkXfermode* xmode,
+                                  const SkColor colors[], SK_XFERMODE_PARAM xmode,
                                   const uint16_t indices[], int indexCount,
                                   const SkPaint& paint) {
     this->flush_before_saves();
@@ -530,7 +530,7 @@ void SkDeferredCanvas::onDrawVertices(VertexMode vmode, int vertexCount,
 }
 
 void SkDeferredCanvas::onDrawPatch(const SkPoint cubics[12], const SkColor colors[4],
-                               const SkPoint texCoords[4], SkXfermode* xmode,
+                               const SkPoint texCoords[4], SK_XFERMODE_PARAM xmode,
                                const SkPaint& paint) {
     this->flush_before_saves();
     fCanvas->drawPatch(cubics, colors, texCoords, xmode, paint);

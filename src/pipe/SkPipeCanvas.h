@@ -105,7 +105,7 @@ protected:
     void onDrawArc(const SkRect&, SkScalar startAngle, SkScalar sweepAngle, bool useCenter,
                    const SkPaint&) override;
     void onDrawAtlas(const SkImage*, const SkRSXform[], const SkRect[], const SkColor[],
-                     int count, SkXfermode::Mode, const SkRect* cull, const SkPaint*) override;
+                     int count, SK_XFERMODE_MODE_PARAM, const SkRect* cull, const SkPaint*) override;
     void onDrawDRRect(const SkRRect&, const SkRRect&, const SkPaint&) override;
     void onDrawText(const void* text, size_t byteLength, SkScalar x, SkScalar y,
                     const SkPaint&) override;
@@ -119,7 +119,7 @@ protected:
     void onDrawTextRSXform(const void* text, size_t byteLength, const SkRSXform xform[],
                            const SkRect* cull, const SkPaint& paint) override;
     void onDrawPatch(const SkPoint cubics[12], const SkColor colors[4], const SkPoint texCoords[4],
-                     SkXfermode*, const SkPaint&) override;
+                     SK_XFERMODE_PARAM, const SkPaint&) override;
 
     void onDrawPaint(const SkPaint&) override;
     void onDrawPoints(PointMode, size_t count, const SkPoint pts[], const SkPaint&) override;
@@ -138,7 +138,7 @@ protected:
                             const SkPaint*) override;
     void onDrawVertices(VertexMode vmode, int vertexCount,
                               const SkPoint vertices[], const SkPoint texs[],
-                              const SkColor colors[], SkXfermode* xmode,
+                              const SkColor colors[], SK_XFERMODE_PARAM,
                               const uint16_t indices[], int indexCount,
                               const SkPaint&) override;
 

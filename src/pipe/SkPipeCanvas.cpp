@@ -352,7 +352,7 @@ void SkPipeCanvas::onDrawArc(const SkRect& bounds, SkScalar startAngle, SkScalar
 }
 
 void SkPipeCanvas::onDrawAtlas(const SkImage* image, const SkRSXform xform[], const SkRect rect[],
-                               const SkColor colors[], int count, SkXfermode::Mode mode,
+                               const SkColor colors[], int count, SK_XFERMODE_MODE_PARAM mode,
                                const SkRect* cull, const SkPaint* paint) {
     unsigned extra = (unsigned)mode;
     SkASSERT(0 == (extra & ~kMode_DrawAtlasMask));
@@ -732,7 +732,7 @@ void SkPipeCanvas::onDrawRegion(const SkRegion& region, const SkPaint& paint) {
 
 void SkPipeCanvas::onDrawVertices(VertexMode vmode, int vertexCount,
                                   const SkPoint vertices[], const SkPoint texs[],
-                                  const SkColor colors[], SkXfermode* xmode,
+                                  const SkColor colors[], SK_XFERMODE_PARAM xmode,
                                   const uint16_t indices[], int indexCount,
                                   const SkPaint& paint) {
     SkASSERT(vertexCount > 0);
@@ -743,11 +743,12 @@ void SkPipeCanvas::onDrawVertices(VertexMode vmode, int vertexCount,
     }
     extra |= (unsigned)vmode << kVMode_DrawVerticesShift;
 
-    SkXfermode::Mode mode = SkXfermode::kModulate_Mode;
-    if (xmode && !SkXfermode::AsMode(xmode, &mode)) {
-        mode = (SkXfermode::Mode)0xFF;  // sentinel for read the xfer later
-    }
-    extra |= (unsigned)mode << kXMode_DrawVerticesShift;
+#ifdef SK_SUPPORT_LEGACY_XFERMODE_PARAM
+    SkBlendMode bmode = xmode ? xmode->blend() : SkBlendMode::kModulate;
+#else
+    SkBlendMode bmode = xmode;
+#endif
+    extra |= (unsigned)bmode << kXMode_DrawVerticesShift;
 
     if (texs) {
         extra |= kHasTex_DrawVerticesMask;
@@ -763,9 +764,6 @@ void SkPipeCanvas::onDrawVertices(VertexMode vmode, int vertexCount,
     writer.write32(pack_verb(SkPipeVerb::kDrawVertices, extra));
     if (vertexCount > kVCount_DrawVerticesMask) {
         writer.write32(vertexCount);
-    }
-    if (mode == (SkXfermode::Mode)0xFF) {
-        writer.writeFlattenable(xmode);
     }
     writer.write(vertices, vertexCount * sizeof(SkPoint));
     if (texs) {
@@ -783,18 +781,17 @@ void SkPipeCanvas::onDrawVertices(VertexMode vmode, int vertexCount,
 }
 
 void SkPipeCanvas::onDrawPatch(const SkPoint cubics[12], const SkColor colors[4],
-                               const SkPoint texCoords[4], SkXfermode* xfer,
+                               const SkPoint texCoords[4], SK_XFERMODE_PARAM xmode,
                                const SkPaint& paint) {
     SkPipeWriter writer(this);
     unsigned extra = 0;
-    SkXfermode::Mode mode = SkXfermode::kModulate_Mode;
-    if (xfer && !xfer->asMode(&mode)) {
-        mode = (SkXfermode::Mode)kExplicitXfer_DrawPatchExtraValue;
-    } else {
-        xfer = nullptr;    // signal that we're using the mode enum
-    }
-    SkASSERT(0 == (mode & ~kModeEnum_DrawPatchExtraMask));
-    extra = (unsigned)mode;
+#ifdef SK_SUPPORT_LEGACY_XFERMODE_PARAM
+    SkBlendMode bmode = xmode ? xmode->blend() : SkBlendMode::kModulate;
+#else
+    SkBlendMode bmode = xmode;
+#endif
+    SkASSERT(0 == ((int)bmode & ~kModeEnum_DrawPatchExtraMask));
+    extra = (unsigned)bmode;
     if (colors) {
         extra |= kHasColors_DrawPatchExtraMask;
     }
@@ -808,9 +805,6 @@ void SkPipeCanvas::onDrawPatch(const SkPoint cubics[12], const SkColor colors[4]
     }
     if (texCoords) {
         writer.write(texCoords, sizeof(SkPoint) * 4);
-    }
-    if (xfer) {
-        xfer->flatten(writer);
     }
     write_paint(writer, paint, kGeometry_PaintUsage);
 }

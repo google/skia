@@ -47,7 +47,7 @@ static sk_sp<SkColorFilter> make_cf1() {
 }
 
 static sk_sp<SkColorFilter> make_cf2() {
-    return SkColorFilter::MakeModeFilter(0x8044CC88, SkXfermode::kSrcATop_Mode);
+    return SkColorFilter::MakeModeFilter(0x8044CC88, SkBlendMode::kSrcATop);
 }
 
 static void draw_into_canvas(SkCanvas* canvas) {

@@ -42,7 +42,7 @@ static void test_far_from_origin(GrRenderTargetContext* renderTargetContext, GrP
     shape = shape.applyStyle(GrStyle::Apply::kPathEffectAndStrokeRec, 1.f);
 
     GrPaint paint;
-    paint.setXPFactory(GrPorterDuffXPFactory::Make(SkXfermode::kSrc_Mode));
+    paint.setXPFactory(GrPorterDuffXPFactory::Make(SkBlendMode::kSrc));
 
     GrNoClip noClip;
     GrPathRenderer::DrawPathArgs args;

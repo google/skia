@@ -203,8 +203,8 @@ static sk_sp<GrFragmentProcessor> create_random_proc_tree(GrProcessorTestData* d
     }
     sk_sp<GrFragmentProcessor> minLevelsChild(create_random_proc_tree(d, minLevels, maxLevels - 1));
     sk_sp<GrFragmentProcessor> otherChild(create_random_proc_tree(d, 1, maxLevels - 1));
-    SkXfermode::Mode mode = static_cast<SkXfermode::Mode>(d->fRandom->nextRangeU(0,
-                                                          SkXfermode::kLastCoeffMode));
+    SkBlendMode mode = static_cast<SkBlendMode>(d->fRandom->nextRangeU(0,
+                                                               (int)SkBlendMode::kLastCoeffMode));
     sk_sp<GrFragmentProcessor> fp;
     if (d->fRandom->nextF() < 0.5f) {
         fp = GrXfermodeFragmentProcessor::MakeFromTwoProcessors(std::move(minLevelsChild),
@@ -366,7 +366,7 @@ bool GrDrawingManager::ProgramUnitTest(GrContext* context, int maxStages) {
             GrProcessorTestData ptd(&random, context, context->caps(),
                                     renderTargetContext.get(), dummyTextures);
             GrPaint grPaint;
-            grPaint.setXPFactory(GrPorterDuffXPFactory::Make(SkXfermode::kSrc_Mode));
+            grPaint.setXPFactory(GrPorterDuffXPFactory::Make(SkBlendMode::kSrc));
 
             sk_sp<GrFragmentProcessor> fp(
                 GrProcessorTestFactory<GrFragmentProcessor>::MakeIdx(i, &ptd));

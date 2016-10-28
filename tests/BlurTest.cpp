@@ -454,7 +454,7 @@ static void make_noop_layer(SkLayerDrawLooper::Builder* builder) {
     SkLayerDrawLooper::LayerInfo info;
 
     info.fPaintBits = 0;
-    info.fColorMode = SkXfermode::kDst_Mode;
+    info.fColorMode = (SK_XFERMODE_MODE_PARAM)SkBlendMode::kDst;
     builder->addLayer(info);
 }
 
@@ -462,7 +462,7 @@ static void make_blur_layer(SkLayerDrawLooper::Builder* builder, sk_sp<SkMaskFil
     SkLayerDrawLooper::LayerInfo info;
 
     info.fPaintBits = SkLayerDrawLooper::kMaskFilter_Bit;
-    info.fColorMode = SkXfermode::kSrc_Mode;
+    info.fColorMode = (SK_XFERMODE_MODE_PARAM)SkBlendMode::kSrc;
     SkPaint* paint = builder->addLayer(info);
     paint->setMaskFilter(std::move(mf));
 }

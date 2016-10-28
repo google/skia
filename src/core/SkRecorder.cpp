@@ -330,30 +330,41 @@ void SkRecorder::onDrawShadowedPicture(const SkPicture* pic, const SkMatrix* mat
 void SkRecorder::onDrawVertices(VertexMode vmode,
                                 int vertexCount, const SkPoint vertices[],
                                 const SkPoint texs[], const SkColor colors[],
-                                SkXfermode* xmode,
+                                SK_XFERMODE_PARAM xmode,
                                 const uint16_t indices[], int indexCount, const SkPaint& paint) {
+#ifdef SK_SUPPORT_LEGACY_XFERMODE_PARAM
+    SkBlendMode bmode = xmode ? xmode->blend() : SkBlendMode::kModulate;
+#else
+    SkBlendMode bmode = xmode;
+#endif
     APPEND(DrawVertices, paint,
                          vmode,
                          vertexCount,
                          this->copy(vertices, vertexCount),
                          texs ? this->copy(texs, vertexCount) : nullptr,
                          colors ? this->copy(colors, vertexCount) : nullptr,
-                         sk_ref_sp(xmode),
+                         bmode,
                          this->copy(indices, indexCount),
                          indexCount);
 }
 
 void SkRecorder::onDrawPatch(const SkPoint cubics[12], const SkColor colors[4],
-                             const SkPoint texCoords[4], SkXfermode* xmode, const SkPaint& paint) {
+                             const SkPoint texCoords[4], SK_XFERMODE_PARAM xmode,
+                             const SkPaint& paint) {
+#ifdef SK_SUPPORT_LEGACY_XFERMODE_PARAM
+    SkBlendMode bmode = xmode ? xmode->blend() : SkBlendMode::kModulate;
+#else
+    SkBlendMode bmode = xmode;
+#endif
     APPEND(DrawPatch, paint,
            cubics ? this->copy(cubics, SkPatchUtils::kNumCtrlPts) : nullptr,
            colors ? this->copy(colors, SkPatchUtils::kNumCorners) : nullptr,
            texCoords ? this->copy(texCoords, SkPatchUtils::kNumCorners) : nullptr,
-           sk_ref_sp(xmode));
+           bmode);
 }
 
 void SkRecorder::onDrawAtlas(const SkImage* atlas, const SkRSXform xform[], const SkRect tex[],
-                             const SkColor colors[], int count, SkXfermode::Mode mode,
+                             const SkColor colors[], int count, SK_XFERMODE_MODE_PARAM mode,
                              const SkRect* cull, const SkPaint* paint) {
     APPEND(DrawAtlas, this->copy(paint),
            sk_ref_sp(atlas),
@@ -361,7 +372,7 @@ void SkRecorder::onDrawAtlas(const SkImage* atlas, const SkRSXform xform[], cons
            this->copy(tex, count),
            this->copy(colors, count),
            count,
-           mode,
+           (SkBlendMode)mode,
            this->copy(cull));
 }
 

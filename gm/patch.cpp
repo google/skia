@@ -85,36 +85,34 @@ DEF_SIMPLE_GM(patch_primitive, canvas, 1500, 1100) {
             {0.0f, 0.0f}, {100.0f, 0.0f}, {100.0f,100.0f}, {0.0f, 100.0f}}
         ;
 
-        const SkXfermode::Mode modes[] = {
-            SkXfermode::kSrc_Mode,
-            SkXfermode::kDst_Mode,
-            SkXfermode::kModulate_Mode,
+        const SkBlendMode modes[] = {
+            SkBlendMode::kSrc,
+            SkBlendMode::kDst,
+            SkBlendMode::kModulate,
         };
 
         sk_sp<SkShader> shader(make_shader());
 
         canvas->save();
         for (int y = 0; y < 3; y++) {
-            sk_sp<SkXfermode> xfer(SkXfermode::Make(modes[y]));
-
             for (int x = 0; x < 4; x++) {
                 canvas->save();
                 canvas->translate(x * 350.0f, y * 350.0f);
                 switch (x) {
                     case 0:
-                        canvas->drawPatch(cubics, nullptr, nullptr, xfer, paint);
+                        canvas->drawPatch(cubics, nullptr, nullptr, modes[y], paint);
                         break;
                     case 1:
-                        canvas->drawPatch(cubics, colors, nullptr, xfer, paint);
+                        canvas->drawPatch(cubics, colors, nullptr, modes[y], paint);
                         break;
                     case 2:
                         paint.setShader(shader);
-                        canvas->drawPatch(cubics, nullptr, texCoords, xfer, paint);
+                        canvas->drawPatch(cubics, nullptr, texCoords, modes[y], paint);
                         paint.setShader(nullptr);
                         break;
                     case 3:
                         paint.setShader(shader);
-                        canvas->drawPatch(cubics, colors, texCoords, xfer, paint);
+                        canvas->drawPatch(cubics, colors, texCoords, modes[y], paint);
                         paint.setShader(nullptr);
                         break;
                     default:

@@ -171,7 +171,7 @@ void SkLiteRecorder::onDrawImageLattice(const SkImage* img,
 
 void SkLiteRecorder::onDrawPatch(const SkPoint cubics[12],
                                  const SkColor colors[4], const SkPoint texCoords[4],
-                                 SkXfermode* xfermode, const SkPaint& paint) {
+                                 SK_XFERMODE_PARAM xfermode, const SkPaint& paint) {
     fDL->drawPatch(cubics, colors, texCoords, xfermode, paint);
 }
 void SkLiteRecorder::onDrawPoints(SkCanvas::PointMode mode,
@@ -182,7 +182,7 @@ void SkLiteRecorder::onDrawPoints(SkCanvas::PointMode mode,
 void SkLiteRecorder::onDrawVertices(SkCanvas::VertexMode mode,
                                     int count, const SkPoint vertices[],
                                     const SkPoint texs[], const SkColor colors[],
-                                    SkXfermode* xfermode,
+                                    SK_XFERMODE_PARAM xfermode,
                                     const uint16_t indices[], int indexCount,
                                     const SkPaint& paint) {
     fDL->drawVertices(mode, count, vertices, texs, colors, xfermode, indices, indexCount, paint);
@@ -192,7 +192,7 @@ void SkLiteRecorder::onDrawAtlas(const SkImage* atlas,
                                  const SkRect texs[],
                                  const SkColor colors[],
                                  int count,
-                                 SkXfermode::Mode xfermode,
+                                 SK_XFERMODE_MODE_PARAM xfermode,
                                  const SkRect* cull,
                                  const SkPaint* paint) {
     fDL->drawAtlas(atlas, xforms, texs, colors, count, xfermode, cull, paint);

@@ -309,7 +309,7 @@ void SkLuaCanvas::onDrawPicture(const SkPicture* picture, const SkMatrix* matrix
 
 void SkLuaCanvas::onDrawVertices(VertexMode vmode, int vertexCount,
                                  const SkPoint vertices[], const SkPoint texs[],
-                                 const SkColor colors[], SkXfermode* xmode,
+                                 const SkColor colors[], SK_XFERMODE_PARAM,
                                  const uint16_t indices[], int indexCount,
                                  const SkPaint& paint) {
     AUTO_LUA("drawVertices");

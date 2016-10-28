@@ -57,7 +57,7 @@ public:
      */
     struct SK_API LayerInfo {
         BitFlags            fPaintBits;
-        SkXfermode::Mode    fColorMode;
+        SK_XFERMODE_MODE_PARAM fColorMode;
         SkVector            fOffset;
         bool                fPostTranslate; //!< applies to fOffset
 

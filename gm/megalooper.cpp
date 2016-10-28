@@ -167,7 +167,7 @@ private:
 
         info.fPaintBits = SkLayerDrawLooper::kColorFilter_Bit |
                           SkLayerDrawLooper::kMaskFilter_Bit;
-        info.fColorMode = SkXfermode::kSrc_Mode;
+        info.fColorMode = (SK_XFERMODE_MODE_PARAM)SkBlendMode::kSrc;
         info.fOffset.set(xOff, yOff);
         info.fPostTranslate = false;
 
@@ -175,7 +175,7 @@ private:
 
         paint->setMaskFilter(MakeBlur());
 
-        paint->setColorFilter(SkColorFilter::MakeModeFilter(color, SkXfermode::kSrcIn_Mode));
+        paint->setColorFilter(SkColorFilter::MakeModeFilter(color, SkBlendMode::kSrcIn));
 
         return looperBuilder.detach();
     }
@@ -210,7 +210,7 @@ private:
 
         info.fPaintBits = SkLayerDrawLooper::kColorFilter_Bit |
                           SkLayerDrawLooper::kMaskFilter_Bit;
-        info.fColorMode = SkXfermode::kSrc_Mode;
+        info.fColorMode = (SK_XFERMODE_MODE_PARAM)SkBlendMode::kSrc;
         info.fPostTranslate = false;
 
         SkPaint* paint;
@@ -221,8 +221,7 @@ private:
 
             paint->setMaskFilter(MakeBlur());
 
-            paint->setColorFilter(SkColorFilter::MakeModeFilter(gColors[i],
-                                                                SkXfermode::kSrcIn_Mode));
+            paint->setColorFilter(SkColorFilter::MakeModeFilter(gColors[i], SkBlendMode::kSrcIn));
         }
 
         return looperBuilder.detach();

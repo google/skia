@@ -47,7 +47,7 @@ protected:
                         const SkPaint& paint) override;
     void drawVertices(const SkDraw&, SkCanvas::VertexMode, int vertexCount,
                       const SkPoint verts[], const SkPoint texs[],
-                      const SkColor colors[], SkXfermode* xmode,
+                      const SkColor colors[], SK_XFERMODE_PARAM xmode,
                       const uint16_t indices[], int indexCount,
                       const SkPaint& paint) override;
 

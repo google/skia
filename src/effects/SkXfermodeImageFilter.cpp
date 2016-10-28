@@ -333,7 +333,7 @@ SkXfermodeImageFilter_Base::makeFGFrag(sk_sp<GrFragmentProcessor> bgFP) const {
         rec.fProc = SkXfermode::GetProc(SkXfermode::kSrcOver_Mode);
         SkXfermode::ModeAsCoeff(SkXfermode::kSrcOver_Mode, &rec.fSC, &rec.fDC);
 
-        srcover.reset(new SkProcCoeffXfermode(rec, SkXfermode::kSrcOver_Mode));
+        srcover.reset(new SkProcCoeffXfermode(rec, SkBlendMode::kSrcOver));
         xfer = srcover.get();
 
     }

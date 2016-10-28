@@ -95,7 +95,7 @@ void SkMeshUtils::Draw(SkCanvas* canvas, const SkBitmap& bitmap,
                                          SkShader::kClamp_TileMode,
                                          SkShader::kClamp_TileMode));
         canvas->drawVertices(SkCanvas::kTriangles_VertexMode,
-                             rows * cols, verts, idx.tex(), colors, nullptr,
+                             rows * cols, verts, idx.tex(), colors, SkBlendMode::kModulate,
                              idx.indices(), idx.indexCount(), p);
     }
 }

@@ -384,7 +384,7 @@ static void DrawVerticesShaderTestStep(SkCanvas* canvas, const TestData& d,
     paint.setShader(SkShader::MakeBitmapShader(d.fBitmap, SkShader::kClamp_TileMode,
                                                SkShader::kClamp_TileMode));
     canvas->drawVertices(SkCanvas::kTriangleFan_VertexMode, 4, pts, pts,
-                         nullptr, nullptr, nullptr, 0, paint);
+                         nullptr, SkBlendMode::kModulate, nullptr, 0, paint);
 }
 // NYI: issue 240.
 TEST_STEP_NO_PDF(DrawVerticesShader, DrawVerticesShaderTestStep);

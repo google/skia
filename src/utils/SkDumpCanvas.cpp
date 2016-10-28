@@ -468,7 +468,7 @@ void SkDumpCanvas::onDrawPicture(const SkPicture* picture, const SkMatrix* matri
 
 void SkDumpCanvas::onDrawVertices(VertexMode vmode, int vertexCount,
                                   const SkPoint vertices[], const SkPoint texs[],
-                                  const SkColor colors[], SkXfermode* xmode,
+                                  const SkColor colors[], SK_XFERMODE_PARAM xmode,
                                   const uint16_t indices[], int indexCount,
                                   const SkPaint& paint) {
     this->dump(kDrawVertices_Verb, &paint, "drawVertices(%s [%d] %g %g ...)",
@@ -477,7 +477,7 @@ void SkDumpCanvas::onDrawVertices(VertexMode vmode, int vertexCount,
 }
 
 void SkDumpCanvas::onDrawPatch(const SkPoint cubics[12], const SkColor colors[4],
-                               const SkPoint texCoords[4], SkXfermode* xmode,
+                               const SkPoint texCoords[4], SK_XFERMODE_PARAM xmode,
                                const SkPaint& paint) {
     //dumps corner points and colors in clockwise order starting on upper-left corner
     this->dump(kDrawPatch_Verb, &paint, "drawPatch(Vertices{[%f, %f], [%f, %f], [%f, %f], [%f, %f]}\

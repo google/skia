@@ -51,7 +51,7 @@ public:
             SkLayerDrawLooper::LayerInfo info;
             info.fPaintBits = SkLayerDrawLooper::kMaskFilter_Bit
                               | SkLayerDrawLooper::kColorFilter_Bit;
-            info.fColorMode = SkXfermode::kSrc_Mode;
+            info.fColorMode = (SK_XFERMODE_MODE_PARAM)SkBlendMode::kSrc;
             info.fOffset = SkPoint::Make(SkIntToScalar(-1), SkIntToScalar(0));
             info.fPostTranslate = false;
             SkPaint* paint = looperBuilder.addLayerOnTop(info);
@@ -61,7 +61,7 @@ public:
                     SkBlurMaskFilter::kHighQuality_BlurFlag));
             paint->setColorFilter(SkColorFilter::MakeModeFilter(
                     sk_tool_utils::color_to_565(SK_ColorLTGRAY),
-                    SkXfermode::kSrcIn_Mode));
+                    SkBlendMode::kSrcIn));
             paint->setColor(sk_tool_utils::color_to_565(SK_ColorGRAY));
         }
         {

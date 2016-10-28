@@ -44,7 +44,7 @@ protected:
     SkISize onISize() override { return SkISize::Make(440, 530); }
 
     void onDraw(SkCanvas* canvas) override {
-        auto cf = SkColorFilter::MakeModeFilter(SK_ColorGREEN, SkXfermode::kSrc_Mode);
+        auto cf = SkColorFilter::MakeModeFilter(SK_ColorGREEN, SkBlendMode::kSrc);
         sk_sp<SkImageFilter> filters[] = {
             SkColorFilterImageFilter::Make(std::move(cf), nullptr),
             SkBlurImageFilter::Make(2.0f, 2.0f, nullptr),

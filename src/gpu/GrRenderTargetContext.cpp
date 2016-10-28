@@ -252,7 +252,7 @@ void GrRenderTargetContext::internalClear(const GrFixedClip& clip,
 
         GrPaint paint;
         paint.setColor4f(GrColor4f::FromGrColor(color));
-        paint.setXPFactory(GrPorterDuffXPFactory::Make(SkXfermode::Mode::kSrc_Mode));
+        paint.setXPFactory(GrPorterDuffXPFactory::Make(SkBlendMode::kSrc));
 
         this->drawRect(clip, paint, SkMatrix::I(), clearRect);
     } else if (isFull) {

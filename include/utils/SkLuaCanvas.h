@@ -59,7 +59,7 @@ protected:
                           const SkPaint*) override;
     void onDrawVertices(VertexMode vmode, int vertexCount,
                         const SkPoint vertices[], const SkPoint texs[],
-                        const SkColor colors[], SkXfermode* xmode,
+                        const SkColor colors[], SK_XFERMODE_PARAM xmode,
                         const uint16_t indices[], int indexCount,
                         const SkPaint&) override;
 

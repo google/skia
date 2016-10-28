@@ -104,7 +104,7 @@ struct VerticesCellRenderer : public CellRenderer {
             SkPoint::Make(0, gScalarSize)
         };
         canvas->drawVertices(SkCanvas::kTriangleFan_VertexMode, 4, vertices, nullptr, fColors,
-                             nullptr, nullptr, 0, paint);
+                             SkBlendMode::kModulate, nullptr, 0, paint);
     }
     const char* label() override {
         return "Vertices";

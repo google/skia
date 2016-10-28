@@ -654,17 +654,27 @@ void SkDebugCanvas::onDrawTextBlob(const SkTextBlob* blob, SkScalar x, SkScalar 
 }
 
 void SkDebugCanvas::onDrawPatch(const SkPoint cubics[12], const SkColor colors[4],
-                                const SkPoint texCoords[4], SkXfermode* xmode,
+                                const SkPoint texCoords[4], SK_XFERMODE_PARAM xmode,
                                 const SkPaint& paint) {
-    this->addDrawCommand(new SkDrawPatchCommand(cubics, colors, texCoords, xmode, paint));
+#ifdef SK_SUPPORT_LEGACY_XFERMODE_PARAM
+    SkBlendMode bmode = xmode ? xmode->blend() : SkBlendMode::kModulate;
+#else
+    SkBlendMode bmode = xmode;
+#endif
+    this->addDrawCommand(new SkDrawPatchCommand(cubics, colors, texCoords, bmode, paint));
 }
 
 void SkDebugCanvas::onDrawVertices(VertexMode vmode, int vertexCount, const SkPoint vertices[],
                                    const SkPoint texs[], const SkColor colors[],
-                                   SkXfermode*, const uint16_t indices[], int indexCount,
+                                   SK_XFERMODE_PARAM xmode, const uint16_t indices[], int indexCount,
                                    const SkPaint& paint) {
+#ifdef SK_SUPPORT_LEGACY_XFERMODE_PARAM
+    SkBlendMode bmode = xmode ? xmode->blend() : SkBlendMode::kModulate;
+#else
+    SkBlendMode bmode = xmode;
+#endif
     this->addDrawCommand(new SkDrawVerticesCommand(vmode, vertexCount, vertices,
-                         texs, colors, nullptr, indices, indexCount, paint));
+                         texs, colors, bmode, indices, indexCount, paint));
 }
 
 void SkDebugCanvas::willRestore() {

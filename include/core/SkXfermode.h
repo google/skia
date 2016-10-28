@@ -152,7 +152,8 @@ public:
 
     /** Return an SkXfermode object for the specified mode.
      */
-    static sk_sp<SkXfermode> Make(Mode);
+    static sk_sp<SkXfermode> Make(SkBlendMode);
+    static sk_sp<SkXfermode> Make(Mode m) { return Make((SkBlendMode)m); }
 
     /**
      *  Skia maintains global xfermode objects corresponding to each BlendMode. This returns a
@@ -167,10 +168,6 @@ public:
         }
         SkASSERT(!xfer->unique());
         return xfer.get();
-    }
-
-    static sk_sp<SkXfermode> Make(SkBlendMode bm) {
-        return Make((Mode)bm);
     }
 
     SkBlendMode blend() const {
@@ -194,6 +191,9 @@ public:
      *  src and dst parameters.
      */
     static bool ModeAsCoeff(Mode mode, Coeff* src, Coeff* dst);
+    static bool ModeAsCoeff(SkBlendMode mode, Coeff* src, Coeff* dst) {
+        return ModeAsCoeff((Mode)mode, src, dst);
+    }
 
     /**
      * Returns whether or not the xfer mode can support treating coverage as alpha
