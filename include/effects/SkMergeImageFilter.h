@@ -17,12 +17,29 @@ public:
     ~SkMergeImageFilter() override;
 
     static sk_sp<SkImageFilter> Make(sk_sp<SkImageFilter> first, sk_sp<SkImageFilter> second,
-                                     SkXfermode::Mode mode = SkXfermode::kSrcOver_Mode,
+                                     SkBlendMode, const CropRect* cropRect = nullptr);
+    static sk_sp<SkImageFilter> Make(sk_sp<SkImageFilter> filters[], int count, const SkBlendMode[],
                                      const CropRect* cropRect = nullptr);
+
+#ifdef SK_SUPPORT_LEGACY_XFERMODE_PARAM
+    // Needed to disambiguate old and new mode parameter versions. Can remove later
+    static sk_sp<SkImageFilter> Make(sk_sp<SkImageFilter> filters[], int count, std::nullptr_t,
+                                     const CropRect* cropRect) {
+        return Make(filters, count, (const SkBlendMode*)nullptr, cropRect);
+    }
+    static sk_sp<SkImageFilter> Make(sk_sp<SkImageFilter> first, sk_sp<SkImageFilter> second,
+                                     SkXfermode::Mode mode = SkXfermode::kSrcOver_Mode,
+                                     const CropRect* cropRect = nullptr) {
+        return Make(first, second, (SkBlendMode)mode, cropRect);
+    }
     static sk_sp<SkImageFilter> Make(sk_sp<SkImageFilter> filters[],
                                      int count,
                                      const SkXfermode::Mode modes[] = nullptr,
-                                     const CropRect* cropRect = nullptr);
+                                     const CropRect* cropRect = nullptr) {
+        static_assert(sizeof(SkXfermode::Mode) == sizeof(SkBlendMode), "size mismatch");
+        return Make(filters, count, (const SkBlendMode*)modes, cropRect);
+    }
+#endif
 
     SK_TO_STRING_OVERRIDE()
     SK_DECLARE_PUBLIC_FLATTENABLE_DESERIALIZATION_PROCS(SkMergeImageFilter)
@@ -34,7 +51,7 @@ protected:
     bool onCanHandleComplexCTM() const override { return true; }
 
 private:
-    SkMergeImageFilter(sk_sp<SkImageFilter> filters[], int count, const SkXfermode::Mode modes[],
+    SkMergeImageFilter(sk_sp<SkImageFilter> filters[], int count, const SkBlendMode modes[],
                        const CropRect* cropRect);
 
     uint8_t*    fModes; // SkXfermode::Mode
@@ -44,7 +61,7 @@ private:
     intptr_t    fStorage[16];
 
     void initAllocModes();
-    void initModes(const SkXfermode::Mode []);
+    void initModes(const SkBlendMode[]);
 
     typedef SkImageFilter INHERITED;
 };
