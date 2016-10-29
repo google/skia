@@ -1212,6 +1212,29 @@ void SkScan::aaa_fill_path(const SkPath& path, const SkIRect* clipRect, Additive
 
 ///////////////////////////////////////////////////////////////////////////////
 
+static int overflows_short_shift(int value, int shift) {
+    const int s = 16 + shift;
+    return (SkLeftShift(value, s) >> s) - value;
+}
+
+/**
+  Would any of the coordinates of this rectangle not fit in a short,
+  when left-shifted by shift?
+*/
+static int rect_overflows_short_shift(SkIRect rect, int shift) {
+    SkASSERT(!overflows_short_shift(8191, 2));
+    SkASSERT(overflows_short_shift(8192, 2));
+    SkASSERT(!overflows_short_shift(32767, 0));
+    SkASSERT(overflows_short_shift(32768, 0));
+
+    // Since we expect these to succeed, we bit-or together
+    // for a tiny extra bit of speed.
+    return overflows_short_shift(rect.fLeft, 2) |
+           overflows_short_shift(rect.fRight, 2) |
+           overflows_short_shift(rect.fTop, 2) |
+           overflows_short_shift(rect.fBottom, 2);
+}
+
 void SkScan::AAAFillPath(const SkPath& path, const SkRegion& origClip, SkBlitter* blitter,
                          bool forceRLE) {
     if (origClip.isEmpty()) {
@@ -1242,6 +1265,13 @@ void SkScan::AAAFillPath(const SkPath& path, const SkRegion& origClip, SkBlitter
        if (!clippedIR.intersect(ir, origClip.getBounds())) {
            return;
        }
+    }
+    // If the intersection of the path bounds and the clip bounds
+    // will overflow 32767 when << by 2, our SkFixed will overflow,
+    // so draw without antialiasing.
+    if (rect_overflows_short_shift(clippedIR, 2)) {
+        SkScan::FillPath(path, origClip, blitter);
+        return;
     }
 
     // Our antialiasing can't handle a clip larger than 32767, so we restrict
