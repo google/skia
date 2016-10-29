@@ -304,6 +304,9 @@ GrGLRenderer GrGLGetRendererFromString(const char* rendererString) {
                 if (adrenoNumber < 500) {
                     return kAdreno4xx_GrGLRenderer;
                 }
+                if (adrenoNumber < 600) {
+                    return kAdreno5xx_GrGLRenderer;
+                }
             }
         }
         if (strcmp("Mesa Offscreen", rendererString)) {

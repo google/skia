@@ -52,9 +52,9 @@ private:
                 const GrMesh* mesh,
                 int meshCount) override;
 
-    void onClear(GrRenderTarget* rt, const SkIRect& rect, GrColor color) override;
+    void onClear(GrRenderTarget* rt, const GrFixedClip&, GrColor color) override;
 
-    void onClearStencilClip(GrRenderTarget*, const SkIRect& rect, bool insideClip) override;
+    void onClearStencilClip(GrRenderTarget*, const GrFixedClip&, bool insideStencilMask) override;
 
     const GrVkRenderPass*       fRenderPass;
     GrVkSecondaryCommandBuffer* fCommandBuffer;
@@ -62,9 +62,8 @@ private:
     GrVkRenderTarget*           fRenderTarget;
     VkClearValue                fColorClearValue;
 
-    SkTArray<GrVkImage*>        fSampledImages;
-
     bool                        fIsEmpty;
+    bool                        fStartsWithClear;
 
     typedef GrGpuCommandBuffer INHERITED;
 };

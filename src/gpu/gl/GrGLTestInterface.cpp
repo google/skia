@@ -65,6 +65,7 @@ GrGLTestInterface::GrGLTestInterface() {
     fFunctions.fDrawElements = bind_to_member(this, &GrGLTestInterface::drawElements);
     fFunctions.fDrawElementsInstanced = bind_to_member(this, &GrGLTestInterface::drawElementsInstanced);
     fFunctions.fDrawElementsIndirect = bind_to_member(this, &GrGLTestInterface::drawElementsIndirect);
+    fFunctions.fDrawRangeElements = bind_to_member(this, &GrGLTestInterface::drawRangeElements);
     fFunctions.fEnable = bind_to_member(this, &GrGLTestInterface::enable);
     fFunctions.fEnableVertexAttribArray = bind_to_member(this, &GrGLTestInterface::enableVertexAttribArray);
     fFunctions.fEndQuery = bind_to_member(this, &GrGLTestInterface::endQuery);
@@ -311,6 +312,9 @@ GrGLTestInterface::GrGLTestInterface() {
     fFunctions.fMapNamedBufferRange = bind_to_member(this, &GrGLTestInterface::mapNamedBufferRange);
     fFunctions.fFlushMappedNamedBufferRange = bind_to_member(this, &GrGLTestInterface::flushMappedNamedBufferRange);
     fFunctions.fTextureBuffer = bind_to_member(this, &GrGLTestInterface::textureBuffer);
+    fFunctions.fFenceSync = bind_to_member(this, &GrGLTestInterface::fenceSync);
+    fFunctions.fClientWaitSync = bind_to_member(this, &GrGLTestInterface::clientWaitSync);
+    fFunctions.fDeleteSync = bind_to_member(this, &GrGLTestInterface::deleteSync);
     fFunctions.fDebugMessageControl = bind_to_member(this, &GrGLTestInterface::debugMessageControl);
     fFunctions.fDebugMessageInsert = bind_to_member(this, &GrGLTestInterface::debugMessageInsert);
     fFunctions.fDebugMessageCallback = bind_to_member(this, &GrGLTestInterface::debugMessageCallback);

@@ -268,11 +268,23 @@ def write_android_mk(target_dir, common, deviations_from_common):
     write_local_vars(f, common, False, None)
 
     for data in deviations_from_common:
-      if data.condition:
-        f.write('ifeq ($(%s), true)\n' % data.condition)
-      write_local_vars(f, data.vars_dict, True, data.name)
-      if data.condition:
-        f.write('endif\n\n')
+      if data.name == 'mips':
+        if data.condition =='mips32r2dspr2-fp' :
+          f.write('ifeq ($(TARGET_ARCH_VARIANT), %s)\n' % (data.condition))
+          write_local_vars(f, data.vars_dict, True, data.name)
+        elif  data.condition =='mips32r2dsp-fp' :
+          f.write('else ifeq ($(TARGET_ARCH_VARIANT), %s)\n' % (data.condition))
+          write_local_vars(f, data.vars_dict, True, data.name)
+        else :
+          f.write('else\n')
+          write_local_vars(f, data.vars_dict, True, data.name)
+          f.write('endif\n\n')
+      else :
+        if data.condition:
+          f.write('ifeq ($(%s), true)\n' % data.condition)
+        write_local_vars(f, data.vars_dict, True, data.name)
+        if data.condition:
+          f.write('endif\n\n')
 
     f.write('LOCAL_MODULE_CLASS := STATIC_LIBRARIES\n')
     f.write('include $(BUILD_STATIC_LIBRARY)\n\n')

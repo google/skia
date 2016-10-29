@@ -58,7 +58,7 @@ protected:
         }
     }
 private:
-    static const int kNumBlurs = 4;
+    static constexpr int kNumBlurs = 4;
 
     sk_sp<SkMaskFilter> fBlurFilters[kNumBlurs];
 

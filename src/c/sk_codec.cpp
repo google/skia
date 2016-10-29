@@ -23,7 +23,7 @@ sk_codec_t* sk_codec_new_from_stream(sk_stream_t* stream)
 
 sk_codec_t* sk_codec_new_from_data(sk_data_t* data)
 {
-    return ToCodec(SkCodec::NewFromData(AsData(data)));
+    return ToCodec(SkCodec::NewFromData(sk_ref_sp(AsData(data))));
 }
 
 void sk_codec_destroy(sk_codec_t* codec)
@@ -60,11 +60,7 @@ sk_codec_result_t sk_codec_get_pixels(sk_codec_t* codec, const sk_imageinfo_t* c
 {
     SkImageInfo info;
     from_c(*cinfo, &info);
-    SkCodec::Options options;
-    if (!from_c(*coptions, &options)) {
-        return INVALID_PARAMETERS_SK_CODEC_RESULT;
-    }
-    return (sk_codec_result_t)AsCodec(codec)->getPixels(info, pixels, rowBytes, &options, ctable, ctableCount);
+    return (sk_codec_result_t)AsCodec(codec)->getPixels(info, pixels, rowBytes, AsCodecOptions(coptions), ctable, ctableCount);
 }
 
 sk_codec_result_t sk_codec_get_pixels_using_defaults(sk_codec_t* codec, const sk_imageinfo_t* cinfo, void* pixels, size_t rowBytes)

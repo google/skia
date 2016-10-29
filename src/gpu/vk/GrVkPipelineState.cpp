@@ -194,16 +194,22 @@ void GrVkPipelineState::setData(GrVkGpu* gpu,
 
     SkSTArray<8, const GrTextureAccess*> textureBindings;
 
-    fGeometryProcessor->setData(fDataManager, primProc);
+    fGeometryProcessor->setData(fDataManager, primProc,
+                                GrFragmentProcessor::CoordTransformIter(pipeline));
     append_texture_bindings(primProc, &textureBindings);
 
-    for (int i = 0; i < fFragmentProcessors.count(); ++i) {
-        const GrFragmentProcessor& processor = pipeline.getFragmentProcessor(i);
-        fFragmentProcessors[i]->setData(fDataManager, processor);
-        fGeometryProcessor->setTransformData(primProc, fDataManager, i,
-                                             processor.coordTransforms());
-        append_texture_bindings(processor, &textureBindings);
+    GrFragmentProcessor::Iter iter(pipeline);
+    GrGLSLFragmentProcessor::Iter glslIter(fFragmentProcessors.begin(),
+                                           fFragmentProcessors.count());
+    const GrFragmentProcessor* fp = iter.next();
+    GrGLSLFragmentProcessor* glslFP = glslIter.next();
+    while (fp && glslFP) {
+        glslFP->setData(fDataManager, *fp);
+        append_texture_bindings(*fp, &textureBindings);
+        fp = iter.next();
+        glslFP = glslIter.next();
     }
+    SkASSERT(!fp && !glslFP);
 
     fXferProcessor->setData(fDataManager, pipeline.getXferProcessor());
     append_texture_bindings(pipeline.getXferProcessor(), &textureBindings);
@@ -483,14 +489,17 @@ uint32_t get_blend_info_key(const GrPipeline& pipeline) {
     return key;
 }
 
-void GrVkPipelineState::BuildStateKey(const GrPipeline& pipeline, GrPrimitiveType primitiveType,
-                                      SkTArray<uint8_t, true>* key) {
-    // Save room for the key length and key header
-    key->reset();
-    key->push_back_n(kData_StateKeyOffset);
+bool GrVkPipelineState::Desc::Build(Desc* desc,
+                                    const GrPrimitiveProcessor& primProc,
+                                    const GrPipeline& pipeline,
+                                    GrPrimitiveType primitiveType,
+                                    const GrGLSLCaps& caps) {
+    if (!INHERITED::Build(desc, primProc, primitiveType == kPoints_GrPrimitiveType, pipeline,
+                          caps)) {
+        return false;
+    }
 
-    GrProcessorKeyBuilder b(key);
-
+    GrProcessorKeyBuilder b(&desc->key());
     GrVkRenderTarget* vkRT = (GrVkRenderTarget*)pipeline.getRenderTarget();
     vkRT->simpleRenderPass()->genKey(&b);
 
@@ -503,8 +512,5 @@ void GrVkPipelineState::BuildStateKey(const GrPipeline& pipeline, GrPrimitiveTyp
 
     b.add32(primitiveType);
 
-    // Set key length
-    int keyLength = key->count();
-    SkASSERT(0 == (keyLength % 4));
-    *reinterpret_cast<uint32_t*>(key->begin()) = SkToU32(keyLength);
+    return true;
 }

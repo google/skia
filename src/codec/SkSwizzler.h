@@ -56,7 +56,7 @@ public:
     /**
      * Implement fill using a custom width.
      */
-    void fill(const SkImageInfo& info, void* dst, size_t rowBytes, uint32_t colorOrIndex,
+    void fill(const SkImageInfo& info, void* dst, size_t rowBytes, uint64_t colorOrIndex,
             SkCodec::ZeroInitialized zeroInit) override {
         const SkImageInfo fillInfo = info.makeWH(fAllocatedWidth, info.height());
         SkSampler::Fill(fillInfo, dst, rowBytes, colorOrIndex, zeroInit);

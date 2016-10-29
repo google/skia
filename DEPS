@@ -3,21 +3,19 @@ use_relative_paths = True
 # Dependencies on outside packages.
 #
 deps = {
-  "buildtools":  "https://chromium.googlesource.com/chromium/buildtools.git@33a32b8aa2b7274d246fcf85ce8f762cf4291418",
+  "buildtools":  "https://chromium.googlesource.com/chromium/buildtools.git@5fd66957f08bb752dca714a591c84587c9d70762",
 
   "common": "https://skia.googlesource.com/common.git@c282fe0b6e392b14f88d647cbd86e1a3ef5498e0",
 
   # There is some duplication here that might be worth cleaning up:
   #   - can use use our existing t_p/e/libjpeg instead of pulling it for Android?
 
-  "third_party/externals/angle2"  : "https://chromium.googlesource.com/angle/angle.git@8182049470aa3ba0c9f7c54ef965bf1877df08cb",
-  "third_party/externals/cmake"   : "https://cmake.googlesource.com/cmake.git@v3.3.1",
-  "third_party/externals/freetype": "https://skia.googlesource.com/third_party/freetype2.git@6a19a7d332c5446542196e5aeda0ede109ef097b",
+  "third_party/externals/angle2"  : "https://chromium.googlesource.com/angle/angle.git@d445357315299e30c18c756f657ff928653128c2",
+  "third_party/externals/freetype": "https://skia.googlesource.com/third_party/freetype2.git@4d3f7ca8cedbddad40b9e93a82926618e3fb4265",
   "third_party/externals/gyp"     : "https://chromium.googlesource.com/external/gyp.git@87ac4d0e63fc7dd8152a350327fea8dcf031bf56",
   "third_party/externals/harfbuzz": "https://skia.googlesource.com/third_party/harfbuzz.git@1.3.0",
   "third_party/externals/jsoncpp" : "https://chromium.googlesource.com/external/github.com/open-source-parsers/jsoncpp.git@1.0.0",
   "third_party/externals/libwebp" : "https://chromium.googlesource.com/webm/libwebp.git@v0.5.0",
-  "third_party/externals/nanomsg" : "https://skia.googlesource.com/third_party/nanomsg.git@0.4-beta",
   "third_party/externals/zlib"    : "https://chromium.googlesource.com/chromium/src/third_party/zlib@4576304a4b9835aa8646c9735b079e1d96858633",
   "third_party/externals/giflib"  : "https://android.googlesource.com/platform/external/giflib.git@ab10e256df4f684260ca239905b1cec727181f6c",
 
@@ -51,17 +49,6 @@ deps = {
   "third_party/externals/shaderc2/third_party/googletest" : "https://github.com/google/googletest.git@d225acc90bc3a8c420a9bcd1f033033c1ccd7fe0",
   "third_party/externals/shaderc2/third_party/glslang" : "https://github.com/google/glslang.git@e1cd410d9c03a24c00c570c91a99cad88bb475d1",
   "third_party/externals/shaderc2/third_party/spirv-tools" : "https://github.com/KhronosGroup/SPIRV-Tools.git@009c4358b5a1c93203166b3ed60a548f63522e81",
-}
-
-deps_os = {
-  'llvm': {
-    # xSAN bots build Clang from scratch.
-    "third_party/externals/llvm": "https://llvm.googlesource.com/llvm@release_38",
-    "third_party/externals/llvm/tools/clang": "https://llvm.googlesource.com/clang@release_38",
-    "third_party/externals/llvm/projects/compiler-rt": "https://llvm.googlesource.com/compiler-rt@release_38",
-    "third_party/externals/llvm/projects/libcxx": "https://llvm.googlesource.com/libcxx@release_38",
-    "third_party/externals/llvm/projects/libcxxabi": "https://llvm.googlesource.com/libcxxabi@release_38",
-  }
 }
 
 recursedeps = [ "common" ]

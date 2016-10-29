@@ -105,7 +105,9 @@ SkScalar SkShaper::shape(SkTextBlobBuilder* builder,
     hb_glyph_info_t* info = hb_buffer_get_glyph_infos(buffer, NULL);
     hb_glyph_position_t* pos =
             hb_buffer_get_glyph_positions(buffer, NULL);
-    auto runBuffer = builder->allocRunPos(paint, len);
+    auto runBuffer = builder->allocRunTextPos(
+            paint, SkToInt(len), SkToInt(textBytes), SkString());
+    memcpy(runBuffer.utf8text, utf8text, textBytes);
 
     double x = point.x();
     double y = point.y();
@@ -115,12 +117,14 @@ SkScalar SkShaper::shape(SkTextBlobBuilder* builder,
 
     for (unsigned i = 0; i < len; i++) {
         runBuffer.glyphs[i] = info[i].codepoint;
+        runBuffer.clusters[i] = info[i].cluster;
         reinterpret_cast<SkPoint*>(runBuffer.pos)[i] =
                 SkPoint::Make(SkDoubleToScalar(x + pos[i].x_offset * textSizeX),
                               SkDoubleToScalar(y - pos[i].y_offset * textSizeY));
         x += pos[i].x_advance * textSizeX;
         y += pos[i].y_advance * textSizeY;
     }
+
     hb_buffer_clear_contents(buffer);
     return (SkScalar)x;
 }

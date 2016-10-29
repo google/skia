@@ -5,28 +5,56 @@
  * found in the LICENSE file.
  */
 
-#include "SkDiscardableMemory.h"
+#include "SkDiscardableMemoryPool.h"
 
 #include "Test.h"
 
-DEF_TEST(DiscardableMemory, reporter) {
-    const char testString[] = "HELLO, WORLD!";
-    const size_t len = sizeof(testString);
-    SkAutoTDelete<SkDiscardableMemory> dm(SkDiscardableMemory::Create(len));
-    REPORTER_ASSERT(reporter, dm.get() != nullptr);
-    if (nullptr == dm.get()) {
+namespace {
+constexpr char kTestString[] = "HELLO, WORLD!";
+constexpr size_t kTestStringLength = sizeof(kTestString);
+}
+
+static void test_dm(skiatest::Reporter* reporter,
+                    SkDiscardableMemory* dm,
+                    bool assertRelock) {
+    REPORTER_ASSERT(reporter, dm);
+    if (!dm) {
         return;
     }
     void* ptr = dm->data();
-    REPORTER_ASSERT(reporter, ptr != nullptr);
-    memcpy(ptr, testString, sizeof(testString));
+    REPORTER_ASSERT(reporter, ptr);
+    if (!ptr) {
+        return;
+    }
+    memcpy(ptr, kTestString, sizeof(kTestString));
     dm->unlock();
-    bool success = dm->lock();
-    REPORTER_ASSERT(reporter, success);
-    if (!success) {
+    bool relockSuccess = dm->lock();
+    if (assertRelock) {
+        REPORTER_ASSERT(reporter, relockSuccess);
+    }
+    if (!relockSuccess) {
         return;
     }
     ptr = dm->data();
-    REPORTER_ASSERT(reporter, 0 == memcmp(ptr, testString, len));
+    REPORTER_ASSERT(reporter, ptr);
+    if (!ptr) {
+        return;
+    }
+    REPORTER_ASSERT(reporter, 0 == memcmp(ptr, kTestString, kTestStringLength));
     dm->unlock();
 }
+
+DEF_TEST(DiscardableMemory_global, reporter) {
+    std::unique_ptr<SkDiscardableMemory> dm(SkDiscardableMemory::Create(kTestStringLength));
+    // lock() test is allowed to fail, since other threads could be
+    // using global pool.
+    test_dm(reporter, dm.get(), false);
+}
+
+DEF_TEST(DiscardableMemory_nonglobal, reporter) {
+    std::unique_ptr<SkDiscardableMemoryPool> pool(
+        SkDiscardableMemoryPool::Create(1024, /* mutex = */ nullptr));
+    std::unique_ptr<SkDiscardableMemory> dm(pool->create(kTestStringLength));
+    test_dm(reporter, dm.get(), true);
+}
+    

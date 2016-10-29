@@ -405,7 +405,7 @@ private:
     template<typename ProcessOneGlyph>
     class GlyphFindAndPlaceInterface : SkNoncopyable {
     public:
-        virtual ~GlyphFindAndPlaceInterface() { };
+        virtual ~GlyphFindAndPlaceInterface() { }
 
         // findAndPositionGlyph calculates the position of the glyph, finds the glyph, and
         // returns the position of where the next glyph will be using the glyph's advance and
@@ -419,7 +419,7 @@ private:
             const char** text, SkPoint position, ProcessOneGlyph&& processOneGlyph) {
             SkFAIL("Should never get here.");
             return {0.0f, 0.0f};
-        };
+        }
     };
 
     // GlyphFindAndPlaceSubpixel handles finding and placing glyphs when sub-pixel positioning is

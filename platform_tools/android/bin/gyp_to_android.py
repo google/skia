@@ -37,7 +37,7 @@ GYP_FOLDER = 'gyp'
 
 
 def generate_var_dict(target_dir, target_file, skia_arch_type, have_neon,
-                      gyp_source_dir):
+                      have_mips_dspr2, have_mips_dspr1, gyp_source_dir):
   """Create a VarsDict for a particular arch type.
 
   Each paramater is passed directly to android_framework_gyp.main().
@@ -47,12 +47,15 @@ def generate_var_dict(target_dir, target_file, skia_arch_type, have_neon,
     target_file: Target gyp file.
     skia_arch_type: Target architecture.
     have_neon: Whether the target should build for neon.
+    have_mips_dspr2: Whether the target should build for mips_dspr2.
+    have_mips_dspr1: Whether the target should build for mips_dspr1.
     gyp_source_dir: Directory for gyp source.
   Returns:
     A VarsDict containing the variable definitions determined by gyp.
   """
   result_file = android_framework_gyp.main(target_dir, target_file,
                                            skia_arch_type, have_neon,
+                                           have_mips_dspr2, have_mips_dspr1,
                                            gyp_source_dir)
   var_dict = vars_dict_lib.VarsDict()
   gypd_parser.parse_gypd(var_dict, result_file, '.')
@@ -100,31 +103,38 @@ def main(target_dir=None, require_sk_user_config=False, gyp_source_dir=None):
     # The default uses a non-existant archtype, to find all the general
     # variable definitions.
     default_var_dict = generate_var_dict(tmp_folder, main_gyp_file, 'other',
-                                         False, gyp_source_dir)
+                                         False, False, False, gyp_source_dir)
     arm_var_dict = generate_var_dict(tmp_folder, main_gyp_file, 'arm', False,
-                                     gyp_source_dir)
+                                     False, False, gyp_source_dir)
     arm_neon_var_dict = generate_var_dict(tmp_folder, main_gyp_file, 'arm',
-                                          True, gyp_source_dir)
+                                          True, False, False, gyp_source_dir)
     x86_var_dict = generate_var_dict(tmp_folder, main_gyp_file, 'x86', False,
-                                     gyp_source_dir)
+                                     False, False, gyp_source_dir)
     x86_64_var_dict = generate_var_dict(tmp_folder, main_gyp_file, 'x86_64',
-                                        False, gyp_source_dir)
+                                        False, False, False, gyp_source_dir)
 
     mips_var_dict = generate_var_dict(tmp_folder, main_gyp_file, 'mips', False,
-                                      gyp_source_dir)
+                                      False, False, gyp_source_dir)
+
+    mips_dspr2_var_dict = generate_var_dict(tmp_folder, main_gyp_file, 'mips',
+                                            False, True, False, gyp_source_dir)
+
+    mips_dspr1_var_dict = generate_var_dict(tmp_folder, main_gyp_file, 'mips',
+                                            False, False, True, gyp_source_dir)
 
     mips64_var_dict = generate_var_dict(tmp_folder, main_gyp_file, 'mips64',
-                                        False, gyp_source_dir)
+                                        False, False, False, gyp_source_dir)
 
     arm64_var_dict = generate_var_dict(tmp_folder, main_gyp_file, 'arm64',
-                                       False, gyp_source_dir)
+                                       False, False, False, gyp_source_dir)
 
     # Compute the intersection of all targets. All the files in the intersection
     # should be part of the makefile always. Each dict will now contain trimmed
     # lists containing only variable definitions specific to that configuration.
     var_dict_list = [default_var_dict, arm_var_dict, arm_neon_var_dict,
                      x86_var_dict, x86_64_var_dict, mips_var_dict,
-                     mips64_var_dict, arm64_var_dict]
+                     mips_dspr1_var_dict, mips_dspr2_var_dict, mips64_var_dict,
+                     arm64_var_dict]
     common = vars_dict_lib.intersect(var_dict_list)
 
     common.LOCAL_MODULE.add('libskia')
@@ -182,6 +192,12 @@ def main(target_dir=None, require_sk_user_config=False, gyp_source_dir=None):
                                                                'x86'))
     deviations_from_common.append(makefile_writer.VarsDictData(x86_64_var_dict,
                                                                'x86_64'))
+
+    deviations_from_common.append(makefile_writer.VarsDictData(
+        mips_dspr2_var_dict, 'mips', 'mips32r2dspr2-fp'))
+
+    deviations_from_common.append(makefile_writer.VarsDictData(
+        mips_dspr1_var_dict, 'mips', 'mips32r2dsp-fp'))
 
     deviations_from_common.append(makefile_writer.VarsDictData(mips_var_dict,
                                                                'mips'))

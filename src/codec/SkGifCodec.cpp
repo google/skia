@@ -450,9 +450,8 @@ void SkGifCodec::initializeColorTable(const SkImageInfo& dstInfo, SkPMColor* inp
 SkCodec::Result SkGifCodec::prepareToDecode(const SkImageInfo& dstInfo, SkPMColor* inputColorPtr,
         int* inputColorCount, const Options& opts) {
     // Check for valid input parameters
-    if (!conversion_possible(dstInfo, this->getInfo())) {
-        return gif_error("Cannot convert input type to output type.\n",
-                kInvalidConversion);
+    if (!conversion_possible_ignore_color_space(dstInfo, this->getInfo())) {
+        return gif_error("Cannot convert input type to output type.\n", kInvalidConversion);
     }
 
     // Initialize color table and copy to the client if necessary
@@ -495,7 +494,7 @@ SkCodec::Result SkGifCodec::onGetPixels(const SkImageInfo& dstInfo,
     // Initialize the swizzler
     if (fFrameIsSubset) {
         // Fill the background
-        SkSampler::Fill(dstInfo, dst, dstRowBytes, this->getFillValue(dstInfo.colorType()),
+        SkSampler::Fill(dstInfo, dst, dstRowBytes, this->getFillValue(dstInfo),
                 opts.fZeroInitialized);
     }
 
@@ -513,9 +512,10 @@ SkCodec::Result SkGifCodec::onGetPixels(const SkImageInfo& dstInfo,
 
 // FIXME: This is similar to the implementation for bmp and png.  Can we share more code or
 //        possibly make this non-virtual?
-uint32_t SkGifCodec::onGetFillValue(SkColorType colorType) const {
+uint64_t SkGifCodec::onGetFillValue(const SkImageInfo& dstInfo) const {
     const SkPMColor* colorPtr = get_color_ptr(fColorTable.get());
-    return get_color_table_fill_value(colorType, colorPtr, fFillIndex);
+    return get_color_table_fill_value(dstInfo.colorType(), dstInfo.alphaType(), colorPtr,
+                                      fFillIndex, nullptr);
 }
 
 SkCodec::Result SkGifCodec::onStartScanlineDecode(const SkImageInfo& dstInfo,
@@ -556,7 +556,7 @@ int SkGifCodec::onGetScanlines(void* dst, int count, size_t rowBytes) {
     if (fFrameIsSubset) {
         // Fill the requested rows
         SkImageInfo fillInfo = this->dstInfo().makeWH(this->dstInfo().width(), count);
-        uint32_t fillValue = this->onGetFillValue(this->dstInfo().colorType());
+        uint64_t fillValue = this->onGetFillValue(this->dstInfo());
         fSwizzler->fill(fillInfo, dst, rowBytes, fillValue, this->options().fZeroInitialized);
 
         // Start to write pixels at the start of the image frame

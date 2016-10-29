@@ -2458,12 +2458,12 @@ protected:
 
     SkTypeface* onCreateFromData(SkData* data, int ttcIndex) const override {
         // could be in base impl
-        return this->createFromStream(new SkMemoryStream(data));
+        return this->createFromStream(new SkMemoryStream(sk_ref_sp(data)));
     }
 
     SkTypeface* onCreateFromFile(const char path[], int ttcIndex) const override {
         // could be in base impl
-        return this->createFromStream(SkStream::NewFromFile(path));
+        return this->createFromStream(SkStream::MakeFromFile(path).release());
     }
 
     SkTypeface* onLegacyCreateTypeface(const char familyName[], SkFontStyle style) const override {

@@ -94,9 +94,9 @@ protected:
             return;
         }
 
-        static const SkScalar kDrawPad = 10.f;
-        static const SkScalar kTestPad = 10.f;
-        static const SkScalar kColorSpaceOffset = 36.f;
+        constexpr SkScalar kDrawPad = 10.f;
+        constexpr SkScalar kTestPad = 10.f;
+        constexpr SkScalar kColorSpaceOffset = 36.f;
         SkISize sizes[3] = {{YSIZE, YSIZE}, {USIZE, USIZE}, {VSIZE, VSIZE}};
 
         for (int space = kJPEG_SkYUVColorSpace; space <= kLastEnum_SkYUVColorSpace;
@@ -211,9 +211,9 @@ protected:
             return;
         }
 
-        static const SkScalar kDrawPad = 10.f;
-        static const SkScalar kTestPad = 10.f;
-        static const SkScalar kColorSpaceOffset = 36.f;
+        constexpr SkScalar kDrawPad = 10.f;
+        constexpr SkScalar kTestPad = 10.f;
+        constexpr SkScalar kColorSpaceOffset = 36.f;
         SkISize sizes[3] = {{YSIZE, YSIZE}, {USIZE, USIZE}, {VSIZE, VSIZE}};
 
         for (int space = kJPEG_SkYUVColorSpace; space <= kLastEnum_SkYUVColorSpace; ++space) {

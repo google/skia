@@ -110,7 +110,6 @@ class SkiaApi(recipe_api.RecipeApi):
 
     # Run 'gclient sync'.
     gclient_cfg.got_revision_mapping['skia'] = 'got_revision'
-    gclient_cfg.target_os.add('llvm')
     checkout_kwargs = {}
     checkout_kwargs['env'] = self.m.vars.default_env
 

@@ -7,6 +7,7 @@
 
 #include "SkData.h"
 #include "SkDeflate.h"
+#include "SkMakeUnique.h"
 #include "SkPDFTypes.h"
 #include "SkPDFUtils.h"
 #include "SkStream.h"
@@ -506,8 +507,7 @@ void SkPDFSharedStream::addResources(
 ////////////////////////////////////////////////////////////////////////////////
 
 SkPDFStream:: SkPDFStream(sk_sp<SkData> data) {
-    this->setData(std::unique_ptr<SkStreamAsset>(
-                          new SkMemoryStream(std::move(data))));
+    this->setData(skstd::make_unique<SkMemoryStream>(std::move(data)));
 }
 
 SkPDFStream::SkPDFStream(std::unique_ptr<SkStreamAsset> stream) {

@@ -25,7 +25,7 @@ assert 'gyp' in DIR_CONTENTS
 DEBUG_FAILURE = True
 
 def main(target_dir, target_file, skia_arch_type, have_neon,
-         gyp_source_dir=None):
+         have_mips_dspr2, have_mips_dspr1, gyp_source_dir=None):
   """Create gypd files based on target_file.
 
   Args:
@@ -69,6 +69,14 @@ def main(target_dir, target_file, skia_arch_type, have_neon,
       gyp_defines += 'arm_neon=1 '
     else:
       gyp_defines += 'arm_neon=0 '
+
+  if skia_arch_type == 'mips':
+    if have_mips_dspr2:
+      gyp_defines += 'mips_arch_variant=mips32r2 '
+      gyp_defines += 'mips_dsp=2 '
+    elif have_mips_dspr1:
+      gyp_defines += 'mips_arch_variant=mips32r2 '
+      gyp_defines += 'mips_dsp=1 '
 
   os.environ['GYP_DEFINES'] = gyp_defines
 

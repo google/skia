@@ -148,8 +148,8 @@ void Compiler::internalConvertProgram(std::string text,
         ASTDeclaration& decl = *parsed[i];
         switch (decl.fKind) {
             case ASTDeclaration::kVar_Kind: {
-                std::unique_ptr<VarDeclaration> s = fIRGenerator->convertVarDeclaration(
-                                                                         (ASTVarDeclaration&) decl, 
+                std::unique_ptr<VarDeclarations> s = fIRGenerator->convertVarDeclarations(
+                                                                         (ASTVarDeclarations&) decl, 
                                                                          Variable::kGlobal_Storage);
                 if (s) {
                     result->push_back(std::move(s));

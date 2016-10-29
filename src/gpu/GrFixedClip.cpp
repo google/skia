@@ -11,31 +11,44 @@
 #include "GrDrawContext.h"
 
 bool GrFixedClip::quickContains(const SkRect& rect) const {
-    if (fHasStencilClip) {
+    if (fWindowRectsState.enabled()) {
         return false;
     }
     return !fScissorState.enabled() || GrClip::IsInsideClip(fScissorState.rect(), rect);
 }
 
-void GrFixedClip::getConservativeBounds(int width, int height, SkIRect* devResult,
-                                        bool* isIntersectionOfRects) const {
-    devResult->setXYWH(0, 0, width, height);
+void GrFixedClip::getConservativeBounds(int w, int h, SkIRect* devResult, bool* iior) const {
+    devResult->setXYWH(0, 0, w, h);
     if (fScissorState.enabled()) {
         if (!devResult->intersect(fScissorState.rect())) {
             devResult->setEmpty();
         }
     }
-    if (isIntersectionOfRects) {
-        *isIntersectionOfRects = true;
+    if (iior) {
+        *iior = true;
     }
 }
 
-bool GrFixedClip::apply(GrContext*, GrDrawContext* drawContext, bool isHWAntiAlias,
-                        bool hasUserStencilSettings, GrAppliedClip* out) const {
+bool GrFixedClip::isRRect(const SkRect& rtBounds, SkRRect* rr, bool* aa) const {
+    if (fWindowRectsState.enabled()) {
+        return false;
+    }
     if (fScissorState.enabled()) {
-        SkIRect tightScissor;
-        if (!tightScissor.intersect(fScissorState.rect(),
-                                    SkIRect::MakeWH(drawContext->width(), drawContext->height()))) {
+        SkRect rect = SkRect::Make(fScissorState.rect());
+        if (!rect.intersects(rtBounds)) {
+            return false;
+        }
+        rr->setRect(rect);
+        *aa = false;
+        return true;
+    }
+    return false;
+};
+
+bool GrFixedClip::apply(GrContext*, GrDrawContext* dc, bool, bool, GrAppliedClip* out) const {
+    if (fScissorState.enabled()) {
+        SkIRect tightScissor = SkIRect::MakeWH(dc->width(), dc->height());
+        if (!tightScissor.intersect(fScissorState.rect())) {
             return false;
         }
         if (IsOutsideClip(tightScissor, out->clippedDrawBounds())) {
@@ -46,9 +59,14 @@ bool GrFixedClip::apply(GrContext*, GrDrawContext* drawContext, bool isHWAntiAli
         }
     }
 
-    if (fHasStencilClip) {
-        out->addStencilClip();
+    if (fWindowRectsState.enabled()) {
+        out->addWindowRectangles(fWindowRectsState);
     }
 
     return true;
+}
+
+const GrFixedClip& GrFixedClip::Disabled() {
+    static const GrFixedClip disabled = GrFixedClip();
+    return disabled;
 }

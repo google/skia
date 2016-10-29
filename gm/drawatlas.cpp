@@ -23,19 +23,17 @@ class DrawAtlasGM : public skiagm::GM {
         canvas->clear(SK_ColorRED);
 
         SkPaint paint;
-        paint.setXfermodeMode(SkXfermode::kClear_Mode);
+        paint.setBlendMode(SkBlendMode::kClear);
         SkRect r(target);
         r.inset(-1, -1);
         // zero out a place (with a 1-pixel border) to land our drawing.
         canvas->drawRect(r, paint);
-        paint.setXfermode(nullptr);
+        paint.setBlendMode(SkBlendMode::kSrcOver);
         paint.setColor(SK_ColorBLUE);
         paint.setAntiAlias(true);
         canvas->drawOval(target, paint);
         return surface->makeImageSnapshot();
     }
-
-    sk_sp<SkImage> fAtlas;
 
 public:
     DrawAtlasGM() {}
@@ -52,9 +50,7 @@ protected:
 
     void onDraw(SkCanvas* canvas) override {
         const SkRect target = { 50, 50, 80, 90 };
-        if (nullptr == fAtlas) {
-            fAtlas = MakeAtlas(canvas, target);
-        }
+        auto atlas = MakeAtlas(canvas, target);
 
         const struct {
             SkScalar fScale;
@@ -91,9 +87,9 @@ protected:
         paint.setFilterQuality(kLow_SkFilterQuality);
         paint.setAntiAlias(true);
 
-        canvas->drawAtlas(fAtlas.get(), xform, tex, N, nullptr, &paint);
+        canvas->drawAtlas(atlas.get(), xform, tex, N, nullptr, &paint);
         canvas->translate(0, 100);
-        canvas->drawAtlas(fAtlas.get(), xform, tex, colors, N, SkXfermode::kSrcIn_Mode, nullptr, &paint);
+        canvas->drawAtlas(atlas.get(), xform, tex, colors, N, SkXfermode::kSrcIn_Mode, nullptr, &paint);
     }
 
 private:

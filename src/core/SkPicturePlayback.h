@@ -23,7 +23,7 @@ public:
         , fCurOffset(0) {
     }
 
-    void draw(SkCanvas* canvas, SkPicture::AbortCallback*, const SkReadBuffer* buffer);
+    void draw(SkCanvas* canvas, SkPicture::AbortCallback*, SkReadBuffer* buffer);
 
     // TODO: remove the curOp calls after cleaning up GrGatherDevice
     // Return the ID of the operation currently being executed when playing

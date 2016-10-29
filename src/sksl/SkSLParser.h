@@ -40,7 +40,7 @@ struct ASTStatement;
 struct ASTSuffix;
 struct ASTType;
 struct ASTWhileStatement;
-struct ASTVarDeclaration;
+struct ASTVarDeclarations;
 class SymbolTable;
 
 /**
@@ -106,15 +106,15 @@ private:
 
     std::unique_ptr<ASTDeclaration> declaration();
 
-    std::unique_ptr<ASTVarDeclaration> varDeclaration();
+    std::unique_ptr<ASTVarDeclarations> varDeclarations();
 
     std::unique_ptr<ASTType> structDeclaration();
 
-    std::unique_ptr<ASTVarDeclaration> structVarDeclaration(ASTModifiers modifiers);
+    std::unique_ptr<ASTVarDeclarations> structVarDeclaration(ASTModifiers modifiers);
 
-    std::unique_ptr<ASTVarDeclaration> varDeclarationEnd(ASTModifiers modifiers,
-                                                         std::unique_ptr<ASTType> type, 
-                                                         std::string name);
+    std::unique_ptr<ASTVarDeclarations> varDeclarationEnd(ASTModifiers modifiers,
+                                                          std::unique_ptr<ASTType> type, 
+                                                          std::string name);
 
     std::unique_ptr<ASTParameter> parameter();
 

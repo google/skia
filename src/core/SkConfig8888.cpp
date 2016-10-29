@@ -215,6 +215,7 @@ bool SkPixelInfo::CopyPixels(const SkImageInfo& dstInfo, void* dstPixels, size_t
                 break;
             case kIndex_8_SkColorType:
             case kARGB_4444_SkColorType:
+            case kRGBA_F16_SkColorType:
                 if (srcInfo.alphaType() != dstInfo.alphaType()) {
                     return false;
                 }

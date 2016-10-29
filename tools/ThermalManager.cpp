@@ -97,10 +97,6 @@ ThermalManager::TripPoint::TripPoint(SkString thermalZoneRoot, SkString pointNam
     fThreshold = threshold;
     fDisabled = fBase + fThreshold >= fPoint;  // We disable any trip point which start off
                                                // triggered
-    if (!fDisabled) {
-        SkDebugf("Trip point %s base - %d trip point-%d\n", fullPath.c_str(),
-                 fBase, fPoint);
-    }
 }
 
 bool ThermalManager::TripPoint::willTrip() {

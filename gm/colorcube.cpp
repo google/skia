@@ -14,11 +14,11 @@
 namespace skiagm {
 
 static sk_sp<SkShader> MakeLinear() {
-    static const SkPoint pts[2] = {
+    constexpr SkPoint pts[2] = {
             { 0, 0 },
             { SkIntToScalar(80), SkIntToScalar(80) }
         };
-    static const SkColor colors[] = { SK_ColorYELLOW, SK_ColorBLUE };
+    constexpr SkColor colors[] = { SK_ColorYELLOW, SK_ColorBLUE };
     return SkGradientShader::MakeLinear(pts, colors, nullptr, 2, SkShader::kRepeat_TileMode, 0,
                                         &SkMatrix::I());
 }

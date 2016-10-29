@@ -8,10 +8,11 @@
 #ifndef GrColorSpaceXform_DEFINED
 #define GrColorSpaceXform_DEFINED
 
+#include "GrColor.h"
+#include "SkMatrix44.h"
 #include "SkRefCnt.h"
 
 class SkColorSpace;
-class SkMatrix44;
 
  /**
   * Represents a color gamut transformation (as a 4x4 color matrix)
@@ -22,11 +23,23 @@ public:
 
     static sk_sp<GrColorSpaceXform> Make(SkColorSpace* src, SkColorSpace* dst);
 
-    const float* srcToDst() { return fSrcToDst; }
+    const SkMatrix44& srcToDst() const { return fSrcToDst; }
+
+    /**
+     * GrGLSLFragmentProcessor::GenKey() must call this and include the returned value in its
+     * computed key.
+     */
+    static uint32_t XformKey(GrColorSpaceXform* xform) {
+        // Code generation changes if there is an xform, but it otherwise constant
+        return SkToBool(xform) ? 1 : 0;
+    }
+
+    static bool Equals(const GrColorSpaceXform* a, const GrColorSpaceXform* b);
+
+    GrColor4f apply(const GrColor4f& srcColor);
 
 private:
-    // We store the column-major form of the srcToDst matrix, for easy uploading to uniforms
-    float fSrcToDst[16];
+    SkMatrix44 fSrcToDst;
 };
 
 #endif

@@ -130,10 +130,7 @@ SkColor4Shader::SkColor4Shader(const SkColor4f& color, sk_sp<SkColorSpace> space
 
 sk_sp<SkFlattenable> SkColor4Shader::CreateProc(SkReadBuffer& buffer) {
     SkColor4f color;
-    color.fR = buffer.readScalar(); // readFloat()
-    color.fG = buffer.readScalar();
-    color.fB = buffer.readScalar();
-    color.fA = buffer.readScalar();
+    buffer.readColor4f(&color);
     if (buffer.readBool()) {
         // TODO how do we unflatten colorspaces
     }
@@ -141,10 +138,7 @@ sk_sp<SkFlattenable> SkColor4Shader::CreateProc(SkReadBuffer& buffer) {
 }
 
 void SkColor4Shader::flatten(SkWriteBuffer& buffer) const {
-    buffer.writeScalar(fColor4.fR); // writeFloat()
-    buffer.writeScalar(fColor4.fG);
-    buffer.writeScalar(fColor4.fB);
-    buffer.writeScalar(fColor4.fA);
+    buffer.writeColor4f(fColor4);
     buffer.writeBool(false);    // TODO how do we flatten colorspaces?
 }
 

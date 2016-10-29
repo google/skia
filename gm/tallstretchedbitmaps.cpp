@@ -12,12 +12,12 @@
 #include "SkRandom.h"
 
 int make_bm(SkBitmap* bm, int height) {
-    static const int kRadius = 22;
-    static const int kMargin = 8;
-    static const SkScalar kStartAngle = 0;
-    static const SkScalar kDAngle = 25;
-    static const SkScalar kSweep = 320;
-    static const SkScalar kThickness = 8;
+    constexpr int kRadius = 22;
+    constexpr int kMargin = 8;
+    constexpr SkScalar kStartAngle = 0;
+    constexpr SkScalar kDAngle = 25;
+    constexpr SkScalar kSweep = 320;
+    constexpr SkScalar kThickness = 8;
 
     int count = (height / (2 * kRadius + kMargin));
     height = count * (2 * kRadius + kMargin);

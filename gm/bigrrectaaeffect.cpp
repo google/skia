@@ -58,7 +58,7 @@ protected:
 
         int y = kPad;
         int x = kPad;
-        static const GrPrimitiveEdgeType kEdgeTypes[] = {
+        constexpr GrPrimitiveEdgeType kEdgeTypes[] = {
             kFillAA_GrProcessorEdgeType,
             kInverseFillAA_GrProcessorEdgeType,
         };
@@ -98,9 +98,9 @@ protected:
 
 private:
     // pad between test cases
-    static const int kPad = 7;
+    static constexpr int kPad = 7;
     // gap between rect for each case that is rendered and exterior of rrect
-    static const int kGap = 3;
+    static constexpr int kGap = 3;
 
     SkRRect fRRect;
     int fWidth;
@@ -116,7 +116,7 @@ private:
 ///////////////////////////////////////////////////////////////////////////////
 // This value is motivated by bug chromium:477684. It has to be large to cause overflow in
 // the shader
-static const int kSize = 700;
+constexpr int kSize = 700;
 
 DEF_GM( return new BigRRectAAEffectGM (SkRRect::MakeRect(SkRect::MakeIWH(kSize, kSize)), "rect"); )
 DEF_GM( return new BigRRectAAEffectGM (SkRRect::MakeOval(SkRect::MakeIWH(kSize, kSize)), "circle"); )

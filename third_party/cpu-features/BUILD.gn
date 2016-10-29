@@ -1,0 +1,17 @@
+# Copyright 2016 Google Inc.
+#
+# Use of this source code is governed by a BSD-style license that can be
+# found in the LICENSE file.
+
+declare_args() {
+}
+
+import("../third_party.gni")
+
+third_party("cpu-features") {
+  public_include_dirs = [ "$ndk/sources/android/cpufeatures" ]
+
+  sources = [
+    "$ndk/sources/android/cpufeatures/cpu-features.c",
+  ]
+}

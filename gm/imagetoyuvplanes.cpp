@@ -25,7 +25,7 @@ static sk_sp<SkImage> create_image(GrContext* context, int width, int height) {
     }
     // Create an RGB image from which we will extract planes
     SkPaint paint;
-    static const SkColor kColors[] =
+    constexpr SkColor kColors[] =
             { SK_ColorBLUE, SK_ColorYELLOW, SK_ColorGREEN, SK_ColorWHITE };
     SkScalar r = (width + height) / 4.f;
     paint.setShader(SkGradientShader::MakeRadial(SkPoint::Make(0,0), r, kColors,
@@ -37,8 +37,8 @@ static sk_sp<SkImage> create_image(GrContext* context, int width, int height) {
 }
 
 DEF_SIMPLE_GM(image_to_yuv_planes, canvas, 120, 525) {
-    static const SkScalar kPad = 5.f;
-    static const int kImageSize = 32;
+    constexpr SkScalar kPad = 5.f;
+    constexpr int kImageSize = 32;
 
     GrContext *context = canvas->getGrContext();
     sk_sp<SkImage> rgbImage(create_image(context, kImageSize, kImageSize));
@@ -49,14 +49,14 @@ DEF_SIMPLE_GM(image_to_yuv_planes, canvas, 120, 525) {
     canvas->drawImage(rgbImage.get(), kPad, kPad);
     // Test cases where all three planes are the same size, where just u and v are the same size,
     // and where all differ.
-    static const SkISize kSizes[][3] = {
+    constexpr SkISize kSizes[][3] = {
         {{kImageSize, kImageSize}, {kImageSize  , kImageSize  }, {kImageSize,   kImageSize  }},
         {{kImageSize, kImageSize}, {kImageSize/2, kImageSize/2}, {kImageSize/2, kImageSize/2}},
         {{kImageSize, kImageSize}, {kImageSize/2, kImageSize/2}, {kImageSize/3, kImageSize/3}}
     };
 
     // A mix of rowbytes triples to go with the above sizes.
-    static const size_t kRowBytes[][3] {
+    constexpr size_t kRowBytes[][3] {
         {0, 0, 0},
         {kImageSize, kImageSize/2 + 1, kImageSize},
         {kImageSize + 13, kImageSize, kImageSize/3 + 8}

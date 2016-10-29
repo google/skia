@@ -5,8 +5,8 @@
  * found in the LICENSE file.
  */
  
-#ifndef SKSL_VARDECLARATION
-#define SKSL_VARDECLARATION
+#ifndef SKSL_VARDECLARATIONS
+#define SKSL_VARDECLARATIONS
 
 #include "SkSLExpression.h"
 #include "SkSLStatement.h"
@@ -15,51 +15,65 @@
 namespace SkSL {
 
 /**
- * A variable declaration, which may consist of multiple individual variables. For instance
- * 'int x, y = 1, z[4][2];' is a single VarDeclaration. This declaration would have a base type of 
- * 'int', names ['x', 'y', 'z'], sizes of [[], [], [4, 2]], and values of [null, 1, null].
+ * A single variable declaration within a var declaration statement. For instance, the statement
+ * 'int x = 2, y[3];' is a VarDeclarations statement containing two individual VarDeclaration 
+ * instances.
  */
-struct VarDeclaration : public ProgramElement {
-    VarDeclaration(Position position, const Type* baseType, std::vector<const Variable*> vars,
-                   std::vector<std::vector<std::unique_ptr<Expression>>> sizes,
-                   std::vector<std::unique_ptr<Expression>> values)
+struct VarDeclaration {
+    VarDeclaration(const Variable* var,
+                   std::vector<std::unique_ptr<Expression>> sizes,
+                   std::unique_ptr<Expression> value)
+    : fVar(var)
+    , fSizes(std::move(sizes))
+    , fValue(std::move(value)) {}
+
+    std::string description() const {
+        std::string result = fVar->fName;
+        for (const auto& size : fSizes) {
+            if (size) {
+                result += "[" + size->description() + "]";
+            } else {
+                result += "[]";
+            }
+        }
+        if (fValue) {
+            result += " = " + fValue->description();
+        }
+        return result;        
+    }
+
+    const Variable* fVar;
+    std::vector<std::unique_ptr<Expression>> fSizes;
+    std::unique_ptr<Expression> fValue;
+};
+
+/**
+ * A variable declaration statement, which may consist of one or more individual variables.
+ */
+struct VarDeclarations : public ProgramElement {
+    VarDeclarations(Position position, const Type* baseType, 
+                    std::vector<VarDeclaration> vars)
     : INHERITED(position, kVar_Kind)
     , fBaseType(*baseType)
-    , fVars(std::move(vars))
-    , fSizes(std::move(sizes))
-    , fValues(std::move(values)) {}
+    , fVars(std::move(vars)) {}
 
     std::string description() const override {
-        std::string result = fVars[0]->fModifiers.description();
-        const Type* baseType = &fVars[0]->fType;
-        while (baseType->kind() == Type::kArray_Kind) {
-            baseType = &baseType->componentType();
+        if (!fVars.size()) {
+            return "";
         }
-        result += baseType->description();
-        std::string separator = " ";
-        for (size_t i = 0; i < fVars.size(); i++) {
+        std::string result = fVars[0].fVar->fModifiers.description() + fBaseType.description() + 
+                             " ";
+        std::string separator = "";
+        for (const auto& var : fVars) {
             result += separator;
             separator = ", ";
-            result += fVars[i]->fName;
-            for (size_t j = 0; j < fSizes[i].size(); j++) {
-                if (fSizes[i][j]) {
-                    result += "[" + fSizes[i][j]->description() + "]";
-                } else {
-                    result += "[]";
-                }
-            }
-            if (fValues[i]) {
-                result += " = " + fValues[i]->description();
-            }
+            result += var.description();
         }
-        result += ";";
         return result;
     }
 
     const Type& fBaseType;
-    const std::vector<const Variable*> fVars;
-    const std::vector<std::vector<std::unique_ptr<Expression>>> fSizes;
-    const std::vector<std::unique_ptr<Expression>> fValues;
+    const std::vector<VarDeclaration> fVars;
 
     typedef ProgramElement INHERITED;
 };

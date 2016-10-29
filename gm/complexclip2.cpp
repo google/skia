@@ -83,13 +83,13 @@ protected:
         fPaths[4].addRoundRect(fRects[4], 5, 5);
         fRectColors[4] = SK_ColorCYAN;
 
-        SkRegion::Op ops[] = {
-            SkRegion::kDifference_Op,
-            SkRegion::kIntersect_Op,
-            SkRegion::kUnion_Op,
-            SkRegion::kXOR_Op,
-            SkRegion::kReverseDifference_Op,
-            SkRegion::kReplace_Op,
+        SkCanvas::ClipOp ops[] = {
+            SkCanvas::kDifference_Op,
+            SkCanvas::kIntersect_Op,
+            SkCanvas::kUnion_Op,
+            SkCanvas::kXOR_Op,
+            SkCanvas::kReverseDifference_Op,
+            SkCanvas::kReplace_Op,
         };
 
         SkRandom r;
@@ -102,10 +102,10 @@ protected:
         }
     }
 
-    static const int kRows = 5;
-    static const int kCols = 5;
-    static const int kPadX = 20;
-    static const int kPadY = 20;
+    static constexpr int kRows = 5;
+    static constexpr int kCols = 5;
+    static constexpr int kPadX = 20;
+    static constexpr int kPadY = 20;
 
     static const char* ClipStr(Clip clip) {
         switch (clip) {
@@ -200,7 +200,7 @@ private:
     SkRRect fRRects[5];
     SkPath fPaths[5];
     SkColor fRectColors[5];
-    SkRegion::Op fOps[kRows * kCols][5];
+    SkCanvas::ClipOp fOps[kRows * kCols][5];
     SkScalar fWidth;
     SkScalar fHeight;
     SkScalar fTotalWidth;

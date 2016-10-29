@@ -29,6 +29,7 @@ SK_C_PLUS_PLUS_BEGIN_GUARD
         xfermode_mode : SRCOVER_SK_XFERMODE_MODE
 */
 SK_API sk_paint_t* sk_paint_new();
+SK_API sk_paint_t* sk_paint_clone(sk_paint_t*);
 /**
     Release the memory storing the sk_paint_t and unref() all
     associated objects.
@@ -112,9 +113,9 @@ SK_API void sk_paint_set_shader(sk_paint_t*, sk_shader_t*);
  */
 SK_API void sk_paint_set_maskfilter(sk_paint_t*, sk_maskfilter_t*);
 /**
- *  Set the paint's xfermode to the specified parameter.
+ *  Set the paint's blend mode to the specified parameter.
  */
-SK_API void sk_paint_set_xfermode_mode(sk_paint_t*, sk_xfermode_mode_t);
+SK_API void sk_paint_set_blendmode(sk_paint_t*, sk_blendmode_t);
 /**
  *  Return true iff the paint has dithering enabled.
  */
@@ -158,9 +159,9 @@ SK_API void sk_paint_set_imagefilter(sk_paint_t*, sk_imagefilter_t*);
  */
 SK_API sk_imagefilter_t* sk_paint_get_imagefilter(sk_paint_t*);
 /**
- *  Get the paint's xfermode object.
+ *  Get the paint's blend mode.
  */
-SK_API sk_xfermode_mode_t sk_paint_get_xfermode_mode(sk_paint_t*);
+SK_API sk_blendmode_t sk_paint_get_blendmode(sk_paint_t*);
 /**
  *  Set the paint's filter quality.
  */
@@ -276,6 +277,8 @@ SK_API void sk_paint_set_fake_bold_text(sk_paint_t*, bool);
 
 SK_API bool sk_paint_is_dev_kern_text(const sk_paint_t*);
 SK_API void sk_paint_set_dev_kern_text(sk_paint_t*, bool);
+
+SK_API bool sk_paint_get_fill_path(const sk_paint_t*, const sk_path_t* src, sk_path_t* dst, const sk_rect_t* cullRect, float resScale);
 
 SK_C_PLUS_PLUS_END_GUARD
 

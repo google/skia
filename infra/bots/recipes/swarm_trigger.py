@@ -15,9 +15,7 @@ DEPS = [
   'build/gsutil',
   'builder_name_schema',
   'core',
-  'depot_tools/depot_tools',
   'depot_tools/git',
-  'depot_tools/tryserver',
   'recipe_engine/json',
   'recipe_engine/path',
   'recipe_engine/properties',
@@ -34,8 +32,7 @@ DEPS = [
 TEST_BUILDERS = {
   'client.skia': {
     'skiabot-linux-swarm-000': [
-      'Test-Ubuntu-GCC-ShuttleA-GPU-GTX550Ti-x86_64-Release-Valgrind',
-      'Test-Ubuntu-Clang-GCE-CPU-AVX2-x86_64-Coverage-Trybot',
+      'Build-Mac-Clang-Arm64-Release-Android',
       'Build-Mac-Clang-x86_64-Release',
       'Build-Ubuntu-GCC-Arm64-Debug-Android_Vulkan',
       'Build-Ubuntu-GCC-x86_64-Debug',
@@ -44,22 +41,35 @@ TEST_BUILDERS = {
       'Build-Ubuntu-GCC-x86_64-Release-Trybot',
       'Build-Win-MSVC-x86_64-Release',
       'Build-Win-MSVC-x86_64-Release-Vulkan',
-      'Housekeeper-PerCommit',
       'Housekeeper-Nightly-RecreateSKPs_Canary',
+      'Housekeeper-PerCommit',
+      'Housekeeper-PerCommit-Presubmit',
       'Infra-PerCommit',
       'Perf-Ubuntu-GCC-GCE-CPU-AVX2-x86_64-Release-Trybot',
       'Perf-Ubuntu-GCC-Golo-GPU-GT610-x86_64-Release-CT_BENCH_1k_SKPs',
-      'Test-Android-GCC-Nexus7v2-GPU-Tegra3-Arm7-Release',
+      'Perf-Ubuntu-GCC-ShuttleA-GPU-GTX550Ti-x86_64-Release-Valgrind',
+      'Test-Android-Clang-AndroidOne-CPU-MT6582-arm-Debug-GN_Android',
       'Test-Android-GCC-NVIDIA_Shield-GPU-TegraX1-Arm64-Debug-Vulkan',
-      'Test-iOS-Clang-iPad4-GPU-SGX554-Arm7-Release',
+      'Test-Android-GCC-Nexus7v2-GPU-Tegra3-Arm7-Release',
       'Test-Mac-Clang-MacMini6.2-CPU-AVX-x86_64-Release',
+      'Test-Ubuntu-Clang-GCE-CPU-AVX2-x86_64-Coverage-Trybot',
+      'Test-Ubuntu-Clang-GCE-CPU-AVX2-x86_64-Debug-MSAN',
       'Test-Ubuntu-GCC-GCE-CPU-AVX2-x86_64-Debug',
-      'Test-Ubuntu-GCC-GCE-CPU-AVX2-x86_64-Debug-MSAN',
       'Test-Ubuntu-GCC-GCE-CPU-AVX2-x86_64-Release-Shared',
+      'Test-Ubuntu-GCC-ShuttleA-GPU-GTX550Ti-x86_64-Release-Valgrind',
       'Test-Win8-MSVC-ShuttleA-GPU-HD7770-x86_64-Release',
       'Test-Win8-MSVC-ShuttleB-CPU-AVX2-x86_64-Release',
+      'Test-iOS-Clang-iPad4-GPU-SGX554-Arm7-Release',
     ],
   },
+}
+
+
+UPLOAD_DIMENSIONS = {
+  'pool': 'Skia',
+  'os': 'Linux',
+  'cpu': 'x86-64-avx2',
+  'gpu': 'none',
 }
 
 
@@ -70,10 +80,12 @@ def derive_compile_bot_name(api):
     return 'Build-Ubuntu-GCC-x86_64-Release-Shared'
   if builder_cfg['role'] in ('Test', 'Perf'):
     task_os = builder_cfg['os']
-    extra_config = builder_cfg.get('extra_config')
+    extra_config = builder_cfg.get('extra_config', '')
     if task_os == 'Android':
       if extra_config == 'Vulkan':
         extra_config = '%s_%s' % (task_os, 'Vulkan')
+      elif 'GN_Android' in extra_config:
+        pass  # i.e. extra_config stays GN_Android or GN_Android_Vulkan
       else:
         extra_config = task_os
       task_os = 'Ubuntu'
@@ -111,10 +123,12 @@ def swarm_dimensions(builder_cfg):
         'AndroidOne':    'sprout',
         'GalaxyS3':      'm0',  #'smdk4x12', Detected incorrectly by swarming?
         'GalaxyS4':      None,  # TODO(borenet,kjlubick)
+        'GalaxyS7':      'heroqlteatt',
         'NVIDIA_Shield': 'foster',
         'Nexus10':       'manta',
         'Nexus5':        'hammerhead',
         'Nexus6':        'shamu',
+        'Nexus6p':       'angler',
         'Nexus7':        'grouper',
         'Nexus7v2':      'flo',
         'Nexus9':        'flounder',
@@ -151,6 +165,7 @@ def swarm_dimensions(builder_cfg):
         'HD4000':      '8086:0a2e',
         'HD4600':      '8086:0412',
         'HD7770':      '1002:683d',
+        'iHD530':      '8086:1912',
       }[builder_cfg['cpu_or_gpu_value']]
   else:
     dimensions['gpu'] = 'none'
@@ -177,7 +192,8 @@ for r, _, files in os.walk(os.getcwd()):
 def trigger_task(api, task_name, builder, master, slave, buildnumber,
                  builder_cfg, got_revision, infrabots_dir, idempotent=False,
                  store_output=True, extra_isolate_hashes=None, expiration=None,
-                 hard_timeout=None, io_timeout=None, cipd_packages=None):
+                 hard_timeout=None, io_timeout=None, cipd_packages=None,
+                 recipe_name=None, isolate_file=None, dimensions=None):
   """Trigger the given bot to run as a Swarming task."""
   # TODO(borenet): We're using Swarming directly to run the recipe through
   # recipes.py. Once it's possible to track the state of a Buildbucket build,
@@ -205,19 +221,19 @@ def trigger_task(api, task_name, builder, master, slave, buildnumber,
 
   extra_args = [
       '--workdir', '../../..',
-      'swarm_%s' % task_name,
+      recipe_name or 'swarm_%s' % task_name,
   ]
   for k, v in properties.iteritems():
     extra_args.append('%s=%s' % (k, v))
 
   isolate_base_dir = api.path['slave_build']
-  dimensions = swarm_dimensions(builder_cfg)
+  dimensions = dimensions or swarm_dimensions(builder_cfg)
   isolate_blacklist = ['.git', 'out', '*.pyc', '.recipe_deps']
   isolate_vars = {
     'WORKDIR': api.path['slave_build'],
   }
 
-  isolate_file = '%s_skia.isolate' % task_name
+  isolate_file = isolate_file or '%s_skia.isolate' % task_name
   if 'Coverage' == builder_cfg.get('configuration'):
     isolate_file = 'coverage_skia.isolate'
   if 'RecreateSKPs' in builder:
@@ -281,6 +297,23 @@ def housekeeper_swarm(api, builder_cfg, got_revision, infrabots_dir,
       cipd_packages=[cipd_pkg(api, infrabots_dir, 'go')],
       )
   return api.swarming.collect_swarming_task(task)
+
+
+def presubmit_swarm(api, builder_cfg, got_revision, infrabots_dir):
+  task = trigger_task(
+      api,
+      'presubmit',
+      api.properties['buildername'],
+      api.properties['mastername'],
+      api.properties['slavename'],
+      api.properties['buildnumber'],
+      builder_cfg,
+      got_revision,
+      infrabots_dir,
+      idempotent=False,
+      store_output=False,
+      cipd_packages=None)
+  api.swarming.collect_swarming_task(task)
 
 
 def recreate_skps_swarm(api, builder_cfg, got_revision, infrabots_dir,
@@ -353,8 +386,15 @@ def compile_steps_swarm(api, builder_cfg, got_revision, infrabots_dir):
   cipd_packages = []
 
   # Android bots require a toolchain.
-  if 'Android' in api.properties['buildername']:
+  if 'Android' in builder_name:
     cipd_packages.append(cipd_pkg(api, infrabots_dir, 'android_sdk'))
+    if 'Mac' in builder_name:
+      cipd_packages.append(cipd_pkg(api, infrabots_dir, 'android_ndk_darwin'))
+    else:
+      cipd_packages.append(cipd_pkg(api, infrabots_dir, 'android_ndk_linux'))
+
+  if 'Ubuntu' in builder_name and 'Clang' in builder_name:
+    cipd_packages.append(cipd_pkg(api, infrabots_dir, 'clang_linux'))
 
   # Windows bots require a toolchain.
   if 'Win' in builder_name:
@@ -411,26 +451,6 @@ def get_timeouts(builder_cfg):
   return expiration, hard_timeout, io_timeout
 
 
-def gsutil_env(api, boto_file):
-  """Environment variables for gsutil."""
-  home_dir = os.path.expanduser('~')
-  if api.path._test_data.enabled:
-    home_dir = '[HOME]'
-
-  boto_path = None
-  if boto_file:
-    boto_path = api.path.join(home_dir, boto_file)
-  return {'AWS_CREDENTIAL_FILE': boto_path,
-          'BOTO_CONFIG': boto_path}
-
-
-def get_issue_num(api):
-  if api.properties.get('patch_storage') == 'gerrit':
-    return str(api.properties['event.change.number'])
-  else:
-    return str(api.properties['issue'])
-
-
 def perf_steps_trigger(api, builder_cfg, got_revision, infrabots_dir,
                        extra_hashes, cipd_packages):
   """Trigger perf tests via Swarming."""
@@ -450,44 +470,39 @@ def perf_steps_trigger(api, builder_cfg, got_revision, infrabots_dir,
       expiration=expiration,
       hard_timeout=hard_timeout,
       io_timeout=io_timeout,
-      cipd_packages=cipd_packages)
+      cipd_packages=cipd_packages,
+      store_output=False)
 
 
-def perf_steps_collect(api, task, got_revision, is_trybot):
+def perf_steps_collect(api, task, builder_cfg, got_revision, infrabots_dir):
   """Wait for perf steps to finish and upload results."""
   # Wait for nanobench to finish, download the results.
-  api.run.rmtree(task.task_output_dir)
-  api.swarming.collect_swarming_task(task)
+  if not api.vars.upload_perf_results:  # pragma: nocover
+    api.swarming.collect_swarming_task(task)
+    return
+
+  perf_hash = api.swarming.collect_swarming_task_isolate_hash(task)
 
   # Upload the results.
-  if api.vars.upload_perf_results:
-    perf_data_dir = api.path['slave_build'].join(
-        'perfdata', api.properties['buildername'], 'data')
-    git_timestamp = api.git.get_timestamp(test_data='1408633190',
-                                          infra_step=True)
-    api.run.rmtree(perf_data_dir)
-    api.file.makedirs('perf_dir', perf_data_dir, infra_step=True)
-    src_results_file = task.task_output_dir.join(
-        '0', 'perfdata', api.properties['buildername'], 'data',
-        'nanobench_%s.json' % got_revision)
-    dst_results_file = perf_data_dir.join(
-        'nanobench_%s_%s.json' % (got_revision, git_timestamp))
-    api.file.copy('perf_results', src_results_file, dst_results_file,
-                  infra_step=True)
+  task = trigger_task(
+      api,
+      'upload_nano_results',
+      api.properties['buildername'],
+      api.properties['mastername'],
+      api.properties['slavename'],
+      api.properties['buildnumber'],
+      builder_cfg,
+      got_revision,
+      infrabots_dir,
+      idempotent=True,
+      store_output=False,
+      cipd_packages=None,
+      extra_isolate_hashes=[perf_hash],
+      recipe_name='upload_nano_results',
+      isolate_file='upload_nano_results.isolate',
+      dimensions=UPLOAD_DIMENSIONS)
 
-    gsutil_path = api.path['slave_build'].join(
-        'skia', 'infra', 'bots', '.recipe_deps', 'depot_tools', 'third_party',
-        'gsutil', 'gsutil')
-    upload_args = [api.properties['buildername'], api.properties['buildnumber'],
-                   perf_data_dir, got_revision, gsutil_path]
-    if is_trybot:
-      upload_args.append(get_issue_num(api))
-    api.python(
-        'Upload perf results',
-        script=api.core.resource('upload_bench_results.py'),
-        args=upload_args,
-        cwd=api.path['checkout'],
-        infra_step=True)
+  return api.swarming.collect_swarming_task(task)
 
 
 def test_steps_trigger(api, builder_cfg, got_revision, infrabots_dir,
@@ -508,110 +523,39 @@ def test_steps_trigger(api, builder_cfg, got_revision, infrabots_dir,
       expiration=expiration,
       hard_timeout=hard_timeout,
       io_timeout=io_timeout,
-      cipd_packages=cipd_packages)
+      cipd_packages=cipd_packages,
+      store_output=False)
 
 
-def test_steps_collect(api, task, got_revision, is_trybot, builder_cfg):
+def test_steps_collect(api, task, builder_cfg, got_revision, infrabots_dir):
   """Collect the test results from Swarming."""
   # Wait for tests to finish, download the results.
-  api.run.rmtree(task.task_output_dir)
-  api.swarming.collect_swarming_task(task)
+  if not api.vars.upload_dm_results:  # pragma: nocover
+    api.swarming.collect_swarming_task(task)
+    return
+
+  dm_hash = api.swarming.collect_swarming_task_isolate_hash(task)
 
   # Upload the results.
-  if api.vars.upload_dm_results:
-    dm_dir = api.path['slave_build'].join('dm')
-    dm_src = task.task_output_dir.join('0', 'dm')
-    api.run.rmtree(dm_dir)
-    api.file.copytree('dm_dir', dm_src, dm_dir, infra_step=True)
-
-    # Upload them to Google Storage.
-    api.python(
-        'Upload DM Results',
-        script=api.core.resource('upload_dm_results.py'),
-        args=[
-          dm_dir,
-          got_revision,
-          api.properties['buildername'],
-          api.properties['buildnumber'],
-          get_issue_num(api) if is_trybot else '',
-          api.path['slave_build'].join('skia', 'common', 'py', 'utils'),
-        ],
-        cwd=api.path['checkout'],
-        env=gsutil_env(api, 'chromium-skia-gm.boto'),
-        infra_step=True)
-
-  if builder_cfg['configuration']  == 'Coverage':
-    upload_coverage_results(api, task, got_revision, is_trybot)
-
-
-def upload_coverage_results(api, task, got_revision, is_trybot):
-  results_dir = task.task_output_dir.join('0')
-  git_timestamp = api.git.get_timestamp(test_data='1408633190',
-                                        infra_step=True)
-
-  # Upload raw coverage data.
-  cov_file_basename = '%s.cov' % got_revision
-  cov_file = results_dir.join(cov_file_basename)
-  now = api.time.utcnow()
-  gs_json_path = '/'.join((
-      str(now.year).zfill(4), str(now.month).zfill(2),
-      str(now.day).zfill(2), str(now.hour).zfill(2),
+  task = trigger_task(
+      api,
+      'upload_dm_results',
       api.properties['buildername'],
-      str(api.properties['buildnumber'])))
-  if is_trybot:
-    gs_json_path = '/'.join(('trybot', gs_json_path, get_issue_num(api)))
-  api.gsutil.upload(
-      name='upload raw coverage data',
-      source=cov_file,
-      bucket='skia-infra',
-      dest='/'.join(('coverage-raw-v1', gs_json_path,
-                     cov_file_basename)),
-      env={'AWS_CREDENTIAL_FILE': None, 'BOTO_CONFIG': None},
-  )
+      api.properties['mastername'],
+      api.properties['slavename'],
+      api.properties['buildnumber'],
+      builder_cfg,
+      got_revision,
+      infrabots_dir,
+      idempotent=True,
+      store_output=False,
+      cipd_packages=None,
+      extra_isolate_hashes=[dm_hash],
+      recipe_name='upload_dm_results',
+      isolate_file='upload_dm_results.isolate',
+      dimensions=UPLOAD_DIMENSIONS)
 
-  # Transform the nanobench_${git_hash}.json file received from swarming bot
-  # into the nanobench_${git_hash}_${timestamp}.json file
-  # upload_bench_results.py expects.
-  src_nano_file = results_dir.join('nanobench_%s.json' % got_revision)
-  dst_nano_file = results_dir.join(
-      'nanobench_%s_%s.json' % (got_revision, git_timestamp))
-  api.file.copy('nanobench JSON', src_nano_file, dst_nano_file,
-                infra_step=True)
-  api.file.remove('old nanobench JSON', src_nano_file)
-
-  # Upload nanobench JSON data.
-  gsutil_path = api.depot_tools.gsutil_py_path
-  upload_args = [api.properties['buildername'], api.properties['buildnumber'],
-                 results_dir, got_revision, gsutil_path]
-  if is_trybot:
-    upload_args.append(get_issue_num(api))
-  api.python(
-      'upload nanobench coverage results',
-      script=api.core.resource('upload_bench_results.py'),
-      args=upload_args,
-      cwd=api.path['checkout'],
-      env=gsutil_env(api, 'chromium-skia-gm.boto'),
-      infra_step=True)
-
-  # Transform the coverage_by_line_${git_hash}.json file received from
-  # swarming bot into a coverage_by_line_${git_hash}_${timestamp}.json file.
-  src_lbl_file = results_dir.join('coverage_by_line_%s.json' % got_revision)
-  dst_lbl_file_basename = 'coverage_by_line_%s_%s.json' % (
-      got_revision, git_timestamp)
-  dst_lbl_file = results_dir.join(dst_lbl_file_basename)
-  api.file.copy('Line-by-line coverage JSON', src_lbl_file, dst_lbl_file,
-                infra_step=True)
-  api.file.remove('old line-by-line coverage JSON', src_lbl_file)
-
-  # Upload line-by-line coverage data.
-  api.gsutil.upload(
-      name='upload line-by-line coverage data',
-      source=dst_lbl_file,
-      bucket='skia-infra',
-      dest='/'.join(('coverage-json-v1', gs_json_path,
-                     dst_lbl_file_basename)),
-      env={'AWS_CREDENTIAL_FILE': None, 'BOTO_CONFIG': None},
-  )
+  return api.swarming.collect_swarming_task(task)
 
 
 def cipd_pkg(api, infrabots_dir, asset_name):
@@ -658,26 +602,30 @@ def RunSteps(api):
 
   extra_hashes = []
 
+  builder_name = api.properties['buildername']
+
   # Get ready to compile.
   infrabots_dir = api.path['checkout'].join('infra', 'bots')
-  if 'Infra' in api.properties['buildername']:
+  if 'Infra' in builder_name:
     return infra_swarm(api, got_revision, infrabots_dir, extra_hashes)
 
-  builder_cfg = api.builder_name_schema.DictForBuilderName(
-      api.properties['buildername'])
+  builder_cfg = api.builder_name_schema.DictForBuilderName(builder_name)
 
-  if 'RecreateSKPs' in api.properties['buildername']:
+  if 'Presubmit' in builder_name:
+    return presubmit_swarm(api, builder_cfg, got_revision, infrabots_dir)
+
+  if 'RecreateSKPs' in builder_name:
     recreate_skps_swarm(api, builder_cfg, got_revision, infrabots_dir,
                         extra_hashes)
     return
 
-  if '-CT_' in api.properties['buildername']:
+  if '-CT_' in builder_name:
     ct_skps_swarm(api, builder_cfg, got_revision, infrabots_dir, extra_hashes)
     return
 
   # Compile.
   do_compile_steps = True
-  if 'Coverage' in api.properties['buildername']:
+  if 'Coverage' in builder_name:
     do_compile_steps = False
   if do_compile_steps:
     extra_hashes.append(compile_steps_swarm(
@@ -706,6 +654,10 @@ def RunSteps(api):
   cipd_packages.append(cipd_pkg(api, infrabots_dir, 'skimage'))
   cipd_packages.append(cipd_pkg(api, infrabots_dir, 'svg'))
 
+  # To find llvm-symbolizer and/or MSAN-compiled libc++.
+  if 'Ubuntu' in builder_name and 'SAN' in builder_name:
+    cipd_packages.append(cipd_pkg(api, infrabots_dir, 'clang_linux'))
+
   # Trigger test and perf tasks.
   test_task = None
   perf_task = None
@@ -715,17 +667,16 @@ def RunSteps(api):
   if do_perf_steps:
     perf_task = perf_steps_trigger(api, builder_cfg, got_revision,
                                    infrabots_dir, extra_hashes, cipd_packages)
-  is_trybot = builder_cfg['is_trybot']
 
   # Wait for results, then upload them if necessary.
 
   if test_task:
-    test_steps_collect(api, test_task,
-                       got_revision, is_trybot, builder_cfg)
+    test_steps_collect(api, test_task, builder_cfg,
+                       got_revision, infrabots_dir)
 
   if perf_task:
-    perf_steps_collect(api, perf_task,
-                       got_revision, is_trybot)
+    perf_steps_collect(api, perf_task, builder_cfg,
+                       got_revision, infrabots_dir)
 
 
 def test_for_bot(api, builder, mastername, slavename, testname=None):
@@ -755,11 +706,21 @@ def test_for_bot(api, builder, mastername, slavename, testname=None):
     test += api.step_data(
         'upload new .isolated file for test_skia',
         stdout=api.raw_io.output('def456 XYZ.isolated'))
+    if not 'Valgrind' in builder and not 'MSAN' in builder:
+      test += api.step_data(
+          'upload new .isolated file for upload_dm_results_skia',
+          stdout=api.raw_io.output('def456 XYZ.isolated'))
   if 'Perf' in builder and '-CT_' not in builder:
     test += api.step_data(
         'upload new .isolated file for perf_skia',
         stdout=api.raw_io.output('def456 XYZ.isolated'))
-  if 'Housekeeper' in builder and 'RecreateSKPs' not in builder:
+    if 'Valgrind' not in builder:
+      test += api.step_data(
+          'upload new .isolated file for upload_nano_results_skia',
+          stdout=api.raw_io.output('def456 XYZ.isolated'))
+  if ('Housekeeper' in builder and
+      'RecreateSKPs' not in builder and
+      'Presubmit' not in builder):
     test += api.step_data(
         'upload new .isolated file for housekeeper_skia',
         stdout=api.raw_io.output('def456 XYZ.isolated'))
@@ -804,5 +765,8 @@ def GenTests(api):
           **gerrit_kwargs) +
       api.step_data(
           'upload new .isolated file for test_skia',
+          stdout=api.raw_io.output('def456 XYZ.isolated')) +
+      api.step_data(
+          'upload new .isolated file for upload_dm_results_skia',
           stdout=api.raw_io.output('def456 XYZ.isolated'))
   )

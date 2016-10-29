@@ -31,8 +31,8 @@ protected:
     }
 
     void onDraw(SkCanvas* canvas) override {
-        static const SkScalar kBlurRadius = SkIntToScalar(20);
-        static const SkScalar kBoxSize = SkIntToScalar(100);
+        constexpr SkScalar kBlurRadius = SkIntToScalar(20);
+        constexpr SkScalar kBoxSize = SkIntToScalar(100);
 
         SkRect clipRect = SkRect::MakeXYWH(0, 0, kBoxSize, kBoxSize);
         SkRect blurRects[] = {
@@ -73,8 +73,8 @@ protected:
     }
 
 private:
-    static const int kWidth = 300;
-    static const int kHeight = 300;
+    static constexpr int kWidth = 300;
+    static constexpr int kHeight = 300;
 
     typedef GM INHERITED;
 };

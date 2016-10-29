@@ -42,8 +42,8 @@ protected:
             return;
         }
 
-        static const int xSize = 16;
-        static const int ySize = 16;
+        constexpr int xSize = 16;
+        constexpr int ySize = 16;
 
         fTexture.allocN32Pixels(xSize, ySize);
         SkPMColor* addr = fTexture.getAddr32(0, 0);
@@ -108,7 +108,7 @@ protected:
         SkPath path;
         path.addRoundRect(temp, SkIntToScalar(5), SkIntToScalar(5));
 
-        canvas->clipPath(path, SkRegion::kReplace_Op, true); // AA is on
+        canvas->clipPath(path, true); // AA is on
 
         canvas->drawText("M", 1,
                          SkIntToScalar(100), SkIntToScalar(100),

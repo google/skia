@@ -8,6 +8,7 @@
 #ifndef SkOpts_DEFINED
 #define SkOpts_DEFINED
 
+#include "SkRasterPipeline.h"
 #include "SkTextureCompressor.h"
 #include "SkTypes.h"
 #include "SkXfermode.h"
@@ -71,6 +72,9 @@ namespace SkOpts {
     static inline uint32_t hash(const void* data, size_t bytes, uint32_t seed=0) {
         return hash_fn(data, bytes, seed);
     }
+
+    extern SkRasterPipeline::Fn stages_4  [SkRasterPipeline::kNumStockStages],
+                                stages_1_3[SkRasterPipeline::kNumStockStages];
 }
 
 #endif//SkOpts_DEFINED

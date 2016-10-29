@@ -534,4 +534,23 @@ static inline void Sk4h_store4(void* dst, const Sk4h& r, const Sk4h& g, const Sk
     vst4_u16((uint16_t*) dst, rgba);
 }
 
+static inline void Sk4f_load4(const void* ptr, Sk4f* r, Sk4f* g, Sk4f* b, Sk4f* a) {
+    float32x4x4_t rgba = vld4q_f32((const float*) ptr);
+    *r = rgba.val[0];
+    *g = rgba.val[1];
+    *b = rgba.val[2];
+    *a = rgba.val[3];
+}
+
+static inline void Sk4f_store4(void* dst, const Sk4f& r, const Sk4f& g, const Sk4f& b,
+                               const Sk4f& a) {
+    float32x4x4_t rgba = {{
+        r.fVec,
+        g.fVec,
+        b.fVec,
+        a.fVec,
+    }};
+    vst4q_f32((float*) dst, rgba);
+}
+
 #endif//SkNx_neon_DEFINED

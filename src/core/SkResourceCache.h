@@ -243,7 +243,7 @@ public:
     }
 
     DiscardableFactory discardableFactory() const { return fDiscardableFactory; }
-    SkBitmap::Allocator* allocator() const { return fAllocator; };
+    SkBitmap::Allocator* allocator() const { return fAllocator; }
 
     SkCachedData* newCachedData(size_t bytes);
 

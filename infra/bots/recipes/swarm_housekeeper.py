@@ -42,14 +42,12 @@ def RunSteps(api):
 
   # TODO(borenet): Detect static initializers?
 
-  gsutil_path = api.path['depot_tools'].join('third_party', 'gsutil',
-                                             'gsutil')
+  gsutil_path = api.path['depot_tools'].join('gsutil.py')
   if not api.vars.is_trybot:
     api.run(
       api.step,
       'generate and upload doxygen',
-      cmd=['python', api.core.resource('generate_and_upload_doxygen.py'),
-           gsutil_path],
+      cmd=['python', api.core.resource('generate_and_upload_doxygen.py')],
       cwd=cwd,
       abort_on_failure=False)
 

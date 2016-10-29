@@ -58,11 +58,11 @@ public:
         SkPoint* atPoint(int i) {
             SkASSERT((unsigned) i < (unsigned) fPathRef->fPointCnt);
             return this->points() + i;
-        };
+        }
         const SkPoint* atPoint(int i) const {
             SkASSERT((unsigned) i < (unsigned) fPathRef->fPointCnt);
             return this->points() + i;
-        };
+        }
 
         /**
          * Adds the verb and allocates space for the number of points indicated by the verb. The

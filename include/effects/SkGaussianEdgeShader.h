@@ -19,6 +19,9 @@ public:
     static sk_sp<SkShader> Make();
 
     SK_DECLARE_FLATTENABLE_REGISTRAR_GROUP()
+
+private:
+    SkGaussianEdgeShader(); // can't be instantiated
 };
 
 #endif

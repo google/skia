@@ -12,6 +12,8 @@
 #include "SkSVGTypes.h"
 #include "SkTLazy.h"
 
+class SkSVGLengthContext;
+
 class SkSVGSVG : public SkSVGContainer {
 public:
     virtual ~SkSVGSVG() = default;
@@ -23,6 +25,8 @@ public:
     void setWidth(const SkSVGLength&);
     void setHeight(const SkSVGLength&);
     void setViewBox(const SkSVGViewBoxType&);
+
+    SkSize intrinsicSize(const SkSVGLengthContext&) const;
 
 protected:
     bool onPrepareToRender(SkSVGRenderContext*) const override;

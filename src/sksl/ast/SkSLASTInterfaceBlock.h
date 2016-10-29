@@ -26,7 +26,7 @@ struct ASTInterfaceBlock : public ASTDeclaration {
                       ASTModifiers modifiers, 
                       std::string interfaceName, 
                       std::string valueName, 
-                      std::vector<std::unique_ptr<ASTVarDeclaration>> declarations)
+                      std::vector<std::unique_ptr<ASTVarDeclarations>> declarations)
     : INHERITED(position, kInterfaceBlock_Kind)
     , fModifiers(modifiers)
     , fInterfaceName(std::move(interfaceName))
@@ -48,7 +48,7 @@ struct ASTInterfaceBlock : public ASTDeclaration {
     const ASTModifiers fModifiers;
     const std::string fInterfaceName;
     const std::string fValueName;
-    const std::vector<std::unique_ptr<ASTVarDeclaration>> fDeclarations;
+    const std::vector<std::unique_ptr<ASTVarDeclarations>> fDeclarations;
 
     typedef ASTDeclaration INHERITED;
 };

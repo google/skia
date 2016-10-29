@@ -55,7 +55,7 @@ SkAndroidCodec* SkAndroidCodec::NewFromStream(SkStream* stream, SkPngChunkReader
     }
 }
 
-SkAndroidCodec* SkAndroidCodec::NewFromData(SkData* data, SkPngChunkReader* chunkReader) {
+SkAndroidCodec* SkAndroidCodec::NewFromData(sk_sp<SkData> data, SkPngChunkReader* chunkReader) {
     if (!data) {
         return nullptr;
     }

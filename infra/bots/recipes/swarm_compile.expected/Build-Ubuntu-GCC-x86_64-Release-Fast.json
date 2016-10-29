@@ -28,7 +28,7 @@
       "RECIPE_PACKAGE_REPO[depot_tools]/gclient.py",
       "config",
       "--spec",
-      "cache_dir = '[CUSTOM_/_B_CACHE]'\nsolutions = [{'deps_file': 'DEPS', 'managed': False, 'name': 'skia', 'url': 'https://skia.googlesource.com/skia.git'}]\ntarget_os = ['llvm']"
+      "cache_dir = '[CUSTOM_/_B_CACHE]'\nsolutions = [{'deps_file': '.DEPS.git', 'managed': False, 'name': 'skia', 'url': 'https://skia.googlesource.com/skia.git'}]"
     ],
     "cwd": "[CUSTOM_/_B_WORK]",
     "env": {
@@ -45,9 +45,14 @@
       "-u",
       "RECIPE_PACKAGE_REPO[depot_tools]/gclient.py",
       "sync",
-      "--nohooks",
-      "--force",
       "--verbose",
+      "--with_branch_heads",
+      "--nohooks",
+      "-j8",
+      "--reset",
+      "--force",
+      "--upstream",
+      "--no-nag-max",
       "--delete_unversioned_trees",
       "--revision",
       "skia@abc123",
@@ -66,43 +71,53 @@
       "@@@STEP_LOG_LINE@json.output@{@@@",
       "@@@STEP_LOG_LINE@json.output@  \"solutions\": {@@@",
       "@@@STEP_LOG_LINE@json.output@    \"skia/\": {@@@",
-      "@@@STEP_LOG_LINE@json.output@      \"revision\": 164710@@@",
+      "@@@STEP_LOG_LINE@json.output@      \"revision\": \"9046e2e693bb92a76e972b694580e5d17ad10748\"@@@",
       "@@@STEP_LOG_LINE@json.output@    }@@@",
       "@@@STEP_LOG_LINE@json.output@  }@@@",
       "@@@STEP_LOG_LINE@json.output@}@@@",
       "@@@STEP_LOG_END@json.output@@@",
-      "@@@SET_BUILD_PROPERTY@got_revision@164710@@@"
+      "@@@SET_BUILD_PROPERTY@got_revision@\"9046e2e693bb92a76e972b694580e5d17ad10748\"@@@"
     ]
   },
   {
     "cmd": [
       "python",
       "-u",
-      "import json\nimport subprocess\nimport sys\n\nccache = None\ntry:\n  ccache = subprocess.check_output(['which', 'ccache']).rstrip()\nexcept:\n  pass\nprint json.dumps({'ccache': ccache})\n"
+      "RECIPE_PACKAGE_REPO[depot_tools]/gclient.py",
+      "recurse",
+      "git",
+      "config",
+      "user.name",
+      "local_bot"
     ],
+    "cwd": "[CUSTOM_/_B_WORK]",
     "env": {
       "BUILDTYPE": "Release",
       "CHROME_HEADLESS": "1",
-      "PATH": "%(PATH)s:RECIPE_PACKAGE_REPO[depot_tools]:RECIPE_PACKAGE_REPO[depot_tools]",
+      "PATH": "%(PATH)s:RECIPE_PACKAGE_REPO[depot_tools]:RECIPE_PACKAGE_REPO[depot_tools]:RECIPE_PACKAGE_REPO[depot_tools]",
       "SKIA_OUT": "[CUSTOM_/_B_WORK]/skia/out/Build-Ubuntu-GCC-x86_64-Release-Fast"
     },
-    "name": "has ccache?",
-    "stdout": "/path/to/tmp/json",
-    "~followup_annotations": [
-      "@@@STEP_LOG_LINE@json.output (invalid)@null@@@",
-      "@@@STEP_LOG_END@json.output (invalid)@@@",
-      "@@@STEP_LOG_LINE@python.inline@import json@@@",
-      "@@@STEP_LOG_LINE@python.inline@import subprocess@@@",
-      "@@@STEP_LOG_LINE@python.inline@import sys@@@",
-      "@@@STEP_LOG_LINE@python.inline@@@@",
-      "@@@STEP_LOG_LINE@python.inline@ccache = None@@@",
-      "@@@STEP_LOG_LINE@python.inline@try:@@@",
-      "@@@STEP_LOG_LINE@python.inline@  ccache = subprocess.check_output(['which', 'ccache']).rstrip()@@@",
-      "@@@STEP_LOG_LINE@python.inline@except:@@@",
-      "@@@STEP_LOG_LINE@python.inline@  pass@@@",
-      "@@@STEP_LOG_LINE@python.inline@print json.dumps({'ccache': ccache})@@@",
-      "@@@STEP_LOG_END@python.inline@@@"
-    ]
+    "name": "gclient recurse (git config user.name)"
+  },
+  {
+    "cmd": [
+      "python",
+      "-u",
+      "RECIPE_PACKAGE_REPO[depot_tools]/gclient.py",
+      "recurse",
+      "git",
+      "config",
+      "user.email",
+      "local_bot@example.com"
+    ],
+    "cwd": "[CUSTOM_/_B_WORK]",
+    "env": {
+      "BUILDTYPE": "Release",
+      "CHROME_HEADLESS": "1",
+      "PATH": "%(PATH)s:RECIPE_PACKAGE_REPO[depot_tools]:RECIPE_PACKAGE_REPO[depot_tools]:RECIPE_PACKAGE_REPO[depot_tools]:RECIPE_PACKAGE_REPO[depot_tools]",
+      "SKIA_OUT": "[CUSTOM_/_B_WORK]/skia/out/Build-Ubuntu-GCC-x86_64-Release-Fast"
+    },
+    "name": "gclient recurse (git config user.email)"
   },
   {
     "cmd": [
@@ -110,11 +125,7 @@
     ],
     "cwd": "[CUSTOM_/_B_WORK]/skia",
     "env": {
-      "BUILDTYPE": "Release",
-      "CHROME_HEADLESS": "1",
-      "GYP_DEFINES": "skia_arch_type=x86_64 skia_fast=1 skia_warnings_as_errors=0",
-      "PATH": "%(PATH)s:RECIPE_PACKAGE_REPO[depot_tools]:RECIPE_PACKAGE_REPO[depot_tools]",
-      "SKIA_OUT": "[CUSTOM_/_B_WORK]/skia/out/Build-Ubuntu-GCC-x86_64-Release-Fast"
+      "PATH": "%(PATH)s:RECIPE_PACKAGE_REPO[depot_tools]:RECIPE_PACKAGE_REPO[depot_tools]:RECIPE_PACKAGE_REPO[depot_tools]:RECIPE_PACKAGE_REPO[depot_tools]"
     },
     "name": "fetch-gn"
   },
@@ -123,15 +134,11 @@
       "gn",
       "gen",
       "[CUSTOM_/_B_WORK]/skia/out/Build-Ubuntu-GCC-x86_64-Release-Fast/Release",
-      "--args=cc=\"gcc\" cxx=\"g++\" is_debug=false extra_cflags=\"-march=native -fomit-frame-pointer -O3\""
+      "--args=cc=\"gcc\" cxx=\"g++\" extra_cflags=[\"-march=native\", \"-fomit-frame-pointer\", \"-O3\", \"-ffp-contract=off\"] is_debug=false"
     ],
     "cwd": "[CUSTOM_/_B_WORK]/skia",
     "env": {
-      "BUILDTYPE": "Release",
-      "CHROME_HEADLESS": "1",
-      "GYP_DEFINES": "skia_arch_type=x86_64 skia_fast=1 skia_warnings_as_errors=0",
-      "PATH": "%(PATH)s:RECIPE_PACKAGE_REPO[depot_tools]:RECIPE_PACKAGE_REPO[depot_tools]",
-      "SKIA_OUT": "[CUSTOM_/_B_WORK]/skia/out/Build-Ubuntu-GCC-x86_64-Release-Fast"
+      "PATH": "%(PATH)s:RECIPE_PACKAGE_REPO[depot_tools]:RECIPE_PACKAGE_REPO[depot_tools]:RECIPE_PACKAGE_REPO[depot_tools]:RECIPE_PACKAGE_REPO[depot_tools]"
     },
     "name": "gn gen"
   },
@@ -143,11 +150,7 @@
     ],
     "cwd": "[CUSTOM_/_B_WORK]/skia",
     "env": {
-      "BUILDTYPE": "Release",
-      "CHROME_HEADLESS": "1",
-      "GYP_DEFINES": "skia_arch_type=x86_64 skia_fast=1 skia_warnings_as_errors=0",
-      "PATH": "%(PATH)s:RECIPE_PACKAGE_REPO[depot_tools]:RECIPE_PACKAGE_REPO[depot_tools]",
-      "SKIA_OUT": "[CUSTOM_/_B_WORK]/skia/out/Build-Ubuntu-GCC-x86_64-Release-Fast"
+      "PATH": "%(PATH)s:RECIPE_PACKAGE_REPO[depot_tools]:RECIPE_PACKAGE_REPO[depot_tools]:RECIPE_PACKAGE_REPO[depot_tools]:RECIPE_PACKAGE_REPO[depot_tools]"
     },
     "name": "ninja"
   },

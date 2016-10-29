@@ -49,8 +49,8 @@ int gr_context_get_recommended_sample_count(gr_context_t* context, gr_pixelconfi
     return AsGrContext(context)->getRecommendedSampleCount((GrPixelConfig)config, dpi);
 }
 
-void gr_context_flush(gr_context_t* context, gr_context_flushbits_t flags) {
-    AsGrContext(context)->flush((GrContext::FlushBits)flags);
+void gr_context_flush(gr_context_t* context) {
+    AsGrContext(context)->flush();
 }
 
 

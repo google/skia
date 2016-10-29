@@ -505,18 +505,22 @@ bool AddIntersectTs(SkOpContour* test, SkOpContour* next, SkOpCoincidence* coinc
                 SkASSERT(ts[0][pt] >= 0 && ts[0][pt] <= 1);
                 SkASSERT(ts[1][pt] >= 0 && ts[1][pt] <= 1);
                 wt.segment()->debugValidate();
-                SkOpPtT* testTAt = wt.segment()->addT(ts[swap][pt], nullptr);
+                SkOpPtT* testTAt = wt.segment()->addT(ts[swap][pt]);
                 wn.segment()->debugValidate();
-                SkOpPtT* nextTAt = wn.segment()->addT(ts[!swap][pt], nullptr);
-                if (testTAt->addOpp(nextTAt)) {
-                    testTAt->span()->checkForCollapsedCoincidence();
+                SkOpPtT* nextTAt = wn.segment()->addT(ts[!swap][pt]);
+                if (!testTAt->contains(nextTAt)) {
+                    SkOpPtT* oppPrev = testTAt->oppPrev(nextTAt);  //  Returns nullptr if pair 
+                    if (oppPrev) {                                 //  already share a pt-t loop.
+                        testTAt->span()->mergeMatches(nextTAt->span());
+                        testTAt->addOpp(nextTAt, oppPrev);
+                    }
+                    if (testTAt->fPt != nextTAt->fPt) {
+                        testTAt->span()->unaligned();
+                        nextTAt->span()->unaligned();
+                    }
+                    wt.segment()->debugValidate();
+                    wn.segment()->debugValidate();
                 }
-                if (testTAt->fPt != nextTAt->fPt) {
-                    testTAt->span()->unaligned();
-                    nextTAt->span()->unaligned();
-                }
-                wt.segment()->debugValidate();
-                wn.segment()->debugValidate();
                 if (!ts.isCoincident(pt)) {
                     continue;
                 }
@@ -538,7 +542,16 @@ bool AddIntersectTs(SkOpContour* test, SkOpContour* next, SkOpCoincidence* coinc
                     SkTSwap(coinPtT[0], coinPtT[1]);
                     SkTSwap(testTAt, nextTAt);
                 }
-                SkASSERT(coinPtT[0]->span()->t() < testTAt->span()->t());
+                SkASSERT(coincidence->globalState()->debugSkipAssert()
+                        || coinPtT[0]->span()->t() < testTAt->span()->t());
+                if (coinPtT[0]->span()->deleted()) {
+                    coinIndex = -1;
+                    continue;
+                }
+                if (testTAt->span()->deleted()) {
+                    coinIndex = -1;
+                    continue;
+                }
                 coincidence->add(coinPtT[0], testTAt, coinPtT[1], nextTAt);
                 wt.segment()->debugValidate();
                 wn.segment()->debugValidate();

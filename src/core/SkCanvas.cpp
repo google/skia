@@ -26,6 +26,7 @@
 #include "SkPaintPriv.h"
 #include "SkPatchUtils.h"
 #include "SkPicture.h"
+#include "SkRadialShadowMapShader.h"
 #include "SkRasterClip.h"
 #include "SkReadPixelsRec.h"
 #include "SkRRect.h"
@@ -38,18 +39,16 @@
 #include "SkTextFormatParams.h"
 #include "SkTLazy.h"
 #include "SkTraceEvent.h"
-
 #include <new>
 
 #if SK_SUPPORT_GPU
 #include "GrContext.h"
 #include "GrRenderTarget.h"
 #include "SkGrPriv.h"
+
 #endif
 
 #define RETURN_ON_NULL(ptr)     do { if (nullptr == (ptr)) return; } while (0)
-
-//#define SK_SUPPORT_PRECHECK_CLIPRECT
 
 /*
  *  Return true if the drawing this rect would hit every pixels in the canvas.
@@ -122,7 +121,6 @@ bool SkCanvas::Internal_Private_GetTreatSpriteAsBitmap() {
 }
 
 // experimental for faster tiled drawing...
-//#define SK_ENABLE_CLIP_QUICKREJECT
 //#define SK_TRACE_SAVERESTORE
 
 #ifdef SK_TRACE_SAVERESTORE
@@ -215,7 +213,7 @@ struct DeviceCM {
     }
 
     void updateMC(const SkMatrix& totalMatrix, const SkRasterClip& totalClip,
-                  const SkClipStack& clipStack, SkRasterClip* updateClip) {
+                  SkRasterClip* updateClip) {
         int x = fDevice->getOrigin().x();
         int y = fDevice->getOrigin().y();
         int width = fDevice->width();
@@ -241,8 +239,6 @@ struct DeviceCM {
             updateClip->op(SkIRect::MakeXYWH(x, y, width, height),
                            SkRegion::kDifference_Op);
         }
-
-        fDevice->setMatrixClip(*fMatrix, fClip.forceGetBW(), clipStack);
 
 #ifdef SK_DEBUG
         if (!fClip.isEmpty()) {
@@ -316,6 +312,11 @@ public:
     }
 };
 
+static SkIRect compute_device_bounds(SkBaseDevice* device) {
+    return SkIRect::MakeXYWH(device->getOrigin().x(), device->getOrigin().y(),
+                             device->width(), device->height());
+}
+
 class SkDrawIter : public SkDraw {
 public:
     SkDrawIter(SkCanvas* canvas) {
@@ -324,9 +325,26 @@ public:
 
         fClipStack = canvas->fClipStack;
         fCurrLayer = canvas->fMCRec->fTopLayer;
+
+        fMultiDeviceCS = nullptr;
+        if (fCurrLayer->fNext) {
+            fMultiDeviceCS = canvas->fClipStack;
+            fMultiDeviceCS->save();
+        }
+    }
+
+    ~SkDrawIter() {
+        if (fMultiDeviceCS) {
+            fMultiDeviceCS->restore();
+        }
     }
 
     bool next() {
+        if (fMultiDeviceCS && fDevice) {
+            // remove the previous device's bounds
+            fMultiDeviceCS->clipDevRect(compute_device_bounds(fDevice), SkCanvas::kDifference_Op);
+        }
+
         // skip over recs with empty clips
         while (fCurrLayer && fCurrLayer->fClip.isEmpty()) {
             fCurrLayer = fCurrLayer->fNext;
@@ -362,6 +380,7 @@ public:
 private:
     const DeviceCM* fCurrLayer;
     const SkPaint*  fPaint;     // May be null.
+    SkClipStack*    fMultiDeviceCS;
 
     typedef SkDraw INHERITED;
 };
@@ -465,7 +484,7 @@ public:
              */
             SkPaint tmp;
             tmp.setImageFilter(fPaint->getImageFilter());
-            tmp.setXfermode(sk_ref_sp(fPaint->getXfermode()));
+            tmp.setBlendMode(fPaint->getBlendMode());
             SkRect storage;
             if (rawBounds) {
                 // Make rawBounds include all paint outsets except for those due to image filters.
@@ -539,7 +558,7 @@ bool AutoDrawLooper::doNext(SkDrawFilter::Type drawType) {
 
     if (fTempLayerForImageFilter) {
         paint->setImageFilter(nullptr);
-        paint->setXfermode(nullptr);
+        paint->setBlendMode(SkBlendMode::kSrcOver);
     }
 
     if (fLooperContext && !fLooperContext->next(fCanvas, paint)) {
@@ -634,7 +653,6 @@ SkBaseDevice* SkCanvas::init(SkBaseDevice* device, InitFlags flags) {
     // const-cast.
     *const_cast<bool*>(&fConservativeRasterClip) = SkToBool(flags & kConservativeRasterClip_InitFlag);
 
-    fAllowSoftClip = true;
     fAllowSimplifyClip = false;
     fDeviceCMDirty = true;
     fSaveCount = 1;
@@ -962,11 +980,11 @@ void SkCanvas::updateDeviceCMCache() {
         DeviceCM*       layer = fMCRec->fTopLayer;
 
         if (nullptr == layer->fNext) {   // only one layer
-            layer->updateMC(totalMatrix, totalClip, *fClipStack, nullptr);
+            layer->updateMC(totalMatrix, totalClip, nullptr);
         } else {
             SkRasterClip clip(totalClip);
             do {
-                layer->updateMC(totalMatrix, clip, *fClipStack, &clip);
+                layer->updateMC(totalMatrix, clip, &clip);
             } while ((layer = layer->fNext) != nullptr);
         }
         fDeviceCMDirty = false;
@@ -1049,11 +1067,7 @@ void SkCanvas::internalSave() {
 }
 
 bool SkCanvas::BoundsAffectsClip(SaveLayerFlags saveLayerFlags) {
-#ifdef SK_SUPPORT_LEGACY_CLIPTOLAYERFLAG
     return !(saveLayerFlags & SkCanvas::kDontClipToLayer_PrivateSaveLayerFlag);
-#else
-    return true;
-#endif
 }
 
 bool SkCanvas::clipRectBounds(const SkRect* bounds, SaveLayerFlags saveLayerFlags,
@@ -1092,7 +1106,7 @@ bool SkCanvas::clipRectBounds(const SkRect* bounds, SaveLayerFlags saveLayerFlag
 
     if (BoundsAffectsClip(saveLayerFlags)) {
         // Simplify the current clips since they will be applied properly during restore()
-        fClipStack->clipDevRect(ir, SkRegion::kReplace_Op);
+        fClipStack->clipDevRect(ir, kReplace_Op);
         fMCRec->fRasterClip.setRect(ir);
         fDeviceClipBounds = qr_clip_bounds(ir);
     }
@@ -1169,10 +1183,6 @@ void SkCanvas::internalSaveLayer(const SaveLayerRec& rec, SaveLayerStrategy stra
     const SkRect* bounds = rec.fBounds;
     const SkPaint* paint = rec.fPaint;
     SaveLayerFlags saveLayerFlags = rec.fSaveLayerFlags;
-
-#ifndef SK_SUPPORT_LEGACY_CLIPTOLAYERFLAG
-    saveLayerFlags &= ~kDontClipToLayer_PrivateSaveLayerFlag;
-#endif
 
     SkLazyPaint lazyP;
     SkImageFilter* imageFilter = paint ? paint->getImageFilter() : NULL;
@@ -1442,14 +1452,16 @@ void SkCanvas::internalDrawDevice(SkBaseDevice* srcDev, int x, int y, const SkPa
 /////////////////////////////////////////////////////////////////////////////
 
 void SkCanvas::translate(SkScalar dx, SkScalar dy) {
-    this->checkForDeferredSave();
-    fDeviceCMDirty = true;
-    fMCRec->fMatrix.preTranslate(dx,dy);
+    if (dx || dy) {
+        this->checkForDeferredSave();
+        fDeviceCMDirty = true;
+        fMCRec->fMatrix.preTranslate(dx,dy);
 
-    // Translate shouldn't affect the is-scale-translateness of the matrix.
-    SkASSERT(fIsScaleTranslate == fMCRec->fMatrix.isScaleTranslate());
+        // Translate shouldn't affect the is-scale-translateness of the matrix.
+        SkASSERT(fIsScaleTranslate == fMCRec->fMatrix.isScaleTranslate());
 
-    this->didTranslate(dx,dy);
+        this->didTranslate(dx,dy);
+    }
 }
 
 void SkCanvas::scale(SkScalar sx, SkScalar sy) {
@@ -1526,99 +1538,23 @@ sk_sp<SkLights> SkCanvas::getLights() const {
 
 //////////////////////////////////////////////////////////////////////////////
 
-void SkCanvas::clipRect(const SkRect& rect, SkRegion::Op op, bool doAA) {
-    if (!fAllowSoftClip) {
-        doAA = false;
-    }
-
-#ifdef SK_SUPPORT_PRECHECK_CLIPRECT
-    // Check if we can quick-accept the clip call (and do nothing)
-    //
-    if (SkRegion::kIntersect_Op == op && !doAA && fMCRec->fMatrix.isScaleTranslate()) {
-        SkRect devR;
-        fMCRec->fMatrix.mapRectScaleTranslate(&devR, rect);
-        // NOTE: this check is CTM specific, since we might round differently with a different
-        //       CTM. Thus this is only 100% reliable if there is not global CTM scale to be
-        //       applied later (i.e. if this is going into a picture).
-        if (devR.round().contains(fMCRec->fRasterClip.getBounds())) {
-#if 0
-            SkDebugf("ignored clipRect [%g %g %g %g]\n",
-                     rect.left(), rect.top(), rect.right(), rect.bottom());
-#endif
-            return;
-        }
-    }
-#endif
-
+void SkCanvas::clipRect(const SkRect& rect, ClipOp op, bool doAA) {
     this->checkForDeferredSave();
     ClipEdgeStyle edgeStyle = doAA ? kSoft_ClipEdgeStyle : kHard_ClipEdgeStyle;
     this->onClipRect(rect, op, edgeStyle);
 }
 
-void SkCanvas::onClipRect(const SkRect& rect, SkRegion::Op op, ClipEdgeStyle edgeStyle) {
-#ifdef SK_ENABLE_CLIP_QUICKREJECT
-    if (SkRegion::kIntersect_Op == op) {
-        if (fMCRec->fRasterClip.isEmpty()) {
-            return;
-        }
-
-        if (this->quickReject(rect)) {
-            fDeviceCMDirty = true;
-            fCachedLocalClipBoundsDirty = true;
-
-            fClipStack->clipEmpty();
-            (void)fMCRec->fRasterClip.setEmpty();
-            fDeviceClipBounds.setEmpty();
-            return;
-        }
-    }
-#endif
-
-    const bool isScaleTrans = fMCRec->fMatrix.isScaleTranslate();
-    SkRect devR;
-    if (isScaleTrans) {
-        fMCRec->fMatrix.mapRectScaleTranslate(&devR, rect);
-    }
-
-#ifndef SK_SUPPORT_PRECHECK_CLIPRECT
-    if (SkRegion::kIntersect_Op == op &&
-        kHard_ClipEdgeStyle == edgeStyle
-        && isScaleTrans)
-    {
-        if (devR.round().contains(fMCRec->fRasterClip.getBounds())) {
-#if 0
-            SkDebugf("------- ignored clipRect [%g %g %g %g]\n",
-                     rect.left(), rect.top(), rect.right(), rect.bottom());
-#endif
-            return;
-        }
-    }
-#endif
-
+void SkCanvas::onClipRect(const SkRect& rect, ClipOp op, ClipEdgeStyle edgeStyle) {
+    const bool isAA = kSoft_ClipEdgeStyle == edgeStyle;
     AutoValidateClip avc(this);
-
+    fClipStack->clipRect(rect, fMCRec->fMatrix, op, isAA);
+    fMCRec->fRasterClip.op(rect, fMCRec->fMatrix, this->getTopLayerBounds(), (SkRegion::Op)op,
+                           isAA);
     fDeviceCMDirty = true;
-
-    if (isScaleTrans) {
-        const bool isAA = kSoft_ClipEdgeStyle == edgeStyle;
-        fClipStack->clipDevRect(devR, op, isAA);
-        fMCRec->fRasterClip.op(devR, this->getTopLayerBounds(), op, isAA);
-    } else {
-        // since we're rotated or some such thing, we convert the rect to a path
-        // and clip against that, since it can handle any matrix. However, to
-        // avoid recursion in the case where we are subclassed (e.g. Pictures)
-        // we explicitly call "our" version of clipPath.
-        SkPath  path;
-
-        path.addRect(rect);
-        path.setIsVolatile(true);
-        this->SkCanvas::onClipPath(path, op, edgeStyle);
-    }
-
     fDeviceClipBounds = qr_clip_bounds(fMCRec->fRasterClip.getBounds());
 }
 
-void SkCanvas::clipRRect(const SkRRect& rrect, SkRegion::Op op, bool doAA) {
+void SkCanvas::clipRRect(const SkRRect& rrect, ClipOp op, bool doAA) {
     this->checkForDeferredSave();
     ClipEdgeStyle edgeStyle = doAA ? kSoft_ClipEdgeStyle : kHard_ClipEdgeStyle;
     if (rrect.isRect()) {
@@ -1628,32 +1564,20 @@ void SkCanvas::clipRRect(const SkRRect& rrect, SkRegion::Op op, bool doAA) {
     }
 }
 
-void SkCanvas::onClipRRect(const SkRRect& rrect, SkRegion::Op op, ClipEdgeStyle edgeStyle) {
-    SkRRect transformedRRect;
-    if (rrect.transform(fMCRec->fMatrix, &transformedRRect)) {
-        AutoValidateClip avc(this);
+void SkCanvas::onClipRRect(const SkRRect& rrect, ClipOp op, ClipEdgeStyle edgeStyle) {
+    AutoValidateClip avc(this);
 
-        fDeviceCMDirty = true;
-        if (!fAllowSoftClip) {
-            edgeStyle = kHard_ClipEdgeStyle;
-        }
+    fDeviceCMDirty = true;
 
-        fClipStack->clipDevRRect(transformedRRect, op, kSoft_ClipEdgeStyle == edgeStyle);
-
-        fMCRec->fRasterClip.op(transformedRRect, this->getTopLayerBounds(), op,
-                               kSoft_ClipEdgeStyle == edgeStyle);
-        fDeviceClipBounds = qr_clip_bounds(fMCRec->fRasterClip.getBounds());
-        return;
-    }
-
-    SkPath path;
-    path.addRRect(rrect);
-    path.setIsVolatile(true);
-    // call the non-virtual version
-    this->SkCanvas::onClipPath(path, op, edgeStyle);
+    bool isAA = kSoft_ClipEdgeStyle == edgeStyle;
+    fClipStack->clipRRect(rrect, fMCRec->fMatrix, op, isAA);
+    fMCRec->fRasterClip.op(rrect, fMCRec->fMatrix, this->getTopLayerBounds(), (SkRegion::Op)op,
+                           isAA);
+    fDeviceClipBounds = qr_clip_bounds(fMCRec->fRasterClip.getBounds());
+    return;
 }
 
-void SkCanvas::clipPath(const SkPath& path, SkRegion::Op op, bool doAA) {
+void SkCanvas::clipPath(const SkPath& path, ClipOp op, bool doAA) {
     this->checkForDeferredSave();
     ClipEdgeStyle edgeStyle = doAA ? kSoft_ClipEdgeStyle : kHard_ClipEdgeStyle;
 
@@ -1678,72 +1602,34 @@ void SkCanvas::clipPath(const SkPath& path, SkRegion::Op op, bool doAA) {
     this->onClipPath(path, op, edgeStyle);
 }
 
-void SkCanvas::onClipPath(const SkPath& path, SkRegion::Op op, ClipEdgeStyle edgeStyle) {
-#ifdef SK_ENABLE_CLIP_QUICKREJECT
-    if (SkRegion::kIntersect_Op == op && !path.isInverseFillType()) {
-        if (fMCRec->fRasterClip.isEmpty()) {
-            return;
-        }
-
-        if (this->quickReject(path.getBounds())) {
-            fDeviceCMDirty = true;
-            fCachedLocalClipBoundsDirty = true;
-
-            fClipStack->clipEmpty();
-            (void)fMCRec->fRasterClip.setEmpty();
-            fDeviceClipBounds.setEmpty();
-            return;
-        }
-    }
-#endif
-
+void SkCanvas::onClipPath(const SkPath& path, ClipOp op, ClipEdgeStyle edgeStyle) {
     AutoValidateClip avc(this);
 
     fDeviceCMDirty = true;
-    if (!fAllowSoftClip) {
-        edgeStyle = kHard_ClipEdgeStyle;
-    }
+    bool isAA = kSoft_ClipEdgeStyle == edgeStyle;
 
-    SkPath devPath;
-    if (fMCRec->fMatrix.isIdentity()) {
-        devPath = path;
-    } else {
-        path.transform(fMCRec->fMatrix, &devPath);
-        devPath.setIsVolatile(true);
-    }
+    fClipStack->clipPath(path, fMCRec->fMatrix, op, isAA);
 
-    // Check if the transfomation, or the original path itself
-    // made us empty. Note this can also happen if we contained NaN
-    // values. computing the bounds detects this, and will set our
-    // bounds to empty if that is the case. (see SkRect::set(pts, count))
-    if (devPath.getBounds().isEmpty()) {
-        // resetting the path will remove any NaN or other wanky values
-        // that might upset our scan converter.
-        devPath.reset();
-    }
-
-    // if we called path.swap() we could avoid a deep copy of this path
-    fClipStack->clipDevPath(devPath, op, kSoft_ClipEdgeStyle == edgeStyle);
-
+    const SkPath* rasterClipPath = &path;
+    const SkMatrix* matrix = &fMCRec->fMatrix;
+    SkPath tempPath;
     if (fAllowSimplifyClip) {
-        bool clipIsAA = getClipStack()->asPath(&devPath);
-        if (clipIsAA) {
-            edgeStyle = kSoft_ClipEdgeStyle;
-        }
-
-        op = SkRegion::kReplace_Op;
+        isAA = getClipStack()->asPath(&tempPath);
+        rasterClipPath = &tempPath;
+        matrix = &SkMatrix::I();
+        op = kReplace_Op;
     }
-
-    fMCRec->fRasterClip.op(devPath, this->getTopLayerBounds(), op, edgeStyle);
+    fMCRec->fRasterClip.op(*rasterClipPath, *matrix, this->getTopLayerBounds(), (SkRegion::Op)op,
+                           isAA);
     fDeviceClipBounds = qr_clip_bounds(fMCRec->fRasterClip.getBounds());
 }
 
-void SkCanvas::clipRegion(const SkRegion& rgn, SkRegion::Op op) {
+void SkCanvas::clipRegion(const SkRegion& rgn, ClipOp op) {
     this->checkForDeferredSave();
     this->onClipRegion(rgn, op);
 }
 
-void SkCanvas::onClipRegion(const SkRegion& rgn, SkRegion::Op op) {
+void SkCanvas::onClipRegion(const SkRegion& rgn, ClipOp op) {
     AutoValidateClip avc(this);
 
     fDeviceCMDirty = true;
@@ -1752,7 +1638,7 @@ void SkCanvas::onClipRegion(const SkRegion& rgn, SkRegion::Op op) {
     // we have to ignore it, and use the region directly?
     fClipStack->clipDevRect(rgn.getBounds(), op);
 
-    fMCRec->fRasterClip.op(rgn, op);
+    fMCRec->fRasterClip.op(rgn, (SkRegion::Op)op);
     fDeviceClipBounds = qr_clip_bounds(fMCRec->fRasterClip.getBounds());
 }
 
@@ -1775,7 +1661,7 @@ void SkCanvas::validateClip() const {
         switch (element->getType()) {
             case SkClipStack::Element::kRect_Type:
                 element->getRect().round(&ir);
-                tmpClip.op(ir, element->getOp());
+                tmpClip.op(ir, (SkRegion::Op)element->getOp());
                 break;
             case SkClipStack::Element::kEmpty_Type:
                 tmpClip.setEmpty();
@@ -1783,7 +1669,8 @@ void SkCanvas::validateClip() const {
             default: {
                 SkPath path;
                 element->asPath(&path);
-                tmpClip.op(path, this->getTopLayerBounds(), element->getOp(), element->isAA());
+                tmpClip.op(path, SkMatrix::I(), this->getTopLayerBounds(),
+                           (SkRegion::Op)element->getOp(), element->isAA());
                 break;
             }
         }
@@ -1975,6 +1862,18 @@ void SkCanvas::drawRect(const SkRect& r, const SkPaint& paint) {
     this->onDrawRect(r, paint);
 }
 
+void SkCanvas::drawRegion(const SkRegion& region, const SkPaint& paint) {
+    if (region.isEmpty()) {
+        return;
+    }
+
+    if (region.isRect()) {
+        return this->drawIRect(region.getBounds(), paint);
+    }
+
+    this->onDrawRegion(region, paint);
+}
+
 void SkCanvas::drawOval(const SkRect& r, const SkPaint& paint) {
     this->onDrawOval(r, paint);
 }
@@ -2044,8 +1943,16 @@ void SkCanvas::drawImageLattice(const SkImage* image, const Lattice& lattice, co
     if (dst.isEmpty()) {
         return;
     }
-    if (SkLatticeIter::Valid(image->width(), image->height(), lattice)) {
-        this->onDrawImageLattice(image, lattice, dst, paint);
+
+    SkIRect bounds;
+    Lattice latticePlusBounds = lattice;
+    if (!latticePlusBounds.fBounds) {
+        bounds = SkIRect::MakeWH(image->width(), image->height());
+        latticePlusBounds.fBounds = &bounds;
+    }
+
+    if (SkLatticeIter::Valid(image->width(), image->height(), latticePlusBounds)) {
+        this->onDrawImageLattice(image, latticePlusBounds, dst, paint);
     } else {
         this->drawImageRect(image, dst, paint);
     }
@@ -2094,8 +2001,16 @@ void SkCanvas::drawBitmapLattice(const SkBitmap& bitmap, const Lattice& lattice,
     if (bitmap.drawsNothing() || dst.isEmpty()) {
         return;
     }
-    if (SkLatticeIter::Valid(bitmap.width(), bitmap.height(), lattice)) {
-        this->onDrawBitmapLattice(bitmap, lattice, dst, paint);
+
+    SkIRect bounds;
+    Lattice latticePlusBounds = lattice;
+    if (!latticePlusBounds.fBounds) {
+        bounds = SkIRect::MakeWH(bitmap.width(), bitmap.height());
+        latticePlusBounds.fBounds = &bounds;
+    }
+
+    if (SkLatticeIter::Valid(bitmap.width(), bitmap.height(), latticePlusBounds)) {
+        this->onDrawBitmapLattice(bitmap, latticePlusBounds, dst, paint);
     } else {
         this->drawBitmapRect(bitmap, dst, paint);
     }
@@ -2248,6 +2163,26 @@ void SkCanvas::onDrawRect(const SkRect& r, const SkPaint& paint) {
             iter.fDevice->drawRect(iter, r, paint);
         }
     }
+}
+
+void SkCanvas::onDrawRegion(const SkRegion& region, const SkPaint& paint) {
+    SkRect storage;
+    SkRect regionRect = SkRect::Make(region.getBounds());
+    const SkRect* bounds = nullptr;
+    if (paint.canComputeFastBounds()) {
+        if (this->quickReject(paint.computeFastBounds(regionRect, &storage))) {
+            return;
+        }
+        bounds = &regionRect;
+    }
+
+    LOOPER_BEGIN(paint, SkDrawFilter::kRect_Type, bounds)
+
+    while (iter.next()) {
+        iter.fDevice->drawRegion(iter, region, looper.paint());
+    }
+
+    LOOPER_END
 }
 
 void SkCanvas::onDrawOval(const SkRect& oval, const SkPaint& paint) {
@@ -2699,7 +2634,7 @@ void SkCanvas::DrawTextDecorations(const SkDraw& draw, const SkPaint& paint,
     // nothing to draw
     if (text == nullptr || byteLength == 0 ||
         draw.fRC->isEmpty() ||
-        (paint.getAlpha() == 0 && paint.getXfermode() == nullptr)) {
+        (paint.getAlpha() == 0 && paint.isSrcOver())) {
         return;
     }
 
@@ -2922,6 +2857,11 @@ void SkCanvas::drawPatch(const SkPoint cubics[12], const SkColor colors[4],
         return;
     }
 
+    this->onDrawPatch(cubics, colors, texCoords, xmode, paint);
+}
+
+void SkCanvas::onDrawPatch(const SkPoint cubics[12], const SkColor colors[4],
+                           const SkPoint texCoords[4], SkXfermode* xmode, const SkPaint& paint) {
     // Since a patch is always within the convex hull of the control points, we discard it when its
     // bounding rectangle is completely outside the current clip.
     SkRect bounds;
@@ -2929,12 +2869,6 @@ void SkCanvas::drawPatch(const SkPoint cubics[12], const SkColor colors[4],
     if (this->quickReject(bounds)) {
         return;
     }
-
-    this->onDrawPatch(cubics, colors, texCoords, xmode, paint);
-}
-
-void SkCanvas::onDrawPatch(const SkPoint cubics[12], const SkColor colors[4],
-                           const SkPoint texCoords[4], SkXfermode* xmode, const SkPaint& paint) {
 
     LOOPER_BEGIN(paint, SkDrawFilter::kPath_Type, nullptr)
 
@@ -2964,13 +2898,8 @@ void SkCanvas::drawDrawable(SkDrawable* dr, const SkMatrix* matrix) {
 }
 
 void SkCanvas::onDrawDrawable(SkDrawable* dr, const SkMatrix* matrix) {
-    SkRect bounds = dr->getBounds();
-    if (matrix) {
-        matrix->mapRect(&bounds);
-    }
-    if (this->quickReject(bounds)) {
-        return;
-    }
+    // drawable bounds are no longer reliable (e.g. android displaylist)
+    // so don't use them for quick-reject
     dr->draw(this, matrix);
 }
 
@@ -3009,26 +2938,21 @@ void SkCanvas::onDrawAnnotation(const SkRect& rect, const char key[], SkData* va
 // methods, rather than actually drawing themselves.
 //////////////////////////////////////////////////////////////////////////////
 
-void SkCanvas::drawARGB(U8CPU a, U8CPU r, U8CPU g, U8CPU b,
-                        SkXfermode::Mode mode) {
+void SkCanvas::drawARGB(U8CPU a, U8CPU r, U8CPU g, U8CPU b, SkBlendMode mode) {
     TRACE_EVENT0("disabled-by-default-skia", "SkCanvas::drawARGB()");
     SkPaint paint;
 
     paint.setARGB(a, r, g, b);
-    if (SkXfermode::kSrcOver_Mode != mode) {
-        paint.setXfermodeMode(mode);
-    }
+    paint.setBlendMode(mode);
     this->drawPaint(paint);
 }
 
-void SkCanvas::drawColor(SkColor c, SkXfermode::Mode mode) {
+void SkCanvas::drawColor(SkColor c, SkBlendMode mode) {
     TRACE_EVENT0("disabled-by-default-skia", "SkCanvas::drawColor()");
     SkPaint paint;
 
     paint.setColor(c);
-    if (SkXfermode::kSrcOver_Mode != mode) {
-        paint.setXfermodeMode(mode);
-    }
+    paint.setBlendMode(mode);
     this->drawPaint(paint);
 }
 
@@ -3098,11 +3022,10 @@ void SkCanvas::drawArc(const SkRect& oval, SkScalar startAngle,
                        SkScalar sweepAngle, bool useCenter,
                        const SkPaint& paint) {
     TRACE_EVENT0("disabled-by-default-skia", "SkCanvas::drawArc()");
-    if (SkScalarAbs(sweepAngle) >= SkIntToScalar(360)) {
-        this->drawOval(oval, paint);
-    } else {
-        this->onDrawArc(oval, startAngle, sweepAngle, useCenter, paint);
+    if (oval.isEmpty() || !sweepAngle) {
+        return;
     }
+    this->onDrawArc(oval, startAngle, sweepAngle, useCenter, paint);
 }
 
 void SkCanvas::drawTextOnPathHV(const void* text, size_t byteLength,
@@ -3163,17 +3086,19 @@ void SkCanvas::onDrawPicture(const SkPicture* picture, const SkMatrix* matrix,
 #ifdef SK_EXPERIMENTAL_SHADOWING
 void SkCanvas::drawShadowedPicture(const SkPicture* picture,
                                    const SkMatrix* matrix,
-                                   const SkPaint* paint) {
+                                   const SkPaint* paint,
+                                   const SkShadowParams& params) {
     RETURN_ON_NULL(picture);
 
     TRACE_EVENT0("disabled-by-default-skia", "SkCanvas::drawShadowedPicture()");
 
-    this->onDrawShadowedPicture(picture, matrix, paint);
+    this->onDrawShadowedPicture(picture, matrix, paint, params);
 }
 
 void SkCanvas::onDrawShadowedPicture(const SkPicture* picture,
                                      const SkMatrix* matrix,
-                                     const SkPaint* paint) {
+                                     const SkPaint* paint,
+                                     const SkShadowParams& params) {
     if (!paint || paint->canComputeFastBounds()) {
         SkRect bounds = picture->cullRect();
         if (paint) {
@@ -3189,51 +3114,8 @@ void SkCanvas::onDrawShadowedPicture(const SkPicture* picture,
 
     SkAutoCanvasMatrixPaint acmp(this, matrix, paint, picture->cullRect());
 
-    for (int i = 0; i < fLights->numLights(); ++i) {
-        // skip over ambient lights; they don't cast shadows
-        // lights that have shadow maps do not need updating (because lights are immutable)
-
-        if (SkLights::Light::kAmbient_LightType == fLights->light(i).type() ||
-            fLights->light(i).getShadowMap() != nullptr) {
-            continue;
-        }
-
-        // TODO: compute the correct size of the depth map from the light properties
-        // TODO: maybe add a kDepth_8_SkColorType
-        // TODO: find actual max depth of picture
-        SkISize shMapSize = SkShadowPaintFilterCanvas::ComputeDepthMapSize(
-                                    fLights->light(i), 255,
-                                    picture->cullRect().width(),
-                                    picture->cullRect().height());
-
-        SkImageInfo info = SkImageInfo::Make(shMapSize.fWidth, shMapSize.fHeight,
-                                             kBGRA_8888_SkColorType,
-                                             kOpaque_SkAlphaType);
-
-        // Create a new surface (that matches the backend of canvas)
-        // for each shadow map
-        sk_sp<SkSurface> surf(this->makeSurface(info));
-
-        // Wrap another SPFCanvas around the surface
-        sk_sp<SkShadowPaintFilterCanvas> depthMapCanvas =
-                sk_make_sp<SkShadowPaintFilterCanvas>(surf->getCanvas());
-
-        // set the depth map canvas to have the light we're drawing.
-        SkLights::Builder builder;
-        builder.add(fLights->light(i));
-        sk_sp<SkLights> curLight = builder.finish();
-
-        depthMapCanvas->setLights(std::move(curLight));
-        depthMapCanvas->drawPicture(picture);
-
-        fLights->light(i).setShadowMap(surf->makeImageSnapshot());
-    }
-
     sk_sp<SkImage> povDepthMap;
     sk_sp<SkImage> diffuseMap;
-
-    // TODO: pass the depth to the shader in vertices, or uniforms
-    //       so we don't have to render depth and color separately
 
     // povDepthMap
     {
@@ -3259,7 +3141,6 @@ void SkCanvas::onDrawShadowedPicture(const SkPicture* picture,
         depthMapCanvas->setLights(std::move(povLight));
 
         depthMapCanvas->drawPicture(picture);
-
         povDepthMap = surf->makeImageSnapshot();
     }
 
@@ -3276,19 +3157,118 @@ void SkCanvas::onDrawShadowedPicture(const SkPicture* picture,
         diffuseMap = surf->makeImageSnapshot();
     }
 
-    SkPaint shadowPaint;
-
     sk_sp<SkShader> povDepthShader = povDepthMap->makeShader(SkShader::kClamp_TileMode,
                                                              SkShader::kClamp_TileMode);
-
     sk_sp<SkShader> diffuseShader = diffuseMap->makeShader(SkShader::kClamp_TileMode,
                                                            SkShader::kClamp_TileMode);
 
+    // TODO: pass the depth to the shader in vertices, or uniforms
+    //       so we don't have to render depth and color separately
+    for (int i = 0; i < fLights->numLights(); ++i) {
+        // skip over ambient lights; they don't cast shadows
+        // lights that have shadow maps do not need updating (because lights are immutable)
+        sk_sp<SkImage> depthMap;
+        SkISize shMapSize;
+
+        if (fLights->light(i).getShadowMap() != nullptr) {
+            continue;
+        }
+
+        if (fLights->light(i).isRadial()) {
+            shMapSize.fHeight = 1;
+            shMapSize.fWidth = (int) picture->cullRect().width();
+
+            SkImageInfo info = SkImageInfo::Make(diffuseMap->width(), 1,
+                                                 kBGRA_8888_SkColorType,
+                                                 kOpaque_SkAlphaType);
+
+            // Create new surface (that matches the backend of canvas)
+            // for each shadow map
+            sk_sp<SkSurface> surf(this->makeSurface(info));
+
+            // Wrap another SPFCanvas around the surface
+            SkCanvas* depthMapCanvas = surf->getCanvas();
+
+            SkLights::Builder builder;
+            builder.add(fLights->light(i));
+            sk_sp<SkLights> curLight = builder.finish();
+
+            sk_sp<SkShader> shadowMapShader;
+            shadowMapShader = SkRadialShadowMapShader::Make(
+                    povDepthShader, curLight,
+                    (int) picture->cullRect().width(),
+                    (int) picture->cullRect().height());
+
+            SkPaint shadowMapPaint;
+            shadowMapPaint.setShader(std::move(shadowMapShader));
+
+            depthMapCanvas->setLights(curLight);
+
+            depthMapCanvas->drawRect(SkRect::MakeIWH(diffuseMap->width(),
+                                                     diffuseMap->height()),
+                                     shadowMapPaint);
+
+            depthMap = surf->makeImageSnapshot();
+
+        } else {
+            // TODO: compute the correct size of the depth map from the light properties
+            // TODO: maybe add a kDepth_8_SkColorType
+            // TODO: find actual max depth of picture
+            shMapSize = SkShadowPaintFilterCanvas::ComputeDepthMapSize(
+                    fLights->light(i), 255,
+                    (int) picture->cullRect().width(),
+                    (int) picture->cullRect().height());
+
+            SkImageInfo info = SkImageInfo::Make(shMapSize.fWidth, shMapSize.fHeight,
+                                                 kBGRA_8888_SkColorType,
+                                                 kOpaque_SkAlphaType);
+
+            // Create a new surface (that matches the backend of canvas)
+            // for each shadow map
+            sk_sp<SkSurface> surf(this->makeSurface(info));
+
+            // Wrap another SPFCanvas around the surface
+            sk_sp<SkShadowPaintFilterCanvas> depthMapCanvas =
+                    sk_make_sp<SkShadowPaintFilterCanvas>(surf->getCanvas());
+            depthMapCanvas->setShadowParams(params);
+
+            // set the depth map canvas to have the light we're drawing.
+            SkLights::Builder builder;
+            builder.add(fLights->light(i));
+            sk_sp<SkLights> curLight = builder.finish();
+            depthMapCanvas->setLights(std::move(curLight));
+
+            depthMapCanvas->drawPicture(picture);
+            depthMap = surf->makeImageSnapshot();
+        }
+
+        if (params.fType == SkShadowParams::kNoBlur_ShadowType) {
+            fLights->light(i).setShadowMap(std::move(depthMap));
+        } else if (params.fType == SkShadowParams::kVariance_ShadowType) {
+            // we blur the variance map
+            SkPaint blurPaint;
+            blurPaint.setImageFilter(SkImageFilter::MakeBlur(params.fShadowRadius,
+                                                             params.fShadowRadius, nullptr));
+
+            SkImageInfo blurInfo = SkImageInfo::Make(shMapSize.fWidth, shMapSize.fHeight,
+                                                     kBGRA_8888_SkColorType,
+                                                     kOpaque_SkAlphaType);
+
+            sk_sp<SkSurface> blurSurf(this->makeSurface(blurInfo));
+
+            blurSurf->getCanvas()->drawImage(std::move(depthMap), 0, 0, &blurPaint);
+
+            fLights->light(i).setShadowMap(blurSurf->makeImageSnapshot());
+        }
+    }
+
+    SkPaint shadowPaint;
     sk_sp<SkShader> shadowShader = SkShadowShader::Make(std::move(povDepthShader),
                                                         std::move(diffuseShader),
-                                                        std::move(fLights),
+                                                        fLights,
                                                         diffuseMap->width(),
-                                                        diffuseMap->height());
+                                                        diffuseMap->height(),
+                                                        params);
 
     shadowPaint.setShader(shadowShader);
 
@@ -3406,3 +3386,19 @@ SkSurface* SkCanvas::newSurface(const SkImageInfo& info, const SkSurfaceProps* p
     return this->makeSurface(info, props).release();
 }
 #endif
+
+/////////////////////////////////
+
+const SkCanvas::ClipOp SkCanvas::kDifference_Op;
+const SkCanvas::ClipOp SkCanvas::kIntersect_Op;
+const SkCanvas::ClipOp SkCanvas::kUnion_Op;
+const SkCanvas::ClipOp SkCanvas::kXOR_Op;
+const SkCanvas::ClipOp SkCanvas::kReverseDifference_Op;
+const SkCanvas::ClipOp SkCanvas::kReplace_Op;
+
+static_assert((int)SkRegion::kDifference_Op         == (int)kDifference_SkClipOp, "");
+static_assert((int)SkRegion::kIntersect_Op          == (int)kIntersect_SkClipOp, "");
+static_assert((int)SkRegion::kUnion_Op              == (int)kUnion_SkClipOp, "");
+static_assert((int)SkRegion::kXOR_Op                == (int)kXOR_SkClipOp, "");
+static_assert((int)SkRegion::kReverseDifference_Op  == (int)kReverseDifference_SkClipOp, "");
+static_assert((int)SkRegion::kReplace_Op            == (int)kReplace_SkClipOp, "");

@@ -1,9 +1,6 @@
 {
   'variables': {
     'files': [
-      '../../tools/lsan.supp',
-      '../../tools/tsan.supp',
-      '../../tools/ubsan.supp',
       '../../tools/valgrind.supp',
       './',
     ],

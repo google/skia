@@ -76,7 +76,7 @@ protected:
 
 private:
     void handleOptimization(int opt);
-    size_t recordRestoreOffsetPlaceholder(SkRegion::Op);
+    size_t recordRestoreOffsetPlaceholder(SkCanvas::ClipOp);
     void fillRestoreOffsetPlaceholdersForCurrentStackLevel(uint32_t restoreOffset);
 
     SkTDArray<int32_t> fRestoreOffsetStack;
@@ -186,6 +186,7 @@ protected:
     void onDrawPaint(const SkPaint&) override;
     void onDrawPoints(PointMode, size_t count, const SkPoint pts[], const SkPaint&) override;
     void onDrawRect(const SkRect&, const SkPaint&) override;
+    void onDrawRegion(const SkRegion&, const SkPaint&) override;
     void onDrawOval(const SkRect&, const SkPaint&) override;
     void onDrawArc(const SkRect&, SkScalar, SkScalar, bool, const SkPaint&) override;
     void onDrawRRect(const SkRRect&, const SkPaint&) override;
@@ -204,21 +205,19 @@ protected:
                         const uint16_t indices[], int indexCount,
                         const SkPaint&) override;
 
-    void onClipRect(const SkRect&, SkRegion::Op, ClipEdgeStyle) override;
-    void onClipRRect(const SkRRect&, SkRegion::Op, ClipEdgeStyle) override;
-    void onClipPath(const SkPath&, SkRegion::Op, ClipEdgeStyle) override;
-    void onClipRegion(const SkRegion&, SkRegion::Op) override;
+    void onClipRect(const SkRect&, ClipOp, ClipEdgeStyle) override;
+    void onClipRRect(const SkRRect&, ClipOp, ClipEdgeStyle) override;
+    void onClipPath(const SkPath&, ClipOp, ClipEdgeStyle) override;
+    void onClipRegion(const SkRegion&, ClipOp) override;
 
     void onDrawPicture(const SkPicture*, const SkMatrix*, const SkPaint*) override;
 
 #ifdef SK_EXPERIMENTAL_SHADOWING
-    void onDrawShadowedPicture(const SkPicture*,
-                               const SkMatrix*,
-                               const SkPaint*) override;
+    void onDrawShadowedPicture(const SkPicture*, const SkMatrix*,
+                               const SkPaint*, const SkShadowParams& params) override;
 #else
-    void onDrawShadowedPicture(const SkPicture*,
-                               const SkMatrix*,
-                               const SkPaint*);
+    void onDrawShadowedPicture(const SkPicture*, const SkMatrix*,
+                               const SkPaint*, const SkShadowParams& params);
 #endif
 
     void onDrawDrawable(SkDrawable*, const SkMatrix*) override;
@@ -232,10 +231,10 @@ protected:
     void recordConcat(const SkMatrix& matrix);
     void recordTranslate(const SkMatrix& matrix);
     void recordScale(const SkMatrix& matrix);
-    size_t recordClipRect(const SkRect& rect, SkRegion::Op op, bool doAA);
-    size_t recordClipRRect(const SkRRect& rrect, SkRegion::Op op, bool doAA);
-    size_t recordClipPath(int pathID, SkRegion::Op op, bool doAA);
-    size_t recordClipRegion(const SkRegion& region, SkRegion::Op op);
+    size_t recordClipRect(const SkRect& rect, SkCanvas::ClipOp op, bool doAA);
+    size_t recordClipRRect(const SkRRect& rrect, SkCanvas::ClipOp op, bool doAA);
+    size_t recordClipPath(int pathID, SkCanvas::ClipOp op, bool doAA);
+    size_t recordClipRegion(const SkRegion& region, SkCanvas::ClipOp op);
     void recordSave();
     void recordSaveLayer(const SaveLayerRec&);
     void recordRestore(bool fillInSkips = true);

@@ -1,5 +1,13 @@
-This directory contains a set of dependencies that are needed to build various
-components and tools within Skia.  Some of these dependencies reside within
-the Skia repo, while others are pulled from other repositories and placed
-in the third_party/externals directory. These external dependencies are defined
-in a DEPS file and are kept up-to-date using 'gclient sync'.
+The third_party directory contains a set of dependencies from outside sources
+that are needed to build various components and tools within Skia.  
+
+Some of these dependencies reside within the Skia repo, while others are pulled 
+from other repositories and placed in the third_party/externals directory
+during build. These external dependencies are defined in a DEPS file.
+
+Products in third_party are subject to their own respective license terms.  The
+license for each project should be included in the source itself via a license
+header or file.  If the source itself does not include a license header or file,
+create a README that refers to reliable documentation of the project's license
+terms on the web.
+

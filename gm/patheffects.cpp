@@ -48,7 +48,7 @@ static void dash_pe(SkPaint* paint) {
     compose_pe(paint);
 }
 
-static const int gXY[] = {
+constexpr int gXY[] = {
 4, 0, 0, -4, 8, -4, 12, 0, 8, 4, 0, 4
 };
 
@@ -73,7 +73,7 @@ static void one_d_pe(SkPaint* paint) {
 }
 
 typedef void (*PE_Proc)(SkPaint*);
-static const PE_Proc gPE[] = { hair_pe, hair2_pe, stroke_pe, dash_pe, one_d_pe };
+constexpr PE_Proc gPE[] = { hair_pe, hair2_pe, stroke_pe, dash_pe, one_d_pe };
 
 static void fill_pe(SkPaint* paint) {
     paint->setStyle(SkPaint::kFill_Style);
@@ -98,7 +98,7 @@ static void tile_pe(SkPaint* paint) {
     paint->setPathEffect(MakeTileEffect());
 }
 
-static const PE_Proc gPE2[] = { fill_pe, discrete_pe, tile_pe };
+constexpr PE_Proc gPE2[] = { fill_pe, discrete_pe, tile_pe };
 
 class PathEffectGM : public GM {
 public:

@@ -14,8 +14,8 @@
  * glyph_pos_(h/n)_(s/f/b)
  *   -> test hairline/non-hairline stroke/fill/stroke+fill.
  */
-static const SkScalar kTextHeight = 14.0f;
-static const char kText[] = "Proportional Hamburgefons #% fi";
+constexpr SkScalar kTextHeight = 14.0f;
+constexpr char kText[] = "Proportional Hamburgefons #% fi";
 
 static void drawTestCase(SkCanvas* canvas,
                          SkScalar textScale,

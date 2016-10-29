@@ -9,6 +9,7 @@
 #define GrSurfaceProxy_DEFINED
 
 #include "GrGpuResource.h"
+#include "SkRect.h"
 
 class GrTextureProxy;
 class GrRenderTargetProxy;
@@ -29,6 +30,11 @@ public:
     uint32_t uniqueID() const { return fUniqueID; }
 
     /**
+     * Helper that gets the width and height of the surface as a bounding rectangle.
+     */
+    SkRect getBoundsRect() const { return SkRect::MakeIWH(this->width(), this->height()); }
+  
+    /**
      * @return the texture proxy associated with the surface proxy, may be NULL.
      */
     virtual GrTextureProxy* asTextureProxy() { return nullptr; }
@@ -40,12 +46,27 @@ public:
     virtual GrRenderTargetProxy* asRenderTargetProxy() { return nullptr; }
     virtual const GrRenderTargetProxy* asRenderTargetProxy() const { return nullptr; }
 
+    /**
+     * Does the resource count against the resource budget?
+     */
+    SkBudgeted isBudgeted() const { return fBudgeted; }
+
 protected:
+    // Deferred version
     GrSurfaceProxy(const GrSurfaceDesc& desc, SkBackingFit fit, SkBudgeted budgeted)
         : fDesc(desc)
         , fFit(fit)
         , fBudgeted(budgeted)
-        , fUniqueID(CreateUniqueID()) {
+        , fUniqueID(GrGpuResource::CreateUniqueID()) {
+    }
+
+    // Wrapped version
+    GrSurfaceProxy(const GrSurfaceDesc& desc, SkBackingFit fit, 
+                   SkBudgeted budgeted, uint32_t uniqueID)
+        : fDesc(desc)
+        , fFit(fit)
+        , fBudgeted(budgeted)
+        , fUniqueID(uniqueID) {
     }
 
     virtual ~GrSurfaceProxy() {}
@@ -54,10 +75,9 @@ protected:
     const GrSurfaceDesc fDesc;
     const SkBackingFit  fFit;      // always exact for wrapped resources
     const SkBudgeted    fBudgeted; // set from the backing resource for wrapped resources
-    const uint32_t      fUniqueID;
+    const uint32_t      fUniqueID; // set from the backing resource for wrapped resources
 
 private:
-    static uint32_t CreateUniqueID();
 
     // See comment in GrGpuResource.h.
     void notifyAllCntsAreZero(CntType) const { delete this; }

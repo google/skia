@@ -65,7 +65,7 @@ void GrGLMatrixConvolutionEffect::emitCode(EmitArgs& args) {
     const char* bias = uniformHandler->getUniformCStr(fBiasUni);
 
     GrGLSLFPFragmentBuilder* fragBuilder = args.fFragBuilder;
-    SkString coords2D = fragBuilder->ensureFSCoords2D(args.fCoords, 0);
+    SkString coords2D = fragBuilder->ensureCoords2D(args.fTransformedCoords[0]);
     fragBuilder->codeAppend("vec4 sum = vec4(0, 0, 0, 0);");
     fragBuilder->codeAppendf("vec2 coord = %s - %s * %s;", coords2D.c_str(), kernelOffset, imgInc);
     fragBuilder->codeAppend("vec4 c;");

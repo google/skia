@@ -75,6 +75,7 @@ namespace SkRecords {
     M(DrawTextRSXform)                                              \
     M(DrawRRect)                                                    \
     M(DrawRect)                                                     \
+    M(DrawRegion)                                                   \
     M(DrawTextBlob)                                                 \
     M(DrawAtlas)                                                    \
     M(DrawVertices)                                                 \
@@ -100,7 +101,7 @@ public:
     }
     ~Optional() { if (fPtr) fPtr->~T(); }
 
-    ACT_AS_PTR(fPtr);
+    ACT_AS_PTR(fPtr)
 private:
     T* fPtr;
 };
@@ -117,7 +118,7 @@ public:
     }
     ~Adopted() { if (fPtr) fPtr->~T(); }
 
-    ACT_AS_PTR(fPtr);
+    ACT_AS_PTR(fPtr)
 private:
     T* fPtr;
 };
@@ -130,7 +131,7 @@ public:
     PODArray(T* ptr) : fPtr(ptr) {}
     // Default copy and assign.
 
-    ACT_AS_PTR(fPtr);
+    ACT_AS_PTR(fPtr)
 private:
     T* fPtr;
 };
@@ -189,30 +190,30 @@ RECORD(Translate, 0,
         SkScalar dy);
 RECORD(TranslateZ, 0, SkScalar z);
 
-struct RegionOpAndAA {
-    RegionOpAndAA() {}
-    RegionOpAndAA(SkRegion::Op op, bool aa) : op(op), aa(aa) {}
-    SkRegion::Op op : 31;  // This really only needs to be 3, but there's no win today to do so.
-    unsigned     aa :  1;  // MSVC won't pack an enum with an bool, so we call this an unsigned.
+struct ClipOpAndAA {
+    ClipOpAndAA() {}
+    ClipOpAndAA(SkCanvas::ClipOp op, bool aa) : op(op), aa(aa) {}
+    SkCanvas::ClipOp op : 31;  // This really only needs to be 3, but there's no win today to do so.
+    unsigned         aa :  1;  // MSVC won't pack an enum with an bool, so we call this an unsigned.
 };
-static_assert(sizeof(RegionOpAndAA) == 4, "RegionOpAndAASize");
+static_assert(sizeof(ClipOpAndAA) == 4, "ClipOpAndAASize");
 
 RECORD(ClipPath, 0,
         SkIRect devBounds;
         PreCachedPath path;
-        RegionOpAndAA opAA);
+        ClipOpAndAA opAA);
 RECORD(ClipRRect, 0,
         SkIRect devBounds;
         SkRRect rrect;
-        RegionOpAndAA opAA);
+        ClipOpAndAA opAA);
 RECORD(ClipRect, 0,
         SkIRect devBounds;
         SkRect rect;
-        RegionOpAndAA opAA);
+        ClipOpAndAA opAA);
 RECORD(ClipRegion, 0,
         SkIRect devBounds;
         SkRegion region;
-        SkRegion::Op op);
+        SkCanvas::ClipOp op);
 
 // While not strictly required, if you have an SkPaint, it's fastest to put it first.
 RECORD(DrawArc, kDraw_Tag|kHasPaint_Tag,
@@ -241,6 +242,9 @@ RECORD(DrawImageLattice, kDraw_Tag|kHasImage_Tag|kHasPaint_Tag,
         PODArray<int> xDivs;
         int yCount;
         PODArray<int> yDivs;
+        int flagCount;
+        PODArray<SkCanvas::Lattice::Flags> flags;
+        SkIRect src;
         SkRect dst);
 RECORD(DrawImageRect, kDraw_Tag|kHasImage_Tag|kHasPaint_Tag,
         Optional<SkPaint> paint;
@@ -268,7 +272,8 @@ RECORD(DrawPicture, kDraw_Tag|kHasPaint_Tag,
 RECORD(DrawShadowedPicture, kDraw_Tag|kHasPaint_Tag,
         Optional<SkPaint> paint;
         sk_sp<const SkPicture> picture;
-        TypedMatrix matrix);
+        TypedMatrix matrix;
+        const SkShadowParams& params);
 RECORD(DrawPoints, kDraw_Tag|kHasPaint_Tag,
         SkPaint paint;
         SkCanvas::PointMode mode;
@@ -291,6 +296,9 @@ RECORD(DrawRRect, kDraw_Tag|kHasPaint_Tag,
 RECORD(DrawRect, kDraw_Tag|kHasPaint_Tag,
         SkPaint paint;
         SkRect rect);
+RECORD(DrawRegion, kDraw_Tag|kHasPaint_Tag,
+        SkPaint paint;
+        SkRegion region);
 RECORD(DrawText, kDraw_Tag|kHasText_Tag|kHasPaint_Tag,
         SkPaint paint;
         PODArray<char> text;

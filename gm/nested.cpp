@@ -123,8 +123,8 @@ protected:
     }
 
 private:
-    static const int kImageWidth = 269;
-    static const int kImageHeight = 134;
+    static constexpr int kImageWidth = 269;
+    static constexpr int kImageHeight = 134;
 
     bool fDoAA;
     bool fFlipped;

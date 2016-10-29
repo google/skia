@@ -35,7 +35,7 @@ protected:
         sk_tool_utils::add_to_text_blob(&builder, text, paint, 0, yOffset - 30);
 
         // build
-        fBlob.reset(builder.build());
+        fBlob = builder.make();
     }
 
     SkString onShortName() override {
@@ -69,7 +69,7 @@ protected:
         redPaint.setColor(SK_ColorRED);
         canvas->drawRect(bounds, redPaint);
         SkPaint srcInPaint(paint);
-        srcInPaint.setXfermodeMode(SkXfermode::kSrcIn_Mode);
+        srcInPaint.setBlendMode(SkBlendMode::kSrcIn);
         canvas->drawTextBlob(fBlob, 0, 0, srcInPaint);
 
         canvas->translate(SkIntToScalar(xDelta), SkIntToScalar(yDelta));
@@ -77,10 +77,10 @@ protected:
     }
 
 private:
-    SkAutoTUnref<const SkTextBlob> fBlob;
+    sk_sp<SkTextBlob> fBlob;
 
-    static const int kWidth = 275;
-    static const int kHeight = 200;
+    static constexpr int kWidth = 275;
+    static constexpr int kHeight = 200;
 
     typedef GM INHERITED;
 };

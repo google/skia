@@ -817,16 +817,8 @@ public:
                               const GrGLSLCaps&,
                               GrProcessorKeyBuilder*);
 
-    void setData(const GrGLSLProgramDataManager&, const GrPrimitiveProcessor&) override;
-
-    void setTransformData(const GrPrimitiveProcessor& primProc,
-                          const GrGLSLProgramDataManager& pdman,
-                          int index,
-                          const SkTArray<const GrCoordTransform*, true>& transforms) override {
-        this->setTransformDataHelper(primProc.cast<DashingCircleEffect>().localMatrix(), pdman,
-                                     index, transforms);
-    }
-
+    void setData(const GrGLSLProgramDataManager&, const GrPrimitiveProcessor&,
+                 FPCoordTransformIter&& transformIter) override;
 private:
     UniformHandle fParamUniform;
     UniformHandle fColorUniform;
@@ -879,8 +871,7 @@ void GLDashingCircleEffect::onEmitCode(EmitArgs& args, GrGPArgs* gpArgs) {
                          gpArgs->fPositionVar,
                          dce.inPosition()->fName,
                          dce.localMatrix(),
-                         args.fTransformsIn,
-                         args.fTransformsOut);
+                         args.fFPCoordTransformHandler);
 
     // transforms all points so that we can compare them to our test circle
     fragBuilder->codeAppendf("float xShifted = %s.x - floor(%s.x / %s.z) * %s.z;",
@@ -901,7 +892,8 @@ void GLDashingCircleEffect::onEmitCode(EmitArgs& args, GrGPArgs* gpArgs) {
 }
 
 void GLDashingCircleEffect::setData(const GrGLSLProgramDataManager& pdman,
-                                    const GrPrimitiveProcessor& processor) {
+                                    const GrPrimitiveProcessor& processor,
+                                    FPCoordTransformIter&& transformIter)  {
     const DashingCircleEffect& dce = processor.cast<DashingCircleEffect>();
     if (dce.color() != fColor) {
         float c[4];
@@ -909,6 +901,7 @@ void GLDashingCircleEffect::setData(const GrGLSLProgramDataManager& pdman,
         pdman.set4fv(fColorUniform, 1, c);
         fColor = dce.color();
     }
+    this->setTransformDataHelper(dce.localMatrix(), pdman, &transformIter);
 }
 
 void GLDashingCircleEffect::GenKey(const GrGeometryProcessor& gp,
@@ -1037,15 +1030,8 @@ public:
                               const GrGLSLCaps&,
                               GrProcessorKeyBuilder*);
 
-    void setData(const GrGLSLProgramDataManager&, const GrPrimitiveProcessor&) override;
-
-    void setTransformData(const GrPrimitiveProcessor& primProc,
-                          const GrGLSLProgramDataManager& pdman,
-                          int index,
-                          const SkTArray<const GrCoordTransform*, true>& transforms) override {
-        this->setTransformDataHelper(primProc.cast<DashingLineEffect>().localMatrix(), pdman, index,
-                                     transforms);
-    }
+    void setData(const GrGLSLProgramDataManager&, const GrPrimitiveProcessor&,
+                 FPCoordTransformIter&& iter) override;
 
 private:
     GrColor       fColor;
@@ -1094,8 +1080,7 @@ void GLDashingLineEffect::onEmitCode(EmitArgs& args, GrGPArgs* gpArgs) {
                          gpArgs->fPositionVar,
                          de.inPosition()->fName,
                          de.localMatrix(),
-                         args.fTransformsIn,
-                         args.fTransformsOut);
+                         args.fFPCoordTransformHandler);
 
     // transforms all points so that we can compare them to our test rect
     fragBuilder->codeAppendf("float xShifted = %s.x - floor(%s.x / %s.z) * %s.z;",
@@ -1134,7 +1119,8 @@ void GLDashingLineEffect::onEmitCode(EmitArgs& args, GrGPArgs* gpArgs) {
 }
 
 void GLDashingLineEffect::setData(const GrGLSLProgramDataManager& pdman,
-                                  const GrPrimitiveProcessor& processor) {
+                                  const GrPrimitiveProcessor& processor,
+                                  FPCoordTransformIter&& transformIter) {
     const DashingLineEffect& de = processor.cast<DashingLineEffect>();
     if (de.color() != fColor) {
         float c[4];
@@ -1142,6 +1128,7 @@ void GLDashingLineEffect::setData(const GrGLSLProgramDataManager& pdman,
         pdman.set4fv(fColorUniform, 1, c);
         fColor = de.color();
     }
+    this->setTransformDataHelper(de.localMatrix(), pdman, &transformIter);
 }
 
 void GLDashingLineEffect::GenKey(const GrGeometryProcessor& gp,

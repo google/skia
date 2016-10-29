@@ -12,11 +12,11 @@
 #include "SkPictureRecorder.h"
 #include "SkShader.h"
 
-static const SkScalar kPictureSize = SK_Scalar1;
-static const SkScalar kFillSize = 100;
-static const unsigned kRowSize = 6;
+constexpr SkScalar kPictureSize = SK_Scalar1;
+constexpr SkScalar kFillSize = 100;
+constexpr unsigned kRowSize = 6;
 
-static const struct {
+constexpr struct {
     SkScalar x, y, w, h;
     SkScalar offsetX, offsetY;
 } tiles[] = {

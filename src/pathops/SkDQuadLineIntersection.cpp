@@ -99,7 +99,7 @@ public:
         , fLine(&l)
         , fIntersections(i)
         , fAllowNear(true) {
-        i->setMax(4);  // allow short partial coincidence plus discrete intersections
+        i->setMax(5);  // allow short partial coincidence plus discrete intersections
     }
 
     LineQuadraticIntersections(const SkDQuad& q)

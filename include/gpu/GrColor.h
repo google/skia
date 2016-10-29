@@ -195,6 +195,17 @@ struct GrColor4f {
         return GrColor4f(color.fR, color.fG, color.fB, color.fA);
     }
 
+    bool operator==(const GrColor4f& other) const {
+        return
+            fRGBA[0] == other.fRGBA[0] &&
+            fRGBA[1] == other.fRGBA[1] &&
+            fRGBA[2] == other.fRGBA[2] &&
+            fRGBA[3] == other.fRGBA[3];
+    }
+    bool operator!=(const GrColor4f& other) const {
+        return !(*this == other);
+    }
+
     GrColor toGrColor() const {
         return GrColorPackRGBA(
             SkTPin<unsigned>(static_cast<unsigned>(fRGBA[0] * 255.0f + 0.5f), 0, 255),

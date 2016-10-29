@@ -16,9 +16,9 @@
 #include "GrPrimitiveProcessor.h"
 #include "GrProcOptInfo.h"
 #include "GrProgramDesc.h"
+#include "GrScissorState.h"
 #include "GrStencilSettings.h"
-#include "GrTypesPriv.h"
-#include "GrWindowRectangles.h"
+#include "GrWindowRectsState.h"
 #include "SkMatrix.h"
 #include "SkRefCnt.h"
 
@@ -60,7 +60,7 @@ public:
         const GrCaps*               fCaps;
         GrPipelineOptimizations     fOpts;
         const GrScissorState*       fScissor;
-        const GrWindowRectangles*   fWindowRects;
+        const GrWindowRectsState*   fWindowRectsState;
         bool                        fHasStencilClip;
         GrXferProcessor::DstTexture fDstTexture;
     };
@@ -79,7 +79,7 @@ public:
      * to combine draws. Therefore we take a param that indicates whether coord transforms should be
      * compared."
      */
-    static bool AreEqual(const GrPipeline& a, const GrPipeline& b, bool ignoreCoordTransforms);
+    static bool AreEqual(const GrPipeline& a, const GrPipeline& b);
 
     /**
      * Allows a GrBatch subclass to determine whether two GrBatches can combine. This is a stricter
@@ -88,9 +88,8 @@ public:
      */
     static bool CanCombine(const GrPipeline& a, const SkRect& aBounds,
                            const GrPipeline& b, const SkRect& bBounds,
-                           const GrCaps& caps,
-                           bool ignoreCoordTransforms = false)  {
-        if (!AreEqual(a, b, ignoreCoordTransforms)) {
+                           const GrCaps& caps)  {
+        if (!AreEqual(a, b)) {
             return false;
         }
         if (a.xferBarrierType(caps)) {
@@ -154,7 +153,7 @@ public:
 
     const GrScissorState& getScissorState() const { return fScissorState; }
 
-    const GrWindowRectangles& getWindowRectangles() const { return fWindowRects; }
+    const GrWindowRectsState& getWindowRectsState() const { return fWindowRectsState; }
 
     bool isHWAntialiasState() const { return SkToBool(fFlags & kHWAA_Flag); }
     bool snapVerticesToPixelCenters() const { return SkToBool(fFlags & kSnapVertices_Flag); }
@@ -223,7 +222,7 @@ private:
     typedef GrPendingProgramElement<const GrXferProcessor> ProgramXferProcessor;
     RenderTarget                        fRenderTarget;
     GrScissorState                      fScissorState;
-    GrWindowRectangles                  fWindowRects;
+    GrWindowRectsState                  fWindowRectsState;
     GrStencilSettings                   fStencilSettings;
     GrDrawFace                          fDrawFace;
     uint32_t                            fFlags;

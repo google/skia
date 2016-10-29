@@ -87,7 +87,7 @@ protected:
                                      SkBlurDrawLooper::kHighQuality_BlurFlag),
         };
 
-        static const struct {
+        constexpr struct {
             SkColor fColor;
             SkScalar fStrokeWidth;
         } gRec[] = {

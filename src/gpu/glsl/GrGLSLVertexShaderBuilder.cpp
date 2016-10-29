@@ -46,8 +46,10 @@ void GrGLSLVertexBuilder::transformToNormalizedDeviceSpace(const GrShaderVar& po
                           posVar.c_str(), fRtAdjustName, fRtAdjustName);
     }
     // We could have the GrGeometryProcessor do this, but its just easier to have it performed
-    // here. If we ever need to set variable pointsize, then we can reinvestigate
-    this->codeAppend("gl_PointSize = 1.0;");
+    // here. If we ever need to set variable pointsize, then we can reinvestigate.
+    if (this->getProgramBuilder()->desc().header().fHasPointSize) {
+        this->codeAppend("gl_PointSize = 1.0;");
+    }
 }
 
 void GrGLSLVertexBuilder::onFinalize() {

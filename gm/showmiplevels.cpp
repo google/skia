@@ -105,12 +105,7 @@ public:
         }
     }
 
-    ShowMipLevels(int N) : fN(N) {
-        fBM[0] = sk_tool_utils::create_checkerboard_bitmap(N, N, SK_ColorBLACK, SK_ColorWHITE, 2);
-        fBM[1] = make_bitmap(N, N);
-        fBM[2] = make_bitmap2(N, N);
-        fBM[3] = make_bitmap3(N, N);
-    }
+    ShowMipLevels(int N) : fN(N) { }
 
 protected:
 
@@ -198,6 +193,13 @@ protected:
         }
     }
 
+    void onOnceBeforeDraw() override {
+        fBM[0] = sk_tool_utils::create_checkerboard_bitmap(fN, fN, SK_ColorBLACK, SK_ColorWHITE, 2);
+        fBM[1] = make_bitmap(fN, fN);
+        fBM[2] = make_bitmap2(fN, fN);
+        fBM[3] = make_bitmap3(fN, fN);
+    }
+
     void onDraw(SkCanvas* canvas) override {
         canvas->translate(4, 4);
         for (const auto& bm : fBM) {
@@ -222,12 +224,7 @@ class ShowMipLevels2 : public skiagm::GM {
     SkBitmap  fBM[4];
 
 public:
-    ShowMipLevels2(int w, int h) : fW(w), fH(h) {
-        fBM[0] = sk_tool_utils::create_checkerboard_bitmap(w, h, SHOW_MIP_COLOR, SK_ColorWHITE, 2);
-        fBM[1] = make_bitmap(w, h);
-        fBM[2] = make_bitmap2(w, h);
-        fBM[3] = make_bitmap3(w, h);
-    }
+    ShowMipLevels2(int w, int h) : fW(w), fH(h) { }
 
 protected:
 
@@ -290,6 +287,14 @@ protected:
             drawLevels(canvas, bm);
             canvas->translate(orig.width()/2 + 8.0f, 0);
         }
+    }
+
+    void onOnceBeforeDraw() override {
+        fBM[0] = sk_tool_utils::create_checkerboard_bitmap(fW, fH,
+                                                           SHOW_MIP_COLOR, SK_ColorWHITE, 2);
+        fBM[1] = make_bitmap(fW, fH);
+        fBM[2] = make_bitmap2(fW, fH);
+        fBM[3] = make_bitmap3(fW, fH);
     }
 
     void onDraw(SkCanvas* canvas) override {

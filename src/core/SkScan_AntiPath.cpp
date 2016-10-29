@@ -354,7 +354,6 @@ void SuperBlitter::blitRect(int x, int y, int width, int height) {
             xleft = xrite - xleft;
             SkASSERT(xleft <= SCALE);
             SkASSERT(xleft > 0);
-            xrite = 0;
             fRealBlitter->blitV(ileft + fLeft, start_y, count,
                 coverage_to_exact_alpha(xleft));
         } else {

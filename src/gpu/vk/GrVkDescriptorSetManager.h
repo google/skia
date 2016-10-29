@@ -29,6 +29,11 @@ public:
     GrVkDescriptorSetManager(GrVkGpu* gpu,
                              VkDescriptorType,
                              const GrVkUniformHandler* handler = nullptr);
+
+    GrVkDescriptorSetManager(GrVkGpu* gpu,
+                             VkDescriptorType,
+                             const SkTArray<uint32_t>& visibilities);
+
     ~GrVkDescriptorSetManager() {}
 
     void abandon();
@@ -41,11 +46,16 @@ public:
     void recycleDescriptorSet(const GrVkDescriptorSet*);
 
     bool isCompatible(VkDescriptorType type, const GrVkUniformHandler*) const;
+    bool isCompatible(VkDescriptorType type,
+                      const SkTArray<uint32_t>& visibilities) const;
 
 private:
     struct DescriptorPoolManager {
         DescriptorPoolManager(VkDescriptorType type, GrVkGpu* gpu,
                               const GrVkUniformHandler* handler = nullptr);
+        DescriptorPoolManager(VkDescriptorType type, GrVkGpu* gpu,
+                              const SkTArray<uint32_t>& visibilities);
+
 
         ~DescriptorPoolManager() {
             SkASSERT(!fDescLayout);
@@ -70,6 +80,9 @@ private:
             kMaxDescriptors = 1024,
             kStartNumDescriptors = 16, // must be less than kMaxUniformDescriptors
         };
+
+        void init(GrVkGpu* gpu, VkDescriptorType type, const GrVkUniformHandler* uniformHandler,
+                  const SkTArray<uint32_t>* visibilities);
 
         void getNewPool(GrVkGpu* gpu);
     };

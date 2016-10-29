@@ -39,7 +39,7 @@ static void setup(SkPaint* paint, const SkBitmap& bm, bool filter,
     paint->setFilterQuality(filter ? kLow_SkFilterQuality : kNone_SkFilterQuality);
 }
 
-static const SkColorType gColorTypes[] = {
+constexpr SkColorType gColorTypes[] = {
     kN32_SkColorType,
     kRGB_565_SkColorType,
 };
@@ -82,13 +82,14 @@ protected:
 
         SkRect r = { 0, 0, SkIntToScalar(size*2), SkIntToScalar(size*2) };
 
-        static const char* gConfigNames[] = { "8888", "565", "4444" };
+        const char* gConfigNames[] = { "8888", "565", "4444" };
 
-        static const bool           gFilters[] = { false, true };
-        static const char*          gFilterNames[] = {     "point",                     "bilinear" };
+        constexpr bool gFilters[] = { false, true };
+        static const char* gFilterNames[] = { "point", "bilinear" };
 
-        static const SkShader::TileMode gModes[] = { SkShader::kClamp_TileMode, SkShader::kRepeat_TileMode, SkShader::kMirror_TileMode };
-        static const char*          gModeNames[] = {    "C",                    "R",                   "M" };
+        constexpr SkShader::TileMode gModes[] = {
+            SkShader::kClamp_TileMode, SkShader::kRepeat_TileMode, SkShader::kMirror_TileMode };
+        static const char* gModeNames[] = { "C", "R", "M" };
 
         SkScalar y = SkIntToScalar(24);
         SkScalar x = SkIntToScalar(10);
@@ -153,8 +154,8 @@ private:
     typedef skiagm::GM INHERITED;
 };
 
-static const int gWidth = 32;
-static const int gHeight = 32;
+constexpr int gWidth = 32;
+constexpr int gHeight = 32;
 
 static sk_sp<SkShader> make_bm(SkShader::TileMode tx, SkShader::TileMode ty) {
     SkBitmap bm;
@@ -205,10 +206,10 @@ protected:
         const SkScalar h = SkIntToScalar(gHeight);
         SkRect r = { -w, -h, w*2, h*2 };
 
-        static const SkShader::TileMode gModes[] = {
+        constexpr SkShader::TileMode gModes[] = {
             SkShader::kClamp_TileMode, SkShader::kRepeat_TileMode, SkShader::kMirror_TileMode
         };
-        static const char* gModeNames[] = {
+        const char* gModeNames[] = {
             "Clamp", "Repeat", "Mirror"
         };
 

@@ -345,7 +345,7 @@ static void get_bounds(DiffResource& resource, const char* name) {
     if (resource.fBitmap.empty() && !DiffResource::isStatusFailed(resource.fStatus)) {
         sk_sp<SkData> fileBits(read_file(resource.fFullPath.c_str()));
         if (fileBits) {
-            get_bitmap(fileBits.get(), resource, true);
+            get_bitmap(fileBits, resource, true);
         } else {
             SkDebugf("WARNING: couldn't read %s file <%s>\n", name, resource.fFullPath.c_str());
             resource.fStatus = DiffResource::kCouldNotRead_Status;
@@ -496,8 +496,8 @@ static void create_diff_images (DiffMetricProc dmp,
                 VERBOSE_STATUS("MATCH", ANSI_COLOR_GREEN, baseFiles[i]);
             } else {
                 AutoReleasePixels arp(drp);
-                get_bitmap(baseFileBits.get(), drp->fBase, false);
-                get_bitmap(comparisonFileBits.get(), drp->fComparison, false);
+                get_bitmap(baseFileBits, drp->fBase, false);
+                get_bitmap(comparisonFileBits, drp->fComparison, false);
                 VERBOSE_STATUS("DIFFERENT", ANSI_COLOR_RED, baseFiles[i]);
                 if (DiffResource::kDecoded_Status == drp->fBase.fStatus &&
                     DiffResource::kDecoded_Status == drp->fComparison.fStatus) {

@@ -6,66 +6,61 @@
  */
 
 #include "SkFontConfigInterface.h"
+#include "SkFontDescriptor.h"
 #include "SkFontHost_FreeType_common.h"
+#include "SkRefCnt.h"
 #include "SkStream.h"
-#include "SkTypefaceCache.h"
 
 class SkFontDescriptor;
 
 class SkTypeface_FCI : public SkTypeface_FreeType {
-    SkAutoTUnref<SkFontConfigInterface> fFCI;
+    sk_sp<SkFontConfigInterface> fFCI;
     SkFontConfigInterface::FontIdentity fIdentity;
     SkString fFamilyName;
-    SkAutoTDelete<SkStreamAsset> fLocalStream;
+    std::unique_ptr<SkFontData> fFontData;
 
 public:
-    static SkTypeface_FCI* Create(SkFontConfigInterface* fci,
+    static SkTypeface_FCI* Create(sk_sp<SkFontConfigInterface> fci,
                                   const SkFontConfigInterface::FontIdentity& fi,
                                   const SkString& familyName,
                                   const SkFontStyle& style)
     {
-        return new SkTypeface_FCI(fci, fi, familyName, style);
+        return new SkTypeface_FCI(std::move(fci), fi, familyName, style);
     }
 
-    static SkTypeface_FCI* Create(const SkFontStyle& style, bool fixedWidth,
-                                  SkStreamAsset* localStream, int index)
+    static SkTypeface_FCI* Create(std::unique_ptr<SkFontData> data,
+                                  SkFontStyle style, bool isFixedPitch)
     {
-        return new SkTypeface_FCI(style, fixedWidth, localStream, index);
+        return new SkTypeface_FCI(std::move(data), style, isFixedPitch);
     }
 
     const SkFontConfigInterface::FontIdentity& getIdentity() const {
         return fIdentity;
     }
 
-    SkStreamAsset* getLocalStream() const {
-        return fLocalStream.get();
-    }
-
-    bool isFamilyName(const char* name) const {
-        return fFamilyName.equals(name);
-    }
-
 protected:
-    SkTypeface_FCI(SkFontConfigInterface* fci,
+    SkTypeface_FCI(sk_sp<SkFontConfigInterface> fci,
                    const SkFontConfigInterface::FontIdentity& fi,
                    const SkString& familyName,
                    const SkFontStyle& style)
             : INHERITED(style, false)
-            , fFCI(SkRef(fci))
+            , fFCI(std::move(fci))
             , fIdentity(fi)
             , fFamilyName(familyName)
-            , fLocalStream(nullptr) {}
+            , fFontData(nullptr) {}
 
-    SkTypeface_FCI(const SkFontStyle& style, bool fixedWidth, SkStreamAsset* localStream, int index)
-            : INHERITED(style, fixedWidth)
-            , fLocalStream(localStream)
+    SkTypeface_FCI(std::unique_ptr<SkFontData> data, SkFontStyle style, bool isFixedPitch)
+            : INHERITED(style, isFixedPitch)
+            , fFontData(std::move(data))
     {
-        fIdentity.fTTCIndex = index;
+        SkASSERT(fFontData);
+        fIdentity.fTTCIndex = fFontData->getIndex();
     }
 
     void onGetFamilyName(SkString* familyName) const override { *familyName = fFamilyName; }
     void onGetFontDescriptor(SkFontDescriptor*, bool*) const override;
     SkStreamAsset* onOpenStream(int* ttcIndex) const override;
+    std::unique_ptr<SkFontData> onMakeFontData() const override;
 
 private:
     typedef SkTypeface_FreeType INHERITED;

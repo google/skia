@@ -85,7 +85,7 @@ public:
         );
     }
 
-    bool operator== (const GrTextureDomain& that) const {
+    bool operator==(const GrTextureDomain& that) const {
         return fMode == that.fMode && (kIgnore_Mode == fMode || fDomain == that.fDomain);
     }
 
@@ -140,7 +140,7 @@ public:
          * computed key. The returned will be limited to the lower kDomainKeyBits bits.
          */
         static uint32_t DomainKey(const GrTextureDomain& domain) {
-            GR_STATIC_ASSERT(kModeCount <= 4);
+            GR_STATIC_ASSERT(kModeCount <= (1 << kDomainKeyBits));
             return domain.mode();
         }
 
@@ -171,35 +171,28 @@ public:
                                            const SkMatrix&,
                                            const SkRect& domain,
                                            GrTextureDomain::Mode,
-                                           GrTextureParams::FilterMode filterMode,
-                                           GrCoordSet = kLocal_GrCoordSet);
-
-    virtual ~GrTextureDomainEffect();
+                                           GrTextureParams::FilterMode filterMode);
 
     const char* name() const override { return "TextureDomain"; }
 
     SkString dumpInfo() const override {
         SkString str;
-        str.appendf("Domain: [L: %.2f, T: %.2f, R: %.2f, B: %.2f] ",
+        str.appendf("Domain: [L: %.2f, T: %.2f, R: %.2f, B: %.2f]",
                     fTextureDomain.domain().fLeft, fTextureDomain.domain().fTop,
                     fTextureDomain.domain().fRight, fTextureDomain.domain().fBottom);
         str.append(INHERITED::dumpInfo());
         return str;
     }
 
-    const GrTextureDomain& textureDomain() const { return fTextureDomain; }
-
-protected:
+private:
     GrTextureDomain fTextureDomain;
 
-private:
     GrTextureDomainEffect(GrTexture*,
                           sk_sp<GrColorSpaceXform>,
                           const SkMatrix&,
                           const SkRect& domain,
                           GrTextureDomain::Mode,
-                          GrTextureParams::FilterMode,
-                          GrCoordSet);
+                          GrTextureParams::FilterMode);
 
     GrGLSLFragmentProcessor* onCreateGLSLInstance() const override;
 
@@ -214,4 +207,40 @@ private:
     typedef GrSingleTextureEffect INHERITED;
 };
 
+class GrDeviceSpaceTextureDecalFragmentProcessor : public GrFragmentProcessor {
+public:
+    static sk_sp<GrFragmentProcessor> Make(GrTexture*, const SkIRect& subset,
+                                           const SkIPoint& deviceSpaceOffset);
+
+    const char* name() const override { return "GrDeviceSpaceTextureDecalFragmentProcessor"; }
+
+    SkString dumpInfo() const override {
+        SkString str;
+        str.appendf("Domain: [L: %.2f, T: %.2f, R: %.2f, B: %.2f] Offset: [%d %d]",
+                    fTextureDomain.domain().fLeft, fTextureDomain.domain().fTop,
+                    fTextureDomain.domain().fRight, fTextureDomain.domain().fBottom,
+                    fDeviceSpaceOffset.fX, fDeviceSpaceOffset.fY);
+        str.append(INHERITED::dumpInfo());
+        return str;
+    }
+
+private:
+    GrTextureAccess fTextureAccess;
+    GrTextureDomain fTextureDomain;
+    SkIPoint fDeviceSpaceOffset;
+
+    GrDeviceSpaceTextureDecalFragmentProcessor(GrTexture*, const SkIRect&, const SkIPoint&);
+
+    GrGLSLFragmentProcessor* onCreateGLSLInstance() const override;
+
+    // Since we always use decal mode, there is no need for key data.
+    void onGetGLSLProcessorKey(const GrGLSLCaps&, GrProcessorKeyBuilder*) const override {}
+
+    bool onIsEqual(const GrFragmentProcessor& fp) const override;
+    void onComputeInvariantOutput(GrInvariantOutput* inout) const override;
+
+    GR_DECLARE_FRAGMENT_PROCESSOR_TEST;
+
+    typedef GrFragmentProcessor INHERITED;
+};
 #endif

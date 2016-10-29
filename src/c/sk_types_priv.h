@@ -13,6 +13,7 @@
 #include "SkDocument.h"
 #include "SkPaint.h"
 #include "SkPath.h"
+#include "SkPathMeasure.h"
 #include "SkCodec.h"
 #include "SkPicture.h"
 #include "SkPictureRecorder.h"
@@ -81,6 +82,10 @@ static inline sk_rect_t ToRect(const SkRect& rect) {
     return reinterpret_cast<const sk_rect_t&>(rect);
 }
 
+static inline sk_irect_t ToIRect(const SkIRect& rect) {
+    return reinterpret_cast<const sk_irect_t&>(rect);
+}
+
 static inline SkIRect* AsIRect(sk_irect_t* crect) {
     return reinterpret_cast<SkIRect*>(crect);
 }
@@ -93,9 +98,12 @@ static inline const SkIRect& AsIRect(const sk_irect_t& crect) {
     return reinterpret_cast<const SkIRect&>(crect);
 }
 
-/* SkRegion */
 static inline SkRegion* AsRegion(sk_region_t* creg) {
     return reinterpret_cast<SkRegion*>(creg);
+}
+
+static inline SkRegion& AsRegion(sk_region_t& creg) {
+    return reinterpret_cast<SkRegion&>(creg);
 }
 
 static inline const SkRegion* AsRegion(const sk_region_t* creg) {
@@ -109,7 +117,6 @@ static inline const SkRegion& AsRegion(const sk_region_t& creg) {
 static inline sk_region_t* ToRegion(SkRegion* reg) {
     return reinterpret_cast<sk_region_t*>(reg);
 }
-/* End SkRegion */
 
 static inline const SkBitmap* AsBitmap(const sk_bitmap_t* cbitmap) {
     return reinterpret_cast<const SkBitmap*>(cbitmap);
@@ -141,6 +148,10 @@ static inline const SkPath& AsPath(const sk_path_t& cpath) {
 
 static inline SkPath* AsPath(sk_path_t* cpath) {
     return reinterpret_cast<SkPath*>(cpath);
+}
+
+static inline const SkPath* AsPath(const sk_path_t* cpath) {
+    return reinterpret_cast<const SkPath*>(cpath);
 }
 
 static inline const SkImage* AsImage(const sk_image_t* cimage) {
@@ -213,6 +224,10 @@ static inline SkCodec* AsCodec(sk_codec_t* codec) {
 
 static inline sk_codec_t* ToCodec(SkCodec* codec) {
     return reinterpret_cast<sk_codec_t*>(codec);
+}
+
+static inline const SkCodec::Options* AsCodecOptions(const sk_codec_options_t* t) {
+    return reinterpret_cast<const SkCodec::Options*>(t);
 }
 
 static inline SkTypeface* AsTypeface(sk_typeface_t* typeface) {
@@ -515,6 +530,18 @@ static inline SkOpBuilder* AsOpBuilder(sk_opbuilder_t* p) {
     return reinterpret_cast<SkOpBuilder*>(p);
 }
 
+static inline const SkCanvas::Lattice& AsLattice(const sk_lattice_t& p) {
+    return reinterpret_cast<const SkCanvas::Lattice&>(p);
+}
+
+static inline sk_pathmeasure_t* ToPathMeasure(SkPathMeasure* p) {
+    return reinterpret_cast<sk_pathmeasure_t*>(p);
+}
+
+static inline SkPathMeasure* AsPathMeasure(sk_pathmeasure_t* p) {
+    return reinterpret_cast<SkPathMeasure*>(p);
+}
+
 static inline void from_c(const sk_matrix_t* cmatrix, SkMatrix* matrix) {
     matrix->setAll(
         cmatrix->mat[0], cmatrix->mat[1], cmatrix->mat[2],
@@ -524,17 +551,6 @@ static inline void from_c(const sk_matrix_t* cmatrix, SkMatrix* matrix) {
 
 static inline void from_sk(const SkMatrix* matrix, sk_matrix_t* cmatrix) {
     matrix->get9(cmatrix->mat);
-}
-
-static inline bool from_c(const sk_codec_options_t& coptions, SkCodec::Options* options) {
-    if (options) {
-        *options = SkCodec::Options();
-        options->fZeroInitialized = (SkCodec::ZeroInitialized)coptions.fZeroInitialized;
-        if (coptions.fHasSubset) {
-            options->fSubset = AsIRect((sk_irect_t*)&coptions.fSubset);
-        }
-    }
-    return true;
 }
 
 static inline bool from_c(const sk_imageinfo_t& cinfo, SkImageInfo* info) {

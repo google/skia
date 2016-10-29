@@ -19,7 +19,7 @@ public:
     static const GrVkResource* CreateResource(GrVkGpu* gpu, size_t size);
     static const size_t kStandardSize = 256;
 
-    void* map(const GrVkGpu* gpu) {
+    void* map(GrVkGpu* gpu) {
         return this->vkMap(gpu);
     }
     void unmap(GrVkGpu* gpu) {

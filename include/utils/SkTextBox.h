@@ -60,7 +60,7 @@ public:
     int     countLines() const;
     SkScalar getTextHeight() const;
 
-    SkTextBlob* snapshotTextBlob(SkScalar* computedBottom) const;
+    sk_sp<SkTextBlob> snapshotTextBlob(SkScalar* computedBottom) const;
 
     class Visitor {
     public:

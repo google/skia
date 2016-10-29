@@ -33,8 +33,7 @@ public:
     /**
      * Helper that gets the width and height of the surface as a bounding rectangle.
      */
-    void getBoundsRect(SkRect* rect) const { rect->setWH(SkIntToScalar(this->width()),
-                                                         SkIntToScalar(this->height())); }
+    SkRect getBoundsRect() const { return SkRect::MakeIWH(this->width(), this->height()); }
 
     GrSurfaceOrigin origin() const {
         SkASSERT(kTopLeft_GrSurfaceOrigin == fDesc.fOrigin || kBottomLeft_GrSurfaceOrigin == fDesc.fOrigin);

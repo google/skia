@@ -12,7 +12,7 @@
 
 DEF_SIMPLE_GM_BG(blurs, canvas, 700, 500, sk_tool_utils::color_to_565(0xFFDDDDDD)) {
         SkBlurStyle NONE = SkBlurStyle(-999);
-        static const struct {
+        const struct {
             SkBlurStyle fStyle;
             int         fCx, fCy;
         } gRecs[] = {

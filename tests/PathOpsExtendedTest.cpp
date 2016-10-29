@@ -508,9 +508,9 @@ bool testSimplify(skiatest::Reporter* reporter, const SkPath& path, const char* 
             ExpectMatch::kYes);
 }
 
-bool testSimplifyFailSkipAssert(skiatest::Reporter* reporter, const SkPath& path, const char* filename) {
-    return inner_simplify(reporter, path, filename, ExpectSuccess::kNo, SkipAssert::kYes,
-            ExpectMatch::kNo);
+bool testSimplifyFuzz(skiatest::Reporter* reporter, const SkPath& path, const char* filename) {
+    return inner_simplify(reporter, path, filename, ExpectSuccess::kFlaky, SkipAssert::kYes,
+            ExpectMatch::kFlaky);
 }
 
 bool testSimplifyCheck(skiatest::Reporter* reporter, const SkPath& path, const char* filename,
@@ -593,25 +593,7 @@ bool testPathOpCheck(skiatest::Reporter* reporter, const SkPath& a, const SkPath
             ExpectSuccess::kYes : ExpectSuccess::kNo, SkipAssert::kNo, ExpectMatch::kNo);
 }
 
-bool testPathOpFailCheck(skiatest::Reporter* reporter, const SkPath& a, const SkPath& b,
-        const SkPathOp shapeOp, const char* testName) {
-    return innerPathOp(reporter, a, b, shapeOp, testName, ExpectSuccess::kNo, SkipAssert::kNo,
-            ExpectMatch::kNo);
-}
-
-bool testPathOpSkipAssert(skiatest::Reporter* reporter, const SkPath& a, const SkPath& b,
-        const SkPathOp shapeOp, const char* testName) {
-    return innerPathOp(reporter, a, b, shapeOp, testName, ExpectSuccess::kYes, SkipAssert::kYes,
-            ExpectMatch::kYes);
-}
-
-bool testPathOpFailSkipAssert(skiatest::Reporter* reporter, const SkPath& a, const SkPath& b,
-        const SkPathOp shapeOp, const char* testName) {
-    return innerPathOp(reporter, a, b, shapeOp, testName, ExpectSuccess::kNo, SkipAssert::kYes,
-            ExpectMatch::kNo);
-}
-
-bool testPathOpFlakySkipAssert(skiatest::Reporter* reporter, const SkPath& a, const SkPath& b,
+bool testPathOpFuzz(skiatest::Reporter* reporter, const SkPath& a, const SkPath& b,
         const SkPathOp shapeOp, const char* testName) {
     return innerPathOp(reporter, a, b, shapeOp, testName, ExpectSuccess::kFlaky, SkipAssert::kYes,
             ExpectMatch::kFlaky);
@@ -707,7 +689,7 @@ void RunTestSet(skiatest::Reporter* reporter, TestDesc tests[], size_t count,
     #if DEBUG_SHOW_TEST_NAME
             SkDebugf("\n<div id=\"%s\">\n", tests[index].str);
     #endif
-            (*tests[index].fun)(reporter, tests[index].str);
+             (*tests[index].fun)(reporter, tests[index].str);
         }
         if (tests[index].fun == stopTest || index == last) {
             break;

@@ -79,8 +79,7 @@ sk_sp<SkSpecialImage> SkColorFilterImageFilter::onFilterImage(SkSpecialImage* so
         return nullptr;
     }
 
-    SkImageInfo info = SkImageInfo::MakeN32(bounds.width(), bounds.height(), kPremul_SkAlphaType);
-    sk_sp<SkSpecialSurface> surf(source->makeSurface(info));
+    sk_sp<SkSpecialSurface> surf(source->makeSurface(ctx.outputProperties(), bounds.size()));
     if (!surf) {
         return nullptr;
     }
@@ -90,7 +89,7 @@ sk_sp<SkSpecialImage> SkColorFilterImageFilter::onFilterImage(SkSpecialImage* so
 
     SkPaint paint;
 
-    paint.setXfermodeMode(SkXfermode::kSrc_Mode);
+    paint.setBlendMode(SkBlendMode::kSrc);
     paint.setColorFilter(fColorFilter);
 
     // TODO: it may not be necessary to clear or drawPaint inside the input bounds

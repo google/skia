@@ -115,7 +115,7 @@ private:
     
     void writeGlobalVars(const VarDeclaration& vs);
 
-    void writeVarDeclaration(const VarDeclaration& decl);
+    void writeVarDeclarations(const VarDeclarations& decl);
 
     void writeVariableReference(const VariableReference& ref);
 

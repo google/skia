@@ -50,7 +50,7 @@ void GrGLAttribArrayState::set(GrGLGpu* gpu,
         array->fEnableIsValid = true;
         array->fEnabled = true;
     }
-    if (array->fVertexBufferUniqueID != vertexBuffer->getUniqueID() ||
+    if (array->fVertexBufferUniqueID != vertexBuffer->uniqueID() ||
         array->fType != type ||
         array->fStride != stride ||
         array->fOffset != offset) {
@@ -72,7 +72,7 @@ void GrGLAttribArrayState::set(GrGLGpu* gpu,
                                                                 stride,
                                                                 offset));
         }
-        array->fVertexBufferUniqueID = vertexBuffer->getUniqueID();
+        array->fVertexBufferUniqueID = vertexBuffer->uniqueID();
         array->fType = type;
         array->fStride = stride;
         array->fOffset = offset;
@@ -114,7 +114,7 @@ GrGLAttribArrayState* GrGLVertexArray::bind(GrGLGpu* gpu) {
 
 GrGLAttribArrayState* GrGLVertexArray::bindWithIndexBuffer(GrGLGpu* gpu, const GrBuffer* ibuff) {
     GrGLAttribArrayState* state = this->bind(gpu);
-    if (state && fIndexBufferUniqueID != ibuff->getUniqueID()) {
+    if (state && fIndexBufferUniqueID != ibuff->uniqueID()) {
         if (ibuff->isCPUBacked()) {
             GR_GL_CALL(gpu->glInterface(), BindBuffer(GR_GL_ELEMENT_ARRAY_BUFFER, 0));
         } else {
@@ -122,7 +122,7 @@ GrGLAttribArrayState* GrGLVertexArray::bindWithIndexBuffer(GrGLGpu* gpu, const G
             GR_GL_CALL(gpu->glInterface(), BindBuffer(GR_GL_ELEMENT_ARRAY_BUFFER,
                                                       glBuffer->bufferID()));
         }
-        fIndexBufferUniqueID = ibuff->getUniqueID();
+        fIndexBufferUniqueID = ibuff->uniqueID();
     }
     return state;
 }

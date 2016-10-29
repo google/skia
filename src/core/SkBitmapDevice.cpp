@@ -233,6 +233,15 @@ void SkBitmapDevice::drawBitmap(const SkDraw& draw, const SkBitmap& bitmap,
     draw.drawBitmap(bitmap, matrix, nullptr, paint);
 }
 
+static inline bool CanApplyDstMatrixAsCTM(const SkMatrix& m, const SkPaint& paint) {
+    if (!paint.getMaskFilter()) {
+        return true;
+    }
+
+    // Some mask filters parameters (sigma) depend on the CTM/scale.
+    return m.getType() <= SkMatrix::kTranslate_Mask;
+}
+
 void SkBitmapDevice::drawBitmapRect(const SkDraw& draw, const SkBitmap& bitmap,
                                     const SkRect* src, const SkRect& dst,
                                     const SkPaint& paint, SkCanvas::SrcRectConstraint constraint) {
@@ -309,8 +318,10 @@ void SkBitmapDevice::drawBitmapRect(const SkDraw& draw, const SkBitmap& bitmap,
         // We can go faster by just calling drawBitmap, which will concat the
         // matrix with the CTM, and try to call drawSprite if it can. If not,
         // it will make a shader and call drawRect, as we do below.
-        draw.drawBitmap(*bitmapPtr, matrix, dstPtr, paint);
-        return;
+        if (CanApplyDstMatrixAsCTM(matrix, paint)) {
+            draw.drawBitmap(*bitmapPtr, matrix, dstPtr, paint);
+            return;
+        }
     }
 
     USE_SHADER:
@@ -384,7 +395,8 @@ void SkBitmapDevice::drawSpecial(const SkDraw& draw, SkSpecialImage* srcImg, int
         matrix.postTranslate(SkIntToScalar(-x), SkIntToScalar(-y));
         const SkIRect clipBounds = draw.fRC->getBounds().makeOffset(-x, -y);
         SkAutoTUnref<SkImageFilterCache> cache(this->getImageFilterCache());
-        SkImageFilter::Context ctx(matrix, clipBounds, cache.get());
+        SkImageFilter::OutputProperties outputProperties(fBitmap.colorSpace());
+        SkImageFilter::Context ctx(matrix, clipBounds, cache.get(), outputProperties);
         
         sk_sp<SkSpecialImage> resultImg(filter->filterImage(srcImg, ctx, &offset));
         if (resultImg) {
@@ -434,7 +446,7 @@ bool SkBitmapDevice::onShouldDisableLCD(const SkPaint& paint) const {
         paint.getPathEffect() ||
         paint.isFakeBoldText() ||
         paint.getStyle() != SkPaint::kFill_Style ||
-        !SkXfermode::IsMode(paint.getXfermode(), SkXfermode::kSrcOver_Mode))
+        !paint.isSrcOver())
     {
         return true;
     }

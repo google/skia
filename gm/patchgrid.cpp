@@ -105,8 +105,8 @@ protected:
             {{50,325},{150,325},{250,325},{350,325},{450,325}}
         };
 
-        static const int kRows = 3;
-        static const int kCols = 4;
+        constexpr int kRows = 3;
+        constexpr int kCols = 4;
 
         canvas->scale(3, 3);
         SkPatchGrid grid(kRows, kCols, SkPatchGrid::kColors_VertexType, nullptr);

@@ -212,6 +212,9 @@ bool SkDCubic::hullIntersects(const SkDConic& conic, bool* isLinear) const {
 }
 
 bool SkDCubic::isLinear(int startIndex, int endIndex) const {
+    if (fPts[0].approximatelyDEqual(fPts[3]))  {
+        return ((const SkDQuad *) this)->isLinear(0, 2);
+    }
     SkLineParameters lineParameters;
     lineParameters.cubicEndPoints(*this, startIndex, endIndex);
     // FIXME: maybe it's possible to avoid this and compare non-normalized

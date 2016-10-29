@@ -786,10 +786,38 @@ bool GrGLInterface::validate() const {
         }
     }
 
+    if (kGL_GrGLStandard == fStandard) {
+        if (glVer >= GR_GL_VER(3, 2) || fExtensions.has("GL_ARB_sync")) {
+            if (nullptr == fFunctions.fFenceSync ||
+                nullptr == fFunctions.fClientWaitSync ||
+                nullptr == fFunctions.fDeleteSync) {
+                RETURN_FALSE_INTERFACE
+            }
+        }
+    } else if (kGLES_GrGLStandard == fStandard) {
+        if (glVer >= GR_GL_VER(3, 0)) {
+            if (nullptr == fFunctions.fFenceSync ||
+                nullptr == fFunctions.fClientWaitSync ||
+                nullptr == fFunctions.fDeleteSync) {
+                RETURN_FALSE_INTERFACE
+            }
+        }
+    }
+
     if (fExtensions.has("EGL_KHR_image") || fExtensions.has("EGL_KHR_image_base")) {
         if (nullptr == fFunctions.fEGLCreateImage ||
             nullptr == fFunctions.fEGLDestroyImage) {
             RETURN_FALSE_INTERFACE
+        }
+    }
+
+    if (kGL_GrGLStandard == fStandard && glVer >= GR_GL_VER(2,0)) {
+        if (nullptr == fFunctions.fDrawRangeElements) {
+            RETURN_FALSE_INTERFACE;
+        }
+    } else if (kGLES_GrGLStandard == fStandard && glVer >= GR_GL_VER(3,0)) {
+        if (nullptr == fFunctions.fDrawRangeElements) {
+            RETURN_FALSE_INTERFACE;
         }
     }
 

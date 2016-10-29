@@ -26,7 +26,7 @@ static sk_sp<SkImage> make_atlas(SkCanvas* caller, int atlasSize) {
     SkCanvas* canvas = surface->getCanvas();
 
     SkPaint paint;
-    paint.setXfermode(SkXfermode::Make(SkXfermode::kSrc_Mode));
+    paint.setBlendMode(SkBlendMode::kSrc);
 
     paint.setColor(SK_ColorWHITE);
     SkRect r = SkRect::MakeXYWH(0, 0,
@@ -72,9 +72,7 @@ protected:
     void onDraw(SkCanvas* canvas) override {
         const SkRect target = SkRect::MakeWH(SkIntToScalar(kAtlasSize), SkIntToScalar(kAtlasSize));
 
-        if (nullptr == fAtlas) {
-            fAtlas = make_atlas(canvas, kAtlasSize);
-        }
+        auto atlas = make_atlas(canvas, kAtlasSize);
 
         const struct {
             SkXfermode::Mode fMode;
@@ -151,25 +149,22 @@ protected:
             canvas->translate(SkIntToScalar(i*(target.height()+kPad)),
                               SkIntToScalar(kTextPad+kPad));
             // w/o a paint
-            canvas->drawAtlas(fAtlas.get(), xforms, rects, quadColors, numColors,
+            canvas->drawAtlas(atlas.get(), xforms, rects, quadColors, numColors,
                               gModes[i].fMode, nullptr, nullptr);
             canvas->translate(0.0f, numColors*(target.height()+kPad));
             // w a paint
-            canvas->drawAtlas(fAtlas.get(), xforms, rects, quadColors, numColors,
+            canvas->drawAtlas(atlas.get(), xforms, rects, quadColors, numColors,
                               gModes[i].fMode, nullptr, &paint);
             canvas->restore();
         }
     }
 
 private:
-    static const int kNumXferModes = 29;
-    static const int kNumColors = 4;
-    static const int kAtlasSize = 30;
-    static const int kPad = 2;
-    static const int kTextPad = 8;
-
-
-    sk_sp<SkImage> fAtlas;
+    static constexpr int kNumXferModes = 29;
+    static constexpr int kNumColors = 4;
+    static constexpr int kAtlasSize = 30;
+    static constexpr int kPad = 2;
+    static constexpr int kTextPad = 8;
 
     typedef GM INHERITED;
 };

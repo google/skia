@@ -525,12 +525,14 @@ void GrGLCaps::init(const GrContextOptions& contextOptions,
                                     (fDrawIndirectSupport &&
                                      !fBaseInstanceSupport && // The ARB extension has no base inst.
                                      ctxInfo.hasExtension("GL_ARB_multi_draw_indirect"));
+        fDrawRangeElementsSupport = version >= GR_GL_VER(2,0);
     } else {
         fDrawIndirectSupport = version >= GR_GL_VER(3,1);
         fMultiDrawIndirectSupport = fDrawIndirectSupport &&
                                     ctxInfo.hasExtension("GL_EXT_multi_draw_indirect");
         fBaseInstanceSupport = fDrawIndirectSupport &&
                                ctxInfo.hasExtension("GL_EXT_base_instance");
+        fDrawRangeElementsSupport = version >= GR_GL_VER(3,0);
     }
 
     this->initShaderPrecisionTable(ctxInfo, gli, glslCaps);
@@ -546,6 +548,15 @@ void GrGLCaps::init(const GrContextOptions& contextOptions,
         }
     } else if (ctxInfo.hasExtension("GL_OES_sample_shading")) {
         fSampleShadingSupport = true;
+    }
+
+    // TODO: support CHROMIUM_sync_point and maybe KHR_fence_sync
+    if (kGL_GrGLStandard == standard) {
+        if (version >= GR_GL_VER(3, 2) || ctxInfo.hasExtension("GL_ARB_sync")) {
+            fFenceSyncSupport = true;
+        }
+    } else if (version >= GR_GL_VER(3, 0)) {
+        fFenceSyncSupport = true;
     }
 
     // We support manual mip-map generation (via iterative downsampling draw calls). This fixes
@@ -653,6 +664,13 @@ void GrGLCaps::initGLSL(const GrGLContextInfo& ctxInfo) {
             glslCaps->fFBFetchExtensionString = "GL_ARM_shader_framebuffer_fetch";
         }
         glslCaps->fUsesPrecisionModifiers = true;
+    }
+
+    // Currently the extension is advertised but fb fetch is broken on 500 series Adrenos like the
+    // Galaxy S7.
+    // TODO: Once this is fixed we can update the check here to look at a driver version number too.
+    if (kAdreno5xx_GrGLRenderer == ctxInfo.renderer()) {
+        glslCaps->fFBFetchSupport = false;
     }
 
     glslCaps->fBindlessTextureSupport = ctxInfo.hasExtension("GL_NV_bindless_texture");
@@ -1281,7 +1299,7 @@ bool GrGLCaps::getExternalFormat(GrPixelConfig surfaceConfig, GrPixelConfig memo
                                  ExternalFormatUsage usage, GrGLenum* externalFormat,
                                  GrGLenum* externalType) const {
     SkASSERT(externalFormat && externalType);
-    if (GrPixelConfigIsCompressed(memoryConfig) || GrPixelConfigIsCompressed(memoryConfig)) {
+    if (GrPixelConfigIsCompressed(memoryConfig)) {
         return false;
     }
 

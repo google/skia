@@ -29,12 +29,12 @@ static sk_sp<SkImage> makebm(SkCanvas* caller, int w, int h) {
 
     const SkScalar    radius = 4 * SkMaxScalar(wScalar, hScalar);
 
-    static const SkColor     colors[] = { SK_ColorRED, SK_ColorYELLOW,
+    constexpr SkColor     colors[] = { SK_ColorRED, SK_ColorYELLOW,
                                           SK_ColorGREEN, SK_ColorMAGENTA,
                                           SK_ColorBLUE, SK_ColorCYAN,
                                           SK_ColorRED};
 
-    static const SkScalar    pos[] = {0,
+    constexpr SkScalar    pos[] = {0,
                                       SK_Scalar1 / 6,
                                       2 * SK_Scalar1 / 6,
                                       3 * SK_Scalar1 / 6,
@@ -60,8 +60,8 @@ static sk_sp<SkImage> makebm(SkCanvas* caller, int w, int h) {
     return surface->makeImageSnapshot();
 }
 
-static const int gSize = 1024;
-static const int gSurfaceSize = 2048;
+constexpr int gSize = 1024;
+constexpr int gSurfaceSize = 2048;
 
 // This GM calls drawImageRect several times using the same texture. This is
 // intended to exercise batching of these calls.
@@ -85,10 +85,10 @@ protected:
         }
 
         const SkRect dstRect = { 0, 0, SkIntToScalar(64), SkIntToScalar(64)};
-        static const int kMaxSrcRectSize = 1 << (SkNextLog2(gSurfaceSize) + 2);
+        const int kMaxSrcRectSize = 1 << (SkNextLog2(gSurfaceSize) + 2);
 
-        static const int kPadX = 30;
-        static const int kPadY = 40;
+        constexpr int kPadX = 30;
+        constexpr int kPadY = 40;
 
         int rowCount = 0;
         canvas->translate(SkIntToScalar(kPadX), SkIntToScalar(kPadY));

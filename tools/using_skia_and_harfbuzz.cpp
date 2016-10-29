@@ -151,7 +151,7 @@ public:
         }
         SkTextBlobBuilder textBlobBuilder;
         shaper.shape(&textBlobBuilder, glyph_paint, text, textBytes, SkPoint{0, 0});
-        sk_sp<const SkTextBlob> blob(textBlobBuilder.build());
+        sk_sp<const SkTextBlob> blob = textBlobBuilder.make();
         pageCanvas->drawTextBlob(
                 blob.get(), SkDoubleToScalar(current_x),
                 SkDoubleToScalar(current_y), glyph_paint);

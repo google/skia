@@ -11,11 +11,11 @@
 #include "SkGradientShader.h"
 #include "SkPM4fPriv.h"
 
-DEF_SIMPLE_GM(gamma, canvas, 560, 200) {
+DEF_SIMPLE_GM(gamma, canvas, 850, 200) {
     SkPaint p;
     const SkScalar sz = 50.0f;
     const int szInt = SkScalarTruncToInt(sz);
-    const SkScalar tx = sz + 5.0f;
+    const SkScalar tx = sz + 15.0f;
     const SkRect r = SkRect::MakeXYWH(0, 0, sz, sz);
     SkShader::TileMode rpt = SkShader::kRepeat_TileMode;
     auto srgbColorSpace = SkColorSpace::NewNamed(SkColorSpace::kSRGB_Named);
@@ -49,7 +49,9 @@ DEF_SIMPLE_GM(gamma, canvas, 560, 200) {
     mipmapPixels[1] = mipmapPixels[2] = SkPackARGB32(0xFF, s75, s75, s75);
 
     SkPaint textPaint;
+    textPaint.setAntiAlias(true);
     textPaint.setColor(SK_ColorWHITE);
+    sk_tool_utils::set_portable_typeface(&textPaint);
 
     // Helpers:
     auto advance = [&]() {
@@ -73,11 +75,11 @@ DEF_SIMPLE_GM(gamma, canvas, 560, 200) {
         advance();
     };
 
-    auto nextXferRect = [&](SkColor srcColor, SkXfermode::Mode mode, SkColor dstColor) {
+    auto nextXferRect = [&](SkColor srcColor, SkBlendMode mode, SkColor dstColor) {
         p.setColor(dstColor);
         canvas->drawRect(r, p);
         p.setColor(srcColor);
-        p.setXfermodeMode(mode);
+        p.setBlendMode(mode);
         canvas->drawRect(r, p);
 
         SkString srcText = SkStringPrintf("%08X", srcColor);
@@ -125,20 +127,61 @@ DEF_SIMPLE_GM(gamma, canvas, 560, 200) {
     p.setFilterQuality(SkFilterQuality::kMedium_SkFilterQuality);
     nextRect("MipMaps", 0);
 
-    // 50% grey via paint color.
-    p.setColor(0xff7f7f7f);
+    // 50% grey via paint color. Paint color (SkColor) is specified to be sRGB!
+    p.setColor(0xffbcbcbc);
     nextRect("Color", 0);
 
-    // Black -> White gradient, scaled to sample just the middle.
-    // Tests gradient interpolation.
-    SkPoint points[2] = {
-        SkPoint::Make(0 - (sz * 10), 0),
-        SkPoint::Make(sz + (sz * 10), 0)
-    };
-    SkColor colors[2] = { SK_ColorBLACK, SK_ColorWHITE };
-    p.setShader(SkGradientShader::MakeLinear(points, colors, nullptr, 2,
-                                             SkShader::kClamp_TileMode));
-    nextRect("Gradient", 0);
+    {
+        // Black -> White gradient, scaled to sample just the middle.
+        // Tests gradient interpolation.
+        SkPoint points[2] = {
+            SkPoint::Make(0 - (sz * 10), 0),
+            SkPoint::Make(sz + (sz * 10), 0)
+        };
+        SkColor colors[2] = { SK_ColorBLACK, SK_ColorWHITE };
+        p.setShader(SkGradientShader::MakeLinear(points, colors, nullptr, 2,
+                                                 SkShader::kClamp_TileMode));
+        nextRect("Gradient", "Interpolation");
+    }
+
+    {
+        // Shallow gradient around 50% (perceptual) gray. Endpoints are SkColor, so sRGB.
+        // Tests gamma-correction of gradient stops before interpolation in two-stop case
+        SkPoint points[2] = {
+            SkPoint::Make(0, 0),
+            SkPoint::Make(sz, 0)
+        };
+        SkColor colors[2] = { 0xffbbbbbb, 0xffbdbdbd };
+        p.setShader(SkGradientShader::MakeLinear(points, colors, nullptr, 2,
+                                                 SkShader::kClamp_TileMode));
+        nextRect("Gradient", "Endpoints");
+    }
+
+    {
+        // Shallow 3-stop gradient around 50% (perceptual) gray. Endpoints are SkColor, so sRGB.
+        // Tests gamma-correction of gradient stops before interpolation in three-stop case
+        SkPoint points[2] = {
+            SkPoint::Make(0, 0),
+            SkPoint::Make(sz, 0)
+        };
+        SkColor colors[3] = { 0xffbbbbbb, 0xffbdbdbd, 0xffbbbbbb };
+        p.setShader(SkGradientShader::MakeLinear(points, colors, nullptr, 3,
+                                                 SkShader::kClamp_TileMode));
+        nextRect("Gradient", "3-Stop");
+    }
+
+    {
+        // Shallow N-stop gradient around 50% (perceptual) gray. Endpoints are SkColor, so sRGB.
+        // Tests gamma-correction of gradient stops before interpolation in texture implementation
+        SkPoint points[2] = {
+            SkPoint::Make(0, 0),
+            SkPoint::Make(sz, 0)
+        };
+        SkColor colors[5] = { 0xffbbbbbb, 0xffbdbdbd, 0xffbbbbbb, 0xffbdbdbd, 0xffbbbbbb };
+        p.setShader(SkGradientShader::MakeLinear(points, colors, nullptr, 5,
+                                                 SkShader::kClamp_TileMode));
+        nextRect("Gradient", "Texture");
+    }
 
     // 50% grey from linear bitmap, with drawBitmap
     nextBitmap(linearGreyBmp, "Lnr BMP");
@@ -160,25 +203,22 @@ DEF_SIMPLE_GM(gamma, canvas, 560, 200) {
     canvas->restore();
     canvas->translate(0, 2 * sz);
 
-    const U8CPU sqrtHalf = 0xB4;
-    const SkColor sqrtHalfAlpha = SkColorSetARGB(sqrtHalf, 0, 0, 0);
-    const SkColor sqrtHalfWhite = SkColorSetARGB(0xFF, sqrtHalf, sqrtHalf, sqrtHalf);
-
     // Xfermode tests, all done off-screen so certain modes work...
 
     canvas->saveLayer(nullptr, nullptr);
 
-    nextXferRect(0x7fffffff, SkXfermode::kSrcOver_Mode, SK_ColorBLACK);
-    nextXferRect(0x7f000000, SkXfermode::kSrcOver_Mode, SK_ColorWHITE);
+    nextXferRect(0x7fffffff, SkBlendMode::kSrcOver, SK_ColorBLACK);
+    nextXferRect(0x7f000000, SkBlendMode::kSrcOver, SK_ColorWHITE);
 
-    nextXferRect(SK_ColorBLACK, SkXfermode::kDstOver_Mode, 0x7fffffff);
-    nextXferRect(SK_ColorWHITE, SkXfermode::kSrcIn_Mode, 0x7fff00ff);
-    nextXferRect(0x7fff00ff, SkXfermode::kDstIn_Mode, SK_ColorWHITE);
-    nextXferRect(sqrtHalfWhite, SkXfermode::kSrcIn_Mode, sqrtHalfAlpha);
-    nextXferRect(sqrtHalfAlpha, SkXfermode::kDstIn_Mode, sqrtHalfWhite);
+    nextXferRect(SK_ColorBLACK, SkBlendMode::kDstOver, 0x7fffffff);
+    nextXferRect(SK_ColorWHITE, SkBlendMode::kSrcIn, 0x7fff00ff);
+    nextXferRect(0x7fff00ff, SkBlendMode::kDstIn, SK_ColorWHITE);
 
-    nextXferRect(0xff3f3f3f, SkXfermode::kPlus_Mode, 0xff3f3f3f);
-    nextXferRect(sqrtHalfWhite, SkXfermode::kModulate_Mode, sqrtHalfWhite);
+    // 0x89 = 255 * linear_to_srgb(0.25)
+    nextXferRect(0xff898989, SkBlendMode::kPlus, 0xff898989);
+
+    // 0xDB = 255 * linear_to_srgb(sqrt(0.5))
+    nextXferRect(0xffdbdbdb, SkBlendMode::kModulate, 0xffdbdbdb);
 
     canvas->restore();
 }

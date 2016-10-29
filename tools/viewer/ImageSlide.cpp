@@ -37,7 +37,7 @@ void ImageSlide::draw(SkCanvas* canvas) {
 
 void ImageSlide::load(SkScalar, SkScalar) {
     sk_sp<SkData> encoded = SkData::MakeFromFileName(fPath.c_str());
-    SkAutoTDelete<SkCodec> codec(SkCodec::NewFromData(encoded.get()));
+    SkAutoTDelete<SkCodec> codec(SkCodec::NewFromData(encoded));
     if (!codec) {
         return;
     }

@@ -38,7 +38,7 @@ protected:
     }
 
     void onDraw(SkCanvas* canvas) override {
-        static const struct {
+        constexpr struct {
             SkColor fColor0;
             SkColor fColor1;
         } gRec[] = {

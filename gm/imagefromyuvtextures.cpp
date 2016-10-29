@@ -38,7 +38,7 @@ protected:
         // We create an RGB bitmap and then extract YUV bmps where the U and V bitmaps are
         // subsampled by 2 in both dimensions.
         SkPaint paint;
-        static const SkColor kColors[] =
+        constexpr SkColor kColors[] =
             { SK_ColorBLUE, SK_ColorYELLOW, SK_ColorGREEN, SK_ColorWHITE };
         paint.setShader(SkGradientShader::MakeRadial(SkPoint::Make(0,0), kBmpSize / 2.f, kColors,
                                                      nullptr, SK_ARRAY_COUNT(kColors),
@@ -131,7 +131,7 @@ protected:
         }
 
 
-        static const SkScalar kPad = 10.f;
+        constexpr SkScalar kPad = 10.f;
 
         SkISize sizes[] = {
             { fYUVBmps[0].width(), fYUVBmps[0].height()},
@@ -161,7 +161,7 @@ private:
     sk_sp<SkImage>  fRGBImage;
     SkBitmap        fYUVBmps[3];
 
-    static const int kBmpSize = 32;
+    static constexpr int kBmpSize = 32;
 
     typedef GM INHERITED;
 };

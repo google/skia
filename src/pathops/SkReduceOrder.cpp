@@ -4,6 +4,7 @@
  * Use of this source code is governed by a BSD-style license that can be
  * found in the LICENSE file.
  */
+#include "SkGeometry.h"
 #include "SkReduceOrder.h"
 
 int SkReduceOrder::reduce(const SkDLine& line) {
@@ -255,9 +256,9 @@ SkPath::Verb SkReduceOrder::Quad(const SkPoint a[3], SkPoint* reducePts) {
     return SkPathOpsPointsToVerb(order - 1);
 }
 
-SkPath::Verb SkReduceOrder::Conic(const SkPoint a[3], SkScalar weight, SkPoint* reducePts) {
-    SkPath::Verb verb = SkReduceOrder::Quad(a, reducePts);
-    if (verb > SkPath::kLine_Verb && weight == 1) {
+SkPath::Verb SkReduceOrder::Conic(const SkConic& c, SkPoint* reducePts) {
+    SkPath::Verb verb = SkReduceOrder::Quad(c.fPts, reducePts);
+    if (verb > SkPath::kLine_Verb && c.fW == 1) {
         return SkPath::kQuad_Verb;
     }
     return verb == SkPath::kQuad_Verb ? SkPath::kConic_Verb : verb;

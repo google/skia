@@ -554,7 +554,7 @@ private:
         this->initClassID<GrPerlinNoiseEffect>();
         this->addTextureAccess(&fPermutationsAccess);
         this->addTextureAccess(&fNoiseAccess);
-        fCoordTransform.reset(kLocal_GrCoordSet, matrix);
+        fCoordTransform.reset(matrix);
         this->addCoordTransform(&fCoordTransform);
     }
 
@@ -593,8 +593,9 @@ sk_sp<GrFragmentProcessor> GrPerlinNoiseEffect::TestCreate(GrProcessorTestData* 
                                             stitchTiles ? &tileSize : nullptr));
 
     SkMatrix viewMatrix = GrTest::TestMatrix(d->fRandom);
+    auto colorSpace = GrTest::TestColorSpace(d->fRandom);
     return shader->asFragmentProcessor(SkShader::AsFPArgs(d->fContext, &viewMatrix, nullptr,
-                                                          kNone_SkFilterQuality, nullptr,
+                                                          kNone_SkFilterQuality, colorSpace.get(),
                                                           SkSourceGammaTreatment::kRespect));
 }
 
@@ -603,7 +604,7 @@ void GrGLPerlinNoise::emitCode(EmitArgs& args) {
 
     GrGLSLFPFragmentBuilder* fragBuilder = args.fFragBuilder;
     GrGLSLUniformHandler* uniformHandler = args.fUniformHandler;
-    SkString vCoords = fragBuilder->ensureFSCoords2D(args.fCoords, 0);
+    SkString vCoords = fragBuilder->ensureCoords2D(args.fTransformedCoords[0]);
 
     fBaseFrequencyUni = uniformHandler->addUniform(kFragment_GrShaderFlag,
                                                    kVec2f_GrSLType, kDefault_GrSLPrecision,

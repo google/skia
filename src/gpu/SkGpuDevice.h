@@ -73,6 +73,7 @@ public:
     void drawRRect(const SkDraw&, const SkRRect& r, const SkPaint& paint) override;
     void drawDRRect(const SkDraw& draw, const SkRRect& outer, const SkRRect& inner,
                     const SkPaint& paint) override;
+    void drawRegion(const SkDraw&, const SkRegion& r, const SkPaint& paint) override;
     void drawOval(const SkDraw&, const SkRect& oval, const SkPaint& paint) override;
     void drawArc(const SkDraw&, const SkRect& oval, SkScalar startAngle, SkScalar sweepAngle,
                  bool useCenter, const SkPaint& paint) override;

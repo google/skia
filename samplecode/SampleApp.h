@@ -13,10 +13,13 @@
 #include "SkPicture.h"
 #include "SkPictureRecorder.h"
 #include "SkScalar.h"
+#include "SkStream.h"
 #include "SkTDArray.h"
 #include "SkTouchGesture.h"
 #include "SkWindow.h"
 #include "timer/Timer.h"
+
+#include "SkPipe.h"
 
 class GrContext;
 class GrRenderTarget;
@@ -140,6 +143,7 @@ public:
     void postInvalDelay();
 
     DeviceType getDeviceType() const { return fDeviceType; }
+    int getColorConfigIndex() const { return fColorConfigIndex; }
 
 protected:
     void onDraw(SkCanvas* canvas) override;
@@ -164,6 +168,10 @@ private:
     class DefaultDeviceManager;
 
     int fCurrIndex;
+
+    std::unique_ptr<SkDynamicMemoryWStream> fPipeStream;
+    SkPipeSerializer        fPipeSerializer;
+    SkPipeDeserializer      fPipeDeserializer;
 
     SkPictureRecorder fRecorder;
     SkAutoTDelete<SkCanvas> fFlagsFilterCanvas;
@@ -212,6 +220,7 @@ private:
 
     int fMSAASampleCount;
     bool fDeepColor;
+    int fColorConfigIndex;
 
     SkScalar fZoomCenterX, fZoomCenterY;
 

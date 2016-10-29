@@ -52,7 +52,7 @@ public:
                                                      SkVector3::Make(SK_ScalarRoot2Over2,
                                                                      0.0f,
                                                                      SK_ScalarRoot2Over2)));
-        builder.add(SkLights::Light::MakeAmbient(SkColor3f::Make(0.2f, 0.2f, 0.2f)));
+        builder.setAmbientLightColor(SkColor3f::Make(0.2f, 0.2f, 0.2f));
 
         fLights = builder.finish();
     }
@@ -66,7 +66,7 @@ protected:
         kLast_NormalMap = kTetra_NormalMap
     };
 
-    static const int kNormalMapCount = kLast_NormalMap+1;
+    static constexpr int kNormalMapCount = kLast_NormalMap+1;
 
     SkString onShortName() override {
         return SkString("lightingshader");
@@ -164,8 +164,8 @@ protected:
     }
 
 private:
-    static const int kTexSize = 128;
-    static const int kGMSize  = 512;
+    static constexpr int kTexSize = 128;
+    static constexpr int kGMSize  = 512;
 
     SkBitmap        fDiffuse;
     SkBitmap        fNormalMaps[kNormalMapCount];

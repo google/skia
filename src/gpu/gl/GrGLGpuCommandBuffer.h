@@ -39,12 +39,14 @@ private:
         fGpu->draw(pipeline, primProc, mesh, meshCount);
     }
 
-    void onClear(GrRenderTarget* rt, const SkIRect& rect, GrColor color) override {
-        fGpu->clear(rect, color, rt);
+    void onClear(GrRenderTarget* rt, const GrFixedClip& clip, GrColor color) override {
+        fGpu->clear(clip, color, rt);
     }
 
-    void onClearStencilClip(GrRenderTarget* rt, const SkIRect& rect, bool insideClip) override {
-        fGpu->clearStencilClip(rect, insideClip, rt);
+    void onClearStencilClip(GrRenderTarget* rt,
+                            const GrFixedClip& clip,
+                            bool insideStencilMask) override {
+        fGpu->clearStencilClip(clip, insideStencilMask, rt);
     }
 
     GrGLGpu*                    fGpu;

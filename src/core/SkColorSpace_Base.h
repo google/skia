@@ -10,7 +10,15 @@
 
 #include "SkColorSpace.h"
 #include "SkData.h"
+#include "SkOnce.h"
 #include "SkTemplates.h"
+
+enum SkGammaNamed : uint8_t {
+    kLinear_SkGammaNamed,
+    kSRGB_SkGammaNamed,
+    k2Dot2Curve_SkGammaNamed,
+    kNonStandard_SkGammaNamed,
+};
 
 struct SkGammas : SkRefCnt {
 
@@ -59,7 +67,7 @@ struct SkGammas : SkRefCnt {
                    this->fTable.fSize == that.fTable.fSize;
         }
 
-        SkColorSpace::GammaNamed fNamed;
+        SkGammaNamed             fNamed;
         float                    fValue;
         Table                    fTable;
         size_t                   fParamOffset;
@@ -176,9 +184,13 @@ public:
 
     static sk_sp<SkColorSpace> NewRGB(const float gammas[3], const SkMatrix44& toXYZD50);
 
+    SkGammaNamed gammaNamed() const { return fGammaNamed; }
     const SkGammas* gammas() const { return fGammas.get(); }
 
     const SkColorLookUpTable* colorLUT() const { return fColorLUT.get(); }
+
+    const SkMatrix44& toXYZD50() const { return fToXYZD50; }
+    const SkMatrix44& fromXYZD50() const;
 
 private:
 
@@ -191,16 +203,21 @@ private:
      */
     sk_sp<SkData> writeToICC() const;
 
-    static sk_sp<SkColorSpace> NewRGB(GammaNamed gammaNamed, const SkMatrix44& toXYZD50);
+    static sk_sp<SkColorSpace> NewRGB(SkGammaNamed gammaNamed, const SkMatrix44& toXYZD50);
 
-    SkColorSpace_Base(GammaNamed gammaNamed, const SkMatrix44& toXYZ, Named named);
+    SkColorSpace_Base(SkGammaNamed gammaNamed, const SkMatrix44& toXYZ);
 
-    SkColorSpace_Base(sk_sp<SkColorLookUpTable> colorLUT, GammaNamed gammaNamed,
+    SkColorSpace_Base(sk_sp<SkColorLookUpTable> colorLUT, SkGammaNamed gammaNamed,
                       sk_sp<SkGammas> gammas, const SkMatrix44& toXYZ, sk_sp<SkData> profileData);
 
     sk_sp<SkColorLookUpTable> fColorLUT;
+    const SkGammaNamed        fGammaNamed;
     sk_sp<SkGammas>           fGammas;
     sk_sp<SkData>             fProfileData;
+
+    const SkMatrix44          fToXYZD50;
+    mutable SkMatrix44        fFromXYZD50;
+    mutable SkOnce            fFromXYZOnce;
 
     friend class SkColorSpace;
     friend class ColorSpaceXformTest;

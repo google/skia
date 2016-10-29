@@ -73,6 +73,8 @@ def generate_tool(gyp_dir, target_file, skia_trunk, dest_dir,
                                            target_file=target_file,
                                            skia_arch_type='other',
                                            have_neon=False,
+                                           have_mips_dspr2=False,
+                                           have_mips_dspr1=False,
                                            gyp_source_dir=gyp_source_dir)
 
   var_dict = vars_dict_lib.VarsDict()

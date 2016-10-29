@@ -10,8 +10,7 @@
 #include "SkUtils.h"
 
 static void append_tounicode_header(SkDynamicMemoryWStream* cmap,
-                                    SkGlyphID firstGlyphID,
-                                    SkGlyphID lastGlyphID) {
+                                    bool multibyte) {
     // 12 dict begin: 12 is an Adobe-suggested value. Shall not change.
     // It's there to prevent old version Adobe Readers from malfunctioning.
     const char* kHeader =
@@ -40,14 +39,12 @@ static void append_tounicode_header(SkDynamicMemoryWStream* cmap,
         "/CMapType 2 def\n"
         "1 begincodespacerange\n";
     cmap->writeText(kTypeInfoHeader);
-
-    // e.g.     "<0000> <FFFF>\n"
-    SkString range;
-    range.appendf("<%04X> <%04X>\n", firstGlyphID, lastGlyphID);
-    cmap->writeText(range.c_str());
-
-    const char* kTypeInfoFooter = "endcodespacerange\n";
-    cmap->writeText(kTypeInfoFooter);
+    if (multibyte) {
+        cmap->writeText("<0000> <FFFF>\n");
+    } else {
+        cmap->writeText("<00> <FF>\n");
+    }
+    cmap->writeText("endcodespacerange\n");
 }
 
 static void append_cmap_footer(SkDynamicMemoryWStream* cmap) {
@@ -72,17 +69,18 @@ struct BFRange {
 };
 }  // namespace
 
-static void write_utf16be(SkDynamicMemoryWStream* wStream, SkUnichar utf32) {
-    SkGlyphID utf16[2] = {0, 0};
-    size_t len = SkUTF16_FromUnichar(utf32, utf16);
-    SkASSERT(len == 1 || len == 2);
-    SkPDFUtils::WriteUInt16BE(wStream, utf16[0]);
-    if (len == 2) {
-        SkPDFUtils::WriteUInt16BE(wStream, utf16[1]);
+static void write_glyph(SkDynamicMemoryWStream* cmap,
+                        bool multiByte,
+                        SkGlyphID gid) {
+    if (multiByte) {
+        SkPDFUtils::WriteUInt16BE(cmap, gid);
+    } else {
+        SkPDFUtils::WriteUInt8(cmap, SkToU8(gid));
     }
 }
 
 static void append_bfchar_section(const SkTDArray<BFChar>& bfchar,
+                                  bool multiByte,
                                   SkDynamicMemoryWStream* cmap) {
     // PDF spec defines that every bf* list can have at most 100 entries.
     for (int i = 0; i < bfchar.count(); i += 100) {
@@ -92,9 +90,9 @@ static void append_bfchar_section(const SkTDArray<BFChar>& bfchar,
         cmap->writeText(" beginbfchar\n");
         for (int j = 0; j < count; ++j) {
             cmap->writeText("<");
-            SkPDFUtils::WriteUInt16BE(cmap, bfchar[i + j].fGlyphId);
+            write_glyph(cmap, multiByte, bfchar[i + j].fGlyphId);
             cmap->writeText("> <");
-            write_utf16be(cmap, bfchar[i + j].fUnicode);
+            SkPDFUtils::WriteUTF16beHex(cmap, bfchar[i + j].fUnicode);
             cmap->writeText(">\n");
         }
         cmap->writeText("endbfchar\n");
@@ -102,6 +100,7 @@ static void append_bfchar_section(const SkTDArray<BFChar>& bfchar,
 }
 
 static void append_bfrange_section(const SkTDArray<BFRange>& bfrange,
+                                   bool multiByte,
                                    SkDynamicMemoryWStream* cmap) {
     // PDF spec defines that every bf* list can have at most 100 entries.
     for (int i = 0; i < bfrange.count(); i += 100) {
@@ -111,11 +110,11 @@ static void append_bfrange_section(const SkTDArray<BFRange>& bfrange,
         cmap->writeText(" beginbfrange\n");
         for (int j = 0; j < count; ++j) {
             cmap->writeText("<");
-            SkPDFUtils::WriteUInt16BE(cmap, bfrange[i + j].fStart);
+            write_glyph(cmap, multiByte, bfrange[i + j].fStart);
             cmap->writeText("> <");
-            SkPDFUtils::WriteUInt16BE(cmap, bfrange[i + j].fEnd);
+            write_glyph(cmap, multiByte, bfrange[i + j].fEnd);
             cmap->writeText("> <");
-            write_utf16be(cmap, bfrange[i + j].fUnicode);
+            SkPDFUtils::WriteUTF16beHex(cmap, bfrange[i + j].fUnicode);
             cmap->writeText(">\n");
         }
         cmap->writeText("endbfrange\n");
@@ -206,8 +205,8 @@ void SkPDFAppendCmapSections(const SkTDArray<SkUnichar>& glyphToUnicode,
 
     // The spec requires all bfchar entries for a font must come before bfrange
     // entries.
-    append_bfchar_section(bfcharEntries, cmap);
-    append_bfrange_section(bfrangeEntries, cmap);
+    append_bfchar_section(bfcharEntries, multiByteGlyphs, cmap);
+    append_bfrange_section(bfrangeEntries, multiByteGlyphs, cmap);
 }
 
 sk_sp<SkPDFStream> SkPDFMakeToUnicodeCmap(
@@ -217,11 +216,7 @@ sk_sp<SkPDFStream> SkPDFMakeToUnicodeCmap(
         SkGlyphID firstGlyphID,
         SkGlyphID lastGlyphID) {
     SkDynamicMemoryWStream cmap;
-    if (multiByteGlyphs) {
-        append_tounicode_header(&cmap, firstGlyphID, lastGlyphID);
-    } else {
-        append_tounicode_header(&cmap, 1, lastGlyphID - firstGlyphID + 1);
-    }
+    append_tounicode_header(&cmap, multiByteGlyphs);
     SkPDFAppendCmapSections(glyphToUnicode, subset, &cmap, multiByteGlyphs,
                             firstGlyphID, lastGlyphID);
     append_cmap_footer(&cmap);

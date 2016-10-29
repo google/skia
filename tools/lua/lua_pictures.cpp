@@ -39,8 +39,8 @@ DEFINE_string2(tailFunc, s, "", "Optional lua function to call at end");
 DEFINE_bool2(quiet, q, false, "Silence all non-error related output");
 
 static sk_sp<SkPicture> load_picture(const char path[]) {
-    SkAutoTDelete<SkStream> stream(SkStream::NewFromFile(path));
-    if (stream.get()) {
+    std::unique_ptr<SkStream> stream = SkStream::MakeFromFile(path);
+    if (stream) {
         return SkPicture::MakeFromStream(stream.get());
     }
     return nullptr;

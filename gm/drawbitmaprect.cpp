@@ -93,20 +93,46 @@ static sk_sp<SkImage> makebm(SkCanvas* origCanvas, SkBitmap* resultBM, int w, in
     return image;
 }
 
-static void canvasproc(SkCanvas* canvas, SkImage*, const SkBitmap& bm, const SkIRect& srcR,
-                       const SkRect& dstR) {
-    canvas->drawBitmapRect(bm, srcR, dstR, nullptr);
+static void bitmapproc(SkCanvas* canvas, SkImage*, const SkBitmap& bm, const SkIRect& srcR,
+                       const SkRect& dstR, const SkPaint* paint) {
+    canvas->drawBitmapRect(bm, srcR, dstR, paint);
+}
+
+static void bitmapsubsetproc(SkCanvas* canvas, SkImage*, const SkBitmap& bm, const SkIRect& srcR,
+                             const SkRect& dstR, const SkPaint* paint) {
+    if (!bm.bounds().contains(srcR)) {
+        bitmapproc(canvas, nullptr, bm, srcR, dstR, paint);
+        return;
+    }
+
+    SkBitmap subset;
+    if (bm.extractSubset(&subset, srcR)) {
+        canvas->drawBitmapRect(subset, dstR, paint);
+    }
 }
 
 static void imageproc(SkCanvas* canvas, SkImage* image, const SkBitmap&, const SkIRect& srcR,
-                      const SkRect& dstR) {
-    canvas->drawImageRect(image, srcR, dstR, nullptr);
+                      const SkRect& dstR, const SkPaint* paint) {
+    canvas->drawImageRect(image, srcR, dstR, paint);
 }
 
-typedef void DrawRectRectProc(SkCanvas*, SkImage*, const SkBitmap&, const SkIRect&, const SkRect&);
+static void imagesubsetproc(SkCanvas* canvas, SkImage* image, const SkBitmap& bm,
+                            const SkIRect& srcR, const SkRect& dstR, const SkPaint* paint) {
+    if (!image->bounds().contains(srcR)) {
+        imageproc(canvas, image, bm, srcR, dstR, paint);
+        return;
+    }
 
-static const int gSize = 1024;
-static const int gBmpSize = 2048;
+    if (sk_sp<SkImage> subset = image->makeSubset(srcR)) {
+        canvas->drawImageRect(subset, dstR, paint);
+    }
+}
+
+typedef void DrawRectRectProc(SkCanvas*, SkImage*, const SkBitmap&, const SkIRect&, const SkRect&,
+                              const SkPaint*);
+
+constexpr int gSize = 1024;
+constexpr int gBmpSize = 2048;
 
 class DrawBitmapRectGM : public skiagm::GM {
 public:
@@ -137,10 +163,10 @@ protected:
         }
 
         SkRect dstRect = { 0, 0, SkIntToScalar(64), SkIntToScalar(64)};
-        static const int kMaxSrcRectSize = 1 << (SkNextLog2(gBmpSize) + 2);
+        const int kMaxSrcRectSize = 1 << (SkNextLog2(gBmpSize) + 2);
 
-        static const int kPadX = 30;
-        static const int kPadY = 40;
+        const int kPadX = 30;
+        const int kPadY = 40;
         SkPaint paint;
         paint.setAlpha(0x20);
         canvas->drawImageRect(fImage, SkRect::MakeIWH(gSize, gSize), &paint);
@@ -164,7 +190,7 @@ protected:
             for (int h = 1; h <= kMaxSrcRectSize; h *= 4) {
 
                 SkIRect srcRect = SkIRect::MakeXYWH((gBmpSize - w) / 2, (gBmpSize - h) / 2, w, h);
-                fProc(canvas, fImage.get(), fLargeBitmap, srcRect, dstRect);
+                fProc(canvas, fImage.get(), fLargeBitmap, srcRect, dstRect, nullptr);
 
                 SkString label;
                 label.appendf("%d x %d", w, h);
@@ -206,9 +232,10 @@ protected:
             paint.setMaskFilter(SkBlurMaskFilter::Make(
                 kNormal_SkBlurStyle,
                 SkBlurMask::ConvertRadiusToSigma(SkIntToScalar(5)),
-                SkBlurMaskFilter::kHighQuality_BlurFlag |
-                SkBlurMaskFilter::kIgnoreTransform_BlurFlag));
-            canvas->drawBitmapRect(bm, srcRect, dstRect, &paint);
+                SkBlurMaskFilter::kHighQuality_BlurFlag));
+
+            sk_sp<SkImage> image(SkImage::MakeFromBitmap(bm));
+            fProc(canvas, image.get(), bm, srcRect, dstRect, &paint);
         }
     }
 
@@ -216,5 +243,7 @@ private:
     typedef skiagm::GM INHERITED;
 };
 
-DEF_GM( return new DrawBitmapRectGM(canvasproc, nullptr); )
-DEF_GM( return new DrawBitmapRectGM(imageproc, "-imagerect"); )
+DEF_GM( return new DrawBitmapRectGM(bitmapproc      , nullptr); )
+DEF_GM( return new DrawBitmapRectGM(bitmapsubsetproc, "-subset"); )
+DEF_GM( return new DrawBitmapRectGM(imageproc       , "-imagerect"); )
+DEF_GM( return new DrawBitmapRectGM(imagesubsetproc , "-imagerect-subset"); )

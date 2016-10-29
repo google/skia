@@ -24,7 +24,6 @@ public:
                                    int width, int height,
                                    const GrVkRenderPass* renderPass,
                                    const GrVkImageView* colorAttachment,
-                                   const GrVkImageView* resolveAttachment,
                                    const GrVkImageView* stencilAttachment);
 
     VkFramebuffer framebuffer() const { return fFramebuffer; }

@@ -75,6 +75,7 @@
       'arm_version%': '<(arm_version)',
       'arm_neon%': '<(arm_neon)',
       'skia_egl%': '<(skia_egl)',
+      'use_ozone%': 0, # ANGLE requires this to be defined.
       'vulkan_merged_into_skia%': '<(vulkan_merged_into_skia)',
       'conditions': [
         [ 'skia_android_framework == 1', {
@@ -203,6 +204,8 @@
     'mips_dsp%': 0,
     'skia_os%': '<(skia_os)',
     'os_posix%': '<(os_posix)',
+
+    'pkg-config%': 'pkg-config',
 
     'skia_freetype_static%': '<(skia_freetype_static)',
     'skia_no_fontconfig%': '<(skia_no_fontconfig)',

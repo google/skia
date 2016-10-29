@@ -32,7 +32,8 @@ GrRenderTargetProxy::GrRenderTargetProxy(const GrCaps& caps, const GrSurfaceDesc
 
 // Wrapped version
 GrRenderTargetProxy::GrRenderTargetProxy(const GrCaps& caps, sk_sp<GrRenderTarget> rt)
-    : INHERITED(rt->desc(), SkBackingFit::kExact, rt->resourcePriv().isBudgeted())
+    : INHERITED(rt->desc(), SkBackingFit::kExact,
+                rt->resourcePriv().isBudgeted(), rt->uniqueID())
     , fTarget(std::move(rt))
     , fFlags(fTarget->renderTargetPriv().flags())
     , fLastDrawTarget(nullptr) {

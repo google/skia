@@ -6,6 +6,7 @@
  */
 #include "PathOpsExtendedTest.h"
 #include "PathOpsTestCommon.h"
+#include "SkGeometry.h"
 #include "SkIntersections.h"
 #include "SkPathOpsConic.h"
 #include "SkPathOpsLine.h"
@@ -103,7 +104,9 @@ DEF_TEST(PathOpsConicLineIntersection, reporter) {
         SkPoint pts[3] = { conic.fPts.fPts[0].asSkPoint(), conic.fPts.fPts[1].asSkPoint(),
             conic.fPts.fPts[2].asSkPoint() };
         SkPoint reduced[3];
-        SkPath::Verb order1 = SkReduceOrder::Conic(pts, conic.fWeight, reduced);
+        SkConic floatConic;
+        floatConic.set(pts, conic.fWeight);
+        SkPath::Verb order1 = SkReduceOrder::Conic(floatConic, reduced);
         if (order1 != SkPath::kConic_Verb) {
             SkDebugf("%s [%d] conic verb=%d\n", __FUNCTION__, iIndex, order1);
             REPORTER_ASSERT(reporter, 0);

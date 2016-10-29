@@ -386,7 +386,6 @@
         # using freetype's embolden allows us to adjust fake bold settings at
         # draw-time, at which point we know which SkTypeface is being drawn
         'SK_USE_FREETYPE_EMBOLDEN',
-        'SK_SFNTLY_SUBSETTER "sample/chromium/font_subsetter.h"',
         # When built as part of the system image we can enable certian non-NDK
         # compliant optimizations.
         'SK_BUILD_FOR_ANDROID_FRAMEWORK',
@@ -470,9 +469,6 @@
             ],
             'ldflags': [ '-fsanitize=<(skia_sanitizer)' ],
             'conditions' : [
-              [ 'skia_sanitizer == "thread"', {
-                'defines': [ 'THREAD_SANITIZER' ],
-              }],
               [ 'skia_sanitizer == "memory"', {
                 'cflags': [
                     '-O1',

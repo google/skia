@@ -56,10 +56,10 @@ protected:
             { 0, 0 },
             { 0, SkIntToScalar(kCellSize) }
         };
-        static const SkColor colors[] = {
+        constexpr SkColor colors[] = {
             SK_ColorRED, SK_ColorGREEN, SK_ColorRED, SK_ColorGREEN, SK_ColorRED
         };
-        static const SkScalar pos[] = { 0, 0.25f, 0.5f, 0.75f, SK_Scalar1 };
+        constexpr SkScalar pos[] = { 0, 0.25f, 0.5f, 0.75f, SK_Scalar1 };
 
         fLinearGrad1 = SkGradientShader::MakeLinear(pts1, colors, pos, SK_ARRAY_COUNT(colors),
                                                     SkShader::kClamp_TileMode);
@@ -151,9 +151,9 @@ protected:
         canvas->translate(0, SkIntToScalar(kCellSize));
     }
 private:
-    static const int kCellSize = 50;
-    static const int kNumRows = 4;
-    static const int kNumCols = 6;
+    static constexpr int kCellSize = 50;
+    static constexpr int kNumRows = 4;
+    static constexpr int kNumCols = 6;
 
     bool            fDoAA;
     SkPath          fPath;

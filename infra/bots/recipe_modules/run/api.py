@@ -115,30 +115,3 @@ for pattern in build_products_whitelist:
 ''' % str(BUILD_PRODUCTS_ISOLATE_WHITELIST),
         args=[src, dst],
         infra_step=True)
-
-  def ccache(self):
-    if not self._checked_for_ccache:
-      self._checked_for_ccache = True
-      if not self.m.platform.is_win:
-        result = self(
-            self.m.python.inline,
-            name='has ccache?',
-            program='''import json
-import subprocess
-import sys
-
-ccache = None
-try:
-  ccache = subprocess.check_output(['which', 'ccache']).rstrip()
-except:
-  pass
-print json.dumps({'ccache': ccache})
-''',
-            stdout=self.m.json.output(),
-            infra_step=True,
-            abort_on_failure=False,
-            fail_build_on_failure=False)
-        if result and result.stdout and result.stdout.get('ccache'):
-          self._ccache = result.stdout['ccache']
-
-    return self._ccache

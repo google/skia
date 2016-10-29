@@ -14,12 +14,14 @@
       'type': 'executable',
       'sources': [
         '../gm/gm.cpp',
+        '../tools/LsanSuppressions.cpp',
       ],
       'includes': [
         'bench.gypi',
         'gmslides.gypi',
       ],
       'include_dirs' : [
+        '../src/codec',
         '../src/image',
       ],
       'dependencies': [

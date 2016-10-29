@@ -171,6 +171,10 @@ static void test_encode(skiatest::Reporter* reporter, SkImage* image) {
     REPORTER_ASSERT(reporter, origEncoded->size() > 0);
 
     sk_sp<SkImage> decoded(SkImage::MakeFromEncoded(origEncoded));
+    if (!decoded) {
+        ERRORF(reporter, "failed to decode image!");
+        return;
+    }
     REPORTER_ASSERT(reporter, decoded);
     assert_equal(reporter, image, nullptr, decoded.get());
 
@@ -347,7 +351,7 @@ DEF_TEST(Image_RetainSnapshot, reporter) {
     }
 
     SkPaint paint;
-    paint.setXfermodeMode(SkXfermode::kSrc_Mode);
+    paint.setBlendMode(SkBlendMode::kSrc);
     paint.setColor(SK_ColorRED);
 
     surface->getCanvas()->drawRect(SkRect::MakeXYWH(1, 1, 1, 1), paint);
@@ -599,6 +603,10 @@ static bool has_pixels(const SkPMColor pixels[], int count, SkPMColor expected) 
 }
 
 static void test_read_pixels(skiatest::Reporter* reporter, SkImage* image) {
+    if (!image) {
+        ERRORF(reporter, "Failed to create image!");
+        return;
+    }
     const SkPMColor expected = SkPreMultiplyColor(SK_ColorWHITE);
     const SkPMColor notExpected = ~expected;
 
@@ -684,6 +692,10 @@ static void check_legacy_bitmap(skiatest::Reporter* reporter, const SkImage* ima
 }
 
 static void test_legacy_bitmap(skiatest::Reporter* reporter, const SkImage* image, SkImage::LegacyBitmapMode mode) {
+    if (!image) {
+        ERRORF(reporter, "Failed to create image.");
+        return;
+    }
     SkBitmap bitmap;
     REPORTER_ASSERT(reporter, image->asLegacyBitmap(&bitmap, mode));
     check_legacy_bitmap(reporter, image, bitmap, mode);
@@ -735,6 +747,10 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(ImageLegacyBitmap_Gpu, reporter, ctxInfo) {
 #endif
 
 static void test_peek(skiatest::Reporter* reporter, SkImage* image, bool expectPeekSuccess) {
+    if (!image) {
+        ERRORF(reporter, "Failed to create image!");
+        return;
+    }
     SkPixmap pm;
     bool success = image->peekPixels(&pm);
     REPORTER_ASSERT(reporter, expectPeekSuccess == success);
@@ -888,20 +904,28 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(DeferredTextureImage, reporter, ctxInfo) {
         int                                                   fExpectedScaleFactor;
         bool                                                  fExpectation;
     } testCases[] = {
-        { create_image,          {{}}, kNone_SkFilterQuality, 1, true },
-        { create_codec_image,    {{}}, kNone_SkFilterQuality, 1, true },
-        { create_data_image,     {{}}, kNone_SkFilterQuality, 1, true },
-        { create_picture_image,  {{}}, kNone_SkFilterQuality, 1, false },
-        { [context] { return create_gpu_image(context); }, {{}}, kNone_SkFilterQuality, 1, false },
+        { create_image,          {{SkMatrix::I(), kNone_SkFilterQuality, 0}},
+          kNone_SkFilterQuality, 1, true },
+        { create_codec_image,    {{SkMatrix::I(), kNone_SkFilterQuality, 0}},
+          kNone_SkFilterQuality, 1, true },
+        { create_data_image,     {{SkMatrix::I(), kNone_SkFilterQuality, 0}},
+          kNone_SkFilterQuality, 1, true },
+        { create_picture_image,  {{SkMatrix::I(), kNone_SkFilterQuality, 0}},
+          kNone_SkFilterQuality, 1, false },
+        { [context] { return create_gpu_image(context); },
+          {{SkMatrix::I(), kNone_SkFilterQuality, 0}},
+          kNone_SkFilterQuality, 1, false },
         // Create a texture image in a another GrContext.
         { [testContext, otherContextInfo] {
             otherContextInfo.testContext()->makeCurrent();
             sk_sp<SkImage> otherContextImage = create_gpu_image(otherContextInfo.grContext());
             testContext->makeCurrent();
             return otherContextImage;
-          }, {{}}, kNone_SkFilterQuality, 1, false },
+          }, {{SkMatrix::I(), kNone_SkFilterQuality, 0}},
+        kNone_SkFilterQuality, 1, false },
         // Create an image that is too large to upload.
-        { create_image_large,    {{}}, kNone_SkFilterQuality, 1, false },
+        { create_image_large,    {{SkMatrix::I(), kNone_SkFilterQuality, 0}},
+          kNone_SkFilterQuality, 1, false },
         // Create an image that is too large, but is scaled to an acceptable size.
         { create_image_large, {{SkMatrix::I(), kMedium_SkFilterQuality, 4}},
           kMedium_SkFilterQuality, 16, true},
@@ -918,10 +942,14 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(DeferredTextureImage, reporter, ctxInfo) {
 
     for (auto testCase : testCases) {
         sk_sp<SkImage> image(testCase.fImageFactory());
+        if (!image) {
+            ERRORF(reporter, "Failed to create image!");
+            continue;
+        }
+
         size_t size = image->getDeferredTextureImageData(*proxy, testCase.fParams.data(),
                                                          static_cast<int>(testCase.fParams.size()),
-                                                         nullptr);
-
+                                                         nullptr, SkSourceGammaTreatment::kIgnore);
         static const char *const kFS[] = { "fail", "succeed" };
         if (SkToBool(size) != testCase.fExpectation) {
             ERRORF(reporter,  "This image was expected to %s but did not.",
@@ -932,12 +960,12 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(DeferredTextureImage, reporter, ctxInfo) {
             void* misaligned = reinterpret_cast<void*>(reinterpret_cast<intptr_t>(buffer) + 3);
             if (image->getDeferredTextureImageData(*proxy, testCase.fParams.data(),
                                                    static_cast<int>(testCase.fParams.size()),
-                                                   misaligned)) {
+                                                   misaligned, SkSourceGammaTreatment::kIgnore)) {
                 ERRORF(reporter, "Should fail when buffer is misaligned.");
             }
             if (!image->getDeferredTextureImageData(*proxy, testCase.fParams.data(),
                                                     static_cast<int>(testCase.fParams.size()),
-                                                    buffer)) {
+                                                    buffer, SkSourceGammaTreatment::kIgnore)) {
                 ERRORF(reporter, "deferred image size succeeded but creation failed.");
             } else {
                 for (auto budgeted : { SkBudgeted::kNo, SkBudgeted::kYes }) {

@@ -8,8 +8,8 @@
 #ifndef GrAppliedClip_DEFINED
 #define GrAppliedClip_DEFINED
 
-#include "GrTypesPriv.h"
-#include "GrWindowRectangles.h"
+#include "GrScissorState.h"
+#include "GrWindowRectsState.h"
 
 class GrFragmentProcessor;
 
@@ -25,7 +25,7 @@ public:
     }
 
     const GrScissorState& scissorState() const { return fScissorState; }
-    const GrWindowRectangles& windowRects() const { return fWindowRects; }
+    const GrWindowRectsState& windowRectsState() const { return fWindowRectsState; }
     GrFragmentProcessor* clipCoverageFragmentProcessor() const { return fClipCoverageFP.get(); }
     bool hasStencilClip() const { return fHasStencilClip; }
 
@@ -36,12 +36,15 @@ public:
         return fScissorState.intersect(irect) && fClippedDrawBounds.intersect(SkRect::Make(irect));
     }
 
-    /**
-     * Adds an exclusive window rectangle to the clip. It is not currently supported to switch the
-     * windows to inclusive mode.
-     */
-    void addWindowRectangle(const SkIRect& window) {
-        fWindowRects.addWindow(window);
+    void addWindowRectangles(const GrWindowRectsState& windowState) {
+        SkASSERT(!fWindowRectsState.enabled());
+        fWindowRectsState = windowState;
+    }
+
+    void addWindowRectangles(const GrWindowRectangles& windows, const SkIPoint& origin,
+                             GrWindowRectsState::Mode mode) {
+        SkASSERT(!fWindowRectsState.enabled());
+        fWindowRectsState.set(windows, origin, mode);
     }
 
     void addCoverageFP(sk_sp<GrFragmentProcessor> fp) {
@@ -62,7 +65,7 @@ public:
 
 private:
     GrScissorState             fScissorState;
-    GrWindowRectangles         fWindowRects;
+    GrWindowRectsState         fWindowRectsState;
     sk_sp<GrFragmentProcessor> fClipCoverageFP;
     bool                       fHasStencilClip;
     SkRect                     fClippedDrawBounds;

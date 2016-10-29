@@ -29,7 +29,7 @@ bool AndroidCodecBench::isSuitableFor(Backend backend) {
 }
 
 void AndroidCodecBench::onDelayedSetup() {
-    SkAutoTDelete<SkAndroidCodec> codec(SkAndroidCodec::NewFromData(fData.get()));
+    SkAutoTDelete<SkAndroidCodec> codec(SkAndroidCodec::NewFromData(fData));
     SkISize scaledSize = codec->getSampledDimensions(fSampleSize);
 
     fInfo = codec->getInfo().makeWH(scaledSize.width(), scaledSize.height())
@@ -46,7 +46,7 @@ void AndroidCodecBench::onDraw(int n, SkCanvas* canvas) {
     SkAndroidCodec::AndroidOptions options;
     options.fSampleSize = fSampleSize;
     for (int i = 0; i < n; i++) {
-        codec.reset(SkAndroidCodec::NewFromData(fData.get()));
+        codec.reset(SkAndroidCodec::NewFromData(fData));
 #ifdef SK_DEBUG
         const SkCodec::Result result =
 #endif

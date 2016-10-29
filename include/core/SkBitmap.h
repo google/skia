@@ -24,10 +24,6 @@ class SkPixelRefFactory;
 class SkRegion;
 class SkString;
 
-#ifdef SK_SUPPORT_LEGACY_BITMAP_GETTEXTURE
-class GrTexture;
-#endif
-
 /** \class SkBitmap
 
     The SkBitmap class specifies a raster bitmap. A bitmap has an integer width
@@ -471,10 +467,6 @@ public:
         return this->getPixels() != NULL &&
                (this->colorType() != kIndex_8_SkColorType || fColorTable);
     }
-
-#ifdef SK_SUPPORT_LEGACY_BITMAP_GETTEXTURE
-    GrTexture* getTexture() const { return nullptr; }
-#endif
 
     /** Return the bitmap's colortable, if it uses one (i.e. colorType is
         Index_8) and the pixels are locked.
