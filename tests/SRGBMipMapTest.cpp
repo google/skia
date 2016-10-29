@@ -119,7 +119,7 @@ DEF_GPUTEST_FOR_GL_RENDERING_CONTEXTS(SRGBMipMaps, reporter, ctxInfo) {
     GrTextureProvider* texProvider = context->textureProvider();
     SkAutoTUnref<GrTexture> texture(texProvider->createTexture(desc, SkBudgeted::kNo, texData, 0));
 
-    // Create two draw contexts (L32 and S32)
+    // Create two render target contexts (L32 and S32)
     sk_sp<SkColorSpace> srgbColorSpace = SkColorSpace::MakeNamed(SkColorSpace::kSRGB_Named);
     sk_sp<GrRenderTargetContext> l32RenderTargetContext = context->makeRenderTargetContext(
         SkBackingFit::kExact, rtS, rtS, kRGBA_8888_GrPixelConfig, nullptr);
