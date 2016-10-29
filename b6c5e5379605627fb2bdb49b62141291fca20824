@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "e60e367c_86a46c90",
+        "filename": "BUILD.gn",
+        "patchSetId": 3
+      },
+      "lineNbr": 1023,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2016-10-29T16:52:28Z",
+      "side": 1,
+      "message": "I think you just made skpbench exclusive to Linux and Windows.  (Which is why the diff looks so unusual.)  Was that intentional?",
+      "revId": "b6c5e5379605627fb2bdb49b62141291fca20824",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
