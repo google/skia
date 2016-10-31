@@ -62,19 +62,8 @@ private:
      *
      * @param dstInfo         Contains the requested dst color type.
      * @param frameIndex      Frame whose color table to use.
-     * @param inputColorPtr   Copies the encoded color table to the client's
-     *                        input color table if the client requests kIndex8.
-     * @param inputColorCount If the client requests kIndex8, this will be set
-     *                        to the number of colors in the array that
-     *                        inputColorPtr now points to. This will typically
-     *                        be 256. Since gifs may have up to 8-bit indices,
-     *                        using a 256-entry table means a pixel will never
-     *                        be out of range. This will be set to 1 if there
-     *                        is no color table, since that will be a
-     *                        transparent frame.
      */
-    void initializeColorTable(const SkImageInfo& dstInfo, size_t frameIndex,
-            SkPMColor* colorPtr, int* inputColorCount);
+    void initializeColorTable(const SkImageInfo& dstInfo, size_t frameIndex);
 
    /*
     * Does necessary setup, including setting up the color table and swizzler,

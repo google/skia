@@ -139,8 +139,7 @@ std::vector<SkCodec::FrameInfo> SkGifCodec::onGetFrameInfo() {
     return result;
 }
 
-void SkGifCodec::initializeColorTable(const SkImageInfo& dstInfo, size_t frameIndex,
-        SkPMColor* inputColorPtr, int* inputColorCount) {
+void SkGifCodec::initializeColorTable(const SkImageInfo& dstInfo, size_t frameIndex) {
     fCurrColorTable = fReader->getColorTable(dstInfo.colorType(), frameIndex);
     fCurrColorTableIsReal = fCurrColorTable;
     if (!fCurrColorTable) {
@@ -148,12 +147,6 @@ void SkGifCodec::initializeColorTable(const SkImageInfo& dstInfo, size_t frameIn
         SkPMColor color = SK_ColorTRANSPARENT;
         fCurrColorTable.reset(new SkColorTable(&color, 1));
     }
-
-    if (inputColorCount) {
-        *inputColorCount = fCurrColorTable->count();
-    }
-
-    copy_color_table(dstInfo, fCurrColorTable.get(), inputColorPtr, inputColorCount);
 }
 
 
@@ -215,9 +208,15 @@ SkCodec::Result SkGifCodec::prepareToDecode(const SkImageInfo& dstInfo, SkPMColo
 
     fTmpBuffer.reset(new uint8_t[dstInfo.minRowBytes()]);
 
-    // Initialize color table and copy to the client if necessary
-    this->initializeColorTable(dstInfo, frameIndex, inputColorPtr, inputColorCount);
+    this->initializeColorTable(dstInfo, frameIndex);
     this->initializeSwizzler(dstInfo, frameIndex);
+
+    SkASSERT(fCurrColorTable);
+    if (inputColorCount) {
+        *inputColorCount = fCurrColorTable->count();
+    }
+    copy_color_table(dstInfo, fCurrColorTable.get(), inputColorPtr, inputColorCount);
+
     return kSuccess;
 }
 
@@ -337,6 +336,11 @@ SkCodec::Result SkGifCodec::decodeFrame(bool firstAttempt, const Options& opts, 
                 Options prevFrameOpts(opts);
                 prevFrameOpts.fFrameIndex = frameContext->getRequiredFrame();
                 prevFrameOpts.fHasPriorFrame = false;
+                // The prior frame may have a different color table, so update it and the
+                // swizzler.
+                this->initializeColorTable(dstInfo, prevFrameOpts.fFrameIndex);
+                this->initializeSwizzler(dstInfo, prevFrameOpts.fFrameIndex);
+
                 const Result prevResult = this->decodeFrame(true, prevFrameOpts, nullptr);
                 switch (prevResult) {
                     case kSuccess:
@@ -348,6 +352,10 @@ SkCodec::Result SkGifCodec::decodeFrame(bool firstAttempt, const Options& opts, 
                     default:
                         return prevResult;
                 }
+
+                // Go back to using the correct color table for this frame.
+                this->initializeColorTable(dstInfo, frameIndex);
+                this->initializeSwizzler(dstInfo, frameIndex);
             }
             const auto* prevFrame = fReader->frameContext(frameContext->getRequiredFrame());
             if (prevFrame->getDisposalMethod() == SkCodecAnimation::RestoreBGColor_DisposalMethod) {
