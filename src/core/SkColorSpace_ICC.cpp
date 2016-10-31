@@ -940,6 +940,24 @@ static bool tag_equals(const ICCTag* a, const ICCTag* b, const uint8_t* base) {
     return !memcmp(a->addr(base), b->addr(base), a->fLength);
 }
 
+static inline bool is_close_to_d50(const SkMatrix44& matrix) {
+    // rX + gX + bX
+    float X = matrix.getFloat(0, 0) + matrix.getFloat(0, 1) + matrix.getFloat(0, 2);
+
+    // rY + gY + bY
+    float Y = matrix.getFloat(1, 0) + matrix.getFloat(1, 1) + matrix.getFloat(1, 2);
+
+    // rZ + gZ + bZ
+    float Z = matrix.getFloat(2, 0) + matrix.getFloat(2, 1) + matrix.getFloat(2, 2);
+
+    static const float kD50_WhitePoint[3] = { 0.96420f, 1.00000f, 0.82491f };
+
+    // This is a bit more lenient than QCMS and Adobe.  Is there a reason to be stricter here?
+    return (SkTAbs(X - kD50_WhitePoint[0]) <= 0.04f) &&
+           (SkTAbs(Y - kD50_WhitePoint[1]) <= 0.04f) &&
+           (SkTAbs(Z - kD50_WhitePoint[2]) <= 0.04f);
+}
+
 sk_sp<SkColorSpace> SkColorSpace::MakeICC(const void* input, size_t len) {
     if (!input || len < kICCHeaderSize) {
         return_null("Data is null or not large enough to contain an ICC profile");
@@ -1008,6 +1026,13 @@ sk_sp<SkColorSpace> SkColorSpace::MakeICC(const void* input, size_t len) {
                 mat.set3x3(toXYZ[0], toXYZ[1], toXYZ[2],
                            toXYZ[3], toXYZ[4], toXYZ[5],
                            toXYZ[6], toXYZ[7], toXYZ[8]);
+                if (!is_close_to_d50(mat)) {
+                    // QCMS treats these profiles as "bogus".  I'm not sure if that's
+                    // correct, but we certainly do not handle non-D50 matrices
+                    // correctly.  So I'll disable this for now.
+                    SkColorSpacePrintf("Matrix is not close to D50");
+                    return nullptr;
+                }
 
                 r = ICCTag::Find(tags.get(), tagCount, kTAG_rTRC);
                 g = ICCTag::Find(tags.get(), tagCount, kTAG_gTRC);

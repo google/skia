@@ -394,3 +394,11 @@ DEF_TEST(ColorSpace_Primaries, r) {
                      0.1446290f, 0.0974520f, 0.7708399f);
     check_primaries(r, ntsc, ntscToXYZ);
 }
+
+DEF_TEST(ColorSpace_InvalidICC, r) {
+    // This color space has a matrix that is not D50.
+    sk_sp<SkData> data = SkData::MakeFromFileName(
+            GetResourcePath("icc_profiles/SM2333SW.icc").c_str());
+    sk_sp<SkColorSpace> cs = SkColorSpace::MakeICC(data->data(), data->size());
+    REPORTER_ASSERT(r, !cs);
+}
