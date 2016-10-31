@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "86373a0c_40d1a3b3",
+        "filename": "src/effects/SkShadowMaskFilter.cpp",
+        "patchSetId": 10
+      },
+      "lineNbr": 316,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2016-10-31T19:29:01Z",
+      "side": 1,
+      "message": "Yes, the path is in device space.",
+      "parentUuid": "86373a0c_8a00ecb1",
+      "revId": "b75b1b2cc08d62f57250c63738b472346a02f694",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "86373a0c_4ac8a463",
         "filename": "src/effects/SkShadowMaskFilter.cpp",
         "patchSetId": 10
@@ -36,6 +54,24 @@
     },
     {
       "key": {
+        "uuid": "86373a0c_80cbab05",
+        "filename": "src/effects/SkShadowMaskFilter.cpp",
+        "patchSetId": 10
+      },
+      "lineNbr": 321,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2016-10-31T19:29:01Z",
+      "side": 1,
+      "message": "I was wrong, the path given is always in dev-space.",
+      "parentUuid": "86373a0c_4ac8a463",
+      "revId": "b75b1b2cc08d62f57250c63738b472346a02f694",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "86373a0c_5d6d0c78",
         "filename": "src/effects/SkShadowMaskFilter.cpp",
         "patchSetId": 10
@@ -47,6 +83,24 @@
       "writtenOn": "2016-10-31T17:43:56Z",
       "side": 1,
       "message": "SkTPin ?",
+      "revId": "b75b1b2cc08d62f57250c63738b472346a02f694",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "86373a0c_e0df17be",
+        "filename": "src/effects/SkShadowMaskFilter.cpp",
+        "patchSetId": 10
+      },
+      "lineNbr": 429,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2016-10-31T19:29:01Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "86373a0c_5d6d0c78",
       "revId": "b75b1b2cc08d62f57250c63738b472346a02f694",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
