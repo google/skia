@@ -76,10 +76,6 @@
         ['exclude', 'SkFontMgr_.+_factory\\.cpp$'],
       ],
       'conditions': [
-        [ 'skia_android_framework == 0', {
-          'dependencies': [ 'qcms.gyp:qcms', ],
-          'export_dependent_settings': [ 'qcms.gyp:qcms', ],
-        }],
         [ 'skia_os in ["linux", "freebsd", "openbsd", "solaris", "android"]', {
           'sources': [
             '../src/ports/SkFontHost_FreeType.cpp',
