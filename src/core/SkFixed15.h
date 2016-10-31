@@ -63,7 +63,9 @@ private:
 //                                vandq_s16(x,y), 15);
 //  - Conversion to and from float can be done manually with bit masks and float add/subtract,
 //    rather than the naive version here involving int<->float conversion and float multiply.
-//  - On ARM, we can alternatively use the vcvtq_n_f32_u32(vmovl_u16(x), 15) to convert 4 at a
-//    time to float, and vcvtq_n_u32_f32(..., 15) for the other way around.
+//  - On x86, conversion to float is _mm_sub_ps(_mm_unpacklo_epi16(x, _mm_set1_epi16(0x4380)),
+//                                              _mm_set1_ps(256.0f)).  // 0x43800000
+//  - On ARM, we can use the vcvtq_n_f32_u32(vmovl_u16(x), 15) to convert to float,
+//    and vcvtq_n_u32_f32(..., 15) for the other way around.
 
 #endif//SkFixed15_DEFINED
