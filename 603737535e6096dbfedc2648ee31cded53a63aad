@@ -33,6 +33,24 @@
       "revId": "603737535e6096dbfedc2648ee31cded53a63aad",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "86373a0c_ca8cb456",
+        "filename": "fuzz/Fuzz.h",
+        "patchSetId": 10
+      },
+      "lineNbr": 48,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2016-10-31T17:31:33Z",
+      "side": 1,
+      "message": "Wrapping around actually decreases performance by a fair amount.  I think this is because the fuzzer gets confused on the purpose of each bit and can\u0027t surgically control the execution of the program.",
+      "parentUuid": "86373a0c_6a964898",
+      "revId": "603737535e6096dbfedc2648ee31cded53a63aad",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
