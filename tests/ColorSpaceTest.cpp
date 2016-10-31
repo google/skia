@@ -324,3 +324,11 @@ DEF_TEST(ColorSpace_Primaries, r) {
     sk_sp<SkColorSpace> space = SkColorSpace::MakeRGB(SkColorSpace::kSRGB_RenderTargetGamma, toXYZ);
     REPORTER_ASSERT(r, SkColorSpace::MakeNamed(SkColorSpace::kSRGB_Named) == space);
 }
+
+DEF_TEST(ColorSpace_InvalidICC, r) {
+    // This color space has a matrix that is not D50.
+    sk_sp<SkData> data = SkData::MakeFromFileName(
+            GetResourcePath("icc_profiles/SM2333SW.icc").c_str());
+    sk_sp<SkColorSpace> cs = SkColorSpace::MakeICC(data->data(), data->size());
+    REPORTER_ASSERT(r, !cs);
+}
