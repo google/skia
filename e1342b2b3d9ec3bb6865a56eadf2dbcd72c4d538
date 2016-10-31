@@ -22,6 +22,24 @@
       "revId": "e1342b2b3d9ec3bb6865a56eadf2dbcd72c4d538",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "86373a0c_47f7fddd",
+        "filename": "src/codec/SkWbmpCodec.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 108,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2016-10-31T14:23:50Z",
+      "side": 1,
+      "message": "No it doesn\u0027t...  Everything is supposed to be tagged though in the new world.\n\nI\u0027ll be sure to skip any color correction in this codec (regardless of the requested dstSpace).  But this does seem a little strange - we\u0027ll be instructing code outside of the codecs to treat this as if it has a real color space.",
+      "parentUuid": "e60e367c_46c8b4b1",
+      "revId": "e1342b2b3d9ec3bb6865a56eadf2dbcd72c4d538",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
