@@ -1048,7 +1048,7 @@ static inline void aaa_walk_convex_edges(SkAnalyticEdge* prevHead, AdditiveBlitt
             total_y_cnt += count;
             frac_y_cnt += ((int)(y & 0xFFFF0000) != y);
             if ((int)(y & 0xFFFF0000) != y) {
-                SkDebugf("frac_y = %f\n", SkFixedToFloat(y));
+                // SkDebugf("frac_y = %f\n", SkFixedToFloat(y));
             }
             #endif
 
@@ -1124,7 +1124,7 @@ static inline void aaa_walk_convex_edges(SkAnalyticEdge* prevHead, AdditiveBlitt
 END_WALK:
     ;
     #ifdef SK_DEBUG
-    SkDebugf("frac_y_cnt = %d, total_y_cnt = %d\n", frac_y_cnt, total_y_cnt);
+    // SkDebugf("frac_y_cnt = %d, total_y_cnt = %d\n", frac_y_cnt, total_y_cnt);
     #endif
 }
 
