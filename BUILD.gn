@@ -20,6 +20,7 @@ declare_args() {
   skia_use_libpng = true
   skia_use_libwebp = !is_fuchsia
   skia_use_mesa = false
+  skia_use_raw = !is_win
   skia_use_sfntly = !is_fuchsia && !is_win  # TODO: icu on Windows, re-enable this.
   skia_use_zlib = true
 
@@ -284,9 +285,13 @@ template("optional") {
                              [
                                "public_defines",
                                "sources_when_disabled",
+                               "configs_to_remove",
                              ])
       all_dependent_configs = [ ":" + target_name + "_public" ]
       configs += skia_library_configs
+      if (defined(invoker.configs_to_remove)) {
+        configs -= invoker.configs_to_remove
+      }
     }
   } else {
     source_set(target_name) {
@@ -298,6 +303,7 @@ template("optional") {
                                "libs",
                                "sources",
                                "sources_when_disabled",
+                               "configs_to_remove",
                              ])
       if (defined(invoker.sources_when_disabled)) {
         sources = invoker.sources_when_disabled
@@ -442,6 +448,26 @@ optional("png") {
   ]
 }
 
+optional("raw") {
+  enabled = skia_use_raw && skia_use_libjpeg_turbo && skia_use_zlib
+  public_defines = [ "SK_CODEC_DECODES_RAW" ]
+
+  deps = [
+    "//third_party/dng_sdk",
+    "//third_party/libjpeg-turbo:libjpeg",
+    "//third_party/piex",
+  ]
+
+  # SkRawCodec catches any exceptions thrown by dng_sdk, insulating the rest of
+  # Skia.
+  configs_to_remove = [ "//gn:no_exceptions" ]
+
+  sources = [
+    "src/codec/SkRawAdapterCodec.cpp",
+    "src/codec/SkRawCodec.cpp",
+  ]
+}
+
 optional("typeface_freetype") {
   enabled = skia_use_freetype
 
@@ -501,6 +527,7 @@ component("skia") {
     ":none",
     ":pdf",
     ":png",
+    ":raw",
     ":sse2",
     ":sse41",
     ":sse42",
