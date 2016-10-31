@@ -28,12 +28,6 @@
         'SK_CODEC_DECODES_RAW',
       ],
     }],
-    [ 'skia_android_framework == 0', {
-      'defines': [
-        # Temporarily test against the QCMS library.
-        'SK_TEST_QCMS',
-      ],
-    }],
     ['skia_pic', {
      'cflags': [
        '-fPIC',
