@@ -94,6 +94,24 @@
       "revId": "e1342b2b3d9ec3bb6865a56eadf2dbcd72c4d538",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "86373a0c_4781bd1d",
+        "filename": "src/codec/SkWbmpCodec.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 108,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2016-10-31T15:04:32Z",
+      "side": 1,
+      "message": "Grey images can definitely have a color space (we just don\u0027t support it yet).\n\nAgreed that a color space never makes sense with Alpha8.  Might make sense to mark those kMoot or kIgnore as well...  Of course, we already know to ignore it based on the color type.  It\u0027s also worth mentioning that SkCodec currently doesn\u0027t support any encoded images that are Alpha8.",
+      "parentUuid": "e60e367c_06afdc81",
+      "revId": "e1342b2b3d9ec3bb6865a56eadf2dbcd72c4d538",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
