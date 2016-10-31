@@ -220,9 +220,6 @@ public:
      *  surface, then the new surface is created with default properties.
      */
     sk_sp<SkSurface> makeSurface(const SkImageInfo&, const SkSurfaceProps* = nullptr);
-#ifdef SK_SUPPORT_LEGACY_NEW_SURFACE_API
-    SkSurface* newSurface(const SkImageInfo& info, const SkSurfaceProps* props = NULL);
-#endif
 
     /**
      * Return the GPU context of the device that is associated with the canvas.
@@ -257,10 +254,6 @@ public:
      *  On failure, returns false and the pixmap parameter will be ignored.
      */
     bool peekPixels(SkPixmap*);
-
-#ifdef SK_SUPPORT_LEGACY_PEEKPIXELS_PARMS
-    const void* peekPixels(SkImageInfo* info, size_t* rowBytes);
-#endif
 
     /**
      *  Copy the pixels from the base-layer into the specified buffer (pixels + rowBytes),
@@ -597,11 +590,6 @@ public:
         @param mode the mode to apply the color in (defaults to SrcOver)
     */
     void drawARGB(U8CPU a, U8CPU r, U8CPU g, U8CPU b, SkBlendMode mode = SkBlendMode::kSrcOver);
-#ifdef SK_SUPPORT_LEGACY_XFERMODE_OBJECT
-    void drawARGB(U8CPU a, U8CPU r, U8CPU g, U8CPU b, SkXfermode::Mode mode) {
-        this->drawARGB(a, r, g, b, (SkBlendMode)mode);
-    }
-#endif
 
     /** Fill the entire canvas' bitmap (restricted to the current clip) with the
         specified color and mode.
@@ -609,11 +597,6 @@ public:
         @param mode the mode to apply the color in (defaults to SrcOver)
     */
     void drawColor(SkColor color, SkBlendMode mode = SkBlendMode::kSrcOver);
-#ifdef SK_SUPPORT_LEGACY_XFERMODE_OBJECT
-    void drawColor(SkColor color, SkXfermode::Mode mode) {
-        this->drawColor(color, (SkBlendMode)mode);
-    }
-#endif
 
     /**
      *  Helper method for drawing a color in SRC mode, completely replacing all the pixels
