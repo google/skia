@@ -58,6 +58,24 @@
       "revId": "e1342b2b3d9ec3bb6865a56eadf2dbcd72c4d538",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "86373a0c_2773d995",
+        "filename": "src/codec/SkWbmpCodec.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 108,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2016-10-31T14:51:30Z",
+      "side": 1,
+      "message": "I thought about this a little bit - I think it is maybe an ok option to have on SkColorSpace.\n\nIt would lead to a significant amount of new code though.  Needs special cases in: Equals, serialize, deserialize, SkColorSpaceXform, gpu pipeline, software pipeling.\n\nSeems like a lot to maintain for something as unimportant as wbmp (unsupported by Chrome, very rare in Android - who treats everything as sRGB anyway).  I think it makes sense to hold onto this idea but not actually implement it until we have a stronger reason to.",
+      "parentUuid": "e60e367c_26c3f849",
+      "revId": "e1342b2b3d9ec3bb6865a56eadf2dbcd72c4d538",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
