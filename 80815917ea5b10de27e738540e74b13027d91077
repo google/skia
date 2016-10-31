@@ -22,6 +22,24 @@
       "revId": "80815917ea5b10de27e738540e74b13027d91077",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "e60e367c_66ecd013",
+        "filename": "src/core/SkFixed15.h",
+        "patchSetId": 6
+      },
+      "lineNbr": 19,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2016-10-31T13:08:12Z",
+      "side": 1,
+      "message": "Uninitialized.  It\u0027s similar to SkFixed15() {} in this case, but this way explicitly does not initialize any member, where SkFixed() {} would initialize members with default constructors if this type had any.\n\nThis fine little distinction is enough to keep SkFixed15 appearing to be POD to all things that\u0027d ask (std::is_pod, unions, etc), even though it has other constructors.",
+      "parentUuid": "86373a0c_a779a9aa",
+      "revId": "80815917ea5b10de27e738540e74b13027d91077",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
