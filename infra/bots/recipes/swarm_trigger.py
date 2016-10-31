@@ -119,6 +119,7 @@ def swarm_dimensions(builder_cfg):
   if builder_cfg['role'] in ('Test', 'Perf'):
     if 'Android' in builder_cfg['os']:
       # For Android, the device type is a better dimension than CPU or GPU.
+      # Dummy change to try to reproduce flaky test result.
       device_type, device_os = {
         'AndroidOne':    ('sprout',     'MOB30Q'),
         'GalaxyS7':      ('heroqlteatt','MMB29M'),
