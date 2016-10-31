@@ -1019,20 +1019,20 @@ if (skia_enable_tools) {
       }
       testonly = true
     }
+  }
 
-    if (skia_enable_gpu) {
-      executable("skpbench") {
-        sources = [
-          "tools/skpbench/skpbench.cpp",
-        ]
-        deps = [
-          ":flags",
-          ":gpu_tool_utils",
-          ":skia",
-          ":tool_utils",
-        ]
-        testonly = true
-      }
+  if (skia_enable_gpu) {
+    executable("skpbench") {
+      sources = [
+        "tools/skpbench/skpbench.cpp",
+      ]
+      deps = [
+        ":flags",
+        ":gpu_tool_utils",
+        ":skia",
+        ":tool_utils",
+      ]
+      testonly = true
     }
   }
 
