@@ -89,6 +89,16 @@ public:
     uint64_t getSafeSize64() const { return fInfo.getSafeSize64(fRowBytes); }
     size_t getSafeSize() const { return fInfo.getSafeSize(fRowBytes); }
 
+    /**
+     *  Converts the pixel at the specified coordinate to an unpremultiplied
+     *  SkColor. Note: this ignores any SkColorSpace information, and may return
+     *  lower precision data than is actually in the pixel. Alpha only
+     *  colortypes (e.g. kAlpha_8_SkColorType) return black with the appropriate
+     *  alpha set.  The value is undefined for kUnknown_SkColorType or if x or y
+     *  are out of bounds, or if the pixtap does not have any pixels.
+     */
+    SkColor getColor(int x, int y) const;
+
     const void* addr(int x, int y) const {
         return (const char*)fPixels + fInfo.computeOffset(x, y, fRowBytes);
     }

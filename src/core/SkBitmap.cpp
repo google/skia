@@ -561,64 +561,6 @@ void* SkBitmap::getAddr(int x, int y) const {
     return base;
 }
 
-#include "SkHalf.h"
-
-SkColor SkBitmap::getColor(int x, int y) const {
-    SkASSERT((unsigned)x < (unsigned)this->width());
-    SkASSERT((unsigned)y < (unsigned)this->height());
-
-    switch (this->colorType()) {
-        case kGray_8_SkColorType: {
-            uint8_t* addr = this->getAddr8(x, y);
-            return SkColorSetRGB(*addr, *addr, *addr);
-        }
-        case kAlpha_8_SkColorType: {
-            uint8_t* addr = this->getAddr8(x, y);
-            return SkColorSetA(0, addr[0]);
-        }
-        case kIndex_8_SkColorType: {
-            SkPMColor c = this->getIndex8Color(x, y);
-            return SkUnPreMultiply::PMColorToColor(c);
-        }
-        case kRGB_565_SkColorType: {
-            uint16_t* addr = this->getAddr16(x, y);
-            return SkPixel16ToColor(addr[0]);
-        }
-        case kARGB_4444_SkColorType: {
-            uint16_t* addr = this->getAddr16(x, y);
-            SkPMColor c = SkPixel4444ToPixel32(addr[0]);
-            return SkUnPreMultiply::PMColorToColor(c);
-        }
-        case kBGRA_8888_SkColorType: {
-            uint32_t* addr = this->getAddr32(x, y);
-            SkPMColor c = SkSwizzle_BGRA_to_PMColor(addr[0]);
-            return SkUnPreMultiply::PMColorToColor(c);
-        }
-        case kRGBA_8888_SkColorType: {
-            uint32_t* addr = this->getAddr32(x, y);
-            SkPMColor c = SkSwizzle_RGBA_to_PMColor(addr[0]);
-            return SkUnPreMultiply::PMColorToColor(c);
-        }
-        case kRGBA_F16_SkColorType: {
-            const uint64_t* addr = (const uint64_t*)fPixels + y * (fRowBytes >> 3) + x;
-            Sk4f p4 = SkHalfToFloat_finite_ftz(addr[0]);
-            if (p4[3]) {
-                float inva = 1 / p4[3];
-                p4 = p4 * Sk4f(inva, inva, inva, 1);
-            }
-            SkColor c;
-            SkNx_cast<uint8_t>(p4 * Sk4f(255) + Sk4f(0.5f)).store(&c);
-            // p4 is RGBA, but we want BGRA, so we need to swap next
-            return SkSwizzle_RB(c);
-        }
-        default:
-            SkASSERT(false);
-            return 0;
-    }
-    SkASSERT(false);  // Not reached.
-    return 0;
-}
-
 static bool compute_is_opaque(const SkPixmap& pmap) {
     const int height = pmap.height();
     const int width = pmap.width();
