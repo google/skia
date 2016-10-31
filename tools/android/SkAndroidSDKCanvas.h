@@ -49,7 +49,7 @@ protected:
     void onDrawBitmapNine(const SkBitmap& bitmap, const SkIRect& center,
                           const SkRect& dst, const SkPaint* paint) override;
     void onDrawVertices(VertexMode vMode, int vertexCount, const SkPoint vertices[],
-                        const SkPoint texs[], const SkColor colors[], SkXfermode* xMode,
+                        const SkPoint texs[], const SkColor colors[], SK_XFERMODE_PARAM xMode,
                         const uint16_t indices[], int indexCount,
                         const SkPaint& paint) override;
 
@@ -70,7 +70,7 @@ protected:
                         const SkPaint& paint) override;
 
     void onDrawPatch(const SkPoint cubics[12], const SkColor colors[4],
-                     const SkPoint texCoords[4], SkXfermode* xmode,
+                     const SkPoint texCoords[4], SK_XFERMODE_PARAM xmode,
                      const SkPaint& paint) override;
 
     void onDrawImage(const SkImage*, SkScalar, SkScalar, const SkPaint*) override;
@@ -78,7 +78,7 @@ protected:
                          SrcRectConstraint) override;
     void onDrawPicture(const SkPicture*, const SkMatrix*, const SkPaint*) override;
     void onDrawAtlas(const SkImage*, const SkRSXform[], const SkRect[],
-                     const SkColor[], int count, SkXfermode::Mode,
+                     const SkColor[], int count, SK_XFERMODE_MODE_PARAM,
                      const SkRect* cull, const SkPaint*) override;
     void onDrawImageNine(const SkImage*, const SkIRect& center,
                          const SkRect& dst, const SkPaint*) override;

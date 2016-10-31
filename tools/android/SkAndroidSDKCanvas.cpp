@@ -63,12 +63,12 @@ void Filter(SkPaint* paint) {
     SkColorFilter* cf = paint->getColorFilter();
     if (cf) {
         SkColor color;
-        SkXfermode::Mode mode;
+        SK_XFERMODE_MODE_PARAM mode;
         SkScalar srcColorMatrix[20];
         bool isMode = cf->asColorMode(&color, &mode);
-        if (isMode && mode > SkXfermode::kLighten_Mode) {
+        if (isMode && (int)mode > (int)SkBlendMode::kLighten) {
             paint->setColorFilter(
-                SkColorFilter::MakeModeFilter(color, SkXfermode::kSrcOver_Mode));
+                SkColorFilter::MakeModeFilter(color, SkBlendMode::kSrcOver));
         } else if (!isMode && !cf->asColorMatrix(srcColorMatrix)) {
             paint->setColorFilter(nullptr);
         }
@@ -164,7 +164,7 @@ void SkAndroidSDKCanvas::onDrawBitmapNine(const SkBitmap& bitmap,
 void SkAndroidSDKCanvas::onDrawVertices(VertexMode vMode,
                                                  int vertexCount,
                                                  const SkPoint vertices[],
-                    const SkPoint texs[], const SkColor colors[], SkXfermode* xMode,
+                    const SkPoint texs[], const SkColor colors[], SK_XFERMODE_PARAM xMode,
                     const uint16_t indices[], int indexCount,
                     const SkPaint& paint) {
     FILTER(paint);
@@ -227,7 +227,7 @@ void SkAndroidSDKCanvas::onDrawTextBlob(const SkTextBlob* blob,
 void SkAndroidSDKCanvas::onDrawPatch(const SkPoint cubics[12],
                                               const SkColor colors[4],
                                               const SkPoint texCoords[4],
-                                              SkXfermode* xmode,
+                                              SK_XFERMODE_PARAM xmode,
                                               const SkPaint& paint) {
     FILTER(paint);
     fProxyTarget->drawPatch(cubics, colors, texCoords, xmode, filteredPaint);
@@ -263,7 +263,7 @@ void SkAndroidSDKCanvas::onDrawAtlas(const SkImage* atlas,
                                      const SkRect tex[],
                                      const SkColor colors[],
                                      int count,
-                                     SkXfermode::Mode mode,
+                                     SK_XFERMODE_MODE_PARAM mode,
                                      const SkRect* cullRect,
                                      const SkPaint* paint) {
     FILTER_PTR(paint);
