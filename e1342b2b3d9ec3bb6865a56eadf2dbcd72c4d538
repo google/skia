@@ -40,6 +40,24 @@
       "revId": "e1342b2b3d9ec3bb6865a56eadf2dbcd72c4d538",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "e60e367c_26c3f849",
+        "filename": "src/codec/SkWbmpCodec.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 108,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2016-10-31T14:42:53Z",
+      "side": 1,
+      "message": "How awkward is it to have a distinct color space for this? \n\nSkColorSpace::kNone_Named?  kAny_Named?  kMoot_Named?",
+      "parentUuid": "86373a0c_47f7fddd",
+      "revId": "e1342b2b3d9ec3bb6865a56eadf2dbcd72c4d538",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
