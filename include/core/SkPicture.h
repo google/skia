@@ -52,21 +52,6 @@ public:
      */
     typedef bool (*InstallPixelRefProc)(const void* src, size_t length, SkBitmap* dst);
 
-#ifdef SK_SUPPORT_LEGACY_PICTUREINSTALLPIXELREF
-    /**
-     *  Recreate a picture that was serialized into a stream.
-     *  @param SkStream Serialized picture data. Ownership is unchanged by this call.
-     *  @param proc Function pointer for installing pixelrefs on SkBitmaps representing the
-     *              encoded bitmap data from the stream.
-     *  @return A new SkPicture representing the serialized data, or NULL if the stream is
-     *          invalid.
-     */
-    static sk_sp<SkPicture> MakeFromStream(SkStream*, InstallPixelRefProc proc);
-    static sk_sp<SkPicture> MakeFromStream(SkStream* stream, std::nullptr_t) {
-        return MakeFromStream(stream);
-    }
-#endif
-
     /**
      *  Recreate a picture that was serialized into a stream.
      *
@@ -181,18 +166,6 @@ public:
     // Global setting to enable or disable security precautions for serialization.
     static void SetPictureIOSecurityPrecautionsEnabled_Dangerous(bool set);
     static bool PictureIOSecurityPrecautionsEnabled();
-
-#ifdef SK_SUPPORT_LEGACY_PICTURE_PTR
-    static SkPicture* CreateFromStream(SkStream* stream, InstallPixelRefProc proc) {
-        return MakeFromStream(stream, proc).release();
-    }
-    static SkPicture* CreateFromStream(SkStream* stream) {
-        return MakeFromStream(stream).release();
-    }
-    static SkPicture* CreateFromBuffer(SkReadBuffer& rbuf) {
-        return MakeFromBuffer(rbuf).release();
-    }
-#endif
 
 private:
     // Subclass whitelist.

@@ -3385,12 +3385,6 @@ SkAutoCanvasMatrixPaint::~SkAutoCanvasMatrixPaint() {
     fCanvas->restoreToCount(fSaveCount);
 }
 
-#ifdef SK_SUPPORT_LEGACY_NEW_SURFACE_API
-SkSurface* SkCanvas::newSurface(const SkImageInfo& info, const SkSurfaceProps* props) {
-    return this->makeSurface(info, props).release();
-}
-#endif
-
 /////////////////////////////////
 
 const SkCanvas::ClipOp SkCanvas::kDifference_Op;

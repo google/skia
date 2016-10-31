@@ -58,12 +58,6 @@ public:
     */
     static sk_sp<SkPathEffect> Make(const SkPath& path, SkScalar advance, SkScalar phase, Style);
 
-#ifdef SK_SUPPORT_LEGACY_PATHEFFECT_PTR
-    static SkPathEffect* Create(const SkPath& path, SkScalar advance, SkScalar phase, Style s) {
-        return Make(path, advance, phase, s).release();
-    }
-#endif
-
     virtual bool filterPath(SkPath*, const SkPath&,
                             SkStrokeRec*, const SkRect*) const override;
 
