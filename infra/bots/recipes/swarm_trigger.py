@@ -126,7 +126,7 @@ def swarm_dimensions(builder_cfg):
         'Nexus10':       ('manta',      'LMY49J'),
         'Nexus5':        ('hammerhead', 'MOB31E'),
         'Nexus6':        ('shamu',      'M'),
-        'Nexus6p':       ('angler',     'NRD91E'),
+        'Nexus6p':       ('angler',     'NMF26C'),
         'Nexus7':        ('grouper',    'LMY47V'),
         'Nexus7v2':      ('flo',        'M'),
         'Nexus9':        ('flounder',   'NRD91D'),
