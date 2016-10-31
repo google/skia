@@ -77,7 +77,7 @@ private:
      * @param embeddedCodecs codecs for the embedded images, takes ownership
      */
     SkIcoCodec(int width, int height, const SkEncodedInfo& info,
-            SkTArray<SkAutoTDelete<SkCodec>, true>* embeddedCodecs);
+            SkTArray<SkAutoTDelete<SkCodec>, true>* embeddedCodecs, sk_sp<SkColorSpace> colorSpace);
 
     SkAutoTDelete<SkTArray<SkAutoTDelete<SkCodec>, true>> fEmbeddedCodecs; // owned
 

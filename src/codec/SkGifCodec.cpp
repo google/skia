@@ -98,9 +98,10 @@ SkCodec* SkGifCodec::NewFromStream(SkStream* stream) {
     // zeroes, which is arguably premultiplied.
     const auto alphaType = reader->firstFrameHasAlpha() ? kUnpremul_SkAlphaType
                                                         : kOpaque_SkAlphaType;
-    // FIXME: GIF should default to SkColorSpace::NewNamed(SkColorSpace::kSRGB_Named).
+
     const auto imageInfo = SkImageInfo::Make(reader->screenWidth(), reader->screenHeight(),
-                                             colorType, alphaType);
+                                             colorType, alphaType,
+                                             SkColorSpace::MakeNamed(SkColorSpace::kSRGB_Named));
     return new SkGifCodec(encodedInfo, imageInfo, reader.release());
 }
 
