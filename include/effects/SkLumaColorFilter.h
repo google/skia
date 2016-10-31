@@ -11,6 +11,8 @@
 #include "SkColorFilter.h"
 #include "SkRefCnt.h"
 
+class SkRasterPipeline;
+
 /**
  *  Luminance-to-alpha color filter, as defined in
  *  http://www.w3.org/TR/SVG/masking.html#Masking
@@ -40,6 +42,7 @@ protected:
 
 private:
     SkLumaColorFilter();
+    bool onAppendStages(SkRasterPipeline*) const override;
 
     typedef SkColorFilter INHERITED;
 };

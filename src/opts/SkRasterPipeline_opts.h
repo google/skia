@@ -8,6 +8,7 @@
 #ifndef SkRasterPipeline_opts_DEFINED
 #define SkRasterPipeline_opts_DEFINED
 
+#include "SkColorPriv.h"
 #include "SkHalf.h"
 #include "SkPM4f.h"
 #include "SkRasterPipeline.h"
@@ -442,6 +443,11 @@ RGB_XFERMODE(softlight) {
          liteDst = m.rsqrt().invert() - m,            // Used in case 3.
          liteSrc = d*sa + da*(s2 - sa) * (4.0f*d <= da).thenElse(darkDst, liteDst);  // 2 or 3?
     return s*inv(da) + d*inv(sa) + (s2 <= sa).thenElse(darkSrc, liteSrc);  // 1 or (2 or 3)?
+}
+
+STAGE(luminance_to_alpha, true) {
+    a = SK_LUM_COEFF_R*r + SK_LUM_COEFF_G*g + SK_LUM_COEFF_B*b;
+    r = g = b = 0;
 }
 
 
