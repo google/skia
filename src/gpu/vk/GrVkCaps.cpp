@@ -17,7 +17,6 @@ GrVkCaps::GrVkCaps(const GrContextOptions& contextOptions, const GrVkInterface* 
     : INHERITED(contextOptions) {
     fCanUseGLSLForShaderModule = false;
     fMustDoCopiesFromOrigin = false;
-    fAllowInitializationErrorOnTearDown = false;
     fSupportsCopiesAsDraws = false;
     fMustSubmitCommandsBeforeCopyOp = false;
 
@@ -73,7 +72,6 @@ void GrVkCaps::init(const GrContextOptions& contextOptions, const GrVkInterface*
 
     if (kQualcomm_VkVendor == properties.vendorID) {
         fMustDoCopiesFromOrigin = true;
-        fAllowInitializationErrorOnTearDown = true;
     }
 
     if (kNvidia_VkVendor == properties.vendorID) {

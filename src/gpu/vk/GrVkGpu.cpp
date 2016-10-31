@@ -182,13 +182,7 @@ GrVkGpu::~GrVkGpu() {
 #endif
 
 #ifdef SK_DEBUG
-    if (this->vkCaps().allowInitializationErrorOnTearDown()) {
-        SkASSERT(VK_SUCCESS == res ||
-                 VK_ERROR_DEVICE_LOST == res ||
-                 VK_ERROR_INITIALIZATION_FAILED == res);
-    } else {
-        SkASSERT(VK_SUCCESS == res || VK_ERROR_DEVICE_LOST == res);
-    }
+    SkASSERT(VK_SUCCESS == res || VK_ERROR_DEVICE_LOST == res);
 #endif
 
     fCopyManager.destroyResources(this);
