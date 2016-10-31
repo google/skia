@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "86373a0c_676fa1e2",
+        "filename": "include/core/SkPixmap.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 92,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2016-10-31T12:11:40Z",
+      "side": 1,
+      "message": "// Converts the pixel at the specified coordinate to an unpremultiplied SkColor.\n// Note: this ignores any SkColorSpace information, and may return lower precision\n// data than is actually in the pixel.\n... or something like that.",
+      "range": {
+        "startLine": 92,
+        "startChar": 12,
+        "endLine": 92,
+        "endChar": 20
+      },
+      "revId": "717d799be4eae2e4eeb26509485a8cd06dea27d9",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
