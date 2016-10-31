@@ -102,3 +102,34 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(ImageIsOpaqueTest_Gpu, reporter, ctxInfo) {
 }
 
 #endif
+
+///////////////////////////////////////////////////////////////////////////////////////////////////
+#include "SkPictureRecorder.h"
+
+static sk_sp<SkPicture> make_picture() {
+    SkPictureRecorder recorder;
+    SkCanvas* canvas = recorder.beginRecording({ 0, 0, 10, 10 });
+    canvas->drawColor(SK_ColorRED);
+    return recorder.finishRecordingAsPicture();
+}
+
+DEF_TEST(Image_isAlphaOnly, reporter) {
+    SkPMColor pmColors = 0;
+    SkPixmap pmap = {
+        SkImageInfo::MakeN32Premul(1, 1),
+        &pmColors,
+        sizeof(pmColors)
+    };
+    for (auto& image : {
+        SkImage::MakeRasterCopy(pmap),
+        GetResourceAsImage("mandrill_128.png"),
+        GetResourceAsImage("color_wheel.jpg"),
+        SkImage::MakeFromPicture(make_picture(), { 10, 10 }, nullptr, nullptr),
+    })
+    {
+        REPORTER_ASSERT(reporter, image->isAlphaOnly() == false);
+    }
+
+    REPORTER_ASSERT(reporter, SkImage::MakeRasterCopy({
+        SkImageInfo::MakeA8(1, 1), (uint8_t*)&pmColors, 1})->isAlphaOnly() == true);
+}

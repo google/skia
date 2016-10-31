@@ -167,6 +167,11 @@ public:
     SkIRect bounds() const { return SkIRect::MakeWH(fWidth, fHeight); }
     uint32_t uniqueID() const { return fUniqueID; }
     SkAlphaType alphaType() const;
+
+    /**
+     *  Returns true fi the image will be drawn as a mask, with no intrinsic color of its own.
+     */
+    bool isAlphaOnly() const;
     bool isOpaque() const { return SkAlphaTypeIsOpaque(this->alphaType()); }
 
     /**

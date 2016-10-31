@@ -371,6 +371,10 @@ bool SkImage::isLazyGenerated() const {
     return as_IB(this)->onIsLazyGenerated();
 }
 
+bool SkImage::isAlphaOnly() const {
+    return as_IB(this)->onImageInfo().colorType() == kAlpha_8_SkColorType;
+}
+
 //////////////////////////////////////////////////////////////////////////////////////
 
 #if !SK_SUPPORT_GPU
