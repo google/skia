@@ -24,31 +24,6 @@ static bool g_AllPictureIOSecurityPrecautionsEnabled = false;
 
 DECLARE_SKMESSAGEBUS_MESSAGE(SkPicture::DeletionMessage);
 
-#ifdef SK_SUPPORT_LEGACY_PICTUREINSTALLPIXELREF
-class InstallProcImageDeserializer : public SkImageDeserializer {
-    SkPicture::InstallPixelRefProc fProc;
-public:
-    InstallProcImageDeserializer(SkPicture::InstallPixelRefProc proc) : fProc(proc) {}
-
-    sk_sp<SkImage> makeFromMemory(const void* data, size_t length, const SkIRect* subset) override {
-        SkBitmap bitmap;
-        if (fProc(data, length, &bitmap)) {
-            bitmap.setImmutable();
-            return SkImage::MakeFromBitmap(bitmap);
-        }
-        return nullptr;
-    }
-    sk_sp<SkImage> makeFromData(SkData* data, const SkIRect* subset) override {
-        return this->makeFromMemory(data->data(), data->size(), subset);
-    }
-};
-
-sk_sp<SkPicture> SkPicture::MakeFromStream(SkStream* stream, InstallPixelRefProc proc) {
-    InstallProcImageDeserializer deserializer(proc);
-    return MakeFromStream(stream, &deserializer);
-}
-#endif
-
 /* SkPicture impl.  This handles generic responsibilities like unique IDs and serialization. */
 
 SkPicture::SkPicture() : fUniqueID(0) {}

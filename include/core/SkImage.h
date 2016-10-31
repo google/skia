@@ -434,40 +434,6 @@ public:
      */
     bool isLazyGenerated() const;
 
-
-#ifdef SK_SUPPORT_LEGACY_IMAGEFACTORY
-    static SkImage* NewRasterCopy(const Info&, const void* pixels, size_t rowBytes,
-                                  SkColorTable* ctable = nullptr);
-    static SkImage* NewRasterData(const Info&, SkData* pixels, size_t rowBytes);
-    static SkImage* NewFromRaster(const Info&, const void* pixels, size_t rowBytes,
-                                  RasterReleaseProc, ReleaseContext);
-    static SkImage* NewFromBitmap(const SkBitmap&);
-    static SkImage* NewFromGenerator(SkImageGenerator*, const SkIRect* subset = nullptr);
-    static SkImage* NewFromEncoded(SkData* encoded, const SkIRect* subset = nullptr);
-    static SkImage* NewFromTexture(GrContext* ctx, const GrBackendTextureDesc& desc) {
-        return NewFromTexture(ctx, desc, kPremul_SkAlphaType, nullptr, nullptr);
-    }
-
-    static SkImage* NewFromTexture(GrContext* ctx, const GrBackendTextureDesc& de, SkAlphaType at) {
-        return NewFromTexture(ctx, de, at, nullptr, nullptr);
-    }
-    static SkImage* NewFromTexture(GrContext*, const GrBackendTextureDesc&, SkAlphaType,
-                                   TextureReleaseProc, ReleaseContext);
-    static SkImage* NewFromAdoptedTexture(GrContext*, const GrBackendTextureDesc&,
-                                          SkAlphaType = kPremul_SkAlphaType);
-    static SkImage* NewFromYUVTexturesCopy(GrContext*, SkYUVColorSpace,
-                                           const GrBackendObject yuvTextureHandles[3],
-                                           const SkISize yuvSizes[3],
-                                           GrSurfaceOrigin);
-    static SkImage* NewFromPicture(const SkPicture*, const SkISize& dimensions,
-                                   const SkMatrix*, const SkPaint*);
-    static SkImage* NewTextureFromPixmap(GrContext*, const SkPixmap&, SkBudgeted budgeted);
-    static SkImage* NewFromDeferredTextureImageData(GrContext*, const void*, SkBudgeted);
-
-    SkImage* newSubset(const SkIRect& subset) const { return this->makeSubset(subset).release(); }
-    SkImage* newTextureImage(GrContext* ctx) const { return this->makeTextureImage(ctx).release(); }
-#endif
-
 protected:
     SkImage(int width, int height, uint32_t uniqueID);
 

@@ -430,66 +430,6 @@ sk_sp<SkImage> SkImage::makeNonTextureImage() const {
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
-#ifdef SK_SUPPORT_LEGACY_IMAGEFACTORY
-SkImage* SkImage::NewRasterCopy(const Info& info, const void* pixels, size_t rowBytes,
-                                SkColorTable* ctable) {
-    return MakeRasterCopy(SkPixmap(info, pixels, rowBytes, ctable)).release();
-}
-
-SkImage* SkImage::NewRasterData(const Info& info, SkData* pixels, size_t rowBytes) {
-    return MakeRasterData(info, sk_ref_sp(pixels), rowBytes).release();
-}
-
-SkImage* SkImage::NewFromRaster(const Info& info, const void* pixels, size_t rowBytes,
-                                RasterReleaseProc proc, ReleaseContext releasectx) {
-    return MakeFromRaster(SkPixmap(info, pixels, rowBytes), proc, releasectx).release();
-}
-
-SkImage* SkImage::NewFromBitmap(const SkBitmap& bm) {
-    return MakeFromBitmap(bm).release();
-}
-
-SkImage* SkImage::NewFromGenerator(SkImageGenerator* gen, const SkIRect* subset) {
-    return MakeFromGenerator(gen, subset).release();
-}
-
-SkImage* SkImage::NewFromEncoded(SkData* encoded, const SkIRect* subset) {
-    return MakeFromEncoded(sk_ref_sp(encoded), subset).release();
-}
-
-SkImage* SkImage::NewFromTexture(GrContext* ctx, const GrBackendTextureDesc& desc, SkAlphaType at,
-                                 TextureReleaseProc proc, ReleaseContext releasectx) {
-    return MakeFromTexture(ctx, desc, at, proc, releasectx).release();
-}
-
-SkImage* SkImage::NewFromAdoptedTexture(GrContext* ctx, const GrBackendTextureDesc& desc,
-                                        SkAlphaType at) {
-    return MakeFromAdoptedTexture(ctx, desc, at).release();
-}
-
-SkImage* SkImage::NewFromYUVTexturesCopy(GrContext* ctx, SkYUVColorSpace space,
-                                         const GrBackendObject yuvTextureHandles[3],
-                                         const SkISize yuvSizes[3],
-                                         GrSurfaceOrigin origin) {
-    return MakeFromYUVTexturesCopy(ctx, space, yuvTextureHandles, yuvSizes, origin).release();
-}
-
-SkImage* SkImage::NewFromPicture(const SkPicture* picture, const SkISize& dimensions,
-                                 const SkMatrix* matrix, const SkPaint* paint) {
-    return MakeFromPicture(sk_ref_sp(const_cast<SkPicture*>(picture)), dimensions,
-                                     matrix, paint).release();
-}
-
-SkImage* SkImage::NewTextureFromPixmap(GrContext* ctx, const SkPixmap& pmap, SkBudgeted budgeted) {
-    return MakeTextureFromPixmap(ctx, pmap, budgeted).release();
-}
-
-SkImage* SkImage::NewFromDeferredTextureImageData(GrContext* ctx, const void* data,
-                                                  SkBudgeted budgeted) {
-    return MakeFromDeferredTextureImageData(ctx, data, budgeted).release();
-}
-#endif
-
 sk_sp<SkImage> MakeTextureFromMipMap(GrContext*, const SkImageInfo&, const GrMipLevel* texels,
                                      int mipLevelCount, SkBudgeted) {
     return nullptr;

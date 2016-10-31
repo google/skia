@@ -17,15 +17,6 @@ sk_sp<SkMaskFilter> SkEmbossMaskFilter::Make(SkScalar blurSigma, const Light& li
     return sk_sp<SkMaskFilter>(new SkEmbossMaskFilter(blurSigma, light));
 }
 
-#ifdef SK_SUPPORT_LEGACY_MASKFILTER_PTR
-SkMaskFilter* SkBlurMaskFilter::CreateEmboss(const SkScalar direction[3],
-                                             SkScalar ambient, SkScalar specular,
-                                             SkScalar blurRadius) {
-    return SkBlurMaskFilter::CreateEmboss(SkBlurMask::ConvertRadiusToSigma(blurRadius),
-                                          direction, ambient, specular);
-}
-#endif
-
 sk_sp<SkMaskFilter> SkBlurMaskFilter::MakeEmboss(SkScalar blurSigma, const SkScalar direction[3],
                                                  SkScalar ambient, SkScalar specular) {
     if (direction == nullptr) {
