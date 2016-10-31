@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "86373a0c_ead9b80b",
+        "filename": "fuzz/Fuzz.h",
+        "patchSetId": 7
+      },
+      "lineNbr": 24,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2016-10-31T16:56:31Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "6105d0c2_f982aa97",
+      "revId": "ff6717d1c072269299bfcdec03cd7471d492bd32",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "6105d0c2_b9467294",
         "filename": "fuzz/Fuzz.h",
         "patchSetId": 7
@@ -42,6 +60,24 @@
     },
     {
       "key": {
+        "uuid": "86373a0c_8ae58cc7",
+        "filename": "fuzz/Fuzz.h",
+        "patchSetId": 7
+      },
+      "lineNbr": 30,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2016-10-31T16:56:31Z",
+      "side": 1,
+      "message": "Yes, I fixed any that weren\u0027t going to be okay.",
+      "parentUuid": "6105d0c2_b9467294",
+      "revId": "ff6717d1c072269299bfcdec03cd7471d492bd32",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "6105d0c2_99728e02",
         "filename": "fuzz/Fuzz.h",
         "patchSetId": 7
@@ -53,6 +89,24 @@
       "writtenOn": "2016-10-27T13:45:06Z",
       "side": 1,
       "message": "Let\u0027s indent these a line further in like you\u0027d do if you were writing the code not in a macro?",
+      "revId": "ff6717d1c072269299bfcdec03cd7471d492bd32",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "86373a0c_2ad440cf",
+        "filename": "fuzz/Fuzz.h",
+        "patchSetId": 7
+      },
+      "lineNbr": 84,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2016-10-31T16:56:31Z",
+      "side": 1,
+      "message": "Got rid of the try/catch",
+      "parentUuid": "6105d0c2_99728e02",
       "revId": "ff6717d1c072269299bfcdec03cd7471d492bd32",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
@@ -76,6 +130,24 @@
     },
     {
       "key": {
+        "uuid": "86373a0c_6a0928a0",
+        "filename": "fuzz/Fuzz.h",
+        "patchSetId": 7
+      },
+      "lineNbr": 87,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2016-10-31T16:56:31Z",
+      "side": 1,
+      "message": "Got rid of the try/catch.",
+      "parentUuid": "6105d0c2_796fba17",
+      "revId": "ff6717d1c072269299bfcdec03cd7471d492bd32",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "6105d0c2_b9a15234",
         "filename": "fuzz/FuzzGradients.cpp",
         "patchSetId": 7
@@ -93,6 +165,24 @@
     },
     {
       "key": {
+        "uuid": "86373a0c_aa1330cb",
+        "filename": "fuzz/FuzzGradients.cpp",
+        "patchSetId": 7
+      },
+      "lineNbr": 114,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2016-10-31T16:56:31Z",
+      "side": 1,
+      "message": "Sure, I\u0027d like to see that.",
+      "parentUuid": "6105d0c2_b9a15234",
+      "revId": "ff6717d1c072269299bfcdec03cd7471d492bd32",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "6105d0c2_19979ed4",
         "filename": "fuzz/FuzzGradients.cpp",
         "patchSetId": 7
@@ -104,6 +194,24 @@
       "writtenOn": "2016-10-27T13:45:06Z",
       "side": 1,
       "message": "I have another neat trick we can play, so that you could write\n\n    uint8_t i \u003d fuzz-\u003enext();\n\nand it\u0027d figure out that the type it needed is uint8_t and fuzz that one byte.",
+      "revId": "ff6717d1c072269299bfcdec03cd7471d492bd32",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "86373a0c_8a18ece8",
+        "filename": "fuzz/FuzzGradients.cpp",
+        "patchSetId": 7
+      },
+      "lineNbr": 186,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2016-10-31T16:56:31Z",
+      "side": 1,
+      "message": "I would like to see that.  I tried a naive approach and learned Template inference doesn\u0027t happen from return values.",
+      "parentUuid": "6105d0c2_19979ed4",
       "revId": "ff6717d1c072269299bfcdec03cd7471d492bd32",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
