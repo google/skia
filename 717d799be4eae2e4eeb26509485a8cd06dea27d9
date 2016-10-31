@@ -22,6 +22,24 @@
       "revId": "717d799be4eae2e4eeb26509485a8cd06dea27d9",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "86373a0c_e7cc51c7",
+        "filename": "include/core/SkPixmap.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 92,
+      "author": {
+        "id": 5110
+      },
+      "writtenOn": "2016-10-31T13:46:51Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "86373a0c_676fa1e2",
+      "revId": "717d799be4eae2e4eeb26509485a8cd06dea27d9",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
