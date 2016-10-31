@@ -55,7 +55,7 @@ def unzip(zip_file, target_dir):
       if zi.filename.endswith('/'):
         os.mkdir(dst_path)
       else:
-        with open(dst_path, 'w') as f:
+        with open(dst_path, 'wb') as f:
           f.write(z.read(zi))
       perms = zi.external_attr >> 16L
       os.chmod(dst_path, perms)
