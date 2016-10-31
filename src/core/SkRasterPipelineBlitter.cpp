@@ -94,10 +94,6 @@ SkBlitter* SkRasterPipelineBlitter::Create(const SkPixmap& dst,
     if (paint.getShader()) {
         return nullptr;  // TODO: need to work out how shaders and their contexts work
     }
-    SkBlendMode blend = paint.getBlendMode();
-    if (!SkBlendMode_AppendStages(blend)) {
-        return nullptr;  // TODO
-    }
 
     SkRasterPipeline shader, colorFilter;
     if (paint.getColorFilter() && !paint.getColorFilter()->appendStages(&colorFilter)) {
@@ -113,8 +109,10 @@ SkBlitter* SkRasterPipelineBlitter::Create(const SkPixmap& dst,
         swizzle_rb(SkNx_cast<float>(Sk4b::Load(&paintColor)) * (1/255.0f)).store(&color);
     }
 
-    auto blitter = alloc->createT<SkRasterPipelineBlitter>(dst, shader, blend, color.premul());
-
+    auto blitter = alloc->createT<SkRasterPipelineBlitter>(dst,
+                                                           shader,
+                                                           paint.getBlendMode(),
+                                                           color.premul());
     if (!paint.getShader()) {
         blitter->fShader.append(SkRasterPipeline::constant_color, &blitter->fPaintColor);
     }
@@ -162,11 +160,13 @@ void SkRasterPipelineBlitter::append_store(SkRasterPipeline* p) const {
 }
 
 void SkRasterPipelineBlitter::append_blend(SkRasterPipeline* p) const {
-    SkAssertResult(SkBlendMode_AppendStages(fBlend, p));
+    SkBlendMode_AppendStages(fBlend, p);
 }
 
 void SkRasterPipelineBlitter::maybe_clamp(SkRasterPipeline* p) const {
-    if (SkBlendMode_CanOverflow(fBlend)) { p->append(SkRasterPipeline::clamp_1); }
+    if (SkBlendMode_CanOverflow(fBlend)) {
+        p->append(SkRasterPipeline::clamp_1);
+    }
 }
 
 void SkRasterPipelineBlitter::blitH(int x, int y, int w) {

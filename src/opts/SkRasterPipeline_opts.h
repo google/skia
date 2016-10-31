@@ -444,6 +444,12 @@ RGB_XFERMODE(softlight) {
     return s*inv(da) + d*inv(sa) + (s2 <= sa).thenElse(darkSrc, liteSrc);  // 1 or (2 or 3)?
 }
 
+// These non-separable xfermodes are just implemented without any shortcut as fully general stages.
+STAGE(hue, true) {}
+STAGE(saturation, true) {}
+STAGE(color, true) {}
+STAGE(luminosity, true) {}
+
 
 template <typename Fn>
 SI Fn enum_to_Fn(SkRasterPipeline::StockStage st) {
