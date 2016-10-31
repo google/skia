@@ -32,8 +32,11 @@ declare_args() {
 }
 
 declare_args() {
-  skia_use_vulkan =
-      skia_vulkan_sdk != "" || (is_android && defined(ndk_api) && ndk_api >= 24)
+  if (is_android) {
+    skia_use_vulkan = defined(ndk_api) && ndk_api >= 24
+  } else {
+    skia_use_vulkan = skia_vulkan_sdk != ""
+  }
 }
 
 # Our tools require static linking (they use non-exported symbols).
