@@ -15,8 +15,6 @@
 
 class GrGLSLCaps : public GrShaderCaps {
 public:
-
-
     /**
     * Indicates how GLSL must interact with advanced blend equations. The KHR extension requires
     * special layout qualifiers in the fragment shader.
@@ -150,6 +148,8 @@ public:
 
     int maxCombinedSamplers() const { return fMaxCombinedSamplers; }
 
+    int maxCombinedImages() const { return fMaxCombinedImages; }
+
     /**
      * Given a texture's config, this determines what swizzle must be appended to accesses to the
      * texture in generated shader code. Swizzling may be implemented in texture parameters or a
@@ -221,6 +221,7 @@ private:
     int fMaxGeometrySamplers;
     int fMaxFragmentSamplers;
     int fMaxCombinedSamplers;
+    int fMaxCombinedImages;
 
     AdvBlendEqInteraction fAdvBlendEqInteraction;
 

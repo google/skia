@@ -185,7 +185,7 @@ public:
      * We guarantee that "asTexture" will succeed for renderTargetContexts created
      * via this entry point.
      */
-    sk_sp<GrRenderTargetContext> makeRenderTargetContext(
+        sk_sp<GrRenderTargetContext> makeRenderTargetContext(
                                                  SkBackingFit fit,
                                                  int width, int height,
                                                  GrPixelConfig config,

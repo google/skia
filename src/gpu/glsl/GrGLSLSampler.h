@@ -42,4 +42,20 @@ private:
     GrPixelConfig fConfig;
 };
 
+class GrGLSLImage {
+public:
+    virtual ~GrGLSLImage() {}
+
+    GrGLSLImage(uint32_t visibility, GrPixelConfig config)
+        : fVisibility(visibility)
+        /*, fConfig(config)*/ {}
+
+    virtual const char* name() const = 0;
+    uint32_t visibility() const { return fVisibility; }
+
+private:
+    uint32_t        fVisibility;
+    //GrPixelConfig   fConfig;
+};
+
 #endif
