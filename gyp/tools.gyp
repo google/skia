@@ -182,6 +182,7 @@
       'dependencies': [
         'resources',
         'flags.gyp:flags',
+        'flags.gyp:flags_common',
         'skia_lib.gyp:skia_lib',
       ],
       'direct_dependent_settings': {
