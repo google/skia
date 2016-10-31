@@ -29,6 +29,7 @@ DEF_TEST(Codec_frames, r) {
         { "box.gif", 1, {}, {} },
         { "color_wheel.gif", 1, {}, {} },
         { "test640x479.gif", 4, { 0, 1, 2 }, { 200, 200, 200, 200 } },
+        { "colorTables.gif", 2, { 0 }, { 1000, 1000 } },
 
         { "arrow.png",  1, {}, {} },
         { "google_chrome.ico", 1, {}, {} },
@@ -67,7 +68,7 @@ DEF_TEST(Codec_frames, r) {
 
         if (rec.fRequiredFrames.size() + 1 != expected) {
             ERRORF(r, "'%s' has wrong number entries in fRequiredFrames; expected: %i\tactual: %i",
-                   rec.fName, expected, rec.fRequiredFrames.size());
+                   rec.fName, expected, rec.fRequiredFrames.size() + 1);
             continue;
         }
 
