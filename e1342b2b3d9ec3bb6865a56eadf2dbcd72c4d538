@@ -76,6 +76,24 @@
       "revId": "e1342b2b3d9ec3bb6865a56eadf2dbcd72c4d538",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "e60e367c_06afdc81",
+        "filename": "src/codec/SkWbmpCodec.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 108,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2016-10-31T14:59:58Z",
+      "side": 1,
+      "message": "sgtm.  Doesn\u0027t the same logic apply to grey and/or alpha images though?",
+      "parentUuid": "86373a0c_2773d995",
+      "revId": "e1342b2b3d9ec3bb6865a56eadf2dbcd72c4d538",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
