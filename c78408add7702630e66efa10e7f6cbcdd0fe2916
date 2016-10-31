@@ -1,0 +1,89 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "86373a0c_5d94ec1d",
+        "filename": "fuzz/FilterFuzz.cpp",
+        "patchSetId": 11
+      },
+      "lineNbr": 474,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2016-10-31T18:17:28Z",
+      "side": 1,
+      "message": "Why do we have to check this?",
+      "revId": "c78408add7702630e66efa10e7f6cbcdd0fe2916",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "86373a0c_3d992856",
+        "filename": "fuzz/FilterFuzz.cpp",
+        "patchSetId": 11
+      },
+      "lineNbr": 528,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2016-10-31T18:17:28Z",
+      "side": 1,
+      "message": "Ditto?",
+      "revId": "c78408add7702630e66efa10e7f6cbcdd0fe2916",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "86373a0c_7dce1050",
+        "filename": "fuzz/FuzzGradients.cpp",
+        "patchSetId": 11
+      },
+      "lineNbr": 26,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2016-10-31T18:17:28Z",
+      "side": 1,
+      "message": "Usually we align all the arguments together.  If you indent it this way, it looks like the function starts with a line of code declaring a std::vector...",
+      "revId": "c78408add7702630e66efa10e7f6cbcdd0fe2916",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "86373a0c_fd5b4066",
+        "filename": "fuzz/FuzzPathop.cpp",
+        "patchSetId": 11
+      },
+      "lineNbr": 17,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2016-10-31T18:17:28Z",
+      "side": 1,
+      "message": "I think it\u0027d be nice if we could restrict ourselves to just knowing whether we\u0027re completely out of bytes, e.g.\n\nwhile (!fuzz-\u003eexhausted()) {\n  ...\n}\n\nNow that we can always return 0 for a little while, there shouldn\u0027t be any need to know precisely how many bytes are left, correct?",
+      "revId": "c78408add7702630e66efa10e7f6cbcdd0fe2916",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "86373a0c_bda41890",
+        "filename": "fuzz/fuzz.cpp",
+        "patchSetId": 11
+      },
+      "lineNbr": 414,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2016-10-31T18:17:28Z",
+      "side": 1,
+      "message": "Reindent?",
+      "revId": "c78408add7702630e66efa10e7f6cbcdd0fe2916",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
