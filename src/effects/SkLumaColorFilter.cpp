@@ -8,6 +8,7 @@
 #include "SkLumaColorFilter.h"
 
 #include "SkColorPriv.h"
+#include "SkRasterPipeline.h"
 #include "SkString.h"
 
 #if SK_SUPPORT_GPU
@@ -35,6 +36,11 @@ void SkLumaColorFilter::filterSpan(const SkPMColor src[], int count,
                                            SkGetPackedB32(c));
         dst[i] = SkPackARGB32(luma, 0, 0, 0);
     }
+}
+
+bool SkLumaColorFilter::onAppendStages(SkRasterPipeline* p) const {
+    p->append(SkRasterPipeline::luminance_to_alpha);
+    return true;
 }
 
 sk_sp<SkColorFilter> SkLumaColorFilter::Make() {
