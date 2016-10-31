@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "e60e367c_46c8b4b1",
+        "filename": "src/codec/SkWbmpCodec.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 108,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2016-10-31T11:22:11Z",
+      "side": 1,
+      "message": "WBMP is just black and white. Does the color space make a difference here?",
+      "range": {
+        "startLine": 108,
+        "startChar": 59,
+        "endLine": 108,
+        "endChar": 68
+      },
+      "revId": "e1342b2b3d9ec3bb6865a56eadf2dbcd72c4d538",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
