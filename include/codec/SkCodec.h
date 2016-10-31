@@ -626,7 +626,7 @@ protected:
             int height,
             const SkEncodedInfo&,
             SkStream*,
-            sk_sp<SkColorSpace> = nullptr,
+            sk_sp<SkColorSpace>,
             Origin = kTopLeft_Origin);
 
     /**
