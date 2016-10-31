@@ -15,8 +15,6 @@ struct SkArithmeticParams {
     bool fEnforcePMColor;
 };
 
-#ifndef SK_SUPPORT_LEGACY_ARITHMETICMODE
-
 class SK_API SkArithmeticMode {
 public:
     /**
@@ -33,7 +31,5 @@ public:
 private:
     SkArithmeticMode(); // can't be instantiated
 };
-
-#endif
 
 #endif

@@ -12,26 +12,6 @@
 #include "SkScalar.h"
 #include "SkXfermode.h"
 
-#ifdef SK_SUPPORT_LEGACY_ARITHMETICMODE
-
-class SK_API SkArithmeticMode {
-public:
-    /**
-     *  result = clamp[k1 * src * dst + k2 * src + k3 * dst + k4]
-     *
-     *  k1=k2=k3=0, k4=1.0 results in returning opaque white
-     *  k1=k3=k4=0, k2=1.0 results in returning the src
-     *  k1=k2=k4=0, k3=1.0 results in returning the dst
-     */
-    static sk_sp<SkXfermode> Make(SkScalar k1, SkScalar k2, SkScalar k3, SkScalar k4,
-                                  bool enforcePMColor = true);
-
-    SK_DECLARE_FLATTENABLE_REGISTRAR_GROUP();
-
-private:
-    SkArithmeticMode(); // can't be instantiated
-};
-
-#endif
+// TODO : remove this header from public
 
 #endif

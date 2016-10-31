@@ -367,45 +367,11 @@ MOVE_FIELD(DrawLooper)
 #undef MOVE_FIELD
 void SkPaint::setLooper(sk_sp<SkDrawLooper> looper) { fDrawLooper = std::move(looper); }
 
-#define SET_PTR(Field)                              \
-    Sk##Field* SkPaint::set##Field(Sk##Field* f) {  \
-        this->f##Field.reset(SkSafeRef(f));         \
-        return f;                                   \
-    }
-#ifdef SK_SUPPORT_LEGACY_TYPEFACE_PTR
-SET_PTR(Typeface)
-#endif
-#ifdef SK_SUPPORT_LEGACY_MINOR_EFFECT_PTR
-SET_PTR(Rasterizer)
-#endif
-SET_PTR(ImageFilter)
-#ifdef SK_SUPPORT_LEGACY_PATHEFFECT_PTR
-SET_PTR(PathEffect)
-#endif
-#ifdef SK_SUPPORT_LEGACY_MASKFILTER_PTR
-SET_PTR(MaskFilter)
-#endif
-#undef SET_PTR
-
-#ifdef SK_SUPPORT_LEGACY_MINOR_EFFECT_PTR
-SkDrawLooper* SkPaint::setLooper(SkDrawLooper* looper) {
-    fDrawLooper.reset(SkSafeRef(looper));
-    return looper;
+// TODO: remove this variant
+SkImageFilter* SkPaint::setImageFilter(SkImageFilter* imf) {
+    this->setImageFilter(sk_ref_sp(imf));
+    return imf;
 }
-#endif
-
-#ifdef SK_SUPPORT_LEGACY_XFERMODE_OBJECT
-void SkPaint::setXfermode(sk_sp<SkXfermode> mode) {
-    this->setBlendMode(mode ? mode->blend() : SkBlendMode::kSrcOver);
-}
-SkXfermode* SkPaint::getXfermode() const {
-    return SkXfermode::Peek((SkBlendMode)fBlendMode);
-}
-SkXfermode* SkPaint::setXfermodeMode(SkXfermode::Mode mode) {
-    this->setBlendMode((SkBlendMode)mode);
-    return SkXfermode::Peek((SkBlendMode)mode);
-}
-#endif
 
 ///////////////////////////////////////////////////////////////////////////////
 

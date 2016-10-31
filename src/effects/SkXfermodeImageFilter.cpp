@@ -73,16 +73,6 @@ sk_sp<SkImageFilter> SkXfermodeImageFilter::Make(SkBlendMode mode,
     return sk_sp<SkImageFilter>(new SkXfermodeImageFilter_Base(mode, inputs, cropRect));
 }
 
-#ifdef SK_SUPPORT_LEGACY_XFERMODE_OBJECT
-sk_sp<SkImageFilter> SkXfermodeImageFilter::Make(sk_sp<SkXfermode> mode,
-                                                 sk_sp<SkImageFilter> background,
-                                                 sk_sp<SkImageFilter> foreground,
-                                                 const SkImageFilter::CropRect* cropRect) {
-    return Make(mode ? mode->blend() : SkBlendMode::kSrcOver,
-                std::move(background), std::move(foreground), cropRect);
-}
-#endif
-
 SkXfermodeImageFilter_Base::SkXfermodeImageFilter_Base(SkBlendMode mode,
                                                        sk_sp<SkImageFilter> inputs[2],
                                                        const CropRect* cropRect)

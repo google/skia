@@ -186,22 +186,6 @@ bool SkSurface::peekPixels(SkPixmap* pmap) {
     return this->getCanvas()->peekPixels(pmap);
 }
 
-#ifdef SK_SUPPORT_LEGACY_PEEKPIXELS_PARMS
-const void* SkSurface::peekPixels(SkImageInfo* info, size_t* rowBytes) {
-    SkPixmap pm;
-    if (this->peekPixels(&pm)) {
-        if (info) {
-            *info = pm.info();
-        }
-        if (rowBytes) {
-            *rowBytes = pm.rowBytes();
-        }
-        return pm.addr();
-    }
-    return nullptr;
-}
-#endif
-
 bool SkSurface::readPixels(const SkImageInfo& dstInfo, void* dstPixels, size_t dstRowBytes,
                            int srcX, int srcY) {
     return this->getCanvas()->readPixels(dstInfo, dstPixels, dstRowBytes, srcX, srcY);

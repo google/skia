@@ -307,17 +307,6 @@ SkMemoryStream::SkMemoryStream(sk_sp<SkData> data) : fData(std::move(data)) {
     fOffset = 0;
 }
 
-#ifdef SK_SUPPORT_LEGACY_STREAM_DATA
-SkMemoryStream::SkMemoryStream(SkData* data) {
-    if (nullptr == data) {
-        fData = SkData::MakeEmpty();
-    } else {
-        fData = sk_ref_sp(data);
-    }
-    fOffset = 0;
-}
-#endif
-
 void SkMemoryStream::setMemoryOwned(const void* src, size_t size) {
     fData = SkData::MakeFromMalloc(src, size);
     fOffset = 0;

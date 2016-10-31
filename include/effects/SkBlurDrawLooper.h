@@ -39,12 +39,6 @@ public:
                                     uint32_t flags = kNone_BlurFlag) {
         return sk_sp<SkDrawLooper>(new SkBlurDrawLooper(color, sigma, dx, dy, flags));
     }
-#ifdef SK_SUPPORT_LEGACY_MINOR_EFFECT_PTR
-    static SkDrawLooper* Create(SkColor color, SkScalar sigma, SkScalar dx, SkScalar dy,
-                                uint32_t flags = kNone_BlurFlag) {
-        return Make(color, sigma, dx, dy, flags).release();
-    }
-#endif
 
     SkDrawLooper::Context* createContext(SkCanvas*, void* storage) const override;
 
