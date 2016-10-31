@@ -737,8 +737,10 @@ bool SkGifImageReader::parse(SkGifImageReader::SkGIFParseQuery query)
                 bool hasTransparentPixel;
                 if (m_frames.size() == 0) {
                     // We did not see a Graphics Control Extension, so no transparent
-                    // pixel was specified.
-                    hasTransparentPixel = false;
+                    // pixel was specified. But if there is no color table, this frame is
+                    // still transparent.
+                    hasTransparentPixel = !isLocalColormapDefined
+                                          && m_globalColorMap.numColors() == 0;
                 } else {
                     // This means we did see a Graphics Control Extension, which specifies
                     // the transparent pixel
