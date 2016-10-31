@@ -149,57 +149,6 @@ public:
         return MakeRenderTarget(gr, b, info, 0, kBottomLeft_GrSurfaceOrigin, nullptr);
     }
 
-#ifdef SK_SUPPORT_LEGACY_NEW_SURFACE_API
-    static SkSurface* NewRasterDirect(const SkImageInfo& info, void* pixels, size_t rowBytes,
-                                      const SkSurfaceProps* props = NULL) {
-        return MakeRasterDirect(info, pixels, rowBytes, props).release();
-    }
-    static SkSurface* NewRasterDirectReleaseProc(const SkImageInfo& info, void* pixels,
-                                                 size_t rowBytes,
-                                                 void (*releaseProc)(void* pixels, void* context),
-                                                 void* context, const SkSurfaceProps* props = NULL){
-        return MakeRasterDirectReleaseProc(info, pixels, rowBytes, releaseProc, context,
-                                           props).release();
-    }
-    static SkSurface* NewRaster(const SkImageInfo& info, size_t rowBytes,
-                                const SkSurfaceProps* props) {
-        return MakeRaster(info, rowBytes, props).release();
-    }
-    static SkSurface* NewRaster(const SkImageInfo& info, const SkSurfaceProps* props = NULL) {
-        return MakeRaster(info, props).release();
-    }
-    static SkSurface* NewRasterN32Premul(int width, int height,
-                                         const SkSurfaceProps* props = NULL) {
-        return NewRaster(SkImageInfo::MakeN32Premul(width, height), props);
-    }
-    static SkSurface* NewFromBackendTexture(GrContext* ctx, const GrBackendTextureDesc& desc,
-                                            const SkSurfaceProps* props) {
-        return MakeFromBackendTexture(ctx, desc, props).release();
-    }
-    // Legacy alias
-    static SkSurface* NewWrappedRenderTarget(GrContext* ctx, const GrBackendTextureDesc& desc,
-                                             const SkSurfaceProps* props) {
-        return NewFromBackendTexture(ctx, desc, props);
-    }
-    static SkSurface* NewFromBackendRenderTarget(GrContext* ctx, const GrBackendRenderTargetDesc& d,
-                                                 const SkSurfaceProps* props) {
-        return MakeFromBackendRenderTarget(ctx, d, props).release();
-    }
-    static SkSurface* NewFromBackendTextureAsRenderTarget(GrContext* ctx,
-                                                          const GrBackendTextureDesc& desc,
-                                                          const SkSurfaceProps* props) {
-        return MakeFromBackendTextureAsRenderTarget(ctx, desc, props).release();
-    }
-    static SkSurface* NewRenderTarget(GrContext* ctx, SkBudgeted b, const SkImageInfo& info,
-                                      int sampleCount, const SkSurfaceProps* props = NULL) {
-        return MakeRenderTarget(ctx, b, info, sampleCount, props).release();
-    }
-    static SkSurface* NewRenderTarget(GrContext* gr, SkBudgeted b, const SkImageInfo& info) {
-        return NewRenderTarget(gr, b, info, 0);
-    }
-    SkSurface* newSurface(const SkImageInfo& info) { return this->makeSurface(info).release(); }
-#endif
-
     int width() const { return fWidth; }
     int height() const { return fHeight; }
 
@@ -316,15 +265,6 @@ public:
     };
     sk_sp<SkImage> makeImageSnapshot(SkBudgeted, ForceUnique);
 
-#ifdef SK_SUPPORT_LEGACY_IMAGEFACTORY
-    SkImage* newImageSnapshot(SkBudgeted budgeted = SkBudgeted::kYes) {
-        return this->makeImageSnapshot(budgeted).release();
-    }
-    SkImage* newImageSnapshot(SkBudgeted budgeted, ForceUnique force) {
-        return this->makeImageSnapshot(budgeted, force).release();
-    }
-#endif
-
     /**
      *  Though the caller could get a snapshot image explicitly, and draw that,
      *  it seems that directly drawing a surface into another canvas might be
@@ -344,10 +284,6 @@ public:
      *  On failure, returns false and the pixmap parameter is ignored.
      */
     bool peekPixels(SkPixmap*);
-
-#ifdef SK_SUPPORT_LEGACY_PEEKPIXELS_PARMS
-    const void* peekPixels(SkImageInfo* info, size_t* rowBytes);
-#endif
 
     /**
      *  Copy the pixels from the surface into the specified buffer (pixels + rowBytes),
