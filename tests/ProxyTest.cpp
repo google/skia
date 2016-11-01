@@ -84,7 +84,8 @@ static void check_texture(skiatest::Reporter* reporter,
 
 
 DEF_GPUTEST_FOR_RENDERING_CONTEXTS(DeferredProxyTest, reporter, ctxInfo) {
-    GrTextureProvider* provider = ctxInfo.grContext()->textureProvider();
+    GrContext* context = ctxInfo.grContext();
+    GrTextureProvider* provider = context->textureProvider();
 
     for (auto origin : { kBottomLeft_GrSurfaceOrigin, kTopLeft_GrSurfaceOrigin }) {
         for (auto widthHeight : { 100, 128 }) {
@@ -116,7 +117,8 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(DeferredProxyTest, reporter, ctxInfo) {
 
                             desc.fSampleCnt = 0;
 
-                            sk_sp<GrTextureProxy> texProxy(GrTextureProxy::Make(desc,
+                            sk_sp<GrTextureProxy> texProxy(GrTextureProxy::Make(provider,
+                                                                                desc,
                                                                                 fit,
                                                                                 budgeted));
                             check_surface(reporter, texProxy.get(), origin,
