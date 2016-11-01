@@ -603,8 +603,10 @@ public:
     void setRasterizer(sk_sp<SkRasterizer>);
 
     SkImageFilter* getImageFilter() const { return fImageFilter.get(); }
-    SkImageFilter* setImageFilter(SkImageFilter*);
     void setImageFilter(sk_sp<SkImageFilter>);
+#ifdef SK_SUPPORT_LEGACY_SETIMAGEFILTER_PTR
+    SkImageFilter* setImageFilter(SkImageFilter*);
+#endif
 
     /**
      *  Return the paint's SkDrawLooper (if any). Does not affect the looper's

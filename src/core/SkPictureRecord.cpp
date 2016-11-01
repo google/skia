@@ -108,7 +108,7 @@ void SkPictureRecord::recordSaveLayer(const SaveLayerRec& rec) {
     if (flatFlags & SAVELAYERREC_HAS_BACKDROP) {
         // overkill, but we didn't already track single flattenables, so using a paint for that
         SkPaint paint;
-        paint.setImageFilter(const_cast<SkImageFilter*>(rec.fBackdrop));
+        paint.setImageFilter(sk_ref_sp(const_cast<SkImageFilter*>(rec.fBackdrop)));
         this->addPaint(paint);
     }
     if (flatFlags & SAVELAYERREC_HAS_FLAGS) {

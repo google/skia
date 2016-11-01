@@ -736,7 +736,7 @@ static sk_sp<SkImageFilter> make_image_filter(bool canBeNull) {
     return (filter || canBeNull) ? filter : make_image_filter(canBeNull);
 }
 
-static SkImageFilter* make_serialized_image_filter() {
+static sk_sp<SkImageFilter> make_serialized_image_filter() {
     sk_sp<SkImageFilter> filter(make_image_filter(false));
     sk_sp<SkData> data(SkValidatingSerializeFlattenable(filter.get()));
     const unsigned char* ptr = static_cast<const unsigned char*>(data->data());
@@ -763,9 +763,7 @@ static SkImageFilter* make_serialized_image_filter() {
         }
     }
 #endif // SK_ADD_RANDOM_BIT_FLIPS
-    SkFlattenable* flattenable = SkValidatingDeserializeFlattenable(ptr, len,
-                                    SkImageFilter::GetFlattenableType());
-    return static_cast<SkImageFilter*>(flattenable);
+    return SkValidatingDeserializeImageFilter(ptr, len);
 }
 
 static void drawClippedBitmap(SkCanvas* canvas, int x, int y, const SkPaint& paint) {
@@ -777,7 +775,7 @@ static void drawClippedBitmap(SkCanvas* canvas, int x, int y, const SkPaint& pai
 }
 
 static void do_fuzz(SkCanvas* canvas) {
-    SkImageFilter* filter = make_serialized_image_filter();
+    sk_sp<SkImageFilter> filter = make_serialized_image_filter();
 
 #ifdef SK_FUZZER_IS_VERBOSE
     static uint32_t numFilters = 0;
@@ -794,7 +792,7 @@ static void do_fuzz(SkCanvas* canvas) {
 #endif
 
     SkPaint paint;
-    SkSafeUnref(paint.setImageFilter(filter));
+    paint.setImageFilter(filter);
     drawClippedBitmap(canvas, 0, 0, paint);
 }
 
