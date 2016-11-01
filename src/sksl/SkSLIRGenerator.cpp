@@ -1033,13 +1033,13 @@ std::unique_ptr<Expression> IRGenerator::convertConstructor(
         ASSERT(kind == Type::kVector_Kind || kind == Type::kMatrix_Kind);
         int actual = 0;
         for (size_t i = 0; i < args.size(); i++) {
-            if (args[i]->fType.kind() == Type::kVector_Kind || 
+            if (args[i]->fType.kind() == Type::kVector_Kind ||
                 args[i]->fType.kind() == Type::kMatrix_Kind) {
-                int columns = args[i]->fType.columns();
-                int rows = args[i]->fType.rows();
-                args[i] = this->coerce(std::move(args[i]), 
-                                       type.componentType().toCompound(fContext, columns, rows));
-                if (!args[i]) {
+                if (type.componentType().isNumber() !=
+                    args[i]->fType.componentType().isNumber()) {
+                    fErrors.error(position, "'" + args[i]->fType.description() + "' is not a valid "
+                                            "parameter to '" + type.description() +
+                                            "' constructor");
                     return nullptr;
                 }
                 actual += args[i]->fType.rows() * args[i]->fType.columns();
