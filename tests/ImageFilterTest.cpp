@@ -731,7 +731,7 @@ DEF_TEST(ImageFilterDrawTiled, reporter) {
             tiledCanvas.clear(0);
             untiledCanvas.clear(0);
             SkPaint paint;
-            paint.setImageFilter(filters.getFilter(i));
+            paint.setImageFilter(sk_ref_sp(filters.getFilter(i)));
             paint.setTextSize(SkIntToScalar(height));
             paint.setColor(SK_ColorWHITE);
             SkString str;
@@ -1231,9 +1231,8 @@ DEF_TEST(ImageFilterCrossProcessPictureImageFilter, reporter) {
     // deserialize its contained picture when the filter is serialized
     // cross-process. Do this by "laundering" it through SkValidatingReadBuffer.
     sk_sp<SkData> data(SkValidatingSerializeFlattenable(imageFilter.get()));
-    sk_sp<SkFlattenable> flattenable(SkValidatingDeserializeFlattenable(
-        data->data(), data->size(), SkImageFilter::GetFlattenableType()));
-    SkImageFilter* unflattenedFilter = static_cast<SkImageFilter*>(flattenable.get());
+    sk_sp<SkImageFilter> unflattenedFilter = SkValidatingDeserializeImageFilter(data->data(),
+                                                                                data->size());
 
     redPaintWithFilter.setImageFilter(unflattenedFilter);
     SkPictureRecorder crossProcessRecorder;
@@ -1686,9 +1685,8 @@ DEF_TEST(ImageFilterImageSourceSerialization, reporter) {
     sk_sp<SkImageFilter> filter(SkImageSource::Make(std::move(image)));
 
     sk_sp<SkData> data(SkValidatingSerializeFlattenable(filter.get()));
-    sk_sp<SkFlattenable> flattenable(SkValidatingDeserializeFlattenable(
-        data->data(), data->size(), SkImageFilter::GetFlattenableType()));
-    SkImageFilter* unflattenedFilter = static_cast<SkImageFilter*>(flattenable.get());
+    sk_sp<SkImageFilter> unflattenedFilter = SkValidatingDeserializeImageFilter(data->data(),
+                                                                                data->size());
     REPORTER_ASSERT(reporter, unflattenedFilter);
 
     SkBitmap bm;

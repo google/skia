@@ -1102,7 +1102,7 @@ static int lpaint_getImageFilter(lua_State* L) {
 
 static int lpaint_setImageFilter(lua_State* L) {
     SkPaint* paint = get_obj<SkPaint>(L, 1);
-    paint->setImageFilter(get_ref<SkImageFilter>(L, 2));
+    paint->setImageFilter(sk_ref_sp(get_ref<SkImageFilter>(L, 2)));
     return 0;
 }
 

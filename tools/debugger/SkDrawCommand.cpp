@@ -1252,11 +1252,10 @@ static void extract_json_paint_imagefilter(Json::Value& jsonPaint, UrlDataManage
                                            SkPaint* target) {
     if (jsonPaint.isMember(SKDEBUGCANVAS_ATTRIBUTE_IMAGEFILTER)) {
         Json::Value jsonImageFilter = jsonPaint[SKDEBUGCANVAS_ATTRIBUTE_IMAGEFILTER];
-        SkImageFilter* imageFilter = (SkImageFilter*) load_flattenable(jsonImageFilter,
-                                                                       urlDataManager);
+        sk_sp<SkImageFilter> imageFilter((SkImageFilter*) load_flattenable(jsonImageFilter,
+                                                                           urlDataManager));
         if (imageFilter != nullptr) {
             target->setImageFilter(imageFilter);
-            imageFilter->unref();
         }
     }
 }
