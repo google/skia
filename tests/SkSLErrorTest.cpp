@@ -94,6 +94,12 @@ DEF_TEST(SkSLConstructorTypeMismatch, r) {
                  "void main() { vec2 x = vec2(1.0, false); }", 
                  "error: 1: expected 'float', but found 'bool'\n1 error\n");
     test_failure(r,
+                 "void main() { vec2 x = vec2(bvec2(false)); }",
+                 "error: 1: 'bvec2' is not a valid parameter to 'vec2' constructor\n1 error\n");
+    test_failure(r,
+                 "void main() { bvec2 x = bvec2(vec2(1)); }",
+                 "error: 1: 'vec2' is not a valid parameter to 'bvec2' constructor\n1 error\n");
+    test_failure(r,
                  "void main() { bool x = bool(1.0); }",
                  "error: 1: cannot construct 'bool'\n1 error\n");
     test_failure(r,
