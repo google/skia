@@ -601,10 +601,7 @@ DEFINES_ALL = [
     # Staging flags for API changes
     "SK_SUPPORT_LEGACY_ACCESSBITMAP",
     "SK_SUPPORT_LEGACY_CLIP_REGIONOPS",
-    "SK_SUPPORT_LEGACY_COLOR_SPACE_FACTORIES",
     "SK_SUPPORT_LEGACY_SETIMAGEFILTER_PTR",
-    "SK_SUPPORT_LEGACY_SHADER_ASALOCALMATRIXSHADER",
-    "SK_SUPPORT_LEGACY_XFERMODE_PARAM",
 ]
 
 ################################################################################
