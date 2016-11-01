@@ -67,7 +67,7 @@ bool SkSurface_Raster::Valid(const SkImageInfo& info, size_t rowBytes) {
             shift = 2;
             break;
         case kRGBA_F16_SkColorType:
-            if (!info.colorSpace() || !info.colorSpace()->gammaIsLinear()) {
+            if (info.colorSpace() && !info.colorSpace()->gammaIsLinear()) {
                 return false;
             }
             shift = 3;

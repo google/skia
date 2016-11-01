@@ -136,7 +136,7 @@ void SkSurface_Gpu::onPrepareForExternalIO() {
 bool SkSurface_Gpu::Valid(const SkImageInfo& info) {
     switch (info.colorType()) {
         case kRGBA_F16_SkColorType:
-            return info.colorSpace() && info.colorSpace()->gammaIsLinear();
+            return !info.colorSpace() || info.colorSpace()->gammaIsLinear();
         case kRGBA_8888_SkColorType:
         case kBGRA_8888_SkColorType:
             return !info.colorSpace() || info.colorSpace()->gammaCloseToSRGB();
@@ -148,7 +148,7 @@ bool SkSurface_Gpu::Valid(const SkImageInfo& info) {
 bool SkSurface_Gpu::Valid(GrContext* context, GrPixelConfig config, SkColorSpace* colorSpace) {
     switch (config) {
         case kRGBA_half_GrPixelConfig:
-            return colorSpace && colorSpace->gammaIsLinear();
+            return !colorSpace || colorSpace->gammaIsLinear();
         case kSRGBA_8888_GrPixelConfig:
         case kSBGRA_8888_GrPixelConfig:
             return context->caps()->srgbSupport() && colorSpace && colorSpace->gammaCloseToSRGB();
