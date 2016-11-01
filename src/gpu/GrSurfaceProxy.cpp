@@ -16,6 +16,7 @@ GrSurfaceProxy::GrSurfaceProxy(sk_sp<GrSurface> surface, SkBackingFit fit)
     , fFit(fit)
     , fBudgeted(fTarget->resourcePriv().isBudgeted())
     , fUniqueID(fTarget->uniqueID())
+    , fGpuMemorySize(kInvalidGpuMemorySize)
     , fLastOpList(nullptr) {
 }
 

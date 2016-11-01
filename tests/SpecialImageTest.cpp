@@ -17,6 +17,7 @@
 
 #if SK_SUPPORT_GPU
 #include "GrContext.h"
+#include "GrTextureProxy.h"
 #endif
 
 
@@ -281,6 +282,46 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(SpecialImage_Gpu, reporter, ctxInfo) {
                                                                subset,
                                                                kNeedNewImageUniqueID_SpecialImage,
                                                                texture, nullptr));
+        test_image(subSImg1, reporter, context, true, kPad, kFullSize);
+    }
+
+    {
+        sk_sp<SkSpecialImage> subSImg2(fullSImg->makeSubset(subset));
+        test_image(subSImg2, reporter, context, true, kPad, kFullSize);
+    }
+}
+
+DEF_GPUTEST_FOR_RENDERING_CONTEXTS(SpecialImage_DeferredGpu, reporter, ctxInfo) {
+    GrContext* context = ctxInfo.grContext();
+    SkBitmap bm = create_bm();
+
+    GrSurfaceDesc desc;
+    desc.fConfig = kSkia8888_GrPixelConfig;
+    desc.fFlags  = kNone_GrSurfaceFlags;
+    desc.fWidth  = kFullSize;
+    desc.fHeight = kFullSize;
+
+    sk_sp<GrTextureProxy> proxy(GrTextureProxy::Make(context->textureProvider(), desc,
+                                                     SkBackingFit::kExact, SkBudgeted::kNo,
+                                                     bm.getPixels(), 0));
+    if (!proxy) {
+        return;
+    }
+
+    sk_sp<SkSpecialImage> fullSImg(SkSpecialImage::MakeDeferredFromGpu(
+                                                            context,
+                                                            SkIRect::MakeWH(kFullSize, kFullSize),
+                                                            kNeedNewImageUniqueID_SpecialImage,
+                                                            proxy, nullptr));
+
+    const SkIRect& subset = SkIRect::MakeXYWH(kPad, kPad, kSmallerSize, kSmallerSize);
+
+    {
+        sk_sp<SkSpecialImage> subSImg1(SkSpecialImage::MakeDeferredFromGpu(
+                                                               context,
+                                                               subset,
+                                                               kNeedNewImageUniqueID_SpecialImage,
+                                                               proxy, nullptr));
         test_image(subSImg1, reporter, context, true, kPad, kFullSize);
     }
 

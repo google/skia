@@ -112,6 +112,25 @@ public:
     void setLastOpList(GrOpList* opList);
     GrOpList* getLastOpList() { return fLastOpList; }
 
+    /**
+     * Retrieves the amount of GPU memory that will be or currently is used by this resource 
+     * in bytes. It is approximate since we aren't aware of additional padding or copies made
+     * by the driver.
+     *
+     * @return the amount of GPU memory used in bytes
+     */
+    size_t gpuMemorySize() const {
+        if (fTarget) {
+            return fTarget->gpuMemorySize();
+        }
+
+        if (kInvalidGpuMemorySize == fGpuMemorySize) {
+            fGpuMemorySize = this->onGpuMemorySize();
+            SkASSERT(kInvalidGpuMemorySize != fGpuMemorySize);
+        }
+        return fGpuMemorySize;
+    }
+
 protected:
     // Deferred version
     GrSurfaceProxy(const GrSurfaceDesc& desc, SkBackingFit fit, SkBudgeted budgeted)
@@ -119,6 +138,7 @@ protected:
         , fFit(fit)
         , fBudgeted(budgeted)
         , fUniqueID(GrGpuResource::CreateUniqueID())
+        , fGpuMemorySize(kInvalidGpuMemorySize)
         , fLastOpList(nullptr) {
     }
 
@@ -133,7 +153,16 @@ protected:
     const SkBudgeted    fBudgeted; // set from the backing resource for wrapped resources
     const uint32_t      fUniqueID; // set from the backing resource for wrapped resources
 
+    static const size_t kInvalidGpuMemorySize = ~static_cast<size_t>(0);
+    // This entry is lazily evaluated so, when the proxy wraps a resource, the resource
+    // will be called but, when the proxy is deferred, it will compute the answer itself.
+    // If the proxy computes its own answer that answer is checked (in debug mode) in
+    // the instantiation method.
+    mutable size_t      fGpuMemorySize;
+
 private:
+    virtual size_t onGpuMemorySize() const = 0;
+
     // The last opList that wrote to or is currently going to write to this surface
     // The opList can be closed (e.g., no render target context is currently bound
     // to this renderTarget).

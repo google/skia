@@ -116,7 +116,8 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(DeferredProxyTest, reporter, ctxInfo) {
 
                             desc.fSampleCnt = 0;
 
-                            sk_sp<GrTextureProxy> texProxy(GrTextureProxy::Make(desc,
+                            sk_sp<GrTextureProxy> texProxy(GrTextureProxy::Make(provider,
+                                                                                desc,
                                                                                 fit,
                                                                                 budgeted));
                             check_surface(reporter, texProxy.get(), origin,
