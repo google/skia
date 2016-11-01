@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "26d3ee49_0f94391c",
+        "filename": "fuzz/Fuzz.h",
+        "patchSetId": 12
+      },
+      "lineNbr": 49,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2016-11-01T17:57:09Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "064fca08_3c9f1136",
+      "revId": "1312d2f0b945899bfbc32bcf62d2282cfa2e0949",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "064fca08_dcbe2d9b",
         "filename": "fuzz/Fuzz.h",
         "patchSetId": 12
@@ -30,6 +48,24 @@
       "writtenOn": "2016-11-01T14:04:31Z",
       "side": 1,
       "message": "I do think we are going to be disappointed by the results of this function, having thrown away the more careful logic we had for nextRangeU(), nextRangeF().  If you add some logging in here, I think you\u0027ll be surprised about how often we find ourselves in the min or max case of this function, and how rarely in range.\n\nWhy don\u0027t we stick with the implementations we had?  It\u0027d look like this:\n\ntemplate \u003ctypename T\u003e\ninline T Fuzz::nextRange(T min, T max) {\n  ... old integer implementation here ...\n}\n\ntemplate \u003c\u003e\ninline float Fuzz::nextRange(float min, float max) {\n  ... old float implementation here ...\n}\n\n(Because we\u0027re defining these in a header, the inlines do matter here.  We might find ourselves encountering strange linking warnings or errors without them.)",
+      "revId": "1312d2f0b945899bfbc32bcf62d2282cfa2e0949",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "26d3ee49_a4d68c09",
+        "filename": "fuzz/Fuzz.h",
+        "patchSetId": 12
+      },
+      "lineNbr": 65,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2016-11-01T17:57:09Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "064fca08_dcbe2d9b",
       "revId": "1312d2f0b945899bfbc32bcf62d2282cfa2e0949",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
