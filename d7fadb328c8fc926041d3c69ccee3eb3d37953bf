@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "26d3ee49_ef733dc8",
+        "filename": "fuzz/Fuzz.h",
+        "patchSetId": 13
+      },
+      "lineNbr": 23,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2016-11-01T18:26:51Z",
+      "side": 1,
+      "message": "... are no bytes ...",
+      "range": {
+        "startLine": 23,
+        "startChar": 24,
+        "endLine": 23,
+        "endChar": 37
+      },
+      "revId": "d7fadb328c8fc926041d3c69ccee3eb3d37953bf",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "26d3ee49_8f63a9f8",
+        "filename": "fuzz/Fuzz.h",
+        "patchSetId": 13
+      },
+      "lineNbr": 51,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2016-11-01T18:26:51Z",
+      "side": 1,
+      "message": "This is fine but these parentheses are not needed.",
+      "range": {
+        "startLine": 51,
+        "startChar": 8,
+        "endLine": 51,
+        "endChar": 31
+      },
+      "revId": "d7fadb328c8fc926041d3c69ccee3eb3d37953bf",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
