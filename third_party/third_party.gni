@@ -26,3 +26,12 @@ template("third_party") {
 set_defaults("third_party") {
   configs = default_configs - [ "//gn:warnings" ]
 }
+
+template("system") {
+  config(target_name + "_public") {
+    forward_variables_from(invoker, "*", [])
+  }
+  group(target_name) {
+    public_configs = [ ":" + target_name + "_public" ]
+  }
+}
