@@ -185,7 +185,7 @@ SkCommandLineConfigGpu::SkCommandLineConfigGpu(
     if (useInstanced) {
         fContextOptions |= ContextOptions::kUseInstanced;
     }
-    if (SkColorAndColorSpaceAreGammaCorrect(colorType, colorSpace.get())) {
+    if (fColorSpace) {
         fContextOptions |= ContextOptions::kRequireSRGBSupport;
     }
 }

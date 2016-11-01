@@ -1143,7 +1143,7 @@ struct Task {
                             const SkBitmap* bitmap) {
         bool gammaCorrect = false;
         if (bitmap) {
-            gammaCorrect = SkImageInfoIsGammaCorrect(bitmap->info());
+            gammaCorrect = SkToBool(bitmap->info().colorSpace());
         }
 
         JsonWriter::BitmapResult result;
