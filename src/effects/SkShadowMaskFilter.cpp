@@ -314,7 +314,7 @@ bool SkShadowMaskFilterImpl::directFilterMaskGPU(GrTextureProvider* texProvider,
 #define MAX_PAD         64
 
 bool SkShadowMaskFilterImpl::directFilterRRectMaskGPU(GrContext*,
-                                                      GrRenderTargetContext* drawContext,
+                                                      GrRenderTargetContext* renderTargetContext,
                                                       GrPaint* grp,
                                                       const GrClip& clip,
                                                       const SkMatrix& viewMatrix,
@@ -402,8 +402,8 @@ bool SkShadowMaskFilterImpl::directFilterRRectMaskGPU(GrContext*,
         sk_sp<GrFragmentProcessor> fp(GrShadowEdgeEffect::Make(GrShadowEdgeEffect::kGaussian_Type));
         // TODO: switch to coverage FP
         newPaint.addColorFragmentProcessor(std::move(fp));
-        drawContext->drawRRect(clip, newPaint, viewMatrix, ambientRRect,
-                               GrStyle(ambientStrokeRec, nullptr));
+        renderTargetContext->drawShadowRRect(clip, newPaint, viewMatrix, ambientRRect,
+                                     GrStyle(ambientStrokeRec, nullptr));
     }
 
     if (fSpotAlpha > 0.0f) {
@@ -500,8 +500,8 @@ bool SkShadowMaskFilterImpl::directFilterRRectMaskGPU(GrContext*,
         // TODO: switch to coverage FP
         newPaint.addColorFragmentProcessor(std::move(fp));
 
-        drawContext->drawRRect(clip, newPaint, viewMatrix, spotShadowRRect,
-                               GrStyle(spotStrokeRec, nullptr));
+        renderTargetContext->drawShadowRRect(clip, newPaint, viewMatrix, spotShadowRRect,
+                                             GrStyle(spotStrokeRec, nullptr));
     }
 
     return true;
