@@ -77,8 +77,8 @@ static void test_dont_find_if_diff_key(skiatest::Reporter* reporter,
 
 // Test purging when the max cache size is exceeded
 static void test_internal_purge(skiatest::Reporter* reporter, const sk_sp<SkSpecialImage>& image) {
-    SkASSERT(image->getSize());
-    const size_t kCacheSize = image->getSize() + 10;
+    SkASSERT(image->getSize1());
+    const size_t kCacheSize = image->getSize1() + 10;
     SkAutoTUnref<SkImageFilterCache> cache(SkImageFilterCache::Create(kCacheSize));
 
     SkIRect clip = SkIRect::MakeWH(100, 100);
