@@ -18,7 +18,8 @@ class GrTextureProxy : public GrSurfaceProxy {
 public:
     // TODO: need to refine ownership semantics of 'srcData' if we're in completely
     // deferred mode
-    static sk_sp<GrTextureProxy> Make(const GrSurfaceDesc&, SkBackingFit, SkBudgeted,
+    static sk_sp<GrTextureProxy> Make(GrTextureProvider*, const GrSurfaceDesc&,
+                                      SkBackingFit, SkBudgeted,
                                       const void* srcData = nullptr, size_t rowBytes = 0);
     static sk_sp<GrTextureProxy> Make(sk_sp<GrTexture>);
 
@@ -27,7 +28,7 @@ public:
     const GrTextureProxy* asTextureProxy() const override { return this; }
 
     // Actually instantiate the backing texture, if necessary
-    GrTexture* instantiate(GrTextureProvider* texProvider);
+    GrTexture* instantiate(GrTextureProvider*);
 
 private:
     // Deferred version
@@ -35,6 +36,8 @@ private:
                    const void* srcData, size_t srcRowBytes);
     // Wrapped version
     GrTextureProxy(sk_sp<GrTexture> tex);
+
+    size_t onGpuMemorySize() const override;
 
     // For wrapped proxies the GrTexture pointer is stored in GrIORefProxy.
     // For deferred proxies that pointer will be filled n when we need to instantiate
