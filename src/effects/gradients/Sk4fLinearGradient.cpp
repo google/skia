@@ -105,8 +105,8 @@ SkScalar pinFx<SkShader::kMirror_TileMode>(SkScalar fx) {
 bool in_range(SkScalar x, SkScalar k1, SkScalar k2) {
     SkASSERT(k1 != k2);
     return (k1 < k2)
-        ? (x >= k1 && x <  k2)
-        : (x >  k2 && x <= k1);
+        ? (x >= k1 && x < k2)
+        : (x >= k2 && x < k1);
 }
 
 } // anonymous namespace
@@ -294,12 +294,28 @@ public:
         SkASSERT(fAdvX >= 0);
         SkASSERT(firstInterval <= lastInterval);
         SkASSERT(in_range(fx, i->fP0, i->fP1));
+
+        if (tileMode != kClamp_TileMode && !is_vertical) {
+            const auto spanX = (lastInterval->fP1 - firstInterval->fP0) / dx;
+            SkASSERT(spanX >= 0);
+
+            // If we're in a repeating tile mode and the whole gradient is compressed into a
+            // fraction of a pixel, we just use the average color in zero-ramp mode.
+            // This also avoids cases where we make no progress due to interval advances being
+            // close to zero.
+            static constexpr SkScalar kMinSpanX = .25f;
+            if (spanX < kMinSpanX) {
+                this->init_average_props();
+                return;
+            }
+        }
+
         this->compute_interval_props(fx - i->fP0);
     }
 
     SkScalar currentAdvance() const {
         SkASSERT(fAdvX >= 0);
-        SkASSERT(fAdvX <= (fInterval->fP1 - fInterval->fP0) / fDx);
+        SkASSERT(fAdvX <= (fInterval->fP1 - fInterval->fP0) / fDx || !isfinite(fAdvX));
         return fAdvX;
     }
 
@@ -331,6 +347,29 @@ private:
             const Sk4f dC = DstTraits<dstType, premul>::load(fInterval->fDc);
             fCc           = fCc + dC * Sk4f(t);
             fDcDx         = dC * fDx;
+        }
+    }
+
+    void init_average_props() {
+        fAdvX     = SK_ScalarInfinity;
+        fZeroRamp = true;
+        fDcDx     = 0;
+        fCc       = Sk4f(0);
+
+        // TODO: precompute the average at interval setup time?
+        for (const auto* i = fFirstInterval; i <= fLastInterval; ++i) {
+            // Each interval contributes its average color to the total/weighted average:
+            //
+            //   C = (c0 + c1) / 2 = (c0 + c0 + dc * (p1 - p0)) / 2
+            //
+            //   Avg += C * (p1 - p0)
+            //
+            const auto dp = i->fP1 - i->fP0;
+            auto c = DstTraits<dstType, premul>::load(i->fC0);
+            if (!i->fZeroRamp) {
+                c = c + DstTraits<dstType, premul>::load(i->fDc) * dp * 0.5f;
+            }
+            fCc = fCc + c * dp;
         }
     }
 
