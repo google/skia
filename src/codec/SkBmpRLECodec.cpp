@@ -44,10 +44,6 @@ SkCodec::Result SkBmpRLECodec::onGetPixels(const SkImageInfo& dstInfo,
         // Subsets are not supported.
         return kUnimplemented;
     }
-    if (!conversion_possible_ignore_color_space(dstInfo, this->getInfo())) {
-        SkCodecPrintf("Error: cannot convert input type to output type.\n");
-        return kInvalidConversion;
-    }
 
     Result result = this->prepareToDecode(dstInfo, opts, inputColorPtr, inputColorCount);
     if (kSuccess != result) {
@@ -267,7 +263,7 @@ void SkBmpRLECodec::setRGBPixel(void* dst, size_t dstRowBytes,
     }
 }
 
-SkCodec::Result SkBmpRLECodec::prepareToDecode(const SkImageInfo& dstInfo,
+SkCodec::Result SkBmpRLECodec::onPrepareToDecode(const SkImageInfo& dstInfo,
         const SkCodec::Options& options, SkPMColor inputColorPtr[], int* inputColorCount) {
     // FIXME: Support subsets for scanline decodes.
     if (options.fSubset) {
@@ -318,21 +314,36 @@ int SkBmpRLECodec::decodeRows(const SkImageInfo& info, void* dst, size_t dstRowB
     // Account for sampling.
     SkImageInfo dstInfo = info.makeWH(get_scaled_dimension(width, fSampleX), height);
 
+    void* decodeDst = dst;
+    SkColorType dstColorType = dstInfo.colorType();
+    SkCodec::ZeroInitialized zeroInit = opts.fZeroInitialized;
+    if (this->colorXform()) {
+        dstColorType = kBGRA_8888_SkColorType;
+
+        if (decodeDst && kRGBA_F16_SkColorType == dstInfo.colorType()) {
+            int count = height * dstInfo.width();
+            this->resetXformBuffer(count);
+            decodeDst = this->xformBuffer();
+            zeroInit = SkCodec::kNo_ZeroInitialized;
+        }
+    }
+
     // Set the background as transparent.  Then, if the RLE code skips pixels,
     // the skipped pixels will be transparent.
     // Because of the need for transparent pixels, kN32 is the only color
     // type that makes sense for the destination format.
-    SkASSERT(kRGBA_8888_SkColorType == dstInfo.colorType() ||
-            kBGRA_8888_SkColorType == dstInfo.colorType());
-    if (dst) {
-        SkSampler::Fill(dstInfo, dst, dstRowBytes, SK_ColorTRANSPARENT, opts.fZeroInitialized);
+    SkASSERT(kRGBA_8888_SkColorType == dstColorType || kBGRA_8888_SkColorType == dstColorType);
+    if (decodeDst) {
+        SkSampler::Fill(dstInfo, decodeDst, dstRowBytes, SK_ColorTRANSPARENT, zeroInit);
     }
 
     // Adjust the height and the dst if the previous call to decodeRows() left us
     // with lines that need to be skipped.
     if (height > fLinesToSkip) {
         height -= fLinesToSkip;
-        dst = SkTAddOffset<void>(dst, fLinesToSkip * dstRowBytes);
+        if (decodeDst) {
+            decodeDst = SkTAddOffset<void>(decodeDst, fLinesToSkip * dstRowBytes);
+        }
         fLinesToSkip = 0;
     } else {
         fLinesToSkip -= height;
@@ -427,20 +438,18 @@ int SkBmpRLECodec::decodeRows(const SkImageInfo& info, void* dst, size_t dstRowB
                             case 4: {
                                 SkASSERT(fCurrRLEByte < fRLEBytes);
                                 uint8_t val = fStreamBuffer.get()[fCurrRLEByte++];
-                                setPixel(dst, dstRowBytes, dstInfo, x++,
-                                        y, val >> 4);
+                                setPixel(decodeDst, dstRowBytes, dstInfo, x++, y, val >> 4);
                                 numPixels--;
                                 if (numPixels != 0) {
-                                    setPixel(dst, dstRowBytes, dstInfo,
-                                            x++, y, val & 0xF);
+                                    setPixel(decodeDst, dstRowBytes, dstInfo, x++, y, val & 0xF);
                                     numPixels--;
                                 }
                                 break;
                             }
                             case 8:
                                 SkASSERT(fCurrRLEByte < fRLEBytes);
-                                setPixel(dst, dstRowBytes, dstInfo, x++,
-                                        y, fStreamBuffer.get()[fCurrRLEByte++]);
+                                setPixel(decodeDst, dstRowBytes, dstInfo, x++, y,
+                                         fStreamBuffer.get()[fCurrRLEByte++]);
                                 numPixels--;
                                 break;
                             case 24: {
@@ -448,8 +457,8 @@ int SkBmpRLECodec::decodeRows(const SkImageInfo& info, void* dst, size_t dstRowB
                                 uint8_t blue = fStreamBuffer.get()[fCurrRLEByte++];
                                 uint8_t green = fStreamBuffer.get()[fCurrRLEByte++];
                                 uint8_t red = fStreamBuffer.get()[fCurrRLEByte++];
-                                setRGBPixel(dst, dstRowBytes, dstInfo,
-                                            x++, y, red, green, blue);
+                                setRGBPixel(decodeDst, dstRowBytes, dstInfo, x++, y, red, green,
+                                            blue);
                                 numPixels--;
                                 break;
                             }
@@ -487,7 +496,7 @@ int SkBmpRLECodec::decodeRows(const SkImageInfo& info, void* dst, size_t dstRowB
                 uint8_t green = fStreamBuffer.get()[fCurrRLEByte++];
                 uint8_t red = fStreamBuffer.get()[fCurrRLEByte++];
                 while (x < endX) {
-                    setRGBPixel(dst, dstRowBytes, dstInfo, x++, y, red, green, blue);
+                    setRGBPixel(decodeDst, dstRowBytes, dstInfo, x++, y, red, green, blue);
                 }
             } else {
                 // In RLE8 or RLE4, the second byte read gives the index in the
@@ -503,10 +512,16 @@ int SkBmpRLECodec::decodeRows(const SkImageInfo& info, void* dst, size_t dstRowB
 
                 // Set the indicated number of pixels
                 for (int which = 0; x < endX; x++) {
-                    setPixel(dst, dstRowBytes, dstInfo, x, y, indices[which]);
+                    setPixel(decodeDst, dstRowBytes, dstInfo, x, y, indices[which]);
                     which = !which;
                 }
             }
+        }
+    }
+
+    if (this->colorXform() && decodeDst) {
+        for (int i = 0; i < height; i++) {
+            this->applyColorXform(dstInfo, dst, decodeDst);
         }
     }
 }
