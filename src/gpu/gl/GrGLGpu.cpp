@@ -4474,8 +4474,8 @@ bool GrGLGpu::generateMipmap(GrGLTexture* texture, bool gammaCorrect) {
     return true;
 }
 
-void GrGLGpu::onGetMultisampleSpecs(GrRenderTarget* rt, const GrStencilSettings& stencil,
-                                    int* effectiveSampleCnt, SamplePattern* samplePattern) {
+void GrGLGpu::onQueryMultisampleSpecs(GrRenderTarget* rt, const GrStencilSettings& stencil,
+                                      int* effectiveSampleCnt, SamplePattern* samplePattern) {
     SkASSERT(!rt->isMixedSampled() || rt->renderTargetPriv().getStencilAttachment() ||
              stencil.isDisabled());
 

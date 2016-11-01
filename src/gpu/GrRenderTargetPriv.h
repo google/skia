@@ -32,8 +32,10 @@ public:
 
     int numStencilBits() const;
 
+    // Finds a render target's multisample specs. The stencil settings are only needed in case the
+    // info isn't cached and we need to flush the draw state in order to query it. They are not
+    // expected to affect the multisample information itself.
     const GrGpu::MultisampleSpecs& getMultisampleSpecs(const GrStencilSettings& stencil) const;
-    uint8_t& accessMultisampleSpecsID() { return fRenderTarget->fMultisampleSpecsID; }
 
     typedef GrRenderTarget::Flags Flags;
 

@@ -105,7 +105,14 @@ int GrRenderTargetPriv::numStencilBits() const {
 
 const GrGpu::MultisampleSpecs&
 GrRenderTargetPriv::getMultisampleSpecs(const GrStencilSettings& stencil) const {
-    return fRenderTarget->getGpu()->getMultisampleSpecs(fRenderTarget, stencil);
+    GrGpu* gpu = fRenderTarget->getGpu();
+    if (auto id = fRenderTarget->fMultisampleSpecsID) {
+        SkASSERT(gpu->queryMultisampleSpecs(fRenderTarget, stencil).fUniqueID == id);
+        return gpu->getMultisampleSpecs(id);
+    }
+    const GrGpu::MultisampleSpecs& specs = gpu->queryMultisampleSpecs(fRenderTarget, stencil);
+    fRenderTarget->fMultisampleSpecsID = specs.fUniqueID;
+    return specs;
 }
 
 int GrRenderTargetPriv::maxWindowRectangles() const {

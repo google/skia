@@ -355,10 +355,16 @@ public:
         const SkPoint*   fSampleLocations;
     };
 
-    // Finds a render target's multisample specs. The stencil settings are only needed to flush the
-    // draw state prior to querying multisample information; they should not have any effect on the
-    // multisample information itself.
-    const MultisampleSpecs& getMultisampleSpecs(GrRenderTarget*, const GrStencilSettings&);
+    // Finds a render target's multisample specs. The stencil settings are only needed in case we
+    // need to flush the draw state prior to querying multisample info. They are not expected to
+    // affect the multisample information itself.
+    const MultisampleSpecs& queryMultisampleSpecs(GrRenderTarget*, const GrStencilSettings&);
+
+    // Finds the multisample specs with a given unique id.
+    const MultisampleSpecs& getMultisampleSpecs(uint8_t uniqueID) {
+        SkASSERT(uniqueID > 0 && uniqueID < fMultisampleSpecs.count());
+        return fMultisampleSpecs[uniqueID];
+    }
 
     // Creates a GrGpuCommandBuffer in which the GrOpList can send draw commands to instead of
     // directly to the Gpu object.
@@ -581,8 +587,8 @@ private:
                                const SkIPoint& dstPoint) = 0;
 
     // overridden by backend specific derived class to perform the multisample queries
-    virtual void onGetMultisampleSpecs(GrRenderTarget*, const GrStencilSettings&,
-                                       int* effectiveSampleCnt, SamplePattern*) = 0;
+    virtual void onQueryMultisampleSpecs(GrRenderTarget*, const GrStencilSettings&,
+                                         int* effectiveSampleCnt, SamplePattern*) = 0;
 
     void resetContext() {
         this->onResetContext(fResetBits);

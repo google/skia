@@ -303,8 +303,8 @@ public:
                        const SkIRect& srcRect,
                        const SkIPoint& dstPoint) override { return false; }
 
-    void onGetMultisampleSpecs(GrRenderTarget* rt, const GrStencilSettings&,
-                               int* effectiveSampleCnt, SamplePattern*) override {
+    void onQueryMultisampleSpecs(GrRenderTarget* rt, const GrStencilSettings&,
+                                 int* effectiveSampleCnt, SamplePattern*) override {
         *effectiveSampleCnt = rt->desc().fSampleCnt;
     }
 

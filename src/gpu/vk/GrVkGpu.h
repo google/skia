@@ -82,8 +82,8 @@ public:
                        const SkIRect& srcRect,
                        const SkIPoint& dstPoint) override;
 
-    void onGetMultisampleSpecs(GrRenderTarget* rt, const GrStencilSettings&,
-                               int* effectiveSampleCnt, SamplePattern*) override;
+    void onQueryMultisampleSpecs(GrRenderTarget* rt, const GrStencilSettings&,
+                                 int* effectiveSampleCnt, SamplePattern*) override;
 
     bool initDescForDstCopy(const GrRenderTarget* src, GrSurfaceDesc* desc) const override;
 

@@ -442,21 +442,13 @@ void GrGpu::didWriteToSurface(GrSurface* surface, const SkIRect* bounds, uint32_
     }
 }
 
-const GrGpu::MultisampleSpecs& GrGpu::getMultisampleSpecs(GrRenderTarget* rt,
-                                                          const GrStencilSettings& stencil) {
+const GrGpu::MultisampleSpecs& GrGpu::queryMultisampleSpecs(GrRenderTarget* rt,
+                                                            const GrStencilSettings& stencil) {
     SkASSERT(rt->desc().fSampleCnt > 1);
-
-#ifndef SK_DEBUG
-    // In debug mode we query the multisample info every time to verify the caching is correct.
-    if (uint8_t id = rt->renderTargetPriv().accessMultisampleSpecsID()) {
-        SkASSERT(id > 0 && id < fMultisampleSpecs.count());
-        return fMultisampleSpecs[id];
-    }
-#endif
 
     int effectiveSampleCnt;
     SkSTArray<16, SkPoint, true> pattern;
-    this->onGetMultisampleSpecs(rt, stencil, &effectiveSampleCnt, &pattern);
+    this->onQueryMultisampleSpecs(rt, stencil, &effectiveSampleCnt, &pattern);
     SkASSERT(effectiveSampleCnt >= rt->desc().fSampleCnt);
 
     uint8_t id;
@@ -479,10 +471,7 @@ const GrGpu::MultisampleSpecs& GrGpu::getMultisampleSpecs(GrRenderTarget* rt,
         }
     }
     SkASSERT(id > 0);
-    SkASSERT(!rt->renderTargetPriv().accessMultisampleSpecsID() ||
-             rt->renderTargetPriv().accessMultisampleSpecsID() == id);
 
-    rt->renderTargetPriv().accessMultisampleSpecsID() = id;
     return fMultisampleSpecs[id];
 }
 
