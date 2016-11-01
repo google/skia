@@ -63,7 +63,7 @@ static void convertToIndex666(const SkBitmap& src, SkBitmap* dst, SkAlphaType aT
 
 /*  Variants for bitmaps
 
-    - src depth (32 w+w/o alpha), 565, 4444, index, a8
+    - src depth (32 w+w/o alpha), 565, 4444, index, a8, f16
     - paint options: filtering, dither, alpha
     - matrix options: translate, scale, rotate, persp
     - tiling: none, repeat, mirror, clamp
@@ -364,6 +364,7 @@ DEF_BENCH( return new BitmapBench(kIndex_8_SkColorType, kPremul_SkAlphaType, fal
 DEF_BENCH( return new BitmapBench(kIndex_8_SkColorType, kOpaque_SkAlphaType, false, false, false); )
 DEF_BENCH( return new BitmapBench(kN32_SkColorType, kOpaque_SkAlphaType, true, true, false); )
 DEF_BENCH( return new BitmapBench(kN32_SkColorType, kOpaque_SkAlphaType, true, false, false); )
+DEF_BENCH( return new BitmapBench(kRGBA_F16_SkColorType, kPremul_SkAlphaType, false, false, false); )
 
 // scale filter -> S32_opaque_D32_filter_DX_{SSE2,SSSE3} and Fact9 is also for S32_D16_filter_DX_SSE2
 DEF_BENCH( return new FilterBitmapBench(kN32_SkColorType, kPremul_SkAlphaType, false, false, kScale_Flag | kBilerp_Flag); )
