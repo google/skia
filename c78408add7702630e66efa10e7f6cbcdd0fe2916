@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "26d3ee49_6904cd32",
+        "filename": "fuzz/FilterFuzz.cpp",
+        "patchSetId": 11
+      },
+      "lineNbr": 474,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2016-11-01T12:16:46Z",
+      "side": 1,
+      "message": "I want to avoid infinite recursion.  See on line 510 where we call make_paint()?  It\u0027s probably unnecessary, but I\u0027d rather be safe.",
+      "parentUuid": "86373a0c_5d94ec1d",
+      "revId": "c78408add7702630e66efa10e7f6cbcdd0fe2916",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "86373a0c_3d992856",
         "filename": "fuzz/FilterFuzz.cpp",
         "patchSetId": 11
@@ -30,6 +48,24 @@
       "writtenOn": "2016-10-31T18:17:28Z",
       "side": 1,
       "message": "Ditto?",
+      "revId": "c78408add7702630e66efa10e7f6cbcdd0fe2916",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "26d3ee49_89072938",
+        "filename": "fuzz/FilterFuzz.cpp",
+        "patchSetId": 11
+      },
+      "lineNbr": 528,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2016-11-01T12:16:46Z",
+      "side": 1,
+      "message": "Same reason.  Overall, this is a very ugly fuzzer and it should probably be rewritten/restructured at a future date.  It\u0027s just experimental at the moment, so I don\u0027t care too much about it.",
+      "parentUuid": "86373a0c_3d992856",
       "revId": "c78408add7702630e66efa10e7f6cbcdd0fe2916",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
@@ -53,6 +89,24 @@
     },
     {
       "key": {
+        "uuid": "26d3ee49_290ed552",
+        "filename": "fuzz/FuzzGradients.cpp",
+        "patchSetId": 11
+      },
+      "lineNbr": 26,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2016-11-01T12:16:46Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "86373a0c_7dce1050",
+      "revId": "c78408add7702630e66efa10e7f6cbcdd0fe2916",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "86373a0c_fd5b4066",
         "filename": "fuzz/FuzzPathop.cpp",
         "patchSetId": 11
@@ -70,6 +124,24 @@
     },
     {
       "key": {
+        "uuid": "26d3ee49_e9fe9df9",
+        "filename": "fuzz/FuzzPathop.cpp",
+        "patchSetId": 11
+      },
+      "lineNbr": 17,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2016-11-01T12:16:46Z",
+      "side": 1,
+      "message": "fuzz-\u003eexhausted() added.",
+      "parentUuid": "86373a0c_fd5b4066",
+      "revId": "c78408add7702630e66efa10e7f6cbcdd0fe2916",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "86373a0c_bda41890",
         "filename": "fuzz/fuzz.cpp",
         "patchSetId": 11
@@ -81,6 +153,24 @@
       "writtenOn": "2016-10-31T18:17:28Z",
       "side": 1,
       "message": "Reindent?",
+      "revId": "c78408add7702630e66efa10e7f6cbcdd0fe2916",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "26d3ee49_4911116f",
+        "filename": "fuzz/fuzz.cpp",
+        "patchSetId": 11
+      },
+      "lineNbr": 414,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2016-11-01T12:16:46Z",
+      "side": 1,
+      "message": "Done.",
+      "parentUuid": "86373a0c_bda41890",
       "revId": "c78408add7702630e66efa10e7f6cbcdd0fe2916",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
