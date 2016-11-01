@@ -52,7 +52,8 @@ GrRenderTargetOpList::GrRenderTargetOpList(GrRenderTargetProxy* rtp, GrGpu* gpu,
     : INHERITED(rtp, auditTrail)
     , fLastFullClearBatch(nullptr)
     , fGpu(SkRef(gpu))
-    , fResourceProvider(resourceProvider) {
+    , fResourceProvider(resourceProvider)
+    , fLastClipStackGenID(SK_InvalidUniqueID) {
     // TODO: Stop extracting the context (currently needed by GrClip)
     fContext = fGpu->getContext();
 

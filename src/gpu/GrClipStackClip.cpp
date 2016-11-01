@@ -358,10 +358,7 @@ bool GrClipStackClip::apply(GrContext* context, GrRenderTargetContext* renderTar
     }
 
     // use the stencil clip if we can't represent the clip as a rectangle.
-    // TODO: these need to be swapped over to using a StencilAttachmentProxy
-    GrStencilAttachment* stencilAttachment =
-        context->resourceProvider()->attachStencilAttachment(rt);
-    if (nullptr == stencilAttachment) {
+    if (!context->resourceProvider()->attachStencilAttachment(rt)) {
         SkDebugf("WARNING: failed to attach stencil buffer for clip mask. Clip will be ignored.\n");
         return true;
     }
@@ -369,11 +366,11 @@ bool GrClipStackClip::apply(GrContext* context, GrRenderTargetContext* renderTar
     // This relies on the property that a reduced sub-rect of the last clip will contain all the
     // relevant window rectangles that were in the last clip. This subtle requirement will go away
     // after clipping is overhauled.
-    if (stencilAttachment->mustRenderClip(reducedClip.elementsGenID(), reducedClip.ibounds(),
-                                          fOrigin)) {
+    if (renderTargetContext->priv().mustRenderClip(reducedClip.elementsGenID(),
+                                                   reducedClip.ibounds(), fOrigin)) {
         reducedClip.drawStencilClipMask(context, renderTargetContext, fOrigin);
-        stencilAttachment->setLastClip(reducedClip.elementsGenID(), reducedClip.ibounds(),
-                                       fOrigin);
+        renderTargetContext->priv().setLastClip(reducedClip.elementsGenID(), reducedClip.ibounds(),
+                                                fOrigin);
     }
     out->addStencilClip();
     return true;

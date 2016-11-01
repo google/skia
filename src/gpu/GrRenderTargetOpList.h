@@ -131,7 +131,7 @@ public:
     SkDEBUGCODE(void dump() const override;)
 
 private:
-    friend class GrRenderTargetContextPriv; // for clearStencilClip
+    friend class GrRenderTargetContextPriv; // for clearStencilClip and stencil clip state.
 
     // Returns the batch that the input batch was combined with or the input batch if it wasn't
     // combined.
@@ -168,6 +168,10 @@ private:
     int                                             fMaxBatchLookahead;
 
     SkAutoTDelete<gr_instanced::InstancedRendering> fInstancedRendering;
+
+    int32_t                                         fLastClipStackGenID;
+    SkIRect                                         fLastClipStackRect;
+    SkIPoint                                        fLastClipOrigin;
 
     typedef GrOpList INHERITED;
 };

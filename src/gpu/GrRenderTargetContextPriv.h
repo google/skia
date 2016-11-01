@@ -25,6 +25,28 @@ public:
         return fRenderTargetContext->getOpList()->instancedRendering();
     }
 
+    // called to note the last clip drawn to the stencil buffer.
+    // TODO: remove after clipping overhaul.
+    void setLastClip(int32_t clipStackGenID,
+                     const SkIRect& clipSpaceRect,
+                     const SkIPoint clipOrigin) {
+        GrRenderTargetOpList* opList = fRenderTargetContext->getOpList();
+        opList->fLastClipStackGenID = clipStackGenID;
+        opList->fLastClipStackRect = clipSpaceRect;
+        opList->fLastClipOrigin = clipOrigin;
+    }
+
+    // called to determine if we have to render the clip into SB.
+    // TODO: remove after clipping overhaul.
+    bool mustRenderClip(int32_t clipStackGenID,
+                        const SkIRect& clipSpaceRect,
+                        const SkIPoint& clipOrigin) const {
+        GrRenderTargetOpList* opList = fRenderTargetContext->getOpList();
+        return opList->fLastClipStackGenID != clipStackGenID ||
+               opList->fLastClipOrigin != clipOrigin ||
+               !opList->fLastClipStackRect.contains(clipSpaceRect);
+    }
+
     void clear(const GrFixedClip&, const GrColor, bool canIgnoreClip);
 
     void clearStencilClip(const GrFixedClip&, bool insideStencilMask);
