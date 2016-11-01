@@ -50,13 +50,25 @@ static bool valid_for_bitmap_device(const SkImageInfo& info,
 
     switch (info.colorType()) {
         case kAlpha_8_SkColorType:
+            if (info.colorSpace()) {
+                return false;
+            }
             break;
         case kRGB_565_SkColorType:
+            if (info.colorSpace()) {
+                return false;
+            }
             canonicalAlphaType = kOpaque_SkAlphaType;
             break;
         case kN32_SkColorType:
+            if (info.colorSpace() && !info.colorSpace()->gammaCloseToSRGB()) {
+                return false;
+            }
             break;
         case kRGBA_F16_SkColorType:
+            if (info.colorSpace() && !info.colorSpace()->gammaIsLinear()) {
+                return false;
+            }
             break;
         default:
             return false;
