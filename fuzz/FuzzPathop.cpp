@@ -14,51 +14,33 @@ const int kLastOp = SkPathOp::kReverseDifference_SkPathOp;
 void BuildPath(Fuzz* fuzz,
                SkPath* path,
                int last_verb) {
-  uint8_t operation;
-  SkScalar a, b, c, d, e, f;
-  while (fuzz->next<uint8_t>(&operation)) {
+  while (!fuzz->exhausted()) {
+    uint8_t operation = fuzz->next<uint8_t>();
 
     switch (operation % (last_verb + 1)) {
       case SkPath::Verb::kMove_Verb:
-        if (!fuzz->next<SkScalar>(&a) || !fuzz->next<SkScalar>(&b))
-          return;
-        path->moveTo(a, b);
+        path->moveTo(fuzz->next<SkScalar>(), fuzz->next<SkScalar>());
         break;
 
       case SkPath::Verb::kLine_Verb:
-        if (!fuzz->next<SkScalar>(&a) || !fuzz->next<SkScalar>(&b))
-          return;
-        path->lineTo(a, b);
+        path->lineTo(fuzz->next<SkScalar>(), fuzz->next<SkScalar>());
         break;
 
       case SkPath::Verb::kQuad_Verb:
-        if (!fuzz->next<SkScalar>(&a) ||
-            !fuzz->next<SkScalar>(&b) ||
-            !fuzz->next<SkScalar>(&c) ||
-            !fuzz->next<SkScalar>(&d))
-          return;
-        path->quadTo(a, b, c, d);
+        path->quadTo(fuzz->next<SkScalar>(), fuzz->next<SkScalar>(),
+                     fuzz->next<SkScalar>(), fuzz->next<SkScalar>());
         break;
 
       case SkPath::Verb::kConic_Verb:
-        if (!fuzz->next<SkScalar>(&a) ||
-            !fuzz->next<SkScalar>(&b) ||
-            !fuzz->next<SkScalar>(&c) ||
-            !fuzz->next<SkScalar>(&d) ||
-            !fuzz->next<SkScalar>(&e))
-          return;
-        path->conicTo(a, b, c, d, e);
+        path->conicTo(fuzz->next<SkScalar>(), fuzz->next<SkScalar>(),
+                      fuzz->next<SkScalar>(), fuzz->next<SkScalar>(),
+                      fuzz->next<SkScalar>());
         break;
 
       case SkPath::Verb::kCubic_Verb:
-        if (!fuzz->next<SkScalar>(&a) ||
-            !fuzz->next<SkScalar>(&b) ||
-            !fuzz->next<SkScalar>(&c) ||
-            !fuzz->next<SkScalar>(&d) ||
-            !fuzz->next<SkScalar>(&e) ||
-            !fuzz->next<SkScalar>(&f))
-          return;
-        path->cubicTo(a, b, c, d, e, f);
+        path->cubicTo(fuzz->next<SkScalar>(), fuzz->next<SkScalar>(),
+                      fuzz->next<SkScalar>(), fuzz->next<SkScalar>(),
+                      fuzz->next<SkScalar>(), fuzz->next<SkScalar>());
         break;
 
       case SkPath::Verb::kClose_Verb:
@@ -74,13 +56,12 @@ void BuildPath(Fuzz* fuzz,
 
 DEF_FUZZ(Pathop, fuzz) {
     SkOpBuilder builder;
-    while (fuzz->remaining() >= sizeof(uint8_t)) {
-        SkPath path;
-        uint8_t op = fuzz->nextB();
 
-        BuildPath(fuzz, &path, SkPath::Verb::kDone_Verb);
-        builder.add(path, static_cast<SkPathOp>(op % (kLastOp + 1)));
-    }
+    uint8_t stragglerOp = fuzz->next<uint8_t>();
+    SkPath path;
+
+    BuildPath(fuzz, &path, SkPath::Verb::kDone_Verb);
+    builder.add(path, static_cast<SkPathOp>(stragglerOp % (kLastOp + 1)));
 
     SkPath result;
     builder.resolve(&result);

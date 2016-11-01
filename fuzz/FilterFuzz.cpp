@@ -44,6 +44,7 @@
 #include "SkTileImageFilter.h"
 #include "SkTypeface.h"
 #include "SkXfermodeImageFilter.h"
+#include <cmath>
 #include <stdio.h>
 #include <time.h>
 
@@ -55,8 +56,8 @@ static const int kBitmapSize = 24;
 static bool return_large = false;
 static bool return_undef = false;
 
-static int R(float x) {
-    return (int)floor(SkScalarToFloat(fuzz->nextF1()) * x);
+static int R(int x) {
+    return abs(fuzz->next<int>()) % x;
 }
 
 #if defined _WIN32
@@ -130,7 +131,7 @@ static SkString make_font_name() {
 }
 
 static bool make_bool() {
-    return R(2) == 1;
+    return fuzz->next<bool>();
 }
 
 static SkRect make_rect() {
@@ -219,30 +220,16 @@ static SkDisplacementMapEffect::ChannelSelectorType make_channel_selector_type()
     return static_cast<SkDisplacementMapEffect::ChannelSelectorType>(R(4)+1);
 }
 
-static bool valid_for_raster_canvas(const SkImageInfo& info) {
-    switch (info.colorType()) {
-        case kAlpha_8_SkColorType:
-        case kRGB_565_SkColorType:
-            return true;
-        case kN32_SkColorType:
-            return kPremul_SkAlphaType == info.alphaType() ||
-                   kOpaque_SkAlphaType == info.alphaType();
-        default:
-            break;
-    }
-    return false;
-}
-
 static SkColorType rand_colortype() {
     return (SkColorType)R(kLastEnum_SkColorType + 1);
 }
 
 static void rand_bitmap_for_canvas(SkBitmap* bitmap) {
-    SkImageInfo info;
-    do {
-        info = SkImageInfo::Make(kBitmapSize, kBitmapSize, rand_colortype(),
+    SkImageInfo info = SkImageInfo::Make(kBitmapSize, kBitmapSize, rand_colortype(),
                                  kPremul_SkAlphaType);
-    } while (!valid_for_raster_canvas(info) || !bitmap->tryAllocPixels(info));
+    if (!bitmap->tryAllocPixels(info)){
+        SkDebugf("Bitmap not allocated\n");
+    }
 }
 
 static void make_g_bitmap(SkBitmap& bitmap) {
@@ -413,7 +400,7 @@ static SkPath make_path() {
 
 static sk_sp<SkPathEffect> make_path_effect(bool canBeNull = true) {
     sk_sp<SkPathEffect> pathEffect;
-    if (canBeNull && (R(3) == 1)) { return pathEffect; }
+    if (canBeNull && (R(3) == 0)) { return pathEffect; }
 
     switch (R(9)) {
         case 0:
@@ -484,6 +471,9 @@ static sk_sp<SkImageFilter> make_image_filter(bool canBeNull = true);
 
 static SkPaint make_paint() {
     SkPaint paint;
+    if (fuzz->exhausted()) {
+        return paint;
+    }
     paint.setHinting(make_paint_hinting());
     paint.setAntiAlias(make_bool());
     paint.setDither(make_bool());
@@ -535,7 +525,7 @@ static sk_sp<SkImageFilter> make_image_filter(bool canBeNull) {
     sk_sp<SkImageFilter> filter;
 
     // Add a 1 in 3 chance to get a nullptr input
-    if (canBeNull && (R(3) == 1)) {
+    if (fuzz->exhausted() || (canBeNull && R(3) == 1)) {
         return filter;
     }
 
@@ -729,7 +719,7 @@ static sk_sp<SkImageFilter> make_image_filter(bool canBeNull) {
     default:
         break;
     }
-    return (filter || canBeNull) ? filter : make_image_filter(canBeNull);
+    return filter;
 }
 
 static sk_sp<SkImageFilter> make_serialized_image_filter() {

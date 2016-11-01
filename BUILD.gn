@@ -1139,9 +1139,6 @@ if (skia_enable_tools) {
   }
 
   executable("fuzz") {
-    if (is_skia_standalone) {
-      configs -= [ "//gn:no_exceptions" ]
-    }
     sources = [
       "fuzz/FilterFuzz.cpp",
       "fuzz/FuzzGradients.cpp",
