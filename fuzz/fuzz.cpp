@@ -19,9 +19,7 @@
 #include "SkSLCompiler.h"
 #include "SkStream.h"
 
-#include <cmath>
 #include <signal.h>
-#include <stdlib.h>
 
 DEFINE_string2(bytes, b, "", "A path to a file.  This can be the fuzz bytes or a binary to parse.");
 DEFINE_string2(name, n, "", "If --type is 'api', fuzz the API with this name.");
@@ -411,59 +409,10 @@ int fuzz_sksl2glsl(sk_sp<SkData> bytes) {
 
 Fuzz::Fuzz(sk_sp<SkData> bytes) : fBytes(bytes), fNextByte(0) {}
 
-void Fuzz::signalBug   () { SkDebugf("Signal bug\n"); raise(SIGSEGV); }
-void Fuzz::signalBoring() { SkDebugf("Signal boring\n"); exit(0); }
+void Fuzz::signalBug() { SkDebugf("Signal bug\n"); raise(SIGSEGV); }
 
 size_t Fuzz::size() { return fBytes->size(); }
 
-size_t Fuzz::remaining() {
-    return fBytes->size() - fNextByte;
-}
-
-template <typename T>
-T Fuzz::nextT() {
-    if (fNextByte + sizeof(T) > fBytes->size()) {
-        this->signalBoring();
-    }
-
-    T val;
-    memcpy(&val, fBytes->bytes() + fNextByte, sizeof(T));
-    fNextByte += sizeof(T);
-    return val;
-}
-
-uint8_t  Fuzz::nextB() { return this->nextT<uint8_t >(); }
-bool  Fuzz::nextBool() { return nextB()&1; }
-uint32_t Fuzz::nextU() { return this->nextT<uint32_t>(); }
-float    Fuzz::nextF() { return this->nextT<float   >(); }
-
-float    Fuzz::nextF1() {
-    // This is the same code as is in SkRandom's nextF()
-    unsigned int floatint = 0x3f800000 | (this->nextU() >> 9);
-    float f = SkBits2Float(floatint) - 1.0f;
-    return f;
-}
-
-uint32_t Fuzz::nextRangeU(uint32_t min, uint32_t max) {
-    if (min > max) {
-        SkDebugf("Check mins and maxes (%d, %d)\n", min, max);
-        this->signalBoring();
-    }
-    uint32_t range = max - min + 1;
-    if (0 == range) {
-        return this->nextU();
-    } else {
-        return min + this->nextU() % range;
-    }
-}
-float Fuzz::nextRangeF(float min, float max) {
-    if (min > max) {
-        SkDebugf("Check mins and maxes (%f, %f)\n", min, max);
-        this->signalBoring();
-    }
-    float f = std::abs(this->nextF());
-    if (!std::isnormal(f) && f != 0.0) {
-        this->signalBoring();
-    }
-    return min + fmod(f, (max - min + 1));
+bool Fuzz::exhausted() {
+    return fBytes->size() == fNextByte;
 }
