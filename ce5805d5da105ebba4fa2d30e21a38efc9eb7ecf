@@ -33,6 +33,24 @@
       "revId": "ce5805d5da105ebba4fa2d30e21a38efc9eb7ecf",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "064fca08_1c27b52b",
+        "filename": "src/core/SkLRUCache.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 80,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2016-11-01T15:13:31Z",
+      "side": 1,
+      "message": "Looking more closely, definitely just use SkTHashMap\u003cK,V\u003e.",
+      "parentUuid": "064fca08_bc17a1b6",
+      "revId": "ce5805d5da105ebba4fa2d30e21a38efc9eb7ecf",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
