@@ -66,6 +66,7 @@ can use one of these commands to fetch the NDK our bots use:
 
     python infra/bots/assets/android_ndk_linux/download.py  -t /tmp/ndk
     python infra/bots/assets/android_ndk_darwin/download.py -t /tmp/ndk
+    python infra/bots/assets/android_ndk_windows/download.py -t C:/ndk
 
 When generating your GN build files, pass the path to your `ndk` and your
 desired `target_cpu`:
