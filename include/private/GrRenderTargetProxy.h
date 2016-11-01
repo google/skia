@@ -72,6 +72,8 @@ private:
     // Wrapped version
     GrRenderTargetProxy(const GrCaps&, sk_sp<GrRenderTarget> rt);
 
+    size_t onGpuMemorySize() const override;
+
     // For wrapped render targets the actual GrRenderTarget is stored in the GrIORefProxy class.
     // For deferred proxies that pointer is filled in when we need to instantiate the
     // deferred resource.

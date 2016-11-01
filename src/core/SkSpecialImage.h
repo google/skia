@@ -17,6 +17,7 @@
 
 class GrContext;
 class GrTexture;
+class GrTextureProxy;
 class SkBitmap;
 class SkCanvas;
 class SkImage;
@@ -55,7 +56,7 @@ public:
 
     uint32_t uniqueID() const { return fUniqueID; }
     virtual SkAlphaType alphaType() const = 0;
-    virtual size_t getSize() const = 0;
+    virtual size_t getSize1() const = 0;
 
     /**
      *  Ensures that a special image is backed by a texture (when GrContext is non-null). If no
@@ -82,6 +83,13 @@ public:
                                              sk_sp<SkColorSpace>,
                                              const SkSurfaceProps* = nullptr,
                                              SkAlphaType at = kPremul_SkAlphaType);
+
+    static sk_sp<SkSpecialImage> MakeDeferredFromGpu(const SkIRect& subset,
+                                                     uint32_t uniqueID,
+                                                     sk_sp<GrTextureProxy>,
+                                                     sk_sp<SkColorSpace>,
+                                                     const SkSurfaceProps* = nullptr,
+                                                     SkAlphaType at = kPremul_SkAlphaType);
 #endif
 
     /**
@@ -129,6 +137,11 @@ public:
      *  The active portion of the texture can be retrieved via 'subset'.
      */
     sk_sp<GrTexture> asTextureRef(GrContext*) const;
+
+    /**
+     *  The same as above but return the contents as a GrTextureProxy.
+     */
+    sk_sp<GrTextureProxy> asTextureProxy(GrContext*) const;
 #endif
 
     // TODO: hide this whe the imagefilter all have a consistent draw path (see skbug.com/5063)

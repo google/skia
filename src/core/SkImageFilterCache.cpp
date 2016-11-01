@@ -73,7 +73,7 @@ public:
         Value* v = new Value(key, image, offset);
         fLookup.add(v);
         fLRU.addToHead(v);
-        fCurrentBytes += image->getSize();
+        fCurrentBytes += image->getSize1();
         while (fCurrentBytes > fMaxBytes) {
             Value* tail = fLRU.tail();
             SkASSERT(tail);
@@ -106,7 +106,7 @@ public:
 private:
     void removeInternal(Value* v) {
         SkASSERT(v->fImage);
-        fCurrentBytes -= v->fImage->getSize();
+        fCurrentBytes -= v->fImage->getSize1();
         fLRU.remove(v);
         fLookup.remove(v->fKey);
         delete v;
