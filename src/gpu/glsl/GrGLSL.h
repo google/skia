@@ -140,10 +140,11 @@ static inline const char* GrGLSLTypeString(GrSLType t) {
             return "texture2D";
         case kSampler_GrSLType:
             return "sampler";
-        default:
-            SkFAIL("Unknown shader var type.");
-            return ""; // suppress warning
+        case kImage2D_GrSLType:
+            return "image2D";
     }
+    SkFAIL("Unknown shader var type.");
+    return ""; // suppress warning
 }
 
 /** A generic base-class representing a GLSL expression.
