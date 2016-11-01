@@ -607,8 +607,8 @@ public:
     /**
      *  Return info about the frames in the image.
      *
-     *  May require reading through the stream to determine the number of
-     *  frames.
+     *  May require reading through the stream to determine info about the
+     *  frames (including the count).
      *
      *  As such, future decoding calls may require a rewind.
      *
@@ -616,6 +616,21 @@ public:
      */
     std::vector<FrameInfo> getFrameInfo() {
         return this->onGetFrameInfo();
+    }
+
+    static constexpr int kRepetitionCountInfinite = -1;
+
+    /**
+     *  Return the number of times to repeat, if this image is animated.
+     *
+     *  May require reading the stream to find the repetition count.
+     *
+     *  As such, future decoding calls may require a rewind.
+     *
+     *  For single-frame images, this will return 0.
+     */
+    int getRepetitionCount() {
+        return this->onGetRepetitionCount();
     }
 
 protected:
@@ -764,6 +779,10 @@ protected:
     virtual std::vector<FrameInfo> onGetFrameInfo() {
         // empty vector - this is not animated.
         return {};
+    }
+
+    virtual int onGetRepetitionCount() {
+        return 0;
     }
 
     /**

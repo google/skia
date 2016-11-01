@@ -139,6 +139,11 @@ std::vector<SkCodec::FrameInfo> SkGifCodec::onGetFrameInfo() {
     return result;
 }
 
+int SkGifCodec::onGetRepetitionCount() {
+    fReader->parse(SkGifImageReader::SkGIFLoopCountQuery);
+    return fReader->loopCount();
+}
+
 void SkGifCodec::initializeColorTable(const SkImageInfo& dstInfo, size_t frameIndex) {
     fCurrColorTable = fReader->getColorTable(dstInfo.colorType(), frameIndex);
     fCurrColorTableIsReal = fCurrColorTable;

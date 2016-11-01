@@ -415,6 +415,11 @@ bool SkGifImageReader::parse(SkGifImageReader::SkGIFParseQuery query)
         return true;
     }
 
+    if (SkGIFLoopCountQuery == query && m_loopCount != cLoopCountNotSeen) {
+        // Loop count has already been parsed.
+        return true;
+    }
+
     // SkGIFSizeQuery and SkGIFFrameCountQuery are negative, so this is only meaningful when >= 0.
     const int lastFrameToParse = (int) query;
     if (lastFrameToParse >= 0 && (int) m_frames.size() > lastFrameToParse
@@ -664,9 +669,14 @@ bool SkGifImageReader::parse(SkGifImageReader::SkGIFParseQuery query)
 
                 // Zero loop count is infinite animation loop request.
                 if (!m_loopCount)
-                    m_loopCount = SkCodecAnimation::kAnimationLoopInfinite;
+                    m_loopCount = SkCodec::kRepetitionCountInfinite;
 
                 GETN(1, SkGIFNetscapeExtensionBlock);
+
+                if (SkGIFLoopCountQuery == query) {
+                    m_streamBuffer.flush();
+                    return true;
+                }
             } else if (netscapeExtension == 2) {
                 // Wait for specified # of bytes to enter buffer.
 

@@ -25,21 +25,23 @@ DEF_TEST(Codec_frames, r) {
         // The size of this one should match fFrameCount for animated, empty
         // otherwise.
         std::vector<size_t> fDurations;
+        int                 fRepetitionCount;
     } gRecs[] = {
-        { "box.gif", 1, {}, {} },
-        { "color_wheel.gif", 1, {}, {} },
-        { "test640x479.gif", 4, { 0, 1, 2 }, { 200, 200, 200, 200 } },
-        { "colorTables.gif", 2, { 0 }, { 1000, 1000 } },
+        { "box.gif", 1, {}, {}, 0 },
+        { "color_wheel.gif", 1, {}, {}, 0 },
+        { "test640x479.gif", 4, { 0, 1, 2 }, { 200, 200, 200, 200 },
+                SkCodec::kRepetitionCountInfinite },
+        { "colorTables.gif", 2, { 0 }, { 1000, 1000 }, 5 },
 
-        { "arrow.png",  1, {}, {} },
-        { "google_chrome.ico", 1, {}, {} },
-        { "brickwork-texture.jpg", 1, {}, {} },
+        { "arrow.png",  1, {}, {}, 0 },
+        { "google_chrome.ico", 1, {}, {}, 0 },
+        { "brickwork-texture.jpg", 1, {}, {}, 0 },
 #if defined(SK_CODEC_DECODES_RAW) && (!defined(_WIN32))
-        { "dng_with_preview.dng", 1, {}, {} },
+        { "dng_with_preview.dng", 1, {}, {}, 0 },
 #endif
-        { "mandrill.wbmp", 1, {}, {} },
-        { "randPixels.bmp", 1, {}, {} },
-        { "yellow_rose.webp", 1, {}, {} },
+        { "mandrill.wbmp", 1, {}, {}, 0 },
+        { "randPixels.bmp", 1, {}, {}, 0 },
+        { "yellow_rose.webp", 1, {}, {}, 0 },
     };
 
     for (auto rec : gRecs) {
@@ -55,6 +57,12 @@ DEF_TEST(Codec_frames, r) {
         if (!codec) {
             ERRORF(r, "Failed to create an SkCodec from '%s'", rec.fName);
             continue;
+        }
+
+        const int repetitionCount = codec->getRepetitionCount();
+        if (repetitionCount != rec.fRepetitionCount) {
+            ERRORF(r, "%s repetition count does not match! expected: %i\tactual: %i",
+                      rec.fName, rec.fRepetitionCount, repetitionCount);
         }
 
         const size_t expected = rec.fFrameCount;

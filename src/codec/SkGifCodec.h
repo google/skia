@@ -49,6 +49,7 @@ protected:
     uint64_t onGetFillValue(const SkImageInfo&) const override;
 
     std::vector<FrameInfo> onGetFrameInfo() override;
+    int onGetRepetitionCount() override;
 
     Result onStartIncrementalDecode(const SkImageInfo& /*dstInfo*/, void*, size_t,
             const SkCodec::Options&, SkPMColor*, int*) override;

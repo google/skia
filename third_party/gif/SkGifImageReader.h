@@ -298,8 +298,6 @@ public:
     {
     }
 
-    static constexpr int cLoopCountNotSeen = -2;
-
     ~SkGifImageReader()
     {
     }
@@ -317,6 +315,8 @@ public:
         SkGIFSizeQuery        = -1,
         // Parse to the end, so we know about all frames.
         SkGIFFrameCountQuery  = -2,
+        // Parse until we see the loop count.
+        SkGIFLoopCountQuery   = -3,
     };
 
     // Parse incoming GIF data stream into internal data structures.
@@ -340,7 +340,12 @@ public:
         // FIXME: This extra complexity is not necessary and we should just report m_frames.size().
         return m_frames.back()->isHeaderDefined() ? m_frames.size() : m_frames.size() - 1;
     }
-    int loopCount() const { return m_loopCount; }
+    int loopCount() const {
+        if (cLoopCountNotSeen == m_loopCount) {
+            return 0;
+        }
+        return m_loopCount;
+    }
 
     const SkGIFColorMap& globalColorMap() const
     {
@@ -389,6 +394,8 @@ private:
     unsigned m_screenWidth; // Logical screen width & height.
     unsigned m_screenHeight;
     SkGIFColorMap m_globalColorMap;
+
+    static constexpr int cLoopCountNotSeen = -2;
     int m_loopCount; // Netscape specific extension block to control the number of animation loops a GIF renders.
 
     std::vector<std::unique_ptr<SkGIFFrameContext>> m_frames;
