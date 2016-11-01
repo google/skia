@@ -298,7 +298,13 @@ bool GrClipStackClip::apply(GrContext* context, GrDrawContext* drawContext, bool
         return InitialState::kAllIn == reducedClip.initialState();
     }
 
+#ifdef SK_DEBUG
     SkASSERT(reducedClip.hasIBounds());
+    SkIRect rtIBounds = SkIRect::MakeWH(renderTargetContext->width(),
+                                        renderTargetContext->height());
+    SkIRect clipIBounds = reducedClip.ibounds().makeOffset(-fOrigin.x(), -fOrigin.y());
+    SkASSERT(rtIBounds.contains(clipIBounds)); // Mask shouldn't be larger than the RT.
+#endif
 
     // An element count of 4 was chosen because of the common pattern in Blink of:
     //   isect RR
@@ -380,8 +386,10 @@ static void GetClipMaskKey(int32_t clipGenID, const SkIRect& bounds, GrUniqueKey
     static const GrUniqueKey::Domain kDomain = GrUniqueKey::GenerateDomain();
     GrUniqueKey::Builder builder(key, kDomain, 3);
     builder[0] = clipGenID;
-    builder[1] = SkToU16(bounds.fLeft) | (SkToU16(bounds.fRight) << 16);
-    builder[2] = SkToU16(bounds.fTop) | (SkToU16(bounds.fBottom) << 16);
+    // SkToS16 because image filters outset layers to a size indicated by the filter, which can
+    // sometimes result in negative coordinates from clip space.
+    builder[1] = SkToS16(bounds.fLeft) | (SkToS16(bounds.fRight) << 16);
+    builder[2] = SkToS16(bounds.fTop) | (SkToS16(bounds.fBottom) << 16);
 }
 
 sk_sp<GrTexture> GrClipStackClip::CreateAlphaClipMask(GrContext* context,
@@ -431,7 +439,9 @@ sk_sp<GrTexture> GrClipStackClip::CreateSoftwareClipMask(GrTextureProvider* texP
     SkMatrix translate;
     translate.setTranslate(SkIntToScalar(-reducedClip.left()), SkIntToScalar(-reducedClip.top()));
 
-    helper.init(maskSpaceIBounds, &translate);
+    if (!helper.init(maskSpaceIBounds, &translate)) {
+        return nullptr;
+    }
     helper.clear(InitialState::kAllIn == reducedClip.initialState() ? 0xFF : 0x00);
 
     for (ElementList::Iter iter(reducedClip.elements()); iter.get(); iter.next()) {
