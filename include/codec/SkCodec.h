@@ -785,12 +785,6 @@ protected:
         return 0;
     }
 
-    /**
-     *  Used for testing with qcms.
-     *  FIXME: Remove this when we are done comparing with qcms.
-     */
-    virtual sk_sp<SkData> getICCData() const { return nullptr; }
-
 private:
     const SkEncodedInfo                fEncodedInfo;
     const SkImageInfo                  fSrcInfo;
@@ -866,11 +860,6 @@ private:
      *  Only valid during scanline decoding or incremental decoding.
      */
     virtual SkSampler* getSampler(bool /*createIfNecessary*/) { return nullptr; }
-
-    // For testing with qcms
-    // FIXME: Remove these when we are done comparing with qcms.
-    friend class DM::ColorCodecSrc;
-    friend class ColorCodecBench;
 
     friend class DM::CodecSrc;  // for fillIncompleteImage
     friend class SkSampledCodec;

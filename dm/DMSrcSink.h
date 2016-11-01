@@ -219,11 +219,6 @@ public:
         kDst_HPZR30w_Mode,
 
         kDst_sRGB_Mode,
-
-#if defined(SK_TEST_QCMS)
-        // Use QCMS for color correction.
-        kQCMS_HPZR30w_Mode,
-#endif
     };
 
     ColorCodecSrc(Path, Mode, SkColorType);

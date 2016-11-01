@@ -45,10 +45,6 @@
     #include "SkAutoCoInitialize.h"
 #endif
 
-#if defined(SK_TEST_QCMS)
-    #include "qcms.h"
-#endif
-
 #if defined(SK_XML)
     #include "SkSVGDOM.h"
     #include "SkXMLWriter.h"
@@ -965,10 +961,6 @@ Error ColorCodecSrc::draw(SkCanvas* canvas) const {
     }
 
     bool runInLegacyMode = kBaseline_Mode == fMode;
-#if defined(SK_TEST_QCMS)
-    runInLegacyMode = runInLegacyMode || kQCMS_HPZR30w_Mode == fMode;
-#endif
-
     if (runInLegacyMode && canvas->imageInfo().colorSpace()) {
         return Error::Nonfatal("Skipping tests that are only interesting in legacy mode.");
     } else if (!runInLegacyMode && !canvas->imageInfo().colorSpace()) {
@@ -1038,51 +1030,6 @@ Error ColorCodecSrc::draw(SkCanvas* canvas) const {
         case kDst_HPZR30w_Mode:
             canvas->drawBitmap(bitmap, 0, 0);
             break;
-#if defined(SK_TEST_QCMS)
-        case kQCMS_HPZR30w_Mode: {
-            sk_sp<SkData> srcData = codec->getICCData();
-            if (!srcData) {
-                return Error::Nonfatal("No ICC profile data.  Cannot test with QCMS.\n");
-            }
-
-            SkAutoTCallVProc<qcms_profile, qcms_profile_release>
-                    srcSpace(qcms_profile_from_memory(srcData->data(), srcData->size()));
-            if (!srcSpace) {
-                return Error::Nonfatal(SkStringPrintf("QCMS cannot create profile for %s.\n",
-                                       fPath.c_str()));
-            }
-
-            SkAutoTCallVProc<qcms_profile, qcms_profile_release>
-                    dstSpace(qcms_profile_from_memory(dstData->data(), dstData->size()));
-            SkASSERT(dstSpace);
-
-            // Optimizes conversion by precomputing the inverse transformation to dst.  Also
-            // causes QCMS to use a completely different codepath.  This is how Chrome uses QCMS.
-            qcms_profile_precache_output_transform(dstSpace);
-            SkAutoTCallVProc<qcms_transform, qcms_transform_release>
-                    transform (qcms_transform_create(srcSpace, QCMS_DATA_RGBA_8, dstSpace,
-                                                     QCMS_DATA_RGBA_8, QCMS_INTENT_PERCEPTUAL));
-            if (!transform) {
-                return SkStringPrintf("QCMS cannot create transform for %s.\n", fPath.c_str());
-            }
-
-#ifdef SK_PMCOLOR_IS_RGBA
-            qcms_output_type outType = QCMS_OUTPUT_RGBX;
-#else
-            qcms_output_type outType = QCMS_OUTPUT_BGRX;
-#endif
-
-            // Perform color correction.
-            uint32_t* row = (uint32_t*) bitmap.getPixels();
-            for (int y = 0; y < decodeInfo.height(); y++) {
-                qcms_transform_data_type(transform, row, row, decodeInfo.width(), outType);
-                row = SkTAddOffset<uint32_t>(row, rowBytes);
-            }
-
-            canvas->drawBitmap(bitmap, 0, 0);
-            break;
-        }
-#endif
         default:
             SkASSERT(false);
             return "Invalid fMode";
