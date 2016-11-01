@@ -16,12 +16,12 @@ declare_args() {
   skia_use_fontconfig = is_linux
   skia_use_freetype = is_android || is_fuchsia || is_linux
   skia_use_gdi = false
+  skia_use_icu = !is_fuchsia && !is_win  # TODO: Windows
   skia_use_libjpeg_turbo = true
   skia_use_libpng = true
   skia_use_libwebp = !is_fuchsia
   skia_use_mesa = false
-  skia_use_raw = !is_win
-  skia_use_sfntly = !is_fuchsia && !is_win  # TODO: icu on Windows, re-enable this.
+  skia_use_piex = !is_win
   skia_use_zlib = true
 
   skia_enable_android_framework_defines = false
@@ -30,8 +30,10 @@ declare_args() {
   skia_enable_vulkan_debug_layers = is_skia_standalone && is_debug
   skia_vulkan_sdk = getenv("VULKAN_SDK")
 }
-
 declare_args() {
+  skia_use_dng_sdk = !is_win && skia_use_libjpeg_turbo && skia_use_zlib
+  skia_use_sfntly = skia_use_icu
+
   if (is_android) {
     skia_use_vulkan = defined(ndk_api) && ndk_api >= 24
   } else {
@@ -452,7 +454,7 @@ optional("png") {
 }
 
 optional("raw") {
-  enabled = skia_use_raw && skia_use_libjpeg_turbo && skia_use_zlib
+  enabled = skia_use_dng_sdk && skia_use_libjpeg_turbo && skia_use_piex
   public_defines = [ "SK_CODEC_DECODES_RAW" ]
 
   deps = [
