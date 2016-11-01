@@ -123,3 +123,23 @@ project descriptions.  This is not meant for any purpose beyond development.
 <!--?prettify lang=sh?-->
 
     gn gen out/config --ide=json --json-ide-script=../../gn/gn_to_cmake.py
+
+Third-party Dependencies
+------------------------
+
+Skia offers several features that make use of third-party libraries, like
+libpng, libwebp, or libjpeg-turbo to decode images, or ICU and sftnly to subset
+fonts.  All these third-party dependencies are optional, and can be controlled
+by a GN argument that looks something like `skia_use_foo` for appropriate
+`foo`.
+
+Most of these third-party dependencies can also be satisfied by pre-built
+system libraries.  If `skia_use_foo` is enabled, turn on `skia_use_system_foo`
+to build and link Skia against the headers and libaries found on the normal
+system paths.  Remember, you can use `extra_cflags` and `extra_ldflags` to add
+include or library paths if needed.
+
+By default Skia will attempt to build and embed its own copies of these
+third-party libraries.  This configuration is for development and testing only.
+We do not recommend shipping Skia this way.  Note however, this is the only
+configuration of Skia that receives significant testing.
