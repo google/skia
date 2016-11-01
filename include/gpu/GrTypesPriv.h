@@ -33,8 +33,9 @@ enum GrSLType {
     kUint_GrSLType,
     kTexture2D_GrSLType,
     kSampler_GrSLType,
+    kImage2D_GrSLType,
 
-    kLast_GrSLType = kSampler_GrSLType
+    kLast_GrSLType = kImage2D_GrSLType
 };
 static const int kGrSLTypeCount = kLast_GrSLType + 1;
 
@@ -87,7 +88,8 @@ static const int kGrSLPrecisionCount = kLast_GrSLPrecision + 1;
  */
 static inline int GrSLTypeVectorCount(GrSLType type) {
     SkASSERT(type >= 0 && type < static_cast<GrSLType>(kGrSLTypeCount));
-    static const int kCounts[] = { -1, 1, 2, 3, 4, -1, -1, -1, -1, -1, -1, -1, 1, 1, 1, -1, -1 };
+    static const int kCounts[] = { -1, 1, 2, 3, 4, -1, -1, -1, -1, -1, -1, -1, 1, 1, 1, -1, -1,
+                                   -1 };
     return kCounts[type];
 
     GR_STATIC_ASSERT(0 == kVoid_GrSLType);
@@ -107,6 +109,7 @@ static inline int GrSLTypeVectorCount(GrSLType type) {
     GR_STATIC_ASSERT(14 == kUint_GrSLType);
     GR_STATIC_ASSERT(15 == kTexture2D_GrSLType);
     GR_STATIC_ASSERT(16 == kSampler_GrSLType);
+    GR_STATIC_ASSERT(17 == kImage2D_GrSLType);
     GR_STATIC_ASSERT(SK_ARRAY_COUNT(kCounts) == kGrSLTypeCount);
 }
 
@@ -144,7 +147,8 @@ static inline bool GrSLTypeIsFloatType(GrSLType type) {
     GR_STATIC_ASSERT(14 == kUint_GrSLType);
     GR_STATIC_ASSERT(15 == kTexture2D_GrSLType);
     GR_STATIC_ASSERT(16 == kSampler_GrSLType);
-    GR_STATIC_ASSERT(17 == kGrSLTypeCount);
+    GR_STATIC_ASSERT(17 == kImage2D_GrSLType);
+    GR_STATIC_ASSERT(18 == kGrSLTypeCount);
 }
 
 /** Is the shading language type integral (including vectors/matrices)? */
@@ -169,7 +173,8 @@ static inline bool GrSLTypeIsIntType(GrSLType type) {
     GR_STATIC_ASSERT(14 == kUint_GrSLType);
     GR_STATIC_ASSERT(15 == kTexture2D_GrSLType);
     GR_STATIC_ASSERT(16 == kSampler_GrSLType);
-    GR_STATIC_ASSERT(17 == kGrSLTypeCount);
+    GR_STATIC_ASSERT(17 == kImage2D_GrSLType);
+    GR_STATIC_ASSERT(18 == kGrSLTypeCount);
 }
 
 /** Is the shading language type numeric (including vectors/matrices)? */
@@ -198,6 +203,7 @@ static inline size_t GrSLTypeSize(GrSLType type) {
         0,                        // kUint_GrSLType
         0,                        // kTexture2D_GrSLType
         0,                        // kSampler_GrSLType
+        0,                        // kImage2D_GrSLType
     };
     return kSizes[type];
 
@@ -218,7 +224,8 @@ static inline size_t GrSLTypeSize(GrSLType type) {
     GR_STATIC_ASSERT(14 == kUint_GrSLType);
     GR_STATIC_ASSERT(15 == kTexture2D_GrSLType);
     GR_STATIC_ASSERT(16 == kSampler_GrSLType);
-    GR_STATIC_ASSERT(17 == kGrSLTypeCount);
+    GR_STATIC_ASSERT(17 == kImage2D_GrSLType);
+    GR_STATIC_ASSERT(18 == kGrSLTypeCount);
 }
 
 static inline bool GrSLTypeIs2DCombinedSamplerType(GrSLType type) {

@@ -19,9 +19,52 @@ namespace SkSL {
  * layout (location = 0) int x;
  */
 struct ASTLayout : public ASTNode {
+    // These are used by images in GLSL. We only support a subset of what GL supports.
+    enum class Format {
+        kUnspecified = -1,
+        kRGBA32F,
+        kRGBA16F,
+        kR16F,
+        kRGBA8,
+        kR8,
+    };
+
+    static const char* FormatToStr(Format format) {
+        switch (format) {
+            case Format::kUnspecified:  return "";
+            case Format::kRGBA32F:      return "rgba32f";
+            case Format::kRGBA16F:      return "rgba16f";
+            case Format::kR16F:         return "r16f";
+            case Format::kRGBA8:        return "rgba8";
+            case Format::kR8:           return "r8";
+        }
+        SkFAIL("Unexpected format");
+        return "";
+    }
+
+    static bool ReadFormat(std::string str, Format* format) {
+        if (str == "rgba32f") {
+            *format = Format::kRGBA32F;
+            return true;
+        } else if (str == "rgba16f") {
+            *format = Format::kRGBA16F;
+            return true;
+        } else if (str == "r16f") {
+            *format = Format::kR16F;
+            return true;
+        } else if (str == "rgba8") {
+            *format = Format::kRGBA8;
+            return true;
+        } else if (str == "r8") {
+            *format = Format::kR8;
+            return true;
+        }
+        return false;
+    }
+
     // For all parameters, a -1 means no value
     ASTLayout(int location, int binding, int index, int set, int builtin, bool originUpperLeft,
-              bool overrideCoverage, bool blendSupportAllEquations)
+              bool overrideCoverage, bool blendSupportAllEquations, Format format)
     : fLocation(location)
     , fBinding(binding)
     , fIndex(index)
@@ -29,7 +72,8 @@ struct ASTLayout : public ASTNode {
     , fBuiltin(builtin)
     , fOriginUpperLeft(originUpperLeft)
     , fOverrideCoverage(overrideCoverage)
-    , fBlendSupportAllEquations(blendSupportAllEquations) {}
+    , fBlendSupportAllEquations(blendSupportAllEquations)
+    , fFormat(format) {}
 
     std::string description() const {
         std::string result;
@@ -66,6 +110,10 @@ struct ASTLayout : public ASTNode {
             result += separator + "blend_support_all_equations";
             separator = ", ";
         }
+        if (fFormat != Format::kUnspecified) {
+            result += separator + FormatToStr(fFormat);
+            separator = ", ";
+        }
         if (result.length() > 0) {
             result = "layout (" + result + ")";
         }
@@ -80,6 +128,7 @@ struct ASTLayout : public ASTNode {
     const bool fOriginUpperLeft;
     const bool fOverrideCoverage;
     const bool fBlendSupportAllEquations;
+    const Format fFormat;
 };
 
 } // namespace

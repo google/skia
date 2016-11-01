@@ -37,7 +37,7 @@ SkSL::GLCaps GrGLSkSLCapsForContext(const GrGLContext& context) {
             SkASSERT(false);
             result.fStandard = SkSL::GLCaps::kGL_Standard;
     }
-
+    bool imageLoadStoreSupport = false;
     switch (glslCaps->generation()) {
         case k110_GrGLSLGeneration:
             if (kGLES_GrGLStandard == standard) {
@@ -73,14 +73,29 @@ SkSL::GLCaps GrGLSkSLCapsForContext(const GrGLContext& context) {
             SkASSERT(kGL_GrGLStandard == standard);
             result.fVersion = 400;
             break;
+        case k420_GrGLSLGeneration:
+            SkASSERT(kGL_GrGLStandard == standard);
+            result.fVersion = 420;
+            imageLoadStoreSupport = true;
+            break;
         case k310es_GrGLSLGeneration:
             SkASSERT(kGLES_GrGLStandard == standard);
             result.fVersion = 310;
+            imageLoadStoreSupport = true;
             break;
         case k320es_GrGLSLGeneration:
             SkASSERT(kGLES_GrGLStandard == standard);
             result.fVersion = 320;
+            imageLoadStoreSupport = true;
             break;
+    }
+    if (!imageLoadStoreSupport) {
+        if (glslCaps->maxCombinedImages() > 0) {
+            // No known extension to add this to ES.
+            SkASSERT(standard == kGL_GrGLStandard);
+            imageLoadStoreSupport = true;
+            result.fImageLoadStoreExtensionString = "GL_ARB_shader_image_load_store";
+        }
     }
     result.fIsCoreProfile = caps->isCoreProfile();
     result.fUsesPrecisionModifiers = glslCaps->usesPrecisionModifiers();
@@ -91,6 +106,7 @@ SkSL::GLCaps GrGLSkSLCapsForContext(const GrGLContext& context) {
     }
     result.fCanUseMinAndAbsTogether = glslCaps->canUseMinAndAbsTogether();
     result.fMustForceNegatedAtanParamToFloat = glslCaps->mustForceNegatedAtanParamToFloat();
+    result.fImageLoadStoreSupport = false;
     return result;
 }
 

@@ -178,11 +178,11 @@ GrGLSLUniformHandler::UniformHandle GrVkUniformHandler::internalAddUniformArray(
     return GrGLSLUniformHandler::UniformHandle(fUniforms.count() - 1);
 }
 
-GrGLSLUniformHandler::SamplerHandle GrVkUniformHandler::internalAddSampler(uint32_t visibility,
-                                                                           GrPixelConfig config,
-                                                                           GrSLType type,
-                                                                           GrSLPrecision precision,
-                                                                           const char* name) {
+GrGLSLUniformHandler::UniformHandle GrVkUniformHandler::addSampler(uint32_t visibility,
+                                                                   GrPixelConfig config,
+                                                                   GrSLType type,
+                                                                   GrSLPrecision precision,
+                                                                   const char* name) {
     SkASSERT(name && strlen(name));
     SkDEBUGCODE(static const uint32_t kVisMask = kVertex_GrShaderFlag | kFragment_GrShaderFlag);
     SkASSERT(0 == (~kVisMask & visibility));

@@ -9,17 +9,6 @@
 #include "GrContextOptions.h"
 #include "GrWindowRectangles.h"
 
-GrShaderCaps::GrShaderCaps() {
-    fShaderDerivativeSupport = false;
-    fGeometryShaderSupport = false;
-    fPathRenderingSupport = false;
-    fDstReadInShaderSupport = false;
-    fDualSourceBlendingSupport = false;
-    fIntegerSupport = false;
-    fTexelBufferSupport = false;
-    fShaderPrecisionVaries = false;
-}
-
 static const char* shader_type_to_string(GrShaderType type) {
     switch (type) {
     case kVertex_GrShaderType:
@@ -54,6 +43,10 @@ SkString GrShaderCaps::dump() const {
     r.appendf("Dual Source Blending Support       : %s\n", gNY[fDualSourceBlendingSupport]);
     r.appendf("Integer Support                    : %s\n", gNY[fIntegerSupport]);
     r.appendf("Texel Buffer Support               : %s\n", gNY[fTexelBufferSupport]);
+    r.appendf("Num Images Supported               : [vs=%d, gs=%d, fs=%d]\n",
+            fMaxShaderImages[kVertex_GrShaderType],
+            fMaxShaderImages[kGeometry_GrShaderType],
+            fMaxShaderImages[kFragment_GrShaderType]);
 
     r.appendf("Shader Float Precisions (varies: %s):\n", gNY[fShaderPrecisionVaries]);
 

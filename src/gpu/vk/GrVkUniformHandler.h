@@ -60,11 +60,16 @@ private:
                                           int arrayCount,
                                           const char** outName) override;
 
-    SamplerHandle internalAddSampler(uint32_t visibility,
-                                     GrPixelConfig config,
-                                     GrSLType type,
-                                     GrSLPrecision precision,
-                                     const char* name) override;
+    UniformHandle addSampler(uint32_t visibility,
+                             GrPixelConfig config,
+                             GrSLType type,
+                             GrSLPrecision precision,
+                             const char* name) override;
+
+    UniformHandle addImage(uint32_t visibility, GrPixelConfig config, const char* name) override {
+        SkFAIL("Images not implemented for Vulkan.");
+        return 0;
+    }
 
     int numSamplers() const override { return fSamplers.count(); }
     const GrGLSLSampler& getSampler(SamplerHandle handle) const override {

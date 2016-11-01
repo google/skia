@@ -58,6 +58,9 @@ struct GLCaps {
     bool fShaderDerivativeSupport = true;
     // extension string to enable derivative support, or null if unnecessary
     std::string fShaderDerivativeExtensionString;
+    bool fImageLoadStoreSupport = true;
+    // extension string to enable image load/store, or null if unnecessary
+    std::string fImageLoadStoreExtensionString;
     // The Tegra3 compiler will sometimes never return if we have min(abs(x), y)
     bool fCanUseMinAndAbsTogether = true;
     // On Intel GPU there is an issue where it misinterprets an atan argument (second argument only,
@@ -190,6 +193,7 @@ private:
     std::vector<const Type*> fWrittenStructs;
     // true if we have run into usages of dFdx / dFdy
     bool fFoundDerivatives = false;
+    bool fFoundImageDecl = false;
 };
 
 }

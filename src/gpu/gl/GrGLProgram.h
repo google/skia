@@ -113,6 +113,7 @@ protected:
                 GrGLuint programID,
                 const UniformInfoArray&,
                 const SkTArray<GrGLSampler>&,
+                const SkTArray<GrGLImage>&,
                 const VaryingInfoArray&, // used for NVPR only currently
                 GrGLSLPrimitiveProcessor* geometryProcessor,
                 GrGLSLXferProcessor* xferProcessor,

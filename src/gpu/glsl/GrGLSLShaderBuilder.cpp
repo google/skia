@@ -185,6 +185,27 @@ void GrGLSLShaderBuilder::appendTextureSwizzle(SkString* out, GrPixelConfig conf
     }
 }
 
+void GrGLSLShaderBuilder::appendImageLoad(SkString* out, ImageHandle handle,
+                                          const char* coordExpr) {
+    const GrGLSLImage& image = fProgramBuilder->getImage(handle);
+    out->appendf("imageLoad(%s, %s)", image.name(), coordExpr);
+}
+
+void GrGLSLShaderBuilder::appendImageStore(SkString* out, ImageHandle handle, const char* coordExpr,
+                                           const char* dataExpr) {
+    const GrGLSLImage& image = fProgramBuilder->getImage(handle);
+    out->appendf("imageStore(%s, %s, %s)", image.name(), coordExpr, dataExpr);
+}
+
+void GrGLSLShaderBuilder::appendImageLoad(ImageHandle handle, const char* coordExpr) {
+    this->appendImageLoad(&this->code(), handle, coordExpr);
+}
+
+void GrGLSLShaderBuilder::appendImageStore(ImageHandle handle, const char* coordExpr,
+                                           const char* dataExpr) {
+    this->appendImageStore(&this->code(), handle, coordExpr, dataExpr);
+}
+
 bool GrGLSLShaderBuilder::addFeature(uint32_t featureBit, const char* extensionName) {
     if (featureBit & fFeaturesAddedMask) {
         return false;

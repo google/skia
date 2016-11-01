@@ -41,6 +41,10 @@ enum GrGLSLGeneration {
      */
     k400_GrGLSLGeneration,
     /**
+    * Desktop GLSL 4.20
+    */
+    k420_GrGLSLGeneration,
+    /**
      * ES GLSL 3.10 only TODO Make GLSLCap objects to make this more granular
      */
     k310es_GrGLSLGeneration,
@@ -140,10 +144,11 @@ static inline const char* GrGLSLTypeString(GrSLType t) {
             return "texture2D";
         case kSampler_GrSLType:
             return "sampler";
-        default:
-            SkFAIL("Unknown shader var type.");
-            return ""; // suppress warning
+        case kImage2D_GrSLType:
+            return "image2D";
     }
+    SkFAIL("Unknown shader var type.");
+    return ""; // suppress warning
 }
 
 /** A generic base-class representing a GLSL expression.

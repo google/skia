@@ -89,6 +89,34 @@ void GrGLProgramDataManager::setSamplers(const SkTArray<GrGLSampler>& samplers) 
     }
 }
 
+void GrGLProgramDataManager::setImages(const SkTArray<GrGLImage>& images) const {
+    for (int i = 0; i < images.count(); ++i) {
+        GrGLint vsLocation;
+        GrGLint fsLocation;
+        const GrGLImage& image = images[i];
+        if (kVertex_GrShaderFlag & image.visibility()) {
+            vsLocation = image.location();
+        } else {
+            vsLocation = kUnusedUniform;
+        }
+        if (kFragment_GrShaderFlag & image.visibility()) {
+            fsLocation = image.location();
+        } else {
+            fsLocation = kUnusedUniform;
+        }
+        // FIXME: We still insert a single sampler uniform for every stage. If the shader does not
+        // reference the sampler then the compiler may have optimized it out. Uncomment this assert
+        // once stages insert their own samplers.
+        // this->printUnused(uni);
+        if (kUnusedUniform != fsLocation) {
+            GR_GL_CALL(fGpu->glInterface(), Uniform1i(fsLocation, i));
+        }
+        if (kUnusedUniform != vsLocation && vsLocation != fsLocation) {
+            GR_GL_CALL(fGpu->glInterface(), Uniform1i(vsLocation, i));
+        }
+    }
+}
+
 void GrGLProgramDataManager::set1i(UniformHandle u, int32_t i) const {
     const Uniform& uni = fUniforms[u.toIndex()];
     SkASSERT(uni.fType == kInt_GrSLType);

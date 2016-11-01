@@ -46,6 +46,7 @@ GrGLSLCaps::GrGLSLCaps(const GrContextOptions& options) {
     fMaxGeometrySamplers = 0;
     fMaxFragmentSamplers = 0;
     fMaxCombinedSamplers = 0;
+    fMaxCombinedImages   = 0;
     fAdvBlendEqInteraction = kNotSupported_AdvBlendEqInteraction;
 }
 
