@@ -944,7 +944,7 @@ static void test_surface_creation_and_snapshot_with_color_space(
         { kN32_SkColorType,       srgbColorSpace,   true,  "N32-srgb"    },
         { kN32_SkColorType,       adobeColorSpace,  true,  "N32-adobe"   },
         { kN32_SkColorType,       oddColorSpace,    false, "N32-odd"     },
-        { kRGBA_F16_SkColorType,  nullptr,          false, "F16-nullptr" },
+        { kRGBA_F16_SkColorType,  nullptr,          true,  "F16-nullptr" },
         { kRGBA_F16_SkColorType,  linearColorSpace, true,  "F16-linear"  },
         { kRGBA_F16_SkColorType,  srgbColorSpace,   false, "F16-srgb"    },
         { kRGBA_F16_SkColorType,  adobeColorSpace,  false, "F16-adobe"   },
