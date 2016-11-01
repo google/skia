@@ -19,6 +19,7 @@
 #include "GrResourceProvider.h"
 #include "GrRenderTargetPriv.h"
 #include "GrStencilAttachment.h"
+#include "GrStencilSettings.h"
 #include "GrSurfacePriv.h"
 #include "GrTexturePriv.h"
 #include "SkMathPriv.h"
@@ -442,9 +443,17 @@ void GrGpu::didWriteToSurface(GrSurface* surface, const SkIRect* bounds, uint32_
     }
 }
 
-const GrGpu::MultisampleSpecs& GrGpu::queryMultisampleSpecs(GrRenderTarget* rt,
-                                                            const GrStencilSettings& stencil) {
+const GrGpu::MultisampleSpecs& GrGpu::queryMultisampleSpecs(const GrPipeline& pipeline) {
+    GrRenderTarget* rt = pipeline.getRenderTarget();
     SkASSERT(rt->desc().fSampleCnt > 1);
+
+    GrStencilSettings stencil;
+    if (pipeline.isStencilEnabled()) {
+        // TODO: attach stencil and create settings during render target flush.
+        SkASSERT(rt->renderTargetPriv().getStencilAttachment());
+        stencil.reset(*pipeline.getUserStencil(), pipeline.hasStencilClip(),
+                      rt->renderTargetPriv().numStencilBits());
+    }
 
     int effectiveSampleCnt;
     SkSTArray<16, SkPoint, true> pattern;

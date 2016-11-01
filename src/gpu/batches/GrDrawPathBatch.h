@@ -14,6 +14,7 @@
 #include "GrPath.h"
 #include "GrPathRendering.h"
 #include "GrPathProcessor.h"
+#include "GrStencilSettings.h"
 
 #include "SkTLList.h"
 

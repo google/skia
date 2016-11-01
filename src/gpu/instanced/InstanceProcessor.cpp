@@ -1701,7 +1701,7 @@ GLSLInstanceProcessor::Backend::Create(const GrPipeline& pipeline, BatchInfo bat
         case AntialiasMode::kMSAA:
         case AntialiasMode::kMixedSamples: {
             const GrRenderTargetPriv& rtp = pipeline.getRenderTarget()->renderTargetPriv();
-            const GrGpu::MultisampleSpecs& specs = rtp.getMultisampleSpecs(pipeline.getStencil());
+            const GrGpu::MultisampleSpecs& specs = rtp.getMultisampleSpecs(pipeline);
             return new BackendMultisample(batchInfo, inputs, specs.fEffectiveSampleCnt);
         }
     }

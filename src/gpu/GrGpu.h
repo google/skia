@@ -355,10 +355,10 @@ public:
         const SkPoint*   fSampleLocations;
     };
 
-    // Finds a render target's multisample specs. The stencil settings are only needed in case we
-    // need to flush the draw state prior to querying multisample info. They are not expected to
+    // Finds a render target's multisample specs. The pipeline is only needed in case we need to
+    // flush the draw state prior to querying multisample info. The pipeline is not expected to
     // affect the multisample information itself.
-    const MultisampleSpecs& queryMultisampleSpecs(GrRenderTarget*, const GrStencilSettings&);
+    const MultisampleSpecs& queryMultisampleSpecs(const GrPipeline&);
 
     // Finds the multisample specs with a given unique id.
     const MultisampleSpecs& getMultisampleSpecs(uint8_t uniqueID) {

@@ -21,19 +21,15 @@
 GrPipeline* GrPipeline::CreateAt(void* memory, const CreateArgs& args,
                                  GrXPOverridesForBatch* overrides) {
     const GrPipelineBuilder& builder = *args.fPipelineBuilder;
+    const GrUserStencilSettings* userStencil = builder.getUserStencil();
+    GrRenderTarget* rt = args.fRenderTargetContext->accessRenderTarget();
 
     GrPipeline* pipeline = new (memory) GrPipeline;
-    GrRenderTarget* rt = args.fRenderTargetContext->accessRenderTarget();
     pipeline->fRenderTarget.reset(rt);
     SkASSERT(pipeline->fRenderTarget);
     pipeline->fScissorState = *args.fScissor;
     pipeline->fWindowRectsState = *args.fWindowRectsState;
-    if (builder.hasUserStencilSettings() || args.fHasStencilClip) {
-        const GrRenderTargetPriv& rtPriv = rt->renderTargetPriv();
-        pipeline->fStencilSettings.reset(*builder.getUserStencil(), args.fHasStencilClip,
-                                         rtPriv.numStencilBits());
-        SkASSERT(!pipeline->fStencilSettings.usesWrapOp() || args.fCaps->stencilWrapOpsSupport());
-    }
+    pipeline->fUserStencilSettings = userStencil;
     pipeline->fDrawFace = builder.getDrawFace();
 
     pipeline->fFlags = 0;
@@ -55,10 +51,13 @@ GrPipeline* GrPipeline::CreateAt(void* memory, const CreateArgs& args,
     if (args.fHasStencilClip) {
         pipeline->fFlags |= kHasStencilClip_Flag;
     }
+    if (!userStencil->isDisabled(args.fHasStencilClip)) {
+        pipeline->fFlags |= kStencilEnabled_Flag;
+    }
 
     // Create XferProcessor from DS's XPFactory
     bool hasMixedSamples = args.fRenderTargetContext->hasMixedSamples() &&
-                           (builder.isHWAntialias() || !pipeline->fStencilSettings.isDisabled());
+                           (builder.isHWAntialias() || pipeline->isStencilEnabled());
     const GrXPFactory* xpFactory = builder.getXPFactory();
     SkAutoTUnref<GrXferProcessor> xferProcessor;
     if (xpFactory) {
@@ -88,7 +87,7 @@ GrPipeline* GrPipeline::CreateAt(void* memory, const CreateArgs& args,
     const GrXferProcessor* xpForOpts = xferProcessor ? xferProcessor.get() :
                                                        &GrPorterDuffXPFactory::SimpleSrcOverXP();
     optFlags = xpForOpts->getOptimizations(args.fOpts,
-                                           pipeline->fStencilSettings.doesWrite(),
+                                           userStencil->doesWrite(args.fHasStencilClip),
                                            &overrideColor,
                                            *args.fCaps);
 
@@ -226,7 +225,7 @@ bool GrPipeline::AreEqual(const GrPipeline& a, const GrPipeline& b) {
         a.fScissorState != b.fScissorState ||
         !a.fWindowRectsState.cheapEqualTo(b.fWindowRectsState) ||
         a.fFlags != b.fFlags ||
-        a.fStencilSettings != b.fStencilSettings ||
+        a.fUserStencilSettings != b.fUserStencilSettings ||
         a.fDrawFace != b.fDrawFace ||
         a.fIgnoresCoverage != b.fIgnoresCoverage) {
         return false;

@@ -16,7 +16,7 @@
 #include "GrProcOptInfo.h"
 #include "GrProgramDesc.h"
 #include "GrScissorState.h"
-#include "GrStencilSettings.h"
+#include "GrUserStencilSettings.h"
 #include "GrWindowRectsState.h"
 #include "SkMatrix.h"
 #include "SkRefCnt.h"
@@ -148,7 +148,7 @@ public:
      */
     GrRenderTarget* getRenderTarget() const { return fRenderTarget.get(); }
 
-    const GrStencilSettings& getStencil() const { return fStencilSettings; }
+    const GrUserStencilSettings* getUserStencil() const { return fUserStencilSettings; }
 
     const GrScissorState& getScissorState() const { return fScissorState; }
 
@@ -167,6 +167,9 @@ public:
     }
     bool hasStencilClip() const {
         return SkToBool(fFlags & kHasStencilClip_Flag);
+    }
+    bool isStencilEnabled() const {
+        return SkToBool(fFlags & kStencilEnabled_Flag);
     }
 
     GrXferBarrierType xferBarrierType(const GrCaps& caps) const {
@@ -213,6 +216,7 @@ private:
         kAllowSRGBInputs_Flag               = 0x8,
         kUsesDistanceVectorField_Flag       = 0x10,
         kHasStencilClip_Flag                = 0x20,
+        kStencilEnabled_Flag                = 0x40,
     };
 
     typedef GrPendingIOResource<GrRenderTarget, kWrite_GrIOType> RenderTarget;
@@ -222,7 +226,7 @@ private:
     RenderTarget                        fRenderTarget;
     GrScissorState                      fScissorState;
     GrWindowRectsState                  fWindowRectsState;
-    GrStencilSettings                   fStencilSettings;
+    const GrUserStencilSettings*        fUserStencilSettings;
     GrDrawFace                          fDrawFace;
     uint32_t                            fFlags;
     ProgramXferProcessor                fXferProcessor;

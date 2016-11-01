@@ -15,6 +15,7 @@
 #include "GrRenderTargetOpList.h"
 #include "GrRenderTargetPriv.h"
 #include "GrStencilAttachment.h"
+#include "GrStencilSettings.h"
 
 GrRenderTarget::GrRenderTarget(GrGpu* gpu, const GrSurfaceDesc& desc, Flags flags,
                                GrStencilAttachment* stencil)
@@ -100,17 +101,19 @@ bool GrRenderTargetPriv::attachStencilAttachment(GrStencilAttachment* stencil) {
 }
 
 int GrRenderTargetPriv::numStencilBits() const {
-    return fRenderTarget->fStencilAttachment ? fRenderTarget->fStencilAttachment->bits() : 0;
+    SkASSERT(this->getStencilAttachment());
+    return this->getStencilAttachment()->bits();
 }
 
 const GrGpu::MultisampleSpecs&
-GrRenderTargetPriv::getMultisampleSpecs(const GrStencilSettings& stencil) const {
+GrRenderTargetPriv::getMultisampleSpecs(const GrPipeline& pipeline) const {
+    SkASSERT(fRenderTarget == pipeline.getRenderTarget()); // TODO: remove RT from pipeline.
     GrGpu* gpu = fRenderTarget->getGpu();
     if (auto id = fRenderTarget->fMultisampleSpecsID) {
-        SkASSERT(gpu->queryMultisampleSpecs(fRenderTarget, stencil).fUniqueID == id);
+        SkASSERT(gpu->queryMultisampleSpecs(pipeline).fUniqueID == id);
         return gpu->getMultisampleSpecs(id);
     }
-    const GrGpu::MultisampleSpecs& specs = gpu->queryMultisampleSpecs(fRenderTarget, stencil);
+    const GrGpu::MultisampleSpecs& specs = gpu->queryMultisampleSpecs(pipeline);
     fRenderTarget->fMultisampleSpecsID = specs.fUniqueID;
     return specs;
 }

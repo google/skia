@@ -165,7 +165,7 @@ bool GrProgramDesc::Build(GrProgramDesc* desc,
     if (requiredFeatures & GrProcessor::kSampleLocations_RequiredFeature) {
         SkASSERT(pipeline.isHWAntialiasState());
         header->fSamplePatternKey =
-            rt->renderTargetPriv().getMultisampleSpecs(pipeline.getStencil()).fUniqueID;
+            rt->renderTargetPriv().getMultisampleSpecs(pipeline).fUniqueID;
     } else {
         header->fSamplePatternKey = 0;
     }

@@ -57,6 +57,7 @@ void GrVkResourceProvider::init() {
 }
 
 GrVkPipeline* GrVkResourceProvider::createPipeline(const GrPipeline& pipeline,
+                                                   const GrStencilSettings& stencil,
                                                    const GrPrimitiveProcessor& primProc,
                                                    VkPipelineShaderStageCreateInfo* shaderStageInfo,
                                                    int shaderStageCount,
@@ -64,8 +65,9 @@ GrVkPipeline* GrVkResourceProvider::createPipeline(const GrPipeline& pipeline,
                                                    const GrVkRenderPass& renderPass,
                                                    VkPipelineLayout layout) {
 
-    return GrVkPipeline::Create(fGpu, pipeline, primProc, shaderStageInfo, shaderStageCount,
-                                primitiveType, renderPass, layout, fPipelineCache);
+    return GrVkPipeline::Create(fGpu, pipeline, stencil, primProc, shaderStageInfo,
+                                shaderStageCount, primitiveType, renderPass, layout,
+                                fPipelineCache);
 }
 
 GrVkCopyPipeline* GrVkResourceProvider::findOrCreateCopyPipeline(

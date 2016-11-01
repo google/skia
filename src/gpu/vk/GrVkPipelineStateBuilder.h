@@ -31,6 +31,7 @@ public:
     */
     static GrVkPipelineState* CreatePipelineState(GrVkGpu*,
                                                   const GrPipeline&,
+                                                  const GrStencilSettings&,
                                                   const GrPrimitiveProcessor&,
                                                   GrPrimitiveType,
                                                   const GrVkPipelineState::Desc&,
@@ -50,7 +51,8 @@ private:
                              const GrPrimitiveProcessor&,
                              const GrProgramDesc&);
 
-    GrVkPipelineState* finalize(GrPrimitiveType primitiveType,
+    GrVkPipelineState* finalize(const GrStencilSettings&,
+                                GrPrimitiveType primitiveType,
                                 const GrVkRenderPass& renderPass,
                                 const GrVkPipelineState::Desc&);
 

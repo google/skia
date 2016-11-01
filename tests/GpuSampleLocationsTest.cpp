@@ -12,7 +12,9 @@
 
 #if SK_SUPPORT_GPU
 
+#include "GrRenderTargetContext.h"
 #include "GrRenderTargetPriv.h"
+#include "GrPipelineBuilder.h"
 #include "gl/GrGLGpu.h"
 #include "gl/debug/DebugGLTestContext.h"
 
@@ -87,23 +89,31 @@ public:
     virtual ~TestSampleLocationsInterface() {}
 };
 
-GrRenderTarget* SK_WARN_UNUSED_RESULT create_render_target(GrContext* ctx, GrSurfaceOrigin origin,
-                                                           int numSamples) {
-    GrSurfaceDesc desc;
-    desc.fFlags = kRenderTarget_GrSurfaceFlag;
-    desc.fOrigin = origin;
-    desc.fWidth = 100;
-    desc.fHeight = 100;
-    desc.fConfig = kBGRA_8888_GrPixelConfig;
-    desc.fSampleCnt = numSamples;
-    return ctx->textureProvider()->createTexture(desc, SkBudgeted::kNo, 0, 0)->asRenderTarget();
+static GrPipeline* construct_dummy_pipeline(GrRenderTargetContext* dc, void* storage) {
+    GrPipelineBuilder dummyBuilder;
+    GrScissorState dummyScissor;
+    GrWindowRectsState dummyWindows;
+    GrXPOverridesForBatch dummyOverrides;
+
+    GrPipeline::CreateArgs args;
+    args.fPipelineBuilder = &dummyBuilder;
+    args.fRenderTargetContext = dc;
+    args.fCaps = dc->caps();
+    args.fOpts = GrPipelineOptimizations();
+    args.fScissor = &dummyScissor;
+    args.fWindowRectsState = &dummyWindows;
+    args.fHasStencilClip = false;
+    args.fDstTexture = GrXferProcessor::DstTexture();
+
+    GrPipeline::CreateAt(storage, args, &dummyOverrides);
+    return reinterpret_cast<GrPipeline*>(storage);
 }
 
 void assert_equal(skiatest::Reporter* reporter, const SamplePattern& pattern,
                   const GrGpu::MultisampleSpecs& specs, bool flipY) {
     GrAlwaysAssert(specs.fSampleLocations);
     if ((int)pattern.size() != specs.fEffectiveSampleCnt) {
-        REPORTER_ASSERT_MESSAGE(reporter, false, "Sample pattern has wrong number of samples.");
+        REPORT_FAILURE(reporter, "", SkString("Sample pattern has wrong number of samples."));
         return;
     }
     for (int i = 0; i < specs.fEffectiveSampleCnt; ++i) {
@@ -112,7 +122,7 @@ void assert_equal(skiatest::Reporter* reporter, const SamplePattern& pattern,
             expectedLocation.fY = 1 - expectedLocation.fY;
         }
         if (pattern[i] != expectedLocation) {
-            REPORTER_ASSERT_MESSAGE(reporter, false, "Sample pattern has wrong sample location.");
+            REPORT_FAILURE(reporter, "", SkString("Sample pattern has wrong sample location."));
             return;
         }
     }
@@ -121,28 +131,37 @@ void assert_equal(skiatest::Reporter* reporter, const SamplePattern& pattern,
 void test_sampleLocations(skiatest::Reporter* reporter, TestSampleLocationsInterface* testInterface,
                           GrContext* ctx) {
     SkRandom rand;
-    SkAutoTUnref<GrRenderTarget> bottomUps[numTestPatterns];
-    SkAutoTUnref<GrRenderTarget> topDowns[numTestPatterns];
+    sk_sp<GrRenderTargetContext> bottomUps[numTestPatterns];
+    sk_sp<GrRenderTargetContext> topDowns[numTestPatterns];
     for (int i = 0; i < numTestPatterns; ++i) {
         int numSamples = (int)kTestPatterns[i].size();
         GrAlwaysAssert(numSamples > 1 && SkIsPow2(numSamples));
-        bottomUps[i].reset(create_render_target(ctx, kBottomLeft_GrSurfaceOrigin,
-                                                rand.nextRangeU(1 + numSamples / 2, numSamples)));
-        topDowns[i].reset(create_render_target(ctx, kTopLeft_GrSurfaceOrigin,
-                                               rand.nextRangeU(1 + numSamples / 2, numSamples)));
+        bottomUps[i] = ctx->makeRenderTargetContextWithFallback(
+                           SkBackingFit::kExact, 100, 100, kRGBA_8888_GrPixelConfig, nullptr,
+                           rand.nextRangeU(1 + numSamples / 2, numSamples),
+                           kBottomLeft_GrSurfaceOrigin);
+        topDowns[i] = ctx->makeRenderTargetContextWithFallback(
+                          SkBackingFit::kExact, 100, 100, kRGBA_8888_GrPixelConfig, nullptr,
+                          rand.nextRangeU(1 + numSamples / 2, numSamples),
+                          kTopLeft_GrSurfaceOrigin);
     }
 
     // Ensure all sample locations get queried and/or cached properly.
-    GrStencilSettings dummyStencil;
+    SkAlignedSTStorage<1, GrPipeline> pipelineStorage;
     for (int repeat = 0; repeat < 2; ++repeat) {
         for (int i = 0; i < numTestPatterns; ++i) {
             testInterface->overrideSamplePattern(kTestPatterns[i]);
-            assert_equal(reporter, kTestPatterns[i],
-                         topDowns[i]->renderTargetPriv().getMultisampleSpecs(dummyStencil), false);
-            assert_equal(reporter, kTestPatterns[i],
-                         bottomUps[i]->renderTargetPriv().getMultisampleSpecs(dummyStencil), true);
+            for (GrRenderTargetContext* dc : {bottomUps[i].get(), topDowns[i].get()}) {
+                GrPipeline* dummyPipe = construct_dummy_pipeline(dc, pipelineStorage.get());
+                GrRenderTarget* rt = dc->accessRenderTarget();
+                assert_equal(reporter, kTestPatterns[i],
+                             rt->renderTargetPriv().getMultisampleSpecs(*dummyPipe),
+                             kBottomLeft_GrSurfaceOrigin == rt->origin());
+                dummyPipe->~GrPipeline();
+            }
         }
     }
+
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////

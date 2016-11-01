@@ -74,6 +74,7 @@ public:
         static bool Build(Desc*,
                           const GrPrimitiveProcessor&,
                           const GrPipeline&,
+                          const GrStencilSettings&,
                           GrPrimitiveType primitiveType,
                           const GrGLSLCaps&);
     private:
