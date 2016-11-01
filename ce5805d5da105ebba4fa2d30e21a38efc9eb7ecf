@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "064fca08_9c12e5c7",
+        "filename": "src/core/SkLRUCache.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 79,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2016-11-01T15:12:04Z",
+      "side": 1,
+      "message": "Let\u0027s make this int fMaxCount.  size_t fMaxSize makes it seem like you\u0027re counting bytes.",
+      "revId": "ce5805d5da105ebba4fa2d30e21a38efc9eb7ecf",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "064fca08_bc17a1b6",
+        "filename": "src/core/SkLRUCache.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 80,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2016-11-01T15:12:04Z",
+      "side": 1,
+      "message": "You should probably use SkTHashMap or SkTHashTable.",
+      "revId": "ce5805d5da105ebba4fa2d30e21a38efc9eb7ecf",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
