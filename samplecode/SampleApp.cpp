@@ -350,7 +350,7 @@ public:
             // With ten-bit output, we need to manually apply the gamma of the output device
             // (unless we're in non-gamma correct mode, in which case our data is already
             // fake-sRGB, like we're expected to put in the 10-bit buffer):
-            bool doGamma = (fActualColorBits == 30) && SkImageInfoIsGammaCorrect(win->info());
+            bool doGamma = (fActualColorBits == 30) && win->info().colorSpace();
 
             SkPaint gammaPaint;
             gammaPaint.setBlendMode(SkBlendMode::kSrc);

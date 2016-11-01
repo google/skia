@@ -1587,7 +1587,7 @@ private:
 
 uint32_t SkDraw::scalerContextFlags() const {
     uint32_t flags = SkPaint::kBoostContrast_ScalerContextFlag;
-    if (!SkImageInfoIsGammaCorrect(fDevice->imageInfo())) {
+    if (!fDevice->imageInfo().colorSpace()) {
         flags |= SkPaint::kFakeGamma_ScalerContextFlag;
     }
     return flags;
