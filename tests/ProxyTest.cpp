@@ -62,13 +62,12 @@ static void check_rendertarget(skiatest::Reporter* reporter,
 }
 
 static void check_texture(skiatest::Reporter* reporter,
-                          GrTextureProvider* provider,
                           GrTextureProxy* texProxy,
                           SkBackingFit fit) {
     REPORTER_ASSERT(reporter, texProxy->asTextureProxy() == texProxy);
     REPORTER_ASSERT(reporter, texProxy->asRenderTargetProxy() == nullptr); // for now
 
-    GrTexture* tex = texProxy->instantiate(provider);
+    GrTexture* tex = texProxy->instantiate();
     REPORTER_ASSERT(reporter, tex);
 
     REPORTER_ASSERT(reporter, tex->origin() == texProxy->origin());
@@ -84,7 +83,8 @@ static void check_texture(skiatest::Reporter* reporter,
 
 
 DEF_GPUTEST_FOR_RENDERING_CONTEXTS(DeferredProxyTest, reporter, ctxInfo) {
-    GrTextureProvider* provider = ctxInfo.grContext()->textureProvider();
+    GrContext* context = ctxInfo.grContext();
+    GrTextureProvider* provider = context->textureProvider();
 
     for (auto origin : { kBottomLeft_GrSurfaceOrigin, kTopLeft_GrSurfaceOrigin }) {
         for (auto widthHeight : { 100, 128 }) {
@@ -116,12 +116,13 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(DeferredProxyTest, reporter, ctxInfo) {
 
                             desc.fSampleCnt = 0;
 
-                            sk_sp<GrTextureProxy> texProxy(GrTextureProxy::Make(desc,
+                            sk_sp<GrTextureProxy> texProxy(GrTextureProxy::Make(context,
+                                                                                desc,
                                                                                 fit,
                                                                                 budgeted));
                             check_surface(reporter, texProxy.get(), origin,
                                           widthHeight, widthHeight, config, SK_InvalidUniqueID);
-                            check_texture(reporter, provider, texProxy.get(), fit);
+                            check_texture(reporter, texProxy.get(), fit);
                         }
                     }
                 }
@@ -199,7 +200,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(WrappedProxyTest, reporter, ctxInfo) {
                     sk_sp<GrTextureProxy> texProxy(GrTextureProxy::Make(tex));
                     check_surface(reporter, texProxy.get(), origin,
                                   kWidthHeight, kWidthHeight, config, tex->uniqueID());
-                    check_texture(reporter, provider, texProxy.get(), SkBackingFit::kExact);
+                    check_texture(reporter, texProxy.get(), SkBackingFit::kExact);
                 }
             }
         }
