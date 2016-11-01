@@ -107,7 +107,7 @@ SkBlitter* SkRasterPipelineBlitter::Create(const SkPixmap& dst,
     uint32_t paintColor = paint.getColor();
 
     SkColor4f color;
-    if (SkImageInfoIsGammaCorrect(dst.info())) {
+    if (dst.info().colorSpace()) {
         color = SkColor4f::FromColor(paintColor);
     } else {
         swizzle_rb(SkNx_cast<float>(Sk4b::Load(&paintColor)) * (1/255.0f)).store(&color);
