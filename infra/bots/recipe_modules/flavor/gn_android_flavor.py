@@ -52,7 +52,11 @@ class GNAndroidFlavorUtils(default_flavor.DefaultFlavorUtils):
     if configuration == 'Debug':
       extra_cflags.append('-O1')
 
-    ndk_asset = 'android_ndk_linux' if os == 'Ubuntu' else 'android_ndk_darwin'
+    ndk_asset = 'android_ndk_linux'
+    if 'Mac' in os:
+      ndk_asset = 'android_ndk_darwin'
+    elif 'Win' in os:
+      ndk_asset = 'android_ndk_windows'
 
     quote = lambda x: '"%s"' % x
     args = {
