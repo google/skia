@@ -132,6 +132,7 @@ def swarm_dimensions(builder_cfg):
         'Nexus9':        ('flounder',   'NRD91D'),
         'NexusPlayer':   ('fugu',       'NRD90R'),
         'Pixel':         ('sailfish',   'NMF25'),
+        'PixelC':        ('dragon',     'NMF26C'),
         'PixelXL':       ('marlin',     'NMF25'),
       }[builder_cfg['model']]
       dimensions['device_type'] = device_type
@@ -159,15 +160,16 @@ def swarm_dimensions(builder_cfg):
         dimensions['os'] = 'Windows-2008ServerR2-SP1'
     else:
       dimensions['gpu'] = {
-        'GeForce320M': '10de:08a4',
-        'GT610':       '10de:104a',
-        'GTX550Ti':    '10de:1244',
-        'GTX660':      '10de:11c0',
-        'GTX960':      '10de:1401',
-        'HD4000':      '8086:0a2e',
-        'HD4600':      '8086:0412',
-        'HD7770':      '1002:683d',
-        'iHD530':      '8086:1912',
+        'GeForce320M':   '10de:08a4',
+        'GT610':         '10de:104a',
+        'GTX550Ti':      '10de:1244',
+        'GTX660':        '10de:11c0',
+        'GTX960':        '10de:1401',
+        'HD4000':        '8086:0a2e',
+        'HD4600':        '8086:0412',
+        'HD7770':        '1002:683d',
+        'iHD530':        '8086:1912',
+        'IntelIris6100': '8086:162B',
       }[builder_cfg['cpu_or_gpu_value']]
   else:
     dimensions['gpu'] = 'none'
