@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "268e8eb3_a05ad499",
+        "filename": "src/core/SkTime.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 54,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2016-11-02T14:26:54Z",
+      "side": 1,
+      "message": "tstruct \u003d\u003d \u0026result, right?  It\u0027s weird to have a variable named result that\u0027s then not used...\n\nstruct tm result;\n(void)gmtime_r(\u0026m_time, \u0026result);\ndt-\u003efTimeZoneMinutes \u003d 0;\ndt-\u003efYear \u003d result.tm_year + 1900;\n...\n\n?",
+      "revId": "ee7cad1009bb0bbb38781c75f23d35a298c4cd65",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
