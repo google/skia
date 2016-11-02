@@ -48,6 +48,10 @@ class GNAndroidFlavorUtils(default_flavor.DefaultFlavorUtils):
 
     assert compiler == 'Clang'  # At this rate we might not ever support GCC.
 
+    extra_cflags = []
+    if configuration == 'Debug':
+      extra_cflags.append('-O1')
+
     ndk_asset = 'android_ndk_linux' if os == 'Ubuntu' else 'android_ndk_darwin'
 
     quote = lambda x: '"%s"' % x
@@ -63,6 +67,8 @@ class GNAndroidFlavorUtils(default_flavor.DefaultFlavorUtils):
       args['skia_enable_vulkan_debug_layers'] = 'false'
     if 'FrameworkDefs' in extra_config:
       args['skia_enable_android_framework_defines'] = 'true'
+    if extra_cflags:
+      args['extra_cflags'] = repr(extra_cflags).replace("'", '"')
 
     gn_args = ' '.join('%s=%s' % (k,v) for (k,v) in sorted(args.iteritems()))
 

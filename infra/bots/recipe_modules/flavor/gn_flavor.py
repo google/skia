@@ -57,6 +57,9 @@ class GNFlavorUtils(default_flavor.DefaultFlavorUtils):
     elif compiler == 'GCC':
       cc, cxx = 'gcc', 'g++'
 
+    if compiler != 'MSVC' and configuration == 'Debug':
+      extra_cflags.append('-O1')
+
     if extra_config == 'Exceptions':
       extra_cflags.append('/EHsc')
     if extra_config == 'Fast':
