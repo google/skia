@@ -457,7 +457,7 @@ SkBitmap slow_blur(const SkBitmap& src, float sigma) {
     dst.allocN32Pixels(src.width(), src.height(), true);
 
     int wh;
-    SkAutoTDeleteArray<float> kernel(create_2d_kernel(sigma, &wh));
+    std::unique_ptr<float[]> kernel(create_2d_kernel(sigma, &wh));
 
     for (int y = 0; y < src.height(); ++y) {
         for (int x = 0; x < src.width(); ++x) {
