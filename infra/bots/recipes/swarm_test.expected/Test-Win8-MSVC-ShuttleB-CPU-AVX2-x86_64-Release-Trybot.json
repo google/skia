@@ -226,6 +226,7 @@
       "--config",
       "8888",
       "gpu",
+      "gpudft",
       "gpusrgb",
       "pdf",
       "msaa16",
