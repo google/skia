@@ -25,6 +25,24 @@
     },
     {
       "key": {
+        "uuid": "268e8eb3_6011ac6f",
+        "filename": "src/core/SkBitmap.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 800,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2016-11-02T15:39:53Z",
+      "side": 1,
+      "message": "Agreed about the comment - I\u0027ll try to figure out what it should say.\n\nCurrently: readPixels (on any type) does not respect color space. I think that should be changed, but that\u0027s a much bigger refactor.\n\ncopyTo (with the current signature) only has two options:\n1) Do not respect color space (which is what happens now and with this change).\n2) Respect color space by applying a heuristic to guess a valid color space for the dest. I don\u0027t like this idea.\n\nMy global preference: copyTo does not respect color space, or has a signature update so that it can. readPixels does respect color space.",
+      "parentUuid": "66ba4639_78aeb5d0",
+      "revId": "c5785ae6f04f56b29921f7d649b05b02f1e23b43",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "66ba4639_58abf1be",
         "filename": "src/core/SkBitmapDevice.cpp",
         "patchSetId": 4
@@ -42,6 +60,24 @@
         "endLine": 54,
         "endChar": 22
       },
+      "revId": "c5785ae6f04f56b29921f7d649b05b02f1e23b43",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "268e8eb3_60360c16",
+        "filename": "src/core/SkBitmapDevice.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 54,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2016-11-02T15:39:53Z",
+      "side": 1,
+      "message": "It\u0027s overspecified - color space has no bearing on an alpha buffer. We could allow it, but we\u0027d always ignore the color space. (This is the same rule we\u0027ve been applying in SkSurface_(Raster|Gpu)::Valid.",
+      "parentUuid": "66ba4639_58abf1be",
       "revId": "c5785ae6f04f56b29921f7d649b05b02f1e23b43",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
