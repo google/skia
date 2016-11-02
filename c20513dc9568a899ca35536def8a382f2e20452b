@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "66ba4639_239b625c",
+        "filename": "src/codec/SkBmpRLECodec.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 327,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2016-11-02T17:48:21Z",
+      "side": 1,
+      "message": "nit: I think this can also go inside the if block.",
+      "range": {
+        "startLine": 327,
+        "startChar": 29,
+        "endLine": 327,
+        "endChar": 37
+      },
+      "revId": "c20513dc9568a899ca35536def8a382f2e20452b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
