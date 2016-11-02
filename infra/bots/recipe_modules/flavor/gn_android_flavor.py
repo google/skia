@@ -56,7 +56,7 @@ class GNAndroidFlavorUtils(default_flavor.DefaultFlavorUtils):
     if 'Mac' in os:
       ndk_asset = 'android_ndk_darwin'
     elif 'Win' in os:
-      ndk_asset = 'android_ndk_windows'
+      ndk_asset = 'n'
 
     quote = lambda x: '"%s"' % x
     args = {
