@@ -116,7 +116,7 @@
         },
         {
           "name": "skia/bots/android_ndk_windows",
-          "path": "android_ndk_windows",
+          "path": "n",
           "version": "version:0"
         },
         {
