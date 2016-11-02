@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "268e8eb3_e3c22692",
+        "filename": "infra/bots/recipes/swarm_test.py",
+        "patchSetId": 5
+      },
+      "lineNbr": 80,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2016-11-02T19:28:38Z",
+      "side": 0,
+      "message": "Are we sure we want to do this? Our bot is an iPad from 2012. If it has MSAA issues do we care enough to spend time fixing them?",
+      "range": {
+        "startLine": 80,
+        "startChar": 6,
+        "endLine": 80,
+        "endChar": 11
+      },
+      "revId": "c3f4bf7ab3fb1e7d4cf1fba400803c8ce1519345",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
