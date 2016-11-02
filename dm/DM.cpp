@@ -501,7 +501,7 @@ static void push_image_gen_src(Path path, ImageGenSrc::Mode mode, SkAlphaType al
     }
 
     ImageGenSrc* src = new ImageGenSrc(path, mode, alphaType, isGpu);
-    push_src("image", folder, src);
+    if (false) {push_src("image", folder, src);}
 }
 
 static void push_codec_srcs(Path path) {
@@ -542,7 +542,7 @@ static void push_codec_srcs(Path path) {
 
     SkTArray<CodecSrc::DstColorType> colorTypes;
     colorTypes.push_back(CodecSrc::kGetFromCanvas_DstColorType);
-    colorTypes.push_back(CodecSrc::kNonNative8888_Always_DstColorType);
+    //colorTypes.push_back(CodecSrc::kNonNative8888_Always_DstColorType);
     switch (codec->getInfo().colorType()) {
         case kGray_8_SkColorType:
             colorTypes.push_back(CodecSrc::kGrayscale_Always_DstColorType);
@@ -560,7 +560,7 @@ static void push_codec_srcs(Path path) {
     SkTArray<SkAlphaType> alphaModes;
     alphaModes.push_back(kPremul_SkAlphaType);
     if (codec->getInfo().alphaType() != kOpaque_SkAlphaType) {
-        alphaModes.push_back(kUnpremul_SkAlphaType);
+        //alphaModes.push_back(kUnpremul_SkAlphaType);
     }
 
     for (CodecSrc::Mode mode : nativeModes) {
@@ -573,7 +573,7 @@ static void push_codec_srcs(Path path) {
                     continue;
                 }
 
-                push_codec_src(path, mode, colorType, alphaType, 1.0f);
+                if (false) {push_codec_src(path, mode, colorType, alphaType, 1.0f);}
 
                 // Skip kNonNative on different native scales.  It won't be interestingly
                 // different.
@@ -582,7 +582,7 @@ static void push_codec_srcs(Path path) {
                     // Native Scales
                     // SkJpegCodec natively supports scaling to the following:
                     for (auto scale : { 0.125f, 0.25f, 0.375f, 0.5f, 0.625f, 0.750f, 0.875f }) {
-                        push_codec_src(path, mode, colorType, alphaType, scale);
+                        if (false) {push_codec_src(path, mode, colorType, alphaType, scale);}
                     }
                 }
             }
@@ -591,7 +591,7 @@ static void push_codec_srcs(Path path) {
 
     {
         std::vector<SkCodec::FrameInfo> frameInfos = codec->getFrameInfo();
-        if (frameInfos.size() > 1) {
+        if (frameInfos.size() > 1 && false) {
             push_codec_src(path, CodecSrc::kAnimated_Mode, CodecSrc::kGetFromCanvas_DstColorType,
                            kPremul_SkAlphaType, 1.0f);
         }
@@ -602,7 +602,7 @@ static void push_codec_srcs(Path path) {
         return;
     }
 
-    const int sampleSizes[] = { 1, 2, 3, 4, 5, 6, 7, 8 };
+    const int sampleSizes[] = { 7 /*1, 2, 3, 4, 5, 6, 7, 8*/ };
 
     for (int sampleSize : sampleSizes) {
         for (CodecSrc::DstColorType colorType : colorTypes) {

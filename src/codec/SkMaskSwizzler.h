@@ -45,6 +45,8 @@ public:
         SkSampler::Fill(fillInfo, dst, rowBytes, colorOrIndex, zeroInit);
     }
 
+    int swizzleWidth() const { return fDstWidth; }
+
 private:
 
     /*
