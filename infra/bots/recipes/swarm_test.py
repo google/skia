@@ -26,7 +26,7 @@ TEST_BUILDERS = {
     'skiabot-linux-swarm-000': [
       'Test-Android-Clang-AndroidOne-CPU-MT6582-arm-Release-GN_Android',
       'Test-Android-Clang-AndroidOne-GPU-Mali400MP2-arm-Release-GN_Android',
-      'Test-Android-Clang-GalaxyS3-GPU-Mali400-arm-Debug-GN_Android',
+      'Test-Android-Clang-GalaxyS7-GPU-Adreno530-arm64-Debug-GN_Android',
       'Test-Android-Clang-NVIDIA_Shield-GPU-TegraX1-arm64-Debug-GN_Android',
       'Test-Android-Clang-Nexus10-GPU-MaliT604-arm-Release-GN_Android',
       'Test-Android-Clang-Nexus6-GPU-Adreno420-arm-Debug-GN_Android',
@@ -63,27 +63,23 @@ def dm_flags(bot):
 
   # These are the canonical configs that we would ideally run on all bots. We
   # may opt out or substitute some below for specific bots
-  configs = ['8888', 'gpu', 'gpusrgb', 'pdf']
+  configs = ['8888', 'gpu', 'gpudft', 'gpusrgb', 'pdf']
   # Add in either msaa4 or msaa16 to the canonical set of configs to run
   if 'Android' in bot or 'iOS' in bot:
     configs.append('msaa4')
   else:
     configs.append('msaa16')
 
-  # With msaa, the S4 crashes and the NP produces a long error stream when we
-  # run with MSAA. The Tegra2 and Tegra3 just don't support it. No record of
-  # why we're not running msaa on iOS, probably started with gpu config and just
-  # haven't tried.
-  if ('GalaxyS4'    in bot or
-      'NexusPlayer' in bot or
+  # The NP produces a long error stream when we run with MSAA. The Tegra3 just
+  # doesn't support it.
+  if ('NexusPlayer' in bot or
       'Tegra3'      in bot or
-      'iOS'         in bot or
       # skia:5792
       'iHD530'      in bot):
     configs = [x for x in configs if 'msaa' not in x]
 
-  # Runs out of memory on Android bots and Daisy.  Everyone else seems fine.
-  if 'Android' in bot or 'Daisy' in bot:
+  # Runs out of memory on Android bots.  Everyone else seems fine.
+  if 'Android' in bot:
     configs.remove('pdf')
 
   if '-GCE-' in bot:
@@ -113,10 +109,6 @@ def dm_flags(bot):
   if 'NexusPlayer' not in bot:
     configs.extend(mode + '-8888' for mode in
                    ['serialize', 'tiles_rt', 'pic'])
-
-  # We want to run gpudft on atleast the mali 400
-  if 'GalaxyS3' in bot:
-    configs.append('gpudft')
 
   # Test instanced rendering on a limited number of platforms
   if 'Nexus6' in bot:
@@ -332,9 +324,6 @@ def dm_flags(bot):
   match = []
   if 'Valgrind' in bot: # skia:3021
     match.append('~Threaded')
-
-  if 'GalaxyS3' in bot:  # skia:1699
-    match.append('~WritePixels')
 
   if 'AndroidOne' in bot:  # skia:4711
     match.append('~WritePixels')
@@ -716,4 +705,3 @@ def GenTests(api):
           stdout=api.raw_io.output('skia-bot-123')) +
       api.step_data('get swarming task id', stdout=api.raw_io.output('123456'))
   )
-
