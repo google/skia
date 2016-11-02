@@ -95,7 +95,6 @@ config("default") {
     }
   } else {
     cflags += [
-      "-O1",
       "-fstrict-aliasing",
       "-fPIC",
       "-fvisibility=hidden",
