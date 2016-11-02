@@ -22,6 +22,24 @@
       "revId": "c3f4bf7ab3fb1e7d4cf1fba400803c8ce1519345",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "66ba4639_095f5dfa",
+        "filename": "infra/bots/recipes/swarm_test.py",
+        "patchSetId": 5
+      },
+      "lineNbr": 80,
+      "author": {
+        "id": 5120
+      },
+      "writtenOn": "2016-11-02T19:31:48Z",
+      "side": 0,
+      "message": "Unless I did something wrong, there are no Gold diffs for this CL for Test-iOS-Clang-iPad4-GPU-SGX554-Arm7-Release. If I\u0027m wrong, I\u0027m happy to re-add this exception.",
+      "parentUuid": "268e8eb3_e3c22692",
+      "revId": "c3f4bf7ab3fb1e7d4cf1fba400803c8ce1519345",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
