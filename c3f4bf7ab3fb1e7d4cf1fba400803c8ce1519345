@@ -2,6 +2,29 @@
   "comments": [
     {
       "key": {
+        "uuid": "66ba4639_e97ad963",
+        "filename": "infra/bots/recipes/swarm_perf.py",
+        "patchSetId": 5
+      },
+      "lineNbr": 133,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2016-11-02T19:33:25Z",
+      "side": 0,
+      "message": "Removing this bit lgtm",
+      "range": {
+        "startLine": 133,
+        "startChar": 19,
+        "endLine": 133,
+        "endChar": 23
+      },
+      "revId": "c3f4bf7ab3fb1e7d4cf1fba400803c8ce1519345",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "268e8eb3_e3c22692",
         "filename": "infra/bots/recipes/swarm_test.py",
         "patchSetId": 5
