@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "268e8eb3_0050e845",
+        "filename": "fuzz/FuzzGradients.cpp",
+        "patchSetId": 17
+      },
+      "lineNbr": 20,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2016-11-02T15:23:12Z",
+      "side": 1,
+      "message": "Just noticed something I overlooked: calls like this (and 5 or 6 more below) are not going to behave the same way across different compilers.  The order of evaluation of function arguments is not defined by C++, and different compilers do actually evaluate the arguments in different orders (iirc, GCC first-\u003elast, Clang last-\u003efirst, don\u0027t remember MSVC).\n\nIf fuzz-\u003enextScalar() returns 5.0f then 6.0f, GCC would call m-\u003esetAll(5.0f, 6.0f, ...) where Clang would call m-\u003esetAll(..., 6.0f, 5.0f).\n\nThis is probably as good a reason as any to switch next() from T next() to void next(T*).  If next() doesn\u0027t return a value, it can\u0027t possibly be misused this way.",
+      "revId": "2f535cecd0e5a19a3dfb76649b1d90c7e158e24c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
