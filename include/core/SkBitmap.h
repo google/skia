@@ -597,6 +597,8 @@ public:
      *  Returns false if either there is an error (i.e. the src does not have
      *  pixels) or the request cannot be satisfied (e.g. the src has per-pixel
      *  alpha, and the requested colortype does not support alpha).
+     *  If the new color type is different from this bitmap's color type, any
+     *  color space that was present will be removed and ignored during conversion.
      *  @param dst The bitmap to be sized and allocated
      *  @param ct The desired colorType for dst
      *  @param allocator Allocator used to allocate the pixelref for the dst

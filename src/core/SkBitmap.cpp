@@ -796,7 +796,16 @@ bool SkBitmap::copyTo(SkBitmap* dst, SkColorType dstColorType, Allocator* alloc)
     }
     const SkPixmap& srcPM = srcUnlocker.pixmap();
 
-    const SkImageInfo dstInfo = srcPM.info().makeColorType(dstColorType);
+    SkImageInfo dstInfo = srcPM.info().makeColorType(dstColorType);
+    if (dstInfo.colorSpace() && dstColorType != srcPM.info().colorType()) {
+        // The caller to copyTo can only specify a color type, not a color space (right now), and
+        // we have decided that this function therefore does NOT respect color space if converting
+        // to a different color type (which could require heuristically picking a more sensible
+        // color space to match the new type). Therefore, whenever we're changing color type, we
+        // perform a "legacy" conversion that ignores color space, and STRIP the color space.
+        dstInfo = dstInfo.makeColorSpace(nullptr);
+    }
+
     SkBitmap tmpDst;
     if (!tmpDst.setInfo(dstInfo)) {
         return false;
