@@ -40,7 +40,7 @@ SkCodec* SkIcoCodec::NewFromStream(SkStream* stream) {
     static const uint32_t kIcoDirEntryBytes = 16;
 
     // Read the directory header
-    SkAutoTDeleteArray<uint8_t> dirBuffer(new uint8_t[kIcoDirectoryBytes]);
+    std::unique_ptr<uint8_t[]> dirBuffer(new uint8_t[kIcoDirectoryBytes]);
     if (inputStream.get()->read(dirBuffer.get(), kIcoDirectoryBytes) !=
             kIcoDirectoryBytes) {
         SkCodecPrintf("Error: unable to read ico directory header.\n");
@@ -55,7 +55,7 @@ SkCodec* SkIcoCodec::NewFromStream(SkStream* stream) {
     }
 
     // Ensure that we can read all of indicated directory entries
-    SkAutoTDeleteArray<uint8_t> entryBuffer(new uint8_t[numImages * kIcoDirEntryBytes]);
+    std::unique_ptr<uint8_t[]> entryBuffer(new uint8_t[numImages * kIcoDirEntryBytes]);
     if (inputStream.get()->read(entryBuffer.get(), numImages*kIcoDirEntryBytes) !=
             numImages*kIcoDirEntryBytes) {
         SkCodecPrintf("Error: unable to read ico directory entries.\n");
@@ -69,7 +69,7 @@ SkCodec* SkIcoCodec::NewFromStream(SkStream* stream) {
         uint32_t offset;
         uint32_t size;
     };
-    SkAutoTDeleteArray<Entry> directoryEntries(new Entry[numImages]);
+    std::unique_ptr<Entry[]> directoryEntries(new Entry[numImages]);
 
     // Iterate over directory entries
     for (uint32_t i = 0; i < numImages; i++) {

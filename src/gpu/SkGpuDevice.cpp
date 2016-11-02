@@ -1605,7 +1605,7 @@ void SkGpuDevice::drawVertices(const SkDraw& draw, SkCanvas::VertexMode vmode,
         //number of indices for lines per triangle with kLines
         indexCount = triangleCount * 6;
 
-        SkAutoTDeleteArray<uint16_t> lineIndices(new uint16_t[indexCount]);
+        std::unique_ptr<uint16_t[]> lineIndices(new uint16_t[indexCount]);
         int i = 0;
         while (vertProc(&state)) {
             lineIndices[i]     = state.f0;
