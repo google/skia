@@ -10,7 +10,6 @@
 #include "Test.h"
 
 #if SK_SUPPORT_GPU
-#include "GrGpu.h"
 #include "GrSurfaceProxy.h"
 #include "GrTextureProxy.h"
 #include "GrRenderTargetPriv.h"
@@ -22,7 +21,8 @@ static void check_surface(skiatest::Reporter* reporter,
                           GrSurfaceOrigin origin,
                           int width, int height, 
                           GrPixelConfig config,
-                          uint32_t uniqueID) {
+                          uint32_t uniqueID,
+                          SkBudgeted budgeted) {
     REPORTER_ASSERT(reporter, proxy->origin() == origin);
     REPORTER_ASSERT(reporter, proxy->width() == width);
     REPORTER_ASSERT(reporter, proxy->height() == height);
@@ -30,12 +30,16 @@ static void check_surface(skiatest::Reporter* reporter,
     if (SK_InvalidUniqueID != uniqueID) {
         REPORTER_ASSERT(reporter, proxy->uniqueID() == uniqueID);    
     }
+    REPORTER_ASSERT(reporter, proxy->isBudgeted() == budgeted);
 }
 
 static void check_rendertarget(skiatest::Reporter* reporter,
                                GrTextureProvider* provider,
                                GrRenderTargetProxy* rtProxy,
+                               int numSamples,
                                SkBackingFit fit) {
+    REPORTER_ASSERT(reporter, rtProxy->numStencilSamples() == numSamples);
+
     REPORTER_ASSERT(reporter, rtProxy->asTextureProxy() == nullptr); // for now
     REPORTER_ASSERT(reporter, rtProxy->asRenderTargetProxy() == rtProxy);
 
@@ -85,6 +89,7 @@ static void check_texture(skiatest::Reporter* reporter,
 
 DEF_GPUTEST_FOR_RENDERING_CONTEXTS(DeferredProxyTest, reporter, ctxInfo) {
     GrTextureProvider* provider = ctxInfo.grContext()->textureProvider();
+    const GrCaps& caps = *ctxInfo.grContext()->caps();
 
     for (auto origin : { kBottomLeft_GrSurfaceOrigin, kTopLeft_GrSurfaceOrigin }) {
         for (auto widthHeight : { 100, 128 }) {
@@ -105,13 +110,13 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(DeferredProxyTest, reporter, ctxInfo) {
 
                             if (renderable) {
                                 sk_sp<GrRenderTargetProxy> rtProxy(GrRenderTargetProxy::Make(
-                                                                    *ctxInfo.grContext()->caps(),
-                                                                    desc, 
-                                                                    fit,
-                                                                    budgeted));
+                                                                                caps, desc, 
+                                                                                fit, budgeted));
                                 check_surface(reporter, rtProxy.get(), origin,
-                                              widthHeight, widthHeight, config, SK_InvalidUniqueID);
-                                check_rendertarget(reporter, provider, rtProxy.get(), fit);
+                                              widthHeight, widthHeight, config,
+                                              SK_InvalidUniqueID, budgeted);
+                                check_rendertarget(reporter, provider, rtProxy.get(), 
+                                                   numSamples, fit);
                             }
 
                             desc.fSampleCnt = 0;
@@ -121,7 +126,8 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(DeferredProxyTest, reporter, ctxInfo) {
                                                                                 fit,
                                                                                 budgeted));
                             check_surface(reporter, texProxy.get(), origin,
-                                          widthHeight, widthHeight, config, SK_InvalidUniqueID);
+                                          widthHeight, widthHeight, config,
+                                          SK_InvalidUniqueID, budgeted);
                             check_texture(reporter, provider, texProxy.get(), fit);
                         }
                     }
@@ -161,17 +167,17 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(WrappedProxyTest, reporter, ctxInfo) {
                         backendDesc.fStencilBits = 8;
                         backendDesc.fRenderTargetHandle = 0;
 
-                        GrGpu* gpu = ctxInfo.grContext()->getGpu();
                         sk_sp<GrRenderTarget> defaultFBO(
-                            gpu->wrapBackendRenderTarget(backendDesc, kBorrow_GrWrapOwnership));
+                            provider->wrapBackendRenderTarget(backendDesc));
                         REPORTER_ASSERT(reporter,
                                         !defaultFBO->renderTargetPriv().maxWindowRectangles());
 
-                        sk_sp<GrRenderTargetProxy> rtProxy(
-                            GrRenderTargetProxy::Make(caps, defaultFBO));
+                        sk_sp<GrRenderTargetProxy> rtProxy(GrRenderTargetProxy::Make(defaultFBO));
                         check_surface(reporter, rtProxy.get(), origin,
-                                      kWidthHeight, kWidthHeight, config, defaultFBO->uniqueID());
-                        check_rendertarget(reporter, provider, rtProxy.get(), SkBackingFit::kExact);
+                                      kWidthHeight, kWidthHeight, config,
+                                      defaultFBO->uniqueID(), SkBudgeted::kNo);
+                        check_rendertarget(reporter, provider, rtProxy.get(),
+                                           numSamples, SkBackingFit::kExact);
                     }
 
                     sk_sp<GrTexture> tex;
@@ -185,10 +191,12 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(WrappedProxyTest, reporter, ctxInfo) {
                                         caps.maxWindowRectangles() ==
                                         rt->renderTargetPriv().maxWindowRectangles());
 
-                        sk_sp<GrRenderTargetProxy> rtProxy(GrRenderTargetProxy::Make(caps, rt));
+                        sk_sp<GrRenderTargetProxy> rtProxy(GrRenderTargetProxy::Make(rt));
                         check_surface(reporter, rtProxy.get(), origin,
-                                      kWidthHeight, kWidthHeight, config, rt->uniqueID());
-                        check_rendertarget(reporter, provider, rtProxy.get(), SkBackingFit::kExact);
+                                      kWidthHeight, kWidthHeight, config,
+                                      rt->uniqueID(), budgeted);
+                        check_rendertarget(reporter, provider, rtProxy.get(),
+                                           numSamples, SkBackingFit::kExact);
                     }
 
                     if (!tex) {
@@ -199,7 +207,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(WrappedProxyTest, reporter, ctxInfo) {
 
                     sk_sp<GrTextureProxy> texProxy(GrTextureProxy::Make(tex));
                     check_surface(reporter, texProxy.get(), origin,
-                                  kWidthHeight, kWidthHeight, config, tex->uniqueID());
+                                  kWidthHeight, kWidthHeight, config, tex->uniqueID(), budgeted);
                     check_texture(reporter, provider, texProxy.get(), SkBackingFit::kExact);
                 }
             }

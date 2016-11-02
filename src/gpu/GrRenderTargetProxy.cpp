@@ -30,7 +30,7 @@ GrRenderTargetProxy::GrRenderTargetProxy(const GrCaps& caps, const GrSurfaceDesc
 }
 
 // Wrapped version
-GrRenderTargetProxy::GrRenderTargetProxy(const GrCaps& caps, sk_sp<GrRenderTarget> rt)
+GrRenderTargetProxy::GrRenderTargetProxy(sk_sp<GrRenderTarget> rt)
     : INHERITED(std::move(rt), SkBackingFit::kExact)
     , fFlags(fTarget->asRenderTarget()->renderTargetPriv().flags()) {
 }
@@ -97,7 +97,7 @@ sk_sp<GrRenderTargetProxy> GrRenderTargetProxy::Make(const GrCaps& caps,
     return sk_sp<GrRenderTargetProxy>(new GrRenderTargetProxy(caps, desc, fit, budgeted));
 }
 
-sk_sp<GrRenderTargetProxy> GrRenderTargetProxy::Make(const GrCaps& caps, sk_sp<GrRenderTarget> rt) {
-    return sk_sp<GrRenderTargetProxy>(new GrRenderTargetProxy(caps, rt));
+sk_sp<GrRenderTargetProxy> GrRenderTargetProxy::Make(sk_sp<GrRenderTarget> rt) {
+    return sk_sp<GrRenderTargetProxy>(new GrRenderTargetProxy(rt));
 }
 
