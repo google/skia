@@ -310,7 +310,7 @@ static GrTexture* create_profile_texture(GrTextureProvider* textureProvider, con
         texDesc.fHeight = 1;
         texDesc.fConfig = kAlpha_8_GrPixelConfig;
 
-        SkAutoTDeleteArray<uint8_t> profile(nullptr);
+        std::unique_ptr<uint8_t[]> profile(nullptr);
         if (useHalfPlaneApprox) {
             profile.reset(create_half_plane_profile(kProfileTextureWidth));
         } else {

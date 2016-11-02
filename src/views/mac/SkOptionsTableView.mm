@@ -96,7 +96,7 @@
             int index = 0, count = 0;
             SkOSMenu::FindListItemCount(*item->getEvent(), &count);
             NSMutableArray* optionstrs = [[NSMutableArray alloc] initWithCapacity:count];
-            SkAutoTDeleteArray<SkString> ada(new SkString[count]);
+            std::unique_ptr<SkString[]> ada(new SkString[count]);
             SkString* options = ada.get();
             SkOSMenu::FindListItems(*item->getEvent(), options);
             for (int i = 0; i < count; ++i)

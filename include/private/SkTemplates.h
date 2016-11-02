@@ -103,11 +103,6 @@ public:
 #endif
 };
 
-template <typename T> class SkAutoTDeleteArray : public std::unique_ptr<T[]> {
-public:
-    SkAutoTDeleteArray(T array[]) : std::unique_ptr<T[]>(array) {}
-};
-
 /** Allocate an array of T elements, and free the array in the destructor
  */
 template <typename T> class SkAutoTArray : SkNoncopyable {

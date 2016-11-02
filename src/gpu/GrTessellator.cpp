@@ -1699,7 +1699,7 @@ Poly* path_to_polys(const SkPath& path, SkScalar tolerance, const SkRect& clipBo
     if (SkPath::IsInverseFillType(fillType)) {
         contourCnt++;
     }
-    SkAutoTDeleteArray<Vertex*> contours(new Vertex* [contourCnt]);
+    std::unique_ptr<Vertex*[]> contours(new Vertex* [contourCnt]);
 
     path_to_contours(path, tolerance, clipBounds, contours.get(), alloc, isLinear);
     return contours_to_polys(contours.get(), contourCnt, path.getFillType(), path.getBounds(),
