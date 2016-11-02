@@ -41,11 +41,6 @@
     "Build-Ubuntu-Clang-arm-Release-GN_Android": {
       "cipd_packages": [
         {
-          "name": "skia/bots/android_sdk",
-          "path": "android_sdk",
-          "version": "version:0"
-        },
-        {
           "name": "skia/bots/android_ndk_linux",
           "path": "android_ndk_linux",
           "version": "version:5"
@@ -109,11 +104,6 @@
     },
     "Build-Win-Clang-arm64-Release-GN_Android": {
       "cipd_packages": [
-        {
-          "name": "skia/bots/android_sdk",
-          "path": "android_sdk",
-          "version": "version:0"
-        },
         {
           "name": "skia/bots/android_ndk_windows",
           "path": "n",
