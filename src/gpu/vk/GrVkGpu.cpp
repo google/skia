@@ -398,8 +398,6 @@ void GrVkGpu::resolveImage(GrVkRenderTarget* dst, GrVkRenderTarget* src, const S
     resolveInfo.srcOffset = { srcVkRect.fLeft, srcVkRect.fTop, 0 };
     resolveInfo.dstSubresource = { VK_IMAGE_ASPECT_COLOR_BIT, 0, 0, 1 };
     resolveInfo.dstOffset = { dstPoint.fX, dstY, 0 };
-    // By the spec the depth of the extent should be ignored for 2D images, but certain devices
-    // (e.g. nexus 5x) currently fail if it is not 1
     resolveInfo.extent = { (uint32_t)srcVkRect.width(), (uint32_t)srcVkRect.height(), 1 };
 
     dst->setImageLayout(this,
@@ -1411,9 +1409,6 @@ void GrVkGpu::copySurfaceAsCopyImage(GrSurface* dst,
     copyRegion.srcOffset = { srcVkRect.fLeft, srcVkRect.fTop, 0 };
     copyRegion.dstSubresource = { VK_IMAGE_ASPECT_COLOR_BIT, 0, 0, 1 };
     copyRegion.dstOffset = { dstPoint.fX, dstY, 0 };
-    // The depth value of the extent is ignored according the vulkan spec for 2D images. However, on
-    // at least the nexus 5X it seems to be checking it. Thus as a working around we must have the
-    // depth value be 1.
     copyRegion.extent = { (uint32_t)srcVkRect.width(), (uint32_t)srcVkRect.height(), 1 };
 
     fCurrentCmdBuffer->copyImage(this,
@@ -1505,10 +1500,10 @@ void GrVkGpu::copySurfaceAsBlit(GrSurface* dst,
     memset(&blitRegion, 0, sizeof(VkImageBlit));
     blitRegion.srcSubresource = { VK_IMAGE_ASPECT_COLOR_BIT, 0, 0, 1 };
     blitRegion.srcOffsets[0] = { srcVkRect.fLeft, srcVkRect.fTop, 0 };
-    blitRegion.srcOffsets[1] = { srcVkRect.fRight, srcVkRect.fBottom, 0 };
+    blitRegion.srcOffsets[1] = { srcVkRect.fRight, srcVkRect.fBottom, 1 };
     blitRegion.dstSubresource = { VK_IMAGE_ASPECT_COLOR_BIT, 0, 0, 1 };
     blitRegion.dstOffsets[0] = { dstRect.fLeft, dstRect.fTop, 0 };
-    blitRegion.dstOffsets[1] = { dstRect.fRight, dstRect.fBottom, 0 };
+    blitRegion.dstOffsets[1] = { dstRect.fRight, dstRect.fBottom, 1 };
 
     fCurrentCmdBuffer->blitImage(this,
                                  *srcImage,
