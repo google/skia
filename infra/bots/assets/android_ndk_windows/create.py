@@ -27,6 +27,11 @@ def create_asset(target_dir):
     shutil.move(f, target_dir)
   subprocess.check_call(["rm", "ndk.zip"])
 
+  # Some of these files have paths that exceed 260 characters when downloaded
+  # as a CIPD package.  Luckily they're just tests.  We don't need them.
+  shutil.rmtree(os.path.join(target_dir,
+                             'sources', 'cxx-stl', 'llvm-libc++', 'test'))
+
 
 def main():
   parser = argparse.ArgumentParser()
