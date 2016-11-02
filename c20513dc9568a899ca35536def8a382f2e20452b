@@ -22,6 +22,24 @@
       "revId": "c20513dc9568a899ca35536def8a382f2e20452b",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "66ba4639_5ed759a3",
+        "filename": "src/codec/SkBmpRLECodec.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 327,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2016-11-02T18:26:40Z",
+      "side": 1,
+      "message": "Of course, thanks.",
+      "parentUuid": "66ba4639_239b625c",
+      "revId": "c20513dc9568a899ca35536def8a382f2e20452b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
