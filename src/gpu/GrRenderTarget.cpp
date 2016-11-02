@@ -84,6 +84,15 @@ void GrRenderTarget::onAbandon() {
     INHERITED::onAbandon();
 }
 
+size_t GrRenderTarget::ComputeSize(const GrSurfaceDesc& desc, int colorValuesPerPixel) {
+    SkASSERT(kUnknown_GrPixelConfig != desc.fConfig);
+    SkASSERT(!GrPixelConfigIsCompressed(desc.fConfig));
+    size_t colorBytes = GrBytesPerPixel(desc.fConfig);
+    SkASSERT(colorBytes > 0);
+
+    return colorValuesPerPixel * desc.fWidth * desc.fHeight * colorBytes;
+}
+
 ///////////////////////////////////////////////////////////////////////////////
 
 bool GrRenderTargetPriv::attachStencilAttachment(GrStencilAttachment* stencil) {
@@ -122,3 +131,4 @@ int GrRenderTargetPriv::maxWindowRectangles() const {
     return (this->flags() & Flags::kWindowRectsSupport) ?
            fRenderTarget->getGpu()->caps()->maxWindowRectangles() : 0;
 }
+
