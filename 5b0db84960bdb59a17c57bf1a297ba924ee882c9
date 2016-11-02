@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "66ba4639_c3a9b67e",
+        "filename": "include/core/SkBitmap.h",
+        "patchSetId": 5
+      },
+      "lineNbr": 601,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2016-11-02T17:45:37Z",
+      "side": 1,
+      "message": "removed? We un-colorspaced the dst-bitmap, or we just ignore it during the conversion? e.g. what about RGBA -\u003e BGRA?",
+      "range": {
+        "startLine": 601,
+        "startChar": 45,
+        "endLine": 601,
+        "endChar": 52
+      },
+      "revId": "5b0db84960bdb59a17c57bf1a297ba924ee882c9",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
