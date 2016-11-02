@@ -25,7 +25,7 @@ public:
      */
     static sk_sp<GrRenderTargetProxy> Make(const GrCaps&, const GrSurfaceDesc&,
                                            SkBackingFit, SkBudgeted);
-    static sk_sp<GrRenderTargetProxy> Make(const GrCaps&, sk_sp<GrRenderTarget>);
+    static sk_sp<GrRenderTargetProxy> Make(sk_sp<GrRenderTarget>);
 
     // TODO: add asTextureProxy variants
     GrRenderTargetProxy* asRenderTargetProxy() override { return this; }
@@ -70,7 +70,7 @@ private:
     GrRenderTargetProxy(const GrCaps&, const GrSurfaceDesc&, SkBackingFit, SkBudgeted);
 
     // Wrapped version
-    GrRenderTargetProxy(const GrCaps&, sk_sp<GrRenderTarget> rt);
+    GrRenderTargetProxy(sk_sp<GrRenderTarget> rt);
 
     // For wrapped render targets the actual GrRenderTarget is stored in the GrIORefProxy class.
     // For deferred proxies that pointer is filled in when we need to instantiate the

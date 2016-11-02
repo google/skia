@@ -609,7 +609,7 @@ sk_sp<GrRenderTargetContext> GrContextPriv::makeWrappedRenderTargetContext(
                                                                const SkSurfaceProps* surfaceProps) {
     ASSERT_SINGLE_OWNER_PRIV
 
-    sk_sp<GrRenderTargetProxy> rtp(GrRenderTargetProxy::Make(*fContext->caps(), std::move(rt)));
+    sk_sp<GrRenderTargetProxy> rtp(GrRenderTargetProxy::Make(std::move(rt)));
 
     return this->drawingManager()->makeRenderTargetContext(std::move(rtp),
                                                            std::move(colorSpace),
@@ -629,7 +629,7 @@ sk_sp<GrRenderTargetContext> GrContextPriv::makeBackendTextureRenderTargetContex
         return nullptr;
     }
 
-    sk_sp<GrRenderTargetProxy> rtp(GrRenderTargetProxy::Make(*fContext->caps(),
+    sk_sp<GrRenderTargetProxy> rtp(GrRenderTargetProxy::Make(
                                                             sk_ref_sp(surface->asRenderTarget())));
 
     return this->drawingManager()->makeRenderTargetContext(std::move(rtp),
@@ -647,7 +647,7 @@ sk_sp<GrRenderTargetContext> GrContextPriv::makeBackendRenderTargetRenderTargetC
         return nullptr;
     }
 
-    sk_sp<GrRenderTargetProxy> rtp(GrRenderTargetProxy::Make(*fContext->caps(), std::move(rt)));
+    sk_sp<GrRenderTargetProxy> rtp(GrRenderTargetProxy::Make(std::move(rt)));
 
     return this->drawingManager()->makeRenderTargetContext(std::move(rtp),
                                                            std::move(colorSpace),
@@ -666,8 +666,7 @@ sk_sp<GrRenderTargetContext> GrContextPriv::makeBackendTextureAsRenderTargetRend
         return nullptr;
     }
 
-    sk_sp<GrRenderTargetProxy> rtp(GrRenderTargetProxy::Make(*fContext->caps(),
-                                                             sk_ref_sp(surface->asRenderTarget())));
+    sk_sp<GrRenderTargetProxy> rtp(GrRenderTargetProxy::Make(sk_ref_sp(surface->asRenderTarget())));
 
     return this->drawingManager()->makeRenderTargetContext(std::move(rtp),
                                                            std::move(colorSpace),
