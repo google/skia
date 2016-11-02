@@ -99,7 +99,7 @@ private:
     const uint32_t                      fNumColors;
     const uint32_t                      fBytesPerColor;
     const uint32_t                      fOffset;
-    SkAutoTDeleteArray<uint8_t>         fStreamBuffer;
+    std::unique_ptr<uint8_t[]>          fStreamBuffer;
     size_t                              fRLEBytes;
     const size_t                        fOrigRLEBytes;
     uint32_t                            fCurrRLEByte;

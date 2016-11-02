@@ -82,8 +82,8 @@ sk_sp<SkSpecialImage> SkMergeImageFilter::onFilterImage(SkSpecialImage* source, 
     SkIRect bounds;
     bounds.setEmpty();
 
-    SkAutoTDeleteArray<sk_sp<SkSpecialImage>> inputs(new sk_sp<SkSpecialImage>[inputCount]);
-    SkAutoTDeleteArray<SkIPoint> offsets(new SkIPoint[inputCount]);
+    std::unique_ptr<sk_sp<SkSpecialImage>[]> inputs(new sk_sp<SkSpecialImage>[inputCount]);
+    std::unique_ptr<SkIPoint[]> offsets(new SkIPoint[inputCount]);
 
     // Filter all of the inputs.
     for (int i = 0; i < inputCount; ++i) {
