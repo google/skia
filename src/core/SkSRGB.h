@@ -29,7 +29,7 @@ static inline V sk_clamp_0_255(const V& x) {
     return V::Min(V::Max(x, 0.0f), 255.0f);
 }
 
-// This should probably only be called from sk_linear_to_srgb() or sk_linear_to_srgb_noclamp().
+// This should probably only be called from sk_linear_to_srgb().
 // It generally doesn't make sense to work with sRGB floats.
 template <typename V>
 static inline V sk_linear_to_srgb_needs_trunc(const V& x) {
@@ -55,15 +55,6 @@ template <int N>
 static inline SkNx<N,int> sk_linear_to_srgb(const SkNx<N,float>& x) {
     auto f = sk_linear_to_srgb_needs_trunc(x);
     return SkNx_cast<int>(sk_clamp_0_255(f));
-}
-
-template <int N>
-static inline SkNx<N,int> sk_linear_to_srgb_noclamp(const SkNx<N,float>& x) {
-    auto f = sk_linear_to_srgb_needs_trunc(x);
-    for (int i = 0; i < 4; i++) {
-        SkASSERTF(0.0f <= f[i] && f[i] < 256.0f, "f[%d] was %g, outside [0,256)\n", i, f[i]);
-    }
-    return SkNx_cast<int>(f);
 }
 
 // sRGB -> linear, using math instead of table lookups, scaling better to larger SIMD vectors.
