@@ -61,7 +61,7 @@ struct SkOTUtils {
         SkOTTableName::Record::NameID::Predefined::Value* fTypes;
         int fTypesCount;
         int fTypesIndex;
-        SkAutoTDeleteArray<SkOTTableName> fNameTableData;
+        std::unique_ptr<SkOTTableName[]> fNameTableData;
         SkOTTableName::Iterator fFamilyNameIter;
     };
 

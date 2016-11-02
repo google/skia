@@ -2484,7 +2484,7 @@ bool GrGLGpu::onReadPixels(GrSurface* surface,
         }
         if (kAlpha_8_GrPixelConfig == config &&
             this->readPixelsSupported(renderTarget, tempConfig)) {
-            SkAutoTDeleteArray<uint32_t> temp(new uint32_t[width * height * 4]);
+            std::unique_ptr<uint32_t[]> temp(new uint32_t[width * height * 4]);
             if (this->onReadPixels(renderTarget, left, top, width, height, tempConfig, temp.get(),
                                    width*4)) {
                 uint8_t* dst = reinterpret_cast<uint8_t*>(buffer);

@@ -363,7 +363,7 @@ static void populate_glyph_to_unicode(HDC fontHdc, const unsigned glyphCount,
         return;
     }
 
-    SkAutoTDeleteArray<BYTE> glyphSetBuffer(new BYTE[glyphSetBufferSize]);
+    std::unique_ptr<BYTE[]> glyphSetBuffer(new BYTE[glyphSetBufferSize]);
     GLYPHSET* glyphSet =
         reinterpret_cast<LPGLYPHSET>(glyphSetBuffer.get());
     if (GetFontUnicodeRanges(fontHdc, glyphSet) != glyphSetBufferSize) {

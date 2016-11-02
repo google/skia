@@ -682,7 +682,7 @@ sk_sp<SkImage> SkImage::MakeFromDeferredTextureImageData(GrContext* context, con
                      dti->fMipMapLevelData[0].fRowBytes, colorTable.get());
         return SkImage::MakeTextureFromPixmap(context, pixmap, budgeted);
     } else {
-        SkAutoTDeleteArray<GrMipLevel> texels(new GrMipLevel[mipLevelCount]);
+        std::unique_ptr<GrMipLevel[]> texels(new GrMipLevel[mipLevelCount]);
         for (int i = 0; i < mipLevelCount; i++) {
             texels[i].fPixels = dti->fMipMapLevelData[i].fPixelData;
             texels[i].fRowBytes = dti->fMipMapLevelData[i].fRowBytes;

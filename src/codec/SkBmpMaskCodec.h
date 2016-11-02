@@ -54,7 +54,7 @@ private:
 
     SkAutoTDelete<SkMasks>              fMasks;        // owned
     SkAutoTDelete<SkMaskSwizzler>       fMaskSwizzler;
-    SkAutoTDeleteArray<uint8_t>         fSrcBuffer;
+    std::unique_ptr<uint8_t[]>          fSrcBuffer;
 
     typedef SkBmpCodec INHERITED;
 };

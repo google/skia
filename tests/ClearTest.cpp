@@ -20,7 +20,7 @@ static bool check_rect(GrRenderTargetContext* rtc, const SkIRect& rect, uint32_t
     GrRenderTarget* rt = rtc->accessRenderTarget();
     int w = rect.width();
     int h = rect.height();
-    SkAutoTDeleteArray<uint32_t> pixels(new uint32_t[w * h]);
+    std::unique_ptr<uint32_t[]> pixels(new uint32_t[w * h]);
     memset(pixels.get(), ~expectedValue, sizeof(uint32_t) * w * h);
     rt->readPixels(rect.fLeft, rect.fTop, w, h, kRGBA_8888_GrPixelConfig, pixels.get());
     for (int y = 0; y < h; ++y) {

@@ -882,8 +882,8 @@ DEF_TEST(PathOpsSkpClipUberThreaded) {
     const int firstDirNo = gDirs.next();
     const int lastDirNo = gDirs.last();
     int dirCount = lastDirNo - firstDirNo + 1;
-    SkAutoTDeleteArray<SkTDArray<TestResult> > tests(new SkTDArray<TestResult>[dirCount]);
-    SkAutoTDeleteArray<SkTDArray<SortByName*> > sorted(new SkTDArray<SortByName*>[dirCount]);
+    std::unique_ptr<SkTDArray<TestResult>[]> tests(new SkTDArray<TestResult>[dirCount]);
+    std::unique_ptr<SkTDArray<SortByName*>[]> sorted(new SkTDArray<SortByName*>[dirCount]);
     if (!buildTests(tests.get(), sorted.get())) {
         return;
     }
@@ -921,7 +921,7 @@ DEF_TEST(PathOpsSkpClipUberThreaded) {
 
     }
     testRunner.render();
-    SkAutoTDeleteArray<SkTDArray<TestResult> > results(new SkTDArray<TestResult>[dirCount]);
+    std::unique_ptr<SkTDArray<TestResult>[]> results(new SkTDArray<TestResult>[dirCount]);
     if (!buildTests(results.get(), nullptr)) {
         return;
     }

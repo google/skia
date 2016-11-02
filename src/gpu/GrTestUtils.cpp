@@ -253,7 +253,7 @@ void TestStyle(SkRandom* random, GrStyle* style) {
     sk_sp<SkPathEffect> pe;
     if (random->nextBool()) {
         int cnt = random->nextRangeU(1, 50) * 2;
-        SkAutoTDeleteArray<SkScalar> intervals(new SkScalar[cnt]);
+        std::unique_ptr<SkScalar[]> intervals(new SkScalar[cnt]);
         SkScalar sum = 0;
         for (int i = 0; i < cnt; i++) {
             intervals[i] = random->nextRangeScalar(SkDoubleToScalar(0.01),
