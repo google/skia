@@ -117,6 +117,24 @@
       "revId": "c5785ae6f04f56b29921f7d649b05b02f1e23b43",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "06142af7_b495e08b",
+        "filename": "src/core/SkBitmapDevice.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 54,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2016-11-02T18:42:36Z",
+      "side": 1,
+      "message": "Currently we don\u0027t enforce ANY restrictions when drawing-from, only drawing-to. (And even then, only when using SkSurface until this change lands.)\n\nMatt and I are chatting with Chris this afternoon, which may give us some clarity on the drawing-from situation, but overall I\u0027m not real thrilled with our current middle-of-the-road approach to this stuff. We\u0027ve settled on a world where we impose lots of restrictions on clients, but don\u0027t provide nearly enough facilities to either make intelligent automatic decisions, or assist them in doing so.\n\nI\u0027m also not real happy with this change overall. I\u0027m probably going to let this sit and go back to the original task that spurred this, until I can come up with a better holistic approach to SkImageInfo and our various source and dest types.",
+      "parentUuid": "66ba4639_f8474518",
+      "revId": "c5785ae6f04f56b29921f7d649b05b02f1e23b43",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
