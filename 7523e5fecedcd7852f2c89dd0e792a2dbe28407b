@@ -1,0 +1,89 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "268e8eb3_5dae5bd0",
+        "filename": "include/gpu/GrRenderTargetContext.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 145,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2016-11-02T12:02:33Z",
+      "side": 1,
+      "message": "Shouldn\u0027t all these lines be over one space ?",
+      "revId": "7523e5fecedcd7852f2c89dd0e792a2dbe28407b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "268e8eb3_7dab17bf",
+        "filename": "include/gpu/GrRenderTargetContext.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 146,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2016-11-02T12:02:33Z",
+      "side": 1,
+      "message": "// This is separate from \u0027drawRRect\u0027 bc it requires different underlying geometry and Geometry Processor.\n\n?",
+      "revId": "7523e5fecedcd7852f2c89dd0e792a2dbe28407b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "268e8eb3_9d0aa304",
+        "filename": "src/effects/SkShadowMaskFilter.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 406,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2016-11-02T12:02:33Z",
+      "side": 1,
+      "message": "tab this over ?",
+      "revId": "7523e5fecedcd7852f2c89dd0e792a2dbe28407b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "268e8eb3_bd0f5f13",
+        "filename": "src/gpu/GrRenderTargetContext.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 898,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2016-11-02T12:02:33Z",
+      "side": 1,
+      "message": "tabs gone wild here ?",
+      "revId": "7523e5fecedcd7852f2c89dd0e792a2dbe28407b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "268e8eb3_1dff73bc",
+        "filename": "src/gpu/GrRenderTargetContext.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 924,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2016-11-02T12:02:33Z",
+      "side": 1,
+      "message": "Is this going to work with instanced rendering?",
+      "revId": "7523e5fecedcd7852f2c89dd0e792a2dbe28407b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
