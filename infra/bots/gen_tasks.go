@@ -189,7 +189,9 @@ func compile(b *specs.TasksCfgBuilder, name string, parts map[string]string) str
 		if strings.Contains(name, "Mac") {
 			pkgs = append(pkgs, b.MustGetCipdPackageFromAsset("android_ndk_darwin"))
 		} else if strings.Contains(name, "Win") {
-			pkgs = append(pkgs, b.MustGetCipdPackageFromAsset("android_ndk_windows"))
+			pkg := b.MustGetCipdPackageFromAsset("android_ndk_windows")
+			pkg.Path = "n"
+			pkgs = append(pkgs, pkg)
 		} else {
 			pkgs = append(pkgs, b.MustGetCipdPackageFromAsset("android_ndk_linux"))
 		}
