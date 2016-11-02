@@ -34,6 +34,7 @@ TEST_BUILDERS = {
     'skiabot-linux-swarm-000': [
       'Build-Mac-Clang-Arm64-Release-Android',
       'Build-Mac-Clang-x86_64-Release',
+      'Build-Win-Clang-arm64-Release-GN_Android',
       'Build-Ubuntu-GCC-Arm64-Debug-Android_Vulkan',
       'Build-Ubuntu-GCC-x86_64-Debug',
       'Build-Ubuntu-GCC-x86_64-Debug-GN',
@@ -392,6 +393,8 @@ def compile_steps_swarm(api, builder_cfg, got_revision, infrabots_dir):
   if 'Android' in builder_name:
     if 'Mac' in builder_name:
       cipd_packages.append(cipd_pkg(api, infrabots_dir, 'android_ndk_darwin'))
+    elif 'Win' in builder_name:
+      cipd_packages.append(cipd_pkg(api, infrabots_dir, 'android_ndk_windows'))
     else:
       cipd_packages.append(cipd_pkg(api, infrabots_dir, 'android_ndk_linux'))
   elif 'Ubuntu' in builder_name and 'Clang' in builder_name:
