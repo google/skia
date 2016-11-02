@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "66ba4639_83304e49",
+        "filename": "infra/bots/recipes/swarm_trigger.py",
+        "patchSetId": 3
+      },
+      "lineNbr": 397,
+      "author": {
+        "id": 5015
+      },
+      "writtenOn": "2016-11-02T16:39:02Z",
+      "side": 1,
+      "message": "This is not needed if we\u0027re only adding a new-style (buildbotless) bot.",
+      "range": {
+        "startLine": 397,
+        "startChar": 20,
+        "endLine": 397,
+        "endChar": 26
+      },
+      "revId": "e2a772a8aa8fbb426a8f6bd908ef4355882ae87c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
