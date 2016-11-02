@@ -405,10 +405,10 @@ STAGE(load_s_srgb, true) {
 
 STAGE(store_srgb, false) {
     auto ptr = *(uint32_t**)ctx + x;
-    store<kIsTail>(tail, (      sk_linear_to_srgb_noclamp(r) << SK_R32_SHIFT
-                         |      sk_linear_to_srgb_noclamp(g) << SK_G32_SHIFT
-                         |      sk_linear_to_srgb_noclamp(b) << SK_B32_SHIFT
-                         | SkNx_cast<int>(255.0f * a + 0.5f) << SK_A32_SHIFT ), (int*)ptr);
+    store<kIsTail>(tail, (              sk_linear_to_srgb(r) << SK_R32_SHIFT
+                         |              sk_linear_to_srgb(g) << SK_G32_SHIFT
+                         |              sk_linear_to_srgb(b) << SK_B32_SHIFT
+                         | SkNx_cast<int>(0.5f + 255.0f * a) << SK_A32_SHIFT), (int*)ptr);
 }
 
 RGBA_XFERMODE(clear)    { return 0.0f; }
