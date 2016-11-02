@@ -22,6 +22,24 @@
       "revId": "7202a9cd8b3014120702aaa76bf048e1a87c49d7",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "268e8eb3_4004b032",
+        "filename": "gn/find_headers.py",
+        "patchSetId": 5
+      },
+      "lineNbr": 52,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2016-11-02T15:39:54Z",
+      "side": 1,
+      "message": "Right, that\u0027s what happened.\n\nI think I agree with your assessment.  If GN let actions opt into deps \u003d gcc, I\u0027d do it here, and if I\u0027d done that from the start there\u0027d be no lingering broken files even if I\u0027d wrote a broken deps file at first.",
+      "parentUuid": "66ba4639_b843fd5f",
+      "revId": "7202a9cd8b3014120702aaa76bf048e1a87c49d7",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
