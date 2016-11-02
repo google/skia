@@ -796,7 +796,11 @@ bool SkBitmap::copyTo(SkBitmap* dst, SkColorType dstColorType, Allocator* alloc)
     }
     const SkPixmap& srcPM = srcUnlocker.pixmap();
 
-    const SkImageInfo dstInfo = srcPM.info().makeColorType(dstColorType);
+    SkImageInfo dstInfo = srcPM.info().makeColorType(dstColorType);
+    if (dstInfo.colorSpace() && dstColorType != srcPM.info().colorType()) {
+        dstInfo = dstInfo.makeColorSpace(nullptr);
+    }
+
     SkBitmap tmpDst;
     if (!tmpDst.setInfo(dstInfo)) {
         return false;
