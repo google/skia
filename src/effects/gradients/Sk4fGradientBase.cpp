@@ -125,7 +125,6 @@ Interval::Interval(const Sk4f& c0, SkScalar p0,
     : fP0(p0)
     , fP1(p1)
     , fZeroRamp((c0 == c1).allTrue()) {
-
     SkASSERT(p0 != p1);
     // Either p0 or p1 can be (-)inf for synthetic clamp edge intervals.
     SkASSERT(SkScalarIsFinite(p0) || SkScalarIsFinite(p1));
@@ -274,10 +273,16 @@ GradientShaderBase4fContext::addMirrorIntervals(const SkGradientShaderBase& shad
     iter.iterate([this, &componentScale] (SkColor c0, SkColor c1, SkScalar p0, SkScalar p1) {
         SkASSERT(fIntervals.empty() || fIntervals.back().fP1 == 2 - p0);
 
-        fIntervals.emplace_back(pack_color(c0, fColorsArePremul, componentScale),
-                                2 - p0,
-                                pack_color(c1, fColorsArePremul, componentScale),
-                                2 - p1);
+        const auto mirror_p0 = 2 - p0;
+        const auto mirror_p1 = 2 - p1;
+        // mirror_p1 & mirror_p1 may collapse for very small values - recheck to avoid
+        // triggering Interval asserts.
+        if (mirror_p0 != mirror_p1) {
+            fIntervals.emplace_back(pack_color(c0, fColorsArePremul, componentScale),
+                                    mirror_p0,
+                                    pack_color(c1, fColorsArePremul, componentScale),
+                                    mirror_p1);
+        }
     });
 }
 
