@@ -667,26 +667,14 @@ component("skia") {
   }
 }
 
-skia_h_headers = exec_script("gyp/find.py",
-                             [ "*.h" ] + rebase_path(skia_public_includes),
-                             "list lines",
-                             []) -
-                 [
-                   rebase_path("include/gpu/gl/GrGLConfig_chrome.h"),
-                   rebase_path("include/gpu/vk/GrVkBackendContext.h"),
-                   rebase_path("include/gpu/vk/GrVkDefines.h"),
-                   rebase_path("include/gpu/vk/GrVkInterface.h"),
-                   rebase_path("include/gpu/vk/GrVkTypes.h"),
-                   rebase_path("include/ports/SkFontMgr_fontconfig.h"),
-                 ]
-
 action("skia.h") {
-  script = "gn/echo_headers.py"
-  args = [ rebase_path("$target_gen_dir/skia.h", root_build_dir) ] +
-         rebase_path(skia_h_headers, target_gen_dir)
-  inputs = skia_h_headers
+  skia_h = "$target_gen_dir/skia.h"
+  script = "gn/find_headers.py"
+  args = [ rebase_path(skia_h, root_build_dir) ] +
+         rebase_path(skia_public_includes)
+  depfile = "$skia_h.deps"
   outputs = [
-    "$target_gen_dir/skia.h",
+    skia_h,
   ]
 }
 
