@@ -43,6 +43,24 @@
     },
     {
       "key": {
+        "uuid": "66ba4639_58393193",
+        "filename": "src/core/SkBitmap.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 800,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2016-11-02T15:53:43Z",
+      "side": 1,
+      "message": "I think I agree, but making this change sort of forces us to declare *something*.\n\nPerhaps its enough to amend the .h file dox to say that copyTo ALWAYS ignores the colorspace? (or what are we saying?)",
+      "parentUuid": "268e8eb3_6011ac6f",
+      "revId": "c5785ae6f04f56b29921f7d649b05b02f1e23b43",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "66ba4639_58abf1be",
         "filename": "src/core/SkBitmapDevice.cpp",
         "patchSetId": 4
@@ -78,6 +96,24 @@
       "side": 1,
       "message": "It\u0027s overspecified - color space has no bearing on an alpha buffer. We could allow it, but we\u0027d always ignore the color space. (This is the same rule we\u0027ve been applying in SkSurface_(Raster|Gpu)::Valid.",
       "parentUuid": "66ba4639_58abf1be",
+      "revId": "c5785ae6f04f56b29921f7d649b05b02f1e23b43",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "66ba4639_f8474518",
+        "filename": "src/core/SkBitmapDevice.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 54,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2016-11-02T15:53:43Z",
+      "side": 1,
+      "message": "Hmmm. That\u0027s not the same (to me) as overspecified, in that I don\u0027t think there is any conflicting way to interpret the request.\n\nThe 565 is similar but a little different. A colorspace can/does have an interpretation for that, but we\u0027ve decided (so far) to not want to support it. Not sure Alpha is in the same camp.\n\nAll of that said, we can decide that we just document that Alpha \"must\" not have a colorspace (do we enforce this for drawing-from Alpha as well?)",
+      "parentUuid": "268e8eb3_60360c16",
       "revId": "c5785ae6f04f56b29921f7d649b05b02f1e23b43",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
