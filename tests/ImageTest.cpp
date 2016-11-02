@@ -799,7 +799,7 @@ struct TextureReleaseChecker {
 DEF_GPUTEST_FOR_GL_RENDERING_CONTEXTS(SkImage_NewFromTextureRelease, reporter, ctxInfo) {
     const int kWidth = 10;
     const int kHeight = 10;
-    SkAutoTDeleteArray<uint32_t> pixels(new uint32_t[kWidth * kHeight]);
+    std::unique_ptr<uint32_t[]> pixels(new uint32_t[kWidth * kHeight]);
     GrBackendTextureDesc backendDesc;
     backendDesc.fConfig = kRGBA_8888_GrPixelConfig;
     backendDesc.fFlags = kRenderTarget_GrBackendTextureFlag;

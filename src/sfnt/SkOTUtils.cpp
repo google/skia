@@ -168,7 +168,7 @@ SkOTUtils::LocalizedStrings_NameTable::CreateForFamilyNames(const SkTypeface& ty
     if (0 == nameTableSize) {
         return nullptr;
     }
-    SkAutoTDeleteArray<uint8_t> nameTableData(new uint8_t[nameTableSize]);
+    std::unique_ptr<uint8_t[]> nameTableData(new uint8_t[nameTableSize]);
     size_t copied = typeface.getTableData(nameTag, 0, nameTableSize, nameTableData.get());
     if (copied != nameTableSize) {
         return nullptr;
