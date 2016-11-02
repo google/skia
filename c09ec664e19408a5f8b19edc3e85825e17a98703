@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "06142af7_54fbac54",
+        "filename": "src/gpu/GrTextureProxy.cpp",
+        "patchSetId": 8
+      },
+      "lineNbr": 43,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2016-11-02T13:33:02Z",
+      "side": 1,
+      "message": "Should we have a method on GrSurface (or GrT/GrRT if they differ) that is something like size_t GrSurface::ComputeSize(GrSurfaceDesc) to share this implementation?",
+      "revId": "c09ec664e19408a5f8b19edc3e85825e17a98703",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
