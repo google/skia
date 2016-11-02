@@ -65,8 +65,7 @@ sk_sp<GrTextureProxy> GrTextureProxy::Make(GrTextureProvider* texProvider,
                                            size_t rowBytes) {
     if (srcData) {
         // If we have srcData, for now, we create a wrapped GrTextureProxy
-        sk_sp<GrTexture> tex = sk_ref_sp(texProvider->createTexture(desc, budgeted,
-                                                                    srcData, rowBytes));
+        sk_sp<GrTexture> tex(texProvider->createTexture(desc, budgeted, srcData, rowBytes));
         return GrTextureProxy::Make(std::move(tex));
     }
 
