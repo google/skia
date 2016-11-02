@@ -114,7 +114,7 @@
       "gn",
       "gen",
       "[SLAVE_BUILD]/out/Debug",
-      "--args=cc=\"gcc\" cxx=\"g++\""
+      "--args=cc=\"gcc\" cxx=\"g++\" extra_cflags=[\"-O1\"]"
     ],
     "cwd": "[CUSTOM_/_B_WORK]/skia",
     "env": {
