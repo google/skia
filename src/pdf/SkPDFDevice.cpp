@@ -984,9 +984,14 @@ public:
     void writeGlyph(SkPoint xy,
                     SkScalar advanceWidth,
                     uint16_t glyph) {
+#ifdef SK_BUILD_FOR_WIN
+        const bool kAlwaysPosition = true;
+#else
+        const bool kAlwaysPosition = false;
+#endif
         if (!fDefaultPositioning) {
             SkPoint position = xy - fCurrentMatrixOrigin;
-            if (position != SkPoint{fXAdvance, 0}) {
+            if (kAlwaysPosition || position != SkPoint{fXAdvance, 0}) {
                 this->flush();
                 SkPDFUtils::AppendScalar(position.x(), fContent);
                 fContent->writeText(" ");
