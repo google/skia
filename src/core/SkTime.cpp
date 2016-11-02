@@ -50,8 +50,8 @@ void SkTime::GetDateTime(DateTime* dt) {
     if (dt) {
         time_t m_time;
         time(&m_time);
-        struct tm* tstruct;
-        tstruct = gmtime(&m_time);
+        struct tm result;
+        struct tm* tstruct = gmtime_r(&m_time, &result);
         dt->fTimeZoneMinutes = 0;
         dt->fYear       = tstruct->tm_year + 1900;
         dt->fMonth      = SkToU8(tstruct->tm_mon + 1);
