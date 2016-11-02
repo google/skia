@@ -25,6 +25,24 @@
     },
     {
       "key": {
+        "uuid": "66ba4639_e4ca0002",
+        "filename": "dm/DM.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 504,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2016-11-02T20:18:48Z",
+      "side": 1,
+      "message": "Yes, sorry.",
+      "parentUuid": "66ba4639_be6e45e3",
+      "revId": "42e18dd8d2affc6f487888911a154a68c2df3686",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "66ba4639_fec28d91",
         "filename": "src/codec/SkMaskSwizzler.h",
         "patchSetId": 6
@@ -42,6 +60,24 @@
         "endLine": 48,
         "endChar": 20
       },
+      "revId": "42e18dd8d2affc6f487888911a154a68c2df3686",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "66ba4639_24688813",
+        "filename": "src/codec/SkMaskSwizzler.h",
+        "patchSetId": 6
+      },
+      "lineNbr": 48,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2016-11-02T20:18:48Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "66ba4639_fec28d91",
       "revId": "42e18dd8d2affc6f487888911a154a68c2df3686",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
