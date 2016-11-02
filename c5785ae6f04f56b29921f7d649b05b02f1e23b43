@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "66ba4639_78aeb5d0",
+        "filename": "src/core/SkBitmap.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 800,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2016-11-02T15:12:33Z",
+      "side": 1,
+      "message": "I think we definitely need a comment here.\n\nIs the intent...\n- copyTo does NOT respect colorspaces during conversion\nbut\n- readPixles DOES respect colorspaces during conversion\nso\n   we need to disable colorspaces when we call readPixels?",
+      "range": {
+        "startLine": 800,
+        "startChar": 16,
+        "endLine": 800,
+        "endChar": 26
+      },
+      "revId": "c5785ae6f04f56b29921f7d649b05b02f1e23b43",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "66ba4639_58abf1be",
+        "filename": "src/core/SkBitmapDevice.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 54,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2016-11-02T15:12:33Z",
+      "side": 1,
+      "message": "is something inconsistent or overspecified here? Does a colorspace mean we don\u0027t know how to interpret an Alpha buffer?",
+      "range": {
+        "startLine": 54,
+        "startChar": 16,
+        "endLine": 54,
+        "endChar": 22
+      },
+      "revId": "c5785ae6f04f56b29921f7d649b05b02f1e23b43",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
