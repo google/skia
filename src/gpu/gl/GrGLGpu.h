@@ -384,14 +384,14 @@ private:
         kDst_TempFBOTarget
     };
 
-    // Binds a surface as a FBO for a copy operation. If the surface already owns an FBO ID then
+    // Binds a surface as a FBO for copying or reading. If the surface already owns an FBO ID then
     // that ID is bound. If not the surface is temporarily bound to a FBO and that FBO is bound.
-    // This must be paired with a call to unbindSurfaceFBOForCopy().
-    void bindSurfaceFBOForCopy(GrSurface* surface, GrGLenum fboTarget, GrGLIRect* viewport,
-                              TempFBOTarget tempFBOTarget);
+    // This must be paired with a call to unbindSurfaceFBOForPixelOps().
+    void bindSurfaceFBOForPixelOps(GrSurface* surface, GrGLenum fboTarget, GrGLIRect* viewport,
+                                   TempFBOTarget tempFBOTarget);
 
-    // Must be called if bindSurfaceFBOForCopy was used to bind a surface for copying.
-    void unbindTextureFBOForCopy(GrGLenum fboTarget, GrSurface* surface);
+    // Must be called if bindSurfaceFBOForPixelOps was used to bind a surface for copying.
+    void unbindTextureFBOForPixelOps(GrGLenum fboTarget, GrSurface* surface);
 
     SkAutoTUnref<GrGLContext>  fGLContext;
 

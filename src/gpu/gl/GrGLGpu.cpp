@@ -2261,11 +2261,11 @@ void GrGLGpu::clearStencilClip(const GrFixedClip& clip,
     fHWStencilSettings.invalidate();
 }
 
-static bool read_pixels_pays_for_y_flip(GrRenderTarget* renderTarget, const GrGLCaps& caps,
+static bool read_pixels_pays_for_y_flip(GrSurfaceOrigin origin, const GrGLCaps& caps,
                                         int width, int height,  GrPixelConfig config,
                                         size_t rowBytes) {
-    // If this render target is already TopLeft, we don't need to flip.
-    if (kTopLeft_GrSurfaceOrigin == renderTarget->origin()) {
+    // If the surface is already TopLeft, we don't need to flip.
+    if (kTopLeft_GrSurfaceOrigin == origin) {
         return false;
     }
 
@@ -2372,12 +2372,6 @@ bool GrGLGpu::onGetReadPixelsInfo(GrSurface* srcSurface, int width, int height, 
         return true;
     }
 
-    GrRenderTarget* srcAsRT = srcSurface->asRenderTarget();
-    if (!srcAsRT) {
-        // For now keep assuming the draw is not a format transformation, just a draw to get to a
-        // RT. We may add additional transformations below.
-        ElevateDrawPreference(drawPreference, kRequireDraw_DrawPreference);
-    }
     if (this->glCaps().rgba8888PixelsOpsAreSlow() && kRGBA_8888_GrPixelConfig == readConfig &&
         this->readPixelsSupported(kBGRA_8888_GrPixelConfig, kBGRA_8888_GrPixelConfig)) {
         tempDrawInfo->fTempSurfaceDesc.fConfig = kBGRA_8888_GrPixelConfig;
@@ -2396,7 +2390,7 @@ bool GrGLGpu::onGetReadPixelsInfo(GrSurface* srcSurface, int width, int height, 
         ElevateDrawPreference(drawPreference, kGpuPrefersDraw_DrawPreference);
     } else if (!this->readPixelsSupported(srcSurface, readConfig)) {
         if (readConfig == kBGRA_8888_GrPixelConfig &&
-            this->glCaps().isConfigRenderable(kRGBA_8888_GrPixelConfig, false) &&
+            this->glCaps().canConfigBeFBOColorAttachment(kRGBA_8888_GrPixelConfig) &&
             this->readPixelsSupported(kRGBA_8888_GrPixelConfig, kRGBA_8888_GrPixelConfig)) {
             // We're trying to read BGRA but it's not supported. If RGBA is renderable and
             // we can read it back, then do a swizzling draw to a RGBA and read it back (which
@@ -2406,7 +2400,7 @@ bool GrGLGpu::onGetReadPixelsInfo(GrSurface* srcSurface, int width, int height, 
             tempDrawInfo->fReadConfig = kRGBA_8888_GrPixelConfig;
             ElevateDrawPreference(drawPreference, kRequireDraw_DrawPreference);
         } else if (readConfig == kSBGRA_8888_GrPixelConfig &&
-            this->glCaps().isConfigRenderable(kSRGBA_8888_GrPixelConfig, false) &&
+            this->glCaps().canConfigBeFBOColorAttachment(kSRGBA_8888_GrPixelConfig) &&
             this->readPixelsSupported(kSRGBA_8888_GrPixelConfig, kSRGBA_8888_GrPixelConfig)) {
             // We're trying to read sBGRA but it's not supported. If sRGBA is renderable and
             // we can read it back, then do a swizzling draw to a sRGBA and read it back (which
@@ -2426,7 +2420,7 @@ bool GrGLGpu::onGetReadPixelsInfo(GrSurface* srcSurface, int width, int height, 
             if (!this->readPixelsSupported(srcSurface, cpuTempConfig)) {
                 // If we can't read RGBA from the src try to draw to a kRGBA_8888 (or kSRGBA_8888)
                 // first and then onReadPixels will read that to a 32bit temporary buffer.
-                if (this->caps()->isConfigRenderable(cpuTempConfig, false)) {
+                if (this->glCaps().canConfigBeFBOColorAttachment(cpuTempConfig)) {
                     ElevateDrawPreference(drawPreference, kRequireDraw_DrawPreference);
                     tempDrawInfo->fTempSurfaceDesc.fConfig = cpuTempConfig;
                     tempDrawInfo->fReadConfig = kAlpha_8_GrPixelConfig;
@@ -2437,7 +2431,7 @@ bool GrGLGpu::onGetReadPixelsInfo(GrSurface* srcSurface, int width, int height, 
                 SkASSERT(tempDrawInfo->fTempSurfaceDesc.fConfig == srcConfig);
                 SkASSERT(tempDrawInfo->fReadConfig == kAlpha_8_GrPixelConfig);
             }
-        } else if (this->caps()->isConfigRenderable(readConfig, false) &&
+        } else if (this->glCaps().canConfigBeFBOColorAttachment(readConfig) &&
                    this->readPixelsSupported(readConfig, readConfig)) {
             // Do a draw to convert from the src config to the read config.
             ElevateDrawPreference(drawPreference, kRequireDraw_DrawPreference);
@@ -2448,8 +2442,9 @@ bool GrGLGpu::onGetReadPixelsInfo(GrSurface* srcSurface, int width, int height, 
         }
     }
 
-    if (srcAsRT &&
-        read_pixels_pays_for_y_flip(srcAsRT, this->glCaps(), width, height, readConfig, rowBytes)) {
+    if ((srcSurface->asRenderTarget() || this->glCaps().canConfigBeFBOColorAttachment(srcConfig)) &&
+        read_pixels_pays_for_y_flip(srcSurface->origin(), this->glCaps(), width, height, readConfig,
+                                    rowBytes)) {
         ElevateDrawPreference(drawPreference, kGpuPrefersDraw_DrawPreference);
     }
 
@@ -2465,7 +2460,7 @@ bool GrGLGpu::onReadPixels(GrSurface* surface,
     SkASSERT(surface);
 
     GrGLRenderTarget* renderTarget = static_cast<GrGLRenderTarget*>(surface->asRenderTarget());
-    if (!renderTarget) {
+    if (!renderTarget && !this->glCaps().canConfigBeFBOColorAttachment(surface->config())) {
         return false;
     }
 
@@ -2476,16 +2471,16 @@ bool GrGLGpu::onReadPixels(GrSurface* surface,
 
     // We have a special case fallback for reading eight bit alpha. We will read back all four 8
     // bit channels as RGBA and then extract A.
-    if (!this->readPixelsSupported(renderTarget, config)) {
+    if (!this->readPixelsSupported(surface, config)) {
         // Don't attempt to do any srgb conversions since we only care about alpha.
         GrPixelConfig tempConfig = kRGBA_8888_GrPixelConfig;
-        if (GrPixelConfigIsSRGB(renderTarget->config())) {
+        if (GrPixelConfigIsSRGB(surface->config())) {
             tempConfig = kSRGBA_8888_GrPixelConfig;
         }
         if (kAlpha_8_GrPixelConfig == config &&
-            this->readPixelsSupported(renderTarget, tempConfig)) {
+            this->readPixelsSupported(surface, tempConfig)) {
             std::unique_ptr<uint32_t[]> temp(new uint32_t[width * height * 4]);
-            if (this->onReadPixels(renderTarget, left, top, width, height, tempConfig, temp.get(),
+            if (this->onReadPixels(surface, left, top, width, height, tempConfig, temp.get(),
                                    width*4)) {
                 uint8_t* dst = reinterpret_cast<uint8_t*>(buffer);
                 for (int j = 0; j < height; ++j) {
@@ -2501,34 +2496,40 @@ bool GrGLGpu::onReadPixels(GrSurface* surface,
 
     GrGLenum externalFormat;
     GrGLenum externalType;
-    if (!this->glCaps().getReadPixelsFormat(renderTarget->config(), config, &externalFormat,
+    if (!this->glCaps().getReadPixelsFormat(surface->config(), config, &externalFormat,
                                             &externalType)) {
         return false;
     }
     bool flipY = kBottomLeft_GrSurfaceOrigin == surface->origin();
 
-    // resolve the render target if necessary
-    switch (renderTarget->getResolveType()) {
-        case GrGLRenderTarget::kCantResolve_ResolveType:
-            return false;
-        case GrGLRenderTarget::kAutoResolves_ResolveType:
-            this->flushRenderTarget(renderTarget, &SkIRect::EmptyIRect());
-            break;
-        case GrGLRenderTarget::kCanResolve_ResolveType:
-            this->onResolveRenderTarget(renderTarget);
-            // we don't track the state of the READ FBO ID.
-            fStats.incRenderTargetBinds();
-            GL_CALL(BindFramebuffer(GR_GL_READ_FRAMEBUFFER, renderTarget->textureFBOID()));
-            break;
-        default:
-            SkFAIL("Unknown resolve type");
+    GrGLIRect glvp;
+    if (renderTarget) {
+        // resolve the render target if necessary
+        switch (renderTarget->getResolveType()) {
+            case GrGLRenderTarget::kCantResolve_ResolveType:
+                return false;
+            case GrGLRenderTarget::kAutoResolves_ResolveType:
+                this->flushRenderTarget(renderTarget, &SkIRect::EmptyIRect());
+                break;
+            case GrGLRenderTarget::kCanResolve_ResolveType:
+                this->onResolveRenderTarget(renderTarget);
+                // we don't track the state of the READ FBO ID.
+                fStats.incRenderTargetBinds();
+                GL_CALL(BindFramebuffer(GR_GL_READ_FRAMEBUFFER, renderTarget->textureFBOID()));
+                break;
+            default:
+                SkFAIL("Unknown resolve type");
+        }
+        glvp = renderTarget->getViewport();
+    } else {
+        // Use a temporary FBO.
+        this->bindSurfaceFBOForPixelOps(surface, GR_GL_FRAMEBUFFER, &glvp, kSrc_TempFBOTarget);
+        fHWBoundRenderTargetUniqueID = SK_InvalidUniqueID;
     }
-
-    const GrGLIRect& glvp = renderTarget->getViewport();
 
     // the read rect is viewport-relative
     GrGLIRect readRect;
-    readRect.setRelativeTo(glvp, left, top, width, height, renderTarget->origin());
+    readRect.setRelativeTo(glvp, left, top, width, height, surface->origin());
 
     size_t bytesPerPixel = GrBytesPerPixel(config);
     size_t tightRowBytes = bytesPerPixel * width;
@@ -2605,6 +2606,9 @@ bool GrGLGpu::onReadPixels(GrSurface* surface,
                 dst -= rowBytes;
             }
         }
+    }
+    if (!renderTarget) {
+        this->unbindTextureFBOForPixelOps(GR_GL_FRAMEBUFFER, surface);
     }
     return true;
 }
@@ -3459,8 +3463,8 @@ static inline bool can_blit_framebuffer_for_copy_surface(const GrSurface* dst,
                                                          const SkIPoint& dstPoint,
                                                          const GrGLGpu* gpu) {
     auto blitFramebufferFlags = gpu->glCaps().blitFramebufferSupportFlags();
-    if (!gpu->glCaps().isConfigRenderable(dst->config(), dst->desc().fSampleCnt > 0) ||
-        !gpu->glCaps().isConfigRenderable(src->config(), src->desc().fSampleCnt > 0)) {
+    if (!gpu->glCaps().canConfigBeFBOColorAttachment(dst->config()) ||
+        !gpu->glCaps().canConfigBeFBOColorAttachment(src->config())) {
         return false;
     }
     const GrGLTexture* dstTex = static_cast<const GrGLTexture*>(dst->asTexture());
@@ -3546,10 +3550,9 @@ static inline bool can_copy_texsubimage(const GrSurface* dst,
 
     // Check that we could wrap the source in an FBO, that the dst is TEXTURE_2D, that no mirroring
     // is required.
-    if (gpu->glCaps().isConfigRenderable(src->config(), src->desc().fSampleCnt > 0) &&
+    if (gpu->glCaps().canConfigBeFBOColorAttachment(src->config()) &&
         !GrPixelConfigIsCompressed(src->config()) &&
-        (!srcTex || srcTex->target() == GR_GL_TEXTURE_2D) &&
-        dstTex->target() == GR_GL_TEXTURE_2D &&
+        (!srcTex || srcTex->target() == GR_GL_TEXTURE_2D) && dstTex->target() == GR_GL_TEXTURE_2D &&
         dst->origin() == src->origin()) {
         return true;
     } else {
@@ -3559,8 +3562,8 @@ static inline bool can_copy_texsubimage(const GrSurface* dst,
 
 // If a temporary FBO was created, its non-zero ID is returned. The viewport that the copy rect is
 // relative to is output.
-void GrGLGpu::bindSurfaceFBOForCopy(GrSurface* surface, GrGLenum fboTarget, GrGLIRect* viewport,
-                                    TempFBOTarget tempFBOTarget) {
+void GrGLGpu::bindSurfaceFBOForPixelOps(GrSurface* surface, GrGLenum fboTarget, GrGLIRect* viewport,
+                                        TempFBOTarget tempFBOTarget) {
     GrGLRenderTarget* rt = static_cast<GrGLRenderTarget*>(surface->asRenderTarget());
     if (!rt) {
         SkASSERT(surface->asTexture());
@@ -3591,8 +3594,8 @@ void GrGLGpu::bindSurfaceFBOForCopy(GrSurface* surface, GrGLenum fboTarget, GrGL
     }
 }
 
-void GrGLGpu::unbindTextureFBOForCopy(GrGLenum fboTarget, GrSurface* surface) {
-    // bindSurfaceFBOForCopy temporarily binds textures that are not render targets to
+void GrGLGpu::unbindTextureFBOForPixelOps(GrGLenum fboTarget, GrSurface* surface) {
+    // bindSurfaceFBOForPixelOps temporarily binds textures that are not render targets to
     if (!surface->asRenderTarget()) {
         SkASSERT(surface->asTexture());
         GrGLenum textureTarget = static_cast<GrGLTexture*>(surface->asTexture())->target();
@@ -3636,9 +3639,8 @@ bool GrGLGpu::initDescForDstCopy(const GrRenderTarget* src, GrSurfaceDesc* desc)
         kBGRA_8888_GrPixelConfig == src->config()) {
         // glCopyTexSubImage2D doesn't work with this config. If the bgra can be used with fbo blit
         // then we set up for that, otherwise fail.
-        if (this->caps()->isConfigRenderable(kBGRA_8888_GrPixelConfig, false)) {
+        if (this->glCaps().canConfigBeFBOColorAttachment(kBGRA_8888_GrPixelConfig)) {
             desc->fOrigin = originForBlitFramebuffer;
-            desc->fFlags = kRenderTarget_GrSurfaceFlag;
             desc->fConfig = kBGRA_8888_GrPixelConfig;
             return true;
         }
@@ -3649,9 +3651,8 @@ bool GrGLGpu::initDescForDstCopy(const GrRenderTarget* src, GrSurfaceDesc* desc)
     if (srcRT->renderFBOID() != srcRT->textureFBOID()) {
         // It's illegal to call CopyTexSubImage2D on a MSAA renderbuffer. Set up for FBO blit or
         // fail.
-        if (this->caps()->isConfigRenderable(src->config(), false)) {
+        if (this->glCaps().canConfigBeFBOColorAttachment(src->config())) {
             desc->fOrigin = originForBlitFramebuffer;
-            desc->fFlags = kRenderTarget_GrSurfaceFlag;
             desc->fConfig = src->config();
             return true;
         }
@@ -4164,7 +4165,7 @@ bool GrGLGpu::copySurfaceAsDraw(GrSurface* dst,
     this->bindTexture(0, params, true, srcTex);
 
     GrGLIRect dstVP;
-    this->bindSurfaceFBOForCopy(dst, GR_GL_FRAMEBUFFER, &dstVP, kDst_TempFBOTarget);
+    this->bindSurfaceFBOForPixelOps(dst, GR_GL_FRAMEBUFFER, &dstVP, kDst_TempFBOTarget);
     this->flushViewport(dstVP);
     fHWBoundRenderTargetUniqueID = SK_InvalidUniqueID;
 
@@ -4227,7 +4228,7 @@ bool GrGLGpu::copySurfaceAsDraw(GrSurface* dst,
     this->disableStencil();
 
     GL_CALL(DrawArrays(GR_GL_TRIANGLE_STRIP, 0, 4));
-    this->unbindTextureFBOForCopy(GR_GL_FRAMEBUFFER, dst);
+    this->unbindTextureFBOForPixelOps(GR_GL_FRAMEBUFFER, dst);
     this->didWriteToSurface(dst, &dstRect);
 
     return true;
@@ -4239,7 +4240,7 @@ void GrGLGpu::copySurfaceAsCopyTexSubImage(GrSurface* dst,
                                            const SkIPoint& dstPoint) {
     SkASSERT(can_copy_texsubimage(dst, src, this));
     GrGLIRect srcVP;
-    this->bindSurfaceFBOForCopy(src, GR_GL_FRAMEBUFFER, &srcVP, kSrc_TempFBOTarget);
+    this->bindSurfaceFBOForPixelOps(src, GR_GL_FRAMEBUFFER, &srcVP, kSrc_TempFBOTarget);
     GrGLTexture* dstTex = static_cast<GrGLTexture *>(dst->asTexture());
     SkASSERT(dstTex);
     // We modified the bound FBO
@@ -4264,7 +4265,7 @@ void GrGLGpu::copySurfaceAsCopyTexSubImage(GrSurface* dst,
                               dstPoint.fX, dstY,
                               srcGLRect.fLeft, srcGLRect.fBottom,
                               srcGLRect.fWidth, srcGLRect.fHeight));
-    this->unbindTextureFBOForCopy(GR_GL_FRAMEBUFFER, src);
+    this->unbindTextureFBOForPixelOps(GR_GL_FRAMEBUFFER, src);
     SkIRect dstRect = SkIRect::MakeXYWH(dstPoint.fX, dstPoint.fY,
                                         srcRect.width(), srcRect.height());
     this->didWriteToSurface(dst, &dstRect);
@@ -4285,8 +4286,8 @@ bool GrGLGpu::copySurfaceAsBlitFramebuffer(GrSurface* dst,
 
     GrGLIRect dstVP;
     GrGLIRect srcVP;
-    this->bindSurfaceFBOForCopy(dst, GR_GL_DRAW_FRAMEBUFFER, &dstVP, kDst_TempFBOTarget);
-    this->bindSurfaceFBOForCopy(src, GR_GL_READ_FRAMEBUFFER, &srcVP, kSrc_TempFBOTarget);
+    this->bindSurfaceFBOForPixelOps(dst, GR_GL_DRAW_FRAMEBUFFER, &dstVP, kDst_TempFBOTarget);
+    this->bindSurfaceFBOForPixelOps(src, GR_GL_READ_FRAMEBUFFER, &srcVP, kSrc_TempFBOTarget);
     // We modified the bound FBO
     fHWBoundRenderTargetUniqueID = SK_InvalidUniqueID;
     GrGLIRect srcGLRect;
@@ -4327,8 +4328,8 @@ bool GrGLGpu::copySurfaceAsBlitFramebuffer(GrSurface* dst,
                             dstGLRect.fLeft + dstGLRect.fWidth,
                             dstGLRect.fBottom + dstGLRect.fHeight,
                             GR_GL_COLOR_BUFFER_BIT, GR_GL_NEAREST));
-    this->unbindTextureFBOForCopy(GR_GL_DRAW_FRAMEBUFFER, dst);
-    this->unbindTextureFBOForCopy(GR_GL_READ_FRAMEBUFFER, src);
+    this->unbindTextureFBOForPixelOps(GR_GL_DRAW_FRAMEBUFFER, dst);
+    this->unbindTextureFBOForPixelOps(GR_GL_READ_FRAMEBUFFER, src);
     this->didWriteToSurface(dst, &dstRect);
     return true;
 }
@@ -4348,7 +4349,7 @@ bool GrGLGpu::generateMipmap(GrGLTexture* texture, bool gammaCorrect) {
     }
 
     // We need to be able to render to the texture for this to work:
-    if (!this->caps()->isConfigRenderable(texture->config(), false)) {
+    if (!this->glCaps().canConfigBeFBOColorAttachment(texture->config())) {
         return false;
     }
 
