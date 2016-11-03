@@ -46,15 +46,15 @@ private:
 
     SkSampler* getSampler(bool createIfNecessary) override {
         SkASSERT(fMaskSwizzler);
-        return fMaskSwizzler;
+        return fMaskSwizzler.get();
     }
 
     int decodeRows(const SkImageInfo& dstInfo, void* dst, size_t dstRowBytes,
             const Options& opts) override;
 
-    SkAutoTDelete<SkMasks>              fMasks;        // owned
-    SkAutoTDelete<SkMaskSwizzler>       fMaskSwizzler;
-    std::unique_ptr<uint8_t[]>          fSrcBuffer;
+    std::unique_ptr<SkMasks>        fMasks;
+    std::unique_ptr<SkMaskSwizzler> fMaskSwizzler;
+    std::unique_ptr<uint8_t[]>      fSrcBuffer;
 
     typedef SkBmpCodec INHERITED;
 };

@@ -334,12 +334,12 @@ static void gather_uninteresting_hashes() {
 
 /*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
 
-struct TaggedSrc : public SkAutoTDelete<Src> {
+struct TaggedSrc : public std::unique_ptr<Src> {
     SkString tag;
     SkString options;
 };
 
-struct TaggedSink : public SkAutoTDelete<Sink> {
+struct TaggedSink : public std::unique_ptr<Sink> {
     SkString tag;
 };
 
@@ -354,7 +354,7 @@ static bool in_shard() {
 }
 
 static void push_src(const char* tag, ImplicitString options, Src* s) {
-    SkAutoTDelete<Src> src(s);
+    std::unique_ptr<Src> src(s);
     if (in_shard() &&
         FLAGS_src.contains(tag) &&
         !SkCommandLineFlags::ShouldSkip(FLAGS_match, src->name().c_str())) {
@@ -510,7 +510,7 @@ static void push_codec_srcs(Path path) {
         info("Couldn't read %s.", path.c_str());
         return;
     }
-    SkAutoTDelete<SkCodec> codec(SkCodec::NewFromData(encoded));
+    std::unique_ptr<SkCodec> codec(SkCodec::NewFromData(encoded));
     if (nullptr == codec.get()) {
         info("Couldn't create codec for %s.", path.c_str());
         return;
@@ -803,7 +803,7 @@ static bool gather_srcs() {
 }
 
 static void push_sink(const SkCommandLineConfig& config, Sink* s) {
-    SkAutoTDelete<Sink> sink(s);
+    std::unique_ptr<Sink> sink(s);
 
     // Try a simple Src as a canary.  If it fails, skip this sink.
     struct : public Src {
@@ -1079,7 +1079,7 @@ struct Task {
             // We're likely switching threads here, so we must capture by value, [=] or [foo,bar].
             SkStreamAsset* data = stream.detachAsStream();
             gDefinitelyThreadSafeWork.add([task,name,bitmap,data]{
-                SkAutoTDelete<SkStreamAsset> ownedData(data);
+                std::unique_ptr<SkStreamAsset> ownedData(data);
 
                 // Why doesn't the copy constructor do this when we have pre-locked pixels?
                 bitmap.lockPixels();
@@ -1331,7 +1331,7 @@ int dm_main() {
     gPending = gSrcs.count() * gSinks.count() + gParallelTests.count() + gSerialTests.count();
     info("%d srcs * %d sinks + %d tests == %d tasks",
          gSrcs.count(), gSinks.count(), gParallelTests.count() + gSerialTests.count(), gPending);
-    SkAutoTDelete<SkThread> statusThread(start_status_thread());
+    std::unique_ptr<SkThread> statusThread(start_status_thread());
 
     // Kick off as much parallel work as we can, making note of any serial work we'll need to do.
     SkTaskGroup parallel;

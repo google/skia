@@ -193,7 +193,7 @@ int DWriteFontTypeface::onGetTableTags(SkFontTableTag tags[]) const {
     }
 
     int ttcIndex;
-    SkAutoTDelete<SkStream> stream(this->openStream(&ttcIndex));
+    std::unique_ptr<SkStream> stream(this->openStream(&ttcIndex));
     return stream.get() ? SkFontStream::GetTableTags(stream, ttcIndex, tags) : 0;
 }
 
