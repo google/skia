@@ -22,6 +22,24 @@
       "revId": "b7d2a174b3e45d119cc0778ed266fc5034567ea2",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "06142af7_37a8b264",
+        "filename": "include/core/SkColorFilter.h",
+        "patchSetId": 8
+      },
+      "lineNbr": 75,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2016-11-03T14:03:13Z",
+      "side": 1,
+      "message": "I think if you, Brian, and I all understand this clearly, I\u0027d rather stick with shaderIsOpaque.  That\u0027s a bit I will be using more after the color filter too later (e.g. shaderIsOpaque \u0026\u0026\u003d colorFilterStaysOpaque, then use it to tweak xfermodes), so it\u0027s nice to have a single term.",
+      "parentUuid": "268e8eb3_0c41ffa4",
+      "revId": "b7d2a174b3e45d119cc0778ed266fc5034567ea2",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
