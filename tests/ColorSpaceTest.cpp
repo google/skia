@@ -46,13 +46,13 @@ static void test_space(skiatest::Reporter* r, SkColorSpace* space,
 static void test_path(skiatest::Reporter* r, const char* path,
                       const float red[], const float green[], const float blue[],
                       const SkGammaNamed expectedGamma) {
-    SkAutoTDelete<SkStream> stream(GetResourceAsStream(path));
+    std::unique_ptr<SkStream> stream(GetResourceAsStream(path));
     REPORTER_ASSERT(r, nullptr != stream);
     if (!stream) {
         return;
     }
 
-    SkAutoTDelete<SkCodec> codec(SkCodec::NewFromStream(stream.release()));
+    std::unique_ptr<SkCodec> codec(SkCodec::NewFromStream(stream.release()));
     REPORTER_ASSERT(r, nullptr != codec);
     if (!codec) {
         return;

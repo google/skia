@@ -242,7 +242,7 @@ void GLSLInstanceProcessor::onEmitCode(EmitArgs& args, GrGPArgs* gpArgs) {
                        inputs.attr(Attrib::kInstanceInfo));
     }
 
-    SkAutoTDelete<Backend> backend(Backend::Create(pipeline, ip.batchInfo(), inputs));
+    std::unique_ptr<Backend> backend(Backend::Create(pipeline, ip.batchInfo(), inputs));
     backend->init(varyingHandler, v);
 
     int usedShapeDefinitions = 0;

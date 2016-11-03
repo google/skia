@@ -412,9 +412,9 @@ protected:
             gen_raster, gen_picture, gen_png, gen_jpg,
         };
         for (auto& proc : procs) {
-            SkAutoTDelete<SkImageGenerator> gen(proc(info));
+            std::unique_ptr<SkImageGenerator> gen(proc(info));
             if (gen) {
-                show_scaled_generator(canvas, gen);
+                show_scaled_generator(canvas, gen.get());
             }
             canvas->translate(0, 120);
         }

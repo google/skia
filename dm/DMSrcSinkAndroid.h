@@ -46,7 +46,7 @@ public:
     }
 
 private:
-    SkAutoTDelete<Sink> fSink;
+    std::unique_ptr<Sink> fSink;
 };
 
 /*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/

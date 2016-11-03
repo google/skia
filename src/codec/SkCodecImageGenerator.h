@@ -36,7 +36,7 @@ private:
      */
     SkCodecImageGenerator(SkCodec* codec, sk_sp<SkData>);
 
-    SkAutoTDelete<SkCodec> fCodec;
+    std::unique_ptr<SkCodec> fCodec;
     sk_sp<SkData> fData;
 
     typedef SkImageGenerator INHERITED;

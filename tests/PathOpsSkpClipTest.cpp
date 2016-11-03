@@ -1074,7 +1074,7 @@ int tool_main(int argc, char** argv) {
     Iter iter;
     Test* test;
     while ((test = iter.next()) != nullptr) {
-        SkAutoTDelete<Test> owned(test);
+        std::unique_ptr<Test> owned(test);
         if (!SkCommandLineFlags::ShouldSkip(FLAGS_match, test->getName())) {
             test->run();
         }

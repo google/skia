@@ -616,7 +616,7 @@ size_t SkImage::getDeferredTextureImageData(const GrContextThreadSafeProxy& prox
         static_assert(std::is_standard_layout<MipMapLevelData>::value,
                       "offsetof, which we use below, requires the type have a standard layout");
 
-        SkAutoTDelete<SkMipMap> mipmaps(SkMipMap::Build(pixmap, gammaTreatment, nullptr));
+        std::unique_ptr<SkMipMap> mipmaps(SkMipMap::Build(pixmap, gammaTreatment, nullptr));
         // SkMipMap holds only the mipmap levels it generates.
         // A programmer can use the data they provided to SkMipMap::Build as level 0.
         // So the SkMipMap provides levels 1-x but it stores them in its own

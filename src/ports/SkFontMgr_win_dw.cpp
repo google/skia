@@ -51,7 +51,7 @@ public:
         return S_OK;
     }
 
-    SkAutoTDelete<SkStreamAsset> fStream;
+    std::unique_ptr<SkStreamAsset> fStream;
 
 private:
     StreamFontFileLoader(SkStreamAsset* stream) : fStream(stream), fRefCount(1) { }

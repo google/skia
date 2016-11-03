@@ -61,24 +61,24 @@ namespace DM {
 GMSrc::GMSrc(skiagm::GMRegistry::Factory factory) : fFactory(factory) {}
 
 Error GMSrc::draw(SkCanvas* canvas) const {
-    SkAutoTDelete<skiagm::GM> gm(fFactory(nullptr));
+    std::unique_ptr<skiagm::GM> gm(fFactory(nullptr));
     canvas->concat(gm->getInitialTransform());
     gm->draw(canvas);
     return "";
 }
 
 SkISize GMSrc::size() const {
-    SkAutoTDelete<skiagm::GM> gm(fFactory(nullptr));
+    std::unique_ptr<skiagm::GM> gm(fFactory(nullptr));
     return gm->getISize();
 }
 
 Name GMSrc::name() const {
-    SkAutoTDelete<skiagm::GM> gm(fFactory(nullptr));
+    std::unique_ptr<skiagm::GM> gm(fFactory(nullptr));
     return gm->getName();
 }
 
 void GMSrc::modifyGrContextOptions(GrContextOptions* options) const {
-    SkAutoTDelete<skiagm::GM> gm(fFactory(nullptr));
+    std::unique_ptr<skiagm::GM> gm(fFactory(nullptr));
     gm->modifyGrContextOptions(options);
 }
 
@@ -125,7 +125,7 @@ Error BRDSrc::draw(SkCanvas* canvas) const {
             break;
     }
 
-    SkAutoTDelete<SkBitmapRegionDecoder> brd(create_brd(fPath));
+    std::unique_ptr<SkBitmapRegionDecoder> brd(create_brd(fPath));
     if (nullptr == brd.get()) {
         return Error::Nonfatal(SkStringPrintf("Could not create brd for %s.", fPath.c_str()));
     }
@@ -227,7 +227,7 @@ Error BRDSrc::draw(SkCanvas* canvas) const {
 }
 
 SkISize BRDSrc::size() const {
-    SkAutoTDelete<SkBitmapRegionDecoder> brd(create_brd(fPath));
+    std::unique_ptr<SkBitmapRegionDecoder> brd(create_brd(fPath));
     if (brd) {
         return SkISize::Make(SkTMax(1, brd->width() / (int) fSampleSize),
                 SkTMax(1, brd->height() / (int) fSampleSize));
@@ -381,7 +381,7 @@ Error CodecSrc::draw(SkCanvas* canvas) const {
         return SkStringPrintf("Couldn't read %s.", fPath.c_str());
     }
 
-    SkAutoTDelete<SkCodec> codec(SkCodec::NewFromData(encoded));
+    std::unique_ptr<SkCodec> codec(SkCodec::NewFromData(encoded));
     if (nullptr == codec.get()) {
         return SkStringPrintf("Couldn't create codec for %s.", fPath.c_str());
     }
@@ -718,7 +718,7 @@ Error CodecSrc::draw(SkCanvas* canvas) const {
 
 SkISize CodecSrc::size() const {
     sk_sp<SkData> encoded(SkData::MakeFromFileName(fPath.c_str()));
-    SkAutoTDelete<SkCodec> codec(SkCodec::NewFromData(encoded));
+    std::unique_ptr<SkCodec> codec(SkCodec::NewFromData(encoded));
     if (nullptr == codec) {
         return SkISize::Make(0, 0);
     }
@@ -771,7 +771,7 @@ Error AndroidCodecSrc::draw(SkCanvas* canvas) const {
     if (!encoded) {
         return SkStringPrintf("Couldn't read %s.", fPath.c_str());
     }
-    SkAutoTDelete<SkAndroidCodec> codec(SkAndroidCodec::NewFromData(encoded));
+    std::unique_ptr<SkAndroidCodec> codec(SkAndroidCodec::NewFromData(encoded));
     if (nullptr == codec.get()) {
         return SkStringPrintf("Couldn't create android codec for %s.", fPath.c_str());
     }
@@ -824,7 +824,7 @@ Error AndroidCodecSrc::draw(SkCanvas* canvas) const {
 
 SkISize AndroidCodecSrc::size() const {
     sk_sp<SkData> encoded(SkData::MakeFromFileName(fPath.c_str()));
-    SkAutoTDelete<SkAndroidCodec> codec(SkAndroidCodec::NewFromData(encoded));
+    std::unique_ptr<SkAndroidCodec> codec(SkAndroidCodec::NewFromData(encoded));
     if (nullptr == codec) {
         return SkISize::Make(0, 0);
     }
@@ -876,7 +876,7 @@ Error ImageGenSrc::draw(SkCanvas* canvas) const {
     }
 #endif
 
-    SkAutoTDelete<SkImageGenerator> gen(nullptr);
+    std::unique_ptr<SkImageGenerator> gen(nullptr);
     switch (fMode) {
         case kCodec_Mode:
             gen.reset(SkCodecImageGenerator::NewFromEncodedCodec(encoded.get()));
@@ -931,7 +931,7 @@ Error ImageGenSrc::draw(SkCanvas* canvas) const {
 
 SkISize ImageGenSrc::size() const {
     sk_sp<SkData> encoded(SkData::MakeFromFileName(fPath.c_str()));
-    SkAutoTDelete<SkCodec> codec(SkCodec::NewFromData(encoded));
+    std::unique_ptr<SkCodec> codec(SkCodec::NewFromData(encoded));
     if (nullptr == codec) {
         return SkISize::Make(0, 0);
     }
@@ -972,7 +972,7 @@ Error ColorCodecSrc::draw(SkCanvas* canvas) const {
         return SkStringPrintf("Couldn't read %s.", fPath.c_str());
     }
 
-    SkAutoTDelete<SkCodec> codec(SkCodec::NewFromData(encoded));
+    std::unique_ptr<SkCodec> codec(SkCodec::NewFromData(encoded));
     if (nullptr == codec.get()) {
         return SkStringPrintf("Couldn't create codec for %s.", fPath.c_str());
     }
@@ -1039,7 +1039,7 @@ Error ColorCodecSrc::draw(SkCanvas* canvas) const {
 
 SkISize ColorCodecSrc::size() const {
     sk_sp<SkData> encoded(SkData::MakeFromFileName(fPath.c_str()));
-    SkAutoTDelete<SkCodec> codec(SkCodec::NewFromData(encoded));
+    std::unique_ptr<SkCodec> codec(SkCodec::NewFromData(encoded));
     if (nullptr == codec) {
         return SkISize::Make(0, 0);
     }
@@ -1194,8 +1194,8 @@ Name MSKPSrc::name() const { return SkOSPath::Basename(fPath.c_str()); }
 /*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
 
 Error NullSink::draw(const Src& src, SkBitmap*, SkWStream*, SkString*) const {
-    SkAutoTDelete<SkCanvas> canvas(SkCreateNullCanvas());
-    return src.draw(canvas);
+    std::unique_ptr<SkCanvas> canvas(SkCreateNullCanvas());
+    return src.draw(canvas.get());
 }
 
 /*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
@@ -1372,7 +1372,7 @@ SVGSink::SVGSink() {}
 
 Error SVGSink::draw(const Src& src, SkBitmap*, SkWStream* dst, SkString*) const {
 #if defined(SK_XML)
-    SkAutoTDelete<SkXMLWriter> xmlWriter(new SkXMLStreamWriter(dst));
+    std::unique_ptr<SkXMLWriter> xmlWriter(new SkXMLStreamWriter(dst));
     SkAutoTUnref<SkCanvas> canvas(SkSVGCanvas::Create(
         SkRect::MakeWH(SkIntToScalar(src.size().width()), SkIntToScalar(src.size().height())),
         xmlWriter));
@@ -1470,7 +1470,7 @@ ViaMatrix::ViaMatrix(SkMatrix matrix, Sink* sink) : Via(sink), fMatrix(matrix) {
 Error ViaMatrix::draw(const Src& src, SkBitmap* bitmap, SkWStream* stream, SkString* log) const {
     SkMatrix matrix = fMatrix;
     SkISize size = auto_compute_translate(&matrix, src.size().width(), src.size().height());
-    return draw_to_canvas(fSink, bitmap, stream, log, size, [&](SkCanvas* canvas) {
+    return draw_to_canvas(fSink.get(), bitmap, stream, log, size, [&](SkCanvas* canvas) {
         canvas->concat(matrix);
         return src.draw(canvas);
     });
@@ -1528,9 +1528,9 @@ Error ViaSerialization::draw(
     // Serialize it and then deserialize it.
     sk_sp<SkPicture> deserialized(SkPicture::MakeFromData(pic->serialize().get()));
 
-    return draw_to_canvas(fSink, bitmap, stream, log, size, [&](SkCanvas* canvas) {
+    return draw_to_canvas(fSink.get(), bitmap, stream, log, size, [&](SkCanvas* canvas) {
         canvas->drawPicture(deserialized);
-        return check_against_reference(bitmap, src, fSink);
+        return check_against_reference(bitmap, src, fSink.get());
     });
 }
 
@@ -1553,7 +1553,7 @@ Error ViaTiles::draw(const Src& src, SkBitmap* bitmap, SkWStream* stream, SkStri
     }
     sk_sp<SkPicture> pic(recorder.finishRecordingAsPicture());
 
-    return draw_to_canvas(fSink, bitmap, stream, log, src.size(), [&](SkCanvas* canvas) {
+    return draw_to_canvas(fSink.get(), bitmap, stream, log, src.size(), [&](SkCanvas* canvas) {
         const int xTiles = (size.width()  + fW - 1) / fW,
                   yTiles = (size.height() + fH - 1) / fH;
         SkMultiPictureDraw mpd(xTiles*yTiles);
@@ -1591,7 +1591,7 @@ Error ViaTiles::draw(const Src& src, SkBitmap* bitmap, SkWStream* stream, SkStri
 
 Error ViaPicture::draw(const Src& src, SkBitmap* bitmap, SkWStream* stream, SkString* log) const {
     auto size = src.size();
-    return draw_to_canvas(fSink, bitmap, stream, log, size, [&](SkCanvas* canvas) -> Error {
+    return draw_to_canvas(fSink.get(), bitmap, stream, log, size, [&](SkCanvas* canvas) -> Error {
         SkPictureRecorder recorder;
         sk_sp<SkPicture> pic;
         Error err = src.draw(recorder.beginRecording(SkIntToScalar(size.width()),
@@ -1601,7 +1601,7 @@ Error ViaPicture::draw(const Src& src, SkBitmap* bitmap, SkWStream* stream, SkSt
         }
         pic = recorder.finishRecordingAsPicture();
         canvas->drawPicture(pic);
-        return check_against_reference(bitmap, src, fSink);
+        return check_against_reference(bitmap, src, fSink.get());
     });
 }
 
@@ -1609,7 +1609,7 @@ Error ViaPicture::draw(const Src& src, SkBitmap* bitmap, SkWStream* stream, SkSt
 
 Error ViaDefer::draw(const Src& src, SkBitmap* bitmap, SkWStream* stream, SkString* log) const {
     auto size = src.size();
-    return draw_to_canvas(fSink, bitmap, stream, log, size, [&](SkCanvas* canvas) -> Error {
+    return draw_to_canvas(fSink.get(), bitmap, stream, log, size, [&](SkCanvas* canvas) -> Error {
         SkDeferredCanvas deferred(canvas);
         return src.draw(&deferred);
     });
@@ -1619,7 +1619,7 @@ Error ViaDefer::draw(const Src& src, SkBitmap* bitmap, SkWStream* stream, SkStri
 
 Error ViaPipe::draw(const Src& src, SkBitmap* bitmap, SkWStream* stream, SkString* log) const {
     auto size = src.size();
-    return draw_to_canvas(fSink, bitmap, stream, log, size, [&](SkCanvas* canvas) -> Error {
+    return draw_to_canvas(fSink.get(), bitmap, stream, log, size, [&](SkCanvas* canvas) -> Error {
         SkDynamicMemoryWStream tmpStream;
         Error err = src.draw(SkPipeSerializer().beginWrite(SkRect::Make(size), &tmpStream));
         if (!err.isEmpty()) {
@@ -1627,7 +1627,7 @@ Error ViaPipe::draw(const Src& src, SkBitmap* bitmap, SkWStream* stream, SkStrin
         }
         sk_sp<SkData> data = tmpStream.detachAsData();
         SkPipeDeserializer().playback(data->data(), data->size(), canvas);
-        return check_against_reference(bitmap, src, fSink);
+        return check_against_reference(bitmap, src, fSink.get());
     });
 }
 
@@ -1638,7 +1638,7 @@ Error ViaPipe::draw(const Src& src, SkBitmap* bitmap, SkWStream* stream, SkStrin
 Error ViaSecondPicture::draw(
         const Src& src, SkBitmap* bitmap, SkWStream* stream, SkString* log) const {
     auto size = src.size();
-    return draw_to_canvas(fSink, bitmap, stream, log, size, [&](SkCanvas* canvas) -> Error {
+    return draw_to_canvas(fSink.get(), bitmap, stream, log, size, [&](SkCanvas* canvas) -> Error {
         SkPictureRecorder recorder;
         sk_sp<SkPicture> pic;
         for (int i = 0; i < 2; i++) {
@@ -1650,7 +1650,7 @@ Error ViaSecondPicture::draw(
             pic = recorder.finishRecordingAsPicture();
         }
         canvas->drawPicture(pic);
-        return check_against_reference(bitmap, src, fSink);
+        return check_against_reference(bitmap, src, fSink.get());
     });
 }
 
@@ -1658,7 +1658,7 @@ Error ViaSecondPicture::draw(
 
 // Draw the Src twice.  This can help exercise caching.
 Error ViaTwice::draw(const Src& src, SkBitmap* bitmap, SkWStream* stream, SkString* log) const {
-    return draw_to_canvas(fSink, bitmap, stream, log, src.size(), [&](SkCanvas* canvas) -> Error {
+    return draw_to_canvas(fSink.get(), bitmap, stream, log, src.size(), [&](SkCanvas* canvas) -> Error {
         for (int i = 0; i < 2; i++) {
             SkAutoCanvasRestore acr(canvas, true/*save now*/);
             canvas->clear(SK_ColorTRANSPARENT);
@@ -1667,7 +1667,7 @@ Error ViaTwice::draw(const Src& src, SkBitmap* bitmap, SkWStream* stream, SkStri
                 return err;
             }
         }
-        return check_against_reference(bitmap, src, fSink);
+        return check_against_reference(bitmap, src, fSink.get());
     });
 }
 
@@ -1711,7 +1711,7 @@ struct DrawsAsSingletonPictures {
 Error ViaSingletonPictures::draw(
         const Src& src, SkBitmap* bitmap, SkWStream* stream, SkString* log) const {
     auto size = src.size();
-    return draw_to_canvas(fSink, bitmap, stream, log, size, [&](SkCanvas* canvas) -> Error {
+    return draw_to_canvas(fSink.get(), bitmap, stream, log, size, [&](SkCanvas* canvas) -> Error {
         // Use low-level (Skia-private) recording APIs so we can read the SkRecord.
         SkRecord skr;
         SkRecorder recorder(&skr, size.width(), size.height());
@@ -1739,7 +1739,7 @@ Error ViaSingletonPictures::draw(
         sk_sp<SkPicture> macroPic(macroRec.finishRecordingAsPicture());
 
         canvas->drawPicture(macroPic);
-        return check_against_reference(bitmap, src, fSink);
+        return check_against_reference(bitmap, src, fSink.get());
     });
 }
 
@@ -1748,7 +1748,7 @@ Error ViaSingletonPictures::draw(
 Error ViaLite::draw(const Src& src, SkBitmap* bitmap, SkWStream* stream, SkString* log) const {
     auto size = src.size();
     SkRect bounds = {0,0, (SkScalar)size.width(), (SkScalar)size.height()};
-    return draw_to_canvas(fSink, bitmap, stream, log, size, [&](SkCanvas* canvas) -> Error {
+    return draw_to_canvas(fSink.get(), bitmap, stream, log, size, [&](SkCanvas* canvas) -> Error {
         sk_sp<SkLiteDL> dl = SkLiteDL::New(bounds);
 
         SkLiteRecorder rec;
@@ -1759,7 +1759,7 @@ Error ViaLite::draw(const Src& src, SkBitmap* bitmap, SkWStream* stream, SkStrin
             return err;
         }
         dl->draw(canvas);
-        return check_against_reference(bitmap, src, fSink);
+        return check_against_reference(bitmap, src, fSink.get());
     });
 }
 

@@ -260,8 +260,8 @@ class ImageCacheratorGM : public skiagm::GM {
     SkString                         fName;
     SkImageGenerator*                (*fFactory)(GrContext*, SkPicture*);
     sk_sp<SkPicture>                 fPicture;
-    SkAutoTDelete<SkImageCacherator> fCache;
-    SkAutoTDelete<SkImageCacherator> fCacheSubset;
+    std::unique_ptr<SkImageCacherator> fCache;
+    std::unique_ptr<SkImageCacherator> fCacheSubset;
 
 public:
     ImageCacheratorGM(const char suffix[], SkImageGenerator* (*factory)(GrContext*, SkPicture*))
@@ -346,11 +346,11 @@ protected:
         // Draw the tex first, so it doesn't hit a lucky cache from the raster version. This
         // way we also can force the generateTexture call.
 
-        draw_as_tex(canvas, fCache, 310, 0);
-        draw_as_tex(canvas, fCacheSubset, 310+101, 0);
+        draw_as_tex(canvas, fCache.get(), 310, 0);
+        draw_as_tex(canvas, fCacheSubset.get(), 310+101, 0);
 
-        draw_as_bitmap(canvas, fCache, 150, 0);
-        draw_as_bitmap(canvas, fCacheSubset, 150+101, 0);
+        draw_as_bitmap(canvas, fCache.get(), 150, 0);
+        draw_as_bitmap(canvas, fCacheSubset.get(), 150+101, 0);
     }
 
     void onDraw(SkCanvas* canvas) override {

@@ -26,7 +26,7 @@ CodecBench::CodecBench(SkString baseName, SkData* encoded, SkColorType colorType
             alpha_type_to_str(alphaType));
 #ifdef SK_DEBUG
     // Ensure that we can create an SkCodec from this data.
-    SkAutoTDelete<SkCodec> codec(SkCodec::NewFromData(fData));
+    std::unique_ptr<SkCodec> codec(SkCodec::NewFromData(fData));
     SkASSERT(codec);
 #endif
 }
@@ -40,7 +40,7 @@ bool CodecBench::isSuitableFor(Backend backend) {
 }
 
 void CodecBench::onDelayedSetup() {
-    SkAutoTDelete<SkCodec> codec(SkCodec::NewFromData(fData));
+    std::unique_ptr<SkCodec> codec(SkCodec::NewFromData(fData));
 
     fInfo = codec->getInfo().makeColorType(fColorType)
                             .makeAlphaType(fAlphaType)
@@ -50,7 +50,7 @@ void CodecBench::onDelayedSetup() {
 }
 
 void CodecBench::onDraw(int n, SkCanvas* canvas) {
-    SkAutoTDelete<SkCodec> codec;
+    std::unique_ptr<SkCodec> codec;
     SkPMColor colorTable[256];
     int colorCount;
     SkCodec::Options options;

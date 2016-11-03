@@ -101,7 +101,7 @@ ContextInfo GrContextFactory::getContextInfo(ContextType type, ContextOptions op
             return ContextInfo(context.fBackend, context.fTestContext, context.fGrContext);
         }
     }
-    SkAutoTDelete<TestContext> testCtx;
+    std::unique_ptr<TestContext> testCtx;
     sk_sp<GrContext> grCtx;
     GrBackendContext backendContext = 0;
     sk_sp<const GrGLInterface> glInterface;

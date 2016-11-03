@@ -152,7 +152,7 @@ protected:
             if (configs[i].scaleY < 0) {
                 m.postTranslate(0, SkIntToScalar(configs[i].size.height()));
             }
-            SkAutoTDelete<SkImageGenerator> gen(
+            std::unique_ptr<SkImageGenerator> gen(
                 SkImageGenerator::NewFromPicture(configs[i].size, fPicture.get(), &m,
                                                  p.getAlpha() != 255 ? &p : nullptr));
             SkBitmap bm;

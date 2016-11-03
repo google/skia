@@ -37,10 +37,10 @@ public:
     void print(const char* sep = "\n") const;
 
 private:
-    SkAutoTDelete<SkTArray<SkString> >  fInstanceExtensionStrings;
-    SkAutoTDelete<SkTArray<SkString> >  fDeviceExtensionStrings;
-    SkAutoTDelete<SkTArray<SkString> >  fInstanceLayerStrings;
-    SkAutoTDelete<SkTArray<SkString> >  fDeviceLayerStrings;
+    std::unique_ptr<SkTArray<SkString>>  fInstanceExtensionStrings;
+    std::unique_ptr<SkTArray<SkString>>  fDeviceExtensionStrings;
+    std::unique_ptr<SkTArray<SkString>>  fInstanceLayerStrings;
+    std::unique_ptr<SkTArray<SkString>>  fDeviceLayerStrings;
 };
 
 #endif

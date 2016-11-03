@@ -30,7 +30,7 @@ public:
 
 private:
 
-    SkAutoTDelete<SkAndroidCodec> fCodec;
+    std::unique_ptr<SkAndroidCodec> fCodec;
 
     typedef SkBitmapRegionDecoder INHERITED;
 

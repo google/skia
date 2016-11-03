@@ -199,7 +199,7 @@ private:
             return nullptr;
         }
 
-        SkAutoTDelete<SkBBHFactory> factory;
+        std::unique_ptr<SkBBHFactory> factory;
         switch (bbox) {
         case kNo_BBoxType:
             // no bbox playback necessary

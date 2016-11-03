@@ -113,7 +113,7 @@ private:
         const char* getCategory() const override { return "request_cache"; }
         SkDiscardableMemory* diagnostic_only_getDiscardable() const override { return nullptr; }
 
-        SkAutoTDelete<Request> fRequest;
+        std::unique_ptr<Request> fRequest;
         SkAutoTUnref<SkTypeface> fFace;
     };
 
@@ -267,8 +267,8 @@ protected:
 
         // Check if this request is already in the request cache.
         using Request = SkFontRequestCache::Request;
-        SkAutoTDelete<Request> request(Request::Create(requestedFamilyName, requestedStyle));
-        SkTypeface* face = fCache.findAndRef(request);
+        std::unique_ptr<Request> request(Request::Create(requestedFamilyName, requestedStyle));
+        SkTypeface* face = fCache.findAndRef(request.get());
         if (face) {
             return face;
         }

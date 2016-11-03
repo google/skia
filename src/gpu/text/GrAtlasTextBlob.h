@@ -490,7 +490,7 @@ private:
         // though the distance field text and the coloremoji may share the same run, they
         // will have different descriptors.  If fOverrideDescriptor is non-nullptr, then it
         // will be used in place of the run's descriptor to regen texture coords
-        SkAutoTDelete<SkAutoDescriptor> fOverrideDescriptor; // df properties
+        std::unique_ptr<SkAutoDescriptor> fOverrideDescriptor; // df properties
         bool fInitialized;
         bool fDrawAsPaths;
     };

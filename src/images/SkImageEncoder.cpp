@@ -38,18 +38,18 @@ SkData* SkImageEncoder::encodeData(const SkBitmap& bm, int quality) {
 
 bool SkImageEncoder::EncodeFile(const char file[], const SkBitmap& bm, Type t,
                                 int quality) {
-    SkAutoTDelete<SkImageEncoder> enc(SkImageEncoder::Create(t));
+    std::unique_ptr<SkImageEncoder> enc(SkImageEncoder::Create(t));
     return enc.get() && enc.get()->encodeFile(file, bm, quality);
 }
 
 bool SkImageEncoder::EncodeStream(SkWStream* stream, const SkBitmap& bm, Type t,
                                   int quality) {
-    SkAutoTDelete<SkImageEncoder> enc(SkImageEncoder::Create(t));
+    std::unique_ptr<SkImageEncoder> enc(SkImageEncoder::Create(t));
     return enc.get() && enc.get()->encodeStream(stream, bm, quality);
 }
 
 SkData* SkImageEncoder::EncodeData(const SkBitmap& bm, Type t, int quality) {
-    SkAutoTDelete<SkImageEncoder> enc(SkImageEncoder::Create(t));
+    std::unique_ptr<SkImageEncoder> enc(SkImageEncoder::Create(t));
     return enc.get() ? enc.get()->encodeData(bm, quality) : nullptr;
 }
 

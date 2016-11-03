@@ -175,7 +175,7 @@ private:
     SkPipeDeserializer      fPipeDeserializer;
 
     SkPictureRecorder fRecorder;
-    SkAutoTDelete<SkCanvas> fFlagsFilterCanvas;
+    std::unique_ptr<SkCanvas> fFlagsFilterCanvas;
     SkPath fClipPath;
 
     SkTouchGesture fGesture;
