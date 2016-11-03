@@ -103,14 +103,19 @@ SkBlitter* SkRasterPipelineBlitter::Create(const SkPixmap& dst,
     bool shaderIsOpaque = (paintColor >> 24) == 0xff;
 
     SkRasterPipeline shader, colorFilter;
-    if (paint.getShader()) {
-        shaderIsOpaque = paint.getShader()->isOpaque();
+    if (auto s = paint.getShader()) {
+        shaderIsOpaque = s->isOpaque();
     }
-    if ( paint.getColorFilter() &&
-        !paint.getColorFilter()->appendStages(&colorFilter, shaderIsOpaque)) {
-        return nullptr;
+    if (auto cf = paint.getColorFilter()) {
+        if (!cf->appendStages(&colorFilter, shaderIsOpaque)) {
+            return nullptr;
+        }
+        shaderIsOpaque = shaderIsOpaque && (cf->getFlags() & SkColorFilter::kAlphaUnchanged_Flag);
     }
 
+    if (shaderIsOpaque && blend == SkBlendMode::kSrcOver) {
+        blend = SkBlendMode::kSrc;
+    }
 
     SkColor4f color;
     if (dst.info().colorSpace()) {
@@ -179,9 +184,11 @@ void SkRasterPipelineBlitter::blitH(int x, int y, int w) {
     if (!fBlitH) {
         SkRasterPipeline p;
         p.extend(fShader);
-        this->append_load_d(&p);
-        this->append_blend(&p);
-        this->maybe_clamp(&p);
+        if (fBlend != SkBlendMode::kSrc) {
+            this->append_load_d(&p);
+            this->append_blend(&p);
+            this->maybe_clamp(&p);
+        }
         this->append_store(&p);
         fBlitH = p.compile();
     }
@@ -194,9 +201,15 @@ void SkRasterPipelineBlitter::blitAntiH(int x, int y, const SkAlpha aa[], const 
     if (!fBlitAntiH) {
         SkRasterPipeline p;
         p.extend(fShader);
-        this->append_load_d(&p);
-        this->append_blend(&p);
-        p.append(SkRasterPipeline::lerp_constant_float, &fConstantCoverage);
+        if (fBlend == SkBlendMode::kSrcOver) {
+            p.append(SkRasterPipeline::scale_constant_float, &fConstantCoverage);
+            this->append_load_d(&p);
+            this->append_blend(&p);
+        } else {
+            this->append_load_d(&p);
+            this->append_blend(&p);
+            p.append(SkRasterPipeline::lerp_constant_float, &fConstantCoverage);
+        }
         this->maybe_clamp(&p);
         this->append_store(&p);
         fBlitAntiH = p.compile();
@@ -222,9 +235,15 @@ void SkRasterPipelineBlitter::blitMask(const SkMask& mask, const SkIRect& clip) 
     if (mask.fFormat == SkMask::kA8_Format && !fBlitMaskA8) {
         SkRasterPipeline p;
         p.extend(fShader);
-        this->append_load_d(&p);
-        this->append_blend(&p);
-        p.append(SkRasterPipeline::lerp_u8, &fMaskPtr);
+        if (fBlend == SkBlendMode::kSrcOver) {
+            p.append(SkRasterPipeline::scale_u8, &fMaskPtr);
+            this->append_load_d(&p);
+            this->append_blend(&p);
+        } else {
+            this->append_load_d(&p);
+            this->append_blend(&p);
+            p.append(SkRasterPipeline::lerp_u8, &fMaskPtr);
+        }
         this->maybe_clamp(&p);
         this->append_store(&p);
         fBlitMaskA8 = p.compile();

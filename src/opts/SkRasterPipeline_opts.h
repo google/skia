@@ -235,6 +235,16 @@ STAGE(constant_color, true) {
     a = color->a();
 }
 
+// s' = sc for a constant c.
+STAGE(scale_constant_float, true) {
+    SkNf c = *(const float*)ctx;
+
+    r *= c;
+    g *= c;
+    b *= c;
+    a *= c;
+}
+
 // s' = d(1-c) + sc, for a constant c.
 STAGE(lerp_constant_float, true) {
     SkNf c = *(const float*)ctx;
