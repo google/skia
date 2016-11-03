@@ -192,6 +192,7 @@ DEF_TEST(Stream, reporter) {
     TestNullData();
 }
 
+#ifndef SK_BUILD_FOR_IOS
 /**
  *  Tests peeking and then reading the same amount. The two should provide the
  *  same results.
@@ -285,7 +286,6 @@ static void test_peeking_front_buffered_stream(skiatest::Reporter* r,
 // This test uses file system operations that don't work out of the
 // box on iOS. It's likely that we don't need them on iOS. Ignoring for now.
 // TODO(stephana): Re-evaluate if we need this in the future.
-#ifndef SK_BUILD_FOR_IOS
 DEF_TEST(StreamPeek, reporter) {
     // Test a memory stream.
     const char gAbcs[] = "abcdefghijklmnopqrstuvwxyz";
