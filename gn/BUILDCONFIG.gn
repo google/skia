@@ -40,7 +40,7 @@ is_win = current_os == "win"
 
 if (target_cpu == "") {
   target_cpu = host_cpu
-  if (is_android) {
+  if (is_android || is_ios) {
     target_cpu = "arm64"
   }
 }

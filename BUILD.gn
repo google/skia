@@ -16,7 +16,7 @@ declare_args() {
   skia_use_fontconfig = is_linux
   skia_use_freetype = is_android || is_fuchsia || is_linux
   skia_use_gdi = false
-  skia_use_icu = !is_fuchsia && !is_win  # TODO: Windows
+  skia_use_icu = !is_fuchsia && !is_ios && !is_win  # TODO: Windows
   skia_use_libjpeg_turbo = true
   skia_use_libpng = true
   skia_use_libwebp = !is_fuchsia
@@ -662,6 +662,22 @@ component("skia") {
     ]
   }
 
+  if (is_ios) {
+    sources += [
+      "src/ports/SkDebug_stdio.cpp",
+      "src/ports/SkFontHost_mac.cpp",
+      "src/ports/SkImageEncoder_CG.cpp",
+      "src/ports/SkImageGeneratorCG.cpp",
+    ]
+    libs += [
+      "CoreFoundation.framework",
+      "CoreGraphics.framework",
+      "CoreText.framework",
+      "ImageIO.framework",
+      "MobileCoreServices.framework",
+    ]
+  }
+
   if (is_fuchsia) {
     sources += [ "src/ports/SkDebug_stdio.cpp" ]
   }
@@ -750,6 +766,9 @@ if (skia_enable_tools) {
 
       if (is_android) {
         sources += [ "tools/gpu/gl/egl/CreatePlatformGLTestContext_egl.cpp" ]
+      } else if (is_ios) {
+        sources += [ "tools/gpu/gl/iOS/CreatePlatformGLTestContext_iOS.mm" ]
+        libs += [ "OpenGLES.framework" ]
       } else if (is_linux) {
         sources += [ "tools/gpu/gl/glx/CreatePlatformGLTestContext_glx.cpp" ]
       } else if (is_mac) {
@@ -1056,8 +1075,8 @@ if (skia_enable_tools) {
     }
   }
 
-  # We can't yet build ICU on Windows.
-  if (!is_win) {
+  # We can't yet build ICU on iOS or Windows.
+  if (!is_ios && !is_win) {
     executable("sktexttopdf-hb") {
       sources = [
         "tools/SkShaper_harfbuzz.cpp",
@@ -1093,37 +1112,39 @@ if (skia_enable_tools) {
     testonly = true
   }
 
-  executable("skiaserve") {
-    sources = [
-      "tools/skiaserve/Request.cpp",
-      "tools/skiaserve/Response.cpp",
-      "tools/skiaserve/skiaserve.cpp",
-      "tools/skiaserve/urlhandlers/BatchBoundsHandler.cpp",
-      "tools/skiaserve/urlhandlers/BatchesHandler.cpp",
-      "tools/skiaserve/urlhandlers/BreakHandler.cpp",
-      "tools/skiaserve/urlhandlers/ClipAlphaHandler.cpp",
-      "tools/skiaserve/urlhandlers/CmdHandler.cpp",
-      "tools/skiaserve/urlhandlers/ColorModeHandler.cpp",
-      "tools/skiaserve/urlhandlers/DataHandler.cpp",
-      "tools/skiaserve/urlhandlers/DownloadHandler.cpp",
-      "tools/skiaserve/urlhandlers/EnableGPUHandler.cpp",
-      "tools/skiaserve/urlhandlers/ImgHandler.cpp",
-      "tools/skiaserve/urlhandlers/InfoHandler.cpp",
-      "tools/skiaserve/urlhandlers/OverdrawHandler.cpp",
-      "tools/skiaserve/urlhandlers/PostHandler.cpp",
-      "tools/skiaserve/urlhandlers/QuitHandler.cpp",
-      "tools/skiaserve/urlhandlers/RootHandler.cpp",
-    ]
-    deps = [
-      ":flags",
-      ":gpu_tool_utils",
-      ":skia",
-      ":tool_utils",
-      "//third_party/jsoncpp",
-      "//third_party/libmicrohttpd",
-      "//third_party/libpng",
-    ]
-    testonly = true
+  if (!is_ios) {
+    executable("skiaserve") {
+      sources = [
+        "tools/skiaserve/Request.cpp",
+        "tools/skiaserve/Response.cpp",
+        "tools/skiaserve/skiaserve.cpp",
+        "tools/skiaserve/urlhandlers/BatchBoundsHandler.cpp",
+        "tools/skiaserve/urlhandlers/BatchesHandler.cpp",
+        "tools/skiaserve/urlhandlers/BreakHandler.cpp",
+        "tools/skiaserve/urlhandlers/ClipAlphaHandler.cpp",
+        "tools/skiaserve/urlhandlers/CmdHandler.cpp",
+        "tools/skiaserve/urlhandlers/ColorModeHandler.cpp",
+        "tools/skiaserve/urlhandlers/DataHandler.cpp",
+        "tools/skiaserve/urlhandlers/DownloadHandler.cpp",
+        "tools/skiaserve/urlhandlers/EnableGPUHandler.cpp",
+        "tools/skiaserve/urlhandlers/ImgHandler.cpp",
+        "tools/skiaserve/urlhandlers/InfoHandler.cpp",
+        "tools/skiaserve/urlhandlers/OverdrawHandler.cpp",
+        "tools/skiaserve/urlhandlers/PostHandler.cpp",
+        "tools/skiaserve/urlhandlers/QuitHandler.cpp",
+        "tools/skiaserve/urlhandlers/RootHandler.cpp",
+      ]
+      deps = [
+        ":flags",
+        ":gpu_tool_utils",
+        ":skia",
+        ":tool_utils",
+        "//third_party/jsoncpp",
+        "//third_party/libmicrohttpd",
+        "//third_party/libpng",
+      ]
+      testonly = true
+    }
   }
 
   executable("fuzz") {

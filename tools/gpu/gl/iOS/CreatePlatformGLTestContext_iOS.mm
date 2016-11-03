@@ -6,7 +6,7 @@
  * found in the LICENSE file.
  */
 
-#include "GLTestContext.h"
+#include "gl/GLTestContext.h"
 #import <OpenGLES/EAGL.h>
 #include <dlfcn.h>
 

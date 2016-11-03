@@ -46,6 +46,10 @@ if (!is_win) {
                          "value")
 }
 
+if (is_ios) {
+  ios_sysroot = exec_script("find_ios_sysroot.py", [], "trim string")
+}
+
 config("default") {
   asmflags = []
   cflags = []
@@ -176,6 +180,31 @@ config("default") {
     if (target_cpu == "arm") {
       libs += [ "unwind" ]
     }
+  }
+
+  if (is_ios) {
+    cflags += [
+      "--sysroot=$ios_sysroot",
+      "--target=$target_cpu-apple-darwin11",
+    ]
+    cflags_cc += [ "-stdlib=libc++" ]
+    ldflags += [
+      "--sysroot=$ios_sysroot",
+      "--target=$target_cpu-apple-darwin11",
+      "-stdlib=libc++",
+    ]
+    libs = [ "objc" ]
+
+    # We used to link all our iOS tools together, so none actually defines main().
+    # Instead they each define their own entry point, which our iOS mega-app called.
+    # If we can we'd like to not do that anymore.  While we're building both ways, here's
+    # our clever hack to give each tool back its own main().
+    cflags += [
+      "-Ddm_main=main",
+      "-Dnanobench_main=main",
+      "-Dtool_main=main",
+      "-Dtest_main=main",
+    ]
   }
 
   if (is_linux) {
