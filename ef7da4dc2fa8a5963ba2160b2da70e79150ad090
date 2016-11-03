@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "66ba4639_27cec04e",
+        "filename": "tests/BlurTest.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 285,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2016-11-03T21:33:49Z",
+      "side": 1,
+      "message": "Since we\u0027re touching this line anyway, can we remove this weird whitespace?",
+      "range": {
+        "startLine": 285,
+        "startChar": 45,
+        "endLine": 285,
+        "endChar": 47
+      },
+      "revId": "ef7da4dc2fa8a5963ba2160b2da70e79150ad090",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
