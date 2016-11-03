@@ -106,7 +106,8 @@ bool SkGIFLZWContext::outputRow(const unsigned char* rowBegin)
     // displaying to diminish the "venetian-blind" effect as the image is
     // loaded. Adjust pixel vertical positions to avoid the appearance of the
     // image crawling up the screen as successive passes are drawn.
-    if (m_frameContext->progressiveDisplay() && m_frameContext->interlaced() && ipass < 4) {
+    bool haeberliDisplay = m_frameContext->progressiveDisplay() && m_frameContext->interlaced();
+    if (haeberliDisplay && ipass < 4) {
         unsigned rowDup = 0;
         unsigned rowShift = 0;
 
@@ -146,8 +147,7 @@ bool SkGIFLZWContext::outputRow(const unsigned char* rowBegin)
     if ((unsigned)drowStart >= m_frameContext->height())
         return true;
 
-    bool writeTransparentPixels = alwaysWriteTransparentPixels ||
-            (m_frameContext->progressiveDisplay() && m_frameContext->interlaced() && ipass > 1);
+    bool writeTransparentPixels = alwaysWriteTransparentPixels || (haeberliDisplay && ipass > 1);
     // CALLBACK: Let the client know we have decoded a row.
     if (!m_client->haveDecodedRow(m_frameContext->frameId(), rowBegin,
         drowStart, drowEnd - drowStart + 1, writeTransparentPixels))
@@ -920,32 +920,7 @@ bool SkGIFLZWContext::prepareToDecode(const SkGIFColorMap& globalMap)
     irow = 0;
     alwaysWriteTransparentPixels = false;
     if (m_frameContext->getRequiredFrame() == SkCodec::kNone) {
-        if (!m_frameContext->interlaced()) {
-            alwaysWriteTransparentPixels = true;
-        } else {
-            // The frame is interlaced, so we do not want to write transparent
-            // pixels. But if there are no transparent pixels anyway, there is
-            // no harm in taking the alwaysWriteTransparentPixels path, which
-            // is faster, and it also supports 565.
-            // Since the frame is independent, it does not matter whether the
-            // frame is subset (nothing behind it needs to show through). So we
-            // only need to know whether there is a valid transparent pixel.
-            // This is a little counterintuitive - we want to "always write
-            // transparent pixels" if there ARE NO transparent pixels, so we
-            // check to see whether the pixel index is >= numColors.
-            const auto& localMap = m_frameContext->localColorMap();
-            const auto trans = m_frameContext->transparentPixel();
-            if (localMap.isDefined()) {
-                alwaysWriteTransparentPixels = trans >= localMap.numColors();
-            } else {
-                // Note that if the map is not defined, the value of
-                // alwaysWriteTransparentPixels is meaningless, since without
-                // any color table, we will skip drawing entirely.
-                // FIXME: We could even skip calling prepareToDecode in that
-                // case, meaning we can SkASSERT(globalMap.isDefined())
-                alwaysWriteTransparentPixels = trans >= globalMap.numColors();
-            }
-        }
+        alwaysWriteTransparentPixels = true;
     }
 
     // We want to know the longest sequence encodable by a dictionary with
