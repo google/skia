@@ -144,7 +144,7 @@ int tool_main(int argc, char** argv) {
 
             auto pic(load_picture(path));
             if (pic.get()) {
-                SkAutoTUnref<SkLuaCanvas> canvas(
+                sk_sp<SkLuaCanvas> canvas(
                                     new SkLuaCanvas(SkScalarCeilToInt(pic->cullRect().width()),
                                                     SkScalarCeilToInt(pic->cullRect().height()),
                                                     L.get(), gAccumulateFunc));

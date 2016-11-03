@@ -2099,7 +2099,7 @@ SkDrawImageCommand::SkDrawImageCommand(const SkImage* image, SkScalar left, SkSc
 }
 
 void SkDrawImageCommand::execute(SkCanvas* canvas) const {
-    canvas->drawImage(fImage, fLeft, fTop, fPaint.getMaybeNull());
+    canvas->drawImage(fImage.get(), fLeft, fTop, fPaint.getMaybeNull());
 }
 
 bool SkDrawImageCommand::render(SkCanvas* canvas) const {
@@ -2193,8 +2193,8 @@ SkDrawImageRectCommand::SkDrawImageRectCommand(const SkImage* image, const SkRec
 }
 
 void SkDrawImageRectCommand::execute(SkCanvas* canvas) const {
-    canvas->legacy_drawImageRect(fImage, fSrc.getMaybeNull(), fDst, fPaint.getMaybeNull(),
-                                 fConstraint);
+    canvas->legacy_drawImageRect(fImage.get(), fSrc.getMaybeNull(), fDst,
+                                 fPaint.getMaybeNull(), fConstraint);
 }
 
 bool SkDrawImageRectCommand::render(SkCanvas* canvas) const {

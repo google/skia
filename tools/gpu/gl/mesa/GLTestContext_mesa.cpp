@@ -88,7 +88,7 @@ MesaGLContext::MesaGLContext() : fContext(static_cast<Context>(0)), fImage(nullp
         return;
     }
 
-    SkAutoTUnref<const GrGLInterface> gl(create_mesa_interface());
+    sk_sp<const GrGLInterface> gl(create_mesa_interface());
     if (nullptr == gl.get()) {
         SkDebugf("Could not create GL interface!\n");
         this->destroyGLContext();

@@ -356,10 +356,10 @@ public:
     static SkDrawImageCommand* fromJSON(Json::Value& command, UrlDataManager& urlDataManager);
 
 private:
-    SkAutoTUnref<const SkImage> fImage;
-    SkScalar                    fLeft;
-    SkScalar                    fTop;
-    SkTLazy<SkPaint>            fPaint;
+    sk_sp<const SkImage> fImage;
+    SkScalar             fLeft;
+    SkScalar             fTop;
+    SkTLazy<SkPaint>     fPaint;
 
     typedef SkDrawCommand INHERITED;
 };
@@ -374,7 +374,7 @@ public:
     static SkDrawImageRectCommand* fromJSON(Json::Value& command, UrlDataManager& urlDataManager);
 
 private:
-    SkAutoTUnref<const SkImage> fImage;
+    sk_sp<const SkImage>        fImage;
     SkTLazy<SkRect>             fSrc;
     SkRect                      fDst;
     SkTLazy<SkPaint>            fPaint;
@@ -456,9 +456,9 @@ public:
     bool render(SkCanvas* canvas) const override;
 
 private:
-    SkAutoTUnref<const SkPicture> fPicture;
-    SkTLazy<SkMatrix>             fMatrix;
-    SkTLazy<SkPaint>              fPaint;
+    sk_sp<const SkPicture> fPicture;
+    SkTLazy<SkMatrix>      fMatrix;
+    SkTLazy<SkPaint>       fPaint;
 
     typedef SkDrawCommand INHERITED;
 };
@@ -486,7 +486,7 @@ public:
     bool render(SkCanvas* canvas) const override;
 
 private:
-    SkAutoTUnref<const SkPicture> fPicture;
+    sk_sp<const SkPicture>        fPicture;
     SkTLazy<SkMatrix>             fMatrix;
     SkTLazy<SkPaint>              fPaint;
 #ifdef SK_EXPERIMENTAL_SHADOWING
