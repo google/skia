@@ -2405,8 +2405,9 @@ private:
                 break;
             case kBackwards_DirChange:
                 if (fIsCurve) {
-                    fConvexity = SkPath::kConcave_Convexity;
-                    fFirstDirection = SkPathPriv::kUnknown_FirstDirection;
+                    // If any of the subsequent dir is non-backward, it'll be concave.
+                    // Otherwise, it's still convex.
+                    fExpectedDir = dir;
                 }
                 fLastVec = vec;
                 break;

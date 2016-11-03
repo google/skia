@@ -1496,6 +1496,10 @@ static void test_convexity(skiatest::Reporter* reporter) {
     check_convexity(reporter, path, SkPath::kConvex_Convexity);
     REPORTER_ASSERT(reporter, SkPathPriv::CheapIsFirstDirection(path, SkPathPriv::kCW_FirstDirection));
 
+    path.reset();
+    path.quadTo(100, 100, 50, 50); // This is a convex path from GM:convexpaths
+    check_convexity(reporter, path, SkPath::kConvex_Convexity);
+
     static const struct {
         const char*                 fPathStr;
         SkPath::Convexity           fExpectedConvexity;
