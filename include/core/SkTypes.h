@@ -35,10 +35,7 @@
 
 #include <string.h>
 
-#ifdef SK_SUPPORT_LEGACY_XFERMODE_PARAM
-    #define SK_XFERMODE_PARAM       SkXfermode*
-    #define SK_XFERMODE_MODE_PARAM  SkXfermode::Mode
-#else
+#if 1   // todo: remove the need for these defines
     #define SK_XFERMODE_PARAM       SkBlendMode
     #define SK_XFERMODE_MODE_PARAM  SkBlendMode
 #endif

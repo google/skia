@@ -127,7 +127,7 @@ protected:
         SkCanvas::VertexMode,
         int vertexCount, const SkPoint verts[],
         const SkPoint texs[], const SkColor colors[],
-        SK_XFERMODE_PARAM xmode,
+        SkBlendMode,
         const uint16_t indices[], int indexCount,
         const SkPaint& paint) override;
 

@@ -107,18 +107,6 @@ public:
      */
     static sk_sp<SkColorSpace> MakeICC(const void*, size_t);
 
-#ifdef SK_SUPPORT_LEGACY_COLOR_SPACE_FACTORIES
-    static sk_sp<SkColorSpace> NewRGB(RenderTargetGamma gamma, const SkMatrix44& toXYZD50) {
-        return MakeRGB(gamma, toXYZD50);
-    }
-    static sk_sp<SkColorSpace> NewRGB(const SkColorSpaceTransferFn& coeffs,
-                                      const SkMatrix44& toXYZD50) {
-        return MakeRGB(coeffs, toXYZD50);
-    }
-    static sk_sp<SkColorSpace> NewNamed(Named named) { return MakeNamed(named); }
-    static sk_sp<SkColorSpace> NewICC(const void* input, size_t len) { return MakeICC(input, len); }
-#endif
-
     /**
      *  Returns true if the color space gamma is near enough to be approximated as sRGB.
      */

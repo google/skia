@@ -34,7 +34,7 @@ public:
      *  returns true, and sets (if not NULL) the color and mode appropriately.
      *  If not, this returns false and ignores the parameters.
      */
-    virtual bool asColorMode(SkColor* color, SK_XFERMODE_MODE_PARAM* mode) const;
+    virtual bool asColorMode(SkColor* color, SkBlendMode* bmode) const;
 
     /**
      *  If the filter can be represented by a 5x4 matrix, this
@@ -116,11 +116,6 @@ public:
                     or NULL if the mode will have no effect.
     */
     static sk_sp<SkColorFilter> MakeModeFilter(SkColor c, SkBlendMode mode);
-#ifdef SK_SUPPORT_LEGACY_XFERMODE_PARAM
-    static sk_sp<SkColorFilter> MakeModeFilter(SkColor c, SkXfermode::Mode mode) {
-        return MakeModeFilter(c, (SkBlendMode)mode);
-    }
-#endif
 
     /** Construct a colorfilter whose effect is to first apply the inner filter and then apply
      *  the outer filter to the result of the inner's.
