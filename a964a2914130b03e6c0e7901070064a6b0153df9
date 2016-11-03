@@ -22,6 +22,24 @@
       "revId": "a964a2914130b03e6c0e7901070064a6b0153df9",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "66ba4639_27afe538",
+        "filename": "tests/ImageTest.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 1025,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2016-11-03T15:27:52Z",
+      "side": 0,
+      "message": "Somehow I have to fix this...\n\nOr serialize-8888 breaks everywhere.",
+      "parentUuid": "66ba4639_0718e1e6",
+      "revId": "a964a2914130b03e6c0e7901070064a6b0153df9",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
