@@ -218,6 +218,12 @@ public:
     float32x4_t fVec;
 };
 
+#if defined(SK_CPU_ARM64)
+    AI static Sk4f SkNx_fma(const Sk4f& f, const Sk4f& m, const Sk4f& a) {
+        return vfmaq_f32(a.fVec, f.fVec, m.fVec);
+    }
+#endif
+
 // It's possible that for our current use cases, representing this as
 // half a uint16x8_t might be better than representing it as a uint16x4_t.
 // It'd make conversion to Sk4b one step simpler.
