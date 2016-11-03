@@ -63,7 +63,7 @@ struct Request {
     SkColor getPixel(int x, int y);
 
     UploadContext* fUploadContext;
-    SkAutoTUnref<SkDebugCanvas> fDebugCanvas;
+    sk_sp<SkDebugCanvas> fDebugCanvas;
     UrlDataManager fUrlDataManager;
 
 private:
@@ -76,7 +76,7 @@ private:
 
     sk_sp<SkPicture> fPicture;
     sk_gpu_test::GrContextFactory* fContextFactory;
-    SkAutoTUnref<SkSurface> fSurface;
+    sk_sp<SkSurface> fSurface;
     bool fGPUEnabled;
     bool fOverdraw;
     int fColorMode;

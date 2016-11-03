@@ -259,28 +259,28 @@ void GLTestContext::finish() {
 GrGLint GLTestContext::createTextureRectangle(int width, int height, GrGLenum internalFormat,
                                           GrGLenum externalFormat, GrGLenum externalType,
                                           GrGLvoid* data) {
-    if (!(kGL_GrGLStandard == fGL->fStandard && GrGLGetVersion(fGL) >= GR_GL_VER(3, 1)) &&
+    if (!(kGL_GrGLStandard == fGL->fStandard && GrGLGetVersion(fGL.get()) >= GR_GL_VER(3, 1)) &&
         !fGL->fExtensions.has("GL_ARB_texture_rectangle")) {
         return 0;
     }
 
-    if  (GrGLGetGLSLVersion(fGL) < GR_GLSL_VER(1, 40)) {
+    if  (GrGLGetGLSLVersion(fGL.get()) < GR_GLSL_VER(1, 40)) {
         return 0;
     }
 
     GrGLuint id;
-    GR_GL_CALL(fGL, GenTextures(1, &id));
-    GR_GL_CALL(fGL, BindTexture(GR_GL_TEXTURE_RECTANGLE, id));
-    GR_GL_CALL(fGL, TexParameteri(GR_GL_TEXTURE_RECTANGLE, GR_GL_TEXTURE_MAG_FILTER,
-                                  GR_GL_NEAREST));
-    GR_GL_CALL(fGL, TexParameteri(GR_GL_TEXTURE_RECTANGLE, GR_GL_TEXTURE_MIN_FILTER,
-                                  GR_GL_NEAREST));
-    GR_GL_CALL(fGL, TexParameteri(GR_GL_TEXTURE_RECTANGLE, GR_GL_TEXTURE_WRAP_S,
-                                  GR_GL_CLAMP_TO_EDGE));    
-    GR_GL_CALL(fGL, TexParameteri(GR_GL_TEXTURE_RECTANGLE, GR_GL_TEXTURE_WRAP_T,
-                                  GR_GL_CLAMP_TO_EDGE));
-    GR_GL_CALL(fGL, TexImage2D(GR_GL_TEXTURE_RECTANGLE, 0, internalFormat, width, height, 0,
-                               externalFormat, externalType, data));
+    GR_GL_CALL(fGL.get(), GenTextures(1, &id));
+    GR_GL_CALL(fGL.get(), BindTexture(GR_GL_TEXTURE_RECTANGLE, id));
+    GR_GL_CALL(fGL.get(), TexParameteri(GR_GL_TEXTURE_RECTANGLE, GR_GL_TEXTURE_MAG_FILTER,
+                                        GR_GL_NEAREST));
+    GR_GL_CALL(fGL.get(), TexParameteri(GR_GL_TEXTURE_RECTANGLE, GR_GL_TEXTURE_MIN_FILTER,
+                                        GR_GL_NEAREST));
+    GR_GL_CALL(fGL.get(), TexParameteri(GR_GL_TEXTURE_RECTANGLE, GR_GL_TEXTURE_WRAP_S,
+                                        GR_GL_CLAMP_TO_EDGE));
+    GR_GL_CALL(fGL.get(), TexParameteri(GR_GL_TEXTURE_RECTANGLE, GR_GL_TEXTURE_WRAP_T,
+                                        GR_GL_CLAMP_TO_EDGE));
+    GR_GL_CALL(fGL.get(), TexImage2D(GR_GL_TEXTURE_RECTANGLE, 0, internalFormat, width, height, 0,
+                                     externalFormat, externalType, data));
     return id;
 }
 }  // namespace sk_gpu_test

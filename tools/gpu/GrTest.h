@@ -32,8 +32,8 @@ public:
     GrResourceProvider* resourceProvider() { return fContext->resourceProvider(); }
 
 private:
-    SkAutoTUnref<GrContext>                 fContext;
-    sk_sp<GrRenderTargetContext>                    fRenderTargetContext;
+    sk_sp<GrContext>             fContext;
+    sk_sp<GrRenderTargetContext> fRenderTargetContext;
 };
 
 #endif

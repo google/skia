@@ -50,16 +50,16 @@ protected:
 
     virtual void onSwapBuffers() = 0;
 
-    SkAutoTUnref<const GrGLInterface> fBackendContext;
-    sk_sp<SkSurface>                  fSurface;
+    sk_sp<const GrGLInterface> fBackendContext;
+    sk_sp<SkSurface>           fSurface;
 
     // parameters obtained from the native window
     // Note that the platform .cpp file is responsible for
     // initializing fSampleCount, fStencilBits, and fColorBits!
-    int                               fSampleCount;
-    int                               fStencilBits;
-    int                               fColorBits;
-    int                               fActualColorBits;
+    int                        fSampleCount;
+    int                        fStencilBits;
+    int                        fColorBits;
+    int                        fActualColorBits;
 };
 
 }   // namespace sk_app

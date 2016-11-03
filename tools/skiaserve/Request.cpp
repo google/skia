@@ -117,8 +117,8 @@ sk_sp<SkData> Request::writeOutSkp() {
 
     SkDynamicMemoryWStream outStream;
 
-    SkAutoTUnref<SkPixelSerializer> serializer(SkImageEncoder::CreatePixelSerializer());
-    picture->serialize(&outStream, serializer);
+    sk_sp<SkPixelSerializer> serializer(SkImageEncoder::CreatePixelSerializer());
+    picture->serialize(&outStream, serializer.get());
 
     return outStream.detachAsData();
 }
@@ -280,7 +280,7 @@ sk_sp<SkData> Request::getJsonBatchList(int n) {
 
 sk_sp<SkData> Request::getJsonInfo(int n) {
     // drawTo
-    SkAutoTUnref<SkSurface> surface(this->createCPUSurface());
+    sk_sp<SkSurface> surface(this->createCPUSurface());
     SkCanvas* canvas = surface->getCanvas();
 
     // TODO this is really slow and we should cache the matrix and clip

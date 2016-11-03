@@ -30,7 +30,7 @@ GLWindowContext::GLWindowContext(const DisplayParams& params)
 
 void GLWindowContext::initializeContext() {
     this->onInitializeContext();
-    SkAutoTUnref<const GrGLInterface> glInterface;
+    sk_sp<const GrGLInterface> glInterface;
     glInterface.reset(GrGLCreateNativeInterface());
     fBackendContext.reset(GrGLInterfaceRemoveNVPR(glInterface.get()));
 
@@ -74,7 +74,7 @@ sk_sp<SkSurface> GLWindowContext::getBackbufferSurface() {
             desc.fSampleCnt = fSampleCount;
             desc.fStencilBits = fStencilBits;
             GrGLint buffer;
-            GR_GL_CALL(fBackendContext, GetIntegerv(GR_GL_FRAMEBUFFER_BINDING, &buffer));
+            GR_GL_CALL(fBackendContext.get(), GetIntegerv(GR_GL_FRAMEBUFFER_BINDING, &buffer));
             desc.fRenderTargetHandle = buffer;
 
             fSurface = this->createRenderSurface(desc, fActualColorBits);
