@@ -72,7 +72,7 @@ public:
 
     virtual void filterSpan4f(const SkPM4f src[], int count, SkPM4f result[]) const;
 
-    bool appendStages(SkRasterPipeline*) const;
+    bool appendStages(SkRasterPipeline*, bool shaderIsOpaque) const;
 
     enum Flags {
         /** If set the filter methods will not change the alpha channel of the colors.
@@ -163,7 +163,7 @@ public:
 protected:
     SkColorFilter() {}
 
-    virtual bool onAppendStages(SkRasterPipeline*) const;
+    virtual bool onAppendStages(SkRasterPipeline*, bool shaderIsOpaque) const;
 
 private:
     /*
