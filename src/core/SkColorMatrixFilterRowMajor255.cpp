@@ -9,6 +9,7 @@
 #include "SkColorPriv.h"
 #include "SkNx.h"
 #include "SkPM4fPriv.h"
+#include "SkRasterPipeline.h"
 #include "SkReadBuffer.h"
 #include "SkRefCnt.h"
 #include "SkString.h"
@@ -229,6 +230,30 @@ static void set_concat(SkScalar result[20], const SkScalar outer[20], const SkSc
 ///////////////////////////////////////////////////////////////////////////////
 //  End duplication
 //////
+
+bool SkColorMatrixFilterRowMajor255::onAppendStages(SkRasterPipeline* p,
+                                                    bool shaderIsOpaque) const {
+    bool willStayOpaque = shaderIsOpaque && (fFlags & kAlphaUnchanged_Flag);
+    bool needsClamp0 = false,
+         needsClamp1 = false;
+    for (int i = 0; i < 4; i++) {
+        SkScalar min = fTranspose[i+16],
+                 max = fTranspose[i+16];
+        (fTranspose[i+ 0] < 0 ? min : max) += fTranspose[i+ 0];
+        (fTranspose[i+ 4] < 0 ? min : max) += fTranspose[i+ 4];
+        (fTranspose[i+ 8] < 0 ? min : max) += fTranspose[i+ 8];
+        (fTranspose[i+12] < 0 ? min : max) += fTranspose[i+12];
+        needsClamp0 = needsClamp0 || min < 0;
+        needsClamp1 = needsClamp1 || max > 1;
+    }
+
+    if (!shaderIsOpaque) { p->append(SkRasterPipeline::unpremul); }
+    if (           true) { p->append(SkRasterPipeline::matrix_4x5, fTranspose); }
+    if (!willStayOpaque) { p->append(SkRasterPipeline::premul); }
+    if (    needsClamp0) { p->append(SkRasterPipeline::clamp_0); }
+    if (    needsClamp1) { p->append(SkRasterPipeline::clamp_a); }
+    return true;
+}
 
 sk_sp<SkColorFilter>
 SkColorMatrixFilterRowMajor255::makeComposed(sk_sp<SkColorFilter> innerFilter) const {

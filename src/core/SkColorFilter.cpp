@@ -37,11 +37,11 @@ sk_sp<GrFragmentProcessor> SkColorFilter::asFragmentProcessor(GrContext*, SkColo
 }
 #endif
 
-bool SkColorFilter::appendStages(SkRasterPipeline* pipeline) const {
-    return this->onAppendStages(pipeline);
+bool SkColorFilter::appendStages(SkRasterPipeline* pipeline, bool shaderIsOpaque) const {
+    return this->onAppendStages(pipeline, shaderIsOpaque);
 }
 
-bool SkColorFilter::onAppendStages(SkRasterPipeline*) const {
+bool SkColorFilter::onAppendStages(SkRasterPipeline*, bool shaderIsOpaque) const {
     return false;
 }
 
