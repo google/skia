@@ -367,15 +367,9 @@ void SkBitmapDevice::drawPosText(const SkDraw& draw, const void* text, size_t le
 void SkBitmapDevice::drawVertices(const SkDraw& draw, SkCanvas::VertexMode vmode,
                                   int vertexCount,
                                   const SkPoint verts[], const SkPoint textures[],
-                                  const SkColor colors[], SK_XFERMODE_PARAM xmode,
+                                  const SkColor colors[], SkBlendMode bmode,
                                   const uint16_t indices[], int indexCount,
                                   const SkPaint& paint) {
-    SkBlendMode bmode;
-#ifdef SK_SUPPORT_LEGACY_XFERMODE_PARAM
-    bmode = xmode ? xmode->blend() : SkBlendMode::kModulate;
-#else
-    bmode = xmode;
-#endif
     draw.drawVertices(vmode, vertexCount, verts, textures, colors, bmode,
                       indices, indexCount, paint);
 }

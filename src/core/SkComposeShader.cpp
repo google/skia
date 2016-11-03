@@ -125,11 +125,8 @@ SkComposeShader::ComposeShaderContext::~ComposeShaderContext() {
 
 bool SkComposeShader::asACompose(ComposeRec* rec) const {
     if (rec) {
-        rec->fShaderA = fShaderA.get();
-        rec->fShaderB = fShaderB.get();
-#ifdef SK_SUPPORT_LEGACY_XFERMODE_PARAM
-        rec->fMode = SkXfermode::Peek(fMode);
-#endif
+        rec->fShaderA   = fShaderA.get();
+        rec->fShaderB   = fShaderB.get();
         rec->fBlendMode = fMode;
     }
     return true;

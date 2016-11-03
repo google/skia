@@ -1564,7 +1564,7 @@ static const GrPrimitiveType gVertexMode2PrimitiveType[] = {
 void SkGpuDevice::drawVertices(const SkDraw& draw, SkCanvas::VertexMode vmode,
                               int vertexCount, const SkPoint vertices[],
                               const SkPoint texs[], const SkColor colors[],
-                              SK_XFERMODE_PARAM xmode,
+                              SkBlendMode bmode,
                               const uint16_t indices[], int indexCount,
                               const SkPaint& paint) {
     ASSERT_SINGLE_OWNER
@@ -1644,15 +1644,9 @@ void SkGpuDevice::drawVertices(const SkDraw& draw, SkCanvas::VertexMode vmode,
     GrPaint grPaint;
     if (texs && paint.getShader()) {
         if (colors) {
-            // When there are texs and colors the shader and colors are combined using xmode. A null
-            // xmode is defined to mean modulate.
-#ifdef SK_SUPPORT_LEGACY_XFERMODE_PARAM
-            SkBlendMode colorMode = xmode ? xmode->blend() : SkBlendMode::kModulate;
-#else
-            SkBlendMode colorMode = xmode;
-#endif
+            // When there are texs and colors the shader and colors are combined using bmode.
             if (!SkPaintToGrPaintWithXfermode(this->context(), fRenderTargetContext.get(), paint,
-                                              *draw.fMatrix, colorMode, false, &grPaint)) {
+                                              *draw.fMatrix, bmode, false, &grPaint)) {
                 return;
             }
         } else {
@@ -1695,7 +1689,7 @@ void SkGpuDevice::drawVertices(const SkDraw& draw, SkCanvas::VertexMode vmode,
 
 void SkGpuDevice::drawAtlas(const SkDraw& draw, const SkImage* atlas, const SkRSXform xform[],
                             const SkRect texRect[], const SkColor colors[], int count,
-                            SK_XFERMODE_MODE_PARAM mode, const SkPaint& paint) {
+                            SkBlendMode mode, const SkPaint& paint) {
     ASSERT_SINGLE_OWNER
     if (paint.isAntiAlias()) {
         this->INHERITED::drawAtlas(draw, atlas, xform, texRect, colors, count, mode, paint);

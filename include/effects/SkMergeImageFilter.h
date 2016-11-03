@@ -21,21 +21,6 @@ public:
     static sk_sp<SkImageFilter> MakeN(sk_sp<SkImageFilter>[], int count, const SkBlendMode[],
                                      const CropRect* cropRect = nullptr);
 
-#ifdef SK_SUPPORT_LEGACY_XFERMODE_PARAM
-    static sk_sp<SkImageFilter> Make(sk_sp<SkImageFilter> first, sk_sp<SkImageFilter> second,
-                                     SkXfermode::Mode mode = SkXfermode::kSrcOver_Mode,
-                                     const CropRect* cropRect = nullptr) {
-        return Make(first, second, (SkBlendMode)mode, cropRect);
-    }
-    static sk_sp<SkImageFilter> Make(sk_sp<SkImageFilter> filters[],
-                                     int count,
-                                     const SkXfermode::Mode modes[] = nullptr,
-                                     const CropRect* cropRect = nullptr) {
-        static_assert(sizeof(SkXfermode::Mode) == sizeof(SkBlendMode), "size mismatch");
-        return MakeN(filters, count, (const SkBlendMode*)modes, cropRect);
-    }
-#endif
-
     SK_TO_STRING_OVERRIDE()
     SK_DECLARE_PUBLIC_FLATTENABLE_DESERIALIZATION_PROCS(SkMergeImageFilter)
 

@@ -64,7 +64,7 @@ void Filter(SkPaint* paint) {
     SkColorFilter* cf = paint->getColorFilter();
     if (cf) {
         SkColor color;
-        SK_XFERMODE_MODE_PARAM mode;
+        SkBlendMode mode;
         SkScalar srcColorMatrix[20];
         bool isMode = cf->asColorMode(&color, &mode);
         if (isMode && (int)mode > (int)SkBlendMode::kLighten) {
@@ -165,12 +165,12 @@ void SkAndroidSDKCanvas::onDrawBitmapNine(const SkBitmap& bitmap,
 void SkAndroidSDKCanvas::onDrawVertices(VertexMode vMode,
                                                  int vertexCount,
                                                  const SkPoint vertices[],
-                    const SkPoint texs[], const SkColor colors[], SK_XFERMODE_PARAM xMode,
+                    const SkPoint texs[], const SkColor colors[], SkBlendMode bmode,
                     const uint16_t indices[], int indexCount,
                     const SkPaint& paint) {
     FILTER(paint);
     fProxyTarget->drawVertices(vMode, vertexCount, vertices, texs, colors,
-                               xMode, indices, indexCount, filteredPaint);
+                               bmode, indices, indexCount, filteredPaint);
 }
 
 void SkAndroidSDKCanvas::onDrawDRRect(const SkRRect& outer,
@@ -228,10 +228,10 @@ void SkAndroidSDKCanvas::onDrawTextBlob(const SkTextBlob* blob,
 void SkAndroidSDKCanvas::onDrawPatch(const SkPoint cubics[12],
                                               const SkColor colors[4],
                                               const SkPoint texCoords[4],
-                                              SK_XFERMODE_PARAM xmode,
+                                              SkBlendMode bmode,
                                               const SkPaint& paint) {
     FILTER(paint);
-    fProxyTarget->drawPatch(cubics, colors, texCoords, xmode, filteredPaint);
+    fProxyTarget->drawPatch(cubics, colors, texCoords, bmode, filteredPaint);
 }
 
 
@@ -264,12 +264,11 @@ void SkAndroidSDKCanvas::onDrawAtlas(const SkImage* atlas,
                                      const SkRect tex[],
                                      const SkColor colors[],
                                      int count,
-                                     SK_XFERMODE_MODE_PARAM mode,
+                                     SkBlendMode mode,
                                      const SkRect* cullRect,
                                      const SkPaint* paint) {
     FILTER_PTR(paint);
-    fProxyTarget->drawAtlas(atlas, xform, tex, colors, count, mode, cullRect,
-                            filteredPaint);
+    fProxyTarget->drawAtlas(atlas, xform, tex, colors, count, mode, cullRect, filteredPaint);
 }
 
 void SkAndroidSDKCanvas::onDrawImageNine(const SkImage* image,

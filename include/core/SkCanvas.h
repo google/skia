@@ -1200,26 +1200,6 @@ public:
                            indices, indexCount, paint);
     }
 
-#ifdef SK_SUPPORT_LEGACY_XFERMODE_PARAM
-    void drawVertices(VertexMode vmode, int vertexCount,
-                      const SkPoint vertices[], const SkPoint texs[],
-                      const SkColor colors[], SkXfermode* xmode,
-                      const uint16_t indices[], int indexCount,
-                      const SkPaint& paint) {
-        this->drawVertices(vmode, vertexCount, vertices, texs, colors,
-                           xmode ? xmode->blend() : SkBlendMode::kModulate,
-                           indices, indexCount, paint);
-    }
-    void drawVertices(VertexMode vmode, int vertexCount,
-                      const SkPoint vertices[], const SkPoint texs[],
-                      const SkColor colors[], const sk_sp<SkXfermode>& xmode,
-                      const uint16_t indices[], int indexCount,
-                      const SkPaint& paint) {
-        this->drawVertices(vmode, vertexCount, vertices, texs, colors, xmode.get(),
-                           indices, indexCount, paint);
-    }
-#endif
-
     /**
      Draw a cubic coons patch
 
@@ -1239,18 +1219,6 @@ public:
                    const SkPoint texCoords[4], const SkPaint& paint) {
         this->drawPatch(cubics, colors, texCoords, SkBlendMode::kModulate, paint);
     }
-
-#ifdef SK_SUPPORT_LEGACY_XFERMODE_PARAM
-    void drawPatch(const SkPoint cubics[12], const SkColor colors[4],
-                   const SkPoint texCoords[4], SkXfermode* xmode, const SkPaint& paint) {
-        this->drawPatch(cubics, colors, texCoords, xmode ? xmode->blend() : SkBlendMode::kModulate,
-                        paint);
-    }
-    void drawPatch(const SkPoint cubics[12], const SkColor colors[4], const SkPoint texCoords[4],
-                   const sk_sp<SkXfermode>& xmode, const SkPaint& paint) {
-        this->drawPatch(cubics, colors, texCoords, xmode.get(), paint);
-    }
-#endif
 
     /**
      *  Draw a set of sprites from the atlas. Each is specified by a tex rectangle in the
@@ -1286,20 +1254,6 @@ public:
         this->drawAtlas(atlas.get(), xform, tex, nullptr, count, SkBlendMode::kDst,
                         cullRect, paint);
     }
-
-#ifdef SK_SUPPORT_LEGACY_XFERMODE_PARAM
-    void drawAtlas(const SkImage* atlas, const SkRSXform xform[], const SkRect tex[],
-                   const SkColor colors[], int count, SkXfermode::Mode mode, const SkRect* cullRect,
-                   const SkPaint* paint) {
-        this->drawAtlas(atlas, xform, tex, colors, count, (SkBlendMode)mode, cullRect, paint);
-    }
-
-    void drawAtlas(const sk_sp<SkImage>& atlas, const SkRSXform xform[], const SkRect tex[],
-                   const SkColor colors[], int count, SkXfermode::Mode mode, const SkRect* cull,
-                   const SkPaint* paint) {
-        this->drawAtlas(atlas.get(), xform, tex, colors, count, (SkBlendMode)mode, cull, paint);
-    }
-#endif
 
     /**
      *  Draw the contents of this drawable into the canvas. If the canvas is async
@@ -1485,7 +1439,7 @@ protected:
                                 const SkPaint& paint);
 
     virtual void onDrawPatch(const SkPoint cubics[12], const SkColor colors[4],
-                           const SkPoint texCoords[4], SK_XFERMODE_PARAM, const SkPaint& paint);
+                           const SkPoint texCoords[4], SkBlendMode, const SkPaint& paint);
 
     virtual void onDrawDrawable(SkDrawable*, const SkMatrix*);
 
@@ -1498,11 +1452,11 @@ protected:
     virtual void onDrawRRect(const SkRRect&, const SkPaint&);
     virtual void onDrawPoints(PointMode, size_t count, const SkPoint pts[], const SkPaint&);
     virtual void onDrawVertices(VertexMode, int vertexCount, const SkPoint vertices[],
-                                const SkPoint texs[], const SkColor colors[], SK_XFERMODE_PARAM,
+                                const SkPoint texs[], const SkColor colors[], SkBlendMode,
                                 const uint16_t indices[], int indexCount, const SkPaint&);
 
     virtual void onDrawAtlas(const SkImage*, const SkRSXform[], const SkRect[], const SkColor[],
-                             int count, SK_XFERMODE_MODE_PARAM, const SkRect* cull, const SkPaint*);
+                             int count, SkBlendMode, const SkRect* cull, const SkPaint*);
     virtual void onDrawPath(const SkPath&, const SkPaint&);
     virtual void onDrawImage(const SkImage*, SkScalar dx, SkScalar dy, const SkPaint*);
     virtual void onDrawImageRect(const SkImage*, const SkRect*, const SkRect&, const SkPaint*,

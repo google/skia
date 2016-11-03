@@ -51,7 +51,7 @@ public:
             SkLayerDrawLooper::LayerInfo info;
             info.fPaintBits = SkLayerDrawLooper::kMaskFilter_Bit
                               | SkLayerDrawLooper::kColorFilter_Bit;
-            info.fColorMode = (SK_XFERMODE_MODE_PARAM)SkBlendMode::kSrc;
+            info.fColorMode = SkBlendMode::kSrc;
             info.fOffset = SkPoint::Make(SkIntToScalar(-1), SkIntToScalar(0));
             info.fPostTranslate = false;
             SkPaint* paint = looperBuilder.addLayerOnTop(info);

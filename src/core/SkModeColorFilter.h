@@ -22,7 +22,7 @@ public:
     SkBlendMode getMode() const { return fMode; }
     SkPMColor getPMColor() const { return fPMColor; }
 
-    bool asColorMode(SkColor*, SK_XFERMODE_MODE_PARAM*) const override;
+    bool asColorMode(SkColor*, SkBlendMode*) const override;
     uint32_t getFlags() const override;
     void filterSpan(const SkPMColor shader[], int count, SkPMColor result[]) const override;
     void filterSpan4f(const SkPM4f shader[], int count, SkPM4f result[]) const override;

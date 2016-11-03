@@ -29,12 +29,12 @@ void SkModeColorFilter::toString(SkString* str) const {
 }
 #endif
 
-bool SkModeColorFilter::asColorMode(SkColor* color, SK_XFERMODE_MODE_PARAM* mode) const {
+bool SkModeColorFilter::asColorMode(SkColor* color, SkBlendMode* mode) const {
     if (color) {
         *color = fColor;
     }
     if (mode) {
-        *mode = (SK_XFERMODE_MODE_PARAM)fMode;
+        *mode = fMode;
     }
     return true;
 }

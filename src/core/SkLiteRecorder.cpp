@@ -171,8 +171,8 @@ void SkLiteRecorder::onDrawImageLattice(const SkImage* img,
 
 void SkLiteRecorder::onDrawPatch(const SkPoint cubics[12],
                                  const SkColor colors[4], const SkPoint texCoords[4],
-                                 SK_XFERMODE_PARAM xfermode, const SkPaint& paint) {
-    fDL->drawPatch(cubics, colors, texCoords, xfermode, paint);
+                                 SkBlendMode bmode, const SkPaint& paint) {
+    fDL->drawPatch(cubics, colors, texCoords, bmode, paint);
 }
 void SkLiteRecorder::onDrawPoints(SkCanvas::PointMode mode,
                                   size_t count, const SkPoint pts[],
@@ -182,20 +182,20 @@ void SkLiteRecorder::onDrawPoints(SkCanvas::PointMode mode,
 void SkLiteRecorder::onDrawVertices(SkCanvas::VertexMode mode,
                                     int count, const SkPoint vertices[],
                                     const SkPoint texs[], const SkColor colors[],
-                                    SK_XFERMODE_PARAM xfermode,
+                                    SkBlendMode bmode,
                                     const uint16_t indices[], int indexCount,
                                     const SkPaint& paint) {
-    fDL->drawVertices(mode, count, vertices, texs, colors, xfermode, indices, indexCount, paint);
+    fDL->drawVertices(mode, count, vertices, texs, colors, bmode, indices, indexCount, paint);
 }
 void SkLiteRecorder::onDrawAtlas(const SkImage* atlas,
                                  const SkRSXform xforms[],
                                  const SkRect texs[],
                                  const SkColor colors[],
                                  int count,
-                                 SK_XFERMODE_MODE_PARAM xfermode,
+                                 SkBlendMode bmode,
                                  const SkRect* cull,
                                  const SkPaint* paint) {
-    fDL->drawAtlas(atlas, xforms, texs, colors, count, xfermode, cull, paint);
+    fDL->drawAtlas(atlas, xforms, texs, colors, count, bmode, cull, paint);
 }
 
 void SkLiteRecorder::didTranslateZ(SkScalar dz) {

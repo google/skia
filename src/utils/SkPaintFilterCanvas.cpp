@@ -151,22 +151,22 @@ void SkPaintFilterCanvas::onDrawImageNine(const SkImage* image, const SkIRect& c
 
 void SkPaintFilterCanvas::onDrawVertices(VertexMode vmode, int vertexCount,
                                          const SkPoint vertices[], const SkPoint texs[],
-                                         const SkColor colors[], SK_XFERMODE_PARAM xmode,
+                                         const SkColor colors[], SkBlendMode bmode,
                                          const uint16_t indices[], int indexCount,
                                          const SkPaint& paint) {
     AutoPaintFilter apf(this, kVertices_Type, paint);
     if (apf.shouldDraw()) {
-        this->INHERITED::onDrawVertices(vmode, vertexCount, vertices, texs, colors, xmode, indices,
+        this->INHERITED::onDrawVertices(vmode, vertexCount, vertices, texs, colors, bmode, indices,
                                         indexCount, *apf.paint());
     }
 }
 
 void SkPaintFilterCanvas::onDrawPatch(const SkPoint cubics[], const SkColor colors[],
-                                      const SkPoint texCoords[], SK_XFERMODE_PARAM xmode,
+                                      const SkPoint texCoords[], SkBlendMode bmode,
                                       const SkPaint& paint) {
     AutoPaintFilter apf(this, kPatch_Type, paint);
     if (apf.shouldDraw()) {
-        this->INHERITED::onDrawPatch(cubics, colors, texCoords, xmode, *apf.paint());
+        this->INHERITED::onDrawPatch(cubics, colors, texCoords, bmode, *apf.paint());
     }
 }
 

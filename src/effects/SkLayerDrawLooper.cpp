@@ -15,7 +15,7 @@
 
 SkLayerDrawLooper::LayerInfo::LayerInfo() {
     fPaintBits = 0;                     // ignore our paint fields
-    fColorMode = (SK_XFERMODE_MODE_PARAM)SkBlendMode::kDst; // ignore our color
+    fColorMode = SkBlendMode::kDst;     // ignore our color
     fOffset.set(0, 0);
     fPostTranslate = false;
 }
@@ -224,7 +224,7 @@ sk_sp<SkFlattenable> SkLayerDrawLooper::CreateProc(SkReadBuffer& buffer) {
         (void)buffer.readInt();
 
         info.fPaintBits = buffer.readInt();
-        info.fColorMode = (SK_XFERMODE_MODE_PARAM)buffer.readInt();
+        info.fColorMode = (SkBlendMode)buffer.readInt();
         buffer.readPoint(&info.fOffset);
         info.fPostTranslate = buffer.readBool();
         buffer.readPaint(builder.addLayerOnTop(info));

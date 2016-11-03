@@ -178,10 +178,9 @@ protected:
                                 const SkPaint& paint) override;
 
     void onDrawPatch(const SkPoint cubics[12], const SkColor colors[4],
-                             const SkPoint texCoords[4], SK_XFERMODE_PARAM xmode,
-                             const SkPaint& paint) override;
+                     const SkPoint texCoords[4], SkBlendMode, const SkPaint& paint) override;
     void onDrawAtlas(const SkImage*, const SkRSXform[], const SkRect[], const SkColor[], int,
-                     SK_XFERMODE_MODE_PARAM, const SkRect*, const SkPaint*) override;
+                     SkBlendMode, const SkRect*, const SkPaint*) override;
 
     void onDrawPaint(const SkPaint&) override;
     void onDrawPoints(PointMode, size_t count, const SkPoint pts[], const SkPaint&) override;
@@ -201,7 +200,7 @@ protected:
 
     void onDrawVertices(VertexMode vmode, int vertexCount,
                         const SkPoint vertices[], const SkPoint texs[],
-                        const SkColor colors[], SK_XFERMODE_PARAM xmode,
+                        const SkColor colors[], SkBlendMode,
                         const uint16_t indices[], int indexCount,
                         const SkPaint&) override;
 

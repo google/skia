@@ -352,7 +352,7 @@ void SkPipeCanvas::onDrawArc(const SkRect& bounds, SkScalar startAngle, SkScalar
 }
 
 void SkPipeCanvas::onDrawAtlas(const SkImage* image, const SkRSXform xform[], const SkRect rect[],
-                               const SkColor colors[], int count, SK_XFERMODE_MODE_PARAM mode,
+                               const SkColor colors[], int count, SkBlendMode mode,
                                const SkRect* cull, const SkPaint* paint) {
     unsigned extra = (unsigned)mode;
     SkASSERT(0 == (extra & ~kMode_DrawAtlasMask));
@@ -732,7 +732,7 @@ void SkPipeCanvas::onDrawRegion(const SkRegion& region, const SkPaint& paint) {
 
 void SkPipeCanvas::onDrawVertices(VertexMode vmode, int vertexCount,
                                   const SkPoint vertices[], const SkPoint texs[],
-                                  const SkColor colors[], SK_XFERMODE_PARAM xmode,
+                                  const SkColor colors[], SkBlendMode bmode,
                                   const uint16_t indices[], int indexCount,
                                   const SkPaint& paint) {
     SkASSERT(vertexCount > 0);
@@ -742,12 +742,6 @@ void SkPipeCanvas::onDrawVertices(VertexMode vmode, int vertexCount,
         extra |= vertexCount;
     }
     extra |= (unsigned)vmode << kVMode_DrawVerticesShift;
-
-#ifdef SK_SUPPORT_LEGACY_XFERMODE_PARAM
-    SkBlendMode bmode = xmode ? xmode->blend() : SkBlendMode::kModulate;
-#else
-    SkBlendMode bmode = xmode;
-#endif
     extra |= (unsigned)bmode << kXMode_DrawVerticesShift;
 
     if (texs) {
@@ -781,15 +775,10 @@ void SkPipeCanvas::onDrawVertices(VertexMode vmode, int vertexCount,
 }
 
 void SkPipeCanvas::onDrawPatch(const SkPoint cubics[12], const SkColor colors[4],
-                               const SkPoint texCoords[4], SK_XFERMODE_PARAM xmode,
+                               const SkPoint texCoords[4], SkBlendMode bmode,
                                const SkPaint& paint) {
     SkPipeWriter writer(this);
     unsigned extra = 0;
-#ifdef SK_SUPPORT_LEGACY_XFERMODE_PARAM
-    SkBlendMode bmode = xmode ? xmode->blend() : SkBlendMode::kModulate;
-#else
-    SkBlendMode bmode = xmode;
-#endif
     SkASSERT(0 == ((int)bmode & ~kModeEnum_DrawPatchExtraMask));
     extra = (unsigned)bmode;
     if (colors) {
