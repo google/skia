@@ -44,6 +44,18 @@ static inline void copyAlpha8FromColor(size_t size, const sk_color_t* colors, ui
         *pixels++ = SkColorGetA(*colors++);
     }
 }
+
+static inline void copyIndex8FromColor(size_t size, const sk_color_t* colors, uint8_t* pixels)
+{
+    /* 
+        Use the luminisity formula to convert from 24bit to grayscale
+    */
+    while (size-- != 0) {
+        SkColor c = *colors++;
+        *pixels++ = 0.2126 * SkColorGetR(c) + 0.7152 * SkColorGetG(c) + 0.0722 * SkColorGetB(c);
+    }
+}
+
 static inline void copyRgb565FromColor(size_t width, size_t height, const sk_color_t* colors, uint16_t* pixels)
 {
     for (size_t y = 0; y < height; y++) {
@@ -154,6 +166,9 @@ void sk_bitmap_set_pixel_color(sk_bitmap_t* cbitmap, int x, int y, sk_color_t co
     case kAlpha_8_SkColorType:
         copyAlpha8FromColor(1, &color, (uint8_t*)bmp->getAddr8(x, y));
         break;
+    case kIndex_8_SkColorType:
+        copyIndex8FromColor(1, &color, (uint8_t*)bmp->getAddr8(x, y));
+        break;
     case kRGB_565_SkColorType:
         copyRgb565FromColor(1, 1, &color, (uint16_t*)bmp->getAddr16(x, y));
         break;
@@ -225,6 +240,9 @@ void sk_bitmap_set_pixel_colors(sk_bitmap_t* cbitmap, const sk_color_t* colors)
     switch (bmp->colorType()) {
     case kAlpha_8_SkColorType:
         copyAlpha8FromColor(size, colors, (uint8_t*)pixels);
+        break;
+    case kIndex_8_SkColorType:
+        copyIndex8FromColor(size, colors, (uint8_t*)pixels);
         break;
     case kRGB_565_SkColorType:
         copyRgb565FromColor(width, height, colors, (uint16_t*)pixels);
