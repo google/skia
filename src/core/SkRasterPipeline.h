@@ -55,7 +55,8 @@
 // the Stage*.  This mostly matters on 64-bit Windows where every register is precious.
 
 #define SK_RASTER_PIPELINE_STAGES(M)                             \
-    M(swap_src_dst) M(constant_color) M(clamp_1)                 \
+    M(swap_src_dst) M(clamp_0) M(clamp_a) M(unpremul) M(premul)  \
+    M(constant_color)                                            \
     M(load_s_565)  M(load_d_565)  M(store_565)                   \
     M(load_s_srgb) M(load_d_srgb) M(store_srgb)                  \
     M(load_s_f16)  M(load_d_f16)  M(store_f16)                   \
@@ -67,7 +68,7 @@
     M(clear) M(modulate) M(multiply) M(plus_) M(screen) M(xor_)  \
     M(colorburn) M(colordodge) M(darken) M(difference)           \
     M(exclusion) M(hardlight) M(lighten) M(overlay) M(softlight) \
-    M(luminance_to_alpha)
+    M(luminance_to_alpha) M(matrix_4x5)
 
 class SkRasterPipeline {
 public:

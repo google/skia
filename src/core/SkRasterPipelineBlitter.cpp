@@ -99,12 +99,18 @@ SkBlitter* SkRasterPipelineBlitter::Create(const SkPixmap& dst,
         return nullptr;  // TODO
     }
 
+    uint32_t paintColor = paint.getColor();
+    bool shaderIsOpaque = (paintColor >> 24) == 0xff;
+
     SkRasterPipeline shader, colorFilter;
-    if (paint.getColorFilter() && !paint.getColorFilter()->appendStages(&colorFilter)) {
+    if (paint.getShader()) {
+        shaderIsOpaque = paint.getShader()->isOpaque();
+    }
+    if ( paint.getColorFilter() &&
+        !paint.getColorFilter()->appendStages(&colorFilter, shaderIsOpaque)) {
         return nullptr;
     }
 
-    uint32_t paintColor = paint.getColor();
 
     SkColor4f color;
     if (dst.info().colorSpace()) {
@@ -166,7 +172,7 @@ void SkRasterPipelineBlitter::append_blend(SkRasterPipeline* p) const {
 }
 
 void SkRasterPipelineBlitter::maybe_clamp(SkRasterPipeline* p) const {
-    if (SkBlendMode_CanOverflow(fBlend)) { p->append(SkRasterPipeline::clamp_1); }
+    if (SkBlendMode_CanOverflow(fBlend)) { p->append(SkRasterPipeline::clamp_a); }
 }
 
 void SkRasterPipelineBlitter::blitH(int x, int y, int w) {

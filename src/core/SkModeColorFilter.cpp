@@ -85,7 +85,7 @@ sk_sp<SkFlattenable> SkModeColorFilter::CreateProc(SkReadBuffer& buffer) {
     return SkColorFilter::MakeModeFilter(color, mode);
 }
 
-bool SkModeColorFilter::onAppendStages(SkRasterPipeline* p) const {
+bool SkModeColorFilter::onAppendStages(SkRasterPipeline* p, bool shaderIsOpaque) const {
     // TODO: For some modes we can cut a stage by loading the fPM4f into dr,dg,db,da
     // and applying the opposite xfermode, e.g. dst-in instead of src-in.
     p->append(SkRasterPipeline::swap_src_dst);
@@ -94,7 +94,7 @@ bool SkModeColorFilter::onAppendStages(SkRasterPipeline* p) const {
     if (!SkBlendMode_AppendStages(mode, p)) {
         return false;
     }
-    if (SkBlendMode_CanOverflow(mode)) { p->append(SkRasterPipeline::clamp_1); }
+    if (SkBlendMode_CanOverflow(mode)) { p->append(SkRasterPipeline::clamp_a); }
     return true;
 }
 
