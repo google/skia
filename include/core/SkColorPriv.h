@@ -408,9 +408,9 @@ static inline bool SkPMColorValid(SkPMColor c) {
  */
 static inline SkPMColor SkPackARGB32(U8CPU a, U8CPU r, U8CPU g, U8CPU b) {
     SkA32Assert(a);
-    SkASSERT(r <= a);
-    SkASSERT(g <= a);
-    SkASSERT(b <= a);
+    SkR32Assert(r);
+    SkG32Assert(g);
+    SkB32Assert(b);
 
     return (a << SK_A32_SHIFT) | (r << SK_R32_SHIFT) |
            (g << SK_G32_SHIFT) | (b << SK_B32_SHIFT);
@@ -846,9 +846,9 @@ static inline unsigned SkB4444ToB565(unsigned b) {
 static inline SkPMColor16 SkPackARGB4444(unsigned a, unsigned r,
                                          unsigned g, unsigned b) {
     SkASSERT(a <= 0xF);
-    SkASSERT(r <= a);
-    SkASSERT(g <= a);
-    SkASSERT(b <= a);
+    SkASSERT(r <= 0xF);
+    SkASSERT(g <= 0xF);
+    SkASSERT(b <= 0xF);
 
     return (SkPMColor16)((a << SK_A4444_SHIFT) | (r << SK_R4444_SHIFT) |
                          (g << SK_G4444_SHIFT) | (b << SK_B4444_SHIFT));
