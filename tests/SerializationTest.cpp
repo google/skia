@@ -357,7 +357,7 @@ static void serialize_and_compare_typeface(sk_sp<SkTypeface> typeface, const cha
     // Serlialize picture and create its clone from stream.
     SkDynamicMemoryWStream stream;
     picture->serialize(&stream);
-    SkAutoTDelete<SkStream> inputStream(stream.detachAsStream());
+    std::unique_ptr<SkStream> inputStream(stream.detachAsStream());
     sk_sp<SkPicture> loadedPicture(SkPicture::MakeFromStream(inputStream.get()));
 
     // Draw both original and clone picture and compare bitmaps -- they should be identical.
@@ -648,8 +648,8 @@ DEF_TEST(Serialization, reporter) {
 static sk_sp<SkPicture> copy_picture_via_serialization(SkPicture* src) {
     SkDynamicMemoryWStream wstream;
     src->serialize(&wstream);
-    SkAutoTDelete<SkStreamAsset> rstream(wstream.detachAsStream());
-    return SkPicture::MakeFromStream(rstream);
+    std::unique_ptr<SkStreamAsset> rstream(wstream.detachAsStream());
+    return SkPicture::MakeFromStream(rstream.get());
 }
 
 struct AnnotationRec {

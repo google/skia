@@ -548,7 +548,7 @@ SkSampler* SkBmpRLECodec::getSampler(bool /*createIfNecessary*/) {
         fSampler.reset(new SkBmpRLESampler(this));
     }
 
-    return fSampler;
+    return fSampler.get();
 }
 
 int SkBmpRLECodec::setSampleX(int sampleX){

@@ -351,7 +351,7 @@ private:
 
     void flush();
 
-    SkAutoTDelete<SkTextBlobBuilder>   fBuilder;
+    std::unique_ptr<SkTextBlobBuilder> fBuilder;
     SkPaint                            fFont;
     int                                fBuffIdx;
     int                                fCount;
