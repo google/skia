@@ -25,6 +25,24 @@
     },
     {
       "key": {
+        "uuid": "66ba4639_a4246e25",
+        "filename": "src/ports/SkFontHost_FreeType.cpp",
+        "patchSetId": 8
+      },
+      "lineNbr": 621,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2016-11-03T20:53:57Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "3cccdff8_b542ea80",
+      "revId": "7cfd46aebda7b7d2b88e73621ed0d1be7244c2ca",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "3cccdff8_15549e39",
         "filename": "src/ports/SkFontHost_win.cpp",
         "patchSetId": 8
@@ -42,6 +60,24 @@
         "endLine": 2263,
         "endChar": 21
       },
+      "revId": "7cfd46aebda7b7d2b88e73621ed0d1be7244c2ca",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "66ba4639_04f0da74",
+        "filename": "src/ports/SkFontHost_win.cpp",
+        "patchSetId": 8
+      },
+      "lineNbr": 2263,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2016-11-03T20:53:57Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "3cccdff8_15549e39",
       "revId": "7cfd46aebda7b7d2b88e73621ed0d1be7244c2ca",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
