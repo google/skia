@@ -40,7 +40,7 @@ class SkEvent;
 
 - (void)setSkTitle:(const char*)title;
 - (void)onAddMenu:(const SkOSMenu*)menu;
-- (void)onUpdateMenu:(SkOSMenu*)menu;
+- (void)onUpdateMenu:(const SkOSMenu*)menu;
 - (void)postInvalWithRect:(const SkIRect*)rectOrNil;
 - (BOOL)onHandleEvent:(const SkEvent&)event;
 - (void)getAttachmentInfo:(SkOSWindow::AttachmentInfo*)info;
