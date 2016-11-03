@@ -288,7 +288,7 @@ const GrGLInterface* CreateANGLEGLInterface() {
 }
 
 std::unique_ptr<GLTestContext> MakeANGLETestContext(ANGLEBackend type, ANGLEContextVersion version){
-    std::unique_ptr<ANGLEGLContext> ctx(new ANGLEGLContext(type, version));
+    std::unique_ptr<GLTestContext> ctx(new ANGLEGLContext(type, version));
     if (!ctx->isValid()) {
         return nullptr;
     }
