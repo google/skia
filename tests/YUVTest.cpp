@@ -15,11 +15,11 @@
 static void codec_yuv(skiatest::Reporter* reporter,
                   const char path[],
                   SkISize expectedSizes[3]) {
-    SkAutoTDelete<SkStream> stream(GetResourceAsStream(path));
+    std::unique_ptr<SkStream> stream(GetResourceAsStream(path));
     if (!stream) {
         return;
     }
-    SkAutoTDelete<SkCodec> codec(SkCodec::NewFromStream(stream.release()));
+    std::unique_ptr<SkCodec> codec(SkCodec::NewFromStream(stream.release()));
     REPORTER_ASSERT(reporter, codec);
     if (!codec) {
         return;
