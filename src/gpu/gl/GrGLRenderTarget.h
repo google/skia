@@ -89,8 +89,6 @@ private:
     GrGLGpu* getGLGpu() const;
     bool completeStencilAttachment() override;
 
-    // The total size of the resource (including all pixels) for a single sample.
-    size_t totalBytesPerSample() const;
     int msaaSamples() const;
     // The number total number of samples, including both MSAA and resolve texture samples.
     int totalSamples() const;
@@ -106,9 +104,10 @@ private:
     // we want the rendering to be at top left (GL has origin in bottom left)
     GrGLIRect   fViewport;
 
-    // onGpuMemorySize() needs to know the VRAM footprint of the FBO(s). However, abandon and
-    // release zero out the IDs and the cache needs to know the size even after those actions.
-    size_t      fGpuMemorySize;
+    // The RenderTarget needs to be able to report its VRAM footprint even after abandon and
+    // release have potentially zeroed out the IDs (e.g., so the cache can reset itself). Since
+    // the IDs are just required for the computation in totalSamples we cache that result here.
+    int         fNumSamplesOwnedPerPixel;
 
     typedef GrRenderTarget INHERITED;
 };
