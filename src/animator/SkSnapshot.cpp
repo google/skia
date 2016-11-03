@@ -42,7 +42,7 @@ bool SkSnapshot::draw(SkAnimateMaker& maker) {
     if (!encoder) {
         return false;
     }
-    SkAutoTDelete<SkImageEncoder> ad(encoder);
+    std::unique_ptr<SkImageEncoder> ad(encoder);
 
     SkString name(filename);
     if (sequence) {

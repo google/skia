@@ -28,10 +28,10 @@ public:
     virtual bool isValid() const = 0;
 
     bool fenceSyncSupport() const { return fFenceSync != nullptr; }
-    FenceSync* fenceSync() { SkASSERT(fFenceSync); return fFenceSync; }
+    FenceSync* fenceSync() { SkASSERT(fFenceSync); return fFenceSync.get(); }
 
     bool gpuTimingSupport() const { return fGpuTimer != nullptr; }
-    GpuTimer* gpuTimer() const { SkASSERT(fGpuTimer); return fGpuTimer; }
+    GpuTimer* gpuTimer() const { SkASSERT(fGpuTimer); return fGpuTimer.get(); }
 
     bool getMaxGpuFrameLag(int *maxFrameLag) const {
         if (!fFenceSync) {
@@ -81,8 +81,8 @@ public:
     virtual void finish() = 0;
 
 protected:
-    SkAutoTDelete<FenceSync>   fFenceSync;
-    SkAutoTDelete<GpuTimer>    fGpuTimer;
+    std::unique_ptr<FenceSync> fFenceSync;
+    std::unique_ptr<GpuTimer>  fGpuTimer;
 
     TestContext();
 

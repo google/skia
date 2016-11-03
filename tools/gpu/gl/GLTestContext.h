@@ -57,7 +57,7 @@ public:
      * Creates a new GL context of the same type and makes the returned context current
      * (if not null).
      */
-    virtual GLTestContext *createNew() const { return nullptr; }
+    virtual std::unique_ptr<GLTestContext> makeNew() const { return nullptr; }
 
     template<typename Ret, typename... Args>
     void getGLProcAddress(Ret(GR_GL_FUNCTION_TYPE** out)(Args...),
@@ -81,7 +81,7 @@ protected:
     /*
      * Methods that sublcasses must call from their constructors and destructors.
      */
-    void init(const GrGLInterface *, FenceSync* = nullptr);
+    void init(const GrGLInterface *, std::unique_ptr<FenceSync> = nullptr);
 
     void teardown() override;
 

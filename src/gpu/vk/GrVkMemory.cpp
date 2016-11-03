@@ -561,7 +561,7 @@ bool GrVkHeap::subAlloc(VkDeviceSize size, VkDeviceSize alignment,
     }
 
     // need to allocate a new subheap
-    SkAutoTDelete<GrVkSubHeap>& subHeap = fSubHeaps.push_back();
+    std::unique_ptr<GrVkSubHeap>& subHeap = fSubHeaps.push_back();
     subHeap.reset(new GrVkSubHeap(fGpu, memoryTypeIndex, heapIndex, fSubHeapSize, alignment));
     // try to recover from failed allocation by only allocating what we need
     if (subHeap->size() == 0) {
@@ -609,7 +609,7 @@ bool GrVkHeap::singleAlloc(VkDeviceSize size, VkDeviceSize alignment,
     }
 
     // need to allocate a new subheap
-    SkAutoTDelete<GrVkSubHeap>& subHeap = fSubHeaps.push_back();
+    std::unique_ptr<GrVkSubHeap>& subHeap = fSubHeaps.push_back();
     subHeap.reset(new GrVkSubHeap(fGpu, memoryTypeIndex, heapIndex, alignedSize, alignment));
     fAllocSize += alignedSize;
     if (subHeap->alloc(size, alloc)) {
