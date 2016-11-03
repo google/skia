@@ -38,7 +38,7 @@ protected:
                        size_t dstRowBytes, const Options&, SkPMColor*,
                        int*, int*) override;
 
-    SkCodec::Result onPrepareToDecode(const SkImageInfo& dstInfo,
+    SkCodec::Result prepareToDecode(const SkImageInfo& dstInfo,
             const SkCodec::Options& options, SkPMColor inputColorPtr[],
             int* inputColorCount) override;
 
