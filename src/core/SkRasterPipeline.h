@@ -60,7 +60,7 @@
     M(load_s_565)  M(load_d_565)  M(store_565)                   \
     M(load_s_srgb) M(load_d_srgb) M(store_srgb)                  \
     M(load_s_f16)  M(load_d_f16)  M(store_f16)                   \
-    M(scale_u8)                                                  \
+    M(scale_u8) M(scale_constant_float)                          \
     M(lerp_u8) M(lerp_565) M(lerp_constant_float)                \
     M(dst)                                                       \
     M(dstatop) M(dstin) M(dstout) M(dstover)                     \
