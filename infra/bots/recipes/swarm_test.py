@@ -80,6 +80,10 @@ def dm_flags(bot):
       'iHD530'      in bot):
     configs = [x for x in configs if 'msaa' not in x]
 
+  # The NP produces different images for dft on every run.
+  if 'NexusPlayer' in bot:
+    configs = [x for x in configs if 'gpudft' not in x]
+
   # Runs out of memory on Android bots.  Everyone else seems fine.
   if 'Android' in bot:
     configs.remove('pdf')
