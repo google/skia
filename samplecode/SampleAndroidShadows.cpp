@@ -364,6 +364,7 @@ protected:
         canvas->drawRRect(shadowRRect, paint);
     }
 
+#define USE_MASK_FILTER 1
     void drawShadowedPath(SkCanvas* canvas, const SkPath& path, SkScalar zValue,
                           const SkPaint& paint, SkScalar ambientAlpha,
                           const SkPoint3& lightPos, SkScalar lightWidth, SkScalar spotAlpha) {
