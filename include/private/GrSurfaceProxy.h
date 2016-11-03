@@ -120,10 +120,6 @@ public:
      * @return the amount of GPU memory used in bytes
      */
     size_t gpuMemorySize() const {
-        if (fTarget) {
-            return fTarget->gpuMemorySize();
-        }
-
         if (kInvalidGpuMemorySize == fGpuMemorySize) {
             fGpuMemorySize = this->onGpuMemorySize();
             SkASSERT(kInvalidGpuMemorySize != fGpuMemorySize);
@@ -154,14 +150,16 @@ protected:
     const uint32_t      fUniqueID; // set from the backing resource for wrapped resources
 
     static const size_t kInvalidGpuMemorySize = ~static_cast<size_t>(0);
+    SkDEBUGCODE(size_t getRawGpuMemorySize_debugOnly() const { return fGpuMemorySize; })
+
+private:
+    virtual size_t onGpuMemorySize() const = 0;
+
     // This entry is lazily evaluated so, when the proxy wraps a resource, the resource
     // will be called but, when the proxy is deferred, it will compute the answer itself.
     // If the proxy computes its own answer that answer is checked (in debug mode) in
     // the instantiation method.
     mutable size_t      fGpuMemorySize;
-
-private:
-    virtual size_t onGpuMemorySize() const = 0;
 
     // The last opList that wrote to or is currently going to write to this surface
     // The opList can be closed (e.g., no render target context is currently bound
@@ -170,6 +168,7 @@ private:
     // the opList used to create the current contents of this surface
     // and the opList of a destination surface to which this one is being drawn or copied.
     GrOpList* fLastOpList;
+
 
     typedef GrIORefProxy INHERITED;
 };

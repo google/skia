@@ -31,8 +31,8 @@ GrTexture* GrTextureProxy::instantiate(GrTextureProvider* texProvider) {
     }
 
 #ifdef SK_DEBUG
-    if (kInvalidGpuMemorySize != fGpuMemorySize) {
-        SkASSERT(fTarget->gpuMemorySize() <= fGpuMemorySize);
+    if (kInvalidGpuMemorySize != this->getRawGpuMemorySize_debugOnly()) {
+        SkASSERT(fTarget->gpuMemorySize() <= this->getRawGpuMemorySize_debugOnly());
     }
 #endif
 
@@ -40,21 +40,13 @@ GrTexture* GrTextureProxy::instantiate(GrTextureProvider* texProvider) {
 }
 
 size_t GrTextureProxy::onGpuMemorySize() const {
-    size_t textureSize;
-
-    if (GrPixelConfigIsCompressed(fDesc.fConfig)) {
-        textureSize = GrCompressedFormatDataSize(fDesc.fConfig, fDesc.fWidth, fDesc.fHeight);
-    } else {
-        textureSize = (size_t) fDesc.fWidth * fDesc.fHeight * GrBytesPerPixel(fDesc.fConfig);
+    if (fTarget) {
+        return fTarget->gpuMemorySize();
     }
 
+    static const bool kHasMipMaps = true;
     // TODO: add tracking of mipmap state to improve the estimate
-    textureSize += textureSize/3;
-
-    SkASSERT(!SkToBool(fDesc.fFlags & kRenderTarget_GrSurfaceFlag));
-    SkASSERT(textureSize <= GrSurface::WorstCaseSize(fDesc));
-
-    return textureSize;
+    return GrTexture::ComputeSize(fDesc, kHasMipMaps);
 }
 
 sk_sp<GrTextureProxy> GrTextureProxy::Make(GrTextureProvider* texProvider,

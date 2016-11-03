@@ -59,9 +59,7 @@ void GrGLRenderTarget::init(const GrSurfaceDesc& desc, const IDDesc& idDesc) {
     fViewport.fWidth  = desc.fWidth;
     fViewport.fHeight = desc.fHeight;
 
-    fGpuMemorySize = this->totalSamples() * this->totalBytesPerSample();
-
-    SkASSERT(fGpuMemorySize <= WorstCaseSize(desc));
+    fNumSamplesOwnedPerPixel = this->totalSamples();
 }
 
 sk_sp<GrGLRenderTarget> GrGLRenderTarget::MakeWrapped(GrGLGpu* gpu,
@@ -84,7 +82,7 @@ sk_sp<GrGLRenderTarget> GrGLRenderTarget::MakeWrapped(GrGLGpu* gpu,
 }
 
 size_t GrGLRenderTarget::onGpuMemorySize() const {
-    return fGpuMemorySize;
+    return GrRenderTarget::ComputeSize(fDesc, fNumSamplesOwnedPerPixel);
 }
 
 bool GrGLRenderTarget::completeStencilAttachment() {
@@ -185,7 +183,7 @@ void GrGLRenderTarget::dumpMemoryStatistics(SkTraceMemoryDump* traceMemoryDump) 
     // Log any renderbuffer's contribution to memory. We only do this if we own the renderbuffer
     // (have a fMSColorRenderbufferID).
     if (fMSColorRenderbufferID) {
-        size_t size = this->msaaSamples() * this->totalBytesPerSample();
+        size_t size = GrRenderTarget::ComputeSize(fDesc, this->msaaSamples());
 
         // Due to this resource having both a texture and a renderbuffer component, dump as
         // skia/gpu_resources/resource_#/renderbuffer
@@ -204,15 +202,6 @@ void GrGLRenderTarget::dumpMemoryStatistics(SkTraceMemoryDump* traceMemoryDump) 
         traceMemoryDump->setMemoryBacking(dumpName.c_str(), "gl_renderbuffer",
                                           renderbuffer_id.c_str());
     }
-}
-
-size_t GrGLRenderTarget::totalBytesPerSample() const {
-    SkASSERT(kUnknown_GrPixelConfig != fDesc.fConfig);
-    SkASSERT(!GrPixelConfigIsCompressed(fDesc.fConfig));
-    size_t colorBytes = GrBytesPerPixel(fDesc.fConfig);
-    SkASSERT(colorBytes > 0);
-
-    return fDesc.fWidth * fDesc.fHeight * colorBytes;
 }
 
 int GrGLRenderTarget::msaaSamples() const {

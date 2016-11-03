@@ -119,6 +119,8 @@ public:
         return (GrRenderTargetOpList*) this->getLastOpList();
     }
 
+    static size_t ComputeSize(const GrSurfaceDesc& desc, int colorValuesPerPixel);
+
 protected:
     enum class Flags {
         kNone                = 0,

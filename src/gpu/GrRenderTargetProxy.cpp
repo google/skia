@@ -54,8 +54,8 @@ GrRenderTarget* GrRenderTargetProxy::instantiate(GrTextureProvider* texProvider)
     }
 
 #ifdef SK_DEBUG
-    if (kInvalidGpuMemorySize != fGpuMemorySize) {
-        SkASSERT(fTarget->gpuMemorySize() <= fGpuMemorySize);    
+    if (kInvalidGpuMemorySize != this->getRawGpuMemorySize_debugOnly()) {
+        SkASSERT(fTarget->gpuMemorySize() <= this->getRawGpuMemorySize_debugOnly());    
     }
 #endif
 
@@ -81,13 +81,8 @@ size_t GrRenderTargetProxy::onGpuMemorySize() const {
         return fTarget->gpuMemorySize();
     }
 
-    SkASSERT(kUnknown_GrPixelConfig != fDesc.fConfig);
-    SkASSERT(!GrPixelConfigIsCompressed(fDesc.fConfig));
-    size_t colorBytes = GrBytesPerPixel(fDesc.fConfig);
-    SkASSERT(colorBytes > 0);
-
     // TODO: do we have enough information to improve this worst case estimate?
-    return (fDesc.fSampleCnt + 1) * fDesc.fWidth * fDesc.fHeight * colorBytes;
+    return GrRenderTarget::ComputeSize(fDesc, fDesc.fSampleCnt+1);
 }
 
 sk_sp<GrRenderTargetProxy> GrRenderTargetProxy::Make(const GrCaps& caps,

@@ -39,8 +39,6 @@ GrVkRenderTarget::GrVkRenderTarget(GrVkGpu* gpu,
     , fFramebuffer(nullptr)
     , fCachedSimpleRenderPass(nullptr) {
     SkASSERT(desc.fSampleCnt);
-    // The plus 1 is to account for the resolve texture.
-    fColorValuesPerPixel = desc.fSampleCnt + 1; // TODO: this still correct?
     this->createFramebuffer(gpu);
     this->registerWithCache(budgeted);
 }
@@ -64,8 +62,6 @@ GrVkRenderTarget::GrVkRenderTarget(GrVkGpu* gpu,
     , fFramebuffer(nullptr)
     , fCachedSimpleRenderPass(nullptr) {
     SkASSERT(desc.fSampleCnt);
-    // The plus 1 is to account for the resolve texture.
-    fColorValuesPerPixel = desc.fSampleCnt + 1; // TODO: this still correct?
     this->createFramebuffer(gpu);
 }
 
@@ -86,7 +82,6 @@ GrVkRenderTarget::GrVkRenderTarget(GrVkGpu* gpu,
     , fFramebuffer(nullptr)
     , fCachedSimpleRenderPass(nullptr) {
     SkASSERT(!desc.fSampleCnt);
-    fColorValuesPerPixel = 1;
     this->createFramebuffer(gpu);
     this->registerWithCache(budgeted);
 }
@@ -107,7 +102,6 @@ GrVkRenderTarget::GrVkRenderTarget(GrVkGpu* gpu,
     , fFramebuffer(nullptr)
     , fCachedSimpleRenderPass(nullptr) {
     SkASSERT(!desc.fSampleCnt);
-    fColorValuesPerPixel = 1;
     this->createFramebuffer(gpu);
 }
 

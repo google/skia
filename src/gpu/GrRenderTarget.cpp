@@ -84,12 +84,23 @@ void GrRenderTarget::onAbandon() {
     INHERITED::onAbandon();
 }
 
+size_t GrRenderTarget::ComputeSize(const GrSurfaceDesc& desc, int colorValuesPerPixel) {
+    SkASSERT(kUnknown_GrPixelConfig != desc.fConfig);
+    SkASSERT(!GrPixelConfigIsCompressed(desc.fConfig));
+    size_t colorBytes = GrBytesPerPixel(desc.fConfig);
+    SkASSERT(colorBytes > 0);
+
+    size_t rtSize = colorValuesPerPixel * desc.fWidth * desc.fHeight * colorBytes;
+    SkASSERT(rtSize <= WorstCaseSize(desc));
+    return rtSize;
+}
+
 ///////////////////////////////////////////////////////////////////////////////
 
 bool GrRenderTargetPriv::attachStencilAttachment(GrStencilAttachment* stencil) {
     if (!stencil && !fRenderTarget->fStencilAttachment) {
         // No need to do any work since we currently don't have a stencil attachment and
-        // we're not acctually adding one.
+        // we're not actually adding one.
         return true;
     }
     fRenderTarget->fStencilAttachment = stencil;
@@ -122,3 +133,4 @@ int GrRenderTargetPriv::maxWindowRectangles() const {
     return (this->flags() & Flags::kWindowRectsSupport) ?
            fRenderTarget->getGpu()->caps()->maxWindowRectangles() : 0;
 }
+
