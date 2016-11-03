@@ -158,7 +158,9 @@ bool SkBitmapProcInfo::init(const SkMatrix& inv, const SkPaint& paint) {
     // We don't do this if we're either trivial (can ignore the matrix) or clamping
     // in both X and Y since clamping to width,height is just as easy as to 0xFFFF.
 
-    if (!(clampClamp || trivialMatrix)) {
+    // Note that we cannot ignore the matrix when allow_ignore_fractional_translate is false.
+
+    if (!(clampClamp || (trivialMatrix && allow_ignore_fractional_translate))) {
         fInvMatrix.postIDiv(fPixmap.width(), fPixmap.height());
     }
 
