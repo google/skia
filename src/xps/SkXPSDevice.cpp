@@ -428,7 +428,7 @@ static HRESULT subset_typeface(SkXPSDevice::TypefaceUse* current) {
         fontPackageBuffer.realloc(bytesWritten);
     }
 
-    SkAutoTDelete<SkMemoryStream> newStream(new SkMemoryStream());
+    std::unique_ptr<SkMemoryStream> newStream(new SkMemoryStream());
     newStream->setMemoryOwned(fontPackageBuffer.release(), bytesWritten + extra);
 
     SkTScopedComPtr<IStream> newIStream;

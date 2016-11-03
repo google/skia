@@ -513,10 +513,10 @@ protected:
     // Handles cases where a surface will be updated without a call to flushRenderTarget
     void didWriteToSurface(GrSurface* surface, const SkIRect* bounds, uint32_t mipLevels = 1) const;
 
-    Stats                                   fStats;
-    SkAutoTDelete<GrPathRendering>          fPathRendering;
+    Stats                            fStats;
+    std::unique_ptr<GrPathRendering> fPathRendering;
     // Subclass must initialize this in its constructor.
-    SkAutoTUnref<const GrCaps>    fCaps;
+    SkAutoTUnref<const GrCaps>       fCaps;
 
     typedef SkTArray<SkPoint, true> SamplePattern;
 

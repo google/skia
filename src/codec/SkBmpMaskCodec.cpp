@@ -60,7 +60,7 @@ SkCodec::Result SkBmpMaskCodec::onGetPixels(const SkImageInfo& dstInfo,
 SkCodec::Result SkBmpMaskCodec::prepareToDecode(const SkImageInfo& dstInfo,
         const SkCodec::Options& options, SkPMColor inputColorPtr[], int* inputColorCount) {
     // Initialize the mask swizzler
-    fMaskSwizzler.reset(SkMaskSwizzler::CreateMaskSwizzler(dstInfo, this->getInfo(), fMasks,
+    fMaskSwizzler.reset(SkMaskSwizzler::CreateMaskSwizzler(dstInfo, this->getInfo(), fMasks.get(),
             this->bitsPerPixel(), options));
     SkASSERT(fMaskSwizzler);
 

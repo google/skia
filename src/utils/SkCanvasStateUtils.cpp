@@ -204,7 +204,7 @@ SkCanvasState* SkCanvasStateUtils::CaptureCanvasState(SkCanvas* canvas) {
         return nullptr;
     }
 
-    SkAutoTDelete<SkCanvasState_v1> canvasState(new SkCanvasState_v1(canvas));
+    std::unique_ptr<SkCanvasState_v1> canvasState(new SkCanvasState_v1(canvas));
 
     // decompose the total matrix and clip
     setup_MC_state(&canvasState->mcState, canvas->getTotalMatrix(),

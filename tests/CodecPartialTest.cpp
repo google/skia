@@ -28,12 +28,12 @@ static SkImageInfo standardize_info(SkCodec* codec) {
 }
 
 static bool create_truth(sk_sp<SkData> data, SkBitmap* dst) {
-    SkAutoTDelete<SkCodec> codec(SkCodec::NewFromData(std::move(data)));
+    std::unique_ptr<SkCodec> codec(SkCodec::NewFromData(std::move(data)));
     if (!codec) {
         return false;
     }
 
-    const SkImageInfo info = standardize_info(codec);
+    const SkImageInfo info = standardize_info(codec.get());
     dst->allocPixels(info);
     return SkCodec::kSuccess == codec->getPixels(info, dst->getPixels(), dst->rowBytes());
 }
@@ -108,7 +108,7 @@ static void test_partial(skiatest::Reporter* r, const char* name) {
 
     // Note that we cheat and hold on to a pointer to stream, though it is owned by
     // partialCodec.
-    SkAutoTDelete<SkCodec> partialCodec(SkCodec::NewFromStream(stream));
+    std::unique_ptr<SkCodec> partialCodec(SkCodec::NewFromStream(stream));
     if (!partialCodec) {
         // Technically, this could be a small file where half the file is not
         // enough.
@@ -116,7 +116,7 @@ static void test_partial(skiatest::Reporter* r, const char* name) {
         return;
     }
 
-    const SkImageInfo info = standardize_info(partialCodec);
+    const SkImageInfo info = standardize_info(partialCodec.get());
     SkASSERT(info == truth.info());
     SkBitmap incremental;
     incremental.allocPixels(info);
@@ -284,14 +284,14 @@ static void test_interleaved(skiatest::Reporter* r, const char* name) {
         return;
     }
     const size_t halfSize = file->size() / 2;
-    SkAutoTDelete<SkCodec> partialCodec(SkCodec::NewFromStream(
+    std::unique_ptr<SkCodec> partialCodec(SkCodec::NewFromStream(
             new HaltingStream(std::move(file), halfSize)));
     if (!partialCodec) {
         ERRORF(r, "Failed to create codec for %s", name);
         return;
     }
 
-    const SkImageInfo info = standardize_info(partialCodec);
+    const SkImageInfo info = standardize_info(partialCodec.get());
     SkBitmap incremental;
     incremental.allocPixels(info);
 

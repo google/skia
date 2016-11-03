@@ -199,7 +199,7 @@ public:
     }
 
 private:
-    SkAutoTDelete<sk_gpu_test::GLTestContext>   fTestContext;
+    std::unique_ptr<sk_gpu_test::GLTestContext> fTestContext;
     SamplePattern                               fSamplePattern;
 };
 

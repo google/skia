@@ -185,7 +185,7 @@ bool GrRenderTargetOpList::drawBatches(GrBatchFlushState* flushState) {
     // Draw all the generated geometry.
     SkRandom random;
     GrRenderTarget* currentRT = nullptr;
-    SkAutoTDelete<GrGpuCommandBuffer> commandBuffer;
+    std::unique_ptr<GrGpuCommandBuffer> commandBuffer;
     for (int i = 0; i < fRecordedBatches.count(); ++i) {
         if (!fRecordedBatches[i].fBatch) {
             continue;
@@ -205,7 +205,7 @@ bool GrRenderTargetOpList::drawBatches(GrBatchFlushState* flushState) {
                                                               kBasicLoadStoreInfo,   // Color
                                                               kBasicLoadStoreInfo)); // Stencil
             }
-            flushState->setCommandBuffer(commandBuffer);
+            flushState->setCommandBuffer(commandBuffer.get());
         }
         if (fDrawBatchBounds) {
             const SkRect& bounds = fRecordedBatches[i].fClippedBounds;

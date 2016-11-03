@@ -36,7 +36,7 @@ bool SkWebpCodec::IsWebp(const void* buf, size_t bytesRead) {
 // bytes again.
 // Returns an SkWebpCodec on success;
 SkCodec* SkWebpCodec::NewFromStream(SkStream* stream) {
-    SkAutoTDelete<SkStream> streamDeleter(stream);
+    std::unique_ptr<SkStream> streamDeleter(stream);
 
     // Webp demux needs a contiguous data buffer.
     sk_sp<SkData> data = nullptr;

@@ -503,7 +503,7 @@ bool SkBmpCodec::ReadHeader(SkStream* stream, bool inIco, SkCodec** codecOut) {
 
             if (codecOut) {
                 // Check that input bit masks are valid and create the masks object
-                SkAutoTDelete<SkMasks> masks(SkMasks::CreateMasks(inputMasks, bitsPerPixel));
+                std::unique_ptr<SkMasks> masks(SkMasks::CreateMasks(inputMasks, bitsPerPixel));
                 if (nullptr == masks) {
                     SkCodecPrintf("Error: invalid input masks.\n");
                     return false;
@@ -569,7 +569,7 @@ bool SkBmpCodec::ReadHeader(SkStream* stream, bool inIco, SkCodec** codecOut) {
  * Reads enough of the stream to determine the image format
  */
 SkCodec* SkBmpCodec::NewFromStream(SkStream* stream, bool inIco) {
-    SkAutoTDelete<SkStream> streamDeleter(stream);
+    std::unique_ptr<SkStream> streamDeleter(stream);
     SkCodec* codec = nullptr;
     if (ReadHeader(stream, inIco, &codec)) {
         // codec has taken ownership of stream, so we do not need to

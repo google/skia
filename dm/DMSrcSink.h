@@ -399,7 +399,7 @@ public:
         return flags;
     }
 protected:
-    SkAutoTDelete<Sink> fSink;
+    std::unique_ptr<Sink> fSink;
 };
 
 class ViaMatrix : public Via {
@@ -448,7 +448,7 @@ public:
     Error draw(const Src&, SkBitmap*, SkWStream*, SkString*) const override;
 private:
     const int                   fW, fH;
-    SkAutoTDelete<SkBBHFactory> fFactory;
+    std::unique_ptr<SkBBHFactory> fFactory;
 };
 
 class ViaSecondPicture : public Via {

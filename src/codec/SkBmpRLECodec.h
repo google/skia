@@ -104,7 +104,7 @@ private:
     const size_t                        fOrigRLEBytes;
     uint32_t                            fCurrRLEByte;
     int                                 fSampleX;
-    SkAutoTDelete<SkSampler>            fSampler;
+    std::unique_ptr<SkSampler>          fSampler;
 
     // Scanline decodes allow the client to ask for a single scanline at a time.
     // This can be tricky when the RLE encoding instructs the decoder to jump down

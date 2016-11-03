@@ -260,16 +260,16 @@ static void check(skiatest::Reporter* r,
                   bool supportsIncomplete,
                   bool supportsNewScanlineDecoding = false) {
 
-    SkAutoTDelete<SkStream> stream(GetResourceAsStream(path));
+    std::unique_ptr<SkStream> stream(GetResourceAsStream(path));
     if (!stream) {
         return;
     }
 
-    SkAutoTDelete<SkCodec> codec(nullptr);
+    std::unique_ptr<SkCodec> codec(nullptr);
     bool isIncomplete = supportsIncomplete;
     if (isIncomplete) {
         size_t size = stream->getLength();
-        sk_sp<SkData> data((SkData::MakeFromStream(stream, 2 * size / 3)));
+        sk_sp<SkData> data((SkData::MakeFromStream(stream.get(), 2 * size / 3)));
         codec.reset(SkCodec::NewFromData(data));
     } else {
         codec.reset(SkCodec::NewFromStream(stream.release()));
@@ -289,12 +289,12 @@ static void check(skiatest::Reporter* r,
     // Scanline decoding follows.
 
     if (supportsNewScanlineDecoding && !isIncomplete) {
-        test_incremental_decode(r, codec, info, codecDigest);
+        test_incremental_decode(r, codec.get(), info, codecDigest);
         // This is only supported by codecs that use incremental decoding to
         // support subset decodes - png and jpeg (once SkJpegCodec is
         // converted).
         if (SkStrEndsWith(path, "png") || SkStrEndsWith(path, "PNG")) {
-            test_in_stripes(r, codec, info, codecDigest);
+            test_in_stripes(r, codec.get(), info, codecDigest);
         }
     }
 
@@ -397,15 +397,15 @@ static void check(skiatest::Reporter* r,
     // SkAndroidCodec tests
     if (supportsScanlineDecoding || supportsSubsetDecoding || supportsNewScanlineDecoding) {
 
-        SkAutoTDelete<SkStream> stream(GetResourceAsStream(path));
+        std::unique_ptr<SkStream> stream(GetResourceAsStream(path));
         if (!stream) {
             return;
         }
 
-        SkAutoTDelete<SkAndroidCodec> androidCodec(nullptr);
+        std::unique_ptr<SkAndroidCodec> androidCodec(nullptr);
         if (isIncomplete) {
             size_t size = stream->getLength();
-            sk_sp<SkData> data((SkData::MakeFromStream(stream, 2 * size / 3)));
+            sk_sp<SkData> data((SkData::MakeFromStream(stream.get(), 2 * size / 3)));
             androidCodec.reset(SkAndroidCodec::NewFromData(data));
         } else {
             androidCodec.reset(SkAndroidCodec::NewFromStream(stream.release()));
@@ -423,9 +423,9 @@ static void check(skiatest::Reporter* r,
 
     if (!isIncomplete) {
         // Test SkCodecImageGenerator
-        SkAutoTDelete<SkStream> stream(GetResourceAsStream(path));
-        sk_sp<SkData> fullData(SkData::MakeFromStream(stream, stream->getLength()));
-        SkAutoTDelete<SkImageGenerator> gen(
+        std::unique_ptr<SkStream> stream(GetResourceAsStream(path));
+        sk_sp<SkData> fullData(SkData::MakeFromStream(stream.get(), stream->getLength()));
+        std::unique_ptr<SkImageGenerator> gen(
                 SkCodecImageGenerator::NewFromEncodedCodec(fullData.get()));
         SkBitmap bm;
         bm.allocPixels(info);
@@ -560,11 +560,11 @@ DEF_TEST(Codec_null, r) {
 
 static void test_dimensions(skiatest::Reporter* r, const char path[]) {
     // Create the codec from the resource file
-    SkAutoTDelete<SkStream> stream(GetResourceAsStream(path));
+    std::unique_ptr<SkStream> stream(GetResourceAsStream(path));
     if (!stream) {
         return;
     }
-    SkAutoTDelete<SkAndroidCodec> codec(SkAndroidCodec::NewFromStream(stream.release()));
+    std::unique_ptr<SkAndroidCodec> codec(SkAndroidCodec::NewFromStream(stream.release()));
     if (!codec) {
         ERRORF(r, "Unable to create codec '%s'", path);
         return;
@@ -624,11 +624,11 @@ DEF_TEST(Codec_Dimensions, r) {
 }
 
 static void test_invalid(skiatest::Reporter* r, const char path[]) {
-    SkAutoTDelete<SkStream> stream(GetResourceAsStream(path));
+    std::unique_ptr<SkStream> stream(GetResourceAsStream(path));
     if (!stream) {
         return;
     }
-    SkAutoTDelete<SkCodec> codec(SkCodec::NewFromStream(stream.release()));
+    std::unique_ptr<SkCodec> codec(SkCodec::NewFromStream(stream.release()));
     REPORTER_ASSERT(r, nullptr == codec);
 }
 
@@ -649,11 +649,11 @@ DEF_TEST(Codec_Empty, r) {
 }
 
 static void test_invalid_parameters(skiatest::Reporter* r, const char path[]) {
-    SkAutoTDelete<SkStream> stream(GetResourceAsStream(path));
+    std::unique_ptr<SkStream> stream(GetResourceAsStream(path));
     if (!stream) {
         return;
     }
-    SkAutoTDelete<SkCodec> decoder(SkCodec::NewFromStream(stream.release()));
+    std::unique_ptr<SkCodec> decoder(SkCodec::NewFromStream(stream.release()));
     if (!decoder) {
         SkDebugf("Missing codec for %s\n", path);
         return;
@@ -818,7 +818,7 @@ DEF_TEST(Codec_pngChunkReader, r) {
     ChunkReader chunkReader(r);
 
     // Now read the file with SkCodec.
-    SkAutoTDelete<SkCodec> codec(SkCodec::NewFromData(wStream.detachAsData(), &chunkReader));
+    std::unique_ptr<SkCodec> codec(SkCodec::NewFromData(wStream.detachAsData(), &chunkReader));
     REPORTER_ASSERT(r, codec);
     if (!codec) {
         return;
@@ -922,7 +922,7 @@ DEF_TEST(Codec_raw_notseekable, r) {
         return;
     }
 
-    SkAutoTDelete<SkCodec> codec(SkCodec::NewFromStream(new NotAssetMemStream(std::move(data))));
+    std::unique_ptr<SkCodec> codec(SkCodec::NewFromStream(new NotAssetMemStream(std::move(data))));
     REPORTER_ASSERT(r, codec);
 
     test_info(r, codec.get(), codec->getInfo(), SkCodec::kSuccess, nullptr);
@@ -941,7 +941,7 @@ DEF_TEST(Codec_webp_peek, r) {
     }
 
     // The limit is less than webp needs to peek or read.
-    SkAutoTDelete<SkCodec> codec(SkCodec::NewFromStream(
+    std::unique_ptr<SkCodec> codec(SkCodec::NewFromStream(
                                  new LimitedPeekingMemStream(data, 25)));
     REPORTER_ASSERT(r, codec);
 
@@ -960,18 +960,18 @@ DEF_TEST(Codec_webp_peek, r) {
 // Test that SkCodec now supports an image with these bits set.
 DEF_TEST(Codec_wbmp, r) {
     const char* path = "mandrill.wbmp";
-    SkAutoTDelete<SkStream> stream(GetResourceAsStream(path));
+    std::unique_ptr<SkStream> stream(GetResourceAsStream(path));
     if (!stream) {
         return;
     }
 
     // Modify the stream to contain a second byte with some bits set.
-    auto data = SkCopyStreamToData(stream);
+    auto data = SkCopyStreamToData(stream.get());
     uint8_t* writeableData = static_cast<uint8_t*>(data->writable_data());
     writeableData[1] = static_cast<uint8_t>(~0x9F);
 
     // SkCodec should support this.
-    SkAutoTDelete<SkCodec> codec(SkCodec::NewFromData(data));
+    std::unique_ptr<SkCodec> codec(SkCodec::NewFromData(data));
     REPORTER_ASSERT(r, codec);
     if (!codec) {
         return;
@@ -988,8 +988,8 @@ DEF_TEST(Codec_wbmp_max_size, r) {
     const unsigned char maxSizeWbmp[] = { 0x00, 0x00,           // Header
                                           0x83, 0xFF, 0x7F,     // W: 65535
                                           0x83, 0xFF, 0x7F };   // H: 65535
-    SkAutoTDelete<SkStream> stream(new SkMemoryStream(maxSizeWbmp, sizeof(maxSizeWbmp), false));
-    SkAutoTDelete<SkCodec> codec(SkCodec::NewFromStream(stream.release()));
+    std::unique_ptr<SkStream> stream(new SkMemoryStream(maxSizeWbmp, sizeof(maxSizeWbmp), false));
+    std::unique_ptr<SkCodec> codec(SkCodec::NewFromStream(stream.release()));
 
     REPORTER_ASSERT(r, codec);
     if (!codec) return;
@@ -1010,11 +1010,11 @@ DEF_TEST(Codec_wbmp_max_size, r) {
 
 DEF_TEST(Codec_jpeg_rewind, r) {
     const char* path = "mandrill_512_q075.jpg";
-    SkAutoTDelete<SkStream> stream(GetResourceAsStream(path));
+    std::unique_ptr<SkStream> stream(GetResourceAsStream(path));
     if (!stream) {
         return;
     }
-    SkAutoTDelete<SkAndroidCodec> codec(SkAndroidCodec::NewFromStream(stream.release()));
+    std::unique_ptr<SkAndroidCodec> codec(SkAndroidCodec::NewFromStream(stream.release()));
     if (!codec) {
         ERRORF(r, "Unable to create codec '%s'.", path);
         return;
@@ -1037,7 +1037,7 @@ DEF_TEST(Codec_jpeg_rewind, r) {
 }
 
 static void check_color_xform(skiatest::Reporter* r, const char* path) {
-    SkAutoTDelete<SkAndroidCodec> codec(SkAndroidCodec::NewFromStream(GetResourceAsStream(path)));
+    std::unique_ptr<SkAndroidCodec> codec(SkAndroidCodec::NewFromStream(GetResourceAsStream(path)));
 
     SkAndroidCodec::AndroidOptions opts;
     opts.fSampleSize = 3;
@@ -1104,7 +1104,7 @@ static void check_round_trip(skiatest::Reporter* r, SkCodec* origCodec, const Sk
     sk_sp<SkData> data =
             sk_sp<SkData>(SkImageEncoder::EncodeData(bm1, SkImageEncoder::kPNG_Type, 100));
 
-    SkAutoTDelete<SkCodec> codec(SkCodec::NewFromData(data));
+    std::unique_ptr<SkCodec> codec(SkCodec::NewFromData(data));
     REPORTER_ASSERT(r, color_type_match(info.colorType(), codec->getInfo().colorType()));
     REPORTER_ASSERT(r, alpha_type_match(info.alphaType(), codec->getInfo().alphaType()));
 
@@ -1123,8 +1123,8 @@ static void check_round_trip(skiatest::Reporter* r, SkCodec* origCodec, const Sk
 
 DEF_TEST(Codec_PngRoundTrip, r) {
     const char* path = "mandrill_512_q075.jpg";
-    SkAutoTDelete<SkStream> stream(GetResourceAsStream(path));
-    SkAutoTDelete<SkCodec> codec(SkCodec::NewFromStream(stream.release()));
+    std::unique_ptr<SkStream> stream(GetResourceAsStream(path));
+    std::unique_ptr<SkCodec> codec(SkCodec::NewFromStream(stream.release()));
 
     SkColorType colorTypesOpaque[] = {
             kRGB_565_SkColorType, kRGBA_8888_SkColorType, kBGRA_8888_SkColorType
@@ -1173,8 +1173,8 @@ DEF_TEST(Codec_PngRoundTrip, r) {
 static void test_conversion_possible(skiatest::Reporter* r, const char* path,
                                      bool supportsScanlineDecoder,
                                      bool supportsIncrementalDecoder) {
-    SkAutoTDelete<SkStream> stream(GetResourceAsStream(path));
-    SkAutoTDelete<SkCodec> codec(SkCodec::NewFromStream(stream.release()));
+    std::unique_ptr<SkStream> stream(GetResourceAsStream(path));
+    std::unique_ptr<SkCodec> codec(SkCodec::NewFromStream(stream.release()));
     SkImageInfo infoF16 = codec->getInfo().makeColorType(kRGBA_F16_SkColorType);
 
     SkBitmap bm;
@@ -1314,9 +1314,9 @@ public:
     }
 
 private:
-    SkAutoTDelete<SkStream> fStream;
-    const size_t            fLimit;
-    size_t                  fPosition;
+    std::unique_ptr<SkStream> fStream;
+    const size_t              fLimit;
+    size_t                    fPosition;
 
     LimitedRewindingStream(SkStream* stream, size_t limit)
         : fStream(stream)
@@ -1346,7 +1346,7 @@ DEF_TEST(Codec_fallBack, r) {
             return;
         }
 
-        SkAutoTDelete<SkCodec> codec(SkCodec::NewFromStream(stream));
+        std::unique_ptr<SkCodec> codec(SkCodec::NewFromStream(stream));
         if (!codec) {
             ERRORF(r, "Failed to create codec for %s,", file);
             continue;

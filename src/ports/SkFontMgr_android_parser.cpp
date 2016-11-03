@@ -100,18 +100,18 @@ struct FamilyData {
         , fHandler(&topLevelHandler, 1)
     { }
 
-    XML_Parser fParser;                       // The expat parser doing the work, owned by caller
-    SkTDArray<FontFamily*>& fFamilies;        // The array to append families, owned by caller
-    SkAutoTDelete<FontFamily> fCurrentFamily; // The family being created, owned by this
-    FontFileInfo* fCurrentFontInfo;           // The fontInfo being created, owned by fCurrentFamily
-    int fVersion;                             // The version of the file parsed.
-    const SkString& fBasePath;                // The current base path.
-    const bool fIsFallback;                   // Indicates the file being parsed is a fallback file
-    const char* fFilename;                    // The name of the file currently being parsed.
+    XML_Parser fParser;                         // The expat parser doing the work, owned by caller
+    SkTDArray<FontFamily*>& fFamilies;          // The array to append families, owned by caller
+    std::unique_ptr<FontFamily> fCurrentFamily; // The family being created, owned by this
+    FontFileInfo* fCurrentFontInfo;             // The info being created, owned by fCurrentFamily
+    int fVersion;                               // The version of the file parsed.
+    const SkString& fBasePath;                  // The current base path.
+    const bool fIsFallback;                     // The file being parsed is a fallback file
+    const char* fFilename;                      // The name of the file currently being parsed.
 
-    int fDepth;                               // The current element depth of the parse.
-    int fSkip;                                // The depth to stop skipping, 0 if not skipping.
-    SkTDArray<const TagHandler*> fHandler;    // The stack of current tag handlers.
+    int fDepth;                                 // The current element depth of the parse.
+    int fSkip;                                  // The depth to stop skipping, 0 if not skipping.
+    SkTDArray<const TagHandler*> fHandler;      // The stack of current tag handlers.
 };
 
 static bool memeq(const char* s1, const char* s2, size_t n1, size_t n2) {

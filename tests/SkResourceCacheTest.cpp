@@ -38,7 +38,7 @@ DEF_TEST(BitmapCache_add_rect, reporter) {
     SkResourceCache::DiscardableFactory factory = SkResourceCache::GetDiscardableFactory();
     SkBitmap::Allocator* allocator = SkBitmapCache::GetAllocator();
 
-    SkAutoTDelete<SkResourceCache> cache;
+    std::unique_ptr<SkResourceCache> cache;
     if (factory) {
         cache.reset(new SkResourceCache(factory));
     } else {
@@ -55,18 +55,18 @@ DEF_TEST(BitmapCache_add_rect, reporter) {
     SkPixelRef* cachedPR = cachedBitmap.pixelRef();
 
     // Wrong subset size
-    REPORTER_ASSERT(reporter, !SkBitmapCache::Add(cachedPR, SkIRect::MakeWH(4, 6), cachedBitmap, cache));
-    REPORTER_ASSERT(reporter, !SkBitmapCache::Find(cachedID, rect, &bm, cache));
+    REPORTER_ASSERT(reporter, !SkBitmapCache::Add(cachedPR, SkIRect::MakeWH(4, 6), cachedBitmap, cache.get()));
+    REPORTER_ASSERT(reporter, !SkBitmapCache::Find(cachedID, rect, &bm, cache.get()));
     // Wrong offset value
-    REPORTER_ASSERT(reporter, !SkBitmapCache::Add(cachedPR, SkIRect::MakeXYWH(-1, 0, 5, 5), cachedBitmap, cache));
-    REPORTER_ASSERT(reporter, !SkBitmapCache::Find(cachedID, rect, &bm, cache));
+    REPORTER_ASSERT(reporter, !SkBitmapCache::Add(cachedPR, SkIRect::MakeXYWH(-1, 0, 5, 5), cachedBitmap, cache.get()));
+    REPORTER_ASSERT(reporter, !SkBitmapCache::Find(cachedID, rect, &bm, cache.get()));
 
     // Should not be in the cache
-    REPORTER_ASSERT(reporter, !SkBitmapCache::Find(cachedID, rect, &bm, cache));
+    REPORTER_ASSERT(reporter, !SkBitmapCache::Find(cachedID, rect, &bm, cache.get()));
 
-    REPORTER_ASSERT(reporter, SkBitmapCache::Add(cachedPR, rect, cachedBitmap, cache));
+    REPORTER_ASSERT(reporter, SkBitmapCache::Add(cachedPR, rect, cachedBitmap, cache.get()));
     // Should be in the cache, we just added it
-    REPORTER_ASSERT(reporter, SkBitmapCache::Find(cachedID, rect, &bm, cache));
+    REPORTER_ASSERT(reporter, SkBitmapCache::Find(cachedID, rect, &bm, cache.get()));
 }
 
 #include "SkMipMap.h"

@@ -35,7 +35,7 @@ protected:
         paint.setLCDRenderText(true);
         SkAutoTUnref<SkFontMgr> fontMgr(SkFontMgr::RefDefault());
 
-        SkAutoTDelete<SkStreamAsset> distortable(GetResourceAsStream("/fonts/Distortable.ttf"));
+        std::unique_ptr<SkStreamAsset> distortable(GetResourceAsStream("/fonts/Distortable.ttf"));
         if (!distortable) {
             return;
         }

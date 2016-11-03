@@ -1144,11 +1144,11 @@ void SkPngCodec::initializeSwizzler(const SkImageInfo& dstInfo, const Options& o
 
 SkSampler* SkPngCodec::getSampler(bool createIfNecessary) {
     if (fSwizzler || !createIfNecessary) {
-        return fSwizzler;
+        return fSwizzler.get();
     }
 
     this->initializeSwizzler(this->dstInfo(), this->options());
-    return fSwizzler;
+    return fSwizzler.get();
 }
 
 bool SkPngCodec::onRewind() {
@@ -1249,7 +1249,7 @@ uint64_t SkPngCodec::onGetFillValue(const SkImageInfo& dstInfo) const {
 }
 
 SkCodec* SkPngCodec::NewFromStream(SkStream* stream, SkPngChunkReader* chunkReader) {
-    SkAutoTDelete<SkStream> streamDeleter(stream);
+    std::unique_ptr<SkStream> streamDeleter(stream);
 
     SkCodec* outCodec = nullptr;
     if (read_header(streamDeleter.get(), chunkReader, &outCodec, nullptr, nullptr)) {

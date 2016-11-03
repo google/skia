@@ -2047,10 +2047,10 @@ void SkPaint::toString(SkString* str) const {
     if (typeface) {
         SkDynamicMemoryWStream ostream;
         typeface->serialize(&ostream);
-        SkAutoTDelete<SkStreamAsset> istream(ostream.detachAsStream());
+        std::unique_ptr<SkStreamAsset> istream(ostream.detachAsStream());
 
         SkFontDescriptor descriptor;
-        if (!SkFontDescriptor::Deserialize(istream, &descriptor)) {
+        if (!SkFontDescriptor::Deserialize(istream.get(), &descriptor)) {
             str->append("<dt>FontDescriptor deserialization failed</dt>");
         } else {
             str->append("<dt>Font Family Name:</dt><dd>");

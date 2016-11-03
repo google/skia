@@ -136,7 +136,7 @@ SkCodec::Result SkWbmpCodec::onGetPixels(const SkImageInfo& info,
     setup_color_table(info.colorType(), ctable, ctableCount);
 
     // Initialize the swizzler
-    SkAutoTDelete<SkSwizzler> swizzler(this->initializeSwizzler(info, ctable, options));
+    std::unique_ptr<SkSwizzler> swizzler(this->initializeSwizzler(info, ctable, options));
     SkASSERT(swizzler);
 
     // Perform the decode
@@ -160,7 +160,7 @@ bool SkWbmpCodec::IsWbmp(const void* buffer, size_t bytesRead) {
 }
 
 SkCodec* SkWbmpCodec::NewFromStream(SkStream* stream) {
-    SkAutoTDelete<SkStream> streamDeleter(stream);
+    std::unique_ptr<SkStream> streamDeleter(stream);
     SkISize size;
     if (!read_header(stream, &size)) {
         return nullptr;

@@ -105,7 +105,7 @@ bool SkDWriteFontFileStream::move(long offset) {
 }
 
 SkDWriteFontFileStream* SkDWriteFontFileStream::fork() const {
-    SkAutoTDelete<SkDWriteFontFileStream> that(this->duplicate());
+    std::unique_ptr<SkDWriteFontFileStream> that(this->duplicate());
     that->seek(fPos);
     return that.release();
 }

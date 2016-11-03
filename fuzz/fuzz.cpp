@@ -133,7 +133,7 @@ int fuzz_img(sk_sp<SkData> bytes, uint8_t scale, uint8_t mode) {
 
     // This is mostly copied from DMSrcSink's CodecSrc::draw method.
     SkDebugf("Decoding\n");
-    SkAutoTDelete<SkCodec> codec(SkCodec::NewFromData(bytes));
+    std::unique_ptr<SkCodec> codec(SkCodec::NewFromData(bytes));
     if (nullptr == codec.get()) {
         SkDebugf("[terminated] Couldn't create codec.\n");
         return 3;

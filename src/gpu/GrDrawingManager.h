@@ -103,7 +103,7 @@ private:
     bool                              fAbandoned;
     SkTDArray<GrOpList*>              fOpLists;
 
-    SkAutoTDelete<GrAtlasTextContext> fAtlasTextContext;
+    std::unique_ptr<GrAtlasTextContext> fAtlasTextContext;
 
     GrPathRendererChain*              fPathRendererChain;
     GrSoftwarePathRenderer*           fSoftwarePathRenderer;

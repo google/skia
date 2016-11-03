@@ -34,7 +34,7 @@ sk_sp<SkData> read_file(const char* file_path) {
 }
 
 bool get_bitmap(sk_sp<SkData> fileBits, DiffResource& resource, bool sizeOnly) {
-    SkAutoTDelete<SkCodec> codec(SkCodec::NewFromData(fileBits));
+    std::unique_ptr<SkCodec> codec(SkCodec::NewFromData(fileBits));
     if (!codec) {
         SkDebugf("ERROR: could not create codec for <%s>\n", resource.fFullPath.c_str());
         resource.fStatus = DiffResource::kCouldNotDecode_Status;

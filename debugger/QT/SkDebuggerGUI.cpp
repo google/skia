@@ -672,7 +672,7 @@ void SkDebuggerGUI::populateDirectoryWidget() {
 void SkDebuggerGUI::loadPicture(const SkString& fileName) {
     fFileName = fileName;
     fLoading = true;
-    SkAutoTDelete<SkStream> stream(new SkFILEStream(fileName.c_str()));
+    std::unique_ptr<SkStream> stream(new SkFILEStream(fileName.c_str()));
 
     auto picture = SkPicture::MakeFromStream(stream);
 

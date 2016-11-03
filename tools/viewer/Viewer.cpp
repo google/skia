@@ -252,7 +252,7 @@ void Viewer::initSlides() {
 
     const skiagm::GMRegistry* gms(skiagm::GMRegistry::Head());
     while (gms) {
-        SkAutoTDelete<skiagm::GM> gm(gms->factory()(nullptr));
+        std::unique_ptr<skiagm::GM> gm(gms->factory()(nullptr));
 
         if (!SkCommandLineFlags::ShouldSkip(FLAGS_match, gm->getName())) {
             sk_sp<Slide> slide(new GMSlide(gm.release()));

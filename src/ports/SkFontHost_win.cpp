@@ -2454,8 +2454,8 @@ protected:
     }
 
     SkTypeface* onCreateFromStream(SkStreamAsset* bareStream, int ttcIndex) const override {
-        SkAutoTDelete<SkStreamAsset> stream(bareStream);
-        return create_from_stream(stream);
+        std::unique_ptr<SkStreamAsset> stream(bareStream);
+        return create_from_stream(stream.get());
     }
 
     SkTypeface* onCreateFromData(SkData* data, int ttcIndex) const override {

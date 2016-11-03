@@ -123,14 +123,14 @@ SkTypeface* SkFontMgr_Indirect::createTypefaceFromFontId(const SkFontIdentity& i
 
     // No exact match, but did find a data match.
     if (dataTypeface.get() != nullptr) {
-        SkAutoTDelete<SkStreamAsset> stream(dataTypeface->openStream(nullptr));
+        std::unique_ptr<SkStreamAsset> stream(dataTypeface->openStream(nullptr));
         if (stream.get() != nullptr) {
             return fImpl->createFromStream(stream.release(), dataTypefaceIndex);
         }
     }
 
     // No data match, request data and add entry.
-    SkAutoTDelete<SkStreamAsset> stream(fProxy->getData(id.fDataId));
+    std::unique_ptr<SkStreamAsset> stream(fProxy->getData(id.fDataId));
     if (stream.get() == nullptr) {
         return nullptr;
     }

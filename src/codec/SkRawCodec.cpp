@@ -322,7 +322,7 @@ private:
         return fStreamBuffer.write(tempBuffer.get(), bytesRead);
     }
 
-    SkAutoTDelete<SkStream> fStream;
+    std::unique_ptr<SkStream> fStream;
     bool fWholeStreamRead;
 
     // Use a size-limited stream to avoid holding too huge buffer.
@@ -396,7 +396,7 @@ public:
         }
     }
 private:
-    SkAutoTDelete<SkStream> fStream;
+    std::unique_ptr<SkStream> fStream;
 };
 
 class SkPiexStream : public ::piex::StreamInterface {
@@ -446,7 +446,7 @@ public:
      * Note: this will take the ownership of the stream.
      */
     static SkDngImage* NewFromStream(SkRawStream* stream) {
-        SkAutoTDelete<SkDngImage> dngImage(new SkDngImage(stream));
+        std::unique_ptr<SkDngImage> dngImage(new SkDngImage(stream));
         if (!dngImage->isTiffHeaderValid()) {
             return nullptr;
         }
@@ -479,10 +479,10 @@ public:
         const int preferredSize = SkTMax(width, height);
         try {
             // render() takes ownership of fHost, fInfo, fNegative and fDngStream when available.
-            SkAutoTDelete<dng_host> host(fHost.release());
-            SkAutoTDelete<dng_info> info(fInfo.release());
-            SkAutoTDelete<dng_negative> negative(fNegative.release());
-            SkAutoTDelete<dng_stream> dngStream(fDngStream.release());
+            std::unique_ptr<dng_host> host(fHost.release());
+            std::unique_ptr<dng_info> info(fInfo.release());
+            std::unique_ptr<dng_negative> negative(fNegative.release());
+            std::unique_ptr<dng_stream> dngStream(fDngStream.release());
 
             host->SetPreferredSize(preferredSize);
             host->ValidateSizes();
@@ -588,7 +588,7 @@ private:
             // Due to the limit of DNG SDK, we need to reset host and info.
             fHost.reset(new SkDngHost(&fAllocator));
             fInfo.reset(new dng_info);
-            fDngStream.reset(new SkDngStream(fStream));
+            fDngStream.reset(new SkDngStream(fStream.get()));
 
             fHost->ValidateSizes();
             fInfo->Parse(*fHost, *fDngStream);
@@ -622,11 +622,11 @@ private:
     {}
 
     SkDngMemoryAllocator fAllocator;
-    SkAutoTDelete<SkRawStream> fStream;
-    SkAutoTDelete<dng_host> fHost;
-    SkAutoTDelete<dng_info> fInfo;
-    SkAutoTDelete<dng_negative> fNegative;
-    SkAutoTDelete<dng_stream> fDngStream;
+    std::unique_ptr<SkRawStream> fStream;
+    std::unique_ptr<dng_host> fHost;
+    std::unique_ptr<dng_info> fInfo;
+    std::unique_ptr<dng_negative> fNegative;
+    std::unique_ptr<dng_stream> fDngStream;
 
     int fWidth;
     int fHeight;
@@ -641,7 +641,7 @@ private:
  * fallback to create SkRawCodec for DNG images.
  */
 SkCodec* SkRawCodec::NewFromStream(SkStream* stream) {
-    SkAutoTDelete<SkRawStream> rawStream;
+    std::unique_ptr<SkRawStream> rawStream;
     if (is_asset_stream(*stream)) {
         rawStream.reset(new SkRawAssetStream(stream));
     } else {
@@ -671,7 +671,7 @@ SkCodec* SkRawCodec::NewFromStream(SkStream* stream) {
     }
 
     // Takes the ownership of the rawStream.
-    SkAutoTDelete<SkDngImage> dngImage(SkDngImage::NewFromStream(rawStream.release()));
+    std::unique_ptr<SkDngImage> dngImage(SkDngImage::NewFromStream(rawStream.release()));
     if (!dngImage) {
         return nullptr;
     }
@@ -688,13 +688,13 @@ SkCodec::Result SkRawCodec::onGetPixels(const SkImageInfo& requestedInfo, void* 
         return kInvalidConversion;
     }
 
-    SkAutoTDelete<SkSwizzler> swizzler(SkSwizzler::CreateSwizzler(
+    std::unique_ptr<SkSwizzler> swizzler(SkSwizzler::CreateSwizzler(
             this->getEncodedInfo(), nullptr, requestedInfo, options));
     SkASSERT(swizzler);
 
     const int width = requestedInfo.width();
     const int height = requestedInfo.height();
-    SkAutoTDelete<dng_image> image(fDngImage->render(width, height));
+    std::unique_ptr<dng_image> image(fDngImage->render(width, height));
     if (!image) {
         return kInvalidInput;
     }

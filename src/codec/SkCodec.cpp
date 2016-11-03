@@ -53,7 +53,7 @@ SkCodec* SkCodec::NewFromStream(SkStream* stream,
         return nullptr;
     }
 
-    SkAutoTDelete<SkStream> streamDeleter(stream);
+    std::unique_ptr<SkStream> streamDeleter(stream);
 
     // 14 is enough to read all of the supported types.
     const size_t bytesToRead = 14;
