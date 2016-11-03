@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "268e8eb3_0c41ffa4",
+        "filename": "include/core/SkColorFilter.h",
+        "patchSetId": 8
+      },
+      "lineNbr": 75,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2016-11-03T13:58:15Z",
+      "side": 1,
+      "message": "\"I\" understand shader in this context, but I wonder if inputIsOpaque is clearer?",
+      "range": {
+        "startLine": 75,
+        "startChar": 46,
+        "endLine": 75,
+        "endChar": 60
+      },
+      "revId": "b7d2a174b3e45d119cc0778ed266fc5034567ea2",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
