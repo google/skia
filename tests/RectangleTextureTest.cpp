@@ -58,7 +58,6 @@ static void test_copy_surface_src(skiatest::Reporter* reporter, GrContext* conte
     copyDstDesc.fConfig = kRGBA_8888_GrPixelConfig;
     copyDstDesc.fWidth = rectangleTexture->width();
     copyDstDesc.fHeight = rectangleTexture->height();
-    copyDstDesc.fFlags = kRenderTarget_GrSurfaceFlag;
     SkAutoTUnref<GrTexture> dst(context->textureProvider()->createTexture(
             copyDstDesc, SkBudgeted::kYes));
     context->copySurface(dst, rectangleTexture);
@@ -79,7 +78,6 @@ static void test_copy_surface_dst(skiatest::Reporter* reporter, GrContext* conte
     copySrcDesc.fConfig = kRGBA_8888_GrPixelConfig;
     copySrcDesc.fWidth = rectangleTexture->width();
     copySrcDesc.fHeight = rectangleTexture->height();
-    copySrcDesc.fFlags = kRenderTarget_GrSurfaceFlag;
     SkAutoTUnref<GrTexture> src(context->textureProvider()->createTexture(
             copySrcDesc, SkBudgeted::kYes, pixels.get(), 0));
 

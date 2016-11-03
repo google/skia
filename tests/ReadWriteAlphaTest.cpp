@@ -138,9 +138,9 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(ReadWriteAlpha, reporter, ctxInfo) {
     // Attempt to read back just alpha from a RGBA/BGRA texture. Once with a texture-only src and
     // once with a render target.
     for (auto cfg : kRGBAConfigs) {
-        for (int rt = 0; rt < 2; ++rt) {
+        for (auto flags : {kNone_GrSurfaceFlags, kRenderTarget_GrSurfaceFlag}) {
             GrSurfaceDesc desc;
-            desc.fFlags     = rt ? kRenderTarget_GrSurfaceFlag : kNone_GrSurfaceFlags;
+            desc.fFlags     = flags;
             desc.fConfig    = cfg;
             desc.fWidth     = X_SIZE;
             desc.fHeight    = Y_SIZE;
@@ -157,7 +157,8 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(ReadWriteAlpha, reporter, ctxInfo) {
                                                                       rgbaData, 0));
             if (!texture) {
                 // We always expect to be able to create a RGBA texture
-                if (!rt  && kRGBA_8888_GrPixelConfig == desc.fConfig) {
+                if (!(flags & kRenderTarget_GrSurfaceFlag)  &&
+                    kRGBA_8888_GrPixelConfig == desc.fConfig) {
                     ERRORF(reporter, "Failed to create RGBA texture.");
                 }
                 continue;
@@ -178,7 +179,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(ReadWriteAlpha, reporter, ctxInfo) {
 
                 // make sure the original & read back versions match
                 SkString msg;
-                msg.printf("rt:%d, rb:%d 8888", rt, SkToU32(rowBytes));
+                msg.printf("desc.fFlags:0x%x, rb:%d 8888", flags, SkToU32(rowBytes));
                 validate_alpha_data(reporter, X_SIZE, Y_SIZE, readback.get(), nonZeroRowBytes,
                                     alphaData, msg);
             }
