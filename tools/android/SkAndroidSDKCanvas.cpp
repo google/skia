@@ -9,6 +9,7 @@
 
 #include "SkColorFilter.h"
 #include "SkDrawLooper.h"
+#include "SkImageFilter.h"
 #include "SkPaint.h"
 #include "SkPathEffect.h"
 #include "SkShader.h"
