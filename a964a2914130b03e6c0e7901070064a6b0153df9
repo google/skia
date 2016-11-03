@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "66ba4639_0718e1e6",
+        "filename": "tests/ImageTest.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 1025,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2016-11-03T15:04:19Z",
+      "side": 0,
+      "message": "Is this property important to us? If so, I need to:\n(1) Write a color-correct unpremultiply, or\n(2) Stop doing a color-correct premultiply in the codecs\n\nIt\u0027s possible for (2) that we can tell clients, that they must decode to kUnpremul or they will get incorrect color behavior.\n\nAny thoughts?",
+      "range": {
+        "startLine": 1025,
+        "startChar": 0,
+        "endLine": 1025,
+        "endChar": 44
+      },
+      "revId": "a964a2914130b03e6c0e7901070064a6b0153df9",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
