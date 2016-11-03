@@ -207,6 +207,8 @@ if (skia_use_system_icu) {
       "../externals/icu/source/common/uvectr64.cpp",
       "../externals/icu/source/common/wintz.c",
     ]
-    sources += [ "../externals/icu/$current_os/icudtl_dat.S" ]
+    if (!is_ios) {
+      sources += [ "../externals/icu/$current_os/icudtl_dat.S" ]
+    }
   }
 }
