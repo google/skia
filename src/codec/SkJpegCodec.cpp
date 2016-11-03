@@ -192,7 +192,7 @@ bool SkJpegCodec::ReadHeader(SkStream* stream, SkCodec** codecOut,
         JpegDecoderMgr** decoderMgrOut) {
 
     // Create a JpegDecoderMgr to own all of the decompress information
-    SkAutoTDelete<JpegDecoderMgr> decoderMgr(new JpegDecoderMgr(stream));
+    std::unique_ptr<JpegDecoderMgr> decoderMgr(new JpegDecoderMgr(stream));
 
     // libjpeg errors will be caught and reported here
     if (setjmp(decoderMgr->getJmpBuf())) {
@@ -251,7 +251,7 @@ bool SkJpegCodec::ReadHeader(SkStream* stream, SkCodec** codecOut,
 }
 
 SkCodec* SkJpegCodec::NewFromStream(SkStream* stream) {
-    SkAutoTDelete<SkStream> streamDeleter(stream);
+    std::unique_ptr<SkStream> streamDeleter(stream);
     SkCodec* codec = nullptr;
     if (ReadHeader(stream,  &codec, nullptr)) {
         // Codec has taken ownership of the stream, we do not need to delete it
@@ -635,12 +635,12 @@ void SkJpegCodec::initializeSwizzler(const SkImageInfo& dstInfo, const Options& 
 SkSampler* SkJpegCodec::getSampler(bool createIfNecessary) {
     if (!createIfNecessary || fSwizzler) {
         SkASSERT(!fSwizzler || (fSwizzleSrcRow && fStorage.get() == fSwizzleSrcRow));
-        return fSwizzler;
+        return fSwizzler.get();
     }
 
     this->initializeSwizzler(this->dstInfo(), this->options());
     this->allocateStorage(this->dstInfo());
-    return fSwizzler;
+    return fSwizzler.get();
 }
 
 SkCodec::Result SkJpegCodec::onStartScanlineDecode(const SkImageInfo& dstInfo,
