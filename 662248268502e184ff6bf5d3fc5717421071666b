@@ -16,6 +16,24 @@
       "revId": "662248268502e184ff6bf5d3fc5717421071666b",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "8b08231d_b8fe3943",
+        "filename": "tests/ReadPixelsTest.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 483,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2016-11-03T19:00:46Z",
+      "side": 1,
+      "message": "yikes! Looks like the old code was only testing the kNone case since it set the flags twice. Taking out this line seems to cause a crash in Vulkan. Investigating...",
+      "parentUuid": "66ba4639_dd0a2605",
+      "revId": "662248268502e184ff6bf5d3fc5717421071666b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
