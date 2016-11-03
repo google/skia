@@ -52,7 +52,7 @@ protected:
     void onDrawTextRSXform(const void* text, size_t byteLength, const SkRSXform xform[],
                            const SkRect* cull, const SkPaint& paint) override;
     virtual void onDrawPatch(const SkPoint cubics[12], const SkColor colors[4],
-                             const SkPoint texCoords[4], SK_XFERMODE_PARAM xmode,
+                             const SkPoint texCoords[4], SkBlendMode,
                              const SkPaint& paint) override;
 
     void onDrawPaint(const SkPaint&) override;
@@ -72,7 +72,7 @@ protected:
                           const SkPaint*) override;
     void onDrawVertices(VertexMode vmode, int vertexCount,
                               const SkPoint vertices[], const SkPoint texs[],
-                              const SkColor colors[], SK_XFERMODE_PARAM xmode,
+                              const SkColor colors[], SkBlendMode,
                               const uint16_t indices[], int indexCount,
                               const SkPaint&) override;
 

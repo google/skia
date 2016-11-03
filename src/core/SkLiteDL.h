@@ -78,12 +78,12 @@ public:
                           const SkRect&, const SkPaint*);
 
     void drawPatch(const SkPoint[12], const SkColor[4], const SkPoint[4],
-                   SK_XFERMODE_PARAM, const SkPaint&);
+                   SkBlendMode, const SkPaint&);
     void drawPoints(SkCanvas::PointMode, size_t, const SkPoint[], const SkPaint&);
     void drawVertices(SkCanvas::VertexMode, int, const SkPoint[], const SkPoint[], const SkColor[],
-                      SK_XFERMODE_PARAM, const uint16_t[], int, const SkPaint&);
+                      SkBlendMode, const uint16_t[], int, const SkPaint&);
     void drawAtlas(const SkImage*, const SkRSXform[], const SkRect[], const SkColor[], int,
-                   SK_XFERMODE_MODE_PARAM, const SkRect*, const SkPaint*);
+                   SkBlendMode, const SkRect*, const SkPaint*);
 
     void setBounds(const SkRect& bounds);
 
