@@ -121,7 +121,7 @@ DEF_TEST(ImageCache, reporter) {
         test_cache(reporter, cache, true);
     }
     {
-        SkAutoTUnref<SkDiscardableMemoryPool> pool(
+        sk_sp<SkDiscardableMemoryPool> pool(
                 SkDiscardableMemoryPool::Create(defLimit, nullptr));
         gPool = pool.get();
         SkResourceCache cache(pool_factory);

@@ -473,7 +473,7 @@ static void test_readpixels_texture(skiatest::Reporter* reporter, GrTexture* tex
 DEF_GPUTEST_FOR_RENDERING_CONTEXTS(ReadPixels_Texture, reporter, ctxInfo) {
     // On the GPU we will also try reading back from a non-renderable texture.
     for (auto& origin : {kBottomLeft_GrSurfaceOrigin, kTopLeft_GrSurfaceOrigin}) {
-        SkAutoTUnref<GrTexture> texture;
+        sk_sp<GrTexture> texture;
         GrSurfaceDesc desc;
         desc.fFlags = kRenderTarget_GrSurfaceFlag;
         desc.fWidth = DEV_W;
@@ -483,7 +483,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(ReadPixels_Texture, reporter, ctxInfo) {
         desc.fFlags = kNone_GrSurfaceFlags;
         texture.reset(ctxInfo.grContext()->textureProvider()->createTexture(desc,
                                                                             SkBudgeted::kNo));
-        test_readpixels_texture(reporter, texture);
+        test_readpixels_texture(reporter, texture.get());
     }
 }
 #endif

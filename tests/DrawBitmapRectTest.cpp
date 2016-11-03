@@ -32,7 +32,7 @@ protected:
 //
 static void test_faulty_pixelref(skiatest::Reporter* reporter) {
     // need a cache, but don't expect to use it, so the budget is not critical
-    SkAutoTUnref<SkDiscardableMemoryPool> pool(
+    sk_sp<SkDiscardableMemoryPool> pool(
         SkDiscardableMemoryPool::Create(10 * 1000, nullptr));
 
     SkBitmap bm;

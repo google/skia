@@ -69,7 +69,7 @@ private:
 DEF_TEST(PixelRef_GenIDChange, r) {
     SkImageInfo info = SkImageInfo::MakeN32Premul(10, 10);
 
-    SkAutoTUnref<SkPixelRef> pixelRef(SkMallocPixelRef::NewAllocate(info, 0, nullptr));
+    sk_sp<SkPixelRef> pixelRef(SkMallocPixelRef::NewAllocate(info, 0, nullptr));
 
     // Register a listener.
     int count = 0;

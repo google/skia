@@ -205,7 +205,7 @@ DEF_TEST(Gif_Sampled, r) {
     }
 
     // Construct a color table for the decode if necessary
-    SkAutoTUnref<SkColorTable> colorTable(nullptr);
+    sk_sp<SkColorTable> colorTable(nullptr);
     SkPMColor* colorPtr = nullptr;
     int* colorCountPtr = nullptr;
     int maxColors = 256;
