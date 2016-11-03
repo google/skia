@@ -169,7 +169,7 @@ def swarm_dimensions(builder_cfg):
         'HD4600':        '8086:0412',
         'HD7770':        '1002:683d',
         'iHD530':        '8086:1912',
-        'IntelIris6100': '8086:162B',
+        'IntelIris6100': '8086:162b',
       }[builder_cfg['cpu_or_gpu_value']]
   else:
     dimensions['gpu'] = 'none'
