@@ -114,7 +114,7 @@ WinGLTestContext::WinGLTestContext(GrGLStandard forcedGpuAPI)
         return;
     }
 
-    SkAutoTUnref<const GrGLInterface> gl(GrGLCreateNativeInterface());
+    sk_sp<const GrGLInterface> gl(GrGLCreateNativeInterface());
     if (nullptr == gl.get()) {
         SkDebugf("Could not create GL interface.\n");
         this->destroyGLContext();

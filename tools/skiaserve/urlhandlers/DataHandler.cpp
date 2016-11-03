@@ -29,7 +29,7 @@ int DataHandler::handle(Request* request, MHD_Connection* connection,
         return MHD_NO;
     }
 
-    SkAutoTUnref<UrlDataManager::UrlData> urlData(
+    sk_sp<UrlDataManager::UrlData> urlData(
         SkRef(request->fUrlDataManager.getDataFromUrl(SkString(url))));
 
     if (urlData) {

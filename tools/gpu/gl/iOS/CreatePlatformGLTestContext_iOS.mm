@@ -37,7 +37,7 @@ IOSGLTestContext::IOSGLTestContext()
     fEAGLContext = [[EAGLContext alloc] initWithAPI:kEAGLRenderingAPIOpenGLES2];
     [EAGLContext setCurrentContext:EAGLCTX];
 
-    SkAutoTUnref<const GrGLInterface> gl(GrGLCreateNativeInterface());
+    sk_sp<const GrGLInterface> gl(GrGLCreateNativeInterface());
     if (NULL == gl.get()) {
         SkDebugf("Failed to create gl interface");
         this->destroyGLContext();

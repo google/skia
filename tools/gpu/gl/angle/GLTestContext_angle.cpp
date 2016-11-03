@@ -147,7 +147,7 @@ ANGLEGLContext::ANGLEGLContext(ANGLEBackend type, ANGLEContextVersion version)
 
     eglMakeCurrent(fDisplay, fSurface, fSurface, fContext);
 
-    SkAutoTUnref<const GrGLInterface> gl(sk_gpu_test::CreateANGLEGLInterface());
+    sk_sp<const GrGLInterface> gl(sk_gpu_test::CreateANGLEGLInterface());
     if (nullptr == gl.get()) {
         SkDebugf("Could not create ANGLE GL interface!\n");
         this->destroyGLContext();
