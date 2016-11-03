@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "66ba4639_82e31fed",
+        "filename": "third_party/gif/SkGifImageReader.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 148,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2016-11-03T18:17:37Z",
+      "side": 1,
+      "message": "nit: whitespace.",
+      "range": {
+        "startLine": 148,
+        "startChar": 0,
+        "endLine": 148,
+        "endChar": 4
+      },
+      "revId": "6a98f73aa684de9f2dedc0ff4430bafa16778b2f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
