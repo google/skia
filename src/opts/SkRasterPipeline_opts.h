@@ -193,20 +193,30 @@ SI SkNh to_565(const SkNf& r, const SkNf& g, const SkNf& b) {
 
 STAGE(just_return, false) { }
 
-/*  We don't seem to have a need for this yet.
 STAGE(clamp_0, true) {
     a = SkNf::Max(a, 0.0f);
     r = SkNf::Max(r, 0.0f);
     g = SkNf::Max(g, 0.0f);
     b = SkNf::Max(b, 0.0f);
 }
-*/
 
 STAGE(clamp_1, true) {
     a = SkNf::Min(a, 1.0f);
     r = SkNf::Min(r, a);
     g = SkNf::Min(g, a);
     b = SkNf::Min(b, a);
+}
+
+STAGE(unpremul, true) {
+    r *= a.invert();
+    g *= a.invert();
+    b *= a.invert();
+}
+
+STAGE(premul, true) {
+    r *= a;
+    g *= a;
+    b *= a;
 }
 
 STAGE(swap_src_dst, true) {
@@ -448,6 +458,28 @@ RGB_XFERMODE(softlight) {
 STAGE(luminance_to_alpha, true) {
     a = SK_LUM_COEFF_R*r + SK_LUM_COEFF_G*g + SK_LUM_COEFF_B*b;
     r = g = b = 0;
+}
+
+STAGE(matrix_4x4, true) {
+    auto m = (const float*)ctx;
+
+    auto R = r*m[0] + g*m[4] + b*m[ 8] + a*m[12],
+         G = r*m[1] + g*m[5] + b*m[ 9] + a*m[13],
+         B = r*m[2] + g*m[6] + b*m[10] + a*m[14],
+         A = r*m[3] + g*m[7] + b*m[11] + a*m[15];
+    r = R;
+    g = G;
+    b = B;
+    a = A;
+}
+
+STAGE(translate_4x1, true) {
+    auto v = (const float*)ctx;
+
+    r += v[0];
+    g += v[1];
+    b += v[2];
+    a += v[3];
 }
 
 

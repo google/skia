@@ -9,6 +9,7 @@
 #include "SkColorPriv.h"
 #include "SkNx.h"
 #include "SkPM4fPriv.h"
+#include "SkRasterPipeline.h"
 #include "SkReadBuffer.h"
 #include "SkRefCnt.h"
 #include "SkString.h"
@@ -21,12 +22,17 @@ static void transpose(float dst[20], const float src[20]) {
     const float* srcB = src + 10;
     const float* srcA = src + 15;
 
-    for (int i = 0; i < 20; i += 4) {
+    for (int i = 0; i < 16; i += 4) {
         dst[i + 0] = *srcR++;
         dst[i + 1] = *srcG++;
         dst[i + 2] = *srcB++;
         dst[i + 3] = *srcA++;
     }
+    // Might as well scale these translates down to [0,1] here instead of every filter call.
+    dst[16] = *srcR * (1/255.0f);
+    dst[17] = *srcG * (1/255.0f);
+    dst[18] = *srcB * (1/255.0f);
+    dst[19] = *srcA * (1/255.0f);
 }
 
 void SkColorMatrixFilterRowMajor255::initState() {
@@ -81,13 +87,11 @@ static SkPMColor round(const Sk4f& x) {
 
 template <typename Adaptor, typename T>
 void filter_span(const float array[], const T src[], int count, T dst[]) {
-    // c0-c3 are already in [0,1].
     const Sk4f c0 = Sk4f::Load(array + 0);
     const Sk4f c1 = Sk4f::Load(array + 4);
     const Sk4f c2 = Sk4f::Load(array + 8);
     const Sk4f c3 = Sk4f::Load(array + 12);
-    // c4 (the translate vector) is in [0, 255].  Bring it back to [0,1].
-    const Sk4f c4 = Sk4f::Load(array + 16)*Sk4f(1.0f/255);
+    const Sk4f c4 = Sk4f::Load(array + 16);
 
     // todo: we could cache this in the constructor...
     T matrix_translate_pmcolor = Adaptor::From4f(premul(clamp_0_1(c4)));
@@ -221,6 +225,21 @@ static void set_concat(SkScalar result[20], const SkScalar outer[20], const SkSc
                             outer[j + 3] * inner[19] +
                             outer[j + 4];
     }
+}
+
+bool SkColorMatrixFilterRowMajor255::onAppendStages(SkRasterPipeline* p,
+                                                    bool shaderIsOpaque) const {
+    bool willStayOpaque = shaderIsOpaque && (fFlags & kAlphaUnchanged_Flag);
+    bool haveTranslate = fTranspose[16] || fTranspose[17] || fTranspose[18] || fTranspose[19];
+    bool needsClamp = needs_clamping(fMatrix);  // TODO: use fTranspose, split into clamp_0 and _1?
+
+    if (!shaderIsOpaque) { p->append(SkRasterPipeline::unpremul); }
+    if (           true) { p->append(SkRasterPipeline::matrix_4x4,    fTranspose+ 0); }
+    if (  haveTranslate) { p->append(SkRasterPipeline::translate_4x1, fTranspose+16); }
+    if (!willStayOpaque) { p->append(SkRasterPipeline::premul); }
+    if (     needsClamp) { p->append(SkRasterPipeline::clamp_0); }
+    if (     needsClamp) { p->append(SkRasterPipeline::clamp_1); }
+    return true;
 }
 
 ///////////////////////////////////////////////////////////////////////////////
