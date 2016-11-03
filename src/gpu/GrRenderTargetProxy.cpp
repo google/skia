@@ -82,7 +82,7 @@ size_t GrRenderTargetProxy::onGpuMemorySize() const {
     }
 
     // TODO: do we have enough information to improve this worst case estimate?
-    return GrRenderTarget::ComputeSize(fDesc, fDesc.fSampleCnt+1);
+    return GrSurface::ComputeSize(fDesc, fDesc.fSampleCnt+1, false);
 }
 
 sk_sp<GrRenderTargetProxy> GrRenderTargetProxy::Make(const GrCaps& caps,
