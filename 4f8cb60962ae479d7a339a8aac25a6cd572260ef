@@ -1,0 +1,61 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "ab65e7f6_0994c91a",
+        "filename": "fuzz/FilterFuzz.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 59,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2016-11-03T20:57:18Z",
+      "side": 1,
+      "message": "You need to be much more thorough with this change.  We haven\u0027t done anything to fix the problem here.   If you call f(R(...), R(...))---say, make_rect() below---you have the same problem as before.\n\nEvery function dealing with fuzzed bytes needs scrutiny.",
+      "revId": "4f8cb60962ae479d7a339a8aac25a6cd572260ef",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "4b2b8b7e_6ee7cfd2",
+        "filename": "fuzz/FilterFuzz.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 60,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2016-11-03T20:57:18Z",
+      "side": 1,
+      "message": "Our hard drives are pretty big now.  We can afford the usual new line here, and in all other similar places.",
+      "revId": "4f8cb60962ae479d7a339a8aac25a6cd572260ef",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "c66692d0_9488bc07",
+        "filename": "fuzz/Fuzz.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 32,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2016-11-03T20:57:18Z",
+      "side": 1,
+      "message": "\"... we avoid the temptation to call next() in a way that does not consume fuzzed bytes in a single platform-independent order.\"\n\nThis is not non-deterministic.  It\u0027s actually required to be deterministic.  There must be an order.  It can just be any order.",
+      "range": {
+        "startLine": 31,
+        "startChar": 44,
+        "endLine": 32,
+        "endChar": 23
+      },
+      "revId": "4f8cb60962ae479d7a339a8aac25a6cd572260ef",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
