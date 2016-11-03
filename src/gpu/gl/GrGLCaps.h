@@ -127,6 +127,10 @@ public:
         }
     }
 
+    bool isConfigBlittable(GrPixelConfig config) const {
+        return SkToBool(fConfigTable[config].fFlags & ConfigInfo::kBlitFramebuffer_Flag);
+    }
+
     bool isConfigTexSupportEnabled(GrPixelConfig config) const {
         return SkToBool(fConfigTable[config].fFlags & ConfigInfo::kCanUseTexStorage_Flag);
     }
@@ -419,6 +423,7 @@ private:
     /** Number type of the components (with out considering number of bits.) */
     enum FormatType {
         kNormalizedFixedPoint_FormatType,
+        kInteger_FormatType,
         kFloat_FormatType,
     };
 
@@ -478,8 +483,11 @@ private:
             kTextureable_Flag             = 0x2,
             kRenderable_Flag              = 0x4,
             kRenderableWithMSAA_Flag      = 0x8,
-            kCanUseTexStorage_Flag        = 0x10,
-            kCanUseWithTexelBuffer_Flag   = 0x20,
+            /** kBlitFramebuffer means that even if the format cannot be a GrRenderTarget, we can still
+                attach it to a FBO for blitting. */
+            kBlitFramebuffer_Flag         = 0x10,
+            kCanUseTexStorage_Flag        = 0x20,
+            kCanUseWithTexelBuffer_Flag   = 0x40,
         };
         uint32_t fFlags;
 

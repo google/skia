@@ -922,6 +922,7 @@ static inline GrGLint config_alignment(GrPixelConfig config) {
         case kBGRA_8888_GrPixelConfig:
         case kSRGBA_8888_GrPixelConfig:
         case kSBGRA_8888_GrPixelConfig:
+        case kRGBA_8888_sint_GrPixelConfig:
         case kRGBA_float_GrPixelConfig:
             return 4;
         default:
@@ -971,8 +972,8 @@ static bool allocate_and_populate_uncompressed_texture(const GrSurfaceDesc& desc
     // This means if we may later want to add mipmaps, we cannot use TexStorage.
     // Right now, we cannot know if we will later add mipmaps or not.
     // The only time we can use TexStorage is when we already have the
-    // mipmaps.
-    useTexStorage &= texels.count() > 1;
+    // mipmaps or are using a format incompatible with MIP maps.
+    useTexStorage &= texels.count() > 1 || GrPixelConfigIsSint(desc.fConfig);
 
     if (useTexStorage) {
         // We never resize or change formats of textures.
@@ -3459,10 +3460,13 @@ static inline bool can_blit_framebuffer_for_copy_surface(const GrSurface* dst,
                                                          const SkIPoint& dstPoint,
                                                          const GrGLGpu* gpu) {
     auto blitFramebufferFlags = gpu->glCaps().blitFramebufferSupportFlags();
-    if (!gpu->glCaps().isConfigRenderable(dst->config(), dst->desc().fSampleCnt > 0) ||
-        !gpu->glCaps().isConfigRenderable(src->config(), src->desc().fSampleCnt > 0)) {
+    if (!gpu->glCaps().isConfigBlittable(dst->config()) ||
+        !gpu->glCaps().isConfigBlittable(src->config())) {
         return false;
     }
+    // Blits are not allowed between int color buffers and float/fixed color buffers. GrGpu should
+    // have filtered such cases out.
+    SkASSERT(GrPixelConfigIsSint(dst->config()) == GrPixelConfigIsSint(src->config()));
     const GrGLTexture* dstTex = static_cast<const GrGLTexture*>(dst->asTexture());
     const GrGLTexture* srcTex = static_cast<const GrGLTexture*>(dst->asTexture());
     const GrRenderTarget* dstRT = dst->asRenderTarget();
@@ -3546,7 +3550,7 @@ static inline bool can_copy_texsubimage(const GrSurface* dst,
 
     // Check that we could wrap the source in an FBO, that the dst is TEXTURE_2D, that no mirroring
     // is required.
-    if (gpu->glCaps().isConfigRenderable(src->config(), src->desc().fSampleCnt > 0) &&
+    if (gpu->glCaps().isConfigBlittable(src->config()) &&
         !GrPixelConfigIsCompressed(src->config()) &&
         (!srcTex || srcTex->target() == GR_GL_TEXTURE_2D) &&
         dstTex->target() == GR_GL_TEXTURE_2D &&
@@ -3636,7 +3640,7 @@ bool GrGLGpu::initDescForDstCopy(const GrRenderTarget* src, GrSurfaceDesc* desc)
         kBGRA_8888_GrPixelConfig == src->config()) {
         // glCopyTexSubImage2D doesn't work with this config. If the bgra can be used with fbo blit
         // then we set up for that, otherwise fail.
-        if (this->caps()->isConfigRenderable(kBGRA_8888_GrPixelConfig, false)) {
+        if (this->glCaps().isConfigBlittable(kBGRA_8888_GrPixelConfig)) {
             desc->fOrigin = originForBlitFramebuffer;
             desc->fFlags = kRenderTarget_GrSurfaceFlag;
             desc->fConfig = kBGRA_8888_GrPixelConfig;
@@ -3649,7 +3653,7 @@ bool GrGLGpu::initDescForDstCopy(const GrRenderTarget* src, GrSurfaceDesc* desc)
     if (srcRT->renderFBOID() != srcRT->textureFBOID()) {
         // It's illegal to call CopyTexSubImage2D on a MSAA renderbuffer. Set up for FBO blit or
         // fail.
-        if (this->caps()->isConfigRenderable(src->config(), false)) {
+        if (this->glCaps().isConfigBlittable(src->config())) {
             desc->fOrigin = originForBlitFramebuffer;
             desc->fFlags = kRenderTarget_GrSurfaceFlag;
             desc->fConfig = src->config();
@@ -3703,7 +3707,8 @@ bool GrGLGpu::onCopySurface(GrSurface* dst,
 
 bool GrGLGpu::createCopyProgram(int progIdx) {
     const GrGLSLCaps* glslCaps = this->glCaps().glslCaps();
-    static const GrSLType kSamplerTypes[3] = { kTexture2DSampler_GrSLType,
+    static const GrSLType kSamplerTypes[4] = { kTexture2DSampler_GrSLType,
+                                               kTexture2DISampler_GrSLType,
                                                kTextureExternalSampler_GrSLType,
                                                kTexture2DRectSampler_GrSLType };
     if (kTextureExternalSampler_GrSLType == kSamplerTypes[progIdx] &&
@@ -4337,6 +4342,7 @@ bool GrGLGpu::copySurfaceAsBlitFramebuffer(GrSurface* dst,
 // Uses draw calls to do a series of downsample operations to successive mips.
 // If this returns false, then the calling code falls back to using glGenerateMipmap.
 bool GrGLGpu::generateMipmap(GrGLTexture* texture, bool gammaCorrect) {
+    SkASSERT(!GrPixelConfigIsSint(texture->config()));
     // Our iterative downsample requires the ability to limit which level we're sampling:
     if (!this->glCaps().doManualMipmapping()) {
         return false;
