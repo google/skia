@@ -295,8 +295,8 @@ DEF_TEST(Image_Serialize_Encoding_Failure, reporter) {
         picture->serialize(&wstream, serializers[i]);
         REPORTER_ASSERT(reporter, serializers[i]->didEncode());
 
-        SkAutoTDelete<SkStream> rstream(wstream.detachAsStream());
-        sk_sp<SkPicture> deserialized(SkPicture::MakeFromStream(rstream));
+        std::unique_ptr<SkStream> rstream(wstream.detachAsStream());
+        sk_sp<SkPicture> deserialized(SkPicture::MakeFromStream(rstream.get()));
         REPORTER_ASSERT(reporter, deserialized);
         REPORTER_ASSERT(reporter, deserialized->approximateOpCount() > 0);
     }

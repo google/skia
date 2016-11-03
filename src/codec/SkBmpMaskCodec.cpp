@@ -67,8 +67,8 @@ SkCodec::Result SkBmpMaskCodec::onPrepareToDecode(const SkImageInfo& dstInfo,
     }
 
     // Initialize the mask swizzler
-    fMaskSwizzler.reset(SkMaskSwizzler::CreateMaskSwizzler(swizzlerInfo, this->getInfo(), fMasks,
-            this->bitsPerPixel(), options));
+    fMaskSwizzler.reset(SkMaskSwizzler::CreateMaskSwizzler(swizzlerInfo, this->getInfo(),
+            fMasks.get(), this->bitsPerPixel(), options));
     SkASSERT(fMaskSwizzler);
 
     return SkCodec::kSuccess;
