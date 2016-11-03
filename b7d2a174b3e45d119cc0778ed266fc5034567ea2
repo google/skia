@@ -58,6 +58,24 @@
       "revId": "b7d2a174b3e45d119cc0778ed266fc5034567ea2",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "268e8eb3_ec7853a7",
+        "filename": "include/core/SkColorFilter.h",
+        "patchSetId": 8
+      },
+      "lineNbr": 75,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2016-11-03T15:48:23Z",
+      "side": 1,
+      "message": "In my head I\u0027ve been folding everything in the pipeline that\u0027s dst-agnostic all into \"the shader\".  That\u0027s the paint color, shader and an previous color filters, however composed they may all be.  Every time a color filter\u0027s added to a pipeline, the previous part of the pipeline will match the outgoing interface of a shader (r,g,b,a all sound premul linear colors).",
+      "parentUuid": "66ba4639_67360d48",
+      "revId": "b7d2a174b3e45d119cc0778ed266fc5034567ea2",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
