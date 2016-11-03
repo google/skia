@@ -9,7 +9,7 @@
 #include "Test.h"
 
 DEF_TEST(DiscardableMemoryPool, reporter) {
-    SkAutoTUnref<SkDiscardableMemoryPool> pool(
+    sk_sp<SkDiscardableMemoryPool> pool(
         SkDiscardableMemoryPool::Create(1, nullptr));
     pool->setRAMBudget(3);
     REPORTER_ASSERT(reporter, 0 == pool->getRAMUsed());

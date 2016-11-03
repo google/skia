@@ -87,12 +87,12 @@ private:
         private:
             SkTArray<SkString> fAttribNames;
         };
-        SkAutoTUnref<GrGeometryProcessor> gp(new GP(fNumAttribs));
+        sk_sp<GrGeometryProcessor> gp(new GP(fNumAttribs));
         QuadHelper helper;
         size_t vertexStride = gp->getVertexStride();
         SkPoint* vertices = reinterpret_cast<SkPoint*>(helper.init(target, vertexStride, 1));
         vertices->setRectFan(0.f, 0.f, 1.f, 1.f, vertexStride);
-        helper.recordDraw(target, gp);
+        helper.recordDraw(target, gp.get());
     }
 
     int fNumAttribs;
@@ -123,11 +123,11 @@ DEF_GPUTEST_FOR_ALL_CONTEXTS(VertexAttributeCount, reporter, ctxInfo) {
     REPORTER_ASSERT(reporter, context->getGpu()->stats()->numDraws() == 0);
     REPORTER_ASSERT(reporter, context->getGpu()->stats()->numFailedDraws() == 0);
 #endif
-    SkAutoTUnref<GrDrawBatch> batch;
+    sk_sp<GrDrawBatch> batch;
     GrPaint grPaint;
     // This one should succeed.
     batch.reset(new Batch(attribCnt));
-    renderTargetContext->priv().testingOnly_drawBatch(grPaint, batch);
+    renderTargetContext->priv().testingOnly_drawBatch(grPaint, batch.get());
     context->flush();
 #if GR_GPU_STATS
     REPORTER_ASSERT(reporter, context->getGpu()->stats()->numDraws() == 1);
@@ -136,7 +136,7 @@ DEF_GPUTEST_FOR_ALL_CONTEXTS(VertexAttributeCount, reporter, ctxInfo) {
     context->resetGpuStats();
     // This one should fail.
     batch.reset(new Batch(attribCnt+1));
-    renderTargetContext->priv().testingOnly_drawBatch(grPaint, batch);
+    renderTargetContext->priv().testingOnly_drawBatch(grPaint, batch.get());
     context->flush();
 #if GR_GPU_STATS
     REPORTER_ASSERT(reporter, context->getGpu()->stats()->numDraws() == 0);
