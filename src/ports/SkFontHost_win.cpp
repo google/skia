@@ -2260,7 +2260,7 @@ SkScalerContext* LogFontTypeface::onCreateScalerContext(const SkScalerContextEff
     auto ctx = skstd::make_unique<SkScalerContext_GDI>(
             sk_ref_sp(const_cast<LogFontTypeface*>(this)), effects, desc);
     if (!ctx->isValid()) {
-        ctx = nullptr;
+        return nullptr;
     }
     return ctx.release();
 }
