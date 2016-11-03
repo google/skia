@@ -146,9 +146,8 @@ bool SkGIFLZWContext::outputRow(const unsigned char* rowBegin)
     if ((unsigned)drowStart >= m_frameContext->height())
         return true;
 
-    bool writeTransparentPixels = alwaysWriteTransparentPixels ||
-            (m_frameContext->progressiveDisplay() && m_frameContext->interlaced() && ipass > 1);
     // CALLBACK: Let the client know we have decoded a row.
+    const bool writeTransparentPixels = (SkCodec::kNone == m_frameContext->getRequiredFrame());
     if (!m_client->haveDecodedRow(m_frameContext->frameId(), rowBegin,
         drowStart, drowEnd - drowStart + 1, writeTransparentPixels))
         return false;
@@ -918,35 +917,6 @@ bool SkGIFLZWContext::prepareToDecode(const SkGIFColorMap& globalMap)
     datum = bits = 0;
     ipass = m_frameContext->interlaced() ? 1 : 0;
     irow = 0;
-    alwaysWriteTransparentPixels = false;
-    if (m_frameContext->getRequiredFrame() == SkCodec::kNone) {
-        if (!m_frameContext->interlaced()) {
-            alwaysWriteTransparentPixels = true;
-        } else {
-            // The frame is interlaced, so we do not want to write transparent
-            // pixels. But if there are no transparent pixels anyway, there is
-            // no harm in taking the alwaysWriteTransparentPixels path, which
-            // is faster, and it also supports 565.
-            // Since the frame is independent, it does not matter whether the
-            // frame is subset (nothing behind it needs to show through). So we
-            // only need to know whether there is a valid transparent pixel.
-            // This is a little counterintuitive - we want to "always write
-            // transparent pixels" if there ARE NO transparent pixels, so we
-            // check to see whether the pixel index is >= numColors.
-            const auto& localMap = m_frameContext->localColorMap();
-            const auto trans = m_frameContext->transparentPixel();
-            if (localMap.isDefined()) {
-                alwaysWriteTransparentPixels = trans >= localMap.numColors();
-            } else {
-                // Note that if the map is not defined, the value of
-                // alwaysWriteTransparentPixels is meaningless, since without
-                // any color table, we will skip drawing entirely.
-                // FIXME: We could even skip calling prepareToDecode in that
-                // case, meaning we can SkASSERT(globalMap.isDefined())
-                alwaysWriteTransparentPixels = trans >= globalMap.numColors();
-            }
-        }
-    }
 
     // We want to know the longest sequence encodable by a dictionary with
     // SK_MAX_DICTIONARY_ENTRIES entries. If we ignore the need to encode the base
