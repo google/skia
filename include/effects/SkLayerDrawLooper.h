@@ -56,10 +56,10 @@ public:
      *      kDst_Mode: to just keep the draw's color, ignoring the layer's
      */
     struct SK_API LayerInfo {
-        BitFlags            fPaintBits;
-        SK_XFERMODE_MODE_PARAM fColorMode;
-        SkVector            fOffset;
-        bool                fPostTranslate; //!< applies to fOffset
+        BitFlags    fPaintBits;
+        SkBlendMode fColorMode;
+        SkVector    fOffset;
+        bool        fPostTranslate; //!< applies to fOffset
 
         /**
          *  Initial the LayerInfo. Defaults to settings that will draw the

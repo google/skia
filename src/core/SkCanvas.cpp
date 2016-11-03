@@ -1865,12 +1865,7 @@ void SkCanvas::drawPoints(PointMode mode, size_t count, const SkPoint pts[], con
 void SkCanvas::drawVertices(VertexMode vmode, int vertexCount, const SkPoint vertices[],
                             const SkPoint texs[], const SkColor colors[], SkBlendMode bmode,
                             const uint16_t indices[], int indexCount, const SkPaint& paint) {
-#ifdef SK_SUPPORT_LEGACY_XFERMODE_PARAM
-    SkXfermode* xmode = SkXfermode::Peek(bmode);
-#else
-    SkBlendMode xmode = bmode;
-#endif
-    this->onDrawVertices(vmode, vertexCount, vertices, texs, colors, xmode,
+    this->onDrawVertices(vmode, vertexCount, vertices, texs, colors, bmode,
                          indices, indexCount, paint);
 }
 
@@ -2006,7 +2001,7 @@ void SkCanvas::drawAtlas(const SkImage* atlas, const SkRSXform xform[], const Sk
     }
     SkASSERT(atlas);
     SkASSERT(tex);
-    this->onDrawAtlas(atlas, xform, tex, colors, count, (SK_XFERMODE_MODE_PARAM)mode, cull, paint);
+    this->onDrawAtlas(atlas, xform, tex, colors, count, mode, cull, paint);
 }
 
 void SkCanvas::drawAnnotation(const SkRect& rect, const char key[], SkData* value) {
@@ -2815,7 +2810,7 @@ void SkCanvas::drawTextBlob(const SkTextBlob* blob, SkScalar x, SkScalar y,
 
 void SkCanvas::onDrawVertices(VertexMode vmode, int vertexCount,
                               const SkPoint verts[], const SkPoint texs[],
-                              const SkColor colors[], SK_XFERMODE_PARAM xmode,
+                              const SkColor colors[], SkBlendMode bmode,
                               const uint16_t indices[], int indexCount,
                               const SkPaint& paint) {
     TRACE_EVENT0("disabled-by-default-skia", "SkCanvas::drawVertices()");
@@ -2823,7 +2818,7 @@ void SkCanvas::onDrawVertices(VertexMode vmode, int vertexCount,
 
     while (iter.next()) {
         iter.fDevice->drawVertices(iter, vmode, vertexCount, verts, texs,
-                                   colors, xmode, indices, indexCount,
+                                   colors, bmode, indices, indexCount,
                                    looper.paint());
     }
 
@@ -2838,16 +2833,11 @@ void SkCanvas::drawPatch(const SkPoint cubics[12], const SkColor colors[4],
         return;
     }
 
-#ifdef SK_SUPPORT_LEGACY_XFERMODE_PARAM
-    SkXfermode* xmode = SkXfermode::Peek(bmode);
-#else
-    SkBlendMode xmode = bmode;
-#endif
-    this->onDrawPatch(cubics, colors, texCoords, xmode, paint);
+    this->onDrawPatch(cubics, colors, texCoords, bmode, paint);
 }
 
 void SkCanvas::onDrawPatch(const SkPoint cubics[12], const SkColor colors[4],
-                           const SkPoint texCoords[4], SK_XFERMODE_PARAM xmode,
+                           const SkPoint texCoords[4], SkBlendMode bmode,
                            const SkPaint& paint) {
     // Since a patch is always within the convex hull of the control points, we discard it when its
     // bounding rectangle is completely outside the current clip.
@@ -2860,7 +2850,7 @@ void SkCanvas::onDrawPatch(const SkPoint cubics[12], const SkColor colors[4],
     LOOPER_BEGIN(paint, SkDrawFilter::kPath_Type, nullptr)
 
     while (iter.next()) {
-        iter.fDevice->drawPatch(iter, cubics, colors, texCoords, xmode, paint);
+        iter.fDevice->drawPatch(iter, cubics, colors, texCoords, bmode, paint);
     }
 
     LOOPER_END
@@ -2891,7 +2881,7 @@ void SkCanvas::onDrawDrawable(SkDrawable* dr, const SkMatrix* matrix) {
 }
 
 void SkCanvas::onDrawAtlas(const SkImage* atlas, const SkRSXform xform[], const SkRect tex[],
-                           const SkColor colors[], int count, SK_XFERMODE_MODE_PARAM mode,
+                           const SkColor colors[], int count, SkBlendMode bmode,
                            const SkRect* cull, const SkPaint* paint) {
     if (cull && this->quickReject(*cull)) {
         return;
@@ -2904,7 +2894,7 @@ void SkCanvas::onDrawAtlas(const SkImage* atlas, const SkRSXform xform[], const 
 
     LOOPER_BEGIN(pnt, SkDrawFilter::kPath_Type, nullptr)
     while (iter.next()) {
-        iter.fDevice->drawAtlas(iter, atlas, xform, tex, colors, count, mode, pnt);
+        iter.fDevice->drawAtlas(iter, atlas, xform, tex, colors, count, bmode, pnt);
     }
     LOOPER_END
 }
