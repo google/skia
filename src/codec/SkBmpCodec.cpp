@@ -587,6 +587,7 @@ SkBmpCodec::SkBmpCodec(int width, int height, const SkEncodedInfo& info, SkStrea
     , fBitsPerPixel(bitsPerPixel)
     , fRowOrder(rowOrder)
     , fSrcRowBytes(SkAlign4(compute_row_bytes(width, fBitsPerPixel)))
+    , fXformBuffer(nullptr)
 {}
 
 bool SkBmpCodec::onRewind() {
@@ -601,13 +602,17 @@ int32_t SkBmpCodec::getDstRow(int32_t y, int32_t height) const {
     return height - y - 1;
 }
 
-SkCodec::Result SkBmpCodec::onStartScanlineDecode(const SkImageInfo& dstInfo,
+SkCodec::Result SkBmpCodec::prepareToDecode(const SkImageInfo& dstInfo,
         const SkCodec::Options& options, SkPMColor inputColorPtr[], int* inputColorCount) {
-    if (!conversion_possible_ignore_color_space(dstInfo, this->getInfo())) {
-        SkCodecPrintf("Error: cannot convert input type to output type.\n");
+    if (!conversion_possible(dstInfo, this->getInfo()) || !this->initializeColorXform(dstInfo)) {
         return kInvalidConversion;
     }
 
+    return this->onPrepareToDecode(dstInfo, options, inputColorPtr, inputColorCount);
+}
+
+SkCodec::Result SkBmpCodec::onStartScanlineDecode(const SkImageInfo& dstInfo,
+        const SkCodec::Options& options, SkPMColor inputColorPtr[], int* inputColorCount) {
     return prepareToDecode(dstInfo, options, inputColorPtr, inputColorCount);
 }
 
@@ -626,4 +631,16 @@ bool SkBmpCodec::skipRows(int count) {
 
 bool SkBmpCodec::onSkipScanlines(int count) {
     return this->skipRows(count);
+}
+
+void SkBmpCodec::applyColorXform(const SkImageInfo& dstInfo, void* dst, void* src) const {
+    SkColorSpaceXform* xform = this->colorXform();
+    if (xform) {
+        SkColorSpaceXform::ColorFormat dstFormat = select_xform_format(dstInfo.colorType());
+        SkColorSpaceXform::ColorFormat srcFormat = SkColorSpaceXform::kBGRA_8888_ColorFormat;
+        SkAlphaType alphaType = select_xform_alpha(dstInfo.alphaType(),
+                                                   this->getInfo().alphaType());
+        SkAssertResult(xform->apply(dstFormat, dst, srcFormat, src, dstInfo.width(),
+                                    alphaType));
+    }
 }
