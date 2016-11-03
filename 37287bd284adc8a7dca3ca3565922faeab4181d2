@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "66ba4639_5e2d99f0",
+        "filename": "include/private/GrSurfaceProxy.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 153,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2016-11-03T14:21:28Z",
+      "side": 1,
+      "message": "Done - now getRawGpuMemorySize_debugOnly",
+      "parentUuid": "06142af7_7411886f",
+      "revId": "37287bd284adc8a7dca3ca3565922faeab4181d2",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "06142af7_d4f85c0e",
         "filename": "src/gpu/GrRenderTarget.cpp",
         "patchSetId": 3
@@ -36,6 +54,24 @@
     },
     {
       "key": {
+        "uuid": "66ba4639_8c951625",
+        "filename": "src/gpu/GrRenderTarget.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 87,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2016-11-03T14:21:28Z",
+      "side": 1,
+      "message": "I\u0027ve almost got this working but I think it should be a separate CL.",
+      "parentUuid": "06142af7_d4f85c0e",
+      "revId": "37287bd284adc8a7dca3ca3565922faeab4181d2",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "06142af7_74e8683b",
         "filename": "src/gpu/gl/GrGLRenderTarget.h",
         "patchSetId": 3
@@ -47,6 +83,24 @@
       "writtenOn": "2016-11-02T17:54:33Z",
       "side": 1,
       "message": "IIUC we are storing this because we rely on having valid FBO IDs in order to determine how many color samples there are. And if the IDs get zeroed then we can\u0027t recomputed the size. Should we just store something about that instead (e.g. fNumSamplesOwnedPerPixel) ?",
+      "revId": "37287bd284adc8a7dca3ca3565922faeab4181d2",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "268e8eb3_2355ee35",
+        "filename": "src/gpu/gl/GrGLRenderTarget.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 109,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2016-11-03T14:21:28Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "06142af7_74e8683b",
       "revId": "37287bd284adc8a7dca3ca3565922faeab4181d2",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
