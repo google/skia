@@ -846,9 +846,9 @@ static inline unsigned SkB4444ToB565(unsigned b) {
 static inline SkPMColor16 SkPackARGB4444(unsigned a, unsigned r,
                                          unsigned g, unsigned b) {
     SkASSERT(a <= 0xF);
-    SkASSERT(r <= a);
-    SkASSERT(g <= a);
-    SkASSERT(b <= a);
+    SkASSERT(r <= 0xF);
+    SkASSERT(g <= 0xF);
+    SkASSERT(b <= 0xF);
 
     return (SkPMColor16)((a << SK_A4444_SHIFT) | (r << SK_R4444_SHIFT) |
                          (g << SK_G4444_SHIFT) | (b << SK_B4444_SHIFT));
