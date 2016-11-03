@@ -40,6 +40,24 @@
       "revId": "b7d2a174b3e45d119cc0778ed266fc5034567ea2",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "66ba4639_67360d48",
+        "filename": "include/core/SkColorFilter.h",
+        "patchSetId": 8
+      },
+      "lineNbr": 75,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2016-11-03T15:24:47Z",
+      "side": 1,
+      "message": "ok. Not sure the old guard is a good measure of clarity, but your call. In the more general sense, when we chain/compose elements (e.g. filters, etc.) the \"prev\" isn\u0027t always a shader (could be another filter).",
+      "parentUuid": "06142af7_37a8b264",
+      "revId": "b7d2a174b3e45d119cc0778ed266fc5034567ea2",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
