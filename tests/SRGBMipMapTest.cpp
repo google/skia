@@ -117,7 +117,7 @@ DEF_GPUTEST_FOR_GL_RENDERING_CONTEXTS(SRGBMipMaps, reporter, ctxInfo) {
     desc.fHeight = texS;
 
     GrTextureProvider* texProvider = context->textureProvider();
-    SkAutoTUnref<GrTexture> texture(texProvider->createTexture(desc, SkBudgeted::kNo, texData, 0));
+    sk_sp<GrTexture> texture(texProvider->createTexture(desc, SkBudgeted::kNo, texData, 0));
 
     // Create two render target contexts (L32 and S32)
     sk_sp<SkColorSpace> srgbColorSpace = SkColorSpace::MakeNamed(SkColorSpace::kSRGB_Named);
@@ -131,7 +131,7 @@ DEF_GPUTEST_FOR_GL_RENDERING_CONTEXTS(SRGBMipMaps, reporter, ctxInfo) {
     GrPaint paint;
     paint.setPorterDuffXPFactory(SkBlendMode::kSrc);
     GrTextureParams mipMapParams(SkShader::kRepeat_TileMode, GrTextureParams::kMipMap_FilterMode);
-    paint.addColorTextureProcessor(texture, nullptr, SkMatrix::MakeScale(0.5f), mipMapParams);
+    paint.addColorTextureProcessor(texture.get(), nullptr, SkMatrix::MakeScale(0.5f), mipMapParams);
 
     // 1) Draw texture to S32 surface (should generate/use sRGB mips)
     paint.setGammaCorrect(true);

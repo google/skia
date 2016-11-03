@@ -764,7 +764,7 @@ static void test_surface_clear(skiatest::Reporter* reporter, sk_sp<SkSurface> su
     std::unique_ptr<uint32_t[]> pixels(new uint32_t[w * h]);
     sk_memset32(pixels.get(), ~expectedValue, w * h);
 
-    SkAutoTUnref<GrSurface> grSurface(SkSafeRef(grSurfaceGetter(surface.get())));
+    sk_sp<GrSurface> grSurface(SkSafeRef(grSurfaceGetter(surface.get())));
     if (!grSurface) {
         ERRORF(reporter, "Could access render target of GPU SkSurface.");
         return;

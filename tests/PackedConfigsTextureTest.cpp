@@ -116,7 +116,7 @@ void runTest(skiatest::Reporter* reporter, GrContext* context,
         desc.fConfig = config;
         desc.fOrigin = 0 == origin ?
             kTopLeft_GrSurfaceOrigin : kBottomLeft_GrSurfaceOrigin;
-        SkAutoTUnref<GrTexture> fpTexture(context->textureProvider()->createTexture(
+        sk_sp<GrTexture> fpTexture(context->textureProvider()->createTexture(
             desc, SkBudgeted::kNo, controlPixelData.begin(), 0));
         SkASSERT(fpTexture);
         fpTexture->readPixels(0, 0, DEV_W, DEV_H, kRGBA_8888_GrPixelConfig, readBuffer.begin(), 0);
