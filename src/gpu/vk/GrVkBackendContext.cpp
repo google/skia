@@ -123,7 +123,11 @@ const GrVkBackendContext* GrVkBackendContext::Create(uint32_t* presentQueueIndex
         vkDestroyInstance(inst, nullptr);
         return nullptr;
     }
-    SkASSERT(gpuCount > 0);
+    if (gpuCount < 1) {
+        SkDebugf("vkEnumeratePhysicalDevices returned 0 devices.\n");
+        vkDestroyInstance(inst, nullptr);
+        return nullptr;
+    }
     // Just returning the first physical device instead of getting the whole array.
     // TODO: find best match for our needs
     gpuCount = 1;

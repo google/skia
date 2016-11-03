@@ -54,15 +54,17 @@ static void test_write_pixels(skiatest::Reporter* reporter, GrContext* context,
 
 static void test_copy_surface_src(skiatest::Reporter* reporter, GrContext* context,
                                   GrTexture* rectangleTexture, uint32_t expectedPixelValues[]) {
-    GrSurfaceDesc copyDstDesc;
-    copyDstDesc.fConfig = kRGBA_8888_GrPixelConfig;
-    copyDstDesc.fWidth = rectangleTexture->width();
-    copyDstDesc.fHeight = rectangleTexture->height();
-    copyDstDesc.fFlags = kRenderTarget_GrSurfaceFlag;
-    SkAutoTUnref<GrTexture> dst(context->textureProvider()->createTexture(
-            copyDstDesc, SkBudgeted::kYes));
-    context->copySurface(dst, rectangleTexture);
-    test_read_pixels(reporter, context, dst, expectedPixelValues);
+    for (auto flags : {kNone_GrSurfaceFlags, kRenderTarget_GrSurfaceFlag}) {
+        GrSurfaceDesc copyDstDesc;
+        copyDstDesc.fConfig = kRGBA_8888_GrPixelConfig;
+        copyDstDesc.fWidth = rectangleTexture->width();
+        copyDstDesc.fHeight = rectangleTexture->height();
+        copyDstDesc.fFlags = flags;
+        SkAutoTUnref<GrTexture> dst(context->textureProvider()->createTexture(
+                copyDstDesc, SkBudgeted::kYes));
+        context->copySurface(dst, rectangleTexture);
+        test_read_pixels(reporter, context, dst, expectedPixelValues);
+    }
 }
 
 static void test_copy_surface_dst(skiatest::Reporter* reporter, GrContext* context,
@@ -74,17 +76,18 @@ static void test_copy_surface_dst(skiatest::Reporter* reporter, GrContext* conte
             pixels.get()[y * rectangleTexture->width() + x] = GrColorPackRGBA(y, x, x * y, x *+ y);
         }
     }
+    for (auto flags : {kNone_GrSurfaceFlags, kRenderTarget_GrSurfaceFlag}) {
+        GrSurfaceDesc copySrcDesc;
+        copySrcDesc.fConfig = kRGBA_8888_GrPixelConfig;
+        copySrcDesc.fWidth = rectangleTexture->width();
+        copySrcDesc.fHeight = rectangleTexture->height();
+        copySrcDesc.fFlags = flags;
+        SkAutoTUnref<GrTexture> src(context->textureProvider()->createTexture(
+                copySrcDesc, SkBudgeted::kYes, pixels.get(), 0));
 
-    GrSurfaceDesc copySrcDesc;
-    copySrcDesc.fConfig = kRGBA_8888_GrPixelConfig;
-    copySrcDesc.fWidth = rectangleTexture->width();
-    copySrcDesc.fHeight = rectangleTexture->height();
-    copySrcDesc.fFlags = kRenderTarget_GrSurfaceFlag;
-    SkAutoTUnref<GrTexture> src(context->textureProvider()->createTexture(
-            copySrcDesc, SkBudgeted::kYes, pixels.get(), 0));
-
-    context->copySurface(rectangleTexture, src);
-    test_read_pixels(reporter, context, rectangleTexture, pixels.get());
+        context->copySurface(rectangleTexture, src);
+        test_read_pixels(reporter, context, rectangleTexture, pixels.get());
+    }
 }
 
 static void test_clear(skiatest::Reporter* reporter, GrContext* context,
