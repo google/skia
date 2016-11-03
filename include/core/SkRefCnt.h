@@ -199,13 +199,7 @@ public:
     T* detach() { return this->release(); }
 #endif
 };
-// Can't use the #define trick below to guard a bare SkAutoTUnref(...) because it's templated. :(
-
-class SkAutoUnref : public SkAutoTUnref<SkRefCnt> {
-public:
-    SkAutoUnref(SkRefCnt* obj) : SkAutoTUnref<SkRefCnt>(obj) {}
-};
-#define SkAutoUnref(...) SK_REQUIRE_LOCAL_VAR(SkAutoUnref)
+// Can't use the #define trick to guard a bare SkAutoTUnref(...) because it's templated. :(
 
 // This is a variant of SkRefCnt that's Not Virtual, so weighs 4 bytes instead of 8 or 16.
 // There's only benefit to using this if the deriving class does not otherwise need a vtable.
