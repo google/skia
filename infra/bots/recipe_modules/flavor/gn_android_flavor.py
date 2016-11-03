@@ -25,12 +25,20 @@ class GNAndroidFlavorUtils(default_flavor.DefaultFlavorUtils):
         svg_dir       = _data_dir + 'svgs',
         tmp_dir       = _data_dir)
 
-  def _run(self, title, *cmd, **kwargs):
+  def _strip_environment(self):
     self.m.vars.default_env = {k: v for (k,v)
                                in self.m.vars.default_env.iteritems()
                                if k in ['PATH']}
+
+  def _run(self, title, *cmd, **kwargs):
+    self._strip_environment()
     return self.m.run(self.m.step, title, cmd=list(cmd),
                       cwd=self.m.vars.skia_dir, **kwargs)
+
+  def _py(self, title, script, infra_step=True):
+    self._strip_environment()
+    return self.m.run(self.m.python, title, script=script,
+                      cwd=self.m.vars.skia_dir, env=None, infra_step=infra_step)
 
   def _adb(self, title, *cmd, **kwargs):
     self._ever_ran_adb = True
@@ -76,10 +84,12 @@ class GNAndroidFlavorUtils(default_flavor.DefaultFlavorUtils):
 
     gn_args = ' '.join('%s=%s' % (k,v) for (k,v) in sorted(args.iteritems()))
 
-    self._run('fetch-gn', self.m.vars.skia_dir.join('bin', 'fetch-gn'),
-              infra_step=True)
-    self._run('gn gen', 'gn', 'gen', self.out_dir, '--args=' + gn_args)
-    self._run('ninja', 'ninja', '-C', self.out_dir)
+    gn    = 'gn.bat'    if 'Win' in os else 'gn'
+    ninja = 'ninja.exe' if 'Win' in os else 'ninja'
+
+    self._py('fetch-gn', self.m.vars.skia_dir.join('bin', 'fetch-gn'))
+    self._run('gn gen', gn, 'gen', self.out_dir, '--args=' + gn_args)
+    self._run('ninja', ninja, '-C', self.out_dir)
 
   def install(self):
     self._adb('mkdir ' + self.device_dirs.resource_dir,
