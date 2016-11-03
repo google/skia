@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "66ba4639_dd0a2605",
+        "filename": "tests/ReadPixelsTest.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 483,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2016-11-03T18:54:40Z",
+      "side": 1,
+      "message": "This seems counter productive ...",
+      "revId": "662248268502e184ff6bf5d3fc5717421071666b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
