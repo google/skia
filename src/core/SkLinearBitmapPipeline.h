@@ -57,9 +57,6 @@ public:
     void shadeSpan4f(int x, int y, SkPM4f* dst, int count);
     void blitSpan(int32_t x, int32_t y, void* dst, int count);
 
-    template <size_t N>
-    using Storage = typename std::aligned_storage<N, 16>::type;
-
     template<typename Base, size_t kSize, typename Next = void>
     class Stage {
     public:
@@ -87,8 +84,11 @@ public:
 
     private:
         std::function<void (Next*, void*)> fStageCloner;
-        mutable Storage<kSize>             fSpace;
-        bool                               fIsInitialized;
+        struct SK_STRUCT_ALIGN(16) Space {
+            char space[kSize];
+        };
+        bool fIsInitialized;
+        mutable Space fSpace;
     };
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
@@ -116,8 +116,11 @@ public:
         Base& operator*() const { return *(this->get()); }
 
     private:
-        mutable Storage<kSize> fSpace;
-        bool                   fIsInitialized;
+        struct SK_STRUCT_ALIGN(16) Space {
+            char space[kSize];
+        };
+        mutable Space fSpace;
+        bool          fIsInitialized;
 
     };
 

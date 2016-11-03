@@ -93,7 +93,7 @@ public:
             // There is space in fStorage.
             rec->fStorageSize = storageRequired;
             rec->fHeapStorage = nullptr;
-            rec->fObj = static_cast<void*>(bytes() + fStorageUsed);
+            rec->fObj = static_cast<void*>(fStorage.fBytes + fStorageUsed);
             fStorageUsed += storageRequired;
         }
         rec->fKillProc = DestroyT<T>;
@@ -129,11 +129,13 @@ private:
         static_cast<T*>(ptr)->~T();
     }
 
-    char* bytes() { return reinterpret_cast<char*>(&fStorage); }
+    struct SK_STRUCT_ALIGN(16) Storage {
+        // we add kMaxObjects * 15 to account for the worst-case slop, where each allocation wasted
+        // 15 bytes (due to forcing each to be 16-byte aligned)
+        char    fBytes[kTotalBytes + kMaxObjects * 15];
+    };
 
-    using Storage = typename std::aligned_storage<kTotalBytes, 16>::type;
-
-    Storage     fStorage[kMaxObjects];
+    Storage     fStorage;
     // Number of bytes used so far.
     size_t      fStorageUsed;
     uint32_t    fNumObjects;
