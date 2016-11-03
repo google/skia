@@ -48,7 +48,7 @@ protected:
                        size_t dstRowBytes, const Options&, SkPMColor*,
                        int*, int*) override;
 
-    SkCodec::Result onPrepareToDecode(const SkImageInfo& dstInfo,
+    SkCodec::Result prepareToDecode(const SkImageInfo& dstInfo,
             const SkCodec::Options& options, SkPMColor inputColorPtr[],
             int* inputColorCount) override;
 
@@ -89,7 +89,6 @@ private:
      */
     int decodeRows(const SkImageInfo& dstInfo, void* dst, size_t dstRowBytes,
             const Options& opts) override;
-    int decodeRLE(const SkImageInfo& dstInfo, void* dst, size_t dstRowBytes);
 
     bool skipRows(int count) override;
 

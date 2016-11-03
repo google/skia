@@ -48,6 +48,10 @@ SkCodec::Result SkBmpStandardCodec::onGetPixels(const SkImageInfo& dstInfo,
         SkCodecPrintf("Error: scaling not supported.\n");
         return kInvalidScale;
     }
+    if (!conversion_possible_ignore_color_space(dstInfo, this->getInfo())) {
+        SkCodecPrintf("Error: cannot convert input type to output type.\n");
+        return kInvalidConversion;
+    }
 
     Result result = this->prepareToDecode(dstInfo, opts, inputColorPtr, inputColorCount);
     if (kSuccess != result) {
@@ -149,13 +153,13 @@ void SkBmpStandardCodec::initializeSwizzler(const SkImageInfo& dstInfo, const Op
     // In the case of bmp-in-icos, we will report BGRA to the client,
     // since we may be required to apply an alpha mask after the decode.
     // However, the swizzler needs to know the actual format of the bmp.
-    SkEncodedInfo encodedInfo = this->getEncodedInfo();
+    SkEncodedInfo swizzlerInfo = this->getEncodedInfo();
     if (fInIco) {
         if (this->bitsPerPixel() <= 8) {
-            encodedInfo = SkEncodedInfo::Make(SkEncodedInfo::kPalette_Color,
-                    encodedInfo.alpha(), this->bitsPerPixel());
+            swizzlerInfo = SkEncodedInfo::Make(SkEncodedInfo::kPalette_Color,
+                    swizzlerInfo.alpha(), this->bitsPerPixel());
         } else if (this->bitsPerPixel() == 24) {
-            encodedInfo = SkEncodedInfo::Make(SkEncodedInfo::kBGR_Color,
+            swizzlerInfo = SkEncodedInfo::Make(SkEncodedInfo::kBGR_Color,
                     SkEncodedInfo::kOpaque_Alpha, 8);
         }
     }
@@ -163,29 +167,13 @@ void SkBmpStandardCodec::initializeSwizzler(const SkImageInfo& dstInfo, const Op
     // Get a pointer to the color table if it exists
     const SkPMColor* colorPtr = get_color_ptr(fColorTable.get());
 
-    SkImageInfo swizzlerInfo = dstInfo;
-    SkCodec::Options swizzlerOptions = opts;
-    if (this->colorXform()) {
-        swizzlerInfo = swizzlerInfo.makeColorType(kBGRA_8888_SkColorType);
-        if (kPremul_SkAlphaType == dstInfo.alphaType()) {
-            swizzlerInfo = swizzlerInfo.makeAlphaType(kUnpremul_SkAlphaType);
-        }
-
-        swizzlerOptions.fZeroInitialized = kNo_ZeroInitialized;
-    }
-
-
-    fSwizzler.reset(SkSwizzler::CreateSwizzler(encodedInfo, colorPtr, swizzlerInfo,
-                                               swizzlerOptions));
+    // Create swizzler
+    fSwizzler.reset(SkSwizzler::CreateSwizzler(swizzlerInfo, colorPtr, dstInfo, opts));
     SkASSERT(fSwizzler);
 }
 
-SkCodec::Result SkBmpStandardCodec::onPrepareToDecode(const SkImageInfo& dstInfo,
+SkCodec::Result SkBmpStandardCodec::prepareToDecode(const SkImageInfo& dstInfo,
         const SkCodec::Options& options, SkPMColor inputColorPtr[], int* inputColorCount) {
-    if (this->colorXform()) {
-        this->resetXformBuffer(dstInfo.width());
-    }
-
     // Create the color table if necessary and prepare the stream for decode
     // Note that if it is non-NULL, inputColorCount will be modified
     if (!this->createColorTable(dstInfo.colorType(), dstInfo.alphaType(), inputColorCount)) {
@@ -219,14 +207,7 @@ int SkBmpStandardCodec::decodeRows(const SkImageInfo& dstInfo, void* dst, size_t
         uint32_t row = this->getDstRow(y, dstInfo.height());
 
         void* dstRow = SkTAddOffset<void>(dst, row * dstRowBytes);
-
-        if (this->colorXform()) {
-            SkImageInfo xformInfo = dstInfo.makeWH(fSwizzler->swizzleWidth(), dstInfo.height());
-            fSwizzler->swizzle(this->xformBuffer(), fSrcBuffer.get());
-            this->applyColorXform(xformInfo, dstRow, this->xformBuffer());
-        } else {
-            fSwizzler->swizzle(dstRow, fSrcBuffer.get());
-        }
+        fSwizzler->swizzle(dstRow, fSrcBuffer.get());
     }
 
     if (fInIco && fIsOpaque) {

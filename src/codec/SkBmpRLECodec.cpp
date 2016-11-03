@@ -44,6 +44,10 @@ SkCodec::Result SkBmpRLECodec::onGetPixels(const SkImageInfo& dstInfo,
         // Subsets are not supported.
         return kUnimplemented;
     }
+    if (!conversion_possible_ignore_color_space(dstInfo, this->getInfo())) {
+        SkCodecPrintf("Error: cannot convert input type to output type.\n");
+        return kInvalidConversion;
+    }
 
     Result result = this->prepareToDecode(dstInfo, opts, inputColorPtr, inputColorCount);
     if (kSuccess != result) {
@@ -263,7 +267,7 @@ void SkBmpRLECodec::setRGBPixel(void* dst, size_t dstRowBytes,
     }
 }
 
-SkCodec::Result SkBmpRLECodec::onPrepareToDecode(const SkImageInfo& dstInfo,
+SkCodec::Result SkBmpRLECodec::prepareToDecode(const SkImageInfo& dstInfo,
         const SkCodec::Options& options, SkPMColor inputColorPtr[], int* inputColorCount) {
     // FIXME: Support subsets for scanline decodes.
     if (options.fSubset) {
@@ -302,74 +306,38 @@ SkCodec::Result SkBmpRLECodec::onPrepareToDecode(const SkImageInfo& dstInfo,
  */
 int SkBmpRLECodec::decodeRows(const SkImageInfo& info, void* dst, size_t dstRowBytes,
         const Options& opts) {
-    const int width = this->getInfo().width();
-    int height = info.height();
-
-    // Adjust the height and the dst if the previous call to decodeRows() left us
-    // with lines that need to be skipped.
-    if (height > fLinesToSkip) {
-        height -= fLinesToSkip;
-        if (dst) {
-            dst = SkTAddOffset<void>(dst, fLinesToSkip * dstRowBytes);
-        }
-        fLinesToSkip = 0;
-    } else {
-        fLinesToSkip -= height;
-        return height;
-    }
-
-    // Account for sampling.
-    SkImageInfo dstInfo = info.makeWH(get_scaled_dimension(width, fSampleX), height);
-
-    void* decodeDst = dst;
-    size_t decodeRowBytes = dstRowBytes;
-    SkImageInfo decodeInfo = dstInfo;
-    if (decodeDst) {
-        SkCodec::ZeroInitialized zeroInit = opts.fZeroInitialized;
-        if (this->colorXform()) {
-            decodeInfo = decodeInfo.makeColorType(kBGRA_8888_SkColorType);
-            if (kRGBA_F16_SkColorType == dstInfo.colorType()) {
-                int count = height * dstInfo.width();
-                this->resetXformBuffer(count);
-                decodeDst = this->xformBuffer();
-                decodeRowBytes = dstInfo.width() * sizeof(uint32_t);
-                zeroInit = SkCodec::kNo_ZeroInitialized;
-            }
-        }
-
-        // Set the background as transparent.  Then, if the RLE code skips pixels,
-        // the skipped pixels will be transparent.
-        // Because of the need for transparent pixels, kN32 is the only color
-        // type that makes sense for the destination format.
-        SkASSERT(kRGBA_8888_SkColorType == decodeInfo.colorType() ||
-                 kBGRA_8888_SkColorType == decodeInfo.colorType());
-        SkSampler::Fill(decodeInfo, decodeDst, decodeRowBytes, SK_ColorTRANSPARENT, zeroInit);
-    }
-
-    int decodedHeight = this->decodeRLE(decodeInfo, decodeDst, decodeRowBytes);
-    if (this->colorXform() && decodeDst) {
-        for (int y = 0; y < decodedHeight; y++) {
-            this->applyColorXform(dstInfo, dst, decodeDst);
-            decodeDst = SkTAddOffset<void>(decodeDst, decodeRowBytes);
-            dst = SkTAddOffset<void>(dst, dstRowBytes);
-        }
-    }
-
-    return decodedHeight;
-}
-
-int SkBmpRLECodec::decodeRLE(const SkImageInfo& dstInfo, void* dst, size_t dstRowBytes) {
-    // Use the original width to count the number of pixels in each row.
-    const int width = this->getInfo().width();
-
-    // This tells us the number of rows that we are meant to decode.
-    const int height = dstInfo.height();
-
     // Set RLE flags
     static const uint8_t RLE_ESCAPE = 0;
     static const uint8_t RLE_EOL = 0;
     static const uint8_t RLE_EOF = 1;
     static const uint8_t RLE_DELTA = 2;
+
+    const int width = this->getInfo().width();
+    int height = info.height();
+
+    // Account for sampling.
+    SkImageInfo dstInfo = info.makeWH(get_scaled_dimension(width, fSampleX), height);
+
+    // Set the background as transparent.  Then, if the RLE code skips pixels,
+    // the skipped pixels will be transparent.
+    // Because of the need for transparent pixels, kN32 is the only color
+    // type that makes sense for the destination format.
+    SkASSERT(kRGBA_8888_SkColorType == dstInfo.colorType() ||
+            kBGRA_8888_SkColorType == dstInfo.colorType());
+    if (dst) {
+        SkSampler::Fill(dstInfo, dst, dstRowBytes, SK_ColorTRANSPARENT, opts.fZeroInitialized);
+    }
+
+    // Adjust the height and the dst if the previous call to decodeRows() left us
+    // with lines that need to be skipped.
+    if (height > fLinesToSkip) {
+        height -= fLinesToSkip;
+        dst = SkTAddOffset<void>(dst, fLinesToSkip * dstRowBytes);
+        fLinesToSkip = 0;
+    } else {
+        fLinesToSkip -= height;
+        return height;
+    }
 
     // Destination parameters
     int x = 0;

@@ -172,7 +172,7 @@
         {
           "name": "skia/bots/skimage",
           "path": "skimage",
-          "version": "version:10"
+          "version": "version:9"
         },
         {
           "name": "skia/bots/skp",
@@ -219,7 +219,7 @@
         {
           "name": "skia/bots/skimage",
           "path": "skimage",
-          "version": "version:10"
+          "version": "version:9"
         },
         {
           "name": "skia/bots/skp",
@@ -265,7 +265,7 @@
         {
           "name": "skia/bots/skimage",
           "path": "skimage",
-          "version": "version:10"
+          "version": "version:9"
         },
         {
           "name": "skia/bots/skp",

@@ -52,7 +52,7 @@ protected:
         return fInIco;
     }
 
-    SkCodec::Result onPrepareToDecode(const SkImageInfo& dstInfo,
+    SkCodec::Result prepareToDecode(const SkImageInfo& dstInfo,
             const SkCodec::Options& options, SkPMColor inputColorPtr[],
             int* inputColorCount) override;
 
