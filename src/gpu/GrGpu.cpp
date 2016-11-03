@@ -104,6 +104,10 @@ static bool check_texture_creation_params(const GrCaps& caps, const GrSurfaceDes
         return false;
     }
 
+    if (GrPixelConfigIsSint(desc.fConfig) && texels.count() > 1) {
+        return false;
+    }
+
     *isRT = SkToBool(desc.fFlags & kRenderTarget_GrSurfaceFlag);
     if (*isRT && !caps.isConfigRenderable(desc.fConfig, desc.fSampleCnt > 0)) {
         return false;
@@ -262,6 +266,12 @@ bool GrGpu::copySurface(GrSurface* dst,
                         const SkIPoint& dstPoint) {
     SkASSERT(dst && src);
     this->handleDirtyContext();
+    if (GrPixelConfigIsSint(dst->config()) != GrPixelConfigIsSint(src->config())) {
+        return false;
+    }
+    if (GrPixelConfigIsCompressed(dst->config())) {
+        return false;
+    }
     return this->onCopySurface(dst, src, srcRect, dstPoint);
 }
 
