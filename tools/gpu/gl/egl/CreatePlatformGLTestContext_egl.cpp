@@ -100,7 +100,7 @@ EGLGLTestContext::EGLGLTestContext(GrGLStandard forcedGpuAPI)
     }
     SkASSERT(forcedGpuAPI == kNone_GrGLStandard || kAPIs[api].fStandard == forcedGpuAPI);
 
-    SkAutoTUnref<const GrGLInterface> gl;
+    sk_sp<const GrGLInterface> gl;
 
     for (; nullptr == gl.get() && api < apiLimit; ++api) {
         fDisplay = eglGetDisplay(EGL_DEFAULT_DISPLAY);

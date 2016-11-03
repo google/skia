@@ -47,7 +47,7 @@ sk_sp<SkTypeface> create_font(const char* name, SkFontStyle style) {
                      name, style.weight(), style.width(), style.slant());
             // If we called SkTypeface::CreateFromName() here we'd recurse infinitely,
             // so we reimplement its core logic here inline without the recursive aspect.
-            SkAutoTUnref<SkFontMgr> fm(SkFontMgr::RefDefault());
+            sk_sp<SkFontMgr> fm(SkFontMgr::RefDefault());
             return sk_sp<SkTypeface>(fm->legacyCreateTypeface(name, style));
         }
     } else {

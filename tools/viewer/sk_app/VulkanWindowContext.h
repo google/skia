@@ -63,7 +63,7 @@ private:
     void createBuffers(VkFormat format);
     void destroyBuffers();
 
-    SkAutoTUnref<const GrVkBackendContext> fBackendContext;
+    sk_sp<const GrVkBackendContext> fBackendContext;
 
     // simple wrapper class that exists only to initialize a pointer to NULL
     template <typename FNPTR_TYPE> class VkPtr {

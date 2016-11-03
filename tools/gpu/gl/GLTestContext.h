@@ -90,7 +90,7 @@ protected:
 private:
     /** Subclass provides the gl interface object if construction was
      *  successful. */
-    SkAutoTUnref<const GrGLInterface> fGL;
+    sk_sp<const GrGLInterface> fGL;
 
     typedef TestContext INHERITED;
 };

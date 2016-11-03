@@ -50,7 +50,7 @@ protected:
 
     virtual void onSwapBuffers() = 0;
 
-    SkAutoTUnref<const GrGLInterface> fBackendContext;
+    sk_sp<const GrGLInterface>        fBackendContext;
     sk_sp<SkSurface>                  fSurface;
 
     // parameters obtained from the native window
