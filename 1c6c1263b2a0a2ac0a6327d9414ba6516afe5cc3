@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "66ba4639_a733d022",
+        "filename": "src/gpu/GrTextureAccess.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 32,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2016-11-03T21:49:47Z",
+      "side": 1,
+      "message": "Do you think there could ever be any surprises from getting an unexpected filter mode? Could we put a print or an assert here? Or is it just impossible to know whether or not mipmap filtering is doable for a given texture at the point where the filter mode is selected?",
+      "range": {
+        "startLine": 32,
+        "startChar": 4,
+        "endLine": 32,
+        "endChar": 11
+      },
+      "revId": "1c6c1263b2a0a2ac0a6327d9414ba6516afe5cc3",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
