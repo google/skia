@@ -57,7 +57,8 @@ static bool return_large = false;
 static bool return_undef = false;
 
 static int R(int x) {
-    return abs(fuzz->next<int>()) % x;
+    int i; fuzz->nextRange(&i, 0, x-1);
+    return i;
 }
 
 #if defined _WIN32
@@ -131,7 +132,8 @@ static SkString make_font_name() {
 }
 
 static bool make_bool() {
-    return fuzz->next<bool>();
+    bool b; fuzz->next(&b);
+    return b;
 }
 
 static SkRect make_rect() {
