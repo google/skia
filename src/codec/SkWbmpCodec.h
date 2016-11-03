@@ -36,7 +36,7 @@ private:
                                    const Options& opts);
     SkSampler* getSampler(bool createIfNecessary) override {
         SkASSERT(fSwizzler || !createIfNecessary);
-        return fSwizzler;
+        return fSwizzler.get();
     }
 
     /*
@@ -49,7 +49,7 @@ private:
     const size_t                 fSrcRowBytes;
 
     // Used for scanline decodes:
-    SkAutoTDelete<SkSwizzler>    fSwizzler;
+    std::unique_ptr<SkSwizzler>  fSwizzler;
     SkAutoTUnref<SkColorTable>   fColorTable;
     SkAutoTMalloc<uint8_t>       fSrcBuffer;
 

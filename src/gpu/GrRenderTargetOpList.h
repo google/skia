@@ -125,7 +125,7 @@ public:
 
     gr_instanced::InstancedRendering* instancedRendering() const {
         SkASSERT(fInstancedRendering);
-        return fInstancedRendering;
+        return fInstancedRendering.get();
     }
 
     SkDEBUGCODE(void dump() const override;)
@@ -167,7 +167,7 @@ private:
     int                                             fMaxBatchLookback;
     int                                             fMaxBatchLookahead;
 
-    SkAutoTDelete<gr_instanced::InstancedRendering> fInstancedRendering;
+    std::unique_ptr<gr_instanced::InstancedRendering> fInstancedRendering;
 
     int32_t                                         fLastClipStackGenID;
     SkIRect                                         fLastClipStackRect;

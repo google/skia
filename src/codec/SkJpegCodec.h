@@ -116,7 +116,7 @@ private:
     int onGetScanlines(void* dst, int count, size_t rowBytes) override;
     bool onSkipScanlines(int count) override;
 
-    SkAutoTDelete<JpegDecoderMgr>      fDecoderMgr;
+    std::unique_ptr<JpegDecoderMgr>    fDecoderMgr;
 
     // We will save the state of the decompress struct after reading the header.
     // This allows us to safely call onGetScaledDimensions() at any time.
@@ -132,7 +132,7 @@ private:
     // to further subset the output from libjpeg-turbo.
     SkIRect                            fSwizzlerSubset;
 
-    SkAutoTDelete<SkSwizzler>          fSwizzler;
+    std::unique_ptr<SkSwizzler>        fSwizzler;
 
     typedef SkCodec INHERITED;
 };

@@ -23,7 +23,7 @@ SkAndroidCodec::SkAndroidCodec(SkCodec* codec)
 {}
 
 SkAndroidCodec* SkAndroidCodec::NewFromStream(SkStream* stream, SkPngChunkReader* chunkReader) {
-    SkAutoTDelete<SkCodec> codec(SkCodec::NewFromStream(stream, chunkReader));
+    std::unique_ptr<SkCodec> codec(SkCodec::NewFromStream(stream, chunkReader));
     if (nullptr == codec) {
         return nullptr;
     }

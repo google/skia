@@ -90,7 +90,7 @@ DEF_TEST(FontHostStream, reporter) {
         sk_sp<SkTypeface> typeface(SkToBool(paint.getTypeface()) ? sk_ref_sp(paint.getTypeface())
                                                                  : SkTypeface::MakeDefault());
         int ttcIndex;
-        SkAutoTDelete<SkStreamAsset> fontData(typeface->openStream(&ttcIndex));
+        std::unique_ptr<SkStreamAsset> fontData(typeface->openStream(&ttcIndex));
         sk_sp<SkTypeface> streamTypeface(SkTypeface::MakeFromStream(fontData.release()));
 
         SkFontDescriptor desc;

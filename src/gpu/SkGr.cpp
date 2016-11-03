@@ -378,7 +378,7 @@ GrTexture* GrGenerateMipMapsAndUploadToTexture(GrContext* ctx, const SkBitmap& b
         sk_throw();
     }
 
-    SkAutoTDelete<SkMipMap> mipmaps(SkMipMap::Build(pixmap, gammaTreatment, nullptr));
+    std::unique_ptr<SkMipMap> mipmaps(SkMipMap::Build(pixmap, gammaTreatment, nullptr));
     if (!mipmaps) {
         return nullptr;
     }
