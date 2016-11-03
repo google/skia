@@ -589,13 +589,13 @@ private:
     int                         fHWNumRasterSamples;
     ///@}
 
-    /** IDs for copy surface program. */
+    /** IDs for copy surface program. (4 sampler types) */
     struct {
         GrGLuint    fProgram;
         GrGLint     fTextureUniform;
         GrGLint     fTexCoordXformUniform;
         GrGLint     fPosXformUniform;
-    }                           fCopyPrograms[3];
+    }                           fCopyPrograms[4];
     SkAutoTUnref<GrGLBuffer>    fCopyProgramArrayBuffer;
 
     /** IDs for texture mipmap program. (4 filter configurations) */
