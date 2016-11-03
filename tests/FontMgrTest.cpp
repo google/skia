@@ -82,15 +82,15 @@ static void test_alias_names(skiatest::Reporter* reporter) {
 }
 
 static void test_fontiter(skiatest::Reporter* reporter, bool verbose) {
-    SkAutoTUnref<SkFontMgr> fm(SkFontMgr::RefDefault());
+    sk_sp<SkFontMgr> fm(SkFontMgr::RefDefault());
     int count = fm->countFamilies();
 
     for (int i = 0; i < count; ++i) {
         SkString fname;
         fm->getFamilyName(i, &fname);
 
-        SkAutoTUnref<SkFontStyleSet> fnset(fm->matchFamily(fname.c_str()));
-        SkAutoTUnref<SkFontStyleSet> set(fm->createStyleSet(i));
+        sk_sp<SkFontStyleSet> fnset(fm->matchFamily(fname.c_str()));
+        sk_sp<SkFontStyleSet> set(fm->createStyleSet(i));
         REPORTER_ASSERT(reporter, fnset->count() == set->count());
 
         if (verbose) {
@@ -103,7 +103,7 @@ static void test_fontiter(skiatest::Reporter* reporter, bool verbose) {
             set->getStyle(j, &fs, &sname);
 //            REPORTER_ASSERT(reporter, sname.size() > 0);
 
-            SkAutoTUnref<SkTypeface> face(set->createTypeface(j));
+            sk_sp<SkTypeface> face(set->createTypeface(j));
 //            REPORTER_ASSERT(reporter, face.get());
 
             if (verbose) {
@@ -691,7 +691,7 @@ static void test_matchStyleCSS3(skiatest::Reporter* reporter) {
 
     for (StyleSetTest& test : tests) {
         for (const StyleSetTest::Case& testCase : test.cases) {
-            SkAutoTUnref<SkTypeface> typeface(test.styleSet.matchStyle(testCase.pattern));
+            sk_sp<SkTypeface> typeface(test.styleSet.matchStyle(testCase.pattern));
             if (typeface) {
                 REPORTER_ASSERT(reporter, typeface->fontStyle() == testCase.expectedResult);
             } else {

@@ -444,7 +444,7 @@ void TestResult::testOne() {
         desc.fWidth = dim.fX;
         desc.fHeight = dim.fY;
         desc.fSampleCnt = 0;
-        SkAutoTUnref<GrTexture> texture(context->createUncachedTexture(desc, nullptr, 0));
+        sk_sp<GrTexture> texture(context->createUncachedTexture(desc, nullptr, 0));
         if (!texture) {
             SkDebugf("unable to allocate texture for %s (w=%d h=%d)\n", fFilename,
                 dim.fX, dim.fY);

@@ -298,13 +298,13 @@ bool GrDrawingManager::ProgramUnitTest(GrContext* context, int maxStages) {
     dummyDesc.fConfig = kRGBA_8888_GrPixelConfig;
     dummyDesc.fWidth = 34;
     dummyDesc.fHeight = 18;
-    SkAutoTUnref<GrTexture> dummyTexture1(
+    sk_sp<GrTexture> dummyTexture1(
         context->textureProvider()->createTexture(dummyDesc, SkBudgeted::kNo, nullptr, 0));
     dummyDesc.fFlags = kNone_GrSurfaceFlags;
     dummyDesc.fConfig = kAlpha_8_GrPixelConfig;
     dummyDesc.fWidth = 16;
     dummyDesc.fHeight = 22;
-    SkAutoTUnref<GrTexture> dummyTexture2(
+    sk_sp<GrTexture> dummyTexture2(
         context->textureProvider()->createTexture(dummyDesc, SkBudgeted::kNo, nullptr, 0));
 
     if (!dummyTexture1 || ! dummyTexture2) {
@@ -330,7 +330,7 @@ bool GrDrawingManager::ProgramUnitTest(GrContext* context, int maxStages) {
 
         GrPaint grPaint;
 
-        SkAutoTUnref<GrDrawBatch> batch(GrRandomDrawBatch(&random, context));
+        sk_sp<GrDrawBatch> batch(GrRandomDrawBatch(&random, context));
         SkASSERT(batch);
 
         GrProcessorTestData ptd(&random, context, context->caps(),
@@ -340,7 +340,7 @@ bool GrDrawingManager::ProgramUnitTest(GrContext* context, int maxStages) {
         bool snapToCenters = set_random_state(&grPaint, &random);
         const GrUserStencilSettings* uss = get_random_stencil(&random);
 
-        renderTargetContext->priv().testingOnly_drawBatch(grPaint, batch, uss, snapToCenters);
+        renderTargetContext->priv().testingOnly_drawBatch(grPaint, batch.get(), uss, snapToCenters);
     }
     // Flush everything, test passes if flush is successful(ie, no asserts are hit, no crashes)
     drawingManager->flush();
@@ -361,7 +361,7 @@ bool GrDrawingManager::ProgramUnitTest(GrContext* context, int maxStages) {
     for (int i = 0; i < fpFactoryCnt; ++i) {
         // Since FP factories internally randomize, call each 10 times.
         for (int j = 0; j < 10; ++j) {
-            SkAutoTUnref<GrDrawBatch> batch(GrRandomDrawBatch(&random, context));
+            sk_sp<GrDrawBatch> batch(GrRandomDrawBatch(&random, context));
             SkASSERT(batch);
             GrProcessorTestData ptd(&random, context, context->caps(),
                                     renderTargetContext.get(), dummyTextures);
@@ -374,7 +374,7 @@ bool GrDrawingManager::ProgramUnitTest(GrContext* context, int maxStages) {
                 BlockInputFragmentProcessor::Make(std::move(fp)));
             grPaint.addColorFragmentProcessor(std::move(blockFP));
 
-            renderTargetContext->priv().testingOnly_drawBatch(grPaint, batch);
+            renderTargetContext->priv().testingOnly_drawBatch(grPaint, batch.get());
             drawingManager->flush();
         }
     }

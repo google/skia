@@ -50,7 +50,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(ReadWriteAlpha, reporter, ctxInfo) {
 
         // We are initializing the texture with zeros here
         memset(alphaData, 0, X_SIZE * Y_SIZE);
-        SkAutoTUnref<GrTexture> texture(
+        sk_sp<GrTexture> texture(
             ctxInfo.grContext()->textureProvider()->createTexture(desc, SkBudgeted::kNo, alphaData,
                                                                   0));
         if (!texture) {
@@ -152,7 +152,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(ReadWriteAlpha, reporter, ctxInfo) {
                     rgbaData[y * X_SIZE + x] = GrColorPackRGBA(6, 7, 8, alphaData[y * X_SIZE + x]);
                 }
             }
-            SkAutoTUnref<GrTexture> texture(
+            sk_sp<GrTexture> texture(
                 ctxInfo.grContext()->textureProvider()->createTexture(desc, SkBudgeted::kNo,
                                                                       rgbaData, 0));
             if (!texture) {
