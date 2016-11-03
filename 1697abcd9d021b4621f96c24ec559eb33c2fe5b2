@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "66ba4639_c1524424",
+        "filename": "tools/gpu/gl/GLTestContext.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 283,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2016-11-03T20:19:10Z",
+      "side": 1,
+      "message": "These indents should be adjusted.",
+      "range": {
+        "startLine": 283,
+        "startChar": 31,
+        "endLine": 283,
+        "endChar": 45
+      },
+      "revId": "1697abcd9d021b4621f96c24ec559eb33c2fe5b2",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "66ba4639_01b9ec22",
+        "filename": "tools/viewer/sk_app/GLWindowContext.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 53,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2016-11-03T20:19:10Z",
+      "side": 1,
+      "message": "Remove the extra space here and below. These are all way too far apart as it is.",
+      "range": {
+        "startLine": 53,
+        "startChar": 31,
+        "endLine": 53,
+        "endChar": 38
+      },
+      "revId": "1697abcd9d021b4621f96c24ec559eb33c2fe5b2",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
