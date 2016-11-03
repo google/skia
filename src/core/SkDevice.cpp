@@ -119,7 +119,7 @@ void SkBaseDevice::drawDRRect(const SkDraw& draw, const SkRRect& outer,
 }
 
 void SkBaseDevice::drawPatch(const SkDraw& draw, const SkPoint cubics[12], const SkColor colors[4],
-                             const SkPoint texCoords[4], SK_XFERMODE_PARAM xmode, const SkPaint& paint) {
+                             const SkPoint texCoords[4], SkBlendMode bmode, const SkPaint& paint) {
     SkPatchUtils::VertexData data;
 
     SkISize lod = SkPatchUtils::GetLevelOfDetail(cubics, draw.fMatrix);
@@ -128,7 +128,7 @@ void SkBaseDevice::drawPatch(const SkDraw& draw, const SkPoint cubics[12], const
     // If it fails to generate the vertices, then we do not draw.
     if (SkPatchUtils::getVertexData(&data, cubics, colors, texCoords, lod.width(), lod.height())) {
         this->drawVertices(draw, SkCanvas::kTriangles_VertexMode, data.fVertexCount, data.fPoints,
-                           data.fTexCoords, data.fColors, xmode, data.fIndices, data.fIndexCount,
+                           data.fTexCoords, data.fColors, bmode, data.fIndices, data.fIndexCount,
                            paint);
     }
 }
@@ -240,7 +240,7 @@ void SkBaseDevice::drawBitmapLattice(const SkDraw& draw, const SkBitmap& bitmap,
 
 void SkBaseDevice::drawAtlas(const SkDraw& draw, const SkImage* atlas, const SkRSXform xform[],
                              const SkRect tex[], const SkColor colors[], int count,
-                             SK_XFERMODE_MODE_PARAM mode, const SkPaint& paint) {
+                             SkBlendMode mode, const SkPaint& paint) {
     SkPath path;
     path.setIsVolatile(true);
 

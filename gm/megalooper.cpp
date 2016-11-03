@@ -167,7 +167,7 @@ private:
 
         info.fPaintBits = SkLayerDrawLooper::kColorFilter_Bit |
                           SkLayerDrawLooper::kMaskFilter_Bit;
-        info.fColorMode = (SK_XFERMODE_MODE_PARAM)SkBlendMode::kSrc;
+        info.fColorMode = SkBlendMode::kSrc;
         info.fOffset.set(xOff, yOff);
         info.fPostTranslate = false;
 
@@ -210,7 +210,7 @@ private:
 
         info.fPaintBits = SkLayerDrawLooper::kColorFilter_Bit |
                           SkLayerDrawLooper::kMaskFilter_Bit;
-        info.fColorMode = (SK_XFERMODE_MODE_PARAM)SkBlendMode::kSrc;
+        info.fColorMode = SkBlendMode::kSrc;
         info.fPostTranslate = false;
 
         SkPaint* paint;

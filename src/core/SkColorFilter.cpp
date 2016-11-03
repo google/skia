@@ -19,7 +19,7 @@
 #include "GrFragmentProcessor.h"
 #endif
 
-bool SkColorFilter::asColorMode(SkColor* color, SK_XFERMODE_MODE_PARAM* mode) const {
+bool SkColorFilter::asColorMode(SkColor*, SkBlendMode*) const {
     return false;
 }
 

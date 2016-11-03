@@ -722,7 +722,7 @@ void SkPictureRecord::onDrawDrawable(SkDrawable* drawable, const SkMatrix* matri
 
 void SkPictureRecord::onDrawVertices(VertexMode vmode, int vertexCount,
                                      const SkPoint vertices[], const SkPoint texs[],
-                                     const SkColor colors[], SK_XFERMODE_PARAM xmode,
+                                     const SkColor colors[], SkBlendMode bmode,
                                      const uint16_t indices[], int indexCount,
                                      const SkPaint& paint) {
     uint32_t flags = 0;
@@ -735,14 +735,6 @@ void SkPictureRecord::onDrawVertices(VertexMode vmode, int vertexCount,
     if (indexCount > 0) {
         flags |= DRAW_VERTICES_HAS_INDICES;
     }
-    SkBlendMode bmode = SkBlendMode::kModulate;
-#ifdef SK_SUPPORT_LEGACY_XFERMODE_PARAM
-    if (xmode) {
-        bmode = xmode->blend();
-    }
-#else
-    bmode = xmode;
-#endif
     if (SkBlendMode::kModulate != bmode) {
         flags |= DRAW_VERTICES_HAS_XFER;
     }
@@ -786,7 +778,7 @@ void SkPictureRecord::onDrawVertices(VertexMode vmode, int vertexCount,
 }
 
 void SkPictureRecord::onDrawPatch(const SkPoint cubics[12], const SkColor colors[4],
-                                  const SkPoint texCoords[4], SK_XFERMODE_PARAM xmode,
+                                  const SkPoint texCoords[4], SkBlendMode bmode,
                                   const SkPaint& paint) {
     // op + paint index + patch 12 control points + flag + patch 4 colors + 4 texture coordinates
     size_t size = 2 * kUInt32Size + SkPatchUtils::kNumCtrlPts * sizeof(SkPoint) + kUInt32Size;
@@ -799,14 +791,6 @@ void SkPictureRecord::onDrawPatch(const SkPoint cubics[12], const SkColor colors
         flag |= DRAW_VERTICES_HAS_TEXS;
         size += SkPatchUtils::kNumCorners * sizeof(SkPoint);
     }
-    SkBlendMode bmode = SkBlendMode::kModulate;
-#ifdef SK_SUPPORT_LEGACY_XFERMODE_PARAM
-    if (xmode) {
-        bmode = xmode->blend();
-    }
-#else
-    bmode = xmode;
-#endif
     if (SkBlendMode::kModulate != bmode) {
         flag |= DRAW_VERTICES_HAS_XFER;
         size += kUInt32Size;
@@ -831,7 +815,7 @@ void SkPictureRecord::onDrawPatch(const SkPoint cubics[12], const SkColor colors
 }
 
 void SkPictureRecord::onDrawAtlas(const SkImage* atlas, const SkRSXform xform[], const SkRect tex[],
-                                  const SkColor colors[], int count, SK_XFERMODE_MODE_PARAM mode,
+                                  const SkColor colors[], int count, SkBlendMode mode,
                                   const SkRect* cull, const SkPaint* paint) {
     // [op + paint-index + atlas-index + flags + count] + [xform] + [tex] + [*colors + mode] + cull
     size_t size = 5 * kUInt32Size + count * sizeof(SkRSXform) + count * sizeof(SkRect);
