@@ -168,7 +168,7 @@ public:
     };
     static const int kHeapCount = kLastHeap + 1;
 
-    GrVkHeap* getHeap(Heap heap) const { return fHeaps[heap]; }
+    GrVkHeap* getHeap(Heap heap) const { return fHeaps[heap].get(); }
 
 private:
     GrVkGpu(GrContext* context, const GrContextOptions& options,
@@ -269,7 +269,7 @@ private:
     GrVkPrimaryCommandBuffer*              fCurrentCmdBuffer;
     VkPhysicalDeviceMemoryProperties       fPhysDevMemProps;
 
-    SkAutoTDelete<GrVkHeap>                fHeaps[kHeapCount];
+    std::unique_ptr<GrVkHeap>              fHeaps[kHeapCount];
 
     GrVkCopyManager                        fCopyManager;
 
