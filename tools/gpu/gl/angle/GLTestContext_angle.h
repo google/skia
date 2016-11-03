@@ -30,7 +30,7 @@ enum class ANGLEContextVersion {
 };
 
 /** Creates a GLTestContext backed by ANGLE. */
-GLTestContext* CreateANGLETestContext(ANGLEBackend, ANGLEContextVersion);
+std::unique_ptr<GLTestContext> MakeANGLETestContext(ANGLEBackend, ANGLEContextVersion);
 
 }  // namespace sk_gpu_test
 #endif

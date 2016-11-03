@@ -226,8 +226,11 @@ void GrVkPipelineState::setData(GrVkGpu* gpu,
     }
 
     if (fVertexUniformBuffer.get() || fFragmentUniformBuffer.get()) {
-        if (fDataManager.uploadUniformBuffers(gpu, fVertexUniformBuffer, fFragmentUniformBuffer) ||
-            !fUniformDescriptorSet) {
+        if (fDataManager.uploadUniformBuffers(gpu,
+                                              fVertexUniformBuffer.get(),
+                                              fFragmentUniformBuffer.get())
+            || !fUniformDescriptorSet)
+        {
             if (fUniformDescriptorSet) {
                 fUniformDescriptorSet->recycle(gpu);
             }

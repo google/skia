@@ -63,9 +63,9 @@ private:
     class AutoElement;
     class ResourceBucket;
 
-    SkXMLWriter*                  fWriter;
-    SkAutoTDelete<AutoElement>    fRootElement;
-    SkAutoTDelete<ResourceBucket> fResourceBucket;
+    SkXMLWriter*                    fWriter;
+    std::unique_ptr<AutoElement>    fRootElement;
+    std::unique_ptr<ResourceBucket> fResourceBucket;
 
     typedef SkBaseDevice INHERITED;
 };

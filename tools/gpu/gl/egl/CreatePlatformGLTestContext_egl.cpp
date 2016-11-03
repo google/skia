@@ -44,7 +44,7 @@ public:
     GrEGLImage texture2DToEGLImage(GrGLuint texID) const override;
     void destroyEGLImage(GrEGLImage) const override;
     GrGLuint eglImageToExternalTexture(GrEGLImage) const override;
-    sk_gpu_test::GLTestContext* createNew() const override;
+    std::unique_ptr<sk_gpu_test::GLTestContext> makeNew() const override;
 
 private:
     void destroyGLContext();
@@ -255,8 +255,8 @@ GrGLuint EGLGLTestContext::eglImageToExternalTexture(GrEGLImage image) const {
     return texID;
 }
 
-sk_gpu_test::GLTestContext* EGLGLTestContext::createNew() const {
-    sk_gpu_test::GLTestContext* ctx = new EGLGLTestContext(this->gl()->fStandard);
+std::unique_ptr<sk_gpu_test::GLTestContext> EGLGLTestContext::makeNew() const {
+    std::unique_ptr<sk_gpu_test::GLTestContext> ctx(new EGLGLTestContext(this->gl()->fStandard));
     if (ctx) {
         ctx->makeCurrent();
     }
