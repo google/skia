@@ -15,22 +15,27 @@
 #include "SkUnPreMultiply.h"
 #include "SkWriteBuffer.h"
 
-static void transpose(float dst[20], const float src[20]) {
+static void transpose_and_scale01(float dst[20], const float src[20]) {
     const float* srcR = src + 0;
     const float* srcG = src + 5;
     const float* srcB = src + 10;
     const float* srcA = src + 15;
 
-    for (int i = 0; i < 20; i += 4) {
+    for (int i = 0; i < 16; i += 4) {
         dst[i + 0] = *srcR++;
         dst[i + 1] = *srcG++;
         dst[i + 2] = *srcB++;
         dst[i + 3] = *srcA++;
     }
+    // Might as well scale these translates down to [0,1] here instead of every filter call.
+    dst[16] = *srcR * (1/255.0f);
+    dst[17] = *srcG * (1/255.0f);
+    dst[18] = *srcB * (1/255.0f);
+    dst[19] = *srcA * (1/255.0f);
 }
 
 void SkColorMatrixFilterRowMajor255::initState() {
-    transpose(fTranspose, fMatrix);
+    transpose_and_scale01(fTranspose, fMatrix);
 
     const float* array = fMatrix;
 
@@ -81,13 +86,11 @@ static SkPMColor round(const Sk4f& x) {
 
 template <typename Adaptor, typename T>
 void filter_span(const float array[], const T src[], int count, T dst[]) {
-    // c0-c3 are already in [0,1].
     const Sk4f c0 = Sk4f::Load(array + 0);
     const Sk4f c1 = Sk4f::Load(array + 4);
     const Sk4f c2 = Sk4f::Load(array + 8);
     const Sk4f c3 = Sk4f::Load(array + 12);
-    // c4 (the translate vector) is in [0, 255].  Bring it back to [0,1].
-    const Sk4f c4 = Sk4f::Load(array + 16)*Sk4f(1.0f/255);
+    const Sk4f c4 = Sk4f::Load(array + 16);
 
     // todo: we could cache this in the constructor...
     T matrix_translate_pmcolor = Adaptor::From4f(premul(clamp_0_1(c4)));

@@ -424,6 +424,7 @@ private:
     enum FormatType {
         kNormalizedFixedPoint_FormatType,
         kFloat_FormatType,
+        kInteger_FormatType,
     };
 
     struct ReadPixelsFormat {

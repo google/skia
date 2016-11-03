@@ -889,16 +889,22 @@ bool GrGLCaps::readPixelsSupported(GrPixelConfig rtConfig,
     }
 
     // See Section 16.1.2 in the ES 3.2 specification.
-
-    if (kNormalizedFixedPoint_FormatType == fConfigTable[rtConfig].fFormatType) {
-        if (GR_GL_RGBA == readFormat && GR_GL_UNSIGNED_BYTE == readType) {
-            return true;
-        }
-    } else {
-        SkASSERT(kFloat_FormatType == fConfigTable[rtConfig].fFormatType);
-        if (GR_GL_RGBA == readFormat && GR_GL_FLOAT == readType) {
-            return true;
-        }
+    switch (fConfigTable[rtConfig].fFormatType) {
+        case kNormalizedFixedPoint_FormatType:
+            if (GR_GL_RGBA == readFormat && GR_GL_UNSIGNED_BYTE == readType) {
+                return true;
+            }
+            break;
+        case kFloat_FormatType:
+            if (GR_GL_RGBA_INTEGER == readFormat && GR_GL_INT == readType) {
+                return true;
+            }
+            break;
+        case kInteger_FormatType:
+            if (GR_GL_RGBA == readFormat && GR_GL_FLOAT == readType) {
+                return true;
+            }
+            break;
     }
 
     if (0 == fConfigTable[rtConfig].fSecondReadPixelsFormat.fFormat) {
@@ -1566,6 +1572,27 @@ void GrGLCaps::initConfigTable(const GrGLContextInfo& ctxInfo, const GrGLInterfa
         fConfigTable[kSBGRA_8888_GrPixelConfig].fFlags |= ConfigInfo::kCanUseTexStorage_Flag;
     }
     fConfigTable[kSBGRA_8888_GrPixelConfig].fSwizzle = GrSwizzle::RGBA();
+
+    bool hasIntegerTextures;
+    if (standard == kGL_GrGLStandard) {
+        hasIntegerTextures = version >= GR_GL_VER(3, 0) || ctxInfo.hasExtension("GL_EXT_texture_integer");
+    } else {
+        hasIntegerTextures = (version >= GR_GL_VER(3, 0));
+    }
+    fConfigTable[kRGBA_8888_sint_GrPixelConfig].fFormats.fBaseInternalFormat  = GR_GL_RGBA_INTEGER;
+    fConfigTable[kRGBA_8888_sint_GrPixelConfig].fFormats.fSizedInternalFormat = GR_GL_RGBA8I;
+    fConfigTable[kRGBA_8888_sint_GrPixelConfig].fFormats.fExternalFormat[kOther_ExternalFormatUsage] = GR_GL_RGBA_INTEGER;
+    fConfigTable[kRGBA_8888_sint_GrPixelConfig].fFormats.fExternalType = GR_GL_BYTE;
+    fConfigTable[kRGBA_8888_sint_GrPixelConfig].fFormatType = kInteger_FormatType;
+    // We currently only support using integer textures as srcs, not for rendering (even though GL allows it).
+    if (hasIntegerTextures) {
+        fConfigTable[kRGBA_8888_sint_GrPixelConfig].fFlags = ConfigInfo::kTextureable_Flag |
+                                                             ConfigInfo::kFBOColorAttachment_Flag;
+        if (texStorageSupported) {
+            fConfigTable[kRGBA_8888_sint_GrPixelConfig].fFlags |=
+                ConfigInfo::kCanUseTexStorage_Flag;
+        }
+    }
 
     fConfigTable[kRGB_565_GrPixelConfig].fFormats.fBaseInternalFormat = GR_GL_RGB;
     if (this->ES2CompatibilitySupport()) {

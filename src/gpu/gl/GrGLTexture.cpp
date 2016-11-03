@@ -12,13 +12,16 @@
 #define GPUGL static_cast<GrGLGpu*>(this->getGpu())
 #define GL_CALL(X) GR_GL_CALL(GPUGL->glInterface(), X)
 
-inline static GrSLType sampler_type(const GrGLTexture::IDDesc& idDesc, const GrGLGpu* gpu) {
+inline static GrSLType sampler_type(const GrGLTexture::IDDesc& idDesc, GrPixelConfig config,
+                                    const GrGLGpu* gpu) {
     if (idDesc.fInfo.fTarget == GR_GL_TEXTURE_EXTERNAL) {
         SkASSERT(gpu->glCaps().glslCaps()->externalTextureSupport());
         return kTextureExternalSampler_GrSLType;
     } else if (idDesc.fInfo.fTarget == GR_GL_TEXTURE_RECTANGLE) {
         SkASSERT(gpu->glCaps().rectangleTextureSupport());
         return kTexture2DRectSampler_GrSLType;
+    } else if (GrPixelConfigIsSint(config)) {
+        return kTexture2DISampler_GrSLType;
     } else {
         SkASSERT(idDesc.fInfo.fTarget == GR_GL_TEXTURE_2D);
         return kTexture2DSampler_GrSLType;
@@ -29,7 +32,7 @@ inline static GrSLType sampler_type(const GrGLTexture::IDDesc& idDesc, const GrG
 GrGLTexture::GrGLTexture(GrGLGpu* gpu, SkBudgeted budgeted, const GrSurfaceDesc& desc,
                          const IDDesc& idDesc)
     : GrSurface(gpu, desc)
-    , INHERITED(gpu, desc, sampler_type(idDesc, gpu), false) {
+    , INHERITED(gpu, desc, sampler_type(idDesc, desc.fConfig, gpu), false) {
     this->init(desc, idDesc);
     this->registerWithCache(budgeted);
 }
@@ -38,21 +41,21 @@ GrGLTexture::GrGLTexture(GrGLGpu* gpu, SkBudgeted budgeted, const GrSurfaceDesc&
                          const IDDesc& idDesc,
                          bool wasMipMapDataProvided)
     : GrSurface(gpu, desc)
-    , INHERITED(gpu, desc, sampler_type(idDesc, gpu), wasMipMapDataProvided) {
+    , INHERITED(gpu, desc, sampler_type(idDesc, desc.fConfig, gpu), wasMipMapDataProvided) {
     this->init(desc, idDesc);
     this->registerWithCache(budgeted);
 }
 
 GrGLTexture::GrGLTexture(GrGLGpu* gpu, Wrapped, const GrSurfaceDesc& desc, const IDDesc& idDesc)
     : GrSurface(gpu, desc)
-    , INHERITED(gpu, desc, sampler_type(idDesc, gpu), false) {
+    , INHERITED(gpu, desc, sampler_type(idDesc, desc.fConfig, gpu), false) {
     this->init(desc, idDesc);
     this->registerWithCacheWrapped();
 }
 
 GrGLTexture::GrGLTexture(GrGLGpu* gpu, const GrSurfaceDesc& desc, const IDDesc& idDesc)
     : GrSurface(gpu, desc)
-    , INHERITED(gpu, desc, sampler_type(idDesc, gpu), false) {
+    , INHERITED(gpu, desc, sampler_type(idDesc, desc.fConfig, gpu), false) {
     this->init(desc, idDesc);
 }
 
