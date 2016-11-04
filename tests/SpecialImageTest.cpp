@@ -301,8 +301,8 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(SpecialImage_DeferredGpu, reporter, ctxInfo) 
     desc.fWidth  = kFullSize;
     desc.fHeight = kFullSize;
 
-    sk_sp<GrTextureProxy> proxy(GrTextureProxy::Make(context->textureProvider(), desc,
-                                                     SkBackingFit::kExact, SkBudgeted::kNo,
+    sk_sp<GrTextureProxy> proxy(GrTextureProxy::Make(*context->caps(), context->textureProvider(),
+                                                     desc, SkBackingFit::kExact, SkBudgeted::kNo,
                                                      bm.getPixels(), 0));
     if (!proxy) {
         return;
