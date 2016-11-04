@@ -60,7 +60,11 @@ class SkTextBlob;
     color, typeface, textSize, strokeWidth, shader (e.g. gradients, patterns),
     etc.
 */
-class SK_API SkCanvas : public SkRefCnt {
+class SK_API SkCanvas
+#ifdef SK_SUPPORT_LEGACY_CANVAS_IS_REFCNT
+: public SkRefCnt
+#endif
+{
     enum PrivateSaveLayerFlags {
         kDontClipToLayer_PrivateSaveLayerFlag   = 1U << 31,
     };
