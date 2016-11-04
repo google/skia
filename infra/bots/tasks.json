@@ -69,9 +69,8 @@
         "swarm_out_dir=${ISOLATED_OUTDIR}",
         "revision=<(REVISION)",
         "patch_storage=<(PATCH_STORAGE)",
-        "rietveld=<(CODEREVIEW_SERVER)",
-        "issue=<(ISSUE)",
-        "patchset=<(PATCHSET)"
+        "patch_issue=<(ISSUE)",
+        "patch_set=<(PATCHSET)"
       ],
       "isolate": "compile_skia.isolate",
       "priority": 0.8
@@ -95,9 +94,8 @@
         "swarm_out_dir=${ISOLATED_OUTDIR}",
         "revision=<(REVISION)",
         "patch_storage=<(PATCH_STORAGE)",
-        "rietveld=<(CODEREVIEW_SERVER)",
-        "issue=<(ISSUE)",
-        "patchset=<(PATCHSET)"
+        "patch_issue=<(ISSUE)",
+        "patch_set=<(PATCHSET)"
       ],
       "isolate": "compile_skia.isolate",
       "priority": 0.8
@@ -133,9 +131,8 @@
         "swarm_out_dir=${ISOLATED_OUTDIR}",
         "revision=<(REVISION)",
         "patch_storage=<(PATCH_STORAGE)",
-        "rietveld=<(CODEREVIEW_SERVER)",
-        "issue=<(ISSUE)",
-        "patchset=<(PATCHSET)"
+        "patch_issue=<(ISSUE)",
+        "patch_set=<(PATCHSET)"
       ],
       "isolate": "compile_skia.isolate",
       "priority": 0.8
@@ -160,9 +157,8 @@
         "swarm_out_dir=${ISOLATED_OUTDIR}",
         "revision=<(REVISION)",
         "patch_storage=<(PATCH_STORAGE)",
-        "rietveld=<(CODEREVIEW_SERVER)",
-        "issue=<(ISSUE)",
-        "patchset=<(PATCHSET)"
+        "patch_issue=<(ISSUE)",
+        "patch_set=<(PATCHSET)"
       ],
       "isolate": "infra_skia.isolate",
       "priority": 0.8
@@ -207,9 +203,8 @@
         "swarm_out_dir=${ISOLATED_OUTDIR}",
         "revision=<(REVISION)",
         "patch_storage=<(PATCH_STORAGE)",
-        "rietveld=<(CODEREVIEW_SERVER)",
-        "issue=<(ISSUE)",
-        "patchset=<(PATCHSET)"
+        "patch_issue=<(ISSUE)",
+        "patch_set=<(PATCHSET)"
       ],
       "isolate": "perf_skia.isolate",
       "priority": 0.8
@@ -253,9 +248,8 @@
         "swarm_out_dir=${ISOLATED_OUTDIR}",
         "revision=<(REVISION)",
         "patch_storage=<(PATCH_STORAGE)",
-        "rietveld=<(CODEREVIEW_SERVER)",
-        "issue=<(ISSUE)",
-        "patchset=<(PATCHSET)"
+        "patch_issue=<(ISSUE)",
+        "patch_set=<(PATCHSET)"
       ],
       "isolate": "test_skia.isolate",
       "priority": 0.8
@@ -300,9 +294,8 @@
         "swarm_out_dir=${ISOLATED_OUTDIR}",
         "revision=<(REVISION)",
         "patch_storage=<(PATCH_STORAGE)",
-        "rietveld=<(CODEREVIEW_SERVER)",
-        "issue=<(ISSUE)",
-        "patchset=<(PATCHSET)"
+        "patch_issue=<(ISSUE)",
+        "patch_set=<(PATCHSET)"
       ],
       "isolate": "test_skia.isolate",
       "priority": 0.8
@@ -330,9 +323,8 @@
         "swarm_out_dir=${ISOLATED_OUTDIR}",
         "revision=<(REVISION)",
         "patch_storage=<(PATCH_STORAGE)",
-        "rietveld=<(CODEREVIEW_SERVER)",
-        "issue=<(ISSUE)",
-        "patchset=<(PATCHSET)"
+        "patch_issue=<(ISSUE)",
+        "patch_set=<(PATCHSET)"
       ],
       "isolate": "upload_nano_results.isolate",
       "priority": 0.8
@@ -360,9 +352,8 @@
         "swarm_out_dir=${ISOLATED_OUTDIR}",
         "revision=<(REVISION)",
         "patch_storage=<(PATCH_STORAGE)",
-        "rietveld=<(CODEREVIEW_SERVER)",
-        "issue=<(ISSUE)",
-        "patchset=<(PATCHSET)"
+        "patch_issue=<(ISSUE)",
+        "patch_set=<(PATCHSET)"
       ],
       "isolate": "upload_dm_results.isolate",
       "priority": 0.8
@@ -390,9 +381,8 @@
         "swarm_out_dir=${ISOLATED_OUTDIR}",
         "revision=<(REVISION)",
         "patch_storage=<(PATCH_STORAGE)",
-        "rietveld=<(CODEREVIEW_SERVER)",
-        "issue=<(ISSUE)",
-        "patchset=<(PATCHSET)"
+        "patch_issue=<(ISSUE)",
+        "patch_set=<(PATCHSET)"
       ],
       "isolate": "upload_dm_results.isolate",
       "priority": 0.8
