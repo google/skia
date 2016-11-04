@@ -30,6 +30,7 @@ TEST_BUILDERS = {
       'Perf-Android-Clang-Nexus6-GPU-Adreno420-arm-Release-GN_Android',
       'Perf-Android-Clang-Nexus7-GPU-Tegra3-arm-Release-GN_Android',
       'Perf-Android-Clang-NexusPlayer-GPU-PowerVR-x86-Release-GN_Android',
+      'Perf-Android-Clang-PixelC-GPU-TegraX1-arm64-Release-GN_Android',
       'Perf-Mac-Clang-MacMini6.2-CPU-AVX-x86_64-Release-GN',
       'Perf-Mac-Clang-MacMini6.2-GPU-HD4000-x86_64-Debug-CommandBuffer',
       'Perf-Ubuntu-Clang-GCE-CPU-AVX2-x86_64-Release-GN',
@@ -71,9 +72,9 @@ def nanobench_flags(bot):
   # The NP produces a long error stream when we run with MSAA.
   if 'NexusPlayer' not in bot:
     if 'Android' in bot:
-      # The TegraX1 has a regular OpenGL implementation. We bench that instead
-      # of ES.
-      if 'TegraX1' in bot:
+      # The NVIDIA_Shield has a regular OpenGL implementation. We bench that
+      # instead of ES.
+      if 'NVIDIA_Shield' in bot:
         config.remove('gpu')
         config.extend(['gl', 'glmsaa4', 'glnvpr4', 'glnvprdit4'])
       else:
@@ -84,7 +85,9 @@ def nanobench_flags(bot):
   # Bench instanced rendering on a limited number of platforms
   if 'Nexus6' in bot:
     config.append('esinst') # esinst4 isn't working yet on Adreno.
-  elif 'TegraX1' in bot:
+  elif 'PixelC' in bot:
+    config.extend(['esinst', 'esinst4'])
+  elif 'NVIDIA_Shield' in bot:
     config.extend(['glinst', 'glinst4'])
   elif 'MacMini6.2' in bot:
     config.extend(['glinst', 'glinst16'])
