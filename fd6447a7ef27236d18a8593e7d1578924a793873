@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "8b50234a_1bf6ff72",
+        "filename": "src/codec/SkBmpStandardCodec.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 244,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2016-11-04T15:36:37Z",
+      "side": 1,
+      "message": "I assume you can just check fXformOnDecode (and assert this-\u003ecolorXform(), if you wish)?",
+      "range": {
+        "startLine": 244,
+        "startChar": 18,
+        "endLine": 244,
+        "endChar": 28
+      },
+      "revId": "fd6447a7ef27236d18a8593e7d1578924a793873",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
