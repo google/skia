@@ -48,6 +48,24 @@
     },
     {
       "key": {
+        "uuid": "8b50234a_6cff838c",
+        "filename": "src/codec/SkGifCodec.cpp",
+        "patchSetId": 7
+      },
+      "lineNbr": 150,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2016-11-04T20:42:16Z",
+      "side": 1,
+      "message": "I chose BGRA in WEBP and BMP because those formats are typically encoded as BGRA.  Here it doesn\u0027t matter - I guess I prefer RGBA when it doesn\u0027t matter but that\u0027s probably just personal preference.",
+      "parentUuid": "8b50234a_6c19435a",
+      "revId": "5667c8427e93baf7eecdba3b47a5b1fb227dc1a5",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "8b50234a_1e454d8c",
         "filename": "src/codec/SkGifCodec.cpp",
         "patchSetId": 7
