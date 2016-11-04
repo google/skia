@@ -71,9 +71,9 @@ def nanobench_flags(bot):
   # The NP produces a long error stream when we run with MSAA.
   if 'NexusPlayer' not in bot:
     if 'Android' in bot:
-      # The TegraX1 has a regular OpenGL implementation. We bench that instead
-      # of ES.
-      if 'TegraX1' in bot:
+      # The NVIDIA_Shield has a regular OpenGL implementation. We bench that
+      # instead of ES.
+      if 'NVIDIA_Shield' in bot:
         config.remove('gpu')
         config.extend(['gl', 'glmsaa4', 'glnvpr4', 'glnvprdit4'])
       else:
