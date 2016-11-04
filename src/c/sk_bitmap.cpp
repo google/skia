@@ -10,6 +10,7 @@
 #include "SkColorPriv.h"
 #include "SkDither.h"
 #include "SkImageInfo.h"
+#include "SkMath.h"
 #include "SkUnPreMultiply.h"
 
 #include "sk_bitmap.h"
@@ -45,14 +46,21 @@ static inline void copyAlpha8FromColor(size_t size, const sk_color_t* colors, ui
     }
 }
 
-static inline void copyIndex8FromColor(size_t size, const sk_color_t* colors, uint8_t* pixels)
+static inline void copyGray8FromColor(size_t size, const sk_color_t* colors, uint8_t* pixels)
 {
-    /* 
-        Use the luminisity formula to convert from 24bit to grayscale
-    */
     while (size-- != 0) {
         SkColor c = *colors++;
-        *pixels++ = 0.2126 * SkColorGetR(c) + 0.7152 * SkColorGetG(c) + 0.0722 * SkColorGetB(c);
+
+        uint8_t r = SkColorGetR(c);
+        uint8_t g = SkColorGetG(c);
+        uint8_t b = SkColorGetB(c);
+        uint8_t a = SkColorGetA(c);
+        if (255 != a) {
+            r = SkMulDiv255Round(r, a);
+            g = SkMulDiv255Round(g, a);
+            b = SkMulDiv255Round(b, a);
+        }
+        *pixels++ = SkComputeLuminance(r, g, b);
     }
 }
 
@@ -166,8 +174,8 @@ void sk_bitmap_set_pixel_color(sk_bitmap_t* cbitmap, int x, int y, sk_color_t co
     case kAlpha_8_SkColorType:
         copyAlpha8FromColor(1, &color, (uint8_t*)bmp->getAddr8(x, y));
         break;
-    case kIndex_8_SkColorType:
-        copyIndex8FromColor(1, &color, (uint8_t*)bmp->getAddr8(x, y));
+    case kGray_8_SkColorType:
+        copyGray8FromColor(1, &color, (uint8_t*)bmp->getAddr8(x, y));
         break;
     case kRGB_565_SkColorType:
         copyRgb565FromColor(1, 1, &color, (uint16_t*)bmp->getAddr16(x, y));
@@ -241,8 +249,8 @@ void sk_bitmap_set_pixel_colors(sk_bitmap_t* cbitmap, const sk_color_t* colors)
     case kAlpha_8_SkColorType:
         copyAlpha8FromColor(size, colors, (uint8_t*)pixels);
         break;
-    case kIndex_8_SkColorType:
-        copyIndex8FromColor(size, colors, (uint8_t*)pixels);
+    case kGray_8_SkColorType:
+        copyGray8FromColor(size, colors, (uint8_t*)pixels);
         break;
     case kRGB_565_SkColorType:
         copyRgb565FromColor(width, height, colors, (uint16_t*)pixels);
