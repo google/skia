@@ -105,8 +105,8 @@ def dm_flags(bot):
       else:
         configs.append('nvprdit16')
 
-  # We want to test the OpenGL config not the GLES config on the X1
-  if 'TegraX1' in bot:
+  # We want to test the OpenGL config not the GLES config on the Shield
+  if 'NVIDIA_Shield' in bot:
     configs = [x.replace('gpu', 'gl') for x in configs]
     configs = [x.replace('msaa', 'glmsaa') for x in configs]
     configs = [x.replace('nvpr', 'glnvpr') for x in configs]
