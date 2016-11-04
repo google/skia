@@ -16,6 +16,24 @@
       "revId": "c1b69b0b0bfa99ed5de35efe44dce9077c9ee484",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "8b50234a_5b4237ab",
+        "filename": "include/private/GrTextureRenderTargetProxy.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 15,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2016-11-04T15:49:31Z",
+      "side": 1,
+      "message": "It is still true. I initially didn\u0027t have these guards and hit the warnings.",
+      "parentUuid": "8b50234a_5b17d7b8",
+      "revId": "c1b69b0b0bfa99ed5de35efe44dce9077c9ee484",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
