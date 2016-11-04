@@ -364,6 +364,7 @@ protected:
         canvas->drawRRect(shadowRRect, paint);
     }
 
+#define USE_MASK_FILTER 1
     void drawShadowedPath(SkCanvas* canvas, const SkPath& path, SkScalar zValue,
                           const SkPaint& paint, SkScalar ambientAlpha,
                           const SkPoint3& lightPos, SkScalar lightWidth, SkScalar spotAlpha) {
@@ -422,8 +423,8 @@ protected:
     void onDrawContent(SkCanvas* canvas) override {
         this->drawBG(canvas);
         const SkScalar kLightWidth = 2800;
-        const SkScalar kAmbientAlpha = 0.25f;
-        const SkScalar kSpotAlpha = 0.25f;
+        const SkScalar kAmbientAlpha = 1.0f;// 0.25f;
+        const SkScalar kSpotAlpha = 1.0f;// 0.25f;
 
         SkPaint paint;
         paint.setAntiAlias(true);
@@ -434,7 +435,7 @@ protected:
         canvas->translate(200, 90);
         lightPos.fX += 200;
         lightPos.fY += 90;
-        this->drawShadowedPath(canvas, fRectPath, 2, paint, kAmbientAlpha, 
+        this->drawShadowedPath(canvas, fRectPath, 2, paint, kAmbientAlpha,
                                lightPos, kLightWidth, kSpotAlpha);
 
         paint.setColor(SK_ColorRED);
