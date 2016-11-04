@@ -68,11 +68,11 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(CopySurface, reporter, ctxInfo) {
                             dstDesc.fOrigin = dOrigin;
                             dstDesc.fFlags = dFlags;
 
-                            SkAutoTUnref<GrTexture> src(
+                            sk_sp<GrTexture> src(
                                 context->textureProvider()->createTexture(srcDesc, SkBudgeted::kNo,
                                                                           srcPixels.get(),
                                                                           kRowBytes));
-                            SkAutoTUnref<GrTexture> dst(
+                            sk_sp<GrTexture> dst(
                                 context->textureProvider()->createTexture(dstDesc, SkBudgeted::kNo,
                                                                           dstPixels.get(),
                                                                           kRowBytes));
@@ -82,7 +82,8 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(CopySurface, reporter, ctxInfo) {
                                 continue;
                             }
 
-                            bool result = context->copySurface(dst, src, srcRect, dstPoint);
+                            bool result
+                                    = context->copySurface(dst.get(), src.get(), srcRect, dstPoint);
 
                             bool expectedResult = true;
                             SkIPoint dstOffset = { dstPoint.fX - srcRect.fLeft,
