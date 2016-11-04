@@ -62,6 +62,7 @@ skia_gpu_sources = [
   "$_include/private/GrRenderTargetProxy.h",
   "$_include/private/GrSurfaceProxy.h",
   "$_include/private/GrTextureProxy.h",
+  "$_include/private/GrTextureRenderTargetProxy.h",
   "$_include/private/GrTextureStripAtlas.h",
 
   "$_src/gpu/GrAppliedClip.h",
@@ -200,6 +201,7 @@ skia_gpu_sources = [
   "$_src/gpu/GrTexturePriv.h",
   "$_src/gpu/GrTextureProvider.cpp",
   "$_src/gpu/GrTextureProxy.cpp",
+  "$_src/gpu/GrTextureRenderTargetProxy.cpp",
   "$_src/gpu/GrTextureToYUVPlanes.cpp",
   "$_src/gpu/GrTextureToYUVPlanes.h",
   "$_src/gpu/GrTextureAccess.cpp",
