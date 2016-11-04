@@ -221,11 +221,11 @@ STAGE(premul, true) {
     b *= a;
 }
 
-STAGE(swap_src_dst, true) {
-    SkTSwap(r,dr);
-    SkTSwap(g,dg);
-    SkTSwap(b,db);
-    SkTSwap(a,da);
+STAGE(move_src_dst, true) {
+    dr = r;
+    dg = g;
+    db = b;
+    da = a;
 }
 
 // The default shader produces a constant color (from the SkPaint).
