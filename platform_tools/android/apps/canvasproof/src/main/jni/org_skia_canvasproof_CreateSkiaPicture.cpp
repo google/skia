@@ -29,7 +29,7 @@ JNIEXPORT jlong JNICALL Java_org_skia_canvasproof_CreateSkiaPicture_createImpl
   (JNIEnv* env, jclass clazz, jobject inputStream, jbyteArray buffer) {
     JavaInputStream stream(env, buffer, inputStream);
     #if 0
-    SkAutoTUnref<SkPicture> p(SkPicture::CreateFromStream(&stream));
+    sk_sp<SkPicture> p(SkPicture::CreateFromStream(&stream));
     if (!p) { return 0; }
     SkPictureRecorder recorder;
     SkRect bounds = p->cullRect();

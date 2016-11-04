@@ -367,7 +367,7 @@ static bool get_decode_info(SkImageInfo* decodeInfo, SkColorType canvasColorType
 static void draw_to_canvas(SkCanvas* canvas, const SkImageInfo& info, void* pixels, size_t rowBytes,
                            SkPMColor* colorPtr, int colorCount, CodecSrc::DstColorType dstColorType,
                            SkScalar left = 0, SkScalar top = 0) {
-    SkAutoTUnref<SkColorTable> colorTable(new SkColorTable(colorPtr, colorCount));
+    sk_sp<SkColorTable> colorTable(new SkColorTable(colorPtr, colorCount));
     SkBitmap bitmap;
     bitmap.installPixels(info, pixels, rowBytes, colorTable.get(), nullptr, nullptr);
     premultiply_if_necessary(bitmap);
@@ -1373,7 +1373,7 @@ SVGSink::SVGSink() {}
 Error SVGSink::draw(const Src& src, SkBitmap*, SkWStream* dst, SkString*) const {
 #if defined(SK_XML)
     std::unique_ptr<SkXMLWriter> xmlWriter(new SkXMLStreamWriter(dst));
-    SkAutoTUnref<SkCanvas> canvas(SkSVGCanvas::Create(
+    sk_sp<SkCanvas> canvas(SkSVGCanvas::Create(
         SkRect::MakeWH(SkIntToScalar(src.size().width()), SkIntToScalar(src.size().height())),
         xmlWriter.get()));
     return src.draw(canvas);

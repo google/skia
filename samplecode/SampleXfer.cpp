@@ -153,20 +153,20 @@ class XferDemo : public SampleView {
     };
 
     SkRect        fModeRect[N_Modes];
-    SkAutoTUnref<CircDrawable> fDrs[N];
+    sk_sp<CircDrawable> fDrs[N];
     CircDrawable* fSelected;
 
     void addButtons() {
         SkScalar x = 10;
         SkScalar y = 10;
         for (int i = 0; i < N_Modes; ++i) {
-            SkAutoTUnref<SkView> v(new PushButtonWig(gModes[i].fName, (int)gModes[i].fMode));
+            sk_sp<SkView> v(new PushButtonWig(gModes[i].fName, (int)gModes[i].fMode));
             v->setSize(70, 25);
             v->setLoc(x, y);
             v->setVisibleP(true);
             v->setEnabledP(true);
             v->addListenerID(this->getSinkID());
-            this->attachChildToFront(v);
+            this->attachChildToFront(v.get());
             fModeRect[i] = SkRect::MakeXYWH(x, y + 28, 70, 2);
             x += 80;
         }
@@ -227,7 +227,7 @@ protected:
         fSelected = nullptr;
         for (int i = N - 1; i >= 0; --i) {
             if (fDrs[i]->hitTest(x, y)) {
-                fSelected = fDrs[i];
+                fSelected = fDrs[i].get();
                 break;
             }
         }

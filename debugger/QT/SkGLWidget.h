@@ -45,8 +45,8 @@ protected:
 
 private:
     void createRenderTarget();
-    SkAutoTUnref<const GrGLInterface> fCurIntf;
-    SkAutoTUnref<GrContext> fCurContext;
+    sk_sp<const GrGLInterface> fCurIntf;
+    sk_sp<GrContext> fCurContext;
 
     sk_sp<SkSurface> fGpuSurface;
     SkCanvas*        fCanvas;

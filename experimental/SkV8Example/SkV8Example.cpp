@@ -108,7 +108,7 @@ void SkV8ExampleWindow::windowSizeChanged() {
 SkSurface* SkV8ExampleWindow::createSurface() {
     if (FLAGS_gpu) {
         // Increase the ref count since callers of createSurface put the
-        // results in a SkAutoTUnref.
+        // results in a sk_sp.
         fCurSurface->ref();
         return fCurSurface;
     } else {

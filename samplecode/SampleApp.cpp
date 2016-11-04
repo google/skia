@@ -241,7 +241,7 @@ public:
         fActualColorBits = SkTMax(attachmentInfo.fColorBits, 24);
 
         SkASSERT(nullptr == fCurIntf);
-        SkAutoTUnref<const GrGLInterface> glInterface;
+        sk_sp<const GrGLInterface> glInterface;
         switch (win->getDeviceType()) {
             case kRaster_DeviceType:    // fallthrough
             case kGPU_DeviceType:
