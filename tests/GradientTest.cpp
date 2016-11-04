@@ -73,7 +73,7 @@ static void none_gradproc(skiatest::Reporter* reporter, const GradRec&, const Gr
 }
 
 static void color_gradproc(skiatest::Reporter* reporter, const GradRec& rec, const GradRec&) {
-    SkAutoTUnref<SkShader> s(new SkColorShader(rec.fColors[0]));
+    sk_sp<SkShader> s(new SkColorShader(rec.fColors[0]));
     REPORTER_ASSERT(reporter, SkShader::kColor_GradientType == s->asAGradient(nullptr));
 
     SkShader::GradientInfo info;

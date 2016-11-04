@@ -70,12 +70,12 @@ public:
         XPInfo(skiatest::Reporter* reporter, SkBlendMode xfermode, const GrCaps& caps,
                const GrPipelineOptimizations& optimizations) {
             sk_sp<GrXPFactory> xpf(GrPorterDuffXPFactory::Make(xfermode));
-            SkAutoTUnref<GrXferProcessor> xp(
+            sk_sp<GrXferProcessor> xp(
                 xpf->createXferProcessor(optimizations, false, nullptr, caps));
             TEST_ASSERT(!xpf->willNeedDstTexture(caps, optimizations));
             xpf->getInvariantBlendedColor(optimizations.fColorPOI, &fBlendedColor);
             fOptFlags = xp->getOptimizations(optimizations, false, nullptr, caps);
-            GetXPOutputTypes(xp, &fPrimaryOutputType, &fSecondaryOutputType);
+            GetXPOutputTypes(xp.get(), &fPrimaryOutputType, &fSecondaryOutputType);
             xp->getBlendInfo(&fBlendInfo);
             TEST_ASSERT(!xp->willReadDstColor());
             TEST_ASSERT(xp->hasSecondaryOutput() == GrBlendCoeffRefsSrc2(fBlendInfo.fDstBlend));
@@ -1124,8 +1124,7 @@ static void test_lcd_coverage_fallback_case(skiatest::Reporter* reporter, const 
     sk_sp<GrXPFactory> xpf(GrPorterDuffXPFactory::Make(SkBlendMode::kSrcOver));
     TEST_ASSERT(!xpf->willNeedDstTexture(caps, opts));
 
-    SkAutoTUnref<GrXferProcessor> xp(
-        xpf->createXferProcessor(opts, false, nullptr, caps));
+    sk_sp<GrXferProcessor> xp(xpf->createXferProcessor(opts, false, nullptr, caps));
     if (!xp) {
         ERRORF(reporter, "Failed to create an XP with LCD coverage.");
         return;
@@ -1199,7 +1198,7 @@ DEF_GPUTEST(PorterDuffNoDualSourceBlending, reporter, /*factory*/) {
                 sk_sp<GrXPFactory> xpf(GrPorterDuffXPFactory::Make(xfermode));
                 GrXferProcessor::DstTexture* dstTexture =
                     xpf->willNeedDstTexture(caps, optimizations) ? &fakeDstTexture : 0;
-                SkAutoTUnref<GrXferProcessor> xp(
+                sk_sp<GrXferProcessor> xp(
                     xpf->createXferProcessor(optimizations, false, dstTexture, caps));
                 if (!xp) {
                     ERRORF(reporter, "Failed to create an XP without dual source blending.");
