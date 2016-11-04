@@ -180,7 +180,7 @@ private:
     enum {
         kNumShapes = 100,
     };
-    SkAutoTUnref<SkShader> fBG;
+    sk_sp<SkShader> fBG;
     SkPath                 fConcavePath;
     SkPath                 fConvexPath;
     static constexpr int kWidth = 900;

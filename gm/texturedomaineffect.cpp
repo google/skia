@@ -82,9 +82,9 @@ protected:
             return;
         }
 
-        SkAutoTUnref<GrTexture> texture(GrRefCachedBitmapTexture(context, fBmp,
-                                                                 GrTextureParams::ClampNoFilter(),
-                                                                 SkSourceGammaTreatment::kRespect));
+        sk_sp<GrTexture> texture(GrRefCachedBitmapTexture(context, fBmp,
+                                                          GrTextureParams::ClampNoFilter(),
+                                                          SkSourceGammaTreatment::kRespect));
         if (!texture) {
             return;
         }
@@ -116,8 +116,8 @@ protected:
                     GrPaint grPaint;
                     grPaint.setXPFactory(GrPorterDuffXPFactory::Make(SkBlendMode::kSrc));
                     sk_sp<GrFragmentProcessor> fp(
-                        GrTextureDomainEffect::Make(texture, nullptr, textureMatrices[tm],
-                                                GrTextureDomain::MakeTexelDomain(texture,
+                        GrTextureDomainEffect::Make(texture.get(), nullptr, textureMatrices[tm],
+                                                GrTextureDomain::MakeTexelDomain(texture.get(),
                                                                                  texelDomains[d]),
                                                 mode, GrTextureParams::kNone_FilterMode));
 
@@ -127,10 +127,10 @@ protected:
                     const SkMatrix viewMatrix = SkMatrix::MakeTrans(x, y);
                     grPaint.addColorFragmentProcessor(std::move(fp));
 
-                    SkAutoTUnref<GrDrawBatch> batch(
+                    sk_sp<GrDrawBatch> batch(
                             GrRectBatchFactory::CreateNonAAFill(GrColor_WHITE, viewMatrix,
                                                                 renderRect, nullptr, nullptr));
-                    renderTargetContext->priv().testingOnly_drawBatch(grPaint, batch);
+                    renderTargetContext->priv().testingOnly_drawBatch(grPaint, batch.get());
                     x += renderRect.width() + kTestPad;
                 }
                 y += renderRect.height() + kTestPad;

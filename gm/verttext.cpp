@@ -46,7 +46,7 @@ public:
     {
     }
 
-    //SkAutoTUnref<SkTypeface> fFace;
+    //sk_sp<SkTypeface> fFace;
 
 protected:
 
