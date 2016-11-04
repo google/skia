@@ -189,8 +189,8 @@ static SkImageGenerator* make_ctable_generator(GrContext*, SkPicture* pic) {
     SkImageInfo info = SkImageInfo::Make(100, 100, kIndex_8_SkColorType, kPremul_SkAlphaType);
 
     SkBitmap bm2;
-    SkAutoTUnref<SkColorTable> ct(new SkColorTable(colors, count));
-    bm2.allocPixels(info, nullptr, ct);
+    sk_sp<SkColorTable> ct(new SkColorTable(colors, count));
+    bm2.allocPixels(info, nullptr, ct.get());
     for (int y = 0; y < info.height(); ++y) {
         for (int x = 0; x < info.width(); ++x) {
             *bm2.getAddr8(x, y) = find_closest(*bm.getAddr32(x, y), colors, count);
@@ -239,12 +239,12 @@ protected:
         desc.fHeight = subset->height();
 
         GrTexture* dst = fCtx->textureProvider()->createTexture(desc, SkBudgeted::kNo);
-        fCtx->copySurface(dst, fTexture, *subset, SkIPoint::Make(0, 0));
+        fCtx->copySurface(dst, fTexture.get(), *subset, SkIPoint::Make(0, 0));
         return dst;
     }
 private:
-    SkAutoTUnref<GrContext> fCtx;
-    SkAutoTUnref<GrTexture> fTexture;
+    sk_sp<GrContext> fCtx;
+    sk_sp<GrTexture> fTexture;
 };
 static SkImageGenerator* make_tex_generator(GrContext* ctx, SkPicture* pic) {
     const SkImageInfo info = SkImageInfo::MakeN32Premul(100, 100);

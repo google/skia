@@ -81,7 +81,7 @@ DEF_SIMPLE_GM_BG(texdata, canvas, 2 * S, 2 * S, SK_ColorBLACK) {
         if (!texture) {
             return;
         }
-        SkAutoTUnref<GrTexture> au(texture);
+        sk_sp<GrTexture> au(texture);
 
         // setup new clip
         GrFixedClip clip(SkIRect::MakeWH(2*S, 2*S));
