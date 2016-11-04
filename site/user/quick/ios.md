@@ -1,6 +1,9 @@
 iOS
 ===
 
+These instructions are historical and not explictly supported.  There is
+currently no explictly supported way to build Skia for iOS.
+
 The following has been tested on MacOS Yosemite with Xcode version 6.3.
 
 Quickstart
@@ -67,7 +70,7 @@ Alternatively, you can do:
 Build and run tests
 -------------------
 
-The 'dm' test program is wrapped in an app called iOSShell. The project for iOSShell is at out/gyp/iOSShell.xcodeproj. 
+The 'dm' test program is wrapped in an app called iOSShell. The project for iOSShell is at out/gyp/iOSShell.xcodeproj.
 Running this app with the flag '--dm' will run unit tests and golden master images. Other arguments to the standard 'dm'
 test program can also be passed in.
 
