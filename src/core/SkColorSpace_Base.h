@@ -193,6 +193,20 @@ public:
     
     virtual bool onGammaIsLinear() const = 0;
     
+    /**
+     *  Returns a color space with the same gamut as this one, but with a linear gamma.
+     *  For color spaces whose gamut can not be described in terms of XYZ D50, returns
+     *  linear sRGB.
+     */
+    virtual sk_sp<SkColorSpace> makeLinearGamma() = 0;
+
+    /**
+     *  Returns a color space with the same gamut as this one, with with the sRGB transfer
+     *  function. For color spaces whose gamut can not be described in terms of XYZ D50, returns
+     *  sRGB.
+     */
+    virtual sk_sp<SkColorSpace> makeSRGBGamma() = 0;
+
     enum class Type : uint8_t {
         kXYZ,
         kA2B

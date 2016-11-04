@@ -73,7 +73,9 @@ SkData* SkImage_Generator::onRefEncoded(GrContext* ctx) const {
 }
 
 bool SkImage_Generator::getROPixels(SkBitmap* bitmap, CachingHint chint) const {
-    return fCache.lockAsBitmap(bitmap, this, chint);
+    // TODO: Plumb in hints about our use-case (destination surface), so we can ask the cache to
+    // decode in an appropriate format (linear premul or not, etc...)
+    return fCache.lockAsBitmap(bitmap, this, nullptr, chint);
 }
 
 GrTexture* SkImage_Generator::asTextureRef(GrContext* ctx, const GrTextureParams& params,
