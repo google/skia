@@ -115,6 +115,11 @@ private:
     Result decodeFrame(bool firstAttempt, const Options& opts, int* rowsDecoded);
 
     /*
+     *  Swizzles and color xforms (if necessary) into dst.
+     */
+    void applyXformRow(const SkImageInfo& dstInfo, void* dst, const uint8_t* src) const;
+
+    /*
      * Creates an instance of the decoder
      * Called only by NewFromStream
      * Takes ownership of the SkGifImageReader
@@ -142,6 +147,8 @@ private:
     // Updated inside haveDecodedRow when rows are decoded, unless we filled
     // the background, in which case it is set once and left alone.
     int                                 fRowsDecoded;
+    std::unique_ptr<uint32_t[]>         fXformBuffer;
+    bool                                fXformOnDecode;
 
     typedef SkCodec INHERITED;
 };

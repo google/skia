@@ -145,12 +145,29 @@ int SkGifCodec::onGetRepetitionCount() {
 }
 
 void SkGifCodec::initializeColorTable(const SkImageInfo& dstInfo, size_t frameIndex) {
-    fCurrColorTable = fReader->getColorTable(dstInfo.colorType(), frameIndex);
-    fCurrColorTableIsReal = fCurrColorTable;
-    if (!fCurrColorTable) {
+    SkColorType colorTableColorType = dstInfo.colorType();
+    if (this->colorXform()) {
+        colorTableColorType = kRGBA_8888_SkColorType;
+    }
+
+    sk_sp<SkColorTable> currColorTable = fReader->getColorTable(colorTableColorType, frameIndex);
+    fCurrColorTableIsReal = currColorTable;
+    if (!fCurrColorTableIsReal) {
         // This is possible for an empty frame. Create a dummy with one value (transparent).
         SkPMColor color = SK_ColorTRANSPARENT;
         fCurrColorTable.reset(new SkColorTable(&color, 1));
+    } else if (this->colorXform() && !fXformOnDecode) {
+        SkPMColor dstColors[256];
+        SkColorSpaceXform::ColorFormat dstFormat = select_xform_format(dstInfo.colorType());
+        SkColorSpaceXform::ColorFormat srcFormat = SkColorSpaceXform::kRGBA_8888_ColorFormat;
+        SkAlphaType xformAlphaType = select_xform_alpha(dstInfo.alphaType(),
+                                                        this->getInfo().alphaType());
+        SkAssertResult(this->colorXform()->apply(dstFormat, dstColors, srcFormat,
+                                                 currColorTable->readColors(),
+                                                 currColorTable->count(), xformAlphaType));
+        fCurrColorTable.reset(new SkColorTable(dstColors, currColorTable->count()));
+    } else {
+        fCurrColorTable = std::move(currColorTable);
     }
 }
 
@@ -158,13 +175,17 @@ void SkGifCodec::initializeColorTable(const SkImageInfo& dstInfo, size_t frameIn
 SkCodec::Result SkGifCodec::prepareToDecode(const SkImageInfo& dstInfo, SkPMColor* inputColorPtr,
         int* inputColorCount, const Options& opts) {
     // Check for valid input parameters
-    if (!conversion_possible_ignore_color_space(dstInfo, this->getInfo())) {
+    if (!conversion_possible(dstInfo, this->getInfo()) || !this->initializeColorXform(dstInfo)) {
         return gif_error("Cannot convert input type to output type.\n", kInvalidConversion);
     }
 
-    if (dstInfo.colorType() == kRGBA_F16_SkColorType) {
-        // FIXME: This should be supported.
-        return gif_error("GIF does not yet support F16.\n", kInvalidConversion);
+    fXformOnDecode = false;
+    if (this->colorXform()) {
+        fXformOnDecode = apply_xform_on_decode(dstInfo.colorType(), this->getEncodedInfo().color());
+        if (fXformOnDecode) {
+            fXformBuffer.reset(new uint32_t[dstInfo.width()]);
+            sk_bzero(fXformBuffer.get(), dstInfo.width() * sizeof(uint32_t));
+        }
     }
 
     if (opts.fSubset) {
@@ -238,6 +259,14 @@ void SkGifCodec::initializeSwizzler(const SkImageInfo& dstInfo, size_t frameInde
     // frameRect, since it might extend beyond the edge of the frame.
     SkIRect swizzleRect = SkIRect::MakeLTRB(xBegin, 0, xEnd, 0);
 
+    SkImageInfo swizzlerInfo = dstInfo;
+    if (this->colorXform()) {
+        swizzlerInfo = swizzlerInfo.makeColorType(kRGBA_8888_SkColorType);
+        if (kPremul_SkAlphaType == dstInfo.alphaType()) {
+            swizzlerInfo = swizzlerInfo.makeAlphaType(kUnpremul_SkAlphaType);
+        }
+    }
+
     // The default Options should be fine:
     // - we'll ignore if the memory is zero initialized - unless we're the first frame, this won't
     //   matter anyway.
@@ -246,7 +275,7 @@ void SkGifCodec::initializeSwizzler(const SkImageInfo& dstInfo, size_t frameInde
     // We may not be able to use the real Options anyway, since getPixels does not store it (due to
     // a bug).
     fSwizzler.reset(SkSwizzler::CreateSwizzler(this->getEncodedInfo(),
-                    fCurrColorTable->readColors(), dstInfo, Options(), &swizzleRect));
+                    fCurrColorTable->readColors(), swizzlerInfo, Options(), &swizzleRect));
     SkASSERT(fSwizzler.get());
 }
 
@@ -436,6 +465,22 @@ uint64_t SkGifCodec::onGetFillValue(const SkImageInfo& dstInfo) const {
     return SK_ColorTRANSPARENT;
 }
 
+void SkGifCodec::applyXformRow(const SkImageInfo& dstInfo, void* dst, const uint8_t* src) const {
+    if (this->colorXform() && fXformOnDecode) {
+        fSwizzler->swizzle(fXformBuffer.get(), src);
+
+        const SkColorSpaceXform::ColorFormat dstFormat = select_xform_format(dstInfo.colorType());
+        const SkColorSpaceXform::ColorFormat srcFormat = SkColorSpaceXform::kRGBA_8888_ColorFormat;
+        const SkAlphaType xformAlphaType = select_xform_alpha(dstInfo.alphaType(),
+                                                              this->getInfo().alphaType());
+        const int xformWidth = get_scaled_dimension(dstInfo.width(), fSwizzler->sampleX());
+        SkAssertResult(this->colorXform()->apply(dstFormat, dst, srcFormat, fXformBuffer.get(),
+                                                 xformWidth, xformAlphaType));
+    } else {
+        fSwizzler->swizzle(dst, src);
+    }
+}
+
 bool SkGifCodec::haveDecodedRow(size_t frameIndex, const unsigned char* rowBegin,
                                 size_t rowNumber, unsigned repeatCount, bool writeTransparentPixels)
 {
@@ -524,27 +569,10 @@ bool SkGifCodec::haveDecodedRow(size_t frameIndex, const unsigned char* rowBegin
     // will "show through" the later ones.
     const auto dstInfo = this->dstInfo();
     if (writeTransparentPixels) {
-        fSwizzler->swizzle(dstLine, rowBegin);
+        this->applyXformRow(dstInfo, dstLine, rowBegin);
     } else {
-        // We cannot swizzle directly into the dst, since that will write the transparent pixels.
-        // Instead, swizzle into a temporary buffer, and copy that into the dst.
-        {
-            void* const memsetDst = fTmpBuffer.get();
-            // Although onGetFillValue returns a uint64_t, we only use the low eight bits. The
-            // return value is either an 8 bit index (for index8) or SK_ColorTRANSPARENT, which is
-            // all zeroes.
-            const int fillValue = (uint8_t) this->onGetFillValue(dstInfo);
-            const size_t rb = dstInfo.minRowBytes();
-            if (fillValue == 0) {
-                // FIXME: This special case should be unnecessary, and in fact sk_bzero just calls
-                // memset. But without it, the compiler thinks this is trying to pass a zero length
-                // to memset, causing an error.
-                sk_bzero(memsetDst, rb);
-            } else {
-                memset(memsetDst, fillValue, rb);
-            }
-        }
-        fSwizzler->swizzle(fTmpBuffer.get(), rowBegin);
+        sk_bzero(fTmpBuffer.get(), dstInfo.minRowBytes());
+        this->applyXformRow(dstInfo, fTmpBuffer.get(), rowBegin);
 
         const size_t offsetBytes = fSwizzler->swizzleOffsetBytes();
         switch (dstInfo.colorType()) {
@@ -564,11 +592,11 @@ bool SkGifCodec::haveDecodedRow(size_t frameIndex, const unsigned char* rowBegin
                 }
                 break;
             }
-            case kIndex_8_SkColorType: {
-                uint8_t* dstPixel = SkTAddOffset<uint8_t>(dstLine, offsetBytes);
-                uint8_t* srcPixel = SkTAddOffset<uint8_t>(fTmpBuffer.get(), offsetBytes);
+            case kRGBA_F16_SkColorType: {
+                uint64_t* dstPixel = SkTAddOffset<uint64_t>(dstLine, offsetBytes);
+                uint64_t* srcPixel = SkTAddOffset<uint64_t>(fTmpBuffer.get(), offsetBytes);
                 for (int i = 0; i < fSwizzler->swizzleWidth(); i++) {
-                    if (*srcPixel != frameContext->transparentPixel()) {
+                    if (*srcPixel != 0) {
                         *dstPixel = *srcPixel;
                     }
                     dstPixel++;
