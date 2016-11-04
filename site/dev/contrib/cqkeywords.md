@@ -38,6 +38,8 @@ Here are some real world examples:
 
     CQ_INCLUDE_TRYBOTS=master.client.skia:Test-Win-MSVC-ShuttleC-GPU-GTX960-x86_64-Debug-ANGLE-Trybot
 
+**IMPORTANT**: Make sure each bot name ends in "-Trybot", otherwise your trybots may be treated as non-trybot builds!
+
 TBR
 ---
 
