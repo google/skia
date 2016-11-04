@@ -113,6 +113,15 @@ class SkiaApi(recipe_api.RecipeApi):
     checkout_kwargs = {}
     checkout_kwargs['env'] = self.m.vars.default_env
 
+    # Hack the patch ref if necessary.
+    if self.m.properties.get('patch_storage', '') == 'gerrit':
+      if self.m.bot_update._issue and self.m.bot_update._patchset:
+        self.m.bot_update._gerrit_ref = 'refs/changes/%d/%d/%d' % (
+            int(str(self.m.bot_update._issue)[-2:]),
+            self.m.bot_update._issue,
+            self.m.bot_update._patchset,
+        )
+
     update_step = self.m.bot_update.ensure_checkout(
         gclient_config=gclient_cfg,
         cwd=self.m.vars.checkout_root,

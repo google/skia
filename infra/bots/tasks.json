@@ -60,7 +60,7 @@
         "--workdir",
         "../../..",
         "swarm_compile",
-        "repository=skia",
+        "repository=<(REPO)",
         "buildername=Build-Ubuntu-Clang-arm-Release-GN_Android",
         "mastername=fake-master",
         "buildnumber=2",
@@ -69,9 +69,8 @@
         "swarm_out_dir=${ISOLATED_OUTDIR}",
         "revision=<(REVISION)",
         "patch_storage=<(PATCH_STORAGE)",
-        "rietveld=<(CODEREVIEW_SERVER)",
-        "issue=<(ISSUE)",
-        "patchset=<(PATCHSET)"
+        "patch_issue=<(ISSUE)",
+        "patch_set=<(PATCHSET)"
       ],
       "isolate": "compile_skia.isolate",
       "priority": 0.8
@@ -86,7 +85,7 @@
         "--workdir",
         "../../..",
         "swarm_compile",
-        "repository=skia",
+        "repository=<(REPO)",
         "buildername=Build-Ubuntu-GCC-x86_64-Release-GN",
         "mastername=fake-master",
         "buildnumber=2",
@@ -95,9 +94,8 @@
         "swarm_out_dir=${ISOLATED_OUTDIR}",
         "revision=<(REVISION)",
         "patch_storage=<(PATCH_STORAGE)",
-        "rietveld=<(CODEREVIEW_SERVER)",
-        "issue=<(ISSUE)",
-        "patchset=<(PATCHSET)"
+        "patch_issue=<(ISSUE)",
+        "patch_set=<(PATCHSET)"
       ],
       "isolate": "compile_skia.isolate",
       "priority": 0.8
@@ -124,7 +122,7 @@
         "--workdir",
         "../../..",
         "swarm_compile",
-        "repository=skia",
+        "repository=<(REPO)",
         "buildername=Build-Win-Clang-arm64-Release-GN_Android",
         "mastername=fake-master",
         "buildnumber=2",
@@ -133,9 +131,8 @@
         "swarm_out_dir=${ISOLATED_OUTDIR}",
         "revision=<(REVISION)",
         "patch_storage=<(PATCH_STORAGE)",
-        "rietveld=<(CODEREVIEW_SERVER)",
-        "issue=<(ISSUE)",
-        "patchset=<(PATCHSET)"
+        "patch_issue=<(ISSUE)",
+        "patch_set=<(PATCHSET)"
       ],
       "isolate": "compile_skia.isolate",
       "priority": 0.8
@@ -151,7 +148,7 @@
         "--workdir",
         "../../..",
         "swarm_infra",
-        "repository=skia",
+        "repository=<(REPO)",
         "buildername=Housekeeper-PerCommit-InfraTests",
         "mastername=fake-master",
         "buildnumber=2",
@@ -160,9 +157,8 @@
         "swarm_out_dir=${ISOLATED_OUTDIR}",
         "revision=<(REVISION)",
         "patch_storage=<(PATCH_STORAGE)",
-        "rietveld=<(CODEREVIEW_SERVER)",
-        "issue=<(ISSUE)",
-        "patchset=<(PATCHSET)"
+        "patch_issue=<(ISSUE)",
+        "patch_set=<(PATCHSET)"
       ],
       "isolate": "infra_skia.isolate",
       "priority": 0.8
@@ -198,7 +194,7 @@
         "--workdir",
         "../../..",
         "swarm_perf",
-        "repository=skia",
+        "repository=<(REPO)",
         "buildername=Perf-Ubuntu-GCC-GCE-CPU-AVX2-x86_64-Release-GN",
         "mastername=fake-master",
         "buildnumber=2",
@@ -207,9 +203,8 @@
         "swarm_out_dir=${ISOLATED_OUTDIR}",
         "revision=<(REVISION)",
         "patch_storage=<(PATCH_STORAGE)",
-        "rietveld=<(CODEREVIEW_SERVER)",
-        "issue=<(ISSUE)",
-        "patchset=<(PATCHSET)"
+        "patch_issue=<(ISSUE)",
+        "patch_set=<(PATCHSET)"
       ],
       "isolate": "perf_skia.isolate",
       "priority": 0.8
@@ -244,7 +239,7 @@
         "--workdir",
         "../../..",
         "swarm_test",
-        "repository=skia",
+        "repository=<(REPO)",
         "buildername=Test-Android-Clang-AndroidOne-GPU-Mali400MP2-arm-Release-GN_Android",
         "mastername=fake-master",
         "buildnumber=2",
@@ -253,9 +248,8 @@
         "swarm_out_dir=${ISOLATED_OUTDIR}",
         "revision=<(REVISION)",
         "patch_storage=<(PATCH_STORAGE)",
-        "rietveld=<(CODEREVIEW_SERVER)",
-        "issue=<(ISSUE)",
-        "patchset=<(PATCHSET)"
+        "patch_issue=<(ISSUE)",
+        "patch_set=<(PATCHSET)"
       ],
       "isolate": "test_skia.isolate",
       "priority": 0.8
@@ -291,7 +285,7 @@
         "--workdir",
         "../../..",
         "swarm_test",
-        "repository=skia",
+        "repository=<(REPO)",
         "buildername=Test-Ubuntu-GCC-GCE-CPU-AVX2-x86_64-Release-GN",
         "mastername=fake-master",
         "buildnumber=2",
@@ -300,9 +294,8 @@
         "swarm_out_dir=${ISOLATED_OUTDIR}",
         "revision=<(REVISION)",
         "patch_storage=<(PATCH_STORAGE)",
-        "rietveld=<(CODEREVIEW_SERVER)",
-        "issue=<(ISSUE)",
-        "patchset=<(PATCHSET)"
+        "patch_issue=<(ISSUE)",
+        "patch_set=<(PATCHSET)"
       ],
       "isolate": "test_skia.isolate",
       "priority": 0.8
@@ -321,7 +314,7 @@
         "--workdir",
         "../../..",
         "upload_nano_results",
-        "repository=skia",
+        "repository=<(REPO)",
         "buildername=Perf-Ubuntu-GCC-GCE-CPU-AVX2-x86_64-Release-GN",
         "mastername=fake-master",
         "buildnumber=2",
@@ -330,9 +323,8 @@
         "swarm_out_dir=${ISOLATED_OUTDIR}",
         "revision=<(REVISION)",
         "patch_storage=<(PATCH_STORAGE)",
-        "rietveld=<(CODEREVIEW_SERVER)",
-        "issue=<(ISSUE)",
-        "patchset=<(PATCHSET)"
+        "patch_issue=<(ISSUE)",
+        "patch_set=<(PATCHSET)"
       ],
       "isolate": "upload_nano_results.isolate",
       "priority": 0.8
@@ -351,7 +343,7 @@
         "--workdir",
         "../../..",
         "upload_dm_results",
-        "repository=skia",
+        "repository=<(REPO)",
         "buildername=Test-Android-Clang-AndroidOne-GPU-Mali400MP2-arm-Release-GN_Android",
         "mastername=fake-master",
         "buildnumber=2",
@@ -360,9 +352,8 @@
         "swarm_out_dir=${ISOLATED_OUTDIR}",
         "revision=<(REVISION)",
         "patch_storage=<(PATCH_STORAGE)",
-        "rietveld=<(CODEREVIEW_SERVER)",
-        "issue=<(ISSUE)",
-        "patchset=<(PATCHSET)"
+        "patch_issue=<(ISSUE)",
+        "patch_set=<(PATCHSET)"
       ],
       "isolate": "upload_dm_results.isolate",
       "priority": 0.8
@@ -381,7 +372,7 @@
         "--workdir",
         "../../..",
         "upload_dm_results",
-        "repository=skia",
+        "repository=<(REPO)",
         "buildername=Test-Ubuntu-GCC-GCE-CPU-AVX2-x86_64-Release-GN",
         "mastername=fake-master",
         "buildnumber=2",
@@ -390,9 +381,8 @@
         "swarm_out_dir=${ISOLATED_OUTDIR}",
         "revision=<(REVISION)",
         "patch_storage=<(PATCH_STORAGE)",
-        "rietveld=<(CODEREVIEW_SERVER)",
-        "issue=<(ISSUE)",
-        "patchset=<(PATCHSET)"
+        "patch_issue=<(ISSUE)",
+        "patch_set=<(PATCHSET)"
       ],
       "isolate": "upload_dm_results.isolate",
       "priority": 0.8
