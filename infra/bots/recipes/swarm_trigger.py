@@ -140,10 +140,13 @@ def swarm_dimensions(builder_cfg):
     elif 'iOS' in builder_cfg['os']:
       # For iOS, the device type is a better dimension than CPU or GPU.
       dimensions['device'] = {
-        'iPad4': 'iPad4,1',
+        # TODO(stephana): Remove this temporary discrepancy between the bot name
+        # and device. When we expand iOS testing names and devices need to match
+        # again. 
+        'iPad4': 'iPad5,1',
       }[builder_cfg['model']]
       # TODO(borenet): Replace this hack with something better.
-      dimensions['os'] = 'iOS-9.2'
+      dimensions['os'] = 'iOS-9.3.1'
     elif builder_cfg['cpu_or_gpu'] == 'CPU':
       dimensions['gpu'] = 'none'
       dimensions['cpu'] = {
