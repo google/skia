@@ -22,6 +22,24 @@
       "revId": "ef7da4dc2fa8a5963ba2160b2da70e79150ad090",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "8b50234a_f83cf185",
+        "filename": "tests/BlurTest.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 285,
+      "author": {
+        "id": 5110
+      },
+      "writtenOn": "2016-11-04T15:25:34Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "66ba4639_27cec04e",
+      "revId": "ef7da4dc2fa8a5963ba2160b2da70e79150ad090",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
