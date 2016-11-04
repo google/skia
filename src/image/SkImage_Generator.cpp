@@ -7,12 +7,10 @@
 
 #include "SkImage_Base.h"
 #include "SkBitmap.h"
-#include "SkCanvas.h"
 #include "SkData.h"
 #include "SkImageCacherator.h"
 #include "SkImagePriv.h"
 #include "SkPixelRef.h"
-#include "SkSurface.h"
 
 class SkImage_Generator : public SkImage_Base {
 public:
@@ -82,23 +80,17 @@ GrTexture* SkImage_Generator::asTextureRef(GrContext* ctx, const GrTextureParams
 }
 
 sk_sp<SkImage> SkImage_Generator::onMakeSubset(const SkIRect& subset) const {
-    // TODO: make this lazy, by wrapping the subset inside a new generator or something
-    // For now, we do effectively what we did before, make it a raster
+    SkASSERT(fCache.info().bounds().contains(subset));
+    SkASSERT(fCache.info().bounds() != subset);
 
-    const SkImageInfo info = SkImageInfo::MakeN32(subset.width(), subset.height(),
-                                                  this->alphaType());
-    auto surface(SkSurface::MakeRaster(info));
-    if (!surface) {
-        return nullptr;
-    }
-    surface->getCanvas()->clear(0);
-    surface->getCanvas()->drawImage(this, SkIntToScalar(-subset.x()), SkIntToScalar(-subset.y()),
-                                    nullptr);
-    return surface->makeImageSnapshot();
+    const SkIRect generatorSubset = subset.makeOffset(fCache.fOrigin.x(), fCache.fOrigin.y());
+    SkImageCacherator::Validator validator(fCache.fSharedGenerator, &generatorSubset);
+    return validator ? sk_sp<SkImage>(new SkImage_Generator(&validator)) : nullptr;
 }
 
 sk_sp<SkImage> SkImage::MakeFromGenerator(SkImageGenerator* generator, const SkIRect* subset) {
-    SkImageCacherator::Validator validator(generator, subset);
+    SkImageCacherator::Validator validator(SkImageCacherator::SharedGenerator::Make(generator),
+                                           subset);
 
     return validator ? sk_make_sp<SkImage_Generator>(&validator) : nullptr;
 }

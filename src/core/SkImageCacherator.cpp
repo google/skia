@@ -10,7 +10,6 @@
 #include "SkImage_Base.h"
 #include "SkImageCacherator.h"
 #include "SkMallocPixelRef.h"
-#include "SkMutex.h"
 #include "SkNextID.h"
 #include "SkPixelRef.h"
 #include "SkResourceCache.h"
@@ -32,24 +31,6 @@
 // only interested in GPU datas...
 // see skbug.com/ 4971, 5128, ...
 //#define SK_SUPPORT_COMPRESSED_TEXTURES_IN_CACHERATOR
-
-// Ref-counted tuple(SkImageGenerator, SkMutex) which allows sharing of one generator
-// among several cacherators.
-class SkImageCacherator::SharedGenerator final : public SkNVRefCnt<SharedGenerator> {
-public:
-    static sk_sp<SharedGenerator> Make(SkImageGenerator* gen) {
-        return gen ? sk_sp<SharedGenerator>(new SharedGenerator(gen)) : nullptr;
-    }
-
-private:
-    explicit SharedGenerator(SkImageGenerator* gen) : fGenerator(gen) { SkASSERT(gen); }
-
-    friend class ScopedGenerator;
-
-    std::unique_ptr<SkImageGenerator> fGenerator;
-    SkMutex                           fMutex;
-};
-
 
 // Helper for exclusive access to a shared generator.
 class SkImageCacherator::ScopedGenerator {
@@ -73,22 +54,22 @@ private:
     SkAutoExclusive               fAutoAquire;
 };
 
-SkImageCacherator::Validator::Validator(SkImageGenerator* gen, const SkIRect* subset)
-    // We are required to take ownership of gen, regardless of whether we instantiate a cacherator
-    // or not.  On instantiation, the client is responsible for transferring ownership.
-    : fSharedGenerator(SkImageCacherator::SharedGenerator::Make(gen)) {
+SkImageCacherator::Validator::Validator(sk_sp<SharedGenerator> gen, const SkIRect* subset)
+    : fSharedGenerator(std::move(gen)) {
 
     if (!fSharedGenerator) {
         return;
     }
 
-    const SkImageInfo& info = gen->getInfo();
+    // The following generator accessors are safe without acquiring the mutex (const getters).
+    // TODO: refactor to use a ScopedGenerator instead, for clarity.
+    const SkImageInfo& info = fSharedGenerator->fGenerator->getInfo();
     if (info.isEmpty()) {
         fSharedGenerator.reset();
         return;
     }
 
-    fUniqueID = gen->uniqueID();
+    fUniqueID = fSharedGenerator->fGenerator->uniqueID();
     const SkIRect bounds = SkIRect::MakeWH(info.width(), info.height());
     if (subset) {
         if (!bounds.contains(*subset)) {
@@ -107,11 +88,9 @@ SkImageCacherator::Validator::Validator(SkImageGenerator* gen, const SkIRect* su
     fOrigin = SkIPoint::Make(subset->x(), subset->y());
 }
 
-SkImageCacherator::Validator::~Validator() {}
-
 SkImageCacherator* SkImageCacherator::NewFromGenerator(SkImageGenerator* gen,
                                                        const SkIRect* subset) {
-    Validator validator(gen, subset);
+    Validator validator(SharedGenerator::Make(gen), subset);
 
     return validator ? new SkImageCacherator(&validator) : nullptr;
 }

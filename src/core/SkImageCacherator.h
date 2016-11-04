@@ -9,6 +9,7 @@
 #define SkImageCacherator_DEFINED
 
 #include "SkImageGenerator.h"
+#include "SkMutex.h"
 #include "SkTemplates.h"
 
 class GrContext;
@@ -69,12 +70,27 @@ public:
                               int srcX, int srcY);
 
 private:
-    class SharedGenerator;
+    // Ref-counted tuple(SkImageGenerator, SkMutex) which allows sharing of one generator
+    // among several cacherators.
+    class SharedGenerator final : public SkNVRefCnt<SharedGenerator> {
+    public:
+        static sk_sp<SharedGenerator> Make(SkImageGenerator* gen) {
+            return gen ? sk_sp<SharedGenerator>(new SharedGenerator(gen)) : nullptr;
+        }
+
+    private:
+        explicit SharedGenerator(SkImageGenerator* gen) : fGenerator(gen) { SkASSERT(gen); }
+
+        friend class ScopedGenerator;
+        friend class SkImageCacherator;
+
+        std::unique_ptr<SkImageGenerator> fGenerator;
+        SkMutex                           fMutex;
+    };
     class ScopedGenerator;
 
     struct Validator {
-        Validator(SkImageGenerator*, const SkIRect* subset);
-        ~Validator();
+        Validator(sk_sp<SharedGenerator>, const SkIRect* subset);
 
         operator bool() const { return fSharedGenerator.get(); }
 
