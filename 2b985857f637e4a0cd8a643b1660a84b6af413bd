@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "8b50234a_db22c719",
+        "filename": "tests/ImageTest.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 317,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2016-11-04T15:36:23Z",
+      "side": 1,
+      "message": "Long line.",
+      "range": {
+        "startLine": 317,
+        "startChar": 100,
+        "endLine": 317,
+        "endChar": 105
+      },
+      "revId": "2b985857f637e4a0cd8a643b1660a84b6af413bd",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
