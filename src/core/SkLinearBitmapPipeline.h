@@ -78,17 +78,14 @@ public:
         // the pipeline on a new sampler.
         Base* cloneStageTo(Next* next, Stage* cloneToStage) const;
 
-        Base* get() const { return reinterpret_cast<Base*>(&fSpace); }
+        Base* get() const { return reinterpret_cast<Base*>(fSpace); }
         Base* operator->() const { return this->get(); }
         Base& operator*() const { return *(this->get()); }
 
     private:
         std::function<void (Next*, void*)> fStageCloner;
-        struct SK_STRUCT_ALIGN(16) Space {
-            char space[kSize];
-        };
-        bool fIsInitialized;
-        mutable Space fSpace;
+        alignas(16) mutable char           fSpace[kSize];
+        bool                               fIsInitialized;
     };
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
@@ -111,16 +108,13 @@ public:
             fIsInitialized = true;
         }
 
-        Base* get() const { return reinterpret_cast<Base*>(&fSpace); }
+        Base* get() const { return reinterpret_cast<Base*>(fSpace); }
         Base* operator->() const { return this->get(); }
         Base& operator*() const { return *(this->get()); }
 
     private:
-        struct SK_STRUCT_ALIGN(16) Space {
-            char space[kSize];
-        };
-        mutable Space fSpace;
-        bool          fIsInitialized;
+        alignas(16) mutable char fSpace[kSize];
+        bool                     fIsInitialized;
 
     };
 
@@ -134,7 +128,7 @@ public:
     using MatrixStage  = Stage<PointProcessorInterface,    160, PointProcessorInterface>;
     using TileStage    = Stage<PointProcessorInterface,    160, SampleProcessorInterface>;
     using SampleStage  = Stage<SampleProcessorInterface,   160, BlendProcessorInterface>;
-    using BlenderStage = Stage<BlendProcessorInterface,     40>;
+    using BlenderStage = Stage<BlendProcessorInterface,     48>;
     using Accessor     = PolyMemory<PixelAccessorInterface, 64>;
 
 private:
