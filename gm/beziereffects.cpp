@@ -192,10 +192,10 @@ protected:
                     GrPaint grPaint;
                     grPaint.setXPFactory(GrPorterDuffXPFactory::Make(SkBlendMode::kSrc));
 
-                    SkAutoTUnref<GrDrawBatch> batch(
-                        new BezierCubicOrConicTestBatch(gp, bounds, color, klmEqs, klmSigns[c]));
+                    sk_sp<GrDrawBatch> batch = sk_make_sp<BezierCubicOrConicTestBatch>(
+                                    gp, bounds, color, klmEqs, klmSigns[c]);
 
-                    renderTargetContext->priv().testingOnly_drawBatch(grPaint, batch);
+                    renderTargetContext->priv().testingOnly_drawBatch(grPaint, batch.get());
                 }
                 ++col;
                 if (numCols == col) {
@@ -324,10 +324,10 @@ protected:
                     GrPaint grPaint;
                     grPaint.setXPFactory(GrPorterDuffXPFactory::Make(SkBlendMode::kSrc));
 
-                    SkAutoTUnref<GrDrawBatch> batch(
+                    sk_sp<GrDrawBatch> batch(
                         new BezierCubicOrConicTestBatch(gp, bounds, color, klmEqs, 1.f));
 
-                    renderTargetContext->priv().testingOnly_drawBatch(grPaint, batch);
+                    renderTargetContext->priv().testingOnly_drawBatch(grPaint, batch.get());
                 }
                 ++col;
                 if (numCols == col) {
@@ -536,10 +536,9 @@ protected:
 
                     GrPathUtils::QuadUVMatrix DevToUV(pts);
 
-                    SkAutoTUnref<GrDrawBatch> batch(
-                        new BezierQuadTestBatch(gp, bounds, color, DevToUV));
+                    sk_sp<GrDrawBatch> batch(new BezierQuadTestBatch(gp, bounds, color, DevToUV));
 
-                    renderTargetContext->priv().testingOnly_drawBatch(grPaint, batch);
+                    renderTargetContext->priv().testingOnly_drawBatch(grPaint, batch.get());
                 }
                 ++col;
                 if (numCols == col) {

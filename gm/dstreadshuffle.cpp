@@ -180,9 +180,9 @@ private:
     enum {
         kNumShapes = 100,
     };
-    SkAutoTUnref<SkShader> fBG;
-    SkPath                 fConcavePath;
-    SkPath                 fConvexPath;
+    sk_sp<SkShader>      fBG;
+    SkPath               fConcavePath;
+    SkPath               fConvexPath;
     static constexpr int kWidth = 900;
     static constexpr int kHeight = 400;
     typedef GM INHERITED;

@@ -319,7 +319,7 @@ protected:
     }
 
 private:
-    SkAutoTUnref<SkImage> fImg;
+    sk_sp<SkImage> fImg;
 
     typedef SkImageGenerator INHERITED;
 };
