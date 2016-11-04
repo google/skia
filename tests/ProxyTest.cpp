@@ -40,9 +40,6 @@ static void check_rendertarget(skiatest::Reporter* reporter,
                                SkBackingFit fit) {
     REPORTER_ASSERT(reporter, rtProxy->numStencilSamples() == numSamples);
 
-    REPORTER_ASSERT(reporter, rtProxy->asTextureProxy() == nullptr); // for now
-    REPORTER_ASSERT(reporter, rtProxy->asRenderTargetProxy() == rtProxy);
-
     GrRenderTarget* rt = rtProxy->instantiate(provider);
     REPORTER_ASSERT(reporter, rt);
 
@@ -69,9 +66,6 @@ static void check_texture(skiatest::Reporter* reporter,
                           GrTextureProvider* provider,
                           GrTextureProxy* texProxy,
                           SkBackingFit fit) {
-    REPORTER_ASSERT(reporter, texProxy->asTextureProxy() == texProxy);
-    REPORTER_ASSERT(reporter, texProxy->asRenderTargetProxy() == nullptr); // for now
-
     GrTexture* tex = texProxy->instantiate(provider);
     REPORTER_ASSERT(reporter, tex);
 
@@ -102,6 +96,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(DeferredProxyTest, reporter, ctxInfo) {
                                   numSamples <= ctxInfo.grContext()->caps()->maxColorSampleCount();
 
                             GrSurfaceDesc desc;
+                            desc.fFlags = kRenderTarget_GrSurfaceFlag;
                             desc.fOrigin = origin;
                             desc.fWidth = widthHeight;
                             desc.fHeight = widthHeight;
@@ -119,9 +114,10 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(DeferredProxyTest, reporter, ctxInfo) {
                                                    numSamples, fit);
                             }
 
+                            desc.fFlags = kNone_GrSurfaceFlags;
                             desc.fSampleCnt = 0;
 
-                            sk_sp<GrTextureProxy> texProxy(GrTextureProxy::Make(provider,
+                            sk_sp<GrTextureProxy> texProxy(GrTextureProxy::Make(caps, provider,
                                                                                 desc,
                                                                                 fit,
                                                                                 budgeted));

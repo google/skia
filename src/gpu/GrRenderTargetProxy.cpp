@@ -11,6 +11,7 @@
 #include "GrRenderTargetOpList.h"
 #include "GrRenderTargetPriv.h"
 #include "GrTextureProvider.h"
+#include "GrTextureRenderTargetProxy.h"
 
 // Deferred version
 // TODO: we can probably munge the 'desc' in both the wrapped and deferred
@@ -89,10 +90,17 @@ sk_sp<GrRenderTargetProxy> GrRenderTargetProxy::Make(const GrCaps& caps,
                                                      const GrSurfaceDesc& desc,
                                                      SkBackingFit fit,
                                                      SkBudgeted budgeted) {
-    return sk_sp<GrRenderTargetProxy>(new GrRenderTargetProxy(caps, desc, fit, budgeted));
+    // We know anything we instantiate later from this deferred path will be
+    // both texturable and renderable
+    return GrTextureRenderTargetProxy::Make(caps, desc, fit, budgeted);
 }
 
 sk_sp<GrRenderTargetProxy> GrRenderTargetProxy::Make(sk_sp<GrRenderTarget> rt) {
+    if (rt->asTexture()) {
+        return GrTextureRenderTargetProxy::Make(std::move(rt));
+    }
+
+    // Not texturable
     return sk_sp<GrRenderTargetProxy>(new GrRenderTargetProxy(rt));
 }
 

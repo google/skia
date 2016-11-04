@@ -155,6 +155,7 @@ tests_sources = [
   "$_tests/PointTest.cpp",
   "$_tests/PremulAlphaRoundTripTest.cpp",
   "$_tests/PrimitiveProcessorTest.cpp",
+  "$_tests/ProxyConversionTest.cpp",
   "$_tests/ProxyTest.cpp",
   "$_tests/QuickRejectTest.cpp",
   "$_tests/RandomTest.cpp",

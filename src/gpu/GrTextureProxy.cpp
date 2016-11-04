@@ -8,6 +8,7 @@
 #include "GrTextureProxy.h"
 
 #include "GrTextureProvider.h"
+#include "GrTextureRenderTargetProxy.h"
 
 GrTextureProxy::GrTextureProxy(const GrSurfaceDesc& srcDesc, SkBackingFit fit, SkBudgeted budgeted,
                                const void* srcData, size_t /*rowBytes*/)
@@ -49,7 +50,8 @@ size_t GrTextureProxy::onGpuMemorySize() const {
     return GrSurface::ComputeSize(fDesc, 1, kHasMipMaps);
 }
 
-sk_sp<GrTextureProxy> GrTextureProxy::Make(GrTextureProvider* texProvider,
+sk_sp<GrTextureProxy> GrTextureProxy::Make(const GrCaps& caps,
+                                           GrTextureProvider* texProvider,
                                            const GrSurfaceDesc& desc,
                                            SkBackingFit fit,
                                            SkBudgeted budgeted,
@@ -61,9 +63,18 @@ sk_sp<GrTextureProxy> GrTextureProxy::Make(GrTextureProvider* texProvider,
         return GrTextureProxy::Make(std::move(tex));
     }
 
+    if (desc.fFlags & kRenderTarget_GrSurfaceFlag) {
+        return GrTextureRenderTargetProxy::Make(caps, desc, fit, budgeted);
+    }
+
     return sk_sp<GrTextureProxy>(new GrTextureProxy(desc, fit, budgeted, nullptr, 0));
 }
 
 sk_sp<GrTextureProxy> GrTextureProxy::Make(sk_sp<GrTexture> tex) {
+    if (tex->asRenderTarget()) {
+        return GrTextureRenderTargetProxy::Make(std::move(tex));
+    }
+
+    // Not renderable
     return sk_sp<GrTextureProxy>(new GrTextureProxy(std::move(tex)));
 }
