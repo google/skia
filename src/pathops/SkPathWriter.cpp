@@ -306,7 +306,7 @@ void SkPathWriter::assemble() {
                         first ? SkPath::kAppend_AddPathMode : SkPath::kExtend_AddPathMode);
             } else {
                 SkASSERT(!first);
-                fPathPtr->reversePathTo(contour);
+                fPathPtr->reverseAddPath(contour);
             }
             if (first) {
                 first = false;
