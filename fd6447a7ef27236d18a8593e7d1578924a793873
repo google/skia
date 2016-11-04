@@ -22,6 +22,24 @@
       "revId": "fd6447a7ef27236d18a8593e7d1578924a793873",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "8b50234a_dbfbe751",
+        "filename": "src/codec/SkBmpStandardCodec.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 244,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2016-11-04T15:41:58Z",
+      "side": 1,
+      "message": "SGTM",
+      "parentUuid": "8b50234a_1bf6ff72",
+      "revId": "fd6447a7ef27236d18a8593e7d1578924a793873",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
