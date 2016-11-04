@@ -146,6 +146,9 @@ public:
     }
 
     static sk_sp<SkSurface> MakeRenderTarget(GrContext* gr, SkBudgeted b, const SkImageInfo& info) {
+        if (!info.width() || !info.height()) {
+            return nullptr;
+        }
         return MakeRenderTarget(gr, b, info, 0, kBottomLeft_GrSurfaceOrigin, nullptr);
     }
 
