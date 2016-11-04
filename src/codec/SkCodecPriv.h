@@ -344,15 +344,13 @@ static inline PackColorProc choose_pack_color_proc(bool isPremul, SkColorType co
     }
 }
 
-static inline bool needs_premul(const SkImageInfo& dstInfo, const SkImageInfo& srcInfo) {
+static inline bool needs_premul(const SkImageInfo& dstInfo, const SkEncodedInfo& encodedInfo) {
     return kPremul_SkAlphaType == dstInfo.alphaType() &&
-           kUnpremul_SkAlphaType == srcInfo.alphaType();
+           SkEncodedInfo::kUnpremul_Alpha == encodedInfo.alpha();
 }
 
-static inline bool needs_color_xform(const SkImageInfo& dstInfo, const SkImageInfo& srcInfo) {
-    // Color xform is necessary in order to correctly perform premultiply in linear space.
-    bool needsPremul = needs_premul(dstInfo, srcInfo);
-
+static inline bool needs_color_xform(const SkImageInfo& dstInfo, const SkImageInfo& srcInfo,
+                                     bool needsPremul) {
     // F16 is by definition a linear space, so we always must perform a color xform.
     bool isF16 = kRGBA_F16_SkColorType == dstInfo.colorType();
 
@@ -402,10 +400,10 @@ static inline bool conversion_possible(const SkImageInfo& dst, const SkImageInfo
         case kIndex_8_SkColorType:
             return kIndex_8_SkColorType == src.colorType();
         case kRGB_565_SkColorType:
-            return kOpaque_SkAlphaType == src.alphaType() && !needs_color_xform(dst, src);
+            return kOpaque_SkAlphaType == src.alphaType() && !needs_color_xform(dst, src, false);
         case kGray_8_SkColorType:
             return kGray_8_SkColorType == src.colorType() &&
-                   kOpaque_SkAlphaType == src.alphaType() && !needs_color_xform(dst, src);
+                   kOpaque_SkAlphaType == src.alphaType() && !needs_color_xform(dst, src, false);
         default:
             return false;
     }
