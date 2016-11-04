@@ -34,6 +34,7 @@ TEST_BUILDERS = {
       'Test-Android-Clang-Nexus7-GPU-Tegra3-arm-Debug-GN_Android',
       'Test-Android-Clang-Nexus9-CPU-Denver-arm64-Debug-GN_Android',
       'Test-Android-Clang-NexusPlayer-CPU-SSE4-x86-Release-GN_Android',
+      'Test-Android-Clang-PixelC-GPU-TegraX1-arm64-Debug-GN_Android',
       'Test-Mac-Clang-MacMini4.1-GPU-GeForce320M-x86_64-Debug',
       'Test-Mac-Clang-MacMini6.2-CPU-AVX-x86_64-Debug',
       'Test-Mac-Clang-MacMini6.2-GPU-HD4000-x86_64-Debug-CommandBuffer',
@@ -105,8 +106,8 @@ def dm_flags(bot):
       else:
         configs.append('nvprdit16')
 
-  # We want to test the OpenGL config not the GLES config on the X1
-  if 'TegraX1' in bot:
+  # We want to test the OpenGL config not the GLES config on the Shield
+  if 'NVIDIA_Shield' in bot:
     configs = [x.replace('gpu', 'gl') for x in configs]
     configs = [x.replace('msaa', 'glmsaa') for x in configs]
     configs = [x.replace('nvpr', 'glnvpr') for x in configs]
@@ -119,10 +120,14 @@ def dm_flags(bot):
   # Test instanced rendering on a limited number of platforms
   if 'Nexus6' in bot:
     configs.append('esinst') # esinst4 isn't working yet on Adreno.
-  elif 'TegraX1' in bot:
+  elif 'NVIDIA_Shield' in bot:
     # Multisampled instanced configs use nvpr.
     configs = [x.replace('glnvpr', 'glinst') for x in configs]
     configs.append('glinst')
+  elif 'PixelC' in bot:
+    # Multisampled instanced configs use nvpr.
+    configs = [x.replace('nvpr', 'esinst') for x in configs]
+    configs.append('esinst')
   elif 'MacMini6.2' in bot:
     configs.extend(['glinst', 'glinst16'])
 
