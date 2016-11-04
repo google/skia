@@ -109,10 +109,10 @@ protected:
 
                     grPaint.addColorFragmentProcessor(std::move(fp));
 
-                    SkAutoTUnref<GrDrawBatch> batch(
+                    sk_sp<GrDrawBatch> batch(
                             GrRectBatchFactory::CreateNonAAFill(grPaint.getColor(), viewMatrix,
                                                                 renderRect, nullptr, nullptr));
-                    renderTargetContext->priv().testingOnly_drawBatch(grPaint, batch);
+                    renderTargetContext->priv().testingOnly_drawBatch(grPaint, batch.get());
 
                     // Draw labels for the input to the processor and the processor to the right of
                     // the test rect. The input label appears above the processor label.

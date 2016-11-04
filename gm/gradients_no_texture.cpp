@@ -215,7 +215,7 @@ class GradientsManyColorsGM : public GM {
     enum {
         W = 800,
     };
-    SkAutoTUnref<SkShader> fShader;
+    sk_sp<SkShader> fShader;
 
     typedef void (*Proc)(ColorPos*);
 public:

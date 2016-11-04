@@ -140,7 +140,7 @@ protected:
         baseBM.peekPixels(&prevPM);
 
         SkSourceGammaTreatment treatment = SkSourceGammaTreatment::kIgnore;
-        SkAutoTUnref<SkMipMap> mm(SkMipMap::Build(baseBM, treatment, nullptr));
+        sk_sp<SkMipMap> mm(SkMipMap::Build(baseBM, treatment, nullptr));
 
         int index = 0;
         SkMipMap::Level level;
@@ -251,7 +251,7 @@ protected:
         SkScalar y = 4;
 
         SkSourceGammaTreatment treatment = SkSourceGammaTreatment::kIgnore;
-        SkAutoTUnref<SkMipMap> mm(SkMipMap::Build(baseBM, treatment, nullptr));
+        sk_sp<SkMipMap> mm(SkMipMap::Build(baseBM, treatment, nullptr));
 
         int index = 0;
         SkMipMap::Level level;

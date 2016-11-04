@@ -182,7 +182,7 @@ static void test_image(SkCanvas* canvas, const SkImageInfo& info) {
     SkBitmap bm;
     bm.allocPixels(info);
 
-    SkAutoTUnref<SkCanvas> newc(make_canvas(bm));
+    sk_sp<SkCanvas> newc(make_canvas(bm));
     if (info.isOpaque()) {
         bm.eraseColor(SK_ColorGREEN);
     } else {
