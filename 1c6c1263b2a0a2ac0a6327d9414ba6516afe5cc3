@@ -22,6 +22,24 @@
       "revId": "1c6c1263b2a0a2ac0a6327d9414ba6516afe5cc3",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "8b50234a_98b17530",
+        "filename": "src/gpu/GrTextureAccess.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 32,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2016-11-04T13:36:42Z",
+      "side": 1,
+      "message": "I thought about this. We certainly can\u0027t assert since the new test deliberately exercises this. I also think that means we shouldn\u0027t unconditionally print. I\u0027ve added debug logging many times to Skia only to later revert it because its persistence annoys me or others and leads to noisy output from test tools with lots of diagnostic stuff that most people don\u0027t care about.\n\nWhat I think would be a good idea is to post a message to our imaginary Skia alerting system a la GL_ARB_debug_output where a client can decide what kinds of diagnostic info to handle and how or if to display it. We actually had something like this but it never took off so after a few years was removed.\n\nSo given all that I sadly conclude the best option is to silently degrade the filtering quality.\n\nThat said, the two most common use cases for drawing textures, drawImage and image shaders, do handle this by copying to a TEXTURE_2D and generating MIPS and we do have a gm that tests that that continues to work.",
+      "parentUuid": "66ba4639_a733d022",
+      "revId": "1c6c1263b2a0a2ac0a6327d9414ba6516afe5cc3",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
