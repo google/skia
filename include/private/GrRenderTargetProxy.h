@@ -18,7 +18,7 @@ class GrTextureProvider;
 // required
 // Beware: the uniqueID of the RenderTargetProxy will usually be different than
 // the uniqueID of the RenderTarget it represents!
-class GrRenderTargetProxy : public GrSurfaceProxy {
+class GrRenderTargetProxy : virtual public GrSurfaceProxy {
 public:
     /**
      * The caller gets the creation ref.
@@ -65,13 +65,14 @@ public:
 
     SkDEBUGCODE(void validate(GrContext*) const;)
 
-private:
+protected:
     // Deferred version
     GrRenderTargetProxy(const GrCaps&, const GrSurfaceDesc&, SkBackingFit, SkBudgeted);
 
     // Wrapped version
     GrRenderTargetProxy(sk_sp<GrRenderTarget> rt);
 
+private:
     size_t onGpuMemorySize() const override;
 
     // For wrapped render targets the actual GrRenderTarget is stored in the GrIORefProxy class.
