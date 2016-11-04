@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "8b50234a_1ea42d43",
+        "filename": "src/codec/SkGifCodec.cpp",
+        "patchSetId": 7
+      },
+      "lineNbr": 536,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2016-11-04T17:33:55Z",
+      "side": 0,
+      "message": "I think we don\u0027t need this anymore.  We should never hit this case on kIndex8 decodes, since we only support kIndex8 on the first frame (where we are always allowed to write transparent pixels).",
+      "range": {
+        "startLine": 536,
+        "startChar": 12,
+        "endLine": 536,
+        "endChar": 74
+      },
+      "revId": "d49128ab8ec6b3aadeb650074ddd8ddbdcce15eb",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "8b50234a_5e9ea5ec",
+        "filename": "src/codec/SkGifCodec.cpp",
+        "patchSetId": 7
+      },
+      "lineNbr": 567,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2016-11-04T17:33:55Z",
+      "side": 0,
+      "message": "Same logic here - no longer need a kIndex8 case?",
+      "range": {
+        "startLine": 567,
+        "startChar": 12,
+        "endLine": 567,
+        "endChar": 38
+      },
+      "revId": "d49128ab8ec6b3aadeb650074ddd8ddbdcce15eb",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}

@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "8b50234a_3e2931bc",
+        "filename": "src/codec/SkCodecPriv.h",
+        "patchSetId": 7
+      },
+      "lineNbr": 349,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2016-11-04T17:33:55Z",
+      "side": 1,
+      "message": "This saves us from doing a premultiply in the \"binary\" alpha case.",
+      "range": {
+        "startLine": 349,
+        "startChar": 11,
+        "endLine": 349,
+        "endChar": 64
+      },
+      "revId": "5667c8427e93baf7eecdba3b47a5b1fb227dc1a5",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "8b50234a_1e454d8c",
+        "filename": "src/codec/SkGifCodec.cpp",
+        "patchSetId": 7
+      },
+      "lineNbr": 595,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2016-11-04T17:33:55Z",
+      "side": 1,
+      "message": "Woohoo this was easier than I expected.  I forgot that GIF pixels are always opaque or transparent - so no blending :).",
+      "range": {
+        "startLine": 595,
+        "startChar": 12,
+        "endLine": 595,
+        "endChar": 39
+      },
+      "revId": "5667c8427e93baf7eecdba3b47a5b1fb227dc1a5",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
