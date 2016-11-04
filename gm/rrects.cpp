@@ -73,11 +73,11 @@ protected:
             paint.setAntiAlias(true);
         }
 
-        static const SkRect kMaxTileBound = SkRect::MakeWH(SkIntToScalar(kTileX),
-                                                           SkIntToScalar(kTileY));
+        const SkRect kMaxTileBound = SkRect::MakeWH(SkIntToScalar(kTileX),
+                                                     SkIntToScalar(kTileY));
 #ifdef SK_DEBUG
-        static const SkRect kMaxImageBound = SkRect::MakeWH(SkIntToScalar(kImageWidth),
-                                                            SkIntToScalar(kImageHeight));
+        const SkRect kMaxImageBound = SkRect::MakeWH(SkIntToScalar(kImageWidth),
+                                                     SkIntToScalar(kImageHeight));
 #endif
 
 #if SK_SUPPORT_GPU
@@ -124,7 +124,7 @@ protected:
 #endif
                     } else if (kBW_Clip_Type == fType || kAA_Clip_Type == fType) {
                         bool aaClip = (kAA_Clip_Type == fType);
-                        canvas->clipRRect(fRRects[curRRect], SkRegion::kReplace_Op, aaClip);
+                        canvas->clipRRect(fRRects[curRRect], aaClip);
                         canvas->drawRect(kMaxTileBound, paint);
                     } else {
                         canvas->drawRRect(fRRects[curRRect], paint);
@@ -168,17 +168,17 @@ protected:
 private:
     Type fType;
 
-    static const int kImageWidth = 640;
-    static const int kImageHeight = 480;
+    static constexpr int kImageWidth = 640;
+    static constexpr int kImageHeight = 480;
 
-    static const int kTileX = 80;
-    static const int kTileY = 40;
+    static constexpr int kTileX = 80;
+    static constexpr int kTileY = 40;
 
-    static const int kNumSimpleCases = 7;
-    static const int kNumComplexCases = 35;
+    static constexpr int kNumSimpleCases = 7;
+    static constexpr int kNumComplexCases = 35;
     static const SkVector gRadii[kNumComplexCases][4];
 
-    static const int kNumRRects = kNumSimpleCases + kNumComplexCases;
+    static constexpr int kNumRRects = kNumSimpleCases + kNumComplexCases;
     SkRRect fRRects[kNumRRects];
 
     typedef GM INHERITED;

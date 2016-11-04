@@ -48,6 +48,8 @@ DEFINE_bool(releaseAndAbandonGpuContext, false,
 
 DEFINE_string(skps, "skps", "Directory to read skps from.");
 
+DEFINE_string(svgs, "", "Directory to read SVGs from, or a single SVG file.");
+
 DEFINE_int32(threads, -1, "Run threadsafe tests on a threadpool with this many extra threads, "
                           "defaulting to one extra thread per core.");
 

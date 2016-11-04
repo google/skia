@@ -18,7 +18,7 @@ Begin by following the instructions to
 <!--?prettify lang=sh?-->
 
     # Build.
-    ninja -C out/Release/skiaserve
+    ninja -C out/Release skiaserve
 
     # Run the debugger locally
     out/Release/skiaserve

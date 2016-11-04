@@ -92,7 +92,7 @@ public:
         return this;
     }
 
-    SkOpPtT* addT(double t, bool* allocated);
+    SkOpPtT* addT(double t);
 
     template<typename T> T* allocateArray(int count) {
         return SkOpTAllocator<T>::AllocateArray(this->globalState()->allocator(), count);
@@ -107,7 +107,7 @@ public:
     }
 
     void calcAngles();
-    bool collapsed() const;
+    bool collapsed(double startT, double endT) const;
     static void ComputeOneSum(const SkOpAngle* baseAngle, SkOpAngle* nextAngle,
                               SkOpAngle::IncludeType );
     static void ComputeOneSumReverse(SkOpAngle* baseAngle, SkOpAngle* nextAngle,
@@ -128,28 +128,30 @@ public:
     }
 
     void debugAddAngle(double startT, double endT);
-    const SkOpPtT* debugAddT(double t, bool* allocated) const;
+#if DEBUG_COIN
+    const SkOpPtT* debugAddT(double t, SkPathOpsDebug::GlitchLog* ) const;
+#endif
     const SkOpAngle* debugAngle(int id) const;
 #if DEBUG_ANGLE
     void debugCheckAngleCoin() const;
 #endif
-#if DEBUG_COINCIDENCE_VERBOSE
-    void debugCheckHealth(const char* id, SkPathOpsDebug::GlitchLog* ) const;
-    void debugClearAll(const char* id, SkPathOpsDebug::GlitchLog* glitches) const;
-    void debugClearOne(const SkOpSpan* span, const char* id, SkPathOpsDebug::GlitchLog* glitches) const;
+#if DEBUG_COIN
+    void debugCheckHealth(SkPathOpsDebug::GlitchLog* ) const;
+    void debugClearAll(SkPathOpsDebug::GlitchLog* glitches) const;
+    void debugClearOne(const SkOpSpan* span, SkPathOpsDebug::GlitchLog* glitches) const;
 #endif
     const SkOpCoincidence* debugCoincidence() const;
-    SkOpContour* debugContour(int id);
+    SkOpContour* debugContour(int id) const;
 
     int debugID() const {
         return SkDEBUGRELEASE(fID, -1);
     }
 
     SkOpAngle* debugLastAngle();
-#if DEBUG_COINCIDENCE_VERBOSE
-    void debugMissingCoincidence(const char* id, SkPathOpsDebug::GlitchLog* glitches) const;
-    void debugMoveMultiples(const char* id, SkPathOpsDebug::GlitchLog* glitches) const;
-    void debugMoveNearby(const char* id, SkPathOpsDebug::GlitchLog* glitches) const;
+#if DEBUG_COIN
+    void debugMissingCoincidence(SkPathOpsDebug::GlitchLog* glitches) const;
+    void debugMoveMultiples(SkPathOpsDebug::GlitchLog* glitches) const;
+    void debugMoveNearby(SkPathOpsDebug::GlitchLog* glitches) const;
 #endif
     const SkOpPtT* debugPtT(int id) const;
     void debugReset();
@@ -166,8 +168,13 @@ public:
     const SkOpSpanBase* debugSpan(int id) const;
     void debugValidate() const;
 
-#if DEBUG_COINCIDENCE
-    static void SkOpSegment::DebugClearVisited(const SkOpSpanBase* span);
+#if DEBUG_COINCIDENCE_ORDER
+    void debugResetCoinT() const; 
+    void debugSetCoinT(int, SkScalar ) const; 
+#endif
+
+#if DEBUG_COIN
+    static void DebugClearVisited(const SkOpSpanBase* span);
 
     bool debugVisited() const {
         if (!fDebugVisited) {
@@ -178,8 +185,9 @@ public:
     }
 #endif
 
-    void release(const SkOpSpan* );
+#if DEBUG_ANGLE
     double distSq(double t, const SkOpAngle* opp) const;
+#endif
 
     bool done() const {
         SkOPASSERT(fDoneCount <= fCount);
@@ -226,7 +234,9 @@ public:
     void init(SkPoint pts[], SkScalar weight, SkOpContour* parent, SkPath::Verb verb);
 
     SkOpSpan* insert(SkOpSpan* prev) {
-        SkOpSpan* result = SkOpTAllocator<SkOpSpan>::Allocate(this->globalState()->allocator());
+        SkOpGlobalState* globalState = this->globalState();
+        globalState->setAllocatedOpSpan();
+        SkOpSpan* result = SkOpTAllocator<SkOpSpan>::Allocate(globalState->allocator());
         SkOpSpanBase* next = prev->next();
         result->setPrev(prev);
         prev->setNext(result);
@@ -257,6 +267,10 @@ public:
     }
 
     bool isXor() const;
+
+    void joinEnds(SkOpSegment* start) {
+        fTail.ptT()->addOpp(start->fHead.ptT(), start->fHead.ptT());
+    }
 
     const SkPoint& lastPt() const {
         return fPts[SkPathOpsVerbToPoints(fVerb)];
@@ -317,17 +331,12 @@ public:
         return ptsDisjoint(span.fT, span.fPt, t, pt);
     }
 
-    bool ptsDisjoint(const SkOpSpanBase* span, const SkOpSpanBase* test) const {
-        SkASSERT(this == span->segment());
-        SkASSERT(this == test->segment());
-        return ptsDisjoint(span->t(), span->pt(), test->t(), test->pt());
-    }
-
     bool ptsDisjoint(double t1, const SkPoint& pt1, double t2, const SkPoint& pt2) const;
 
     void rayCheck(const SkOpRayHit& base, SkOpRayDir dir, SkOpRayHit** hits, SkChunkAlloc*);
+    void release(const SkOpSpan* );
 
-#if DEBUG_COINCIDENCE
+#if DEBUG_COIN
     void resetDebugVisited() const {
         fDebugVisited = false;
     }
@@ -377,7 +386,6 @@ public:
     }
 
     bool subDivide(const SkOpSpanBase* start, const SkOpSpanBase* end, SkDCurve* result) const;
-    bool subDivide(const SkOpSpanBase* start, const SkOpSpanBase* end, SkOpCurve* result) const;
 
     const SkOpSpanBase* tail() const {
         return &fTail;
@@ -433,8 +441,16 @@ private:
     int fDoneCount;  // number of processed spans (zero initially)
     SkPath::Verb fVerb;
     bool fVisited;  // used by missing coincidence check
-#if DEBUG_COINCIDENCE
+#if DEBUG_COIN
     mutable bool fDebugVisited;  // used by debug missing coincidence check
+#endif
+#if DEBUG_COINCIDENCE_ORDER
+    mutable int fDebugBaseIndex;
+    mutable SkScalar fDebugBaseMin;  // if > 0, the 1st t value in this seg vis-a-vis the ref seg
+    mutable SkScalar fDebugBaseMax;
+    mutable int fDebugLastIndex;
+    mutable SkScalar fDebugLastMin;  // if > 0, the last t -- next t val - base has same sign
+    mutable SkScalar fDebugLastMax;
 #endif
     SkDEBUGCODE(int fID);
 };

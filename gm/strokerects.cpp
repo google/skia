@@ -16,8 +16,8 @@ namespace skiagm {
 #define H   400
 #define N   100
 
-static const SkScalar SW = SkIntToScalar(W);
-static const SkScalar SH = SkIntToScalar(H);
+constexpr SkScalar SW = SkIntToScalar(W);
+constexpr SkScalar SH = SkIntToScalar(H);
 
 class StrokeRectsGM : public GM {
 public:

@@ -22,6 +22,11 @@ struct SkCpu {
         F16C  = 1 << 7,
         FMA   = 1 << 8,
         AVX2  = 1 << 9,
+        BMI1  = 1 << 10,
+        BMI2  = 1 << 11,
+
+        // Handy alias for all the cool Haswell+ instructions.
+        HSW = AVX2 | BMI1 | BMI2 | F16C | FMA,
     };
     enum {
         NEON     = 1 << 0,
@@ -80,7 +85,7 @@ inline bool SkCpu::Supports(uint32_t mask) {
     features |= NEON|NEON_FMA|VFP_FP16;
     #endif
 
-    #if defined(__ARM_FEATURE_CRC32)
+    #if defined(SK_ARM_HAS_CRC32)
     features |= CRC32;
     #endif
 

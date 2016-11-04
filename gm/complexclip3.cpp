@@ -10,7 +10,7 @@
 
 namespace skiagm {
 
-static const SkColor gPathColor = SK_ColorYELLOW;
+constexpr SkColor gPathColor = SK_ColorYELLOW;
 
 class ComplexClip3GM : public GM {
 public:
@@ -51,15 +51,15 @@ protected:
         sk_tool_utils::set_portable_typeface(&paint);
         paint.setTextSize(SkIntToScalar(20));
 
-        static const struct {
-            SkRegion::Op fOp;
-            const char*  fName;
+        constexpr struct {
+            SkCanvas::ClipOp fOp;
+            const char*      fName;
         } gOps[] = {
-            {SkRegion::kIntersect_Op,         "I"},
-            {SkRegion::kDifference_Op,        "D" },
-            {SkRegion::kUnion_Op,             "U"},
-            {SkRegion::kXOR_Op,               "X"  },
-            {SkRegion::kReverseDifference_Op, "R"}
+            {SkCanvas::kIntersect_Op,         "I"},
+            {SkCanvas::kDifference_Op,        "D" },
+            {SkCanvas::kUnion_Op,             "U"},
+            {SkCanvas::kXOR_Op,               "X"  },
+            {SkCanvas::kReverseDifference_Op, "R"}
         };
 
         canvas->translate(SkIntToScalar(20), SkIntToScalar(20));
@@ -84,7 +84,7 @@ protected:
                                                SkPath::kEvenOdd_FillType);
                         secondClip->setFillType(doInvB ? SkPath::kInverseEvenOdd_FillType :
                                                 SkPath::kEvenOdd_FillType);
-                        canvas->clipPath(*firstClip, SkRegion::kIntersect_Op, doAAA);
+                        canvas->clipPath(*firstClip, doAAA);
                         canvas->clipPath(*secondClip, gOps[op].fOp, doAAB);
 
                         // draw rect clipped

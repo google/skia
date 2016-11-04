@@ -652,6 +652,11 @@ void SkSVGDevice::drawPath(const SkDraw& draw, const SkPath& path, const SkPaint
                            const SkMatrix* prePathMatrix, bool pathIsMutable) {
     AutoElement elem("path", fWriter, fResourceBucket, draw, paint);
     elem.addPathAttributes(path);
+
+    // TODO: inverse fill types?
+    if (path.getFillType() == SkPath::kEvenOdd_FillType) {
+        elem.addAttribute("fill-rule", "evenodd");
+    }
 }
 
 void SkSVGDevice::drawBitmapCommon(const SkDraw& draw, const SkBitmap& bm,
@@ -721,11 +726,9 @@ void SkSVGDevice::drawBitmapRect(const SkDraw& draw, const SkBitmap& bm, const S
 
     SkClipStack adjustedClipStack;
     if (srcOrNull && *srcOrNull != SkRect::Make(bm.bounds())) {
-        SkRect devClipRect;
-        draw.fMatrix->mapRect(&devClipRect, dst);
-
         adjustedClipStack = *draw.fClipStack;
-        adjustedClipStack.clipDevRect(devClipRect, SkRegion::kIntersect_Op, paint.isAntiAlias());
+        adjustedClipStack.clipRect(dst, *draw.fMatrix, SkCanvas::kIntersect_Op,
+                                   paint.isAntiAlias());
         adjustedDraw.fClipStack = &adjustedClipStack;
     }
 

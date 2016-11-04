@@ -184,7 +184,7 @@
             [ 'skia_os == "win"', {
              'variables': {
                 'vulkan_lib_name': '-lvulkan-1',
-                'vulkan_sdk_path' : '<!(echo %VK_SDK_PATH%)',
+                'vulkan_sdk_path' : '<!(echo %VULKAN_SDK%)',
               },
               'include_dirs': [
                 '<(vulkan_sdk_path)/Include',

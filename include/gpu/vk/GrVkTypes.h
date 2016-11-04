@@ -34,6 +34,11 @@ struct GrVkAlloc {
     VkDeviceMemory fMemory;  // can be VK_NULL_HANDLE iff Tex is an RT and uses borrow semantics
     VkDeviceSize   fOffset;
     VkDeviceSize   fSize;    // this can be indeterminate iff Tex uses borrow semantics
+    uint32_t       fFlags;
+
+    enum Flag {
+        kNoncoherent_Flag = 0x1,   // memory must be flushed to device after mapping
+    };
 };
 
 struct GrVkImageInfo {

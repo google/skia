@@ -8,7 +8,7 @@
 #ifndef SkPEG_DEFINED
 #define SkPEG_DEFINED
 
-#include "SkTDArray.h"
+#include "SkTArray.h"
 #include "SkTLazy.h"
 
 namespace skpeg {
@@ -172,17 +172,17 @@ struct Choice {
 template <typename E>
 struct Any {
     struct V {
-        V(SkTDArray<typename E::V>&& vs) : fValues(vs) {}
+        V(SkTArray<typename E::V>&& vs) : fValues(vs) {}
 
-        SkTDArray<typename E::V> fValues;
+        SkTArray<typename E::V> fValues;
     };
     using MatchT = MatchResult<V>;
 
     static MatchT Match(const char* in) {
-        SkTDArray<typename E::V> values;
+        SkTArray<typename E::V> values;
         while (const auto m = E::Match(in)) {
             in = m.fNext;
-            *values.append() = *m;
+            values.push_back(*m);
         }
         return MatchT(in, std::move(values));
     }

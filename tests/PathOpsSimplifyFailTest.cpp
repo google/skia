@@ -87,10 +87,8 @@ static void dontFailOne(skiatest::Reporter* reporter, int index) {
     SkPath result;
     result.setFillType(SkPath::kWinding_FillType);
     bool success = Simplify(path, &result);
-    if (index != 17 && index != 31 && index != 38) {  // cubic fails to chop in two without creating NaNs
-        REPORTER_ASSERT(reporter, success);
-        REPORTER_ASSERT(reporter, result.getFillType() != SkPath::kWinding_FillType);
-    }
+    REPORTER_ASSERT(reporter, success);
+    REPORTER_ASSERT(reporter, result.getFillType() != SkPath::kWinding_FillType);
     reporter->bumpTestCount();
 }
 
@@ -103,7 +101,7 @@ static void fuzz_59(skiatest::Reporter* reporter, const char* filename) {
     path.lineTo(SkBits2Float(0x428c0000), SkBits2Float(0xce58f419));  // 70, -9.09969e+08f
     path.lineTo(SkBits2Float(0x430c0000), SkBits2Float(0xce58f41c));  // 140, -9.09969e+08f
     path.close();
-    testSimplifyCheck(reporter, path, filename, true);
+    testSimplifyFuzz(reporter, path, filename);
 }
 
 static void fuzz_x1(skiatest::Reporter* reporter, const char* filename) {
@@ -154,14 +152,14 @@ path.quadTo(SkBits2Float(0xe93ae9e9), SkBits2Float(0xe964b6e9), SkBits2Float(0x0
 path.moveTo(SkBits2Float(0x64b6b6b6), SkBits2Float(0xe9e9e900));  // 2.69638e+22f, -3.53475e+25f
 path.quadTo(SkBits2Float(0xb6b6b6e9), SkBits2Float(0xb6b6b6b6), SkBits2Float(0xe9e9b6ce), SkBits2Float(0xe9e93ae9));  // -5.44532e-06f, -5.44529e-06f, -3.53179e+25f, -3.52447e+25f
 
-    testSimplify(reporter, path, filename);
+    testSimplifyFuzz(reporter, path, filename);
 }
 
 
 #define TEST(test) test(reporter, #test)
 
 DEF_TEST(PathOpsSimplifyFail, reporter) {
-    TEST(fuzz763_1),
+    TEST(fuzz763_1);
     TEST(fuzz_x2);
     TEST(fuzz_x1);
     TEST(fuzz_59);

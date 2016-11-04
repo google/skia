@@ -365,8 +365,7 @@ public:
 
     /** Drawing params for which a deferred texture image data should be optimized. */
     struct DeferredTextureImageUsageParams {
-        DeferredTextureImageUsageParams() : fPreScaleMipLevel(0) {}
-        DeferredTextureImageUsageParams(const SkMatrix matrix, const SkFilterQuality quality, 
+        DeferredTextureImageUsageParams(const SkMatrix matrix, const SkFilterQuality quality,
                                         int preScaleMipLevel)
             : fMatrix(matrix), fQuality(quality), fPreScaleMipLevel(preScaleMipLevel) {}
         SkMatrix        fMatrix;
@@ -397,7 +396,9 @@ public:
     size_t getDeferredTextureImageData(const GrContextThreadSafeProxy&,
                                        const DeferredTextureImageUsageParams[],
                                        int paramCnt,
-                                       void* buffer) const;
+                                       void* buffer,
+                                       SkSourceGammaTreatment treatment =
+                                       SkSourceGammaTreatment::kIgnore) const;
 
     /**
      * Returns a texture-backed image from data produced in SkImage::getDeferredTextureImageData.
@@ -470,7 +471,7 @@ protected:
 private:
     static sk_sp<SkImage> MakeTextureFromMipMap(GrContext*, const SkImageInfo&,
                                                 const GrMipLevel* texels, int mipLevelCount,
-                                                SkBudgeted);
+                                                SkBudgeted, SkSourceGammaTreatment);
 
     const int       fWidth;
     const int       fHeight;

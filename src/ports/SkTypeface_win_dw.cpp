@@ -331,6 +331,10 @@ SkAdvancedTypefaceMetrics* DWriteFontTypeface::onGetAdvancedTypefaceMetrics(
     info->fEmSize = dwfm.designUnitsPerEm;
     info->fLastGlyphID = SkToU16(glyphCount - 1);
 
+    info->fAscent = SkToS16(dwfm.ascent);
+    info->fDescent = SkToS16(dwfm.descent);
+    info->fCapHeight = SkToS16(dwfm.capHeight);
+
     // SkAdvancedTypefaceMetrics::fFontName is in theory supposed to be
     // the PostScript name of the font. However, due to the way it is currently
     // used, it must actually be a family name.
@@ -350,14 +354,15 @@ SkAdvancedTypefaceMetrics* DWriteFontTypeface::onGetAdvancedTypefaceMetrics(
     }
 
     DWRITE_FONT_FACE_TYPE fontType = fDWriteFontFace->GetType();
-    if (fontType == DWRITE_FONT_FACE_TYPE_TRUETYPE ||
-        fontType == DWRITE_FONT_FACE_TYPE_TRUETYPE_COLLECTION) {
-        info->fType = SkAdvancedTypefaceMetrics::kTrueType_Font;
-    } else {
-        info->fAscent = dwfm.ascent;
-        info->fDescent = dwfm.descent;
-        info->fCapHeight = dwfm.capHeight;
+    if (fontType != DWRITE_FONT_FACE_TYPE_TRUETYPE &&
+        fontType != DWRITE_FONT_FACE_TYPE_TRUETYPE_COLLECTION)
+    {
         return info;
+    }
+
+    // Simulated fonts aren't really TrueType fonts.
+    if (fDWriteFontFace->GetSimulations() == DWRITE_FONT_SIMULATIONS_NONE) {
+        info->fType = SkAdvancedTypefaceMetrics::kTrueType_Font;
     }
 
     AutoTDWriteTable<SkOTTableHead> headTable(fDWriteFontFace.get());
@@ -365,9 +370,6 @@ SkAdvancedTypefaceMetrics* DWriteFontTypeface::onGetAdvancedTypefaceMetrics(
     AutoTDWriteTable<SkOTTableHorizontalHeader> hheaTable(fDWriteFontFace.get());
     AutoTDWriteTable<SkOTTableOS2> os2Table(fDWriteFontFace.get());
     if (!headTable.fExists || !postTable.fExists || !hheaTable.fExists || !os2Table.fExists) {
-        info->fAscent = dwfm.ascent;
-        info->fDescent = dwfm.descent;
-        info->fCapHeight = dwfm.capHeight;
         return info;
     }
 
@@ -405,10 +407,6 @@ SkAdvancedTypefaceMetrics* DWriteFontTypeface::onGetAdvancedTypefaceMetrics(
     }
 
     info->fItalicAngle = SkEndian_SwapBE32(postTable->italicAngle) >> 16;
-
-    info->fAscent = SkToS16(dwfm.ascent);
-    info->fDescent = SkToS16(dwfm.descent);
-    info->fCapHeight = SkToS16(dwfm.capHeight);
 
     info->fBBox = SkIRect::MakeLTRB((int32_t)SkEndian_SwapBE16((uint16_t)headTable->xMin),
                                     (int32_t)SkEndian_SwapBE16((uint16_t)headTable->yMax),

@@ -12,6 +12,7 @@
 
 #if SK_SUPPORT_GPU
 
+#include "GrColorSpaceXform.h"
 #include "GrCoordTransform.h"
 #include "GrFragmentProcessor.h"
 #include "GrProcessorUnitTest.h"
@@ -20,6 +21,7 @@ class GrAlphaThresholdFragmentProcessor : public GrFragmentProcessor {
 
 public:
     static sk_sp<GrFragmentProcessor> Make(GrTexture* texture,
+                                           sk_sp<GrColorSpaceXform> colorSpaceXform,
                                            GrTexture* maskTexture,
                                            float innerThreshold,
                                            float outerThreshold,
@@ -30,8 +32,11 @@ public:
     float innerThreshold() const { return fInnerThreshold; }
     float outerThreshold() const { return fOuterThreshold; }
 
+    GrColorSpaceXform* colorSpaceXform() const { return fColorSpaceXform.get(); }
+
 private:
     GrAlphaThresholdFragmentProcessor(GrTexture* texture,
+                                      sk_sp<GrColorSpaceXform> colorSpaceXform,
                                       GrTexture* maskTexture,
                                       float innerThreshold,
                                       float outerThreshold,
@@ -51,6 +56,8 @@ private:
     float fOuterThreshold;
     GrCoordTransform fImageCoordTransform;
     GrTextureAccess  fImageTextureAccess;
+    // Color space transform is for the image (not the mask)
+    sk_sp<GrColorSpaceXform> fColorSpaceXform;
     GrCoordTransform fMaskCoordTransform;
     GrTextureAccess  fMaskTextureAccess;
 

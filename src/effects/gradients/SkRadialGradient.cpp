@@ -44,7 +44,7 @@ size_t SkRadialGradient::onContextSize(const ContextRec&) const {
 }
 
 SkShader::Context* SkRadialGradient::onCreateContext(const ContextRec& rec, void* storage) const {
-    return new (storage) RadialGradientContext(*this, rec);
+    return CheckedCreateContext<RadialGradientContext>(storage, *this, rec);
 }
 
 SkRadialGradient::RadialGradientContext::RadialGradientContext(
@@ -67,8 +67,9 @@ sk_sp<SkFlattenable> SkRadialGradient::CreateProc(SkReadBuffer& buffer) {
     }
     const SkPoint center = buffer.readPoint();
     const SkScalar radius = buffer.readScalar();
-    return SkGradientShader::MakeRadial(center, radius, desc.fColors, desc.fPos, desc.fCount,
-                                        desc.fTileMode, desc.fGradFlags, desc.fLocalMatrix);
+    return SkGradientShader::MakeRadial(center, radius, desc.fColors, std::move(desc.fColorSpace),
+                                        desc.fPos, desc.fCount, desc.fTileMode, desc.fGradFlags,
+                                        desc.fLocalMatrix);
 }
 
 void SkRadialGradient::flatten(SkWriteBuffer& buffer) const {
@@ -246,11 +247,8 @@ class GrRadialGradient : public GrGradientEffect {
 public:
     class GLSLRadialProcessor;
 
-    static sk_sp<GrFragmentProcessor> Make(GrContext* ctx,
-                                           const SkRadialGradient& shader,
-                                           const SkMatrix& matrix,
-                                           SkShader::TileMode tm) {
-        return sk_sp<GrFragmentProcessor>(new GrRadialGradient(ctx, shader, matrix, tm));
+    static sk_sp<GrFragmentProcessor> Make(const CreateArgs& args) {
+        return sk_sp<GrFragmentProcessor>(new GrRadialGradient(args));
     }
 
     virtual ~GrRadialGradient() { }
@@ -258,11 +256,8 @@ public:
     const char* name() const override { return "Radial Gradient"; }
 
 private:
-    GrRadialGradient(GrContext* ctx,
-                     const SkRadialGradient& shader,
-                     const SkMatrix& matrix,
-                     SkShader::TileMode tm)
-        : INHERITED(ctx, shader, matrix, tm) {
+    GrRadialGradient(const CreateArgs& args)
+        : INHERITED(args) {
         this->initClassID<GrRadialGradient>();
     }
 
@@ -320,8 +315,9 @@ sk_sp<GrFragmentProcessor> GrRadialGradient::TestCreate(GrProcessorTestData* d) 
     int colorCount = RandomGradientParams(d->fRandom, colors, &stops, &tm);
     auto shader = SkGradientShader::MakeRadial(center, radius, colors, stops, colorCount, tm);
     SkMatrix viewMatrix = GrTest::TestMatrix(d->fRandom);
+    auto dstColorSpace = GrTest::TestColorSpace(d->fRandom);
     sk_sp<GrFragmentProcessor> fp = shader->asFragmentProcessor(SkShader::AsFPArgs(
-        d->fContext, &viewMatrix, NULL, kNone_SkFilterQuality, nullptr,
+        d->fContext, &viewMatrix, NULL, kNone_SkFilterQuality, dstColorSpace.get(),
         SkSourceGammaTreatment::kRespect));
     GrAlwaysAssert(fp);
     return fp;
@@ -333,7 +329,7 @@ void GrRadialGradient::GLSLRadialProcessor::emitCode(EmitArgs& args) {
     const GrRadialGradient& ge = args.fFp.cast<GrRadialGradient>();
     this->emitUniforms(args.fUniformHandler, ge);
     SkString t("length(");
-    t.append(args.fFragBuilder->ensureFSCoords2D(args.fCoords, 0));
+    t.append(args.fFragBuilder->ensureCoords2D(args.fTransformedCoords[0]));
     t.append(")");
     this->emitColor(args.fFragBuilder,
                     args.fUniformHandler,
@@ -361,8 +357,11 @@ sk_sp<GrFragmentProcessor> SkRadialGradient::asFragmentProcessor(const AsFPArgs&
         matrix.postConcat(inv);
     }
     matrix.postConcat(fPtsToUnit);
-    sk_sp<GrFragmentProcessor> inner(
-        GrRadialGradient::Make(args.fContext, *this, matrix, fTileMode));
+    sk_sp<GrColorSpaceXform> colorSpaceXform = GrColorSpaceXform::Make(fColorSpace.get(),
+                                                                       args.fDstColorSpace);
+    sk_sp<GrFragmentProcessor> inner(GrRadialGradient::Make(
+        GrGradientEffect::CreateArgs(args.fContext, this, &matrix, fTileMode,
+                                     std::move(colorSpaceXform), SkToBool(args.fDstColorSpace))));
     return GrFragmentProcessor::MulOutputByInputAlpha(std::move(inner));
 }
 

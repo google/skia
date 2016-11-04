@@ -335,7 +335,7 @@ def DumpCompactTree(symbols, symbol_path_origin_dir, ha, ts, issue, gsutil):
     # Use separators without whitespace to get a smaller file.
     json.dump(json_data, out, separators=(',', ':'))
 
-  GS_PREFIX = 'gs://chromium-skia-gm/'
+  GS_PREFIX = 'gs://skia-perf/'
   # Writes to Google Storage for visualization.
   subprocess.check_call(GetGsCopyCommandList(
       gsutil, tmpfile, GS_PREFIX + 'size/' + ha + '.json'))

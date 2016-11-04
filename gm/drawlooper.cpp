@@ -56,7 +56,7 @@ private:
     void init() {
         if (fLooper) return;
 
-        static const struct {
+        constexpr struct {
             SkColor         fColor;
             SkPaint::Style  fStyle;
             SkScalar        fWidth;

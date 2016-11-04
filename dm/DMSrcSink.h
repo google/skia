@@ -249,6 +249,12 @@ private:
 };
 
 #if defined(SK_XML)
+} // namespace DM
+
+class SkSVGDOM;
+
+namespace DM {
+
 class SVGSrc : public Src {
 public:
     explicit SVGSrc(Path path);
@@ -259,7 +265,11 @@ public:
     bool veto(SinkFlags) const override;
 
 private:
-    Path fPath;
+    Error ensureDom() const;
+
+    Path                    fPath;
+    mutable sk_sp<SkSVGDOM> fDom;
+    mutable SkScalar        fScale;
 
     typedef Src INHERITED;
 };
@@ -330,6 +340,15 @@ public:
 
     Error draw(const Src&, SkBitmap*, SkWStream*, SkString*) const override;
     const char* fileExtension() const override { return "xps"; }
+    SinkFlags flags() const override { return SinkFlags{ SinkFlags::kVector, SinkFlags::kDirect }; }
+};
+
+class PipeSink : public Sink {
+public:
+    PipeSink();
+    
+    Error draw(const Src&, SkBitmap*, SkWStream*, SkString*) const override;
+    const char* fileExtension() const override { return "skpipe"; }
     SinkFlags flags() const override { return SinkFlags{ SinkFlags::kVector, SinkFlags::kDirect }; }
 };
 
@@ -405,6 +424,12 @@ public:
 class ViaPicture : public Via {
 public:
     explicit ViaPicture(Sink* sink) : Via(sink) {}
+    Error draw(const Src&, SkBitmap*, SkWStream*, SkString*) const override;
+};
+
+class ViaPipe : public Via {
+public:
+    explicit ViaPipe(Sink* sink) : Via(sink) {}
     Error draw(const Src&, SkBitmap*, SkWStream*, SkString*) const override;
 };
 

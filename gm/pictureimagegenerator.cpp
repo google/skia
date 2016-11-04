@@ -16,10 +16,10 @@
 #include "SkPictureRecorder.h"
 
 static void draw_vector_logo(SkCanvas* canvas, const SkRect& viewBox) {
-    static const char kSkiaStr[] = "SKIA";
-    static const SkScalar kGradientPad = .1f;
-    static const SkScalar kVerticalSpacing = 0.25f;
-    static const SkScalar kAccentScale = 1.20f;
+    constexpr char kSkiaStr[] = "SKIA";
+    constexpr SkScalar kGradientPad = .1f;
+    constexpr SkScalar kVerticalSpacing = 0.25f;
+    constexpr SkScalar kAccentScale = 1.20f;
 
     SkPaint paint;
     paint.setAntiAlias(true);

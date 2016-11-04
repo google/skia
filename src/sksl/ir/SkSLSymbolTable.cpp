@@ -17,7 +17,7 @@ std::vector<const FunctionDeclaration*> SymbolTable::GetFunctions(const Symbol& 
         case Symbol::kUnresolvedFunction_Kind:
             return ((UnresolvedFunction&) s).fFunctions;
         default:
-            return { };
+            return std::vector<const FunctionDeclaration*>();
     }
 }
 

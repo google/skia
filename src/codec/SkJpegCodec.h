@@ -104,10 +104,10 @@ private:
      *
      * Sets the output color space.
      */
-    bool setOutputColorSpace(const SkImageInfo& dst, bool needsColorXform);
+    bool setOutputColorSpace(const SkImageInfo& dst);
 
     void initializeSwizzler(const SkImageInfo& dstInfo, const Options& options);
-    bool initializeColorXform(const SkImageInfo& dstInfo, bool needsColorXform);
+    void initializeColorXform(const SkImageInfo& dstInfo);
     void allocateStorage(const SkImageInfo& dstInfo);
     int readRows(const SkImageInfo& dstInfo, void* dst, size_t rowBytes, int count);
 

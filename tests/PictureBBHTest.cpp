@@ -75,11 +75,9 @@ public:
 
     void doTest(SkCanvas& playbackCanvas, SkCanvas& recordingCanvas) override {
         // intersect with out of bounds rect -> empty clip.
-        playbackCanvas.clipRect(SkRect::MakeXYWH(SkIntToScalar(10), SkIntToScalar(10),
-            SkIntToScalar(1), SkIntToScalar(1)), SkRegion::kIntersect_Op);
+        playbackCanvas.clipRect(SkRect::MakeXYWH(10, 10, 1, 1));
         SkPaint paint;
-        recordingCanvas.drawRect(SkRect::MakeXYWH(SkIntToScalar(0), SkIntToScalar(0),
-            SkIntToScalar(3), SkIntToScalar(3)), paint);
+        recordingCanvas.drawRect(SkRect::MakeWH(3, 3), paint);
     }
 
     virtual ~EmptyClipPictureBBHTest() { }

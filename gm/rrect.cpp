@@ -136,7 +136,7 @@ protected:
     }
 
     void onDraw(SkCanvas* canvas) override {
-        static const InsetProc insetProcs[] = {
+        constexpr InsetProc insetProcs[] = {
             inset0, inset1, inset2, inset3
         };
 

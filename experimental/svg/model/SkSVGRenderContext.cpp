@@ -7,6 +7,7 @@
 
 #include "SkCanvas.h"
 #include "SkSVGAttribute.h"
+#include "SkSVGNode.h"
 #include "SkSVGRenderContext.h"
 #include "SkSVGTypes.h"
 
@@ -98,11 +99,18 @@ SkPaint::Join toSkJoin(const SkSVGLineJoin& join) {
     }
 }
 
-void applySvgPaint(const SkSVGPaint& svgPaint, SkPaint* p) {
+void applySvgPaint(const SkSVGRenderContext& ctx, const SkSVGPaint& svgPaint, SkPaint* p) {
     switch (svgPaint.type()) {
     case SkSVGPaint::Type::kColor:
         p->setColor(SkColorSetA(svgPaint.color(), p->getAlpha()));
         break;
+    case SkSVGPaint::Type::kIRI: {
+        const auto* node = ctx.findNodeById(svgPaint.iri());
+        if (!node || !node->asPaint(ctx, p)) {
+            p->setColor(SK_ColorTRANSPARENT);
+        }
+        break;
+    }
     case SkSVGPaint::Type::kCurrentColor:
         SkDebugf("unimplemented 'currentColor' paint type");
         // Fall through.
@@ -113,36 +121,40 @@ void applySvgPaint(const SkSVGPaint& svgPaint, SkPaint* p) {
     }
 }
 
+inline uint8_t opacity_to_alpha(SkScalar o) {
+    return SkTo<uint8_t>(SkScalarRoundToInt(o * 255));
+}
+
 // Commit the selected attribute to the paint cache.
 template <SkSVGAttribute>
 void commitToPaint(const SkSVGPresentationAttributes&,
-                   const SkSVGLengthContext&,
+                   const SkSVGRenderContext&,
                    SkSVGPresentationContext*);
 
 template <>
 void commitToPaint<SkSVGAttribute::kFill>(const SkSVGPresentationAttributes& attrs,
-                                          const SkSVGLengthContext&,
+                                          const SkSVGRenderContext& ctx,
                                           SkSVGPresentationContext* pctx) {
-    applySvgPaint(*attrs.fFill.get(), &pctx->fFillPaint);
+    applySvgPaint(ctx, *attrs.fFill.get(), &pctx->fFillPaint);
 }
 
 template <>
 void commitToPaint<SkSVGAttribute::kStroke>(const SkSVGPresentationAttributes& attrs,
-                                            const SkSVGLengthContext&,
+                                            const SkSVGRenderContext& ctx,
                                             SkSVGPresentationContext* pctx) {
-    applySvgPaint(*attrs.fStroke.get(), &pctx->fStrokePaint);
+    applySvgPaint(ctx, *attrs.fStroke.get(), &pctx->fStrokePaint);
 }
 
 template <>
 void commitToPaint<SkSVGAttribute::kFillOpacity>(const SkSVGPresentationAttributes& attrs,
-                                                 const SkSVGLengthContext&,
+                                                 const SkSVGRenderContext&,
                                                  SkSVGPresentationContext* pctx) {
-    pctx->fFillPaint.setAlpha(static_cast<uint8_t>(*attrs.fFillOpacity.get() * 255));
+    pctx->fFillPaint.setAlpha(opacity_to_alpha(*attrs.fFillOpacity.get()));
 }
 
 template <>
 void commitToPaint<SkSVGAttribute::kStrokeLineCap>(const SkSVGPresentationAttributes& attrs,
-                                                   const SkSVGLengthContext&,
+                                                   const SkSVGRenderContext&,
                                                    SkSVGPresentationContext* pctx) {
     const auto& cap = *attrs.fStrokeLineCap.get();
     if (cap.type() != SkSVGLineCap::Type::kInherit) {
@@ -152,7 +164,7 @@ void commitToPaint<SkSVGAttribute::kStrokeLineCap>(const SkSVGPresentationAttrib
 
 template <>
 void commitToPaint<SkSVGAttribute::kStrokeLineJoin>(const SkSVGPresentationAttributes& attrs,
-                                                    const SkSVGLengthContext&,
+                                                    const SkSVGRenderContext&,
                                                     SkSVGPresentationContext* pctx) {
     const auto& join = *attrs.fStrokeLineJoin.get();
     if (join.type() != SkSVGLineJoin::Type::kInherit) {
@@ -162,17 +174,17 @@ void commitToPaint<SkSVGAttribute::kStrokeLineJoin>(const SkSVGPresentationAttri
 
 template <>
 void commitToPaint<SkSVGAttribute::kStrokeOpacity>(const SkSVGPresentationAttributes& attrs,
-                                                   const SkSVGLengthContext&,
+                                                   const SkSVGRenderContext&,
                                                    SkSVGPresentationContext* pctx) {
-    pctx->fStrokePaint.setAlpha(static_cast<uint8_t>(*attrs.fStrokeOpacity.get() * 255));
+    pctx->fStrokePaint.setAlpha(opacity_to_alpha(*attrs.fStrokeOpacity.get()));
 }
 
 template <>
 void commitToPaint<SkSVGAttribute::kStrokeWidth>(const SkSVGPresentationAttributes& attrs,
-                                                 const SkSVGLengthContext& lctx,
+                                                 const SkSVGRenderContext& ctx,
                                                  SkSVGPresentationContext* pctx) {
-    auto strokeWidth = lctx.resolve(*attrs.fStrokeWidth.get(),
-                                    SkSVGLengthContext::LengthType::kOther);
+    auto strokeWidth = ctx.lengthContext().resolve(*attrs.fStrokeWidth.get(),
+                                                   SkSVGLengthContext::LengthType::kOther);
     pctx->fStrokePaint.setStrokeWidth(strokeWidth);
 }
 
@@ -189,7 +201,10 @@ SkSVGPresentationContext::SkSVGPresentationContext()
     fStrokePaint.setAntiAlias(true);
 
     // Commit initial values to the paint cache.
-    SkSVGLengthContext dummy(SkSize::Make(0, 0));
+    SkCanvas dummyCanvas(0, 0);
+    SkSVGRenderContext dummy(&dummyCanvas, SkSVGIDMapper(), SkSVGLengthContext(SkSize::Make(0, 0)),
+                             *this);
+
     commitToPaint<SkSVGAttribute::kFill>(fInherited, dummy, this);
     commitToPaint<SkSVGAttribute::kFillOpacity>(fInherited, dummy, this);
     commitToPaint<SkSVGAttribute::kStroke>(fInherited, dummy, this);
@@ -200,15 +215,18 @@ SkSVGPresentationContext::SkSVGPresentationContext()
 }
 
 SkSVGRenderContext::SkSVGRenderContext(SkCanvas* canvas,
+                                       const SkSVGIDMapper& mapper,
                                        const SkSVGLengthContext& lctx,
                                        const SkSVGPresentationContext& pctx)
-    : fLengthContext(lctx)
+    : fIDMapper(mapper)
+    , fLengthContext(lctx)
     , fPresentationContext(pctx)
     , fCanvas(canvas)
     , fCanvasSaveCount(canvas->getSaveCount()) {}
 
 SkSVGRenderContext::SkSVGRenderContext(const SkSVGRenderContext& other)
     : SkSVGRenderContext(other.fCanvas,
+                         other.fIDMapper,
                          *other.fLengthContext,
                          *other.fPresentationContext) {}
 
@@ -216,7 +234,13 @@ SkSVGRenderContext::~SkSVGRenderContext() {
     fCanvas->restoreToCount(fCanvasSaveCount);
 }
 
-void SkSVGRenderContext::applyPresentationAttributes(const SkSVGPresentationAttributes& attrs) {
+const SkSVGNode* SkSVGRenderContext::findNodeById(const SkString& id) const {
+    const auto* v = fIDMapper.find(id);
+    return v ? v->get() : nullptr;
+}
+
+void SkSVGRenderContext::applyPresentationAttributes(const SkSVGPresentationAttributes& attrs,
+                                                     uint32_t flags) {
 
 #define ApplyLazyInheritedAttribute(ATTR)                                               \
     do {                                                                                \
@@ -227,7 +251,7 @@ void SkSVGRenderContext::applyPresentationAttributes(const SkSVGPresentationAttr
             /* Update the local attribute value */                                      \
             fPresentationContext.writable()->fInherited.f ## ATTR.set(*value);          \
             /* Update the cached paints */                                              \
-            commitToPaint<SkSVGAttribute::k ## ATTR>(attrs, *fLengthContext,            \
+            commitToPaint<SkSVGAttribute::k ## ATTR>(attrs, *this,    \
                                                      fPresentationContext.writable());  \
         }                                                                               \
     } while (false)
@@ -245,8 +269,35 @@ void SkSVGRenderContext::applyPresentationAttributes(const SkSVGPresentationAttr
     // Uninherited attributes.  Only apply to the current context.
 
     if (auto* opacity = attrs.fOpacity.getMaybeNull()) {
+        this->applyOpacity(opacity->value(), flags);
+    }
+}
+
+void SkSVGRenderContext::applyOpacity(SkScalar opacity, uint32_t flags) {
+    if (opacity >= 1) {
+        return;
+    }
+
+    const bool hasFill   = SkToBool(this->fillPaint());
+    const bool hasStroke = SkToBool(this->strokePaint());
+
+    // We can apply the opacity as paint alpha iif it only affects one atomic draw.
+    // For now, this means a) the target node doesn't have any descendants, and
+    // b) it only has a stroke or a fill (but not both).  Going forward, we may need
+    // to refine this heuristic (e.g. to accommodate markers).
+    if ((flags & kLeaf) && (hasFill ^ hasStroke)) {
+        auto* pctx = fPresentationContext.writable();
+        if (hasFill) {
+            pctx->fFillPaint.setAlpha(
+                SkScalarRoundToInt(opacity * pctx->fFillPaint.getAlpha()));
+        } else {
+            pctx->fStrokePaint.setAlpha(
+                SkScalarRoundToInt(opacity * pctx->fStrokePaint.getAlpha()));
+        }
+    } else {
+        // Expensive, layer-based fall back.
         SkPaint opacityPaint;
-        opacityPaint.setAlpha(static_cast<uint8_t>(opacity->value() * 255));
+        opacityPaint.setAlpha(opacity_to_alpha(opacity));
         // Balanced in the destructor, via restoreToCount().
         fCanvas->saveLayer(nullptr, &opacityPaint);
     }

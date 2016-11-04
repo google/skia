@@ -25,9 +25,11 @@ public:
         return fDrawContext->getDrawTarget()->instancedRendering();
     }
 
-    void clearStencilClip(const SkIRect& rect, bool insideClip);
+    void clear(const GrFixedClip&, const GrColor, bool canIgnoreClip);
 
-    void stencilRect(const GrFixedClip& clip,
+    void clearStencilClip(const GrFixedClip&, bool insideStencilMask);
+
+    void stencilRect(const GrClip& clip,
                      const GrUserStencilSettings* ss,
                      bool useHWAA,
                      const SkMatrix& viewMatrix,
@@ -38,7 +40,7 @@ public:
                      const SkMatrix& viewMatrix,
                      const GrPath*);
 
-    bool drawAndStencilRect(const GrFixedClip&,
+    bool drawAndStencilRect(const GrClip&,
                             const GrUserStencilSettings*,
                             SkRegion::Op op,
                             bool invert,
@@ -46,7 +48,7 @@ public:
                             const SkMatrix& viewMatrix,
                             const SkRect&);
 
-    bool drawAndStencilPath(const GrFixedClip&,
+    bool drawAndStencilPath(const GrClip&,
                             const GrUserStencilSettings*,
                             SkRegion::Op op,
                             bool invert,

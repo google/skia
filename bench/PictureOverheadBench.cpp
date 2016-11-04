@@ -17,7 +17,7 @@
 template <int kDraws, bool kLite>
 struct PictureOverheadBench : public Benchmark {
     PictureOverheadBench() {
-        fName.appendf("picture_overhead_%d%s\n", kDraws, kLite ? "_lite" : "");
+        fName.appendf("picture_overhead_%d%s", kDraws, kLite ? "_lite" : "");
     }
     const char* onGetName() override { return fName.c_str(); }
     bool isSuitableFor(Backend backend) override { return backend == kNonRendering_Backend; }

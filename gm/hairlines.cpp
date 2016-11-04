@@ -138,9 +138,9 @@ protected:
 
         {
             // Arc example to test imperfect truncation bug (crbug.com/295626)
-            static const SkScalar kRad = SkIntToScalar(2000);
-            static const SkScalar kStartAngle = 262.59717f;
-            static const SkScalar kSweepAngle = SkScalarHalf(17.188717f);
+            constexpr SkScalar kRad = SkIntToScalar(2000);
+            constexpr SkScalar kStartAngle = 262.59717f;
+            constexpr SkScalar kSweepAngle = SkScalarHalf(17.188717f);
 
             SkPath* bug = &fPaths.push_back();
 
@@ -163,8 +163,8 @@ protected:
     }
 
     void onDraw(SkCanvas* canvas) override {
-        static const SkAlpha kAlphaValue[] = { 0xFF, 0x40 };
-        static const SkScalar kWidths[] = { 0, 0.5f, 1.5f };
+        constexpr SkAlpha kAlphaValue[] = { 0xFF, 0x40 };
+        constexpr SkScalar kWidths[] = { 0, 0.5f, 1.5f };
 
         enum {
             kMargin = 5,

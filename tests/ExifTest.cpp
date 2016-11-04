@@ -9,13 +9,8 @@
 #include "SkCodec.h"
 #include "Test.h"
 
-static SkStreamAsset* resource(const char path[]) {
-    SkString fullPath = GetResourcePath(path);
-    return SkStream::NewFromFile(fullPath.c_str());
-}
-
 DEF_TEST(ExifOrientation, r) {
-    SkAutoTDelete<SkStream> stream(resource("exif-orientation-2-ur.jpg"));
+    SkAutoTDelete<SkStream> stream(GetResourceAsStream("exif-orientation-2-ur.jpg"));
     REPORTER_ASSERT(r, nullptr != stream);
     if (!stream) {
         return;
@@ -26,7 +21,7 @@ DEF_TEST(ExifOrientation, r) {
     SkCodec::Origin origin = codec->getOrigin();
     REPORTER_ASSERT(r, SkCodec::kTopRight_Origin == origin);
 
-    stream.reset(resource("mandrill_512_q075.jpg"));
+    stream.reset(GetResourceAsStream("mandrill_512_q075.jpg"));
     codec.reset(SkCodec::NewFromStream(stream.release()));
     REPORTER_ASSERT(r, nullptr != codec);
     origin = codec->getOrigin();

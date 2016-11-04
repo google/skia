@@ -104,28 +104,28 @@ public:
 
         // Explicit bounds.
         {
-            SkAutoTUnref<const SkTextBlob> blob(builder.build());
+            sk_sp<SkTextBlob> blob(builder.make());
             REPORTER_ASSERT(reporter, blob->bounds().isEmpty());
         }
 
         {
             SkRect r1 = SkRect::MakeXYWH(10, 10, 20, 20);
             builder.allocRun(font, 16, 0, 0, &r1);
-            SkAutoTUnref<const SkTextBlob> blob(builder.build());
+            sk_sp<SkTextBlob> blob(builder.make());
             REPORTER_ASSERT(reporter, blob->bounds() == r1);
         }
 
         {
             SkRect r1 = SkRect::MakeXYWH(10, 10, 20, 20);
             builder.allocRunPosH(font, 16, 0, &r1);
-            SkAutoTUnref<const SkTextBlob> blob(builder.build());
+            sk_sp<SkTextBlob> blob(builder.make());
             REPORTER_ASSERT(reporter, blob->bounds() == r1);
         }
 
         {
             SkRect r1 = SkRect::MakeXYWH(10, 10, 20, 20);
             builder.allocRunPos(font, 16, &r1);
-            SkAutoTUnref<const SkTextBlob> blob(builder.build());
+            sk_sp<SkTextBlob> blob(builder.make());
             REPORTER_ASSERT(reporter, blob->bounds() == r1);
         }
 
@@ -138,13 +138,13 @@ public:
             builder.allocRunPosH(font, 16, 0, &r2);
             builder.allocRunPos(font, 16, &r3);
 
-            SkAutoTUnref<const SkTextBlob> blob(builder.build());
+            sk_sp<SkTextBlob> blob(builder.make());
             REPORTER_ASSERT(reporter, blob->bounds() == SkRect::MakeXYWH(0, 5, 65, 65));
         }
 
         {
             // Verify empty blob bounds after building some non-empty blobs.
-            SkAutoTUnref<const SkTextBlob> blob(builder.build());
+            sk_sp<SkTextBlob> blob(builder.make());
             REPORTER_ASSERT(reporter, blob->bounds().isEmpty());
         }
 
@@ -168,7 +168,7 @@ public:
             p.textToGlyphs(txt, txtLen, buffer.glyphs);
 
             memset(buffer.pos, 0, sizeof(SkScalar) * glyphCount * 2);
-            SkAutoTUnref<const SkTextBlob> blob(builder.build());
+            sk_sp<SkTextBlob> blob(builder.make());
             REPORTER_ASSERT(reporter, blob->bounds().isEmpty());
         }
     }
@@ -224,9 +224,9 @@ public:
         AddRun(font, 1, SkTextBlob::kDefault_Positioning, SkPoint::Make(0, 0), builder);
         AddRun(font, 1, SkTextBlob::kHorizontal_Positioning, SkPoint::Make(0, 0), builder);
         AddRun(font, 1, SkTextBlob::kFull_Positioning, SkPoint::Make(0, 0), builder);
-        SkAutoTUnref<const SkTextBlob> blob(builder.build());
+        sk_sp<SkTextBlob> blob(builder.make());
 
-        SkTextBlobRunIterator it(blob);
+        SkTextBlobRunIterator it(blob.get());
         while (!it.done()) {
             SkPaint paint;
             it.applyFontToPaint(&paint);
@@ -278,9 +278,9 @@ private:
             posCount += in[i].count * in[i].pos;
         }
 
-        SkAutoTUnref<const SkTextBlob> blob(builder.build());
+        sk_sp<SkTextBlob> blob(builder.make());
 
-        SkTextBlobRunIterator it(blob);
+        SkTextBlobRunIterator it(blob.get());
         for (unsigned i = 0; i < outCount; ++i) {
             REPORTER_ASSERT(reporter, !it.done());
             REPORTER_ASSERT(reporter, out[i].pos == it.positioning());
@@ -348,4 +348,41 @@ DEF_TEST(TextBlob_builder, reporter) {
 
 DEF_TEST(TextBlob_paint, reporter) {
     TextBlobTester::TestPaintProps(reporter);
+}
+
+DEF_TEST(TextBlob_extended, reporter) {
+    SkTextBlobBuilder textBlobBuilder;
+    SkPaint paint;
+    const char text1[] = "Foo";
+    const char text2[] = "Bar";
+
+    int glyphCount = paint.textToGlyphs(text1, strlen(text1), nullptr);
+    SkAutoTMalloc<uint16_t> glyphs(glyphCount);
+    (void)paint.textToGlyphs(text1, strlen(text1), glyphs.get());
+    paint.setTextEncoding(SkPaint::kGlyphID_TextEncoding);
+
+    auto run = textBlobBuilder.allocRunText(
+            paint, glyphCount, 0, 0, SkToInt(strlen(text2)), SkString(), nullptr);
+    memcpy(run.glyphs, glyphs.get(), sizeof(uint16_t) * glyphCount);
+    memcpy(run.utf8text, text2, strlen(text2));
+    for (int i = 0; i < glyphCount; ++i) {
+        run.clusters[i] = SkTMin(SkToU32(i), SkToU32(strlen(text2)));
+    }
+    sk_sp<SkTextBlob> blob(textBlobBuilder.make());
+    REPORTER_ASSERT(reporter, blob);
+
+    for (SkTextBlobRunIterator it(blob.get()); !it.done(); it.next()) {
+        REPORTER_ASSERT(reporter, it.glyphCount() == (uint32_t)glyphCount);
+        for (uint32_t i = 0; i < it.glyphCount(); ++i) {
+            REPORTER_ASSERT(reporter, it.glyphs()[i] == glyphs[i]);
+        }
+        REPORTER_ASSERT(reporter, SkTextBlob::kDefault_Positioning == it.positioning());
+        REPORTER_ASSERT(reporter, (SkPoint{0.0f, 0.0f}) == it.offset());
+        REPORTER_ASSERT(reporter, it.textSize() > 0);
+        REPORTER_ASSERT(reporter, it.clusters());
+        for (uint32_t i = 0; i < it.glyphCount(); ++i) {
+            REPORTER_ASSERT(reporter, i == it.clusters()[i]);
+        }
+        REPORTER_ASSERT(reporter, 0 == strncmp(text2, it.text(), it.textSize()));
+    }
 }

@@ -8,6 +8,7 @@
 #include "GrSwizzle.h"
 #include "glsl/GrGLSLShaderBuilder.h"
 #include "glsl/GrGLSLCaps.h"
+#include "glsl/GrGLSLColorSpaceXformHelper.h"
 #include "glsl/GrGLSLShaderVar.h"
 #include "glsl/GrGLSLSampler.h"
 #include "glsl/GrGLSLProgramBuilder.h"
@@ -98,17 +99,66 @@ void GrGLSLShaderBuilder::appendTextureLookup(SkString* out,
 
 void GrGLSLShaderBuilder::appendTextureLookup(SamplerHandle samplerHandle,
                                               const char* coordName,
-                                              GrSLType varyingType) {
-    this->appendTextureLookup(&this->code(), samplerHandle, coordName, varyingType);
+                                              GrSLType varyingType,
+                                              GrGLSLColorSpaceXformHelper* colorXformHelper) {
+    if (colorXformHelper && colorXformHelper->getXformMatrix()) {
+        // With a color gamut transform, we need to wrap the lookup in another function call
+        SkString lookup;
+        this->appendTextureLookup(&lookup, samplerHandle, coordName, varyingType);
+        this->appendColorGamutXform(lookup.c_str(), colorXformHelper);
+    } else {
+        this->appendTextureLookup(&this->code(), samplerHandle, coordName, varyingType);
+    }
 }
 
-void GrGLSLShaderBuilder::appendTextureLookupAndModulate(const char* modulation,
-                                                         SamplerHandle samplerHandle,
-                                                         const char* coordName,
-                                                         GrSLType varyingType) {
+void GrGLSLShaderBuilder::appendTextureLookupAndModulate(
+                                                    const char* modulation,
+                                                    SamplerHandle samplerHandle,
+                                                    const char* coordName,
+                                                    GrSLType varyingType,
+                                                    GrGLSLColorSpaceXformHelper* colorXformHelper) {
     SkString lookup;
     this->appendTextureLookup(&lookup, samplerHandle, coordName, varyingType);
-    this->codeAppend((GrGLSLExpr4(modulation) * GrGLSLExpr4(lookup)).c_str());
+    if (colorXformHelper && colorXformHelper->getXformMatrix()) {
+        SkString xform;
+        this->appendColorGamutXform(&xform, lookup.c_str(), colorXformHelper);
+        this->codeAppend((GrGLSLExpr4(modulation) * GrGLSLExpr4(xform)).c_str());
+    } else {
+        this->codeAppend((GrGLSLExpr4(modulation) * GrGLSLExpr4(lookup)).c_str());
+    }
+}
+
+void GrGLSLShaderBuilder::appendColorGamutXform(SkString* out,
+                                                const char* srcColor,
+                                                GrGLSLColorSpaceXformHelper* colorXformHelper) {
+    // Our color is (r, g, b, a), but we want to multiply (r, g, b, 1) by our matrix, then
+    // re-insert the original alpha. The supplied srcColor is likely to be of the form
+    // "texture(...)", and we don't want to evaluate that twice, so wrap everything in a function.
+    static const GrGLSLShaderVar gColorGamutXformArgs[] = {
+        GrGLSLShaderVar("color", kVec4f_GrSLType),
+        GrGLSLShaderVar("xform", kMat44f_GrSLType),
+    };
+    SkString functionBody;
+    // Gamut xform, clamp to destination gamut
+    functionBody.append("\tcolor.rgb = clamp((xform * vec4(color.rgb, 1.0)).rgb, 0.0, 1.0);\n");
+    functionBody.append("\treturn color;");
+    SkString colorGamutXformFuncName;
+    this->emitFunction(kVec4f_GrSLType,
+                       "colorGamutXform",
+                       SK_ARRAY_COUNT(gColorGamutXformArgs),
+                       gColorGamutXformArgs,
+                       functionBody.c_str(),
+                       &colorGamutXformFuncName);
+
+    out->appendf("%s(%s, %s)", colorGamutXformFuncName.c_str(), srcColor,
+                 colorXformHelper->getXformMatrix());
+}
+
+void GrGLSLShaderBuilder::appendColorGamutXform(const char* srcColor,
+                                                GrGLSLColorSpaceXformHelper* colorXformHelper) {
+    SkString xform;
+    this->appendColorGamutXform(&xform, srcColor, colorXformHelper);
+    this->codeAppend(xform.c_str());
 }
 
 void GrGLSLShaderBuilder::appendTexelFetch(SkString* out,

@@ -7,7 +7,7 @@
 
 #include "SkCodecImageGenerator.h"
 
-SkImageGenerator* SkCodecImageGenerator::NewFromEncodedCodec(SkData* data) {
+SkImageGenerator* SkCodecImageGenerator::NewFromEncodedCodec(sk_sp<SkData> data) {
     SkCodec* codec = SkCodec::NewFromData(data);
     if (nullptr == codec) {
         return nullptr;
@@ -24,10 +24,10 @@ static SkImageInfo make_premul(const SkImageInfo& info) {
     return info;
 }
 
-SkCodecImageGenerator::SkCodecImageGenerator(SkCodec* codec, SkData* data)
+SkCodecImageGenerator::SkCodecImageGenerator(SkCodec* codec, sk_sp<SkData> data)
     : INHERITED(make_premul(codec->getInfo()))
     , fCodec(codec)
-    , fData(SkRef(data))
+    , fData(std::move(data))
 {}
 
 SkData* SkCodecImageGenerator::onRefEncodedData(SK_REFENCODEDDATA_CTXPARAM) {

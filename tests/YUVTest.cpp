@@ -12,17 +12,11 @@
 #include "SkYUVSizeInfo.h"
 #include "Test.h"
 
-static SkStreamAsset* resource(const char path[]) {
-    SkString fullPath = GetResourcePath(path);
-    return SkStream::NewFromFile(fullPath.c_str());
-}
-
 static void codec_yuv(skiatest::Reporter* reporter,
                   const char path[],
                   SkISize expectedSizes[3]) {
-    SkAutoTDelete<SkStream> stream(resource(path));
+    SkAutoTDelete<SkStream> stream(GetResourceAsStream(path));
     if (!stream) {
-        INFOF(reporter, "Missing resource '%s'\n", path);
         return;
     }
     SkAutoTDelete<SkCodec> codec(SkCodec::NewFromStream(stream.release()));

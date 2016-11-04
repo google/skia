@@ -23,7 +23,7 @@ sk_codec_t* sk_codec_new_from_stream(sk_stream_t* stream)
 
 sk_codec_t* sk_codec_new_from_data(sk_data_t* data)
 {
-    return ToCodec(SkCodec::NewFromData(AsData(data)));
+    return ToCodec(SkCodec::NewFromData(sk_ref_sp(AsData(data))));
 }
 
 void sk_codec_destroy(sk_codec_t* codec)
@@ -46,9 +46,9 @@ void sk_codec_get_scaled_dimensions(sk_codec_t* codec, float desiredScale, sk_is
     *dimensions = ToISize(AsCodec(codec)->getScaledDimensions(desiredScale));
 }
 
-void sk_codec_get_valid_subset(sk_codec_t* codec, sk_irect_t* desiredSubset)
+bool sk_codec_get_valid_subset(sk_codec_t* codec, sk_irect_t* desiredSubset)
 {
-    AsCodec(codec)->getValidSubset(AsIRect(desiredSubset));
+    return AsCodec(codec)->getValidSubset(AsIRect(desiredSubset));
 }
 
 sk_encoded_format_t sk_codec_get_encoded_format(sk_codec_t* codec)
@@ -60,11 +60,7 @@ sk_codec_result_t sk_codec_get_pixels(sk_codec_t* codec, const sk_imageinfo_t* c
 {
     SkImageInfo info;
     from_c(*cinfo, &info);
-    SkCodec::Options options;
-    if (!from_c(*coptions, &options)) {
-        return INVALID_PARAMETERS_SK_CODEC_RESULT;
-    }
-    return (sk_codec_result_t)AsCodec(codec)->getPixels(info, pixels, rowBytes, &options, ctable, ctableCount);
+    return (sk_codec_result_t)AsCodec(codec)->getPixels(info, pixels, rowBytes, AsCodecOptions(coptions), ctable, ctableCount);
 }
 
 sk_codec_result_t sk_codec_get_pixels_using_defaults(sk_codec_t* codec, const sk_imageinfo_t* cinfo, void* pixels, size_t rowBytes)

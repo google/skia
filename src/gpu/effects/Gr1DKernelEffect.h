@@ -35,7 +35,7 @@ public:
         , fDirection(direction)
         , fRadius(radius) {}
 
-    virtual ~Gr1DKernelEffect() {};
+    virtual ~Gr1DKernelEffect() {}
 
     static int WidthFromRadius(int radius) { return 2 * radius + 1; }
 

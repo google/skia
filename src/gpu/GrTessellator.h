@@ -8,6 +8,7 @@
 #ifndef GrTessellator_DEFINED
 #define GrTessellator_DEFINED
 
+#include "GrColor.h"
 #include "SkPoint.h"
 
 class SkPath;
@@ -23,9 +24,13 @@ namespace GrTessellator {
 
 class VertexAllocator {
 public:
+    VertexAllocator(size_t stride) : fStride(stride) {}
     virtual ~VertexAllocator() {}
-    virtual SkPoint* lock(int vertexCount) = 0;
+    virtual void* lock(int vertexCount) = 0;
     virtual void unlock(int actualCount) = 0;
+    size_t stride() const { return fStride; }
+private:
+    size_t fStride;
 };
 
 struct WindingVertex {
@@ -40,8 +45,9 @@ struct WindingVertex {
 int PathToVertices(const SkPath& path, SkScalar tolerance, const SkRect& clipBounds,
                    WindingVertex** verts);
 
-int PathToTriangles(const SkPath& path, SkScalar tolerance, const SkRect& clipBounds,
-                    VertexAllocator*, bool *isLinear);
+int PathToTriangles(const SkPath& path, SkScalar tolerance, const SkRect& clipBounds, 
+                    VertexAllocator*, bool antialias, const GrColor& color,
+                    bool canTweakAlphaForCoverage, bool *isLinear);
 }
 
 #endif

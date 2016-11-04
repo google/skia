@@ -411,13 +411,29 @@ sk_imagefilter_t* sk_imagefilter_new_tile(
 }
 
 sk_imagefilter_t* sk_imagefilter_new_xfermode(
-    sk_xfermode_mode_t cmode,
+    sk_blendmode_t cmode,
     sk_imagefilter_t* background,
     sk_imagefilter_t* foreground /*NULL*/,
     const sk_imagefilter_croprect_t* cropRect /*NULL*/) {
 
     sk_sp<SkImageFilter> filter = SkXfermodeImageFilter::Make(
-        SkXfermode::Make((SkXfermode::Mode)cmode),
+        (SkBlendMode)cmode,
+        sk_ref_sp(AsImageFilter(background)),
+        sk_ref_sp(AsImageFilter(foreground)),
+        AsImageFilterCropRect(cropRect));
+    return ToImageFilter(filter.release());
+}
+
+SK_API sk_imagefilter_t* sk_imagefilter_new_arithmetic(
+    float k1, float k2, float k3, float k4,
+    bool enforcePMColor,
+    sk_imagefilter_t* background,
+    sk_imagefilter_t* foreground /*NULL*/,
+    const sk_imagefilter_croprect_t* cropRect /*NULL*/) {
+
+    sk_sp<SkImageFilter> filter = SkXfermodeImageFilter::MakeArithmetic(
+        k1, k2, k3, k4,
+        enforcePMColor,
         sk_ref_sp(AsImageFilter(background)),
         sk_ref_sp(AsImageFilter(foreground)),
         AsImageFilterCropRect(cropRect));

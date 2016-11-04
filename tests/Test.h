@@ -43,6 +43,7 @@ public:
     virtual void reportFailed(const skiatest::Failure&) = 0;
     virtual bool allowExtendedTest() const;
     virtual bool verbose() const;
+    virtual void* stats() const { return nullptr; }
 };
 
 #define REPORT_FAILURE(reporter, cond, message) \

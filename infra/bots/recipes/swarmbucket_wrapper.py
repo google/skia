@@ -40,7 +40,6 @@ def checkout_steps(api):
   # all take the default value.
   patch = api.properties.get('patch', True)
   clobber = True if api.properties.get('clobber') else False
-  force = True if api.properties.get('force') else False
   no_shallow = True if api.properties.get('no_shallow') else False
   output_manifest = api.properties.get('output_manifest', False)
   with_branch_heads = api.properties.get('with_branch_heads', False)
@@ -51,8 +50,7 @@ def checkout_steps(api):
   gerrit_no_reset = True if api.properties.get('gerrit_no_reset') else False
 
   # Run bot_update to sync the code and apply a patch if necessary.
-  api.bot_update.ensure_checkout(force=force,
-                                 no_shallow=no_shallow,
+  api.bot_update.ensure_checkout(no_shallow=no_shallow,
                                  patch=patch,
                                  with_branch_heads=with_branch_heads,
                                  output_manifest=output_manifest,

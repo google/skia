@@ -6,7 +6,9 @@
  */
 
 #include "SkCodecPriv.h"
+#include "SkColorSpaceXform.h"
 #include "SkWebpCodec.h"
+#include "SkStreamPriv.h"
 #include "SkTemplates.h"
 
 // A WebP decoder on top of (subset of) libwebp
@@ -36,26 +38,55 @@ bool SkWebpCodec::IsWebp(const void* buf, size_t bytesRead) {
 SkCodec* SkWebpCodec::NewFromStream(SkStream* stream) {
     SkAutoTDelete<SkStream> streamDeleter(stream);
 
-    unsigned char buffer[WEBP_VP8_HEADER_SIZE];
-    SkASSERT(WEBP_VP8_HEADER_SIZE <= SkCodec::MinBufferedBytesNeeded());
+    // Webp demux needs a contiguous data buffer.
+    sk_sp<SkData> data = nullptr;
+    if (stream->getMemoryBase()) {
+        // It is safe to make without copy because we'll hold onto the stream.
+        data = SkData::MakeWithoutCopy(stream->getMemoryBase(), stream->getLength());
+    } else {
+        data = SkCopyStreamToData(stream);
 
-    const size_t bytesPeeked = stream->peek(buffer, WEBP_VP8_HEADER_SIZE);
-    if (bytesPeeked != WEBP_VP8_HEADER_SIZE) {
-        // Use read + rewind as a backup
-        if (stream->read(buffer, WEBP_VP8_HEADER_SIZE) != WEBP_VP8_HEADER_SIZE
-            || !stream->rewind())
+        // If we are forced to copy the stream to a data, we can go ahead and delete the stream.
+        streamDeleter.reset(nullptr);
+    }
+
+    // It's a little strange that the |demux| will outlive |webpData|, though it needs the
+    // pointer in |webpData| to remain valid.  This works because the pointer remains valid
+    // until the SkData is freed.
+    WebPData webpData = { data->bytes(), data->size() };
+    SkAutoTCallVProc<WebPDemuxer, WebPDemuxDelete> demux(WebPDemuxPartial(&webpData, nullptr));
+    if (nullptr == demux) {
         return nullptr;
     }
 
-    WebPBitstreamFeatures features;
-    VP8StatusCode status = WebPGetFeatures(buffer, WEBP_VP8_HEADER_SIZE, &features);
-    if (VP8_STATUS_OK != status) {
-        return nullptr; // Invalid WebP file.
+    WebPChunkIterator chunkIterator;
+    SkAutoTCallVProc<WebPChunkIterator, WebPDemuxReleaseChunkIterator> autoCI(&chunkIterator);
+    sk_sp<SkColorSpace> colorSpace = nullptr;
+    if (WebPDemuxGetChunk(demux, "ICCP", 1, &chunkIterator)) {
+        colorSpace = SkColorSpace::NewICC(chunkIterator.chunk.bytes, chunkIterator.chunk.size);
     }
 
-    // sanity check for image size that's about to be decoded.
+    if (!colorSpace) {
+        colorSpace = SkColorSpace::NewNamed(SkColorSpace::kSRGB_Named);
+    }
+
+    // Since we do not yet support animation, we get the |width|, |height|, |color|, and |alpha|
+    // from the first frame.  It's the only frame we will decode.
+    //
+    // TODO:
+    // When we support animation, we'll want to report the canvas width and canvas height instead.
+    // We can get these from the |demux| directly.
+    // What |color| and |alpha| will we want to report though?  WebP allows different frames
+    // to be encoded in different ways, making the encoded format difficult to describe.
+    WebPIterator frame;
+    SkAutoTCallVProc<WebPIterator, WebPDemuxReleaseIterator> autoFrame(&frame);
+    if (!WebPDemuxGetFrame(demux, 1, &frame)) {
+        return nullptr;
+    }
+
+    // Sanity check for image size that's about to be decoded.
     {
-        const int64_t size = sk_64_mul(features.width, features.height);
+        const int64_t size = sk_64_mul(frame.width, frame.height);
         if (!sk_64_isS32(size)) {
             return nullptr;
         }
@@ -63,6 +94,16 @@ SkCodec* SkWebpCodec::NewFromStream(SkStream* stream) {
         if (sk_64_asS32(size) > (0x7FFFFFFF >> 2)) {
             return nullptr;
         }
+    }
+
+    // TODO:
+    // The only reason we actually need to call WebPGetFeatures() is to get the |features.format|.
+    // This call actually re-reads the frame header.  Should we suggest that libwebp expose
+    // the format on the |frame|?
+    WebPBitstreamFeatures features;
+    VP8StatusCode status = WebPGetFeatures(frame.fragment.bytes, frame.fragment.size, &features);
+    if (VP8_STATUS_OK != status) {
+        return nullptr;
     }
 
     SkEncodedInfo::Color color;
@@ -98,49 +139,9 @@ SkCodec* SkWebpCodec::NewFromStream(SkStream* stream) {
             return nullptr;
     }
 
-    // FIXME (msarett):
-    // Temporary strategy for getting ICC profiles from webps.  Once the incremental decoding
-    // API lands, we will use the WebPDemuxer to manage the entire decode.
-    sk_sp<SkColorSpace> colorSpace = nullptr;
-    const void* memory = stream->getMemoryBase();
-    if (memory) {
-        WebPData data = { (const uint8_t*) memory, stream->getLength() };
-        WebPDemuxState state;
-        SkAutoTCallVProc<WebPDemuxer, WebPDemuxDelete> demux(WebPDemuxPartial(&data, &state));
-
-        WebPChunkIterator chunkIterator;
-        SkAutoTCallVProc<WebPChunkIterator, WebPDemuxReleaseChunkIterator> autoCI(&chunkIterator);
-        if (demux && WebPDemuxGetChunk(demux, "ICCP", 1, &chunkIterator)) {
-            colorSpace = SkColorSpace::NewICC(chunkIterator.chunk.bytes, chunkIterator.chunk.size);
-        }
-    }
-
-    if (!colorSpace) {
-        colorSpace = SkColorSpace::NewNamed(SkColorSpace::kSRGB_Named);
-    }
-
     SkEncodedInfo info = SkEncodedInfo::Make(color, alpha, 8);
-    return new SkWebpCodec(features.width, features.height, info, colorSpace,
-                           streamDeleter.release());
-}
-
-// This version is slightly different from SkCodecPriv's version of conversion_possible. It
-// supports both byte orders for 8888.
-static bool webp_conversion_possible(const SkImageInfo& dst, const SkImageInfo& src) {
-    if (!valid_alpha(dst.alphaType(), src.alphaType())) {
-        return false;
-    }
-
-    switch (dst.colorType()) {
-        // Both byte orders are supported.
-        case kBGRA_8888_SkColorType:
-        case kRGBA_8888_SkColorType:
-            return true;
-        case kRGB_565_SkColorType:
-            return src.alphaType() == kOpaque_SkAlphaType;
-        default:
-            return false;
-    }
+    return new SkWebpCodec(features.width, features.height, info, std::move(colorSpace),
+                           streamDeleter.release(), demux.release(), std::move(data));
 }
 
 SkISize SkWebpCodec::onGetScaledDimensions(float desiredScale) const {
@@ -158,7 +159,6 @@ bool SkWebpCodec::onDimensionsSupported(const SkISize& dim) {
             && dim.height() >= 1 && dim.height() <= info.height();
 }
 
-
 static WEBP_CSP_MODE webp_decode_mode(SkColorType ct, bool premultiply) {
     switch (ct) {
         case kBGRA_8888_SkColorType:
@@ -171,11 +171,6 @@ static WEBP_CSP_MODE webp_decode_mode(SkColorType ct, bool premultiply) {
             return MODE_LAST;
     }
 }
-
-// The WebP decoding API allows us to incrementally pass chunks of bytes as we receive them to the
-// decoder with WebPIAppend. In order to do so, we need to read chunks from the SkStream. This size
-// is arbitrary.
-static const size_t BUFFER_SIZE = 4096;
 
 bool SkWebpCodec::onGetValidSubset(SkIRect* desiredSubset) const {
     if (!desiredSubset) {
@@ -197,9 +192,15 @@ bool SkWebpCodec::onGetValidSubset(SkIRect* desiredSubset) const {
 
 SkCodec::Result SkWebpCodec::onGetPixels(const SkImageInfo& dstInfo, void* dst, size_t rowBytes,
                                          const Options& options, SkPMColor*, int*,
-                                         int* rowsDecoded) {
-    if (!webp_conversion_possible(dstInfo, this->getInfo())) {
+                                         int* rowsDecodedPtr) {
+    if (!conversion_possible(dstInfo, this->getInfo())) {
         return kInvalidConversion;
+    }
+
+    std::unique_ptr<SkColorSpaceXform> colorXform = nullptr;
+    if (needs_color_xform(dstInfo, this->getInfo())) {
+        colorXform = SkColorSpaceXform::New(this->getInfo().colorSpace(), dstInfo.colorSpace());
+        SkASSERT(colorXform);
     }
 
     WebPDecoderConfig config;
@@ -256,40 +257,78 @@ SkCodec::Result SkWebpCodec::onGetPixels(const SkImageInfo& dstInfo, void* dst, 
         config.options.scaled_height = dstDimensions.height();
     }
 
-    config.output.colorspace = webp_decode_mode(dstInfo.colorType(),
-            dstInfo.alphaType() == kPremul_SkAlphaType);
-    config.output.u.RGBA.rgba = (uint8_t*) dst;
-    config.output.u.RGBA.stride = (int) rowBytes;
-    config.output.u.RGBA.size = dstInfo.getSafeSize(rowBytes);
+    // Swizzling between RGBA and BGRA is zero cost in a color transform.  So when we have a
+    // color transform, we should decode to whatever is easiest for libwebp, and then let the
+    // color transform swizzle if necessary.
+    // Lossy webp is encoded as YUV (so RGBA and BGRA are the same cost).  Lossless webp is
+    // encoded as BGRA. This means decoding to BGRA is either faster or the same cost as RGBA.
+    config.output.colorspace = colorXform ? MODE_BGRA :
+            webp_decode_mode(dstInfo.colorType(), dstInfo.alphaType() == kPremul_SkAlphaType);
     config.output.is_external_memory = 1;
+
+    // We will decode the entire image and then perform the color transform.  libwebp
+    // does not provide a row-by-row API.  This is a shame particularly in the F16 case,
+    // where we need to allocate an extra image-sized buffer.
+    SkAutoTMalloc<uint32_t> pixels;
+    if (kRGBA_F16_SkColorType == dstInfo.colorType()) {
+        pixels.reset(dstDimensions.width() * dstDimensions.height());
+        config.output.u.RGBA.rgba = (uint8_t*) pixels.get();
+        config.output.u.RGBA.stride = (int) dstDimensions.width() * sizeof(uint32_t);
+        config.output.u.RGBA.size = config.output.u.RGBA.stride * dstDimensions.height();
+    } else {
+        config.output.u.RGBA.rgba = (uint8_t*) dst;
+        config.output.u.RGBA.stride = (int) rowBytes;
+        config.output.u.RGBA.size = dstInfo.getSafeSize(rowBytes);
+    }
+
+    WebPIterator frame;
+    SkAutoTCallVProc<WebPIterator, WebPDemuxReleaseIterator> autoFrame(&frame);
+    // If this succeeded in NewFromStream(), it should succeed again here.
+    SkAssertResult(WebPDemuxGetFrame(fDemux, 1, &frame));
 
     SkAutoTCallVProc<WebPIDecoder, WebPIDelete> idec(WebPIDecode(nullptr, 0, &config));
     if (!idec) {
         return kInvalidInput;
     }
 
-    SkAutoTMalloc<uint8_t> storage(BUFFER_SIZE);
-    uint8_t* buffer = storage.get();
-    while (true) {
-        const size_t bytesRead = stream()->read(buffer, BUFFER_SIZE);
-        if (0 == bytesRead) {
-            WebPIDecGetRGB(idec, rowsDecoded, NULL, NULL, NULL);
-            return kIncompleteInput;
-        }
+    int rowsDecoded;
+    SkCodec::Result result;
+    switch (WebPIUpdate(idec, frame.fragment.bytes, frame.fragment.size)) {
+        case VP8_STATUS_OK:
+            rowsDecoded = dstInfo.height();
+            result = kSuccess;
+            break;
+        case VP8_STATUS_SUSPENDED:
+            WebPIDecGetRGB(idec, rowsDecodedPtr, nullptr, nullptr, nullptr);
+            rowsDecoded = *rowsDecodedPtr;
+            result = kIncompleteInput;
+            break;
+        default:
+            return kInvalidInput;
+    }
 
-        switch (WebPIAppend(idec, buffer, bytesRead)) {
-            case VP8_STATUS_OK:
-                return kSuccess;
-            case VP8_STATUS_SUSPENDED:
-                // Break out of the switch statement. Continue the loop.
-                break;
-            default:
-                return kInvalidInput;
+    if (colorXform) {
+        SkColorSpaceXform::ColorFormat dstColorFormat = select_xform_format(dstInfo.colorType());
+        SkAlphaType xformAlphaType = select_xform_alpha(dstInfo.alphaType(),
+                                                        this->getInfo().alphaType());
+
+        uint32_t* src = (uint32_t*) config.output.u.RGBA.rgba;
+        size_t srcRowBytes = config.output.u.RGBA.stride;
+        for (int y = 0; y < rowsDecoded; y++) {
+            colorXform->apply(dst, src, dstInfo.width(), dstColorFormat,
+                              SkColorSpaceXform::kBGRA_8888_ColorFormat, xformAlphaType);
+            dst = SkTAddOffset<void>(dst, rowBytes);
+            src = SkTAddOffset<uint32_t>(src, srcRowBytes);
         }
     }
+
+    return result;
 }
 
 SkWebpCodec::SkWebpCodec(int width, int height, const SkEncodedInfo& info,
-                         sk_sp<SkColorSpace> colorSpace, SkStream* stream)
-    : INHERITED(width, height, info, stream, colorSpace)
+                         sk_sp<SkColorSpace> colorSpace, SkStream* stream, WebPDemuxer* demux,
+                         sk_sp<SkData> data)
+    : INHERITED(width, height, info, stream, std::move(colorSpace))
+    , fDemux(demux)
+    , fData(std::move(data))
 {}

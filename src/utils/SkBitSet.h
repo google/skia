@@ -14,9 +14,11 @@
 class SkBitSet {
 public:
     explicit SkBitSet(int numberOfBits) {
-        SkASSERT(numberOfBits > 0);
+        SkASSERT(numberOfBits >= 0);
         fDwordCount = (numberOfBits + 31) / 32;  // Round up size to 32-bit boundary.
-        fBitData.reset((uint32_t*)sk_calloc_throw(fDwordCount * sizeof(uint32_t)));
+        if (fDwordCount > 0) {
+            fBitData.reset((uint32_t*)sk_calloc_throw(fDwordCount * sizeof(uint32_t)));
+        }
     }
 
     SkBitSet(const SkBitSet&) = delete;

@@ -230,15 +230,15 @@ void SkPictureRecord::didTranslateZ(SkScalar z) {
 #endif
 }
 
-static bool regionOpExpands(SkRegion::Op op) {
+static bool clipOpExpands(SkCanvas::ClipOp op) {
     switch (op) {
-        case SkRegion::kUnion_Op:
-        case SkRegion::kXOR_Op:
-        case SkRegion::kReverseDifference_Op:
-        case SkRegion::kReplace_Op:
+        case SkCanvas::kUnion_Op:
+        case SkCanvas::kXOR_Op:
+        case SkCanvas::kReverseDifference_Op:
+        case SkCanvas::kReplace_Op:
             return true;
-        case SkRegion::kIntersect_Op:
-        case SkRegion::kDifference_Op:
+        case SkCanvas::kIntersect_Op:
+        case SkCanvas::kDifference_Op:
             return false;
         default:
             SkDEBUGFAIL("unknown region op");
@@ -279,7 +279,7 @@ void SkPictureRecord::endRecording() {
     this->restoreToCount(fInitialSaveCount);
 }
 
-size_t SkPictureRecord::recordRestoreOffsetPlaceholder(SkRegion::Op op) {
+size_t SkPictureRecord::recordRestoreOffsetPlaceholder(ClipOp op) {
     if (fRestoreOffsetStack.isEmpty()) {
         return -1;
     }
@@ -291,7 +291,7 @@ size_t SkPictureRecord::recordRestoreOffsetPlaceholder(SkRegion::Op op) {
     // restore command is recorded.
     int32_t prevOffset = fRestoreOffsetStack.top();
 
-    if (regionOpExpands(op)) {
+    if (clipOpExpands(op)) {
         // Run back through any previous clip ops, and mark their offset to
         // be 0, disabling their ability to trigger a jump-to-restore, otherwise
         // they could hide this clips ability to expand the clip (i.e. go from
@@ -309,12 +309,12 @@ size_t SkPictureRecord::recordRestoreOffsetPlaceholder(SkRegion::Op op) {
     return offset;
 }
 
-void SkPictureRecord::onClipRect(const SkRect& rect, SkRegion::Op op, ClipEdgeStyle edgeStyle) {
+void SkPictureRecord::onClipRect(const SkRect& rect, SkCanvas::ClipOp op, ClipEdgeStyle edgeStyle) {
     this->recordClipRect(rect, op, kSoft_ClipEdgeStyle == edgeStyle);
     this->INHERITED::onClipRect(rect, op, edgeStyle);
 }
 
-size_t SkPictureRecord::recordClipRect(const SkRect& rect, SkRegion::Op op, bool doAA) {
+size_t SkPictureRecord::recordClipRect(const SkRect& rect, SkCanvas::ClipOp op, bool doAA) {
     // id + rect + clip params
     size_t size = 1 * kUInt32Size + sizeof(rect) + 1 * kUInt32Size;
     // recordRestoreOffsetPlaceholder doesn't always write an offset
@@ -331,12 +331,12 @@ size_t SkPictureRecord::recordClipRect(const SkRect& rect, SkRegion::Op op, bool
     return offset;
 }
 
-void SkPictureRecord::onClipRRect(const SkRRect& rrect, SkRegion::Op op, ClipEdgeStyle edgeStyle) {
+void SkPictureRecord::onClipRRect(const SkRRect& rrect, SkCanvas::ClipOp op, ClipEdgeStyle edgeStyle) {
     this->recordClipRRect(rrect, op, kSoft_ClipEdgeStyle == edgeStyle);
     this->INHERITED::onClipRRect(rrect, op, edgeStyle);
 }
 
-size_t SkPictureRecord::recordClipRRect(const SkRRect& rrect, SkRegion::Op op, bool doAA) {
+size_t SkPictureRecord::recordClipRRect(const SkRRect& rrect, SkCanvas::ClipOp op, bool doAA) {
     // op + rrect + clip params
     size_t size = 1 * kUInt32Size + SkRRect::kSizeInMemory + 1 * kUInt32Size;
     // recordRestoreOffsetPlaceholder doesn't always write an offset
@@ -352,13 +352,13 @@ size_t SkPictureRecord::recordClipRRect(const SkRRect& rrect, SkRegion::Op op, b
     return offset;
 }
 
-void SkPictureRecord::onClipPath(const SkPath& path, SkRegion::Op op, ClipEdgeStyle edgeStyle) {
+void SkPictureRecord::onClipPath(const SkPath& path, SkCanvas::ClipOp op, ClipEdgeStyle edgeStyle) {
     int pathID = this->addPathToHeap(path);
     this->recordClipPath(pathID, op, kSoft_ClipEdgeStyle == edgeStyle);
     this->INHERITED::onClipPath(path, op, edgeStyle);
 }
 
-size_t SkPictureRecord::recordClipPath(int pathID, SkRegion::Op op, bool doAA) {
+size_t SkPictureRecord::recordClipPath(int pathID, SkCanvas::ClipOp op, bool doAA) {
     // op + path index + clip params
     size_t size = 3 * kUInt32Size;
     // recordRestoreOffsetPlaceholder doesn't always write an offset
@@ -374,12 +374,12 @@ size_t SkPictureRecord::recordClipPath(int pathID, SkRegion::Op op, bool doAA) {
     return offset;
 }
 
-void SkPictureRecord::onClipRegion(const SkRegion& region, SkRegion::Op op) {
+void SkPictureRecord::onClipRegion(const SkRegion& region, ClipOp op) {
     this->recordClipRegion(region, op);
     this->INHERITED::onClipRegion(region, op);
 }
 
-size_t SkPictureRecord::recordClipRegion(const SkRegion& region, SkRegion::Op op) {
+size_t SkPictureRecord::recordClipRegion(const SkRegion& region, ClipOp op) {
     // op + clip params + region
     size_t size = 2 * kUInt32Size + region.writeToMemory(nullptr);
     // recordRestoreOffsetPlaceholder doesn't always write an offset
@@ -448,6 +448,16 @@ void SkPictureRecord::onDrawRect(const SkRect& rect, const SkPaint& paint) {
     size_t initialOffset = this->addDraw(DRAW_RECT, &size);
     this->addPaint(paint);
     this->addRect(rect);
+    this->validate(initialOffset, size);
+}
+
+void SkPictureRecord::onDrawRegion(const SkRegion& region, const SkPaint& paint) {
+    // op + paint index + region
+    size_t regionBytes = region.writeToMemory(nullptr);
+    size_t size = 2 * kUInt32Size + regionBytes;
+    size_t initialOffset = this->addDraw(DRAW_REGION, &size);
+    this->addPaint(paint);
+    fWriter.writeRegion(region);
     this->validate(initialOffset, size);
 }
 
@@ -528,7 +538,9 @@ void SkPictureRecord::onDrawImageNine(const SkImage* img, const SkIRect& center,
 void SkPictureRecord::onDrawImageLattice(const SkImage* image, const Lattice& lattice,
                                          const SkRect& dst, const SkPaint* paint) {
     // xCount + xDivs + yCount+ yDivs
-    size_t latticeSize = (1 + lattice.fXCount + 1 + lattice.fYCount) * kUInt32Size;
+    int flagCount = (nullptr == lattice.fFlags) ? 0 : (lattice.fXCount + 1) * (lattice.fYCount + 1);
+    size_t latticeSize = (1 + lattice.fXCount + 1 + lattice.fYCount + 1) * kUInt32Size +
+                         SkAlign4(flagCount * sizeof(SkCanvas::Lattice::Flags)) + sizeof(SkIRect);
 
     // op + paint index + image index + lattice + dst rect
     size_t size = 3 * kUInt32Size + latticeSize + sizeof(dst);
@@ -539,6 +551,10 @@ void SkPictureRecord::onDrawImageLattice(const SkImage* image, const Lattice& la
     fWriter.writePad(lattice.fXDivs, lattice.fXCount * kUInt32Size);
     this->addInt(lattice.fYCount);
     fWriter.writePad(lattice.fYDivs, lattice.fYCount * kUInt32Size);
+    this->addInt(flagCount);
+    fWriter.writePad(lattice.fFlags, flagCount * sizeof(SkCanvas::Lattice::Flags));
+    SkASSERT(lattice.fBounds);
+    this->addIRect(*lattice.fBounds);
     this->addRect(dst);
     this->validate(initialOffset, size);
 }
@@ -666,11 +682,13 @@ void SkPictureRecord::onDrawPicture(const SkPicture* picture, const SkMatrix* ma
 
 void SkPictureRecord::onDrawShadowedPicture(const SkPicture* picture,
                                             const SkMatrix* matrix,
-                                            const SkPaint* paint) {
+                                            const SkPaint* paint,
+                                            const SkShadowParams& params) {
     // op + picture index
     size_t size = 2 * kUInt32Size;
     size_t initialOffset;
 
+    // TODO: handle recording params.
     if (nullptr == matrix && nullptr == paint) {
         initialOffset = this->addDraw(DRAW_PICTURE, &size);
         this->addPicture(picture);
@@ -855,18 +873,24 @@ void SkPictureRecord::onDrawAnnotation(const SkRect& rect, const char key[], SkD
 
 ///////////////////////////////////////////////////////////////////////////////
 
+template <typename T> int find_or_append_uniqueID(SkTDArray<const T*>& array, const T* obj) {
+    int index = array.select([&](const T* elem) {
+        return elem->uniqueID() == obj->uniqueID();
+    });
+    if (index < 0) {
+        index = array.count();
+        *array.append() = SkRef(obj);
+    }
+    return index;
+}
+
 sk_sp<SkSurface> SkPictureRecord::onNewSurface(const SkImageInfo& info, const SkSurfaceProps&) {
     return nullptr;
 }
 
 void SkPictureRecord::addImage(const SkImage* image) {
-    int index = fImageRefs.find(image);
-    if (index >= 0) {
-        this->addInt(index);
-    } else {
-        *fImageRefs.append() = SkRef(image);
-        this->addInt(fImageRefs.count()-1);
-    }
+    // convention for images is 0-based index
+    this->addInt(find_or_append_uniqueID(fImageRefs, image));
 }
 
 void SkPictureRecord::addMatrix(const SkMatrix& matrix) {
@@ -902,14 +926,8 @@ void SkPictureRecord::addPatch(const SkPoint cubics[12]) {
 }
 
 void SkPictureRecord::addPicture(const SkPicture* picture) {
-    int index = fPictureRefs.find(picture);
-    if (index < 0) {    // not found
-        index = fPictureRefs.count();
-        *fPictureRefs.append() = picture;
-        picture->ref();
-    }
     // follow the convention of recording a 1-based index
-    this->addInt(index + 1);
+    this->addInt(find_or_append_uniqueID(fPictureRefs, picture) + 1);
 }
 
 void SkPictureRecord::addDrawable(SkDrawable* drawable) {
@@ -970,12 +988,9 @@ void SkPictureRecord::addText(const void* text, size_t byteLength) {
     fWriter.writePad(text, byteLength);
 }
 
-void SkPictureRecord::addTextBlob(const SkTextBlob *blob) {
-    int index = fTextBlobRefs.count();
-    *fTextBlobRefs.append() = blob;
-    blob->ref();
+void SkPictureRecord::addTextBlob(const SkTextBlob* blob) {
     // follow the convention of recording a 1-based index
-    this->addInt(index + 1);
+    this->addInt(find_or_append_uniqueID(fTextBlobRefs, blob) + 1);
 }
 
 ///////////////////////////////////////////////////////////////////////////////

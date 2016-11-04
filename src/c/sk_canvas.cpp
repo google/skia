@@ -27,8 +27,8 @@ void sk_canvas_restore_to_count(sk_canvas_t* ccanvas, int saveCount) {
     AsCanvas(ccanvas)->restoreToCount(saveCount);
 }
 
-void sk_canvas_draw_color(sk_canvas_t* ccanvas, sk_color_t color, sk_xfermode_mode_t cmode) {
-    AsCanvas(ccanvas)->drawColor(color, (SkXfermode::Mode)cmode);
+void sk_canvas_draw_color(sk_canvas_t* ccanvas, sk_color_t color, sk_blendmode_t cmode) {
+    AsCanvas(ccanvas)->drawColor(color, (SkBlendMode)cmode);
 }
 
 void sk_canvas_draw_points(sk_canvas_t* ccanvas, sk_point_mode_t pointMode, size_t count, const sk_point_t points [], const sk_paint_t* cpaint)
@@ -111,12 +111,12 @@ void sk_canvas_draw_round_rect(sk_canvas_t* ccanvas, const sk_rect_t* crect, flo
     AsCanvas(ccanvas)->drawRoundRect(AsRect(*crect), rx, ry, AsPaint(*cpaint));
 }
 
-void sk_canvas_clip_rect_with_operation(sk_canvas_t* ccanvas, const sk_rect_t* crect, sk_region_op_t op, bool doAA) {
-    AsCanvas(ccanvas)->clipRect(AsRect(*crect), (SkRegion::Op)op, doAA);
+void sk_canvas_clip_rect_with_operation(sk_canvas_t* ccanvas, const sk_rect_t* crect, sk_clipop_t op, bool doAA) {
+    AsCanvas(ccanvas)->clipRect(AsRect(*crect), (SkClipOp)op, doAA);
 }
 
-void sk_canvas_clip_path_with_operation(sk_canvas_t* ccanvas, const sk_path_t* cpath, sk_region_op_t op, bool doAA) {
-    AsCanvas(ccanvas)->clipPath(AsPath(*cpath), (SkRegion::Op)op, doAA);
+void sk_canvas_clip_path_with_operation(sk_canvas_t* ccanvas, const sk_path_t* cpath, sk_clipop_t op, bool doAA) {
+    AsCanvas(ccanvas)->clipPath(AsPath(*cpath), (SkClipOp)op, doAA);
 }
 
 bool sk_canvas_get_clip_bounds(sk_canvas_t* ccanvas, sk_rect_t* cbounds) {
@@ -168,6 +168,10 @@ void sk_canvas_concat(sk_canvas_t* ccanvas, const sk_matrix_t* cmatrix) {
 
 void sk_canvas_clip_rect(sk_canvas_t* ccanvas, const sk_rect_t* crect) {
     AsCanvas(ccanvas)->clipRect(AsRect(*crect));
+}
+
+void sk_canvas_clip_region(sk_canvas_t* ccanvas, const sk_region_t* region, sk_clipop_t op) {
+    AsCanvas(ccanvas)->clipRegion(AsRegion(*region), (SkClipOp)op);
 }
 
 void sk_canvas_clip_path(sk_canvas_t* ccanvas, const sk_path_t* cpath) {
@@ -236,19 +240,17 @@ sk_canvas_t* sk_canvas_new_from_bitmap(const sk_bitmap_t* bitmap) {
 
 void sk_canvas_draw_bitmap_lattice(sk_canvas_t* ccanvas, 
                                    const sk_bitmap_t* bitmap, 
-                                   const int* xDivs, int xCount, const int* yDivs, int yCount, 
-                                   const sk_rect_t* dst, 
+                                   const sk_lattice_t* lattice, 
+                                   const sk_rect_t* dst,
                                    const sk_paint_t* paint) {
-    SkCanvas::Lattice lattice = { xDivs, xCount, yDivs, yCount };
-    AsCanvas(ccanvas)->drawBitmapLattice(AsBitmap(*bitmap), lattice, AsRect(*dst), AsPaint(paint));
+    AsCanvas(ccanvas)->drawBitmapLattice(AsBitmap(*bitmap), AsLattice(*lattice), AsRect(*dst), AsPaint(paint));
 }
 
 void sk_canvas_draw_image_lattice(sk_canvas_t* ccanvas, 
                                   const sk_image_t* image, 
-                                  const int* xDivs, int xCount, const int* yDivs, int yCount, 
-                                  const sk_rect_t* dst, 
+                                  const sk_lattice_t* lattice, 
+                                  const sk_rect_t* dst,
                                   const sk_paint_t* paint) {
-    SkCanvas::Lattice lattice = { xDivs, xCount, yDivs, yCount };
-    AsCanvas(ccanvas)->drawImageLattice(AsImage(image), lattice, AsRect(*dst), AsPaint(paint));
+    AsCanvas(ccanvas)->drawImageLattice(AsImage(image), AsLattice(*lattice), AsRect(*dst), AsPaint(paint));
 }
 

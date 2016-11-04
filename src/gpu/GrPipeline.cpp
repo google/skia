@@ -27,7 +27,7 @@ GrPipeline* GrPipeline::CreateAt(void* memory, const CreateArgs& args,
     pipeline->fRenderTarget.reset(rt);
     SkASSERT(pipeline->fRenderTarget);
     pipeline->fScissorState = *args.fScissor;
-    pipeline->fWindowRects = *args.fWindowRects;
+    pipeline->fWindowRectsState = *args.fWindowRectsState;
     if (builder.hasUserStencilSettings() || args.fHasStencilClip) {
         const GrRenderTargetPriv& rtPriv = rt->renderTargetPriv();
         pipeline->fStencilSettings.reset(*builder.getUserStencil(), args.fHasStencilClip,
@@ -176,15 +176,10 @@ GrPipeline* GrPipeline::CreateAt(void* memory, const CreateArgs& args,
 }
 
 static void add_dependencies_for_processor(const GrFragmentProcessor* proc, GrRenderTarget* rt) {
-    for (int i = 0; i < proc->numChildProcessors(); ++i) {
-        // need to recurse
-        add_dependencies_for_processor(&proc->childProcessor(i), rt);
-    }
-
-    for (int i = 0; i < proc->numTextures(); ++i) {
-        GrTexture* texture = proc->textureAccess(i).getTexture();
+    GrFragmentProcessor::TextureAccessIter iter(proc);
+    while (const GrTextureAccess* access = iter.next()) {
         SkASSERT(rt->getLastDrawTarget());
-        rt->getLastDrawTarget()->addDependency(texture);
+        rt->getLastDrawTarget()->addDependency(access->getTexture());
     }
 }
 
@@ -222,15 +217,14 @@ void GrPipeline::adjustProgramFromOptimizations(const GrPipelineBuilder& pipelin
 
 ////////////////////////////////////////////////////////////////////////////////
 
-bool GrPipeline::AreEqual(const GrPipeline& a, const GrPipeline& b,
-                          bool ignoreCoordTransforms) {
+bool GrPipeline::AreEqual(const GrPipeline& a, const GrPipeline& b) {
     SkASSERT(&a != &b);
 
     if (a.getRenderTarget() != b.getRenderTarget() ||
         a.fFragmentProcessors.count() != b.fFragmentProcessors.count() ||
         a.fNumColorProcessors != b.fNumColorProcessors ||
         a.fScissorState != b.fScissorState ||
-        a.fWindowRects != b.fWindowRects ||
+        !a.fWindowRectsState.cheapEqualTo(b.fWindowRectsState) ||
         a.fFlags != b.fFlags ||
         a.fStencilSettings != b.fStencilSettings ||
         a.fDrawFace != b.fDrawFace ||
@@ -246,7 +240,7 @@ bool GrPipeline::AreEqual(const GrPipeline& a, const GrPipeline& b,
     }
 
     for (int i = 0; i < a.numFragmentProcessors(); i++) {
-        if (!a.getFragmentProcessor(i).isEqual(b.getFragmentProcessor(i), ignoreCoordTransforms)) {
+        if (!a.getFragmentProcessor(i).isEqual(b.getFragmentProcessor(i))) {
             return false;
         }
     }

@@ -454,8 +454,7 @@ path.quadTo(SkBits2Float(0xc2382594), SkBits2Float(0x41a85c76), SkBits2Float(0xc
 path.close();
 
     SkPath path2(path);
-// DEBUG_UNDER_DEVELOPMENT  fuzz763_378a disable expectation check for now
-    testPathOpCheck(reporter, path1, path2, (SkPathOp) 2, filename, !FLAGS_runFail);
+    testPathOp(reporter, path1, path2, (SkPathOp) 2, filename);
 }
 
 
@@ -496,7 +495,7 @@ path.quadTo(SkBits2Float(0xc2382594), SkBits2Float(0x41a85c76), SkBits2Float(0xc
 path.close();
 
     SkPath path2(path);
-    testPathOpCheck(reporter, path1, path2, (SkPathOp) 2, filename, !FLAGS_runFail);
+    testPathOp(reporter, path1, path2, (SkPathOp) 2, filename);
 }
 
 static void fuzz763_8712(skiatest::Reporter* reporter, const char* filename) {
@@ -933,8 +932,7 @@ path.quadTo(SkBits2Float(0x42240000), SkBits2Float(0x41ed7d86), SkBits2Float(0x4
 path.close();
 
     SkPath path2(path);
-// DEBUG_UNDER_DEVELOPMENT  fuzz763_4713 disable expectation check for now
-    testPathOpCheck(reporter, path1, path2, (SkPathOp) 2, filename, !FLAGS_runFail);
+    testPathOp(reporter, path1, path2, (SkPathOp) 2, filename);
 }
 
 static void fuzz763_24588(skiatest::Reporter* reporter, const char* filename) {

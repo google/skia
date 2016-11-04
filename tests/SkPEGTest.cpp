@@ -5,8 +5,10 @@
  * found in the LICENSE file.
  */
 
-#include "SkPEG.h"
 #include "Test.h"
+
+#if defined(SK_XML)
+#include "SkPEG.h"
 
 using namespace skpeg;
 
@@ -298,3 +300,5 @@ DEF_TEST(SkPEG, r) {
     test_AnySome(r);
     test_Complex(r);
 }
+
+#endif // SK_XML

@@ -37,7 +37,7 @@ public:
                                                              std::move(dst)));
     }
 
-    ~GrArithmeticFP() override {};
+    ~GrArithmeticFP() override {}
 
     const char* name() const override { return "Arithmetic"; }
 

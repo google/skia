@@ -62,6 +62,22 @@ public:
         return fCanUseGLSLForShaderModule;
     }
 
+    bool mustDoCopiesFromOrigin() const {
+        return fMustDoCopiesFromOrigin;
+    }
+
+    bool allowInitializationErrorOnTearDown() const {
+        return fAllowInitializationErrorOnTearDown;
+    }
+
+    bool supportsCopiesAsDraws() const {
+        return fSupportsCopiesAsDraws;
+    }
+
+    bool mustSubmitCommandsBeforeCopyOp() const {
+        return fMustSubmitCommandsBeforeCopyOp;
+    }
+
     /**
      * Returns both a supported and most prefered stencil format to use in draws.
      */
@@ -72,6 +88,11 @@ public:
     GrGLSLCaps* glslCaps() const { return reinterpret_cast<GrGLSLCaps*>(fShaderCaps.get()); }
 
 private:
+    enum VkVendor {
+        kQualcomm_VkVendor = 20803,
+        kNvidia_VkVendor = 4318,
+    };
+
     void init(const GrContextOptions& contextOptions, const GrVkInterface* vkInterface,
               VkPhysicalDevice device, uint32_t featureFlags, uint32_t extensionFlags);
     void initGrCaps(const VkPhysicalDeviceProperties&,
@@ -106,6 +127,23 @@ private:
 
     // Tells of if we can pass in straight GLSL string into vkCreateShaderModule
     bool fCanUseGLSLForShaderModule;
+
+    // On Adreno vulkan, they do not respect the imageOffset parameter at least in
+    // copyImageToBuffer. This flag says that we must do the copy starting from the origin always.
+    bool fMustDoCopiesFromOrigin;
+
+    // On Adreno, there is a bug where vkQueueWaitIdle will once in a while return
+    // VK_ERROR_INITIALIZATION_FAILED instead of the required VK_SUCCESS or VK_DEVICE_LOST. This
+    // flag says we will accept VK_ERROR_INITIALIZATION_FAILED as well.
+    bool fAllowInitializationErrorOnTearDown;
+
+    // Check whether we support using draws for copies.
+    bool fSupportsCopiesAsDraws;
+
+    // On Nvidia there is a current bug where we must the current command buffer before copy
+    // operations or else the copy will not happen. This includes copies, blits, resolves, and copy
+    // as draws.
+    bool fMustSubmitCommandsBeforeCopyOp;
 
     typedef GrCaps INHERITED;
 };

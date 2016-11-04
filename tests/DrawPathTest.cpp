@@ -339,7 +339,7 @@ static void test_crbug_472147_actual(skiatest::Reporter* reporter) {
     };
     SkRRect rr;
     rr.setRectRadii(r, radii);
-    canvas->clipRRect(rr, SkRegion::kIntersect_Op, false);
+    canvas->clipRRect(rr);
 
     SkRect r2 = SkRect::MakeLTRB(0, 33, 1102, 33554464);
     canvas->drawRect(r2, p);

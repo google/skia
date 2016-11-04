@@ -144,6 +144,26 @@ struct SkDPoint {
     // note: this can not be implemented with
     // return approximately_equal(a.fY, fY) && approximately_equal(a.fX, fX);
     // because that will not take the magnitude of the values into account
+    bool approximatelyDEqual(const SkDPoint& a) const {
+        if (approximately_equal(fX, a.fX) && approximately_equal(fY, a.fY)) {
+            return true;
+        }
+        if (!RoughlyEqualUlps(fX, a.fX) || !RoughlyEqualUlps(fY, a.fY)) {
+            return false;
+        }
+        double dist = distance(a);  // OPTIMIZATION: can we compare against distSq instead ?
+        double tiniest = SkTMin(SkTMin(SkTMin(fX, a.fX), fY), a.fY);
+        double largest = SkTMax(SkTMax(SkTMax(fX, a.fX), fY), a.fY);
+        largest = SkTMax(largest, -tiniest);
+        return AlmostDequalUlps(largest, largest + dist); // is the dist within ULPS tolerance?
+    }
+
+    bool approximatelyDEqual(const SkPoint& a) const {
+        SkDPoint dA;
+        dA.set(a);
+        return approximatelyDEqual(dA);
+    }
+
     bool approximatelyEqual(const SkDPoint& a) const {
         if (approximately_equal(fX, a.fX) && approximately_equal(fY, a.fY)) {
             return true;
@@ -231,6 +251,15 @@ struct SkDPoint {
         float largest = SkTMax(SkTMax(SkTMax(a.fX, b.fX), a.fY), b.fY);
         largest = SkTMax(largest, -tiniest);
         return RoughlyEqualUlps((double) largest, largest + dist); // is dist within ULPS tolerance?
+    }
+
+    // very light weight check, should only be used for inequality check
+    static bool WayRoughlyEqual(const SkPoint& a, const SkPoint& b) {
+        float largestNumber = SkTMax(SkTAbs(a.fX), SkTMax(SkTAbs(a.fY),
+                SkTMax(SkTAbs(b.fX), SkTAbs(b.fY))));
+        SkVector diffs = a - b;
+        float largestDiff = SkTMax(diffs.fX, diffs.fY);
+        return roughly_zero_when_compared_to(largestDiff, largestNumber);
     }
 
     // utilities callable by the user from the debugger when the implementation code is linked in

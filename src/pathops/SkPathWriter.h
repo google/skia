@@ -8,38 +8,47 @@
 #define SkPathWriter_DEFINED
 
 #include "SkPath.h"
+#include "SkTArray.h"
+#include "SkTDArray.h"
+
+class SkOpPtT;
+
+// Construct the path one contour at a time.
+// If the contour is closed, copy it to the final output.
+// Otherwise, keep the partial contour for later assembly.
 
 class SkPathWriter {
 public:
     SkPathWriter(SkPath& path);
-    void close();
-    void conicTo(const SkPoint& pt1, const SkPoint& pt2, SkScalar weight);
-    void cubicTo(const SkPoint& pt1, const SkPoint& pt2, const SkPoint& pt3);
-    void deferredLine(const SkPoint& pt);
-    void deferredMove(const SkPoint& pt);
-    void deferredMoveLine(const SkPoint& pt);
-    bool hasMove() const;
+    void assemble();
+    void conicTo(const SkPoint& pt1, const SkOpPtT* pt2, SkScalar weight);
+    void cubicTo(const SkPoint& pt1, const SkPoint& pt2, const SkOpPtT* pt3);
+    void deferredLine(const SkOpPtT* pt);
+    void deferredMove(const SkOpPtT* pt);
+    void finishContour();
+    bool hasMove() const { return !fFirstPtT; }
     void init();
     bool isClosed() const;
-    bool isEmpty() const { return fEmpty; }
-    void lineTo();
-    const SkPath* nativePath() const;
-    void nudge();
-    void quadTo(const SkPoint& pt1, const SkPoint& pt2);
-    bool someAssemblyRequired() const;
+    const SkPath* nativePath() const { return fPathPtr; }
+    void quadTo(const SkPoint& pt1, const SkOpPtT* pt2);
 
 private:
-    bool changedSlopes(const SkPoint& pt) const;
+    bool changedSlopes(const SkOpPtT* pt) const;
+    void close();
+    const SkTDArray<const SkOpPtT*>& endPtTs() const { return fEndPtTs; }
+    void lineTo();
+    bool matchedLast(const SkOpPtT*) const;
     void moveTo();
+    const SkTArray<SkPath>& partials() const { return fPartials; }
+    bool someAssemblyRequired();
+    void update(const SkOpPtT* pt);
 
-    SkPath* fPathPtr;
-    SkPoint fDefer[2];
-    SkPoint fFirstPt;
-    int fCloses;
-    int fMoves;
-    bool fEmpty;
-    bool fHasMove;
-    bool fMoved;
+    SkPath fCurrent;  // contour under construction 
+    SkTArray<SkPath> fPartials;   // contours with mismatched starts and ends
+    SkTDArray<const SkOpPtT*> fEndPtTs;  // possible pt values for partial starts and ends
+    SkPath* fPathPtr;  // closed contours are written here
+    const SkOpPtT* fDefer[2];  // [0] deferred move, [1] deferred line
+    const SkOpPtT* fFirstPtT;  // first in current contour
 };
 
 #endif /* defined(__PathOps__SkPathWriter__) */

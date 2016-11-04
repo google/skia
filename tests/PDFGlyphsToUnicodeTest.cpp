@@ -15,7 +15,7 @@ static const int kMaximumGlyphCount = SK_MaxU16 + 1;
 
 static bool stream_equals(const SkDynamicMemoryWStream& stream, size_t offset,
                           const char* buffer, size_t len) {
-    sk_sp<SkData> data(stream.copyToData());
+    sk_sp<SkData> data = stream.snapshotAsData();
     if (offset + len > data->size()) {
         return false;
     }
@@ -25,7 +25,7 @@ static bool stream_equals(const SkDynamicMemoryWStream& stream, size_t offset,
     return memcmp(data->bytes() + offset, buffer, len) == 0;
 }
 
-DEF_TEST(ToUnicode, reporter) {
+DEF_TEST(SkPDF_ToUnicode, reporter) {
     SkTDArray<SkUnichar> glyphToUnicode;
     SkTDArray<uint16_t> glyphsInSubset;
     SkBitSet subset(kMaximumGlyphCount);
@@ -125,11 +125,11 @@ endbfchar\n";
 
     char expectedResultSingleBytes[] =
 "2 beginbfchar\n\
-<0001> <0000>\n\
-<0002> <0000>\n\
+<01> <0000>\n\
+<02> <0000>\n\
 endbfchar\n\
 1 beginbfrange\n\
-<0003> <0006> <1010>\n\
+<03> <06> <1010>\n\
 endbfrange\n";
 
     REPORTER_ASSERT(reporter, stream_equals(buffer, 0,

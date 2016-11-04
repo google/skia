@@ -22,5 +22,5 @@ bool QuitHandler::canHandle(const char* method, const char* url) {
 int QuitHandler::handle(Request* request, MHD_Connection* connection,
                         const char* url, const char* method,
                         const char* upload_data, size_t* upload_data_size) {
-    exit(0);
+    _exit(0);
 }

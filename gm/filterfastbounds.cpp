@@ -78,7 +78,7 @@ static void draw_bitmap(SkCanvas* canvas, const SkRect& r, const SkPaint& p) {
     canvas->drawBitmapRect(bm, r, &p);
 }
 
-static const drawMth gDrawMthds[] = {
+constexpr drawMth gDrawMthds[] = {
     draw_rect, draw_oval, draw_rrect, draw_drrect, draw_path, draw_points, draw_bitmap
 };
 
@@ -119,7 +119,7 @@ static void create_paints(SkTArray<SkPaint>* paints, sk_sp<SkImageFilter> source
     }
 
     {
-        static const SkDropShadowImageFilter::ShadowMode kBoth =
+        constexpr SkDropShadowImageFilter::ShadowMode kBoth =
                     SkDropShadowImageFilter::kDrawShadowAndForeground_ShadowMode;
 
         sk_sp<SkImageFilter> dsif(SkDropShadowImageFilter::Make(10.0f, 10.0f,
@@ -154,10 +154,10 @@ public:
     }
 
 protected:
-    static const int kTileWidth = 100;
-    static const int kTileHeight = 100;
-    static const int kNumVertTiles = 7;
-    static const int kNumXtraCols = 2;
+    static constexpr int kTileWidth = 100;
+    static constexpr int kTileHeight = 100;
+    static constexpr int kNumVertTiles = 7;
+    static constexpr int kNumXtraCols = 2;
 
     SkString onShortName() override{ return SkString("filterfastbounds"); }
 

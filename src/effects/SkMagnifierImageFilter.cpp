@@ -42,7 +42,7 @@ public:
                                                                 xInvInset, yInvInset));
     }
 
-    ~GrMagnifierEffect() override {};
+    ~GrMagnifierEffect() override {}
 
     const char* name() const override { return "Magnifier"; }
 
@@ -135,7 +135,7 @@ void GrGLMagnifierEffect::emitCode(EmitArgs& args) {
                                             "Bounds");
 
     GrGLSLFPFragmentBuilder* fragBuilder = args.fFragBuilder;
-    SkString coords2D = fragBuilder->ensureFSCoords2D(args.fCoords, 0);
+    SkString coords2D = fragBuilder->ensureCoords2D(args.fTransformedCoords[0]);
     fragBuilder->codeAppendf("\t\tvec2 coord = %s;\n", coords2D.c_str());
     fragBuilder->codeAppendf("\t\tvec2 zoom_coord = %s + %s * %s;\n",
                              uniformHandler->getUniformCStr(fOffsetVar),
@@ -311,9 +311,9 @@ sk_sp<SkSpecialImage> SkMagnifierImageFilter::onFilterImage(SkSpecialImage* sour
         offset->fY = bounds.top();
         bounds.offset(-inputOffset);
 
-        SkScalar yOffset = inputTexture->origin() == kTopLeft_GrSurfaceOrigin 
+        SkScalar yOffset = inputTexture->origin() == kTopLeft_GrSurfaceOrigin
             ? fSrcRect.y()
-            : inputTexture->height() - 
+            : inputTexture->height() -
                       fSrcRect.height() * inputTexture->height() / bounds.height() - fSrcRect.y();
         int boundsY = inputTexture->origin() == kTopLeft_GrSurfaceOrigin
             ? bounds.y()
@@ -337,7 +337,7 @@ sk_sp<SkSpecialImage> SkMagnifierImageFilter::onFilterImage(SkSpecialImage* sour
             return nullptr;
         }
 
-        return DrawWithFP(context, std::move(fp), bounds, sk_ref_sp(input->getColorSpace()));
+        return DrawWithFP(context, std::move(fp), bounds, ctx.outputProperties());
     }
 #endif
 

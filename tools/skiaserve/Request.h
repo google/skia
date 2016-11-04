@@ -8,6 +8,8 @@
 #ifndef Request_DEFINED
 #define Request_DEFINED
 
+#include "SkTypes.h"
+
 #if SK_SUPPORT_GPU
 #include "GrContextFactory.h"
 #endif

@@ -21,7 +21,7 @@ public:
         , fLine(&l)
         , fIntersections(i)
         , fAllowNear(true) {
-        i->setMax(3);  // allow short partial coincidence plus discrete intersection
+        i->setMax(4);  // allow short partial coincidence plus discrete intersection
     }
 
     LineConicIntersections(const SkDConic& c)
@@ -109,7 +109,7 @@ public:
                     || !fIntersections->debugGlobalState()->debugSkipAssert()) {
                 SkDEBUGCODE(SkDPoint conicPt = fConic.ptAtT(conicT));
                 SkDEBUGCODE(SkDPoint linePt = fLine->ptAtT(lineT));
-                SkASSERT(conicPt.approximatelyEqual(linePt));
+                SkASSERT(conicPt.approximatelyDEqual(linePt));
             }
 #endif
             SkDPoint pt;

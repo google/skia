@@ -58,6 +58,26 @@ sk_string_t* sk_typeface_get_family_name(sk_typeface_t* typeface)
     return ToString(family_name);
 }
 
+int sk_typeface_get_font_weight(sk_typeface_t* typeface)
+{
+    return AsTypeface(typeface)->fontStyle().weight();
+}
+
+int sk_typeface_get_font_width(sk_typeface_t* typeface)
+{
+    return AsTypeface(typeface)->fontStyle().width();
+}
+
+sk_font_style_slant_t sk_typeface_get_font_slant(sk_typeface_t* typeface)
+{
+    return (sk_font_style_slant_t)AsTypeface(typeface)->fontStyle().slant();
+}
+
+sk_typeface_style_t sk_typeface_get_style(sk_typeface_t* typeface)
+{
+    return (sk_typeface_style_t)AsTypeface(typeface)->style();
+}
+
 int sk_typeface_count_tables(sk_typeface_t* typeface)
 {
     return AsTypeface(typeface)->countTables();

@@ -91,7 +91,7 @@ bool SkParsePath::FromSVGString(const char data[], SkPath* result) {
             break;
         }
         char ch = data[0];
-        if (is_digit(ch) || ch == '-' || ch == '+') {
+        if (is_digit(ch) || ch == '-' || ch == '+' || ch == '.') {
             if (op == '\0') {
                 return false;
             }

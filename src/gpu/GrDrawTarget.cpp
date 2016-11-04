@@ -116,7 +116,7 @@ void GrDrawTarget::addDependency(GrSurface* dependedOn) {
 #ifdef SK_DEBUG
 void GrDrawTarget::dump() const {
     SkDebugf("--------------------------------------------------------------\n");
-    SkDebugf("node: %d -> RT: %d\n", fDebugID, fRenderTarget ? fRenderTarget->getUniqueID() : -1);
+    SkDebugf("node: %d -> RT: %d\n", fDebugID, fRenderTarget ? fRenderTarget->uniqueID() : -1);
     SkDebugf("relies On (%d): ", fDependencies.count());
     for (int i = 0; i < fDependencies.count(); ++i) {
         SkDebugf("%d, ", fDependencies[i]->fDebugID);
@@ -179,7 +179,7 @@ bool GrDrawTarget::setupDstReadIfNecessary(const GrPipelineBuilder& pipelineBuil
     // MSAA consideration: When there is support for reading MSAA samples in the shader we could
     // have per-sample dst values by making the copy multisampled.
     GrSurfaceDesc desc;
-    if (!fGpu->initCopySurfaceDstDesc(rt, &desc)) {
+    if (!fGpu->initDescForDstCopy(rt, &desc)) {
         desc.fOrigin = kDefault_GrSurfaceOrigin;
         desc.fFlags = kRenderTarget_GrSurfaceFlag;
         desc.fConfig = rt->config();
@@ -221,9 +221,9 @@ void GrDrawTarget::prepareBatches(GrBatchFlushState* flushState) {
     }
 }
 
-void GrDrawTarget::drawBatches(GrBatchFlushState* flushState) {
+bool GrDrawTarget::drawBatches(GrBatchFlushState* flushState) {
     if (0 == fRecordedBatches.count()) {
-        return;
+        return false;
     }
     // Draw all the generated geometry.
     SkRandom random;
@@ -286,6 +286,7 @@ void GrDrawTarget::drawBatches(GrBatchFlushState* flushState) {
     }
 
     fGpu->finishDrawTarget();
+    return true;
 }
 
 void GrDrawTarget::reset() {
@@ -380,7 +381,7 @@ void GrDrawTarget::drawBatch(const GrPipelineBuilder& pipelineBuilder,
         sk_sp_address_as_pointer_address(pipelineBuilder.fCoverageFragmentProcessors.begin()),
         pipelineBuilder.numCoverageFragmentProcessors());
     args.fScissor = &appliedClip.scissorState();
-    args.fWindowRects = &appliedClip.windowRects();
+    args.fWindowRectsState = &appliedClip.windowRectsState();
     args.fHasStencilClip = appliedClip.hasStencilClip();
     if (!this->setupDstReadIfNecessary(pipelineBuilder, drawContext->accessRenderTarget(),
                                        clip, args.fOpts,
@@ -451,16 +452,14 @@ void GrDrawTarget::fullClear(GrRenderTarget* renderTarget, GrColor color) {
     // remove all the previously recorded batches and change the load op to clear with supplied
     // color.
     if (fLastFullClearBatch &&
-        fLastFullClearBatch->renderTargetUniqueID() == renderTarget->getUniqueID()) {
+        fLastFullClearBatch->renderTargetUniqueID() == renderTarget->uniqueID()) {
         // As currently implemented, fLastFullClearBatch should be the last batch because we would
         // have cleared it when another batch was recorded.
         SkASSERT(fRecordedBatches.back().fBatch.get() == fLastFullClearBatch);
         fLastFullClearBatch->setColor(color);
         return;
     }
-    sk_sp<GrClearBatch> batch(GrClearBatch::Make(SkIRect::MakeWH(renderTarget->width(),
-                                                                 renderTarget->height()),
-                                                 color, renderTarget));
+    sk_sp<GrClearBatch> batch(GrClearBatch::Make(GrFixedClip::Disabled(), color, renderTarget));
     if (batch.get() == this->recordBatch(batch.get(), batch->bounds())) {
         fLastFullClearBatch = batch.get();
     }
@@ -571,6 +570,9 @@ GrBatch* GrDrawTarget::recordBatch(GrBatch* batch, const SkRect& clippedBounds) 
 }
 
 void GrDrawTarget::forwardCombine() {
+    if (fMaxBatchLookahead <= 0) {
+        return;
+    }
     for (int i = 0; i < fRecordedBatches.count() - 2; ++i) {
         GrBatch* batch = fRecordedBatches[i].fBatch.get();
         const SkRect& batchBounds = fRecordedBatches[i].fClippedBounds;
@@ -615,8 +617,10 @@ void GrDrawTarget::forwardCombine() {
 
 ///////////////////////////////////////////////////////////////////////////////
 
-void GrDrawTarget::clearStencilClip(const SkIRect& rect, bool insideClip, GrRenderTarget* rt) {
-    GrBatch* batch = new GrClearStencilClipBatch(rect, insideClip, rt);
+void GrDrawTarget::clearStencilClip(const GrFixedClip& clip,
+                                    bool insideStencilMask,
+                                    GrRenderTarget* rt) {
+    GrBatch* batch = new GrClearStencilClipBatch(clip, insideStencilMask, rt);
     this->recordBatch(batch, batch->bounds());
     batch->unref();
 }

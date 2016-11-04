@@ -19,6 +19,9 @@ import utils
 
 def main():
   parser = argparse.ArgumentParser()
+  parser.add_argument(
+      '--local_svgs_dir', '-l', default='',
+      help='Directory containing additional SVGs we want to upload.')
   parser.add_argument('--gsutil')
   args = parser.parse_args()
 
@@ -28,7 +31,9 @@ def main():
     upload_script = os.path.join(common.FILE_DIR, 'upload.py')
 
     try:
-      subprocess.check_call(['python', create_script, '-t', cwd])
+      subprocess.check_call(['python', create_script,
+                             '-t', cwd,
+                             '-l', args.local_svgs_dir])
       cmd = ['python', upload_script, '-t', cwd]
       if args.gsutil:
         cmd.extend(['--gsutil', args.gsutil])

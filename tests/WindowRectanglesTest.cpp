@@ -31,7 +31,6 @@ DEF_TEST(WindowRectangles, reporter) {
 
         GrWindowRectangles wr2(wr);
         REPORTER_ASSERT(reporter, wr2 == wr);
-        REPORTER_ASSERT(reporter, wr2.mode() == wr.mode());
         REPORTER_ASSERT(reporter, wr2.count() == wr.count());
         REPORTER_ASSERT(reporter, !memcmp(wr2.data(), wr.data(), i * sizeof(SkIRect)));
 
@@ -72,21 +71,6 @@ DEF_TEST(WindowRectangles, reporter) {
         REPORTER_ASSERT(reporter, !memcmp(A.data(), windowData,
                                           GrWindowRectangles::kMaxWindows * sizeof(SkIRect)));
     }
-
-    GrWindowRectangles wrI(GrWindowRectangles::Mode::kInclusive);
-    for (int i = 0; i < wr.count(); ++i) {
-        wrI.addWindow(windowData[i]);
-    }
-    REPORTER_ASSERT(reporter, wrI != wr);
-    REPORTER_ASSERT(reporter, wrI.mode() != wr.mode());
-    REPORTER_ASSERT(reporter, wrI.count() == wr.count());
-    REPORTER_ASSERT(reporter, !memcmp(wrI.data(), wr.data(), wr.count() * sizeof(SkIRect)));
-
-    wr.reset(GrWindowRectangles::Mode::kInclusive);
-    for (int i = 0; i < wrI.count(); ++i) {
-        wr.addWindow(windowData[i]);
-    }
-    REPORTER_ASSERT(reporter, wrI == wr);
 }
 
 #endif

@@ -106,6 +106,8 @@ template <> void Draw::draw(const DrawImageLattice& r) {
     lattice.fXDivs = r.xDivs;
     lattice.fYCount = r.yCount;
     lattice.fYDivs = r.yDivs;
+    lattice.fFlags = (0 == r.flagCount) ? nullptr : r.flags;
+    lattice.fBounds = &r.src;
     fCanvas->drawImageLattice(r.image.get(), lattice, r.dst, r.paint);
 }
 
@@ -118,7 +120,7 @@ DRAW(DrawPatch, drawPatch(r.cubics, r.colors, r.texCoords, r.xmode, r.paint));
 DRAW(DrawPicture, drawPicture(r.picture.get(), &r.matrix, r.paint));
 
 #ifdef SK_EXPERIMENTAL_SHADOWING
-DRAW(DrawShadowedPicture, drawShadowedPicture(r.picture.get(), &r.matrix, r.paint));
+DRAW(DrawShadowedPicture, drawShadowedPicture(r.picture.get(), &r.matrix, r.paint, r.params));
 #else
 template <> void Draw::draw(const DrawShadowedPicture& r) { }
 #endif
@@ -128,6 +130,7 @@ DRAW(DrawPosText, drawPosText(r.text, r.byteLength, r.pos, r.paint));
 DRAW(DrawPosTextH, drawPosTextH(r.text, r.byteLength, r.xpos, r.y, r.paint));
 DRAW(DrawRRect, drawRRect(r.rrect, r.paint));
 DRAW(DrawRect, drawRect(r.rect, r.paint));
+DRAW(DrawRegion, drawRegion(r.region, r.paint));
 DRAW(DrawText, drawText(r.text, r.byteLength, r.x, r.y, r.paint));
 DRAW(DrawTextBlob, drawTextBlob(r.blob.get(), r.x, r.y, r.paint));
 DRAW(DrawTextOnPath, drawTextOnPath(r.text, r.byteLength, r.path, &r.matrix, r.paint));
@@ -338,34 +341,27 @@ private:
                 return true;
             }
 
-            // Unusual Xfermodes require us to process a saved layer
+            // Unusual blendmodes require us to process a saved layer
             // even with operations outisde the clip.
             // For example, DstIn is used by masking layers.
             // https://code.google.com/p/skia/issues/detail?id=1291
             // https://crbug.com/401593
-            SkXfermode* xfermode = paint->getXfermode();
-            SkXfermode::Mode mode;
-            // SrcOver is ok, and is also the common case with a nullptr xfermode.
-            // So we should make that the fast path and bypass the mode extraction
-            // and test.
-            if (xfermode && xfermode->asMode(&mode)) {
-                switch (mode) {
-                    // For each of the following transfer modes, if the source
-                    // alpha is zero (our transparent black), the resulting
-                    // blended alpha is not necessarily equal to the original
-                    // destination alpha.
-                    case SkXfermode::kClear_Mode:
-                    case SkXfermode::kSrc_Mode:
-                    case SkXfermode::kSrcIn_Mode:
-                    case SkXfermode::kDstIn_Mode:
-                    case SkXfermode::kSrcOut_Mode:
-                    case SkXfermode::kDstATop_Mode:
-                    case SkXfermode::kModulate_Mode:
-                        return true;
-                        break;
-                    default:
-                        break;
-                }
+            switch (paint->getBlendMode()) {
+                // For each of the following transfer modes, if the source
+                // alpha is zero (our transparent black), the resulting
+                // blended alpha is not necessarily equal to the original
+                // destination alpha.
+                case SkBlendMode::kClear:
+                case SkBlendMode::kSrc:
+                case SkBlendMode::kSrcIn:
+                case SkBlendMode::kDstIn:
+                case SkBlendMode::kSrcOut:
+                case SkBlendMode::kDstATop:
+                case SkBlendMode::kModulate:
+                    return true;
+                    break;
+                default:
+                    break;
             }
         }
         return false;
@@ -413,6 +409,10 @@ private:
     Bounds bounds(const NoOp&)  const { return Bounds::MakeEmpty(); }    // NoOps don't draw.
 
     Bounds bounds(const DrawRect& op) const { return this->adjustAndMap(op.rect, &op.paint); }
+    Bounds bounds(const DrawRegion& op) const {
+        SkRect rect = SkRect::Make(op.region.getBounds());
+        return this->adjustAndMap(rect, &op.paint);
+    }
     Bounds bounds(const DrawOval& op) const { return this->adjustAndMap(op.oval, &op.paint); }
     // Tighter arc bounds?
     Bounds bounds(const DrawArc& op) const { return this->adjustAndMap(op.oval, &op.paint); }

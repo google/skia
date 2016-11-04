@@ -132,17 +132,17 @@ protected:
 
         canvas->scale(2, 2);
 
-        static const char* kLabel1 = "Original Img";
-        static const char* kLabel2 = "Modified Img";
-        static const char* kLabel3 = "Cur Surface";
-        static const char* kLabel4 = "Full Crop";
-        static const char* kLabel5 = "Over-crop";
-        static const char* kLabel6 = "Upper-left";
-        static const char* kLabel7 = "No Crop";
+        const char* kLabel1 = "Original Img";
+        const char* kLabel2 = "Modified Img";
+        const char* kLabel3 = "Cur Surface";
+        const char* kLabel4 = "Full Crop";
+        const char* kLabel5 = "Over-crop";
+        const char* kLabel6 = "Upper-left";
+        const char* kLabel7 = "No Crop";
 
-        static const char* kLabel8 = "Pre-Alloc Img";
-        static const char* kLabel9 = "New Alloc Img";
-        static const char* kLabel10 = "GPU";
+        const char* kLabel8 = "Pre-Alloc Img";
+        const char* kLabel9 = "New Alloc Img";
+        const char* kLabel10 = "GPU";
 
         SkPaint textPaint;
         textPaint.setAntiAlias(true);
@@ -453,7 +453,7 @@ DEF_SIMPLE_GM(new_texture_image, canvas, 225, 60) {
         canvas->drawRect(SkRect::MakeXYWH(30.f,30.f,10.f,10.f), paint);
     };
 
-    static const int kSize = 50;
+    static constexpr int kSize = 50;
     SkBitmap bmp;
     bmp.allocN32Pixels(kSize, kSize);
     SkCanvas bmpCanvas(bmp);
@@ -491,7 +491,7 @@ DEF_SIMPLE_GM(new_texture_image, canvas, 225, 60) {
         }
     };
 
-    static const SkScalar kPad = 5.f;
+    constexpr SkScalar kPad = 5.f;
     canvas->translate(kPad, kPad);
     for (auto factory : imageFactories) {
         auto image(factory());

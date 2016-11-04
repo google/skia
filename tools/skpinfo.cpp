@@ -57,7 +57,7 @@ int tool_main(int argc, char** argv) {
     }
 
     if (FLAGS_version && !FLAGS_quiet) {
-        SkDebugf("Version: %d\n", info.fVersion);
+        SkDebugf("Version: %d\n", info.getVersion());
     }
     if (FLAGS_cullRect && !FLAGS_quiet) {
         SkDebugf("Cull Rect: %f,%f,%f,%f\n",

@@ -18,7 +18,7 @@ SkDashPathEffect::SkDashPathEffect(const SkScalar intervals[], int count, SkScal
         , fInitialDashIndex(0)
         , fIntervalLength(0) {
     SkASSERT(intervals);
-    SkASSERT(count > 1 && SkAlign2(count) == count);
+    SkASSERT(count > 1 && SkIsAlign2(count));
 
     fIntervals = (SkScalar*)sk_malloc_throw(sizeof(SkScalar) * count);
     fCount = count;

@@ -31,18 +31,18 @@ public:
     // called to note the last clip drawn to this buffer.
     void setLastClip(int32_t clipStackGenID,
                      const SkIRect& clipSpaceRect,
-                     const SkIPoint clipSpaceToStencilOffset) {
+                     const SkIPoint clipOrigin) {
         fLastClipStackGenID = clipStackGenID;
         fLastClipStackRect = clipSpaceRect;
-        fLastClipSpaceOffset = clipSpaceToStencilOffset;
+        fLastClipOrigin = clipOrigin;
     }
 
     // called to determine if we have to render the clip into SB.
     bool mustRenderClip(int32_t clipStackGenID,
                         const SkIRect& clipSpaceRect,
-                        const SkIPoint clipSpaceToStencilOffset) const {
+                        const SkIPoint& clipOrigin) const {
         return fLastClipStackGenID != clipStackGenID ||
-               fLastClipSpaceOffset != clipSpaceToStencilOffset ||
+               fLastClipOrigin != clipOrigin ||
                !fLastClipStackRect.contains(clipSpaceRect);
     }
 
@@ -71,7 +71,7 @@ private:
 
     int32_t     fLastClipStackGenID;
     SkIRect     fLastClipStackRect;
-    SkIPoint    fLastClipSpaceOffset;
+    SkIPoint    fLastClipOrigin;
 
     typedef GrGpuResource INHERITED;
 };

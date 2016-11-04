@@ -90,7 +90,7 @@ SkPictInfo SkPicture::createHeader() const {
     memcpy(info.fMagic, kMagic, sizeof(kMagic));
 
     // Set picture info after magic bytes in the header
-    info.fVersion = CURRENT_PICTURE_VERSION;
+    info.setVersion(CURRENT_PICTURE_VERSION);
     info.fCullRect = this->cullRect();
     info.fFlags = SkPictInfo::kCrossProcess_Flag;
     // TODO: remove this flag, since we're always float (now)
@@ -106,7 +106,7 @@ bool SkPicture::IsValidPictInfo(const SkPictInfo& info) {
     if (0 != memcmp(info.fMagic, kMagic, sizeof(kMagic))) {
         return false;
     }
-    if (info.fVersion < MIN_PICTURE_VERSION || info.fVersion > CURRENT_PICTURE_VERSION) {
+    if (info.getVersion() < MIN_PICTURE_VERSION || info.getVersion() > CURRENT_PICTURE_VERSION) {
         return false;
     }
     return true;
@@ -123,7 +123,7 @@ bool SkPicture::InternalOnly_StreamIsSKP(SkStream* stream, SkPictInfo* pInfo) {
         return false;
     }
 
-    info.fVersion          = stream->readU32();
+    info.setVersion(         stream->readU32());
     info.fCullRect.fLeft   = stream->readScalar();
     info.fCullRect.fTop    = stream->readScalar();
     info.fCullRect.fRight  = stream->readScalar();
@@ -144,7 +144,7 @@ bool SkPicture::InternalOnly_BufferIsSKP(SkReadBuffer* buffer, SkPictInfo* pInfo
         return false;
     }
 
-    info.fVersion = buffer->readUInt();
+    info.setVersion(buffer->readUInt());
     buffer->readRect(&info.fCullRect);
     info.fFlags = buffer->readUInt();
 
@@ -157,7 +157,7 @@ bool SkPicture::InternalOnly_BufferIsSKP(SkReadBuffer* buffer, SkPictInfo* pInfo
 
 sk_sp<SkPicture> SkPicture::Forwardport(const SkPictInfo& info,
                                         const SkPictureData* data,
-                                        const SkReadBuffer* buffer) {
+                                        SkReadBuffer* buffer) {
     if (!data) {
         return nullptr;
     }
@@ -174,6 +174,20 @@ sk_sp<SkPicture> SkPicture::MakeFromStream(SkStream* stream, SkImageDeserializer
 sk_sp<SkPicture> SkPicture::MakeFromStream(SkStream* stream) {
     SkImageDeserializer factory;
     return MakeFromStream(stream, &factory);
+}
+
+sk_sp<SkPicture> SkPicture::MakeFromData(const void* data, size_t size,
+                                         SkImageDeserializer* factory) {
+    SkMemoryStream stream(data, size);
+    return MakeFromStream(&stream, factory, nullptr);
+}
+
+sk_sp<SkPicture> SkPicture::MakeFromData(const SkData* data, SkImageDeserializer* factory) {
+    if (!data) {
+        return nullptr;
+    }
+    SkMemoryStream stream(data->data(), data->size());
+    return MakeFromStream(&stream, factory, nullptr);
 }
 
 sk_sp<SkPicture> SkPicture::MakeFromStream(SkStream* stream, SkImageDeserializer* factory,
@@ -209,6 +223,12 @@ void SkPicture::serialize(SkWStream* stream, SkPixelSerializer* pixelSerializer)
     this->serialize(stream, pixelSerializer, nullptr);
 }
 
+sk_sp<SkData> SkPicture::serialize(SkPixelSerializer* pixelSerializer) const {
+    SkDynamicMemoryWStream stream;
+    this->serialize(&stream, pixelSerializer, nullptr);
+    return stream.detachAsData();
+}
+
 void SkPicture::serialize(SkWStream* stream,
                           SkPixelSerializer* pixelSerializer,
                           SkRefCntSet* typefaceSet) const {
@@ -229,7 +249,7 @@ void SkPicture::flatten(SkWriteBuffer& buffer) const {
     SkAutoTDelete<SkPictureData> data(this->backport());
 
     buffer.writeByteArray(&info.fMagic, sizeof(info.fMagic));
-    buffer.writeUInt(info.fVersion);
+    buffer.writeUInt(info.getVersion());
     buffer.writeRect(info.fCullRect);
     buffer.writeUInt(info.fFlags);
     if (data) {

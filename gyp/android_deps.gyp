@@ -37,6 +37,9 @@
               'libraries' : [
                 '-lexpat',
               ],
+              'include_dirs': [
+                'external/expat/lib',
+              ],
             },
           },
           {

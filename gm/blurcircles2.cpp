@@ -44,7 +44,7 @@ protected:
     }
 
     void onDraw(SkCanvas* canvas) override {
-        static constexpr SkScalar kMaxR = kMaxRadius + kMaxBlurRadius;
+        constexpr SkScalar kMaxR = kMaxRadius + kMaxBlurRadius;
 
         auto almostCircleMaker = [] (SkScalar radius, SkPath* dst) {
             dst->reset();
@@ -76,13 +76,13 @@ protected:
         } else {
             bool benchMode = this->getMode() == kBench_Mode;
             canvas->save();
-            static constexpr SkScalar kPad = 5;
-            static constexpr SkScalar kRadiusSteps = 5;
-            static constexpr SkScalar kBlurRadiusSteps = 5;
+            constexpr SkScalar kPad = 5;
+            constexpr SkScalar kRadiusSteps = 5;
+            constexpr SkScalar kBlurRadiusSteps = 5;
             canvas->translate(kPad + kMinRadius + kMaxBlurRadius,
                               kPad + kMinRadius + kMaxBlurRadius);
-            static constexpr SkScalar kDeltaRadius = (kMaxRadius - kMinRadius) / kRadiusSteps;
-            static constexpr SkScalar kDeltaBlurRadius = (kMaxBlurRadius - kMinBlurRadius) /
+            constexpr SkScalar kDeltaRadius = (kMaxRadius - kMinRadius) / kRadiusSteps;
+            constexpr SkScalar kDeltaBlurRadius = (kMaxBlurRadius - kMinBlurRadius) /
                                                          kBlurRadiusSteps;
             SkScalar lineWidth = 0;
             if (!benchMode) {

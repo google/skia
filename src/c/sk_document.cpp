@@ -16,11 +16,11 @@ void sk_document_unref(sk_document_t* document) {
 }
 
 sk_document_t* sk_document_create_pdf_from_stream(sk_wstream_t* stream, float dpi) {
-    return ToDocument(SkDocument::CreatePDF(AsWStream(stream), dpi));
+    return ToDocument(SkDocument::MakePDF(AsWStream(stream), dpi).release());
 }
 
 sk_document_t* sk_document_create_pdf_from_filename(const char* path, float dpi) {
-    return ToDocument(SkDocument::CreatePDF(path, dpi));
+    return ToDocument(SkDocument::MakePDF(path, dpi).release());
 }
 
 //sk_document_t* sk_document_create_xps_from_stream(sk_wstream_t* stream, float dpi) {
@@ -39,8 +39,8 @@ void sk_document_end_page(sk_document_t* document) {
     AsDocument(document)->endPage();
 }
 
-bool sk_document_close(sk_document_t* document) {
-    return AsDocument(document)->close();
+void sk_document_close(sk_document_t* document) {
+    AsDocument(document)->close();
 }
 
 void sk_document_abort(sk_document_t* document) {

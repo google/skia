@@ -120,3 +120,71 @@ DEF_TEST(PathOpsTightBoundsQuads, reporter) {
     }
     testRunner.render();
 }
+
+DEF_TEST(PathOpsTightBoundsMove, reporter) {
+    SkPath path;
+    path.moveTo(10, 10);
+    path.close();
+    path.moveTo(20, 20);
+    path.lineTo(20, 20);
+    path.close();
+    path.moveTo(15, 15);
+    path.lineTo(15, 15);
+    path.close();
+    const SkRect& bounds = path.getBounds();
+    SkRect tight;
+    REPORTER_ASSERT(reporter, TightBounds(path, &tight));
+    REPORTER_ASSERT(reporter, bounds == tight);
+}
+
+DEF_TEST(PathOpsTightBoundsMoveOne, reporter) {
+    SkPath path;
+    path.moveTo(20, 20);
+    const SkRect& bounds = path.getBounds();
+    SkRect tight;
+    REPORTER_ASSERT(reporter, TightBounds(path, &tight));
+    REPORTER_ASSERT(reporter, bounds == tight);
+}
+
+DEF_TEST(PathOpsTightBoundsMoveTwo, reporter) {
+    SkPath path;
+    path.moveTo(20, 20);
+    path.moveTo(40, 40);
+    const SkRect& bounds = path.getBounds();
+    SkRect tight;
+    REPORTER_ASSERT(reporter, TightBounds(path, &tight));
+    REPORTER_ASSERT(reporter, bounds == tight);
+}
+
+DEF_TEST(PathOpsTightBoundsTiny, reporter) {
+    SkPath path;
+    path.moveTo(1, 1);
+    path.quadTo(1.000001f, 1, 1, 1);
+    const SkRect& bounds = path.getBounds();
+    SkRect tight;
+    REPORTER_ASSERT(reporter, TightBounds(path, &tight));
+    SkRect moveBounds = {1, 1, 1, 1};
+    REPORTER_ASSERT(reporter, bounds != tight);
+    REPORTER_ASSERT(reporter, moveBounds == tight);
+}
+
+DEF_TEST(PathOpsTightBoundsWellBehaved, reporter) {
+    SkPath path;
+    path.moveTo(1, 1);
+    path.quadTo(2, 3, 4, 5);
+    const SkRect& bounds = path.getBounds();
+    SkRect tight;
+    REPORTER_ASSERT(reporter, TightBounds(path, &tight));
+    REPORTER_ASSERT(reporter, bounds == tight);
+}
+
+DEF_TEST(PathOpsTightBoundsIllBehaved, reporter) {
+    SkPath path;
+    path.moveTo(1, 1);
+    path.quadTo(4, 3, 2, 2);
+    const SkRect& bounds = path.getBounds();
+    SkRect tight;
+    REPORTER_ASSERT(reporter, TightBounds(path, &tight));
+    REPORTER_ASSERT(reporter, bounds != tight);
+}
+

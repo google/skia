@@ -53,8 +53,6 @@
 #define ASSERT_SINGLE_OWNER \
     SkDEBUGCODE(GrSingleOwner::AutoEnforce debug_SingleOwner(fContext->debugSingleOwner());)
 
-enum { kDefaultImageFilterCacheSize = 32 * 1024 * 1024 };
-
 #if 0
     extern bool (*gShouldDrawProc)();
     #define CHECK_SHOULD_DRAW(draw)                             \
@@ -171,12 +169,6 @@ sk_sp<GrDrawContext> SkGpuDevice::MakeDrawContext(GrContext* context,
         at = kPremul_SkAlphaType;  // force this setting
     }
 
-    GrPixelConfig origConfig = SkImageInfo2GrPixelConfig(ct, at, cs, *context->caps());
-    if (!context->caps()->isConfigRenderable(origConfig, sampleCount > 0)) {
-        // Fall back from whatever ct was to default of kRGBA or kBGRA which is aliased as kN32
-        ct = kN32_SkColorType;
-    }
-
     GrPixelConfig config = SkImageInfo2GrPixelConfig(ct, at, cs, *context->caps());
 
     return context->makeDrawContext(SkBackingFit::kExact,               // Why exact?
@@ -197,7 +189,8 @@ sk_sp<SkSpecialImage> SkGpuDevice::filterTexture(const SkDraw& draw,
     matrix.postTranslate(SkIntToScalar(-left), SkIntToScalar(-top));
     const SkIRect clipBounds = draw.fRC->getBounds().makeOffset(-left, -top);
     SkAutoTUnref<SkImageFilterCache> cache(this->getImageFilterCache());
-    SkImageFilter::Context ctx(matrix, clipBounds, cache.get());
+    SkImageFilter::OutputProperties outputProperties(fDrawContext->getColorSpace());
+    SkImageFilter::Context ctx(matrix, clipBounds, cache.get(), outputProperties);
 
     return filter->filterImage(srcImg, ctx, offset);
 }
@@ -208,36 +201,14 @@ bool SkGpuDevice::onReadPixels(const SkImageInfo& dstInfo, void* dstPixels, size
                                int x, int y) {
     ASSERT_SINGLE_OWNER
 
-    // TODO: teach fRenderTarget to take ImageInfo directly to specify the src pixels
-    GrPixelConfig config = SkImageInfo2GrPixelConfig(dstInfo, *fContext->caps());
-    if (kUnknown_GrPixelConfig == config) {
-        return false;
-    }
-
-    uint32_t flags = 0;
-    if (kUnpremul_SkAlphaType == dstInfo.alphaType()) {
-        flags = GrContext::kUnpremul_PixelOpsFlag;
-    }
-    return fDrawContext->accessRenderTarget()->readPixels(x, y,
-                                                          dstInfo.width(), dstInfo.height(),
-                                                          config, dstPixels,
-                                                          dstRowBytes, flags);
+    return fDrawContext->readPixels(dstInfo, dstPixels, dstRowBytes, x, y);
 }
 
-bool SkGpuDevice::onWritePixels(const SkImageInfo& info, const void* pixels, size_t rowBytes,
-                                int x, int y) {
+bool SkGpuDevice::onWritePixels(const SkImageInfo& srcInfo, const void* srcPixels,
+                                size_t srcRowBytes, int x, int y) {
     ASSERT_SINGLE_OWNER
-    // TODO: teach fRenderTarget to take ImageInfo directly to specify the src pixels
-    GrPixelConfig config = SkImageInfo2GrPixelConfig(info, *fContext->caps());
-    if (kUnknown_GrPixelConfig == config) {
-        return false;
-    }
-    uint32_t flags = 0;
-    if (kUnpremul_SkAlphaType == info.alphaType()) {
-        flags = GrContext::kUnpremul_PixelOpsFlag;
-    }
-    return fDrawContext->accessRenderTarget()->writePixels(x, y, info.width(), info.height(),
-                                                           config, pixels, rowBytes, flags);
+
+    return fDrawContext->writePixels(srcInfo, srcPixels, srcRowBytes, x, y);
 }
 
 bool SkGpuDevice::onAccessPixels(SkPixmap* pmap) {
@@ -309,7 +280,7 @@ void SkGpuDevice::drawPaint(const SkDraw& draw, const SkPaint& paint) {
 }
 
 // must be in SkCanvas::PointMode order
-static const GrPrimitiveType gPointMode2PrimtiveType[] = {
+static const GrPrimitiveType gPointMode2PrimitiveType[] = {
     kPoints_GrPrimitiveType,
     kLines_GrPrimitiveType,
     kLineStrip_GrPrimitiveType
@@ -363,23 +334,42 @@ void SkGpuDevice::drawPoints(const SkDraw& draw, SkCanvas::PointMode mode,
         return;
     }
 
+    SkScalar scales[2];
+    bool isHairline = (0 == width) || (1 == width && draw.fMatrix->getMinMaxScales(scales) &&
+                                       SkScalarNearlyEqual(scales[0], 1.f) &&
+                                       SkScalarNearlyEqual(scales[1], 1.f));
     // we only handle non-antialiased hairlines and paints without path effects or mask filters,
     // else we let the SkDraw call our drawPath()
-    if (width > 0 || paint.getPathEffect() || paint.getMaskFilter() ||
+    if (!isHairline || paint.getPathEffect() || paint.getMaskFilter() ||
         (paint.isAntiAlias() && needs_antialiasing(mode, count, pts))) {
         draw.drawPoints(mode, count, pts, paint, true);
         return;
     }
 
+    GrPrimitiveType primitiveType = gPointMode2PrimitiveType[mode];
+
+    const SkMatrix* viewMatrix = draw.fMatrix;
+#ifdef SK_BUILD_FOR_ANDROID_FRAMEWORK
+    // This offsetting in device space matches the expectations of the Android framework for non-AA
+    // points and lines.
+    SkMatrix tempMatrix;
+    if (GrIsPrimTypeLines(primitiveType) || kPoints_GrPrimitiveType == primitiveType) {
+        tempMatrix = *viewMatrix;
+        static const SkScalar kOffset = 0.063f; // Just greater than 1/16.
+        tempMatrix.postTranslate(kOffset, kOffset);
+        viewMatrix = &tempMatrix;
+    }
+#endif
+
     GrPaint grPaint;
-    if (!SkPaintToGrPaint(this->context(), fDrawContext.get(), paint, *draw.fMatrix, &grPaint)) {
+    if (!SkPaintToGrPaint(this->context(), fDrawContext.get(), paint, *viewMatrix, &grPaint)) {
         return;
     }
 
     fDrawContext->drawVertices(fClip,
                                grPaint,
-                               *draw.fMatrix,
-                               gPointMode2PrimtiveType[mode],
+                               *viewMatrix,
+                               primitiveType,
                                SkToS32(count),
                                (SkPoint*)pts,
                                nullptr,
@@ -525,6 +515,21 @@ void SkGpuDevice::drawDRRect(const SkDraw& draw, const SkRRect& outer,
 
 
 /////////////////////////////////////////////////////////////////////////////
+
+void SkGpuDevice::drawRegion(const SkDraw& draw, const SkRegion& region, const SkPaint& paint) {
+    if (paint.getMaskFilter()) {
+        SkPath path;
+        region.getBoundaryPath(&path);
+        return this->drawPath(draw, path, paint, nullptr, false);
+    }
+
+    GrPaint grPaint;
+    if (!SkPaintToGrPaint(this->context(), fDrawContext.get(), paint, *draw.fMatrix, &grPaint)) {
+        return;
+    }
+
+    fDrawContext->drawRegion(fClip, grPaint, *draw.fMatrix, region, GrStyle(paint));
+}
 
 void SkGpuDevice::drawOval(const SkDraw& draw, const SkRect& oval, const SkPaint& paint) {
     ASSERT_SINGLE_OWNER
@@ -1021,7 +1026,6 @@ void SkGpuDevice::drawBitmapTile(const SkBitmap& bitmap,
     if (nullptr == texture) {
         return;
     }
-
     sk_sp<GrColorSpaceXform> colorSpaceXform =
         GrColorSpaceXform::Make(bitmap.colorSpace(), fDrawContext->getColorSpace());
 
@@ -1147,8 +1151,11 @@ void SkGpuDevice::drawSpecial(const SkDraw& draw,
     SkPaint tmpUnfiltered(paint);
     tmpUnfiltered.setImageFilter(nullptr);
 
+    sk_sp<GrColorSpaceXform> colorSpaceXform =
+        GrColorSpaceXform::Make(result->getColorSpace(), fDrawContext->getColorSpace());
     GrPaint grPaint;
-    sk_sp<GrFragmentProcessor> fp(GrSimpleTextureEffect::Make(texture.get(), nullptr,
+    sk_sp<GrFragmentProcessor> fp(GrSimpleTextureEffect::Make(texture.get(),
+                                                              std::move(colorSpaceXform),
                                                               SkMatrix::I()));
     if (GrPixelConfigIsAlphaOnly(texture->config())) {
         fp = GrFragmentProcessor::MulOutputByInputUnpremulColor(std::move(fp));
@@ -1494,7 +1501,7 @@ void SkGpuDevice::drawProducerLattice(const SkDraw& draw, GrTextureProducer* pro
     }
 
     std::unique_ptr<SkLatticeIter> iter(
-            new SkLatticeIter(producer->width(), producer->height(), lattice, dst));
+            new SkLatticeIter(lattice, dst));
     fDrawContext->drawImageLattice(fClip, grPaint, *draw.fMatrix, producer->width(),
                                    producer->height(), std::move(iter), dst);
 }
@@ -1810,7 +1817,7 @@ SkImageFilterCache* SkGpuDevice::getImageFilterCache() {
     ASSERT_SINGLE_OWNER
     // We always return a transient cache, so it is freed after each
     // filter traversal.
-    return SkImageFilterCache::Create(kDefaultImageFilterCacheSize);
+    return SkImageFilterCache::Create(SkImageFilterCache::kDefaultTransientSize);
 }
 
 #endif

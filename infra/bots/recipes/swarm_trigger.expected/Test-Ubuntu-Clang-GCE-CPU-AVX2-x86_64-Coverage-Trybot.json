@@ -443,28 +443,6 @@
     "cmd": [
       "python",
       "-u",
-      "\nimport os, sys\nfrom common import chromium_utils # Error? See https://crbug.com/584783.\n\n\nif os.path.exists(sys.argv[1]):\n  chromium_utils.RemoveDirectory(sys.argv[1])\n",
-      "[SLAVE_BUILD]/swarming_temp_dir/outputs/test_skia"
-    ],
-    "env": {
-      "PYTHONPATH": "[SLAVE_BUILD]/skia/infra/bots/.recipe_deps/build/scripts"
-    },
-    "name": "rmtree test_skia",
-    "~followup_annotations": [
-      "@@@STEP_LOG_LINE@python.inline@@@@",
-      "@@@STEP_LOG_LINE@python.inline@import os, sys@@@",
-      "@@@STEP_LOG_LINE@python.inline@from common import chromium_utils # Error? See https://crbug.com/584783.@@@",
-      "@@@STEP_LOG_LINE@python.inline@@@@",
-      "@@@STEP_LOG_LINE@python.inline@@@@",
-      "@@@STEP_LOG_LINE@python.inline@if os.path.exists(sys.argv[1]):@@@",
-      "@@@STEP_LOG_LINE@python.inline@  chromium_utils.RemoveDirectory(sys.argv[1])@@@",
-      "@@@STEP_LOG_END@python.inline@@@"
-    ]
-  },
-  {
-    "cmd": [
-      "python",
-      "-u",
       "[SLAVE_BUILD]/swarming.client/swarming.py",
       "collect",
       "--swarming",
@@ -474,9 +452,7 @@
       "--json",
       "{\"base_task_name\": \"test_skia/Ubuntu/[dummy has/Test-Ubuntu-Clang-GCE-CPU-AVX2-x86_64-Coverage-Trybot/5\", \"tasks\": {\"test_skia/Ubuntu/[dummy has/Test-Ubuntu-Clang-GCE-CPU-AVX2-x86_64-Coverage-Trybot/5\": {\"shard_index\": 0, \"task_id\": \"10000\", \"view_url\": \"https://chromium-swarm.appspot.com/user/task/10000\"}}}",
       "--task-summary-json",
-      "/path/to/tmp/json",
-      "--task-output-dir",
-      "[SLAVE_BUILD]/swarming_temp_dir/outputs/test_skia"
+      "/path/to/tmp/json"
     ],
     "name": "test_skia on Ubuntu",
     "~followup_annotations": [
@@ -521,131 +497,6 @@
       "@@@STEP_LOG_END@json.output@@@",
       "@@@STEP_LINK@shard #0 isolated out@blah@@@",
       "@@@STEP_LINK@view steps on Milo@https://luci-milo.appspot.com/swarming/task/148aa78d7aa0000@@@"
-    ]
-  },
-  {
-    "cmd": [
-      "git",
-      "show",
-      "HEAD",
-      "--format=%at",
-      "-s"
-    ],
-    "cwd": "[SLAVE_BUILD]/skia",
-    "name": "git show",
-    "stdout": "/path/to/tmp/"
-  },
-  {
-    "cmd": [
-      "python",
-      "-u",
-      "RECIPE_MODULE[build::gsutil]/resources/gsutil_wrapper.py",
-      "--",
-      "RECIPE_PACKAGE_REPO[depot_tools]/gsutil.py",
-      "----",
-      "cp",
-      "[SLAVE_BUILD]/swarming_temp_dir/outputs/test_skia/0/abc123.cov",
-      "gs://skia-infra/coverage-raw-v1/trybot/2012/05/14/12/Test-Ubuntu-Clang-GCE-CPU-AVX2-x86_64-Coverage-Trybot/5/500/abc123.cov"
-    ],
-    "env": {
-      "AWS_CREDENTIAL_FILE": null,
-      "BOTO_CONFIG": null
-    },
-    "name": "gsutil upload raw coverage data",
-    "~followup_annotations": [
-      "@@@STEP_LINK@gsutil.upload@https://storage.cloud.google.com/skia-infra/coverage-raw-v1/trybot/2012/05/14/12/Test-Ubuntu-Clang-GCE-CPU-AVX2-x86_64-Coverage-Trybot/5/500/abc123.cov@@@"
-    ]
-  },
-  {
-    "cmd": [
-      "python",
-      "-u",
-      "\nimport shutil\nimport sys\nshutil.copy(sys.argv[1], sys.argv[2])\n",
-      "[SLAVE_BUILD]/swarming_temp_dir/outputs/test_skia/0/nanobench_abc123.json",
-      "[SLAVE_BUILD]/swarming_temp_dir/outputs/test_skia/0/nanobench_abc123_1408633190.json"
-    ],
-    "name": "nanobench JSON"
-  },
-  {
-    "cmd": [
-      "python",
-      "-u",
-      "\nimport os\nimport sys\nos.remove(sys.argv[1])\n",
-      "[SLAVE_BUILD]/swarming_temp_dir/outputs/test_skia/0/nanobench_abc123.json"
-    ],
-    "name": "old nanobench JSON",
-    "~followup_annotations": [
-      "@@@STEP_LOG_LINE@python.inline@@@@",
-      "@@@STEP_LOG_LINE@python.inline@import os@@@",
-      "@@@STEP_LOG_LINE@python.inline@import sys@@@",
-      "@@@STEP_LOG_LINE@python.inline@os.remove(sys.argv[1])@@@",
-      "@@@STEP_LOG_END@python.inline@@@"
-    ]
-  },
-  {
-    "cmd": [
-      "python",
-      "-u",
-      "RECIPE_MODULE[skia::core]/resources/upload_bench_results.py",
-      "Test-Ubuntu-Clang-GCE-CPU-AVX2-x86_64-Coverage-Trybot",
-      "5",
-      "[SLAVE_BUILD]/swarming_temp_dir/outputs/test_skia/0",
-      "abc123",
-      "RECIPE_PACKAGE_REPO[depot_tools]/gsutil.py",
-      "500"
-    ],
-    "cwd": "[SLAVE_BUILD]/skia",
-    "env": {
-      "AWS_CREDENTIAL_FILE": "[HOME]/chromium-skia-gm.boto",
-      "BOTO_CONFIG": "[HOME]/chromium-skia-gm.boto"
-    },
-    "name": "upload nanobench coverage results"
-  },
-  {
-    "cmd": [
-      "python",
-      "-u",
-      "\nimport shutil\nimport sys\nshutil.copy(sys.argv[1], sys.argv[2])\n",
-      "[SLAVE_BUILD]/swarming_temp_dir/outputs/test_skia/0/coverage_by_line_abc123.json",
-      "[SLAVE_BUILD]/swarming_temp_dir/outputs/test_skia/0/coverage_by_line_abc123_1408633190.json"
-    ],
-    "name": "Line-by-line coverage JSON"
-  },
-  {
-    "cmd": [
-      "python",
-      "-u",
-      "\nimport os\nimport sys\nos.remove(sys.argv[1])\n",
-      "[SLAVE_BUILD]/swarming_temp_dir/outputs/test_skia/0/coverage_by_line_abc123.json"
-    ],
-    "name": "old line-by-line coverage JSON",
-    "~followup_annotations": [
-      "@@@STEP_LOG_LINE@python.inline@@@@",
-      "@@@STEP_LOG_LINE@python.inline@import os@@@",
-      "@@@STEP_LOG_LINE@python.inline@import sys@@@",
-      "@@@STEP_LOG_LINE@python.inline@os.remove(sys.argv[1])@@@",
-      "@@@STEP_LOG_END@python.inline@@@"
-    ]
-  },
-  {
-    "cmd": [
-      "python",
-      "-u",
-      "RECIPE_MODULE[build::gsutil]/resources/gsutil_wrapper.py",
-      "--",
-      "RECIPE_PACKAGE_REPO[depot_tools]/gsutil.py",
-      "----",
-      "cp",
-      "[SLAVE_BUILD]/swarming_temp_dir/outputs/test_skia/0/coverage_by_line_abc123_1408633190.json",
-      "gs://skia-infra/coverage-json-v1/trybot/2012/05/14/12/Test-Ubuntu-Clang-GCE-CPU-AVX2-x86_64-Coverage-Trybot/5/500/coverage_by_line_abc123_1408633190.json"
-    ],
-    "env": {
-      "AWS_CREDENTIAL_FILE": null,
-      "BOTO_CONFIG": null
-    },
-    "name": "gsutil upload line-by-line coverage data",
-    "~followup_annotations": [
-      "@@@STEP_LINK@gsutil.upload@https://storage.cloud.google.com/skia-infra/coverage-json-v1/trybot/2012/05/14/12/Test-Ubuntu-Clang-GCE-CPU-AVX2-x86_64-Coverage-Trybot/5/500/coverage_by_line_abc123_1408633190.json@@@"
     ]
   },
   {

@@ -37,8 +37,8 @@ static SkBitmap create_bitmap() {
     return bmp;
 }
 
-static const SkScalar RECT_SIZE = 64;
-static const SkScalar SLIDE_SIZE = 300;
+constexpr SkScalar RECT_SIZE = 64;
+constexpr SkScalar SLIDE_SIZE = 300;
 
 class ClippedBitmapShadersGM : public GM {
 public:

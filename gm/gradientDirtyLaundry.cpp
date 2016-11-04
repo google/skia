@@ -15,7 +15,7 @@ struct GradData {
     const SkScalar* fPos;
 };
 
-static const SkColor gColors[] = {
+constexpr SkColor gColors[] = {
     SK_ColorRED, SK_ColorGREEN, SK_ColorBLUE, SK_ColorWHITE, SK_ColorBLACK,
     SK_ColorRED, SK_ColorGREEN, SK_ColorBLUE, SK_ColorWHITE, SK_ColorBLACK,
     SK_ColorRED, SK_ColorGREEN, SK_ColorBLUE, SK_ColorWHITE, SK_ColorBLACK,
@@ -26,9 +26,9 @@ static const SkColor gColors[] = {
     SK_ColorRED, SK_ColorGREEN, SK_ColorBLUE, SK_ColorWHITE, SK_ColorBLACK,
 };
 
-//static const SkScalar gPos[] = { SK_Scalar1*999/2000, SK_Scalar1*1001/2000 };
+//constexpr SkScalar gPos[] = { SK_Scalar1*999/2000, SK_Scalar1*1001/2000 };
 
-static const GradData gGradData[] = {
+constexpr GradData gGradData[] = {
     { 40, gColors, nullptr },
     //  { 2, gColors, gPos },
     //  { 2, gCol2, nullptr },
@@ -51,7 +51,7 @@ static sk_sp<SkShader> MakeSweep(const SkPoint pts[2], const GradData& data, SkS
 
 typedef sk_sp<SkShader> (*GradMaker)(const SkPoint pts[2], const GradData&, SkShader::TileMode);
 
-static const GradMaker gGradMakers[] = {
+constexpr GradMaker gGradMakers[] = {
     MakeLinear, MakeRadial, MakeSweep,
 };
 

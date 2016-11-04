@@ -37,10 +37,11 @@ public:
      *
      *  The SkPngChunkReader handles unknown chunks in PNGs.
      *  See SkCodec.h for more details.
-     *
-     *  Will take a ref if it returns a codec, else will not affect the data.
      */
-    static SkAndroidCodec* NewFromData(SkData*, SkPngChunkReader* = NULL);
+    static SkAndroidCodec* NewFromData(sk_sp<SkData>, SkPngChunkReader* = NULL);
+    static SkAndroidCodec* NewFromData(SkData* data, SkPngChunkReader* reader) {
+        return NewFromData(sk_ref_sp(data), reader);
+    }
 
     virtual ~SkAndroidCodec() {}
 

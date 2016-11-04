@@ -28,6 +28,8 @@ public:
     void shadeSpan(int x, int y, SkPMColor dst[], int count) override;
     void shadeSpan4f(int x, int y, SkPM4f dst[], int count) override;
 
+    bool isValid() const;
+
 protected:
     struct Interval {
         Interval(const Sk4f& c0, SkScalar p0,

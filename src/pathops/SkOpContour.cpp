@@ -10,7 +10,7 @@
 #include "SkReduceOrder.h"
 #include "SkTSort.h"
 
-SkOpSegment* SkOpContour::addCurve(SkPath::Verb verb, const SkPoint pts[4]) {
+SkOpSegment* SkOpContour::addCurve(SkPath::Verb verb, const SkPoint pts[4], SkScalar weight) {
     SkChunkAlloc* allocator = this->globalState()->allocator();
     switch (verb) {
         case SkPath::kLine_Verb: {
@@ -24,7 +24,9 @@ SkOpSegment* SkOpContour::addCurve(SkPath::Verb verb, const SkPoint pts[4]) {
             return appendSegment().addQuad(ptStorage, this);
         } break;
         case SkPath::kConic_Verb: {
-            SkASSERT(0);  // the original curve is a cubic, which will never reduce to a conic
+            SkPoint* ptStorage = SkOpTAllocator<SkPoint>::AllocateArray(allocator, 3);
+            memcpy(ptStorage, pts, sizeof(SkPoint) * 3);
+            return appendSegment().addConic(ptStorage, weight, this);
         } break;
         case SkPath::kCubic_Verb: {
             SkPoint* ptStorage = SkOpTAllocator<SkPoint>::AllocateArray(allocator, 4);
@@ -38,23 +40,21 @@ SkOpSegment* SkOpContour::addCurve(SkPath::Verb verb, const SkPoint pts[4]) {
 }
 
 void SkOpContour::toPath(SkPathWriter* path) const {
-    const SkPoint& pt = fHead.pts()[0];
-    path->deferredMove(pt);
     const SkOpSegment* segment = &fHead;
     do {
         SkAssertResult(segment->addCurveTo(segment->head(), segment->tail(), path));
     } while ((segment = segment->next()));
-    path->close();
+    path->finishContour();
+    path->assemble();
 }
 
 void SkOpContour::toReversePath(SkPathWriter* path) const {
-    const SkPoint& pt = fTail->pts()[0];
-    path->deferredMove(pt);
     const SkOpSegment* segment = fTail;
     do {
         SkAssertResult(segment->addCurveTo(segment->tail(), segment->head(), path));
     } while ((segment = segment->prev()));
-    path->close();
+    path->finishContour();
+    path->assemble();
 }
 
 SkOpSegment* SkOpContour::undoneSegment(SkOpSpanBase** startPtr, SkOpSpanBase** endPtr) {

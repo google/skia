@@ -20,7 +20,8 @@ static inline GrResourceCache* get_resource_cache(GrGpu* gpu) {
 }
 
 GrGpuResource::GrGpuResource(GrGpu* gpu)
-    : fGpu(gpu)
+    : fExternalFlushCntWhenBecamePurgeable(0)
+    , fGpu(gpu)
     , fGpuMemorySize(kInvalidGpuMemorySize)
     , fBudgeted(SkBudgeted::kNo)
     , fRefsWrappedObjects(false)
@@ -69,7 +70,7 @@ void GrGpuResource::abandon() {
 void GrGpuResource::dumpMemoryStatistics(SkTraceMemoryDump* traceMemoryDump) const {
     // Dump resource as "skia/gpu_resources/resource_#".
     SkString dumpName("skia/gpu_resources/resource_");
-    dumpName.appendS32(this->getUniqueID());
+    dumpName.appendS32(this->uniqueID());
 
     traceMemoryDump->dumpNumericValue(dumpName.c_str(), "size", "bytes", this->gpuMemorySize());
 
@@ -81,12 +82,6 @@ void GrGpuResource::dumpMemoryStatistics(SkTraceMemoryDump* traceMemoryDump) con
     // Call setMemoryBacking to allow sub-classes with implementation specific backings (such as GL
     // objects) to provide additional information.
     this->setMemoryBacking(traceMemoryDump, dumpName);
-}
-
-const SkData* GrGpuResource::setCustomData(const SkData* data) {
-    SkSafeRef(data);
-    fData.reset(data);
-    return data;
 }
 
 const GrContext* GrGpuResource::getContext() const {

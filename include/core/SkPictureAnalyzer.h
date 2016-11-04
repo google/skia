@@ -8,6 +8,7 @@
 #ifndef SkPictureAnalyzer_DEFINED
 #define SkPictureAnalyzer_DEFINED
 
+#include "SkCanvas.h"
 #include "SkRefCnt.h"
 #include "SkRegion.h"
 #include "SkTypes.h"
@@ -36,7 +37,7 @@ public:
     /**
      *  Process an explicit clipPath op.
      */
-    void analyzeClipPath(const SkPath&, SkRegion::Op, bool doAntiAlias);
+    void analyzeClipPath(const SkPath&, SkCanvas::ClipOp, bool doAntiAlias);
 
     /**
      *  Reset all accumulated stats.

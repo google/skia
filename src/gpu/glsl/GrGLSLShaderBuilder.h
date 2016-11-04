@@ -15,6 +15,8 @@
 
 #include <stdarg.h>
 
+class GrGLSLColorSpaceXformHelper;
+
 /**
   base class for all shaders builders
 */
@@ -37,7 +39,8 @@ public:
     /** Version of above that appends the result to the shader code instead.*/
     void appendTextureLookup(SamplerHandle,
                              const char* coordName,
-                             GrSLType coordType = kVec2f_GrSLType);
+                             GrSLType coordType = kVec2f_GrSLType,
+                             GrGLSLColorSpaceXformHelper* colorXformHelper = nullptr);
 
 
     /** Does the work of appendTextureLookup and modulates the result by modulation. The result is
@@ -47,7 +50,18 @@ public:
     void appendTextureLookupAndModulate(const char* modulation,
                                         SamplerHandle,
                                         const char* coordName,
-                                        GrSLType coordType = kVec2f_GrSLType);
+                                        GrSLType coordType = kVec2f_GrSLType,
+                                        GrGLSLColorSpaceXformHelper* colorXformHelper = nullptr);
+
+    /** Adds a helper function to facilitate color gamut transformation, and produces code that
+        returns the srcColor transformed into a new gamut (via multiplication by the xform from
+        colorXformHelper). Premultiplied sources are also handled correctly (colorXformHelper
+        determines if the source is premultipled or not). */
+    void appendColorGamutXform(SkString* out, const char* srcColor,
+                               GrGLSLColorSpaceXformHelper* colorXformHelper);
+
+    /** Version of above that appends the result to the shader code instead. */
+    void appendColorGamutXform(const char* srcColor, GrGLSLColorSpaceXformHelper* colorXformHelper);
 
     /** Fetches an unfiltered texel from a sampler at integer coordinates. coordExpr must match the
         dimensionality of the sampler and must be within the sampler's range. coordExpr is emitted

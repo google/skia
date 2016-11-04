@@ -12,10 +12,10 @@
 
 // Reproduces https://code.google.com/p/chromium/issues/detail?id=279014
 
-static const int kWidth = 440;
-static const int kHeight = 440;
-static const SkScalar kAngle = 0.305f;
-static const int kMaxNumSteps = 140;
+constexpr int kWidth = 440;
+constexpr int kHeight = 440;
+constexpr SkScalar kAngle = 0.305f;
+constexpr int kMaxNumSteps = 140;
 
 // Renders a string art shape.
 // The particular shape rendered can be controlled by adjusting kAngle, from 0 to 1
@@ -61,7 +61,7 @@ protected:
     }
 
     bool onAnimate(const SkAnimTimer& timer) override {
-        static const SkScalar kDesiredDurationSecs = 3.0f;
+        constexpr SkScalar kDesiredDurationSecs = 3.0f;
 
         // Make the animation ping-pong back and forth but start in the fully drawn state
         SkScalar fraction = 1.0f - timer.scaled(2.0f/kDesiredDurationSecs, 2.0f);

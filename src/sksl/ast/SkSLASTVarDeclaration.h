@@ -5,8 +5,8 @@
  * found in the LICENSE file.
  */
  
-#ifndef SKSL_ASTVARDECLARATION
-#define SKSL_ASTVARDECLARATION
+#ifndef SKSL_ASTVARDECLARATIONS
+#define SKSL_ASTVARDECLARATIONS
 
 #include "SkSLASTDeclaration.h"
 #include "SkSLASTModifiers.h"
@@ -17,51 +17,68 @@
 namespace SkSL {
 
 /**
- * A variable declaration, which may consist of multiple individual variables. For instance
- * 'int x, y = 1, z[4][2]' is a single ASTVarDeclaration. This declaration would have a type of 
- * 'int', names ['x', 'y', 'z'], sizes of [[], [], [4, 2]], and values of [null, 1, null].
+ * A single variable declaration within a var declaration statement. For instance, the statement
+ * 'int x = 2, y[3];' is an ASTVarDeclarations statement containing two individual ASTVarDeclaration 
+ * instances.
  */
-struct ASTVarDeclaration : public ASTDeclaration {
-    ASTVarDeclaration(ASTModifiers modifiers, 
-                      std::unique_ptr<ASTType> type, 
-                      std::vector<std::string> names, 
-                      std::vector<std::vector<std::unique_ptr<ASTExpression>>> sizes,
-                      std::vector<std::unique_ptr<ASTExpression>> values)
-    : INHERITED(type->fPosition, kVar_Kind)
-    , fModifiers(modifiers)
-    , fType(std::move(type))
-    , fNames(std::move(names))
+struct ASTVarDeclaration {
+    ASTVarDeclaration(const std::string name,
+                      std::vector<std::unique_ptr<ASTExpression>> sizes,
+                      std::unique_ptr<ASTExpression> value)
+    : fName(name)
     , fSizes(std::move(sizes))
-    , fValues(std::move(values)) {
-        ASSERT(fNames.size() == fValues.size());
-    }
+    , fValue(std::move(value)) {}
 
-    std::string description() const override {
-        std::string result = fModifiers.description() + fType->description() + " ";
-        std::string separator = "";
-        for (size_t i = 0; i < fNames.size(); i++) {
-            result += separator;
-            separator = ", ";
-            result += fNames[i];
-            for (size_t j = 0; j < fSizes[i].size(); j++) {
-                if (fSizes[i][j]) {
-                    result += "[" + fSizes[i][j]->description() + "]";
-                } else {
-                    result += "[]";
-                }
+    std::string description() const {
+        std::string result = fName;
+        for (const auto& size : fSizes) {
+            if (size) {
+                result += "[" + size->description() + "]";
+            } else {
+                result += "[]";
             }
-            if (fValues[i]) {
-                result += " = " + fValues[i]->description();
-            }
+        }
+        if (fValue) {
+            result += " = " + fValue->description();
         }
         return result;        
     }
 
+    std::string fName;
+
+    // array sizes, if any. e.g. 'foo[3][]' has sizes [3, null]
+    std::vector<std::unique_ptr<ASTExpression>> fSizes;
+
+    // initial value, may be null
+    std::unique_ptr<ASTExpression> fValue;
+};
+
+/**
+ * A variable declaration statement, which may consist of one or more individual variables.
+ */
+struct ASTVarDeclarations : public ASTDeclaration {
+    ASTVarDeclarations(ASTModifiers modifiers, 
+                       std::unique_ptr<ASTType> type, 
+                       std::vector<ASTVarDeclaration> vars)
+    : INHERITED(type->fPosition, kVar_Kind)
+    , fModifiers(modifiers)
+    , fType(std::move(type))
+    , fVars(std::move(vars)) {}
+
+    std::string description() const override {
+        std::string result = fModifiers.description() + fType->description() + " ";
+        std::string separator = "";
+        for (const auto& var : fVars) {
+            result += separator;
+            separator = ", ";
+            result += var.description();
+        }
+        return result;
+    }
+
     const ASTModifiers fModifiers;
     const std::unique_ptr<ASTType> fType;
-    const std::vector<std::string> fNames;
-    const std::vector<std::vector<std::unique_ptr<ASTExpression>>> fSizes;
-    const std::vector<std::unique_ptr<ASTExpression>> fValues;
+    const std::vector<ASTVarDeclaration> fVars;
 
     typedef ASTDeclaration INHERITED;
 };

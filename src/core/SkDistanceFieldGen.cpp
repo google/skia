@@ -242,9 +242,8 @@ static void F1(DFData* curr, int width) {
 static void F2(DFData* curr, int width) {
     // right
     DFData* check = curr + 1;
-    float distSq = check->fDistSq;
     SkPoint distVec = check->fDistVector;
-    distSq = check->fDistSq + 2.0f*distVec.fX + 1.0f;
+    float distSq = check->fDistSq + 2.0f*distVec.fX + 1.0f;
     if (distSq < curr->fDistSq) {
         distVec.fX += 1.0f;
         curr->fDistSq = distSq;

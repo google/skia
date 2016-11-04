@@ -15,6 +15,8 @@
     data members or virtual methods. */
 class GrContextPriv {
 public:
+    GrDrawingManager* drawingManager() { return fContext->fDrawingManager; }
+
     // Create a drawContext that wraps an existing renderTarget
     sk_sp<GrDrawContext> makeWrappedDrawContext(sk_sp<GrRenderTarget> rt,
                                                 sk_sp<SkColorSpace> colorSpace,

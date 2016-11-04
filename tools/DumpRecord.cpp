@@ -75,7 +75,7 @@ public:
         }
     }
 
-#if 0
+#if 1
     void print(const SkRecords::DrawAnnotation& command, double ns) {
         int us = (int)(ns * 1e-3);
         if (!fTimeWithCommand) {

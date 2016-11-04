@@ -100,9 +100,6 @@
             ['exclude', '_angle\.(h|cpp)$'],
           ],
         }],
-        [ 'skia_command_buffer == 0', {
-          'sources/': [ ['exclude', '_command_buffer\.(h|cpp)$'], ],
-        }],
       ],
     },
     {

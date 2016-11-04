@@ -117,13 +117,13 @@ static void TestWStream(skiatest::Reporter* reporter) {
     REPORTER_ASSERT(reporter, ds.getOffset() == 100 * 26);
 
     {
-        sk_sp<SkData> data(ds.copyToData());
+        sk_sp<SkData> data = ds.snapshotAsData();
         REPORTER_ASSERT(reporter, 100 * 26 == data->size());
         REPORTER_ASSERT(reporter, memcmp(dst, data->data(), data->size()) == 0);
     }
 
     {
-        // Test that this works after a copyToData.
+        // Test that this works after a snapshot.
         SkAutoTDelete<SkStreamAsset> stream(ds.detachAsStream());
         REPORTER_ASSERT(reporter, ds.getOffset() == 0);
         test_loop_stream(reporter, stream.get(), s, 26, 100);
@@ -174,15 +174,14 @@ static void TestPackedUInt(skiatest::Reporter* reporter) {
 static void TestDereferencingData(SkMemoryStream* memStream) {
     memStream->read(nullptr, 0);
     memStream->getMemoryBase();
-    sk_sp<SkData> data(memStream->copyToData());
+    (void)memStream->asData();
 }
 
 static void TestNullData() {
-    SkData* nullData = nullptr;
-    SkMemoryStream memStream(nullData);
+    SkMemoryStream memStream(nullptr);
     TestDereferencingData(&memStream);
 
-    memStream.setData(nullData);
+    memStream.setData(nullptr);
     TestDereferencingData(&memStream);
 
 }
@@ -404,8 +403,7 @@ static void stream_copy_test(skiatest::Reporter* reporter,
         ERRORF(reporter, "SkStreamCopy failed");
         return;
     }
-    sk_sp<SkData> data(tgt.copyToData());
-    tgt.reset();
+    sk_sp<SkData> data(tgt.detachAsData());
     if (data->size() != N) {
         ERRORF(reporter, "SkStreamCopy incorrect size");
         return;

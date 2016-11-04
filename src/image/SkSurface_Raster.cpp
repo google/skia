@@ -49,15 +49,27 @@ bool SkSurface_Raster::Valid(const SkImageInfo& info, size_t rowBytes) {
     int shift = 0;
     switch (info.colorType()) {
         case kAlpha_8_SkColorType:
+            if (info.colorSpace()) {
+                return false;
+            }
             shift = 0;
             break;
         case kRGB_565_SkColorType:
+            if (info.colorSpace()) {
+                return false;
+            }
             shift = 1;
             break;
         case kN32_SkColorType:
+            if (info.colorSpace() && !info.colorSpace()->gammaCloseToSRGB()) {
+                return false;
+            }
             shift = 2;
             break;
         case kRGBA_F16_SkColorType:
+            if (!info.colorSpace() || !info.colorSpace()->gammaIsLinear()) {
+                return false;
+            }
             shift = 3;
             break;
         default:

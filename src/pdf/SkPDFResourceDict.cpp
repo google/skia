@@ -32,7 +32,7 @@ static const char* resource_type_names[] = {
         "Font"
 };
 
-static char get_resource_type_prefix(
+char SkPDFResourceDict::GetResourceTypePrefix(
         SkPDFResourceDict::SkPDFResourceType type) {
     SkASSERT(type >= 0);
     SkASSERT(type < SkPDFResourceDict::kResourceTypeCount);
@@ -50,9 +50,7 @@ static const char* get_resource_type_name(
 
 SkString SkPDFResourceDict::getResourceName(
         SkPDFResourceDict::SkPDFResourceType type, int key) {
-    SkString keyString;
-    keyString.printf("%c%d", get_resource_type_prefix(type), key);
-    return keyString;
+    return SkStringPrintf("%c%d", SkPDFResourceDict::GetResourceTypePrefix(type), key);
 }
 
 static void add_subdict(

@@ -73,8 +73,6 @@ DEFINE_int32(shard,  0, "Which shard do I run?");
 
 DEFINE_string(mskps, "", "Directory to read mskps from, or a single mskp file.");
 
-DEFINE_string(svgs, "", "Directory to read SVGs from, or a single SVG file.");
-
 using namespace DM;
 using sk_gpu_test::GrContextFactory;
 using sk_gpu_test::GLTestContext;
@@ -496,7 +494,7 @@ static void push_codec_srcs(Path path) {
         info("Couldn't read %s.", path.c_str());
         return;
     }
-    SkAutoTDelete<SkCodec> codec(SkCodec::NewFromData(encoded.get()));
+    SkAutoTDelete<SkCodec> codec(SkCodec::NewFromData(encoded));
     if (nullptr == codec.get()) {
         info("Couldn't create codec for %s.", path.c_str());
         return;
@@ -825,21 +823,7 @@ static Sink* create_sink(const SkCommandLineConfig* config) {
     if (gpu_supported()) {
         if (const SkCommandLineConfigGpu* gpuConfig = config->asConfigGpu()) {
             GrContextFactory::ContextType contextType = gpuConfig->getContextType();
-            GrContextFactory::ContextOptions contextOptions =
-                    GrContextFactory::kNone_ContextOptions;
-            if (gpuConfig->getUseNVPR()) {
-                contextOptions = static_cast<GrContextFactory::ContextOptions>(
-                    contextOptions | GrContextFactory::kEnableNVPR_ContextOptions);
-            }
-            if (gpuConfig->getUseInstanced()) {
-                contextOptions = static_cast<GrContextFactory::ContextOptions>(
-                    contextOptions | GrContextFactory::kUseInstanced_ContextOptions);
-            }
-            if (SkColorAndColorSpaceAreGammaCorrect(gpuConfig->getColorType(),
-                                                    gpuConfig->getColorSpace())) {
-                contextOptions = static_cast<GrContextFactory::ContextOptions>(
-                    contextOptions | GrContextFactory::kRequireSRGBSupport_ContextOptions);
-            }
+            GrContextFactory::ContextOptions contextOptions = gpuConfig->getContextOptions();
             GrContextFactory testFactory;
             if (!testFactory.get(contextType, contextOptions)) {
                 info("WARNING: can not create GPU context for config '%s'. "
@@ -865,9 +849,10 @@ static Sink* create_sink(const SkCommandLineConfig* config) {
         SINK("565",  RasterSink, kRGB_565_SkColorType);
         SINK("8888", RasterSink, kN32_SkColorType);
         SINK("srgb", RasterSink, kN32_SkColorType, srgbColorSpace);
-        SINK("f16",  RasterSink, kRGBA_F16_SkColorType, srgbColorSpace);
+        SINK("f16",  RasterSink, kRGBA_F16_SkColorType, srgbColorSpace->makeLinearGamma());
         SINK("pdf",  PDFSink);
         SINK("skp",  SKPSink);
+        SINK("pipe", PipeSink);
         SINK("svg",  SVGSink);
         SINK("null", NullSink);
         SINK("xps",  XPSSink);
@@ -880,6 +865,7 @@ static Sink* create_sink(const SkCommandLineConfig* config) {
 static Sink* create_via(const SkString& tag, Sink* wrapped) {
 #define VIA(t, via, ...) if (tag.equals(t)) { return new via(__VA_ARGS__); }
     VIA("lite",      ViaLite,              wrapped);
+    VIA("pipe",      ViaPipe,              wrapped);
     VIA("twice",     ViaTwice,             wrapped);
     VIA("serialize", ViaSerialization,     wrapped);
     VIA("pic",       ViaPicture,           wrapped);
@@ -1427,7 +1413,7 @@ void RunWithGPUTestContexts(GrContextTestFn* test, GrContextTypeFilterFn* contex
             (*test)(reporter, ctxInfo);
         }
         ctxInfo = factory->getContextInfo(contextType,
-                                          GrContextFactory::kEnableNVPR_ContextOptions);
+                                          GrContextFactory::ContextOptions::kEnableNVPR);
         if (ctxInfo.grContext()) {
             (*test)(reporter, ctxInfo);
         }

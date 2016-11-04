@@ -43,15 +43,13 @@ public:
     }
 #endif
 
-private:
+protected:
     GrVkPipeline(VkPipeline pipeline) : INHERITED(), fPipeline(pipeline) {}
 
-    GrVkPipeline(const GrVkPipeline&);
-    GrVkPipeline& operator=(const GrVkPipeline&);
-
-    void freeGPUData(const GrVkGpu* gpu) const override;
-
     VkPipeline  fPipeline;
+
+private:
+    void freeGPUData(const GrVkGpu* gpu) const override;
 
     typedef GrVkResource INHERITED;
 };

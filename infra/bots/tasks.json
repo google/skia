@@ -1,0 +1,174 @@
+{
+  "jobs": {
+    "Build-Ubuntu-GCC-x86_64-Release-GN": {
+      "priority": 0.8,
+      "tasks": [
+        "Build-Ubuntu-GCC-x86_64-Release-GN"
+      ]
+    },
+    "Perf-Ubuntu-GCC-GCE-CPU-AVX2-x86_64-Release-GN": {
+      "priority": 0.8,
+      "tasks": [
+        "Upload-Perf-Ubuntu-GCC-GCE-CPU-AVX2-x86_64-Release-GN"
+      ]
+    },
+    "Test-Ubuntu-GCC-GCE-CPU-AVX2-x86_64-Release-GN": {
+      "priority": 0.8,
+      "tasks": [
+        "Upload-Test-Ubuntu-GCC-GCE-CPU-AVX2-x86_64-Release-GN"
+      ]
+    }
+  },
+  "tasks": {
+    "Build-Ubuntu-GCC-x86_64-Release-GN": {
+      "dimensions": [
+        "gpu:none",
+        "os:Ubuntu",
+        "pool:Skia"
+      ],
+      "extra_args": [
+        "--workdir",
+        "../../..",
+        "swarm_compile",
+        "buildername=Build-Ubuntu-GCC-x86_64-Release-GN",
+        "mastername=fake-master",
+        "buildnumber=2",
+        "slavename=fake-buildslave",
+        "swarm_out_dir=${ISOLATED_OUTDIR}",
+        "revision=<(REVISION)"
+      ],
+      "isolate": "compile_skia.isolate",
+      "priority": 0.8
+    },
+    "Perf-Ubuntu-GCC-GCE-CPU-AVX2-x86_64-Release-GN": {
+      "cipd_packages": [
+        {
+          "name": "skia/bots/skimage",
+          "path": "skimage",
+          "version": "version:8"
+        },
+        {
+          "name": "skia/bots/skp",
+          "path": "skp",
+          "version": "version:10"
+        },
+        {
+          "name": "skia/bots/svg",
+          "path": "svg",
+          "version": "version:3"
+        }
+      ],
+      "dependencies": [
+        "Build-Ubuntu-GCC-x86_64-Release-GN"
+      ],
+      "dimensions": [
+        "cpu:x86-64-avx2",
+        "gpu:none",
+        "os:Ubuntu",
+        "pool:Skia"
+      ],
+      "extra_args": [
+        "--workdir",
+        "../../..",
+        "swarm_perf",
+        "buildername=Perf-Ubuntu-GCC-GCE-CPU-AVX2-x86_64-Release-GN",
+        "mastername=fake-master",
+        "buildnumber=2",
+        "slavename=fake-buildslave",
+        "swarm_out_dir=${ISOLATED_OUTDIR}",
+        "revision=<(REVISION)"
+      ],
+      "isolate": "perf_skia.isolate",
+      "priority": 0.8
+    },
+    "Test-Ubuntu-GCC-GCE-CPU-AVX2-x86_64-Release-GN": {
+      "cipd_packages": [
+        {
+          "name": "skia/bots/skimage",
+          "path": "skimage",
+          "version": "version:8"
+        },
+        {
+          "name": "skia/bots/skp",
+          "path": "skp",
+          "version": "version:10"
+        },
+        {
+          "name": "skia/bots/svg",
+          "path": "svg",
+          "version": "version:3"
+        }
+      ],
+      "dependencies": [
+        "Build-Ubuntu-GCC-x86_64-Release-GN"
+      ],
+      "dimensions": [
+        "cpu:x86-64-avx2",
+        "gpu:none",
+        "os:Ubuntu",
+        "pool:Skia"
+      ],
+      "extra_args": [
+        "--workdir",
+        "../../..",
+        "swarm_test",
+        "buildername=Test-Ubuntu-GCC-GCE-CPU-AVX2-x86_64-Release-GN",
+        "mastername=fake-master",
+        "buildnumber=2",
+        "slavename=fake-buildslave",
+        "swarm_out_dir=${ISOLATED_OUTDIR}",
+        "revision=<(REVISION)"
+      ],
+      "isolate": "test_skia.isolate",
+      "priority": 0.8
+    },
+    "Upload-Perf-Ubuntu-GCC-GCE-CPU-AVX2-x86_64-Release-GN": {
+      "dependencies": [
+        "Perf-Ubuntu-GCC-GCE-CPU-AVX2-x86_64-Release-GN"
+      ],
+      "dimensions": [
+        "cpu:x86-64-avx2",
+        "gpu:none",
+        "os:Ubuntu",
+        "pool:Skia"
+      ],
+      "extra_args": [
+        "--workdir",
+        "../../..",
+        "upload_nano_results",
+        "buildername=Perf-Ubuntu-GCC-GCE-CPU-AVX2-x86_64-Release-GN",
+        "mastername=fake-master",
+        "buildnumber=2",
+        "slavename=fake-buildslave",
+        "swarm_out_dir=${ISOLATED_OUTDIR}",
+        "revision=<(REVISION)"
+      ],
+      "isolate": "upload_nano_results.isolate",
+      "priority": 0.8
+    },
+    "Upload-Test-Ubuntu-GCC-GCE-CPU-AVX2-x86_64-Release-GN": {
+      "dependencies": [
+        "Test-Ubuntu-GCC-GCE-CPU-AVX2-x86_64-Release-GN"
+      ],
+      "dimensions": [
+        "cpu:x86-64-avx2",
+        "gpu:none",
+        "os:Ubuntu",
+        "pool:Skia"
+      ],
+      "extra_args": [
+        "--workdir",
+        "../../..",
+        "upload_dm_results",
+        "buildername=Test-Ubuntu-GCC-GCE-CPU-AVX2-x86_64-Release-GN",
+        "mastername=fake-master",
+        "buildnumber=2",
+        "slavename=fake-buildslave",
+        "swarm_out_dir=${ISOLATED_OUTDIR}",
+        "revision=<(REVISION)"
+      ],
+      "isolate": "upload_dm_results.isolate",
+      "priority": 0.8
+    }
+  }
+}

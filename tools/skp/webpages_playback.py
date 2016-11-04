@@ -290,7 +290,7 @@ class SkPicturePlayback(object):
       run_benchmark_cmd = (
           'PYTHONPATH=%s:%s:$PYTHONPATH' % (page_set_dir, self._catapult_dir),
           'DISPLAY=%s' % X11_DISPLAY,
-          'timeout', '300',
+          'timeout', '1800',
           os.path.join(self._telemetry_binaries_dir, 'run_benchmark'),
           '--extra-browser-args="%s"' % self._browser_args,
           '--browser=exact',
@@ -564,7 +564,7 @@ if '__main__' == __name__:
     help=('The location of the file storage to use to download and upload '
           'files. Can be \'gs://<bucket>\' for Google Storage, or '
           'a directory for local filesystem storage'),
-      default='gs://chromium-skia-gm')
+      default='gs://skia-skps')
   option_parser.add_option(
       '', '--alternate_upload_dir',
       help= ('Uploads to a different directory in Google Storage or local '

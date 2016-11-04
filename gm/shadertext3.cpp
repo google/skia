@@ -17,11 +17,11 @@ static void makebm(SkBitmap* bm, int w, int h) {
 
     SkCanvas    canvas(*bm);
     SkScalar    s = SkIntToScalar(SkMin32(w, h));
-    static const SkPoint     kPts0[] = { { 0, 0 }, { s, s } };
-    static const SkPoint     kPts1[] = { { s/2, 0 }, { s/2, s } };
-    static const SkScalar    kPos[] = { 0, SK_Scalar1/2, SK_Scalar1 };
-    static const SkColor kColors0[] = {0x80F00080, 0xF0F08000, 0x800080F0 };
-    static const SkColor kColors1[] = {0xF08000F0, 0x8080F000, 0xF000F080 };
+    const SkPoint     kPts0[] = { { 0, 0 }, { s, s } };
+    const SkPoint     kPts1[] = { { s/2, 0 }, { s/2, s } };
+    const SkScalar    kPos[] = { 0, SK_Scalar1/2, SK_Scalar1 };
+    const SkColor kColors0[] = {0x80F00080, 0xF0F08000, 0x800080F0 };
+    const SkColor kColors1[] = {0xF08000F0, 0x8080F000, 0xF000F080 };
 
 
     SkPaint     paint;
@@ -41,9 +41,9 @@ struct LabeledMatrix {
     const char* fLabel;
 };
 
-static const char kText[] = "B";
-static const int kTextLen = SK_ARRAY_COUNT(kText) - 1;
-static const int kPointSize = 300;
+constexpr char kText[] = "B";
+constexpr int kTextLen = SK_ARRAY_COUNT(kText) - 1;
+constexpr int kPointSize = 300;
 
 class ShaderText3GM : public GM {
 public:
@@ -83,7 +83,7 @@ protected:
         // draw glyphs scaled up
         canvas->scale(2.f, 2.f);
 
-        static const SkShader::TileMode kTileModes[] = {
+        constexpr SkShader::TileMode kTileModes[] = {
             SkShader::kRepeat_TileMode,
             SkShader::kMirror_TileMode,
         };

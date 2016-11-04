@@ -47,92 +47,92 @@ protected:
 
     void makePaints() {
         {
-        // no AA
-        SkPaint p;
-        fPaints.push_back(p);
+            // no AA
+            SkPaint p;
+            fPaints.push_back(p);
         }
 
         {
-        // AA
-        SkPaint p;
-        p.setAntiAlias(true);
-        fPaints.push_back(p);
+            // AA
+            SkPaint p;
+            p.setAntiAlias(true);
+            fPaints.push_back(p);
         }
 
         {
-        // AA with stroke style
-        SkPaint p;
-        p.setAntiAlias(true);
-        p.setStyle(SkPaint::kStroke_Style);
-        p.setStrokeWidth(SkIntToScalar(5));
-        fPaints.push_back(p);
+            // AA with stroke style
+            SkPaint p;
+            p.setAntiAlias(true);
+            p.setStyle(SkPaint::kStroke_Style);
+            p.setStrokeWidth(SkIntToScalar(5));
+            fPaints.push_back(p);
         }
 
         {
-        // AA with stroke style, width = 0
-        SkPaint p;
-        p.setAntiAlias(true);
-        p.setStyle(SkPaint::kStroke_Style);
-        fPaints.push_back(p);
+            // AA with stroke style, width = 0
+            SkPaint p;
+            p.setAntiAlias(true);
+            p.setStyle(SkPaint::kStroke_Style);
+            fPaints.push_back(p);
         }
 
         {
-        // AA with stroke and fill style
-        SkPaint p;
-        p.setAntiAlias(true);
-        p.setStyle(SkPaint::kStrokeAndFill_Style);
-        p.setStrokeWidth(SkIntToScalar(3));
-        fPaints.push_back(p);
+            // AA with stroke and fill style
+            SkPaint p;
+            p.setAntiAlias(true);
+            p.setStyle(SkPaint::kStrokeAndFill_Style);
+            p.setStrokeWidth(SkIntToScalar(3));
+            fPaints.push_back(p);
         }
     }
 
     void makeMatrices() {
         {
-        SkMatrix m;
-        m.setIdentity();
-        fMatrices.push_back(m);
+            SkMatrix m;
+            m.setIdentity();
+            fMatrices.push_back(m);
         }
 
         {
-        SkMatrix m;
-        m.setScale(SkIntToScalar(3), SkIntToScalar(2));
-        fMatrices.push_back(m);
+            SkMatrix m;
+            m.setScale(SkIntToScalar(3), SkIntToScalar(2));
+            fMatrices.push_back(m);
         }
 
         {
-        SkMatrix m;
-        m.setScale(SkIntToScalar(2), SkIntToScalar(2));
-        fMatrices.push_back(m);
+            SkMatrix m;
+            m.setScale(SkIntToScalar(2), SkIntToScalar(2));
+            fMatrices.push_back(m);
         }
 
         {
-        SkMatrix m;
-        m.setScale(SkIntToScalar(1), SkIntToScalar(2));
-        fMatrices.push_back(m);
+            SkMatrix m;
+            m.setScale(SkIntToScalar(1), SkIntToScalar(2));
+            fMatrices.push_back(m);
         }
 
         {
-        SkMatrix m;
-        m.setScale(SkIntToScalar(4), SkIntToScalar(1));
-        fMatrices.push_back(m);
+            SkMatrix m;
+            m.setScale(SkIntToScalar(4), SkIntToScalar(1));
+            fMatrices.push_back(m);
         }
 
         {
-        SkMatrix m;
-        m.setRotate(SkIntToScalar(90));
-        fMatrices.push_back(m);
+            SkMatrix m;
+            m.setRotate(SkIntToScalar(90));
+            fMatrices.push_back(m);
         }
 
         {
-        SkMatrix m;
-        m.setSkew(SkIntToScalar(2), SkIntToScalar(3));
-        fMatrices.push_back(m);
+            SkMatrix m;
+            m.setSkew(SkIntToScalar(2), SkIntToScalar(3));
+            fMatrices.push_back(m);
         }
 
         {
-        SkMatrix m;
-        m.setRotate(SkIntToScalar(60));
-        fMatrices.push_back(m);
+            SkMatrix m;
+            m.setRotate(SkIntToScalar(60));
+            fMatrices.push_back(m);
         }
     }
 
@@ -335,6 +335,30 @@ protected:
             const SkRect oooRect = { 20, 30, -20, -30 };     // intentionally out of order
             canvas->drawRoundRect(oooRect, 10, 10, p);
 
+            canvas->restore();
+        }
+
+        // rrect with stroke > radius/2
+        {
+            SkRect smallRect = { -30, -20, 30, 20 };
+            SkRRect circleRect;
+            circleRect.setRectXY(smallRect, 5, 5);
+
+            canvas->save();
+            // position the roundrect, and make it at off-integer coords.
+            canvas->translate(kXStart + SK_Scalar1 * kXStep * 5 + SK_Scalar1 / 4,
+                              kYStart - SK_Scalar1 * kYStep + 73 * SK_Scalar1 / 4 +
+                              SK_ScalarHalf * kYStep);
+
+            SkColor color = gen_color(&rand);
+
+            SkPaint p;
+            p.setAntiAlias(true);
+            p.setStyle(SkPaint::kStroke_Style);
+            p.setStrokeWidth(25);
+            p.setColor(color);
+
+            canvas->drawRRect(circleRect, p);
             canvas->restore();
         }
     }

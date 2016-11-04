@@ -72,8 +72,8 @@ protected:
             fColors[i] |= 0xFF000000;
             fColors[i] = sk_tool_utils::color_to_565(fColors[i]);
 
-            static const SkScalar kMinPtSize = 8.f;
-            static const SkScalar kMaxPtSize = 32.f;
+            constexpr SkScalar kMinPtSize = 8.f;
+            constexpr SkScalar kMaxPtSize = 32.f;
 
             fPtSizes[i] = random.nextRangeScalar(kMinPtSize, kMaxPtSize);
 
@@ -134,9 +134,9 @@ protected:
     bool runAsBench() const override { return true; }
 
 private:
-    static const int kCnt = 30;
-    static const int kMinLength = 15;
-    static const int kMaxLength = 40;
+    static constexpr int kCnt = 30;
+    static constexpr int kMinLength = 15;
+    static constexpr int kMaxLength = 40;
 
     bool        fEffectiveClip;
     bool        fLCD;

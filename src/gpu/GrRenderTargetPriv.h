@@ -38,7 +38,7 @@ public:
     typedef GrRenderTarget::Flags Flags;
 
     Flags flags() const { return fRenderTarget->fFlags; }
-    bool supportsWindowRectangles() const { return this->flags() & Flags::kWindowRectsSupport; }
+    int maxWindowRectangles() const;
 
 private:
     explicit GrRenderTargetPriv(GrRenderTarget* renderTarget) : fRenderTarget(renderTarget) {}

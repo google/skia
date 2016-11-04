@@ -54,7 +54,7 @@ struct Sniffer : public SkPixelSerializer {
         gSeen.add(digest);
 
         sk_sp<SkData> data(SkData::MakeWithoutCopy(ptr, len));
-        SkAutoTDelete<SkCodec> codec(SkCodec::NewFromData(data.get()));
+        SkAutoTDelete<SkCodec> codec(SkCodec::NewFromData(data));
         if (!codec) {
             // FIXME: This code is currently unreachable because we create an empty generator when
             //        we fail to create a codec.
@@ -128,9 +128,9 @@ int main(int argc, char** argv) {
 
     SkOSFile::Iter iter(inputs, "skp");
     for (SkString file; iter.next(&file); ) {
-        SkAutoTDelete<SkStream> stream =
-                SkStream::NewFromFile(SkOSPath::Join(inputs, file.c_str()).c_str());
-        sk_sp<SkPicture> picture(SkPicture::MakeFromStream(stream));
+        std::unique_ptr<SkStream> stream =
+                SkStream::MakeFromFile(SkOSPath::Join(inputs, file.c_str()).c_str());
+        sk_sp<SkPicture> picture(SkPicture::MakeFromStream(stream.get()));
 
         SkDynamicMemoryWStream scratch;
         Sniffer sniff(file.c_str());
