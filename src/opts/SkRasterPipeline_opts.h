@@ -11,8 +11,10 @@
 #include "SkColorPriv.h"
 #include "SkHalf.h"
 #include "SkPM4f.h"
+#include "SkPM4fPriv.h"
 #include "SkRasterPipeline.h"
 #include "SkSRGB.h"
+#include "SkUtils.h"
 #include <utility>
 
 namespace {
@@ -517,6 +519,31 @@ namespace SK_OPTS_NS {
 
     SI std::function<void(size_t, size_t)> compile_pipeline(const SkRasterPipeline::Stage* stages,
                                                             int nstages) {
+        if (nstages == 2 && stages[0].stage == SkRasterPipeline::constant_color) {
+            SkPM4f src = *(const SkPM4f*)stages[0].ctx;
+            void* dst = stages[1].ctx;
+            switch (stages[1].stage) {
+                case SkRasterPipeline::store_565: {
+                    auto v = SkPackRGB16(src.r() * SK_R16_MASK + 0.5f,
+                                         src.g() * SK_G16_MASK + 0.5f,
+                                         src.b() * SK_B16_MASK + 0.5f);
+                    return [v,dst](size_t x, size_t n) { sk_memset16(*(uint16_t**)dst + x, v, n); };
+                }
+
+                case SkRasterPipeline::store_srgb: {
+                    auto v = Sk4f_toS32(src.to4f_pmorder());
+                    return [v,dst](size_t x, size_t n) { sk_memset32(*(uint32_t**)dst + x, v, n); };
+                }
+
+                case SkRasterPipeline::store_f16: {
+                    auto v = src.toF16();
+                    return [v,dst](size_t x, size_t n) { sk_memset64(*(uint64_t**)dst + x, v, n); };
+                }
+
+                default: break;
+            }
+        }
+
         struct Compiled {
             Compiled(const SkRasterPipeline::Stage* stages, int nstages) {
                 if (nstages == 0) {
