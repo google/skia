@@ -1321,14 +1321,15 @@ sk_sp<GrFragmentProcessor> SkPerlinNoiseShader2::asFragmentProcessor(const AsFPA
     if (fType == kImprovedNoise_Type) {
         GrTextureParams textureParams(SkShader::TileMode::kRepeat_TileMode, 
                                       GrTextureParams::FilterMode::kNone_FilterMode);
-        SkAutoTUnref<GrTexture> permutationsTexture(
+        sk_sp<GrTexture> permutationsTexture(
             GrRefCachedBitmapTexture(args.fContext, paintingData->getImprovedPermutationsBitmap(),
                                      textureParams, args.fGammaTreatment));
-        SkAutoTUnref<GrTexture> gradientTexture(
+        sk_sp<GrTexture> gradientTexture(
             GrRefCachedBitmapTexture(args.fContext, paintingData->getGradientBitmap(),
                                      textureParams, args.fGammaTreatment));
         return GrImprovedPerlinNoiseEffect::Make(fNumOctaves, fSeed, paintingData,
-                                                   permutationsTexture, gradientTexture, m);
+                                                 permutationsTexture.get(),
+                                                 gradientTexture.get(), m);
     }
 
     if (0 == fNumOctaves) {
@@ -1347,10 +1348,10 @@ sk_sp<GrFragmentProcessor> SkPerlinNoiseShader2::asFragmentProcessor(const AsFPA
                                            GrConstColorProcessor::kIgnore_InputMode);
     }
 
-    SkAutoTUnref<GrTexture> permutationsTexture(
+    sk_sp<GrTexture> permutationsTexture(
         GrRefCachedBitmapTexture(args.fContext, paintingData->getPermutationsBitmap(),
                                  GrTextureParams::ClampNoFilter(), args.fGammaTreatment));
-    SkAutoTUnref<GrTexture> noiseTexture(
+    sk_sp<GrTexture> noiseTexture(
         GrRefCachedBitmapTexture(args.fContext, paintingData->getNoiseBitmap(),
                                  GrTextureParams::ClampNoFilter(), args.fGammaTreatment));
 
@@ -1360,7 +1361,7 @@ sk_sp<GrFragmentProcessor> SkPerlinNoiseShader2::asFragmentProcessor(const AsFPA
                                        fNumOctaves,
                                        fStitchTiles,
                                        paintingData,
-                                       permutationsTexture, noiseTexture,
+                                       permutationsTexture.get(), noiseTexture.get(),
                                        m));
         return GrFragmentProcessor::MulOutputByInputAlpha(std::move(inner));
     }

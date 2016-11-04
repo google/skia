@@ -53,7 +53,7 @@ static void render_picture(GrContext* grContext,
 
 namespace {
 struct GaneshPictureRendererImpl {
-    SkAutoTUnref<GrContext> fGrContext;
+    sk_sp<GrContext> fGrContext;
     void render(int w, int h, const SkPicture* p, const SkMatrix& m) {
         if (!fGrContext) {
             // Cache the rendering context between frames.

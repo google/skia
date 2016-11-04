@@ -801,9 +801,9 @@ public:
 
                 fCurrentAnimSKP++;
                 SkString name = SkOSPath::Basename(path.c_str());
-                SkAutoTUnref<SKPAnimationBench::Animation> animation(
+                sk_sp<SKPAnimationBench::Animation> animation(
                     SKPAnimationBench::CreateZoomAnimation(fZoomMax, fZoomPeriodMs));
-                return new SKPAnimationBench(name.c_str(), pic.get(), fClip, animation,
+                return new SKPAnimationBench(name.c_str(), pic.get(), fClip, animation.get(),
                                              FLAGS_loopSKP);
             }
         }
