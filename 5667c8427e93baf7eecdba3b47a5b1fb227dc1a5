@@ -25,6 +25,29 @@
     },
     {
       "key": {
+        "uuid": "8b50234a_6c19435a",
+        "filename": "src/codec/SkGifCodec.cpp",
+        "patchSetId": 7
+      },
+      "lineNbr": 150,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2016-11-04T20:36:41Z",
+      "side": 1,
+      "message": "In other cases (e.g. BMP), I think you\u0027ve chosen BGRA to use prior to applying a colorXform. Why RGBA here?",
+      "range": {
+        "startLine": 150,
+        "startChar": 30,
+        "endLine": 150,
+        "endChar": 52
+      },
+      "revId": "5667c8427e93baf7eecdba3b47a5b1fb227dc1a5",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "8b50234a_1e454d8c",
         "filename": "src/codec/SkGifCodec.cpp",
         "patchSetId": 7
