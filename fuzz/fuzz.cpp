@@ -145,7 +145,7 @@ int fuzz_img(sk_sp<SkData> bytes, uint8_t scale, uint8_t mode) {
     decodeInfo = decodeInfo.makeWH(size.width(), size.height());
 
     // Construct a color table for the decode if necessary
-    SkAutoTUnref<SkColorTable> colorTable(nullptr);
+    sk_sp<SkColorTable> colorTable(nullptr);
     SkPMColor* colorPtr = nullptr;
     int* colorCountPtr = nullptr;
     int maxColors = 256;
