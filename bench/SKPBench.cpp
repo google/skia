@@ -135,7 +135,7 @@ void SKPBench::drawMPDPicture() {
         SkMatrix trans;
         trans.setTranslate(-fTileRects[j].fLeft/fScale,
                            -fTileRects[j].fTop/fScale);
-        mpd.add(fSurfaces[j]->getCanvas(), fPic, &trans);
+        mpd.add(fSurfaces[j]->getCanvas(), fPic.get(), &trans);
     }
 
     mpd.draw();
@@ -149,7 +149,7 @@ void SKPBench::drawPicture() {
     for (int j = 0; j < fTileRects.count(); ++j) {
         const SkMatrix trans = SkMatrix::MakeTrans(-fTileRects[j].fLeft / fScale,
                                                    -fTileRects[j].fTop / fScale);
-        fSurfaces[j]->getCanvas()->drawPicture(fPic, &trans, nullptr);
+        fSurfaces[j]->getCanvas()->drawPicture(fPic.get(), &trans, nullptr);
     }
 
     for (int j = 0; j < fTileRects.count(); ++j) {
@@ -190,10 +190,10 @@ void SKPBench::getGpuStats(SkCanvas* canvas, SkTArray<SkString>* keys, SkTArray<
     context->freeGpuResources();
     context->resetContext();
     context->getGpu()->resetShaderCacheForTesting();
-    draw_pic_for_stats(canvas, context, fPic, keys, values, "first_frame");
+    draw_pic_for_stats(canvas, context, fPic.get(), keys, values, "first_frame");
 
     // draw second frame
-    draw_pic_for_stats(canvas, context, fPic, keys, values, "second_frame");
+    draw_pic_for_stats(canvas, context, fPic.get(), keys, values, "second_frame");
 
 #endif
 }

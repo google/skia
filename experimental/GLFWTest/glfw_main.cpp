@@ -76,7 +76,7 @@ int main(void) {
     
     init_skia(kWidth, kHeight);
     
-    SkAutoTUnref<SkImage> atlas;
+    sk_sp<SkImage> atlas;
     SkRSXform   xform[kGrid*kGrid+1];
     SkRect      tex[kGrid*kGrid+1];
     WallTimer   timer;
