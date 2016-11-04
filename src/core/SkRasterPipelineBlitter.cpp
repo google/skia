@@ -20,12 +20,8 @@ class SkRasterPipelineBlitter : public SkBlitter {
 public:
     static SkBlitter* Create(const SkPixmap&, const SkPaint&, SkTBlitterAllocator*);
 
-    SkRasterPipelineBlitter(SkPixmap dst,
-                            SkRasterPipeline shader,
-                            SkBlendMode blend,
-                            SkPM4f paintColor)
+    SkRasterPipelineBlitter(SkPixmap dst, SkBlendMode blend, SkPM4f paintColor)
         : fDst(dst)
-        , fShader(shader)
         , fBlend(blend)
         , fPaintColor(paintColor)
     {}
@@ -45,9 +41,9 @@ private:
     void maybe_clamp  (SkRasterPipeline*) const;
 
     SkPixmap         fDst;
-    SkRasterPipeline fShader;
     SkBlendMode      fBlend;
     SkPM4f           fPaintColor;
+    SkRasterPipeline fShader;
 
     // These functions are compiled lazily when first used.
     std::function<void(size_t, size_t)> fBlitH         = nullptr,
@@ -84,52 +80,59 @@ static bool append_effect_stages(const Effect* effect, SkRasterPipeline* pipelin
     return !effect || effect->appendStages(pipeline);
 }
 
+static SkPM4f paint_color(const SkPixmap& dst, const SkPaint& paint) {
+    auto paintColor = paint.getColor();
+    SkColor4f color;
+    if (dst.info().colorSpace()) {
+        color = SkColor4f::FromColor(paintColor);
+        // TODO: transform from sRGB to dst gamut.
+    } else {
+        swizzle_rb(SkNx_cast<float>(Sk4b::Load(&paintColor)) * (1/255.0f)).store(&color);
+    }
+    return color.premul();
+}
 
 SkBlitter* SkRasterPipelineBlitter::Create(const SkPixmap& dst,
                                            const SkPaint& paint,
                                            SkTBlitterAllocator* alloc) {
-    if (!supported(dst.info())) {
+    auto blitter = alloc->createT<SkRasterPipelineBlitter>(dst,
+                                                           paint.getBlendMode(),
+                                                           paint_color(dst, paint));
+    auto blend      = &blitter->fBlend;
+    auto paintColor = &blitter->fPaintColor;
+    auto pipeline   = &blitter->fShader;
+
+    auto shader      = paint.getShader();
+    auto colorFilter = paint.getColorFilter();
+
+    // TODO: all temporary
+    if (!supported(dst.info()) || shader || !SkBlendMode_AppendStages(*blend)) {
+        alloc->freeLast();
         return nullptr;
     }
-    if (paint.getShader()) {
-        return nullptr;  // TODO: need to work out how shaders and their contexts work
-    }
-    SkBlendMode blend = paint.getBlendMode();
-    if (!SkBlendMode_AppendStages(blend)) {
-        return nullptr;  // TODO
+
+    bool opaque, constant;
+    if (shader) {
+        opaque   = shader->isOpaque();
+        constant = false;
+        // TODO: append shader stages, of course!
+    } else {
+        opaque   = paintColor->a() == 1.0f;
+        constant = true;
+        pipeline->append(SkRasterPipeline::constant_color, paintColor);
     }
 
-    uint32_t paintColor = paint.getColor();
-    bool shaderIsOpaque = (paintColor >> 24) == 0xff;
-
-    SkRasterPipeline shader, colorFilter;
-    if (auto s = paint.getShader()) {
-        shaderIsOpaque = s->isOpaque();
-    }
-    if (auto cf = paint.getColorFilter()) {
-        if (!cf->appendStages(&colorFilter, shaderIsOpaque)) {
+    if (colorFilter) {
+        if (!colorFilter->appendStages(pipeline, opaque)) {
+            alloc->freeLast();
             return nullptr;
         }
-        shaderIsOpaque = shaderIsOpaque && (cf->getFlags() & SkColorFilter::kAlphaUnchanged_Flag);
+        opaque = opaque && (colorFilter->getFlags() & SkColorFilter::kAlphaUnchanged_Flag);
     }
 
-    if (shaderIsOpaque && blend == SkBlendMode::kSrcOver) {
-        blend = SkBlendMode::kSrc;
+    if (opaque && *blend == SkBlendMode::kSrcOver) {
+        *blend = SkBlendMode::kSrc;
     }
-
-    SkColor4f color;
-    if (dst.info().colorSpace()) {
-        color = SkColor4f::FromColor(paintColor);
-    } else {
-        swizzle_rb(SkNx_cast<float>(Sk4b::Load(&paintColor)) * (1/255.0f)).store(&color);
-    }
-
-    auto blitter = alloc->createT<SkRasterPipelineBlitter>(dst, shader, blend, color.premul());
-
-    if (!paint.getShader()) {
-        blitter->fShader.append(SkRasterPipeline::constant_color, &blitter->fPaintColor);
-    }
-    blitter->fShader.extend(colorFilter);
 
     return blitter;
 }
