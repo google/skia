@@ -11,6 +11,7 @@
 #include "SkColorPriv.h"
 #include "SkColorSpaceXform.h"
 #include "SkColorTable.h"
+#include "SkEncodedInfo.h"
 #include "SkImageInfo.h"
 #include "SkTypes.h"
 
@@ -360,6 +361,11 @@ static inline bool needs_color_xform(const SkImageInfo& dstInfo, const SkImageIn
 
 static inline SkAlphaType select_xform_alpha(SkAlphaType dstAlphaType, SkAlphaType srcAlphaType) {
     return (kOpaque_SkAlphaType == srcAlphaType) ? kOpaque_SkAlphaType : dstAlphaType;
+}
+
+static inline bool apply_xform_on_decode(SkColorType dstColorType, SkEncodedInfo::Color srcColor) {
+    // We will apply the color xform when reading the color table, unless F16 is requested.
+    return SkEncodedInfo::kPalette_Color != srcColor || kRGBA_F16_SkColorType == dstColorType;
 }
 
 /*
