@@ -27,7 +27,6 @@ class GNFlavorUtils(default_flavor.DefaultFlavorUtils):
         args=[
           '--chrome-dir', self.m.vars.checkout_root,
           '--output-dir', self.m.vars.skia_out.join(self.m.vars.configuration),
-          '--chrome-build-type', self.m.vars.configuration,
           '--no-sync', '--make-output-dir'])
 
   def compile(self, unused_target, **kwargs):

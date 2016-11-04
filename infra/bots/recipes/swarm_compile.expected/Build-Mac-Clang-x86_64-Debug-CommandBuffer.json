@@ -101,8 +101,6 @@
       "[CUSTOM_/_B_WORK]",
       "--output-dir",
       "[CUSTOM_/_B_WORK]/skia/out/Build-Mac-Clang-x86_64-Debug-CommandBuffer/Debug",
-      "--chrome-build-type",
-      "Debug",
       "--no-sync",
       "--make-output-dir"
     ],
