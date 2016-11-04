@@ -23,9 +23,9 @@ namespace {
     static constexpr int N = 4;
 #endif
 
-using SkNf = SkNx<N, float>;
-using SkNi = SkNx<N, int>;
-using SkNh = SkNx<N, uint16_t>;
+    using SkNf = SkNx<N, float>;
+    using SkNi = SkNx<N, int>;
+    using SkNh = SkNx<N, uint16_t>;
 
     struct BodyStage;
     struct TailStage;
@@ -366,6 +366,24 @@ STAGE(store_f16, false) {
                                       SkFloatToHalf_finite_ftz(g),
                                       SkFloatToHalf_finite_ftz(b),
                                       SkFloatToHalf_finite_ftz(a));
+    if (kIsTail) {
+        switch (tail & (N-1)) {
+            case 7: ptr[6] = buf[6];
+            case 6: ptr[5] = buf[5];
+            case 5: ptr[4] = buf[4];
+            case 4: ptr[3] = buf[3];
+            case 3: ptr[2] = buf[2];
+            case 2: ptr[1] = buf[1];
+        }
+        ptr[0] = buf[0];
+    }
+}
+
+STAGE(store_f32, false) {
+    auto ptr = *(SkPM4f**)ctx + x;
+
+    SkPM4f buf[8];
+    SkNf::Store4(kIsTail ? buf : ptr, r,g,b,a);
     if (kIsTail) {
         switch (tail & (N-1)) {
             case 7: ptr[6] = buf[6];

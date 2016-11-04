@@ -560,6 +560,29 @@ public:
         AI static SkNx Load(const void* ptr) { return _mm256_loadu_ps((const float*)ptr); }
         AI void store(void* ptr) const { _mm256_storeu_ps((float*)ptr, fVec); }
 
+        AI static void Store4(void* ptr,
+                              const SkNx& r, const SkNx& g, const SkNx& b, const SkNx& a) {
+            __m256 rg0145 = _mm256_unpacklo_ps(r.fVec, g.fVec),  // r0 g0 r1 g1 | r4 g4 r5 g5
+                   rg2367 = _mm256_unpackhi_ps(r.fVec, g.fVec),  // r2 ...      | r6 ...
+                   ba0145 = _mm256_unpacklo_ps(b.fVec, a.fVec),  // b0 a0 b1 a1 | b4 a4 b5 a5
+                   ba2367 = _mm256_unpackhi_ps(b.fVec, a.fVec);  // b2 ...      | b6 ...
+
+            __m256 _04 = _mm256_unpacklo_pd(rg0145, ba0145),  // r0 g0 b0 a0 | r4 g4 b4 a4
+                   _15 = _mm256_unpackhi_pd(rg0145, ba0145),  // r1 ...      | r5 ...
+                   _26 = _mm256_unpacklo_pd(rg2367, ba2367),  // r2 ...      | r6 ...
+                   _37 = _mm256_unpackhi_pd(rg2367, ba2367);  // r3 ...      | r7 ...
+
+            __m256 _01 = _mm256_permute2f128_ps(_04, _15, 16),  // 16 == 010 000 == lo, lo
+                   _23 = _mm256_permute2f128_ps(_26, _37, 16),
+                   _45 = _mm256_permute2f128_ps(_04, _15, 25),  // 25 == 011 001 == hi, hi
+                   _67 = _mm256_permute2f128_ps(_26, _37, 25);
+
+            _mm256_storeu_ps((float*)ptr + 0*8, _01);
+            _mm256_storeu_ps((float*)ptr + 1*8, _23);
+            _mm256_storeu_ps((float*)ptr + 2*8, _45);
+            _mm256_storeu_ps((float*)ptr + 3*8, _67);
+        }
+
         AI SkNx operator+(const SkNx& o) const { return _mm256_add_ps(fVec, o.fVec); }
         AI SkNx operator-(const SkNx& o) const { return _mm256_sub_ps(fVec, o.fVec); }
         AI SkNx operator*(const SkNx& o) const { return _mm256_mul_ps(fVec, o.fVec); }
