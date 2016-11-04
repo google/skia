@@ -25,10 +25,11 @@ SkBmpStandardCodec::SkBmpStandardCodec(int width, int height, const SkEncodedInf
     , fBytesPerColor(bytesPerColor)
     , fOffset(offset)
     , fSwizzler(nullptr)
-    , fSrcBuffer(new uint8_t [this->srcRowBytes()])
+    , fSrcBuffer(new uint8_t[this->srcRowBytes()])
     , fIsOpaque(isOpaque)
     , fInIco(inIco)
     , fAndMaskRowBytes(fInIco ? SkAlign4(compute_row_bytes(this->getInfo().width(), 1)) : 0)
+    , fXformOnDecode(false)
 {}
 
 /*
@@ -90,9 +91,16 @@ SkCodec::Result SkBmpStandardCodec::onGetPixels(const SkImageInfo& dstInfo,
             return false;
         }
 
+        SkColorType packColorType = dstColorType;
+        SkAlphaType packAlphaType = dstAlphaType;
+        if (this->colorXform()) {
+            packColorType = kBGRA_8888_SkColorType;
+            packAlphaType = kUnpremul_SkAlphaType;
+        }
+
         // Choose the proper packing function
-        bool isPremul = (kPremul_SkAlphaType == dstAlphaType) && !fIsOpaque;
-        PackColorProc packARGB = choose_pack_color_proc(isPremul, dstColorType);
+        bool isPremul = (kPremul_SkAlphaType == packAlphaType) && !fIsOpaque;
+        PackColorProc packARGB = choose_pack_color_proc(isPremul, packColorType);
 
         // Fill in the color table
         uint32_t i = 0;
@@ -114,6 +122,15 @@ SkCodec::Result SkBmpStandardCodec::onGetPixels(const SkImageInfo& dstInfo,
         // chromium decoder.
         for (; i < maxColors; i++) {
             colorTable[i] = SkPackARGB32NoCheck(0xFF, 0, 0, 0);
+        }
+
+        if (this->colorXform() && !fXformOnDecode) {
+            SkColorSpaceXform::ColorFormat dstFormat = select_xform_format(dstColorType);
+            SkColorSpaceXform::ColorFormat srcFormat = SkColorSpaceXform::kBGRA_8888_ColorFormat;
+            SkAlphaType xformAlphaType = select_xform_alpha(dstAlphaType,
+                                                            this->getInfo().alphaType());
+            SkAssertResult(this->colorXform()->apply(dstFormat, colorTable, srcFormat, colorTable,
+                                                     maxColors, xformAlphaType));
         }
 
         // Set the color table
@@ -182,8 +199,12 @@ void SkBmpStandardCodec::initializeSwizzler(const SkImageInfo& dstInfo, const Op
 
 SkCodec::Result SkBmpStandardCodec::onPrepareToDecode(const SkImageInfo& dstInfo,
         const SkCodec::Options& options, SkPMColor inputColorPtr[], int* inputColorCount) {
+    fXformOnDecode = false;
     if (this->colorXform()) {
-        this->resetXformBuffer(dstInfo.width());
+        fXformOnDecode = apply_xform_on_decode(dstInfo.colorType(), this->getEncodedInfo().color());
+        if (fXformOnDecode) {
+            this->resetXformBuffer(dstInfo.width());
+        }
     }
 
     // Create the color table if necessary and prepare the stream for decode
@@ -220,7 +241,8 @@ int SkBmpStandardCodec::decodeRows(const SkImageInfo& dstInfo, void* dst, size_t
 
         void* dstRow = SkTAddOffset<void>(dst, row * dstRowBytes);
 
-        if (this->colorXform()) {
+        if (fXformOnDecode) {
+            SkASSERT(this->colorXform());
             SkImageInfo xformInfo = dstInfo.makeWH(fSwizzler->swizzleWidth(), dstInfo.height());
             fSwizzler->swizzle(this->xformBuffer(), fSrcBuffer.get());
             this->applyColorXform(xformInfo, dstRow, this->xformBuffer());

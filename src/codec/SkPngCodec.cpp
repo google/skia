@@ -231,7 +231,7 @@ bool SkPngCodec::createColorTable(const SkImageInfo& dstInfo, int* ctableCount) 
     if (png_get_tRNS(fPng_ptr, fInfo_ptr, &alphas, &numColorsWithAlpha, nullptr)) {
         // If we are performing a color xform, it will handle the premultiply.  Otherwise,
         // we'll do it here.
-        bool premultiply =  !this->colorXform() && needs_premul(dstInfo, this->getInfo());
+        bool premultiply = !this->colorXform() && needs_premul(dstInfo, this->getInfo());
 
         // Choose which function to use to create the color table. If the final destination's
         // colortype is unpremultiplied, the color table will store unpremultiplied colors.
@@ -267,9 +267,7 @@ bool SkPngCodec::createColorTable(const SkImageInfo& dstInfo, int* ctableCount) 
     // If we are not decoding to F16, we can color xform now and store the results
     // in the color table.
     if (this->colorXform() && kRGBA_F16_SkColorType != dstInfo.colorType()) {
-        SkColorSpaceXform::ColorFormat xformColorFormat = is_rgba(dstInfo.colorType()) ?
-                SkColorSpaceXform::kRGBA_8888_ColorFormat :
-                SkColorSpaceXform::kBGRA_8888_ColorFormat;
+        SkColorSpaceXform::ColorFormat xformColorFormat = select_xform_format(dstInfo.colorType());
         SkAlphaType xformAlphaType = select_xform_alpha(dstInfo.alphaType(),
                                                         this->getInfo().alphaType());
         SkAssertResult(this->colorXform()->apply(xformColorFormat, colorTable,
@@ -1109,11 +1107,6 @@ void SkPngCodec::initializeXformParams() {
         default:
             break;
     }
-}
-
-static inline bool apply_xform_on_decode(SkColorType dstColorType, SkEncodedInfo::Color srcColor) {
-    // We will apply the color xform when reading the color table, unless F16 is requested.
-    return SkEncodedInfo::kPalette_Color != srcColor || kRGBA_F16_SkColorType == dstColorType;
 }
 
 void SkPngCodec::initializeSwizzler(const SkImageInfo& dstInfo, const Options& options) {
