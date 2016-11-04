@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "ebc99f45_11edec0d",
+        "filename": "site/user/quick/ios.md",
+        "patchSetId": 3
+      },
+      "lineNbr": 4,
+      "author": {
+        "id": 5095
+      },
+      "writtenOn": "2016-11-04T20:02:11Z",
+      "side": 1,
+      "message": "What do we need to do to have iOS supported without caveats?  Can we reasonably ease this statement to note that it is best effort support or in progress (?) We\u0027ve committed to two major products to support iOS as a first class citizen- one who is using it currently, one that is somewhere in testing..I know the bots are red but we\u0027re planning to fix and keep them healthy correct?",
+      "revId": "dd831289dfca191799343bea938dafa1861d6501",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
