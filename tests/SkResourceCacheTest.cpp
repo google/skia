@@ -23,8 +23,8 @@ static void make_bitmap(SkBitmap* bitmap, const SkImageInfo& info, SkBitmap::All
         bitmap->setInfo(info);
         SkPMColor ctStorage[256];
         memset(ctStorage, 0xFF, sizeof(ctStorage)); // init with opaque-white for the moment
-        SkAutoTUnref<SkColorTable> ctable(new SkColorTable(ctStorage, 256));
-        bitmap->allocPixels(allocator, ctable);
+        sk_sp<SkColorTable> ctable(new SkColorTable(ctStorage, 256));
+        bitmap->allocPixels(allocator, ctable.get());
     } else if (allocator) {
         bitmap->setInfo(info);
         allocator->allocPixelRef(bitmap, 0);
@@ -260,8 +260,7 @@ DEF_TEST(BitmapCache_discarded_bitmap, reporter) {
         testBitmapCache_discarded_bitmap(reporter, &cache, nullptr);
     }
     {
-        SkAutoTUnref<SkDiscardableMemoryPool> pool(
-            SkDiscardableMemoryPool::Create(byteLimit, nullptr));
+        sk_sp<SkDiscardableMemoryPool> pool(SkDiscardableMemoryPool::Create(byteLimit, nullptr));
         gPool = pool.get();
         SkResourceCache::DiscardableFactory factory = pool_factory;
         SkResourceCache cache(factory);

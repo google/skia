@@ -281,8 +281,8 @@ static bool gpu_blur_path(GrContext* context, const SkPath& path,
     desc.fHeight = 30;
     desc.fSampleCnt = 0;
 
-    SkAutoTUnref<GrTexture> texture(grContext->createTexture(desc, false, nullptr, 0));
-    SkAutoTUnref<SkGpuDevice> device(new SkGpuDevice  (grContext, texture.get()));
+    sk_sp<GrTexture> texture(grContext->createTexture(desc, false, nullptr, 0));
+    sk_sp<SkGpuDevice> device(new SkGpuDevice(grContext, texture.get()));
     SkCanvas canvas(device.get());
 
     blur_path(&canvas, path, gaussianSigma);

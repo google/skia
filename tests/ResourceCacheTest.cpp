@@ -103,12 +103,12 @@ DEF_GPUTEST_FOR_CONTEXTS(ResourceCacheStencilBuffers, &is_rendering_and_not_angl
     GrTextureProvider* cache = context->textureProvider();
     GrResourceProvider* resourceProvider = context->resourceProvider();
     // Test that two budgeted RTs with the same desc share a stencil buffer.
-    SkAutoTUnref<GrTexture> smallRT0(cache->createTexture(smallDesc, SkBudgeted::kYes));
+    sk_sp<GrTexture> smallRT0(cache->createTexture(smallDesc, SkBudgeted::kYes));
     if (smallRT0 && smallRT0->asRenderTarget()) {
         resourceProvider->attachStencilAttachment(smallRT0->asRenderTarget());
     }
 
-    SkAutoTUnref<GrTexture> smallRT1(cache->createTexture(smallDesc, SkBudgeted::kYes));
+    sk_sp<GrTexture> smallRT1(cache->createTexture(smallDesc, SkBudgeted::kYes));
     if (smallRT1 && smallRT1->asRenderTarget()) {
         resourceProvider->attachStencilAttachment(smallRT1->asRenderTarget());
     }
@@ -120,7 +120,7 @@ DEF_GPUTEST_FOR_CONTEXTS(ResourceCacheStencilBuffers, &is_rendering_and_not_angl
                     resourceProvider->attachStencilAttachment(smallRT1->asRenderTarget()));
 
     // An unbudgeted RT with the same desc should also share.
-    SkAutoTUnref<GrTexture> smallRT2(cache->createTexture(smallDesc, SkBudgeted::kNo));
+    sk_sp<GrTexture> smallRT2(cache->createTexture(smallDesc, SkBudgeted::kNo));
     if (smallRT2 && smallRT2->asRenderTarget()) {
         resourceProvider->attachStencilAttachment(smallRT2->asRenderTarget());
     }
@@ -137,7 +137,7 @@ DEF_GPUTEST_FOR_CONTEXTS(ResourceCacheStencilBuffers, &is_rendering_and_not_angl
     bigDesc.fWidth = 400;
     bigDesc.fHeight = 200;
     bigDesc.fSampleCnt = 0;
-    SkAutoTUnref<GrTexture> bigRT(cache->createTexture(bigDesc, SkBudgeted::kNo));
+    sk_sp<GrTexture> bigRT(cache->createTexture(bigDesc, SkBudgeted::kNo));
     if (bigRT && bigRT->asRenderTarget()) {
         resourceProvider->attachStencilAttachment(bigRT->asRenderTarget());
     }
@@ -151,7 +151,7 @@ DEF_GPUTEST_FOR_CONTEXTS(ResourceCacheStencilBuffers, &is_rendering_and_not_angl
         // An RT with a different sample count should not share.
         GrSurfaceDesc smallMSAADesc = smallDesc;
         smallMSAADesc.fSampleCnt = 4;
-        SkAutoTUnref<GrTexture> smallMSAART0(cache->createTexture(smallMSAADesc, SkBudgeted::kNo));
+        sk_sp<GrTexture> smallMSAART0(cache->createTexture(smallMSAADesc, SkBudgeted::kNo));
         if (smallMSAART0 && smallMSAART0->asRenderTarget()) {
             resourceProvider->attachStencilAttachment(smallMSAART0->asRenderTarget());
         }
@@ -167,7 +167,7 @@ DEF_GPUTEST_FOR_CONTEXTS(ResourceCacheStencilBuffers, &is_rendering_and_not_angl
                         resourceProvider->attachStencilAttachment(smallRT0->asRenderTarget()) !=
                         resourceProvider->attachStencilAttachment(smallMSAART0->asRenderTarget()));
         // A second MSAA RT should share with the first MSAA RT.
-        SkAutoTUnref<GrTexture> smallMSAART1(cache->createTexture(smallMSAADesc, SkBudgeted::kNo));
+        sk_sp<GrTexture> smallMSAART1(cache->createTexture(smallMSAADesc, SkBudgeted::kNo));
         if (smallMSAART1 && smallMSAART1->asRenderTarget()) {
             resourceProvider->attachStencilAttachment(smallMSAART1->asRenderTarget());
         }
@@ -184,7 +184,7 @@ DEF_GPUTEST_FOR_CONTEXTS(ResourceCacheStencilBuffers, &is_rendering_and_not_angl
             smallMSAART0->asRenderTarget()->numColorSamples() < 8) {
             smallMSAADesc.fSampleCnt = 8;
             smallMSAART1.reset(cache->createTexture(smallMSAADesc, SkBudgeted::kNo));
-            SkAutoTUnref<GrTexture> smallMSAART1(
+            sk_sp<GrTexture> smallMSAART1(
                     cache->createTexture(smallMSAADesc, SkBudgeted::kNo));
             if (smallMSAART1 && smallMSAART1->asRenderTarget()) {
                 resourceProvider->attachStencilAttachment(smallMSAART1->asRenderTarget());
@@ -360,10 +360,10 @@ public:
 
     GrResourceCache* cache() { return fContext->getResourceCache(); }
 
-    GrContext* context() { return fContext; }
+    GrContext* context() { return fContext.get(); }
 
 private:
-    SkAutoTUnref<GrContext> fContext;
+    sk_sp<GrContext> fContext;
 };
 
 static void test_no_key(skiatest::Reporter* reporter) {
@@ -881,7 +881,7 @@ static void test_duplicate_unique_key(skiatest::Reporter* reporter) {
     {
         GrUniqueKey key2;
         make_unique_key<0>(&key2, 0);
-        SkAutoTUnref<TestResource> d(new TestResource(context->getGpu()));
+        sk_sp<TestResource> d(new TestResource(context->getGpu()));
         int foo = 4132;
         key2.setCustomData(SkData::MakeWithCopy(&foo, sizeof(foo)));
         d->resourcePriv().setUniqueKey(key2);
@@ -889,7 +889,7 @@ static void test_duplicate_unique_key(skiatest::Reporter* reporter) {
 
     GrUniqueKey key3;
     make_unique_key<0>(&key3, 0);
-    SkAutoTUnref<GrGpuResource> d2(cache->findAndRefUniqueResource(key3));
+    sk_sp<GrGpuResource> d2(cache->findAndRefUniqueResource(key3));
     REPORTER_ASSERT(reporter, *(int*) d2->getUniqueKey().getCustomData()->data() == 4132);
 }
 
@@ -1019,10 +1019,10 @@ static void test_resource_size_changed(skiatest::Reporter* reporter) {
         REPORTER_ASSERT(reporter, 200 == cache->getResourceBytes());
         REPORTER_ASSERT(reporter, 2 == cache->getResourceCount());
         {
-            SkAutoTUnref<TestResource> find2(
+            sk_sp<TestResource> find2(
                 static_cast<TestResource*>(cache->findAndRefUniqueResource(key2)));
             find2->setSize(200);
-            SkAutoTUnref<TestResource> find1(
+            sk_sp<TestResource> find1(
                 static_cast<TestResource*>(cache->findAndRefUniqueResource(key1)));
             find1->setSize(50);
         }
@@ -1051,7 +1051,7 @@ static void test_resource_size_changed(skiatest::Reporter* reporter) {
         REPORTER_ASSERT(reporter, 2 == cache->getResourceCount());
 
         {
-            SkAutoTUnref<TestResource> find2(static_cast<TestResource*>(
+            sk_sp<TestResource> find2(static_cast<TestResource*>(
                 cache->findAndRefUniqueResource(key2)));
             find2->setSize(201);
         }
@@ -1300,7 +1300,7 @@ static void test_custom_data(skiatest::Reporter* reporter) {
 static void test_abandoned(skiatest::Reporter* reporter) {
     Mock mock(10, 300);
     GrContext* context = mock.context();
-    SkAutoTUnref<GrGpuResource> resource(new TestResource(context->getGpu()));
+    sk_sp<GrGpuResource> resource(new TestResource(context->getGpu()));
     context->abandonContext();
 
     REPORTER_ASSERT(reporter, resource->wasDestroyed());

@@ -1091,7 +1091,7 @@ static bool alpha_type_match(SkAlphaType origAlphaType, SkAlphaType codecAlphaTy
 static void check_round_trip(skiatest::Reporter* r, SkCodec* origCodec, const SkImageInfo& info) {
     SkBitmap bm1;
     SkPMColor colors[256];
-    SkAutoTUnref<SkColorTable> colorTable1(new SkColorTable(colors, 256));
+    sk_sp<SkColorTable> colorTable1(new SkColorTable(colors, 256));
     bm1.allocPixels(info, nullptr, colorTable1.get());
     int numColors;
     SkCodec::Result result = origCodec->getPixels(info, bm1.getPixels(), bm1.rowBytes(), nullptr,
@@ -1109,7 +1109,7 @@ static void check_round_trip(skiatest::Reporter* r, SkCodec* origCodec, const Sk
     REPORTER_ASSERT(r, alpha_type_match(info.alphaType(), codec->getInfo().alphaType()));
 
     SkBitmap bm2;
-    SkAutoTUnref<SkColorTable> colorTable2(new SkColorTable(colors, 256));
+    sk_sp<SkColorTable> colorTable2(new SkColorTable(colors, 256));
     bm2.allocPixels(info, nullptr, colorTable2.get());
     result = codec->getPixels(info, bm2.getPixels(), bm2.rowBytes(), nullptr,
                               const_cast<SkPMColor*>(colorTable2->readColors()), &numColors);

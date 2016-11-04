@@ -205,8 +205,8 @@ private:
 
 DEF_GPUTEST(GLSampleLocations, reporter, /*factory*/) {
     GLTestSampleLocationsInterface testInterface;
-    SkAutoTUnref<GrContext> ctx(GrContext::Create(kOpenGL_GrBackend, testInterface));
-    test_sampleLocations(reporter, &testInterface, ctx);
+    sk_sp<GrContext> ctx(GrContext::Create(kOpenGL_GrBackend, testInterface));
+    test_sampleLocations(reporter, &testInterface, ctx.get());
 }
 
 #endif

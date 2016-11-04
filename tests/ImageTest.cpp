@@ -110,7 +110,7 @@ static sk_sp<SkImage> create_image_ct() {
         SkPreMultiplyARGB(0x80, 0x00, 0xA0, 0xFF),
         SkPreMultiplyARGB(0xFF, 0xBB, 0x00, 0xBB)
     };
-    SkAutoTUnref<SkColorTable> colorTable(new SkColorTable(colors, SK_ARRAY_COUNT(colors)));
+    sk_sp<SkColorTable> colorTable(new SkColorTable(colors, SK_ARRAY_COUNT(colors)));
     uint8_t data[] = {
         0, 0, 0, 0, 0,
         0, 1, 1, 1, 0,
@@ -119,7 +119,7 @@ static sk_sp<SkImage> create_image_ct() {
         0, 0, 0, 0, 0
     };
     SkImageInfo info = SkImageInfo::Make(5, 5, kIndex_8_SkColorType, kPremul_SkAlphaType);
-    return SkImage::MakeRasterCopy(SkPixmap(info, data, 5, colorTable));
+    return SkImage::MakeRasterCopy(SkPixmap(info, data, 5, colorTable.get()));
 }
 static sk_sp<SkImage> create_picture_image() {
     SkPictureRecorder recorder;
@@ -307,14 +307,14 @@ DEF_TEST(Image_NewRasterCopy, reporter) {
     const SkPMColor green = SkPackARGB32(0xFF, 0, 0xFF, 0);
     const SkPMColor blue =  SkPackARGB32(0xFF, 0, 0, 0xFF);
     SkPMColor colors[] = { red, green, blue, 0 };
-    SkAutoTUnref<SkColorTable> ctable(new SkColorTable(colors, SK_ARRAY_COUNT(colors)));
+    sk_sp<SkColorTable> ctable(new SkColorTable(colors, SK_ARRAY_COUNT(colors)));
     // The colortable made a copy, so we can trash the original colors
     memset(colors, 0xFF, sizeof(colors));
 
     const SkImageInfo srcInfo = SkImageInfo::Make(2, 2, kIndex_8_SkColorType, kPremul_SkAlphaType);
     const size_t srcRowBytes = 2 * sizeof(uint8_t);
     uint8_t indices[] = { 0, 1, 2, 3 };
-    sk_sp<SkImage> image(SkImage::MakeRasterCopy(SkPixmap(srcInfo, indices, srcRowBytes, ctable)));
+    auto image = SkImage::MakeRasterCopy(SkPixmap(srcInfo, indices, srcRowBytes, ctable.get()));
     // The image made a copy, so we can trash the original indices
     memset(indices, 0xFF, sizeof(indices));
 
@@ -556,11 +556,9 @@ DEF_GPUTEST_FOR_GL_RENDERING_CONTEXTS(SkImage_drawAbandonedGpuImage, reporter, c
 DEF_TEST(ImageFromIndex8Bitmap, r) {
     SkPMColor pmColors[1] = {SkPreMultiplyColor(SK_ColorWHITE)};
     SkBitmap bm;
-    SkAutoTUnref<SkColorTable> ctable(
-            new SkColorTable(pmColors, SK_ARRAY_COUNT(pmColors)));
-    SkImageInfo info =
-            SkImageInfo::Make(1, 1, kIndex_8_SkColorType, kPremul_SkAlphaType);
-    bm.allocPixels(info, nullptr, ctable);
+    sk_sp<SkColorTable> ctable( new SkColorTable(pmColors, SK_ARRAY_COUNT(pmColors)));
+    SkImageInfo info = SkImageInfo::Make(1, 1, kIndex_8_SkColorType, kPremul_SkAlphaType);
+    bm.allocPixels(info, nullptr, ctable.get());
     SkAutoLockPixels autoLockPixels(bm);
     *bm.getAddr8(0, 0) = 0;
     sk_sp<SkImage> img(SkImage::MakeFromBitmap(bm));

@@ -290,7 +290,7 @@ static void TestXfermodeSerialization(skiatest::Reporter* reporter) {
         }
         auto mode(SkXfermode::Make(static_cast<SkXfermode::Mode>(i)));
         REPORTER_ASSERT(reporter, mode);
-        SkAutoTUnref<SkXfermode> copy(
+        sk_sp<SkXfermode> copy(
             TestFlattenableSerialization<SkXfermode>(mode.get(), true, reporter));
     }
 }
@@ -301,7 +301,7 @@ static void TestColorFilterSerialization(skiatest::Reporter* reporter) {
         table[i] = (i * 41) % 256;
     }
     auto colorFilter(SkTableColorFilter::Make(table));
-    SkAutoTUnref<SkColorFilter> copy(
+    sk_sp<SkColorFilter> copy(
         TestFlattenableSerialization<SkColorFilter>(colorFilter.get(), true, reporter));
 }
 
@@ -612,22 +612,22 @@ DEF_TEST(Serialization, reporter) {
         sk_sp<SkShader> lightingShader = SkLightingShader::Make(diffuseShader,
                                                                 normalSource,
                                                                 fLights);
-        SkAutoTUnref<SkShader>(TestFlattenableSerialization(lightingShader.get(), true, reporter));
+        sk_sp<SkShader>(TestFlattenableSerialization(lightingShader.get(), true, reporter));
 
         lightingShader = SkLightingShader::Make(std::move(diffuseShader),
                                                 nullptr,
                                                 fLights);
-        SkAutoTUnref<SkShader>(TestFlattenableSerialization(lightingShader.get(), true, reporter));
+        sk_sp<SkShader>(TestFlattenableSerialization(lightingShader.get(), true, reporter));
 
         lightingShader = SkLightingShader::Make(nullptr,
                                                 std::move(normalSource),
                                                 fLights);
-        SkAutoTUnref<SkShader>(TestFlattenableSerialization(lightingShader.get(), true, reporter));
+        sk_sp<SkShader>(TestFlattenableSerialization(lightingShader.get(), true, reporter));
 
         lightingShader = SkLightingShader::Make(nullptr,
                                                 nullptr,
                                                 fLights);
-        SkAutoTUnref<SkShader>(TestFlattenableSerialization(lightingShader.get(), true, reporter));
+        sk_sp<SkShader>(TestFlattenableSerialization(lightingShader.get(), true, reporter));
     }
 
     // Test NormalBevelSource serialization
@@ -635,8 +635,7 @@ DEF_TEST(Serialization, reporter) {
         sk_sp<SkNormalSource> bevelSource = SkNormalSource::MakeBevel(
                 SkNormalSource::BevelType::kLinear, 2.0f, 5.0f);
 
-        SkAutoTUnref<SkNormalSource>(TestFlattenableSerialization(bevelSource.get(), true,
-                                                                  reporter));
+        sk_sp<SkNormalSource>(TestFlattenableSerialization(bevelSource.get(), true, reporter));
         // TODO test equality?
 
     }
