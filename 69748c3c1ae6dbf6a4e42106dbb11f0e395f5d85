@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "8b50234a_bb1b93e1",
+        "filename": "infra/bots/recipes/swarm_perf.py",
+        "patchSetId": 3
+      },
+      "lineNbr": 88,
+      "author": {
+        "id": 5120
+      },
+      "writtenOn": "2016-11-04T15:32:48Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "8b50234a_db8647fa",
+      "revId": "69748c3c1ae6dbf6a4e42106dbb11f0e395f5d85",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "8b50234a_7b8f3b0b",
         "filename": "infra/bots/recipes/swarm_test.py",
         "patchSetId": 3
@@ -30,6 +48,24 @@
       "writtenOn": "2016-11-04T15:19:13Z",
       "side": 1,
       "message": "On Pixel C we will want:\n\nnvpr -\u003e esinst\n\"esinst\" config",
+      "revId": "69748c3c1ae6dbf6a4e42106dbb11f0e395f5d85",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "8b50234a_9b184fe6",
+        "filename": "infra/bots/recipes/swarm_test.py",
+        "patchSetId": 3
+      },
+      "lineNbr": 125,
+      "author": {
+        "id": 5120
+      },
+      "writtenOn": "2016-11-04T15:32:48Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "8b50234a_7b8f3b0b",
       "revId": "69748c3c1ae6dbf6a4e42106dbb11f0e395f5d85",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
