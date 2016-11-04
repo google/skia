@@ -368,6 +368,9 @@ bool SkJpegCodec::setOutputColorSpace(const SkImageInfo& dstInfo) {
     // we must do it ourselves.
     J_COLOR_SPACE encodedColorType = fDecoderMgr->dinfo()->jpeg_color_space;
     bool isCMYK = (JCS_CMYK == encodedColorType || JCS_YCCK == encodedColorType);
+    if (isCMYK && this->colorXform()) {
+        return false;
+    }
 
     // Check for valid color types and set the output color space
     switch (dstInfo.colorType()) {
