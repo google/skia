@@ -45,6 +45,24 @@
       "revId": "4aa39aab356f00fac4a87f968a591f8a2a1e5633",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ebc99f45_9a5d715e",
+        "filename": "src/utils/SkCanvasStateUtils.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 336,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2016-11-05T15:33:28Z",
+      "side": 1,
+      "message": "Boy this is a confusing one.\n\ncanvas is an std::unique_ptr\u003cSkCanvasStack\u003e.  SkCanvasStack is an SkCanvas, but std::unique_ptr\u003cSkCanvasStack\u003e is not a std::unique_ptr\u003cSkCanvas\u003e.\n\nstd::unique_ptr\u003cSkCanvas\u003e luckily has a constructor which takes a std::unique_ptr\u003cU\u003e\u0026\u0026 where U inherits from SkCanvas.  So std::move(canvas) to create a std::unique_ptr\u003cSkCanvasStack\u003e\u0026\u0026, which then triggers that non-explicit std::unique_ptr\u003cU\u003e\u0026\u0026 constructor for std::unique_ptr\u003cSkCanvas\u003e, with U \u003d\u003d SkCanvasStack.\n\nThis final value we return is an std::unique_ptr\u003cSkCanvas\u003e, which is an rvalue but not an rvalue reference, so I think _it_ can RVO.\n\nRead this as\n    return std::unique_ptr\u003cSkCanvas\u003e(std::move(canvas));\n\nor equivalently\n    return std::unique_ptr\u003cSkCanvas\u003e(canvas.release());\n\nor maybe also possibly the shorter but maybe more confusing\n    return { canvas.release(); }",
+      "parentUuid": "ebc99f45_fa8fd5b5",
+      "revId": "4aa39aab356f00fac4a87f968a591f8a2a1e5633",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
