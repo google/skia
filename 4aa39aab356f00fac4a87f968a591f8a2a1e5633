@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "ebc99f45_3a9ebdec",
+        "filename": "include/core/SkCanvas.h",
+        "patchSetId": 5
+      },
+      "lineNbr": 66,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2016-11-05T14:56:12Z",
+      "side": 1,
+      "message": "#else\n: SkNoncopyable\n\n?",
+      "range": {
+        "startLine": 66,
+        "startChar": 1,
+        "endLine": 66,
+        "endChar": 6
+      },
+      "revId": "4aa39aab356f00fac4a87f968a591f8a2a1e5633",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ebc99f45_fa8fd5b5",
+        "filename": "src/utils/SkCanvasStateUtils.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 336,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2016-11-05T14:56:12Z",
+      "side": 1,
+      "message": "No move, for RVO.",
+      "range": {
+        "startLine": 336,
+        "startChar": 16,
+        "endLine": 336,
+        "endChar": 20
+      },
+      "revId": "4aa39aab356f00fac4a87f968a591f8a2a1e5633",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
