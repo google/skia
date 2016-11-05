@@ -115,7 +115,7 @@ private:
     uint32_t               fFlags;
     SkRect                 fCullRect;
     sk_sp<SkBBoxHierarchy> fBBH;
-    sk_sp<SkRecorder>      fRecorder;
+    std::unique_ptr<SkRecorder>      fRecorder;
     sk_sp<SkRecord>        fRecord;
     SkMiniRecorder         fMiniRecorder;
 
