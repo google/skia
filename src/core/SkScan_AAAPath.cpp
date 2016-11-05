@@ -83,9 +83,9 @@ number of scan lines in our algorithm is only about 3 + H while the
 
 ///////////////////////////////////////////////////////////////////////////////
 
-inline void addAlpha(SkAlpha& alpha, SkAlpha delta) {
-    SkASSERT(alpha + (int)delta <= 0xFF);
-    alpha += delta;
+static inline void addAlpha(SkAlpha& alpha, SkAlpha delta) {
+    SkASSERT(alpha + (int)delta <= 256);
+    alpha = SkAlphaRuns::CatchOverflow(alpha + (int)delta);
 }
 
 class AdditiveBlitter : public SkBlitter {
@@ -481,7 +481,7 @@ static inline SkAlpha partialTriangleToAlpha(SkFixed a, SkFixed b) {
 }
 
 static inline SkAlpha getPartialAlpha(SkAlpha alpha, SkFixed partialHeight) {
-    return (alpha * partialHeight) >> 16;
+    return (alpha * partialHeight + SK_FixedHalf) >> 16;
 }
 
 static inline SkAlpha getPartialAlpha(SkAlpha alpha, SkAlpha fullAlpha) {
