@@ -34,7 +34,7 @@ int main(int argc, char** argv) {
     SkISize size = pic->cullRect().roundOut().size();
     SkDebugCanvas debugCanvas(size.width(), size.height());
     pic->playback(&debugCanvas);
-    sk_sp<SkCanvas> nullCanvas(SkCreateNullCanvas());
+    std::unique_ptr<SkCanvas> nullCanvas = SkMakeNullCanvas();
     UrlDataManager dataManager(SkString("data"));
     Json::Value json = debugCanvas.toJSON(
             dataManager, debugCanvas.getSize(), nullCanvas.get());

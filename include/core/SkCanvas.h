@@ -60,7 +60,11 @@ class SkTextBlob;
     color, typeface, textSize, strokeWidth, shader (e.g. gradients, patterns),
     etc.
 */
-class SK_API SkCanvas : public SkRefCnt {
+class SK_API SkCanvas
+#ifdef SK_SUPPORT_LEGACY_CANVAS_IS_REFCNT
+: public SkRefCnt
+#endif
+{
     enum PrivateSaveLayerFlags {
         kDontClipToLayer_PrivateSaveLayerFlag   = 1U << 31,
     };
@@ -100,11 +104,20 @@ public:
      *  Note: it is valid to request a supported ImageInfo, but with zero
      *  dimensions.
      */
+    static std::unique_ptr<SkCanvas> MakeRasterDirect(const SkImageInfo&, void*, size_t);
+
+    static std::unique_ptr<SkCanvas> MakeRasterDirectN32(int width, int height, SkPMColor* pixels,
+                                                         size_t rowBytes) {
+        return MakeRasterDirect(SkImageInfo::MakeN32Premul(width, height), pixels, rowBytes);
+    }
+
+#ifdef SK_SUPPORT_LEGACY_CANVAS_IS_REFCNT
     static SkCanvas* NewRasterDirect(const SkImageInfo&, void*, size_t);
 
     static SkCanvas* NewRasterDirectN32(int width, int height, SkPMColor* pixels, size_t rowBytes) {
         return NewRasterDirect(SkImageInfo::MakeN32Premul(width, height), pixels, rowBytes);
     }
+#endif
 
     /**
      *  Creates an empty canvas with no backing device/pixels, and zero
