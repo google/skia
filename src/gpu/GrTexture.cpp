@@ -35,8 +35,29 @@ void GrTexture::dirtyMipMaps(bool mipMapsDirty) {
     }
 }
 
+size_t GrTexture::ComputeSize(const GrSurfaceDesc& desc, bool hasMipMaps) {
+    size_t textureSize;
+
+    if (GrPixelConfigIsCompressed(desc.fConfig)) {
+        textureSize = GrCompressedFormatDataSize(desc.fConfig, desc.fWidth, desc.fHeight);
+    } else {
+        textureSize = (size_t) desc.fWidth * desc.fHeight * GrBytesPerPixel(desc.fConfig);
+    }
+
+    if (hasMipMaps) {
+        // We don't have to worry about the mipmaps being a different size than
+        // we'd expect because we never change fDesc.fWidth/fHeight.
+        textureSize += textureSize/3;
+    }
+
+    SkASSERT(!SkToBool(desc.fFlags & kRenderTarget_GrSurfaceFlag));
+    SkASSERT(textureSize <= WorstCaseSize(desc));
+
+    return textureSize;
+}
+
 size_t GrTexture::onGpuMemorySize() const {
-    return GrSurface::ComputeSize(fDesc, 1, this->texturePriv().hasMipMaps());
+    return ComputeSize(fDesc, this->texturePriv().hasMipMaps());
 }
 
 void GrTexture::validateDesc() const {
