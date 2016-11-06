@@ -49,11 +49,6 @@ public:
         return fTexture->fMaxMipMapLevel;
     }
 
-    GrSLType samplerType() const { return fTexture->fSamplerType; }
-
-    /** The filter used is clamped to this value in GrTextureAccess. */
-    GrTextureParams::FilterMode highestFilterMode() const { return fTexture->fHighestFilterMode; }
-
     void setGammaTreatment(SkSourceGammaTreatment gammaTreatment) const {
         fTexture->fGammaTreatment = gammaTreatment;
     }

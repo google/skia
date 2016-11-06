@@ -12,7 +12,7 @@
 #define GPUGL static_cast<GrGLGpu*>(this->getGpu())
 #define GL_CALL(X) GR_GL_CALL(GPUGL->glInterface(), X)
 
-static inline GrSLType sampler_type(const GrGLTexture::IDDesc& idDesc, const GrGLGpu* gpu) {
+inline static GrSLType sampler_type(const GrGLTexture::IDDesc& idDesc, const GrGLGpu* gpu) {
     if (idDesc.fInfo.fTarget == GR_GL_TEXTURE_EXTERNAL) {
         SkASSERT(gpu->glCaps().glslCaps()->externalTextureSupport());
         return kTextureExternalSampler_GrSLType;
@@ -25,19 +25,11 @@ static inline GrSLType sampler_type(const GrGLTexture::IDDesc& idDesc, const GrG
     }
 }
 
-static inline GrTextureParams::FilterMode highest_filter_mode(const GrGLTexture::IDDesc& idDesc) {
-    if (idDesc.fInfo.fTarget == GR_GL_TEXTURE_RECTANGLE ||
-        idDesc.fInfo.fTarget == GR_GL_TEXTURE_EXTERNAL) {
-        return GrTextureParams::kBilerp_FilterMode;
-    }
-    return GrTextureParams::kMipMap_FilterMode;
-}
-
 // Because this class is virtually derived from GrSurface we must explicitly call its constructor.
 GrGLTexture::GrGLTexture(GrGLGpu* gpu, SkBudgeted budgeted, const GrSurfaceDesc& desc,
                          const IDDesc& idDesc)
     : GrSurface(gpu, desc)
-    , INHERITED(gpu, desc, sampler_type(idDesc, gpu), highest_filter_mode(idDesc), false) {
+    , INHERITED(gpu, desc, sampler_type(idDesc, gpu), false) {
     this->init(desc, idDesc);
     this->registerWithCache(budgeted);
 }
@@ -46,15 +38,14 @@ GrGLTexture::GrGLTexture(GrGLGpu* gpu, SkBudgeted budgeted, const GrSurfaceDesc&
                          const IDDesc& idDesc,
                          bool wasMipMapDataProvided)
     : GrSurface(gpu, desc)
-    , INHERITED(gpu, desc, sampler_type(idDesc, gpu), highest_filter_mode(idDesc),
-                wasMipMapDataProvided) {
+    , INHERITED(gpu, desc, sampler_type(idDesc, gpu), wasMipMapDataProvided) {
     this->init(desc, idDesc);
     this->registerWithCache(budgeted);
 }
 
 GrGLTexture::GrGLTexture(GrGLGpu* gpu, Wrapped, const GrSurfaceDesc& desc, const IDDesc& idDesc)
     : GrSurface(gpu, desc)
-    , INHERITED(gpu, desc, sampler_type(idDesc, gpu), highest_filter_mode(idDesc), false) {
+    , INHERITED(gpu, desc, sampler_type(idDesc, gpu), false) {
     this->init(desc, idDesc);
     this->registerWithCacheWrapped();
 }
@@ -62,8 +53,7 @@ GrGLTexture::GrGLTexture(GrGLGpu* gpu, Wrapped, const GrSurfaceDesc& desc, const
 GrGLTexture::GrGLTexture(GrGLGpu* gpu, const GrSurfaceDesc& desc, const IDDesc& idDesc,
                          bool wasMipMapDataProvided)
     : GrSurface(gpu, desc)
-    , INHERITED(gpu, desc, sampler_type(idDesc, gpu), highest_filter_mode(idDesc),
-                wasMipMapDataProvided) {
+    , INHERITED(gpu, desc, sampler_type(idDesc, gpu), wasMipMapDataProvided) {
     this->init(desc, idDesc);
 }
 

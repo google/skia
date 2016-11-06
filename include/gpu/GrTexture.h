@@ -10,16 +10,17 @@
 #define GrTexture_DEFINED
 
 #include "GrSurface.h"
-#include "GrTextureParams.h"
 #include "SkPoint.h"
 #include "SkRefCnt.h"
 
+class GrTextureParams;
 class GrTexturePriv;
 
 class GrTexture : virtual public GrSurface {
 public:
     GrTexture* asTexture() override { return this; }
     const GrTexture* asTexture() const override { return this; }
+    GrSLType samplerType() const { return fSamplerType; }
 
     /**
      *  Return the native ID or handle to the texture, depending on the
@@ -45,8 +46,7 @@ public:
     inline const GrTexturePriv texturePriv() const;
 
 protected:
-    GrTexture(GrGpu*, const GrSurfaceDesc&, GrSLType samplerType,
-              GrTextureParams::FilterMode highestFilterMode, bool wasMipMapDataProvided);
+    GrTexture(GrGpu*, const GrSurfaceDesc&, GrSLType, bool wasMipMapDataProvided);
 
     void validateDesc() const;
 
@@ -61,11 +61,11 @@ private:
         kValid_MipMapsStatus
     };
 
-    GrSLType                    fSamplerType;
-    GrTextureParams::FilterMode fHighestFilterMode;
-    MipMapsStatus               fMipMapsStatus;
-    int                         fMaxMipMapLevel;
-    SkSourceGammaTreatment      fGammaTreatment;
+    GrSLType               fSamplerType;
+    MipMapsStatus          fMipMapsStatus;
+    int                    fMaxMipMapLevel;
+    SkSourceGammaTreatment fGammaTreatment;
+
     friend class GrTexturePriv;
 
     typedef GrSurface INHERITED;

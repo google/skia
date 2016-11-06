@@ -8,7 +8,6 @@
 #include "GrTextureAccess.h"
 #include "GrColor.h"
 #include "GrTexture.h"
-#include "GrTexturePriv.h"
 
 GrTextureAccess::GrTextureAccess() {}
 
@@ -29,7 +28,6 @@ void GrTextureAccess::reset(GrTexture* texture,
     SkASSERT(texture);
     fTexture.set(SkRef(texture), kRead_GrIOType);
     fParams = params;
-    fParams.setFilterMode(SkTMin(params.filterMode(), texture->texturePriv().highestFilterMode()));
     fVisibility = visibility;
 }
 
@@ -39,7 +37,6 @@ void GrTextureAccess::reset(GrTexture* texture,
                             GrShaderFlags visibility) {
     SkASSERT(texture);
     fTexture.set(SkRef(texture), kRead_GrIOType);
-    filterMode = SkTMin(filterMode, texture->texturePriv().highestFilterMode());
     fParams.reset(tileXAndY, filterMode);
     fVisibility = visibility;
 }
