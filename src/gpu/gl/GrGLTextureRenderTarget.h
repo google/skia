@@ -12,7 +12,6 @@
 #include "GrGLGpu.h"
 #include "GrGLTexture.h"
 #include "GrGLRenderTarget.h"
-#include "GrTexturePriv.h"
 
 class GrGLGpu;
 
@@ -30,10 +29,9 @@ public:
                             SkBudgeted budgeted,
                             const GrSurfaceDesc& desc,
                             const GrGLTexture::IDDesc& texIDDesc,
-                            const GrGLRenderTarget::IDDesc& rtIDDesc,
-                            bool wasMipMapDataProvided)
+                            const GrGLRenderTarget::IDDesc& rtIDDesc)
         : GrSurface(gpu, desc)
-        , GrGLTexture(gpu, desc, texIDDesc, wasMipMapDataProvided)
+        , GrGLTexture(gpu, desc, texIDDesc)
         , GrGLRenderTarget(gpu, desc, rtIDDesc) {
         this->registerWithCache(budgeted);
     }
@@ -61,18 +59,16 @@ private:
     GrGLTextureRenderTarget(GrGLGpu* gpu,
                             const GrSurfaceDesc& desc,
                             const GrGLTexture::IDDesc& texIDDesc,
-                            const GrGLRenderTarget::IDDesc& rtIDDesc,
-                            bool wasMipMapDataProvided)
+                            const GrGLRenderTarget::IDDesc& rtIDDesc)
         : GrSurface(gpu, desc)
-        , GrGLTexture(gpu, desc, texIDDesc, wasMipMapDataProvided)
+        , GrGLTexture(gpu, desc, texIDDesc)
         , GrGLRenderTarget(gpu, desc, rtIDDesc) {
         this->registerWithCacheWrapped();
     }
 
+    // GrGLRenderTarget accounts for the texture's memory and any MSAA renderbuffer's memory.
     size_t onGpuMemorySize() const override {
-        return GrSurface::ComputeSize(fDesc,
-                                      this->numSamplesOwnedPerPixel(),
-                                      this->texturePriv().hasMipMaps());
+        return GrGLRenderTarget::onGpuMemorySize();
     }
 
 };

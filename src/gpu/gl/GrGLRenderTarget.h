@@ -77,7 +77,8 @@ protected:
     void onAbandon() override;
     void onRelease() override;
 
-    int numSamplesOwnedPerPixel() const { return fNumSamplesOwnedPerPixel; }
+    // In protected because subclass GrGLTextureRenderTarget calls this version.
+    size_t onGpuMemorySize() const override;
 
 private:
     // Constructor for instances wrapping backend objects.
@@ -87,8 +88,6 @@ private:
 
     GrGLGpu* getGLGpu() const;
     bool completeStencilAttachment() override;
-
-    size_t onGpuMemorySize() const override;
 
     int msaaSamples() const;
     // The number total number of samples, including both MSAA and resolve texture samples.

@@ -23,7 +23,6 @@
 #include "SkCanvas.h"
 #include "SkGr.h"
 #include "SkMessageBus.h"
-#include "SkMipMap.h"
 #include "SkSurface.h"
 #include "Test.h"
 
@@ -1344,106 +1343,5 @@ DEF_GPUTEST(ResourceCacheMisc, reporter, factory) {
     test_custom_data(reporter);
     test_abandoned(reporter);
 }
-
-////////////////////////////////////////////////////////////////////////////////
-static sk_sp<GrTexture> make_normal_texture(GrTextureProvider* provider,
-                                            GrSurfaceFlags flags,
-                                            int width, int height,
-                                            int sampleCnt) {
-    GrSurfaceDesc desc;
-    desc.fFlags = flags;
-    desc.fWidth = width;
-    desc.fHeight = height;
-    desc.fConfig = kRGBA_8888_GrPixelConfig;
-    desc.fSampleCnt = sampleCnt;
-
-    return sk_sp<GrTexture>(provider->createTexture(desc, SkBudgeted::kYes));
-}
-
-static sk_sp<GrTexture> make_mipmap_texture(GrTextureProvider* provider,
-                                            GrSurfaceFlags flags,
-                                            int width, int height,
-                                            int sampleCnt) {
-    SkBitmap bm;
-
-    bm.allocN32Pixels(width, height, true);
-    bm.eraseColor(SK_ColorBLUE);
-
-    SkAutoTUnref<SkMipMap> mipmaps(SkMipMap::Build(bm, SkSourceGammaTreatment::kIgnore, nullptr));
-    SkASSERT(mipmaps);
-    SkASSERT(mipmaps->countLevels() > 1);
-
-    int mipLevelCount = mipmaps->countLevels() + 1;
-
-    std::unique_ptr<GrMipLevel[]> texels(new GrMipLevel[mipLevelCount]);
-
-    texels[0].fPixels = bm.getPixels();
-    texels[0].fRowBytes = bm.rowBytes();
-
-    for (int i = 1; i < mipLevelCount; ++i) {
-        SkMipMap::Level generatedMipLevel;
-        mipmaps->getLevel(i - 1, &generatedMipLevel);
-        texels[i].fPixels = generatedMipLevel.fPixmap.addr();
-        texels[i].fRowBytes = generatedMipLevel.fPixmap.rowBytes();
-    }
-
-    GrSurfaceDesc desc;
-    desc.fFlags = flags;
-    desc.fWidth = width;
-    desc.fHeight = height;
-    desc.fConfig = kRGBA_8888_GrPixelConfig;
-    desc.fSampleCnt = sampleCnt;
-    desc.fIsMipMapped = true;
-
-    return sk_sp<GrTexture>(provider->createMipMappedTexture(desc, SkBudgeted::kYes,
-                                                             texels.get(), mipLevelCount));
-}
-
-// Exercise GrSurface::gpuMemorySize for different combos of MSAA, RT-only,
-// Texture-only, both-RT-and-Texture and MIPmapped
-DEF_GPUTEST_FOR_RENDERING_CONTEXTS(GPUMemorySize, reporter, ctxInfo) {
-    GrContext* context = ctxInfo.grContext();
-    GrTextureProvider* provider = context->textureProvider();
-
-    static const int kSize = 64;
-
-    sk_sp<GrTexture> tex;
-
-    // Normal versions
-    tex = make_normal_texture(provider, kRenderTarget_GrSurfaceFlag, kSize, kSize, 0);
-    size_t size = tex->gpuMemorySize();
-    REPORTER_ASSERT(reporter, kSize*kSize*4 == size);
-
-    if (context->caps()->maxSampleCount() >= 4) {
-        tex = make_normal_texture(provider, kRenderTarget_GrSurfaceFlag, kSize, kSize, 4);
-        size = tex->gpuMemorySize();
-        REPORTER_ASSERT(reporter, kSize*kSize*4 == size ||    // msaa4 failed
-                                  kSize*kSize*4*4 == size ||  // auto-resolving
-                                  kSize*kSize*4*5 == size);   // explicit resolve buffer
-    }
-
-    tex = make_normal_texture(provider, kNone_GrSurfaceFlags, kSize, kSize, 0);
-    size = tex->gpuMemorySize();
-    REPORTER_ASSERT(reporter, kSize*kSize*4 == size);
-
-    // Mipmapped versions
-    tex = make_mipmap_texture(provider, kRenderTarget_GrSurfaceFlag, kSize, kSize, 0);
-    size = tex->gpuMemorySize();
-    REPORTER_ASSERT(reporter, kSize*kSize*4+(kSize*kSize*4)/3 == size);
-
-    if (context->caps()->maxSampleCount() >= 4) {
-        tex = make_mipmap_texture(provider, kRenderTarget_GrSurfaceFlag, kSize, kSize, 4);
-        size = tex->gpuMemorySize();
-        REPORTER_ASSERT(reporter, 
-                            kSize*kSize*4+(kSize*kSize*4)/3 == size ||   // msaa4 failed
-                            kSize*kSize*4*4+(kSize*kSize*4)/3 == size || // auto-resolving
-                            kSize*kSize*4*5+(kSize*kSize*4)/3 == size);  // explicit resolve buffer
-    }
-
-    tex = make_mipmap_texture(provider, kNone_GrSurfaceFlags, kSize, kSize, 0);
-    size = tex->gpuMemorySize();
-    REPORTER_ASSERT(reporter, kSize*kSize*4+(kSize*kSize*4)/3 == size);
-}
-
 
 #endif
