@@ -401,6 +401,9 @@ config("executable") {
       "-rdynamic",
       "-Wl,-rpath,\$ORIGIN",
     ]
+  } else if (is_win) {
+    # CONSOLE is the default.  This just shuts up LNK4031.
+    ldflags = [ "/SUBSYSTEM:CONSOLE" ]
   }
 }
 
