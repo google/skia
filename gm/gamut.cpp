@@ -208,26 +208,30 @@ DEF_SIMPLE_GM_BG(gamut, canvas, gTestWidth, gTestHeight, SK_ColorBLACK) {
     // sRGB primaries, rendered as bitmaps
     renderers.emplace_back(new BitmapCellRenderer(SK_ColorRED, kNone_SkFilterQuality));
     renderers.emplace_back(new BitmapCellRenderer(SK_ColorGREEN, kLow_SkFilterQuality));
-    // Larger bitmap to trigger mipmaps
-    renderers.emplace_back(new BitmapCellRenderer(SK_ColorRED, kMedium_SkFilterQuality, 2.0f));
-    // Smaller bitmap to trigger bicubic
-    renderers.emplace_back(new BitmapCellRenderer(SK_ColorGREEN, kHigh_SkFilterQuality, 0.5f));
 
-    // Various gradients involving sRGB primaries and white/black
+    // TODO: temporary, see skia:5937
+    if (canvas->getGrContext()) {
+        // Larger bitmap to trigger mipmaps
+        renderers.emplace_back(new BitmapCellRenderer(SK_ColorRED, kMedium_SkFilterQuality, 2.0f));
+        // Smaller bitmap to trigger bicubic
+        renderers.emplace_back(new BitmapCellRenderer(SK_ColorGREEN, kHigh_SkFilterQuality, 0.5f));
 
-    // First with just two stops (implemented with uniforms on GPU)
-    renderers.emplace_back(new GradientCellRenderer(SK_ColorRED, SK_ColorGREEN, false));
-    renderers.emplace_back(new GradientCellRenderer(SK_ColorGREEN, SK_ColorBLACK, false));
-    renderers.emplace_back(new GradientCellRenderer(SK_ColorGREEN, SK_ColorWHITE, false));
+        // Various gradients involving sRGB primaries and white/black
 
-    // ... and then with four stops (implemented with textures on GPU)
-    renderers.emplace_back(new GradientCellRenderer(SK_ColorRED, SK_ColorGREEN, true));
-    renderers.emplace_back(new GradientCellRenderer(SK_ColorGREEN, SK_ColorBLACK, true));
-    renderers.emplace_back(new GradientCellRenderer(SK_ColorGREEN, SK_ColorWHITE, true));
+        // First with just two stops (implemented with uniforms on GPU)
+        renderers.emplace_back(new GradientCellRenderer(SK_ColorRED, SK_ColorGREEN, false));
+        renderers.emplace_back(new GradientCellRenderer(SK_ColorGREEN, SK_ColorBLACK, false));
+        renderers.emplace_back(new GradientCellRenderer(SK_ColorGREEN, SK_ColorWHITE, false));
 
-    // Vertex colors
-    renderers.emplace_back(new VerticesCellRenderer(SK_ColorRED, SK_ColorRED));
-    renderers.emplace_back(new VerticesCellRenderer(SK_ColorRED, SK_ColorGREEN));
+        // ... and then with four stops (implemented with textures on GPU)
+        renderers.emplace_back(new GradientCellRenderer(SK_ColorRED, SK_ColorGREEN, true));
+        renderers.emplace_back(new GradientCellRenderer(SK_ColorGREEN, SK_ColorBLACK, true));
+        renderers.emplace_back(new GradientCellRenderer(SK_ColorGREEN, SK_ColorWHITE, true));
+
+        // Vertex colors
+        renderers.emplace_back(new VerticesCellRenderer(SK_ColorRED, SK_ColorRED));
+        renderers.emplace_back(new VerticesCellRenderer(SK_ColorRED, SK_ColorGREEN));
+    }
 
     draw_gamut_grid(canvas, renderers);
 }
