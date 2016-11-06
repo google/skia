@@ -582,15 +582,10 @@ toolchain("gcc_like") {
   }
 
   tool("alink") {
-    if (host_os == "win") {
-      rspfile = "{{output}}.rsp"
-      rspfile_content = "{{inputs}}"
-      ar_py = rebase_path("ar.py")
-      command = "$python $ar_py $ar {{output}} $rspfile"
-    } else {
-      # We'd use ar.py all the time, but Mac ar doesn't support @rspfile syntax.  :(
-      command = "rm -f {{output}} && $ar rcs {{output}} {{inputs}}"
-    }
+    rspfile = "{{output}}.rsp"
+    rspfile_content = "{{inputs}}"
+    ar_py = rebase_path("ar.py")
+    command = "$python $ar_py $ar {{output}} $rspfile"
     outputs = [
       "{{root_out_dir}}/{{target_output_name}}{{output_extension}}",
     ]
