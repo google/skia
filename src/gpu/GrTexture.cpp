@@ -70,10 +70,9 @@ GrSurfaceOrigin resolve_origin(const GrSurfaceDesc& desc) {
 
 //////////////////////////////////////////////////////////////////////////////
 GrTexture::GrTexture(GrGpu* gpu, const GrSurfaceDesc& desc, GrSLType samplerType,
-                     GrTextureParams::FilterMode highestFilterMode, bool wasMipMapDataProvided)
+                     bool wasMipMapDataProvided)
     : INHERITED(gpu, desc)
     , fSamplerType(samplerType)
-    , fHighestFilterMode(highestFilterMode)
     // Gamma treatment is explicitly set after creation via GrTexturePriv
     , fGammaTreatment(SkSourceGammaTreatment::kIgnore) {
     if (wasMipMapDataProvided) {

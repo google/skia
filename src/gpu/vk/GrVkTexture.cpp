@@ -24,8 +24,7 @@ GrVkTexture::GrVkTexture(GrVkGpu* gpu,
                          const GrVkImageView* view)
     : GrSurface(gpu, desc)
     , GrVkImage(info, GrVkImage::kNot_Wrapped)
-    , INHERITED(gpu, desc, kTexture2DSampler_GrSLType, GrTextureParams::kMipMap_FilterMode,
-                desc.fIsMipMapped)
+    , INHERITED(gpu, desc, kTexture2DSampler_GrSLType, desc.fIsMipMapped) 
     , fTextureView(view)
     , fLinearTextureView(nullptr) {
     this->registerWithCache(budgeted);
@@ -39,8 +38,7 @@ GrVkTexture::GrVkTexture(GrVkGpu* gpu,
                          GrVkImage::Wrapped wrapped)
     : GrSurface(gpu, desc)
     , GrVkImage(info, wrapped)
-    , INHERITED(gpu, desc, kTexture2DSampler_GrSLType, GrTextureParams::kMipMap_FilterMode,
-                desc.fIsMipMapped)
+    , INHERITED(gpu, desc, kTexture2DSampler_GrSLType, desc.fIsMipMapped)
     , fTextureView(view)
     , fLinearTextureView(nullptr) {
     this->registerWithCacheWrapped();
@@ -54,8 +52,7 @@ GrVkTexture::GrVkTexture(GrVkGpu* gpu,
                          GrVkImage::Wrapped wrapped)
     : GrSurface(gpu, desc)
     , GrVkImage(info, wrapped)
-    , INHERITED(gpu, desc, kTexture2DSampler_GrSLType, GrTextureParams::kMipMap_FilterMode,
-                desc.fIsMipMapped)
+    , INHERITED(gpu, desc, kTexture2DSampler_GrSLType, desc.fIsMipMapped)
     , fTextureView(view)
     , fLinearTextureView(nullptr) {
 }
