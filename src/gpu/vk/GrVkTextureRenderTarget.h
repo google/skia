@@ -13,8 +13,6 @@
 #include "GrVkRenderTarget.h"
 #include "GrVkGpu.h"
 
-#include "GrTexturePriv.h"
-
 #ifdef SK_BUILD_FOR_WIN
 // Windows gives bogus warnings about inheriting asTexture/asRenderTarget via dominance.
 #pragma warning(push)
@@ -114,9 +112,7 @@ private:
 
     // GrGLRenderTarget accounts for the texture's memory and any MSAA renderbuffer's memory.
     size_t onGpuMemorySize() const override {
-        // The plus 1 is to account for the resolve texture.
-        return GrSurface::ComputeSize(fDesc, fDesc.fSampleCnt+1,      // TODO: this still correct?
-                                      this->texturePriv().hasMipMaps());
+        return GrVkRenderTarget::onGpuMemorySize();
     }
 };
 
