@@ -401,6 +401,11 @@ config("executable") {
       "-rdynamic",
       "-Wl,-rpath,\$ORIGIN",
     ]
+  } else if (is_win) {
+    ldflags = [
+      "/ignore:4031",  # "no subsystem specified; CONSOLE assumed"
+      "/ignore:6004",  # "not found or not built by the last incremental link; performing full link"
+    ]
   }
 }
 
