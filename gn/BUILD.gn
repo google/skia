@@ -401,6 +401,11 @@ config("executable") {
       "-rdynamic",
       "-Wl,-rpath,\$ORIGIN",
     ]
+  } else if (is_win) {
+    ldflags = [
+      "/SUBSYSTEM:CONSOLE",  # Quiet "no subsystem specified; CONSOLE assumed".
+      "/INCREMENTAL:NO",  # Quiet warnings about failing to incrementally link by never trying to.
+    ]
   }
 }
 
