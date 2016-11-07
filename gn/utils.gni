@@ -27,6 +27,7 @@ skia_utils_sources = [
   "$_include/utils/SkRandom.h",
   "$_include/utils/SkTextBox.h",
 
+  "$_src/utils/Sk590Canvas.cpp",
   "$_src/utils/SkBase64.cpp",
   "$_src/utils/SkBase64.h",
   "$_src/utils/SkBitmapSourceDeserializer.cpp",

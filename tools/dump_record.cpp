@@ -15,6 +15,7 @@
 #include "SkRecorder.h"
 #include "SkStream.h"
 #include <stdio.h>
+#include "Sk590Canvas.h"
 
 DEFINE_string2(skps, r, "", ".SKPs to dump.");
 DEFINE_string(match, "", "The usual filters on file names to dump.");
@@ -76,7 +77,12 @@ int tool_main(int argc, char** argv) {
             SkRecordOptimize2(&record);
         }
 
-        dump(FLAGS_skps[i], w, h, record);
+    if (false)    dump(FLAGS_skps[i], w, h, record);
+        
+        if (true) {
+            Sk590Canvas canvas;
+            src->playback(&canvas);
+        }
 
         if (FLAGS_write.count() > 0) {
             SkPictureRecorder r;
