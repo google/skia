@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "ebc99f45_97f8e7cd",
+        "filename": "src/codec/SkRawCodec.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 686,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2016-11-07T15:45:07Z",
+      "side": 1,
+      "message": "Can we move the check for initializeColorXform into SkCodec, before calling onGetPixels? (Maybe not, due to SkPngCodec? It calls this method inside another method, after calling png_read_update_info and resetting the swizzler. I could imagine us calling png_read_update_info earlier; not sure about the swizzler.)\n\nI\u0027d also be tempted to move conversion_possible into SkCodec, but SkJpegCodec doesn\u0027t call it, SkIcoCodec doesn\u0027t either (directly), and neither does SkWbmpCodec.",
+      "range": {
+        "startLine": 686,
+        "startChar": 9,
+        "endLine": 686,
+        "endChar": 85
+      },
+      "revId": "ab7aababa6a25304f20b49c06012d1a4538e3604",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ebc99f45_d76e6fad",
+        "filename": "src/codec/SkRawCodec.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 694,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2016-11-07T15:45:07Z",
+      "side": 1,
+      "message": "Maybe put a constant (or a macro?) in this file that specifies this type, and use it everywhere in this file?",
+      "range": {
+        "startLine": 694,
+        "startChar": 50,
+        "endLine": 694,
+        "endChar": 72
+      },
+      "revId": "ab7aababa6a25304f20b49c06012d1a4538e3604",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
