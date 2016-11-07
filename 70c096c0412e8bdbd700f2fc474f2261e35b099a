@@ -25,6 +25,24 @@
     },
     {
       "key": {
+        "uuid": "ebc99f45_178e374c",
+        "filename": "site/user/special/vulkan.md",
+        "patchSetId": 2
+      },
+      "lineNbr": 15,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2016-11-07T15:45:19Z",
+      "side": 1,
+      "message": "Let\u0027s not confuse things here by mentioning skia_use_vulkan.\n\nThis is about how to build for Vulkan, not about how to not build for Vulkan if you can build for Vulkan.  I don\u0027t know what Brian\u0027s use case for that is, but it\u0027s certainly niche.",
+      "parentUuid": "ebc99f45_77545bdf",
+      "revId": "70c096c0412e8bdbd700f2fc474f2261e35b099a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "ebc99f45_f767ebd3",
         "filename": "site/user/special/vulkan.md",
         "patchSetId": 2
@@ -42,6 +60,24 @@
         "endLine": 19,
         "endChar": 56
       },
+      "revId": "70c096c0412e8bdbd700f2fc474f2261e35b099a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ebc99f45_f7904b68",
+        "filename": "site/user/special/vulkan.md",
+        "patchSetId": 2
+      },
+      "lineNbr": 19,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2016-11-07T15:45:19Z",
+      "side": 1,
+      "message": "No.  You\u0027ve already done that if you\u0027re building for Android.",
+      "parentUuid": "ebc99f45_f767ebd3",
       "revId": "70c096c0412e8bdbd700f2fc474f2261e35b099a",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
