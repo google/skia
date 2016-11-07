@@ -48,7 +48,7 @@ private:
     GrVkDescriptorSetManager::Handle fSamplerDSHandle;
     VkPipelineLayout fPipelineLayout;
 
-    SkAutoTUnref<GrVkVertexBuffer> fVertexBuffer;
+    sk_sp<GrVkVertexBuffer> fVertexBuffer;
     GrVkUniformBuffer*             fUniformBuffer;
 };
 

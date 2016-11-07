@@ -343,7 +343,7 @@ bool GrAALinearizingConvexPathRenderer::onDrawPath(const DrawPathArgs& args) {
     SkPaint::Join join = fill ? SkPaint::Join::kMiter_Join : stroke.getJoin();
     SkScalar miterLimit = stroke.getMiter();
 
-    SkAutoTUnref<GrDrawBatch> batch(new AAFlatteningConvexPathBatch(args.fPaint->getColor(),
+    sk_sp<GrDrawBatch> batch(new AAFlatteningConvexPathBatch(args.fPaint->getColor(),
                                                                     *args.fViewMatrix,
                                                                     path, strokeWidth,
                                                                     stroke.getStyle(),
@@ -352,7 +352,7 @@ bool GrAALinearizingConvexPathRenderer::onDrawPath(const DrawPathArgs& args) {
     GrPipelineBuilder pipelineBuilder(*args.fPaint);
     pipelineBuilder.setUserStencil(args.fUserStencilSettings);
 
-    args.fRenderTargetContext->drawBatch(pipelineBuilder, *args.fClip, batch);
+    args.fRenderTargetContext->drawBatch(pipelineBuilder, *args.fClip, batch.get());
 
     return true;
 }

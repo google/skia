@@ -57,7 +57,7 @@ public:
 
     ~SkGpuDevice() override {}
 
-    GrContext* context() const override { return fContext; }
+    GrContext* context() const override { return fContext.get(); }
 
     // set all pixels to 0
     void clearAll();
@@ -132,7 +132,7 @@ protected:
 
 private:
     // We want these unreffed in RenderTargetContext, GrContext order.
-    SkAutoTUnref<GrContext>         fContext;
+    sk_sp<GrContext>         fContext;
     sk_sp<GrRenderTargetContext>            fRenderTargetContext;
 
     SkIPoint                        fClipOrigin;

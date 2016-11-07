@@ -184,7 +184,7 @@ private:
             fY = y;
         }
 
-        SkAutoTUnref<const InstanceData>    fInstanceData;
+        sk_sp<const InstanceData>    fInstanceData;
         SkScalar                            fX, fY;
     };
 

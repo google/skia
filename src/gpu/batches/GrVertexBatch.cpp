@@ -52,14 +52,15 @@ void GrVertexBatch::InstancedHelper::recordDraw(Target* target, const GrGeometry
 
 void* GrVertexBatch::QuadHelper::init(Target* target, size_t vertexStride,
                                       int quadsToDraw) {
-    SkAutoTUnref<const GrBuffer> quadIndexBuffer(
+    sk_sp<const GrBuffer> quadIndexBuffer(
         target->resourceProvider()->refQuadIndexBuffer());
     if (!quadIndexBuffer) {
         SkDebugf("Could not get quad index buffer.");
         return nullptr;
     }
     return this->INHERITED::init(target, kTriangles_GrPrimitiveType, vertexStride,
-                                 quadIndexBuffer, kVerticesPerQuad, kIndicesPerQuad, quadsToDraw);
+                                 quadIndexBuffer.get(), kVerticesPerQuad, kIndicesPerQuad,
+                                 quadsToDraw);
 }
 
 void GrVertexBatch::onDraw(GrBatchFlushState* state, const SkRect& bounds) {
