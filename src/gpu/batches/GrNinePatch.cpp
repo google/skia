@@ -85,11 +85,11 @@ private:
             numRects += fPatches[i].fIter->numRectsToDraw();
         }
 
-        SkAutoTUnref<const GrBuffer> indexBuffer(
+        sk_sp<const GrBuffer> indexBuffer(
                 target->resourceProvider()->refQuadIndexBuffer());
         InstancedHelper helper;
         void* vertices = helper.init(target, kTriangles_GrPrimitiveType, vertexStride,
-                                     indexBuffer, kVertsPerRect,
+                                     indexBuffer.get(), kVertsPerRect,
                                      kIndicesPerRect, numRects);
         if (!vertices || !indexBuffer) {
             SkDebugf("Could not allocate vertices\n");

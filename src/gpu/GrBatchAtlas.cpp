@@ -136,9 +136,9 @@ GrBatchAtlas::GrBatchAtlas(GrTexture* texture, int numPlotsX, int numPlotsY)
     SkASSERT(!GrPixelConfigIsCompressed(texture->desc().fConfig));
 
     // set up allocated plots
-    fPlotArray = new SkAutoTUnref<BatchPlot>[numPlotsX * numPlotsY];
+    fPlotArray = new sk_sp<BatchPlot>[numPlotsX * numPlotsY];
 
-    SkAutoTUnref<BatchPlot>* currPlot = fPlotArray;
+    sk_sp<BatchPlot>* currPlot = fPlotArray;
     for (int y = numPlotsY - 1, r = 0; y >= 0; --y, ++r) {
         for (int x = numPlotsX - 1, c = 0; x >= 0; --x, ++c) {
             uint32_t index = r * numPlotsX + c;
@@ -230,7 +230,7 @@ bool GrBatchAtlas::addToAtlas(AtlasID* id, GrDrawBatch::Target* target,
 
     this->processEviction(plot->id());
     fPlotList.remove(plot);
-    SkAutoTUnref<BatchPlot>& newPlot = fPlotArray[plot->index()];
+    sk_sp<BatchPlot>& newPlot = fPlotArray[plot->index()];
     newPlot.reset(plot->clone());
 
     fPlotList.addToHead(newPlot.get());

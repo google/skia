@@ -8,6 +8,7 @@
 #ifndef GrAtlasTextBatch_DEFINED
 #define GrAtlasTextBatch_DEFINED
 
+
 #include "batches/GrVertexBatch.h"
 
 #include "text/GrAtlasTextContext.h"
@@ -104,8 +105,8 @@ private:
     void initBatchTracker(const GrXPOverridesForBatch& overrides) override;
 
     struct FlushInfo {
-        SkAutoTUnref<const GrBuffer> fVertexBuffer;
-        SkAutoTUnref<const GrBuffer> fIndexBuffer;
+        sk_sp<const GrBuffer> fVertexBuffer;
+        sk_sp<const GrBuffer> fIndexBuffer;
         sk_sp<GrGeometryProcessor>   fGeometryProcessor;
         int                          fGlyphsToFlush;
         int                          fVertexOffset;
@@ -185,7 +186,7 @@ private:
     GrBatchFontCache* fFontCache;
 
     // Distance field properties
-    SkAutoTUnref<const GrDistanceFieldAdjustTable> fDistanceAdjustTable;
+    sk_sp<const GrDistanceFieldAdjustTable> fDistanceAdjustTable;
     SkColor fFilteredColor;
     bool fUseGammaCorrectDistanceTable;
 

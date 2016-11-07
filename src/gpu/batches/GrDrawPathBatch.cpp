@@ -29,7 +29,7 @@ SkString GrDrawPathBatch::dumpInfo() const {
 void GrDrawPathBatch::onDraw(GrBatchFlushState* state, const SkRect& bounds) {
     GrProgramDesc  desc;
 
-    SkAutoTUnref<GrPathProcessor> pathProc(GrPathProcessor::Create(this->color(),
+    sk_sp<GrPathProcessor> pathProc(GrPathProcessor::Create(this->color(),
                                                                    this->overrides(),
                                                                    this->viewMatrix()));
     state->gpu()->pathRendering()->drawPath(*this->pipeline(), *pathProc,
@@ -127,7 +127,7 @@ void GrDrawPathRangeBatch::onDraw(GrBatchFlushState* state, const SkRect& bounds
     localMatrix.setScale(fScale, fScale);
     localMatrix.preTranslate(head.fX, head.fY);
 
-    SkAutoTUnref<GrPathProcessor> pathProc(GrPathProcessor::Create(this->color(),
+    sk_sp<GrPathProcessor> pathProc(GrPathProcessor::Create(this->color(),
                                                                    this->overrides(),
                                                                    drawMatrix,
                                                                    localMatrix));

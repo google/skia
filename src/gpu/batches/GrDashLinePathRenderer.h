@@ -22,7 +22,7 @@ private:
 
     bool onDrawPath(const DrawPathArgs&) override;
 
-    SkAutoTUnref<GrGpu> fGpu;
+    sk_sp<GrGpu> fGpu;
     typedef GrPathRenderer INHERITED;
 };
 

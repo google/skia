@@ -26,7 +26,7 @@ struct GrGLGpu::ProgramCache::Entry {
 
     Entry() : fProgram(nullptr), fLRUStamp(0) {}
 
-    SkAutoTUnref<GrGLProgram>   fProgram;
+    sk_sp<GrGLProgram>   fProgram;
     unsigned int                fLRUStamp;
 };
 

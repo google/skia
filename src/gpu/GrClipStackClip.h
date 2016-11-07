@@ -65,7 +65,7 @@ private:
                                        bool renderTarget);
 
     SkIPoint                          fOrigin;
-    SkAutoTUnref<const SkClipStack>   fStack;
+    sk_sp<const SkClipStack>   fStack;
 };
 
 #endif // GrClipStackClip_DEFINED
