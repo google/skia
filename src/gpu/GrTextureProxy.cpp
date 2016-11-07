@@ -21,10 +21,21 @@ GrTextureProxy::GrTextureProxy(sk_sp<GrTexture> tex)
 }
 
 GrTexture* GrTextureProxy::instantiate(GrTextureProvider* texProvider) {
-    GrSurface* surf = this->INHERITED::instantiate(texProvider);
-    if (!surf) {
-        return nullptr;
+    if (fTarget) {
+        return fTarget->asTexture();
     }
+
+    if (SkBackingFit::kApprox == fFit) {
+        fTarget = texProvider->createApproxTexture(fDesc);
+    } else {
+        fTarget = texProvider->createTexture(fDesc, fBudgeted);
+    }
+
+#ifdef SK_DEBUG
+    if (kInvalidGpuMemorySize != this->getRawGpuMemorySize_debugOnly()) {
+        SkASSERT(fTarget->gpuMemorySize() <= this->getRawGpuMemorySize_debugOnly());
+    }
+#endif
 
     return fTarget->asTexture();
 }
