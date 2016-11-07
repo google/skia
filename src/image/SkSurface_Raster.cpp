@@ -208,12 +208,12 @@ sk_sp<SkSurface> SkSurface::MakeRaster(const SkImageInfo& info, size_t rowBytes,
         return nullptr;
     }
 
-    SkAutoTUnref<SkPixelRef> pr(SkMallocPixelRef::NewZeroed(info, rowBytes, nullptr));
-    if (nullptr == pr.get()) {
+    sk_sp<SkPixelRef> pr(SkMallocPixelRef::NewZeroed(info, rowBytes, nullptr));
+    if (!pr) {
         return nullptr;
     }
     if (rowBytes) {
         SkASSERT(pr->rowBytes() == rowBytes);
     }
-    return sk_make_sp<SkSurface_Raster>(pr, props);
+    return sk_make_sp<SkSurface_Raster>(pr.get(), props);
 }

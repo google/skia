@@ -777,7 +777,7 @@ public:
             return nullptr;
         }
 
-        SkAutoTUnref<GrTexture> blurProfile(CreateBlurProfileTexture(textureProvider, sigma));
+        sk_sp<GrTexture> blurProfile(CreateBlurProfileTexture(textureProvider, sigma));
         if (!blurProfile) {
            return nullptr;
         }
@@ -800,8 +800,9 @@ public:
         } else {
             precision = kDefault_GrSLPrecision;
         }
+
         return sk_sp<GrFragmentProcessor>(
-            new GrRectBlurEffect(rect, sigma, blurProfile, precision));
+                new GrRectBlurEffect(rect, sigma, blurProfile.get(), precision));
     }
 
     const SkRect& getRect() const { return fRect; }
