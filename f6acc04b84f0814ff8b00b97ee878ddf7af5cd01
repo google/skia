@@ -1,0 +1,579 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "2bde5729_e3bf06af",
+        "filename": "src/gpu/GrBatchAtlas.h",
+        "patchSetId": 6
+      },
+      "lineNbr": 243,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2016-11-07T22:23:01Z",
+      "side": 1,
+      "message": "This really wants to be an sk_sp\u003cGrTexture\u003e.",
+      "range": {
+        "startLine": 243,
+        "startChar": 4,
+        "endLine": 243,
+        "endChar": 14
+      },
+      "revId": "f6acc04b84f0814ff8b00b97ee878ddf7af5cd01",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "2bde5729_83d80238",
+        "filename": "src/gpu/GrBatchAtlas.h",
+        "patchSetId": 6
+      },
+      "lineNbr": 257,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2016-11-07T22:23:01Z",
+      "side": 1,
+      "message": "This really wants to be a std::unique_ptr\u003csk_sp\u003cBatchPlot\u003e[]\u003e.",
+      "range": {
+        "startLine": 257,
+        "startChar": 4,
+        "endLine": 257,
+        "endChar": 21
+      },
+      "revId": "f6acc04b84f0814ff8b00b97ee878ddf7af5cd01",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "2bde5729_867bb02e",
+        "filename": "src/gpu/GrContext.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 498,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2016-11-07T22:23:01Z",
+      "side": 1,
+      "message": "Undent while we\u0027re at it.",
+      "range": {
+        "startLine": 498,
+        "startChar": 26,
+        "endLine": 498,
+        "endChar": 27
+      },
+      "revId": "f6acc04b84f0814ff8b00b97ee878ddf7af5cd01",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "2bde5729_a6a8ac64",
+        "filename": "src/gpu/GrRenderTargetContext.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 1044,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2016-11-07T22:23:01Z",
+      "side": 1,
+      "message": "Already has explicit conversion to bool, don\u0027t add the .get() here.",
+      "range": {
+        "startLine": 1044,
+        "startChar": 17,
+        "endLine": 1044,
+        "endChar": 23
+      },
+      "revId": "f6acc04b84f0814ff8b00b97ee878ddf7af5cd01",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "2bde5729_e6a2b482",
+        "filename": "src/gpu/GrRenderTargetContext.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 1058,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2016-11-07T22:23:01Z",
+      "side": 1,
+      "message": "Remove the .get()",
+      "range": {
+        "startLine": 1058,
+        "startChar": 17,
+        "endLine": 1058,
+        "endChar": 23
+      },
+      "revId": "f6acc04b84f0814ff8b00b97ee878ddf7af5cd01",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "2bde5729_06a08078",
+        "filename": "src/gpu/GrRenderTargetContext.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 1090,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2016-11-07T22:23:01Z",
+      "side": 1,
+      "message": "Remove the .get()",
+      "range": {
+        "startLine": 1090,
+        "startChar": 17,
+        "endLine": 1090,
+        "endChar": 23
+      },
+      "revId": "f6acc04b84f0814ff8b00b97ee878ddf7af5cd01",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "2bde5729_86cd7053",
+        "filename": "src/gpu/GrSWMaskHelper.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 198,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2016-11-07T22:23:01Z",
+      "side": 1,
+      "message": "Align",
+      "range": {
+        "startLine": 198,
+        "startChar": 65,
+        "endLine": 198,
+        "endChar": 72
+      },
+      "revId": "f6acc04b84f0814ff8b00b97ee878ddf7af5cd01",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "2bde5729_66c86442",
+        "filename": "src/gpu/GrSoftwarePathRenderer.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 71,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2016-11-07T22:23:01Z",
+      "side": 1,
+      "message": "Align",
+      "range": {
+        "startLine": 71,
+        "startChar": 65,
+        "endLine": 71,
+        "endChar": 72
+      },
+      "revId": "f6acc04b84f0814ff8b00b97ee878ddf7af5cd01",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "2bde5729_26e73cd3",
+        "filename": "src/gpu/GrYUVProvider.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 32,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2016-11-07T22:23:01Z",
+      "side": 1,
+      "message": "Undent.",
+      "range": {
+        "startLine": 32,
+        "startChar": 25,
+        "endLine": 32,
+        "endChar": 32
+      },
+      "revId": "f6acc04b84f0814ff8b00b97ee878ddf7af5cd01",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "2bde5729_c6d778d5",
+        "filename": "src/gpu/SkGpuDevice.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 452,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2016-11-07T22:23:01Z",
+      "side": 1,
+      "message": "Long line.",
+      "range": {
+        "startLine": 452,
+        "startChar": 100,
+        "endLine": 452,
+        "endChar": 106
+      },
+      "revId": "f6acc04b84f0814ff8b00b97ee878ddf7af5cd01",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "2bde5729_c364cad2",
+        "filename": "src/gpu/batches/GrAtlasTextBatch.h",
+        "patchSetId": 6
+      },
+      "lineNbr": 11,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2016-11-07T22:23:01Z",
+      "side": 1,
+      "message": "Why adding a line here?",
+      "range": {
+        "startLine": 11,
+        "startChar": 0,
+        "endLine": 11,
+        "endChar": 1
+      },
+      "revId": "f6acc04b84f0814ff8b00b97ee878ddf7af5cd01",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "2bde5729_e371c68d",
+        "filename": "src/gpu/batches/GrDashLinePathRenderer.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 43,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2016-11-07T22:23:01Z",
+      "side": 1,
+      "message": "Align",
+      "range": {
+        "startLine": 43,
+        "startChar": 66,
+        "endLine": 43,
+        "endChar": 73
+      },
+      "revId": "f6acc04b84f0814ff8b00b97ee878ddf7af5cd01",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "2bde5729_237d6e5e",
+        "filename": "src/gpu/batches/GrDefaultPathRenderer.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 567,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2016-11-07T22:23:01Z",
+      "side": 1,
+      "message": "Align",
+      "range": {
+        "startLine": 567,
+        "startChar": 58,
+        "endLine": 567,
+        "endChar": 65
+      },
+      "revId": "f6acc04b84f0814ff8b00b97ee878ddf7af5cd01",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "2bde5729_43827a25",
+        "filename": "src/gpu/batches/GrDrawPathBatch.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 33,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2016-11-07T22:23:01Z",
+      "side": 1,
+      "message": "Align",
+      "range": {
+        "startLine": 33,
+        "startChar": 60,
+        "endLine": 33,
+        "endChar": 67
+      },
+      "revId": "f6acc04b84f0814ff8b00b97ee878ddf7af5cd01",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "2bde5729_6377767e",
+        "filename": "src/gpu/batches/GrDrawPathBatch.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 131,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2016-11-07T22:23:01Z",
+      "side": 1,
+      "message": "Align",
+      "range": {
+        "startLine": 131,
+        "startChar": 60,
+        "endLine": 131,
+        "endChar": 67
+      },
+      "revId": "f6acc04b84f0814ff8b00b97ee878ddf7af5cd01",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "2bde5729_837c8260",
+        "filename": "src/gpu/batches/GrMSAAPathRenderer.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 660,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2016-11-07T22:23:01Z",
+      "side": 1,
+      "message": "Align",
+      "range": {
+        "startLine": 660,
+        "startChar": 57,
+        "endLine": 660,
+        "endChar": 64
+      },
+      "revId": "f6acc04b84f0814ff8b00b97ee878ddf7af5cd01",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "2bde5729_0388723b",
+        "filename": "src/gpu/batches/GrNinePatch.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 89,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2016-11-07T22:23:01Z",
+      "side": 1,
+      "message": "Fits on previous line.",
+      "range": {
+        "startLine": 89,
+        "startChar": 16,
+        "endLine": 89,
+        "endChar": 66
+      },
+      "revId": "f6acc04b84f0814ff8b00b97ee878ddf7af5cd01",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "2bde5729_e323866d",
+        "filename": "src/gpu/gl/GrGLContext.h",
+        "patchSetId": 6
+      },
+      "lineNbr": 61,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2016-11-07T22:23:01Z",
+      "side": 1,
+      "message": "Undent block",
+      "range": {
+        "startLine": 61,
+        "startChar": 31,
+        "endLine": 61,
+        "endChar": 40
+      },
+      "revId": "f6acc04b84f0814ff8b00b97ee878ddf7af5cd01",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "2bde5729_6349362d",
+        "filename": "src/gpu/gl/GrGLCreateNullInterface.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 713,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2016-11-07T22:23:01Z",
+      "side": 1,
+      "message": "Indent.",
+      "range": {
+        "startLine": 713,
+        "startChar": 28,
+        "endLine": 713,
+        "endChar": 30
+      },
+      "revId": "f6acc04b84f0814ff8b00b97ee878ddf7af5cd01",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "2bde5729_23f00ebe",
+        "filename": "src/gpu/gl/GrGLGpu.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 177,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2016-11-07T22:23:01Z",
+      "side": 1,
+      "message": "Fits on previous line.",
+      "range": {
+        "startLine": 177,
+        "startChar": 8,
+        "endLine": 177,
+        "endChar": 64
+      },
+      "revId": "f6acc04b84f0814ff8b00b97ee878ddf7af5cd01",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "2bde5729_43f51aad",
+        "filename": "src/gpu/gl/GrGLGpu.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 2026,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2016-11-07T22:23:01Z",
+      "side": 1,
+      "message": "Fits on previous line.",
+      "range": {
+        "startLine": 2026,
+        "startChar": 64,
+        "endLine": 2026,
+        "endChar": 81
+      },
+      "revId": "f6acc04b84f0814ff8b00b97ee878ddf7af5cd01",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "2bde5729_a3033ebc",
+        "filename": "src/gpu/gl/GrGLGpu.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 2311,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2016-11-07T22:23:01Z",
+      "side": 1,
+      "message": "Fits on previous line.",
+      "range": {
+        "startLine": 2311,
+        "startChar": 37,
+        "endLine": 2311,
+        "endChar": 55
+      },
+      "revId": "f6acc04b84f0814ff8b00b97ee878ddf7af5cd01",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "2bde5729_e30d46e7",
+        "filename": "src/gpu/gl/GrGLGpuProgramCache.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 30,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2016-11-07T22:23:01Z",
+      "side": 1,
+      "message": "Undent.",
+      "range": {
+        "startLine": 30,
+        "startChar": 25,
+        "endLine": 30,
+        "endChar": 32
+      },
+      "revId": "f6acc04b84f0814ff8b00b97ee878ddf7af5cd01",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "2bde5729_661224cb",
+        "filename": "src/gpu/text/GrAtlasTextBlob.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 322,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2016-11-07T22:23:01Z",
+      "side": 1,
+      "message": "Align",
+      "range": {
+        "startLine": 322,
+        "startChar": 51,
+        "endLine": 322,
+        "endChar": 58
+      },
+      "revId": "f6acc04b84f0814ff8b00b97ee878ddf7af5cd01",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "2bde5729_e6255424",
+        "filename": "src/gpu/vk/GrVkCopyManager.h",
+        "patchSetId": 6
+      },
+      "lineNbr": 51,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2016-11-07T22:23:01Z",
+      "side": 1,
+      "message": "Undent?",
+      "range": {
+        "startLine": 51,
+        "startChar": 28,
+        "endLine": 51,
+        "endChar": 35
+      },
+      "revId": "f6acc04b84f0814ff8b00b97ee878ddf7af5cd01",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
