@@ -762,8 +762,8 @@ SkCanvas::SkCanvas(const SkBitmap& bitmap, const SkSurfaceProps& props)
 {
     inc_canvas();
 
-    SkAutoTUnref<SkBaseDevice> device(new SkBitmapDevice(bitmap, fProps));
-    this->init(device, kDefault_InitFlags);
+    sk_sp<SkBaseDevice> device(new SkBitmapDevice(bitmap, fProps));
+    this->init(device.get(), kDefault_InitFlags);
 }
 
 SkCanvas::SkCanvas(const SkBitmap& bitmap)
@@ -773,8 +773,8 @@ SkCanvas::SkCanvas(const SkBitmap& bitmap)
 {
     inc_canvas();
 
-    SkAutoTUnref<SkBaseDevice> device(new SkBitmapDevice(bitmap, fProps));
-    this->init(device, kDefault_InitFlags);
+    sk_sp<SkBaseDevice> device(new SkBitmapDevice(bitmap, fProps));
+    this->init(device.get(), kDefault_InitFlags);
 }
 
 SkCanvas::~SkCanvas() {
@@ -1248,7 +1248,7 @@ void SkCanvas::internalSaveLayer(const SaveLayerRec& rec, SaveLayerStrategy stra
     SkImageInfo info = make_layer_info(priorDevice->imageInfo(), ir.width(), ir.height(), isOpaque,
                                        paint);
 
-    SkAutoTUnref<SkBaseDevice> newDevice;
+    sk_sp<SkBaseDevice> newDevice;
     {
         const bool preserveLCDText = kOpaque_SkAlphaType == info.alphaType() ||
                                      (saveLayerFlags & kPreserveLCDText_SaveLayerFlag);
@@ -1262,14 +1262,15 @@ void SkCanvas::internalSaveLayer(const SaveLayerRec& rec, SaveLayerStrategy stra
     }
     newDevice->setOrigin(ir.fLeft, ir.fTop);
 
-    DeviceCM* layer = new DeviceCM(newDevice, paint, this, fConservativeRasterClip, stashedMatrix);
+    DeviceCM* layer =
+            new DeviceCM(newDevice.get(), paint, this, fConservativeRasterClip, stashedMatrix);
 
     layer->fNext = fMCRec->fTopLayer;
     fMCRec->fLayer = layer;
     fMCRec->fTopLayer = layer;    // this field is NOT an owner of layer
 
     if (rec.fBackdrop) {
-        DrawDeviceWithFilter(priorDevice, rec.fBackdrop, newDevice,
+        DrawDeviceWithFilter(priorDevice, rec.fBackdrop, newDevice.get(),
                              fMCRec->fMatrix, this->getClipStack());
     }
 }

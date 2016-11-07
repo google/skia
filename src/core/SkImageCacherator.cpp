@@ -190,7 +190,7 @@ bool SkImageCacherator::lockAsBitmap(SkBitmap* bitmap, const SkImage* client,
 
 #if SK_SUPPORT_GPU
     // Try to get a texture and read it back to raster (and then cache that with our ID)
-    SkAutoTUnref<GrTexture> tex;
+    sk_sp<GrTexture> tex;
 
     {
         ScopedGenerator generator(fSharedGenerator);

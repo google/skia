@@ -803,11 +803,11 @@ bool SkBitmap::copyTo(SkBitmap* dst, SkColorType dstColorType, Allocator* alloc)
     }
 
     // allocate colortable if srcConfig == kIndex8_Config
-    SkAutoTUnref<SkColorTable> ctable;
+    sk_sp<SkColorTable> ctable;
     if (dstColorType == kIndex_8_SkColorType) {
         ctable.reset(SkRef(srcPM.ctable()));
     }
-    if (!tmpDst.tryAllocPixels(alloc, ctable)) {
+    if (!tmpDst.tryAllocPixels(alloc, ctable.get())) {
         return false;
     }
 
@@ -1021,7 +1021,7 @@ bool SkBitmap::ReadRawPixels(SkReadBuffer* buffer, SkBitmap* bitmap) {
         SkASSERT(srcRow == dstRow); // first row does not need to be moved
     }
 
-    SkAutoTUnref<SkColorTable> ctable;
+    sk_sp<SkColorTable> ctable;
     if (buffer->readBool()) {
         ctable.reset(SkColorTable::Create(*buffer));
         if (!ctable) {
@@ -1047,13 +1047,13 @@ bool SkBitmap::ReadRawPixels(SkReadBuffer* buffer, SkBitmap* bitmap) {
         }
     }
 
-    SkAutoTUnref<SkPixelRef> pr(SkMallocPixelRef::NewWithData(info, info.minRowBytes(),
-                                                              ctable.get(), data.get()));
+    sk_sp<SkPixelRef> pr(SkMallocPixelRef::NewWithData(info, info.minRowBytes(),
+                                                       ctable.get(), data.get()));
     if (!pr.get()) {
         return false;
     }
     bitmap->setInfo(pr->info());
-    bitmap->setPixelRef(pr, 0, 0);
+    bitmap->setPixelRef(pr.get(), 0, 0);
     return true;
 }
 

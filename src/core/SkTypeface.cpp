@@ -87,7 +87,7 @@ SkTypeface* SkTypeface::GetDefaultTypeface(Style style) {
 
     SkASSERT((int)style < 4);
     once[style]([style] {
-        SkAutoTUnref<SkFontMgr> fm(SkFontMgr::RefDefault());
+        sk_sp<SkFontMgr> fm(SkFontMgr::RefDefault());
         SkTypeface* t = fm->legacyCreateTypeface(nullptr, SkFontStyle::FromOldStyle(style));
         defaults[style] = t ? t : SkEmptyTypeface::Create();
     });
@@ -129,7 +129,7 @@ sk_sp<SkTypeface> SkTypeface::MakeFromName(const char name[],
             (fontStyle.weight() == SkFontStyle::kBold_Weight ? SkTypeface::kBold :
                                                                SkTypeface::kNormal)));
     }
-    SkAutoTUnref<SkFontMgr> fm(SkFontMgr::RefDefault());
+    sk_sp<SkFontMgr> fm(SkFontMgr::RefDefault());
     return sk_sp<SkTypeface>(fm->legacyCreateTypeface(name, fontStyle));
 }
 
@@ -142,22 +142,22 @@ sk_sp<SkTypeface> SkTypeface::MakeFromTypeface(SkTypeface* family, Style s) {
         return sk_ref_sp(family);
     }
 
-    SkAutoTUnref<SkFontMgr> fm(SkFontMgr::RefDefault());
+    sk_sp<SkFontMgr> fm(SkFontMgr::RefDefault());
     return sk_sp<SkTypeface>(fm->matchFaceStyle(family, SkFontStyle::FromOldStyle(s)));
 }
 
 sk_sp<SkTypeface> SkTypeface::MakeFromStream(SkStreamAsset* stream, int index) {
-    SkAutoTUnref<SkFontMgr> fm(SkFontMgr::RefDefault());
+    sk_sp<SkFontMgr> fm(SkFontMgr::RefDefault());
     return sk_sp<SkTypeface>(fm->createFromStream(stream, index));
 }
 
 sk_sp<SkTypeface> SkTypeface::MakeFromFontData(std::unique_ptr<SkFontData> data) {
-    SkAutoTUnref<SkFontMgr> fm(SkFontMgr::RefDefault());
+    sk_sp<SkFontMgr> fm(SkFontMgr::RefDefault());
     return sk_sp<SkTypeface>(fm->createFromFontData(std::move(data)));
 }
 
 sk_sp<SkTypeface> SkTypeface::MakeFromFile(const char path[], int index) {
-    SkAutoTUnref<SkFontMgr> fm(SkFontMgr::RefDefault());
+    sk_sp<SkFontMgr> fm(SkFontMgr::RefDefault());
     return sk_sp<SkTypeface>(fm->createFromFile(path, index));
 }
 
