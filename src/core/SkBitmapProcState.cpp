@@ -49,7 +49,7 @@ SkBitmapProcInfo::SkBitmapProcInfo(const SkBitmapProvider& provider,
 SkBitmapProcInfo::SkBitmapProcInfo(const SkBitmap& bm,
                                    SkShader::TileMode tmx, SkShader::TileMode tmy,
                                    SkSourceGammaTreatment treatment)
-    : fProvider(SkBitmapProvider(bm))
+    : fProvider(SkBitmapProvider(bm, treatment))
     , fTileModeX(tmx)
     , fTileModeY(tmy)
     , fSrcGammaTreatment(treatment)

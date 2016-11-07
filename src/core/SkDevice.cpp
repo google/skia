@@ -180,8 +180,10 @@ void SkBaseDevice::drawTextBlob(const SkDraw& draw, const SkTextBlob* blob, SkSc
 void SkBaseDevice::drawImage(const SkDraw& draw, const SkImage* image, SkScalar x, SkScalar y,
                              const SkPaint& paint) {
     // Default impl : turns everything into raster bitmap
+    SkColorSpaceHandling mode = this->imageInfo().colorSpace()
+        ? SkColorSpaceHandling::kAware : SkColorSpaceHandling::kLegacy;
     SkBitmap bm;
-    if (as_IB(image)->getROPixels(&bm)) {
+    if (as_IB(image)->getROPixels(&bm, mode)) {
         this->drawBitmap(draw, bm, SkMatrix::MakeTrans(x, y), paint);
     }
 }
@@ -190,8 +192,10 @@ void SkBaseDevice::drawImageRect(const SkDraw& draw, const SkImage* image, const
                                  const SkRect& dst, const SkPaint& paint,
                                  SkCanvas::SrcRectConstraint constraint) {
     // Default impl : turns everything into raster bitmap
+    SkColorSpaceHandling mode = this->imageInfo().colorSpace()
+        ? SkColorSpaceHandling::kAware : SkColorSpaceHandling::kLegacy;
     SkBitmap bm;
-    if (as_IB(image)->getROPixels(&bm)) {
+    if (as_IB(image)->getROPixels(&bm, mode)) {
         this->drawBitmapRect(draw, bm, src, dst, paint, constraint);
     }
 }

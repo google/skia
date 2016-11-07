@@ -50,8 +50,11 @@ size_t SkImageShader::onContextSize(const ContextRec& rec) const {
 }
 
 SkShader::Context* SkImageShader::onCreateContext(const ContextRec& rec, void* storage) const {
+    SkSourceGammaTreatment treatment = ContextRec::kPM4f_DstType == rec.fPreferredDstType
+        ? SkSourceGammaTreatment::kRespect : SkSourceGammaTreatment::kIgnore;
     return SkBitmapProcLegacyShader::MakeContext(*this, fTileModeX, fTileModeY,
-                                                 SkBitmapProvider(fImage.get()), rec, storage);
+                                                 SkBitmapProvider(fImage.get(), treatment), rec,
+                                                 storage);
 }
 
 SkImage* SkImageShader::onIsAImage(SkMatrix* texM, TileMode xy[]) const {

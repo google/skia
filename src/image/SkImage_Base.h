@@ -25,6 +25,12 @@ enum {
     kNeedNewImageUniqueID = 0
 };
 
+// Shorthand for indicating if the surface we're drawing to has a color space attached or not.
+enum class SkColorSpaceHandling {
+    kLegacy,
+    kAware,
+};
+
 class SkImage_Base : public SkImage {
 public:
     SkImage_Base(int width, int height, uint32_t uniqueID);
@@ -52,7 +58,8 @@ public:
 
     // return a read-only copy of the pixels. We promise to not modify them,
     // but only inspect them (or encode them).
-    virtual bool getROPixels(SkBitmap*, CachingHint = kAllow_CachingHint) const = 0;
+    virtual bool getROPixels(SkBitmap*, SkColorSpaceHandling,
+                             CachingHint = kAllow_CachingHint) const = 0;
 
     // Caller must call unref when they are done.
     virtual GrTexture* asTextureRef(GrContext*, const GrTextureParams&,
