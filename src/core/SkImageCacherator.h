@@ -12,6 +12,7 @@
 #include "SkMutex.h"
 #include "SkTemplates.h"
 
+class GrCaps;
 class GrContext;
 class GrTextureParams;
 class GrUniqueKey;
@@ -29,7 +30,7 @@ public:
     ~SkImageCacherator();
 
     const SkImageInfo& info() const { return fInfo; }
-    uint32_t uniqueID() const { return fUniqueID; }
+    uint32_t uniqueID() const { return fUniqueIDs[kLegacy_CachedFormat]; }
 
     /**
      *  On success (true), bitmap will point to the pixels for this generator. If this returns
@@ -64,6 +65,8 @@ public:
     SkData* refEncoded(GrContext*);
 
     // Only return true if the generate has already been cached.
+    // If dstInfo is supplied, it's a hint about the use of the bitmap, and the caller wants a
+    // cached copy in a format that's most similar to that (or suitable for use in that context).
     bool lockAsBitmapOnlyIfAlreadyCached(SkBitmap*);
     // Call the underlying generator directly
     bool directGeneratePixels(const SkImageInfo& dstInfo, void* dstPixels, size_t dstRB,
@@ -89,6 +92,15 @@ private:
     };
     class ScopedGenerator;
 
+    enum CachedFormat {
+        kLegacy_CachedFormat,    // The format from the generator, with any color space stripped out
+        kAsIs_CachedFormat,      // The format from the generator, with no modification
+        kLinearF16_CachedFormat, // Half float RGBA with linear gamma
+        kSRGB8888_CachedFormat,  // sRGB bytes
+
+        kNumCachedFormats,
+    };
+
     struct Validator {
         Validator(sk_sp<SharedGenerator>, const SkIRect* subset);
 
@@ -102,6 +114,7 @@ private:
 
     SkImageCacherator(Validator*);
 
+    CachedFormat chooseCacheFormat(const SkImageInfo* info, SkImageInfo* cacheInfo);
     bool generateBitmap(SkBitmap*);
     bool tryLockAsBitmap(SkBitmap*, const SkImage*, SkImage::CachingHint);
 #if SK_SUPPORT_GPU
@@ -109,12 +122,14 @@ private:
     // it should use the passed in key (if the key is valid).
     GrTexture* lockTexture(GrContext*, const GrUniqueKey& key, const SkImage* client,
                            SkImage::CachingHint, bool willBeMipped, SkSourceGammaTreatment);
+    CachedFormat chooseCacheFormat(const SkImageInfo&, const GrCaps&);
+    SkImageInfo buildCacheInfo(const SkImageInfo&, CachedFormat);
 #endif
 
     sk_sp<SharedGenerator> fSharedGenerator;
     const SkImageInfo      fInfo;
     const SkIPoint         fOrigin;
-    const uint32_t         fUniqueID;
+    uint32_t               fUniqueIDs[kNumCachedFormats];
 
     friend class GrImageTextureMaker;
     friend class SkImage;
