@@ -22,6 +22,24 @@
       "revId": "c6475729f6390c406747740c4e70a7382435a213",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "2bde5729_1df373f4",
+        "filename": "src/core/SkPictureShader.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 87,
+      "author": {
+        "id": 5110
+      },
+      "writtenOn": "2016-11-07T19:14:52Z",
+      "side": 1,
+      "message": "Done\n\ngood catch",
+      "parentUuid": "2bde5729_1dcd331c",
+      "revId": "c6475729f6390c406747740c4e70a7382435a213",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
