@@ -306,7 +306,7 @@ size_t SkMipMap::AllocLevelsSize(int levelCount, size_t pixelSize) {
     return sk_64_asS32(size);
 }
 
-SkMipMap* SkMipMap::Build(const SkPixmap& src, SkSourceGammaTreatment treatment,
+SkMipMap* SkMipMap::Build(const SkPixmap& src, SkDestinationSurfaceColorMode colorMode,
                           SkDiscardableFactoryProc fact) {
     typedef void FilterProc(void*, const void* srcPtr, size_t srcRB, int count);
 
@@ -321,7 +321,7 @@ SkMipMap* SkMipMap::Build(const SkPixmap& src, SkSourceGammaTreatment treatment,
 
     const SkColorType ct = src.colorType();
     const SkAlphaType at = src.alphaType();
-    const bool srgbGamma = (SkSourceGammaTreatment::kRespect == treatment)
+    const bool srgbGamma = (SkDestinationSurfaceColorMode::kGammaAndColorSpaceAware == colorMode)
                             && src.info().gammaCloseToSRGB();
 
     switch (ct) {
@@ -601,7 +601,7 @@ bool SkMipMap::extractLevel(const SkSize& scaleSize, Level* levelPtr) const {
 
 // Helper which extracts a pixmap from the src bitmap
 //
-SkMipMap* SkMipMap::Build(const SkBitmap& src, SkSourceGammaTreatment treatment,
+SkMipMap* SkMipMap::Build(const SkBitmap& src, SkDestinationSurfaceColorMode colorMode,
                           SkDiscardableFactoryProc fact) {
     SkAutoPixmapUnlock srcUnlocker;
     if (!src.requestLock(&srcUnlocker)) {
@@ -612,7 +612,7 @@ SkMipMap* SkMipMap::Build(const SkBitmap& src, SkSourceGammaTreatment treatment,
     if (nullptr == srcPixmap.addr()) {
         sk_throw();
     }
-    return Build(srcPixmap, treatment, fact);
+    return Build(srcPixmap, colorMode, fact);
 }
 
 int SkMipMap::countLevels() const {

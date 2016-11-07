@@ -74,8 +74,8 @@ GrTexture::GrTexture(GrGpu* gpu, const GrSurfaceDesc& desc, GrSLType samplerType
     : INHERITED(gpu, desc)
     , fSamplerType(samplerType)
     , fHighestFilterMode(highestFilterMode)
-    // Gamma treatment is explicitly set after creation via GrTexturePriv
-    , fGammaTreatment(SkSourceGammaTreatment::kIgnore) {
+    // Mip color mode is explicitly set after creation via GrTexturePriv
+    , fMipColorMode(SkDestinationSurfaceColorMode::kLegacy) {
     if (wasMipMapDataProvided) {
         fMipMapsStatus = kValid_MipMapsStatus;
         fMaxMipMapLevel = SkMipMap::ComputeLevelCount(fDesc.fWidth, fDesc.fHeight);
