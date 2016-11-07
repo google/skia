@@ -307,10 +307,10 @@ void GrVkResourceProvider::recycleStandardUniformBufferResource(const GrVkResour
     fAvailableUniformBufferResources.push_back(resource);
 }
 
-void GrVkResourceProvider::destroyResources() {
+void GrVkResourceProvider::destroyResources(bool deviceLost) {
     // release our active command buffers
     for (int i = 0; i < fActiveCommandBuffers.count(); ++i) {
-        SkASSERT(fActiveCommandBuffers[i]->finished(fGpu));
+        SkASSERT(deviceLost || fActiveCommandBuffers[i]->finished(fGpu));
         SkASSERT(fActiveCommandBuffers[i]->unique());
         fActiveCommandBuffers[i]->reset(fGpu);
         fActiveCommandBuffers[i]->unref(fGpu);
@@ -318,7 +318,7 @@ void GrVkResourceProvider::destroyResources() {
     fActiveCommandBuffers.reset();
     // release our available command buffers
     for (int i = 0; i < fAvailableCommandBuffers.count(); ++i) {
-        SkASSERT(fAvailableCommandBuffers[i]->finished(fGpu));
+        SkASSERT(deviceLost || fAvailableCommandBuffers[i]->finished(fGpu));
         SkASSERT(fAvailableCommandBuffers[i]->unique());
         fAvailableCommandBuffers[i]->unref(fGpu);
     }

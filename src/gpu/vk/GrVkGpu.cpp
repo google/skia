@@ -166,12 +166,12 @@ GrVkGpu::~GrVkGpu() {
 
     // wait for all commands to finish
     fResourceProvider.checkCommandBuffers();
-    SkDEBUGCODE(VkResult res = ) VK_CALL(QueueWaitIdle(fQueue));
+    VkResult res = VK_CALL(QueueWaitIdle(fQueue));
 
     // On windows, sometimes calls to QueueWaitIdle return before actually signalling the fences
     // on the command buffers even though they have completed. This causes an assert to fire when
     // destroying the command buffers. Currently this ony seems to happen on windows, so we add a
-    // sleep to make sure the fence singals.
+    // sleep to make sure the fence signals.
 #ifdef SK_DEBUG
 #if defined(SK_BUILD_FOR_WIN)
     Sleep(10); // In milliseconds
@@ -187,8 +187,8 @@ GrVkGpu::~GrVkGpu() {
 
     fCopyManager.destroyResources(this);
 
-    // must call this just before we destroy the VkDevice
-    fResourceProvider.destroyResources();
+    // must call this just before we destroy the command pool and VkDevice
+    fResourceProvider.destroyResources(VK_ERROR_DEVICE_LOST == res);
 
     VK_CALL(DestroyCommandPool(fDevice, fCmdPool, nullptr));
 
