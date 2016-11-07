@@ -43,6 +43,24 @@
     },
     {
       "key": {
+        "uuid": "2bde5729_c65e9829",
+        "filename": "src/gpu/GrBatchAtlas.h",
+        "patchSetId": 6
+      },
+      "lineNbr": 243,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2016-11-07T22:54:20Z",
+      "side": 1,
+      "message": "And anyone else can use search and replace at least as well as you can. I\u0027ll fix this myself then.",
+      "parentUuid": "2bde5729_86b3b09f",
+      "revId": "f6acc04b84f0814ff8b00b97ee878ddf7af5cd01",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "2bde5729_83d80238",
         "filename": "src/gpu/GrBatchAtlas.h",
         "patchSetId": 6
