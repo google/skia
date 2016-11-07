@@ -30,14 +30,16 @@ static inline void setup_color_table(SkColorType colorType,
     }
 }
 
-static inline bool valid_color_type(SkColorType colorType) {
-    switch (colorType) {
+static inline bool valid_color_type(const SkImageInfo& dstInfo) {
+    switch (dstInfo.colorType()) {
         case kRGBA_8888_SkColorType:
         case kBGRA_8888_SkColorType:
         case kIndex_8_SkColorType:
         case kGray_8_SkColorType:
         case kRGB_565_SkColorType:
             return true;
+        case kRGBA_F16_SkColorType:
+            return dstInfo.colorSpace() && dstInfo.colorSpace()->gammaIsLinear();
         default:
             return false;
     }
@@ -127,8 +129,7 @@ SkCodec::Result SkWbmpCodec::onGetPixels(const SkImageInfo& info,
         return kUnimplemented;
     }
 
-    if (!valid_color_type(info.colorType()) ||
-            !valid_alpha(info.alphaType(), this->getInfo().alphaType())) {
+    if (!valid_color_type(info) || !valid_alpha(info.alphaType(), this->getInfo().alphaType())) {
         return kInvalidConversion;
     }
 
@@ -194,8 +195,9 @@ SkCodec::Result SkWbmpCodec::onStartScanlineDecode(const SkImageInfo& dstInfo,
         return kUnimplemented;
     }
 
-    if (!valid_color_type(dstInfo.colorType()) ||
-            !valid_alpha(dstInfo.alphaType(), this->getInfo().alphaType())) {
+    if (!valid_color_type(dstInfo) ||
+        !valid_alpha(dstInfo.alphaType(), this->getInfo().alphaType()))
+    {
         return kInvalidConversion;
     }
 

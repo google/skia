@@ -138,5 +138,5 @@ bool SkBitmapRegionCodec::conversionSupported(SkColorType colorType) {
     // Enable legacy behavior.
     sk_sp<SkColorSpace> colorSpace = nullptr;
     SkImageInfo dstInfo = fCodec->getInfo().makeColorType(colorType).makeColorSpace(colorSpace);
-    return conversion_possible_ignore_color_space(dstInfo, fCodec->getInfo());
+    return conversion_possible(dstInfo, fCodec->getInfo());
 }
