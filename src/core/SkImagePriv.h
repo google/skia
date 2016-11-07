@@ -88,7 +88,7 @@ extern void SkTextureImageSetTexture(SkImage* image, GrTexture* texture);
  *  for a natively created gpu image (e.g. SkImage::MakeFromTexture)
  *  - all drawing, pinning, unpinning must happen in the same thread as the GrContext.
  */
-void SkImage_pinAsTexture(const SkImage*, GrContext*);
+bool SkImage_pinAsTexture(const SkImage*, GrContext*);
 
 /**
  *  The balancing call to SkImage_pinAsTexture. When a balanced number of calls have been made, then
