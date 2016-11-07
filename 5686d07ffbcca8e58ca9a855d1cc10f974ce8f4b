@@ -1,0 +1,119 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "ebc99f45_b73c0385",
+        "filename": "src/codec/SkBmpRLECodec.h",
+        "patchSetId": 5
+      },
+      "lineNbr": 98,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2016-11-07T16:05:26Z",
+      "side": 1,
+      "message": "Should remove this comment now that we\u0027re explicitly stating ownership rules.",
+      "range": {
+        "startLine": 98,
+        "startChar": 47,
+        "endLine": 98,
+        "endChar": 55
+      },
+      "revId": "5686d07ffbcca8e58ca9a855d1cc10f974ce8f4b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ebc99f45_d7398f93",
+        "filename": "src/codec/SkBmpStandardCodec.h",
+        "patchSetId": 5
+      },
+      "lineNbr": 87,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2016-11-07T16:05:26Z",
+      "side": 1,
+      "message": "Remove",
+      "range": {
+        "startLine": 87,
+        "startChar": 49,
+        "endLine": 87,
+        "endChar": 57
+      },
+      "revId": "5686d07ffbcca8e58ca9a855d1cc10f974ce8f4b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ebc99f45_97b0e7de",
+        "filename": "src/effects/GrCircleBlurFragmentProcessor.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 344,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2016-11-07T16:05:26Z",
+      "side": 1,
+      "message": "Shouldn\u0027t this be 4 or 8 spaces of total indent for this style? Seems like an odd amount of indentation.",
+      "range": {
+        "startLine": 344,
+        "startChar": 14,
+        "endLine": 344,
+        "endChar": 28
+      },
+      "revId": "5686d07ffbcca8e58ca9a855d1cc10f974ce8f4b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ebc99f45_f7b5abd3",
+        "filename": "src/effects/gradients/SkGradientShader.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 669,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2016-11-07T16:05:26Z",
+      "side": 1,
+      "message": "This method should obviously return sk_sp\u003cSkGradientShaderBase::GradientShaderCache\u003e, is only used in this file (and only twice?), and is just a lazy \u0027ref\u0027er for the fCache field. This change should just be done now so the last line of this method can just be \u0027return fCache\u0027 with the second to last line removed. Also the few call sites that use it can be assignments.",
+      "range": {
+        "startLine": 669,
+        "startChar": 0,
+        "endLine": 669,
+        "endChar": 42
+      },
+      "revId": "5686d07ffbcca8e58ca9a855d1cc10f974ce8f4b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ebc99f45_d7bc2fbd",
+        "filename": "src/effects/gradients/SkGradientShaderPriv.h",
+        "patchSetId": 5
+      },
+      "lineNbr": 271,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2016-11-07T16:05:26Z",
+      "side": 1,
+      "message": "These lined up before...",
+      "range": {
+        "startLine": 271,
+        "startChar": 39,
+        "endLine": 271,
+        "endChar": 46
+      },
+      "revId": "5686d07ffbcca8e58ca9a855d1cc10f974ce8f4b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
