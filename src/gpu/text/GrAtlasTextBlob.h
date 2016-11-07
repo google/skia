@@ -452,7 +452,7 @@ private:
 
         private:
             GrBatchAtlas::BulkUseTokenUpdater fBulkUseToken;
-            SkAutoTUnref<GrBatchTextStrike> fStrike;
+            sk_sp<GrBatchTextStrike> fStrike;
             SkMatrix fCurrentViewMatrix;
             SkRect fVertexBounds;
             uint64_t fAtlasGeneration;
@@ -477,7 +477,7 @@ private:
             return newSubRun;
         }
         static const int kMinSubRuns = 1;
-        SkAutoTUnref<SkTypeface> fTypeface;
+        sk_sp<SkTypeface> fTypeface;
         SkSTArray<kMinSubRuns, SubRunInfo> fSubRunInfo;
         SkAutoDescriptor fDescriptor;
 

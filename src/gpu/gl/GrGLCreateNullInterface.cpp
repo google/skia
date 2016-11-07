@@ -176,7 +176,7 @@ public:
 
     void notifyAttachmentDeleteWhileBound(const FramebufferAttachment* deleted) {
         for (auto& attachment : fAttachments) {
-            if (attachment == deleted) {
+            if (attachment.get() == deleted) {
                 attachment.reset(nullptr);
             }
         }
@@ -206,7 +206,7 @@ private:
     };
     constexpr int static kNumAttachmentPoints = 1 + (int)AttachmentPoint::kColor;
 
-    SkAutoTUnref<const FramebufferAttachment> fAttachments[kNumAttachmentPoints];
+    sk_sp<const FramebufferAttachment> fAttachments[kNumAttachmentPoints];
 
     typedef GLObject INHERITED;
 };
@@ -710,7 +710,7 @@ private:
     GrGLuint                         fCurrGenericID;
     GrGLuint                         fCurrUniformLocation;
     GrGLuint                         fCurrPathID;
-    SkAutoTUnref<const Texture>      fSingleTextureObject;
+    sk_sp<const Texture>             fSingleTextureObject;
     SkTArray<const char*>            fExtensions;
 
     // the OpenGLES 2.0 spec says this must be >= 128
@@ -746,7 +746,7 @@ private:
         if (!fSingleTextureObject) {
             fSingleTextureObject.reset(new Texture);
         }
-        return fSingleTextureObject;
+        return fSingleTextureObject.get();
     }
 
     const GrGLubyte* CombinedExtensionString() {
