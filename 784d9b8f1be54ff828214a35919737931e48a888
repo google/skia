@@ -25,6 +25,24 @@
     },
     {
       "key": {
+        "uuid": "2bde5729_5dedfb0c",
+        "filename": "src/core/SkImagePriv.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 85,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2016-11-07T19:15:30Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "ebc99f45_6a12327d",
+      "revId": "784d9b8f1be54ff828214a35919737931e48a888",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "ebc99f45_8a175e6a",
         "filename": "src/image/SkImage_Raster.cpp",
         "patchSetId": 2
@@ -42,6 +60,24 @@
         "endLine": 249,
         "endChar": 80
       },
+      "revId": "784d9b8f1be54ff828214a35919737931e48a888",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "2bde5729_3df82fcc",
+        "filename": "src/image/SkImage_Raster.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 249,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2016-11-07T19:15:30Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "ebc99f45_8a175e6a",
       "revId": "784d9b8f1be54ff828214a35919737931e48a888",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
