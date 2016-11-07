@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "ebc99f45_cd5a6063",
+        "filename": "src/gpu/vk/GrVkUniformHandler.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 22,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2016-11-07T17:53:59Z",
+      "side": 1,
+      "message": "I think this was a bug in the old code and should actually be 0x3 here, same as float.",
+      "range": {
+        "startLine": 20,
+        "startChar": 11,
+        "endLine": 22,
+        "endChar": 22
+      },
+      "revId": "086003ad3f8a07393f062ab0c59f4652c2f9d0a0",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
