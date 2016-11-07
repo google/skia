@@ -300,3 +300,9 @@ sk_colortable_t* sk_bitmap_get_colortable(sk_bitmap_t* cbitmap)
 {
     return ToColorTable(AsBitmap(cbitmap)->getColorTable());
 }
+
+void sk_bitmap_set_colortable(sk_bitmap_t* cbitmap, sk_colortable_t* ctable)
+{
+    SkBitmap* bmp = AsBitmap(cbitmap);
+    bmp->setPixels(bmp->getPixels(), AsColorTable(ctable));
+}
