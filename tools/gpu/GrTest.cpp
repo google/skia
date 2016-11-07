@@ -62,6 +62,14 @@ void GrTestTarget::init(GrContext* ctx, sk_sp<GrRenderTargetContext> renderTarge
     fRenderTargetContext = renderTargetContext;
 }
 
+bool GrSurfaceProxy::isWrapped_ForTesting() const {
+    return SkToBool(fTarget);
+}
+
+bool GrRenderTargetContext::isWrapped_ForTesting() const {
+    return fRenderTargetProxy->isWrapped_ForTesting();
+}
+
 void GrContext::getTestTarget(GrTestTarget* tar, sk_sp<GrRenderTargetContext> renderTargetContext) {
     this->flush();
     SkASSERT(renderTargetContext);

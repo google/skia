@@ -117,6 +117,14 @@ GrRenderTargetContext::~GrRenderTargetContext() {
     SkSafeUnref(fOpList);
 }
 
+GrRenderTarget* GrRenderTargetContext::instantiate() {
+    return fRenderTargetProxy->instantiate(fContext->textureProvider());
+}
+
+GrTextureProxy* GrRenderTargetContext::asDeferredTexture() {
+    return fRenderTargetProxy->asTextureProxy();
+}
+
 GrRenderTargetOpList* GrRenderTargetContext::getOpList() {
     ASSERT_SINGLE_OWNER
     SkDEBUGCODE(this->validate();)
