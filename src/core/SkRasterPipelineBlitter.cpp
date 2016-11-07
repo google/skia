@@ -234,9 +234,13 @@ void SkRasterPipelineBlitter::blitAntiH(int x, int y, const SkAlpha aa[], const 
 
     fDstPtr = fDst.writable_addr(0,y);
     for (int16_t run = *runs; run > 0; run = *runs) {
-        fConstantCoverage = *aa * (1/255.0f);
-        fBlitAntiH(x, run);
-
+        switch (*aa) {
+            case 0x00:                       break;
+            case 0xff: this->blitH(x,y,run); break;
+            default:
+                fConstantCoverage = *aa * (1/255.0f);
+                fBlitAntiH(x, run);
+        }
         x    += run;
         runs += run;
         aa   += run;
