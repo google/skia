@@ -9,6 +9,7 @@
 #include "SkData.h"
 #include "SkFrontBufferedStream.h"
 #include "SkOSFile.h"
+#include "SkOSPath.h"
 #include "SkRandom.h"
 #include "SkStream.h"
 #include "SkStreamPriv.h"

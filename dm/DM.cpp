@@ -25,6 +25,7 @@
 #include "SkMD5.h"
 #include "SkMutex.h"
 #include "SkOSFile.h"
+#include "SkOSPath.h"
 #include "SkPM4fPriv.h"
 #include "SkSpinlock.h"
 #include "SkTHash.h"
