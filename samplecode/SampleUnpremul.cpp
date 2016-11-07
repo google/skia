@@ -16,6 +16,7 @@
 #include "SkCanvas.h"
 #include "SkColorPriv.h"
 #include "SkOSFile.h"
+#include "SkOSPath.h"
 #include "SkStream.h"
 #include "SkString.h"
 #include "SkSystemEventTypes.h"
