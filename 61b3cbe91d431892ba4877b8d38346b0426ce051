@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "ebc99f45_3799f303",
+        "filename": "src/core/SkColorSpace_A2B.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 62,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2016-11-07T14:53:05Z",
+      "side": 1,
+      "message": "I\u0027m wondering if this is misleading...  But I actually like it better than returning nullptr.  Seems to make sense.\n\nWe could potentially put this back in the public API, I think.",
+      "range": {
+        "startLine": 62,
+        "startChar": 15,
+        "endLine": 62,
+        "endChar": 72
+      },
+      "revId": "61b3cbe91d431892ba4877b8d38346b0426ce051",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ebc99f45_d7d74fa3",
+        "filename": "src/core/SkColorSpace_A2B.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 65,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2016-11-07T14:53:05Z",
+      "side": 1,
+      "message": "What is this going to be used for?",
+      "range": {
+        "startLine": 65,
+        "startChar": 4,
+        "endLine": 65,
+        "endChar": 50
+      },
+      "revId": "61b3cbe91d431892ba4877b8d38346b0426ce051",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
