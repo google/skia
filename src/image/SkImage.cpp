@@ -100,14 +100,6 @@ sk_sp<SkShader> SkImage::makeShader(SkShader::TileMode tileX, SkShader::TileMode
     return SkImageShader::Make(sk_ref_sp(const_cast<SkImage*>(this)), tileX, tileY, localMatrix);
 }
 
-SkData* SkImage::encode(SkImageEncoder::Type type, int quality) const {
-    SkBitmap bm;
-    if (as_IB(this)->getROPixels(&bm)) {
-        return SkImageEncoder::EncodeData(bm, type, quality);
-    }
-    return nullptr;
-}
-
 SkData* SkImage::encode(SkPixelSerializer* serializer) const {
     sk_sp<SkPixelSerializer> defaultSerializer;
     SkPixelSerializer* effectiveSerializer = serializer;
