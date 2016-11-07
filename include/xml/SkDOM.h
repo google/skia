@@ -10,8 +10,8 @@
 #ifndef SkDOM_DEFINED
 #define SkDOM_DEFINED
 
+#include "../private/SkChunkAlloc.h"
 #include "../private/SkTemplates.h"
-#include "SkChunkAlloc.h"
 #include "SkScalar.h"
 #include "SkTypes.h"
 
