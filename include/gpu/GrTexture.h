@@ -45,8 +45,6 @@ public:
     inline GrTexturePriv texturePriv();
     inline const GrTexturePriv texturePriv() const;
 
-    static size_t ComputeSize(const GrSurfaceDesc&, bool hasMipMaps);
-
 protected:
     GrTexture(GrGpu*, const GrSurfaceDesc&, GrSLType, bool wasMipMapDataProvided);
 
