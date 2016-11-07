@@ -83,7 +83,7 @@ void SkImage::preroll(GrContext* ctx) const {
     // to produce a cached raster-bitmap form, so that drawing to a raster canvas should be fast.
     //
     SkBitmap bm;
-    if (as_IB(this)->getROPixels(&bm)) {
+    if (as_IB(this)->getROPixels(&bm, SkColorSpaceHandling::kLegacy)) {
         bm.lockPixels();
         bm.unlockPixels();
     }

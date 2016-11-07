@@ -75,7 +75,9 @@ void SkBitmapProvider::notifyAddedToCache() const {
 
 bool SkBitmapProvider::asBitmap(SkBitmap* bm) const {
     if (fImage) {
-        return as_IB(fImage)->getROPixels(bm, SkImage::kAllow_CachingHint);
+        SkColorSpaceHandling mode = SkSourceGammaTreatment::kRespect == fTreatment
+            ? SkColorSpaceHandling::kAware : SkColorSpaceHandling::kLegacy;
+        return as_IB(fImage)->getROPixels(bm, mode, SkImage::kAllow_CachingHint);
     } else {
         *bm = fBitmap;
         return true;

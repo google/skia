@@ -30,7 +30,7 @@ public:
     SkImageCacherator* peekCacherator() const override { return &fCache; }
     SkData* onRefEncoded(GrContext*) const override;
     sk_sp<SkImage> onMakeSubset(const SkIRect&) const override;
-    bool getROPixels(SkBitmap*, CachingHint) const override;
+    bool getROPixels(SkBitmap*, SkColorSpaceHandling, CachingHint) const override;
     GrTexture* asTextureRef(GrContext*, const GrTextureParams&,
                             SkDestinationSurfaceColorMode) const override;
     bool onIsLazyGenerated() const override { return true; }
@@ -47,7 +47,7 @@ bool SkImage_Generator::onReadPixels(const SkImageInfo& dstInfo, void* dstPixels
                                      int srcX, int srcY, CachingHint chint) const {
     SkBitmap bm;
     if (kDisallow_CachingHint == chint) {
-        if (fCache.lockAsBitmapOnlyIfAlreadyCached(&bm)) {
+        if (fCache.lockAsBitmapOnlyIfAlreadyCached(&bm, SkImageCacherator::kLegacy_CachedFormat)) {
             return bm.readPixels(dstInfo, dstPixels, dstRB, srcX, srcY);
         } else {
             // Try passing the caller's buffer directly down to the generator. If this fails we
@@ -60,7 +60,7 @@ bool SkImage_Generator::onReadPixels(const SkImageInfo& dstInfo, void* dstPixels
         }
     }
 
-    if (this->getROPixels(&bm, chint)) {
+    if (this->getROPixels(&bm, SkColorSpaceHandling::kLegacy, chint)) {
         return bm.readPixels(dstInfo, dstPixels, dstRB, srcX, srcY);
     }
     return false;
@@ -70,7 +70,10 @@ SkData* SkImage_Generator::onRefEncoded(GrContext* ctx) const {
     return fCache.refEncoded(ctx);
 }
 
-bool SkImage_Generator::getROPixels(SkBitmap* bitmap, CachingHint chint) const {
+bool SkImage_Generator::getROPixels(SkBitmap* bitmap, SkColorSpaceHandling mode,
+                                    CachingHint chint) const {
+    // TODO: Plumb in hints about our use-case (destination surface), so we can ask the cache to
+    // decode in an appropriate format (linear premul or not, etc...)
     return fCache.lockAsBitmap(bitmap, this, chint);
 }
 

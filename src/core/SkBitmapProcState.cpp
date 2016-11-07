@@ -49,7 +49,7 @@ SkBitmapProcInfo::SkBitmapProcInfo(const SkBitmapProvider& provider,
 SkBitmapProcInfo::SkBitmapProcInfo(const SkBitmap& bm,
                                    SkShader::TileMode tmx, SkShader::TileMode tmy,
                                    SkDestinationSurfaceColorMode colorMode)
-    : fProvider(SkBitmapProvider(bm))
+    : fProvider(SkBitmapProvider(bm, colorMode))
     , fTileModeX(tmx)
     , fTileModeY(tmy)
     ,fColorMode(colorMode)

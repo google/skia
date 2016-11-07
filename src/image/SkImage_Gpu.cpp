@@ -60,7 +60,7 @@ static SkImageInfo make_info(int w, int h, SkAlphaType at, sk_sp<SkColorSpace> c
     return SkImageInfo::MakeN32(w, h, at, std::move(colorSpace));
 }
 
-bool SkImage_Gpu::getROPixels(SkBitmap* dst, CachingHint chint) const {
+bool SkImage_Gpu::getROPixels(SkBitmap* dst, SkColorSpaceHandling, CachingHint chint) const {
     if (SkBitmapCache::Find(this->uniqueID(), dst)) {
         SkASSERT(dst->getGenerationID() == this->uniqueID());
         SkASSERT(dst->isImmutable());
