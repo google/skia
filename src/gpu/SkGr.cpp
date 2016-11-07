@@ -339,7 +339,7 @@ void GrInstallBitmapUniqueKeyInvalidator(const GrUniqueKey& key, SkPixelRef* pix
 }
 
 GrTexture* GrGenerateMipMapsAndUploadToTexture(GrContext* ctx, const SkBitmap& bitmap,
-                                               SkSourceGammaTreatment gammaTreatment)
+                                               SkDestinationSurfaceColorMode colorMode)
 {
     GrSurfaceDesc desc = GrImageInfoToSurfaceDesc(bitmap.info(), *ctx->caps());
     if (kIndex_8_SkColorType != bitmap.colorType() && !bitmap.readyToDraw()) {
@@ -378,7 +378,7 @@ GrTexture* GrGenerateMipMapsAndUploadToTexture(GrContext* ctx, const SkBitmap& b
         sk_throw();
     }
 
-    std::unique_ptr<SkMipMap> mipmaps(SkMipMap::Build(pixmap, gammaTreatment, nullptr));
+    std::unique_ptr<SkMipMap> mipmaps(SkMipMap::Build(pixmap, colorMode, nullptr));
     if (!mipmaps) {
         return nullptr;
     }
@@ -409,7 +409,7 @@ GrTexture* GrGenerateMipMapsAndUploadToTexture(GrContext* ctx, const SkBitmap& b
                                                                             texels.get(),
                                                                             mipLevelCount);
         if (texture) {
-            texture->texturePriv().setGammaTreatment(gammaTreatment);
+            texture->texturePriv().setMipColorMode(colorMode);
         }
         return texture;
     }
@@ -425,14 +425,14 @@ GrTexture* GrUploadMipMapToTexture(GrContext* ctx, const SkImageInfo& info,
 
 GrTexture* GrRefCachedBitmapTexture(GrContext* ctx, const SkBitmap& bitmap,
                                     const GrTextureParams& params,
-                                    SkSourceGammaTreatment gammaTreatment) {
-    return GrBitmapTextureMaker(ctx, bitmap).refTextureForParams(params, gammaTreatment);
+                                    SkDestinationSurfaceColorMode colorMode) {
+    return GrBitmapTextureMaker(ctx, bitmap).refTextureForParams(params, colorMode);
 }
 
 sk_sp<GrTexture> GrMakeCachedBitmapTexture(GrContext* ctx, const SkBitmap& bitmap,
                                            const GrTextureParams& params,
-                                           SkSourceGammaTreatment gammaTreatment) {
-    GrTexture* tex = GrBitmapTextureMaker(ctx, bitmap).refTextureForParams(params, gammaTreatment);
+                                           SkDestinationSurfaceColorMode colorMode) {
+    GrTexture* tex = GrBitmapTextureMaker(ctx, bitmap).refTextureForParams(params, colorMode);
     return sk_sp<GrTexture>(tex);
 }
 
@@ -599,7 +599,7 @@ static inline bool skpaint_to_grpaint_impl(GrContext* context,
             shaderFP = shader->asFragmentProcessor(SkShader::AsFPArgs(context, &viewM, nullptr,
                                                                       skPaint.getFilterQuality(),
                                                                       rtc->getColorSpace(),
-                                                                      rtc->sourceGammaTreatment()));
+                                                                      rtc->colorMode()));
             if (!shaderFP) {
                 return false;
             }
@@ -787,7 +787,7 @@ bool SkPaintToGrPaintWithTexture(GrContext* context,
                                                                       nullptr,
                                                                       paint.getFilterQuality(),
                                                                       rtc->getColorSpace(),
-                                                                      rtc->sourceGammaTreatment()));
+                                                                      rtc->colorMode()));
             if (!shaderFP) {
                 return false;
             }

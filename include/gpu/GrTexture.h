@@ -61,11 +61,11 @@ private:
         kValid_MipMapsStatus
     };
 
-    GrSLType                    fSamplerType;
-    GrTextureParams::FilterMode fHighestFilterMode;
-    MipMapsStatus               fMipMapsStatus;
-    int                         fMaxMipMapLevel;
-    SkSourceGammaTreatment      fGammaTreatment;
+    GrSLType                      fSamplerType;
+    GrTextureParams::FilterMode   fHighestFilterMode;
+    MipMapsStatus                 fMipMapsStatus;
+    int                           fMaxMipMapLevel;
+    SkDestinationSurfaceColorMode fMipColorMode;
     friend class GrTexturePriv;
 
     typedef GrSurface INHERITED;
