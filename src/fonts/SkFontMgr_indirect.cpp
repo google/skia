@@ -55,9 +55,9 @@ public:
         return this->matchStyleCSS3(pattern);
     }
 private:
-    SkAutoTUnref<const SkFontMgr_Indirect> fOwner;
+    sk_sp<const SkFontMgr_Indirect> fOwner;
     int fFamilyIndex;
-    SkAutoTUnref<SkRemotableFontIdentitySet> fData;
+    sk_sp<SkRemotableFontIdentitySet> fData;
 };
 
 void SkFontMgr_Indirect::set_up_family_names(const SkFontMgr_Indirect* self) {
@@ -97,7 +97,7 @@ SkTypeface* SkFontMgr_Indirect::createTypefaceFromFontId(const SkFontIdentity& i
 
     SkAutoMutexAcquire ama(fDataCacheMutex);
 
-    SkAutoTUnref<SkTypeface> dataTypeface;
+    sk_sp<SkTypeface> dataTypeface;
     int dataTypefaceIndex = 0;
     for (int i = 0; i < fDataCache.count(); ++i) {
         const DataEntry& entry = fDataCache[i];
@@ -135,7 +135,7 @@ SkTypeface* SkFontMgr_Indirect::createTypefaceFromFontId(const SkFontIdentity& i
         return nullptr;
     }
 
-    SkAutoTUnref<SkTypeface> typeface(fImpl->createFromStream(stream.release(), id.fTtcIndex));
+    sk_sp<SkTypeface> typeface(fImpl->createFromStream(stream.release(), id.fTtcIndex));
     if (typeface.get() == nullptr) {
         return nullptr;
     }
@@ -186,7 +186,7 @@ SkTypeface* SkFontMgr_Indirect::onCreateFromData(SkData* data, int ttcIndex) con
 
 SkTypeface* SkFontMgr_Indirect::onLegacyCreateTypeface(const char familyName[],
                                                        SkFontStyle style) const {
-    SkAutoTUnref<SkTypeface> face(this->matchFamilyStyle(familyName, style));
+    sk_sp<SkTypeface> face(this->matchFamilyStyle(familyName, style));
 
     if (nullptr == face.get()) {
         face.reset(this->matchFamilyStyle(nullptr, style));

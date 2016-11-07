@@ -304,7 +304,7 @@ static SkCanvas* create_canvas_from_canvas_layer(const SkCanvasLayerState& layer
     SkASSERT(!bitmap.empty());
     SkASSERT(!bitmap.isNull());
 
-    SkAutoTUnref<SkCanvas> canvas(new SkCanvas(bitmap));
+    sk_sp<SkCanvas> canvas(new SkCanvas(bitmap));
 
     // setup the matrix and clip
     setup_canvas_from_MC_state(layerState.mcState, canvas.get());
@@ -323,14 +323,14 @@ SkCanvas* SkCanvasStateUtils::CreateFromCanvasState(const SkCanvasState* state) 
         return nullptr;
     }
 
-    SkAutoTUnref<SkCanvasStack> canvas(new SkCanvasStack(state->width, state->height));
+    sk_sp<SkCanvasStack> canvas(new SkCanvasStack(state->width, state->height));
 
     // setup the matrix and clip on the n-way canvas
-    setup_canvas_from_MC_state(state_v1->mcState, canvas);
+    setup_canvas_from_MC_state(state_v1->mcState, canvas.get());
 
     // Iterate over the layers and add them to the n-way canvas
     for (int i = state_v1->layerCount - 1; i >= 0; --i) {
-        SkAutoTUnref<SkCanvas> canvasLayer(create_canvas_from_canvas_layer(state_v1->layers[i]));
+        sk_sp<SkCanvas> canvasLayer(create_canvas_from_canvas_layer(state_v1->layers[i]));
         if (!canvasLayer.get()) {
             return nullptr;
         }

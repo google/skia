@@ -1763,7 +1763,7 @@ sk_sp<GrFragmentProcessor> GrDiffuseLightingEffect::TestCreate(GrProcessorTestDa
     GrTexture* tex = d->fTextures[texIdx];
     SkScalar surfaceScale = d->fRandom->nextSScalar1();
     SkScalar kd = d->fRandom->nextUScalar1();
-    SkAutoTUnref<SkImageFilterLight> light(create_random_light(d->fRandom));
+    sk_sp<SkImageFilterLight> light(create_random_light(d->fRandom));
     SkMatrix matrix;
     for (int i = 0; i < 9; i++) {
         matrix[i] = d->fRandom->nextUScalar1();
@@ -1773,7 +1773,8 @@ sk_sp<GrFragmentProcessor> GrDiffuseLightingEffect::TestCreate(GrProcessorTestDa
                                           d->fRandom->nextRangeU(0, tex->width()),
                                           d->fRandom->nextRangeU(0, tex->height()));
     BoundaryMode mode = static_cast<BoundaryMode>(d->fRandom->nextU() % kBoundaryModeCount);
-    return GrDiffuseLightingEffect::Make(tex, light, surfaceScale, matrix, kd, mode, &srcBounds);
+    return GrDiffuseLightingEffect::Make(tex, light.get(), surfaceScale, matrix, kd, mode,
+                                         &srcBounds);
 }
 
 
@@ -1899,10 +1900,10 @@ void GrGLLightingEffect::onSetData(const GrGLSLProgramDataManager& pdman,
     float ySign = texture->origin() == kTopLeft_GrSurfaceOrigin ? -1.0f : 1.0f;
     pdman.set2f(fImageIncrementUni, 1.0f / texture->width(), ySign / texture->height());
     pdman.set1f(fSurfaceScaleUni, lighting.surfaceScale());
-    SkAutoTUnref<SkImageFilterLight> transformedLight(
-                                            lighting.light()->transform(lighting.filterMatrix()));
+    sk_sp<SkImageFilterLight> transformedLight(
+            lighting.light()->transform(lighting.filterMatrix()));
     fDomain.setData(pdman, lighting.domain(), texture->origin());
-    fLight->setData(pdman, transformedLight);
+    fLight->setData(pdman, transformedLight.get());
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -1981,7 +1982,7 @@ sk_sp<GrFragmentProcessor> GrSpecularLightingEffect::TestCreate(GrProcessorTestD
     SkScalar surfaceScale = d->fRandom->nextSScalar1();
     SkScalar ks = d->fRandom->nextUScalar1();
     SkScalar shininess = d->fRandom->nextUScalar1();
-    SkAutoTUnref<SkImageFilterLight> light(create_random_light(d->fRandom));
+    sk_sp<SkImageFilterLight> light(create_random_light(d->fRandom));
     SkMatrix matrix;
     for (int i = 0; i < 9; i++) {
         matrix[i] = d->fRandom->nextUScalar1();
@@ -1992,7 +1993,7 @@ sk_sp<GrFragmentProcessor> GrSpecularLightingEffect::TestCreate(GrProcessorTestD
                                           d->fRandom->nextRangeU(0, tex->width()),
                                           d->fRandom->nextRangeU(0, tex->height()));
     return GrSpecularLightingEffect::Make(d->fTextures[GrProcessorUnitTest::kAlphaTextureIdx],
-                                          light, surfaceScale, matrix, ks, shininess, mode,
+                                          light.get(), surfaceScale, matrix, ks, shininess, mode,
                                           &srcBounds);
 }
 

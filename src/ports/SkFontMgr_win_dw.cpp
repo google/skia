@@ -340,7 +340,7 @@ public:
     SkTypeface* matchStyle(const SkFontStyle& pattern) override;
 
 private:
-    SkAutoTUnref<const SkFontMgr_DirectWrite> fFontMgr;
+    sk_sp<const SkFontMgr_DirectWrite> fFontMgr;
     SkTScopedComPtr<IDWriteFontFamily> fFontFamily;
 };
 
@@ -509,7 +509,7 @@ SkFontStyleSet* SkFontMgr_DirectWrite::onMatchFamily(const char familyName[]) co
 
 SkTypeface* SkFontMgr_DirectWrite::onMatchFamilyStyle(const char familyName[],
                                                       const SkFontStyle& fontstyle) const {
-    SkAutoTUnref<SkFontStyleSet> sset(this->matchFamily(familyName));
+    sk_sp<SkFontStyleSet> sset(this->matchFamily(familyName));
     return sset->matchStyle(fontstyle);
 }
 
@@ -634,7 +634,7 @@ public:
 
 protected:
     ULONG fRefCount;
-    SkAutoTUnref<const SkFontMgr_DirectWrite> fOuter;
+    sk_sp<const SkFontMgr_DirectWrite> fOuter;
     UINT32 fCharacter;
     SkTypeface* fResolvedTypeface;
 };

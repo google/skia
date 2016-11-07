@@ -924,10 +924,10 @@ sk_sp<GrFragmentProcessor> SkPerlinNoiseShader::asFragmentProcessor(const AsFPAr
 
     SkPerlinNoiseShader::PaintingData* paintingData =
             new PaintingData(fTileSize, fSeed, fBaseFrequencyX, fBaseFrequencyY, matrix);
-    SkAutoTUnref<GrTexture> permutationsTexture(
+    sk_sp<GrTexture> permutationsTexture(
         GrRefCachedBitmapTexture(args.fContext, paintingData->getPermutationsBitmap(),
                                  GrTextureParams::ClampNoFilter(), args.fGammaTreatment));
-    SkAutoTUnref<GrTexture> noiseTexture(
+    sk_sp<GrTexture> noiseTexture(
         GrRefCachedBitmapTexture(args.fContext, paintingData->getNoiseBitmap(),
                                  GrTextureParams::ClampNoFilter(), args.fGammaTreatment));
 
@@ -940,7 +940,7 @@ sk_sp<GrFragmentProcessor> SkPerlinNoiseShader::asFragmentProcessor(const AsFPAr
                                       fNumOctaves,
                                       fStitchTiles,
                                       paintingData,
-                                      permutationsTexture, noiseTexture,
+                                      permutationsTexture.get(), noiseTexture.get(),
                                       m));
         return GrFragmentProcessor::MulOutputByInputAlpha(std::move(inner));
     }
