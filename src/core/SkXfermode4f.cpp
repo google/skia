@@ -7,7 +7,7 @@
 
 #include "SkPM4fPriv.h"
 #include "SkUtils.h"
-#include "SkXfermode.h"
+#include "SkXfermodePriv.h"
 #include "Sk4x4f.h"
 
 static SkPM4f rgba_to_pmcolor_order(const SkPM4f& x) {

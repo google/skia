@@ -17,6 +17,7 @@ class GrCaps;
 class GrContext;
 class GrRenderTargetContext;
 struct GrProcessorTestData;
+class GrTexture;
 
 namespace GrProcessorUnitTest {
 
