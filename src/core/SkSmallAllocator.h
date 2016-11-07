@@ -12,6 +12,7 @@
 #include "SkTypes.h"
 
 #include <new>
+#include <utility>
 
 /*
  *  Template class for allocating small objects without additional heap memory
@@ -56,12 +57,12 @@ public:
      *  will be returned.
      */
     template<typename T, typename... Args>
-    T* createT(const Args&... args) {
+    T* createT(Args&&... args) {
         void* buf = this->reserveT<T>();
         if (nullptr == buf) {
             return nullptr;
         }
-        return new (buf) T(args...);
+        return new (buf) T(std::forward<Args>(args)...);
     }
 
     /*
@@ -130,10 +131,9 @@ private:
     }
 
     alignas(16) char fStorage[kTotalBytes];
-    // Number of bytes used so far.
-    size_t   fStorageUsed;
-    uint32_t fNumObjects;
-    Rec      fRecs[kMaxObjects];
+    size_t           fStorageUsed;  // Number of bytes used so far.
+    uint32_t         fNumObjects;
+    Rec              fRecs[kMaxObjects];
 };
 
 #endif // SkSmallAllocator_DEFINED
