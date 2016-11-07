@@ -173,7 +173,7 @@ bool GrGLGpu::BlendCoeffReferencesConstant(GrBlendCoeff coeff) {
 
 GrGpu* GrGLGpu::Create(GrBackendContext backendContext, const GrContextOptions& options,
                        GrContext* context) {
-    SkAutoTUnref<const GrGLInterface> glInterface(
+    sk_sp<const GrGLInterface> glInterface(
         reinterpret_cast<const GrGLInterface*>(backendContext));
     if (!glInterface) {
         glInterface.reset(GrGLDefaultInterface());
@@ -183,7 +183,7 @@ GrGpu* GrGLGpu::Create(GrBackendContext backendContext, const GrContextOptions& 
     if (!glInterface) {
         return nullptr;
     }
-    GrGLContext* glContext = GrGLContext::Create(glInterface, options);
+    GrGLContext* glContext = GrGLContext::Create(glInterface.get(), options);
     if (glContext) {
         return new GrGLGpu(glContext, context);
     }
@@ -2022,8 +2022,7 @@ void GrGLGpu::flushMinSampleShading(float minSampleShading) {
 
 bool GrGLGpu::flushGLState(const GrPipeline& pipeline, const GrPrimitiveProcessor& primProc,
                            bool willDrawPoints) {
-    SkAutoTUnref<GrGLProgram> program(fProgramCache->refProgram(this, pipeline, primProc,
-                                                                willDrawPoints));
+    sk_sp<GrGLProgram> program(fProgramCache->refProgram(this, pipeline, primProc, willDrawPoints));
     if (!program) {
         GrCapsDebugf(this->caps(), "Failed to create program!\n");
         return false;
@@ -2307,8 +2306,7 @@ bool GrGLGpu::readPixelsSupported(GrPixelConfig rtConfig, GrPixelConfig readConf
         desc.fConfig = rtConfig;
         desc.fWidth = desc.fHeight = 16;
         desc.fFlags = kRenderTarget_GrSurfaceFlag;
-        SkAutoTUnref<GrTexture> temp(this->createTexture(desc,
-                                     SkBudgeted::kNo));
+        sk_sp<GrTexture> temp(this->createTexture(desc, SkBudgeted::kNo));
         if (!temp) {
             return false;
         }
@@ -2828,7 +2826,7 @@ void GrGLGpu::stampPLSSetupRect(const SkRect& bounds) {
     this->fHWVertexArrayState.setVertexArrayID(this, 0);
 
     GrGLAttribArrayState* attribs = this->fHWVertexArrayState.bindInternalVertexArray(this);
-    attribs->set(this, 0, fPLSSetupProgram.fArrayBuffer, kVec2f_GrVertexAttribType,
+    attribs->set(this, 0, fPLSSetupProgram.fArrayBuffer.get(), kVec2f_GrVertexAttribType,
                  2 * sizeof(GrGLfloat), 0);
     attribs->disableUnusedArrays(this, 0x1);
 
@@ -4125,8 +4123,8 @@ void GrGLGpu::drawDebugWireRect(GrRenderTarget* rt, const SkIRect& rect, GrColor
     fHWVertexArrayState.setVertexArrayID(this, 0);
 
     GrGLAttribArrayState* attribs = fHWVertexArrayState.bindInternalVertexArray(this);
-    attribs->set(this, 0, fWireRectArrayBuffer, kVec2f_GrVertexAttribType, 2 * sizeof(GrGLfloat),
-                 0);
+    attribs->set(this, 0, fWireRectArrayBuffer.get(), kVec2f_GrVertexAttribType,
+                 2 * sizeof(GrGLfloat), 0);
     attribs->disableUnusedArrays(this, 0x1);
 
     GL_CALL(Uniform4fv(fWireRectProgram.fRectUniform, 1, edges));
@@ -4179,8 +4177,8 @@ bool GrGLGpu::copySurfaceAsDraw(GrSurface* dst,
     fHWVertexArrayState.setVertexArrayID(this, 0);
 
     GrGLAttribArrayState* attribs = fHWVertexArrayState.bindInternalVertexArray(this);
-    attribs->set(this, 0, fCopyProgramArrayBuffer, kVec2f_GrVertexAttribType, 2 * sizeof(GrGLfloat),
-                 0);
+    attribs->set(this, 0, fCopyProgramArrayBuffer.get(), kVec2f_GrVertexAttribType,
+                 2 * sizeof(GrGLfloat), 0);
     attribs->disableUnusedArrays(this, 0x1);
 
     // dst rect edges in NDC (-1 to 1)
@@ -4422,7 +4420,7 @@ bool GrGLGpu::generateMipmap(GrGLTexture* texture, bool gammaCorrect) {
     fHWVertexArrayState.setVertexArrayID(this, 0);
 
     GrGLAttribArrayState* attribs = fHWVertexArrayState.bindInternalVertexArray(this);
-    attribs->set(this, 0, fMipmapProgramArrayBuffer, kVec2f_GrVertexAttribType,
+    attribs->set(this, 0, fMipmapProgramArrayBuffer.get(), kVec2f_GrVertexAttribType,
                  2 * sizeof(GrGLfloat), 0);
     attribs->disableUnusedArrays(this, 0x1);
 

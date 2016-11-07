@@ -36,7 +36,7 @@ class InstancedRendering : public SkNoncopyable {
 public:
     virtual ~InstancedRendering() { SkASSERT(State::kRecordingDraws == fState); }
 
-    GrGpu* gpu() const { return fGpu; }
+    GrGpu* gpu() const { return fGpu.get(); }
 
     /**
      * These methods make a new record internally for an instanced draw, and return a batch that is
@@ -147,8 +147,8 @@ protected:
     InstancedRendering(GrGpu* gpu);
 
     const BatchList& trackedBatches() const { return fTrackedBatches; }
-    const GrBuffer* vertexBuffer() const { SkASSERT(fVertexBuffer); return fVertexBuffer; }
-    const GrBuffer* indexBuffer() const { SkASSERT(fIndexBuffer); return fIndexBuffer; }
+    const GrBuffer* vertexBuffer() const { SkASSERT(fVertexBuffer); return fVertexBuffer.get(); }
+    const GrBuffer* indexBuffer() const { SkASSERT(fIndexBuffer); return fIndexBuffer.get(); }
 
     virtual void onBeginFlush(GrResourceProvider*) = 0;
     virtual void onDraw(const GrPipeline&, const InstanceProcessor&, const Batch*) = 0;
@@ -171,14 +171,14 @@ private:
 
     virtual Batch* createBatch() = 0;
 
-    const SkAutoTUnref<GrGpu>            fGpu;
+    const sk_sp<GrGpu>                   fGpu;
     State                                fState;
     GrMemoryPool                         fDrawPool;
     SkSTArray<1024, ParamsTexel, true>   fParams;
     BatchList                            fTrackedBatches;
-    SkAutoTUnref<const GrBuffer>         fVertexBuffer;
-    SkAutoTUnref<const GrBuffer>         fIndexBuffer;
-    SkAutoTUnref<GrBuffer>               fParamsBuffer;
+    sk_sp<const GrBuffer>                fVertexBuffer;
+    sk_sp<const GrBuffer>                fIndexBuffer;
+    sk_sp<GrBuffer>                      fParamsBuffer;
 };
 
 }

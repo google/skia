@@ -67,14 +67,14 @@ void GrSoftwarePathRenderer::DrawNonAARect(GrRenderTargetContext* renderTargetCo
                                            const SkMatrix& viewMatrix,
                                            const SkRect& rect,
                                            const SkMatrix& localMatrix) {
-    SkAutoTUnref<GrDrawBatch> batch(GrRectBatchFactory::CreateNonAAFill(paint.getColor(),
-                                                                        viewMatrix, rect,
-                                                                        nullptr, &localMatrix));
+    sk_sp<GrDrawBatch> batch(GrRectBatchFactory::CreateNonAAFill(paint.getColor(),
+                                                                 viewMatrix, rect,
+                                                                 nullptr, &localMatrix));
 
     GrPipelineBuilder pipelineBuilder(paint, renderTargetContext->mustUseHWAA(paint));
     pipelineBuilder.setUserStencil(&userStencilSettings);
 
-    renderTargetContext->drawBatch(pipelineBuilder, clip, batch);
+    renderTargetContext->drawBatch(pipelineBuilder, clip, batch.get());
 }
 
 void GrSoftwarePathRenderer::DrawAroundInvPath(GrRenderTargetContext* renderTargetContext,

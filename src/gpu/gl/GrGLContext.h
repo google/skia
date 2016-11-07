@@ -35,7 +35,7 @@ public:
     GrGLDriver driver() const { return fDriver; }
     GrGLDriverVersion driverVersion() const { return fDriverVersion; }
     const GrGLCaps* caps() const { return fGLCaps.get(); }
-    GrGLCaps* caps() { return fGLCaps; }
+    GrGLCaps* caps() { return fGLCaps.get(); }
     bool hasExtension(const char* ext) const {
         return fInterface->hasExtension(ext);
     }
@@ -58,14 +58,14 @@ protected:
 
     GrGLContextInfo(const ConstructorArgs& args);
 
-    SkAutoTUnref<const GrGLInterface>   fInterface;
-    GrGLVersion                         fGLVersion;
-    GrGLSLGeneration                    fGLSLGeneration;
-    GrGLVendor                          fVendor;
-    GrGLRenderer                        fRenderer;
-    GrGLDriver                          fDriver;
-    GrGLDriverVersion                   fDriverVersion;
-    SkAutoTUnref<GrGLCaps>              fGLCaps;
+    sk_sp<const GrGLInterface> fInterface;
+    GrGLVersion                fGLVersion;
+    GrGLSLGeneration           fGLSLGeneration;
+    GrGLVendor                 fVendor;
+    GrGLRenderer               fRenderer;
+    GrGLDriver                 fDriver;
+    GrGLDriverVersion          fDriverVersion;
+    sk_sp<GrGLCaps>            fGLCaps;
 };
 
 /**
@@ -79,7 +79,7 @@ public:
      */
     static GrGLContext* Create(const GrGLInterface* interface, const GrContextOptions& options);
 
-    const GrGLInterface* interface() const { return fInterface; }
+    const GrGLInterface* interface() const { return fInterface.get(); }
 
     SkSL::Compiler* compiler() const;
 

@@ -65,7 +65,7 @@ SkGlyphCache* GrAtlasTextBlob::setupCache(int runIndex,
     run->fPathEffect = sk_ref_sp(effects.fPathEffect);
     run->fRasterizer = sk_ref_sp(effects.fRasterizer);
     run->fMaskFilter = sk_ref_sp(effects.fMaskFilter);
-    return SkGlyphCache::DetachCache(run->fTypeface, effects, desc->getDesc());
+    return SkGlyphCache::DetachCache(run->fTypeface.get(), effects, desc->getDesc());
 }
 
 void GrAtlasTextBlob::appendGlyph(int runIndex,
@@ -318,16 +318,16 @@ void GrAtlasTextBlob::flushRun(GrRenderTargetContext* rtc, const GrPaint& grPain
 
         GrColor color = grPaint.getColor();
 
-        SkAutoTUnref<GrDrawBatch> batch(this->createBatch(info, glyphCount, run,
-                                                          subRun, viewMatrix, x, y, color,
-                                                          skPaint, props,
-                                                          distanceAdjustTable,
-                                                          rtc->isGammaCorrect(),
-                                                          cache));
+        sk_sp<GrDrawBatch> batch(this->createBatch(info, glyphCount, run,
+                                                   subRun, viewMatrix, x, y, color,
+                                                   skPaint, props,
+                                                   distanceAdjustTable,
+                                                   rtc->isGammaCorrect(),
+                                                   cache));
 
         GrPipelineBuilder pipelineBuilder(grPaint, rtc->mustUseHWAA(grPaint));
 
-        rtc->drawBatch(pipelineBuilder, clip, batch);
+        rtc->drawBatch(pipelineBuilder, clip, batch.get());
     }
 }
 
@@ -506,7 +506,7 @@ void GrAtlasTextBlob::AssertEqual(const GrAtlasTextBlob& l, const GrAtlasTextBlo
 
         if (lRun.fTypeface.get()) {
             SkASSERT_RELEASE(rRun.fTypeface.get());
-            SkASSERT_RELEASE(SkTypeface::Equal(lRun.fTypeface, rRun.fTypeface));
+            SkASSERT_RELEASE(SkTypeface::Equal(lRun.fTypeface.get(), rRun.fTypeface.get()));
         } else {
             SkASSERT_RELEASE(!rRun.fTypeface.get());
         }

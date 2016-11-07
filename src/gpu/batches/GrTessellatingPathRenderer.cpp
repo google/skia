@@ -95,7 +95,7 @@ public:
     }
     GrBuffer* vertexBuffer() { return fVertexBuffer.get(); }
 private:
-    SkAutoTUnref<GrBuffer> fVertexBuffer;
+    sk_sp<GrBuffer> fVertexBuffer;
     GrResourceProvider* fResourceProvider;
     bool fCanMapVB;
     void* fVertices;
@@ -217,7 +217,7 @@ private:
             memset(&builder[shapeKeyDataCnt], 0, sizeof(fDevClipBounds));
         }
         builder.finish();
-        SkAutoTUnref<GrBuffer> cachedVertexBuffer(rp->findAndRefTByUniqueKey<GrBuffer>(key));
+        sk_sp<GrBuffer> cachedVertexBuffer(rp->findAndRefTByUniqueKey<GrBuffer>(key));
         int actualCount;
         SkScalar tol = GrPathUtils::kDefaultTolerance;
         tol = GrPathUtils::scaleToleranceToSrc(tol, fViewMatrix, fShape.bounds());
@@ -356,17 +356,17 @@ bool GrTessellatingPathRenderer::onDrawPath(const DrawPathArgs& args) {
     args.fClip->getConservativeBounds(args.fRenderTargetContext->width(),
                                       args.fRenderTargetContext->height(),
                                       &clipBoundsI);
-    SkAutoTUnref<GrDrawBatch> batch(TessellatingPathBatch::Create(args.fPaint->getColor(),
-                                                                  *args.fShape,
-                                                                  *args.fViewMatrix,
-                                                                  clipBoundsI,
-                                                                  args.fAntiAlias));
+    sk_sp<GrDrawBatch> batch(TessellatingPathBatch::Create(args.fPaint->getColor(),
+                                                           *args.fShape,
+                                                           *args.fViewMatrix,
+                                                           clipBoundsI,
+                                                           args.fAntiAlias));
 
     GrPipelineBuilder pipelineBuilder(*args.fPaint,
                                       args.fRenderTargetContext->mustUseHWAA(*args.fPaint));
     pipelineBuilder.setUserStencil(args.fUserStencilSettings);
 
-    args.fRenderTargetContext->drawBatch(pipelineBuilder, *args.fClip, batch);
+    args.fRenderTargetContext->drawBatch(pipelineBuilder, *args.fClip, batch.get());
 
     return true;
 }

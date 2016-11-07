@@ -172,8 +172,8 @@ private:
     }
 
     struct FlushInfo {
-        SkAutoTUnref<const GrBuffer> fVertexBuffer;
-        SkAutoTUnref<const GrBuffer> fIndexBuffer;
+        sk_sp<const GrBuffer> fVertexBuffer;
+        sk_sp<const GrBuffer> fIndexBuffer;
         sk_sp<GrGeometryProcessor>   fGeometryProcessor;
         int fVertexOffset;
         int fInstancesToFlush;
@@ -453,8 +453,8 @@ private:
             GrMesh mesh;
             int maxInstancesPerDraw =
                 static_cast<int>(flushInfo->fIndexBuffer->gpuMemorySize() / sizeof(uint16_t) / 6);
-            mesh.initInstanced(kTriangles_GrPrimitiveType, flushInfo->fVertexBuffer,
-                flushInfo->fIndexBuffer, flushInfo->fVertexOffset, kVerticesPerQuad,
+            mesh.initInstanced(kTriangles_GrPrimitiveType, flushInfo->fVertexBuffer.get(),
+                flushInfo->fIndexBuffer.get(), flushInfo->fVertexOffset, kVerticesPerQuad,
                 kIndicesPerQuad, flushInfo->fInstancesToFlush, maxInstancesPerDraw);
             target->draw(flushInfo->fGeometryProcessor.get(), mesh);
             flushInfo->fVertexOffset += kVerticesPerQuad * flushInfo->fInstancesToFlush;
@@ -526,16 +526,16 @@ bool GrAADistanceFieldPathRenderer::onDrawPath(const DrawPathArgs& args) {
         }
     }
 
-    SkAutoTUnref<GrDrawBatch> batch(new AADistanceFieldPathBatch(args.fPaint->getColor(),
-                                                                 *args.fShape,
-                                                                 args.fAntiAlias, *args.fViewMatrix,
-                                                                 fAtlas, &fShapeCache, &fShapeList,
-                                                                 args.fGammaCorrect));
+    sk_sp<GrDrawBatch> batch(new AADistanceFieldPathBatch(args.fPaint->getColor(),
+                                                          *args.fShape,
+                                                          args.fAntiAlias, *args.fViewMatrix,
+                                                          fAtlas, &fShapeCache, &fShapeList,
+                                                          args.fGammaCorrect));
 
     GrPipelineBuilder pipelineBuilder(*args.fPaint);
     pipelineBuilder.setUserStencil(args.fUserStencilSettings);
 
-    args.fRenderTargetContext->drawBatch(pipelineBuilder, *args.fClip, batch);
+    args.fRenderTargetContext->drawBatch(pipelineBuilder, *args.fClip, batch.get());
 
     return true;
 }

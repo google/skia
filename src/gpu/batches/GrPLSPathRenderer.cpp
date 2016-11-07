@@ -807,9 +807,9 @@ public:
         }
 
         // Setup GrGeometryProcessors
-        SkAutoTUnref<GrPLSGeometryProcessor> triangleProcessor(
+        sk_sp<GrPLSGeometryProcessor> triangleProcessor(
                 PLSAATriangleEffect::Create(invert, fUsesLocalCoords));
-        SkAutoTUnref<GrPLSGeometryProcessor> quadProcessor(
+        sk_sp<GrPLSGeometryProcessor> quadProcessor(
                 PLSQuadEdgeEffect::Create(invert, fUsesLocalCoords));
 
         GrResourceProvider* rp = target->resourceProvider();
@@ -857,7 +857,7 @@ public:
             }
             mesh.init(kTriangles_GrPrimitiveType, triVertexBuffer, firstTriVertex,
                       triVertices.count());
-            target->draw(triangleProcessor, mesh);
+            target->draw(triangleProcessor.get(), mesh);
         }
 
         if (quadVertices.count()) {
@@ -875,10 +875,10 @@ public:
             }
             mesh.init(kTriangles_GrPrimitiveType, quadVertexBuffer, firstQuadVertex,
                       quadVertices.count());
-            target->draw(quadProcessor, mesh);
+            target->draw(quadProcessor.get(), mesh);
         }
 
-        SkAutoTUnref<GrGeometryProcessor> finishProcessor(
+        sk_sp<GrGeometryProcessor> finishProcessor(
                 PLSFinishEffect::Create(fColor,
                                         pathPtr->getFillType() ==
                                                             SkPath::FillType::kEvenOdd_FillType,
@@ -903,7 +903,7 @@ public:
 
         mesh.init(kTriangles_GrPrimitiveType, rectVertexBuffer, firstRectVertex,
                   kRectVertexCount);
-        target->draw(finishProcessor, mesh);
+        target->draw(finishProcessor.get(), mesh);
     }
 
 private:
@@ -927,14 +927,14 @@ bool GrPLSPathRenderer::onDrawPath(const DrawPathArgs& args) {
     SkPath path;
     args.fShape->asPath(&path);
 
-    SkAutoTUnref<GrDrawBatch> batch(new PLSPathBatch(args.fPaint->getColor(),
-                                                     path, *args.fViewMatrix));
+    sk_sp<GrDrawBatch> batch(new PLSPathBatch(args.fPaint->getColor(),
+                                              path, *args.fViewMatrix));
 
     GrPipelineBuilder pipelineBuilder(*args.fPaint,
                                       args.fRenderTargetContext->mustUseHWAA(*args.fPaint));
     pipelineBuilder.setUserStencil(args.fUserStencilSettings);
 
-    args.fRenderTargetContext->drawBatch(pipelineBuilder, *args.fClip, batch);
+    args.fRenderTargetContext->drawBatch(pipelineBuilder, *args.fClip, batch.get());
 
     SkDEBUGCODE(inPLSDraw = false;)
     return true;

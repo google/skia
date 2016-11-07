@@ -197,7 +197,7 @@ void GrConfigConversionEffect::TestForPreservingPMConversions(GrContext* context
     desc.fWidth = kSize;
     desc.fHeight = kSize;
     desc.fConfig = kConfig;
-    SkAutoTUnref<GrTexture> dataTex(context->textureProvider()->createTexture(
+    sk_sp<GrTexture> dataTex(context->textureProvider()->createTexture(
         desc, SkBudgeted::kYes, data, 0));
     if (!dataTex.get()) {
         return;
@@ -224,7 +224,7 @@ void GrConfigConversionEffect::TestForPreservingPMConversions(GrContext* context
         GrPaint paint2;
         GrPaint paint3;
         sk_sp<GrFragmentProcessor> pmToUPM1(new GrConfigConversionEffect(
-                dataTex, GrSwizzle::RGBA(), *pmToUPMRule, SkMatrix::I()));
+                dataTex.get(), GrSwizzle::RGBA(), *pmToUPMRule, SkMatrix::I()));
         sk_sp<GrFragmentProcessor> upmToPM(new GrConfigConversionEffect(
                 readRTC->asTexture().get(), GrSwizzle::RGBA(), *upmToPMRule, SkMatrix::I()));
         sk_sp<GrFragmentProcessor> pmToUPM2(new GrConfigConversionEffect(

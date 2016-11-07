@@ -408,7 +408,7 @@ private:
         }
 
         if (quadVertexOffset) {
-            SkAutoTUnref<const GrGeometryProcessor> quadGP(MSAAQuadProcessor::Create(fViewMatrix));
+            sk_sp<const GrGeometryProcessor> quadGP(MSAAQuadProcessor::Create(fViewMatrix));
             SkASSERT(quadVertexStride == quadGP->getVertexStride());
 
             const GrBuffer* quadVertexBuffer;
@@ -432,7 +432,7 @@ private:
                 quadMeshes.init(kTriangles_GrPrimitiveType, quadVertexBuffer, firstQuadVertex,
                                 quadVertexOffset);
             }
-            target->draw(quadGP, quadMeshes);
+            target->draw(quadGP.get(), quadMeshes);
         }
     }
 
@@ -647,17 +647,17 @@ bool GrMSAAPathRenderer::internalDrawPath(GrRenderTargetContext* renderTargetCon
             }
             const SkMatrix& viewM = (reverse && viewMatrix.hasPerspective()) ? SkMatrix::I() :
                                                                                viewMatrix;
-            SkAutoTUnref<GrDrawBatch> batch(
+            sk_sp<GrDrawBatch> batch(
                     GrRectBatchFactory::CreateNonAAFill(paint.getColor(), viewM, bounds, nullptr,
                                                         &localMatrix));
 
             GrPipelineBuilder pipelineBuilder(paint, renderTargetContext->mustUseHWAA(paint));
             pipelineBuilder.setUserStencil(passes[p]);
 
-            renderTargetContext->drawBatch(pipelineBuilder, clip, batch);
+            renderTargetContext->drawBatch(pipelineBuilder, clip, batch.get());
         } else {
-            SkAutoTUnref<MSAAPathBatch> batch(new MSAAPathBatch(paint.getColor(), path,
-                                                                viewMatrix, devBounds));
+            sk_sp<MSAAPathBatch> batch(new MSAAPathBatch(paint.getColor(), path,
+                                                         viewMatrix, devBounds));
             if (!batch->isValid()) {
                 return false;
             }
@@ -668,7 +668,7 @@ bool GrMSAAPathRenderer::internalDrawPath(GrRenderTargetContext* renderTargetCon
                 pipelineBuilder.setDisableColorXPFactory();
             }
 
-            renderTargetContext->drawBatch(pipelineBuilder, clip, batch);
+            renderTargetContext->drawBatch(pipelineBuilder, clip, batch.get());
         }
     }
     return true;

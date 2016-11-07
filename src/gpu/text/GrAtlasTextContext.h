@@ -84,9 +84,9 @@ private:
                                                          const SkScalar pos[],
                                                          int scalarsPerPosition,
                                                          const SkPoint& offset);
-    const GrDistanceFieldAdjustTable* dfAdjustTable() const { return fDistanceAdjustTable; }
+    const GrDistanceFieldAdjustTable* dfAdjustTable() const { return fDistanceAdjustTable.get(); }
 
-    SkAutoTUnref<const GrDistanceFieldAdjustTable> fDistanceAdjustTable;
+    sk_sp<const GrDistanceFieldAdjustTable> fDistanceAdjustTable;
 
 #ifdef GR_TEST_UTILS
     static const uint32_t kTextBlobBatchScalerContextFlags =

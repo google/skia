@@ -69,7 +69,7 @@ public:
         SkASSERT(this->hasID(id));
         uint32_t index = GetIndexFromID(id);
         SkASSERT(index < fNumPlots);
-        this->makeMRU(fPlotArray[index]);
+        this->makeMRU(fPlotArray[index].get());
         fPlotArray[index]->setLastUseToken(batchToken);
     }
 
@@ -127,7 +127,7 @@ public:
     void setLastUseTokenBulk(const BulkUseTokenUpdater& updater, GrBatchDrawToken batchToken) {
         int count = updater.fPlotsToUpdate.count();
         for (int i = 0; i < count; i++) {
-            BatchPlot* plot = fPlotArray[updater.fPlotsToUpdate[i]];
+            BatchPlot* plot = fPlotArray[updater.fPlotsToUpdate[i]].get();
             this->makeMRU(plot);
             plot->setLastUseToken(batchToken);
         }
@@ -254,7 +254,7 @@ private:
 
     SkTDArray<EvictionData> fEvictionCallbacks;
     // allocated array of GrBatchPlots
-    SkAutoTUnref<BatchPlot>* fPlotArray;
+    sk_sp<BatchPlot>* fPlotArray;
     // LRU list of GrPlots (MRU at head - LRU at tail)
     GrBatchPlotList fPlotList;
 };

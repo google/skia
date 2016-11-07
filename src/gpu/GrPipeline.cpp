@@ -59,7 +59,7 @@ GrPipeline* GrPipeline::CreateAt(void* memory, const CreateArgs& args,
     bool hasMixedSamples = args.fRenderTargetContext->hasMixedSamples() &&
                            (builder.isHWAntialias() || pipeline->isStencilEnabled());
     const GrXPFactory* xpFactory = builder.getXPFactory();
-    SkAutoTUnref<GrXferProcessor> xferProcessor;
+    sk_sp<GrXferProcessor> xferProcessor;
     if (xpFactory) {
         xferProcessor.reset(xpFactory->createXferProcessor(args.fOpts,
                                                            hasMixedSamples,
@@ -104,7 +104,7 @@ GrPipeline* GrPipeline::CreateAt(void* memory, const CreateArgs& args,
         overrideColor = GrColor_ILLEGAL;
     }
 
-    pipeline->fXferProcessor.reset(xferProcessor);
+    pipeline->fXferProcessor.reset(xferProcessor.get());
 
     int firstColorProcessorIdx = args.fOpts.fColorPOI.firstEffectiveProcessorIndex();
 

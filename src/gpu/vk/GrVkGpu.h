@@ -255,8 +255,8 @@ private:
                       const SkIRect& srcRect,
                       const SkIPoint& dstPoint);
 
-    SkAutoTUnref<const GrVkBackendContext> fBackendContext;
-    SkAutoTUnref<GrVkCaps>                 fVkCaps;
+    sk_sp<const GrVkBackendContext> fBackendContext;
+    sk_sp<GrVkCaps>                 fVkCaps;
 
     // These Vulkan objects are provided by the client, and also stored in fBackendContext.
     // They're copied here for convenient access.

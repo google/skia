@@ -104,7 +104,7 @@ private:
         bool                       fUsingRawGlyphPaths;
         GrUniqueKey                fGlyphPathsKey;
         int                        fTotalGlyphCount;
-        SkAutoTUnref<InstanceData> fInstanceData;
+        sk_sp<InstanceData>        fInstanceData;
         int                        fFallbackGlyphCount;
         sk_sp<SkTextBlob>          fFallbackTextBlob;
         mutable SkGlyphCache*      fDetachedGlyphCache;

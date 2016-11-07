@@ -81,14 +81,14 @@ static bool sw_draw_with_mask_filter(GrRenderTargetContext* renderTargetContext,
     desc.fHeight = dstM.fBounds.height();
     desc.fConfig = kAlpha_8_GrPixelConfig;
 
-    SkAutoTUnref<GrTexture> texture(textureProvider->createApproxTexture(desc));
+    sk_sp<GrTexture> texture(textureProvider->createApproxTexture(desc));
     if (!texture) {
         return false;
     }
     texture->writePixels(0, 0, desc.fWidth, desc.fHeight, desc.fConfig,
                                dstM.fImage, dstM.fRowBytes);
 
-    return draw_mask(renderTargetContext, clipData, viewMatrix, dstM.fBounds, grp, texture);
+    return draw_mask(renderTargetContext, clipData, viewMatrix, dstM.fBounds, grp, texture.get());
 }
 
 // Create a mask of 'devPath' and place the result in 'mask'.
@@ -215,7 +215,7 @@ static void draw_path_with_mask_filter(GrContext* context,
 
             if (maskFilter->filterMaskGPU(mask.get(), viewMatrix, finalIRect, &filtered)) {
                 // filterMaskGPU gives us ownership of a ref to the result
-                SkAutoTUnref<GrTexture> atu(filtered);
+                sk_sp<GrTexture> atu(filtered);
                 if (draw_mask(renderTargetContext, clip, viewMatrix, finalIRect, paint, filtered)) {
                     // This path is completely drawn
                     return;
