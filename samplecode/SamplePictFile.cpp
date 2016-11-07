@@ -13,6 +13,7 @@
 #include "SkGradientShader.h"
 #include "SkGraphics.h"
 #include "SkOSFile.h"
+#include "SkOSPath.h"
 #include "SkPath.h"
 #include "SkPicture.h"
 #include "SkPictureRecorder.h"
@@ -77,7 +78,7 @@ protected:
     bool onQuery(SkEvent* evt) override {
         if (SampleCode::TitleQ(*evt)) {
             SkString name("P:");
-            const char* basename = strrchr(fFilename.c_str(), SkPATH_SEPARATOR);
+            const char* basename = strrchr(fFilename.c_str(), SkOSPath::SEPARATOR);
             name.append(basename ? basename+1: fFilename.c_str());
             switch (fBBox) {
             case kNo_BBoxType:

@@ -12,6 +12,7 @@
 #include "SkJSONCPP.h"
 #include "SkMD5.h"
 #include "SkOSFile.h"
+#include "SkOSPath.h"
 #include "SkPicture.h"
 #include "SkPixelSerializer.h"
 #include "SkStream.h"

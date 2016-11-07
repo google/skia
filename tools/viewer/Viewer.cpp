@@ -19,6 +19,7 @@
 #include "SkGraphics.h"
 #include "SkMetaData.h"
 #include "SkOSFile.h"
+#include "SkOSPath.h"
 #include "SkRandom.h"
 #include "SkStream.h"
 #include "SkSurface.h"

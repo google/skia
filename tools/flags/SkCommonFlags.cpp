@@ -7,6 +7,7 @@
 
 #include "SkCommonFlags.h"
 #include "SkOSFile.h"
+#include "SkOSPath.h"
 
 DEFINE_bool(cpu, true, "master switch for running CPU-bound work.");
 

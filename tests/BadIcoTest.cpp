@@ -7,10 +7,12 @@
 
 #include "Resources.h"
 #include "Test.h"
+
 #include "SkBitmap.h"
 #include "SkCodec.h"
-#include "SkStream.h"
 #include "SkOSFile.h"
+#include "SkOSPath.h"
+#include "SkStream.h"
 
 DEF_TEST(BadImage, reporter) {
     const char* const badImages [] = {

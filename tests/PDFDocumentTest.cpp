@@ -10,6 +10,7 @@
 #include "SkCanvas.h"
 #include "SkDocument.h"
 #include "SkOSFile.h"
+#include "SkOSPath.h"
 #include "SkStream.h"
 #include "SkPixelSerializer.h"
 

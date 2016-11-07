@@ -11,6 +11,7 @@
 #include "SkHalf.h"
 #include "SkImageEncoder.h"
 #include "SkOSFile.h"
+#include "SkOSPath.h"
 #include "SkPM4fPriv.h"
 #include "SkPicture.h"
 #include "SkStream.h"

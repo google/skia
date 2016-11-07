@@ -36,6 +36,7 @@
 #include "SkGraphics.h"
 #include "SkLeanWindows.h"
 #include "SkOSFile.h"
+#include "SkOSPath.h"
 #include "SkPictureRecorder.h"
 #include "SkPictureUtils.h"
 #include "SkString.h"

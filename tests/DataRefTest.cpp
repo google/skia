@@ -8,6 +8,7 @@
 #include "SkData.h"
 #include "SkDataTable.h"
 #include "SkOSFile.h"
+#include "SkOSPath.h"
 #include "SkReadBuffer.h"
 #include "SkWriteBuffer.h"
 #include "SkStream.h"
