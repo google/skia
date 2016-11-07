@@ -50,6 +50,17 @@ protected:
         canvas->drawRectCoords(20, 200, 200, 200.1f, p);
         canvas->drawCircle(100, 100, 30, p);
         canvas->restore();
+
+        // The following path is empty but it'll reveal bug chrome:662914
+        SkPath path;
+        path.moveTo(SkBits2Float(0x429b9d5c), SkBits2Float(0x4367a041));  // 77.8073f, 231.626f
+        // 77.8075f, 231.626f, 77.8074f, 231.625f, 77.8073f, 231.625f
+        path.cubicTo(SkBits2Float(0x429b9d71), SkBits2Float(0x4367a022),
+                SkBits2Float(0x429b9d64), SkBits2Float(0x4367a009),
+                SkBits2Float(0x429b9d50), SkBits2Float(0x43679ff2));
+        path.lineTo(SkBits2Float(0x429b9d5c), SkBits2Float(0x4367a041));  // 77.8073f, 231.626f
+        path.close();
+        canvas->drawPath(path, p);
     }
 
 private:

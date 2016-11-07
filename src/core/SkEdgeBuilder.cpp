@@ -63,6 +63,10 @@ SkEdgeBuilder::Combine SkEdgeBuilder::CombineVertical(const SkEdge* edge, SkEdge
     return kNo_Combine;
 }
 
+static inline bool approximatelyEqual(SkFixed a, SkFixed b) {
+    return SkAbs32(a - b) < 0x100;
+}
+
 SkEdgeBuilder::Combine SkEdgeBuilder::CombineVertical(
         const SkAnalyticEdge* edge, SkAnalyticEdge* last) {
     SkASSERT(fAnalyticAA);
@@ -75,14 +79,14 @@ SkEdgeBuilder::Combine SkEdgeBuilder::CombineVertical(
             last->fY = last->fUpperY;
             return kPartial_Combine;
         }
-        if (edge->fUpperY == last->fLowerY) {
+        if (approximatelyEqual(edge->fUpperY, last->fLowerY)) {
             last->fLowerY = edge->fLowerY;
             return kPartial_Combine;
         }
         return kNo_Combine;
     }
-    if (edge->fUpperY == last->fUpperY) {
-        if (edge->fLowerY == last->fLowerY) {
+    if (approximatelyEqual(edge->fUpperY, last->fUpperY)) {
+        if (approximatelyEqual(edge->fLowerY, last->fLowerY)) {
             return kTotal_Combine;
         }
         if (edge->fLowerY < last->fLowerY) {
@@ -96,7 +100,7 @@ SkEdgeBuilder::Combine SkEdgeBuilder::CombineVertical(
         last->fWinding = edge->fWinding;
         return kPartial_Combine;
     }
-    if (edge->fLowerY == last->fLowerY) {
+    if (approximatelyEqual(edge->fLowerY, last->fLowerY)) {
         if (edge->fUpperY > last->fUpperY) {
             last->fLowerY = edge->fUpperY;
             return kPartial_Combine;
