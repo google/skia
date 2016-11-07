@@ -39,11 +39,11 @@ bool GrDashLinePathRenderer::onDrawPath(const DrawPathArgs& args) {
     }
     SkPoint pts[2];
     SkAssertResult(args.fShape->asLine(pts, nullptr));
-    SkAutoTUnref<GrDrawBatch> batch(GrDashingEffect::CreateDashLineBatch(args.fPaint->getColor(),
-                                                                         *args.fViewMatrix,
-                                                                         pts,
-                                                                         aaMode,
-                                                                         args.fShape->style()));
+    sk_sp<GrDrawBatch> batch(GrDashingEffect::CreateDashLineBatch(args.fPaint->getColor(),
+                                                                  *args.fViewMatrix,
+                                                                  pts,
+                                                                  aaMode,
+                                                                  args.fShape->style()));
     if (!batch) {
         return false;
     }
@@ -51,6 +51,6 @@ bool GrDashLinePathRenderer::onDrawPath(const DrawPathArgs& args) {
     GrPipelineBuilder pipelineBuilder(*args.fPaint, useHWAA);
     pipelineBuilder.setUserStencil(args.fUserStencilSettings);
 
-    args.fRenderTargetContext->drawBatch(pipelineBuilder, *args.fClip, batch);
+    args.fRenderTargetContext->drawBatch(pipelineBuilder, *args.fClip, batch.get());
     return true;
 }
