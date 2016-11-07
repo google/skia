@@ -663,7 +663,7 @@ sk_sp<SkImage> SkImage::MakeFromDeferredTextureImageData(GrContext* context, con
     if (!context || context->uniqueID() != dti->fContextUniqueID) {
         return nullptr;
     }
-    SkAutoTUnref<SkColorTable> colorTable;
+    sk_sp<SkColorTable> colorTable;
     if (dti->fColorTableCnt) {
         SkASSERT(dti->fColorTableData);
         colorTable.reset(new SkColorTable(dti->fColorTableData, dti->fColorTableCnt));
