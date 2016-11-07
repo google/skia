@@ -24,12 +24,12 @@ public:
     void reset() { fCanvas.reset(); }
 
     // This can return nullptr if reset has already been called or something when wrong in the ctor
-    SkCanvas* onGetCanvas() { return fCanvas; }
+    SkCanvas* onGetCanvas() { return fCanvas.get(); }
 
     virtual sk_sp<SkSpecialImage> onMakeImageSnapshot() = 0;
 
 protected:
-    SkAutoTUnref<SkCanvas> fCanvas;   // initialized by derived classes in ctors
+    std::unique_ptr<SkCanvas> fCanvas;   // initialized by derived classes in ctors
 
 private:
     typedef SkSpecialSurface INHERITED;
