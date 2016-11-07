@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "ebc99f45_8ac3de27",
+        "filename": "fuzz/FilterFuzz.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 59,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2016-11-07T16:14:06Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "ab65e7f6_0994c91a",
+      "revId": "4f8cb60962ae479d7a339a8aac25a6cd572260ef",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "4b2b8b7e_6ee7cfd2",
         "filename": "fuzz/FilterFuzz.cpp",
         "patchSetId": 3
@@ -30,6 +48,24 @@
       "writtenOn": "2016-11-03T20:57:18Z",
       "side": 1,
       "message": "Our hard drives are pretty big now.  We can afford the usual new line here, and in all other similar places.",
+      "revId": "4f8cb60962ae479d7a339a8aac25a6cd572260ef",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ebc99f45_6abeb29c",
+        "filename": "fuzz/FilterFuzz.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 60,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2016-11-07T16:14:06Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "4b2b8b7e_6ee7cfd2",
       "revId": "4f8cb60962ae479d7a339a8aac25a6cd572260ef",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
@@ -53,6 +89,24 @@
         "endLine": 32,
         "endChar": 23
       },
+      "revId": "4f8cb60962ae479d7a339a8aac25a6cd572260ef",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "8b50234a_98169509",
+        "filename": "fuzz/Fuzz.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 32,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2016-11-07T16:14:06Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "c66692d0_9488bc07",
       "revId": "4f8cb60962ae479d7a339a8aac25a6cd572260ef",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
