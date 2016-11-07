@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "2bde5729_c3ebea35",
+        "filename": "include/core/SkImageInfo.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 172,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2016-11-07T21:33:45Z",
+      "side": 1,
+      "message": "As before, this type needs to be in a public header because it\u0027s referenced in the signatures of Ganesh functions that happen to be in public headers, even though they\u0027re internal API.",
+      "revId": "d1dab303f09bfe35000cc352e113d06e4823f85b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "2bde5729_c3020a28",
+        "filename": "include/core/SkShader.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 117,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2016-11-07T21:33:45Z",
+      "side": 1,
+      "message": "This is the only really interesting non-rename diff in this change. SkMipMap used to have a Deduce(ContextRec) helper that it used to pick the right gamma treatment. I\u0027m going to need similar functionality (get the color mode from a ContextRec) elsewhere, so I decided to move that logic here. Seems okay? (If we\u0027d rather hide this detail, we can make a private helper function, although we don\u0027t have any kind of private shader header...",
+      "revId": "d1dab303f09bfe35000cc352e113d06e4823f85b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
