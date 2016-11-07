@@ -8,6 +8,7 @@
 #include "glsl/GrGLSLProgramBuilder.h"
 
 #include "GrPipeline.h"
+#include "GrTexturePriv.h"
 #include "glsl/GrGLSLFragmentProcessor.h"
 #include "glsl/GrGLSLGeometryProcessor.h"
 #include "glsl/GrGLSLVarying.h"
@@ -244,7 +245,7 @@ void GrGLSLProgramBuilder::emitSamplers(const GrProcessor& processor,
     int numTextures = processor.numTextures();
     for (int t = 0; t < numTextures; ++t) {
         const GrTextureAccess& access = processor.textureAccess(t);
-        GrSLType samplerType = access.getTexture()->samplerType();
+        GrSLType samplerType = access.getTexture()->texturePriv().samplerType();
         if (kTextureExternalSampler_GrSLType == samplerType) {
             const char* externalFeatureString = this->glslCaps()->externalTextureExtensionString();
             // We shouldn't ever create a GrGLTexture that requires external sampler type

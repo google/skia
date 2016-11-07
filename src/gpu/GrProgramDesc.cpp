@@ -9,6 +9,7 @@
 #include "GrProcessor.h"
 #include "GrPipeline.h"
 #include "GrRenderTargetPriv.h"
+#include "GrTexturePriv.h"
 #include "SkChecksum.h"
 #include "glsl/GrGLSLFragmentProcessor.h"
 #include "glsl/GrGLSLFragmentShaderBuilder.h"
@@ -45,7 +46,8 @@ static void add_sampler_keys(GrProcessorKeyBuilder* b, const GrProcessor& proc,
     for (; i < numTextures; ++i) {
         const GrTextureAccess& access = proc.textureAccess(i);
         const GrTexture* tex = access.getTexture();
-        k16[i] = sampler_key(tex->samplerType(), tex->config(), access.getVisibility(), caps);
+        k16[i] = sampler_key(tex->texturePriv().samplerType(), tex->config(),
+                             access.getVisibility(), caps);
     }
     for (; i < numSamplers; ++i) {
         const GrBufferAccess& access = proc.bufferAccess(i - numTextures);
