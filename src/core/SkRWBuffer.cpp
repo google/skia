@@ -355,6 +355,6 @@ private:
 };
 
 SkStreamAsset* SkRWBuffer::newStreamSnapshot() const {
-    SkAutoTUnref<SkROBuffer> buffer(this->newRBufferSnapshot());
-    return new SkROBufferStreamAsset(buffer);
+    sk_sp<SkROBuffer> buffer(this->newRBufferSnapshot());
+    return new SkROBufferStreamAsset(buffer.get());
 }

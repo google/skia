@@ -68,9 +68,9 @@ struct BitmapShaderRec : public SkResourceCache::Rec {
         : fKey(key)
         , fShader(SkRef(tileShader)) {}
 
-    BitmapShaderKey        fKey;
-    SkAutoTUnref<SkShader> fShader;
-    size_t                 fBitmapBytes;
+    BitmapShaderKey fKey;
+    sk_sp<SkShader> fShader;
+    size_t          fBitmapBytes;
 
     const Key& getKey() const override { return fKey; }
     size_t bytesUsed() const override {
@@ -82,7 +82,7 @@ struct BitmapShaderRec : public SkResourceCache::Rec {
 
     static bool Visitor(const SkResourceCache::Rec& baseRec, void* contextShader) {
         const BitmapShaderRec& rec = static_cast<const BitmapShaderRec&>(baseRec);
-        SkAutoTUnref<SkShader>* result = reinterpret_cast<SkAutoTUnref<SkShader>*>(contextShader);
+        sk_sp<SkShader>* result = reinterpret_cast<sk_sp<SkShader>*>(contextShader);
 
         result->reset(SkRef(rec.fShader.get()));
 

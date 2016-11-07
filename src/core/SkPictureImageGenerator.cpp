@@ -35,9 +35,9 @@ protected:
 private:
     SkPictureImageGenerator(const SkISize&, const SkPicture*, const SkMatrix*, const SkPaint*);
 
-    SkAutoTUnref<const SkPicture> fPicture;
-    SkMatrix                      fMatrix;
-    SkTLazy<SkPaint>              fPaint;
+    sk_sp<const SkPicture> fPicture;
+    SkMatrix               fMatrix;
+    SkTLazy<SkPaint>       fPaint;
 
     typedef SkImageGenerator INHERITED;
 };
@@ -80,7 +80,7 @@ bool SkPictureImageGenerator::onGetPixels(const SkImageInfo& info, void* pixels,
 
     bitmap.eraseColor(SK_ColorTRANSPARENT);
     SkCanvas canvas(bitmap, SkSurfaceProps(0, kUnknown_SkPixelGeometry));
-    canvas.drawPicture(fPicture, &fMatrix, fPaint.getMaybeNull());
+    canvas.drawPicture(fPicture.get(), &fMatrix, fPaint.getMaybeNull());
 
     return true;
 }
@@ -119,7 +119,7 @@ bool SkPictureImageGenerator::onGenerateScaledPixels(const SkISize& scaledSize,
     bitmap.eraseColor(SK_ColorTRANSPARENT);
     SkCanvas canvas(bitmap, SkSurfaceProps(0, kUnknown_SkPixelGeometry));
     matrix.preConcat(fMatrix);
-    canvas.drawPicture(fPicture, &matrix, fPaint.getMaybeNull());
+    canvas.drawPicture(fPicture.get(), &matrix, fPaint.getMaybeNull());
     return true;
 }
 
@@ -152,7 +152,7 @@ GrTexture* SkPictureImageGenerator::onGenerateTexture(GrContext* ctx, const SkIR
         matrix.postTranslate(-subset->x(), -subset->y());
     }
     surface->getCanvas()->clear(0); // does NewRenderTarget promise to do this for us?
-    surface->getCanvas()->drawPicture(fPicture, &matrix, fPaint.getMaybeNull());
+    surface->getCanvas()->drawPicture(fPicture.get(), &matrix, fPaint.getMaybeNull());
     sk_sp<SkImage> image(surface->makeImageSnapshot());
     if (!image) {
         return nullptr;

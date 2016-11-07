@@ -787,7 +787,7 @@ public:
     }
 
 private:
-    SkAutoTUnref<SkBlockMemoryRefCnt> const fBlockMemory;
+    sk_sp<SkBlockMemoryRefCnt> const fBlockMemory;
     SkDynamicMemoryWStream::Block const * fCurrent;
     size_t const fSize;
     size_t fOffset;
