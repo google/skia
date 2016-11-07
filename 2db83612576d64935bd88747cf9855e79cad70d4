@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "ebc99f45_6a40f27c",
+        "filename": "dm/DMSrcSinkAndroid.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 51,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2016-11-07T16:33:00Z",
+      "side": 1,
+      "message": "this is breaking the android build with the following error...\n\nexternal/skia/dm/DMSrcSinkAndroid.cpp:56:22: error: no viable conversion from \u0027sk_sp\u003candroid::uirenderer::SkiaCanvasProxy\u003e\u0027 to \u0027SkCanvas *\u0027\n            fc.reset(scProxy);\n                     ^~~~~~~\nexternal/skia/dm/../include/core/SkRefCnt.h:325:5: note: candidate function\n    operator unspecified_bool_type() const { return this-\u003eget() ? \u0026sk_sp::fPtr : nullptr; }\n    ^\nexternal/skia/dm/../tools/android/SkAndroidSDKCanvas.h:30:26: note: passing argument to parameter \u0027newTarget\u0027 here\n    void reset(SkCanvas* newTarget);\n                         ^\n1 error generated.",
+      "revId": "2db83612576d64935bd88747cf9855e79cad70d4",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
