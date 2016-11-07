@@ -8,7 +8,7 @@
 #include "SkHalf.h"
 #include "SkPM4fPriv.h"
 #include "SkUtils.h"
-#include "SkXfermode.h"
+#include "SkXfermodePriv.h"
 
 static Sk4f lerp_by_coverage(const Sk4f& src, const Sk4f& dst, uint8_t srcCoverage) {
     return dst + (src - dst) * Sk4f(srcCoverage * (1/255.0f));

@@ -5,14 +5,14 @@
  * found in the LICENSE file.
  */
 
-#ifndef SkXfermode_DEFINED
-#define SkXfermode_DEFINED
+#ifndef SkXfermodePriv_DEFINED
+#define SkXfermodePriv_DEFINED
 
 #include "SkBlendMode.h"
 #include "SkColor.h"
 #include "SkFlattenable.h"
 
-#ifdef SK_SUPPORT_LEGACY_XFERMODE_IS_PUBLIC
+#ifndef SK_SUPPORT_LEGACY_XFERMODE_IS_PUBLIC
 
 class GrFragmentProcessor;
 class GrTexture;

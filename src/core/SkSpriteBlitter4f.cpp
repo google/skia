@@ -8,7 +8,7 @@
 #include "SkSpriteBlitter.h"
 #include "SkSpanProcs.h"
 #include "SkTemplates.h"
-#include "SkXfermode.h"
+#include "SkXfermodePriv.h"
 
 class Sprite_4f : public SkSpriteBlitter {
 public:
