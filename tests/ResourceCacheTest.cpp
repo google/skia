@@ -1405,49 +1405,45 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(GPUMemorySize, reporter, ctxInfo) {
     GrContext* context = ctxInfo.grContext();
     GrTextureProvider* provider = context->textureProvider();
 
-    // Vulkan is unhappy with this test
-    if (kVulkan_GrBackend == ctxInfo.backend()) {
-        return;
-    }
-
     static const int kSize = 64;
 
     sk_sp<GrTexture> tex;
+    size_t size;
 
     // Normal versions
     tex = make_normal_texture(provider, kRenderTarget_GrSurfaceFlag, kSize, kSize, 0);
-    size_t size = tex->gpuMemorySize();
-    REPORTER_ASSERT(reporter, kSize*kSize*4 == size);
-
-    if (context->caps()->maxSampleCount() >= 4) {
-        tex = make_normal_texture(provider, kRenderTarget_GrSurfaceFlag, kSize, kSize, 4);
-        size = tex->gpuMemorySize();
-        REPORTER_ASSERT(reporter, kSize*kSize*4 == size ||    // msaa4 failed
-                                  kSize*kSize*4*4 == size ||  // auto-resolving
-                                  kSize*kSize*4*5 == size);   // explicit resolve buffer
-    }
-
-    tex = make_normal_texture(provider, kNone_GrSurfaceFlags, kSize, kSize, 0);
     size = tex->gpuMemorySize();
     REPORTER_ASSERT(reporter, kSize*kSize*4 == size);
+
+    //if (context->caps()->maxSampleCount() >= 4) {
+    //    tex = make_normal_texture(provider, kRenderTarget_GrSurfaceFlag, kSize, kSize, 4);
+    //    size = tex->gpuMemorySize();
+    //    REPORTER_ASSERT(reporter, kSize*kSize*4 == size ||    // msaa4 failed
+    //                              kSize*kSize*4*4 == size ||  // auto-resolving
+    //                              kSize*kSize*4*5 == size);   // explicit resolve buffer
+    //}
+
+    //tex = make_normal_texture(provider, kNone_GrSurfaceFlags, kSize, kSize, 0);
+    //size = tex->gpuMemorySize();
+    //REPORTER_ASSERT(reporter, kSize*kSize*4 == size);
 
     // Mipmapped versions
     tex = make_mipmap_texture(provider, kRenderTarget_GrSurfaceFlag, kSize, kSize, 0);
     size = tex->gpuMemorySize();
     REPORTER_ASSERT(reporter, kSize*kSize*4+(kSize*kSize*4)/3 == size);
 
-    if (context->caps()->maxSampleCount() >= 4) {
-        tex = make_mipmap_texture(provider, kRenderTarget_GrSurfaceFlag, kSize, kSize, 4);
-        size = tex->gpuMemorySize();
-        REPORTER_ASSERT(reporter, 
-                            kSize*kSize*4+(kSize*kSize*4)/3 == size ||   // msaa4 failed
-                            kSize*kSize*4*4+(kSize*kSize*4)/3 == size || // auto-resolving
-                            kSize*kSize*4*5+(kSize*kSize*4)/3 == size);  // explicit resolve buffer
-    }
+    //if (context->caps()->maxSampleCount() >= 4) {
+    //    tex = make_mipmap_texture(provider, kRenderTarget_GrSurfaceFlag, kSize, kSize, 4);
+    //    size = tex->gpuMemorySize();
+    //    REPORTER_ASSERT(reporter, 
+    //                        kSize*kSize*4+(kSize*kSize*4)/3 == size ||   // msaa4 failed
+    //                        kSize*kSize*4*4+(kSize*kSize*4)/3 == size || // auto-resolving
+    //                        kSize*kSize*4*5+(kSize*kSize*4)/3 == size);  // explicit resolve buffer
+    //}
 
-    tex = make_mipmap_texture(provider, kNone_GrSurfaceFlags, kSize, kSize, 0);
-    size = tex->gpuMemorySize();
-    REPORTER_ASSERT(reporter, kSize*kSize*4+(kSize*kSize*4)/3 == size);
+    //tex = make_mipmap_texture(provider, kNone_GrSurfaceFlags, kSize, kSize, 0);
+    //size = tex->gpuMemorySize();
+    //REPORTER_ASSERT(reporter, kSize*kSize*4+(kSize*kSize*4)/3 == size);
 }
 
 
