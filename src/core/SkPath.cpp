@@ -1567,49 +1567,41 @@ static int pts_in_verb(unsigned verb) {
 
 // ignore the last point of the 1st contour
 void SkPath::reversePathTo(const SkPath& path) {
-    int i, vcount = path.fPathRef->countVerbs();
-    // exit early if the path is empty, or just has a moveTo.
-    if (vcount < 2) {
+    const uint8_t* verbs = path.fPathRef->verbsMemBegin(); // points at the last verb
+    if (!verbs) {  // empty path returns nullptr
         return;
     }
+    const uint8_t* verbsEnd = path.fPathRef->verbs() - 1; // points just past the first verb
+    SkASSERT(verbsEnd[0] == kMove_Verb);
+    const SkPoint*  pts = path.fPathRef->pointsEnd() - 1;
+    const SkScalar* conicWeights = path.fPathRef->conicWeightsEnd();
 
-    SkPathRef::Editor(&fPathRef, vcount, path.countPoints());
-
-    const uint8_t*  verbs = path.fPathRef->verbs();
-    const SkPoint*  pts = path.fPathRef->points();
-    const SkScalar* conicWeights = path.fPathRef->conicWeights();
-
-    SkASSERT(verbs[~0] == kMove_Verb);
-    for (i = 1; i < vcount; ++i) {
-        unsigned v = verbs[~i];
-        int n = pts_in_verb(v);
-        if (n == 0) {
-            break;
-        }
-        pts += n;
-        conicWeights += (SkPath::kConic_Verb == v);
-    }
-
-    while (--i > 0) {
-        switch (verbs[~i]) {
+    while (verbs < verbsEnd) {
+        uint8_t v = *verbs++;
+        pts -= pts_in_verb(v);
+        switch (v) {
+            case kMove_Verb:
+                // if the path has multiple contours, stop after reversing the last
+                return;
             case kLine_Verb:
-                this->lineTo(pts[-1].fX, pts[-1].fY);
+                this->lineTo(pts[0]);
                 break;
             case kQuad_Verb:
-                this->quadTo(pts[-1].fX, pts[-1].fY, pts[-2].fX, pts[-2].fY);
+                this->quadTo(pts[1], pts[0]);
                 break;
             case kConic_Verb:
-                this->conicTo(pts[-1], pts[-2], *--conicWeights);
+                this->conicTo(pts[1], pts[0], *--conicWeights);
                 break;
             case kCubic_Verb:
-                this->cubicTo(pts[-1].fX, pts[-1].fY, pts[-2].fX, pts[-2].fY,
-                              pts[-3].fX, pts[-3].fY);
+                this->cubicTo(pts[2], pts[1], pts[0]);
+                break;
+            case kClose_Verb:
+                SkASSERT(verbs - path.fPathRef->verbsMemBegin() == 1);
                 break;
             default:
                 SkDEBUGFAIL("bad verb");
                 break;
         }
-        pts -= pts_in_verb(verbs[~i]);
     }
 }
 

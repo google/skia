@@ -91,6 +91,8 @@ private:
     SkTArray<SkPath> fPathRefs;
     SkTDArray<SkPathOp> fOps;
 
+    static bool FixWinding(SkPath* path);
+    static void ReversePath(SkPath* path);
     void reset();
 };
 

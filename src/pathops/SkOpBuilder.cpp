@@ -25,7 +25,17 @@ static bool one_contour(const SkPath& path) {
     return true;
 }
 
-bool FixWinding(SkPath* path) {
+void SkOpBuilder::ReversePath(SkPath* path) {
+    SkPath temp;
+    SkPoint lastPt;
+    SkAssertResult(path->getLastPt(&lastPt));
+    temp.moveTo(lastPt);
+    temp.reversePathTo(*path);
+    temp.close();
+    *path = temp;
+}
+
+bool SkOpBuilder::FixWinding(SkPath* path) {
     SkPath::FillType fillType = path->getFillType();
     if (fillType == SkPath::kInverseEvenOdd_FillType) {
         fillType = SkPath::kInverseWinding_FillType;
@@ -35,9 +45,7 @@ bool FixWinding(SkPath* path) {
     SkPathPriv::FirstDirection dir;
     if (one_contour(*path) && SkPathPriv::CheapComputeFirstDirection(*path, &dir)) {
         if (dir != SkPathPriv::kCCW_FirstDirection) {
-            SkPath temp;
-            temp.reverseAddPath(*path);
-            *path = temp;
+            ReversePath(path);
         }
         path->setFillType(fillType);
         return true;
@@ -133,9 +141,7 @@ bool SkOpBuilder::resolve(SkPath* result) {
             if (firstDir == SkPathPriv::kUnknown_FirstDirection) {
                 firstDir = dir;
             } else if (firstDir != dir) {
-                SkPath temp;
-                temp.reverseAddPath(*test);
-                *test = temp;
+                ReversePath(test);
             }
             continue;
         }
