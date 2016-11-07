@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "ebc99f45_77545bdf",
+        "filename": "site/user/special/vulkan.md",
+        "patchSetId": 2
+      },
+      "lineNbr": 15,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2016-11-07T15:42:33Z",
+      "side": 1,
+      "message": "Maybe add you can set use_vulkan (or whatever the variable is called) to false to force not building it?",
+      "range": {
+        "startLine": 15,
+        "startChar": 0,
+        "endLine": 15,
+        "endChar": 1
+      },
+      "revId": "70c096c0412e8bdbd700f2fc474f2261e35b099a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ebc99f45_f767ebd3",
+        "filename": "site/user/special/vulkan.md",
+        "patchSetId": 2
+      },
+      "lineNbr": 19,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2016-11-07T15:42:33Z",
+      "side": 1,
+      "message": "Do we also need to give it the ndk path?",
+      "range": {
+        "startLine": 19,
+        "startChar": 28,
+        "endLine": 19,
+        "endChar": 56
+      },
+      "revId": "70c096c0412e8bdbd700f2fc474f2261e35b099a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
