@@ -374,7 +374,6 @@ skia_core_sources = [
   "$_include/core/SkBitmapDevice.h",
   "$_include/core/SkBlitRow.h",
   "$_include/core/SkCanvas.h",
-  "$_include/core/SkChunkAlloc.h",
   "$_include/core/SkClipStack.h",
   "$_include/core/SkColor.h",
   "$_include/core/SkColorFilter.h",
@@ -442,6 +441,7 @@ skia_core_sources = [
   # private
   "$_include/private/SkAtomics.h",
   "$_include/private/SkChecksum.h",
+  "$_include/private/SkChunkAlloc.h",
   "$_include/private/SkFixed.h",
   "$_include/private/SkFloatBits.h",
   "$_include/private/SkFloatingPoint.h",
