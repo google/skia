@@ -367,13 +367,6 @@ MOVE_FIELD(DrawLooper)
 #undef MOVE_FIELD
 void SkPaint::setLooper(sk_sp<SkDrawLooper> looper) { fDrawLooper = std::move(looper); }
 
-#ifdef SK_SUPPORT_LEGACY_SETIMAGEFILTER_PTR
-SkImageFilter* SkPaint::setImageFilter(SkImageFilter* imf) {
-    this->setImageFilter(sk_ref_sp(imf));
-    return imf;
-}
-#endif
-
 ///////////////////////////////////////////////////////////////////////////////
 
 static SkScalar mag2(SkScalar x, SkScalar y) {

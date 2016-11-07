@@ -604,9 +604,6 @@ public:
 
     SkImageFilter* getImageFilter() const { return fImageFilter.get(); }
     void setImageFilter(sk_sp<SkImageFilter>);
-#ifdef SK_SUPPORT_LEGACY_SETIMAGEFILTER_PTR
-    SkImageFilter* setImageFilter(SkImageFilter*);
-#endif
 
     /**
      *  Return the paint's SkDrawLooper (if any). Does not affect the looper's

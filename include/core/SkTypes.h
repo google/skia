@@ -35,11 +35,6 @@
 
 #include <string.h>
 
-#ifdef SK_SUPPORT_LEGACY_XFERMODE_PARAM_TYPES
-    #define SK_XFERMODE_PARAM       SkBlendMode
-    #define SK_XFERMODE_MODE_PARAM  SkBlendMode
-#endif
-
 /**
  *  sk_careful_memcpy() is just like memcpy(), but guards against undefined behavior.
  *
