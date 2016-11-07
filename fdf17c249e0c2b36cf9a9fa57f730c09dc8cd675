@@ -22,6 +22,24 @@
       "revId": "fdf17c249e0c2b36cf9a9fa57f730c09dc8cd675",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ebc99f45_6de7acd2",
+        "filename": "src/gpu/vk/GrVkUniformHandler.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 37,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2016-11-07T17:31:05Z",
+      "side": 1,
+      "message": "I don\u0027t know. I based this on the assertion in the old code (line 18 on the left).",
+      "parentUuid": "ebc99f45_4d94301c",
+      "revId": "fdf17c249e0c2b36cf9a9fa57f730c09dc8cd675",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
