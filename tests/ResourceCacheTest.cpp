@@ -1405,11 +1405,6 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(GPUMemorySize, reporter, ctxInfo) {
     GrContext* context = ctxInfo.grContext();
     GrTextureProvider* provider = context->textureProvider();
 
-    // Vulkan is unhappy with this test
-    if (kVulkan_GrBackend == ctxInfo.backend()) {
-        return;
-    }
-
     static const int kSize = 64;
 
     sk_sp<GrTexture> tex;
