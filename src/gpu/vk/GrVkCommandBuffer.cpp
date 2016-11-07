@@ -457,6 +457,14 @@ bool GrVkPrimaryCommandBuffer::finished(const GrVkGpu* gpu) const {
         case VK_NOT_READY:
             return false;
 
+        case VK_ERROR_DEVICE_LOST:
+            SkDebugf("VkDevice is lost, assuming command buffer finished\n");
+            // By section 4.2.4 of the spec: "For any command that may return VK_ERROR_DEVICE_LOST,
+            // for the purpose of determining whether a command buffer is pending execution, or 
+            // whether resources are considered in-use by the device, a return value of 
+            // VK_ERROR_DEVICE_LOST is equivalent to VK_SUCCESS."
+            return true;
+
         default:
             SkDebugf("Error getting fence status: %d\n", err);
             SkFAIL("failing");
