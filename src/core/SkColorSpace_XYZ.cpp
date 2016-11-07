@@ -63,6 +63,13 @@ sk_sp<SkColorSpace> SkColorSpace_XYZ::makeLinearGamma() {
     return SkColorSpace_Base::MakeRGB(kLinear_SkGammaNamed, fToXYZD50);
 }
 
+sk_sp<SkColorSpace> SkColorSpace_XYZ::makeSRGBGamma() {
+    if (this->gammaCloseToSRGB()) {
+        return sk_ref_sp(this);
+    }
+    return SkColorSpace_Base::MakeRGB(kSRGB_SkGammaNamed, fToXYZD50);
+}
+
 void SkColorSpace_XYZ::toDstGammaTables(const uint8_t* tables[3], sk_sp<SkData>* storage,
                                          int numTables) const {
     fToDstGammaOnce([this, numTables] {
