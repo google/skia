@@ -37,6 +37,7 @@ var (
 
 	// Top-level list of all jobs to run at each commit.
 	JOBS = []string{
+		"Build-Mac-Clang-arm64-Debug-GN_iOS",
 		"Build-Ubuntu-GCC-x86_64-Release-GN",
 		"Build-Win-Clang-arm64-Release-GN_Android",
 		"Perf-Ubuntu-GCC-GCE-CPU-AVX2-x86_64-Release-GN",

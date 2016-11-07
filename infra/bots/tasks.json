@@ -1,5 +1,11 @@
 {
   "jobs": {
+    "Build-Mac-Clang-arm64-Debug-GN_iOS": {
+      "priority": 0.8,
+      "tasks": [
+        "Build-Mac-Clang-arm64-Debug-GN_iOS"
+      ]
+    },
     "Build-Ubuntu-GCC-x86_64-Release-GN": {
       "priority": 0.8,
       "tasks": [
@@ -38,6 +44,31 @@
     }
   },
   "tasks": {
+    "Build-Mac-Clang-arm64-Debug-GN_iOS": {
+      "dimensions": [
+        "gpu:none",
+        "os:Mac",
+        "pool:Skia"
+      ],
+      "extra_args": [
+        "--workdir",
+        "../../..",
+        "swarm_compile",
+        "repository=<(REPO)",
+        "buildername=Build-Mac-Clang-arm64-Debug-GN_iOS",
+        "mastername=fake-master",
+        "buildnumber=2",
+        "slavename=fake-buildslave",
+        "nobuildbot=True",
+        "swarm_out_dir=${ISOLATED_OUTDIR}",
+        "revision=<(REVISION)",
+        "patch_storage=<(PATCH_STORAGE)",
+        "patch_issue=<(ISSUE)",
+        "patch_set=<(PATCHSET)"
+      ],
+      "isolate": "compile_skia.isolate",
+      "priority": 0.8
+    },
     "Build-Ubuntu-Clang-arm-Release-GN_Android": {
       "cipd_packages": [
         {

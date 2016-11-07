@@ -31,7 +31,7 @@ def is_android(builder_cfg):
 
 
 def is_ios(builder_cfg):
-  return ('iOS' in builder_cfg.get('extra_config', '') or
+  return ('iOS' == builder_cfg.get('extra_config', '') or
           builder_cfg.get('os') == 'iOS')
 
 
