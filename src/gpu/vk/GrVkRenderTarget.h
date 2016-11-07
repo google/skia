@@ -100,7 +100,8 @@ protected:
     // This accounts for the texture's memory and any MSAA renderbuffer's memory.
     size_t onGpuMemorySize() const override {
         // The plus 1 is to account for the resolve texture.
-        return GrRenderTarget::ComputeSize(fDesc, fDesc.fSampleCnt+1); // TODO: this still correct?
+        // TODO: is this still correct?
+        return GrSurface::ComputeSize(fDesc, fDesc.fSampleCnt+1, false);
     }
 
     void createFramebuffer(GrVkGpu* gpu);
