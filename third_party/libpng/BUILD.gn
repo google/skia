@@ -17,6 +17,7 @@ if (skia_use_system_libpng) {
   third_party("libpng") {
     public_include_dirs = [ "." ]
 
+    defines = []
     deps = [
       "//third_party/zlib",
     ]
@@ -42,6 +43,14 @@ if (skia_use_system_libpng) {
       sources += [
         "arm/arm_init.c",
         "arm/filter_neon_intrinsics.c",
+      ]
+    }
+
+    if (current_cpu == "x86" || current_cpu == "x64") {
+      defines += [ "PNG_INTEL_SSE" ]
+      sources += [
+        "contrib/intel/filter_sse2_intrinsics.c",
+        "contrib/intel/intel_init.c",
       ]
     }
   }
