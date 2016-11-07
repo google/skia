@@ -91,16 +91,16 @@ protected:
             SkPMColor* ctable, int* ctableCount) override;
     Result onIncrementalDecode(int*) override;
 
-    SkAutoTUnref<SkPngChunkReader> fPngChunkReader;
-    voidp                          fPng_ptr;
-    voidp                          fInfo_ptr;
+    sk_sp<SkPngChunkReader>     fPngChunkReader;
+    voidp                       fPng_ptr;
+    voidp                       fInfo_ptr;
 
     // These are stored here so they can be used both by normal decoding and scanline decoding.
-    SkAutoTUnref<SkColorTable>         fColorTable;    // May be unpremul.
-    std::unique_ptr<SkSwizzler>        fSwizzler;
-    SkAutoTMalloc<uint8_t>             fStorage;
-    uint32_t*                          fColorXformSrcRow;
-    const int                          fBitDepth;
+    sk_sp<SkColorTable>         fColorTable;    // May be unpremul.
+    std::unique_ptr<SkSwizzler> fSwizzler;
+    SkAutoTMalloc<uint8_t>      fStorage;
+    uint32_t*                   fColorXformSrcRow;
+    const int                   fBitDepth;
 
 private:
 

@@ -109,7 +109,7 @@ SkData* SkImage::encode(SkImageEncoder::Type type, int quality) const {
 }
 
 SkData* SkImage::encode(SkPixelSerializer* serializer) const {
-    SkAutoTUnref<SkPixelSerializer> defaultSerializer;
+    sk_sp<SkPixelSerializer> defaultSerializer;
     SkPixelSerializer* effectiveSerializer = serializer;
     if (!effectiveSerializer) {
         defaultSerializer.reset(SkImageEncoder::CreatePixelSerializer());
@@ -321,7 +321,7 @@ sk_sp<SkImage> SkImage::makeWithFilter(const SkImageFilter* filter, const SkIRec
         return nullptr;
     }
 
-    SkAutoTUnref<SkImageFilterCache> cache(
+    sk_sp<SkImageFilterCache> cache(
         SkImageFilterCache::Create(SkImageFilterCache::kDefaultTransientSize));
     SkImageFilter::OutputProperties outputProperties(as_IB(this)->onImageInfo().colorSpace());
     SkImageFilter::Context context(SkMatrix::I(), clipBounds, cache.get(), outputProperties);

@@ -2317,7 +2317,7 @@ protected:
 
     virtual SkTypeface* onMatchFamilyStyle(const char familyName[],
                                            const SkFontStyle& fontStyle) const override {
-        SkAutoTUnref<SkFontStyleSet> sset(this->matchFamily(familyName));
+        sk_sp<SkFontStyleSet> sset(this->matchFamily(familyName));
         return sset->matchStyle(fontStyle);
     }
 

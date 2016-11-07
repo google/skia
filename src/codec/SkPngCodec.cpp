@@ -1084,7 +1084,7 @@ bool SkPngCodec::initializeXforms(const SkImageInfo& dstInfo, const Options& opt
     }
 
     // Copy the color table to the client if they request kIndex8 mode.
-    copy_color_table(dstInfo, fColorTable, ctable, ctableCount);
+    copy_color_table(dstInfo, fColorTable.get(), ctable, ctableCount);
 
     this->initializeSwizzler(dstInfo, options);
     return true;

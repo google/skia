@@ -215,7 +215,7 @@ SkCodec::Result SkBmpStandardCodec::onPrepareToDecode(const SkImageInfo& dstInfo
     }
 
     // Copy the color table to the client if necessary
-    copy_color_table(dstInfo, this->fColorTable, inputColorPtr, inputColorCount);
+    copy_color_table(dstInfo, fColorTable.get(), inputColorPtr, inputColorCount);
 
     // Initialize a swizzler
     this->initializeSwizzler(dstInfo, options);

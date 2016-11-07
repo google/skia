@@ -46,12 +46,12 @@ private:
 
     SkWbmpCodec(int width, int height, const SkEncodedInfo&, SkStream*);
 
-    const size_t                 fSrcRowBytes;
+    const size_t                fSrcRowBytes;
 
     // Used for scanline decodes:
-    std::unique_ptr<SkSwizzler>  fSwizzler;
-    SkAutoTUnref<SkColorTable>   fColorTable;
-    SkAutoTMalloc<uint8_t>       fSrcBuffer;
+    std::unique_ptr<SkSwizzler> fSwizzler;
+    sk_sp<SkColorTable>         fColorTable;
+    SkAutoTMalloc<uint8_t>      fSrcBuffer;
 
     int onGetScanlines(void* dst, int count, size_t dstRowBytes) override;
     bool onSkipScanlines(int count) override;

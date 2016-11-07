@@ -546,7 +546,7 @@ void SkSVGDevice::AutoElement::addTextAttributes(const SkPaint& paint) {
         this->addAttribute("font-weight", "bold");
     }
 
-    SkAutoTUnref<SkTypeface::LocalizedStrings> familyNameIter(tface->createFamilyNameIterator());
+    sk_sp<SkTypeface::LocalizedStrings> familyNameIter(tface->createFamilyNameIterator());
     SkTypeface::LocalizedString familyString;
     while (familyNameIter->next(&familyString)) {
         if (familySet.contains(familyString.fString)) {
@@ -661,7 +661,7 @@ void SkSVGDevice::drawPath(const SkDraw& draw, const SkPath& path, const SkPaint
 
 void SkSVGDevice::drawBitmapCommon(const SkDraw& draw, const SkBitmap& bm,
                                    const SkPaint& paint) {
-    SkAutoTUnref<const SkData> pngData(
+    sk_sp<const SkData> pngData(
         SkImageEncoder::EncodeData(bm, SkImageEncoder::kPNG_Type, SkImageEncoder::kDefaultQuality));
     if (!pngData) {
         return;

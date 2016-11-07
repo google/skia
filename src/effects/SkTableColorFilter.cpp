@@ -470,7 +470,7 @@ sk_sp<GrFragmentProcessor> ColorTableEffect::Make(GrContext* context, SkBitmap b
     desc.fConfig = SkImageInfo2GrPixelConfig(bitmap.info(), *context->caps());
     GrTextureStripAtlas* atlas = GrTextureStripAtlas::GetAtlas(desc);
     int row = atlas->lockRow(bitmap);
-    SkAutoTUnref<GrTexture> texture;
+    sk_sp<GrTexture> texture;
     if (-1 == row) {
         atlas = nullptr;
         texture.reset(GrRefCachedBitmapTexture(context, bitmap, GrTextureParams::ClampNoFilter(),
@@ -479,7 +479,7 @@ sk_sp<GrFragmentProcessor> ColorTableEffect::Make(GrContext* context, SkBitmap b
         texture.reset(SkRef(atlas->getTexture()));
     }
 
-    return sk_sp<GrFragmentProcessor>(new ColorTableEffect(texture, atlas, row, flags));
+    return sk_sp<GrFragmentProcessor>(new ColorTableEffect(texture.get(), atlas, row, flags));
 }
 
 ColorTableEffect::ColorTableEffect(GrTexture* texture, GrTextureStripAtlas* atlas, int row,
