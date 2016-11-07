@@ -50,9 +50,10 @@ GrGLTexture::GrGLTexture(GrGLGpu* gpu, Wrapped, const GrSurfaceDesc& desc, const
     this->registerWithCacheWrapped();
 }
 
-GrGLTexture::GrGLTexture(GrGLGpu* gpu, const GrSurfaceDesc& desc, const IDDesc& idDesc)
+GrGLTexture::GrGLTexture(GrGLGpu* gpu, const GrSurfaceDesc& desc, const IDDesc& idDesc,
+                         bool wasMipMapDataProvided)
     : GrSurface(gpu, desc)
-    , INHERITED(gpu, desc, sampler_type(idDesc, gpu), false) {
+    , INHERITED(gpu, desc, sampler_type(idDesc, gpu), wasMipMapDataProvided) {
     this->init(desc, idDesc);
 }
 
