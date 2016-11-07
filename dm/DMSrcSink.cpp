@@ -1376,7 +1376,7 @@ Error SVGSink::draw(const Src& src, SkBitmap*, SkWStream* dst, SkString*) const 
     sk_sp<SkCanvas> canvas(SkSVGCanvas::Create(
         SkRect::MakeWH(SkIntToScalar(src.size().width()), SkIntToScalar(src.size().height())),
         xmlWriter.get()));
-    return src.draw(canvas);
+    return src.draw(canvas.get());
 #else
     return Error("SVG sink is disabled.");
 #endif // SK_XML
