@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "ebc99f45_4d94301c",
+        "filename": "src/gpu/vk/GrVkUniformHandler.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 37,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2016-11-07T17:29:19Z",
+      "side": 1,
+      "message": "Do we not have int uniforms?",
+      "range": {
+        "startLine": 37,
+        "startChar": 13,
+        "endLine": 37,
+        "endChar": 26
+      },
+      "revId": "fdf17c249e0c2b36cf9a9fa57f730c09dc8cd675",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
