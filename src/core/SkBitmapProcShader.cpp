@@ -205,7 +205,6 @@ size_t SkBitmapProcLegacyShader::ContextSize(const ContextRec& rec, const SkImag
     size_t size1 = sizeof(LinearPipelineContext) + sizeof(SkBitmapProcInfo);
     size_t s = SkTMax(size0, size1);
     return s;
-    return SkTMax(size0, size1);
 }
 
 SkShader::Context* SkBitmapProcLegacyShader::MakeContext(const SkShader& shader,
