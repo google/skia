@@ -599,10 +599,8 @@ DEFINES_ALL = [
     # Turn on a few Google3-specific build fixes.
     "GOOGLE3",
     # Staging flags for API changes
-    "SK_SUPPORT_LEGACY_XFERMODE_PARAM_TYPES",
     "SK_SUPPORT_LEGACY_ACCESSBITMAP",
     "SK_SUPPORT_LEGACY_CLIP_REGIONOPS",
-    "SK_SUPPORT_LEGACY_SETIMAGEFILTER_PTR",
 ]
 
 ################################################################################
