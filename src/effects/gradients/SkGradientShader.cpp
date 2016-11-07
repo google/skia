@@ -1661,9 +1661,9 @@ GrGradientEffect::GrGradientEffect(const CreateArgs& args) {
                 fCoordTransform.reset(*args.fMatrix, fAtlas->getTexture(), params.filterMode());
                 fTextureAccess.reset(fAtlas->getTexture(), params);
             } else {
-                sk_sp<GrTexture> texture(
-                    GrRefCachedBitmapTexture(args.fContext, bitmap, params,
-                                             SkSourceGammaTreatment::kRespect));
+                sk_sp<GrTexture> texture(GrRefCachedBitmapTexture(
+                                          args.fContext, bitmap, params,
+                                          SkDestinationSurfaceColorMode::kGammaAndColorSpaceAware));
                 if (!texture) {
                     return;
                 }

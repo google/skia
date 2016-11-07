@@ -425,7 +425,7 @@ protected:
 private:
     static sk_sp<SkImage> MakeTextureFromMipMap(GrContext*, const SkImageInfo&,
                                                 const GrMipLevel* texels, int mipLevelCount,
-                                                SkBudgeted, SkSourceGammaTreatment);
+                                                SkBudgeted, SkDestinationSurfaceColorMode);
 
     const int       fWidth;
     const int       fHeight;

@@ -114,6 +114,8 @@ public:
             , fLocalMatrix(localM)
             , fPreferredDstType(dstType) {}
 
+        SkDestinationSurfaceColorMode colorMode() const;
+
         const SkPaint*  fPaint;            // the current paint associated with the draw
         const SkMatrix* fMatrix;           // the current matrix in the canvas
         const SkMatrix* fLocalMatrix;      // optional local matrix
@@ -333,20 +335,20 @@ public:
                  const SkMatrix* localMatrix,
                  SkFilterQuality filterQuality,
                  SkColorSpace* dstColorSpace,
-                 SkSourceGammaTreatment gammaTreatment)
+                 SkDestinationSurfaceColorMode colorMode)
             : fContext(context)
             , fViewMatrix(viewMatrix)
             , fLocalMatrix(localMatrix)
             , fFilterQuality(filterQuality)
             , fDstColorSpace(dstColorSpace)
-            , fGammaTreatment(gammaTreatment) {}
+            , fColorMode(colorMode) {}
 
-        GrContext*             fContext;
-        const SkMatrix*        fViewMatrix;
-        const SkMatrix*        fLocalMatrix;
-        SkFilterQuality        fFilterQuality;
-        SkColorSpace*          fDstColorSpace;
-        SkSourceGammaTreatment fGammaTreatment;
+        GrContext*                    fContext;
+        const SkMatrix*               fViewMatrix;
+        const SkMatrix*               fLocalMatrix;
+        SkFilterQuality               fFilterQuality;
+        SkColorSpace*                 fDstColorSpace;
+        SkDestinationSurfaceColorMode fColorMode;
     };
 
     /**

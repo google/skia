@@ -54,10 +54,10 @@ public:
     /** The filter used is clamped to this value in GrTextureAccess. */
     GrTextureParams::FilterMode highestFilterMode() const { return fTexture->fHighestFilterMode; }
 
-    void setGammaTreatment(SkSourceGammaTreatment gammaTreatment) const {
-        fTexture->fGammaTreatment = gammaTreatment;
+    void setMipColorMode(SkDestinationSurfaceColorMode colorMode) const {
+        fTexture->fMipColorMode = colorMode;
     }
-    SkSourceGammaTreatment gammaTreatment() const { return fTexture->fGammaTreatment; }
+    SkDestinationSurfaceColorMode mipColorMode() const { return fTexture->fMipColorMode; }
 
     static void ComputeScratchKey(const GrSurfaceDesc&, GrScratchKey*);
 

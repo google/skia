@@ -89,6 +89,11 @@ bool SkShader::asLuminanceColor(SkColor* colorPtr) const {
     return false;
 }
 
+SkDestinationSurfaceColorMode SkShader::ContextRec::colorMode() const {
+    return (kPMColor_DstType == fPreferredDstType) ? SkDestinationSurfaceColorMode::kLegacy
+        : SkDestinationSurfaceColorMode::kGammaAndColorSpaceAware;
+}
+
 SkShader::Context* SkShader::createContext(const ContextRec& rec, void* storage) const {
     if (!this->computeTotalInverse(rec, nullptr)) {
         return nullptr;
