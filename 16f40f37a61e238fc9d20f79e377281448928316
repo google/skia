@@ -99,6 +99,24 @@
     },
     {
       "key": {
+        "uuid": "ebc99f45_1702b770",
+        "filename": "src/utils/SkCanvasStateUtils.cpp",
+        "patchSetId": 9
+      },
+      "lineNbr": 282,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2016-11-07T14:56:05Z",
+      "side": 1,
+      "message": "ok. I have never found \"make\" to be better than new or create, nor am I ever confused if I see any of them. I started the Make wagon for public APIs that needed to coexist with their older counterparts for staging purposes.",
+      "parentUuid": "ebc99f45_5794bf1b",
+      "revId": "16f40f37a61e238fc9d20f79e377281448928316",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "ebc99f45_17de37c2",
         "filename": "src/utils/SkNullCanvas.cpp",
         "patchSetId": 9
