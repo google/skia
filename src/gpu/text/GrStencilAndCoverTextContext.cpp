@@ -619,7 +619,7 @@ void GrStencilAndCoverTextContext::TextRun::draw(GrContext* ctx,
                 0xffff>()
         );
 
-        SkAutoTUnref<GrPathRange> glyphs(this->createGlyphs(ctx));
+        sk_sp<GrPathRange> glyphs(this->createGlyphs(ctx));
         if (fLastDrawnGlyphsID != glyphs->uniqueID()) {
             // Either this is the first draw or the glyphs object was purged since last draw.
             glyphs->loadPathsIfNeeded(fInstanceData->indices(), fInstanceData->count());
@@ -634,17 +634,17 @@ void GrStencilAndCoverTextContext::TextRun::draw(GrContext* ctx,
         const SkRect bounds = SkRect::MakeIWH(renderTargetContext->width(),
                                               renderTargetContext->height());
 
-        SkAutoTUnref<GrDrawBatch> batch(
+        sk_sp<GrDrawBatch> batch(
             GrDrawPathRangeBatch::Create(viewMatrix, fTextRatio, fTextInverseRatio * x,
                                          fTextInverseRatio * y, grPaint.getColor(),
-                                         GrPathRendering::kWinding_FillType, glyphs, fInstanceData,
-                                         bounds));
+                                         GrPathRendering::kWinding_FillType, glyphs.get(),
+                                         fInstanceData.get(), bounds));
 
         GrPipelineBuilder pipelineBuilder(grPaint);
         pipelineBuilder.setState(GrPipelineBuilder::kHWAntialias_Flag, grPaint.isAntiAlias());
         pipelineBuilder.setUserStencil(&kCoverPass);
 
-        renderTargetContext->drawBatch(pipelineBuilder, clip, batch);
+        renderTargetContext->drawBatch(pipelineBuilder, clip, batch.get());
     }
 
     if (fFallbackTextBlob) {

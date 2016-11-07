@@ -516,7 +516,7 @@ protected:
     Stats                            fStats;
     std::unique_ptr<GrPathRendering> fPathRendering;
     // Subclass must initialize this in its constructor.
-    SkAutoTUnref<const GrCaps>       fCaps;
+    sk_sp<const GrCaps>              fCaps;
 
     typedef SkTArray<SkPoint, true> SamplePattern;
 
