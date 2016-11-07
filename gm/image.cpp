@@ -348,13 +348,16 @@ static SkImageGenerator* gen_picture(const SkImageInfo& info) {
 
 static SkImageGenerator* gen_png(const SkImageInfo& info) {
     sk_sp<SkImage> image(make_raster(info, nullptr, draw_opaque_contents));
-    sk_sp<SkData> data(image->encode(SkImageEncoder::kPNG_Type, 100));
+    sk_sp<SkData> data(image->encode());
     return SkImageGenerator::NewFromEncoded(data.get());
 }
 
 static SkImageGenerator* gen_jpg(const SkImageInfo& info) {
     sk_sp<SkImage> image(make_raster(info, nullptr, draw_opaque_contents));
-    sk_sp<SkData> data(image->encode(SkImageEncoder::kJPEG_Type, 100));
+    SkBitmap bitmap;
+    SkAssertResult(image->asLegacyBitmap(&bitmap, SkImage::kRO_LegacyBitmapMode));
+    sk_sp<SkData> data =
+            sk_ref_sp(SkImageEncoder::EncodeData(bitmap, SkImageEncoder::kJPEG_Type, 100));
     return SkImageGenerator::NewFromEncoded(data.get());
 }
 
