@@ -819,10 +819,10 @@ private:
         }
 
         // Setup geometry processor
-        SkAutoTUnref<GrGeometryProcessor> gp(new CircleGeometryProcessor(!fAllFill, fClipPlane,
-                                                                         fClipPlaneIsect,
-                                                                         fClipPlaneUnion,
-                                                                         localMatrix));
+        sk_sp<GrGeometryProcessor> gp(new CircleGeometryProcessor(!fAllFill, fClipPlane,
+                                                                  fClipPlaneIsect,
+                                                                  fClipPlaneUnion,
+                                                                  localMatrix));
 
         struct CircleVertex {
             SkPoint  fPos;
@@ -1258,7 +1258,7 @@ private:
         }
 
         // Setup geometry processor
-        SkAutoTUnref<GrGeometryProcessor> gp(new EllipseGeometryProcessor(fStroked, localMatrix));
+        sk_sp<GrGeometryProcessor> gp(new EllipseGeometryProcessor(fStroked, localMatrix));
 
         int instanceCount = fGeoData.count();
         QuadHelper helper;
@@ -1316,7 +1316,7 @@ private:
 
             verts += kVerticesPerQuad;
         }
-        helper.recordDraw(target, gp);
+        helper.recordDraw(target, gp.get());
     }
 
     bool onCombineIfPossible(GrBatch* t, const GrCaps& caps) override {
@@ -1462,8 +1462,8 @@ private:
 
     void onPrepareDraws(Target* target) const override {
         // Setup geometry processor
-        SkAutoTUnref<GrGeometryProcessor> gp(new DIEllipseGeometryProcessor(this->viewMatrix(),
-                                                                            this->style()));
+        sk_sp<GrGeometryProcessor> gp(new DIEllipseGeometryProcessor(this->viewMatrix(),
+                                                                     this->style()));
 
         int instanceCount = fGeoData.count();
         size_t vertexStride = gp->getVertexStride();
@@ -1513,7 +1513,7 @@ private:
 
             verts += kVerticesPerQuad;
         }
-        helper.recordDraw(target, gp);
+        helper.recordDraw(target, gp.get());
     }
 
     bool onCombineIfPossible(GrBatch* t, const GrCaps& caps) override {
@@ -1857,9 +1857,9 @@ private:
         }
 
         // Setup geometry processor
-        SkAutoTUnref<GrGeometryProcessor> gp(new CircleGeometryProcessor(!fAllFill,
-                                                                         false, false,
-                                                                         false, localMatrix));
+        sk_sp<GrGeometryProcessor> gp(new CircleGeometryProcessor(!fAllFill,
+                                                                  false, false,
+                                                                  false, localMatrix));
 
         int instanceCount = fGeoData.count();
         size_t vertexStride = gp->getVertexStride();
@@ -2129,7 +2129,7 @@ private:
         }
 
         // Setup geometry processor
-        SkAutoTUnref<GrGeometryProcessor> gp(new EllipseGeometryProcessor(fStroked, localMatrix));
+        sk_sp<GrGeometryProcessor> gp(new EllipseGeometryProcessor(fStroked, localMatrix));
 
         int instanceCount = fGeoData.count();
         size_t vertexStride = gp->getVertexStride();
@@ -2137,13 +2137,13 @@ private:
 
         // drop out the middle quad if we're stroked
         int indicesPerInstance = fStroked ? kIndicesPerStrokeRRect : kIndicesPerFillRRect;
-        SkAutoTUnref<const GrBuffer> indexBuffer(
+        sk_sp<const GrBuffer> indexBuffer(
             ref_rrect_index_buffer(fStroked ? kStroke_RRectType : kFill_RRectType,
                                    target->resourceProvider()));
 
         InstancedHelper helper;
         EllipseVertex* verts = reinterpret_cast<EllipseVertex*>(
-            helper.init(target, kTriangles_GrPrimitiveType, vertexStride, indexBuffer,
+            helper.init(target, kTriangles_GrPrimitiveType, vertexStride, indexBuffer.get(),
                         kVertsPerStandardRRect, indicesPerInstance, instanceCount));
         if (!verts || !indexBuffer) {
             SkDebugf("Could not allocate vertices\n");
@@ -2210,7 +2210,7 @@ private:
                 verts++;
             }
         }
-        helper.recordDraw(target, gp);
+        helper.recordDraw(target, gp.get());
     }
 
     bool onCombineIfPossible(GrBatch* t, const GrCaps& caps) override {

@@ -194,8 +194,8 @@ void GrSWMaskHelper::DrawToTargetWithShapeMask(GrTexture* texture,
                                                      maskMatrix,
                                                      GrTextureParams::kNone_FilterMode));
 
-    SkAutoTUnref<GrDrawBatch> batch(GrRectBatchFactory::CreateNonAAFill(paint.getColor(),
-                                                                        SkMatrix::I(),
-                                                                        dstRect, nullptr, &invert));
-    renderTargetContext->drawBatch(pipelineBuilder, clip, batch);
+    sk_sp<GrDrawBatch> batch(GrRectBatchFactory::CreateNonAAFill(paint.getColor(),
+                                                                 SkMatrix::I(),
+                                                                 dstRect, nullptr, &invert));
+    renderTargetContext->drawBatch(pipelineBuilder, clip, batch.get());
 }

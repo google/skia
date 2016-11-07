@@ -64,8 +64,8 @@ private:
     static GrTexture* CreateCachedMask(int width, int height, const GrUniqueKey& key,
                                        bool renderTarget);
 
-    SkIPoint                          fOrigin;
-    SkAutoTUnref<const SkClipStack>   fStack;
+    SkIPoint                 fOrigin;
+    sk_sp<const SkClipStack> fStack;
 };
 
 #endif // GrClipStackClip_DEFINED

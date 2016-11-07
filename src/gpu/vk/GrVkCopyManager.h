@@ -41,15 +41,15 @@ private:
     bool createCopyProgram(GrVkGpu* gpu);
 
     // Everything below is only created once and shared by all copy draws/pipelines
-    VkShaderModule fVertShaderModule;
-    VkShaderModule fFragShaderModule;
-    VkPipelineShaderStageCreateInfo fShaderStageInfo[2];
+    VkShaderModule                   fVertShaderModule;
+    VkShaderModule                   fFragShaderModule;
+    VkPipelineShaderStageCreateInfo  fShaderStageInfo[2];
 
     GrVkDescriptorSetManager::Handle fSamplerDSHandle;
-    VkPipelineLayout fPipelineLayout;
+    VkPipelineLayout                 fPipelineLayout;
 
-    SkAutoTUnref<GrVkVertexBuffer> fVertexBuffer;
-    GrVkUniformBuffer*             fUniformBuffer;
+    sk_sp<GrVkVertexBuffer>          fVertexBuffer;
+    GrVkUniformBuffer*               fUniformBuffer;
 };
 
 #endif
