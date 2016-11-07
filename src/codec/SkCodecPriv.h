@@ -109,36 +109,6 @@ static inline bool valid_alpha(SkAlphaType dstAlpha, SkAlphaType srcAlpha) {
 }
 
 /*
- * Original version of conversion_possible that does not account for color spaces.
- * Used by codecs that have not been updated to support color spaces.
- *
- * Most of our codecs support the same conversions:
- * - opaque to any alpha type
- * - 565 only if opaque
- * - premul to unpremul and vice versa
- * - always support RGBA, BGRA
- * - otherwise match the src color type
- */
-static inline bool conversion_possible_ignore_color_space(const SkImageInfo& dst,
-                                                          const SkImageInfo& src) {
-    // Ensure the alpha type is valid
-    if (!valid_alpha(dst.alphaType(), src.alphaType())) {
-        return false;
-    }
-
-    // Check for supported color types
-    switch (dst.colorType()) {
-        case kRGBA_8888_SkColorType:
-        case kBGRA_8888_SkColorType:
-            return true;
-        case kRGB_565_SkColorType:
-            return kOpaque_SkAlphaType == src.alphaType();
-        default:
-            return dst.colorType() == src.colorType();
-    }
-}
-
-/*
  * If there is a color table, get a pointer to the colors, otherwise return nullptr
  */
 static inline const SkPMColor* get_color_ptr(SkColorTable* colorTable) {
