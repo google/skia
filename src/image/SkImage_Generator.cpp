@@ -47,7 +47,7 @@ bool SkImage_Generator::onReadPixels(const SkImageInfo& dstInfo, void* dstPixels
                                      int srcX, int srcY, CachingHint chint) const {
     SkBitmap bm;
     if (kDisallow_CachingHint == chint) {
-        if (fCache.lockAsBitmapOnlyIfAlreadyCached(&bm)) {
+        if (fCache.lockAsBitmapOnlyIfAlreadyCached(&bm, SkImageCacherator::kLegacy_CachedFormat)) {
             return bm.readPixels(dstInfo, dstPixels, dstRB, srcX, srcY);
         } else {
             // Try passing the caller's buffer directly down to the generator. If this fails we
@@ -71,6 +71,8 @@ SkData* SkImage_Generator::onRefEncoded(GrContext* ctx) const {
 }
 
 bool SkImage_Generator::getROPixels(SkBitmap* bitmap, CachingHint chint) const {
+    // TODO: Plumb in hints about our use-case (destination surface), so we can ask the cache to
+    // decode in an appropriate format (linear premul or not, etc...)
     return fCache.lockAsBitmap(bitmap, this, chint);
 }
 
