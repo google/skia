@@ -388,13 +388,13 @@ sk_sp<GrFragmentProcessor> GrTextureAdjuster::createFragmentProcessor(
     if (filterOrNullForBicubic) {
         params.setFilterMode(*filterOrNullForBicubic);
     }
-    SkAutoTUnref<GrTexture> texture(this->refTextureSafeForParams(params, gammaTreatment, nullptr));
+    sk_sp<GrTexture> texture(this->refTextureSafeForParams(params, gammaTreatment, nullptr));
     if (!texture) {
         return nullptr;
     }
     // If we made a copy then we only copied the contentArea, in which case the new texture is all
     // content.
-    if (texture != this->originalTexture()) {
+    if (texture.get() != this->originalTexture()) {
         contentArea = nullptr;
     }
 
@@ -423,7 +423,7 @@ sk_sp<GrFragmentProcessor> GrTextureAdjuster::createFragmentProcessor(
     textureMatrix.postIDiv(texture->width(), texture->height());
     sk_sp<GrColorSpaceXform> colorSpaceXform = GrColorSpaceXform::Make(this->getColorSpace(),
                                                                        dstColorSpace);
-    return create_fp_for_domain_and_filter(texture, std::move(colorSpaceXform), textureMatrix,
+    return create_fp_for_domain_and_filter(texture.get(), std::move(colorSpaceXform), textureMatrix,
                                            domainMode, domain, filterOrNullForBicubic);
 }
 
@@ -491,7 +491,7 @@ sk_sp<GrFragmentProcessor> GrTextureMaker::createFragmentProcessor(
         // Bicubic doesn't use filtering for it's texture accesses.
         params.reset(SkShader::kClamp_TileMode, GrTextureParams::kNone_FilterMode);
     }
-    SkAutoTUnref<GrTexture> texture(this->refTextureForParams(params, gammaTreatment));
+    sk_sp<GrTexture> texture(this->refTextureForParams(params, gammaTreatment));
     if (!texture) {
         return nullptr;
     }
@@ -505,16 +505,16 @@ sk_sp<GrFragmentProcessor> GrTextureMaker::createFragmentProcessor(
     normalizedTextureMatrix.postIDiv(texture->width(), texture->height());
     sk_sp<GrColorSpaceXform> colorSpaceXform = GrColorSpaceXform::Make(this->getColorSpace(),
                                                                        dstColorSpace);
-    return create_fp_for_domain_and_filter(texture, std::move(colorSpaceXform),
+    return create_fp_for_domain_and_filter(texture.get(), std::move(colorSpaceXform),
                                            normalizedTextureMatrix, domainMode, domain,
                                            filterOrNullForBicubic);
 }
 
 GrTexture* GrTextureMaker::generateTextureForParams(const CopyParams& copyParams, bool willBeMipped,
                                                     SkSourceGammaTreatment gammaTreatment) {
-    SkAutoTUnref<GrTexture> original(this->refOriginalTexture(willBeMipped, gammaTreatment));
+    sk_sp<GrTexture> original(this->refOriginalTexture(willBeMipped, gammaTreatment));
     if (!original) {
         return nullptr;
     }
-    return copy_on_gpu(original, nullptr, copyParams);
+    return copy_on_gpu(original.get(), nullptr, copyParams);
 }

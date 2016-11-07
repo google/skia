@@ -11,6 +11,7 @@
 #include "GrGpu.h"
 #include "GrMemoryPool.h"
 #include "SkTInternalLList.h"
+#include "SkAutoTUnref.h"
 #include "batches/GrDrawBatch.h"
 #include "instanced/InstancedRenderingTypes.h"
 #include "../private/GrInstancedPipelineInfo.h"

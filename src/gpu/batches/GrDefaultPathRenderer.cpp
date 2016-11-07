@@ -552,7 +552,7 @@ bool GrDefaultPathRenderer::internalDrawPath(GrRenderTargetContext* renderTarget
             }
             const SkMatrix& viewM = (reverse && viewMatrix.hasPerspective()) ? SkMatrix::I() :
                                                                                viewMatrix;
-            SkAutoTUnref<GrDrawBatch> batch(
+            sk_sp<GrDrawBatch> batch(
                     GrRectBatchFactory::CreateNonAAFill(paint.getColor(), viewM, bounds, nullptr,
                                                         &localMatrix));
 
@@ -561,9 +561,9 @@ bool GrDefaultPathRenderer::internalDrawPath(GrRenderTargetContext* renderTarget
             pipelineBuilder.setDrawFace(drawFace[p]);
             pipelineBuilder.setUserStencil(passes[p]);
 
-            renderTargetContext->drawBatch(pipelineBuilder, clip, batch);
+            renderTargetContext->drawBatch(pipelineBuilder, clip, batch.get());
         } else {
-            SkAutoTUnref<GrDrawBatch> batch(new DefaultPathBatch(paint.getColor(), path,
+            sk_sp<GrDrawBatch> batch(new DefaultPathBatch(paint.getColor(), path,
                                                                  srcSpaceTol,
                                                                  newCoverage, viewMatrix,
                                                                  isHairline, devBounds));
@@ -575,7 +575,7 @@ bool GrDefaultPathRenderer::internalDrawPath(GrRenderTargetContext* renderTarget
                 pipelineBuilder.setDisableColorXPFactory();
             }
 
-            renderTargetContext->drawBatch(pipelineBuilder, clip, batch);
+            renderTargetContext->drawBatch(pipelineBuilder, clip, batch.get());
         }
     }
     return true;

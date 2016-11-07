@@ -393,7 +393,7 @@ private:
     // Must be called if bindSurfaceFBOForPixelOps was used to bind a surface for copying.
     void unbindTextureFBOForPixelOps(GrGLenum fboTarget, GrSurface* surface);
 
-    SkAutoTUnref<GrGLContext>  fGLContext;
+    sk_sp<GrGLContext>          fGLContext;
 
     bool createCopyProgram(int progIdx);
     bool createMipmapProgram(int progIdx);
@@ -596,7 +596,7 @@ private:
         GrGLint     fTexCoordXformUniform;
         GrGLint     fPosXformUniform;
     }                           fCopyPrograms[3];
-    SkAutoTUnref<GrGLBuffer>    fCopyProgramArrayBuffer;
+    sk_sp<GrGLBuffer>           fCopyProgramArrayBuffer;
 
     /** IDs for texture mipmap program. (4 filter configurations) */
     struct {
@@ -604,14 +604,14 @@ private:
         GrGLint     fTextureUniform;
         GrGLint     fTexCoordXformUniform;
     }                           fMipmapPrograms[4];
-    SkAutoTUnref<GrGLBuffer>    fMipmapProgramArrayBuffer;
+    sk_sp<GrGLBuffer>           fMipmapProgramArrayBuffer;
 
     struct {
         GrGLuint fProgram;
         GrGLint  fColorUniform;
         GrGLint  fRectUniform;
     }                           fWireRectProgram;
-    SkAutoTUnref<GrGLBuffer>    fWireRectArrayBuffer;
+    sk_sp<GrGLBuffer>           fWireRectArrayBuffer;
 
     static int TextureTargetToCopyProgramIdx(GrGLenum target) {
         switch (target) {
@@ -636,7 +636,7 @@ private:
     struct {
         GrGLuint                    fProgram;
         GrGLint                     fPosXformUniform;
-        SkAutoTUnref<GrGLBuffer>    fArrayBuffer;
+        sk_sp<GrGLBuffer>           fArrayBuffer;
     } fPLSSetupProgram;
 
     bool fHWPLSEnabled;
