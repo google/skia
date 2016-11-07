@@ -679,21 +679,28 @@ SkCodec* SkRawCodec::NewFromStream(SkStream* stream) {
     return new SkRawCodec(dngImage.release());
 }
 
-SkCodec::Result SkRawCodec::onGetPixels(const SkImageInfo& requestedInfo, void* dst,
+SkCodec::Result SkRawCodec::onGetPixels(const SkImageInfo& dstInfo, void* dst,
                                         size_t dstRowBytes, const Options& options,
                                         SkPMColor ctable[], int* ctableCount,
                                         int* rowsDecoded) {
-    if (!conversion_possible_ignore_color_space(requestedInfo, this->getInfo())) {
+    if (!conversion_possible(dstInfo, this->getInfo()) || !this->initializeColorXform(dstInfo)) {
         SkCodecPrintf("Error: cannot convert input type to output type.\n");
         return kInvalidConversion;
     }
 
+    SkImageInfo swizzlerInfo = dstInfo;
+    std::unique_ptr<uint32_t[]> xformBuffer = nullptr;
+    if (this->colorXform()) {
+        swizzlerInfo = swizzlerInfo.makeColorType(kRGBA_8888_SkColorType);
+        xformBuffer.reset(new uint32_t[dstInfo.width()]);
+    }
+
     std::unique_ptr<SkSwizzler> swizzler(SkSwizzler::CreateSwizzler(
-            this->getEncodedInfo(), nullptr, requestedInfo, options));
+            this->getEncodedInfo(), nullptr, swizzlerInfo, options));
     SkASSERT(swizzler);
 
-    const int width = requestedInfo.width();
-    const int height = requestedInfo.height();
+    const int width = dstInfo.width();
+    const int height = dstInfo.height();
     std::unique_ptr<dng_image> image(fDngImage->render(width, height));
     if (!image) {
         return kInvalidInput;
@@ -731,8 +738,20 @@ SkCodec::Result SkRawCodec::onGetPixels(const SkImageInfo& requestedInfo, void* 
             return kIncompleteInput; 
         }
 
-        swizzler->swizzle(dstRow, &srcRow[0]);
-        dstRow = SkTAddOffset<void>(dstRow, dstRowBytes);
+        if (this->colorXform()) {
+            swizzler->swizzle(xformBuffer.get(), &srcRow[0]);
+
+            const SkColorSpaceXform::ColorFormat srcFormat =
+                    SkColorSpaceXform::kRGBA_8888_ColorFormat;
+            const SkColorSpaceXform::ColorFormat dstFormat =
+                    select_xform_format(dstInfo.colorType());
+            this->colorXform()->apply(dstFormat, dstRow, srcFormat, xformBuffer.get(),
+                                      dstInfo.width(), kOpaque_SkAlphaType);
+            dstRow = SkTAddOffset<void>(dstRow, dstRowBytes);
+        } else {
+            swizzler->swizzle(dstRow, &srcRow[0]);
+            dstRow = SkTAddOffset<void>(dstRow, dstRowBytes);
+        }
     }
     return kSuccess;
 }

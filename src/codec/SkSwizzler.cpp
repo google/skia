@@ -7,6 +7,7 @@
 
 #include "SkCodecPriv.h"
 #include "SkColorPriv.h"
+#include "SkHalf.h"
 #include "SkOpts.h"
 #include "SkSwizzler.h"
 #include "SkTemplates.h"
@@ -149,6 +150,35 @@ static void swizzle_bit_to_565(
 
 #undef RGB565_BLACK
 #undef RGB565_WHITE
+
+static void swizzle_bit_to_f16(
+        void* SK_RESTRICT dstRow, const uint8_t* SK_RESTRICT src, int dstWidth,
+        int bpp, int deltaSrc, int offset, const SkPMColor* /*ctable*/) {
+    static const uint64_t kWhite = (((uint64_t) SK_Half1) <<  0) |
+                                   (((uint64_t) SK_Half1) << 16) |
+                                   (((uint64_t) SK_Half1) << 32) |
+                                   (((uint64_t) SK_Half1) << 48);
+    static const uint64_t kBlack = (((uint64_t)        0) <<  0) |
+                                   (((uint64_t)        0) << 16) |
+                                   (((uint64_t)        0) << 32) |
+                                   (((uint64_t) SK_Half1) << 48);
+
+    uint64_t* SK_RESTRICT dst = (uint64_t*) dstRow;
+
+    // increment src by byte offset and bitIndex by bit offset
+    src += offset / 8;
+    int bitIndex = offset % 8;
+    uint8_t currByte = *src;
+
+    dst[0] = ((currByte >> (7 - bitIndex)) & 1) ? kWhite : kBlack;
+
+    for (int x = 1; x < dstWidth; x++) {
+        int bitOffset = bitIndex + deltaSrc;
+        bitIndex = bitOffset % 8;
+        currByte = *(src += bitOffset / 8);
+        dst[x] = ((currByte >> (7 - bitIndex)) & 1) ? kWhite : kBlack;
+    }
+}
 
 // kIndex1, kIndex2, kIndex4
 
@@ -699,6 +729,9 @@ SkSwizzler* SkSwizzler::CreateSwizzler(const SkEncodedInfo& encodedInfo,
                                 break;
                             case kGray_8_SkColorType:
                                 proc = &swizzle_bit_to_grayscale;
+                                break;
+                            case kRGBA_F16_SkColorType:
+                                proc = &swizzle_bit_to_f16;
                                 break;
                             default:
                                 return nullptr;
