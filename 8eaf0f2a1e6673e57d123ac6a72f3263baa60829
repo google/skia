@@ -1,0 +1,96 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "2bde5729_86f2d0ea",
+        "filename": "src/gpu/GrRenderTargetContext.cpp",
+        "patchSetId": 9
+      },
+      "lineNbr": 861,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2016-11-07T22:54:20Z",
+      "side": 1,
+      "message": "Remove .get()",
+      "range": {
+        "startLine": 861,
+        "startChar": 17,
+        "endLine": 861,
+        "endChar": 23
+      },
+      "revId": "8eaf0f2a1e6673e57d123ac6a72f3263baa60829",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "2bde5729_a6e6ec2f",
+        "filename": "src/gpu/GrRenderTargetContext.cpp",
+        "patchSetId": 9
+      },
+      "lineNbr": 876,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2016-11-07T22:54:20Z",
+      "side": 1,
+      "message": "Remove .get()",
+      "range": {
+        "startLine": 876,
+        "startChar": 17,
+        "endLine": 876,
+        "endChar": 23
+      },
+      "revId": "8eaf0f2a1e6673e57d123ac6a72f3263baa60829",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "2bde5729_c6e3f81e",
+        "filename": "src/gpu/GrRenderTargetContext.cpp",
+        "patchSetId": 9
+      },
+      "lineNbr": 903,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2016-11-07T22:54:20Z",
+      "side": 1,
+      "message": "Remove .get()",
+      "range": {
+        "startLine": 903,
+        "startChar": 17,
+        "endLine": 903,
+        "endChar": 23
+      },
+      "revId": "8eaf0f2a1e6673e57d123ac6a72f3263baa60829",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "2bde5729_e671d48d",
+        "filename": "src/gpu/vk/GrVkCopyManager.h",
+        "patchSetId": 9
+      },
+      "lineNbr": 51,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2016-11-07T22:54:20Z",
+      "side": 1,
+      "message": "I actually asked for \u0027undent\u0027 here. Considering that nothing else here is aligned I would hate to introduced more of this ugly alignment issue here. Best to revert the above whitespace changes and just \u0027un-align\u0027 these two at the end (leaving just the one space between the type and identifier).",
+      "range": {
+        "startLine": 51,
+        "startChar": 28,
+        "endLine": 51,
+        "endChar": 37
+      },
+      "revId": "8eaf0f2a1e6673e57d123ac6a72f3263baa60829",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
