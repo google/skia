@@ -114,7 +114,7 @@ private:
         SkDiscardableMemory* diagnostic_only_getDiscardable() const override { return nullptr; }
 
         std::unique_ptr<Request> fRequest;
-        SkAutoTUnref<SkTypeface> fFace;
+        sk_sp<SkTypeface> fFace;
     };
 
     SkResourceCache fCachedResults;
@@ -133,7 +133,7 @@ public:
             const Result& result = static_cast<const Result&>(rec);
             SkTypeface** face = static_cast<SkTypeface**>(context);
 
-            *face = result.fFace;
+            *face = result.fFace.get();
             return true;
         }, &face);
         return SkSafeRef(face);

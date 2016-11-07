@@ -666,7 +666,7 @@ void SkGradientShaderBase::initLinearBitmap(SkBitmap* bitmap) const {
  *  The gradient holds a cache for the most recent value of alpha. Successive
  *  callers with the same alpha value will share the same cache.
  */
-SkGradientShaderBase::GradientShaderCache* SkGradientShaderBase::refCache(U8CPU alpha,
+sk_sp<SkGradientShaderBase::GradientShaderCache> SkGradientShaderBase::refCache(U8CPU alpha,
                                                                           bool dither) const {
     SkAutoMutexAcquire ama(fCacheMutex);
     if (!fCache || fCache->getAlpha() != alpha || fCache->getDither() != dither) {
@@ -675,7 +675,6 @@ SkGradientShaderBase::GradientShaderCache* SkGradientShaderBase::refCache(U8CPU 
     // Increment the ref counter inside the mutex to ensure the returned pointer is still valid.
     // Otherwise, the pointer may have been overwritten on a different thread before the object's
     // ref count was incremented.
-    fCache.get()->ref();
     return fCache;
 }
 
@@ -691,7 +690,7 @@ SK_DECLARE_STATIC_MUTEX(gGradientCacheMutex);
 void SkGradientShaderBase::getGradientTableBitmap(SkBitmap* bitmap,
                                                   GradientBitmapType bitmapType) const {
     // our caller assumes no external alpha, so we ensure that our cache is built with 0xFF
-    SkAutoTUnref<GradientShaderCache> cache(this->refCache(0xFF, true));
+    sk_sp<GradientShaderCache> cache(this->refCache(0xFF, true));
 
     // build our key: [numColors + colors[] + {positions[]} + flags + colorType ]
     int count = 1 + fColorCount + 1 + 1;
@@ -1662,14 +1661,14 @@ GrGradientEffect::GrGradientEffect(const CreateArgs& args) {
                 fCoordTransform.reset(*args.fMatrix, fAtlas->getTexture(), params.filterMode());
                 fTextureAccess.reset(fAtlas->getTexture(), params);
             } else {
-                SkAutoTUnref<GrTexture> texture(
+                sk_sp<GrTexture> texture(
                     GrRefCachedBitmapTexture(args.fContext, bitmap, params,
                                              SkSourceGammaTreatment::kRespect));
                 if (!texture) {
                     return;
                 }
-                fCoordTransform.reset(*args.fMatrix, texture, params.filterMode());
-                fTextureAccess.reset(texture, params);
+                fCoordTransform.reset(*args.fMatrix, texture.get(), params.filterMode());
+                fTextureAccess.reset(texture.get(), params);
                 fYCoord = SK_ScalarHalf;
             }
 

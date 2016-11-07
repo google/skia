@@ -60,7 +60,7 @@ bool SkBitmapRegionCodec::decodeRegion(SkBitmap* bitmap, SkBRDAllocator* allocat
                                                dstColorType, dstAlphaType, colorSpace);
 
     // Construct a color table for the decode if necessary
-    SkAutoTUnref<SkColorTable> colorTable(nullptr);
+    sk_sp<SkColorTable> colorTable(nullptr);
     int maxColors = 256;
     SkPMColor colors[256];
     if (kIndex_8_SkColorType == dstColorType) {

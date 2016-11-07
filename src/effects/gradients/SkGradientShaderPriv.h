@@ -167,7 +167,7 @@ public:
         uint8_t     fFlags;
         bool        fDither;
 
-        SkAutoTUnref<GradientShaderCache> fCache;
+        sk_sp<GradientShaderCache> fCache;
 
     private:
         typedef SkShader::Context INHERITED;
@@ -267,9 +267,9 @@ public:
 private:
     bool                fColorsAreOpaque;
 
-    GradientShaderCache* refCache(U8CPU alpha, bool dither) const;
-    mutable SkMutex                           fCacheMutex;
-    mutable SkAutoTUnref<GradientShaderCache> fCache;
+    sk_sp<GradientShaderCache> refCache(U8CPU alpha, bool dither) const;
+    mutable SkMutex                    fCacheMutex;
+    mutable sk_sp<GradientShaderCache> fCache;
 
     void initCommon();
 
