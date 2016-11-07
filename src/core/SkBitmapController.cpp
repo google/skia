@@ -48,9 +48,9 @@ public:
                                    SkSourceGammaTreatment);
 
 private:
-    SkBitmap                     fResultBitmap;
-    SkSourceGammaTreatment       fSrcGammaTreatment;
-    SkAutoTUnref<const SkMipMap> fCurrMip;
+    SkBitmap               fResultBitmap;
+    SkSourceGammaTreatment fSrcGammaTreatment;
+    sk_sp<const SkMipMap>  fCurrMip;
 
     bool processHQRequest(const SkBitmapProvider&);
     bool processMediumRequest(const SkBitmapProvider&);

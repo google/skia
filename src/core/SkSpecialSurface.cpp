@@ -24,12 +24,12 @@ public:
     void reset() { fCanvas.reset(); }
 
     // This can return nullptr if reset has already been called or something when wrong in the ctor
-    SkCanvas* onGetCanvas() { return fCanvas; }
+    SkCanvas* onGetCanvas() { return fCanvas.get(); }
 
     virtual sk_sp<SkSpecialImage> onMakeImageSnapshot() = 0;
 
 protected:
-    SkAutoTUnref<SkCanvas> fCanvas;   // initialized by derived classes in ctors
+    sk_sp<SkCanvas> fCanvas;   // initialized by derived classes in ctors
 
 private:
     typedef SkSpecialSurface INHERITED;
@@ -98,14 +98,14 @@ sk_sp<SkSpecialSurface> SkSpecialSurface::MakeFromBitmap(const SkIRect& subset, 
 
 sk_sp<SkSpecialSurface> SkSpecialSurface::MakeRaster(const SkImageInfo& info,
                                                      const SkSurfaceProps* props) {
-    SkAutoTUnref<SkPixelRef> pr(SkMallocPixelRef::NewZeroed(info, 0, nullptr));
+    sk_sp<SkPixelRef> pr(SkMallocPixelRef::NewZeroed(info, 0, nullptr));
     if (nullptr == pr.get()) {
         return nullptr;
     }
 
     const SkIRect subset = SkIRect::MakeWH(pr->info().width(), pr->info().height());
 
-    return sk_make_sp<SkSpecialSurface_Raster>(pr, subset, props);
+    return sk_make_sp<SkSpecialSurface_Raster>(pr.get(), subset, props);
 }
 
 #if SK_SUPPORT_GPU
