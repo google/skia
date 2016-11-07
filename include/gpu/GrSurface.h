@@ -126,10 +126,11 @@ public:
         fReleaseCtx = ctx;
     }
 
-    static size_t WorstCaseSize(const GrSurfaceDesc& desc);
-
     void setLastOpList(GrOpList* opList);
     GrOpList* getLastOpList() { return fLastOpList; }
+
+    static size_t WorstCaseSize(const GrSurfaceDesc& desc);
+    static size_t ComputeSize(const GrSurfaceDesc& desc, int colorSamplesPerPixel, bool hasMIPMaps);
 
 protected:
     // Methods made available via GrSurfacePriv

@@ -1642,6 +1642,11 @@ GrTexture* GrGLGpu::onCreateTexture(const GrSurfaceDesc& desc,
         return return_null_texture();
     }
 
+    bool wasMipMapDataProvided = false;
+    if (texels.count() > 1) {
+        wasMipMapDataProvided = true;
+    }
+
     GrGLTexture* tex;
     if (renderTarget) {
         // unbind the texture from the texture unit before binding it to the frame buffer
@@ -1652,12 +1657,9 @@ GrTexture* GrGLGpu::onCreateTexture(const GrSurfaceDesc& desc,
             GL_CALL(DeleteTextures(1, &idDesc.fInfo.fID));
             return return_null_texture();
         }
-        tex = new GrGLTextureRenderTarget(this, budgeted, desc, idDesc, rtIDDesc);
+        tex = new GrGLTextureRenderTarget(this, budgeted, desc, idDesc, rtIDDesc,
+                                          wasMipMapDataProvided);
     } else {
-        bool wasMipMapDataProvided = false;
-        if (texels.count() > 1) {
-            wasMipMapDataProvided = true;
-        }
         tex = new GrGLTexture(this, budgeted, desc, idDesc, wasMipMapDataProvided);
     }
     tex->setCachedTexParams(initialTexParams, this->getResetTimestamp());

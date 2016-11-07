@@ -49,5 +49,5 @@ sk_sp<GrGLTextureRenderTarget> GrGLTextureRenderTarget::MakeWrapped(
     const GrGLTexture::IDDesc& texIDDesc, const GrGLRenderTarget::IDDesc& rtIDDesc)
 {
     return sk_sp<GrGLTextureRenderTarget>(
-        new GrGLTextureRenderTarget(gpu, desc, texIDDesc, rtIDDesc));
+        new GrGLTextureRenderTarget(gpu, desc, texIDDesc, rtIDDesc, false));
 }
