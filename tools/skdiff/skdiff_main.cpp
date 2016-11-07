@@ -12,6 +12,7 @@
 #include "SkForceLinking.h"
 #include "SkImageEncoder.h"
 #include "SkOSFile.h"
+#include "SkOSPath.h"
 #include "SkStream.h"
 #include "../private/SkTDArray.h"
 #include "../private/SkTSearch.h"
@@ -40,7 +41,7 @@ typedef StringArray FileArray;
 static void add_unique_basename(StringArray* array, const SkString& filename) {
     // trim off dirs
     const char* src = filename.c_str();
-    const char* trimmed = strrchr(src, SkPATH_SEPARATOR);
+    const char* trimmed = strrchr(src, SkOSPath::SEPARATOR);
     if (trimmed) {
         trimmed += 1;   // skip the separator
     } else {

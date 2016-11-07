@@ -12,6 +12,7 @@
 #include "SkImage.h"
 #include "SkImageGenerator.h"
 #include "SkOSFile.h"
+#include "SkOSPath.h"
 #include "SkStream.h"
 #include "SkTypeface.h"
 

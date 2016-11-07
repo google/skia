@@ -12,6 +12,7 @@
 #include "SkFontStyle.h"
 #include "SkMakeUnique.h"
 #include "SkOSFile.h"
+#include "SkOSPath.h"
 #include "SkRefCnt.h"
 #include "SkStream.h"
 #include "SkString.h"
