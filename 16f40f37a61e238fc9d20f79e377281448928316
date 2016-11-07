@@ -2,6 +2,86 @@
   "comments": [
     {
       "key": {
+        "uuid": "ebc99f45_77a45b5d",
+        "filename": "include/core/SkCanvas.h",
+        "patchSetId": 9
+      },
+      "lineNbr": 1716,
+      "author": {
+        "id": 5110
+      },
+      "writtenOn": "2016-11-07T14:49:10Z",
+      "side": 1,
+      "message": "#ifndef SK_SUPPORT_LEGACY_CANVAS_IS_REFCNT\n    SkCanvas(const SkCanvas\u0026) \u003d delete;\n    SkCanvas\u0026 operator\u003d(const SkCanvas\u0026) \u003d delete;\n    SkCanvas\u0026 operator\u003d(SkCanvas\u0026\u0026) \u003d delete;\n#else",
+      "revId": "16f40f37a61e238fc9d20f79e377281448928316",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ebc99f45_97a9c734",
+        "filename": "include/core/SkPictureRecorder.h",
+        "patchSetId": 9
+      },
+      "lineNbr": 118,
+      "author": {
+        "id": 5110
+      },
+      "writtenOn": "2016-11-07T14:49:10Z",
+      "side": 1,
+      "message": "nit: alignment",
+      "range": {
+        "startLine": 118,
+        "startChar": 33,
+        "endLine": 118,
+        "endChar": 37
+      },
+      "revId": "16f40f37a61e238fc9d20f79e377281448928316",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ebc99f45_37c7b3fd",
+        "filename": "src/image/SkSurface_Base.h",
+        "patchSetId": 9
+      },
+      "lineNbr": 92,
+      "author": {
+        "id": 5110
+      },
+      "writtenOn": "2016-11-07T14:49:10Z",
+      "side": 1,
+      "message": "nit: alignment",
+      "range": {
+        "startLine": 92,
+        "startChar": 30,
+        "endLine": 92,
+        "endChar": 32
+      },
+      "revId": "16f40f37a61e238fc9d20f79e377281448928316",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ebc99f45_f7e04b86",
+        "filename": "src/pdf/SkPDFDocument.cpp",
+        "patchSetId": 9
+      },
+      "lineNbr": 220,
+      "author": {
+        "id": 5110
+      },
+      "writtenOn": "2016-11-07T14:49:10Z",
+      "side": 1,
+      "message": "fCanvas \u003d skstd::make_unique\u003cSkPDFCanvas\u003e(fPageDevice);",
+      "revId": "16f40f37a61e238fc9d20f79e377281448928316",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "ebc99f45_5794bf1b",
         "filename": "src/utils/SkCanvasStateUtils.cpp",
         "patchSetId": 9
@@ -13,6 +93,23 @@
       "writtenOn": "2016-11-07T13:57:54Z",
       "side": 1,
       "message": "Shouldn\u0027t this be \"make_canvas_from_canvas_layer\" ?",
+      "revId": "16f40f37a61e238fc9d20f79e377281448928316",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ebc99f45_17de37c2",
+        "filename": "src/utils/SkNullCanvas.cpp",
+        "patchSetId": 9
+      },
+      "lineNbr": 17,
+      "author": {
+        "id": 5110
+      },
+      "writtenOn": "2016-11-07T14:49:10Z",
+      "side": 1,
+      "message": "return skstd::make_unique\u003cSkNWayCanvas\u003e(0, 0);",
       "revId": "16f40f37a61e238fc9d20f79e377281448928316",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
