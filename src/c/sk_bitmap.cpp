@@ -24,6 +24,15 @@ static inline void copyAlpha8ToColor(size_t size, const uint8_t* pixels, sk_colo
         *colors++ = SkColorSetA(0, *addr);
     }
 }
+
+static inline void copyGray8ToColor(size_t size, const uint8_t* pixels, sk_color_t* colors)
+{
+    while (size-- != 0) {
+        const uint8_t* addr = pixels++;
+        *colors++ = SkColorSetRGB(*addr, *addr, *addr);
+    }
+}
+
 static inline void copyRgb565ToColor(size_t size, const uint16_t* pixels, sk_color_t* colors)
 {
     while (size-- != 0) {
@@ -221,6 +230,9 @@ void sk_bitmap_get_pixel_colors(sk_bitmap_t* cbitmap, sk_color_t* colors)
     switch (bmp->colorType()) {
     case kAlpha_8_SkColorType:
         copyAlpha8ToColor(size, (const uint8_t*)pixels, colors);
+        break;
+    case kGray_8_SkColorType:
+        copyGray8ToColor(size, (const uint8_t*)pixels, colors);
         break;
     case kRGB_565_SkColorType:
         copyRgb565ToColor(size, (const uint16_t*)pixels, colors);
