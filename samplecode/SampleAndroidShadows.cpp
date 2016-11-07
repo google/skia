@@ -434,7 +434,7 @@ protected:
         canvas->translate(200, 90);
         lightPos.fX += 200;
         lightPos.fY += 90;
-        this->drawShadowedPath(canvas, fRectPath, 2, paint, kAmbientAlpha, 
+        this->drawShadowedPath(canvas, fRectPath, 2, paint, kAmbientAlpha,
                                lightPos, kLightWidth, kSpotAlpha);
 
         paint.setColor(SK_ColorRED);
