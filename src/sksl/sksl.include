@@ -251,6 +251,9 @@ int textureQueryLevels(samplerCubeArrayShadow sampler);
 $gvec4 texture($gsampler1D sampler, float P);
 $gvec4 texture($gsampler1D sampler, float P, float bias);
 $gvec4 texture($gsampler2D sampler, vec2 P);
+// The above currently only expand to handle the float/fixed case. So we also declare this integer
+// version of texture().
+ivec4 texture(isampler2D sampler, vec2 P);
 vec4 texture(samplerExternalOES sampler, vec2 P, float bias);
 vec4 texture(samplerExternalOES sampler, vec2 P);
 
@@ -483,6 +486,7 @@ vec4 texture1DProjLod(sampler1D sampler, vec2 coord, float lod);
 vec4 texture1DProjLod(sampler1D sampler, vec4 coord, float lod);
 */
 vec4 texture2D(sampler2D sampler, vec2 coord);
+ivec4 texture2D(isampler2D sampler, vec2 coord);
 vec4 texture2D(samplerExternalOES sampler, vec2 coord);
 vec4 texture2D(sampler2D sampler, vec2 coord, float bias);
 vec4 texture2DProj(sampler2D sampler, vec3 coord);
