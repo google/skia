@@ -54,12 +54,7 @@ static SkIRect get_bounds_from_image(const SkImage* image) {
 }
 
 SkBitmapCacheDesc SkBitmapCacheDesc::Make(const SkBitmap& bm, int width, int height) {
-    SkBitmapCacheDesc desc;
-    desc.fImageID = bm.getGenerationID();
-    desc.fWidth = width;
-    desc.fHeight = height;
-    desc.fBounds = get_bounds_from_bitmap(bm);
-    return desc;
+    return { bm.getGenerationID(), width, height, get_bounds_from_bitmap(bm) };
 }
 
 SkBitmapCacheDesc SkBitmapCacheDesc::Make(const SkBitmap& bm) {
@@ -67,12 +62,7 @@ SkBitmapCacheDesc SkBitmapCacheDesc::Make(const SkBitmap& bm) {
 }
 
 SkBitmapCacheDesc SkBitmapCacheDesc::Make(const SkImage* image, int width, int height) {
-    SkBitmapCacheDesc desc;
-    desc.fImageID = image->uniqueID();
-    desc.fWidth = width;
-    desc.fHeight = height;
-    desc.fBounds = get_bounds_from_image(image);
-    return desc;
+    return { image->uniqueID(), width, height, get_bounds_from_image(image) };
 }
 
 SkBitmapCacheDesc SkBitmapCacheDesc::Make(const SkImage* image) {
@@ -85,39 +75,27 @@ static unsigned gBitmapKeyNamespaceLabel;
 struct BitmapKey : public SkResourceCache::Key {
 public:
     BitmapKey(uint32_t genID, int width, int height, const SkIRect& bounds)
-        : fGenID(genID)
-        , fWidth(width)
-        , fHeight(height)
-        , fBounds(bounds)
+        : fDesc({ genID, width, height, bounds })
     {
-        this->init(&gBitmapKeyNamespaceLabel, SkMakeResourceCacheSharedIDForBitmap(fGenID),
-                   sizeof(fGenID) + sizeof(fWidth) + sizeof(fHeight) + sizeof(fBounds));
+        this->init(&gBitmapKeyNamespaceLabel, SkMakeResourceCacheSharedIDForBitmap(fDesc.fImageID),
+                   sizeof(fDesc));
     }
 
-    BitmapKey(const SkBitmapCacheDesc& desc)
-        : fGenID(desc.fImageID)
-        , fWidth(desc.fWidth)
-        , fHeight(desc.fHeight)
-        , fBounds(desc.fBounds)
-    {
-        this->init(&gBitmapKeyNamespaceLabel, SkMakeResourceCacheSharedIDForBitmap(fGenID),
-                   sizeof(fGenID) + sizeof(fWidth) + sizeof(fHeight) + sizeof(fBounds));
+    BitmapKey(const SkBitmapCacheDesc& desc) : fDesc(desc) {
+        this->init(&gBitmapKeyNamespaceLabel, SkMakeResourceCacheSharedIDForBitmap(fDesc.fImageID),
+                   sizeof(fDesc));
     }
 
     void dump() const {
-        SkDebugf("-- add [%d %d] %d [%d %d %d %d]\n", fWidth, fHeight, fGenID,
-                 fBounds.x(), fBounds.y(), fBounds.width(), fBounds.height());
+        SkDebugf("-- add [%d %d] %d [%d %d %d %d]\n", fDesc.fWidth, fDesc.fHeight, fDesc.fImageID,
+            fDesc.fBounds.x(), fDesc.fBounds.y(), fDesc.fBounds.width(), fDesc.fBounds.height());
     }
 
-    const uint32_t  fGenID;
-    const int       fWidth;
-    const int       fHeight;
-    const SkIRect   fBounds;
+    const SkBitmapCacheDesc fDesc;
 };
 
 struct BitmapRec : public SkResourceCache::Rec {
-    BitmapRec(uint32_t genID, int width, int height, const SkIRect& bounds,
-              const SkBitmap& result)
+    BitmapRec(uint32_t genID, int width, int height, const SkIRect& bounds, const SkBitmap& result)
         : fKey(genID, width, height, bounds)
         , fBitmap(result)
     {
