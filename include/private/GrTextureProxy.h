@@ -24,7 +24,6 @@ public:
                                       const void* srcData = nullptr, size_t rowBytes = 0);
     static sk_sp<GrTextureProxy> Make(sk_sp<GrTexture>);
 
-    // TODO: add asRenderTargetProxy variants
     GrTextureProxy* asTextureProxy() override { return this; }
     const GrTextureProxy* asTextureProxy() const override { return this; }
 
