@@ -86,10 +86,9 @@ def RunSteps(api):
   # Trybot results are further siloed by issue/patchset.
   issue = str(api.properties.get('issue', ''))
   patchset = str(api.properties.get('patchset', ''))
-  if (api.properties.get('patch_storage', '') == 'gerrit' and
-      api.properties.get('nobuildbot', '') != 'True'):
+  if api.properties.get('patch_storage', '') == 'gerrit':
     issue = str(api.properties['patch_issue'])
-    patchset = str(api.properties['patch_ref']).split('/')[-1]
+    patchset = str(api.properties['patch_set'])
   if issue and patchset:
     summary_dest_path = '/'.join((
         'trybot', summary_dest_path, issue, patchset))
