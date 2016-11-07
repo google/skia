@@ -117,6 +117,24 @@
     },
     {
       "key": {
+        "uuid": "ebc99f45_77453b64",
+        "filename": "src/utils/SkCanvasStateUtils.cpp",
+        "patchSetId": 9
+      },
+      "lineNbr": 282,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2016-11-07T15:15:13Z",
+      "side": 1,
+      "message": "I agree.  I\u0027d just ask we lean a little away from New... when things don\u0027t return a raw pointer allocated with new, and lean toward Make... when things behave like std::make_shared or std::make_unique (takes constructor\u0027s parameters, allocates and constructs for you, returns a smart pointer).  I don\u0027t see any harm in using Make beyond that use case.\n\nHere, seems like anything that doesn\u0027t say \"new\" is fine; it doesn\u0027t even really need a verb.",
+      "parentUuid": "ebc99f45_1702b770",
+      "revId": "16f40f37a61e238fc9d20f79e377281448928316",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "ebc99f45_17de37c2",
         "filename": "src/utils/SkNullCanvas.cpp",
         "patchSetId": 9
