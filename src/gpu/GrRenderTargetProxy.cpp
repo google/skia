@@ -37,17 +37,33 @@ GrRenderTargetProxy::GrRenderTargetProxy(sk_sp<GrRenderTarget> rt)
 }
 
 GrRenderTarget* GrRenderTargetProxy::instantiate(GrTextureProvider* texProvider) {
-    SkASSERT(fDesc.fFlags & GrSurfaceFlags::kRenderTarget_GrSurfaceFlag);
+    if (fTarget) {
+        return fTarget->asRenderTarget();
+    }
 
-    GrSurface* surf = INHERITED::instantiate(texProvider);
-    if (!surf || !surf->asRenderTarget()) {
+    // TODO: it would be nice to not have to copy the desc here
+    GrSurfaceDesc desc = fDesc;
+    desc.fFlags |= GrSurfaceFlags::kRenderTarget_GrSurfaceFlag;
+
+    if (SkBackingFit::kApprox == fFit) {
+        fTarget = texProvider->createApproxTexture(desc);
+    } else {
+        fTarget = texProvider->createTexture(desc, fBudgeted);
+    }
+    if (!fTarget) {
         return nullptr;
     }
 
-    // Check that our a priori computation matched the ultimate reality
-    SkASSERT(fFlags == surf->asRenderTarget()->renderTargetPriv().flags());
+#ifdef SK_DEBUG
+    if (kInvalidGpuMemorySize != this->getRawGpuMemorySize_debugOnly()) {
+        SkASSERT(fTarget->gpuMemorySize() <= this->getRawGpuMemorySize_debugOnly());    
+    }
+#endif
 
-    return surf->asRenderTarget();
+    // Check that our a priori computation matched the ultimate reality
+    SkASSERT(fFlags == fTarget->asRenderTarget()->renderTargetPriv().flags());
+
+    return fTarget->asRenderTarget();
 }
 
 

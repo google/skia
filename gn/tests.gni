@@ -173,7 +173,6 @@ tests_sources = [
   "$_tests/RefCntTest.cpp",
   "$_tests/RefDictTest.cpp",
   "$_tests/RegionTest.cpp",
-  "$_tests/RenderTargetContextTest.cpp",
   "$_tests/ResourceCacheTest.cpp",
   "$_tests/RoundRectTest.cpp",
   "$_tests/RRectInPathTest.cpp",

@@ -13,7 +13,6 @@
 #include "SkRect.h"
 
 class GrOpList;
-class GrTextureProvider;
 class GrTextureProxy;
 class GrRenderTargetProxy;
 
@@ -128,8 +127,6 @@ public:
         return fGpuMemorySize;
     }
 
-    bool isWrapped_ForTesting() const;
-
 protected:
     // Deferred version
     GrSurfaceProxy(const GrSurfaceDesc& desc, SkBackingFit fit, SkBudgeted budgeted)
@@ -145,8 +142,6 @@ protected:
     GrSurfaceProxy(sk_sp<GrSurface> surface, SkBackingFit fit);
 
     virtual ~GrSurfaceProxy();
-
-    GrSurface* instantiate(GrTextureProvider* texProvider);
 
     // For wrapped resources, 'fDesc' will always be filled in from the wrapped resource.
     const GrSurfaceDesc fDesc;
