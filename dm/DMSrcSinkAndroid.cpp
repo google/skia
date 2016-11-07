@@ -53,7 +53,7 @@ Error ViaAndroidSDK::draw(const Src& src,
 
             // Pass through another proxy to get paint transforms
             SkAndroidSDKCanvas fc;
-            fc.reset(scProxy);
+            fc.reset(scProxy.get());
 
             fSrc.draw(&fc);
 
