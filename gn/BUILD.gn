@@ -184,13 +184,17 @@ config("default") {
 
   if (is_ios) {
     cflags += [
-      "--sysroot=$ios_sysroot",
-      "--target=$target_cpu-apple-darwin11",
+      "-isysroot",
+      ios_sysroot,
+      "-arch",
+      target_cpu,
     ]
     cflags_cc += [ "-stdlib=libc++" ]
     ldflags += [
-      "--sysroot=$ios_sysroot",
-      "--target=$target_cpu-apple-darwin11",
+      "-isysroot",
+      ios_sysroot,
+      "-arch",
+      target_cpu,
       "-stdlib=libc++",
     ]
     libs = [ "objc" ]
