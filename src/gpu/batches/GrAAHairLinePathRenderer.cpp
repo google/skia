@@ -844,7 +844,7 @@ void AAHairlineBatch::onPrepareDraws(Target* target) const {
                                                    *geometryProcessorViewM);
         }
 
-        SkAutoTUnref<const GrBuffer> linesIndexBuffer(
+        sk_sp<const GrBuffer> linesIndexBuffer(
             ref_lines_index_buffer(target->resourceProvider()));
 
         const GrBuffer* vertexBuffer;
@@ -867,7 +867,7 @@ void AAHairlineBatch::onPrepareDraws(Target* target) const {
         }
 
         GrMesh mesh;
-        mesh.initInstanced(kTriangles_GrPrimitiveType, vertexBuffer, linesIndexBuffer,
+        mesh.initInstanced(kTriangles_GrPrimitiveType, vertexBuffer, linesIndexBuffer.get(),
                            firstVertex, kLineSegNumVertices, kIdxsPerLineSeg, lineCount,
                            kLineSegsNumInIdxBuffer);
         target->draw(lineGP.get(), mesh);
@@ -895,7 +895,7 @@ void AAHairlineBatch::onPrepareDraws(Target* target) const {
         const GrBuffer* vertexBuffer;
         int firstVertex;
 
-        SkAutoTUnref<const GrBuffer> quadsIndexBuffer(
+        sk_sp<const GrBuffer> quadsIndexBuffer(
             ref_quads_index_buffer(target->resourceProvider()));
 
         size_t vertexStride = sizeof(BezierVertex);
@@ -924,7 +924,7 @@ void AAHairlineBatch::onPrepareDraws(Target* target) const {
 
         if (quadCount > 0) {
             GrMesh mesh;
-            mesh.initInstanced(kTriangles_GrPrimitiveType, vertexBuffer, quadsIndexBuffer,
+            mesh.initInstanced(kTriangles_GrPrimitiveType, vertexBuffer, quadsIndexBuffer.get(),
                                firstVertex, kQuadNumVertices, kIdxsPerQuad, quadCount,
                                kQuadsNumInIdxBuffer);
             target->draw(quadGP.get(), mesh);
@@ -933,7 +933,7 @@ void AAHairlineBatch::onPrepareDraws(Target* target) const {
 
         if (conicCount > 0) {
             GrMesh mesh;
-            mesh.initInstanced(kTriangles_GrPrimitiveType, vertexBuffer, quadsIndexBuffer,
+            mesh.initInstanced(kTriangles_GrPrimitiveType, vertexBuffer, quadsIndexBuffer.get(),
                                firstVertex, kQuadNumVertices, kIdxsPerQuad, conicCount,
                                kQuadsNumInIdxBuffer);
             target->draw(conicGP.get(), mesh);
@@ -967,13 +967,13 @@ bool GrAAHairLinePathRenderer::onDrawPath(const DrawPathArgs& args) {
 
     SkPath path;
     args.fShape->asPath(&path);
-    SkAutoTUnref<GrDrawBatch> batch(create_hairline_batch(args.fPaint->getColor(),
-                                                          *args.fViewMatrix, path,
-                                                          args.fShape->style(), devClipBounds));
+    sk_sp<GrDrawBatch> batch(create_hairline_batch(args.fPaint->getColor(),
+                                                   *args.fViewMatrix, path,
+                                                   args.fShape->style(), devClipBounds));
 
     GrPipelineBuilder pipelineBuilder(*args.fPaint);
     pipelineBuilder.setUserStencil(args.fUserStencilSettings);
-    args.fRenderTargetContext->drawBatch(pipelineBuilder, *args.fClip, batch);
+    args.fRenderTargetContext->drawBatch(pipelineBuilder, *args.fClip, batch.get());
 
     return true;
 }
