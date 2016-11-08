@@ -25,6 +25,24 @@
     },
     {
       "key": {
+        "uuid": "2bde5729_6b45808b",
+        "filename": "include/gpu/GrTypes.h",
+        "patchSetId": 10
+      },
+      "lineNbr": 235,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2016-11-08T22:15:00Z",
+      "side": 1,
+      "message": "Hm, I\u0027m not sure I really see confusion arising with srgb. I\u0027m not opposed to \"_integer_\", but then what will we call unsigned integer formats, \"_unsigned_integer_\"?",
+      "parentUuid": "2bde5729_c96784d4",
+      "revId": "ac145845b122a86a1b2bcf562d429e35f3b22256",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "2bde5729_290b88d2",
         "filename": "src/gpu/gl/GrGLCaps.cpp",
         "patchSetId": 10
@@ -48,6 +66,24 @@
     },
     {
       "key": {
+        "uuid": "2bde5729_8b99ec05",
+        "filename": "src/gpu/gl/GrGLCaps.cpp",
+        "patchSetId": 10
+      },
+      "lineNbr": 909,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2016-11-08T22:15:00Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "2bde5729_290b88d2",
+      "revId": "ac145845b122a86a1b2bcf562d429e35f3b22256",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "2bde5729_e9b280e9",
         "filename": "src/gpu/gl/GrGLGpu.cpp",
         "patchSetId": 10
@@ -59,6 +95,42 @@
       "writtenOn": "2016-11-08T15:54:53Z",
       "side": 1,
       "message": "Is it valid to call this method with zero mip levels?",
+      "revId": "ac145845b122a86a1b2bcf562d429e35f3b22256",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "2bde5729_6b2e60c5",
+        "filename": "src/gpu/gl/GrGLGpu.cpp",
+        "patchSetId": 10
+      },
+      "lineNbr": 982,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2016-11-08T22:15:00Z",
+      "side": 1,
+      "message": "I\u0027m not sure if it is legal, but it certainly isn\u0027t what\u0027s intended here. If we get here and texels.count() is zero it means that we want to create the base level but the client didn\u0027t provide initial data to upload.",
+      "parentUuid": "2bde5729_e9b280e9",
+      "revId": "ac145845b122a86a1b2bcf562d429e35f3b22256",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "2bde5729_8b23acda",
+        "filename": "src/gpu/gl/GrGLGpu.cpp",
+        "patchSetId": 10
+      },
+      "lineNbr": 982,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2016-11-08T22:15:00Z",
+      "side": 1,
+      "message": "I checked, it\u0027s GL_INVALID_VALUE.",
+      "parentUuid": "2bde5729_e9b280e9",
       "revId": "ac145845b122a86a1b2bcf562d429e35f3b22256",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
@@ -88,6 +160,24 @@
     },
     {
       "key": {
+        "uuid": "2bde5729_4b12847c",
+        "filename": "src/gpu/gl/GrGLTexture.cpp",
+        "patchSetId": 10
+      },
+      "lineNbr": 18,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2016-11-08T22:15:00Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "2bde5729_09c08c35",
+      "revId": "ac145845b122a86a1b2bcf562d429e35f3b22256",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "2bde5729_29bd48b7",
         "filename": "src/gpu/gl/GrGLTexture.cpp",
         "patchSetId": 10
@@ -99,6 +189,24 @@
       "writtenOn": "2016-11-08T15:54:53Z",
       "side": 1,
       "message": "ditto",
+      "revId": "ac145845b122a86a1b2bcf562d429e35f3b22256",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "2bde5729_6b17406b",
+        "filename": "src/gpu/gl/GrGLTexture.cpp",
+        "patchSetId": 10
+      },
+      "lineNbr": 21,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2016-11-08T22:15:00Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "2bde5729_29bd48b7",
       "revId": "ac145845b122a86a1b2bcf562d429e35f3b22256",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
@@ -122,6 +230,24 @@
         "endLine": 76,
         "endChar": 16
       },
+      "revId": "ac145845b122a86a1b2bcf562d429e35f3b22256",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "2bde5729_abfa2801",
+        "filename": "src/gpu/vk/GrVkUtil.cpp",
+        "patchSetId": 10
+      },
+      "lineNbr": 76,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2016-11-08T22:15:00Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "2bde5729_c99ea44a",
       "revId": "ac145845b122a86a1b2bcf562d429e35f3b22256",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
