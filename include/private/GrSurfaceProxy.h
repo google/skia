@@ -15,6 +15,7 @@
 class GrOpList;
 class GrTextureProxy;
 class GrRenderTargetProxy;
+class GrTextureProvider;
 
 // This class replicates the functionality GrIORef<GrSurface> but tracks the
 // utilitization for later resource allocation (for the deferred case) and
@@ -74,6 +75,8 @@ protected:
 
 class GrSurfaceProxy : public GrIORefProxy {
 public:
+    static sk_sp<GrSurfaceProxy> Make(sk_sp<GrSurface>);
+
     const GrSurfaceDesc& desc() const { return fDesc; }
 
     GrSurfaceOrigin origin() const {
@@ -86,6 +89,8 @@ public:
     GrPixelConfig config() const { return fDesc.fConfig; }
 
     uint32_t uniqueID() const { return fUniqueID; }
+
+    GrSurface* instantiate(GrTextureProvider* texProvider) { return nullptr; }
 
     /**
      * Helper that gets the width and height of the surface as a bounding rectangle.

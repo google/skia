@@ -19,10 +19,9 @@ class GrTextureProxy : virtual public GrSurfaceProxy {
 public:
     // TODO: need to refine ownership semantics of 'srcData' if we're in completely
     // deferred mode
-    static sk_sp<GrTextureProxy> Make(const GrCaps&, GrTextureProvider*, const GrSurfaceDesc&,
-                                      SkBackingFit, SkBudgeted,
-                                      const void* srcData = nullptr, size_t rowBytes = 0);
-    static sk_sp<GrTextureProxy> Make(sk_sp<GrTexture>);
+    static sk_sp<GrSurfaceProxy> MakeDeferred(const GrCaps&, GrTextureProvider*, const GrSurfaceDesc&,
+                                              SkBackingFit, SkBudgeted,
+                                              const void* srcData = nullptr, size_t rowBytes = 0);
 
     // TODO: add asRenderTargetProxy variants
     GrTextureProxy* asTextureProxy() override { return this; }
@@ -32,11 +31,13 @@ public:
     GrTexture* instantiate(GrTextureProvider*);
 
 protected:
+    friend class GrSurfaceProxy; // for ctors
+
     // Deferred version
     GrTextureProxy(const GrSurfaceDesc& srcDesc, SkBackingFit, SkBudgeted,
                    const void* srcData, size_t srcRowBytes);
     // Wrapped version
-    GrTextureProxy(sk_sp<GrTexture> tex);
+    GrTextureProxy(sk_sp<GrSurface>);
 
 private:
     size_t onGpuMemorySize() const override;

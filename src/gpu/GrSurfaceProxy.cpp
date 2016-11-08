@@ -9,6 +9,7 @@
 
 #include "GrGpuResourcePriv.h"
 #include "GrOpList.h"
+#include "GrTextureRenderTargetProxy.h"
 
 GrSurfaceProxy::GrSurfaceProxy(sk_sp<GrSurface> surface, SkBackingFit fit)
     : INHERITED(std::move(surface))
@@ -37,4 +38,19 @@ void GrSurfaceProxy::setLastOpList(GrOpList* opList) {
     }
 
     SkRefCnt_SafeAssign(fLastOpList, opList);
+}
+
+sk_sp<GrSurfaceProxy> GrSurfaceProxy::Make(sk_sp<GrSurface> surf) {
+    if (surf->asTexture()) {
+        if (surf->asRenderTarget()) {
+            return sk_sp<GrSurfaceProxy>(new GrTextureRenderTargetProxy(std::move(surf)));
+        } else {
+            return sk_sp<GrSurfaceProxy>(new GrTextureProxy(std::move(surf)));
+        }
+    } else {
+        SkASSERT(surf->asRenderTarget());
+
+        // Not texturable
+        return sk_sp<GrSurfaceProxy>(new GrRenderTargetProxy(std::move(surf)));
+    }
 }

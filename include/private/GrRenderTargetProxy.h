@@ -23,9 +23,8 @@ public:
     /**
      * The caller gets the creation ref.
      */
-    static sk_sp<GrRenderTargetProxy> Make(const GrCaps&, const GrSurfaceDesc&,
-                                           SkBackingFit, SkBudgeted);
-    static sk_sp<GrRenderTargetProxy> Make(sk_sp<GrRenderTarget>);
+    static sk_sp<GrSurfaceProxy> MakeDeferred(const GrCaps&, const GrSurfaceDesc&,
+                                              SkBackingFit, SkBudgeted);
 
     // TODO: add asTextureProxy variants
     GrRenderTargetProxy* asRenderTargetProxy() override { return this; }
@@ -66,11 +65,13 @@ public:
     SkDEBUGCODE(void validate(GrContext*) const;)
 
 protected:
+    friend class GrSurfaceProxy;  // for ctors
+
     // Deferred version
     GrRenderTargetProxy(const GrCaps&, const GrSurfaceDesc&, SkBackingFit, SkBudgeted);
 
     // Wrapped version
-    GrRenderTargetProxy(sk_sp<GrRenderTarget> rt);
+    GrRenderTargetProxy(sk_sp<GrSurface>);
 
 private:
     size_t onGpuMemorySize() const override;

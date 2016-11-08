@@ -23,18 +23,18 @@
 // the uniqueID of the RenderTarget/Texture it represents!
 class GrTextureRenderTargetProxy : public GrTextureProxy, public GrRenderTargetProxy {
 public:
-    static sk_sp<GrTextureRenderTargetProxy> Make(const GrCaps&,
-                                                  const GrSurfaceDesc&,
-                                                  SkBackingFit, SkBudgeted);
-    static sk_sp<GrTextureRenderTargetProxy> Make(sk_sp<GrTexture>);
-    static sk_sp<GrTextureRenderTargetProxy> Make(sk_sp<GrRenderTarget>);
+    static sk_sp<GrSurfaceProxy> MakeDeferred(const GrCaps&, const GrSurfaceDesc&,
+                                              SkBackingFit, SkBudgeted);
+
+protected:
+    friend class GrSurfaceProxy; // for ctors
 
 private:
     // Deferred version
     GrTextureRenderTargetProxy(const GrCaps&, const GrSurfaceDesc&, SkBackingFit, SkBudgeted);
 
     // Wrapped version
-    GrTextureRenderTargetProxy(sk_sp<GrRenderTarget> rt);
+    GrTextureRenderTargetProxy(sk_sp<GrSurface>);
 
     size_t onGpuMemorySize() const override;
 };

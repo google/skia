@@ -31,9 +31,10 @@ GrRenderTargetProxy::GrRenderTargetProxy(const GrCaps& caps, const GrSurfaceDesc
 }
 
 // Wrapped version
-GrRenderTargetProxy::GrRenderTargetProxy(sk_sp<GrRenderTarget> rt)
-    : INHERITED(std::move(rt), SkBackingFit::kExact)
+GrRenderTargetProxy::GrRenderTargetProxy(sk_sp<GrSurface> surf)
+    : INHERITED(std::move(surf), SkBackingFit::kExact)
     , fFlags(fTarget->asRenderTarget()->renderTargetPriv().flags()) {
+    SkASSERT(!fTarget->asTexture());
 }
 
 GrRenderTarget* GrRenderTargetProxy::instantiate(GrTextureProvider* texProvider) {
@@ -86,21 +87,12 @@ size_t GrRenderTargetProxy::onGpuMemorySize() const {
     return GrSurface::ComputeSize(fDesc, fDesc.fSampleCnt+1, false);
 }
 
-sk_sp<GrRenderTargetProxy> GrRenderTargetProxy::Make(const GrCaps& caps,
-                                                     const GrSurfaceDesc& desc,
-                                                     SkBackingFit fit,
-                                                     SkBudgeted budgeted) {
+sk_sp<GrSurfaceProxy> GrRenderTargetProxy::MakeDeferred(const GrCaps& caps,
+                                                        const GrSurfaceDesc& desc,
+                                                        SkBackingFit fit,
+                                                        SkBudgeted budgeted) {
     // We know anything we instantiate later from this deferred path will be
     // both texturable and renderable
-    return GrTextureRenderTargetProxy::Make(caps, desc, fit, budgeted);
-}
-
-sk_sp<GrRenderTargetProxy> GrRenderTargetProxy::Make(sk_sp<GrRenderTarget> rt) {
-    if (rt->asTexture()) {
-        return GrTextureRenderTargetProxy::Make(std::move(rt));
-    }
-
-    // Not texturable
-    return sk_sp<GrRenderTargetProxy>(new GrRenderTargetProxy(rt));
+    return GrTextureRenderTargetProxy::MakeDeferred(caps, desc, fit, budgeted);
 }
 

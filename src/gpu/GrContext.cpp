@@ -609,7 +609,7 @@ sk_sp<GrRenderTargetContext> GrContextPriv::makeWrappedRenderTargetContext(
                                                                const SkSurfaceProps* surfaceProps) {
     ASSERT_SINGLE_OWNER_PRIV
 
-    sk_sp<GrRenderTargetProxy> rtp(GrRenderTargetProxy::Make(std::move(rt)));
+    sk_sp<GrSurfaceProxy> rtp(GrSurfaceProxy::Make(std::move(rt)));
 
     return this->drawingManager()->makeRenderTargetContext(std::move(rtp),
                                                            std::move(colorSpace),
@@ -629,8 +629,7 @@ sk_sp<GrRenderTargetContext> GrContextPriv::makeBackendTextureRenderTargetContex
         return nullptr;
     }
 
-    sk_sp<GrRenderTargetProxy> rtp(GrRenderTargetProxy::Make(
-                                                            sk_ref_sp(surface->asRenderTarget())));
+    sk_sp<GrSurfaceProxy> rtp(GrSurfaceProxy::Make(std::move(surface)));
 
     return this->drawingManager()->makeRenderTargetContext(std::move(rtp),
                                                            std::move(colorSpace), props);
@@ -647,7 +646,7 @@ sk_sp<GrRenderTargetContext> GrContextPriv::makeBackendRenderTargetRenderTargetC
         return nullptr;
     }
 
-    sk_sp<GrRenderTargetProxy> rtp(GrRenderTargetProxy::Make(std::move(rt)));
+    sk_sp<GrSurfaceProxy> rtp(GrSurfaceProxy::Make(std::move(rt)));
 
     return this->drawingManager()->makeRenderTargetContext(std::move(rtp),
                                                            std::move(colorSpace),
@@ -666,7 +665,7 @@ sk_sp<GrRenderTargetContext> GrContextPriv::makeBackendTextureAsRenderTargetRend
         return nullptr;
     }
 
-    sk_sp<GrRenderTargetProxy> rtp(GrRenderTargetProxy::Make(sk_ref_sp(surface->asRenderTarget())));
+    sk_sp<GrSurfaceProxy> rtp(GrSurfaceProxy::Make(std::move(surface)));
 
     return this->drawingManager()->makeRenderTargetContext(std::move(rtp),
                                                            std::move(colorSpace),
@@ -787,7 +786,7 @@ sk_sp<GrRenderTargetContext> GrContext::makeDeferredRenderTargetContext(
     desc.fConfig = config;
     desc.fSampleCnt = sampleCnt;
 
-    sk_sp<GrRenderTargetProxy> rtp = GrRenderTargetProxy::Make(*this->caps(), desc, fit, budgeted);
+    sk_sp<GrSurfaceProxy> rtp = GrRenderTargetProxy::MakeDeferred(*this->caps(), desc, fit, budgeted);
 
     return fDrawingManager->makeRenderTargetContext(std::move(rtp),
                                                     std::move(colorSpace),
