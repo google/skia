@@ -261,11 +261,9 @@ public:
     bool veto(SinkFlags) const override;
 
 private:
-    Error ensureDom() const;
-
-    Path                    fPath;
-    mutable sk_sp<SkSVGDOM> fDom;
-    mutable SkScalar        fScale;
+    Name            fName;
+    sk_sp<SkSVGDOM> fDom;
+    SkScalar        fScale;
 
     typedef Src INHERITED;
 };
