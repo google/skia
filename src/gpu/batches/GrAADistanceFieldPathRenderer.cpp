@@ -70,7 +70,6 @@ GrAADistanceFieldPathRenderer::~GrAADistanceFieldPathRenderer() {
         iter.next();
         delete shapeData;
     }
-    delete fAtlas;
 
 #ifdef DF_PATH_TRACKING
     SkDebugf("Cached shapes: %d, freed shapes: %d\n", g_NumCachedShapes, g_NumFreedShapes);
@@ -516,11 +515,11 @@ bool GrAADistanceFieldPathRenderer::onDrawPath(const DrawPathArgs& args) {
     SkASSERT(!args.fShape->isEmpty());
     SkASSERT(args.fShape->hasUnstyledKey());
     if (!fAtlas) {
-        fAtlas = args.fResourceProvider->createAtlas(kAlpha_8_GrPixelConfig,
-                                                     ATLAS_TEXTURE_WIDTH, ATLAS_TEXTURE_HEIGHT,
-                                                     NUM_PLOTS_X, NUM_PLOTS_Y,
-                                                     &GrAADistanceFieldPathRenderer::HandleEviction,
-                                                     (void*)this);
+        fAtlas = args.fResourceProvider->makeAtlas(kAlpha_8_GrPixelConfig,
+                                                   ATLAS_TEXTURE_WIDTH, ATLAS_TEXTURE_HEIGHT,
+                                                   NUM_PLOTS_X, NUM_PLOTS_Y,
+                                                   &GrAADistanceFieldPathRenderer::HandleEviction,
+                                                   (void*)this);
         if (!fAtlas) {
             return false;
         }
@@ -529,9 +528,8 @@ bool GrAADistanceFieldPathRenderer::onDrawPath(const DrawPathArgs& args) {
     sk_sp<GrDrawBatch> batch(new AADistanceFieldPathBatch(args.fPaint->getColor(),
                                                           *args.fShape,
                                                           args.fAntiAlias, *args.fViewMatrix,
-                                                          fAtlas, &fShapeCache, &fShapeList,
+                                                          fAtlas.get(), &fShapeCache, &fShapeList,
                                                           args.fGammaCorrect));
-
     GrPipelineBuilder pipelineBuilder(*args.fPaint);
     pipelineBuilder.setUserStencil(args.fUserStencilSettings);
 
@@ -560,7 +558,7 @@ struct PathTestStruct {
             fShapeList.remove(shapeData);
             delete shapeData;
         }
-        delete fAtlas;
+        fAtlas = nullptr;
         fShapeCache.reset();
     }
 
@@ -581,7 +579,7 @@ struct PathTestStruct {
     }
 
     uint32_t fContextID;
-    GrBatchAtlas* fAtlas;
+    std::unique_ptr<GrBatchAtlas> fAtlas;
     ShapeCache fShapeCache;
     ShapeDataList fShapeList;
 };
@@ -593,11 +591,11 @@ DRAW_BATCH_TEST_DEFINE(AADistanceFieldPathBatch) {
         gTestStruct.fContextID = context->uniqueID();
         gTestStruct.reset();
         gTestStruct.fAtlas =
-                context->resourceProvider()->createAtlas(kAlpha_8_GrPixelConfig,
-                                                     ATLAS_TEXTURE_WIDTH, ATLAS_TEXTURE_HEIGHT,
-                                                     NUM_PLOTS_X, NUM_PLOTS_Y,
-                                                     &PathTestStruct::HandleEviction,
-                                                     (void*)&gTestStruct);
+                context->resourceProvider()->makeAtlas(kAlpha_8_GrPixelConfig,
+                                                       ATLAS_TEXTURE_WIDTH, ATLAS_TEXTURE_HEIGHT,
+                                                       NUM_PLOTS_X, NUM_PLOTS_Y,
+                                                       &PathTestStruct::HandleEviction,
+                                                       (void*)&gTestStruct);
     }
 
     SkMatrix viewMatrix = GrTest::TestMatrix(random);
@@ -612,7 +610,7 @@ DRAW_BATCH_TEST_DEFINE(AADistanceFieldPathBatch) {
                                         shape,
                                         antiAlias,
                                         viewMatrix,
-                                        gTestStruct.fAtlas,
+                                        gTestStruct.fAtlas.get(),
                                         &gTestStruct.fShapeCache,
                                         &gTestStruct.fShapeList,
                                         gammaCorrect);

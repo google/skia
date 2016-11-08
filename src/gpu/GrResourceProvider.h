@@ -144,8 +144,9 @@ public:
      *
      *   @return                 An initialized GrBatchAtlas, or nullptr if creation fails
      */
-    GrBatchAtlas* createAtlas(GrPixelConfig, int width, int height, int numPlotsX, int numPlotsY,
-                              GrBatchAtlas::EvictionFunc func, void* data);
+    std::unique_ptr<GrBatchAtlas> makeAtlas(GrPixelConfig, int width, int height,
+                                            int numPlotsX, int numPlotsY,
+                                            GrBatchAtlas::EvictionFunc func, void* data);
 
     /**
      * If passed in render target already has a stencil buffer, return it. Otherwise attempt to

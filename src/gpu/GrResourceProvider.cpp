@@ -135,10 +135,11 @@ GrBuffer* GrResourceProvider::createBuffer(size_t size, GrBufferType intendedTyp
     return buffer;
 }
 
-GrBatchAtlas* GrResourceProvider::createAtlas(GrPixelConfig config,
-                                              int width, int height,
-                                              int numPlotsX, int numPlotsY,
-                                              GrBatchAtlas::EvictionFunc func, void* data) {
+std::unique_ptr<GrBatchAtlas> GrResourceProvider::makeAtlas(GrPixelConfig config,
+                                                            int width, int height,
+                                                            int numPlotsX, int numPlotsY,
+                                                            GrBatchAtlas::EvictionFunc func,
+                                                            void* data) {
     GrSurfaceDesc desc;
     desc.fFlags = kNone_GrSurfaceFlags;
     desc.fWidth = width;
@@ -149,11 +150,11 @@ GrBatchAtlas* GrResourceProvider::createAtlas(GrPixelConfig config,
     // guarantee we do not recieve a texture with pending IO
     // TODO: Determine how to avoid having to do this. (https://bug.skia.org/4156)
     static const uint32_t kFlags = GrResourceProvider::kNoPendingIO_Flag;
-    GrTexture* texture = this->createApproxTexture(desc, kFlags);
+    sk_sp<GrTexture> texture(this->createApproxTexture(desc, kFlags));
     if (!texture) {
         return nullptr;
     }
-    GrBatchAtlas* atlas = new GrBatchAtlas(texture, numPlotsX, numPlotsY);
+    std::unique_ptr<GrBatchAtlas> atlas(new GrBatchAtlas(std::move(texture), numPlotsX, numPlotsY));
     atlas->registerEvictionCallback(func, data);
     return atlas;
 }
