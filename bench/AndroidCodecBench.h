@@ -13,6 +13,7 @@
 #include "SkImageInfo.h"
 #include "SkRefCnt.h"
 #include "SkString.h"
+#include "SkTypesPriv.h"
 
 /**
  *  Time SkAndroidCodec.

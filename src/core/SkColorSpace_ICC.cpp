@@ -13,6 +13,7 @@
 #include "SkEndian.h"
 #include "SkFixed.h"
 #include "SkTemplates.h"
+#include "SkTypesPriv.h"
 
 #define return_if_false(pred, msg)                                   \
     do {                                                             \

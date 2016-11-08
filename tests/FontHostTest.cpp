@@ -12,6 +12,7 @@
 #include "SkPaint.h"
 #include "SkStream.h"
 #include "SkTypeface.h"
+#include "SkTypesPriv.h"
 #include "Test.h"
 
 //#define DUMP_TABLES

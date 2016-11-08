@@ -14,6 +14,7 @@
 #include "SkCachedData.h"
 #include "SkRefCnt.h"
 #include "SkResourceCache.h"
+#include "SkTypesPriv.h"
 #include "SkYUVPlanesCache.h"
 
 namespace {

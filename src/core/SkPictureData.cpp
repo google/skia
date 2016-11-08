@@ -11,6 +11,7 @@
 #include "SkReadBuffer.h"
 #include "SkTextBlob.h"
 #include "SkTypeface.h"
+#include "SkTypesPriv.h"
 #include "SkWriteBuffer.h"
 
 #if SK_SUPPORT_GPU

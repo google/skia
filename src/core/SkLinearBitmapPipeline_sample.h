@@ -17,6 +17,7 @@
 #include "SkLinearBitmapPipeline_core.h"
 #include "SkNx.h"
 #include "SkPM4fPriv.h"
+#include "SkTypesPriv.h"
 
 namespace {
 // Explaination of the math:

@@ -8,6 +8,7 @@
 #include "ktx.h"
 #include "SkBitmap.h"
 #include "SkStream.h"
+#include "SkTypesPriv.h"
 #include "SkEndian.h"
 
 #include "gl/GrGLDefines.h"
