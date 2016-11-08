@@ -855,7 +855,8 @@ bool GrGLCaps::hasPathRenderingSupport(const GrGLContextInfo& ctxInfo, const GrG
 bool GrGLCaps::readPixelsSupported(GrPixelConfig surfaceConfig,
                                    GrPixelConfig readConfig,
                                    std::function<void (GrGLenum, GrGLint*)> getIntegerv,
-                                   std::function<bool ()> bindRenderTarget) const {
+                                   std::function<bool ()> bindRenderTarget,
+                                   std::function<void ()> unbindRenderTarget) const {
     // If it's not possible to even have a color attachment of surfaceConfig then read pixels is
     // not supported regardless of readConfig.
     if (!this->canConfigBeFBOColorAttachment(surfaceConfig)) {
@@ -912,6 +913,7 @@ bool GrGLCaps::readPixelsSupported(GrPixelConfig surfaceConfig,
         getIntegerv(GR_GL_IMPLEMENTATION_COLOR_READ_TYPE, &type);
         rpFormat->fFormat = format;
         rpFormat->fType = type;
+        unbindRenderTarget();
     }
 
     return fConfigTable[surfaceConfig].fSecondReadPixelsFormat.fFormat == readFormat &&

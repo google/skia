@@ -2293,31 +2293,50 @@ bool GrGLGpu::readPixelsSupported(GrRenderTarget* target, GrPixelConfig readConf
         this->flushRenderTarget(static_cast<GrGLRenderTarget*>(target), &SkIRect::EmptyIRect());
         return true;
     };
+    auto unbindRenderTarget = []{};
     auto getIntegerv = [this](GrGLenum query, GrGLint* value) {
         GR_GL_GetIntegerv(this->glInterface(), query, value);
     };
     GrPixelConfig rtConfig = target->config();
-    return this->glCaps().readPixelsSupported(rtConfig, readConfig, getIntegerv, bindRenderTarget);
+    return this->glCaps().readPixelsSupported(rtConfig, readConfig, getIntegerv, bindRenderTarget,
+                                              unbindRenderTarget);
 }
 
 bool GrGLGpu::readPixelsSupported(GrPixelConfig rtConfig, GrPixelConfig readConfig) {
-    auto bindRenderTarget = [this, rtConfig]() -> bool {
+    sk_sp<GrTexture> temp;
+    auto bindRenderTarget = [this, rtConfig, &temp]() -> bool {
         GrTextureDesc desc;
         desc.fConfig = rtConfig;
         desc.fWidth = desc.fHeight = 16;
-        desc.fFlags = kRenderTarget_GrSurfaceFlag;
-        sk_sp<GrTexture> temp(this->createTexture(desc, SkBudgeted::kNo));
-        if (!temp) {
-            return false;
+        if (this->glCaps().isConfigRenderable(rtConfig, false)) {
+            desc.fFlags = kRenderTarget_GrSurfaceFlag;
+            temp.reset(this->createTexture(desc, SkBudgeted::kNo));
+            if (!temp) {
+                return false;
+            }
+            GrGLRenderTarget* glrt = static_cast<GrGLRenderTarget*>(temp->asRenderTarget());
+            this->flushRenderTarget(glrt, &SkIRect::EmptyIRect());
+            return true;
+        } else if (this->glCaps().canConfigBeFBOColorAttachment(rtConfig)) {
+            temp.reset(this->createTexture(desc, SkBudgeted::kNo));
+            if (!temp) {
+                return false;
+            }
+            GrGLIRect vp;
+            this->bindSurfaceFBOForPixelOps(temp.get(), GR_GL_FRAMEBUFFER, &vp, kDst_TempFBOTarget);
+            fHWBoundRenderTargetUniqueID = 0;
+            return true;
         }
-        GrGLRenderTarget* glrt = static_cast<GrGLRenderTarget*>(temp->asRenderTarget());
-        this->flushRenderTarget(glrt, &SkIRect::EmptyIRect());
-        return true;
+        return false;
+    };
+    auto unbindRenderTarget = [this, &temp]() {
+        this->unbindTextureFBOForPixelOps(GR_GL_FRAMEBUFFER, temp.get());
     };
     auto getIntegerv = [this](GrGLenum query, GrGLint* value) {
         GR_GL_GetIntegerv(this->glInterface(), query, value);
     };
-    return this->glCaps().readPixelsSupported(rtConfig, readConfig, getIntegerv, bindRenderTarget);
+    return this->glCaps().readPixelsSupported(rtConfig, readConfig, getIntegerv, bindRenderTarget,
+                                              unbindRenderTarget);
 }
 
 bool GrGLGpu::readPixelsSupported(GrSurface* surfaceForConfig, GrPixelConfig readConfig) {

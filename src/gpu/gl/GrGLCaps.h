@@ -320,7 +320,8 @@ public:
     bool readPixelsSupported(GrPixelConfig surfaceConfig,
                              GrPixelConfig readConfig,
                              std::function<void (GrGLenum, GrGLint*)> getIntegerv,
-                             std::function<bool ()> bindRenderTarget) const;
+                             std::function<bool ()> bindRenderTarget,
+                             std::function<void ()> unbindRenderTarget) const;
 
     bool isCoreProfile() const { return fIsCoreProfile; }
 
