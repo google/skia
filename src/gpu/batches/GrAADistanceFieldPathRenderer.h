@@ -90,9 +90,9 @@ private:
     typedef SkTDynamicHash<ShapeData, ShapeData::Key> ShapeCache;
     typedef SkTInternalLList<ShapeData> ShapeDataList;
 
-    GrBatchAtlas*                      fAtlas;
-    ShapeCache                         fShapeCache;
-    ShapeDataList                      fShapeList;
+    std::unique_ptr<GrBatchAtlas> fAtlas;
+    ShapeCache fShapeCache;
+    ShapeDataList fShapeList;
 
     typedef GrPathRenderer INHERITED;
 
