@@ -169,9 +169,9 @@ enum SkYUVColorSpace {
 
 ///////////////////////////////////////////////////////////////////////////////
 
-enum class SkSourceGammaTreatment {
-    kRespect,
-    kIgnore,
+enum class SkDestinationSurfaceColorMode {
+    kLegacy,
+    kGammaAndColorSpaceAware,
 };
 
 /**

@@ -332,9 +332,9 @@ public:
     GrPixelConfig config() const { return fRenderTargetProxy->config(); }
     int numColorSamples() const { return fRenderTargetProxy->numColorSamples(); }
     bool isGammaCorrect() const { return SkToBool(fColorSpace.get()); }
-    SkSourceGammaTreatment sourceGammaTreatment() const {
-        return this->isGammaCorrect() ? SkSourceGammaTreatment::kRespect
-                                      : SkSourceGammaTreatment::kIgnore;
+    SkDestinationSurfaceColorMode colorMode() const {
+        return this->isGammaCorrect() ? SkDestinationSurfaceColorMode::kGammaAndColorSpaceAware
+                                      : SkDestinationSurfaceColorMode::kLegacy;
     }
     const SkSurfaceProps& surfaceProps() const { return fSurfaceProps; }
     SkColorSpace* getColorSpace() const { return fColorSpace.get(); }

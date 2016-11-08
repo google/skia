@@ -142,7 +142,7 @@ GrTexture* GrTextureAdjuster::refCopy(const CopyParams& copyParams) {
 }
 
 GrTexture* GrTextureAdjuster::refTextureSafeForParams(const GrTextureParams& params,
-                                                      SkSourceGammaTreatment gammaTreatment,
+                                                      SkDestinationSurfaceColorMode colorMode,
                                                       SkIPoint* outOffset) {
     GrTexture* texture = this->originalTexture();
     GrContext* context = texture->getContext();
@@ -369,7 +369,7 @@ sk_sp<GrFragmentProcessor> GrTextureAdjuster::createFragmentProcessor(
                                         bool coordsLimitedToConstraintRect,
                                         const GrTextureParams::FilterMode* filterOrNullForBicubic,
                                         SkColorSpace* dstColorSpace,
-                                        SkSourceGammaTreatment gammaTreatment) {
+                                        SkDestinationSurfaceColorMode colorMode) {
 
     SkMatrix textureMatrix = origTextureMatrix;
     const SkIRect* contentArea = this->contentAreaOrNull();
@@ -388,7 +388,7 @@ sk_sp<GrFragmentProcessor> GrTextureAdjuster::createFragmentProcessor(
     if (filterOrNullForBicubic) {
         params.setFilterMode(*filterOrNullForBicubic);
     }
-    sk_sp<GrTexture> texture(this->refTextureSafeForParams(params, gammaTreatment, nullptr));
+    sk_sp<GrTexture> texture(this->refTextureSafeForParams(params, colorMode, nullptr));
     if (!texture) {
         return nullptr;
     }
@@ -430,7 +430,7 @@ sk_sp<GrFragmentProcessor> GrTextureAdjuster::createFragmentProcessor(
 //////////////////////////////////////////////////////////////////////////////
 
 GrTexture* GrTextureMaker::refTextureForParams(const GrTextureParams& params,
-                                               SkSourceGammaTreatment gammaTreatment) {
+                                               SkDestinationSurfaceColorMode colorMode) {
     CopyParams copyParams;
     bool willBeMipped = params.filterMode() == GrTextureParams::kMipMap_FilterMode;
 
@@ -440,7 +440,7 @@ GrTexture* GrTextureMaker::refTextureForParams(const GrTextureParams& params,
 
     if (!fContext->getGpu()->makeCopyForTextureParams(this->width(), this->height(), params,
                                                       &copyParams)) {
-        return this->refOriginalTexture(willBeMipped, gammaTreatment);
+        return this->refOriginalTexture(willBeMipped, colorMode);
     }
     GrUniqueKey copyKey;
     this->makeCopyKey(copyParams, &copyKey);
@@ -451,7 +451,7 @@ GrTexture* GrTextureMaker::refTextureForParams(const GrTextureParams& params,
         }
     }
 
-    GrTexture* result = this->generateTextureForParams(copyParams, willBeMipped, gammaTreatment);
+    GrTexture* result = this->generateTextureForParams(copyParams, willBeMipped, colorMode);
     if (!result) {
         return nullptr;
     }
@@ -470,7 +470,7 @@ sk_sp<GrFragmentProcessor> GrTextureMaker::createFragmentProcessor(
                                         bool coordsLimitedToConstraintRect,
                                         const GrTextureParams::FilterMode* filterOrNullForBicubic,
                                         SkColorSpace* dstColorSpace,
-                                        SkSourceGammaTreatment gammaTreatment) {
+                                        SkDestinationSurfaceColorMode colorMode) {
 
     const GrTextureParams::FilterMode* fmForDetermineDomain = filterOrNullForBicubic;
     if (filterOrNullForBicubic && GrTextureParams::kMipMap_FilterMode == *filterOrNullForBicubic &&
@@ -491,7 +491,7 @@ sk_sp<GrFragmentProcessor> GrTextureMaker::createFragmentProcessor(
         // Bicubic doesn't use filtering for it's texture accesses.
         params.reset(SkShader::kClamp_TileMode, GrTextureParams::kNone_FilterMode);
     }
-    sk_sp<GrTexture> texture(this->refTextureForParams(params, gammaTreatment));
+    sk_sp<GrTexture> texture(this->refTextureForParams(params, colorMode));
     if (!texture) {
         return nullptr;
     }
@@ -511,8 +511,8 @@ sk_sp<GrFragmentProcessor> GrTextureMaker::createFragmentProcessor(
 }
 
 GrTexture* GrTextureMaker::generateTextureForParams(const CopyParams& copyParams, bool willBeMipped,
-                                                    SkSourceGammaTreatment gammaTreatment) {
-    sk_sp<GrTexture> original(this->refOriginalTexture(willBeMipped, gammaTreatment));
+                                                    SkDestinationSurfaceColorMode colorMode) {
+    sk_sp<GrTexture> original(this->refOriginalTexture(willBeMipped, colorMode));
     if (!original) {
         return nullptr;
     }

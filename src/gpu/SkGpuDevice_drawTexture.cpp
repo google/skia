@@ -203,7 +203,7 @@ void SkGpuDevice::drawTextureProducerImpl(GrTextureProducer* producer,
     }
     sk_sp<GrFragmentProcessor> fp(producer->createFragmentProcessor(
         *textureMatrix, clippedSrcRect, constraintMode, coordsAllInsideSrcRect, filterMode,
-        fRenderTargetContext->getColorSpace(), fRenderTargetContext->sourceGammaTreatment()));
+        fRenderTargetContext->getColorSpace(), fRenderTargetContext->colorMode()));
     if (!fp) {
         return;
     }

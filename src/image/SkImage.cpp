@@ -368,7 +368,7 @@ sk_sp<SkImage> SkImage::MakeTextureFromPixmap(GrContext*, const SkPixmap&, SkBud
 }
 
 sk_sp<SkImage> MakeTextureFromMipMap(GrContext*, const SkImageInfo&, const GrMipLevel* texels,
-                                     int mipLevelCount, SkBudgeted, SkSourceGammaTreatment) {
+                                     int mipLevelCount, SkBudgeted, SkDestinationSurfaceColorMode) {
     return nullptr;
 }
 

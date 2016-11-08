@@ -40,7 +40,7 @@ public:
 
     bool getROPixels(SkBitmap*, CachingHint) const override;
     GrTexture* asTextureRef(GrContext* ctx, const GrTextureParams& params,
-                            SkSourceGammaTreatment) const override;
+                            SkDestinationSurfaceColorMode) const override;
     sk_sp<SkImage> onMakeSubset(const SkIRect&) const override;
 
     GrTexture* peekTexture() const override { return fTexture.get(); }

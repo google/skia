@@ -210,8 +210,7 @@ sk_sp<GrFragmentProcessor> SkImageShader::asFragmentProcessor(const AsFPArgs& ar
     GrSkFilterQualityToGrFilterMode(args.fFilterQuality, *args.fViewMatrix, this->getLocalMatrix(),
                                     &doBicubic);
     GrTextureParams params(tm, textureFilterMode);
-    sk_sp<GrTexture> texture(as_IB(fImage)->asTextureRef(args.fContext, params,
-                                                         args.fGammaTreatment));
+    sk_sp<GrTexture> texture(as_IB(fImage)->asTextureRef(args.fContext, params, args.fColorMode));
     if (!texture) {
         return nullptr;
     }

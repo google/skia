@@ -314,10 +314,9 @@ protected:
 
     static void draw_as_tex(SkCanvas* canvas, SkImageCacherator* cache, SkScalar x, SkScalar y) {
 #if SK_SUPPORT_GPU
-        sk_sp<GrTexture> texture(cache->lockAsTexture(canvas->getGrContext(),
-                                                      GrTextureParams::ClampBilerp(),
-                                                      SkSourceGammaTreatment::kRespect,
-                                                      nullptr));
+        sk_sp<GrTexture> texture(
+            cache->lockAsTexture(canvas->getGrContext(), GrTextureParams::ClampBilerp(),
+                                 SkDestinationSurfaceColorMode::kGammaAndColorSpaceAware, nullptr));
         if (!texture) {
             // show placeholder if we have no texture
             SkPaint paint;

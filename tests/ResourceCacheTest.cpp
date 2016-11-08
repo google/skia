@@ -1369,7 +1369,7 @@ static sk_sp<GrTexture> make_mipmap_texture(GrTextureProvider* provider,
     bm.allocN32Pixels(width, height, true);
     bm.eraseColor(SK_ColorBLUE);
 
-    sk_sp<SkMipMap> mipmaps(SkMipMap::Build(bm, SkSourceGammaTreatment::kIgnore, nullptr));
+    sk_sp<SkMipMap> mipmaps(SkMipMap::Build(bm, SkDestinationSurfaceColorMode::kLegacy, nullptr));
     SkASSERT(mipmaps);
     SkASSERT(mipmaps->countLevels() > 1);
 

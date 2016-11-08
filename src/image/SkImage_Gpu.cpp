@@ -86,10 +86,10 @@ bool SkImage_Gpu::getROPixels(SkBitmap* dst, CachingHint chint) const {
 }
 
 GrTexture* SkImage_Gpu::asTextureRef(GrContext* ctx, const GrTextureParams& params,
-                                     SkSourceGammaTreatment gammaTreatment) const {
+                                     SkDestinationSurfaceColorMode colorMode) const {
     GrTextureAdjuster adjuster(this->peekTexture(), this->alphaType(), this->bounds(), this->uniqueID(),
                                this->onImageInfo().colorSpace());
-    return adjuster.refTextureSafeForParams(params, gammaTreatment, nullptr);
+    return adjuster.refTextureSafeForParams(params, colorMode, nullptr);
 }
 
 static void apply_premul(const SkImageInfo& info, void* pixels, size_t rowBytes) {
@@ -294,8 +294,9 @@ sk_sp<SkImage> SkImage::MakeFromNV12TexturesCopy(GrContext* ctx, SkYUVColorSpace
 }
 
 static sk_sp<SkImage> create_image_from_maker(GrTextureMaker* maker, SkAlphaType at, uint32_t id) {
-    sk_sp<GrTexture> texture(maker->refTextureForParams(GrTextureParams::ClampNoFilter(),
-                                                        SkSourceGammaTreatment::kRespect));
+    sk_sp<GrTexture> texture(
+        maker->refTextureForParams(GrTextureParams::ClampNoFilter(),
+                                   SkDestinationSurfaceColorMode::kGammaAndColorSpaceAware));
     if (!texture) {
         return nullptr;
     }
@@ -364,23 +365,23 @@ struct MipMapLevelData {
 };
 
 struct DeferredTextureImage {
-    uint32_t               fContextUniqueID;
-    // Right now, the gamma treatment is only considered when generating mipmaps
-    SkSourceGammaTreatment fGammaTreatment;
+    uint32_t                      fContextUniqueID;
+    // Right now, the destination color mode is only considered when generating mipmaps
+    SkDestinationSurfaceColorMode fColorMode;
     // We don't store a SkImageInfo because it contains a ref-counted SkColorSpace.
-    int                    fWidth;
-    int                    fHeight;
-    SkColorType            fColorType;
-    SkAlphaType            fAlphaType;
-    void*                  fColorSpace;
-    size_t                 fColorSpaceSize;
-    int                    fColorTableCnt;
-    uint32_t*              fColorTableData;
-    int                    fMipMapLevelCount;
+    int                           fWidth;
+    int                           fHeight;
+    SkColorType                   fColorType;
+    SkAlphaType                   fAlphaType;
+    void*                         fColorSpace;
+    size_t                        fColorSpaceSize;
+    int                           fColorTableCnt;
+    uint32_t*                     fColorTableData;
+    int                           fMipMapLevelCount;
     // The fMipMapLevelData array may contain more than 1 element.
     // It contains fMipMapLevelCount elements.
     // That means this struct's size is not known at compile-time.
-    MipMapLevelData        fMipMapLevelData[1];
+    MipMapLevelData               fMipMapLevelData[1];
 };
 }  // anonymous namespace
 
@@ -569,10 +570,10 @@ size_t SkImage::getDeferredTextureImageData(const GrContextThreadSafeProxy& prox
     // If the context has sRGB support, and we're intending to render to a surface with an attached
     // color space, and the image has an sRGB-like color space attached, then use our gamma (sRGB)
     // aware mip-mapping.
-    SkSourceGammaTreatment gammaTreatment = SkSourceGammaTreatment::kIgnore;
+    SkDestinationSurfaceColorMode colorMode = SkDestinationSurfaceColorMode::kLegacy;
     if (proxy.fCaps->srgbSupport() && SkToBool(dstColorSpace) &&
         info.colorSpace() && info.colorSpace()->gammaCloseToSRGB()) {
-        gammaTreatment = SkSourceGammaTreatment::kRespect;
+        colorMode = SkDestinationSurfaceColorMode::kGammaAndColorSpaceAware;
     }
 
     SkASSERT(info == pixmap.info());
@@ -580,7 +581,7 @@ size_t SkImage::getDeferredTextureImageData(const GrContextThreadSafeProxy& prox
     static_assert(std::is_standard_layout<DeferredTextureImage>::value,
                   "offsetof, which we use below, requires the type have standard layout");
     auto dtiBufferFiller = DTIBufferFiller{bufferAsCharPtr};
-    FILL_MEMBER(dtiBufferFiller, fGammaTreatment, &gammaTreatment);
+    FILL_MEMBER(dtiBufferFiller, fColorMode, &colorMode);
     FILL_MEMBER(dtiBufferFiller, fContextUniqueID, &proxy.fContextUniqueID);
     int width = info.width();
     FILL_MEMBER(dtiBufferFiller, fWidth, &width);
@@ -616,7 +617,7 @@ size_t SkImage::getDeferredTextureImageData(const GrContextThreadSafeProxy& prox
         static_assert(std::is_standard_layout<MipMapLevelData>::value,
                       "offsetof, which we use below, requires the type have a standard layout");
 
-        std::unique_ptr<SkMipMap> mipmaps(SkMipMap::Build(pixmap, gammaTreatment, nullptr));
+        std::unique_ptr<SkMipMap> mipmaps(SkMipMap::Build(pixmap, colorMode, nullptr));
         // SkMipMap holds only the mipmap levels it generates.
         // A programmer can use the data they provided to SkMipMap::Build as level 0.
         // So the SkMipMap provides levels 1-x but it stores them in its own
@@ -690,7 +691,7 @@ sk_sp<SkImage> SkImage::MakeFromDeferredTextureImageData(GrContext* context, con
 
         return SkImage::MakeTextureFromMipMap(context, info, texels.get(),
                                               mipLevelCount, SkBudgeted::kYes,
-                                              dti->fGammaTreatment);
+                                              dti->fColorMode);
     }
 }
 
@@ -699,7 +700,7 @@ sk_sp<SkImage> SkImage::MakeFromDeferredTextureImageData(GrContext* context, con
 sk_sp<SkImage> SkImage::MakeTextureFromMipMap(GrContext* ctx, const SkImageInfo& info,
                                               const GrMipLevel* texels, int mipLevelCount,
                                               SkBudgeted budgeted,
-                                              SkSourceGammaTreatment gammaTreatment) {
+                                              SkDestinationSurfaceColorMode colorMode) {
     if (!ctx) {
         return nullptr;
     }
@@ -707,7 +708,7 @@ sk_sp<SkImage> SkImage::MakeTextureFromMipMap(GrContext* ctx, const SkImageInfo&
     if (!texture) {
         return nullptr;
     }
-    texture->texturePriv().setGammaTreatment(gammaTreatment);
+    texture->texturePriv().setMipColorMode(colorMode);
     return sk_make_sp<SkImage_Gpu>(texture->width(), texture->height(), kNeedNewImageUniqueID,
                                    info.alphaType(), std::move(texture),
                                    sk_ref_sp(info.colorSpace()), budgeted);

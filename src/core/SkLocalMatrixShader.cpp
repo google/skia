@@ -19,7 +19,7 @@ sk_sp<GrFragmentProcessor> SkLocalMatrixShader::asFragmentProcessor(const AsFPAr
     }
     return fProxyShader->asFragmentProcessor(AsFPArgs(
         args.fContext, args.fViewMatrix, &tmp, args.fFilterQuality, args.fDstColorSpace,
-        args.fGammaTreatment));
+        args.fColorMode));
 }
 #endif
 
