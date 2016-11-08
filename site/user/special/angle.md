@@ -13,8 +13,7 @@ Details
 
 `gclient sync` downloads ANGLE's source alongside Skia's other test-only dependencies.
 
-To build Skia testing tools against ANGLE, add `skia_use_angle = true` to your
-`args.gn` file (or run `gn args` to edit it).
+ANGLE is built when building Skia test tools on Windows and Linux.
 
 When running tools, use `--config angle_<backend>_<frontend>`, e.g.
 
