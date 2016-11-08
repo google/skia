@@ -21,6 +21,7 @@ class SkColorSpace;
 class SkImage;
 class SkPath;
 class SkPicture;
+class SkRasterPipeline;
 class SkXfermode;
 class GrContext;
 class GrFragmentProcessor;
@@ -400,7 +401,7 @@ public:
 
     //////////////////////////////////////////////////////////////////////////
     //  Factory methods for stock shaders
-    
+
     /**
      *  Call this to create a new "empty" shader, that will not draw anything.
      */
@@ -468,6 +469,9 @@ public:
     SK_DEFINE_FLATTENABLE_TYPE(SkShader)
     SK_DECLARE_FLATTENABLE_REGISTRAR_GROUP()
 
+    bool appendStages(SkRasterPipeline*, const SkMatrix&, void*) const;
+    bool isConstant() const;
+
 protected:
     void flatten(SkWriteBuffer&) const override;
 
@@ -498,6 +502,9 @@ protected:
     virtual SkImage* onIsAImage(SkMatrix*, TileMode[2]) const {
         return nullptr;
     }
+
+    virtual bool onAppendStages(SkRasterPipeline*, const SkMatrix&, void*) const;
+    virtual bool onIsConstant() const;
 
 private:
     // This is essentially const, but not officially so it can be modified in

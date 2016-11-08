@@ -274,3 +274,19 @@ void SkEmptyShader::toString(SkString* str) const {
     str->append(")");
 }
 #endif
+
+bool SkShader::appendStages(SkRasterPipeline* p, const SkMatrix& inv, void* scratch) const {
+    return this->onAppendStages(p, inv, scratch);
+}
+
+bool SkShader::isConstant() const {
+    return this->onIsConstant();
+}
+
+bool SkShader::onAppendStages(SkRasterPipeline*, const SkMatrix&, void*) const {
+    return false;
+}
+
+bool SkShader::onIsConstant() const {
+    return false;
+}
