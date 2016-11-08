@@ -40,10 +40,12 @@ var (
 		"Build-Mac-Clang-arm64-Debug-GN_iOS",
 		"Build-Ubuntu-GCC-x86_64-Release-GN",
 		"Build-Win-Clang-arm64-Release-GN_Android",
+		"Housekeeper-PerCommit-InfraTests",
+		"Build-Ubuntu-Clang-arm64-Release-GN_Android_Skpbench",
+		"Perf-Android-Clang-PixelC-GPU-TegraX1-arm64-Release-GN_Android_Skpbench",
 		"Perf-Ubuntu-GCC-GCE-CPU-AVX2-x86_64-Release-GN",
 		"Test-Android-Clang-AndroidOne-GPU-Mali400MP2-arm-Release-GN_Android",
 		"Test-Ubuntu-GCC-GCE-CPU-AVX2-x86_64-Release-GN",
-		"Housekeeper-PerCommit-InfraTests",
 	}
 
 	// UPLOAD_DIMENSIONS are the Swarming dimensions for upload tasks.
@@ -120,8 +122,6 @@ func swarmDimensions(parts map[string]string) []string {
 			// than CPU or GPU.
 			d["device_type"] = map[string]string{
 				"AndroidOne":    "sprout",
-				"GalaxyS3":      "m0", // "smdk4x12", Detected incorrectly by swarming?
-				"GalaxyS4":      "",   // TODO(borenet,kjlubick)
 				"GalaxyS7":      "heroqlteatt",
 				"NVIDIA_Shield": "foster",
 				"Nexus10":       "manta",
@@ -132,14 +132,17 @@ func swarmDimensions(parts map[string]string) []string {
 				"Nexus7v2":      "flo",
 				"Nexus9":        "flounder",
 				"NexusPlayer":   "fugu",
+				"Pixel":         "sailfish",
+				"PixelC":        "dragon",
+				"PixelXL":       "marlin",
 			}[parts["model"]]
 		} else if strings.Contains(parts["os"], "iOS") {
 			d["device"] = map[string]string{
-				"iPad4": "iPad4,1",
+				"iPad4": "iPad5,1",
 			}[parts["model"]]
 			// TODO(borenet): Replace this hack with something
 			// better.
-			d["os"] = "iOS-9.2"
+			d["os"] = "iOS-9.3.1"
 		} else if parts["cpu_or_gpu"] == "CPU" {
 			d["gpu"] = "none"
 			d["cpu"] = map[string]string{
@@ -156,15 +159,16 @@ func swarmDimensions(parts map[string]string) []string {
 			}
 		} else {
 			d["gpu"] = map[string]string{
-				"GeForce320M": "10de:08a4",
-				"GT610":       "10de:104a",
-				"GTX550Ti":    "10de:1244",
-				"GTX660":      "10de:11c0",
-				"GTX960":      "10de:1401",
-				"HD4000":      "8086:0a2e",
-				"HD4600":      "8086:0412",
-				"HD7770":      "1002:683d",
-				"iHD530":      "8086:1912",
+				"GeForce320M":   "10de:08a4",
+				"GT610":         "10de:104a",
+				"GTX550Ti":      "10de:1244",
+				"GTX660":        "10de:11c0",
+				"GTX960":        "10de:1401",
+				"HD4000":        "8086:0a2e",
+				"HD4600":        "8086:0412",
+				"HD7770":        "1002:683d",
+				"iHD530":        "8086:1912",
+				"IntelIris6100": "8086:162b",
 			}[parts["cpu_or_gpu_value"]]
 		}
 	} else {
