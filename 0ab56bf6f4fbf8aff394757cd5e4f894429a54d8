@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "0b64332d_b7e60230",
+        "filename": "infra/bots/recipes/swarm_trigger.py",
+        "patchSetId": 3
+      },
+      "lineNbr": 221,
+      "author": {
+        "id": 5610
+      },
+      "writtenOn": "2016-11-08T15:58:56Z",
+      "side": 1,
+      "message": "don\u0027t copy this. All Gerrit properties are patch_* now. In fact, you might as well iterate over a loop and copy everything starting with patch_ :)",
+      "revId": "0ab56bf6f4fbf8aff394757cd5e4f894429a54d8",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
