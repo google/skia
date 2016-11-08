@@ -27,7 +27,6 @@ public:
                                            SkBackingFit, SkBudgeted);
     static sk_sp<GrRenderTargetProxy> Make(sk_sp<GrRenderTarget>);
 
-    // TODO: add asTextureProxy variants
     GrRenderTargetProxy* asRenderTargetProxy() override { return this; }
     const GrRenderTargetProxy* asRenderTargetProxy() const override { return this; }
 
