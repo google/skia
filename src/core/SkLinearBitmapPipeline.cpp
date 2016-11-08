@@ -597,7 +597,7 @@ private:
 
     SkPM4f* fDst;
     SkPM4f* fEnd;
-    Sk4f fPostAlpha;
+    float   fPostAlpha;
 };
 
 static SkLinearBitmapPipeline::BlendProcessorInterface* choose_blender_for_shading(

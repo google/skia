@@ -26,12 +26,12 @@ public:
     bool maybeProcessSpan(Span span, Next* next) {
         SkPoint start; SkScalar length; int count;
         std::tie(start, length, count) = span;
-        next->pointSpan(Span{start + SkPoint{fXOffset[0], fYOffset[0]}, length, count});
+        next->pointSpan(Span{start + SkPoint{fXOffset, fYOffset}, length, count});
         return true;
     }
 
 private:
-    const Sk4s fXOffset, fYOffset;
+    const SkScalar fXOffset, fYOffset;
 };
 
 class ScaleMatrixStrategy {
@@ -49,15 +49,15 @@ public:
         SkPoint start; SkScalar length; int count;
         std::tie(start, length, count) = span;
         SkPoint newStart =
-            SkPoint{X(start) * fXScale[0] + fXOffset[0], Y(start) * fYScale[0] + fYOffset[0]};
-        SkScalar newLength = length * fXScale[0];
+            SkPoint{X(start) * fXScale + fXOffset, Y(start) * fYScale + fYOffset};
+        SkScalar newLength = length * fXScale;
         next->pointSpan(Span{newStart, newLength, count});
         return true;
     }
 
 private:
-    const Sk4s fXOffset, fYOffset;
-    const Sk4s fXScale, fYScale;
+    const SkScalar fXOffset, fYOffset;
+    const SkScalar fXScale,  fYScale;
 };
 
 class AffineMatrixStrategy {
@@ -80,9 +80,9 @@ public:
     }
 
 private:
-    const Sk4s fXOffset, fYOffset;
-    const Sk4s fXScale,  fYScale;
-    const Sk4s fXSkew,   fYSkew;
+    const SkScalar fXOffset, fYOffset;
+    const SkScalar fXScale,  fYScale;
+    const SkScalar fXSkew,   fYSkew;
 };
 
 class PerspectiveMatrixStrategy {
@@ -107,9 +107,9 @@ public:
     }
 
 private:
-    const Sk4s fXOffset, fYOffset, fZOffset;
-    const Sk4s fXScale,  fYScale;
-    const Sk4s fXSkew,   fYSkew, fZXSkew, fZYSkew;
+    const SkScalar fXOffset, fYOffset, fZOffset;
+    const SkScalar fXScale,  fYScale;
+    const SkScalar fXSkew,   fYSkew,   fZXSkew, fZYSkew;
 };
 
 
