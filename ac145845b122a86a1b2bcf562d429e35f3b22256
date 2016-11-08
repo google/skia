@@ -1,0 +1,130 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "2bde5729_c96784d4",
+        "filename": "include/gpu/GrTypes.h",
+        "patchSetId": 10
+      },
+      "lineNbr": 235,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2016-11-08T15:54:53Z",
+      "side": 1,
+      "message": "nit: \"s\" is a bit loaded when it comes to color configs (srgb, etc.). And \"int\" could potentially be unclear on whether it refers to the storage format or the fact that it represents non-unorm. Do you think \"kRGBA_8888_integer\" would be less or more ambiguous?",
+      "range": {
+        "startLine": 235,
+        "startChar": 4,
+        "endLine": 235,
+        "endChar": 33
+      },
+      "revId": "ac145845b122a86a1b2bcf562d429e35f3b22256",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "2bde5729_290b88d2",
+        "filename": "src/gpu/gl/GrGLCaps.cpp",
+        "patchSetId": 10
+      },
+      "lineNbr": 909,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2016-11-08T15:54:53Z",
+      "side": 1,
+      "message": "I believe these two case blocks are accidentally swapped",
+      "range": {
+        "startLine": 909,
+        "startChar": 12,
+        "endLine": 909,
+        "endChar": 17
+      },
+      "revId": "ac145845b122a86a1b2bcf562d429e35f3b22256",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "2bde5729_e9b280e9",
+        "filename": "src/gpu/gl/GrGLGpu.cpp",
+        "patchSetId": 10
+      },
+      "lineNbr": 982,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2016-11-08T15:54:53Z",
+      "side": 1,
+      "message": "Is it valid to call this method with zero mip levels?",
+      "revId": "ac145845b122a86a1b2bcf562d429e35f3b22256",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "2bde5729_09c08c35",
+        "filename": "src/gpu/gl/GrGLTexture.cpp",
+        "patchSetId": 10
+      },
+      "lineNbr": 18,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2016-11-08T15:54:53Z",
+      "side": 1,
+      "message": "Should we assert the config is not integer?",
+      "range": {
+        "startLine": 18,
+        "startChar": 8,
+        "endLine": 18,
+        "endChar": 16
+      },
+      "revId": "ac145845b122a86a1b2bcf562d429e35f3b22256",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "2bde5729_29bd48b7",
+        "filename": "src/gpu/gl/GrGLTexture.cpp",
+        "patchSetId": 10
+      },
+      "lineNbr": 21,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2016-11-08T15:54:53Z",
+      "side": 1,
+      "message": "ditto",
+      "revId": "ac145845b122a86a1b2bcf562d429e35f3b22256",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "2bde5729_c99ea44a",
+        "filename": "src/gpu/vk/GrVkUtil.cpp",
+        "patchSetId": 10
+      },
+      "lineNbr": 76,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2016-11-08T15:54:53Z",
+      "side": 1,
+      "message": "Maybe an SkFAIL or something before this return?",
+      "range": {
+        "startLine": 76,
+        "startChar": 11,
+        "endLine": 76,
+        "endChar": 16
+      },
+      "revId": "ac145845b122a86a1b2bcf562d429e35f3b22256",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
