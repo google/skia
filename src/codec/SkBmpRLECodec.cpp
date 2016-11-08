@@ -341,7 +341,7 @@ int SkBmpRLECodec::decodeRows(const SkImageInfo& info, void* dst, size_t dstRowB
     SkImageInfo decodeInfo = dstInfo;
     if (decodeDst) {
         if (this->colorXform()) {
-            decodeInfo = decodeInfo.makeColorType(kBGRA_8888_SkColorType);
+            decodeInfo = decodeInfo.makeColorType(kXformSrcColorType);
             if (kRGBA_F16_SkColorType == dstInfo.colorType()) {
                 int count = height * dstInfo.width();
                 this->resetXformBuffer(count);

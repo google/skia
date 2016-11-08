@@ -110,6 +110,12 @@ protected:
     uint32_t* xformBuffer() const { return fXformBuffer.get(); }
     void resetXformBuffer(int count) { fXformBuffer.reset(new uint32_t[count]); }
 
+    /*
+     * BMPs are typically encoded as BGRA/BGR so this is a more efficient choice
+     * than RGBA.
+     */
+    static const SkColorType kXformSrcColorType = kBGRA_8888_SkColorType;
+
 private:
 
     /*
