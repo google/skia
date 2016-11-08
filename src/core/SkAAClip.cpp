@@ -1331,12 +1331,16 @@ public:
             }
 
             // The supersampler's buffer can be the width of the device, so
-            // we may have to trim the run to our bounds. If so, we assert that
-            // the extra spans are always alpha==0
+            // we may have to trim the run to our bounds. Previously, we assert that
+            // the extra spans are always alpha==0.
+            // However, the analytic AA is too sensitive to precision errors
+            // so it may have extra spans with very tiny alpha because after several
+            // arithmatic operations, the edge may bleed the path boundary a little bit.
+            // Therefore, instead of always asserting alpha==0, we assert alpha < 0x10.
             int localX = x;
             int localCount = count;
             if (x < fLeft) {
-                SkASSERT(0 == *alpha);
+                SkASSERT(0x10 > *alpha);
                 int gap = fLeft - x;
                 SkASSERT(gap <= count);
                 localX += gap;
@@ -1344,7 +1348,7 @@ public:
             }
             int right = x + count;
             if (right > fRight) {
-                SkASSERT(0 == *alpha);
+                SkASSERT(0x10 > *alpha);
                 localCount -= right - fRight;
                 SkASSERT(localCount >= 0);
             }
