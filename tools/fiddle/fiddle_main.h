@@ -24,18 +24,25 @@ extern SkBitmap source;
 extern sk_sp<SkImage> image;
 
 struct DrawOptions {
-    DrawOptions(int w, int h, bool r, bool g, bool p, bool k, const char* s)
+    DrawOptions(int w, int h, bool r, bool g, bool p, bool k, bool srgb, bool gpusrgb, bool f16,
+                const char* s)
         : size(SkISize::Make(w, h))
         , raster(r)
         , gpu(g)
         , pdf(p)
         , skp(k)
+        , srgb(srgb)
+        , gpusrgb(gpusrgb)
+        , f16(f16)
         , source(s) {}
     SkISize size;
     bool raster;
     bool gpu;
     bool pdf;
     bool skp;
+    bool srgb;
+    bool gpusrgb;
+    bool f16;
     const char* source;
 };
 

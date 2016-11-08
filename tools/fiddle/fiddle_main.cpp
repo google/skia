@@ -90,6 +90,33 @@ static SkData* encode_snapshot(const sk_sp<SkSurface>& surface) {
     static sk_sp<GrContext> create_grcontext() { return nullptr; }
 #endif
 
+sk_sp<SkData> draw_raster(const SkImageInfo& info) {
+    auto rasterSurface = SkSurface::MakeRaster(info);
+    srand(0);
+    draw(rasterSurface->getCanvas());
+    return sk_sp<SkData>(encode_snapshot(rasterSurface));
+}
+
+sk_sp<SkData> draw_gpu(const SkImageInfo& info) {
+    auto grContext = create_grcontext();
+    if (!grContext) {
+        fputs("Unable to get GrContext.\n", stderr);
+        return nullptr;
+    } else {
+        auto surface = SkSurface::MakeRenderTarget(
+                grContext.get(),
+                SkBudgeted::kNo,
+                info);
+        if (!surface) {
+            fputs("Unable to get render surface.\n", stderr);
+            exit(1);
+        }
+        srand(0);
+        draw(surface->getCanvas());
+        return sk_sp<SkData>(encode_snapshot(surface));
+    }
+}
+
 int main() {
     const DrawOptions options = GetDrawOptions();
     if (options.source) {
@@ -107,31 +134,12 @@ int main() {
                                    &source, SkImage::kRO_LegacyBitmapMode));
         }
     }
-    sk_sp<SkData> rasterData, gpuData, pdfData, skpData;
+    sk_sp<SkData> rasterData, gpuData, pdfData, skpData, srgbData, gpusrgbData, f16Data;
     if (options.raster) {
-        auto rasterSurface =
-                SkSurface::MakeRaster(SkImageInfo::MakeN32Premul(options.size));
-        srand(0);
-        draw(rasterSurface->getCanvas());
-        rasterData.reset(encode_snapshot(rasterSurface));
+        rasterData = draw_raster(SkImageInfo::MakeN32Premul(options.size));
     }
     if (options.gpu) {
-        auto grContext = create_grcontext();
-        if (!grContext) {
-            fputs("Unable to get GrContext.\n", stderr);
-        } else {
-            auto surface = SkSurface::MakeRenderTarget(
-                    grContext.get(),
-                    SkBudgeted::kNo,
-                    SkImageInfo::MakeN32Premul(options.size));
-            if (!surface) {
-                fputs("Unable to get render surface.\n", stderr);
-                exit(1);
-            }
-            srand(0);
-            draw(surface->getCanvas());
-            gpuData.reset(encode_snapshot(surface));
-        }
+        gpuData = draw_gpu(SkImageInfo::MakeN32Premul(options.size));
     }
     if (options.pdf) {
         SkDynamicMemoryWStream pdfStream;
@@ -153,6 +161,21 @@ int main() {
         SkDynamicMemoryWStream skpStream;
         picture->serialize(&skpStream);
         skpData = skpStream.detachAsData();
+    }
+
+    SkImageInfo srgbInfo =
+            SkImageInfo::MakeS32(options.size.width(), options.size.height(), kPremul_SkAlphaType);
+    if (options.srgb) {
+        srgbData = draw_raster(srgbInfo);
+    }
+    if (options.gpusrgb) {
+        gpusrgbData = draw_gpu(srgbInfo);
+    }
+    if (options.f16) {
+        SkImageInfo f16Info = SkImageInfo::Make(options.size.width(), options.size.height(),
+                kRGBA_F16_SkColorType, kPremul_SkAlphaType,
+                SkColorSpace::MakeNamed(SkColorSpace::kSRGBLinear_Named));
+        f16Data = draw_raster(f16Info);
     }
 
     printf("{\n");
