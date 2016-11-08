@@ -73,8 +73,6 @@ class GNFlavorUtils(default_flavor.DefaultFlavorUtils):
 
     if configuration != 'Debug':
       args['is_debug'] = 'false'
-    if extra_config == 'ANGLE':
-      args['skia_use_angle'] = 'true'
     if extra_config == 'CommandBuffer':
       self.m.run.run_once(self.build_command_buffer)
     if extra_config == 'GDI':
