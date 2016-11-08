@@ -144,10 +144,12 @@ int SkGifCodec::onGetRepetitionCount() {
     return fReader->loopCount();
 }
 
+static const SkColorType kXformSrcColorType = kRGBA_8888_SkColorType;
+
 void SkGifCodec::initializeColorTable(const SkImageInfo& dstInfo, size_t frameIndex) {
     SkColorType colorTableColorType = dstInfo.colorType();
     if (this->colorXform()) {
-        colorTableColorType = kRGBA_8888_SkColorType;
+        colorTableColorType = kXformSrcColorType;
     }
 
     sk_sp<SkColorTable> currColorTable = fReader->getColorTable(colorTableColorType, frameIndex);
@@ -158,10 +160,10 @@ void SkGifCodec::initializeColorTable(const SkImageInfo& dstInfo, size_t frameIn
         fCurrColorTable.reset(new SkColorTable(&color, 1));
     } else if (this->colorXform() && !fXformOnDecode) {
         SkPMColor dstColors[256];
-        SkColorSpaceXform::ColorFormat dstFormat = select_xform_format(dstInfo.colorType());
-        SkColorSpaceXform::ColorFormat srcFormat = SkColorSpaceXform::kRGBA_8888_ColorFormat;
-        SkAlphaType xformAlphaType = select_xform_alpha(dstInfo.alphaType(),
-                                                        this->getInfo().alphaType());
+        const SkColorSpaceXform::ColorFormat dstFormat = select_xform_format(dstInfo.colorType());
+        const SkColorSpaceXform::ColorFormat srcFormat = select_xform_format(kXformSrcColorType);
+        const SkAlphaType xformAlphaType = select_xform_alpha(dstInfo.alphaType(),
+                                                              this->getInfo().alphaType());
         SkAssertResult(this->colorXform()->apply(dstFormat, dstColors, srcFormat,
                                                  currColorTable->readColors(),
                                                  currColorTable->count(), xformAlphaType));
@@ -261,7 +263,7 @@ void SkGifCodec::initializeSwizzler(const SkImageInfo& dstInfo, size_t frameInde
 
     SkImageInfo swizzlerInfo = dstInfo;
     if (this->colorXform()) {
-        swizzlerInfo = swizzlerInfo.makeColorType(kRGBA_8888_SkColorType);
+        swizzlerInfo = swizzlerInfo.makeColorType(kXformSrcColorType);
         if (kPremul_SkAlphaType == dstInfo.alphaType()) {
             swizzlerInfo = swizzlerInfo.makeAlphaType(kUnpremul_SkAlphaType);
         }
@@ -470,7 +472,7 @@ void SkGifCodec::applyXformRow(const SkImageInfo& dstInfo, void* dst, const uint
         fSwizzler->swizzle(fXformBuffer.get(), src);
 
         const SkColorSpaceXform::ColorFormat dstFormat = select_xform_format(dstInfo.colorType());
-        const SkColorSpaceXform::ColorFormat srcFormat = SkColorSpaceXform::kRGBA_8888_ColorFormat;
+        const SkColorSpaceXform::ColorFormat srcFormat = select_xform_format(kXformSrcColorType);
         const SkAlphaType xformAlphaType = select_xform_alpha(dstInfo.alphaType(),
                                                               this->getInfo().alphaType());
         const int xformWidth = get_scaled_dimension(dstInfo.width(), fSwizzler->sampleX());

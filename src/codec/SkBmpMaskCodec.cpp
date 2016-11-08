@@ -60,7 +60,7 @@ SkCodec::Result SkBmpMaskCodec::onPrepareToDecode(const SkImageInfo& dstInfo,
 
     SkImageInfo swizzlerInfo = dstInfo;
     if (this->colorXform()) {
-        swizzlerInfo = swizzlerInfo.makeColorType(kBGRA_8888_SkColorType);
+        swizzlerInfo = swizzlerInfo.makeColorType(kXformSrcColorType);
         if (kPremul_SkAlphaType == dstInfo.alphaType()) {
             swizzlerInfo = swizzlerInfo.makeAlphaType(kUnpremul_SkAlphaType);
         }
