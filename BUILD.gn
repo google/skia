@@ -501,6 +501,7 @@ optional("webp") {
 
 optional("xml") {
   enabled = skia_use_expat
+  public_defines = [ "SK_XML" ]
 
   deps = [
     "//third_party/expat",
