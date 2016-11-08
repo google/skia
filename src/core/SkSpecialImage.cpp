@@ -101,10 +101,9 @@ sk_sp<SkSpecialImage> SkSpecialImage::makeTextureImage(GrContext* context) {
         return SkSpecialImage::MakeFromRaster(SkIRect::MakeEmpty(), bmp, &this->props());
     }
 
-    sk_sp<GrTexture> resultTex(GrRefCachedBitmapTexture(context,
-                                                        bmp,
-                                                        GrTextureParams::ClampNoFilter(),
-                                                        SkSourceGammaTreatment::kRespect));
+    sk_sp<GrTexture> resultTex(
+        GrRefCachedBitmapTexture(context, bmp, GrTextureParams::ClampNoFilter(),
+                                 SkDestinationSurfaceColorMode::kGammaAndColorSpaceAware));
     if (!resultTex) {
         return nullptr;
     }
@@ -241,10 +240,9 @@ public:
 #if SK_SUPPORT_GPU
     sk_sp<GrTexture> onAsTextureRef(GrContext* context) const override {
         if (context) {
-            return sk_ref_sp(GrRefCachedBitmapTexture(context,
-                                                      fBitmap,
-                                                      GrTextureParams::ClampNoFilter(),
-                                                      SkSourceGammaTreatment::kRespect));
+            return sk_ref_sp(
+                GrRefCachedBitmapTexture(context, fBitmap, GrTextureParams::ClampNoFilter(),
+                                         SkDestinationSurfaceColorMode::kGammaAndColorSpaceAware));
         }
 
         return nullptr;
@@ -252,11 +250,9 @@ public:
 
     sk_sp<GrTextureProxy> onAsTextureProxy(GrContext* context) const override {
         if (context) {
-            sk_sp<GrTexture> tex(sk_ref_sp(GrRefCachedBitmapTexture(
-                                                              context,
-                                                              fBitmap,
-                                                              GrTextureParams::ClampNoFilter(),
-                                                              SkSourceGammaTreatment::kRespect)));
+            sk_sp<GrTexture> tex(sk_ref_sp(
+                GrRefCachedBitmapTexture(context, fBitmap, GrTextureParams::ClampNoFilter(),
+                                         SkDestinationSurfaceColorMode::kGammaAndColorSpaceAware)));
             return GrTextureProxy::Make(tex);
         }
 

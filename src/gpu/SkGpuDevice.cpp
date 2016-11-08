@@ -1033,7 +1033,7 @@ void SkGpuDevice::drawBitmapTile(const SkBitmap& bitmap,
              bitmap.height() <= fContext->caps()->maxTileSize());
 
     sk_sp<GrTexture> texture = GrMakeCachedBitmapTexture(
-        fContext.get(), bitmap, params, fRenderTargetContext->sourceGammaTreatment());
+        fContext.get(), bitmap, params, fRenderTargetContext->colorMode());
     if (nullptr == texture) {
         return;
     }
@@ -1111,9 +1111,9 @@ void SkGpuDevice::drawSprite(const SkDraw& draw, const SkBitmap& bitmap,
         }
 
         // draw sprite neither filters nor tiles.
-        texture.reset(GrRefCachedBitmapTexture(fContext.get(), bitmap,
-                                               GrTextureParams::ClampNoFilter(),
-                                               SkSourceGammaTreatment::kRespect));
+        texture.reset(
+            GrRefCachedBitmapTexture(fContext.get(), bitmap, GrTextureParams::ClampNoFilter(),
+                                     SkDestinationSurfaceColorMode::kGammaAndColorSpaceAware));
         if (!texture) {
             return;
         }
@@ -1279,9 +1279,9 @@ sk_sp<SkSpecialImage> SkGpuDevice::makeSpecial(const SkBitmap& bitmap) {
         return nullptr;
     }
 
-    sk_sp<GrTexture> texture = GrMakeCachedBitmapTexture(fContext.get(), bitmap,
-                                                         GrTextureParams::ClampNoFilter(),
-                                                         SkSourceGammaTreatment::kRespect);
+    sk_sp<GrTexture> texture =
+        GrMakeCachedBitmapTexture(fContext.get(), bitmap, GrTextureParams::ClampNoFilter(),
+                                  SkDestinationSurfaceColorMode::kGammaAndColorSpaceAware);
     if (!texture) {
         return nullptr;
     }
@@ -1455,7 +1455,7 @@ void SkGpuDevice::drawProducerNine(const SkDraw& draw, GrTextureProducer* produc
                                           SkRect::MakeIWH(producer->width(), producer->height()),
                                           GrTextureProducer::kNo_FilterConstraint, true,
                                           &kMode, fRenderTargetContext->getColorSpace(),
-                                          fRenderTargetContext->sourceGammaTreatment()));
+                                          fRenderTargetContext->colorMode()));
     GrPaint grPaint;
     if (!SkPaintToGrPaintWithTexture(this->context(), fRenderTargetContext.get(), paint,
                                      *draw.fMatrix, std::move(fp), producer->isAlphaOnly(),
@@ -1509,7 +1509,7 @@ void SkGpuDevice::drawProducerLattice(const SkDraw& draw, GrTextureProducer* pro
                                           SkRect::MakeIWH(producer->width(), producer->height()),
                                           GrTextureProducer::kNo_FilterConstraint, true,
                                           &kMode, fRenderTargetContext->getColorSpace(),
-                                          fRenderTargetContext->sourceGammaTreatment()));
+                                          fRenderTargetContext->colorMode()));
     GrPaint grPaint;
     if (!SkPaintToGrPaintWithTexture(this->context(), fRenderTargetContext.get(), paint,
                                      *draw.fMatrix, std::move(fp), producer->isAlphaOnly(),
