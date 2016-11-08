@@ -65,6 +65,9 @@ protected:
         return true;
     }
 
+    bool onAppendStages(SkRasterPipeline*, const SkMatrix&, void*) const override;
+    bool onIsConstant() const override;
+
 private:
     SkColor fColor;
 
@@ -117,12 +120,14 @@ protected:
         *lum = fCachedByteColor;
         return true;
     }
+    bool onAppendStages(SkRasterPipeline*, const SkMatrix&, void*) const override;
+    bool onIsConstant() const override;
 
 private:
     sk_sp<SkColorSpace> fColorSpace;
     const SkColor4f     fColor4;
     const SkColor       fCachedByteColor;
-    
+
     typedef SkShader INHERITED;
 };
 
