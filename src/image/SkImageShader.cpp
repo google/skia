@@ -51,7 +51,8 @@ size_t SkImageShader::onContextSize(const ContextRec& rec) const {
 
 SkShader::Context* SkImageShader::onCreateContext(const ContextRec& rec, void* storage) const {
     return SkBitmapProcLegacyShader::MakeContext(*this, fTileModeX, fTileModeY,
-                                                 SkBitmapProvider(fImage.get()), rec, storage);
+                                                 SkBitmapProvider(fImage.get(), rec.colorMode()),
+                                                 rec, storage);
 }
 
 SkImage* SkImageShader::onIsAImage(SkMatrix* texM, TileMode xy[]) const {

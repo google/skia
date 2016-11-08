@@ -14,8 +14,14 @@
 
 class SkBitmapProvider {
 public:
-    explicit SkBitmapProvider(const SkBitmap& bm) : fBitmap(bm) {}
-    explicit SkBitmapProvider(const SkImage* img) : fImage(img) {}
+    explicit SkBitmapProvider(const SkBitmap& bm, SkDestinationSurfaceColorMode colorMode)
+        : fBitmap(bm)
+        , fColorMode(colorMode)
+    {}
+    explicit SkBitmapProvider(const SkImage* img, SkDestinationSurfaceColorMode colorMode)
+        : fImage(img)
+        , fColorMode(colorMode)
+    {}
     SkBitmapProvider(const SkBitmapProvider& other)
         : fBitmap(other.fBitmap)
         , fImage(other.fImage)
@@ -42,10 +48,11 @@ private:
     void* operator new(size_t) = delete;
     void* operator new(size_t, void*) = delete;
 
-    SkBitmap       fBitmap;
+    SkBitmap                      fBitmap;
     // SkBitmapProvider is always short-lived/stack allocated, and the source image is guaranteed
     // to outlive its scope => we can store a raw ptr to avoid ref churn.
-    const SkImage* fImage;
+    const SkImage*                fImage;
+    SkDestinationSurfaceColorMode fColorMode;
 };
 
 #endif
