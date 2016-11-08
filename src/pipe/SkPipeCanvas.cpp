@@ -18,6 +18,7 @@
 #include "SkStream.h"
 #include "SkTextBlob.h"
 #include "SkTypeface.h"
+#include "SkTypesPriv.h"
 
 template <typename T> void write_rrect(T* writer, const SkRRect& rrect) {
     char tmp[SkRRect::kSizeInMemory];

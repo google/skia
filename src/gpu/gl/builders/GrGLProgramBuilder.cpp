@@ -14,6 +14,7 @@
 #include "GrSwizzle.h"
 #include "GrTexture.h"
 #include "SkTraceEvent.h"
+#include "SkTypesPriv.h"
 #include "gl/GrGLGpu.h"
 #include "gl/GrGLProgram.h"
 #include "gl/GrGLSLPrettyPrint.h"

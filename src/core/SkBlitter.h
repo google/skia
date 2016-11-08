@@ -13,7 +13,7 @@
 #include "SkRect.h"
 #include "SkRegion.h"
 #include "SkShader.h"
-#include "SkTypes.h"
+#include "SkTypesPriv.h"
 
 class SkMatrix;
 class SkPaint;

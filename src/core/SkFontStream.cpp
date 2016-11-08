@@ -8,6 +8,7 @@
 #include "SkEndian.h"
 #include "SkFontStream.h"
 #include "SkStream.h"
+#include "SkTypesPriv.h"
 
 struct SkSFNTHeader {
     uint32_t    fVersion;

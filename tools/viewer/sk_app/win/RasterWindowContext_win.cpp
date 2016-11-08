@@ -8,6 +8,7 @@
 #include "WindowContextFactory_win.h"
 #include "../RasterWindowContext.h"
 #include "SkSurface.h"
+#include "SkTypesPriv.h"
 
 #include <Windows.h>
 

@@ -9,9 +9,10 @@
 #include "SkColorFilter.h"
 #include "SkColorPriv.h"
 #include "SkLumaColorFilter.h"
-#include "SkReadBuffer.h"
-#include "SkWriteBuffer.h"
 #include "SkRandom.h"
+#include "SkReadBuffer.h"
+#include "SkTypesPriv.h"
+#include "SkWriteBuffer.h"
 #include "SkXfermode.h"
 #include "Test.h"
 
