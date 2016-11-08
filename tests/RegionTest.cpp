@@ -8,6 +8,7 @@
 #include "SkPath.h"
 #include "SkRandom.h"
 #include "SkRegion.h"
+#include "SkTypesPriv.h"
 #include "Test.h"
 
 static void Union(SkRegion* rgn, const SkIRect& rect) {

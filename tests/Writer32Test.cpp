@@ -7,6 +7,7 @@
 
 #include "SkRandom.h"
 #include "SkReader32.h"
+#include "SkTypesPriv.h"
 #include "SkWriter32.h"
 #include "Test.h"
 

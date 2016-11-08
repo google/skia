@@ -18,6 +18,7 @@
 #include "GrMesh.h"
 #include "SkGeometry.h"
 #include "SkTraceEvent.h"
+#include "SkTypesPriv.h"
 #include "glsl/GrGLSLGeometryProcessor.h"
 #include "glsl/GrGLSLFragmentShaderBuilder.h"
 #include "glsl/GrGLSLVertexShaderBuilder.h"

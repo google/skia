@@ -11,6 +11,7 @@
 #include "Benchmark.h"
 #include "SkData.h"
 #include "SkImageInfo.h"
+#include "SkTypesPriv.h"
 
 class ColorCodecBench : public Benchmark {
 public:

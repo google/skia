@@ -7,6 +7,7 @@
 
 #include "SkDistanceFieldGen.h"
 #include "SkPoint.h"
+#include "SkTypesPriv.h"
 
 struct DFData {
     float   fAlpha;      // alpha value of source texel

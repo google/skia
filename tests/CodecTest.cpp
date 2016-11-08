@@ -19,6 +19,7 @@
 #include "SkStream.h"
 #include "SkStreamPriv.h"
 #include "SkPngChunkReader.h"
+#include "SkTypesPriv.h"
 #include "Test.h"
 
 #include "png.h"

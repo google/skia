@@ -19,6 +19,7 @@
 #include "SkScanPriv.h"
 #include "SkTemplates.h"
 #include "SkTSort.h"
+#include "SkTypesPriv.h"
 #include "SkUtils.h"
 
 ///////////////////////////////////////////////////////////////////////////////

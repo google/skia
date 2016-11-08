@@ -19,7 +19,7 @@
 #include "SkTDArray.h"
 #include "SkTemplates.h"
 #include "SkTypeface.h"
-#include "SkTypes.h"
+#include "SkTypesPriv.h"
 
 #include <fontconfig/fontconfig.h>
 #include <unistd.h>

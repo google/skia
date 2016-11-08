@@ -10,6 +10,7 @@
 
 #include "SkBlitter.h"
 #include "SkRegion.h"
+#include "SkTypesPriv.h"
 
 class SkAAClip {
 public:
