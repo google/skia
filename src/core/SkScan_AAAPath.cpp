@@ -997,7 +997,10 @@ static inline void aaa_walk_convex_edges(SkAnalyticEdge* prevHead, AdditiveBlitt
                 }
 
                 // Blit all full-height rows from fullTop to fullBot
-                if (fullBot > fullTop) {
+                if (fullBot > fullTop &&
+                        // SkAAClip cannot handle the empty rect so check the non-emptiness here
+                        // (bug chromium:662800)
+                        (fullRite > fullLeft || f2a(partialLeft) > 0 || f2a(partialRite) > 0)) {
                     blitter->getRealBlitter()->blitAntiRect(fullLeft - 1, fullTop,
                                                             fullRite - fullLeft, fullBot - fullTop,
                                                             f2a(partialLeft), f2a(partialRite));
