@@ -1025,7 +1025,7 @@ DEF_TEST(image_roundtrip_encode, reporter) {
     make_all_premul(&bm0);
 
     auto img0 = SkImage::MakeFromBitmap(bm0);
-    sk_sp<SkData> data(img0->encode());
+    sk_sp<SkData> data(img0->encode(SkImageEncoder::kPNG_Type, 100));
     auto img1 = SkImage::MakeFromEncoded(data);
 
     SkBitmap bm1;
