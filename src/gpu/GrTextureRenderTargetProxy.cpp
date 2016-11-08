@@ -22,11 +22,12 @@ GrTextureRenderTargetProxy::GrTextureRenderTargetProxy(const GrCaps& caps,
 // Wrapped version
 // This class is virtually derived from GrSurfaceProxy (via both GrTextureProxy and 
 // GrRenderTargetProxy) so its constructor must be explicitly called.
-GrTextureRenderTargetProxy::GrTextureRenderTargetProxy(sk_sp<GrRenderTarget> rt)
-    : GrSurfaceProxy(rt, SkBackingFit::kExact)
-    , GrTextureProxy(sk_ref_sp(rt->asTexture()))
-    , GrRenderTargetProxy(rt) {
-    SkASSERT(rt->asTexture());
+GrTextureRenderTargetProxy::GrTextureRenderTargetProxy(sk_sp<GrSurface> surf)
+    : GrSurfaceProxy(surf, SkBackingFit::kExact)
+    , GrTextureProxy(sk_ref_sp(surf->asTexture()))
+    , GrRenderTargetProxy(sk_ref_sp(surf->asRenderTarget())) {
+    SkASSERT(surf->asTexture());
+    SkASSERT(surf->asRenderTarget());
 }
 
 size_t GrTextureRenderTargetProxy::onGpuMemorySize() const {
@@ -37,29 +38,4 @@ size_t GrTextureRenderTargetProxy::onGpuMemorySize() const {
     // TODO: do we have enough information to improve this worst case estimate?
     return GrSurface::ComputeSize(fDesc, fDesc.fSampleCnt+1, true);
 }
-
-sk_sp<GrTextureRenderTargetProxy> GrTextureRenderTargetProxy::Make(const GrCaps& caps,
-                                                                   const GrSurfaceDesc& desc,
-                                                                   SkBackingFit fit,
-                                                                   SkBudgeted budgeted) {
-    SkASSERT(desc.fFlags & kRenderTarget_GrSurfaceFlag);
-
-    return sk_sp<GrTextureRenderTargetProxy>(new GrTextureRenderTargetProxy(caps, desc,
-                                                                            fit, budgeted));
-}
-
-sk_sp<GrTextureRenderTargetProxy> GrTextureRenderTargetProxy::Make(sk_sp<GrTexture> tex) {
-    SkASSERT(tex->asRenderTarget());
-
-    return sk_sp<GrTextureRenderTargetProxy>(new GrTextureRenderTargetProxy(
-                                                            sk_ref_sp(tex->asRenderTarget())));
-}
-
-sk_sp<GrTextureRenderTargetProxy> GrTextureRenderTargetProxy::Make(sk_sp<GrRenderTarget> rt) {
-    SkASSERT(rt->asTexture());
-
-    return sk_sp<GrTextureRenderTargetProxy>(new GrTextureRenderTargetProxy(std::move(rt)));
-}
-
-
 

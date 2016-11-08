@@ -16,6 +16,7 @@
 #include "SkImageInfo.h"   // for SkAlphaType
 
 class GrContext;
+class GrSurfaceProxy;
 class GrTexture;
 class GrTextureProxy;
 class SkBitmap;
@@ -87,7 +88,7 @@ public:
     static sk_sp<SkSpecialImage> MakeDeferredFromGpu(GrContext*,
                                                      const SkIRect& subset,
                                                      uint32_t uniqueID,
-                                                     sk_sp<GrTextureProxy>,
+                                                     sk_sp<GrSurfaceProxy>,
                                                      sk_sp<SkColorSpace>,
                                                      const SkSurfaceProps* = nullptr,
                                                      SkAlphaType at = kPremul_SkAlphaType);
