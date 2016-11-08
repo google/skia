@@ -11,6 +11,7 @@
 #include "SkColorPriv.h"
 #include "SkPath.h"
 #include "SkScan.h"
+#include "SkTypesPriv.h"
 #include "SkUtils.h"
 
 class AutoAAClipValidate {

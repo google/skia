@@ -9,6 +9,7 @@
 #include "SkCanvas.h"
 #include "SkRSXform.h"
 #include "SkSurface.h"
+#include "SkTypesPriv.h"
 
 class DrawAtlasGM : public skiagm::GM {
     static sk_sp<SkImage> MakeAtlas(SkCanvas* caller, const SkRect& target) {

@@ -30,7 +30,7 @@
 #include "SkPixmap.h"
 #include "SkStrokeRec.h"
 #include "SkTemplates.h"
-#include "SkTypes.h"
+#include "SkTypesPriv.h"
 
 #define GL_CALL(X) GR_GL_CALL(this->glInterface(), X)
 #define GL_CALL_RET(RET, X) GR_GL_CALL_RET(this->glInterface(), RET, X)

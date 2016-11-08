@@ -10,7 +10,7 @@
 #include "SkFrontBufferedStream.h"
 #include "SkRefCnt.h"
 #include "SkStream.h"
-#include "SkTypes.h"
+#include "SkTypesPriv.h"
 #include "Test.h"
 
 static void test_read(skiatest::Reporter* reporter, SkStream* bufferedStream,

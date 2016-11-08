@@ -9,6 +9,7 @@
 #include "GrContext.h"
 #include "GrRenderTarget.h"
 #include "SkSurface.h"
+#include "SkTypesPriv.h"
 #include "VulkanWindowContext.h"
 
 #include "vk/GrVkInterface.h"

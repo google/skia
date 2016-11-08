@@ -12,6 +12,7 @@
 #include "SkRandom.h"
 #include "SkStream.h"
 #include "SkStreamPriv.h"
+#include "SkTypesPriv.h"
 #include "Test.h"
 
 #ifndef SK_BUILD_FOR_WIN

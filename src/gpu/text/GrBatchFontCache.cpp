@@ -12,6 +12,7 @@
 #include "GrResourceProvider.h"
 #include "GrSurfacePriv.h"
 #include "SkString.h"
+#include "SkTypesPriv.h"
 
 #include "SkDistanceFieldGen.h"
 

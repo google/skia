@@ -23,6 +23,7 @@
 #include "SkTextBlobRunIterator.h"
 #include "SkTHash.h"
 #include "SkTypeface.h"
+#include "SkTypesPriv.h"
 #include "SkValidatingReadBuffer.h"
 #include "SkWriteBuffer.h"
 #include "picture_utils.h"

@@ -11,6 +11,7 @@
 #include "SkStream.h"
 #include "SkTextBlob.h"
 #include "SkTypeface.h"
+#include "SkTypesPriv.h"
 
 static const int FONT_SIZE_SCALE = 512;
 

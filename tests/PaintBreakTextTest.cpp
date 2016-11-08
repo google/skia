@@ -6,6 +6,7 @@
  */
 
 #include "SkPaint.h"
+#include "SkTypesPriv.h"
 #include "Test.h"
 
 static void test_monotonic(skiatest::Reporter* reporter,

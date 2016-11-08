@@ -25,7 +25,7 @@
 #include "SkStream.h"
 #include "SkString.h"
 #include "SkTemplates.h"
-#include "SkTypes.h"
+#include "SkTypesPriv.h"
 #include <memory>
 
 #if defined(SK_CAN_USE_DLOPEN)

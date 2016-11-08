@@ -43,6 +43,7 @@
 #include "SkSVGDOM.h"
 #include "SkTaskGroup.h"
 #include "SkThreadUtils.h"
+#include "SkTypesPriv.h"
 #include "ThermalManager.h"
 #include "SkScan.h"
 

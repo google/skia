@@ -13,6 +13,7 @@
 #include "SkRandom.h"
 #include "SkReadBuffer.h"
 #include "SkTypeface.h"
+#include "SkTypesPriv.h"
 #include "SkUtils.h"
 #include "SkWriteBuffer.h"
 #include "SkXfermode.h"
