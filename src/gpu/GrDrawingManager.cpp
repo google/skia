@@ -209,12 +209,14 @@ GrPathRenderer* GrDrawingManager::getPathRenderer(const GrPathRenderer::CanDrawP
 }
 
 sk_sp<GrRenderTargetContext> GrDrawingManager::makeRenderTargetContext(
-                                                            sk_sp<GrRenderTargetProxy> rtp,
+                                                            sk_sp<GrSurfaceProxy> sProxy,
                                                             sk_sp<SkColorSpace> colorSpace,
                                                             const SkSurfaceProps* surfaceProps) {
-    if (this->wasAbandoned()) {
+    if (this->wasAbandoned() || !sProxy->asRenderTargetProxy()) {
         return nullptr;
     }
+
+    sk_sp<GrRenderTargetProxy> rtp(sk_ref_sp(sProxy->asRenderTargetProxy()));
 
     // SkSurface catches bad color space usage at creation. This check handles anything that slips
     // by, including internal usage. We allow a null color space here, for read/write pixels and
