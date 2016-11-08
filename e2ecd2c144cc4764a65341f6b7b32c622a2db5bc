@@ -25,6 +25,24 @@
     },
     {
       "key": {
+        "uuid": "2bde5729_b0c7f9a1",
+        "filename": "src/codec/SkBmpCodec.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 640,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2016-11-08T21:14:17Z",
+      "side": 1,
+      "message": "We\u0027ll need the SkColorType elsewhere - this is so we don\u0027t have to define two different constants.",
+      "parentUuid": "2bde5729_70a9f131",
+      "revId": "e2ecd2c144cc4764a65341f6b7b32c622a2db5bc",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "2bde5729_704811cb",
         "filename": "src/codec/SkBmpCodec.h",
         "patchSetId": 2
@@ -42,6 +60,24 @@
         "endLine": 113,
         "endChar": 72
       },
+      "revId": "e2ecd2c144cc4764a65341f6b7b32c622a2db5bc",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "2bde5729_d0cba5aa",
+        "filename": "src/codec/SkBmpCodec.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 113,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2016-11-08T21:14:17Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "2bde5729_704811cb",
       "revId": "e2ecd2c144cc4764a65341f6b7b32c622a2db5bc",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
