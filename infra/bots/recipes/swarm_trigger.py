@@ -142,7 +142,7 @@ def swarm_dimensions(builder_cfg):
       dimensions['device'] = {
         # TODO(stephana): Remove this temporary discrepancy between the bot name
         # and device. When we expand iOS testing names and devices need to match
-        # again. 
+        # again.
         'iPad4': 'iPad5,1',
       }[builder_cfg['model']]
       # TODO(borenet): Replace this hack with something better.
@@ -222,6 +222,7 @@ def trigger_task(api, task_name, builder, master, slave, buildnumber,
       properties['patch_ref'] = api.properties['patch_ref']
       properties['patch_set'] = api.properties['patch_set']
       properties['patch_issue'] = api.properties['patch_issue']
+      properties['patch_gerrit_url'] = api.properties['patch_gerrit_url']
     else:
       properties['issue'] = str(api.properties['issue'])
       properties['patchset'] = str(api.properties['patchset'])
