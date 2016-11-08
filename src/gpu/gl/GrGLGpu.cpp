@@ -3245,9 +3245,10 @@ void GrGLGpu::bindTexture(int unitIdx, const GrTextureParams& params, bool allow
     if (GrTextureParams::kMipMap_FilterMode == filterMode) {
         SkASSERT(!texture->texturePriv().mipMapsAreDirty());
         if (GrPixelConfigIsSRGB(texture->config())) {
-            SkSourceGammaTreatment gammaTreatment = allowSRGBInputs ?
-                SkSourceGammaTreatment::kRespect : SkSourceGammaTreatment::kIgnore;
-            SkASSERT(texture->texturePriv().gammaTreatment() == gammaTreatment);
+            SkDestinationSurfaceColorMode colorMode = allowSRGBInputs
+                ? SkDestinationSurfaceColorMode::kGammaAndColorSpaceAware
+                : SkDestinationSurfaceColorMode::kLegacy;
+            SkASSERT(texture->texturePriv().mipColorMode() == colorMode);
         }
     }
 #endif
@@ -3360,10 +3361,11 @@ void GrGLGpu::generateMipmaps(const GrTextureParams& params, bool allowSRGBInput
     // If this is an sRGB texture and the mips were previously built the "other" way
     // (gamma-correct vs. not), then we need to rebuild them. We don't need to check for
     // srgbSupport - we'll *never* get an sRGB pixel config if we don't support it.
-    SkSourceGammaTreatment gammaTreatment = allowSRGBInputs
-        ? SkSourceGammaTreatment::kRespect : SkSourceGammaTreatment::kIgnore;
+    SkDestinationSurfaceColorMode colorMode = allowSRGBInputs
+        ? SkDestinationSurfaceColorMode::kGammaAndColorSpaceAware
+        : SkDestinationSurfaceColorMode::kLegacy;
     if (GrPixelConfigIsSRGB(texture->config()) &&
-        gammaTreatment != texture->texturePriv().gammaTreatment()) {
+        colorMode != texture->texturePriv().mipColorMode()) {
         texture->texturePriv().dirtyMipMaps(true);
     }
 
@@ -3398,7 +3400,7 @@ void GrGLGpu::generateMipmaps(const GrTextureParams& params, bool allowSRGBInput
     texture->texturePriv().dirtyMipMaps(false);
     texture->texturePriv().setMaxMipMapLevel(SkMipMap::ComputeLevelCount(
         texture->width(), texture->height()));
-    texture->texturePriv().setGammaTreatment(gammaTreatment);
+    texture->texturePriv().setMipColorMode(colorMode);
 
     // We have potentially set lots of state on the texture. Easiest to dirty it all:
     texture->textureParamsModified();

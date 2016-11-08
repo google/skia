@@ -82,9 +82,9 @@ protected:
             return;
         }
 
-        sk_sp<GrTexture> texture(GrRefCachedBitmapTexture(context, fBmp,
-                                                          GrTextureParams::ClampNoFilter(),
-                                                          SkSourceGammaTreatment::kRespect));
+        sk_sp<GrTexture> texture(
+            GrRefCachedBitmapTexture(context, fBmp, GrTextureParams::ClampNoFilter(),
+                                     SkDestinationSurfaceColorMode::kGammaAndColorSpaceAware));
         if (!texture) {
             return;
         }

@@ -280,7 +280,7 @@ static GrTexture* set_key_and_return(GrTexture* tex, const GrUniqueKey& key) {
 GrTexture* SkImageCacherator::lockTexture(GrContext* ctx, const GrUniqueKey& key,
                                           const SkImage* client, SkImage::CachingHint chint,
                                           bool willBeMipped,
-                                          SkSourceGammaTreatment gammaTreatment) {
+                                          SkDestinationSurfaceColorMode colorMode) {
     // Values representing the various texture lock paths we can take. Used for logging the path
     // taken to a histogram.
     enum LockTexturePath {
@@ -346,7 +346,7 @@ GrTexture* SkImageCacherator::lockTexture(GrContext* ctx, const GrUniqueKey& key
     if (this->tryLockAsBitmap(&bitmap, client, chint)) {
         GrTexture* tex = nullptr;
         if (willBeMipped) {
-            tex = GrGenerateMipMapsAndUploadToTexture(ctx, bitmap, gammaTreatment);
+            tex = GrGenerateMipMapsAndUploadToTexture(ctx, bitmap, colorMode);
         }
         if (!tex) {
             tex = GrUploadBitmapToTexture(ctx, bitmap);
@@ -365,20 +365,19 @@ GrTexture* SkImageCacherator::lockTexture(GrContext* ctx, const GrUniqueKey& key
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
 GrTexture* SkImageCacherator::lockAsTexture(GrContext* ctx, const GrTextureParams& params,
-                                            SkSourceGammaTreatment gammaTreatment,
+                                            SkDestinationSurfaceColorMode colorMode,
                                             const SkImage* client, SkImage::CachingHint chint) {
     if (!ctx) {
         return nullptr;
     }
 
-    return GrImageTextureMaker(ctx, this, client, chint).refTextureForParams(params,
-                                                                             gammaTreatment);
+    return GrImageTextureMaker(ctx, this, client, chint).refTextureForParams(params, colorMode);
 }
 
 #else
 
 GrTexture* SkImageCacherator::lockAsTexture(GrContext* ctx, const GrTextureParams&,
-                                            SkSourceGammaTreatment gammaTreatment,
+                                            SkDestinationSurfaceColorMode colorMode,
                                             const SkImage* client, SkImage::CachingHint) {
     return nullptr;
 }

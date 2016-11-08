@@ -81,10 +81,10 @@ static inline GrColor SkPMColorToGrColor(SkPMColor c) {
     texture is inserted into the cache (unless the bitmap is marked volatile) and can be
     retrieved again via this function. */
 GrTexture* GrRefCachedBitmapTexture(GrContext*, const SkBitmap&, const GrTextureParams&,
-                                    SkSourceGammaTreatment);
+                                    SkDestinationSurfaceColorMode);
 
 sk_sp<GrTexture> GrMakeCachedBitmapTexture(GrContext*, const SkBitmap&, const GrTextureParams&,
-                                           SkSourceGammaTreatment);
+                                           SkDestinationSurfaceColorMode);
 
 // TODO: Move SkImageInfo2GrPixelConfig to SkGrPriv.h (requires cleanup to SkWindow its subclasses).
 GrPixelConfig SkImageInfo2GrPixelConfig(SkColorType, SkAlphaType, const SkColorSpace*,

@@ -219,11 +219,11 @@ SkShader::Context* SkBitmapProcLegacyShader::MakeContext(const SkShader& shader,
 
     // Decide if we can/want to use the new linear pipeline
     bool useLinearPipeline = choose_linear_pipeline(rec, provider.info());
-    SkSourceGammaTreatment treatment = SkMipMap::DeduceTreatment(rec);
+    SkDestinationSurfaceColorMode colorMode = SkMipMap::DeduceColorMode(rec);
 
     if (useLinearPipeline) {
         void* infoStorage = (char*)storage + sizeof(LinearPipelineContext);
-        SkBitmapProcInfo* info = new (infoStorage) SkBitmapProcInfo(provider, tmx, tmy, treatment);
+        SkBitmapProcInfo* info = new (infoStorage) SkBitmapProcInfo(provider, tmx, tmy, colorMode);
         if (!info->init(totalInverse, *rec.fPaint)) {
             info->~SkBitmapProcInfo();
             return nullptr;
@@ -233,7 +233,7 @@ SkShader::Context* SkBitmapProcLegacyShader::MakeContext(const SkShader& shader,
     } else {
         void* stateStorage = (char*)storage + sizeof(BitmapProcShaderContext);
         SkBitmapProcState* state = new (stateStorage) SkBitmapProcState(provider, tmx, tmy,
-                                                                        treatment);
+                                                                        colorMode);
         if (!state->setup(totalInverse, *rec.fPaint)) {
             state->~SkBitmapProcState();
             return nullptr;

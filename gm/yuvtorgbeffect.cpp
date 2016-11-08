@@ -81,15 +81,15 @@ protected:
         }
 
         sk_sp<GrTexture> texture[3];
-        texture[0].reset(GrRefCachedBitmapTexture(context, fBmp[0],
-                                                  GrTextureParams::ClampBilerp(),
-                                                  SkSourceGammaTreatment::kRespect));
-        texture[1].reset(GrRefCachedBitmapTexture(context, fBmp[1],
-                                                  GrTextureParams::ClampBilerp(),
-                                                  SkSourceGammaTreatment::kRespect));
-        texture[2].reset(GrRefCachedBitmapTexture(context, fBmp[2],
-                                                  GrTextureParams::ClampBilerp(),
-                                                  SkSourceGammaTreatment::kRespect));
+        texture[0].reset(
+            GrRefCachedBitmapTexture(context, fBmp[0], GrTextureParams::ClampBilerp(),
+                                     SkDestinationSurfaceColorMode::kGammaAndColorSpaceAware));
+        texture[1].reset(
+            GrRefCachedBitmapTexture(context, fBmp[1], GrTextureParams::ClampBilerp(),
+                                     SkDestinationSurfaceColorMode::kGammaAndColorSpaceAware));
+        texture[2].reset(
+            GrRefCachedBitmapTexture(context, fBmp[2], GrTextureParams::ClampBilerp(),
+                                     SkDestinationSurfaceColorMode::kGammaAndColorSpaceAware));
 
         if (!texture[0] || !texture[1] || !texture[2]) {
             return;
@@ -206,12 +206,15 @@ protected:
         }
 
         sk_sp<GrTexture> texture[3];
-        texture[0].reset(GrRefCachedBitmapTexture(context, fBmp[0], GrTextureParams::ClampBilerp(),
-                                                  SkSourceGammaTreatment::kRespect));
-        texture[1].reset(GrRefCachedBitmapTexture(context, fBmp[1], GrTextureParams::ClampBilerp(),
-                                                  SkSourceGammaTreatment::kRespect));
-        texture[2].reset(GrRefCachedBitmapTexture(context, fBmp[1], GrTextureParams::ClampBilerp(),
-                                                  SkSourceGammaTreatment::kRespect));
+        texture[0].reset(
+            GrRefCachedBitmapTexture(context, fBmp[0], GrTextureParams::ClampBilerp(),
+                                     SkDestinationSurfaceColorMode::kGammaAndColorSpaceAware));
+        texture[1].reset(
+            GrRefCachedBitmapTexture(context, fBmp[1], GrTextureParams::ClampBilerp(),
+                                     SkDestinationSurfaceColorMode::kGammaAndColorSpaceAware));
+        texture[2].reset(
+            GrRefCachedBitmapTexture(context, fBmp[1], GrTextureParams::ClampBilerp(),
+                                     SkDestinationSurfaceColorMode::kGammaAndColorSpaceAware));
 
         if (!texture[0] || !texture[1] || !texture[2]) {
             return;
