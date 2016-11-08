@@ -35,6 +35,10 @@
 
 #include <string.h>
 
+#ifdef __cplusplus
+#include <memory>
+#endif
+
 /**
  *  sk_careful_memcpy() is just like memcpy(), but guards against undefined behavior.
  *
@@ -509,46 +513,10 @@ private:
     SkNoncopyable& operator=(const SkNoncopyable&);
 };
 
-class SkAutoFree : SkNoncopyable {
-public:
-    SkAutoFree() : fPtr(NULL) {}
-    explicit SkAutoFree(void* ptr) : fPtr(ptr) {}
-    ~SkAutoFree() { sk_free(fPtr); }
-
-    /** Return the currently allocate buffer, or null
-    */
-    void* get() const { return fPtr; }
-
-    /** Assign a new ptr allocated with sk_malloc (or null), and return the
-        previous ptr. Note it is the caller's responsibility to sk_free the
-        returned ptr.
-    */
-    void* set(void* ptr) {
-        void* prev = fPtr;
-        fPtr = ptr;
-        return prev;
-    }
-
-    /** Transfer ownership of the current ptr to the caller, setting the
-        internal reference to null. Note the caller is reponsible for calling
-        sk_free on the returned address.
-    */
-    void* release() { return this->set(NULL); }
-
-    /** Free the current buffer, and set the internal reference to NULL. Same
-        as calling sk_free(release())
-    */
-    void reset() {
-        sk_free(fPtr);
-        fPtr = NULL;
-    }
-
-private:
-    void* fPtr;
-    // illegal
-    SkAutoFree(const SkAutoFree&);
-    SkAutoFree& operator=(const SkAutoFree&);
+struct SkFreeWrapper {
+    void operator()(void* p) { sk_free(p); }
 };
+typedef std::unique_ptr<void, SkFreeWrapper> SkAutoFree;
 #define SkAutoFree(...) SK_REQUIRE_LOCAL_VAR(SkAutoFree)
 
 /**
@@ -556,16 +524,15 @@ private:
  *  the lifetime of the block, so the caller must not call sk_free() or delete
  *  on the block, unless release() was called.
  */
-class SkAutoMalloc : SkNoncopyable {
+class SkAutoMalloc {
 public:
-    explicit SkAutoMalloc(size_t size = 0) {
-        fPtr = size ? sk_malloc_throw(size) : NULL;
-        fSize = size;
-    }
+    explicit SkAutoMalloc(size_t size = 0)
+        : fStorage(size ? sk_malloc_throw(size) : nullptr)
+        , fSize(size) {}
 
-    ~SkAutoMalloc() {
-        sk_free(fPtr);
-    }
+    void* get() { return fStorage.get(); }
+    const void* get() const { return fStorage.get(); }
+    void* release() { return fStorage.release(); }
 
     /**
      *  Passed to reset to specify what happens if the requested size is smaller
@@ -595,39 +562,24 @@ public:
             if (didChangeAlloc) {
                 *didChangeAlloc = false;
             }
-            return fPtr;
+        } else {
+            fStorage.reset(size ? sk_malloc_throw(size) : nullptr);
+            fSize = size;
+            if (didChangeAlloc) {
+                *didChangeAlloc = true;
+            }
         }
-
-        sk_free(fPtr);
-        fPtr = size ? sk_malloc_throw(size) : NULL;
-        fSize = size;
-        if (didChangeAlloc) {
-            *didChangeAlloc = true;
-        }
-
-        return fPtr;
-    }
-
-    /**
-     *  Return the allocated block.
-     */
-    void* get() { return fPtr; }
-    const void* get() const { return fPtr; }
-
-   /** Transfer ownership of the current ptr to the caller, setting the
-       internal reference to null. Note the caller is reponsible for calling
-       sk_free on the returned address.
-    */
-    void* release() {
-        void* ptr = fPtr;
-        fPtr = NULL;
-        fSize = 0;
-        return ptr;
+        return fStorage.get();
     }
 
 private:
-    void*   fPtr;
-    size_t  fSize;  // can be larger than the requested size (see kReuse)
+    SkAutoFree fStorage;
+    size_t fSize;  // can be larger than the requested size (see kReuse)
+
+    SkAutoMalloc(const SkAutoMalloc&) = delete;
+    SkAutoMalloc(SkAutoMalloc&&) = delete;
+    SkAutoMalloc& operator=(const SkAutoMalloc&) = delete;
+    SkAutoMalloc& operator=(SkAutoMalloc&&) = delete;
 };
 #define SkAutoMalloc(...) SK_REQUIRE_LOCAL_VAR(SkAutoMalloc)
 
