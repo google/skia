@@ -25,6 +25,24 @@
     },
     {
       "key": {
+        "uuid": "2bde5729_9a5e9cfb",
+        "filename": "src/codec/SkRawCodec.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 686,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2016-11-08T18:57:00Z",
+      "side": 1,
+      "message": "\u003e Can we move the check for initializeColorXform into SkCodec, before calling onGetPixels? (Maybe not, due to SkPngCodec? It calls this method inside another method, after calling png_read_update_info and resetting the swizzler. I could imagine us calling png_read_update_info earlier; not sure about the swizzler.)\n \u003e \n\nI think it\u0027s fine for SkPngCodec.  I\u0027m concerned that we don\u0027t want to call it in SkIcoCodec.\n\n \u003e I\u0027d also be tempted to move conversion_possible into SkCodec, but SkJpegCodec doesn\u0027t call it, SkIcoCodec doesn\u0027t either (directly), and neither does SkWbmpCodec.\n\nYou had a CL a long time ago that made conversionPossible() a virtual with a default implementation.  I think that might be nice?",
+      "parentUuid": "ebc99f45_97f8e7cd",
+      "revId": "ab7aababa6a25304f20b49c06012d1a4538e3604",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "ebc99f45_d76e6fad",
         "filename": "src/codec/SkRawCodec.cpp",
         "patchSetId": 2
@@ -42,6 +60,24 @@
         "endLine": 694,
         "endChar": 72
       },
+      "revId": "ab7aababa6a25304f20b49c06012d1a4538e3604",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "2bde5729_1a728c91",
+        "filename": "src/codec/SkRawCodec.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 694,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2016-11-08T18:57:00Z",
+      "side": 1,
+      "message": "kRGBA_8888_SkColorType is used here and then kRGBA_8888_ColorFormat is used below (actually different enums).\n\nThis is a not great pattern that we have in multiple codecs.  I\u0027ll try something in another CL.",
+      "parentUuid": "ebc99f45_d76e6fad",
       "revId": "ab7aababa6a25304f20b49c06012d1a4538e3604",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
