@@ -10,6 +10,7 @@
 #include "GrGpuResourcePriv.h"
 #include "GrOpList.h"
 #include "GrTextureProvider.h"
+#include "GrTextureRenderTargetProxy.h"
 
 GrSurfaceProxy::GrSurfaceProxy(sk_sp<GrSurface> surface, SkBackingFit fit)
     : INHERITED(std::move(surface))
@@ -62,3 +63,47 @@ void GrSurfaceProxy::setLastOpList(GrOpList* opList) {
 
     SkRefCnt_SafeAssign(fLastOpList, opList);
 }
+
+sk_sp<GrSurfaceProxy> GrSurfaceProxy::MakeWrapped(sk_sp<GrSurface> surf) {
+    if (surf->asTexture()) {
+        if (surf->asRenderTarget()) {
+            return sk_sp<GrSurfaceProxy>(new GrTextureRenderTargetProxy(std::move(surf)));
+        } else {
+            return sk_sp<GrSurfaceProxy>(new GrTextureProxy(std::move(surf)));
+        }
+    } else {
+        SkASSERT(surf->asRenderTarget());
+
+        // Not texturable
+        return sk_sp<GrSurfaceProxy>(new GrRenderTargetProxy(std::move(surf)));
+    }
+}
+
+sk_sp<GrSurfaceProxy> GrSurfaceProxy::MakeDeferred(const GrCaps& caps,
+                                                   const GrSurfaceDesc& desc,
+                                                   SkBackingFit fit,
+                                                   SkBudgeted budgeted) {
+    if (kRenderTarget_GrSurfaceFlag & desc.fFlags) {
+        // We know anything we instantiate later from this deferred path will be
+        // both texturable and renderable
+        return sk_sp<GrSurfaceProxy>(new GrTextureRenderTargetProxy(caps, desc, fit, budgeted));
+    }
+
+    return sk_sp<GrSurfaceProxy>(new GrTextureProxy(desc, fit, budgeted, nullptr, 0));
+}
+
+sk_sp<GrSurfaceProxy> GrSurfaceProxy::MakeDeferred(const GrCaps& caps,
+                                                   GrTextureProvider* texProvider,
+                                                   const GrSurfaceDesc& desc,
+                                                   SkBudgeted budgeted,
+                                                   const void* srcData,
+                                                   size_t rowBytes) {
+    if (srcData) {
+        // If we have srcData, for now, we create a wrapped GrTextureProxy
+        sk_sp<GrSurface> surf(texProvider->createTexture(desc, budgeted, srcData, rowBytes));
+        return GrSurfaceProxy::MakeWrapped(std::move(surf));
+    }
+
+    return GrSurfaceProxy::MakeDeferred(caps, desc, SkBackingFit::kExact, budgeted);
+}
+

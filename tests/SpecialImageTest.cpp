@@ -17,7 +17,7 @@
 
 #if SK_SUPPORT_GPU
 #include "GrContext.h"
-#include "GrTextureProxy.h"
+#include "GrSurfaceProxy.h"
 #endif
 
 
@@ -301,9 +301,10 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(SpecialImage_DeferredGpu, reporter, ctxInfo) 
     desc.fWidth  = kFullSize;
     desc.fHeight = kFullSize;
 
-    sk_sp<GrTextureProxy> proxy(GrTextureProxy::Make(*context->caps(), context->textureProvider(),
-                                                     desc, SkBackingFit::kExact, SkBudgeted::kNo,
-                                                     bm.getPixels(), 0));
+    sk_sp<GrSurfaceProxy> proxy(GrSurfaceProxy::MakeDeferred(*context->caps(),
+                                                             context->textureProvider(),
+                                                             desc, SkBudgeted::kNo,
+                                                             bm.getPixels(), 0));
     if (!proxy) {
         return;
     }
