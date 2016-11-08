@@ -18,10 +18,12 @@
 
 class SkRasterPipelineBlitter : public SkBlitter {
 public:
-    static SkBlitter* Create(const SkPixmap&, const SkPaint&, SkTBlitterAllocator*);
+    static SkBlitter* Create(const SkPixmap&, const SkMatrix&, const SkPaint&,
+                             SkTBlitterAllocator*);
 
-    SkRasterPipelineBlitter(SkPixmap dst, SkBlendMode blend, SkPM4f paintColor)
+    SkRasterPipelineBlitter(SkPixmap dst, SkMatrix inv, SkBlendMode blend, SkPM4f paintColor)
         : fDst(dst)
+        , fInv(inv)
         , fBlend(blend)
         , fPaintColor(paintColor)
     {}
@@ -41,6 +43,7 @@ private:
     void maybe_clamp  (SkRasterPipeline*) const;
 
     SkPixmap         fDst;
+    SkMatrix         fInv;
     SkBlendMode      fBlend;
     SkPM4f           fPaintColor;
     SkRasterPipeline fShader;
@@ -61,9 +64,10 @@ private:
 };
 
 SkBlitter* SkCreateRasterPipelineBlitter(const SkPixmap& dst,
+                                         const SkMatrix& matrix,
                                          const SkPaint& paint,
                                          SkTBlitterAllocator* alloc) {
-    return SkRasterPipelineBlitter::Create(dst, paint, alloc);
+    return SkRasterPipelineBlitter::Create(dst, matrix, paint, alloc);
 }
 
 static bool supported(const SkImageInfo& info) {
@@ -93,9 +97,16 @@ static SkPM4f paint_color(const SkPixmap& dst, const SkPaint& paint) {
 }
 
 SkBlitter* SkRasterPipelineBlitter::Create(const SkPixmap& dst,
+                                           const SkMatrix& matrix,
                                            const SkPaint& paint,
                                            SkTBlitterAllocator* alloc) {
+    SkMatrix inv;
+    if (!matrix.invert(&inv)) {
+        return nullptr;
+    }
+
     auto blitter = alloc->createT<SkRasterPipelineBlitter>(dst,
+                                                           inv,
                                                            paint.getBlendMode(),
                                                            paint_color(dst, paint));
     auto earlyOut = [&] {
@@ -112,19 +123,20 @@ SkBlitter* SkRasterPipelineBlitter::Create(const SkPixmap& dst,
     SkColorFilter* colorFilter = paint.getColorFilter();
 
     // TODO: all temporary
-    if (!supported(dst.info()) || shader || !SkBlendMode_AppendStages(*blend)) {
+    if (!supported(dst.info()) || !SkBlendMode_AppendStages(*blend)) {
         return earlyOut();
     }
 
-    bool is_opaque, is_constant;
+    bool is_opaque   = paintColor->a() == 1.0f,
+         is_constant = true;
+    pipeline->append(SkRasterPipeline::constant_color, paintColor);
+
     if (shader) {
-        is_opaque   = shader->isOpaque();
-        is_constant = false;  // TODO: shader->isConstant()
-        // TODO: append shader stages, of course!
-    } else {
-        is_opaque   = paintColor->a() == 1.0f;
-        is_constant = true;
-        pipeline->append(SkRasterPipeline::constant_color, paintColor);
+        is_opaque   = is_opaque && shader->isOpaque();
+        is_constant = shader->isConstant();
+        if (!shader->appendStages(pipeline, blitter->fInv)) {
+            return earlyOut();
+        }
     }
 
     if (colorFilter) {

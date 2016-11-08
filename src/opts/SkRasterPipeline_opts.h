@@ -195,6 +195,18 @@ SI SkNh to_565(const SkNf& r, const SkNf& g, const SkNf& b) {
 
 STAGE(just_return, false) { }
 
+STAGE(debug, true) {
+    auto str = (const char*)ctx;
+    if (str) {
+        SkDebugf("%s", str);
+    } else {
+        SkDebugf(" r %f,  g %f,  b %f,  a %f\n"
+                 "dr %f, dg %f, db %f, da %f\n",
+                  r[0],  g[0],  b[0],  a[0],
+                 dr[0], dg[0], db[0], da[0]);
+    }
+}
+
 STAGE(clamp_0, true) {
     a = SkNf::Max(a, 0.0f);
     r = SkNf::Max(r, 0.0f);
