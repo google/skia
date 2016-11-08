@@ -41,8 +41,7 @@ public:
     // the eviction
     typedef void (*EvictionFunc)(GrBatchAtlas::AtlasID, void*);
 
-    GrBatchAtlas(GrTexture*, int numPlotsX, int numPlotsY);
-    ~GrBatchAtlas();
+    GrBatchAtlas(sk_sp<GrTexture>, int numPlotsX, int numPlotsY);
 
     // Adds a width x height subimage to the atlas. Upon success it returns
     // the containing GrPlot and absolute location in the backing texture.
@@ -54,7 +53,7 @@ public:
     bool addToAtlas(AtlasID*, GrDrawBatch::Target*, int width, int height, const void* image,
                     SkIPoint16* loc);
 
-    GrTexture* getTexture() const { return fTexture; }
+    GrTexture* getTexture() const { return fTexture.get(); }
 
     uint64_t atlasGeneration() const { return fAtlasGeneration; }
 
@@ -240,9 +239,9 @@ private:
 
     inline void processEviction(AtlasID);
 
-    GrTexture* fTexture;
-    int        fPlotWidth;
-    int        fPlotHeight;
+    sk_sp<GrTexture> fTexture;
+    int fPlotWidth;
+    int fPlotHeight;
     SkDEBUGCODE(uint32_t fNumPlots;)
 
     uint64_t fAtlasGeneration;
@@ -254,7 +253,7 @@ private:
 
     SkTDArray<EvictionData> fEvictionCallbacks;
     // allocated array of GrBatchPlots
-    sk_sp<BatchPlot>* fPlotArray;
+    std::unique_ptr<sk_sp<BatchPlot>[]> fPlotArray;
     // LRU list of GrPlots (MRU at head - LRU at tail)
     GrBatchPlotList fPlotList;
 };
