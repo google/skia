@@ -1,0 +1,123 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "2bde5729_899bbcab",
+        "filename": "src/gpu/batches/GrShadowRRectBatch.cpp",
+        "patchSetId": 8
+      },
+      "lineNbr": 80,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2016-11-08T22:02:06Z",
+      "side": 1,
+      "message": "line up ?\nAlso do we actually do anything with hairline mode?",
+      "revId": "f8eb514caeeb2acd24032c3fc5654deaa2ff5862",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "2bde5729_690f5014",
+        "filename": "src/gpu/batches/GrShadowRRectBatch.cpp",
+        "patchSetId": 8
+      },
+      "lineNbr": 110,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2016-11-08T22:02:06Z",
+      "side": 1,
+      "message": "what?",
+      "revId": "f8eb514caeeb2acd24032c3fc5654deaa2ff5862",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "2bde5729_e9fa80c8",
+        "filename": "src/gpu/batches/GrShadowRRectBatch.cpp",
+        "patchSetId": 8
+      },
+      "lineNbr": 128,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2016-11-08T22:02:06Z",
+      "side": 1,
+      "message": "Shouldn\u0027t HasAABloat be kNo ?",
+      "revId": "f8eb514caeeb2acd24032c3fc5654deaa2ff5862",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "2bde5729_290548ee",
+        "filename": "src/gpu/batches/GrShadowRRectBatch.cpp",
+        "patchSetId": 8
+      },
+      "lineNbr": 135,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2016-11-08T22:02:06Z",
+      "side": 1,
+      "message": "ShadowCircleBatch ?",
+      "revId": "f8eb514caeeb2acd24032c3fc5654deaa2ff5862",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "2bde5729_e9e3601e",
+        "filename": "src/gpu/batches/GrShadowRRectBatch.cpp",
+        "patchSetId": 8
+      },
+      "lineNbr": 284,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2016-11-08T22:02:06Z",
+      "side": 1,
+      "message": "Should these be named i0-i7 (for inner) rather than reuse the v* names ?",
+      "revId": "f8eb514caeeb2acd24032c3fc5654deaa2ff5862",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "2bde5729_895e5cfb",
+        "filename": "src/gpu/batches/GrShadowRRectBatch.cpp",
+        "patchSetId": 8
+      },
+      "lineNbr": 403,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2016-11-08T22:02:06Z",
+      "side": 1,
+      "message": "Do we use \u0027fAllFill\u0027 anywhere ?",
+      "revId": "f8eb514caeeb2acd24032c3fc5654deaa2ff5862",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "2bde5729_495454df",
+        "filename": "src/gpu/batches/GrShadowRRectBatch.cpp",
+        "patchSetId": 8
+      },
+      "lineNbr": 834,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2016-11-08T22:02:06Z",
+      "side": 1,
+      "message": "Do we use \u0027fAllFill\u0027 anywhere ?",
+      "revId": "f8eb514caeeb2acd24032c3fc5654deaa2ff5862",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
