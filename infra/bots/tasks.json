@@ -262,6 +262,7 @@
         "Build-Ubuntu-Clang-arm-Release-GN_Android"
       ],
       "dimensions": [
+        "device_os:MOB30Q",
         "device_type:sprout",
         "os:Android",
         "pool:Skia"
