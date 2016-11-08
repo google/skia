@@ -1439,4 +1439,5 @@ DEF_TEST(Codec_InvalidImages, r) {
     // ASAN will complain if there is an issue.
     test_invalid_images(r, "invalid_images/int_overflow.ico", false);
     test_invalid_images(r, "invalid_images/skbug5887.gif", true);
+    test_invalid_images(r, "invalid_images/many-progressive-scans.jpg", false);
 }
