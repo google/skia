@@ -7,6 +7,7 @@
 
 #include "SkColorShader.h"
 #include "SkColorSpace.h"
+#include "SkRasterPipeline.h"
 #include "SkReadBuffer.h"
 #include "SkUtils.h"
 
@@ -305,3 +306,19 @@ bool SkColorShader::ColorShaderContext::onChooseBlitProcs(const SkImageInfo& inf
 bool SkColor4Shader::Color4Context::onChooseBlitProcs(const SkImageInfo& info, BlitState* state) {
     return choose_blitprocs(&fPM4f, info, state);
 }
+
+bool SkColorShader::onAppendStages(SkRasterPipeline* p, const SkMatrix&) const {
+    return false;
+}
+
+bool SkColor4Shader::onAppendStages(SkRasterPipeline* p, const SkMatrix&) const {
+    p->append(SkRasterPipeline::move_src_dst);
+    p->append(SkRasterPipeline::constant_color, &fColor4);
+    p->append(SkRasterPipeline::premul);
+    // TODO: color space correction
+    p->append(SkRasterPipeline::srcin);
+    return true;
+}
+
+bool SkColorShader ::onIsConstant() const { return true; }
+bool SkColor4Shader::onIsConstant() const { return true; }
