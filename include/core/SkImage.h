@@ -266,6 +266,18 @@ public:
     bool scalePixels(const SkPixmap& dst, SkFilterQuality, CachingHint = kAllow_CachingHint) const;
 
     /**
+     *  Encode the image's pixels and return the result as a new SkData, which
+     *  the caller must manage (i.e. call unref() when they are done).
+     *
+     *  If the image type cannot be encoded, or the requested encoder type is
+     *  not supported, this will return NULL.
+     *
+     *  Note: this will attempt to encode the image's pixels in the specified format,
+     *  even if the image returns a data from refEncoded(). That data will be ignored.
+     */
+    SkData* encode(SkImageEncoder::Type, int quality) const;
+
+    /**
      *  Encode the image and return the result as a caller-managed SkData.  This will
      *  attempt to reuse existing encoded data (as returned by refEncoded).
      *
