@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "2bde5729_5f2ec6c4",
+        "filename": "tools/fiddle/fiddle_main.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 104,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2016-11-08T17:30:22Z",
+      "side": 1,
+      "message": "FYI this line is new.",
+      "range": {
+        "startLine": 104,
+        "startChar": 8,
+        "endLine": 104,
+        "endChar": 23
+      },
+      "revId": "89fb7bda4fe0269a1141bca77aa9e90109885adb",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
