@@ -1,0 +1,73 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "2bde5729_b5aa8b6b",
+        "filename": "include/core/SkTypes.h",
+        "patchSetId": 5
+      },
+      "lineNbr": 38,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2016-11-08T20:15:28Z",
+      "side": 1,
+      "message": "This is really unnecessary. Nothing in this file works in pure C.\n\nAlso, this is a good reason to wait until these functions are moved out of SkTypes.h before modifying them. It\u0027s not a good idea to add the \u003cmemory\u003e include here if it\u0027s only for code we\u0027re going to be removing anyway.",
+      "range": {
+        "startLine": 38,
+        "startChar": 0,
+        "endLine": 38,
+        "endChar": 18
+      },
+      "revId": "669fb7dfa7fae6c6994d9b7f6dd74c06ec02483b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "2bde5729_f5b253e9",
+        "filename": "include/core/SkTypes.h",
+        "patchSetId": 5
+      },
+      "lineNbr": 563,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2016-11-08T20:15:28Z",
+      "side": 1,
+      "message": "This parameter is apparently never used. It can be emulated anyway externally.",
+      "range": {
+        "startLine": 563,
+        "startChar": 69,
+        "endLine": 563,
+        "endChar": 96
+      },
+      "revId": "669fb7dfa7fae6c6994d9b7f6dd74c06ec02483b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "2bde5729_b5f28bea",
+        "filename": "include/core/SkTypes.h",
+        "patchSetId": 5
+      },
+      "lineNbr": 575,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2016-11-08T20:15:28Z",
+      "side": 1,
+      "message": "Seems like this whole thing should just be\n\nT* previousAlloc \u003d fStorage.get();\nif (size !\u003d fSize \u0026\u0026 (kReuse_OnShrink !\u003d shrink || size \u003e\u003d fSize)) {\n    fStorage.reset(size ? sk_realloc_throw(size) : nullptr);\n}\nif (didChangeAlloc) {\n    *didChangeAlloc \u003d fStorage.get() !\u003d previousAlloc;\n}\nreturn fStorage.get();\n\n\nor, without didChangeAlloc\n\n\nif (size !\u003d fSize \u0026\u0026 (kReuse_OnShrink !\u003d shrink || size \u003e\u003d fSize)) {\n    fStorage.reset(size ? sk_realloc_throw(size) : nullptr);\n}\nreturn fStorage.get();",
+      "range": {
+        "startLine": 564,
+        "startChar": 0,
+        "endLine": 575,
+        "endChar": 30
+      },
+      "revId": "669fb7dfa7fae6c6994d9b7f6dd74c06ec02483b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
