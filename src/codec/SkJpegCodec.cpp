@@ -385,8 +385,8 @@ bool SkJpegCodec::setOutputColorSpace(const SkImageInfo& dstInfo) {
             if (isCMYK) {
                 fDecoderMgr->dinfo()->out_color_space = JCS_CMYK;
             } else if (this->colorXform()) {
-                // Our color transformation code requires RGBA order inputs, but it'll swizzle
-                // to BGRA for us.
+                // Always using RGBA as the input format for color xforms makes the
+                // implementation a little simpler.
                 fDecoderMgr->dinfo()->out_color_space = JCS_EXT_RGBA;
             } else {
                 fDecoderMgr->dinfo()->out_color_space = JCS_EXT_BGRA;
