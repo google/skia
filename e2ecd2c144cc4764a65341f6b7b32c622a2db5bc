@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "2bde5729_70a9f131",
+        "filename": "src/codec/SkBmpCodec.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 640,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2016-11-08T20:37:53Z",
+      "side": 1,
+      "message": "For this and others, rather than making the kXformSrcColorType an SkColorType, why not make it an SkColorSpaceXform::ColorFormat? Then you don\u0027t need select_xform_format here.",
+      "range": {
+        "startLine": 640,
+        "startChar": 57,
+        "endLine": 640,
+        "endChar": 76
+      },
+      "revId": "e2ecd2c144cc4764a65341f6b7b32c622a2db5bc",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "2bde5729_704811cb",
+        "filename": "src/codec/SkBmpCodec.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 113,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2016-11-08T20:37:53Z",
+      "side": 1,
+      "message": "Maybe add a comment explaining why this one is picked?",
+      "range": {
+        "startLine": 113,
+        "startChar": 50,
+        "endLine": 113,
+        "endChar": 72
+      },
+      "revId": "e2ecd2c144cc4764a65341f6b7b32c622a2db5bc",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
