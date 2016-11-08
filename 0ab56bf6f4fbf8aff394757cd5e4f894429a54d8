@@ -16,6 +16,23 @@
       "revId": "0ab56bf6f4fbf8aff394757cd5e4f894429a54d8",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "2bde5729_fca24082",
+        "filename": "infra/bots/recipes/swarm_trigger.py",
+        "patchSetId": 3
+      },
+      "lineNbr": 221,
+      "author": {
+        "id": 5145
+      },
+      "writtenOn": "2016-11-08T16:13:18Z",
+      "side": 1,
+      "message": "Copying everything starting with patch_ is a good idea. Done.\nNot removing \u0027repository\u0027 yet, wanted to confirm with Eric that it is ok to remove.",
+      "revId": "0ab56bf6f4fbf8aff394757cd5e4f894429a54d8",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
