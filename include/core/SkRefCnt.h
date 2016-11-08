@@ -181,26 +181,6 @@ template<typename T> static inline void SkSafeSetNull(T*& obj) {
 
 ///////////////////////////////////////////////////////////////////////////////
 
-template <typename T> struct SkTUnref {
-    void operator()(T* t) { t->unref(); }
-};
-
-/**
- *  Utility class that simply unref's its argument in the destructor.
- */
-template <typename T> class SkAutoTUnref : public std::unique_ptr<T, SkTUnref<T>> {
-public:
-    explicit SkAutoTUnref(T* obj = nullptr) : std::unique_ptr<T, SkTUnref<T>>(obj) {}
-
-    operator T*() const { return this->get(); }
-
-#if defined(SK_BUILD_FOR_ANDROID_FRAMEWORK)
-    // Need to update graphics/Shader.cpp.
-    T* detach() { return this->release(); }
-#endif
-};
-// Can't use the #define trick to guard a bare SkAutoTUnref(...) because it's templated. :(
-
 // This is a variant of SkRefCnt that's Not Virtual, so weighs 4 bytes instead of 8 or 16.
 // There's only benefit to using this if the deriving class does not otherwise need a vtable.
 template <typename Derived>
