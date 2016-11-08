@@ -636,10 +636,10 @@ bool SkBmpCodec::onSkipScanlines(int count) {
 void SkBmpCodec::applyColorXform(const SkImageInfo& dstInfo, void* dst, void* src) const {
     SkColorSpaceXform* xform = this->colorXform();
     if (xform) {
-        SkColorSpaceXform::ColorFormat dstFormat = select_xform_format(dstInfo.colorType());
-        SkColorSpaceXform::ColorFormat srcFormat = SkColorSpaceXform::kBGRA_8888_ColorFormat;
-        SkAlphaType alphaType = select_xform_alpha(dstInfo.alphaType(),
-                                                   this->getInfo().alphaType());
+        const SkColorSpaceXform::ColorFormat dstFormat = select_xform_format(dstInfo.colorType());
+        const SkColorSpaceXform::ColorFormat srcFormat = select_xform_format(kXformSrcColorType);
+        const SkAlphaType alphaType = select_xform_alpha(dstInfo.alphaType(),
+                                                         this->getInfo().alphaType());
         SkAssertResult(xform->apply(dstFormat, dst, srcFormat, src, dstInfo.width(),
                                     alphaType));
     }
