@@ -432,10 +432,10 @@ sk_sp<SkImage> SkImageDeserializer::makeFromMemory(const void* data, size_t leng
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
-void SkImage_pinAsTexture(const SkImage* image, GrContext* ctx) {
+bool SkImage_pinAsTexture(const SkImage* image, GrContext* ctx) {
     SkASSERT(image);
     SkASSERT(ctx);
-    as_IB(image)->onPinAsTexture(ctx);
+    return as_IB(image)->onPinAsTexture(ctx);
 }
 
 void SkImage_unpinAsTexture(const SkImage* image, GrContext* ctx) {
