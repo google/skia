@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "ebafdfaa_6a1967e8",
+        "filename": "src/core/SkTypesPriv.h",
+        "patchSetId": 5
+      },
+      "lineNbr": 70,
+      "author": {
+        "id": 5110
+      },
+      "writtenOn": "2016-11-09T18:38:58Z",
+      "side": 1,
+      "message": "Should SkAutoSMalloc and SkAutoSTMalloc share code?",
+      "revId": "46fb728de361cdb270941e996794924dc1b7e5f9",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
