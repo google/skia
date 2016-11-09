@@ -61,6 +61,24 @@
     },
     {
       "key": {
+        "uuid": "8bb823f7_3e8bb13c",
+        "filename": "include/gpu/GrTypes.h",
+        "patchSetId": 10
+      },
+      "lineNbr": 235,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2016-11-09T15:28:37Z",
+      "side": 1,
+      "message": "Plan for now: land with \"sint\", if we need a unsigneds call when them \"uints\", and in a follow up CL add \"unorm\" to the existing unorm config names.",
+      "parentUuid": "0bb35316_859388e3",
+      "revId": "ac145845b122a86a1b2bcf562d429e35f3b22256",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "2bde5729_290b88d2",
         "filename": "src/gpu/gl/GrGLCaps.cpp",
         "patchSetId": 10
@@ -167,6 +185,24 @@
       "side": 1,
       "message": "Ok, that was my question. Makes sense. I was just mildly curious about why the SkTMax didn\u0027t exist before.",
       "parentUuid": "2bde5729_6b2e60c5",
+      "revId": "ac145845b122a86a1b2bcf562d429e35f3b22256",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ab9ec77a_aafe538d",
+        "filename": "src/gpu/gl/GrGLGpu.cpp",
+        "patchSetId": 10
+      },
+      "lineNbr": 982,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2016-11-09T15:28:37Z",
+      "side": 1,
+      "message": "Before this change line 976:\n\nuseTexStorage \u0026\u003d texels.count() \u003e 1\n\nhad already taken care of it.",
+      "parentUuid": "4bd62b38_3c997960",
       "revId": "ac145845b122a86a1b2bcf562d429e35f3b22256",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
