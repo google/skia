@@ -215,11 +215,6 @@
           "name": "skia/bots/android_ndk_linux",
           "path": "android_ndk_linux",
           "version": "version:5"
-        },
-        {
-          "name": "skia/bots/clang_linux",
-          "path": "clang_linux",
-          "version": "version:4"
         }
       ],
       "dimensions": [
@@ -252,11 +247,6 @@
           "name": "skia/bots/android_ndk_linux",
           "path": "android_ndk_linux",
           "version": "version:5"
-        },
-        {
-          "name": "skia/bots/clang_linux",
-          "path": "clang_linux",
-          "version": "version:4"
         }
       ],
       "dimensions": [
@@ -314,11 +304,6 @@
           "name": "skia/bots/android_ndk_windows",
           "path": "n",
           "version": "version:2"
-        },
-        {
-          "name": "skia/bots/win_toolchain",
-          "path": "t",
-          "version": "version:5"
         }
       ],
       "dimensions": [

@@ -206,15 +206,9 @@ func compile(b *specs.TasksCfgBuilder, name string, parts map[string]string) str
 		} else {
 			pkgs = append(pkgs, b.MustGetCipdPackageFromAsset("android_ndk_linux"))
 		}
-	}
-
-	// Clang on Linux.
-	if strings.Contains(name, "Ubuntu") && strings.Contains(name, "Clang") {
+	} else if strings.Contains(name, "Ubuntu") && strings.Contains(name, "Clang") {
 		pkgs = append(pkgs, b.MustGetCipdPackageFromAsset("clang_linux"))
-	}
-
-	// Windows toolchain.
-	if strings.Contains(name, "Win") {
+	} else if strings.Contains(name, "Win") {
 		pkgs = append(pkgs, b.MustGetCipdPackageFromAsset("win_toolchain"))
 		if strings.Contains(name, "Vulkan") {
 			pkgs = append(pkgs, b.MustGetCipdPackageFromAsset("win_vulkan_sdk"))
