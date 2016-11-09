@@ -10,6 +10,7 @@
 
 #include "glsl/GrGLSLProgramDataManager.h"
 
+#include "SkTypesPriv.h"
 #include "vk/GrVkUniformHandler.h"
 
 class GrVkGpu;

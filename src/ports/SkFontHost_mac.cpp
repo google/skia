@@ -46,7 +46,7 @@
 #include "SkTemplates.h"
 #include "SkTypefaceCache.h"
 #include "SkTypeface_mac.h"
-#include "SkUtils.h"
+#include "SkTypesPriv.h"
 #include "SkUtils.h"
 
 #include <dlfcn.h>

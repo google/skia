@@ -18,6 +18,7 @@
 #include "SkMallocPixelRef.h"
 #include "SkUtils.h"
 #include "SkShader.h"
+#include "SkTypesPriv.h"
 #include "SkOnce.h"
 
 #if SK_SUPPORT_GPU

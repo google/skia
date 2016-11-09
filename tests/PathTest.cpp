@@ -20,7 +20,7 @@
 #include "SkStream.h"
 #include "SkStrokeRec.h"
 #include "SkSurface.h"
-#include "SkTypes.h"
+#include "SkTypesPriv.h"
 #include "SkWriter32.h"
 #include "Test.h"
 

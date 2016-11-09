@@ -13,7 +13,7 @@
 #include "SkRect.h"
 #include "SkRegion.h"
 #include "SkShader.h"
-#include "SkTypes.h"
+#include "SkTypesPriv.h"
 
 class SkMatrix;
 class SkPaint;
@@ -128,7 +128,11 @@ public:
      * nullptr if no persistent memory is needed by the blitter.
      */
     virtual void* allocBlitMemory(size_t sz) {
-        return fBlitMemory.reset(sz, SkAutoMalloc::kReuse_OnShrink);
+        if (sz > fBlitMemorySize) {
+            fBlitMemory.reset(sz);
+            fBlitMemorySize = sz;
+        }
+        return fBlitMemory.get();
     }
 
     ///@name non-virtual helpers
@@ -155,8 +159,9 @@ public:
 
     static SkShader::ContextRec::DstType PreferredShaderDest(const SkImageInfo&);
 
-protected:
+private:
     SkAutoMalloc fBlitMemory;
+    size_t fBlitMemorySize = 0;
 };
 
 /** This blitter silently never draws anything.

@@ -5,7 +5,6 @@
  * found in the LICENSE file.
  */
 
-
 #include "SkScalerContext.h"
 #include "SkAutoPixmapStorage.h"
 #include "SkColorPriv.h"
@@ -23,6 +22,7 @@
 #include "SkRasterClip.h"
 #include "SkStroke.h"
 #include "SkStrokeRec.h"
+#include "SkTypesPriv.h"
 
 #define ComputeBWRowBytes(width)        (((unsigned)(width) + 7) >> 3)
 

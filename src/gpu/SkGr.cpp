@@ -5,7 +5,6 @@
  * found in the LICENSE file.
  */
 
-
 #include "SkGr.h"
 #include "SkGrPriv.h"
 
@@ -32,6 +31,7 @@
 #include "SkPM4fPriv.h"
 #include "SkResourceCache.h"
 #include "SkTemplates.h"
+#include "SkTypesPriv.h"
 #include "SkYUVPlanesCache.h"
 #include "effects/GrBicubicEffect.h"
 #include "effects/GrConstColorProcessor.h"

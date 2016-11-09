@@ -34,6 +34,7 @@
 #include "SkImageEncoder.h"
 #include "SkIStream.h"
 #include "SkStream.h"
+#include "SkTypesPriv.h"
 #include "SkTScopedComPtr.h"
 #include "SkUnPreMultiply.h"
 

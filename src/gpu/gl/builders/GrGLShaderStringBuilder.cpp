@@ -9,6 +9,7 @@
 #include "gl/GrGLGpu.h"
 #include "gl/GrGLSLPrettyPrint.h"
 #include "SkTraceEvent.h"
+#include "SkTypesPriv.h"
 #include "SkSLCompiler.h"
 #include "SkSLGLSLCodeGenerator.h"
 #include "ir/SkSLProgram.h"

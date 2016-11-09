@@ -18,6 +18,7 @@
 #include "GrMesh.h"
 #include "SkGeometry.h"
 #include "SkTraceEvent.h"
+#include "SkTypesPriv.h"
 #include "glsl/GrGLSLGeometryProcessor.h"
 #include "glsl/GrGLSLFragmentShaderBuilder.h"
 #include "glsl/GrGLSLVertexShaderBuilder.h"
@@ -334,7 +335,7 @@ private:
 
         MSAAQuadVertices quads;
         size_t quadVertexStride = sizeof(MSAAQuadVertices::Vertex);
-        SkAutoFree quadVertexPtr(sk_malloc_throw(fMaxQuadVertices * quadVertexStride));
+        SkAutoFree quadVertexPtr = SkAutoFree::Malloc(fMaxQuadVertices * quadVertexStride);
         quads.vertices = (MSAAQuadVertices::Vertex*) quadVertexPtr.get();
         quads.nextVertex = quads.vertices;
         SkDEBUGCODE(quads.verticesEnd = quads.vertices + fMaxQuadVertices;)
@@ -356,8 +357,8 @@ private:
 
         SkAutoFree quadIndexPtr;
         if (fIsIndexed) {
-            quads.indices = (uint16_t*) sk_malloc_throw(fMaxQuadIndices * sizeof(uint16_t));
-            quadIndexPtr.set(quads.indices);
+            quadIndexPtr = SkAutoFree::Malloc(fMaxQuadIndices * sizeof(uint16_t));
+            quads.indices = (uint16_t*)quadIndexPtr.get();
             quads.nextIndex = quads.indices;
         } else {
             quads.indices = nullptr;

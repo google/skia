@@ -13,7 +13,7 @@
 #include "SkPath.h"
 #include "SkRasterClip.h"
 #include "SkRRect.h"
-#include "SkTypes.h"
+#include "SkTypesPriv.h"
 
 #if SK_SUPPORT_GPU
 #include "GrTexture.h"

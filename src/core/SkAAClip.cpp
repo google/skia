@@ -2192,7 +2192,7 @@ void SkAAClipBlitter::blitMask(const SkMask& origMask, const SkIRect& clip) {
         grayMask.fRowBytes = origMask.fBounds.width();
         size_t size = grayMask.computeImageSize();
         grayMask.fImage = (uint8_t*)fGrayMaskScratch.reset(size,
-                                               SkAutoMalloc::kReuse_OnShrink);
+                                               SkAutoSMallocOnShrink::kReuse);
 
         upscaleBW2A8(&grayMask, origMask);
         mask = &grayMask;
