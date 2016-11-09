@@ -42,6 +42,7 @@ var (
 		"Build-Win-Clang-arm64-Release-GN_Android",
 		"Perf-Ubuntu-GCC-GCE-CPU-AVX2-x86_64-Release-GN",
 		"Test-Android-Clang-AndroidOne-GPU-Mali400MP2-arm-Release-GN_Android",
+		"Test-iOS-Clang-iPad4-GPU-SGX554-Arm7-Release",
 		"Test-Ubuntu-GCC-GCE-CPU-AVX2-x86_64-Release-GN",
 		"Housekeeper-PerCommit-InfraTests",
 	}

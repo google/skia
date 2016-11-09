@@ -41,9 +41,40 @@
       "tasks": [
         "Upload-Test-Ubuntu-GCC-GCE-CPU-AVX2-x86_64-Release-GN"
       ]
+    },
+    "Test-iOS-Clang-iPad4-GPU-SGX554-Arm7-Release": {
+      "priority": 0.8,
+      "tasks": [
+        "Upload-Test-iOS-Clang-iPad4-GPU-SGX554-Arm7-Release"
+      ]
     }
   },
   "tasks": {
+    "Build-Mac-Clang-Arm7-Release-iOS": {
+      "dimensions": [
+        "gpu:none",
+        "os:Mac",
+        "pool:Skia"
+      ],
+      "extra_args": [
+        "--workdir",
+        "../../..",
+        "swarm_compile",
+        "repository=<(REPO)",
+        "buildername=Build-Mac-Clang-Arm7-Release-iOS",
+        "mastername=fake-master",
+        "buildnumber=2",
+        "slavename=fake-buildslave",
+        "nobuildbot=True",
+        "swarm_out_dir=${ISOLATED_OUTDIR}",
+        "revision=<(REVISION)",
+        "patch_storage=<(PATCH_STORAGE)",
+        "patch_issue=<(ISSUE)",
+        "patch_set=<(PATCHSET)"
+      ],
+      "isolate": "compile_skia.isolate",
+      "priority": 0.8
+    },
     "Build-Mac-Clang-arm64-Debug-GN_iOS": {
       "dimensions": [
         "gpu:none",
@@ -332,6 +363,51 @@
       "isolate": "test_skia.isolate",
       "priority": 0.8
     },
+    "Test-iOS-Clang-iPad4-GPU-SGX554-Arm7-Release": {
+      "cipd_packages": [
+        {
+          "name": "skia/bots/skimage",
+          "path": "skimage",
+          "version": "version:12"
+        },
+        {
+          "name": "skia/bots/skp",
+          "path": "skp",
+          "version": "version:15"
+        },
+        {
+          "name": "skia/bots/svg",
+          "path": "svg",
+          "version": "version:3"
+        }
+      ],
+      "dependencies": [
+        "Build-Mac-Clang-Arm7-Release-iOS"
+      ],
+      "dimensions": [
+        "device:iPad5,1",
+        "os:iOS-9.3.1",
+        "pool:Skia"
+      ],
+      "extra_args": [
+        "--workdir",
+        "../../..",
+        "swarm_test",
+        "repository=<(REPO)",
+        "buildername=Test-iOS-Clang-iPad4-GPU-SGX554-Arm7-Release",
+        "mastername=fake-master",
+        "buildnumber=2",
+        "slavename=fake-buildslave",
+        "nobuildbot=True",
+        "swarm_out_dir=${ISOLATED_OUTDIR}",
+        "revision=<(REVISION)",
+        "patch_storage=<(PATCH_STORAGE)",
+        "patch_issue=<(ISSUE)",
+        "patch_set=<(PATCHSET)"
+      ],
+      "isolate": "test_skia.isolate",
+      "priority": 0.8
+    },
     "Upload-Perf-Ubuntu-GCC-GCE-CPU-AVX2-x86_64-Release-GN": {
       "dependencies": [
         "Perf-Ubuntu-GCC-GCE-CPU-AVX2-x86_64-Release-GN"
@@ -406,6 +482,35 @@
         "upload_dm_results",
         "repository=<(REPO)",
         "buildername=Test-Ubuntu-GCC-GCE-CPU-AVX2-x86_64-Release-GN",
+        "mastername=fake-master",
+        "buildnumber=2",
+        "slavename=fake-buildslave",
+        "nobuildbot=True",
+        "swarm_out_dir=${ISOLATED_OUTDIR}",
+        "revision=<(REVISION)",
+        "patch_storage=<(PATCH_STORAGE)",
+        "patch_issue=<(ISSUE)",
+        "patch_set=<(PATCHSET)"
+      ],
+      "isolate": "upload_dm_results.isolate",
+      "priority": 0.8
+    },
+    "Upload-Test-iOS-Clang-iPad4-GPU-SGX554-Arm7-Release": {
+      "dependencies": [
+        "Test-iOS-Clang-iPad4-GPU-SGX554-Arm7-Release"
+      ],
+      "dimensions": [
+        "cpu:x86-64-avx2",
+        "gpu:none",
+        "os:Ubuntu",
+        "pool:Skia"
+      ],
+      "extra_args": [
+        "--workdir",
+        "../../..",
+        "upload_dm_results",
+        "repository=<(REPO)",
+        "buildername=Test-iOS-Clang-iPad4-GPU-SGX554-Arm7-Release",
         "mastername=fake-master",
         "buildnumber=2",
         "slavename=fake-buildslave",
