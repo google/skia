@@ -1,9 +1,33 @@
 {
   "jobs": {
+    "Build-Mac-Clang-Arm7-Debug-iOS": {
+      "priority": 0.8,
+      "tasks": [
+        "Build-Mac-Clang-Arm7-Debug-iOS"
+      ]
+    },
+    "Build-Mac-Clang-Arm7-Release-iOS": {
+      "priority": 0.8,
+      "tasks": [
+        "Build-Mac-Clang-Arm7-Release-iOS"
+      ]
+    },
     "Build-Mac-Clang-arm64-Debug-GN_iOS": {
       "priority": 0.8,
       "tasks": [
         "Build-Mac-Clang-arm64-Debug-GN_iOS"
+      ]
+    },
+    "Build-Ubuntu-Clang-arm-Debug-GN_Android": {
+      "priority": 0.8,
+      "tasks": [
+        "Build-Ubuntu-Clang-arm-Debug-GN_Android"
+      ]
+    },
+    "Build-Ubuntu-Clang-arm-Release-GN_Android": {
+      "priority": 0.8,
+      "tasks": [
+        "Build-Ubuntu-Clang-arm-Release-GN_Android"
       ]
     },
     "Build-Ubuntu-GCC-x86_64-Release-GN": {
