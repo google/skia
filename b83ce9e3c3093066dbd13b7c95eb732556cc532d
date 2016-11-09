@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "4b770b47_6e564f1c",
+        "filename": "gm/aaclip.cpp",
+        "patchSetId": 11
+      },
+      "lineNbr": 174,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2016-11-09T19:00:14Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "4b770b47_ce6bc363",
+      "revId": "b83ce9e3c3093066dbd13b7c95eb732556cc532d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "4b770b47_2e87e7f7",
         "filename": "include/core/SkPictureRecorder.h",
         "patchSetId": 11
@@ -30,6 +48,24 @@
       "writtenOn": "2016-11-09T18:50:04Z",
       "side": 1,
       "message": "line these other guys up ?",
+      "revId": "b83ce9e3c3093066dbd13b7c95eb732556cc532d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "4b770b47_ae7c3797",
+        "filename": "include/core/SkPictureRecorder.h",
+        "patchSetId": 11
+      },
+      "lineNbr": 117,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2016-11-09T19:00:14Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "4b770b47_2e87e7f7",
       "revId": "b83ce9e3c3093066dbd13b7c95eb732556cc532d",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
@@ -53,6 +89,24 @@
     },
     {
       "key": {
+        "uuid": "4b770b47_0e6c6be4",
+        "filename": "site/user/quick/index.md",
+        "patchSetId": 11
+      },
+      "lineNbr": 1,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2016-11-09T19:00:14Z",
+      "side": 1,
+      "message": "reverted",
+      "parentUuid": "4b770b47_6ea64f9a",
+      "revId": "b83ce9e3c3093066dbd13b7c95eb732556cc532d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "4b770b47_ee0c7fb0",
         "filename": "src/image/SkSurface_Base.h",
         "patchSetId": 11
@@ -70,6 +124,24 @@
     },
     {
       "key": {
+        "uuid": "4b770b47_ae951789",
+        "filename": "src/image/SkSurface_Base.h",
+        "patchSetId": 11
+      },
+      "lineNbr": 93,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2016-11-09T19:00:14Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "4b770b47_ee0c7fb0",
+      "revId": "b83ce9e3c3093066dbd13b7c95eb732556cc532d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "4b770b47_6e02cf72",
         "filename": "src/pdf/SkPDFDocument.cpp",
         "patchSetId": 11
@@ -81,6 +153,24 @@
       "writtenOn": "2016-11-09T18:50:04Z",
       "side": 1,
       "message": "SkPDFCanvas::Make ?",
+      "revId": "b83ce9e3c3093066dbd13b7c95eb732556cc532d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "4b770b47_0e854b56",
+        "filename": "src/pdf/SkPDFDocument.cpp",
+        "patchSetId": 11
+      },
+      "lineNbr": 220,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2016-11-09T19:00:14Z",
+      "side": 1,
+      "message": "Don\u0027t feel the need to add a factory unless it serves some purpose. (e.g. does sanity checks, forces a closed subclass, allows for specialization of the returned subclass, etc.)",
+      "parentUuid": "4b770b47_6e02cf72",
       "revId": "b83ce9e3c3093066dbd13b7c95eb732556cc532d",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
