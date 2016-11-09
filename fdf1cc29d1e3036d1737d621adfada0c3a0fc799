@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "4b770b47_d41b5485",
+        "filename": "tools/skpbench/_adb.py",
+        "patchSetId": 2
+      },
+      "lineNbr": 45,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2016-11-09T20:41:49Z",
+      "side": 1,
+      "message": "Should we also put a wait-for-device after remount?",
+      "revId": "fdf1cc29d1e3036d1737d621adfada0c3a0fc799",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
