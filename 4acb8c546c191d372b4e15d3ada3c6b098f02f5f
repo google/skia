@@ -25,6 +25,24 @@
     },
     {
       "key": {
+        "uuid": "2bd3b749_be2fbd55",
+        "filename": "include/core/SkTypes.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 513,
+      "author": {
+        "id": 5110
+      },
+      "writtenOn": "2016-11-09T18:38:58Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "2bde5729_9c44dc67",
+      "revId": "4acb8c546c191d372b4e15d3ada3c6b098f02f5f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "2bde5729_bc8a7866",
         "filename": "include/private/SkTypesPriv.h",
         "patchSetId": 4
@@ -36,6 +54,24 @@
       "writtenOn": "2016-11-08T16:45:57Z",
       "side": 1,
       "message": "If nothing in include/ is using these at all, it would probably be best to move these to a file like src/core/SkAutoMalloc.h .",
+      "revId": "4acb8c546c191d372b4e15d3ada3c6b098f02f5f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ebafdfaa_6fa6199a",
+        "filename": "include/private/SkTypesPriv.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 1,
+      "author": {
+        "id": 5110
+      },
+      "writtenOn": "2016-11-09T18:38:58Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "2bde5729_bc8a7866",
       "revId": "4acb8c546c191d372b4e15d3ada3c6b098f02f5f",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
@@ -59,6 +95,24 @@
         "endLine": 13,
         "endChar": 16
       },
+      "revId": "4acb8c546c191d372b4e15d3ada3c6b098f02f5f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ebafdfaa_4fa35d88",
+        "filename": "include/private/SkTypesPriv.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 13,
+      "author": {
+        "id": 5110
+      },
+      "writtenOn": "2016-11-09T18:38:58Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "2bde5729_bccb58ab",
       "revId": "4acb8c546c191d372b4e15d3ada3c6b098f02f5f",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
