@@ -8,90 +8,78 @@
 #ifndef SkSmallAllocator_DEFINED
 #define SkSmallAllocator_DEFINED
 
-#include "SkTArray.h"
+#include "SkTDArray.h"
 #include "SkTypes.h"
 
+#include <new>
 #include <utility>
 
 /*
  *  Template class for allocating small objects without additional heap memory
- *  allocations.
+ *  allocations. kMaxObjects is a hard limit on the number of objects that can
+ *  be allocated using this class. After that, attempts to create more objects
+ *  with this class will assert and return nullptr.
  *
  *  kTotalBytes is the total number of bytes provided for storage for all
  *  objects created by this allocator. If an object to be created is larger
  *  than the storage (minus storage already used), it will be allocated on the
  *  heap. This class's destructor will handle calling the destructor for each
  *  object it allocated and freeing its memory.
+ *
+ *  Current the class always aligns each allocation to 16-bytes to be safe, but future
+ *  may reduce this to only the alignment that is required per alloc.
  */
-template<uint32_t kExpectedObjects, size_t kTotalBytes>
+template<uint32_t kMaxObjects, size_t kTotalBytes>
 class SkSmallAllocator : SkNoncopyable {
 public:
+    SkSmallAllocator()
+    : fStorageUsed(0)
+    , fNumObjects(0)
+    {}
+
     ~SkSmallAllocator() {
         // Destruct in reverse order, in case an earlier object points to a
         // later object.
-        while (fRecs.count() > 0) {
-            this->deleteLast();
+        while (fNumObjects > 0) {
+            fNumObjects--;
+            Rec* rec = &fRecs[fNumObjects];
+            rec->fKillProc(rec->fObj);
+            // Safe to do if fObj is in fStorage, since fHeapStorage will
+            // point to nullptr.
+            sk_free(rec->fHeapStorage);
         }
     }
 
     /*
      *  Create a new object of type T. Its lifetime will be handled by this
      *  SkSmallAllocator.
+     *  Note: If kMaxObjects have been created by this SkSmallAllocator, nullptr
+     *  will be returned.
      */
     template<typename T, typename... Args>
     T* createT(Args&&... args) {
-        void* buf = this->reserve(sizeof(T), DefaultDestructor<T>);
+        void* buf = this->reserveT<T>();
+        if (nullptr == buf) {
+            return nullptr;
+        }
         return new (buf) T(std::forward<Args>(args)...);
     }
 
     /*
-     * Create a new object of size using initer to initialize the memory. The initer function has
-     * the signature T* initer(void* storage). If initer is unable to initialize the memory it
-     * should return nullptr where SkSmallAllocator will free the memory.
+     *  Reserve a specified amount of space (must be enough space for one T).
+     *  The space will be in fStorage if there is room, or on the heap otherwise.
+     *  Either way, this class will call ~T() in its destructor and free the heap
+     *  allocation if necessary.
+     *  Unlike createT(), this method will not call the constructor of T.
      */
-    template <typename T, typename Initer>
-    T* createWithIniterT(size_t size, Initer initer) {
-        SkASSERT(size >= sizeof(T));
-
-        void* storage = this->reserve(size, DefaultDestructor<T>);
-        T* candidate = initer(storage);
-        if (!candidate) {
-            // Initializing didn't workout so free the memory.
-            this->freeLast();
+    template<typename T> void* reserveT(size_t storageRequired = sizeof(T)) {
+        SkASSERT(fNumObjects < kMaxObjects);
+        SkASSERT(storageRequired >= sizeof(T));
+        if (kMaxObjects == fNumObjects) {
+            return nullptr;
         }
-
-        return candidate;
-    }
-
-    /*
-     * Free the last object allocated and call its destructor. This can be called multiple times
-     * removing objects from the pool in reverse order.
-     */
-    void deleteLast() {
-        SkASSERT(fRecs.count() > 0);
-        Rec& rec = fRecs.back();
-        rec.fDestructor(rec.fObj);
-        this->freeLast();
-    }
-
-private:
-    using Destructor = void(*)(void*);
-    struct Rec {
-        size_t     fStorageSize;  // 0 if allocated on heap
-        char*      fObj;
-        Destructor fDestructor;
-    };
-
-    // Used to call the destructor for allocated objects.
-    template<typename T>
-    static void DefaultDestructor(void* ptr) {
-        static_cast<T*>(ptr)->~T();
-    }
-
-    // Reserve storageRequired from fStorage if possible otherwise allocate on the heap.
-    void* reserve(size_t storageRequired, Destructor destructor) {
         const size_t storageRemaining = sizeof(fStorage) - fStorageUsed;
-        Rec& rec = fRecs.push_back();
+        Rec* rec = &fRecs[fNumObjects];
         if (storageRequired > storageRemaining) {
             // Allocate on the heap. Ideally we want to avoid this situation.
 
@@ -99,30 +87,53 @@ private:
             // and storage remaining is 3392. Increasing the base storage
             // causes google 3 tests to fail.
 
-            rec.fStorageSize = 0;
-            rec.fObj = new char [storageRequired];
+            rec->fStorageSize = 0;
+            rec->fHeapStorage = sk_malloc_throw(storageRequired);
+            rec->fObj = static_cast<void*>(rec->fHeapStorage);
         } else {
             // There is space in fStorage.
-            rec.fStorageSize = storageRequired;
-            rec.fObj = &fStorage[fStorageUsed];
+            rec->fStorageSize = storageRequired;
+            rec->fHeapStorage = nullptr;
+            rec->fObj = static_cast<void*>(fStorage + fStorageUsed);
             fStorageUsed += storageRequired;
         }
-        rec.fDestructor = destructor;
-        return rec.fObj;
+        rec->fKillProc = DestroyT<T>;
+        fNumObjects++;
+        return rec->fObj;
     }
 
+    /*
+     *  Free the memory reserved last without calling the destructor.
+     *  Can be used in a nested way, i.e. after reserving A and B, calling
+     *  freeLast once will free B and calling it again will free A.
+     */
     void freeLast() {
-        Rec& rec = fRecs.back();
-        if (0 == rec.fStorageSize) {
-            delete [] rec.fObj;
-        }
-        fStorageUsed -= rec.fStorageSize;
-        fRecs.pop_back();
+        SkASSERT(fNumObjects > 0);
+        Rec* rec = &fRecs[fNumObjects - 1];
+        sk_free(rec->fHeapStorage);
+        fStorageUsed -= rec->fStorageSize;
+
+        fNumObjects--;
     }
 
-    size_t                                 fStorageUsed {0};  // Number of bytes used so far.
-    SkSTArray<kExpectedObjects, Rec, true> fRecs;
-    char                                   fStorage[kTotalBytes];
+private:
+    struct Rec {
+        size_t fStorageSize;  // 0 if allocated on heap
+        void*  fObj;
+        void*  fHeapStorage;
+        void   (*fKillProc)(void*);
+    };
+
+    // Used to call the destructor for allocated objects.
+    template<typename T>
+    static void DestroyT(void* ptr) {
+        static_cast<T*>(ptr)->~T();
+    }
+
+    alignas(16) char fStorage[kTotalBytes];
+    size_t           fStorageUsed;  // Number of bytes used so far.
+    uint32_t         fNumObjects;
+    Rec              fRecs[kMaxObjects];
 };
 
 #endif // SkSmallAllocator_DEFINED

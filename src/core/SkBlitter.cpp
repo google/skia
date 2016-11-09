@@ -896,15 +896,14 @@ SkBlitter* SkBlitter::Choose(const SkPixmap& device,
         size_t contextSize = shader->contextSize(rec);
         if (contextSize) {
             // Try to create the ShaderContext
-            shaderContext = allocator->createWithIniterT<SkShader::Context>(
-                contextSize,
-                [&rec, shader](void* storage) {
-                    return shader->createContext(rec, storage);
-                });
+            void* storage = allocator->reserveT<SkShader::Context>(contextSize);
+            shaderContext = shader->createContext(rec, storage);
             if (!shaderContext) {
+                allocator->freeLast();
                 return allocator->createT<SkNullBlitter>();
             }
             SkASSERT(shaderContext);
+            SkASSERT((void*) shaderContext == storage);
         } else {
             return allocator->createT<SkNullBlitter>();
         }

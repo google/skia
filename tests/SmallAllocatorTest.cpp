@@ -30,7 +30,7 @@ int CountingClass::kCount;
 template<uint32_t kMaxObjects, size_t kBytes> void test_allocator(skiatest::Reporter* reporter) {
     {
         SkSmallAllocator<kMaxObjects, kBytes> alloc;
-        for (uint32_t i = 0; i < kMaxObjects + 1; ++i) {
+        for (uint32_t i = 0; i < kMaxObjects; ++i) {
             CountingClass* c = alloc.template createT<CountingClass>();
             REPORTER_ASSERT(reporter, c != nullptr);
             REPORTER_ASSERT(reporter, CountingClass::GetCount() == static_cast<int>(i+1));
@@ -43,15 +43,18 @@ template<uint32_t kMaxObjects, size_t kBytes> void test_allocator(skiatest::Repo
 // were created in fStorage or on the heap.
 DEF_TEST(SmallAllocator_destructor, reporter) {
     // Four times as many bytes as objects will never require any heap
-    // allocations (since SkAlign4(sizeof(CountingClass)) == 4).
+    // allocations (since SkAlign4(sizeof(CountingClass)) == 4 and the allocator
+    // will stop once it reaches kMaxObjects).
     test_allocator<5, 20>(reporter);
     test_allocator<10, 40>(reporter);
     test_allocator<20, 80>(reporter);
 
+#ifndef SK_DEBUG
     // Allowing less bytes than objects means some will be allocated on the
     // heap. Don't run these in debug where we assert.
     test_allocator<50, 20>(reporter);
     test_allocator<100, 20>(reporter);
+#endif
 }
 
 class Dummy {
@@ -75,19 +78,6 @@ DEF_TEST(SmallAllocator_pointer, reporter) {
     SkSmallAllocator<1, 8> alloc;
     Dummy d;
     DummyContainer* container = alloc.createT<DummyContainer>(&d);
-    REPORTER_ASSERT(reporter, container != nullptr);
-    REPORTER_ASSERT(reporter, container->getDummy() == &d);
-}
-
-// Test that using a createWithIniterT works as expected.
-DEF_TEST(SmallAllocator_initer, reporter) {
-    SkSmallAllocator<1, 8> alloc;
-    Dummy d;
-    DummyContainer* container = alloc.createWithIniterT<DummyContainer>(
-        sizeof(DummyContainer),
-        [&](void* storage) {
-            return new (storage) DummyContainer(&d);
-        });
     REPORTER_ASSERT(reporter, container != nullptr);
     REPORTER_ASSERT(reporter, container->getDummy() == &d);
 }

@@ -15,12 +15,9 @@
 bool SkDrawLooper::canComputeFastBounds(const SkPaint& paint) const {
     SkCanvas canvas;
     SkSmallAllocator<1, 32> allocator;
+    void* buffer = allocator.reserveT<SkDrawLooper::Context>(this->contextSize());
 
-    SkDrawLooper::Context* context = allocator.createWithIniterT<SkDrawLooper::Context>(
-        this->contextSize(),
-        [&](void* buffer) {
-            return this->createContext(&canvas, buffer);
-        });
+    SkDrawLooper::Context* context = this->createContext(&canvas, buffer);
     for (;;) {
         SkPaint p(paint);
         if (context->next(&canvas, &p)) {
@@ -42,13 +39,10 @@ void SkDrawLooper::computeFastBounds(const SkPaint& paint, const SkRect& s,
 
     SkCanvas canvas;
     SkSmallAllocator<1, 32> allocator;
+    void* buffer = allocator.reserveT<SkDrawLooper::Context>(this->contextSize());
 
     *dst = src;   // catch case where there are no loops
-    SkDrawLooper::Context* context = allocator.createWithIniterT<SkDrawLooper::Context>(
-        this->contextSize(),
-        [&](void* buffer) {
-            return this->createContext(&canvas, buffer);
-        });
+    SkDrawLooper::Context* context = this->createContext(&canvas, buffer);
     for (bool firstTime = true;; firstTime = false) {
         SkPaint p(paint);
         if (context->next(&canvas, &p)) {
