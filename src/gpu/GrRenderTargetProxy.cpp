@@ -36,6 +36,10 @@ GrRenderTargetProxy::GrRenderTargetProxy(sk_sp<GrSurface> surf)
     , fFlags(fTarget->asRenderTarget()->renderTargetPriv().flags()) {
 }
 
+int GrRenderTargetProxy::maxWindowRectangles(const GrCaps& caps) const {
+    return (fFlags & GrRenderTarget::Flags::kWindowRectsSupport) ? caps.maxWindowRectangles() : 0;
+}
+
 GrRenderTarget* GrRenderTargetProxy::instantiate(GrTextureProvider* texProvider) {
     SkASSERT(fDesc.fFlags & GrSurfaceFlags::kRenderTarget_GrSurfaceFlag);
 
