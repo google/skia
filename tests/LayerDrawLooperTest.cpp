@@ -60,8 +60,11 @@ static void test_frontToBack(skiatest::Reporter* reporter) {
     SkPaint paint;
     auto looper(looperBuilder.detach());
     SkSmallAllocator<1, 32> allocator;
-    void* buffer = allocator.reserveT<SkDrawLooper::Context>(looper->contextSize());
-    SkDrawLooper::Context* context = looper->createContext(&canvas, buffer);
+    SkDrawLooper::Context* context = allocator.createWithIniterT<SkDrawLooper::Context>(
+        looper->contextSize(),
+        [&](void* buffer) {
+            return looper->createContext(&canvas, buffer);
+        });
 
     // The back layer should come first.
     REPORTER_ASSERT(reporter, context->next(&canvas, &paint));
@@ -100,8 +103,11 @@ static void test_backToFront(skiatest::Reporter* reporter) {
     SkPaint paint;
     auto looper(looperBuilder.detach());
     SkSmallAllocator<1, 32> allocator;
-    void* buffer = allocator.reserveT<SkDrawLooper::Context>(looper->contextSize());
-    SkDrawLooper::Context* context = looper->createContext(&canvas, buffer);
+    SkDrawLooper::Context* context = allocator.createWithIniterT<SkDrawLooper::Context>(
+        looper->contextSize(),
+        [&](void* buffer) {
+            return looper->createContext(&canvas, buffer);
+        });
 
     // The back layer should come first.
     REPORTER_ASSERT(reporter, context->next(&canvas, &paint));
@@ -140,8 +146,11 @@ static void test_mixed(skiatest::Reporter* reporter) {
     SkPaint paint;
     sk_sp<SkDrawLooper> looper(looperBuilder.detach());
     SkSmallAllocator<1, 32> allocator;
-    void* buffer = allocator.reserveT<SkDrawLooper::Context>(looper->contextSize());
-    SkDrawLooper::Context* context = looper->createContext(&canvas, buffer);
+    SkDrawLooper::Context* context = allocator.createWithIniterT<SkDrawLooper::Context>(
+        looper->contextSize(),
+        [&](void* buffer) {
+            return looper->createContext(&canvas, buffer);
+        });
 
     // The back layer should come first.
     REPORTER_ASSERT(reporter, context->next(&canvas, &paint));

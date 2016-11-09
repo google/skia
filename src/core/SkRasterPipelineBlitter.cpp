@@ -99,8 +99,7 @@ SkBlitter* SkRasterPipelineBlitter::Create(const SkPixmap& dst,
                                                            paint.getBlendMode(),
                                                            paint_color(dst, paint));
     auto earlyOut = [&] {
-        blitter->~SkRasterPipelineBlitter();
-        alloc->freeLast();
+        alloc->deleteLast();
         return nullptr;
     };
 
