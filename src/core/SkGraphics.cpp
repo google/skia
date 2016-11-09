@@ -30,6 +30,8 @@
 #include "SkUtils.h"
 #include "SkXfermode.h"
 
+#include "../xps/SkXPSInit.h"
+
 #include <stdlib.h>
 
 void SkGraphics::GetVersion(int32_t* major, int32_t* minor, int32_t* patch) {
@@ -48,6 +50,10 @@ void SkGraphics::Init() {
     // SkGraphics::Init() must be thread-safe and idempotent.
     SkCpu::CacheRuntimeFeatures();
     SkOpts::Init();
+
+#ifdef SK_BUILD_FOR_WIN32
+    SkXPSInit();
+#endif
 }
 
 ///////////////////////////////////////////////////////////////////////////////
