@@ -374,9 +374,11 @@ func doUpload(name string) bool {
 // generated chain of tasks, which the Job should add as a dependency.
 func test(b *specs.TasksCfgBuilder, name string, parts map[string]string, compileTaskName string, pkgs []*specs.CipdPackage) string {
 	s := &specs.TaskSpec{
-		CipdPackages: pkgs,
-		Dependencies: []string{compileTaskName},
-		Dimensions:   swarmDimensions(parts),
+		CipdPackages:     pkgs,
+		Dependencies:     []string{compileTaskName},
+		Dimensions:       swarmDimensions(parts),
+		ExecutionTimeout: 4 * time.Hour,
+		Expiration:       20 * time.Hour,
 		ExtraArgs: []string{
 			"--workdir", "../../..", "swarm_test",
 			fmt.Sprintf("repository=%s", specs.PLACEHOLDER_REPO),
@@ -391,8 +393,9 @@ func test(b *specs.TasksCfgBuilder, name string, parts map[string]string, compil
 			fmt.Sprintf("patch_issue=%s", specs.PLACEHOLDER_ISSUE),
 			fmt.Sprintf("patch_set=%s", specs.PLACEHOLDER_PATCHSET),
 		},
-		Isolate:  "test_skia.isolate",
-		Priority: 0.8,
+		IoTimeout: 40 * time.Minute,
+		Isolate:   "test_skia.isolate",
+		Priority:  0.8,
 	}
 	if strings.Contains(parts["extra_config"], "Valgrind") {
 		s.ExecutionTimeout = 9 * time.Hour
@@ -435,9 +438,11 @@ func test(b *specs.TasksCfgBuilder, name string, parts map[string]string, compil
 // generated chain of tasks, which the Job should add as a dependency.
 func perf(b *specs.TasksCfgBuilder, name string, parts map[string]string, compileTaskName string, pkgs []*specs.CipdPackage) string {
 	s := &specs.TaskSpec{
-		CipdPackages: pkgs,
-		Dependencies: []string{compileTaskName},
-		Dimensions:   swarmDimensions(parts),
+		CipdPackages:     pkgs,
+		Dependencies:     []string{compileTaskName},
+		Dimensions:       swarmDimensions(parts),
+		ExecutionTimeout: 4 * time.Hour,
+		Expiration:       20 * time.Hour,
 		ExtraArgs: []string{
 			"--workdir", "../../..", "swarm_perf",
 			fmt.Sprintf("repository=%s", specs.PLACEHOLDER_REPO),
@@ -452,8 +457,9 @@ func perf(b *specs.TasksCfgBuilder, name string, parts map[string]string, compil
 			fmt.Sprintf("patch_issue=%s", specs.PLACEHOLDER_ISSUE),
 			fmt.Sprintf("patch_set=%s", specs.PLACEHOLDER_PATCHSET),
 		},
-		Isolate:  "perf_skia.isolate",
-		Priority: 0.8,
+		IoTimeout: 40 * time.Minute,
+		Isolate:   "perf_skia.isolate",
+		Priority:  0.8,
 	}
 	if strings.Contains(parts["extra_config"], "Valgrind") {
 		s.ExecutionTimeout = 9 * time.Hour

@@ -383,6 +383,8 @@
         "os:Android",
         "pool:Skia"
       ],
+      "execution_timeout_ns": 14400000000000,
+      "expiration_ns": 72000000000000,
       "extra_args": [
         "--workdir",
         "../../..",
@@ -399,6 +401,7 @@
         "patch_issue=<(ISSUE)",
         "patch_set=<(PATCHSET)"
       ],
+      "io_timeout_ns": 2400000000000,
       "isolate": "perf_skia.isolate",
       "priority": 0.8
     },
@@ -429,6 +432,8 @@
         "os:Android",
         "pool:Skia"
       ],
+      "execution_timeout_ns": 14400000000000,
+      "expiration_ns": 72000000000000,
       "extra_args": [
         "--workdir",
         "../../..",
@@ -445,6 +450,7 @@
         "patch_issue=<(ISSUE)",
         "patch_set=<(PATCHSET)"
       ],
+      "io_timeout_ns": 2400000000000,
       "isolate": "perf_skia.isolate",
       "priority": 0.8
     },
@@ -475,6 +481,8 @@
         "os:Android",
         "pool:Skia"
       ],
+      "execution_timeout_ns": 14400000000000,
+      "expiration_ns": 72000000000000,
       "extra_args": [
         "--workdir",
         "../../..",
@@ -491,6 +499,7 @@
         "patch_issue=<(ISSUE)",
         "patch_set=<(PATCHSET)"
       ],
+      "io_timeout_ns": 2400000000000,
       "isolate": "perf_skia.isolate",
       "priority": 0.8
     },
@@ -521,6 +530,8 @@
         "os:Android",
         "pool:Skia"
       ],
+      "execution_timeout_ns": 14400000000000,
+      "expiration_ns": 72000000000000,
       "extra_args": [
         "--workdir",
         "../../..",
@@ -537,6 +548,7 @@
         "patch_issue=<(ISSUE)",
         "patch_set=<(PATCHSET)"
       ],
+      "io_timeout_ns": 2400000000000,
       "isolate": "perf_skia.isolate",
       "priority": 0.8
     },
@@ -567,6 +579,8 @@
         "os:Ubuntu",
         "pool:Skia"
       ],
+      "execution_timeout_ns": 14400000000000,
+      "expiration_ns": 72000000000000,
       "extra_args": [
         "--workdir",
         "../../..",
@@ -583,6 +597,7 @@
         "patch_issue=<(ISSUE)",
         "patch_set=<(PATCHSET)"
       ],
+      "io_timeout_ns": 2400000000000,
       "isolate": "perf_skia.isolate",
       "priority": 0.8
     },
@@ -612,6 +627,8 @@
         "os:iOS-9.3.1",
         "pool:Skia"
       ],
+      "execution_timeout_ns": 14400000000000,
+      "expiration_ns": 72000000000000,
       "extra_args": [
         "--workdir",
         "../../..",
@@ -628,6 +645,7 @@
         "patch_issue=<(ISSUE)",
         "patch_set=<(PATCHSET)"
       ],
+      "io_timeout_ns": 2400000000000,
       "isolate": "perf_skia.isolate",
       "priority": 0.8
     },
@@ -657,6 +675,8 @@
         "os:iOS-9.3.1",
         "pool:Skia"
       ],
+      "execution_timeout_ns": 14400000000000,
+      "expiration_ns": 72000000000000,
       "extra_args": [
         "--workdir",
         "../../..",
@@ -673,6 +693,7 @@
         "patch_issue=<(ISSUE)",
         "patch_set=<(PATCHSET)"
       ],
+      "io_timeout_ns": 2400000000000,
       "isolate": "perf_skia.isolate",
       "priority": 0.8
     },
@@ -703,6 +724,8 @@
         "os:Android",
         "pool:Skia"
       ],
+      "execution_timeout_ns": 14400000000000,
+      "expiration_ns": 72000000000000,
       "extra_args": [
         "--workdir",
         "../../..",
@@ -719,6 +742,7 @@
         "patch_issue=<(ISSUE)",
         "patch_set=<(PATCHSET)"
       ],
+      "io_timeout_ns": 2400000000000,
       "isolate": "test_skia.isolate",
       "priority": 0.8
     },
@@ -749,6 +773,8 @@
         "os:Android",
         "pool:Skia"
       ],
+      "execution_timeout_ns": 14400000000000,
+      "expiration_ns": 72000000000000,
       "extra_args": [
         "--workdir",
         "../../..",
@@ -765,6 +791,7 @@
         "patch_issue=<(ISSUE)",
         "patch_set=<(PATCHSET)"
       ],
+      "io_timeout_ns": 2400000000000,
       "isolate": "test_skia.isolate",
       "priority": 0.8
     },
@@ -795,6 +822,8 @@
         "os:Android",
         "pool:Skia"
       ],
+      "execution_timeout_ns": 14400000000000,
+      "expiration_ns": 72000000000000,
       "extra_args": [
         "--workdir",
         "../../..",
@@ -811,6 +840,7 @@
         "patch_issue=<(ISSUE)",
         "patch_set=<(PATCHSET)"
       ],
+      "io_timeout_ns": 2400000000000,
       "isolate": "test_skia.isolate",
       "priority": 0.8
     },
@@ -841,6 +871,8 @@
         "os:Android",
         "pool:Skia"
       ],
+      "execution_timeout_ns": 14400000000000,
+      "expiration_ns": 72000000000000,
       "extra_args": [
         "--workdir",
         "../../..",
@@ -857,6 +889,7 @@
         "patch_issue=<(ISSUE)",
         "patch_set=<(PATCHSET)"
       ],
+      "io_timeout_ns": 2400000000000,
       "isolate": "test_skia.isolate",
       "priority": 0.8
     },
@@ -887,6 +920,8 @@
         "os:Ubuntu",
         "pool:Skia"
       ],
+      "execution_timeout_ns": 14400000000000,
+      "expiration_ns": 72000000000000,
       "extra_args": [
         "--workdir",
         "../../..",
@@ -903,6 +938,7 @@
         "patch_issue=<(ISSUE)",
         "patch_set=<(PATCHSET)"
       ],
+      "io_timeout_ns": 2400000000000,
       "isolate": "test_skia.isolate",
       "priority": 0.8
     },
@@ -932,6 +968,8 @@
         "os:iOS-9.3.1",
         "pool:Skia"
       ],
+      "execution_timeout_ns": 14400000000000,
+      "expiration_ns": 72000000000000,
       "extra_args": [
         "--workdir",
         "../../..",
@@ -948,6 +986,7 @@
         "patch_issue=<(ISSUE)",
         "patch_set=<(PATCHSET)"
       ],
+      "io_timeout_ns": 2400000000000,
       "isolate": "test_skia.isolate",
       "priority": 0.8
     },
@@ -977,6 +1016,8 @@
         "os:iOS-9.3.1",
         "pool:Skia"
       ],
+      "execution_timeout_ns": 14400000000000,
+      "expiration_ns": 72000000000000,
       "extra_args": [
         "--workdir",
         "../../..",
@@ -993,6 +1034,7 @@
         "patch_issue=<(ISSUE)",
         "patch_set=<(PATCHSET)"
       ],
+      "io_timeout_ns": 2400000000000,
       "isolate": "test_skia.isolate",
       "priority": 0.8
     },
