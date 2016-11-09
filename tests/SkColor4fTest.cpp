@@ -111,9 +111,9 @@ static bool compare_procs(SkXfermodeProc proc32, SkXfermodeProc4f proc4f) {
 DEF_TEST(Color4f_xfermode_proc4f, reporter) {
     // TODO: extend xfermodes so that all cases can be tested.
     //
-    for (int mode = SkXfermode::kClear_Mode; mode <= SkXfermode::kScreen_Mode; ++mode) {
-        SkXfermodeProc   proc32 = SkXfermode::GetProc((SkXfermode::Mode)mode);
-        SkXfermodeProc4f proc4f = SkXfermode::GetProc4f((SkXfermode::Mode)mode);
+    for (int mode = (int)SkBlendMode::kClear; mode <= (int)SkBlendMode::kScreen; ++mode) {
+        SkXfermodeProc   proc32 = SkXfermode::GetProc((SkBlendMode)mode);
+        SkXfermodeProc4f proc4f = SkXfermode::GetProc4f((SkBlendMode)mode);
         REPORTER_ASSERT(reporter, compare_procs(proc32, proc4f));
     }
 }
