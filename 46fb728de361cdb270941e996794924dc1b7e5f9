@@ -2,6 +2,138 @@
   "comments": [
     {
       "key": {
+        "uuid": "4b770b47_b43488a8",
+        "filename": "src/core/SkBlitter.h",
+        "patchSetId": 5
+      },
+      "lineNbr": 131,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2016-11-09T21:06:59Z",
+      "side": 1,
+      "message": "The entire point of kReuse_OnShrink is so users don\u0027t have to worry about this.",
+      "range": {
+        "startLine": 131,
+        "startChar": 11,
+        "endLine": 131,
+        "endChar": 33
+      },
+      "revId": "46fb728de361cdb270941e996794924dc1b7e5f9",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "4b770b47_346978d5",
+        "filename": "src/core/SkTypesPriv.h",
+        "patchSetId": 5
+      },
+      "lineNbr": 1,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2016-11-09T21:06:59Z",
+      "side": 1,
+      "message": "I\u0027m not a fan of the name SkTypesPriv.h (SkAutoMalloc.h would at least be descriptive), but it can at least be changed later (or removed when we no longer use these).",
+      "revId": "46fb728de361cdb270941e996794924dc1b7e5f9",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "4b770b47_94f94caa",
+        "filename": "src/core/SkTypesPriv.h",
+        "patchSetId": 5
+      },
+      "lineNbr": 21,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2016-11-09T21:06:59Z",
+      "side": 1,
+      "message": "This really needs to be explicit, this is somewhat frightening. The old SkAutoFree\u0027s equivalent constructor was explicit.",
+      "range": {
+        "startLine": 21,
+        "startChar": 4,
+        "endLine": 21,
+        "endChar": 14
+      },
+      "revId": "46fb728de361cdb270941e996794924dc1b7e5f9",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "4b770b47_74fb80ce",
+        "filename": "src/core/SkTypesPriv.h",
+        "patchSetId": 5
+      },
+      "lineNbr": 23,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2016-11-09T21:06:59Z",
+      "side": 1,
+      "message": "This has no users, why is it being added? I think we actively don\u0027t want people to be allocating with this class, it\u0027s mostly for managing alloc\u0027ed pointers we get back from libraries we use. Otherwise we would just be using SkAutoTMalloc.",
+      "range": {
+        "startLine": 23,
+        "startChar": 22,
+        "endLine": 23,
+        "endChar": 28
+      },
+      "revId": "46fb728de361cdb270941e996794924dc1b7e5f9",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "4b770b47_d45354f6",
+        "filename": "src/core/SkTypesPriv.h",
+        "patchSetId": 5
+      },
+      "lineNbr": 26,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2016-11-09T21:06:59Z",
+      "side": 1,
+      "message": "Same for this, it has one user and we would rather users be using SkAutoTMalloc anyway.",
+      "range": {
+        "startLine": 26,
+        "startChar": 22,
+        "endLine": 26,
+        "endChar": 28
+      },
+      "revId": "46fb728de361cdb270941e996794924dc1b7e5f9",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "4b770b47_d47cb463",
+        "filename": "src/core/SkTypesPriv.h",
+        "patchSetId": 5
+      },
+      "lineNbr": 39,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2016-11-09T21:06:59Z",
+      "side": 1,
+      "message": "Why are we removing the onShrink behavior? Why isn\u0027t this calling realloc? Why are we making lots of changes to this in a large code move? (Including removing the size tracking from this?) The point of moving this out of public is that we can then safely muck with it all we want independently.",
+      "range": {
+        "startLine": 39,
+        "startChar": 10,
+        "endLine": 39,
+        "endChar": 15
+      },
+      "revId": "46fb728de361cdb270941e996794924dc1b7e5f9",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "ebafdfaa_6a1967e8",
         "filename": "src/core/SkTypesPriv.h",
         "patchSetId": 5
