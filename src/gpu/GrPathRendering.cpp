@@ -60,8 +60,6 @@ public:
     void generatePath(int glyphID, SkPath* out) override {
         SkGlyph skGlyph;
         skGlyph.initWithGlyphID(glyphID);
-        fScalerContext->getMetrics(&skGlyph);
-
         fScalerContext->getPath(skGlyph, out);
     }
 #ifdef SK_DEBUG
