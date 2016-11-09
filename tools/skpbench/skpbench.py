@@ -29,13 +29,13 @@ unacceptable stddev.
 
 """)
 
+__argparse.add_argument('skpbench',
+    help="path to the skpbench binary")
 __argparse.add_argument('--adb',
     action='store_true', help="execute skpbench over adb")
 __argparse.add_argument('-s', '--device-serial',
     help="if using adb, ID of the specific device to target "
          "(only required if more than 1 device is attached)")
-__argparse.add_argument('-p', '--path',
-    help="directory to execute ./skpbench from")
 __argparse.add_argument('-m', '--max-stddev',
     type=float, default=4,
     help="initial max allowable relative standard deviation")
@@ -97,7 +97,7 @@ class SubprocessMonitor(Thread):
     self._queue.put(Message(Message.EXIT))
 
 class SKPBench:
-  ARGV = ['skpbench', '--verbosity', str(FLAGS.verbosity)]
+  ARGV = [FLAGS.skpbench, '--verbosity', str(FLAGS.verbosity)]
   if FLAGS.duration:
     ARGV.extend(['--duration', str(FLAGS.duration)])
   if FLAGS.sample_ms:
@@ -106,13 +106,11 @@ class SKPBench:
     ARGV.extend(['--gpuClock', 'true'])
   if FLAGS.fps:
     ARGV.extend(['--fps', 'true'])
-  if FLAGS.path:
-    ARGV[0] = _path.join(FLAGS.path, ARGV[0])
   if FLAGS.adb:
     if FLAGS.device_serial is None:
-      ARGV = ['adb', 'shell'] + ARGV
+      ARGV[:0] = ['adb', 'shell']
     else:
-      ARGV = ['adb', '-s', FLAGS.device_serial, 'shell'] + ARGV
+      ARGV[:0] = ['adb', '-s', FLAGS.device_serial, 'shell']
 
   @classmethod
   def print_header(cls):
