@@ -462,13 +462,8 @@ LinearGradient4fContext::mapTs(int x, int y, SkScalar ts[], int count) const {
 
 bool SkLinearGradient::LinearGradient4fContext::onChooseBlitProcs(const SkImageInfo& info,
                                                                   BlitState* state) {
-    SkXfermode::Mode mode;
-    if (!SkXfermode::AsMode(state->fXfer, &mode)) {
-        return false;
-    }
-
-    if (mode != SkXfermode::kSrc_Mode &&
-        !(mode == SkXfermode::kSrcOver_Mode && (fFlags & kOpaqueAlpha_Flag))) {
+    if (state->fMode != SkBlendMode::kSrc &&
+        !(state->fMode == SkBlendMode::kSrcOver && (fFlags & kOpaqueAlpha_Flag))) {
         return false;
     }
 

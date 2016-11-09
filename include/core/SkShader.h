@@ -21,7 +21,6 @@ class SkColorSpace;
 class SkImage;
 class SkPath;
 class SkPicture;
-class SkXfermode;
 class GrContext;
 class GrFragmentProcessor;
 
@@ -153,7 +152,7 @@ public:
         struct BlitState {
             // inputs
             Context*    fCtx;
-            SkXfermode* fXfer;
+            SkBlendMode fMode;
 
             // outputs
             enum { N = 2 };

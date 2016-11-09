@@ -176,13 +176,8 @@ public:
         return (SkBlendMode)mode;
     }
 
-    /** Return a function pointer to a routine that applies the specified
-        porter-duff transfer mode.
-     */
-    static SkXfermodeProc GetProc(Mode mode);
-    static SkXfermodeProc4f GetProc4f(Mode);
-
-    virtual SkXfermodeProc4f getProc4f() const;
+    static SkXfermodeProc GetProc(SkBlendMode);
+    static SkXfermodeProc4f GetProc4f(SkBlendMode);
 
     /**
      *  If the specified mode can be represented by a pair of Coeff, then return
@@ -263,23 +258,17 @@ public:
         kSrcIsSingle_D32Flag  = 1 << 1,
         kDstIsSRGB_D32Flag    = 1 << 2,
     };
-    typedef void (*D32Proc)(const SkXfermode*, uint32_t dst[], const SkPM4f src[],
+    typedef void (*D32Proc)(SkBlendMode, uint32_t dst[], const SkPM4f src[],
                             int count, const SkAlpha coverage[]);
-    static D32Proc GetD32Proc(SkXfermode*, uint32_t flags);
-    static D32Proc GetD32Proc(const sk_sp<SkXfermode>& xfer, uint32_t flags) {
-        return GetD32Proc(xfer.get(), flags);
-    }
+    static D32Proc GetD32Proc(SkBlendMode, uint32_t flags);
 
     enum F16Flags {
         kSrcIsOpaque_F16Flag  = 1 << 0,
         kSrcIsSingle_F16Flag  = 1 << 1,
     };
-    typedef void (*F16Proc)(const SkXfermode*, uint64_t dst[], const SkPM4f src[], int count,
+    typedef void (*F16Proc)(SkBlendMode, uint64_t dst[], const SkPM4f src[], int count,
                             const SkAlpha coverage[]);
-    static F16Proc GetF16Proc(SkXfermode*, uint32_t flags);
-    static F16Proc GetF16Proc(const sk_sp<SkXfermode>& xfer, uint32_t flags) {
-        return GetF16Proc(xfer.get(), flags);
-    }
+    static F16Proc GetF16Proc(SkBlendMode, uint32_t flags);
 
     enum LCDFlags {
         kSrcIsOpaque_LCDFlag    = 1 << 0,   // else src(s) may have alpha < 1
@@ -304,9 +293,6 @@ protected:
         be implemented if your subclass has overridden xfer32/xfer16/xferA8
     */
     virtual SkPMColor xferColor(SkPMColor src, SkPMColor dst) const;
-
-    virtual D32Proc onGetD32Proc(uint32_t flags) const;
-    virtual F16Proc onGetF16Proc(uint32_t flags) const;
 
 private:
     enum {

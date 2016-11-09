@@ -48,7 +48,7 @@ static SkColor xferColor(SkColor src, SkColor dst, SkBlendMode mode) {
         default: {
             SkPMColor pmS = SkPreMultiplyColor(src);
             SkPMColor pmD = SkPreMultiplyColor(dst);
-            SkPMColor result = SkXfermode::GetProc((SkXfermode::Mode)mode)(pmS, pmD);
+            SkPMColor result = SkXfermode::GetProc(mode)(pmS, pmD);
             return SkUnPreMultiply::PMColorToColor(result);
         }
     }
