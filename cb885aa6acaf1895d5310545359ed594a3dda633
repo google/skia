@@ -58,6 +58,24 @@
       "revId": "cb885aa6acaf1895d5310545359ed594a3dda633",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "4b770b47_51b216cd",
+        "filename": "infra/bots/gen_tasks.go",
+        "patchSetId": 6
+      },
+      "lineNbr": 45,
+      "author": {
+        "id": 5120
+      },
+      "writtenOn": "2016-11-09T19:17:49Z",
+      "side": 1,
+      "message": "Works for me!",
+      "parentUuid": "4b770b47_4e6833a4",
+      "revId": "cb885aa6acaf1895d5310545359ed594a3dda633",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
