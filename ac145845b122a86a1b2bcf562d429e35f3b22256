@@ -43,6 +43,24 @@
     },
     {
       "key": {
+        "uuid": "0bb35316_859388e3",
+        "filename": "include/gpu/GrTypes.h",
+        "patchSetId": 10
+      },
+      "lineNbr": 235,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2016-11-09T15:22:56Z",
+      "side": 1,
+      "message": "You\u0027re right, there really isn\u0027t confusion about what \"sint\" means. I guess it\u0027s just not a common abbreviation for \"signed integer\".\n\n\u003e\u003e but then what will we call unsigned integer formats\n\nI suppose just \"_unsigned_\" could work too, like in C.\n\nThis isn\u0027t a big deal. \"_sint_\"/\"_uint_\"/\"_integer_\"/\"_unsigned_\" are all fine with me.",
+      "parentUuid": "2bde5729_6b45808b",
+      "revId": "ac145845b122a86a1b2bcf562d429e35f3b22256",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "2bde5729_290b88d2",
         "filename": "src/gpu/gl/GrGLCaps.cpp",
         "patchSetId": 10
@@ -131,6 +149,24 @@
       "side": 1,
       "message": "I checked, it\u0027s GL_INVALID_VALUE.",
       "parentUuid": "2bde5729_e9b280e9",
+      "revId": "ac145845b122a86a1b2bcf562d429e35f3b22256",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "4bd62b38_3c997960",
+        "filename": "src/gpu/gl/GrGLGpu.cpp",
+        "patchSetId": 10
+      },
+      "lineNbr": 982,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2016-11-09T15:22:56Z",
+      "side": 1,
+      "message": "Ok, that was my question. Makes sense. I was just mildly curious about why the SkTMax didn\u0027t exist before.",
+      "parentUuid": "2bde5729_6b2e60c5",
       "revId": "ac145845b122a86a1b2bcf562d429e35f3b22256",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
