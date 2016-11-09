@@ -129,9 +129,10 @@ class SKPBench:
                               '--config', 'gpu',
                               '--skp', 'warmup']
     dump_commandline_if_verbose(commandline)
-    output = subprocess.check_output(commandline).decode('utf-8')
+    output = subprocess.check_output(commandline, stderr=subprocess.STDOUT)
+
     # validate the warmup run output.
-    for line in output.split('\n'):
+    for line in output.decode('utf-8').split('\n'):
       match = BenchResult.match(line.rstrip())
       if match and match.bench == 'warmup':
         return
@@ -168,7 +169,8 @@ class SKPBench:
                            _path.basename(self.skp) + '.png')
       commandline.extend(['--png', pngfile])
     dump_commandline_if_verbose(commandline)
-    self._proc = subprocess.Popen(commandline, stdout=subprocess.PIPE)
+    self._proc = subprocess.Popen(commandline, stdout=subprocess.PIPE,
+                                  stderr=subprocess.STDOUT)
     self._monitor = SubprocessMonitor(self._queue, self._proc)
     self._monitor.start()
 
@@ -179,9 +181,8 @@ class SKPBench:
         if result:
           hardware.sanity_check()
           self._process_result(result)
-        else:
+        elif hardware.filter_line(message.value):
           print(message.value, file=sys.stderr)
-        sys.stdout.flush()
         continue
       if message.message == Message.POLL_HARDWARE:
         hardware.sanity_check()
@@ -211,6 +212,7 @@ class SKPBench:
             "(%s%% instead of %s%%)." %
             (result.config, result.bench, self.best_result.stddev,
              result.stddev), file=sys.stderr)
+      sys.stdout.flush()
     if self.max_stddev and self.best_result.stddev > self.max_stddev:
       raise StddevException()
 

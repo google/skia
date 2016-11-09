@@ -23,6 +23,11 @@ class HardwarePixelC(HardwareAndroid):
                              exception_value, exception_traceback)
     self._unlock_clocks()
 
+  def filter_line(self, line):
+    JUNK = ['NvRmPrivGetChipPlatform: Could not read platform information',
+            'Expected on kernels without fuse support, using silicon']
+    return False if line in JUNK else HardwareAndroid.filter_line(self, line)
+
   def _lock_clocks(self):
     if not self._adb.is_root():
       return
