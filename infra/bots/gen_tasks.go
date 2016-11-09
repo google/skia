@@ -40,10 +40,11 @@ var (
 		"Build-Mac-Clang-arm64-Debug-GN_iOS",
 		"Build-Ubuntu-GCC-x86_64-Release-GN",
 		"Build-Win-Clang-arm64-Release-GN_Android",
+		"Housekeeper-PerCommit-InfraTests",
+		"Perf-Android-Clang-PixelC-GPU-TegraX1-arm64-Release-GN_Android_Skpbench",
 		"Perf-Ubuntu-GCC-GCE-CPU-AVX2-x86_64-Release-GN",
 		"Test-Android-Clang-AndroidOne-GPU-Mali400MP2-arm-Release-GN_Android",
 		"Test-Ubuntu-GCC-GCE-CPU-AVX2-x86_64-Release-GN",
-		"Housekeeper-PerCommit-InfraTests",
 	}
 
 	// LINUX_GCE_DIMENSIONS are the Swarming dimensions for Linux GCE
@@ -535,6 +536,12 @@ func process(b *specs.TasksCfgBuilder, name string) {
 	}
 	if strings.Contains(name, "Ubuntu") && strings.Contains(name, "SAN") {
 		pkgs = append(pkgs, b.MustGetCipdPackageFromAsset("clang_linux"))
+	}
+	if strings.Contains(name, "Skpbench") {
+		pkgs = []*specs.CipdPackage{
+			b.MustGetCipdPackageFromAsset("skp"),
+			b.MustGetCipdPackageFromAsset("skpbench"),
+		}
 	}
 
 	// Test bots.
