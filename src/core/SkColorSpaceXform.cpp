@@ -111,15 +111,25 @@ static void build_table_linear_from_gamma(float* outTable, const float* inTable,
     }
 }
 
+static inline float clamp_0_1(float v) {
+    if (v >= 1.0f) {
+        return 1.0f;
+    } else if (v >= 0.0f) {
+        return v;
+    } else {
+        return 0.0f;
+    }
+}
+
 static void build_table_linear_from_gamma(float* outTable, float g, float a, float b, float c,
                                           float d, float e, float f) {
     // Y = (aX + b)^g + c  for X >= d
     // Y = eX + f          otherwise
     for (float x = 0.0f; x <= 1.0f; x += (1.0f/255.0f)) {
         if (x >= d) {
-            *outTable++ = powf(a * x + b, g) + c;
+            *outTable++ = clamp_0_1(powf(a * x + b, g) + c);
         } else {
-            *outTable++ = e * x + f;
+            *outTable++ = clamp_0_1(e * x + f);
         }
     }
 }
