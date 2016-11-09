@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "4bd62b38_3fbccb9a",
+        "filename": "include/c/sk_document.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 30,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2016-11-09T15:44:01Z",
+      "side": 1,
+      "message": "Do we need to expose document as ref-counted?",
+      "range": {
+        "startLine": 30,
+        "startChar": 12,
+        "endLine": 30,
+        "endChar": 27
+      },
+      "revId": "1d5887f2f5048f85e5f1120b0e60fbddb7dbedb2",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
