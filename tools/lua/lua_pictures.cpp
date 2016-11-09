@@ -14,6 +14,7 @@
 #include "SkData.h"
 #include "picture_utils.h"
 #include "SkOSFile.h"
+#include "SkOSPath.h"
 
 #include <stdlib.h>
 
