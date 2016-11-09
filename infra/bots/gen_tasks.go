@@ -40,10 +40,14 @@ var (
 		"Build-Mac-Clang-arm64-Debug-GN_iOS",
 		"Build-Ubuntu-GCC-x86_64-Release-GN",
 		"Build-Win-Clang-arm64-Release-GN_Android",
+		"Housekeeper-PerCommit-InfraTests",
 		"Perf-Ubuntu-GCC-GCE-CPU-AVX2-x86_64-Release-GN",
+		"Perf-iOS-Clang-iPadMini4-GPU-GX6450-Arm7-Debug",
+		"Perf-iOS-Clang-iPadMini4-GPU-GX6450-Arm7-Release",
 		"Test-Android-Clang-AndroidOne-GPU-Mali400MP2-arm-Release-GN_Android",
 		"Test-Ubuntu-GCC-GCE-CPU-AVX2-x86_64-Release-GN",
-		"Housekeeper-PerCommit-InfraTests",
+		"Test-iOS-Clang-iPadMini4-GPU-GX6450-Arm7-Debug",
+		"Test-iOS-Clang-iPadMini4-GPU-GX6450-Arm7-Release",
 	}
 
 	// LINUX_GCE_DIMENSIONS are the Swarming dimensions for Linux GCE
@@ -134,7 +138,7 @@ func swarmDimensions(parts map[string]string) []string {
 			d["device_os"] = deviceInfo[1]
 		} else if strings.Contains(parts["os"], "iOS") {
 			d["device"] = map[string]string{
-				"iPad4": "iPad5,1",
+				"iPadMini4": "iPad5,1",
 			}[parts["model"]]
 			// TODO(borenet): Replace this hack with something
 			// better.
