@@ -278,13 +278,12 @@ DEF_TEST(CanvasState_test_draw_filters, reporter) {
 
     SkCanvasState* state = SkCanvasStateUtils::CaptureCanvasState(&canvas);
     REPORTER_ASSERT(reporter, state);
-    SkCanvas* tmpCanvas = SkCanvasStateUtils::CreateFromCanvasState(state);
+    std::unique_ptr<SkCanvas> tmpCanvas = SkCanvasStateUtils::MakeFromCanvasState(state);
     REPORTER_ASSERT(reporter, tmpCanvas);
 
     REPORTER_ASSERT(reporter, canvas.getDrawFilter());
     REPORTER_ASSERT(reporter, nullptr == tmpCanvas->getDrawFilter());
 
-    tmpCanvas->unref();
     SkCanvasStateUtils::ReleaseCanvasState(state);
 }
 

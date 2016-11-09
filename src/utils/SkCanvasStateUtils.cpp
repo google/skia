@@ -100,14 +100,12 @@ class SkCanvasState_v1 : public SkCanvasState {
 public:
     static const int32_t kVersion = 1;
 
-    SkCanvasState_v1(SkCanvas* canvas)
-    : INHERITED(kVersion, canvas)
-    {
+    SkCanvasState_v1(SkCanvas* canvas) : INHERITED(kVersion, canvas) {
         layerCount = 0;
         layers = nullptr;
         mcState.clipRectCount = 0;
         mcState.clipRects = nullptr;
-        originalCanvas = SkRef(canvas);
+        originalCanvas = canvas;
     }
 
     ~SkCanvasState_v1() {
@@ -118,10 +116,6 @@ public:
 
         sk_free(mcState.clipRects);
         sk_free(layers);
-
-        // it is now safe to free the canvas since there should be no remaining
-        // references to the content that is referenced by this canvas (e.g. pixels)
-        originalCanvas->unref();
     }
 
     SkMCState mcState;
@@ -284,7 +278,8 @@ static void setup_canvas_from_MC_state(const SkMCState& state, SkCanvas* canvas)
     canvas->clipRegion(clip, SkCanvas::kReplace_Op);
 }
 
-static SkCanvas* create_canvas_from_canvas_layer(const SkCanvasLayerState& layerState) {
+static std::unique_ptr<SkCanvas>
+make_canvas_from_canvas_layer(const SkCanvasLayerState& layerState) {
     SkASSERT(kRaster_CanvasBackend == layerState.type);
 
     SkBitmap bitmap;
@@ -304,15 +299,15 @@ static SkCanvas* create_canvas_from_canvas_layer(const SkCanvasLayerState& layer
     SkASSERT(!bitmap.empty());
     SkASSERT(!bitmap.isNull());
 
-    sk_sp<SkCanvas> canvas(new SkCanvas(bitmap));
+    std::unique_ptr<SkCanvas> canvas(new SkCanvas(bitmap));
 
     // setup the matrix and clip
     setup_canvas_from_MC_state(layerState.mcState, canvas.get());
 
-    return canvas.release();
+    return canvas;
 }
 
-SkCanvas* SkCanvasStateUtils::CreateFromCanvasState(const SkCanvasState* state) {
+std::unique_ptr<SkCanvas> SkCanvasStateUtils::MakeFromCanvasState(const SkCanvasState* state) {
     SkASSERT(state);
     // Currently there is only one possible version.
     SkASSERT(SkCanvasState_v1::kVersion == state->version);
@@ -323,14 +318,14 @@ SkCanvas* SkCanvasStateUtils::CreateFromCanvasState(const SkCanvasState* state) 
         return nullptr;
     }
 
-    sk_sp<SkCanvasStack> canvas(new SkCanvasStack(state->width, state->height));
+    std::unique_ptr<SkCanvasStack> canvas(new SkCanvasStack(state->width, state->height));
 
     // setup the matrix and clip on the n-way canvas
     setup_canvas_from_MC_state(state_v1->mcState, canvas.get());
 
     // Iterate over the layers and add them to the n-way canvas
     for (int i = state_v1->layerCount - 1; i >= 0; --i) {
-        sk_sp<SkCanvas> canvasLayer(create_canvas_from_canvas_layer(state_v1->layers[i]));
+        std::unique_ptr<SkCanvas> canvasLayer = make_canvas_from_canvas_layer(state_v1->layers[i]);
         if (!canvasLayer.get()) {
             return nullptr;
         }
@@ -338,7 +333,7 @@ SkCanvas* SkCanvasStateUtils::CreateFromCanvasState(const SkCanvasState* state) 
                                                              state_v1->layers[i].y));
     }
 
-    return canvas.release();
+    return std::move(canvas);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
