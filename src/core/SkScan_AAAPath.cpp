@@ -154,6 +154,9 @@ public:
 
     static bool canHandleRect(const SkIRect& bounds) {
         int width = bounds.width();
+        if (width < 0) { // the width may overflow, e.g., left = -2147483647, right = 1,
+            return false;
+        }
         int64_t rb = SkAlign4(width);
         // use 64bits to detect overflow
         int64_t storage = rb * bounds.height();
