@@ -31,6 +31,7 @@ TEST_BUILDERS = {
       'Perf-Android-Clang-Nexus7-GPU-Tegra3-arm-Release-GN_Android',
       'Perf-Android-Clang-NexusPlayer-GPU-PowerVR-x86-Release-GN_Android',
       'Perf-Android-Clang-PixelC-GPU-TegraX1-arm64-Release-GN_Android',
+      'Perf-Android-Clang-PixelC-GPU-TegraX1-arm64-Release-GN_Android_Skpbench',
       'Perf-Mac-Clang-MacMini6.2-CPU-AVX-x86_64-Release-GN',
       'Perf-Mac-Clang-MacMini6.2-GPU-HD4000-x86_64-Debug-CommandBuffer',
       'Perf-Ubuntu-Clang-GCE-CPU-AVX2-x86_64-Release-GN',
@@ -160,8 +161,8 @@ def nanobench_flags(bot):
   return args
 
 
-def perf_steps(api):
-  """Run Skia benchmarks."""
+def nanobench_steps(api):
+  """benchmark Skia using nanobench."""
   if api.vars.upload_perf_results:
     api.flavor.create_clean_device_dir(
         api.flavor.device_dirs.perf_data_dir)
@@ -182,7 +183,6 @@ def perf_steps(api):
     properties.extend(['no_buildbot', 'True'])
     properties.extend(['swarming_bot_id', api.vars.swarming_bot_id])
     properties.extend(['swarming_task_id', api.vars.swarming_task_id])
-
   target = 'nanobench'
   args = [
       target,
@@ -243,14 +243,23 @@ def perf_steps(api):
         api.vars.perf_data_dir)
 
 
+def skpbench_steps(api):
+  """benchmark Skia using skpbench."""
+  api.run(api.flavor.step, "skpbench", cmd=["foo"],
+          abort_on_failure=True,
+          env=api.vars.default_env)
+
 def RunSteps(api):
   api.core.setup()
   try:
-    api.flavor.install()
-    perf_steps(api)
+    if 'Skpbench' not in api.vars.builder_name:
+      api.flavor.install()
+      nanobench_steps(api)
+    else:
+      api.flavor.install(skpbench=True, images=False, svgs=False)
+      skpbench_steps(api)
   finally:
     api.flavor.cleanup_steps()
-  api.run.check_failure()
 
 
 def GenTests(api):
