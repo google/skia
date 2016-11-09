@@ -246,6 +246,19 @@ std::unique_ptr<Statement> IRGenerator::convertIf(const ASTIfStatement& s) {
             return nullptr;
         }
     }
+    if (test->fKind == Expression::kBoolLiteral_Kind) {
+        // static boolean value, fold down to a single branch
+        if (((BoolLiteral&) *test).fValue) {
+            return ifTrue;
+        } else if (s.fIfFalse) {
+            return ifFalse;
+        } else {
+            // False & no else clause. Not an error, so don't return null!
+            std::vector<std::unique_ptr<Statement>> empty;
+            return std::unique_ptr<Statement>(new Block(s.fPosition, std::move(empty), 
+                                                        fSymbolTable));
+        }
+    }
     return std::unique_ptr<Statement>(new IfStatement(s.fPosition, std::move(test), 
                                                       std::move(ifTrue), std::move(ifFalse)));
 }
@@ -794,6 +807,78 @@ static bool determine_binary_type(const Context& context,
     return false;
 }
 
+/**
+ * If both operands are compile-time constants and can be folded, returns an expression representing
+ * the folded value. Otherwise, returns null. Note that unlike most other functions here, null does
+ * not represent a compilation error.
+ */
+std::unique_ptr<Expression> IRGenerator::constantFold(const Expression& left,
+                                                      Token::Kind op,
+                                                      const Expression& right) {
+    // Note that we expressly do not worry about precision and overflow here -- we use the maximum
+    // precision to calculate the results and hope the result makes sense. The plan is to move the
+    // Skia caps into SkSL, so we have access to all of them including the precisions of the various
+    // types, which will let us be more intelligent about this.
+    if (left.fKind == Expression::kBoolLiteral_Kind && 
+        right.fKind == Expression::kBoolLiteral_Kind) {
+        bool leftVal  = ((BoolLiteral&) left).fValue;
+        bool rightVal = ((BoolLiteral&) right).fValue;
+        bool result;
+        switch (op) {
+            case Token::LOGICALAND: result = leftVal && rightVal; break;
+            case Token::LOGICALOR:  result = leftVal || rightVal; break;
+            case Token::LOGICALXOR: result = leftVal ^  rightVal; break;
+            default: return nullptr;
+        }
+        return std::unique_ptr<Expression>(new BoolLiteral(fContext, left.fPosition, result));
+    }
+    #define RESULT(t, op) std::unique_ptr<Expression>(new t ## Literal(fContext, left.fPosition, \
+                                                                       leftVal op rightVal))
+    if (left.fKind == Expression::kIntLiteral_Kind && right.fKind == Expression::kIntLiteral_Kind) {
+        int64_t leftVal  = ((IntLiteral&) left).fValue;
+        int64_t rightVal = ((IntLiteral&) right).fValue;
+        switch (op) {
+            case Token::PLUS:       return RESULT(Int,  +);
+            case Token::MINUS:      return RESULT(Int,  -);
+            case Token::STAR:       return RESULT(Int,  *);
+            case Token::SLASH:      return RESULT(Int,  /);
+            case Token::PERCENT:    return RESULT(Int,  %);
+            case Token::BITWISEAND: return RESULT(Int,  &);
+            case Token::BITWISEOR:  return RESULT(Int,  |);
+            case Token::BITWISEXOR: return RESULT(Int,  ^);
+            case Token::SHL:        return RESULT(Int,  <<);
+            case Token::SHR:        return RESULT(Int,  >>);
+            case Token::EQEQ:       return RESULT(Bool, ==);
+            case Token::NEQ:        return RESULT(Bool, !=);
+            case Token::GT:         return RESULT(Bool, >);
+            case Token::GTEQ:       return RESULT(Bool, >=);
+            case Token::LT:         return RESULT(Bool, <);
+            case Token::LTEQ:       return RESULT(Bool, <=);
+            default:                return nullptr;
+        }
+    }
+    if (left.fKind == Expression::kFloatLiteral_Kind && 
+        right.fKind == Expression::kFloatLiteral_Kind) {
+        double leftVal  = ((FloatLiteral&) left).fValue;
+        double rightVal = ((FloatLiteral&) right).fValue;
+        switch (op) {
+            case Token::PLUS:       return RESULT(Float, +);
+            case Token::MINUS:      return RESULT(Float, -);
+            case Token::STAR:       return RESULT(Float, *);
+            case Token::SLASH:      return RESULT(Float, /);
+            case Token::EQEQ:       return RESULT(Bool,  ==);
+            case Token::NEQ:        return RESULT(Bool,  !=);
+            case Token::GT:         return RESULT(Bool,  >);
+            case Token::GTEQ:       return RESULT(Bool,  >=);
+            case Token::LT:         return RESULT(Bool,  <);
+            case Token::LTEQ:       return RESULT(Bool,  <=);
+            default:                return nullptr;
+        }
+    }
+    #undef RESULT
+    return nullptr;
+}
+
 std::unique_ptr<Expression> IRGenerator::convertBinaryExpression(
                                                             const ASTBinaryExpression& expression) {
     std::unique_ptr<Expression> left = this->convertExpression(*expression.fLeft);
@@ -823,11 +908,16 @@ std::unique_ptr<Expression> IRGenerator::convertBinaryExpression(
     if (!left || !right) {
         return nullptr;
     }
-    return std::unique_ptr<Expression>(new BinaryExpression(expression.fPosition, 
-                                                            std::move(left), 
-                                                            expression.fOperator, 
-                                                            std::move(right), 
-                                                            *resultType));
+    std::unique_ptr<Expression> result = this->constantFold(*left.get(), expression.fOperator, 
+                                                            *right.get());
+    if (!result) {
+        result = std::unique_ptr<Expression>(new BinaryExpression(expression.fPosition,
+                                                                  std::move(left),
+                                                                  expression.fOperator,
+                                                                  std::move(right),
+                                                                  *resultType));
+    }
+    return result;
 }
 
 std::unique_ptr<Expression> IRGenerator::convertTernaryExpression(  
@@ -858,6 +948,14 @@ std::unique_ptr<Expression> IRGenerator::convertTernaryExpression(
     ASSERT(trueType == falseType);
     ifTrue = this->coerce(std::move(ifTrue), *trueType);
     ifFalse = this->coerce(std::move(ifFalse), *falseType);
+    if (test->fKind == Expression::kBoolLiteral_Kind) {
+        // static boolean test, just return one of the branches
+        if (((BoolLiteral&) *test).fValue) {
+            return ifTrue;
+        } else {
+            return ifFalse;
+        }
+    }
     return std::unique_ptr<Expression>(new TernaryExpression(expression.fPosition, 
                                                              std::move(test),
                                                              std::move(ifTrue), 
@@ -1125,6 +1223,10 @@ std::unique_ptr<Expression> IRGenerator::convertPrefixExpression(
                               "'" + Token::OperatorName(expression.fOperator) + 
                               "' cannot operate on '" + base->fType.description() + "'");
                 return nullptr;
+            }
+            if (base->fKind == Expression::kBoolLiteral_Kind) {
+                return std::unique_ptr<Expression>(new BoolLiteral(fContext, base->fPosition,
+                                                                   !((BoolLiteral&) *base).fValue));
             }
             break;
         case Token::BITWISENOT:
