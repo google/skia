@@ -61,7 +61,7 @@ void SkModeColorFilter::filterSpan(const SkPMColor shader[], int count, SkPMColo
 }
 
 void SkModeColorFilter::filterSpan4f(const SkPM4f shader[], int count, SkPM4f result[]) const {
-    SkXfermodeProc4f  proc = SkXfermode::GetProc4f((SkXfermode::Mode)fMode);
+    SkXfermodeProc4f  proc = SkXfermode::GetProc4f(fMode);
 
     for (int i = 0; i < count; i++) {
         result[i] = proc(fPM4f, shader[i]);
@@ -75,7 +75,7 @@ void SkModeColorFilter::flatten(SkWriteBuffer& buffer) const {
 
 void SkModeColorFilter::updateCache() {
     fPMColor = SkPreMultiplyColor(fColor);
-    fProc = SkXfermode::GetProc((SkXfermode::Mode)fMode);
+    fProc = SkXfermode::GetProc(fMode);
     fPM4f = SkColor4f::FromColor(fColor).premul();
 }
 

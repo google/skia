@@ -113,7 +113,7 @@ static void draw_rect_fp(SkCanvas* canvas, const SkRect& r, SkColor c, const SkM
     }
 
     uint32_t flags = 0;
-    auto procN = SkXfermode::GetD32Proc(nullptr, flags);
+    auto procN = SkXfermode::GetD32Proc(SkBlendMode::kSrcOver, flags);
 
     SkLinearBitmapPipeline pipeline{
             inv, filterQuality,
@@ -121,7 +121,7 @@ static void draw_rect_fp(SkCanvas* canvas, const SkRect& r, SkColor c, const SkM
 
     for (int y = 0; y < ir.height(); y++) {
         pipeline.shadeSpan4f(0, y, dstBits, ir.width());
-        procN(nullptr, pmdst.writable_addr32(0, y), dstBits, ir.width(), nullptr);
+        procN(SkBlendMode::kSrcOver, pmdst.writable_addr32(0, y), dstBits, ir.width(), nullptr);
     }
 
     delete [] dstBits;

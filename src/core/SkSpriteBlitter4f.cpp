@@ -13,14 +13,14 @@
 class Sprite_4f : public SkSpriteBlitter {
 public:
     Sprite_4f(const SkPixmap& src, const SkPaint& paint) : INHERITED(src) {
-        fXfer = SkXfermode::Peek(paint.getBlendMode());
+        fMode = paint.getBlendMode();
         fLoader = SkLoadSpanProc_Choose(src.info());
         fFilter = SkFilterSpanProc_Choose(paint);
         fBuffer.reset(src.width());
     }
 
 protected:
-    SkXfermode*             fXfer;
+    SkBlendMode             fMode;
     SkLoadSpanProc          fLoader;
     SkFilterSpanProc        fFilter;
     SkAutoTMalloc<SkPM4f>   fBuffer;
@@ -38,7 +38,7 @@ public:
         if (src.isOpaque()) {
             flags |= SkXfermode::kSrcIsOpaque_F16Flag;
         }
-        fWriter = SkXfermode::GetF16Proc(fXfer, flags);
+        fWriter = SkXfermode::GetF16Proc(fMode, flags);
     }
 
     void blitRect(int x, int y, int width, int height) override {
@@ -49,7 +49,7 @@ public:
         for (int bottom = y + height; y < bottom; ++y) {
             fLoader(fSource, x - fLeft, y - fTop, fBuffer, width);
             fFilter(*fPaint, fBuffer, width);
-            fWriter(fXfer, dst, fBuffer, width, nullptr);
+            fWriter(fMode, dst, fBuffer, width, nullptr);
             dst = (uint64_t* SK_RESTRICT)((char*)dst + dstRB);
         }
     }
@@ -87,7 +87,7 @@ public:
         if (src.isOpaque()) {
             flags |= SkXfermode::kSrcIsOpaque_D32Flag;
         }
-        fWriter = SkXfermode::GetD32Proc(fXfer, flags);
+        fWriter = SkXfermode::GetD32Proc(fMode, flags);
     }
 
     void blitRect(int x, int y, int width, int height) override {
@@ -98,7 +98,7 @@ public:
         for (int bottom = y + height; y < bottom; ++y) {
             fLoader(fSource, x - fLeft, y - fTop, fBuffer, width);
             fFilter(*fPaint, fBuffer, width);
-            fWriter(fXfer, dst, fBuffer, width, nullptr);
+            fWriter(fMode, dst, fBuffer, width, nullptr);
             dst = (uint32_t* SK_RESTRICT)((char*)dst + dstRB);
         }
     }

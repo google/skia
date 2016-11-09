@@ -127,8 +127,7 @@ public:
         // To implement the old shadeSpan entry-point, we need to efficiently convert our native
         // floats into SkPMColor. The SkXfermode::D32Procs do exactly that.
         //
-        sk_sp<SkXfermode> xfer(SkXfermode::Make(SkXfermode::kSrc_Mode));
-        fXferProc = SkXfermode::GetD32Proc(xfer.get(), 0);
+        fSrcModeProc = SkXfermode::GetD32Proc(SkBlendMode::kSrc, 0);
     }
 
     void shadeSpan4f(int x, int y, SkPM4f dstC[], int count) override {
@@ -142,7 +141,7 @@ public:
         while (count > 0) {
             const int n = SkTMin(count, N);
             fShaderPipeline->shadeSpan4f(x, y, tmp, n);
-            fXferProc(nullptr, dstC, tmp, n, nullptr);
+            fSrcModeProc(SkBlendMode::kSrc, dstC, tmp, n, nullptr);
             dstC += n;
             x += n;
             count -= n;
@@ -150,15 +149,12 @@ public:
     }
 
     bool onChooseBlitProcs(const SkImageInfo& dstInfo, BlitState* state) override {
-        SkXfermode::Mode mode;
-        if (!SkXfermode::AsMode(state->fXfer, &mode)) { return false; }
-
         if (SkLinearBitmapPipeline::ClonePipelineForBlitting(
             &fBlitterPipeline, *fShaderPipeline,
             fMatrixTypeMask,
             fXMode, fYMode,
             fFilterQuality, fSrcPixmap,
-            fAlpha, mode, dstInfo))
+            fAlpha, state->fMode, dstInfo))
         {
             state->fStorage[0] = fBlitterPipeline.get();
             state->fBlitBW = &LinearPipelineContext::ForwardToPipeline;
@@ -178,7 +174,7 @@ public:
 private:
     SkEmbeddableLinearPipeline fShaderPipeline;
     SkEmbeddableLinearPipeline fBlitterPipeline;
-    SkXfermode::D32Proc        fXferProc;
+    SkXfermode::D32Proc        fSrcModeProc;
     SkPixmap                   fSrcPixmap;
     float                      fAlpha;
     SkShader::TileMode         fXMode;

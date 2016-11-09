@@ -17,13 +17,13 @@
 // Benchmark that draws non-AA rects or AA text with an SkXfermode::Mode.
 class XferD32Bench : public Benchmark {
 public:
-    XferD32Bench(SkXfermode::Mode mode, const char name[], bool doN, uint32_t flags)
+    XferD32Bench(SkBlendMode mode, const char name[], bool doN, uint32_t flags)
         : fDoN(doN)
         , fFlags(flags & ~USE_AA)
     {
-        fXfer = SkXfermode::Make(mode);
-        fProc1 = SkXfermode::GetD32Proc(fXfer, fFlags | SkXfermode::kSrcIsSingle_D32Flag);
-        fProcN = SkXfermode::GetD32Proc(fXfer, fFlags);
+        fMode = mode;
+        fProc1 = SkXfermode::GetD32Proc(fMode, fFlags | SkXfermode::kSrcIsSingle_D32Flag);
+        fProcN = SkXfermode::GetD32Proc(fMode, fFlags);
         fName.printf("xfer4f_%s_%s_%c_%s_%s",
                      name,
                      (flags & USE_AA) ? "aa" : "bw",
@@ -52,15 +52,15 @@ protected:
     void onDraw(int loops, SkCanvas*) override {
         for (int i = 0; i < loops * INNER_LOOPS; ++i) {
             if (fDoN) {
-                fProcN(fXfer.get(), fDst, fSrc, N, fAA);
+                fProcN(fMode, fDst, fSrc, N, fAA);
             } else {
-                fProc1(fXfer.get(), fDst, fSrc, N, fAA);
+                fProc1(fMode, fDst, fSrc, N, fAA);
             }
         }
     }
 
 private:
-    sk_sp<SkXfermode>   fXfer;
+    SkBlendMode          fMode;
     SkString             fName;
     SkXfermode::D32Proc  fProc1;
     SkXfermode::D32Proc  fProcN;
@@ -83,22 +83,22 @@ private:
 #define F10 (SkXfermode::kDstIsSRGB_D32Flag)
 #define F11 (SkXfermode::kSrcIsOpaque_D32Flag | SkXfermode::kDstIsSRGB_D32Flag)
 
-DEF_BENCH( return new XferD32Bench(SkXfermode::kSrcOver_Mode, "srcover", false, F10); )
-DEF_BENCH( return new XferD32Bench(SkXfermode::kSrcOver_Mode, "srcover", false, F00); )
-DEF_BENCH( return new XferD32Bench(SkXfermode::kSrcOver_Mode, "srcover", false, F11); )
-DEF_BENCH( return new XferD32Bench(SkXfermode::kSrcOver_Mode, "srcover", false, F01); )
+DEF_BENCH( return new XferD32Bench(SkBlendMode::kSrcOver, "srcover", false, F10); )
+DEF_BENCH( return new XferD32Bench(SkBlendMode::kSrcOver, "srcover", false, F00); )
+DEF_BENCH( return new XferD32Bench(SkBlendMode::kSrcOver, "srcover", false, F11); )
+DEF_BENCH( return new XferD32Bench(SkBlendMode::kSrcOver, "srcover", false, F01); )
 
-DEF_BENCH( return new XferD32Bench(SkXfermode::kSrcOver_Mode, "srcover", true,  F10); )
-DEF_BENCH( return new XferD32Bench(SkXfermode::kSrcOver_Mode, "srcover", true,  F00); )
-DEF_BENCH( return new XferD32Bench(SkXfermode::kSrcOver_Mode, "srcover", true,  F11); )
-DEF_BENCH( return new XferD32Bench(SkXfermode::kSrcOver_Mode, "srcover", true,  F01); )
+DEF_BENCH( return new XferD32Bench(SkBlendMode::kSrcOver, "srcover", true,  F10); )
+DEF_BENCH( return new XferD32Bench(SkBlendMode::kSrcOver, "srcover", true,  F00); )
+DEF_BENCH( return new XferD32Bench(SkBlendMode::kSrcOver, "srcover", true,  F11); )
+DEF_BENCH( return new XferD32Bench(SkBlendMode::kSrcOver, "srcover", true,  F01); )
 
-DEF_BENCH( return new XferD32Bench(SkXfermode::kSrcOver_Mode, "srcover", false, F10 | USE_AA); )
-DEF_BENCH( return new XferD32Bench(SkXfermode::kSrcOver_Mode, "srcover", false, F00 | USE_AA); )
-DEF_BENCH( return new XferD32Bench(SkXfermode::kSrcOver_Mode, "srcover", false, F11 | USE_AA); )
-DEF_BENCH( return new XferD32Bench(SkXfermode::kSrcOver_Mode, "srcover", false, F01 | USE_AA); )
+DEF_BENCH( return new XferD32Bench(SkBlendMode::kSrcOver, "srcover", false, F10 | USE_AA); )
+DEF_BENCH( return new XferD32Bench(SkBlendMode::kSrcOver, "srcover", false, F00 | USE_AA); )
+DEF_BENCH( return new XferD32Bench(SkBlendMode::kSrcOver, "srcover", false, F11 | USE_AA); )
+DEF_BENCH( return new XferD32Bench(SkBlendMode::kSrcOver, "srcover", false, F01 | USE_AA); )
 
-DEF_BENCH( return new XferD32Bench(SkXfermode::kSrcOver_Mode, "srcover", true,  F10 | USE_AA); )
-DEF_BENCH( return new XferD32Bench(SkXfermode::kSrcOver_Mode, "srcover", true,  F00 | USE_AA); )
-DEF_BENCH( return new XferD32Bench(SkXfermode::kSrcOver_Mode, "srcover", true,  F11 | USE_AA); )
-DEF_BENCH( return new XferD32Bench(SkXfermode::kSrcOver_Mode, "srcover", true,  F01 | USE_AA); )
+DEF_BENCH( return new XferD32Bench(SkBlendMode::kSrcOver, "srcover", true,  F10 | USE_AA); )
+DEF_BENCH( return new XferD32Bench(SkBlendMode::kSrcOver, "srcover", true,  F00 | USE_AA); )
+DEF_BENCH( return new XferD32Bench(SkBlendMode::kSrcOver, "srcover", true,  F11 | USE_AA); )
+DEF_BENCH( return new XferD32Bench(SkBlendMode::kSrcOver, "srcover", true,  F01 | USE_AA); )

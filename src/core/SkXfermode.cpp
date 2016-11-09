@@ -1336,29 +1336,20 @@ sk_sp<SkXfermode> SkXfermode::Make(SkBlendMode mode) {
     return sk_ref_sp(cached[(int)mode]);
 }
 
-SkXfermodeProc SkXfermode::GetProc(Mode mode) {
+SkXfermodeProc SkXfermode::GetProc(SkBlendMode mode) {
     SkXfermodeProc  proc = nullptr;
     if ((unsigned)mode < kModeCount) {
-        proc = gProcCoeffs[mode].fProc;
+        proc = gProcCoeffs[(unsigned)mode].fProc;
     }
     return proc;
 }
 
-SkXfermodeProc4f SkXfermode::GetProc4f(Mode mode) {
+SkXfermodeProc4f SkXfermode::GetProc4f(SkBlendMode mode) {
     SkXfermodeProc4f  proc = nullptr;
     if ((unsigned)mode < kModeCount) {
-        proc = gProcCoeffs[mode].fProc4f;
+        proc = gProcCoeffs[(unsigned)mode].fProc4f;
     }
     return proc;
-}
-
-static SkPM4f missing_proc4f(const SkPM4f& src, const SkPM4f& dst) {
-    return src;
-}
-
-SkXfermodeProc4f SkXfermode::getProc4f() const {
-    Mode mode;
-    return this->asMode(&mode) ? GetProc4f(mode) : missing_proc4f;
 }
 
 bool SkXfermode::ModeAsCoeff(Mode mode, Coeff* src, Coeff* dst) {

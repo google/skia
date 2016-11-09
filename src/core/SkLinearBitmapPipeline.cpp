@@ -671,12 +671,11 @@ bool SkLinearBitmapPipeline::ClonePipelineForBlitting(
     SkFilterQuality filterQuality,
     const SkPixmap& srcPixmap,
     float finalAlpha,
-    SkXfermode::Mode xferMode,
+    SkBlendMode blendMode,
     const SkImageInfo& dstInfo)
 {
-    if (xferMode == SkXfermode::kSrcOver_Mode
-        && srcPixmap.info().alphaType() == kOpaque_SkAlphaType) {
-        xferMode = SkXfermode::kSrc_Mode;
+    if (blendMode == SkBlendMode::kSrcOver && srcPixmap.info().alphaType() == kOpaque_SkAlphaType) {
+        blendMode = SkBlendMode::kSrc;
     }
 
     if (matrixMask & ~SkMatrix::kTranslate_Mask ) { return false; }
@@ -689,11 +688,11 @@ bool SkLinearBitmapPipeline::ClonePipelineForBlitting(
         return false;
     }
 
-    if (xferMode != SkXfermode::kSrc_Mode && xferMode != SkXfermode::kSrcOver_Mode) {
+    if (blendMode != SkBlendMode::kSrc && blendMode != SkBlendMode::kSrcOver) {
         return false;
     }
 
-    pipelineStorage->init(pipeline, srcPixmap, xferMode, dstInfo);
+    pipelineStorage->init(pipeline, srcPixmap, blendMode, dstInfo);
 
     return true;
 }
@@ -701,14 +700,14 @@ bool SkLinearBitmapPipeline::ClonePipelineForBlitting(
 SkLinearBitmapPipeline::SkLinearBitmapPipeline(
     const SkLinearBitmapPipeline& pipeline,
     const SkPixmap& srcPixmap,
-    SkXfermode::Mode mode,
+    SkBlendMode mode,
     const SkImageInfo& dstInfo)
 {
-    SkASSERT(mode == SkXfermode::kSrc_Mode || mode == SkXfermode::kSrcOver_Mode);
+    SkASSERT(mode == SkBlendMode::kSrc || mode == SkBlendMode::kSrcOver);
     SkASSERT(srcPixmap.info().colorType() == dstInfo.colorType()
              && srcPixmap.info().colorType() == kRGBA_8888_SkColorType);
 
-    if (mode == SkXfermode::kSrc_Mode) {
+    if (mode == SkBlendMode::kSrc) {
         fSampleStage.initSink<RGBA8888UnitRepeatSrc>(
             srcPixmap.writable_addr32(0, 0), srcPixmap.rowBytes() / 4);
         fLastStage = fSampleStage.getInterface<DestinationInterface, RGBA8888UnitRepeatSrc>();

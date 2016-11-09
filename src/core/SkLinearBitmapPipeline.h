@@ -37,7 +37,7 @@ public:
     SkLinearBitmapPipeline(
         const SkLinearBitmapPipeline& pipeline,
         const SkPixmap& srcPixmap,
-        SkXfermode::Mode xferMode,
+        SkBlendMode blendMode,
         const SkImageInfo& dstInfo);
 
     static bool ClonePipelineForBlitting(
@@ -49,7 +49,7 @@ public:
         SkFilterQuality filterQuality,
         const SkPixmap& srcPixmap,
         float finalAlpha,
-        SkXfermode::Mode xferMode,
+        SkBlendMode,
         const SkImageInfo& dstInfo);
 
     ~SkLinearBitmapPipeline();

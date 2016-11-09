@@ -17,14 +17,13 @@
 // Benchmark that draws non-AA rects or AA text with an SkXfermode::Mode.
 class XferF16Bench : public Benchmark {
 public:
-    XferF16Bench(SkXfermode::Mode mode, const char name[], bool doN, uint32_t flags)
+    XferF16Bench(SkBlendMode mode, const char name[], bool doN, uint32_t flags)
         : fDoN(doN)
         , fFlags(flags & ~USE_AA)
     {
-        fXfer = SkXfermode::Make(mode);
-
-        fProc1 = SkXfermode::GetF16Proc(fXfer, fFlags | SkXfermode::kSrcIsSingle_F16Flag);
-        fProcN = SkXfermode::GetF16Proc(fXfer, fFlags);
+        fMode = mode;
+        fProc1 = SkXfermode::GetF16Proc(mode, fFlags | SkXfermode::kSrcIsSingle_F16Flag);
+        fProcN = SkXfermode::GetF16Proc(mode, fFlags);
         fName.printf("xferF16_%s_%s_%c_%s",
                      name,
                      (flags & USE_AA) ? "aa" : "bw",
@@ -52,15 +51,15 @@ protected:
     void onDraw(int loops, SkCanvas*) override {
         for (int i = 0; i < loops * INNER_LOOPS; ++i) {
             if (fDoN) {
-                fProcN(fXfer.get(), fDst, fSrc, N, fAA);
+                fProcN(fMode, fDst, fSrc, N, fAA);
             } else {
-                fProc1(fXfer.get(), fDst, fSrc, N, fAA);
+                fProc1(fMode, fDst, fSrc, N, fAA);
             }
         }
     }
 
 private:
-    sk_sp<SkXfermode>   fXfer;
+    SkBlendMode         fMode;
     SkString            fName;
     SkXfermode::F16Proc fProc1;
     SkXfermode::F16Proc fProcN;
@@ -81,7 +80,7 @@ private:
 #define F00 0
 #define F01 (SkXfermode::kSrcIsOpaque_F16Flag)
 
-#define MODE    SkXfermode::kSrcOver_Mode
+#define MODE    SkBlendMode::kSrcOver
 #define NAME    "srcover"
 
 DEF_BENCH( return new XferF16Bench(MODE, NAME, true,  F00 | USE_AA); )
