@@ -352,3 +352,19 @@ DEF_TEST(SkSLContinueOutsideLoop, r) {
                  "void foo() { for(;;); continue; }",
                  "error: 1: continue statement must be inside a loop\n1 error\n");
 }
+
+DEF_TEST(SkSLStaticIfError, r) {
+    // ensure eliminated branch of static if / ternary is still checked for errors
+    test_failure(r,
+                 "void foo() { if (true); else x = 5; }",
+                 "error: 1: unknown identifier 'x'\n1 error\n");
+    test_failure(r,
+                 "void foo() { if (false) x = 5; }",
+                 "error: 1: unknown identifier 'x'\n1 error\n");
+    test_failure(r,
+                 "void foo() { true ? 5 : x; }",
+                 "error: 1: unknown identifier 'x'\n1 error\n");
+    test_failure(r,
+                 "void foo() { false ? x : 5; }",
+                 "error: 1: unknown identifier 'x'\n1 error\n");
+}
