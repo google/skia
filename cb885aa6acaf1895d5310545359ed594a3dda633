@@ -40,6 +40,24 @@
       "revId": "cb885aa6acaf1895d5310545359ed594a3dda633",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "4b770b47_4e6833a4",
+        "filename": "infra/bots/gen_tasks.go",
+        "patchSetId": 6
+      },
+      "lineNbr": 45,
+      "author": {
+        "id": 5015
+      },
+      "writtenOn": "2016-11-09T19:03:54Z",
+      "side": 1,
+      "message": "Updated to \"iPadMini4\" and \"GX6450\"",
+      "parentUuid": "4b770b47_cefae306",
+      "revId": "cb885aa6acaf1895d5310545359ed594a3dda633",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
