@@ -561,12 +561,21 @@ SkScanClipper::SkScanClipper(SkBlitter* blitter, const SkRegion* clip,
 
         if (clip->isRect()) {
             if (fClipRect->contains(ir)) {
+#ifdef SK_DEBUG
+                fRectClipCheckBlitter.init(blitter, *fClipRect);
+                blitter = &fRectClipCheckBlitter;
+#endif
                 fClipRect = nullptr;
             } else {
                 // only need a wrapper blitter if we're horizontally clipped
                 if (fClipRect->fLeft > ir.fLeft || fClipRect->fRight < ir.fRight) {
                     fRectBlitter.init(blitter, *fClipRect);
                     blitter = &fRectBlitter;
+                } else {
+#ifdef SK_DEBUG
+                    fRectClipCheckBlitter.init(blitter, *fClipRect);
+                    blitter = &fRectClipCheckBlitter;
+#endif
                 }
             }
         } else {
