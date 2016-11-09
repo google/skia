@@ -9,6 +9,8 @@
 #include "Sk4x4f.h"
 #include "SkXfermode.h"
 
+#include <cmath>
+
 namespace {
 
 template<DstType dstType, ApplyPremul premul>
@@ -117,7 +119,7 @@ LinearGradient4fContext::LinearGradient4fContext(const SkLinearGradient& shader,
     : INHERITED(shader, rec) {
 
     // Our fast path expects interval points to be monotonically increasing in x.
-    const bool reverseIntervals = this->isFast() && signbit(fDstToPos.getScaleX());
+    const bool reverseIntervals = this->isFast() && std::signbit(fDstToPos.getScaleX());
     this->buildIntervals(shader, rec, reverseIntervals);
 
     SkASSERT(fIntervals.count() > 0);
@@ -315,7 +317,7 @@ public:
 
     SkScalar currentAdvance() const {
         SkASSERT(fAdvX >= 0);
-        SkASSERT(fAdvX <= (fInterval->fP1 - fInterval->fP0) / fDx || !isfinite(fAdvX));
+        SkASSERT(fAdvX <= (fInterval->fP1 - fInterval->fP0) / fDx || !std::isfinite(fAdvX));
         return fAdvX;
     }
 
