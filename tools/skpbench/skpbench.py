@@ -274,8 +274,7 @@ def main():
   skps = _path.find_skps(FLAGS.skps)
 
   if FLAGS.adb:
-    adb = Adb(FLAGS.device_serial,
-              echofile=(sys.stderr if FLAGS.verbosity >= 5 else None))
+    adb = Adb(FLAGS.device_serial, echo=(FLAGS.verbosity >= 5))
     model = adb.check('getprop ro.product.model').strip()
     if model == 'Pixel C':
       from _hardware_pixel_c import HardwarePixelC

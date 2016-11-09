@@ -9,29 +9,30 @@ import subprocess
 import sys
 
 class Adb:
-  def __init__(self, device_serial=None, echofile=None):
+  def __init__(self, device_serial=None, echo=False):
     self.__invocation = ['adb']
     if device_serial:
       self.__invocation.extend(['-s', device_serial])
-    self.__echofile = echofile
+    self.__echo = echo
     self.__is_root = None
 
   def shell(self, cmd):
-    if self.__echofile:
-      self.__echo_cmd(cmd)
-    subprocess.call(self.__invocation + ['shell', cmd], stdout=sys.stderr)
+    if self.__echo:
+      self.__echo_shell_cmd(cmd)
+    self.__invoke('shell', cmd)
 
   def check(self, cmd):
-    if self.__echofile:
-      self.__echo_cmd(cmd)
+    if self.__echo:
+      self.__echo_shell_cmd(cmd)
     result = subprocess.check_output(self.__invocation + ['shell', cmd])
-    if self.__echofile:
-      print(result, file=self.__echofile)
+    if self.__echo:
+      print(result, file=sys.stderr)
     return result
 
   def root(self):
     if not self.is_root():
-      subprocess.call(self.__invocation + ['root'], stdout=sys.stderr)
+      self.__invoke('root')
+      self.__invoke('wait-for-device')
       self.__is_root = None
     return self.is_root()
 
@@ -41,12 +42,13 @@ class Adb:
     return self.__is_root
 
   def remount(self):
-    subprocess.call(self.__invocation + ['remount'], stdout=sys.stderr)
+    self.__invoke('remount')
 
-  def __echo_cmd(self, cmd):
+  def __echo_shell_cmd(self, cmd):
     escaped = [re.sub(r'([^a-zA-Z0-9])', r'\\\1', x)
                for x in cmd.strip().splitlines()]
-    subprocess.call(self.__invocation + \
-                    ['shell', 'echo', '$(whoami)@$(getprop ro.serialno)$',
-                     " '\n>' ".join(escaped)],
-                    stdout=self.__echofile)
+    self.__invoke('shell', 'echo', '$(whoami)@$(getprop ro.serialno)$',
+                  " '\n>' ".join(escaped))
+
+  def __invoke(self, *args):
+    subprocess.call(self.__invocation + list(args), stdout=sys.stderr)
