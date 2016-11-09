@@ -22,6 +22,24 @@
       "revId": "cb885aa6acaf1895d5310545359ed594a3dda633",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "4b770b47_cefae306",
+        "filename": "infra/bots/gen_tasks.go",
+        "patchSetId": 6
+      },
+      "lineNbr": 45,
+      "author": {
+        "id": 5015
+      },
+      "writtenOn": "2016-11-09T18:57:19Z",
+      "side": 1,
+      "message": "Hrm. I can\u0027t even find a reference to an \"iPad 5\".  Is there another name?",
+      "parentUuid": "4b770b47_2e236720",
+      "revId": "cb885aa6acaf1895d5310545359ed594a3dda633",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
