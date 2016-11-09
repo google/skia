@@ -34,6 +34,7 @@
 #include "SkImageEncoder.h"
 #include "SkIStream.h"
 #include "SkMaskFilter.h"
+#include "SkOnce.h"
 #include "SkPaint.h"
 #include "SkPathEffect.h"
 #include "SkPathOps.h"
@@ -51,6 +52,7 @@
 #include "SkTypefacePriv.h"
 #include "SkUtils.h"
 #include "SkXPSDevice.h"
+#include "SkXPSInit.h"
 
 //Windows defines a FLOAT type,
 //make it clear when converting a scalar that this is what is wanted.
@@ -124,14 +126,9 @@ SkXPSDevice::SkXPSDevice()
 
 SkXPSDevice::SkXPSDevice(IXpsOMObjectFactory* xpsFactory)
     : INHERITED(make_fake_bitmap(10000, 10000), SkSurfaceProps(0, kUnknown_SkPixelGeometry))
+    , fXpsFactory(SkSafeRefComPtr(xpsFactory))
     , fCurrentPage(0) {
-
-    HRVM(CoCreateInstance(
-             CLSID_XpsOMObjectFactory,
-             nullptr,
-             CLSCTX_INPROC_SERVER,
-             IID_PPV_ARGS(&this->fXpsFactory)),
-         "Could not create factory for layer.");
+    SkASSERT(fXpsFactory.get());
 
     HRVM(this->fXpsFactory->CreateCanvas(&this->fCurrentXpsCanvas),
          "Could not create canvas for layer.");
@@ -153,16 +150,29 @@ SkXPSDevice::TypefaceUse::~TypefaceUse() {
     delete this->glyphsUsed;
 }
 
+static IXpsOMObjectFactory* gXpsFactory;
+void SkXPSInit() {
+    //Create XPS Factory.
+    static SkOnce once;
+    once([]{
+            (void)CoInitializeEx(nullptr, COINIT_APARTMENTTHREADED |
+                                 COINIT_DISABLE_OLE1DDE);
+            HRVM(CoCreateInstance(
+                         CLSID_XpsOMObjectFactory,
+                         nullptr,
+                         CLSCTX_INPROC_SERVER,
+                         IID_PPV_ARGS(&gXpsFactory)),
+                 "Could not create XPS factory.");
+        });
+}
+
 bool SkXPSDevice::beginPortfolio(SkWStream* outputStream) {
     if (!this->fAutoCo.succeeded()) return false;
 
-    //Create XPS Factory.
-    HRBM(CoCreateInstance(
-             CLSID_XpsOMObjectFactory,
-             nullptr,
-             CLSCTX_INPROC_SERVER,
-             IID_PPV_ARGS(&this->fXpsFactory)),
-         "Could not create XPS factory.");
+    SkXPSInit();
+    SkTScopedComPtr<IXpsOMObjectFactory> tmp(SkSafeRefComPtr(gXpsFactory));
+    this->fXpsFactory.swap(tmp);
+    SkASSERT(this->fXpsFactory.get());
 
     HRBM(SkWIStream::CreateFromSkWStream(outputStream, &this->fOutputStream),
          "Could not convert SkStream to IStream.");
