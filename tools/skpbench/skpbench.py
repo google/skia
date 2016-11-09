@@ -68,7 +68,7 @@ else:
   import _os_path as _path
 
 def dump_commandline_if_verbose(commandline):
-  if FLAGS.verbosity >= 4:
+  if FLAGS.verbosity >= 5:
     quoted = ['\'%s\'' % re.sub(r'([\\\'])', r'\\\1', x) for x in commandline]
     print(' '.join(quoted), file=sys.stderr)
 
@@ -253,14 +253,14 @@ def run_benchmarks(configs, skps, hardware):
 
       except HardwareException as exception:
         skpbench.terminate()
-        if FLAGS.verbosity >= 5:
+        if FLAGS.verbosity >= 4:
           hardware.print_debug_diagnostics()
         if FLAGS.verbosity >= 1:
           print("%s; taking a %i second nap..." %
                 (exception.message, exception.sleeptime), file=sys.stderr)
         benches.appendleft(benchargs) # retry the same bench next time.
         hardware.sleep(exception.sleeptime)
-        if FLAGS.verbosity >= 5:
+        if FLAGS.verbosity >= 4:
           hardware.print_debug_diagnostics()
         SKPBench.run_warmup(hardware.warmup_time)
 
@@ -272,8 +272,9 @@ def main():
   skps = _path.find_skps(FLAGS.skps)
 
   if FLAGS.adb:
-    adb = Adb(FLAGS.device_serial)
-    model = adb.get_device_model()
+    adb = Adb(FLAGS.device_serial,
+              echofile=(sys.stderr if FLAGS.verbosity >= 5 else None))
+    model = adb.check('getprop ro.product.model').strip()
     if model == 'Pixel C':
       from _hardware_pixel_c import HardwarePixelC
       hardware = HardwarePixelC(adb)

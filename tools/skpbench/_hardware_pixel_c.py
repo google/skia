@@ -24,45 +24,47 @@ class HardwarePixelC(HardwareAndroid):
     self._unlock_clocks()
 
   def _lock_clocks(self):
-    if not self._is_root:
+    if not self._adb.is_root():
       return
 
-    # lock cpu clocks.
-    self._adb.shell('''\
+    self._adb.shell('\n'.join([
+      # lock cpu clocks.
+      '''
       for N in $(seq 0 3); do
         echo userspace > /sys/devices/system/cpu/cpu$N/cpufreq/scaling_governor
         echo %i > /sys/devices/system/cpu/cpu$N/cpufreq/scaling_setspeed
-      done''' % CPU_CLOCK_RATE)
+      done''' % CPU_CLOCK_RATE,
 
-    # lock gpu/emc clocks.
-    self._adb.shell('''\
+      # lock gpu/emc clocks.
+      '''
       chown root:root /sys/devices/57000000.gpu/pstate
-      echo %s > /sys/devices/57000000.gpu/pstate''' % GPU_EMC_PROFILE_ID)
+      echo %s > /sys/devices/57000000.gpu/pstate''' % GPU_EMC_PROFILE_ID]))
 
   def _unlock_clocks(self):
-    if not self._is_root:
+    if not self._adb.is_root():
       return
 
-    # unlock gpu/emc clocks.
-    self._adb.shell('''\
+    self._adb.shell('\n'.join([
+      # unlock gpu/emc clocks.
+      '''
       echo auto > /sys/devices/57000000.gpu/pstate
-      chown system:system /sys/devices/57000000.gpu/pstate''')
+      chown system:system /sys/devices/57000000.gpu/pstate''',
 
-    # unlock cpu clocks.
-    self._adb.shell('''\
+      # unlock cpu clocks.
+      '''
       for N in $(seq 0 3); do
         echo 0 > /sys/devices/system/cpu/cpu$N/cpufreq/scaling_setspeed
-        echo interactive > /sys/devices/system/cpu/cpu$N/cpufreq/scaling_governor
-      done''')
+        echo interactive >/sys/devices/system/cpu/cpu$N/cpufreq/scaling_governor
+      done''']))
 
   def sanity_check(self):
     HardwareAndroid.sanity_check(self)
 
-    if not self._is_root:
+    if not self._adb.is_root():
       return
 
     # only issue one shell command in an attempt to minimize interference.
-    result = self._adb.check_lines('''\
+    result = self._adb.check('''\
       cat /sys/class/power_supply/bq27742-0/capacity \
           /sys/class/thermal/thermal_zone7/temp \
           /sys/class/thermal/thermal_zone0/temp \
@@ -86,7 +88,7 @@ class HardwarePixelC(HardwareAndroid):
        for i in range(4)] + \
       [Expectation(str, exact_value=GPU_EMC_PROFILE, name='gpu/emc profile')]
 
-    Expectation.check_all(expectations, result)
+    Expectation.check_all(expectations, result.splitlines())
 
   def sleep(self, sleeptime):
     self._unlock_clocks()

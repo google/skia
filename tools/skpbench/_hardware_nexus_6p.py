@@ -23,7 +23,7 @@ class HardwareNexus6P(HardwareAndroid):
     self._unlock_clocks()
 
   def _lock_clocks(self):
-    if not self._is_root:
+    if not self._adb.is_root():
       return
 
     self._adb.shell('''\
@@ -73,7 +73,7 @@ class HardwareNexus6P(HardwareAndroid):
       echo 9887 > /sys/class/devfreq/qcom,gpubw.70/min_freq''')
 
   def _unlock_clocks(self):
-    if not self._is_root:
+    if not self._adb.is_root():
       return
 
     # restore ddr settings to default.
@@ -121,10 +121,10 @@ class HardwareNexus6P(HardwareAndroid):
   def sanity_check(self):
     HardwareAndroid.sanity_check(self)
 
-    if not self._is_root:
+    if not self._adb.is_root():
       return
 
-    result = self._adb.check_lines('''\
+    result = self._adb.check('''\
       cat /sys/class/power_supply/battery/capacity \
           /sys/devices/system/cpu/online \
           /sys/class/thermal/thermal_zone14/temp \
@@ -147,7 +147,7 @@ class HardwareNexus6P(HardwareAndroid):
       [Expectation(int, exact_value=CPU_CLOCK_RATE, name='cpu_%i clock rate' %i)
        for i in range(4, 7)]
 
-    Expectation.check_all(expectations, result)
+    Expectation.check_all(expectations, result.splitlines())
 
   def sleep(self, sleeptime):
     self._unlock_clocks()
