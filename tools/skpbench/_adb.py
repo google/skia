@@ -7,6 +7,7 @@ from __future__ import print_function
 import re
 import subprocess
 import sys
+import time
 
 class Adb:
   def __init__(self, device_serial=None, echofile=None):
@@ -32,6 +33,7 @@ class Adb:
   def root(self):
     if not self.is_root():
       subprocess.call(self.__invocation + ['root'], stdout=sys.stderr)
+      time.sleep(5)
       self.__is_root = None
     return self.is_root()
 
