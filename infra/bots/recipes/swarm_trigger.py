@@ -45,6 +45,7 @@ TEST_BUILDERS = {
       'Housekeeper-PerCommit',
       'Housekeeper-PerCommit-Presubmit',
       'Infra-PerCommit',
+      'Perf-Android-Clang-PixelC-GPU-TegraX1-arm64-Release-GN_Android_Skpbench',
       'Perf-Ubuntu-GCC-GCE-CPU-AVX2-x86_64-Release-Trybot',
       'Perf-Ubuntu-GCC-Golo-GPU-GT610-x86_64-Release-CT_BENCH_1k_SKPs',
       'Perf-Ubuntu-GCC-ShuttleA-GPU-GTX550Ti-x86_64-Release-Valgrind',
@@ -400,6 +401,9 @@ def compile_steps_swarm(api, builder_cfg, got_revision, infrabots_dir):
       cipd_packages.append(cipd_pkg(api, infrabots_dir, 'android_ndk_linux'))
   elif 'Ubuntu' in builder_name and 'Clang' in builder_name:
     cipd_packages.append(cipd_pkg(api, infrabots_dir, 'clang_linux'))
+
+  if 'Skpbench' in builder_name:
+    cipd_packages.append(cipd_pkg(api, infrabots_dir, 'skpbench'))
 
   # Windows bots require a toolchain.
   if 'Win' in builder_name:
