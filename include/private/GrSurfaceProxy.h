@@ -14,7 +14,6 @@
 
 class GrCaps;
 class GrOpList;
-class GrTextureProvider;
 class GrTextureProxy;
 class GrRenderTargetProxy;
 class GrTextureProvider;
@@ -142,8 +141,6 @@ public:
         }
         return fGpuMemorySize;
     }
-
-    bool isWrapped_ForTesting() const;
 
 protected:
     // Deferred version
