@@ -45,6 +45,7 @@ TEST_BUILDERS = {
       'Housekeeper-PerCommit',
       'Housekeeper-PerCommit-Presubmit',
       'Infra-PerCommit',
+      'Perf-Android-Clang-PixelC-GPU-TegraX1-arm64-Release-GN_Android_Skpbench',
       'Perf-Ubuntu-GCC-GCE-CPU-AVX2-x86_64-Release-Trybot',
       'Perf-Ubuntu-GCC-Golo-GPU-GT610-x86_64-Release-CT_BENCH_1k_SKPs',
       'Perf-Ubuntu-GCC-ShuttleA-GPU-GTX550Ti-x86_64-Release-Valgrind',
@@ -463,6 +464,9 @@ def perf_steps_trigger(api, builder_cfg, got_revision, infrabots_dir,
   """Trigger perf tests via Swarming."""
 
   expiration, hard_timeout, io_timeout = get_timeouts(builder_cfg)
+  builder_name = derive_compile_bot_name(api)
+  if 'Skpbench' in builder_name:
+    cipd_packages.append(cipd_pkg(api, infrabots_dir, 'skpbench'))
   return trigger_task(
       api,
       'perf',

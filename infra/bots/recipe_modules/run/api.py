@@ -16,6 +16,7 @@ BUILD_PRODUCTS_ISOLATE_WHITELIST = [
   'get_images_from_skps.exe',
   'nanobench',
   'nanobench.exe',
+  'skpbench',
   '*.so',
   '*.dll',
   '*.dylib',
