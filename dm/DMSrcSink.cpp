@@ -37,6 +37,7 @@
 #include "SkRecorder.h"
 #include "SkSVGCanvas.h"
 #include "SkStream.h"
+#include "SkTypesPriv.h"
 #include "SkTLogic.h"
 #include "SkSwizzler.h"
 #include <functional>

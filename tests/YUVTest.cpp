@@ -9,6 +9,7 @@
 #include "Resources.h"
 #include "SkStream.h"
 #include "SkTemplates.h"
+#include "SkTypesPriv.h"
 #include "SkYUVSizeInfo.h"
 #include "Test.h"
 

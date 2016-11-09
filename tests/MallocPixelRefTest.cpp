@@ -7,6 +7,7 @@
 
 #include "SkData.h"
 #include "SkMallocPixelRef.h"
+#include "SkTypesPriv.h"
 #include "Test.h"
 
 static void delete_uint8_proc(void* ptr, void*) {
