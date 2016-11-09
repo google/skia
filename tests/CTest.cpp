@@ -7,10 +7,16 @@
 
 #include "Test.h"
 
+// #define C_TEST_PDF_OUTPUT_FILE "/tmp/skia_c_test_pdf_output_file.pdf"
+
 #include "sk_canvas.h"
+#include "sk_document.h"
 #include "sk_paint.h"
 #include "sk_surface.h"
 #include "sk_shader.h"
+
+#include "SkStream.h"
+#include "SkScopeExit.h"
 
 static void shader_test(skiatest::Reporter* reporter) {
     sk_imageinfo_t info =
@@ -85,4 +91,66 @@ static void test_c(skiatest::Reporter* reporter) {
 DEF_TEST(C_API, reporter) {
     test_c(reporter);
     shader_test(reporter);
+}
+
+static void test_document(skiatest::Reporter* reporter, sk_document_t* doc) {
+    sk_canvas_t* canvas = sk_document_begin_page(doc, 100.0f, 100.0f);
+    if (!canvas) {
+        ERRORF(reporter, "sk_document_begin_page returned NULL.");
+        return;
+    }
+    sk_rect_t rect;
+    rect.left = 25.0f;
+    rect.top = 25.0f;
+    rect.right = 75.0f;
+    rect.bottom = 75.0f;
+
+    sk_paint_t* paint = sk_paint_new();
+    SK_AT_SCOPE_EXIT(sk_paint_delete(paint));
+    if (!paint) {
+        ERRORF(reporter, "sk_paint_new returned NULL.");
+        return;
+    }
+    sk_paint_set_color(paint, sk_color_set_argb(0xFF, 0, 0, 0));
+    sk_canvas_draw_rect(canvas, &rect, paint);
+    sk_document_end_page(doc);
+
+    sk_document_close(doc);
+}
+
+DEF_TEST(C_API_sk_document_t, reporter) {
+    SkDynamicMemoryWStream buffer;
+    auto write_to_wstream = [](void* ctx, const void* ptr, size_t s) {
+        return ((SkDynamicMemoryWStream*)ctx)->write(ptr, s); };
+    sk_document_t* doc = sk_document_new_pdf(write_to_wstream, &buffer);
+    SK_AT_SCOPE_EXIT(sk_document_unref(doc););
+    if (!doc) {
+        ERRORF(reporter, "sk_document_new_pdf returned NULL.");
+        return;
+    }
+    test_document(reporter, doc);
+    if (buffer.bytesWritten() == 0) {
+        ERRORF(reporter, "sk_document_pdf wrote nothing");
+        return;
+    }
+
+    REPORTER_ASSERT(reporter, nullptr ==
+                    sk_document_begin_page(doc, 100.0f, 100.0f));
+    sk_document_end_page(doc);
+    sk_document_close(doc);
+
+    #ifdef C_TEST_PDF_OUTPUT_FILE
+    FILE* file = fopen(C_TEST_PDF_OUTPUT_FILE, "wb");
+    SkASSERT(file);
+    auto write_to_file = [](void* ctx, const void* ptr, size_t s) {
+        return 1 == fwrite(ptr, s, 1, (FILE*)ctx); };
+    sk_document_t* doc2 = sk_document_new_pdf(write_to_file, file);
+    SK_AT_SCOPE_EXIT(sk_document_unref(doc2));
+    if (!doc2) {
+        ERRORF(reporter, "sk_document_new_pdf returned NULL.");
+        return;
+    }
+    test_document(reporter, doc2);
+    fclose(file);
+    #endif
 }
