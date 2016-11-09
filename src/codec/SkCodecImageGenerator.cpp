@@ -16,16 +16,8 @@ SkImageGenerator* SkCodecImageGenerator::NewFromEncodedCodec(sk_sp<SkData> data)
     return new SkCodecImageGenerator(codec, data);
 }
 
-static SkImageInfo make_premul(const SkImageInfo& info) {
-    if (kUnpremul_SkAlphaType == info.alphaType()) {
-        return info.makeAlphaType(kPremul_SkAlphaType);
-    }
-
-    return info;
-}
-
 SkCodecImageGenerator::SkCodecImageGenerator(SkCodec* codec, sk_sp<SkData> data)
-    : INHERITED(make_premul(codec->getInfo()))
+    : INHERITED(codec->getInfo())
     , fCodec(codec)
     , fData(std::move(data))
 {}
