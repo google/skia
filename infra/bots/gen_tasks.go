@@ -40,10 +40,14 @@ var (
 		"Build-Mac-Clang-arm64-Debug-GN_iOS",
 		"Build-Ubuntu-GCC-x86_64-Release-GN",
 		"Build-Win-Clang-arm64-Release-GN_Android",
+		"Housekeeper-PerCommit-InfraTests",
 		"Perf-Ubuntu-GCC-GCE-CPU-AVX2-x86_64-Release-GN",
+		"Perf-iOS-Clang-iPad4-GPU-SGX554-Arm7-Debug",
+		"Perf-iOS-Clang-iPad4-GPU-SGX554-Arm7-Release",
 		"Test-Android-Clang-AndroidOne-GPU-Mali400MP2-arm-Release-GN_Android",
 		"Test-Ubuntu-GCC-GCE-CPU-AVX2-x86_64-Release-GN",
-		"Housekeeper-PerCommit-InfraTests",
+		"Test-iOS-Clang-iPad4-GPU-SGX554-Arm7-Debug",
+		"Test-iOS-Clang-iPad4-GPU-SGX554-Arm7-Release",
 	}
 
 	// LINUX_GCE_DIMENSIONS are the Swarming dimensions for Linux GCE
