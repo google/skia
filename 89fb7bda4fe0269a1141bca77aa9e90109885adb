@@ -22,6 +22,40 @@
       "revId": "89fb7bda4fe0269a1141bca77aa9e90109885adb",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "4bad4bb0_e72db0c7",
+        "filename": "tools/fiddle/fiddle_main.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 169,
+      "author": {
+        "id": 5205
+      },
+      "writtenOn": "2016-11-09T16:00:34Z",
+      "side": 1,
+      "message": "Should this be a whole new image that gets returned for every fiddle? Right now every fiddle returns a raster, a gpu, pdf, and skp rendering of the fiddle. Should we be adding 3 more outputs for every fiddle, or are these just options, i.e. a single boolean toggle to turn srgb on and off?",
+      "revId": "89fb7bda4fe0269a1141bca77aa9e90109885adb",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "8b9f4379_d43c9c29",
+        "filename": "tools/fiddle/fiddle_main.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 178,
+      "author": {
+        "id": 5205
+      },
+      "writtenOn": "2016-11-09T16:00:34Z",
+      "side": 1,
+      "message": "If f16 independent from srgb?",
+      "revId": "89fb7bda4fe0269a1141bca77aa9e90109885adb",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
