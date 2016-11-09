@@ -43,6 +43,24 @@
     },
     {
       "key": {
+        "uuid": "4b770b47_34965831",
+        "filename": "src/core/SkBlitter.h",
+        "patchSetId": 5
+      },
+      "lineNbr": 131,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2016-11-09T21:23:26Z",
+      "side": 1,
+      "message": "No, that was about the third parameter which was never used. You\u0027ve removed both the second and the third here. https://skia-review.googlesource.com/c/4556/5/include/core/SkTypes.h#563",
+      "parentUuid": "4b770b47_f4c69057",
+      "revId": "46fb728de361cdb270941e996794924dc1b7e5f9",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "4b770b47_346978d5",
         "filename": "src/core/SkTypesPriv.h",
         "patchSetId": 5
