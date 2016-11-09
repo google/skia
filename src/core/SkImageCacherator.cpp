@@ -118,6 +118,14 @@ static bool check_output_bitmap(const SkBitmap& bitmap, uint32_t expectedID) {
     return true;
 }
 
+static SkImageInfo make_premul(const SkImageInfo& info) {
+    if (kUnpremul_SkAlphaType == info.alphaType()) {
+        return info.makeAlphaType(kPremul_SkAlphaType);
+    }
+
+    return info;
+}
+
 // Note, this returns a new, mutable, bitmap, with a new genID.
 // If you want the immutable bitmap with the same ID as our cacherator, call tryLockAsBitmap()
 //
@@ -129,16 +137,16 @@ bool SkImageCacherator::generateBitmap(SkBitmap* bitmap) {
     if (fInfo.dimensions() == genInfo.dimensions()) {
         SkASSERT(fOrigin.x() == 0 && fOrigin.y() == 0);
         // fast-case, no copy needed
-        return generator->tryGenerateBitmap(bitmap, fInfo, allocator);
+        return generator->tryGenerateBitmap(bitmap, make_premul(fInfo), allocator);
     } else {
         // need to handle subsetting, so we first generate the full size version, and then
         // "read" from it to get our subset. See https://bug.skia.org/4213
 
         SkBitmap full;
-        if (!generator->tryGenerateBitmap(&full, genInfo, allocator)) {
+        if (!generator->tryGenerateBitmap(&full, make_premul(genInfo), allocator)) {
             return false;
         }
-        if (!bitmap->tryAllocPixels(fInfo, nullptr, full.getColorTable())) {
+        if (!bitmap->tryAllocPixels(make_premul(fInfo), nullptr, full.getColorTable())) {
             return false;
         }
         return full.readPixels(bitmap->info(), bitmap->getPixels(), bitmap->rowBytes(),
@@ -202,14 +210,15 @@ bool SkImageCacherator::lockAsBitmap(SkBitmap* bitmap, const SkImage* client,
         return false;
     }
 
-    if (!bitmap->tryAllocPixels(fInfo)) {
+    SkImageInfo premulInfo = make_premul(fInfo);
+    if (!bitmap->tryAllocPixels(premulInfo)) {
         bitmap->reset();
         return false;
     }
 
     const uint32_t pixelOpsFlags = 0;
     if (!tex->readPixels(0, 0, bitmap->width(), bitmap->height(),
-                         SkImageInfo2GrPixelConfig(fInfo, *tex->getContext()->caps()),
+                         SkImageInfo2GrPixelConfig(premulInfo, *tex->getContext()->caps()),
                          bitmap->getPixels(), bitmap->rowBytes(), pixelOpsFlags)) {
         bitmap->reset();
         return false;
@@ -314,7 +323,7 @@ GrTexture* SkImageCacherator::lockTexture(GrContext* ctx, const GrUniqueKey& key
         }
     }
 
-    const GrSurfaceDesc desc = GrImageInfoToSurfaceDesc(fInfo, *ctx->caps());
+    const GrSurfaceDesc desc = GrImageInfoToSurfaceDesc(make_premul(fInfo), *ctx->caps());
 
 #ifdef SK_SUPPORT_COMPRESSED_TEXTURES_IN_CACHERATOR
     // 3. Ask the generator to return a compressed form that the GPU might support

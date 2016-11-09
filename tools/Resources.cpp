@@ -26,11 +26,20 @@ void SetResourcePath(const char* resource) {
     FLAGS_resourcePath.set(0, resource);
 }
 
+static SkImageInfo make_premul(const SkImageInfo& info) {
+    if (kUnpremul_SkAlphaType == info.alphaType()) {
+        return info.makeAlphaType(kPremul_SkAlphaType);
+    }
+
+    return info;
+}
+
 bool GetResourceAsBitmap(const char* resource, SkBitmap* dst) {
     SkString resourcePath = GetResourcePath(resource);
     sk_sp<SkData> resourceData(SkData::MakeFromFileName(resourcePath.c_str()));
     std::unique_ptr<SkImageGenerator> gen(SkImageGenerator::NewFromEncoded(resourceData.get()));
-    return gen && gen->tryGenerateBitmap(dst);
+    SkImageInfo premulInfo = make_premul(gen->getInfo());
+    return gen && gen->tryGenerateBitmap(dst, premulInfo, nullptr);
 }
 
 sk_sp<SkImage> GetResourceAsImage(const char* resource) {
