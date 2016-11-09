@@ -97,19 +97,24 @@ class SkiaFlavorApi(recipe_api.RecipeApi):
   def remove_file_on_device(self, path):
     return self._f.remove_file_on_device(path)
 
-  def install(self):
+  def install(self, skps=True, images=True, svgs=True, skpbench=False):
     self._f.install()
     self.device_dirs = self._f.device_dirs
 
     # TODO(borenet): Only copy files which have changed.
     # Resources
     self.copy_directory_contents_to_device(
-        self.m.vars.resource_dir,
-        self.device_dirs.resource_dir)
+         self.m.vars.resource_dir,
+         self.device_dirs.resource_dir)
 
-    self._copy_skps()
-    self._copy_images()
-    self._copy_svgs()
+    if skps:
+      self._copy_skps()
+    if images:
+      self._copy_images()
+    if svgs:
+      self._copy_svgs()
+    if skpbench:
+      self._copy_skpbench()
 
   def cleanup_steps(self):
     return self._f.cleanup_steps()
@@ -211,3 +216,7 @@ class SkiaFlavorApi(recipe_api.RecipeApi):
         test_actual_version=self.m.properties.get(
             'test_downloaded_svg_version', TEST_EXPECTED_SVG_VERSION))
     return version
+
+  def _copy_skpbench(self):
+    """Copy the skpbench python scripts to the rp if needed."""
+    pass
