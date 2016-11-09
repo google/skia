@@ -118,8 +118,3 @@ GrRenderTargetPriv::getMultisampleSpecs(const GrPipeline& pipeline) const {
     return specs;
 }
 
-int GrRenderTargetPriv::maxWindowRectangles() const {
-    return (this->flags() & Flags::kWindowRectsSupport) ?
-           fRenderTarget->getGpu()->caps()->maxWindowRectangles() : 0;
-}
-
