@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "4b770b47_1431dc4c",
+        "filename": "src/pdf/SkPDFDocument.cpp",
+        "patchSetId": 14
+      },
+      "lineNbr": 220,
+      "author": {
+        "id": 5110
+      },
+      "writtenOn": "2016-11-09T20:23:49Z",
+      "side": 1,
+      "message": "#include \"SkMakeUnique.h\"\n\n    fCanvas \u003d skstd::make_unique\u003cSkPDFCanvas\u003e(fPageDevice);",
+      "revId": "824075071885b6b741c141cbe2134d8345d34589",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "4b770b47_d45914a7",
+        "filename": "src/utils/SkNullCanvas.cpp",
+        "patchSetId": 14
+      },
+      "lineNbr": 17,
+      "author": {
+        "id": 5110
+      },
+      "writtenOn": "2016-11-09T20:23:49Z",
+      "side": 1,
+      "message": "#include \"SkMakeUnique.h\"\nreturn skstd::make_unique\u003cSkNWayCanvas\u003e(0, 0);",
+      "revId": "824075071885b6b741c141cbe2134d8345d34589",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
