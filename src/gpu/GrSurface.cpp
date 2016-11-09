@@ -38,7 +38,7 @@ size_t GrSurface::WorstCaseSize(const GrSurfaceDesc& desc) {
         }
         SkASSERT(kUnknown_GrPixelConfig != desc.fConfig);
         SkASSERT(!GrPixelConfigIsCompressed(desc.fConfig));
-        size_t colorBytes = desc.fWidth * desc.fHeight * GrBytesPerPixel(desc.fConfig);
+        size_t colorBytes = (size_t) desc.fWidth * desc.fHeight * GrBytesPerPixel(desc.fConfig);
 
         // This would be a nice assert to have (i.e., we aren't creating 0 width/height surfaces).
         // Unfortunately Chromium seems to want to do this.
@@ -50,7 +50,7 @@ size_t GrSurface::WorstCaseSize(const GrSurfaceDesc& desc) {
         if (GrPixelConfigIsCompressed(desc.fConfig)) {
             size = GrCompressedFormatDataSize(desc.fConfig, desc.fWidth, desc.fHeight);
         } else {
-            size = desc.fWidth * desc.fHeight * GrBytesPerPixel(desc.fConfig);
+            size = (size_t) desc.fWidth * desc.fHeight * GrBytesPerPixel(desc.fConfig);
         }
 
         size += size/3;  // in case we have to mipmap
@@ -68,7 +68,7 @@ size_t GrSurface::ComputeSize(const GrSurfaceDesc& desc,
     if (GrPixelConfigIsCompressed(desc.fConfig)) {
         colorSize = GrCompressedFormatDataSize(desc.fConfig, desc.fWidth, desc.fHeight);
     } else {
-        colorSize = desc.fWidth * desc.fHeight * GrBytesPerPixel(desc.fConfig);
+        colorSize = (size_t) desc.fWidth * desc.fHeight * GrBytesPerPixel(desc.fConfig);
     }
     SkASSERT(colorSize > 0);
 
