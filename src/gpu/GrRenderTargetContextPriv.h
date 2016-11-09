@@ -80,6 +80,8 @@ public:
 
     SkBudgeted isBudgeted() const;
 
+    int maxWindowRectangles() const;
+
     void testingOnly_drawBatch(const GrPaint&,
                                GrDrawBatch* batch,
                                const GrUserStencilSettings* = nullptr,
