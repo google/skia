@@ -240,6 +240,39 @@ private:
     const SkRegion* fRgn;
 };
 
+#ifdef SK_DEBUG
+class SkRectClipCheckBlitter : public SkBlitter {
+public:
+    void init(SkBlitter* blitter, const SkIRect& clipRect) {
+        SkASSERT(blitter);
+        SkASSERT(!clipRect.isEmpty());
+        fBlitter = blitter;
+        fClipRect = clipRect;
+    }
+
+    void blitH(int x, int y, int width) override;
+    void blitAntiH(int x, int y, const SkAlpha[], const int16_t runs[]) override;
+    void blitV(int x, int y, int height, SkAlpha alpha) override;
+    void blitRect(int x, int y, int width, int height) override;
+    void blitAntiRect(int x, int y, int width, int height,
+                              SkAlpha leftAlpha, SkAlpha rightAlpha) override;
+    void blitMask(const SkMask&, const SkIRect& clip) override;
+    const SkPixmap* justAnOpaqueColor(uint32_t* value) override;
+
+    int requestRowsPreserved() const override {
+        return fBlitter->requestRowsPreserved();
+    }
+
+    void* allocBlitMemory(size_t sz) override {
+        return fBlitter->allocBlitMemory(sz);
+    }
+
+private:
+    SkBlitter*  fBlitter;
+    SkIRect     fClipRect;
+};
+#endif
+
 /** Factory to set up the appropriate most-efficient wrapper blitter
     to apply a clip. Returns a pointer to a member, so lifetime must
     be managed carefully.
