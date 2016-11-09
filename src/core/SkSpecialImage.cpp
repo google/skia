@@ -250,10 +250,13 @@ public:
 
     sk_sp<GrTextureProxy> onAsTextureProxy(GrContext* context) const override {
         if (context) {
-            sk_sp<GrTexture> tex(sk_ref_sp(
-                GrRefCachedBitmapTexture(context, fBitmap, GrTextureParams::ClampNoFilter(),
-                                         SkDestinationSurfaceColorMode::kGammaAndColorSpaceAware)));
-            return GrTextureProxy::Make(tex);
+            sk_sp<GrTexture> tex(sk_ref_sp(GrRefCachedBitmapTexture(
+                                        context,
+                                        fBitmap,
+                                        GrTextureParams::ClampNoFilter(),
+                                        SkDestinationSurfaceColorMode::kGammaAndColorSpaceAware)));
+            sk_sp<GrSurfaceProxy> sProxy = GrSurfaceProxy::MakeWrapped(std::move(tex));
+            return sk_ref_sp(sProxy->asTextureProxy());
         }
 
         return nullptr;
@@ -357,15 +360,15 @@ public:
         , fAlphaType(at)
         , fColorSpace(std::move(colorSpace))
         , fAddedRasterVersionToCache(false) {
-        fTextureProxy = GrTextureProxy::Make(std::move(tex));
+        fSurfaceProxy = GrSurfaceProxy::MakeWrapped(std::move(tex));
     }
 
     SkSpecialImage_Gpu(GrContext* context, const SkIRect& subset,
-                       uint32_t uniqueID, sk_sp<GrTextureProxy> proxy, SkAlphaType at,
+                       uint32_t uniqueID, sk_sp<GrSurfaceProxy> proxy, SkAlphaType at,
                        sk_sp<SkColorSpace> colorSpace, const SkSurfaceProps* props)
         : INHERITED(subset, uniqueID, props)
         , fContext(context)
-        , fTextureProxy(std::move(proxy))
+        , fSurfaceProxy(std::move(proxy))
         , fAlphaType(at)
         , fColorSpace(std::move(colorSpace))
         , fAddedRasterVersionToCache(false) {
@@ -379,17 +382,18 @@ public:
 
     SkAlphaType alphaType() const override { return fAlphaType; }
 
-    size_t getSize() const override { return fTextureProxy->gpuMemorySize(); }
+    size_t getSize() const override { return fSurfaceProxy->gpuMemorySize(); }
 
     void onDraw(SkCanvas* canvas, SkScalar x, SkScalar y, const SkPaint* paint) const override {
         SkRect dst = SkRect::MakeXYWH(x, y,
                                       this->subset().width(), this->subset().height());
 
         // TODO: add GrTextureProxy-backed SkImage_Gpus
-        sk_sp<GrTexture> tex = sk_ref_sp(fTextureProxy->instantiate(fContext->textureProvider()));
+        GrSurface* surf = fSurfaceProxy->instantiate(fContext->textureProvider());
 
-        auto img = sk_sp<SkImage>(new SkImage_Gpu(fTextureProxy->width(), fTextureProxy->height(),
-                                                  this->uniqueID(), fAlphaType, std::move(tex),
+        auto img = sk_sp<SkImage>(new SkImage_Gpu(fSurfaceProxy->width(), fSurfaceProxy->height(),
+                                                  this->uniqueID(), fAlphaType,
+                                                  sk_ref_sp(surf->asTexture()),
                                                   fColorSpace, SkBudgeted::kNo));
 
         canvas->drawImageRect(img, this->subset(),
@@ -400,11 +404,13 @@ public:
 
     // This entry point should go away in favor of asTextureProxy
     sk_sp<GrTexture> onAsTextureRef(GrContext* context) const override {
-        return sk_ref_sp(fTextureProxy->instantiate(context->textureProvider()));
+        GrSurface* surf = fSurfaceProxy->instantiate(context->textureProvider());
+
+        return sk_ref_sp(surf->asTexture());
     }
 
     sk_sp<GrTextureProxy> onAsTextureProxy(GrContext*) const override {
-        return fTextureProxy;
+        return sk_ref_sp(fSurfaceProxy->asTextureProxy());
     }
 
     bool onGetROPixels(SkBitmap* dst) const override {
@@ -423,9 +429,9 @@ public:
         }
 
         // Reading back to an SkBitmap ends deferral
-        GrTexture* texture = fTextureProxy->instantiate(fContext->textureProvider());
+        GrSurface* surface = fSurfaceProxy->instantiate(fContext->textureProvider());
 
-        if (!texture->readPixels(0, 0, dst->width(), dst->height(), kSkia8888_GrPixelConfig,
+        if (!surface->readPixels(0, 0, dst->width(), dst->height(), kSkia8888_GrPixelConfig,
                                  dst->getPixels(), dst->rowBytes())) {
             return false;
         }
@@ -456,7 +462,7 @@ public:
         return SkSpecialImage::MakeDeferredFromGpu(fContext,
                                                    subset,
                                                    this->uniqueID(),
-                                                   fTextureProxy,
+                                                   fSurfaceProxy,
                                                    fColorSpace,
                                                    &this->props(),
                                                    fAlphaType);
@@ -464,19 +470,19 @@ public:
 
     sk_sp<SkImage> onMakeTightSubset(const SkIRect& subset) const override {
         // TODO: add GrTextureProxy-backed SkImage_Gpus
-        sk_sp<GrTexture> tex = sk_ref_sp(fTextureProxy->instantiate(fContext->textureProvider()));
+        GrSurface* surf = fSurfaceProxy->instantiate(fContext->textureProvider());
 
         if (0 == subset.fLeft && 0 == subset.fTop &&
-            fTextureProxy->width() == subset.width() &&
-            fTextureProxy->height() == subset.height()) {
+            fSurfaceProxy->width() == subset.width() &&
+            fSurfaceProxy->height() == subset.height()) {
             // The existing GrTexture is already tight so reuse it in the SkImage
-            return sk_make_sp<SkImage_Gpu>(tex->width(), tex->height(),
-                                           kNeedNewImageUniqueID,
-                                           fAlphaType, std::move(tex), fColorSpace,
-                                           SkBudgeted::kYes);
+            return sk_make_sp<SkImage_Gpu>(surf->width(), surf->height(),
+                                           kNeedNewImageUniqueID, fAlphaType,
+                                           sk_ref_sp(surf->asTexture()),
+                                           fColorSpace, SkBudgeted::kYes);
         }
 
-        GrSurfaceDesc desc = fTextureProxy->desc();
+        GrSurfaceDesc desc = fSurfaceProxy->desc();
         desc.fWidth = subset.width();
         desc.fHeight = subset.height();
 
@@ -484,7 +490,7 @@ public:
         if (!subTx) {
             return nullptr;
         }
-        fContext->copySurface(subTx.get(), tex.get(), subset, SkIPoint::Make(0, 0));
+        fContext->copySurface(subTx.get(), surf, subset, SkIPoint::Make(0, 0));
         return sk_make_sp<SkImage_Gpu>(desc.fWidth, desc.fHeight, kNeedNewImageUniqueID,
                                        fAlphaType, std::move(subTx), fColorSpace, SkBudgeted::kYes);
     }
@@ -501,7 +507,7 @@ public:
 
 private:
     GrContext*              fContext;
-    sk_sp<GrTextureProxy>   fTextureProxy;
+    sk_sp<GrSurfaceProxy>   fSurfaceProxy;
     const SkAlphaType       fAlphaType;
     sk_sp<SkColorSpace>     fColorSpace;
     mutable SkAtomic<bool>  fAddedRasterVersionToCache;
@@ -523,7 +529,7 @@ sk_sp<SkSpecialImage> SkSpecialImage::MakeFromGpu(const SkIRect& subset,
 sk_sp<SkSpecialImage> SkSpecialImage::MakeDeferredFromGpu(GrContext* context,
                                                           const SkIRect& subset,
                                                           uint32_t uniqueID,
-                                                          sk_sp<GrTextureProxy> proxy,
+                                                          sk_sp<GrSurfaceProxy> proxy,
                                                           sk_sp<SkColorSpace> colorSpace,
                                                           const SkSurfaceProps* props,
                                                           SkAlphaType at) {
