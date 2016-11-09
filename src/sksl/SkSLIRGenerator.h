@@ -89,11 +89,6 @@ private:
     std::unique_ptr<Statement> convertDiscard(const ASTDiscardStatement& d);
     std::unique_ptr<Statement> convertDo(const ASTDoStatement& d);
     std::unique_ptr<Expression> convertBinaryExpression(const ASTBinaryExpression& expression);
-    // Returns null if it cannot fold the expression. Note that unlike most other functions here, a 
-    // null return does not represent a compilation error.
-    std::unique_ptr<Expression> constantFold(const Expression& left,
-                                             Token::Kind op,
-                                             const Expression& right);
     std::unique_ptr<Extension> convertExtension(const ASTExtension& e);
     std::unique_ptr<Statement> convertExpressionStatement(const ASTExpressionStatement& s);
     std::unique_ptr<Statement> convertFor(const ASTForStatement& f);
