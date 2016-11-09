@@ -959,7 +959,7 @@ static inline void aaa_walk_convex_edges(SkAnalyticEdge* prevHead, AdditiveBlitt
         if (isSmoothEnough(leftE, riteE, currE, stop_y) && !forceRLE) {
             local_bot_fixed = SkFixedCeilToFixed(local_bot_fixed);
         }
-        local_bot_fixed = SkMin32(local_bot_fixed, SkIntToFixed(stop_y + 1));
+        local_bot_fixed = SkMin32(local_bot_fixed, SkIntToFixed(stop_y));
 
         SkFixed left = leftE->fX;
         SkFixed dLeft = leftE->fDX;
