@@ -42,6 +42,24 @@
     },
     {
       "key": {
+        "uuid": "8b9f4379_f4d1e0b6",
+        "filename": "tools/fiddle/fiddle_main.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 169,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2016-11-09T16:09:16Z",
+      "side": 1,
+      "message": "I don\u0027t feel strongly.  I thought it would be useful to see all of these modes on the same page.  But a toggle turning them on and off sounds equally useful.  What do you think?",
+      "parentUuid": "4bad4bb0_e72db0c7",
+      "revId": "89fb7bda4fe0269a1141bca77aa9e90109885adb",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "8b9f4379_d43c9c29",
         "filename": "tools/fiddle/fiddle_main.cpp",
         "patchSetId": 2
@@ -53,6 +71,24 @@
       "writtenOn": "2016-11-09T16:00:34Z",
       "side": 1,
       "message": "If f16 independent from srgb?",
+      "revId": "89fb7bda4fe0269a1141bca77aa9e90109885adb",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "0bb35316_456c60e5",
+        "filename": "tools/fiddle/fiddle_main.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 178,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2016-11-09T16:09:16Z",
+      "side": 1,
+      "message": "Yes it is, in the same sense that drawing to 8888 is different than drawing to 565.  I think having this mode is relevant, people are asking questions and filing bugs about drawing to F16.  Though it does make using a toggle a little trickier.",
+      "parentUuid": "8b9f4379_d43c9c29",
       "revId": "89fb7bda4fe0269a1141bca77aa9e90109885adb",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
