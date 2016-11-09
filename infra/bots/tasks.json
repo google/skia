@@ -24,6 +24,30 @@
         "Housekeeper-PerCommit-InfraTests"
       ]
     },
+    "Perf-Android-Clang-AndroidOne-CPU-MT6582-arm-Debug-GN_Android": {
+      "priority": 0.8,
+      "tasks": [
+        "Perf-Android-Clang-AndroidOne-CPU-MT6582-arm-Debug-GN_Android"
+      ]
+    },
+    "Perf-Android-Clang-AndroidOne-CPU-MT6582-arm-Release-GN_Android": {
+      "priority": 0.8,
+      "tasks": [
+        "Upload-Perf-Android-Clang-AndroidOne-CPU-MT6582-arm-Release-GN_Android"
+      ]
+    },
+    "Perf-Android-Clang-AndroidOne-GPU-Mali400MP2-arm-Debug-GN_Android": {
+      "priority": 0.8,
+      "tasks": [
+        "Perf-Android-Clang-AndroidOne-GPU-Mali400MP2-arm-Debug-GN_Android"
+      ]
+    },
+    "Perf-Android-Clang-AndroidOne-GPU-Mali400MP2-arm-Release-GN_Android": {
+      "priority": 0.8,
+      "tasks": [
+        "Upload-Perf-Android-Clang-AndroidOne-GPU-Mali400MP2-arm-Release-GN_Android"
+      ]
+    },
     "Perf-Ubuntu-GCC-GCE-CPU-AVX2-x86_64-Release-GN": {
       "priority": 0.8,
       "tasks": [
@@ -40,6 +64,24 @@
       "priority": 0.8,
       "tasks": [
         "Upload-Perf-iOS-Clang-iPadMini4-GPU-GX6450-Arm7-Release"
+      ]
+    },
+    "Test-Android-Clang-AndroidOne-CPU-MT6582-arm-Debug-GN_Android": {
+      "priority": 0.8,
+      "tasks": [
+        "Upload-Test-Android-Clang-AndroidOne-CPU-MT6582-arm-Debug-GN_Android"
+      ]
+    },
+    "Test-Android-Clang-AndroidOne-CPU-MT6582-arm-Release-GN_Android": {
+      "priority": 0.8,
+      "tasks": [
+        "Upload-Test-Android-Clang-AndroidOne-CPU-MT6582-arm-Release-GN_Android"
+      ]
+    },
+    "Test-Android-Clang-AndroidOne-GPU-Mali400MP2-arm-Debug-GN_Android": {
+      "priority": 0.8,
+      "tasks": [
+        "Upload-Test-Android-Clang-AndroidOne-GPU-Mali400MP2-arm-Debug-GN_Android"
       ]
     },
     "Test-Android-Clang-AndroidOne-GPU-Mali400MP2-arm-Release-GN_Android": {
@@ -130,6 +172,43 @@
         "swarm_compile",
         "repository=<(REPO)",
         "buildername=Build-Mac-Clang-arm64-Debug-GN_iOS",
+        "mastername=fake-master",
+        "buildnumber=2",
+        "slavename=fake-buildslave",
+        "nobuildbot=True",
+        "swarm_out_dir=${ISOLATED_OUTDIR}",
+        "revision=<(REVISION)",
+        "patch_storage=<(PATCH_STORAGE)",
+        "patch_issue=<(ISSUE)",
+        "patch_set=<(PATCHSET)"
+      ],
+      "isolate": "compile_skia.isolate",
+      "priority": 0.8
+    },
+    "Build-Ubuntu-Clang-arm-Debug-GN_Android": {
+      "cipd_packages": [
+        {
+          "name": "skia/bots/android_ndk_linux",
+          "path": "android_ndk_linux",
+          "version": "version:5"
+        },
+        {
+          "name": "skia/bots/clang_linux",
+          "path": "clang_linux",
+          "version": "version:4"
+        }
+      ],
+      "dimensions": [
+        "gpu:none",
+        "os:Ubuntu",
+        "pool:Skia"
+      ],
+      "extra_args": [
+        "--workdir",
+        "../../..",
+        "swarm_compile",
+        "repository=<(REPO)",
+        "buildername=Build-Ubuntu-Clang-arm-Debug-GN_Android",
         "mastername=fake-master",
         "buildnumber=2",
         "slavename=fake-buildslave",
@@ -268,6 +347,190 @@
       "isolate": "infra_skia.isolate",
       "priority": 0.8
     },
+    "Perf-Android-Clang-AndroidOne-CPU-MT6582-arm-Debug-GN_Android": {
+      "cipd_packages": [
+        {
+          "name": "skia/bots/skimage",
+          "path": "skimage",
+          "version": "version:12"
+        },
+        {
+          "name": "skia/bots/skp",
+          "path": "skp",
+          "version": "version:15"
+        },
+        {
+          "name": "skia/bots/svg",
+          "path": "svg",
+          "version": "version:3"
+        }
+      ],
+      "dependencies": [
+        "Build-Ubuntu-Clang-arm-Debug-GN_Android"
+      ],
+      "dimensions": [
+        "device_os:MOB30Q",
+        "device_type:sprout",
+        "os:Android",
+        "pool:Skia"
+      ],
+      "extra_args": [
+        "--workdir",
+        "../../..",
+        "swarm_perf",
+        "repository=<(REPO)",
+        "buildername=Perf-Android-Clang-AndroidOne-CPU-MT6582-arm-Debug-GN_Android",
+        "mastername=fake-master",
+        "buildnumber=2",
+        "slavename=fake-buildslave",
+        "nobuildbot=True",
+        "swarm_out_dir=${ISOLATED_OUTDIR}",
+        "revision=<(REVISION)",
+        "patch_storage=<(PATCH_STORAGE)",
+        "patch_issue=<(ISSUE)",
+        "patch_set=<(PATCHSET)"
+      ],
+      "isolate": "perf_skia.isolate",
+      "priority": 0.8
+    },
+    "Perf-Android-Clang-AndroidOne-CPU-MT6582-arm-Release-GN_Android": {
+      "cipd_packages": [
+        {
+          "name": "skia/bots/skimage",
+          "path": "skimage",
+          "version": "version:12"
+        },
+        {
+          "name": "skia/bots/skp",
+          "path": "skp",
+          "version": "version:15"
+        },
+        {
+          "name": "skia/bots/svg",
+          "path": "svg",
+          "version": "version:3"
+        }
+      ],
+      "dependencies": [
+        "Build-Ubuntu-Clang-arm-Release-GN_Android"
+      ],
+      "dimensions": [
+        "device_os:MOB30Q",
+        "device_type:sprout",
+        "os:Android",
+        "pool:Skia"
+      ],
+      "extra_args": [
+        "--workdir",
+        "../../..",
+        "swarm_perf",
+        "repository=<(REPO)",
+        "buildername=Perf-Android-Clang-AndroidOne-CPU-MT6582-arm-Release-GN_Android",
+        "mastername=fake-master",
+        "buildnumber=2",
+        "slavename=fake-buildslave",
+        "nobuildbot=True",
+        "swarm_out_dir=${ISOLATED_OUTDIR}",
+        "revision=<(REVISION)",
+        "patch_storage=<(PATCH_STORAGE)",
+        "patch_issue=<(ISSUE)",
+        "patch_set=<(PATCHSET)"
+      ],
+      "isolate": "perf_skia.isolate",
+      "priority": 0.8
+    },
+    "Perf-Android-Clang-AndroidOne-GPU-Mali400MP2-arm-Debug-GN_Android": {
+      "cipd_packages": [
+        {
+          "name": "skia/bots/skimage",
+          "path": "skimage",
+          "version": "version:12"
+        },
+        {
+          "name": "skia/bots/skp",
+          "path": "skp",
+          "version": "version:15"
+        },
+        {
+          "name": "skia/bots/svg",
+          "path": "svg",
+          "version": "version:3"
+        }
+      ],
+      "dependencies": [
+        "Build-Ubuntu-Clang-arm-Debug-GN_Android"
+      ],
+      "dimensions": [
+        "device_os:MOB30Q",
+        "device_type:sprout",
+        "os:Android",
+        "pool:Skia"
+      ],
+      "extra_args": [
+        "--workdir",
+        "../../..",
+        "swarm_perf",
+        "repository=<(REPO)",
+        "buildername=Perf-Android-Clang-AndroidOne-GPU-Mali400MP2-arm-Debug-GN_Android",
+        "mastername=fake-master",
+        "buildnumber=2",
+        "slavename=fake-buildslave",
+        "nobuildbot=True",
+        "swarm_out_dir=${ISOLATED_OUTDIR}",
+        "revision=<(REVISION)",
+        "patch_storage=<(PATCH_STORAGE)",
+        "patch_issue=<(ISSUE)",
+        "patch_set=<(PATCHSET)"
+      ],
+      "isolate": "perf_skia.isolate",
+      "priority": 0.8
+    },
+    "Perf-Android-Clang-AndroidOne-GPU-Mali400MP2-arm-Release-GN_Android": {
+      "cipd_packages": [
+        {
+          "name": "skia/bots/skimage",
+          "path": "skimage",
+          "version": "version:12"
+        },
+        {
+          "name": "skia/bots/skp",
+          "path": "skp",
+          "version": "version:15"
+        },
+        {
+          "name": "skia/bots/svg",
+          "path": "svg",
+          "version": "version:3"
+        }
+      ],
+      "dependencies": [
+        "Build-Ubuntu-Clang-arm-Release-GN_Android"
+      ],
+      "dimensions": [
+        "device_os:MOB30Q",
+        "device_type:sprout",
+        "os:Android",
+        "pool:Skia"
+      ],
+      "extra_args": [
+        "--workdir",
+        "../../..",
+        "swarm_perf",
+        "repository=<(REPO)",
+        "buildername=Perf-Android-Clang-AndroidOne-GPU-Mali400MP2-arm-Release-GN_Android",
+        "mastername=fake-master",
+        "buildnumber=2",
+        "slavename=fake-buildslave",
+        "nobuildbot=True",
+        "swarm_out_dir=${ISOLATED_OUTDIR}",
+        "revision=<(REVISION)",
+        "patch_storage=<(PATCH_STORAGE)",
+        "patch_issue=<(ISSUE)",
+        "patch_set=<(PATCHSET)"
+      ],
+      "isolate": "perf_skia.isolate",
+      "priority": 0.8
+    },
     "Perf-Ubuntu-GCC-GCE-CPU-AVX2-x86_64-Release-GN": {
       "cipd_packages": [
         {
@@ -402,6 +665,144 @@
         "patch_set=<(PATCHSET)"
       ],
       "isolate": "perf_skia.isolate",
+      "priority": 0.8
+    },
+    "Test-Android-Clang-AndroidOne-CPU-MT6582-arm-Debug-GN_Android": {
+      "cipd_packages": [
+        {
+          "name": "skia/bots/skimage",
+          "path": "skimage",
+          "version": "version:12"
+        },
+        {
+          "name": "skia/bots/skp",
+          "path": "skp",
+          "version": "version:15"
+        },
+        {
+          "name": "skia/bots/svg",
+          "path": "svg",
+          "version": "version:3"
+        }
+      ],
+      "dependencies": [
+        "Build-Ubuntu-Clang-arm-Debug-GN_Android"
+      ],
+      "dimensions": [
+        "device_os:MOB30Q",
+        "device_type:sprout",
+        "os:Android",
+        "pool:Skia"
+      ],
+      "extra_args": [
+        "--workdir",
+        "../../..",
+        "swarm_test",
+        "repository=<(REPO)",
+        "buildername=Test-Android-Clang-AndroidOne-CPU-MT6582-arm-Debug-GN_Android",
+        "mastername=fake-master",
+        "buildnumber=2",
+        "slavename=fake-buildslave",
+        "nobuildbot=True",
+        "swarm_out_dir=${ISOLATED_OUTDIR}",
+        "revision=<(REVISION)",
+        "patch_storage=<(PATCH_STORAGE)",
+        "patch_issue=<(ISSUE)",
+        "patch_set=<(PATCHSET)"
+      ],
+      "isolate": "test_skia.isolate",
+      "priority": 0.8
+    },
+    "Test-Android-Clang-AndroidOne-CPU-MT6582-arm-Release-GN_Android": {
+      "cipd_packages": [
+        {
+          "name": "skia/bots/skimage",
+          "path": "skimage",
+          "version": "version:12"
+        },
+        {
+          "name": "skia/bots/skp",
+          "path": "skp",
+          "version": "version:15"
+        },
+        {
+          "name": "skia/bots/svg",
+          "path": "svg",
+          "version": "version:3"
+        }
+      ],
+      "dependencies": [
+        "Build-Ubuntu-Clang-arm-Release-GN_Android"
+      ],
+      "dimensions": [
+        "device_os:MOB30Q",
+        "device_type:sprout",
+        "os:Android",
+        "pool:Skia"
+      ],
+      "extra_args": [
+        "--workdir",
+        "../../..",
+        "swarm_test",
+        "repository=<(REPO)",
+        "buildername=Test-Android-Clang-AndroidOne-CPU-MT6582-arm-Release-GN_Android",
+        "mastername=fake-master",
+        "buildnumber=2",
+        "slavename=fake-buildslave",
+        "nobuildbot=True",
+        "swarm_out_dir=${ISOLATED_OUTDIR}",
+        "revision=<(REVISION)",
+        "patch_storage=<(PATCH_STORAGE)",
+        "patch_issue=<(ISSUE)",
+        "patch_set=<(PATCHSET)"
+      ],
+      "isolate": "test_skia.isolate",
+      "priority": 0.8
+    },
+    "Test-Android-Clang-AndroidOne-GPU-Mali400MP2-arm-Debug-GN_Android": {
+      "cipd_packages": [
+        {
+          "name": "skia/bots/skimage",
+          "path": "skimage",
+          "version": "version:12"
+        },
+        {
+          "name": "skia/bots/skp",
+          "path": "skp",
+          "version": "version:15"
+        },
+        {
+          "name": "skia/bots/svg",
+          "path": "svg",
+          "version": "version:3"
+        }
+      ],
+      "dependencies": [
+        "Build-Ubuntu-Clang-arm-Debug-GN_Android"
+      ],
+      "dimensions": [
+        "device_os:MOB30Q",
+        "device_type:sprout",
+        "os:Android",
+        "pool:Skia"
+      ],
+      "extra_args": [
+        "--workdir",
+        "../../..",
+        "swarm_test",
+        "repository=<(REPO)",
+        "buildername=Test-Android-Clang-AndroidOne-GPU-Mali400MP2-arm-Debug-GN_Android",
+        "mastername=fake-master",
+        "buildnumber=2",
+        "slavename=fake-buildslave",
+        "nobuildbot=True",
+        "swarm_out_dir=${ISOLATED_OUTDIR}",
+        "revision=<(REVISION)",
+        "patch_storage=<(PATCH_STORAGE)",
+        "patch_issue=<(ISSUE)",
+        "patch_set=<(PATCHSET)"
+      ],
+      "isolate": "test_skia.isolate",
       "priority": 0.8
     },
     "Test-Android-Clang-AndroidOne-GPU-Mali400MP2-arm-Release-GN_Android": {
@@ -586,6 +987,64 @@
       "isolate": "test_skia.isolate",
       "priority": 0.8
     },
+    "Upload-Perf-Android-Clang-AndroidOne-CPU-MT6582-arm-Release-GN_Android": {
+      "dependencies": [
+        "Perf-Android-Clang-AndroidOne-CPU-MT6582-arm-Release-GN_Android"
+      ],
+      "dimensions": [
+        "cpu:x86-64-avx2",
+        "gpu:none",
+        "os:Ubuntu",
+        "pool:Skia"
+      ],
+      "extra_args": [
+        "--workdir",
+        "../../..",
+        "upload_nano_results",
+        "repository=<(REPO)",
+        "buildername=Perf-Android-Clang-AndroidOne-CPU-MT6582-arm-Release-GN_Android",
+        "mastername=fake-master",
+        "buildnumber=2",
+        "slavename=fake-buildslave",
+        "nobuildbot=True",
+        "swarm_out_dir=${ISOLATED_OUTDIR}",
+        "revision=<(REVISION)",
+        "patch_storage=<(PATCH_STORAGE)",
+        "patch_issue=<(ISSUE)",
+        "patch_set=<(PATCHSET)"
+      ],
+      "isolate": "upload_nano_results.isolate",
+      "priority": 0.8
+    },
+    "Upload-Perf-Android-Clang-AndroidOne-GPU-Mali400MP2-arm-Release-GN_Android": {
+      "dependencies": [
+        "Perf-Android-Clang-AndroidOne-GPU-Mali400MP2-arm-Release-GN_Android"
+      ],
+      "dimensions": [
+        "cpu:x86-64-avx2",
+        "gpu:none",
+        "os:Ubuntu",
+        "pool:Skia"
+      ],
+      "extra_args": [
+        "--workdir",
+        "../../..",
+        "upload_nano_results",
+        "repository=<(REPO)",
+        "buildername=Perf-Android-Clang-AndroidOne-GPU-Mali400MP2-arm-Release-GN_Android",
+        "mastername=fake-master",
+        "buildnumber=2",
+        "slavename=fake-buildslave",
+        "nobuildbot=True",
+        "swarm_out_dir=${ISOLATED_OUTDIR}",
+        "revision=<(REVISION)",
+        "patch_storage=<(PATCH_STORAGE)",
+        "patch_issue=<(ISSUE)",
+        "patch_set=<(PATCHSET)"
+      ],
+      "isolate": "upload_nano_results.isolate",
+      "priority": 0.8
+    },
     "Upload-Perf-Ubuntu-GCC-GCE-CPU-AVX2-x86_64-Release-GN": {
       "dependencies": [
         "Perf-Ubuntu-GCC-GCE-CPU-AVX2-x86_64-Release-GN"
@@ -642,6 +1101,93 @@
         "patch_set=<(PATCHSET)"
       ],
       "isolate": "upload_nano_results.isolate",
+      "priority": 0.8
+    },
+    "Upload-Test-Android-Clang-AndroidOne-CPU-MT6582-arm-Debug-GN_Android": {
+      "dependencies": [
+        "Test-Android-Clang-AndroidOne-CPU-MT6582-arm-Debug-GN_Android"
+      ],
+      "dimensions": [
+        "cpu:x86-64-avx2",
+        "gpu:none",
+        "os:Ubuntu",
+        "pool:Skia"
+      ],
+      "extra_args": [
+        "--workdir",
+        "../../..",
+        "upload_dm_results",
+        "repository=<(REPO)",
+        "buildername=Test-Android-Clang-AndroidOne-CPU-MT6582-arm-Debug-GN_Android",
+        "mastername=fake-master",
+        "buildnumber=2",
+        "slavename=fake-buildslave",
+        "nobuildbot=True",
+        "swarm_out_dir=${ISOLATED_OUTDIR}",
+        "revision=<(REVISION)",
+        "patch_storage=<(PATCH_STORAGE)",
+        "patch_issue=<(ISSUE)",
+        "patch_set=<(PATCHSET)"
+      ],
+      "isolate": "upload_dm_results.isolate",
+      "priority": 0.8
+    },
+    "Upload-Test-Android-Clang-AndroidOne-CPU-MT6582-arm-Release-GN_Android": {
+      "dependencies": [
+        "Test-Android-Clang-AndroidOne-CPU-MT6582-arm-Release-GN_Android"
+      ],
+      "dimensions": [
+        "cpu:x86-64-avx2",
+        "gpu:none",
+        "os:Ubuntu",
+        "pool:Skia"
+      ],
+      "extra_args": [
+        "--workdir",
+        "../../..",
+        "upload_dm_results",
+        "repository=<(REPO)",
+        "buildername=Test-Android-Clang-AndroidOne-CPU-MT6582-arm-Release-GN_Android",
+        "mastername=fake-master",
+        "buildnumber=2",
+        "slavename=fake-buildslave",
+        "nobuildbot=True",
+        "swarm_out_dir=${ISOLATED_OUTDIR}",
+        "revision=<(REVISION)",
+        "patch_storage=<(PATCH_STORAGE)",
+        "patch_issue=<(ISSUE)",
+        "patch_set=<(PATCHSET)"
+      ],
+      "isolate": "upload_dm_results.isolate",
+      "priority": 0.8
+    },
+    "Upload-Test-Android-Clang-AndroidOne-GPU-Mali400MP2-arm-Debug-GN_Android": {
+      "dependencies": [
+        "Test-Android-Clang-AndroidOne-GPU-Mali400MP2-arm-Debug-GN_Android"
+      ],
+      "dimensions": [
+        "cpu:x86-64-avx2",
+        "gpu:none",
+        "os:Ubuntu",
+        "pool:Skia"
+      ],
+      "extra_args": [
+        "--workdir",
+        "../../..",
+        "upload_dm_results",
+        "repository=<(REPO)",
+        "buildername=Test-Android-Clang-AndroidOne-GPU-Mali400MP2-arm-Debug-GN_Android",
+        "mastername=fake-master",
+        "buildnumber=2",
+        "slavename=fake-buildslave",
+        "nobuildbot=True",
+        "swarm_out_dir=${ISOLATED_OUTDIR}",
+        "revision=<(REVISION)",
+        "patch_storage=<(PATCH_STORAGE)",
+        "patch_issue=<(ISSUE)",
+        "patch_set=<(PATCHSET)"
+      ],
+      "isolate": "upload_dm_results.isolate",
       "priority": 0.8
     },
     "Upload-Test-Android-Clang-AndroidOne-GPU-Mali400MP2-arm-Release-GN_Android": {
