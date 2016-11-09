@@ -20,28 +20,6 @@ Sk4f pack_color(SkColor c, bool premul, const Sk4f& component_scale) {
     return pm4f * component_scale;
 }
 
-template<SkShader::TileMode>
-SkScalar tileProc(SkScalar t);
-
-template<>
-SkScalar tileProc<SkShader::kClamp_TileMode>(SkScalar t) {
-    // synthetic clamp-mode edge intervals allow for a free-floating t:
-    //   [-inf..0)[0..1)[1..+inf)
-    return t;
-}
-
-template<>
-SkScalar tileProc<SkShader::kRepeat_TileMode>(SkScalar t) {
-    // t % 1  (intervals range: [0..1))
-    return t - SkScalarFloorToScalar(t);
-}
-
-template<>
-SkScalar tileProc<SkShader::kMirror_TileMode>(SkScalar t) {
-    // t % 2  (synthetic mirror intervals expand the range to [0..2)
-    return t - SkScalarFloorToScalar(t / 2) * 2;
-}
-
 class IntervalIterator {
 public:
     IntervalIterator(const SkColor* colors, const SkScalar* pos, int count, bool reverse)
@@ -359,12 +337,13 @@ public:
     TSampler(const GradientShaderBase4fContext& ctx)
         : fFirstInterval(ctx.fIntervals.begin())
         , fLastInterval(ctx.fIntervals.end() - 1)
-        , fInterval(nullptr) {
+        , fInterval(nullptr)
+        , fLargestLessThanTwo(nextafterf(2, 0)) {
         SkASSERT(fLastInterval >= fFirstInterval);
     }
 
     Sk4f sample(SkScalar t) {
-        const SkScalar tiled_t = tileProc<tileMode>(t);
+        const auto tiled_t = tileProc(t);
 
         if (!fInterval) {
             // Very first sample => locate the initial interval.
@@ -381,6 +360,25 @@ public:
     }
 
 private:
+    SkScalar tileProc(SkScalar t) const {
+        switch (tileMode) {
+        case kClamp_TileMode:
+            // synthetic clamp-mode edge intervals allow for a free-floating t:
+            //   [-inf..0)[0..1)[1..+inf)
+            return t;
+        case kRepeat_TileMode:
+            // t % 1  (intervals range: [0..1))
+            return t - SkScalarFloorToScalar(t);
+        case kMirror_TileMode:
+            // t % 2  (synthetic mirror intervals expand the range to [0..2)
+            // Due to the extra arithmetic, we must clamp to ensure the value remains less than 2.
+            return SkTMin(t - SkScalarFloorToScalar(t / 2) * 2, fLargestLessThanTwo);
+        }
+
+        SK_ABORT("Unhandled tile mode.");
+        return 0;
+    }
+
     Sk4f lerp(SkScalar t) {
         SkASSERT(t >= fInterval->fP0 && t < fInterval->fP1);
         return fCc + fDc * (t - fInterval->fP0);
@@ -444,6 +442,7 @@ private:
     const Interval* fLastInterval;
     const Interval* fInterval;
     SkScalar        fPrevT;
+    SkScalar        fLargestLessThanTwo;
     Sk4f            fCc;
     Sk4f            fDc;
 };
