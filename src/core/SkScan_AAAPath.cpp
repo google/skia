@@ -1025,7 +1025,7 @@ static inline void aaa_walk_convex_edges(SkAnalyticEdge* prevHead, AdditiveBlitt
                         ((RunBasedAdditiveBlitter*)blitter)->flush_if_y_changed(y, y + partialTop);
                     }
                 }
-                if (fullBot >= fullTop) {
+                if (fullBot > fullTop) {
                     blitter->getRealBlitter()->blitV(fullLeft - 1, fullTop, fullBot - fullTop,
                             f2a(rite - left));
                 }

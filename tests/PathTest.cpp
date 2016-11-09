@@ -4244,6 +4244,22 @@ static void test_crbug_629455(skiatest::Reporter* reporter) {
     surface->getCanvas()->drawPath(path, paint);
 }
 
+static void test_fuzz_crbug_662952(skiatest::Reporter* reporter) {
+    SkPath path;
+    path.moveTo(SkBits2Float(0x4109999a), SkBits2Float(0x411c0000));  // 8.6f, 9.75f
+    path.lineTo(SkBits2Float(0x410a6666), SkBits2Float(0x411c0000));  // 8.65f, 9.75f
+    path.lineTo(SkBits2Float(0x410a6666), SkBits2Float(0x411e6666));  // 8.65f, 9.9f
+    path.lineTo(SkBits2Float(0x4109999a), SkBits2Float(0x411e6666));  // 8.6f, 9.9f
+    path.lineTo(SkBits2Float(0x4109999a), SkBits2Float(0x411c0000));  // 8.6f, 9.75f
+    path.close();
+
+    auto surface = SkSurface::MakeRasterN32Premul(100, 100);
+    SkPaint paint;
+    paint.setAntiAlias(true);
+    surface->getCanvas()->clipPath(path, true);
+    surface->getCanvas()->drawRectCoords(0, 0, 100, 100, paint);
+}
+
 static void test_interp(skiatest::Reporter* reporter) {
     SkPath p1, p2, out;
     REPORTER_ASSERT(reporter, p1.isInterpolatable(p2));
@@ -4298,6 +4314,7 @@ DEF_TEST(Paths, reporter) {
     test_crbug_629455(reporter);
     test_fuzz_crbug_627414(reporter);
     test_path_crbug364224();
+    test_fuzz_crbug_662952(reporter);
 
     SkTSize<SkScalar>::Make(3,4);
 
