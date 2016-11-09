@@ -120,7 +120,7 @@ public:
 
 #if SK_SUPPORT_GPU
     sk_sp<GrTexture> refPinnedTexture(uint32_t* uniqueID) const override;
-    void onPinAsTexture(GrContext*) const override;
+    bool onPinAsTexture(GrContext*) const override;
     void onUnpinAsTexture(GrContext*) const override;
 #endif
 
@@ -230,7 +230,7 @@ sk_sp<GrTexture> SkImage_Raster::refPinnedTexture(uint32_t* uniqueID) const {
     return nullptr;
 }
 
-void SkImage_Raster::onPinAsTexture(GrContext* ctx) const {
+bool SkImage_Raster::onPinAsTexture(GrContext* ctx) const {
     if (fPinnedTexture) {
         SkASSERT(fPinnedCount > 0);
         SkASSERT(fPinnedUniqueID != 0);
@@ -241,10 +241,14 @@ void SkImage_Raster::onPinAsTexture(GrContext* ctx) const {
         fPinnedTexture.reset(
             GrRefCachedBitmapTexture(ctx, fBitmap, GrTextureParams::ClampNoFilter(),
                                      SkDestinationSurfaceColorMode::kGammaAndColorSpaceAware));
+        if (!fPinnedTexture) {
+            return false;
+        }
         fPinnedUniqueID = fBitmap.getGenerationID();
     }
-    // Note: we always increment, even if we failed to create the pinned texture
+    // Note: we only increment if the texture was successfully pinned
     ++fPinnedCount;
+    return true;
 }
 
 void SkImage_Raster::onUnpinAsTexture(GrContext* ctx) const {

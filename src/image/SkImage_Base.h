@@ -73,7 +73,7 @@ public:
         fAddedToCache.store(true);
     }
 
-    virtual void onPinAsTexture(GrContext*) const {}
+    virtual bool onPinAsTexture(GrContext*) const { return false; }
     virtual void onUnpinAsTexture(GrContext*) const {}
 
 private:
