@@ -85,7 +85,10 @@ void SkOSWindow::setVsync(bool enable) {
 }
 
 bool SkOSWindow::makeFullscreen() {
-    [(SkNSView*)fHWND enterFullScreenMode:[NSScreen mainScreen] withOptions:nil];
+    NSScreen* _Nullable screen = [NSScreen mainScreen];
+    if (screen) {
+        [(SkNSView*)fHWND enterFullScreenMode:(NSScreen* _Nonnull)screen withOptions:nil];
+    }
     return true;
 }
 
