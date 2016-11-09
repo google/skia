@@ -242,6 +242,11 @@ func compile(b *specs.TasksCfgBuilder, name string, parts map[string]string) str
 		Isolate:  "compile_skia.isolate",
 		Priority: 0.8,
 	})
+	// All compile tasks are runnable as their own Job.
+	b.AddJob(name, &specs.JobSpec{
+		Priority:  0.8,
+		TaskSpecs: []string{name},
+	})
 	return name
 }
 
@@ -559,7 +564,7 @@ func process(b *specs.TasksCfgBuilder, name string) {
 	}
 
 	// Add the Job spec.
-	b.MustAddJob(name, &specs.JobSpec{
+	b.AddJob(name, &specs.JobSpec{
 		Priority:  0.8,
 		TaskSpecs: deps,
 	})
