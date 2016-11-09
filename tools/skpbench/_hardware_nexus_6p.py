@@ -106,8 +106,8 @@ class HardwareNexus6P(HardwareAndroid):
     # unlock the 3 enabled big cores.
     self._adb.shell('''\
       for N in 6 5 4; do
-        echo 633600 > /sys/devices/system/cpu/cpu4/cpufreq/scaling_min_freq
-        echo 1958400 > /sys/devices/system/cpu/cpu4/cpufreq/scaling_max_freq
+        echo 633600 > /sys/devices/system/cpu/cpu$N/cpufreq/scaling_min_freq
+        echo 1958400 > /sys/devices/system/cpu/cpu$N/cpufreq/scaling_max_freq
         echo 0 > /sys/devices/system/cpu/cpu$N/cpufreq/scaling_setspeed
         echo interactive > /sys/devices/system/cpu/cpu$N/cpufreq/scaling_governor
       done''')
