@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "4b770b47_6205fe77",
+        "filename": "src/core/SkAAClip.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 1408,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2016-11-09T22:28:24Z",
+      "side": 1,
+      "message": "since we call 3 different functions with snug, lets make the comment a little more general.\n\ne.g. send it to the scan-converter.",
+      "range": {
+        "startLine": 1408,
+        "startChar": 10,
+        "endLine": 1408,
+        "endChar": 32
+      },
+      "revId": "d582ed87746cef49ce144e0cc1272bd8fd3efeb6",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
