@@ -25,6 +25,24 @@
     },
     {
       "key": {
+        "uuid": "4b770b47_f4c69057",
+        "filename": "src/core/SkBlitter.h",
+        "patchSetId": 5
+      },
+      "lineNbr": 131,
+      "author": {
+        "id": 5110
+      },
+      "writtenOn": "2016-11-09T21:13:27Z",
+      "side": 1,
+      "message": "You said \"This parameter is apparently never used. It can be emulated anyway externally.\"",
+      "parentUuid": "4b770b47_b43488a8",
+      "revId": "46fb728de361cdb270941e996794924dc1b7e5f9",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "4b770b47_346978d5",
         "filename": "src/core/SkTypesPriv.h",
         "patchSetId": 5
