@@ -182,8 +182,7 @@ void WindowRectanglesMaskGM::onCoverClipStack(const SkClipStack& stack, SkCanvas
     GrContext* ctx = canvas->getGrContext();
     GrRenderTargetContext* rtc = canvas->internal_private_accessTopLayerRenderTargetContext();
 
-    if (!ctx || !rtc ||
-        rtc->accessRenderTarget()->renderTargetPriv().maxWindowRectangles() < kNumWindows) {
+    if (!ctx || !rtc || rtc->priv().maxWindowRectangles() < kNumWindows) {
         this->fail(canvas);
         return;
     }

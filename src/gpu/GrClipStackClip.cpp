@@ -273,14 +273,12 @@ bool GrClipStackClip::apply(GrContext* context, GrRenderTargetContext* renderTar
         return false;
     }
 
-    GrRenderTarget* rt = renderTargetContext->accessRenderTarget();
-
     const SkScalar clipX = SkIntToScalar(fOrigin.x()),
                    clipY = SkIntToScalar(fOrigin.y());
 
     SkRect clipSpaceDevBounds = devBounds.makeOffset(clipX, clipY);
     const GrReducedClip reducedClip(*fStack, clipSpaceDevBounds,
-                                    rt->renderTargetPriv().maxWindowRectangles());
+                                    renderTargetContext->priv().maxWindowRectangles());
 
     if (reducedClip.hasIBounds() &&
         !GrClip::IsInsideClip(reducedClip.ibounds(), clipSpaceDevBounds)) {
@@ -356,6 +354,8 @@ bool GrClipStackClip::apply(GrContext* context, GrRenderTargetContext* renderTar
         }
         // if alpha clip mask creation fails fall through to the non-AA code paths
     }
+
+    GrRenderTarget* rt = renderTargetContext->accessRenderTarget();
 
     // use the stencil clip if we can't represent the clip as a rectangle.
     if (!context->resourceProvider()->attachStencilAttachment(rt)) {

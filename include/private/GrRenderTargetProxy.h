@@ -49,6 +49,8 @@ public:
      */
     int numColorSamples() const { return this->isMixedSampled() ? 0 : fDesc.fSampleCnt; }
 
+    int maxWindowRectangles(const GrCaps& caps) const;
+
     GrRenderTarget::Flags testingOnly_getFlags() const;
 
     GrRenderTargetOpList* getLastRenderTargetOpList() {

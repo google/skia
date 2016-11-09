@@ -579,6 +579,11 @@ void GrRenderTargetContext::drawRect(const GrClip& clip,
     this->internalDrawPath(clip, paint, viewMatrix, path, *style);
 }
 
+int GrRenderTargetContextPriv::maxWindowRectangles() const {
+    return fRenderTargetContext->fRenderTargetProxy->maxWindowRectangles(
+                                                    *fRenderTargetContext->fContext->caps());
+}
+
 void GrRenderTargetContextPriv::clearStencilClip(const GrFixedClip& clip, bool insideStencilMask) {
     ASSERT_SINGLE_OWNER_PRIV
     RETURN_IF_ABANDONED_PRIV
