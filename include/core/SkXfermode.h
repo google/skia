@@ -177,6 +177,9 @@ public:
     }
 
     static SkXfermodeProc GetProc(SkBlendMode);
+    static SkXfermodeProc GetProc(Mode mode) {
+        return GetProc((SkBlendMode)mode);
+    }
     static SkXfermodeProc4f GetProc4f(SkBlendMode);
 
     /**
