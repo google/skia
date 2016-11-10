@@ -271,6 +271,7 @@ def run_benchmarks(configs, skps, hardware, resultsfile=None):
           hardware.print_debug_diagnostics()
         SKPBench.run_warmup(hardware.warmup_time)
 
+
 def main():
   # Delimiter is ',' or ' ', skip if nested inside parens (e.g. gpu(a=b,c=d)).
   DELIMITER = r'[, ](?!(?:[^(]*\([^)]*\))*[^()]*\))'
