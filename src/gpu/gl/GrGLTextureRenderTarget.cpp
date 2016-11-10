@@ -18,7 +18,7 @@ void GrGLTextureRenderTarget::dumpMemoryStatistics(
   // texture and a
   // renderbuffer component, dump as skia/gpu_resources/resource_#/texture
   SkString dumpName("skia/gpu_resources/resource_");
-  dumpName.appendS32(this->uniqueID());
+  dumpName.appendU32(this->uniqueID().asUInt());
   dumpName.append("/texture");
 
   // Use the texture's gpuMemorySize, not our own, which includes the

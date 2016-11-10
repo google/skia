@@ -99,7 +99,45 @@ public:
     int height() const { return fDesc.fHeight; }
     GrPixelConfig config() const { return fDesc.fConfig; }
 
-    uint32_t uniqueID() const { return fUniqueID; }
+    class UniqueProxyID {
+    public:
+        explicit UniqueProxyID(GrGpuResource::UniqueResourceID& id) : fID(id.asUInt()) {
+            
+        }
+
+        UniqueProxyID(uint32_t id) : fID(id) {}
+
+        uint32_t asUInt() const { return fID; }
+
+        bool operator==(const UniqueProxyID& other) const {
+            return fID == other.fID;
+        }
+        bool operator!=(const UniqueProxyID& other) const {
+            return !(*this == other);
+        }
+
+        bool isInvalid() const { return SK_InvalidUniqueID == fID; }
+
+    private:
+        uint32_t fID;
+    };
+
+    /*
+     * The contract for the uniqueID is:
+     *   for wrapped resources:
+     *      the uniqueID will match that of the wrapped resource
+     *
+     *   for deferred resources:
+     *      the uniqueID will be different from the real resource, when it is allocated
+     *      the proxy's uniqueID will not change across the instantiate call
+     *
+     *    the uniqueIDs of the proxies and the resources draw from the same pool
+     *
+     * What this boils down to is that the uniqueID of a proxy can be used to consistently
+     * track/identify a proxy but should never be used to distinguish between
+     * resources and proxies - beware!
+     */
+    UniqueProxyID uniqueID() const { return fUniqueID; }
 
     GrSurface* instantiate(GrTextureProvider* texProvider);
 
@@ -162,10 +200,10 @@ protected:
     virtual ~GrSurfaceProxy();
 
     // For wrapped resources, 'fDesc' will always be filled in from the wrapped resource.
-    const GrSurfaceDesc fDesc;
-    const SkBackingFit  fFit;      // always exact for wrapped resources
-    const SkBudgeted    fBudgeted; // set from the backing resource for wrapped resources
-    const uint32_t      fUniqueID; // set from the backing resource for wrapped resources
+    const GrSurfaceDesc  fDesc;
+    const SkBackingFit   fFit;      // always exact for wrapped resources
+    const SkBudgeted     fBudgeted; // set from the backing resource for wrapped resources
+    const UniqueProxyID  fUniqueID; // set from the backing resource for wrapped resources
 
     static const size_t kInvalidGpuMemorySize = ~static_cast<size_t>(0);
     SkDEBUGCODE(size_t getRawGpuMemorySize_debugOnly() const { return fGpuMemorySize; })

@@ -101,7 +101,7 @@ void GrGLAttribArrayState::disableUnusedArrays(const GrGLGpu* gpu, uint64_t used
 GrGLVertexArray::GrGLVertexArray(GrGLint id, int attribCount)
     : fID(id)
     , fAttribArrays(attribCount)
-    , fIndexBufferUniqueID(SK_InvalidUniqueID) {
+    , fIndexBufferUniqueID(uint32_t(SK_InvalidUniqueID)) {
 }
 
 GrGLAttribArrayState* GrGLVertexArray::bind(GrGLGpu* gpu) {
@@ -129,5 +129,5 @@ GrGLAttribArrayState* GrGLVertexArray::bindWithIndexBuffer(GrGLGpu* gpu, const G
 
 void GrGLVertexArray::invalidateCachedState() {
     fAttribArrays.invalidate();
-    fIndexBufferUniqueID = SK_InvalidUniqueID;
+    fIndexBufferUniqueID.makeInvalid();
 }

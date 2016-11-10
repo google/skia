@@ -32,10 +32,14 @@ public:
 
     const char* name() const override { return "CopySurface"; }
 
-    uint32_t renderTargetUniqueID() const override {
+    // TODO: this needs to be updated to return GrSurfaceProxy::UniqueProxyID
+    GrGpuResource::UniqueResourceID renderTargetUniqueID() const override {
+        // TODO: When we have CopyContexts it seems that this should return the ID
+        // of the SurfaceProxy underlying the CopyContext.
         GrRenderTarget* rt = fDst.get()->asRenderTarget();
-        return rt ? rt->uniqueID() : 0;
+        return rt ? rt->uniqueID() : GrGpuResource::UniqueResourceID::InvalidID();
     }
+    // TODO: this seems odd - figure it out and add a comment!
     GrRenderTarget* renderTarget() const override { return nullptr; }
 
     SkString dumpInfo() const override {
