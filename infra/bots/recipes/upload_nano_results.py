@@ -20,12 +20,11 @@ def RunSteps(api):
   builder_name = api.properties['buildername']
 
   now = api.time.utcnow()
-
   src_path = api.path['cwd'].join(
       'perfdata', builder_name, 'data')
   results = api.file.glob(
       'find results',
-      'nanobench*.json',
+      '.*bench.*.json',
       cwd=src_path,
       test_data=['nanobench_abc123.json'],
       infra_step=True)
