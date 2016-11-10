@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "4b770b47_69fcfe4a",
+        "filename": "gn/BUILD.gn",
+        "patchSetId": 9
+      },
+      "lineNbr": 103,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2016-11-10T18:18:50Z",
+      "side": 1,
+      "message": "The gcc documentation says \"you may have problems with debugging if you specify both this option and -g\". Seems the result is that sometimes the debugger sometimes gets the instruction to line mapping wrong and sometimes loses local variables and vtable information, and this is sensitive to the order of the functions in a translation unit.\n\nIt seems that this sometimes causes extra loads because every global is now in a different section and the compiler doesn\u0027t know how they will end up laid out. So without data-sections a function which access globals will compute one offset to the global section (a load) and then read the globals as offsets from that (n + 1 loads). With data-sections every global requires a separate load to find its data section (and it\u0027s the only thing in it) and then a load to read it (2n loads). This probably doesn\u0027t make a lot of difference but something to keep in mind.",
+      "range": {
+        "startLine": 102,
+        "startChar": 6,
+        "endLine": 103,
+        "endChar": 28
+      },
+      "revId": "181856976adbdc4bdf2a457008db1d2602c3b56f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "4b770b47_29a6f6fc",
+        "filename": "gn/BUILD.gn",
+        "patchSetId": 9
+      },
+      "lineNbr": 402,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2016-11-10T18:18:50Z",
+      "side": 1,
+      "message": "These also being in debug seems a bit hostile to normal debugging by developers. There are a lot of \u0027getters\u0027 out there that will fold into identical code and the one that got picked will be the one the debugger shows when you step into any of them.",
+      "range": {
+        "startLine": 401,
+        "startChar": 6,
+        "endLine": 402,
+        "endChar": 17
+      },
+      "revId": "181856976adbdc4bdf2a457008db1d2602c3b56f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
