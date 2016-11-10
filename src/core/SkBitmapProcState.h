@@ -30,8 +30,6 @@ class SkPaint;
 struct SkBitmapProcInfo {
     SkBitmapProcInfo(const SkBitmapProvider&, SkShader::TileMode tmx, SkShader::TileMode tmy,
                      SkDestinationSurfaceColorMode);
-    SkBitmapProcInfo(const SkBitmap&, SkShader::TileMode tmx, SkShader::TileMode tmy,
-                     SkDestinationSurfaceColorMode);
     ~SkBitmapProcInfo();
 
     const SkBitmapProvider        fProvider;
@@ -61,9 +59,6 @@ struct SkBitmapProcState : public SkBitmapProcInfo {
     SkBitmapProcState(const SkBitmapProvider& prov, SkShader::TileMode tmx, SkShader::TileMode tmy,
                       SkDestinationSurfaceColorMode colorMode)
         : SkBitmapProcInfo(prov, tmx, tmy, colorMode) {}
-    SkBitmapProcState(const SkBitmap& bitmap, SkShader::TileMode tmx, SkShader::TileMode tmy,
-                      SkDestinationSurfaceColorMode colorMode)
-        : SkBitmapProcInfo(bitmap, tmx, tmy, colorMode) {}
 
     bool setup(const SkMatrix& inv, const SkPaint& paint) {
         return this->init(inv, paint) && this->chooseProcs();

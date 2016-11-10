@@ -8,24 +8,20 @@
 #ifndef SkBitmapProvider_DEFINED
 #define SkBitmapProvider_DEFINED
 
-#include "SkBitmap.h"
 #include "SkImage.h"
 #include "SkBitmapCache.h"
 
 class SkBitmapProvider {
 public:
-    explicit SkBitmapProvider(const SkBitmap& bm) : fBitmap(bm) {}
-    explicit SkBitmapProvider(const SkImage* img) : fImage(img) {}
+    explicit SkBitmapProvider(const SkImage* img) : fImage(img) { SkASSERT(img); }
     SkBitmapProvider(const SkBitmapProvider& other)
-        : fBitmap(other.fBitmap)
-        , fImage(other.fImage)
+        : fImage(other.fImage)
     {}
 
     int width() const;
     int height() const;
     uint32_t getID() const;
 
-    bool validForDrawing() const;
     SkImageInfo info() const;
     bool isVolatile() const;
 
@@ -42,7 +38,6 @@ private:
     void* operator new(size_t) = delete;
     void* operator new(size_t, void*) = delete;
 
-    SkBitmap       fBitmap;
     // SkBitmapProvider is always short-lived/stack allocated, and the source image is guaranteed
     // to outlive its scope => we can store a raw ptr to avoid ref churn.
     const SkImage* fImage;
