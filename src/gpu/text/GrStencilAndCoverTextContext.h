@@ -108,7 +108,7 @@ private:
         int                        fFallbackGlyphCount;
         sk_sp<SkTextBlob>          fFallbackTextBlob;
         mutable SkGlyphCache*      fDetachedGlyphCache;
-        mutable uint32_t           fLastDrawnGlyphsID;
+        mutable GrGpuResource::UniqueResourceID fLastDrawnGlyphsID;
     };
 
     // Text blobs/caches.
