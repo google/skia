@@ -30,37 +30,37 @@ unacceptable stddev.
 """)
 
 __argparse.add_argument('skpbench',
-    help="path to the skpbench binary")
+  help="path to the skpbench binary")
 __argparse.add_argument('--adb',
-    action='store_true', help="execute skpbench over adb")
+  action='store_true', help="execute skpbench over adb")
 __argparse.add_argument('-s', '--device-serial',
-    help="if using adb, ID of the specific device to target "
-         "(only required if more than 1 device is attached)")
+  help="if using adb, ID of the specific device to target "
+       "(only required if more than 1 device is attached)")
 __argparse.add_argument('-m', '--max-stddev',
-    type=float, default=4,
-    help="initial max allowable relative standard deviation")
+  type=float, default=4,
+  help="initial max allowable relative standard deviation")
 __argparse.add_argument('-x', '--suffix',
-    help="suffix to append on config (e.g. '_before', '_after')")
+  help="suffix to append on config (e.g. '_before', '_after')")
 __argparse.add_argument('-w','--write-path',
-    help="directory to save .png proofs to disk.")
+  help="directory to save .png proofs to disk.")
 __argparse.add_argument('-v','--verbosity',
-    type=int, default=1, help="level of verbosity (0=none to 5=debug)")
+  type=int, default=1, help="level of verbosity (0=none to 5=debug)")
 __argparse.add_argument('-d', '--duration',
-    type=int, help="number of milliseconds to run each benchmark")
+  type=int, help="number of milliseconds to run each benchmark")
 __argparse.add_argument('-l', '--sample-ms',
-    type=int, help="duration of a sample (minimum)")
+  type=int, help="duration of a sample (minimum)")
 __argparse.add_argument('--gpu',
-    action='store_true',
-    help="perform timing on the gpu clock instead of cpu (gpu work only)")
+  action='store_true',
+  help="perform timing on the gpu clock instead of cpu (gpu work only)")
 __argparse.add_argument('--fps',
-    action='store_true', help="use fps instead of ms")
+  action='store_true', help="use fps instead of ms")
 __argparse.add_argument('-c', '--config',
-    default='gpu', help="comma- or space-separated list of GPU configs")
+  default='gpu', help="comma- or space-separated list of GPU configs")
 __argparse.add_argument('-a', '--resultsfile',
-    help="optional file to append results into")
+  help="optional file to append results into")
 __argparse.add_argument('skps',
-    nargs='+',
-    help=".skp files or directories to expand for .skp files")
+  nargs='+',
+  help=".skp files or directories to expand for .skp files")
 
 FLAGS = __argparse.parse_args()
 if FLAGS.adb:
