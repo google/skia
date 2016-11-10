@@ -18,7 +18,7 @@
 #include "SkPictureRecorder.h"
 
 static void drain(SkPipeDeserializer* deserial, SkDynamicMemoryWStream* stream) {
-    std::unique_ptr<SkCanvas> canvas = SkMakeNullCanvas();
+    std::unique_ptr<SkCanvas> canvas(SkCreateNullCanvas());
     sk_sp<SkData> data = stream->detachAsData();
     deserial->playback(data->data(), data->size(), canvas.get());
 }

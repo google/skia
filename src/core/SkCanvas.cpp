@@ -19,7 +19,6 @@
 #include "SkImageFilter.h"
 #include "SkImageFilterCache.h"
 #include "SkLatticeIter.h"
-#include "SkMakeUnique.h"
 #include "SkMatrixUtils.h"
 #include "SkMetaData.h"
 #include "SkNx.h"
@@ -3324,8 +3323,7 @@ static bool supported_for_raster_canvas(const SkImageInfo& info) {
     return true;
 }
 
-std::unique_ptr<SkCanvas> SkCanvas::MakeRasterDirect(const SkImageInfo& info, void* pixels,
-                                                     size_t rowBytes) {
+SkCanvas* SkCanvas::NewRasterDirect(const SkImageInfo& info, void* pixels, size_t rowBytes) {
     if (!supported_for_raster_canvas(info)) {
         return nullptr;
     }
@@ -3334,7 +3332,7 @@ std::unique_ptr<SkCanvas> SkCanvas::MakeRasterDirect(const SkImageInfo& info, vo
     if (!bitmap.installPixels(info, pixels, rowBytes)) {
         return nullptr;
     }
-    return skstd::make_unique<SkCanvas>(bitmap);
+    return new SkCanvas(bitmap);
 }
 
 ///////////////////////////////////////////////////////////////////////////////

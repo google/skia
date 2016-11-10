@@ -15,6 +15,7 @@ SkNWayCanvas::~SkNWayCanvas() {
 
 void SkNWayCanvas::addCanvas(SkCanvas* canvas) {
     if (canvas) {
+        canvas->ref();
         *fList.append() = canvas;
     }
 }
@@ -22,11 +23,13 @@ void SkNWayCanvas::addCanvas(SkCanvas* canvas) {
 void SkNWayCanvas::removeCanvas(SkCanvas* canvas) {
     int index = fList.find(canvas);
     if (index >= 0) {
+        canvas->unref();
         fList.removeShuffle(index);
     }
 }
 
 void SkNWayCanvas::removeAll() {
+    fList.unrefAll();
     fList.reset();
 }
 

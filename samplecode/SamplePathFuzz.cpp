@@ -629,8 +629,8 @@ static void path_fuzz_stroker(SkBitmap* bitmap, int seed) {
         const SkPath& path = fuzzPath.getPath();
         const SkPaint& paint = fuzzPath.getPaint();
         const SkImageInfo& info = bitmap->info();
-        std::unique_ptr<SkCanvas> canvas(
-            SkCanvas::MakeRasterDirect(info, bitmap->getPixels(), bitmap->rowBytes()));
+        SkCanvas* canvas(
+            SkCanvas::NewRasterDirect(info, bitmap->getPixels(), bitmap->rowBytes()));
         int w = info.width() / 4;
         int h = info.height() / 4;
         int x = localSeed / 4 % 4;

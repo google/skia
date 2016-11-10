@@ -111,13 +111,13 @@ private:
     friend class SkPictureRecorderReplayTester; // for unit testing
     void partialReplay(SkCanvas* canvas) const;
 
-    bool                        fActivelyRecording;
-    uint32_t                    fFlags;
-    SkRect                      fCullRect;
-    sk_sp<SkBBoxHierarchy>      fBBH;
-    std::unique_ptr<SkRecorder> fRecorder;
-    sk_sp<SkRecord>             fRecord;
-    SkMiniRecorder              fMiniRecorder;
+    bool                   fActivelyRecording;
+    uint32_t               fFlags;
+    SkRect                 fCullRect;
+    sk_sp<SkBBoxHierarchy> fBBH;
+    sk_sp<SkRecorder>      fRecorder;
+    sk_sp<SkRecord>        fRecord;
+    SkMiniRecorder         fMiniRecorder;
 
     typedef SkNoncopyable INHERITED;
 };

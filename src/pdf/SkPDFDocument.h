@@ -76,7 +76,7 @@ private:
     SkTHashSet<SkPDFFont*> fFonts;
     sk_sp<SkPDFDict> fDests;
     sk_sp<SkPDFDevice> fPageDevice;
-    std::unique_ptr<SkCanvas> fCanvas;
+    sk_sp<SkCanvas> fCanvas;
     sk_sp<SkPDFObject> fID;
     sk_sp<SkPDFObject> fXMP;
     SkScalar fRasterDpi;

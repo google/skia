@@ -57,7 +57,7 @@ public:
 
 private:
     struct DrawData {
-        SkCanvas*        fCanvas;
+        SkCanvas*        fCanvas;  // reffed
         const SkPicture* fPicture; // reffed
         SkMatrix         fMatrix;
         SkPaint*         fPaint;   // owned

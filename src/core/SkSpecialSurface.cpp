@@ -29,7 +29,7 @@ public:
     virtual sk_sp<SkSpecialImage> onMakeImageSnapshot() = 0;
 
 protected:
-    std::unique_ptr<SkCanvas> fCanvas;   // initialized by derived classes in ctors
+    sk_sp<SkCanvas> fCanvas;   // initialized by derived classes in ctors
 
 private:
     typedef SkSpecialSurface INHERITED;

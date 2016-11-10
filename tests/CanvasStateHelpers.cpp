@@ -27,11 +27,12 @@ void complex_layers_draw(SkCanvas* canvas, float left, float top,
 
 extern "C" bool complex_layers_draw_from_canvas_state(SkCanvasState* state,
         float left, float top, float right, float bottom, int32_t spacer) {
-    std::unique_ptr<SkCanvas> canvas = SkCanvasStateUtils::MakeFromCanvasState(state);
+    SkCanvas* canvas = SkCanvasStateUtils::CreateFromCanvasState(state);
     if (!canvas) {
         return false;
     }
-    complex_layers_draw(canvas.get(), left, top, right, bottom, spacer);
+    complex_layers_draw(canvas, left, top, right, bottom, spacer);
+    canvas->unref();
     return true;
 }
 
@@ -51,7 +52,7 @@ void complex_clips_draw(SkCanvas* canvas, int32_t left, int32_t top,
 extern "C" bool complex_clips_draw_from_canvas_state(SkCanvasState* state,
         int32_t left, int32_t top, int32_t right, int32_t bottom, int32_t clipOp,
         int32_t regionRects, int32_t* rectCoords) {
-    std::unique_ptr<SkCanvas> canvas = SkCanvasStateUtils::MakeFromCanvasState(state);
+    SkCanvas* canvas = SkCanvasStateUtils::CreateFromCanvasState(state);
     if (!canvas) {
         return false;
     }
@@ -63,7 +64,8 @@ extern "C" bool complex_clips_draw_from_canvas_state(SkCanvasState* state,
         rectCoords += 4;
     }
 
-    complex_clips_draw(canvas.get(), left, top, right, bottom, clipOp, localRegion);
+    complex_clips_draw(canvas, left, top, right, bottom, clipOp, localRegion);
+    canvas->unref();
     return true;
 }
 #endif // SK_SUPPORT_LEGACY_CLIPTOLAYERFLAG

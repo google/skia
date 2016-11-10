@@ -58,12 +58,14 @@ SkSurfaceProps::SkSurfaceProps(const SkSurfaceProps& other)
 SkSurface_Base::SkSurface_Base(int width, int height, const SkSurfaceProps* props)
     : INHERITED(width, height, props)
 {
+    fCachedCanvas = nullptr;
     fCachedImage = nullptr;
 }
 
 SkSurface_Base::SkSurface_Base(const SkImageInfo& info, const SkSurfaceProps* props)
     : INHERITED(info, props)
 {
+    fCachedCanvas = nullptr;
     fCachedImage = nullptr;
 }
 
@@ -74,6 +76,7 @@ SkSurface_Base::~SkSurface_Base() {
     }
 
     SkSafeUnref(fCachedImage);
+    SkSafeUnref(fCachedCanvas);
 }
 
 void SkSurface_Base::onDraw(SkCanvas* canvas, SkScalar x, SkScalar y, const SkPaint* paint) {
