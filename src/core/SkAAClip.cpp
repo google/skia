@@ -1403,12 +1403,18 @@ bool SkAAClip::setPath(const SkPath& path, const SkRegion* clip, bool doAA) {
         clip = &tmpClip;
     }
 
+    // Since we assert that the BuilderBlitter will never blit outside the intersection
+    // of clip and ibounds, we create this snugClip to be that intersection and send it
+    // to the scan-converter.
+    SkRegion snugClip(*clip);
+
     if (path.isInverseFillType()) {
         ibounds = clip->getBounds();
     } else {
         if (ibounds.isEmpty() || !ibounds.intersect(clip->getBounds())) {
             return this->setEmpty();
         }
+        snugClip.op(ibounds, SkRegion::kIntersect_Op);
     }
 
     Builder        builder(ibounds);
@@ -1416,12 +1422,12 @@ bool SkAAClip::setPath(const SkPath& path, const SkRegion* clip, bool doAA) {
 
     if (doAA) {
         if (gSkUseAnalyticAA.load()) {
-            SkScan::AAAFillPath(path, *clip, &blitter, true);
+            SkScan::AAAFillPath(path, snugClip, &blitter, true);
         } else {
-            SkScan::AntiFillPath(path, *clip, &blitter, true);
+            SkScan::AntiFillPath(path, snugClip, &blitter, true);
         }
     } else {
-        SkScan::FillPath(path, *clip, &blitter);
+        SkScan::FillPath(path, snugClip, &blitter);
     }
 
     blitter.finish();
