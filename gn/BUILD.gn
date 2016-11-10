@@ -99,6 +99,8 @@ config("default") {
     }
   } else {
     cflags += [
+      "-fdata-sections",
+      "-ffunction-sections",
       "-fstrict-aliasing",
       "-fPIC",
       "-fvisibility=hidden",
@@ -410,6 +412,12 @@ config("executable") {
       "/SUBSYSTEM:CONSOLE",  # Quiet "no subsystem specified; CONSOLE assumed".
       "/INCREMENTAL:NO",  # Quiet warnings about failing to incrementally link by never trying to.
     ]
+  }
+
+  if (is_mac || is_ios) {
+    ldflags += [ "-Wl,-dead_strip" ]
+  } else if (!is_win) {
+    ldflags += [ "-Wl,--gc-sections" ]
   }
 }
 
