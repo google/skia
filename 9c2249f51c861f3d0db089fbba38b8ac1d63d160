@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "eb935fd8_a1281ab9",
+        "filename": "infra/bots/recipes/swarm_test.expected/Test-Ubuntu-GCC-GCE-CPU-AVX2-x86_64-Release-TSAN.json",
+        "patchSetId": 2
+      },
+      "lineNbr": 118,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2016-11-10T21:34:54Z",
+      "side": 0,
+      "message": "Most of the json files just rearrange these, but this is the interesting one - no longer run tiles_rt on TSAN",
+      "range": {
+        "startLine": 118,
+        "startChar": 7,
+        "endLine": 118,
+        "endChar": 21
+      },
+      "revId": "9c2249f51c861f3d0db089fbba38b8ac1d63d160",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
