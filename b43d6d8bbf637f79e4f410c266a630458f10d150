@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "4b770b47_4bbd7ab5",
+        "filename": "site/dev/contrib/revert.md",
+        "patchSetId": 2
+      },
+      "lineNbr": 28,
+      "author": {
+        "id": 5095
+      },
+      "writtenOn": "2016-11-10T14:54:47Z",
+      "side": 1,
+      "message": "capitalize for consistency w/ other pages?",
+      "range": {
+        "startLine": 28,
+        "startChar": 13,
+        "endLine": 28,
+        "endChar": 19
+      },
+      "revId": "b43d6d8bbf637f79e4f410c266a630458f10d150",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "4b770b47_cbd08a0a",
+        "filename": "site/dev/contrib/submit.md",
+        "patchSetId": 2
+      },
+      "lineNbr": 191,
+      "author": {
+        "id": 5095
+      },
+      "writtenOn": "2016-11-10T14:54:47Z",
+      "side": 1,
+      "message": "leave as \"change\" to clarify what we\u0027re landing and not be redundant in the sentence?",
+      "range": {
+        "startLine": 191,
+        "startChar": 69,
+        "endLine": 191,
+        "endChar": 79
+      },
+      "revId": "b43d6d8bbf637f79e4f410c266a630458f10d150",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
