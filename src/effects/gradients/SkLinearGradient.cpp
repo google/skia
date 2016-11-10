@@ -737,7 +737,6 @@ void SkLinearGradient::LinearGradientContext::shade4_clamp(int x, int y, SkPMCol
         }
     }
     const float dither[2] = { dither0, dither1 };
-    const float invDx = 1 / dx;
 
     if (SkScalarNearlyZero(dx * count)) { // gradient is vertical
         const float pinFx = SkTPin(fx, 0.0f, 1.0f);
@@ -750,6 +749,8 @@ void SkLinearGradient::LinearGradientContext::shade4_clamp(int x, int y, SkPMCol
         return;
     }
 
+    SkASSERT(0.f != dx);
+    const float invDx = 1 / dx;
     if (dx > 0) {
         if (fApplyAlphaAfterInterp) {
             this->shade4_dx_clamp<true, true>(dstC, count, fx, dx, invDx, dither);
