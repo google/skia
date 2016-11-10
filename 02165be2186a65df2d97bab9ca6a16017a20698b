@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "4b770b47_29f6f672",
+        "filename": "tools/skpbench/skiaperf.py",
+        "patchSetId": 2
+      },
+      "lineNbr": 43,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2016-11-10T17:26:20Z",
+      "side": 1,
+      "message": "I thought you weren\u0027t going to put stddev in the JSON because it doesn\u0027t really make sense as a perf metric?",
+      "range": {
+        "startLine": 43,
+        "startChar": 55,
+        "endLine": 43,
+        "endChar": 63
+      },
+      "revId": "02165be2186a65df2d97bab9ca6a16017a20698b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
