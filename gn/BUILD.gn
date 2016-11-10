@@ -99,6 +99,8 @@ config("default") {
     }
   } else {
     cflags += [
+      "-fdata-sections",
+      "-ffunction-sections",
       "-fstrict-aliasing",
       "-fPIC",
       "-fvisibility=hidden",
@@ -398,18 +400,26 @@ config("release") {
 }
 
 config("executable") {
+  ldflags = []
+
   if (is_mac) {
-    ldflags = [ "-Wl,-rpath,@loader_path/." ]
+    ldflags += [ "-Wl,-rpath,@loader_path/." ]
   } else if (is_linux) {
-    ldflags = [
+    ldflags += [
       "-rdynamic",
       "-Wl,-rpath,\$ORIGIN",
     ]
   } else if (is_win) {
-    ldflags = [
+    ldflags += [
       "/SUBSYSTEM:CONSOLE",  # Quiet "no subsystem specified; CONSOLE assumed".
       "/INCREMENTAL:NO",  # Quiet warnings about failing to incrementally link by never trying to.
     ]
+  }
+
+  if (is_mac || is_ios) {
+    ldflags += [ "-Wl,-dead_strip" ]
+  } else if (!is_win) {
+    ldflags += [ "-Wl,--gc-sections" ]
   }
 }
 
