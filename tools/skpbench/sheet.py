@@ -20,7 +20,7 @@ import webbrowser
 
 __argparse = ArgumentParser(description="""
 
-Parses output files from skpbench.py into csv.
+Formats skpbench.py outputs as csv.
 
 This script can also be used to generate a Google sheet:
 
@@ -34,18 +34,18 @@ This script can also be used to generate a Google sheet:
 """)
 
 __argparse.add_argument('-r', '--result',
-    choices=['accum', 'median', 'max', 'min'], default='accum',
-    help="result to use for cell values")
+  choices=['accum', 'median', 'max', 'min'], default='accum',
+  help="result to use for cell values")
 __argparse.add_argument('-f', '--force',
-    action='store_true', help='silently ignore warnings')
+  action='store_true', help='silently ignore warnings')
 __argparse.add_argument('-o', '--open',
-    action='store_true',
-    help="generate a temp file and open it (theoretically in a web browser)")
+  action='store_true',
+  help="generate a temp file and open it (theoretically in a web browser)")
 __argparse.add_argument('-n', '--name',
-    default='skpbench_%s' % datetime.now().strftime('%Y-%m-%d_%H.%M.%S.csv'),
-    help="if using --open, a name for the temp file")
+  default='skpbench_%s' % datetime.now().strftime('%Y-%m-%d_%H.%M.%S.csv'),
+  help="if using --open, a name for the temp file")
 __argparse.add_argument('sources',
-    nargs='+', help="source files with skpbench results ('-' for stdin)")
+  nargs='+', help="source files that contain skpbench results ('-' for stdin)")
 
 FLAGS = __argparse.parse_args()
 
