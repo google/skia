@@ -160,8 +160,8 @@ def nanobench_flags(bot):
   return args
 
 
-def perf_steps(api):
-  """Run Skia benchmarks."""
+def nanobench_steps(api):
+  """benchmark Skia using nanobench."""
   if api.vars.upload_perf_results:
     api.flavor.create_clean_device_dir(
         api.flavor.device_dirs.perf_data_dir)
@@ -182,7 +182,6 @@ def perf_steps(api):
     properties.extend(['no_buildbot', 'True'])
     properties.extend(['swarming_bot_id', api.vars.swarming_bot_id])
     properties.extend(['swarming_task_id', api.vars.swarming_task_id])
-
   target = 'nanobench'
   args = [
       target,
@@ -247,7 +246,7 @@ def RunSteps(api):
   api.core.setup()
   try:
     api.flavor.install()
-    perf_steps(api)
+    nanobench_steps(api)
   finally:
     api.flavor.cleanup_steps()
   api.run.check_failure()
