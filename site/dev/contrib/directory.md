@@ -32,7 +32,7 @@ The Skia Directory
     -   [Mon](https://mon.skia.org/) Grafana dashboard (requires login).
     -   [Alerts](https://alerts.skia.org/) Monitor testing and bot status.
     -   [BugChomper] (https://bugchomper.skia.org/) Prioritize bugs quickly.
-    -   [Code Review](https://codereview.chromium.org/)
+    -   [Code Review](https://skia-review.googlesource.com/)
 
 *   Mailing Lists
     -   [Discussion Mailing List](https://groups.google.com/group/skia-discuss)

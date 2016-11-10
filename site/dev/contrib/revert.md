@@ -25,7 +25,7 @@ Create a revert commit.
 
     git revert <SHA1>
 
-Upload it to rietveld.
+Upload it to Gerrit.
 
     git cl upload
 
