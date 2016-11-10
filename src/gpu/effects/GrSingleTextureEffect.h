@@ -26,7 +26,7 @@ public:
 
     SkString dumpInfo() const override {
         SkString str;
-        str.appendf("Texture: %d", fTextureAccess.getTexture()->uniqueID());
+        str.appendf("Texture: %d", fTextureAccess.getTexture()->uniqueID().asUInt());
         return str;
     }
 
