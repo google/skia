@@ -55,7 +55,7 @@ public:
 
     /** Interpolate between two paths with same-sized point arrays.
      *  The out path contains the verbs and weights of this path.
-     *  The out points are a weighted average of this path and the ending path. 
+     *  The out points are a weighted average of this path and the ending path.
      *
      *  @param ending  The path to interpolate between.
      *  @param weight  The weight, from 0 to 1. The output points are set to
@@ -1126,7 +1126,7 @@ private:
     uint8_t                                            fFillType;
     mutable uint8_t                                    fConvexity;
     mutable SkAtomic<uint8_t, sk_memory_order_relaxed> fFirstDirection;// SkPathPriv::FirstDirection
-    mutable SkBool8                                    fIsVolatile;
+    SkBool8                                            fIsVolatile;
 
     /** Resets all fields other than fPathRef to their initial 'empty' values.
      *  Assumes the caller has already emptied fPathRef.
@@ -1166,7 +1166,7 @@ private:
                        bool* isClosed, Direction* direction) const;
 
     // called by stroker to see if all points are equal and worthy of a cap
-    // equivalent to a short-circuit version of getBounds().isEmpty() 
+    // equivalent to a short-circuit version of getBounds().isEmpty()
     bool isZeroLength() const;
 
     /** Returns if the path can return a bound at no cost (true) or will have to
