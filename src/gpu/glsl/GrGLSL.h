@@ -124,8 +124,6 @@ static inline const char* GrGLSLTypeString(GrSLType t) {
             return "mat4";
         case kTexture2DSampler_GrSLType:
             return "sampler2D";
-        case kTexture2DISampler_GrSLType:
-            return "isampler2D";
         case kTextureExternalSampler_GrSLType:
             return "samplerExternalOES";
         case kTexture2DRectSampler_GrSLType:
@@ -142,9 +140,10 @@ static inline const char* GrGLSLTypeString(GrSLType t) {
             return "texture2D";
         case kSampler_GrSLType:
             return "sampler";
+        default:
+            SkFAIL("Unknown shader var type.");
+            return ""; // suppress warning
     }
-    SkFAIL("Unknown shader var type.");
-    return ""; // suppress warning
 }
 
 /** A generic base-class representing a GLSL expression.

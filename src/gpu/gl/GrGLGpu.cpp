@@ -922,7 +922,6 @@ static inline GrGLint config_alignment(GrPixelConfig config) {
         case kBGRA_8888_GrPixelConfig:
         case kSRGBA_8888_GrPixelConfig:
         case kSBGRA_8888_GrPixelConfig:
-        case kRGBA_8888_sint_GrPixelConfig:
         case kRGBA_float_GrPixelConfig:
             return 4;
         default:
@@ -972,14 +971,14 @@ static bool allocate_and_populate_uncompressed_texture(const GrSurfaceDesc& desc
     // This means if we may later want to add mipmaps, we cannot use TexStorage.
     // Right now, we cannot know if we will later add mipmaps or not.
     // The only time we can use TexStorage is when we already have the
-    // mipmaps or are using a format incompatible with MIP maps.
-    useTexStorage &= texels.count() > 1 || GrPixelConfigIsSint(desc.fConfig);
+    // mipmaps.
+    useTexStorage &= texels.count() > 1;
 
     if (useTexStorage) {
         // We never resize or change formats of textures.
         GL_ALLOC_CALL(&interface,
                       TexStorage2D(target,
-                                   SkTMax(texels.count(), 1),
+                                   texels.count(),
                                    internalFormatForTexStorage,
                                    desc.fWidth, desc.fHeight));
         GrGLenum error = check_alloc_error(desc, &interface);
@@ -3489,9 +3488,6 @@ static inline bool can_blit_framebuffer_for_copy_surface(const GrSurface* dst,
         !gpu->glCaps().canConfigBeFBOColorAttachment(src->config())) {
         return false;
     }
-    // Blits are not allowed between int color buffers and float/fixed color buffers. GrGpu should
-    // have filtered such cases out.
-    SkASSERT(GrPixelConfigIsSint(dst->config()) == GrPixelConfigIsSint(src->config()));
     const GrGLTexture* dstTex = static_cast<const GrGLTexture*>(dst->asTexture());
     const GrGLTexture* srcTex = static_cast<const GrGLTexture*>(dst->asTexture());
     const GrRenderTarget* dstRT = dst->asRenderTarget();
@@ -3727,10 +3723,19 @@ bool GrGLGpu::onCopySurface(GrSurface* dst,
     return false;
 }
 
-bool GrGLGpu::createCopyProgram(GrTexture* srcTex) {
-    int progIdx = TextureToCopyProgramIdx(srcTex);
+bool GrGLGpu::createCopyProgram(int progIdx) {
     const GrGLSLCaps* glslCaps = this->glCaps().glslCaps();
-    GrSLType samplerType = srcTex->texturePriv().samplerType();
+    static const GrSLType kSamplerTypes[3] = { kTexture2DSampler_GrSLType,
+                                               kTextureExternalSampler_GrSLType,
+                                               kTexture2DRectSampler_GrSLType };
+    if (kTextureExternalSampler_GrSLType == kSamplerTypes[progIdx] &&
+        !this->glCaps().glslCaps()->externalTextureSupport()) {
+        return false;
+    }
+    if (kTexture2DRectSampler_GrSLType == kSamplerTypes[progIdx] &&
+        !this->glCaps().rectangleTextureSupport()) {
+        return false;
+    }
 
     if (!fCopyProgramArrayBuffer) {
         static const GrGLfloat vdata[] = {
@@ -3758,7 +3763,7 @@ bool GrGLGpu::createCopyProgram(GrTexture* srcTex) {
                                  GrShaderVar::kUniform_TypeModifier);
     GrGLSLShaderVar uPosXform("u_posXform", kVec4f_GrSLType,
                               GrShaderVar::kUniform_TypeModifier);
-    GrGLSLShaderVar uTexture("u_texture", samplerType,
+    GrGLSLShaderVar uTexture("u_texture", kSamplerTypes[progIdx],
                              GrShaderVar::kUniform_TypeModifier);
     GrGLSLShaderVar vTexCoord("v_texCoord", kVec2f_GrSLType,
                               GrShaderVar::kVaryingOut_TypeModifier);
@@ -3797,7 +3802,7 @@ bool GrGLGpu::createCopyProgram(GrTexture* srcTex) {
             fshaderTxt.appendf("#extension %s : require\n", extension);
         }
     }
-    if (samplerType == kTextureExternalSampler_GrSLType) {
+    if (kSamplerTypes[progIdx] == kTextureExternalSampler_GrSLType) {
         fshaderTxt.appendf("#extension %s : require\n",
                            glslCaps->externalTextureExtensionString());
     }
@@ -3813,7 +3818,7 @@ bool GrGLGpu::createCopyProgram(GrTexture* srcTex) {
         "void main() {"
         "  sk_FragColor = %s(u_texture, v_texCoord);"
         "}",
-        GrGLSLTexture2DFunctionName(kVec2f_GrSLType, samplerType, this->glslGeneration())
+        GrGLSLTexture2DFunctionName(kVec2f_GrSLType, kSamplerTypes[progIdx], this->glslGeneration())
     );
 
     const char* str;
@@ -4165,10 +4170,10 @@ bool GrGLGpu::copySurfaceAsDraw(GrSurface* dst,
                                 const SkIRect& srcRect,
                                 const SkIPoint& dstPoint) {
     GrGLTexture* srcTex = static_cast<GrGLTexture*>(src->asTexture());
-    int progIdx = TextureToCopyProgramIdx(srcTex);
+    int progIdx = TextureTargetToCopyProgramIdx(srcTex->target());
 
     if (!fCopyPrograms[progIdx].fProgram) {
-        if (!this->createCopyProgram(srcTex)) {
+        if (!this->createCopyProgram(progIdx)) {
             SkDebugf("Failed to create copy program.\n");
             return false;
         }
@@ -4354,7 +4359,6 @@ bool GrGLGpu::copySurfaceAsBlitFramebuffer(GrSurface* dst,
 // Uses draw calls to do a series of downsample operations to successive mips.
 // If this returns false, then the calling code falls back to using glGenerateMipmap.
 bool GrGLGpu::generateMipmap(GrGLTexture* texture, bool gammaCorrect) {
-    SkASSERT(!GrPixelConfigIsSint(texture->config()));
     // Our iterative downsample requires the ability to limit which level we're sampling:
     if (!this->glCaps().doManualMipmapping()) {
         return false;

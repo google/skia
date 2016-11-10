@@ -863,10 +863,6 @@ bool GrGLCaps::readPixelsSupported(GrPixelConfig surfaceConfig,
         return false;
     }
 
-    if (GrPixelConfigIsSint(surfaceConfig) != GrPixelConfigIsSint(readConfig)) {
-        return false;
-    }
-
     GrGLenum readFormat;
     GrGLenum readType;
     if (!this->getReadPixelsFormat(surfaceConfig, readConfig, &readFormat, &readType)) {
@@ -878,11 +874,8 @@ bool GrGLCaps::readPixelsSupported(GrPixelConfig surfaceConfig,
         // the manual (https://www.opengl.org/sdk/docs/man/) says only these formats are allowed:
         // GL_STENCIL_INDEX, GL_DEPTH_COMPONENT, GL_DEPTH_STENCIL, GL_RED, GL_GREEN, GL_BLUE,
         // GL_RGB, GL_BGR, GL_RGBA, and GL_BGRA. We check for the subset that we would use.
-        // The manual does not seem to fully match the spec as the spec allows integer formats
-        // when the bound color buffer is an integer buffer. It doesn't specify which integer
-        // formats are allowed, so perhaps all of them are. We only use GL_RGBA_INTEGER currently.
         if (readFormat != GR_GL_RED && readFormat != GR_GL_RGB && readFormat != GR_GL_RGBA &&
-            readFormat != GR_GL_BGRA && readFormat != GR_GL_RGBA_INTEGER) {
+            readFormat != GR_GL_BGRA) {
             return false;
         }
         // There is also a set of allowed types, but all the types we use are in the set:
@@ -897,22 +890,16 @@ bool GrGLCaps::readPixelsSupported(GrPixelConfig surfaceConfig,
     }
 
     // See Section 16.1.2 in the ES 3.2 specification.
-    switch (fConfigTable[surfaceConfig].fFormatType) {
-        case kNormalizedFixedPoint_FormatType:
-            if (GR_GL_RGBA == readFormat && GR_GL_UNSIGNED_BYTE == readType) {
-                return true;
-            }
-            break;
-        case kInteger_FormatType:
-            if (GR_GL_RGBA_INTEGER == readFormat && GR_GL_INT == readType) {
-                return true;
-            }
-            break;
-        case kFloat_FormatType:
-            if (GR_GL_RGBA == readFormat && GR_GL_FLOAT == readType) {
-                return true;
-            }
-            break;
+
+    if (kNormalizedFixedPoint_FormatType == fConfigTable[surfaceConfig].fFormatType) {
+        if (GR_GL_RGBA == readFormat && GR_GL_UNSIGNED_BYTE == readType) {
+            return true;
+        }
+    } else {
+        SkASSERT(kFloat_FormatType == fConfigTable[surfaceConfig].fFormatType);
+        if (GR_GL_RGBA == readFormat && GR_GL_FLOAT == readType) {
+            return true;
+        }
     }
 
     if (0 == fConfigTable[surfaceConfig].fSecondReadPixelsFormat.fFormat) {
@@ -1581,33 +1568,6 @@ void GrGLCaps::initConfigTable(const GrGLContextInfo& ctxInfo, const GrGLInterfa
         fConfigTable[kSBGRA_8888_GrPixelConfig].fFlags |= ConfigInfo::kCanUseTexStorage_Flag;
     }
     fConfigTable[kSBGRA_8888_GrPixelConfig].fSwizzle = GrSwizzle::RGBA();
-
-    bool hasIntegerTextures;
-    if (standard == kGL_GrGLStandard) {
-        hasIntegerTextures = version >= GR_GL_VER(3, 0) ||
-                             ctxInfo.hasExtension("GL_EXT_texture_integer");
-    } else {
-        hasIntegerTextures = (version >= GR_GL_VER(3, 0));
-    }
-    // We may have limited GLSL to an earlier version that doesn't have integer sampler types.
-    if (ctxInfo.glslGeneration() == k110_GrGLSLGeneration) {
-        hasIntegerTextures = false;
-    }
-    fConfigTable[kRGBA_8888_sint_GrPixelConfig].fFormats.fBaseInternalFormat  = GR_GL_RGBA_INTEGER;
-    fConfigTable[kRGBA_8888_sint_GrPixelConfig].fFormats.fSizedInternalFormat = GR_GL_RGBA8I;
-    fConfigTable[kRGBA_8888_sint_GrPixelConfig].fFormats.fExternalFormat[kOther_ExternalFormatUsage] = GR_GL_RGBA_INTEGER;
-    fConfigTable[kRGBA_8888_sint_GrPixelConfig].fFormats.fExternalType = GR_GL_BYTE;
-    fConfigTable[kRGBA_8888_sint_GrPixelConfig].fFormatType = kInteger_FormatType;
-    // We currently only support using integer textures as srcs, not for rendering (even though GL
-    // allows it).
-    if (hasIntegerTextures) {
-        fConfigTable[kRGBA_8888_sint_GrPixelConfig].fFlags = ConfigInfo::kTextureable_Flag |
-                                                             ConfigInfo::kFBOColorAttachment_Flag;
-        if (texStorageSupported) {
-            fConfigTable[kRGBA_8888_sint_GrPixelConfig].fFlags |=
-                ConfigInfo::kCanUseTexStorage_Flag;
-        }
-    }
 
     fConfigTable[kRGB_565_GrPixelConfig].fFormats.fBaseInternalFormat = GR_GL_RGB;
     if (this->ES2CompatibilitySupport()) {

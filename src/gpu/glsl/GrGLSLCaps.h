@@ -15,6 +15,8 @@
 
 class GrGLSLCaps : public GrShaderCaps {
 public:
+
+
     /**
     * Indicates how GLSL must interact with advanced blend equations. The KHR extension requires
     * special layout qualifiers in the fragment shader.
