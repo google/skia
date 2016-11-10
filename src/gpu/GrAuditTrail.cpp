@@ -45,9 +45,8 @@ void GrAuditTrail::addBatch(const GrBatch* batch) {
 
     // We use the batch pointer as a key to find the batchnode we are 'glomming' batches onto
     fIDLookup.set(batch->uniqueID(), auditBatch->fBatchListID);
-    BatchNode* batchNode = new BatchNode;
+    BatchNode* batchNode = new BatchNode(batch->renderTargetUniqueID());
     batchNode->fBounds = batch->bounds();
-    batchNode->fRenderTargetUniqueID = batch->renderTargetUniqueID();
     batchNode->fChildren.push_back(auditBatch);
     fBatchList.emplace_back(batchNode);
 }
@@ -290,7 +289,7 @@ SkString GrAuditTrail::Batch::toJson() const {
 SkString GrAuditTrail::BatchNode::toJson() const {
     SkString json;
     json.append("{");
-    json.appendf("\"RenderTarget\": \"%u\",", fRenderTargetUniqueID);
+    json.appendf("\"RenderTarget\": \"%u\",", fRenderTargetUniqueID.asUInt());
     skrect_to_json(&json, "Bounds", fBounds);
     JsonifyTArray(&json, "Batches", fChildren, true);
     json.append("}");
