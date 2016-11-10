@@ -115,7 +115,11 @@ def dm_flags(bot):
   # NP is running out of RAM when we run all these modes.  skia:3255
   if 'NexusPlayer' not in bot:
     configs.extend(mode + '-8888' for mode in
-                   ['serialize', 'tiles_rt', 'pic'])
+                   ['serialize', 'pic'])
+
+  # NP runs out of RAM (skia:3255). TSAN errors in SkPath (skia:5776).
+  if 'NexusPlayer' not in bot and 'TSAN' not in bot:
+    configs.append('tiles_rt-8888')
 
   # Test instanced rendering on a limited number of platforms
   if 'Nexus6' in bot:
