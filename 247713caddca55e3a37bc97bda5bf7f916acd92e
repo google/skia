@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "4b770b47_09f1ba7a",
+        "filename": "src/core/SkFixedAlloc.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 9,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2016-11-10T17:29:41Z",
+      "side": 1,
+      "message": "Perhaps a comment or diagram briefly describing how things are laid-out in the buffer?\nThat might also explain to the next reader the algorithm of using footers and undo, etc.",
+      "revId": "247713caddca55e3a37bc97bda5bf7f916acd92e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
