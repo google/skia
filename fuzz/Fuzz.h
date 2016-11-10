@@ -23,12 +23,28 @@ public:
     // Returns if there are no bytes remaining for fuzzing.
     bool exhausted();
 
+    // next() loads fuzzed bytes into the variable passed in by pointer.
+    // We use this approach instead of T next() because different compilers
+    // evaluate function parameters in different orders. If fuzz->next()
+    // returned 5 and then 7, foo(fuzz->next(), fuzz->next()) would be
+    // foo(5, 7) when compiled on GCC and foo(7, 5) when compiled on Clang.
+    // By requiring params to be passed in, we avoid the temptation to call
+    // next() in a way that does not consume fuzzed bytes in a single
+    // uplatform-independent order.
     template <typename T>
-    T next();
+    void next(T* t);
+
+    // This is a convenient way to initialize more than one argument at a time.
+    template <typename Arg, typename... Args>
+    void next(Arg* first, Args... rest);
 
     // nextRange returns values only in [min, max].
+    template <typename T, typename Min, typename Max>
+    void nextRange(T*, Min, Max);
+
+    // nextN loads n * sizeof(T) bytes into ptr
     template <typename T>
-    T nextRange(T min, T max);
+    void nextN(T* ptr, int n);
 
     void signalBug();  // Tell afl-fuzz these inputs found a bug.
 
@@ -42,56 +58,64 @@ private:
 
 // UBSAN reminds us that bool can only legally hold 0 or 1.
 template <>
-inline bool Fuzz::next<bool>() {
-  return (this->next<uint8_t>() & 1) == 1;
+inline void Fuzz::next(bool* b) {
+  uint8_t n;
+  this->next(&n);
+  *b = (n & 1) == 1;
 }
 
 template <typename T>
-T Fuzz::next() {
+inline void Fuzz::next(T* n) {
     if ((fNextByte + sizeof(T)) > fBytes->size()) {
-        T n = 0;
-        memcpy(&n, fBytes->bytes() + fNextByte, fBytes->size() - fNextByte);
+        *n = 0;
+        memcpy(n, fBytes->bytes() + fNextByte, fBytes->size() - fNextByte);
         fNextByte = fBytes->size();
-        return n;
+        return;
     }
-    T n;
-    memcpy(&n, fBytes->bytes() + fNextByte, sizeof(T));
+    memcpy(n, fBytes->bytes() + fNextByte, sizeof(T));
     fNextByte += sizeof(T);
-    return n;
+}
+
+template <typename Arg, typename... Args>
+inline void Fuzz::next(Arg* first, Args... rest) {
+   this->next(first);
+   this->next(rest...);
 }
 
 template <>
-inline float Fuzz::nextRange(float min, float max) {
-    if (min > max) {
-        SkDebugf("Check mins and maxes (%f, %f)\n", min, max);
-        this->signalBug();
-    }
-    float f = this->next<float>();
-    if (!std::isnormal(f) && f != 0.0f) {
+inline void Fuzz::nextRange(float* f, float min, float max) {
+    this->next(f);
+    if (!std::isnormal(*f) && *f != 0.0f) {
         // Don't deal with infinity or other strange floats.
-        return max;
+        *f = max;
     }
-    return min + std::fmod(std::abs(f), (max - min + 1));
+    *f = min + std::fmod(std::abs(*f), (max - min + 1));
+}
+
+template <typename T, typename Min, typename Max>
+inline void Fuzz::nextRange(T* n, Min min, Max max) {
+    this->next<T>(n);
+    T range = max - min + 1;
+    if (0 == range) {
+        return;
+    } else {
+        if (*n < 0) {
+          *n = *n * -1;
+        }
+        if (*n < 0) {
+          // abs(INT_MIN) = INT_MIN, so we check this to avoid accidental negatives.
+          *n = min;
+          return;
+        }
+        *n = min + *n % range;
+    }
 }
 
 template <typename T>
-T Fuzz::nextRange(T min, T max) {
-    if (min > max) {
-        SkDebugf("Check mins and maxes (%d, %d)\n", min, max);
-        this->signalBug();
-    }
-    T n = this->next<T>();
-    T range = max - min + 1;
-    if (0 == range) {
-        return n;
-    } else {
-        n = abs(n);
-        if (n < 0) {
-          // abs(INT_MIN) = INT_MIN, so we check this to avoid accidental negatives.
-          return min;
-        }
-        return min + n % range;
-    }
+inline void Fuzz::nextN(T* ptr, int n) {
+   for (int i = 0; i < n; i++) {
+       this->next(ptr+i);
+   }
 }
 
 struct Fuzzable {

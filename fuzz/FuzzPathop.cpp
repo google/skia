@@ -15,32 +15,36 @@ void BuildPath(Fuzz* fuzz,
                SkPath* path,
                int last_verb) {
   while (!fuzz->exhausted()) {
-    uint8_t operation = fuzz->next<uint8_t>();
+    // Use a uint8_t to conserve bytes.  This makes our "fuzzed bytes footprint"
+    // smaller, which leads to more efficient fuzzing.
+    uint8_t operation;
+    fuzz->next(&operation);
+    SkScalar a,b,c,d,e,f;
 
     switch (operation % (last_verb + 1)) {
       case SkPath::Verb::kMove_Verb:
-        path->moveTo(fuzz->next<SkScalar>(), fuzz->next<SkScalar>());
+        fuzz->next(&a, &b);
+        path->moveTo(a, b);
         break;
 
       case SkPath::Verb::kLine_Verb:
-        path->lineTo(fuzz->next<SkScalar>(), fuzz->next<SkScalar>());
+        fuzz->next(&a, &b);
+        path->lineTo(a, b);
         break;
 
       case SkPath::Verb::kQuad_Verb:
-        path->quadTo(fuzz->next<SkScalar>(), fuzz->next<SkScalar>(),
-                     fuzz->next<SkScalar>(), fuzz->next<SkScalar>());
+        fuzz->next(&a, &b, &c, &d);
+        path->quadTo(a, b, c, d);
         break;
 
       case SkPath::Verb::kConic_Verb:
-        path->conicTo(fuzz->next<SkScalar>(), fuzz->next<SkScalar>(),
-                      fuzz->next<SkScalar>(), fuzz->next<SkScalar>(),
-                      fuzz->next<SkScalar>());
+        fuzz->next(&a, &b, &c, &d, &e);
+        path->conicTo(a, b, c, d, e);
         break;
 
       case SkPath::Verb::kCubic_Verb:
-        path->cubicTo(fuzz->next<SkScalar>(), fuzz->next<SkScalar>(),
-                      fuzz->next<SkScalar>(), fuzz->next<SkScalar>(),
-                      fuzz->next<SkScalar>(), fuzz->next<SkScalar>());
+        fuzz->next(&a, &b, &c, &d, &e, &f);
+        path->cubicTo(a, b, c, d, e, f);
         break;
 
       case SkPath::Verb::kClose_Verb:
@@ -57,7 +61,8 @@ void BuildPath(Fuzz* fuzz,
 DEF_FUZZ(Pathop, fuzz) {
     SkOpBuilder builder;
 
-    uint8_t stragglerOp = fuzz->next<uint8_t>();
+    uint8_t stragglerOp;
+    fuzz->next(&stragglerOp);
     SkPath path;
 
     BuildPath(fuzz, &path, SkPath::Verb::kDone_Verb);
