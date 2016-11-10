@@ -21,10 +21,6 @@ SkBitmapController::State* SkBitmapController::requestBitmap(const SkBitmapProvi
                                                              const SkMatrix& inv,
                                                              SkFilterQuality quality,
                                                              void* storage, size_t storageSize) {
-    if (!provider.validForDrawing()) {
-        return nullptr;
-    }
-
     State* state = this->onRequestBitmap(provider, inv, quality, storage, storageSize);
     if (state) {
         if (nullptr == state->fPixmap.addr()) {

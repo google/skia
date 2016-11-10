@@ -46,16 +46,6 @@ SkBitmapProcInfo::SkBitmapProcInfo(const SkBitmapProvider& provider,
     , fBMState(nullptr)
 {}
 
-SkBitmapProcInfo::SkBitmapProcInfo(const SkBitmap& bm,
-                                   SkShader::TileMode tmx, SkShader::TileMode tmy,
-                                   SkDestinationSurfaceColorMode colorMode)
-    : fProvider(SkBitmapProvider(bm))
-    , fTileModeX(tmx)
-    , fTileModeY(tmy)
-    ,fColorMode(colorMode)
-    , fBMState(nullptr)
-{}
-
 SkBitmapProcInfo::~SkBitmapProcInfo() {
     SkInPlaceDeleteCheck(fBMState, fBMStateStorage.get());
 }
