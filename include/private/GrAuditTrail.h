@@ -9,10 +9,12 @@
 #define GrAuditTrail_DEFINED
 
 #include "GrConfig.h"
+#include "GrGpuResource.h"
 #include "SkRect.h"
 #include "SkString.h"
 #include "SkTArray.h"
 #include "SkTHash.h"
+
 
 class GrBatch;
 
@@ -107,13 +109,14 @@ public:
     // We could just return our internal bookkeeping struct if copying the data out becomes
     // a performance issue, but until then its nice to decouple
     struct BatchInfo {
-        SkRect fBounds;
-        uint32_t fRenderTargetUniqueID;
+        SkRect                          fBounds;
+        // TODO: switch over to GrSurfaceProxy::UniqueProxyID
+        GrGpuResource::UniqueResourceID fRenderTargetUniqueID;
         struct Batch {
             int fClientID;
             SkRect fBounds;
         };
-        SkTArray<Batch> fBatches;
+        SkTArray<Batch>                 fBatches;
     };
 
     void getBoundsByClientID(SkTArray<BatchInfo>* outInfo, int clientID);
@@ -139,10 +142,11 @@ private:
     typedef SkTArray<Batch*> Batches;
 
     struct BatchNode {
+        BatchNode(const GrGpuResource::UniqueResourceID& id) : fRenderTargetUniqueID(id) { }
         SkString toJson() const;
-        SkRect fBounds;
-        Batches fChildren;
-        uint32_t fRenderTargetUniqueID;
+        SkRect                                fBounds;
+        Batches                               fChildren;
+        const GrGpuResource::UniqueResourceID fRenderTargetUniqueID;
     };
     typedef SkTArray<std::unique_ptr<BatchNode>, true> BatchList;
 
