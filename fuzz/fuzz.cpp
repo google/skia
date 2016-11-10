@@ -6,6 +6,7 @@
  */
 
 #include "Fuzz.h"
+#include "GrContextOptions.h"
 #include "SkCanvas.h"
 #include "SkCodec.h"
 #include "SkCommandLineFlags.h"
@@ -397,7 +398,7 @@ int fuzz_sksl2glsl(sk_sp<SkData> bytes) {
     SkSL::Compiler compiler;
     std::string output;
     bool result = compiler.toGLSL(SkSL::Program::kFragment_Kind,
-        (const char*)bytes->data(), SkSL::GLCaps(), &output);
+        (const char*)bytes->data(), *SkSL::GLSLCapsFactory::Default(), &output);
 
     if (!result) {
         SkDebugf("[terminated] Couldn't compile input.\n");

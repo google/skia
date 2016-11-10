@@ -13,6 +13,10 @@
 #include "GrGLSL.h"
 #include "GrSwizzle.h"
 
+namespace SkSL {
+    class GLSLCapsFactory;
+}
+
 class GrGLSLCaps : public GrShaderCaps {
 public:
 
@@ -231,6 +235,7 @@ private:
 
     friend class GrGLCaps;  // For initialization.
     friend class GrVkCaps;
+    friend class SkSL::GLSLCapsFactory;
 
     typedef GrShaderCaps INHERITED;
 };
