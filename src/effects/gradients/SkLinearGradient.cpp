@@ -720,6 +720,9 @@ void SkLinearGradient::LinearGradientContext::shade4_clamp(int x, int y, SkPMCol
     fDstToIndexProc(fDstToIndex, x + SK_ScalarHalf, y + SK_ScalarHalf, &srcPt);
     float fx = srcPt.x();
     const float dx = fDstToIndex.getScaleX();
+    if (0.f == dx) {
+        return;
+    }
 
     // Default our dither bias values to 1/2, (rounding), which is no dithering
     float dither0 = 0.5f;
