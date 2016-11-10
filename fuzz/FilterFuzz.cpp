@@ -53,68 +53,37 @@
 static Fuzz* fuzz;
 static const int kBitmapSize = 24;
 
-static bool return_large = false;
-static bool return_undef = false;
 
-static int R(int x) {
-    return abs(fuzz->next<int>()) % x;
+// There should be no more than one make_* used as a function argument.
+static bool make_bool() {
+    bool b; fuzz->next(&b);
+    return b;
 }
 
-#if defined _WIN32
-#pragma warning ( push )
-// we are intentionally causing an overflow here
-//      (warning C4756: overflow in constant arithmetic)
-#pragma warning ( disable : 4756 )
-#endif
-
-static float huge() {
-    double d = 1e100;
-    float f = (float)d;
+static float make_number(bool positiveOnly) {
+    float f;
+    fuzz->next(&f);
+    if (positiveOnly) {
+        return std::abs(f);
+    }
     return f;
 }
 
-#if defined _WIN32
-#pragma warning ( pop )
-#endif
-
-static float make_number(bool positiveOnly) {
-    float f = positiveOnly ? 1.0f : 0.0f;
-    float v = f;
-    int sel;
-
-    if (return_large) sel = R(6); else sel = R(4);
-    if (!return_undef && sel == 0) sel = 1;
-
-    if (R(2) == 1) v = (float)(R(100)+f); else
-
-    switch (sel) {
-        case 0: break;
-        case 1: v = f; break;
-        case 2: v = 0.000001f; break;
-        case 3: v = 10000.0f; break;
-        case 4: v = 2000000000.0f; break;
-        case 5: v = huge(); break;
-    }
-
-    if (!positiveOnly && (R(4) == 1)) v = -v;
-    return v;
-}
-
-static SkScalar make_scalar(bool positiveOnly = false) {
-    return make_number(positiveOnly);
-}
-
 static SkString make_string() {
-    int length = R(1000);
+    int length;
+    fuzz->nextRange(&length, 0, 1000);
     SkString str(length);
     for (int i = 0; i < length; ++i) {
-        str[i] = static_cast<char>(R(256));
+        char c;
+        fuzz->nextRange(&c, 0, 255);
+        str[i] = c;
     }
     return str;
 }
 
 static SkString make_font_name() {
-    int sel = R(8);
+    int sel;
+    fuzz->nextRange(&sel, 0, 7);
 
     switch(sel) {
         case 0: return SkString("Courier New");
@@ -130,98 +99,127 @@ static SkString make_font_name() {
     }
 }
 
-static bool make_bool() {
-    return fuzz->next<bool>();
-}
-
 static SkRect make_rect() {
-    return SkRect::MakeWH(SkIntToScalar(R(static_cast<float>(kBitmapSize))),
-                          SkIntToScalar(R(static_cast<float>(kBitmapSize))));
+    SkScalar w, h;
+    fuzz->nextRange(&w, 0.0f, (float) kBitmapSize-1);
+    fuzz->nextRange(&h, 0.0f, (float) kBitmapSize-1);
+    return SkRect::MakeWH(w, h);
 }
 
 static SkRegion make_region() {
-    SkIRect iRegion = SkIRect::MakeXYWH(R(static_cast<float>(kBitmapSize)),
-                                        R(static_cast<float>(kBitmapSize)),
-                                        R(static_cast<float>(kBitmapSize)),
-                                        R(static_cast<float>(kBitmapSize)));
+    int32_t x, y, w, h;
+    fuzz->nextRange(&x, 0, kBitmapSize-1);
+    fuzz->nextRange(&y, 0, kBitmapSize-1);
+    fuzz->nextRange(&w, 0, kBitmapSize-1);
+    fuzz->nextRange(&h, 0, kBitmapSize-1);
+    SkIRect iRegion = SkIRect::MakeXYWH(x,y,w,h);
     return SkRegion(iRegion);
 }
 
-static SkMatrix make_matrix() {
-    SkMatrix m;
-    for (int i = 0; i < 9; ++i) {
-        m[i] = make_scalar();
-    }
-    return m;
+static void init_matrix(SkMatrix* m) {
+    SkScalar mat[9];
+    fuzz->nextN(mat, 9);
+    m->set9(mat);
 }
 
 static SkBlendMode make_blendmode() {
-    return static_cast<SkBlendMode>(R((int)SkBlendMode::kLastMode+1));
+    uint8_t i;
+    fuzz->nextRange(&i, 0, (uint8_t)SkBlendMode::kLastMode);
+    return static_cast<SkBlendMode>(i);
 }
 
 static SkPaint::Align make_paint_align() {
-    return static_cast<SkPaint::Align>(R(SkPaint::kRight_Align+1));
+    uint8_t i;
+    fuzz->nextRange(&i, 0, (uint8_t)SkPaint::kRight_Align);
+    return static_cast<SkPaint::Align>(i);
 }
 
 static SkPaint::Hinting make_paint_hinting() {
-    return static_cast<SkPaint::Hinting>(R(SkPaint::kFull_Hinting+1));
+    uint8_t i;
+    fuzz->nextRange(&i, 0, (uint8_t)SkPaint::kFull_Hinting);
+    return static_cast<SkPaint::Hinting>(i);
 }
 
 static SkPaint::Style make_paint_style() {
-    return static_cast<SkPaint::Style>(R(SkPaint::kStrokeAndFill_Style+1));
+    uint8_t i;
+    fuzz->nextRange(&i, 0, (uint8_t)SkPaint::kStrokeAndFill_Style);
+    return static_cast<SkPaint::Style>(i);
 }
 
 static SkPaint::Cap make_paint_cap() {
-    return static_cast<SkPaint::Cap>(R(SkPaint::kDefault_Cap+1));
+    uint8_t i;
+    fuzz->nextRange(&i, 0, (uint8_t)SkPaint::kDefault_Cap);
+    return static_cast<SkPaint::Cap>(i);
 }
 
 static SkPaint::Join make_paint_join() {
-    return static_cast<SkPaint::Join>(R(SkPaint::kDefault_Join+1));
+    uint8_t i;
+    fuzz->nextRange(&i, 0, (uint8_t)SkPaint::kDefault_Join);
+    return static_cast<SkPaint::Join>(i);
 }
 
 static SkPaint::TextEncoding make_paint_text_encoding() {
-    return static_cast<SkPaint::TextEncoding>(R(SkPaint::kGlyphID_TextEncoding+1));
+    uint8_t i;
+    fuzz->nextRange(&i, 0, (uint8_t)SkPaint::kGlyphID_TextEncoding);
+    return static_cast<SkPaint::TextEncoding>(i);
 }
 
 static SkBlurStyle make_blur_style() {
-    return static_cast<SkBlurStyle>(R(kLastEnum_SkBlurStyle+1));
+    uint8_t i;
+    fuzz->nextRange(&i, 0, (uint8_t)kLastEnum_SkBlurStyle);
+    return static_cast<SkBlurStyle>(i);
 }
 
 static SkBlurMaskFilter::BlurFlags make_blur_mask_filter_flag() {
-    return static_cast<SkBlurMaskFilter::BlurFlags>(R(SkBlurMaskFilter::kAll_BlurFlag+1));
+    uint8_t i;
+    fuzz->nextRange(&i, 0, (uint8_t)SkBlurMaskFilter::kAll_BlurFlag);
+    return static_cast<SkBlurMaskFilter::BlurFlags>(i);
 }
 
 static SkFilterQuality make_filter_quality() {
-    return static_cast<SkFilterQuality>(R(kHigh_SkFilterQuality+1));
+    uint8_t i;
+    fuzz->nextRange(&i, 0, (uint8_t)kHigh_SkFilterQuality);
+    return static_cast<SkFilterQuality>(i);
 }
 
 static SkFontStyle make_typeface_style() {
-    return SkFontStyle::FromOldStyle(R(SkTypeface::kBoldItalic+1));
+    uint8_t i;
+    fuzz->nextRange(&i, 0, (uint8_t)SkTypeface::kBoldItalic);
+    return SkFontStyle::FromOldStyle(i);
 }
 
 static SkPath1DPathEffect::Style make_path_1d_path_effect_style() {
-    return static_cast<SkPath1DPathEffect::Style>(R((int)SkPath1DPathEffect::kLastEnum_Style + 1));
+    uint8_t i;
+    fuzz->nextRange(&i, 0, (uint8_t)SkPath1DPathEffect::kLastEnum_Style);
+    return static_cast<SkPath1DPathEffect::Style>(i);
 }
 
 static SkColor make_color() {
-    return (R(2) == 1) ? 0xFFC0F0A0 : 0xFF000090;
+    return make_bool() ? 0xFFC0F0A0 : 0xFF000090;
 }
 
 static SkDropShadowImageFilter::ShadowMode make_shadow_mode() {
-    return (R(2) == 1) ? SkDropShadowImageFilter::kDrawShadowAndForeground_ShadowMode :
-                         SkDropShadowImageFilter::kDrawShadowOnly_ShadowMode;
+    return make_bool() ? SkDropShadowImageFilter::kDrawShadowAndForeground_ShadowMode :
+                        SkDropShadowImageFilter::kDrawShadowOnly_ShadowMode;
 }
 
 static SkPoint3 make_point() {
-    return SkPoint3::Make(make_scalar(), make_scalar(), make_scalar(true));
+    SkScalar a, b, c;
+    fuzz->next(&a, &b, &c);
+    c = std::abs(c);
+    return SkPoint3::Make(a, b, c);
 }
 
 static SkDisplacementMapEffect::ChannelSelectorType make_channel_selector_type() {
-    return static_cast<SkDisplacementMapEffect::ChannelSelectorType>(R(4)+1);
+    uint8_t i;
+    fuzz->nextRange(&i, 1, (uint8_t)SkDisplacementMapEffect::kA_ChannelSelectorType);
+    return static_cast<SkDisplacementMapEffect::ChannelSelectorType>(i);
 }
 
 static SkColorType rand_colortype() {
-    return (SkColorType)R(kLastEnum_SkColorType + 1);
+    uint8_t i;
+    fuzz->nextRange(&i, 0, kLastEnum_SkColorType);
+    return (SkColorType) i;
 }
 
 static void rand_bitmap_for_canvas(SkBitmap* bitmap) {
@@ -278,11 +276,15 @@ static const SkBitmap& make_bitmap() {
         make_checkerboard_bitmap(bitmap[1]);
         initialized = true;
     }
-    return bitmap[R(2)];
+    uint8_t i;
+    fuzz->nextRange(&i, 0, 1);
+    return bitmap[i];
 }
 
 static sk_sp<SkData> make_3Dlut(int* cubeDimension, bool invR, bool invG, bool invB) {
-    int size = 4 << R(5);
+    uint8_t shift;
+    fuzz->nextRange(&shift, 0, 4);
+    int size = 4 << shift;
     auto data = SkData::MakeUninitialized(sizeof(SkColor) * size * size * size);
     SkColor* pixels = (SkColor*)(data->writable_data());
     SkAutoTMalloc<uint8_t> lutMemory(size);
@@ -327,19 +329,13 @@ static void drawSomething(SkCanvas* canvas) {
     canvas->drawText("Picture", 7, SkIntToScalar(kBitmapSize/2), SkIntToScalar(kBitmapSize/4), paint);
 }
 
-static void rand_color_table(uint8_t* table) {
-    for (int i = 0; i < 256; ++i) {
-        table[i] = R(256);
-    }
-}
-
 static sk_sp<SkColorFilter> make_color_filter() {
-    switch (R(6)) {
+    uint8_t s;
+    fuzz->nextRange(&s, 0, 5);
+    switch (s) {
         case 0: {
             SkScalar array[20];
-            for (int i = 0; i < 20; ++i) {
-                array[i] = make_scalar();
-            }
+            fuzz->nextN(array, 20);
             return SkColorFilter::MakeMatrixFilterRowMajor255(array);
         }
         case 1:
@@ -349,16 +345,22 @@ static sk_sp<SkColorFilter> make_color_filter() {
             uint8_t tableR[256];
             uint8_t tableG[256];
             uint8_t tableB[256];
-            rand_color_table(tableA);
-            rand_color_table(tableR);
-            rand_color_table(tableG);
-            rand_color_table(tableB);
+            fuzz->nextN(tableA, 256);
+            fuzz->nextN(tableR, 256);
+            fuzz->nextN(tableG, 256);
+            fuzz->nextN(tableB, 256);
             return SkTableColorFilter::MakeARGB(tableA, tableR, tableG, tableB);
         }
-        case 3:
-            return SkColorFilter::MakeModeFilter(make_color(), make_blendmode());
-        case 4:
-            return SkColorMatrixFilter::MakeLightingFilter(make_color(), make_color());
+        case 3: {
+            SkColor c = make_color();
+            SkBlendMode mode = make_blendmode();
+            return SkColorFilter::MakeModeFilter(c, mode);
+        }
+        case 4: {
+            SkColor a = make_color();
+            SkColor b = make_color();
+            return SkColorMatrixFilter::MakeLightingFilter(a, b);
+        }
         case 5:
         default:
             break;
@@ -368,30 +370,38 @@ static sk_sp<SkColorFilter> make_color_filter() {
 
 static SkPath make_path() {
     SkPath path;
-    int numOps = R(30);
-    for (int i = 0; i < numOps; ++i) {
-        switch (R(6)) {
+    uint8_t numOps;
+    fuzz->nextRange(&numOps, 0, 30);
+    for (uint8_t i = 0; i < numOps; ++i) {
+        uint8_t op;
+        fuzz->nextRange(&op, 0, 5);
+        SkScalar a, b, c, d, e, f;
+        switch (op) {
             case 0:
-                path.moveTo(make_scalar(), make_scalar());
+                fuzz->next(&a, &b);
+                path.moveTo(a, b);
                 break;
             case 1:
-                path.lineTo(make_scalar(), make_scalar());
+                fuzz->next(&a, &b);
+                path.lineTo(a, b);
                 break;
             case 2:
-                path.quadTo(make_scalar(), make_scalar(), make_scalar(), make_scalar());
+                fuzz->next(&a, &b, &c, &d);
+                path.quadTo(a, b, c, d);
                 break;
             case 3:
-                path.conicTo(make_scalar(), make_scalar(), make_scalar(), make_scalar(), make_scalar());
+                fuzz->next(&a, &b, &c, &d, &e);
+                path.conicTo(a, b, c, d, e);
                 break;
             case 4:
-                path.cubicTo(make_scalar(), make_scalar(), make_scalar(),
-                             make_scalar(), make_scalar(), make_scalar());
+                fuzz->next(&a, &b, &c, &d, &e, &f);
+                path.cubicTo(a, b, c, d, e, f);
                 break;
             case 5:
             default:
-                path.arcTo(make_scalar(), make_scalar(), make_scalar(), make_scalar(), make_scalar());
+                fuzz->next(&a, &b, &c, &d, &e);
+                path.arcTo(a, b, c, d, e);
                 break;
-
         }
     }
     path.close();
@@ -400,65 +410,98 @@ static SkPath make_path() {
 
 static sk_sp<SkPathEffect> make_path_effect(bool canBeNull = true) {
     sk_sp<SkPathEffect> pathEffect;
-    if (canBeNull && (R(3) == 0)) { return pathEffect; }
+    uint8_t s;
+    fuzz->nextRange(&s, 0, 2);
+    if (canBeNull && s == 0) { return pathEffect; }
 
-    switch (R(9)) {
-        case 0:
-            pathEffect = SkArcToPathEffect::Make(make_scalar(true));
-            break;
-        case 1:
-            pathEffect = SkComposePathEffect::Make(make_path_effect(false),
-                                                   make_path_effect(false));
-            break;
-        case 2:
-            pathEffect = SkCornerPathEffect::Make(make_scalar());
-            break;
-        case 3: {
-            int count = R(10);
-            SkScalar intervals[10];
-            for (int i = 0; i < count; ++i) {
-                intervals[i] = make_scalar();
-            }
-            pathEffect = SkDashPathEffect::Make(intervals, count, make_scalar());
+    fuzz->nextRange(&s, 0, 8);
+
+    switch (s) {
+        case 0: {
+            SkScalar a = make_number(true);
+            pathEffect = SkArcToPathEffect::Make(a);
             break;
         }
-        case 4:
-            pathEffect = SkDiscretePathEffect::Make(make_scalar(), make_scalar());
+        case 1: {
+            sk_sp<SkPathEffect> a = make_path_effect(false);
+            sk_sp<SkPathEffect> b = make_path_effect(false);
+            pathEffect = SkComposePathEffect::Make(a, b);
             break;
-        case 5:
-            pathEffect = SkPath1DPathEffect::Make(make_path(), make_scalar(), make_scalar(),
-                                                  make_path_1d_path_effect_style());
+        }
+        case 2: {
+            SkScalar a = make_number(false);
+            pathEffect = SkCornerPathEffect::Make(a);
             break;
-        case 6:
-            pathEffect = SkLine2DPathEffect::Make(make_scalar(), make_matrix());
+        }
+        case 3: {
+            uint8_t count;
+            fuzz->nextRange(&count, 0, 9);
+            SkScalar intervals[10];
+            fuzz->nextN(intervals, 10);
+            SkScalar a = make_number(false);
+            pathEffect = SkDashPathEffect::Make(intervals, count, a);
             break;
-        case 7:
-            pathEffect = SkPath2DPathEffect::Make(make_matrix(), make_path());
+        }
+        case 4: {
+            SkScalar a, b;
+            fuzz->next(&a, &b);
+            pathEffect = SkDiscretePathEffect::Make(a, b);
             break;
+        }
+        case 5: {
+            SkPath path = make_path();
+            SkScalar a, b;
+            fuzz->next(&a, &b);
+            SkPath1DPathEffect::Style style = make_path_1d_path_effect_style();
+            pathEffect = SkPath1DPathEffect::Make(path, a, b, style);
+            break;
+        }
+        case 6: {
+            SkScalar a = make_number(false);
+            SkMatrix m;
+            init_matrix(&m);
+            pathEffect = SkLine2DPathEffect::Make(a, m);
+            break;
+        }
+        case 7: {
+            SkPath path = make_path();
+            SkMatrix m;
+            init_matrix(&m);
+            pathEffect = SkPath2DPathEffect::Make(m, path);
+            break;
+        }
         case 8:
-        default:
-            pathEffect = SkSumPathEffect::Make(make_path_effect(false),
-                                               make_path_effect(false));
+        default: {
+            sk_sp<SkPathEffect> a = make_path_effect(false);
+            sk_sp<SkPathEffect> b = make_path_effect(false);
+            pathEffect = SkSumPathEffect::Make(a, b);
             break;
+        }
     }
     return pathEffect;
 }
 
 static sk_sp<SkMaskFilter> make_mask_filter() {
     sk_sp<SkMaskFilter> maskFilter;
-    switch (R(3)) {
-        case 0:
-            maskFilter = SkBlurMaskFilter::Make(make_blur_style(), make_scalar(),
-                                                make_blur_mask_filter_flag());
+    uint8_t s;
+    fuzz->nextRange(&s, 0, 2);
+    switch (s) {
+        case 0: {
+            SkBlurStyle blur = make_blur_style();
+            SkScalar a = make_number(false);
+            SkBlurMaskFilter::BlurFlags flags = make_blur_mask_filter_flag();
+            maskFilter = SkBlurMaskFilter::Make(blur, a, flags);
+            break;
+        }
         case 1: {
+            SkScalar a = make_number(false);
             SkEmbossMaskFilter::Light light;
-            for (int i = 0; i < 3; ++i) {
-                light.fDirection[i] = make_scalar();
-            }
-            light.fPad = R(65536);
-            light.fAmbient = R(256);
-            light.fSpecular = R(256);
-            maskFilter = SkEmbossMaskFilter::Make(make_scalar(), light);
+            fuzz->nextN(light.fDirection, 3);
+            fuzz->nextRange(&light.fPad, 0, 65535);
+            fuzz->nextRange(&light.fAmbient, 0, 255);
+            fuzz->nextRange(&light.fSpecular, 0, 255);
+            maskFilter = SkEmbossMaskFilter::Make(a, light);
+            break;
         }
         case 2:
         default:
@@ -490,8 +533,8 @@ static SkPaint make_paint() {
     paint.setFilterQuality(make_filter_quality());
     paint.setStyle(make_paint_style());
     paint.setColor(make_color());
-    paint.setStrokeWidth(make_scalar());
-    paint.setStrokeMiter(make_scalar());
+    paint.setStrokeWidth(make_number(false));
+    paint.setStrokeMiter(make_number(false));
     paint.setStrokeCap(make_paint_cap());
     paint.setStrokeJoin(make_paint_join());
     paint.setColorFilter(make_color_filter());
@@ -506,17 +549,21 @@ static SkPaint make_paint() {
 
     SkLayerRasterizer::Builder rasterizerBuilder;
     SkPaint paintForRasterizer;
-    if (R(2) == 1) {
+    if (make_bool()) {
         paintForRasterizer = make_paint();
     }
     rasterizerBuilder.addLayer(paintForRasterizer);
     paint.setRasterizer(rasterizerBuilder.detach());
     paint.setImageFilter(make_image_filter());
-    sk_sp<SkData> data(make_3Dlut(nullptr, make_bool(), make_bool(), make_bool()));
+    bool a, b, c;
+    fuzz->next(&a, &b, &c);
+    sk_sp<SkData> data(make_3Dlut(nullptr, a, b, c));
     paint.setTextAlign(make_paint_align());
-    paint.setTextSize(make_scalar());
-    paint.setTextScaleX(make_scalar());
-    paint.setTextSkewX(make_scalar());
+    SkScalar d, e, f;
+    fuzz->next(&d, &e, &f);
+    paint.setTextSize(d);
+    paint.setTextScaleX(e);
+    paint.setTextSkewX(f);
     paint.setTextEncoding(make_paint_text_encoding());
     return paint;
 }
@@ -525,7 +572,9 @@ static sk_sp<SkImageFilter> make_image_filter(bool canBeNull) {
     sk_sp<SkImageFilter> filter;
 
     // Add a 1 in 3 chance to get a nullptr input
-    if (fuzz->exhausted() || (canBeNull && R(3) == 1)) {
+    uint8_t i;
+    fuzz->nextRange(&i, 0, 2);
+    if (fuzz->exhausted() || (canBeNull && i == 1)) {
         return filter;
     }
 
@@ -534,18 +583,24 @@ static sk_sp<SkImageFilter> make_image_filter(bool canBeNull) {
            DISTANT_LIGHT, POINT_LIGHT, SPOT_LIGHT, NOISE, DROP_SHADOW,
            MORPHOLOGY, BITMAP, DISPLACE, TILE, PICTURE, PAINT, NUM_FILTERS };
 
-    switch (R(NUM_FILTERS)) {
-    case ALPHA_THRESHOLD:
-        filter = SkAlphaThresholdFilter::Make(make_region(),
-                                              make_scalar(),
-                                              make_scalar(),
-                                              make_image_filter());
+    uint8_t s;
+    fuzz->nextRange(&s, 0, NUM_FILTERS - 1);
+    switch (s) {
+    case ALPHA_THRESHOLD: {
+        SkRegion reg = make_region();
+        SkScalar innerMin, outerMax;
+        fuzz->next(&innerMin, &outerMax);
+        sk_sp<SkImageFilter> fil = make_image_filter();
+        filter = SkAlphaThresholdFilter::Make(reg, innerMin, outerMax, fil);
         break;
-    case MERGE:
-        filter = SkMergeImageFilter::Make(make_image_filter(),
-                                          make_image_filter(),
-                                          make_blendmode());
+    }
+    case MERGE: {
+        sk_sp<SkImageFilter> filA = make_image_filter();
+        sk_sp<SkImageFilter> filB = make_image_filter();
+        SkBlendMode blend = make_blendmode();
+        filter = SkMergeImageFilter::Make(filA, filB, blend);
         break;
+    }
     case COLOR: {
         sk_sp<SkColorFilter> cf(make_color_filter());
         filter = cf ? SkColorFilterImageFilter::Make(std::move(cf), make_image_filter())
@@ -554,102 +609,141 @@ static sk_sp<SkImageFilter> make_image_filter(bool canBeNull) {
     }
     case LUT3D: {
         int cubeDimension;
-        sk_sp<SkData> lut3D(make_3Dlut(&cubeDimension, (R(2) == 1), (R(2) == 1), (R(2) == 1)));
+        bool a, b, c;
+        fuzz->next(&a, &b, &c);
+        sk_sp<SkData> lut3D(make_3Dlut(&cubeDimension, a, b, c));
         sk_sp<SkColorFilter> cf(SkColorCubeFilter::Make(std::move(lut3D), cubeDimension));
         filter = cf ? SkColorFilterImageFilter::Make(std::move(cf), make_image_filter())
                     : nullptr;
         break;
     }
-    case BLUR:
-        filter = SkBlurImageFilter::Make(make_scalar(true),
-                                         make_scalar(true),
-                                         make_image_filter());
+    case BLUR: {
+        SkScalar sX = make_number(true);
+        SkScalar sY = make_number(true);
+        sk_sp<SkImageFilter> fil = make_image_filter();
+
+        filter = SkBlurImageFilter::Make(sX, sY, fil);
         break;
-    case MAGNIFIER:
-        filter = SkMagnifierImageFilter::Make(make_rect(),
-                                              make_scalar(true),
-                                              make_image_filter());
+    }
+    case MAGNIFIER: {
+        SkRect rect = make_rect();
+        SkScalar inset = make_number(true);
+        sk_sp<SkImageFilter> fil = make_image_filter();
+        filter = SkMagnifierImageFilter::Make(rect, inset, fil);
         break;
-    case BLENDMODE:
-        filter = SkXfermodeImageFilter::Make(make_blendmode(),
-                                             make_image_filter(),
-                                             make_image_filter(),
-                                             nullptr);
+    }
+    case BLENDMODE: {
+        SkBlendMode mode = make_blendmode();
+        sk_sp<SkImageFilter> filA = make_image_filter();
+        sk_sp<SkImageFilter> filB = make_image_filter();
+        filter = SkXfermodeImageFilter::Make(mode, filA, filB, nullptr);
         break;
-    case OFFSET:
-        filter = SkOffsetImageFilter::Make(make_scalar(), make_scalar(), make_image_filter());
+    }
+    case OFFSET: {
+        SkScalar dx, dy;
+        fuzz->next(&dx, &dy);
+        sk_sp<SkImageFilter> fil = make_image_filter();
+        filter = SkOffsetImageFilter::Make(dx, dy, fil);
         break;
-    case MATRIX:
-        filter = SkImageFilter::MakeMatrixFilter(make_matrix(),
-                                                 (SkFilterQuality)R(4),
-                                                 make_image_filter());
+    }
+    case MATRIX: {
+        SkMatrix m;
+        init_matrix(&m);
+        int qual;
+        fuzz->nextRange(&qual, 0, SkFilterQuality::kLast_SkFilterQuality - 1);
+        sk_sp<SkImageFilter> fil = make_image_filter();
+        filter = SkImageFilter::MakeMatrixFilter(m, (SkFilterQuality)qual, fil);
         break;
+    }
     case MATRIX_CONVOLUTION: {
         SkImageFilter::CropRect cropR(SkRect::MakeWH(SkIntToScalar(kBitmapSize),
                                                      SkIntToScalar(kBitmapSize)));
-        SkISize size = SkISize::Make(R(10)+1, R(10)+1);
+        int w, h;
+        fuzz->nextRange(&w, 1, 10);
+        fuzz->nextRange(&h, 1, 10);
+        SkISize size = SkISize::Make(w, h);
         int arraySize = size.width() * size.height();
         SkTArray<SkScalar> kernel(arraySize);
         for (int i = 0; i < arraySize; ++i) {
-            kernel.push_back() = make_scalar();
+            kernel.push_back() = make_number(false);
         }
-        SkIPoint kernelOffset = SkIPoint::Make(R(SkIntToScalar(size.width())),
-                                               R(SkIntToScalar(size.height())));
-
+        fuzz->nextRange(&w, 0, size.width()  - 1);
+        fuzz->nextRange(&h, 0, size.height() - 1);
+        SkIPoint kernelOffset = SkIPoint::Make(w, h);
+        int mode;
+        fuzz->nextRange(&mode, 0, SkMatrixConvolutionImageFilter::kMax_TileMode - 1);
+        bool convolveAlpha = make_bool();
+        SkScalar gain, bias;
+        fuzz->next(&gain, &bias);
+        sk_sp<SkImageFilter> fil = make_image_filter();
         filter = SkMatrixConvolutionImageFilter::Make(size,
                                                       kernel.begin(),
-                                                      make_scalar(),
-                                                      make_scalar(),
+                                                      gain,
+                                                      bias,
                                                       kernelOffset,
-                                                      (SkMatrixConvolutionImageFilter::TileMode)R(3),
-                                                      R(2) == 1,
-                                                      make_image_filter(),
+                                                      (SkMatrixConvolutionImageFilter::TileMode)mode,
+                                                      convolveAlpha,
+                                                      fil,
                                                       &cropR);
         break;
     }
-    case COMPOSE:
-        filter = SkComposeImageFilter::Make(make_image_filter(), make_image_filter());
+    case COMPOSE: {
+        sk_sp<SkImageFilter> filA = make_image_filter();
+        sk_sp<SkImageFilter> filB = make_image_filter();
+        filter = SkComposeImageFilter::Make(filA, filB);
         break;
-    case DISTANT_LIGHT:
-        filter = (R(2) == 1)
-                 ? SkLightingImageFilter::MakeDistantLitDiffuse(make_point(), make_color(),
-                                                                make_scalar(), make_scalar(),
-                                                                make_image_filter())
-                 : SkLightingImageFilter::MakeDistantLitSpecular(make_point(), make_color(),
-                                                                 make_scalar(), make_scalar(),
-                                                                 SkIntToScalar(R(10)),
-                                                                 make_image_filter());
+    }
+    case DISTANT_LIGHT: {
+        SkPoint3 p = make_point();
+        SkColor c = make_color();
+        SkScalar ss, kd;
+        fuzz->next(&ss, &kd);
+        int shininess;
+        fuzz->nextRange(&shininess, 0, 9);
+        sk_sp<SkImageFilter> fil = make_image_filter();
+        filter = make_bool()
+                 ? SkLightingImageFilter::MakeDistantLitDiffuse(p, c, ss, kd, fil)
+                 : SkLightingImageFilter::MakeDistantLitSpecular(p, c, ss, kd, shininess, fil);
         break;
-    case POINT_LIGHT:
-        filter = (R(2) == 1)
-                 ? SkLightingImageFilter::MakePointLitDiffuse(make_point(), make_color(),
-                                                              make_scalar(), make_scalar(),
-                                                              make_image_filter())
-                 : SkLightingImageFilter::MakePointLitSpecular(make_point(), make_color(),
-                                                               make_scalar(), make_scalar(),
-                                                               SkIntToScalar(R(10)),
-                                                               make_image_filter());
+    }
+    case POINT_LIGHT: {
+        SkPoint3 p = make_point();
+        SkColor c = make_color();
+        SkScalar ss, kd;
+        fuzz->next(&ss, &kd);
+        int shininess;
+        fuzz->nextRange(&shininess, 0, 9);
+        sk_sp<SkImageFilter> fil = make_image_filter();
+        filter = make_bool()
+                 ? SkLightingImageFilter::MakePointLitDiffuse(p, c, ss, kd, fil)
+                 : SkLightingImageFilter::MakePointLitSpecular(p, c, ss, kd, shininess, fil);
         break;
-    case SPOT_LIGHT:
-        filter = (R(2) == 1)
+    }
+    case SPOT_LIGHT: {
+        SkPoint3 p = make_point();
+        SkColor c = make_color();
+        SkScalar se, ca, ss, kd;
+        fuzz->next(&se, &ca, &ss, &kd);
+        int shininess;
+        fuzz->nextRange(&shininess, 0, 9);
+        sk_sp<SkImageFilter> fil = make_image_filter();
+        filter = make_bool()
                  ? SkLightingImageFilter::MakeSpotLitDiffuse(SkPoint3::Make(0, 0, 0),
-                                                             make_point(), make_scalar(),
-                                                             make_scalar(), make_color(),
-                                                             make_scalar(), make_scalar(),
-                                                             make_image_filter())
+                                                             p, se, ca, c, ss, kd, fil)
                  : SkLightingImageFilter::MakeSpotLitSpecular(SkPoint3::Make(0, 0, 0),
-                                                              make_point(), make_scalar(),
-                                                              make_scalar(), make_color(),
-                                                              make_scalar(), make_scalar(),
-                                                              SkIntToScalar(R(10)),
-                                                              make_image_filter());
+                                                              p, se, ca, c, ss, kd,
+                                                              shininess, fil);
         break;
+    }
     case NOISE: {
-        sk_sp<SkShader> shader((R(2) == 1)
-                ? SkPerlinNoiseShader::MakeFractalNoise(make_scalar(true), make_scalar(true),
-                                                        R(10.0f), make_scalar())
-                : SkPerlinNoiseShader::MakeTurbulence(make_scalar(true), make_scalar(true),
-                                                      R(10.0f), make_scalar()));
+        SkScalar bfx = make_number(true);
+        SkScalar bfy = make_number(true);
+        SkScalar seed = make_number(false);
+        int octaves;
+        fuzz->nextRange(&octaves, 0, 9);
+        sk_sp<SkShader> shader(make_bool()
+                ? SkPerlinNoiseShader::MakeFractalNoise(bfx, bfy, octaves, seed)
+                : SkPerlinNoiseShader::MakeTurbulence(bfx, bfy, octaves, seed));
         SkPaint paint;
         paint.setShader(shader);
         SkImageFilter::CropRect cropR(SkRect::MakeWH(SkIntToScalar(kBitmapSize),
@@ -657,30 +751,32 @@ static sk_sp<SkImageFilter> make_image_filter(bool canBeNull) {
         filter = SkPaintImageFilter::Make(paint, &cropR);
         break;
     }
-    case DROP_SHADOW:
-        filter = SkDropShadowImageFilter::Make(make_scalar(),
-                                               make_scalar(),
-                                               make_scalar(true),
-                                               make_scalar(true),
-                                               make_color(),
-                                               make_shadow_mode(),
-                                               make_image_filter(),
-                                               nullptr);
+    case DROP_SHADOW: {
+        SkScalar dx, dy, sx, sy;
+        fuzz->next(&dx, &dy);
+        sx = make_number(true);
+        sy = make_number(true);
+        SkColor c = make_color();
+        SkDropShadowImageFilter::ShadowMode mode = make_shadow_mode();
+        sk_sp<SkImageFilter> fil = make_image_filter();
+        filter = SkDropShadowImageFilter::Make(dx, dy, sx, sy, c, mode, fil, nullptr);
         break;
-    case MORPHOLOGY:
-        if (R(2) == 1) {
-            filter = SkDilateImageFilter::Make(R(static_cast<float>(kBitmapSize)),
-                                               R(static_cast<float>(kBitmapSize)),
-                                               make_image_filter());
+    }
+    case MORPHOLOGY: {
+        int rx, ry;
+        fuzz->nextRange(&rx, 0, kBitmapSize);
+        fuzz->nextRange(&ry, 0, kBitmapSize);
+        sk_sp<SkImageFilter> fil = make_image_filter();
+        if (make_bool()) {
+            filter = SkDilateImageFilter::Make(rx, ry, fil);
         } else {
-            filter = SkErodeImageFilter::Make(R(static_cast<float>(kBitmapSize)),
-                                              R(static_cast<float>(kBitmapSize)),
-                                              make_image_filter());
+            filter = SkErodeImageFilter::Make(rx, ry, fil);
         }
         break;
+    }
     case BITMAP: {
         sk_sp<SkImage> image(SkImage::MakeFromBitmap(make_bitmap()));
-        if (R(2) == 1) {
+        if (make_bool()) {
             filter = SkImageSource::Make(std::move(image),
                                          make_rect(),
                                          make_rect(),
@@ -690,16 +786,23 @@ static sk_sp<SkImageFilter> make_image_filter(bool canBeNull) {
         }
         break;
     }
-    case DISPLACE:
-        filter = SkDisplacementMapEffect::Make(make_channel_selector_type(),
-                                               make_channel_selector_type(),
-                                               make_scalar(),
-                                               make_image_filter(false),
-                                               make_image_filter());
+    case DISPLACE: {
+        SkDisplacementMapEffect::ChannelSelectorType x = make_channel_selector_type();
+        SkDisplacementMapEffect::ChannelSelectorType y = make_channel_selector_type();
+        SkScalar scale = make_number(false);
+        sk_sp<SkImageFilter> filA = make_image_filter(false);
+        sk_sp<SkImageFilter> filB = make_image_filter();
+
+        filter = SkDisplacementMapEffect::Make(x, y, scale, filA, filB);
         break;
-    case TILE:
-        filter = SkTileImageFilter::Make(make_rect(), make_rect(), make_image_filter(false));
+    }
+    case TILE: {
+        SkRect src = make_rect();
+        SkRect dest = make_rect();
+        sk_sp<SkImageFilter> fil = make_image_filter(false);
+        filter = SkTileImageFilter::Make(src, dest, fil);
         break;
+    }
     case PICTURE: {
         SkRTreeFactory factory;
         SkPictureRecorder recorder;
@@ -730,9 +833,15 @@ static sk_sp<SkImageFilter> make_serialized_image_filter() {
 #ifdef SK_ADD_RANDOM_BIT_FLIPS
     unsigned char* p = const_cast<unsigned char*>(ptr);
     for (size_t i = 0; i < len; ++i, ++p) {
-        if (R(250) == 1) { // 0.4% of the time, flip a bit or byte
-            if (R(10) == 1) { // Then 10% of the time, change a whole byte
-                switch(R(3)) {
+        uint8_t j;
+        fuzz->nextRange(&j, 1, 250);
+        if (j == 1) { // 0.4% of the time, flip a bit or byte
+            uint8_t k;
+            fuzz->nextRange(&k, 1, 10);
+            if (k == 1) { // Then 10% of the time, change a whole byte
+                uint8_t s;
+                fuzz->nextRange(&s, 0, 2);
+                switch(s) {
                 case 0:
                     *p ^= 0xFF; // Flip entire byte
                     break;
@@ -744,7 +853,9 @@ static sk_sp<SkImageFilter> make_serialized_image_filter() {
                     break;
                 }
             } else {
-                *p ^= (1 << R(8));
+                uint8_t s;
+                fuzz->nextRange(&s, 0, 7);
+                *p ^= (1 << 7);
             }
         }
     }
