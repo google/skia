@@ -25,6 +25,24 @@
     },
     {
       "key": {
+        "uuid": "4b770b47_abcbbe5d",
+        "filename": "infra/bots/assets/skpbench/common.py",
+        "patchSetId": 17
+      },
+      "lineNbr": 1,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2016-11-10T14:52:56Z",
+      "side": 1,
+      "message": "Big +1.\n\nI\u0027d probably actively avoid working with skpbench if I knew I had to update an asset package every time I tweaked a script.",
+      "parentUuid": "4b770b47_4b881a3d",
+      "revId": "45d2848fcbb14178d1d94bb8f524986be86df3aa",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "4b770b47_0b5452c4",
         "filename": "infra/bots/recipe_modules/flavor/api.py",
         "patchSetId": 17
