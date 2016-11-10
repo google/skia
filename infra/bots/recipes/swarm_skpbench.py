@@ -1,0 +1,100 @@
+# Copyright 2016 The Chromium Authors. All rights reserved.
+# Use of this source code is governed by a BSD-style license that can be
+# found in the LICENSE file.
+
+
+# Recipe module for Skia Swarming skpbench.
+
+
+DEPS = [
+  'core',
+  'recipe_engine/path',
+  'recipe_engine/properties',
+  'recipe_engine/python',
+  'recipe_engine/step',
+  'run',
+  'flavor',
+  'vars',
+]
+
+
+TEST_BUILDERS = {
+  'client.skia': {
+    'skiabot-linux-swarm-000': [
+      'Perf-Android-Clang-PixelC-GPU-TegraX1-arm64-Release-GN_Android_Skpbench',
+    ],
+  },
+}
+
+# Data should go under in _data_dir, which may be preserved across runs.
+_data_dir = '/sdcard/revenge_of_the_skiabot/'
+# Executables go under _bin_dir, which, well, allows executable files.
+_bin_dir  = '/data/local/tmp/'
+
+
+def _strip_environment(api):
+  api.vars.default_env = {k: v for (k,v)
+                             in api.vars.default_env.iteritems()
+                             if k in ['PATH']}
+
+
+def _run(api, title, *cmd, **kwargs):
+  _strip_environment(api)
+  return api.run(api.step, title, cmd=list(cmd),
+                 cwd=api.vars.skia_dir, **kwargs)
+
+
+def _adb(api, title, *cmd, **kwargs):
+  if 'infra_step' not in kwargs:
+    kwargs['infra_step'] = True
+  return _run(api, title, 'adb', *cmd, **kwargs)
+
+
+def skpbench_steps(api):
+  """benchmark Skia using skpbench."""
+  app = api.vars.skia_out.join(api.vars.configuration, 'skpbench')
+  _adb(api, 'push skpbench', 'push', app, _bin_dir)
+
+  api.run(api.python, 'Run Skpbench on device',
+      script=api.vars.local_skpbench_dir.join('skpbench.py'),
+      args=[
+        '--adb',
+        api.path.join(_bin_dir, 'skpbench'),
+        api.path.join(_data_dir, 'skps')])
+
+
+def RunSteps(api):
+  api.core.setup()
+  try:
+    api.flavor.install(images=False, svgs=False)
+    skpbench_steps(api)
+  finally:
+    api.flavor.cleanup_steps()
+  api.run.check_failure()
+
+
+def GenTests(api):
+  for mastername, slaves in TEST_BUILDERS.iteritems():
+    for slavename, builders_by_slave in slaves.iteritems():
+      for builder in builders_by_slave:
+        test = (
+          api.test(builder) +
+          api.properties(buildername=builder,
+                         mastername=mastername,
+                         slavename=slavename,
+                         buildnumber=5,
+                         revision='abc123',
+                         path_config='kitchen',
+                         swarm_out_dir='[SWARM_OUT_DIR]') +
+          api.path.exists(
+              api.path['slave_build'].join('skia'),
+              api.path['slave_build'].join('skia', 'infra', 'bots', 'assets',
+                                           'skimage', 'VERSION'),
+              api.path['slave_build'].join('skia', 'infra', 'bots', 'assets',
+                                           'skp', 'VERSION'),
+              api.path['slave_build'].join('tmp', 'uninteresting_hashes.txt')
+          )
+        )
+
+        yield test
+

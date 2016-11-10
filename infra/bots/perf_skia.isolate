@@ -4,6 +4,7 @@
     'ios_bin.isolate',
     'resources.isolate',
     'swarm_recipe.isolate',
+    'skpbench.isolate',
   ],
   'variables': {
     'files': [

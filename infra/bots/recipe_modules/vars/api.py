@@ -79,6 +79,7 @@ class SkiaVarsApi(recipe_api.RecipeApi):
     self.swarming_out_dir = self.make_path(self.m.properties['swarm_out_dir'])
     self.local_skp_dir = self.slave_dir.join('skp')
     self.local_svg_dir = self.slave_dir.join('svg')
+    self.local_skpbench_dir = self.slave_dir.join('skpbench')
     if not self.is_compile_bot:
       self.skia_out = self.slave_dir.join('out')
     self.tmp_dir = self.m.path['slave_build'].join('tmp')
