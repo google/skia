@@ -125,7 +125,7 @@ public:
             const GrGpuCommandBuffer::LoadAndStoreInfo& stencilInfo) override;
 
     void invalidateBoundRenderTarget() {
-        fHWBoundRenderTargetUniqueID = SK_InvalidUniqueID;
+        fHWBoundRenderTargetUniqueID.makeInvalid();
     }
 
     GrStencilAttachment* createStencilAttachmentForRenderTarget(const GrRenderTarget* rt,
@@ -530,12 +530,12 @@ private:
     } fHWVertexArrayState;
 
     struct {
-        GrGLenum   fGLTarget;
-        uint32_t   fBoundBufferUniqueID;
-        bool       fBufferZeroKnownBound;
+        GrGLenum                        fGLTarget;
+        GrGpuResource::UniqueResourceID fBoundBufferUniqueID;
+        bool                            fBufferZeroKnownBound;
 
         void invalidate() {
-            fBoundBufferUniqueID = SK_InvalidUniqueID;
+            fBoundBufferUniqueID.makeInvalid();
             fBufferZeroKnownBound = false;
         }
     } fHWBufferState[kGrBufferTypeCount];
@@ -559,34 +559,34 @@ private:
 
     TriState fMSAAEnabled;
 
-    GrStencilSettings           fHWStencilSettings;
-    TriState                    fHWStencilTestEnabled;
+    GrStencilSettings                   fHWStencilSettings;
+    TriState                            fHWStencilTestEnabled;
 
 
-    GrDrawFace                  fHWDrawFace;
-    TriState                    fHWWriteToColor;
-    uint32_t                    fHWBoundRenderTargetUniqueID;
-    TriState                    fHWSRGBFramebuffer;
-    SkTArray<uint32_t, true>    fHWBoundTextureUniqueIDs;
+    GrDrawFace                          fHWDrawFace;
+    TriState                            fHWWriteToColor;
+    GrGpuResource::UniqueResourceID     fHWBoundRenderTargetUniqueID;
+    TriState                            fHWSRGBFramebuffer;
+    SkTArray<GrGpuResource::UniqueResourceID, true>  fHWBoundTextureUniqueIDs;
 
     struct BufferTexture {
         BufferTexture() : fTextureID(0), fKnownBound(false),
                           fAttachedBufferUniqueID(SK_InvalidUniqueID),
                           fSwizzle(GrSwizzle::RGBA()) {}
 
-        GrGLuint        fTextureID;
-        bool            fKnownBound;
-        GrPixelConfig   fTexelConfig;
-        uint32_t        fAttachedBufferUniqueID;
-        GrSwizzle       fSwizzle;
+        GrGLuint                        fTextureID;
+        bool                            fKnownBound;
+        GrPixelConfig                   fTexelConfig;
+        GrGpuResource::UniqueResourceID fAttachedBufferUniqueID;
+        GrSwizzle                       fSwizzle;
     };
 
-    SkTArray<BufferTexture, true>   fHWBufferTextures;
-    int                             fHWMaxUsedBufferTextureUnit;
+    SkTArray<BufferTexture, true>       fHWBufferTextures;
+    int                                 fHWMaxUsedBufferTextureUnit;
 
     // EXT_raster_multisample.
-    TriState                    fHWRasterMultisampleEnabled;
-    int                         fHWNumRasterSamples;
+    TriState                            fHWRasterMultisampleEnabled;
+    int                                 fHWNumRasterSamples;
     ///@}
 
     /** IDs for copy surface program. (4 sampler types) */
