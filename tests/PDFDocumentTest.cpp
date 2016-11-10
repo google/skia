@@ -61,9 +61,9 @@ static void test_abortWithFile(skiatest::Reporter* reporter) {
     }
 
     FILE* file = fopen(path.c_str(), "r");
-    // The created file should be empty.
-    char buffer[100];
-    REPORTER_ASSERT(reporter, fread(buffer, 1, 1, file) == 0);
+    // Test that only the header is written, not the full document.
+    char buffer[256];
+    REPORTER_ASSERT(reporter, fread(buffer, 1, sizeof(buffer), file) < sizeof(buffer));
     fclose(file);
 }
 
