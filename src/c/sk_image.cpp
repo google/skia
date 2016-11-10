@@ -41,7 +41,7 @@ void sk_image_ref(const sk_image_t* cimage) {
 }
 
 void sk_image_unref(const sk_image_t* cimage) {
-    AsImage(cimage)->unref();
+    SkSafeUnref(AsImage(cimage));
 }
 
 int sk_image_get_width(const sk_image_t* cimage) {
