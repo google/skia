@@ -25,6 +25,24 @@
     },
     {
       "key": {
+        "uuid": "4b770b47_ee947420",
+        "filename": "site/dev/contrib/revert.md",
+        "patchSetId": 2
+      },
+      "lineNbr": 28,
+      "author": {
+        "id": 5145
+      },
+      "writtenOn": "2016-11-10T15:09:01Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "4b770b47_4bbd7ab5",
+      "revId": "b43d6d8bbf637f79e4f410c266a630458f10d150",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "4b770b47_cbd08a0a",
         "filename": "site/dev/contrib/submit.md",
         "patchSetId": 2
@@ -42,6 +60,24 @@
         "endLine": 191,
         "endChar": 79
       },
+      "revId": "b43d6d8bbf637f79e4f410c266a630458f10d150",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "4b770b47_ae8e6c0c",
+        "filename": "site/dev/contrib/submit.md",
+        "patchSetId": 2
+      },
+      "lineNbr": 191,
+      "author": {
+        "id": 5145
+      },
+      "writtenOn": "2016-11-10T15:09:01Z",
+      "side": 1,
+      "message": "Changed back.",
+      "parentUuid": "4b770b47_cbd08a0a",
       "revId": "b43d6d8bbf637f79e4f410c266a630458f10d150",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
