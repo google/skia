@@ -17,7 +17,7 @@
 #include "GrGLTexture.h"
 #include "GrGLVertexArray.h"
 #include "GrGpu.h"
-#include "GrTexturePriv.h"
+#include "GrTypes.h"
 #include "GrWindowRectsState.h"
 #include "GrXferProcessor.h"
 #include "SkTArray.h"
@@ -395,7 +395,7 @@ private:
 
     sk_sp<GrGLContext>          fGLContext;
 
-    bool createCopyProgram(GrTexture* srcTexture);
+    bool createCopyProgram(int progIdx);
     bool createMipmapProgram(int progIdx);
     bool createWireRectProgram();
     bool createPLSSetupProgram();
@@ -589,13 +589,13 @@ private:
     int                         fHWNumRasterSamples;
     ///@}
 
-    /** IDs for copy surface program. (4 sampler types) */
+    /** IDs for copy surface program. */
     struct {
         GrGLuint    fProgram;
         GrGLint     fTextureUniform;
         GrGLint     fTexCoordXformUniform;
         GrGLint     fPosXformUniform;
-    }                           fCopyPrograms[4];
+    }                           fCopyPrograms[3];
     sk_sp<GrGLBuffer>           fCopyProgramArrayBuffer;
 
     /** IDs for texture mipmap program. (4 filter configurations) */
@@ -613,18 +613,16 @@ private:
     }                           fWireRectProgram;
     sk_sp<GrGLBuffer>           fWireRectArrayBuffer;
 
-    static int TextureToCopyProgramIdx(GrTexture* texture) {
-        switch (texture->texturePriv().samplerType()) {
-            case kTexture2DSampler_GrSLType:
+    static int TextureTargetToCopyProgramIdx(GrGLenum target) {
+        switch (target) {
+            case GR_GL_TEXTURE_2D:
                 return 0;
-            case kTexture2DISampler_GrSLType:
+            case GR_GL_TEXTURE_EXTERNAL:
                 return 1;
-            case kTexture2DRectSampler_GrSLType:
+            case GR_GL_TEXTURE_RECTANGLE:
                 return 2;
-            case kTextureExternalSampler_GrSLType:
-                return 3;
             default:
-                SkFAIL("Unexpected samper type");
+                SkFAIL("Unexpected texture target type.");
                 return 0;
         }
     }

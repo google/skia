@@ -19,62 +19,58 @@ bool GrPixelConfigToVkFormat(GrPixelConfig config, VkFormat* format) {
     }
 
     switch (config) {
-        case kUnknown_GrPixelConfig:
-            return false;
         case kRGBA_8888_GrPixelConfig:
             *format = VK_FORMAT_R8G8B8A8_UNORM;
-            return true;
+            break;
         case kBGRA_8888_GrPixelConfig:
             *format = VK_FORMAT_B8G8R8A8_UNORM;
-            return true;
+            break;
         case kSRGBA_8888_GrPixelConfig:
             *format = VK_FORMAT_R8G8B8A8_SRGB;
-            return true;
+            break;
         case kSBGRA_8888_GrPixelConfig:
             *format = VK_FORMAT_B8G8R8A8_SRGB;
-            return true;
-        case kRGBA_8888_sint_GrPixelConfig:
-            *format = VK_FORMAT_R8G8B8A8_SINT;
-            return true;
+            break;
         case kRGB_565_GrPixelConfig:
             *format = VK_FORMAT_R5G6B5_UNORM_PACK16;
-            return true;
+            break;
         case kRGBA_4444_GrPixelConfig:
             // R4G4B4A4 is not required to be supported so we actually
             // store the data is if it was B4G4R4A4 and swizzle in shaders
             *format = VK_FORMAT_B4G4R4A4_UNORM_PACK16;
-            return true;
+            break;
         case kIndex_8_GrPixelConfig:
             // No current vulkan support for this config
             return false;
         case kAlpha_8_GrPixelConfig:
             *format = VK_FORMAT_R8_UNORM;
-            return true;
+            break;
         case kETC1_GrPixelConfig:
             // converting to ETC2 which is a superset of ETC1
             *format = VK_FORMAT_ETC2_R8G8B8_UNORM_BLOCK;
-            return true;
+            break;
         case kLATC_GrPixelConfig:
             // No current vulkan support for this config
             return false;
         case kR11_EAC_GrPixelConfig:
             *format = VK_FORMAT_EAC_R11_UNORM_BLOCK;
-            return true;
+            break;
         case kASTC_12x12_GrPixelConfig:
             *format = VK_FORMAT_ASTC_12x12_UNORM_BLOCK;
-            return true;
+            break;
         case kRGBA_float_GrPixelConfig:
             *format = VK_FORMAT_R32G32B32A32_SFLOAT;
-            return true;
+            break;
         case kRGBA_half_GrPixelConfig:
             *format = VK_FORMAT_R16G16B16A16_SFLOAT;
-            return true;
+            break;
         case kAlpha_half_GrPixelConfig:
             *format = VK_FORMAT_R16_SFLOAT;
-            return true;
+            break;
+        default:
+            return false;
     }
-    SkFAIL("Unexpected config");
-    return false;
+    return true;
 }
 
 bool GrVkFormatToPixelConfig(VkFormat format, GrPixelConfig* config) {
@@ -95,9 +91,6 @@ bool GrVkFormatToPixelConfig(VkFormat format, GrPixelConfig* config) {
             break;
         case VK_FORMAT_B8G8R8A8_SRGB:
             *config = kSBGRA_8888_GrPixelConfig;
-            break;
-        case VK_FORMAT_R8G8B8A8_SINT:
-            *config = kRGBA_8888_sint_GrPixelConfig;
             break;
         case VK_FORMAT_R5G6B5_UNORM_PACK16:
             *config = kRGB_565_GrPixelConfig;

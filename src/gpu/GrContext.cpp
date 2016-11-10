@@ -266,14 +266,10 @@ bool GrContext::writeSurfacePixels(GrSurface* surface,
 
     bool applyPremulToSrc = false;
     if (kUnpremul_PixelOpsFlag & pixelOpsFlags) {
-        if (!GrPixelConfigIs8888Unorm(srcConfig)) {
+        if (!GrPixelConfigIs8888(srcConfig)) {
             return false;
         }
         applyPremulToSrc = true;
-    }
-    // We don't allow conversion between integer configs and float/fixed configs.
-    if (GrPixelConfigIsSint(surface->config()) != GrPixelConfigIsSint(srcConfig)) {
-        return false;
     }
 
     GrGpu::DrawPreference drawPreference = GrGpu::kNoDraw_DrawPreference;
@@ -415,12 +411,8 @@ bool GrContext::readSurfacePixels(GrSurface* src,
     }
 
     bool unpremul = SkToBool(kUnpremul_PixelOpsFlag & flags);
-    if (unpremul && !GrPixelConfigIs8888Unorm(dstConfig)) {
+    if (unpremul && !GrPixelConfigIs8888(dstConfig)) {
         // The unpremul flag is only allowed for 8888 configs.
-        return false;
-    }
-    // We don't allow conversion between integer configs and float/fixed configs.
-    if (GrPixelConfigIsSint(src->config()) != GrPixelConfigIsSint(dstConfig)) {
         return false;
     }
 
@@ -547,11 +539,6 @@ bool GrContext::copySurface(GrSurface* dst, GrSurface* src, const SkIRect& srcRe
     }
     ASSERT_OWNED_RESOURCE(src);
     ASSERT_OWNED_RESOURCE(dst);
-
-    // We don't allow conversion between integer configs and float/fixed configs.
-    if (GrPixelConfigIsSint(dst->config()) != GrPixelConfigIsSint(src->config())) {
-        return false;
-    }
 
     if (!dst->asRenderTarget()) {
         SkIRect clippedSrcRect;
@@ -696,7 +683,6 @@ static inline GrPixelConfig GrPixelConfigFallback(GrPixelConfig config) {
         kRGBA_8888_GrPixelConfig,      // kBGRA_8888_GrPixelConfig
         kUnknown_GrPixelConfig,        // kSRGBA_8888_GrPixelConfig
         kSRGBA_8888_GrPixelConfig,     // kSBGRA_8888_GrPixelConfig
-        kUnknown_GrPixelConfig,        // kRGBA_8888_sint_GrPixelConfig
         kUnknown_GrPixelConfig,        // kETC1_GrPixelConfig
         kUnknown_GrPixelConfig,        // kLATC_GrPixelConfig
         kUnknown_GrPixelConfig,        // kR11_EAC_GrPixelConfig
@@ -716,14 +702,13 @@ static inline GrPixelConfig GrPixelConfigFallback(GrPixelConfig config) {
     GR_STATIC_ASSERT(6  == kBGRA_8888_GrPixelConfig);
     GR_STATIC_ASSERT(7  == kSRGBA_8888_GrPixelConfig);
     GR_STATIC_ASSERT(8  == kSBGRA_8888_GrPixelConfig);
-    GR_STATIC_ASSERT(9  == kRGBA_8888_sint_GrPixelConfig);
-    GR_STATIC_ASSERT(10 == kETC1_GrPixelConfig);
-    GR_STATIC_ASSERT(11 == kLATC_GrPixelConfig);
-    GR_STATIC_ASSERT(12 == kR11_EAC_GrPixelConfig);
-    GR_STATIC_ASSERT(13 == kASTC_12x12_GrPixelConfig);
-    GR_STATIC_ASSERT(14 == kRGBA_float_GrPixelConfig);
-    GR_STATIC_ASSERT(15 == kAlpha_half_GrPixelConfig);
-    GR_STATIC_ASSERT(16 == kRGBA_half_GrPixelConfig);
+    GR_STATIC_ASSERT(9  == kETC1_GrPixelConfig);
+    GR_STATIC_ASSERT(10  == kLATC_GrPixelConfig);
+    GR_STATIC_ASSERT(11  == kR11_EAC_GrPixelConfig);
+    GR_STATIC_ASSERT(12 == kASTC_12x12_GrPixelConfig);
+    GR_STATIC_ASSERT(13 == kRGBA_float_GrPixelConfig);
+    GR_STATIC_ASSERT(14 == kAlpha_half_GrPixelConfig);
+    GR_STATIC_ASSERT(15 == kRGBA_half_GrPixelConfig);
     GR_STATIC_ASSERT(SK_ARRAY_COUNT(kFallback) == kGrPixelConfigCnt);
 }
 

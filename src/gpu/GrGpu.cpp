@@ -104,10 +104,6 @@ static bool check_texture_creation_params(const GrCaps& caps, const GrSurfaceDes
         return false;
     }
 
-    if (GrPixelConfigIsSint(desc.fConfig) && texels.count() > 1) {
-        return false;
-    }
-
     *isRT = SkToBool(desc.fFlags & kRenderTarget_GrSurfaceFlag);
     if (*isRT && !caps.isConfigRenderable(desc.fConfig, desc.fSampleCnt > 0)) {
         return false;
@@ -266,13 +262,6 @@ bool GrGpu::copySurface(GrSurface* dst,
                         const SkIPoint& dstPoint) {
     SkASSERT(dst && src);
     this->handleDirtyContext();
-    // We don't allow conversion between integer configs and float/fixed configs.
-    if (GrPixelConfigIsSint(dst->config()) != GrPixelConfigIsSint(src->config())) {
-        return false;
-    }
-    if (GrPixelConfigIsCompressed(dst->config())) {
-        return false;
-    }
     return this->onCopySurface(dst, src, srcRect, dstPoint);
 }
 
@@ -281,13 +270,7 @@ bool GrGpu::getReadPixelsInfo(GrSurface* srcSurface, int width, int height, size
                               ReadPixelTempDrawInfo* tempDrawInfo) {
     SkASSERT(drawPreference);
     SkASSERT(tempDrawInfo);
-    SkASSERT(srcSurface);
     SkASSERT(kGpuPrefersDraw_DrawPreference != *drawPreference);
-
-    // We don't allow conversion between integer configs and float/fixed configs.
-    if (GrPixelConfigIsSint(srcSurface->config()) != GrPixelConfigIsSint(readConfig)) {
-        return false;
-    }
 
     // We currently do not support reading into a compressed buffer
     if (GrPixelConfigIsCompressed(readConfig)) {
@@ -322,16 +305,10 @@ bool GrGpu::getWritePixelsInfo(GrSurface* dstSurface, int width, int height,
                                WritePixelTempDrawInfo* tempDrawInfo) {
     SkASSERT(drawPreference);
     SkASSERT(tempDrawInfo);
-    SkASSERT(dstSurface);
     SkASSERT(kGpuPrefersDraw_DrawPreference != *drawPreference);
 
     if (GrPixelConfigIsCompressed(dstSurface->desc().fConfig) &&
         dstSurface->desc().fConfig != srcConfig) {
-        return false;
-    }
-
-    // We don't allow conversion between integer configs and float/fixed configs.
-    if (GrPixelConfigIsSint(dstSurface->config()) != GrPixelConfigIsSint(srcConfig)) {
         return false;
     }
 
@@ -366,12 +343,7 @@ bool GrGpu::readPixels(GrSurface* surface,
                        int left, int top, int width, int height,
                        GrPixelConfig config, void* buffer,
                        size_t rowBytes) {
-    SkASSERT(surface);
-
-    // We don't allow conversion between integer configs and float/fixed configs.
-    if (GrPixelConfigIsSint(surface->config()) != GrPixelConfigIsSint(config)) {
-        return false;
-    }
+    this->handleDirtyContext();
 
     // We cannot read pixels into a compressed buffer
     if (GrPixelConfigIsCompressed(config)) {
@@ -386,8 +358,6 @@ bool GrGpu::readPixels(GrSurface* surface,
         return false;
     }
 
-    this->handleDirtyContext();
-
     return this->onReadPixels(surface,
                               left, top, width, height,
                               config, buffer,
@@ -397,16 +367,13 @@ bool GrGpu::readPixels(GrSurface* surface,
 bool GrGpu::writePixels(GrSurface* surface,
                         int left, int top, int width, int height,
                         GrPixelConfig config, const SkTArray<GrMipLevel>& texels) {
-    SkASSERT(surface);
+    if (!surface) {
+        return false;
+    }
     for (int currentMipLevel = 0; currentMipLevel < texels.count(); currentMipLevel++) {
         if (!texels[currentMipLevel].fPixels ) {
             return false;
         }
-    }
-
-    // We don't allow conversion between integer configs and float/fixed configs.
-    if (GrPixelConfigIsSint(surface->config()) != GrPixelConfigIsSint(config)) {
-        return false;
     }
 
     this->handleDirtyContext();
@@ -438,11 +405,6 @@ bool GrGpu::transferPixels(GrSurface* surface,
                            size_t offset, size_t rowBytes, GrFence* fence) {
     SkASSERT(transferBuffer);
     SkASSERT(fence);
-
-    // We don't allow conversion between integer configs and float/fixed configs.
-    if (GrPixelConfigIsSint(surface->config()) != GrPixelConfigIsSint(config)) {
-        return false;
-    }
 
     this->handleDirtyContext();
     if (this->onTransferPixels(surface, left, top, width, height, config,

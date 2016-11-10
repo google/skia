@@ -230,10 +230,6 @@ enum GrPixelConfig {
      */
     kSBGRA_8888_GrPixelConfig,
     /**
-     * 8 bit signed integers per-channel. Byte order is b,g,r,a.
-     */
-    kRGBA_8888_sint_GrPixelConfig,
-    /**
      * ETC1 Compressed Data
      */
     kETC1_GrPixelConfig,
@@ -322,7 +318,7 @@ static inline GrPixelConfig GrMakePixelConfigUncompressed(GrPixelConfig config) 
 }
 
 // Returns true if the pixel config is 32 bits per pixel
-static inline bool GrPixelConfigIs8888Unorm(GrPixelConfig config) {
+static inline bool GrPixelConfigIs8888(GrPixelConfig config) {
     switch (config) {
         case kRGBA_8888_GrPixelConfig:
         case kBGRA_8888_GrPixelConfig:
@@ -376,7 +372,6 @@ static inline size_t GrBytesPerPixel(GrPixelConfig config) {
         case kBGRA_8888_GrPixelConfig:
         case kSRGBA_8888_GrPixelConfig:
         case kSBGRA_8888_GrPixelConfig:
-        case kRGBA_8888_sint_GrPixelConfig:
             return 4;
         case kRGBA_half_GrPixelConfig:
             return 8;
@@ -419,10 +414,6 @@ static inline bool GrPixelConfigIsFloatingPoint(GrPixelConfig config) {
         default:
             return false;
     }
-}
-
-static inline bool GrPixelConfigIsSint(GrPixelConfig config) {
-    return config == kRGBA_8888_sint_GrPixelConfig;
 }
 
 /**
