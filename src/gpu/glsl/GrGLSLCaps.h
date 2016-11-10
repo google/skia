@@ -231,6 +231,7 @@ private:
 
     friend class GrGLCaps;  // For initialization.
     friend class GrVkCaps;
+    friend class SkSLGLSLTestCapsFactory;
 
     typedef GrShaderCaps INHERITED;
 };
