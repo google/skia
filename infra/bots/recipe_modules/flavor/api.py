@@ -97,7 +97,7 @@ class SkiaFlavorApi(recipe_api.RecipeApi):
   def remove_file_on_device(self, path):
     return self._f.remove_file_on_device(path)
 
-  def install(self):
+  def install(self, skps=True, images=True, svgs=True):
     self._f.install()
     self.device_dirs = self._f.device_dirs
 
@@ -107,9 +107,12 @@ class SkiaFlavorApi(recipe_api.RecipeApi):
         self.m.vars.resource_dir,
         self.device_dirs.resource_dir)
 
-    self._copy_skps()
-    self._copy_images()
-    self._copy_svgs()
+    if skps:
+      self._copy_skps()
+    if images:
+      self._copy_images()
+    if svgs:
+      self._copy_svgs()
 
   def cleanup_steps(self):
     return self._f.cleanup_steps()
