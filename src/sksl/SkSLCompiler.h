@@ -43,9 +43,11 @@ public:
     
     bool toSPIRV(Program::Kind kind, const std::string& text, std::string* out);
 
-    bool toGLSL(Program::Kind kind, const std::string& text, GLCaps caps, std::ostream& out);
+    bool toGLSL(Program::Kind kind, const std::string& text, const GrGLSLCaps& caps,
+                std::ostream& out);
     
-    bool toGLSL(Program::Kind kind, const std::string& text, GLCaps caps, std::string* out);
+    bool toGLSL(Program::Kind kind, const std::string& text, const GrGLSLCaps& caps,
+                std::string* out);
 
     void error(Position position, std::string msg) override;
 
