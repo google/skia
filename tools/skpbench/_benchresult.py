@@ -56,9 +56,9 @@ class BenchResult:
   def get_string(self, name):
     return self._match.group(name)
 
-  def print_values(self, config_suffix=None, outfile=sys.stdout):
+  def format(self, config_suffix=None):
     if not config_suffix or config_suffix == '':
-      print(self._match.group(0), file=outfile)
+      return self._match.group(0)
     else:
       values = list()
       for name in ['accum', 'median', 'max', 'min', 'stddev',
@@ -69,4 +69,4 @@ class BenchResult:
       bench_pad = self.get_string('bench_pad')
       values.append(bench_pad[min(len(config_suffix), len(bench_pad) - 1):])
       values.append(self.get_string('bench'))
-      print(''.join(values), file=outfile)
+      return ''.join(values)
