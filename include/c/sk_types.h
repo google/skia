@@ -127,6 +127,18 @@ typedef struct sk_canvas_t sk_canvas_t;
     A sk_data_ holds an immutable data buffer.
 */
 typedef struct sk_data_t sk_data_t;
+
+/**
+    A sk_document_t is an abstraction for a multi-page document.
+*/
+typedef struct sk_document_t sk_document_t;
+
+/**
+   A sk_writer_proc is a callback function that consumes binary data.
+   It returns false for failure or true for success.
+ */
+typedef bool (*sk_writer_proc)(void* context, const void* buffer, size_t size);
+
 /**
     A sk_image_t is an abstraction for drawing a rectagle of pixels.
     The content of the image is always immutable, though the actual
