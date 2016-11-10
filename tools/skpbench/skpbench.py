@@ -56,6 +56,8 @@ __argparse.add_argument('--fps',
     action='store_true', help="use fps instead of ms")
 __argparse.add_argument('-c', '--config',
     default='gpu', help="comma- or space-separated list of GPU configs")
+__argparse.add_argument('-a', '--resultsfile',
+    help="optional file to append results into")
 __argparse.add_argument('skps',
     nargs='+',
     help=".skp files or directories to expand for .skp files")
@@ -113,10 +115,11 @@ class SKPBench:
       ARGV[:0] = ['adb', '-s', FLAGS.device_serial, 'shell']
 
   @classmethod
-  def print_header(cls):
+  def get_header(cls, outfile=sys.stdout):
     commandline = cls.ARGV + ['--duration', '0']
     dump_commandline_if_verbose(commandline)
-    subprocess.call(commandline)
+    out = subprocess.check_output(commandline, stderr=subprocess.STDOUT)
+    return out.rstrip()
 
   @classmethod
   def run_warmup(cls, warmup_time):
@@ -210,7 +213,6 @@ class SKPBench:
             "(%s%% instead of %s%%)." %
             (result.config, result.bench, self.best_result.stddev,
              result.stddev), file=sys.stderr)
-      sys.stdout.flush()
     if self.max_stddev and self.best_result.stddev > self.max_stddev:
       raise StddevException()
 
@@ -221,10 +223,15 @@ class SKPBench:
       self._proc.wait()
       self._proc = None
 
+def emit_result(line, resultsfile=None):
+  print(line)
+  sys.stdout.flush()
+  if resultsfile:
+    print(line, file=resultsfile)
+    resultsfile.flush()
 
-def run_benchmarks(configs, skps, hardware):
-  SKPBench.print_header()
-
+def run_benchmarks(configs, skps, hardware, resultsfile=None):
+  emit_result(SKPBench.get_header(), resultsfile)
   benches = collections.deque([(skp, config, FLAGS.max_stddev)
                                for skp in skps
                                for config in configs])
@@ -234,7 +241,7 @@ def run_benchmarks(configs, skps, hardware):
       try:
         skpbench.execute(hardware)
         if skpbench.best_result:
-          skpbench.best_result.print_values(config_suffix=FLAGS.suffix)
+          emit_result(skpbench.best_result.format(FLAGS.suffix), resultsfile)
         else:
           print("WARNING: no result for %s with config %s" %
                 (skpbench.skp, skpbench.config), file=sys.stderr)
@@ -264,7 +271,6 @@ def run_benchmarks(configs, skps, hardware):
           hardware.print_debug_diagnostics()
         SKPBench.run_warmup(hardware.warmup_time)
 
-
 def main():
   # Delimiter is ',' or ' ', skip if nested inside parens (e.g. gpu(a=b,c=d)).
   DELIMITER = r'[, ](?!(?:[^(]*\([^)]*\))*[^()]*\))'
@@ -290,7 +296,11 @@ def main():
 
   with hardware:
     SKPBench.run_warmup(hardware.warmup_time)
-    run_benchmarks(configs, skps, hardware)
+    if FLAGS.resultsfile:
+      with open(FLAGS.resultsfile, mode='a+') as resultsfile:
+        run_benchmarks(configs, skps, hardware, resultsfile=resultsfile)
+    else:
+      run_benchmarks(configs, skps, hardware)
 
 
 if __name__ == '__main__':
