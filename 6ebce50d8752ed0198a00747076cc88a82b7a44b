@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "4b770b47_eeaa3470",
+        "filename": "fuzz/Fuzz.h",
+        "patchSetId": 10
+      },
+      "lineNbr": 96,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2016-11-10T17:11:34Z",
+      "side": 1,
+      "message": "I think we need to mark both these new functions as inline.",
+      "revId": "6ebce50d8752ed0198a00747076cc88a82b7a44b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
