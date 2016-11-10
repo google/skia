@@ -1,0 +1,84 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "4b770b47_4b881a3d",
+        "filename": "infra/bots/assets/skpbench/common.py",
+        "patchSetId": 17
+      },
+      "lineNbr": 1,
+      "author": {
+        "id": 5015
+      },
+      "writtenOn": "2016-11-10T14:47:43Z",
+      "side": 1,
+      "message": "IMO isolates are a much better option than CIPD for these scripts.  With a CIPD asset, every change to one of the skpbench scripts will require uploading an asset, updating the version number, etc.  With just a few files, isolate will perform fine.",
+      "range": {
+        "startLine": 1,
+        "startChar": 10,
+        "endLine": 1,
+        "endChar": 11
+      },
+      "revId": "45d2848fcbb14178d1d94bb8f524986be86df3aa",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "4b770b47_0b5452c4",
+        "filename": "infra/bots/recipe_modules/flavor/api.py",
+        "patchSetId": 17
+      },
+      "lineNbr": 108,
+      "author": {
+        "id": 5015
+      },
+      "writtenOn": "2016-11-10T14:47:43Z",
+      "side": 1,
+      "message": "Nit: 4-space indent.",
+      "range": {
+        "startLine": 108,
+        "startChar": 8,
+        "endLine": 108,
+        "endChar": 9
+      },
+      "revId": "45d2848fcbb14178d1d94bb8f524986be86df3aa",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "4b770b47_8b404201",
+        "filename": "infra/bots/recipes/swarm_perf.py",
+        "patchSetId": 17
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5015
+      },
+      "writtenOn": "2016-11-10T14:47:43Z",
+      "side": 1,
+      "message": "I think it\u0027d make more sense just to create a separate skpbench recipe.",
+      "revId": "45d2848fcbb14178d1d94bb8f524986be86df3aa",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "4b770b47_ebef86de",
+        "filename": "infra/bots/recipes/swarm_trigger.py",
+        "patchSetId": 17
+      },
+      "lineNbr": 48,
+      "author": {
+        "id": 5015
+      },
+      "writtenOn": "2016-11-10T14:47:43Z",
+      "side": 1,
+      "message": "Not necessary since this file isn\u0027t used by new-style bots.",
+      "revId": "45d2848fcbb14178d1d94bb8f524986be86df3aa",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
