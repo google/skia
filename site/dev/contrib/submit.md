@@ -69,15 +69,6 @@ Use git-cl, which comes with [depot
 tools](http://sites.google.com/a/chromium.org/dev/developers/how-tos/install-depot-tools).
 For help, run git-cl help.
 
-### Configuring git-cl
-
-Before using any git-cl commands you will need to configure it to point at the
-correct code review server. This is accomplished with the following command:
-
-<!--?prettify lang=sh?-->
-
-    git cl config https://skia.googlesource.com/skia/+/master/codereview.settings
-
 ### Find a reviewer
 
 Ideally, the reviewer is someone who is familiar with the area of code you are
@@ -86,8 +77,7 @@ has been editing it.
 
 ### Uploading changes for review
 
-Skia uses Chromium's code review [site](http://codereview.chromium.org) and the
-Rietveld open source code review tool.  
+Skia uses the Gerrit code review tool. Skia's instance is [skia-review](http://skia-review.googlesource.com).
 Use git cl to upload your change:
 
 <!--?prettify lang=sh?-->
@@ -95,26 +85,26 @@ Use git cl to upload your change:
     git cl upload
 
 You may have to enter a Google Account username and password to authenticate
-yourself to codereview.chromium.org. A free gmail account will do fine, or any
+yourself to Gerrit. A free gmail account will do fine, or any
 other type of Google account.  It does not have to match the email address you
 configured using `git config --global user.email` above, but it can.
 
 The command output should include a URL, similar to
-(https://codereview.chromium.org/111893004/), indicating where your changelist
+(https://skia-review.googlesource.com/c/4559/), indicating where your changelist
 can be reviewed.
 
 ### Request review
 
-Go to the supplied URL or go to the code review page and click **Issues created
-by me**. Select the change you want to submit for review and click **Edit
-Issue**. Enter at least one reviewer's email address and click **Update Issue**.
-Now click on **Publish+Mail Comments**, add any optional notes, and send your
-change off for review. Unless you publish your change, no one will know to look
+Go to the supplied URL or go to the code review page and select the **Your**
+dropdown and click on **Changes**. Select the change you want to submit for
+review and click **Reply**. Enter at least one reviewer's email address. Now
+add any optional notes, and send your change off for review by clicking on
+**Send**. Unless you send your change to reviewers, no one will know to look
 at it.
 
-_Note_: If you don't see editing commands on the review page, click **Log In**
+_Note_: If you don't see editing commands on the review page, click **Sign in**
 in the upper right. _Hint_: You can add -r reviewer@example.com --send-mail to
-send the email directly when uploading a change in both gcl and git-cl.
+send the email directly when uploading a change using git-cl.
 
 
 The review process
@@ -122,9 +112,6 @@ The review process
 
 If you submit a giant patch, or do a bunch of work without discussing it with
 the relevant people, you may have a hard time convincing anyone to review it!
-
-Please follow the guidelines on how to conduct a code review detailed here:
-https://code.google.com/p/rietveld/wiki/CodeReviewHelp
 
 Code reviews are an important part of the engineering process. The reviewer will
 almost always have suggestions or style fixes for you, and it's important not to
@@ -146,17 +133,16 @@ code, commit it again locally, and then run git cl upload again e.g.
     git commit -m 'add GOATS fix to whitespace.txt'
     git cl upload
 
-Once you're ready for another review, use **Publish+Mail Comments** again to
-send another notification (it is helpful to tell the review what you did with
-respect to each of their comments). When the reviewer is happy with your patch,
-they will say "LGTM" ("Looks Good To Me").
+Once you're ready for another review, use **Reply** again to send another
+notification (it is helpful to tell the review what you did with respect to each
+of their comments). When the reviewer is happy with your patch, they will
+approve your change by setting the Code-Review label to "+1".
 
 _Note_: As you work through the review process, both you and your reviewers
-should converse using the code review interface, and send notes using
-**Publish+Mail Comments**.
+should converse using the code review interface, and send notes.
 
-Once your change has received an LGTM, you can check the "Commit" box
-on the codereview page and it will be committed on your behalf.
+Once your change has received an approval, you can click the "Submit to CQ"
+button on the codereview page and it will be committed on your behalf.
 
 Once your commit has gone in, you should delete the branch containing your change:
 
@@ -199,13 +185,13 @@ commit your change directly to Skia's repository.
 
 If you don't have committer rights in https://skia.googlesource.com/skia.git ...
 first of all, thanks for submitting your patch!  We really appreciate these
-submissions.  After receiving an LGTM from a committer, you will be able to
-check the commit box and submit your patch via the commit queue.  
+submissions.  After receiving an approval from a committer, you will be able to
+click the "Submit to CQ" button and submit your patch via the commit queue.  
 
-In special instances, a Skia committer may assist you in landing the change by
-creating a new codereview containing your patch (perhaps with some small
-adjustments at his/her discretion).  If so, you can mark your codereview as
-"Closed", and update it with a link to the new codereview.
+In special instances, a Skia committer may assist you in landing the change
+by uploading a new codereview containing your patch (perhaps with some small
+adjustments at his/her discretion).  If so, you can mark your change as
+"Abandoned", and update it with a link to the new codereview.
 
 ### Skia committers 
   *  tips on how to apply an externally provided patch are [here](./patch)
