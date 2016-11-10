@@ -118,31 +118,46 @@ class GNAndroidFlavorUtils(default_flavor.DefaultFlavorUtils):
       self._adb('kill adb server', 'kill-server')
 
   def step(self, name, cmd, env=None, **kwargs):
-    app = self.m.vars.skia_out.join(self.m.vars.configuration, cmd[0])
-    self._adb('push %s' % cmd[0],
+    if name == "skpbench":
+      self.skpbench()
+    else:
+      app = self.m.vars.skia_out.join(self.m.vars.configuration, cmd[0])
+      self._adb('push %s' % cmd[0],
+                'push', app, _bin_dir)
+
+      sh = '%s.sh' % cmd[0]
+      self.m.run.writefile(self.m.vars.tmp_dir.join(sh),
+          'set -x; %s%s; echo $? >%src' %
+          (_bin_dir, subprocess.list2cmdline(map(str, cmd)), _bin_dir))
+      self._adb('push %s' % sh,
+                'push', self.m.vars.tmp_dir.join(sh), _bin_dir)
+
+      self._adb('clear log', 'logcat', '-c')
+      self.m.python.inline('%s' % cmd[0], """
+      import subprocess
+      import sys
+      bin_dir = sys.argv[1]
+      sh      = sys.argv[2]
+      subprocess.check_call(['adb', 'shell', 'sh', bin_dir + sh])
+      try:
+        sys.exit(int(subprocess.check_output(['adb', 'shell', 'cat',
+                                              bin_dir + 'rc'])))
+      except ValueError:
+        print "Couldn't read the return code.  Probably killed for OOM."
+        sys.exit(1)
+      """, args=[_bin_dir, sh])
+
+  def skpbench(self):
+    app = self.m.vars.skia_out.join(self.m.vars.configuration, 'skpbench')
+    self._adb('push skpbench',
               'push', app, _bin_dir)
 
-    sh = '%s.sh' % cmd[0]
-    self.m.run.writefile(self.m.vars.tmp_dir.join(sh),
-        'set -x; %s%s; echo $? >%src' %
-        (_bin_dir, subprocess.list2cmdline(map(str, cmd)), _bin_dir))
-    self._adb('push %s' % sh,
-              'push', self.m.vars.tmp_dir.join(sh), _bin_dir)
-
-    self._adb('clear log', 'logcat', '-c')
-    self.m.python.inline('%s' % cmd[0], """
-    import subprocess
-    import sys
-    bin_dir = sys.argv[1]
-    sh      = sys.argv[2]
-    subprocess.check_call(['adb', 'shell', 'sh', bin_dir + sh])
-    try:
-      sys.exit(int(subprocess.check_output(['adb', 'shell', 'cat',
-                                            bin_dir + 'rc'])))
-    except ValueError:
-      print "Couldn't read the return code.  Probably killed for OOM."
-      sys.exit(1)
-    """, args=[_bin_dir, sh])
+    self.m.run(self.m.python, 'Run Skpbench on device',
+        script=self.m.vars.local_skpbench_dir.join('skpbench.py'),
+        args=[
+          '--adb',
+          self.m.path.join(_bin_dir, 'skpbench'),
+          self.m.path.join(_data_dir, 'skps')])
 
   def copy_file_to_device(self, host, device):
     self._adb('push %s %s' % (host, device), 'push', host, device)

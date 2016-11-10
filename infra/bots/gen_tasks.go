@@ -41,16 +41,12 @@ var (
 		"Build-Ubuntu-GCC-x86_64-Release-GN",
 		"Build-Win-Clang-arm64-Release-GN_Android",
 		"Housekeeper-PerCommit-InfraTests",
+		"Perf-Android-Clang-PixelC-GPU-TegraX1-arm64-Release-GN_Android_Skpbench",
 		"Perf-Android-Clang-AndroidOne-CPU-MT6582-arm-Debug-GN_Android",
 		"Perf-Android-Clang-AndroidOne-CPU-MT6582-arm-Release-GN_Android",
 		"Perf-Android-Clang-AndroidOne-GPU-Mali400MP2-arm-Debug-GN_Android",
 		"Perf-Android-Clang-AndroidOne-GPU-Mali400MP2-arm-Release-GN_Android",
 		"Perf-Ubuntu-GCC-GCE-CPU-AVX2-x86_64-Release-GN",
-		"Perf-iOS-Clang-iPadMini4-GPU-GX6450-Arm7-Debug",
-		"Perf-iOS-Clang-iPadMini4-GPU-GX6450-Arm7-Release",
-		"Test-Android-Clang-AndroidOne-CPU-MT6582-arm-Debug-GN_Android",
-		"Test-Android-Clang-AndroidOne-CPU-MT6582-arm-Release-GN_Android",
-		"Test-Android-Clang-AndroidOne-GPU-Mali400MP2-arm-Debug-GN_Android",
 		"Test-Android-Clang-AndroidOne-GPU-Mali400MP2-arm-Release-GN_Android",
 		"Test-Ubuntu-GCC-GCE-CPU-AVX2-x86_64-Release-GN",
 		"Test-iOS-Clang-iPadMini4-GPU-GX6450-Arm7-Debug",
@@ -78,6 +74,7 @@ func deriveCompileTaskName(jobName string, parts map[string]string) string {
 	} else if parts["role"] == "Test" || parts["role"] == "Perf" {
 		task_os := parts["os"]
 		ec := parts["extra_config"]
+		ec = strings.TrimSuffix(ec, "_Skpbench")
 		if task_os == "Android" {
 			if ec == "Vulkan" {
 				ec = "Android_Vulkan"
@@ -551,6 +548,12 @@ func process(b *specs.TasksCfgBuilder, name string) {
 	}
 	if strings.Contains(name, "Ubuntu") && strings.Contains(name, "SAN") {
 		pkgs = append(pkgs, b.MustGetCipdPackageFromAsset("clang_linux"))
+	}
+	if strings.Contains(name, "Skpbench") {
+		pkgs = []*specs.CipdPackage{
+			b.MustGetCipdPackageFromAsset("skp"),
+			b.MustGetCipdPackageFromAsset("skpbench"),
+		}
 	}
 
 	// Test bots.
