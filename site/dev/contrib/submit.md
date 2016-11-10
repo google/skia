@@ -2,8 +2,8 @@ How to submit a patch
 =====================
 
 
-Configure git
--------------
+Configure git test test test
+----------------------------
 
 <!--?prettify lang=sh?-->
 
