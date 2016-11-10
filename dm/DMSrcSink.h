@@ -259,6 +259,7 @@ public:
     SkISize size() const override;
     Name name() const override;
     bool veto(SinkFlags) const override;
+    bool serial() const override { return true; }
 
 private:
     Name            fName;
