@@ -77,6 +77,7 @@ def dm_flags(bot):
       'Tegra3'      in bot or
       # We aren't interested in fixing msaa bugs on iPad4.
       'iPad4'       in bot or
+      'iPadMini4'   in bot or
       # skia:5792
       'iHD530'      in bot):
     configs = [x for x in configs if 'msaa' not in x]
