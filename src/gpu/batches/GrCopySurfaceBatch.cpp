@@ -63,7 +63,12 @@ GrBatch* GrCopySurfaceBatch::Create(GrSurface* dst, GrSurface* src, const SkIRec
                                     const SkIPoint& dstPoint) {
     SkASSERT(dst);
     SkASSERT(src);
-
+    if (GrPixelConfigIsSint(dst->config()) != GrPixelConfigIsSint(src->config())) {
+        return nullptr;
+    }
+    if (GrPixelConfigIsCompressed(dst->config())) {
+        return nullptr;
+    }
     SkIRect clippedSrcRect;
     SkIPoint clippedDstPoint;
     // If the rect is outside the src or dst then we've already succeeded.
