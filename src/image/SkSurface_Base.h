@@ -89,8 +89,8 @@ public:
     uint32_t newGenerationID();
 
 private:
-    std::unique_ptr<SkCanvas>   fCachedCanvas;
-    SkImage*                    fCachedImage;
+    SkCanvas*   fCachedCanvas;
+    SkImage*    fCachedImage;
 
     void aboutToDraw(ContentChangeMode mode);
 
@@ -106,12 +106,12 @@ private:
 
 SkCanvas* SkSurface_Base::getCachedCanvas() {
     if (nullptr == fCachedCanvas) {
-        fCachedCanvas = std::unique_ptr<SkCanvas>(this->onNewCanvas());
+        fCachedCanvas = this->onNewCanvas();
         if (fCachedCanvas) {
             fCachedCanvas->setSurfaceBase(this);
         }
     }
-    return fCachedCanvas.get();
+    return fCachedCanvas;
 }
 
 sk_sp<SkImage> SkSurface_Base::refCachedImage(SkBudgeted budgeted, ForceUnique unique) {

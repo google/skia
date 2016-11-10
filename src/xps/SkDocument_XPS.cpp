@@ -58,7 +58,7 @@ protected:
 
 private:
     SkXPSDevice fDevice;
-    std::unique_ptr<SkCanvas> fCanvas;
+    sk_sp<SkCanvas> fCanvas;
     SkVector fUnitsPerMeter;
     SkVector fPixelsPerMeter;
 };

@@ -73,13 +73,6 @@ template <typename T> void push_obj(lua_State* L, const T& obj) {
     lua_setmetatable(L, -2);
 }
 
-template <typename T> T* push_ptr(lua_State* L, T* ptr) {
-    *(T**)lua_newuserdata(L, sizeof(T*)) = ptr;
-    luaL_getmetatable(L, get_mtname<T>());
-    lua_setmetatable(L, -2);
-    return ptr;
-}
-
 template <typename T> T* push_ref(lua_State* L, T* ref) {
     *(T**)lua_newuserdata(L, sizeof(T*)) = SkSafeRef(ref);
     luaL_getmetatable(L, get_mtname<T>());
@@ -340,7 +333,7 @@ void SkLua::pushPath(const SkPath& path, const char key[]) {
 }
 
 void SkLua::pushCanvas(SkCanvas* canvas, const char key[]) {
-    push_ptr(fL, canvas);
+    push_ref(fL, canvas);
     CHECK_SETFIELD(key);
 }
 
@@ -722,7 +715,7 @@ static int lcanvas_newSurface(lua_State* L) {
 }
 
 static int lcanvas_gc(lua_State* L) {
-    // don't know how to track a ptr...
+    get_ref<SkCanvas>(L, 1)->unref();
     return 0;
 }
 
@@ -764,7 +757,7 @@ const struct luaL_Reg gSkCanvas_Methods[] = {
 
 static int ldocument_beginPage(lua_State* L) {
     const SkRect* contentPtr = nullptr;
-    push_ptr(L, get_ref<SkDocument>(L, 1)->beginPage(lua2scalar(L, 2),
+    push_ref(L, get_ref<SkDocument>(L, 1)->beginPage(lua2scalar(L, 2),
                                                      lua2scalar(L, 3),
                                                      contentPtr));
     return 1;
@@ -1757,7 +1750,7 @@ static int lsurface_getCanvas(lua_State* L) {
     if (nullptr == canvas) {
         lua_pushnil(L);
     } else {
-        push_ptr(L, canvas);
+        push_ref(L, canvas);
         // note: we don't unref canvas, since getCanvas did not ref it.
         // warning: this is weird: now Lua owns a ref on this canvas, but what if they let
         // the real owner (the surface) go away, but still hold onto the canvas?
@@ -1821,7 +1814,7 @@ static int lpicturerecorder_beginRecording(lua_State* L) {
         return 1;
     }
 
-    push_ptr(L, canvas);
+    push_ref(L, canvas);
     return 1;
 }
 
@@ -1831,7 +1824,7 @@ static int lpicturerecorder_getCanvas(lua_State* L) {
         lua_pushnil(L);
         return 1;
     }
-    push_ptr(L, canvas);
+    push_ref(L, canvas);
     return 1;
 }
 
