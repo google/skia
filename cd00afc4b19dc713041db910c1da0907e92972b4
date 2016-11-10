@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "4b770b47_0bb0d2dc",
+        "filename": "fuzz/FuzzGradients.cpp",
+        "patchSetId": 8
+      },
+      "lineNbr": 56,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2016-11-10T16:04:48Z",
+      "side": 1,
+      "message": "I added nextN as you suggested and removed makePoint().  I kept makeMatrix, but made it use nextN",
+      "parentUuid": "4b770b47_cb62cac6",
+      "revId": "cd00afc4b19dc713041db910c1da0907e92972b4",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "4b770b47_ebf226ef",
         "filename": "fuzz/FuzzParsePath.cpp",
         "patchSetId": 8
@@ -30,6 +48,24 @@
       "writtenOn": "2016-11-10T14:38:50Z",
       "side": 1,
       "message": "We should probably just put a note here that we\u0027re trying to conserve input bytes, and that this is not really important to be a uint8_t?\n\nIt\u0027d be pretty neat for us to follow up with a CL to make nextRange() read only the number of bytes it needs to cover the range, independent of the data type.  That\u0027d let us keep using the natural int here, while still reading only one byte.",
+      "revId": "cd00afc4b19dc713041db910c1da0907e92972b4",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "4b770b47_2ed59ccc",
+        "filename": "fuzz/FuzzParsePath.cpp",
+        "patchSetId": 8
+      },
+      "lineNbr": 42,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2016-11-10T16:04:48Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "4b770b47_ebf226ef",
       "revId": "cd00afc4b19dc713041db910c1da0907e92972b4",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
@@ -53,6 +89,24 @@
     },
     {
       "key": {
+        "uuid": "4b770b47_4e7108fb",
+        "filename": "fuzz/FuzzParsePath.cpp",
+        "patchSetId": 8
+      },
+      "lineNbr": 43,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2016-11-10T16:04:48Z",
+      "side": 1,
+      "message": "Done. I had to remove the range checks because if (min \u003e max) wasn\u0027t happy about the type differences, but I don\u0027t think that range check is really important.",
+      "parentUuid": "4b770b47_6bfe36c0",
+      "revId": "cd00afc4b19dc713041db910c1da0907e92972b4",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "4b770b47_6be7162e",
         "filename": "fuzz/FuzzParsePath.cpp",
         "patchSetId": 8
@@ -70,6 +124,24 @@
     },
     {
       "key": {
+        "uuid": "4b770b47_6eb2c4cd",
+        "filename": "fuzz/FuzzParsePath.cpp",
+        "patchSetId": 8
+      },
+      "lineNbr": 65,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2016-11-10T16:04:48Z",
+      "side": 1,
+      "message": "Sorry, I thought I had done this.  Fixed.",
+      "parentUuid": "4b770b47_6be7162e",
+      "revId": "cd00afc4b19dc713041db910c1da0907e92972b4",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "4b770b47_4bdeda50",
         "filename": "fuzz/FuzzParsePath.cpp",
         "patchSetId": 8
@@ -81,6 +153,24 @@
       "writtenOn": "2016-11-10T14:38:50Z",
       "side": 1,
       "message": "If we\u0027re going to pack int -\u003e uint8_t to conserve bytes, let\u0027s do it consistently.  It\u0027s surprising to read through a file and come upon an unexplained exception to the convention established before it... makes me think it\u0027s important that this is an int.",
+      "revId": "cd00afc4b19dc713041db910c1da0907e92972b4",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "4b770b47_aee0acb7",
+        "filename": "fuzz/FuzzParsePath.cpp",
+        "patchSetId": 8
+      },
+      "lineNbr": 114,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2016-11-10T16:04:48Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "4b770b47_4bdeda50",
       "revId": "cd00afc4b19dc713041db910c1da0907e92972b4",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
