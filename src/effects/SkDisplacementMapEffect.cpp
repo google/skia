@@ -15,9 +15,11 @@
 #include "SkColorPriv.h"
 #if SK_SUPPORT_GPU
 #include "GrContext.h"
-#include "GrRenderTargetContext.h"
 #include "GrCoordTransform.h"
 #include "GrInvariantOutput.h"
+#include "GrRenderTargetContext.h"
+#include "GrTextureProxy.h"
+
 #include "SkGr.h"
 #include "SkGrPriv.h"
 #include "effects/GrTextureDomain.h"
@@ -349,9 +351,10 @@ sk_sp<SkSpecialImage> SkDisplacementMapEffect::onFilterImage(SkSpecialImage* sou
 
         SkColorSpace* colorSpace = ctx.outputProperties().colorSpace();
         sk_sp<GrRenderTargetContext> renderTargetContext(
-            context->makeRenderTargetContext(SkBackingFit::kApprox, bounds.width(), bounds.height(),
-                                             GrRenderableConfigForColorSpace(colorSpace),
-                                             sk_ref_sp(colorSpace)));
+            context->makeDeferredRenderTargetContext(SkBackingFit::kApprox,
+                                                     bounds.width(), bounds.height(),
+                                                     GrRenderableConfigForColorSpace(colorSpace),
+                                                     sk_ref_sp(colorSpace)));
         if (!renderTargetContext) {
             return nullptr;
         }
@@ -361,10 +364,12 @@ sk_sp<SkSpecialImage> SkDisplacementMapEffect::onFilterImage(SkSpecialImage* sou
 
         offset->fX = bounds.left();
         offset->fY = bounds.top();
-        return SkSpecialImage::MakeFromGpu(SkIRect::MakeWH(bounds.width(), bounds.height()),
-                                           kNeedNewImageUniqueID_SpecialImage,
-                                           renderTargetContext->asTexture(),
-                                           sk_ref_sp(renderTargetContext->getColorSpace()));
+        return SkSpecialImage::MakeDeferredFromGpu(
+                                            context,
+                                            SkIRect::MakeWH(bounds.width(), bounds.height()),
+                                            kNeedNewImageUniqueID_SpecialImage,
+                                            sk_ref_sp(renderTargetContext->asDeferredTexture()),
+                                            sk_ref_sp(renderTargetContext->getColorSpace()));
     }
 #endif
 

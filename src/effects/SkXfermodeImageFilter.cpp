@@ -18,6 +18,8 @@
 #if SK_SUPPORT_GPU
 #include "GrContext.h"
 #include "GrRenderTargetContext.h"
+#include "GrTextureProxy.h"
+
 #include "effects/GrConstColorProcessor.h"
 #include "effects/GrTextureDomain.h"
 #include "effects/GrSimpleTextureEffect.h"
@@ -291,10 +293,10 @@ sk_sp<SkSpecialImage> SkXfermodeImageFilter_Base::filterImageGPU(
 
     paint.setPorterDuffXPFactory(SkBlendMode::kSrc);
 
-    sk_sp<GrRenderTargetContext> renderTargetContext(context->makeRenderTargetContext(
-        SkBackingFit::kApprox, bounds.width(), bounds.height(),
-        GrRenderableConfigForColorSpace(outputProperties.colorSpace()),
-        sk_ref_sp(outputProperties.colorSpace())));
+    sk_sp<GrRenderTargetContext> renderTargetContext(context->makeDeferredRenderTargetContext(
+                                    SkBackingFit::kApprox, bounds.width(), bounds.height(),
+                                    GrRenderableConfigForColorSpace(outputProperties.colorSpace()),
+                                    sk_ref_sp(outputProperties.colorSpace())));
     if (!renderTargetContext) {
         return nullptr;
     }
@@ -304,10 +306,11 @@ sk_sp<SkSpecialImage> SkXfermodeImageFilter_Base::filterImageGPU(
     matrix.setTranslate(SkIntToScalar(-bounds.left()), SkIntToScalar(-bounds.top()));
     renderTargetContext->drawRect(GrNoClip(), paint, matrix, SkRect::Make(bounds));
 
-    return SkSpecialImage::MakeFromGpu(SkIRect::MakeWH(bounds.width(), bounds.height()),
-                                       kNeedNewImageUniqueID_SpecialImage,
-                                       renderTargetContext->asTexture(),
-                                       sk_ref_sp(renderTargetContext->getColorSpace()));
+    return SkSpecialImage::MakeDeferredFromGpu(context,
+                                               SkIRect::MakeWH(bounds.width(), bounds.height()),
+                                               kNeedNewImageUniqueID_SpecialImage,
+                                               sk_ref_sp(renderTargetContext->asDeferredTexture()),
+                                               sk_ref_sp(renderTargetContext->getColorSpace()));
 }
 
 sk_sp<GrFragmentProcessor>

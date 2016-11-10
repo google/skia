@@ -391,13 +391,19 @@ public:
         // TODO: add GrTextureProxy-backed SkImage_Gpus
         GrSurface* surf = fSurfaceProxy->instantiate(fContext->textureProvider());
 
-        auto img = sk_sp<SkImage>(new SkImage_Gpu(fSurfaceProxy->width(), fSurfaceProxy->height(),
+        // TODO: In this instance we know we're going to draw a sub-portion of the backing
+        // texture into the canvas so it is okay to wrap it in an SkImage. This poses
+        // some problems for full deferral however in that when the deferred SkImage_Gpu
+        // instantiates itself it is going to have to either be okay with having a larger
+        // than expected backing texture (unlikely) or the 'fit' of the SurfaceProxy needs 
+        // to be tightened (if it is deferred).
+        auto img = sk_sp<SkImage>(new SkImage_Gpu(surf->width(), surf->height(),
                                                   this->uniqueID(), fAlphaType,
                                                   sk_ref_sp(surf->asTexture()),
                                                   fColorSpace, SkBudgeted::kNo));
 
         canvas->drawImageRect(img, this->subset(),
-                               dst, paint, SkCanvas::kStrict_SrcRectConstraint);
+                              dst, paint, SkCanvas::kStrict_SrcRectConstraint);
     }
 
     GrContext* onGetContext() const override { return fContext; }
