@@ -1,0 +1,89 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "4b770b47_cb62cac6",
+        "filename": "fuzz/FuzzGradients.cpp",
+        "patchSetId": 8
+      },
+      "lineNbr": 56,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2016-11-10T14:38:50Z",
+      "side": 1,
+      "message": "I think so, but I wouldn\u0027t risk it.  I think we\u0027re pushing our luck with methods like makePoint() and makeMatrix() as-is.  If they need to exist, we really should void make_foo(T*) them like we\u0027ve done everywhere else.  I\u0027d say makePoint() probably doesn\u0027t need to exist:\n\nSkPoint pts[2];\nfuzz-\u003enext(\u0026pts[0].fX, \u0026pts[0].fY, \u0026pts[1].fX, \u0026pts[1].fY);\n\nAnother handy thing we might add to make this easier is\n\ntemplate \u003ctypename T\u003e\nvoid nextN(T* ptr, int n) {\n   for (int i \u003d 0; i \u003c n; i++) {\n       this-\u003enext(ptr+i);\n   }\n}\n\nThat could make makePoint() and makeMatrix() really moot:\n\nSkPoint pt;\nthis-\u003enextN(\u0026pt.fX, 2);\n\nSkScalar mat[9];\nthis-\u003enextN(mat, 9);\nSkMatrx m;\nm.set9(mat);",
+      "revId": "cd00afc4b19dc713041db910c1da0907e92972b4",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "4b770b47_ebf226ef",
+        "filename": "fuzz/FuzzParsePath.cpp",
+        "patchSetId": 8
+      },
+      "lineNbr": 42,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2016-11-10T14:38:50Z",
+      "side": 1,
+      "message": "We should probably just put a note here that we\u0027re trying to conserve input bytes, and that this is not really important to be a uint8_t?\n\nIt\u0027d be pretty neat for us to follow up with a CL to make nextRange() read only the number of bytes it needs to cover the range, independent of the data type.  That\u0027d let us keep using the natural int here, while still reading only one byte.",
+      "revId": "cd00afc4b19dc713041db910c1da0907e92972b4",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "4b770b47_6bfe36c0",
+        "filename": "fuzz/FuzzParsePath.cpp",
+        "patchSetId": 8
+      },
+      "lineNbr": 43,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2016-11-10T14:38:50Z",
+      "side": 1,
+      "message": "Let\u0027s write nextRange() so that \u003cuint8_t\u003e here can be inferred.  If you try removing \u003cuint8_t\u003e now it\u0027ll say it\u0027s unclear whether T is meant to be uint8_t or int, right?\n\nTo fix this, we can just let each of the parameters have a different type:\n\ntemplate \u003ctypename T, typename Min, typename Max\u003e\nvoid nextRange(T*, Min, Max);",
+      "revId": "cd00afc4b19dc713041db910c1da0907e92972b4",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "4b770b47_6be7162e",
+        "filename": "fuzz/FuzzParsePath.cpp",
+        "patchSetId": 8
+      },
+      "lineNbr": 65,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2016-11-10T14:38:50Z",
+      "side": 1,
+      "message": "Please put a new line after each of these in all files.  It\u0027s awkwardly inconsistent now.",
+      "revId": "cd00afc4b19dc713041db910c1da0907e92972b4",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "4b770b47_4bdeda50",
+        "filename": "fuzz/FuzzParsePath.cpp",
+        "patchSetId": 8
+      },
+      "lineNbr": 114,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2016-11-10T14:38:50Z",
+      "side": 1,
+      "message": "If we\u0027re going to pack int -\u003e uint8_t to conserve bytes, let\u0027s do it consistently.  It\u0027s surprising to read through a file and come upon an unexplained exception to the convention established before it... makes me think it\u0027s important that this is an int.",
+      "revId": "cd00afc4b19dc713041db910c1da0907e92972b4",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
