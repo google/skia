@@ -36,6 +36,10 @@ public:
     virtual SkImageInfo onImageInfo() const = 0;
     virtual SkAlphaType onAlphaType() const = 0;
 
+    // As above, but for generator backed images, returns the underlying (encoded) representation,
+    // which may be different from what we return in onImageInfo.
+    virtual SkImageInfo onEncodedImageInfo() const { return onImageInfo(); }
+
     virtual bool onPeekPixels(SkPixmap*) const { return false; }
 
     virtual const SkBitmap* onPeekBitmap() const { return nullptr; }
@@ -52,7 +56,8 @@ public:
 
     // return a read-only copy of the pixels. We promise to not modify them,
     // but only inspect them (or encode them).
-    virtual bool getROPixels(SkBitmap*, CachingHint = kAllow_CachingHint) const = 0;
+    virtual bool getROPixels(SkBitmap*, SkDestinationSurfaceColorMode,
+                             CachingHint = kAllow_CachingHint) const = 0;
 
     // Caller must call unref when they are done.
     virtual GrTexture* asTextureRef(GrContext*, const GrTextureParams&,

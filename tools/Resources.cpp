@@ -30,7 +30,8 @@ bool GetResourceAsBitmap(const char* resource, SkBitmap* dst) {
     SkString resourcePath = GetResourcePath(resource);
     sk_sp<SkData> resourceData(SkData::MakeFromFileName(resourcePath.c_str()));
     std::unique_ptr<SkImageGenerator> gen(SkImageGenerator::NewFromEncoded(resourceData.get()));
-    return gen && gen->tryGenerateBitmap(dst);
+    SkImageInfo legacyInfo = gen->getInfo().makeColorSpace(nullptr);
+    return gen && gen->tryGenerateBitmap(dst, legacyInfo, nullptr);
 }
 
 sk_sp<SkImage> GetResourceAsImage(const char* resource) {

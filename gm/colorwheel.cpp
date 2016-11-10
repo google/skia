@@ -36,6 +36,7 @@ DEF_SIMPLE_GM(colorwheel, canvas, 256, 256) {
     draw_image(canvas, "color_wheel.gif", 128, 0);  // top right
     draw_image(canvas, "color_wheel.webp", 0, 128);  // bottom left
     draw_image(canvas, "color_wheel.jpg", 128, 128);  // bottom right
+    draw_image(canvas, "color_wheel_spin_odd_gamma.png", 0, 256);
 }
 
 DEF_SIMPLE_GM(colorwheelnative, canvas, 128, 28) {

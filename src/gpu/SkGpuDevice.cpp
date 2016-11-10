@@ -1379,7 +1379,7 @@ void SkGpuDevice::drawImage(const SkDraw& draw, const SkImage* image, SkScalar x
         if (this->shouldTileImage(image, nullptr, SkCanvas::kFast_SrcRectConstraint,
                                   paint.getFilterQuality(), *draw.fMatrix, SkMatrix::I())) {
             // only support tiling as bitmap at the moment, so force raster-version
-            if (!as_IB(image)->getROPixels(&bm)) {
+            if (!as_IB(image)->getROPixels(&bm, fRenderTargetContext->colorMode())) {
                 return;
             }
             this->drawBitmap(draw, bm, SkMatrix::MakeTrans(x, y), paint);
@@ -1388,7 +1388,7 @@ void SkGpuDevice::drawImage(const SkDraw& draw, const SkImage* image, SkScalar x
             GrImageTextureMaker maker(fContext.get(), cacher, image, SkImage::kAllow_CachingHint);
             this->drawTextureProducer(&maker, nullptr, nullptr, SkCanvas::kFast_SrcRectConstraint,
                                       viewMatrix, fClip, paint);
-        } else if (as_IB(image)->getROPixels(&bm)) {
+        } else if (as_IB(image)->getROPixels(&bm, fRenderTargetContext->colorMode())) {
             this->drawBitmap(draw, bm, SkMatrix::MakeTrans(x, y), paint);
         }
     }
@@ -1413,7 +1413,7 @@ void SkGpuDevice::drawImageRect(const SkDraw& draw, const SkImage* image, const 
     if (this->shouldTileImage(image, src, constraint, paint.getFilterQuality(), *draw.fMatrix,
                               srcToDstRect)) {
         // only support tiling as bitmap at the moment, so force raster-version
-        if (!as_IB(image)->getROPixels(&bm)) {
+        if (!as_IB(image)->getROPixels(&bm, fRenderTargetContext->colorMode())) {
             return;
         }
         this->drawBitmapRect(draw, bm, src, dst, paint, constraint);
@@ -1421,7 +1421,7 @@ void SkGpuDevice::drawImageRect(const SkDraw& draw, const SkImage* image, const 
         CHECK_SHOULD_DRAW(draw);
         GrImageTextureMaker maker(fContext.get(), cacher, image, SkImage::kAllow_CachingHint);
         this->drawTextureProducer(&maker, src, &dst, constraint, *draw.fMatrix, fClip, paint);
-    } else if (as_IB(image)->getROPixels(&bm)) {
+    } else if (as_IB(image)->getROPixels(&bm, fRenderTargetContext->colorMode())) {
         this->drawBitmapRect(draw, bm, src, dst, paint, constraint);
     }
 }
@@ -1483,7 +1483,7 @@ void SkGpuDevice::drawImageNine(const SkDraw& draw, const SkImage* image,
         if (SkImageCacherator* cacher = as_IB(image)->peekCacherator()) {
             GrImageTextureMaker maker(fContext.get(), cacher, image, SkImage::kAllow_CachingHint);
             this->drawProducerNine(draw, &maker, center, dst, paint);
-        } else if (as_IB(image)->getROPixels(&bm)) {
+        } else if (as_IB(image)->getROPixels(&bm, fRenderTargetContext->colorMode())) {
             this->drawBitmapNine(draw, bm, center, dst, paint);
         }
     }
@@ -1538,7 +1538,7 @@ void SkGpuDevice::drawImageLattice(const SkDraw& draw, const SkImage* image,
         if (SkImageCacherator* cacher = as_IB(image)->peekCacherator()) {
             GrImageTextureMaker maker(fContext.get(), cacher, image, SkImage::kAllow_CachingHint);
             this->drawProducerLattice(draw, &maker, lattice, dst, paint);
-        } else if (as_IB(image)->getROPixels(&bm)) {
+        } else if (as_IB(image)->getROPixels(&bm, fRenderTargetContext->colorMode())) {
             this->drawBitmapLattice(draw, bm, lattice, dst, paint);
         }
     }
