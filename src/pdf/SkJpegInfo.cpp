@@ -8,6 +8,58 @@
 #include "SkData.h"
 #include "SkJpegInfo.h"
 
+#ifdef SK_HAS_JPEG_LIBRARY
+
+extern "C" {
+#include "jpeglib.h"
+}
+
+
+bool SkIsJFIF(const SkData* skdata, SkJFIFInfo* info) {
+    if (!skdata) {
+        return false;
+    }
+    const unsigned char* data = skdata->bytes();
+    unsigned long length = (unsigned long)skdata->size();
+
+    struct jpeg_decompress_struct cinfo;
+    struct jpeg_error_mgr jerr;
+    memset(&jerr, 0, sizeof(jpeg_error_mgr));
+    cinfo.err = jpeg_std_error(&jerr);
+    jpeg_create_decompress(&cinfo);
+    jpeg_mem_src(&cinfo, data, length);
+    int ret = jpeg_read_header(&cinfo, TRUE);
+    J_COLOR_SPACE cs = cinfo.jpeg_color_space;
+    JDIMENSION width = cinfo.image_width;
+    JDIMENSION height = cinfo.image_height;
+    jpeg_destroy_decompress(&cinfo);
+
+    if (ret != JPEG_HEADER_OK) {
+        return false;
+    }
+
+    SkJFIFInfo::Type type = SkJFIFInfo::kGrayscale;
+    switch(cs) {
+        case JCS_GRAYSCALE:
+            type = SkJFIFInfo::kGrayscale;
+            break;
+        case JCS_YCbCr:
+            type = SkJFIFInfo::kYCbCr;
+            break;
+        default:
+            return false;
+    }
+    if (!SkTFitsIn<int32_t>(width) || !SkTFitsIn<int32_t>(height)) {
+        return false;
+    }
+    if (info) {
+        info->fSize.set(SkToS32(width), SkToS32(height));
+        info->fType = type;
+    }
+    return true;    
+}
+#else
+
 namespace {
 class JpegSegment {
 public:
@@ -117,3 +169,4 @@ bool SkIsJFIF(const SkData* skdata, SkJFIFInfo* info) {
     }
     return true;
 }
+#endif

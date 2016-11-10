@@ -37,6 +37,7 @@ if (skia_use_system_libjpeg_turbo) {
       "../externals/libjpeg-turbo/jcsample.c",
       "../externals/libjpeg-turbo/jdapimin.c",
       "../externals/libjpeg-turbo/jdapistd.c",
+      "../externals/libjpeg-turbo/jdatasrc.c",
       "../externals/libjpeg-turbo/jdcoefct.c",
       "../externals/libjpeg-turbo/jdcolor.c",
       "../externals/libjpeg-turbo/jddctmgr.c",
