@@ -22,6 +22,24 @@
       "revId": "1d5887f2f5048f85e5f1120b0e60fbddb7dbedb2",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "eb935fd8_3ba6f798",
+        "filename": "include/c/sk_document.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 30,
+      "author": {
+        "id": 5110
+      },
+      "writtenOn": "2016-11-10T19:14:47Z",
+      "side": 1,
+      "message": "No.  In fact, since there is no reason to do anything with a document after closing it, let\u0027s let sk_document_close() and sk_document_abort() delete the document.\n\nWhile we\u0027re at it, I\u0027ve noticed that you never actually need to call endPage().",
+      "parentUuid": "4bd62b38_3fbccb9a",
+      "revId": "1d5887f2f5048f85e5f1120b0e60fbddb7dbedb2",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
