@@ -23,6 +23,7 @@ public:
 
     // Return 0-255 given 0-256
     static inline SkAlpha CatchOverflow(int alpha) {
+        SkASSERT(alpha >= 0 && alpha <= 256);
         return alpha - (alpha >> 8);
     }
 

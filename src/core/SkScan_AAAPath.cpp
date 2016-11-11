@@ -485,7 +485,7 @@ static inline SkAlpha partialTriangleToAlpha(SkFixed a, SkFixed b) {
 }
 
 static inline SkAlpha getPartialAlpha(SkAlpha alpha, SkFixed partialHeight) {
-    return (alpha * partialHeight + SK_FixedHalf) >> 16;
+    return SkToU8(SkFixedRoundToInt(alpha * partialHeight));
 }
 
 static inline SkAlpha getPartialAlpha(SkAlpha alpha, SkAlpha fullAlpha) {
