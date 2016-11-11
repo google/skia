@@ -8,6 +8,8 @@
 #ifndef SkImageGenerator_DEFINED
 #define SkImageGenerator_DEFINED
 
+#include <tuple>
+
 #include "SkBitmap.h"
 #include "SkColor.h"
 #include "SkImageInfo.h"
@@ -19,6 +21,7 @@ class GrTexture;
 class GrTextureParams;
 class SkBitmap;
 class SkData;
+class SkImage;
 class SkImageGenerator;
 class SkMatrix;
 class SkPaint;
@@ -199,6 +202,39 @@ public:
     }
 
     /**
+     *  External generator API: provides efficient access to externally-managed image data.
+     *
+     *  Skia calls accessScaledPixels() during rasterization, to gain temporary access to
+     *  the external pixel data, packaged as a raster SkImage.
+     *
+     *  @param srcRect     the source rect in use for the current draw
+     *  @param totalMatrix full matrix in effect (mapping srcRect -> device space)
+     *  @param quality     the SkFilterQuality requested for rasterization.
+     *
+     *  @return            a tuple of <sk_sp<SkImage>, SkRect, SkFilterQuality> where
+     *
+     *                     - SkImage wraps the external pixel data; it can be nullptr on error or
+     *                       if this API is not supported (in which case Skia will fall back to its
+     *                       internal scaling and caching heuristics)
+     *                     - SkRect is an adjusted srcRect
+     *                     - SkFilterQuality is the adjusted filter quality
+     *
+     *  Implementors can return pixmaps with a different size than requested, by adjusting the
+     *  src rect.  The contract is that Skia will observe the adjusted src rect, and will map it
+     *  to the same dst rect as the original draw (the impl doesn't get to control the destination).
+     *
+     *  Since implementors control image scale caching, they are expected to adjust the filter
+     *  quality to kLow_SkFilterQuality or kNone_SkFilterQuality.  Skia will treat anything higher
+     *  as kLow_SkFilterQuality.
+     *
+     *  If the impl needs to swap the actual/logical image content, it must return a different
+     *  SkImage (different unique id), to ensure any downstream Skia caches are invalidated.
+     *
+     */
+    std::tuple<sk_sp<SkImage>, SkRect, SkFilterQuality>
+    accessScaledPixels(const SkRect& srcRect, const SkMatrix& totalMatrix, SkFilterQuality quality);
+
+    /**
      *  If the default image decoder system can interpret the specified (encoded) data, then
      *  this returns a new ImageGenerator for it. Otherwise this returns NULL. Either way
      *  the caller is still responsible for managing their ownership of the data.
@@ -264,6 +300,9 @@ protected:
     }
 
     bool tryGenerateBitmap(SkBitmap* bm, const SkImageInfo* optionalInfo, SkBitmap::Allocator*);
+
+    virtual std::tuple<sk_sp<SkImage>, SkRect, SkFilterQuality>
+    onAccessScaledPixels(const SkRect& srcRect, const SkMatrix& totalMatrix, SkFilterQuality);
 
 private:
     const SkImageInfo fInfo;

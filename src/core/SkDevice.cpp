@@ -10,6 +10,7 @@
 #include "SkDraw.h"
 #include "SkDrawFilter.h"
 #include "SkImage_Base.h"
+#include "SkImageCacherator.h"
 #include "SkImageFilter.h"
 #include "SkImageFilterCache.h"
 #include "SkImagePriv.h"
@@ -24,6 +25,7 @@
 #include "SkSpecialImage.h"
 #include "SkTextBlobRunIterator.h"
 #include "SkTextToPathIter.h"
+#include "SkTLazy.h"
 
 SkBaseDevice::SkBaseDevice(const SkImageInfo& info, const SkSurfaceProps& surfaceProps)
     : fInfo(info)
@@ -177,11 +179,71 @@ void SkBaseDevice::drawTextBlob(const SkDraw& draw, const SkTextBlob* blob, SkSc
     }
 }
 
+namespace {
+
+class SurrogateImage {
+public:
+    SurrogateImage(const SkImage* image, const SkRect* src, const SkRect& dst,
+                   const SkMatrix& ctm, const SkPaint& paint)
+        : fImage(image), fSrc(src), fPaint(paint) {
+
+        SkImageCacherator* cacherator = as_IB(image)->peekCacherator();
+        if (!cacherator) {
+            return;
+        }
+
+        SkTLazy<SkRect> tmpSrc(src);
+        if (!tmpSrc.isValid()) {
+            tmpSrc.init(SkRect::Make(image->bounds()));
+        }
+
+        SkMatrix m = ctm;
+        m.preConcat(SkMatrix::MakeRectToRect(*tmpSrc.get(), dst, SkMatrix::kFill_ScaleToFit));
+
+        std::tie(fAdjustedImage, fAdjustedSrc, fAdjustedQuality) =
+            cacherator->directAccessScaledPixels(*tmpSrc.get(), m, paint.getFilterQuality());
+        if (!fAdjustedImage) {
+            return;
+        }
+
+        SkASSERT(!fAdjustedImage->isLazyGenerated());
+        fImage = fAdjustedImage.get();
+        fSrc   = &fAdjustedSrc;
+
+        if (fAdjustedQuality != paint.getFilterQuality()) {
+            fPaint.writable()->setFilterQuality(fAdjustedQuality);
+        }
+    }
+
+    const SkImage* image() const { return fImage; }
+    const SkRect* src() const { return fSrc; }
+    const SkPaint& paint() const { return *fPaint; }
+
+    operator bool() const { return fAdjustedImage; }
+
+private:
+    const SkImage*               fImage;
+    const SkRect*                fSrc;
+    SkTCopyOnFirstWrite<SkPaint> fPaint;
+    sk_sp<SkImage>               fAdjustedImage;
+    SkRect                       fAdjustedSrc;
+    SkFilterQuality              fAdjustedQuality;
+};
+
+} // anonymous ns
+
 void SkBaseDevice::drawImage(const SkDraw& draw, const SkImage* image, SkScalar x, SkScalar y,
                              const SkPaint& paint) {
+
+    const SkRect dst = SkRect::Make(image->bounds()).makeOffset(x, y);
+    SurrogateImage surrogate(image, nullptr, dst, *draw.fMatrix, paint);
+
     // Default impl : turns everything into raster bitmap
     SkBitmap bm;
-    if (as_IB(image)->getROPixels(&bm)) {
+    if (surrogate && as_IB(surrogate.image())->getROPixels(&bm)) {
+        this->drawBitmapRect(draw, bm, surrogate.src(), dst, surrogate.paint(),
+                             SkCanvas::kFast_SrcRectConstraint);
+    } else if (as_IB(image)->getROPixels(&bm)) {
         this->drawBitmap(draw, bm, SkMatrix::MakeTrans(x, y), paint);
     }
 }
@@ -189,10 +251,13 @@ void SkBaseDevice::drawImage(const SkDraw& draw, const SkImage* image, SkScalar 
 void SkBaseDevice::drawImageRect(const SkDraw& draw, const SkImage* image, const SkRect* src,
                                  const SkRect& dst, const SkPaint& paint,
                                  SkCanvas::SrcRectConstraint constraint) {
+
+    SurrogateImage surrogate(image, src, dst, *draw.fMatrix, paint);
+
     // Default impl : turns everything into raster bitmap
     SkBitmap bm;
-    if (as_IB(image)->getROPixels(&bm)) {
-        this->drawBitmapRect(draw, bm, src, dst, paint, constraint);
+    if (as_IB(surrogate.image())->getROPixels(&bm)) {
+        this->drawBitmapRect(draw, bm, surrogate.src(), dst, surrogate.paint(), constraint);
     }
 }
 
