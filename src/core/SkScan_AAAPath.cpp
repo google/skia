@@ -190,8 +190,8 @@ private:
     int         fY;
 };
 
-MaskAdditiveBlitter::MaskAdditiveBlitter(SkBlitter* realBlitter, const SkIRect& ir, const SkRegion& clip,
-                                         bool isInverse) {
+MaskAdditiveBlitter::MaskAdditiveBlitter(
+        SkBlitter* realBlitter, const SkIRect& ir, const SkRegion& clip, bool isInverse) {
     SkASSERT(canHandleRect(ir));
     SkASSERT(!isInverse);
 
@@ -367,8 +367,8 @@ private:
     }
 };
 
-RunBasedAdditiveBlitter::RunBasedAdditiveBlitter(SkBlitter* realBlitter, const SkIRect& ir, const SkRegion& clip,
-                                 bool isInverse) {
+RunBasedAdditiveBlitter::RunBasedAdditiveBlitter(
+        SkBlitter* realBlitter, const SkIRect& ir, const SkRegion& clip, bool isInverse) {
     fRealBlitter = realBlitter;
 
     SkIRect sectBounds;
@@ -533,7 +533,8 @@ static inline void computeAlphaAboveLine(SkAlpha* alphas, SkFixed l, SkFixed r,
 }
 
 // Here we always send in l < SK_Fixed1, and the first alpha we want to compute is alphas[0]
-static inline void computeAlphaBelowLine(SkAlpha* alphas, SkFixed l, SkFixed r, SkFixed dY, SkAlpha fullAlpha) {
+static inline void computeAlphaBelowLine(
+        SkAlpha* alphas, SkFixed l, SkFixed r, SkFixed dY, SkAlpha fullAlpha) {
     SkASSERT(l <= r);
     SkASSERT(l >> 16 == 0);
     int R = SkFixedCeilToInt(r);
@@ -965,9 +966,9 @@ static inline void aaa_walk_convex_edges(SkAnalyticEdge* prevHead, AdditiveBlitt
         }
         local_bot_fixed = SkMin32(local_bot_fixed, SkIntToFixed(stop_y));
 
-        SkFixed left = leftE->fX;
+        SkFixed left = SkTMax(leftBound, leftE->fX);
         SkFixed dLeft = leftE->fDX;
-        SkFixed rite = riteE->fX;
+        SkFixed rite = SkTMin(riteBound, riteE->fX);
         SkFixed dRite = riteE->fDX;
         if (0 == (dLeft | dRite)) {
             int     fullLeft    = SkFixedCeilToInt(left);
@@ -1077,6 +1078,9 @@ static inline void aaa_walk_convex_edges(SkAnalyticEdge* prevHead, AdditiveBlitt
                     SkFixed dY = nextY - y;
                     SkFixed nextLeft = left + SkFixedMul_lowprec(dLeft, dY);
                     SkFixed nextRite = rite + SkFixedMul_lowprec(dRite, dY);
+                    SkASSERT((left & kSnapMask) >= leftBound && (rite & kSnapMask) <= riteBound &&
+                            (nextLeft & kSnapMask) >= leftBound &&
+                            (nextRite & kSnapMask) <= riteBound);
                     blit_trapezoid_row(blitter, y >> 16, left & kSnapMask, rite & kSnapMask,
                             nextLeft & kSnapMask, nextRite & kSnapMask, leftE->fDY, riteE->fDY,
                             getPartialAlpha(0xFF, dY), maskRow, isUsingMask);
@@ -1092,6 +1096,9 @@ static inline void aaa_walk_convex_edges(SkAnalyticEdge* prevHead, AdditiveBlitt
                         maskRow = static_cast<MaskAdditiveBlitter*>(blitter)->getRow(y >> 16);
                     }
                     SkFixed nextY = y + SK_Fixed1, nextLeft = left + dLeft, nextRite = rite + dRite;
+                    SkASSERT((left & kSnapMask) >= leftBound && (rite & kSnapMask) <= riteBound &&
+                            (nextLeft & kSnapMask) >= leftBound &&
+                            (nextRite & kSnapMask) <= riteBound);
                     blit_trapezoid_row(blitter, y >> 16, left & kSnapMask, rite & kSnapMask,
                             nextLeft & kSnapMask, nextRite & kSnapMask,
                             leftE->fDY, riteE->fDY, 0xFF, maskRow, isUsingMask);
@@ -1113,6 +1120,8 @@ static inline void aaa_walk_convex_edges(SkAnalyticEdge* prevHead, AdditiveBlitt
             // Note that we substract kSnapHalf later so we have to add them to leftBound/riteBound
             SkFixed nextLeft = SkTMax(left + SkFixedMul_lowprec(dLeft, dY), leftBound + kSnapHalf);
             SkFixed nextRite = SkTMin(rite + SkFixedMul_lowprec(dRite, dY), riteBound + kSnapHalf);
+            SkASSERT((left & kSnapMask) >= leftBound && (rite & kSnapMask) <= riteBound &&
+                    (nextLeft & kSnapMask) >= leftBound && (nextRite & kSnapMask) <= riteBound);
             blit_trapezoid_row(blitter, y >> 16, left & kSnapMask, rite & kSnapMask,
                     nextLeft & kSnapMask, nextRite & kSnapMask, leftE->fDY, riteE->fDY,
                     getPartialAlpha(0xFF, dY), maskRow, isUsingMask);

@@ -170,6 +170,34 @@ static void test_fuzz_crbug_647922() {
     canvas->drawPath(path, paint);
 }
 
+static void test_fuzz_crbug_662780() {
+    auto surface(SkSurface::MakeRasterN32Premul(250, 250));
+    SkCanvas* canvas = surface->getCanvas();
+    SkPaint paint;
+    paint.setAntiAlias(true);
+    SkPath path;
+    path.moveTo(SkBits2Float(0x41000000), SkBits2Float(0x431e0000));  // 8, 158
+    path.lineTo(SkBits2Float(0x41000000), SkBits2Float(0x42f00000));  // 8, 120
+    // 8, 8, 8.00002f, 8, 0.707107f
+    path.conicTo(SkBits2Float(0x41000000), SkBits2Float(0x41000000),
+            SkBits2Float(0x41000010), SkBits2Float(0x41000000), SkBits2Float(0x3f3504f3));
+    path.lineTo(SkBits2Float(0x439a0000), SkBits2Float(0x41000000));  // 308, 8
+    // 308, 8, 308, 8, 0.707107f
+    path.conicTo(SkBits2Float(0x439a0000), SkBits2Float(0x41000000),
+            SkBits2Float(0x439a0000), SkBits2Float(0x41000000), SkBits2Float(0x3f3504f3));
+    path.lineTo(SkBits2Float(0x439a0000), SkBits2Float(0x431e0000));  // 308, 158
+    // 308, 158, 308, 158, 0.707107f
+    path.conicTo(SkBits2Float(0x439a0000), SkBits2Float(0x431e0000),
+            SkBits2Float(0x439a0000), SkBits2Float(0x431e0000), SkBits2Float(0x3f3504f3));
+    path.lineTo(SkBits2Float(0x41000000), SkBits2Float(0x431e0000));  // 8, 158
+    // 8, 158, 8, 158, 0.707107f
+    path.conicTo(SkBits2Float(0x41000000), SkBits2Float(0x431e0000),
+            SkBits2Float(0x41000000), SkBits2Float(0x431e0000), SkBits2Float(0x3f3504f3));
+    path.close();
+    canvas->clipPath(path, true);
+    canvas->drawRectCoords(0, 0, 250, 250, paint);
+}
+
 /**
  * In debug mode, this path was causing an assertion to fail in
  * SkPathStroker::preJoinTo() and, in Release, the use of an unitialized value.
@@ -4330,6 +4358,7 @@ DEF_TEST(Paths, reporter) {
     test_path_crbug364224();
     test_fuzz_crbug_662952(reporter);
     test_fuzz_crbug_662730(reporter);
+    test_fuzz_crbug_662780();
 
     SkTSize<SkScalar>::Make(3,4);
 
