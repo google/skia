@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "eb935fd8_9a71bcfe",
+        "filename": "include/core/SkPixmap.h",
+        "patchSetId": 5
+      },
+      "lineNbr": 73,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2016-11-11T18:38:17Z",
+      "side": 1,
+      "message": "Not sure why I didn\u0027t add this yet, but I ought to take advantage of it in a few places.",
+      "revId": "f06032555e79c0f661924211441e4be6cec48bf5",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
