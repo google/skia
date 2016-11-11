@@ -1161,6 +1161,18 @@ if (skia_enable_tools) {
     testonly = true
   }
 
+  executable("colorspaceinfo") {
+    sources = [
+      "tools/colorspaceinfo.cpp",
+    ]
+    deps = [
+      ":flags",
+      ":skia",
+      ":tool_utils",
+    ]
+    testonly = true
+  }
+
   if (!is_ios) {
     executable("skiaserve") {
       sources = [
