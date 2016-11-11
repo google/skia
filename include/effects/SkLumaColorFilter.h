@@ -42,7 +42,8 @@ protected:
 
 private:
     SkLumaColorFilter();
-    bool onAppendStages(SkRasterPipeline*, bool shaderIsOpaque) const override;
+    bool onAppendStages(SkRasterPipeline*, SkColorSpace*, SkFixedAlloc*,
+                        bool shaderIsOpaque) const override;
 
     typedef SkColorFilter INHERITED;
 };
