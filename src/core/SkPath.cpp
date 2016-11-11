@@ -148,6 +148,8 @@ SkPath::SkPath(const SkPath& that)
     : fPathRef(SkRef(that.fPathRef.get())) {
     this->copyFields(that);
     SkDEBUGCODE(that.validate();)
+    AnnotateBenignRaceSized(__FILE__, __LINE__, &fConvexity, sizeof(fConvexity),
+                            "We've tried a few times to make this thread safe, and failed.");
 }
 
 SkPath::~SkPath() {
