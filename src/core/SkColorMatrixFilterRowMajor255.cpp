@@ -232,6 +232,8 @@ static void set_concat(SkScalar result[20], const SkScalar outer[20], const SkSc
 //////
 
 bool SkColorMatrixFilterRowMajor255::onAppendStages(SkRasterPipeline* p,
+                                                    SkColorSpace* dst,
+                                                    SkFallbackAlloc* scratch,
                                                     bool shaderIsOpaque) const {
     bool willStayOpaque = shaderIsOpaque && (fFlags & kAlphaUnchanged_Flag);
     bool needsClamp0 = false,
