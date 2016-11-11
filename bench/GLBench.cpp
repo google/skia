@@ -71,7 +71,7 @@ GrGLuint GLBench::CompileShader(const GrGLContext* context, const char* sksl, Gr
                                                                     ? SkSL::Program::kVertex_Kind
                                                                     : SkSL::Program::kFragment_Kind,
                                               std::string(sksl),
-                                              *context->caps()->glslCaps(),
+                                              GrGLSkSLCapsForContext(*context),
                                               &glsl);
     if (!result) {
         SkDebugf("SkSL compilation failed:\n%s\n%s\n", sksl, 

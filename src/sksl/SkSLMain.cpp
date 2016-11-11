@@ -8,7 +8,6 @@
 #include "stdio.h"
 #include <fstream>
 #include "SkSLCompiler.h"
-#include "GrContextOptions.h"
 
 bool endsWith(const std::string& s, const std::string& ending) {
     if (s.length() >= ending.length()) {
@@ -58,7 +57,7 @@ int main(int argc, const char** argv) {
     } else if (endsWith(name, ".glsl")) {
         std::ofstream out(argv[2], std::ofstream::binary);
         SkSL::Compiler compiler;
-        if (!compiler.toGLSL(kind, text, *SkSL::GLSLCapsFactory::Default(), out)) {
+        if (!compiler.toGLSL(kind, text, SkSL::GLCaps(), out)) {
             printf("%s", compiler.errorText().c_str());
             exit(3);
         }

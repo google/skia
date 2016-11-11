@@ -12,7 +12,6 @@
 #include <tuple>
 #include <unordered_map>
 
-#include "glsl/GrGLSLCaps.h"
 #include "SkSLCodeGenerator.h"
 #include "ir/SkSLBinaryExpression.h"
 #include "ir/SkSLBoolLiteral.h"
@@ -45,6 +44,28 @@ namespace SkSL {
 
 #define kLast_Capability SpvCapabilityMultiViewport
 
+struct GLCaps {
+    GLCaps() {}
+
+    int fVersion = 400;
+    enum {
+        kGL_Standard,
+        kGLES_Standard
+    } fStandard = kGL_Standard;
+    bool fIsCoreProfile = false;
+    bool fUsesPrecisionModifiers = false;
+    bool fMustDeclareFragmentShaderOutput = false;
+    bool fShaderDerivativeSupport = true;
+    // extension string to enable derivative support, or null if unnecessary
+    std::string fShaderDerivativeExtensionString;
+    // The Tegra3 compiler will sometimes never return if we have min(abs(x), y)
+    bool fCanUseMinAndAbsTogether = true;
+    // On Intel GPU there is an issue where it misinterprets an atan argument (second argument only,
+    // apparently) of the form "-<expr>" as an int, so we rewrite it as "-1.0 * <expr>" to avoid
+    // this problem
+    bool fMustForceNegatedAtanParamToFloat = false;
+};
+
 /**
  * Converts a Program into GLSL code.
  */
@@ -71,9 +92,9 @@ public:
         kTopLevel_Precedence       = 18
     };
 
-    GLSLCodeGenerator(const Context* context, const GrGLSLCaps* caps)
+    GLSLCodeGenerator(const Context* context, GLCaps caps)
     : fContext(*context)
-    , fCaps(*caps) {}
+    , fCaps(caps) {}
 
     void generateCode(const Program& program, std::ostream& out) override;
 
@@ -155,7 +176,7 @@ private:
     void writeReturnStatement(const ReturnStatement& r);
 
     const Context& fContext;
-    const GrGLSLCaps& fCaps;
+    const GLCaps fCaps;
     std::ostream* fOut = nullptr;
     std::stringstream fHeader;
     std::string fFunctionHeader;
