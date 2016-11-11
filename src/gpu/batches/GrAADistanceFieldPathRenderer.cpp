@@ -13,12 +13,13 @@
 #include "GrContext.h"
 #include "GrPipelineBuilder.h"
 #include "GrResourceProvider.h"
-#include "GrSurfacePriv.h"
 #include "GrSWMaskHelper.h"
+#include "GrSurfacePriv.h"
 #include "GrTexturePriv.h"
 #include "batches/GrVertexBatch.h"
 #include "effects/GrDistanceFieldGeoProc.h"
 
+#include "SkAutoMalloc.h"
 #include "SkDistanceFieldGen.h"
 
 #define ATLAS_TEXTURE_WIDTH 2048

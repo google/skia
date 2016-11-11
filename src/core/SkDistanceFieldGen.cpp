@@ -5,8 +5,10 @@
  * found in the LICENSE file.
  */
 
+#include "SkAutoMalloc.h"
 #include "SkDistanceFieldGen.h"
 #include "SkPoint.h"
+#include "SkTemplates.h"
 
 struct DFData {
     float   fAlpha;      // alpha value of source texel
@@ -349,7 +351,8 @@ static bool generate_distance_field_from_image(unsigned char* distanceField,
     int dataHeight = height + 2*pad;
 
     // create zeroed temp DFData+edge storage
-    SkAutoFree storage(sk_calloc_throw(dataWidth*dataHeight*(sizeof(DFData) + 1)));
+    std::unique_ptr<void, SkFunctionWrapper<void, void, sk_free>> storage(
+        sk_calloc_throw(dataWidth*dataHeight*(sizeof(DFData) + 1)));
     DFData*        dataPtr = (DFData*)storage.get();
     unsigned char* edgePtr = (unsigned char*)storage.get() + dataWidth*dataHeight*sizeof(DFData);
 

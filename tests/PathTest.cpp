@@ -5,14 +5,14 @@
  * found in the LICENSE file.
  */
 
-#include <cmath>
+#include "SkAutoMalloc.h"
 #include "SkCanvas.h"
 #include "SkGeometry.h"
 #include "SkPaint.h"
 #include "SkParse.h"
 #include "SkParsePath.h"
-#include "SkPathPriv.h"
 #include "SkPathEffect.h"
+#include "SkPathPriv.h"
 #include "SkRRect.h"
 #include "SkRandom.h"
 #include "SkReader32.h"
@@ -20,9 +20,9 @@
 #include "SkStream.h"
 #include "SkStrokeRec.h"
 #include "SkSurface.h"
-#include "SkTypes.h"
 #include "SkWriter32.h"
 #include "Test.h"
+#include <cmath>
 
 static void set_radii(SkVector radii[4], int index, float rad) {
     sk_bzero(radii, sizeof(SkVector) * 4);
