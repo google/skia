@@ -308,7 +308,8 @@ protected:
 
     static void draw_as_bitmap(SkCanvas* canvas, SkImageCacherator* cache, SkScalar x, SkScalar y) {
         SkBitmap bitmap;
-        cache->lockAsBitmap(&bitmap, nullptr);
+        cache->lockAsBitmap(&bitmap, nullptr,
+                            SkDestinationSurfaceColorMode::kGammaAndColorSpaceAware);
         canvas->drawBitmap(bitmap, x, y);
     }
 

@@ -155,19 +155,20 @@ DEF_TEST(SpecialImage_Raster, reporter) {
     }
 }
 
-DEF_TEST(SpecialImage_Image, reporter) {
+static void test_specialimage_image(skiatest::Reporter* reporter,
+                                    SkDestinationSurfaceColorMode colorMode) {
     SkBitmap bm = create_bm();
 
     sk_sp<SkImage> fullImage(SkImage::MakeFromBitmap(bm));
 
     sk_sp<SkSpecialImage> fullSImage(SkSpecialImage::MakeFromImage(
                                                             SkIRect::MakeWH(kFullSize, kFullSize),
-                                                            fullImage));
+                                                            fullImage, colorMode));
 
     const SkIRect& subset = SkIRect::MakeXYWH(kPad, kPad, kSmallerSize, kSmallerSize);
 
     {
-        sk_sp<SkSpecialImage> subSImg1(SkSpecialImage::MakeFromImage(subset, fullImage));
+        sk_sp<SkSpecialImage> subSImg1(SkSpecialImage::MakeFromImage(subset, fullImage, colorMode));
         test_image(subSImg1, reporter, nullptr, false, kPad, kFullSize);
     }
 
@@ -175,6 +176,14 @@ DEF_TEST(SpecialImage_Image, reporter) {
         sk_sp<SkSpecialImage> subSImg2(fullSImage->makeSubset(subset));
         test_image(subSImg2, reporter, nullptr, false, 0, kSmallerSize);
     }
+}
+
+DEF_TEST(SpecialImage_Image_Legacy, reporter) {
+    test_specialimage_image(reporter, SkDestinationSurfaceColorMode::kLegacy);
+}
+
+DEF_TEST(SpecialImage_Image_ColorSpaceAware, reporter) {
+    test_specialimage_image(reporter, SkDestinationSurfaceColorMode::kGammaAndColorSpaceAware);
 }
 
 #if SK_SUPPORT_GPU
