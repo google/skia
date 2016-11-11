@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "eb935fd8_10f2f2ec",
+        "filename": "src/core/SkScan_AAAPath.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 157,
+      "author": {
+        "id": 5632
+      },
+      "writtenOn": "2016-11-11T12:08:21Z",
+      "side": 1,
+      "message": "How about\n\nunsigned width \u003d (unsigned) bounds.width();\nif (width \u003e MaskAdditveBlitter::kMAX_WIDTH)\n    return false;",
+      "revId": "3f28afd8aaf8cbf459680b04a240e83d3168ae07",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
