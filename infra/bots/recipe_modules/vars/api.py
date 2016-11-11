@@ -142,6 +142,11 @@ class SkiaVarsApi(recipe_api.RecipeApi):
     self._swarming_bot_id = None
     self._swarming_task_id = None
 
+    # Data should go under in _data_dir, which may be preserved across runs.
+    self.android_data_dir = '/sdcard/revenge_of_the_skiabot/'
+    # Executables go under _bin_dir, which, well, allows executable files.
+    self.android_bin_dir  = '/data/local/tmp/'
+
   @property
   def upload_dm_results(self):
     # TODO(borenet): Move this into the swarm_test recipe.
