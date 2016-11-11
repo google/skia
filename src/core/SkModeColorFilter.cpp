@@ -9,7 +9,9 @@
 #include "SkBlendModePriv.h"
 #include "SkColorFilter.h"
 #include "SkColorPriv.h"
+#include "SkFixedAlloc.h"
 #include "SkModeColorFilter.h"
+#include "SkPM4fPriv.h"
 #include "SkRasterPipeline.h"
 #include "SkReadBuffer.h"
 #include "SkWriteBuffer.h"
@@ -62,9 +64,9 @@ void SkModeColorFilter::filterSpan(const SkPMColor shader[], int count, SkPMColo
 
 void SkModeColorFilter::filterSpan4f(const SkPM4f shader[], int count, SkPM4f result[]) const {
     SkXfermodeProc4f  proc = SkXfermode::GetProc4f(fMode);
-
+    auto pm4f = SkColor4f::FromColor(fColor).premul();
     for (int i = 0; i < count; i++) {
-        result[i] = proc(fPM4f, shader[i]);
+        result[i] = proc(pm4f, shader[i]);
     }
 }
 
@@ -76,7 +78,6 @@ void SkModeColorFilter::flatten(SkWriteBuffer& buffer) const {
 void SkModeColorFilter::updateCache() {
     fPMColor = SkPreMultiplyColor(fColor);
     fProc = SkXfermode::GetProc(fMode);
-    fPM4f = SkColor4f::FromColor(fColor).premul();
 }
 
 sk_sp<SkFlattenable> SkModeColorFilter::CreateProc(SkReadBuffer& buffer) {
@@ -85,11 +86,14 @@ sk_sp<SkFlattenable> SkModeColorFilter::CreateProc(SkReadBuffer& buffer) {
     return SkColorFilter::MakeModeFilter(color, mode);
 }
 
-bool SkModeColorFilter::onAppendStages(SkRasterPipeline* p, bool shaderIsOpaque) const {
-    // TODO: For some modes we can cut a stage by loading the fPM4f into dr,dg,db,da
-    // and applying the opposite xfermode, e.g. dst-in instead of src-in.
+bool SkModeColorFilter::onAppendStages(SkRasterPipeline* p,
+                                       SkColorSpace* dst,
+                                       SkFallbackAlloc* scratch,
+                                       bool shaderIsOpaque) const {
+    auto color = scratch->make<SkPM4f>(SkPM4f_from_SkColor(fColor, dst));
+
     p->append(SkRasterPipeline::move_src_dst);
-    p->append(SkRasterPipeline::constant_color, &fPM4f);
+    p->append(SkRasterPipeline::constant_color, color);
     auto mode = (SkBlendMode)fMode;
     if (!SkBlendMode_AppendStages(mode, p)) {
         return false;

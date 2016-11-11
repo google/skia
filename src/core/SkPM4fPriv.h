@@ -9,6 +9,7 @@
 #define SkPM4fPriv_DEFINED
 
 #include "SkColorPriv.h"
+#include "SkColorSpace.h"
 #include "SkPM4f.h"
 #include "SkSRGB.h"
 
@@ -69,6 +70,19 @@ static inline float exact_srgb_to_linear(float srgb) {
     }
     assert_unit(linear);
     return linear;
+}
+
+static inline SkPM4f SkPM4f_from_SkColor(SkColor color, SkColorSpace* dst) {
+    SkColor4f color4f;
+    if (dst) {
+        // sRGB gamma, sRGB gamut.
+        color4f = SkColor4f::FromColor(color);
+        // TODO: gamut transform if needed
+    } else {
+        // Linear gamma, dst gamut.
+        swizzle_rb(SkNx_cast<float>(Sk4b::Load(&color)) * (1/255.0f)).store(&color4f);
+    }
+    return color4f.premul();
 }
 
 #endif

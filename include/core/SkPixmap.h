@@ -70,6 +70,7 @@ public:
     int height() const { return fInfo.height(); }
     SkColorType colorType() const { return fInfo.colorType(); }
     SkAlphaType alphaType() const { return fInfo.alphaType(); }
+    SkColorSpace* colorSpace() const { return fInfo.colorSpace(); }
     bool isOpaque() const { return fInfo.isOpaque(); }
 
     SkIRect bounds() const { return SkIRect::MakeWH(this->width(), this->height()); }

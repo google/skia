@@ -45,7 +45,8 @@ protected:
 
     void flatten(SkWriteBuffer&) const override;
 
-    bool onAppendStages(SkRasterPipeline*, bool shaderIsOpaque) const override;
+    bool onAppendStages(SkRasterPipeline*, SkColorSpace*, SkFallbackAlloc*,
+                        bool shaderIsOpaque) const override;
 
 private:
     SkColor             fColor;
@@ -53,7 +54,6 @@ private:
     // cache
     SkPMColor           fPMColor;
     SkXfermodeProc      fProc;
-    SkPM4f              fPM4f;
 
     void updateCache();
 

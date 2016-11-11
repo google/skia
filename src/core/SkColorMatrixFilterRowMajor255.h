@@ -36,7 +36,8 @@ protected:
     void flatten(SkWriteBuffer&) const override;
 
 private:
-    bool onAppendStages(SkRasterPipeline*, bool shaderIsOpaque) const override;
+    bool onAppendStages(SkRasterPipeline*, SkColorSpace*, SkFallbackAlloc*,
+                        bool shaderIsOpaque) const override;
 
     SkScalar        fMatrix[20];
     float           fTranspose[20]; // for Sk4s

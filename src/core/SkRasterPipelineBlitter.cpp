@@ -9,8 +9,10 @@
 #include "SkBlendModePriv.h"
 #include "SkColor.h"
 #include "SkColorFilter.h"
+#include "SkFixedAlloc.h"
 #include "SkOpts.h"
 #include "SkPM4f.h"
+#include "SkPM4fPriv.h"
 #include "SkRasterPipeline.h"
 #include "SkShader.h"
 #include "SkXfermode.h"
@@ -24,6 +26,8 @@ public:
         : fDst(dst)
         , fBlend(blend)
         , fPaintColor(paintColor)
+        , fScratchAlloc(fScratch, sizeof(fScratch))
+        , fScratchFallback(&fScratchAlloc)
     {}
 
     void blitH    (int x, int y, int w)                            override;
@@ -57,6 +61,11 @@ private:
     const void* fMaskPtr          = nullptr;
     float       fConstantCoverage = 0.0f;
 
+    // Scratch space for shaders and color filters to use.
+    char            fScratch[64];
+    SkFixedAlloc    fScratchAlloc;
+    SkFallbackAlloc fScratchFallback;
+
     typedef SkBlitter INHERITED;
 };
 
@@ -75,29 +84,14 @@ static bool supported(const SkImageInfo& info) {
     }
 }
 
-template <typename Effect>
-static bool append_effect_stages(const Effect* effect, SkRasterPipeline* pipeline) {
-    return !effect || effect->appendStages(pipeline);
-}
-
-static SkPM4f paint_color(const SkPixmap& dst, const SkPaint& paint) {
-    auto paintColor = paint.getColor();
-    SkColor4f color;
-    if (dst.info().colorSpace()) {
-        color = SkColor4f::FromColor(paintColor);
-        // TODO: transform from sRGB to dst gamut.
-    } else {
-        swizzle_rb(SkNx_cast<float>(Sk4b::Load(&paintColor)) * (1/255.0f)).store(&color);
-    }
-    return color.premul();
-}
-
 SkBlitter* SkRasterPipelineBlitter::Create(const SkPixmap& dst,
                                            const SkPaint& paint,
                                            SkTBlitterAllocator* alloc) {
-    auto blitter = alloc->createT<SkRasterPipelineBlitter>(dst,
-                                                           paint.getBlendMode(),
-                                                           paint_color(dst, paint));
+    auto blitter = alloc->createT<SkRasterPipelineBlitter>(
+            dst,
+            paint.getBlendMode(),
+            SkPM4f_from_SkColor(paint.getColor(), dst.colorSpace()));
+
     auto earlyOut = [&] {
         blitter->~SkRasterPipelineBlitter();
         alloc->freeLast();
@@ -128,7 +122,8 @@ SkBlitter* SkRasterPipelineBlitter::Create(const SkPixmap& dst,
     }
 
     if (colorFilter) {
-        if (!colorFilter->appendStages(pipeline, is_opaque)) {
+        if (!colorFilter->appendStages(pipeline, dst.colorSpace(), &blitter->fScratchFallback,
+                                       is_opaque)) {
             return earlyOut();
         }
         is_opaque = is_opaque && (colorFilter->getFlags() & SkColorFilter::kAlphaUnchanged_Flag);

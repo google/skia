@@ -37,7 +37,7 @@ public:
 
         // Create the T.
         auto ptr = (T*)(fBuffer+fUsed);
-        new (ptr) T{std::forward<Args>(args)...};
+        new (ptr) T(std::forward<Args>(args)...);
         fUsed += sizeof(T);
 
         // Stamp a footer after the T that we can use to clean it up.
@@ -78,7 +78,7 @@ public:
                 return ptr;
             }
         }
-        auto ptr = new T{std::forward<Args>(args)...};
+        auto ptr = new T(std::forward<Args>(args)...);
         fHeapAllocs.push_back({[](void* ptr) { delete (T*)ptr; }, ptr});
         return ptr;
     }

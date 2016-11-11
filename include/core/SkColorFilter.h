@@ -17,6 +17,7 @@ class GrContext;
 class GrFragmentProcessor;
 class SkBitmap;
 class SkColorSpace;
+class SkFallbackAlloc;
 class SkRasterPipeline;
 
 /**
@@ -72,7 +73,8 @@ public:
 
     virtual void filterSpan4f(const SkPM4f src[], int count, SkPM4f result[]) const;
 
-    bool appendStages(SkRasterPipeline*, bool shaderIsOpaque) const;
+    bool appendStages(SkRasterPipeline*, SkColorSpace*, SkFallbackAlloc*,
+                      bool shaderIsOpaque) const;
 
     enum Flags {
         /** If set the filter methods will not change the alpha channel of the colors.
@@ -158,7 +160,8 @@ public:
 protected:
     SkColorFilter() {}
 
-    virtual bool onAppendStages(SkRasterPipeline*, bool shaderIsOpaque) const;
+    virtual bool onAppendStages(SkRasterPipeline*, SkColorSpace*, SkFallbackAlloc*,
+                                bool shaderIsOpaque) const;
 
 private:
     /*

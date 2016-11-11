@@ -6,6 +6,7 @@
  */
 
 #include "SkColorFilter.h"
+#include "SkFixedAlloc.h"
 #include "SkReadBuffer.h"
 #include "SkRefCnt.h"
 #include "SkString.h"
@@ -37,11 +38,14 @@ sk_sp<GrFragmentProcessor> SkColorFilter::asFragmentProcessor(GrContext*, SkColo
 }
 #endif
 
-bool SkColorFilter::appendStages(SkRasterPipeline* pipeline, bool shaderIsOpaque) const {
-    return this->onAppendStages(pipeline, shaderIsOpaque);
+bool SkColorFilter::appendStages(SkRasterPipeline* pipeline,
+                                 SkColorSpace* dst,
+                                 SkFallbackAlloc* scratch,
+                                 bool shaderIsOpaque) const {
+    return this->onAppendStages(pipeline, dst, scratch, shaderIsOpaque);
 }
 
-bool SkColorFilter::onAppendStages(SkRasterPipeline*, bool shaderIsOpaque) const {
+bool SkColorFilter::onAppendStages(SkRasterPipeline*, SkColorSpace*, SkFallbackAlloc*, bool) const {
     return false;
 }
 
