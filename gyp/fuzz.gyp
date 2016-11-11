@@ -22,6 +22,7 @@
         'include_dirs': [
             '../include/private',
             '../src/core',
+            '../src/gpu',
             '../src/pathops',
         ],
     }],
