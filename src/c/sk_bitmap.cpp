@@ -10,6 +10,7 @@
 #include "SkColorPriv.h"
 #include "SkDither.h"
 #include "SkImageInfo.h"
+#include "SkMath.h"
 #include "SkUnPreMultiply.h"
 
 #include "sk_bitmap.h"
@@ -23,6 +24,15 @@ static inline void copyAlpha8ToColor(size_t size, const uint8_t* pixels, sk_colo
         *colors++ = SkColorSetA(0, *addr);
     }
 }
+
+static inline void copyGray8ToColor(size_t size, const uint8_t* pixels, sk_color_t* colors)
+{
+    while (size-- != 0) {
+        const uint8_t* addr = pixels++;
+        *colors++ = SkColorSetRGB(*addr, *addr, *addr);
+    }
+}
+
 static inline void copyRgb565ToColor(size_t size, const uint16_t* pixels, sk_color_t* colors)
 {
     while (size-- != 0) {
@@ -44,6 +54,25 @@ static inline void copyAlpha8FromColor(size_t size, const sk_color_t* colors, ui
         *pixels++ = SkColorGetA(*colors++);
     }
 }
+
+static inline void copyGray8FromColor(size_t size, const sk_color_t* colors, uint8_t* pixels)
+{
+    while (size-- != 0) {
+        SkColor c = *colors++;
+
+        uint8_t r = SkColorGetR(c);
+        uint8_t g = SkColorGetG(c);
+        uint8_t b = SkColorGetB(c);
+        uint8_t a = SkColorGetA(c);
+        if (255 != a) {
+            r = SkMulDiv255Round(r, a);
+            g = SkMulDiv255Round(g, a);
+            b = SkMulDiv255Round(b, a);
+        }
+        *pixels++ = SkComputeLuminance(r, g, b);
+    }
+}
+
 static inline void copyRgb565FromColor(size_t width, size_t height, const sk_color_t* colors, uint16_t* pixels)
 {
     for (size_t y = 0; y < height; y++) {
@@ -154,6 +183,9 @@ void sk_bitmap_set_pixel_color(sk_bitmap_t* cbitmap, int x, int y, sk_color_t co
     case kAlpha_8_SkColorType:
         copyAlpha8FromColor(1, &color, (uint8_t*)bmp->getAddr8(x, y));
         break;
+    case kGray_8_SkColorType:
+        copyGray8FromColor(1, &color, (uint8_t*)bmp->getAddr8(x, y));
+        break;
     case kRGB_565_SkColorType:
         copyRgb565FromColor(1, 1, &color, (uint16_t*)bmp->getAddr16(x, y));
         break;
@@ -199,6 +231,9 @@ void sk_bitmap_get_pixel_colors(sk_bitmap_t* cbitmap, sk_color_t* colors)
     case kAlpha_8_SkColorType:
         copyAlpha8ToColor(size, (const uint8_t*)pixels, colors);
         break;
+    case kGray_8_SkColorType:
+        copyGray8ToColor(size, (const uint8_t*)pixels, colors);
+        break;
     case kRGB_565_SkColorType:
         copyRgb565ToColor(size, (const uint16_t*)pixels, colors);
         break;
@@ -225,6 +260,9 @@ void sk_bitmap_set_pixel_colors(sk_bitmap_t* cbitmap, const sk_color_t* colors)
     switch (bmp->colorType()) {
     case kAlpha_8_SkColorType:
         copyAlpha8FromColor(size, colors, (uint8_t*)pixels);
+        break;
+    case kGray_8_SkColorType:
+        copyGray8FromColor(size, colors, (uint8_t*)pixels);
         break;
     case kRGB_565_SkColorType:
         copyRgb565FromColor(width, height, colors, (uint16_t*)pixels);
