@@ -33,6 +33,24 @@
       "revId": "2947199fe603dcea5ad3edfdedc453840a6d7f39",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "eb935fd8_d0532add",
+        "filename": "src/core/SkBlitter.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 1056,
+      "author": {
+        "id": 5632
+      },
+      "writtenOn": "2016-11-11T13:10:12Z",
+      "side": 1,
+      "message": "Just saw your note that the whole thing is already in SK_DEBUG, so ignore the comment above",
+      "parentUuid": "eb935fd8_9088c23e",
+      "revId": "2947199fe603dcea5ad3edfdedc453840a6d7f39",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
