@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "eb935fd8_daffc4f3",
+        "filename": "tools/colorspaceinfo.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 65,
+      "author": {
+        "id": 5740
+      },
+      "writtenOn": "2016-11-11T18:42:56Z",
+      "side": 1,
+      "message": "Order of arguments looks wrong here. Shouldn\u0027t it be kChannels[i], a, b, c..., not a, b, ..., kChannels[i]?",
+      "revId": "e449200bcf1c18ccd1cfb42a4805b0467ea6f474",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
