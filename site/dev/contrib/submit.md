@@ -32,7 +32,7 @@ If your branch gets out of date, you will need to update it:
 <!--?prettify lang=sh?-->
 
     git pull
-    python bin/sync-and-gyp
+    python bin/sync
 
 Adding a unit test
 ------------------
