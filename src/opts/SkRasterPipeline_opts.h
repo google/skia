@@ -9,6 +9,7 @@
 #define SkRasterPipeline_opts_DEFINED
 
 #include "SkColorPriv.h"
+#include "SkColorLookUpTable.h"
 #include "SkHalf.h"
 #include "SkPM4f.h"
 #include "SkPM4fPriv.h"
@@ -431,6 +432,25 @@ STAGE(store_srgb, false) {
                          | SkNx_cast<int>(0.5f + 255.0f * a) << SK_A32_SHIFT), (int*)ptr);
 }
 
+STAGE(load_s_8888, true) {
+    auto ptr = *(const uint32_t**)ctx + x;
+
+    auto px = load<kIsTail>(tail, ptr);
+    auto to_int = [](const SkNx<N, uint32_t>& v) { return SkNi::Load(&v); };
+    r = (1/255.0f)*SkNx_cast<float>(to_int((px >> 0) & 0xff));
+    g = (1/255.0f)*SkNx_cast<float>(to_int((px >> 8) & 0xff));
+    b = (1/255.0f)*SkNx_cast<float>(to_int((px >> 16) & 0xff));
+    a = (1/255.0f)*SkNx_cast<float>(to_int(px >> 24));
+}
+
+STAGE(store_8888, false) {
+    auto ptr = *(uint32_t**)ctx + x;
+    store<kIsTail>(tail, ( SkNx_cast<int>(255.0f * r + 0.5f) << 0
+                         | SkNx_cast<int>(255.0f * g + 0.5f) << 8
+                         | SkNx_cast<int>(255.0f * b + 0.5f) << 16
+                         | SkNx_cast<int>(255.0f * a + 0.5f) << 24 ), (int*)ptr);
+}
+
 RGBA_XFERMODE(clear)    { return 0.0f; }
 //RGBA_XFERMODE(src)      { return s; }   // This would be a no-op stage, so we just omit it.
 RGBA_XFERMODE(dst)      { return d; }
@@ -490,6 +510,18 @@ STAGE(luminance_to_alpha, true) {
     r = g = b = 0;
 }
 
+STAGE(matrix_3x4, true) {
+    auto m = (const float*)ctx;
+
+    auto fma = [](const SkNf& f, const SkNf& m, const SkNf& a) { return SkNx_fma(f,m,a); };
+    auto R = fma(r,m[0], fma(g,m[3], fma(b,m[6], m[ 9]))),
+         G = fma(r,m[1], fma(g,m[4], fma(b,m[7], m[10]))),
+         B = fma(r,m[2], fma(g,m[5], fma(b,m[8], m[11])));
+    r = R;
+    g = G;
+    b = B;
+}
+
 STAGE(matrix_4x5, true) {
     auto m = (const float*)ctx;
 
@@ -502,6 +534,80 @@ STAGE(matrix_4x5, true) {
     g = G;
     b = B;
     a = A;
+}
+
+STAGE(fn_1_r, true) {
+    auto fn = (const std::function<float(float)>*)ctx;
+    float result[N];
+    for (int i = 0; i < N; ++i) {
+        result[i] = (*fn)(r[i]);
+    }
+    r = SkNf::Load(result);
+}
+
+STAGE(fn_1_g, true) {
+    auto fn = (const std::function<float(float)>*)ctx;
+    float result[N];
+    for (int i = 0; i < N; ++i) {
+        result[i] = (*fn)(g[i]);
+    }
+    g = SkNf::Load(result);
+}
+
+STAGE(fn_1_b, true) {
+    auto fn = (const std::function<float(float)>*)ctx;
+    float result[N];
+    for (int i = 0; i < N; ++i) {
+        result[i] = (*fn)(b[i]);
+    }
+    b = SkNf::Load(result);
+}
+
+STAGE(color_lookup_table, true) {
+    const SkColorLookUpTable* colorLUT = (const SkColorLookUpTable*)ctx;
+    float rgb[3];
+    float result[3][N];
+    for (int i = 0; i < N; ++i) {
+        rgb[0] = r[i];
+        rgb[1] = g[i];
+        rgb[2] = b[i];
+        colorLUT->interp3D(rgb, rgb);
+        result[0][i] = rgb[0];
+        result[1][i] = rgb[1];
+        result[2][i] = rgb[2];
+    }
+    r = SkNf::Load(result[0]);
+    g = SkNf::Load(result[1]);
+    b = SkNf::Load(result[2]);
+}
+
+STAGE(lab_to_xyz, true) {
+    const auto lab_l = r * 100.0f;
+    const auto lab_a = g * 255.0f - 128.0f;
+    const auto lab_b = b * 255.0f - 128.0f;
+    auto Y = (lab_l + 16.0f) * (1/116.0f);
+    auto X = lab_a * (1/500.0f) + Y;
+    auto Z = Y - (lab_b * (1/200.0f));
+
+    const auto X3 = X*X*X;
+    X = (X3 > 0.008856f).thenElse(X3, (X - (16/116.0f)) * (1/7.787f));
+    const auto Y3 = Y*Y*Y;
+    Y = (Y3 > 0.008856f).thenElse(Y3, (Y - (16/116.0f)) * (1/7.787f));
+    const auto Z3 = Z*Z*Z;
+    Z = (Z3 > 0.008856f).thenElse(Z3, (Z - (16/116.0f)) * (1/7.787f));
+
+    // adjust to D50 illuminant
+    X *= 0.96422f;
+    Y *= 1.00000f;
+    Z *= 0.82521f;
+
+    r = X;
+    g = Y;
+    b = Z;
+}
+
+STAGE(swap_rb, true) {
+    SkTSwap(r, b);
 }
 
 template <typename Fn>

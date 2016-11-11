@@ -60,6 +60,7 @@
     M(load_s_565)  M(load_d_565)  M(store_565)                   \
     M(load_s_srgb) M(load_d_srgb) M(store_srgb)                  \
     M(load_s_f16)  M(load_d_f16)  M(store_f16)                   \
+    M(load_s_8888) M(store_8888)                                 \
     M(scale_u8) M(scale_constant_float)                          \
     M(lerp_u8) M(lerp_565) M(lerp_constant_float)                \
     M(dst)                                                       \
@@ -68,7 +69,9 @@
     M(clear) M(modulate) M(multiply) M(plus_) M(screen) M(xor_)  \
     M(colorburn) M(colordodge) M(darken) M(difference)           \
     M(exclusion) M(hardlight) M(lighten) M(overlay) M(softlight) \
-    M(luminance_to_alpha) M(matrix_4x5)
+    M(luminance_to_alpha) M(matrix_3x4) M(matrix_4x5)            \
+    M(fn_1_r) M(fn_1_g) M(fn_1_b)                                \
+    M(color_lookup_table) M(lab_to_xyz) M(swap_rb)
 
 class SkRasterPipeline {
 public:

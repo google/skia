@@ -21,99 +21,6 @@
 #include "SkSurface.h"
 #include "SkTypes.h"
 
-static inline void interp_3d_clut(float dst[3], float src[3], const SkColorLookUpTable* colorLUT) {
-    // Call the src components x, y, and z.
-    uint8_t maxX = colorLUT->fGridPoints[0] - 1;
-    uint8_t maxY = colorLUT->fGridPoints[1] - 1;
-    uint8_t maxZ = colorLUT->fGridPoints[2] - 1;
-
-    // An approximate index into each of the three dimensions of the table.
-    float x = src[0] * maxX;
-    float y = src[1] * maxY;
-    float z = src[2] * maxZ;
-
-    // This gives us the low index for our interpolation.
-    int ix = sk_float_floor2int(x);
-    int iy = sk_float_floor2int(y);
-    int iz = sk_float_floor2int(z);
-
-    // Make sure the low index is not also the max index.
-    ix = (maxX == ix) ? ix - 1 : ix;
-    iy = (maxY == iy) ? iy - 1 : iy;
-    iz = (maxZ == iz) ? iz - 1 : iz;
-
-    // Weighting factors for the interpolation.
-    float diffX = x - ix;
-    float diffY = y - iy;
-    float diffZ = z - iz;
-
-    // Constants to help us navigate the 3D table.
-    // Ex: Assume x = a, y = b, z = c.
-    //     table[a * n001 + b * n010 + c * n100] logically equals table[a][b][c].
-    const int n000 = 0;
-    const int n001 = 3 * colorLUT->fGridPoints[1] * colorLUT->fGridPoints[2];
-    const int n010 = 3 * colorLUT->fGridPoints[2];
-    const int n011 = n001 + n010;
-    const int n100 = 3;
-    const int n101 = n100 + n001;
-    const int n110 = n100 + n010;
-    const int n111 = n110 + n001;
-
-    // Base ptr into the table.
-    const float* ptr = &(colorLUT->table()[ix*n001 + iy*n010 + iz*n100]);
-
-    // The code below performs a tetrahedral interpolation for each of the three
-    // dst components.  Once the tetrahedron containing the interpolation point is
-    // identified, the interpolation is a weighted sum of grid values at the
-    // vertices of the tetrahedron.  The claim is that tetrahedral interpolation
-    // provides a more accurate color conversion.
-    // blogs.mathworks.com/steve/2006/11/24/tetrahedral-interpolation-for-colorspace-conversion/
-    //
-    // I have one test image, and visually I can't tell the difference between
-    // tetrahedral and trilinear interpolation.  In terms of computation, the
-    // tetrahedral code requires more branches but less computation.  The
-    // SampleICC library provides an option for the client to choose either
-    // tetrahedral or trilinear.
-    for (int i = 0; i < 3; i++) {
-        if (diffZ < diffY) {
-            if (diffZ < diffX) {
-                dst[i] = (ptr[n000] + diffZ * (ptr[n110] - ptr[n010]) +
-                                      diffY * (ptr[n010] - ptr[n000]) +
-                                      diffX * (ptr[n111] - ptr[n110]));
-            } else if (diffY < diffX) {
-                dst[i] = (ptr[n000] + diffZ * (ptr[n111] - ptr[n011]) +
-                                      diffY * (ptr[n011] - ptr[n001]) +
-                                      diffX * (ptr[n001] - ptr[n000]));
-            } else {
-                dst[i] = (ptr[n000] + diffZ * (ptr[n111] - ptr[n011]) +
-                                      diffY * (ptr[n010] - ptr[n000]) +
-                                      diffX * (ptr[n011] - ptr[n010]));
-            }
-        } else {
-            if (diffZ < diffX) {
-                dst[i] = (ptr[n000] + diffZ * (ptr[n101] - ptr[n001]) +
-                                      diffY * (ptr[n111] - ptr[n101]) +
-                                      diffX * (ptr[n001] - ptr[n000]));
-            } else if (diffY < diffX) {
-                dst[i] = (ptr[n000] + diffZ * (ptr[n100] - ptr[n000]) +
-                                      diffY * (ptr[n111] - ptr[n101]) +
-                                      diffX * (ptr[n101] - ptr[n100]));
-            } else {
-                dst[i] = (ptr[n000] + diffZ * (ptr[n100] - ptr[n000]) +
-                                      diffY * (ptr[n110] - ptr[n100]) +
-                                      diffX * (ptr[n111] - ptr[n110]));
-            }
-        }
-
-        // Increment the table ptr in order to handle the next component.
-        // Note that this is the how table is designed: all of nXXX
-        // variables are multiples of 3 because there are 3 output
-        // components.
-        ptr++;
-    }
-}
-
-
 /**
  *  This tests decoding from a Lab source image and displays on the left
  *  the image as raw RGB values, and on the right a Lab PCS.
@@ -152,7 +59,7 @@ protected:
             return;
         }
         std::unique_ptr<SkCodec> codec(SkCodec::NewFromStream(stream));
-        
+
 
         // srgb_lab_pcs.icc is an elaborate way to specify sRGB but uses
         // Lab as the PCS, so we can take any arbitrary image that should
@@ -179,7 +86,7 @@ protected:
             bool printConversions = false;
             // We're skipping evaluating the TRCs and the matrix here since they aren't
             // in the ICC profile initially used here.
-            for (size_t e = 0; e < cs.count(); ++e) {
+            for (int e = 0; e < cs.count(); ++e) {
                 switch (cs.element(e).type()) {
                     case SkColorSpace_A2B::Element::Type::kGammaNamed:
                         SkASSERT(kLinear_SkGammaNamed == cs.element(e).gammaNamed());
@@ -207,9 +114,9 @@ protected:
                     }
 
                     float lab[4] = { r * (1.f/255.f), g * (1.f/255.f), b * (1.f/255.f), 1.f };
-                    
-                    interp_3d_clut(lab, lab, colorLUT);
-                    
+
+                    colorLUT->interp3D(lab, lab);
+
                     // Lab has ranges [0,100] for L and [-128,127] for a and b
                     // but the ICC profile loader stores as [0,1]. The ICC
                     // specifies an offset of -128 to convert.

@@ -132,7 +132,7 @@ public:
     };
     const Element& element(size_t i) const { return fElements[i]; }
     
-    size_t count() const { return fElements.size(); }
+    int count() const { return (int)fElements.size(); }
 
     // the intermediate profile connection space that this color space
     // represents the transformation to
@@ -150,6 +150,7 @@ private:
     std::vector<Element> fElements;
 
     friend class SkColorSpace;
+    friend class ColorSpaceXformTest;
     typedef SkColorSpace_Base INHERITED;
 };
 
