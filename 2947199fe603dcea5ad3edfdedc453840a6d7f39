@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "eb935fd8_64029b72",
+        "filename": "src/core/SkBlitter.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 1055,
+      "author": {
+        "id": 5647
+      },
+      "writtenOn": "2016-11-11T14:40:53Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "eb935fd8_3091ae6b",
+      "revId": "2947199fe603dcea5ad3edfdedc453840a6d7f39",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "eb935fd8_9088c23e",
         "filename": "src/core/SkBlitter.cpp",
         "patchSetId": 2
