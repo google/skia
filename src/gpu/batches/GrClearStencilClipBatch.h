@@ -31,7 +31,10 @@ public:
 
     const char* name() const override { return "ClearStencilClip"; }
 
-    uint32_t renderTargetUniqueID() const override { return fRenderTarget.get()->uniqueID(); }
+    // TODO: this needs to be updated to return GrSurfaceProxy::UniqueID
+    GrGpuResource::UniqueID renderTargetUniqueID() const override {
+        return fRenderTarget.get()->uniqueID();
+    }
     GrRenderTarget* renderTarget() const override { return fRenderTarget.get(); }
 
     SkString dumpInfo() const override {
@@ -40,7 +43,8 @@ public:
             const SkIRect& r = fClip.scissorRect();
             string.appendf("L: %d, T: %d, R: %d, B: %d", r.fLeft, r.fTop, r.fRight, r.fBottom);
         }
-        string.appendf("], IC: %d, RT: %d", fInsideStencilMask, fRenderTarget.get()->uniqueID());
+        string.appendf("], IC: %d, RT: %d", fInsideStencilMask,
+                                            fRenderTarget.get()->uniqueID().asUInt());
         string.append(INHERITED::dumpInfo());
         return string;
     }

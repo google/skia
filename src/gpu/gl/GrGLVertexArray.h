@@ -8,6 +8,7 @@
 #ifndef GrGLVertexArray_DEFINED
 #define GrGLVertexArray_DEFINED
 
+#include "GrGpuResource.h"
 #include "GrTypesPriv.h"
 #include "gl/GrGLDefines.h"
 #include "gl/GrGLTypes.h"
@@ -68,17 +69,17 @@ private:
      * Tracks the state of glVertexAttribArray for an attribute index.
      */
     struct AttribArrayState {
-            void invalidate() {
-                fEnableIsValid = false;
-                fVertexBufferUniqueID = SK_InvalidUniqueID;
-            }
+        void invalidate() {
+            fEnableIsValid = false;
+            fVertexBufferUniqueID.makeInvalid();
+        }
 
-            bool                  fEnableIsValid;
-            bool                  fEnabled;
-            uint32_t              fVertexBufferUniqueID;
-            GrVertexAttribType    fType;
-            GrGLsizei             fStride;
-            GrGLvoid*             fOffset;
+        bool                            fEnableIsValid;
+        bool                            fEnabled;
+        GrGpuResource::UniqueID         fVertexBufferUniqueID;
+        GrVertexAttribType              fType;
+        GrGLsizei                       fStride;
+        GrGLvoid*                       fOffset;
     };
 
     SkSTArray<16, AttribArrayState, true> fAttribArrayStates;
@@ -110,9 +111,9 @@ public:
     void invalidateCachedState();
 
 private:
-    GrGLuint                fID;
-    GrGLAttribArrayState    fAttribArrays;
-    uint32_t                fIndexBufferUniqueID;
+    GrGLuint                  fID;
+    GrGLAttribArrayState      fAttribArrays;
+    GrGpuResource::UniqueID   fIndexBufferUniqueID;
 };
 
 #endif
