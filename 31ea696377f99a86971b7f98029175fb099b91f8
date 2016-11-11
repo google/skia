@@ -22,6 +22,24 @@
       "revId": "31ea696377f99a86971b7f98029175fb099b91f8",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "eb935fd8_ba53d8f6",
+        "filename": "src/effects/gradients/SkLinearGradient.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 745,
+      "author": {
+        "id": 5920
+      },
+      "writtenOn": "2016-11-11T19:02:18Z",
+      "side": 1,
+      "message": "good catch I didn\u0027t browse through. it seems to make sense to hit this",
+      "parentUuid": "eb935fd8_b0d85e3b",
+      "revId": "31ea696377f99a86971b7f98029175fb099b91f8",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
