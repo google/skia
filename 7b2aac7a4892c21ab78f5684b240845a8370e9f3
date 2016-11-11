@@ -16,6 +16,24 @@
       "revId": "7b2aac7a4892c21ab78f5684b240845a8370e9f3",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "eb935fd8_c4a36f54",
+        "filename": "src/core/SkSpecialImage.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 400,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2016-11-11T15:01:48Z",
+      "side": 1,
+      "message": "Yes, switching from using the Proxy\u0027s width/height to using the surface\u0027s width/height makes the SkImage happy (since it always requires a tight fit) but kind of defers the problem until deferred SkImages are added. (Since the image filters use approx-fit proxies, the size the proxy reports is not necessarily the size of its instantiated GrSurface).\n\nOne other approach I was considering was just adding a private SkCanvas::drawSpecialImage entry point so we don\u0027t have to go through SkImage at this juncture (which just seems to be so we can call drawImageRect).",
+      "parentUuid": "eb935fd8_a4a0237b",
+      "revId": "7b2aac7a4892c21ab78f5684b240845a8370e9f3",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
