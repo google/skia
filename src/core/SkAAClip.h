@@ -8,6 +8,7 @@
 #ifndef SkAAClip_DEFINED
 #define SkAAClip_DEFINED
 
+#include "SkAutoMalloc.h"
 #include "SkBlitter.h"
 #include "SkRegion.h"
 

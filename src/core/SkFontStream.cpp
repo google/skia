@@ -5,6 +5,7 @@
  * found in the LICENSE file.
  */
 
+#include "SkAutoMalloc.h"
 #include "SkEndian.h"
 #include "SkFontStream.h"
 #include "SkStream.h"
