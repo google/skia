@@ -1126,7 +1126,7 @@ private:
     uint8_t                                            fFillType;
     mutable uint8_t                                    fConvexity;
     mutable SkAtomic<uint8_t, sk_memory_order_relaxed> fFirstDirection;// SkPathPriv::FirstDirection
-    mutable SkBool8                                    fIsVolatile;
+    SkBool8                                            fIsVolatile;
 
     /** Resets all fields other than fPathRef to their initial 'empty' values.
      *  Assumes the caller has already emptied fPathRef.
