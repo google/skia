@@ -5,10 +5,6 @@
 import default_flavor
 import subprocess
 
-# Data should go under in _data_dir, which may be preserved across runs.
-_data_dir = '/sdcard/revenge_of_the_skiabot/'
-# Executables go under _bin_dir, which, well, allows executable files.
-_bin_dir  = '/data/local/tmp/'
 
 """GN Android flavor utils, used for building Skia for Android with GN."""
 class GNAndroidFlavorUtils(default_flavor.DefaultFlavorUtils):
@@ -17,13 +13,13 @@ class GNAndroidFlavorUtils(default_flavor.DefaultFlavorUtils):
     self._ever_ran_adb = False
 
     self.device_dirs = default_flavor.DeviceDirs(
-        dm_dir        = _data_dir + 'dm_out',
-        perf_data_dir = _data_dir + 'perf',
-        resource_dir  = _data_dir + 'resources',
-        images_dir    = _data_dir + 'images',
-        skp_dir       = _data_dir + 'skps',
-        svg_dir       = _data_dir + 'svgs',
-        tmp_dir       = _data_dir)
+        dm_dir        = self.m.vars.android_data_dir + 'dm_out',
+        perf_data_dir = self.m.vars.android_data_dir + 'perf',
+        resource_dir  = self.m.vars.android_data_dir + 'resources',
+        images_dir    = self.m.vars.android_data_dir + 'images',
+        skp_dir       = self.m.vars.android_data_dir + 'skps',
+        svg_dir       = self.m.vars.android_data_dir + 'svgs',
+        tmp_dir       = self.m.vars.android_data_dir)
 
   def _strip_environment(self):
     self.m.vars.default_env = {k: v for (k,v)
@@ -120,14 +116,15 @@ class GNAndroidFlavorUtils(default_flavor.DefaultFlavorUtils):
   def step(self, name, cmd, env=None, **kwargs):
     app = self.m.vars.skia_out.join(self.m.vars.configuration, cmd[0])
     self._adb('push %s' % cmd[0],
-              'push', app, _bin_dir)
+              'push', app, self.m.vars.android_bin_dir)
 
     sh = '%s.sh' % cmd[0]
     self.m.run.writefile(self.m.vars.tmp_dir.join(sh),
         'set -x; %s%s; echo $? >%src' %
-        (_bin_dir, subprocess.list2cmdline(map(str, cmd)), _bin_dir))
+        (self.m.vars.android_bin_dir, subprocess.list2cmdline(map(str, cmd)),
+            self.m.vars.android_bin_dir))
     self._adb('push %s' % sh,
-              'push', self.m.vars.tmp_dir.join(sh), _bin_dir)
+              'push', self.m.vars.tmp_dir.join(sh), self.m.vars.android_bin_dir)
 
     self._adb('clear log', 'logcat', '-c')
     self.m.python.inline('%s' % cmd[0], """
@@ -142,7 +139,7 @@ class GNAndroidFlavorUtils(default_flavor.DefaultFlavorUtils):
     except ValueError:
       print "Couldn't read the return code.  Probably killed for OOM."
       sys.exit(1)
-    """, args=[_bin_dir, sh])
+    """, args=[self.m.vars.android_bin_dir, sh])
 
   def copy_file_to_device(self, host, device):
     self._adb('push %s %s' % (host, device), 'push', host, device)
