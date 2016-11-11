@@ -78,6 +78,8 @@ public:
     , fSampler1DArrayShadow_Type(new Type("sampler1DArrayShadow"))
     , fSampler2DArrayShadow_Type(new Type("sampler2DArrayShadow"))
     , fSamplerCubeArrayShadow_Type(new Type("samplerCubeArrayShadow"))
+    // Related to below FIXME, gsampler*s don't currently expand to cover integer case.
+    , fISampler2D_Type(new Type("isampler2D", SpvDim2D, false, false, false, true))
     // FIXME figure out what we're supposed to do with the gsampler et al. types)
     , fGSampler1D_Type(new Type("$gsampler1D", static_type(*fSampler1D_Type)))
     , fGSampler2D_Type(new Type("$gsampler2D", static_type(*fSampler2D_Type)))
@@ -192,6 +194,8 @@ public:
     const std::unique_ptr<Type> fSampler1DArrayShadow_Type;
     const std::unique_ptr<Type> fSampler2DArrayShadow_Type;
     const std::unique_ptr<Type> fSamplerCubeArrayShadow_Type;
+
+    const std::unique_ptr<Type> fISampler2D_Type;
 
     const std::unique_ptr<Type> fGSampler1D_Type;
     const std::unique_ptr<Type> fGSampler2D_Type;
