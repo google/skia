@@ -53,7 +53,7 @@ protected:
     void generateAdvance(SkGlyph*) override;
     void generateMetrics(SkGlyph*) override;
     void generateImage(const SkGlyph&) override;
-    void generatePath(const SkGlyph&, SkPath*) override;
+    void generatePath(SkGlyphID, SkPath*) override;
     void generateFontMetrics(SkPaint::FontMetrics*) override;
 
 private:
@@ -89,7 +89,7 @@ void SkGScalerContext::generateMetrics(SkGlyph* glyph) {
     glyph->fAdvanceY = SkScalarToFloat(advance.fY);
 
     SkPath path;
-    fProxy->getPath(*glyph, &path);
+    fProxy->getPath(glyph->getPackedID(), &path);
     path.transform(fMatrix);
 
     SkRect storage;
@@ -109,7 +109,7 @@ void SkGScalerContext::generateMetrics(SkGlyph* glyph) {
 void SkGScalerContext::generateImage(const SkGlyph& glyph) {
     if (SkMask::kARGB32_Format == glyph.fMaskFormat) {
         SkPath path;
-        fProxy->getPath(glyph, &path);
+        fProxy->getPath(glyph.getPackedID(), &path);
 
         SkBitmap bm;
         bm.installPixels(SkImageInfo::MakeN32Premul(glyph.fWidth, glyph.fHeight),
@@ -126,8 +126,8 @@ void SkGScalerContext::generateImage(const SkGlyph& glyph) {
     }
 }
 
-void SkGScalerContext::generatePath(const SkGlyph& glyph, SkPath* path) {
-    fProxy->getPath(glyph, path);
+void SkGScalerContext::generatePath(SkGlyphID glyph, SkPath* path) {
+    fProxy->getPath(SkPackedGlyphID(glyph), path);
     path->transform(fMatrix);
 }
 

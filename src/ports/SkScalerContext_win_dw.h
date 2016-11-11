@@ -34,7 +34,7 @@ protected:
     void generateAdvance(SkGlyph* glyph) override;
     void generateMetrics(SkGlyph* glyph) override;
     void generateImage(const SkGlyph& glyph) override;
-    void generatePath(const SkGlyph& glyph, SkPath* path) override;
+    void generatePath(SkGlyphID glyph, SkPath* path) override;
     void generateFontMetrics(SkPaint::FontMetrics*) override;
 
 private:

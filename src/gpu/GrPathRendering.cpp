@@ -58,9 +58,7 @@ public:
     }
 
     void generatePath(int glyphID, SkPath* out) override {
-        SkGlyph skGlyph;
-        skGlyph.initWithGlyphID(glyphID);
-        fScalerContext->getPath(skGlyph, out);
+        fScalerContext->getPath(glyphID, out);
     }
 #ifdef SK_DEBUG
     bool isEqualTo(const SkDescriptor& desc) const override { return *fDesc == desc; }

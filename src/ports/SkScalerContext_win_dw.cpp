@@ -887,7 +887,7 @@ void SkScalerContext_DW::generateImage(const SkGlyph& glyph) {
     }
 }
 
-void SkScalerContext_DW::generatePath(const SkGlyph& glyph, SkPath* path) {
+void SkScalerContext_DW::generatePath(SkGlyphID glyph, SkPath* path) {
     SkASSERT(path);
 
     path->reset();
@@ -895,7 +895,7 @@ void SkScalerContext_DW::generatePath(const SkGlyph& glyph, SkPath* path) {
     SkTScopedComPtr<IDWriteGeometrySink> geometryToPath;
     HRVM(SkDWriteGeometrySink::Create(path, &geometryToPath),
          "Could not create geometry to path converter.");
-    uint16_t glyphId = glyph.getGlyphID();
+    UINT16 glyphId = SkTo<UINT16>(glyph);
     {
         SkAutoExclusive l(DWriteFactoryMutex);
         //TODO: convert to<->from DIUs? This would make a difference if hinting.
