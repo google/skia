@@ -16,7 +16,9 @@
 #include "SkPicture.h"
 #include "SkPicture.h"
 #include "SkPicture.h"
+#if SK_SUPPORT_GPU
 #include "SkSLCompiler.h"
+#endif
 #include "SkStream.h"
 
 #include <signal.h>
@@ -38,7 +40,9 @@ static int fuzz_img(sk_sp<SkData>, uint8_t, uint8_t);
 static int fuzz_skp(sk_sp<SkData>);
 static int fuzz_icc(sk_sp<SkData>);
 static int fuzz_color_deserialize(sk_sp<SkData>);
+#if SK_SUPPORT_GPU
 static int fuzz_sksl2glsl(sk_sp<SkData>);
+#endif
 
 int main(int argc, char** argv) {
     SkCommandLineFlags::Parse(argc, argv);
@@ -71,9 +75,11 @@ int main(int argc, char** argv) {
         if (0 == strcmp("skp", FLAGS_type[0])) {
             return fuzz_skp(bytes);
         }
+#if SK_SUPPORT_GPU
         if (0 == strcmp("sksl2glsl", FLAGS_type[0])) {
             return fuzz_sksl2glsl(bytes);
         }
+#endif
     }
     return printUsage(argv[0]);
 }
@@ -393,11 +399,12 @@ int fuzz_color_deserialize(sk_sp<SkData> bytes) {
     return 0;
 }
 
+#if SK_SUPPORT_GPU
 int fuzz_sksl2glsl(sk_sp<SkData> bytes) {
     SkSL::Compiler compiler;
     std::string output;
     bool result = compiler.toGLSL(SkSL::Program::kFragment_Kind,
-        (const char*)bytes->data(), SkSL::GLCaps(), &output);
+        (const char*)bytes->data(), *SkSL::GLSLCapsFactory::Default(), &output);
 
     if (!result) {
         SkDebugf("[terminated] Couldn't compile input.\n");
@@ -406,6 +413,7 @@ int fuzz_sksl2glsl(sk_sp<SkData> bytes) {
     SkDebugf("[terminated] Success! Compiled input.\n");
     return 0;
 }
+#endif
 
 Fuzz::Fuzz(sk_sp<SkData> bytes) : fBytes(bytes), fNextByte(0) {}
 

@@ -137,7 +137,7 @@ static bool is_abs(Expression& expr) {
 // turns min(abs(x), y) into ((tmpVar1 = abs(x)) < (tmpVar2 = y) ? tmpVar1 : tmpVar2) to avoid a 
 // Tegra3 compiler bug.
 void GLSLCodeGenerator::writeMinAbsHack(Expression& absExpr, Expression& otherExpr) {
-    ASSERT(!fCaps.fCanUseMinAndAbsTogether);
+    ASSERT(!fCaps.canUseMinAndAbsTogether());
     std::string tmpVar1 = "minAbsHackVar" + to_string(fVarCount++);
     std::string tmpVar2 = "minAbsHackVar" + to_string(fVarCount++);
     this->fFunctionHeader += "    " + absExpr.fType.name() + " " + tmpVar1 + ";\n";
@@ -150,7 +150,7 @@ void GLSLCodeGenerator::writeMinAbsHack(Expression& absExpr, Expression& otherEx
 }
 
 void GLSLCodeGenerator::writeFunctionCall(const FunctionCall& c) {
-    if (!fCaps.fCanUseMinAndAbsTogether && c.fFunction.fName == "min" && c.fFunction.fBuiltin) {
+    if (!fCaps.canUseMinAndAbsTogether() && c.fFunction.fName == "min" && c.fFunction.fBuiltin) {
         ASSERT(c.fArguments.size() == 2);
         if (is_abs(*c.fArguments[0])) {
             this->writeMinAbsHack(*c.fArguments[0], *c.fArguments[1]);
@@ -163,7 +163,7 @@ void GLSLCodeGenerator::writeFunctionCall(const FunctionCall& c) {
             return;
         }
     }
-    if (fCaps.fMustForceNegatedAtanParamToFloat && c.fFunction.fName == "atan" && 
+    if (fCaps.mustForceNegatedAtanParamToFloat() && c.fFunction.fName == "atan" && 
         c.fFunction.fBuiltin && c.fArguments.size() == 2 && 
         c.fArguments[1]->fKind == Expression::kPrefix_Kind) {
         const PrefixExpression& p = (PrefixExpression&) *c.fArguments[1];
@@ -176,10 +176,10 @@ void GLSLCodeGenerator::writeFunctionCall(const FunctionCall& c) {
             return;
         }
     }
-    if (!fFoundDerivatives && fCaps.fShaderDerivativeExtensionString != "" && 
-        (c.fFunction.fName == "dFdx" || c.fFunction.fName == "dFdy") && c.fFunction.fBuiltin) {
-        ASSERT(fCaps.fShaderDerivativeSupport);
-        fHeader << "#extension " << fCaps.fShaderDerivativeExtensionString << " : require\n";
+    if (!fFoundDerivatives && (c.fFunction.fName == "dFdx" || c.fFunction.fName == "dFdy") && 
+        c.fFunction.fBuiltin && fCaps.shaderDerivativeExtensionString()) {
+        ASSERT(fCaps.shaderDerivativeSupport());
+        fHeader << "#extension " << fCaps.shaderDerivativeExtensionString() << " : require\n";
         fFoundDerivatives = true;
     }
     this->write(c.fFunction.fName + "(");
@@ -205,7 +205,7 @@ void GLSLCodeGenerator::writeConstructor(const Constructor& c) {
 
 void GLSLCodeGenerator::writeVariableReference(const VariableReference& ref) {
     if (ref.fVariable.fModifiers.fLayout.fBuiltin == SK_FRAGCOLOR_BUILTIN) {
-        if (fCaps.fMustDeclareFragmentShaderOutput) {
+        if (fCaps.mustDeclareFragmentShaderOutput()) {
             this->write("sk_FragColor");
         } else {
             this->write("gl_FragColor");
@@ -405,14 +405,14 @@ void GLSLCodeGenerator::writeModifiers(const Modifiers& modifiers,
         (modifiers.fFlags & Modifiers::kOut_Flag)) {
         this->write("inout ");
     } else if (modifiers.fFlags & Modifiers::kIn_Flag) {
-        if (globalContext && fCaps.fVersion < 130) {
+        if (globalContext && fCaps.generation() < GrGLSLGeneration::k130_GrGLSLGeneration) {
             this->write(fProgramKind == Program::kVertex_Kind ? "attribute "
                                                               : "varying ");
         } else {
             this->write("in ");
         }
     } else if (modifiers.fFlags & Modifiers::kOut_Flag) {
-        if (globalContext && fCaps.fVersion < 130) {
+        if (globalContext && fCaps.generation() < GrGLSLGeneration::k130_GrGLSLGeneration) {
             this->write("varying ");
         } else {
             this->write("out ");
@@ -424,7 +424,7 @@ void GLSLCodeGenerator::writeModifiers(const Modifiers& modifiers,
     if (modifiers.fFlags & Modifiers::kConst_Flag) {
         this->write("const ");
     }
-    if (fCaps.fUsesPrecisionModifiers) {
+    if (fCaps.usesPrecisionModifiers()) {
         if (modifiers.fFlags & Modifiers::kLowp_Flag) {
             this->write("lowp ");
         }
@@ -587,12 +587,7 @@ void GLSLCodeGenerator::generateCode(const Program& program, std::ostream& out) 
     ASSERT(fOut == nullptr);
     fOut = &fHeader;
     fProgramKind = program.fKind;
-    this->write("#version " + to_string(fCaps.fVersion));
-    if (fCaps.fStandard == GLCaps::kGLES_Standard && fCaps.fVersion >= 300) {
-        this->write(" es");
-    } else if (fCaps.fIsCoreProfile) {
-        this->write(" core");
-    }
+    this->write(fCaps.versionDeclString());
     this->writeLine();
     for (const auto& e : program.fElements) {
         if (e->fKind == ProgramElement::kExtension_Kind) {
@@ -601,7 +596,7 @@ void GLSLCodeGenerator::generateCode(const Program& program, std::ostream& out) 
     }
     std::stringstream body;
     fOut = &body;
-    if (fCaps.fStandard == GLCaps::kGLES_Standard) {
+    if (fCaps.usesPrecisionModifiers()) {
         this->write("precision ");
         switch (program.fDefaultPrecision) {
             case Modifiers::kLowp_Flag:
@@ -632,9 +627,9 @@ void GLSLCodeGenerator::generateCode(const Program& program, std::ostream& out) 
                         this->writeVarDeclarations(decl, true);
                         this->writeLine();
                     } else if (builtin == SK_FRAGCOLOR_BUILTIN &&
-                               fCaps.fMustDeclareFragmentShaderOutput) {
+                               fCaps.mustDeclareFragmentShaderOutput()) {
                         this->write("out ");
-                        if (fCaps.fUsesPrecisionModifiers) {
+                        if (fCaps.usesPrecisionModifiers()) {
                             this->write("mediump ");
                         }
                         this->writeLine("vec4 sk_FragColor;");
