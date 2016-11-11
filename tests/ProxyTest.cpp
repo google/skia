@@ -21,14 +21,16 @@ static void check_surface(skiatest::Reporter* reporter,
                           GrSurfaceOrigin origin,
                           int width, int height, 
                           GrPixelConfig config,
-                          uint32_t uniqueID,
+                          const GrGpuResource::UniqueID& uniqueID,
                           SkBudgeted budgeted) {
     REPORTER_ASSERT(reporter, proxy->origin() == origin);
     REPORTER_ASSERT(reporter, proxy->width() == width);
     REPORTER_ASSERT(reporter, proxy->height() == height);
     REPORTER_ASSERT(reporter, proxy->config() == config);
-    if (SK_InvalidUniqueID != uniqueID) {
-        REPORTER_ASSERT(reporter, proxy->uniqueID() == uniqueID);    
+    if (!uniqueID.isInvalid()) {
+        REPORTER_ASSERT(reporter, proxy->uniqueID().asUInt() == uniqueID.asUInt());
+    } else {
+        REPORTER_ASSERT(reporter, !proxy->uniqueID().isInvalid());
     }
     REPORTER_ASSERT(reporter, proxy->isBudgeted() == budgeted);
 }
@@ -39,12 +41,23 @@ static void check_rendertarget(skiatest::Reporter* reporter,
                                GrRenderTargetProxy* rtProxy,
                                int numSamples,
                                SkBackingFit fit,
-                               int expectedMaxWindowRects) {
+                               int expectedMaxWindowRects,
+                               bool wasWrapped) {
     REPORTER_ASSERT(reporter, rtProxy->maxWindowRectangles(caps) == expectedMaxWindowRects);
     REPORTER_ASSERT(reporter, rtProxy->numStencilSamples() == numSamples);
 
+    GrSurfaceProxy::UniqueID idBefore = rtProxy->uniqueID();
     GrRenderTarget* rt = rtProxy->instantiate(provider);
     REPORTER_ASSERT(reporter, rt);
+
+    REPORTER_ASSERT(reporter, rtProxy->uniqueID() == idBefore);
+    if (wasWrapped) {
+        // Wrapped resources share their uniqueID with the wrapping RenderTargetProxy
+        REPORTER_ASSERT(reporter, rtProxy->uniqueID().asUInt() == rt->uniqueID().asUInt());
+    } else {
+        // Deferred resources should always have a different ID from their instantiated rendertarget
+        REPORTER_ASSERT(reporter, rtProxy->uniqueID().asUInt() != rt->uniqueID().asUInt());
+    }
 
     REPORTER_ASSERT(reporter, rt->origin() == rtProxy->origin());
     if (SkBackingFit::kExact == fit) {
@@ -52,7 +65,7 @@ static void check_rendertarget(skiatest::Reporter* reporter,
         REPORTER_ASSERT(reporter, rt->height() == rtProxy->height());
     } else {
         REPORTER_ASSERT(reporter, rt->width() >= rtProxy->width());
-        REPORTER_ASSERT(reporter, rt->height() >= rtProxy->height());    
+        REPORTER_ASSERT(reporter, rt->height() >= rtProxy->height());
     }
     REPORTER_ASSERT(reporter, rt->config() == rtProxy->config());
 
@@ -68,9 +81,20 @@ static void check_rendertarget(skiatest::Reporter* reporter,
 static void check_texture(skiatest::Reporter* reporter,
                           GrTextureProvider* provider,
                           GrTextureProxy* texProxy,
-                          SkBackingFit fit) {
+                          SkBackingFit fit,
+                          bool wasWrapped) {
+    GrSurfaceProxy::UniqueID idBefore = texProxy->uniqueID();
     GrTexture* tex = texProxy->instantiate(provider);
     REPORTER_ASSERT(reporter, tex);
+
+    REPORTER_ASSERT(reporter, texProxy->uniqueID() == idBefore);
+    if (wasWrapped) {
+        // Wrapped resources share their uniqueID with the wrapping TextureProxy
+        REPORTER_ASSERT(reporter, texProxy->uniqueID().asUInt() == tex->uniqueID().asUInt());
+    } else {
+        // Deferred resources should always have a different ID from their instantiated texture
+        REPORTER_ASSERT(reporter, texProxy->uniqueID().asUInt() != tex->uniqueID().asUInt());
+    }
 
     REPORTER_ASSERT(reporter, tex->origin() == texProxy->origin());
     if (SkBackingFit::kExact == fit) {
@@ -87,6 +111,8 @@ static void check_texture(skiatest::Reporter* reporter,
 DEF_GPUTEST_FOR_RENDERING_CONTEXTS(DeferredProxyTest, reporter, ctxInfo) {
     GrTextureProvider* provider = ctxInfo.grContext()->textureProvider();
     const GrCaps& caps = *ctxInfo.grContext()->caps();
+
+    const GrGpuResource::UniqueID kInvalidResourceID = GrGpuResource::UniqueID::InvalidID();
 
     for (auto origin : { kBottomLeft_GrSurfaceOrigin, kTopLeft_GrSurfaceOrigin }) {
         for (auto widthHeight : { 100, 128 }) {
@@ -112,10 +138,10 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(DeferredProxyTest, reporter, ctxInfo) {
                                                                                 fit, budgeted));
                                 check_surface(reporter, sProxy.get(), origin,
                                               widthHeight, widthHeight, config,
-                                              SK_InvalidUniqueID, budgeted);
+                                              kInvalidResourceID, budgeted);
                                 check_rendertarget(reporter, caps, provider,
-                                                   sProxy->asRenderTargetProxy(), 
-                                                   numSamples, fit, caps.maxWindowRectangles());
+                                                   sProxy->asRenderTargetProxy(), numSamples,
+                                                   fit, caps.maxWindowRectangles(), false);
                             }
 
                             desc.fFlags = kNone_GrSurfaceFlags;
@@ -127,8 +153,8 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(DeferredProxyTest, reporter, ctxInfo) {
                                                                                       budgeted));
                             check_surface(reporter, sProxy.get(), origin,
                                           widthHeight, widthHeight, config,
-                                          SK_InvalidUniqueID, budgeted);
-                            check_texture(reporter, provider, sProxy->asTextureProxy(), fit);
+                                          kInvalidResourceID, budgeted);
+                            check_texture(reporter, provider, sProxy->asTextureProxy(), fit, false);
                         }
                     }
                 }
@@ -175,7 +201,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(WrappedProxyTest, reporter, ctxInfo) {
                                       kWidthHeight, kWidthHeight, config,
                                       defaultFBO->uniqueID(), SkBudgeted::kNo);
                         check_rendertarget(reporter, caps, provider, sProxy->asRenderTargetProxy(),
-                                           numSamples, SkBackingFit::kExact, 0);
+                                           numSamples, SkBackingFit::kExact, 0, true);
                     }
 
                     sk_sp<GrTexture> tex;
@@ -192,7 +218,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(WrappedProxyTest, reporter, ctxInfo) {
                                       rt->uniqueID(), budgeted);
                         check_rendertarget(reporter, caps, provider, sProxy->asRenderTargetProxy(),
                                            numSamples, SkBackingFit::kExact,
-                                           caps.maxWindowRectangles());
+                                           caps.maxWindowRectangles(), true);
                     }
 
                     if (!tex) {
@@ -205,7 +231,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(WrappedProxyTest, reporter, ctxInfo) {
                     check_surface(reporter, sProxy.get(), origin,
                                   kWidthHeight, kWidthHeight, config, tex->uniqueID(), budgeted);
                     check_texture(reporter, provider, sProxy->asTextureProxy(),
-                                  SkBackingFit::kExact);
+                                  SkBackingFit::kExact, true);
                 }
             }
         }

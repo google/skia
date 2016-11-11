@@ -349,7 +349,8 @@ void SkDebugCanvas::drawTo(SkCanvas* canvas, int index, int m) {
         // get the render target of the top device so we can ignore batches drawn offscreen
         SkBaseDevice* bd = canvas->getDevice_just_for_deprecated_compatibility_testing();
         SkGpuDevice* gbd = reinterpret_cast<SkGpuDevice*>(bd);
-        uint32_t rtID = gbd->accessRenderTargetContext()->accessRenderTarget()->uniqueID();
+        GrGpuResource::UniqueID rtID = 
+                            gbd->accessRenderTargetContext()->accessRenderTarget()->uniqueID();
 
         // get the bounding boxes to draw
         SkTArray<GrAuditTrail::BatchInfo> childrenBounds;

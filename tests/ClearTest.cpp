@@ -37,8 +37,15 @@ static bool check_rect(GrRenderTargetContext* rtc, const SkIRect& rect, uint32_t
     return true;
 }
 
+// TODO: this test does this thorough purging of the rendertargets b.c. right now
+// the clear optimizations rely on the rendertarget's uniqueID. It can be
+// relaxed when we switch that over to using rendertargetcontext ids (although
+// we probably will want to have more clear values then too)
 static bool reset_rtc(sk_sp<GrRenderTargetContext>* rtc, GrContext* context, int w, int h) {
-    SkDEBUGCODE(uint32_t oldID = 0;)
+#ifdef SK_DEBUG
+    GrGpuResource::UniqueID oldID = GrGpuResource::UniqueID::InvalidID();
+#endif
+
     if (*rtc) {
         SkDEBUGCODE(oldID = (*rtc)->accessRenderTarget()->uniqueID();)
         rtc->reset(nullptr);
