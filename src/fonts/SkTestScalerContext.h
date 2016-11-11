@@ -60,7 +60,7 @@ public:
     void getAdvance(SkGlyph* glyph);
     void getFontMetrics(SkPaint::FontMetrics* metrics);
     void getMetrics(SkGlyph* glyph);
-    void getPath(const SkGlyph& glyph, SkPath* path);
+    void getPath(SkGlyphID glyph, SkPath* path);
 protected:
     SkScalerContext* onCreateScalerContext(const SkScalerContextEffects&,
                                            const SkDescriptor* desc) const override;
