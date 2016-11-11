@@ -5,6 +5,7 @@
  * found in the LICENSE file.
  */
 
+#include "SkImage.h"
 #include "SkImageGenerator.h"
 #include "SkNextID.h"
 
@@ -105,6 +106,18 @@ bool SkImageGenerator::generateScaledPixels(const SkISize& scaledSize,
         return false;
     }
     return this->onGenerateScaledPixels(scaledSize, subsetOrigin, subsetPixels);
+}
+
+std::tuple<sk_sp<SkImage>, SkRect, SkFilterQuality>
+SkImageGenerator::accessScaledPixels(const SkRect& src, const SkMatrix& matrix,
+                                     SkFilterQuality fq) {
+    SkASSERT(fInfo.bounds().contains(src));
+    return this->onAccessScaledPixels(src, matrix, fq);
+}
+
+std::tuple<sk_sp<SkImage>, SkRect, SkFilterQuality>
+SkImageGenerator::onAccessScaledPixels(const SkRect& src, const SkMatrix& matrix, SkFilterQuality) {
+    return std::make_tuple(nullptr, SkRect::MakeEmpty(), kNone_SkFilterQuality);
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////////

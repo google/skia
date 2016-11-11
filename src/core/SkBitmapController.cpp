@@ -48,6 +48,7 @@ private:
     SkDestinationSurfaceColorMode fColorMode;
     sk_sp<const SkMipMap>         fCurrMip;
 
+    bool processExternalRequest(const SkBitmapProvider&);
     bool processHQRequest(const SkBitmapProvider&);
     bool processMediumRequest(const SkBitmapProvider&);
 };
@@ -65,6 +66,36 @@ static inline bool cache_size_okay(const SkBitmapProvider& provider, const SkMat
     const size_t size = provider.info().getSafeSize(provider.info().minRowBytes());
     SkScalar invScaleSqr = invMat.getScaleX() * invMat.getScaleY();
     return size < (maximumAllocation * SkScalarAbs(invScaleSqr));
+}
+
+/*
+ *  Image generators can provide access to externally managed pixels
+ *  (external scale/decode caches).
+ */
+bool SkDefaultBitmapControllerState::processExternalRequest(const SkBitmapProvider& provider) {
+    // TODO: actual srcRect
+
+    const SkRect src = SkRect::MakeIWH(provider.width(), provider.height());
+    SkRect          adjustedSrc;
+    SkFilterQuality adjustedQuality;
+
+    if (!provider.accessScaledPixels(src, fInvMatrix, fQuality,
+                                     &fResultBitmap, &adjustedSrc, &adjustedQuality)) {
+        return false;
+    }
+
+    if (adjustedQuality > kLow_SkFilterQuality) {
+        SkDebugf("SkImageGenerator::onAccessScaledPixels() override returned an invalid \
+                  filter quality: %d\n", adjustedQuality);
+        adjustedQuality = kLow_SkFilterQuality;
+    }
+
+    fInvMatrix.postConcat(SkMatrix::MakeRectToRect(src, adjustedSrc, SkMatrix::kFill_ScaleToFit));
+    fQuality = adjustedQuality;
+    fResultBitmap.lockPixels();
+    SkASSERT(fResultBitmap.getPixels());
+
+    return true;
 }
 
 /*
@@ -205,7 +236,9 @@ SkDefaultBitmapControllerState::SkDefaultBitmapControllerState(
     fQuality = qual;
     fColorMode = colorMode;
 
-    if (this->processHQRequest(provider) || this->processMediumRequest(provider)) {
+    if (this->processExternalRequest(provider) ||
+        this->processHQRequest(provider) ||
+        this->processMediumRequest(provider)) {
         SkASSERT(fResultBitmap.getPixels());
     } else {
         (void)provider.asBitmap(&fResultBitmap);

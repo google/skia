@@ -69,6 +69,9 @@ public:
     bool directGeneratePixels(const SkImageInfo& dstInfo, void* dstPixels, size_t dstRB,
                               int srcX, int srcY);
 
+    std::tuple<sk_sp<SkImage>, SkRect, SkFilterQuality>
+    directAccessScaledPixels(const SkRect& srcRect, const SkMatrix& totalMatrix, SkFilterQuality);
+
 private:
     // Ref-counted tuple(SkImageGenerator, SkMutex) which allows sharing of one generator
     // among several cacherators.
