@@ -31,13 +31,13 @@ static const char gSummarizeFunc[] = "sk_scrape_summarize";
 
 // Example usage for the modulo flag:
 // for i in {0..5}; do lua_pictures --skpPath SKP_PATH -l YOUR_SCRIPT --modulo $i 6 &; done
-DEFINE_string(modulo, "", "[--modulo <remainder> <divisor>]: only run tests for which "
+static DEFINE_string(modulo, "", "[--modulo <remainder> <divisor>]: only run tests for which "
               "testIndex %% divisor == remainder.");
-DEFINE_string2(skpPath, r, "", "Read this .skp file or .skp files from this dir");
-DEFINE_string2(luaFile, l, "", "File containing lua script to run");
-DEFINE_string2(headCode, s, "", "Optional lua code to call at beginning");
-DEFINE_string2(tailFunc, s, "", "Optional lua function to call at end");
-DEFINE_bool2(quiet, q, false, "Silence all non-error related output");
+static DEFINE_string2(skpPath, r, "", "Read this .skp file or .skp files from this dir");
+static DEFINE_string2(luaFile, l, "", "File containing lua script to run");
+static DEFINE_string2(headCode, s, "", "Optional lua code to call at beginning");
+static DEFINE_string2(tailFunc, s, "", "Optional lua function to call at end");
+static DEFINE_bool2(quiet, q, false, "Silence all non-error related output");
 
 static sk_sp<SkPicture> load_picture(const char path[]) {
     std::unique_ptr<SkStream> stream = SkStream::MakeFromFile(path);
