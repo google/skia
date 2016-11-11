@@ -702,7 +702,7 @@ protected:
     void generateAdvance(SkGlyph* glyph) override;
     void generateMetrics(SkGlyph* glyph) override;
     void generateImage(const SkGlyph& glyph) override;
-    void generatePath(const SkGlyph& glyph, SkPath* path) override;
+    void generatePath(SkGlyphID glyph, SkPath* path) override;
     void generateFontMetrics(SkPaint::FontMetrics*) override;
 
 private:
@@ -1373,7 +1373,7 @@ void SkScalerContext_Mac::generateImage(const SkGlyph& glyph) {
  */
 #define kScaleForSubPixelPositionHinting (4.0f)
 
-void SkScalerContext_Mac::generatePath(const SkGlyph& glyph, SkPath* path) {
+void SkScalerContext_Mac::generatePath(SkGlyphID glyph, SkPath* path) {
     AUTO_CG_LOCK();
 
     SkScalar scaleX = SK_Scalar1;
@@ -1408,7 +1408,7 @@ void SkScalerContext_Mac::generatePath(const SkGlyph& glyph, SkPath* path) {
         xform = CGAffineTransformConcat(fTransform, scale);
     }
 
-    CGGlyph cgGlyph = (CGGlyph)glyph.getGlyphID();
+    CGGlyph cgGlyph = SkTo<CGGlyph>(glyph);
     AutoCFRelease<CGPathRef> cgPath(CTFontCreatePathForGlyph(fCTFont, cgGlyph, &xform));
 
     path->reset();
