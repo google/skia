@@ -1,38 +1,35 @@
 Skia Lua Bindings
 =================
 
-**Warning: The following has only been tested on Linux, but it will likely
-work for any Unix.**
+**Warning: The following has only been tested on Mac and Linux, but it will
+likely work for any Unix.**
 
 Prerequisites
 -------------
 
-This assumes one already has Skia building normally. If not, refer to the
-quick start guides. In addition to that, you will need Lua 5.2 installed on
-your system in order to use the bindings.
-
-Building lua requires the readline development library. If missing this can be installed (on Ubuntu) by executing:
-
-  * `apt-cache search libreadline` to see the available libreadline libraries
-  * `sudo apt-get install libreadline6 libreadline6-dev` to actually install the libraries
+This assumes you already have Skia building normally. If not, refer to [How to
+build Skia](../build).
 
 Build
 -----
 
-The build process starts the same way as described in the quick starts, but
-before using gyp or make, do this instead:
+To build Lua support into Skia tools, set the GN argument `skia_use_lua` to `true`.
+Optionally, set `skia_use_system_lua`.  Then re-run GN.
 
-    $ export GYP_DEFINES="skia_shared_lib=1"
-    $ make tools
-
-This tells Skia to build as a shared library, which enables a build of another shared library called 'skia.so' that exposes Skia bindings to Lua.
 
 Try It Out
 ----------
 
-Once the build is complete, use the same terminal:
+The tools `lua_app` and `lua_pictures` should now be available when you compile,
+and `SampleApp` should now have a `Lua` sample.
 
-    $ cd out/Debug/
+
+To-Do
+-----
+
+Skia had a feature that let it be imported as an .so by Lua.
+This feature is not yet supported by GN, but would have looked something like this:
+
     $ lua
 
     Lua 5.2.0  Copyright (C) 1994-2011 Lua.org, PUC-Rio
@@ -43,12 +40,3 @@ Once the build is complete, use the same terminal:
     > canvas = doc:beginPage(72*8.5, 72*11)
     > canvas:drawText('Hello Lua', 300, 300, paint)
     > doc:close()
-
-The key part to loading the bindings is `require 'skia'` which tells lua to look
-for 'skia.so' in the current directory (among many others) and provides the
-bindings. 'skia.so' in turn will load 'libskia.so' from the current directory or
-in our case the lib.target directory. 'libskia.so' is what contains the native
-skia code. The script shown above uses skia to draw Hello Lua in red text onto
-a pdf that will be outputted into the current folder as 'test.pdf'. Go ahead and
-open 'test.pdf' to confirm that everything is working.
-

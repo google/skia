@@ -20,6 +20,7 @@ declare_args() {
   skia_use_libjpeg_turbo = true
   skia_use_libpng = true
   skia_use_libwebp = !is_fuchsia
+  skia_use_lua = false
   skia_use_mesa = false
   skia_use_piex = !is_win
   skia_use_zlib = true
@@ -960,6 +961,45 @@ if (skia_enable_tools) {
     }
   }
 
+  if (skia_use_lua) {
+    test_lib("lua") {
+      public_include_dirs = []
+      sources = [
+        "src/utils/SkLua.cpp",
+        "src/utils/SkLuaCanvas.cpp",
+      ]
+      deps = [
+        "//third_party/lua",
+      ]
+    }
+
+    executable("lua_app") {
+      sources = [
+        "tools/lua/lua_app.cpp",
+      ]
+      deps = [
+        ":lua",
+        ":skia",
+        "//third_party/lua",
+      ]
+      testonly = true
+    }
+
+    executable("lua_pictures") {
+      sources = [
+        "tools/lua/lua_pictures.cpp",
+      ]
+      deps = [
+        ":flags",
+        ":lua",
+        ":skia",
+        ":tool_utils",
+        "//third_party/lua",
+      ]
+      testonly = true
+    }
+  }
+
   import("gn/samples.gni")
   test_lib("samples") {
     public_include_dirs = [ "samplecode" ]
@@ -977,6 +1017,14 @@ if (skia_enable_tools) {
       ":views",
       ":xml",
     ]
+
+    if (skia_use_lua) {
+      sources += [ "samplecode/SampleLua.cpp" ]
+      deps += [
+        ":lua",
+        "//third_party/lua",
+      ]
+    }
   }
 
   executable("dm") {
