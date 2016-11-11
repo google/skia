@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "eb935fd8_a4a0237b",
+        "filename": "src/core/SkSpecialImage.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 400,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2016-11-11T14:29:56Z",
+      "side": 1,
+      "message": "Is there a change here other than the comment? (Is fSurfaceProxy-\u003ewidth() \u003d\u003d surf-\u003ewidth?) Just trying to understand what\u0027s happening here.",
+      "revId": "7b2aac7a4892c21ab78f5684b240845a8370e9f3",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
