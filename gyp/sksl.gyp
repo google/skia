@@ -12,10 +12,7 @@
       'include_dirs': [
          '../include/config',
          '../include/core',
-         '../include/gpu',
          '../include/private',
-         '../include/utils',
-         '../src/gpu',
          '../src/sksl',
       ],
       'defines': [
