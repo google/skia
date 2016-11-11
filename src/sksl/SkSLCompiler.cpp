@@ -444,18 +444,18 @@ bool Compiler::toSPIRV(Program::Kind kind, const std::string& text, std::string*
     return result;
 }
 
-bool Compiler::toGLSL(Program::Kind kind, const std::string& text, GLCaps caps,
+bool Compiler::toGLSL(Program::Kind kind, const std::string& text, const GrGLSLCaps& caps,
                       std::ostream& out) {
     auto program = this->convertProgram(kind, text);
     if (fErrorCount == 0) {
-        SkSL::GLSLCodeGenerator cg(&fContext, caps);
+        SkSL::GLSLCodeGenerator cg(&fContext, &caps);
         cg.generateCode(*program.get(), out);
         ASSERT(!out.rdstate());
     }
     return fErrorCount == 0;
 }
 
-bool Compiler::toGLSL(Program::Kind kind, const std::string& text, GLCaps caps,
+bool Compiler::toGLSL(Program::Kind kind, const std::string& text, const GrGLSLCaps& caps,
                       std::string* out) {
     std::stringstream buffer;
     bool result = this->toGLSL(kind, text, caps, buffer);
