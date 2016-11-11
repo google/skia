@@ -25,6 +25,24 @@
     },
     {
       "key": {
+        "uuid": "eb935fd8_daf424b4",
+        "filename": "gm/image_pict.cpp",
+        "patchSetId": 17
+      },
+      "lineNbr": 312,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2016-11-11T19:14:27Z",
+      "side": 1,
+      "message": "No, you\u0027re right. I was trying to be super explicit with the naming, but it does reinforce our incorrect usage of the word, and makes this even more cumbersome than it needs to be. Maybe I\u0027ll rename it again after this lands...",
+      "parentUuid": "eb935fd8_a47103fe",
+      "revId": "a80b91e54f0892d73d913a2ac4075abc1d3cfd2a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "eb935fd8_c4428fad",
         "filename": "src/core/SkImageCacherator.cpp",
         "patchSetId": 17
@@ -42,6 +60,24 @@
         "endLine": 340,
         "endChar": 34
       },
+      "revId": "a80b91e54f0892d73d913a2ac4075abc1d3cfd2a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "eb935fd8_9d87f6f5",
+        "filename": "src/core/SkImageCacherator.cpp",
+        "patchSetId": 17
+      },
+      "lineNbr": 340,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2016-11-11T19:14:27Z",
+      "side": 1,
+      "message": "Makes sense. Yeah - GPUs don\u0027t have color correct index8, so we currently expand to N32/S32 at upload time anyway. So I agree - this ought to be handled more like the Gray8 case below. I\u0027ll work on that.",
+      "parentUuid": "eb935fd8_c4428fad",
       "revId": "a80b91e54f0892d73d913a2ac4075abc1d3cfd2a",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
@@ -71,6 +107,24 @@
     },
     {
       "key": {
+        "uuid": "eb935fd8_1aaa0c6e",
+        "filename": "src/core/SkImageCacherator.cpp",
+        "patchSetId": 17
+      },
+      "lineNbr": 369,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2016-11-11T19:14:27Z",
+      "side": 1,
+      "message": "The logic here isn\u0027t quite foolproof, but:\n\n1) If you\u0027re rendering to a color correct GPU-backed surface, then you had to be able to create a surface that was either sRGB or F16 (we sanity check config + color space combinations at surface creation).\n\n2) Nothing prevents you from indirectly calling this code without a valid surface to draw to, though - so that logic is only partially valid. It\u0027s probably wiser to be really explicit, and fall back to legacy when everything else fails. Maybe I can find a way to simplify the logic here - it\u0027s pretty gnarly.",
+      "parentUuid": "eb935fd8_e4478bba",
+      "revId": "a80b91e54f0892d73d913a2ac4075abc1d3cfd2a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "eb935fd8_64de1bc3",
         "filename": "tools/Resources.cpp",
         "patchSetId": 17
@@ -88,6 +142,24 @@
         "endLine": 34,
         "endChar": 88
       },
+      "revId": "a80b91e54f0892d73d913a2ac4075abc1d3cfd2a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "eb935fd8_1a4e8c35",
+        "filename": "tools/Resources.cpp",
+        "patchSetId": 17
+      },
+      "lineNbr": 34,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2016-11-11T19:14:27Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "eb935fd8_64de1bc3",
       "revId": "a80b91e54f0892d73d913a2ac4075abc1d3cfd2a",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
