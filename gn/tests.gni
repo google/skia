@@ -62,6 +62,7 @@ tests_sources = [
   "$_tests/ExifTest.cpp",
   "$_tests/FillPathTest.cpp",
   "$_tests/FitsInTest.cpp",
+  "$_tests/FixedAllocTest.cpp",
   "$_tests/FlattenableCustomFactory.cpp",
   "$_tests/FlattenableFactoryToName.cpp",
   "$_tests/FlattenDrawableTest.cpp",

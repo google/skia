@@ -124,6 +124,8 @@ skia_core_sources = [
   "$_src/core/SkFilterProc.cpp",
   "$_src/core/SkFilterProc.h",
   "$_src/core/SkFindAndPlaceGlyph.h",
+  "$_src/core/SkFixedAlloc.cpp",
+  "$_src/core/SkFixedAlloc.h",
   "$_src/core/SkFlattenable.cpp",
   "$_src/core/SkFlattenableSerialization.cpp",
   "$_src/core/SkFont.cpp",
