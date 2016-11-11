@@ -153,7 +153,7 @@ public:
             sk_sp<SkImage> gradientImage(SkImage::MakeFromBitmap(make_gradient_circle(64, 64)));
             sk_sp<SkImageFilter> gradientSource(SkImageSource::Make(std::move(gradientImage)));
 
-            this->addFilter("displacement map",
+            this->addFilter("displacement map", 
                 SkDisplacementMapEffect::Make(SkDisplacementMapEffect::kR_ChannelSelectorType,
                                               SkDisplacementMapEffect::kB_ChannelSelectorType,
                                               20.0f,
@@ -1865,7 +1865,7 @@ DEF_TEST(ImageFilterComplexCTM, reporter) {
         { SkMergeImageFilter::Make(cfif, blif, SkBlendMode::kSrcOver),     false },
         { SkComposeImageFilter::Make(blif, cfif),   false },
     };
-
+    
     for (const auto& rec : recs) {
         const bool canHandle = rec.fFilter->canHandleComplexCTM();
         REPORTER_ASSERT(reporter, canHandle == rec.fExpectCanHandle);
