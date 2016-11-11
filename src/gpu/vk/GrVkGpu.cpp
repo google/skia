@@ -56,6 +56,7 @@ VKAPI_ATTR VkBool32 VKAPI_CALL DebugReportCallback(
     void*                       pUserData) {
     if (flags & VK_DEBUG_REPORT_ERROR_BIT_EXT) {
         SkDebugf("Vulkan error [%s]: code: %d: %s\n", pLayerPrefix, messageCode, pMessage);
+        return VK_TRUE; // skip further layers
     } else if (flags & VK_DEBUG_REPORT_WARNING_BIT_EXT) {
         SkDebugf("Vulkan warning [%s]: code: %d: %s\n", pLayerPrefix, messageCode, pMessage);
     } else if (flags & VK_DEBUG_REPORT_PERFORMANCE_WARNING_BIT_EXT) {
