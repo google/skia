@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "eb935fd8_785f9825",
+        "filename": "src/core/SkDistanceFieldGen.cpp",
+        "patchSetId": 7
+      },
+      "lineNbr": 355,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2016-11-11T21:22:29Z",
+      "side": 1,
+      "message": "Any reason to change this but also include SkAutoMalloc.h? Maybe put off making this change for now?",
+      "range": {
+        "startLine": 354,
+        "startChar": 4,
+        "endLine": 355,
+        "endChar": 68
+      },
+      "revId": "8eb0874025ba757afe1c550f5688ac0a65b96155",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "eb935fd8_b882004d",
+        "filename": "src/ports/SkFontHost_FreeType.cpp",
+        "patchSetId": 7
+      },
+      "lineNbr": 287,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2016-11-11T21:22:29Z",
+      "side": 1,
+      "message": "This makes the line too long, probably best to just SkAutoFree and include for now.",
+      "range": {
+        "startLine": 287,
+        "startChar": 8,
+        "endLine": 287,
+        "endChar": 69
+      },
+      "revId": "8eb0874025ba757afe1c550f5688ac0a65b96155",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
