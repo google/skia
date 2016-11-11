@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "eb935fd8_b0d85e3b",
+        "filename": "src/effects/gradients/SkLinearGradient.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 745,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2016-11-11T13:46:09Z",
+      "side": 1,
+      "message": "I\u0027m not familiar with this code, but I wonder if instead of returning you want to hit this case? Then you would just need to move the invDx declaration and assignment below this block. (In fact, both invDx and dither[2] are not used until after this block, so moving them both down seems better anyway.)",
+      "range": {
+        "startLine": 745,
+        "startChar": 8,
+        "endLine": 745,
+        "endChar": 38
+      },
+      "revId": "31ea696377f99a86971b7f98029175fb099b91f8",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
