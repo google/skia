@@ -25,6 +25,24 @@
     },
     {
       "key": {
+        "uuid": "eb935fd8_44683fa4",
+        "filename": "site/dev/contrib/submit.md",
+        "patchSetId": 2
+      },
+      "lineNbr": 36,
+      "author": {
+        "id": 5110
+      },
+      "writtenOn": "2016-11-11T16:52:28Z",
+      "side": 1,
+      "message": "I\u0027ll delete this line altogether.",
+      "parentUuid": "eb935fd8_24a093dd",
+      "revId": "f84597ab3e7eb3b4688e9a1749f31bc50fdded94",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "eb935fd8_44b59f19",
         "filename": "site/dev/design/sync.md",
         "patchSetId": 2
@@ -48,6 +66,24 @@
     },
     {
       "key": {
+        "uuid": "eb935fd8_84724790",
+        "filename": "site/dev/design/sync.md",
+        "patchSetId": 2
+      },
+      "lineNbr": 9,
+      "author": {
+        "id": 5110
+      },
+      "writtenOn": "2016-11-11T16:52:28Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "eb935fd8_44b59f19",
+      "revId": "f84597ab3e7eb3b4688e9a1749f31bc50fdded94",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "eb935fd8_84afa7c9",
         "filename": "site/dev/testing/testing.md",
         "patchSetId": 2
@@ -59,6 +95,24 @@
       "writtenOn": "2016-11-11T16:07:24Z",
       "side": 1,
       "message": "Let\u0027s erase these lines in all files.  ninja will rerun GN if needed.",
+      "revId": "f84597ab3e7eb3b4688e9a1749f31bc50fdded94",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "eb935fd8_67a61d9a",
+        "filename": "site/dev/testing/testing.md",
+        "patchSetId": 2
+      },
+      "lineNbr": 10,
+      "author": {
+        "id": 5110
+      },
+      "writtenOn": "2016-11-11T16:52:28Z",
+      "side": 1,
+      "message": "Let\u0027s leave them in at the top of each file, just to be sure.\n\nEverywhere else, I\u0027ll remove them.",
+      "parentUuid": "eb935fd8_84afa7c9",
       "revId": "f84597ab3e7eb3b4688e9a1749f31bc50fdded94",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
