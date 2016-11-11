@@ -170,6 +170,24 @@
     },
     {
       "key": {
+        "uuid": "4b770b47_14c0fc35",
+        "filename": "src/core/SkTypesPriv.h",
+        "patchSetId": 5
+      },
+      "lineNbr": 39,
+      "author": {
+        "id": 5110
+      },
+      "writtenOn": "2016-11-11T20:17:43Z",
+      "side": 1,
+      "message": "I started with this\n\n   \"There aren\u0027t many users of SkAutoFree any more. It seems like this should just turn into a typedef for std::unique_ptr\u003cSkFunctionWrapper\u003csk_free\u003e\u003e.\"\n\nAnd ran with it.",
+      "parentUuid": "4b770b47_d47cb463",
+      "revId": "46fb728de361cdb270941e996794924dc1b7e5f9",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "ebafdfaa_6a1967e8",
         "filename": "src/core/SkTypesPriv.h",
         "patchSetId": 5
