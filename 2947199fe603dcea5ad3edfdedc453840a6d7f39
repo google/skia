@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "eb935fd8_3091ae6b",
+        "filename": "src/core/SkBlitter.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 1055,
+      "author": {
+        "id": 5632
+      },
+      "writtenOn": "2016-11-11T12:47:21Z",
+      "side": 1,
+      "message": "The parens aren\u0027t required. Would\n\nbool skipLeft \u003d !leftAlpha;\n\nbe clearer?",
+      "revId": "2947199fe603dcea5ad3edfdedc453840a6d7f39",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
