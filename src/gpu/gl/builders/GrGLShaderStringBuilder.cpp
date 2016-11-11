@@ -21,6 +21,79 @@ static const bool c_PrintShaders{false};
 
 static void print_shader_source(const char** strings, int* lengths, int count);
 
+SkSL::GLCaps GrGLSkSLCapsForContext(const GrGLContext& context) {
+    GrGLStandard standard = context.standard();
+    const GrGLCaps* caps = context.caps();
+    const GrGLSLCaps* glslCaps = caps->glslCaps();
+    SkSL::GLCaps result;
+    switch (standard) {
+        case kGL_GrGLStandard:
+            result.fStandard = SkSL::GLCaps::kGL_Standard;
+            break;
+        case kGLES_GrGLStandard:
+            result.fStandard = SkSL::GLCaps::kGLES_Standard;
+            break;
+        default:
+            SkASSERT(false);
+            result.fStandard = SkSL::GLCaps::kGL_Standard;
+    }
+
+    switch (glslCaps->generation()) {
+        case k110_GrGLSLGeneration:
+            if (kGLES_GrGLStandard == standard) {
+                // ES2's shader language is based on GLSL 1.20 but is version 1.00 of the ES 
+                // language
+                result.fVersion = 100;
+            } else {
+                SkASSERT(kGL_GrGLStandard == standard);
+                result.fVersion = 110;
+            }
+            break;
+        case k130_GrGLSLGeneration:
+            SkASSERT(kGL_GrGLStandard == standard);
+            result.fVersion = 130;
+            break;
+        case k140_GrGLSLGeneration:
+            SkASSERT(kGL_GrGLStandard == standard);
+            result.fVersion = 140;
+            break;
+        case k150_GrGLSLGeneration:
+            SkASSERT(kGL_GrGLStandard == standard);
+            result.fVersion = 150;
+            break;
+        case k330_GrGLSLGeneration:
+            if (kGLES_GrGLStandard == standard) {
+                result.fVersion = 300;
+            } else {
+                SkASSERT(kGL_GrGLStandard == standard);
+                result.fVersion = 330;
+            }
+            break;
+        case k400_GrGLSLGeneration:
+            SkASSERT(kGL_GrGLStandard == standard);
+            result.fVersion = 400;
+            break;
+        case k310es_GrGLSLGeneration:
+            SkASSERT(kGLES_GrGLStandard == standard);
+            result.fVersion = 310;
+            break;
+        case k320es_GrGLSLGeneration:
+            SkASSERT(kGLES_GrGLStandard == standard);
+            result.fVersion = 320;
+            break;
+    }
+    result.fIsCoreProfile = caps->isCoreProfile();
+    result.fUsesPrecisionModifiers = glslCaps->usesPrecisionModifiers();
+    result.fMustDeclareFragmentShaderOutput = glslCaps->mustDeclareFragmentShaderOutput();
+    result.fShaderDerivativeSupport = glslCaps->shaderDerivativeSupport();
+    if (result.fShaderDerivativeSupport && glslCaps->shaderDerivativeExtensionString()) {
+        result.fShaderDerivativeExtensionString = glslCaps->shaderDerivativeExtensionString();
+    }
+    result.fCanUseMinAndAbsTogether = glslCaps->canUseMinAndAbsTogether();
+    result.fMustForceNegatedAtanParamToFloat = glslCaps->mustForceNegatedAtanParamToFloat();
+    return result;
+}
+
 static void dump_string(std::string s) {
     // on Android, SkDebugf only displays the first 1K characters of output, which results in
     // incomplete shader source code. Print each line individually to avoid this problem.
@@ -64,12 +137,13 @@ GrGLuint GrGLCompileAndAttachShader(const GrGLContext& glCtx,
 
     std::string glsl;
     SkSL::Compiler& compiler = *glCtx.compiler();
+    SkSL::GLCaps caps = GrGLSkSLCapsForContext(glCtx);
     SkASSERT(type == GR_GL_VERTEX_SHADER || type == GR_GL_FRAGMENT_SHADER);
     SkDEBUGCODE(bool result = )compiler.toGLSL(type == GR_GL_VERTEX_SHADER 
                                                                     ? SkSL::Program::kVertex_Kind
                                                                     : SkSL::Program::kFragment_Kind,
                                                std::string(sksl.c_str()),
-                                               *glCtx.caps()->glslCaps(),
+                                               caps,
                                                &glsl);
 #ifdef SK_DEBUG
     if (!result) {
