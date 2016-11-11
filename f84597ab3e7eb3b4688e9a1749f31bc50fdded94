@@ -1,0 +1,67 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "eb935fd8_24a093dd",
+        "filename": "site/dev/contrib/submit.md",
+        "patchSetId": 2
+      },
+      "lineNbr": 36,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2016-11-11T16:07:24Z",
+      "side": 1,
+      "message": "maybe just ... ?",
+      "range": {
+        "startLine": 36,
+        "startChar": 11,
+        "endLine": 36,
+        "endChar": 22
+      },
+      "revId": "f84597ab3e7eb3b4688e9a1749f31bc50fdded94",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "eb935fd8_44b59f19",
+        "filename": "site/dev/design/sync.md",
+        "patchSetId": 2
+      },
+      "lineNbr": 9,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2016-11-11T16:07:24Z",
+      "side": 1,
+      "message": "Possibly a less compelling argument now than it used to be...",
+      "range": {
+        "startLine": 8,
+        "startChar": 57,
+        "endLine": 9,
+        "endChar": 29
+      },
+      "revId": "f84597ab3e7eb3b4688e9a1749f31bc50fdded94",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "eb935fd8_84afa7c9",
+        "filename": "site/dev/testing/testing.md",
+        "patchSetId": 2
+      },
+      "lineNbr": 10,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2016-11-11T16:07:24Z",
+      "side": 1,
+      "message": "Let\u0027s erase these lines in all files.  ninja will rerun GN if needed.",
+      "revId": "f84597ab3e7eb3b4688e9a1749f31bc50fdded94",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
