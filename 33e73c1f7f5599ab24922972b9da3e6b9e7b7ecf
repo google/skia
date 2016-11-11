@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "eb935fd8_7ae9503d",
+        "filename": "infra/bots/recipes/swarm_skpbench.py",
+        "patchSetId": 31
+      },
+      "lineNbr": 56,
+      "author": {
+        "id": 5015
+      },
+      "writtenOn": "2016-11-11T18:44:24Z",
+      "side": 1,
+      "message": "Bots are already divided between CPU and GPU.  We should run either the CPU or GPU config here, depending on the bot name, but not both.",
+      "range": {
+        "startLine": 56,
+        "startChar": 33,
+        "endLine": 56,
+        "endChar": 36
+      },
+      "revId": "33e73c1f7f5599ab24922972b9da3e6b9e7b7ecf",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
