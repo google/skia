@@ -25,6 +25,7 @@ enum GrSLType {
     kMat33f_GrSLType,
     kMat44f_GrSLType,
     kTexture2DSampler_GrSLType,
+    kTexture2DISampler_GrSLType,
     kTextureExternalSampler_GrSLType,
     kTexture2DRectSampler_GrSLType,
     kTextureBufferSampler_GrSLType,
@@ -87,7 +88,7 @@ static const int kGrSLPrecisionCount = kLast_GrSLPrecision + 1;
  */
 static inline int GrSLTypeVectorCount(GrSLType type) {
     SkASSERT(type >= 0 && type < static_cast<GrSLType>(kGrSLTypeCount));
-    static const int kCounts[] = { -1, 1, 2, 3, 4, -1, -1, -1, -1, -1, -1, -1, 1, 1, 1, -1, -1 };
+    static const int kCounts[] = { -1, 1, 2, 3, 4, -1, -1, -1, -1, -1, -1, -1, 1, 1, 1, -1, -1, -1 };
     return kCounts[type];
 
     GR_STATIC_ASSERT(0 == kVoid_GrSLType);
@@ -99,14 +100,15 @@ static inline int GrSLTypeVectorCount(GrSLType type) {
     GR_STATIC_ASSERT(6 == kMat33f_GrSLType);
     GR_STATIC_ASSERT(7 == kMat44f_GrSLType);
     GR_STATIC_ASSERT(8 == kTexture2DSampler_GrSLType);
-    GR_STATIC_ASSERT(9 == kTextureExternalSampler_GrSLType);
-    GR_STATIC_ASSERT(10 == kTexture2DRectSampler_GrSLType);
-    GR_STATIC_ASSERT(11 == kTextureBufferSampler_GrSLType);
-    GR_STATIC_ASSERT(12 == kBool_GrSLType);
-    GR_STATIC_ASSERT(13 == kInt_GrSLType);
-    GR_STATIC_ASSERT(14 == kUint_GrSLType);
-    GR_STATIC_ASSERT(15 == kTexture2D_GrSLType);
-    GR_STATIC_ASSERT(16 == kSampler_GrSLType);
+    GR_STATIC_ASSERT(9 == kTexture2DISampler_GrSLType);
+    GR_STATIC_ASSERT(10 == kTextureExternalSampler_GrSLType);
+    GR_STATIC_ASSERT(11 == kTexture2DRectSampler_GrSLType);
+    GR_STATIC_ASSERT(12 == kTextureBufferSampler_GrSLType);
+    GR_STATIC_ASSERT(13 == kBool_GrSLType);
+    GR_STATIC_ASSERT(14 == kInt_GrSLType);
+    GR_STATIC_ASSERT(15 == kUint_GrSLType);
+    GR_STATIC_ASSERT(16 == kTexture2D_GrSLType);
+    GR_STATIC_ASSERT(17 == kSampler_GrSLType);
     GR_STATIC_ASSERT(SK_ARRAY_COUNT(kCounts) == kGrSLTypeCount);
 }
 
@@ -136,15 +138,16 @@ static inline bool GrSLTypeIsFloatType(GrSLType type) {
     GR_STATIC_ASSERT(6 == kMat33f_GrSLType);
     GR_STATIC_ASSERT(7 == kMat44f_GrSLType);
     GR_STATIC_ASSERT(8 == kTexture2DSampler_GrSLType);
-    GR_STATIC_ASSERT(9 == kTextureExternalSampler_GrSLType);
-    GR_STATIC_ASSERT(10 == kTexture2DRectSampler_GrSLType);
-    GR_STATIC_ASSERT(11 == kTextureBufferSampler_GrSLType);
-    GR_STATIC_ASSERT(12 == kBool_GrSLType);
-    GR_STATIC_ASSERT(13 == kInt_GrSLType);
-    GR_STATIC_ASSERT(14 == kUint_GrSLType);
-    GR_STATIC_ASSERT(15 == kTexture2D_GrSLType);
-    GR_STATIC_ASSERT(16 == kSampler_GrSLType);
-    GR_STATIC_ASSERT(17 == kGrSLTypeCount);
+    GR_STATIC_ASSERT(9 == kTexture2DISampler_GrSLType);
+    GR_STATIC_ASSERT(10 == kTextureExternalSampler_GrSLType);
+    GR_STATIC_ASSERT(11 == kTexture2DRectSampler_GrSLType);
+    GR_STATIC_ASSERT(12 == kTextureBufferSampler_GrSLType);
+    GR_STATIC_ASSERT(13 == kBool_GrSLType);
+    GR_STATIC_ASSERT(14 == kInt_GrSLType);
+    GR_STATIC_ASSERT(15 == kUint_GrSLType);
+    GR_STATIC_ASSERT(16 == kTexture2D_GrSLType);
+    GR_STATIC_ASSERT(17 == kSampler_GrSLType);
+    GR_STATIC_ASSERT(18 == kGrSLTypeCount);
 }
 
 /** Is the shading language type integral (including vectors/matrices)? */
@@ -161,15 +164,16 @@ static inline bool GrSLTypeIsIntType(GrSLType type) {
     GR_STATIC_ASSERT(6 == kMat33f_GrSLType);
     GR_STATIC_ASSERT(7 == kMat44f_GrSLType);
     GR_STATIC_ASSERT(8 == kTexture2DSampler_GrSLType);
-    GR_STATIC_ASSERT(9 == kTextureExternalSampler_GrSLType);
-    GR_STATIC_ASSERT(10 == kTexture2DRectSampler_GrSLType);
-    GR_STATIC_ASSERT(11 == kTextureBufferSampler_GrSLType);
-    GR_STATIC_ASSERT(12 == kBool_GrSLType);
-    GR_STATIC_ASSERT(13 == kInt_GrSLType);
-    GR_STATIC_ASSERT(14 == kUint_GrSLType);
-    GR_STATIC_ASSERT(15 == kTexture2D_GrSLType);
-    GR_STATIC_ASSERT(16 == kSampler_GrSLType);
-    GR_STATIC_ASSERT(17 == kGrSLTypeCount);
+    GR_STATIC_ASSERT(9 == kTexture2DISampler_GrSLType);
+    GR_STATIC_ASSERT(10 == kTextureExternalSampler_GrSLType);
+    GR_STATIC_ASSERT(11 == kTexture2DRectSampler_GrSLType);
+    GR_STATIC_ASSERT(12 == kTextureBufferSampler_GrSLType);
+    GR_STATIC_ASSERT(13 == kBool_GrSLType);
+    GR_STATIC_ASSERT(14 == kInt_GrSLType);
+    GR_STATIC_ASSERT(15 == kUint_GrSLType);
+    GR_STATIC_ASSERT(16 == kTexture2D_GrSLType);
+    GR_STATIC_ASSERT(17 == kSampler_GrSLType);
+    GR_STATIC_ASSERT(18 == kGrSLTypeCount);
 }
 
 /** Is the shading language type numeric (including vectors/matrices)? */
@@ -190,6 +194,7 @@ static inline size_t GrSLTypeSize(GrSLType type) {
         3 * 3 * sizeof(float),    // kMat33f_GrSLType
         4 * 4 * sizeof(float),    // kMat44f_GrSLType
         0,                        // kTexture2DSampler_GrSLType
+        0,                        // kTexture2DISampler_GrSLType
         0,                        // kTextureExternalSampler_GrSLType
         0,                        // kTexture2DRectSampler_GrSLType
         0,                        // kTextureBufferSampler_GrSLType
@@ -210,15 +215,16 @@ static inline size_t GrSLTypeSize(GrSLType type) {
     GR_STATIC_ASSERT(6 == kMat33f_GrSLType);
     GR_STATIC_ASSERT(7 == kMat44f_GrSLType);
     GR_STATIC_ASSERT(8 == kTexture2DSampler_GrSLType);
-    GR_STATIC_ASSERT(9 == kTextureExternalSampler_GrSLType);
-    GR_STATIC_ASSERT(10 == kTexture2DRectSampler_GrSLType);
-    GR_STATIC_ASSERT(11 == kTextureBufferSampler_GrSLType);
-    GR_STATIC_ASSERT(12 == kBool_GrSLType);
-    GR_STATIC_ASSERT(13 == kInt_GrSLType);
-    GR_STATIC_ASSERT(14 == kUint_GrSLType);
-    GR_STATIC_ASSERT(15 == kTexture2D_GrSLType);
-    GR_STATIC_ASSERT(16 == kSampler_GrSLType);
-    GR_STATIC_ASSERT(17 == kGrSLTypeCount);
+    GR_STATIC_ASSERT(9 == kTexture2DISampler_GrSLType);
+    GR_STATIC_ASSERT(10 == kTextureExternalSampler_GrSLType);
+    GR_STATIC_ASSERT(11 == kTexture2DRectSampler_GrSLType);
+    GR_STATIC_ASSERT(12 == kTextureBufferSampler_GrSLType);
+    GR_STATIC_ASSERT(13 == kBool_GrSLType);
+    GR_STATIC_ASSERT(14 == kInt_GrSLType);
+    GR_STATIC_ASSERT(15 == kUint_GrSLType);
+    GR_STATIC_ASSERT(16 == kTexture2D_GrSLType);
+    GR_STATIC_ASSERT(17 == kSampler_GrSLType);
+    GR_STATIC_ASSERT(18 == kGrSLTypeCount);
 }
 
 static inline bool GrSLTypeIs2DCombinedSamplerType(GrSLType type) {
@@ -226,8 +232,9 @@ static inline bool GrSLTypeIs2DCombinedSamplerType(GrSLType type) {
     return type >= kTexture2DSampler_GrSLType && type <= kTexture2DRectSampler_GrSLType;
 
     GR_STATIC_ASSERT(8 == kTexture2DSampler_GrSLType);
-    GR_STATIC_ASSERT(9 == kTextureExternalSampler_GrSLType);
-    GR_STATIC_ASSERT(10 == kTexture2DRectSampler_GrSLType);
+    GR_STATIC_ASSERT(9 == kTexture2DISampler_GrSLType);
+    GR_STATIC_ASSERT(10 == kTextureExternalSampler_GrSLType);
+    GR_STATIC_ASSERT(11 == kTexture2DRectSampler_GrSLType);
 }
 
 static inline bool GrSLTypeIsCombinedSamplerType(GrSLType type) {
@@ -235,9 +242,10 @@ static inline bool GrSLTypeIsCombinedSamplerType(GrSLType type) {
     return type >= kTexture2DSampler_GrSLType && type <= kTextureBufferSampler_GrSLType;
 
     GR_STATIC_ASSERT(8 == kTexture2DSampler_GrSLType);
-    GR_STATIC_ASSERT(9 == kTextureExternalSampler_GrSLType);
-    GR_STATIC_ASSERT(10 == kTexture2DRectSampler_GrSLType);
-    GR_STATIC_ASSERT(11 == kTextureBufferSampler_GrSLType);
+    GR_STATIC_ASSERT(9 == kTexture2DISampler_GrSLType);
+    GR_STATIC_ASSERT(10 == kTextureExternalSampler_GrSLType);
+    GR_STATIC_ASSERT(11 == kTexture2DRectSampler_GrSLType);
+    GR_STATIC_ASSERT(12 == kTextureBufferSampler_GrSLType);
 }
 
 static inline bool GrSLTypeAcceptsPrecision(GrSLType type) {

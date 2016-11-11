@@ -48,7 +48,9 @@ GrTexture* GrTextureProvider::createMipMappedTexture(const GrSurfaceDesc& desc, 
             return nullptr;
         }
     }
-
+    if (mipLevelCount > 1 && GrPixelConfigIsSint(desc.fConfig)) {
+        return nullptr;
+    }
     if ((desc.fFlags & kRenderTarget_GrSurfaceFlag) &&
         !fGpu->caps()->isConfigRenderable(desc.fConfig, desc.fSampleCnt > 0)) {
         return nullptr;
@@ -84,10 +86,10 @@ GrTexture* GrTextureProvider::createTexture(const GrSurfaceDesc& desc, SkBudgete
     GrMipLevel* texels = nullptr;
     int levelCount = 0;
     if (srcData) {
-      tempTexels.fPixels = srcData;
-      tempTexels.fRowBytes = rowBytes;
-      texels = &tempTexels;
-      levelCount = 1;
+        tempTexels.fPixels = srcData;
+        tempTexels.fRowBytes = rowBytes;
+        texels = &tempTexels;
+        levelCount = 1;
     }
     return this->createMipMappedTexture(desc, budgeted, texels, levelCount);
 }
