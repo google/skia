@@ -1,0 +1,72 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "eb935fd8_90bd22b9",
+        "filename": "include/gpu/GrGpuResource.h",
+        "patchSetId": 8
+      },
+      "lineNbr": 178,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2016-11-11T14:20:15Z",
+      "side": 1,
+      "message": "Wondering if we could just call this UniqueID since it has to be scoped by \"GrGpuResource::\" outside the class.",
+      "revId": "841188f432e2a4081b328739ceae401bdba4f486",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "eb935fd8_f0a4a6a4",
+        "filename": "src/gpu/batches/GrBatch.h",
+        "patchSetId": 8
+      },
+      "lineNbr": 133,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2016-11-11T14:20:15Z",
+      "side": 1,
+      "message": "Or removed, right? Won\u0027t it be implicit, based on which GrRTOpList it is in?",
+      "revId": "841188f432e2a4081b328739ceae401bdba4f486",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "eb935fd8_309fee47",
+        "filename": "src/gpu/gl/GrGLGpu.h",
+        "patchSetId": 8
+      },
+      "lineNbr": 570,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2016-11-11T14:20:15Z",
+      "side": 1,
+      "message": "align?",
+      "revId": "841188f432e2a4081b328739ceae401bdba4f486",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "eb935fd8_509c7a50",
+        "filename": "src/gpu/text/GrStencilAndCoverTextContext.h",
+        "patchSetId": 8
+      },
+      "lineNbr": 111,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2016-11-11T14:20:15Z",
+      "side": 1,
+      "message": "align?",
+      "revId": "841188f432e2a4081b328739ceae401bdba4f486",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
