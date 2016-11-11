@@ -234,9 +234,15 @@ bool SkAnalyticCubicEdge::updateCubic() {
             newy = oldy;
         }
 
-        success = this->updateLine(oldx, oldy, newx, newy,
-                SkFixedToFDot6(newy - oldy) == 0 ? SK_MaxS32 :
-                        SkFDot6Div(SkFixedToFDot6(newx - oldx), SkFixedToFDot6(newy - oldy)));
+        SkFixed snappedOldY = SkAnalyticEdge::snapY(oldy);
+        SkFixed snappedNewY = SkAnalyticEdge::snapY(newy);
+        SkFixed slope = SkFixedToFDot6(snappedNewY - snappedOldY) == 0
+                        ? SK_MaxS32
+                        : SkFDot6Div(SkFixedToFDot6(newx - oldx),
+                                     SkFixedToFDot6(snappedNewY - snappedOldY));
+
+        success = this->updateLine(oldx, snappedOldY, newx, snappedNewY, slope);
+
         oldx = newx;
         oldy = newy;
     } while (count < 0 && !success);
