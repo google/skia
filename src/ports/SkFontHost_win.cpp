@@ -546,11 +546,11 @@ protected:
     void generateAdvance(SkGlyph* glyph) override;
     void generateMetrics(SkGlyph* glyph) override;
     void generateImage(const SkGlyph& glyph) override;
-    void generatePath(const SkGlyph& glyph, SkPath* path) override;
+    void generatePath(SkGlyphID glyph, SkPath* path) override;
     void generateFontMetrics(SkPaint::FontMetrics*) override;
 
 private:
-    DWORD getGDIGlyphPath(const SkGlyph& glyph, UINT flags,
+    DWORD getGDIGlyphPath(SkGlyphID glyph, UINT flags,
                           SkAutoSTMalloc<BUFFERSIZE, uint8_t>* glyphbuf);
 
     HDCOffscreen fOffscreen;
@@ -1589,22 +1589,22 @@ static bool sk_path_from_gdi_paths(SkPath* path, const uint8_t* glyphbuf, DWORD 
     return true;
 }
 
-DWORD SkScalerContext_GDI::getGDIGlyphPath(const SkGlyph& glyph, UINT flags,
-                                               SkAutoSTMalloc<BUFFERSIZE, uint8_t>* glyphbuf)
+DWORD SkScalerContext_GDI::getGDIGlyphPath(SkGlyphID glyph, UINT flags,
+                                           SkAutoSTMalloc<BUFFERSIZE, uint8_t>* glyphbuf)
 {
     GLYPHMETRICS gm;
 
-    DWORD total_size = GetGlyphOutlineW(fDDC, glyph.getGlyphID(), flags, &gm, BUFFERSIZE, glyphbuf->get(), &fMat22);
+    DWORD total_size = GetGlyphOutlineW(fDDC, glyph, flags, &gm, BUFFERSIZE, glyphbuf->get(), &fMat22);
     // Sometimes GetGlyphOutlineW returns a number larger than BUFFERSIZE even if BUFFERSIZE > 0.
     // It has been verified that this does not involve a buffer overrun.
     if (GDI_ERROR == total_size || total_size > BUFFERSIZE) {
         // GDI_ERROR because the BUFFERSIZE was too small, or because the data was not accessible.
         // When the data is not accessable GetGlyphOutlineW fails rather quickly,
         // so just try to get the size. If that fails then ensure the data is accessible.
-        total_size = GetGlyphOutlineW(fDDC, glyph.getGlyphID(), flags, &gm, 0, nullptr, &fMat22);
+        total_size = GetGlyphOutlineW(fDDC, glyph, flags, &gm, 0, nullptr, &fMat22);
         if (GDI_ERROR == total_size) {
             LogFontTypeface::EnsureAccessible(this->getTypeface());
-            total_size = GetGlyphOutlineW(fDDC, glyph.getGlyphID(), flags, &gm, 0, nullptr, &fMat22);
+            total_size = GetGlyphOutlineW(fDDC, glyph, flags, &gm, 0, nullptr, &fMat22);
             if (GDI_ERROR == total_size) {
                 // GetGlyphOutlineW is known to fail for some characters, such as spaces.
                 // In these cases, just return that the glyph does not have a shape.
@@ -1614,10 +1614,10 @@ DWORD SkScalerContext_GDI::getGDIGlyphPath(const SkGlyph& glyph, UINT flags,
 
         glyphbuf->reset(total_size);
 
-        DWORD ret = GetGlyphOutlineW(fDDC, glyph.getGlyphID(), flags, &gm, total_size, glyphbuf->get(), &fMat22);
+        DWORD ret = GetGlyphOutlineW(fDDC, glyph, flags, &gm, total_size, glyphbuf->get(), &fMat22);
         if (GDI_ERROR == ret) {
             LogFontTypeface::EnsureAccessible(this->getTypeface());
-            ret = GetGlyphOutlineW(fDDC, glyph.getGlyphID(), flags, &gm, total_size, glyphbuf->get(), &fMat22);
+            ret = GetGlyphOutlineW(fDDC, glyph, flags, &gm, total_size, glyphbuf->get(), &fMat22);
             if (GDI_ERROR == ret) {
                 SkASSERT(false);
                 return 0;
@@ -1627,7 +1627,7 @@ DWORD SkScalerContext_GDI::getGDIGlyphPath(const SkGlyph& glyph, UINT flags,
     return total_size;
 }
 
-void SkScalerContext_GDI::generatePath(const SkGlyph& glyph, SkPath* path) {
+void SkScalerContext_GDI::generatePath(SkGlyphID glyph, SkPath* path) {
     SkASSERT(path);
     SkASSERT(fDDC);
 
