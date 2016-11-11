@@ -62,7 +62,7 @@ void GrOpList::addDependency(GrSurface* dependedOn) {
 #ifdef SK_DEBUG
 void GrOpList::dump() const {
     SkDebugf("--------------------------------------------------------------\n");
-    SkDebugf("node: %d -> RT: %d\n", fDebugID, fTarget ? fTarget->uniqueID() : -1);
+    SkDebugf("node: %d -> RT: %d\n", fDebugID, fTarget ? fTarget->uniqueID().asUInt() : -1);
     SkDebugf("relies On (%d): ", fDependencies.count());
     for (int i = 0; i < fDependencies.count(); ++i) {
         SkDebugf("%d, ", fDependencies[i]->fDebugID);

@@ -129,5 +129,5 @@ GrGLAttribArrayState* GrGLVertexArray::bindWithIndexBuffer(GrGLGpu* gpu, const G
 
 void GrGLVertexArray::invalidateCachedState() {
     fAttribArrays.invalidate();
-    fIndexBufferUniqueID = SK_InvalidUniqueID;
+    fIndexBufferUniqueID.makeInvalid();
 }

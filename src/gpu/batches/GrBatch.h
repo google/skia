@@ -9,6 +9,7 @@
 #define GrBatch_DEFINED
 
 #include "../private/SkAtomics.h"
+#include "GrGpuResource.h"
 #include "GrNonAtomicRef.h"
 #include "SkMatrix.h"
 #include "SkRect.h"
@@ -129,7 +130,8 @@ public:
 
     /** Used to block batching across render target changes. Remove this once we store
         GrBatches for different RTs in different targets. */
-    virtual uint32_t renderTargetUniqueID() const = 0;
+    // TODO: this needs to be updated to return GrSurfaceProxy::UniqueID
+    virtual GrGpuResource::UniqueID renderTargetUniqueID() const = 0;
 
     /** Used for spewing information about batches when debugging. */
     virtual SkString dumpInfo() const {

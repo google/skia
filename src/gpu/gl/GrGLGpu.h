@@ -125,7 +125,7 @@ public:
             const GrGpuCommandBuffer::LoadAndStoreInfo& stencilInfo) override;
 
     void invalidateBoundRenderTarget() {
-        fHWBoundRenderTargetUniqueID = SK_InvalidUniqueID;
+        fHWBoundRenderTargetUniqueID.makeInvalid();
     }
 
     GrStencilAttachment* createStencilAttachmentForRenderTarget(const GrRenderTarget* rt,
@@ -517,28 +517,28 @@ private:
         GrGLAttribArrayState* bindInternalVertexArray(GrGLGpu*, const GrBuffer* ibuff = nullptr);
 
     private:
-        GrGLuint                fBoundVertexArrayID;
-        bool                    fBoundVertexArrayIDIsValid;
+        GrGLuint             fBoundVertexArrayID;
+        bool                 fBoundVertexArrayIDIsValid;
 
         // We return a non-const pointer to this from bindArrayAndBuffersToDraw when vertex array 0
         // is bound. However, this class is internal to GrGLGpu and this object never leaks out of
         // GrGLGpu.
-        GrGLAttribArrayState    fDefaultVertexArrayAttribState;
+        GrGLAttribArrayState fDefaultVertexArrayAttribState;
 
         // This is used when we're using a core profile.
-        GrGLVertexArray*        fCoreProfileVertexArray;
-    } fHWVertexArrayState;
+        GrGLVertexArray*     fCoreProfileVertexArray;
+    }                                       fHWVertexArrayState;
 
     struct {
-        GrGLenum   fGLTarget;
-        uint32_t   fBoundBufferUniqueID;
-        bool       fBufferZeroKnownBound;
+        GrGLenum                fGLTarget;
+        GrGpuResource::UniqueID fBoundBufferUniqueID;
+        bool                    fBufferZeroKnownBound;
 
         void invalidate() {
-            fBoundBufferUniqueID = SK_InvalidUniqueID;
+            fBoundBufferUniqueID.makeInvalid();
             fBufferZeroKnownBound = false;
         }
-    } fHWBufferState[kGrBufferTypeCount];
+    }                                       fHWBufferState[kGrBufferTypeCount];
 
     struct {
         GrBlendEquation fEquation;
@@ -555,38 +555,38 @@ private:
             fConstColorValid = false;
             fEnabled = kUnknown_TriState;
         }
-    } fHWBlendState;
+    }                                       fHWBlendState;
 
     TriState fMSAAEnabled;
 
-    GrStencilSettings           fHWStencilSettings;
-    TriState                    fHWStencilTestEnabled;
+    GrStencilSettings                       fHWStencilSettings;
+    TriState                                fHWStencilTestEnabled;
 
 
-    GrDrawFace                  fHWDrawFace;
-    TriState                    fHWWriteToColor;
-    uint32_t                    fHWBoundRenderTargetUniqueID;
-    TriState                    fHWSRGBFramebuffer;
-    SkTArray<uint32_t, true>    fHWBoundTextureUniqueIDs;
+    GrDrawFace                              fHWDrawFace;
+    TriState                                fHWWriteToColor;
+    GrGpuResource::UniqueID                 fHWBoundRenderTargetUniqueID;
+    TriState                                fHWSRGBFramebuffer;
+    SkTArray<GrGpuResource::UniqueID, true> fHWBoundTextureUniqueIDs;
 
     struct BufferTexture {
         BufferTexture() : fTextureID(0), fKnownBound(false),
                           fAttachedBufferUniqueID(SK_InvalidUniqueID),
                           fSwizzle(GrSwizzle::RGBA()) {}
 
-        GrGLuint        fTextureID;
-        bool            fKnownBound;
-        GrPixelConfig   fTexelConfig;
-        uint32_t        fAttachedBufferUniqueID;
-        GrSwizzle       fSwizzle;
+        GrGLuint                fTextureID;
+        bool                    fKnownBound;
+        GrPixelConfig           fTexelConfig;
+        GrGpuResource::UniqueID fAttachedBufferUniqueID;
+        GrSwizzle               fSwizzle;
     };
 
-    SkTArray<BufferTexture, true>   fHWBufferTextures;
-    int                             fHWMaxUsedBufferTextureUnit;
+    SkTArray<BufferTexture, true>           fHWBufferTextures;
+    int                                     fHWMaxUsedBufferTextureUnit;
 
     // EXT_raster_multisample.
-    TriState                    fHWRasterMultisampleEnabled;
-    int                         fHWNumRasterSamples;
+    TriState                                fHWRasterMultisampleEnabled;
+    int                                     fHWNumRasterSamples;
     ///@}
 
     /** IDs for copy surface program. */
@@ -595,23 +595,23 @@ private:
         GrGLint     fTextureUniform;
         GrGLint     fTexCoordXformUniform;
         GrGLint     fPosXformUniform;
-    }                           fCopyPrograms[3];
-    sk_sp<GrGLBuffer>           fCopyProgramArrayBuffer;
+    }                                       fCopyPrograms[3];
+    sk_sp<GrGLBuffer>                       fCopyProgramArrayBuffer;
 
     /** IDs for texture mipmap program. (4 filter configurations) */
     struct {
         GrGLuint    fProgram;
         GrGLint     fTextureUniform;
         GrGLint     fTexCoordXformUniform;
-    }                           fMipmapPrograms[4];
-    sk_sp<GrGLBuffer>           fMipmapProgramArrayBuffer;
+    }                                       fMipmapPrograms[4];
+    sk_sp<GrGLBuffer>                       fMipmapProgramArrayBuffer;
 
     struct {
-        GrGLuint fProgram;
-        GrGLint  fColorUniform;
-        GrGLint  fRectUniform;
-    }                           fWireRectProgram;
-    sk_sp<GrGLBuffer>           fWireRectArrayBuffer;
+        GrGLuint    fProgram;
+        GrGLint     fColorUniform;
+        GrGLint     fRectUniform;
+    }                                       fWireRectProgram;
+    sk_sp<GrGLBuffer>                       fWireRectArrayBuffer;
 
     static int TextureTargetToCopyProgramIdx(GrGLenum target) {
         switch (target) {
@@ -634,15 +634,15 @@ private:
     }
 
     struct {
-        GrGLuint                    fProgram;
-        GrGLint                     fPosXformUniform;
-        sk_sp<GrGLBuffer>           fArrayBuffer;
-    } fPLSSetupProgram;
+        GrGLuint          fProgram;
+        GrGLint           fPosXformUniform;
+        sk_sp<GrGLBuffer> fArrayBuffer;
+    }                                       fPLSSetupProgram;
 
-    bool fHWPLSEnabled;
-    bool fPLSHasBeenUsed;
+    bool                                    fHWPLSEnabled;
+    bool                                    fPLSHasBeenUsed;
 
-    float fHWMinSampleShading;
+    float                                   fHWMinSampleShading;
 
     typedef GrGpu INHERITED;
     friend class GrGLPathRendering; // For accessing setTextureUnit.

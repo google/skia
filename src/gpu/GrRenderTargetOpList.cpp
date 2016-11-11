@@ -178,6 +178,9 @@ void GrRenderTargetOpList::prepareBatches(GrBatchFlushState* flushState) {
     }
 }
 
+// TODO: this is where GrBatch::renderTarget is used (which is fine since it
+// is at flush time). However, we need to store the RenderTargetProxy in the
+// Batches and instantiate them here.
 bool GrRenderTargetOpList::drawBatches(GrBatchFlushState* flushState) {
     if (0 == fRecordedBatches.count()) {
         return false;
@@ -406,6 +409,7 @@ void GrRenderTargetOpList::fullClear(GrRenderTarget* renderTarget, GrColor color
     // Currently this just inserts or updates the last clear batch. However, once in MDB this can
     // remove all the previously recorded batches and change the load op to clear with supplied
     // color.
+    // TODO: this needs to be updated to use GrSurfaceProxy::UniqueID
     if (fLastFullClearBatch &&
         fLastFullClearBatch->renderTargetUniqueID() == renderTarget->uniqueID()) {
         // As currently implemented, fLastFullClearBatch should be the last batch because we would

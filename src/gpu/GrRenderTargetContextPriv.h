@@ -82,6 +82,14 @@ public:
 
     int maxWindowRectangles() const;
 
+    /*
+     * This unique ID will not change for a given RenderTargetContext. However, it is _NOT_
+     * guaranteed to match the uniqueID of the underlying GrRenderTarget - beware!
+     */
+    GrSurfaceProxy::UniqueID uniqueID() const {
+        return fRenderTargetContext->fRenderTargetProxy->uniqueID();
+    }
+
     void testingOnly_drawBatch(const GrPaint&,
                                GrDrawBatch* batch,
                                const GrUserStencilSettings* = nullptr,

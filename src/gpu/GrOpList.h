@@ -23,6 +23,7 @@ public:
     GrOpList(GrSurfaceProxy* surfaceProxy, GrAuditTrail* auditTrail);
     ~GrOpList() override;
 
+    // These two methods are invoked as flush time
     virtual void prepareBatches(GrBatchFlushState* flushState) = 0;
     virtual bool drawBatches(GrBatchFlushState* flushState) = 0;
 

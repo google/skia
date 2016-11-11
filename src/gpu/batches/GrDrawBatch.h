@@ -74,11 +74,14 @@ public:
     // TODO no GrPrimitiveProcessors yet read fragment position
     bool willReadFragmentPosition() const { return false; }
 
-    uint32_t renderTargetUniqueID() const final {
+    // TODO: this needs to be updated to return GrSurfaceProxy::UniqueID
+    // This is a bit more exciting than the other call sites since it uses the pipeline
+    GrGpuResource::UniqueID renderTargetUniqueID() const final {
         SkASSERT(fPipelineInstalled);
         return this->pipeline()->getRenderTarget()->uniqueID();
     }
 
+    // TODO: store a GrRenderTargetContext instead
     GrRenderTarget* renderTarget() const final {
         SkASSERT(fPipelineInstalled);
         return this->pipeline()->getRenderTarget();
@@ -86,7 +89,7 @@ public:
 
     SkString dumpInfo() const override {
         SkString string;
-        string.appendf("RT: %d\n", this->renderTargetUniqueID());
+        string.appendf("RT: %d\n", this->renderTargetUniqueID().asUInt());
         string.append("ColorStages:\n");
         for (int i = 0; i < this->pipeline()->numColorFragmentProcessors(); i++) {
             string.appendf("\t\t%s\n\t\t%s\n",
