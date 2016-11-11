@@ -153,7 +153,11 @@ public:
     int getWidth() override { return fClipRect.width(); }
 
     static bool canHandleRect(const SkIRect& bounds) {
-        int width = bounds.width();
+        // The width may overflow signed int, e.g., left = -2147483648, right = 1
+        unsigned width = bounds.width();
+        if (width > MaskAdditiveBlitter::kMAX_WIDTH) {
+            return false;
+        }
         int64_t rb = SkAlign4(width);
         // use 64bits to detect overflow
         int64_t storage = rb * bounds.height();
