@@ -157,6 +157,13 @@ bool SkImageCacherator::directGeneratePixels(const SkImageInfo& info, void* pixe
     return generator->getPixels(info, pixels, rb);
 }
 
+std::tuple<sk_sp<SkImage>, SkRect, SkFilterQuality>
+SkImageCacherator::directAccessScaledPixels(const SkRect& srcRect,
+                                            const SkMatrix& totalMatrix,
+                                            SkFilterQuality fq) {
+    return ScopedGenerator(fSharedGenerator)->accessScaledPixels(srcRect, totalMatrix, fq);
+}
+
 //////////////////////////////////////////////////////////////////////////////////////////////////
 
 bool SkImageCacherator::lockAsBitmapOnlyIfAlreadyCached(SkBitmap* bitmap) {
