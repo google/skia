@@ -200,6 +200,7 @@ gm_sources = [
   "$_gm/patch.cpp",
   "$_gm/patchgrid.cpp",
   "$_gm/path_stroke_with_zero_length.cpp",
+  "$_gm/path_bleed.cpp",
   "$_gm/pathcontourstart.cpp",
   "$_gm/patheffects.cpp",
   "$_gm/pathfill.cpp",
