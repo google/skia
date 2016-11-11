@@ -1,0 +1,211 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "eb935fd8_04647761",
+        "filename": "infra/bots/gen_tasks.go",
+        "patchSetId": 29
+      },
+      "lineNbr": 48,
+      "author": {
+        "id": 5015
+      },
+      "writtenOn": "2016-11-11T15:05:06Z",
+      "side": 1,
+      "message": "Is there any reason not to assume that \"Perf.*PixelC\" implies Skpbench?",
+      "range": {
+        "startLine": 48,
+        "startChar": 3,
+        "endLine": 48,
+        "endChar": 7
+      },
+      "revId": "611c6133a970e7b41dbcd8f49453b0af3014def7",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "eb935fd8_444e7fdd",
+        "filename": "infra/bots/gen_tasks.go",
+        "patchSetId": 29
+      },
+      "lineNbr": 82,
+      "author": {
+        "id": 5015
+      },
+      "writtenOn": "2016-11-11T15:05:06Z",
+      "side": 1,
+      "message": "This is fine for now, but we\u0027re starting to cram more and more information into extra_config.  IMO that\u0027s a sign that we need to rethink the structure of the job names once things settle a bit, and at least add some built-in support for having multiple extra_configs, even if that just means strings.Split(ec, \"_\").",
+      "range": {
+        "startLine": 82,
+        "startChar": 15,
+        "endLine": 82,
+        "endChar": 25
+      },
+      "revId": "611c6133a970e7b41dbcd8f49453b0af3014def7",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "eb935fd8_a42e63eb",
+        "filename": "infra/bots/recipe_modules/flavor/api.py",
+        "patchSetId": 29
+      },
+      "lineNbr": 106,
+      "author": {
+        "id": 5015
+      },
+      "writtenOn": "2016-11-11T15:05:06Z",
+      "side": 1,
+      "message": "Do we need resources for skpbench?",
+      "range": {
+        "startLine": 106,
+        "startChar": 9,
+        "endLine": 106,
+        "endChar": 42
+      },
+      "revId": "611c6133a970e7b41dbcd8f49453b0af3014def7",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "eb935fd8_8431674f",
+        "filename": "infra/bots/recipe_modules/vars/api.py",
+        "patchSetId": 29
+      },
+      "lineNbr": 82,
+      "author": {
+        "id": 5015
+      },
+      "writtenOn": "2016-11-11T15:05:06Z",
+      "side": 1,
+      "message": "Nit: this can just go in the skpbench recipe if it\u0027s not used elsewhere.",
+      "range": {
+        "startLine": 82,
+        "startChar": 9,
+        "endLine": 82,
+        "endChar": 27
+      },
+      "revId": "611c6133a970e7b41dbcd8f49453b0af3014def7",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "eb935fd8_64345b3e",
+        "filename": "infra/bots/recipes/swarm_skpbench.py",
+        "patchSetId": 29
+      },
+      "lineNbr": 36,
+      "author": {
+        "id": 5015
+      },
+      "writtenOn": "2016-11-11T15:05:06Z",
+      "side": 1,
+      "message": "These must be defined elsewhere but I can\u0027t remember where.  Can we move them into vars or something?",
+      "range": {
+        "startLine": 36,
+        "startChar": 0,
+        "endLine": 36,
+        "endChar": 8
+      },
+      "revId": "611c6133a970e7b41dbcd8f49453b0af3014def7",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "eb935fd8_44375f43",
+        "filename": "infra/bots/recipes/swarm_skpbench.py",
+        "patchSetId": 29
+      },
+      "lineNbr": 42,
+      "author": {
+        "id": 5015
+      },
+      "writtenOn": "2016-11-11T15:05:06Z",
+      "side": 1,
+      "message": "Is this really needed?",
+      "range": {
+        "startLine": 42,
+        "startChar": 4,
+        "endLine": 42,
+        "endChar": 22
+      },
+      "revId": "611c6133a970e7b41dbcd8f49453b0af3014def7",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "eb935fd8_244253ab",
+        "filename": "infra/bots/recipes/swarm_skpbench.py",
+        "patchSetId": 29
+      },
+      "lineNbr": 67,
+      "author": {
+        "id": 5015
+      },
+      "writtenOn": "2016-11-11T15:05:06Z",
+      "side": 1,
+      "message": "Uber-nit: \"skpbench\" to match \"dm\" and \"nanobench\" on other bots.",
+      "range": {
+        "startLine": 67,
+        "startChar": 23,
+        "endLine": 67,
+        "endChar": 45
+      },
+      "revId": "611c6133a970e7b41dbcd8f49453b0af3014def7",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "eb935fd8_e4a86b31",
+        "filename": "infra/bots/recipes/upload_nano_results.expected/normal_bot.json",
+        "patchSetId": 29
+      },
+      "lineNbr": 8,
+      "author": {
+        "id": 5015
+      },
+      "writtenOn": "2016-11-11T15:05:06Z",
+      "side": 1,
+      "message": "This doesn\u0027t match what\u0027s in upload_nano_results.py.  Do you need to run the simulation_test again?",
+      "range": {
+        "startLine": 8,
+        "startChar": 7,
+        "endLine": 8,
+        "endChar": 21
+      },
+      "revId": "611c6133a970e7b41dbcd8f49453b0af3014def7",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "eb935fd8_24b333a2",
+        "filename": "infra/bots/skpbench_skia.isolate",
+        "patchSetId": 29
+      },
+      "lineNbr": 2,
+      "author": {
+        "id": 5015
+      },
+      "writtenOn": "2016-11-11T15:05:06Z",
+      "side": 1,
+      "message": "Your recipe uses the resources (via install) but they aren\u0027t included here.",
+      "range": {
+        "startLine": 2,
+        "startChar": 3,
+        "endLine": 2,
+        "endChar": 11
+      },
+      "revId": "611c6133a970e7b41dbcd8f49453b0af3014def7",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
