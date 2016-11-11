@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "eb935fd8_c459afa7",
+        "filename": "src/codec/SkCodecImageGenerator.cpp",
+        "patchSetId": 17
+      },
+      "lineNbr": 40,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2016-11-11T15:12:03Z",
+      "side": 0,
+      "message": "Hooray, thanks!",
+      "range": {
+        "startLine": 40,
+        "startChar": 4,
+        "endLine": 40,
+        "endChar": 23
+      },
+      "revId": "9c2249f51c861f3d0db089fbba38b8ac1d63d160",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}

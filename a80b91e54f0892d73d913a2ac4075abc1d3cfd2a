@@ -1,0 +1,96 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "eb935fd8_a47103fe",
+        "filename": "gm/image_pict.cpp",
+        "patchSetId": 17
+      },
+      "lineNbr": 312,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2016-11-11T15:12:03Z",
+      "side": 1,
+      "message": "nit: This has already landed, so it\u0027s not worth thinking about in this CL, but...\n\n(1) I\u0027m not sure what \"GammaAnd\" adds to this name.  Are we ever ColorSpaceAware while ignoring Gamma?\n(2) I\u0027ve had a few complaints about our use of the term \"Gamma\" when we mean \"TransferFn\".  I\u0027ve not really made any effort to remove it from our code, but something to think about.",
+      "range": {
+        "startLine": 312,
+        "startChar": 59,
+        "endLine": 312,
+        "endChar": 83
+      },
+      "revId": "a80b91e54f0892d73d913a2ac4075abc1d3cfd2a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "eb935fd8_c4428fad",
+        "filename": "src/core/SkImageCacherator.cpp",
+        "patchSetId": 17
+      },
+      "lineNbr": 340,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2016-11-11T15:12:03Z",
+      "side": 1,
+      "message": "The codec does support color correct kIndex8.  And the codec will often recommend kIndex8 as the format to decode to.\n\nIs it the drawing code that does not support color correct kIndex8?  In that case, I think we should choose to decode to kN32 but still be color correct.",
+      "range": {
+        "startLine": 340,
+        "startChar": 8,
+        "endLine": 340,
+        "endChar": 34
+      },
+      "revId": "a80b91e54f0892d73d913a2ac4075abc1d3cfd2a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "eb935fd8_e4478bba",
+        "filename": "src/core/SkImageCacherator.cpp",
+        "patchSetId": 17
+      },
+      "lineNbr": 369,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2016-11-11T15:12:03Z",
+      "side": 1,
+      "message": "Confused about why we can assert this?  Do we always assume SRGB or F16 on the caps?",
+      "range": {
+        "startLine": 369,
+        "startChar": 16,
+        "endLine": 369,
+        "endChar": 51
+      },
+      "revId": "a80b91e54f0892d73d913a2ac4075abc1d3cfd2a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "eb935fd8_64de1bc3",
+        "filename": "tools/Resources.cpp",
+        "patchSetId": 17
+      },
+      "lineNbr": 34,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2016-11-11T15:12:03Z",
+      "side": 1,
+      "message": "nit: This is unnecessary,  I\u0027d actually prefer it not be here so we don\u0027t hide codec bugs.",
+      "range": {
+        "startLine": 34,
+        "startChar": 4,
+        "endLine": 34,
+        "endChar": 88
+      },
+      "revId": "a80b91e54f0892d73d913a2ac4075abc1d3cfd2a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
