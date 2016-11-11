@@ -9,6 +9,8 @@
 
 #include "Test.h"
 
+#if SKIA_SUPPORT_GPU
+
 static void test_failure(skiatest::Reporter* r, const char* src, const char* error) {
     SkSL::Compiler compiler;
     std::stringstream out;
@@ -368,3 +370,5 @@ DEF_TEST(SkSLStaticIfError, r) {
                  "void foo() { false ? x : 5; }",
                  "error: 1: unknown identifier 'x'\n1 error\n");
 }
+
+#endif
