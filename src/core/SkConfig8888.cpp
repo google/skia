@@ -354,8 +354,8 @@ bool SkPixelInfo::CopyPixels(const SkImageInfo& dstInfo, void* dstPixels, size_t
         if (!bm.installPixels(srcInfo, const_cast<void*>(srcPixels), srcRB, ctable, nullptr, nullptr)) {
             return false;
         }
-        sk_sp<SkCanvas> canvas(SkCanvas::NewRasterDirect(dstInfo, dstPixels, dstRB));
-        if (nullptr == canvas.get()) {
+        std::unique_ptr<SkCanvas> canvas = SkCanvas::MakeRasterDirect(dstInfo, dstPixels, dstRB);
+        if (!canvas) {
             return false;
         }
 

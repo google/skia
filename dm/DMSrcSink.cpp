@@ -1192,8 +1192,7 @@ Name MSKPSrc::name() const { return SkOSPath::Basename(fPath.c_str()); }
 /*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
 
 Error NullSink::draw(const Src& src, SkBitmap*, SkWStream*, SkString*) const {
-    std::unique_ptr<SkCanvas> canvas(SkCreateNullCanvas());
-    return src.draw(canvas.get());
+    return src.draw(SkMakeNullCanvas().get());
 }
 
 /*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
@@ -1356,7 +1355,7 @@ Error DebugSink::draw(const Src& src, SkBitmap*, SkWStream* dst, SkString*) cons
     if (!err.isEmpty()) {
         return err;
     }
-    sk_sp<SkCanvas> nullCanvas(SkCreateNullCanvas());
+    std::unique_ptr<SkCanvas> nullCanvas = SkMakeNullCanvas();
     UrlDataManager dataManager(SkString("data"));
     Json::Value json = debugCanvas.toJSON(
             dataManager, debugCanvas.getSize(), nullCanvas.get());
@@ -1371,10 +1370,9 @@ SVGSink::SVGSink() {}
 Error SVGSink::draw(const Src& src, SkBitmap*, SkWStream* dst, SkString*) const {
 #if defined(SK_XML)
     std::unique_ptr<SkXMLWriter> xmlWriter(new SkXMLStreamWriter(dst));
-    sk_sp<SkCanvas> canvas(SkSVGCanvas::Create(
-        SkRect::MakeWH(SkIntToScalar(src.size().width()), SkIntToScalar(src.size().height())),
-        xmlWriter.get()));
-    return src.draw(canvas.get());
+    return src.draw(SkSVGCanvas::Make(SkRect::MakeWH(SkIntToScalar(src.size().width()),
+                                                     SkIntToScalar(src.size().height())),
+                                      xmlWriter.get()).get());
 #else
     return Error("SVG sink is disabled.");
 #endif // SK_XML
