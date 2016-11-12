@@ -63,7 +63,7 @@ struct Request {
     SkColor getPixel(int x, int y);
 
     UploadContext* fUploadContext;
-    sk_sp<SkDebugCanvas> fDebugCanvas;
+    std::unique_ptr<SkDebugCanvas> fDebugCanvas;
     UrlDataManager fUrlDataManager;
 
 private:
