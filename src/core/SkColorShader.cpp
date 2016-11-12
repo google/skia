@@ -7,6 +7,9 @@
 
 #include "SkColorShader.h"
 #include "SkColorSpace.h"
+#include "SkFixedAlloc.h"
+#include "SkPM4fPriv.h"
+#include "SkRasterPipeline.h"
 #include "SkReadBuffer.h"
 #include "SkUtils.h"
 
@@ -304,4 +307,31 @@ bool SkColorShader::ColorShaderContext::onChooseBlitProcs(const SkImageInfo& inf
 
 bool SkColor4Shader::Color4Context::onChooseBlitProcs(const SkImageInfo& info, BlitState* state) {
     return choose_blitprocs(&fPM4f, info, state);
+}
+
+// To shade a constant color:
+//    1) move the paint color to dst registers
+//    2) load the constant color into the src registers
+//    3) srcin, s' = s*da, modulating the src color by the paint alpha.
+
+bool SkColorShader::onAppendStages(SkRasterPipeline* p,
+                                   SkColorSpace* dst,
+                                   SkFallbackAlloc* scratch) const {
+    auto color = scratch->make<SkPM4f>(SkPM4f_from_SkColor(fColor, dst));
+    p->append(SkRasterPipeline::move_src_dst);
+    p->append(SkRasterPipeline::constant_color, color);
+    // TODO: sRGB -> dst gamut correction if needed
+    p->append(SkRasterPipeline::srcin);
+    return true;
+}
+
+bool SkColor4Shader::onAppendStages(SkRasterPipeline* p,
+                                    SkColorSpace* dst,
+                                    SkFallbackAlloc* scratch) const {
+    auto color = scratch->make<SkPM4f>(fColor4.premul());
+    p->append(SkRasterPipeline::move_src_dst);
+    p->append(SkRasterPipeline::constant_color, color);
+    // TODO: fColorSpace -> dst gamut correction if needed
+    p->append(SkRasterPipeline::srcin);
+    return true;
 }
