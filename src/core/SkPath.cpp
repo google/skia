@@ -13,7 +13,6 @@
 #include "SkPathPriv.h"
 #include "SkPathRef.h"
 #include "SkRRect.h"
-#include "SkTSAN.h"
 
 ////////////////////////////////////////////////////////////////////////////
 
@@ -129,8 +128,6 @@ SkPath::SkPath()
     : fPathRef(SkPathRef::CreateEmpty()) {
     this->resetFields();
     fIsVolatile = false;
-    AnnotateBenignRaceSized(__FILE__, __LINE__, &fConvexity, sizeof(fConvexity),
-                            "We've tried a few times to make this thread safe, and failed.");
 }
 
 void SkPath::resetFields() {
