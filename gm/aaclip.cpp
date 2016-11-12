@@ -8,6 +8,7 @@
 #include "gm.h"
 #include "SkCanvas.h"
 #include "SkPath.h"
+#include "SkMakeUnique.h"
 
 static void do_draw(SkCanvas* canvas, const SkRect& r) {
     SkPaint paint;
@@ -166,14 +167,14 @@ DEF_GM(return new AAClipGM;)
 
 #ifdef SK_BUILD_FOR_MAC
 
-static SkCanvas* make_canvas(const SkBitmap& bm) {
+static std::unique_ptr<SkCanvas> make_canvas(const SkBitmap& bm) {
     const SkImageInfo& info = bm.info();
     if (info.bytesPerPixel() == 4) {
-        return SkCanvas::NewRasterDirectN32(info.width(), info.height(),
-                                            (SkPMColor*)bm.getPixels(),
-                                            bm.rowBytes());
+        return SkCanvas::MakeRasterDirectN32(info.width(), info.height(),
+                                             (SkPMColor*)bm.getPixels(),
+                                             bm.rowBytes());
     } else {
-        return new SkCanvas(bm);
+        return skstd::make_unique<SkCanvas>(bm);
     }
 }
 
@@ -182,7 +183,6 @@ static void test_image(SkCanvas* canvas, const SkImageInfo& info) {
     SkBitmap bm;
     bm.allocPixels(info);
 
-    sk_sp<SkCanvas> newc(make_canvas(bm));
     if (info.isOpaque()) {
         bm.eraseColor(SK_ColorGREEN);
     } else {
@@ -192,7 +192,7 @@ static void test_image(SkCanvas* canvas, const SkImageInfo& info) {
     SkPaint paint;
     paint.setAntiAlias(true);
     paint.setColor(SK_ColorBLUE);
-    newc->drawCircle(50, 50, 49, paint);
+    make_canvas(bm)->drawCircle(50, 50, 49, paint);
     canvas->drawBitmap(bm, 10, 10);
 
     CGImageRef image = SkCreateCGImageRefWithColorspace(bm, nullptr);
