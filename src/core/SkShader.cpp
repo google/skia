@@ -257,6 +257,12 @@ void SkShader::toString(SkString* str) const {
 }
 #endif
 
+bool SkShader::appendStages(SkRasterPipeline* pipeline,
+                            SkColorSpace* dst,
+                            SkFallbackAlloc* scratch) const {
+    return this->onAppendStages(pipeline, dst, scratch);
+}
+
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
 sk_sp<SkFlattenable> SkEmptyShader::CreateProc(SkReadBuffer&) {

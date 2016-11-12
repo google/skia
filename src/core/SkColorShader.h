@@ -25,6 +25,7 @@ public:
     explicit SkColorShader(SkColor c);
 
     bool isOpaque() const override;
+    bool isConstant() const override { return true; }
 
     class ColorShaderContext : public SkShader::Context {
     public:
@@ -64,6 +65,7 @@ protected:
         *lum = fColor;
         return true;
     }
+    bool onAppendStages(SkRasterPipeline*, SkColorSpace*, SkFallbackAlloc*) const override;
 
 private:
     SkColor fColor;
@@ -78,6 +80,7 @@ public:
     bool isOpaque() const override {
         return SkColorGetA(fCachedByteColor) == 255;
     }
+    bool isConstant() const override { return true; }
 
     class Color4Context : public SkShader::Context {
     public:
@@ -117,12 +120,13 @@ protected:
         *lum = fCachedByteColor;
         return true;
     }
+    bool onAppendStages(SkRasterPipeline*, SkColorSpace*, SkFallbackAlloc*) const override;
 
 private:
     sk_sp<SkColorSpace> fColorSpace;
     const SkColor4f     fColor4;
     const SkColor       fCachedByteColor;
-    
+
     typedef SkShader INHERITED;
 };
 
