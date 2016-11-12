@@ -13,6 +13,7 @@
 #include "SkPathPriv.h"
 #include "SkPathRef.h"
 #include "SkRRect.h"
+#include "SkTSAN.h"
 
 ////////////////////////////////////////////////////////////////////////////
 
@@ -2424,6 +2425,7 @@ private:
     bool                fIsCurve;
 };
 
+SK_NO_SANITIZE_THREAD  // skia:5776
 SkPath::Convexity SkPath::internalGetConvexity() const {
     SkASSERT(kUnknown_Convexity == fConvexity);
     SkPoint         pts[4];
