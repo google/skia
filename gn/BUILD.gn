@@ -28,6 +28,10 @@ declare_args() {
 
   cc_wrapper = ""
 }
+declare_args() {
+  is_clang =
+      is_android || is_ios || is_mac || (cc == "clang" && cxx == "clang++")
+}
 
 if (host_os == "win") {
   python = "python.bat"
@@ -37,7 +41,7 @@ if (host_os == "win") {
   stamp = "touch"
 }
 
-if (!is_win) {
+if (!is_clang && !is_win) {
   is_clang = exec_script("is_clang.py",
                          [
                            cc,
