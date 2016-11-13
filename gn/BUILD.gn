@@ -37,7 +37,8 @@ if (host_os == "win") {
   stamp = "touch"
 }
 
-if (!is_win) {
+is_clang = is_android || is_ios || is_mac || (cc == "clang" && cxx == "clang++")
+if (!is_clang && !is_win) {
   is_clang = exec_script("is_clang.py",
                          [
                            cc,
