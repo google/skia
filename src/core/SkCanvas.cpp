@@ -495,11 +495,9 @@ public:
         }
 
         if (SkDrawLooper* looper = paint.getLooper()) {
-            fLooperContext = fLooperContextAllocator.createWithIniter(
-                looper->contextSize(),
-                [&](void* buffer) {
-                    return looper->createContext(canvas, buffer);
-                });
+            void* buffer = fLooperContextAllocator.reserveT<SkDrawLooper::Context>(
+                    looper->contextSize());
+            fLooperContext = looper->createContext(canvas, buffer);
             fIsSimple = false;
         } else {
             fLooperContext = nullptr;
