@@ -63,7 +63,7 @@ public:
 namespace sk_gpu_test {
 class GrContextFactory {
 public:
-    GrContextFactory() {};
+    GrContextFactory() {}
     explicit GrContextFactory(const GrContextOptions&) {}
 
     typedef int ContextType;
