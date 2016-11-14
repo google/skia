@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "eb935fd8_76f07f74",
+        "filename": "gm/verylargebitmap.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 57,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2016-11-14T19:35:00Z",
+      "side": 1,
+      "message": "Isn\u0027t this going to do int math ?",
+      "revId": "8125a6bcfbc9e96e424e343252fa1f1b247ce2e3",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
