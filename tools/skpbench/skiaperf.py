@@ -7,7 +7,7 @@
 
 from __future__ import print_function
 from _benchresult import BenchResult
-from argparse import ArgumentTypeError, ArgumentParser
+from argparse import ArgumentParser
 from collections import defaultdict
 import json
 import sys
@@ -21,51 +21,72 @@ Formats skpbench.py outputs for Skia Perf.
 __argparse.add_argument('sources',
   nargs='+', help="source files that contain skpbench results")
 __argparse.add_argument('--properties',
-  nargs='*', default=list(),
-  help="space-separated key/value pairs identifying the run")
+  nargs='*', help="space-separated key/value pairs identifying the run")
 __argparse.add_argument('--key',
-  nargs='*', default=list(),
-  help="space-separated key/value pairs identifying the builder")
+  nargs='*', help="space-separated key/value pairs identifying the builder")
 __argparse.add_argument('-o', '--outfile',
   default='-', help="output file ('-' for stdout)")
 
 FLAGS = __argparse.parse_args()
 
-def parse_key_value_pairs(args):
-  if not args:
-    return dict()
-  if len(args) % 2:
-    raise ArgumentTypeError("uneven number of key/value arguments.")
-  return {k:v for k,v in zip(args[::2], args[1::2])}
 
-def skiaperf_result(benchresult):
-  result = {x:benchresult.get_string(x) for x in ('accum', 'median')}
-  result['options'] = {x:benchresult.get_string(x)
-                       for x in ('clock', 'metric', 'sample_ms')}
-  return result
+class JSONDict(dict):
+  """Simple class for building a JSON dictionary
 
-def emit_as_json(data, outfile):
-  json.dump(data, outfile, indent=4, separators=(',', ' : '), sort_keys=True)
-  print('', file=outfile)
+  Returns another JSONDict upon accessing an undefined item. Does not allow an
+  item to change once it has been inserted.
+
+  """
+  def __init__(self, key_value_pairs=None):
+    dict.__init__(self)
+    if not key_value_pairs:
+      return
+    if len(key_value_pairs) % 2:
+      raise Exception("uneven number of key/value arguments.")
+    for k,v in zip(key_value_pairs[::2], key_value_pairs[1::2]):
+      self[k] = v
+
+  def __getitem__(self, key):
+    if not key in self:
+      dict.__setitem__(self, key, JSONDict())
+    return dict.__getitem__(self, key)
+
+  def __setitem__(self, key, val):
+    if key in self:
+      raise Exception("%s: tried to set already-defined JSONDict item\n"
+                      "  old value: '%s'\n"
+                      "  new value: '%s'" % (key, self[key], val))
+    dict.__setitem__(self, key, val)
+
+  def emit(self, outfile):
+    json.dump(self, outfile, indent=4, separators=(',', ' : '), sort_keys=True)
+    print('', file=outfile)
 
 def main():
-  data = parse_key_value_pairs(
-    FLAGS.properties + [
-    'key', parse_key_value_pairs(FLAGS.key),
-    'results', defaultdict(dict)])
+  data = JSONDict(
+    FLAGS.properties + \
+    ['key', JSONDict(FLAGS.key),
+     'bench_type', 'playback',
+     'source_type', 'skp'])
 
   for src in FLAGS.sources:
     with open(src, mode='r') as infile:
       for line in infile:
         match = BenchResult.match(line)
-        if match:
-          data['results'][match.bench][match.config] = skiaperf_result(match)
+        if not match:
+          continue
+        if match.sample_ms != 50:
+          raise Exception("%s: unexpected sample_ms != 50" % match.sample_ms)
+        for result in ('accum', 'median'):
+          data['results'][match.bench][match.config] \
+              ['%s_%s_%s' % (result, match.clock, match.metric)] = \
+              match.get_string(result)
 
   if FLAGS.outfile != '-':
     with open(FLAGS.outfile, 'w+') as outfile:
-      emit_as_json(data, outfile)
+      data.emit(outfile)
   else:
-    emit_as_json(data, sys.stdout)
+    data.emit(sys.stdout)
 
 if __name__ == '__main__':
   main()
