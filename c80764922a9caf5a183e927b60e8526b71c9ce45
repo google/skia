@@ -16,6 +16,24 @@
       "revId": "c80764922a9caf5a183e927b60e8526b71c9ce45",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "503c1cf2_62415856",
+        "filename": "src/core/SkPM4fPriv.h",
+        "patchSetId": 5
+      },
+      "lineNbr": 96,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2016-11-14T22:02:53Z",
+      "side": 1,
+      "message": "Not clear to me yet.  It can\u0027t be made more efficient than this.\n\nI will circle back if I see other places needing 4x4 -\u003e 3x4 column-major.",
+      "parentUuid": "503c1cf2_1fca635e",
+      "revId": "c80764922a9caf5a183e927b60e8526b71c9ce45",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
