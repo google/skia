@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "eb935fd8_21edd80d",
+        "filename": "src/core/SkRasterPipelineBlitter.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 118,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2016-11-14T14:23:27Z",
+      "side": 1,
+      "message": "is_opaque \u003d shader-\u003eisOpaque() \u0026\u0026 (is_opaque || shader-\u003eisConstant()); // ?\n\nThis leads down a rabbit hole of complexity, of course. It\u0027s worth pointing out that Ganesh has a similar rabbit hole (GrInvariantOutput). Unfortunately, that code operates at the FP level, so it can\u0027t be leveraged here, but it sure would be nice to only have one set of complex heuristics for tracking invariants in the pipeline. :/",
+      "revId": "83b8103de34de1594b4070ba65bf2ccdd6ce70d3",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
