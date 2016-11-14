@@ -15,95 +15,81 @@
 // the std140 alignment, you can use this, but then make sure if you have an array type it is
 // aligned to 16 bytes (i.e. has mask of 0xF).
 uint32_t grsltype_to_alignment_mask(GrSLType type) {
-    SkASSERT(GrSLTypeIsFloatType(type));
-    static const uint32_t kAlignmentMask[] = {
-        0x0, // kVoid_GrSLType, should never return this
-        0x3, // kFloat_GrSLType
-        0x7, // kVec2f_GrSLType
-        0xF, // kVec3f_GrSLType
-        0xF, // kVec4f_GrSLType
-        0x7, // kMat22f_GrSLType
-        0xF, // kMat33f_GrSLType
-        0xF, // kMat44f_GrSLType
-        0x0, // kTexture2DSampler_GrSLType, should never return this
-        0x0, // kTexture2DISampler_GrSLType, should never return this
-        0x0, // kTextureExternalSampler_GrSLType, should never return this
-        0x0, // kTexture2DSamplerRect_GrSLType, should never return this
-        0x0, // ktextureBufferSampler_GrSLType, should never return this
-        0x0, // kBool_GrSLType
-        0x7, // kInt_GrSLType
-        0x7, // kUint_GrSLType
-        0x0, // Texture2D_GrSLType, should never return this
-        0x0, // Sampler_GrSLType, should never return this
-    };
-    GR_STATIC_ASSERT(0 == kVoid_GrSLType);
-    GR_STATIC_ASSERT(1 == kFloat_GrSLType);
-    GR_STATIC_ASSERT(2 == kVec2f_GrSLType);
-    GR_STATIC_ASSERT(3 == kVec3f_GrSLType);
-    GR_STATIC_ASSERT(4 == kVec4f_GrSLType);
-    GR_STATIC_ASSERT(5 == kMat22f_GrSLType);
-    GR_STATIC_ASSERT(6 == kMat33f_GrSLType);
-    GR_STATIC_ASSERT(7 == kMat44f_GrSLType);
-    GR_STATIC_ASSERT(8 == kTexture2DSampler_GrSLType);
-    GR_STATIC_ASSERT(9 == kTexture2DISampler_GrSLType);
-    GR_STATIC_ASSERT(10 == kTextureExternalSampler_GrSLType);
-    GR_STATIC_ASSERT(11 == kTexture2DRectSampler_GrSLType);
-    GR_STATIC_ASSERT(12 == kTextureBufferSampler_GrSLType);
-    GR_STATIC_ASSERT(13 == kBool_GrSLType);
-    GR_STATIC_ASSERT(14 == kInt_GrSLType);
-    GR_STATIC_ASSERT(15 == kUint_GrSLType);
-    GR_STATIC_ASSERT(16 == kTexture2D_GrSLType);
-    GR_STATIC_ASSERT(17 == kSampler_GrSLType);
-    GR_STATIC_ASSERT(SK_ARRAY_COUNT(kAlignmentMask) == kGrSLTypeCount);
-    return kAlignmentMask[type];
+    switch(type) {
+        case kInt_GrSLType:
+            return 0x3;
+        case kUint_GrSLType:
+            return 0x3;
+        case kFloat_GrSLType:
+            return 0x3;
+        case kVec2f_GrSLType:
+            return 0x7;
+        case kVec3f_GrSLType:
+            return 0xF;
+        case kVec4f_GrSLType:
+            return 0xF;
+        case kMat22f_GrSLType:
+            return 0x7;
+        case kMat33f_GrSLType:
+            return 0xF;
+        case kMat44f_GrSLType:
+            return 0xF;
+
+        // This query is only valid for certain types.
+        case kVoid_GrSLType:
+        case kBool_GrSLType:
+        case kTexture2DSampler_GrSLType:
+        case kTexture2DISampler_GrSLType:
+        case kTextureExternalSampler_GrSLType:
+        case kTexture2DRectSampler_GrSLType:
+        case kTextureBufferSampler_GrSLType:
+        case kTexture2D_GrSLType:
+        case kSampler_GrSLType:
+            break;
+    }
+    SkFAIL("Unexpected type");
+    return 0;
 }
 
 /** Returns the size in bytes taken up in vulkanbuffers for floating point GrSLTypes.
     For non floating point type returns 0. Currently this reflects the std140 alignment
     so a mat22 takes up 8 floats. */
 static inline uint32_t grsltype_to_vk_size(GrSLType type) {
-    SkASSERT(GrSLTypeIsFloatType(type));
-    static const uint32_t kSizes[] = {
-        0,                        // kVoid_GrSLType
-        sizeof(float),            // kFloat_GrSLType
-        2 * sizeof(float),        // kVec2f_GrSLType
-        3 * sizeof(float),        // kVec3f_GrSLType
-        4 * sizeof(float),        // kVec4f_GrSLType
-        8 * sizeof(float),        // kMat22f_GrSLType. TODO: this will be 4 * szof(float) on std430.
-        12 * sizeof(float),       // kMat33f_GrSLType
-        16 * sizeof(float),       // kMat44f_GrSLType
-        0,                        // kTexture2DSampler_GrSLType
-        0,                        // kTexture2DISampler_GrSLType
-        0,                        // kTextureExternalSampler_GrSLType
-        0,                        // kTexture2DRectSampler_GrSLType
-        0,                        // kTextureBufferSampler_GrSLType
-        1,                        // kBool_GrSLType
-        4,                        // kInt_GrSLType
-        4,                        // kUint_GrSLType
-        0,                        // kTexture2D_GrSLType
-        0,                        // kSampler_GrSLType
-    };
-    return kSizes[type];
+    switch(type) {
+        case kInt_GrSLType:
+            return 4;
+        case kUint_GrSLType:
+            return 4;
+        case kFloat_GrSLType:
+            return sizeof(float);
+        case kVec2f_GrSLType:
+            return 2 * sizeof(float);
+        case kVec3f_GrSLType:
+            return 3 * sizeof(float);
+        case kVec4f_GrSLType:
+            return 4 * sizeof(float);
+        case kMat22f_GrSLType:
+            //TODO: this will be 4 * szof(float) on std430.
+            return 8 * sizeof(float);
+        case kMat33f_GrSLType:
+            return 12 * sizeof(float);
+        case kMat44f_GrSLType:
+            return 16 * sizeof(float);
 
-    GR_STATIC_ASSERT(0 == kVoid_GrSLType);
-    GR_STATIC_ASSERT(1 == kFloat_GrSLType);
-    GR_STATIC_ASSERT(2 == kVec2f_GrSLType);
-    GR_STATIC_ASSERT(3 == kVec3f_GrSLType);
-    GR_STATIC_ASSERT(4 == kVec4f_GrSLType);
-    GR_STATIC_ASSERT(5 == kMat22f_GrSLType);
-    GR_STATIC_ASSERT(6 == kMat33f_GrSLType);
-    GR_STATIC_ASSERT(7 == kMat44f_GrSLType);
-    GR_STATIC_ASSERT(8 == kTexture2DSampler_GrSLType);
-    GR_STATIC_ASSERT(9 == kTexture2DISampler_GrSLType);
-    GR_STATIC_ASSERT(10 == kTextureExternalSampler_GrSLType);
-    GR_STATIC_ASSERT(11 == kTexture2DRectSampler_GrSLType);
-    GR_STATIC_ASSERT(12 == kTextureBufferSampler_GrSLType);
-    GR_STATIC_ASSERT(13 == kBool_GrSLType);
-    GR_STATIC_ASSERT(14 == kInt_GrSLType);
-    GR_STATIC_ASSERT(15 == kUint_GrSLType);
-    GR_STATIC_ASSERT(16 == kTexture2D_GrSLType);
-    GR_STATIC_ASSERT(17 == kSampler_GrSLType);
-    GR_STATIC_ASSERT(SK_ARRAY_COUNT(kSizes) == kGrSLTypeCount);
+        // This query is only valid for certain types.
+        case kVoid_GrSLType:
+        case kBool_GrSLType:
+        case kTexture2DSampler_GrSLType:
+        case kTexture2DISampler_GrSLType:
+        case kTextureExternalSampler_GrSLType:
+        case kTexture2DRectSampler_GrSLType:
+        case kTextureBufferSampler_GrSLType:
+        case kTexture2D_GrSLType:
+        case kSampler_GrSLType:
+            break;
+    }
+    SkFAIL("Unexpected type");
+    return 0;
 }
 
 
