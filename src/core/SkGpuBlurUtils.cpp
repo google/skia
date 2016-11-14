@@ -229,7 +229,7 @@ sk_sp<GrRenderTargetContext> GaussianBlur(GrContext* context,
     const int height = dstBounds.height();
     const GrPixelConfig config = srcTexture->config();
 
-    sk_sp<GrRenderTargetContext> dstRenderTargetContext(context->makeRenderTargetContext(
+    sk_sp<GrRenderTargetContext> dstRenderTargetContext(context->makeDeferredRenderTargetContext(
         fit, width, height, config, colorSpace, 0, kDefault_GrSurfaceOrigin));
     if (!dstRenderTargetContext) {
         return nullptr;
@@ -248,7 +248,7 @@ sk_sp<GrRenderTargetContext> GaussianBlur(GrContext* context,
         return dstRenderTargetContext;
     } 
 
-    sk_sp<GrRenderTargetContext> tmpRenderTargetContext(context->makeRenderTargetContext(
+    sk_sp<GrRenderTargetContext> tmpRenderTargetContext(context->makeDeferredRenderTargetContext(
         fit, width, height, config, colorSpace, 0, kDefault_GrSurfaceOrigin));
     if (!tmpRenderTargetContext) {
         return nullptr;
