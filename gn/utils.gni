@@ -54,7 +54,6 @@ skia_utils_sources = [
   "$_src/utils/SkMultiPictureDocument.cpp",
   "$_src/utils/SkNWayCanvas.cpp",
   "$_src/utils/SkNullCanvas.cpp",
-  "$_src/utils/SkOSFile.cpp",
   "$_src/utils/SkOSPath.cpp",
   "$_src/utils/SkOSPath.h",
   "$_src/utils/SkPaintFilterCanvas.cpp",
