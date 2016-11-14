@@ -16,6 +16,24 @@
       "revId": "83b8103de34de1594b4070ba65bf2ccdd6ce70d3",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "eb935fd8_0159bc14",
+        "filename": "src/core/SkRasterPipelineBlitter.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 118,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2016-11-14T14:28:05Z",
+      "side": 1,
+      "message": "I don\u0027t think we need to go down this rabbit hole here.  If the paint+shader+colorFilter pipeline is constant (i.e. if the shader is null or constant) then we\u0027ll fold everything all back into a single constant color, then re-detect opacity.  That\u0027s lines 133-141.",
+      "parentUuid": "eb935fd8_21edd80d",
+      "revId": "83b8103de34de1594b4070ba65bf2ccdd6ce70d3",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
