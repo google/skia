@@ -602,6 +602,8 @@ DEFINES_ALL = [
     "SK_SUPPORT_LEGACY_ACCESSBITMAP",
     "SK_SUPPORT_LEGACY_CANVAS_IS_REFCNT",
     "SK_SUPPORT_LEGACY_CLIP_REGIONOPS",
+    # Temporarily Disable analytic AA for Google3
+    "SK_NO_ANALYTIC_AA",
 ]
 
 ################################################################################
