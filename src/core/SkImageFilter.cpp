@@ -20,8 +20,9 @@
 #include "SkWriteBuffer.h"
 #if SK_SUPPORT_GPU
 #include "GrContext.h"
-#include "GrRenderTargetContext.h"
 #include "GrFixedClip.h"
+#include "GrRenderTargetContext.h"
+#include "GrTextureProxy.h"
 #include "SkGrPriv.h"
 #endif
 
@@ -285,7 +286,7 @@ sk_sp<SkSpecialImage> SkImageFilter::DrawWithFP(GrContext* context,
 
     sk_sp<SkColorSpace> colorSpace = sk_ref_sp(outputProperties.colorSpace());
     GrPixelConfig config = GrRenderableConfigForColorSpace(colorSpace.get());
-    sk_sp<GrRenderTargetContext> renderTargetContext(context->makeRenderTargetContext(
+    sk_sp<GrRenderTargetContext> renderTargetContext(context->makeDeferredRenderTargetContext(
         SkBackingFit::kApprox, bounds.width(), bounds.height(), config, std::move(colorSpace)));
     if (!renderTargetContext) {
         return nullptr;
@@ -298,9 +299,10 @@ sk_sp<SkSpecialImage> SkImageFilter::DrawWithFP(GrContext* context,
     GrFixedClip clip(dstIRect);
     renderTargetContext->fillRectToRect(clip, paint, SkMatrix::I(), dstRect, srcRect);
 
-    return SkSpecialImage::MakeFromGpu(dstIRect, kNeedNewImageUniqueID_SpecialImage,
-                                       renderTargetContext->asTexture(),
-                                       sk_ref_sp(renderTargetContext->getColorSpace()));
+    return SkSpecialImage::MakeDeferredFromGpu(context, dstIRect,
+                                               kNeedNewImageUniqueID_SpecialImage,
+                                               sk_ref_sp(renderTargetContext->asDeferredTexture()),
+                                               sk_ref_sp(renderTargetContext->getColorSpace()));
 }
 #endif
 

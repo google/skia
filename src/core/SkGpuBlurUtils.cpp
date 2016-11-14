@@ -229,7 +229,7 @@ sk_sp<GrRenderTargetContext> GaussianBlur(GrContext* context,
     const int height = dstBounds.height();
     const GrPixelConfig config = srcTexture->config();
 
-    sk_sp<GrRenderTargetContext> dstRenderTargetContext(context->makeRenderTargetContext(
+    sk_sp<GrRenderTargetContext> dstRenderTargetContext(context->makeDeferredRenderTargetContext(
         fit, width, height, config, colorSpace, 0, kDefault_GrSurfaceOrigin));
     if (!dstRenderTargetContext) {
         return nullptr;
@@ -248,7 +248,7 @@ sk_sp<GrRenderTargetContext> GaussianBlur(GrContext* context,
         return dstRenderTargetContext;
     } 
 
-    sk_sp<GrRenderTargetContext> tmpRenderTargetContext(context->makeRenderTargetContext(
+    sk_sp<GrRenderTargetContext> tmpRenderTargetContext(context->makeDeferredRenderTargetContext(
         fit, width, height, config, colorSpace, 0, kDefault_GrSurfaceOrigin));
     if (!tmpRenderTargetContext) {
         return nullptr;
@@ -350,14 +350,15 @@ sk_sp<GrRenderTargetContext> GaussianBlur(GrContext* context,
         clearRect = SkIRect::MakeXYWH(srcRect.fRight, srcRect.fTop, 1, srcRect.height());
         srcRenderTargetContext->clear(&clearRect, 0x0, false);
 
-        SkMatrix matrix;
-        matrix.setIDiv(srcRenderTargetContext->width(), srcRenderTargetContext->height());
-
         GrPaint paint;
         paint.setGammaCorrect(dstRenderTargetContext->isGammaCorrect());
         // FIXME:  this should be mitchell, not bilinear.
         GrTextureParams params(SkShader::kClamp_TileMode, GrTextureParams::kBilerp_FilterMode);
         sk_sp<GrTexture> tex(srcRenderTargetContext->asTexture());
+
+        SkMatrix matrix;
+        matrix.setIDiv(tex->width(), tex->height());
+
         paint.addColorTextureProcessor(tex.get(), nullptr, matrix, params);
         paint.setPorterDuffXPFactory(SkBlendMode::kSrc);
 
