@@ -92,7 +92,7 @@
       "gn",
       "gen",
       "[CUSTOM_/_B_WORK]/skia/out/Build-Ubuntu-GCC-x86_64-Release-ANGLE/Release",
-      "--args=cc=\"gcc\" cxx=\"g++\" is_debug=false"
+      "--args=cc=\"gcc\" cxx=\"g++\" is_debug=false skia_use_angle=true"
     ],
     "cwd": "[CUSTOM_/_B_WORK]/skia",
     "env": {
