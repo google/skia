@@ -92,14 +92,24 @@ SkScalar pinFx<SkShader::kClamp_TileMode>(SkScalar fx) {
 
 template<>
 SkScalar pinFx<SkShader::kRepeat_TileMode>(SkScalar fx) {
-    const SkScalar f = SkScalarFraction(fx);
-    return f < 0 ? f + 1 : f;
+    SkScalar f = SkScalarFraction(fx);
+    if (f < 0) {
+        f = SkTMin(f + 1, nextafterf(1, 0));
+    }
+    SkASSERT(f >= 0);
+    SkASSERT(f < 1.0f);
+    return f;
 }
 
 template<>
 SkScalar pinFx<SkShader::kMirror_TileMode>(SkScalar fx) {
-    const SkScalar f = SkScalarMod(fx, 2.0f);
-    return f < 0 ? f + 2 : f;
+    SkScalar f = SkScalarMod(fx, 2.0f);
+    if (f < 0) {
+        f = SkTMin(f + 2, nextafterf(2, 0));
+    }
+    SkASSERT(f >= 0);
+    SkASSERT(f < 2.0f);
+    return f;
 }
 
 // true when x is in [k1,k2), or [k2, k1) when the interval is reversed.
