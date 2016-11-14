@@ -43,6 +43,8 @@ GrSurface* GrSurfaceProxy::instantiate(GrTextureProvider* texProvider) {
         return nullptr;
     }
 
+    this->INHERITED::transferRefs();
+
 #ifdef SK_DEBUG
     if (kInvalidGpuMemorySize != this->getRawGpuMemorySize_debugOnly()) {
         SkASSERT(fTarget->gpuMemorySize() <= this->getRawGpuMemorySize_debugOnly());    
