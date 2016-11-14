@@ -40,6 +40,7 @@ var (
 		"Build-Mac-Clang-arm64-Debug-GN_iOS",
 		"Build-Ubuntu-GCC-x86_64-Release-GN",
 		"Build-Win-Clang-arm64-Release-GN_Android",
+		"Canary-Fuchsia-Ubuntu-Clang-x86_64-Release",
 		"Housekeeper-PerCommit-InfraTests",
 		"Perf-Android-Clang-AndroidOne-CPU-MT6582-arm-Debug-GN_Android",
 		"Perf-Android-Clang-AndroidOne-CPU-MT6582-arm-Release-GN_Android",
@@ -253,6 +254,33 @@ func recreateSKPs(b *specs.TasksCfgBuilder, name string) string {
 		Dimensions:   LINUX_GCE_DIMENSIONS,
 		ExtraArgs: []string{
 			"--workdir", "../../..", "swarm_RecreateSKPs",
+			fmt.Sprintf("repository=%s", specs.PLACEHOLDER_REPO),
+			fmt.Sprintf("buildername=%s", name),
+			"mastername=fake-master",
+			"buildnumber=2",
+			"slavename=fake-buildslave",
+			"nobuildbot=True",
+			fmt.Sprintf("swarm_out_dir=%s", specs.PLACEHOLDER_ISOLATED_OUTDIR),
+			fmt.Sprintf("revision=%s", specs.PLACEHOLDER_REVISION),
+			fmt.Sprintf("patch_storage=%s", specs.PLACEHOLDER_PATCH_STORAGE),
+			fmt.Sprintf("patch_issue=%s", specs.PLACEHOLDER_ISSUE),
+			fmt.Sprintf("patch_set=%s", specs.PLACEHOLDER_PATCHSET),
+		},
+		Isolate:  "compile_skia.isolate",
+		Priority: 0.8,
+	})
+	return name
+}
+
+// canaryFuchsia generates a canaryFuchsia task. Returns the name of the last
+// task in the generated chain of tasks, which the Job should add as a
+// dependency.
+func canaryFuchsia(b *specs.TasksCfgBuilder, name string) string {
+	b.MustAddTask(name, &specs.TaskSpec{
+		CipdPackages: []*specs.CipdPackage{},
+		Dimensions:   LINUX_GCE_DIMENSIONS,
+		ExtraArgs: []string{
+			"--workdir", "../../..", "canary_fuchsia",
 			fmt.Sprintf("repository=%s", specs.PLACEHOLDER_REPO),
 			fmt.Sprintf("buildername=%s", name),
 			"mastername=fake-master",
@@ -512,6 +540,11 @@ func process(b *specs.TasksCfgBuilder, name string) {
 		deps = append(deps, recreateSKPs(b, name))
 	}
 
+	// Canary Fuchsia
+	if strings.Contains(name, "Fuchsia") {
+		deps = append(deps, canaryFuchsia(b, name))
+	}
+
 	// CT bots.
 	if strings.Contains(name, "-CT_") {
 		deps = append(deps, ctSKPs(b, name))
@@ -534,7 +567,7 @@ func process(b *specs.TasksCfgBuilder, name string) {
 		glog.Fatal(err)
 	}
 	// The InfraTests bot doesn't need a compile task.
-	if parts["role"] != "Build" && name != "Housekeeper-PerCommit-InfraTests" {
+	if parts["role"] != "Build" && parts["role"] != "Canary" && name != "Housekeeper-PerCommit-InfraTests" {
 		compile(b, compileTaskName, compileTaskParts)
 	}
 

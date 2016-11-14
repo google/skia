@@ -42,6 +42,12 @@
         "Build-Win-Clang-arm64-Release-GN_Android"
       ]
     },
+    "Canary-Fuchsia-Ubuntu-Clang-x86_64-Release": {
+      "priority": 0.8,
+      "tasks": [
+        "Canary-Fuchsia-Ubuntu-Clang-x86_64-Release"
+      ]
+    },
     "Housekeeper-PerCommit-InfraTests": {
       "priority": 0.8,
       "tasks": [
@@ -317,6 +323,32 @@
         "swarm_compile",
         "repository=<(REPO)",
         "buildername=Build-Win-Clang-arm64-Release-GN_Android",
+        "mastername=fake-master",
+        "buildnumber=2",
+        "slavename=fake-buildslave",
+        "nobuildbot=True",
+        "swarm_out_dir=${ISOLATED_OUTDIR}",
+        "revision=<(REVISION)",
+        "patch_storage=<(PATCH_STORAGE)",
+        "patch_issue=<(ISSUE)",
+        "patch_set=<(PATCHSET)"
+      ],
+      "isolate": "compile_skia.isolate",
+      "priority": 0.8
+    },
+    "Canary-Fuchsia-Ubuntu-Clang-x86_64-Release": {
+      "dimensions": [
+        "cpu:x86-64-avx2",
+        "gpu:none",
+        "os:Ubuntu",
+        "pool:Skia"
+      ],
+      "extra_args": [
+        "--workdir",
+        "../../..",
+        "canary_fuchsia",
+        "repository=<(REPO)",
+        "buildername=Canary-Fuchsia-Ubuntu-Clang-x86_64-Release",
         "mastername=fake-master",
         "buildnumber=2",
         "slavename=fake-buildslave",
