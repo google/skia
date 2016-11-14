@@ -452,16 +452,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(c, reporter, ctxInfo) {
     }
 }
 
-static bool is_rendering_and_not_angle_gl(sk_gpu_test::GrContextFactory::ContextType type) {
-    if (type == sk_gpu_test::GrContextFactory::kANGLE_GL_ES3_ContextType ||
-        type == sk_gpu_test::GrContextFactory::kANGLE_GL_ES2_ContextType) {
-        return false;
-    }
-    return sk_gpu_test::GrContextFactory::IsRenderingContext(type);
-}
-
-DEF_GPUTEST_FOR_CONTEXTS(SkImage_newTextureImage, is_rendering_and_not_angle_gl, reporter,
-                         contextInfo) {
+DEF_GPUTEST_FOR_RENDERING_CONTEXTS(SkImage_newTextureImage, reporter, contextInfo) {
     GrContext* context = contextInfo.grContext();
     sk_gpu_test::TestContext* testContext = contextInfo.testContext();
 
@@ -893,7 +884,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(NewTextureFromPixmap, reporter, ctxInfo) {
     }
 }
 
-DEF_GPUTEST_FOR_CONTEXTS(DeferredTextureImage, is_rendering_and_not_angle_gl, reporter, ctxInfo) {
+DEF_GPUTEST_FOR_RENDERING_CONTEXTS(DeferredTextureImage, reporter, ctxInfo) {
     GrContext* context = ctxInfo.grContext();
     sk_gpu_test::TestContext* testContext = ctxInfo.testContext();
     sk_sp<GrContextThreadSafeProxy> proxy = context->threadSafeProxy();

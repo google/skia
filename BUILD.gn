@@ -11,6 +11,7 @@ if (!defined(is_skia_standalone)) {
 }
 
 declare_args() {
+  skia_use_angle = false
   skia_use_expat = true
   skia_use_fontconfig = is_linux
   skia_use_freetype = is_android || is_fuchsia || is_linux
@@ -754,7 +755,6 @@ if (skia_enable_tools) {
         "tools/gpu/GrTest.cpp",
         "tools/gpu/TestContext.cpp",
         "tools/gpu/gl/GLTestContext.cpp",
-        "tools/gpu/gl/angle/GLTestContext_angle.cpp",
         "tools/gpu/gl/command_buffer/GLTestContext_command_buffer.cpp",
         "tools/gpu/gl/debug/DebugGLTestContext.cpp",
         "tools/gpu/gl/debug/GrBufferObj.cpp",
@@ -774,7 +774,6 @@ if (skia_enable_tools) {
         libs += [ "OpenGLES.framework" ]
       } else if (is_linux) {
         sources += [ "tools/gpu/gl/glx/CreatePlatformGLTestContext_glx.cpp" ]
-        deps += [ "//third_party/angle2" ]
       } else if (is_mac) {
         sources += [ "tools/gpu/gl/mac/CreatePlatformGLTestContext_mac.cpp" ]
       } else if (is_win) {
@@ -783,9 +782,13 @@ if (skia_enable_tools) {
           "Gdi32.lib",
           "OpenGL32.lib",
         ]
-        deps += [ "//third_party/angle2" ]
       }
 
+      if (skia_use_angle) {
+        public_defines += [ "SK_ANGLE" ]
+        deps += [ "//third_party/angle2" ]
+        sources += [ "tools/gpu/gl/angle/GLTestContext_angle.cpp" ]
+      }
       if (skia_use_mesa) {
         public_defines += [ "SK_MESA" ]
         sources += [ "tools/gpu/gl/mesa/GLTestContext_mesa.cpp" ]
@@ -1100,6 +1103,9 @@ if (skia_enable_tools) {
         ":tool_utils",
         ":views",
       ]
+      if (skia_use_angle) {
+        deps += [ "//third_party/angle2" ]
+      }
       testonly = true
     }
   }
