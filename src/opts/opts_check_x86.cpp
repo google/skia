@@ -5,7 +5,6 @@
  * found in the LICENSE file.
  */
 
-#include "SkBitmapFilter_opts_SSE2.h"
 #include "SkBitmapProcState_opts_SSE2.h"
 #include "SkBitmapProcState_opts_SSSE3.h"
 #include "SkBitmapScaler.h"
@@ -32,16 +31,6 @@
    (and thus give an invalid instruction on Pentium3 on the code below).
    For example, only files named *_SSE2.cpp in this directory should be
    compiled with -msse2 or higher. */
-
-////////////////////////////////////////////////////////////////////////////////
-
-void SkBitmapScaler::PlatformConvolutionProcs(SkConvolutionProcs* procs) {
-    if (SkCpu::Supports(SkCpu::SSE2)) {
-        procs->fConvolveVertically = &convolveVertically_SSE2;
-        procs->fConvolve4RowsHorizontally = &convolve4RowsHorizontally_SSE2;
-        procs->fConvolveHorizontally = &convolveHorizontally_SSE2;
-    }
-}
 
 ////////////////////////////////////////////////////////////////////////////////
 
