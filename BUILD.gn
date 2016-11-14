@@ -1356,4 +1356,17 @@ if (skia_enable_tools) {
       testonly = true
     }
   }
+
+  if (skia_enable_gpu) {
+    executable("skslc") {
+      sources = [
+        "src/sksl/SkSLMain.cpp",
+      ]
+      deps = [
+        ":flags",
+        ":skia",
+      ]
+      testonly = true
+    }
+  }
 }
