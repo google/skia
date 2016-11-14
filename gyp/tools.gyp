@@ -485,7 +485,7 @@
       'target_name': 'visualize_color_gamut',
       'type': 'executable',
       'sources': [
-        '../tools/visualize_color_gamut.cpp',
+        '../tools/colorspaceinfo.cpp',
       ],
       'include_dirs': [
         '../src/core',
