@@ -20,6 +20,7 @@
 #include "SkBitmapCache.h"
 #include "SkGrPriv.h"
 #include "SkImage_Gpu.h"
+#include "SkImageCacherator.h"
 #include "SkMipMap.h"
 #include "SkPixelRef.h"
 
@@ -60,7 +61,8 @@ static SkImageInfo make_info(int w, int h, SkAlphaType at, sk_sp<SkColorSpace> c
     return SkImageInfo::MakeN32(w, h, at, std::move(colorSpace));
 }
 
-bool SkImage_Gpu::getROPixels(SkBitmap* dst, CachingHint chint) const {
+bool SkImage_Gpu::getROPixels(SkBitmap* dst, SkDestinationSurfaceColorMode,
+                              CachingHint chint) const {
     if (SkBitmapCache::Find(this->uniqueID(), dst)) {
         SkASSERT(dst->getGenerationID() == this->uniqueID());
         SkASSERT(dst->isImmutable());
@@ -479,38 +481,46 @@ size_t SkImage::getDeferredTextureImageData(const GrContextThreadSafeProxy& prox
     size_t pixelSize = 0;
     size_t ctSize = 0;
     int ctCount = 0;
-    if (!isScaled && this->peekPixels(&pixmap)) {
+    if (SkImageCacherator* cacher = as_IB(this)->peekCacherator()) {
+        // Generator backed image. Trigger correct kind of decode.
+        SkDestinationSurfaceColorMode decodeColorMode = dstColorSpace
+            ? SkDestinationSurfaceColorMode::kGammaAndColorSpaceAware
+            : SkDestinationSurfaceColorMode::kLegacy;
+        SkImageCacherator::CachedFormat cacheFormat = cacher->chooseCacheFormat(decodeColorMode,
+                                                                                proxy.fCaps.get());
+        info = cacher->buildCacheInfo(cacheFormat).makeWH(scaledSize.width(), scaledSize.height());
+        pixelSize = SkAlign8(SkAutoPixmapStorage::AllocSize(info, nullptr));
+        if (fillMode) {
+            pixmap.alloc(info);
+            if (!this->scalePixels(pixmap, scaleFilterQuality, SkImage::kDisallow_CachingHint)) {
+                return 0;
+            }
+            SkASSERT(!pixmap.ctable());
+        }
+    } else if (!isScaled && this->peekPixels(&pixmap)) {
+        // Raster image without scaling, so refer directly to the underlying pixmap
         info = pixmap.info();
         pixelSize = SkAlign8(pixmap.getSafeSize());
         if (pixmap.ctable()) {
             ctCount = pixmap.ctable()->count();
             ctSize = SkAlign8(pixmap.ctable()->count() * 4);
         }
-    } else {
-        // Here we're just using presence of data to know whether there is a codec behind the image.
-        // In the future we will access the cacherator and get the exact data that we want to (e.g.
-        // yuv planes) upload.
-        sk_sp<SkData> data(this->refEncoded());
-        if (!data && !this->peekPixels(nullptr)) {
-            return 0;
-        }
+    } else if (this->peekPixels(nullptr)) {
+        // Raster image with scaling, so allocate a new pixmap and scale
         info = as_IB(this)->onImageInfo().makeWH(scaledSize.width(), scaledSize.height());
         pixelSize = SkAlign8(SkAutoPixmapStorage::AllocSize(info, nullptr));
         if (fillMode) {
             pixmap.alloc(info);
-            if (isScaled) {
-                if (!this->scalePixels(pixmap, scaleFilterQuality,
-                                       SkImage::kDisallow_CachingHint)) {
-                    return 0;
-                }
-            } else {
-                if (!this->readPixels(pixmap, 0, 0, SkImage::kDisallow_CachingHint)) {
-                    return 0;
-                }
+            if (!this->scalePixels(pixmap, scaleFilterQuality, SkImage::kDisallow_CachingHint)) {
+                return 0;
             }
             SkASSERT(!pixmap.ctable());
         }
+    } else {
+        // Image is already texture backed or otherwise unsupported
+        return 0;
     }
+
     int mipMapLevelCount = 1;
     if (useMipMaps) {
         // SkMipMap only deals with the mipmap levels it generates, which does
