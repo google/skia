@@ -317,7 +317,7 @@ bool SkColor4Shader::Color4Context::onChooseBlitProcs(const SkImageInfo& info, B
 bool SkColorShader::onAppendStages(SkRasterPipeline* p,
                                    SkColorSpace* dst,
                                    SkFallbackAlloc* scratch) const {
-    auto color = scratch->make<SkPM4f>(SkPM4f_from_SkColor(fColor, dst));
+    auto color = scratch->copy(SkPM4f_from_SkColor(fColor, dst));
     p->append(SkRasterPipeline::move_src_dst);
     p->append(SkRasterPipeline::constant_color, color);
     // TODO: sRGB -> dst gamut correction if needed
@@ -328,7 +328,7 @@ bool SkColorShader::onAppendStages(SkRasterPipeline* p,
 bool SkColor4Shader::onAppendStages(SkRasterPipeline* p,
                                     SkColorSpace* dst,
                                     SkFallbackAlloc* scratch) const {
-    auto color = scratch->make<SkPM4f>(fColor4.premul());
+    auto color = scratch->copy(fColor4.premul());
     p->append(SkRasterPipeline::move_src_dst);
     p->append(SkRasterPipeline::constant_color, color);
     // TODO: fColorSpace -> dst gamut correction if needed
