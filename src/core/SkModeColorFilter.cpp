@@ -90,7 +90,7 @@ bool SkModeColorFilter::onAppendStages(SkRasterPipeline* p,
                                        SkColorSpace* dst,
                                        SkFallbackAlloc* scratch,
                                        bool shaderIsOpaque) const {
-    auto color = scratch->make<SkPM4f>(SkPM4f_from_SkColor(fColor, dst));
+    auto color = scratch->copy(SkPM4f_from_SkColor(fColor, dst));
 
     p->append(SkRasterPipeline::move_src_dst);
     p->append(SkRasterPipeline::constant_color, color);
