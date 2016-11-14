@@ -209,12 +209,6 @@ void sk_bitmap_set_pixel_color(sk_bitmap_t* cbitmap, int x, int y, sk_color_t co
     }
 }
 
-void sk_bitmap_set_pixels(sk_bitmap_t* cbitmap, void* pixels, sk_colortable_t* ct)
-{
-    SkBitmap* bmp = AsBitmap(cbitmap);
-    bmp->setPixels(pixels, AsColorTable(ctable));
-}
-
 bool sk_bitmap_copy(sk_bitmap_t* cbitmap, sk_bitmap_t* dst, sk_colortype_t ct)
 {
     return AsBitmap(cbitmap)->copyTo(AsBitmap(dst), (SkColorType)ct);
