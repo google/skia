@@ -246,7 +246,7 @@ def perf_steps(api):
 def RunSteps(api):
   api.core.setup()
   try:
-    api.flavor.install()
+    api.flavor.install_everything()
     perf_steps(api)
   finally:
     api.flavor.cleanup_steps()
