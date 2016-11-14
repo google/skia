@@ -10,7 +10,10 @@
 
 #include "SkColorPriv.h"
 #include "SkColorSpace.h"
+#include "SkColorSpace_Base.h"
+#include "SkFixedAlloc.h"
 #include "SkPM4f.h"
+#include "SkRasterPipeline.h"
 #include "SkSRGB.h"
 
 static inline Sk4f set_alpha(const Sk4f& px, float alpha) {
@@ -72,12 +75,52 @@ static inline float exact_srgb_to_linear(float srgb) {
     return linear;
 }
 
+static inline bool append_gamut_transform(SkRasterPipeline* p, SkFallbackAlloc* scratch,
+                                          SkColorSpace* src, SkColorSpace* dst) {
+    if (src == dst) { return true; }
+    if (!dst)       { return true; }   // Legacy modes intentionally ignore color gamut.
+    if (!src)       { return true; }   // A null src color space means linear gamma, dst gamut.
+
+    auto toXYZ = as_CSB(src)->  toXYZD50(),
+       fromXYZ = as_CSB(dst)->fromXYZD50();
+    if (!toXYZ || !fromXYZ) { return false; }  // Unsupported color space type.
+
+    if (as_CSB(src)->toXYZD50Hash() == as_CSB(dst)->toXYZD50Hash()) { return true; }
+
+    SkMatrix44 m44(*fromXYZ, *toXYZ);
+    struct matrix_3x4 { float vals[12]; } m34 = {{
+        m44.get(0,0), m44.get(1,0), m44.get(2,0),
+        m44.get(0,1), m44.get(1,1), m44.get(2,1),
+        m44.get(0,2), m44.get(1,2), m44.get(2,2),
+        m44.get(0,3), m44.get(1,3), m44.get(2,3),
+    }};
+
+    auto srcToDst = scratch->make<matrix_3x4>(m34);
+    p->append(SkRasterPipeline::matrix_3x4, srcToDst->vals);
+    // TODO: detect whether we can skip the clamps?
+    p->append(SkRasterPipeline::clamp_0);
+    p->append(SkRasterPipeline::clamp_a);
+    return true;
+}
+
 static inline SkPM4f SkPM4f_from_SkColor(SkColor color, SkColorSpace* dst) {
     SkColor4f color4f;
     if (dst) {
         // sRGB gamma, sRGB gamut.
         color4f = SkColor4f::FromColor(color);
-        // TODO: gamut transform if needed
+        void* color4f_ptr = &color4f;
+
+        char buf[256];
+        SkFixedAlloc fixed(buf, sizeof(buf));
+        SkFallbackAlloc scratch(&fixed);
+
+        SkRasterPipeline p;
+        p.append(SkRasterPipeline::constant_color, color4f_ptr);
+        append_gamut_transform(&p, &scratch,
+                               SkColorSpace::MakeNamed(SkColorSpace::kSRGB_Named).get(), dst);
+        p.append(SkRasterPipeline::store_f32, &color4f_ptr);
+
+        p.compile()(0,1);
     } else {
         // Linear gamma, dst gamut.
         swizzle_rb(SkNx_cast<float>(Sk4b::Load(&color)) * (1/255.0f)).store(&color4f);
