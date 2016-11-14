@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "eb935fd8_01737ccb",
+        "filename": "infra/bots/gen_tasks.go",
+        "patchSetId": 34
+      },
+      "lineNbr": 49,
+      "author": {
+        "id": 5015
+      },
+      "writtenOn": "2016-11-14T14:09:43Z",
+      "side": 1,
+      "message": "Nit: sort",
+      "range": {
+        "startLine": 49,
+        "startChar": 29,
+        "endLine": 49,
+        "endChar": 32
+      },
+      "revId": "a9ec9066097c6ad0a71d532b3136dac59e9a0eee",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "eb935fd8_c16994d6",
+        "filename": "tools/skpbench/skiaperf.py",
+        "patchSetId": 34
+      },
+      "lineNbr": 33,
+      "author": {
+        "id": 5015
+      },
+      "writtenOn": "2016-11-14T14:09:43Z",
+      "side": 1,
+      "message": "I don\u0027t fully understand why this is needed.",
+      "range": {
+        "startLine": 33,
+        "startChar": 6,
+        "endLine": 33,
+        "endChar": 14
+      },
+      "revId": "a9ec9066097c6ad0a71d532b3136dac59e9a0eee",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
