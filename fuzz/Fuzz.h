@@ -99,15 +99,15 @@ inline void Fuzz::nextRange(T* n, Min min, Max max) {
     if (0 == range) {
         return;
     } else {
-        if (*n < 0) {
-          *n = *n * -1;
-        }
-        if (*n < 0) {
-          // abs(INT_MIN) = INT_MIN, so we check this to avoid accidental negatives.
-          *n = min;
-          return;
-        }
-        *n = min + *n % range;
+        if (*n < 0) { // Handle negatives
+            if (*n != std::numeric_limits<T>::lowest()) {
+                *n *= -1;
+            }
+            else {
+                *n = std::numeric_limits<T>::max();
+            }
+         }
+        *n = min + (*n % range);
     }
 }
 
