@@ -154,7 +154,7 @@ public:
 
     static bool canHandleRect(const SkIRect& bounds) {
         // The width may overflow signed int, e.g., left = -2147483648, right = 1
-        unsigned width = bounds.width();
+        int64_t width = (int64_t)bounds.fRight - bounds.fLeft;
         if (width > MaskAdditiveBlitter::kMAX_WIDTH) {
             return false;
         }
