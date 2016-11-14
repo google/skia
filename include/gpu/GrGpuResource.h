@@ -93,8 +93,6 @@ protected:
     bool internalHasRef() const { return SkToBool(fRefCnt); }
 
 private:
-    friend class GrIORefProxy; // needs to forward on wrapped IO calls
-
     void addPendingRead() const {
         this->validate();
         ++fPendingReads;
