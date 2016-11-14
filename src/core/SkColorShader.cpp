@@ -320,7 +320,10 @@ bool SkColorShader::onAppendStages(SkRasterPipeline* p,
     auto color = scratch->make<SkPM4f>(SkPM4f_from_SkColor(fColor, dst));
     p->append(SkRasterPipeline::move_src_dst);
     p->append(SkRasterPipeline::constant_color, color);
-    // TODO: sRGB -> dst gamut correction if needed
+    if (!append_gamut_transform(p, scratch,
+                                SkColorSpace::MakeNamed(SkColorSpace::kSRGB_Named).get(), dst)) {
+        return false;
+    }
     p->append(SkRasterPipeline::srcin);
     return true;
 }
@@ -331,7 +334,9 @@ bool SkColor4Shader::onAppendStages(SkRasterPipeline* p,
     auto color = scratch->make<SkPM4f>(fColor4.premul());
     p->append(SkRasterPipeline::move_src_dst);
     p->append(SkRasterPipeline::constant_color, color);
-    // TODO: fColorSpace -> dst gamut correction if needed
+    if (!append_gamut_transform(p, scratch, fColorSpace.get(), dst)) {
+        return false;
+    }
     p->append(SkRasterPipeline::srcin);
     return true;
 }
