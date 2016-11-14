@@ -153,8 +153,7 @@ public:
     int getWidth() override { return fClipRect.width(); }
 
     static bool canHandleRect(const SkIRect& bounds) {
-        // The width may overflow signed int, e.g., left = -2147483648, right = 1
-        unsigned width = bounds.width();
+        int width = bounds.width();
         if (width > MaskAdditiveBlitter::kMAX_WIDTH) {
             return false;
         }
@@ -1251,6 +1250,22 @@ static int rect_overflows_short_shift(SkIRect rect, int shift) {
            overflows_short_shift(rect.fBottom, 2);
 }
 
+static bool fitsInsideLimit(const SkRect& r, SkScalar max) {
+    const SkScalar min = -max;
+    return  r.fLeft > min && r.fTop > min &&
+            r.fRight < max && r.fBottom < max;
+}
+
+static bool safeRoundOut(const SkRect& src, SkIRect* dst, int32_t maxInt) {
+    const SkScalar maxScalar = SkIntToScalar(maxInt);
+
+    if (fitsInsideLimit(src, maxScalar)) {
+        src.roundOut(dst);
+        return true;
+    }
+    return false;
+}
+
 void SkScan::AAAFillPath(const SkPath& path, const SkRegion& origClip, SkBlitter* blitter,
                          bool forceRLE) {
     if (origClip.isEmpty()) {
@@ -1264,7 +1279,9 @@ void SkScan::AAAFillPath(const SkPath& path, const SkRegion& origClip, SkBlitter
 
     const bool isInverse = path.isInverseFillType();
     SkIRect ir;
-    path.getBounds().roundOut(&ir);
+    if (!safeRoundOut(path.getBounds(), &ir, SK_MaxS32 >> 2)) {
+        return;
+    }
     if (ir.isEmpty()) {
         if (isInverse) {
             blitter->blitRegion(origClip);
