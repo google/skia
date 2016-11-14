@@ -88,7 +88,7 @@ public:
     const SkBitmap* onPeekBitmap() const override { return &fBitmap; }
 
     SkData* onRefEncoded(GrContext*) const override;
-    bool getROPixels(SkBitmap*, CachingHint) const override;
+    bool getROPixels(SkBitmap*, SkDestinationSurfaceColorMode, CachingHint) const override;
     GrTexture* asTextureRef(GrContext*, const GrTextureParams&,
                             SkDestinationSurfaceColorMode) const override;
     sk_sp<SkImage> onMakeSubset(const SkIRect&) const override;
@@ -192,7 +192,7 @@ SkData* SkImage_Raster::onRefEncoded(GrContext*) const {
     return nullptr;
 }
 
-bool SkImage_Raster::getROPixels(SkBitmap* dst, CachingHint) const {
+bool SkImage_Raster::getROPixels(SkBitmap* dst, SkDestinationSurfaceColorMode, CachingHint) const {
     *dst = fBitmap;
     return true;
 }

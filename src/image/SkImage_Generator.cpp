@@ -30,7 +30,7 @@ public:
     SkImageCacherator* peekCacherator() const override { return &fCache; }
     SkData* onRefEncoded(GrContext*) const override;
     sk_sp<SkImage> onMakeSubset(const SkIRect&) const override;
-    bool getROPixels(SkBitmap*, CachingHint) const override;
+    bool getROPixels(SkBitmap*, SkDestinationSurfaceColorMode, CachingHint) const override;
     GrTexture* asTextureRef(GrContext*, const GrTextureParams&,
                             SkDestinationSurfaceColorMode) const override;
     bool onIsLazyGenerated() const override { return true; }
@@ -45,9 +45,13 @@ private:
 
 bool SkImage_Generator::onReadPixels(const SkImageInfo& dstInfo, void* dstPixels, size_t dstRB,
                                      int srcX, int srcY, CachingHint chint) const {
+    SkDestinationSurfaceColorMode decodeColorMode = dstInfo.colorSpace()
+        ? SkDestinationSurfaceColorMode::kGammaAndColorSpaceAware
+        : SkDestinationSurfaceColorMode::kLegacy;
     SkBitmap bm;
     if (kDisallow_CachingHint == chint) {
-        if (fCache.lockAsBitmapOnlyIfAlreadyCached(&bm)) {
+        SkImageCacherator::CachedFormat cacheFormat = fCache.chooseCacheFormat(decodeColorMode);
+        if (fCache.lockAsBitmapOnlyIfAlreadyCached(&bm, cacheFormat)) {
             return bm.readPixels(dstInfo, dstPixels, dstRB, srcX, srcY);
         } else {
             // Try passing the caller's buffer directly down to the generator. If this fails we
@@ -60,7 +64,7 @@ bool SkImage_Generator::onReadPixels(const SkImageInfo& dstInfo, void* dstPixels
         }
     }
 
-    if (this->getROPixels(&bm, chint)) {
+    if (this->getROPixels(&bm, decodeColorMode, chint)) {
         return bm.readPixels(dstInfo, dstPixels, dstRB, srcX, srcY);
     }
     return false;
@@ -70,8 +74,9 @@ SkData* SkImage_Generator::onRefEncoded(GrContext* ctx) const {
     return fCache.refEncoded(ctx);
 }
 
-bool SkImage_Generator::getROPixels(SkBitmap* bitmap, CachingHint chint) const {
-    return fCache.lockAsBitmap(bitmap, this, chint);
+bool SkImage_Generator::getROPixels(SkBitmap* bitmap, SkDestinationSurfaceColorMode colorMode,
+                                    CachingHint chint) const {
+    return fCache.lockAsBitmap(bitmap, this, colorMode, chint);
 }
 
 GrTexture* SkImage_Generator::asTextureRef(GrContext* ctx, const GrTextureParams& params,

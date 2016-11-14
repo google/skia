@@ -36,13 +36,7 @@ SkData* SkCodecImageGenerator::onRefEncodedData(SK_REFENCODEDDATA_CTXPARAM) {
 
 bool SkCodecImageGenerator::onGetPixels(const SkImageInfo& info, void* pixels, size_t rowBytes,
         SkPMColor ctable[], int* ctableCount) {
-
-    // FIXME (msarett):
-    // We don't give the client the chance to request an SkColorSpace.  Until we improve
-    // the API, let's assume that they want legacy mode.
-    SkImageInfo decodeInfo = info.makeColorSpace(nullptr);
-
-    SkCodec::Result result = fCodec->getPixels(decodeInfo, pixels, rowBytes, nullptr, ctable,
+    SkCodec::Result result = fCodec->getPixels(info, pixels, rowBytes, nullptr, ctable,
             ctableCount);
     switch (result) {
         case SkCodec::kSuccess:
