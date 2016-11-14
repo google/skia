@@ -79,14 +79,27 @@ class Program {
     }
     // For each command line argument, convert xps to sequence of pngs.
     static void Main(string[] args) {
-        const double dpi = 72.0;
+        double dpi = 72.0;
         if (args.Length == 0) {
-            System.Console.WriteLine("usage:\n\txps_to_png [XPS_FILES]\n\n");
+            System.Console.WriteLine("usage:\n\txps_to_png [-dDPI] [XPS_FILES]\n\n");
             System.Environment.Exit(1);
         }
+        System.Collections.Generic.List<string> xpsFiles =
+                new System.Collections.Generic.List<string>();
         foreach (string arg in args) {
+            string flag = "-d";
+            if (arg.StartsWith(flag)) {
+                dpi = System.Convert.ToDouble(arg.Remove(0, flag.Length));
+            } else if (System.IO.File.Exists(arg)) {
+                xpsFiles.Add(arg);
+            } else {
+                System.Console.WriteLine("file missing: '" + arg + "'\n\n");
+                System.Environment.Exit(1);
+            }
+        }
+        foreach (string file in xpsFiles) {
             System.Threading.Thread t = new System.Threading.Thread(
-                    () => try_convert(dpi, arg, arg));
+                    () => try_convert(dpi, file, file));
             t.SetApartmentState(System.Threading.ApartmentState.STA);
             t.Start();
         }
