@@ -51,6 +51,24 @@
       "revId": "d32a9ce83d962b34b84bc1b63b6dd947d8758e72",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "503c1cf2_e1ef1d3e",
+        "filename": "fuzz/Fuzz.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 110,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2016-11-15T17:41:38Z",
+      "side": 1,
+      "message": "I\u0027m not super worried about overflow on the range.  I think it unlikely a developer would have a need to call fuzz-\u003enextRange(\u0026n, -2000000000, 2000000000) or something like it and cause the overflow.  \n\nIs it something we should guard against or hope our fuzz writers don\u0027t try to do something dangerous like that?",
+      "parentUuid": "503c1cf2_6144adba",
+      "revId": "d32a9ce83d962b34b84bc1b63b6dd947d8758e72",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
