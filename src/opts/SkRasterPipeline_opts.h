@@ -683,18 +683,18 @@ namespace SK_OPTS_NS {
                 SkNf v;  // Fastest to start uninitialized.
 
                 float dx[] = { 0,1,2,3,4,5,6,7 };
-                SkNf X = SkNf(x),
-                     Y = SkNf(y),
-                     DX = SkNf::Load(dx);
+                SkNf X = SkNf(x) + SkNf::Load(dx) + 0.5f,
+                     Y = SkNf(y) + 0.5f,
+                    _1 = SkNf(1);
 
                 while (n >= N) {
-                    fBodyStart(fBody, x, v,v,v,v, X,Y,v,v);
-                    X += DX;
+                    fBodyStart(fBody, x, v,v,v,v, X,Y,_1,v);
+                    X += (float)N;
                     x += N;
                     n -= N;
                 }
                 if (n) {
-                    fTailStart(fTail, x,n, v,v,v,v, X,Y,v,v);
+                    fTailStart(fTail, x,n, v,v,v,v, X,Y,_1,v);
                 }
             }
 
