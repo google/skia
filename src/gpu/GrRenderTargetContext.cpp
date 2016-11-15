@@ -266,7 +266,7 @@ void GrRenderTargetContext::internalClear(const GrFixedClip& clip,
     } else if (isFull) {
         this->getOpList()->fullClear(this->accessRenderTarget(), color);
     } else {
-        sk_sp<GrBatch> batch(GrClearBatch::Make(clip, color, this->accessRenderTarget()));
+        sk_sp<GrBatch> batch(GrClearBatch::Make(clip, color, this->accessRenderTargetProxy()));
         if (!batch) {
             return;
         }

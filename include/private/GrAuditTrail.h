@@ -10,6 +10,7 @@
 
 #include "GrConfig.h"
 #include "GrGpuResource.h"
+#include "GrSurfaceProxy.h"
 #include "SkRect.h"
 #include "SkString.h"
 #include "SkTArray.h"
@@ -108,14 +109,14 @@ public:
     // We could just return our internal bookkeeping struct if copying the data out becomes
     // a performance issue, but until then its nice to decouple
     struct BatchInfo {
-        SkRect                  fBounds;
+        SkRect                   fBounds;
         // TODO: switch over to GrSurfaceProxy::UniqueID
-        GrGpuResource::UniqueID fRenderTargetUniqueID;
+        GrSurfaceProxy::UniqueID fRenderTargetUniqueID;
         struct Batch {
             int fClientID;
             SkRect fBounds;
         };
-        SkTArray<Batch>                 fBatches;
+        SkTArray<Batch>          fBatches;
     };
 
     void getBoundsByClientID(SkTArray<BatchInfo>* outInfo, int clientID);
@@ -141,11 +142,11 @@ private:
     typedef SkTArray<Batch*> Batches;
 
     struct BatchNode {
-        BatchNode(const GrGpuResource::UniqueID& id) : fRenderTargetUniqueID(id) { }
+        BatchNode(const GrSurfaceProxy::UniqueID& id) : fRenderTargetUniqueID(id) { }
         SkString toJson() const;
         SkRect                         fBounds;
         Batches                        fChildren;
-        const GrGpuResource::UniqueID  fRenderTargetUniqueID;
+        const GrSurfaceProxy::UniqueID fRenderTargetUniqueID;
     };
     typedef SkTArray<std::unique_ptr<BatchNode>, true> BatchList;
 

@@ -78,7 +78,7 @@ void GrTextureOpList::reset() {
 
 ////////////////////////////////////////////////////////////////////////////////
 
-bool GrTextureOpList::copySurface(GrSurface* dst,
+bool GrTextureOpList::copySurface(GrSurfaceProxy* dst,
                                   GrSurface* src,
                                   const SkIRect& srcRect,
                                   const SkIPoint& dstPoint) {
