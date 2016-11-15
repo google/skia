@@ -17,13 +17,13 @@ public:
         : fXOffset{X(offset)}
         , fYOffset{Y(offset)} { }
 
-    void processPoints(Sk4s* xs, Sk4s* ys) {
+    void processPoints(Sk4s* xs, Sk4s* ys) const {
         *xs = *xs + fXOffset;
         *ys = *ys + fYOffset;
     }
 
     template <typename Next>
-    bool maybeProcessSpan(Span span, Next* next) {
+    bool maybeProcessSpan(Span span, Next* next) const {
         SkPoint start; SkScalar length; int count;
         std::tie(start, length, count) = span;
         next->pointSpan(Span{start + SkPoint{fXOffset, fYOffset}, length, count});
@@ -39,13 +39,13 @@ public:
     ScaleMatrixStrategy(SkVector offset, SkVector scale)
         : fXOffset{X(offset)}, fYOffset{Y(offset)}
         ,  fXScale{X(scale)},   fYScale{Y(scale)} { }
-    void processPoints(Sk4s* xs, Sk4s* ys) {
+    void processPoints(Sk4s* xs, Sk4s* ys) const {
         *xs = *xs * fXScale + fXOffset;
         *ys = *ys * fYScale + fYOffset;
     }
 
     template <typename Next>
-    bool maybeProcessSpan(Span span, Next* next) {
+    bool maybeProcessSpan(Span span, Next* next) const {
         SkPoint start; SkScalar length; int count;
         std::tie(start, length, count) = span;
         SkPoint newStart =
@@ -66,7 +66,7 @@ public:
         : fXOffset{X(offset)}, fYOffset{Y(offset)}
         , fXScale{X(scale)},   fYScale{Y(scale)}
         , fXSkew{X(skew)},     fYSkew{Y(skew)} { }
-    void processPoints(Sk4s* xs, Sk4s* ys) {
+    void processPoints(Sk4s* xs, Sk4s* ys) const {
         Sk4s newXs = fXScale * *xs +  fXSkew * *ys + fXOffset;
         Sk4s newYs =  fYSkew * *xs + fYScale * *ys + fYOffset;
 
@@ -75,7 +75,7 @@ public:
     }
 
     template <typename Next>
-    bool maybeProcessSpan(Span span, Next* next) {
+    bool maybeProcessSpan(Span span, Next* next) const {
         return false;
     }
 
@@ -92,7 +92,7 @@ public:
         : fXOffset{X(offset)}, fYOffset{Y(offset)}, fZOffset{zOffset}
         , fXScale{X(scale)},   fYScale{Y(scale)}
         , fXSkew{X(skew)},     fYSkew{Y(skew)}, fZXSkew{X(zSkew)}, fZYSkew{Y(zSkew)} { }
-    void processPoints(Sk4s* xs, Sk4s* ys) {
+    void processPoints(Sk4s* xs, Sk4s* ys) const {
         Sk4s newXs = fXScale * *xs +  fXSkew * *ys + fXOffset;
         Sk4s newYs =  fYSkew * *xs + fYScale * *ys + fYOffset;
         Sk4s newZs =  fZXSkew * *xs + fZYSkew * *ys + fZOffset;
@@ -102,7 +102,7 @@ public:
     }
 
     template <typename Next>
-    bool maybeProcessSpan(Span span, Next* next) {
+    bool maybeProcessSpan(Span span, Next* next) const {
         return false;
     }
 

@@ -88,9 +88,9 @@ public:
         : fNext{next}
         , fStrategy{std::forward<Args>(args)...}{ }
 
-    MatrixStage(Next* next, const MatrixStage& stage)
+    MatrixStage(Next* next, MatrixStage* stage)
         : fNext{next}
-        , fStrategy{stage.fStrategy} { }
+        , fStrategy{stage->fStrategy} { }
 
     void SK_VECTORCALL pointListFew(int n, Sk4s xs, Sk4s ys) override {
         fStrategy.processPoints(&xs, &ys);
@@ -127,39 +127,6 @@ using AffineMatrix = MatrixStage<AffineMatrixStrategy, Next>;
 template <typename Next = SkLinearBitmapPipeline::PointProcessorInterface>
 using PerspectiveMatrix = MatrixStage<PerspectiveMatrixStrategy, Next>;
 
-
-static SkLinearBitmapPipeline::PointProcessorInterface* choose_matrix(
-    SkLinearBitmapPipeline::PointProcessorInterface* next,
-    const SkMatrix& inverse,
-    SkLinearBitmapPipeline::MatrixStage* matrixProc) {
-    if (inverse.hasPerspective()) {
-        matrixProc->initStage<PerspectiveMatrix<>>(
-            next,
-            SkVector{inverse.getTranslateX(), inverse.getTranslateY()},
-            SkVector{inverse.getScaleX(), inverse.getScaleY()},
-            SkVector{inverse.getSkewX(), inverse.getSkewY()},
-            SkVector{inverse.getPerspX(), inverse.getPerspY()},
-            inverse.get(SkMatrix::kMPersp2));
-    } else if (inverse.getSkewX() != 0.0f || inverse.getSkewY() != 0.0f) {
-        matrixProc->initStage<AffineMatrix<>>(
-            next,
-            SkVector{inverse.getTranslateX(), inverse.getTranslateY()},
-            SkVector{inverse.getScaleX(), inverse.getScaleY()},
-            SkVector{inverse.getSkewX(), inverse.getSkewY()});
-    } else if (inverse.getScaleX() != 1.0f || inverse.getScaleY() != 1.0f) {
-        matrixProc->initStage<ScaleMatrix<>>(
-            next,
-            SkVector{inverse.getTranslateX(), inverse.getTranslateY()},
-            SkVector{inverse.getScaleX(), inverse.getScaleY()});
-    } else if (inverse.getTranslateX() != 0.0f || inverse.getTranslateY() != 0.0f) {
-        matrixProc->initStage<TranslateMatrix<>>(
-            next,
-            SkVector{inverse.getTranslateX(), inverse.getTranslateY()});
-    } else {
-        return next;
-    }
-    return matrixProc->get();
-}
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 // Tile Stage
@@ -658,7 +625,7 @@ SkLinearBitmapPipeline::SkLinearBitmapPipeline(
         srcPixmap, paintColor, &fSampleStage, &fAccessor);
     auto tilerStage   = choose_tiler(samplerStage, dimensions, xTile, yTile,
                                      filterQuality, dx, &fTileStage);
-    fFirstStage       = choose_matrix(tilerStage, adjustedInverse, &fMatrixStage);
+    fFirstStage       = ChooseMatrix(tilerStage, adjustedInverse);
     fLastStage        = blenderStage;
 }
 
@@ -720,8 +687,7 @@ SkLinearBitmapPipeline::SkLinearBitmapPipeline(
     auto sampleStage = fSampleStage.get();
     auto tilerStage = pipeline.fTileStage.cloneStageTo(sampleStage, &fTileStage);
     tilerStage = (tilerStage != nullptr) ? tilerStage : sampleStage;
-    auto matrixStage = pipeline.fMatrixStage.cloneStageTo(tilerStage, &fMatrixStage);
-    matrixStage = (matrixStage != nullptr) ? matrixStage : tilerStage;
+    auto matrixStage = pipeline.fMatrixStageCloner(tilerStage, &fMemory);
     fFirstStage = matrixStage;
 }
 
@@ -739,4 +705,57 @@ void SkLinearBitmapPipeline::blitSpan(int x, int y, void* dst, int count) {
     // Since the code samples at pixel centers, length is the distance from the center of the
     // first pixel to the center of the last pixel. This implies that length is count-1.
     fFirstStage->pointSpan(Span{{x + 0.5f, y + 0.5f}, count - 1.0f, count});
+}
+
+SkLinearBitmapPipeline::PointProcessorInterface*
+SkLinearBitmapPipeline::ChooseMatrix(PointProcessorInterface* next, const SkMatrix& inverse) {
+    if (inverse.hasPerspective()) {
+        auto matrixStage = fMemory.createT<PerspectiveMatrix<>>(
+            next,
+            SkVector{inverse.getTranslateX(), inverse.getTranslateY()},
+            SkVector{inverse.getScaleX(), inverse.getScaleY()},
+            SkVector{inverse.getSkewX(), inverse.getSkewY()},
+            SkVector{inverse.getPerspX(), inverse.getPerspY()},
+            inverse.get(SkMatrix::kMPersp2));
+        fMatrixStageCloner =
+            [matrixStage](PointProcessorInterface* cloneNext, MemoryAllocator* memory) {
+                return memory->createT<PerspectiveMatrix<>>(cloneNext, matrixStage);
+            };
+        return matrixStage;
+    } else if (inverse.getSkewX() != 0.0f || inverse.getSkewY() != 0.0f) {
+        auto matrixStage = fMemory.createT<AffineMatrix<>>(
+            next,
+            SkVector{inverse.getTranslateX(), inverse.getTranslateY()},
+            SkVector{inverse.getScaleX(), inverse.getScaleY()},
+            SkVector{inverse.getSkewX(), inverse.getSkewY()});
+        fMatrixStageCloner =
+            [matrixStage](PointProcessorInterface* cloneNext, MemoryAllocator* memory) {
+                return memory->createT<AffineMatrix<>>(cloneNext, matrixStage);
+            };
+        return matrixStage;
+    } else if (inverse.getScaleX() != 1.0f || inverse.getScaleY() != 1.0f) {
+        auto matrixStage = fMemory.createT<ScaleMatrix<>>(
+            next,
+            SkVector{inverse.getTranslateX(), inverse.getTranslateY()},
+            SkVector{inverse.getScaleX(), inverse.getScaleY()});
+        fMatrixStageCloner =
+            [matrixStage](PointProcessorInterface* cloneNext, MemoryAllocator* memory) {
+                return memory->createT<ScaleMatrix<>>(cloneNext, matrixStage);
+            };
+        return matrixStage;
+    } else if (inverse.getTranslateX() != 0.0f || inverse.getTranslateY() != 0.0f) {
+        auto matrixStage = fMemory.createT<TranslateMatrix<>>(
+            next,
+            SkVector{inverse.getTranslateX(), inverse.getTranslateY()});
+        fMatrixStageCloner =
+            [matrixStage](PointProcessorInterface* cloneNext, MemoryAllocator* memory) {
+                return memory->createT<TranslateMatrix<>>(cloneNext, matrixStage);
+            };
+        return matrixStage;
+    } else {
+        fMatrixStageCloner = [](PointProcessorInterface* cloneNext, MemoryAllocator* memory) {
+            return cloneNext;
+        };
+        return next;
+    }
 }
