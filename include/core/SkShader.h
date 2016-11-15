@@ -475,7 +475,8 @@ public:
     SK_DEFINE_FLATTENABLE_TYPE(SkShader)
     SK_DECLARE_FLATTENABLE_REGISTRAR_GROUP()
 
-    bool appendStages(SkRasterPipeline*, SkColorSpace*, SkFallbackAlloc*) const;
+    bool appendStages(SkRasterPipeline*, SkColorSpace*, SkFallbackAlloc*,
+                      const SkMatrix& ctm) const;
 
 protected:
     void flatten(SkWriteBuffer&) const override;
@@ -508,7 +509,8 @@ protected:
         return nullptr;
     }
 
-    virtual bool onAppendStages(SkRasterPipeline*, SkColorSpace*, SkFallbackAlloc*) const {
+    virtual bool onAppendStages(SkRasterPipeline*, SkColorSpace*, SkFallbackAlloc*,
+                                const SkMatrix& ctm) const {
         return false;
     }
 

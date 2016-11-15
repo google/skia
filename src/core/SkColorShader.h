@@ -65,7 +65,8 @@ protected:
         *lum = fColor;
         return true;
     }
-    bool onAppendStages(SkRasterPipeline*, SkColorSpace*, SkFallbackAlloc*) const override;
+    bool onAppendStages(SkRasterPipeline*, SkColorSpace*, SkFallbackAlloc*,
+                        const SkMatrix& ctm) const override;
 
 private:
     SkColor fColor;
@@ -120,7 +121,8 @@ protected:
         *lum = fCachedByteColor;
         return true;
     }
-    bool onAppendStages(SkRasterPipeline*, SkColorSpace*, SkFallbackAlloc*) const override;
+    bool onAppendStages(SkRasterPipeline*, SkColorSpace*, SkFallbackAlloc*,
+                        const SkMatrix& ctm) const override;
 
 private:
     sk_sp<SkColorSpace> fColorSpace;
