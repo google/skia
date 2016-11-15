@@ -41,28 +41,28 @@ static void show_image(SkCanvas* canvas, int width, int height, SkColor colors[2
                        ImageMakerProc proc) {
     sk_sp<SkImage> image(proc(width, height, colors));
 
-    SkPaint paint;
-    SkRect r;
-    SkIRect ir;
+    SkPaint borderPaint;
 
-    paint.setStyle(SkPaint::kStroke_Style);
+    borderPaint.setStyle(SkPaint::kStroke_Style);
 
-    ir.set(0, 0, 128, 128);
-    r.set(ir);
+    SkRect dstRect = SkRect::MakeWH(128.f, 128.f);
 
     canvas->save();
-    canvas->clipRect(r);
+    canvas->clipRect(dstRect);
     canvas->drawImage(image, 0, 0, nullptr);
     canvas->restore();
-    canvas->drawRect(r, paint);
+    canvas->drawRect(dstRect, borderPaint);
 
-    r.offset(SkIntToScalar(150), 0);
-    canvas->drawImageRect(image, ir, r, nullptr);
-    canvas->drawRect(r, paint);
+    dstRect.offset(SkIntToScalar(150), 0);
+    int hw = width / 2;
+    int hh = height / 2;
+    SkIRect subset = SkIRect::MakeLTRB(hw - 64, hh - 32, hw + 64, hh + 32);
+    canvas->drawImageRect(image, subset, dstRect, nullptr);
+    canvas->drawRect(dstRect, borderPaint);
 
-    r.offset(SkIntToScalar(150), 0);
-    canvas->drawImageRect(image, r, nullptr);
-    canvas->drawRect(r, paint);
+    dstRect.offset(SkIntToScalar(150), 0);
+    canvas->drawImageRect(image, dstRect, nullptr);
+    canvas->drawRect(dstRect, borderPaint);
 }
 
 class VeryLargeBitmapGM : public skiagm::GM {
