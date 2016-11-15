@@ -25,6 +25,24 @@
     },
     {
       "key": {
+        "uuid": "503c1cf2_5226957e",
+        "filename": "src/sksl/SkSLParser.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 565,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2016-11-15T20:27:08Z",
+      "side": 1,
+      "message": "Done. I also could rewrite this as:\n\n            if (!ASTLayout::ReadFormat(t.fText, \u0026format)) {\n                this-\u003eerror(t.fPosition, (\"\u0027\" + t.fText + \n                                          \"\u0027 is not a valid layout qualifier\").c_str());\n            }\n\nif you prefer that.",
+      "parentUuid": "503c1cf2_527695f8",
+      "revId": "51d5a778ce17fd0e32a921229102ecab0158e36d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "503c1cf2_97ddaf30",
         "filename": "src/sksl/ir/SkSLLayout.h",
         "patchSetId": 4
