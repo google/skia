@@ -837,12 +837,19 @@ SkOpSpanBase* SkOpSegment::markAndChaseDone(SkOpSpanBase* start, SkOpSpanBase* e
     markDone(minSpan);
     SkOpSpanBase* last = nullptr;
     SkOpSegment* other = this;
+    SkOpSpan* priorDone = nullptr;
+    SkOpSpan* lastDone = nullptr;
     while ((other = other->nextChase(&start, &step, &minSpan, &last))) {
         if (other->done()) {
             SkASSERT(!last);
             break;
         }
+        if (lastDone == minSpan || priorDone == minSpan) {
+            return nullptr;
+        }
         other->markDone(minSpan);
+        priorDone = lastDone;
+        lastDone = minSpan;
     }
     return last;
 }
