@@ -744,23 +744,6 @@ sk_sp<GrRenderTargetContext> GrContext::makeRenderTargetContextWithFallback(
                                          sampleCnt, origin, surfaceProps, budgeted);
 }
 
-sk_sp<GrRenderTargetContext> GrContext::makeDeferredRenderTargetContextWithFallback(
-                                                                 SkBackingFit fit,
-                                                                 int width, int height,
-                                                                 GrPixelConfig config,
-                                                                 sk_sp<SkColorSpace> colorSpace,
-                                                                 int sampleCnt,
-                                                                 GrSurfaceOrigin origin,
-                                                                 const SkSurfaceProps* surfaceProps,
-                                                                 SkBudgeted budgeted) {
-    if (!this->caps()->isConfigRenderable(config, sampleCnt > 0)) {
-        config = GrPixelConfigFallback(config);
-    }
-
-    return this->makeDeferredRenderTargetContext(fit, width, height, config, std::move(colorSpace),
-                                                 sampleCnt, origin, surfaceProps, budgeted);
-}
-
 sk_sp<GrRenderTargetContext> GrContext::makeRenderTargetContext(SkBackingFit fit,
                                                                 int width, int height,
                                                                 GrPixelConfig config,

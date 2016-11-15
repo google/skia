@@ -197,8 +197,7 @@ public:
 
     // Create a new render target context as above but have it backed by a deferred-style
     // GrRenderTargetProxy rather than one that is backed by an actual GrRenderTarget
-    sk_sp<GrRenderTargetContext> makeDeferredRenderTargetContext(
-                                                 SkBackingFit fit, 
+    sk_sp<GrRenderTargetContext> makeDeferredRenderTargetContext(SkBackingFit fit, 
                                                  int width, int height,
                                                  GrPixelConfig config,
                                                  sk_sp<SkColorSpace> colorSpace,
@@ -213,18 +212,6 @@ public:
      * SRGB-ness will be preserved.
      */
     sk_sp<GrRenderTargetContext> makeRenderTargetContextWithFallback(
-                                                 SkBackingFit fit,
-                                                 int width, int height,
-                                                 GrPixelConfig config,
-                                                 sk_sp<SkColorSpace> colorSpace,
-                                                 int sampleCnt = 0,
-                                                 GrSurfaceOrigin origin = kDefault_GrSurfaceOrigin,
-                                                 const SkSurfaceProps* surfaceProps = nullptr,
-                                                 SkBudgeted budgeted = SkBudgeted::kYes);
-
-    // Create a new render target context as above but have it backed by a deferred-style
-    // GrRenderTargetProxy rather than one that is backed by an actual GrRenderTarget
-    sk_sp<GrRenderTargetContext> makeDeferredRenderTargetContextWithFallback(
                                                  SkBackingFit fit,
                                                  int width, int height,
                                                  GrPixelConfig config,

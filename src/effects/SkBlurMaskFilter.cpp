@@ -1122,7 +1122,7 @@ static sk_sp<GrTexture> find_or_create_rrect_blur_mask(GrContext* context,
     sk_sp<GrTexture> mask(context->textureProvider()->findAndRefTextureByUniqueKey(key));
     if (!mask) {
         // TODO: this could be approx but the texture coords will need to be updated
-        sk_sp<GrRenderTargetContext> rtc(context->makeDeferredRenderTargetContextWithFallback(
+        sk_sp<GrRenderTargetContext> rtc(context->makeRenderTargetContextWithFallback(
             SkBackingFit::kExact, size.fWidth, size.fHeight, kAlpha_8_GrPixelConfig, nullptr));
         if (!rtc) {
             return nullptr;
@@ -1139,8 +1139,8 @@ static sk_sp<GrTexture> find_or_create_rrect_blur_mask(GrContext* context,
                                                                        srcTexture.get(),
                                                                        nullptr,
                                                                        SkIRect::MakeWH(
-                                                                                    size.fWidth,
-                                                                                    size.fHeight),
+                                                                           size.fWidth,
+                                                                           size.fHeight),
                                                                        nullptr,
                                                                        xformedSigma, xformedSigma,
                                                                        SkBackingFit::kExact));

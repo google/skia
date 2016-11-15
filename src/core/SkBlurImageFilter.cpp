@@ -15,7 +15,6 @@
 
 #if SK_SUPPORT_GPU
 #include "GrContext.h"
-#include "GrTextureProxy.h"
 #include "SkGr.h"
 #endif
 
@@ -111,8 +110,8 @@ static void get_box3_params(SkScalar s, int *kernelSize, int* kernelSize3, int *
 }
 
 sk_sp<SkSpecialImage> SkBlurImageFilterImpl::onFilterImage(SkSpecialImage* source,
-                                                           const Context& ctx,
-                                                           SkIPoint* offset) const {
+                                                       const Context& ctx,
+                                                       SkIPoint* offset) const {
     SkIPoint inputOffset = SkIPoint::Make(0, 0);
 
     sk_sp<SkSpecialImage> input(this->filterInput(0, source, ctx, &inputOffset));
@@ -166,11 +165,9 @@ sk_sp<SkSpecialImage> SkBlurImageFilterImpl::onFilterImage(SkSpecialImage* sourc
         }
 
         // TODO: Get the colorSpace from the renderTargetContext (once it has one)
-        return SkSpecialImage::MakeDeferredFromGpu(
-                                           context,
-                                           SkIRect::MakeWH(dstBounds.width(), dstBounds.height()),
+        return SkSpecialImage::MakeFromGpu(SkIRect::MakeWH(dstBounds.width(), dstBounds.height()),
                                            kNeedNewImageUniqueID_SpecialImage,
-                                           sk_ref_sp(renderTargetContext->asDeferredTexture()),
+                                           renderTargetContext->asTexture(),
                                            sk_ref_sp(input->getColorSpace()), &source->props());
     }
 #endif
