@@ -1,0 +1,119 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "503c1cf2_0b86a0fb",
+        "filename": "src/core/SkFixedAlloc.h",
+        "patchSetId": 10
+      },
+      "lineNbr": 27,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2016-11-15T15:11:01Z",
+      "side": 1,
+      "message": "Change name to reflect POD restriction.",
+      "range": {
+        "startLine": 27,
+        "startChar": 6,
+        "endLine": 27,
+        "endChar": 18
+      },
+      "revId": "ce03ec0e0f56109e8547e2dba7be2a9b2f85206b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "503c1cf2_cba2f87c",
+        "filename": "src/core/SkFixedAlloc.h",
+        "patchSetId": 10
+      },
+      "lineNbr": 37,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2016-11-15T15:11:01Z",
+      "side": 1,
+      "message": "Can you swap the parameters? The c++17 standard has operator new (size, alignment). It would be nice to keep everything the same.",
+      "range": {
+        "startLine": 37,
+        "startChar": 35,
+        "endLine": 37,
+        "endChar": 36
+      },
+      "revId": "ce03ec0e0f56109e8547e2dba7be2a9b2f85206b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "503c1cf2_2bce0446",
+        "filename": "src/core/SkFixedAlloc.h",
+        "patchSetId": 10
+      },
+      "lineNbr": 72,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2016-11-15T15:11:01Z",
+      "side": 1,
+      "message": "Since these are pod, do you need to maintain the reverse ordering. Can\u0027t you delete them in any order you want? I don\u0027t think you need this guard to maintain ordering.",
+      "range": {
+        "startLine": 72,
+        "startChar": 24,
+        "endLine": 72,
+        "endChar": 29
+      },
+      "revId": "ce03ec0e0f56109e8547e2dba7be2a9b2f85206b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "503c1cf2_4bfb8858",
+        "filename": "src/core/SkFixedAlloc.h",
+        "patchSetId": 10
+      },
+      "lineNbr": 85,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2016-11-15T15:11:01Z",
+      "side": 1,
+      "message": "Can this just be return new (ptr) T(blah); instead of using the cast?",
+      "range": {
+        "startLine": 85,
+        "startChar": 25,
+        "endLine": 85,
+        "endChar": 32
+      },
+      "revId": "ce03ec0e0f56109e8547e2dba7be2a9b2f85206b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "503c1cf2_6ba3ec4e",
+        "filename": "tests/FixedAllocTest.cpp",
+        "patchSetId": 10
+      },
+      "lineNbr": 70,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2016-11-15T15:11:01Z",
+      "side": 1,
+      "message": "... to each copy() call.",
+      "range": {
+        "startLine": 70,
+        "startChar": 53,
+        "endLine": 70,
+        "endChar": 57
+      },
+      "revId": "ce03ec0e0f56109e8547e2dba7be2a9b2f85206b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
