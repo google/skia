@@ -72,6 +72,24 @@
     },
     {
       "key": {
+        "uuid": "503c1cf2_f18886b3",
+        "filename": "src/sksl/SkSLCompiler.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 472,
+      "author": {
+        "id": 5640
+      },
+      "writtenOn": "2016-11-15T22:05:52Z",
+      "side": 1,
+      "message": "I considered that, but there\u0027s at least a remote possibility that someone could run into a situation where the automated transformation isn\u0027t sufficient / desired for some reason. Brian, thoughts?",
+      "parentUuid": "503c1cf2_ed8d4c54",
+      "revId": "ffd24800bcb7ce4de64c12680ff8ba394eec90fa",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "503c1cf2_b12a7e8e",
         "filename": "src/sksl/SkSLCompiler.cpp",
         "patchSetId": 6
@@ -106,6 +124,24 @@
         "endLine": 1347,
         "endChar": 35
       },
+      "revId": "ffd24800bcb7ce4de64c12680ff8ba394eec90fa",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "503c1cf2_b11c3e53",
+        "filename": "src/sksl/SkSLIRGenerator.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 1347,
+      "author": {
+        "id": 5640
+      },
+      "writtenOn": "2016-11-15T22:05:52Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "503c1cf2_d1f0e273",
       "revId": "ffd24800bcb7ce4de64c12680ff8ba394eec90fa",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
