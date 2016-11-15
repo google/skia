@@ -223,7 +223,10 @@ bool OpDebug(const SkPath& one, const SkPath& two, SkPathOp op, SkPath* result
     SkOpGlobalState globalState(contourList, &allocator
             SkDEBUGPARAMS(skipAssert) SkDEBUGPARAMS(testName));
     SkOpCoincidence coincidence(&globalState);
-#ifdef SK_DEBUG
+#if DEBUG_DUMP_VERIFY
+#ifndef SK_DEBUG
+    const char* testName = "release";
+#endif
     if (SkPathOpsDebug::gDumpOp) {
         SkPathOpsDebug::DumpOp(one, two, op, testName);
     }
@@ -316,7 +319,7 @@ bool OpDebug(const SkPath& one, const SkPath& two, SkPathOp op, SkPath* result
 }
 
 bool Op(const SkPath& one, const SkPath& two, SkPathOp op, SkPath* result) {
-#ifdef SK_DEBUG
+#if DEBUG_DUMP_VERIFY
     if (SkPathOpsDebug::gVerifyOp) {
         if (!OpDebug(one, two, op, result  SkDEBUGPARAMS(false) SkDEBUGPARAMS(nullptr))) {
             SkPathOpsDebug::ReportOpFail(one, two, op);

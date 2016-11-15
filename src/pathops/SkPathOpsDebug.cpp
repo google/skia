@@ -13,7 +13,7 @@
 #include "SkPathOpsDebug.h"
 #include "SkString.h"
 
-#ifdef SK_DEBUG
+#if DEBUG_DUMP_VERIFY
 bool SkPathOpsDebug::gDumpOp;  // set to true to write op to file before a crash
 bool SkPathOpsDebug::gVerifyOp;  // set to true to compare result against regions
 #endif
@@ -2906,7 +2906,7 @@ void SkPathOpsDebug::ShowOnePath(const SkPath& path, const char* name, bool incl
     showPathContours(iter, name);
 }
 
-#ifdef SK_DEBUG
+#if DEBUG_DUMP_VERIFY
 #include "SkData.h"
 #include "SkStream.h"
 

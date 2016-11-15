@@ -137,7 +137,7 @@ static bool should_run(const char* testName, bool isGPUTest) {
 
 int test_main();
 int test_main() {
-#ifdef SK_DEBUG
+#if DEBUG_DUMP_VERIFY
     SkPathOpsDebug::gDumpOp = FLAGS_dumpOp;
     SkPathOpsDebug::gVerifyOp = FLAGS_verifyOp;
 #endif
