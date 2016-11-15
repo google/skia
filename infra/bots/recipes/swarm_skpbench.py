@@ -53,12 +53,16 @@ def skpbench_steps(api):
   skpbench_dir = api.vars.slave_dir.join('skia', 'tools', 'skpbench')
   table = api.path.join(api.vars.swarming_out_dir, 'table')
 
+  config = 'gpu,esinst4'
+  if 'GPU' not in api.vars.builder_name:
+    config += ',vk'
+
   skpbench_args = [
         api.path.join(api.vars.android_bin_dir, 'skpbench'),
         api.path.join(api.vars.android_data_dir, 'skps'),
         '--adb',
         '--resultsfile', table,
-        '--config', 'gpu,esinst4']
+        '--config', config]
 
   if 'GPU' in api.vars.builder_name:
     skpbench_args.append('--gpu')
