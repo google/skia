@@ -174,6 +174,8 @@ void GrVkPipelineState::abandonGPUResources() {
 
 static void append_texture_bindings(const GrProcessor& processor,
                                     SkTArray<const GrTextureAccess*>* textureBindings) {
+    // We don't support images in VK.
+    SkASSERT(!processor.numImages());
     if (int numTextures = processor.numTextures()) {
         const GrTextureAccess** bindings = textureBindings->push_back_n(numTextures);
         int i = 0;
