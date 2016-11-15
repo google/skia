@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "503c1cf2_6892d239",
+        "filename": "infra/bots/tasks.json",
+        "patchSetId": 2
+      },
+      "lineNbr": 33,
+      "author": {
+        "id": 5145
+      },
+      "writtenOn": "2016-11-15T12:21:53Z",
+      "side": 1,
+      "message": "Is this block intentional?",
+      "revId": "f4b4107c51ce35703a57fce767409a335d418441",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
