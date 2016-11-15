@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "503c1cf2_2db45419",
+        "filename": "src/sksl/SkSLCompiler.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 468,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2016-11-15T21:17:31Z",
+      "side": 1,
+      "message": "CAP(imageLoadStoreSupport)?",
+      "revId": "ffd24800bcb7ce4de64c12680ff8ba394eec90fa",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "503c1cf2_ada064d8",
+        "filename": "tests/SkSLErrorTest.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 377,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2016-11-15T21:17:31Z",
+      "side": 1,
+      "message": ":)",
+      "revId": "ffd24800bcb7ce4de64c12680ff8ba394eec90fa",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
