@@ -16,6 +16,41 @@
       "revId": "d32a9ce83d962b34b84bc1b63b6dd947d8758e72",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "503c1cf2_419d29f7",
+        "filename": "fuzz/Fuzz.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 99,
+      "author": {
+        "id": 5950
+      },
+      "writtenOn": "2016-11-15T17:35:55Z",
+      "side": 1,
+      "message": "That is a possibility but that would miss a range of 0 which this does catch. This notifies on unintended use instead of trying to accommodate it. Trying to accommodate it can lead it slower more complicated code.",
+      "parentUuid": "503c1cf2_5ef6a471",
+      "revId": "d32a9ce83d962b34b84bc1b63b6dd947d8758e72",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "503c1cf2_6144adba",
+        "filename": "fuzz/Fuzz.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 110,
+      "author": {
+        "id": 5950
+      },
+      "writtenOn": "2016-11-15T17:35:55Z",
+      "side": 1,
+      "message": "This should have a cast to prevent overflows with signed values.\n\n\"((size_t)max - min + 1)\" maybe? The old version had the same bug.",
+      "revId": "d32a9ce83d962b34b84bc1b63b6dd947d8758e72",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
