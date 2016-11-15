@@ -42,7 +42,7 @@ SK_API void sk_bitmap_set_pixel_colors(sk_bitmap_t* cbitmap, const sk_color_t* c
 SK_API bool sk_bitmap_try_alloc_pixels(sk_bitmap_t* cbitmap, const sk_imageinfo_t* requestedInfo, size_t rowBytes);
 SK_API bool sk_bitmap_try_alloc_pixels_with_color_table(sk_bitmap_t* cbitmap, const sk_imageinfo_t* requestedInfo, sk_pixelref_factory_t* factory, sk_colortable_t* ctable);
 SK_API sk_colortable_t* sk_bitmap_get_colortable(sk_bitmap_t* cbitmap);
-SK_API void sk_bitmap_set_pixels(sk_bitmap_t* cbitmap, const void* pixels, sk_colortable_t* ctable);
+SK_API void sk_bitmap_set_pixels(sk_bitmap_t* cbitmap, void* pixels, sk_colortable_t* ctable);
 
 
 SK_C_PLUS_PLUS_END_GUARD
