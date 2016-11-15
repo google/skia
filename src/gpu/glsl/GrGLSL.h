@@ -41,6 +41,10 @@ enum GrGLSLGeneration {
      */
     k400_GrGLSLGeneration,
     /**
+     * Desktop GLSL 4.20
+     */
+    k420_GrGLSLGeneration,
+    /**
      * ES GLSL 3.10 only TODO Make GLSLCap objects to make this more granular
      */
     k310es_GrGLSLGeneration,
