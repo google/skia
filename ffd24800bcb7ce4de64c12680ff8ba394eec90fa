@@ -37,6 +37,46 @@
     },
     {
       "key": {
+        "uuid": "503c1cf2_ed8d4c54",
+        "filename": "src/sksl/SkSLCompiler.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 472,
+      "author": {
+        "id": 5120
+      },
+      "writtenOn": "2016-11-15T21:37:47Z",
+      "side": 1,
+      "message": "It seems like the availability of usesPrecisionModifiers, canUseMinAndAbsTogether, and mustForceNegatedAtanParamToFloat would be confusing since the compiler already generates the appropriate code for these.",
+      "revId": "ffd24800bcb7ce4de64c12680ff8ba394eec90fa",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "503c1cf2_d1f0e273",
+        "filename": "src/sksl/SkSLIRGenerator.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 1347,
+      "author": {
+        "id": 5120
+      },
+      "writtenOn": "2016-11-15T21:37:47Z",
+      "side": 1,
+      "message": "nit: operator[] modifies the map if the entry doesn\u0027t exist, which is usually not desired when doing a lookup. http://en.cppreference.com/w/cpp/container/unordered_map/operator_at\n\nIt\u0027s better to use fCapsMap-\u003efind(name), compare with fCapsMap-\u003eend(), and get the value with fCapsMap-\u003eat(name). This would probably also allow removing CapValue::kInvalid_Kind.",
+      "range": {
+        "startLine": 1347,
+        "startChar": 29,
+        "endLine": 1347,
+        "endChar": 35
+      },
+      "revId": "ffd24800bcb7ce4de64c12680ff8ba394eec90fa",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "503c1cf2_ada064d8",
         "filename": "tests/SkSLErrorTest.cpp",
         "patchSetId": 6
