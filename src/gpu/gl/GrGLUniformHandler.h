@@ -39,15 +39,20 @@ private:
                                           int arrayCount,
                                           const char** outName) override;
 
-    SamplerHandle internalAddSampler(uint32_t visibility,
-                                     GrPixelConfig config,
-                                     GrSLType type,
-                                     GrSLPrecision precision,
-                                     const char* name) override;
+    SamplerHandle addSampler(uint32_t visibility,
+                             GrPixelConfig config,
+                             GrSLType type,
+                             GrSLPrecision precision,
+                             const char* name) override;
 
-    int numSamplers() const override { return fSamplers.count(); }
+    ImageHandle addImage(uint32_t visibility, GrPixelConfig config, const char* name) override;
+
     const GrGLSLSampler& getSampler(SamplerHandle handle) const override {
         return fSamplers[handle.toIndex()];
+    }
+
+    const GrGLSLImage& getImage(ImageHandle handle) const override {
+        return fImages[handle.toIndex()];
     }
 
     void appendUniformDecls(GrShaderFlags visibility, SkString*) const override;
@@ -66,6 +71,7 @@ private:
     UniformInfoArray fUniforms;
 
     SkTArray<GrGLSampler> fSamplers;
+    SkTArray<GrGLImage>   fImages;
 
     friend class GrGLProgramBuilder;
 

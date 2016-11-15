@@ -47,6 +47,10 @@ static inline int grsltype_to_location_size(GrSLType type) {
              return 0;
         case kSampler_GrSLType:
              return 0;
+        case kImage2D_GrSLType:
+            return 0;
+        case kIImage2D_GrSLType:
+            return 0;
     }
     SkFAIL("Unexpected type");
     return -1;

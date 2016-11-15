@@ -34,10 +34,9 @@ enum GrSLType {
     kTextureBufferSampler_GrSLType,
     kTexture2D_GrSLType,
     kSampler_GrSLType,
-
-    kLast_GrSLType = kSampler_GrSLType
+    kImage2D_GrSLType,
+    kIImage2D_GrSLType,
 };
-static const int kGrSLTypeCount = kLast_GrSLType + 1;
 
 enum GrShaderType {
     kVertex_GrShaderType,
@@ -106,6 +105,8 @@ static inline bool GrSLTypeIsFloatType(GrSLType type) {
         case kUint_GrSLType:
         case kTexture2D_GrSLType:
         case kSampler_GrSLType:
+        case kImage2D_GrSLType:
+        case kIImage2D_GrSLType:
             return false;
     }
     SkFAIL("Unexpected type");
@@ -134,6 +135,8 @@ static inline bool GrSLTypeIs2DCombinedSamplerType(GrSLType type) {
         case kBool_GrSLType:
         case kTexture2D_GrSLType:
         case kSampler_GrSLType:
+        case kImage2D_GrSLType:
+        case kIImage2D_GrSLType:
             return false;
     }
     SkFAIL("Unexpected type");
@@ -162,6 +165,8 @@ static inline bool GrSLTypeIsCombinedSamplerType(GrSLType type) {
         case kBool_GrSLType:
         case kTexture2D_GrSLType:
         case kSampler_GrSLType:
+        case kImage2D_GrSLType:
+        case kIImage2D_GrSLType:
             return false;
     }
     SkFAIL("Unexpected type");
@@ -186,6 +191,8 @@ static inline bool GrSLTypeAcceptsPrecision(GrSLType type) {
         case kTextureBufferSampler_GrSLType:
         case kTexture2D_GrSLType:
         case kSampler_GrSLType:
+        case kImage2D_GrSLType:
+        case kIImage2D_GrSLType:
             return true;
 
         case kVoid_GrSLType:
