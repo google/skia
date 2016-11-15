@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "503c1cf2_34df7c54",
+        "filename": "src/gpu/text/GrAtlasTextBlob.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 362,
+      "author": {
+        "id": 5955
+      },
+      "writtenOn": "2016-11-15T23:01:21Z",
+      "side": 1,
+      "message": "So the issue was that this was reversed?",
+      "range": {
+        "startLine": 362,
+        "startChar": 39,
+        "endLine": 362,
+        "endChar": 50
+      },
+      "revId": "874b7aaf146d675da11668bcba82ba8d27ae7bd5",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
