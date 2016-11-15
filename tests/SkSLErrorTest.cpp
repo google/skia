@@ -9,7 +9,7 @@
 
 #include "Test.h"
 
-#if SKIA_SUPPORT_GPU
+#if SK_SUPPORT_GPU
 
 static void test_failure(skiatest::Reporter* r, const char* src, const char* error) {
     SkSL::Compiler compiler;
@@ -369,6 +369,12 @@ DEF_TEST(SkSLStaticIfError, r) {
     test_failure(r,
                  "void foo() { false ? x : 5; }",
                  "error: 1: unknown identifier 'x'\n1 error\n");
+}
+
+DEF_TEST(SkSLBadCap, r) {
+    test_failure(r,
+                 "bool b = sk_Caps.bugFreeDriver;",
+                 "error: 1: unknown capability flag 'bugFreeDriver'\n1 error\n");
 }
 
 #endif

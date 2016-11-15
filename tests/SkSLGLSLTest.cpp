@@ -9,7 +9,7 @@
 
 #include "Test.h"
 
-#if SKIA_SUPPORT_GPU
+#if SK_SUPPORT_GPU
 
 static void test(skiatest::Reporter* r, const char* src, const GrGLSLCaps& caps, 
                  const char* expected) {
@@ -518,6 +518,29 @@ DEF_TEST(SkSLStaticIf, r) {
          "    x = 1;\n"
          "    x = 2;\n"
          "    x = 5;\n"
+         "    {\n"
+         "    }\n"
+         "}\n");
+}
+
+DEF_TEST(SkSLCaps, r) {
+    test(r,
+         "void main() {"
+         "int x;"
+         "if (sk_Caps.externalTextureSupport) x = 1;"
+         "if (sk_Caps.fbFetchSupport) x = 2;"
+         "if (sk_Caps.dropsTileOnZeroDivide && sk_Caps.canUseMinAndAbsTogether) x = 3;"
+         "if (sk_Caps.dropsTileOnZeroDivide && sk_Caps.canUseAnyFunctionInShader) x = 4;"
+         "}",
+         *SkSL::GLSLCapsFactory::VariousCaps(),
+         "#version 400\n"
+         "out vec4 sk_FragColor;\n"
+         "void main() {\n"
+         "    int x;\n"
+         "    x = 1;\n"
+         "    {\n"
+         "    }\n"
+         "    x = 3;\n"
          "    {\n"
          "    }\n"
          "}\n");
