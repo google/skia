@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "503c1cf2_5ef6a471",
+        "filename": "fuzz/Fuzz.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 99,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2016-11-15T16:29:37Z",
+      "side": 1,
+      "message": "Why don\u0027t we just swap them?",
+      "revId": "d32a9ce83d962b34b84bc1b63b6dd947d8758e72",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
