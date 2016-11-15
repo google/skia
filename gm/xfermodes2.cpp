@@ -7,7 +7,7 @@
 #include "gm.h"
 #include "SkBitmap.h"
 #include "SkShader.h"
-#include "SkXfermode.h"
+#include "SkBlendModePriv.h"
 #include "SkColorPriv.h"
 
 namespace skiagm {
@@ -39,7 +39,7 @@ protected:
         const int W = 6;
 
         SkScalar x = 0, y = 0;
-        for (size_t m = 0; m <= SkXfermode::kLastMode; m++) {
+        for (size_t m = 0; m <= (size_t)SkBlendMode::kLastMode; m++) {
             SkBlendMode mode = static_cast<SkBlendMode>(m);
 
             canvas->save();
@@ -71,7 +71,7 @@ protected:
             canvas->restore();
 
 #if 1
-            canvas->drawText(SkXfermode::ModeName(mode), strlen(SkXfermode::ModeName(mode)),
+            canvas->drawText(SkBlendMode_Name(mode), strlen(SkBlendMode_Name(mode)),
                              x + w/2, y - labelP.getTextSize()/2, labelP);
 #endif
             x += w + SkIntToScalar(10);

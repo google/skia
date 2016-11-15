@@ -442,7 +442,6 @@ skia_core_sources = [
   "$_include/core/SkTypes.h",
   "$_include/core/SkUnPreMultiply.h",
   "$_include/core/SkWriter32.h",
-  "$_include/core/SkXfermode.h",
 
   # private
   "$_include/private/SkAtomics.h",

@@ -4,14 +4,15 @@
  * Use of this source code is governed by a BSD-style license that can be
  * found in the LICENSE file.
  */
+
 #include "gm.h"
 #include "SkArithmeticMode.h"
+#include "SkBlendModePriv.h"
 #include "SkPath.h"
 #include "SkShader.h"
-#include "SkXfermode.h"
 
 enum {
-    kXfermodeCount = SkXfermode::kLastMode + 2, // All xfermodes plus arithmetic mode.
+    kXfermodeCount = (int)SkBlendMode::kLastMode + 1 + 1,   // extra for arith
     kShapeSize = 22,
     kShapeSpacing = 36,
     kShapeTypeSpacing = 4 * kShapeSpacing / 3,
@@ -62,7 +63,7 @@ protected:
         return SkISize::Make(2 * kMargin + 2 * kXfermodeTypeSpacing -
                              (kXfermodeTypeSpacing - (kLabelSpacing + 2 * kPaintSpacing)),
                              2 * kMargin + kTitleSpacing + kSubtitleSpacing +
-                             (1 + SkXfermode::kLastCoeffMode) * kShapeSpacing);
+                             (1 + (int)SkBlendMode::kLastCoeffMode) * kShapeSpacing);
     }
 
     void onOnceBeforeDraw() override {
@@ -101,7 +102,7 @@ protected:
         canvas->translate(0, kTitleSpacing);
 
         for (size_t xfermodeSet = 0; xfermodeSet < 2; xfermodeSet++) {
-            size_t firstMode = (SkXfermode::kLastCoeffMode + 1) * xfermodeSet;
+            size_t firstMode = ((size_t)SkBlendMode::kLastCoeffMode + 1) * xfermodeSet;
             canvas->save();
 
             if (kShape_Pass == drawingPass) {
@@ -117,8 +118,8 @@ protected:
 
             canvas->translate(0, kSubtitleSpacing + kShapeSpacing/2);
 
-            for (size_t m = 0; m <= SkXfermode::kLastCoeffMode; m++) {
-                if (firstMode + m > SkXfermode::kLastMode) {
+            for (size_t m = 0; m <= (size_t)SkBlendMode::kLastCoeffMode; m++) {
+                if (firstMode + m > (size_t)SkBlendMode::kLastMode) {
                     break;
                 }
                 SkBlendMode mode = static_cast<SkBlendMode>(firstMode + m);
@@ -191,7 +192,7 @@ protected:
     }
 
     void drawModeName(SkCanvas* canvas, SkBlendMode mode) {
-        const char* modeName = SkXfermode::ModeName(mode);
+        const char* modeName = SkBlendMode_Name(mode);
         fLabelPaint.setTextAlign(SkPaint::kRight_Align);
         canvas->drawText(modeName, strlen(modeName), kLabelSpacing - kShapeSize / 4,
                          fLabelPaint.getTextSize() / 4, fLabelPaint);

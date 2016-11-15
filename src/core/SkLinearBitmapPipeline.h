@@ -38,7 +38,7 @@ public:
     SkLinearBitmapPipeline(
         const SkLinearBitmapPipeline& pipeline,
         const SkPixmap& srcPixmap,
-        SkBlendMode blendMode,
+        SkBlendMode,
         const SkImageInfo& dstInfo);
 
     static bool ClonePipelineForBlitting(

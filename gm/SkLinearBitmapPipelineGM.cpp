@@ -12,7 +12,7 @@
 #include "SkImage.h"
 #include "SkImageInfo.h"
 #include "SkLinearBitmapPipeline.h"
-#include "SkXfermode.h"
+#include "SkXfermodePriv.h"
 #include "SkPM4fPriv.h"
 #include "SkShader.h"
 

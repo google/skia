@@ -245,7 +245,6 @@ tests_sources = [
   "$_tests/WindowRectanglesTest.cpp",
   "$_tests/WritePixelsTest.cpp",
   "$_tests/Writer32Test.cpp",
-  "$_tests/XfermodeTest.cpp",
   "$_tests/YUVCacheTest.cpp",
   "$_tests/YUVTest.cpp",
 ]

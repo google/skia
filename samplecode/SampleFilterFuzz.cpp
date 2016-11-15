@@ -158,7 +158,7 @@ static SkMatrix make_matrix() {
 }
 
 static SkBlendMode make_xfermode() {
-    return static_cast<SkBlendMode>(R(SkXfermode::kLastMode+1));
+    return static_cast<SkBlendMode>(R((int)SkBlendMode::kLastMode+1));
 }
 
 static SkPaint::Align make_paint_align() {
