@@ -1,0 +1,44 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "503c1cf2_1201ad6a",
+        "filename": "include/gpu/GrCaps.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 117,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2016-11-15T19:45:56Z",
+      "side": 1,
+      "message": "Wondering if we really want to split this apart from the rest of the image caps in GrShaderCaps.h.\n\nFor other features that affect both shader and gr caps (e.g. nvpr), the bool flag just lives in GrShaderCaps.h.",
+      "revId": "a4c024f997e4017aea55fb2a80ebac2868db7248",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "503c1cf2_32ce7146",
+        "filename": "src/gpu/gl/GrGLCaps.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 313,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2016-11-15T19:45:56Z",
+      "side": 1,
+      "message": "Do we want a cap for glMemoryBarrierByRegion? (Or is that coming in a different change?)",
+      "range": {
+        "startLine": 313,
+        "startChar": 18,
+        "endLine": 313,
+        "endChar": 40
+      },
+      "revId": "a4c024f997e4017aea55fb2a80ebac2868db7248",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
