@@ -196,8 +196,15 @@ public:
 
         bool isInvalid() const { return SK_InvalidUniqueID == fID; }
 
+#if 0
+        UniqueID& operator=(const UniqueID& other) {
+            fID = other.fID;
+            return *this;
+        }
+#endif
+
     private:
-        const uint32_t fID;
+        uint32_t fID;
     };
 
     /*

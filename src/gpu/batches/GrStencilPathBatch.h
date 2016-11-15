@@ -25,19 +25,19 @@ public:
                            bool hasStencilClip,
                            int numStencilBits,
                            const GrScissorState& scissor,
-                           GrRenderTarget* renderTarget,
+                           GrRenderTargetProxy* renderTargetProxy,
                            const GrPath* path) {
         return new GrStencilPathBatch(viewMatrix, useHWAA, fillType, hasStencilClip,
-                                      numStencilBits, scissor, renderTarget, path);
+                                      numStencilBits, scissor, renderTargetProxy, path);
     }
 
     const char* name() const override { return "StencilPath"; }
 
     // TODO: this needs to be updated to return GrSurfaceProxy::UniqueID
-    GrGpuResource::UniqueID renderTargetUniqueID() const override {
-        return fRenderTarget.get()->uniqueID();
+    GrSurfaceProxy::UniqueID renderTargetProxyUniqueID() const override {
+        return fRenderTargetProxy.get()->uniqueID();
     }
-    GrRenderTarget* renderTarget() const override { return fRenderTarget.get(); }
+    GrRenderTargetProxy* renderTargetProxy() const override { return fRenderTargetProxy.get(); }
 
     SkString dumpInfo() const override {
         SkString string;
@@ -53,14 +53,14 @@ private:
                        bool hasStencilClip,
                        int numStencilBits,
                        const GrScissorState& scissor,
-                       GrRenderTarget* renderTarget,
+                       GrRenderTargetProxy* renderTargetProxy,
                        const GrPath* path)
     : INHERITED(ClassID())
     , fViewMatrix(viewMatrix)
     , fUseHWAA(useHWAA)
     , fStencil(GrPathRendering::GetStencilPassSettings(fillType), hasStencilClip, numStencilBits)
     , fScissor(scissor)
-    , fRenderTarget(renderTarget)
+    , fRenderTargetProxy(renderTargetProxy)
     , fPath(path) {
         this->setBounds(path->getBounds(), HasAABloat::kNo, IsZeroArea::kNo);
     }
@@ -70,17 +70,17 @@ private:
     void onPrepare(GrBatchFlushState*) override {}
 
     void onDraw(GrBatchFlushState* state, const SkRect& bounds) override {
-        GrPathRendering::StencilPathArgs args(fUseHWAA, fRenderTarget.get(), &fViewMatrix,
+        GrPathRendering::StencilPathArgs args(fUseHWAA, fRenderTargetProxy.get(), &fViewMatrix,
                                               &fScissor, &fStencil);
         state->gpu()->pathRendering()->stencilPath(args, fPath.get());
     }
 
-    SkMatrix                                                fViewMatrix;
-    bool                                                    fUseHWAA;
-    GrStencilSettings                                       fStencil;
-    GrScissorState                                          fScissor;
-    GrPendingIOResource<GrRenderTarget, kWrite_GrIOType>    fRenderTarget;
-    GrPendingIOResource<const GrPath, kRead_GrIOType>       fPath;
+    SkMatrix                                                  fViewMatrix;
+    bool                                                      fUseHWAA;
+    GrStencilSettings                                         fStencil;
+    GrScissorState                                            fScissor;
+    GrPendingIOResource<GrRenderTargetProxy, kWrite_GrIOType> fRenderTargetProxy;
+    GrPendingIOResource<const GrPath, kRead_GrIOType>         fPath;
 
     typedef GrBatch INHERITED;
 };
