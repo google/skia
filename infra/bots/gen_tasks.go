@@ -45,6 +45,8 @@ var (
 		"Perf-Android-Clang-AndroidOne-CPU-MT6582-arm-Release-GN_Android",
 		"Perf-Android-Clang-AndroidOne-GPU-Mali400MP2-arm-Debug-GN_Android",
 		"Perf-Android-Clang-AndroidOne-GPU-Mali400MP2-arm-Release-GN_Android",
+		"Perf-Android-Clang-Nexus5-GPU-Adreno330-arm-Debug-GN_Android",
+		"Perf-Android-Clang-Nexus5-GPU-Adreno330-arm-Release-GN_Android",
 		"Perf-Android-Clang-Nexus6p-CPU-Snapdragon810-arm64-Debug-GN_Android",
 		"Perf-Android-Clang-Nexus6p-CPU-Snapdragon810-arm64-Release-GN_Android",
 		"Perf-Android-Clang-Nexus6p-GPU-Adreno430-arm64-Debug-GN_Android",
@@ -60,6 +62,8 @@ var (
 		"Test-Android-Clang-AndroidOne-CPU-MT6582-arm-Release-GN_Android",
 		"Test-Android-Clang-AndroidOne-GPU-Mali400MP2-arm-Debug-GN_Android",
 		"Test-Android-Clang-AndroidOne-GPU-Mali400MP2-arm-Release-GN_Android",
+		"Test-Android-Clang-Nexus5-GPU-Adreno330-arm-Debug-GN_Android",
+		"Test-Android-Clang-Nexus5-GPU-Adreno330-arm-Release-GN_Android",
 		"Test-Android-Clang-Nexus6p-CPU-Snapdragon810-arm64-Debug-GN_Android",
 		"Test-Android-Clang-Nexus6p-CPU-Snapdragon810-arm64-Release-GN_Android",
 		"Test-Android-Clang-Nexus6p-GPU-Adreno430-arm64-Debug-GN_Android",
@@ -554,7 +558,7 @@ func process(b *specs.TasksCfgBuilder, name string) {
 	if err != nil {
 		glog.Fatal(err)
 	}
-	// The InfraTests bot doesn't need a compile task.
+	// The InfraTests bot does not need a compile task.
 	if parts["role"] != "Build" && name != "Housekeeper-PerCommit-InfraTests" {
 		compile(b, compileTaskName, compileTaskParts)
 	}
