@@ -30,8 +30,58 @@ public:
     GrGLint location() const { return fLocation; }
     GrSLType type() const override { return fShaderVar.getType(); }
 
-    const char* onGetSamplerNameForTexture2D() const override { return fShaderVar.c_str(); }
     const char* getSamplerNameForTexelFetch() const override { return fShaderVar.c_str(); }
+
+private:
+    const char* onGetSamplerNameForTexture2D() const override { return fShaderVar.c_str(); }
+
+    GrGLSLShaderVar fShaderVar;
+    GrGLint         fLocation;
+
+    friend class GrGLUniformHandler;
+
+    typedef GrGLSLSampler INHERITED;
+};
+
+class GrGLImage : public GrGLSLImage {
+public:
+    GrGLImage(uint32_t visibility, GrPixelConfig config, const char* name)
+            : INHERITED(visibility) {
+        fShaderVar.setName(name);
+        if (GrPixelConfigIsSint(config)) {
+            fShaderVar.setType(GrSLType::kIImage2D_GrSLType);
+        } else {
+            fShaderVar.setType(GrSLType::kImage2D_GrSLType);
+        }
+        fShaderVar.setTypeModifier(GrGLSLShaderVar::kUniform_TypeModifier);
+        const char* layout;
+        switch (config) {
+            case kUnknown_GrPixelConfig:
+                layout = "";
+                break;
+            case kRGBA_8888_GrPixelConfig:
+                layout = "rgba8";
+                break;
+            case kRGBA_float_GrPixelConfig:
+                layout = "rgba32";
+                break;
+            case kRGBA_half_GrPixelConfig:
+                layout = "rgba16f";
+                break;
+            case kRGBA_8888_sint_GrPixelConfig:
+                layout = "rgba8i";
+                break;
+            default:
+                SkFAIL("Unexpected config for 2D image.");
+                layout = "--invalid--";
+                break;
+        }
+        fShaderVar.setLayoutQualifier(layout);
+    }
+
+    GrGLint location() const { return fLocation; }
+
+    const char* name() const override { return fShaderVar.c_str(); }
 
 private:
     GrGLSLShaderVar fShaderVar;
@@ -39,7 +89,7 @@ private:
 
     friend class GrGLUniformHandler;
 
-    typedef GrGLSLSampler INHERITED;
+    typedef GrGLSLImage INHERITED;
 };
 
 #endif
