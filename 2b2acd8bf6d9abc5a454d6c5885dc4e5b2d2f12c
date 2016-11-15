@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "503c1cf2_9c9794d5",
+        "filename": "src/gpu/glsl/GrGLSL.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 45,
+      "author": {
+        "id": 5640
+      },
+      "writtenOn": "2016-11-15T18:22:48Z",
+      "side": 1,
+      "message": "nit: indentation",
+      "range": {
+        "startLine": 44,
+        "startChar": 4,
+        "endLine": 45,
+        "endChar": 6
+      },
+      "revId": "2b2acd8bf6d9abc5a454d6c5885dc4e5b2d2f12c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
