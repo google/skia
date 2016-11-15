@@ -10,10 +10,11 @@
 
 namespace {
 
-    static int created;
+    static int created, destroyed;
 
     struct Foo {
          Foo(int X, float Y) : x(X), y(Y) { created++; }
+        ~Foo() { destroyed++; }
 
         int x;
         float y;
@@ -37,15 +38,21 @@ DEF_TEST(FixedAlloc, r) {
         REPORTER_ASSERT(r, foo->x == 3);
         REPORTER_ASSERT(r, foo->y == 4.0f);
         REPORTER_ASSERT(r, created == 1);
+        REPORTER_ASSERT(r, destroyed == 0);
 
         Foo* bar = fa.make<Foo>(8, 1.0f);
         REPORTER_ASSERT(r, bar);
         REPORTER_ASSERT(r, bar->x == 8);
         REPORTER_ASSERT(r, bar->y == 1.0f);
         REPORTER_ASSERT(r, created == 2);
+        REPORTER_ASSERT(r, destroyed == 0);
 
         fa.undo();
+        REPORTER_ASSERT(r, created == 2);
+        REPORTER_ASSERT(r, destroyed == 1);
     }
+    REPORTER_ASSERT(r, created == 2);
+    REPORTER_ASSERT(r, destroyed == 2);
 
     {
         // Test alignment gurantees.
@@ -55,10 +62,15 @@ DEF_TEST(FixedAlloc, r) {
         Foo* foo = fa.make<Foo>(3, 4.0f);
         REPORTER_ASSERT(r, SkIsAlign4((uintptr_t)foo));
         REPORTER_ASSERT(r, created == 3);
+        REPORTER_ASSERT(r, destroyed == 2);
 
         // Might as well test reset() while we're at it.
         fa.reset();
+        REPORTER_ASSERT(r, created == 3);
+        REPORTER_ASSERT(r, destroyed == 3);
     }
+    REPORTER_ASSERT(r, created == 3);
+    REPORTER_ASSERT(r, destroyed == 3);
 }
 
 DEF_TEST(FallbackAlloc, r) {
@@ -67,8 +79,8 @@ DEF_TEST(FallbackAlloc, r) {
     SkFixedAlloc fixed(buf, sizeof(buf));
     bool fixed_failed = false;
     for (int i = 0; i < 32; i++) {
-        // (Remember, there is some overhead to each copy() call.)
-        fixed_failed = fixed_failed || (fixed.copy(i) == nullptr);
+        // (Remember, there is some overhead to each make() call.)
+        fixed_failed = fixed_failed || (fixed.make<int>(i) == nullptr);
     }
     REPORTER_ASSERT(r, fixed_failed);
 
@@ -79,7 +91,7 @@ DEF_TEST(FallbackAlloc, r) {
 
     bool fallback_failed = false;
     for (int i = 0; i < 32; i++) {
-        fallback_failed = fallback_failed || (fallback.copy(i) == nullptr);
+        fallback_failed = fallback_failed || (fallback.make<int>(i) == nullptr);
     }
     REPORTER_ASSERT(r, !fallback_failed);
 
