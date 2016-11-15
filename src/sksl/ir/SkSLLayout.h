@@ -16,6 +16,16 @@ namespace SkSL {
  * layout (location = 0) int x;
  */
 struct Layout {
+    Layout()
+    : fLocation(-1)
+    , fBinding(-1)
+    , fIndex(-1)
+    , fSet(-1)
+    , fBuiltin(-1)
+    , fOriginUpperLeft(false)
+    , fOverrideCoverage(false)
+    , fBlendSupportAllEquations(false) {}
+
     Layout(const ASTLayout& layout)
     : fLocation(layout.fLocation)
     , fBinding(layout.fBinding)
