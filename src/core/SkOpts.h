@@ -11,7 +11,7 @@
 #include "SkRasterPipeline.h"
 #include "SkTextureCompressor.h"
 #include "SkTypes.h"
-#include "SkXfermode.h"
+#include "SkXfermodePriv.h"
 #include <functional>
 
 struct ProcCoeff;

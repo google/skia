@@ -23,7 +23,7 @@
 #include "SkShader.h"
 #include "SkTHash.h"
 #include "SkWriteBuffer.h"
-#include "SkXfermode.h"
+#include "SkXfermodePriv.h"
 
 class SkBitmap;
 class SkImage;

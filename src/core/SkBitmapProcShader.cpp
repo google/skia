@@ -8,6 +8,7 @@
 #include "SkBitmapProcShader.h"
 #include "SkBitmapProcState.h"
 #include "SkBitmapProvider.h"
+#include "SkXfermodePriv.h"
 
 static bool only_scale_and_translate(const SkMatrix& matrix) {
     unsigned mask = SkMatrix::kTranslate_Mask | SkMatrix::kScale_Mask;
@@ -102,7 +103,6 @@ private:
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 #include "SkLinearBitmapPipeline.h"
 #include "SkPM4f.h"
-#include "SkXfermode.h"
 
 class LinearPipelineContext : public BitmapProcInfoContext {
 public:

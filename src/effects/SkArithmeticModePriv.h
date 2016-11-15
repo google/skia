@@ -10,6 +10,8 @@
 
 #include "SkArithmeticMode.h"
 
+class SkXfermode;
+
 struct SkArithmeticParams {
     float fK[4];
     bool fEnforcePMColor;
