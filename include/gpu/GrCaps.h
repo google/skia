@@ -64,6 +64,7 @@ public:
     bool dualSourceBlendingSupport() const { return fDualSourceBlendingSupport; }
     bool integerSupport() const { return fIntegerSupport; }
     bool texelBufferSupport() const { return fTexelBufferSupport; }
+    int imageLoadStoreSupport() const { return fImageLoadStoreSupport; }
 
     /**
     * Get the precision info for a variable of type kFloat_GrSLType, kVec2f_GrSLType, etc in a
@@ -106,18 +107,18 @@ protected:
         the client. Note that overrides will only reduce the caps never expand them. */
     void applyOptionsOverrides(const GrContextOptions& options);
 
-    bool fShaderDerivativeSupport : 1;
-    bool fGeometryShaderSupport : 1;
-    bool fPathRenderingSupport : 1;
-    bool fDstReadInShaderSupport : 1;
+    bool fShaderDerivativeSupport   : 1;
+    bool fGeometryShaderSupport     : 1;
+    bool fPathRenderingSupport      : 1;
+    bool fDstReadInShaderSupport    : 1;
     bool fDualSourceBlendingSupport : 1;
-    bool fIntegerSupport : 1;
-    bool fTexelBufferSupport : 1;
-
-    bool fShaderPrecisionVaries;
+    bool fIntegerSupport            : 1;
+    bool fTexelBufferSupport        : 1;
+    bool fImageLoadStoreSupport     : 1;
+    bool fPLSPathRenderingSupport   : 1;
+    bool fShaderPrecisionVaries     : 1;
     PrecisionInfo fFloatPrecisions[kGrShaderTypeCount][kGrSLPrecisionCount];
     int fPixelLocalStorageSize;
-    bool fPLSPathRenderingSupport;
 
 private:
     virtual void onApplyOptionsOverrides(const GrContextOptions&) {}
