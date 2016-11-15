@@ -9,7 +9,7 @@
 
 #include "Test.h"
 
-#if SKIA_SUPPORT_GPU
+#if SK_SUPPORT_GPU
 
 static void test_failure(skiatest::Reporter* r, const char* src, const char* error) {
     SkSL::Compiler compiler;

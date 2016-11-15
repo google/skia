@@ -968,13 +968,13 @@ SpvId SPIRVCodeGenerator::nextId() {
     return fIdCount++;
 }
 
-void SPIRVCodeGenerator::writeStruct(const Type& type, SpvId resultId) {
+void SPIRVCodeGenerator::writeStruct(const Type& type, const MemoryLayout& layout, SpvId resultId) {
     this->writeInstruction(SpvOpName, resultId, type.name().c_str(), fNameBuffer);
     // go ahead and write all of the field types, so we don't inadvertently write them while we're
     // in the middle of writing the struct instruction
     std::vector<SpvId> types;
     for (const auto& f : type.fields()) {
-        types.push_back(this->getType(*f.fType));
+        types.push_back(this->getType(*f.fType, layout));
     }
     this->writeOpCode(SpvOpTypeStruct, 2 + (int32_t) types.size(), fConstantBuffer);
     this->writeWord(resultId, fConstantBuffer);
@@ -983,8 +983,8 @@ void SPIRVCodeGenerator::writeStruct(const Type& type, SpvId resultId) {
     }
     size_t offset = 0;
     for (int32_t i = 0; i < (int32_t) type.fields().size(); i++) {
-        size_t size = type.fields()[i].fType->size();
-        size_t alignment = type.fields()[i].fType->alignment();
+        size_t size = layout.size(*type.fields()[i].fType);
+        size_t alignment = layout.alignment(*type.fields()[i].fType);
         size_t mod = offset % alignment;
         if (mod != 0) {
             offset += alignment - mod;
@@ -1000,7 +1000,8 @@ void SPIRVCodeGenerator::writeStruct(const Type& type, SpvId resultId) {
             this->writeInstruction(SpvOpMemberDecorate, resultId, i, SpvDecorationColMajor, 
                                    fDecorationBuffer);
             this->writeInstruction(SpvOpMemberDecorate, resultId, i, SpvDecorationMatrixStride, 
-                                   (SpvId) type.fields()[i].fType->stride(), fDecorationBuffer);
+                                   (SpvId) layout.stride(*type.fields()[i].fType), 
+                                   fDecorationBuffer);
         }
         offset += size;
         Type::Kind kind = type.fields()[i].fType->kind();
@@ -1012,7 +1013,12 @@ void SPIRVCodeGenerator::writeStruct(const Type& type, SpvId resultId) {
 }
 
 SpvId SPIRVCodeGenerator::getType(const Type& type) {
-    auto entry = fTypeMap.find(type.name());
+    return this->getType(type, fDefaultLayout);
+}
+
+SpvId SPIRVCodeGenerator::getType(const Type& type, const MemoryLayout& layout) {
+    std::string key = type.name() + to_string((int) layout.fStd);
+    auto entry = fTypeMap.find(key);
     if (entry == fTypeMap.end()) {
         SpvId result = this->nextId();
         switch (type.kind()) {
@@ -1033,35 +1039,38 @@ SpvId SPIRVCodeGenerator::getType(const Type& type) {
                 break;
             case Type::kVector_Kind:
                 this->writeInstruction(SpvOpTypeVector, result, 
-                                       this->getType(type.componentType()),
+                                       this->getType(type.componentType(), layout),
                                        type.columns(), fConstantBuffer);
                 break;
             case Type::kMatrix_Kind:
                 this->writeInstruction(SpvOpTypeMatrix, result, 
-                                       this->getType(index_type(fContext, type)), 
+                                       this->getType(index_type(fContext, type), layout), 
                                        type.columns(), fConstantBuffer);
                 break;
             case Type::kStruct_Kind:
-                this->writeStruct(type, result);
+                this->writeStruct(type, layout, result);
                 break;
             case Type::kArray_Kind: {
                 if (type.columns() > 0) {
                     IntLiteral count(fContext, Position(), type.columns());
                     this->writeInstruction(SpvOpTypeArray, result, 
-                                           this->getType(type.componentType()), 
+                                           this->getType(type.componentType(), layout), 
                                            this->writeIntLiteral(count), fConstantBuffer);
                     this->writeInstruction(SpvOpDecorate, result, SpvDecorationArrayStride, 
-                                           (int32_t) type.stride(), fDecorationBuffer);
+                                           (int32_t) layout.stride(type), 
+                                           fDecorationBuffer);
                 } else {
                     ABORT("runtime-sized arrays are not yet supported");
                     this->writeInstruction(SpvOpTypeRuntimeArray, result, 
-                                           this->getType(type.componentType()), fConstantBuffer);
+                                           this->getType(type.componentType(), layout), 
+                                           fConstantBuffer);
                 }
                 break;
             }
             case Type::kSampler_Kind: {
                 SpvId image = this->nextId();
-                this->writeInstruction(SpvOpTypeImage, image, this->getType(*fContext.fFloat_Type), 
+                this->writeInstruction(SpvOpTypeImage, image, 
+                                       this->getType(*fContext.fFloat_Type, layout), 
                                        type.dimensions(), type.isDepth(), type.isArrayed(),
                                        type.isMultisampled(), type.isSampled(), 
                                        SpvImageFormatUnknown, fConstantBuffer);
@@ -1075,7 +1084,7 @@ SpvId SPIRVCodeGenerator::getType(const Type& type) {
                     ABORT("invalid type: %s", type.description().c_str());
                 }
         }
-        fTypeMap[type.name()] = result;
+        fTypeMap[key] = result;
         return result;
     }
     return entry->second;
@@ -1138,9 +1147,13 @@ SpvId SPIRVCodeGenerator::getFunctionType(const FunctionDeclaration& function) {
     return entry->second;
 }
 
-SpvId SPIRVCodeGenerator::getPointerType(const Type& type, 
+SpvId SPIRVCodeGenerator::getPointerType(const Type& type, SpvStorageClass_ storageClass) {
+    return this->getPointerType(type, fDefaultLayout, storageClass);
+}
+
+SpvId SPIRVCodeGenerator::getPointerType(const Type& type, const MemoryLayout& layout,
                                          SpvStorageClass_ storageClass) {
-    std::string key = type.description() + "*" + to_string(storageClass);
+    std::string key = type.description() + "*" + to_string(layout.fStd) + to_string(storageClass);
     auto entry = fTypeMap.find(key);
     if (entry == fTypeMap.end()) {
         SpvId result = this->nextId();
@@ -1551,10 +1564,15 @@ SpvId SPIRVCodeGenerator::writeConstructor(const Constructor& c, std::ostream& o
 
 SpvStorageClass_ get_storage_class(const Modifiers& modifiers) {
     if (modifiers.fFlags & Modifiers::kIn_Flag) {
+        ASSERT(!modifiers.fLayout.fPushConstant);
         return SpvStorageClassInput;
     } else if (modifiers.fFlags & Modifiers::kOut_Flag) {
+        ASSERT(!modifiers.fLayout.fPushConstant);
         return SpvStorageClassOutput;
     } else if (modifiers.fFlags & Modifiers::kUniform_Flag) {
+        if (modifiers.fLayout.fPushConstant) {
+            return SpvStorageClassPushConstant;
+        }
         return SpvStorageClassUniform;
     } else {
         return SpvStorageClassFunction;
@@ -2358,7 +2376,10 @@ void SPIRVCodeGenerator::writeLayout(const Layout& layout, SpvId target, int mem
 }
 
 SpvId SPIRVCodeGenerator::writeInterfaceBlock(const InterfaceBlock& intf) {
-    SpvId type = this->getType(intf.fVariable.fType);
+    MemoryLayout layout = intf.fVariable.fModifiers.fLayout.fPushConstant ?
+                          MemoryLayout(MemoryLayout::k430_Standard) :
+                          fDefaultLayout;
+    SpvId type = this->getType(intf.fVariable.fType, layout);
     SpvId result = this->nextId();
     this->writeInstruction(SpvOpDecorate, type, SpvDecorationBlock, fDecorationBuffer);
     SpvStorageClass_ storageClass = get_storage_class(intf.fVariable.fModifiers);
@@ -2411,10 +2432,11 @@ void SPIRVCodeGenerator::writeGlobalVars(Program::Kind kind, const VarDeclaratio
         this->writeInstruction(SpvOpVariable, type, id, storageClass, fConstantBuffer);
         this->writeInstruction(SpvOpName, id, var->fName.c_str(), fNameBuffer);
         if (var->fType.kind() == Type::kMatrix_Kind) {
-            this->writeInstruction(SpvOpMemberDecorate, id, (SpvId) i, SpvDecorationColMajor, 
+            this->writeInstruction(SpvOpMemberDecorate, id, (SpvId) i, SpvDecorationColMajor,
                                    fDecorationBuffer);
-            this->writeInstruction(SpvOpMemberDecorate, id, (SpvId) i, SpvDecorationMatrixStride, 
-                                   (SpvId) var->fType.stride(), fDecorationBuffer);
+            this->writeInstruction(SpvOpMemberDecorate, id, (SpvId) i, SpvDecorationMatrixStride,
+                                   (SpvId) fDefaultLayout.stride(var->fType),
+                                   fDecorationBuffer);
         }
         if (varDecl.fValue) {
             ASSERT(!fCurrentBlock);

@@ -24,10 +24,11 @@ struct Layout {
     , fBuiltin(layout.fBuiltin)
     , fOriginUpperLeft(layout.fOriginUpperLeft)
     , fOverrideCoverage(layout.fOverrideCoverage)
-    , fBlendSupportAllEquations(layout.fBlendSupportAllEquations) {}
+    , fBlendSupportAllEquations(layout.fBlendSupportAllEquations)
+    , fPushConstant(layout.fPushConstant) {}
 
     Layout(int location, int binding, int index, int set, int builtin, bool originUpperLeft,
-           bool overrideCoverage, bool blendSupportAllEquations)
+           bool overrideCoverage, bool blendSupportAllEquations, bool pushconstant)
     : fLocation(location)
     , fBinding(binding)
     , fIndex(index)
@@ -35,7 +36,19 @@ struct Layout {
     , fBuiltin(builtin)
     , fOriginUpperLeft(originUpperLeft)
     , fOverrideCoverage(overrideCoverage)
-    , fBlendSupportAllEquations(blendSupportAllEquations) {}
+    , fBlendSupportAllEquations(blendSupportAllEquations)
+    , fPushConstant(pushconstant) {}
+
+    Layout() 
+    : fLocation(-1)
+    , fBinding(-1)
+    , fIndex(-1)
+    , fSet(-1)
+    , fBuiltin(-1)
+    , fOriginUpperLeft(false)
+    , fOverrideCoverage(false)
+    , fBlendSupportAllEquations(false)
+    , fPushConstant(false) {}
 
     std::string description() const {
         std::string result;
@@ -72,6 +85,10 @@ struct Layout {
             result += separator + "blend_support_all_equations";
             separator = ", ";
         }
+        if (fPushConstant) {
+            result += separator + "push_constant";
+            separator = ", ";
+        }
         if (result.length() > 0) {
             result = "layout (" + result + ")";
         }
@@ -93,16 +110,16 @@ struct Layout {
         return !(*this == other);
     }
 
-    // everything but builtin is in the GLSL spec; builtin comes from SPIR-V and identifies which
-    // particular builtin value this object represents.
     int fLocation;
     int fBinding;
     int fIndex;
     int fSet;
     int fBuiltin;
+    int fOffset;
     bool fOriginUpperLeft;
     bool fOverrideCoverage;
     bool fBlendSupportAllEquations;
+    bool fPushConstant;
 };
 
 } // namespace

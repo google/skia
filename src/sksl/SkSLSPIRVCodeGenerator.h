@@ -14,6 +14,7 @@
 #include <unordered_map>
 
 #include "SkSLCodeGenerator.h"
+#include "SkSLMemoryLayout.h"
 #include "ir/SkSLBinaryExpression.h"
 #include "ir/SkSLBoolLiteral.h"
 #include "ir/SkSLConstructor.h"
@@ -63,6 +64,7 @@ public:
 
     SPIRVCodeGenerator(const Context* context)
     : fContext(*context)
+    , fDefaultLayout(MemoryLayout::k140_Standard)
     , fCapabilities(1 << SpvCapabilityShader)
     , fIdCount(1)
     , fBoolTrue(0)
@@ -93,9 +95,14 @@ private:
 
     SpvId getType(const Type& type);
 
+    SpvId getType(const Type& type, const MemoryLayout& layout);
+
     SpvId getFunctionType(const FunctionDeclaration& function);
 
     SpvId getPointerType(const Type& type, SpvStorageClass_ storageClass);
+
+    SpvId getPointerType(const Type& type, const MemoryLayout& layout, 
+                         SpvStorageClass_ storageClass);
 
     std::vector<SpvId> getAccessChain(const Expression& expr, std::ostream& out);
 
@@ -103,7 +110,7 @@ private:
 
     void writeLayout(const Layout& layout, SpvId target, int member);
 
-    void writeStruct(const Type& type, SpvId resultId);
+    void writeStruct(const Type& type, const MemoryLayout& layout, SpvId resultId);
 
     void writeProgramElement(const ProgramElement& pe, std::ostream& out);
 
@@ -229,6 +236,7 @@ private:
                           std::ostream& out);
 
     const Context& fContext;
+    const MemoryLayout fDefaultLayout;
 
     uint64_t fCapabilities;
     SpvId fIdCount;
