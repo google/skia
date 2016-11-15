@@ -13,13 +13,15 @@
 
 class GrGLSLProgramBuilder;
 class GrGLSLSampler;
+class GrGLSLImage;
 
 class GrGLSLUniformHandler {
 public:
     virtual ~GrGLSLUniformHandler() {}
 
-    typedef GrGLSLProgramDataManager::UniformHandle UniformHandle;
-    typedef GrGLSLProgramDataManager::UniformHandle SamplerHandle;
+    using UniformHandle = GrGLSLProgramDataManager::UniformHandle;
+    GR_DEFINE_RESOURCE_HANDLE_CLASS(SamplerHandle);
+    GR_DEFINE_RESOURCE_HANDLE_CLASS(ImageHandle);
 
     /** Add a uniform variable to the current program, that has visibility in one or more shaders.
         visibility is a bitfield of GrShaderFlag values indicating from which shaders the uniform
@@ -61,22 +63,16 @@ protected:
     GrGLSLProgramBuilder* fProgramBuilder;
 
 private:
-    virtual int numSamplers() const = 0;
     virtual const GrGLSLSampler& getSampler(SamplerHandle handle) const = 0;
+    virtual const GrGLSLImage& getImage(ImageHandle handle) const = 0;
 
-    SamplerHandle addSampler(uint32_t visibility,
-                             GrPixelConfig config,
-                             GrSLType type,
-                             GrSLPrecision precision,
-                             const char* name) {
-        return this->internalAddSampler(visibility, config, type, precision, name);
-    }
+    virtual SamplerHandle addSampler(uint32_t visibility,
+                                     GrPixelConfig config,
+                                     GrSLType type,
+                                     GrSLPrecision precision,
+                                     const char* name) = 0;
 
-    virtual SamplerHandle internalAddSampler(uint32_t visibility,
-                                             GrPixelConfig config,
-                                             GrSLType type,
-                                             GrSLPrecision precision,
-                                             const char* name) = 0;
+    virtual ImageHandle addImage(uint32_t visibility, GrPixelConfig config, const char* name) = 0;
 
     virtual UniformHandle internalAddUniformArray(uint32_t visibility,
                                                   GrSLType type,

@@ -23,12 +23,6 @@ public:
         is relevant to a float (or vecNf) variable declared with a GrSLPrecision
         in a given GrShaderType. The info here is hoisted from the OpenGL spec. */
     struct PrecisionInfo {
-        PrecisionInfo() {
-            fLogRangeLow = 0;
-            fLogRangeHigh = 0;
-            fBits = 0;
-        }
-
         /** Is this precision level allowed in the shader stage? */
         bool supported() const { return 0 != fBits; }
 
@@ -39,9 +33,9 @@ public:
         bool operator!=(const PrecisionInfo& that) const { return !(*this == that); }
 
         /** floor(log2(|min_value|)) */
-        int fLogRangeLow;
+        int fLogRangeLow = 0;
         /** floor(log2(|max_value|)) */
-        int fLogRangeHigh;
+        int fLogRangeHigh = 0;
         /** Number of bits of precision. As defined in OpenGL (with names modified to reflect this
             struct) :
             """
@@ -50,7 +44,7 @@ public:
             2^fLogRangeHigh] can be represented to at least one part in 2^fBits.
             """
           */
-        int fBits;
+        int fBits = 0;
     };
 
     GrShaderCaps();
@@ -64,6 +58,7 @@ public:
     bool dualSourceBlendingSupport() const { return fDualSourceBlendingSupport; }
     bool integerSupport() const { return fIntegerSupport; }
     bool texelBufferSupport() const { return fTexelBufferSupport; }
+    int imageLoadStoreSupport() const { return fImageLoadStoreSupport; }
 
     /**
     * Get the precision info for a variable of type kFloat_GrSLType, kVec2f_GrSLType, etc in a
@@ -106,18 +101,19 @@ protected:
         the client. Note that overrides will only reduce the caps never expand them. */
     void applyOptionsOverrides(const GrContextOptions& options);
 
-    bool fShaderDerivativeSupport : 1;
-    bool fGeometryShaderSupport : 1;
-    bool fPathRenderingSupport : 1;
-    bool fDstReadInShaderSupport : 1;
+    bool fShaderDerivativeSupport   : 1;
+    bool fGeometryShaderSupport     : 1;
+    bool fPathRenderingSupport      : 1;
+    bool fDstReadInShaderSupport    : 1;
     bool fDualSourceBlendingSupport : 1;
-    bool fIntegerSupport : 1;
-    bool fTexelBufferSupport : 1;
-
-    bool fShaderPrecisionVaries;
+    bool fIntegerSupport            : 1;
+    bool fTexelBufferSupport        : 1;
+    bool fImageLoadStoreSupport     : 1;
+    bool fPLSPathRenderingSupport   : 1;
+    bool fShaderPrecisionVaries     : 1;
     PrecisionInfo fFloatPrecisions[kGrShaderTypeCount][kGrSLPrecisionCount];
     int fPixelLocalStorageSize;
-    bool fPLSPathRenderingSupport;
+    GR_STATIC_ASSERT(kGrShaderTypeCount == 3);
 
 private:
     virtual void onApplyOptionsOverrides(const GrContextOptions&) {}
