@@ -563,7 +563,6 @@ ASTLayout Parser::layout() {
             } else if (t.fText == "blend_support_all_equations") {
                 blendSupportAllEquations = true;
             } else if (ASTLayout::ReadFormat(t.fText, &format)) {
-               // AST::ReadFormat stored the result in 'format'.
             } else {
                 this->error(t.fPosition, ("'" + t.fText + 
                                           "' is not a valid layout qualifier").c_str());

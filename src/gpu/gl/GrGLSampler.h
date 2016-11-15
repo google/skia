@@ -30,10 +30,11 @@ public:
     GrGLint location() const { return fLocation; }
     GrSLType type() const override { return fShaderVar.getType(); }
 
-    const char* onGetSamplerNameForTexture2D() const override { return fShaderVar.c_str(); }
     const char* getSamplerNameForTexelFetch() const override { return fShaderVar.c_str(); }
 
 private:
+    const char* onGetSamplerNameForTexture2D() const override { return fShaderVar.c_str(); }
+
     GrGLSLShaderVar fShaderVar;
     GrGLint         fLocation;
 

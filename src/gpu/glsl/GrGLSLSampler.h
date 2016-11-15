@@ -38,6 +38,7 @@ public:
 
 private:
     virtual const char* onGetSamplerNameForTexture2D() const = 0;
+
     uint32_t      fVisibility;
     GrPixelConfig fConfig;
 };

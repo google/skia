@@ -9,6 +9,7 @@
 #include "glsl/GrGLSLShaderBuilder.h"
 #include "glsl/GrGLSLCaps.h"
 #include "glsl/GrGLSLColorSpaceXformHelper.h"
+#include "glsl/GrGLSLImage.h"
 #include "glsl/GrGLSLShaderVar.h"
 #include "glsl/GrGLSLSampler.h"
 #include "glsl/GrGLSLProgramBuilder.h"
@@ -183,6 +184,16 @@ void GrGLSLShaderBuilder::appendTextureSwizzle(SkString* out, GrPixelConfig conf
     if (configSwizzle != GrSwizzle::RGBA()) {
         out->appendf(".%s", configSwizzle.c_str());
     }
+}
+
+void GrGLSLShaderBuilder::appendImageLoad(SkString* out, ImageHandle handle,
+                                          const char* coordExpr) {
+    const GrGLSLImage& image = fProgramBuilder->getImage(handle);
+    out->appendf("imageLoad(%s, %s)", image.name(), coordExpr);
+}
+
+void GrGLSLShaderBuilder::appendImageLoad(ImageHandle handle, const char* coordExpr) {
+    this->appendImageLoad(&this->code(), handle, coordExpr);
 }
 
 bool GrGLSLShaderBuilder::addFeature(uint32_t featureBit, const char* extensionName) {

@@ -11,6 +11,7 @@
 #include "glsl/GrGLSLProgramDataManager.h"
 
 #include "GrAllocator.h"
+#include "gl/GrGLImage.h"
 #include "gl/GrGLSampler.h"
 #include "gl/GrGLTypes.h"
 #include "glsl/GrGLSLShaderVar.h"
@@ -49,6 +50,7 @@ public:
 
 
     void setSamplers(const SkTArray<GrGLSampler>& samplers) const;
+    void setImages(const SkTArray<GrGLImage>& images) const;
 
     /** Functions for uploading uniform values. The varities ending in v can be used to upload to an
     *  array of uniforms. arrayCount must be <= the array count of the uniform.
