@@ -49,6 +49,27 @@
 
 namespace SkSL {
 
+struct CapValue {
+    CapValue()
+    : fKind(kInvalid_Kind)
+    , fValue(-1) {}
+
+    CapValue(bool b)
+    : fKind(kBool_Kind)
+    , fValue(b) {}
+
+    CapValue(int i)
+    : fKind(kInt_Kind)
+    , fValue(i) {}
+
+    enum {
+        kBool_Kind,
+        kInt_Kind,
+        kInvalid_Kind
+    } fKind;
+    int fValue;
+};
+
 /**
  * Performs semantic analysis on an abstract syntax tree (AST) and produces the corresponding 
  * (unoptimized) intermediate representation (IR).
@@ -105,6 +126,7 @@ private:
     Modifiers convertModifiers(const ASTModifiers& m);
     std::unique_ptr<Expression> convertPrefixExpression(const ASTPrefixExpression& expression);
     std::unique_ptr<Statement> convertReturn(const ASTReturnStatement& r);
+    std::unique_ptr<Expression> getCap(Position position, std::string name);
     std::unique_ptr<Expression> convertSuffixExpression(const ASTSuffixExpression& expression);
     std::unique_ptr<Expression> convertField(std::unique_ptr<Expression> base, 
                                              const std::string& field);
@@ -120,6 +142,7 @@ private:
 
     const Context& fContext;
     const FunctionDeclaration* fCurrentFunction;
+    std::unordered_map<std::string, CapValue>* fCapsMap;
     std::shared_ptr<SymbolTable> fSymbolTable;
     int fLoopLevel;
     ErrorReporter& fErrors;

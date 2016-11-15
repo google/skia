@@ -121,6 +121,7 @@ public:
                                      fUVec4_Type.get() }))
     , fBVec_Type(new Type("$bvec", { fInvalid_Type.get(), fBVec2_Type.get(), fBVec3_Type.get(), 
                                      fBVec4_Type.get() }))
+    , fSkCaps_Type(new Type("$sk_Caps"))
     , fDefined_Expression(new Defined(*fInvalid_Type)) {}
 
     static std::vector<const Type*> static_type(const Type& t) {
@@ -230,6 +231,8 @@ public:
     const std::unique_ptr<Type> fUVec_Type;
 
     const std::unique_ptr<Type> fBVec_Type;
+
+    const std::unique_ptr<Type> fSkCaps_Type;
 
     // dummy expression used to mark that a variable has a value during dataflow analysis (when it 
     // could have several different values, or the analyzer is otherwise unable to assign it a

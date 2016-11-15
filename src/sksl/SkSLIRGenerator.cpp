@@ -84,6 +84,7 @@ IRGenerator::IRGenerator(const Context* context, std::shared_ptr<SymbolTable> sy
                          ErrorReporter& errorReporter)
 : fContext(*context)
 , fCurrentFunction(nullptr)
+, fCapsMap(nullptr)
 , fSymbolTable(std::move(symbolTable))
 , fLoopLevel(0)
 , fErrors(errorReporter) {}
@@ -1331,6 +1332,21 @@ std::unique_ptr<Expression> IRGenerator::convertSwizzle(std::unique_ptr<Expressi
     return std::unique_ptr<Expression>(new Swizzle(fContext, std::move(base), swizzleComponents));
 }
 
+std::unique_ptr<Expression> IRGenerator::getCap(Position position, std::string name) {
+    ASSERT(fCapsMap);
+    CapValue& v = (*fCapsMap)[name];
+    switch (v.fKind) {
+        case CapValue::kBool_Kind:
+            return std::unique_ptr<Expression>(new BoolLiteral(fContext, position,
+                                                               (bool) v.fValue));
+        case CapValue::kInt_Kind:
+            return std::unique_ptr<Expression>(new IntLiteral(fContext, position, v.fValue));
+        case CapValue::kInvalid_Kind:
+            fErrors.error(position, "unknown capability flag '" + name + "'");
+            return nullptr;
+    }
+}
+
 std::unique_ptr<Expression> IRGenerator::convertSuffixExpression(
                                                             const ASTSuffixExpression& expression) {
     std::unique_ptr<Expression> base = this->convertExpression(*expression.fBase);
@@ -1368,6 +1384,10 @@ std::unique_ptr<Expression> IRGenerator::convertSuffixExpression(
             return this->call(expression.fPosition, std::move(base), std::move(arguments));
         }
         case ASTSuffix::kField_Kind: {
+            if (base->fType == *fContext.fSkCaps_Type) {
+                return this->getCap(expression.fPosition,
+                                    ((ASTFieldSuffix&) *expression.fSuffix).fField);
+            }
             switch (base->fType.kind()) {
                 case Type::kVector_Kind:
                     return this->convertSwizzle(std::move(base), 
