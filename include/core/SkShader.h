@@ -510,7 +510,7 @@ protected:
     }
 
     virtual bool onAppendStages(SkRasterPipeline*, SkColorSpace*, SkFallbackAlloc*,
-                                const SkMatrix& ctm) const {
+                                const SkMatrix&) const {
         return false;
     }
 
