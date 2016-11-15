@@ -45,7 +45,7 @@ static void add_white(Fuzz* fuzz, SkString* atom) {
     fuzz->nextRange(&reps, 0, 2);
     for (uint8_t rep = 0; rep < reps; ++rep) {
         uint8_t index;
-        fuzz->nextRange(&index, 0, SK_ARRAY_COUNT(gWhiteSpace) - 1);
+        fuzz->nextRange(&index, 0, (int) SK_ARRAY_COUNT(gWhiteSpace) - 1);
         if (gWhiteSpace[index]) {
             atom->append(&gWhiteSpace[index], 1);
         }
@@ -75,7 +75,7 @@ static void add_comma(Fuzz* fuzz, SkString* atom) {
 SkString MakeRandomParsePathPiece(Fuzz* fuzz) {
     SkString atom;
     uint8_t index;
-    fuzz->nextRange(&index, 0, SK_ARRAY_COUNT(gLegal) - 1);
+    fuzz->nextRange(&index, 0, (int) SK_ARRAY_COUNT(gLegal) - 1);
     const Legal& legal = gLegal[index];
     gEasy ? atom.append("\n") : add_white(fuzz, &atom);
     bool b;

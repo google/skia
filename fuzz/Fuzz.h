@@ -95,20 +95,19 @@ inline void Fuzz::nextRange(float* f, float min, float max) {
 template <typename T, typename Min, typename Max>
 inline void Fuzz::nextRange(T* n, Min min, Max max) {
     this->next<T>(n);
-    T range = max - min + 1;
-    if (0 == range) {
-        return;
-    } else {
-        if (*n < 0) { // Handle negatives
-            if (*n != std::numeric_limits<T>::lowest()) {
-                *n *= -1;
-            }
-            else {
-                *n = std::numeric_limits<T>::max();
-            }
-         }
-        *n = min + (*n % range);
+    if (min >= max) {
+        // Avoid misuse of nextRange
+        this->signalBug();
     }
+    if (*n < 0) { // Handle negatives
+        if (*n != std::numeric_limits<T>::lowest()) {
+            *n *= -1;
+        }
+        else {
+            *n = std::numeric_limits<T>::max();
+        }
+    }
+    *n = min + (*n % ((size_t)max - min + 1));
 }
 
 template <typename T>
