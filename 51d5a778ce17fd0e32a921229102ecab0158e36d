@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "503c1cf2_97ddaf30",
+        "filename": "src/sksl/ir/SkSLLayout.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 112,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2016-11-15T19:35:11Z",
+      "side": 1,
+      "message": "I wasn\u0027t sure if it violated the design to use ASTLayout here or whether I should define the Format type and helpers somewhere outside of ASTLayout.",
+      "revId": "51d5a778ce17fd0e32a921229102ecab0158e36d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
