@@ -40,7 +40,9 @@ var (
 		"Build-Mac-Clang-arm64-Debug-GN_iOS",
 		"Build-Ubuntu-GCC-x86_64-Release-GN",
 		"Build-Win-Clang-arm64-Release-GN_Android",
+		"Housekeeper-Nightly-RecreateSKPs_Canary",
 		"Housekeeper-PerCommit-InfraTests",
+		"Housekeeper-Weekly-RecreateSKPs",
 		"Perf-Android-Clang-AndroidOne-CPU-MT6582-arm-Debug-GN_Android",
 		"Perf-Android-Clang-AndroidOne-CPU-MT6582-arm-Release-GN_Android",
 		"Perf-Android-Clang-AndroidOne-GPU-Mali400MP2-arm-Debug-GN_Android",
@@ -264,8 +266,9 @@ func compile(b *specs.TasksCfgBuilder, name string, parts map[string]string) str
 // dependency.
 func recreateSKPs(b *specs.TasksCfgBuilder, name string) string {
 	b.MustAddTask(name, &specs.TaskSpec{
-		CipdPackages: []*specs.CipdPackage{},
-		Dimensions:   LINUX_GCE_DIMENSIONS,
+		CipdPackages:     []*specs.CipdPackage{},
+		Dimensions:       LINUX_GCE_DIMENSIONS,
+		ExecutionTimeout: 4 * time.Hour,
 		ExtraArgs: []string{
 			"--workdir", "../../..", "swarm_RecreateSKPs",
 			fmt.Sprintf("repository=%s", specs.PLACEHOLDER_REPO),
@@ -280,8 +283,9 @@ func recreateSKPs(b *specs.TasksCfgBuilder, name string) string {
 			fmt.Sprintf("patch_issue=%s", specs.PLACEHOLDER_ISSUE),
 			fmt.Sprintf("patch_set=%s", specs.PLACEHOLDER_PATCHSET),
 		},
-		Isolate:  "compile_skia.isolate",
-		Priority: 0.8,
+		IoTimeout: 40 * time.Minute,
+		Isolate:   "compile_skia.isolate",
+		Priority:  0.8,
 	})
 	return name
 }
@@ -548,19 +552,21 @@ func process(b *specs.TasksCfgBuilder, name string) {
 		deps = append(deps, compile(b, name, parts))
 	}
 
-	// Any remaining bots need a compile task.
+	// Most remaining bots need a compile task.
 	compileTaskName := deriveCompileTaskName(name, parts)
 	compileTaskParts, err := jobNameSchema.ParseJobName(compileTaskName)
 	if err != nil {
 		glog.Fatal(err)
 	}
-	// The InfraTests bot doesn't need a compile task.
-	if parts["role"] != "Build" && name != "Housekeeper-PerCommit-InfraTests" {
+	// These bots don't need a compile task.
+	if parts["role"] != "Build" &&
+		name != "Housekeeper-PerCommit-InfraTests" &&
+		!strings.Contains(name, "RecreateSKPs") {
 		compile(b, compileTaskName, compileTaskParts)
 	}
 
 	// Housekeeper.
-	if parts["role"] == "Housekeeper" && name != "Housekeeper-PerCommit-InfraTests" {
+	if parts["role"] == "Housekeeper-PerCommit" {
 		deps = append(deps, housekeeper(b, name, compileTaskName))
 	}
 
@@ -591,10 +597,17 @@ func process(b *specs.TasksCfgBuilder, name string) {
 	}
 
 	// Add the Job spec.
-	b.AddJob(name, &specs.JobSpec{
+	j := &specs.JobSpec{
 		Priority:  0.8,
 		TaskSpecs: deps,
-	})
+	}
+	if name == "Housekeeper-Nightly-RecreateSKPs_Canary" {
+		j.Trigger = "nightly"
+	}
+	if name == "Housekeeper-Weekly-RecreateSKPs" {
+		j.Trigger = "weekly"
+	}
+	b.AddJob(name, j)
 }
 
 // Regenerate the tasks.json file.

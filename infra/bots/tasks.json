@@ -66,11 +66,25 @@
         "Build-Win-Clang-arm64-Release-GN_Android"
       ]
     },
+    "Housekeeper-Nightly-RecreateSKPs_Canary": {
+      "priority": 0.8,
+      "tasks": [
+        "Housekeeper-Nightly-RecreateSKPs_Canary"
+      ],
+      "trigger": "nightly"
+    },
     "Housekeeper-PerCommit-InfraTests": {
       "priority": 0.8,
       "tasks": [
         "Housekeeper-PerCommit-InfraTests"
       ]
+    },
+    "Housekeeper-Weekly-RecreateSKPs": {
+      "priority": 0.8,
+      "tasks": [
+        "Housekeeper-Weekly-RecreateSKPs"
+      ],
+      "trigger": "weekly"
     },
     "Perf-Android-Clang-AndroidOne-CPU-MT6582-arm-Debug-GN_Android": {
       "priority": 0.8,
@@ -566,6 +580,34 @@
       "isolate": "compile_skia.isolate",
       "priority": 0.8
     },
+    "Housekeeper-Nightly-RecreateSKPs_Canary": {
+      "dimensions": [
+        "cpu:x86-64-avx2",
+        "gpu:none",
+        "os:Ubuntu",
+        "pool:Skia"
+      ],
+      "execution_timeout_ns": 14400000000000,
+      "extra_args": [
+        "--workdir",
+        "../../..",
+        "swarm_RecreateSKPs",
+        "repository=<(REPO)",
+        "buildername=Housekeeper-Nightly-RecreateSKPs_Canary",
+        "mastername=fake-master",
+        "buildnumber=2",
+        "slavename=fake-buildslave",
+        "nobuildbot=True",
+        "swarm_out_dir=${ISOLATED_OUTDIR}",
+        "revision=<(REVISION)",
+        "patch_storage=<(PATCH_STORAGE)",
+        "patch_issue=<(ISSUE)",
+        "patch_set=<(PATCHSET)"
+      ],
+      "io_timeout_ns": 2400000000000,
+      "isolate": "compile_skia.isolate",
+      "priority": 0.8
+    },
     "Housekeeper-PerCommit-InfraTests": {
       "dimensions": [
         "cpu:x86-64-avx2",
@@ -590,6 +632,34 @@
         "patch_set=<(PATCHSET)"
       ],
       "isolate": "infra_skia.isolate",
+      "priority": 0.8
+    },
+    "Housekeeper-Weekly-RecreateSKPs": {
+      "dimensions": [
+        "cpu:x86-64-avx2",
+        "gpu:none",
+        "os:Ubuntu",
+        "pool:Skia"
+      ],
+      "execution_timeout_ns": 14400000000000,
+      "extra_args": [
+        "--workdir",
+        "../../..",
+        "swarm_RecreateSKPs",
+        "repository=<(REPO)",
+        "buildername=Housekeeper-Weekly-RecreateSKPs",
+        "mastername=fake-master",
+        "buildnumber=2",
+        "slavename=fake-buildslave",
+        "nobuildbot=True",
+        "swarm_out_dir=${ISOLATED_OUTDIR}",
+        "revision=<(REVISION)",
+        "patch_storage=<(PATCH_STORAGE)",
+        "patch_issue=<(ISSUE)",
+        "patch_set=<(PATCHSET)"
+      ],
+      "io_timeout_ns": 2400000000000,
+      "isolate": "compile_skia.isolate",
       "priority": 0.8
     },
     "Perf-Android-Clang-AndroidOne-CPU-MT6582-arm-Debug-GN_Android": {
