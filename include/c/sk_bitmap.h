@@ -32,7 +32,6 @@ SK_API void sk_bitmap_erase_rect(sk_bitmap_t* cbitmap, sk_color_t color, sk_irec
 SK_API sk_color_t sk_bitmap_get_pixel_color(sk_bitmap_t* cbitmap, int x, int y);
 SK_API sk_color_t sk_bitmap_get_index8_color(sk_bitmap_t* cbitmap, int x, int y);
 SK_API void sk_bitmap_set_pixel_color(sk_bitmap_t* cbitmap, int x, int y, sk_color_t color);
-SK_API void sk_bitmap_set_pixels(sk_bitmap_t* cbitmap, void* pixels, sk_colortable_t* ct);
 SK_API bool sk_bitmap_copy(sk_bitmap_t* cbitmap, sk_bitmap_t* dst, sk_colortype_t ct);
 SK_API bool sk_bitmap_can_copy_to(sk_bitmap_t* cbitmap, sk_colortype_t ct);
 SK_API void sk_bitmap_lock_pixels(sk_bitmap_t* cbitmap);
