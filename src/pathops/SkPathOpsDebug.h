@@ -58,6 +58,7 @@ class SkOpContourHead;
 #define DEBUG_CUBIC_BINARY_SEARCH 0
 #define DEBUG_CUBIC_SPLIT 0
 #define DEBUG_DUMP_SEGMENTS 0
+#define DEBUG_DUMP_VERIFY 0
 #define DEBUG_FLOW 0
 #define DEBUG_LIMIT_WIND_SUM 0
 #define DEBUG_MARK_DONE 0
@@ -87,6 +88,7 @@ class SkOpContourHead;
 #define DEBUG_COINCIDENCE_VERBOSE 01
 #define DEBUG_CUBIC_BINARY_SEARCH 0
 #define DEBUG_CUBIC_SPLIT 1
+#define DEBUG_DUMP_VERIFY 0
 #define DEBUG_DUMP_SEGMENTS 1
 #define DEBUG_FLOW 1
 #define DEBUG_LIMIT_WIND_SUM 15
@@ -375,7 +377,7 @@ public:
     static bool gRunFail;
     static bool gVeryVerbose;
 
-#ifdef SK_DEBUG
+#if DEBUG_DUMP_VERIFY
     static bool gDumpOp;
     static bool gVerifyOp;
 

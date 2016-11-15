@@ -158,7 +158,10 @@ bool SimplifyDebug(const SkPath& path, SkPath* result
     SkOpGlobalState globalState(contourList, &allocator
             SkDEBUGPARAMS(skipAssert) SkDEBUGPARAMS(testName));
     SkOpCoincidence coincidence(&globalState);
-#ifdef SK_DEBUG
+#if DEBUG_DUMP_VERIFY
+#ifndef SK_DEBUG
+    const char* testName = "release";
+#endif
     if (SkPathOpsDebug::gDumpOp) {
         SkPathOpsDebug::DumpSimplify(path, testName);
     }
@@ -223,7 +226,7 @@ bool SimplifyDebug(const SkPath& path, SkPath* result
 }
 
 bool Simplify(const SkPath& path, SkPath* result) {
-#ifdef SK_DEBUG
+#if DEBUG_DUMP_VERIFY
     if (SkPathOpsDebug::gVerifyOp) {
         if (!SimplifyDebug(path, result  SkDEBUGPARAMS(false) SkDEBUGPARAMS(nullptr))) {
             SkPathOpsDebug::ReportSimplifyFail(path);
