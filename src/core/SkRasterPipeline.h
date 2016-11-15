@@ -91,8 +91,8 @@ public:
     // Append all stages to this pipeline.
     void extend(const SkRasterPipeline&);
 
-    // Runs the pipeline walking x through [x,x+n).
-    std::function<void(size_t x, size_t n)> compile() const;
+    // Runs the pipeline walking x through [x,x+n), holding y constant.
+    std::function<void(size_t x, size_t y, size_t n)> compile() const;
 
     struct Stage {
         StockStage stage;

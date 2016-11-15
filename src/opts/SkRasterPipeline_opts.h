@@ -626,23 +626,23 @@ namespace SK_OPTS_NS {
     struct Memset16 {
         uint16_t** dst;
         uint16_t val;
-        void operator()(size_t x, size_t n) { sk_memset16(*dst + x, val, n); }
+        void operator()(size_t x, size_t, size_t n) { sk_memset16(*dst + x, val, n); }
     };
 
     struct Memset32 {
         uint32_t** dst;
         uint32_t val;
-        void operator()(size_t x, size_t n) { sk_memset32(*dst + x, val, n); }
+        void operator()(size_t x, size_t, size_t n) { sk_memset32(*dst + x, val, n); }
     };
 
     struct Memset64 {
         uint64_t** dst;
         uint64_t val;
-        void operator()(size_t x, size_t n) { sk_memset64(*dst + x, val, n); }
+        void operator()(size_t x, size_t, size_t n) { sk_memset64(*dst + x, val, n); }
     };
 
-    SI std::function<void(size_t, size_t)> compile_pipeline(const SkRasterPipeline::Stage* stages,
-                                                            int nstages) {
+    SI std::function<void(size_t, size_t, size_t)>
+    compile_pipeline(const SkRasterPipeline::Stage* stages, int nstages) {
         if (nstages == 2 && stages[0].stage == SkRasterPipeline::constant_color) {
             SkPM4f src = *(const SkPM4f*)stages[0].ctx;
             void* dst = stages[1].ctx;
@@ -679,16 +679,22 @@ namespace SK_OPTS_NS {
                 fBody[nstages-1].ctx = fTail[nstages-1].ctx = stages[nstages-1].ctx;
             }
 
-            void operator()(size_t x, size_t n) {
+            void operator()(size_t x, size_t y, size_t n) {
                 SkNf v;  // Fastest to start uninitialized.
 
+                float dx[] = { 0,1,2,3,4,5,6,7 };
+                SkNf X = SkNf(x),
+                     Y = SkNf(y),
+                     DX = SkNf::Load(dx);
+
                 while (n >= N) {
-                    fBodyStart(fBody, x, v,v,v,v, v,v,v,v);
+                    fBodyStart(fBody, x, v,v,v,v, X,Y,v,v);
+                    X += DX;
                     x += N;
                     n -= N;
                 }
                 if (n) {
-                    fTailStart(fTail, x,n, v,v,v,v, v,v,v,v);
+                    fTailStart(fTail, x,n, v,v,v,v, X,Y,v,v);
                 }
             }
 
