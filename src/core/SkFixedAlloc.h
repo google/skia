@@ -11,54 +11,51 @@
 #include "SkTFitsIn.h"
 #include "SkTypes.h"
 #include <new>
+#include <type_traits>
 #include <utility>
 #include <vector>
 
-// SkFixedAlloc allocates objects out of a fixed-size buffer and destroys them when destroyed.
+// Before GCC 5, is_trivially_copyable had a pre-standard name.
+#if defined(__GLIBCXX__) && (__GLIBCXX__ < 20150801)
+    namespace std {
+        template <typename T>
+        using is_trivially_copyable = has_trivial_copy_constructor<T>;
+    }
+#endif
+
+// SkFixedAlloc allocates POD objects out of a fixed-size buffer.
 class SkFixedAlloc {
 public:
     SkFixedAlloc(void* ptr, size_t len);
     ~SkFixedAlloc() { this->reset(); }
 
-    // Allocates a new T in the buffer if possible.  If not, returns nullptr.
-    template <typename T, typename... Args>
-    T* make(Args&&... args) {
-        auto aligned = ((uintptr_t)(fBuffer+fUsed) + alignof(T) - 1) & ~(alignof(T)-1);
-        size_t skip = aligned - (uintptr_t)(fBuffer+fUsed);
-
-        if (!SkTFitsIn<uint32_t>(skip)      ||
-            !SkTFitsIn<uint32_t>(sizeof(T)) ||
-            fUsed + skip + sizeof(T) + sizeof(Footer) > fLimit) {
-            return nullptr;
-        }
-
-        // Skip ahead until our buffer is aligned for T.
-        fUsed += skip;
-
-        // Create the T.
-        auto ptr = (T*)(fBuffer+fUsed);
-        new (ptr) T(std::forward<Args>(args)...);
-        fUsed += sizeof(T);
-
-        // Stamp a footer after the T that we can use to clean it up.
-        Footer footer = { [](void* ptr) { ((T*)ptr)->~T(); }, SkToU32(skip), SkToU32(sizeof(T)) };
-        memcpy(fBuffer+fUsed, &footer, sizeof(Footer));
-        fUsed += sizeof(Footer);
-
-        return ptr;
+    // Allocates space suitable for a T.  If we can't, returns nullptr.
+    template <typename T>
+    void* alloc() {
+        static_assert(std::is_standard_layout   <T>::value
+                   && std::is_trivially_copyable<T>::value, "");
+        return this->alloc(sizeof(T), alignof(T));
     }
 
-    // Destroys the last object allocated and frees its space in the buffer.
+    template <typename T, typename... Args>
+    T* make(Args&&... args) {
+        if (auto ptr = this->alloc<T>()) {
+            return new (ptr) T(std::forward<Args>(args)...);
+        }
+        return nullptr;
+    }
+
+    template <typename T>
+    T* copy(const T& src) { return this->make<T>(src); }
+
+    // Frees the space of the last object allocated.
     void undo();
 
-    // Destroys all objects and frees all space in the buffer.
+    // Frees all space in the buffer.
     void reset();
 
 private:
-    struct Footer {
-        void (*dtor)(void*);
-        uint32_t skip, len;
-    };
+    void* alloc(size_t, size_t);
 
     char* fBuffer;
     size_t fUsed, fLimit;
@@ -69,34 +66,34 @@ public:
     explicit SkFallbackAlloc(SkFixedAlloc*);
     ~SkFallbackAlloc() { this->reset(); }
 
-    // Allocates a new T with the SkFixedAlloc if possible.  If not, uses the heap.
-    template <typename T, typename... Args>
-    T* make(Args&&... args) {
-        // Once we go heap we never go back to fixed.  This keeps destructor ordering sane.
+    template <typename T>
+    void* alloc() {
+        // Once we go heap we never go back to fixed.  This keeps undo() working.
         if (fHeapAllocs.empty()) {
-            if (T* ptr = fFixedAlloc->make<T>(std::forward<Args>(args)...)) {
+            if (void* ptr = fFixedAlloc->alloc<T>()) {
                 return ptr;
             }
         }
-        auto ptr = new T(std::forward<Args>(args)...);
-        fHeapAllocs.push_back({[](void* ptr) { delete (T*)ptr; }, ptr});
+        void* ptr = sk_malloc_throw(sizeof(T));
+        fHeapAllocs.push_back(ptr);
         return ptr;
     }
 
-    // Destroys the last object allocated and frees any space it used in the SkFixedAlloc.
+    template <typename T, typename... Args>
+    T* make(Args&&... args) { return new (this->alloc<T>()) T(std::forward<Args>(args)...); }
+
+    template <typename T>
+    T* copy(const T& src) { return this->make<T>(src); }
+
+    // Frees the last object allocated, including any space it used in the SkFixedAlloc.
     void undo();
 
-    // Destroys all objects and frees all space in the SkFixedAlloc.
+    // Frees all objects and all space in the SkFixedAlloc.
     void reset();
 
 private:
-    struct HeapAlloc {
-        void (*deleter)(void*);
-        void* ptr;
-    };
-
-    SkFixedAlloc*          fFixedAlloc;
-    std::vector<HeapAlloc> fHeapAllocs;
+    SkFixedAlloc*      fFixedAlloc;
+    std::vector<void*> fHeapAllocs;
 };
 
 #endif//SkFixedAlloc_DEFINED
