@@ -2064,7 +2064,7 @@ bool GrGLGpu::flushGLState(const GrPipeline& pipeline, const GrPrimitiveProcesso
     this->flushStencil(stencil);
     this->flushScissor(pipeline.getScissorState(), glRT->getViewport(), glRT->origin());
     this->flushWindowRectangles(pipeline.getWindowRectsState(), glRT);
-    this->flushHWAAState(glRT, pipeline.isHWAntialiasState(), stencil.isDisabled());
+    this->flushHWAAState(glRT, pipeline.isHWAntialiasState(), !stencil.isDisabled());
 
     // This must come after textures are flushed because a texture may need
     // to be msaa-resolved (which will modify bound FBO state).
