@@ -95,6 +95,8 @@ public:
     // Runs the pipeline walking x through [x,x+n), holding y constant.
     std::function<void(size_t x, size_t y, size_t n)> compile() const;
 
+    void dump() const;
+
     struct Stage {
         StockStage stage;
         void*        ctx;

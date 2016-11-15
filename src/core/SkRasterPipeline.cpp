@@ -25,3 +25,17 @@ void SkRasterPipeline::extend(const SkRasterPipeline& src) {
 std::function<void(size_t, size_t, size_t)> SkRasterPipeline::compile() const {
     return SkOpts::compile_pipeline(fStages, fNum);
 }
+
+void SkRasterPipeline::dump() const {
+    SkDebugf("SkRasterPipeline, %d stages\n", fNum);
+    for (int i = 0; i < fNum; i++) {
+        const char* name = "";
+        switch (fStages[i].stage) {
+        #define M(x) case x: name = #x; break;
+            SK_RASTER_PIPELINE_STAGES(M)
+        #undef M
+        }
+        SkDebugf("\t%s\n", name);
+    }
+    SkDebugf("\n");
+}
