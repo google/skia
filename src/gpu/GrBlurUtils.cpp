@@ -13,7 +13,6 @@
 #include "effects/GrSimpleTextureEffect.h"
 #include "GrStyle.h"
 #include "GrTexture.h"
-#include "GrTextureProxy.h"
 #include "GrTextureProvider.h"
 #include "SkDraw.h"
 #include "SkGrPriv.h"
@@ -93,25 +92,25 @@ static bool sw_draw_with_mask_filter(GrRenderTargetContext* renderTargetContext,
 }
 
 // Create a mask of 'devPath' and place the result in 'mask'.
-static sk_sp<GrTextureProxy> create_mask_GPU(GrContext* context,
-                                             const SkIRect& maskRect,
-                                             const SkPath& devPath,
-                                             SkStrokeRec::InitStyle fillOrHairline,
-                                             bool doAA,
-                                             int sampleCnt) {
+static sk_sp<GrTexture> create_mask_GPU(GrContext* context,
+                                        const SkIRect& maskRect,
+                                        const SkPath& devPath,
+                                        SkStrokeRec::InitStyle fillOrHairline,
+                                        bool doAA,
+                                        int sampleCnt) {
     if (!doAA) {
         // Don't need MSAA if mask isn't AA
         sampleCnt = 0;
     }
 
-    sk_sp<GrRenderTargetContext> rtContext(context->makeDeferredRenderTargetContextWithFallback(
+    sk_sp<GrRenderTargetContext> renderTargetContext(context->makeRenderTargetContextWithFallback(
         SkBackingFit::kApprox, maskRect.width(), maskRect.height(), kAlpha_8_GrPixelConfig, nullptr,
         sampleCnt));
-    if (!rtContext) {
+    if (!renderTargetContext) {
         return nullptr;
     }
 
-    rtContext->clear(nullptr, 0x0, true);
+    renderTargetContext->clear(nullptr, 0x0, true);
 
     GrPaint tempPaint;
     tempPaint.setAntiAlias(doAA);
@@ -125,8 +124,8 @@ static sk_sp<GrTextureProxy> create_mask_GPU(GrContext* context,
     // the origin using tempPaint.
     SkMatrix translate;
     translate.setTranslate(-SkIntToScalar(maskRect.fLeft), -SkIntToScalar(maskRect.fTop));
-    rtContext->drawPath(clip, tempPaint, translate, devPath, GrStyle(fillOrHairline));
-    return sk_ref_sp(rtContext->asDeferredTexture());
+    renderTargetContext->drawPath(clip, tempPaint, translate, devPath, GrStyle(fillOrHairline));
+    return renderTargetContext->asTexture();;
 }
 
 static void draw_path_with_mask_filter(GrContext* context,
@@ -205,17 +204,16 @@ static void draw_path_with_mask_filter(GrContext* context,
             return;
         }
 
-        sk_sp<GrTextureProxy> mask(create_mask_GPU(context,
-                                                   finalIRect,
-                                                   *path,
-                                                   fillOrHairline,
-                                                   paint->isAntiAlias(),
-                                                   renderTargetContext->numColorSamples()));
+        sk_sp<GrTexture> mask(create_mask_GPU(context,
+                                              finalIRect,
+                                              *path,
+                                              fillOrHairline,
+                                              paint->isAntiAlias(),
+                                              renderTargetContext->numColorSamples()));
         if (mask) {
             GrTexture* filtered;
 
-            if (maskFilter->filterMaskGPU(mask->instantiate(context->textureProvider()),
-                                          viewMatrix, finalIRect, &filtered)) {
+            if (maskFilter->filterMaskGPU(mask.get(), viewMatrix, finalIRect, &filtered)) {
                 // filterMaskGPU gives us ownership of a ref to the result
                 sk_sp<GrTexture> atu(filtered);
                 if (draw_mask(renderTargetContext, clip, viewMatrix, finalIRect, paint, filtered)) {
