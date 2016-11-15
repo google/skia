@@ -65,9 +65,9 @@ class JSONDict(dict):
 def main():
   data = JSONDict(
     FLAGS.properties + \
-    ['key', JSONDict(FLAGS.key),
-     'bench_type', 'playback',
-     'source_type', 'skp'])
+    ['key', JSONDict(FLAGS.key + \
+                     ['bench_type', 'playback', \
+                      'source_type', 'skp'])])
 
   for src in FLAGS.sources:
     with open(src, mode='r') as infile:
@@ -80,7 +80,7 @@ def main():
         for result in ('accum', 'median'):
           data['results'][match.bench][match.config] \
               ['%s_%s_%s' % (result, match.clock, match.metric)] = \
-              match.get_string(result)
+              getattr(match, result)
 
   if FLAGS.outfile != '-':
     with open(FLAGS.outfile, 'w+') as outfile:
