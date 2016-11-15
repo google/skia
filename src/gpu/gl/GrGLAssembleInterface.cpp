@@ -532,6 +532,14 @@ const GrGLInterface* GrGLAssembleGLInterface(void* ctx, GrGLGetProc get) {
         GET_PROC(DeleteSync);
     }
 
+    if (glVer >= GR_GL_VER(4, 2) || extensions.has("GL_ARB_shader_image_load_store")) {
+        GET_PROC(BindImageTexture);
+        GET_PROC(MemoryBarrier);
+    }
+    if (glVer >= GR_GL_VER(4, 5) || extensions.has("GL_ARB_ES3_1_compatibility")) {
+        GET_PROC(MemoryBarrierByRegion);
+    }
+
     interface->fStandard = kGL_GrGLStandard;
     interface->fExtensions.swap(&extensions);
 
@@ -936,6 +944,12 @@ const GrGLInterface* GrGLAssembleGLESInterface(void* ctx, GrGLGetProc get) {
         GET_PROC(FenceSync);
         GET_PROC(ClientWaitSync);
         GET_PROC(DeleteSync);
+    }
+
+    if (version >= GR_GL_VER(3, 1)) {
+        GET_PROC(BindImageTexture);
+        GET_PROC(MemoryBarrier);
+        GET_PROC(MemoryBarrierByRegion);
     }
 
     interface->fStandard = kGLES_GrGLStandard;
