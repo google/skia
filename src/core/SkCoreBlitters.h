@@ -212,6 +212,7 @@ SkBlitter* SkBlitter_ChooseD565(const SkPixmap& device, const SkPaint& paint,
 
 
 // Returns nullptr if no SkRasterPipeline blitter can be constructed for this paint.
-SkBlitter* SkCreateRasterPipelineBlitter(const SkPixmap&, const SkPaint&, SkTBlitterAllocator*);
+SkBlitter* SkCreateRasterPipelineBlitter(const SkPixmap&, const SkPaint&, const SkMatrix& ctm,
+                                         SkTBlitterAllocator*);
 
 #endif
