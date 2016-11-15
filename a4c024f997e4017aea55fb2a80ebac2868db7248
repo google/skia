@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "503c1cf2_b25d6109",
+        "filename": "include/gpu/GrCaps.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 117,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2016-11-15T20:20:05Z",
+      "side": 1,
+      "message": "There is no GrShaderCaps.h. This change is in the GrShaderCaps definition in GrCaps.h.\n\nSomewhat related: I\u0027d like to merge GrShaderCaps and GrGLSLCaps since I think the existence of SkSL means the shading language isn\u0027t backend-specific anymore.",
+      "parentUuid": "503c1cf2_1201ad6a",
+      "revId": "a4c024f997e4017aea55fb2a80ebac2868db7248",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "503c1cf2_32ce7146",
         "filename": "src/gpu/gl/GrGLCaps.cpp",
         "patchSetId": 3
@@ -36,6 +54,24 @@
         "endLine": 313,
         "endChar": 40
       },
+      "revId": "a4c024f997e4017aea55fb2a80ebac2868db7248",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "503c1cf2_92793d70",
+        "filename": "src/gpu/gl/GrGLCaps.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 313,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2016-11-15T20:20:05Z",
+      "side": 1,
+      "message": "I think I will eventually need that as well as a separate cap for the atomic image ops. Those will come in future changes.",
+      "parentUuid": "503c1cf2_32ce7146",
       "revId": "a4c024f997e4017aea55fb2a80ebac2868db7248",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
