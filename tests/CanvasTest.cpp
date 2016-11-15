@@ -734,3 +734,71 @@ DEF_TEST(DeferredCanvas, r) {
     canvas.restore();
 }
 
+///////////////////////////////////////////////////////////////////////////////////////////////////
+
+#include "SkCanvasStack.h"
+#include "SkNWayCanvas.h"
+
+// Subclass that takes a bool*, which it updates in its construct (true) and destructor (false)
+// to allow the caller to know how long the object is alive.
+class LifeLineCanvas : public SkCanvas {
+    bool*   fLifeLine;
+public:
+    LifeLineCanvas(int w, int h, bool* lifeline) : SkCanvas(w, h), fLifeLine(lifeline) {
+        *fLifeLine = true;
+    }
+    ~LifeLineCanvas() {
+        *fLifeLine = false;
+    }
+};
+
+// Check that NWayCanvas does NOT try to manage the lifetime of its sub-canvases
+DEF_TEST(NWayCanvas, r) {
+    const int w = 10;
+    const int h = 10;
+    bool life[2];
+    {
+        LifeLineCanvas c0(w, h, &life[0]);
+        REPORTER_ASSERT(r, life[0]);
+    }
+    REPORTER_ASSERT(r, !life[0]);
+
+
+    std::unique_ptr<SkCanvas> c0 = std::unique_ptr<SkCanvas>(new LifeLineCanvas(w, h, &life[0]));
+    std::unique_ptr<SkCanvas> c1 = std::unique_ptr<SkCanvas>(new LifeLineCanvas(w, h, &life[1]));
+    REPORTER_ASSERT(r, life[0]);
+    REPORTER_ASSERT(r, life[1]);
+
+    {
+        SkNWayCanvas nway(w, h);
+        nway.addCanvas(c0.get());
+        nway.addCanvas(c1.get());
+        REPORTER_ASSERT(r, life[0]);
+        REPORTER_ASSERT(r, life[1]);
+    }
+    // Now assert that the death of the nway has NOT also killed the sub-canvases
+    REPORTER_ASSERT(r, life[0]);
+    REPORTER_ASSERT(r, life[1]);
+}
+
+// Check that CanvasStack DOES manage the lifetime of its sub-canvases
+DEF_TEST(CanvasStack, r) {
+    const int w = 10;
+    const int h = 10;
+    bool life[2];
+    std::unique_ptr<SkCanvas> c0 = std::unique_ptr<SkCanvas>(new LifeLineCanvas(w, h, &life[0]));
+    std::unique_ptr<SkCanvas> c1 = std::unique_ptr<SkCanvas>(new LifeLineCanvas(w, h, &life[1]));
+    REPORTER_ASSERT(r, life[0]);
+    REPORTER_ASSERT(r, life[1]);
+
+    {
+        SkCanvasStack stack(w, h);
+        stack.pushCanvas(std::move(c0), {0,0});
+        stack.pushCanvas(std::move(c1), {0,0});
+        REPORTER_ASSERT(r, life[0]);
+        REPORTER_ASSERT(r, life[1]);
+    }
+    // Now assert that the death of the canvasstack has also killed the sub-canvases
+    REPORTER_ASSERT(r, !life[0]);
+    REPORTER_ASSERT(r, !life[1]);
+}
