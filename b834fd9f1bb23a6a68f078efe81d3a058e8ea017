@@ -22,6 +22,24 @@
       "revId": "b834fd9f1bb23a6a68f078efe81d3a058e8ea017",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "503c1cf2_fe35f8ed",
+        "filename": "src/utils/SkCanvasStack.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 45,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2016-11-15T16:53:02Z",
+      "side": 1,
+      "message": "Good idea.",
+      "parentUuid": "b0cd587b_2269eed6",
+      "revId": "b834fd9f1bb23a6a68f078efe81d3a058e8ea017",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
