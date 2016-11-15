@@ -309,6 +309,37 @@ void GrGLCaps::init(const GrContextOptions& contextOptions,
     GR_GL_GetIntegerv(gli, GR_GL_MAX_COMBINED_TEXTURE_IMAGE_UNITS, &maxSamplers);
     glslCaps->fMaxCombinedSamplers = SkTMin<GrGLint>(kMaxSaneSamplers, maxSamplers);
 
+    bool supportImages;
+    if (kGL_GrGLStandard == standard) {
+        supportImages = ctxInfo.version() >= GR_GL_VER(4, 2);
+        if (!supportImages && ctxInfo.hasExtension("GL_ARB_shader_image_load_store")) {
+            supportImages = true;
+            glslCaps->fImageLoadStoreExtensionString = "GL_ARB_shader_image_load_store";
+        }
+    } else {
+        supportImages = ctxInfo.version() >= GR_GL_VER(3, 1);
+    }
+    if (supportImages) {
+        // Protect ourselves against tracking huge amounts of image state.
+        static constexpr int kMaxSaneImages = 4;
+        GrGLint maxUnits;
+        GrGLint maxVertexUniforms;
+        GrGLint maxGeometryUniforms;
+        GrGLint maxFragmentUniforms;
+        GrGLint maxCombinedUniforms;
+        GR_GL_GetIntegerv(gli, GR_GL_MAX_IMAGE_UNITS, &maxUnits);
+        GR_GL_GetIntegerv(gli, GR_GL_MAX_VERTEX_IMAGE_UNIFORMS, &maxVertexUniforms);
+        GR_GL_GetIntegerv(gli, GR_GL_MAX_GEOMETRY_IMAGE_UNIFORMS, &maxGeometryUniforms);
+        GR_GL_GetIntegerv(gli, GR_GL_MAX_FRAGMENT_IMAGE_UNIFORMS, &maxFragmentUniforms);
+        GR_GL_GetIntegerv(gli, GR_GL_MAX_COMBINED_IMAGE_UNIFORMS, &maxCombinedUniforms);
+        // We use one unit for every uniform
+        maxUnits = SkTMin(SkTMin(maxUnits, maxCombinedUniforms), kMaxSaneImages);
+        glslCaps->fMaxShaderImages[kVertex_GrShaderType] = SkTMin(maxUnits, maxVertexUniforms);
+        glslCaps->fMaxShaderImages[kGeometry_GrShaderType] = SkTMin(maxUnits, maxGeometryUniforms);
+        glslCaps->fMaxShaderImages[kFragment_GrShaderType] = SkTMin(maxUnits, maxFragmentUniforms);
+        glslCaps->fMaxCombinedImages = maxCombinedUniforms;
+    }
+
     /**************************************************************************
      * GrCaps fields
      **************************************************************************/
@@ -621,6 +652,14 @@ const char* get_glsl_version_decl_string(GrGLStandard standard, GrGLSLGeneration
                 return "#version 400\n";
             } else {
                 return "#version 400 compatibility\n";
+            }
+        case k420_GrGLSLGeneration:
+            SkASSERT(kGL_GrGLStandard == standard);
+            if (isCoreProfile) {
+                return "#version 420\n";
+            }
+            else {
+                return "#version 420 compatibility\n";
             }
         case k310es_GrGLSLGeneration:
             SkASSERT(kGLES_GrGLStandard == standard);

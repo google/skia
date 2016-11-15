@@ -42,10 +42,12 @@ GrGLSLCaps::GrGLSLCaps(const GrContextOptions& options) {
     fSampleVariablesExtensionString = nullptr;
     fFBFetchColorName = nullptr;
     fFBFetchExtensionString = nullptr;
+    fImageLoadStoreExtensionString = nullptr;
     fMaxVertexSamplers = 0;
     fMaxGeometrySamplers = 0;
     fMaxFragmentSamplers = 0;
     fMaxCombinedSamplers = 0;
+    fMaxCombinedImages   = 0;
     fAdvBlendEqInteraction = kNotSupported_AdvBlendEqInteraction;
 }
 

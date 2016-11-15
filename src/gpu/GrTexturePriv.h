@@ -49,6 +49,13 @@ public:
         return fTexture->fMaxMipMapLevel;
     }
 
+    GrSLType imageType() const {
+        if (GrPixelConfigIsSint(fTexture->config())) {
+            return kIImage2D_GrSLType;
+        } else {
+            return kImage2D_GrSLType;
+        }
+    }
     GrSLType samplerType() const { return fTexture->fSamplerType; }
 
     /** The filter used is clamped to this value in GrTextureAccess. */

@@ -123,6 +123,11 @@ void GrProcessor::addBufferAccess(const GrBufferAccess* access) {
     this->addGpuResource(access->getProgramBuffer());
 }
 
+void GrProcessor::addImageAccess(const GrImageAccess* access) {
+    fImageAccesses.push_back(access);
+    this->addGpuResource(access->getProgramBuffer());
+}
+
 void* GrProcessor::operator new(size_t size) {
     return MemoryPoolAccessor().pool()->allocate(size);
 }
@@ -142,6 +147,11 @@ bool GrProcessor::hasSameSamplers(const GrProcessor& that) const {
     }
     for (int i = 0; i < this->numBuffers(); ++i) {
         if (this->bufferAccess(i) != that.bufferAccess(i)) {
+            return false;
+        }
+    }
+    for (int i = 0; i < this->numImages(); ++i) {
+        if (this->imageAccess(i) != that.imageAccess(i)) {
             return false;
         }
     }

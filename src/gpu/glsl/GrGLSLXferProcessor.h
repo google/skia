@@ -10,10 +10,10 @@
 
 #include "glsl/GrGLSLProgramDataManager.h"
 #include "glsl/GrGLSLSampler.h"
+#include "glsl/GrGLSLUniformHandler.h"
 
 class GrXferProcessor;
 class GrGLSLCaps;
-class GrGLSLUniformHandler;
 class GrGLSLXPBuilder;
 class GrGLSLXPFragmentBuilder;
 
@@ -22,7 +22,7 @@ public:
     GrGLSLXferProcessor() {}
     virtual ~GrGLSLXferProcessor() {}
 
-    typedef GrGLSLProgramDataManager::UniformHandle SamplerHandle;
+    using SamplerHandle = GrGLSLUniformHandler::SamplerHandle;
 
     struct EmitArgs {
         EmitArgs(GrGLSLXPFragmentBuilder* fragBuilder,
