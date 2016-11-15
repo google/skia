@@ -15,18 +15,18 @@ sys.path.insert(0, os.path.join(os.getcwd(), 'common'))
 from py.utils import git_utils
 
 
-
+# rmistry
 CHROMIUM_SKIA = 'https://chromium.googlesource.com/skia.git'
 COMMIT_MSG = '''Update SKP version
 
 Automatic commit by the RecreateSKPs bot.
 
-TBR=
 NO_MERGE_BUILDS
 '''
-SKIA_COMMITTER_EMAIL = 'skia.buildbots@gmail.com'
-SKIA_COMMITTER_NAME = 'skia.buildbots'
+SKIA_COMMITTER_EMAIL = 'update-skps@skia.org'
+SKIA_COMMITTER_NAME = 'UpdateSKPs'
 SKIA_REPO = 'https://skia.googlesource.com/skia.git'
+GIT_COOKIES_LOCATION = '/tmp/creds/.gitcookies'
 
 
 def main(target_dir):
@@ -34,9 +34,19 @@ def main(target_dir):
                          SKIA_COMMITTER_NAME])
   subprocess.check_call(['git', 'config', '--local', 'user.email',
                          SKIA_COMMITTER_EMAIL])
+  subprocess.check_call(['git', 'config', '--local', 'http.cookiefile',
+                         GIT_COOKIES_LOCATION])
   if CHROMIUM_SKIA in subprocess.check_output(['git', 'remote', '-v']):
     subprocess.check_call(['git', 'remote', 'set-url', 'origin', SKIA_REPO,
                            CHROMIUM_SKIA])
+
+  # TODO(rmistry): Experimenting starts.
+  with git_utils.GitBranch(branch_name='update_skp_version',
+                           commit_msg=COMMIT_MSG,
+                           commit_queue=False):
+    pass
+  return
+  # TODO(rmistry): Experimenting ends.
 
   # Download CIPD.
   cipd_sha1 = os.path.join(os.getcwd(), 'infra', 'bots', 'tools', 'luci-go',
