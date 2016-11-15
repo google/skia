@@ -1,0 +1,61 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "503c1cf2_be61b02a",
+        "filename": "tests/CanvasTest.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 745,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2016-11-15T16:39:34Z",
+      "side": 1,
+      "message": ": SkCanvas(10,10) so you don\u0027t need a bitmap.",
+      "revId": "4252623cf10d43cdf19dfa4f5f6ca004d7ae3e84",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "503c1cf2_1ec1bceb",
+        "filename": "tests/CanvasTest.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 754,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2016-11-15T16:39:34Z",
+      "side": 1,
+      "message": "_mike?",
+      "range": {
+        "startLine": 754,
+        "startChar": 9,
+        "endLine": 754,
+        "endChar": 24
+      },
+      "revId": "4252623cf10d43cdf19dfa4f5f6ca004d7ae3e84",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "503c1cf2_7e80c892",
+        "filename": "tests/CanvasTest.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 756,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2016-11-15T16:39:34Z",
+      "side": 1,
+      "message": "you don\u0027t need a bitmap.",
+      "revId": "4252623cf10d43cdf19dfa4f5f6ca004d7ae3e84",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
