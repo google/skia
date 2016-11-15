@@ -15,13 +15,16 @@
 #include <utility>
 #include <vector>
 
-// Before GCC 5, is_trivially_copyable had a pre-standard name.
-#if defined(__GLIBCXX__) && (__GLIBCXX__ < 20150801)
-    namespace std {
+namespace {
+    // Before GCC 5, is_trivially_copyable had a pre-standard name.
+    #if defined(__GLIBCXX__)
         template <typename T>
-        using is_trivially_copyable = has_trivial_copy_constructor<T>;
-    }
-#endif
+        using is_trivially_copyable = std::has_trivial_copy_constructor<T>;
+    #else
+        template <typename T>
+        using is_trivially_copyable = std::is_trivially_copyable<T>;
+    #endif
+}
 
 // SkFixedAlloc allocates POD objects out of a fixed-size buffer.
 class SkFixedAlloc {
@@ -32,8 +35,7 @@ public:
     // Allocates space suitable for a T.  If we can't, returns nullptr.
     template <typename T>
     void* alloc() {
-        static_assert(std::is_standard_layout   <T>::value
-                   && std::is_trivially_copyable<T>::value, "");
+        static_assert(std::is_standard_layout<T>::value && is_trivially_copyable<T>::value, "");
         return this->alloc(sizeof(T), alignof(T));
     }
 
