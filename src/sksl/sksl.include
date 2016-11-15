@@ -537,8 +537,10 @@ int atomicExchange(inout int mem, int data);
 uint atomicCompSwap(inout uint mem, uint compare, uint data);
 int atomicCompSwap(inout int mem, int compare, int data);
 */
-// section 8.12 Image Functions will go here if and when we add support for them
-
+// section 8.12 Additional Image Functions will go here if and when we add
+// support for them
+vec4 imageLoad(image2D image, ivec2 P);
+ivec4 imageLoad(iimage2D image, ivec2 P);
 $genType dFdx($genType p);
 $genType dFdy($genType p);
 float interpolateAtSample(float interpolant, int sample);
