@@ -54,6 +54,41 @@
     },
     {
       "key": {
+        "uuid": "503c1cf2_f1ec064c",
+        "filename": "src/sksl/SkSLCompiler.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 472,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2016-11-15T21:53:12Z",
+      "side": 1,
+      "message": "requiresLocalOutputColorForFBFetch seems like it is destined to achieve this status as well.",
+      "parentUuid": "503c1cf2_ed8d4c54",
+      "revId": "ffd24800bcb7ce4de64c12680ff8ba394eec90fa",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "503c1cf2_b12a7e8e",
+        "filename": "src/sksl/SkSLCompiler.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 478,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2016-11-15T21:53:12Z",
+      "side": 1,
+      "message": "I don\u0027t know if these are really usable in the shader code. Once you have the shader code either you added too many samplers or not.",
+      "revId": "ffd24800bcb7ce4de64c12680ff8ba394eec90fa",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "503c1cf2_d1f0e273",
         "filename": "src/sksl/SkSLIRGenerator.cpp",
         "patchSetId": 6
