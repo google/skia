@@ -2315,12 +2315,8 @@ sk_sp<SkSpecialImage> SkPDFDevice::makeSpecial(const SkBitmap& bitmap) {
 }
 
 sk_sp<SkSpecialImage> SkPDFDevice::makeSpecial(const SkImage* image) {
-    // TODO: See comment above in drawSpecial. The color mode we use for decode should be driven
-    // by the destination where we're going to draw thing thing (ie this device). But we don't have
-    // a color space, so we always decode in legacy mode for now.
     return SkSpecialImage::MakeFromImage(SkIRect::MakeWH(image->width(), image->height()),
-                                         image->makeNonTextureImage(),
-                                         SkDestinationSurfaceColorMode::kLegacy);
+                                         image->makeNonTextureImage());
 }
 
 sk_sp<SkSpecialImage> SkPDFDevice::snapSpecial() {

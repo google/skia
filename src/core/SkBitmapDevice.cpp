@@ -418,13 +418,8 @@ sk_sp<SkSpecialImage> SkBitmapDevice::makeSpecial(const SkBitmap& bitmap) {
 }
 
 sk_sp<SkSpecialImage> SkBitmapDevice::makeSpecial(const SkImage* image) {
-    // This is called when we're about to draw the special-ized version of image to *this* device,
-    // so we can use our own presense/absence of a color space to decide how to decode the image.
-    SkDestinationSurfaceColorMode decodeColorMode = fBitmap.colorSpace()
-        ? SkDestinationSurfaceColorMode::kGammaAndColorSpaceAware
-        : SkDestinationSurfaceColorMode::kLegacy;
     return SkSpecialImage::MakeFromImage(SkIRect::MakeWH(image->width(), image->height()),
-                                         image->makeNonTextureImage(), decodeColorMode);
+                                         image->makeNonTextureImage());
 }
 
 sk_sp<SkSpecialImage> SkBitmapDevice::snapSpecial() {

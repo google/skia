@@ -65,11 +65,8 @@ bool SkImage::scalePixels(const SkPixmap& dst, SkFilterQuality quality, CachingH
     // Idea: If/when SkImageGenerator supports a native-scaling API (where the generator itself
     //       can scale more efficiently) we should take advantage of it here.
     //
-    SkDestinationSurfaceColorMode decodeColorMode = dst.info().colorSpace()
-        ? SkDestinationSurfaceColorMode::kGammaAndColorSpaceAware
-        : SkDestinationSurfaceColorMode::kLegacy;
     SkBitmap bm;
-    if (as_IB(this)->getROPixels(&bm, decodeColorMode, chint)) {
+    if (as_IB(this)->getROPixels(&bm, chint)) {
         bm.lockPixels();
         SkPixmap pmap;
         // Note: By calling the pixmap scaler, we never cache the final result, so the chint
@@ -86,7 +83,7 @@ void SkImage::preroll(GrContext* ctx) const {
     // to produce a cached raster-bitmap form, so that drawing to a raster canvas should be fast.
     //
     SkBitmap bm;
-    if (as_IB(this)->getROPixels(&bm, SkDestinationSurfaceColorMode::kLegacy)) {
+    if (as_IB(this)->getROPixels(&bm)) {
         bm.lockPixels();
         bm.unlockPixels();
     }
@@ -105,10 +102,7 @@ sk_sp<SkShader> SkImage::makeShader(SkShader::TileMode tileX, SkShader::TileMode
 
 SkData* SkImage::encode(SkImageEncoder::Type type, int quality) const {
     SkBitmap bm;
-    // TODO: Right now, the encoders don't handle F16 or linearly premultiplied data. Once they do,
-    // we should decode in "color space aware" mode, then re-encode that. For now, work around this
-    // by asking for a legacy decode (which gives us the raw data in N32).
-    if (as_IB(this)->getROPixels(&bm, SkDestinationSurfaceColorMode::kLegacy)) {
+    if (as_IB(this)->getROPixels(&bm)) {
         return SkImageEncoder::EncodeData(bm, type, quality);
     }
     return nullptr;
@@ -129,11 +123,7 @@ SkData* SkImage::encode(SkPixelSerializer* serializer) const {
 
     SkBitmap bm;
     SkAutoPixmapUnlock apu;
-    // TODO: Right now, the encoders don't handle F16 or linearly premultiplied data. Once they do,
-    // we should decode in "color space aware" mode, then re-encode that. For now, work around this
-    // by asking for a legacy decode (which gives us the raw data in N32).
-    if (as_IB(this)->getROPixels(&bm, SkDestinationSurfaceColorMode::kLegacy) &&
-        bm.requestLock(&apu)) {
+    if (as_IB(this)->getROPixels(&bm) && bm.requestLock(&apu)) {
         return effectiveSerializer->encode(apu.pixmap());
     }
 
@@ -294,7 +284,8 @@ bool SkImage::asLegacyBitmap(SkBitmap* bitmap, LegacyBitmapMode mode) const {
 bool SkImage_Base::onAsLegacyBitmap(SkBitmap* bitmap, LegacyBitmapMode mode) const {
     // As the base-class, all we can do is make a copy (regardless of mode).
     // Subclasses that want to be more optimal should override.
-    SkImageInfo info = this->onImageInfo().makeColorType(kN32_SkColorType).makeColorSpace(nullptr);
+    SkImageInfo info = this->onImageInfo().makeColorType(kN32_SkColorType)
+            .makeAlphaType(this->alphaType());
     if (!bitmap->tryAllocPixels(info)) {
         return false;
     }
@@ -324,19 +315,15 @@ sk_sp<SkImage> SkImage::makeWithFilter(const SkImageFilter* filter, const SkIRec
     if (!filter || !outSubset || !offset || !this->bounds().contains(subset)) {
         return nullptr;
     }
-    SkColorSpace* colorSpace = as_IB(this)->onImageInfo().colorSpace();
-    SkDestinationSurfaceColorMode decodeColorMode = colorSpace
-        ? SkDestinationSurfaceColorMode::kGammaAndColorSpaceAware
-        : SkDestinationSurfaceColorMode::kLegacy;
     sk_sp<SkSpecialImage> srcSpecialImage = SkSpecialImage::MakeFromImage(
-        subset, sk_ref_sp(const_cast<SkImage*>(this)), decodeColorMode);
+        subset, sk_ref_sp(const_cast<SkImage*>(this)));
     if (!srcSpecialImage) {
         return nullptr;
     }
 
     sk_sp<SkImageFilterCache> cache(
         SkImageFilterCache::Create(SkImageFilterCache::kDefaultTransientSize));
-    SkImageFilter::OutputProperties outputProperties(colorSpace);
+    SkImageFilter::OutputProperties outputProperties(as_IB(this)->onImageInfo().colorSpace());
     SkImageFilter::Context context(SkMatrix::I(), clipBounds, cache.get(), outputProperties);
 
     sk_sp<SkSpecialImage> result =
