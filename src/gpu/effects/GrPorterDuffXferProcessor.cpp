@@ -227,7 +227,7 @@ GR_MAKE_BITFIELD_OPS(BlendFormula::Properties);
  * with and without an opaque input color. Optimization properties are deduced at compile time so we
  * can make runtime decisions quickly. RGB coverage is not supported.
  */
-static const BlendFormula gBlendTable[2][2][SkXfermode::kLastCoeffMode + 1] = {
+static const BlendFormula gBlendTable[2][2][(int)SkBlendMode::kLastCoeffMode + 1] = {
 
                      /*>> No coverage, input color unknown <<*/ {{
 
@@ -302,7 +302,7 @@ static const BlendFormula gBlendTable[2][2][SkXfermode::kLastCoeffMode + 1] = {
     /* screen */     COEFF_FORMULA(   kOne_GrBlendCoeff,    kISC_GrBlendCoeff),
 }}};
 
-static const BlendFormula gLCDBlendTable[SkXfermode::kLastCoeffMode + 1] = {
+static const BlendFormula gLCDBlendTable[(int)SkBlendMode::kLastCoeffMode + 1] = {
     /* clear */      COVERAGE_SRC_COEFF_ZERO_FORMULA(BlendFormula::kCoverage_OutputType),
     /* src */        COVERAGE_FORMULA(BlendFormula::kCoverage_OutputType, kOne_GrBlendCoeff),
     /* dst */        NO_DST_WRITE_FORMULA,
