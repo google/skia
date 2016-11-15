@@ -1,0 +1,44 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "503c1cf2_92df7df6",
+        "filename": "gm/clip_error.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 172,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2016-11-15T19:44:50Z",
+      "side": 1,
+      "message": "Shouldn\u0027t this be 0x96? j/k\n\nIt seems kinda fragile to depend on the SkPicture binary format. Is it possible to unroll this into a set of canvas calls?",
+      "range": {
+        "startLine": 172,
+        "startChar": 16,
+        "endLine": 172,
+        "endChar": 20
+      },
+      "revId": "e98c28e3080c7214eb47e6f39d04502c8ed6e837",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "503c1cf2_f209a997",
+        "filename": "gm/clip_error.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 411,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2016-11-15T19:44:50Z",
+      "side": 1,
+      "message": "Maybe a comment on the class or in onDraw about what this is testing?",
+      "revId": "e98c28e3080c7214eb47e6f39d04502c8ed6e837",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
