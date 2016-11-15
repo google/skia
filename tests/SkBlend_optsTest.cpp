@@ -52,7 +52,7 @@ static void test_blender(std::string resourceName, skiatest::Reporter* reporter)
         return;
     }
     SkBitmap bm;
-    if (!as_IB(image)->getROPixels(&bm, SkDestinationSurfaceColorMode::kGammaAndColorSpaceAware)) {
+    if (!as_IB(image)->getROPixels(&bm)) {
         ERRORF(reporter, "Could not read resource");
         return;
     }

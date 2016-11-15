@@ -20,7 +20,6 @@
 #include "SkBitmapCache.h"
 #include "SkGrPriv.h"
 #include "SkImage_Gpu.h"
-#include "SkImageCacherator.h"
 #include "SkMipMap.h"
 #include "SkPixelRef.h"
 
@@ -61,8 +60,7 @@ static SkImageInfo make_info(int w, int h, SkAlphaType at, sk_sp<SkColorSpace> c
     return SkImageInfo::MakeN32(w, h, at, std::move(colorSpace));
 }
 
-bool SkImage_Gpu::getROPixels(SkBitmap* dst, SkDestinationSurfaceColorMode,
-                              CachingHint chint) const {
+bool SkImage_Gpu::getROPixels(SkBitmap* dst, CachingHint chint) const {
     if (SkBitmapCache::Find(this->uniqueID(), dst)) {
         SkASSERT(dst->getGenerationID() == this->uniqueID());
         SkASSERT(dst->isImmutable());
@@ -496,19 +494,7 @@ size_t SkImage::getDeferredTextureImageData(const GrContextThreadSafeProxy& prox
         if (!data && !this->peekPixels(nullptr)) {
             return 0;
         }
-        if (SkImageCacherator* cacher = as_IB(this)->peekCacherator()) {
-            // Generator backed image. Tweak info to trigger correct kind of decode.
-            SkDestinationSurfaceColorMode decodeColorMode = dstColorSpace
-                ? SkDestinationSurfaceColorMode::kGammaAndColorSpaceAware
-                : SkDestinationSurfaceColorMode::kLegacy;
-            SkImageCacherator::CachedFormat cacheFormat = cacher->chooseCacheFormat(
-                decodeColorMode, proxy.fCaps.get());
-            info = cacher->buildCacheInfo(cacheFormat).makeWH(scaledSize.width(),
-                                                              scaledSize.height());
-
-        } else {
-            info = as_IB(this)->onImageInfo().makeWH(scaledSize.width(), scaledSize.height());
-        }
+        info = as_IB(this)->onImageInfo().makeWH(scaledSize.width(), scaledSize.height());
         pixelSize = SkAlign8(SkAutoPixmapStorage::AllocSize(info, nullptr));
         if (fillMode) {
             pixmap.alloc(info);
