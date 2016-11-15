@@ -50,8 +50,12 @@ size_t SkImageShader::onContextSize(const ContextRec& rec) const {
 }
 
 SkShader::Context* SkImageShader::onCreateContext(const ContextRec& rec, void* storage) const {
+    // TODO: This is wrong. We should be plumbing destination color space to context creation,
+    // and use that to determine the decoding mode of the image.
+    SkDestinationSurfaceColorMode decodeColorMode = SkMipMap::DeduceColorMode(rec);
     return SkBitmapProcLegacyShader::MakeContext(*this, fTileModeX, fTileModeY,
-                                                 SkBitmapProvider(fImage.get()), rec, storage);
+                                                 SkBitmapProvider(fImage.get(), decodeColorMode),
+                                                 rec, storage);
 }
 
 SkImage* SkImageShader::onIsAImage(SkMatrix* texM, TileMode xy[]) const {
