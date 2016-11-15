@@ -1280,6 +1280,10 @@ const char* SkXfermode::ModeName(Mode mode) {
     static_assert(SK_ARRAY_COUNT(gModeStrings) == kLastMode + 1, "mode_count");
 }
 
+const char* SkBlendMode_Name(SkBlendMode mode) {
+    return SkXfermode::ModeName((SkXfermode::Mode)mode);
+}
+
 #ifndef SK_IGNORE_TO_STRING
 void SkProcCoeffXfermode::toString(SkString* str) const {
     str->append("SkProcCoeffXfermode: ");

@@ -12,6 +12,7 @@
 #include "../include/core/SkStream.h"
 #include "../include/core/SkString.h"
 #include "../include/core/SkPictureRecorder.h"
+#include "../src/core/SkBlendModePriv.h"
 #include <cstring>
 
 // Verify that replay of a recording into a clipped canvas
@@ -160,7 +161,7 @@ DEF_TEST(SkRecordingAccuracyXfermode, reporter) {
         if (memcmp(goldenBM.getPixels(), pictureBM.getPixels(), pixelsSize)) {
             numErrors++;
             errors.appendf("For SkXfermode %d %s:    SkPictureRecorder bitmap is wrong\n",
-                           iMode, SkXfermode::ModeName(mode));
+                           iMode, SkBlendMode_Name(mode));
         }
 #endif
     }

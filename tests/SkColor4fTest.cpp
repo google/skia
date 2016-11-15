@@ -23,15 +23,6 @@ static bool nearly_equal(float a, float b, float tol = kTolerance) {
     return fabsf(a - b) <= tol;
 }
 
-static bool nearly_equal(const SkPM4f a, const SkPM4f& b, float tol = kTolerance) {
-    for (int i = 0; i < 4; ++i) {
-        if (!nearly_equal(a.fVec[i], b.fVec[i], tol)) {
-            return false;
-        }
-    }
-    return true;
-}
-
 DEF_TEST(SkColor4f_FromColor, reporter) {
     const struct {
         SkColor     fC;
@@ -73,47 +64,5 @@ DEF_TEST(Color4f_premul, reporter) {
         REPORTER_ASSERT(reporter, nearly_equal(pm4.r(), c4.fA * c4.fR));
         REPORTER_ASSERT(reporter, nearly_equal(pm4.g(), c4.fA * c4.fG));
         REPORTER_ASSERT(reporter, nearly_equal(pm4.b(), c4.fA * c4.fB));
-    }
-}
-
-///////////////////////////////////////////////////////////////////////////////////////////////////
-
-typedef SkPM4f (*SkXfermodeProc4f)(const SkPM4f& src, const SkPM4f& dst);
-
-static bool compare_procs(SkXfermodeProc proc32, SkXfermodeProc4f proc4f) {
-    const float kTolerance = 1.0f / 255;
-
-    const SkColor colors[] = {
-        0, 0xFF000000, 0xFFFFFFFF, 0x80FF0000
-    };
-
-    for (auto s32 : colors) {
-        SkPMColor s_pm32 = SkPreMultiplyColor(s32);
-        SkPM4f    s_pm4f = SkColor4f::FromColor(s32).premul();
-        for (auto d32 : colors) {
-            SkPMColor d_pm32 = SkPreMultiplyColor(d32);
-            SkPM4f    d_pm4f = SkColor4f::FromColor(d32).premul();
-
-            SkPMColor r32 = proc32(s_pm32, d_pm32);
-            SkPM4f    r4f = proc4f(s_pm4f, d_pm4f);
-
-            SkPM4f r32_4f = SkPM4f::FromPMColor(r32);
-            if (!nearly_equal(r4f, r32_4f, kTolerance)) {
-                return false;
-            }
-        }
-    }
-    return true;
-}
-
-// Check that our Proc and Proc4f return (nearly) the same results
-//
-DEF_TEST(Color4f_xfermode_proc4f, reporter) {
-    // TODO: extend xfermodes so that all cases can be tested.
-    //
-    for (int mode = (int)SkBlendMode::kClear; mode <= (int)SkBlendMode::kScreen; ++mode) {
-        SkXfermodeProc   proc32 = SkXfermode::GetProc((SkBlendMode)mode);
-        SkXfermodeProc4f proc4f = SkXfermode::GetProc4f((SkBlendMode)mode);
-        REPORTER_ASSERT(reporter, compare_procs(proc32, proc4f));
     }
 }
