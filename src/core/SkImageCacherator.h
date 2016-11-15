@@ -112,6 +112,9 @@ private:
 
     SkImageCacherator(Validator*);
 
+    CachedFormat chooseCacheFormat(SkDestinationSurfaceColorMode, const GrCaps* = nullptr);
+    SkImageInfo buildCacheInfo(CachedFormat);
+
     bool generateBitmap(SkBitmap*, const SkImageInfo&);
     bool tryLockAsBitmap(SkBitmap*, const SkImage*, SkImage::CachingHint, CachedFormat,
                          const SkImageInfo&);
@@ -120,8 +123,6 @@ private:
     // it should use the passed in key (if the key is valid).
     GrTexture* lockTexture(GrContext*, const GrUniqueKey& key, const SkImage* client,
                            SkImage::CachingHint, bool willBeMipped, SkDestinationSurfaceColorMode);
-    CachedFormat chooseCacheFormat(SkDestinationSurfaceColorMode, const GrCaps* = nullptr);
-    SkImageInfo buildCacheInfo(CachedFormat);
 #endif
 
     sk_sp<SharedGenerator> fSharedGenerator;

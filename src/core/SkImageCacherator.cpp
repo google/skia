@@ -263,44 +263,6 @@ bool SkImageCacherator::lockAsBitmap(SkBitmap* bitmap, const SkImage* client,
 
 //////////////////////////////////////////////////////////////////////////////////////////////////
 
-#if SK_SUPPORT_GPU
-
-#ifdef SK_SUPPORT_COMPRESSED_TEXTURES_IN_CACHERATOR
-static GrTexture* load_compressed_into_texture(GrContext* ctx, SkData* data, GrSurfaceDesc desc) {
-    const void* rawStart;
-    GrPixelConfig config = GrIsCompressedTextureDataSupported(ctx, data, desc.fWidth, desc.fHeight,
-                                                              &rawStart);
-    if (kUnknown_GrPixelConfig == config) {
-        return nullptr;
-    }
-
-    desc.fConfig = config;
-    return ctx->textureProvider()->createTexture(desc, SkBudgeted::kYes, rawStart, 0);
-}
-#endif
-
-class Generator_GrYUVProvider : public GrYUVProvider {
-    SkImageGenerator* fGen;
-
-public:
-    Generator_GrYUVProvider(SkImageGenerator* gen) : fGen(gen) {}
-
-    uint32_t onGetID() override { return fGen->uniqueID(); }
-    bool onQueryYUV8(SkYUVSizeInfo* sizeInfo, SkYUVColorSpace* colorSpace) const override {
-        return fGen->queryYUV8(sizeInfo, colorSpace);
-    }
-    bool onGetYUV8Planes(const SkYUVSizeInfo& sizeInfo, void* planes[3]) override {
-        return fGen->getYUV8Planes(sizeInfo, planes);
-    }
-};
-
-static GrTexture* set_key_and_return(GrTexture* tex, const GrUniqueKey& key) {
-    if (key.isValid()) {
-        tex->resourcePriv().setUniqueKey(key);
-    }
-    return tex;
-}
-
 // Abstraction of GrCaps that handles the cases where we don't have a caps pointer (because
 // we're in raster mode), or where GPU support is entirely missing.
 struct CacheCaps {
@@ -464,6 +426,46 @@ SkImageInfo SkImageCacherator::buildCacheInfo(CachedFormat format) {
             SkDEBUGFAIL("Invalid cached format");
             return fInfo;
     }
+}
+
+//////////////////////////////////////////////////////////////////////////////////////////////////
+
+#if SK_SUPPORT_GPU
+
+#ifdef SK_SUPPORT_COMPRESSED_TEXTURES_IN_CACHERATOR
+static GrTexture* load_compressed_into_texture(GrContext* ctx, SkData* data, GrSurfaceDesc desc) {
+    const void* rawStart;
+    GrPixelConfig config = GrIsCompressedTextureDataSupported(ctx, data, desc.fWidth, desc.fHeight,
+                                                              &rawStart);
+    if (kUnknown_GrPixelConfig == config) {
+        return nullptr;
+    }
+
+    desc.fConfig = config;
+    return ctx->textureProvider()->createTexture(desc, SkBudgeted::kYes, rawStart, 0);
+}
+#endif
+
+class Generator_GrYUVProvider : public GrYUVProvider {
+    SkImageGenerator* fGen;
+
+public:
+    Generator_GrYUVProvider(SkImageGenerator* gen) : fGen(gen) {}
+
+    uint32_t onGetID() override { return fGen->uniqueID(); }
+    bool onQueryYUV8(SkYUVSizeInfo* sizeInfo, SkYUVColorSpace* colorSpace) const override {
+        return fGen->queryYUV8(sizeInfo, colorSpace);
+    }
+    bool onGetYUV8Planes(const SkYUVSizeInfo& sizeInfo, void* planes[3]) override {
+        return fGen->getYUV8Planes(sizeInfo, planes);
+    }
+};
+
+static GrTexture* set_key_and_return(GrTexture* tex, const GrUniqueKey& key) {
+    if (key.isValid()) {
+        tex->resourcePriv().setUniqueKey(key);
+    }
+    return tex;
 }
 
 /*
