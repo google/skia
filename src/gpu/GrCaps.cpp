@@ -17,7 +17,10 @@ GrShaderCaps::GrShaderCaps() {
     fDualSourceBlendingSupport = false;
     fIntegerSupport = false;
     fTexelBufferSupport = false;
+    fImageLoadStoreSupport = false;
     fShaderPrecisionVaries = false;
+    fPLSPathRenderingSupport = false;
+    fPixelLocalStorageSize = 0;
 }
 
 static const char* shader_type_to_string(GrShaderType type) {
@@ -54,6 +57,7 @@ SkString GrShaderCaps::dump() const {
     r.appendf("Dual Source Blending Support       : %s\n", gNY[fDualSourceBlendingSupport]);
     r.appendf("Integer Support                    : %s\n", gNY[fIntegerSupport]);
     r.appendf("Texel Buffer Support               : %s\n", gNY[fTexelBufferSupport]);
+    r.appendf("Image Load Store Support           : %s\n", gNY[fImageLoadStoreSupport]);
 
     r.appendf("Shader Float Precisions (varies: %s):\n", gNY[fShaderPrecisionVaries]);
 

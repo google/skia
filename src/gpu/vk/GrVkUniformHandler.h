@@ -60,15 +60,27 @@ private:
                                           int arrayCount,
                                           const char** outName) override;
 
-    SamplerHandle internalAddSampler(uint32_t visibility,
-                                     GrPixelConfig config,
-                                     GrSLType type,
-                                     GrSLPrecision precision,
-                                     const char* name) override;
+    SamplerHandle addSampler(uint32_t visibility,
+                             GrPixelConfig config,
+                             GrSLType type,
+                             GrSLPrecision precision,
+                             const char* name) override;
 
-    int numSamplers() const override { return fSamplers.count(); }
+    int numSamplers() const { return fSamplers.count(); }
+
     const GrGLSLSampler& getSampler(SamplerHandle handle) const override {
         return fSamplers[handle.toIndex()];
+    }
+
+    ImageHandle addImage(uint32_t visibility, GrPixelConfig config, const char* name) override {
+        SkFAIL("Images not implemented for Vulkan.");
+        return 0;
+    }
+
+    const GrGLSLImage& getImage(ImageHandle handle) const override {
+        SkFAIL("Images not implemented for Vulkan.");
+        GrGLSLImage* gImg = nullptr;
+        return *gImg;
     }
 
     void appendUniformDecls(GrShaderFlags, SkString*) const override;

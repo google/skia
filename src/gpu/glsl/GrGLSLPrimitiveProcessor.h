@@ -12,13 +12,13 @@
 #include "GrPrimitiveProcessor.h"
 #include "glsl/GrGLSLProgramDataManager.h"
 #include "glsl/GrGLSLSampler.h"
+#include "glsl/GrGLSLUniformHandler.h"
 
 class GrBatchTracker;
 class GrPrimitiveProcessor;
 class GrGLSLCaps;
 class GrGLSLPPFragmentBuilder;
 class GrGLSLGPBuilder;
-class GrGLSLUniformHandler;
 class GrGLSLVaryingHandler;
 class GrGLSLVertexBuilder;
 
@@ -28,8 +28,8 @@ public:
 
     virtual ~GrGLSLPrimitiveProcessor() {}
 
-    typedef GrGLSLProgramDataManager::UniformHandle UniformHandle;
-    typedef GrGLSLProgramDataManager::UniformHandle SamplerHandle;
+    using UniformHandle = GrGLSLProgramDataManager::UniformHandle;
+    using SamplerHandle = GrGLSLUniformHandler::SamplerHandle;
 
     /**
      * This class provides access to the GrCoordTransforms across all GrFragmentProcessors in a

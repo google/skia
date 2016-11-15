@@ -45,6 +45,8 @@ uint32_t grsltype_to_alignment_mask(GrSLType type) {
         case kTextureBufferSampler_GrSLType:
         case kTexture2D_GrSLType:
         case kSampler_GrSLType:
+        case kImage2D_GrSLType:
+        case kIImage2D_GrSLType:
             break;
     }
     SkFAIL("Unexpected type");
@@ -86,6 +88,8 @@ static inline uint32_t grsltype_to_vk_size(GrSLType type) {
         case kTextureBufferSampler_GrSLType:
         case kTexture2D_GrSLType:
         case kSampler_GrSLType:
+        case kImage2D_GrSLType:
+        case kIImage2D_GrSLType:
             break;
     }
     SkFAIL("Unexpected type");
@@ -168,11 +172,11 @@ GrGLSLUniformHandler::UniformHandle GrVkUniformHandler::internalAddUniformArray(
     return GrGLSLUniformHandler::UniformHandle(fUniforms.count() - 1);
 }
 
-GrGLSLUniformHandler::SamplerHandle GrVkUniformHandler::internalAddSampler(uint32_t visibility,
-                                                                           GrPixelConfig config,
-                                                                           GrSLType type,
-                                                                           GrSLPrecision precision,
-                                                                           const char* name) {
+GrGLSLUniformHandler::SamplerHandle GrVkUniformHandler::addSampler(uint32_t visibility,
+                                                                   GrPixelConfig config,
+                                                                   GrSLType type,
+                                                                   GrSLPrecision precision,
+                                                                   const char* name) {
     SkASSERT(name && strlen(name));
     SkDEBUGCODE(static const uint32_t kVisMask = kVertex_GrShaderFlag | kFragment_GrShaderFlag);
     SkASSERT(0 == (~kVisMask & visibility));

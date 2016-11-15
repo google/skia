@@ -42,10 +42,15 @@ GrGLSLCaps::GrGLSLCaps(const GrContextOptions& options) {
     fSampleVariablesExtensionString = nullptr;
     fFBFetchColorName = nullptr;
     fFBFetchExtensionString = nullptr;
+    fImageLoadStoreExtensionString = nullptr;
     fMaxVertexSamplers = 0;
     fMaxGeometrySamplers = 0;
     fMaxFragmentSamplers = 0;
     fMaxCombinedSamplers = 0;
+    fMaxVertexImages = 0;
+    fMaxGeometryImages = 0;
+    fMaxFragmentImages = 0;
+    fMaxCombinedImages   = 0;
     fAdvBlendEqInteraction = kNotSupported_AdvBlendEqInteraction;
 }
 
@@ -90,6 +95,10 @@ SkString GrGLSLCaps::dump() const {
     r.appendf("Max GS Samplers: %d\n", fMaxGeometrySamplers);
     r.appendf("Max FS Samplers: %d\n", fMaxFragmentSamplers);
     r.appendf("Max Combined Samplers: %d\n", fMaxFragmentSamplers);
+    r.appendf("Max VS Images: %d\n", fMaxVertexImages);
+    r.appendf("Max GS Images: %d\n", fMaxGeometryImages);
+    r.appendf("Max FS Images: %d\n", fMaxFragmentImages);
+    r.appendf("Max Combined Images: %d\n", fMaxFragmentImages);
     r.appendf("Advanced blend equation interaction: %s\n",
               kAdvBlendEqInteractionStr[fAdvBlendEqInteraction]);
     return r;
