@@ -22,6 +22,6 @@ void SkRasterPipeline::extend(const SkRasterPipeline& src) {
     }
 }
 
-std::function<void(size_t, size_t)> SkRasterPipeline::compile() const {
+std::function<void(size_t, size_t, size_t)> SkRasterPipeline::compile() const {
     return SkOpts::compile_pipeline(fStages, fNum);
 }

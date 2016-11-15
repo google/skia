@@ -113,7 +113,7 @@ bool SkColorSpaceXform_A2B::onApply(ColorFormat dstFormat, void* dst, ColorForma
 
     auto p = pipeline.compile();
 
-    p(0, count);
+    p(0,0, count);
 
     return true;
 }

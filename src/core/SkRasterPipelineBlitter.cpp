@@ -50,10 +50,10 @@ private:
     SkRasterPipeline fShader;
 
     // These functions are compiled lazily when first used.
-    std::function<void(size_t, size_t)> fBlitH         = nullptr,
-                                        fBlitAntiH     = nullptr,
-                                        fBlitMaskA8    = nullptr,
-                                        fBlitMaskLCD16 = nullptr;
+    std::function<void(size_t, size_t, size_t)> fBlitH         = nullptr,
+                                                fBlitAntiH     = nullptr,
+                                                fBlitMaskA8    = nullptr,
+                                                fBlitMaskLCD16 = nullptr;
 
     // These values are pointed to by the compiled blit functions
     // above, which allows us to adjust them from call to call.
@@ -131,7 +131,7 @@ SkBlitter* SkRasterPipelineBlitter::Create(const SkPixmap& dst,
 
     if (is_constant) {
         pipeline->append(SkRasterPipeline::store_f32, &paintColor);
-        pipeline->compile()(0,1);
+        pipeline->compile()(0,0, 1);
 
         *pipeline = SkRasterPipeline();
         pipeline->append(SkRasterPipeline::constant_color, paintColor);
@@ -206,7 +206,7 @@ void SkRasterPipelineBlitter::blitH(int x, int y, int w) {
     }
 
     fDstPtr = fDst.writable_addr(0,y);
-    fBlitH(x,w);
+    fBlitH(x,y, w);
 }
 
 void SkRasterPipelineBlitter::blitAntiH(int x, int y, const SkAlpha aa[], const int16_t runs[]) {
@@ -234,7 +234,7 @@ void SkRasterPipelineBlitter::blitAntiH(int x, int y, const SkAlpha aa[], const 
             case 0xff: this->blitH(x,y,run); break;
             default:
                 fConstantCoverage = *aa * (1/255.0f);
-                fBlitAntiH(x, run);
+                fBlitAntiH(x,y, run);
         }
         x    += run;
         runs += run;
@@ -283,11 +283,11 @@ void SkRasterPipelineBlitter::blitMask(const SkMask& mask, const SkIRect& clip) 
         switch (mask.fFormat) {
             case SkMask::kA8_Format:
                 fMaskPtr = mask.getAddr8(x,y)-x;
-                fBlitMaskA8(x, clip.width());
+                fBlitMaskA8(x,y, clip.width());
                 break;
             case SkMask::kLCD16_Format:
                 fMaskPtr = mask.getAddrLCD16(x,y)-x;
-                fBlitMaskLCD16(x, clip.width());
+                fBlitMaskLCD16(x,y, clip.width());
                 break;
             default:
                 // TODO
