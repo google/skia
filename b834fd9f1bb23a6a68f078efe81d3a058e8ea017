@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "b0cd587b_2269eed6",
+        "filename": "src/utils/SkCanvasStack.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 45,
+      "author": {
+        "id": 5965
+      },
+      "writtenOn": "2016-11-15T16:48:21Z",
+      "side": 1,
+      "message": "Maybe reorder these two lines in case INHERITED::removeAll is changed to do something with the raw canvas pointers it has?",
+      "range": {
+        "startLine": 45,
+        "startChar": 4,
+        "endLine": 45,
+        "endChar": 24
+      },
+      "revId": "b834fd9f1bb23a6a68f078efe81d3a058e8ea017",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
