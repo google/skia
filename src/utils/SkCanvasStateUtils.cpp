@@ -337,7 +337,7 @@ std::unique_ptr<SkCanvas> SkCanvasStateUtils::MakeFromCanvasState(const SkCanvas
         if (!canvasLayer.get()) {
             return nullptr;
         }
-        canvas->pushCanvas(canvasLayer.get(), SkIPoint::Make(state_v1->layers[i].x,
+        canvas->pushCanvas(canvasLayer.release(), SkIPoint::Make(state_v1->layers[i].x,
                                                              state_v1->layers[i].y));
     }
 
