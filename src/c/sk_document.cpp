@@ -12,7 +12,7 @@
 #include "sk_types_priv.h"
 
 void sk_document_unref(sk_document_t* document) {
-    AsDocument(document)->unref();
+    SkSafeUnref(AsDocument(document));
 }
 
 sk_document_t* sk_document_create_pdf_from_stream(sk_wstream_t* stream, float dpi) {

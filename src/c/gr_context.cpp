@@ -22,7 +22,7 @@ gr_context_t* gr_context_create_with_defaults(gr_backend_t backend, gr_backendco
 }
 
 void gr_context_unref(gr_context_t* context) {
-    AsGrContext(context)->unref();
+    SkSafeUnref(AsGrContext(context));
 }
 
 void gr_context_abandon_context(gr_context_t* context) {
@@ -75,7 +75,7 @@ const gr_glinterface_t* gr_glinterface_assemble_gles_interface(void* ctx, gr_gl_
 }
 
 void gr_glinterface_unref(gr_glinterface_t* glInterface) {
-    AsGrGLInterface(glInterface)->unref();
+    SkSafeUnref(AsGrGLInterface(glInterface));
 }
 
 gr_glinterface_t* gr_glinterface_clone(gr_glinterface_t* glInterface) {

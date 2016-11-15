@@ -13,7 +13,7 @@
 
 void sk_typeface_unref(sk_typeface_t* tf)
 {
-    AsTypeface(tf)->unref();
+    SkSafeUnref(AsTypeface(tf));
 }
 
 sk_typeface_t* sk_typeface_create_from_name(const char *familyName, sk_typeface_style_t sstyle)

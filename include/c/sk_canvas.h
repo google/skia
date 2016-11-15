@@ -15,6 +15,8 @@
 
 SK_C_PLUS_PLUS_BEGIN_GUARD
 
+SK_API void sk_canvas_unref(sk_canvas_t*);
+
 /**
     Save the current matrix and clip on the canvas.  When the
     balancing call to sk_canvas_restore() is made, the previous matrix

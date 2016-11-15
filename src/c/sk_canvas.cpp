@@ -11,6 +11,10 @@
 
 #include "sk_types_priv.h"
 
+void sk_canvas_unref(sk_canvas_t* ccanvas) {
+    SkSafeUnref(AsCanvas(ccanvas));
+}
+
 void sk_canvas_clear(sk_canvas_t* ccanvas, sk_color_t color) {
     AsCanvas(ccanvas)->clear(color);
 }
