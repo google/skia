@@ -18,52 +18,46 @@
         "Build-Mac-Clang-arm64-Debug-GN_iOS"
       ]
     },
-    "Build-Ubuntu-Clang-arm-Debug-GN_Android": {
+    "Build-Ubuntu-Clang-arm-Debug-Android": {
       "priority": 0.8,
       "tasks": [
-        "Build-Ubuntu-Clang-arm-Debug-GN_Android"
+        "Build-Ubuntu-Clang-arm-Debug-Android"
       ]
     },
-    "Build-Ubuntu-Clang-arm-Release-GN_Android": {
+    "Build-Ubuntu-Clang-arm-Release-Android": {
       "priority": 0.8,
       "tasks": [
-        "Build-Ubuntu-Clang-arm-Release-GN_Android"
+        "Build-Ubuntu-Clang-arm-Release-Android"
       ]
     },
-    "Build-Ubuntu-Clang-arm64-Debug-GN_Android": {
+    "Build-Ubuntu-Clang-arm64-Debug-Android": {
       "priority": 0.8,
       "tasks": [
-        "Build-Ubuntu-Clang-arm64-Debug-GN_Android"
+        "Build-Ubuntu-Clang-arm64-Debug-Android"
       ]
     },
-    "Build-Ubuntu-Clang-arm64-Debug-GN_Android_Vulkan": {
+    "Build-Ubuntu-Clang-arm64-Release-Android": {
       "priority": 0.8,
       "tasks": [
-        "Build-Ubuntu-Clang-arm64-Debug-GN_Android_Vulkan"
+        "Build-Ubuntu-Clang-arm64-Release-Android"
       ]
     },
-    "Build-Ubuntu-Clang-arm64-Release-GN_Android": {
+    "Build-Ubuntu-GCC-x86_64-Release": {
       "priority": 0.8,
       "tasks": [
-        "Build-Ubuntu-Clang-arm64-Release-GN_Android"
+        "Build-Ubuntu-GCC-x86_64-Release"
       ]
     },
-    "Build-Ubuntu-Clang-arm64-Release-GN_Android_Vulkan": {
+    "Build-Ubuntu-GCC-x86_64-Release-": {
       "priority": 0.8,
       "tasks": [
-        "Build-Ubuntu-Clang-arm64-Release-GN_Android_Vulkan"
+        "Build-Ubuntu-GCC-x86_64-Release-"
       ]
     },
-    "Build-Ubuntu-GCC-x86_64-Release-GN": {
+    "Build-Win-Clang-arm64-Release-Android": {
       "priority": 0.8,
       "tasks": [
-        "Build-Ubuntu-GCC-x86_64-Release-GN"
-      ]
-    },
-    "Build-Win-Clang-arm64-Release-GN_Android": {
-      "priority": 0.8,
-      "tasks": [
-        "Build-Win-Clang-arm64-Release-GN_Android"
+        "Build-Win-Clang-arm64-Release-Android"
       ]
     },
     "Housekeeper-PerCommit-InfraTests": {
@@ -72,82 +66,82 @@
         "Housekeeper-PerCommit-InfraTests"
       ]
     },
-    "Perf-Android-Clang-AndroidOne-CPU-MT6582-arm-Debug-GN_Android": {
+    "Perf-Android-Clang-AndroidOne-CPU-MT6582-arm-Debug-Android": {
       "priority": 0.8,
       "tasks": [
-        "Perf-Android-Clang-AndroidOne-CPU-MT6582-arm-Debug-GN_Android"
+        "Perf-Android-Clang-AndroidOne-CPU-MT6582-arm-Debug-Android"
       ]
     },
-    "Perf-Android-Clang-AndroidOne-CPU-MT6582-arm-Release-GN_Android": {
+    "Perf-Android-Clang-AndroidOne-CPU-MT6582-arm-Release-Android": {
       "priority": 0.8,
       "tasks": [
-        "Upload-Perf-Android-Clang-AndroidOne-CPU-MT6582-arm-Release-GN_Android"
+        "Upload-Perf-Android-Clang-AndroidOne-CPU-MT6582-arm-Release-Android"
       ]
     },
-    "Perf-Android-Clang-AndroidOne-GPU-Mali400MP2-arm-Debug-GN_Android": {
+    "Perf-Android-Clang-AndroidOne-GPU-Mali400MP2-arm-Debug-Android": {
       "priority": 0.8,
       "tasks": [
-        "Perf-Android-Clang-AndroidOne-GPU-Mali400MP2-arm-Debug-GN_Android"
+        "Perf-Android-Clang-AndroidOne-GPU-Mali400MP2-arm-Debug-Android"
       ]
     },
-    "Perf-Android-Clang-AndroidOne-GPU-Mali400MP2-arm-Release-GN_Android": {
+    "Perf-Android-Clang-AndroidOne-GPU-Mali400MP2-arm-Release-Android": {
       "priority": 0.8,
       "tasks": [
-        "Upload-Perf-Android-Clang-AndroidOne-GPU-Mali400MP2-arm-Release-GN_Android"
+        "Upload-Perf-Android-Clang-AndroidOne-GPU-Mali400MP2-arm-Release-Android"
       ]
     },
-    "Perf-Android-Clang-Nexus6p-CPU-Snapdragon810-arm64-Debug-GN_Android": {
+    "Perf-Android-Clang-Nexus6p-CPU-Snapdragon810-arm64-Debug-Android": {
       "priority": 0.8,
       "tasks": [
-        "Perf-Android-Clang-Nexus6p-CPU-Snapdragon810-arm64-Debug-GN_Android"
+        "Perf-Android-Clang-Nexus6p-CPU-Snapdragon810-arm64-Debug-Android"
       ]
     },
-    "Perf-Android-Clang-Nexus6p-CPU-Snapdragon810-arm64-Release-GN_Android": {
+    "Perf-Android-Clang-Nexus6p-CPU-Snapdragon810-arm64-Release-Android": {
       "priority": 0.8,
       "tasks": [
-        "Upload-Perf-Android-Clang-Nexus6p-CPU-Snapdragon810-arm64-Release-GN_Android"
+        "Upload-Perf-Android-Clang-Nexus6p-CPU-Snapdragon810-arm64-Release-Android"
       ]
     },
-    "Perf-Android-Clang-Nexus6p-GPU-Adreno430-arm64-Debug-GN_Android": {
+    "Perf-Android-Clang-Nexus6p-GPU-Adreno430-arm64-Debug-Android": {
       "priority": 0.8,
       "tasks": [
-        "Perf-Android-Clang-Nexus6p-GPU-Adreno430-arm64-Debug-GN_Android"
+        "Perf-Android-Clang-Nexus6p-GPU-Adreno430-arm64-Debug-Android"
       ]
     },
-    "Perf-Android-Clang-Nexus6p-GPU-Adreno430-arm64-Debug-GN_Android_Vulkan": {
+    "Perf-Android-Clang-Nexus6p-GPU-Adreno430-arm64-Debug-Android_Vulkan": {
       "priority": 0.8,
       "tasks": [
-        "Perf-Android-Clang-Nexus6p-GPU-Adreno430-arm64-Debug-GN_Android_Vulkan"
+        "Perf-Android-Clang-Nexus6p-GPU-Adreno430-arm64-Debug-Android_Vulkan"
       ]
     },
-    "Perf-Android-Clang-Nexus6p-GPU-Adreno430-arm64-Release-GN_Android": {
+    "Perf-Android-Clang-Nexus6p-GPU-Adreno430-arm64-Release-Android": {
       "priority": 0.8,
       "tasks": [
-        "Upload-Perf-Android-Clang-Nexus6p-GPU-Adreno430-arm64-Release-GN_Android"
+        "Upload-Perf-Android-Clang-Nexus6p-GPU-Adreno430-arm64-Release-Android"
       ]
     },
-    "Perf-Android-Clang-Nexus6p-GPU-Adreno430-arm64-Release-GN_Android_Vulkan": {
+    "Perf-Android-Clang-Nexus6p-GPU-Adreno430-arm64-Release-Android_Vulkan": {
       "priority": 0.8,
       "tasks": [
-        "Upload-Perf-Android-Clang-Nexus6p-GPU-Adreno430-arm64-Release-GN_Android_Vulkan"
+        "Upload-Perf-Android-Clang-Nexus6p-GPU-Adreno430-arm64-Release-Android_Vulkan"
       ]
     },
-    "Perf-Android-Clang-PixelC-CPU-TegraX1-arm64-Release-GN_Android_Skpbench": {
+    "Perf-Android-Clang-PixelC-CPU-TegraX1-arm64-Release-Android_Skpbench": {
       "priority": 0.8,
       "tasks": [
-        "Upload-Perf-Android-Clang-PixelC-CPU-TegraX1-arm64-Release-GN_Android_Skpbench"
+        "Upload-Perf-Android-Clang-PixelC-CPU-TegraX1-arm64-Release-Android_Skpbench"
       ]
     },
-    "Perf-Android-Clang-PixelC-GPU-TegraX1-arm64-Release-GN_Android_Skpbench": {
+    "Perf-Android-Clang-PixelC-GPU-TegraX1-arm64-Release-Android_Skpbench": {
       "priority": 0.8,
       "tasks": [
-        "Upload-Perf-Android-Clang-PixelC-GPU-TegraX1-arm64-Release-GN_Android_Skpbench"
+        "Upload-Perf-Android-Clang-PixelC-GPU-TegraX1-arm64-Release-Android_Skpbench"
       ]
     },
-    "Perf-Ubuntu-GCC-GCE-CPU-AVX2-x86_64-Release-GN": {
+    "Perf-Ubuntu-GCC-GCE-CPU-AVX2-x86_64-Release": {
       "priority": 0.8,
       "tasks": [
-        "Upload-Perf-Ubuntu-GCC-GCE-CPU-AVX2-x86_64-Release-GN"
+        "Upload-Perf-Ubuntu-GCC-GCE-CPU-AVX2-x86_64-Release"
       ]
     },
     "Perf-iOS-Clang-iPadMini4-GPU-GX6450-Arm7-Debug": {
@@ -162,70 +156,70 @@
         "Upload-Perf-iOS-Clang-iPadMini4-GPU-GX6450-Arm7-Release"
       ]
     },
-    "Test-Android-Clang-AndroidOne-CPU-MT6582-arm-Debug-GN_Android": {
+    "Test-Android-Clang-AndroidOne-CPU-MT6582-arm-Debug-Android": {
       "priority": 0.8,
       "tasks": [
-        "Upload-Test-Android-Clang-AndroidOne-CPU-MT6582-arm-Debug-GN_Android"
+        "Upload-Test-Android-Clang-AndroidOne-CPU-MT6582-arm-Debug-Android"
       ]
     },
-    "Test-Android-Clang-AndroidOne-CPU-MT6582-arm-Release-GN_Android": {
+    "Test-Android-Clang-AndroidOne-CPU-MT6582-arm-Release-Android": {
       "priority": 0.8,
       "tasks": [
-        "Upload-Test-Android-Clang-AndroidOne-CPU-MT6582-arm-Release-GN_Android"
+        "Upload-Test-Android-Clang-AndroidOne-CPU-MT6582-arm-Release-Android"
       ]
     },
-    "Test-Android-Clang-AndroidOne-GPU-Mali400MP2-arm-Debug-GN_Android": {
+    "Test-Android-Clang-AndroidOne-GPU-Mali400MP2-arm-Debug-Android": {
       "priority": 0.8,
       "tasks": [
-        "Upload-Test-Android-Clang-AndroidOne-GPU-Mali400MP2-arm-Debug-GN_Android"
+        "Upload-Test-Android-Clang-AndroidOne-GPU-Mali400MP2-arm-Debug-Android"
       ]
     },
-    "Test-Android-Clang-AndroidOne-GPU-Mali400MP2-arm-Release-GN_Android": {
+    "Test-Android-Clang-AndroidOne-GPU-Mali400MP2-arm-Release-Android": {
       "priority": 0.8,
       "tasks": [
-        "Upload-Test-Android-Clang-AndroidOne-GPU-Mali400MP2-arm-Release-GN_Android"
+        "Upload-Test-Android-Clang-AndroidOne-GPU-Mali400MP2-arm-Release-Android"
       ]
     },
-    "Test-Android-Clang-Nexus6p-CPU-Snapdragon810-arm64-Debug-GN_Android": {
+    "Test-Android-Clang-Nexus6p-CPU-Snapdragon810-arm64-Debug-Android": {
       "priority": 0.8,
       "tasks": [
-        "Upload-Test-Android-Clang-Nexus6p-CPU-Snapdragon810-arm64-Debug-GN_Android"
+        "Upload-Test-Android-Clang-Nexus6p-CPU-Snapdragon810-arm64-Debug-Android"
       ]
     },
-    "Test-Android-Clang-Nexus6p-CPU-Snapdragon810-arm64-Release-GN_Android": {
+    "Test-Android-Clang-Nexus6p-CPU-Snapdragon810-arm64-Release-Android": {
       "priority": 0.8,
       "tasks": [
-        "Upload-Test-Android-Clang-Nexus6p-CPU-Snapdragon810-arm64-Release-GN_Android"
+        "Upload-Test-Android-Clang-Nexus6p-CPU-Snapdragon810-arm64-Release-Android"
       ]
     },
-    "Test-Android-Clang-Nexus6p-GPU-Adreno430-arm64-Debug-GN_Android": {
+    "Test-Android-Clang-Nexus6p-GPU-Adreno430-arm64-Debug-Android": {
       "priority": 0.8,
       "tasks": [
-        "Upload-Test-Android-Clang-Nexus6p-GPU-Adreno430-arm64-Debug-GN_Android"
+        "Upload-Test-Android-Clang-Nexus6p-GPU-Adreno430-arm64-Debug-Android"
       ]
     },
-    "Test-Android-Clang-Nexus6p-GPU-Adreno430-arm64-Debug-GN_Android_Vulkan": {
+    "Test-Android-Clang-Nexus6p-GPU-Adreno430-arm64-Debug-Android_Vulkan": {
       "priority": 0.8,
       "tasks": [
-        "Upload-Test-Android-Clang-Nexus6p-GPU-Adreno430-arm64-Debug-GN_Android_Vulkan"
+        "Upload-Test-Android-Clang-Nexus6p-GPU-Adreno430-arm64-Debug-Android_Vulkan"
       ]
     },
-    "Test-Android-Clang-Nexus6p-GPU-Adreno430-arm64-Release-GN_Android": {
+    "Test-Android-Clang-Nexus6p-GPU-Adreno430-arm64-Release-Android": {
       "priority": 0.8,
       "tasks": [
-        "Upload-Test-Android-Clang-Nexus6p-GPU-Adreno430-arm64-Release-GN_Android"
+        "Upload-Test-Android-Clang-Nexus6p-GPU-Adreno430-arm64-Release-Android"
       ]
     },
-    "Test-Android-Clang-Nexus6p-GPU-Adreno430-arm64-Release-GN_Android_Vulkan": {
+    "Test-Android-Clang-Nexus6p-GPU-Adreno430-arm64-Release-Android_Vulkan": {
       "priority": 0.8,
       "tasks": [
-        "Upload-Test-Android-Clang-Nexus6p-GPU-Adreno430-arm64-Release-GN_Android_Vulkan"
+        "Upload-Test-Android-Clang-Nexus6p-GPU-Adreno430-arm64-Release-Android_Vulkan"
       ]
     },
-    "Test-Ubuntu-GCC-GCE-CPU-AVX2-x86_64-Release-GN": {
+    "Test-Ubuntu-GCC-GCE-CPU-AVX2-x86_64-Release": {
       "priority": 0.8,
       "tasks": [
-        "Upload-Test-Ubuntu-GCC-GCE-CPU-AVX2-x86_64-Release-GN"
+        "Upload-Test-Ubuntu-GCC-GCE-CPU-AVX2-x86_64-Release"
       ]
     },
     "Test-iOS-Clang-iPadMini4-GPU-GX6450-Arm7-Debug": {
@@ -317,7 +311,7 @@
       "isolate": "compile_skia.isolate",
       "priority": 0.8
     },
-    "Build-Ubuntu-Clang-arm-Debug-GN_Android": {
+    "Build-Ubuntu-Clang-arm-Debug-Android": {
       "cipd_packages": [
         {
           "name": "skia/bots/android_ndk_linux",
@@ -335,7 +329,7 @@
         "../../..",
         "swarm_compile",
         "repository=<(REPO)",
-        "buildername=Build-Ubuntu-Clang-arm-Debug-GN_Android",
+        "buildername=Build-Ubuntu-Clang-arm-Debug-Android",
         "mastername=fake-master",
         "buildnumber=2",
         "slavename=fake-buildslave",
@@ -349,7 +343,7 @@
       "isolate": "compile_skia.isolate",
       "priority": 0.8
     },
-    "Build-Ubuntu-Clang-arm-Release-GN_Android": {
+    "Build-Ubuntu-Clang-arm-Release-Android": {
       "cipd_packages": [
         {
           "name": "skia/bots/android_ndk_linux",
@@ -367,7 +361,7 @@
         "../../..",
         "swarm_compile",
         "repository=<(REPO)",
-        "buildername=Build-Ubuntu-Clang-arm-Release-GN_Android",
+        "buildername=Build-Ubuntu-Clang-arm-Release-Android",
         "mastername=fake-master",
         "buildnumber=2",
         "slavename=fake-buildslave",
@@ -381,7 +375,7 @@
       "isolate": "compile_skia.isolate",
       "priority": 0.8
     },
-    "Build-Ubuntu-Clang-arm64-Debug-GN_Android": {
+    "Build-Ubuntu-Clang-arm64-Debug-Android": {
       "cipd_packages": [
         {
           "name": "skia/bots/android_ndk_linux",
@@ -399,7 +393,7 @@
         "../../..",
         "swarm_compile",
         "repository=<(REPO)",
-        "buildername=Build-Ubuntu-Clang-arm64-Debug-GN_Android",
+        "buildername=Build-Ubuntu-Clang-arm64-Debug-Android",
         "mastername=fake-master",
         "buildnumber=2",
         "slavename=fake-buildslave",
@@ -413,7 +407,7 @@
       "isolate": "compile_skia.isolate",
       "priority": 0.8
     },
-    "Build-Ubuntu-Clang-arm64-Debug-GN_Android_Vulkan": {
+    "Build-Ubuntu-Clang-arm64-Release-Android": {
       "cipd_packages": [
         {
           "name": "skia/bots/android_ndk_linux",
@@ -431,7 +425,7 @@
         "../../..",
         "swarm_compile",
         "repository=<(REPO)",
-        "buildername=Build-Ubuntu-Clang-arm64-Debug-GN_Android_Vulkan",
+        "buildername=Build-Ubuntu-Clang-arm64-Release-Android",
         "mastername=fake-master",
         "buildnumber=2",
         "slavename=fake-buildslave",
@@ -445,14 +439,7 @@
       "isolate": "compile_skia.isolate",
       "priority": 0.8
     },
-    "Build-Ubuntu-Clang-arm64-Release-GN_Android": {
-      "cipd_packages": [
-        {
-          "name": "skia/bots/android_ndk_linux",
-          "path": "android_ndk_linux",
-          "version": "version:5"
-        }
-      ],
+    "Build-Ubuntu-GCC-x86_64-Release": {
       "dimensions": [
         "gpu:none",
         "os:Ubuntu",
@@ -463,7 +450,7 @@
         "../../..",
         "swarm_compile",
         "repository=<(REPO)",
-        "buildername=Build-Ubuntu-Clang-arm64-Release-GN_Android",
+        "buildername=Build-Ubuntu-GCC-x86_64-Release",
         "mastername=fake-master",
         "buildnumber=2",
         "slavename=fake-buildslave",
@@ -477,14 +464,7 @@
       "isolate": "compile_skia.isolate",
       "priority": 0.8
     },
-    "Build-Ubuntu-Clang-arm64-Release-GN_Android_Vulkan": {
-      "cipd_packages": [
-        {
-          "name": "skia/bots/android_ndk_linux",
-          "path": "android_ndk_linux",
-          "version": "version:5"
-        }
-      ],
+    "Build-Ubuntu-GCC-x86_64-Release-": {
       "dimensions": [
         "gpu:none",
         "os:Ubuntu",
@@ -495,7 +475,7 @@
         "../../..",
         "swarm_compile",
         "repository=<(REPO)",
-        "buildername=Build-Ubuntu-Clang-arm64-Release-GN_Android_Vulkan",
+        "buildername=Build-Ubuntu-GCC-x86_64-Release-",
         "mastername=fake-master",
         "buildnumber=2",
         "slavename=fake-buildslave",
@@ -509,32 +489,7 @@
       "isolate": "compile_skia.isolate",
       "priority": 0.8
     },
-    "Build-Ubuntu-GCC-x86_64-Release-GN": {
-      "dimensions": [
-        "gpu:none",
-        "os:Ubuntu",
-        "pool:Skia"
-      ],
-      "extra_args": [
-        "--workdir",
-        "../../..",
-        "swarm_compile",
-        "repository=<(REPO)",
-        "buildername=Build-Ubuntu-GCC-x86_64-Release-GN",
-        "mastername=fake-master",
-        "buildnumber=2",
-        "slavename=fake-buildslave",
-        "nobuildbot=True",
-        "swarm_out_dir=${ISOLATED_OUTDIR}",
-        "revision=<(REVISION)",
-        "patch_storage=<(PATCH_STORAGE)",
-        "patch_issue=<(ISSUE)",
-        "patch_set=<(PATCHSET)"
-      ],
-      "isolate": "compile_skia.isolate",
-      "priority": 0.8
-    },
-    "Build-Win-Clang-arm64-Release-GN_Android": {
+    "Build-Win-Clang-arm64-Release-Android": {
       "cipd_packages": [
         {
           "name": "skia/bots/android_ndk_windows",
@@ -552,7 +507,7 @@
         "../../..",
         "swarm_compile",
         "repository=<(REPO)",
-        "buildername=Build-Win-Clang-arm64-Release-GN_Android",
+        "buildername=Build-Win-Clang-arm64-Release-Android",
         "mastername=fake-master",
         "buildnumber=2",
         "slavename=fake-buildslave",
@@ -592,7 +547,7 @@
       "isolate": "infra_skia.isolate",
       "priority": 0.8
     },
-    "Perf-Android-Clang-AndroidOne-CPU-MT6582-arm-Debug-GN_Android": {
+    "Perf-Android-Clang-AndroidOne-CPU-MT6582-arm-Debug-Android": {
       "cipd_packages": [
         {
           "name": "skia/bots/skimage",
@@ -611,7 +566,7 @@
         }
       ],
       "dependencies": [
-        "Build-Ubuntu-Clang-arm-Debug-GN_Android"
+        "Build-Ubuntu-Clang-arm-Debug-Android"
       ],
       "dimensions": [
         "device_os:MOB30Q",
@@ -626,7 +581,7 @@
         "../../..",
         "swarm_perf",
         "repository=<(REPO)",
-        "buildername=Perf-Android-Clang-AndroidOne-CPU-MT6582-arm-Debug-GN_Android",
+        "buildername=Perf-Android-Clang-AndroidOne-CPU-MT6582-arm-Debug-Android",
         "mastername=fake-master",
         "buildnumber=2",
         "slavename=fake-buildslave",
@@ -641,7 +596,7 @@
       "isolate": "perf_skia.isolate",
       "priority": 0.8
     },
-    "Perf-Android-Clang-AndroidOne-CPU-MT6582-arm-Release-GN_Android": {
+    "Perf-Android-Clang-AndroidOne-CPU-MT6582-arm-Release-Android": {
       "cipd_packages": [
         {
           "name": "skia/bots/skimage",
@@ -660,7 +615,7 @@
         }
       ],
       "dependencies": [
-        "Build-Ubuntu-Clang-arm-Release-GN_Android"
+        "Build-Ubuntu-Clang-arm-Release-Android"
       ],
       "dimensions": [
         "device_os:MOB30Q",
@@ -675,7 +630,7 @@
         "../../..",
         "swarm_perf",
         "repository=<(REPO)",
-        "buildername=Perf-Android-Clang-AndroidOne-CPU-MT6582-arm-Release-GN_Android",
+        "buildername=Perf-Android-Clang-AndroidOne-CPU-MT6582-arm-Release-Android",
         "mastername=fake-master",
         "buildnumber=2",
         "slavename=fake-buildslave",
@@ -690,7 +645,7 @@
       "isolate": "perf_skia.isolate",
       "priority": 0.8
     },
-    "Perf-Android-Clang-AndroidOne-GPU-Mali400MP2-arm-Debug-GN_Android": {
+    "Perf-Android-Clang-AndroidOne-GPU-Mali400MP2-arm-Debug-Android": {
       "cipd_packages": [
         {
           "name": "skia/bots/skimage",
@@ -709,7 +664,7 @@
         }
       ],
       "dependencies": [
-        "Build-Ubuntu-Clang-arm-Debug-GN_Android"
+        "Build-Ubuntu-Clang-arm-Debug-Android"
       ],
       "dimensions": [
         "device_os:MOB30Q",
@@ -724,7 +679,7 @@
         "../../..",
         "swarm_perf",
         "repository=<(REPO)",
-        "buildername=Perf-Android-Clang-AndroidOne-GPU-Mali400MP2-arm-Debug-GN_Android",
+        "buildername=Perf-Android-Clang-AndroidOne-GPU-Mali400MP2-arm-Debug-Android",
         "mastername=fake-master",
         "buildnumber=2",
         "slavename=fake-buildslave",
@@ -739,7 +694,7 @@
       "isolate": "perf_skia.isolate",
       "priority": 0.8
     },
-    "Perf-Android-Clang-AndroidOne-GPU-Mali400MP2-arm-Release-GN_Android": {
+    "Perf-Android-Clang-AndroidOne-GPU-Mali400MP2-arm-Release-Android": {
       "cipd_packages": [
         {
           "name": "skia/bots/skimage",
@@ -758,7 +713,7 @@
         }
       ],
       "dependencies": [
-        "Build-Ubuntu-Clang-arm-Release-GN_Android"
+        "Build-Ubuntu-Clang-arm-Release-Android"
       ],
       "dimensions": [
         "device_os:MOB30Q",
@@ -773,7 +728,7 @@
         "../../..",
         "swarm_perf",
         "repository=<(REPO)",
-        "buildername=Perf-Android-Clang-AndroidOne-GPU-Mali400MP2-arm-Release-GN_Android",
+        "buildername=Perf-Android-Clang-AndroidOne-GPU-Mali400MP2-arm-Release-Android",
         "mastername=fake-master",
         "buildnumber=2",
         "slavename=fake-buildslave",
@@ -788,7 +743,7 @@
       "isolate": "perf_skia.isolate",
       "priority": 0.8
     },
-    "Perf-Android-Clang-Nexus6p-CPU-Snapdragon810-arm64-Debug-GN_Android": {
+    "Perf-Android-Clang-Nexus6p-CPU-Snapdragon810-arm64-Debug-Android": {
       "cipd_packages": [
         {
           "name": "skia/bots/skimage",
@@ -807,7 +762,7 @@
         }
       ],
       "dependencies": [
-        "Build-Ubuntu-Clang-arm64-Debug-GN_Android"
+        "Build-Ubuntu-Clang-arm64-Debug-Android"
       ],
       "dimensions": [
         "device_os:NMF26C",
@@ -822,7 +777,7 @@
         "../../..",
         "swarm_perf",
         "repository=<(REPO)",
-        "buildername=Perf-Android-Clang-Nexus6p-CPU-Snapdragon810-arm64-Debug-GN_Android",
+        "buildername=Perf-Android-Clang-Nexus6p-CPU-Snapdragon810-arm64-Debug-Android",
         "mastername=fake-master",
         "buildnumber=2",
         "slavename=fake-buildslave",
@@ -837,7 +792,7 @@
       "isolate": "perf_skia.isolate",
       "priority": 0.8
     },
-    "Perf-Android-Clang-Nexus6p-CPU-Snapdragon810-arm64-Release-GN_Android": {
+    "Perf-Android-Clang-Nexus6p-CPU-Snapdragon810-arm64-Release-Android": {
       "cipd_packages": [
         {
           "name": "skia/bots/skimage",
@@ -856,7 +811,7 @@
         }
       ],
       "dependencies": [
-        "Build-Ubuntu-Clang-arm64-Release-GN_Android"
+        "Build-Ubuntu-Clang-arm64-Release-Android"
       ],
       "dimensions": [
         "device_os:NMF26C",
@@ -871,7 +826,7 @@
         "../../..",
         "swarm_perf",
         "repository=<(REPO)",
-        "buildername=Perf-Android-Clang-Nexus6p-CPU-Snapdragon810-arm64-Release-GN_Android",
+        "buildername=Perf-Android-Clang-Nexus6p-CPU-Snapdragon810-arm64-Release-Android",
         "mastername=fake-master",
         "buildnumber=2",
         "slavename=fake-buildslave",
@@ -886,7 +841,7 @@
       "isolate": "perf_skia.isolate",
       "priority": 0.8
     },
-    "Perf-Android-Clang-Nexus6p-GPU-Adreno430-arm64-Debug-GN_Android": {
+    "Perf-Android-Clang-Nexus6p-GPU-Adreno430-arm64-Debug-Android": {
       "cipd_packages": [
         {
           "name": "skia/bots/skimage",
@@ -905,7 +860,7 @@
         }
       ],
       "dependencies": [
-        "Build-Ubuntu-Clang-arm64-Debug-GN_Android"
+        "Build-Ubuntu-Clang-arm64-Debug-Android"
       ],
       "dimensions": [
         "device_os:NMF26C",
@@ -920,7 +875,7 @@
         "../../..",
         "swarm_perf",
         "repository=<(REPO)",
-        "buildername=Perf-Android-Clang-Nexus6p-GPU-Adreno430-arm64-Debug-GN_Android",
+        "buildername=Perf-Android-Clang-Nexus6p-GPU-Adreno430-arm64-Debug-Android",
         "mastername=fake-master",
         "buildnumber=2",
         "slavename=fake-buildslave",
@@ -935,7 +890,7 @@
       "isolate": "perf_skia.isolate",
       "priority": 0.8
     },
-    "Perf-Android-Clang-Nexus6p-GPU-Adreno430-arm64-Debug-GN_Android_Vulkan": {
+    "Perf-Android-Clang-Nexus6p-GPU-Adreno430-arm64-Debug-Android_Vulkan": {
       "cipd_packages": [
         {
           "name": "skia/bots/skimage",
@@ -954,7 +909,7 @@
         }
       ],
       "dependencies": [
-        "Build-Ubuntu-Clang-arm64-Debug-GN_Android_Vulkan"
+        "Build-Ubuntu-Clang-arm64-Debug-Android"
       ],
       "dimensions": [
         "device_os:NMF26C",
@@ -969,7 +924,7 @@
         "../../..",
         "swarm_perf",
         "repository=<(REPO)",
-        "buildername=Perf-Android-Clang-Nexus6p-GPU-Adreno430-arm64-Debug-GN_Android_Vulkan",
+        "buildername=Perf-Android-Clang-Nexus6p-GPU-Adreno430-arm64-Debug-Android_Vulkan",
         "mastername=fake-master",
         "buildnumber=2",
         "slavename=fake-buildslave",
@@ -984,7 +939,7 @@
       "isolate": "perf_skia.isolate",
       "priority": 0.8
     },
-    "Perf-Android-Clang-Nexus6p-GPU-Adreno430-arm64-Release-GN_Android": {
+    "Perf-Android-Clang-Nexus6p-GPU-Adreno430-arm64-Release-Android": {
       "cipd_packages": [
         {
           "name": "skia/bots/skimage",
@@ -1003,7 +958,7 @@
         }
       ],
       "dependencies": [
-        "Build-Ubuntu-Clang-arm64-Release-GN_Android"
+        "Build-Ubuntu-Clang-arm64-Release-Android"
       ],
       "dimensions": [
         "device_os:NMF26C",
@@ -1018,7 +973,7 @@
         "../../..",
         "swarm_perf",
         "repository=<(REPO)",
-        "buildername=Perf-Android-Clang-Nexus6p-GPU-Adreno430-arm64-Release-GN_Android",
+        "buildername=Perf-Android-Clang-Nexus6p-GPU-Adreno430-arm64-Release-Android",
         "mastername=fake-master",
         "buildnumber=2",
         "slavename=fake-buildslave",
@@ -1033,7 +988,7 @@
       "isolate": "perf_skia.isolate",
       "priority": 0.8
     },
-    "Perf-Android-Clang-Nexus6p-GPU-Adreno430-arm64-Release-GN_Android_Vulkan": {
+    "Perf-Android-Clang-Nexus6p-GPU-Adreno430-arm64-Release-Android_Vulkan": {
       "cipd_packages": [
         {
           "name": "skia/bots/skimage",
@@ -1052,7 +1007,7 @@
         }
       ],
       "dependencies": [
-        "Build-Ubuntu-Clang-arm64-Release-GN_Android_Vulkan"
+        "Build-Ubuntu-Clang-arm64-Release-Android"
       ],
       "dimensions": [
         "device_os:NMF26C",
@@ -1067,7 +1022,7 @@
         "../../..",
         "swarm_perf",
         "repository=<(REPO)",
-        "buildername=Perf-Android-Clang-Nexus6p-GPU-Adreno430-arm64-Release-GN_Android_Vulkan",
+        "buildername=Perf-Android-Clang-Nexus6p-GPU-Adreno430-arm64-Release-Android_Vulkan",
         "mastername=fake-master",
         "buildnumber=2",
         "slavename=fake-buildslave",
@@ -1082,7 +1037,7 @@
       "isolate": "perf_skia.isolate",
       "priority": 0.8
     },
-    "Perf-Android-Clang-PixelC-CPU-TegraX1-arm64-Release-GN_Android_Skpbench": {
+    "Perf-Android-Clang-PixelC-CPU-TegraX1-arm64-Release-Android_Skpbench": {
       "cipd_packages": [
         {
           "name": "skia/bots/skp",
@@ -1091,7 +1046,7 @@
         }
       ],
       "dependencies": [
-        "Build-Ubuntu-Clang-arm64-Release-GN_Android"
+        "Build-Ubuntu-Clang-arm64-Release-Android"
       ],
       "dimensions": [
         "device_os:NMF26C",
@@ -1106,7 +1061,7 @@
         "../../..",
         "swarm_skpbench",
         "repository=<(REPO)",
-        "buildername=Perf-Android-Clang-PixelC-CPU-TegraX1-arm64-Release-GN_Android_Skpbench",
+        "buildername=Perf-Android-Clang-PixelC-CPU-TegraX1-arm64-Release-Android_Skpbench",
         "mastername=fake-master",
         "buildnumber=2",
         "slavename=fake-buildslave",
@@ -1121,7 +1076,7 @@
       "isolate": "skpbench_skia.isolate",
       "priority": 0.8
     },
-    "Perf-Android-Clang-PixelC-GPU-TegraX1-arm64-Release-GN_Android_Skpbench": {
+    "Perf-Android-Clang-PixelC-GPU-TegraX1-arm64-Release-Android_Skpbench": {
       "cipd_packages": [
         {
           "name": "skia/bots/skp",
@@ -1130,7 +1085,7 @@
         }
       ],
       "dependencies": [
-        "Build-Ubuntu-Clang-arm64-Release-GN_Android"
+        "Build-Ubuntu-Clang-arm64-Release-Android"
       ],
       "dimensions": [
         "device_os:NMF26C",
@@ -1145,7 +1100,7 @@
         "../../..",
         "swarm_skpbench",
         "repository=<(REPO)",
-        "buildername=Perf-Android-Clang-PixelC-GPU-TegraX1-arm64-Release-GN_Android_Skpbench",
+        "buildername=Perf-Android-Clang-PixelC-GPU-TegraX1-arm64-Release-Android_Skpbench",
         "mastername=fake-master",
         "buildnumber=2",
         "slavename=fake-buildslave",
@@ -1160,7 +1115,7 @@
       "isolate": "skpbench_skia.isolate",
       "priority": 0.8
     },
-    "Perf-Ubuntu-GCC-GCE-CPU-AVX2-x86_64-Release-GN": {
+    "Perf-Ubuntu-GCC-GCE-CPU-AVX2-x86_64-Release": {
       "cipd_packages": [
         {
           "name": "skia/bots/skimage",
@@ -1179,7 +1134,7 @@
         }
       ],
       "dependencies": [
-        "Build-Ubuntu-GCC-x86_64-Release-GN"
+        "Build-Ubuntu-GCC-x86_64-Release-"
       ],
       "dimensions": [
         "cpu:x86-64-avx2",
@@ -1194,7 +1149,7 @@
         "../../..",
         "swarm_perf",
         "repository=<(REPO)",
-        "buildername=Perf-Ubuntu-GCC-GCE-CPU-AVX2-x86_64-Release-GN",
+        "buildername=Perf-Ubuntu-GCC-GCE-CPU-AVX2-x86_64-Release",
         "mastername=fake-master",
         "buildnumber=2",
         "slavename=fake-buildslave",
@@ -1305,7 +1260,7 @@
       "isolate": "perf_skia.isolate",
       "priority": 0.8
     },
-    "Test-Android-Clang-AndroidOne-CPU-MT6582-arm-Debug-GN_Android": {
+    "Test-Android-Clang-AndroidOne-CPU-MT6582-arm-Debug-Android": {
       "cipd_packages": [
         {
           "name": "skia/bots/skimage",
@@ -1324,7 +1279,7 @@
         }
       ],
       "dependencies": [
-        "Build-Ubuntu-Clang-arm-Debug-GN_Android"
+        "Build-Ubuntu-Clang-arm-Debug-Android"
       ],
       "dimensions": [
         "device_os:MOB30Q",
@@ -1339,7 +1294,7 @@
         "../../..",
         "swarm_test",
         "repository=<(REPO)",
-        "buildername=Test-Android-Clang-AndroidOne-CPU-MT6582-arm-Debug-GN_Android",
+        "buildername=Test-Android-Clang-AndroidOne-CPU-MT6582-arm-Debug-Android",
         "mastername=fake-master",
         "buildnumber=2",
         "slavename=fake-buildslave",
@@ -1354,7 +1309,7 @@
       "isolate": "test_skia.isolate",
       "priority": 0.8
     },
-    "Test-Android-Clang-AndroidOne-CPU-MT6582-arm-Release-GN_Android": {
+    "Test-Android-Clang-AndroidOne-CPU-MT6582-arm-Release-Android": {
       "cipd_packages": [
         {
           "name": "skia/bots/skimage",
@@ -1373,7 +1328,7 @@
         }
       ],
       "dependencies": [
-        "Build-Ubuntu-Clang-arm-Release-GN_Android"
+        "Build-Ubuntu-Clang-arm-Release-Android"
       ],
       "dimensions": [
         "device_os:MOB30Q",
@@ -1388,7 +1343,7 @@
         "../../..",
         "swarm_test",
         "repository=<(REPO)",
-        "buildername=Test-Android-Clang-AndroidOne-CPU-MT6582-arm-Release-GN_Android",
+        "buildername=Test-Android-Clang-AndroidOne-CPU-MT6582-arm-Release-Android",
         "mastername=fake-master",
         "buildnumber=2",
         "slavename=fake-buildslave",
@@ -1403,7 +1358,7 @@
       "isolate": "test_skia.isolate",
       "priority": 0.8
     },
-    "Test-Android-Clang-AndroidOne-GPU-Mali400MP2-arm-Debug-GN_Android": {
+    "Test-Android-Clang-AndroidOne-GPU-Mali400MP2-arm-Debug-Android": {
       "cipd_packages": [
         {
           "name": "skia/bots/skimage",
@@ -1422,7 +1377,7 @@
         }
       ],
       "dependencies": [
-        "Build-Ubuntu-Clang-arm-Debug-GN_Android"
+        "Build-Ubuntu-Clang-arm-Debug-Android"
       ],
       "dimensions": [
         "device_os:MOB30Q",
@@ -1437,7 +1392,7 @@
         "../../..",
         "swarm_test",
         "repository=<(REPO)",
-        "buildername=Test-Android-Clang-AndroidOne-GPU-Mali400MP2-arm-Debug-GN_Android",
+        "buildername=Test-Android-Clang-AndroidOne-GPU-Mali400MP2-arm-Debug-Android",
         "mastername=fake-master",
         "buildnumber=2",
         "slavename=fake-buildslave",
@@ -1452,7 +1407,7 @@
       "isolate": "test_skia.isolate",
       "priority": 0.8
     },
-    "Test-Android-Clang-AndroidOne-GPU-Mali400MP2-arm-Release-GN_Android": {
+    "Test-Android-Clang-AndroidOne-GPU-Mali400MP2-arm-Release-Android": {
       "cipd_packages": [
         {
           "name": "skia/bots/skimage",
@@ -1471,7 +1426,7 @@
         }
       ],
       "dependencies": [
-        "Build-Ubuntu-Clang-arm-Release-GN_Android"
+        "Build-Ubuntu-Clang-arm-Release-Android"
       ],
       "dimensions": [
         "device_os:MOB30Q",
@@ -1486,7 +1441,7 @@
         "../../..",
         "swarm_test",
         "repository=<(REPO)",
-        "buildername=Test-Android-Clang-AndroidOne-GPU-Mali400MP2-arm-Release-GN_Android",
+        "buildername=Test-Android-Clang-AndroidOne-GPU-Mali400MP2-arm-Release-Android",
         "mastername=fake-master",
         "buildnumber=2",
         "slavename=fake-buildslave",
@@ -1501,7 +1456,7 @@
       "isolate": "test_skia.isolate",
       "priority": 0.8
     },
-    "Test-Android-Clang-Nexus6p-CPU-Snapdragon810-arm64-Debug-GN_Android": {
+    "Test-Android-Clang-Nexus6p-CPU-Snapdragon810-arm64-Debug-Android": {
       "cipd_packages": [
         {
           "name": "skia/bots/skimage",
@@ -1520,7 +1475,7 @@
         }
       ],
       "dependencies": [
-        "Build-Ubuntu-Clang-arm64-Debug-GN_Android"
+        "Build-Ubuntu-Clang-arm64-Debug-Android"
       ],
       "dimensions": [
         "device_os:NMF26C",
@@ -1535,7 +1490,7 @@
         "../../..",
         "swarm_test",
         "repository=<(REPO)",
-        "buildername=Test-Android-Clang-Nexus6p-CPU-Snapdragon810-arm64-Debug-GN_Android",
+        "buildername=Test-Android-Clang-Nexus6p-CPU-Snapdragon810-arm64-Debug-Android",
         "mastername=fake-master",
         "buildnumber=2",
         "slavename=fake-buildslave",
@@ -1550,7 +1505,7 @@
       "isolate": "test_skia.isolate",
       "priority": 0.8
     },
-    "Test-Android-Clang-Nexus6p-CPU-Snapdragon810-arm64-Release-GN_Android": {
+    "Test-Android-Clang-Nexus6p-CPU-Snapdragon810-arm64-Release-Android": {
       "cipd_packages": [
         {
           "name": "skia/bots/skimage",
@@ -1569,7 +1524,7 @@
         }
       ],
       "dependencies": [
-        "Build-Ubuntu-Clang-arm64-Release-GN_Android"
+        "Build-Ubuntu-Clang-arm64-Release-Android"
       ],
       "dimensions": [
         "device_os:NMF26C",
@@ -1584,7 +1539,7 @@
         "../../..",
         "swarm_test",
         "repository=<(REPO)",
-        "buildername=Test-Android-Clang-Nexus6p-CPU-Snapdragon810-arm64-Release-GN_Android",
+        "buildername=Test-Android-Clang-Nexus6p-CPU-Snapdragon810-arm64-Release-Android",
         "mastername=fake-master",
         "buildnumber=2",
         "slavename=fake-buildslave",
@@ -1599,7 +1554,7 @@
       "isolate": "test_skia.isolate",
       "priority": 0.8
     },
-    "Test-Android-Clang-Nexus6p-GPU-Adreno430-arm64-Debug-GN_Android": {
+    "Test-Android-Clang-Nexus6p-GPU-Adreno430-arm64-Debug-Android": {
       "cipd_packages": [
         {
           "name": "skia/bots/skimage",
@@ -1618,7 +1573,7 @@
         }
       ],
       "dependencies": [
-        "Build-Ubuntu-Clang-arm64-Debug-GN_Android"
+        "Build-Ubuntu-Clang-arm64-Debug-Android"
       ],
       "dimensions": [
         "device_os:NMF26C",
@@ -1633,7 +1588,7 @@
         "../../..",
         "swarm_test",
         "repository=<(REPO)",
-        "buildername=Test-Android-Clang-Nexus6p-GPU-Adreno430-arm64-Debug-GN_Android",
+        "buildername=Test-Android-Clang-Nexus6p-GPU-Adreno430-arm64-Debug-Android",
         "mastername=fake-master",
         "buildnumber=2",
         "slavename=fake-buildslave",
@@ -1648,7 +1603,7 @@
       "isolate": "test_skia.isolate",
       "priority": 0.8
     },
-    "Test-Android-Clang-Nexus6p-GPU-Adreno430-arm64-Debug-GN_Android_Vulkan": {
+    "Test-Android-Clang-Nexus6p-GPU-Adreno430-arm64-Debug-Android_Vulkan": {
       "cipd_packages": [
         {
           "name": "skia/bots/skimage",
@@ -1667,7 +1622,7 @@
         }
       ],
       "dependencies": [
-        "Build-Ubuntu-Clang-arm64-Debug-GN_Android_Vulkan"
+        "Build-Ubuntu-Clang-arm64-Debug-Android"
       ],
       "dimensions": [
         "device_os:NMF26C",
@@ -1682,7 +1637,7 @@
         "../../..",
         "swarm_test",
         "repository=<(REPO)",
-        "buildername=Test-Android-Clang-Nexus6p-GPU-Adreno430-arm64-Debug-GN_Android_Vulkan",
+        "buildername=Test-Android-Clang-Nexus6p-GPU-Adreno430-arm64-Debug-Android_Vulkan",
         "mastername=fake-master",
         "buildnumber=2",
         "slavename=fake-buildslave",
@@ -1697,7 +1652,7 @@
       "isolate": "test_skia.isolate",
       "priority": 0.8
     },
-    "Test-Android-Clang-Nexus6p-GPU-Adreno430-arm64-Release-GN_Android": {
+    "Test-Android-Clang-Nexus6p-GPU-Adreno430-arm64-Release-Android": {
       "cipd_packages": [
         {
           "name": "skia/bots/skimage",
@@ -1716,7 +1671,7 @@
         }
       ],
       "dependencies": [
-        "Build-Ubuntu-Clang-arm64-Release-GN_Android"
+        "Build-Ubuntu-Clang-arm64-Release-Android"
       ],
       "dimensions": [
         "device_os:NMF26C",
@@ -1731,7 +1686,7 @@
         "../../..",
         "swarm_test",
         "repository=<(REPO)",
-        "buildername=Test-Android-Clang-Nexus6p-GPU-Adreno430-arm64-Release-GN_Android",
+        "buildername=Test-Android-Clang-Nexus6p-GPU-Adreno430-arm64-Release-Android",
         "mastername=fake-master",
         "buildnumber=2",
         "slavename=fake-buildslave",
@@ -1746,7 +1701,7 @@
       "isolate": "test_skia.isolate",
       "priority": 0.8
     },
-    "Test-Android-Clang-Nexus6p-GPU-Adreno430-arm64-Release-GN_Android_Vulkan": {
+    "Test-Android-Clang-Nexus6p-GPU-Adreno430-arm64-Release-Android_Vulkan": {
       "cipd_packages": [
         {
           "name": "skia/bots/skimage",
@@ -1765,7 +1720,7 @@
         }
       ],
       "dependencies": [
-        "Build-Ubuntu-Clang-arm64-Release-GN_Android_Vulkan"
+        "Build-Ubuntu-Clang-arm64-Release-Android"
       ],
       "dimensions": [
         "device_os:NMF26C",
@@ -1780,7 +1735,7 @@
         "../../..",
         "swarm_test",
         "repository=<(REPO)",
-        "buildername=Test-Android-Clang-Nexus6p-GPU-Adreno430-arm64-Release-GN_Android_Vulkan",
+        "buildername=Test-Android-Clang-Nexus6p-GPU-Adreno430-arm64-Release-Android_Vulkan",
         "mastername=fake-master",
         "buildnumber=2",
         "slavename=fake-buildslave",
@@ -1795,7 +1750,7 @@
       "isolate": "test_skia.isolate",
       "priority": 0.8
     },
-    "Test-Ubuntu-GCC-GCE-CPU-AVX2-x86_64-Release-GN": {
+    "Test-Ubuntu-GCC-GCE-CPU-AVX2-x86_64-Release": {
       "cipd_packages": [
         {
           "name": "skia/bots/skimage",
@@ -1814,7 +1769,7 @@
         }
       ],
       "dependencies": [
-        "Build-Ubuntu-GCC-x86_64-Release-GN"
+        "Build-Ubuntu-GCC-x86_64-Release-"
       ],
       "dimensions": [
         "cpu:x86-64-avx2",
@@ -1829,7 +1784,7 @@
         "../../..",
         "swarm_test",
         "repository=<(REPO)",
-        "buildername=Test-Ubuntu-GCC-GCE-CPU-AVX2-x86_64-Release-GN",
+        "buildername=Test-Ubuntu-GCC-GCE-CPU-AVX2-x86_64-Release",
         "mastername=fake-master",
         "buildnumber=2",
         "slavename=fake-buildslave",
@@ -1940,9 +1895,9 @@
       "isolate": "test_skia.isolate",
       "priority": 0.8
     },
-    "Upload-Perf-Android-Clang-AndroidOne-CPU-MT6582-arm-Release-GN_Android": {
+    "Upload-Perf-Android-Clang-AndroidOne-CPU-MT6582-arm-Release-Android": {
       "dependencies": [
-        "Perf-Android-Clang-AndroidOne-CPU-MT6582-arm-Release-GN_Android"
+        "Perf-Android-Clang-AndroidOne-CPU-MT6582-arm-Release-Android"
       ],
       "dimensions": [
         "cpu:x86-64-avx2",
@@ -1955,7 +1910,7 @@
         "../../..",
         "upload_nano_results",
         "repository=<(REPO)",
-        "buildername=Perf-Android-Clang-AndroidOne-CPU-MT6582-arm-Release-GN_Android",
+        "buildername=Perf-Android-Clang-AndroidOne-CPU-MT6582-arm-Release-Android",
         "mastername=fake-master",
         "buildnumber=2",
         "slavename=fake-buildslave",
@@ -1969,9 +1924,9 @@
       "isolate": "upload_nano_results.isolate",
       "priority": 0.8
     },
-    "Upload-Perf-Android-Clang-AndroidOne-GPU-Mali400MP2-arm-Release-GN_Android": {
+    "Upload-Perf-Android-Clang-AndroidOne-GPU-Mali400MP2-arm-Release-Android": {
       "dependencies": [
-        "Perf-Android-Clang-AndroidOne-GPU-Mali400MP2-arm-Release-GN_Android"
+        "Perf-Android-Clang-AndroidOne-GPU-Mali400MP2-arm-Release-Android"
       ],
       "dimensions": [
         "cpu:x86-64-avx2",
@@ -1984,7 +1939,7 @@
         "../../..",
         "upload_nano_results",
         "repository=<(REPO)",
-        "buildername=Perf-Android-Clang-AndroidOne-GPU-Mali400MP2-arm-Release-GN_Android",
+        "buildername=Perf-Android-Clang-AndroidOne-GPU-Mali400MP2-arm-Release-Android",
         "mastername=fake-master",
         "buildnumber=2",
         "slavename=fake-buildslave",
@@ -1998,9 +1953,9 @@
       "isolate": "upload_nano_results.isolate",
       "priority": 0.8
     },
-    "Upload-Perf-Android-Clang-Nexus6p-CPU-Snapdragon810-arm64-Release-GN_Android": {
+    "Upload-Perf-Android-Clang-Nexus6p-CPU-Snapdragon810-arm64-Release-Android": {
       "dependencies": [
-        "Perf-Android-Clang-Nexus6p-CPU-Snapdragon810-arm64-Release-GN_Android"
+        "Perf-Android-Clang-Nexus6p-CPU-Snapdragon810-arm64-Release-Android"
       ],
       "dimensions": [
         "cpu:x86-64-avx2",
@@ -2013,7 +1968,7 @@
         "../../..",
         "upload_nano_results",
         "repository=<(REPO)",
-        "buildername=Perf-Android-Clang-Nexus6p-CPU-Snapdragon810-arm64-Release-GN_Android",
+        "buildername=Perf-Android-Clang-Nexus6p-CPU-Snapdragon810-arm64-Release-Android",
         "mastername=fake-master",
         "buildnumber=2",
         "slavename=fake-buildslave",
@@ -2027,9 +1982,9 @@
       "isolate": "upload_nano_results.isolate",
       "priority": 0.8
     },
-    "Upload-Perf-Android-Clang-Nexus6p-GPU-Adreno430-arm64-Release-GN_Android": {
+    "Upload-Perf-Android-Clang-Nexus6p-GPU-Adreno430-arm64-Release-Android": {
       "dependencies": [
-        "Perf-Android-Clang-Nexus6p-GPU-Adreno430-arm64-Release-GN_Android"
+        "Perf-Android-Clang-Nexus6p-GPU-Adreno430-arm64-Release-Android"
       ],
       "dimensions": [
         "cpu:x86-64-avx2",
@@ -2042,7 +1997,7 @@
         "../../..",
         "upload_nano_results",
         "repository=<(REPO)",
-        "buildername=Perf-Android-Clang-Nexus6p-GPU-Adreno430-arm64-Release-GN_Android",
+        "buildername=Perf-Android-Clang-Nexus6p-GPU-Adreno430-arm64-Release-Android",
         "mastername=fake-master",
         "buildnumber=2",
         "slavename=fake-buildslave",
@@ -2056,9 +2011,9 @@
       "isolate": "upload_nano_results.isolate",
       "priority": 0.8
     },
-    "Upload-Perf-Android-Clang-Nexus6p-GPU-Adreno430-arm64-Release-GN_Android_Vulkan": {
+    "Upload-Perf-Android-Clang-Nexus6p-GPU-Adreno430-arm64-Release-Android_Vulkan": {
       "dependencies": [
-        "Perf-Android-Clang-Nexus6p-GPU-Adreno430-arm64-Release-GN_Android_Vulkan"
+        "Perf-Android-Clang-Nexus6p-GPU-Adreno430-arm64-Release-Android_Vulkan"
       ],
       "dimensions": [
         "cpu:x86-64-avx2",
@@ -2071,7 +2026,7 @@
         "../../..",
         "upload_nano_results",
         "repository=<(REPO)",
-        "buildername=Perf-Android-Clang-Nexus6p-GPU-Adreno430-arm64-Release-GN_Android_Vulkan",
+        "buildername=Perf-Android-Clang-Nexus6p-GPU-Adreno430-arm64-Release-Android_Vulkan",
         "mastername=fake-master",
         "buildnumber=2",
         "slavename=fake-buildslave",
@@ -2085,9 +2040,9 @@
       "isolate": "upload_nano_results.isolate",
       "priority": 0.8
     },
-    "Upload-Perf-Android-Clang-PixelC-CPU-TegraX1-arm64-Release-GN_Android_Skpbench": {
+    "Upload-Perf-Android-Clang-PixelC-CPU-TegraX1-arm64-Release-Android_Skpbench": {
       "dependencies": [
-        "Perf-Android-Clang-PixelC-CPU-TegraX1-arm64-Release-GN_Android_Skpbench"
+        "Perf-Android-Clang-PixelC-CPU-TegraX1-arm64-Release-Android_Skpbench"
       ],
       "dimensions": [
         "cpu:x86-64-avx2",
@@ -2100,7 +2055,7 @@
         "../../..",
         "upload_nano_results",
         "repository=<(REPO)",
-        "buildername=Perf-Android-Clang-PixelC-CPU-TegraX1-arm64-Release-GN_Android_Skpbench",
+        "buildername=Perf-Android-Clang-PixelC-CPU-TegraX1-arm64-Release-Android_Skpbench",
         "mastername=fake-master",
         "buildnumber=2",
         "slavename=fake-buildslave",
@@ -2114,9 +2069,9 @@
       "isolate": "upload_nano_results.isolate",
       "priority": 0.8
     },
-    "Upload-Perf-Android-Clang-PixelC-GPU-TegraX1-arm64-Release-GN_Android_Skpbench": {
+    "Upload-Perf-Android-Clang-PixelC-GPU-TegraX1-arm64-Release-Android_Skpbench": {
       "dependencies": [
-        "Perf-Android-Clang-PixelC-GPU-TegraX1-arm64-Release-GN_Android_Skpbench"
+        "Perf-Android-Clang-PixelC-GPU-TegraX1-arm64-Release-Android_Skpbench"
       ],
       "dimensions": [
         "cpu:x86-64-avx2",
@@ -2129,7 +2084,7 @@
         "../../..",
         "upload_nano_results",
         "repository=<(REPO)",
-        "buildername=Perf-Android-Clang-PixelC-GPU-TegraX1-arm64-Release-GN_Android_Skpbench",
+        "buildername=Perf-Android-Clang-PixelC-GPU-TegraX1-arm64-Release-Android_Skpbench",
         "mastername=fake-master",
         "buildnumber=2",
         "slavename=fake-buildslave",
@@ -2143,9 +2098,9 @@
       "isolate": "upload_nano_results.isolate",
       "priority": 0.8
     },
-    "Upload-Perf-Ubuntu-GCC-GCE-CPU-AVX2-x86_64-Release-GN": {
+    "Upload-Perf-Ubuntu-GCC-GCE-CPU-AVX2-x86_64-Release": {
       "dependencies": [
-        "Perf-Ubuntu-GCC-GCE-CPU-AVX2-x86_64-Release-GN"
+        "Perf-Ubuntu-GCC-GCE-CPU-AVX2-x86_64-Release"
       ],
       "dimensions": [
         "cpu:x86-64-avx2",
@@ -2158,7 +2113,7 @@
         "../../..",
         "upload_nano_results",
         "repository=<(REPO)",
-        "buildername=Perf-Ubuntu-GCC-GCE-CPU-AVX2-x86_64-Release-GN",
+        "buildername=Perf-Ubuntu-GCC-GCE-CPU-AVX2-x86_64-Release",
         "mastername=fake-master",
         "buildnumber=2",
         "slavename=fake-buildslave",
@@ -2201,9 +2156,9 @@
       "isolate": "upload_nano_results.isolate",
       "priority": 0.8
     },
-    "Upload-Test-Android-Clang-AndroidOne-CPU-MT6582-arm-Debug-GN_Android": {
+    "Upload-Test-Android-Clang-AndroidOne-CPU-MT6582-arm-Debug-Android": {
       "dependencies": [
-        "Test-Android-Clang-AndroidOne-CPU-MT6582-arm-Debug-GN_Android"
+        "Test-Android-Clang-AndroidOne-CPU-MT6582-arm-Debug-Android"
       ],
       "dimensions": [
         "cpu:x86-64-avx2",
@@ -2216,7 +2171,7 @@
         "../../..",
         "upload_dm_results",
         "repository=<(REPO)",
-        "buildername=Test-Android-Clang-AndroidOne-CPU-MT6582-arm-Debug-GN_Android",
+        "buildername=Test-Android-Clang-AndroidOne-CPU-MT6582-arm-Debug-Android",
         "mastername=fake-master",
         "buildnumber=2",
         "slavename=fake-buildslave",
@@ -2230,9 +2185,9 @@
       "isolate": "upload_dm_results.isolate",
       "priority": 0.8
     },
-    "Upload-Test-Android-Clang-AndroidOne-CPU-MT6582-arm-Release-GN_Android": {
+    "Upload-Test-Android-Clang-AndroidOne-CPU-MT6582-arm-Release-Android": {
       "dependencies": [
-        "Test-Android-Clang-AndroidOne-CPU-MT6582-arm-Release-GN_Android"
+        "Test-Android-Clang-AndroidOne-CPU-MT6582-arm-Release-Android"
       ],
       "dimensions": [
         "cpu:x86-64-avx2",
@@ -2245,7 +2200,7 @@
         "../../..",
         "upload_dm_results",
         "repository=<(REPO)",
-        "buildername=Test-Android-Clang-AndroidOne-CPU-MT6582-arm-Release-GN_Android",
+        "buildername=Test-Android-Clang-AndroidOne-CPU-MT6582-arm-Release-Android",
         "mastername=fake-master",
         "buildnumber=2",
         "slavename=fake-buildslave",
@@ -2259,9 +2214,9 @@
       "isolate": "upload_dm_results.isolate",
       "priority": 0.8
     },
-    "Upload-Test-Android-Clang-AndroidOne-GPU-Mali400MP2-arm-Debug-GN_Android": {
+    "Upload-Test-Android-Clang-AndroidOne-GPU-Mali400MP2-arm-Debug-Android": {
       "dependencies": [
-        "Test-Android-Clang-AndroidOne-GPU-Mali400MP2-arm-Debug-GN_Android"
+        "Test-Android-Clang-AndroidOne-GPU-Mali400MP2-arm-Debug-Android"
       ],
       "dimensions": [
         "cpu:x86-64-avx2",
@@ -2274,7 +2229,7 @@
         "../../..",
         "upload_dm_results",
         "repository=<(REPO)",
-        "buildername=Test-Android-Clang-AndroidOne-GPU-Mali400MP2-arm-Debug-GN_Android",
+        "buildername=Test-Android-Clang-AndroidOne-GPU-Mali400MP2-arm-Debug-Android",
         "mastername=fake-master",
         "buildnumber=2",
         "slavename=fake-buildslave",
@@ -2288,9 +2243,9 @@
       "isolate": "upload_dm_results.isolate",
       "priority": 0.8
     },
-    "Upload-Test-Android-Clang-AndroidOne-GPU-Mali400MP2-arm-Release-GN_Android": {
+    "Upload-Test-Android-Clang-AndroidOne-GPU-Mali400MP2-arm-Release-Android": {
       "dependencies": [
-        "Test-Android-Clang-AndroidOne-GPU-Mali400MP2-arm-Release-GN_Android"
+        "Test-Android-Clang-AndroidOne-GPU-Mali400MP2-arm-Release-Android"
       ],
       "dimensions": [
         "cpu:x86-64-avx2",
@@ -2303,7 +2258,7 @@
         "../../..",
         "upload_dm_results",
         "repository=<(REPO)",
-        "buildername=Test-Android-Clang-AndroidOne-GPU-Mali400MP2-arm-Release-GN_Android",
+        "buildername=Test-Android-Clang-AndroidOne-GPU-Mali400MP2-arm-Release-Android",
         "mastername=fake-master",
         "buildnumber=2",
         "slavename=fake-buildslave",
@@ -2317,9 +2272,9 @@
       "isolate": "upload_dm_results.isolate",
       "priority": 0.8
     },
-    "Upload-Test-Android-Clang-Nexus6p-CPU-Snapdragon810-arm64-Debug-GN_Android": {
+    "Upload-Test-Android-Clang-Nexus6p-CPU-Snapdragon810-arm64-Debug-Android": {
       "dependencies": [
-        "Test-Android-Clang-Nexus6p-CPU-Snapdragon810-arm64-Debug-GN_Android"
+        "Test-Android-Clang-Nexus6p-CPU-Snapdragon810-arm64-Debug-Android"
       ],
       "dimensions": [
         "cpu:x86-64-avx2",
@@ -2332,7 +2287,7 @@
         "../../..",
         "upload_dm_results",
         "repository=<(REPO)",
-        "buildername=Test-Android-Clang-Nexus6p-CPU-Snapdragon810-arm64-Debug-GN_Android",
+        "buildername=Test-Android-Clang-Nexus6p-CPU-Snapdragon810-arm64-Debug-Android",
         "mastername=fake-master",
         "buildnumber=2",
         "slavename=fake-buildslave",
@@ -2346,9 +2301,9 @@
       "isolate": "upload_dm_results.isolate",
       "priority": 0.8
     },
-    "Upload-Test-Android-Clang-Nexus6p-CPU-Snapdragon810-arm64-Release-GN_Android": {
+    "Upload-Test-Android-Clang-Nexus6p-CPU-Snapdragon810-arm64-Release-Android": {
       "dependencies": [
-        "Test-Android-Clang-Nexus6p-CPU-Snapdragon810-arm64-Release-GN_Android"
+        "Test-Android-Clang-Nexus6p-CPU-Snapdragon810-arm64-Release-Android"
       ],
       "dimensions": [
         "cpu:x86-64-avx2",
@@ -2361,7 +2316,7 @@
         "../../..",
         "upload_dm_results",
         "repository=<(REPO)",
-        "buildername=Test-Android-Clang-Nexus6p-CPU-Snapdragon810-arm64-Release-GN_Android",
+        "buildername=Test-Android-Clang-Nexus6p-CPU-Snapdragon810-arm64-Release-Android",
         "mastername=fake-master",
         "buildnumber=2",
         "slavename=fake-buildslave",
@@ -2375,9 +2330,9 @@
       "isolate": "upload_dm_results.isolate",
       "priority": 0.8
     },
-    "Upload-Test-Android-Clang-Nexus6p-GPU-Adreno430-arm64-Debug-GN_Android": {
+    "Upload-Test-Android-Clang-Nexus6p-GPU-Adreno430-arm64-Debug-Android": {
       "dependencies": [
-        "Test-Android-Clang-Nexus6p-GPU-Adreno430-arm64-Debug-GN_Android"
+        "Test-Android-Clang-Nexus6p-GPU-Adreno430-arm64-Debug-Android"
       ],
       "dimensions": [
         "cpu:x86-64-avx2",
@@ -2390,7 +2345,7 @@
         "../../..",
         "upload_dm_results",
         "repository=<(REPO)",
-        "buildername=Test-Android-Clang-Nexus6p-GPU-Adreno430-arm64-Debug-GN_Android",
+        "buildername=Test-Android-Clang-Nexus6p-GPU-Adreno430-arm64-Debug-Android",
         "mastername=fake-master",
         "buildnumber=2",
         "slavename=fake-buildslave",
@@ -2404,9 +2359,9 @@
       "isolate": "upload_dm_results.isolate",
       "priority": 0.8
     },
-    "Upload-Test-Android-Clang-Nexus6p-GPU-Adreno430-arm64-Debug-GN_Android_Vulkan": {
+    "Upload-Test-Android-Clang-Nexus6p-GPU-Adreno430-arm64-Debug-Android_Vulkan": {
       "dependencies": [
-        "Test-Android-Clang-Nexus6p-GPU-Adreno430-arm64-Debug-GN_Android_Vulkan"
+        "Test-Android-Clang-Nexus6p-GPU-Adreno430-arm64-Debug-Android_Vulkan"
       ],
       "dimensions": [
         "cpu:x86-64-avx2",
@@ -2419,7 +2374,7 @@
         "../../..",
         "upload_dm_results",
         "repository=<(REPO)",
-        "buildername=Test-Android-Clang-Nexus6p-GPU-Adreno430-arm64-Debug-GN_Android_Vulkan",
+        "buildername=Test-Android-Clang-Nexus6p-GPU-Adreno430-arm64-Debug-Android_Vulkan",
         "mastername=fake-master",
         "buildnumber=2",
         "slavename=fake-buildslave",
@@ -2433,9 +2388,9 @@
       "isolate": "upload_dm_results.isolate",
       "priority": 0.8
     },
-    "Upload-Test-Android-Clang-Nexus6p-GPU-Adreno430-arm64-Release-GN_Android": {
+    "Upload-Test-Android-Clang-Nexus6p-GPU-Adreno430-arm64-Release-Android": {
       "dependencies": [
-        "Test-Android-Clang-Nexus6p-GPU-Adreno430-arm64-Release-GN_Android"
+        "Test-Android-Clang-Nexus6p-GPU-Adreno430-arm64-Release-Android"
       ],
       "dimensions": [
         "cpu:x86-64-avx2",
@@ -2448,7 +2403,7 @@
         "../../..",
         "upload_dm_results",
         "repository=<(REPO)",
-        "buildername=Test-Android-Clang-Nexus6p-GPU-Adreno430-arm64-Release-GN_Android",
+        "buildername=Test-Android-Clang-Nexus6p-GPU-Adreno430-arm64-Release-Android",
         "mastername=fake-master",
         "buildnumber=2",
         "slavename=fake-buildslave",
@@ -2462,9 +2417,9 @@
       "isolate": "upload_dm_results.isolate",
       "priority": 0.8
     },
-    "Upload-Test-Android-Clang-Nexus6p-GPU-Adreno430-arm64-Release-GN_Android_Vulkan": {
+    "Upload-Test-Android-Clang-Nexus6p-GPU-Adreno430-arm64-Release-Android_Vulkan": {
       "dependencies": [
-        "Test-Android-Clang-Nexus6p-GPU-Adreno430-arm64-Release-GN_Android_Vulkan"
+        "Test-Android-Clang-Nexus6p-GPU-Adreno430-arm64-Release-Android_Vulkan"
       ],
       "dimensions": [
         "cpu:x86-64-avx2",
@@ -2477,7 +2432,7 @@
         "../../..",
         "upload_dm_results",
         "repository=<(REPO)",
-        "buildername=Test-Android-Clang-Nexus6p-GPU-Adreno430-arm64-Release-GN_Android_Vulkan",
+        "buildername=Test-Android-Clang-Nexus6p-GPU-Adreno430-arm64-Release-Android_Vulkan",
         "mastername=fake-master",
         "buildnumber=2",
         "slavename=fake-buildslave",
@@ -2491,9 +2446,9 @@
       "isolate": "upload_dm_results.isolate",
       "priority": 0.8
     },
-    "Upload-Test-Ubuntu-GCC-GCE-CPU-AVX2-x86_64-Release-GN": {
+    "Upload-Test-Ubuntu-GCC-GCE-CPU-AVX2-x86_64-Release": {
       "dependencies": [
-        "Test-Ubuntu-GCC-GCE-CPU-AVX2-x86_64-Release-GN"
+        "Test-Ubuntu-GCC-GCE-CPU-AVX2-x86_64-Release"
       ],
       "dimensions": [
         "cpu:x86-64-avx2",
@@ -2506,7 +2461,7 @@
         "../../..",
         "upload_dm_results",
         "repository=<(REPO)",
-        "buildername=Test-Ubuntu-GCC-GCE-CPU-AVX2-x86_64-Release-GN",
+        "buildername=Test-Ubuntu-GCC-GCE-CPU-AVX2-x86_64-Release",
         "mastername=fake-master",
         "buildnumber=2",
         "slavename=fake-buildslave",
