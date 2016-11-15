@@ -9,7 +9,7 @@
 #include "SkColorPriv.h"
 #include "SkShader.h"
 #include "SkUtils.h"
-#include "SkXfermode.h"
+#include "SkXfermodePriv.h"
 #include "SkBlitMask.h"
 
 ///////////////////////////////////////////////////////////////////////////////

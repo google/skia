@@ -8,7 +8,7 @@
 #include "Benchmark.h"
 #include "SkPM4f.h"
 #include "SkString.h"
-#include "SkXfermode.h"
+#include "SkXfermodePriv.h"
 
 #define USE_AA      (1 << 31)   // merge with Xfermode::PMFlags w/o conflict
 

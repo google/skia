@@ -13,6 +13,7 @@
 #include "SkBlitRow.h"
 #include "SkShader.h"
 #include "SkSmallAllocator.h"
+#include "SkXfermodePriv.h"
 
 class SkRasterBlitter : public SkBlitter {
 public:

@@ -12,7 +12,7 @@
 #include "SkShader.h"
 #include "SkUtils.h"
 #include "SkUtilsArm.h"
-#include "SkXfermode.h"
+#include "SkXfermodePriv.h"
 
 #if defined(__mips_dsp)
 extern void blitmask_d565_opaque_mips(int width, int height, uint16_t* device,

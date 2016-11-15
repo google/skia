@@ -12,7 +12,7 @@
 #include "GrBlend.h"
 #include "SkImageInfo.h"
 #include "SkMatrix.h"
-#include "SkXfermode.h"
+#include "SkXfermodePriv.h"
 
 class GrCaps;
 class GrContext;
