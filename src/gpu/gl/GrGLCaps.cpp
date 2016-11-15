@@ -622,6 +622,14 @@ const char* get_glsl_version_decl_string(GrGLStandard standard, GrGLSLGeneration
             } else {
                 return "#version 400 compatibility\n";
             }
+        case k420_GrGLSLGeneration:
+            SkASSERT(kGL_GrGLStandard == standard);
+            if (isCoreProfile) {
+                return "#version 420\n";
+            }
+            else {
+                return "#version 420 compatibility\n";
+            }
         case k310es_GrGLSLGeneration:
             SkASSERT(kGLES_GrGLStandard == standard);
             return "#version 310 es\n";
