@@ -259,8 +259,9 @@ void SkShader::toString(SkString* str) const {
 
 bool SkShader::appendStages(SkRasterPipeline* pipeline,
                             SkColorSpace* dst,
-                            SkFallbackAlloc* scratch) const {
-    return this->onAppendStages(pipeline, dst, scratch);
+                            SkFallbackAlloc* scratch,
+                            const SkMatrix& ctm) const {
+    return this->onAppendStages(pipeline, dst, scratch, ctm);
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////

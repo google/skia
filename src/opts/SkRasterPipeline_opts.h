@@ -229,6 +229,13 @@ STAGE(move_src_dst, true) {
     da = a;
 }
 
+STAGE(swap_src_dst, true) {
+    SkTSwap(r, dr);
+    SkTSwap(g, dg);
+    SkTSwap(b, db);
+    SkTSwap(a, da);
+}
+
 // The default shader produces a constant color (from the SkPaint).
 STAGE(constant_color, true) {
     auto color = (const SkPM4f*)ctx;

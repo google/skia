@@ -20,7 +20,8 @@
 
 class SkRasterPipelineBlitter : public SkBlitter {
 public:
-    static SkBlitter* Create(const SkPixmap&, const SkPaint&, SkTBlitterAllocator*);
+    static SkBlitter* Create(const SkPixmap&, const SkPaint&, const SkMatrix& ctm,
+                             SkTBlitterAllocator*);
 
     SkRasterPipelineBlitter(SkPixmap dst, SkBlendMode blend, SkPM4f paintColor)
         : fDst(dst)
@@ -71,8 +72,9 @@ private:
 
 SkBlitter* SkCreateRasterPipelineBlitter(const SkPixmap& dst,
                                          const SkPaint& paint,
+                                         const SkMatrix& ctm,
                                          SkTBlitterAllocator* alloc) {
-    return SkRasterPipelineBlitter::Create(dst, paint, alloc);
+    return SkRasterPipelineBlitter::Create(dst, paint, ctm, alloc);
 }
 
 static bool supported(const SkImageInfo& info) {
@@ -86,6 +88,7 @@ static bool supported(const SkImageInfo& info) {
 
 SkBlitter* SkRasterPipelineBlitter::Create(const SkPixmap& dst,
                                            const SkPaint& paint,
+                                           const SkMatrix& ctm,
                                            SkTBlitterAllocator* alloc) {
     auto blitter = alloc->createT<SkRasterPipelineBlitter>(
             dst,
@@ -114,11 +117,17 @@ SkBlitter* SkRasterPipelineBlitter::Create(const SkPixmap& dst,
     pipeline->append(SkRasterPipeline::constant_color, paintColor);
 
     if (shader) {
-        is_opaque   = is_opaque && shader->isOpaque();
-        is_constant = shader->isConstant();
-        if (!shader->appendStages(pipeline, dst.colorSpace(), &blitter->fScratchFallback)) {
+        // Shaders start with the paint color in (r,g,b,a) and dst-space (x,y) in (dr,dg).
+        // Before the shader runs, move the paint color to (dr,dg,db,da), and put (x,y) in (r,g).
+        pipeline->append(SkRasterPipeline::swap_src_dst);
+        if (!shader->appendStages(pipeline, dst.colorSpace(), &blitter->fScratchFallback, ctm)) {
             return earlyOut();
         }
+        // srcin, s' = s * da, i.e. modulate the output of the shader by the paint alpha.
+        pipeline->append(SkRasterPipeline::srcin);
+
+        is_opaque   = is_opaque && shader->isOpaque();
+        is_constant = shader->isConstant();
     }
 
     if (colorFilter) {

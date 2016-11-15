@@ -309,34 +309,21 @@ bool SkColor4Shader::Color4Context::onChooseBlitProcs(const SkImageInfo& info, B
     return choose_blitprocs(&fPM4f, info, state);
 }
 
-// To shade a constant color:
-//    1) move the paint color to dst registers
-//    2) load the constant color into the src registers
-//    3) srcin, s' = s*da, modulating the src color by the paint alpha.
-
 bool SkColorShader::onAppendStages(SkRasterPipeline* p,
                                    SkColorSpace* dst,
-                                   SkFallbackAlloc* scratch) const {
+                                   SkFallbackAlloc* scratch,
+                                   const SkMatrix& ctm) const {
     auto color = scratch->make<SkPM4f>(SkPM4f_from_SkColor(fColor, dst));
-    p->append(SkRasterPipeline::move_src_dst);
     p->append(SkRasterPipeline::constant_color, color);
-    if (!append_gamut_transform(p, scratch,
-                                SkColorSpace::MakeNamed(SkColorSpace::kSRGB_Named).get(), dst)) {
-        return false;
-    }
-    p->append(SkRasterPipeline::srcin);
-    return true;
+    return append_gamut_transform(p, scratch,
+                                  SkColorSpace::MakeNamed(SkColorSpace::kSRGB_Named).get(), dst);
 }
 
 bool SkColor4Shader::onAppendStages(SkRasterPipeline* p,
                                     SkColorSpace* dst,
-                                    SkFallbackAlloc* scratch) const {
+                                    SkFallbackAlloc* scratch,
+                                    const SkMatrix& ctm) const {
     auto color = scratch->make<SkPM4f>(fColor4.premul());
-    p->append(SkRasterPipeline::move_src_dst);
     p->append(SkRasterPipeline::constant_color, color);
-    if (!append_gamut_transform(p, scratch, fColorSpace.get(), dst)) {
-        return false;
-    }
-    p->append(SkRasterPipeline::srcin);
-    return true;
+    return append_gamut_transform(p, scratch, fColorSpace.get(), dst);
 }
