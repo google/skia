@@ -86,7 +86,7 @@ public:
     }
 
     SkRect pictureCull() const   { 
-        return nullptr == fPicture ? SkRect::MakeEmpty() : fPicture->cullRect();
+        return fPicture ? fPicture->cullRect() : SkRect::MakeEmpty();
     }
 
     int index() {
@@ -123,8 +123,8 @@ public:
     void getClipStackText(SkString* clipStack);
 
 private:
-    SkDebugCanvas* fDebugCanvas;
-    SkPicture* fPicture;
+    std::unique_ptr<SkDebugCanvas>  fDebugCanvas;
+    sk_sp<SkPicture>                fPicture;
 
     int fIndex;
 };
