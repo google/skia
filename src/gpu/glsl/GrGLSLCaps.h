@@ -144,6 +144,11 @@ public:
         return fSampleVariablesExtensionString;
     }
 
+    const char* imageLoadStoreExtensionString() const {
+        SkASSERT(this->imageLoadStoreSupport());
+        return fImageLoadStoreExtensionString;
+    }
+
     int maxVertexSamplers() const { return fMaxVertexSamplers; }
 
     int maxGeometrySamplers() const { return fMaxGeometrySamplers; }
@@ -151,6 +156,14 @@ public:
     int maxFragmentSamplers() const { return fMaxFragmentSamplers; }
 
     int maxCombinedSamplers() const { return fMaxCombinedSamplers; }
+
+    int maxVertexImages() const { return fMaxVertexImages; }
+
+    int maxGeometryImages() const { return fMaxGeometryImages; }
+
+    int maxFragmentImages() const { return fMaxFragmentImages; }
+
+    int maxCombinedImages() const { return fMaxCombinedImages; }
 
     /**
      * Given a texture's config, this determines what swizzle must be appended to accesses to the
@@ -215,6 +228,7 @@ private:
     const char* fNoPerspectiveInterpolationExtensionString;
     const char* fMultisampleInterpolationExtensionString;
     const char* fSampleVariablesExtensionString;
+    const char* fImageLoadStoreExtensionString;
 
     const char* fFBFetchColorName;
     const char* fFBFetchExtensionString;
@@ -223,6 +237,11 @@ private:
     int fMaxGeometrySamplers;
     int fMaxFragmentSamplers;
     int fMaxCombinedSamplers;
+
+    int fMaxVertexImages;
+    int fMaxGeometryImages;
+    int fMaxFragmentImages;
+    int fMaxCombinedImages;
 
     AdvBlendEqInteraction fAdvBlendEqInteraction;
 
