@@ -7,31 +7,24 @@
  */
 
 #include "SkDebugger.h"
+#include "SkMakeUnique.h"
 #include "SkPictureRecorder.h"
 #include "SkString.h"
 
 
 SkDebugger::SkDebugger()
-    : fPicture(nullptr)
-    , fIndex(-1) {
-    // Create this some other dynamic way?
-    fDebugCanvas = new SkDebugCanvas(0, 0);
-}
+    : fDebugCanvas(skstd::make_unique<SkDebugCanvas>(0, 0))
+    , fIndex(-1) { }
 
-SkDebugger::~SkDebugger() {
-    // Need to inherit from SkRef object in order for following to work
-    SkSafeUnref(fDebugCanvas);
-    SkSafeUnref(fPicture);
-}
+SkDebugger::~SkDebugger() {}
 
 void SkDebugger::loadPicture(SkPicture* picture) {
-    SkRefCnt_SafeAssign(fPicture, picture);
-
-    delete fDebugCanvas;
-    fDebugCanvas = new SkDebugCanvas(SkScalarCeilToInt(this->pictureCull().width()), 
-                                     SkScalarCeilToInt(this->pictureCull().height()));
+    fPicture = sk_ref_sp(picture);
+    fDebugCanvas = skstd::make_unique<SkDebugCanvas>(
+        SkScalarCeilToInt(this->pictureCull().width()),
+        SkScalarCeilToInt(this->pictureCull().height()));
     fDebugCanvas->setPicture(picture);
-    picture->playback(fDebugCanvas);
+    picture->playback(fDebugCanvas.get());
     fDebugCanvas->setPicture(nullptr);
     fIndex = fDebugCanvas->getSize() - 1;
 }
