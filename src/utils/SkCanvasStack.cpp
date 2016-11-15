@@ -13,18 +13,19 @@ SkCanvasStack::~SkCanvasStack() {
     this->removeAll();
 }
 
-void SkCanvasStack::pushCanvas(SkCanvas* canvas, const SkIPoint& origin) {
+void SkCanvasStack::pushCanvas(std::unique_ptr<SkCanvas> canvas, const SkIPoint& origin) {
     if (canvas) {
         // compute the bounds of this canvas
         const SkIRect canvasBounds = SkIRect::MakeSize(canvas->getDeviceSize());
 
         // push the canvas onto the stack
-        this->INHERITED::addCanvas(canvas);
+        this->INHERITED::addCanvas(canvas.get());
 
         // push the canvas data onto the stack
         CanvasData* data = &fCanvasData.push_back();
         data->origin = origin;
         data->requiredClip.setRect(canvasBounds);
+        data->ownedCanvas = std::move(canvas);
 
         // subtract this region from the canvas objects already on the stack.
         // This ensures they do not draw into the space occupied by the layers
@@ -41,8 +42,8 @@ void SkCanvasStack::pushCanvas(SkCanvas* canvas, const SkIPoint& origin) {
 }
 
 void SkCanvasStack::removeAll() {
+    this->INHERITED::removeAll();   // call the baseclass *before* we actually delete the canvases
     fCanvasData.reset();
-    this->INHERITED::removeAll();
 }
 
 /**
