@@ -90,6 +90,24 @@
     },
     {
       "key": {
+        "uuid": "503c1cf2_1767dacf",
+        "filename": "src/sksl/SkSLCompiler.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 472,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2016-11-15T23:52:00Z",
+      "side": 1,
+      "message": "I could maybe see a use case for precisionModifiers, but actually you\u0027d want to know what underlying types the modifiers refer to. I\u0027d say omit them and if it turns out we need them it\u0027ll be easy to add them back.",
+      "parentUuid": "503c1cf2_f18886b3",
+      "revId": "ffd24800bcb7ce4de64c12680ff8ba394eec90fa",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "503c1cf2_b12a7e8e",
         "filename": "src/sksl/SkSLCompiler.cpp",
         "patchSetId": 6
