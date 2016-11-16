@@ -71,7 +71,7 @@ protected:
             canvas->restore();
 
 #if 1
-            canvas->drawText(SkXfermode::ModeName(mode), strlen(SkXfermode::ModeName(mode)),
+            canvas->drawText(SkBlendMode_GetName(mode), strlen(SkBlendMode_GetName(mode)),
                              x + w/2, y - labelP.getTextSize()/2, labelP);
 #endif
             x += w + SkIntToScalar(10);
