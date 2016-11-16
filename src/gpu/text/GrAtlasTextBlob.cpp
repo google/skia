@@ -74,11 +74,11 @@ void GrAtlasTextBlob::appendGlyph(int runIndex,
                                   GrBatchTextStrike* strike,
                                   GrGlyph* glyph,
                                   SkGlyphCache* cache, const SkGlyph& skGlyph,
-                                  SkScalar x, SkScalar y, SkScalar scale, bool applyVM) {
+                                  SkScalar x, SkScalar y, SkScalar scale, bool treatAsBMP) {
 
     // If the glyph is too large we fall back to paths
     if (glyph->fTooLargeForAtlas) {
-        this->appendLargeGlyph(glyph, cache, skGlyph, x, y, scale, applyVM);
+        this->appendLargeGlyph(glyph, cache, skGlyph, x, y, scale, treatAsBMP);
         return;
     }
 
@@ -157,7 +157,7 @@ void GrAtlasTextBlob::appendGlyph(int runIndex,
 }
 
 void GrAtlasTextBlob::appendLargeGlyph(GrGlyph* glyph, SkGlyphCache* cache, const SkGlyph& skGlyph,
-                                       SkScalar x, SkScalar y, SkScalar scale, bool applyVM) {
+                                       SkScalar x, SkScalar y, SkScalar scale, bool treatAsBMP) {
     if (nullptr == glyph->fPath) {
         const SkPath* glyphPath = cache->findPath(skGlyph);
         if (!glyphPath) {
@@ -166,7 +166,7 @@ void GrAtlasTextBlob::appendLargeGlyph(GrGlyph* glyph, SkGlyphCache* cache, cons
 
         glyph->fPath = new SkPath(*glyphPath);
     }
-    fBigGlyphs.push_back(GrAtlasTextBlob::BigGlyph(*glyph->fPath, x, y, scale, applyVM));
+    fBigGlyphs.push_back(GrAtlasTextBlob::BigGlyph(*glyph->fPath, x, y, scale, treatAsBMP));
 }
 
 bool GrAtlasTextBlob::mustRegenerate(const SkPaint& paint,
@@ -359,12 +359,12 @@ void GrAtlasTextBlob::flushBigGlyphs(GrContext* context, GrRenderTargetContext* 
     SkScalar transX, transY;
     for (int i = 0; i < fBigGlyphs.count(); i++) {
         GrAtlasTextBlob::BigGlyph& bigGlyph = fBigGlyphs[i];
-        calculate_translation(bigGlyph.fApplyVM, viewMatrix, x, y,
+        calculate_translation(bigGlyph.fTreatAsBMP, viewMatrix, x, y,
                               fInitialViewMatrix, fInitialX, fInitialY, &transX, &transY);
         SkMatrix ctm;
         ctm.setScale(bigGlyph.fScale, bigGlyph.fScale);
         ctm.postTranslate(bigGlyph.fX + transX, bigGlyph.fY + transY);
-        if (bigGlyph.fApplyVM) {
+        if (!bigGlyph.fTreatAsBMP) {
             ctm.postConcat(viewMatrix);
         }
 
