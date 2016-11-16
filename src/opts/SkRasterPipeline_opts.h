@@ -543,6 +543,46 @@ STAGE(matrix_4x5, true) {
     a = A;
 }
 
+SI SkNf parametric(const SkNf& v, const SkColorSpaceTransferFn& p) {
+    float result[N];   // Unconstrained powf() doesn't vectorize well...
+    for (int i = 0; i < N; i++) {
+        float s = v[i];
+        result[i] = (s <= p.fD) ? p.fE * s + p.fF
+                                : powf(s * p.fA + p.fB, p.fG) + p.fC;
+    }
+    return SkNf::Load(result);
+}
+
+STAGE(parametric_r, true) {
+    r = parametric(r, *(const SkColorSpaceTransferFn*)ctx);
+}
+STAGE(parametric_g, true) {
+    g = parametric(g, *(const SkColorSpaceTransferFn*)ctx);
+}
+STAGE(parametric_b, true) {
+    b = parametric(b, *(const SkColorSpaceTransferFn*)ctx);
+}
+
+SI SkNf table(const SkNf& v, const float t[1024]) {
+    SkNi ix = SkNx_cast<int>(SkNf::Max(0, SkNf::Min(v, 1)) * 1023 + 0.5);
+
+    float result[N];   // TODO: vgatherdps?
+    for (int i = 0; i < N; i++) {
+        result[i] = t[ix[i]];
+    }
+    return SkNf::Load(result);
+}
+
+STAGE(table_r, true) {
+    r = table(r, (const float*)ctx);
+}
+STAGE(table_g, true) {
+    g = table(g, (const float*)ctx);
+}
+STAGE(table_b, true) {
+    b = table(b, (const float*)ctx);
+}
+
 STAGE(fn_1_r, true) {
     auto fn = (const std::function<float(float)>*)ctx;
     float result[N];
