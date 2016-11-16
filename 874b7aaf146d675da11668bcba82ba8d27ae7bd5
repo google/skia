@@ -2,6 +2,91 @@
   "comments": [
     {
       "key": {
+        "uuid": "503c1cf2_fa17b62c",
+        "filename": "gm/clip_error.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 12,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2016-11-16T14:20:12Z",
+      "side": 1,
+      "message": "Are SkPath.h \u0026 SkPicture.h needed ?",
+      "revId": "874b7aaf146d675da11668bcba82ba8d27ae7bd5",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "503c1cf2_da1c7254",
+        "filename": "gm/clip_error.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 15,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2016-11-16T14:20:12Z",
+      "side": 1,
+      "message": "SkCanvas.h included twice ?",
+      "revId": "874b7aaf146d675da11668bcba82ba8d27ae7bd5",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "503c1cf2_3a011ee6",
+        "filename": "gm/clip_error.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 60,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2016-11-16T14:20:12Z",
+      "side": 1,
+      "message": "800 -\u003e WIDTH ?",
+      "revId": "874b7aaf146d675da11668bcba82ba8d27ae7bd5",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "503c1cf2_1afedabc",
+        "filename": "gm/clip_error.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 74,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2016-11-16T14:20:12Z",
+      "side": 1,
+      "message": "800 -\u003e WIDTH ?",
+      "revId": "874b7aaf146d675da11668bcba82ba8d27ae7bd5",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "503c1cf2_5a086207",
+        "filename": "gm/clip_error.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 75,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2016-11-16T14:20:12Z",
+      "side": 1,
+      "message": "Can this be a shared subroutine with the above block ?",
+      "revId": "874b7aaf146d675da11668bcba82ba8d27ae7bd5",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "503c1cf2_34df7c54",
         "filename": "src/gpu/text/GrAtlasTextBlob.cpp",
         "patchSetId": 2
