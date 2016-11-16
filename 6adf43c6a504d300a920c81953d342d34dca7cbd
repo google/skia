@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "503c1cf2_21760e47",
+        "filename": "src/core/SkRasterPipeline.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 59,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2016-11-16T21:09:01Z",
+      "side": 1,
+      "message": "Need this for working in unpremul world...",
+      "range": {
+        "startLine": 59,
+        "startChar": 26,
+        "endLine": 59,
+        "endChar": 36
+      },
+      "revId": "6adf43c6a504d300a920c81953d342d34dca7cbd",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
