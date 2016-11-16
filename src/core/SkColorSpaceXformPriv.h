@@ -12,13 +12,11 @@
 #include "SkHalf.h"
 #include "SkSRGB.h"
 
-#define AI SK_ALWAYS_INLINE
-
 #define SkCSXformPrintfDefined 0
 #define SkCSXformPrintf(...)
 
 // Interpolating lookup in a variably sized table.
-static AI float interp_lut(float input, const float* table, int tableSize) {
+static inline float interp_lut(float input, const float* table, int tableSize) {
     float index = input * (tableSize - 1);
     float diff = index - sk_float_floor2int(index);
     return table[(int) sk_float_floor2int(index)] * (1.0f - diff) +
@@ -28,7 +26,7 @@ static AI float interp_lut(float input, const float* table, int tableSize) {
 // Inverse table lookup.  Ex: what index corresponds to the input value?  This will
 // have strange results when the table is non-increasing.  But any sane gamma
 // function will be increasing.
-static float inverse_interp_lut(float input, const float* table, int tableSize) {
+static inline float inverse_interp_lut(float input, const float* table, int tableSize) {
     if (input <= table[0]) {
         return table[0];
     } else if (input >= table[tableSize - 1]) {

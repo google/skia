@@ -21,52 +21,6 @@
 
 #define AI SK_ALWAYS_INLINE
 
-namespace {
-
-class ApplyParametric {
-public:
-    ApplyParametric(const SkColorSpaceTransferFn& fn)
-        : fFn(fn)
-    {}
-
-    float operator()(float x) const {
-        float y;
-        if (x >= fFn.fD) {
-            y = ::powf(fFn.fA * x + fFn.fB, fFn.fG) + fFn.fC;
-        } else {
-            y = fFn.fE * x + fFn.fF;
-        }
-        if (y >= 1.f) {
-            return 1.f;
-        } else if (y >= 0.f) {
-            return y;
-        }
-        return 0.f;
-    }
-
-private:
-    SkColorSpaceTransferFn fFn;
-};
-
-class ApplyTable {
-public:
-    ApplyTable(const float* table, int size)
-        : fTable(table)
-        , fSize(size)
-    {}
-
-    float operator()(float x) const {
-        return interp_lut(x, fTable, fSize);
-    }
-
-private:
-    const float* fTable;
-    int          fSize;
-};
-
-}
-
-///////////////////////////////////////////////////////////////////////////////////////////////////
 bool SkColorSpaceXform_A2B::onApply(ColorFormat dstFormat, void* dst, ColorFormat srcFormat,
                                     const void* src, int count, SkAlphaType alphaType) const {
     SkRasterPipeline pipeline;
@@ -226,34 +180,43 @@ SkColorSpaceXform_A2B::SkColorSpaceXform_A2B(SkColorSpace_A2B* srcSpace,
                 if (kLinear_SkGammaNamed != e.gammaNamed()) {
                     SkCSXformPrintf("Gamma stage added: %s\n",
                                     debugGammaNamed[(int)e.gammaNamed()]);
-                    addGamma(ApplyParametric(gammanamed_to_parametric(e.gammaNamed())),
-                             kRGB_Channels);
+                    SkColorSpaceTransferFn fn = gammanamed_to_parametric(e.gammaNamed());
+                    this->addTransferFn(fn, kRGB_Channels);
+
+                    fElementsPipeline.append(SkRasterPipeline::clamp_0);
+                    fElementsPipeline.append(SkRasterPipeline::clamp_1);
                 }
                 break;
             case SkColorSpace_A2B::Element::Type::kGammas: {
-                    const SkGammas& gammas = e.gammas();
-                    SkCSXformPrintf("Gamma stage added:");
-                    for (int channel = 0; channel < 3; ++channel) {
-                        SkCSXformPrintf("  %s", debugGammas[(int)gammas.type(channel)]);
-                    }
-                    SkCSXformPrintf("\n");
-                    bool gammaNeedsRef = false;
-                    for (int channel = 0; channel < 3; ++channel) {
-                        if (SkGammas::Type::kTable_Type == gammas.type(channel)) {
-                            addGamma(ApplyTable(gammas.table(channel),
-                                                gammas.data(channel).fTable.fSize),
-                                                static_cast<Channels>(channel));
-                            gammaNeedsRef = true;
-                        } else {
-                            addGamma(ApplyParametric(gamma_to_parametric(gammas, channel)),
-                                     static_cast<Channels>(channel));
-                        }
-                    }
-                    if (gammaNeedsRef) {
-                        fGammaRefs.push_back(sk_ref_sp(&gammas));
+                const SkGammas& gammas = e.gammas();
+                SkCSXformPrintf("Gamma stage added:");
+                for (int channel = 0; channel < 3; ++channel) {
+                    SkCSXformPrintf("  %s", debugGammas[(int)gammas.type(channel)]);
+                }
+                SkCSXformPrintf("\n");
+                bool gammaNeedsRef = false;
+                for (int channel = 0; channel < 3; ++channel) {
+                    if (SkGammas::Type::kTable_Type == gammas.type(channel)) {
+                        SkTableTransferFn table = {
+                                gammas.table(channel),
+                                gammas.data(channel).fTable.fSize,
+                        };
+
+                        this->addTableFn(table, static_cast<Channels>(channel));
+                        gammaNeedsRef = true;
+                    } else {
+                        SkColorSpaceTransferFn fn = gamma_to_parametric(gammas, channel);
+                        this->addTransferFn(fn, static_cast<Channels>(channel));
                     }
                 }
+                if (gammaNeedsRef) {
+                    fGammaRefs.push_back(sk_ref_sp(&gammas));
+                }
+
+                fElementsPipeline.append(SkRasterPipeline::clamp_0);
+                fElementsPipeline.append(SkRasterPipeline::clamp_1);
                 break;
+            }
             case SkColorSpace_A2B::Element::Type::kCLUT:
                 SkCSXformPrintf("CLUT stage added [%d][%d][%d]\n", e.colorLUT().fGridPoints[0],
                                 e.colorLUT().fGridPoints[1], e.colorLUT().fGridPoints[2]);
@@ -283,42 +246,74 @@ SkColorSpaceXform_A2B::SkColorSpaceXform_A2B(SkColorSpace_A2B* srcSpace,
 
     if (kNonStandard_SkGammaNamed != dstSpace->gammaNamed()) {
         if (!fLinearDstGamma) {
-            addGamma(ApplyParametric(
-                            invert_parametric(gammanamed_to_parametric(dstSpace->gammaNamed()))),
-                     kRGB_Channels);
+            SkColorSpaceTransferFn fn =
+                    invert_parametric(gammanamed_to_parametric(dstSpace->gammaNamed()));
+            this->addTransferFn(fn, kRGB_Channels);
+            fElementsPipeline.append(SkRasterPipeline::clamp_0);
+            fElementsPipeline.append(SkRasterPipeline::clamp_1);
         }
     } else {
         for (int channel = 0; channel < 3; ++channel) {
             const SkGammas& gammas = *dstSpace->gammas();
             if (SkGammas::Type::kTable_Type == gammas.type(channel)) {
-                fGammaTables.push_front(build_inverse_table(gammas.table(channel),
-                                                            gammas.data(channel).fTable.fSize));
-                addGamma(ApplyTable(fGammaTables.front().data(), fGammaTables.front().size()),
-                         static_cast<Channels>(channel));
+                std::vector<float> storage = build_inverse_table(gammas.table(channel),
+                                                                 gammas.data(channel).fTable.fSize);
+                SkTableTransferFn table = {
+                        storage.data(),
+                        (int) storage.size(),
+                };
+                fTableStorage.push_front(std::move(storage));
+
+                this->addTableFn(table, static_cast<Channels>(channel));
             } else {
-                addGamma(ApplyParametric(invert_parametric(gamma_to_parametric(gammas, channel))),
-                         static_cast<Channels>(channel));
+                SkColorSpaceTransferFn fn = invert_parametric(gamma_to_parametric(gammas, channel));
+                this->addTransferFn(fn, static_cast<Channels>(channel));
             }
         }
+
+        fElementsPipeline.append(SkRasterPipeline::clamp_0);
+        fElementsPipeline.append(SkRasterPipeline::clamp_1);
     }
 }
 
-void SkColorSpaceXform_A2B::addGamma(std::function<float(float)> fn, Channels channels) {
-    fGammaFunctions.push_front(std::move(fn));
+void SkColorSpaceXform_A2B::addTransferFn(const SkColorSpaceTransferFn& fn, Channels channels) {
+    fTransferFns.push_front(fn);
     switch (channels) {
         case kRGB_Channels:
-            fElementsPipeline.append(SkRasterPipeline::fn_1_r, &fGammaFunctions.front());
-            fElementsPipeline.append(SkRasterPipeline::fn_1_g, &fGammaFunctions.front());
-            fElementsPipeline.append(SkRasterPipeline::fn_1_b, &fGammaFunctions.front());
+            fElementsPipeline.append(SkRasterPipeline::parametric_r, &fTransferFns.front());
+            fElementsPipeline.append(SkRasterPipeline::parametric_g, &fTransferFns.front());
+            fElementsPipeline.append(SkRasterPipeline::parametric_b, &fTransferFns.front());
             break;
         case kR_Channels:
-            fElementsPipeline.append(SkRasterPipeline::fn_1_r, &fGammaFunctions.front());
+            fElementsPipeline.append(SkRasterPipeline::parametric_r, &fTransferFns.front());
             break;
         case kG_Channels:
-            fElementsPipeline.append(SkRasterPipeline::fn_1_g, &fGammaFunctions.front());
+            fElementsPipeline.append(SkRasterPipeline::parametric_g, &fTransferFns.front());
             break;
         case kB_Channels:
-            fElementsPipeline.append(SkRasterPipeline::fn_1_b, &fGammaFunctions.front());
+            fElementsPipeline.append(SkRasterPipeline::parametric_b, &fTransferFns.front());
+            break;
+        default:
+            SkASSERT(false);
+    }
+}
+
+void SkColorSpaceXform_A2B::addTableFn(const SkTableTransferFn& fn, Channels channels) {
+    fTableTransferFns.push_front(fn);
+    switch (channels) {
+        case kRGB_Channels:
+            fElementsPipeline.append(SkRasterPipeline::table_r, &fTableTransferFns.front());
+            fElementsPipeline.append(SkRasterPipeline::table_g, &fTableTransferFns.front());
+            fElementsPipeline.append(SkRasterPipeline::table_b, &fTableTransferFns.front());
+            break;
+        case kR_Channels:
+            fElementsPipeline.append(SkRasterPipeline::table_r, &fTableTransferFns.front());
+            break;
+        case kG_Channels:
+            fElementsPipeline.append(SkRasterPipeline::table_g, &fTableTransferFns.front());
+            break;
+        case kB_Channels:
+            fElementsPipeline.append(SkRasterPipeline::table_b, &fTableTransferFns.front());
             break;
         default:
             SkASSERT(false);
@@ -346,7 +341,5 @@ void SkColorSpaceXform_A2B::addMatrix(const SkMatrix44& matrix) {
     SkASSERT(matrix.get(3, 3) == 1.f);
     fElementsPipeline.append(SkRasterPipeline::matrix_3x4, m.data());
     fElementsPipeline.append(SkRasterPipeline::clamp_0);
-    fElementsPipeline.append(SkRasterPipeline::clamp_a);
+    fElementsPipeline.append(SkRasterPipeline::clamp_1);
 }
-
-
