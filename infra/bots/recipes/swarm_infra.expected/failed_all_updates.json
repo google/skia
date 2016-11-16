@@ -80,6 +80,7 @@
       "go",
       "get",
       "-u",
+      "-t",
       "go.skia.org/infra/..."
     ],
     "env": {
@@ -96,6 +97,7 @@
       "go",
       "get",
       "-u",
+      "-t",
       "go.skia.org/infra/..."
     ],
     "env": {
@@ -112,6 +114,7 @@
       "go",
       "get",
       "-u",
+      "-t",
       "go.skia.org/infra/..."
     ],
     "env": {
@@ -128,6 +131,7 @@
       "go",
       "get",
       "-u",
+      "-t",
       "go.skia.org/infra/..."
     ],
     "env": {
@@ -144,6 +148,7 @@
       "go",
       "get",
       "-u",
+      "-t",
       "go.skia.org/infra/..."
     ],
     "env": {
