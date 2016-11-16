@@ -10,9 +10,7 @@ import os
 import subprocess
 import sys
 
-sys.path.insert(0, os.path.join(os.getcwd(), 'common'))
-# pylint:disable=F0401
-from py.utils import git_utils
+import git_utils
 
 
 
