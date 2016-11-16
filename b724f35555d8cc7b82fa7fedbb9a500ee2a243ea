@@ -25,6 +25,24 @@
     },
     {
       "key": {
+        "uuid": "503c1cf2_9de304ed",
+        "filename": "infra/bots/git_utils.py",
+        "patchSetId": 5
+      },
+      "lineNbr": 10,
+      "author": {
+        "id": 5145
+      },
+      "writtenOn": "2016-11-16T16:12:30Z",
+      "side": 1,
+      "message": "Sure, but in a follow on CL. I am trying to minimize changes before I get an e2e test going.",
+      "parentUuid": "503c1cf2_3d159804",
+      "revId": "b724f35555d8cc7b82fa7fedbb9a500ee2a243ea",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "503c1cf2_9d26647c",
         "filename": "infra/bots/git_utils.py",
         "patchSetId": 5
@@ -42,6 +60,24 @@
         "endLine": 101,
         "endChar": 15
       },
+      "revId": "b724f35555d8cc7b82fa7fedbb9a500ee2a243ea",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "503c1cf2_9dcae45c",
+        "filename": "infra/bots/git_utils.py",
+        "patchSetId": 5
+      },
+      "lineNbr": 101,
+      "author": {
+        "id": 5145
+      },
+      "writtenOn": "2016-11-16T16:12:30Z",
+      "side": 1,
+      "message": "Yes that would be great. But this is no worse than the existing behavior in https://skia.googlesource.com/skia/+/master/infra/bots/upload_skps.py#33\nActually this is better than that, because the existing behavior never unset the local changes.\n\nLets come back to this when we end up needing it.",
+      "parentUuid": "503c1cf2_9d26647c",
       "revId": "b724f35555d8cc7b82fa7fedbb9a500ee2a243ea",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
