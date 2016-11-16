@@ -617,7 +617,7 @@ private:
         switch (texture->texturePriv().samplerType()) {
             case kTexture2DSampler_GrSLType:
                 return 0;
-            case kTexture2DISampler_GrSLType:
+            case kITexture2DSampler_GrSLType:
                 return 1;
             case kTexture2DRectSampler_GrSLType:
                 return 2;

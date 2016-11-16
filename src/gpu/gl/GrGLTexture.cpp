@@ -23,7 +23,7 @@ static inline GrSLType sampler_type(const GrGLTexture::IDDesc& idDesc, GrPixelCo
         SkASSERT(!GrPixelConfigIsSint(config));
         return kTexture2DRectSampler_GrSLType;
     } else if (GrPixelConfigIsSint(config)) {
-        return kTexture2DISampler_GrSLType;
+        return kITexture2DSampler_GrSLType;
     } else {
         SkASSERT(idDesc.fInfo.fTarget == GR_GL_TEXTURE_2D);
         return kTexture2DSampler_GrSLType;
