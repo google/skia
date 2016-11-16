@@ -169,7 +169,6 @@ private:
     std::vector<const Type*> fWrittenStructs;
     // true if we have run into usages of dFdx / dFdy
     bool fFoundDerivatives = false;
-    bool fFoundImageDecl = false;
 };
 
 }
