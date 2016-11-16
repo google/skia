@@ -35,7 +35,7 @@ static inline int grsltype_to_location_size(GrSLType type) {
              return 0;
         case kTexture2DRectSampler_GrSLType:
              return 0;
-        case kTextureBufferSampler_GrSLType:
+        case kBufferSampler_GrSLType:
              return 0;
         case kBool_GrSLType:
              return 1;
