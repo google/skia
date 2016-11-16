@@ -537,12 +537,11 @@ ASTLayout Parser::layout() {
     bool overrideCoverage = false;
     bool blendSupportAllEquations = false;
     bool pushConstant = false;
-    ASTLayout::Format format = ASTLayout::Format::kUnspecified;
     if (this->peek().fKind == Token::LAYOUT) {
         this->nextToken();
         if (!this->expect(Token::LPAREN, "'('")) {
             return ASTLayout(location, binding, index, set, builtin, originUpperLeft,
-                             overrideCoverage, blendSupportAllEquations, pushConstant, format);
+                             overrideCoverage, blendSupportAllEquations, pushConstant);
         }
         for (;;) {
             Token t = this->nextToken();
@@ -564,8 +563,6 @@ ASTLayout Parser::layout() {
                 blendSupportAllEquations = true;
             } else if (t.fText == "push_constant") {
                 pushConstant = true;
-            } else if (ASTLayout::ReadFormat(t.fText, &format)) {
-               // AST::ReadFormat stored the result in 'format'.
             } else {
                 this->error(t.fPosition, ("'" + t.fText + 
                                           "' is not a valid layout qualifier").c_str());
@@ -580,7 +577,7 @@ ASTLayout Parser::layout() {
         }
     }
     return ASTLayout(location, binding, index, set, builtin, originUpperLeft, overrideCoverage,
-                     blendSupportAllEquations, pushConstant, format);
+                     blendSupportAllEquations, pushConstant);
 }
 
 /* layout? (UNIFORM | CONST | IN | OUT | INOUT | LOWP | MEDIUMP | HIGHP | FLAT | NOPERSPECTIVE)* */

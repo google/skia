@@ -474,12 +474,6 @@ void GLSLCodeGenerator::writeVarDeclarations(const VarDeclarations& decl, bool g
             this->write(" = ");
             this->writeExpression(*var.fValue, kTopLevel_Precedence);
         }
-        if (!fFoundImageDecl && var.fVar->fType == *fContext.fImage2D_Type) {
-            if (fCaps.imageLoadStoreExtensionString()) {
-                fHeader << "#extension " << fCaps.imageLoadStoreExtensionString() << " : require\n";
-            }
-            fFoundImageDecl = true;
-        }
     }
     this->write(";");
 }
