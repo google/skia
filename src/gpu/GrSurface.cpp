@@ -175,7 +175,7 @@ bool GrSurface::savePixels(const char* filename) {
     // remove any previous version of this file
     remove(filename);
 
-    if (!SkImageEncoder::EncodeFile(filename, bm, SkImageEncoder::kPNG_Type, 100)) {
+    if (!SkEncodeImageToFile(filename, bm, kPNG_SkEncodedFormat, 100)) {
         SkDebugf("------ failed to encode %s\n", filename);
         remove(filename);   // remove any partial file
         return false;

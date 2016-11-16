@@ -100,10 +100,10 @@ sk_sp<SkShader> SkImage::makeShader(SkShader::TileMode tileX, SkShader::TileMode
     return SkImageShader::Make(sk_ref_sp(const_cast<SkImage*>(this)), tileX, tileY, localMatrix);
 }
 
-SkData* SkImage::encode(SkImageEncoder::Type type, int quality) const {
+SkData* SkImage::encode(SkEncodedFormat type, int quality) const {
     SkBitmap bm;
     if (as_IB(this)->getROPixels(&bm)) {
-        return SkImageEncoder::EncodeData(bm, type, quality);
+        return SkEncodeImageToData(bm, type, quality).release();
     }
     return nullptr;
 }
@@ -112,8 +112,8 @@ SkData* SkImage::encode(SkPixelSerializer* serializer) const {
     sk_sp<SkPixelSerializer> defaultSerializer;
     SkPixelSerializer* effectiveSerializer = serializer;
     if (!effectiveSerializer) {
-        defaultSerializer.reset(SkImageEncoder::CreatePixelSerializer());
-        SkASSERT(defaultSerializer.get());
+        defaultSerializer = SkMakePixelSerializer();
+        SkASSERT(defaultSerializer);
         effectiveSerializer = defaultSerializer.get();
     }
     sk_sp<SkData> encoded(this->refEncoded());
@@ -178,7 +178,7 @@ GrBackendObject SkImage::getTextureHandle(bool flushPendingGrContextIO) const {
     GrTexture* texture = as_IB(this)->peekTexture();
     if (texture) {
         GrContext* context = texture->getContext();
-        if (context) {            
+        if (context) {
             if (flushPendingGrContextIO) {
                 context->prepareSurfaceForExternalIO(texture);
             }

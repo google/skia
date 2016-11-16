@@ -8,6 +8,71 @@
 #ifndef SkImageEncoder_DEFINED
 #define SkImageEncoder_DEFINED
 
+#include "SkBitmap.h"
+#include "SkEncodedFormat.h"
+#include "SkPixelSerializer.h"
+#include "SkStream.h"
+
+//#define SK_SUPPORT_LEGACY_IMAGE_ENCODER_CLASS
+
+/**
+ * Encode SkPixmap in the given binary image format.
+ *
+ * @param  dst     results are written to this stream.
+ * @param  src     source pixels.
+ * @param  format  image format, not all formats are supported.
+ * @param  quality range from 0-100, not all formats respect quality.
+ *
+ * @return false iff input is bad or format is unsupported.
+ *
+ * Will always return false if Skia is compiles without image
+ * encoders.
+ */
+SK_API bool SkEncodeImage(SkWStream* dst, const SkPixmap& src,
+                          SkEncodedFormat format, int quality);
+/**
+ * The following five helper functions wrap SkEncodeImage().
+ */
+inline bool SkEncodeImage(SkWStream* dst, const SkBitmap& src, SkEncodedFormat f, int q) {
+    SkAutoLockPixels autoLockPixels(src);
+    SkPixmap pixmap;
+    return src.peekPixels(&pixmap) && SkEncodeImage(dst, pixmap, f, q);
+}
+inline bool SkEncodeImageToFile(const char* path, const SkPixmap& src, SkEncodedFormat f, int q) {
+    SkFILEWStream file(path);
+    return file.isValid() && SkEncodeImage(&file, src, f, q);
+}
+inline bool SkEncodeImageToFile(const char* path, const SkBitmap& src, SkEncodedFormat f, int q) {
+    SkFILEWStream file(path);
+    return file.isValid() && SkEncodeImage(&file, src, f, q);
+}
+inline sk_sp<SkData> SkEncodeImageToData(const SkPixmap& src, SkEncodedFormat f, int q) {
+    SkDynamicMemoryWStream buf;
+    return SkEncodeImage(&buf, src , f, q) ? buf.detachAsData() : nullptr;
+}
+inline sk_sp<SkData> SkEncodeImageToData(const SkBitmap& src, SkEncodedFormat f, int q) {
+    SkDynamicMemoryWStream buf;
+    return SkEncodeImage(&buf, src, f, q) ? buf.detachAsData() : nullptr;
+}
+
+/**
+ * Uses SkEncodeImage to serialize images that are not already
+ * encoded as kPNG_SkEncodedFormat images.
+ */
+inline sk_sp<SkPixelSerializer> SkMakePixelSerializer() {
+    struct EncodeImagePixelSerializer final : SkPixelSerializer {
+        bool onUseEncodedData(const void*, size_t) override { return true; }
+        SkData* onEncode(const SkPixmap& pmap) override {
+            return SkEncodeImageToData(pmap, kPNG_SkEncodedFormat, 100).release();
+        }
+    };
+    return sk_make_sp<EncodeImagePixelSerializer>();
+}
+
+#ifdef SK_SUPPORT_LEGACY_IMAGE_ENCODER_CLASS
+
+////////////////////////////////////////////////////////////////////////////////
+
 #include "SkImageInfo.h"
 #include "SkTRegistry.h"
 
@@ -20,20 +85,20 @@ class SkWStream;
 class SkImageEncoder {
 public:
     // TODO (scroggo): Merge with SkEncodedFormat.
-    enum Type {
-        kUnknown_Type,
-        kBMP_Type,
-        kGIF_Type,
-        kICO_Type,
-        kJPEG_Type,
-        kPNG_Type,
-        kWBMP_Type,
-        kWEBP_Type,
-        kKTX_Type,
+    enum Type : uint8_t {
+        kUnknown_Type = kUnknown_SkEncodedFormat,
+        kBMP_Type     = kBMP_SkEncodedFormat,
+        kGIF_Type     = kGIF_SkEncodedFormat,
+        kICO_Type     = kICO_SkEncodedFormat,
+        kJPEG_Type    = kJPEG_SkEncodedFormat,
+        kPNG_Type     = kPNG_SkEncodedFormat,
+        kWBMP_Type    = kWBMP_SkEncodedFormat,
+        kWEBP_Type    = kWEBP_SkEncodedFormat,
+        kKTX_Type     = kKTX_SkEncodedFormat,
     };
     static SkImageEncoder* Create(Type);
 
-    virtual ~SkImageEncoder();
+    virtual ~SkImageEncoder() {}
 
     /*  Quality ranges from 0..100 */
     enum {
@@ -46,36 +111,55 @@ public:
      *  encoded, return null. On success, the caller is responsible for
      *  calling unref() on the data when they are finished.
      */
-    SkData* encodeData(const SkBitmap&, int quality);
+    SkData* encodeData(const SkBitmap& bm, int quality) {
+        SkDynamicMemoryWStream buffer;
+        return this->encodeStream(&buffer, bm, quality)
+               ? buffer.detachAsData().release()
+               : nullptr;
+    }
 
     /**
      * Encode bitmap 'bm' in the desired format, writing results to
      * file 'file', at quality level 'quality' (which can be in range
      * 0-100). Returns false on failure.
      */
-    bool encodeFile(const char file[], const SkBitmap& bm, int quality);
+    bool encodeFile(const char path[], const SkBitmap& bm, int quality) {
+        SkFILEWStream file(path);
+        return this->encodeStream(&file, bm, quality);
+    }
 
     /**
      * Encode bitmap 'bm' in the desired format, writing results to
      * stream 'stream', at quality level 'quality' (which can be in
      * range 0-100). Returns false on failure.
      */
-    bool encodeStream(SkWStream* stream, const SkBitmap& bm, int quality);
+    bool encodeStream(SkWStream* dst, const SkBitmap& src, int quality) {
+        return this->onEncode(dst, src, SkMin32(100, SkMax32(0, quality)));
+    }
 
-    static SkData* EncodeData(const SkImageInfo&, const void* pixels, size_t rowBytes,
-                              Type, int quality);
-    static SkData* EncodeData(const SkBitmap&, Type, int quality);
+    static SkData* EncodeData(const SkImageInfo& info, const void* pixels, size_t rowBytes,
+                              Type t, int quality) {
+        SkPixmap pixmap(info, pixels, rowBytes, nullptr);
+        return SkEncodeImageToData(pixmap, (SkEncodedFormat)t, quality).release();
+    }
+    static SkData* EncodeData(const SkBitmap& src, Type t, int quality) {
+        return SkEncodeImageToData(src, (SkEncodedFormat)t, quality).release();
+    }
 
-    static SkData* EncodeData(const SkPixmap&, Type, int quality);
+    static SkData* EncodeData(const SkPixmap&, Type t, int quality);
 
-    static bool EncodeFile(const char file[], const SkBitmap&, Type,
-                           int quality);
-    static bool EncodeStream(SkWStream*, const SkBitmap&, Type,
-                           int quality);
+    static bool EncodeFile(const char file[], const SkBitmap& src, Type t, int quality) {
+        return SkEncodeImageToFile(file, src, (SkEncodedFormat)t, quality);
+    }
+    static bool EncodeStream(SkWStream* dst, const SkBitmap& bm, Type t, int quality) {
+        return SkEncodeImage(dst, bm, (SkEncodedFormat)t, quality);
+    }
 
     /** Uses SkImageEncoder to serialize images that are not already
-        encoded as SkImageEncoder::kPNG_Type images. */
-    static SkPixelSerializer* CreatePixelSerializer();
+        encoded as kPNG_SkEncodedFormat images. */
+    static SkPixelSerializer* CreatePixelSerializer() {
+        return SkMakePixelSerializer().release();
+    }
 
 protected:
     /**
@@ -116,4 +200,6 @@ SkImageEncoder* CreateImageEncoder_WIC(SkImageEncoder::Type type);
 // Typedef to make registering encoder callback easier
 // This has to be defined outside SkImageEncoder. :(
 typedef SkTRegistry<SkImageEncoder*(*)(SkImageEncoder::Type)> SkImageEncoder_EncodeReg;
-#endif
+
+#endif  // SK_SUPPORT_LEGACY_IMAGE_ENCODER_CLASS
+#endif  // SkImageEncoder_DEFINED

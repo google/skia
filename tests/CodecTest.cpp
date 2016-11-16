@@ -1102,7 +1102,7 @@ static void check_round_trip(skiatest::Reporter* r, SkCodec* origCodec, const Sk
 
     // Encode the image to png.
     sk_sp<SkData> data =
-            sk_sp<SkData>(SkImageEncoder::EncodeData(bm1, SkImageEncoder::kPNG_Type, 100));
+            sk_sp<SkData>(SkEncodeImageToData(bm1, kPNG_SkEncodedFormat, 100));
 
     std::unique_ptr<SkCodec> codec(SkCodec::NewFromData(data));
     REPORTER_ASSERT(r, color_type_match(info.colorType(), codec->getInfo().colorType()));
