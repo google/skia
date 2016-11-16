@@ -15,28 +15,51 @@ sys.path.insert(0, os.path.join(os.getcwd(), 'common'))
 from py.utils import git_utils
 
 
-
+# rmistry
 CHROMIUM_SKIA = 'https://chromium.googlesource.com/skia.git'
+SKIA_COMMITTER_EMAIL = 'update-skps@skia.org'
+SKIA_COMMITTER_NAME = 'UpdateSKPs'
 COMMIT_MSG = '''Update SKP version
 
 Automatic commit by the RecreateSKPs bot.
 
-TBR=
+TBR=%s
 NO_MERGE_BUILDS
-'''
-SKIA_COMMITTER_EMAIL = 'skia.buildbots@gmail.com'
-SKIA_COMMITTER_NAME = 'skia.buildbots'
+''' % SKIA_COMMITTER_EMAIL
 SKIA_REPO = 'https://skia.googlesource.com/skia.git'
+GIT_COOKIES_DIR = '/tmp/creds/'
+GIT_COOKIES_LOCATION = '/tmp/creds/.gitcookies'
 
 
 def main(target_dir):
-  subprocess.check_call(['git', 'config', '--local', 'user.name',
-                         SKIA_COMMITTER_NAME])
-  subprocess.check_call(['git', 'config', '--local', 'user.email',
-                         SKIA_COMMITTER_EMAIL])
+  # subprocess.check_call(['git', 'config', '--local', 'user.name',
+  #                        SKIA_COMMITTER_NAME])
+  # subprocess.check_call(['git', 'config', '--local', 'user.email',
+  #                        SKIA_COMMITTER_EMAIL])
+  # subprocess.check_call(['git', 'config', '--local', 'http.cookiefile',
+  #                        GIT_COOKIES_LOCATION])
   if CHROMIUM_SKIA in subprocess.check_output(['git', 'remote', '-v']):
     subprocess.check_call(['git', 'remote', 'set-url', 'origin', SKIA_REPO,
                            CHROMIUM_SKIA])
+
+  # TODO(rmistry): Experimenting starts.
+  # TODO(rmistry): Documentation on why we need this.
+  # TODO(rmistry): Delete GIT_COOKIES_DIR at the end.
+  # Set HOME env variable to point to the git cookies dir. We could use
+  # 'git config --local http.cookiefile' instead but th
+  # os.environ['HOME'] = GIT_COOKIES_DIR
+  config_dict = {
+    'user.name': SKIA_COMMITTER_NAME,
+    'user.email': SKIA_COMMITTER_EMAIL,
+    'http.cookiefile': GIT_COOKIES_LOCATION,
+  }
+  with git_utils.GitLocalConfig(config_dict):
+    with git_utils.GitBranch(branch_name='update_skp_version',
+                             commit_msg=COMMIT_MSG,
+                             commit_queue=False):  # TODO(rmistry): Change to True
+      pass
+  return
+  # TODO(rmistry): Experimenting ends.
 
   # Download CIPD.
   cipd_sha1 = os.path.join(os.getcwd(), 'infra', 'bots', 'tools', 'luci-go',
