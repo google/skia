@@ -30,10 +30,13 @@ private:
     const SkIRect*      fClipRect;
 };
 
-// clipRect == null means path is entirely inside the clip
-void sk_fill_path(const SkPath& path, const SkIRect* clipRect,
+void sk_fill_path(const SkPath& path, const SkIRect& clipRect,
                   SkBlitter* blitter, int start_y, int stop_y, int shiftEdgesUp,
-                  const SkRegion& clipRgn);
+                  bool pathContainedInClip);
+
+void aaa_fill_path(const SkPath& path, const SkIRect& clipRect, AdditiveBlitter*,
+                   int start_y, int stop_y, bool pathContainedInClip, bool isUsingMask,
+                   bool forceRLE);
 
 // blit the rects above and below avoid, clipped to clip
 void sk_blit_above(SkBlitter*, const SkIRect& avoid, const SkRegion& clip);
