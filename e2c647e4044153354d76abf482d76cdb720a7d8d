@@ -22,6 +22,24 @@
       "revId": "e2c647e4044153354d76abf482d76cdb720a7d8d",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "503c1cf2_2938ba2f",
+        "filename": "include/core/SkImageGenerator.h",
+        "patchSetId": 7
+      },
+      "lineNbr": 223,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2016-11-16T19:16:41Z",
+      "side": 1,
+      "message": "There\u0027s always an implicit dest rect, the result of mapping srcRect through totalMatrix, no?\n\nMaybe just \u0027dest\u0027 is less confusing?  Done.",
+      "parentUuid": "503c1cf2_4e854426",
+      "revId": "e2c647e4044153354d76abf482d76cdb720a7d8d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
