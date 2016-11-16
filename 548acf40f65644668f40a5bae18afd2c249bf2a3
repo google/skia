@@ -16,6 +16,23 @@
       "revId": "548acf40f65644668f40a5bae18afd2c249bf2a3",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "503c1cf2_449d2053",
+        "filename": "BUILD.gn",
+        "patchSetId": 2
+      },
+      "lineNbr": 553,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2016-11-16T22:54:55Z",
+      "side": 1,
+      "message": "We\u0027re sure this only disables it here, and not globally?",
+      "revId": "548acf40f65644668f40a5bae18afd2c249bf2a3",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
