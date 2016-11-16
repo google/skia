@@ -114,6 +114,7 @@ default_configs = [
   "//gn:no_exceptions",
   "//gn:no_rtti",
   "//gn:warnings",
+  "//gn:warnings_except_public_headers",
 ]
 if (!is_debug) {
   default_configs += [ "//gn:release" ]
