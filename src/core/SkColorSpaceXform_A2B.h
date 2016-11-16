@@ -19,6 +19,10 @@
 class SkColorSpace_A2B;
 class SkColorSpace_XYZ;
 
+struct SkTableTransferFn {
+    const float* fData;
+    int          fSize;
+};
 
 class SkColorSpaceXform_A2B : public SkColorSpaceXform_Base {
 public:
@@ -34,19 +38,26 @@ private:
         kG_Channels   =  1,
         kB_Channels   =  2
     };
-    void addGamma(std::function<float(float)> fn, Channels channels);
+
+
+
+    void addTransferFn(const SkColorSpaceTransferFn& fn, Channels channels);
+    void addTableFn(const SkTableTransferFn& table, Channels channels);
 
     void addMatrix(const SkMatrix44& matrix);
 
-    SkRasterPipeline                               fElementsPipeline;
-    bool                                           fLinearDstGamma;
+    SkRasterPipeline                             fElementsPipeline;
+    bool                                         fLinearDstGamma;
+
     // storage used by the pipeline
-    std::forward_list<std::function<float(float)>> fGammaFunctions;
-    std::forward_list<std::vector<float>>          fMatrices;
-    std::forward_list<std::vector<float>>          fGammaTables;
-    std::vector<sk_sp<const SkColorLookUpTable>>   fCLUTs;
+    std::forward_list<SkColorSpaceTransferFn>    fTransferFns;
+    std::forward_list<SkTableTransferFn>         fTableTransferFns;
+    std::forward_list<std::vector<float>>        fMatrices;
+    std::vector<sk_sp<const SkColorLookUpTable>> fCLUTs;
+
     // these are here to maintain ownership of tables used in the pipeline
-    std::vector<sk_sp<const SkGammas>>             fGammaRefs;
+    std::forward_list<std::vector<float>>        fTableStorage;
+    std::vector<sk_sp<const SkGammas>>           fGammaRefs;
 
     friend class SkColorSpaceXform;
 };
