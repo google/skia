@@ -145,7 +145,7 @@ void GrTextUtils::BmpAppendGlyph(GrAtlasTextBlob* blob, int runIndex,
     r.fBottom = r.fTop + SkIntToScalar(height);
 
     blob->appendGlyph(runIndex, r, color, *strike, glyph, cache, skGlyph,
-                      SkIntToScalar(vx), SkIntToScalar(vy), 1.0f, false);
+                      SkIntToScalar(vx), SkIntToScalar(vy), 1.0f, true);
 }
 
 bool GrTextUtils::CanDrawAsDistanceFields(const SkPaint& skPaint, const SkMatrix& viewMatrix,
@@ -464,7 +464,7 @@ bool GrTextUtils::DfAppendGlyph(GrAtlasTextBlob* blob, int runIndex, GrBatchFont
     SkRect glyphRect = SkRect::MakeXYWH(sx, sy, width, height);
 
     blob->appendGlyph(runIndex, glyphRect, color, *strike, glyph, glyphCache, skGlyph,
-                      sx - dx, sy - dy, scale, true);
+                      sx - dx, sy - dy, scale, false);
     return true;
 }
 

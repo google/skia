@@ -164,7 +164,7 @@ public:
                      GrBatchTextStrike* strike,
                      GrGlyph* glyph,
                      SkGlyphCache*, const SkGlyph& skGlyph,
-                     SkScalar x, SkScalar y, SkScalar scale, bool applyVM);
+                     SkScalar x, SkScalar y, SkScalar scale, bool treatAsBMP);
 
     static size_t GetVertexStride(GrMaskFormat maskFormat) {
         switch (maskFormat) {
@@ -292,7 +292,7 @@ private:
         , fTextType(0) {}
 
     void appendLargeGlyph(GrGlyph* glyph, SkGlyphCache* cache, const SkGlyph& skGlyph,
-                          SkScalar x, SkScalar y, SkScalar scale, bool applyVM);
+                          SkScalar x, SkScalar y, SkScalar scale, bool treatAsBMP);
 
     inline void flushRun(GrRenderTargetContext* rtc, const GrPaint&, const GrClip&,
                          int run, const SkMatrix& viewMatrix, SkScalar x, SkScalar y,
@@ -515,17 +515,17 @@ private:
                                     GrBatchFontCache* cache);
 
     struct BigGlyph {
-        BigGlyph(const SkPath& path, SkScalar vx, SkScalar vy, SkScalar scale, bool applyVM)
+        BigGlyph(const SkPath& path, SkScalar vx, SkScalar vy, SkScalar scale, bool treatAsBMP)
             : fPath(path)
             , fScale(scale)
             , fX(vx)
             , fY(vy)
-            , fApplyVM(applyVM) {}
+            , fTreatAsBMP(treatAsBMP) {}
         SkPath fPath;
         SkScalar fScale;
         SkScalar fX;
         SkScalar fY;
-        bool fApplyVM;
+        bool fTreatAsBMP;
     };
 
     struct StrokeInfo {
