@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "503c1cf2_e1926637",
+        "filename": "infra/bots/tasks.json",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5120
+      },
+      "writtenOn": "2016-11-16T21:10:13Z",
+      "side": 1,
+      "message": "Didn\u0027t review tasks.json, but I assume it\u0027s fine.",
+      "revId": "e0b3ce57318c4f1e70ce1e6fd45144c2d55897da",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
