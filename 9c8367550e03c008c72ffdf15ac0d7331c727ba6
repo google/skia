@@ -1,0 +1,61 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "503c1cf2_37393e02",
+        "filename": "include/gpu/GrImageAccess.h",
+        "patchSetId": 16
+      },
+      "lineNbr": 17,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2016-11-16T01:20:40Z",
+      "side": 1,
+      "message": "There\u0027s probably a good reason for this, but why not just require and assert that the texture is always top left?",
+      "range": {
+        "startLine": 17,
+        "startChar": 79,
+        "endLine": 17,
+        "endChar": 88
+      },
+      "revId": "9c8367550e03c008c72ffdf15ac0d7331c727ba6",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "503c1cf2_7afc4b98",
+        "filename": "include/gpu/GrTypesPriv.h",
+        "patchSetId": 16
+      },
+      "lineNbr": 38,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2016-11-16T01:20:40Z",
+      "side": 1,
+      "message": "nit: for textures we do \"kTexture2DI\". I don\u0027t know that I care for one way more than the other but it might be nice to have consistency. (I suppose kITexture2D would match GLSL but renaming that value is outside the scope of this patch..)",
+      "revId": "9c8367550e03c008c72ffdf15ac0d7331c727ba6",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "503c1cf2_856bb45e",
+        "filename": "src/gpu/glsl/GrGLSLImage.h",
+        "patchSetId": 16
+      },
+      "lineNbr": 13,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2016-11-16T01:20:40Z",
+      "side": 1,
+      "message": "A comment probably would help here. The name may suggest that this class is the GPU resource itself.",
+      "revId": "9c8367550e03c008c72ffdf15ac0d7331c727ba6",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
