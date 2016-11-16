@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "503c1cf2_8433a8b0",
+        "filename": "BUILD.gn",
+        "patchSetId": 2
+      },
+      "lineNbr": 548,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2016-11-16T22:49:43Z",
+      "side": 1,
+      "message": "This comment about guards is not generally always true (an experiment that didn\u0027t go very far), but between this and the conditional stuff you see starting at :598, Skia should build correctly with an empty sources_assignment_filter.\n\nMaybe we write it like,\n\n# This file (and all GN files in Skia) are designed to work with an\n# empty sources assignment filter; we handle all that explicitly.\n# We clear the filter here for clients who may have set up a global filter.\nset_sources_assignment_filter([])\n\nI don\u0027t think we\u0027d mind moving some files around so that they\u0027re not accidentally filtered out by a reasonable filter list.  What is your filter list?",
+      "revId": "548acf40f65644668f40a5bae18afd2c249bf2a3",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
