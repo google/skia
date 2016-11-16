@@ -6,10 +6,11 @@
  */
 
 #include "gm.h"
+
 #include "Resources.h"
 #include "SkCanvas.h"
 #include "SkData.h"
-#include "SkImageEncoder.h"
+#include "SkImageEncoderPriv.h"
 #include "SkUnPreMultiply.h"
 
 namespace skiagm {
@@ -36,18 +37,18 @@ static void make_unpremul_256(SkBitmap* bitmap) {
     bitmap->setAlphaType(kUnpremul_SkAlphaType);
 }
 
-static SkImageEncoder* make_encoder(SkImageEncoder::Type type) {
+static SkImageEncoder* make_encoder(SkEncodedFormat type) {
 #if defined(SK_BUILD_FOR_MAC) || defined(SK_BUILD_FOR_IOS)
-    return CreateImageEncoder_CG(type);
+    return CreateImageEncoder_CG((SkImageEncoder::Type)type);
 #elif defined(SK_BUILD_FOR_WIN)
-    return CreateImageEncoder_WIC(type);
+    return CreateImageEncoder_WIC((SkImageEncoder::Type)type);
 #else
     switch (type) {
-        case SkImageEncoder::kPNG_Type:
+        case kPNG_SkEncodedFormat:
             return CreatePNGImageEncoder();
-        case SkImageEncoder::kJPEG_Type:
+        case kJPEG_SkEncodedFormat:
             return CreateJPEGImageEncoder();
-        case SkImageEncoder::kWEBP_Type:
+        case kWEBP_SkEncodedFormat:
             return CreateWEBPImageEncoder();
         default:
             SkASSERT(false);
@@ -57,24 +58,28 @@ static SkImageEncoder* make_encoder(SkImageEncoder::Type type) {
 }
 
 #if defined(SK_BUILD_FOR_MAC) || defined(SK_BUILD_FOR_IOS)
-static SkImageEncoder::Type kTypes[] {
-        SkImageEncoder::kPNG_Type, SkImageEncoder::kJPEG_Type, SkImageEncoder::kGIF_Type,
-        SkImageEncoder::kBMP_Type, SkImageEncoder::kICO_Type,
+static SkEncodedFormat kTypes[] {
+        kPNG_SkEncodedFormat, kJPEG_SkEncodedFormat, kGIF_SkEncodedFormat,
+        kBMP_SkEncodedFormat, kICO_SkEncodedFormat,
 };
 #elif defined(SK_BUILD_FOR_WIN)
 // Use PNG multiple times because our WIC encoder does not support GIF, BMP, or ICO.
-static SkImageEncoder::Type kTypes[] {
-        SkImageEncoder::kPNG_Type, SkImageEncoder::kJPEG_Type, SkImageEncoder::kPNG_Type,
-        SkImageEncoder::kPNG_Type, SkImageEncoder::kPNG_Type,
+static SkEncodedFormat kTypes[] {
+        kPNG_SkEncodedFormat, kJPEG_SkEncodedFormat, kPNG_SkEncodedFormat,
+        kPNG_SkEncodedFormat, kPNG_SkEncodedFormat,
 };
 #else
 // Use WEBP in place of GIF.  Use PNG two extra times.  We don't support GIF, BMP, or ICO.
-static SkImageEncoder::Type kTypes[] {
-        SkImageEncoder::kPNG_Type, SkImageEncoder::kJPEG_Type, SkImageEncoder::kWEBP_Type,
-        SkImageEncoder::kPNG_Type, SkImageEncoder::kPNG_Type,
+static SkEncodedFormat kTypes[] {
+        kPNG_SkEncodedFormat, kJPEG_SkEncodedFormat, kWEBP_SkEncodedFormat,
+        kPNG_SkEncodedFormat, kPNG_SkEncodedFormat,
 };
 #endif
 
+static sk_sp<SkData> encode_data(std::unique_ptr<SkImageEncoder>& encoder, const SkBitmap& src) {
+    SkDynamicMemoryWStream buffer;
+    return encoder->encodeStream(&buffer, src, 100) ? buffer.detachAsData() : nullptr;
+}
 
 class EncodePlatformGM : public GM {
 public:
@@ -95,11 +100,11 @@ protected:
         make_premul_256(&premulBm);
         make_unpremul_256(&unpremulBm);
 
-        for (SkImageEncoder::Type type : kTypes) {
+        for (SkEncodedFormat type : kTypes) {
             std::unique_ptr<SkImageEncoder> encoder(make_encoder(type));
-            sk_sp<SkData> opaqueData(encoder->encodeData(opaqueBm, 100));
-            sk_sp<SkData> premulData(encoder->encodeData(premulBm, 100));
-            sk_sp<SkData> unpremulData(encoder->encodeData(unpremulBm, 100));
+            sk_sp<SkData> opaqueData = encode_data(encoder, opaqueBm);
+            sk_sp<SkData> premulData = encode_data(encoder, premulBm);
+            sk_sp<SkData> unpremulData = encode_data(encoder, unpremulBm);
 
             sk_sp<SkImage> opaqueImage = SkImage::MakeFromEncoded(opaqueData);
             sk_sp<SkImage> premulImage = SkImage::MakeFromEncoded(premulData);
