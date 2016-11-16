@@ -28,5 +28,5 @@ class InfraApi(recipe_api.RecipeApi):
         self.m.step,
         'update go pkgs',
         UPDATE_GO_ATTEMPTS,
-        cmd=['go', 'get', '-u', '%s/...' % INFRA_GO_PKG],
+        cmd=['go', 'get', '-u', '-t', '%s/...' % INFRA_GO_PKG],
         env=self.go_env)
