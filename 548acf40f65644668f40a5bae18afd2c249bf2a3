@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "503c1cf2_2f68b52f",
+        "filename": "BUILD.gn",
+        "patchSetId": 2
+      },
+      "lineNbr": 548,
+      "author": {
+        "id": 5970
+      },
+      "writtenOn": "2016-11-16T23:02:37Z",
+      "side": 1,
+      "message": "The filter used on iOS is:\n\n[\n  \"*_win.cc\"\n  \"*_win.h\"\n  \"*_win_unittest.cc\"\n  \"*\\bwin/*\"\n  \"*.def\"\n  \"*.rc\"\n  \"*_mac.h\"\n  \"*_mac.cc\"\n  \"*_mac.mm\"\n  \"*_mac_unittest.h\"\n  \"*_mac_unittest.cc\"\n  \"*_mac_unittest.mm\"\n  \"*\\bmac/*\"\n  \"*_cocoa.h\"\n  \"*_cocoa.cc\"\n  \"*_cocoa.mm\"\n  \"*_cocoa_unittest.h\"\n  \"*_cocoa_unittest.cc\"\n  \"*_cocoa_unittest.mm\"\n  \"*\\bcocoa/*\"\n  \"*_linux.h\"\n  \"*_linux.cc\"\n  \"*_linux_unittest.h\"\n  \"*_linux_unittest.cc\"\n  \"*\\blinux/*\"\n  \"*_android.h\"\n  \"*_android.cc\"\n  \"*_android_unittest.h\"\n  \"*_android_unittest.cc\"\n  \"*\\bandroid/*\"\n  \"*_chromeos.h\"\n  \"*_chromeos.cc\"\n  \"*_chromeos_unittest.h\"\n  \"*_chromeos_unittest.cc\"\n  \"*\\bchromeos/*\"\n]\n\nIf Skia is explicitly managing platform specific files, I think it is safe to disable the filter. I can update the comment.",
+      "parentUuid": "503c1cf2_8433a8b0",
+      "revId": "548acf40f65644668f40a5bae18afd2c249bf2a3",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "503c1cf2_449d2053",
         "filename": "BUILD.gn",
         "patchSetId": 2
@@ -30,6 +48,24 @@
       "writtenOn": "2016-11-16T22:54:55Z",
       "side": 1,
       "message": "We\u0027re sure this only disables it here, and not globally?",
+      "revId": "548acf40f65644668f40a5bae18afd2c249bf2a3",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "503c1cf2_6f511d7f",
+        "filename": "BUILD.gn",
+        "patchSetId": 2
+      },
+      "lineNbr": 553,
+      "author": {
+        "id": 5970
+      },
+      "writtenOn": "2016-11-16T23:02:37Z",
+      "side": 1,
+      "message": "Yes. The filter will only get disabled here. Not globally.",
+      "parentUuid": "503c1cf2_449d2053",
       "revId": "548acf40f65644668f40a5bae18afd2c249bf2a3",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
