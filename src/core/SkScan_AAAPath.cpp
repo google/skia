@@ -120,6 +120,10 @@ public:
     }
 
     virtual int getWidth() = 0;
+
+    // Flush the additive alpha cache if floor(y) and floor(nextY) is different
+    // (i.e., we'll start working on a new pixel row).
+    virtual void flush_if_y_changed(SkFixed y, SkFixed nextY) = 0;
 };
 
 // We need this mask blitter because it significantly accelerates small path filling.
@@ -149,6 +153,9 @@ public:
     void blitRect(int x, int y, int width, int height) override;
     void blitAntiRect(int x, int y, int width, int height,
                       SkAlpha leftAlpha, SkAlpha rightAlpha) override;
+
+    // The flush is only needed for RLE (RunBasedAdditiveBlitter)
+    void flush_if_y_changed(SkFixed y, SkFixed nextY) override {}
 
     int getWidth() override { return fClipRect.width(); }
 
@@ -276,14 +283,7 @@ public:
 
     int getWidth() override;
 
-    // This should only be called when forceRLE = true which implies that SkAAClip
-    // is calling us.
-    // SkAAClip requires that we blit in scan-line order so we have to flush
-    // for each row in order. Without this, we may have the first row unflushed,
-    // then blit the 2nd and the 3rd row with full alpha (so we won't flush the first row);
-    // finally when we blit the fourth row, we trigger the first row to flush, and this
-    // would cause SkAAClip to crash.
-    inline void flush_if_y_changed(SkFixed y, SkFixed nextY) {
+    void flush_if_y_changed(SkFixed y, SkFixed nextY) override {
         if (SkFixedFloorToInt(y) != SkFixedFloorToInt(nextY)) {
             this->flush();
         }
@@ -900,7 +900,7 @@ static inline bool isSmoothEnough(SkAnalyticEdge* leftE, SkAnalyticEdge* riteE,
 
 static inline void aaa_walk_convex_edges(SkAnalyticEdge* prevHead, AdditiveBlitter* blitter,
                            int start_y, int stop_y, SkFixed leftBound, SkFixed riteBound,
-                           bool isUsingMask, bool forceRLE) {
+                           bool isUsingMask) {
     validate_sort((SkAnalyticEdge*)prevHead->fNext);
 
     SkAnalyticEdge* leftE = (SkAnalyticEdge*) prevHead->fNext;
@@ -956,11 +956,7 @@ static inline void aaa_walk_convex_edges(SkAnalyticEdge* prevHead, AdditiveBlitt
         }
 
         SkFixed local_bot_fixed = SkMin32(leftE->fLowerY, riteE->fLowerY);
-        // Skip the fractional y if edges are changing smoothly.
-        // If forceRLE is true, we won't skip the fractional y because it
-        // implies that SkAAClip is calling us and there are strict
-        // assertions inside SkAAClip.
-        if (isSmoothEnough(leftE, riteE, currE, stop_y) && !forceRLE) {
+        if (isSmoothEnough(leftE, riteE, currE, stop_y)) {
             local_bot_fixed = SkFixedCeilToFixed(local_bot_fixed);
         }
         local_bot_fixed = SkMin32(local_bot_fixed, SkIntToFixed(stop_y));
@@ -995,9 +991,7 @@ static inline void aaa_walk_convex_edges(SkAnalyticEdge* prevHead, AdditiveBlitt
                         blitter->blitAntiH(fullRite, fullTop - 1,
                                 f2a(SkFixedMul_lowprec(partialTop, partialRite)));
                     }
-                    if (forceRLE) {
-                        ((RunBasedAdditiveBlitter*)blitter)->flush_if_y_changed(y, y + partialTop);
-                    }
+                    blitter->flush_if_y_changed(y, y + partialTop);
                 }
 
                 // Blit all full-height rows from fullTop to fullBot
@@ -1025,9 +1019,7 @@ static inline void aaa_walk_convex_edges(SkAnalyticEdge* prevHead, AdditiveBlitt
                 if (partialTop > 0) {
                     blitter->getRealBlitter()->blitV(fullLeft - 1, fullTop - 1, 1,
                             f2a(SkFixedMul_lowprec(partialTop, rite - left)));
-                    if (forceRLE) {
-                        ((RunBasedAdditiveBlitter*)blitter)->flush_if_y_changed(y, y + partialTop);
-                    }
+                    blitter->flush_if_y_changed(y, y + partialTop);
                 }
                 if (fullBot > fullTop) {
                     blitter->getRealBlitter()->blitV(fullLeft - 1, fullTop, fullBot - fullTop,
@@ -1083,9 +1075,7 @@ static inline void aaa_walk_convex_edges(SkAnalyticEdge* prevHead, AdditiveBlitt
                     blit_trapezoid_row(blitter, y >> 16, left & kSnapMask, rite & kSnapMask,
                             nextLeft & kSnapMask, nextRite & kSnapMask, leftE->fDY, riteE->fDY,
                             getPartialAlpha(0xFF, dY), maskRow, isUsingMask);
-                    if (forceRLE) {
-                        ((RunBasedAdditiveBlitter*)blitter)->flush_if_y_changed(y, nextY);
-                    }
+                    blitter->flush_if_y_changed(y, nextY);
                     left = nextLeft; rite = nextRite; y = nextY;
                 }
 
@@ -1101,9 +1091,7 @@ static inline void aaa_walk_convex_edges(SkAnalyticEdge* prevHead, AdditiveBlitt
                     blit_trapezoid_row(blitter, y >> 16, left & kSnapMask, rite & kSnapMask,
                             nextLeft & kSnapMask, nextRite & kSnapMask,
                             leftE->fDY, riteE->fDY, 0xFF, maskRow, isUsingMask);
-                    if (forceRLE) {
-                        ((RunBasedAdditiveBlitter*)blitter)->flush_if_y_changed(y, nextY);
-                    }
+                    blitter->flush_if_y_changed(y, nextY);
                     left = nextLeft; rite = nextRite; y = nextY;
                 }
             }
@@ -1124,9 +1112,7 @@ static inline void aaa_walk_convex_edges(SkAnalyticEdge* prevHead, AdditiveBlitt
             blit_trapezoid_row(blitter, y >> 16, left & kSnapMask, rite & kSnapMask,
                     nextLeft & kSnapMask, nextRite & kSnapMask, leftE->fDY, riteE->fDY,
                     getPartialAlpha(0xFF, dY), maskRow, isUsingMask);
-            if (forceRLE) {
-                ((RunBasedAdditiveBlitter*)blitter)->flush_if_y_changed(y, local_bot_fixed);
-            }
+            blitter->flush_if_y_changed(y, local_bot_fixed);
             left = nextLeft; rite = nextRite; y = local_bot_fixed;
             left -= kSnapHalf; rite -= kSnapHalf;
         }
@@ -1219,8 +1205,7 @@ void aaa_fill_path(const SkPath& path, const SkIRect& clipRect, AdditiveBlitter*
     if (!path.isInverseFillType() && path.isConvex()) {
         SkASSERT(count >= 2);   // convex walker does not handle missing right edges
         aaa_walk_convex_edges(&headEdge, blitter, start_y, stop_y,
-                              rect.fLeft << 16, rect.fRight << 16, isUsingMask,
-                              forceRLE);
+                              rect.fLeft << 16, rect.fRight << 16, isUsingMask);
     } else {
         SkFAIL("Concave AAA is not yet implemented!");
     }
