@@ -44,7 +44,7 @@ struct SkAnalyticEdge {
 
     static inline SkFixed snapY(SkFixed y, int accuracy = kDefaultAccuracy) {
         // This approach is safer than left shift, round, then right shift
-        return (y + (SK_Fixed1 >> (accuracy + 1))) >> (16 - accuracy) << (16 - accuracy);
+        return ((unsigned)y + (SK_Fixed1 >> (accuracy + 1))) >> (16 - accuracy) << (16 - accuracy);
     }
 
     // Update fX, fY of this edge so fY = y

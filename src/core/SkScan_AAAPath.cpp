@@ -1204,8 +1204,18 @@ void aaa_fill_path(const SkPath& path, const SkIRect& clipRect, AdditiveBlitter*
 
     if (!path.isInverseFillType() && path.isConvex()) {
         SkASSERT(count >= 2);   // convex walker does not handle missing right edges
+        SkFixed leftBound = SkIntToFixed(rect.fLeft);
+        SkFixed rightBound = SkIntToFixed(rect.fRight);
+        if (isUsingMask) {
+            // If we're using mask, then we have to limit the bound within the path bounds.
+            // Otherwise, the edge drift may access an invalid address inside the mask.
+            SkIRect ir;
+            path.getBounds().roundOut(&ir);
+            leftBound = SkTMax(leftBound, SkIntToFixed(ir.fLeft));
+            rightBound = SkTMin(rightBound, SkIntToFixed(ir.fRight));
+        }
         aaa_walk_convex_edges(&headEdge, blitter, start_y, stop_y,
-                              rect.fLeft << 16, rect.fRight << 16, isUsingMask);
+                              leftBound, rightBound, isUsingMask);
     } else {
         SkFAIL("Concave AAA is not yet implemented!");
     }
