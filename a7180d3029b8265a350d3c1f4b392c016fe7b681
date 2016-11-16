@@ -25,6 +25,24 @@
     },
     {
       "key": {
+        "uuid": "503c1cf2_7a3c46f3",
+        "filename": "infra/bots/gen_tasks.go",
+        "patchSetId": 2
+      },
+      "lineNbr": 55,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2016-11-16T13:00:50Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "503c1cf2_7ad8c6da",
+      "revId": "a7180d3029b8265a350d3c1f4b392c016fe7b681",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "503c1cf2_5ad502a0",
         "filename": "infra/bots/recipes/swarm_skpbench.expected/Perf-Android-Clang-PixelC-CPU-TegraX1-arm64-Release-GN_Android_Skpbench.json",
         "patchSetId": 2
@@ -48,6 +66,24 @@
     },
     {
       "key": {
+        "uuid": "503c1cf2_fa1fb685",
+        "filename": "infra/bots/recipes/swarm_skpbench.expected/Perf-Android-Clang-PixelC-CPU-TegraX1-arm64-Release-GN_Android_Skpbench.json",
+        "patchSetId": 2
+      },
+      "lineNbr": 159,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2016-11-16T13:00:50Z",
+      "side": 1,
+      "message": "Again, the CPU/GPU means what we measure.",
+      "parentUuid": "503c1cf2_5ad502a0",
+      "revId": "a7180d3029b8265a350d3c1f4b392c016fe7b681",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "503c1cf2_3ade3eca",
         "filename": "infra/bots/recipes/swarm_skpbench.py",
         "patchSetId": 2
@@ -65,6 +101,24 @@
         "endLine": 57,
         "endChar": 9
       },
+      "revId": "a7180d3029b8265a350d3c1f4b392c016fe7b681",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "503c1cf2_9a1aea96",
+        "filename": "infra/bots/recipes/swarm_skpbench.py",
+        "patchSetId": 2
+      },
+      "lineNbr": 57,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2016-11-16T13:00:50Z",
+      "side": 1,
+      "message": "Made the vulkan bot only run vk.\n\nAlso, the CPU/GPU decides whether we time using the gpu clock instead of the cpu clock (the --gpu flag on line 68)",
+      "parentUuid": "503c1cf2_3ade3eca",
       "revId": "a7180d3029b8265a350d3c1f4b392c016fe7b681",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
