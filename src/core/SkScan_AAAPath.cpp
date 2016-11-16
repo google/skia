@@ -1143,8 +1143,8 @@ END_WALK:
     #endif
 }
 
-void SkScan::aaa_fill_path(const SkPath& path, const SkIRect* clipRect, AdditiveBlitter* blitter,
-                   int start_y, int stop_y, const SkRegion& clipRgn, bool isUsingMask,
+void aaa_fill_path(const SkPath& path, const SkIRect& clipRect, AdditiveBlitter* blitter,
+                   int start_y, int stop_y, bool pathContainedInClip, bool isUsingMask,
                    bool forceRLE) { // forceRLE implies that SkAAClip is calling us
     SkASSERT(blitter);
 
@@ -1157,12 +1157,13 @@ void SkScan::aaa_fill_path(const SkPath& path, const SkIRect* clipRect, Additive
     const bool canCullToTheRight = !path.isConvex();
 
     SkASSERT(gSkUseAnalyticAA.load());
-    int count = builder.build(path, clipRect, 0, canCullToTheRight, true);
+    const SkIRect* builderClip = pathContainedInClip ? nullptr : &clipRect;
+    int count = builder.build(path, builderClip, 0, canCullToTheRight, true);
     SkASSERT(count >= 0);
 
     SkAnalyticEdge** list = (SkAnalyticEdge**)builder.analyticEdgeList();
 
-    SkIRect rect = clipRgn.getBounds();
+    SkIRect rect = clipRect;
     if (0 == count) {
         if (path.isInverseFillType()) {
             /*
@@ -1208,11 +1209,11 @@ void SkScan::aaa_fill_path(const SkPath& path, const SkIRect* clipRect, Additive
 
     // now edge is the head of the sorted linklist
 
-    if (clipRect && start_y < clipRect->fTop) {
-        start_y = clipRect->fTop;
+    if (!pathContainedInClip && start_y < clipRect.fTop) {
+        start_y = clipRect.fTop;
     }
-    if (clipRect && stop_y > clipRect->fBottom) {
-        stop_y = clipRect->fBottom;
+    if (!pathContainedInClip && stop_y > clipRect.fBottom) {
+        stop_y = clipRect.fBottom;
     }
 
     if (!path.isInverseFillType() && path.isConvex()) {
@@ -1349,12 +1350,12 @@ void SkScan::AAAFillPath(const SkPath& path, const SkRegion& origClip, SkBlitter
 
     if (MaskAdditiveBlitter::canHandleRect(ir) && !isInverse && !forceRLE) {
         MaskAdditiveBlitter additiveBlitter(blitter, ir, *clipRgn, isInverse);
-        aaa_fill_path(path, clipRect, &additiveBlitter, ir.fTop, ir.fBottom, *clipRgn, true,
-                      forceRLE);
+        aaa_fill_path(path, clipRgn->getBounds(), &additiveBlitter, ir.fTop, ir.fBottom,
+                clipRect == nullptr, true, forceRLE);
     } else {
         RunBasedAdditiveBlitter additiveBlitter(blitter, ir, *clipRgn, isInverse);
-        aaa_fill_path(path, clipRect, &additiveBlitter, ir.fTop, ir.fBottom, *clipRgn, false,
-                      forceRLE);
+        aaa_fill_path(path, clipRgn->getBounds(), &additiveBlitter, ir.fTop, ir.fBottom,
+                clipRect == nullptr, false, forceRLE);
     }
 
     if (isInverse) {

@@ -421,21 +421,24 @@ static SkEdge* sort_edges(SkEdge* list[], int count, SkEdge** last) {
     return list[0];
 }
 
-// clipRect may be null, even though we always have a clip. This indicates that
-// the path is contained in the clip, and so we can ignore it during the blit
-//
-// clipRect (if no null) has already been shifted up
-//
-void sk_fill_path(const SkPath& path, const SkIRect* clipRect, SkBlitter* blitter,
-                  int start_y, int stop_y, int shiftEdgesUp, const SkRegion& clipRgn) {
+// clipRect has not been shifted up
+void sk_fill_path(const SkPath& path, const SkIRect& clipRect, SkBlitter* blitter,
+                  int start_y, int stop_y, int shiftEdgesUp, bool pathContainedInClip) {
     SkASSERT(blitter);
+
+    SkIRect shiftedClip = clipRect;
+    shiftedClip.fLeft <<= shiftEdgesUp;
+    shiftedClip.fRight <<= shiftEdgesUp;
+    shiftedClip.fTop <<= shiftEdgesUp;
+    shiftedClip.fBottom <<= shiftEdgesUp;
 
     SkEdgeBuilder   builder;
 
     // If we're convex, then we need both edges, even the right edge is past the clip
     const bool canCullToTheRight = !path.isConvex();
 
-    int count = builder.build(path, clipRect, shiftEdgesUp, canCullToTheRight);
+    SkIRect* builderClip = pathContainedInClip ? nullptr : &shiftedClip;
+    int count = builder.build(path, builderClip, shiftEdgesUp, canCullToTheRight);
     SkASSERT(count >= 0);
 
     SkEdge**    list = builder.edgeList();
@@ -448,7 +451,7 @@ void sk_fill_path(const SkPath& path, const SkIRect* clipRect, SkBlitter* blitte
              *  we need to restrict our drawing to the intersection of the clip
              *  and those two limits.
              */
-            SkIRect rect = clipRgn.getBounds();
+            SkIRect rect = clipRect;
             if (rect.fTop < start_y) {
                 rect.fTop = start_y;
             }
@@ -484,18 +487,18 @@ void sk_fill_path(const SkPath& path, const SkIRect* clipRect, SkBlitter* blitte
 
     start_y = SkLeftShift(start_y, shiftEdgesUp);
     stop_y = SkLeftShift(stop_y, shiftEdgesUp);
-    if (clipRect && start_y < clipRect->fTop) {
-        start_y = clipRect->fTop;
+    if (!pathContainedInClip && start_y < shiftedClip.fTop) {
+        start_y = shiftedClip.fTop;
     }
-    if (clipRect && stop_y > clipRect->fBottom) {
-        stop_y = clipRect->fBottom;
+    if (!pathContainedInClip && stop_y > shiftedClip.fBottom) {
+        stop_y = shiftedClip.fBottom;
     }
 
     InverseBlitter  ib;
     PrePostProc     proc = nullptr;
 
     if (path.isInverseFillType()) {
-        ib.setBlitter(blitter, clipRgn.getBounds(), shiftEdgesUp);
+        ib.setBlitter(blitter, clipRect, shiftEdgesUp);
         blitter = &ib;
         proc = PrePostInverseBlitterProc;
     }
@@ -504,14 +507,8 @@ void sk_fill_path(const SkPath& path, const SkIRect* clipRect, SkBlitter* blitte
         SkASSERT(count >= 2);   // convex walker does not handle missing right edges
         walk_convex_edges(&headEdge, path.getFillType(), blitter, start_y, stop_y, nullptr);
     } else {
-        int rightEdge;
-        if (clipRect) {
-            rightEdge = clipRect->right();
-        } else {
-            rightEdge = SkScalarRoundToInt(path.getBounds().right()) << shiftEdgesUp;
-        }
-
-        walk_edges(&headEdge, path.getFillType(), blitter, start_y, stop_y, proc, rightEdge);
+        walk_edges(&headEdge, path.getFillType(), blitter, start_y, stop_y, proc,
+                shiftedClip.right());
     }
 }
 
@@ -676,8 +673,10 @@ void SkScan::FillPath(const SkPath& path, const SkRegion& origClip,
         if (path.isInverseFillType()) {
             sk_blit_above(blitter, ir, *clipPtr);
         }
-        sk_fill_path(path, clipper.getClipRect(), blitter, ir.fTop, ir.fBottom,
-                     0, *clipPtr);
+        SkASSERT(clipper.getClipRect() == nullptr ||
+                *clipper.getClipRect() == clipPtr->getBounds());
+        sk_fill_path(path, clipPtr->getBounds(), blitter, ir.fTop, ir.fBottom,
+                     0, clipper.getClipRect() == nullptr);
         if (path.isInverseFillType()) {
             sk_blit_below(blitter, ir, *clipPtr);
         }
