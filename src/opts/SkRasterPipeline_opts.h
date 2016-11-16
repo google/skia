@@ -10,6 +10,8 @@
 
 #include "SkColorPriv.h"
 #include "SkColorLookUpTable.h"
+#include "SkColorSpaceXform_A2B.h"
+#include "SkColorSpaceXformPriv.h"
 #include "SkHalf.h"
 #include "SkPM4f.h"
 #include "SkPM4fPriv.h"
@@ -563,51 +565,22 @@ STAGE(parametric_b, true) {
     b = parametric(b, *(const SkColorSpaceTransferFn*)ctx);
 }
 
-SI SkNf table(const SkNf& v, const float t[1024]) {
-    SkNi ix = SkNx_cast<int>(SkNf::Max(0, SkNf::Min(v, 1)) * 1023 + 0.5);
-
-    float result[N];   // TODO: vgatherdps?
+SI SkNf table(const SkNf& v, const SkTableTransferFn& table) {
+    float result[N];
     for (int i = 0; i < N; i++) {
-        result[i] = t[ix[i]];
+        result[i] = interp_lut(v[i], table.fData, table.fSize);
     }
     return SkNf::Load(result);
 }
 
 STAGE(table_r, true) {
-    r = table(r, (const float*)ctx);
+    r = table(r, *(const SkTableTransferFn*)ctx);
 }
 STAGE(table_g, true) {
-    g = table(g, (const float*)ctx);
+    g = table(g, *(const SkTableTransferFn*)ctx);
 }
 STAGE(table_b, true) {
-    b = table(b, (const float*)ctx);
-}
-
-STAGE(fn_1_r, true) {
-    auto fn = (const std::function<float(float)>*)ctx;
-    float result[N];
-    for (int i = 0; i < N; ++i) {
-        result[i] = (*fn)(r[i]);
-    }
-    r = SkNf::Load(result);
-}
-
-STAGE(fn_1_g, true) {
-    auto fn = (const std::function<float(float)>*)ctx;
-    float result[N];
-    for (int i = 0; i < N; ++i) {
-        result[i] = (*fn)(g[i]);
-    }
-    g = SkNf::Load(result);
-}
-
-STAGE(fn_1_b, true) {
-    auto fn = (const std::function<float(float)>*)ctx;
-    float result[N];
-    for (int i = 0; i < N; ++i) {
-        result[i] = (*fn)(b[i]);
-    }
-    b = SkNf::Load(result);
+    b = table(b, *(const SkTableTransferFn*)ctx);
 }
 
 STAGE(color_lookup_table, true) {
