@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "503c1cf2_338ca9c6",
+        "filename": "include/core/SkDevice.h",
+        "patchSetId": 6
+      },
+      "lineNbr": 258,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2016-11-16T17:58:16Z",
+      "side": 0,
+      "message": "Wow, we need to make all of these (below) public?",
+      "range": {
+        "startLine": 258,
+        "startChar": 0,
+        "endLine": 258,
+        "endChar": 9
+      },
+      "revId": "bd85a105ba7b3ee2008d20fb9281bfb47325ad0e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}

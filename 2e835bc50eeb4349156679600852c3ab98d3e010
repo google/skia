@@ -1,0 +1,73 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "503c1cf2_f32521c1",
+        "filename": "include/core/SkImageGenerator.h",
+        "patchSetId": 6
+      },
+      "lineNbr": 227,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2016-11-16T17:58:16Z",
+      "side": 1,
+      "message": "Really? Are we promising to NOT respect the out-filter-level? Do we need to make that promise? I realize Chrome wants that behavior, but they can achieve it w/o this promise.",
+      "range": {
+        "startLine": 227,
+        "startChar": 14,
+        "endLine": 227,
+        "endChar": 26
+      },
+      "revId": "2e835bc50eeb4349156679600852c3ab98d3e010",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "503c1cf2_93013523",
+        "filename": "include/core/SkImageGenerator.h",
+        "patchSetId": 6
+      },
+      "lineNbr": 231,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2016-11-16T17:58:16Z",
+      "side": 1,
+      "message": "Not sure why this comment is here?",
+      "range": {
+        "startLine": 231,
+        "startChar": 15,
+        "endLine": 231,
+        "endChar": 19
+      },
+      "revId": "2e835bc50eeb4349156679600852c3ab98d3e010",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "503c1cf2_3365c936",
+        "filename": "include/core/SkImageGenerator.h",
+        "patchSetId": 6
+      },
+      "lineNbr": 236,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2016-11-16T17:58:16Z",
+      "side": 1,
+      "message": "tiny naming nit:\n\nImageSource and ScaledPixels don\u0027t seem too related. I wonder if we can name the rec and the function to appear similar",
+      "range": {
+        "startLine": 236,
+        "startChar": 11,
+        "endLine": 236,
+        "endChar": 25
+      },
+      "revId": "2e835bc50eeb4349156679600852c3ab98d3e010",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
