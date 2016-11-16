@@ -10,8 +10,10 @@
 #include "SkColorShader.h"
 #include "SkColorTable.h"
 #include "SkEmptyShader.h"
+#include "SkFixedAlloc.h"
 #include "SkImage_Base.h"
 #include "SkImageShader.h"
+#include "SkPM4fPriv.h"
 #include "SkReadBuffer.h"
 #include "SkWriteBuffer.h"
 
@@ -92,7 +94,7 @@ static bool bitmap_is_too_big(int w, int h) {
     // widen that, we have to reject bitmaps that are larger.
     //
     static const int kMaxSize = 65535;
-    
+
     return w > kMaxSize || h > kMaxSize;
 }
 
@@ -103,16 +105,16 @@ static bool can_use_color_shader(const SkImage* image, SkColor* color) {
     // HWUI does not support color shaders (see b/22390304)
     return false;
 #endif
-    
+
     if (1 != image->width() || 1 != image->height()) {
         return false;
     }
-    
+
     SkPixmap pmap;
     if (!image->peekPixels(&pmap)) {
         return false;
     }
-    
+
     switch (pmap.colorType()) {
         case kN32_SkColorType:
             *color = SkUnPreMultiply::PMColorToColor(*pmap.addr32(0, 0));
@@ -264,3 +266,87 @@ SK_DEFINE_FLATTENABLE_REGISTRAR_ENTRY(SkImageShader)
 SkFlattenable::Register("SkBitmapProcShader", SkBitmapProcShader_CreateProc, kSkShader_Type);
 SK_DEFINE_FLATTENABLE_REGISTRAR_GROUP_END
 
+
+bool SkImageShader::onAppendStages(SkRasterPipeline* p, SkColorSpace* dst, SkFallbackAlloc* scratch,
+                                   const SkMatrix& ctm) const {
+    SkPixmap pm;
+    if (!fImage->peekPixels(&pm)) {
+        return false;
+    }
+    auto info = pm.info();
+
+    auto matrix = SkMatrix::Concat(ctm, this->getLocalMatrix());
+    if (!matrix.invert(&matrix)) {
+        return false;
+    }
+
+    // TODO: perspective
+    if (!matrix.asAffine(nullptr)) {
+        return false;
+    }
+
+    // TODO: all formats
+    switch (info.colorType()) {
+        case kRGBA_8888_SkColorType:
+        case kBGRA_8888_SkColorType:
+        case   kRGB_565_SkColorType:
+        case  kRGBA_F16_SkColorType: break;
+        default: return false;
+    }
+
+    // TODO: plumb through paint, check filter quality == kNone
+
+    struct context {
+        float       matrix[6];
+        int         width;
+        int         height;
+        size_t      rowBytes;
+        const void* pixels;
+    };
+    auto ctx = scratch->make<context>();
+
+    SkAssertResult(matrix.asAffine(ctx->matrix));
+    ctx->width    = pm.width();
+    ctx->height   = pm.height();
+    ctx->rowBytes = pm.rowBytes();
+    ctx->pixels   = pm.addr();
+
+    p->append(SkRasterPipeline::matrix_2x3, &ctx->matrix);
+
+    switch (fTileModeX) {
+        case kClamp_TileMode:  p->append(SkRasterPipeline::clamp_x,  &ctx->width); break;
+        case kMirror_TileMode: p->append(SkRasterPipeline::mirror_x, &ctx->width); break;
+        case kRepeat_TileMode: p->append(SkRasterPipeline::repeat_x, &ctx->width); break;
+    }
+    switch (fTileModeY) {
+        case kClamp_TileMode:  p->append(SkRasterPipeline::clamp_y,  &ctx->height); break;
+        case kMirror_TileMode: p->append(SkRasterPipeline::mirror_y, &ctx->height); break;
+        case kRepeat_TileMode: p->append(SkRasterPipeline::repeat_y, &ctx->height); break;
+    }
+
+    switch(info.colorType()) {
+        case kRGBA_8888_SkColorType:
+        case kBGRA_8888_SkColorType:
+            if (info.gammaCloseToSRGB() && dst) {
+                p->append(SkRasterPipeline::nearest_srgb, ctx->pixels);
+            } else {
+                p->append(SkRasterPipeline::nearest_8888, ctx->pixels);
+            }
+            break;
+        case kRGBA_F16_SkColorType:
+            p->append(SkRasterPipeline::nearest_f16, ctx->pixels);
+            break;
+        case kRGB_565_SkColorType:
+            p->append(SkRasterPipeline::nearest_565, ctx->pixels);
+            break;
+
+        default:
+            SkASSERT(false);
+            break;
+    }
+
+    if (info.colorType() == kBGRA_8888_SkColorType) {
+        p->append(SkRasterPipeline::swap_rb);
+    }
+    return append_gamut_transform(p, scratch, info.colorSpace(), dst);
+}

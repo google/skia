@@ -517,10 +517,22 @@ STAGE(luminance_to_alpha, true) {
     r = g = b = 0;
 }
 
+SI SkNf fma(const SkNf& f, const SkNf& m, const SkNf& a) {
+    return SkNx_fma(f,m,a);
+}
+
+STAGE(matrix_2x3, true) {
+    auto m = (const float*)ctx;
+
+    auto R = fma(r,m[0], fma(g,m[2], m[4])),
+         G = fma(r,m[1], fma(g,m[3], m[5]));
+    r = R;
+    g = G;
+}
+
 STAGE(matrix_3x4, true) {
     auto m = (const float*)ctx;
 
-    auto fma = [](const SkNf& f, const SkNf& m, const SkNf& a) { return SkNx_fma(f,m,a); };
     auto R = fma(r,m[0], fma(g,m[3], fma(b,m[6], m[ 9]))),
          G = fma(r,m[1], fma(g,m[4], fma(b,m[7], m[10]))),
          B = fma(r,m[2], fma(g,m[5], fma(b,m[8], m[11])));
@@ -532,7 +544,6 @@ STAGE(matrix_3x4, true) {
 STAGE(matrix_4x5, true) {
     auto m = (const float*)ctx;
 
-    auto fma = [](const SkNf& f, const SkNf& m, const SkNf& a) { return SkNx_fma(f,m,a); };
     auto R = fma(r,m[0], fma(g,m[4], fma(b,m[ 8], fma(a,m[12], m[16])))),
          G = fma(r,m[1], fma(g,m[5], fma(b,m[ 9], fma(a,m[13], m[17])))),
          B = fma(r,m[2], fma(g,m[6], fma(b,m[10], fma(a,m[14], m[18])))),
@@ -656,6 +667,18 @@ STAGE(lab_to_xyz, true) {
 STAGE(swap_rb, true) {
     SkTSwap(r, b);
 }
+
+STAGE(clamp_x, true) {}
+STAGE(mirror_x, true) {}
+STAGE(repeat_x, true) {}
+STAGE(clamp_y, true) {}
+STAGE(mirror_y, true) {}
+STAGE(repeat_y, true) {}
+
+STAGE(nearest_565, true) {}
+STAGE(nearest_8888, true) {}
+STAGE(nearest_srgb, true) {}
+STAGE(nearest_f16, true) {}
 
 template <typename Fn>
 SI Fn enum_to_Fn(SkRasterPipeline::StockStage st) {
