@@ -266,7 +266,7 @@ void GrGLSLProgramBuilder::emitSamplers(const GrProcessor& processor,
         for (int b = 0; b < numBuffers; ++b) {
             const GrBufferAccess& access = processor.bufferAccess(b);
             name.printf("BufferSampler_%d", outBufferSamplers->count());
-            this->emitSampler(kTextureBufferSampler_GrSLType, access.texelConfig(), name.c_str(),
+            this->emitSampler(kBufferSampler_GrSLType, access.texelConfig(), name.c_str(),
                               access.visibility(), outBufferSamplers);
             texelBufferVisibility |= access.visibility();
         }
