@@ -718,8 +718,8 @@ static inline void blit_trapezoid_row(AdditiveBlitter* blitter, int y,
     // so the approximation could be very coarse.
     if (ll > lr) {
 #ifdef SK_DEBUG
-        SkDebugf("approximate intersection: %d %f %f\n", y,
-                 SkFixedToFloat(ll), SkFixedToFloat(lr));
+        // SkDebugf("approximate intersection: %d %f %f\n", y,
+        //          SkFixedToFloat(ll), SkFixedToFloat(lr));
 #endif
         ll = lr = approximateIntersection(ul, ll, ur, lr);
     }
