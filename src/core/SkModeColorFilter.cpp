@@ -27,7 +27,7 @@ void SkModeColorFilter::toString(SkString* str) const {
     str->append("SkModeColorFilter: color: 0x");
     str->appendHex(fColor);
     str->append(" mode: ");
-    str->append(SkXfermode::ModeName(fMode));
+    str->append(SkBlendMode_GetName(fMode));
 }
 #endif
 

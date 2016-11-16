@@ -48,4 +48,10 @@ enum class SkBlendMode {
     kLastMode = kLuminosity
 };
 
+/**
+ *  Return a utf8 encoded, null-terminated, string with the name of the mode.
+ *  Just meant to be used for debugging purposes.
+ */
+const char* SkBlendMode_GetName(SkBlendMode);
+
 #endif

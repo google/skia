@@ -70,8 +70,8 @@ protected:
         for (size_t s = 0; s < SK_ARRAY_COUNT(kStrokes); ++s) {
             for (size_t m = 0; m <= SkXfermode::kLastMode; ++m) {
                 SkBlendMode mode = static_cast<SkBlendMode>(m);
-                canvas->drawText(SkXfermode::ModeName(mode),
-                                 strlen(SkXfermode::ModeName(mode)),
+                canvas->drawText(SkBlendMode_GetName(mode),
+                                 strlen(SkBlendMode_GetName(mode)),
                                  SkIntToScalar(x),
                                  SkIntToScalar(y + kSize + 3) + labelP.getTextSize(),
                                  labelP);
