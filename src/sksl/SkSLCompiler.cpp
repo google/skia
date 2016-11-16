@@ -113,6 +113,9 @@ Compiler::Compiler()
 
     ADD_TYPE(ISampler2D);
 
+    ADD_TYPE(Image2D);
+    ADD_TYPE(IImage2D);
+
     ADD_TYPE(GSampler1D);
     ADD_TYPE(GSampler2D);
     ADD_TYPE(GSampler3D);

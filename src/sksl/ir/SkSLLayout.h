@@ -25,10 +25,12 @@ struct Layout {
     , fOriginUpperLeft(layout.fOriginUpperLeft)
     , fOverrideCoverage(layout.fOverrideCoverage)
     , fBlendSupportAllEquations(layout.fBlendSupportAllEquations)
-    , fPushConstant(layout.fPushConstant) {}
+    , fPushConstant(layout.fPushConstant)
+    , fFormat(layout.fFormat) {}
 
     Layout(int location, int binding, int index, int set, int builtin, bool originUpperLeft,
-           bool overrideCoverage, bool blendSupportAllEquations, bool pushconstant)
+           bool overrideCoverage, bool blendSupportAllEquations, bool pushconstant,
+           ASTLayout::Format format)
     : fLocation(location)
     , fBinding(binding)
     , fIndex(index)
@@ -37,7 +39,8 @@ struct Layout {
     , fOriginUpperLeft(originUpperLeft)
     , fOverrideCoverage(overrideCoverage)
     , fBlendSupportAllEquations(blendSupportAllEquations)
-    , fPushConstant(pushconstant) {}
+    , fPushConstant(pushconstant)
+    , fFormat(format) {}
 
     Layout() 
     : fLocation(-1)
@@ -48,7 +51,8 @@ struct Layout {
     , fOriginUpperLeft(false)
     , fOverrideCoverage(false)
     , fBlendSupportAllEquations(false)
-    , fPushConstant(false) {}
+    , fPushConstant(false)
+    , fFormat(ASTLayout::Format::kUnspecified) {}
 
     std::string description() const {
         std::string result;
@@ -89,6 +93,10 @@ struct Layout {
             result += separator + "push_constant";
             separator = ", ";
         }
+        if (ASTLayout::Format::kUnspecified != fFormat) {
+            result += separator + ASTLayout::FormatToStr(fFormat);
+            separator = ", ";
+        }
         if (result.length() > 0) {
             result = "layout (" + result + ")";
         }
@@ -103,7 +111,8 @@ struct Layout {
                fBuiltin                  == other.fBuiltin &&
                fOriginUpperLeft          == other.fOriginUpperLeft &&
                fOverrideCoverage         == other.fOverrideCoverage &&
-               fBlendSupportAllEquations == other.fBlendSupportAllEquations;
+               fBlendSupportAllEquations == other.fBlendSupportAllEquations &&
+               fFormat                   == other.fFormat;
     }
 
     bool operator!=(const Layout& other) const {
@@ -120,6 +129,7 @@ struct Layout {
     bool fOverrideCoverage;
     bool fBlendSupportAllEquations;
     bool fPushConstant;
+    ASTLayout::Format fFormat;
 };
 
 } // namespace
