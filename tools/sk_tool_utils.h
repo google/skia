@@ -225,6 +225,37 @@ namespace sk_tool_utils {
         SkTDArray<TopoTestNode*> fDependencies;
     };
 
+    inline bool EncodeImageToFile(const char* path, const SkPixmap& src, SkEncodedFormat f, int q) {
+        SkFILEWStream file(path);
+        return file.isValid() && SkEncodeImage(&file, src, f, q);
+    }
+    inline bool EncodeImageToFile(const char* path, const SkBitmap& src, SkEncodedFormat f, int q) {
+        SkFILEWStream file(path);
+        return file.isValid() && SkEncodeImage(&file, src, f, q);
+    }
+    inline sk_sp<SkData> EncodeImageToData(const SkPixmap& src, SkEncodedFormat f, int q) {
+        SkDynamicMemoryWStream buf;
+        return SkEncodeImage(&buf, src , f, q) ? buf.detachAsData() : nullptr;
+    }
+    inline sk_sp<SkData> EncodeImageToData(const SkBitmap& src, SkEncodedFormat f, int q) {
+        SkDynamicMemoryWStream buf;
+        return SkEncodeImage(&buf, src, f, q) ? buf.detachAsData() : nullptr;
+    }
+    /**
+     * Uses SkEncodeImage to serialize images that are not already
+     * encoded as kPNG_SkEncodedFormat images.
+     */
+    inline sk_sp<SkPixelSerializer> MakePixelSerializer() {
+        struct EncodeImagePixelSerializer final : SkPixelSerializer {
+            bool onUseEncodedData(const void*, size_t) override { return true; }
+            SkData* onEncode(const SkPixmap& pmap) override {
+                SkDynamicMemoryWStream buf;
+                return SkEncodeImage(&buf, pmap, kPNG_SkEncodedFormat, 100)
+                       ? buf.detachAsData().release() : nullptr;
+            }
+        };
+        return sk_make_sp<EncodeImagePixelSerializer>();
+    }
 }  // namespace sk_tool_utils
 
 #endif  // sk_tool_utils_DEFINED
