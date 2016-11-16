@@ -198,6 +198,24 @@ static void test_fuzz_crbug_662780() {
     canvas->drawRectCoords(0, 0, 250, 250, paint);
 }
 
+static void test_mask_overflow() {
+    auto surface(SkSurface::MakeRasterN32Premul(500, 500));
+    SkCanvas* canvas = surface->getCanvas();
+    SkPaint paint;
+    paint.setAntiAlias(true);
+    SkPath path;
+    path.moveTo(SkBits2Float(0x43e28000), SkBits2Float(0x43aa8000));  // 453, 341
+    path.lineTo(SkBits2Float(0x43de6000), SkBits2Float(0x43aa8000));  // 444.75f, 341
+    // 440.47f, 341, 437, 344.47f, 437, 348.75f
+    path.cubicTo(SkBits2Float(0x43dc3c29), SkBits2Float(0x43aa8000),
+            SkBits2Float(0x43da8000), SkBits2Float(0x43ac3c29),
+            SkBits2Float(0x43da8000), SkBits2Float(0x43ae6000));
+    path.lineTo(SkBits2Float(0x43da8000), SkBits2Float(0x43b18000));  // 437, 355
+    path.lineTo(SkBits2Float(0x43e28000), SkBits2Float(0x43b18000));  // 453, 355
+    path.lineTo(SkBits2Float(0x43e28000), SkBits2Float(0x43aa8000));  // 453, 341
+    canvas->drawPath(path, paint);
+}
+
 /**
  * In debug mode, this path was causing an assertion to fail in
  * SkPathStroker::preJoinTo() and, in Release, the use of an unitialized value.
@@ -4359,6 +4377,7 @@ DEF_TEST(Paths, reporter) {
     test_fuzz_crbug_662952(reporter);
     test_fuzz_crbug_662730(reporter);
     test_fuzz_crbug_662780();
+    test_mask_overflow();
 
     SkTSize<SkScalar>::Make(3,4);
 
