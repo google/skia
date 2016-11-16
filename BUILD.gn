@@ -722,7 +722,7 @@ if (skia_enable_gpu && target_cpu == "x64") {
   }
 }
 
-if (is_skia_standalone) {
+if (is_skia_standalone && skia_enable_gpu) {
   source_set("public_headers_warnings_check") {
     sources = [
       "tools/public_headers_warnings_check.cpp",
