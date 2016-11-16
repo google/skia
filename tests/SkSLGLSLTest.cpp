@@ -9,7 +9,7 @@
 
 #include "Test.h"
 
-#if SK_SUPPORT_GPU
+#if SKIA_SUPPORT_GPU
 
 static void test(skiatest::Reporter* r, const char* src, const GrGLSLCaps& caps, 
                  const char* expected) {

@@ -19,9 +19,9 @@ namespace SkSL {
  * layout (location = 0) int x;
  */
 struct ASTLayout : public ASTNode {
-    // For int parameters, a -1 means no value
+    // For all parameters, a -1 means no value
     ASTLayout(int location, int binding, int index, int set, int builtin, bool originUpperLeft,
-              bool overrideCoverage, bool blendSupportAllEquations, bool pushConstant)
+              bool overrideCoverage, bool blendSupportAllEquations)
     : fLocation(location)
     , fBinding(binding)
     , fIndex(index)
@@ -29,8 +29,7 @@ struct ASTLayout : public ASTNode {
     , fBuiltin(builtin)
     , fOriginUpperLeft(originUpperLeft)
     , fOverrideCoverage(overrideCoverage)
-    , fBlendSupportAllEquations(blendSupportAllEquations)
-    , fPushConstant(pushConstant) {}
+    , fBlendSupportAllEquations(blendSupportAllEquations) {}
 
     std::string description() const {
         std::string result;
@@ -67,10 +66,6 @@ struct ASTLayout : public ASTNode {
             result += separator + "blend_support_all_equations";
             separator = ", ";
         }
-        if (fPushConstant) {
-            result += separator + "push_constant";
-            separator = ", ";
-        }
         if (result.length() > 0) {
             result = "layout (" + result + ")";
         }
@@ -85,7 +80,6 @@ struct ASTLayout : public ASTNode {
     const bool fOriginUpperLeft;
     const bool fOverrideCoverage;
     const bool fBlendSupportAllEquations;
-    const bool fPushConstant;
 };
 
 } // namespace

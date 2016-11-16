@@ -100,8 +100,13 @@ NORETURN void sksl_abort();
 
 } // namespace
 
-#define ASSERT(x) SkASSERT(x)
-#define ASSERT_RESULT(x) SkAssertResult(x);
+#ifdef DEBUG
+#define ASSERT(x) assert(x)
+#define ASSERT_RESULT(x) ASSERT(x);
+#else
+#define ASSERT(x)
+#define ASSERT_RESULT(x) x
+#endif
 
 #ifdef SKIA
 #define ABORT(...) { SkDebugf(__VA_ARGS__); sksl_abort(); }

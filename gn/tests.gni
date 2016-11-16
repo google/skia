@@ -203,7 +203,6 @@ tests_sources = [
   "$_tests/SkSharedMutexTest.cpp",
   "$_tests/SkSLErrorTest.cpp",
   "$_tests/SkSLGLSLTest.cpp",
-  "$_tests/SkSLMemoryLayoutTest.cpp",
   "$_tests/SmallAllocatorTest.cpp",
   "$_tests/SortTest.cpp",
   "$_tests/SpecialImageTest.cpp",
