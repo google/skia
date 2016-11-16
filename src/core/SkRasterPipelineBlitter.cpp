@@ -152,6 +152,12 @@ SkBlitter* SkRasterPipelineBlitter::Create(const SkPixmap& dst,
         *blend = SkBlendMode::kSrc;
     }
 
+#if 0
+    if (shader && !is_constant) {
+        pipeline->dump();
+    }
+#endif
+
     return blitter;
 }
 
