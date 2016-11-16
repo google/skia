@@ -130,6 +130,17 @@ protected:
     bool onWritePixels(const SkImageInfo&, const void*, size_t, int, int) override;
     bool onShouldDisableLCD(const SkPaint&) const final;
 
+    static bool CheckAlphaTypeAndGetFlags(const SkImageInfo* info, InitContents init,
+                                          unsigned* flags);
+    static sk_sp<GrRenderTargetContext> MakeRenderTargetContext(GrContext*,
+                                                                SkBudgeted,
+                                                                const SkImageInfo&,
+                                                                int sampleCount,
+                                                                GrSurfaceOrigin,
+                                                                const SkSurfaceProps*);
+
+    SkGpuDevice(sk_sp<GrRenderTargetContext>, int width, int height, unsigned flags);
+
 private:
     // We want these unreffed in RenderTargetContext, GrContext order.
     sk_sp<GrContext>             fContext;
@@ -145,10 +156,6 @@ private:
         kIsOpaque_Flag  = 1 << 1,  //!< Hint from client that rendering to this device will be
                                    //   opaque even if the config supports alpha.
     };
-    static bool CheckAlphaTypeAndGetFlags(const SkImageInfo* info, InitContents init,
-                                          unsigned* flags);
-
-    SkGpuDevice(sk_sp<GrRenderTargetContext>, int width, int height, unsigned flags);
 
     SkBaseDevice* onCreateDevice(const CreateInfo&, const SkPaint*) override;
 
@@ -238,13 +245,6 @@ private:
 
     bool drawDashLine(const SkPoint pts[2], const SkPaint& paint);
     void drawStrokedLine(const SkPoint pts[2], const SkDraw&, const SkPaint&);
-
-    static sk_sp<GrRenderTargetContext> MakeRenderTargetContext(GrContext*,
-                                                                SkBudgeted,
-                                                                const SkImageInfo&,
-                                                                int sampleCount,
-                                                                GrSurfaceOrigin,
-                                                                const SkSurfaceProps*);
 
     friend class GrAtlasTextContext;
     friend class SkSurface_Gpu;      // for access to surfaceProps
