@@ -1,0 +1,73 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "503c1cf2_7ad8c6da",
+        "filename": "infra/bots/gen_tasks.go",
+        "patchSetId": 2
+      },
+      "lineNbr": 55,
+      "author": {
+        "id": 5015
+      },
+      "writtenOn": "2016-11-16T12:33:04Z",
+      "side": 1,
+      "message": "Did you mean to add Vulkan bots rather than changing the existing bots to Vulkan?",
+      "range": {
+        "startLine": 55,
+        "startChar": 55,
+        "endLine": 55,
+        "endChar": 81
+      },
+      "revId": "a7180d3029b8265a350d3c1f4b392c016fe7b681",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "503c1cf2_5ad502a0",
+        "filename": "infra/bots/recipes/swarm_skpbench.expected/Perf-Android-Clang-PixelC-CPU-TegraX1-arm64-Release-GN_Android_Skpbench.json",
+        "patchSetId": 2
+      },
+      "lineNbr": 159,
+      "author": {
+        "id": 5015
+      },
+      "writtenOn": "2016-11-16T12:33:04Z",
+      "side": 1,
+      "message": "I\u0027m confused about this too - this is a CPU bot, but it\u0027s running the GPU configs?",
+      "range": {
+        "startLine": 159,
+        "startChar": 7,
+        "endLine": 159,
+        "endChar": 10
+      },
+      "revId": "a7180d3029b8265a350d3c1f4b392c016fe7b681",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "503c1cf2_3ade3eca",
+        "filename": "infra/bots/recipes/swarm_skpbench.py",
+        "patchSetId": 2
+      },
+      "lineNbr": 57,
+      "author": {
+        "id": 5015
+      },
+      "writtenOn": "2016-11-16T12:33:04Z",
+      "side": 1,
+      "message": "I\u0027m confused. Does Vulkan work on CPU?  Also, Vulkan bots are supposed to run *only* the vk config, not GPU as well, right?",
+      "range": {
+        "startLine": 57,
+        "startChar": 6,
+        "endLine": 57,
+        "endChar": 9
+      },
+      "revId": "a7180d3029b8265a350d3c1f4b392c016fe7b681",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
