@@ -25,6 +25,24 @@
     },
     {
       "key": {
+        "uuid": "503c1cf2_3a675ed0",
+        "filename": "include/gpu/GrImageAccess.h",
+        "patchSetId": 16
+      },
+      "lineNbr": 17,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2016-11-16T15:11:32Z",
+      "side": 1,
+      "message": "I\u0027m of two minds on an assert. This comment actually equally applies to GrTextureAccess. In both cases it is up the the fragment processor to adjust the coords used to access the texture. In the case of texture accesses most processors use a GrCoordTransform which handles it on their behalf by modifying the matrix that gets uploaded. Though a few FPs have to make special accommodation for kBottomLeft.\n\nThe reason not to make Gr[Image|Texture]Access handle this when it is accessed is that it would involve adding additional uniforms or generating different code for different origins which would add more permutations in the shader generator.\n\nSo perhaps I should just change this comment to be more clear that the coords are not automatically flipped based on origin and add a similar comment to GrTextureAccess.\n\nGreg and I have been thinking about how to get rid this origin stuff of GrSurface and a plan is starting to germinate. I think we would still need SkImages to have an origin but it wouldn\u0027t percolate down the pipeline.",
+      "parentUuid": "503c1cf2_37393e02",
+      "revId": "9c8367550e03c008c72ffdf15ac0d7331c727ba6",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "503c1cf2_7afc4b98",
         "filename": "include/gpu/GrTypesPriv.h",
         "patchSetId": 16
@@ -42,6 +60,24 @@
     },
     {
       "key": {
+        "uuid": "503c1cf2_3a8e3e50",
+        "filename": "include/gpu/GrTypesPriv.h",
+        "patchSetId": 16
+      },
+      "lineNbr": 38,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2016-11-16T15:11:32Z",
+      "side": 1,
+      "message": "I can land a change that renames kTexture2DI first.",
+      "parentUuid": "503c1cf2_7afc4b98",
+      "revId": "9c8367550e03c008c72ffdf15ac0d7331c727ba6",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "503c1cf2_856bb45e",
         "filename": "src/gpu/glsl/GrGLSLImage.h",
         "patchSetId": 16
@@ -53,6 +89,24 @@
       "writtenOn": "2016-11-16T01:20:40Z",
       "side": 1,
       "message": "A comment probably would help here. The name may suggest that this class is the GPU resource itself.",
+      "revId": "9c8367550e03c008c72ffdf15ac0d7331c727ba6",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "503c1cf2_5a850226",
+        "filename": "src/gpu/glsl/GrGLSLImage.h",
+        "patchSetId": 16
+      },
+      "lineNbr": 13,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2016-11-16T15:11:32Z",
+      "side": 1,
+      "message": "The GLSL is supposed to convey that, but I agree it isn\u0027t totally clear. Also, Greg points out potential confusion from GrGLImage/GrGLSLImage and GrVkImage (which is a block of memory). So I\u0027ll try to think of a better name for these new types and if need be rename GrGLSLSampler et al.",
+      "parentUuid": "503c1cf2_856bb45e",
       "revId": "9c8367550e03c008c72ffdf15ac0d7331c727ba6",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
