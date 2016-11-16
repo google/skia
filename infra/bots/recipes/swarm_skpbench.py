@@ -24,8 +24,9 @@ DEPS = [
 TEST_BUILDERS = {
   'client.skia': {
     'skiabot-linux-swarm-000': [
-      'Perf-Android-Clang-PixelC-GPU-TegraX1-arm64-Release-GN_Android_Skpbench',
       'Perf-Android-Clang-PixelC-CPU-TegraX1-arm64-Release-GN_Android_Skpbench',
+      'Perf-Android-Clang-PixelC-CPU-TegraX1-arm64-Release-GN_Android_Vulkan_Skpbench',
+      'Perf-Android-Clang-PixelC-GPU-TegraX1-arm64-Release-GN_Android_Skpbench',
     ],
   },
 }
@@ -53,12 +54,16 @@ def skpbench_steps(api):
   skpbench_dir = api.vars.slave_dir.join('skia', 'tools', 'skpbench')
   table = api.path.join(api.vars.swarming_out_dir, 'table')
 
+  config = 'gpu,esinst4'
+  if 'Vulkan' in api.vars.builder_name:
+    config = 'vk'
+
   skpbench_args = [
         api.path.join(api.vars.android_bin_dir, 'skpbench'),
         api.path.join(api.vars.android_data_dir, 'skps'),
         '--adb',
         '--resultsfile', table,
-        '--config', 'gpu,esinst4']
+        '--config', config]
 
   if 'GPU' in api.vars.builder_name:
     skpbench_args.append('--gpu')
