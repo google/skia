@@ -128,6 +128,24 @@
       "revId": "9c8367550e03c008c72ffdf15ac0d7331c727ba6",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "503c1cf2_d3473d1a",
+        "filename": "src/gpu/glsl/GrGLSLImage.h",
+        "patchSetId": 16
+      },
+      "lineNbr": 13,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2016-11-16T18:11:43Z",
+      "side": 1,
+      "message": "Proposal:\n\nGrGLSLSampler  -\u003e  GrShaderSampler\nGrGLSampler    -\u003e  GrGLShaderSampler\nGrVkSampler    -\u003e  GrVkShaderSampler\n\nGrGLSLImage    -\u003e GrShaderStorageImage\nGrGLImage      -\u003e GrGLShaderStorageImage\n\nand possiblly add GrVkShaderStorageImage.\n\nThe term \"storage image\" comes from Vulkan.",
+      "parentUuid": "503c1cf2_5a850226",
+      "revId": "9c8367550e03c008c72ffdf15ac0d7331c727ba6",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
