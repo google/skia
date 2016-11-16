@@ -43,6 +43,24 @@
     },
     {
       "key": {
+        "uuid": "503c1cf2_fda690a3",
+        "filename": "include/gpu/GrImageAccess.h",
+        "patchSetId": 16
+      },
+      "lineNbr": 17,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2016-11-16T16:18:15Z",
+      "side": 1,
+      "message": "So rather than \"origin must be top left\", the comment says \"you\u0027re on your own to account for origin\"?\n\nI like that.",
+      "parentUuid": "503c1cf2_3a675ed0",
+      "revId": "9c8367550e03c008c72ffdf15ac0d7331c727ba6",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "503c1cf2_7afc4b98",
         "filename": "include/gpu/GrTypesPriv.h",
         "patchSetId": 16
