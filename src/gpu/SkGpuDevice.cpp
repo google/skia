@@ -1034,7 +1034,7 @@ void SkGpuDevice::drawBitmapTile(const SkBitmap& bitmap,
 
     SkMatrix texMatrix;
     // Compute a matrix that maps the rect we will draw to the src rect.
-    texMatrix.setRectToRect(dstRect, srcRect, SkMatrix::kStart_ScaleToFit);
+    texMatrix.setRectToRect(dstRect, srcRect, SkMatrix::kFill_ScaleToFit);
     texMatrix.postScale(iw, ih);
 
     // Construct a GrPaint by setting the bitmap texture as the first effect and then configuring
