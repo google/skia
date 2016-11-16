@@ -134,7 +134,7 @@ static inline const char* GrGLSLTypeString(GrSLType t) {
             return "samplerExternalOES";
         case kTexture2DRectSampler_GrSLType:
             return "sampler2DRect";
-        case kTextureBufferSampler_GrSLType:
+        case kBufferSampler_GrSLType:
             return "samplerBuffer";
         case kBool_GrSLType:
             return "bool";
