@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "503c1cf2_8ecf4c16",
+        "filename": "src/gpu/batches/GrShadowRRectBatch.cpp",
+        "patchSetId": 8
+      },
+      "lineNbr": 80,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2016-11-16T18:56:11Z",
+      "side": 1,
+      "message": "Done. And not really, but I feel like I should catch it just in case.",
+      "parentUuid": "2bde5729_899bbcab",
+      "revId": "f8eb514caeeb2acd24032c3fc5654deaa2ff5862",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "2bde5729_690f5014",
         "filename": "src/gpu/batches/GrShadowRRectBatch.cpp",
         "patchSetId": 8
@@ -30,6 +48,24 @@
       "writtenOn": "2016-11-08T22:02:06Z",
       "side": 1,
       "message": "what?",
+      "revId": "f8eb514caeeb2acd24032c3fc5654deaa2ff5862",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "503c1cf2_ae47b095",
+        "filename": "src/gpu/batches/GrShadowRRectBatch.cpp",
+        "patchSetId": 8
+      },
+      "lineNbr": 110,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2016-11-16T18:56:11Z",
+      "side": 1,
+      "message": "Deleted, not sure why that was there.",
+      "parentUuid": "2bde5729_690f5014",
       "revId": "f8eb514caeeb2acd24032c3fc5654deaa2ff5862",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
@@ -53,6 +89,24 @@
     },
     {
       "key": {
+        "uuid": "503c1cf2_8e4c6cbb",
+        "filename": "src/gpu/batches/GrShadowRRectBatch.cpp",
+        "patchSetId": 8
+      },
+      "lineNbr": 128,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2016-11-16T18:56:11Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "2bde5729_e9fa80c8",
+      "revId": "f8eb514caeeb2acd24032c3fc5654deaa2ff5862",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "2bde5729_290548ee",
         "filename": "src/gpu/batches/GrShadowRRectBatch.cpp",
         "patchSetId": 8
@@ -64,6 +118,24 @@
       "writtenOn": "2016-11-08T22:02:06Z",
       "side": 1,
       "message": "ShadowCircleBatch ?",
+      "revId": "f8eb514caeeb2acd24032c3fc5654deaa2ff5862",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "503c1cf2_ee51b852",
+        "filename": "src/gpu/batches/GrShadowRRectBatch.cpp",
+        "patchSetId": 8
+      },
+      "lineNbr": 135,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2016-11-16T18:56:11Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "2bde5729_290548ee",
       "revId": "f8eb514caeeb2acd24032c3fc5654deaa2ff5862",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
@@ -87,6 +159,24 @@
     },
     {
       "key": {
+        "uuid": "503c1cf2_ee2898b2",
+        "filename": "src/gpu/batches/GrShadowRRectBatch.cpp",
+        "patchSetId": 8
+      },
+      "lineNbr": 284,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2016-11-16T18:56:11Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "2bde5729_e9e3601e",
+      "revId": "f8eb514caeeb2acd24032c3fc5654deaa2ff5862",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "2bde5729_895e5cfb",
         "filename": "src/gpu/batches/GrShadowRRectBatch.cpp",
         "patchSetId": 8
@@ -104,6 +194,24 @@
     },
     {
       "key": {
+        "uuid": "503c1cf2_ae15f069",
+        "filename": "src/gpu/batches/GrShadowRRectBatch.cpp",
+        "patchSetId": 8
+      },
+      "lineNbr": 403,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2016-11-16T18:56:11Z",
+      "side": 1,
+      "message": "Nope, we just have one shader variant now. Deleted.",
+      "parentUuid": "2bde5729_895e5cfb",
+      "revId": "f8eb514caeeb2acd24032c3fc5654deaa2ff5862",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "2bde5729_495454df",
         "filename": "src/gpu/batches/GrShadowRRectBatch.cpp",
         "patchSetId": 8
@@ -115,6 +223,24 @@
       "writtenOn": "2016-11-08T22:02:06Z",
       "side": 1,
       "message": "Do we use \u0027fAllFill\u0027 anywhere ?",
+      "revId": "f8eb514caeeb2acd24032c3fc5654deaa2ff5862",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "503c1cf2_8e1aac96",
+        "filename": "src/gpu/batches/GrShadowRRectBatch.cpp",
+        "patchSetId": 8
+      },
+      "lineNbr": 834,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2016-11-16T18:56:11Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "2bde5729_495454df",
       "revId": "f8eb514caeeb2acd24032c3fc5654deaa2ff5862",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
