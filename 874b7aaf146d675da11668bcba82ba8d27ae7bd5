@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "503c1cf2_7aec46d9",
+        "filename": "gm/clip_error.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 12,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2016-11-16T15:16:09Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "503c1cf2_fa17b62c",
+      "revId": "874b7aaf146d675da11668bcba82ba8d27ae7bd5",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "503c1cf2_da1c7254",
         "filename": "gm/clip_error.cpp",
         "patchSetId": 2
@@ -30,6 +48,24 @@
       "writtenOn": "2016-11-16T14:20:12Z",
       "side": 1,
       "message": "SkCanvas.h included twice ?",
+      "revId": "874b7aaf146d675da11668bcba82ba8d27ae7bd5",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "503c1cf2_5ae982c6",
+        "filename": "gm/clip_error.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 15,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2016-11-16T15:16:09Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "503c1cf2_da1c7254",
       "revId": "874b7aaf146d675da11668bcba82ba8d27ae7bd5",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
@@ -53,6 +89,42 @@
     },
     {
       "key": {
+        "uuid": "503c1cf2_9acaea5c",
+        "filename": "gm/clip_error.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 60,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2016-11-16T15:16:09Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "503c1cf2_3a011ee6",
+      "revId": "874b7aaf146d675da11668bcba82ba8d27ae7bd5",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "503c1cf2_7dce0047",
+        "filename": "gm/clip_error.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 60,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2016-11-16T15:16:09Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "503c1cf2_3a011ee6",
+      "revId": "874b7aaf146d675da11668bcba82ba8d27ae7bd5",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "503c1cf2_1afedabc",
         "filename": "gm/clip_error.cpp",
         "patchSetId": 2
@@ -64,6 +136,42 @@
       "writtenOn": "2016-11-16T14:20:12Z",
       "side": 1,
       "message": "800 -\u003e WIDTH ?",
+      "revId": "874b7aaf146d675da11668bcba82ba8d27ae7bd5",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "503c1cf2_5dcb3c34",
+        "filename": "gm/clip_error.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 74,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2016-11-16T15:16:09Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "503c1cf2_1afedabc",
+      "revId": "874b7aaf146d675da11668bcba82ba8d27ae7bd5",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "503c1cf2_facfb66b",
+        "filename": "gm/clip_error.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 74,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2016-11-16T15:16:09Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "503c1cf2_1afedabc",
       "revId": "874b7aaf146d675da11668bcba82ba8d27ae7bd5",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
@@ -87,6 +195,24 @@
     },
     {
       "key": {
+        "uuid": "503c1cf2_bd0fe8a6",
+        "filename": "gm/clip_error.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 75,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2016-11-16T15:16:09Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "503c1cf2_5a086207",
+      "revId": "874b7aaf146d675da11668bcba82ba8d27ae7bd5",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "503c1cf2_34df7c54",
         "filename": "src/gpu/text/GrAtlasTextBlob.cpp",
         "patchSetId": 2
@@ -104,6 +230,24 @@
         "endLine": 362,
         "endChar": 50
       },
+      "revId": "874b7aaf146d675da11668bcba82ba8d27ae7bd5",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "503c1cf2_5a3342b1",
+        "filename": "src/gpu/text/GrAtlasTextBlob.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 362,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2016-11-16T15:16:09Z",
+      "side": 1,
+      "message": "With the name change it\u0027s a little confusing, but yes, that was it.",
+      "parentUuid": "503c1cf2_34df7c54",
       "revId": "874b7aaf146d675da11668bcba82ba8d27ae7bd5",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
