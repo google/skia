@@ -275,7 +275,11 @@ public:
      *  Note: this will attempt to encode the image's pixels in the specified format,
      *  even if the image returns a data from refEncoded(). That data will be ignored.
      */
+#ifdef SK_SUPPORT_LEGACY_IMAGE_ENCODER_CLASS
     SkData* encode(SkImageEncoder::Type, int quality) const;
+#else
+    SkData* encode(SkEncodedFormat, int quality) const;
+#endif
 
     /**
      *  Encode the image and return the result as a caller-managed SkData.  This will

@@ -219,7 +219,7 @@ int main(int argc, char** argv) {
     }
 
     // Finally, encode the result to the output file.
-    sk_sp<SkData> out(SkImageEncoder::EncodeData(gamut, SkImageEncoder::kPNG_Type, 100));
+    sk_sp<SkData> out = SkEncodeImageToData(gamut, kPNG_SkEncodedFormat, 100);
     if (!out) {
         SkDebugf("Failed to encode gamut output.\n");
         return -1;
@@ -243,7 +243,7 @@ int main(int argc, char** argv) {
             SkDebugf("Could not decode input image.\n");
             return -1;
         }
-        out.reset(SkImageEncoder::EncodeData(bitmap, SkImageEncoder::kPNG_Type, 100));
+        out = SkEncodeImageToData(bitmap, kPNG_SkEncodedFormat, 100);
         if (!out) {
             SkDebugf("Failed to encode uncorrected image.\n");
             return -1;

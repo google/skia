@@ -119,14 +119,7 @@ namespace {
 class JPEGSerializer final : public SkPixelSerializer {
     bool onUseEncodedData(const void*, size_t) override { return true; }
     SkData* onEncode(const SkPixmap& pixmap) override {
-        SkBitmap bm;
-        return bm.installPixels(pixmap.info(),
-                                pixmap.writable_addr(),
-                                pixmap.rowBytes(),
-                                pixmap.ctable(),
-                                nullptr, nullptr)
-            ? SkImageEncoder::EncodeData(bm, SkImageEncoder::kJPEG_Type, 85)
-            : nullptr;
+        return SkEncodeImageToData(pixmap, kJPEG_SkEncodedFormat, 85).release();
     }
 };
 }  // namespace

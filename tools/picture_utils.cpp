@@ -63,7 +63,7 @@ namespace sk_tools {
             partialPath.set(dirPath);
         }
         SkString fullPath = SkOSPath::Join(partialPath.c_str(), baseName.c_str());
-        if (SkImageEncoder::EncodeFile(fullPath.c_str(), bm, SkImageEncoder::kPNG_Type, 100)) {
+        if (SkEncodeImageToFile(fullPath.c_str(), bm, kPNG_SkEncodedFormat, 100)) {
             return true;
         } else {
             SkDebugf("Failed to write the bitmap to %s.\n", fullPath.c_str());

@@ -182,7 +182,7 @@ void GLBench::DumpImage(const GrGLInterface* gl, uint32_t screenWidth, uint32_t 
 
     bm.setPixels(readback.get());
 
-    if (!SkImageEncoder::EncodeFile(filename, bm, SkImageEncoder::kPNG_Type, 100)) {
+    if (!SkEncodeImageToFile(filename, bm, kPNG_SkEncodedFormat, 100)) {
         SkDebugf("------ failed to encode %s\n", filename);
         remove(filename);   // remove any partial file
         return;

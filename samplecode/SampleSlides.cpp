@@ -681,7 +681,7 @@ public:
             canvas.restore();
             SkString str;
             str.printf("/skimages/slide_" SK_SIZE_T_SPECIFIER ".png", i);
-            SkImageEncoder::EncodeFile(str.c_str(), bm, SkImageEncoder::kPNG_Type, 100);
+            SkEncodeImageToFile(str.c_str(), bm, kPNG_SkEncodedFormat, 100);
         }
         this->setBGColor(BG_COLOR);
     }

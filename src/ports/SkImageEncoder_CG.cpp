@@ -12,7 +12,7 @@
 #include "SkCGUtils.h"
 #include "SkColorPriv.h"
 #include "SkData.h"
-#include "SkImageEncoder.h"
+#include "SkImageEncoderPriv.h"
 #include "SkStream.h"
 #include "SkStreamPriv.h"
 #include "SkTemplates.h"
@@ -127,13 +127,13 @@ bool SkImageEncoder_CG::onEncode(SkWStream* stream, const SkBitmap& bm,
 ///////////////////////////////////////////////////////////////////////////////
 
 #ifdef SK_USE_CG_ENCODER
-static SkImageEncoder* sk_imageencoder_cg_factory(SkImageEncoder::Type t) {
+static SkImageEncoder* sk_imageencoder_cg_factory(SkEncodedFormat t) {
     switch (t) {
-        case SkImageEncoder::kICO_Type:
-        case SkImageEncoder::kBMP_Type:
-        case SkImageEncoder::kGIF_Type:
-        case SkImageEncoder::kJPEG_Type:
-        case SkImageEncoder::kPNG_Type:
+        case kICO_SkEncodedFormat:
+        case kBMP_SkEncodedFormat:
+        case kGIF_SkEncodedFormat:
+        case kJPEG_SkEncodedFormat:
+        case kPNG_SkEncodedFormat:
             break;
         default:
             return nullptr;
@@ -144,7 +144,7 @@ static SkImageEncoder* sk_imageencoder_cg_factory(SkImageEncoder::Type t) {
 static SkImageEncoder_EncodeReg gEReg(sk_imageencoder_cg_factory);
 #endif
 
-SkImageEncoder* CreateImageEncoder_CG(SkImageEncoder::Type type) {
+SkImageEncoder* CreateImageEncoder_CG(SkEncodedFormat type) {
     return new SkImageEncoder_CG(type);
 }
 
