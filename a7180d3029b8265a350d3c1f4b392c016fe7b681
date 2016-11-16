@@ -122,6 +122,24 @@
       "revId": "a7180d3029b8265a350d3c1f4b392c016fe7b681",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "503c1cf2_7a39e6e9",
+        "filename": "infra/bots/recipes/swarm_skpbench.py",
+        "patchSetId": 2
+      },
+      "lineNbr": 57,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2016-11-16T13:12:06Z",
+      "side": 1,
+      "message": "Nah man, we gotta change that.  That\u0027s too cute, and using the -CPU- or -GPU- bit of the bot name to mean something entirely different than it does on the rest of the bots.  This needs to go on the end with all the other weird bits, like GN_Android_Vulkan_SkpBench_CPUTimer.",
+      "parentUuid": "503c1cf2_9a1aea96",
+      "revId": "a7180d3029b8265a350d3c1f4b392c016fe7b681",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
