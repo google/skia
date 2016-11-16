@@ -76,11 +76,11 @@ DEF_TEST(Blend_premul_begets_premul, r) {
 
     // No matter what xfermode we use, premul inputs should create premul outputs.
     auto test_mode = [&](int m) {
-        SkXfermode::Mode mode = (SkXfermode::Mode)m;
-        if (mode == SkXfermode::kSrcOver_Mode) {
+        SkBlendMode mode = (SkBlendMode)m;
+        if (mode == SkBlendMode::kSrcOver) {
             return;  // TODO: can't create a SrcOver xfermode.
         }
-        auto xfermode(SkXfermode::Make(mode));
+        auto xfermode(SkXfermode::Peek(mode));
         SkASSERT(xfermode);
         // We'll test all alphas and legal color values, assuming all colors work the same.
         // This is not true for non-separable blend modes, but this test still can't hurt.
@@ -92,11 +92,11 @@ DEF_TEST(Blend_premul_begets_premul, r) {
                       dst = SkPackARGB32(da, d, d, d);
             xfermode->xfer32(&dst, &src, 1, nullptr);  // To keep it simple, no AA.
             if (!SkPMColorValid(dst)) {
-                ERRORF(r, "%08x is not premul using %s", dst, SkXfermode::ModeName(mode));
+                ERRORF(r, "%08x is not premul using %s", dst, SkBlendMode_GetName(mode));
             }
         }}}}
     };
 
     // Parallelism helps speed things up on my desktop from ~725s to ~50s.
-    SkTaskGroup().batch(SkXfermode::kLastMode, test_mode);
+    SkTaskGroup().batch((int)SkBlendMode::kLastMode, test_mode);
 }

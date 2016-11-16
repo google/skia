@@ -191,7 +191,7 @@ protected:
     }
 
     void drawModeName(SkCanvas* canvas, SkBlendMode mode) {
-        const char* modeName = SkXfermode::ModeName(mode);
+        const char* modeName = SkBlendMode_GetName(mode);
         fLabelPaint.setTextAlign(SkPaint::kRight_Align);
         canvas->drawText(modeName, strlen(modeName), kLabelSpacing - kShapeSize / 4,
                          fLabelPaint.getTextSize() / 4, fLabelPaint);

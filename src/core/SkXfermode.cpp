@@ -1267,8 +1267,8 @@ sk_sp<GrXPFactory> SkProcCoeffXfermode::asXPFactory() const {
 }
 #endif
 
-const char* SkXfermode::ModeName(Mode mode) {
-    SkASSERT((unsigned) mode <= (unsigned)kLastMode);
+const char* SkBlendMode_GetName(SkBlendMode mode) {
+    SkASSERT((unsigned) mode <= (unsigned)SkBlendMode::kLastMode);
     const char* gModeStrings[] = {
         "Clear", "Src", "Dst", "SrcOver", "DstOver", "SrcIn", "DstIn",
         "SrcOut", "DstOut", "SrcATop", "DstATop", "Xor", "Plus",
@@ -1276,9 +1276,11 @@ const char* SkXfermode::ModeName(Mode mode) {
         "ColorBurn", "HardLight", "SoftLight", "Difference", "Exclusion",
         "Multiply", "Hue", "Saturation", "Color",  "Luminosity"
     };
-    return gModeStrings[mode];
-    static_assert(SK_ARRAY_COUNT(gModeStrings) == kLastMode + 1, "mode_count");
+    return gModeStrings[(unsigned)mode];
+    static_assert(SK_ARRAY_COUNT(gModeStrings) == (size_t)SkBlendMode::kLastMode + 1, "mode_count");
 }
+
+const char* SkXfermode::ModeName(Mode mode) { return SkBlendMode_GetName((SkBlendMode)mode); }
 
 #ifndef SK_IGNORE_TO_STRING
 void SkProcCoeffXfermode::toString(SkString* str) const {

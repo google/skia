@@ -144,7 +144,7 @@ private:
                 fName.append("_alternating_transparent_and_opaque");
                 break;
         }
-        fName.appendf("_%s", to_lower(SkXfermode::ModeName(fMode)).c_str());
+        fName.appendf("_%s", to_lower(SkBlendMode_GetName(fMode)).c_str());
     }
 
     bool        fAA;
