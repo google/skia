@@ -600,7 +600,6 @@ DEFINES_ALL = [
     "GOOGLE3",
     # Staging flags for API changes
     "SK_SUPPORT_LEGACY_ACCESSBITMAP",
-    "SK_SUPPORT_LEGACY_CANVAS_IS_REFCNT",
     "SK_SUPPORT_LEGACY_CLIP_REGIONOPS",
     "SK_SUPPORT_LEGACY_XFERMODE_IS_PUBLIC",
     # Temporarily Disable analytic AA for Google3
