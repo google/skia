@@ -27,13 +27,20 @@ public:
     void onCopyOnWrite(ContentChangeMode) override;
     void onDiscard() override;
     void onPrepareForExternalIO() override;
+    sk_sp<SkSurface> makeOverdrawSurface(const SkImageInfo& info) override;
 
     SkGpuDevice* getDevice() { return fDevice.get(); }
 
     static bool Valid(const SkImageInfo&);
     static bool Valid(GrContext*, GrPixelConfig, SkColorSpace*);
+    static sk_sp<SkSurface> MakeRenderTarget(GrContext* ctx, SkBudgeted budgeted,
+                                             const SkImageInfo& info, int sampleCount,
+                                             GrSurfaceOrigin origin, const SkSurfaceProps* props,
+                                             bool isOverdraw);
 
 private:
+    sk_sp<SkSurface> onNewSurface(const SkImageInfo&, bool isOverdraw);
+
     sk_sp<SkGpuDevice> fDevice;
 
     typedef SkSurface_Base INHERITED;

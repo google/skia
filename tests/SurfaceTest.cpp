@@ -1021,3 +1021,24 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(SurfaceCreationWithColorSpace_Gpu, reporter, 
     }
 }
 #endif
+
+#if SK_SUPPORT_GPU
+DEF_GPUTEST_FOR_RENDERING_CONTEXTS(OverdrawSurface, r, ctxInfo) {
+    GrContext* context = ctxInfo.grContext();
+    int dimension = 10;
+    SkImageInfo info = SkImageInfo::MakeA8(dimension, dimension);
+    sk_sp<SkSurface> surface = create_gpu_surface(context);
+    sk_sp<SkSurface> overdrawSurface = ((SkSurface_Base*) surface.get())->makeOverdrawSurface(info);
+    SkCanvas* canvas = overdrawSurface->getCanvas();
+    canvas->drawPaint(SkPaint());
+    sk_sp<SkImage> overdrawImage = overdrawSurface->makeImageSnapshot();
+
+    SkBitmap bitmap;
+    overdrawImage->asLegacyBitmap(&bitmap, SkImage::kRO_LegacyBitmapMode);
+    for (int y = 0; y < dimension; y++) {
+        for (int x = 0; x < dimension; x++) {
+            REPORTER_ASSERT(r, 1 == SkGetPackedA32(*bitmap.getAddr32(x, y)));
+        }
+    }
+}
+#endif
