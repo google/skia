@@ -993,14 +993,14 @@ void SPIRVCodeGenerator::writeStruct(const Type& type, const MemoryLayout& layou
                                fNameBuffer);
         this->writeLayout(type.fields()[i].fModifiers.fLayout, resultId, i);
         if (type.fields()[i].fModifiers.fLayout.fBuiltin < 0) {
-            this->writeInstruction(SpvOpMemberDecorate, resultId, (SpvId) i, SpvDecorationOffset, 
+            this->writeInstruction(SpvOpMemberDecorate, resultId, (SpvId) i, SpvDecorationOffset,
                                    (SpvId) offset, fDecorationBuffer);
         }
         if (type.fields()[i].fType->kind() == Type::kMatrix_Kind) {
-            this->writeInstruction(SpvOpMemberDecorate, resultId, i, SpvDecorationColMajor, 
+            this->writeInstruction(SpvOpMemberDecorate, resultId, i, SpvDecorationColMajor,
                                    fDecorationBuffer);
-            this->writeInstruction(SpvOpMemberDecorate, resultId, i, SpvDecorationMatrixStride, 
-                                   (SpvId) layout.stride(*type.fields()[i].fType), 
+            this->writeInstruction(SpvOpMemberDecorate, resultId, i, SpvDecorationMatrixStride,
+                                   (SpvId) layout.stride(*type.fields()[i].fType),
                                    fDecorationBuffer);
         }
         offset += size;
@@ -1008,7 +1008,6 @@ void SPIRVCodeGenerator::writeStruct(const Type& type, const MemoryLayout& layou
         if ((kind == Type::kArray_Kind || kind == Type::kStruct_Kind) && offset % alignment != 0) {
             offset += alignment - offset % alignment;
         }
-        ASSERT(offset % alignment == 0);
     }
 }
 
