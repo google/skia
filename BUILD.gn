@@ -545,6 +545,11 @@ component("skia") {
     ":xml",
   ]
 
+  # This file (and all GN files in Skia) are designed to work with an
+  # empty sources assignment filter; we handle all that explicitly.
+  # We clear the filter here for clients who may have set up a global filter.
+  set_sources_assignment_filter([])
+
   sources = []
   sources += skia_core_sources
   sources += skia_effects_sources
