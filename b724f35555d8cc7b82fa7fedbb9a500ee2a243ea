@@ -43,6 +43,24 @@
     },
     {
       "key": {
+        "uuid": "503c1cf2_1d9d3454",
+        "filename": "infra/bots/git_utils.py",
+        "patchSetId": 5
+      },
+      "lineNbr": 10,
+      "author": {
+        "id": 5015
+      },
+      "writtenOn": "2016-11-16T16:22:15Z",
+      "side": 1,
+      "message": "I\u0027d really like to avoid having the shell_utils bits in the repo forever if possible. It should be easy enough to perform a search and replace in this file.",
+      "parentUuid": "503c1cf2_9de304ed",
+      "revId": "b724f35555d8cc7b82fa7fedbb9a500ee2a243ea",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "503c1cf2_9d26647c",
         "filename": "infra/bots/git_utils.py",
         "patchSetId": 5
@@ -78,6 +96,24 @@
       "side": 1,
       "message": "Yes that would be great. But this is no worse than the existing behavior in https://skia.googlesource.com/skia/+/master/infra/bots/upload_skps.py#33\nActually this is better than that, because the existing behavior never unset the local changes.\n\nLets come back to this when we end up needing it.",
       "parentUuid": "503c1cf2_9d26647c",
+      "revId": "b724f35555d8cc7b82fa7fedbb9a500ee2a243ea",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "503c1cf2_b06b8f5e",
+        "filename": "infra/bots/git_utils.py",
+        "patchSetId": 5
+      },
+      "lineNbr": 101,
+      "author": {
+        "id": 5015
+      },
+      "writtenOn": "2016-11-16T16:22:15Z",
+      "side": 1,
+      "message": "But isn\u0027t the point of adding this to have a config which we do want to unset?  The example you point to is a little different since we want it to be permanent.",
+      "parentUuid": "503c1cf2_9dcae45c",
       "revId": "b724f35555d8cc7b82fa7fedbb9a500ee2a243ea",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
