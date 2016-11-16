@@ -85,6 +85,14 @@ public:
 
     bool hasCachedImage() const { return fCachedImage != nullptr; }
 
+    /**
+     *  Creates an Android overdraw debugging surface.
+     *  Draws to this surface will not actually draw any content.  Instead, they will
+     *  increment the alpha channel each time a pixel would have been touched.
+     *  It may be efficient to use kAlpha8 as the color type on the requested surface.
+     */
+    virtual sk_sp<SkSurface> makeOverdrawSurface(const SkImageInfo& info) { return nullptr; }
+
     // called by SkSurface to compute a new genID
     uint32_t newGenerationID();
 

@@ -14,6 +14,7 @@
 #include "SkImage_Base.h"
 #include "SkImage_Gpu.h"
 #include "SkImagePriv.h"
+#include "SkOverdrawDevice.h"
 #include "SkSurface_Base.h"
 
 #if SK_SUPPORT_GPU
@@ -67,12 +68,20 @@ SkCanvas* SkSurface_Gpu::onNewCanvas() {
 }
 
 sk_sp<SkSurface> SkSurface_Gpu::onNewSurface(const SkImageInfo& info) {
+    return this->onNewSurface(info, false);
+}
+
+sk_sp<SkSurface> SkSurface_Gpu::makeOverdrawSurface(const SkImageInfo& info) {
+    return this->onNewSurface(info, true);
+}
+
+sk_sp<SkSurface> SkSurface_Gpu::onNewSurface(const SkImageInfo& info, bool isOverdraw) {
     int sampleCount = fDevice->accessRenderTargetContext()->numColorSamples();
     GrSurfaceOrigin origin = fDevice->accessRenderTargetContext()->origin();
     // TODO: Make caller specify this (change virtual signature of onNewSurface).
     static const SkBudgeted kBudgeted = SkBudgeted::kNo;
-    return SkSurface::MakeRenderTarget(fDevice->context(), kBudgeted, info, sampleCount,
-                                       origin, &this->props());
+    return SkSurface_Gpu::MakeRenderTarget(fDevice->context(), kBudgeted, info, sampleCount,
+                                           origin, &this->props(), isOverdraw);
 }
 
 sk_sp<SkImage> SkSurface_Gpu::onNewImageSnapshot(SkBudgeted budgeted, SkCopyPixelsMode cpm) {
@@ -166,12 +175,26 @@ bool SkSurface_Gpu::Valid(GrContext* context, GrPixelConfig config, SkColorSpace
 sk_sp<SkSurface> SkSurface::MakeRenderTarget(GrContext* ctx, SkBudgeted budgeted,
                                              const SkImageInfo& info, int sampleCount,
                                              GrSurfaceOrigin origin, const SkSurfaceProps* props) {
+    return SkSurface_Gpu::MakeRenderTarget(ctx, budgeted, info, sampleCount, origin, props, false);
+}
+
+sk_sp<SkSurface> SkSurface_Gpu::MakeRenderTarget(GrContext* ctx, SkBudgeted budgeted,
+                                                 const SkImageInfo& info, int sampleCount,
+                                                 GrSurfaceOrigin origin,
+                                                 const SkSurfaceProps* props, bool isOverdraw) {
     if (!SkSurface_Gpu::Valid(info)) {
         return nullptr;
     }
 
-    sk_sp<SkGpuDevice> device(SkGpuDevice::Make(
-            ctx, budgeted, info, sampleCount, origin, props, SkGpuDevice::kClear_InitContents));
+    sk_sp<SkGpuDevice> device = nullptr;
+    if (isOverdraw) {
+        device = SkOverdrawDevice::Make(ctx, budgeted, info, sampleCount, origin, props,
+                                        SkGpuDevice::kClear_InitContents);
+    } else {
+        device = SkGpuDevice::Make(ctx, budgeted, info, sampleCount, origin, props,
+                                   SkGpuDevice::kClear_InitContents);
+    }
+
     if (!device) {
         return nullptr;
     }
