@@ -10,6 +10,7 @@
 #include "SkDraw.h"
 #include "SkDrawFilter.h"
 #include "SkImage_Base.h"
+#include "SkImageCacherator.h"
 #include "SkImageFilter.h"
 #include "SkImageFilterCache.h"
 #include "SkImagePriv.h"
@@ -24,6 +25,7 @@
 #include "SkSpecialImage.h"
 #include "SkTextBlobRunIterator.h"
 #include "SkTextToPathIter.h"
+#include "SkTLazy.h"
 
 SkBaseDevice::SkBaseDevice(const SkImageInfo& info, const SkSurfaceProps& surfaceProps)
     : fInfo(info)
@@ -177,9 +179,60 @@ void SkBaseDevice::drawTextBlob(const SkDraw& draw, const SkTextBlob* blob, SkSc
     }
 }
 
+bool SkBaseDevice::drawExternallyScaledImage(const SkDraw& draw,
+                                             const SkImage* image,
+                                             const SkRect* src,
+                                             const SkRect& dst,
+                                             const SkPaint& paint,
+                                             SkCanvas::SrcRectConstraint constraint) {
+    SkImageCacherator* cacherator = as_IB(image)->peekCacherator();
+    if (!cacherator) {
+        return false;
+    }
+
+    SkTLazy<SkRect> tmpSrc(src);
+    if (!tmpSrc.isValid()) {
+        tmpSrc.init(SkRect::Make(image->bounds()));
+    }
+
+    SkMatrix m = *draw.fMatrix;
+    m.preConcat(SkMatrix::MakeRectToRect(*tmpSrc.get(), dst, SkMatrix::kFill_ScaleToFit));
+
+    // constrain src to our bounds
+    if (!image->bounds().contains(*tmpSrc.get()) &&
+        !tmpSrc.get()->intersect(SkRect::Make(image->bounds()))) {
+        return false;
+    }
+
+    SkImageGenerator::ScaledImageRec rec;
+    if (!cacherator->directAccessScaledImage(*tmpSrc.get(), m, paint.getFilterQuality(), &rec)) {
+        return false;
+    }
+
+    SkBitmap bm;
+    if (!as_IB(rec.fImage)->getROPixels(&bm)) {
+        return false;
+    }
+
+    SkTCopyOnFirstWrite<SkPaint> adjustedPaint(paint);
+    if (rec.fQuality != paint.getFilterQuality()) {
+        adjustedPaint.writable()->setFilterQuality(rec.fQuality);
+    }
+
+    this->drawBitmapRect(draw, bm, &rec.fSrcRect, dst, *adjustedPaint, constraint);
+
+    return true;
+}
 void SkBaseDevice::drawImage(const SkDraw& draw, const SkImage* image, SkScalar x, SkScalar y,
                              const SkPaint& paint) {
     // Default impl : turns everything into raster bitmap
+
+    if (this->drawExternallyScaledImage(draw, image, nullptr,
+                                        SkRect::Make(image->bounds()).makeOffset(x, y),
+                                        paint, SkCanvas::kFast_SrcRectConstraint)) {
+        return;
+    }
+
     SkBitmap bm;
     if (as_IB(image)->getROPixels(&bm)) {
         this->drawBitmap(draw, bm, SkMatrix::MakeTrans(x, y), paint);
@@ -190,6 +243,11 @@ void SkBaseDevice::drawImageRect(const SkDraw& draw, const SkImage* image, const
                                  const SkRect& dst, const SkPaint& paint,
                                  SkCanvas::SrcRectConstraint constraint) {
     // Default impl : turns everything into raster bitmap
+
+    if (this->drawExternallyScaledImage(draw, image, src, dst, paint, constraint)) {
+        return;
+    }
+
     SkBitmap bm;
     if (as_IB(image)->getROPixels(&bm)) {
         this->drawBitmapRect(draw, bm, src, dst, paint, constraint);

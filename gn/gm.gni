@@ -160,6 +160,7 @@ gm_sources = [
   "$_gm/imagefiltersstroked.cpp",
   "$_gm/imagefilterstransformed.cpp",
   "$_gm/imagefromyuvtextures.cpp",
+  "$_gm/imagegeneratorexternal.cpp",
   "$_gm/imagemagnifier.cpp",
   "$_gm/imagemakewithfilter.cpp",
   "$_gm/imagemasksubset.cpp",

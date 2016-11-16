@@ -255,7 +255,6 @@ protected:
 
     virtual GrContext* context() const { return nullptr; }
 
-protected:
     virtual sk_sp<SkSurface> makeSurface(const SkImageInfo&, const SkSurfaceProps&);
     virtual bool onPeekPixels(SkPixmap*) { return false; }
 
@@ -358,6 +357,10 @@ private:
     void privateResize(int w, int h) {
         *const_cast<SkImageInfo*>(&fInfo) = fInfo.makeWH(w, h);
     }
+
+    bool drawExternallyScaledImage(const SkDraw& draw, const SkImage* image, const SkRect* src,
+                                   const SkRect& dst, const SkPaint& paint,
+                                   SkCanvas::SrcRectConstraint constraint);
 
     SkIPoint    fOrigin;
     SkMetaData* fMetaData;

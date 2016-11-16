@@ -19,6 +19,7 @@ class GrTexture;
 class GrTextureParams;
 class SkBitmap;
 class SkData;
+class SkImage;
 class SkImageGenerator;
 class SkMatrix;
 class SkPaint;
@@ -199,6 +200,40 @@ public:
     }
 
     /**
+     *  External generator API: provides efficient access to externally-managed image data.
+     *
+     *  Skia calls accessScaledPixels() during rasterization, to gain temporary access to
+     *  the external pixel data, packaged as a raster SkImage.
+     *
+     *  @param srcRect     the source rect in use for the current draw
+     *  @param totalMatrix full matrix in effect (mapping srcRect -> device space)
+     *  @param quality     the SkFilterQuality requested for rasterization.
+     *  @param rec         out param, expected to be set when the call succeeds:
+     *
+     *                       - fImage wraps the external pixel data
+     *                       - fSrcRect is an adjusted srcRect
+     *                       - fQuality is the adjusted filter quality
+     *
+     *  @return            true on success, false otherwise (error or if this API is not supported;
+     *                     in this case Skia will fall back to its internal scaling and caching
+     *                     heuristics)
+     *
+     *  Implementors can return pixmaps with a different size than requested, by adjusting the
+     *  src rect.  The contract is that Skia will observe the adjusted src rect, and will map it
+     *  to the same dest as the original draw (the impl doesn't get to control the destination).
+     *
+     */
+
+    struct ScaledImageRec {
+        sk_sp<SkImage>  fImage;
+        SkRect          fSrcRect;
+        SkFilterQuality fQuality;
+    };
+
+    bool accessScaledImage(const SkRect& srcRect, const SkMatrix& totalMatrix,
+                           SkFilterQuality quality, ScaledImageRec* rec);
+
+    /**
      *  If the default image decoder system can interpret the specified (encoded) data, then
      *  this returns a new ImageGenerator for it. Otherwise this returns NULL. Either way
      *  the caller is still responsible for managing their ownership of the data.
@@ -260,6 +295,11 @@ protected:
         return false;
     }
     virtual bool onGenerateScaledPixels(const SkISize&, const SkIPoint&, const SkPixmap&) {
+        return false;
+    }
+
+    virtual bool onAccessScaledImage(const SkRect&, const SkMatrix&, SkFilterQuality,
+                                     ScaledImageRec*) {
         return false;
     }
 

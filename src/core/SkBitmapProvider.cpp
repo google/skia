@@ -7,6 +7,7 @@
 
 #include "SkBitmapProvider.h"
 #include "SkImage_Base.h"
+#include "SkImageCacherator.h"
 #include "SkPixelRef.h"
 
 int SkBitmapProvider::width() const {
@@ -45,4 +46,37 @@ void SkBitmapProvider::notifyAddedToCache() const {
 
 bool SkBitmapProvider::asBitmap(SkBitmap* bm) const {
     return as_IB(fImage)->getROPixels(bm, SkImage::kAllow_CachingHint);
+}
+
+bool SkBitmapProvider::accessScaledImage(const SkRect& srcRect,
+                                         const SkMatrix& invMatrix,
+                                         SkFilterQuality fq,
+                                         SkBitmap* scaledBitmap,
+                                         SkRect* adjustedSrcRect,
+                                         SkFilterQuality* adjustedFilterQuality) const {
+    if (!fImage) {
+        return false;
+    }
+
+    SkImageCacherator* cacherator = as_IB(fImage)->peekCacherator();
+    if (!cacherator) {
+        return false;
+    }
+
+    // TODO: stash the matrix someplace to avoid invert()?
+    SkMatrix m;
+    if (!invMatrix.invert(&m)) {
+        return false;
+    }
+
+    SkImageGenerator::ScaledImageRec rec;
+    if (!cacherator->directAccessScaledImage(srcRect, m, fq, &rec) ||
+        !rec.fImage->asLegacyBitmap(scaledBitmap, SkImage::kRO_LegacyBitmapMode)) {
+        return false;
+    }
+
+    *adjustedSrcRect       = rec.fSrcRect;
+    *adjustedFilterQuality = rec.fQuality;
+
+    return true;
 }

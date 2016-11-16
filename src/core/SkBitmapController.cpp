@@ -48,6 +48,7 @@ private:
     SkDestinationSurfaceColorMode fColorMode;
     sk_sp<const SkMipMap>         fCurrMip;
 
+    bool processExternalRequest(const SkBitmapProvider&);
     bool processHQRequest(const SkBitmapProvider&);
     bool processMediumRequest(const SkBitmapProvider&);
 };
@@ -65,6 +66,28 @@ static inline bool cache_size_okay(const SkBitmapProvider& provider, const SkMat
     const size_t size = provider.info().getSafeSize(provider.info().minRowBytes());
     SkScalar invScaleSqr = invMat.getScaleX() * invMat.getScaleY();
     return size < (maximumAllocation * SkScalarAbs(invScaleSqr));
+}
+
+/*
+ *  Image generators can provide access to externally managed pixels
+ *  (external scale/decode caches).
+ */
+bool SkDefaultBitmapControllerState::processExternalRequest(const SkBitmapProvider& provider) {
+    // TODO: actual srcRect
+
+    const SkRect src = SkRect::MakeIWH(provider.width(), provider.height());
+    SkRect          adjustedSrc;
+
+    if (!provider.accessScaledImage(src, fInvMatrix, fQuality,
+                                    &fResultBitmap, &adjustedSrc, &fQuality)) {
+        return false;
+    }
+
+    fInvMatrix.postConcat(SkMatrix::MakeRectToRect(src, adjustedSrc, SkMatrix::kFill_ScaleToFit));
+    fResultBitmap.lockPixels();
+    SkASSERT(fResultBitmap.getPixels());
+
+    return true;
 }
 
 /*
@@ -205,7 +228,13 @@ SkDefaultBitmapControllerState::SkDefaultBitmapControllerState(
     fQuality = qual;
     fColorMode = colorMode;
 
-    if (this->processHQRequest(provider) || this->processMediumRequest(provider)) {
+    bool processed = this->processExternalRequest(provider);
+
+    // Externally handled requests are not guaranteed to reduce quality below kMedium -- so we
+    // always give our internal processors a shot.
+    processed |= this->processHQRequest(provider) || this->processMediumRequest(provider);
+
+    if (processed) {
         SkASSERT(fResultBitmap.getPixels());
     } else {
         (void)provider.asBitmap(&fResultBitmap);
