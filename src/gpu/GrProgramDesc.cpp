@@ -19,7 +19,7 @@ static uint16_t sampler_key(GrSLType samplerType, GrPixelConfig config, GrShader
                             const GrGLSLCaps& caps) {
     enum {
         kFirstSamplerType = kTexture2DSampler_GrSLType,
-        kLastSamplerType = kTextureBufferSampler_GrSLType,
+        kLastSamplerType = kBufferSampler_GrSLType,
         kSamplerTypeKeyBits = 4
     };
     GR_STATIC_ASSERT(kLastSamplerType - kFirstSamplerType < (1 << kSamplerTypeKeyBits));
@@ -51,7 +51,7 @@ static void add_sampler_keys(GrProcessorKeyBuilder* b, const GrProcessor& proc,
     }
     for (; i < numSamplers; ++i) {
         const GrBufferAccess& access = proc.bufferAccess(i - numTextures);
-        k16[i] = sampler_key(kTextureBufferSampler_GrSLType, access.texelConfig(),
+        k16[i] = sampler_key(kBufferSampler_GrSLType, access.texelConfig(),
                              access.visibility(), caps);
     }
     // zero the last 16 bits if the number of samplers is odd.
