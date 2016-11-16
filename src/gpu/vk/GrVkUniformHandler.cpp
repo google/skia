@@ -39,7 +39,7 @@ uint32_t grsltype_to_alignment_mask(GrSLType type) {
         case kVoid_GrSLType:
         case kBool_GrSLType:
         case kTexture2DSampler_GrSLType:
-        case kTexture2DISampler_GrSLType:
+        case kITexture2DSampler_GrSLType:
         case kTextureExternalSampler_GrSLType:
         case kTexture2DRectSampler_GrSLType:
         case kTextureBufferSampler_GrSLType:
@@ -80,7 +80,7 @@ static inline uint32_t grsltype_to_vk_size(GrSLType type) {
         case kVoid_GrSLType:
         case kBool_GrSLType:
         case kTexture2DSampler_GrSLType:
-        case kTexture2DISampler_GrSLType:
+        case kITexture2DSampler_GrSLType:
         case kTextureExternalSampler_GrSLType:
         case kTexture2DRectSampler_GrSLType:
         case kTextureBufferSampler_GrSLType:

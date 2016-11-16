@@ -128,7 +128,7 @@ static inline const char* GrGLSLTypeString(GrSLType t) {
             return "mat4";
         case kTexture2DSampler_GrSLType:
             return "sampler2D";
-        case kTexture2DISampler_GrSLType:
+        case kITexture2DSampler_GrSLType:
             return "isampler2D";
         case kTextureExternalSampler_GrSLType:
             return "samplerExternalOES";
