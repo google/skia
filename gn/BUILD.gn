@@ -276,7 +276,6 @@ config("warnings") {
       "-Wvla",
 
       "-Wno-deprecated-declarations",
-      "-Wno-unused-parameter",
     ]
     cflags_cc += [ "-Wnon-virtual-dtor" ]
 
@@ -345,6 +344,11 @@ config("warnings") {
         "-Wno-objc-interface-ivars",
       ]
     }
+  }
+}
+config("warnings_except_public_headers") {
+  if (!is_win) {
+    cflags = [ "-Wno-unused-parameter" ]
   }
 }
 
