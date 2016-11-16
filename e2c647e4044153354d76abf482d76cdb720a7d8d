@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "503c1cf2_4e854426",
+        "filename": "include/core/SkImageGenerator.h",
+        "patchSetId": 7
+      },
+      "lineNbr": 223,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2016-11-16T19:02:48Z",
+      "side": 1,
+      "message": "nit: there isn\u0027t always a \"dst-rect\" in the original draw (e.g. drawImage, or from an image-shader.",
+      "range": {
+        "startLine": 223,
+        "startChar": 20,
+        "endLine": 223,
+        "endChar": 23
+      },
+      "revId": "e2c647e4044153354d76abf482d76cdb720a7d8d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
