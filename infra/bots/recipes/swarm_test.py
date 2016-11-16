@@ -278,6 +278,11 @@ def dm_flags(bot):
   bad_serialize_gms.append('typefacerendering_pfaMac')
   # skia:5942
   bad_serialize_gms.append('parsedpaths')
+
+  # these use a custom image generator which doesn't serialize
+  bad_serialize_gms.append('ImageGeneratorExternal_rect')
+  bad_serialize_gms.append('ImageGeneratorExternal_shader')
+
   for test in bad_serialize_gms:
     blacklist(['serialize-8888', 'gm', '_', test])
 
