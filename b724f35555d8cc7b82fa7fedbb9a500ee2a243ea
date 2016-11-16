@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "503c1cf2_3d159804",
+        "filename": "infra/bots/git_utils.py",
+        "patchSetId": 5
+      },
+      "lineNbr": 10,
+      "author": {
+        "id": 5015
+      },
+      "writtenOn": "2016-11-16T16:04:50Z",
+      "side": 1,
+      "message": "I know I\u0027m increasing your workload for this CL, but can we go ahead and replace shell_utils with subprocess in this module?  We\u0027re only using the basic run function, so we don\u0027t need the continuous logging functionality.  Then we wouldn\u0027t need to copy shell_utils.",
+      "range": {
+        "startLine": 10,
+        "startChar": 7,
+        "endLine": 10,
+        "endChar": 18
+      },
+      "revId": "b724f35555d8cc7b82fa7fedbb9a500ee2a243ea",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "503c1cf2_9d26647c",
+        "filename": "infra/bots/git_utils.py",
+        "patchSetId": 5
+      },
+      "lineNbr": 101,
+      "author": {
+        "id": 5015
+      },
+      "writtenOn": "2016-11-16T16:04:50Z",
+      "side": 1,
+      "message": "We should probably record the previous value here and re-apply it on exit.",
+      "range": {
+        "startLine": 101,
+        "startChar": 6,
+        "endLine": 101,
+        "endChar": 15
+      },
+      "revId": "b724f35555d8cc7b82fa7fedbb9a500ee2a243ea",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
