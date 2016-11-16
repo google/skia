@@ -178,7 +178,7 @@ struct Mesh {
 
 #include "SkImageEncoder.h"
 static void save_bm(const SkBitmap& bm, const char name[]) {
-    SkImageEncoder::EncodeFile(name, bm, SkImageEncoder::kPNG_Type, 100);
+    SkEncodeImageToFile(name, bm, kPNG_SkEncodedFormat, 100);
 }
 
 static bool gOnce;

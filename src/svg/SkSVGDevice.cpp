@@ -661,8 +661,7 @@ void SkSVGDevice::drawPath(const SkDraw& draw, const SkPath& path, const SkPaint
 
 void SkSVGDevice::drawBitmapCommon(const SkDraw& draw, const SkBitmap& bm,
                                    const SkPaint& paint) {
-    sk_sp<const SkData> pngData(
-        SkImageEncoder::EncodeData(bm, SkImageEncoder::kPNG_Type, SkImageEncoder::kDefaultQuality));
+    sk_sp<SkData> pngData = SkEncodeImageToData(bm, kPNG_SkEncodedFormat, 80);
     if (!pngData) {
         return;
     }

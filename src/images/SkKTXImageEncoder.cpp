@@ -6,7 +6,7 @@
  */
 
 #include "SkColorPriv.h"
-#include "SkImageEncoder.h"
+#include "SkImageEncoderPriv.h"
 #include "SkImageGenerator.h"
 #include "SkPixelRef.h"
 #include "SkStream.h"
@@ -90,8 +90,8 @@ bool SkKTXImageEncoder::encodePKM(SkWStream* stream, const SkData *data) {
 DEFINE_ENCODER_CREATOR(KTXImageEncoder);
 /////////////////////////////////////////////////////////////////////////////////////////
 
-SkImageEncoder* sk_libktx_efactory(SkImageEncoder::Type t) {
-    return (SkImageEncoder::kKTX_Type == t) ? new SkKTXImageEncoder : nullptr;
+SkImageEncoder* sk_libktx_efactory(SkEncodedFormat t) {
+    return (kKTX_SkEncodedFormat == t) ? new SkKTXImageEncoder : nullptr;
 }
 
 static SkImageEncoder_EncodeReg gEReg(sk_libktx_efactory);

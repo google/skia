@@ -122,7 +122,7 @@ int fuzz_api(sk_sp<SkData> bytes) {
 
 static void dump_png(SkBitmap bitmap) {
     if (!FLAGS_dump.isEmpty()) {
-        SkImageEncoder::EncodeFile(FLAGS_dump[0], bitmap, SkImageEncoder::kPNG_Type, 100);
+        SkEncodeImageToFile(FLAGS_dump[0], bitmap, kPNG_SkEncodedFormat, 100);
         SkDebugf("Dumped to %s\n", FLAGS_dump[0]);
     }
 }

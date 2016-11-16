@@ -31,7 +31,7 @@
 #include <wincodec.h>
 #include "SkAutoCoInitialize.h"
 #include "SkBitmap.h"
-#include "SkImageEncoder.h"
+#include "SkImageEncoderPriv.h"
 #include "SkIStream.h"
 #include "SkStream.h"
 #include "SkTScopedComPtr.h"
@@ -219,10 +219,10 @@ bool SkImageEncoder_WIC::onEncode(SkWStream* stream
 ///////////////////////////////////////////////////////////////////////////////
 
 #ifdef SK_USE_WIC_ENCODER
-static SkImageEncoder* sk_imageencoder_wic_factory(SkImageEncoder::Type t) {
+static SkImageEncoder* sk_imageencoder_wic_factory(SkEncodedFormat t) {
     switch (t) {
-        case SkImageEncoder::kPNG_Type:
-        case SkImageEncoder::kJPEG_Type:
+        case kPNG_SkEncodedFormat:
+        case kJPEG_SkEncodedFormat:
             break;
         default:
             return nullptr;
@@ -233,7 +233,7 @@ static SkImageEncoder* sk_imageencoder_wic_factory(SkImageEncoder::Type t) {
 static SkImageEncoder_EncodeReg gEReg(sk_imageencoder_wic_factory);
 #endif
 
-SkImageEncoder* CreateImageEncoder_WIC(SkImageEncoder::Type type) {
+SkImageEncoder* CreateImageEncoder_WIC(SkEncodedFormat type) {
     return new SkImageEncoder_WIC(type);
 }
 

@@ -117,7 +117,7 @@ sk_sp<SkData> Request::writeOutSkp() {
 
     SkDynamicMemoryWStream outStream;
 
-    sk_sp<SkPixelSerializer> serializer(SkImageEncoder::CreatePixelSerializer());
+    sk_sp<SkPixelSerializer> serializer = SkMakePixelSerializer();
     picture->serialize(&outStream, serializer.get());
 
     return outStream.detachAsData();
