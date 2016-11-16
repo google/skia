@@ -25,6 +25,24 @@
     },
     {
       "key": {
+        "uuid": "503c1cf2_53b16d27",
+        "filename": "include/core/SkImageGenerator.h",
+        "patchSetId": 6
+      },
+      "lineNbr": 227,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2016-11-16T18:38:50Z",
+      "side": 1,
+      "message": "We could go either way, I think.  I\u0027m a bit wary of running the result through Skia\u0027s scaling/caching machinery, but you\u0027re right that it\u0027s a Chrome quirk which doesn\u0027t have to be built into the API.\n\nUpdated.",
+      "parentUuid": "503c1cf2_f32521c1",
+      "revId": "2e835bc50eeb4349156679600852c3ab98d3e010",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "503c1cf2_93013523",
         "filename": "include/core/SkImageGenerator.h",
         "patchSetId": 6
@@ -48,6 +66,24 @@
     },
     {
       "key": {
+        "uuid": "503c1cf2_330149e6",
+        "filename": "include/core/SkImageGenerator.h",
+        "patchSetId": 6
+      },
+      "lineNbr": 231,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2016-11-16T18:38:50Z",
+      "side": 1,
+      "message": "Removed.",
+      "parentUuid": "503c1cf2_93013523",
+      "revId": "2e835bc50eeb4349156679600852c3ab98d3e010",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "503c1cf2_3365c936",
         "filename": "include/core/SkImageGenerator.h",
         "patchSetId": 6
@@ -65,6 +101,24 @@
         "endLine": 236,
         "endChar": 25
       },
+      "revId": "2e835bc50eeb4349156679600852c3ab98d3e010",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "503c1cf2_2ead6067",
+        "filename": "include/core/SkImageGenerator.h",
+        "patchSetId": 6
+      },
+      "lineNbr": 236,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2016-11-16T18:38:50Z",
+      "side": 1,
+      "message": "Done: ScaledPixelsRec.",
+      "parentUuid": "503c1cf2_3365c936",
       "revId": "2e835bc50eeb4349156679600852c3ab98d3e010",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false

@@ -22,6 +22,24 @@
       "revId": "bd85a105ba7b3ee2008d20fb9281bfb47325ad0e",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "503c1cf2_9395b591",
+        "filename": "include/core/SkDevice.h",
+        "patchSetId": 6
+      },
+      "lineNbr": 258,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2016-11-16T18:38:50Z",
+      "side": 0,
+      "message": "We don\u0027t, they\u0027re still protected (the removed protected: was redundant).",
+      "parentUuid": "503c1cf2_338ca9c6",
+      "revId": "bd85a105ba7b3ee2008d20fb9281bfb47325ad0e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
