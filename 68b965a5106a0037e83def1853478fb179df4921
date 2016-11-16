@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "503c1cf2_931495bc",
+        "filename": "BUILD.gn",
+        "patchSetId": 2
+      },
+      "lineNbr": 689,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2016-11-16T17:48:53Z",
+      "side": 1,
+      "message": "my GN foo is not strong, but I don\u0027t understand why this needs to be it\u0027s own entity and not just included in the action.",
+      "revId": "68b965a5106a0037e83def1853478fb179df4921",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "503c1cf2_7332b14f",
+        "filename": "gn/BUILD.gn",
+        "patchSetId": 2
+      },
+      "lineNbr": 349,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2016-11-16T17:48:53Z",
+      "side": 1,
+      "message": "just a nit but the name warning_except_public_headers seems ambiguous.  I would suspect that to mean all warnings except those we allow for public headers?  But that doesn\u0027t seem to be the case here.",
+      "revId": "68b965a5106a0037e83def1853478fb179df4921",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
