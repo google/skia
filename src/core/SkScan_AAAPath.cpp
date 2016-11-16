@@ -315,7 +315,7 @@ private:
     inline bool check(int x, int width) {
         #ifdef SK_DEBUG
         if (x < 0 || x + width > fWidth) {
-            SkDebugf("Ignore x = %d, width = %d\n", x, width);
+            // SkDebugf("Ignore x = %d, width = %d\n", x, width);
         }
         #endif
         return (x >= 0 && x + width <= fWidth);
@@ -709,7 +709,7 @@ static inline void blit_trapezoid_row(AdditiveBlitter* blitter, int y,
 
     if (ul > ur) {
 #ifdef SK_DEBUG
-        SkDebugf("ul = %f > ur = %f!\n", SkFixedToFloat(ul), SkFixedToFloat(ur));
+        // SkDebugf("ul = %f > ur = %f!\n", SkFixedToFloat(ul), SkFixedToFloat(ur));
 #endif
         return;
     }
