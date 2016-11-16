@@ -537,11 +537,12 @@ ASTLayout Parser::layout() {
     bool originUpperLeft = false;
     bool overrideCoverage = false;
     bool blendSupportAllEquations = false;
+    ASTLayout::Format format = ASTLayout::Format::kUnspecified;
     if (this->peek().fKind == Token::LAYOUT) {
         this->nextToken();
         if (!this->expect(Token::LPAREN, "'('")) {
             return ASTLayout(location, binding, index, set, builtin, originUpperLeft,
-                             overrideCoverage, blendSupportAllEquations);
+                             overrideCoverage, blendSupportAllEquations, format);
         }
         for (;;) {
             Token t = this->nextToken();
@@ -561,6 +562,8 @@ ASTLayout Parser::layout() {
                 overrideCoverage = true;
             } else if (t.fText == "blend_support_all_equations") {
                 blendSupportAllEquations = true;
+            } else if (ASTLayout::ReadFormat(t.fText, &format)) {
+               // AST::ReadFormat stored the result in 'format'.
             } else {
                 this->error(t.fPosition, ("'" + t.fText + 
                                           "' is not a valid layout qualifier").c_str());
@@ -575,7 +578,7 @@ ASTLayout Parser::layout() {
         }
     }
     return ASTLayout(location, binding, index, set, builtin, originUpperLeft, overrideCoverage,
-                     blendSupportAllEquations);
+                     blendSupportAllEquations, format);
 }
 
 /* layout? (UNIFORM | CONST | IN | OUT | INOUT | LOWP | MEDIUMP | HIGHP | FLAT | NOPERSPECTIVE)* */
