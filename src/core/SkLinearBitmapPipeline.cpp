@@ -139,10 +139,10 @@ public:
         , fXStrategy{dimensions.width()}
         , fYStrategy{dimensions.height()}{ }
 
-    CombinedTileStage(Next* next, const CombinedTileStage& stage)
+    CombinedTileStage(Next* next, CombinedTileStage* stage)
         : fNext{next}
-        , fXStrategy{stage.fXStrategy}
-        , fYStrategy{stage.fYStrategy} { }
+        , fXStrategy{stage->fXStrategy}
+        , fYStrategy{stage->fYStrategy} { }
 
     void SK_VECTORCALL pointListFew(int n, Sk4s xs, Sk4s ys) override {
         fXStrategy.tileXPoints(&xs);
@@ -185,60 +185,6 @@ private:
     XStrategy fXStrategy;
     YStrategy fYStrategy;
 };
-
-template <typename XStrategy, typename Next>
-void choose_tiler_ymode(
-    SkShader::TileMode yMode, SkFilterQuality filterQuality, SkISize dimensions,
-    Next* next,
-    SkLinearBitmapPipeline::TileStage* tileStage) {
-    switch (yMode) {
-        case SkShader::kClamp_TileMode: {
-            using Tiler = CombinedTileStage<XStrategy, YClampStrategy, Next>;
-            tileStage->initStage<Tiler>(next, dimensions);
-            break;
-        }
-        case SkShader::kRepeat_TileMode: {
-            using Tiler = CombinedTileStage<XStrategy, YRepeatStrategy, Next>;
-            tileStage->initStage<Tiler>(next, dimensions);
-            break;
-        }
-        case SkShader::kMirror_TileMode: {
-            using Tiler = CombinedTileStage<XStrategy, YMirrorStrategy, Next>;
-            tileStage->initStage<Tiler>(next, dimensions);
-            break;
-        }
-    }
-};
-
-static SkLinearBitmapPipeline::PointProcessorInterface* choose_tiler(
-    SkLinearBitmapPipeline::SampleProcessorInterface* next,
-    SkISize dimensions,
-    SkShader::TileMode xMode,
-    SkShader::TileMode yMode,
-    SkFilterQuality filterQuality,
-    SkScalar dx,
-    SkLinearBitmapPipeline::TileStage* tileStage)
-{
-    switch (xMode) {
-        case SkShader::kClamp_TileMode:
-            choose_tiler_ymode<XClampStrategy>(yMode, filterQuality, dimensions, next, tileStage);
-            break;
-        case SkShader::kRepeat_TileMode:
-            if (dx == 1.0f && filterQuality == kNone_SkFilterQuality) {
-                choose_tiler_ymode<XRepeatUnitScaleStrategy>(
-                    yMode, kNone_SkFilterQuality, dimensions, next, tileStage);
-            } else {
-                choose_tiler_ymode<XRepeatStrategy>(
-                    yMode, filterQuality, dimensions, next, tileStage);
-            }
-            break;
-        case SkShader::kMirror_TileMode:
-            choose_tiler_ymode<XMirrorStrategy>(yMode, filterQuality, dimensions, next, tileStage);
-            break;
-    }
-
-    return tileStage->get();
-}
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 // Specialized Samplers
@@ -623,9 +569,9 @@ SkLinearBitmapPipeline::SkLinearBitmapPipeline(
     auto samplerStage = choose_pixel_sampler(
         blenderStage, filterQuality, xTile, yTile,
         srcPixmap, paintColor, &fSampleStage, &fAccessor);
-    auto tilerStage   = choose_tiler(samplerStage, dimensions, xTile, yTile,
-                                     filterQuality, dx, &fTileStage);
-    fFirstStage       = ChooseMatrix(tilerStage, adjustedInverse);
+    auto tilerStage   = this->chooseTiler(
+        samplerStage, dimensions, xTile, yTile, filterQuality, dx);
+    fFirstStage       = this->chooseMatrix(tilerStage, adjustedInverse);
     fLastStage        = blenderStage;
 }
 
@@ -685,8 +631,7 @@ SkLinearBitmapPipeline::SkLinearBitmapPipeline(
     }
 
     auto sampleStage = fSampleStage.get();
-    auto tilerStage = pipeline.fTileStage.cloneStageTo(sampleStage, &fTileStage);
-    tilerStage = (tilerStage != nullptr) ? tilerStage : sampleStage;
+    auto tilerStage = pipeline.fTileStageCloner(sampleStage, &fMemory);
     auto matrixStage = pipeline.fMatrixStageCloner(tilerStage, &fMemory);
     fFirstStage = matrixStage;
 }
@@ -708,7 +653,7 @@ void SkLinearBitmapPipeline::blitSpan(int x, int y, void* dst, int count) {
 }
 
 SkLinearBitmapPipeline::PointProcessorInterface*
-SkLinearBitmapPipeline::ChooseMatrix(PointProcessorInterface* next, const SkMatrix& inverse) {
+SkLinearBitmapPipeline::chooseMatrix(PointProcessorInterface* next, const SkMatrix& inverse) {
     if (inverse.hasPerspective()) {
         auto matrixStage = fMemory.createT<PerspectiveMatrix<>>(
             next,
@@ -758,4 +703,65 @@ SkLinearBitmapPipeline::ChooseMatrix(PointProcessorInterface* next, const SkMatr
         };
         return next;
     }
+}
+
+template <typename Tiler>
+SkLinearBitmapPipeline::PointProcessorInterface* SkLinearBitmapPipeline::createTiler(
+    SampleProcessorInterface* next, SkISize dimensions) {
+    auto tilerStage = fMemory.createT<Tiler>(next, dimensions);
+    fTileStageCloner =
+        [tilerStage](SampleProcessorInterface* cloneNext,
+                     MemoryAllocator* memory) -> PointProcessorInterface* {
+            return memory->createT<Tiler>(cloneNext, tilerStage);
+        };
+    return tilerStage;
+}
+
+template <typename XStrategy>
+SkLinearBitmapPipeline::PointProcessorInterface* SkLinearBitmapPipeline::chooseTilerYMode(
+    SampleProcessorInterface* next, SkShader::TileMode yMode, SkISize dimensions) {
+    switch (yMode) {
+        case SkShader::kClamp_TileMode: {
+            using Tiler = CombinedTileStage<XStrategy, YClampStrategy, SampleProcessorInterface>;
+            return this->createTiler<Tiler>(next, dimensions);
+        }
+        case SkShader::kRepeat_TileMode: {
+            using Tiler = CombinedTileStage<XStrategy, YRepeatStrategy, SampleProcessorInterface>;
+            return this->createTiler<Tiler>(next, dimensions);
+        }
+        case SkShader::kMirror_TileMode: {
+            using Tiler = CombinedTileStage<XStrategy, YMirrorStrategy, SampleProcessorInterface>;
+            return this->createTiler<Tiler>(next, dimensions);
+        }
+    }
+
+    // Should never get here.
+    SkFAIL("Not all Y tile cases covered.");
+    return nullptr;
+}
+
+SkLinearBitmapPipeline::PointProcessorInterface* SkLinearBitmapPipeline::chooseTiler(
+    SampleProcessorInterface* next,
+    SkISize dimensions,
+    SkShader::TileMode xMode,
+    SkShader::TileMode yMode,
+    SkFilterQuality filterQuality,
+    SkScalar dx)
+{
+    switch (xMode) {
+        case SkShader::kClamp_TileMode:
+            return this->chooseTilerYMode<XClampStrategy>(next, yMode, dimensions);
+        case SkShader::kRepeat_TileMode:
+            if (dx == 1.0f && filterQuality == kNone_SkFilterQuality) {
+                return this->chooseTilerYMode<XRepeatUnitScaleStrategy>(next, yMode, dimensions);
+            } else {
+                return this->chooseTilerYMode<XRepeatStrategy>(next, yMode, dimensions);
+            }
+        case SkShader::kMirror_TileMode:
+            return this->chooseTilerYMode<XMirrorStrategy>(next, yMode, dimensions);
+    }
+
+    // Should never get here.
+    SkFAIL("Not all X tile cases covered.");
+    return nullptr;
 }
