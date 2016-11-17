@@ -50,7 +50,7 @@ static void add_sampler_keys(GrProcessorKeyBuilder* b, const GrProcessor& proc,
                              textureSampler.visibility(), caps);
     }
     for (; i < numSamplers; ++i) {
-        const GrBufferAccess& access = proc.bufferAccess(i - numTextureSamplers);
+        const GrProcessor::BufferAccess& access = proc.bufferAccess(i - numTextureSamplers);
         k16[i] = sampler_key(kBufferSampler_GrSLType, access.texelConfig(),
                              access.visibility(), caps);
     }
