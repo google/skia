@@ -1,0 +1,96 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "503c1cf2_3a674cd0",
+        "filename": "include/core/SkImageEncoder.h",
+        "patchSetId": 7
+      },
+      "lineNbr": 30,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2016-11-17T13:09:19Z",
+      "side": 1,
+      "message": "compiled*",
+      "range": {
+        "startLine": 30,
+        "startChar": 39,
+        "endLine": 30,
+        "endChar": 47
+      },
+      "revId": "537eecf4245deaec2b69a829322fd5935485f394",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "503c1cf2_5a6e90a9",
+        "filename": "src/images/SkImageEncoder.cpp",
+        "patchSetId": 7
+      },
+      "lineNbr": 16,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2016-11-17T13:09:19Z",
+      "side": 1,
+      "message": "When I was looking at an earlier CL, I wondered why you called setImmutable. I guess you did because it matches existing behavior (at least), but it seems strange to me that a side effect of encoding a bitmap is marking it immutable.",
+      "range": {
+        "startLine": 16,
+        "startChar": 7,
+        "endLine": 16,
+        "endChar": 19
+      },
+      "revId": "537eecf4245deaec2b69a829322fd5935485f394",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "503c1cf2_ba219c67",
+        "filename": "src/xps/SkXPSDevice.cpp",
+        "patchSetId": 7
+      },
+      "lineNbr": 662,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2016-11-17T13:09:19Z",
+      "side": 1,
+      "message": "nit: Can this go on one line?",
+      "range": {
+        "startLine": 662,
+        "startChar": 38,
+        "endLine": 662,
+        "endChar": 58
+      },
+      "revId": "537eecf4245deaec2b69a829322fd5935485f394",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "503c1cf2_fa74c477",
+        "filename": "tools/skiaserve/Request.cpp",
+        "patchSetId": 7
+      },
+      "lineNbr": 121,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2016-11-17T13:09:19Z",
+      "side": 1,
+      "message": "I think you need to make a similar change in the debugger:\n\nhttps://cs.chromium.org/chromium/src/third_party/skia/debugger/QT/SkDebuggerGUI.cpp?q\u003dCreatePixelSerializer\u0026sq\u003dpackage:chromium\u0026l\u003d285\u0026dr\u003dC\n\n(Florin recently made a change to get it compiling again: https://skia-review.googlesource.com/c/4793/. If we want to really support it, we should add it to a compile bot.)",
+      "range": {
+        "startLine": 121,
+        "startChar": 42,
+        "endLine": 121,
+        "endChar": 77
+      },
+      "revId": "537eecf4245deaec2b69a829322fd5935485f394",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
