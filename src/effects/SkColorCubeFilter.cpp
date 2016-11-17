@@ -170,7 +170,7 @@ public:
 
     const char* name() const override { return "ColorCube"; }
 
-    int colorCubeSize() const { return fColorCubeSampler.getTexture()->width(); }
+    int colorCubeSize() const { return fColorCubeSampler.texture()->width(); }
 
 
     void onComputeInvariantOutput(GrInvariantOutput*) const override;

@@ -428,7 +428,7 @@ sk_sp<GrVkPipelineState> GrVkGpuCommandBuffer::prepareDrawState(
 static void prepare_sampled_images(const GrProcessor& processor, GrVkGpu* gpu) {
     for (int i = 0; i < processor.numTextureSamplers(); ++i) {
         const GrProcessor::TextureSampler& sampler = processor.textureSampler(i);
-        GrVkTexture* vkTexture = static_cast<GrVkTexture*>(sampler.getTexture());
+        GrVkTexture* vkTexture = static_cast<GrVkTexture*>(sampler.texture());
         SkASSERT(vkTexture);
 
         // We may need to resolve the texture first if it is also a render target
@@ -437,7 +437,7 @@ static void prepare_sampled_images(const GrProcessor& processor, GrVkGpu* gpu) {
             gpu->onResolveRenderTarget(texRT);
         }
 
-        const GrTextureParams& params = sampler.getParams();
+        const GrTextureParams& params = sampler.params();
         // Check if we need to regenerate any mip maps
         if (GrTextureParams::kMipMap_FilterMode == params.filterMode()) {
             if (vkTexture->texturePriv().mipMapsAreDirty()) {

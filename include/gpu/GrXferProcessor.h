@@ -179,7 +179,7 @@ public:
      * shader. If the returned texture is NULL then the XP is either not reading the dst or we have
      * extentions that support framebuffer fetching and thus don't need a copy of the dst texture.
      */
-    const GrTexture* getDstTexture() const { return fDstTexture.getTexture(); }
+    const GrTexture* getDstTexture() const { return fDstTexture.texture(); }
 
     /**
      * Returns the offset in device coords to use when accessing the dst texture to get the dst
@@ -218,7 +218,7 @@ public:
         if (this->fWillReadDstColor != that.fWillReadDstColor) {
             return false;
         }
-        if (this->fDstTexture.getTexture() != that.fDstTexture.getTexture()) {
+        if (this->fDstTexture.texture() != that.fDstTexture.texture()) {
             return false;
         }
         if (this->fDstTextureOffset != that.fDstTextureOffset) {
