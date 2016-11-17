@@ -129,8 +129,9 @@ public:
     void setLastOpList(GrOpList* opList);
     GrOpList* getLastOpList() { return fLastOpList; }
 
-    static size_t WorstCaseSize(const GrSurfaceDesc& desc);
-    static size_t ComputeSize(const GrSurfaceDesc& desc, int colorSamplesPerPixel, bool hasMIPMaps);
+    static size_t WorstCaseSize(const GrSurfaceDesc& desc, bool useNextPow2 = false);
+    static size_t ComputeSize(const GrSurfaceDesc& desc, int colorSamplesPerPixel,
+                              bool hasMIPMaps, bool useNextPow2 = false);
 
 protected:
     // Methods made available via GrSurfacePriv

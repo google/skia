@@ -13,6 +13,7 @@
 #include "SkBitmap.h"
 #include "SkGrPriv.h"
 #include "SkImageEncoder.h"
+#include "SkMathPriv.h"
 #include <stdio.h>
 
 GrSurface::~GrSurface() {
@@ -25,8 +26,11 @@ GrSurface::~GrSurface() {
     SkASSERT(NULL == fReleaseProc);
 }
 
-size_t GrSurface::WorstCaseSize(const GrSurfaceDesc& desc) {
+size_t GrSurface::WorstCaseSize(const GrSurfaceDesc& desc, bool useNextPow2) {
     size_t size;
+
+    int width = useNextPow2 ? GrNextPow2(desc.fWidth) : desc.fWidth;
+    int height = useNextPow2 ? GrNextPow2(desc.fHeight) : desc.fHeight;
 
     bool isRenderTarget = SkToBool(desc.fFlags & kRenderTarget_GrSurfaceFlag);
     if (isRenderTarget) {
@@ -38,7 +42,7 @@ size_t GrSurface::WorstCaseSize(const GrSurfaceDesc& desc) {
         }
         SkASSERT(kUnknown_GrPixelConfig != desc.fConfig);
         SkASSERT(!GrPixelConfigIsCompressed(desc.fConfig));
-        size_t colorBytes = (size_t) desc.fWidth * desc.fHeight * GrBytesPerPixel(desc.fConfig);
+        size_t colorBytes = (size_t) width * height * GrBytesPerPixel(desc.fConfig);
 
         // This would be a nice assert to have (i.e., we aren't creating 0 width/height surfaces).
         // Unfortunately Chromium seems to want to do this.
@@ -48,9 +52,9 @@ size_t GrSurface::WorstCaseSize(const GrSurfaceDesc& desc) {
         size += colorBytes/3; // in case we have to mipmap
     } else {
         if (GrPixelConfigIsCompressed(desc.fConfig)) {
-            size = GrCompressedFormatDataSize(desc.fConfig, desc.fWidth, desc.fHeight);
+            size = GrCompressedFormatDataSize(desc.fConfig, width, height);
         } else {
-            size = (size_t) desc.fWidth * desc.fHeight * GrBytesPerPixel(desc.fConfig);
+            size = (size_t) width * height * GrBytesPerPixel(desc.fConfig);
         }
 
         size += size/3;  // in case we have to mipmap
@@ -61,14 +65,18 @@ size_t GrSurface::WorstCaseSize(const GrSurfaceDesc& desc) {
 
 size_t GrSurface::ComputeSize(const GrSurfaceDesc& desc,
                               int colorSamplesPerPixel,
-                              bool hasMIPMaps) {
+                              bool hasMIPMaps,
+                              bool useNextPow2) {
     size_t colorSize;
+
+    int width = useNextPow2 ? GrNextPow2(desc.fWidth) : desc.fWidth;
+    int height = useNextPow2 ? GrNextPow2(desc.fHeight) : desc.fHeight;
 
     SkASSERT(kUnknown_GrPixelConfig != desc.fConfig);
     if (GrPixelConfigIsCompressed(desc.fConfig)) {
-        colorSize = GrCompressedFormatDataSize(desc.fConfig, desc.fWidth, desc.fHeight);
+        colorSize = GrCompressedFormatDataSize(desc.fConfig, width, height);
     } else {
-        colorSize = (size_t) desc.fWidth * desc.fHeight * GrBytesPerPixel(desc.fConfig);
+        colorSize = (size_t) width * height * GrBytesPerPixel(desc.fConfig);
     }
     SkASSERT(colorSize > 0);
 
@@ -80,7 +88,7 @@ size_t GrSurface::ComputeSize(const GrSurfaceDesc& desc,
         finalSize += colorSize/3;
     }
 
-    SkASSERT(finalSize <= WorstCaseSize(desc));
+    SkASSERT(finalSize <= WorstCaseSize(desc, useNextPow2));
     return finalSize;
 }
 
