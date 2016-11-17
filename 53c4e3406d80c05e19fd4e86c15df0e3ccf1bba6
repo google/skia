@@ -19,6 +19,29 @@
     },
     {
       "key": {
+        "uuid": "503c1cf2_dd8f3a7b",
+        "filename": "src/image/SkSurface_Base.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 89,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2016-11-17T15:48:25Z",
+      "side": 1,
+      "message": "I know you\u0027re writing this for Android specifically, but the skiaserve/debugger would also benefit from this. It used to have a really complex xfermode, but when xfermodes went away that was replaced with a very simple \u0027make it red and transparent\u0027 SkPaintFilterCanvas (see DebugPaintFilterCanvas).\n\nIt seems like most of this code is actually fairly generic and could be a canvas and not gpu specific? Is there anything in here which is actually gpu specific? (Other than the code to create the device itself.)",
+      "range": {
+        "startLine": 89,
+        "startChar": 19,
+        "endLine": 89,
+        "endChar": 26
+      },
+      "revId": "53c4e3406d80c05e19fd4e86c15df0e3ccf1bba6",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "503c1cf2_1da36282",
         "filename": "src/image/SkSurface_Base.h",
         "patchSetId": 3
