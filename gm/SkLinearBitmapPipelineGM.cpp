@@ -115,9 +115,13 @@ static void draw_rect_fp(SkCanvas* canvas, const SkRect& r, SkColor c, const SkM
     uint32_t flags = 0;
     auto procN = SkXfermode::GetD32Proc(SkBlendMode::kSrcOver, flags);
 
+    char storage[512];
+    SkFixedAlloc fixedAlloc{storage, sizeof(storage)};
+    SkFallbackAlloc allocator{&fixedAlloc};
     SkLinearBitmapPipeline pipeline{
             inv, filterQuality,
-            SkShader::kRepeat_TileMode, SkShader::kRepeat_TileMode, SK_ColorBLACK, pmsrc};
+            SkShader::kRepeat_TileMode, SkShader::kRepeat_TileMode,
+            SK_ColorBLACK, pmsrc, &allocator};
 
     for (int y = 0; y < ir.height(); y++) {
         pipeline.shadeSpan4f(0, y, dstBits, ir.width());
