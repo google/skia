@@ -226,15 +226,17 @@ bool SkBaseDevice::drawExternallyScaledImage(const SkDraw& draw,
 void SkBaseDevice::drawImage(const SkDraw& draw, const SkImage* image, SkScalar x, SkScalar y,
                              const SkPaint& paint) {
     // Default impl : turns everything into raster bitmap
-
     if (this->drawExternallyScaledImage(draw, image, nullptr,
                                         SkRect::Make(image->bounds()).makeOffset(x, y),
                                         paint, SkCanvas::kFast_SrcRectConstraint)) {
         return;
     }
 
+    SkDestinationSurfaceColorMode colorMode = this->imageInfo().colorSpace()
+        ? SkDestinationSurfaceColorMode::kGammaAndColorSpaceAware
+        : SkDestinationSurfaceColorMode::kLegacy;
     SkBitmap bm;
-    if (as_IB(image)->getROPixels(&bm)) {
+    if (as_IB(image)->getROPixels(&bm, colorMode)) {
         this->drawBitmap(draw, bm, SkMatrix::MakeTrans(x, y), paint);
     }
 }
@@ -243,13 +245,15 @@ void SkBaseDevice::drawImageRect(const SkDraw& draw, const SkImage* image, const
                                  const SkRect& dst, const SkPaint& paint,
                                  SkCanvas::SrcRectConstraint constraint) {
     // Default impl : turns everything into raster bitmap
-
     if (this->drawExternallyScaledImage(draw, image, src, dst, paint, constraint)) {
         return;
     }
 
+    SkDestinationSurfaceColorMode colorMode = this->imageInfo().colorSpace()
+        ? SkDestinationSurfaceColorMode::kGammaAndColorSpaceAware
+        : SkDestinationSurfaceColorMode::kLegacy;
     SkBitmap bm;
-    if (as_IB(image)->getROPixels(&bm)) {
+    if (as_IB(image)->getROPixels(&bm, colorMode)) {
         this->drawBitmapRect(draw, bm, src, dst, paint, constraint);
     }
 }

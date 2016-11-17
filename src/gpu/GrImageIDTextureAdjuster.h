@@ -25,12 +25,13 @@ public:
 protected:
     GrTexture* refOriginalTexture(bool willBeMipped, SkDestinationSurfaceColorMode) override;
 
-    void makeCopyKey(const CopyParams& copyParams, GrUniqueKey* copyKey) override;
+    void makeCopyKey(const CopyParams& copyParams, GrUniqueKey* copyKey,
+                     SkDestinationSurfaceColorMode colorMode) override;
 
     void didCacheCopy(const GrUniqueKey& copyKey) override;
 
     SkAlphaType alphaType() const override;
-    SkColorSpace* getColorSpace() override;
+    sk_sp<SkColorSpace> getColorSpace(SkDestinationSurfaceColorMode) override;
 
 private:
     const SkBitmap  fBitmap;
@@ -52,11 +53,12 @@ protected:
     //          GrTexture* generateTextureForParams(const CopyParams&) override;
 
     GrTexture* refOriginalTexture(bool willBeMipped, SkDestinationSurfaceColorMode) override;
-    void makeCopyKey(const CopyParams& stretch, GrUniqueKey* paramsCopyKey) override;
+    void makeCopyKey(const CopyParams& stretch, GrUniqueKey* paramsCopyKey,
+                     SkDestinationSurfaceColorMode colorMode) override;
     void didCacheCopy(const GrUniqueKey& copyKey) override;
 
     SkAlphaType alphaType() const override;
-    SkColorSpace* getColorSpace() override;
+    sk_sp<SkColorSpace> getColorSpace(SkDestinationSurfaceColorMode) override;
 
 private:
     SkImageCacherator*      fCacher;
