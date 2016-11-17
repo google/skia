@@ -702,7 +702,11 @@ STAGE(nearest_8888, true) {
 
     auto p = (const uint32_t*)nc->pixels;
     uint8_t R[N], G[N], B[N], A[N];
-    for (size_t i = 0; i < (kIsTail ? tail : N); i++) {
+    for (size_t i = 0; i < N; i++) {
+        if (kIsTail && i >= tail) {
+            R[i] = G[i] = B[i] = A[i] = 0;
+            continue;
+        }
         uint32_t rgba = p[offset[i]];
         R[i] = rgba >>  0;
         G[i] = rgba >>  8;
@@ -725,7 +729,11 @@ STAGE(nearest_srgb, true) {
 
     auto p = (const uint32_t*)nc->pixels;
     uint8_t R[N], G[N], B[N], A[N];
-    for (size_t i = 0; i < (kIsTail ? tail : N); i++) {
+    for (size_t i = 0; i < N; i++) {
+        if (kIsTail && i >= tail) {
+            R[i] = G[i] = B[i] = A[i] = 0;
+            continue;
+        }
         uint32_t rgba = p[offset[i]];
         R[i] = rgba >>  0;
         G[i] = rgba >>  8;
