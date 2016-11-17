@@ -97,9 +97,9 @@ public:
         @param texSamplers       Contains one entry for each TextureSampler  of the GrProcessor.
                                  These can be passed to the builder to emit texture reads in the
                                  generated code.
-        @param bufferSamplers    Contains one entry for each GrBufferAccess of the GrProcessor.
-                                 These can be passed to the builder to emit buffer reads in the
-                                 generated code.
+        @param bufferSamplers    Contains one entry for each BufferAccess of the GrProcessor. These
+                                 can be passed to the builder to emit buffer reads in the generated
+                                 code.
      */
     struct EmitArgs {
         EmitArgs(GrGLSLFPFragmentBuilder* fragBuilder,

@@ -158,7 +158,7 @@ void GrGLProgram::bindTextures(const GrProcessor& processor,
                           allowSRGBInputs, static_cast<GrGLTexture*>(sampler.texture()));
     }
     for (int i = 0; i < processor.numBuffers(); ++i) {
-        const GrBufferAccess& access = processor.bufferAccess(i);
+        const GrProcessor::BufferAccess& access = processor.bufferAccess(i);
         fGpu->bindTexelBuffer((*nextSamplerIdx)++, access.texelConfig(),
                               static_cast<GrGLBuffer*>(access.buffer()));
     }
