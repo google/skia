@@ -9,6 +9,7 @@
 
 #include "SkColorPriv.h"
 #include "SkEndian.h"
+#include "SkFDot6.h"
 #include "SkFixed.h"
 #include "SkFloatBits.h"
 #include "SkFloatingPoint.h"
@@ -34,6 +35,11 @@ static void test_clz(skiatest::Reporter* reporter) {
         int porta = SkCLZ_portable(mask);
         REPORTER_ASSERT(reporter, intri == porta);
     }
+}
+
+static void test_quick_div(skiatest::Reporter* reporter) {
+    // Test that we won't overflow
+    REPORTER_ASSERT(reporter, QuickSkFDot6Div(1023, 1) == SkFDot6Div(1023, 1));
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -576,6 +582,7 @@ DEF_TEST(Math, reporter) {
 
     test_muldivround(reporter);
     test_clz(reporter);
+    test_quick_div(reporter);
 }
 
 template <typename T> struct PairRec {
