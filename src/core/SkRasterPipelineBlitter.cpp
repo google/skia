@@ -120,7 +120,8 @@ SkBlitter* SkRasterPipelineBlitter::Create(const SkPixmap& dst,
         // Shaders start with the paint color in (r,g,b,a) and dst-space (x,y) in (dr,dg).
         // Before the shader runs, move the paint color to (dr,dg,db,da), and put (x,y) in (r,g).
         pipeline->append(SkRasterPipeline::swap_src_dst);
-        if (!shader->appendStages(pipeline, dst.colorSpace(), &blitter->fScratchFallback, ctm)) {
+        if (!shader->appendStages(pipeline, dst.colorSpace(), &blitter->fScratchFallback,
+                                  ctm, paint.getFilterQuality())) {
             return earlyOut();
         }
         // srcin, s' = s * da, i.e. modulate the output of the shader by the paint alpha.
