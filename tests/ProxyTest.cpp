@@ -136,6 +136,8 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(DeferredProxyTest, reporter, ctxInfo) {
                                 sk_sp<GrSurfaceProxy> sProxy(GrSurfaceProxy::MakeDeferred(
                                                                                 caps, desc, 
                                                                                 fit, budgeted));
+                                sProxy->gpuMemorySize();
+
                                 check_surface(reporter, sProxy.get(), origin,
                                               widthHeight, widthHeight, config,
                                               kInvalidResourceID, budgeted);
@@ -151,6 +153,9 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(DeferredProxyTest, reporter, ctxInfo) {
                                                                                       desc,
                                                                                       fit,
                                                                                       budgeted));
+
+                            sProxy->gpuMemorySize();
+
                             check_surface(reporter, sProxy.get(), origin,
                                           widthHeight, widthHeight, config,
                                           kInvalidResourceID, budgeted);
