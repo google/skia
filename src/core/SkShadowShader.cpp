@@ -139,7 +139,8 @@ public:
                 // gets deleted when the ShadowFP is destroyed, and frees the GrTexture*
                 fTexture[fNumNonAmbLights] = sk_sp<GrTexture>(shadowMap->asTextureRef(context,
                                                            GrTextureParams::ClampNoFilter(),
-                                                           SkDestinationSurfaceColorMode::kLegacy));
+                                                           SkDestinationSurfaceColorMode::kLegacy,
+                                                           nullptr));
                 fDepthMapAccess[fNumNonAmbLights].reset(fTexture[fNumNonAmbLights].get());
                 this->addTextureAccess(&fDepthMapAccess[fNumNonAmbLights]);
 
