@@ -473,7 +473,7 @@ static inline SkAlpha trapezoidToAlpha(SkFixed l1, SkFixed l2) {
 // The alpha of right-triangle (a, a*b), in 16 bits
 static inline SkFixed partialTriangleToAlpha16(SkFixed a, SkFixed b) {
     SkASSERT(a <= SK_Fixed1);
-    // SkFixedMul_lowprec(SkFixedMul_lowprec(a, a), b) >> 1
+    // SkFixedMul(SkFixedMul(a, a), b) >> 1
     // return ((((a >> 8) * (a >> 8)) >> 8) * (b >> 8)) >> 1;
     return (a >> 11) * (a >> 11) * (b >> 11);
 }
@@ -520,8 +520,8 @@ static inline void computeAlphaAboveLine(SkAlpha* alphas, SkFixed l, SkFixed r,
     } else {
         SkFixed first = SK_Fixed1 - l; // horizontal edge length of the left-most triangle
         SkFixed last = r - ((R - 1) << 16); // horizontal edge length of the right-most triangle
-        SkFixed firstH = SkFixedMul_lowprec(first, dY); // vertical edge of the left-most triangle
-        alphas[0] = SkFixedMul_lowprec(first, firstH) >> 9; // triangle alpha
+        SkFixed firstH = SkFixedMul(first, dY); // vertical edge of the left-most triangle
+        alphas[0] = SkFixedMul(first, firstH) >> 9; // triangle alpha
         SkFixed alpha16 = firstH + (dY >> 1); // rectangle plus triangle
         for (int i = 1; i < R - 1; i++) {
             alphas[i] = alpha16 >> 8;
@@ -544,8 +544,8 @@ static inline void computeAlphaBelowLine(
     } else {
         SkFixed first = SK_Fixed1 - l; // horizontal edge length of the left-most triangle
         SkFixed last = r - ((R - 1) << 16); // horizontal edge length of the right-most triangle
-        SkFixed lastH = SkFixedMul_lowprec(last, dY); // vertical edge of the right-most triangle
-        alphas[R-1] = SkFixedMul_lowprec(last, lastH) >> 9; // triangle alpha
+        SkFixed lastH = SkFixedMul(last, dY); // vertical edge of the right-most triangle
+        alphas[R-1] = SkFixedMul(last, lastH) >> 9; // triangle alpha
         SkFixed alpha16 = lastH + (dY >> 1); // rectangle plus triangle
         for (int i = R - 2; i > 0; i--) {
             alphas[i] = alpha16 >> 8;
@@ -983,13 +983,13 @@ static inline void aaa_walk_convex_edges(SkAnalyticEdge* prevHead, AdditiveBlitt
                 if (partialTop > 0) { // blit first partial row
                     if (partialLeft > 0) {
                         blitter->blitAntiH(fullLeft - 1, fullTop - 1,
-                                f2a(SkFixedMul_lowprec(partialTop, partialLeft)));
+                                f2a(SkFixedMul(partialTop, partialLeft)));
                     }
                     blitter->blitAntiH(fullLeft, fullTop - 1, fullRite - fullLeft,
                                        f2a(partialTop));
                     if (partialRite > 0) {
                         blitter->blitAntiH(fullRite, fullTop - 1,
-                                f2a(SkFixedMul_lowprec(partialTop, partialRite)));
+                                f2a(SkFixedMul(partialTop, partialRite)));
                     }
                     blitter->flush_if_y_changed(y, y + partialTop);
                 }
@@ -1007,18 +1007,18 @@ static inline void aaa_walk_convex_edges(SkAnalyticEdge* prevHead, AdditiveBlitt
                 if (partialBot > 0) { // blit last partial row
                     if (partialLeft > 0) {
                         blitter->blitAntiH(fullLeft - 1, fullBot,
-                                           f2a(SkFixedMul_lowprec(partialBot, partialLeft)));
+                                           f2a(SkFixedMul(partialBot, partialLeft)));
                     }
                     blitter->blitAntiH(fullLeft, fullBot, fullRite - fullLeft, f2a(partialBot));
                     if (partialRite > 0) {
                         blitter->blitAntiH(fullRite, fullBot,
-                                           f2a(SkFixedMul_lowprec(partialBot, partialRite)));
+                                           f2a(SkFixedMul(partialBot, partialRite)));
                     }
                 }
             } else { // left and rite are within the same pixel
                 if (partialTop > 0) {
                     blitter->getRealBlitter()->blitV(fullLeft - 1, fullTop - 1, 1,
-                            f2a(SkFixedMul_lowprec(partialTop, rite - left)));
+                            f2a(SkFixedMul(partialTop, rite - left)));
                     blitter->flush_if_y_changed(y, y + partialTop);
                 }
                 if (fullBot > fullTop) {
@@ -1027,7 +1027,7 @@ static inline void aaa_walk_convex_edges(SkAnalyticEdge* prevHead, AdditiveBlitt
                 }
                 if (partialBot > 0) {
                     blitter->getRealBlitter()->blitV(fullLeft - 1, fullBot, 1,
-                            f2a(SkFixedMul_lowprec(partialBot, rite - left)));
+                            f2a(SkFixedMul(partialBot, rite - left)));
                 }
             }
 
@@ -1067,8 +1067,8 @@ static inline void aaa_walk_convex_edges(SkAnalyticEdge* prevHead, AdditiveBlitt
                     count--;
                     SkFixed nextY = SkFixedCeilToFixed(y + 1);
                     SkFixed dY = nextY - y;
-                    SkFixed nextLeft = left + SkFixedMul_lowprec(dLeft, dY);
-                    SkFixed nextRite = rite + SkFixedMul_lowprec(dRite, dY);
+                    SkFixed nextLeft = left + SkFixedMul(dLeft, dY);
+                    SkFixed nextRite = rite + SkFixedMul(dRite, dY);
                     SkASSERT((left & kSnapMask) >= leftBound && (rite & kSnapMask) <= riteBound &&
                             (nextLeft & kSnapMask) >= leftBound &&
                             (nextRite & kSnapMask) <= riteBound);
@@ -1105,8 +1105,8 @@ static inline void aaa_walk_convex_edges(SkAnalyticEdge* prevHead, AdditiveBlitt
             // Smooth jumping to integer y may make the last nextLeft/nextRite out of bound.
             // Take them back into the bound here.
             // Note that we substract kSnapHalf later so we have to add them to leftBound/riteBound
-            SkFixed nextLeft = SkTMax(left + SkFixedMul_lowprec(dLeft, dY), leftBound + kSnapHalf);
-            SkFixed nextRite = SkTMin(rite + SkFixedMul_lowprec(dRite, dY), riteBound + kSnapHalf);
+            SkFixed nextLeft = SkTMax(left + SkFixedMul(dLeft, dY), leftBound + kSnapHalf);
+            SkFixed nextRite = SkTMin(rite + SkFixedMul(dRite, dY), riteBound + kSnapHalf);
             SkASSERT((left & kSnapMask) >= leftBound && (rite & kSnapMask) <= riteBound &&
                     (nextLeft & kSnapMask) >= leftBound && (nextRite & kSnapMask) <= riteBound);
             blit_trapezoid_row(blitter, y >> 16, left & kSnapMask, rite & kSnapMask,

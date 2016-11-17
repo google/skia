@@ -10,11 +10,6 @@
 
 #include "SkEdge.h"
 
-inline SkFixed SkFixedMul_lowprec(SkFixed a, SkFixed b) {
-    SkASSERT(((int64_t)a >> 8) * (b >> 8) <= SK_MaxS32);
-    return (a >> 8) * (b >> 8);
-}
-
 struct SkAnalyticEdge {
     // Similar to SkEdge, the conic edges will be converted to quadratic edges
     enum Type {
@@ -55,7 +50,7 @@ struct SkAnalyticEdge {
         } else if (y != fY) {
             // Drop lower digits as our alpha only has 8 bits
             // (fDX and y - fUpperY may be greater than SK_Fixed1)
-            fX = fUpperX + SkFixedMul_lowprec(fDX, y - fUpperY);
+            fX = fUpperX + SkFixedMul(fDX, y - fUpperY);
             fY = y;
         }
     }
