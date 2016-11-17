@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "b09b987b_8679da6f",
+        "filename": "src/gpu/GrRenderTargetContext.cpp",
+        "patchSetId": 9
+      },
+      "lineNbr": 921,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2016-11-17T20:28:52Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "b09b987b_552b1e45",
+      "revId": "22ebfea7d992719d4deb244743a38a75e3ad8914",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "b09b987b_757822a2",
         "filename": "src/gpu/batches/GrShadowRRectBatch.cpp",
         "patchSetId": 9
@@ -30,6 +48,24 @@
       "writtenOn": "2016-11-17T18:33:49Z",
       "side": 1,
       "message": "ShadowCircularRRectBatch ?",
+      "revId": "22ebfea7d992719d4deb244743a38a75e3ad8914",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "b09b987b_c663e2bf",
+        "filename": "src/gpu/batches/GrShadowRRectBatch.cpp",
+        "patchSetId": 9
+      },
+      "lineNbr": 564,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2016-11-17T20:28:52Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "b09b987b_757822a2",
       "revId": "22ebfea7d992719d4deb244743a38a75e3ad8914",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
@@ -53,6 +89,24 @@
     },
     {
       "key": {
+        "uuid": "b09b987b_e670e687",
+        "filename": "src/gpu/batches/GrShadowRRectBatch.cpp",
+        "patchSetId": 9
+      },
+      "lineNbr": 877,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2016-11-17T20:28:52Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "b09b987b_f5b09226",
+      "revId": "22ebfea7d992719d4deb244743a38a75e3ad8914",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "b09b987b_d53b8ef9",
         "filename": "src/gpu/batches/GrShadowRRectBatch.h",
         "patchSetId": 9
@@ -64,6 +118,24 @@
       "writtenOn": "2016-11-17T18:33:49Z",
       "side": 1,
       "message": "Do we need GrDrawBatch ?",
+      "revId": "22ebfea7d992719d4deb244743a38a75e3ad8914",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "b09b987b_665dd606",
+        "filename": "src/gpu/batches/GrShadowRRectBatch.h",
+        "patchSetId": 9
+      },
+      "lineNbr": 13,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2016-11-17T20:28:52Z",
+      "side": 1,
+      "message": "For the return value, yes.",
+      "parentUuid": "b09b987b_d53b8ef9",
       "revId": "22ebfea7d992719d4deb244743a38a75e3ad8914",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
@@ -87,6 +159,24 @@
     },
     {
       "key": {
+        "uuid": "b09b987b_8662babd",
+        "filename": "src/gpu/batches/GrShadowRRectBatch.h",
+        "patchSetId": 9
+      },
+      "lineNbr": 15,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2016-11-17T20:28:52Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "b09b987b_15151668",
+      "revId": "22ebfea7d992719d4deb244743a38a75e3ad8914",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "b09b987b_9508264c",
         "filename": "src/gpu/batches/GrShadowRRectBatch.h",
         "patchSetId": 9
@@ -98,6 +188,24 @@
       "writtenOn": "2016-11-17T18:33:49Z",
       "side": 1,
       "message": "or SkRect ?",
+      "revId": "22ebfea7d992719d4deb244743a38a75e3ad8914",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "b09b987b_a666ded0",
+        "filename": "src/gpu/batches/GrShadowRRectBatch.h",
+        "patchSetId": 9
+      },
+      "lineNbr": 17,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2016-11-17T20:28:52Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "b09b987b_9508264c",
       "revId": "22ebfea7d992719d4deb244743a38a75e3ad8914",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
@@ -121,6 +229,24 @@
     },
     {
       "key": {
+        "uuid": "b09b987b_467ff254",
+        "filename": "src/gpu/effects/GrShadowGeoProc.cpp",
+        "patchSetId": 9
+      },
+      "lineNbr": 69,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2016-11-17T20:28:52Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "b09b987b_155356fd",
+      "revId": "22ebfea7d992719d4deb244743a38a75e3ad8914",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "b09b987b_b5fd2ac2",
         "filename": "src/gpu/effects/GrShadowGeoProc.h",
         "patchSetId": 9
@@ -132,6 +258,24 @@
       "writtenOn": "2016-11-17T18:33:49Z",
       "side": 1,
       "message": "override ?",
+      "revId": "22ebfea7d992719d4deb244743a38a75e3ad8914",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "b09b987b_066ecaa8",
+        "filename": "src/gpu/effects/GrShadowGeoProc.h",
+        "patchSetId": 9
+      },
+      "lineNbr": 26,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2016-11-17T20:28:52Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "b09b987b_b5fd2ac2",
       "revId": "22ebfea7d992719d4deb244743a38a75e3ad8914",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
