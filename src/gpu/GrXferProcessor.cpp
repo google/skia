@@ -26,7 +26,7 @@ GrXferProcessor::GrXferProcessor(const DstTexture* dstTexture,
         SkASSERT(willReadDstColor);
         fDstTexture.reset(dstTexture->texture());
         fDstTextureOffset = dstTexture->offset();
-        this->addTextureAccess(&fDstTexture);
+        this->addTextureSampler(&fDstTexture);
         this->setWillReadFragmentPosition();
     }
 }

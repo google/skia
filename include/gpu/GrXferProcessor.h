@@ -277,7 +277,7 @@ private:
     bool                    fWillReadDstColor;
     bool                    fDstReadUsesMixedSamples;
     SkIPoint                fDstTextureOffset;
-    GrTextureAccess         fDstTexture;
+    TextureSampler          fDstTexture;
 
     typedef GrFragmentProcessor INHERITED;
 };

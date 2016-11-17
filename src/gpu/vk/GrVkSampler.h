@@ -12,7 +12,6 @@
 
 #include "vk/GrVkDefines.h"
 
-class GrTextureAccess;
 class GrTextureParams;
 class GrVkGpu;
 

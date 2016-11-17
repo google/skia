@@ -96,7 +96,7 @@ void GrGLSLProgramBuilder::emitAndInstallPrimProc(const GrPrimitiveProcessor& pr
     SkASSERT(!fGeometryProcessor);
     fGeometryProcessor = proc.createGLSLInstance(*this->glslCaps());
 
-    SkSTArray<4, SamplerHandle> texSamplers(proc.numTextures());
+    SkSTArray<4, SamplerHandle> texSamplers(proc.numTextureSamplers());
     SkSTArray<2, SamplerHandle> bufferSamplers(proc.numBuffers());
     this->emitSamplers(proc, &texSamplers, &bufferSamplers);
 
@@ -159,7 +159,7 @@ void GrGLSLProgramBuilder::emitAndInstallFragProc(const GrFragmentProcessor& fp,
 
     GrGLSLFragmentProcessor* fragProc = fp.createGLSLInstance();
 
-    SkSTArray<4, SamplerHandle> textureSamplerArray(fp.numTextures());
+    SkSTArray<4, SamplerHandle> textureSamplerArray(fp.numTextureSamplers());
     SkSTArray<2, SamplerHandle> bufferSamplerArray(fp.numBuffers());
     GrFragmentProcessor::Iter iter(&fp);
     while (const GrFragmentProcessor* subFP = iter.next()) {
@@ -215,7 +215,7 @@ void GrGLSLProgramBuilder::emitAndInstallXferProc(const GrXferProcessor& xp,
     openBrace.printf("{ // Xfer Processor: %s\n", xp.name());
     fFS.codeAppend(openBrace.c_str());
 
-    SkSTArray<4, SamplerHandle> texSamplers(xp.numTextures());
+    SkSTArray<4, SamplerHandle> texSamplers(xp.numTextureSamplers());
     SkSTArray<2, SamplerHandle> bufferSamplers(xp.numBuffers());
     this->emitSamplers(xp, &texSamplers, &bufferSamplers);
 
@@ -242,21 +242,21 @@ void GrGLSLProgramBuilder::emitSamplers(const GrProcessor& processor,
                                         SkTArray<SamplerHandle>* outTexSamplers,
                                         SkTArray<SamplerHandle>* outBufferSamplers) {
     SkString name;
-    int numTextures = processor.numTextures();
-    for (int t = 0; t < numTextures; ++t) {
-        const GrTextureAccess& access = processor.textureAccess(t);
-        GrSLType samplerType = access.getTexture()->texturePriv().samplerType();
+    int numTextureSamplers = processor.numTextureSamplers();
+    for (int t = 0; t < numTextureSamplers; ++t) {
+        const GrProcessor::TextureSampler& sampler = processor.textureSampler(t);
+        GrSLType samplerType = sampler.getTexture()->texturePriv().samplerType();
         if (kTextureExternalSampler_GrSLType == samplerType) {
             const char* externalFeatureString = this->glslCaps()->externalTextureExtensionString();
             // We shouldn't ever create a GrGLTexture that requires external sampler type
             SkASSERT(externalFeatureString);
-            this->addFeature(access.getVisibility(),
+            this->addFeature(sampler.getVisibility(),
                              1 << GrGLSLShaderBuilder::kExternalTexture_GLSLPrivateFeature,
                              externalFeatureString);
         }
         name.printf("TextureSampler_%d", outTexSamplers->count());
-        this->emitSampler(samplerType, access.getTexture()->config(),
-                          name.c_str(), access.getVisibility(), outTexSamplers);
+        this->emitSampler(samplerType, sampler.getTexture()->config(),
+                          name.c_str(), sampler.getVisibility(), outTexSamplers);
     }
 
     if (int numBuffers = processor.numBuffers()) {

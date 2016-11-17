@@ -229,7 +229,7 @@ GrGLSLFragmentProcessor* GrTextureDomainEffect::onCreateGLSLInstance() const  {
         void onSetData(const GrGLSLProgramDataManager& pdman, const GrProcessor& fp) override {
             const GrTextureDomainEffect& tde = fp.cast<GrTextureDomainEffect>();
             const GrTextureDomain& domain = tde.fTextureDomain;
-            fGLDomain.setData(pdman, domain, tde.texture(0)->origin());
+            fGLDomain.setData(pdman, domain, tde.textureSampler(0).getTexture()->origin());
         }
 
     private:
@@ -242,14 +242,13 @@ GrGLSLFragmentProcessor* GrTextureDomainEffect::onCreateGLSLInstance() const  {
 
 bool GrTextureDomainEffect::onIsEqual(const GrFragmentProcessor& sBase) const {
     const GrTextureDomainEffect& s = sBase.cast<GrTextureDomainEffect>();
-    return this->fTextureDomain == s.fTextureDomain && s.texture(0) == this->texture(0) &&
-           s.textureAccess(0).getParams().filterMode() ==
-                this->textureAccess(0).getParams().filterMode();
+    return this->fTextureDomain == s.fTextureDomain &&
+           s.textureSampler(0) == this->textureSampler(0);
 }
 
 void GrTextureDomainEffect::onComputeInvariantOutput(GrInvariantOutput* inout) const {
     if (GrTextureDomain::kDecal_Mode == fTextureDomain.mode()) {
-        if (GrPixelConfigIsAlphaOnly(this->texture(0)->config())) {
+        if (GrPixelConfigIsAlphaOnly(this->textureSampler(0).getTexture()->config())) {
             inout->mulByUnknownSingleComponent();
         } else {
             inout->mulByUnknownFourComponents();
@@ -295,10 +294,10 @@ sk_sp<GrFragmentProcessor> GrDeviceSpaceTextureDecalFragmentProcessor::Make(GrTe
 
 GrDeviceSpaceTextureDecalFragmentProcessor::GrDeviceSpaceTextureDecalFragmentProcessor(
         GrTexture* texture, const SkIRect& subset, const SkIPoint& deviceSpaceOffset)
-        : fTextureAccess(texture, GrTextureParams::ClampNoFilter())
+        : fTextureSampler(texture, GrTextureParams::ClampNoFilter())
         , fTextureDomain(GrTextureDomain::MakeTexelDomain(texture, subset),
                          GrTextureDomain::kDecal_Mode) {
-    this->addTextureAccess(&fTextureAccess);
+    this->addTextureSampler(&fTextureSampler);
     fDeviceSpaceOffset.fX = deviceSpaceOffset.fX - subset.fLeft;
     fDeviceSpaceOffset.fY = deviceSpaceOffset.fY - subset.fTop;
     this->initClassID<GrDeviceSpaceTextureDecalFragmentProcessor>();
@@ -334,14 +333,15 @@ GrGLSLFragmentProcessor* GrDeviceSpaceTextureDecalFragmentProcessor::onCreateGLS
         void onSetData(const GrGLSLProgramDataManager& pdman, const GrProcessor& fp) override {
             const GrDeviceSpaceTextureDecalFragmentProcessor& dstdfp =
                     fp.cast<GrDeviceSpaceTextureDecalFragmentProcessor>();
-            fGLDomain.setData(pdman, dstdfp.fTextureDomain, dstdfp.texture(0)->origin());
-            float iw = 1.f / dstdfp.texture(0)->width();
-            float ih = 1.f / dstdfp.texture(0)->height();
+            GrTexture* texture = dstdfp.textureSampler(0).getTexture();
+            fGLDomain.setData(pdman, dstdfp.fTextureDomain, texture->origin());
+            float iw = 1.f / texture->width();
+            float ih = 1.f / texture->height();
             float scaleAndTransData[4] = {
                 iw, ih,
                 -dstdfp.fDeviceSpaceOffset.fX * iw, -dstdfp.fDeviceSpaceOffset.fY * ih
             };
-            if (dstdfp.texture(0)->origin() == kBottomLeft_GrSurfaceOrigin) {
+            if (texture->origin() == kBottomLeft_GrSurfaceOrigin) {
                 scaleAndTransData[1] = -scaleAndTransData[1];
                 scaleAndTransData[3] = 1 - scaleAndTransData[3];
             }
@@ -359,14 +359,14 @@ GrGLSLFragmentProcessor* GrDeviceSpaceTextureDecalFragmentProcessor::onCreateGLS
 bool GrDeviceSpaceTextureDecalFragmentProcessor::onIsEqual(const GrFragmentProcessor& fp) const {
     const GrDeviceSpaceTextureDecalFragmentProcessor& dstdfp =
             fp.cast<GrDeviceSpaceTextureDecalFragmentProcessor>();
-    return dstdfp.fTextureAccess.getTexture() == fTextureAccess.getTexture() &&
+    return dstdfp.fTextureSampler.getTexture() == fTextureSampler.getTexture() &&
            dstdfp.fDeviceSpaceOffset == fDeviceSpaceOffset &&
            dstdfp.fTextureDomain == fTextureDomain;
 }
 
 void GrDeviceSpaceTextureDecalFragmentProcessor::onComputeInvariantOutput(
         GrInvariantOutput* inout) const {
-    if (GrPixelConfigIsAlphaOnly(this->texture(0)->config())) {
+    if (GrPixelConfigIsAlphaOnly(this->textureSampler(0).getTexture()->config())) {
         inout->mulByUnknownSingleComponent();
     } else {
         inout->mulByUnknownFourComponents();

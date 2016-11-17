@@ -11,7 +11,6 @@
 #include "GrColor.h"
 #include "GrProcessorUnitTest.h"
 #include "GrProgramElement.h"
-#include "GrTextureAccess.h"
 #include "GrBufferAccess.h"
 #include "SkMath.h"
 #include "SkString.h"
@@ -59,6 +58,8 @@ private:
  */
 class GrProcessor : public GrProgramElement {
 public:
+    class TextureSampler;
+
     virtual ~GrProcessor();
 
     /** Human-meaningful string to identify this prcoessor; may be embedded
@@ -72,14 +73,11 @@ public:
         return str;
     }
 
-    int numTextures() const { return fTextureAccesses.count(); }
+    int numTextureSamplers() const { return fTextureSamplers.count(); }
 
     /** Returns the access pattern for the texture at index. index must be valid according to
-        numTextures(). */
-    const GrTextureAccess& textureAccess(int index) const { return *fTextureAccesses[index]; }
-
-    /** Shortcut for textureAccess(index).texture(); */
-    GrTexture* texture(int index) const { return this->textureAccess(index).getTexture(); }
+        numTextureSamplers(). */
+    const TextureSampler& textureSampler(int index) const { return *fTextureSamplers[index]; }
 
     int numBuffers() const { return fBufferAccesses.count(); }
 
@@ -125,11 +123,11 @@ protected:
     /**
      * Subclasses call these from their constructor to register sampler sources. The processor
      * subclass manages the lifetime of the objects (these functions only store pointers). The
-     * GrTextureAccess and/or GrBufferAccess instances are typically member fields of the
+     * TextureSampler and/or GrBufferAccess instances are typically member fields of the
      * GrProcessor subclass. These must only be called from the constructor because GrProcessors
      * are immutable.
      */
-    void addTextureAccess(const GrTextureAccess* textureAccess);
+    void addTextureSampler(const TextureSampler*);
     void addBufferAccess(const GrBufferAccess* bufferAccess);
 
     bool hasSameSamplers(const GrProcessor&) const;
@@ -171,12 +169,66 @@ private:
     static int32_t gCurrProcessorClassID;
 
     RequiredFeatures fRequiredFeatures;
-    SkSTArray<4, const GrTextureAccess*, true>   fTextureAccesses;
-    SkSTArray<2, const GrBufferAccess*, true>    fBufferAccesses;
+    SkSTArray<4, const TextureSampler*, true>   fTextureSamplers;
+    SkSTArray<2, const GrBufferAccess*, true>   fBufferAccesses;
 
     typedef GrProgramElement INHERITED;
 };
 
 GR_MAKE_BITFIELD_OPS(GrProcessor::RequiredFeatures);
+
+/**
+ * Used to represent a texture that is required by a GrProcessor. It holds a GrTexture along with
+ * an associated GrTextureParams
+ */
+class GrProcessor::TextureSampler : public SkNoncopyable {
+public:
+    /**
+     * Must be initialized before adding to a GrProcessor's texture access list.
+     */
+    TextureSampler();
+
+    TextureSampler(GrTexture*, const GrTextureParams&);
+
+    explicit TextureSampler(GrTexture*,
+                            GrTextureParams::FilterMode = GrTextureParams::kNone_FilterMode,
+                            SkShader::TileMode tileXAndY = SkShader::kClamp_TileMode,
+                            GrShaderFlags visibility = kFragment_GrShaderFlag);
+
+    void reset(GrTexture*, const GrTextureParams&,
+               GrShaderFlags visibility = kFragment_GrShaderFlag);
+    void reset(GrTexture*,
+               GrTextureParams::FilterMode = GrTextureParams::kNone_FilterMode,
+               SkShader::TileMode tileXAndY = SkShader::kClamp_TileMode,
+               GrShaderFlags visibility = kFragment_GrShaderFlag);
+
+    bool operator==(const TextureSampler& that) const {
+        return this->getTexture() == that.getTexture() &&
+               fParams == that.fParams &&
+               fVisibility == that.fVisibility;
+    }
+
+    bool operator!=(const TextureSampler& other) const { return !(*this == other); }
+
+    GrTexture* getTexture() const { return fTexture.get(); }
+    GrShaderFlags getVisibility() const { return fVisibility; }
+
+    /**
+     * For internal use by GrProcessor.
+     */
+    const GrGpuResourceRef* getProgramTexture() const { return &fTexture; }
+
+    const GrTextureParams& getParams() const { return fParams; }
+
+private:
+
+    typedef GrTGpuResourceRef<GrTexture> ProgramTexture;
+
+    ProgramTexture                  fTexture;
+    GrTextureParams                 fParams;
+    GrShaderFlags                   fVisibility;
+
+    typedef SkNoncopyable INHERITED;
+};
 
 #endif

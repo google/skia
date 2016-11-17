@@ -55,11 +55,11 @@ private:
     float fInnerThreshold;
     float fOuterThreshold;
     GrCoordTransform fImageCoordTransform;
-    GrTextureAccess  fImageTextureAccess;
+    TextureSampler   fImageTextureSampler;
     // Color space transform is for the image (not the mask)
     sk_sp<GrColorSpaceXform> fColorSpaceXform;
     GrCoordTransform fMaskCoordTransform;
-    GrTextureAccess  fMaskTextureAccess;
+    TextureSampler   fMaskTextureSampler;
 
     typedef GrFragmentProcessor INHERITED;
 };

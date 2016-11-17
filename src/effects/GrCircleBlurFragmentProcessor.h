@@ -64,7 +64,7 @@ private:
     SkRect              fCircle;
     SkScalar            fSolidRadius;
     float               fTextureRadius;
-    GrTextureAccess     fBlurProfileAccess;
+    TextureSampler      fBlurProfileSampler;
 
     GR_DECLARE_FRAGMENT_PROCESSOR_TEST;
 
