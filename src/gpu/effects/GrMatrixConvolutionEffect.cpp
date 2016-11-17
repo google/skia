@@ -129,7 +129,7 @@ void GrGLMatrixConvolutionEffect::GenKey(const GrProcessor& processor,
 void GrGLMatrixConvolutionEffect::onSetData(const GrGLSLProgramDataManager& pdman,
                                             const GrProcessor& processor) {
     const GrMatrixConvolutionEffect& conv = processor.cast<GrMatrixConvolutionEffect>();
-    GrTexture* texture = conv.textureSampler(0).getTexture();
+    GrTexture* texture = conv.textureSampler(0).texture();
 
     float imageIncrement[2];
     float ySign = texture->origin() == kTopLeft_GrSurfaceOrigin ? 1.0f : -1.0f;

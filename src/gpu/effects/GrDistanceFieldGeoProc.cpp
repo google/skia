@@ -86,7 +86,7 @@ public:
 
         // compute numbers to be hardcoded to convert texture coordinates from float to int
         SkASSERT(dfTexEffect.numTextureSamplers() == 1);
-        GrTexture* atlas = dfTexEffect.textureSampler(0).getTexture();
+        GrTexture* atlas = dfTexEffect.textureSampler(0).texture();
         SkASSERT(atlas && SkIsPow2(atlas->width()) && SkIsPow2(atlas->height()));
 
         GrGLSLVertToFrag st(kVec2f_GrSLType);
@@ -208,7 +208,7 @@ public:
 
         // Currently we hardcode numbers to convert atlas coordinates to normalized floating point
         SkASSERT(gp.numTextureSamplers() == 1);
-        GrTexture* atlas = gp.textureSampler(0).getTexture();
+        GrTexture* atlas = gp.textureSampler(0).texture();
         SkASSERT(atlas);
         b->add32(atlas->width());
         b->add32(atlas->height());
@@ -433,7 +433,7 @@ public:
                  FPCoordTransformIter&& transformIter) override {
         SkASSERT(fTextureSizeUni.isValid());
 
-        GrTexture* texture = proc.textureSampler(0).getTexture();
+        GrTexture* texture = proc.textureSampler(0).texture();
         if (texture->width() != fTextureSize.width() ||
             texture->height() != fTextureSize.height()) {
             fTextureSize = SkISize::Make(texture->width(), texture->height());
@@ -595,7 +595,7 @@ public:
 
         // compute numbers to be hardcoded to convert texture coordinates from float to int
         SkASSERT(dfTexEffect.numTextureSamplers() == 1);
-        GrTexture* atlas = dfTexEffect.textureSampler(0).getTexture();
+        GrTexture* atlas = dfTexEffect.textureSampler(0).texture();
         SkASSERT(atlas && SkIsPow2(atlas->width()) && SkIsPow2(atlas->height()));
 
         GrGLSLVertToFrag st(kVec2f_GrSLType);
@@ -761,7 +761,7 @@ public:
 
         // Currently we hardcode numbers to convert atlas coordinates to normalized floating point
         SkASSERT(gp.numTextureSamplers() == 1);
-        GrTexture* atlas = gp.textureSampler(0).getTexture();
+        GrTexture* atlas = gp.textureSampler(0).texture();
         SkASSERT(atlas);
         b->add32(atlas->width());
         b->add32(atlas->height());

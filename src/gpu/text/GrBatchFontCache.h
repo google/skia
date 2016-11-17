@@ -128,7 +128,7 @@ public:
 
     void freeAll();
 
-    // if getTexture returns nullptr, the client must not try to use other functions on the
+    // if texture returns nullptr, the client must not try to use other functions on the
     // GrBatchFontCache which use the atlas.  This function *must* be called first, before other
     // functions which use the atlas.
     GrTexture* getTexture(GrMaskFormat format) {

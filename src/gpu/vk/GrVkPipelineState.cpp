@@ -310,9 +310,9 @@ void GrVkPipelineState::writeSamplers(
     SkASSERT(fNumSamplers == textureBindings.count());
 
     for (int i = 0; i < textureBindings.count(); ++i) {
-        const GrTextureParams& params = textureBindings[i]->getParams();
+        const GrTextureParams& params = textureBindings[i]->params();
 
-        GrVkTexture* texture = static_cast<GrVkTexture*>(textureBindings[i]->getTexture());
+        GrVkTexture* texture = static_cast<GrVkTexture*>(textureBindings[i]->texture());
 
         fSamplers.push(gpu->resourceProvider().findOrCreateCompatibleSampler(params,
                                                           texture->texturePriv().maxMipMapLevel()));

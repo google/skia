@@ -181,7 +181,7 @@ static void add_dependencies_for_processor(const GrFragmentProcessor* proc, GrRe
     GrFragmentProcessor::TextureAccessIter iter(proc);
     while (const GrProcessor::TextureSampler* sampler = iter.next()) {
         SkASSERT(rt->getLastOpList());
-        rt->getLastOpList()->addDependency(sampler->getTexture());
+        rt->getLastOpList()->addDependency(sampler->texture());
     }
 }
 
@@ -193,7 +193,7 @@ void GrPipeline::addDependenciesTo(GrRenderTarget* rt) const {
     const GrXferProcessor& xfer = this->getXferProcessor();
 
     for (int i = 0; i < xfer.numTextureSamplers(); ++i) {
-        GrTexture* texture = xfer.textureSampler(i).getTexture();
+        GrTexture* texture = xfer.textureSampler(i).texture();
         SkASSERT(rt->getLastOpList());
         rt->getLastOpList()->addDependency(texture);
     }
