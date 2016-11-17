@@ -126,7 +126,7 @@ void GrGLBicubicEffect::emitCode(EmitArgs& args) {
 void GrGLBicubicEffect::onSetData(const GrGLSLProgramDataManager& pdman,
                                   const GrProcessor& processor) {
     const GrBicubicEffect& bicubicEffect = processor.cast<GrBicubicEffect>();
-    GrTexture* texture = processor.textureSampler(0).getTexture();
+    GrTexture* texture = processor.textureSampler(0).texture();
     float imageIncrement[2];
     imageIncrement[0] = 1.0f / texture->width();
     imageIncrement[1] = 1.0f / texture->height();
