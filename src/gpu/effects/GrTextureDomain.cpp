@@ -242,8 +242,7 @@ GrGLSLFragmentProcessor* GrTextureDomainEffect::onCreateGLSLInstance() const  {
 
 bool GrTextureDomainEffect::onIsEqual(const GrFragmentProcessor& sBase) const {
     const GrTextureDomainEffect& s = sBase.cast<GrTextureDomainEffect>();
-    return this->fTextureDomain == s.fTextureDomain &&
-           s.textureSampler(0) == this->textureSampler(0);
+    return this->fTextureDomain == s.fTextureDomain;
 }
 
 void GrTextureDomainEffect::onComputeInvariantOutput(GrInvariantOutput* inout) const {
