@@ -154,125 +154,6 @@ void SkShadowMaskFilterImpl::flatten(SkWriteBuffer& buffer) const {
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
-class GrShadowEdgeEffect : public GrFragmentProcessor {
-public:
-    enum Type {
-        kGaussian_Type,
-        kSmoothStep_Type,
-        kGeometric_Type
-    };
-
-    static sk_sp<GrFragmentProcessor> Make(Type type);
-
-    ~GrShadowEdgeEffect() override {}
-    const char* name() const override { return "GrShadowEdge"; }
-
-private:
-    GrGLSLFragmentProcessor* onCreateGLSLInstance() const override;
-
-    GrShadowEdgeEffect(Type type);
-
-    void onGetGLSLProcessorKey(const GrGLSLCaps& caps,
-                               GrProcessorKeyBuilder* b) const override;
-
-    bool onIsEqual(const GrFragmentProcessor& other) const override;
-
-    void onComputeInvariantOutput(GrInvariantOutput* inout) const override;
-
-    Type fType;
-
-    GR_DECLARE_FRAGMENT_PROCESSOR_TEST;
-
-    typedef GrFragmentProcessor INHERITED;
-};
-
-sk_sp<GrFragmentProcessor> GrShadowEdgeEffect::Make(Type type) {
-    return sk_sp<GrFragmentProcessor>(new GrShadowEdgeEffect(type));
-}
-
-void GrShadowEdgeEffect::onComputeInvariantOutput(GrInvariantOutput* inout) const {
-    inout->mulByUnknownSingleComponent();
-}
-
-GrShadowEdgeEffect::GrShadowEdgeEffect(Type type)
-    : fType(type) {
-    this->initClassID<GrShadowEdgeEffect>();
-    // TODO: remove this when we switch to a non-distance based approach
-    // enable output of distance information for shape
-    fUsesDistanceVectorField = true;
-}
-
-bool GrShadowEdgeEffect::onIsEqual(const GrFragmentProcessor& other) const {
-    const GrShadowEdgeEffect& see = other.cast<GrShadowEdgeEffect>();
-    return fType == see.fType;
-}
-
-//////////////////////////////////////////////////////////////////////////////
-
-GR_DEFINE_FRAGMENT_PROCESSOR_TEST(GrShadowEdgeEffect);
-
-sk_sp<GrFragmentProcessor> GrShadowEdgeEffect::TestCreate(GrProcessorTestData* d) {
-    int t = d->fRandom->nextRangeU(0, 2);
-    GrShadowEdgeEffect::Type type = kGaussian_Type;
-    if (1 == t) {
-        type = kSmoothStep_Type;
-    } else if (2 == t) {
-        type = kGeometric_Type;
-    }
-    return GrShadowEdgeEffect::Make(type);
-}
-
-//////////////////////////////////////////////////////////////////////////////
-
-class GrGLShadowEdgeEffect : public GrGLSLFragmentProcessor {
-public:
-    void emitCode(EmitArgs&) override;
-
-protected:
-    void onSetData(const GrGLSLProgramDataManager&, const GrProcessor&) override;
-
-private:
-    typedef GrGLSLFragmentProcessor INHERITED;
-};
-
-void GrGLShadowEdgeEffect::emitCode(EmitArgs& args) {
-
-    GrGLSLFPFragmentBuilder* fragBuilder = args.fFragBuilder;
-
-    // TODO: handle smoothstep and geometric cases
-    if (!args.fGpImplementsDistanceVector) {
-        fragBuilder->codeAppendf("// GP does not implement fsDistanceVector - "
-                                 " returning semi-transparent black in GrGLShadowEdgeEffect\n");
-        fragBuilder->codeAppendf("vec4 color = %s;", args.fInputColor);
-        fragBuilder->codeAppendf("%s = vec4(0.0, 0.0, 0.0, color.r);", args.fOutputColor);
-    } else {
-        fragBuilder->codeAppendf("vec4 color = %s;", args.fInputColor);
-        fragBuilder->codeAppend("float radius = color.r*256.0*64.0 + color.g*64.0;");
-        fragBuilder->codeAppend("float pad = color.b*64.0;");
-
-        fragBuilder->codeAppendf("float factor = 1.0 - clamp((%s.z - pad)/radius, 0.0, 1.0);",
-                                 fragBuilder->distanceVectorName());
-        fragBuilder->codeAppend("factor = exp(-factor * factor * 4.0) - 0.018;");
-        fragBuilder->codeAppendf("%s = factor*vec4(0.0, 0.0, 0.0, color.a);",
-                                 args.fOutputColor);
-    }
-}
-
-void GrGLShadowEdgeEffect::onSetData(const GrGLSLProgramDataManager& pdman,
-                                    const GrProcessor& proc) {
-}
-
-void GrShadowEdgeEffect::onGetGLSLProcessorKey(const GrGLSLCaps& caps,
-                                              GrProcessorKeyBuilder* b) const {
-    GrGLShadowEdgeEffect::GenKey(*this, caps, b);
-}
-
-GrGLSLFragmentProcessor* GrShadowEdgeEffect::onCreateGLSLInstance() const {
-    return new GrGLShadowEdgeEffect;
-}
-
-///////////////////////////////////////////////////////////////////////////////////////////////////
-
 bool SkShadowMaskFilterImpl::canFilterMaskGPU(const SkRRect& devRRect,
                                               const SkIRect& clipBounds,
                                               const SkMatrix& ctm,
@@ -309,11 +190,8 @@ bool SkShadowMaskFilterImpl::directFilterMaskGPU(GrTextureProvider* texProvider,
     return false;
 }
 
-#define MAX_BLUR_RADIUS 16383.75f
-#define MAX_PAD         64
-
 bool SkShadowMaskFilterImpl::directFilterRRectMaskGPU(GrContext*,
-                                                      GrRenderTargetContext* drawContext,
+                                                      GrRenderTargetContext* renderTargetContext,
                                                       GrPaint* grp,
                                                       const GrClip& clip,
                                                       const SkMatrix& viewMatrix,
@@ -355,10 +233,6 @@ bool SkShadowMaskFilterImpl::directFilterRRectMaskGPU(GrContext*,
         static const float kGeomFactor = 64.0f;
 
         SkScalar srcSpaceAmbientRadius = fOccluderHeight * kHeightFactor * kGeomFactor;
-        // the device-space radius sent to the blur shader must fit in 14.2 fixed point
-        if (srcSpaceAmbientRadius*scaleFactor > MAX_BLUR_RADIUS) {
-            srcSpaceAmbientRadius = MAX_BLUR_RADIUS / scaleFactor;
-        }
         const float umbraAlpha = 1.0f / (1.0f + SkTMax(fOccluderHeight * kHeightFactor, 0.0f));
         const SkScalar ambientOffset = srcSpaceAmbientRadius * umbraAlpha;
 
@@ -375,44 +249,25 @@ bool SkShadowMaskFilterImpl::directFilterRRectMaskGPU(GrContext*,
              rrect.outset(ambientPathOutset, ambientPathOutset, &ambientRRect);
         }
 
-        // we outset the stroke a little to cover up AA on the interior edge
-        float pad = 0.5f;
-        // handle scale of radius and pad due to CTM
-        pad *= scaleFactor;
         const SkScalar devSpaceAmbientRadius = srcSpaceAmbientRadius * scaleFactor;
-        SkASSERT(devSpaceAmbientRadius <= MAX_BLUR_RADIUS);
-        SkASSERT(pad < MAX_PAD);
-        // convert devSpaceAmbientRadius to 14.2 fixed point and place in the R & G components
-        // convert pad to 6.2 fixed point and place in the B component
-        // TODO: replace this with separate vertex attributes passed by a new GeoProc.
-        // For now we can't easily pass attributes to the fragment shader, so we're overriding
-        // the paint color.
-        uint16_t iDevSpaceAmbientRadius = (uint16_t)(4.0f * devSpaceAmbientRadius);
 
         GrPaint newPaint(*grp);
         newPaint.setAntiAlias(true);
+        GrColor4f color = newPaint.getColor4f();
+        color.fRGBA[3] *= fAmbientAlpha;
+        newPaint.setColor4f(color);
         SkStrokeRec ambientStrokeRec(SkStrokeRec::kHairline_InitStyle);
-        ambientStrokeRec.setStrokeStyle(srcSpaceAmbientRadius + 2.0f * pad, false);
-        newPaint.setColor4f(GrColor4f((iDevSpaceAmbientRadius >> 8)/255.f,
-                                      (iDevSpaceAmbientRadius & 0xff)/255.f,
-                                      4.0f * pad/255.f,
-                                      fAmbientAlpha));
+        ambientStrokeRec.setStrokeStyle(srcSpaceAmbientRadius, false);
 
-        sk_sp<GrFragmentProcessor> fp(GrShadowEdgeEffect::Make(GrShadowEdgeEffect::kGaussian_Type));
-        // TODO: switch to coverage FP
-        newPaint.addColorFragmentProcessor(std::move(fp));
-        drawContext->drawRRect(clip, newPaint, viewMatrix, ambientRRect,
-                               GrStyle(ambientStrokeRec, nullptr));
+        renderTargetContext->drawShadowRRect(clip, newPaint, viewMatrix, ambientRRect,
+                                             devSpaceAmbientRadius,
+                                             GrStyle(ambientStrokeRec, nullptr));
     }
 
     if (fSpotAlpha > 0.0f) {
         float zRatio = SkTPin(fOccluderHeight / (fLightPos.fZ - fOccluderHeight), 0.0f, 0.95f);
 
         SkScalar srcSpaceSpotRadius = 2.0f * fLightRadius * zRatio;
-        // the device-space radius sent to the blur shader must fit in 14.2 fixed point
-        if (srcSpaceSpotRadius > MAX_BLUR_RADIUS) {
-            srcSpaceSpotRadius = MAX_BLUR_RADIUS;
-        }
 
         SkRRect spotRRect;
         if (isRect) {
@@ -442,13 +297,11 @@ bool SkShadowMaskFilterImpl::directFilterRRectMaskGPU(GrContext*,
         // We want to extend the stroked area in so that it meets up with the caster
         // geometry. The stroked geometry will, by definition already be inset half the
         // stroke width but we also have to account for the scaling.
-        // We also add 1/2 to cover up AA on the interior edge.
         SkScalar scaleOffset = (scale - 1.0f) * SkTMax(SkTMax(SkTAbs(rrect.rect().fLeft),
                                                               SkTAbs(rrect.rect().fRight)),
                                                        SkTMax(SkTAbs(rrect.rect().fTop),
                                                               SkTAbs(rrect.rect().fBottom)));
-        SkScalar insetAmount = spotOffset.length() - (0.5f * srcSpaceSpotRadius) +
-                               scaleOffset + 0.5f;
+        SkScalar insetAmount = spotOffset.length() - (0.5f * srcSpaceSpotRadius) + scaleOffset;
 
         // Compute area
         SkScalar strokeWidth = srcSpaceSpotRadius + insetAmount;
@@ -459,6 +312,10 @@ bool SkShadowMaskFilterImpl::directFilterRRectMaskGPU(GrContext*,
 
         GrPaint newPaint(*grp);
         newPaint.setAntiAlias(true);
+        GrColor4f color = newPaint.getColor4f();
+        color.fRGBA[3] *= fSpotAlpha;
+        newPaint.setColor4f(color);
+        
         SkStrokeRec spotStrokeRec(SkStrokeRec::kFill_InitStyle);
         // If the area of the stroked geometry is larger than the fill geometry,
         // or if the caster is transparent, just fill it.
@@ -478,29 +335,12 @@ bool SkShadowMaskFilterImpl::directFilterRRectMaskGPU(GrContext*,
 
         // handle scale of radius and pad due to CTM
         const SkScalar devSpaceSpotRadius = srcSpaceSpotRadius * scaleFactor;
-        SkASSERT(devSpaceSpotRadius <= MAX_BLUR_RADIUS);
 
-        const SkScalar devSpaceSpotPad = 0;
-        SkASSERT(devSpaceSpotPad < MAX_PAD);
-
-        // convert devSpaceSpotRadius to 14.2 fixed point and place in the R & G
-        // components convert devSpaceSpotPad to 6.2 fixed point and place in the B component
-        // TODO: replace this with separate vertex attributes passed by a new GeoProc.
-        // For now we can't easily pass attributes to the fragment shader, so we're overriding
-        // the paint color.
-        uint16_t iDevSpaceSpotRadius = (uint16_t)(4.0f * devSpaceSpotRadius);
-        newPaint.setColor4f(GrColor4f((iDevSpaceSpotRadius >> 8) / 255.f,
-                                      (iDevSpaceSpotRadius & 0xff) / 255.f,
-                                      devSpaceSpotPad,
-                                      fSpotAlpha));
         spotShadowRRect.offset(spotOffset.fX, spotOffset.fY);
 
-        sk_sp<GrFragmentProcessor> fp(GrShadowEdgeEffect::Make(GrShadowEdgeEffect::kGaussian_Type));
-        // TODO: switch to coverage FP
-        newPaint.addColorFragmentProcessor(std::move(fp));
-
-        drawContext->drawRRect(clip, newPaint, viewMatrix, spotShadowRRect,
-                               GrStyle(spotStrokeRec, nullptr));
+        renderTargetContext->drawShadowRRect(clip, newPaint, viewMatrix, spotShadowRRect,
+                                             devSpaceSpotRadius,
+                                             GrStyle(spotStrokeRec, nullptr));
     }
 
     return true;
