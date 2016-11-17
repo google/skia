@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "b09b987b_1b71c7ff",
+        "filename": "tests/ProxyTest.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 139,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2016-11-17T19:36:31Z",
+      "side": 1,
+      "message": "comment that this would trigger an assert?",
+      "revId": "9b5d9534236d1816667da089e1dc23724fa30f17",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
