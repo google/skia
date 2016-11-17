@@ -301,6 +301,10 @@ void GrRenderTargetOpList::drawBatch(const GrPipelineBuilder& pipelineBuilder,
     }
 
     if (pipelineBuilder.hasUserStencilSettings() || appliedClip.hasStencilClip()) {
+        if (!renderTargetContext->accessRenderTarget()) {
+            return;
+        }
+
         if (!fResourceProvider->attachStencilAttachment(
                 renderTargetContext->accessRenderTarget())) {
             SkDebugf("ERROR creating stencil attachment. Draw skipped.\n");
@@ -341,6 +345,10 @@ void GrRenderTargetOpList::drawBatch(const GrPipelineBuilder& pipelineBuilder,
     args.fScissor = &appliedClip.scissorState();
     args.fWindowRectsState = &appliedClip.windowRectsState();
     args.fHasStencilClip = appliedClip.hasStencilClip();
+    if (!renderTargetContext->accessRenderTarget()) {
+        return;
+    }
+
     if (!this->setupDstReadIfNecessary(pipelineBuilder, renderTargetContext->accessRenderTarget(),
                                        clip, args.fOpts,
                                        &args.fDstTexture, batch->bounds())) {
@@ -382,6 +390,9 @@ void GrRenderTargetOpList::stencilPath(GrRenderTargetContext* renderTargetContex
     // attempt this in a situation that would require coverage AA.
     SkASSERT(!appliedClip.clipCoverageFragmentProcessor());
 
+    if (!renderTargetContext->accessRenderTarget()) {
+        return;
+    }
     GrStencilAttachment* stencilAttachment = fResourceProvider->attachStencilAttachment(
                                                 renderTargetContext->accessRenderTarget());
     if (!stencilAttachment) {
