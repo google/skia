@@ -1319,8 +1319,8 @@ sk_sp<GrFragmentProcessor> SkPerlinNoiseShader2::asFragmentProcessor(const AsFPA
     m.setTranslateY(-localMatrix.getTranslateY() + SK_Scalar1);
 
     if (fType == kImprovedNoise_Type) {
-        GrTextureParams textureParams(SkShader::TileMode::kRepeat_TileMode, 
-                                      GrTextureParams::FilterMode::kNone_FilterMode);
+        GrSamplerParams textureParams(SkShader::TileMode::kRepeat_TileMode,
+                                      GrSamplerParams::FilterMode::kNone_FilterMode);
         sk_sp<GrTexture> permutationsTexture(
             GrRefCachedBitmapTexture(args.fContext, paintingData->getImprovedPermutationsBitmap(),
                                      textureParams, args.fColorMode));
@@ -1350,10 +1350,10 @@ sk_sp<GrFragmentProcessor> SkPerlinNoiseShader2::asFragmentProcessor(const AsFPA
 
     sk_sp<GrTexture> permutationsTexture(
         GrRefCachedBitmapTexture(args.fContext, paintingData->getPermutationsBitmap(),
-                                 GrTextureParams::ClampNoFilter(), args.fColorMode));
+                                 GrSamplerParams::ClampNoFilter(), args.fColorMode));
     sk_sp<GrTexture> noiseTexture(
         GrRefCachedBitmapTexture(args.fContext, paintingData->getNoiseBitmap(),
-                                 GrTextureParams::ClampNoFilter(), args.fColorMode));
+                                 GrSamplerParams::ClampNoFilter(), args.fColorMode));
 
     if ((permutationsTexture) && (noiseTexture)) {
         sk_sp<GrFragmentProcessor> inner(

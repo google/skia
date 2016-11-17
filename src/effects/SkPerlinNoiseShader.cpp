@@ -926,10 +926,10 @@ sk_sp<GrFragmentProcessor> SkPerlinNoiseShader::asFragmentProcessor(const AsFPAr
             new PaintingData(fTileSize, fSeed, fBaseFrequencyX, fBaseFrequencyY, matrix);
     sk_sp<GrTexture> permutationsTexture(
         GrRefCachedBitmapTexture(args.fContext, paintingData->getPermutationsBitmap(),
-                                 GrTextureParams::ClampNoFilter(), args.fColorMode));
+                                 GrSamplerParams::ClampNoFilter(), args.fColorMode));
     sk_sp<GrTexture> noiseTexture(
         GrRefCachedBitmapTexture(args.fContext, paintingData->getNoiseBitmap(),
-                                 GrTextureParams::ClampNoFilter(), args.fColorMode));
+                                 GrSamplerParams::ClampNoFilter(), args.fColorMode));
 
     SkMatrix m = *args.fViewMatrix;
     m.setTranslateX(-localMatrix.getTranslateX() + SK_Scalar1);

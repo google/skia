@@ -78,13 +78,13 @@ public:
         yuvMatrix[1].preScale(w[1] / w[0], h[1] / h[0]);
         yuvMatrix[2] = yuvMatrix[0];
         yuvMatrix[2].preScale(w[2] / w[0], h[2] / h[0]);
-        GrTextureParams::FilterMode uvFilterMode =
+        GrSamplerParams::FilterMode uvFilterMode =
             ((sizes[1].fWidth  != sizes[0].fWidth) ||
              (sizes[1].fHeight != sizes[0].fHeight) ||
              (sizes[2].fWidth  != sizes[0].fWidth) ||
              (sizes[2].fHeight != sizes[0].fHeight)) ?
-            GrTextureParams::kBilerp_FilterMode :
-            GrTextureParams::kNone_FilterMode;
+            GrSamplerParams::kBilerp_FilterMode :
+            GrSamplerParams::kNone_FilterMode;
         return sk_sp<GrFragmentProcessor>(new YUVtoRGBEffect(
             yTexture, uTexture, vTexture, yuvMatrix, uvFilterMode, colorSpace, nv12));
     }
@@ -152,9 +152,9 @@ public:
 
 private:
     YUVtoRGBEffect(GrTexture* yTexture, GrTexture* uTexture, GrTexture* vTexture,
-                   const SkMatrix yuvMatrix[3], GrTextureParams::FilterMode uvFilterMode,
+                   const SkMatrix yuvMatrix[3], GrSamplerParams::FilterMode uvFilterMode,
                    SkYUVColorSpace colorSpace, bool nv12)
-        : fYTransform(yuvMatrix[0], yTexture, GrTextureParams::kNone_FilterMode)
+        : fYTransform(yuvMatrix[0], yTexture, GrSamplerParams::kNone_FilterMode)
         , fYSampler(yTexture)
         , fUTransform(yuvMatrix[1], uTexture, uvFilterMode)
         , fUSampler(uTexture, uvFilterMode)

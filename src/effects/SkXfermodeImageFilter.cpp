@@ -258,7 +258,7 @@ sk_sp<SkSpecialImage> SkXfermodeImageFilter_Base::filterImageGPU(
                             GrTextureDomain::MakeTexelDomain(backgroundTex.get(),
                                                              background->subset()),
                             GrTextureDomain::kDecal_Mode,
-                            GrTextureParams::kNone_FilterMode);
+                            GrSamplerParams::kNone_FilterMode);
     } else {
         bgFP = GrConstColorProcessor::Make(GrColor4f::TransparentBlack(),
                                            GrConstColorProcessor::kIgnore_InputMode);
@@ -277,7 +277,7 @@ sk_sp<SkSpecialImage> SkXfermodeImageFilter_Base::filterImageGPU(
                             GrTextureDomain::MakeTexelDomain(foregroundTex.get(), 
                                                              foreground->subset()),
                             GrTextureDomain::kDecal_Mode,
-                            GrTextureParams::kNone_FilterMode);
+                            GrSamplerParams::kNone_FilterMode);
 
         paint.addColorFragmentProcessor(std::move(foregroundFP));
 

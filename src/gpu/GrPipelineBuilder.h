@@ -86,14 +86,14 @@ public:
 
     void addColorTextureProcessor(GrTexture* texture,
                                   const SkMatrix& matrix,
-                                  const GrTextureParams& params) {
+                                  const GrSamplerParams& params) {
         this->addColorFragmentProcessor(GrSimpleTextureEffect::Make(texture, nullptr, matrix,
                                                                     params));
     }
 
     void addCoverageTextureProcessor(GrTexture* texture,
                                      const SkMatrix& matrix,
-                                     const GrTextureParams& params) {
+                                     const GrSamplerParams& params) {
         this->addCoverageFragmentProcessor(GrSimpleTextureEffect::Make(texture, nullptr, matrix,
                                                                        params));
     }
