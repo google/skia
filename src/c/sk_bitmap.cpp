@@ -198,6 +198,16 @@ void sk_bitmap_set_pixel_color(sk_bitmap_t* cbitmap, int x, int y, sk_color_t co
     }
 }
 
+bool sk_bitmap_ready_to_draw(sk_bitmap_t* cbitmap)
+{
+    return AsBitmap(cbitmap)->readyToDraw();
+}
+
+bool sk_bitmap_copy_pixels_to(sk_bitmap_t* cbitmap, void* const dst, size_t dstSize, size_t dstRowBytes, bool preserveDstPad)
+{
+    return AsBitmap(cbitmap)->copyPixelsTo(dst, dstSize, dstRowBytes, preserveDstPad);
+}
+
 bool sk_bitmap_copy(sk_bitmap_t* cbitmap, sk_bitmap_t* dst, sk_colortype_t ct)
 {
     return AsBitmap(cbitmap)->copyTo(AsBitmap(dst), (SkColorType)ct);
@@ -274,6 +284,16 @@ void sk_bitmap_set_pixel_colors(sk_bitmap_t* cbitmap, const sk_color_t* colors)
     default:
         break;
     }
+}
+
+bool sk_bitmap_install_pixels(sk_bitmap_t* cbitmap, const sk_imageinfo_t* cinfo, void* pixels, size_t rowBytes, sk_colortable_t* ctable, const sk_bitmap_release_proc releaseProc, void* context)
+{
+    SkBitmap* bmp = AsBitmap(cbitmap);
+
+    SkImageInfo info;
+    from_c(*cinfo, &info);
+
+    return bmp->installPixels(info, pixels, rowBytes, AsColorTable(ctable), releaseProc, context);
 }
 
 bool sk_bitmap_try_alloc_pixels(sk_bitmap_t* cbitmap, const sk_imageinfo_t* requestedInfo, size_t rowBytes)

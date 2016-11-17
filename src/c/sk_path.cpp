@@ -240,6 +240,11 @@ int sk_path_count_points(const sk_path_t* cpath) {
     return path.countPoints();
 }
 
+int sk_path_count_verbs(const sk_path_t* cpath) {
+    const SkPath& path = AsPath(*cpath);
+    return path.countVerbs();
+}
+
 void sk_path_get_point(const sk_path_t* cpath, int index, sk_point_t* cpoint) {
     const SkPath& path = AsPath(*cpath);
     if (cpoint) {

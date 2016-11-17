@@ -84,6 +84,7 @@ SK_API void sk_canvas_concat(sk_canvas_t*, const sk_matrix_t*);
     current clip will be the intersection of the old clip and the
     rectange.
 */
+SK_API bool sk_canvas_quick_reject(sk_canvas_t*, const sk_rect_t*);
 SK_API void sk_canvas_clip_rect(sk_canvas_t*, const sk_rect_t*);
 SK_API void sk_canvas_clip_region(sk_canvas_t* canvas, const sk_region_t* region, sk_clipop_t op);
 /**
@@ -104,6 +105,7 @@ SK_API void sk_canvas_draw_paint(sk_canvas_t*, const sk_paint_t*);
     paint.
 */
 SK_API void sk_canvas_draw_rect(sk_canvas_t*, const sk_rect_t*, const sk_paint_t*);
+SK_API void sk_canvas_draw_region(sk_canvas_t*, const sk_region_t*, const sk_paint_t*);
 /**
  *  Draw the circle centered at (cx, cy) with radius rad using the specified paint.
  *  The circle will be filled or framed based on the style in the paint

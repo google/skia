@@ -213,6 +213,7 @@ SK_API void sk_path_reset (sk_path_t* cpath);
 SK_API void sk_path_rewind (sk_path_t* cpath);
 
 SK_API int sk_path_count_points (const sk_path_t* cpath);
+SK_API int sk_path_count_verbs (const sk_path_t* cpath);
 
 SK_API void sk_path_get_point (const sk_path_t* cpath, int index, sk_point_t* point);
 

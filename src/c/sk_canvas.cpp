@@ -170,6 +170,10 @@ void sk_canvas_concat(sk_canvas_t* ccanvas, const sk_matrix_t* cmatrix) {
     AsCanvas(ccanvas)->concat(matrix);
 }
 
+bool sk_canvas_quick_reject(sk_canvas_t* ccanvas, const sk_rect_t* crect) {
+    return AsCanvas(ccanvas)->quickReject(AsRect(*crect));
+}
+
 void sk_canvas_clip_rect(sk_canvas_t* ccanvas, const sk_rect_t* crect) {
     AsCanvas(ccanvas)->clipRect(AsRect(*crect));
 }
@@ -184,6 +188,10 @@ void sk_canvas_clip_path(sk_canvas_t* ccanvas, const sk_path_t* cpath) {
 
 void sk_canvas_draw_paint(sk_canvas_t* ccanvas, const sk_paint_t* cpaint) {
     AsCanvas(ccanvas)->drawPaint(AsPaint(*cpaint));
+}
+
+void sk_canvas_draw_region(sk_canvas_t* ccanvas, const sk_region_t* cregion, const sk_paint_t* cpaint) {
+    AsCanvas(ccanvas)->drawRegion(AsRegion(*cregion), AsPaint(*cpaint));
 }
 
 void sk_canvas_draw_rect(sk_canvas_t* ccanvas, const sk_rect_t* crect, const sk_paint_t* cpaint) {

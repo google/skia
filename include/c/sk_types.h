@@ -699,6 +699,8 @@ typedef enum {
     GET_POS_AND_TAN_SK_PATHMEASURE_MATRIXFLAGS = GET_POSITION_SK_PATHMEASURE_MATRIXFLAGS | GET_TANGENT_SK_PATHMEASURE_MATRIXFLAGS,
 } sk_pathmeasure_matrixflags_t;
 
+typedef void (*sk_bitmap_release_proc)(void* addr, void* context);
+
 SK_C_PLUS_PLUS_END_GUARD
 
 #endif
