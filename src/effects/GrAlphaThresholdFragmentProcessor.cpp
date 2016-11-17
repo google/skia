@@ -47,12 +47,12 @@ GrAlphaThresholdFragmentProcessor::GrAlphaThresholdFragmentProcessor(
     : fInnerThreshold(innerThreshold)
     , fOuterThreshold(outerThreshold)
     , fImageCoordTransform(GrCoordTransform::MakeDivByTextureWHMatrix(texture), texture,
-                           GrTextureParams::kNone_FilterMode)
+                           GrSamplerParams::kNone_FilterMode)
     , fImageTextureSampler(texture)
     , fColorSpaceXform(std::move(colorSpaceXform))
     , fMaskCoordTransform(make_div_and_translate_matrix(maskTexture, -bounds.x(), -bounds.y()),
                           maskTexture,
-                          GrTextureParams::kNone_FilterMode)
+                          GrSamplerParams::kNone_FilterMode)
     , fMaskTextureSampler(maskTexture) {
     this->initClassID<GrAlphaThresholdFragmentProcessor>();
     this->addCoordTransform(&fImageCoordTransform);

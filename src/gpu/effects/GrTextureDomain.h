@@ -171,7 +171,7 @@ public:
                                            const SkMatrix&,
                                            const SkRect& domain,
                                            GrTextureDomain::Mode,
-                                           GrTextureParams::FilterMode filterMode);
+                                           GrSamplerParams::FilterMode filterMode);
 
     const char* name() const override { return "TextureDomain"; }
 
@@ -192,7 +192,7 @@ private:
                           const SkMatrix&,
                           const SkRect& domain,
                           GrTextureDomain::Mode,
-                          GrTextureParams::FilterMode);
+                          GrSamplerParams::FilterMode);
 
     GrGLSLFragmentProcessor* onCreateGLSLInstance() const override;
 
