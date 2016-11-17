@@ -168,10 +168,10 @@ public:
      * @return the amount of GPU memory used in bytes
      */
     size_t gpuMemorySize() const {
-        if (kInvalidGpuMemorySize == fGpuMemorySize) {
+//        if (kInvalidGpuMemorySize == fGpuMemorySize) {
             fGpuMemorySize = this->onGpuMemorySize();
             SkASSERT(kInvalidGpuMemorySize != fGpuMemorySize);
-        }
+//        }
         return fGpuMemorySize;
     }
 

@@ -41,6 +41,9 @@ public:
                                            sk_sp<GrColorSpaceXform> colorSpaceXform,
                                            const SkMatrix& matrix,
                                            const GrTextureParams& p) {
+        if (!tex) {
+            return nullptr;
+        }
         return sk_sp<GrFragmentProcessor>(new GrSimpleTextureEffect(tex, std::move(colorSpaceXform),
                                                                     matrix, p));
     }

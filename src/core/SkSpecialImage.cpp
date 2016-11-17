@@ -527,6 +527,9 @@ sk_sp<SkSpecialImage> SkSpecialImage::MakeFromGpu(const SkIRect& subset,
                                                   sk_sp<SkColorSpace> colorSpace,
                                                   const SkSurfaceProps* props,
                                                   SkAlphaType at) {
+    if (!tex) {
+        return nullptr;
+    }
     SkASSERT(rect_fits(subset, tex->width(), tex->height()));
     return sk_make_sp<SkSpecialImage_Gpu>(subset, uniqueID, std::move(tex), at,
                                           std::move(colorSpace), props);

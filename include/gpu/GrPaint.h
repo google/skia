@@ -105,7 +105,9 @@ public:
      * Appends an additional color processor to the color computation.
      */
     void addColorFragmentProcessor(sk_sp<GrFragmentProcessor> fp) {
-        SkASSERT(fp);
+        if (!fp) {
+            return;
+        }
         fUsesDistanceVectorField |= fp->usesDistanceVectorField();
         fColorFragmentProcessors.push_back(std::move(fp));
     }

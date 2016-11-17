@@ -139,7 +139,9 @@ protected:
         SkASSERT(equal(surf->props(), surf2->props()));
 
         sk_sp<SkImage> image2(surf2->makeImageSnapshot());
-        canvas->drawImage(image2.get(), 10 + SkIntToScalar(image->width()) + 10, 10, nullptr);
+        if (image2) {
+            canvas->drawImage(image2.get(), 10 + SkIntToScalar(image->width()) + 10, 10, nullptr);
+        }
     }
 
 private:

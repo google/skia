@@ -160,7 +160,9 @@ std::unique_ptr<GrBatchAtlas> GrResourceProvider::makeAtlas(GrPixelConfig config
 }
 
 GrStencilAttachment* GrResourceProvider::attachStencilAttachment(GrRenderTarget* rt) {
-    SkASSERT(rt);
+    if (!rt) {
+        return nullptr;
+    }
     if (rt->renderTargetPriv().getStencilAttachment()) {
         return rt->renderTargetPriv().getStencilAttachment();
     }

@@ -75,6 +75,9 @@ protected:
         }
         sk_tool_utils::draw_checkerboard(surface->getCanvas());
         sk_sp<SkImage> source = surface->makeImageSnapshot();
+        if (!source) {
+            return;
+        }
 
         for (auto clipBound : clipBounds) {
             canvas->save();

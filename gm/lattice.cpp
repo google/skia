@@ -105,6 +105,9 @@ protected:
         SkBitmap bitmap;
         sk_sp<SkImage> image = make_image(canvas, xDivs + 1, yDivs + 1, padLeft, padTop,
                                           padRight, padBottom);
+        if (!image) {
+            return;
+        }
         image_to_bitmap(image.get(), &bitmap);
 
         const SkTSize<SkScalar> size[] = {

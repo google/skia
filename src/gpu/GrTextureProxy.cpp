@@ -9,6 +9,8 @@
 
 #include "GrTextureProvider.h"
 
+#include "SkMathPriv.h"
+
 GrTextureProxy::GrTextureProxy(const GrSurfaceDesc& srcDesc, SkBackingFit fit, SkBudgeted budgeted,
                                const void* srcData, size_t /*rowBytes*/)
     : INHERITED(srcDesc, fit, budgeted) {
@@ -33,7 +35,12 @@ size_t GrTextureProxy::onGpuMemorySize() const {
         return fTarget->gpuMemorySize();
     }
 
+    GrSurfaceDesc tmpDesc = fDesc;
+    if (fFit == SkBackingFit::kApprox) {
+        tmpDesc.fWidth = GrNextPow2(tmpDesc.fWidth);
+        tmpDesc.fHeight = GrNextPow2(tmpDesc.fHeight);
+    }
     static const bool kHasMipMaps = true;
     // TODO: add tracking of mipmap state to improve the estimate
-    return GrSurface::ComputeSize(fDesc, 1, kHasMipMaps);
+    return GrSurface::ComputeSize(tmpDesc, 1, kHasMipMaps);
 }

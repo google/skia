@@ -23,6 +23,9 @@ GrPipeline* GrPipeline::CreateAt(void* memory, const CreateArgs& args,
     const GrPipelineBuilder& builder = *args.fPipelineBuilder;
     const GrUserStencilSettings* userStencil = builder.getUserStencil();
     GrRenderTarget* rt = args.fRenderTargetContext->accessRenderTarget();
+    if (!rt) {
+        return nullptr;
+    }
 
     GrPipeline* pipeline = new (memory) GrPipeline;
     pipeline->fRenderTarget.reset(rt);

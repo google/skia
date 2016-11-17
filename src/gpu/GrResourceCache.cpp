@@ -92,6 +92,8 @@ void GrResourceCache::setLimits(int count, size_t bytes, int maxUnusedFlushes) {
 }
 
 void GrResourceCache::insertResource(GrGpuResource* resource) {
+    this->validate();
+
     SkASSERT(resource);
     SkASSERT(!this->isInCache(resource));
     SkASSERT(!resource->wasDestroyed());
@@ -127,6 +129,7 @@ void GrResourceCache::insertResource(GrGpuResource* resource) {
     }
 
     this->purgeAsNeeded();
+    this->validate();
 }
 
 void GrResourceCache::removeResource(GrGpuResource* resource) {

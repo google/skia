@@ -124,6 +124,10 @@ static void convolve_gaussian(GrRenderTargetContext* renderTargetContext,
                               float sigma,
                               const SkIRect* srcBounds,
                               const SkIPoint& srcOffset) {
+    if (!texture) {
+        return;
+    }
+
     float bounds[2] = { 0.0f, 1.0f };
     SkIRect dstRect = SkIRect::MakeWH(srcRect.width(), srcRect.height());
     if (!srcBounds) {
@@ -189,6 +193,9 @@ sk_sp<GrRenderTargetContext> GaussianBlur(GrContext* context,
                                           float sigmaX,
                                           float sigmaY,
                                           SkBackingFit fit) {
+    if (!origSrc) {
+        return nullptr;
+    }
     SkASSERT(context);
     SkIRect clearRect;
     int scaleFactorX, radiusX;
