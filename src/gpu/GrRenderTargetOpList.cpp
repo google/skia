@@ -103,6 +103,10 @@ bool GrRenderTargetOpList::setupDstReadIfNecessary(const GrPipelineBuilder& pipe
                                                    const GrPipelineOptimizations& optimizations,
                                                    GrXferProcessor::DstTexture* dstTexture,
                                                    const SkRect& batchBounds) {
+    if (!rt) {
+        return false;
+    }
+
     SkRect bounds = batchBounds;
     bounds.outset(0.5f, 0.5f);
 
@@ -406,6 +410,10 @@ void GrRenderTargetOpList::addBatch(sk_sp<GrBatch> batch) {
 }
 
 void GrRenderTargetOpList::fullClear(GrRenderTarget* renderTarget, GrColor color) {
+    if (!renderTarget) {
+        return;
+    }
+
     // Currently this just inserts or updates the last clear batch. However, once in MDB this can
     // remove all the previously recorded batches and change the load op to clear with supplied
     // color.

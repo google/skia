@@ -208,6 +208,9 @@ void GrRenderTargetContext::discard() {
     // TODO: this needs to be fixed up since it ends the deferrable of the GrRenderTarget
     sk_sp<GrRenderTarget> rt(
                         sk_ref_sp(fRenderTargetProxy->instantiate(fContext->textureProvider())));
+    if (!rt) {
+        return;
+    }
 
     this->getOpList()->discard(rt.get());
 }
@@ -1144,6 +1147,9 @@ void GrRenderTargetContext::prepareForExternalIO() {
     // Deferral of the VRAM resources must end in this instance anyway
     sk_sp<GrRenderTarget> rt(
                         sk_ref_sp(fRenderTargetProxy->instantiate(fContext->textureProvider())));
+    if (!rt) {
+        return;
+    }
 
     ASSERT_OWNED_RESOURCE(rt);
 
@@ -1185,6 +1191,9 @@ bool GrRenderTargetContext::readPixels(const SkImageInfo& dstInfo, void* dstBuff
     // Deferral of the VRAM resources must end in this instance anyway
     sk_sp<GrRenderTarget> rt(
                         sk_ref_sp(fRenderTargetProxy->instantiate(fContext->textureProvider())));
+    if (!rt) {
+        return false;
+    }
 
     return rt->readPixels(x, y, dstInfo.width(), dstInfo.height(),
                           config, dstBuffer, dstRowBytes, flags);
@@ -1205,6 +1214,9 @@ bool GrRenderTargetContext::writePixels(const SkImageInfo& srcInfo, const void* 
     // Deferral of the VRAM resources must end in this instance anyway
     sk_sp<GrRenderTarget> rt(
                         sk_ref_sp(fRenderTargetProxy->instantiate(fContext->textureProvider())));
+    if (!rt) {
+        return false;
+    }
 
     return rt->writePixels(x, y, srcInfo.width(), srcInfo.height(),
                            config, srcBuffer, srcRowBytes, flags);

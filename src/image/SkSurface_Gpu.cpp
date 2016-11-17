@@ -77,7 +77,10 @@ sk_sp<SkSurface> SkSurface_Gpu::onNewSurface(const SkImageInfo& info) {
 
 sk_sp<SkImage> SkSurface_Gpu::onNewImageSnapshot(SkBudgeted budgeted, SkCopyPixelsMode cpm) {
     GrRenderTarget* rt = fDevice->accessRenderTargetContext()->accessRenderTarget();
-    SkASSERT(rt);
+    if (!rt) {
+        return nullptr;
+    }
+
     GrTexture* tex = rt->asTexture();
     sk_sp<GrTexture> copy;
     // If the original render target is a buffer originally created by the client, then we don't
@@ -201,7 +204,7 @@ sk_sp<SkSurface> SkSurface::MakeFromBackendTexture(GrContext* context,
         return nullptr;
     }
 
-    sk_sp<SkGpuDevice> device(SkGpuDevice::Make(std::move(rtc), desc.fWidth, desc.fHeight,
+    sk_sp<SkGpuDevice> device(SkGpuDevice::Make(context, std::move(rtc), desc.fWidth, desc.fHeight,
                                                 SkGpuDevice::kUninit_InitContents));
     if (!device) {
         return nullptr;
@@ -228,7 +231,7 @@ sk_sp<SkSurface> SkSurface::MakeFromBackendRenderTarget(GrContext* context,
         return nullptr;
     }
 
-    sk_sp<SkGpuDevice> device(SkGpuDevice::Make(std::move(rtc), desc.fWidth, desc.fHeight,
+    sk_sp<SkGpuDevice> device(SkGpuDevice::Make(context, std::move(rtc), desc.fWidth, desc.fHeight,
                                                 SkGpuDevice::kUninit_InitContents));
     if (!device) {
         return nullptr;
@@ -257,7 +260,7 @@ sk_sp<SkSurface> SkSurface::MakeFromBackendTextureAsRenderTarget(GrContext* cont
         return nullptr;
     }
 
-    sk_sp<SkGpuDevice> device(SkGpuDevice::Make(std::move(rtc), desc.fWidth, desc.fHeight,
+    sk_sp<SkGpuDevice> device(SkGpuDevice::Make(context, std::move(rtc), desc.fWidth, desc.fHeight,
                                                 SkGpuDevice::kUninit_InitContents));
     if (!device) {
         return nullptr;

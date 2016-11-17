@@ -20,6 +20,9 @@ public:
     DEFINE_BATCH_CLASS_ID
 
     static sk_sp<GrClearBatch> Make(const GrFixedClip& clip, GrColor color, GrRenderTarget* rt) {
+        if (!rt) {
+            return nullptr;
+        }
         sk_sp<GrClearBatch> batch(new GrClearBatch(clip, color, rt));
         if (!batch->renderTarget()) {
             return nullptr; // The clip did not contain any pixels within the render target.

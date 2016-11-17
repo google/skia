@@ -6,6 +6,7 @@
  */
 
 #include "GrTextureRenderTargetProxy.h"
+#include "SkMathPriv.h"
 
 // Deferred version
 // This class is virtually derived from GrSurfaceProxy (via both GrTextureProxy and 
@@ -35,7 +36,12 @@ size_t GrTextureRenderTargetProxy::onGpuMemorySize() const {
         return fTarget->gpuMemorySize();
     }
 
+    GrSurfaceDesc tmpDesc = fDesc;
+    if (fFit == SkBackingFit::kApprox) {
+        tmpDesc.fWidth = GrNextPow2(tmpDesc.fWidth);
+        tmpDesc.fHeight = GrNextPow2(tmpDesc.fHeight);
+    }
     // TODO: do we have enough information to improve this worst case estimate?
-    return GrSurface::ComputeSize(fDesc, fDesc.fSampleCnt+1, true);
+    return GrSurface::ComputeSize(tmpDesc, tmpDesc.fSampleCnt+1, true);
 }
 

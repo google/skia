@@ -47,6 +47,9 @@ static sk_sp<SkImage> make_image(SkCanvas* root, SkIRect* center) {
 }
 
 static void image_to_bitmap(const SkImage* image, SkBitmap* bm) {
+    if (!image) {
+        return;
+    }
     SkImageInfo info = SkImageInfo::MakeN32Premul(image->width(), image->height());
     bm->allocPixels(info);
     image->readPixels(info, bm->getPixels(), bm->rowBytes(), 0, 0);
@@ -73,6 +76,10 @@ protected:
         if (nullptr == fBitmap.pixelRef()) {
             fImage = make_image(canvas, &fCenter);
             image_to_bitmap(fImage.get(), &fBitmap);
+        }
+
+        if (!fImage) {
+            return;
         }
 
         // amount of bm that should not be stretched (unless we have to)

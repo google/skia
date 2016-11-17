@@ -175,6 +175,13 @@ public:
     size_t gpuMemorySize() const {
         if (kInvalidGpuMemorySize == fGpuMemorySize) {
             fGpuMemorySize = this->onGpuMemorySize();
+            if (fGpuMemorySize == 34133) {
+                int foo = 0;
+
+                ++foo;
+                fGpuMemorySize = this->onGpuMemorySize();
+
+            }
             SkASSERT(kInvalidGpuMemorySize != fGpuMemorySize);
         }
         return fGpuMemorySize;

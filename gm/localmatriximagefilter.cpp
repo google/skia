@@ -63,6 +63,9 @@ protected:
 
     void onDraw(SkCanvas* canvas) override {
         sk_sp<SkImage> image0(make_image(canvas));
+        if (!image0) {
+            return;
+        }
 
         const ImageFilterFactory factories[] = {
             IFCCast([]{ return SkBlurImageFilter::Make(8, 8, nullptr); }),

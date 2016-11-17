@@ -13,6 +13,8 @@
 #include "GrTextureProvider.h"
 #include "GrTextureRenderTargetProxy.h"
 
+#include "SkMathPriv.h"
+
 // Deferred version
 // TODO: we can probably munge the 'desc' in both the wrapped and deferred
 // cases to make the sampleConfig/numSamples stuff more rational.
@@ -43,6 +45,8 @@ int GrRenderTargetProxy::maxWindowRectangles(const GrCaps& caps) const {
 GrRenderTarget* GrRenderTargetProxy::instantiate(GrTextureProvider* texProvider) {
     SkASSERT(fDesc.fFlags & GrSurfaceFlags::kRenderTarget_GrSurfaceFlag);
 
+    return nullptr;
+
     GrSurface* surf = INHERITED::instantiate(texProvider);
     if (!surf || !surf->asRenderTarget()) {
         return nullptr;
@@ -70,7 +74,12 @@ size_t GrRenderTargetProxy::onGpuMemorySize() const {
         return fTarget->gpuMemorySize();
     }
 
+    GrSurfaceDesc tmpDesc = fDesc;
+    if (fFit == SkBackingFit::kApprox) {
+        tmpDesc.fWidth = GrNextPow2(tmpDesc.fWidth);
+        tmpDesc.fHeight = GrNextPow2(tmpDesc.fHeight);
+    }
     // TODO: do we have enough information to improve this worst case estimate?
-    return GrSurface::ComputeSize(fDesc, fDesc.fSampleCnt+1, false);
+    return GrSurface::ComputeSize(tmpDesc, tmpDesc.fSampleCnt+1, false);
 }
 

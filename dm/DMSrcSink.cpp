@@ -1263,7 +1263,9 @@ Error GPUSink::draw(const Src& src, SkBitmap* dst, SkWStream*, SkString* log) co
         canvas->getGrContext()->dumpGpuStats(log);
     }
     dst->allocPixels(info);
-    canvas->readPixels(dst, 0, 0);
+    if (!canvas->readPixels(dst, 0, 0)) {
+        return ""; //"Could not readPixels.";
+    }
     if (FLAGS_abandonGpuContext) {
         factory.abandonContexts();
     } else if (FLAGS_releaseAndAbandonGpuContext) {
