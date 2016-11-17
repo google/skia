@@ -83,7 +83,7 @@ protected:
         }
 
         sk_sp<GrTexture> texture(
-            GrRefCachedBitmapTexture(context, fBmp, GrTextureParams::ClampNoFilter(),
+            GrRefCachedBitmapTexture(context, fBmp, GrSamplerParams::ClampNoFilter(),
                                      SkDestinationSurfaceColorMode::kGammaAndColorSpaceAware));
         if (!texture) {
             return;
@@ -119,7 +119,7 @@ protected:
                         GrTextureDomainEffect::Make(texture.get(), nullptr, textureMatrices[tm],
                                                 GrTextureDomain::MakeTexelDomain(texture.get(),
                                                                                  texelDomains[d]),
-                                                mode, GrTextureParams::kNone_FilterMode));
+                                                mode, GrSamplerParams::kNone_FilterMode));
 
                     if (!fp) {
                         continue;

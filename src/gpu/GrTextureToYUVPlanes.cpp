@@ -24,11 +24,11 @@ static bool convert_texture(GrTexture* src, GrRenderTargetContext* dst, int dstW
 
     SkScalar xScale = SkIntToScalar(src->width()) / dstW / src->width();
     SkScalar yScale = SkIntToScalar(src->height()) / dstH / src->height();
-    GrTextureParams::FilterMode filter;
+    GrSamplerParams::FilterMode filter;
     if (dstW == src->width() && dstW == src->height()) {
-        filter = GrTextureParams::kNone_FilterMode;
+        filter = GrSamplerParams::kNone_FilterMode;
     } else {
-        filter = GrTextureParams::kBilerp_FilterMode;
+        filter = GrSamplerParams::kBilerp_FilterMode;
     }
 
     sk_sp<GrFragmentProcessor> fp(

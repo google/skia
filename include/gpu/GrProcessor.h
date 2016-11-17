@@ -9,9 +9,11 @@
 #define GrProcessor_DEFINED
 
 #include "GrColor.h"
+#include "GrBuffer.h"
+#include "GrGpuResourceRef.h"
 #include "GrProcessorUnitTest.h"
 #include "GrProgramElement.h"
-#include "GrBufferAccess.h"
+#include "GrSamplerParams.h"
 #include "SkMath.h"
 #include "SkString.h"
 #include "../private/SkAtomics.h"
@@ -59,6 +61,7 @@ private:
 class GrProcessor : public GrProgramElement {
 public:
     class TextureSampler;
+    class BufferAccess;
 
     virtual ~GrProcessor();
 
@@ -83,7 +86,7 @@ public:
 
     /** Returns the access pattern for the buffer at index. index must be valid according to
         numBuffers(). */
-    const GrBufferAccess& bufferAccess(int index) const {
+    const BufferAccess& bufferAccess(int index) const {
         return *fBufferAccesses[index];
     }
 
@@ -123,12 +126,11 @@ protected:
     /**
      * Subclasses call these from their constructor to register sampler sources. The processor
      * subclass manages the lifetime of the objects (these functions only store pointers). The
-     * TextureSampler and/or GrBufferAccess instances are typically member fields of the
-     * GrProcessor subclass. These must only be called from the constructor because GrProcessors
-     * are immutable.
+     * TextureSampler and/or BufferAccess instances are typically member fields of the GrProcessor
+     * subclass. These must only be called from the constructor because GrProcessors are immutable.
      */
     void addTextureSampler(const TextureSampler*);
-    void addBufferAccess(const GrBufferAccess* bufferAccess);
+    void addBufferAccess(const BufferAccess* bufferAccess);
 
     bool hasSameSamplers(const GrProcessor&) const;
 
@@ -170,7 +172,7 @@ private:
 
     RequiredFeatures fRequiredFeatures;
     SkSTArray<4, const TextureSampler*, true>   fTextureSamplers;
-    SkSTArray<2, const GrBufferAccess*, true>   fBufferAccesses;
+    SkSTArray<2, const BufferAccess*, true>     fBufferAccesses;
 
     typedef GrProgramElement INHERITED;
 };
@@ -179,7 +181,7 @@ GR_MAKE_BITFIELD_OPS(GrProcessor::RequiredFeatures);
 
 /**
  * Used to represent a texture that is required by a GrProcessor. It holds a GrTexture along with
- * an associated GrTextureParams
+ * an associated GrSamplerParams
  */
 class GrProcessor::TextureSampler : public SkNoncopyable {
 public:
@@ -188,17 +190,17 @@ public:
      */
     TextureSampler();
 
-    TextureSampler(GrTexture*, const GrTextureParams&);
+    TextureSampler(GrTexture*, const GrSamplerParams&);
 
     explicit TextureSampler(GrTexture*,
-                            GrTextureParams::FilterMode = GrTextureParams::kNone_FilterMode,
+                            GrSamplerParams::FilterMode = GrSamplerParams::kNone_FilterMode,
                             SkShader::TileMode tileXAndY = SkShader::kClamp_TileMode,
                             GrShaderFlags visibility = kFragment_GrShaderFlag);
 
-    void reset(GrTexture*, const GrTextureParams&,
+    void reset(GrTexture*, const GrSamplerParams&,
                GrShaderFlags visibility = kFragment_GrShaderFlag);
     void reset(GrTexture*,
-               GrTextureParams::FilterMode = GrTextureParams::kNone_FilterMode,
+               GrSamplerParams::FilterMode = GrSamplerParams::kNone_FilterMode,
                SkShader::TileMode tileXAndY = SkShader::kClamp_TileMode,
                GrShaderFlags visibility = kFragment_GrShaderFlag);
 
@@ -212,7 +214,7 @@ public:
 
     GrTexture* texture() const { return fTexture.get(); }
     GrShaderFlags visibility() const { return fVisibility; }
-    const GrTextureParams& params() const { return fParams; }
+    const GrSamplerParams& params() const { return fParams; }
 
     /**
      * For internal use by GrProcessor.
@@ -224,8 +226,49 @@ private:
     typedef GrTGpuResourceRef<GrTexture> ProgramTexture;
 
     ProgramTexture                  fTexture;
-    GrTextureParams                 fParams;
+    GrSamplerParams                 fParams;
     GrShaderFlags                   fVisibility;
+
+    typedef SkNoncopyable INHERITED;
+};
+
+/**
+ * Used to represent a texel buffer that will be read in a GrProcessor. It holds a GrBuffer along
+ * with an associated offset and texel config.
+ */
+class GrProcessor::BufferAccess : public SkNoncopyable {
+public:
+    /**
+     * Must be initialized before adding to a GrProcessor's buffer access list.
+     */
+    void reset(GrPixelConfig texelConfig, GrBuffer* buffer,
+               GrShaderFlags visibility = kFragment_GrShaderFlag) {
+        fTexelConfig = texelConfig;
+        fBuffer.set(SkRef(buffer), kRead_GrIOType);
+        fVisibility = visibility;
+    }
+
+    bool operator==(const BufferAccess& that) const {
+        return fTexelConfig == that.fTexelConfig &&
+               this->buffer() == that.buffer() &&
+               fVisibility == that.fVisibility;
+    }
+
+    bool operator!=(const BufferAccess& that) const { return !(*this == that); }
+
+    GrPixelConfig texelConfig() const { return fTexelConfig; }
+    GrBuffer* buffer() const { return fBuffer.get(); }
+    GrShaderFlags visibility() const { return fVisibility; }
+
+    /**
+     * For internal use by GrProcessor.
+     */
+    const GrGpuResourceRef* getProgramBuffer() const { return &fBuffer;}
+
+private:
+    GrPixelConfig                 fTexelConfig;
+    GrTGpuResourceRef<GrBuffer>   fBuffer;
+    GrShaderFlags                 fVisibility;
 
     typedef SkNoncopyable INHERITED;
 };
