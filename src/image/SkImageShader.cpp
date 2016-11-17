@@ -312,7 +312,7 @@ bool SkImageShader::onAppendStages(SkRasterPipeline* p, SkColorSpace* dst, SkFal
         return false;
     }
 
-    // TODO: mtklein doesn't understand why we do this.
+    // See skia:4649 and the GM image_scale_aligned.
     if (quality == kNone_SkFilterQuality) {
         if (matrix.getScaleX() >= 0) {
             matrix.setTranslateX(nextafterf(matrix.getTranslateX(),
