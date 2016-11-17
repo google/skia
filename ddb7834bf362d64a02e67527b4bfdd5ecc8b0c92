@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "503c1cf2_9a7f7854",
+        "filename": "infra/bots/git_utils.py",
+        "patchSetId": 10
+      },
+      "lineNbr": 34,
+      "author": {
+        "id": 5015
+      },
+      "writtenOn": "2016-11-17T13:02:08Z",
+      "side": 1,
+      "message": "Nit: prevent entering a bad state:\n\nif self._previous_values.get(k):\n  subprocess.check_call([\u0027git\u0027, \u0027config\u0027, \u0027--local\u0027, k, self._previous_values[k]])\nelse:\n  subprocess.check_call([\u0027git\u0027, \u0027config\u0027, \u0027--local\u0027, \u0027--unset\u0027, k])",
+      "range": {
+        "startLine": 34,
+        "startChar": 8,
+        "endLine": 34,
+        "endChar": 18
+      },
+      "revId": "ddb7834bf362d64a02e67527b4bfdd5ecc8b0c92",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
