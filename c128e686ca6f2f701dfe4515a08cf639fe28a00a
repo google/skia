@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "b09b987b_07bec462",
+        "filename": "src/core/SkFixedAlloc.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 38,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2016-11-17T22:46:57Z",
+      "side": 1,
+      "message": "better rewrite to \"Make space for the T.\" ?",
+      "revId": "c128e686ca6f2f701dfe4515a08cf639fe28a00a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
