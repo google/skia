@@ -356,6 +356,9 @@ bool GrClipStackClip::apply(GrContext* context, GrRenderTargetContext* renderTar
     }
 
     GrRenderTarget* rt = renderTargetContext->accessRenderTarget();
+    if (!rt) {
+        return true;
+    }
 
     // use the stencil clip if we can't represent the clip as a rectangle.
     if (!context->resourceProvider()->attachStencilAttachment(rt)) {
@@ -413,7 +416,10 @@ sk_sp<GrTexture> GrClipStackClip::CreateAlphaClipMask(GrContext* context,
     }
 
     sk_sp<GrTexture> texture(rtc->asTexture());
-    SkASSERT(texture);
+    if (!texture) {
+        return nullptr;
+    }
+
     texture->resourcePriv().setUniqueKey(key);
     return texture;
 }

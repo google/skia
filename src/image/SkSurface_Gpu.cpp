@@ -77,7 +77,10 @@ sk_sp<SkSurface> SkSurface_Gpu::onNewSurface(const SkImageInfo& info) {
 
 sk_sp<SkImage> SkSurface_Gpu::onNewImageSnapshot(SkBudgeted budgeted, SkCopyPixelsMode cpm) {
     GrRenderTarget* rt = fDevice->accessRenderTargetContext()->accessRenderTarget();
-    SkASSERT(rt);
+    if (!rt) {
+        return nullptr;
+    }
+
     GrTexture* tex = rt->asTexture();
     sk_sp<GrTexture> copy;
     // If the original render target is a buffer originally created by the client, then we don't
@@ -111,6 +114,9 @@ sk_sp<SkImage> SkSurface_Gpu::onNewImageSnapshot(SkBudgeted budgeted, SkCopyPixe
 // doesn't force an OpenGL flush.
 void SkSurface_Gpu::onCopyOnWrite(ContentChangeMode mode) {
     GrRenderTarget* rt = fDevice->accessRenderTargetContext()->accessRenderTarget();
+    if (!rt) {
+        return;
+    }
     // are we sharing our render target with the image? Note this call should never create a new
     // image because onCopyOnWrite is only called when there is a cached image.
     sk_sp<SkImage> image(this->refCachedImage(SkBudgeted::kNo, kNo_ForceUnique));
