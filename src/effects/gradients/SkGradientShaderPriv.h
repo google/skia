@@ -439,7 +439,7 @@ private:
     SkShader::TileMode       fTileMode;
 
     GrCoordTransform fCoordTransform;
-    GrTextureAccess fTextureAccess;
+    TextureSampler fTextureSampler;
     SkScalar fYCoord;
     GrTextureStripAtlas* fAtlas;
     int fRow;

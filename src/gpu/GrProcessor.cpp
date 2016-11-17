@@ -10,6 +10,8 @@
 #include "GrGeometryProcessor.h"
 #include "GrInvariantOutput.h"
 #include "GrMemoryPool.h"
+#include "GrTextureParams.h"
+#include "GrTexturePriv.h"
 #include "GrXferProcessor.h"
 #include "SkSpinlock.h"
 
@@ -113,8 +115,8 @@ int32_t GrProcessor::gCurrProcessorClassID = GrProcessor::kIllegalProcessorClass
 
 GrProcessor::~GrProcessor() {}
 
-void GrProcessor::addTextureAccess(const GrTextureAccess* access) {
-    fTextureAccesses.push_back(access);
+void GrProcessor::addTextureSampler(const TextureSampler* access) {
+    fTextureSamplers.push_back(access);
     this->addGpuResource(access->getProgramTexture());
 }
 
@@ -132,11 +134,12 @@ void GrProcessor::operator delete(void* target) {
 }
 
 bool GrProcessor::hasSameSamplers(const GrProcessor& that) const {
-    if (this->numTextures() != that.numTextures() || this->numBuffers() != that.numBuffers()) {
+    if (this->numTextureSamplers() != that.numTextureSamplers() ||
+        this->numBuffers() != that.numBuffers()) {
         return false;
     }
-    for (int i = 0; i < this->numTextures(); ++i) {
-        if (this->textureAccess(i) != that.textureAccess(i)) {
+    for (int i = 0; i < this->numTextureSamplers(); ++i) {
+        if (this->textureSampler(i) != that.textureSampler(i)) {
             return false;
         }
     }
@@ -146,6 +149,42 @@ bool GrProcessor::hasSameSamplers(const GrProcessor& that) const {
         }
     }
     return true;
+}
+
+///////////////////////////////////////////////////////////////////////////////////////////////////
+
+GrProcessor::TextureSampler::TextureSampler() {}
+
+GrProcessor::TextureSampler::TextureSampler(GrTexture* texture, const GrTextureParams& params) {
+    this->reset(texture, params);
+}
+
+GrProcessor::TextureSampler::TextureSampler(GrTexture* texture,
+                                            GrTextureParams::FilterMode filterMode,
+                                            SkShader::TileMode tileXAndY,
+                                            GrShaderFlags visibility) {
+    this->reset(texture, filterMode, tileXAndY, visibility);
+}
+
+void GrProcessor::TextureSampler::reset(GrTexture* texture,
+                                        const GrTextureParams& params,
+                                        GrShaderFlags visibility) {
+    SkASSERT(texture);
+    fTexture.set(SkRef(texture), kRead_GrIOType);
+    fParams = params;
+    fParams.setFilterMode(SkTMin(params.filterMode(), texture->texturePriv().highestFilterMode()));
+    fVisibility = visibility;
+}
+
+void GrProcessor::TextureSampler::reset(GrTexture* texture,
+                                        GrTextureParams::FilterMode filterMode,
+                                        SkShader::TileMode tileXAndY,
+                                        GrShaderFlags visibility) {
+    SkASSERT(texture);
+    fTexture.set(SkRef(texture), kRead_GrIOType);
+    filterMode = SkTMin(filterMode, texture->texturePriv().highestFilterMode());
+    fParams.reset(tileXAndY, filterMode);
+    fVisibility = visibility;
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////

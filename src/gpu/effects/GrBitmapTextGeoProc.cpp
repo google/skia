@@ -30,8 +30,8 @@ public:
         varyingHandler->emitAttributes(cte);
 
         // compute numbers to be hardcoded to convert texture coordinates from int to float
-        SkASSERT(cte.numTextures() == 1);
-        SkDEBUGCODE(GrTexture* atlas = cte.textureAccess(0).getTexture());
+        SkASSERT(cte.numTextureSamplers() == 1);
+        SkDEBUGCODE(GrTexture* atlas = cte.textureSampler(0).getTexture());
         SkASSERT(atlas && SkIsPow2(atlas->width()) && SkIsPow2(atlas->height()));
 
         GrGLSLVertToFrag v(kVec2f_GrSLType);
@@ -108,8 +108,8 @@ public:
         b->add32(key);
 
         // Currently we hardcode numbers to convert atlas coordinates to normalized floating point
-        SkASSERT(gp.numTextures() == 1);
-        GrTexture* atlas = gp.textureAccess(0).getTexture();
+        SkASSERT(gp.numTextureSamplers() == 1);
+        GrTexture* atlas = gp.textureSampler(0).getTexture();
         SkASSERT(atlas);
         b->add32(atlas->width());
         b->add32(atlas->height());
@@ -130,7 +130,7 @@ GrBitmapTextGeoProc::GrBitmapTextGeoProc(GrColor color, GrTexture* texture,
     : fColor(color)
     , fLocalMatrix(localMatrix)
     , fUsesLocalCoords(usesLocalCoords)
-    , fTextureAccess(texture, params)
+    , fTextureSampler(texture, params)
     , fInColor(nullptr)
     , fMaskFormat(format) {
     this->initClassID<GrBitmapTextGeoProc>();
@@ -143,7 +143,7 @@ GrBitmapTextGeoProc::GrBitmapTextGeoProc(GrColor color, GrTexture* texture,
     }
     fInTextureCoords = &this->addVertexAttrib("inTextureCoords",  kVec2us_GrVertexAttribType,
                                               kHigh_GrSLPrecision);
-    this->addTextureAccess(&fTextureAccess);
+    this->addTextureSampler(&fTextureSampler);
 }
 
 void GrBitmapTextGeoProc::getGLSLProcessorKey(const GrGLSLCaps& caps,

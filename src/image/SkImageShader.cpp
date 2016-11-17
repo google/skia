@@ -175,7 +175,6 @@ void SkImageShader::toString(SkString* str) const {
 
 #if SK_SUPPORT_GPU
 
-#include "GrTextureAccess.h"
 #include "SkGr.h"
 #include "SkGrPriv.h"
 #include "effects/GrSimpleTextureEffect.h"
