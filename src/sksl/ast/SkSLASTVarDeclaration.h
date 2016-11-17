@@ -22,15 +22,15 @@ namespace SkSL {
  * instances.
  */
 struct ASTVarDeclaration {
-    ASTVarDeclaration(const std::string name,
+    ASTVarDeclaration(const SkString name,
                       std::vector<std::unique_ptr<ASTExpression>> sizes,
                       std::unique_ptr<ASTExpression> value)
     : fName(name)
     , fSizes(std::move(sizes))
     , fValue(std::move(value)) {}
 
-    std::string description() const {
-        std::string result = fName;
+    SkString description() const {
+        SkString result = fName;
         for (const auto& size : fSizes) {
             if (size) {
                 result += "[" + size->description() + "]";
@@ -44,7 +44,7 @@ struct ASTVarDeclaration {
         return result;        
     }
 
-    std::string fName;
+    SkString fName;
 
     // array sizes, if any. e.g. 'foo[3][]' has sizes [3, null]
     std::vector<std::unique_ptr<ASTExpression>> fSizes;
@@ -65,9 +65,9 @@ struct ASTVarDeclarations : public ASTDeclaration {
     , fType(std::move(type))
     , fVars(std::move(vars)) {}
 
-    std::string description() const override {
-        std::string result = fModifiers.description() + fType->description() + " ";
-        std::string separator = "";
+    SkString description() const override {
+        SkString result = fModifiers.description() + fType->description() + " ";
+        SkString separator;
         for (const auto& var : fVars) {
             result += separator;
             separator = ", ";

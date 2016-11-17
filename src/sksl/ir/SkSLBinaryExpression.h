@@ -24,7 +24,7 @@ struct BinaryExpression : public Expression {
     , fOperator(op)
     , fRight(std::move(right)) {}
 
-    virtual std::string description() const override {
+    virtual SkString description() const override {
         return "(" + fLeft->description() + " " + Token::OperatorName(fOperator) + " " +
                fRight->description() + ")";
     }

@@ -20,7 +20,7 @@ struct ASTExpressionStatement : public ASTStatement {
     : INHERITED(expression->fPosition, kExpression_Kind)
     , fExpression(std::move(expression)) {}
 
-    std::string description() const override {
+    SkString description() const override {
         return fExpression->description() + ";";
     }
 

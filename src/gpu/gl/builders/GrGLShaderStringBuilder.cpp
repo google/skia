@@ -21,18 +21,19 @@ static const bool c_PrintShaders{false};
 
 static void print_shader_source(const char** strings, int* lengths, int count);
 
-static void dump_string(std::string s) {
+static void dump_string(SkString s) {
     // on Android, SkDebugf only displays the first 1K characters of output, which results in
     // incomplete shader source code. Print each line individually to avoid this problem.
-    size_t index = 0;
+    const char* chars = s.c_str();
     for (;;) {
-        size_t next = s.find("\n", index);
-        if (next == std::string::npos) {
-            SkDebugf("%s", s.substr(index).c_str());
-            break;
+        const char* next = strchr(chars, '\n');
+        if (next) {
+            next++;
+            SkDebugf("%s", SkString(chars, next - chars).c_str());
+            chars = next;
         } else {
-            SkDebugf("%s", s.substr(index, next - index + 1).c_str());
-            index = next + 1;
+            SkDebugf("%s", chars);
+            break;
         }
     }
 }
@@ -52,23 +53,22 @@ GrGLuint GrGLCompileAndAttachShader(const GrGLContext& glCtx,
         return 0;
     }
 
-    std::string sksl;
+    SkString sksl;
 #ifdef SK_DEBUG
-    SkString prettySource = GrGLSLPrettyPrint::PrettyPrintGLSL(strings, lengths, count, false);
-    sksl = std::string(prettySource.c_str());
+    sksl = GrGLSLPrettyPrint::PrettyPrintGLSL(strings, lengths, count, false);
 #else
     for (int i = 0; i < count; i++) {
         sksl.append(strings[i], lengths[i]);
     }
 #endif
 
-    std::string glsl;
+    SkString glsl;
     SkSL::Compiler& compiler = *glCtx.compiler();
     SkASSERT(type == GR_GL_VERTEX_SHADER || type == GR_GL_FRAGMENT_SHADER);
     SkDEBUGCODE(bool result = )compiler.toGLSL(type == GR_GL_VERTEX_SHADER 
                                                                     ? SkSL::Program::kVertex_Kind
                                                                     : SkSL::Program::kFragment_Kind,
-                                               std::string(sksl.c_str()),
+                                               sksl,
                                                *glCtx.caps()->glslCaps(),
                                                &glsl);
 #ifdef SK_DEBUG
@@ -82,7 +82,7 @@ GrGLuint GrGLCompileAndAttachShader(const GrGLContext& glCtx,
 #endif
 
     const char* glslChars = glsl.c_str();
-    GrGLint glslLength = (GrGLint) glsl.length();
+    GrGLint glslLength = (GrGLint) glsl.size();
     GR_GL_CALL(gli, ShaderSource(shaderId, 1, &glslChars, &glslLength));
 
     // If tracing is enabled in chrome then we pretty print

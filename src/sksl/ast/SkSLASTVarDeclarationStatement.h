@@ -21,7 +21,7 @@ struct ASTVarDeclarationStatement : public ASTStatement {
     : INHERITED(decl->fPosition, kVarDeclaration_Kind)
     , fDeclarations(std::move(decl)) {}
 
-    std::string description() const override {
+    SkString description() const override {
         return fDeclarations->description() + ";";
     }
 

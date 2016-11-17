@@ -34,8 +34,8 @@ struct ASTModifiers : public ASTNode {
     : fLayout(layout)
     , fFlags(flags) {}
 
-    std::string description() const override {
-        std::string result = fLayout.description();
+    SkString description() const override {
+        SkString result = fLayout.description();
         if (fFlags & kUniform_Flag) {
             result += "uniform ";
         }

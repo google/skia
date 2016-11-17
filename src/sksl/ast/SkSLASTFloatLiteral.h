@@ -20,7 +20,7 @@ struct ASTFloatLiteral : public ASTExpression {
     : INHERITED(position, kFloat_Kind)
     , fValue(value) {}
 
-    std::string description() const override {
+    SkString description() const override {
         return to_string(fValue);
     }
 

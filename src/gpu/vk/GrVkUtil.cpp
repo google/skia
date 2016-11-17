@@ -292,7 +292,7 @@ bool GrCompileVkShaderModule(const GrVkGpu* gpu,
     moduleCreateInfo.flags = 0;
 
 #if USE_SKSL
-    std::string code;
+    SkString code;
 #else
     shaderc_compilation_result_t result = nullptr;
 #endif
@@ -304,7 +304,7 @@ bool GrCompileVkShaderModule(const GrVkGpu* gpu,
 
 #if USE_SKSL
         bool result = gpu->shaderCompiler()->toSPIRV(vk_shader_stage_to_skiasl_kind(stage),
-                                                     std::string(shaderString),
+                                                     SkString(shaderString),
                                                      &code);
         if (!result) {
             SkDebugf("%s\n", gpu->shaderCompiler()->errorText().c_str());
