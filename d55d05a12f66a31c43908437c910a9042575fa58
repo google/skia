@@ -1,0 +1,234 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "503c1cf2_876f2515",
+        "filename": "src/core/SkColorSpace_ICC.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 860,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2016-11-17T03:49:47Z",
+      "side": 1,
+      "message": "nit: no space?",
+      "range": {
+        "startLine": 860,
+        "startChar": 37,
+        "endLine": 860,
+        "endChar": 38
+      },
+      "revId": "d55d05a12f66a31c43908437c910a9042575fa58",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "503c1cf2_c7980d0b",
+        "filename": "src/core/SkColorSpace_ICC.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 863,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2016-11-17T03:49:47Z",
+      "side": 1,
+      "message": "Have you looked into how often all of the tables are the same?  I\u0027m just curious.",
+      "range": {
+        "startLine": 863,
+        "startChar": 12,
+        "endLine": 863,
+        "endChar": 89
+      },
+      "revId": "d55d05a12f66a31c43908437c910a9042575fa58",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "503c1cf2_e7c9d110",
+        "filename": "src/core/SkColorSpace_ICC.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 909,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2016-11-17T03:49:47Z",
+      "side": 1,
+      "message": "nit: Maybe a few extra spaces?",
+      "range": {
+        "startLine": 909,
+        "startChar": 38,
+        "endLine": 909,
+        "endChar": 41
+      },
+      "revId": "d55d05a12f66a31c43908437c910a9042575fa58",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "503c1cf2_c7448dbc",
+        "filename": "src/core/SkColorSpace_ICC.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 962,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2016-11-17T03:49:47Z",
+      "side": 1,
+      "message": "For documentation, can we assert that inputChannels is 3 here?",
+      "range": {
+        "startLine": 962,
+        "startChar": 8,
+        "endLine": 962,
+        "endChar": 30
+      },
+      "revId": "d55d05a12f66a31c43908437c910a9042575fa58",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "503c1cf2_47519d7e",
+        "filename": "src/core/SkColorSpace_ICC.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 1023,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2016-11-17T03:49:47Z",
+      "side": 1,
+      "message": "Good place for another documenting SkASSERT...\n\nSkASSERT(len \u003e\u003d 48); (or 52 depending on the type)",
+      "range": {
+        "startLine": 1023,
+        "startChar": 4,
+        "endLine": 1023,
+        "endChar": 62
+      },
+      "revId": "d55d05a12f66a31c43908437c910a9042575fa58",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "503c1cf2_2408d7d8",
+        "filename": "src/core/SkColorSpace_ICC.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 1038,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2016-11-17T03:49:47Z",
+      "side": 1,
+      "message": "nit: byte?",
+      "range": {
+        "startLine": 1038,
+        "startChar": 12,
+        "endLine": 1038,
+        "endChar": 15
+      },
+      "revId": "d55d05a12f66a31c43908437c910a9042575fa58",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "503c1cf2_c4de4b2d",
+        "filename": "src/core/SkColorSpace_ICC.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 1046,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2016-11-17T03:49:47Z",
+      "side": 1,
+      "message": "inTableEntries and outTableEntries are always 256 with the lut8 type?",
+      "range": {
+        "startLine": 1046,
+        "startChar": 4,
+        "endLine": 1046,
+        "endChar": 33
+      },
+      "revId": "d55d05a12f66a31c43908437c910a9042575fa58",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "503c1cf2_0768352f",
+        "filename": "src/core/SkColorSpace_ICC.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 1066,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2016-11-17T03:49:47Z",
+      "side": 1,
+      "message": "Do you think this is more clear written this way?\nif (len \u003c newOffset) {\n    return false;\n}\nlen -\u003d newOffset;\nsrc +\u003d newOffset;\n// continue parsing\n\nIt\u0027s fine as is, just a suggestion.",
+      "range": {
+        "startLine": 1066,
+        "startChar": 4,
+        "endLine": 1066,
+        "endChar": 83
+      },
+      "revId": "d55d05a12f66a31c43908437c910a9042575fa58",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "503c1cf2_27aa994e",
+        "filename": "src/core/SkColorSpace_ICC.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 1070,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2016-11-17T03:49:47Z",
+      "side": 1,
+      "message": "Is there a risk of underflow here?  Are we sure that len \u003e\u003d clutOffset?  If it is safe, let\u0027s assert.",
+      "range": {
+        "startLine": 1070,
+        "startChar": 24,
+        "endLine": 1070,
+        "endChar": 40
+      },
+      "revId": "d55d05a12f66a31c43908437c910a9042575fa58",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "503c1cf2_07db150c",
+        "filename": "src/core/SkColorSpace_ICC.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 1084,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2016-11-17T03:49:47Z",
+      "side": 1,
+      "message": "Same question about underflow.",
+      "range": {
+        "startLine": 1084,
+        "startChar": 45,
+        "endLine": 1084,
+        "endChar": 63
+      },
+      "revId": "d55d05a12f66a31c43908437c910a9042575fa58",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
