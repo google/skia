@@ -585,6 +585,19 @@ STAGE(matrix_4x5, true) {
     a = A;
 }
 
+STAGE(matrix_perspective, true) {
+    // N.B. unlike the matrix_NxM stages, this takes a row-major matrix.
+    auto m = (const float*)ctx;
+
+    auto fma = [](const SkNf& f, const SkNf& m, const SkNf& a) { return SkNx_fma(f,m,a); };
+    auto R = fma(r,m[0], fma(g,m[1], m[2])),
+         G = fma(r,m[3], fma(g,m[4], m[5])),
+         Z = fma(r,m[6], fma(g,m[7], m[8]));
+    r = R * Z.invert();
+    g = G * Z.invert();
+}
+
+
 SI SkNf parametric(const SkNf& v, const SkColorSpaceTransferFn& p) {
     float result[N];   // Unconstrained powf() doesn't vectorize well...
     for (int i = 0; i < N; i++) {

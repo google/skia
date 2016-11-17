@@ -73,6 +73,7 @@
     M(exclusion) M(hardlight) M(lighten) M(overlay) M(softlight) \
     M(luminance_to_alpha)                                        \
     M(matrix_2x3) M(matrix_3x4) M(matrix_4x5)                    \
+    M(matrix_perspective)                                        \
     M(parametric_r) M(parametric_g) M(parametric_b)              \
     M(table_r) M(table_g) M(table_b)                             \
     M(color_lookup_table) M(lab_to_xyz) M(swap_rb)               \

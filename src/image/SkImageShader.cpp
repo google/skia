@@ -280,11 +280,6 @@ bool SkImageShader::onAppendStages(SkRasterPipeline* p, SkColorSpace* dst, SkFal
         return false;
     }
 
-    // TODO: perspective
-    if (!matrix.asAffine(nullptr)) {
-        return false;
-    }
-
     // TODO: all formats
     switch (info.colorType()) {
         case kRGBA_8888_SkColorType:
@@ -329,7 +324,7 @@ bool SkImageShader::onAppendStages(SkRasterPipeline* p, SkColorSpace* dst, SkFal
         int         stride;
         int         width;
         int         height;
-        float       matrix[6];
+        float       matrix[9];
     };
     auto ctx = scratch->make<context>();
 
@@ -337,9 +332,12 @@ bool SkImageShader::onAppendStages(SkRasterPipeline* p, SkColorSpace* dst, SkFal
     ctx->stride   = pm.rowBytesAsPixels();
     ctx->width    = pm.width();
     ctx->height   = pm.height();
-    SkAssertResult(matrix.asAffine(ctx->matrix));
-
-    p->append(SkRasterPipeline::matrix_2x3, &ctx->matrix);
+    if (matrix.asAffine(ctx->matrix)) {
+        p->append(SkRasterPipeline::matrix_2x3, ctx->matrix);
+    } else {
+        matrix.get9(ctx->matrix);
+        p->append(SkRasterPipeline::matrix_perspective, ctx->matrix);
+    }
 
     switch (fTileModeX) {
         case kClamp_TileMode:  p->append(SkRasterPipeline::clamp_x,  &ctx->width); break;
