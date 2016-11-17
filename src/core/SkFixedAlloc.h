@@ -37,15 +37,12 @@ public:
 
         // Create the T.
         auto ptr = (T*)(fBuffer+fUsed);
-        new (ptr) T(std::forward<Args>(args)...);
         fUsed += sizeof(T);
-
         // Stamp a footer after the T that we can use to clean it up.
         Footer footer = { [](void* ptr) { ((T*)ptr)->~T(); }, SkToU32(skip), SkToU32(sizeof(T)) };
         memcpy(fBuffer+fUsed, &footer, sizeof(Footer));
         fUsed += sizeof(Footer);
-
-        return ptr;
+        return new (ptr) T(std::forward<Args>(args)...);
     }
 
     // Destroys the last object allocated and frees its space in the buffer.
@@ -78,9 +75,10 @@ public:
                 return ptr;
             }
         }
-        auto ptr = new T(std::forward<Args>(args)...);
-        fHeapAllocs.push_back({[](void* ptr) { delete (T*)ptr; }, ptr});
-        return ptr;
+
+        char* ptr = new char[sizeof(T)];
+        fHeapAllocs.push_back({[](char* ptr) { ((T*)ptr)->~T(); delete [] ptr; }, ptr});
+        return new (ptr) T(std::forward<Args>(args)...);
     }
 
     // Destroys the last object allocated and frees any space it used in the SkFixedAlloc.
@@ -91,8 +89,8 @@ public:
 
 private:
     struct HeapAlloc {
-        void (*deleter)(void*);
-        void* ptr;
+        void (*deleter)(char*);
+        char* ptr;
     };
 
     SkFixedAlloc*          fFixedAlloc;
