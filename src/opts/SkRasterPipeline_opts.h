@@ -670,20 +670,36 @@ STAGE(swap_rb, true) {
     SkTSwap(r, b);
 }
 
-STAGE(clamp_x, true) {
-    auto w = *(const int*)ctx;
-    r = SkNf::Max(0, SkNf::Min(r, SkNf(w - 0.5f)));
+SI SkNf assert_in_tile(const SkNf& v, float limit) {
+    for (int i = 0; i < N; i++) {
+        SkASSERT(0 <= v[i] && v[i] < limit);
+    }
+    return v;
 }
-STAGE(clamp_y, true) {
-    auto h = *(const int*)ctx;
-    g = SkNf::Max(0, SkNf::Min(g, SkNf(h - 0.5f)));
+
+SI SkNf clamp(const SkNf& v, float limit) {
+    SkNf result = SkNf::Max(0, SkNf::Min(v, limit - 0.5f));
+    return assert_in_tile(result, limit);
 }
+
+SI SkNf repeat(const SkNf& v, float limit) {
+    SkNf result = v - (v/limit).floor()*limit;
+
+    // For small negative v, (v/limit).floor()*limit can dominate v in the subtraction,
+    // which leaves result == limit.  We want result < limit, so clamp it one ULP.
+    result = SkNf::Min(result, nextafterf(limit, 0));
+
+    return assert_in_tile(result, limit);
+}
+
+STAGE(clamp_x,  true) { r = clamp (r, *(const int*)ctx); }
+STAGE(clamp_y,  true) { g = clamp (g, *(const int*)ctx); }
+STAGE(repeat_x, true) { r = repeat(r, *(const int*)ctx); }
+STAGE(repeat_y, true) { g = repeat(g, *(const int*)ctx); }
 
 STAGE(mirror_x, true) {}  // TODO
 STAGE(mirror_y, true) {}  // TODO
 
-STAGE(repeat_x, true) {}  // TODO
-STAGE(repeat_y, true) {}  // TODO
 
 struct NearestCtx {
     const void* pixels;
