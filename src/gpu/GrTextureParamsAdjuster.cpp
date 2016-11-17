@@ -15,7 +15,7 @@
 #include "GrGpuResourcePriv.h"
 #include "GrResourceKey.h"
 #include "GrTexture.h"
-#include "GrTextureParams.h"
+#include "GrSamplerParams.h"
 #include "GrTextureProvider.h"
 #include "SkCanvas.h"
 #include "SkGr.h"
@@ -52,7 +52,7 @@ static GrTexture* copy_on_gpu(GrTexture* inputTexture, const SkIRect* subset,
         sy = 1.f / inputTexture->height();
     }
 
-    if (copyParams.fFilter != GrTextureParams::kNone_FilterMode && subset &&
+    if (copyParams.fFilter != GrSamplerParams::kNone_FilterMode && subset &&
         (subset->width() != copyParams.fWidth || subset->height() != copyParams.fHeight)) {
         SkRect domain;
         domain.fLeft = (subset->fLeft + 0.5f) * sx;
@@ -61,13 +61,13 @@ static GrTexture* copy_on_gpu(GrTexture* inputTexture, const SkIRect* subset,
         domain.fBottom = (subset->fBottom - 0.5f) * sy;
         // This would cause us to read values from outside the subset. Surely, the caller knows
         // better!
-        SkASSERT(copyParams.fFilter != GrTextureParams::kMipMap_FilterMode);
+        SkASSERT(copyParams.fFilter != GrSamplerParams::kMipMap_FilterMode);
         paint.addColorFragmentProcessor(
             GrTextureDomainEffect::Make(inputTexture, nullptr, SkMatrix::I(), domain,
                                         GrTextureDomain::kClamp_Mode,
                                         copyParams.fFilter));
     } else {
-        GrTextureParams params(SkShader::kClamp_TileMode, copyParams.fFilter);
+        GrSamplerParams params(SkShader::kClamp_TileMode, copyParams.fFilter);
         paint.addColorTextureProcessor(inputTexture, nullptr, SkMatrix::I(), params);
     }
     paint.setPorterDuffXPFactory(SkBlendMode::kSrc);
@@ -141,7 +141,7 @@ GrTexture* GrTextureAdjuster::refCopy(const CopyParams& copyParams) {
     return copy;
 }
 
-GrTexture* GrTextureAdjuster::refTextureSafeForParams(const GrTextureParams& params,
+GrTexture* GrTextureAdjuster::refTextureSafeForParams(const GrSamplerParams& params,
                                                       SkDestinationSurfaceColorMode colorMode,
                                                       SkIPoint* outOffset) {
     GrTexture* texture = this->originalTexture();
@@ -154,12 +154,12 @@ GrTexture* GrTextureAdjuster::refTextureSafeForParams(const GrTextureParams& par
         return nullptr;
     }
 
-    if (contentArea && GrTextureParams::kMipMap_FilterMode == params.filterMode()) {
+    if (contentArea && GrSamplerParams::kMipMap_FilterMode == params.filterMode()) {
         // If we generate a MIP chain for texture it will read pixel values from outside the content
         // area.
         copyParams.fWidth = contentArea->width();
         copyParams.fHeight = contentArea->height();
-        copyParams.fFilter = GrTextureParams::kBilerp_FilterMode;
+        copyParams.fFilter = GrSamplerParams::kBilerp_FilterMode;
     } else if (!context->getGpu()->makeCopyForTextureParams(texture, params, &copyParams)) {
         if (outOffset) {
             if (contentArea) {
@@ -202,7 +202,7 @@ static DomainMode determine_domain_mode(
                                     bool coordsLimitedToConstraintRect,
                                     int texW, int texH,
                                     const SkIRect* textureContentArea,
-                                    const GrTextureParams::FilterMode* filterModeOrNullForBicubic,
+                                    const GrSamplerParams::FilterMode* filterModeOrNullForBicubic,
                                     SkRect* domainRect) {
 
     SkASSERT(SkRect::MakeIWH(texW, texH).contains(constraintRect));
@@ -230,17 +230,17 @@ static DomainMode determine_domain_mode(
     SkScalar filterHalfWidth = 0.f;
     if (filterModeOrNullForBicubic) {
         switch (*filterModeOrNullForBicubic) {
-            case GrTextureParams::kNone_FilterMode:
+            case GrSamplerParams::kNone_FilterMode:
                 if (coordsLimitedToConstraintRect) {
                     return kNoDomain_DomainMode;
                 } else {
                     filterHalfWidth = 0.f;
                 }
                 break;
-            case GrTextureParams::kBilerp_FilterMode:
+            case GrSamplerParams::kBilerp_FilterMode:
                 filterHalfWidth = .5f;
                 break;
-            case GrTextureParams::kMipMap_FilterMode:
+            case GrSamplerParams::kMipMap_FilterMode:
                 if (restrictFilterToRect || textureContentArea) {
                     // No domain can save us here.
                     return kTightCopy_DomainMode;
@@ -337,7 +337,7 @@ static sk_sp<GrFragmentProcessor> create_fp_for_domain_and_filter(
                                         const SkMatrix& textureMatrix,
                                         DomainMode domainMode,
                                         const SkRect& domain,
-                                        const GrTextureParams::FilterMode* filterOrNullForBicubic) {
+                                        const GrSamplerParams::FilterMode* filterOrNullForBicubic) {
     SkASSERT(kTightCopy_DomainMode != domainMode);
     if (filterOrNullForBicubic) {
         if (kDomain_DomainMode == domainMode) {
@@ -345,7 +345,7 @@ static sk_sp<GrFragmentProcessor> create_fp_for_domain_and_filter(
                                                domain, GrTextureDomain::kClamp_Mode,
                                                *filterOrNullForBicubic);
         } else {
-            GrTextureParams params(SkShader::kClamp_TileMode, *filterOrNullForBicubic);
+            GrSamplerParams params(SkShader::kClamp_TileMode, *filterOrNullForBicubic);
             return GrSimpleTextureEffect::Make(texture, std::move(colorSpaceXform), textureMatrix,
                                                params);
         }
@@ -367,7 +367,7 @@ sk_sp<GrFragmentProcessor> GrTextureAdjuster::createFragmentProcessor(
                                         const SkRect& origConstraintRect,
                                         FilterConstraint filterConstraint,
                                         bool coordsLimitedToConstraintRect,
-                                        const GrTextureParams::FilterMode* filterOrNullForBicubic,
+                                        const GrSamplerParams::FilterMode* filterOrNullForBicubic,
                                         SkColorSpace* dstColorSpace,
                                         SkDestinationSurfaceColorMode colorMode) {
 
@@ -384,7 +384,7 @@ sk_sp<GrFragmentProcessor> GrTextureAdjuster::createFragmentProcessor(
     }
 
     SkRect domain;
-    GrTextureParams params;
+    GrSamplerParams params;
     if (filterOrNullForBicubic) {
         params.setFilterMode(*filterOrNullForBicubic);
     }
@@ -410,8 +410,8 @@ sk_sp<GrFragmentProcessor> GrTextureAdjuster::createFragmentProcessor(
 
         // We only expect MIP maps to require a tight copy.
         SkASSERT(filterOrNullForBicubic &&
-                 GrTextureParams::kMipMap_FilterMode == *filterOrNullForBicubic);
-        static const GrTextureParams::FilterMode kBilerp = GrTextureParams::kBilerp_FilterMode;
+                 GrSamplerParams::kMipMap_FilterMode == *filterOrNullForBicubic);
+        static const GrSamplerParams::FilterMode kBilerp = GrSamplerParams::kBilerp_FilterMode;
         domainMode =
             determine_domain_mode(*constraintRect, filterConstraint, coordsLimitedToConstraintRect,
                                   texture->width(), texture->height(),
@@ -429,10 +429,10 @@ sk_sp<GrFragmentProcessor> GrTextureAdjuster::createFragmentProcessor(
 
 //////////////////////////////////////////////////////////////////////////////
 
-GrTexture* GrTextureMaker::refTextureForParams(const GrTextureParams& params,
+GrTexture* GrTextureMaker::refTextureForParams(const GrSamplerParams& params,
                                                SkDestinationSurfaceColorMode colorMode) {
     CopyParams copyParams;
-    bool willBeMipped = params.filterMode() == GrTextureParams::kMipMap_FilterMode;
+    bool willBeMipped = params.filterMode() == GrSamplerParams::kMipMap_FilterMode;
 
     if (!fContext->caps()->mipMapSupport()) {
         willBeMipped = false;
@@ -468,28 +468,28 @@ sk_sp<GrFragmentProcessor> GrTextureMaker::createFragmentProcessor(
                                         const SkRect& constraintRect,
                                         FilterConstraint filterConstraint,
                                         bool coordsLimitedToConstraintRect,
-                                        const GrTextureParams::FilterMode* filterOrNullForBicubic,
+                                        const GrSamplerParams::FilterMode* filterOrNullForBicubic,
                                         SkColorSpace* dstColorSpace,
                                         SkDestinationSurfaceColorMode colorMode) {
 
-    const GrTextureParams::FilterMode* fmForDetermineDomain = filterOrNullForBicubic;
-    if (filterOrNullForBicubic && GrTextureParams::kMipMap_FilterMode == *filterOrNullForBicubic &&
+    const GrSamplerParams::FilterMode* fmForDetermineDomain = filterOrNullForBicubic;
+    if (filterOrNullForBicubic && GrSamplerParams::kMipMap_FilterMode == *filterOrNullForBicubic &&
         kYes_FilterConstraint == filterConstraint) {
         // TODo: Here we should force a copy restricted to the constraintRect since MIP maps will
         // read outside the constraint rect. However, as in the adjuster case, we aren't currently
         // doing that.
         // We instead we compute the domain as though were bilerping which is only correct if we
         // only sample level 0.
-        static const GrTextureParams::FilterMode kBilerp = GrTextureParams::kBilerp_FilterMode;
+        static const GrSamplerParams::FilterMode kBilerp = GrSamplerParams::kBilerp_FilterMode;
         fmForDetermineDomain = &kBilerp;
     }
 
-    GrTextureParams params;
+    GrSamplerParams params;
     if (filterOrNullForBicubic) {
         params.reset(SkShader::kClamp_TileMode, *filterOrNullForBicubic);
     } else {
         // Bicubic doesn't use filtering for it's texture accesses.
-        params.reset(SkShader::kClamp_TileMode, GrTextureParams::kNone_FilterMode);
+        params.reset(SkShader::kClamp_TileMode, GrSamplerParams::kNone_FilterMode);
     }
     sk_sp<GrTexture> texture(this->refTextureForParams(params, colorMode));
     if (!texture) {
