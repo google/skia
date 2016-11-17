@@ -87,7 +87,8 @@ bool SkGpuDevice::CheckAlphaTypeAndGetFlags(
     return true;
 }
 
-sk_sp<SkGpuDevice> SkGpuDevice::Make(sk_sp<GrRenderTargetContext> renderTargetContext,
+sk_sp<SkGpuDevice> SkGpuDevice::Make(GrContext* context,
+                                     sk_sp<GrRenderTargetContext> renderTargetContext,
                                      int width, int height,
                                      InitContents init) {
     if (!renderTargetContext || renderTargetContext->wasAbandoned()) {
@@ -97,8 +98,8 @@ sk_sp<SkGpuDevice> SkGpuDevice::Make(sk_sp<GrRenderTargetContext> renderTargetCo
     if (!CheckAlphaTypeAndGetFlags(nullptr, init, &flags)) {
         return nullptr;
     }
-    return sk_sp<SkGpuDevice>(new SkGpuDevice(std::move(renderTargetContext), width, height,
-                                              flags));
+    return sk_sp<SkGpuDevice>(new SkGpuDevice(context, std::move(renderTargetContext),
+                                              width, height, flags));
 }
 
 sk_sp<SkGpuDevice> SkGpuDevice::Make(GrContext* context, SkBudgeted budgeted,
@@ -117,7 +118,7 @@ sk_sp<SkGpuDevice> SkGpuDevice::Make(GrContext* context, SkBudgeted budgeted,
         return nullptr;
     }
 
-    return sk_sp<SkGpuDevice>(new SkGpuDevice(std::move(renderTargetContext),
+    return sk_sp<SkGpuDevice>(new SkGpuDevice(context, std::move(renderTargetContext),
                                               info.width(), info.height(), flags));
 }
 
@@ -131,11 +132,11 @@ static SkImageInfo make_info(GrRenderTargetContext* context, int w, int h, bool 
                              sk_ref_sp(context->getColorSpace()));
 }
 
-SkGpuDevice::SkGpuDevice(sk_sp<GrRenderTargetContext> renderTargetContext, int width, int height,
-                         unsigned flags)
+SkGpuDevice::SkGpuDevice(GrContext* context, sk_sp<GrRenderTargetContext> renderTargetContext,
+                         int width, int height, unsigned flags)
     : INHERITED(make_info(renderTargetContext.get(), width, height,
                           SkToBool(flags & kIsOpaque_Flag)), renderTargetContext->surfaceProps())
-    , fContext(SkRef(renderTargetContext->accessRenderTarget()->getContext()))
+    , fContext(SkRef(context))
     , fRenderTargetContext(std::move(renderTargetContext))
 {
     fSize.set(width, height);
@@ -1811,9 +1812,8 @@ SkBaseDevice* SkGpuDevice::onCreateDevice(const CreateInfo& cinfo, const SkPaint
     // Skia's convention is to only clear a device if it is non-opaque.
     InitContents init = cinfo.fInfo.isOpaque() ? kUninit_InitContents : kClear_InitContents;
 
-    return SkGpuDevice::Make(std::move(rtc),
-                             cinfo.fInfo.width(), cinfo.fInfo.height(),
-                             init).release();
+    return SkGpuDevice::Make(fContext.get(), std::move(rtc),
+                             cinfo.fInfo.width(), cinfo.fInfo.height(), init).release();
 }
 
 sk_sp<SkSurface> SkGpuDevice::makeSurface(const SkImageInfo& info, const SkSurfaceProps& props) {
