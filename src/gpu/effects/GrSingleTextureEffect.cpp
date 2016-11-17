@@ -11,10 +11,10 @@ GrSingleTextureEffect::GrSingleTextureEffect(GrTexture* texture,
                                              sk_sp<GrColorSpaceXform> colorSpaceXform,
                                              const SkMatrix& m)
     : fCoordTransform(m, texture, GrTextureParams::kNone_FilterMode)
-    , fTextureAccess(texture)
+    , fTextureSampler(texture)
     , fColorSpaceXform(std::move(colorSpaceXform)) {
     this->addCoordTransform(&fCoordTransform);
-    this->addTextureAccess(&fTextureAccess);
+    this->addTextureSampler(&fTextureSampler);
 }
 
 GrSingleTextureEffect::GrSingleTextureEffect(GrTexture* texture,
@@ -22,10 +22,10 @@ GrSingleTextureEffect::GrSingleTextureEffect(GrTexture* texture,
                                              const SkMatrix& m,
                                              GrTextureParams::FilterMode filterMode)
     : fCoordTransform(m, texture, filterMode)
-    , fTextureAccess(texture, filterMode)
+    , fTextureSampler(texture, filterMode)
     , fColorSpaceXform(std::move(colorSpaceXform)) {
     this->addCoordTransform(&fCoordTransform);
-    this->addTextureAccess(&fTextureAccess);
+    this->addTextureSampler(&fTextureSampler);
 }
 
 GrSingleTextureEffect::GrSingleTextureEffect(GrTexture* texture,
@@ -33,10 +33,10 @@ GrSingleTextureEffect::GrSingleTextureEffect(GrTexture* texture,
                                              const SkMatrix& m,
                                              const GrTextureParams& params)
     : fCoordTransform(m, texture, params.filterMode())
-    , fTextureAccess(texture, params)
+    , fTextureSampler(texture, params)
     , fColorSpaceXform(std::move(colorSpaceXform)) {
     this->addCoordTransform(&fCoordTransform);
-    this->addTextureAccess(&fTextureAccess);
+    this->addTextureSampler(&fTextureSampler);
 }
 
 GrSingleTextureEffect::~GrSingleTextureEffect() {

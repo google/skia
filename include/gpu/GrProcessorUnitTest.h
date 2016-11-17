@@ -36,7 +36,7 @@ sk_sp<GrFragmentProcessor> MakeChildFP(GrProcessorTestData*);
 /*
  * GrProcessorTestData is an argument struct to TestCreate functions
  * fTextures are valid textures that can optionally be used to construct
- * GrTextureAccesses. The first texture has config kSkia8888_GrPixelConfig and the second has
+ * TextureSampler. The first texture has config kSkia8888_GrPixelConfig and the second has
  * kAlpha_8_GrPixelConfig. TestCreate functions are also free to create additional textures using
  * the GrContext.
  */

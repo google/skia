@@ -9,7 +9,7 @@
 #define SkGr_DEFINED
 
 #include "GrColor.h"
-#include "GrTextureAccess.h"
+#include "GrTextureParams.h"
 #include "SkColor.h"
 #include "SkColorPriv.h"
 #include "SkFilterQuality.h"
@@ -19,7 +19,6 @@ class GrCaps;
 class GrColorSpaceXform;
 class GrContext;
 class GrTexture;
-class GrTextureParams;
 class SkBitmap;
 
 ////////////////////////////////////////////////////////////////////////////////

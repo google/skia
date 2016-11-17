@@ -53,7 +53,7 @@ private:
     GrColor          fColor;
     SkMatrix         fLocalMatrix;
     bool             fUsesLocalCoords;
-    GrTextureAccess  fTextureAccess;
+    TextureSampler   fTextureSampler;
     const Attribute* fInPosition;
     const Attribute* fInColor;
     const Attribute* fInTextureCoords;
