@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "503c1cf2_f8dfacf4",
+        "filename": "include/gpu/GrProcessor.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 196,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2016-11-17T16:36:15Z",
+      "side": 1,
+      "message": "align",
+      "range": {
+        "startLine": 196,
+        "startChar": 27,
+        "endLine": 196,
+        "endChar": 32
+      },
+      "revId": "f1c483e3fd4e1588192ba8df4bbf4e2555cb36db",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "503c1cf2_782a7ced",
+        "filename": "src/gpu/vk/GrVkSampler.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 15,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2016-11-17T16:36:15Z",
+      "side": 1,
+      "message": "remove",
+      "range": {
+        "startLine": 15,
+        "startChar": 2,
+        "endLine": 15,
+        "endChar": 7
+      },
+      "revId": "f1c483e3fd4e1588192ba8df4bbf4e2555cb36db",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
