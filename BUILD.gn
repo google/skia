@@ -620,6 +620,8 @@ component("skia") {
       "Ole32.lib",
       "OleAut32.lib",
       "User32.lib",
+      "Opengl32.lib",
+      "Gdi32.lib"
     ]
   } else {
     sources += [
