@@ -25,8 +25,8 @@ struct ASTForStatement : public ASTStatement {
     , fNext(std::move(next))
     , fStatement(std::move(statement)) {}
 
-    std::string description() const override {
-        std::string result = "for (";
+    SkString description() const override {
+        SkString result("for (");
         if (fInitializer) {
             result.append(fInitializer->description());
         }
