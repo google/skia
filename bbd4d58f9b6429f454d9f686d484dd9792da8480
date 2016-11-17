@@ -25,6 +25,24 @@
     },
     {
       "key": {
+        "uuid": "b09b987b_7bce53c2",
+        "filename": "include/core/SkImageGenerator.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 150,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2016-11-17T19:52:41Z",
+      "side": 1,
+      "message": "Removed this part of the comment as the parameter it is referring to is no longer there.",
+      "parentUuid": "b09b987b_38cf7118",
+      "revId": "bbd4d58f9b6429f454d9f686d484dd9792da8480",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "b09b987b_d864a52a",
         "filename": "src/gpu/SkGrPriv.h",
         "patchSetId": 2
@@ -42,6 +60,24 @@
         "endLine": 23,
         "endChar": 21
       },
+      "revId": "bbd4d58f9b6429f454d9f686d484dd9792da8480",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "b09b987b_1b21c765",
+        "filename": "src/gpu/SkGrPriv.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 23,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2016-11-17T19:52:41Z",
+      "side": 1,
+      "message": "Looks like this is no longer necessary, removed the declaration.",
+      "parentUuid": "b09b987b_d864a52a",
       "revId": "bbd4d58f9b6429f454d9f686d484dd9792da8480",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
@@ -71,6 +107,24 @@
     },
     {
       "key": {
+        "uuid": "b09b987b_bbcfdbb9",
+        "filename": "src/gpu/effects/GrBitmapTextGeoProc.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 174,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2016-11-17T19:52:41Z",
+      "side": 1,
+      "message": "I prefer under the ?, changed.",
+      "parentUuid": "b09b987b_b888c1b2",
+      "revId": "bbd4d58f9b6429f454d9f686d484dd9792da8480",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "b09b987b_9864dd3b",
         "filename": "src/gpu/effects/GrDistanceFieldGeoProc.cpp",
         "patchSetId": 2
@@ -94,6 +148,24 @@
     },
     {
       "key": {
+        "uuid": "b09b987b_bb635bc0",
+        "filename": "src/gpu/effects/GrDistanceFieldGeoProc.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 284,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2016-11-17T19:52:41Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "b09b987b_9864dd3b",
+      "revId": "bbd4d58f9b6429f454d9f686d484dd9792da8480",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "b09b987b_384cd1b9",
         "filename": "src/gpu/effects/GrDistanceFieldGeoProc.cpp",
         "patchSetId": 2
@@ -111,6 +183,24 @@
         "endLine": 829,
         "endChar": 62
       },
+      "revId": "bbd4d58f9b6429f454d9f686d484dd9792da8480",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "b09b987b_7b62d3c0",
+        "filename": "src/gpu/effects/GrDistanceFieldGeoProc.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 829,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2016-11-17T19:52:41Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "b09b987b_384cd1b9",
       "revId": "bbd4d58f9b6429f454d9f686d484dd9792da8480",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
