@@ -9,6 +9,7 @@
 #include "GrContextFactory.h"
 #include "SkCanvas.h"
 #include "SkOSFile.h"
+#include "SkOSPath.h"
 #include "SkPerlinNoiseShader.h"
 #include "SkPicture.h"
 #include "SkPictureRecorder.h"

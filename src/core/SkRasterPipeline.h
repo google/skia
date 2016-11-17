@@ -11,6 +11,7 @@
 #include "SkNx.h"
 #include "SkTArray.h"
 #include "SkTypes.h"
+#include <functional>
 
 /**
  * SkRasterPipeline provides a cheap way to chain together a pixel processing pipeline.
@@ -53,72 +54,39 @@
 // TODO: There may be a better place to stuff tail, e.g. in the bottom alignment bits of
 // the Stage*.  This mostly matters on 64-bit Windows where every register is precious.
 
+#define SK_RASTER_PIPELINE_STAGES(M)                             \
+    M(trace) M(registers)                                        \
+    M(move_src_dst) M(swap_src_dst)                              \
+    M(clamp_0) M(clamp_a) M(clamp_1) M(unpremul) M(premul)       \
+    M(constant_color) M(store_f32)                               \
+    M(load_s_565)  M(load_d_565)  M(store_565)                   \
+    M(load_s_srgb) M(load_d_srgb) M(store_srgb)                  \
+    M(load_s_f16)  M(load_d_f16)  M(store_f16)                   \
+    M(load_s_8888) M(store_8888)                                 \
+    M(scale_u8) M(scale_constant_float)                          \
+    M(lerp_u8) M(lerp_565) M(lerp_constant_float)                \
+    M(dst)                                                       \
+    M(dstatop) M(dstin) M(dstout) M(dstover)                     \
+    M(srcatop) M(srcin) M(srcout) M(srcover)                     \
+    M(clear) M(modulate) M(multiply) M(plus_) M(screen) M(xor_)  \
+    M(colorburn) M(colordodge) M(darken) M(difference)           \
+    M(exclusion) M(hardlight) M(lighten) M(overlay) M(softlight) \
+    M(luminance_to_alpha) M(matrix_3x4) M(matrix_4x5)            \
+    M(parametric_r) M(parametric_g) M(parametric_b)              \
+    M(table_r) M(table_g) M(table_b)                             \
+    M(color_lookup_table) M(lab_to_xyz) M(swap_rb)
+
 class SkRasterPipeline {
 public:
-    struct Stage {
-        // It makes next() a good bit cheaper if we hold the next function to call here,
-        // rather than logically simpler choice of the function implementing this stage.
-        void (*fNext)();
-        void* fCtx;
-    };
+    // No pipeline may be more than kMaxStages long.
+    static const int kMaxStages = 32;
 
     SkRasterPipeline();
 
-    // Run the pipeline constructed with append(), walking x through [x,x+n),
-    // generally in 4-pixel steps, with perhaps one jagged tail step.
-    void run(size_t x, size_t n);
-    void run(size_t n) { this->run(0, n); }
-
     enum StockStage {
-        just_return,
-        swap_src_dst,
-
-        store_565,
-        store_srgb,
-        store_f16,
-
-        load_s_565,
-        load_s_srgb,
-        load_s_f16,
-
-        load_d_565,
-        load_d_srgb,
-        load_d_f16,
-
-        scale_u8,
-
-        lerp_u8,
-        lerp_565,
-        lerp_constant_float,
-
-        constant_color,
-
-        dst,
-        dstatop,
-        dstin,
-        dstout,
-        dstover,
-        srcatop,
-        srcin,
-        srcout,
-        srcover,
-        clear,
-        modulate,
-        multiply,
-        plus_,
-        screen,
-        xor_,
-        colorburn,
-        colordodge,
-        darken,
-        difference,
-        exclusion,
-        hardlight,
-        lighten,
-        overlay,
-        softlight,
-
-        kNumStockStages,
+    #define M(stage) stage,
+        SK_RASTER_PIPELINE_STAGES(M)
+    #undef M
     };
     void append(StockStage, void* = nullptr);
     void append(StockStage stage, const void* ctx) { this->append(stage, const_cast<void*>(ctx)); }
@@ -126,15 +94,19 @@ public:
     // Append all stages to this pipeline.
     void extend(const SkRasterPipeline&);
 
+    // Runs the pipeline walking x through [x,x+n), holding y constant.
+    std::function<void(size_t x, size_t y, size_t n)> compile() const;
+
+    void dump() const;
+
+    struct Stage {
+        StockStage stage;
+        void*        ctx;
+    };
+
 private:
-    using Stages = SkSTArray<10, Stage, /*MEM_COPY=*/true>;
-
-    void append(void (*body)(), void (*tail)(), void*);
-
-    Stages fBody,
-           fTail;
-    void (*fBodyStart)() = nullptr;
-    void (*fTailStart)() = nullptr;
+    int   fNum   = 0;
+    Stage fStages[kMaxStages];
 };
 
 #endif//SkRasterPipeline_DEFINED

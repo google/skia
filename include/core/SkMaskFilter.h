@@ -18,9 +18,11 @@
 
 class GrClip;
 class GrContext;
-class GrDrawContext;
+class GrRenderTargetContext;
 class GrPaint;
+class GrFragmentProcessor;
 class GrRenderTarget;
+class GrTexture;
 class GrTextureProvider;
 class SkBitmap;
 class SkBlitter;
@@ -113,7 +115,7 @@ public:
      *  true if drawing was successful.
      */
     virtual bool directFilterMaskGPU(GrTextureProvider* texProvider,
-                                     GrDrawContext* drawContext,
+                                     GrRenderTargetContext* renderTargetContext,
                                      GrPaint* grp,
                                      const GrClip&,
                                      const SkMatrix& viewMatrix,
@@ -124,7 +126,7 @@ public:
      *  true if drawing was successful.
      */
     virtual bool directFilterRRectMaskGPU(GrContext*,
-                                          GrDrawContext* drawContext,
+                                          GrRenderTargetContext* renderTargetContext,
                                           GrPaint* grp,
                                           const GrClip&,
                                           const SkMatrix& viewMatrix,

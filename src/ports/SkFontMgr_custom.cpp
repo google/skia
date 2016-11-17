@@ -12,6 +12,7 @@
 #include "SkFontStyle.h"
 #include "SkMakeUnique.h"
 #include "SkOSFile.h"
+#include "SkOSPath.h"
 #include "SkRefCnt.h"
 #include "SkStream.h"
 #include "SkString.h"
@@ -237,7 +238,7 @@ protected:
     SkTypeface* onMatchFamilyStyle(const char familyName[],
                                    const SkFontStyle& fontStyle) const override
     {
-        SkAutoTUnref<SkFontStyleSet> sset(this->matchFamily(familyName));
+        sk_sp<SkFontStyleSet> sset(this->matchFamily(familyName));
         return sset->matchStyle(fontStyle);
     }
 

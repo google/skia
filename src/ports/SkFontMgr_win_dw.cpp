@@ -51,7 +51,7 @@ public:
         return S_OK;
     }
 
-    SkAutoTDelete<SkStreamAsset> fStream;
+    std::unique_ptr<SkStreamAsset> fStream;
 
 private:
     StreamFontFileLoader(SkStreamAsset* stream) : fStream(stream), fRefCount(1) { }
@@ -340,7 +340,7 @@ public:
     SkTypeface* matchStyle(const SkFontStyle& pattern) override;
 
 private:
-    SkAutoTUnref<const SkFontMgr_DirectWrite> fFontMgr;
+    sk_sp<const SkFontMgr_DirectWrite> fFontMgr;
     SkTScopedComPtr<IDWriteFontFamily> fFontFamily;
 };
 
@@ -509,7 +509,7 @@ SkFontStyleSet* SkFontMgr_DirectWrite::onMatchFamily(const char familyName[]) co
 
 SkTypeface* SkFontMgr_DirectWrite::onMatchFamilyStyle(const char familyName[],
                                                       const SkFontStyle& fontstyle) const {
-    SkAutoTUnref<SkFontStyleSet> sset(this->matchFamily(familyName));
+    sk_sp<SkFontStyleSet> sset(this->matchFamily(familyName));
     return sset->matchStyle(fontstyle);
 }
 
@@ -634,7 +634,7 @@ public:
 
 protected:
     ULONG fRefCount;
-    SkAutoTUnref<const SkFontMgr_DirectWrite> fOuter;
+    sk_sp<const SkFontMgr_DirectWrite> fOuter;
     UINT32 fCharacter;
     SkTypeface* fResolvedTypeface;
 };
@@ -1085,11 +1085,11 @@ SK_API SkFontMgr* SkFontMgr_New_DirectWrite(IDWriteFactory* factory,
 }
 
 #include "SkFontMgr_indirect.h"
-SK_API SkFontMgr* SkFontMgr_New_DirectWriteRenderer(SkRemotableFontMgr* proxy) {
-    SkAutoTUnref<SkFontMgr> impl(SkFontMgr_New_DirectWrite());
-    if (impl.get() == nullptr) {
+SK_API SkFontMgr* SkFontMgr_New_DirectWriteRenderer(sk_sp<SkRemotableFontMgr> proxy) {
+    sk_sp<SkFontMgr> impl(SkFontMgr_New_DirectWrite());
+    if (!impl) {
         return nullptr;
     }
-    return new SkFontMgr_Indirect(impl.get(), proxy);
+    return new SkFontMgr_Indirect(std::move(impl), std::move(proxy));
 }
 #endif//defined(SK_BUILD_FOR_WIN32)

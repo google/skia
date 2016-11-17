@@ -73,7 +73,7 @@ private:
 
         SkLayerDrawLooper::LayerInfo info;
         info.fPaintBits = SkLayerDrawLooper::kStyle_Bit | SkLayerDrawLooper::kMaskFilter_Bit;
-        info.fColorMode = SkXfermode::kSrc_Mode;
+        info.fColorMode = SkBlendMode::kSrc;
 
         for (size_t i = 0; i < SK_ARRAY_COUNT(gParams); i++) {
             info.fOffset.set(gParams[i].fOffset, gParams[i].fOffset);

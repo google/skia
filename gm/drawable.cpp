@@ -32,16 +32,16 @@ struct MyDrawable : public SkDrawable {
  *  Test calling drawables w/ translate and matrices
  */
 DEF_SIMPLE_GM(drawable, canvas, 180, 275) {
-    SkAutoTUnref<SkDrawable> drawable(new MyDrawable);
+    sk_sp<SkDrawable> drawable(new MyDrawable);
 
     canvas->translate(10, 10);
-    canvas->drawDrawable(drawable);
-    canvas->drawDrawable(drawable, 0, 150);
+    canvas->drawDrawable(drawable.get());
+    canvas->drawDrawable(drawable.get(), 0, 150);
 
     SkMatrix m = SkMatrix::MakeScale(1.5f, 0.8f);
     m.postTranslate(70, 0);
-    canvas->drawDrawable(drawable, &m);
+    canvas->drawDrawable(drawable.get(), &m);
 
     m.postTranslate(0, 150);
-    canvas->drawDrawable(drawable, &m);
+    canvas->drawDrawable(drawable.get(), &m);
 }

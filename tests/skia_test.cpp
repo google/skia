@@ -27,7 +27,11 @@
 using namespace skiatest;
 using namespace sk_gpu_test;
 
+DEFINE_bool2(dumpOp, d, false, "dump the pathOps to a file to recover mid-crash.");
 DEFINE_bool2(extendedTest, x, false, "run extended tests for pathOps.");
+DEFINE_bool2(runFail, f, false, "check for success on tests known to fail.");
+DEFINE_bool2(verifyOp, y, false, "compare the pathOps result against a region.");
+
 #if DEBUG_COIN
 DEFINE_bool2(coinTest, c, false, "detect unused coincidence algorithms.");
 #endif
@@ -133,6 +137,12 @@ static bool should_run(const char* testName, bool isGPUTest) {
 
 int test_main();
 int test_main() {
+#if DEBUG_DUMP_VERIFY
+    SkPathOpsDebug::gDumpOp = FLAGS_dumpOp;
+    SkPathOpsDebug::gVerifyOp = FLAGS_verifyOp;
+#endif
+    SkPathOpsDebug::gRunFail = FLAGS_runFail;
+    SkPathOpsDebug::gVeryVerbose = FLAGS_veryVerbose;
     SetupCrashHandler();
 
     SkAutoGraphics ag;
@@ -152,6 +162,31 @@ int test_main() {
         SkString resourcePath = GetResourcePath();
         if (!resourcePath.isEmpty()) {
             header.appendf(" --resourcePath %s", resourcePath.c_str());
+        }
+#if DEBUG_COIN
+        if (FLAGS_coinTest) {
+            header.appendf(" -c");
+        }
+#endif
+        if (FLAGS_dumpOp) {
+            header.appendf(" -d");
+        }
+#ifdef SK_DEBUG
+        if (FLAGS_runFail) {
+            header.appendf(" -f");
+        }
+#endif
+        if (FLAGS_verbose) {
+            header.appendf(" -v");
+        }
+        if (FLAGS_veryVerbose) {
+            header.appendf(" -V");
+        }
+        if (FLAGS_extendedTest) {
+            header.appendf(" -x");
+        }
+        if (FLAGS_verifyOp) {
+            header.appendf(" -y");
         }
 #ifdef SK_DEBUG
         header.append(" SK_DEBUG");

@@ -525,13 +525,19 @@ public:
     }
 
     /**
-     *  Return the SkColor of the specified pixel.  In most cases this will
-     *  require un-premultiplying the color.  Alpha only colortypes (e.g. kAlpha_8_SkColorType)
-     *  return black with the appropriate alpha set.  The value is undefined
-     *  for kUnknown_SkColorType or if x or y are out of bounds, or if the bitmap
-     *  does not have any pixels (or has not be locked with lockPixels()).
+     *  Converts the pixel at the specified coordinate to an unpremultiplied
+     *  SkColor. Note: this ignores any SkColorSpace information, and may return
+     *  lower precision data than is actually in the pixel. Alpha only
+     *  colortypes (e.g. kAlpha_8_SkColorType) return black with the appropriate
+     *  alpha set.  The value is undefined for kUnknown_SkColorType or if x or y
+     *  are out of bounds, or if the bitmap does not have any pixels (or has not
+     *  be locked with lockPixels())..
      */
-    SkColor getColor(int x, int y) const;
+    SkColor getColor(int x, int y) const {
+        SkPixmap pixmap;
+        SkAssertResult(this->peekPixels(&pixmap));
+        return pixmap.getColor(x, y);
+    }
 
     /** Returns the address of the specified pixel. This performs a runtime
         check to know the size of the pixels, and will return the same answer

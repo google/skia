@@ -39,9 +39,8 @@ void wrap_tex_test(skiatest::Reporter* reporter, GrContext* context) {
     desc.fWidth = kW;
     desc.fHeight = kH;
     desc.fTextureHandle = backendObj;
-    GrTexture* tex = gpu->wrapBackendTexture(desc, kBorrow_GrWrapOwnership);
+    sk_sp<GrTexture> tex = gpu->wrapBackendTexture(desc, kBorrow_GrWrapOwnership);
     REPORTER_ASSERT(reporter, tex);
-    tex->unref();
 
     // image is null
     GrVkImageInfo backendCopy = *backendTex;
@@ -64,7 +63,6 @@ void wrap_tex_test(skiatest::Reporter* reporter, GrContext* context) {
     backendCopy.fAlloc = backendTex->fAlloc;
     tex = gpu->wrapBackendTexture(desc, kAdopt_GrWrapOwnership);
     REPORTER_ASSERT(reporter, tex);
-    tex->unref();
 
     gpu->deleteTestingOnlyBackendTexture(backendObj, true);
 }
@@ -85,9 +83,8 @@ void wrap_rt_test(skiatest::Reporter* reporter, GrContext* context) {
     desc.fSampleCnt = 0;
     desc.fStencilBits = 0;
     desc.fRenderTargetHandle = backendObj;
-    GrRenderTarget* rt = gpu->wrapBackendRenderTarget(desc, kBorrow_GrWrapOwnership);
+    sk_sp<GrRenderTarget> rt = gpu->wrapBackendRenderTarget(desc, kBorrow_GrWrapOwnership);
     REPORTER_ASSERT(reporter, rt);
-    rt->unref();
 
     // image is null
     GrVkImageInfo backendCopy = *backendTex;
@@ -112,7 +109,6 @@ void wrap_rt_test(skiatest::Reporter* reporter, GrContext* context) {
     backendCopy.fAlloc = backendTex->fAlloc;
     rt = gpu->wrapBackendRenderTarget(desc, kAdopt_GrWrapOwnership);
     REPORTER_ASSERT(reporter, rt);
-    rt->unref();
 
     gpu->deleteTestingOnlyBackendTexture(backendObj, true);
 }
@@ -131,9 +127,8 @@ void wrap_trt_test(skiatest::Reporter* reporter, GrContext* context) {
     desc.fWidth = kW;
     desc.fHeight = kH;
     desc.fTextureHandle = backendObj;
-    GrTexture* tex = gpu->wrapBackendTexture(desc, kBorrow_GrWrapOwnership);
+    sk_sp<GrTexture> tex = gpu->wrapBackendTexture(desc, kBorrow_GrWrapOwnership);
     REPORTER_ASSERT(reporter, tex);
-    tex->unref();
 
     // image is null
     GrVkImageInfo backendCopy = *backendTex;
@@ -156,7 +151,6 @@ void wrap_trt_test(skiatest::Reporter* reporter, GrContext* context) {
     backendCopy.fAlloc = backendTex->fAlloc;
     tex = gpu->wrapBackendTexture(desc, kAdopt_GrWrapOwnership);
     REPORTER_ASSERT(reporter, tex);
-    tex->unref();
 
     gpu->deleteTestingOnlyBackendTexture(backendObj, true);
 }

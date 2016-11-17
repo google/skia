@@ -253,7 +253,7 @@ void TestStyle(SkRandom* random, GrStyle* style) {
     sk_sp<SkPathEffect> pe;
     if (random->nextBool()) {
         int cnt = random->nextRangeU(1, 50) * 2;
-        SkAutoTDeleteArray<SkScalar> intervals(new SkScalar[cnt]);
+        std::unique_ptr<SkScalar[]> intervals(new SkScalar[cnt]);
         SkScalar sum = 0;
         for (int i = 0; i < cnt; i++) {
             intervals[i] = random->nextRangeScalar(SkDoubleToScalar(0.01),
@@ -299,8 +299,8 @@ sk_sp<SkColorSpace> TestColorSpace(SkRandom* random) {
         // No color space (legacy mode)
         gColorSpaces[0] = nullptr;
         // sRGB or Adobe
-        gColorSpaces[1] = SkColorSpace::NewNamed(SkColorSpace::kSRGB_Named);
-        gColorSpaces[2] = SkColorSpace::NewNamed(SkColorSpace::kAdobeRGB_Named);
+        gColorSpaces[1] = SkColorSpace::MakeNamed(SkColorSpace::kSRGB_Named);
+        gColorSpaces[2] = SkColorSpace::MakeNamed(SkColorSpace::kAdobeRGB_Named);
     }
     return gColorSpaces[random->nextULessThan(static_cast<uint32_t>(SK_ARRAY_COUNT(gColorSpaces)))];
 }
@@ -310,8 +310,8 @@ sk_sp<GrColorSpaceXform> TestColorXform(SkRandom* random) {
     static bool gOnce;
     if (!gOnce) {
         gOnce = true;
-        sk_sp<SkColorSpace> srgb = SkColorSpace::NewNamed(SkColorSpace::kSRGB_Named);
-        sk_sp<SkColorSpace> adobe = SkColorSpace::NewNamed(SkColorSpace::kAdobeRGB_Named);
+        sk_sp<SkColorSpace> srgb = SkColorSpace::MakeNamed(SkColorSpace::kSRGB_Named);
+        sk_sp<SkColorSpace> adobe = SkColorSpace::MakeNamed(SkColorSpace::kAdobeRGB_Named);
         // No gamut change
         gXforms[0] = nullptr;
         // To larger gamut
@@ -331,8 +331,9 @@ TestAsFPArgs::TestAsFPArgs(GrProcessorTestData* d) {
     fArgs.fLocalMatrix = nullptr;
     fArgs.fFilterQuality = kNone_SkFilterQuality;
     fArgs.fDstColorSpace = fColorSpaceStorage.get();
-    fArgs.fGammaTreatment = SkToBool(fArgs.fDstColorSpace)
-        ? SkSourceGammaTreatment::kRespect : SkSourceGammaTreatment::kIgnore;
+    fArgs.fColorMode = SkToBool(fArgs.fDstColorSpace)
+        ? SkDestinationSurfaceColorMode::kGammaAndColorSpaceAware
+        : SkDestinationSurfaceColorMode::kLegacy;
 }
 
 }  // namespace GrTest

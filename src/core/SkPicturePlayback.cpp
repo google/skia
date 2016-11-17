@@ -86,7 +86,7 @@ void SkPicturePlayback::draw(SkCanvas* canvas,
     AutoResetOpID aroi(this);
     SkASSERT(0 == fCurOffset);
 
-    SkAutoTDelete<SkReadBuffer> reader;
+    std::unique_ptr<SkReadBuffer> reader;
     if (buffer) {
         reader.reset(buffer->clone(fPictureData->opData()->bytes(),
                                    fPictureData->opData()->size()));
@@ -107,12 +107,12 @@ void SkPicturePlayback::draw(SkCanvas* canvas,
 
         fCurOffset = reader->offset();
         uint32_t size;
-        DrawType op = ReadOpAndSize(reader, &size);
+        DrawType op = ReadOpAndSize(reader.get(), &size);
         if (!reader->validate(op > UNUSED && op <= LAST_DRAWTYPE_ENUM)) {
             return;
         }
 
-        this->handleOp(reader, op, size, canvas, initialMatrix);
+        this->handleOp(reader.get(), op, size, canvas, initialMatrix);
     }
 
     // need to propagate invalid state to the parent reader
@@ -232,10 +232,10 @@ void SkPicturePlayback::handleOp(SkReadBuffer* reader,
             const SkRSXform* xform = (const SkRSXform*)reader->skip(count * sizeof(SkRSXform));
             const SkRect* tex = (const SkRect*)reader->skip(count * sizeof(SkRect));
             const SkColor* colors = nullptr;
-            SkXfermode::Mode mode = SkXfermode::kDst_Mode;
+            SkBlendMode mode = SkBlendMode::kDst;
             if (flags & DRAW_ATLAS_HAS_COLORS) {
                 colors = (const SkColor*)reader->skip(count * sizeof(SkColor));
-                mode = (SkXfermode::Mode)reader->readUInt();
+                mode = (SkBlendMode)reader->readUInt();
             }
             const SkRect* cull = nullptr;
             if (flags & DRAW_ATLAS_HAS_CULL) {
@@ -436,18 +436,17 @@ void SkPicturePlayback::handleOp(SkReadBuffer* reader,
                 texCoords = (const SkPoint*)reader->skip(SkPatchUtils::kNumCorners *
                                                          sizeof(SkPoint));
             }
-            sk_sp<SkXfermode> xfer;
+            SkBlendMode bmode = SkBlendMode::kModulate;
             if (flag & DRAW_VERTICES_HAS_XFER) {
-                int mode = reader->readInt();
-                if (mode < 0 || mode > SkXfermode::kLastMode) {
-                    mode = SkXfermode::kModulate_Mode;
+                unsigned mode = reader->readInt();
+                if (mode <= (unsigned)SkBlendMode::kLastMode) {
+                    bmode = (SkBlendMode)mode;
                 }
-                xfer = SkXfermode::Make((SkXfermode::Mode)mode);
             }
             BREAK_ON_READ_ERROR(reader);
 
             if (paint) {
-                canvas->drawPatch(cubics, colors, texCoords, std::move(xfer), *paint);
+                canvas->drawPatch(cubics, colors, texCoords, bmode, *paint);
             }
         } break;
         case DRAW_PATH: {
@@ -653,7 +652,6 @@ void SkPicturePlayback::handleOp(SkReadBuffer* reader,
             }
         } break;
         case DRAW_VERTICES: {
-            sk_sp<SkXfermode> xfer;
             const SkPaint* paint = fPictureData->getPaint(reader);
             DrawVertexFlags flags = (DrawVertexFlags)reader->readInt();
             SkCanvas::VertexMode vmode = (SkCanvas::VertexMode)reader->readInt();
@@ -673,18 +671,18 @@ void SkPicturePlayback::handleOp(SkReadBuffer* reader,
                 iCount = reader->readInt();
                 indices = (const uint16_t*)reader->skip(iCount * sizeof(uint16_t));
             }
+            SkBlendMode bmode = SkBlendMode::kModulate;
             if (flags & DRAW_VERTICES_HAS_XFER) {
-                int mode = reader->readInt();
-                if (mode < 0 || mode > SkXfermode::kLastMode) {
-                    mode = SkXfermode::kModulate_Mode;
+                unsigned mode = reader->readInt();
+                if (mode <= (unsigned)SkBlendMode::kLastMode) {
+                    bmode = (SkBlendMode)mode;
                 }
-                xfer = SkXfermode::Make((SkXfermode::Mode)mode);
             }
             BREAK_ON_READ_ERROR(reader);
 
             if (paint) {
                 canvas->drawVertices(vmode, vCount, verts, texs, colors,
-                                     xfer, indices, iCount, *paint);
+                                     bmode, indices, iCount, *paint);
             }
         } break;
         case RESTORE:

@@ -262,11 +262,11 @@ void AAStrokeRectBatch::onPrepareDraws(Target* target) const {
     int indicesPerInstance = this->miterStroke() ? kMiterIndexCnt : kBevelIndexCnt;
     int instanceCount = fGeoData.count();
 
-    const SkAutoTUnref<const GrBuffer> indexBuffer(
+    const sk_sp<const GrBuffer> indexBuffer(
         GetIndexBuffer(target->resourceProvider(), this->miterStroke()));
     InstancedHelper helper;
     void* vertices = helper.init(target, kTriangles_GrPrimitiveType, vertexStride,
-                                 indexBuffer, verticesPerInstance, indicesPerInstance,
+                                 indexBuffer.get(), verticesPerInstance, indicesPerInstance,
                                  instanceCount);
     if (!vertices || !indexBuffer) {
          SkDebugf("Could not allocate vertices\n");

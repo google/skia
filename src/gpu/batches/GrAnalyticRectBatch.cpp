@@ -298,7 +298,7 @@ private:
         }
 
         // Setup geometry processor
-        SkAutoTUnref<GrGeometryProcessor> gp(new RectGeometryProcessor(localMatrix));
+        sk_sp<GrGeometryProcessor> gp(new RectGeometryProcessor(localMatrix));
 
         int instanceCount = fGeoData.count();
         size_t vertexStride = gp->getVertexStride();
@@ -353,7 +353,7 @@ private:
 
             verts += kVerticesPerQuad;
         }
-        helper.recordDraw(target, gp);
+        helper.recordDraw(target, gp.get());
     }
 
     bool onCombineIfPossible(GrBatch* t, const GrCaps& caps) override {

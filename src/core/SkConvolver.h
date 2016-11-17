@@ -157,17 +157,11 @@ typedef void (*SkConvolveHorizontally_pointer)(
     const SkConvolutionFilter1D& filter,
     unsigned char* outRow,
     bool hasAlpha);
-typedef void (*SkConvolveFilterPadding_pointer)(
-    SkConvolutionFilter1D* filter);
 
 struct SkConvolutionProcs {
-  // This is how many extra pixels may be read by the
-  // conolve*horizontally functions.
-    int fExtraHorizontalReads;
     SkConvolveVertically_pointer fConvolveVertically;
     SkConvolve4RowsHorizontally_pointer fConvolve4RowsHorizontally;
     SkConvolveHorizontally_pointer fConvolveHorizontally;
-    SkConvolveFilterPadding_pointer fApplySIMDPadding;
 };
 
 

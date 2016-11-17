@@ -48,10 +48,10 @@ private:
     };
 
     GrGLuint                              fVertexArrayID;
-    SkAutoTUnref<GrBuffer>                fInstanceBuffer;
-    SkAutoTUnref<GrBuffer>                fDrawIndirectBuffer;
+    sk_sp<GrBuffer>                       fInstanceBuffer;
+    sk_sp<GrBuffer>                       fDrawIndirectBuffer;
     SkAutoSTMalloc<1024, GLDrawCmdInfo>   fGLDrawCmdsInfo;
-    uint32_t                              fInstanceAttribsBufferUniqueId;
+    GrGpuResource::UniqueID               fInstanceAttribsBufferUniqueId;
     int                                   fInstanceAttribsBaseInstance;
 
     class GLBatch;

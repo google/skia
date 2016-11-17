@@ -260,6 +260,6 @@ private:
     // embedded SkCodec.
     const SkImageInfo& fInfo;
 
-    SkAutoTDelete<SkCodec> fCodec;
+    std::unique_ptr<SkCodec> fCodec;
 };
 #endif // SkAndroidCodec_DEFINED

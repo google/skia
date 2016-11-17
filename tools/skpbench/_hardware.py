@@ -29,6 +29,10 @@ class Hardware:
   def __exit__(self, exception_type, exception_value, traceback):
     pass
 
+  def filter_line(self, line):
+    """Returns False if the provided output line can be suppressed."""
+    return True
+
   def sanity_check(self):
     """Raises a HardwareException if any hardware state is not as expected."""
     pass

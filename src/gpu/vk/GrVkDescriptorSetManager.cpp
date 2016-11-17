@@ -180,7 +180,7 @@ void GrVkDescriptorSetManager::DescriptorPoolManager::init(GrVkGpu* gpu,
             numSamplers = (uint32_t)visibilities->count();
         }
 
-        SkAutoTDeleteArray<VkDescriptorSetLayoutBinding> dsSamplerBindings(
+        std::unique_ptr<VkDescriptorSetLayoutBinding[]> dsSamplerBindings(
             new VkDescriptorSetLayoutBinding[numSamplers]);
         for (uint32_t i = 0; i < numSamplers; ++i) {
             uint32_t visibility;

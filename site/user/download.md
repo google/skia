@@ -30,9 +30,7 @@ Clone the Skia repository
 Getting started with Skia
 -------------------------
 
-Try out more things from the [desktop](./quick/desktop),
-[Android](./quick/android), and [iOS](./quick/ios)-specific Skia
-guides.
+You probably now want to [build](./build) Skia.
 
 Changing and contributing to Skia
 ---------------------------------

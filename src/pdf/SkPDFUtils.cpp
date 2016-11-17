@@ -122,6 +122,17 @@ void SkPDFUtils::EmitPath(const SkPath& path, SkPaint::Style paintStyle,
     // Chrome expects to be able to draw some such entities with no visible
     // result, so we detect those cases and discard the drawing for them.
     // Specifically: moveTo(X), lineTo(Y) and moveTo(X), lineTo(X), lineTo(Y).
+
+    SkRect rect;
+    bool isClosed; // Both closure and direction need to be checked.
+    SkPath::Direction direction;
+    if (path.isRect(&rect, &isClosed, &direction) &&
+        isClosed && SkPath::kCW_Direction == direction)
+    {
+        SkPDFUtils::AppendRectangle(rect, content);
+        return;
+    }    
+
     enum SkipFillState {
         kEmpty_SkipFillState,
         kSingleLine_SkipFillState,

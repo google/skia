@@ -264,7 +264,7 @@ static void TestBitmapSerialization(const SkBitmap& validBitmap,
                                     std::move(invalidBitmapSource),
                                     std::move(validBitmapSource), nullptr));
 
-    SkAutoTUnref<SkImageFilter> deserializedFilter(
+    sk_sp<SkImageFilter> deserializedFilter(
         TestFlattenableSerialization<SkImageFilter>(
             xfermodeImageFilter.get(), shouldSucceed, reporter));
 
@@ -290,7 +290,7 @@ static void TestXfermodeSerialization(skiatest::Reporter* reporter) {
         }
         auto mode(SkXfermode::Make(static_cast<SkXfermode::Mode>(i)));
         REPORTER_ASSERT(reporter, mode);
-        SkAutoTUnref<SkXfermode> copy(
+        sk_sp<SkXfermode> copy(
             TestFlattenableSerialization<SkXfermode>(mode.get(), true, reporter));
     }
 }
@@ -301,7 +301,7 @@ static void TestColorFilterSerialization(skiatest::Reporter* reporter) {
         table[i] = (i * 41) % 256;
     }
     auto colorFilter(SkTableColorFilter::Make(table));
-    SkAutoTUnref<SkColorFilter> copy(
+    sk_sp<SkColorFilter> copy(
         TestFlattenableSerialization<SkColorFilter>(colorFilter.get(), true, reporter));
 }
 
@@ -357,7 +357,7 @@ static void serialize_and_compare_typeface(sk_sp<SkTypeface> typeface, const cha
     // Serlialize picture and create its clone from stream.
     SkDynamicMemoryWStream stream;
     picture->serialize(&stream);
-    SkAutoTDelete<SkStream> inputStream(stream.detachAsStream());
+    std::unique_ptr<SkStream> inputStream(stream.detachAsStream());
     sk_sp<SkPicture> loadedPicture(SkPicture::MakeFromStream(inputStream.get()));
 
     // Draw both original and clone picture and compare bitmaps -- they should be identical.
@@ -612,22 +612,22 @@ DEF_TEST(Serialization, reporter) {
         sk_sp<SkShader> lightingShader = SkLightingShader::Make(diffuseShader,
                                                                 normalSource,
                                                                 fLights);
-        SkAutoTUnref<SkShader>(TestFlattenableSerialization(lightingShader.get(), true, reporter));
+        sk_sp<SkShader>(TestFlattenableSerialization(lightingShader.get(), true, reporter));
 
         lightingShader = SkLightingShader::Make(std::move(diffuseShader),
                                                 nullptr,
                                                 fLights);
-        SkAutoTUnref<SkShader>(TestFlattenableSerialization(lightingShader.get(), true, reporter));
+        sk_sp<SkShader>(TestFlattenableSerialization(lightingShader.get(), true, reporter));
 
         lightingShader = SkLightingShader::Make(nullptr,
                                                 std::move(normalSource),
                                                 fLights);
-        SkAutoTUnref<SkShader>(TestFlattenableSerialization(lightingShader.get(), true, reporter));
+        sk_sp<SkShader>(TestFlattenableSerialization(lightingShader.get(), true, reporter));
 
         lightingShader = SkLightingShader::Make(nullptr,
                                                 nullptr,
                                                 fLights);
-        SkAutoTUnref<SkShader>(TestFlattenableSerialization(lightingShader.get(), true, reporter));
+        sk_sp<SkShader>(TestFlattenableSerialization(lightingShader.get(), true, reporter));
     }
 
     // Test NormalBevelSource serialization
@@ -635,8 +635,7 @@ DEF_TEST(Serialization, reporter) {
         sk_sp<SkNormalSource> bevelSource = SkNormalSource::MakeBevel(
                 SkNormalSource::BevelType::kLinear, 2.0f, 5.0f);
 
-        SkAutoTUnref<SkNormalSource>(TestFlattenableSerialization(bevelSource.get(), true,
-                                                                  reporter));
+        sk_sp<SkNormalSource>(TestFlattenableSerialization(bevelSource.get(), true, reporter));
         // TODO test equality?
 
     }
@@ -648,8 +647,8 @@ DEF_TEST(Serialization, reporter) {
 static sk_sp<SkPicture> copy_picture_via_serialization(SkPicture* src) {
     SkDynamicMemoryWStream wstream;
     src->serialize(&wstream);
-    SkAutoTDelete<SkStreamAsset> rstream(wstream.detachAsStream());
-    return SkPicture::MakeFromStream(rstream);
+    std::unique_ptr<SkStreamAsset> rstream(wstream.detachAsStream());
+    return SkPicture::MakeFromStream(rstream.get());
 }
 
 struct AnnotationRec {

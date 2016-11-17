@@ -14,6 +14,7 @@
 #include "GrPath.h"
 #include "GrPathRendering.h"
 #include "GrPathProcessor.h"
+#include "GrStencilSettings.h"
 
 #include "SkTLList.h"
 
@@ -183,8 +184,8 @@ private:
             fY = y;
         }
 
-        SkAutoTUnref<const InstanceData>    fInstanceData;
-        SkScalar                            fX, fY;
+        sk_sp<const InstanceData> fInstanceData;
+        SkScalar                  fX, fY;
     };
 
     typedef GrPendingIOResource<const GrPathRange, kRead_GrIOType> PendingPathRange;

@@ -30,7 +30,7 @@ GLWindowContext::GLWindowContext(const DisplayParams& params)
 
 void GLWindowContext::initializeContext() {
     this->onInitializeContext();
-    SkAutoTUnref<const GrGLInterface> glInterface;
+    sk_sp<const GrGLInterface> glInterface;
     glInterface.reset(GrGLCreateNativeInterface());
     fBackendContext.reset(GrGLInterfaceRemoveNVPR(glInterface.get()));
 
@@ -42,9 +42,7 @@ void GLWindowContext::initializeContext() {
     //
     // ... and, if we're using a 10-bit/channel FB0, it doesn't do sRGB conversion on write,
     // so pretend that it's non-sRGB 8888:
-    fPixelConfig = fContext->caps()->srgbSupport() &&
-                   SkColorAndColorSpaceAreGammaCorrect(fDisplayParams.fColorType,
-                                                       fDisplayParams.fColorSpace.get()) &&
+    fPixelConfig = fContext->caps()->srgbSupport() && fDisplayParams.fColorSpace &&
                    (fColorBits != 30) ? kSRGBA_8888_GrPixelConfig : kRGBA_8888_GrPixelConfig;
 }
 
@@ -76,7 +74,7 @@ sk_sp<SkSurface> GLWindowContext::getBackbufferSurface() {
             desc.fSampleCnt = fSampleCount;
             desc.fStencilBits = fStencilBits;
             GrGLint buffer;
-            GR_GL_CALL(fBackendContext, GetIntegerv(GR_GL_FRAMEBUFFER_BINDING, &buffer));
+            GR_GL_CALL(fBackendContext.get(), GetIntegerv(GR_GL_FRAMEBUFFER_BINDING, &buffer));
             desc.fRenderTargetHandle = buffer;
 
             fSurface = this->createRenderSurface(desc, fActualColorBits);

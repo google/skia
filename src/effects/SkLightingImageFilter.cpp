@@ -16,11 +16,13 @@
 
 #if SK_SUPPORT_GPU
 #include "GrContext.h"
-#include "GrDrawContext.h"
 #include "GrFixedClip.h"
 #include "GrFragmentProcessor.h"
 #include "GrInvariantOutput.h"
 #include "GrPaint.h"
+#include "GrRenderTargetContext.h"
+#include "GrTextureProxy.h"
+
 #include "SkGr.h"
 #include "SkGrPriv.h"
 #include "effects/GrSingleTextureEffect.h"
@@ -369,7 +371,7 @@ protected:
 #endif
 private:
 #if SK_SUPPORT_GPU
-    void drawRect(GrDrawContext* drawContext,
+    void drawRect(GrRenderTargetContext* renderTargetContext,
                   GrTexture* src,
                   const SkMatrix& matrix,
                   const GrClip& clip,
@@ -382,7 +384,7 @@ private:
 };
 
 #if SK_SUPPORT_GPU
-void SkLightingImageFilterInternal::drawRect(GrDrawContext* drawContext,
+void SkLightingImageFilterInternal::drawRect(GrRenderTargetContext* renderTargetContext,
                                              GrTexture* src,
                                              const SkMatrix& matrix,
                                              const GrClip& clip,
@@ -392,12 +394,12 @@ void SkLightingImageFilterInternal::drawRect(GrDrawContext* drawContext,
                                              const SkIRect& bounds) const {
     SkRect srcRect = dstRect.makeOffset(SkIntToScalar(bounds.x()), SkIntToScalar(bounds.y()));
     GrPaint paint;
-    paint.setGammaCorrect(drawContext->isGammaCorrect());
+    paint.setGammaCorrect(renderTargetContext->isGammaCorrect());
     sk_sp<GrFragmentProcessor> fp(this->makeFragmentProcessor(src, matrix, srcBounds,
                                                               boundaryMode));
     paint.addColorFragmentProcessor(std::move(fp));
     paint.setPorterDuffXPFactory(SkBlendMode::kSrc);
-    drawContext->fillRectToRect(clip, paint, SkMatrix::I(), dstRect, srcRect);
+    renderTargetContext->fillRectToRect(clip, paint, SkMatrix::I(), dstRect, srcRect);
 }
 
 sk_sp<SkSpecialImage> SkLightingImageFilterInternal::filterImageGPU(
@@ -413,11 +415,11 @@ sk_sp<SkSpecialImage> SkLightingImageFilterInternal::filterImageGPU(
     sk_sp<GrTexture> inputTexture(input->asTextureRef(context));
     SkASSERT(inputTexture);
 
-    sk_sp<GrDrawContext> drawContext(
-        context->makeDrawContext(SkBackingFit::kApprox,offsetBounds.width(), offsetBounds.height(),
-                                 GrRenderableConfigForColorSpace(outputProperties.colorSpace()),
-                                 sk_ref_sp(outputProperties.colorSpace())));
-    if (!drawContext) {
+    sk_sp<GrRenderTargetContext> renderTargetContext(context->makeDeferredRenderTargetContext(
+                                SkBackingFit::kApprox, offsetBounds.width(), offsetBounds.height(),
+                                GrRenderableConfigForColorSpace(outputProperties.colorSpace()),
+                                sk_ref_sp(outputProperties.colorSpace())));
+    if (!renderTargetContext) {
         return nullptr;
     }
 
@@ -439,29 +441,31 @@ sk_sp<SkSpecialImage> SkLightingImageFilterInternal::filterImageGPU(
     SkRect bottomRight = SkRect::MakeXYWH(dstRect.width() - 1, dstRect.height() - 1, 1, 1);
 
     const SkIRect* pSrcBounds = inputBounds.contains(offsetBounds) ? nullptr : &inputBounds;
-    this->drawRect(drawContext.get(), inputTexture.get(), matrix, clip, topLeft,
+    this->drawRect(renderTargetContext.get(), inputTexture.get(), matrix, clip, topLeft,
                    kTopLeft_BoundaryMode, pSrcBounds, offsetBounds);
-    this->drawRect(drawContext.get(), inputTexture.get(), matrix, clip, top, kTop_BoundaryMode,
-                   pSrcBounds, offsetBounds);
-    this->drawRect(drawContext.get(), inputTexture.get(), matrix, clip, topRight,
+    this->drawRect(renderTargetContext.get(), inputTexture.get(), matrix, clip, top,
+                   kTop_BoundaryMode, pSrcBounds, offsetBounds);
+    this->drawRect(renderTargetContext.get(), inputTexture.get(), matrix, clip, topRight,
                    kTopRight_BoundaryMode, pSrcBounds, offsetBounds);
-    this->drawRect(drawContext.get(), inputTexture.get(), matrix, clip, left, kLeft_BoundaryMode,
-                   pSrcBounds, offsetBounds);
-    this->drawRect(drawContext.get(), inputTexture.get(), matrix, clip, interior,
+    this->drawRect(renderTargetContext.get(), inputTexture.get(), matrix, clip, left,
+                   kLeft_BoundaryMode, pSrcBounds, offsetBounds);
+    this->drawRect(renderTargetContext.get(), inputTexture.get(), matrix, clip, interior,
                    kInterior_BoundaryMode, pSrcBounds, offsetBounds);
-    this->drawRect(drawContext.get(), inputTexture.get(), matrix, clip, right, kRight_BoundaryMode,
-                   pSrcBounds, offsetBounds);
-    this->drawRect(drawContext.get(), inputTexture.get(), matrix, clip, bottomLeft,
+    this->drawRect(renderTargetContext.get(), inputTexture.get(), matrix, clip, right,
+                   kRight_BoundaryMode, pSrcBounds, offsetBounds);
+    this->drawRect(renderTargetContext.get(), inputTexture.get(), matrix, clip, bottomLeft,
                    kBottomLeft_BoundaryMode, pSrcBounds, offsetBounds);
-    this->drawRect(drawContext.get(), inputTexture.get(), matrix, clip, bottom,
+    this->drawRect(renderTargetContext.get(), inputTexture.get(), matrix, clip, bottom,
                    kBottom_BoundaryMode, pSrcBounds, offsetBounds);
-    this->drawRect(drawContext.get(), inputTexture.get(), matrix, clip, bottomRight,
+    this->drawRect(renderTargetContext.get(), inputTexture.get(), matrix, clip, bottomRight,
                    kBottomRight_BoundaryMode, pSrcBounds, offsetBounds);
 
-    return SkSpecialImage::MakeFromGpu(SkIRect::MakeWH(offsetBounds.width(), offsetBounds.height()),
+    return SkSpecialImage::MakeDeferredFromGpu(
+                                       context,
+                                       SkIRect::MakeWH(offsetBounds.width(), offsetBounds.height()),
                                        kNeedNewImageUniqueID_SpecialImage,
-                                       drawContext->asTexture(),
-                                       sk_ref_sp(drawContext->getColorSpace()));
+                                       sk_ref_sp(renderTargetContext->asDeferredTexture()),
+                                       sk_ref_sp(renderTargetContext->getColorSpace()));
 }
 #endif
 
@@ -1763,7 +1767,7 @@ sk_sp<GrFragmentProcessor> GrDiffuseLightingEffect::TestCreate(GrProcessorTestDa
     GrTexture* tex = d->fTextures[texIdx];
     SkScalar surfaceScale = d->fRandom->nextSScalar1();
     SkScalar kd = d->fRandom->nextUScalar1();
-    SkAutoTUnref<SkImageFilterLight> light(create_random_light(d->fRandom));
+    sk_sp<SkImageFilterLight> light(create_random_light(d->fRandom));
     SkMatrix matrix;
     for (int i = 0; i < 9; i++) {
         matrix[i] = d->fRandom->nextUScalar1();
@@ -1773,7 +1777,8 @@ sk_sp<GrFragmentProcessor> GrDiffuseLightingEffect::TestCreate(GrProcessorTestDa
                                           d->fRandom->nextRangeU(0, tex->width()),
                                           d->fRandom->nextRangeU(0, tex->height()));
     BoundaryMode mode = static_cast<BoundaryMode>(d->fRandom->nextU() % kBoundaryModeCount);
-    return GrDiffuseLightingEffect::Make(tex, light, surfaceScale, matrix, kd, mode, &srcBounds);
+    return GrDiffuseLightingEffect::Make(tex, light.get(), surfaceScale, matrix, kd, mode,
+                                         &srcBounds);
 }
 
 
@@ -1899,10 +1904,10 @@ void GrGLLightingEffect::onSetData(const GrGLSLProgramDataManager& pdman,
     float ySign = texture->origin() == kTopLeft_GrSurfaceOrigin ? -1.0f : 1.0f;
     pdman.set2f(fImageIncrementUni, 1.0f / texture->width(), ySign / texture->height());
     pdman.set1f(fSurfaceScaleUni, lighting.surfaceScale());
-    SkAutoTUnref<SkImageFilterLight> transformedLight(
-                                            lighting.light()->transform(lighting.filterMatrix()));
+    sk_sp<SkImageFilterLight> transformedLight(
+            lighting.light()->transform(lighting.filterMatrix()));
     fDomain.setData(pdman, lighting.domain(), texture->origin());
-    fLight->setData(pdman, transformedLight);
+    fLight->setData(pdman, transformedLight.get());
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -1981,7 +1986,7 @@ sk_sp<GrFragmentProcessor> GrSpecularLightingEffect::TestCreate(GrProcessorTestD
     SkScalar surfaceScale = d->fRandom->nextSScalar1();
     SkScalar ks = d->fRandom->nextUScalar1();
     SkScalar shininess = d->fRandom->nextUScalar1();
-    SkAutoTUnref<SkImageFilterLight> light(create_random_light(d->fRandom));
+    sk_sp<SkImageFilterLight> light(create_random_light(d->fRandom));
     SkMatrix matrix;
     for (int i = 0; i < 9; i++) {
         matrix[i] = d->fRandom->nextUScalar1();
@@ -1992,7 +1997,7 @@ sk_sp<GrFragmentProcessor> GrSpecularLightingEffect::TestCreate(GrProcessorTestD
                                           d->fRandom->nextRangeU(0, tex->width()),
                                           d->fRandom->nextRangeU(0, tex->height()));
     return GrSpecularLightingEffect::Make(d->fTextures[GrProcessorUnitTest::kAlphaTextureIdx],
-                                          light, surfaceScale, matrix, ks, shininess, mode,
+                                          light.get(), surfaceScale, matrix, ks, shininess, mode,
                                           &srcBounds);
 }
 

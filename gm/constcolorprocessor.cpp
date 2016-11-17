@@ -12,7 +12,7 @@
 #if SK_SUPPORT_GPU
 
 #include "GrContext.h"
-#include "GrDrawContextPriv.h"
+#include "GrRenderTargetContextPriv.h"
 #include "SkGrPriv.h"
 #include "SkGradientShader.h"
 #include "batches/GrDrawBatch.h"
@@ -46,8 +46,9 @@ protected:
     }
 
     void onDraw(SkCanvas* canvas) override {
-        GrDrawContext* drawContext = canvas->internal_private_accessTopLayerDrawContext();
-        if (!drawContext) {
+        GrRenderTargetContext* renderTargetContext =
+            canvas->internal_private_accessTopLayerRenderTargetContext();
+        if (!renderTargetContext) {
             skiagm::GM::DrawGpuOnlyMessage(canvas);
             return;
         }
@@ -99,19 +100,19 @@ protected:
                     } else {
                         skPaint.setColor(kPaintColors[paintType]);
                     }
-                    SkAssertResult(SkPaintToGrPaint(context, drawContext, skPaint, viewMatrix,
-                                                    &grPaint));
+                    SkAssertResult(SkPaintToGrPaint(context, renderTargetContext, skPaint,
+                                                    viewMatrix, &grPaint));
 
                     GrConstColorProcessor::InputMode mode = (GrConstColorProcessor::InputMode) m;
-                    GrColor color = kColors[procColor];
+                    GrColor4f color = GrColor4f::FromGrColor(kColors[procColor]);
                     sk_sp<GrFragmentProcessor> fp(GrConstColorProcessor::Make(color, mode));
 
                     grPaint.addColorFragmentProcessor(std::move(fp));
 
-                    SkAutoTUnref<GrDrawBatch> batch(
+                    sk_sp<GrDrawBatch> batch(
                             GrRectBatchFactory::CreateNonAAFill(grPaint.getColor(), viewMatrix,
                                                                 renderRect, nullptr, nullptr));
-                    drawContext->drawContextPriv().testingOnly_drawBatch(grPaint, batch);
+                    renderTargetContext->priv().testingOnly_drawBatch(grPaint, batch.get());
 
                     // Draw labels for the input to the processor and the processor to the right of
                     // the test rect. The input label appears above the processor label.

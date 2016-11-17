@@ -1,4 +1,4 @@
 {
   "dirOrder": ["sample", "quick", "api", "special"],
-  "fileOrder": ["download"]
+  "fileOrder": ["download", "build"]
 }

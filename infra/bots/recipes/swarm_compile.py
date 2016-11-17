@@ -23,6 +23,7 @@ TEST_BUILDERS = {
   'client.skia.compile': {
     'skiabot-linux-swarm-000': [
       'Build-Mac-Clang-Arm7-Release-iOS',
+      'Build-Mac-Clang-arm64-Debug-GN_iOS',
       'Build-Mac-Clang-mipsel-Debug-GN_Android',
       'Build-Mac-Clang-x86_64-Debug-CommandBuffer',
       'Build-Mac-Clang-x86_64-Release-GN',
@@ -42,6 +43,7 @@ TEST_BUILDERS = {
       'Build-Ubuntu-GCC-x86_64-Release-Mesa',
       'Build-Ubuntu-GCC-x86_64-Release-PDFium',
       'Build-Ubuntu-GCC-x86_64-Release-Valgrind',
+      'Build-Win-Clang-arm64-Release-GN_Android',
       'Build-Win-MSVC-x86-Debug',
       'Build-Win-MSVC-x86-Debug-ANGLE',
       'Build-Win-MSVC-x86-Debug-Exceptions',
@@ -175,12 +177,6 @@ def GenTests(api):
       api.platform('win', 64)
   )
 
-  gerrit_kwargs = {
-    'patch_storage': 'gerrit',
-    'repository': 'skia',
-    'event.patchSet.ref': 'refs/changes/00/2100/2',
-    'event.change.number': '2100',
-  }
   yield (
       api.test('recipe_with_gerrit_patch') +
       api.properties(
@@ -191,7 +187,12 @@ def GenTests(api):
           path_config='kitchen',
           swarm_out_dir='[SWARM_OUT_DIR]',
           revision='abc123',
-          **gerrit_kwargs) +
+          patch_storage='gerrit') +
+      api.properties.tryserver(
+          buildername=buildername + '-Trybot',
+          gerrit_project='skia',
+          gerrit_url='https://skia-review.googlesource.com/',
+      ) +
       api.platform('win', 64)
   )
 
@@ -226,9 +227,13 @@ def GenTests(api):
           swarm_out_dir='[SWARM_OUT_DIR]',
           revision='abc123',
           nobuildbot='True',
-          issue=500,
-          patchset=1,
-          patch_storage='gerrit',
-          gerrit='https://skia-review.googlesource.com') +
+          patch_issue=500,
+          patch_set=1,
+          patch_storage='gerrit') +
+      api.properties.tryserver(
+          buildername=buildername,
+          gerrit_project='skia',
+          gerrit_url='https://skia-review.googlesource.com/',
+      ) +
       api.platform('win', 64)
   )

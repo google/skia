@@ -230,7 +230,7 @@ sk_sp<GrFragmentProcessor> SkShader::asFragmentProcessor(const AsFPArgs&) const 
 }
 #endif
 
-SkShader* SkShader::refAsALocalMatrixShader(SkMatrix*) const {
+sk_sp<SkShader> SkShader::makeAsALocalMatrixShader(SkMatrix*) const {
     return nullptr;
 }
 
@@ -256,6 +256,13 @@ void SkShader::toString(SkString* str) const {
     }
 }
 #endif
+
+bool SkShader::appendStages(SkRasterPipeline* pipeline,
+                            SkColorSpace* dst,
+                            SkFallbackAlloc* scratch,
+                            const SkMatrix& ctm) const {
+    return this->onAppendStages(pipeline, dst, scratch, ctm);
+}
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 

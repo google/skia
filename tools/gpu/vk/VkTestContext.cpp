@@ -134,8 +134,8 @@ protected:
 private:
     VkTestContextImpl(sk_sp<const GrVkBackendContext> backendContext)
             : VkTestContext(std::move(backendContext)) {
-        fFenceSync = new VkFenceSync(sk_ref_sp(fVk->fInterface.get()), fVk->fDevice, fVk->fQueue,
-                                     fVk->fGraphicsQueueIndex);
+        fFenceSync.reset(new VkFenceSync(fVk->fInterface, fVk->fDevice, fVk->fQueue,
+                                         fVk->fGraphicsQueueIndex));
     }
 
     void onPlatformMakeCurrent() const override {}

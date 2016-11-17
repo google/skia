@@ -120,41 +120,36 @@ void GrBatchAtlas::BatchPlot::resetRects() {
 
 ///////////////////////////////////////////////////////////////////////////////
 
-GrBatchAtlas::GrBatchAtlas(GrTexture* texture, int numPlotsX, int numPlotsY)
-    : fTexture(texture)
+GrBatchAtlas::GrBatchAtlas(sk_sp<GrTexture> texture, int numPlotsX, int numPlotsY)
+    : fTexture(std::move(texture))
     , fAtlasGeneration(kInvalidAtlasGeneration + 1) {
 
-    fPlotWidth = texture->width() / numPlotsX;
-    fPlotHeight = texture->height() / numPlotsY;
+    fPlotWidth = fTexture->width() / numPlotsX;
+    fPlotHeight = fTexture->height() / numPlotsY;
     SkASSERT(numPlotsX * numPlotsY <= BulkUseTokenUpdater::kMaxPlots);
-    SkASSERT(fPlotWidth * numPlotsX == texture->width());
-    SkASSERT(fPlotHeight * numPlotsY == texture->height());
+    SkASSERT(fPlotWidth * numPlotsX == fTexture->width());
+    SkASSERT(fPlotHeight * numPlotsY == fTexture->height());
 
     SkDEBUGCODE(fNumPlots = numPlotsX * numPlotsY;)
 
     // We currently do not support compressed atlases...
-    SkASSERT(!GrPixelConfigIsCompressed(texture->desc().fConfig));
+    SkASSERT(!GrPixelConfigIsCompressed(fTexture->desc().fConfig));
 
     // set up allocated plots
-    fPlotArray = new SkAutoTUnref<BatchPlot>[numPlotsX * numPlotsY];
+    fPlotArray.reset(new sk_sp<BatchPlot>[numPlotsX * numPlotsY]);
 
-    SkAutoTUnref<BatchPlot>* currPlot = fPlotArray;
+    sk_sp<BatchPlot>* currPlot = fPlotArray.get();
     for (int y = numPlotsY - 1, r = 0; y >= 0; --y, ++r) {
         for (int x = numPlotsX - 1, c = 0; x >= 0; --x, ++c) {
             uint32_t index = r * numPlotsX + c;
             currPlot->reset(new BatchPlot(index, 1, x, y, fPlotWidth, fPlotHeight,
-                                          texture->desc().fConfig));
+                                          fTexture->desc().fConfig));
 
             // build LRU list
             fPlotList.addToHead(currPlot->get());
             ++currPlot;
         }
     }
-}
-
-GrBatchAtlas::~GrBatchAtlas() {
-    SkSafeUnref(fTexture);
-    delete[] fPlotArray;
 }
 
 void GrBatchAtlas::processEviction(AtlasID id) {
@@ -172,7 +167,7 @@ inline void GrBatchAtlas::updatePlot(GrDrawBatch::Target* target, AtlasID* id, B
     if (target->hasDrawBeenFlushed(plot->lastUploadToken())) {
         // With c+14 we could move sk_sp into lamba to only ref once.
         sk_sp<BatchPlot> plotsp(SkRef(plot));
-        GrTexture* texture = fTexture;
+        GrTexture* texture = fTexture.get();
         GrBatchDrawToken lastUploadToken = target->addAsapUpload(
             [plotsp, texture] (GrDrawBatch::WritePixelsFn& writePixels) {
                plotsp->uploadToTexture(writePixels, texture);
@@ -230,7 +225,7 @@ bool GrBatchAtlas::addToAtlas(AtlasID* id, GrDrawBatch::Target* target,
 
     this->processEviction(plot->id());
     fPlotList.remove(plot);
-    SkAutoTUnref<BatchPlot>& newPlot = fPlotArray[plot->index()];
+    sk_sp<BatchPlot>& newPlot = fPlotArray[plot->index()];
     newPlot.reset(plot->clone());
 
     fPlotList.addToHead(newPlot.get());
@@ -242,7 +237,7 @@ bool GrBatchAtlas::addToAtlas(AtlasID* id, GrDrawBatch::Target* target,
     // one it displaced most likely was uploaded asap.
     // With c+14 we could move sk_sp into lamba to only ref once.
     sk_sp<BatchPlot> plotsp(SkRef(newPlot.get()));
-    GrTexture* texture = fTexture;
+    GrTexture* texture = fTexture.get();
     GrBatchDrawToken lastUploadToken = target->addInlineUpload(
         [plotsp, texture] (GrDrawBatch::WritePixelsFn& writePixels) {
             plotsp->uploadToTexture(writePixels, texture);

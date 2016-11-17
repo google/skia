@@ -25,13 +25,17 @@ def main():
   parser.add_argument('-c', '--chrome-dir', required=True, help=
       'path to Chromium checkout (directory containing .gclient)')
   parser.add_argument('-o', '--output-dir', required=True,
-      help='path to copy the command buffer shared library to')
+      help='path to copy the command buffer shared library to. Typically this '
+           'is out/Debug or out/Release in a Skia repository')
   parser.add_argument('--make-output-dir', default=False, action='store_true',
       help='Makes the output directory if it does not already exist.')
-  parser.add_argument('-t', '--chrome-build-type', default='Release',
-      help='Type of build for the command buffer (e.g. Debug or Release). The '
-            'output dir to build will be <chrome-dir>/out/<chrome-build-type> '
-            'and must already be initialized by gn.')
+  parser.add_argument('--chrome-out-dir', default='CommandBufferForSkia',
+      help='Type of name of the gn output directory (e.g. Debug or Release). '
+           'This is relative to the Chromium src/out directory. Note that this '
+           'script will reset the gn args in this directory on each run.')
+  parser.add_argument('--extra-gn-args', default='',
+      help=('Extra GN arguments to use for the output directory used to build'
+            'the command buffer'))
   parser.add_argument('--extra-ninja-args', default='',
       help=('Extra arguments to pass to ninja when building the command '
             'buffer shared library'))
@@ -70,26 +74,21 @@ def main():
       sys.exit(args.output_dir + ' does not exist (specify --make-output-dir '
           'to create).')
 
-  chrome_target_dir_rel = os.path.join('out', args.chrome_build_type)
+  chrome_target_dir_rel = os.path.join('out', args.chrome_out_dir)
 
   # The command buffer shared library will have a different name on Linux,
-  # Mac, and Windows. Also, on Linux it will be in a 'lib' subdirectory and
-  # needs to be placed in a 'lib' subdirectory of the directory containing the
-  # Skia executable. Also, the name of the gclient executable we call out to has
-  # a .bat file extension on Windows.
+  # Mac, and Windows. Also, the name of the gclient executable we call out to
+  # has a .bat file extension on Windows.
   platform = sys.platform
   if platform == 'cygwin':
     platform = 'win32'
 
   shared_lib_name = 'libcommand_buffer_gles2.so'
-  shared_lib_subdir = 'lib'
   gclient = 'gclient'
   if platform == 'darwin':
     shared_lib_name = 'libcommand_buffer_gles2.dylib'
-    shared_lib_subdir = ''
   elif platform == 'win32':
     shared_lib_name = 'command_buffer_gles2.dll'
-    shared_lib_subdir = ''
     gclient = 'gclient.bat'
 
   if not args.no_sync:
@@ -131,8 +130,8 @@ def main():
     gn = 'gn.exe'
   gn = os.path.join(chrome_src_dir, 'buildtools', platform, gn)
   try:
-    subprocess.check_call([gn, 'gen', chrome_target_dir_rel,
-                           '--args=is_component_build=false'],
+    gnargs = 'is_component_build=false is_debug=false ' + args.extra_gn_args
+    subprocess.check_call([gn, 'gen', chrome_target_dir_rel, '--args='+gnargs],
                           cwd=chrome_src_dir)
   except subprocess.CalledProcessError as error:
     sys.exit('Error (ret code: %s) calling "%s" in %s' % (
@@ -147,13 +146,9 @@ def main():
         error.cmd, chrome_src_dir))
 
   shared_lib_src_dir = os.path.join(chrome_src_dir, chrome_target_dir_rel)
-  shared_lib_dst_dir = os.path.join(args.output_dir, shared_lib_subdir)
-  # Make the subdir for the dst if does not exist
-  if shared_lib_subdir and not os.path.isdir(shared_lib_dst_dir):
-    os.mkdir(shared_lib_dst_dir)
 
   shared_lib_src = os.path.join(shared_lib_src_dir, shared_lib_name)
-  shared_lib_dst = os.path.join(shared_lib_dst_dir, shared_lib_name)
+  shared_lib_dst = os.path.join(args.output_dir, shared_lib_name)
 
   if not os.path.isfile(shared_lib_src):
     sys.exit('Command buffer shared library not at expected location: ' +

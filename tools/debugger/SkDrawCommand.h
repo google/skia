@@ -356,10 +356,10 @@ public:
     static SkDrawImageCommand* fromJSON(Json::Value& command, UrlDataManager& urlDataManager);
 
 private:
-    SkAutoTUnref<const SkImage> fImage;
-    SkScalar                    fLeft;
-    SkScalar                    fTop;
-    SkTLazy<SkPaint>            fPaint;
+    sk_sp<const SkImage> fImage;
+    SkScalar             fLeft;
+    SkScalar             fTop;
+    SkTLazy<SkPaint>     fPaint;
 
     typedef SkDrawCommand INHERITED;
 };
@@ -374,7 +374,7 @@ public:
     static SkDrawImageRectCommand* fromJSON(Json::Value& command, UrlDataManager& urlDataManager);
 
 private:
-    SkAutoTUnref<const SkImage> fImage;
+    sk_sp<const SkImage>        fImage;
     SkTLazy<SkRect>             fSrc;
     SkRect                      fDst;
     SkTLazy<SkPaint>            fPaint;
@@ -456,9 +456,9 @@ public:
     bool render(SkCanvas* canvas) const override;
 
 private:
-    SkAutoTUnref<const SkPicture> fPicture;
-    SkTLazy<SkMatrix>             fMatrix;
-    SkTLazy<SkPaint>              fPaint;
+    sk_sp<const SkPicture> fPicture;
+    SkTLazy<SkMatrix>      fMatrix;
+    SkTLazy<SkPaint>       fPaint;
 
     typedef SkDrawCommand INHERITED;
 };
@@ -486,7 +486,7 @@ public:
     bool render(SkCanvas* canvas) const override;
 
 private:
-    SkAutoTUnref<const SkPicture> fPicture;
+    sk_sp<const SkPicture>        fPicture;
     SkTLazy<SkMatrix>             fMatrix;
     SkTLazy<SkPaint>              fPaint;
 #ifdef SK_EXPERIMENTAL_SHADOWING
@@ -643,7 +643,7 @@ private:
 class SkDrawPatchCommand : public SkDrawCommand {
 public:
     SkDrawPatchCommand(const SkPoint cubics[12], const SkColor colors[4],
-                       const SkPoint texCoords[4], SkXfermode* xmode,
+                       const SkPoint texCoords[4], SkBlendMode bmode,
                        const SkPaint& paint);
     void execute(SkCanvas* canvas) const override;
     Json::Value toJSON(UrlDataManager& urlDataManager) const override;
@@ -655,7 +655,7 @@ private:
     SkColor  fColors[4];
     SkPoint* fTexCoordsPtr;
     SkPoint  fTexCoords[4];
-    SkAutoTUnref<SkXfermode> fXfermode;
+    SkBlendMode fBlendMode;
     SkPaint fPaint;
 
     typedef SkDrawCommand INHERITED;
@@ -714,7 +714,7 @@ class SkDrawVerticesCommand : public SkDrawCommand {
 public:
     SkDrawVerticesCommand(SkCanvas::VertexMode vmode, int vertexCount,
                           const SkPoint vertices[], const SkPoint texs[],
-                          const SkColor colors[], SkXfermode* xfermode,
+                          const SkColor colors[], SkBlendMode,
                           const uint16_t indices[], int indexCount,
                           const SkPaint& paint);
     virtual ~SkDrawVerticesCommand();
@@ -726,7 +726,7 @@ private:
     SkPoint*    fVertices;
     SkPoint*    fTexs;
     SkColor*    fColors;
-    SkXfermode* fXfermode;
+    SkBlendMode fBlendMode;
     uint16_t*   fIndices;
     int         fIndexCount;
     SkPaint     fPaint;

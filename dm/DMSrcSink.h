@@ -118,6 +118,7 @@ public:
         kStripe_Mode, // Tests the skipping of scanlines
         kCroppedScanline_Mode, // Tests (jpeg) cropped scanline optimization
         kSubset_Mode, // For codecs that support subsets directly.
+        kAnimated_Mode, // For codecs that support animation.
     };
     enum DstColorType {
         kGetFromCanvas_DstColorType,
@@ -218,11 +219,6 @@ public:
         kDst_HPZR30w_Mode,
 
         kDst_sRGB_Mode,
-
-#if defined(SK_TEST_QCMS)
-        // Use QCMS for color correction.
-        kQCMS_HPZR30w_Mode,
-#endif
     };
 
     ColorCodecSrc(Path, Mode, SkColorType);
@@ -265,11 +261,9 @@ public:
     bool veto(SinkFlags) const override;
 
 private:
-    Error ensureDom() const;
-
-    Path                    fPath;
-    mutable sk_sp<SkSVGDOM> fDom;
-    mutable SkScalar        fScale;
+    Name            fName;
+    sk_sp<SkSVGDOM> fDom;
+    SkScalar        fScale;
 
     typedef Src INHERITED;
 };
@@ -373,6 +367,13 @@ public:
     SinkFlags flags() const override { return SinkFlags{ SinkFlags::kVector, SinkFlags::kDirect }; }
 };
 
+class DebugSink : public Sink {
+public:
+    Error draw(const Src&, SkBitmap*, SkWStream*, SkString*) const override;
+    const char* fileExtension() const override { return "json"; }
+    SinkFlags flags() const override { return SinkFlags{ SinkFlags::kVector, SinkFlags::kDirect }; }
+};
+
 class SVGSink : public Sink {
 public:
     SVGSink();
@@ -396,7 +397,7 @@ public:
         return flags;
     }
 protected:
-    SkAutoTDelete<Sink> fSink;
+    std::unique_ptr<Sink> fSink;
 };
 
 class ViaMatrix : public Via {
@@ -445,7 +446,7 @@ public:
     Error draw(const Src&, SkBitmap*, SkWStream*, SkString*) const override;
 private:
     const int                   fW, fH;
-    SkAutoTDelete<SkBBHFactory> fFactory;
+    std::unique_ptr<SkBBHFactory> fFactory;
 };
 
 class ViaSecondPicture : public Via {

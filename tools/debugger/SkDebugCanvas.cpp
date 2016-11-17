@@ -349,7 +349,8 @@ void SkDebugCanvas::drawTo(SkCanvas* canvas, int index, int m) {
         // get the render target of the top device so we can ignore batches drawn offscreen
         SkBaseDevice* bd = canvas->getDevice_just_for_deprecated_compatibility_testing();
         SkGpuDevice* gbd = reinterpret_cast<SkGpuDevice*>(bd);
-        uint32_t rtID = gbd->accessDrawContext()->accessRenderTarget()->uniqueID();
+        GrGpuResource::UniqueID rtID = 
+                            gbd->accessRenderTargetContext()->accessRenderTarget()->uniqueID();
 
         // get the bounding boxes to draw
         SkTArray<GrAuditTrail::BatchInfo> childrenBounds;
@@ -654,17 +655,17 @@ void SkDebugCanvas::onDrawTextBlob(const SkTextBlob* blob, SkScalar x, SkScalar 
 }
 
 void SkDebugCanvas::onDrawPatch(const SkPoint cubics[12], const SkColor colors[4],
-                                const SkPoint texCoords[4], SkXfermode* xmode,
+                                const SkPoint texCoords[4], SkBlendMode bmode,
                                 const SkPaint& paint) {
-    this->addDrawCommand(new SkDrawPatchCommand(cubics, colors, texCoords, xmode, paint));
+    this->addDrawCommand(new SkDrawPatchCommand(cubics, colors, texCoords, bmode, paint));
 }
 
 void SkDebugCanvas::onDrawVertices(VertexMode vmode, int vertexCount, const SkPoint vertices[],
                                    const SkPoint texs[], const SkColor colors[],
-                                   SkXfermode*, const uint16_t indices[], int indexCount,
+                                   SkBlendMode bmode, const uint16_t indices[], int indexCount,
                                    const SkPaint& paint) {
     this->addDrawCommand(new SkDrawVerticesCommand(vmode, vertexCount, vertices,
-                         texs, colors, nullptr, indices, indexCount, paint));
+                         texs, colors, bmode, indices, indexCount, paint));
 }
 
 void SkDebugCanvas::willRestore() {

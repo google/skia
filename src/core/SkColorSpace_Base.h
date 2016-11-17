@@ -8,6 +8,7 @@
 #ifndef SkColorSpace_Base_DEFINED
 #define SkColorSpace_Base_DEFINED
 
+#include "SkColorLookUpTable.h"
 #include "SkColorSpace.h"
 #include "SkData.h"
 #include "SkOnce.h"
@@ -143,30 +144,6 @@ struct SkGammas : SkRefCnt {
     void operator delete(void* p) { sk_free(p); }
 };
 
-struct SkColorLookUpTable : public SkRefCnt {
-    static constexpr uint8_t kOutputChannels = 3;
-
-    uint8_t                  fInputChannels;
-    uint8_t                  fGridPoints[3];
-
-    const float* table() const {
-        return SkTAddOffset<const float>(this, sizeof(SkColorLookUpTable));
-    }
-
-    SkColorLookUpTable(uint8_t inputChannels, uint8_t gridPoints[3])
-        : fInputChannels(inputChannels)
-    {
-        SkASSERT(3 == inputChannels);
-        memcpy(fGridPoints, gridPoints, 3 * sizeof(uint8_t));
-    }
-
-    // Objects of this type are created in a custom fashion using sk_malloc_throw
-    // and therefore must be sk_freed.
-    void* operator new(size_t size) = delete;
-    void* operator new(size_t, void* p) { return p; }
-    void operator delete(void* p) { sk_free(p); }
-};
-
 class SkColorSpace_Base : public SkColorSpace {
 public:
 
@@ -193,6 +170,20 @@ public:
     
     virtual bool onGammaIsLinear() const = 0;
     
+    /**
+     *  Returns a color space with the same gamut as this one, but with a linear gamma.
+     *  For color spaces whose gamut can not be described in terms of XYZ D50, returns
+     *  linear sRGB.
+     */
+    virtual sk_sp<SkColorSpace> makeLinearGamma() = 0;
+
+    /**
+     *  Returns a color space with the same gamut as this one, with with the sRGB transfer
+     *  function. For color spaces whose gamut can not be described in terms of XYZ D50, returns
+     *  sRGB.
+     */
+    virtual sk_sp<SkColorSpace> makeSRGBGamma() = 0;
+
     enum class Type : uint8_t {
         kXYZ,
         kA2B
@@ -214,7 +205,7 @@ private:
      */
     sk_sp<SkData> writeToICC() const;
 
-    static sk_sp<SkColorSpace> NewRGB(SkGammaNamed gammaNamed, const SkMatrix44& toXYZD50);
+    static sk_sp<SkColorSpace> MakeRGB(SkGammaNamed gammaNamed, const SkMatrix44& toXYZD50);
 
     SkColorSpace_Base(SkGammaNamed gammaNamed, const SkMatrix44& toXYZ);
 

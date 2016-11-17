@@ -56,10 +56,12 @@ def main(argv):
   prs_add = subs.add_parser('add', help='Add a new asset.')
   prs_add.set_defaults(func=add)
   prs_add.add_argument('asset_name', help='Name of the asset.')
+  prs_add.add_argument('--gsutil')
 
   prs_remove = subs.add_parser('remove', help='Remove an asset.')
   prs_remove.set_defaults(func=remove)
   prs_remove.add_argument('asset_name', help='Name of the asset.')
+  prs_remove.add_argument('--gsutil')
 
   prs_download = subs.add_parser(
       'download', help='Download the current version of an asset.')

@@ -81,20 +81,21 @@ extern void SkTextureImageSetTexture(SkImage* image, GrTexture* texture);
  *  src). In particular this is intended to use the texture even if the image's original content
  *  changes subsequent to this call (i.e. the src is mutable!).
  *
- *  This must be balanced by an equal number of calls to SkImage_unpinAsTexture() -- calls can be
- *  nested.
+ *  All successful calls must be balanced by an equal number of calls to SkImage_unpinAsTexture().
  *
  *  Once in this "pinned" state, the image has all of the same thread restrictions that exist
  *  for a natively created gpu image (e.g. SkImage::MakeFromTexture)
  *  - all drawing, pinning, unpinning must happen in the same thread as the GrContext.
+ *
+ *  @return true if the image was successfully uploaded and locked into a texture
  */
-void SkImage_pinAsTexture(const SkImage*, GrContext*);
+bool SkImage_pinAsTexture(const SkImage*, GrContext*);
 
 /**
- *  The balancing call to SkImage_pinAsTexture. When a balanced number of calls have been made, then
- *  the "pinned" texture is free to be purged, etc. This also means that a subsequent "pin" call
- *  will look at the original content again, and if its uniqueID/generationID has changed, then
- *  a newer texture will be uploaded/pinned.
+ *  The balancing call to a successful invokation of SkImage_pinAsTexture.  When a balanced number of
+ *  calls have been made, then the "pinned" texture is free to be purged, etc. This also means that a
+ *  subsequent "pin" call will look at the original content again, and if its uniqueID/generationID
+ *  has changed, then a newer texture will be uploaded/pinned.
  *
  *  The context passed to unpin must match the one passed to pin.
  */

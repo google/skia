@@ -137,8 +137,8 @@ void SkTestTypeface::getMetrics(SkGlyph* glyph) {
     glyph->fAdvanceY = 0;
 }
 
-void SkTestTypeface::getPath(const SkGlyph& glyph, SkPath* path) {
-    *path = *fTestFont->fPaths[glyph.getGlyphID()];
+void SkTestTypeface::getPath(SkGlyphID glyph, SkPath* path) {
+    *path = *fTestFont->fPaths[glyph];
 }
 
 void SkTestTypeface::onFilterRec(SkScalerContextRec* rec) const {
@@ -236,7 +236,7 @@ protected:
         glyph->fAdvanceY = SkScalarToFloat(advance.fY);
 
         SkPath path;
-        this->getTestTypeface()->getPath(*glyph, &path);
+        this->getTestTypeface()->getPath(glyph->getGlyphID(), &path);
         path.transform(fMatrix);
 
         SkRect storage;
@@ -254,7 +254,7 @@ protected:
 
     void generateImage(const SkGlyph& glyph) override {
         SkPath path;
-        this->getTestTypeface()->getPath(glyph, &path);
+        this->getTestTypeface()->getPath(glyph.getGlyphID(), &path);
 
         SkBitmap bm;
         bm.installPixels(SkImageInfo::MakeN32Premul(glyph.fWidth, glyph.fHeight),
@@ -270,7 +270,7 @@ protected:
         canvas.drawPath(path, paint);
     }
 
-    void generatePath(const SkGlyph& glyph, SkPath* path) override {
+    void generatePath(SkGlyphID glyph, SkPath* path) override {
         this->getTestTypeface()->getPath(glyph, path);
         path->transform(fMatrix);
     }

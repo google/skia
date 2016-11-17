@@ -127,6 +127,10 @@ public:
         }
     }
 
+    bool canConfigBeFBOColorAttachment(GrPixelConfig config) const {
+        return SkToBool(fConfigTable[config].fFlags & ConfigInfo::kFBOColorAttachment_Flag);
+    }
+
     bool isConfigTexSupportEnabled(GrPixelConfig config) const {
         return SkToBool(fConfigTable[config].fFlags & ConfigInfo::kCanUseTexStorage_Flag);
     }
@@ -312,11 +316,12 @@ public:
     /// Use indices or vertices in CPU arrays rather than VBOs for dynamic content.
     bool useNonVBOVertexAndIndexDynamicData() const { return fUseNonVBOVertexAndIndexDynamicData; }
 
-    /// Does ReadPixels support reading readConfig pixels from a FBO that is renderTargetConfig?
-    bool readPixelsSupported(GrPixelConfig renderTargetConfig,
+    /// Does ReadPixels support reading readConfig pixels from a FBO that is surfaceConfig?
+    bool readPixelsSupported(GrPixelConfig surfaceConfig,
                              GrPixelConfig readConfig,
                              std::function<void (GrGLenum, GrGLint*)> getIntegerv,
-                             std::function<bool ()> bindRenderTarget) const;
+                             std::function<bool ()> bindRenderTarget,
+                             std::function<void ()> unbindRenderTarget) const;
 
     bool isCoreProfile() const { return fIsCoreProfile; }
 
@@ -420,6 +425,7 @@ private:
     enum FormatType {
         kNormalizedFixedPoint_FormatType,
         kFloat_FormatType,
+        kInteger_FormatType,
     };
 
     struct ReadPixelsFormat {
@@ -478,8 +484,11 @@ private:
             kTextureable_Flag             = 0x2,
             kRenderable_Flag              = 0x4,
             kRenderableWithMSAA_Flag      = 0x8,
-            kCanUseTexStorage_Flag        = 0x10,
-            kCanUseWithTexelBuffer_Flag   = 0x20,
+            /** kFBOColorAttachment means that even if the config cannot be a GrRenderTarget, we can
+                still attach it to a FBO for blitting or reading pixels. */
+            kFBOColorAttachment_Flag      = 0x10,
+            kCanUseTexStorage_Flag        = 0x20,
+            kCanUseWithTexelBuffer_Flag   = 0x40,
         };
         uint32_t fFlags;
 

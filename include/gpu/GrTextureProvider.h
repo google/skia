@@ -98,8 +98,8 @@ public:
      *
      * @return GrTexture object or NULL on failure.
      */
-    GrTexture* wrapBackendTexture(const GrBackendTextureDesc& desc,
-                                  GrWrapOwnership = kBorrow_GrWrapOwnership);
+    sk_sp<GrTexture> wrapBackendTexture(const GrBackendTextureDesc& desc,
+                                        GrWrapOwnership = kBorrow_GrWrapOwnership);
 
     /**
      * Wraps an existing render target with a GrRenderTarget object. It is
@@ -110,7 +110,7 @@ public:
      *
      * @return GrRenderTarget object or NULL on failure.
      */
-     GrRenderTarget* wrapBackendRenderTarget(const GrBackendRenderTargetDesc& desc);
+     sk_sp<GrRenderTarget> wrapBackendRenderTarget(const GrBackendRenderTargetDesc& desc);
 
 protected:
     GrTextureProvider(GrGpu* gpu, GrResourceCache* cache, GrSingleOwner* singleOwner);

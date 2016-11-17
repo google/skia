@@ -9,7 +9,7 @@
 
 #include "GrBatchAtlas.h"
 #include "GrContextOptions.h"
-#include "GrDrawContextPriv.h"
+#include "GrRenderTargetContextPriv.h"
 #include "GrDrawingManager.h"
 #include "GrGpuResourceCacheAccess.h"
 #include "GrPipelineBuilder.h"
@@ -55,21 +55,29 @@ void SetupAlwaysEvictAtlas(GrContext* context) {
 }
 };
 
-void GrTestTarget::init(GrContext* ctx, sk_sp<GrDrawContext> drawContext) {
+void GrTestTarget::init(GrContext* ctx, sk_sp<GrRenderTargetContext> renderTargetContext) {
     SkASSERT(!fContext);
 
     fContext.reset(SkRef(ctx));
-    fDrawContext = drawContext;
+    fRenderTargetContext = renderTargetContext;
 }
 
-void GrContext::getTestTarget(GrTestTarget* tar, sk_sp<GrDrawContext> drawContext) {
+bool GrSurfaceProxy::isWrapped_ForTesting() const {
+    return SkToBool(fTarget);
+}
+
+bool GrRenderTargetContext::isWrapped_ForTesting() const {
+    return fRenderTargetProxy->isWrapped_ForTesting();
+}
+
+void GrContext::getTestTarget(GrTestTarget* tar, sk_sp<GrRenderTargetContext> renderTargetContext) {
     this->flush();
-    SkASSERT(drawContext);
-    // We could create a proxy GrDrawTarget that passes through to fGpu until ~GrTextTarget() and
+    SkASSERT(renderTargetContext);
+    // We could create a proxy GrOpList that passes through to fGpu until ~GrTextTarget() and
     // then disconnects. This would help prevent test writers from mixing using the returned
-    // GrDrawTarget and regular drawing. We could also assert or fail in GrContext drawing methods
+    // GrOpList and regular drawing. We could also assert or fail in GrContext drawing methods
     // until ~GrTestTarget().
-    tar->init(this, std::move(drawContext));
+    tar->init(this, std::move(renderTargetContext));
 }
 
 void GrContext::setTextBlobCacheLimit_ForTesting(size_t bytes) {
@@ -140,7 +148,7 @@ void SkGpuDevice::drawTexture(GrTexture* tex, const SkRect& dst, const SkPaint& 
     GrPaint grPaint;
     SkMatrix mat;
     mat.reset();
-    if (!SkPaintToGrPaint(this->context(), fDrawContext.get(), paint, mat, &grPaint)) {
+    if (!SkPaintToGrPaint(this->context(), fRenderTargetContext.get(), paint, mat, &grPaint)) {
         return;
     }
     SkMatrix textureMat;
@@ -152,7 +160,7 @@ void SkGpuDevice::drawTexture(GrTexture* tex, const SkRect& dst, const SkPaint& 
 
     grPaint.addColorTextureProcessor(tex, nullptr, textureMat);
 
-    fDrawContext->drawRect(GrNoClip(), grPaint, mat, dst);
+    fRenderTargetContext->drawRect(GrNoClip(), grPaint, mat, dst);
 }
 
 
@@ -232,19 +240,20 @@ void GrResourceCache::changeTimestamp(uint32_t newTimestamp) { fTimestamp = newT
 ///////////////////////////////////////////////////////////////////////////////
 
 #define ASSERT_SINGLE_OWNER \
-    SkDEBUGCODE(GrSingleOwner::AutoEnforce debug_SingleOwner(fDrawContext->fSingleOwner);)
-#define RETURN_IF_ABANDONED        if (fDrawContext->fDrawingManager->wasAbandoned()) { return; }
+    SkDEBUGCODE(GrSingleOwner::AutoEnforce debug_SingleOwner(fRenderTargetContext->fSingleOwner);)
+#define RETURN_IF_ABANDONED        if (fRenderTargetContext->fDrawingManager->wasAbandoned()) { return; }
 
-void GrDrawContextPriv::testingOnly_drawBatch(const GrPaint& paint,
-                                              GrDrawBatch* batch,
-                                              const GrUserStencilSettings* uss,
-                                              bool snapToCenters) {
+void GrRenderTargetContextPriv::testingOnly_drawBatch(const GrPaint& paint,
+                                                      GrDrawBatch* batch,
+                                                      const GrUserStencilSettings* uss,
+                                                      bool snapToCenters) {
     ASSERT_SINGLE_OWNER
     RETURN_IF_ABANDONED
-    SkDEBUGCODE(fDrawContext->validate();)
-    GR_AUDIT_TRAIL_AUTO_FRAME(fDrawContext->fAuditTrail, "GrDrawContext::testingOnly_drawBatch");
+    SkDEBUGCODE(fRenderTargetContext->validate();)
+    GR_AUDIT_TRAIL_AUTO_FRAME(fRenderTargetContext->fAuditTrail,
+                              "GrRenderTargetContext::testingOnly_drawBatch");
 
-    GrPipelineBuilder pipelineBuilder(paint, fDrawContext->mustUseHWAA(paint));
+    GrPipelineBuilder pipelineBuilder(paint, fRenderTargetContext->mustUseHWAA(paint));
     if (uss) {
         pipelineBuilder.setUserStencil(uss);
     }
@@ -252,7 +261,8 @@ void GrDrawContextPriv::testingOnly_drawBatch(const GrPaint& paint,
         pipelineBuilder.setState(GrPipelineBuilder::kSnapVerticesToPixelCenters_Flag, true);
     }
 
-    fDrawContext->getDrawTarget()->drawBatch(pipelineBuilder, fDrawContext, GrNoClip(), batch);
+    fRenderTargetContext->getOpList()->drawBatch(pipelineBuilder, fRenderTargetContext, GrNoClip(),
+                                                 batch);
 }
 
 #undef ASSERT_SINGLE_OWNER
@@ -260,7 +270,7 @@ void GrDrawContextPriv::testingOnly_drawBatch(const GrPaint& paint,
 
 ///////////////////////////////////////////////////////////////////////////////
 
-GrRenderTargetPriv::Flags GrRenderTargetProxy::testingOnly_getFlags() const {
+GrRenderTarget::Flags GrRenderTargetProxy::testingOnly_getFlags() const {
     return fFlags;
 }
 
@@ -301,8 +311,8 @@ public:
                        const SkIRect& srcRect,
                        const SkIPoint& dstPoint) override { return false; }
 
-    void onGetMultisampleSpecs(GrRenderTarget* rt, const GrStencilSettings&,
-                               int* effectiveSampleCnt, SamplePattern*) override {
+    void onQueryMultisampleSpecs(GrRenderTarget* rt, const GrStencilSettings&,
+                                 int* effectiveSampleCnt, SamplePattern*) override {
         *effectiveSampleCnt = rt->desc().fSampleCnt;
     }
 
@@ -337,15 +347,16 @@ private:
         return nullptr;
     }
 
-    GrTexture* onWrapBackendTexture(const GrBackendTextureDesc&,
-                                    GrWrapOwnership) override { return nullptr; }
-
-    GrRenderTarget* onWrapBackendRenderTarget(const GrBackendRenderTargetDesc&,
-                                              GrWrapOwnership) override {
+    sk_sp<GrTexture> onWrapBackendTexture(const GrBackendTextureDesc&, GrWrapOwnership) override {
         return nullptr;
     }
 
-    GrRenderTarget* onWrapBackendTextureAsRenderTarget(const GrBackendTextureDesc&) override {
+    sk_sp<GrRenderTarget> onWrapBackendRenderTarget(const GrBackendRenderTargetDesc&,
+                                                    GrWrapOwnership) override {
+        return nullptr;
+    }
+
+    sk_sp<GrRenderTarget> onWrapBackendTextureAsRenderTarget(const GrBackendTextureDesc&) override {
         return nullptr;
     }
 

@@ -12,6 +12,7 @@
 #include "SkJSONCPP.h"
 #include "SkMD5.h"
 #include "SkOSFile.h"
+#include "SkOSPath.h"
 #include "SkPicture.h"
 #include "SkPixelSerializer.h"
 #include "SkStream.h"
@@ -54,7 +55,7 @@ struct Sniffer : public SkPixelSerializer {
         gSeen.add(digest);
 
         sk_sp<SkData> data(SkData::MakeWithoutCopy(ptr, len));
-        SkAutoTDelete<SkCodec> codec(SkCodec::NewFromData(data));
+        std::unique_ptr<SkCodec> codec(SkCodec::NewFromData(data));
         if (!codec) {
             // FIXME: This code is currently unreachable because we create an empty generator when
             //        we fail to create a codec.

@@ -7,7 +7,7 @@ COMMIT
 If you are working on experimental code and do not want to risk accidentally
 submitting the change via the CQ, then you can mark it with "COMMIT=false".
 The CQ will immediately abandon the change if it contains this option.
-To do a dry run through the CQ please use Rietveld's [dry run](https://groups.google.com/a/chromium.org/forum/#!topic/chromium-dev/G5-X0_tfmok) feature.
+To do a dry run through the CQ please use Gerrit's [CQ Dry Run](https://groups.google.com/a/chromium.org/forum/#!topic/chromium-dev/G5-X0_tfmok) feature.
 
     COMMIT=false
 
@@ -37,6 +37,8 @@ Here are some real world examples:
     CQ_INCLUDE_TRYBOTS=master.tryserver.chromium.linux:linux_chromium_asan_rel_ng
 
     CQ_INCLUDE_TRYBOTS=master.client.skia:Test-Win-MSVC-ShuttleC-GPU-GTX960-x86_64-Debug-ANGLE-Trybot
+
+**IMPORTANT**: Make sure each bot name ends in "-Trybot", otherwise your trybots may be treated as non-trybot builds!
 
 TBR
 ---

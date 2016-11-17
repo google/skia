@@ -148,7 +148,7 @@ public:
 
         int count = fontFamily->GetFontCount();
         SkFontIdentity* fontIds;
-        SkAutoTUnref<SkRemotableFontIdentitySet> fontIdSet(
+        sk_sp<SkRemotableFontIdentitySet> fontIdSet(
             new SkRemotableFontIdentitySet(count, &fontIds));
         for (int fontIndex = 0; fontIndex < count; ++fontIndex) {
             SkTScopedComPtr<IDWriteFont> font;
@@ -365,7 +365,7 @@ public:
 
     protected:
         ULONG fRefCount;
-        SkAutoTUnref<const SkRemotableFontMgr_DirectWrite> fOuter;
+        sk_sp<const SkRemotableFontMgr_DirectWrite> fOuter;
         UINT32 fCharacter;
         SkFontIdentity fIdentity;
     };

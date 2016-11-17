@@ -65,15 +65,17 @@ template <>
 class PixelConverter<kAlpha_8_SkColorType, kLinear_SkGammaType> {
 public:
     using Element = uint8_t;
-    PixelConverter(const SkPixmap& srcPixmap, SkColor tintColor)
-        : fTintColor{set_alpha(Sk4f_from_SkColor(tintColor), 1.0f)} { }
+    PixelConverter(const SkPixmap& srcPixmap, SkColor tintColor) {
+        fTintColor = SkColor4f::FromColor(tintColor);
+        fTintColor.fA = 1.0f;
+    }
 
     Sk4f toSk4f(const Element pixel) const {
-        return fTintColor * (pixel * (1.0f/255.0f));
+        return Sk4f::Load(&fTintColor) * (pixel * (1.0f/255.0f));
     }
 
 private:
-    const Sk4f fTintColor;
+    SkColor4f fTintColor;
 };
 
 template <SkGammaType gammaType>

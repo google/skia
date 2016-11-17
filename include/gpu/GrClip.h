@@ -13,7 +13,7 @@
 
 class GrAppliedClip;
 class GrContext;
-class GrDrawContext;
+class GrRenderTargetContext;
 
 /**
  * GrClip is an abstract base class for applying a clip. It constructs a clip mask if necessary, and
@@ -27,8 +27,8 @@ public:
     }
     virtual void getConservativeBounds(int width, int height, SkIRect* devResult,
                                        bool* isIntersectionOfRects = nullptr) const = 0;
-    virtual bool apply(GrContext*, GrDrawContext*, bool useHWAA, bool hasUserStencilSettings,
-                       GrAppliedClip* out) const = 0;
+    virtual bool apply(GrContext*, GrRenderTargetContext*, bool useHWAA,
+                       bool hasUserStencilSettings, GrAppliedClip* out) const = 0;
 
     virtual ~GrClip() {}
 
@@ -137,7 +137,7 @@ private:
             *isIntersectionOfRects = true;
         }
     }
-    bool apply(GrContext*, GrDrawContext*, bool, bool, GrAppliedClip*) const final {
+    bool apply(GrContext*, GrRenderTargetContext*, bool, bool, GrAppliedClip*) const final {
         return true;
     }
     bool isRRect(const SkRect&, SkRRect*, bool*) const override { return false; }

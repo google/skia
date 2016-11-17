@@ -129,8 +129,8 @@ protected:
      * GrProcessor subclass. These must only be called from the constructor because GrProcessors
      * are immutable.
      */
-    virtual void addTextureAccess(const GrTextureAccess* textureAccess);
-    virtual void addBufferAccess(const GrBufferAccess* bufferAccess);
+    void addTextureAccess(const GrTextureAccess* textureAccess);
+    void addBufferAccess(const GrBufferAccess* bufferAccess);
 
     bool hasSameSamplers(const GrProcessor&) const;
 
@@ -152,9 +152,6 @@ protected:
     }
 
     uint32_t fClassID;
-    SkSTArray<4, const GrTextureAccess*, true>   fTextureAccesses;
-    SkSTArray<2, const GrBufferAccess*, true>    fBufferAccesses;
-
 private:
     static uint32_t GenClassID() {
         // fCurrProcessorClassID has been initialized to kIllegalProcessorClassID. The
@@ -174,6 +171,8 @@ private:
     static int32_t gCurrProcessorClassID;
 
     RequiredFeatures fRequiredFeatures;
+    SkSTArray<4, const GrTextureAccess*, true>   fTextureAccesses;
+    SkSTArray<2, const GrBufferAccess*, true>    fBufferAccesses;
 
     typedef GrProgramElement INHERITED;
 };

@@ -10,45 +10,46 @@
 /** Returns the number of locations take up by a given GrSLType. We assume that all
     scalar values are 32 bits. */
 static inline int grsltype_to_location_size(GrSLType type) {
-    static const uint32_t kSizes[] = {
-        0,  // kVoid_GrSLType
-        1,  // kFloat_GrSLType
-        1,  // kVec2f_GrSLType
-        1,  // kVec3f_GrSLType
-        1,  // kVec4f_GrSLType
-        2,  // kMat22f_GrSLType
-        3,  // kMat33f_GrSLType
-        4,  // kMat44f_GrSLType
-        0,  // kTexture2DSampler_GrSLType
-        0,  // kTextureExternalSampler_GrSLType
-        0,  // kTexture2DRectSampler_GrSLType
-        0,  // kTextureBufferSampler_GrSLType
-        1,  // kBool_GrSLType
-        1,  // kInt_GrSLType
-        1,  // kUint_GrSLType
-        0,  // kTexture2D_GrSLType
-        0,  // kSampler_GrSLType
-    };
-    return kSizes[type];
-
-    GR_STATIC_ASSERT(0 == kVoid_GrSLType);
-    GR_STATIC_ASSERT(1 == kFloat_GrSLType);
-    GR_STATIC_ASSERT(2 == kVec2f_GrSLType);
-    GR_STATIC_ASSERT(3 == kVec3f_GrSLType);
-    GR_STATIC_ASSERT(4 == kVec4f_GrSLType);
-    GR_STATIC_ASSERT(5 == kMat22f_GrSLType);
-    GR_STATIC_ASSERT(6 == kMat33f_GrSLType);
-    GR_STATIC_ASSERT(7 == kMat44f_GrSLType);
-    GR_STATIC_ASSERT(8 == kTexture2DSampler_GrSLType);
-    GR_STATIC_ASSERT(9 == kTextureExternalSampler_GrSLType);
-    GR_STATIC_ASSERT(10 == kTexture2DRectSampler_GrSLType);
-    GR_STATIC_ASSERT(11 == kTextureBufferSampler_GrSLType);
-    GR_STATIC_ASSERT(12 == kBool_GrSLType);
-    GR_STATIC_ASSERT(13 == kInt_GrSLType);
-    GR_STATIC_ASSERT(14 == kUint_GrSLType);
-    GR_STATIC_ASSERT(15 == kTexture2D_GrSLType);
-    GR_STATIC_ASSERT(16 == kSampler_GrSLType);
-    GR_STATIC_ASSERT(SK_ARRAY_COUNT(kSizes) == kGrSLTypeCount);
+    switch(type) {
+        case kVoid_GrSLType:
+            return 0;
+        case kFloat_GrSLType:
+            return 1;
+        case kVec2f_GrSLType:
+            return 1;
+        case kVec3f_GrSLType:
+            return 1;
+        case kVec4f_GrSLType:
+            return 1;
+        case kMat22f_GrSLType:
+            return 2;
+        case kMat33f_GrSLType:
+            return 3;
+        case kMat44f_GrSLType:
+            return 4;
+        case kTexture2DSampler_GrSLType:
+            return 0;
+        case kITexture2DSampler_GrSLType:
+             return 0;
+        case kTextureExternalSampler_GrSLType:
+             return 0;
+        case kTexture2DRectSampler_GrSLType:
+             return 0;
+        case kBufferSampler_GrSLType:
+             return 0;
+        case kBool_GrSLType:
+             return 1;
+        case kInt_GrSLType:
+             return 1;
+        case kUint_GrSLType:
+             return 1;
+        case kTexture2D_GrSLType:
+             return 0;
+        case kSampler_GrSLType:
+             return 0;
+    }
+    SkFAIL("Unexpected type");
+    return -1;
 }
 
 void finalize_helper(GrVkVaryingHandler::VarArray& vars) {

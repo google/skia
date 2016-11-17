@@ -13,6 +13,7 @@
 #include "SkJSONCPP.h"
 #include "SkMutex.h"
 #include "SkOSFile.h"
+#include "SkOSPath.h"
 #include "SkStream.h"
 #include "SkTArray.h"
 

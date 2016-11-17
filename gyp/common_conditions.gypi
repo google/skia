@@ -15,7 +15,6 @@
     # are missing some of the required decoding libraries may choose
     # not to define these.  This will disable some decoder and encoder
     # features.
-    'SK_HAS_GIF_LIBRARY',
     'SK_HAS_JPEG_LIBRARY',
     'SK_HAS_PNG_LIBRARY',
     'SK_HAS_WEBP_LIBRARY',
@@ -27,12 +26,6 @@
     [ 'skia_codec_decodes_raw', {
       'defines': [
         'SK_CODEC_DECODES_RAW',
-      ],
-    }],
-    [ 'skia_android_framework == 0', {
-      'defines': [
-        # Temporarily test against the QCMS library.
-        'SK_TEST_QCMS',
       ],
     }],
     ['skia_pic', {
@@ -401,11 +394,8 @@
       # specifically requested. These should be temporary staging defines. Any
       # permanent defines should be moved into the skia_android_framework block
       # above.
-      'includes' : [
-        'skia_for_android_framework_defines.gypi',
-      ],
       'defines': [
-        '<@(skia_for_android_framework_defines)',
+        '<!@(python read_gni.py ../gn/android_framework_defines.gni android_framework_defines)'
       ],
     }],
 

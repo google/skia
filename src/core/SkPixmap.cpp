@@ -274,3 +274,57 @@ bool SkPixmap::scalePixels(const SkPixmap& dst, SkFilterQuality quality) const {
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////////////
+
+SkColor SkPixmap::getColor(int x, int y) const {
+    SkASSERT(this->addr());
+    SkASSERT((unsigned)x < (unsigned)this->width());
+    SkASSERT((unsigned)y < (unsigned)this->height());
+    switch (this->colorType()) {
+        case kGray_8_SkColorType: {
+            uint8_t value = *this->addr8(x, y);
+            return SkColorSetRGB(value, value, value);
+        }
+        case kAlpha_8_SkColorType: {
+            return SkColorSetA(0, *this->addr8(x, y));
+        }
+        case kIndex_8_SkColorType: {
+            SkASSERT(this->ctable());
+            SkPMColor pmColor = (*this->ctable())[*this->addr8(x, y)];
+            return SkUnPreMultiply::PMColorToColor(pmColor);
+        }
+        case kRGB_565_SkColorType: {
+            return SkPixel16ToColor(*this->addr16(x, y));
+        }
+        case kARGB_4444_SkColorType: {
+            uint16_t value = *this->addr16(x, y);
+            SkPMColor c = SkPixel4444ToPixel32(value);
+            return SkUnPreMultiply::PMColorToColor(c);
+        }
+        case kBGRA_8888_SkColorType: {
+            uint32_t value = *this->addr32(x, y);
+            SkPMColor c = SkSwizzle_BGRA_to_PMColor(value);
+            return SkUnPreMultiply::PMColorToColor(c);
+        }
+        case kRGBA_8888_SkColorType: {
+            uint32_t value = *this->addr32(x, y);
+            SkPMColor c = SkSwizzle_RGBA_to_PMColor(value);
+            return SkUnPreMultiply::PMColorToColor(c);
+        }
+        case kRGBA_F16_SkColorType: {
+             const uint64_t* addr =
+                 (const uint64_t*)fPixels + y * (fRowBytes >> 3) + x;
+             Sk4f p4 = SkHalfToFloat_finite_ftz(*addr);
+             if (p4[3]) {
+                 float inva = 1 / p4[3];
+                 p4 = p4 * Sk4f(inva, inva, inva, 1);
+             }
+             SkColor c;
+             SkNx_cast<uint8_t>(p4 * Sk4f(255) + Sk4f(0.5f)).store(&c);
+             // p4 is RGBA, but we want BGRA, so we need to swap next
+             return SkSwizzle_RB(c);
+        }
+        default:
+            SkDEBUGFAIL("");
+            return SkColorSetARGB(0, 0, 0, 0);
+    }
+}

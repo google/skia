@@ -22,11 +22,11 @@ def basename(pathname):
 def find_skps(skps):
   escapedskps = [re.sub(r'([^a-zA-Z0-9_/\.\*\?\[\!\]])', r'\\\1', x)
                  for x in skps]
-  return __ADB.check_lines('''\
+  return __ADB.check('''\
     for PATHNAME in %s; do
       if [ -d "$PATHNAME" ]; then
         find "$PATHNAME" -maxdepth 1 -name *.skp
       else
         echo "$PATHNAME"
       fi
-    done''' % ' '.join(escapedskps))
+    done''' % ' '.join(escapedskps)).splitlines()

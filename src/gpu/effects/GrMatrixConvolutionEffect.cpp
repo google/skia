@@ -241,7 +241,7 @@ sk_sp<GrFragmentProcessor> GrMatrixConvolutionEffect::TestCreate(GrProcessorTest
     int width = d->fRandom->nextRangeU(1, MAX_KERNEL_SIZE);
     int height = d->fRandom->nextRangeU(1, MAX_KERNEL_SIZE / width);
     SkISize kernelSize = SkISize::Make(width, height);
-    SkAutoTDeleteArray<SkScalar> kernel(new SkScalar[width * height]);
+    std::unique_ptr<SkScalar[]> kernel(new SkScalar[width * height]);
     for (int i = 0; i < width * height; i++) {
         kernel.get()[i] = d->fRandom->nextSScalar1();
     }

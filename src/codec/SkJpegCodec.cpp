@@ -192,7 +192,7 @@ bool SkJpegCodec::ReadHeader(SkStream* stream, SkCodec** codecOut,
         JpegDecoderMgr** decoderMgrOut) {
 
     // Create a JpegDecoderMgr to own all of the decompress information
-    SkAutoTDelete<JpegDecoderMgr> decoderMgr(new JpegDecoderMgr(stream));
+    std::unique_ptr<JpegDecoderMgr> decoderMgr(new JpegDecoderMgr(stream));
 
     // libjpeg errors will be caught and reported here
     if (setjmp(decoderMgr->getJmpBuf())) {
@@ -229,20 +229,20 @@ bool SkJpegCodec::ReadHeader(SkStream* stream, SkCodec** codecOut,
         sk_sp<SkData> iccData = get_icc_profile(decoderMgr->dinfo());
         sk_sp<SkColorSpace> colorSpace = nullptr;
         if (iccData) {
-            colorSpace = SkColorSpace::NewICC(iccData->data(), iccData->size());
+            colorSpace = SkColorSpace::MakeICC(iccData->data(), iccData->size());
             if (!colorSpace) {
                 SkCodecPrintf("Could not create SkColorSpace from ICC data.\n");
             }
         }
         if (!colorSpace) {
             // Treat unmarked jpegs as sRGB.
-            colorSpace = SkColorSpace::NewNamed(SkColorSpace::kSRGB_Named);
+            colorSpace = SkColorSpace::MakeNamed(SkColorSpace::kSRGB_Named);
         }
 
         const int width = decoderMgr->dinfo()->image_width;
         const int height = decoderMgr->dinfo()->image_height;
         *codecOut = new SkJpegCodec(width, height, info, stream, decoderMgr.release(),
-                std::move(colorSpace), orientation, std::move(iccData));
+                std::move(colorSpace), orientation);
     } else {
         SkASSERT(nullptr != decoderMgrOut);
         *decoderMgrOut = decoderMgr.release();
@@ -251,7 +251,7 @@ bool SkJpegCodec::ReadHeader(SkStream* stream, SkCodec** codecOut,
 }
 
 SkCodec* SkJpegCodec::NewFromStream(SkStream* stream) {
-    SkAutoTDelete<SkStream> streamDeleter(stream);
+    std::unique_ptr<SkStream> streamDeleter(stream);
     SkCodec* codec = nullptr;
     if (ReadHeader(stream,  &codec, nullptr)) {
         // Codec has taken ownership of the stream, we do not need to delete it
@@ -263,15 +263,13 @@ SkCodec* SkJpegCodec::NewFromStream(SkStream* stream) {
 }
 
 SkJpegCodec::SkJpegCodec(int width, int height, const SkEncodedInfo& info, SkStream* stream,
-        JpegDecoderMgr* decoderMgr, sk_sp<SkColorSpace> colorSpace, Origin origin,
-        sk_sp<SkData> iccData)
+        JpegDecoderMgr* decoderMgr, sk_sp<SkColorSpace> colorSpace, Origin origin)
     : INHERITED(width, height, info, stream, std::move(colorSpace), origin)
     , fDecoderMgr(decoderMgr)
     , fReadyState(decoderMgr->dinfo()->global_state)
     , fSwizzleSrcRow(nullptr)
     , fColorXformSrcRow(nullptr)
     , fSwizzlerSubset(SkIRect::MakeEmpty())
-    , fICCData(std::move(iccData))
 {}
 
 /*
@@ -370,6 +368,9 @@ bool SkJpegCodec::setOutputColorSpace(const SkImageInfo& dstInfo) {
     // we must do it ourselves.
     J_COLOR_SPACE encodedColorType = fDecoderMgr->dinfo()->jpeg_color_space;
     bool isCMYK = (JCS_CMYK == encodedColorType || JCS_YCCK == encodedColorType);
+    if (isCMYK && this->colorXform()) {
+        return false;
+    }
 
     // Check for valid color types and set the output color space
     switch (dstInfo.colorType()) {
@@ -384,8 +385,8 @@ bool SkJpegCodec::setOutputColorSpace(const SkImageInfo& dstInfo) {
             if (isCMYK) {
                 fDecoderMgr->dinfo()->out_color_space = JCS_CMYK;
             } else if (this->colorXform()) {
-                // Our color transformation code requires RGBA order inputs, but it'll swizzle
-                // to BGRA for us.
+                // Always using RGBA as the input format for color xforms makes the
+                // implementation a little simpler.
                 fDecoderMgr->dinfo()->out_color_space = JCS_EXT_RGBA;
             } else {
                 fDecoderMgr->dinfo()->out_color_space = JCS_EXT_BGRA;
@@ -637,12 +638,12 @@ void SkJpegCodec::initializeSwizzler(const SkImageInfo& dstInfo, const Options& 
 SkSampler* SkJpegCodec::getSampler(bool createIfNecessary) {
     if (!createIfNecessary || fSwizzler) {
         SkASSERT(!fSwizzler || (fSwizzleSrcRow && fStorage.get() == fSwizzleSrcRow));
-        return fSwizzler;
+        return fSwizzler.get();
     }
 
     this->initializeSwizzler(this->dstInfo(), this->options());
     this->allocateStorage(this->dstInfo());
-    return fSwizzler;
+    return fSwizzler.get();
 }
 
 SkCodec::Result SkJpegCodec::onStartScanlineDecode(const SkImageInfo& dstInfo,

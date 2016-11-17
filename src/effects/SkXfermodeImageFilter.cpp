@@ -17,7 +17,9 @@
 #include "SkXfermode.h"
 #if SK_SUPPORT_GPU
 #include "GrContext.h"
-#include "GrDrawContext.h"
+#include "GrRenderTargetContext.h"
+#include "GrTextureProxy.h"
+
 #include "effects/GrConstColorProcessor.h"
 #include "effects/GrTextureDomain.h"
 #include "effects/GrSimpleTextureEffect.h"
@@ -72,16 +74,6 @@ sk_sp<SkImageFilter> SkXfermodeImageFilter::Make(SkBlendMode mode,
     sk_sp<SkImageFilter> inputs[2] = { std::move(background), std::move(foreground) };
     return sk_sp<SkImageFilter>(new SkXfermodeImageFilter_Base(mode, inputs, cropRect));
 }
-
-#ifdef SK_SUPPORT_LEGACY_XFERMODE_OBJECT
-sk_sp<SkImageFilter> SkXfermodeImageFilter::Make(sk_sp<SkXfermode> mode,
-                                                 sk_sp<SkImageFilter> background,
-                                                 sk_sp<SkImageFilter> foreground,
-                                                 const SkImageFilter::CropRect* cropRect) {
-    return Make(mode ? mode->blend() : SkBlendMode::kSrcOver,
-                std::move(background), std::move(foreground), cropRect);
-}
-#endif
 
 SkXfermodeImageFilter_Base::SkXfermodeImageFilter_Base(SkBlendMode mode,
                                                        sk_sp<SkImageFilter> inputs[2],
@@ -268,8 +260,8 @@ sk_sp<SkSpecialImage> SkXfermodeImageFilter_Base::filterImageGPU(
                             GrTextureDomain::kDecal_Mode,
                             GrTextureParams::kNone_FilterMode);
     } else {
-        bgFP = GrConstColorProcessor::Make(GrColor_TRANSPARENT_BLACK,
-                                             GrConstColorProcessor::kIgnore_InputMode);
+        bgFP = GrConstColorProcessor::Make(GrColor4f::TransparentBlack(),
+                                           GrConstColorProcessor::kIgnore_InputMode);
     }
 
     if (foregroundTex) {
@@ -301,23 +293,24 @@ sk_sp<SkSpecialImage> SkXfermodeImageFilter_Base::filterImageGPU(
 
     paint.setPorterDuffXPFactory(SkBlendMode::kSrc);
 
-    sk_sp<GrDrawContext> drawContext(
-        context->makeDrawContext(SkBackingFit::kApprox, bounds.width(), bounds.height(),
-                                 GrRenderableConfigForColorSpace(outputProperties.colorSpace()),
-                                 sk_ref_sp(outputProperties.colorSpace())));
-    if (!drawContext) {
+    sk_sp<GrRenderTargetContext> renderTargetContext(context->makeDeferredRenderTargetContext(
+                                    SkBackingFit::kApprox, bounds.width(), bounds.height(),
+                                    GrRenderableConfigForColorSpace(outputProperties.colorSpace()),
+                                    sk_ref_sp(outputProperties.colorSpace())));
+    if (!renderTargetContext) {
         return nullptr;
     }
-    paint.setGammaCorrect(drawContext->isGammaCorrect());
+    paint.setGammaCorrect(renderTargetContext->isGammaCorrect());
 
     SkMatrix matrix;
     matrix.setTranslate(SkIntToScalar(-bounds.left()), SkIntToScalar(-bounds.top()));
-    drawContext->drawRect(GrNoClip(), paint, matrix, SkRect::Make(bounds));
+    renderTargetContext->drawRect(GrNoClip(), paint, matrix, SkRect::Make(bounds));
 
-    return SkSpecialImage::MakeFromGpu(SkIRect::MakeWH(bounds.width(), bounds.height()),
-                                       kNeedNewImageUniqueID_SpecialImage,
-                                       drawContext->asTexture(),
-                                       sk_ref_sp(drawContext->getColorSpace()));
+    return SkSpecialImage::MakeDeferredFromGpu(context,
+                                               SkIRect::MakeWH(bounds.width(), bounds.height()),
+                                               kNeedNewImageUniqueID_SpecialImage,
+                                               sk_ref_sp(renderTargetContext->asDeferredTexture()),
+                                               sk_ref_sp(renderTargetContext->getColorSpace()));
 }
 
 sk_sp<GrFragmentProcessor>
@@ -330,10 +323,10 @@ SkXfermodeImageFilter_Base::makeFGFrag(sk_sp<GrFragmentProcessor> bgFP) const {
         // than us and won't return a kSrcOver_Mode SkXfermode. That means we
         // have to get one the hard way.
         struct ProcCoeff rec;
-        rec.fProc = SkXfermode::GetProc(SkXfermode::kSrcOver_Mode);
-        SkXfermode::ModeAsCoeff(SkXfermode::kSrcOver_Mode, &rec.fSC, &rec.fDC);
+        rec.fProc = SkXfermode::GetProc(SkBlendMode::kSrcOver);
+        SkXfermode::ModeAsCoeff(SkBlendMode::kSrcOver, &rec.fSC, &rec.fDC);
 
-        srcover.reset(new SkProcCoeffXfermode(rec, SkXfermode::kSrcOver_Mode));
+        srcover.reset(new SkProcCoeffXfermode(rec, SkBlendMode::kSrcOver));
         xfer = srcover.get();
 
     }

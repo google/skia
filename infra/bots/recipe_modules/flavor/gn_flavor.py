@@ -27,7 +27,6 @@ class GNFlavorUtils(default_flavor.DefaultFlavorUtils):
         args=[
           '--chrome-dir', self.m.vars.checkout_root,
           '--output-dir', self.m.vars.skia_out.join(self.m.vars.configuration),
-          '--chrome-build-type', self.m.vars.configuration,
           '--no-sync', '--make-output-dir'])
 
   def compile(self, unused_target, **kwargs):
@@ -56,6 +55,9 @@ class GNFlavorUtils(default_flavor.DefaultFlavorUtils):
       cc, cxx = 'clang', 'clang++'
     elif compiler == 'GCC':
       cc, cxx = 'gcc', 'g++'
+
+    if compiler != 'MSVC' and configuration == 'Debug':
+      extra_cflags.append('-O1')
 
     if extra_config == 'Exceptions':
       extra_cflags.append('/EHsc')
@@ -90,6 +92,7 @@ class GNFlavorUtils(default_flavor.DefaultFlavorUtils):
       'sanitize': extra_config if 'SAN' in extra_config else '',
       'skia_vulkan_sdk': win_vulkan_sdk if extra_config == 'Vulkan' else '',
       'target_cpu': 'x86' if target_arch == 'x86' else '',
+      'target_os': 'ios' if 'iOS' in extra_config else '',
       'windk': win_toolchain if 'Win' in os else '',
     }.iteritems():
       if v:

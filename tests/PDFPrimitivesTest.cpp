@@ -400,7 +400,7 @@ DEF_TEST(SkPDF_ImageFilter, reporter) {
     // Filter just created; should be unvisited.
     REPORTER_ASSERT(reporter, !filter->visited());
     SkPaint paint;
-    paint.setImageFilter(filter.get());
+    paint.setImageFilter(filter);
     canvas->drawRect(SkRect::MakeWH(100, 100), paint);
     doc->close();
 

@@ -9,12 +9,12 @@
 #include "Test.h"
 
 DEF_TEST(DiscardableMemoryPool, reporter) {
-    SkAutoTUnref<SkDiscardableMemoryPool> pool(
+    sk_sp<SkDiscardableMemoryPool> pool(
         SkDiscardableMemoryPool::Create(1, nullptr));
     pool->setRAMBudget(3);
     REPORTER_ASSERT(reporter, 0 == pool->getRAMUsed());
 
-    SkAutoTDelete<SkDiscardableMemory> dm1(pool->create(100));
+    std::unique_ptr<SkDiscardableMemory> dm1(pool->create(100));
     REPORTER_ASSERT(reporter, dm1->data() != nullptr);
     REPORTER_ASSERT(reporter, 100 == pool->getRAMUsed());
     dm1->unlock();
@@ -22,7 +22,7 @@ DEF_TEST(DiscardableMemoryPool, reporter) {
     REPORTER_ASSERT(reporter, !dm1->lock());
 
 
-    SkAutoTDelete<SkDiscardableMemory> dm2(pool->create(200));
+    std::unique_ptr<SkDiscardableMemory> dm2(pool->create(200));
     REPORTER_ASSERT(reporter, 200 == pool->getRAMUsed());
     pool->setRAMBudget(400);
     dm2->unlock();

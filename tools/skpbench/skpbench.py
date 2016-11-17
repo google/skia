@@ -29,36 +29,38 @@ unacceptable stddev.
 
 """)
 
+__argparse.add_argument('skpbench',
+  help="path to the skpbench binary")
 __argparse.add_argument('--adb',
-    action='store_true', help="execute skpbench over adb")
+  action='store_true', help="execute skpbench over adb")
 __argparse.add_argument('-s', '--device-serial',
-    help="if using adb, ID of the specific device to target "
-         "(only required if more than 1 device is attached)")
-__argparse.add_argument('-p', '--path',
-    help="directory to execute ./skpbench from")
+  help="if using adb, ID of the specific device to target "
+       "(only required if more than 1 device is attached)")
 __argparse.add_argument('-m', '--max-stddev',
-    type=float, default=4,
-    help="initial max allowable relative standard deviation")
+  type=float, default=4,
+  help="initial max allowable relative standard deviation")
 __argparse.add_argument('-x', '--suffix',
-    help="suffix to append on config (e.g. '_before', '_after')")
+  help="suffix to append on config (e.g. '_before', '_after')")
 __argparse.add_argument('-w','--write-path',
-    help="directory to save .png proofs to disk.")
+  help="directory to save .png proofs to disk.")
 __argparse.add_argument('-v','--verbosity',
-    type=int, default=1, help="level of verbosity (0=none to 5=debug)")
+  type=int, default=1, help="level of verbosity (0=none to 5=debug)")
 __argparse.add_argument('-d', '--duration',
-    type=int, help="number of milliseconds to run each benchmark")
+  type=int, help="number of milliseconds to run each benchmark")
 __argparse.add_argument('-l', '--sample-ms',
-    type=int, help="duration of a sample (minimum)")
+  type=int, help="duration of a sample (minimum)")
 __argparse.add_argument('--gpu',
-    action='store_true',
-    help="perform timing on the gpu clock instead of cpu (gpu work only)")
+  action='store_true',
+  help="perform timing on the gpu clock instead of cpu (gpu work only)")
 __argparse.add_argument('--fps',
-    action='store_true', help="use fps instead of ms")
+  action='store_true', help="use fps instead of ms")
 __argparse.add_argument('-c', '--config',
-    default='gpu', help="comma- or space-separated list of GPU configs")
+  default='gpu', help="comma- or space-separated list of GPU configs")
+__argparse.add_argument('-a', '--resultsfile',
+  help="optional file to append results into")
 __argparse.add_argument('skps',
-    nargs='+',
-    help=".skp files or directories to expand for .skp files")
+  nargs='+',
+  help=".skp files or directories to expand for .skp files")
 
 FLAGS = __argparse.parse_args()
 if FLAGS.adb:
@@ -68,7 +70,7 @@ else:
   import _os_path as _path
 
 def dump_commandline_if_verbose(commandline):
-  if FLAGS.verbosity >= 4:
+  if FLAGS.verbosity >= 5:
     quoted = ['\'%s\'' % re.sub(r'([\\\'])', r'\\\1', x) for x in commandline]
     print(' '.join(quoted), file=sys.stderr)
 
@@ -97,7 +99,7 @@ class SubprocessMonitor(Thread):
     self._queue.put(Message(Message.EXIT))
 
 class SKPBench:
-  ARGV = ['skpbench', '--verbosity', str(FLAGS.verbosity)]
+  ARGV = [FLAGS.skpbench, '--verbosity', str(FLAGS.verbosity)]
   if FLAGS.duration:
     ARGV.extend(['--duration', str(FLAGS.duration)])
   if FLAGS.sample_ms:
@@ -106,19 +108,18 @@ class SKPBench:
     ARGV.extend(['--gpuClock', 'true'])
   if FLAGS.fps:
     ARGV.extend(['--fps', 'true'])
-  if FLAGS.path:
-    ARGV[0] = _path.join(FLAGS.path, ARGV[0])
   if FLAGS.adb:
     if FLAGS.device_serial is None:
-      ARGV = ['adb', 'shell'] + ARGV
+      ARGV[:0] = ['adb', 'shell']
     else:
-      ARGV = ['adb', '-s', FLAGS.device_serial, 'shell'] + ARGV
+      ARGV[:0] = ['adb', '-s', FLAGS.device_serial, 'shell']
 
   @classmethod
-  def print_header(cls):
+  def get_header(cls, outfile=sys.stdout):
     commandline = cls.ARGV + ['--duration', '0']
     dump_commandline_if_verbose(commandline)
-    subprocess.call(commandline)
+    out = subprocess.check_output(commandline, stderr=subprocess.STDOUT)
+    return out.rstrip()
 
   @classmethod
   def run_warmup(cls, warmup_time):
@@ -129,9 +130,10 @@ class SKPBench:
                               '--config', 'gpu',
                               '--skp', 'warmup']
     dump_commandline_if_verbose(commandline)
-    output = subprocess.check_output(commandline).decode('utf-8')
+    output = subprocess.check_output(commandline, stderr=subprocess.STDOUT)
+
     # validate the warmup run output.
-    for line in output.split('\n'):
+    for line in output.decode('utf-8').split('\n'):
       match = BenchResult.match(line.rstrip())
       if match and match.bench == 'warmup':
         return
@@ -168,7 +170,8 @@ class SKPBench:
                            _path.basename(self.skp) + '.png')
       commandline.extend(['--png', pngfile])
     dump_commandline_if_verbose(commandline)
-    self._proc = subprocess.Popen(commandline, stdout=subprocess.PIPE)
+    self._proc = subprocess.Popen(commandline, stdout=subprocess.PIPE,
+                                  stderr=subprocess.STDOUT)
     self._monitor = SubprocessMonitor(self._queue, self._proc)
     self._monitor.start()
 
@@ -179,9 +182,8 @@ class SKPBench:
         if result:
           hardware.sanity_check()
           self._process_result(result)
-        else:
+        elif hardware.filter_line(message.value):
           print(message.value, file=sys.stderr)
-        sys.stdout.flush()
         continue
       if message.message == Message.POLL_HARDWARE:
         hardware.sanity_check()
@@ -221,10 +223,15 @@ class SKPBench:
       self._proc.wait()
       self._proc = None
 
+def emit_result(line, resultsfile=None):
+  print(line)
+  sys.stdout.flush()
+  if resultsfile:
+    print(line, file=resultsfile)
+    resultsfile.flush()
 
-def run_benchmarks(configs, skps, hardware):
-  SKPBench.print_header()
-
+def run_benchmarks(configs, skps, hardware, resultsfile=None):
+  emit_result(SKPBench.get_header(), resultsfile)
   benches = collections.deque([(skp, config, FLAGS.max_stddev)
                                for skp in skps
                                for config in configs])
@@ -234,7 +241,7 @@ def run_benchmarks(configs, skps, hardware):
       try:
         skpbench.execute(hardware)
         if skpbench.best_result:
-          skpbench.best_result.print_values(config_suffix=FLAGS.suffix)
+          emit_result(skpbench.best_result.format(FLAGS.suffix), resultsfile)
         else:
           print("WARNING: no result for %s with config %s" %
                 (skpbench.skp, skpbench.config), file=sys.stderr)
@@ -253,17 +260,16 @@ def run_benchmarks(configs, skps, hardware):
 
       except HardwareException as exception:
         skpbench.terminate()
-        if FLAGS.verbosity >= 5:
+        if FLAGS.verbosity >= 4:
           hardware.print_debug_diagnostics()
         if FLAGS.verbosity >= 1:
           print("%s; taking a %i second nap..." %
                 (exception.message, exception.sleeptime), file=sys.stderr)
         benches.appendleft(benchargs) # retry the same bench next time.
         hardware.sleep(exception.sleeptime)
-        if FLAGS.verbosity >= 5:
+        if FLAGS.verbosity >= 4:
           hardware.print_debug_diagnostics()
         SKPBench.run_warmup(hardware.warmup_time)
-
 
 def main():
   # Delimiter is ',' or ' ', skip if nested inside parens (e.g. gpu(a=b,c=d)).
@@ -272,8 +278,8 @@ def main():
   skps = _path.find_skps(FLAGS.skps)
 
   if FLAGS.adb:
-    adb = Adb(FLAGS.device_serial)
-    model = adb.get_device_model()
+    adb = Adb(FLAGS.device_serial, echo=(FLAGS.verbosity >= 5))
+    model = adb.check('getprop ro.product.model').strip()
     if model == 'Pixel C':
       from _hardware_pixel_c import HardwarePixelC
       hardware = HardwarePixelC(adb)
@@ -290,7 +296,11 @@ def main():
 
   with hardware:
     SKPBench.run_warmup(hardware.warmup_time)
-    run_benchmarks(configs, skps, hardware)
+    if FLAGS.resultsfile:
+      with open(FLAGS.resultsfile, mode='a+') as resultsfile:
+        run_benchmarks(configs, skps, hardware, resultsfile=resultsfile)
+    else:
+      run_benchmarks(configs, skps, hardware)
 
 
 if __name__ == '__main__':

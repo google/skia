@@ -99,9 +99,22 @@ protected:
      *                        will be set to the number of colors in the
      *                        color table.
      */
-    virtual SkCodec::Result prepareToDecode(const SkImageInfo& dstInfo,
+    virtual SkCodec::Result onPrepareToDecode(const SkImageInfo& dstInfo,
             const SkCodec::Options& options, SkPMColor inputColorPtr[],
             int* inputColorCount) = 0;
+    SkCodec::Result prepareToDecode(const SkImageInfo& dstInfo,
+            const SkCodec::Options& options, SkPMColor inputColorPtr[],
+            int* inputColorCount);
+
+    void applyColorXform(const SkImageInfo& dstInfo, void* dst, void* src) const;
+    uint32_t* xformBuffer() const { return fXformBuffer.get(); }
+    void resetXformBuffer(int count) { fXformBuffer.reset(new uint32_t[count]); }
+
+    /*
+     * BMPs are typically encoded as BGRA/BGR so this is a more efficient choice
+     * than RGBA.
+     */
+    static const SkColorType kXformSrcColorType = kBGRA_8888_SkColorType;
 
 private:
 
@@ -138,9 +151,10 @@ private:
 
     bool onSkipScanlines(int count) override;
 
-    const uint16_t          fBitsPerPixel;
-    const SkScanlineOrder   fRowOrder;
-    const size_t            fSrcRowBytes;
+    const uint16_t              fBitsPerPixel;
+    const SkScanlineOrder       fRowOrder;
+    const size_t                fSrcRowBytes;
+    std::unique_ptr<uint32_t[]> fXformBuffer;
 
     typedef SkCodec INHERITED;
 };

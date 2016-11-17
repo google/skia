@@ -195,7 +195,7 @@ protected:
     void generateAdvance(SkGlyph* glyph) override;
     void generateMetrics(SkGlyph* glyph) override;
     void generateImage(const SkGlyph& glyph) override;
-    void generatePath(const SkGlyph& glyph, SkPath* path) override;
+    void generatePath(SkGlyphID glyphID, SkPath* path) override;
     void generateFontMetrics(SkPaint::FontMetrics*) override;
     SkUnichar generateGlyphToChar(uint16_t glyph) override;
 
@@ -618,7 +618,7 @@ SkScalerContext* SkTypeface_FreeType::onCreateScalerContext(const SkScalerContex
     auto c = skstd::make_unique<SkScalerContext_FreeType>(
             sk_ref_sp(const_cast<SkTypeface_FreeType*>(this)), effects, desc);
     if (!c->success()) {
-        c = nullptr;
+        return nullptr;
     }
     return c.release();
 }
@@ -1212,7 +1212,7 @@ void SkScalerContext_FreeType::generateImage(const SkGlyph& glyph) {
 }
 
 
-void SkScalerContext_FreeType::generatePath(const SkGlyph& glyph, SkPath* path) {
+void SkScalerContext_FreeType::generatePath(SkGlyphID glyphID, SkPath* path) {
     SkAutoMutexAcquire  ac(gFTMutex);
 
     SkASSERT(path);
@@ -1226,11 +1226,11 @@ void SkScalerContext_FreeType::generatePath(const SkGlyph& glyph, SkPath* path) 
     flags |= FT_LOAD_NO_BITMAP; // ignore embedded bitmaps so we're sure to get the outline
     flags &= ~FT_LOAD_RENDER;   // don't scan convert (we just want the outline)
 
-    FT_Error err = FT_Load_Glyph( fFace, glyph.getGlyphID(), flags);
+    FT_Error err = FT_Load_Glyph(fFace, glyphID, flags);
 
     if (err != 0) {
         SkDEBUGF(("SkScalerContext_FreeType::generatePath: FT_Load_Glyph(glyph:%d flags:%d) returned 0x%x\n",
-                    glyph.getGlyphID(), flags, err));
+                  glyphID, flags, err));
         path->reset();
         return;
     }

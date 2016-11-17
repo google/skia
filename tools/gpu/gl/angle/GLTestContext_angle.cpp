@@ -82,7 +82,7 @@ public:
     GrEGLImage texture2DToEGLImage(GrGLuint texID) const override;
     void destroyEGLImage(GrEGLImage) const override;
     GrGLuint eglImageToExternalTexture(GrEGLImage) const override;
-    sk_gpu_test::GLTestContext* createNew() const override;
+    std::unique_ptr<sk_gpu_test::GLTestContext> makeNew() const override;
 
 private:
     void destroyGLContext();
@@ -147,7 +147,7 @@ ANGLEGLContext::ANGLEGLContext(ANGLEBackend type, ANGLEContextVersion version)
 
     eglMakeCurrent(fDisplay, fSurface, fSurface, fContext);
 
-    SkAutoTUnref<const GrGLInterface> gl(sk_gpu_test::CreateANGLEGLInterface());
+    sk_sp<const GrGLInterface> gl(sk_gpu_test::CreateANGLEGLInterface());
     if (nullptr == gl.get()) {
         SkDebugf("Could not create ANGLE GL interface!\n");
         this->destroyGLContext();
@@ -216,8 +216,9 @@ GrGLuint ANGLEGLContext::eglImageToExternalTexture(GrEGLImage image) const {
     return texID;
 }
 
-sk_gpu_test::GLTestContext* ANGLEGLContext::createNew() const {
-    sk_gpu_test::GLTestContext* ctx = sk_gpu_test::CreateANGLETestContext(fType, fVersion);
+std::unique_ptr<sk_gpu_test::GLTestContext> ANGLEGLContext::makeNew() const {
+    std::unique_ptr<sk_gpu_test::GLTestContext> ctx =
+        sk_gpu_test::MakeANGLETestContext(fType, fVersion);
     if (ctx) {
         ctx->makeCurrent();
     }
@@ -286,12 +287,10 @@ const GrGLInterface* CreateANGLEGLInterface() {
     return GrGLAssembleGLESInterface(&gLibs, angle_get_gl_proc);
 }
 
-GLTestContext* CreateANGLETestContext(ANGLEBackend type,
-                                      ANGLEContextVersion version) {
-    ANGLEGLContext* ctx = new ANGLEGLContext(type, version);
+std::unique_ptr<GLTestContext> MakeANGLETestContext(ANGLEBackend type, ANGLEContextVersion version){
+    std::unique_ptr<GLTestContext> ctx(new ANGLEGLContext(type, version));
     if (!ctx->isValid()) {
-        delete ctx;
-        return NULL;
+        return nullptr;
     }
     return ctx;
 }

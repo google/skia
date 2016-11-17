@@ -80,7 +80,7 @@ private:
         // TODO: add a color filter to better match what is seen in the wild
         info.fPaintBits = /* SkLayerDrawLooper::kColorFilter_Bit |*/
                           SkLayerDrawLooper::kMaskFilter_Bit;
-        info.fColorMode = SkXfermode::kDst_Mode;
+        info.fColorMode = SkBlendMode::kDst;
         info.fOffset.set(xOff, 0);
         info.fPostTranslate = false;
 

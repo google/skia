@@ -36,7 +36,7 @@ bool SkWebpCodec::IsWebp(const void* buf, size_t bytesRead) {
 // bytes again.
 // Returns an SkWebpCodec on success;
 SkCodec* SkWebpCodec::NewFromStream(SkStream* stream) {
-    SkAutoTDelete<SkStream> streamDeleter(stream);
+    std::unique_ptr<SkStream> streamDeleter(stream);
 
     // Webp demux needs a contiguous data buffer.
     sk_sp<SkData> data = nullptr;
@@ -63,11 +63,11 @@ SkCodec* SkWebpCodec::NewFromStream(SkStream* stream) {
     SkAutoTCallVProc<WebPChunkIterator, WebPDemuxReleaseChunkIterator> autoCI(&chunkIterator);
     sk_sp<SkColorSpace> colorSpace = nullptr;
     if (WebPDemuxGetChunk(demux, "ICCP", 1, &chunkIterator)) {
-        colorSpace = SkColorSpace::NewICC(chunkIterator.chunk.bytes, chunkIterator.chunk.size);
+        colorSpace = SkColorSpace::MakeICC(chunkIterator.chunk.bytes, chunkIterator.chunk.size);
     }
 
     if (!colorSpace) {
-        colorSpace = SkColorSpace::NewNamed(SkColorSpace::kSRGB_Named);
+        colorSpace = SkColorSpace::MakeNamed(SkColorSpace::kSRGB_Named);
     }
 
     // Since we do not yet support animation, we get the |width|, |height|, |color|, and |alpha|

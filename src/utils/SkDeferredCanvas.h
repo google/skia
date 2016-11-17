@@ -35,7 +35,6 @@ protected:
     SkImageInfo onImageInfo() const override;
     bool onGetProps(SkSurfaceProps*) const override;
     void onFlush() override;
-//    SkCanvas* canvasForDrawIter() override;
 
     void willSave() override;
     SaveLayerStrategy getSaveLayerStrategy(const SaveLayerRec&) override;
@@ -58,7 +57,7 @@ protected:
     virtual void onDrawTextBlob(const SkTextBlob* blob, SkScalar x, SkScalar y,
                                 const SkPaint& paint) override;
     virtual void onDrawPatch(const SkPoint cubics[12], const SkColor colors[4],
-                             const SkPoint texCoords[4], SkXfermode* xmode,
+                             const SkPoint texCoords[4], SkBlendMode,
                              const SkPaint& paint) override;
 
     void onDrawPaint(const SkPaint&) override;
@@ -88,13 +87,12 @@ protected:
 
     void onDrawVertices(VertexMode vmode, int vertexCount,
                               const SkPoint vertices[], const SkPoint texs[],
-                              const SkColor colors[], SkXfermode* xmode,
+                              const SkColor colors[], SkBlendMode,
                               const uint16_t indices[], int indexCount,
                               const SkPaint&) override;
     void onDrawAtlas(const SkImage* image, const SkRSXform xform[],
                      const SkRect rects[], const SkColor colors[],
-                     int count, SkXfermode::Mode mode,
-                     const SkRect* cull, const SkPaint* paint) override;
+                     int count, SkBlendMode, const SkRect* cull, const SkPaint* paint) override;
 
     void onClipRect(const SkRect&, ClipOp, ClipEdgeStyle) override;
     void onClipRRect(const SkRRect&, ClipOp, ClipEdgeStyle) override;

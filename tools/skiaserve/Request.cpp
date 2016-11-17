@@ -55,7 +55,7 @@ SkBitmap* Request::getBitmapFromCanvas(SkCanvas* canvas) {
 
 sk_sp<SkData> Request::writeCanvasToPng(SkCanvas* canvas) {
     // capture pixels
-    SkAutoTDelete<SkBitmap> bmp(this->getBitmapFromCanvas(canvas));
+    std::unique_ptr<SkBitmap> bmp(this->getBitmapFromCanvas(canvas));
     SkASSERT(bmp);
 
     // Convert to format suitable for PNG output
@@ -117,8 +117,8 @@ sk_sp<SkData> Request::writeOutSkp() {
 
     SkDynamicMemoryWStream outStream;
 
-    SkAutoTUnref<SkPixelSerializer> serializer(SkImageEncoder::CreatePixelSerializer());
-    picture->serialize(&outStream, serializer);
+    sk_sp<SkPixelSerializer> serializer(SkImageEncoder::CreatePixelSerializer());
+    picture->serialize(&outStream, serializer.get());
 
     return outStream.detachAsData();
 }
@@ -178,8 +178,8 @@ SkSurface* Request::createCPUSurface() {
     SkIRect bounds = this->getBounds();
     ColorAndProfile cap = ColorModes[fColorMode];
     auto colorSpace = kRGBA_F16_SkColorType == cap.fColorType
-                    ? SkColorSpace::NewNamed(SkColorSpace::kSRGBLinear_Named)
-                    : SkColorSpace::NewNamed(SkColorSpace::kSRGB_Named);
+                    ? SkColorSpace::MakeNamed(SkColorSpace::kSRGBLinear_Named)
+                    : SkColorSpace::MakeNamed(SkColorSpace::kSRGB_Named);
     SkImageInfo info = SkImageInfo::Make(bounds.width(), bounds.height(), cap.fColorType,
                                          kPremul_SkAlphaType, cap.fSRGB ? colorSpace : nullptr);
     return SkSurface::MakeRaster(info).release();
@@ -190,8 +190,8 @@ SkSurface* Request::createGPUSurface() {
     SkIRect bounds = this->getBounds();
     ColorAndProfile cap = ColorModes[fColorMode];
     auto colorSpace = kRGBA_F16_SkColorType == cap.fColorType
-                    ? SkColorSpace::NewNamed(SkColorSpace::kSRGBLinear_Named)
-                    : SkColorSpace::NewNamed(SkColorSpace::kSRGB_Named);
+                    ? SkColorSpace::MakeNamed(SkColorSpace::kSRGBLinear_Named)
+                    : SkColorSpace::MakeNamed(SkColorSpace::kSRGB_Named);
     SkImageInfo info = SkImageInfo::Make(bounds.width(), bounds.height(), cap.fColorType,
                                          kPremul_SkAlphaType, cap.fSRGB ? colorSpace: nullptr);
     SkSurface* surface = SkSurface::MakeRenderTarget(context, SkBudgeted::kNo, info).release();
@@ -280,7 +280,7 @@ sk_sp<SkData> Request::getJsonBatchList(int n) {
 
 sk_sp<SkData> Request::getJsonInfo(int n) {
     // drawTo
-    SkAutoTUnref<SkSurface> surface(this->createCPUSurface());
+    sk_sp<SkSurface> surface(this->createCPUSurface());
     SkCanvas* canvas = surface->getCanvas();
 
     // TODO this is really slow and we should cache the matrix and clip
@@ -302,7 +302,7 @@ sk_sp<SkData> Request::getJsonInfo(int n) {
 SkColor Request::getPixel(int x, int y) {
     SkCanvas* canvas = this->getCanvas();
     canvas->flush();
-    SkAutoTDelete<SkBitmap> bitmap(this->getBitmapFromCanvas(canvas));
+    std::unique_ptr<SkBitmap> bitmap(this->getBitmapFromCanvas(canvas));
     SkASSERT(bitmap);
 
     // Convert to format suitable for inspection

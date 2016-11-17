@@ -17,7 +17,7 @@ class GrBatchFontCache;
 class GrBatchTextStrike;
 class GrClip;
 class GrContext;
-class GrDrawContext;
+class GrRenderTargetContext;
 class GrShaderCaps;
 class SkGlyph;
 class SkMatrix;
@@ -68,13 +68,13 @@ public:
                               const SkPoint& offset);
 
     // Functions for drawing text as paths
-    static void DrawTextAsPath(GrContext*, GrDrawContext*, const GrClip& clip,
+    static void DrawTextAsPath(GrContext*, GrRenderTargetContext*, const GrClip& clip,
                                const SkPaint& origPaint, const SkMatrix& viewMatrix,
                                const char text[], size_t byteLength, SkScalar x, SkScalar y,
                                const SkIRect& clipBounds);
 
     static void DrawPosTextAsPath(GrContext* context,
-                                  GrDrawContext* dc,
+                                  GrRenderTargetContext* rtc,
                                   const SkSurfaceProps& props,
                                   const GrClip& clip,
                                   const SkPaint& origPaint, const SkMatrix& viewMatrix,

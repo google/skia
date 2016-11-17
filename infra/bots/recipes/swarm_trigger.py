@@ -126,21 +126,27 @@ def swarm_dimensions(builder_cfg):
         'Nexus10':       ('manta',      'LMY49J'),
         'Nexus5':        ('hammerhead', 'MOB31E'),
         'Nexus6':        ('shamu',      'M'),
-        'Nexus6p':       ('angler',     'NRD91E'),
+        'Nexus6p':       ('angler',     'NMF26C'),
         'Nexus7':        ('grouper',    'LMY47V'),
         'Nexus7v2':      ('flo',        'M'),
         'Nexus9':        ('flounder',   'NRD91D'),
         'NexusPlayer':   ('fugu',       'NRD90R'),
+        'Pixel':         ('sailfish',   'NMF25'),
+        'PixelC':        ('dragon',     'NMF26C'),
+        'PixelXL':       ('marlin',     'NMF25'),
       }[builder_cfg['model']]
       dimensions['device_type'] = device_type
       dimensions['device_os'] = device_os
     elif 'iOS' in builder_cfg['os']:
       # For iOS, the device type is a better dimension than CPU or GPU.
       dimensions['device'] = {
-        'iPad4': 'iPad4,1',
+        # TODO(stephana): Remove this temporary discrepancy between the bot name
+        # and device. When we expand iOS testing names and devices need to match
+        # again.
+        'iPad4': 'iPad5,1',
       }[builder_cfg['model']]
       # TODO(borenet): Replace this hack with something better.
-      dimensions['os'] = 'iOS-9.2'
+      dimensions['os'] = 'iOS-9.3.1'
     elif builder_cfg['cpu_or_gpu'] == 'CPU':
       dimensions['gpu'] = 'none'
       dimensions['cpu'] = {
@@ -157,15 +163,16 @@ def swarm_dimensions(builder_cfg):
         dimensions['os'] = 'Windows-2008ServerR2-SP1'
     else:
       dimensions['gpu'] = {
-        'GeForce320M': '10de:08a4',
-        'GT610':       '10de:104a',
-        'GTX550Ti':    '10de:1244',
-        'GTX660':      '10de:11c0',
-        'GTX960':      '10de:1401',
-        'HD4000':      '8086:0a2e',
-        'HD4600':      '8086:0412',
-        'HD7770':      '1002:683d',
-        'iHD530':      '8086:1912',
+        'GeForce320M':   '10de:08a4',
+        'GT610':         '10de:104a',
+        'GTX550Ti':      '10de:1244',
+        'GTX660':        '10de:11c0',
+        'GTX960':        '10de:1401',
+        'HD4000':        '8086:0a2e',
+        'HD4600':        '8086:0412',
+        'HD7770':        '1002:683d',
+        'iHD530':        '8086:1912',
+        'IntelIris6100': '8086:162b',
       }[builder_cfg['cpu_or_gpu_value']]
   else:
     dimensions['gpu'] = 'none'
@@ -210,10 +217,10 @@ def trigger_task(api, task_name, builder, master, slave, buildnumber,
   }
   if builder_cfg['is_trybot']:
     if api.properties.get('patch_storage') == 'gerrit':
-      properties['patch_storage'] = api.properties['patch_storage']
       properties['repository'] = api.properties['repository']
-      properties['event.patchSet.ref'] = api.properties['event.patchSet.ref']
-      properties['event.change.number'] = api.properties['event.change.number']
+      for prop in api.properties:
+        if prop.startswith('patch_'):
+          properties[prop] = api.properties[prop]
     else:
       properties['issue'] = str(api.properties['issue'])
       properties['patchset'] = str(api.properties['patchset'])
@@ -747,8 +754,9 @@ def GenTests(api):
   gerrit_kwargs = {
     'patch_storage': 'gerrit',
     'repository': 'skia',
-    'event.patchSet.ref': 'refs/changes/00/2100/2',
-    'event.change.number': '2100',
+    'patch_ref': 'refs/changes/00/2100/2',
+    'patch_issue': '2100',
+    'patch_set': '2',
   }
   yield (
       api.test('recipe_with_gerrit_patch') +

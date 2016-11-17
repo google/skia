@@ -84,5 +84,5 @@ GrGLContextInfo::GrGLContextInfo(const ConstructorArgs& args) {
     fDriver = args.fDriver;
     fDriverVersion = args.fDriverVersion;
 
-    fGLCaps.reset(new GrGLCaps(*args.fContextOptions, *this, fInterface));
+    fGLCaps = sk_make_sp<GrGLCaps>(*args.fContextOptions, *this, fInterface.get());
 }

@@ -241,7 +241,7 @@ void CommandBufferGLTestContext::initializeGLContext(void *nativeWindow, const i
         return;
     }
 
-    SkAutoTUnref<const GrGLInterface> gl(create_command_buffer_interface());
+    sk_sp<const GrGLInterface> gl(create_command_buffer_interface());
     if (nullptr == gl.get()) {
         SkDebugf("Command Buffer: Could not create CommandBuffer GL interface.\n");
         this->destroyGLContext();

@@ -357,7 +357,7 @@ void GrGLSLFragmentShaderBuilder::defineSampleOffsetArray(const char* name, cons
     SkASSERT(fProgramBuilder->caps()->sampleLocationsSupport());
     const GrPipeline& pipeline = fProgramBuilder->pipeline();
     const GrRenderTargetPriv& rtp = pipeline.getRenderTarget()->renderTargetPriv();
-    const GrGpu::MultisampleSpecs& specs = rtp.getMultisampleSpecs(pipeline.getStencil());
+    const GrGpu::MultisampleSpecs& specs = rtp.getMultisampleSpecs(pipeline);
     SkSTArray<16, SkPoint, true> offsets;
     offsets.push_back_n(specs.fEffectiveSampleCnt);
     m.mapPoints(offsets.begin(), specs.fSampleLocations, specs.fEffectiveSampleCnt);

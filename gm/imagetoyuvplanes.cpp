@@ -72,9 +72,9 @@ DEF_SIMPLE_GM(image_to_yuv_planes, canvas, 120, 525) {
         for (int i = 0; i < 3; ++i) {
             realRowBytes[i] = kRowBytes[s][i] ? kRowBytes[s][i] : kSizes[s][i].fWidth;
         }
-        SkAutoTDeleteArray<uint8_t> yPlane(new uint8_t[realRowBytes[0] * sizes[0].fHeight]);
-        SkAutoTDeleteArray<uint8_t> uPlane(new uint8_t[realRowBytes[1] * sizes[1].fHeight]);
-        SkAutoTDeleteArray<uint8_t> vPlane(new uint8_t[realRowBytes[2] * sizes[2].fHeight]);
+        std::unique_ptr<uint8_t[]> yPlane(new uint8_t[realRowBytes[0] * sizes[0].fHeight]);
+        std::unique_ptr<uint8_t[]> uPlane(new uint8_t[realRowBytes[1] * sizes[1].fHeight]);
+        std::unique_ptr<uint8_t[]> vPlane(new uint8_t[realRowBytes[2] * sizes[2].fHeight]);
 
         void *planes[3] = {yPlane.get(), uPlane.get(), vPlane.get()};
 

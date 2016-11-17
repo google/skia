@@ -48,7 +48,9 @@ GrTexture* GrTextureProvider::createMipMappedTexture(const GrSurfaceDesc& desc, 
             return nullptr;
         }
     }
-
+    if (mipLevelCount > 1 && GrPixelConfigIsSint(desc.fConfig)) {
+        return nullptr;
+    }
     if ((desc.fFlags & kRenderTarget_GrSurfaceFlag) &&
         !fGpu->caps()->isConfigRenderable(desc.fConfig, desc.fSampleCnt > 0)) {
         return nullptr;
@@ -84,10 +86,10 @@ GrTexture* GrTextureProvider::createTexture(const GrSurfaceDesc& desc, SkBudgete
     GrMipLevel* texels = nullptr;
     int levelCount = 0;
     if (srcData) {
-      tempTexels.fPixels = srcData;
-      tempTexels.fRowBytes = rowBytes;
-      texels = &tempTexels;
-      levelCount = 1;
+        tempTexels.fPixels = srcData;
+        tempTexels.fRowBytes = rowBytes;
+        texels = &tempTexels;
+        levelCount = 1;
     }
     return this->createMipMappedTexture(desc, budgeted, texels, levelCount);
 }
@@ -158,8 +160,8 @@ GrTexture* GrTextureProvider::refScratchTexture(const GrSurfaceDesc& inDesc,
     return nullptr;
 }
 
-GrTexture* GrTextureProvider::wrapBackendTexture(const GrBackendTextureDesc& desc,
-                                                 GrWrapOwnership ownership) {
+sk_sp<GrTexture> GrTextureProvider::wrapBackendTexture(const GrBackendTextureDesc& desc,
+                                                       GrWrapOwnership ownership) {
     ASSERT_SINGLE_OWNER
     if (this->isAbandoned()) {
         return nullptr;
@@ -167,10 +169,12 @@ GrTexture* GrTextureProvider::wrapBackendTexture(const GrBackendTextureDesc& des
     return fGpu->wrapBackendTexture(desc, ownership);
 }
 
-GrRenderTarget* GrTextureProvider::wrapBackendRenderTarget(const GrBackendRenderTargetDesc& desc) {
+sk_sp<GrRenderTarget> GrTextureProvider::wrapBackendRenderTarget(
+    const GrBackendRenderTargetDesc& desc)
+{
     ASSERT_SINGLE_OWNER
-    return this->isAbandoned() ? nullptr : fGpu->wrapBackendRenderTarget(desc,
-                                                                         kBorrow_GrWrapOwnership);
+    return this->isAbandoned() ? nullptr
+                               : fGpu->wrapBackendRenderTarget(desc, kBorrow_GrWrapOwnership);
 }
 
 void GrTextureProvider::assignUniqueKeyToResource(const GrUniqueKey& key, GrGpuResource* resource) {

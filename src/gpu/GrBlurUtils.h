@@ -10,7 +10,7 @@
 
 class GrClip;
 class GrContext;
-class GrDrawContext;
+class GrRenderTargetContext;
 class GrPaint;
 class GrRenderTarget;
 class GrStyle;
@@ -30,7 +30,7 @@ namespace GrBlurUtils {
      * Draw a path handling the mask filter if present.
      */
     void drawPathWithMaskFilter(GrContext* context,
-                                GrDrawContext* drawContext,
+                                GrRenderTargetContext* renderTargetContext,
                                 const GrClip& clip,
                                 const SkPath& origSrcPath,
                                 const SkPaint& paint,
@@ -44,7 +44,7 @@ namespace GrBlurUtils {
      * optional. The GrPaint will be modified after return.
      */
     void drawPathWithMaskFilter(GrContext*,
-                                GrDrawContext*,
+                                GrRenderTargetContext*,
                                 const GrClip&,
                                 const SkPath& path,
                                 GrPaint*,

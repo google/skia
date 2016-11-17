@@ -19,6 +19,7 @@
 #include "SkGraphics.h"
 #include "SkMetaData.h"
 #include "SkOSFile.h"
+#include "SkOSPath.h"
 #include "SkRandom.h"
 #include "SkStream.h"
 #include "SkSurface.h"
@@ -164,7 +165,7 @@ Viewer::Viewer(int argc, char** argv, void* platformData)
     fCommands.addCommand('c', "Modes", "Toggle sRGB color mode", [this]() {
         DisplayParams params = fWindow->getDisplayParams();
         params.fColorSpace = (nullptr == params.fColorSpace)
-            ? SkColorSpace::NewNamed(SkColorSpace::kSRGB_Named) : nullptr;
+            ? SkColorSpace::MakeNamed(SkColorSpace::kSRGB_Named) : nullptr;
         fWindow->setDisplayParams(params);
         this->updateTitle();
         fWindow->inval();
@@ -252,7 +253,7 @@ void Viewer::initSlides() {
 
     const skiagm::GMRegistry* gms(skiagm::GMRegistry::Head());
     while (gms) {
-        SkAutoTDelete<skiagm::GM> gm(gms->factory()(nullptr));
+        std::unique_ptr<skiagm::GM> gm(gms->factory()(nullptr));
 
         if (!SkCommandLineFlags::ShouldSkip(FLAGS_match, gm->getName())) {
             sk_sp<Slide> slide(new GMSlide(gm.release()));

@@ -36,8 +36,8 @@ public:
         this->createSwapchain(fWidth, fHeight, params);
     }
 
-    GrBackendContext getBackendContext() override { 
-        return (GrBackendContext) fBackendContext.get(); 
+    GrBackendContext getBackendContext() override {
+        return (GrBackendContext) fBackendContext.get();
     }
 
     /** Platform specific function that creates a VkSurfaceKHR for a window */
@@ -63,7 +63,7 @@ private:
     void createBuffers(VkFormat format);
     void destroyBuffers();
 
-    SkAutoTUnref<const GrVkBackendContext> fBackendContext;
+    sk_sp<const GrVkBackendContext> fBackendContext;
 
     // simple wrapper class that exists only to initialize a pointer to NULL
     template <typename FNPTR_TYPE> class VkPtr {

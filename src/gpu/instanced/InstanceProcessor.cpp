@@ -242,7 +242,7 @@ void GLSLInstanceProcessor::onEmitCode(EmitArgs& args, GrGPArgs* gpArgs) {
                        inputs.attr(Attrib::kInstanceInfo));
     }
 
-    SkAutoTDelete<Backend> backend(Backend::Create(pipeline, ip.batchInfo(), inputs));
+    std::unique_ptr<Backend> backend(Backend::Create(pipeline, ip.batchInfo(), inputs));
     backend->init(varyingHandler, v);
 
     int usedShapeDefinitions = 0;
@@ -1701,7 +1701,7 @@ GLSLInstanceProcessor::Backend::Create(const GrPipeline& pipeline, BatchInfo bat
         case AntialiasMode::kMSAA:
         case AntialiasMode::kMixedSamples: {
             const GrRenderTargetPriv& rtp = pipeline.getRenderTarget()->renderTargetPriv();
-            const GrGpu::MultisampleSpecs& specs = rtp.getMultisampleSpecs(pipeline.getStencil());
+            const GrGpu::MultisampleSpecs& specs = rtp.getMultisampleSpecs(pipeline);
             return new BackendMultisample(batchInfo, inputs, specs.fEffectiveSampleCnt);
         }
     }

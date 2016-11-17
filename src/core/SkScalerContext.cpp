@@ -131,7 +131,7 @@ void SkScalerContext::getMetrics(SkGlyph* glyph) {
         SkPath      devPath, fillPath;
         SkMatrix    fillToDevMatrix;
 
-        this->internalGetPath(*glyph, &fillPath, &devPath, &fillToDevMatrix);
+        this->internalGetPath(glyph->getPackedID(), &fillPath, &devPath, &fillToDevMatrix);
 
         if (fRasterizer) {
             SkMask  mask;
@@ -462,7 +462,7 @@ void SkScalerContext::getImage(const SkGlyph& origGlyph) {
              SkMask::kARGB32_Format != origGlyph.fMaskFormat);
 
     if (fMaskFilter) {   // restore the prefilter bounds
-        tmpGlyph.initGlyphIdFrom(origGlyph);
+        tmpGlyph.initWithGlyphID(origGlyph.getPackedID());
 
         // need the original bounds, sans our maskfilter
         SkMaskFilter* mf = fMaskFilter.release();   // temp disable
@@ -487,7 +487,7 @@ void SkScalerContext::getImage(const SkGlyph& origGlyph) {
         SkMatrix    fillToDevMatrix;
         SkMask      mask;
 
-        this->internalGetPath(*glyph, &fillPath, &devPath, &fillToDevMatrix);
+        this->internalGetPath(glyph->getPackedID(), &fillPath, &devPath, &fillToDevMatrix);
         glyph->toMask(&mask);
 
         if (fRasterizer) {
@@ -564,8 +564,8 @@ void SkScalerContext::getImage(const SkGlyph& origGlyph) {
     }
 }
 
-void SkScalerContext::getPath(const SkGlyph& glyph, SkPath* path) {
-    this->internalGetPath(glyph, nullptr, path, nullptr);
+void SkScalerContext::getPath(SkPackedGlyphID glyphID, SkPath* path) {
+    this->internalGetPath(glyphID, nullptr, path, nullptr);
 }
 
 void SkScalerContext::getFontMetrics(SkPaint::FontMetrics* fm) {
@@ -578,14 +578,14 @@ SkUnichar SkScalerContext::generateGlyphToChar(uint16_t glyph) {
 
 ///////////////////////////////////////////////////////////////////////////////
 
-void SkScalerContext::internalGetPath(const SkGlyph& glyph, SkPath* fillPath,
-                                  SkPath* devPath, SkMatrix* fillToDevMatrix) {
+void SkScalerContext::internalGetPath(SkPackedGlyphID glyphID, SkPath* fillPath,
+                                      SkPath* devPath, SkMatrix* fillToDevMatrix) {
     SkPath  path;
-    generatePath(glyph, &path);
+    generatePath(glyphID.code(), &path);
 
     if (fRec.fFlags & SkScalerContext::kSubpixelPositioning_Flag) {
-        SkFixed dx = glyph.getSubXFixed();
-        SkFixed dy = glyph.getSubYFixed();
+        SkFixed dx = glyphID.getSubXFixed();
+        SkFixed dy = glyphID.getSubYFixed();
         if (dx | dy) {
             path.offset(SkFixedToScalar(dx), SkFixedToScalar(dy));
         }
@@ -850,7 +850,7 @@ protected:
         glyph->zeroMetrics();
     }
     void generateImage(const SkGlyph& glyph) override {}
-    void generatePath(const SkGlyph& glyph, SkPath* path) override {}
+    void generatePath(SkGlyphID glyph, SkPath* path) override {}
     void generateFontMetrics(SkPaint::FontMetrics* metrics) override {
         if (metrics) {
             sk_bzero(metrics, sizeof(*metrics));

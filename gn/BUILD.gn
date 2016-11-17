@@ -12,6 +12,11 @@ declare_args() {
     ar = "$ndk/toolchains/$ndk_gccdir-4.9/prebuilt/$ndk_host/$ndk_target/bin/ar"
     cc = "$ndk/toolchains/llvm/prebuilt/$ndk_host/bin/clang"
     cxx = "$ndk/toolchains/llvm/prebuilt/$ndk_host/bin/clang++"
+    if (host_os == "win") {
+      ar = ar + ".exe"
+      cc = cc + ".exe"
+      cxx = cxx + ".exe"
+    }
   }
 
   windk = "C:/Program Files (x86)/Microsoft Visual Studio 14.0"
@@ -24,13 +29,26 @@ declare_args() {
   cc_wrapper = ""
 }
 
-if (!is_win) {
+if (host_os == "win") {
+  python = "python.bat"
+  stamp = "cmd.exe /c echo >"
+} else {
+  python = "python"
+  stamp = "touch"
+}
+
+is_clang = is_android || is_ios || is_mac || (cc == "clang" && cxx == "clang++")
+if (!is_clang && !is_win) {
   is_clang = exec_script("is_clang.py",
                          [
                            cc,
                            cxx,
                          ],
                          "value")
+}
+
+if (is_ios) {
+  ios_sysroot = exec_script("find_ios_sysroot.py", [], "trim string")
 }
 
 config("default") {
@@ -82,7 +100,6 @@ config("default") {
     }
   } else {
     cflags += [
-      "-O1",
       "-fstrict-aliasing",
       "-fPIC",
       "-fvisibility=hidden",
@@ -90,7 +107,6 @@ config("default") {
     ]
     cflags_cc += [
       "-std=c++11",
-      "-fno-exceptions",
       "-fno-threadsafe-statics",
       "-fvisibility-inlines-hidden",
     ]
@@ -167,6 +183,35 @@ config("default") {
     }
   }
 
+  if (is_ios) {
+    cflags += [
+      "-isysroot",
+      ios_sysroot,
+      "-arch",
+      target_cpu,
+    ]
+    cflags_cc += [ "-stdlib=libc++" ]
+    ldflags += [
+      "-isysroot",
+      ios_sysroot,
+      "-arch",
+      target_cpu,
+      "-stdlib=libc++",
+    ]
+    libs = [ "objc" ]
+
+    # We used to link all our iOS tools together, so none actually defines main().
+    # Instead they each define their own entry point, which our iOS mega-app called.
+    # If we can we'd like to not do that anymore.  While we're building both ways, here's
+    # our clever hack to give each tool back its own main().
+    cflags += [
+      "-Ddm_main=main",
+      "-Dnanobench_main=main",
+      "-Dtool_main=main",
+      "-Dtest_main=main",
+    ]
+  }
+
   if (is_linux) {
     libs = [ "pthread" ]
   }
@@ -197,6 +242,13 @@ config("default") {
   }
 }
 
+config("no_exceptions") {
+  # Exceptions are disabled by default on Windows.  (Use /EHsc to enable them.)
+  if (!is_win) {
+    cflags_cc = [ "-fno-exceptions" ]
+  }
+}
+
 config("warnings") {
   cflags = []
   cflags_cc = []
@@ -224,7 +276,6 @@ config("warnings") {
       "-Wvla",
 
       "-Wno-deprecated-declarations",
-      "-Wno-unused-parameter",
     ]
     cflags_cc += [ "-Wnon-virtual-dtor" ]
 
@@ -271,7 +322,6 @@ config("warnings") {
       ]
       cflags_cc += [
         "-Wno-abstract-vbase-init",
-        "-Wno-range-loop-analysis",
         "-Wno-weak-vtables",
       ]
 
@@ -294,6 +344,11 @@ config("warnings") {
         "-Wno-objc-interface-ivars",
       ]
     }
+  }
+}
+config("warnings_except_public_headers") {
+  if (!is_win) {
+    cflags = [ "-Wno-unused-parameter" ]
   }
 }
 
@@ -354,6 +409,11 @@ config("executable") {
     ldflags = [
       "-rdynamic",
       "-Wl,-rpath,\$ORIGIN",
+    ]
+  } else if (is_win) {
+    ldflags = [
+      "/SUBSYSTEM:CONSOLE",  # Quiet "no subsystem specified; CONSOLE assumed".
+      "/INCREMENTAL:NO",  # Quiet warnings about failing to incrementally link by never trying to.
     ]
   }
 }
@@ -465,13 +525,13 @@ toolchain("msvc") {
   }
 
   tool("stamp") {
-    command = "cmd.exe /c echo > {{output}}"
+    command = "$stamp {{output}}"
     description = "stamp {{output}}"
   }
 
   tool("copy") {
     cp_py = rebase_path("cp.py")
-    command = "python.bat $cp_py {{source}} {{output}}"
+    command = "$python $cp_py {{source}} {{output}}"
     description = "copy {{source}} {{output}}"
   }
 }
@@ -531,7 +591,10 @@ toolchain("gcc_like") {
   }
 
   tool("alink") {
-    command = "rm -f {{output}} && $ar rcs {{output}} {{inputs}}"
+    rspfile = "{{output}}.rsp"
+    rspfile_content = "{{inputs}}"
+    ar_py = rebase_path("ar.py")
+    command = "$python $ar_py $ar {{output}} $rspfile"
     outputs = [
       "{{root_out_dir}}/{{target_output_name}}{{output_extension}}",
     ]
@@ -566,13 +629,13 @@ toolchain("gcc_like") {
   }
 
   tool("stamp") {
-    command = "touch {{output}}"
+    command = "$stamp {{output}}"
     description = "stamp {{output}}"
   }
 
   tool("copy") {
     cp_py = rebase_path("cp.py")
-    command = "python $cp_py {{source}} {{output}}"
+    command = "$python $cp_py {{source}} {{output}}"
     description = "copy {{source}} {{output}}"
   }
 }

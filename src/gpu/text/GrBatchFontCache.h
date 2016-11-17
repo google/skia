@@ -225,7 +225,7 @@ private:
     GrBatchAtlas* getAtlas(GrMaskFormat format) const {
         int atlasIndex = MaskFormatToAtlasIndex(format);
         SkASSERT(fAtlases[atlasIndex]);
-        return fAtlases[atlasIndex];
+        return fAtlases[atlasIndex].get();
     }
 
     static void HandleEviction(GrBatchAtlas::AtlasID, void*);
@@ -233,7 +233,7 @@ private:
     using StrikeHash = SkTDynamicHash<GrBatchTextStrike, SkDescriptor>;
     GrContext* fContext;
     StrikeHash fCache;
-    GrBatchAtlas* fAtlases[kMaskFormatCount];
+    std::unique_ptr<GrBatchAtlas> fAtlases[kMaskFormatCount];
     GrBatchTextStrike* fPreserveStrike;
     GrBatchAtlasConfig fAtlasConfigs[kMaskFormatCount];
 };

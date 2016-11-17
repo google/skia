@@ -16,10 +16,7 @@ class GrProcOptInfo;
 
 class GrPorterDuffXPFactory : public GrXPFactory {
 public:
-    static sk_sp<GrXPFactory> Make(SkXfermode::Mode mode);
-    static sk_sp<GrXPFactory> Make(SkBlendMode mode) {
-        return Make((SkXfermode::Mode)mode);
-    }
+    static sk_sp<GrXPFactory> Make(SkBlendMode mode);
 
     void getInvariantBlendedColor(const GrProcOptInfo& colorPOI,
                                   GrXPFactory::InvariantBlendedColor*) const override;
@@ -54,7 +51,7 @@ public:
     static bool SrcOverWillNeedDstTexture(const GrCaps&, const GrPipelineOptimizations&);
 
 private:
-    GrPorterDuffXPFactory(SkXfermode::Mode);
+    GrPorterDuffXPFactory(SkBlendMode);
 
     GrXferProcessor* onCreateXferProcessor(const GrCaps& caps,
                                            const GrPipelineOptimizations& optimizations,
@@ -71,7 +68,7 @@ private:
     GR_DECLARE_XP_FACTORY_TEST;
     static void TestGetXPOutputTypes(const GrXferProcessor*, int* outPrimary, int* outSecondary);
 
-    SkXfermode::Mode fXfermode;
+    SkBlendMode fXfermode;
 
     friend class GrPorterDuffTest; // for TestGetXPOutputTypes()
     typedef GrXPFactory INHERITED;

@@ -17,21 +17,21 @@ public:
         : fXOffset{X(offset)}
         , fYOffset{Y(offset)} { }
 
-    void processPoints(Sk4s* xs, Sk4s* ys) {
+    void processPoints(Sk4s* xs, Sk4s* ys) const {
         *xs = *xs + fXOffset;
         *ys = *ys + fYOffset;
     }
 
     template <typename Next>
-    bool maybeProcessSpan(Span span, Next* next) {
+    bool maybeProcessSpan(Span span, Next* next) const {
         SkPoint start; SkScalar length; int count;
         std::tie(start, length, count) = span;
-        next->pointSpan(Span{start + SkPoint{fXOffset[0], fYOffset[0]}, length, count});
+        next->pointSpan(Span{start + SkPoint{fXOffset, fYOffset}, length, count});
         return true;
     }
 
 private:
-    const Sk4s fXOffset, fYOffset;
+    const SkScalar fXOffset, fYOffset;
 };
 
 class ScaleMatrixStrategy {
@@ -39,25 +39,25 @@ public:
     ScaleMatrixStrategy(SkVector offset, SkVector scale)
         : fXOffset{X(offset)}, fYOffset{Y(offset)}
         ,  fXScale{X(scale)},   fYScale{Y(scale)} { }
-    void processPoints(Sk4s* xs, Sk4s* ys) {
+    void processPoints(Sk4s* xs, Sk4s* ys) const {
         *xs = *xs * fXScale + fXOffset;
         *ys = *ys * fYScale + fYOffset;
     }
 
     template <typename Next>
-    bool maybeProcessSpan(Span span, Next* next) {
+    bool maybeProcessSpan(Span span, Next* next) const {
         SkPoint start; SkScalar length; int count;
         std::tie(start, length, count) = span;
         SkPoint newStart =
-            SkPoint{X(start) * fXScale[0] + fXOffset[0], Y(start) * fYScale[0] + fYOffset[0]};
-        SkScalar newLength = length * fXScale[0];
+            SkPoint{X(start) * fXScale + fXOffset, Y(start) * fYScale + fYOffset};
+        SkScalar newLength = length * fXScale;
         next->pointSpan(Span{newStart, newLength, count});
         return true;
     }
 
 private:
-    const Sk4s fXOffset, fYOffset;
-    const Sk4s fXScale, fYScale;
+    const SkScalar fXOffset, fYOffset;
+    const SkScalar fXScale,  fYScale;
 };
 
 class AffineMatrixStrategy {
@@ -66,7 +66,7 @@ public:
         : fXOffset{X(offset)}, fYOffset{Y(offset)}
         , fXScale{X(scale)},   fYScale{Y(scale)}
         , fXSkew{X(skew)},     fYSkew{Y(skew)} { }
-    void processPoints(Sk4s* xs, Sk4s* ys) {
+    void processPoints(Sk4s* xs, Sk4s* ys) const {
         Sk4s newXs = fXScale * *xs +  fXSkew * *ys + fXOffset;
         Sk4s newYs =  fYSkew * *xs + fYScale * *ys + fYOffset;
 
@@ -75,14 +75,14 @@ public:
     }
 
     template <typename Next>
-    bool maybeProcessSpan(Span span, Next* next) {
+    bool maybeProcessSpan(Span span, Next* next) const {
         return false;
     }
 
 private:
-    const Sk4s fXOffset, fYOffset;
-    const Sk4s fXScale,  fYScale;
-    const Sk4s fXSkew,   fYSkew;
+    const SkScalar fXOffset, fYOffset;
+    const SkScalar fXScale,  fYScale;
+    const SkScalar fXSkew,   fYSkew;
 };
 
 class PerspectiveMatrixStrategy {
@@ -92,7 +92,7 @@ public:
         : fXOffset{X(offset)}, fYOffset{Y(offset)}, fZOffset{zOffset}
         , fXScale{X(scale)},   fYScale{Y(scale)}
         , fXSkew{X(skew)},     fYSkew{Y(skew)}, fZXSkew{X(zSkew)}, fZYSkew{Y(zSkew)} { }
-    void processPoints(Sk4s* xs, Sk4s* ys) {
+    void processPoints(Sk4s* xs, Sk4s* ys) const {
         Sk4s newXs = fXScale * *xs +  fXSkew * *ys + fXOffset;
         Sk4s newYs =  fYSkew * *xs + fYScale * *ys + fYOffset;
         Sk4s newZs =  fZXSkew * *xs + fZYSkew * *ys + fZOffset;
@@ -102,14 +102,14 @@ public:
     }
 
     template <typename Next>
-    bool maybeProcessSpan(Span span, Next* next) {
+    bool maybeProcessSpan(Span span, Next* next) const {
         return false;
     }
 
 private:
-    const Sk4s fXOffset, fYOffset, fZOffset;
-    const Sk4s fXScale,  fYScale;
-    const Sk4s fXSkew,   fYSkew, fZXSkew, fZYSkew;
+    const SkScalar fXOffset, fYOffset, fZOffset;
+    const SkScalar fXScale,  fYScale;
+    const SkScalar fXSkew,   fYSkew,   fZXSkew, fZYSkew;
 };
 
 

@@ -1,4 +1,3 @@
-
 /*
  * Copyright 2006 The Android Open Source Project
  *
@@ -20,12 +19,6 @@ enum SkFILE_Flags {
     kRead_SkFILE_Flag   = 0x01,
     kWrite_SkFILE_Flag  = 0x02
 };
-
-#ifdef _WIN32
-const static char SkPATH_SEPARATOR = '\\';
-#else
-const static char SkPATH_SEPARATOR = '/';
-#endif
 
 FILE* sk_fopen(const char path[], SkFILE_Flags);
 void    sk_fclose(FILE*);
@@ -108,42 +101,6 @@ public:
     private:
         SkAlignedSStorage<kStorageSize> fSelf;
     };
-};
-
-/**
- *  Functions for modifying SkStrings which represent paths on the filesystem.
- */
-class SkOSPath   {
-public:
-    /**
-     * Assembles rootPath and relativePath into a single path, like this:
-     * rootPath/relativePath.
-     * It is okay to call with a NULL rootPath and/or relativePath. A path
-     * separator will still be inserted.
-     *
-     * Uses SkPATH_SEPARATOR, to work on all platforms.
-     */
-    static SkString Join(const char* rootPath, const char* relativePath);
-
-    /**
-     *  Return the name of the file, ignoring the directory structure.
-     *  Behaves like python's os.path.basename. If the fullPath is
-     *  /dir/subdir/, an empty string is returned.
-     *  @param fullPath Full path to the file.
-     *  @return SkString The basename of the file - anything beyond the
-     *      final slash, or the full name if there is no slash.
-     */
-    static SkString Basename(const char* fullPath);
-
-    /**
-     *  Given a qualified file name returns the directory.
-     *  Behaves like python's os.path.dirname. If the fullPath is
-     *  /dir/subdir/ the return will be /dir/subdir/
-     *  @param fullPath Full path to the file.
-     *  @return SkString The dir containing the file - anything preceding the
-     *      final slash, or the full name if ending in a slash.
-     */
-    static SkString Dirname(const char* fullPath);
 };
 
 #endif

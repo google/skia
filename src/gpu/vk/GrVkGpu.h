@@ -50,7 +50,7 @@ public:
 
     ~GrVkGpu() override;
 
-    const GrVkInterface* vkInterface() const { return fBackendContext->fInterface; }
+    const GrVkInterface* vkInterface() const { return fBackendContext->fInterface.get(); }
     const GrVkCaps& vkCaps() const { return *fVkCaps; }
 
     VkDevice device() const { return fDevice; }
@@ -82,8 +82,8 @@ public:
                        const SkIRect& srcRect,
                        const SkIPoint& dstPoint) override;
 
-    void onGetMultisampleSpecs(GrRenderTarget* rt, const GrStencilSettings&,
-                               int* effectiveSampleCnt, SamplePattern*) override;
+    void onQueryMultisampleSpecs(GrRenderTarget* rt, const GrStencilSettings&,
+                                 int* effectiveSampleCnt, SamplePattern*) override;
 
     bool initDescForDstCopy(const GrRenderTarget* src, GrSurfaceDesc* desc) const override;
 
@@ -139,7 +139,7 @@ public:
                                       GrVkRenderTarget*,
                                       const SkIRect& bounds);
 
-    void finishDrawTarget() override;
+    void finishOpList() override;
 
     GrFence SK_WARN_UNUSED_RESULT insertFence() const override;
     bool waitFence(GrFence, uint64_t timeout) const override;
@@ -168,7 +168,7 @@ public:
     };
     static const int kHeapCount = kLastHeap + 1;
 
-    GrVkHeap* getHeap(Heap heap) const { return fHeaps[heap]; }
+    GrVkHeap* getHeap(Heap heap) const { return fHeaps[heap].get(); }
 
 private:
     GrVkGpu(GrContext* context, const GrContextOptions& options,
@@ -182,11 +182,13 @@ private:
     GrTexture* onCreateCompressedTexture(const GrSurfaceDesc& desc, SkBudgeted,
                                          const SkTArray<GrMipLevel>&) override { return NULL; }
 
-    GrTexture* onWrapBackendTexture(const GrBackendTextureDesc&, GrWrapOwnership) override;
+    sk_sp<GrTexture> onWrapBackendTexture(const GrBackendTextureDesc&, GrWrapOwnership) override;
 
-    GrRenderTarget* onWrapBackendRenderTarget(const GrBackendRenderTargetDesc&,
-                                              GrWrapOwnership) override;
-    GrRenderTarget* onWrapBackendTextureAsRenderTarget(const GrBackendTextureDesc&) override { return NULL; }
+    sk_sp<GrRenderTarget> onWrapBackendRenderTarget(const GrBackendRenderTargetDesc&,
+                                                    GrWrapOwnership) override;
+    sk_sp<GrRenderTarget> onWrapBackendTextureAsRenderTarget(const GrBackendTextureDesc&) override {
+        return nullptr;
+    }
 
     GrBuffer* onCreateBuffer(size_t size, GrBufferType type, GrAccessPattern,
                              const void* data) override;
@@ -253,8 +255,8 @@ private:
                       const SkIRect& srcRect,
                       const SkIPoint& dstPoint);
 
-    SkAutoTUnref<const GrVkBackendContext> fBackendContext;
-    SkAutoTUnref<GrVkCaps>                 fVkCaps;
+    sk_sp<const GrVkBackendContext> fBackendContext;
+    sk_sp<GrVkCaps>                 fVkCaps;
 
     // These Vulkan objects are provided by the client, and also stored in fBackendContext.
     // They're copied here for convenient access.
@@ -267,7 +269,7 @@ private:
     GrVkPrimaryCommandBuffer*              fCurrentCmdBuffer;
     VkPhysicalDeviceMemoryProperties       fPhysDevMemProps;
 
-    SkAutoTDelete<GrVkHeap>                fHeaps[kHeapCount];
+    std::unique_ptr<GrVkHeap>              fHeaps[kHeapCount];
 
     GrVkCopyManager                        fCopyManager;
 

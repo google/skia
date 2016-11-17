@@ -75,10 +75,9 @@ static void test_copy_surface(skiatest::Reporter* reporter, GrContext* context,
     copyDesc.fWidth = externalTexture->width();
     copyDesc.fHeight = externalTexture->height();
     copyDesc.fFlags = kRenderTarget_GrSurfaceFlag;
-    SkAutoTUnref<GrTexture> copy(context->textureProvider()->createTexture(
-            copyDesc, SkBudgeted::kYes));
-    context->copySurface(copy, externalTexture);
-    test_read_pixels(reporter, context, copy, expectedPixelValues);
+    sk_sp<GrTexture> copy(context->textureProvider()->createTexture(copyDesc, SkBudgeted::kYes));
+    context->copySurface(copy.get(), externalTexture);
+    test_read_pixels(reporter, context, copy.get(), expectedPixelValues);
 }
 
 DEF_GPUTEST_FOR_GL_RENDERING_CONTEXTS(EGLImageTest, reporter, ctxInfo) {
@@ -96,7 +95,7 @@ DEF_GPUTEST_FOR_GL_RENDERING_CONTEXTS(EGLImageTest, reporter, ctxInfo) {
         return;
     }
 
-    SkAutoTDelete<GLTestContext> glCtx1 = glCtx0->createNew();
+    std::unique_ptr<GLTestContext> glCtx1 = glCtx0->makeNew();
     if (!glCtx1) {
         return;
     }
@@ -107,13 +106,13 @@ DEF_GPUTEST_FOR_GL_RENDERING_CONTEXTS(EGLImageTest, reporter, ctxInfo) {
     externalTexture.fID = 0;
 
     if (!context1) {
-        cleanup(glCtx0, externalTexture.fID, glCtx1, context1, backendTexture1, image);
+        cleanup(glCtx0, externalTexture.fID, glCtx1.get(), context1, backendTexture1, image);
         return;
     }
 
     if (!glCtx1->gl()->hasExtension("EGL_KHR_image") ||
         !glCtx1->gl()->hasExtension("EGL_KHR_gl_texture_2D_image")) {
-        cleanup(glCtx0, externalTexture.fID, glCtx1, context1, backendTexture1, image);
+        cleanup(glCtx0, externalTexture.fID, glCtx1.get(), context1, backendTexture1, image);
         return;
     }
 
@@ -127,12 +126,12 @@ DEF_GPUTEST_FOR_GL_RENDERING_CONTEXTS(EGLImageTest, reporter, ctxInfo) {
         gpu1->createTestingOnlyBackendTexture(nullptr, kSize, kSize, kRGBA_8888_GrPixelConfig));
     if (!backendTexture1 || !backendTexture1->fID) {
         ERRORF(reporter, "Error creating texture for EGL Image");
-        cleanup(glCtx0, externalTexture.fID, glCtx1, context1, backendTexture1, image);
+        cleanup(glCtx0, externalTexture.fID, glCtx1.get(), context1, backendTexture1, image);
         return;
     }
     if (GR_GL_TEXTURE_2D != backendTexture1->fTarget) {
         ERRORF(reporter, "Expected backend texture to be 2D");
-        cleanup(glCtx0, externalTexture.fID, glCtx1, context1, backendTexture1, image);
+        cleanup(glCtx0, externalTexture.fID, glCtx1.get(), context1, backendTexture1, image);
         return;
     }
 
@@ -140,7 +139,7 @@ DEF_GPUTEST_FOR_GL_RENDERING_CONTEXTS(EGLImageTest, reporter, ctxInfo) {
     image = glCtx1->texture2DToEGLImage(backendTexture1->fID);
     if (GR_EGL_NO_IMAGE == image) {
         ERRORF(reporter, "Error creating EGL Image from texture");
-        cleanup(glCtx0, externalTexture.fID, glCtx1, context1, backendTexture1, image);
+        cleanup(glCtx0, externalTexture.fID, glCtx1.get(), context1, backendTexture1, image);
         return;
     }
 
@@ -173,17 +172,17 @@ DEF_GPUTEST_FOR_GL_RENDERING_CONTEXTS(EGLImageTest, reporter, ctxInfo) {
     externalDesc.fWidth = kSize;
     externalDesc.fHeight = kSize;
     externalDesc.fTextureHandle = reinterpret_cast<GrBackendObject>(&externalTexture);
-    SkAutoTUnref<GrTexture> externalTextureObj(
+    sk_sp<GrTexture> externalTextureObj(
         context0->textureProvider()->wrapBackendTexture(externalDesc));
     if (!externalTextureObj) {
         ERRORF(reporter, "Error wrapping external texture in GrTexture.");
-        cleanup(glCtx0, externalTexture.fID, glCtx1, context1, backendTexture1, image);
+        cleanup(glCtx0, externalTexture.fID, glCtx1.get(), context1, backendTexture1, image);
         return;
     }
 
     // Should not be able to wrap as a RT
     externalDesc.fFlags = kRenderTarget_GrBackendTextureFlag;
-    SkAutoTUnref<GrTexture> externalTextureRTObj(
+    sk_sp<GrTexture> externalTextureRTObj(
         context0->textureProvider()->wrapBackendTexture(externalDesc));
     if (externalTextureRTObj) {
         ERRORF(reporter, "Should not be able to wrap an EXTERNAL texture as a RT.");
@@ -192,20 +191,20 @@ DEF_GPUTEST_FOR_GL_RENDERING_CONTEXTS(EGLImageTest, reporter, ctxInfo) {
 
     // Should not be able to wrap with a sample count
     externalDesc.fSampleCnt = 4;
-    SkAutoTUnref<GrTexture> externalTextureMSAAObj(
+    sk_sp<GrTexture> externalTextureMSAAObj(
         context0->textureProvider()->wrapBackendTexture(externalDesc));
     if (externalTextureMSAAObj) {
         ERRORF(reporter, "Should not be able to wrap an EXTERNAL texture with MSAA.");
     }
     externalDesc.fSampleCnt = 0;
 
-    test_read_pixels(reporter, context0, externalTextureObj, pixels.get());
+    test_read_pixels(reporter, context0, externalTextureObj.get(), pixels.get());
 
-    test_write_pixels(reporter, context0, externalTextureObj);
+    test_write_pixels(reporter, context0, externalTextureObj.get());
 
-    test_copy_surface(reporter, context0, externalTextureObj, pixels.get());
+    test_copy_surface(reporter, context0, externalTextureObj.get(), pixels.get());
 
-    cleanup(glCtx0, externalTexture.fID, glCtx1, context1, backendTexture1, image);
+    cleanup(glCtx0, externalTexture.fID, glCtx1.get(), context1, backendTexture1, image);
 }
 
 #endif
