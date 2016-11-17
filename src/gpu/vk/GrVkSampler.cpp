@@ -7,7 +7,6 @@
 
 #include "GrVkSampler.h"
 
-#include "GrTextureAccess.h"
 #include "GrVkGpu.h"
 
 static inline VkSamplerAddressMode tile_to_vk_sampler_address(SkShader::TileMode tm) {

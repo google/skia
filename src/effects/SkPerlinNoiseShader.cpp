@@ -548,12 +548,12 @@ private:
       : fType(type)
       , fNumOctaves(numOctaves)
       , fStitchTiles(stitchTiles)
-      , fPermutationsAccess(permutationsTexture)
-      , fNoiseAccess(noiseTexture)
+      , fPermutationsSampler(permutationsTexture)
+      , fNoiseSampler(noiseTexture)
       , fPaintingData(paintingData) {
         this->initClassID<GrPerlinNoiseEffect>();
-        this->addTextureAccess(&fPermutationsAccess);
-        this->addTextureAccess(&fNoiseAccess);
+        this->addTextureSampler(&fPermutationsSampler);
+        this->addTextureSampler(&fNoiseSampler);
         fCoordTransform.reset(matrix);
         this->addCoordTransform(&fCoordTransform);
     }
@@ -564,8 +564,8 @@ private:
     GrCoordTransform                fCoordTransform;
     int                             fNumOctaves;
     bool                            fStitchTiles;
-    GrTextureAccess                 fPermutationsAccess;
-    GrTextureAccess                 fNoiseAccess;
+    TextureSampler                  fPermutationsSampler;
+    TextureSampler                  fNoiseSampler;
     SkPerlinNoiseShader::PaintingData *fPaintingData;
 
 private:
