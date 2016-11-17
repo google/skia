@@ -69,6 +69,16 @@ var (
 		"Perf-Android-Clang-Nexus7-GPU-Tegra3-arm-Release-GN_Android",
 		"Perf-Android-Clang-Nexus9-GPU-TegraK1-arm64-Debug-GN_Android",
 		"Perf-Android-Clang-Nexus9-GPU-TegraK1-arm64-Release-GN_Android",
+		"Perf-Android-Clang-NexusPlayer-CPU-Moorefield-x86-Debug-GN_Android",
+		"Perf-Android-Clang-NexusPlayer-CPU-Moorefield-x86-Release-GN_Android",
+		"Perf-Android-Clang-NexusPlayer-GPU-PowerVR-x86-Debug-GN_Android",
+		"Perf-Android-Clang-NexusPlayer-GPU-PowerVR-x86-Debug-GN_Android_Vulkan",
+		"Perf-Android-Clang-NexusPlayer-GPU-PowerVR-x86-Release-GN_Android",
+		"Perf-Android-Clang-NexusPlayer-GPU-PowerVR-x86-Release-GN_Android_Vulkan",
+		"Perf-Android-Clang-Pixel-GPU-Adreno530-arm64-Debug-GN_Android",
+		"Perf-Android-Clang-Pixel-GPU-Adreno530-arm64-Debug-GN_Android_Vulkan",
+		"Perf-Android-Clang-Pixel-GPU-Adreno530-arm64-Release-GN_Android",
+		"Perf-Android-Clang-Pixel-GPU-Adreno530-arm64-Release-GN_Android_Vulkan",
 		"Perf-Android-Clang-PixelC-GPU-TegraX1-arm64-Release-GN_Android_Skpbench",
 		"Perf-Android-Clang-PixelC-GPU-TegraX1-arm64-Release-GN_Android_Vulkan_Skpbench",
 		"Perf-Ubuntu-GCC-GCE-CPU-AVX2-x86_64-Release-GN",
@@ -100,6 +110,16 @@ var (
 		"Test-Android-Clang-Nexus7-GPU-Tegra3-arm-Release-GN_Android",
 		"Test-Android-Clang-Nexus9-GPU-TegraK1-arm64-Debug-GN_Android",
 		"Test-Android-Clang-Nexus9-GPU-TegraK1-arm64-Release-GN_Android",
+		"Test-Android-Clang-NexusPlayer-CPU-Moorefield-x86-Debug-GN_Android",
+		"Test-Android-Clang-NexusPlayer-CPU-Moorefield-x86-Release-GN_Android",
+		"Test-Android-Clang-NexusPlayer-GPU-PowerVR-x86-Debug-GN_Android",
+		"Test-Android-Clang-NexusPlayer-GPU-PowerVR-x86-Debug-GN_Android_Vulkan",
+		"Test-Android-Clang-NexusPlayer-GPU-PowerVR-x86-Release-GN_Android",
+		"Test-Android-Clang-NexusPlayer-GPU-PowerVR-x86-Release-GN_Android_Vulkan",
+		"Test-Android-Clang-PixelXL-GPU-Adreno530-arm64-Debug-GN_Android",
+		"Test-Android-Clang-PixelXL-GPU-Adreno530-arm64-Debug-GN_Android_Vulkan",
+		"Test-Android-Clang-PixelXL-GPU-Adreno530-arm64-Release-GN_Android",
+		"Test-Android-Clang-PixelXL-GPU-Adreno530-arm64-Release-GN_Android_Vulkan",
 		"Test-Ubuntu-GCC-GCE-CPU-AVX2-x86_64-Release-GN",
 		"Test-iOS-Clang-iPadMini4-GPU-GX6450-Arm7-Debug",
 		"Test-iOS-Clang-iPadMini4-GPU-GX6450-Arm7-Release",
@@ -590,7 +610,7 @@ func process(b *specs.TasksCfgBuilder, name string) {
 	if err != nil {
 		glog.Fatal(err)
 	}
-	// These bots don't need a compile task.
+	// These bots do not need a compile task.
 	if parts["role"] != "Build" &&
 		name != "Housekeeper-PerCommit-InfraTests" &&
 		!strings.Contains(name, "RecreateSKPs") {
