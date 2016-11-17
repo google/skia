@@ -9,6 +9,7 @@
 #define SkShader_DEFINED
 
 #include "SkBitmap.h"
+#include "SkFilterQuality.h"
 #include "SkFlattenable.h"
 #include "SkImageInfo.h"
 #include "SkMask.h"
@@ -476,7 +477,7 @@ public:
     SK_DECLARE_FLATTENABLE_REGISTRAR_GROUP()
 
     bool appendStages(SkRasterPipeline*, SkColorSpace*, SkFallbackAlloc*,
-                      const SkMatrix& ctm) const;
+                      const SkMatrix& ctm, SkFilterQuality) const;
 
 protected:
     void flatten(SkWriteBuffer&) const override;
@@ -510,7 +511,7 @@ protected:
     }
 
     virtual bool onAppendStages(SkRasterPipeline*, SkColorSpace*, SkFallbackAlloc*,
-                                const SkMatrix&) const {
+                                const SkMatrix&, SkFilterQuality) const {
         return false;
     }
 
