@@ -27,6 +27,7 @@
 #include "batches/GrRectBatchFactory.h"
 #include "batches/GrNinePatch.h" // TODO Factory
 #include "batches/GrRegionBatch.h"
+#include "batches/GrShadowRRectBatch.h"
 
 #include "effects/GrRRectEffect.h"
 
@@ -912,6 +913,66 @@ void GrRenderTargetContext::drawRRect(const GrClip& origClip,
     path.addRRect(rrect);
     this->internalDrawPath(*clip, paint, viewMatrix, path, style);
 }
+
+///////////////////////////////////////////////////////////////////////////////
+
+void GrRenderTargetContext::drawShadowRRect(const GrClip& clip,
+                                            const GrPaint& paint,
+                                            const SkMatrix& viewMatrix,
+                                            const SkRRect& rrect,
+                                            SkScalar blurRadius,
+                                            const GrStyle& style) {
+    ASSERT_SINGLE_OWNER
+    RETURN_IF_ABANDONED
+    SkDEBUGCODE(this->validate();)
+    GR_AUDIT_TRAIL_AUTO_FRAME(fAuditTrail, "GrRenderTargetContext::drawShadowRRect");
+    if (rrect.isEmpty()) {
+        return;
+    }
+
+    SkASSERT(!style.pathEffect()); // this should've been devolved to a path in SkGpuDevice
+
+    AutoCheckFlush acf(fDrawingManager);
+    const SkStrokeRec stroke = style.strokeRec();
+    bool useHWAA;
+
+    // TODO: add instancing support
+    //if (GrCaps::InstancedSupport::kNone != fContext->caps()->instancedSupport() &&
+    //    stroke.isFillStyle()) {
+    //    InstancedRendering* ir = this->getOpList()->instancedRendering();
+    //    SkAutoTUnref<GrDrawBatch> batch(ir->recordRRect(rrect, viewMatrix, paint.getColor(),
+    //                                                    paint.isAntiAlias(), fInstancedPipelineInfo,
+    //                                                    &useHWAA));
+    //    if (batch) {
+    //        GrPipelineBuilder pipelineBuilder(paint, useHWAA);
+    //        this->getOpList()->drawBatch(pipelineBuilder, this, *clip, batch);
+    //        return;
+    //    }
+    //}
+
+    if (should_apply_coverage_aa(paint, fRenderTargetProxy.get(), &useHWAA)) {
+        GrShaderCaps* shaderCaps = fContext->caps()->shaderCaps();
+        sk_sp<GrDrawBatch> batch(CreateShadowRRectBatch(
+                                        paint.getColor(),
+                                        viewMatrix,
+                                        rrect,
+                                        blurRadius,
+                                        stroke,
+                                        shaderCaps));
+        if (batch) {
+            GrPipelineBuilder pipelineBuilder(paint, useHWAA);
+            this->getOpList()->drawBatch(pipelineBuilder, this, clip, batch.get());
+            return;
+        }
+    }
+
+    SkPath path;
+    path.setIsVolatile(true);
+    path.addRRect(rrect);
+    this->internalDrawPath(clip, paint, viewMatrix, path, style);
+}
+
+///////////////////////////////////////////////////////////////////////////////
 
 bool GrRenderTargetContext::drawFilledDRRect(const GrClip& clip,
                                              const GrPaint& paintIn,
