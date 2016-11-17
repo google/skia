@@ -29,7 +29,8 @@ public:
 
     /** Appends a 2D texture sample with projection if necessary. coordType must either be Vec2f or
         Vec3f. The latter is interpreted as projective texture coords. The vec length and swizzle
-        order of the result depends on the GrTextureAccess associated with the GrGLSLSampler.
+        order of the result depends on the GrProcessor::TextureSampelr associated with the
+        GrGLSLSampler.
         */
     void appendTextureLookup(SkString* out,
                              SamplerHandle,

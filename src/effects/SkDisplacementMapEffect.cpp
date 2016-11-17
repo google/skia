@@ -259,10 +259,10 @@ private:
     GR_DECLARE_FRAGMENT_PROCESSOR_TEST;
 
     GrCoordTransform            fDisplacementTransform;
-    GrTextureAccess             fDisplacementAccess;
+    TextureSampler              fDisplacementSampler;
     GrCoordTransform            fColorTransform;
     GrTextureDomain             fDomain;
-    GrTextureAccess             fColorAccess;
+    TextureSampler              fColorSampler;
     SkDisplacementMapEffect::ChannelSelectorType fXChannelSelector;
     SkDisplacementMapEffect::ChannelSelectorType fYChannelSelector;
     SkVector fScale;
@@ -486,19 +486,19 @@ GrDisplacementMapEffect::GrDisplacementMapEffect(
                              GrTexture* color,
                              const SkISize& colorDimensions)
     : fDisplacementTransform(offsetMatrix, displacement, GrTextureParams::kNone_FilterMode)
-    , fDisplacementAccess(displacement)
+    , fDisplacementSampler(displacement)
     , fColorTransform(color, GrTextureParams::kNone_FilterMode)
     , fDomain(GrTextureDomain::MakeTexelDomain(color, SkIRect::MakeSize(colorDimensions)),
               GrTextureDomain::kDecal_Mode)
-    , fColorAccess(color)
+    , fColorSampler(color)
     , fXChannelSelector(xChannelSelector)
     , fYChannelSelector(yChannelSelector)
     , fScale(scale) {
     this->initClassID<GrDisplacementMapEffect>();
     this->addCoordTransform(&fDisplacementTransform);
-    this->addTextureAccess(&fDisplacementAccess);
+    this->addTextureSampler(&fDisplacementSampler);
     this->addCoordTransform(&fColorTransform);
-    this->addTextureAccess(&fColorAccess);
+    this->addTextureSampler(&fColorSampler);
 }
 
 GrDisplacementMapEffect::~GrDisplacementMapEffect() {
@@ -625,7 +625,7 @@ void GrGLDisplacementMapEffect::emitCode(EmitArgs& args) {
 void GrGLDisplacementMapEffect::onSetData(const GrGLSLProgramDataManager& pdman,
                                           const GrProcessor& proc) {
     const GrDisplacementMapEffect& displacementMap = proc.cast<GrDisplacementMapEffect>();
-    GrTexture* colorTex = displacementMap.texture(1);
+    GrTexture* colorTex = displacementMap.textureSampler(1).getTexture();
     SkScalar scaleX = displacementMap.scale().fX / colorTex->width();
     SkScalar scaleY = displacementMap.scale().fY / colorTex->height();
     pdman.set2f(fScaleUni, SkScalarToFloat(scaleX),

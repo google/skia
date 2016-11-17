@@ -225,7 +225,7 @@ public:
     }
 
 private:
-    GrTextureAccess fTextureAccess;
+    TextureSampler fTextureSampler;
     GrTextureDomain fTextureDomain;
     SkIPoint fDeviceSpaceOffset;
 

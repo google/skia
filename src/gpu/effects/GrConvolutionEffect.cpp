@@ -98,7 +98,7 @@ void GrGLConvolutionEffect::emitCode(EmitArgs& args) {
 void GrGLConvolutionEffect::onSetData(const GrGLSLProgramDataManager& pdman,
                                       const GrProcessor& processor) {
     const GrConvolutionEffect& conv = processor.cast<GrConvolutionEffect>();
-    GrTexture& texture = *conv.texture(0);
+    GrTexture& texture = *conv.textureSampler(0).getTexture();
 
     float imageIncrement[2] = { 0 };
     float ySign = texture.origin() != kTopLeft_GrSurfaceOrigin ? 1.0f : -1.0f;

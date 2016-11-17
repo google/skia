@@ -683,25 +683,25 @@ private:
       : fType(type)
       , fNumOctaves(numOctaves)
       , fStitchTiles(stitchTiles)
-      , fPermutationsAccess(permutationsTexture)
-      , fNoiseAccess(noiseTexture)
+      , fPermutationsSampler(permutationsTexture)
+      , fNoiseSampler(noiseTexture)
       , fPaintingData(paintingData) {
         this->initClassID<GrPerlinNoise2Effect>();
-        this->addTextureAccess(&fPermutationsAccess);
-        this->addTextureAccess(&fNoiseAccess);
+        this->addTextureSampler(&fPermutationsSampler);
+        this->addTextureSampler(&fNoiseSampler);
         fCoordTransform.reset(matrix);
         this->addCoordTransform(&fCoordTransform);
     }
 
     GR_DECLARE_FRAGMENT_PROCESSOR_TEST;
 
-    SkPerlinNoiseShader2::Type       fType;
-    GrCoordTransform                fCoordTransform;
-    int                             fNumOctaves;
-    bool                            fStitchTiles;
-    GrTextureAccess                 fPermutationsAccess;
-    GrTextureAccess                 fNoiseAccess;
-    SkPerlinNoiseShader2::PaintingData *fPaintingData;
+    SkPerlinNoiseShader2::Type          fType;
+    GrCoordTransform                    fCoordTransform;
+    int                                 fNumOctaves;
+    bool                                fStitchTiles;
+    TextureSampler                      fPermutationsSampler;
+    TextureSampler                      fNoiseSampler;
+    SkPerlinNoiseShader2::PaintingData* fPaintingData;
 
 private:
     typedef GrFragmentProcessor INHERITED;
@@ -1093,24 +1093,24 @@ private:
                                 const SkMatrix& matrix)
       : fOctaves(octaves)
       , fZ(z)
-      , fPermutationsAccess(permutationsTexture)
-      , fGradientAccess(gradientTexture)
+      , fPermutationsSampler(permutationsTexture)
+      , fGradientSampler(gradientTexture)
       , fPaintingData(paintingData) {
         this->initClassID<GrImprovedPerlinNoiseEffect>();
-        this->addTextureAccess(&fPermutationsAccess);
-        this->addTextureAccess(&fGradientAccess);
+        this->addTextureSampler(&fPermutationsSampler);
+        this->addTextureSampler(&fGradientSampler);
         fCoordTransform.reset(matrix);
         this->addCoordTransform(&fCoordTransform);
     }
 
     GR_DECLARE_FRAGMENT_PROCESSOR_TEST;
 
-    GrCoordTransform                  fCoordTransform;
-    int                               fOctaves;
-    SkScalar                          fZ;
-    GrTextureAccess                   fPermutationsAccess;
-    GrTextureAccess                   fGradientAccess;
-    SkPerlinNoiseShader2::PaintingData *fPaintingData;
+    GrCoordTransform                    fCoordTransform;
+    int                                 fOctaves;
+    SkScalar                            fZ;
+    TextureSampler                      fPermutationsSampler;
+    TextureSampler                      fGradientSampler;
+    SkPerlinNoiseShader2::PaintingData* fPaintingData;
 
 private:
     typedef GrFragmentProcessor INHERITED;

@@ -155,21 +155,21 @@ private:
                    const SkMatrix yuvMatrix[3], GrTextureParams::FilterMode uvFilterMode,
                    SkYUVColorSpace colorSpace, bool nv12)
         : fYTransform(yuvMatrix[0], yTexture, GrTextureParams::kNone_FilterMode)
-        , fYAccess(yTexture)
+        , fYSampler(yTexture)
         , fUTransform(yuvMatrix[1], uTexture, uvFilterMode)
-        , fUAccess(uTexture, uvFilterMode)
-        , fVAccess(vTexture, uvFilterMode)
+        , fUSampler(uTexture, uvFilterMode)
+        , fVSampler(vTexture, uvFilterMode)
         , fColorSpace(colorSpace)
         , fNV12(nv12) {
         this->initClassID<YUVtoRGBEffect>();
         this->addCoordTransform(&fYTransform);
-        this->addTextureAccess(&fYAccess);
+        this->addTextureSampler(&fYSampler);
         this->addCoordTransform(&fUTransform);
-        this->addTextureAccess(&fUAccess);
+        this->addTextureSampler(&fUSampler);
         if (!fNV12) {
             fVTransform = GrCoordTransform(yuvMatrix[2], vTexture, uvFilterMode);
             this->addCoordTransform(&fVTransform);
-            this->addTextureAccess(&fVAccess);
+            this->addTextureSampler(&fVSampler);
         }
     }
 
@@ -193,11 +193,11 @@ private:
     }
 
     GrCoordTransform fYTransform;
-    GrTextureAccess fYAccess;
+    TextureSampler   fYSampler;
     GrCoordTransform fUTransform;
-    GrTextureAccess fUAccess;
+    TextureSampler   fUSampler;
     GrCoordTransform fVTransform;
-    GrTextureAccess fVAccess;
+    TextureSampler   fVSampler;
     SkYUVColorSpace fColorSpace;
     bool fNV12;
 
@@ -353,7 +353,7 @@ private:
     }
 
     GrCoordTransform    fTransform;
-    GrTextureAccess     fAccess;
+    TextureSampler      fTextureSampler;
     SkYUVColorSpace     fColorSpace;
     OutputChannels      fOutputChannels;
 

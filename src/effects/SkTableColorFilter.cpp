@@ -365,7 +365,7 @@ private:
 
     GR_DECLARE_FRAGMENT_PROCESSOR_TEST;
 
-    GrTextureAccess         fTextureAccess;
+    TextureSampler          fTextureSampler;
 
     // currently not used in shader code, just to assist onComputeInvariantOutput().
     unsigned                fFlags;
@@ -485,12 +485,12 @@ sk_sp<GrFragmentProcessor> ColorTableEffect::Make(GrContext* context, SkBitmap b
 
 ColorTableEffect::ColorTableEffect(GrTexture* texture, GrTextureStripAtlas* atlas, int row,
                                    unsigned flags)
-    : fTextureAccess(texture)
+    : fTextureSampler(texture)
     , fFlags(flags)
     , fAtlas(atlas)
     , fRow(row) {
     this->initClassID<ColorTableEffect>();
-    this->addTextureAccess(&fTextureAccess);
+    this->addTextureSampler(&fTextureSampler);
 }
 
 ColorTableEffect::~ColorTableEffect() {

@@ -12,7 +12,6 @@
 #include "GrMesh.h"
 #include "GrPipeline.h"
 #include "GrRenderTargetPriv.h"
-#include "GrTextureAccess.h"
 #include "GrTexturePriv.h"
 #include "GrVkCommandBuffer.h"
 #include "GrVkGpu.h"
@@ -427,9 +426,9 @@ sk_sp<GrVkPipelineState> GrVkGpuCommandBuffer::prepareDrawState(
 }
 
 static void prepare_sampled_images(const GrProcessor& processor, GrVkGpu* gpu) {
-    for (int i = 0; i < processor.numTextures(); ++i) {
-        const GrTextureAccess& texAccess = processor.textureAccess(i);
-        GrVkTexture* vkTexture = static_cast<GrVkTexture*>(processor.texture(i));
+    for (int i = 0; i < processor.numTextureSamplers(); ++i) {
+        const GrProcessor::TextureSampler& sampler = processor.textureSampler(i);
+        GrVkTexture* vkTexture = static_cast<GrVkTexture*>(sampler.getTexture());
         SkASSERT(vkTexture);
 
         // We may need to resolve the texture first if it is also a render target
@@ -438,7 +437,7 @@ static void prepare_sampled_images(const GrProcessor& processor, GrVkGpu* gpu) {
             gpu->onResolveRenderTarget(texRT);
         }
 
-        const GrTextureParams& params = texAccess.getParams();
+        const GrTextureParams& params = sampler.getParams();
         // Check if we need to regenerate any mip maps
         if (GrTextureParams::kMipMap_FilterMode == params.filterMode()) {
             if (vkTexture->texturePriv().mipMapsAreDirty()) {

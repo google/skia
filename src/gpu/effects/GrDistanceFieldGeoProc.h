@@ -96,7 +96,7 @@ private:
 
     GrColor          fColor;
     SkMatrix         fViewMatrix;
-    GrTextureAccess  fTextureAccess;
+    TextureSampler   fTextureSampler;
 #ifdef SK_GAMMA_APPLY_TO_A8
     float            fDistanceAdjust;
 #endif
@@ -151,7 +151,7 @@ private:
 
     GrColor          fColor;
     SkMatrix         fViewMatrix;
-    GrTextureAccess  fTextureAccess;
+    TextureSampler   fTextureSampler;
     uint32_t         fFlags;
     const Attribute* fInPosition;
     const Attribute* fInColor;
@@ -221,7 +221,7 @@ private:
 
     GrColor          fColor;
     SkMatrix         fViewMatrix;
-    GrTextureAccess  fTextureAccess;
+    TextureSampler   fTextureSampler;
     DistanceAdjust   fDistanceAdjust;
     uint32_t         fFlags;
     const Attribute* fInPosition;

@@ -129,12 +129,12 @@ void GrGLMatrixConvolutionEffect::GenKey(const GrProcessor& processor,
 void GrGLMatrixConvolutionEffect::onSetData(const GrGLSLProgramDataManager& pdman,
                                             const GrProcessor& processor) {
     const GrMatrixConvolutionEffect& conv = processor.cast<GrMatrixConvolutionEffect>();
-    GrTexture& texture = *conv.texture(0);
+    GrTexture* texture = conv.textureSampler(0).getTexture();
 
     float imageIncrement[2];
-    float ySign = texture.origin() == kTopLeft_GrSurfaceOrigin ? 1.0f : -1.0f;
-    imageIncrement[0] = 1.0f / texture.width();
-    imageIncrement[1] = ySign / texture.height();
+    float ySign = texture->origin() == kTopLeft_GrSurfaceOrigin ? 1.0f : -1.0f;
+    imageIncrement[0] = 1.0f / texture->width();
+    imageIncrement[1] = ySign / texture->height();
     pdman.set2fv(fImageIncrementUni, 1, imageIncrement);
     pdman.set2fv(fKernelOffsetUni, 1, conv.kernelOffset());
     int kernelCount = conv.kernelSize().width() * conv.kernelSize().height();
@@ -143,7 +143,7 @@ void GrGLMatrixConvolutionEffect::onSetData(const GrGLSLProgramDataManager& pdma
     pdman.set4fv(fKernelUni, arrayCount, conv.kernel());
     pdman.set1f(fGainUni, conv.gain());
     pdman.set1f(fBiasUni, conv.bias());
-    fDomain.setData(pdman, conv.domain(), texture.origin());
+    fDomain.setData(pdman, conv.domain(), texture->origin());
 }
 
 GrMatrixConvolutionEffect::GrMatrixConvolutionEffect(GrTexture* texture,

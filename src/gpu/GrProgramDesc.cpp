@@ -34,8 +34,8 @@ static uint16_t sampler_key(GrSLType samplerType, GrPixelConfig config, GrShader
 
 static void add_sampler_keys(GrProcessorKeyBuilder* b, const GrProcessor& proc,
                              const GrGLSLCaps& caps) {
-    int numTextures = proc.numTextures();
-    int numSamplers = numTextures + proc.numBuffers();
+    int numTextureSamplers = proc.numTextureSamplers();
+    int numSamplers = numTextureSamplers + proc.numBuffers();
     // Need two bytes per key (swizzle, sampler type, and precision).
     int word32Count = (numSamplers + 1) / 2;
     if (0 == word32Count) {
@@ -43,14 +43,14 @@ static void add_sampler_keys(GrProcessorKeyBuilder* b, const GrProcessor& proc,
     }
     uint16_t* k16 = SkTCast<uint16_t*>(b->add32n(word32Count));
     int i = 0;
-    for (; i < numTextures; ++i) {
-        const GrTextureAccess& access = proc.textureAccess(i);
-        const GrTexture* tex = access.getTexture();
+    for (; i < numTextureSamplers; ++i) {
+        const GrProcessor::TextureSampler& textureSampler = proc.textureSampler(i);
+        const GrTexture* tex = textureSampler.getTexture();
         k16[i] = sampler_key(tex->texturePriv().samplerType(), tex->config(),
-                             access.getVisibility(), caps);
+                             textureSampler.getVisibility(), caps);
     }
     for (; i < numSamplers; ++i) {
-        const GrBufferAccess& access = proc.bufferAccess(i - numTextures);
+        const GrBufferAccess& access = proc.bufferAccess(i - numTextureSamplers);
         k16[i] = sampler_key(kBufferSampler_GrSLType, access.texelConfig(),
                              access.visibility(), caps);
     }

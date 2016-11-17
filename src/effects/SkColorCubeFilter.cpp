@@ -170,7 +170,7 @@ public:
 
     const char* name() const override { return "ColorCube"; }
 
-    int colorCubeSize() const { return fColorCubeAccess.getTexture()->width(); }
+    int colorCubeSize() const { return fColorCubeSampler.getTexture()->width(); }
 
 
     void onComputeInvariantOutput(GrInvariantOutput*) const override;
@@ -201,7 +201,7 @@ private:
 
     GrColorCubeEffect(GrTexture* colorCube);
 
-    GrTextureAccess     fColorCubeAccess;
+    TextureSampler fColorCubeSampler;
 
     typedef GrFragmentProcessor INHERITED;
 };
@@ -209,9 +209,9 @@ private:
 ///////////////////////////////////////////////////////////////////////////////
 
 GrColorCubeEffect::GrColorCubeEffect(GrTexture* colorCube)
-    : fColorCubeAccess(colorCube, GrTextureParams::kBilerp_FilterMode) {
+    : fColorCubeSampler(colorCube, GrTextureParams::kBilerp_FilterMode) {
     this->initClassID<GrColorCubeEffect>();
-    this->addTextureAccess(&fColorCubeAccess);
+    this->addTextureSampler(&fColorCubeSampler);
 }
 
 GrColorCubeEffect::~GrColorCubeEffect() {

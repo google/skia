@@ -141,7 +141,8 @@ private:
 
     void writeUniformBuffers(const GrVkGpu* gpu);
 
-    void writeSamplers(GrVkGpu* gpu, const SkTArray<const GrTextureAccess*>& textureBindings,
+    void writeSamplers(GrVkGpu* gpu,
+                       const SkTArray<const GrProcessor::TextureSampler*>& textureBindings,
                        bool allowSRGBInputs);
 
     /**
