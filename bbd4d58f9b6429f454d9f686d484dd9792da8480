@@ -1,0 +1,119 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "b09b987b_38cf7118",
+        "filename": "include/core/SkImageGenerator.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 150,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2016-11-17T19:02:48Z",
+      "side": 1,
+      "message": "update",
+      "range": {
+        "startLine": 150,
+        "startChar": 22,
+        "endLine": 150,
+        "endChar": 37
+      },
+      "revId": "bbd4d58f9b6429f454d9f686d484dd9792da8480",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "b09b987b_d864a52a",
+        "filename": "src/gpu/SkGrPriv.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 23,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2016-11-17T19:02:48Z",
+      "side": 1,
+      "message": "you need to update a forward declare but then nothing in this file?",
+      "range": {
+        "startLine": 23,
+        "startChar": 6,
+        "endLine": 23,
+        "endChar": 21
+      },
+      "revId": "bbd4d58f9b6429f454d9f686d484dd9792da8480",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "b09b987b_b888c1b2",
+        "filename": "src/gpu/effects/GrBitmapTextGeoProc.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 174,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2016-11-17T19:02:48Z",
+      "side": 1,
+      "message": "do we have a preference to if the : goes on the this line or the next. Personally I put it under the ?, but I\u0027ve noticed in this change we do both approaches.",
+      "range": {
+        "startLine": 174,
+        "startChar": 98,
+        "endLine": 174,
+        "endChar": 100
+      },
+      "revId": "bbd4d58f9b6429f454d9f686d484dd9792da8480",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "b09b987b_9864dd3b",
+        "filename": "src/gpu/effects/GrDistanceFieldGeoProc.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 284,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2016-11-17T19:02:48Z",
+      "side": 1,
+      "message": "align",
+      "range": {
+        "startLine": 284,
+        "startChar": 59,
+        "endLine": 284,
+        "endChar": 74
+      },
+      "revId": "bbd4d58f9b6429f454d9f686d484dd9792da8480",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "b09b987b_384cd1b9",
+        "filename": "src/gpu/effects/GrDistanceFieldGeoProc.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 829,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2016-11-17T19:02:48Z",
+      "side": 1,
+      "message": "align",
+      "range": {
+        "startLine": 829,
+        "startChar": 27,
+        "endLine": 829,
+        "endChar": 62
+      },
+      "revId": "bbd4d58f9b6429f454d9f686d484dd9792da8480",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
