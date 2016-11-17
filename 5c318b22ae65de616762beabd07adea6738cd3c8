@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "503c1cf2_9d47726d",
+        "filename": "src/gpu/GrRenderTargetContext.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 272,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2016-11-17T15:38:12Z",
+      "side": 1,
+      "message": "} else if (this-\u003eaccessRenderTarget()) {\n        if (isFull) {\n            this-\u003egetOpList()-\u003efullClear(this-\u003eaccessRenderTarget(), color);\n            return;\n        }\n        sk_sp\u003cGrBatch\u003e batch(GrClearBatch::Make(clip, color, this-\u003eaccessRenderTarget()));\n        if (!batch) {\n           return;\n        }\n        this-\u003egetOpList()-\u003eaddBatch(std::move(batch));\n    }\n\n?\n\nNot sure it\u0027s much better, but just a thought.",
+      "revId": "5c318b22ae65de616762beabd07adea6738cd3c8",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
