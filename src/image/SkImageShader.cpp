@@ -300,6 +300,13 @@ bool SkImageShader::onAppendStages(SkRasterPipeline* p, SkColorSpace* dst, SkFal
         return false;
     }
 
+    // When the matrix is just an integer translate, bilerp == nearest neighbor.
+    if (matrix.getType() <= SkMatrix::kTranslate_Mask &&
+        matrix.getTranslateX() == (int)matrix.getTranslateX() &&
+        matrix.getTranslateY() == (int)matrix.getTranslateY()) {
+        quality = kNone_SkFilterQuality;
+    }
+
     // TODO: bilerp
     if (quality != kNone_SkFilterQuality) {
         return false;
