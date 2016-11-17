@@ -23,11 +23,6 @@ try:
 except OSError:
     pass
 
-# Remove old files
-for root, dirs, files in os.walk("out/sln"):
-    for name in files:
-        os.remove(os.path.join(root, name))
-
 # Copy filter files unmodified
 for filterFile in glob.glob("out/" + srcDir + "/obj/*.filters"):
     copyfile(filterFile, filterFile.replace("out/" + srcDir, "out/sln"))
