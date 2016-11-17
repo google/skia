@@ -71,10 +71,14 @@
     M(clear) M(modulate) M(multiply) M(plus_) M(screen) M(xor_)  \
     M(colorburn) M(colordodge) M(darken) M(difference)           \
     M(exclusion) M(hardlight) M(lighten) M(overlay) M(softlight) \
-    M(luminance_to_alpha) M(matrix_3x4) M(matrix_4x5)            \
+    M(luminance_to_alpha)                                        \
+    M(matrix_2x3) M(matrix_3x4) M(matrix_4x5)                    \
     M(parametric_r) M(parametric_g) M(parametric_b)              \
     M(table_r) M(table_g) M(table_b)                             \
-    M(color_lookup_table) M(lab_to_xyz) M(swap_rb)
+    M(color_lookup_table) M(lab_to_xyz) M(swap_rb)               \
+    M(clamp_x) M(mirror_x) M(repeat_x)                           \
+    M(clamp_y) M(mirror_y) M(repeat_y)                           \
+    M(nearest_565) M(nearest_8888) M(nearest_srgb) M(nearest_f16)
 
 class SkRasterPipeline {
 public:
