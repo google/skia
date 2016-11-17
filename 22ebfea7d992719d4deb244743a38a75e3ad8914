@@ -1,0 +1,140 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "b09b987b_552b1e45",
+        "filename": "src/gpu/GrRenderTargetContext.cpp",
+        "patchSetId": 9
+      },
+      "lineNbr": 921,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2016-11-17T18:33:49Z",
+      "side": 1,
+      "message": "Does this make sense for the shadow RRects ?",
+      "revId": "22ebfea7d992719d4deb244743a38a75e3ad8914",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "b09b987b_757822a2",
+        "filename": "src/gpu/batches/GrShadowRRectBatch.cpp",
+        "patchSetId": 9
+      },
+      "lineNbr": 564,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2016-11-17T18:33:49Z",
+      "side": 1,
+      "message": "ShadowCircularRRectBatch ?",
+      "revId": "22ebfea7d992719d4deb244743a38a75e3ad8914",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "b09b987b_f5b09226",
+        "filename": "src/gpu/batches/GrShadowRRectBatch.cpp",
+        "patchSetId": 9
+      },
+      "lineNbr": 877,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2016-11-17T18:33:49Z",
+      "side": 1,
+      "message": "line up ?",
+      "revId": "22ebfea7d992719d4deb244743a38a75e3ad8914",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "b09b987b_d53b8ef9",
+        "filename": "src/gpu/batches/GrShadowRRectBatch.h",
+        "patchSetId": 9
+      },
+      "lineNbr": 13,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2016-11-17T18:33:49Z",
+      "side": 1,
+      "message": "Do we need GrDrawBatch ?",
+      "revId": "22ebfea7d992719d4deb244743a38a75e3ad8914",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "b09b987b_15151668",
+        "filename": "src/gpu/batches/GrShadowRRectBatch.h",
+        "patchSetId": 9
+      },
+      "lineNbr": 15,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2016-11-17T18:33:49Z",
+      "side": 1,
+      "message": "or GrStyle ?",
+      "revId": "22ebfea7d992719d4deb244743a38a75e3ad8914",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "b09b987b_9508264c",
+        "filename": "src/gpu/batches/GrShadowRRectBatch.h",
+        "patchSetId": 9
+      },
+      "lineNbr": 17,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2016-11-17T18:33:49Z",
+      "side": 1,
+      "message": "or SkRect ?",
+      "revId": "22ebfea7d992719d4deb244743a38a75e3ad8914",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "b09b987b_155356fd",
+        "filename": "src/gpu/effects/GrShadowGeoProc.cpp",
+        "patchSetId": 9
+      },
+      "lineNbr": 69,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2016-11-17T18:33:49Z",
+      "side": 1,
+      "message": "Why not 0x01 ?",
+      "revId": "22ebfea7d992719d4deb244743a38a75e3ad8914",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "b09b987b_b5fd2ac2",
+        "filename": "src/gpu/effects/GrShadowGeoProc.h",
+        "patchSetId": 9
+      },
+      "lineNbr": 26,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2016-11-17T18:33:49Z",
+      "side": 1,
+      "message": "override ?",
+      "revId": "22ebfea7d992719d4deb244743a38a75e3ad8914",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
