@@ -35,9 +35,8 @@ public:
         // Skip ahead until our buffer is aligned for T.
         fUsed += skip;
 
-        // Create the T.
+        // Make space for T.
         auto ptr = (T*)(fBuffer+fUsed);
-        new (ptr) T(std::forward<Args>(args)...);
         fUsed += sizeof(T);
 
         // Stamp a footer after the T that we can use to clean it up.
@@ -45,7 +44,8 @@ public:
         memcpy(fBuffer+fUsed, &footer, sizeof(Footer));
         fUsed += sizeof(Footer);
 
-        return ptr;
+        // Creating a T must be last for nesting to work.
+        return new (ptr) T(std::forward<Args>(args)...);
     }
 
     // Destroys the last object allocated and frees its space in the buffer.
@@ -78,9 +78,10 @@ public:
                 return ptr;
             }
         }
-        auto ptr = new T(std::forward<Args>(args)...);
-        fHeapAllocs.push_back({[](void* ptr) { delete (T*)ptr; }, ptr});
-        return ptr;
+
+        char* ptr = new char[sizeof(T)];
+        fHeapAllocs.push_back({[](char* ptr) { ((T*)ptr)->~T(); delete [] ptr; }, ptr});
+        return new (ptr) T(std::forward<Args>(args)...);
     }
 
     // Destroys the last object allocated and frees any space it used in the SkFixedAlloc.
@@ -91,8 +92,8 @@ public:
 
 private:
     struct HeapAlloc {
-        void (*deleter)(void*);
-        void* ptr;
+        void (*deleter)(char*);
+        char* ptr;
     };
 
     SkFixedAlloc*          fFixedAlloc;
