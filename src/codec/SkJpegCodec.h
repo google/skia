@@ -51,8 +51,8 @@ protected:
 
     Result onGetYUV8Planes(const SkYUVSizeInfo& sizeInfo, void* planes[3]) override;
 
-    SkEncodedFormat onGetEncodedFormat() const override {
-        return kJPEG_SkEncodedFormat;
+    SkEncodedImageFormat onGetEncodedFormat() const override {
+        return SkEncodedImageFormat::kJPEG;
     }
 
     bool onRewind() override;
