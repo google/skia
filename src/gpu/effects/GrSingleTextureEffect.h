@@ -37,11 +37,11 @@ protected:
     GrSingleTextureEffect(GrTexture*, sk_sp<GrColorSpaceXform>, const SkMatrix&);
     /** clamp mode */
     GrSingleTextureEffect(GrTexture*, sk_sp<GrColorSpaceXform>, const SkMatrix&,
-                          GrTextureParams::FilterMode filterMode);
+                          GrSamplerParams::FilterMode filterMode);
     GrSingleTextureEffect(GrTexture*,
                           sk_sp<GrColorSpaceXform>,
                           const SkMatrix&,
-                          const GrTextureParams&);
+                          const GrSamplerParams&);
 
     /**
      * Can be used as a helper to implement subclass onComputeInvariantOutput(). It assumes that

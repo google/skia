@@ -16,12 +16,12 @@ class GrInvariantOutput;
 
 /**
  * The output color of this effect is a modulation of the input color and a sample from a texture.
- * It allows explicit specification of the filtering and wrap modes (GrTextureParams). The input
+ * It allows explicit specification of the filtering and wrap modes (GrSamplerParams). The input
  * coords are a custom attribute.
  */
 class GrBitmapTextGeoProc : public GrGeometryProcessor {
 public:
-    static sk_sp<GrGeometryProcessor> Make(GrColor color, GrTexture* tex, const GrTextureParams& p,
+    static sk_sp<GrGeometryProcessor> Make(GrColor color, GrTexture* tex, const GrSamplerParams& p,
                                        GrMaskFormat format, const SkMatrix& localMatrix,
                                        bool usesLocalCoords) {
         return sk_sp<GrGeometryProcessor>(
@@ -47,7 +47,7 @@ public:
     GrGLSLPrimitiveProcessor* createGLSLInstance(const GrGLSLCaps& caps) const override;
 
 private:
-    GrBitmapTextGeoProc(GrColor, GrTexture* texture, const GrTextureParams& params,
+    GrBitmapTextGeoProc(GrColor, GrTexture* texture, const GrSamplerParams& params,
                         GrMaskFormat format, const SkMatrix& localMatrix, bool usesLocalCoords);
 
     GrColor          fColor;

@@ -5,8 +5,8 @@
  * found in the LICENSE file.
  */
 
-#ifndef GrTextureParams_DEFINED
-#define GrTextureParams_DEFINED
+#ifndef GrSamplerParams_DEFINED
+#define GrSamplerParams_DEFINED
 
 #include "GrTypes.h"
 #include "SkShader.h"
@@ -14,18 +14,18 @@
 /**
  * Represents the filtering and tile modes used to access a texture.
  */
-class GrTextureParams {
+class GrSamplerParams {
 public:
-    static const GrTextureParams& ClampNoFilter() {
-        static const GrTextureParams gParams;
+    static const GrSamplerParams& ClampNoFilter() {
+        static const GrSamplerParams gParams;
         return gParams;
     }
-    static const GrTextureParams& ClampBilerp() {
-        static const GrTextureParams gParams(SkShader::kClamp_TileMode, kBilerp_FilterMode);
+    static const GrSamplerParams& ClampBilerp() {
+        static const GrSamplerParams gParams(SkShader::kClamp_TileMode, kBilerp_FilterMode);
         return gParams;
     }
 
-    GrTextureParams() {
+    GrSamplerParams() {
         this->reset();
     }
 
@@ -35,19 +35,19 @@ public:
         kMipMap_FilterMode
     };
 
-    GrTextureParams(SkShader::TileMode tileXAndY, FilterMode filterMode) {
+    GrSamplerParams(SkShader::TileMode tileXAndY, FilterMode filterMode) {
         this->reset(tileXAndY, filterMode);
     }
 
-    GrTextureParams(const SkShader::TileMode tileModes[2], FilterMode filterMode) {
+    GrSamplerParams(const SkShader::TileMode tileModes[2], FilterMode filterMode) {
         this->reset(tileModes, filterMode);
     }
 
-    GrTextureParams(const GrTextureParams& params) {
+    GrSamplerParams(const GrSamplerParams& params) {
         *this = params;
     }
 
-    GrTextureParams& operator= (const GrTextureParams& params) {
+    GrSamplerParams& operator= (const GrSamplerParams& params) {
         fTileModes[0] = params.fTileModes[0];
         fTileModes[1] = params.fTileModes[1];
         fFilterMode = params.fFilterMode;
@@ -95,13 +95,13 @@ public:
 
     FilterMode filterMode() const { return fFilterMode; }
 
-    bool operator== (const GrTextureParams& other) const {
+    bool operator== (const GrSamplerParams& other) const {
         return fTileModes[0] == other.fTileModes[0] &&
                fTileModes[1] == other.fTileModes[1] &&
                fFilterMode == other.fFilterMode;
     }
 
-    bool operator!= (const GrTextureParams& other) const { return !(*this == other); }
+    bool operator!= (const GrSamplerParams& other) const { return !(*this == other); }
 
 private:
     SkShader::TileMode fTileModes[2];

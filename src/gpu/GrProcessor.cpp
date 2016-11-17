@@ -10,7 +10,7 @@
 #include "GrGeometryProcessor.h"
 #include "GrInvariantOutput.h"
 #include "GrMemoryPool.h"
-#include "GrTextureParams.h"
+#include "GrSamplerParams.h"
 #include "GrTexturePriv.h"
 #include "GrXferProcessor.h"
 #include "SkSpinlock.h"
@@ -155,19 +155,19 @@ bool GrProcessor::hasSameSamplers(const GrProcessor& that) const {
 
 GrProcessor::TextureSampler::TextureSampler() {}
 
-GrProcessor::TextureSampler::TextureSampler(GrTexture* texture, const GrTextureParams& params) {
+GrProcessor::TextureSampler::TextureSampler(GrTexture* texture, const GrSamplerParams& params) {
     this->reset(texture, params);
 }
 
 GrProcessor::TextureSampler::TextureSampler(GrTexture* texture,
-                                            GrTextureParams::FilterMode filterMode,
+                                            GrSamplerParams::FilterMode filterMode,
                                             SkShader::TileMode tileXAndY,
                                             GrShaderFlags visibility) {
     this->reset(texture, filterMode, tileXAndY, visibility);
 }
 
 void GrProcessor::TextureSampler::reset(GrTexture* texture,
-                                        const GrTextureParams& params,
+                                        const GrSamplerParams& params,
                                         GrShaderFlags visibility) {
     SkASSERT(texture);
     fTexture.set(SkRef(texture), kRead_GrIOType);
@@ -177,7 +177,7 @@ void GrProcessor::TextureSampler::reset(GrTexture* texture,
 }
 
 void GrProcessor::TextureSampler::reset(GrTexture* texture,
-                                        GrTextureParams::FilterMode filterMode,
+                                        GrSamplerParams::FilterMode filterMode,
                                         SkShader::TileMode tileXAndY,
                                         GrShaderFlags visibility) {
     SkASSERT(texture);

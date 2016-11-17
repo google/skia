@@ -40,7 +40,7 @@ class GrResourceProvider;
 class GrTestTarget;
 class GrTextBlobCache;
 class GrTextContext;
-class GrTextureParams;
+class GrSamplerParams;
 class GrVertexBuffer;
 class GrSwizzle;
 class SkTraceMemoryDump;

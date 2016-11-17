@@ -176,7 +176,7 @@ sk_sp<GrFragmentProcessor> GrTextureDomainEffect::Make(GrTexture* texture,
                                                        const SkMatrix& matrix,
                                                        const SkRect& domain,
                                                        GrTextureDomain::Mode mode,
-                                                       GrTextureParams::FilterMode filterMode) {
+                                                       GrSamplerParams::FilterMode filterMode) {
     static const SkRect kFullRect = {0, 0, SK_Scalar1, SK_Scalar1};
     if (GrTextureDomain::kIgnore_Mode == mode ||
         (GrTextureDomain::kClamp_Mode == mode && domain.contains(kFullRect))) {
@@ -193,11 +193,11 @@ GrTextureDomainEffect::GrTextureDomainEffect(GrTexture* texture,
                                              const SkMatrix& matrix,
                                              const SkRect& domain,
                                              GrTextureDomain::Mode mode,
-                                             GrTextureParams::FilterMode filterMode)
+                                             GrSamplerParams::FilterMode filterMode)
     : GrSingleTextureEffect(texture, std::move(colorSpaceXform), matrix, filterMode)
     , fTextureDomain(domain, mode) {
     SkASSERT(mode != GrTextureDomain::kRepeat_Mode ||
-            filterMode == GrTextureParams::kNone_FilterMode);
+            filterMode == GrSamplerParams::kNone_FilterMode);
     this->initClassID<GrTextureDomainEffect>();
 }
 
@@ -280,7 +280,7 @@ sk_sp<GrFragmentProcessor> GrTextureDomainEffect::TestCreate(GrProcessorTestData
         matrix,
         domain,
         mode,
-        bilerp ? GrTextureParams::kBilerp_FilterMode : GrTextureParams::kNone_FilterMode);
+        bilerp ? GrSamplerParams::kBilerp_FilterMode : GrSamplerParams::kNone_FilterMode);
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -293,7 +293,7 @@ sk_sp<GrFragmentProcessor> GrDeviceSpaceTextureDecalFragmentProcessor::Make(GrTe
 
 GrDeviceSpaceTextureDecalFragmentProcessor::GrDeviceSpaceTextureDecalFragmentProcessor(
         GrTexture* texture, const SkIRect& subset, const SkIPoint& deviceSpaceOffset)
-        : fTextureSampler(texture, GrTextureParams::ClampNoFilter())
+        : fTextureSampler(texture, GrSamplerParams::ClampNoFilter())
         , fTextureDomain(GrTextureDomain::MakeTexelDomain(texture, subset),
                          GrTextureDomain::kDecal_Mode) {
     this->addTextureSampler(&fTextureSampler);

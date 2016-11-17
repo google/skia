@@ -10,7 +10,7 @@
 #define GrTexture_DEFINED
 
 #include "GrSurface.h"
-#include "GrTextureParams.h"
+#include "GrSamplerParams.h"
 #include "SkPoint.h"
 #include "SkRefCnt.h"
 
@@ -46,7 +46,7 @@ public:
 
 protected:
     GrTexture(GrGpu*, const GrSurfaceDesc&, GrSLType samplerType,
-              GrTextureParams::FilterMode highestFilterMode, bool wasMipMapDataProvided);
+              GrSamplerParams::FilterMode highestFilterMode, bool wasMipMapDataProvided);
 
     void validateDesc() const;
 
@@ -62,7 +62,7 @@ private:
     };
 
     GrSLType                      fSamplerType;
-    GrTextureParams::FilterMode   fHighestFilterMode;
+    GrSamplerParams::FilterMode   fHighestFilterMode;
     MipMapsStatus                 fMipMapsStatus;
     int                           fMaxMipMapLevel;
     SkDestinationSurfaceColorMode fMipColorMode;

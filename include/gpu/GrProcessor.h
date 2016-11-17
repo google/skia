@@ -179,7 +179,7 @@ GR_MAKE_BITFIELD_OPS(GrProcessor::RequiredFeatures);
 
 /**
  * Used to represent a texture that is required by a GrProcessor. It holds a GrTexture along with
- * an associated GrTextureParams
+ * an associated GrSamplerParams
  */
 class GrProcessor::TextureSampler : public SkNoncopyable {
 public:
@@ -188,17 +188,17 @@ public:
      */
     TextureSampler();
 
-    TextureSampler(GrTexture*, const GrTextureParams&);
+    TextureSampler(GrTexture*, const GrSamplerParams&);
 
     explicit TextureSampler(GrTexture*,
-                            GrTextureParams::FilterMode = GrTextureParams::kNone_FilterMode,
+                            GrSamplerParams::FilterMode = GrSamplerParams::kNone_FilterMode,
                             SkShader::TileMode tileXAndY = SkShader::kClamp_TileMode,
                             GrShaderFlags visibility = kFragment_GrShaderFlag);
 
-    void reset(GrTexture*, const GrTextureParams&,
+    void reset(GrTexture*, const GrSamplerParams&,
                GrShaderFlags visibility = kFragment_GrShaderFlag);
     void reset(GrTexture*,
-               GrTextureParams::FilterMode = GrTextureParams::kNone_FilterMode,
+               GrSamplerParams::FilterMode = GrSamplerParams::kNone_FilterMode,
                SkShader::TileMode tileXAndY = SkShader::kClamp_TileMode,
                GrShaderFlags visibility = kFragment_GrShaderFlag);
 
@@ -212,7 +212,7 @@ public:
 
     GrTexture* texture() const { return fTexture.get(); }
     GrShaderFlags visibility() const { return fVisibility; }
-    const GrTextureParams& params() const { return fParams; }
+    const GrSamplerParams& params() const { return fParams; }
 
     /**
      * For internal use by GrProcessor.
@@ -224,7 +224,7 @@ private:
     typedef GrTGpuResourceRef<GrTexture> ProgramTexture;
 
     ProgramTexture                  fTexture;
-    GrTextureParams                 fParams;
+    GrSamplerParams                 fParams;
     GrShaderFlags                   fVisibility;
 
     typedef SkNoncopyable INHERITED;

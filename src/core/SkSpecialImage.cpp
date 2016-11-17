@@ -18,7 +18,7 @@
 #if SK_SUPPORT_GPU
 #include "GrContext.h"
 #include "GrTexture.h"
-#include "GrTextureParams.h"
+#include "GrSamplerParams.h"
 #include "GrTextureProxy.h"
 #include "SkGr.h"
 #include "SkGrPriv.h"
@@ -102,7 +102,7 @@ sk_sp<SkSpecialImage> SkSpecialImage::makeTextureImage(GrContext* context) {
     }
 
     sk_sp<GrTexture> resultTex(
-        GrRefCachedBitmapTexture(context, bmp, GrTextureParams::ClampNoFilter(),
+        GrRefCachedBitmapTexture(context, bmp, GrSamplerParams::ClampNoFilter(),
                                  SkDestinationSurfaceColorMode::kGammaAndColorSpaceAware));
     if (!resultTex) {
         return nullptr;
@@ -241,7 +241,7 @@ public:
     sk_sp<GrTexture> onAsTextureRef(GrContext* context) const override {
         if (context) {
             return sk_ref_sp(
-                GrRefCachedBitmapTexture(context, fBitmap, GrTextureParams::ClampNoFilter(),
+                GrRefCachedBitmapTexture(context, fBitmap, GrSamplerParams::ClampNoFilter(),
                                          SkDestinationSurfaceColorMode::kGammaAndColorSpaceAware));
         }
 
@@ -253,7 +253,7 @@ public:
             sk_sp<GrTexture> tex(sk_ref_sp(GrRefCachedBitmapTexture(
                                         context,
                                         fBitmap,
-                                        GrTextureParams::ClampNoFilter(),
+                                        GrSamplerParams::ClampNoFilter(),
                                         SkDestinationSurfaceColorMode::kGammaAndColorSpaceAware)));
             sk_sp<GrSurfaceProxy> sProxy = GrSurfaceProxy::MakeWrapped(std::move(tex));
             return sk_ref_sp(sProxy->asTextureProxy());

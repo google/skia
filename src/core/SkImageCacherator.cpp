@@ -19,7 +19,7 @@
 #include "GrGpuResourcePriv.h"
 #include "GrImageIDTextureAdjuster.h"
 #include "GrResourceKey.h"
-#include "GrTextureParams.h"
+#include "GrSamplerParams.h"
 #include "GrYUVProvider.h"
 #include "SkGr.h"
 #include "SkGrPriv.h"
@@ -371,7 +371,7 @@ GrTexture* SkImageCacherator::lockTexture(GrContext* ctx, const GrUniqueKey& key
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
-GrTexture* SkImageCacherator::lockAsTexture(GrContext* ctx, const GrTextureParams& params,
+GrTexture* SkImageCacherator::lockAsTexture(GrContext* ctx, const GrSamplerParams& params,
                                             SkDestinationSurfaceColorMode colorMode,
                                             const SkImage* client, SkImage::CachingHint chint) {
     if (!ctx) {
@@ -383,7 +383,7 @@ GrTexture* SkImageCacherator::lockAsTexture(GrContext* ctx, const GrTextureParam
 
 #else
 
-GrTexture* SkImageCacherator::lockAsTexture(GrContext* ctx, const GrTextureParams&,
+GrTexture* SkImageCacherator::lockAsTexture(GrContext* ctx, const GrSamplerParams&,
                                             SkDestinationSurfaceColorMode colorMode,
                                             const SkImage* client, SkImage::CachingHint) {
     return nullptr;

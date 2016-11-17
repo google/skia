@@ -18,7 +18,7 @@
 #if SK_SUPPORT_GPU
 #include "GrCoordTransform.h"
 #include "GrInvariantOutput.h"
-#include "GrTextureParams.h"
+#include "GrSamplerParams.h"
 #include "glsl/GrGLSLFragmentProcessor.h"
 #include "glsl/GrGLSLFragmentShaderBuilder.h"
 #include "SkGr.h"

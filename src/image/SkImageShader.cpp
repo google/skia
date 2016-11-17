@@ -207,10 +207,10 @@ sk_sp<GrFragmentProcessor> SkImageShader::asFragmentProcessor(const AsFPArgs& ar
     // This completely ignores the complexity of the drawVertices case where explicit local coords
     // are provided by the caller.
     bool doBicubic;
-    GrTextureParams::FilterMode textureFilterMode =
+    GrSamplerParams::FilterMode textureFilterMode =
     GrSkFilterQualityToGrFilterMode(args.fFilterQuality, *args.fViewMatrix, this->getLocalMatrix(),
                                     &doBicubic);
-    GrTextureParams params(tm, textureFilterMode);
+    GrSamplerParams params(tm, textureFilterMode);
     sk_sp<GrTexture> texture(as_IB(fImage)->asTextureRef(args.fContext, params, args.fColorMode));
     if (!texture) {
         return nullptr;

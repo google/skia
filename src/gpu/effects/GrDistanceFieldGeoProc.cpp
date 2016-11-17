@@ -230,7 +230,7 @@ private:
 GrDistanceFieldA8TextGeoProc::GrDistanceFieldA8TextGeoProc(GrColor color,
                                                            const SkMatrix& viewMatrix,
                                                            GrTexture* texture,
-                                                           const GrTextureParams& params,
+                                                           const GrSamplerParams& params,
 #ifdef SK_GAMMA_APPLY_TO_A8
                                                            float distanceAdjust,
 #endif
@@ -280,8 +280,8 @@ sk_sp<GrGeometryProcessor> GrDistanceFieldA8TextGeoProc::TestCreate(GrProcessorT
         kTileModes[d->fRandom->nextULessThan(SK_ARRAY_COUNT(kTileModes))],
         kTileModes[d->fRandom->nextULessThan(SK_ARRAY_COUNT(kTileModes))],
     };
-    GrTextureParams params(tileModes, d->fRandom->nextBool() ? GrTextureParams::kBilerp_FilterMode :
-                                                           GrTextureParams::kNone_FilterMode);
+    GrSamplerParams params(tileModes, d->fRandom->nextBool() ? GrSamplerParams::kBilerp_FilterMode
+                                                             : GrSamplerParams::kNone_FilterMode);
 
     uint32_t flags = 0;
     flags |= d->fRandom->nextBool() ? kSimilarity_DistanceFieldEffectFlag : 0;
@@ -479,7 +479,7 @@ GrDistanceFieldPathGeoProc::GrDistanceFieldPathGeoProc(
         GrColor color,
         const SkMatrix& viewMatrix,
         GrTexture* texture,
-        const GrTextureParams& params,
+        const GrSamplerParams& params,
         uint32_t flags,
         bool usesLocalCoords)
     : fColor(color)
@@ -522,8 +522,8 @@ sk_sp<GrGeometryProcessor> GrDistanceFieldPathGeoProc::TestCreate(GrProcessorTes
         kTileModes[d->fRandom->nextULessThan(SK_ARRAY_COUNT(kTileModes))],
         kTileModes[d->fRandom->nextULessThan(SK_ARRAY_COUNT(kTileModes))],
     };
-    GrTextureParams params(tileModes, d->fRandom->nextBool() ? GrTextureParams::kBilerp_FilterMode
-                                                             : GrTextureParams::kNone_FilterMode);
+    GrSamplerParams params(tileModes, d->fRandom->nextBool() ? GrSamplerParams::kBilerp_FilterMode
+                                                             : GrSamplerParams::kNone_FilterMode);
 
     uint32_t flags = 0;
     flags |= d->fRandom->nextBool() ? kSimilarity_DistanceFieldEffectFlag : 0;
@@ -781,7 +781,7 @@ private:
 
 GrDistanceFieldLCDTextGeoProc::GrDistanceFieldLCDTextGeoProc(
                                                   GrColor color, const SkMatrix& viewMatrix,
-                                                  GrTexture* texture, const GrTextureParams& params,
+                                                  GrTexture* texture, const GrSamplerParams& params,
                                                   DistanceAdjust distanceAdjust,
                                                   uint32_t flags, bool usesLocalCoords)
     : fColor(color)
@@ -825,8 +825,8 @@ sk_sp<GrGeometryProcessor> GrDistanceFieldLCDTextGeoProc::TestCreate(GrProcessor
         kTileModes[d->fRandom->nextULessThan(SK_ARRAY_COUNT(kTileModes))],
         kTileModes[d->fRandom->nextULessThan(SK_ARRAY_COUNT(kTileModes))],
     };
-    GrTextureParams params(tileModes, d->fRandom->nextBool() ? GrTextureParams::kBilerp_FilterMode :
-                           GrTextureParams::kNone_FilterMode);
+    GrSamplerParams params(tileModes, d->fRandom->nextBool() ? GrSamplerParams::kBilerp_FilterMode
+                                                             : GrSamplerParams::kNone_FilterMode);
     DistanceAdjust wa = { 0.0f, 0.1f, -0.1f };
     uint32_t flags = kUseLCD_DistanceFieldEffectFlag;
     flags |= d->fRandom->nextBool() ? kSimilarity_DistanceFieldEffectFlag : 0;

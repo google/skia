@@ -98,9 +98,9 @@ static void test_basic_draw(skiatest::Reporter* reporter, GrContext* context,
                                              nullptr));
     SkMatrix m;
     m.setIDiv(rectangleTexture->width(), rectangleTexture->height());
-    for (auto filter : {GrTextureParams::kNone_FilterMode,
-                        GrTextureParams::kBilerp_FilterMode,
-                        GrTextureParams::kMipMap_FilterMode}) {
+    for (auto filter : {GrSamplerParams::kNone_FilterMode,
+                        GrSamplerParams::kBilerp_FilterMode,
+                        GrSamplerParams::kMipMap_FilterMode}) {
         rtContext->clear(nullptr, 0xDDCCBBAA, true);
         sk_sp<GrFragmentProcessor> fp(GrSimpleTextureEffect::Make(rectangleTexture,
                                                                   nullptr, m, filter));
