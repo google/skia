@@ -68,8 +68,8 @@ struct Swizzle : public Expression {
         ASSERT(fComponents.size() >= 1 && fComponents.size() <= 4);
     }
 
-    std::string description() const override {
-        std::string result = fBase->description() + ".";
+    SkString description() const override {
+        SkString result = fBase->description() + ".";
         for (int x : fComponents) {
             result += "xyzw"[x];
         }

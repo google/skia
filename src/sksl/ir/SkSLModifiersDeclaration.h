@@ -23,7 +23,7 @@ struct ModifiersDeclaration : public ProgramElement {
     : INHERITED(Position(), kModifiers_Kind)
     , fModifiers(modifiers) {}
 
-    std::string description() const {
+    SkString description() const {
         return fModifiers.description() + ";";
     }
 
