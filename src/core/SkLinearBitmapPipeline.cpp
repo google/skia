@@ -20,34 +20,6 @@
 #include "SkOpts.h"
 #include "SkPM4f.h"
 
-////////////////////////////////////////////////////////////////////////////////////////////////////
-// SkLinearBitmapPipeline::Stage
-template<typename Base, size_t kSize, typename Next>
-SkLinearBitmapPipeline::Stage<Base, kSize, Next>::~Stage() {
-    if (fIsInitialized) {
-        this->get()->~Base();
-    }
-}
-
-template<typename Base, size_t kSize, typename Next>
-template<typename Variant, typename... Args>
-void SkLinearBitmapPipeline::Stage<Base, kSize, Next>::initStage(Next* next, Args&& ... args) {
-    SkASSERTF(sizeof(Variant) <= sizeof(fSpace),
-              "Size Variant: %d, Space: %d", sizeof(Variant), sizeof(fSpace));
-
-    new (&fSpace) Variant(next, std::forward<Args>(args)...);
-    fIsInitialized = true;
-};
-
-template<typename Base, size_t kSize, typename Next>
-template<typename Variant, typename... Args>
-void SkLinearBitmapPipeline::Stage<Base, kSize, Next>::initSink(Args&& ... args) {
-    SkASSERTF(sizeof(Variant) <= sizeof(fSpace),
-              "Size Variant: %d, Space: %d", sizeof(Variant), sizeof(fSpace));
-    new (&fSpace) Variant(std::forward<Args>(args)...);
-    fIsInitialized = true;
-};
-
 namespace  {
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -366,19 +338,6 @@ private:
     float   fPostAlpha;
 };
 
-static SkLinearBitmapPipeline::BlendProcessorInterface* choose_blender_for_shading(
-    SkAlphaType alphaType,
-    float postAlpha,
-    SkLinearBitmapPipeline::BlenderStage* blenderStage) {
-    if (alphaType == kUnpremul_SkAlphaType) {
-        blenderStage->initSink<SrcFPPixel<kUnpremul_SkAlphaType>>(postAlpha);
-    } else {
-        // kOpaque_SkAlphaType is treated the same as kPremul_SkAlphaType
-        blenderStage->initSink<SrcFPPixel<kPremul_SkAlphaType>>(postAlpha);
-    }
-    return blenderStage->get();
-}
-
 }  // namespace
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -418,7 +377,7 @@ SkLinearBitmapPipeline::SkLinearBitmapPipeline(
     float postAlpha = SkColorGetA(paintColor) * (1.0f / 255.0f);
     // As the stages are built, the chooser function may skip a stage. For example, with the
     // identity matrix, the matrix stage is skipped, and the tilerStage is the first stage.
-    auto blenderStage = choose_blender_for_shading(alphaType, postAlpha, &fBlenderStage);
+    auto blenderStage = this->chooseBlenderForShading(alphaType, postAlpha);
     auto samplerStage = this->chooseSampler(
         blenderStage, filterQuality, xTile, yTile, srcPixmap, paintColor);
     auto tilerStage   = this->chooseTiler(
@@ -725,5 +684,16 @@ SkLinearBitmapPipeline::SampleProcessorInterface* SkLinearBitmapPipeline::choose
     } else {
         using Sampler = BilerpSampler<PixelAccessorShim, Blender>;
         return fMemory.createT<Sampler>(next, dimensions, xTile, yTile, pixelAccessor);
+    }
+}
+
+Blender* SkLinearBitmapPipeline::chooseBlenderForShading(
+    SkAlphaType alphaType,
+    float postAlpha) {
+    if (alphaType == kUnpremul_SkAlphaType) {
+        return fMemory.createT<SrcFPPixel<kUnpremul_SkAlphaType>>(postAlpha);
+    } else {
+        // kOpaque_SkAlphaType is treated the same as kPremul_SkAlphaType
+        return fMemory.createT<SrcFPPixel<kPremul_SkAlphaType>>(postAlpha);
     }
 }
