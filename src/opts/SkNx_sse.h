@@ -636,8 +636,12 @@ public:
         return _mm256_fmadd_ps(a.fVec, b.fVec, c.fVec);
     }
 
+    template<> AI /*static*/ Sk8i SkNx_cast<int>(const Sk8b& src) {
+        return _mm256_cvtepu8_epi32(src.fVec);
+    }
+
     template<> AI /*static*/ Sk8f SkNx_cast<float>(const Sk8b& src) {
-        return _mm256_cvtepi32_ps(_mm256_cvtepu8_epi32(src.fVec));
+        return _mm256_cvtepi32_ps(SkNx_cast<int>(src).fVec);
     }
 
     template<> AI /*static*/ Sk8f SkNx_cast<float>(const Sk8i& src) {
@@ -700,15 +704,18 @@ template<> AI /*static*/ Sk4b SkNx_cast<uint8_t, float>(const Sk4f& src) {
 #endif
 }
 
-template<> AI /*static*/ Sk4f SkNx_cast<float, uint8_t>(const Sk4b& src) {
+template<> AI /*static*/ Sk4i SkNx_cast<int32_t, uint8_t>(const Sk4b& src) {
 #if SK_CPU_SSE_LEVEL >= SK_CPU_SSE_LEVEL_SSSE3
     const int _ = ~0;
-    auto _32 = _mm_shuffle_epi8(src.fVec, _mm_setr_epi8(0,_,_,_, 1,_,_,_, 2,_,_,_, 3,_,_,_));
+    return _mm_shuffle_epi8(src.fVec, _mm_setr_epi8(0,_,_,_, 1,_,_,_, 2,_,_,_, 3,_,_,_));
 #else
-    auto _16 = _mm_unpacklo_epi8(src.fVec, _mm_setzero_si128()),
-         _32 = _mm_unpacklo_epi16(_16,     _mm_setzero_si128());
+    auto _16 = _mm_unpacklo_epi8(src.fVec, _mm_setzero_si128());
+    return _mm_unpacklo_epi16(_16, _mm_setzero_si128());
 #endif
-    return _mm_cvtepi32_ps(_32);
+}
+
+template<> AI /*static*/ Sk4f SkNx_cast<float, uint8_t>(const Sk4b& src) {
+    return _mm_cvtepi32_ps(SkNx_cast<int32_t>(src).fVec);
 }
 
 template<> AI /*static*/ Sk4f SkNx_cast<float, uint16_t>(const Sk4h& src) {
