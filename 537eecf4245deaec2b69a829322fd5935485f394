@@ -25,6 +25,24 @@
     },
     {
       "key": {
+        "uuid": "503c1cf2_ddc9fa10",
+        "filename": "include/core/SkImageEncoder.h",
+        "patchSetId": 7
+      },
+      "lineNbr": 30,
+      "author": {
+        "id": 5110
+      },
+      "writtenOn": "2016-11-17T17:25:54Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "503c1cf2_3a674cd0",
+      "revId": "537eecf4245deaec2b69a829322fd5935485f394",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "503c1cf2_5a6e90a9",
         "filename": "src/images/SkImageEncoder.cpp",
         "patchSetId": 7
@@ -48,6 +66,24 @@
     },
     {
       "key": {
+        "uuid": "503c1cf2_9d7652f6",
+        "filename": "src/images/SkImageEncoder.cpp",
+        "patchSetId": 7
+      },
+      "lineNbr": 16,
+      "author": {
+        "id": 5110
+      },
+      "writtenOn": "2016-11-17T17:25:54Z",
+      "side": 1,
+      "message": "The temporary bitmap that is on the stack (along with its newly allocated pixref) is marked immutable, just to assert that it never modifies the pixels pointed to by the given pixmap.\n\nThis does not change the mutability of any other bitmap that exists.\n\nIn the future, the SkImageEncoders will work with a hypothetical SkConstPixmap instead of SkBitmaps.",
+      "parentUuid": "503c1cf2_5a6e90a9",
+      "revId": "537eecf4245deaec2b69a829322fd5935485f394",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "503c1cf2_ba219c67",
         "filename": "src/xps/SkXPSDevice.cpp",
         "patchSetId": 7
@@ -65,6 +101,24 @@
         "endLine": 662,
         "endChar": 58
       },
+      "revId": "537eecf4245deaec2b69a829322fd5935485f394",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "503c1cf2_3d658636",
+        "filename": "src/xps/SkXPSDevice.cpp",
+        "patchSetId": 7
+      },
+      "lineNbr": 662,
+      "author": {
+        "id": 5110
+      },
+      "writtenOn": "2016-11-17T17:25:54Z",
+      "side": 1,
+      "message": "done.",
+      "parentUuid": "503c1cf2_ba219c67",
       "revId": "537eecf4245deaec2b69a829322fd5935485f394",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
