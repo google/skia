@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "503c1cf2_7da0ae73",
+        "filename": "src/gpu/SkOverdrawDevice.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 14,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2016-11-17T14:22:43Z",
+      "side": 1,
+      "message": "namespace {\n?",
+      "revId": "53c4e3406d80c05e19fd4e86c15df0e3ccf1bba6",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "503c1cf2_1da36282",
+        "filename": "src/image/SkSurface_Base.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 95,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2016-11-17T14:22:43Z",
+      "side": 1,
+      "message": "Maybe this should just take a width/height?",
+      "revId": "53c4e3406d80c05e19fd4e86c15df0e3ccf1bba6",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
