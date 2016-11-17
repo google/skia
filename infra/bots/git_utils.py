@@ -62,7 +62,7 @@ class GitBranch(object):
 
   def commit_and_upload(self, use_commit_queue=False):
     """Commit all changes and upload a CL, returning the issue URL."""
-    subprocess.check_call(['git', 'commit', '-a', '-m', self._commit_msg])
+    subprocess.check_call(['git', 'commit', '-a', '-m', self._commit_msg], stderr=subprocess.STDOUT)
     upload_cmd = ['git', 'cl', 'upload', '-f', '--bypass-hooks',
                   '--bypass-watchlists']
     self._patch_set += 1
