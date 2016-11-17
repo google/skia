@@ -296,7 +296,7 @@ bool SkImageShader::onAppendStages(SkRasterPipeline* p, SkColorSpace* dst, SkFal
     }
 
     // TODO: all tile modes
-    if (fTileModeX != kClamp_TileMode || fTileModeY != kClamp_TileMode) {
+    if (fTileModeX == kMirror_TileMode || fTileModeY == kMirror_TileMode) {
         return false;
     }
 
