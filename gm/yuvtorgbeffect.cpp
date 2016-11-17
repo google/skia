@@ -82,13 +82,13 @@ protected:
 
         sk_sp<GrTexture> texture[3];
         texture[0].reset(
-            GrRefCachedBitmapTexture(context, fBmp[0], GrTextureParams::ClampBilerp(),
+            GrRefCachedBitmapTexture(context, fBmp[0], GrSamplerParams::ClampBilerp(),
                                      SkDestinationSurfaceColorMode::kGammaAndColorSpaceAware));
         texture[1].reset(
-            GrRefCachedBitmapTexture(context, fBmp[1], GrTextureParams::ClampBilerp(),
+            GrRefCachedBitmapTexture(context, fBmp[1], GrSamplerParams::ClampBilerp(),
                                      SkDestinationSurfaceColorMode::kGammaAndColorSpaceAware));
         texture[2].reset(
-            GrRefCachedBitmapTexture(context, fBmp[2], GrTextureParams::ClampBilerp(),
+            GrRefCachedBitmapTexture(context, fBmp[2], GrSamplerParams::ClampBilerp(),
                                      SkDestinationSurfaceColorMode::kGammaAndColorSpaceAware));
 
         if (!texture[0] || !texture[1] || !texture[2]) {
@@ -207,13 +207,13 @@ protected:
 
         sk_sp<GrTexture> texture[3];
         texture[0].reset(
-            GrRefCachedBitmapTexture(context, fBmp[0], GrTextureParams::ClampBilerp(),
+            GrRefCachedBitmapTexture(context, fBmp[0], GrSamplerParams::ClampBilerp(),
                                      SkDestinationSurfaceColorMode::kGammaAndColorSpaceAware));
         texture[1].reset(
-            GrRefCachedBitmapTexture(context, fBmp[1], GrTextureParams::ClampBilerp(),
+            GrRefCachedBitmapTexture(context, fBmp[1], GrSamplerParams::ClampBilerp(),
                                      SkDestinationSurfaceColorMode::kGammaAndColorSpaceAware));
         texture[2].reset(
-            GrRefCachedBitmapTexture(context, fBmp[1], GrTextureParams::ClampBilerp(),
+            GrRefCachedBitmapTexture(context, fBmp[1], GrSamplerParams::ClampBilerp(),
                                      SkDestinationSurfaceColorMode::kGammaAndColorSpaceAware));
 
         if (!texture[0] || !texture[1] || !texture[2]) {

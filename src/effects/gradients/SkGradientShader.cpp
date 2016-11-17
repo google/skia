@@ -1651,8 +1651,8 @@ GrGradientEffect::GrGradientEffect(const CreateArgs& args) {
 
             // We always filter the gradient table. Each table is one row of a texture, always
             // y-clamp.
-            GrTextureParams params;
-            params.setFilterMode(GrTextureParams::kBilerp_FilterMode);
+            GrSamplerParams params;
+            params.setFilterMode(GrSamplerParams::kBilerp_FilterMode);
             params.setTileModeX(args.fTileMode);
 
             fRow = fAtlas->lockRow(bitmap);

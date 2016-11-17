@@ -16,7 +16,7 @@
 class GrContext;
 class GrContextThreadSafeProxy;
 class GrTexture;
-class GrTextureParams;
+class GrSamplerParams;
 class SkBitmap;
 class SkData;
 class SkImage;
@@ -152,7 +152,7 @@ public:
      *  If the context (the provided one or the generator's intrinsic one) determines that to
      *  support the specified usage, it must return a different sized texture it may,
      *  so the caller must inspect the texture's width/height and compare them to the generator's
-     *  getInfo() width/height. For readback usage use GrTextureParams::ClampNoFilter()
+     *  getInfo() width/height. For readback usage use GrSamplerParams::ClampNoFilter()
      */
     GrTexture* generateTexture(GrContext*, const SkIRect* subset = nullptr);
 
