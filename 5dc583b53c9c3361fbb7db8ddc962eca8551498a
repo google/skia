@@ -22,6 +22,24 @@
       "revId": "5dc583b53c9c3361fbb7db8ddc962eca8551498a",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "b09b987b_4601b21f",
+        "filename": "src/gpu/effects/GrBitmapTextGeoProc.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 174,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2016-11-17T20:17:30Z",
+      "side": 1,
+      "message": "Whooops, got this one too now.",
+      "parentUuid": "b09b987b_5bd8af3e",
+      "revId": "5dc583b53c9c3361fbb7db8ddc962eca8551498a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
