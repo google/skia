@@ -25,6 +25,24 @@
     },
     {
       "key": {
+        "uuid": "503c1cf2_7d86eea5",
+        "filename": "src/gpu/vk/GrVkBackendContext.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 137,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2016-11-17T15:16:09Z",
+      "side": 1,
+      "message": "Also for DeviceWaitIdle.",
+      "parentUuid": "503c1cf2_7a9a745c",
+      "revId": "ebe8425c07bcdf69fd8b6a94cce9b969624c65a4",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "503c1cf2_5d868afc",
         "filename": "src/gpu/vk/GrVkGpu.cpp",
         "patchSetId": 2
