@@ -16,6 +16,24 @@
       "revId": "5c318b22ae65de616762beabd07adea6738cd3c8",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "b09b987b_92acbc6c",
+        "filename": "src/gpu/GrRenderTargetContext.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 272,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2016-11-17T17:33:09Z",
+      "side": 1,
+      "message": "These should go away when the batches hold a RenderTargetProxy rather than a live RenderTarget so I\u0027m not going to fret too much about it right now.",
+      "parentUuid": "503c1cf2_9d47726d",
+      "revId": "5c318b22ae65de616762beabd07adea6738cd3c8",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
