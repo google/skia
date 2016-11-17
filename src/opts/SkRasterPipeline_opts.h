@@ -31,6 +31,7 @@ namespace {
     using SkNf = SkNx<N, float>;
     using SkNi = SkNx<N, int>;
     using SkNh = SkNx<N, uint16_t>;
+    using SkNb = SkNx<N, uint8_t>;
 
     struct BodyStage;
     struct TailStage;
@@ -548,6 +549,16 @@ STAGE(luminance_to_alpha, true) {
     r = g = b = 0;
 }
 
+STAGE(matrix_2x3, true) {
+    auto m = (const float*)ctx;
+
+    auto fma = [](const SkNf& f, const SkNf& m, const SkNf& a) { return SkNx_fma(f,m,a); };
+    auto R = fma(r,m[0], fma(g,m[2], m[4])),
+         G = fma(r,m[1], fma(g,m[3], m[5]));
+    r = R;
+    g = G;
+}
+
 STAGE(matrix_3x4, true) {
     auto m = (const float*)ctx;
 
@@ -657,6 +668,75 @@ STAGE(lab_to_xyz, true) {
 
 STAGE(swap_rb, true) {
     SkTSwap(r, b);
+}
+
+STAGE(clamp_x, true) {
+    auto w = *(const int*)ctx;
+    r = SkNf::Max(0, SkNf::Min(r, SkNf(w - 0.5f)));
+}
+STAGE(clamp_y, true) {
+    auto h = *(const int*)ctx;
+    g = SkNf::Max(0, SkNf::Min(g, SkNf(h - 0.5f)));
+}
+
+STAGE(mirror_x, true) {}  // TODO
+STAGE(mirror_y, true) {}  // TODO
+
+STAGE(repeat_x, true) {}  // TODO
+STAGE(repeat_y, true) {}  // TODO
+
+struct NearestCtx {
+    const void* pixels;
+    int         stride;
+};
+
+STAGE(nearest_565, true) {}  // TODO
+STAGE(nearest_f16, true) {}  // TODO
+
+STAGE(nearest_8888, true) {
+    auto nc = (const NearestCtx*)ctx;
+
+    SkNi ix = SkNx_cast<int>(r),
+         iy = SkNx_cast<int>(g);
+    SkNi offset = iy*nc->stride + ix;
+
+    auto p = (const uint32_t*)nc->pixels;
+    uint8_t R[N], G[N], B[N], A[N];
+    for (size_t i = 0; i < (kIsTail ? tail : N); i++) {
+        uint32_t rgba = p[offset[i]];
+        R[i] = rgba >>  0;
+        G[i] = rgba >>  8;
+        B[i] = rgba >> 16;
+        A[i] = rgba >> 24;
+    }
+
+    r = SkNx_cast<float>(SkNb::Load(R)) * (1/255.0f);
+    g = SkNx_cast<float>(SkNb::Load(G)) * (1/255.0f);
+    b = SkNx_cast<float>(SkNb::Load(B)) * (1/255.0f);
+    a = SkNx_cast<float>(SkNb::Load(A)) * (1/255.0f);
+}
+
+STAGE(nearest_srgb, true) {
+    auto nc = (const NearestCtx*)ctx;
+
+    SkNi ix = SkNx_cast<int>(r),
+         iy = SkNx_cast<int>(g);
+    SkNi offset = iy*nc->stride + ix;
+
+    auto p = (const uint32_t*)nc->pixels;
+    uint8_t R[N], G[N], B[N], A[N];
+    for (size_t i = 0; i < (kIsTail ? tail : N); i++) {
+        uint32_t rgba = p[offset[i]];
+        R[i] = rgba >>  0;
+        G[i] = rgba >>  8;
+        B[i] = rgba >> 16;
+        A[i] = rgba >> 24;
+    }
+
+    r = sk_linear_from_srgb_math(SkNx_cast<int>(SkNb::Load(R)));
+    g = sk_linear_from_srgb_math(SkNx_cast<int>(SkNb::Load(G)));
+    b = sk_linear_from_srgb_math(SkNx_cast<int>(SkNb::Load(B)));
+    a = SkNx_cast<float>(SkNb::Load(A)) * (1/255.0f);
 }
 
 template <typename Fn>
