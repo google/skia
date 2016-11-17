@@ -411,7 +411,9 @@ public:
     // This entry point should go away in favor of asTextureProxy
     sk_sp<GrTexture> onAsTextureRef(GrContext* context) const override {
         GrSurface* surf = fSurfaceProxy->instantiate(context->textureProvider());
-
+        if (!surf) {
+            return nullptr;
+        }
         return sk_ref_sp(surf->asTexture());
     }
 
