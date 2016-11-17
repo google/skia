@@ -75,4 +75,36 @@ inline SkFixed SkFDot6Div(SkFDot6 a, SkFDot6 b) {
     }
 }
 
+#include "SkFDot6Constants.h"
+
+class QuickFDot6Inverse {
+private:
+    static constexpr const SkFDot6* table = gFDot6INVERSE + kInverseTableSize;
+public:
+    inline static SkFixed Lookup(SkFDot6 x) {
+        SkASSERT(SkAbs32(x) < kInverseTableSize);
+        return table[x];
+    }
+};
+
+static inline SkFixed QuickSkFDot6Div(SkFDot6 a, SkFDot6 b) {
+    // Max inverse of b is 2^6 which is 2^22 in SkFixed format.
+    // Hence the safe value of abs(a) should be less than 2^9.
+    if (SkAbs32(b) < kInverseTableSize && SkAbs32(a) < (1 << 9)) {
+        SkASSERT((int64_t)a * QuickFDot6Inverse::Lookup(b) <= SK_MaxS32
+                && (int64_t)a * QuickFDot6Inverse::Lookup(b) >= SK_MinS32);
+        SkFixed ourAnswer = (a * QuickFDot6Inverse::Lookup(b)) >> 6;
+        #ifdef SK_DEBUG
+        SkFixed directAnswer = SkFDot6Div(a, b);
+        SkASSERT(
+            (directAnswer == 0 && ourAnswer == 0) ||
+            SkFixedDiv(SkAbs32(directAnswer - ourAnswer), SkAbs32(directAnswer)) <= 1 << 10
+        );
+        #endif
+        return ourAnswer;
+    } else {
+        return SkFDot6Div(a, b);
+    }
+}
+
 #endif
