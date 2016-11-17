@@ -69,18 +69,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(FloatingPointTextureTest, reporter, ctxInfo) 
 static const int HALF_ALPHA_CONTROL_ARRAY_SIZE = DEV_W * DEV_H * 1 /*alpha-only*/;
 static const SkHalf kMaxIntegerRepresentableInHalfFloatingPoint = 0x6800;  // 2 ^ 11
 
-// The half float tests currently fail on ES3 ANGLE.
-static bool is_rendering_and_not_angle_es3(sk_gpu_test::GrContextFactory::ContextType type) {
-    if (type == sk_gpu_test::GrContextFactory::kANGLE_D3D11_ES3_ContextType ||
-        type == sk_gpu_test::GrContextFactory::kANGLE_GL_ES3_ContextType) {
-        return false;
-    }
-    return sk_gpu_test::GrContextFactory::IsRenderingContext(type);
-}
-
-DEF_GPUTEST_FOR_CONTEXTS(HalfFloatAlphaTextureTest,
-                         &is_rendering_and_not_angle_es3,
-                         reporter, ctxInfo) {
+DEF_GPUTEST_FOR_RENDERING_CONTEXTS(HalfFloatAlphaTextureTest, reporter, ctxInfo) {
     runFPTest<SkHalf>(reporter, ctxInfo.grContext(), SK_HalfMin, SK_HalfMax, SK_HalfEpsilon,
         kMaxIntegerRepresentableInHalfFloatingPoint,
         HALF_ALPHA_CONTROL_ARRAY_SIZE, kAlpha_half_GrPixelConfig);
@@ -88,9 +77,7 @@ DEF_GPUTEST_FOR_CONTEXTS(HalfFloatAlphaTextureTest,
 
 static const int HALF_RGBA_CONTROL_ARRAY_SIZE = DEV_W * DEV_H * 4 /*RGBA*/;
 
-DEF_GPUTEST_FOR_CONTEXTS(HalfFloatRGBATextureTest,
-                         &is_rendering_and_not_angle_es3,
-                         reporter, ctxInfo) {
+DEF_GPUTEST_FOR_RENDERING_CONTEXTS(HalfFloatRGBATextureTest, reporter, ctxInfo) {
     runFPTest<SkHalf>(reporter, ctxInfo.grContext(), SK_HalfMin, SK_HalfMax, SK_HalfEpsilon,
         kMaxIntegerRepresentableInHalfFloatingPoint,
         HALF_RGBA_CONTROL_ARRAY_SIZE, kRGBA_half_GrPixelConfig);
