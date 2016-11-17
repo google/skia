@@ -45,9 +45,9 @@ static void add_sampler_keys(GrProcessorKeyBuilder* b, const GrProcessor& proc,
     int i = 0;
     for (; i < numTextureSamplers; ++i) {
         const GrProcessor::TextureSampler& textureSampler = proc.textureSampler(i);
-        const GrTexture* tex = textureSampler.getTexture();
+        const GrTexture* tex = textureSampler.texture();
         k16[i] = sampler_key(tex->texturePriv().samplerType(), tex->config(),
-                             textureSampler.getVisibility(), caps);
+                             textureSampler.visibility(), caps);
     }
     for (; i < numSamplers; ++i) {
         const GrBufferAccess& access = proc.bufferAccess(i - numTextureSamplers);
