@@ -181,6 +181,7 @@ static bool rect_fits(const SkIRect& rect, int width, int height) {
 
 sk_sp<SkSpecialImage> SkSpecialImage::MakeFromImage(const SkIRect& subset,
                                                     sk_sp<SkImage> image,
+                                                    SkDestinationSurfaceColorMode colorMode,
                                                     const SkSurfaceProps* props) {
     SkASSERT(rect_fits(subset, image->width(), image->height()));
 
@@ -192,7 +193,7 @@ sk_sp<SkSpecialImage> SkSpecialImage::MakeFromImage(const SkIRect& subset,
 #endif
     {
         SkBitmap bm;
-        if (as_IB(image)->getROPixels(&bm)) {
+        if (as_IB(image)->getROPixels(&bm, colorMode)) {
             return MakeFromRaster(subset, bm, props);
         }
     }
