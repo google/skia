@@ -89,7 +89,7 @@ public:
 
     SkData* onRefEncoded(GrContext*) const override;
     bool getROPixels(SkBitmap*, CachingHint) const override;
-    GrTexture* asTextureRef(GrContext*, const GrTextureParams&,
+    GrTexture* asTextureRef(GrContext*, const GrSamplerParams&,
                             SkDestinationSurfaceColorMode) const override;
     sk_sp<SkImage> onMakeSubset(const SkIRect&) const override;
 
@@ -197,7 +197,7 @@ bool SkImage_Raster::getROPixels(SkBitmap* dst, CachingHint) const {
     return true;
 }
 
-GrTexture* SkImage_Raster::asTextureRef(GrContext* ctx, const GrTextureParams& params,
+GrTexture* SkImage_Raster::asTextureRef(GrContext* ctx, const GrSamplerParams& params,
                                         SkDestinationSurfaceColorMode colorMode) const {
 #if SK_SUPPORT_GPU
     if (!ctx) {
@@ -239,7 +239,7 @@ bool SkImage_Raster::onPinAsTexture(GrContext* ctx) const {
         SkASSERT(fPinnedCount == 0);
         SkASSERT(fPinnedUniqueID == 0);
         fPinnedTexture.reset(
-            GrRefCachedBitmapTexture(ctx, fBitmap, GrTextureParams::ClampNoFilter(),
+            GrRefCachedBitmapTexture(ctx, fBitmap, GrSamplerParams::ClampNoFilter(),
                                      SkDestinationSurfaceColorMode::kGammaAndColorSpaceAware));
         if (!fPinnedTexture) {
             return false;

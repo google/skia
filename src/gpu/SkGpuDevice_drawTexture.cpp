@@ -163,10 +163,10 @@ void SkGpuDevice::drawTextureProducerImpl(GrTextureProducer* producer,
     bool canUseTextureCoordsAsLocalCoords = !use_shader(producer->isAlphaOnly(), paint) && !mf;
 
     bool doBicubic;
-    GrTextureParams::FilterMode fm =
+    GrSamplerParams::FilterMode fm =
         GrSkFilterQualityToGrFilterMode(paint.getFilterQuality(), viewMatrix, srcToDstMatrix,
                                         &doBicubic);
-    const GrTextureParams::FilterMode* filterMode = doBicubic ? nullptr : &fm;
+    const GrSamplerParams::FilterMode* filterMode = doBicubic ? nullptr : &fm;
 
     GrTextureAdjuster::FilterConstraint constraintMode;
     if (SkCanvas::kFast_SrcRectConstraint == constraint) {
@@ -181,7 +181,7 @@ void SkGpuDevice::drawTextureProducerImpl(GrTextureProducer* producer,
     bool coordsAllInsideSrcRect = !paint.isAntiAlias() && !mf;
 
     // Check for optimization to drop the src rect constraint when on bilerp.
-    if (filterMode && GrTextureParams::kBilerp_FilterMode == *filterMode &&
+    if (filterMode && GrSamplerParams::kBilerp_FilterMode == *filterMode &&
         GrTextureAdjuster::kYes_FilterConstraint == constraintMode && coordsAllInsideSrcRect) {
         SkMatrix combinedMatrix;
         combinedMatrix.setConcat(viewMatrix, srcToDstMatrix);

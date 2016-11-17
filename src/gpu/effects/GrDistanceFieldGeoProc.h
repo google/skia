@@ -43,14 +43,14 @@ enum GrDistanceFieldEffectFlags {
 /**
  * The output color of this effect is a modulation of the input color and a sample from a
  * distance field texture (using a smoothed step function near 0.5).
- * It allows explicit specification of the filtering and wrap modes (GrTextureParams). The input
+ * It allows explicit specification of the filtering and wrap modes (GrSamplerParams). The input
  * coords are a custom attribute. Gamma correction is handled via a texture LUT.
  */
 class GrDistanceFieldA8TextGeoProc : public GrGeometryProcessor {
 public:
 #ifdef SK_GAMMA_APPLY_TO_A8
     static sk_sp<GrGeometryProcessor> Make(GrColor color, const SkMatrix& viewMatrix,
-                                           GrTexture* tex, const GrTextureParams& params,
+                                           GrTexture* tex, const GrSamplerParams& params,
                                            float lum, uint32_t flags, bool usesLocalCoords) {
         return sk_sp<GrGeometryProcessor>(
             new GrDistanceFieldA8TextGeoProc(color, viewMatrix, tex, params, lum, flags,
@@ -58,7 +58,7 @@ public:
     }
 #else
     static sk_sp<GrGeometryProcessor> Make(GrColor color, const SkMatrix& viewMatrix,
-                                           GrTexture* tex, const GrTextureParams& params,
+                                           GrTexture* tex, const GrSamplerParams& params,
                                            uint32_t flags, bool usesLocalCoords) {
         return sk_sp<GrGeometryProcessor>(
             new GrDistanceFieldA8TextGeoProc(color, viewMatrix, tex, params, flags,
@@ -88,7 +88,7 @@ public:
 
 private:
     GrDistanceFieldA8TextGeoProc(GrColor, const SkMatrix& viewMatrix,
-                                 GrTexture* texture, const GrTextureParams& params,
+                                 GrTexture* texture, const GrSamplerParams& params,
 #ifdef SK_GAMMA_APPLY_TO_A8
                                  float distanceAdjust,
 #endif
@@ -115,13 +115,13 @@ private:
 /**
 * The output color of this effect is a modulation of the input color and a sample from a
 * distance field texture (using a smoothed step function near 0.5).
-* It allows explicit specification of the filtering and wrap modes (GrTextureParams). The input
+* It allows explicit specification of the filtering and wrap modes (GrSamplerParams). The input
 * coords are a custom attribute. No gamma correct blending is applied. Used for paths only.
 */
 class GrDistanceFieldPathGeoProc : public GrGeometryProcessor {
 public:
     static sk_sp<GrGeometryProcessor> Make(GrColor color, const SkMatrix& viewMatrix,
-                                           GrTexture* tex, const GrTextureParams& params,
+                                           GrTexture* tex, const GrSamplerParams& params,
                                            uint32_t flags, bool usesLocalCoords) {
         return sk_sp<GrGeometryProcessor>(
             new GrDistanceFieldPathGeoProc(color, viewMatrix, tex, params, flags, usesLocalCoords));
@@ -146,7 +146,7 @@ public:
 
 private:
     GrDistanceFieldPathGeoProc(GrColor, const SkMatrix& viewMatrix, GrTexture* texture,
-                               const GrTextureParams& params, uint32_t flags,
+                               const GrSamplerParams& params, uint32_t flags,
                                bool usesLocalCoords);
 
     GrColor          fColor;
@@ -166,7 +166,7 @@ private:
 /**
  * The output color of this effect is a modulation of the input color and samples from a
  * distance field texture (using a smoothed step function near 0.5), adjusted for LCD displays.
- * It allows explicit specification of the filtering and wrap modes (GrTextureParams). The input
+ * It allows explicit specification of the filtering and wrap modes (GrSamplerParams). The input
  * coords are a custom attribute. Gamma correction is handled via a texture LUT.
  */
 class GrDistanceFieldLCDTextGeoProc : public GrGeometryProcessor {
@@ -187,7 +187,7 @@ public:
     };
 
     static sk_sp<GrGeometryProcessor> Make(GrColor color, const SkMatrix& viewMatrix,
-                                           GrTexture* tex, const GrTextureParams& params,
+                                           GrTexture* tex, const GrSamplerParams& params,
                                            DistanceAdjust distanceAdjust, uint32_t flags,
                                            bool usesLocalCoords) {
         return sk_sp<GrGeometryProcessor>(
@@ -215,7 +215,7 @@ public:
 
 private:
     GrDistanceFieldLCDTextGeoProc(GrColor, const SkMatrix& viewMatrix,
-                                  GrTexture* texture, const GrTextureParams& params,
+                                  GrTexture* texture, const GrSamplerParams& params,
                                   DistanceAdjust wa, uint32_t flags,
                                   bool usesLocalCoords);
 

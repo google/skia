@@ -20,7 +20,7 @@ class GrRenderTargetContext;
 class GrFragmentProcessor;
 class GrPaint;
 class GrTexture;
-class GrTextureParams;
+class GrSamplerParams;
 class GrUniqueKey;
 class SkData;
 class SkPaint;
