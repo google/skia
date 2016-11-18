@@ -73,6 +73,7 @@ public:
 
     static sk_sp<SkSpecialImage> MakeFromImage(const SkIRect& subset,
                                                sk_sp<SkImage>,
+                                               SkDestinationSurfaceColorMode,
                                                const SkSurfaceProps* = nullptr);
     static sk_sp<SkSpecialImage> MakeFromRaster(const SkIRect& subset,
                                                 const SkBitmap&,

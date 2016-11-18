@@ -52,8 +52,12 @@ size_t SkImageShader::onContextSize(const ContextRec& rec) const {
 }
 
 SkShader::Context* SkImageShader::onCreateContext(const ContextRec& rec, void* storage) const {
+    // TODO: This is wrong. We should be plumbing destination color space to context creation,
+    // and use that to determine the decoding mode of the image.
+    SkDestinationSurfaceColorMode decodeColorMode = SkMipMap::DeduceColorMode(rec);
     return SkBitmapProcLegacyShader::MakeContext(*this, fTileModeX, fTileModeY,
-                                                 SkBitmapProvider(fImage.get()), rec, storage);
+                                                 SkBitmapProvider(fImage.get(), decodeColorMode),
+                                                 rec, storage);
 }
 
 SkImage* SkImageShader::onIsAImage(SkMatrix* texM, TileMode xy[]) const {
@@ -211,13 +215,14 @@ sk_sp<GrFragmentProcessor> SkImageShader::asFragmentProcessor(const AsFPArgs& ar
     GrSkFilterQualityToGrFilterMode(args.fFilterQuality, *args.fViewMatrix, this->getLocalMatrix(),
                                     &doBicubic);
     GrSamplerParams params(tm, textureFilterMode);
-    sk_sp<GrTexture> texture(as_IB(fImage)->asTextureRef(args.fContext, params, args.fColorMode));
+    sk_sp<SkColorSpace> texColorSpace;
+    sk_sp<GrTexture> texture(as_IB(fImage)->asTextureRef(args.fContext, params, args.fColorMode,
+                                                         &texColorSpace));
     if (!texture) {
         return nullptr;
     }
 
-    SkImageInfo info = as_IB(fImage)->onImageInfo();
-    sk_sp<GrColorSpaceXform> colorSpaceXform = GrColorSpaceXform::Make(info.colorSpace(),
+    sk_sp<GrColorSpaceXform> colorSpaceXform = GrColorSpaceXform::Make(texColorSpace.get(),
                                                                        args.fDstColorSpace);
     sk_sp<GrFragmentProcessor> inner;
     if (doBicubic) {

@@ -88,9 +88,9 @@ public:
     const SkBitmap* onPeekBitmap() const override { return &fBitmap; }
 
     SkData* onRefEncoded(GrContext*) const override;
-    bool getROPixels(SkBitmap*, CachingHint) const override;
+    bool getROPixels(SkBitmap*, SkDestinationSurfaceColorMode, CachingHint) const override;
     GrTexture* asTextureRef(GrContext*, const GrSamplerParams&,
-                            SkDestinationSurfaceColorMode) const override;
+                            SkDestinationSurfaceColorMode, sk_sp<SkColorSpace>*) const override;
     sk_sp<SkImage> onMakeSubset(const SkIRect&) const override;
 
     // exposed for SkSurface_Raster via SkNewImageFromPixelRef
@@ -192,16 +192,21 @@ SkData* SkImage_Raster::onRefEncoded(GrContext*) const {
     return nullptr;
 }
 
-bool SkImage_Raster::getROPixels(SkBitmap* dst, CachingHint) const {
+bool SkImage_Raster::getROPixels(SkBitmap* dst, SkDestinationSurfaceColorMode, CachingHint) const {
     *dst = fBitmap;
     return true;
 }
 
 GrTexture* SkImage_Raster::asTextureRef(GrContext* ctx, const GrSamplerParams& params,
-                                        SkDestinationSurfaceColorMode colorMode) const {
+                                        SkDestinationSurfaceColorMode colorMode,
+                                        sk_sp<SkColorSpace>* texColorSpace) const {
 #if SK_SUPPORT_GPU
     if (!ctx) {
         return nullptr;
+    }
+
+    if (texColorSpace) {
+        *texColorSpace = sk_ref_sp(fBitmap.colorSpace());
     }
 
     uint32_t uniqueID;

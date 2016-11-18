@@ -308,15 +308,18 @@ protected:
 
     static void draw_as_bitmap(SkCanvas* canvas, SkImageCacherator* cache, SkScalar x, SkScalar y) {
         SkBitmap bitmap;
-        cache->lockAsBitmap(&bitmap, nullptr);
+        cache->lockAsBitmap(&bitmap, nullptr,
+                            SkDestinationSurfaceColorMode::kGammaAndColorSpaceAware);
         canvas->drawBitmap(bitmap, x, y);
     }
 
     static void draw_as_tex(SkCanvas* canvas, SkImageCacherator* cache, SkScalar x, SkScalar y) {
 #if SK_SUPPORT_GPU
+        sk_sp<SkColorSpace> texColorSpace;
         sk_sp<GrTexture> texture(
             cache->lockAsTexture(canvas->getGrContext(), GrSamplerParams::ClampBilerp(),
-                                 SkDestinationSurfaceColorMode::kGammaAndColorSpaceAware, nullptr));
+                                 SkDestinationSurfaceColorMode::kGammaAndColorSpaceAware,
+                                 &texColorSpace, nullptr));
         if (!texture) {
             // show placeholder if we have no texture
             SkPaint paint;
@@ -331,8 +334,7 @@ protected:
         // No API to draw a GrTexture directly, so we cheat and create a private image subclass
         sk_sp<SkImage> image(new SkImage_Gpu(cache->info().width(), cache->info().height(),
                                              cache->uniqueID(), kPremul_SkAlphaType,
-                                             std::move(texture),
-                                             sk_ref_sp(cache->info().colorSpace()),
+                                             std::move(texture), std::move(texColorSpace),
                                              SkBudgeted::kNo));
         canvas->drawImage(image.get(), x, y);
 #endif
