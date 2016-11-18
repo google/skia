@@ -198,27 +198,8 @@ static sk_sp<GrTexture> create_texture_from_yuv(GrContext* ctx, const SkBitmap& 
     return provider.refAsTexture(ctx, desc, !bm.isVolatile());
 }
 
-static GrTexture* load_etc1_texture(GrContext* ctx, const SkBitmap &bm, GrSurfaceDesc desc) {
-    sk_sp<SkData> data(bm.pixelRef()->refEncodedData());
-    if (!data) {
-        return nullptr;
-    }
-
-    const void* startOfTexData;
-    desc.fConfig = GrIsCompressedTextureDataSupported(ctx, data.get(), bm.width(), bm.height(),
-                                                      &startOfTexData);
-    if (kUnknown_GrPixelConfig == desc.fConfig) {
-        return nullptr;
-    }
-
-    return ctx->textureProvider()->createTexture(desc, SkBudgeted::kYes, startOfTexData, 0);
-}
-
 GrTexture* GrUploadBitmapToTexture(GrContext* ctx, const SkBitmap& bitmap) {
     GrSurfaceDesc desc = GrImageInfoToSurfaceDesc(bitmap.info(), *ctx->caps());
-    if (GrTexture *texture = load_etc1_texture(ctx, bitmap, desc)) {
-        return texture;
-    }
 
     sk_sp<GrTexture> texture(create_texture_from_yuv(ctx, bitmap, desc));
     if (texture) {
@@ -342,13 +323,6 @@ GrTexture* GrGenerateMipMapsAndUploadToTexture(GrContext* ctx, const SkBitmap& b
                                                SkDestinationSurfaceColorMode colorMode)
 {
     GrSurfaceDesc desc = GrImageInfoToSurfaceDesc(bitmap.info(), *ctx->caps());
-    if (kIndex_8_SkColorType != bitmap.colorType() && !bitmap.readyToDraw()) {
-        GrTexture* texture = load_etc1_texture(ctx, bitmap, desc);
-        if (texture) {
-            return texture;
-        }
-    }
-
     sk_sp<GrTexture> texture(create_texture_from_yuv(ctx, bitmap, desc));
     if (texture) {
         return texture.release();
