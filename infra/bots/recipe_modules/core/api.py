@@ -61,13 +61,17 @@ class SkiaApi(recipe_api.RecipeApi):
   def checkout_steps(self):
     """Run the steps to obtain a checkout of Skia."""
     cfg_kwargs = {}
-    if not self.m.vars.persistent_checkout:
+    # rmistry
+    if (not self.m.vars.persistent_checkout and
+        not 'RecreateSKPs' in self.m.vars.builder_name):
       # We should've obtained the Skia checkout through isolates, so we don't
       # need to perform the checkout ourselves.
       return
 
-    # Use a persistent gclient cache for Swarming.
-    cfg_kwargs['CACHE_DIR'] = self.m.vars.gclient_cache
+    # rmistry
+    if not 'RecreateSKPs' in self.m.vars.builder_name:
+      # Use a persistent gclient cache for Swarming.
+      cfg_kwargs['CACHE_DIR'] = self.m.vars.gclient_cache
 
     # Create the checkout path if necessary.
     if not self.m.path.exists(self.m.vars.checkout_root):

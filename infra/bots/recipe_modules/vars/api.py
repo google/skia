@@ -49,7 +49,7 @@ class SkiaVarsApi(recipe_api.RecipeApi):
 
     # Compile bots keep a persistent checkout.
     self.persistent_checkout = (self.is_compile_bot or
-                                'RecreateSKPs' in self.builder_name or
+                                # 'RecreateSKPs' in self.builder_name or
                                 '-CT_' in self.builder_name or
                                 'Presubmit' in self.builder_name or
                                 'InfraTests' in self.builder_name)
@@ -69,6 +69,8 @@ class SkiaVarsApi(recipe_api.RecipeApi):
       self.got_revision = self.m.properties['revision']
 
     self.skia_dir = self.checkout_root.join('skia')
+    if 'RecreateSKPs' in self.builder_name:
+      self.skia_dir = self.checkout_root.join('recreate_skps_skia')
     if not self.persistent_checkout:
       self.m.path['checkout'] = self.skia_dir
 
