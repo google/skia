@@ -37,26 +37,6 @@ static void make_unpremul_256(SkBitmap* bitmap) {
     bitmap->setAlphaType(kUnpremul_SkAlphaType);
 }
 
-static SkImageEncoder* make_encoder(SkEncodedImageFormat type) {
-#if defined(SK_BUILD_FOR_MAC) || defined(SK_BUILD_FOR_IOS)
-    return CreateImageEncoder_CG((SkImageEncoder::Type)type);
-#elif defined(SK_BUILD_FOR_WIN)
-    return CreateImageEncoder_WIC((SkImageEncoder::Type)type);
-#else
-    switch (type) {
-        case SkEncodedImageFormat::kPNG:
-            return CreatePNGImageEncoder();
-        case SkEncodedImageFormat::kJPEG:
-            return CreateJPEGImageEncoder();
-        case SkEncodedImageFormat::kWEBP:
-            return CreateWEBPImageEncoder();
-        default:
-            SkASSERT(false);
-            return nullptr;
-    }
-#endif
-}
-
 #if defined(SK_BUILD_FOR_MAC) || defined(SK_BUILD_FOR_IOS)
 static SkEncodedImageFormat kTypes[] {
         SkEncodedImageFormat::kPNG, SkEncodedImageFormat::kJPEG, SkEncodedImageFormat::kGIF,
@@ -76,9 +56,30 @@ static SkEncodedImageFormat kTypes[] {
 };
 #endif
 
-static sk_sp<SkData> encode_data(std::unique_ptr<SkImageEncoder>& encoder, const SkBitmap& src) {
-    SkDynamicMemoryWStream buffer;
-    return encoder->encodeStream(&buffer, src, 100) ? buffer.detachAsData() : nullptr;
+static sk_sp<SkData> encode_data(SkEncodedImageFormat type, const SkBitmap& bitmap) {
+    SkAutoLockPixels autoLockPixels(bitmap);
+    SkPixmap src;
+    if (!bitmap.peekPixels(&src)) {
+        return nullptr;
+    }
+    SkDynamicMemoryWStream buf;
+    #if defined(SK_BUILD_FOR_MAC) || defined(SK_BUILD_FOR_IOS)
+        return SkEncodeImageWithCG(&buf, src, type) ? buf.detachAsData() : nullptr;
+    #elif defined(SK_BUILD_FOR_WIN)
+        return SkEncodeImageWithWIC(&buf, src, type, 100) ? buf.detachAsData() : nullptr;
+    #else
+        switch (type) {
+            case SkEncodedImageFormat::kPNG:
+                return SkEncodeImageAsPNG(&buf, src) ? buf.detachAsData() : nullptr;
+            case SkEncodedImageFormat::kJPEG:
+                return SkEncodeImageAsJPEG(&buf, src, 100) ? buf.detachAsData() : nullptr;
+            case SkEncodedImageFormat::kWEBP:
+                return SkEncodeImageAsWEBP(&buf, src, 100) ? buf.detachAsData() : nullptr;
+            default:
+                SkASSERT(false);
+                return nullptr;
+        }
+    #endif
 }
 
 class EncodePlatformGM : public GM {
@@ -101,11 +102,9 @@ protected:
         make_unpremul_256(&unpremulBm);
 
         for (SkEncodedImageFormat type : kTypes) {
-            std::unique_ptr<SkImageEncoder> encoder(make_encoder(type));
-
-            auto opaqueImage = SkImage::MakeFromEncoded(encode_data(encoder, opaqueBm));
-            auto premulImage = SkImage::MakeFromEncoded(encode_data(encoder, premulBm));
-            auto unpremulImage = SkImage::MakeFromEncoded(encode_data(encoder, unpremulBm));
+            auto opaqueImage = SkImage::MakeFromEncoded(encode_data(type, opaqueBm));
+            auto premulImage = SkImage::MakeFromEncoded(encode_data(type, premulBm));
+            auto unpremulImage = SkImage::MakeFromEncoded(encode_data(type, unpremulBm));
 
             canvas->drawImage(opaqueImage.get(), 0.0f, 0.0f);
             canvas->drawImage(premulImage.get(), 0.0f, 256.0f);
