@@ -540,7 +540,7 @@ void GrContext::prepareSurfaceForExternalIO(GrSurface* surface) {
     fDrawingManager->prepareSurfaceForExternalIO(surface);
 }
 
-bool GrContext::copySurface(GrSurface* dst, GrSurface* src, const SkIRect& srcRect,
+bool GrContext::copySurface(GrSurfaceProxy* dst, GrSurface* src, const SkIRect& srcRect,
                             const SkIPoint& dstPoint) {
     ASSERT_SINGLE_OWNER
     RETURN_FALSE_IF_ABANDONED
@@ -550,14 +550,14 @@ bool GrContext::copySurface(GrSurface* dst, GrSurface* src, const SkIRect& srcRe
         return false;
     }
     ASSERT_OWNED_RESOURCE(src);
-    ASSERT_OWNED_RESOURCE(dst);
+    //ASSERT_OWNED_RESOURCE(dst);
 
     // We don't allow conversion between integer configs and float/fixed configs.
     if (GrPixelConfigIsSint(dst->config()) != GrPixelConfigIsSint(src->config())) {
         return false;
     }
 
-    if (!dst->asRenderTarget()) {
+    if (!dst->asRenderTargetProxy()) {
         SkIRect clippedSrcRect;
         SkIPoint clippedDstPoint;
         if (!GrCopySurfaceBatch::ClipSrcRectAndDstPoint(dst, src, srcRect, dstPoint,
@@ -570,11 +570,15 @@ bool GrContext::copySurface(GrSurface* dst, GrSurface* src, const SkIRect& srcRe
         // allowed on textures that aren't render targets.
         // For now we just flush any writes to the src and issue an immediate copy to the dst.
         src->flushWrites();
-        return fGpu->copySurface(dst, src, clippedSrcRect, clippedDstPoint);
+        GrSurface* dstSurface = dst->instantiate(this->textureProvider());
+        if (!dstSurface || !dstSurface->asTexture()) {
+            return false;
+        }
+        return fGpu->copySurface(dstSurface->asTexture(), src, clippedSrcRect, clippedDstPoint);
     }
     sk_sp<GrRenderTargetContext> renderTargetContext(
-        this->contextPriv().makeWrappedRenderTargetContext(sk_ref_sp(dst->asRenderTarget()),
-                                                           nullptr));
+        this->contextPriv().makeRenderTargetContext(sk_ref_sp(dst->asRenderTargetProxy()),
+                                                    nullptr));
     if (!renderTargetContext) {
         return false;
     }
@@ -746,6 +750,14 @@ sk_sp<GrRenderTargetContext> GrContext::makeRenderTargetContextWithFallback(
 
     return this->makeRenderTargetContext(fit, width, height, config, std::move(colorSpace),
                                          sampleCnt, origin, surfaceProps, budgeted);
+}
+
+sk_sp<GrRenderTargetContext> GrContextPriv::makeRenderTargetContext(sk_sp<GrRenderTargetProxy> rtp,
+                                                                    sk_sp<SkColorSpace> colorSpace,
+                                                                    const SkSurfaceProps* props) {
+    return this->drawingManager()->makeRenderTargetContext(std::move(rtp),
+                                                           std::move(colorSpace),
+                                                           props);
 }
 
 sk_sp<GrRenderTargetContext> GrContext::makeRenderTargetContext(SkBackingFit fit,

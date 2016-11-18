@@ -11,6 +11,7 @@
 #include "../private/SkAtomics.h"
 #include "GrGpuResource.h"
 #include "GrNonAtomicRef.h"
+#include "GrSurfaceProxy.h"
 #include "SkMatrix.h"
 #include "SkRect.h"
 #include "SkString.h"
@@ -131,7 +132,7 @@ public:
     /** Used to block batching across render target changes. Remove this once we store
         GrBatches for different RTs in different targets. */
     // TODO: this needs to be updated to return GrSurfaceProxy::UniqueID
-    virtual GrGpuResource::UniqueID renderTargetUniqueID() const = 0;
+    virtual GrSurfaceProxy::UniqueID renderTargetProxyUniqueID() const = 0;
 
     /** Used for spewing information about batches when debugging. */
     virtual SkString dumpInfo() const {
@@ -142,7 +143,7 @@ public:
     }
 
     /** Can remove this when multi-draw-buffer lands */
-    virtual GrRenderTarget* renderTarget() const = 0;
+    virtual GrRenderTargetProxy* renderTargetProxy() const = 0;
 
 protected:
     /**

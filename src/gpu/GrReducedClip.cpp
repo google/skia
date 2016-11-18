@@ -799,7 +799,7 @@ bool GrReducedClip::drawStencilClipMask(GrContext* context,
                         args.fGammaCorrect = false;
                         pr->drawPath(args);
                     } else {
-                        GrPathRenderer::StencilPathArgs args;
+                        GrPathRenderer::StencilPathArgs1 args;
                         args.fResourceProvider = context->resourceProvider();
                         args.fRenderTargetContext = renderTargetContext;
                         args.fClip = &stencilClip.fixedClip();

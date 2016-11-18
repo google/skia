@@ -19,23 +19,25 @@ class GrClearStencilClipBatch final : public GrBatch {
 public:
     DEFINE_BATCH_CLASS_ID
 
-    GrClearStencilClipBatch(const GrFixedClip& clip, bool insideStencilMask, GrRenderTarget* rt)
+    GrClearStencilClipBatch(const GrFixedClip& clip,
+                            bool insideStencilMask,
+                            GrRenderTargetProxy* rtp)
         : INHERITED(ClassID())
         , fClip(clip)
         , fInsideStencilMask(insideStencilMask)
-        , fRenderTarget(rt) {
+        , fRenderTargetProxy(rtp) {
         const SkRect& bounds = fClip.scissorEnabled() ? SkRect::Make(fClip.scissorRect())
-                                                      : SkRect::MakeIWH(rt->width(), rt->height());
+                                                      : SkRect::MakeIWH(rtp->width(), rtp->height());
         this->setBounds(bounds, HasAABloat::kNo, IsZeroArea::kNo);
     }
 
     const char* name() const override { return "ClearStencilClip"; }
 
     // TODO: this needs to be updated to return GrSurfaceProxy::UniqueID
-    GrGpuResource::UniqueID renderTargetUniqueID() const override {
-        return fRenderTarget.get()->uniqueID();
+    GrSurfaceProxy::UniqueID renderTargetProxyUniqueID() const override {
+        return fRenderTargetProxy.get()->uniqueID();
     }
-    GrRenderTarget* renderTarget() const override { return fRenderTarget.get(); }
+    GrRenderTargetProxy* renderTargetProxy() const override { return fRenderTargetProxy.get(); }
 
     SkString dumpInfo() const override {
         SkString string("Scissor [");
@@ -44,7 +46,7 @@ public:
             string.appendf("L: %d, T: %d, R: %d, B: %d", r.fLeft, r.fTop, r.fRight, r.fBottom);
         }
         string.appendf("], IC: %d, RT: %d", fInsideStencilMask,
-                                            fRenderTarget.get()->uniqueID().asUInt());
+                                            fRenderTargetProxy.get()->uniqueID().asUInt());
         string.append(INHERITED::dumpInfo());
         return string;
     }
@@ -58,9 +60,9 @@ private:
         state->commandBuffer()->clearStencilClip(fClip, fInsideStencilMask);
     }
 
-    const GrFixedClip                                       fClip;
-    const bool                                              fInsideStencilMask;
-    GrPendingIOResource<GrRenderTarget, kWrite_GrIOType>    fRenderTarget;
+    const GrFixedClip                                         fClip;
+    const bool                                                fInsideStencilMask;
+    GrPendingIOResource<GrRenderTargetProxy, kWrite_GrIOType> fRenderTargetProxy;
 
     typedef GrBatch INHERITED;
 };

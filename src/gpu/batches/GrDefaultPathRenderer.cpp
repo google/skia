@@ -600,7 +600,7 @@ bool GrDefaultPathRenderer::onDrawPath(const DrawPathArgs& args) {
                                   false);
 }
 
-void GrDefaultPathRenderer::onStencilPath(const StencilPathArgs& args) {
+void GrDefaultPathRenderer::onStencilPath(const StencilPathArgs1& args) {
     GR_AUDIT_TRAIL_AUTO_FRAME(args.fRenderTargetContext->auditTrail(),
                               "GrDefaultPathRenderer::onStencilPath");
     SkASSERT(!args.fShape->inverseFilled());

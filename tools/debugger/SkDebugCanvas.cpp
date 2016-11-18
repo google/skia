@@ -16,6 +16,7 @@
 #include "GrAuditTrail.h"
 #include "GrContext.h"
 #include "GrRenderTarget.h"
+#include "GrRenderTargetContextPriv.h"
 #include "SkGpuDevice.h"
 #endif
 
@@ -349,8 +350,8 @@ void SkDebugCanvas::drawTo(SkCanvas* canvas, int index, int m) {
         // get the render target of the top device so we can ignore batches drawn offscreen
         SkBaseDevice* bd = canvas->getDevice_just_for_deprecated_compatibility_testing();
         SkGpuDevice* gbd = reinterpret_cast<SkGpuDevice*>(bd);
-        GrGpuResource::UniqueID rtID = 
-                            gbd->accessRenderTargetContext()->accessRenderTarget()->uniqueID();
+        GrSurfaceProxy::UniqueID rtID = 
+                   gbd->accessRenderTargetContext()->priv().accessRenderTargetProxy()->uniqueID();
 
         // get the bounding boxes to draw
         SkTArray<GrAuditTrail::BatchInfo> childrenBounds;

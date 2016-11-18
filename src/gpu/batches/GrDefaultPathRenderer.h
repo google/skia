@@ -28,7 +28,7 @@ private:
 
     bool onDrawPath(const DrawPathArgs&) override;
 
-    void onStencilPath(const StencilPathArgs&) override;
+    void onStencilPath(const StencilPathArgs1&) override;
 
     bool internalDrawPath(GrRenderTargetContext*,
                           const GrPaint&,

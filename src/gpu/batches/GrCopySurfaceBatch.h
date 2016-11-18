@@ -20,27 +20,23 @@ public:
     /** This should not really be exposed as Create() will apply this clipping, but there is
      *  currently a workaround in GrContext::copySurface() for non-render target dsts that relies
      *  on it. */
-    static bool ClipSrcRectAndDstPoint(const GrSurface* dst,
+    static bool ClipSrcRectAndDstPoint(const GrSurfaceProxy* dst,
                                        const GrSurface* src,
                                        const SkIRect& srcRect,
                                        const SkIPoint& dstPoint,
                                        SkIRect* clippedSrcRect,
                                        SkIPoint* clippedDstPoint);
 
-    static GrBatch* Create(GrSurface* dst, GrSurface* src, const SkIRect& srcRect,
+    static GrBatch* Create(GrSurfaceProxy* dst, GrSurface* src, const SkIRect& srcRect,
                            const SkIPoint& dstPoint);
 
     const char* name() const override { return "CopySurface"; }
 
-    // TODO: this needs to be updated to return GrSurfaceProxy::UniqueID
-    GrGpuResource::UniqueID renderTargetUniqueID() const override {
-        // TODO: When we have CopyContexts it seems that this should return the ID
-        // of the SurfaceProxy underlying the CopyContext.
-        GrRenderTarget* rt = fDst.get()->asRenderTarget();
-        return rt ? rt->uniqueID() : GrGpuResource::UniqueID::InvalidID();
+    GrSurfaceProxy::UniqueID renderTargetProxyUniqueID() const override {
+        return fDst.get()->uniqueID();
     }
     // TODO: this seems odd - figure it out and add a comment!
-    GrRenderTarget* renderTarget() const override { return nullptr; }
+    GrRenderTargetProxy* renderTargetProxy() const override { return nullptr; }
 
     SkString dumpInfo() const override {
         SkString string;
@@ -53,7 +49,7 @@ public:
     }
 
 private:
-    GrCopySurfaceBatch(GrSurface* dst, GrSurface* src, const SkIRect& srcRect,
+    GrCopySurfaceBatch(GrSurfaceProxy* dst, GrSurface* src, const SkIRect& srcRect,
                        const SkIPoint& dstPoint)
         : INHERITED(ClassID())
         , fDst(dst)
@@ -72,17 +68,18 @@ private:
 
     void onDraw(GrBatchFlushState* state, const SkRect& /*bounds*/) override {
         if (!state->commandBuffer()) {
-            state->gpu()->copySurface(fDst.get(), fSrc.get(), fSrcRect, fDstPoint);
+            GrSurface* surf = fDst.get()->instantiate(nullptr);
+            state->gpu()->copySurface(surf, fSrc.get(), fSrcRect, fDstPoint);
         } else {
             // currently we are not sending copies through the GrGpuCommandBuffer
             SkASSERT(false);
         }
     }
 
-    GrPendingIOResource<GrSurface, kWrite_GrIOType> fDst;
-    GrPendingIOResource<GrSurface, kRead_GrIOType>  fSrc;
-    SkIRect                                         fSrcRect;
-    SkIPoint                                        fDstPoint;
+    GrPendingIOResource<GrSurfaceProxy, kWrite_GrIOType> fDst;
+    GrPendingIOResource<GrSurface, kRead_GrIOType>       fSrc;
+    SkIRect                                              fSrcRect;
+    SkIPoint                                             fDstPoint;
 
     typedef GrBatch INHERITED;
 };

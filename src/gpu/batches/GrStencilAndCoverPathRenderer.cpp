@@ -77,7 +77,7 @@ static GrPath* get_gr_path(GrResourceProvider* resourceProvider, const GrShape& 
     return path.release();
 }
 
-void GrStencilAndCoverPathRenderer::onStencilPath(const StencilPathArgs& args) {
+void GrStencilAndCoverPathRenderer::onStencilPath(const StencilPathArgs1& args) {
     GR_AUDIT_TRAIL_AUTO_FRAME(args.fRenderTargetContext->auditTrail(),
                               "GrStencilAndCoverPathRenderer::onStencilPath");
     SkASSERT(!args.fIsAA || args.fRenderTargetContext->isStencilBufferMultisampled());

@@ -13,6 +13,8 @@
 #include "GrGLPathRange.h"
 #include "GrGLPathRendering.h"
 
+#include "GrRenderTargetProxy.h"
+
 #include "SkStream.h"
 #include "SkTypeface.h"
 
@@ -115,13 +117,18 @@ GrPathRange* GrGLPathRendering::createPathRange(GrPathRange::PathGenerator* path
     return new GrGLPathRange(this->gpu(), pathGenerator, style);
 }
 
-void GrGLPathRendering::onStencilPath(const StencilPathArgs& args, const GrPath* path) {
+void GrGLPathRendering::onStencilPath(const StencilPathArgs2& args, const GrPath* path) {
     GrGLGpu* gpu = this->gpu();
     SkASSERT(gpu->caps()->shaderCaps()->pathRenderingSupport());
     gpu->flushColorWrite(false);
     gpu->flushDrawFace(GrDrawFace::kBoth);
 
-    GrGLRenderTarget* rt = static_cast<GrGLRenderTarget*>(args.fRenderTarget);
+    GrRenderTarget* rt1 = args.fRenderTargetProxy->instantiate(args.fTextureProvider);
+    if (!rt1) {
+        return;
+    }
+
+    GrGLRenderTarget* rt = static_cast<GrGLRenderTarget*>(rt1);
     SkISize size = SkISize::Make(rt->width(), rt->height());
     this->setProjectionMatrix(*args.fViewMatrix, size, rt->origin());
     gpu->flushScissor(*args.fScissor, rt->getViewport(), rt->origin());

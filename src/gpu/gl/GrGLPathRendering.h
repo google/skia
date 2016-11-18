@@ -65,7 +65,7 @@ public:
     GrGLvoid deletePaths(GrGLuint path, GrGLsizei range);
 
 protected:
-    void onStencilPath(const StencilPathArgs&, const GrPath*) override;
+    void onStencilPath(const StencilPathArgs2&, const GrPath*) override;
     void onDrawPath(const GrPipeline&,
                     const GrPrimitiveProcessor&,
                     const GrStencilSettings&,

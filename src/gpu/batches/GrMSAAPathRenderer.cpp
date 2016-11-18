@@ -700,7 +700,7 @@ bool GrMSAAPathRenderer::onDrawPath(const DrawPathArgs& args) {
                                   false);
 }
 
-void GrMSAAPathRenderer::onStencilPath(const StencilPathArgs& args) {
+void GrMSAAPathRenderer::onStencilPath(const StencilPathArgs1& args) {
     GR_AUDIT_TRAIL_AUTO_FRAME(args.fRenderTargetContext->auditTrail(),
                               "GrMSAAPathRenderer::onStencilPath");
     SkASSERT(args.fShape->style().isSimpleFill());

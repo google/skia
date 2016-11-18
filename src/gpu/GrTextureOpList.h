@@ -50,7 +50,7 @@ public:
      * depending on the type of surface, configs, etc, and the backend-specific
      * limitations.
      */
-    bool copySurface(GrSurface* dst,
+    bool copySurface(GrSurfaceProxy* dst,
                      GrSurface* src,
                      const SkIRect& srcRect,
                      const SkIPoint& dstPoint);

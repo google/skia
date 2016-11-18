@@ -76,20 +76,22 @@ public:
 
     // TODO: this needs to be updated to return GrSurfaceProxy::UniqueID
     // This is a bit more exciting than the other call sites since it uses the pipeline
-    GrGpuResource::UniqueID renderTargetUniqueID() const final {
+    GrSurfaceProxy::UniqueID renderTargetProxyUniqueID() const final {
         SkASSERT(fPipelineInstalled);
-        return this->pipeline()->getRenderTarget()->uniqueID();
+        // All GrGpuResource::UniqueIDs are valid GrSurfaceProxy::UniqueIDs but not vice versa
+        // TODO: have pipeline store a surface proxy
+        return GrSurfaceProxy::UniqueID(this->pipeline()->getRenderTarget()->uniqueID());
     }
 
     // TODO: store a GrRenderTargetContext instead
-    GrRenderTarget* renderTarget() const final {
+    GrRenderTargetProxy* renderTargetProxy() const final {
         SkASSERT(fPipelineInstalled);
-        return this->pipeline()->getRenderTarget();
+        return nullptr; //this->pipeline()->getRenderTarget();
     }
 
     SkString dumpInfo() const override {
         SkString string;
-        string.appendf("RT: %d\n", this->renderTargetUniqueID().asUInt());
+        string.appendf("RT: %d\n", this->renderTargetProxyUniqueID().asUInt());
         string.append("ColorStages:\n");
         for (int i = 0; i < this->pipeline()->numColorFragmentProcessors(); i++) {
             string.appendf("\t\t%s\n\t\t%s\n",

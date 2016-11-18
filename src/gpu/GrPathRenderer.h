@@ -182,7 +182,7 @@ public:
      * fPath                  The path to draw.
      * fIsAA                  Is the path to be drawn AA (only set when MSAA is available)
      */
-    struct StencilPathArgs {
+    struct StencilPathArgs1 {
         GrResourceProvider*    fResourceProvider;
         GrRenderTargetContext* fRenderTargetContext;
         const GrClip*          fClip;
@@ -208,7 +208,7 @@ public:
      * Draws the path to the stencil buffer. Assume the writable stencil bits are already
      * initialized to zero. The pixels inside the path will have non-zero stencil values afterwards.
      */
-    void stencilPath(const StencilPathArgs& args) {
+    void stencilPath(const StencilPathArgs1& args) {
         SkDEBUGCODE(args.validate();)
         SkASSERT(kNoSupport_StencilSupport != this->getStencilSupport(*args.fShape));
         this->onStencilPath(args);
@@ -263,7 +263,7 @@ private:
      * Subclass implementation of stencilPath(). Subclass must override iff it ever returns
      * kStencilOnly in onGetStencilSupport().
      */
-    virtual void onStencilPath(const StencilPathArgs& args) {
+    virtual void onStencilPath(const StencilPathArgs1& args) {
         static constexpr GrUserStencilSettings kIncrementStencil(
             GrUserStencilSettings::StaticInit<
                  0xffff,

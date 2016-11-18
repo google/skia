@@ -17,31 +17,31 @@ class GrDiscardBatch final : public GrBatch {
 public:
     DEFINE_BATCH_CLASS_ID
 
-    GrDiscardBatch(GrRenderTarget* rt)
+    GrDiscardBatch(GrRenderTargetProxy* rtp)
         : INHERITED(ClassID())
-        , fRenderTarget(rt) {
-        this->setBounds(SkRect::MakeIWH(rt->width(), rt->height()), HasAABloat::kNo,
+        , fRenderTargetProxy(rtp) {
+        this->setBounds(SkRect::MakeIWH(rtp->width(), rtp->height()), HasAABloat::kNo,
                         IsZeroArea::kNo);
     }
 
     const char* name() const override { return "Discard"; }
 
     // TODO: this needs to be updated to return GrSurfaceProxy::UniqueID
-    GrGpuResource::UniqueID renderTargetUniqueID() const override {
-        return fRenderTarget.get()->uniqueID();
+    GrSurfaceProxy::UniqueID renderTargetProxyUniqueID() const override {
+        return fRenderTargetProxy.get()->uniqueID();
     }
-    GrRenderTarget* renderTarget() const override { return fRenderTarget.get(); }
+    GrRenderTargetProxy* renderTargetProxy() const override { return fRenderTargetProxy.get(); }
 
     SkString dumpInfo() const override {
         SkString string;
-        string.printf("RT: %d", fRenderTarget.get()->uniqueID().asUInt());
+        string.printf("RT: %d", fRenderTargetProxy.get()->uniqueID().asUInt());
         string.append(INHERITED::dumpInfo());
         return string;
     }
 
 private:
     bool onCombineIfPossible(GrBatch* that, const GrCaps& caps) override {
-        return this->renderTargetUniqueID() == that->renderTargetUniqueID();
+        return this->renderTargetProxyUniqueID() == that->renderTargetProxyUniqueID();
     }
 
     void onPrepare(GrBatchFlushState*) override {}
@@ -50,7 +50,7 @@ private:
         state->commandBuffer()->discard();
     }
 
-    GrPendingIOResource<GrRenderTarget, kWrite_GrIOType> fRenderTarget;
+    GrPendingIOResource<GrRenderTargetProxy, kWrite_GrIOType> fRenderTargetProxy;
 
     typedef GrBatch INHERITED;
 };

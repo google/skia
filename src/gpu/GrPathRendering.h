@@ -133,26 +133,29 @@ public:
                               const SkDescriptor*, const GrStyle&);
 
     /** None of these params are optional, pointers used just to avoid making copies. */
-    struct StencilPathArgs {
-        StencilPathArgs(bool useHWAA,
-                        GrRenderTarget* renderTarget,
+    struct StencilPathArgs2 {
+        StencilPathArgs2(bool useHWAA,
+                        GrTextureProvider* textureProvider,
+                        GrRenderTargetProxy* renderTargetProxy,
                         const SkMatrix* viewMatrix,
                         const GrScissorState* scissor,
                         const GrStencilSettings* stencil)
             : fUseHWAA(useHWAA)
-            , fRenderTarget(renderTarget)
+            , fTextureProvider(textureProvider)
+            , fRenderTargetProxy(renderTargetProxy)
             , fViewMatrix(viewMatrix)
             , fScissor(scissor)
             , fStencil(stencil) {
         }
         bool fUseHWAA;
-        GrRenderTarget* fRenderTarget;
+        GrTextureProvider* fTextureProvider;
+        GrRenderTargetProxy* fRenderTargetProxy;
         const SkMatrix* fViewMatrix;
         const GrScissorState* fScissor;
         const GrStencilSettings* fStencil;
     };
 
-    void stencilPath(const StencilPathArgs& args, const GrPath* path) {
+    void stencilPath(const StencilPathArgs2& args, const GrPath* path) {
         fGpu->handleDirtyContext();
         this->onStencilPath(args, path);
     }
@@ -192,7 +195,7 @@ protected:
     GrPathRendering(GrGpu* gpu)
         : fGpu(gpu) {
     }
-    virtual void onStencilPath(const StencilPathArgs&, const GrPath*) = 0;
+    virtual void onStencilPath(const StencilPathArgs2&, const GrPath*) = 0;
     virtual void onDrawPath(const GrPipeline&,
                             const GrPrimitiveProcessor&,
                             const GrStencilSettings&,

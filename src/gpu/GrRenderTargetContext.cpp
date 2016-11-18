@@ -143,14 +143,7 @@ bool GrRenderTargetContext::copySurface(GrSurface* src, const SkIRect& srcRect,
     SkDEBUGCODE(this->validate();)
     GR_AUDIT_TRAIL_AUTO_FRAME(fAuditTrail, "GrRenderTargetContext::copySurface");
 
-    // TODO: this needs to be fixed up since it ends the deferrable of the GrRenderTarget
-    sk_sp<GrRenderTarget> rt(
-                        sk_ref_sp(fRenderTargetProxy->instantiate(fContext->textureProvider())));
-    if (!rt) {
-        return false;
-    }
-
-    return this->getOpList()->copySurface(rt.get(), src, srcRect, dstPoint);
+    return this->getOpList()->copySurface(fRenderTargetProxy.get(), src, srcRect, dstPoint);
 }
 
 void GrRenderTargetContext::drawText(const GrClip& clip, const GrPaint& grPaint,
@@ -207,15 +200,7 @@ void GrRenderTargetContext::discard() {
     GR_AUDIT_TRAIL_AUTO_FRAME(fAuditTrail, "GrRenderTargetContext::discard");
 
     AutoCheckFlush acf(fDrawingManager);
-
-    // TODO: this needs to be fixed up since it ends the deferrable of the GrRenderTarget
-    sk_sp<GrRenderTarget> rt(
-                        sk_ref_sp(fRenderTargetProxy->instantiate(fContext->textureProvider())));
-    if (!rt) {
-        return;
-    }
-
-    this->getOpList()->discard(rt.get());
+    this->getOpList()->discard(fRenderTargetProxy.get());
 }
 
 void GrRenderTargetContext::clear(const SkIRect* rect,
@@ -270,14 +255,9 @@ void GrRenderTargetContext::internalClear(const GrFixedClip& clip,
 
         this->drawRect(clip, paint, SkMatrix::I(), clearRect);
     } else if (isFull) {
-        if (this->accessRenderTarget()) {
-            this->getOpList()->fullClear(this->accessRenderTarget(), color);
-        }
+        this->getOpList()->fullClear(fRenderTargetProxy.get(), color);
     } else {
-        if (!this->accessRenderTarget()) {
-            return;
-        }
-        sk_sp<GrBatch> batch(GrClearBatch::Make(clip, color, this->accessRenderTarget()));
+        sk_sp<GrBatch> batch(GrClearBatch::Make(clip, color, fRenderTargetProxy.get()));
         if (!batch) {
             return;
         }
@@ -607,7 +587,7 @@ void GrRenderTargetContextPriv::clearStencilClip(const GrFixedClip& clip, bool i
         return;
     }
     fRenderTargetContext->getOpList()->clearStencilClip(clip, insideStencilMask,
-                                                        fRenderTargetContext->accessRenderTarget());
+                                                        fRenderTargetContext->priv().accessRenderTargetProxy());
 }
 
 void GrRenderTargetContextPriv::stencilPath(const GrClip& clip,
