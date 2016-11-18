@@ -10,7 +10,6 @@
 #include "glsl/GrGLSLCaps.h"
 #include "glsl/GrGLSLColorSpaceXformHelper.h"
 #include "glsl/GrGLSLShaderVar.h"
-#include "glsl/GrGLSLSampler.h"
 #include "glsl/GrGLSLProgramBuilder.h"
 
 GrGLSLShaderBuilder::GrGLSLShaderBuilder(GrGLSLProgramBuilder* program)
@@ -63,38 +62,37 @@ void GrGLSLShaderBuilder::emitFunction(GrSLType returnType,
     this->functions().append("}\n\n");
 }
 
+static inline void append_texture_swizzle(SkString* out, GrSwizzle swizzle) {
+    if (swizzle != GrSwizzle::RGBA()) {
+        out->appendf(".%s", swizzle.c_str());
+    }
+}
+
 void GrGLSLShaderBuilder::appendTextureLookup(SkString* out,
                                               SamplerHandle samplerHandle,
                                               const char* coordName,
                                               GrSLType varyingType) const {
     const GrGLSLCaps* glslCaps = fProgramBuilder->glslCaps();
-    const GrGLSLSampler& sampler = fProgramBuilder->getSampler(samplerHandle);
-    GrSLType samplerType = sampler.type();
+    const GrGLSLShaderVar& sampler = fProgramBuilder->samplerVariable(samplerHandle);
+    GrSLType samplerType = sampler.getType();
     if (samplerType == kTexture2DRectSampler_GrSLType) {
         if (varyingType == kVec2f_GrSLType) {
             out->appendf("%s(%s, textureSize(%s) * %s)",
                          GrGLSLTexture2DFunctionName(varyingType, samplerType,
                                                      glslCaps->generation()),
-                         sampler.getSamplerNameForTexture2D(),
-                         sampler.getSamplerNameForTexture2D(),
-                         coordName);
+                         sampler.c_str(), sampler.c_str(), coordName);
         } else {
             out->appendf("%s(%s, vec3(textureSize(%s) * %s.xy, %s.z))",
                          GrGLSLTexture2DFunctionName(varyingType, samplerType,
                                                      glslCaps->generation()),
-                         sampler.getSamplerNameForTexture2D(),
-                         sampler.getSamplerNameForTexture2D(),
-                         coordName,
-                         coordName);
+                         sampler.c_str(), sampler.c_str(), coordName, coordName);
         }
     } else {
         out->appendf("%s(%s, %s)",
                      GrGLSLTexture2DFunctionName(varyingType, samplerType, glslCaps->generation()),
-                     sampler.getSamplerNameForTexture2D(),
-                     coordName);
+                     sampler.c_str(), coordName);
     }
-
-    this->appendTextureSwizzle(out, sampler.config());
+    append_texture_swizzle(out, fProgramBuilder->samplerSwizzle(samplerHandle));
 }
 
 void GrGLSLShaderBuilder::appendTextureLookup(SamplerHandle samplerHandle,
@@ -164,25 +162,17 @@ void GrGLSLShaderBuilder::appendColorGamutXform(const char* srcColor,
 void GrGLSLShaderBuilder::appendTexelFetch(SkString* out,
                                            SamplerHandle samplerHandle,
                                            const char* coordExpr) const {
-    const GrGLSLSampler& sampler = fProgramBuilder->getSampler(samplerHandle);
+    const GrGLSLShaderVar& sampler = fProgramBuilder->samplerVariable(samplerHandle);
     SkASSERT(fProgramBuilder->glslCaps()->texelFetchSupport());
-    SkASSERT(GrSLTypeIsCombinedSamplerType(sampler.type()));
+    SkASSERT(GrSLTypeIsCombinedSamplerType(sampler.getType()));
 
-    out->appendf("texelFetch(%s, %s)", sampler.getSamplerNameForTexelFetch(), coordExpr);
+    out->appendf("texelFetch(%s, %s)", sampler.c_str(), coordExpr);
 
-    this->appendTextureSwizzle(out, sampler.config());
+    append_texture_swizzle(out, fProgramBuilder->samplerSwizzle(samplerHandle));
 }
 
 void GrGLSLShaderBuilder::appendTexelFetch(SamplerHandle samplerHandle, const char* coordExpr) {
     this->appendTexelFetch(&this->code(), samplerHandle, coordExpr);
-}
-
-void GrGLSLShaderBuilder::appendTextureSwizzle(SkString* out, GrPixelConfig config) const {
-    const GrSwizzle& configSwizzle = fProgramBuilder->glslCaps()->configTextureSwizzle(config);
-
-    if (configSwizzle != GrSwizzle::RGBA()) {
-        out->appendf(".%s", configSwizzle.c_str());
-    }
 }
 
 bool GrGLSLShaderBuilder::addFeature(uint32_t featureBit, const char* extensionName) {

@@ -295,8 +295,9 @@ void GrGLSLProgramBuilder::emitSampler(GrSLType samplerType,
         ++fNumFragmentSamplers;
     }
     GrSLPrecision precision = this->glslCaps()->samplerPrecision(config, visibility);
+    GrSwizzle swizzle = this->glslCaps()->configTextureSwizzle(config);
     SamplerHandle handle = this->uniformHandler()->addSampler(visibility,
-                                                              config,
+                                                              swizzle,
                                                               samplerType,
                                                               precision,
                                                               name);
@@ -390,9 +391,6 @@ void GrGLSLProgramBuilder::appendUniformDecls(GrShaderFlags visibility, SkString
     this->uniformHandler()->appendUniformDecls(visibility, out);
 }
 
-const GrGLSLSampler& GrGLSLProgramBuilder::getSampler(SamplerHandle handle) const {
-    return this->uniformHandler()->getSampler(handle);
-}
 
 void GrGLSLProgramBuilder::addRTAdjustmentUniform(GrSLPrecision precision,
                                                   const char* name,

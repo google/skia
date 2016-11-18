@@ -11,7 +11,6 @@
 #include "glsl/GrGLSLProgramDataManager.h"
 
 #include "GrAllocator.h"
-#include "gl/GrGLSampler.h"
 #include "gl/GrGLTypes.h"
 #include "glsl/GrGLSLShaderVar.h"
 
@@ -38,6 +37,7 @@ public:
         GrGLint         fLocation;
     };
 
+
     // This uses an allocator rather than array so that the GrGLSLShaderVars don't move in memory
     // after they are inserted. Users of GrGLShaderBuilder get refs to the vars and ptrs to their
     // name strings. Otherwise, we'd have to hand out copies.
@@ -48,7 +48,7 @@ public:
                            const VaryingInfoArray&);
 
 
-    void setSamplers(const SkTArray<GrGLSampler>& samplers) const;
+    void setSamplers(const UniformInfoArray& samplers) const;
 
     /** Functions for uploading uniform values. The varities ending in v can be used to upload to an
     *  array of uniforms. arrayCount must be <= the array count of the uniform.
@@ -82,12 +82,11 @@ private:
     };
 
     struct Uniform {
-        GrGLint     fVSLocation;
-        GrGLint     fFSLocation;
-        SkDEBUGCODE(
-            GrSLType    fType;
-            int         fArrayCount;
-        );
+        GrGLint     fLocation;
+#ifdef SK_DEBUG
+        GrSLType    fType;
+        int         fArrayCount;
+#endif
     };
 
     enum {

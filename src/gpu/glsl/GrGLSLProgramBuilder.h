@@ -16,7 +16,6 @@
 #include "glsl/GrGLSLPrimitiveProcessor.h"
 #include "glsl/GrGLSLProgramDataManager.h"
 #include "glsl/GrGLSLUniformHandler.h"
-#include "glsl/GrGLSLSampler.h"
 #include "glsl/GrGLSLVertexShaderBuilder.h"
 #include "glsl/GrGLSLXferProcessor.h"
 
@@ -44,7 +43,13 @@ public:
 
     typedef GrGLSLUniformHandler::SamplerHandle SamplerHandle;
 
-    const GrGLSLSampler& getSampler(SamplerHandle handle) const;
+    const GrGLSLShaderVar& samplerVariable(SamplerHandle handle) const {
+        return this->uniformHandler()->samplerVariable(handle);
+    }
+
+    GrSwizzle samplerSwizzle(SamplerHandle handle) const {
+        return this->uniformHandler()->samplerSwizzle(handle);
+    }
 
     // Handles for program uniforms (other than per-effect uniforms)
     struct BuiltinUniformHandles {

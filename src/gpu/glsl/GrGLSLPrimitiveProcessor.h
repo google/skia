@@ -11,7 +11,6 @@
 #include "GrFragmentProcessor.h"
 #include "GrPrimitiveProcessor.h"
 #include "glsl/GrGLSLProgramDataManager.h"
-#include "glsl/GrGLSLSampler.h"
 
 class GrBatchTracker;
 class GrPrimitiveProcessor;
