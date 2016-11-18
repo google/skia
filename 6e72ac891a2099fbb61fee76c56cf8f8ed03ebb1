@@ -25,6 +25,24 @@
     },
     {
       "key": {
+        "uuid": "b09b987b_4010ac70",
+        "filename": "PRESUBMIT.py",
+        "patchSetId": 3
+      },
+      "lineNbr": 43,
+      "author": {
+        "id": 5015
+      },
+      "writtenOn": "2016-11-18T18:12:56Z",
+      "side": 1,
+      "message": "Shortened the line below and removed this.",
+      "parentUuid": "b09b987b_7e755639",
+      "revId": "6e72ac891a2099fbb61fee76c56cf8f8ed03ebb1",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "b09b987b_2312d509",
         "filename": "infra/bots/tasks.json",
         "patchSetId": 3
@@ -42,6 +60,24 @@
         "endLine": 159,
         "endChar": 32
       },
+      "revId": "6e72ac891a2099fbb61fee76c56cf8f8ed03ebb1",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "b09b987b_20656824",
+        "filename": "infra/bots/tasks.json",
+        "patchSetId": 3
+      },
+      "lineNbr": 159,
+      "author": {
+        "id": 5015
+      },
+      "writtenOn": "2016-11-18T18:12:56Z",
+      "side": 1,
+      "message": "Fixed.",
+      "parentUuid": "b09b987b_2312d509",
       "revId": "6e72ac891a2099fbb61fee76c56cf8f8ed03ebb1",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
