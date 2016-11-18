@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "b09b987b_432ef9c0",
+        "filename": "src/core/SkFDot6Constants.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 28,
+      "author": {
+        "id": 5647
+      },
+      "writtenOn": "2016-11-18T15:20:00Z",
+      "side": 1,
+      "message": "I\u0027ve added that assert to the unit test.\n\nIt\u0027s true that I don\u0027t initialize when i \u003d\u003d 0 (i.e., storage[kInverseTableSize] is undefined). That\u0027s because division by 0 is undefined and I\u0027m guaranteeing that the denominator should be non-zero.",
+      "parentUuid": "b09b987b_080b3006",
+      "revId": "209f78b90c26df6382d2f45780fd777d94943972",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "b09b987b_48f458d8",
         "filename": "src/core/SkFDot6Constants.h",
         "patchSetId": 4
@@ -36,6 +54,24 @@
     },
     {
       "key": {
+        "uuid": "b09b987b_8328e1b1",
+        "filename": "src/core/SkFDot6Constants.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 217,
+      "author": {
+        "id": 5647
+      },
+      "writtenOn": "2016-11-18T15:20:00Z",
+      "side": 1,
+      "message": "Yes, I\u0027ve added the assert to our test. Note that we go from -kInverseTableSize to kInverseTableSize to ensure that all cells of the table (except 0 which is undefined) are correct.",
+      "parentUuid": "b09b987b_48f458d8",
+      "revId": "209f78b90c26df6382d2f45780fd777d94943972",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "b09b987b_88ee4004",
         "filename": "tests/MathTest.cpp",
         "patchSetId": 4
@@ -47,6 +83,24 @@
       "writtenOn": "2016-11-18T12:43:34Z",
       "side": 1,
       "message": "This test looks fine, but I expect more testing than this single entry. Sound reasonable?",
+      "revId": "209f78b90c26df6382d2f45780fd777d94943972",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "b09b987b_8351c153",
+        "filename": "tests/MathTest.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 42,
+      "author": {
+        "id": 5647
+      },
+      "writtenOn": "2016-11-18T15:20:00Z",
+      "side": 1,
+      "message": "Great suggestion! Done.",
+      "parentUuid": "b09b987b_88ee4004",
       "revId": "209f78b90c26df6382d2f45780fd777d94943972",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
