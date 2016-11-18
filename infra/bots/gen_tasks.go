@@ -37,7 +37,19 @@ var (
 
 	// Top-level list of all jobs to run at each commit.
 	JOBS = []string{
+		"Build-Mac-Clang-Arm7-Debug-iOS",
+		"Build-Mac-Clang-Arm7-Release-iOS",
 		"Build-Mac-Clang-arm64-Debug-GN_iOS",
+		"Build-Ubuntu-Clang-arm-Debug-GN_Android",
+		"Build-Ubuntu-Clang-arm-Release-GN_Android",
+		"Build-Ubuntu-Clang-arm64-Debug-GN_Android",
+		"Build-Ubuntu-Clang-arm64-Debug-GN_Android_Vulkan",
+		"Build-Ubuntu-Clang-arm64-Release-GN_Android",
+		"Build-Ubuntu-Clang-arm64-Release-GN_Android_Vulkan",
+		"Build-Ubuntu-Clang-x86-Debug-GN_Android",
+		"Build-Ubuntu-Clang-x86-Debug-GN_Android_Vulkan",
+		"Build-Ubuntu-Clang-x86-Release-GN_Android",
+		"Build-Ubuntu-Clang-x86-Release-GN_Android_Vulkan",
 		"Build-Ubuntu-GCC-x86_64-Release-GN",
 		"Build-Win-Clang-arm64-Release-GN_Android",
 		"Housekeeper-Nightly-RecreateSKPs_Canary",
