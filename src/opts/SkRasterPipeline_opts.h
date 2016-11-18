@@ -729,7 +729,11 @@ namespace SK_OPTS_NS {
             }
 
             void operator()(size_t x, size_t y, size_t n) {
+#ifdef SK_BUILD_FOR_WINRT
+                SkNf v = SkNf();  // gives uninitialized variable 'v' on ARM
+#else
                 SkNf v;  // Fastest to start uninitialized.
+#endif
 
                 float dx[] = { 0,1,2,3,4,5,6,7 };
                 SkNf X = SkNf(x) + SkNf::Load(dx) + 0.5f,

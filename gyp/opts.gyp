@@ -120,6 +120,7 @@
       'product_name': 'skia_opts_sse41',
       'type': 'static_library',
       'standalone_static_library': 1,
+      'msvs_disabled_warnings': [ 4244, 4267 ],
       'dependencies': [ 'core.gyp:*' ],
       'include_dirs': [
           '../include/private',
@@ -174,6 +175,7 @@
       'product_name': 'skia_opts_hsw',
       'type': 'static_library',
       'standalone_static_library': 1,
+      'msvs_disabled_warnings': [ 4244, 4267 ],
       'dependencies': [ 'core.gyp:*' ],
       'include_dirs': [
           '../include/private',
