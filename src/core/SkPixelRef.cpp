@@ -319,10 +319,6 @@ bool SkPixelRef::onReadPixels(SkBitmap* dst, SkColorType, const SkIRect* subset)
 
 void SkPixelRef::onNotifyPixelsChanged() { }
 
-SkData* SkPixelRef::onRefEncodedData() {
-    return nullptr;
-}
-
 size_t SkPixelRef::getAllocatedSizeInBytes() const {
     return 0;
 }
