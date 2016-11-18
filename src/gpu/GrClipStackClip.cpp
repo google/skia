@@ -340,8 +340,6 @@ bool GrClipStackClip::apply(GrContext* context, GrRenderTargetContext* renderTar
             result = CreateSoftwareClipMask(context->textureProvider(), reducedClip);
         } else {
             result = CreateAlphaClipMask(context, reducedClip);
-            // If createAlphaClipMask fails it means UseSWOnlyPath has a bug
-            SkASSERT(result);
         }
 
         if (result) {

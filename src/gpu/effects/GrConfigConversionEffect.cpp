@@ -220,6 +220,9 @@ void GrConfigConversionEffect::TestForPreservingPMConversions(GrContext* context
         // from readTex to tempTex followed by a PM->UPM draw to readTex and finally read the data.
         // We then verify that two reads produced the same values.
 
+        if (!readRTC->asTexture()) {
+            continue;
+        }
         GrPaint paint1;
         GrPaint paint2;
         GrPaint paint3;

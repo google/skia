@@ -1159,6 +1159,9 @@ void SkGpuDevice::drawSpecial(const SkDraw& draw,
 
     SkASSERT(result->isTextureBacked());
     sk_sp<GrTexture> texture = result->asTextureRef(fContext.get());
+    if (!texture) {
+        return;
+    }
 
     SkPaint tmpUnfiltered(paint);
     tmpUnfiltered.setImageFilter(nullptr);
