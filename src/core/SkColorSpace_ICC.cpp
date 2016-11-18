@@ -670,33 +670,48 @@ static bool load_color_lut(sk_sp<SkColorLookUpTable>* colorLUT, uint32_t inputCh
  *  @param len       The length of |src|.
  *                   Must have 48 bytes if |translate| is set and 36 bytes otherwise.
  *  @param translate Whether to read the translation column or not
+ *  @param pcs       The processing color space of the profile this matrix is for
  *
  *  @return          false on failure, true on success
  */
-static bool load_matrix(SkMatrix44* matrix, const uint8_t* src, size_t len, bool translate) {
+static bool load_matrix(SkMatrix44* matrix, const uint8_t* src, size_t len, bool translate,
+                        SkColorSpace_A2B::PCS pcs) {
     const size_t minLen = translate ? 48 : 36;
     if (len < minLen) {
         SkColorSpacePrintf("Matrix tag is too small (%d bytes).", len);
         return false;
     }
 
+    float encodingFactor;
+    switch (pcs) {
+        case SkColorSpace_A2B::PCS::kLAB:
+            encodingFactor = 1.f;
+            break;
+        case SkColorSpace_A2B::PCS::kXYZ:
+            encodingFactor = 65535 / 32768.f;
+            break;
+        default:
+            encodingFactor = 1.f;
+            SkASSERT(false);
+            break; 
+    }
     float array[16];
-    array[ 0] = SkFixedToFloat(read_big_endian_i32(src));
-    array[ 1] = SkFixedToFloat(read_big_endian_i32(src + 4));
-    array[ 2] = SkFixedToFloat(read_big_endian_i32(src + 8));
+    array[ 0] = encodingFactor * SkFixedToFloat(read_big_endian_i32(src));
+    array[ 1] = encodingFactor * SkFixedToFloat(read_big_endian_i32(src + 4));
+    array[ 2] = encodingFactor * SkFixedToFloat(read_big_endian_i32(src + 8));
 
-    array[ 4] = SkFixedToFloat(read_big_endian_i32(src + 12));
-    array[ 5] = SkFixedToFloat(read_big_endian_i32(src + 16));
-    array[ 6] = SkFixedToFloat(read_big_endian_i32(src + 20));
+    array[ 4] = encodingFactor * SkFixedToFloat(read_big_endian_i32(src + 12));
+    array[ 5] = encodingFactor * SkFixedToFloat(read_big_endian_i32(src + 16));
+    array[ 6] = encodingFactor * SkFixedToFloat(read_big_endian_i32(src + 20));
 
-    array[ 8] = SkFixedToFloat(read_big_endian_i32(src + 24));
-    array[ 9] = SkFixedToFloat(read_big_endian_i32(src + 28));
-    array[10] = SkFixedToFloat(read_big_endian_i32(src + 32));
+    array[ 8] = encodingFactor * SkFixedToFloat(read_big_endian_i32(src + 24));
+    array[ 9] = encodingFactor * SkFixedToFloat(read_big_endian_i32(src + 28));
+    array[10] = encodingFactor * SkFixedToFloat(read_big_endian_i32(src + 32));
 
     if (translate) {
-        array[ 3] = SkFixedToFloat(read_big_endian_i32(src + 36)); // translate R
-        array[ 7] = SkFixedToFloat(read_big_endian_i32(src + 40)); // translate G
-        array[11] = SkFixedToFloat(read_big_endian_i32(src + 44)); // translate B
+        array[ 3] = encodingFactor * SkFixedToFloat(read_big_endian_i32(src + 36)); // translate R
+        array[ 7] = encodingFactor * SkFixedToFloat(read_big_endian_i32(src + 40)); // translate G
+        array[11] = encodingFactor * SkFixedToFloat(read_big_endian_i32(src + 44)); // translate B
     } else {
         array[ 3] = 0.0f;
         array[ 7] = 0.0f;
@@ -913,7 +928,7 @@ static bool load_lut_gammas(sk_sp<SkGammas>* gammas, size_t numTables, size_t en
 }
 
 bool load_a2b0_a_to_b_type(std::vector<SkColorSpace_A2B::Element>* elements, const uint8_t* src,
-                           size_t len) {
+                           size_t len, SkColorSpace_A2B::PCS pcs) {
     // Read the number of channels.  The four bytes (4-7) that we skipped are reserved and
     // must be zero.
     const uint8_t inputChannels = src[8];
@@ -993,7 +1008,7 @@ bool load_a2b0_a_to_b_type(std::vector<SkColorSpace_A2B::Element>* elements, con
     const uint32_t offsetToMatrix = read_big_endian_i32(src + 16);
     if (0 != offsetToMatrix && offsetToMatrix < len) {
         SkMatrix44 matrix(SkMatrix44::kUninitialized_Constructor);
-        if (!load_matrix(&matrix, src + offsetToMatrix, len - offsetToMatrix, true)) {
+        if (!load_matrix(&matrix, src + offsetToMatrix, len - offsetToMatrix, true, pcs)) {
             SkColorSpacePrintf("Failed to read matrix from A to B tag.\n");
         } else {
             elements->push_back(SkColorSpace_A2B::Element(matrix));
@@ -1019,7 +1034,7 @@ bool load_a2b0_a_to_b_type(std::vector<SkColorSpace_A2B::Element>* elements, con
 }
 
 bool load_a2b0_lutn_type(std::vector<SkColorSpace_A2B::Element>* elements, const uint8_t* src,
-                         size_t len) {
+                         size_t len, SkColorSpace_A2B::PCS pcs) {
     const uint32_t type = read_big_endian_u32(src);
     size_t requiredLen;
     switch (type) {
@@ -1050,7 +1065,7 @@ bool load_a2b0_lutn_type(std::vector<SkColorSpace_A2B::Element>* elements, const
     // 11th byte reserved for padding (required to be zero)
 
     SkMatrix44 matrix(SkMatrix44::kUninitialized_Constructor);
-    load_matrix(&matrix, &src[12], len - 12, false);
+    load_matrix(&matrix, &src[12], len - 12, false, pcs);
     elements->push_back(SkColorSpace_A2B::Element(matrix));
 
     size_t dataOffset      = 48;
@@ -1108,7 +1123,7 @@ bool load_a2b0_lutn_type(std::vector<SkColorSpace_A2B::Element>* elements, const
 }
 
 static bool load_a2b0(std::vector<SkColorSpace_A2B::Element>* elements, const uint8_t* src,
-                      size_t len) {
+                      size_t len, SkColorSpace_A2B::PCS pcs) {
     const uint32_t type = read_big_endian_u32(src);
     switch (type) {
         case kTAG_AtoBType:
@@ -1117,21 +1132,21 @@ static bool load_a2b0(std::vector<SkColorSpace_A2B::Element>* elements, const ui
                 return false;
             }
             SkColorSpacePrintf("A2B0 tag is of type lutAtoBType\n");
-            return load_a2b0_a_to_b_type(elements, src, len);
+            return load_a2b0_a_to_b_type(elements, src, len, pcs);
         case kTAG_lut8Type:
             if (len < 48) {
                 SkColorSpacePrintf("lut8 tag is too small (%d bytes).", len);
                 return false;
             }
             SkColorSpacePrintf("A2B0 tag of type lut8Type\n");
-            return load_a2b0_lutn_type(elements, src, len);
+            return load_a2b0_lutn_type(elements, src, len, pcs);
         case kTAG_lut16Type:
             if (len < 52) {
                 SkColorSpacePrintf("lut16 tag is too small (%d bytes).", len);
                 return false;
             }
             SkColorSpacePrintf("A2B0 tag of type lut16Type\n");
-            return load_a2b0_lutn_type(elements, src, len);
+            return load_a2b0_lutn_type(elements, src, len, pcs);
         default:
             SkColorSpacePrintf("Unsupported A to B tag type: %c%c%c%c\n", (type>>24)&0xFF,
                                (type>>16)&0xFF, (type>>8)&0xFF, type&0xFF);
@@ -1372,7 +1387,7 @@ sk_sp<SkColorSpace> SkColorSpace::MakeICC(const void* input, size_t len) {
                                                 ? SkColorSpace_A2B::PCS::kXYZ
                                                 : SkColorSpace_A2B::PCS::kLAB;
                 std::vector<SkColorSpace_A2B::Element> elements;
-                if (!load_a2b0(&elements, a2b0->addr(base), a2b0->fLength)) {
+                if (!load_a2b0(&elements, a2b0->addr(base), a2b0->fLength, pcs)) {
                     return_null("Failed to parse A2B0 tag");
                 }
                 return sk_sp<SkColorSpace>(new SkColorSpace_A2B(pcs, std::move(data),
