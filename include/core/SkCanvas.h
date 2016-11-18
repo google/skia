@@ -18,7 +18,6 @@
 #include "SkRefCnt.h"
 #include "SkRegion.h"
 #include "SkSurfaceProps.h"
-#include "SkXfermode.h"
 #include "SkLights.h"
 #include "../private/SkShadowParams.h"
 

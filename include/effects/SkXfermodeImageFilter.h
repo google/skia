@@ -11,8 +11,6 @@
 #include "SkBlendMode.h"
 #include "SkImageFilter.h"
 
-class SkXfermode;
-
 /**
  * This filter takes an xfermode, and uses it to composite the foreground
  * over the background.  If foreground or background is NULL, the input

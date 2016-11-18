@@ -13,7 +13,6 @@
 #include "GrProcessor.h"
 #include "GrTexture.h"
 #include "GrTypes.h"
-#include "SkXfermode.h"
 
 class GrShaderCaps;
 class GrGLSLCaps;
