@@ -29,9 +29,9 @@ public:
         kInOut_TypeModifier,
         kUniform_TypeModifier,
         // GL Specific types below
-        kAttribute_TypeModifier,
-        kVaryingIn_TypeModifier,
-        kVaryingOut_TypeModifier
+        //kAttribute_TypeModifier,
+        //kVaryingIn_TypeModifier,
+        //kVaryingOut_TypeModifier
     };
 
     /**
