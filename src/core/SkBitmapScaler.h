@@ -41,12 +41,6 @@ public:
      */
     static bool Resize(SkBitmap* result, const SkPixmap& src, ResizeMethod method,
                        int dest_width, int dest_height, SkBitmap::Allocator* = nullptr);
-
-     /** Platforms can also optionally overwrite the convolution functions
-        if we have SIMD versions of them.
-      */
-
-    static void PlatformConvolutionProcs(SkConvolutionProcs*);
 };
 
 #endif

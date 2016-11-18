@@ -257,5 +257,3 @@ void SkBitmapProcState::platformProcs() {
             break;
     }
 }
-
-void SkBitmapScaler::PlatformConvolutionProcs(SkConvolutionProcs*) {}

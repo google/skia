@@ -13,7 +13,7 @@ none = [
 ]
 
 armv7 = [
-  "$_src/opts/SkBitmapProcState_opts_arm.cpp",
+  "$_src/opts/SkBitmapProcState_opts_none.cpp",
   "$_src/opts/SkBlitMask_opts_arm.cpp",
   "$_src/opts/SkBlitRow_opts_arm.cpp",
 ]
@@ -28,7 +28,7 @@ neon = [
 arm64 = [
   "$_src/opts/SkBitmapProcState_arm_neon.cpp",
   "$_src/opts/SkBitmapProcState_matrixProcs_neon.cpp",
-  "$_src/opts/SkBitmapProcState_opts_arm.cpp",
+  "$_src/opts/SkBitmapProcState_opts_none.cpp",
   "$_src/opts/SkBlitMask_opts_arm.cpp",
   "$_src/opts/SkBlitMask_opts_arm_neon.cpp",
   "$_src/opts/SkBlitRow_opts_arm.cpp",
@@ -44,7 +44,6 @@ mips_dsp = [
 ]
 
 sse2 = [
-  "$_src/opts/SkBitmapFilter_opts_SSE2.cpp",
   "$_src/opts/SkBitmapProcState_opts_SSE2.cpp",
   "$_src/opts/SkBlitRow_opts_SSE2.cpp",
   "$_src/opts/opts_check_x86.cpp",
