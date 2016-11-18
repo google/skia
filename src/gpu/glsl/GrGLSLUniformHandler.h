@@ -12,7 +12,6 @@
 #include "GrGLSLShaderVar.h"
 
 class GrGLSLProgramBuilder;
-class GrGLSLSampler;
 
 class GrGLSLUniformHandler {
 public:
@@ -61,22 +60,11 @@ protected:
     GrGLSLProgramBuilder* fProgramBuilder;
 
 private:
-    virtual int numSamplers() const = 0;
-    virtual const GrGLSLSampler& getSampler(SamplerHandle handle) const = 0;
+    virtual const GrGLSLShaderVar& samplerVariable(SamplerHandle) const = 0;
+    virtual GrSwizzle samplerSwizzle(SamplerHandle) const = 0;
 
-    SamplerHandle addSampler(uint32_t visibility,
-                             GrPixelConfig config,
-                             GrSLType type,
-                             GrSLPrecision precision,
-                             const char* name) {
-        return this->internalAddSampler(visibility, config, type, precision, name);
-    }
-
-    virtual SamplerHandle internalAddSampler(uint32_t visibility,
-                                             GrPixelConfig config,
-                                             GrSLType type,
-                                             GrSLPrecision precision,
-                                             const char* name) = 0;
+    virtual SamplerHandle addSampler(uint32_t visibility, GrSwizzle, GrSLType, GrSLPrecision,
+                                     const char* name) = 0;
 
     virtual UniformHandle internalAddUniformArray(uint32_t visibility,
                                                   GrSLType type,

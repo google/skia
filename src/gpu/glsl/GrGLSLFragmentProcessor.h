@@ -11,7 +11,6 @@
 #include "GrFragmentProcessor.h"
 #include "GrShaderVar.h"
 #include "glsl/GrGLSLProgramDataManager.h"
-#include "glsl/GrGLSLSampler.h"
 
 class GrProcessor;
 class GrProcessorKeyBuilder;
