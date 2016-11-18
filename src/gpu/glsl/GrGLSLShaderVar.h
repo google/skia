@@ -216,21 +216,17 @@ private:
         switch (t) {
             case kNone_TypeModifier:
                 return "";
-            case kAttribute_TypeModifier: // fall through
-            case kVaryingIn_TypeModifier: // fall through
             case kIn_TypeModifier:
                 return "in";
             case kInOut_TypeModifier:
                 return "inout";
-            case kVaryingOut_TypeModifier: // fall through
             case kOut_TypeModifier:
                 return "out";
             case kUniform_TypeModifier:
                 return "uniform";
-            default:
-                SkFAIL("Unknown shader variable type modifier.");
-                return ""; // suppress warning
         }
+        SkFAIL("Unknown shader variable type modifier.");
+        return ""; // suppress warning
     }
 
     /// Work around driver bugs on some hardware that don't correctly

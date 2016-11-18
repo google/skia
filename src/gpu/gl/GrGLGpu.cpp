@@ -334,13 +334,13 @@ bool GrGLGpu::createPLSSetupProgram() {
     const GrGLSLCaps* glslCaps = this->glCaps().glslCaps();
     const char* version = glslCaps->versionDeclString();
 
-    GrGLSLShaderVar aVertex("a_vertex", kVec2f_GrSLType, GrShaderVar::kAttribute_TypeModifier);
+    GrGLSLShaderVar aVertex("a_vertex", kVec2f_GrSLType, GrShaderVar::kIn_TypeModifier);
     GrGLSLShaderVar uTexCoordXform("u_texCoordXform", kVec4f_GrSLType,
                                    GrShaderVar::kUniform_TypeModifier);
     GrGLSLShaderVar uPosXform("u_posXform", kVec4f_GrSLType, GrShaderVar::kUniform_TypeModifier);
     GrGLSLShaderVar uTexture("u_texture", kTexture2DSampler_GrSLType,
                              GrShaderVar::kUniform_TypeModifier);
-    GrGLSLShaderVar vTexCoord("v_texCoord", kVec2f_GrSLType, GrShaderVar::kVaryingOut_TypeModifier);
+    GrGLSLShaderVar vTexCoord("v_texCoord", kVec2f_GrSLType, GrShaderVar::kOut_TypeModifier);
 
     SkString vshaderTxt(version);
     if (glslCaps->noperspectiveInterpolationSupport()) {
@@ -377,7 +377,7 @@ bool GrGLGpu::createPLSSetupProgram() {
     fshaderTxt.append(" : require\n");
     fshaderTxt.append("#extension GL_EXT_shader_pixel_local_storage : require\n");
     GrGLSLAppendDefaultFloatPrecisionDeclaration(kDefault_GrSLPrecision, *glslCaps, &fshaderTxt);
-    vTexCoord.setTypeModifier(GrShaderVar::kVaryingIn_TypeModifier);
+    vTexCoord.setTypeModifier(GrShaderVar::kIn_TypeModifier);
     vTexCoord.appendDecl(glslCaps, &fshaderTxt);
     fshaderTxt.append(";");
     uTexture.appendDecl(glslCaps, &fshaderTxt);
@@ -3753,17 +3753,13 @@ bool GrGLGpu::createCopyProgram(GrTexture* srcTex) {
     }
 
     const char* version = glslCaps->versionDeclString();
-    GrGLSLShaderVar aVertex("a_vertex", kVec2f_GrSLType, GrShaderVar::kAttribute_TypeModifier);
+    GrGLSLShaderVar aVertex("a_vertex", kVec2f_GrSLType, GrShaderVar::kIn_TypeModifier);
     GrGLSLShaderVar uTexCoordXform("u_texCoordXform", kVec4f_GrSLType,
-                                 GrShaderVar::kUniform_TypeModifier);
-    GrGLSLShaderVar uPosXform("u_posXform", kVec4f_GrSLType,
-                              GrShaderVar::kUniform_TypeModifier);
-    GrGLSLShaderVar uTexture("u_texture", samplerType,
-                             GrShaderVar::kUniform_TypeModifier);
-    GrGLSLShaderVar vTexCoord("v_texCoord", kVec2f_GrSLType,
-                              GrShaderVar::kVaryingOut_TypeModifier);
-    GrGLSLShaderVar oFragColor("o_FragColor", kVec4f_GrSLType,
-                               GrShaderVar::kOut_TypeModifier);
+                                   GrShaderVar::kUniform_TypeModifier);
+    GrGLSLShaderVar uPosXform("u_posXform", kVec4f_GrSLType, GrShaderVar::kUniform_TypeModifier);
+    GrGLSLShaderVar uTexture("u_texture", samplerType, GrShaderVar::kUniform_TypeModifier);
+    GrGLSLShaderVar vTexCoord("v_texCoord", kVec2f_GrSLType, GrShaderVar::kOut_TypeModifier);
+    GrGLSLShaderVar oFragColor("o_FragColor", kVec4f_GrSLType, GrShaderVar::kOut_TypeModifier);
 
     SkString vshaderTxt(version);
     if (glslCaps->noperspectiveInterpolationSupport()) {
@@ -3803,7 +3799,7 @@ bool GrGLGpu::createCopyProgram(GrTexture* srcTex) {
     }
     GrGLSLAppendDefaultFloatPrecisionDeclaration(kDefault_GrSLPrecision, *glslCaps,
                                                  &fshaderTxt);
-    vTexCoord.setTypeModifier(GrShaderVar::kVaryingIn_TypeModifier);
+    vTexCoord.setTypeModifier(GrShaderVar::kIn_TypeModifier);
     vTexCoord.appendDecl(glslCaps, &fshaderTxt);
     fshaderTxt.append(";");
     uTexture.appendDecl(glslCaps, &fshaderTxt);
@@ -3862,17 +3858,17 @@ bool GrGLGpu::createMipmapProgram(int progIdx) {
     }
 
     const char* version = glslCaps->versionDeclString();
-    GrGLSLShaderVar aVertex("a_vertex", kVec2f_GrSLType, GrShaderVar::kAttribute_TypeModifier);
+    GrGLSLShaderVar aVertex("a_vertex", kVec2f_GrSLType, GrShaderVar::kIn_TypeModifier);
     GrGLSLShaderVar uTexCoordXform("u_texCoordXform", kVec4f_GrSLType,
                                    GrShaderVar::kUniform_TypeModifier);
     GrGLSLShaderVar uTexture("u_texture", kTexture2DSampler_GrSLType,
                              GrShaderVar::kUniform_TypeModifier);
     // We need 1, 2, or 4 texture coordinates (depending on parity of each dimension):
     GrGLSLShaderVar vTexCoords[] = {
-        GrGLSLShaderVar("v_texCoord0", kVec2f_GrSLType, GrShaderVar::kVaryingOut_TypeModifier),
-        GrGLSLShaderVar("v_texCoord1", kVec2f_GrSLType, GrShaderVar::kVaryingOut_TypeModifier),
-        GrGLSLShaderVar("v_texCoord2", kVec2f_GrSLType, GrShaderVar::kVaryingOut_TypeModifier),
-        GrGLSLShaderVar("v_texCoord3", kVec2f_GrSLType, GrShaderVar::kVaryingOut_TypeModifier),
+        GrGLSLShaderVar("v_texCoord0", kVec2f_GrSLType, GrShaderVar::kOut_TypeModifier),
+        GrGLSLShaderVar("v_texCoord1", kVec2f_GrSLType, GrShaderVar::kOut_TypeModifier),
+        GrGLSLShaderVar("v_texCoord2", kVec2f_GrSLType, GrShaderVar::kOut_TypeModifier),
+        GrGLSLShaderVar("v_texCoord3", kVec2f_GrSLType, GrShaderVar::kOut_TypeModifier),
     };
     GrGLSLShaderVar oFragColor("o_FragColor", kVec4f_GrSLType,
                                GrShaderVar::kOut_TypeModifier);
@@ -3939,7 +3935,7 @@ bool GrGLGpu::createMipmapProgram(int progIdx) {
     GrGLSLAppendDefaultFloatPrecisionDeclaration(kDefault_GrSLPrecision, *glslCaps,
                                                  &fshaderTxt);
     for (int i = 0; i < numTaps; ++i) {
-        vTexCoords[i].setTypeModifier(GrShaderVar::kVaryingIn_TypeModifier);
+        vTexCoords[i].setTypeModifier(GrShaderVar::kIn_TypeModifier);
         vTexCoords[i].appendDecl(glslCaps, &fshaderTxt);
         fshaderTxt.append(";");
     }
@@ -4026,7 +4022,7 @@ bool GrGLGpu::createWireRectProgram() {
 
     GrGLSLShaderVar uColor("u_color", kVec4f_GrSLType, GrShaderVar::kUniform_TypeModifier);
     GrGLSLShaderVar uRect("u_rect", kVec4f_GrSLType, GrShaderVar::kUniform_TypeModifier);
-    GrGLSLShaderVar aVertex("a_vertex", kVec2f_GrSLType, GrShaderVar::kAttribute_TypeModifier);
+    GrGLSLShaderVar aVertex("a_vertex", kVec2f_GrSLType, GrShaderVar::kIn_TypeModifier);
     const char* version = this->glCaps().glslCaps()->versionDeclString();
 
     // The rect uniform specifies the rectangle in NDC space as a vec4 (left,top,right,bottom). The
