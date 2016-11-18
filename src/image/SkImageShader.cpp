@@ -290,11 +290,6 @@ bool SkImageShader::onAppendStages(SkRasterPipeline* p, SkColorSpace* dst, SkFal
         default: return false;
     }
 
-    // TODO: all tile modes
-    if (fTileModeX == kMirror_TileMode || fTileModeY == kMirror_TileMode) {
-        return false;
-    }
-
     // When the matrix is just an integer translate, bilerp == nearest neighbor.
     if (matrix.getType() <= SkMatrix::kTranslate_Mask &&
         matrix.getTranslateX() == (int)matrix.getTranslateX() &&

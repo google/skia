@@ -697,21 +697,25 @@ SI SkNf clamp(const SkNf& v, float limit) {
 
 SI SkNf repeat(const SkNf& v, float limit) {
     SkNf result = v - (v/limit).floor()*limit;
-
     // For small negative v, (v/limit).floor()*limit can dominate v in the subtraction,
     // which leaves result == limit.  We want result < limit, so clamp it one ULP.
     result = SkNf::Min(result, nextafterf(limit, 0));
-
     return assert_in_tile(result, limit);
+}
+
+SI SkNf mirror(const SkNf& v, float l/*imit*/) {
+    SkNf result = ((v - l) - ((v - l) / (2*l)).floor()*(2*l) - l).abs();
+    // Same deal as repeat.
+    result = SkNf::Min(result, nextafterf(l, 0));
+    return assert_in_tile(result, l);
 }
 
 STAGE(clamp_x,  true) { r = clamp (r, *(const int*)ctx); }
 STAGE(clamp_y,  true) { g = clamp (g, *(const int*)ctx); }
 STAGE(repeat_x, true) { r = repeat(r, *(const int*)ctx); }
 STAGE(repeat_y, true) { g = repeat(g, *(const int*)ctx); }
-
-STAGE(mirror_x, true) {}  // TODO
-STAGE(mirror_y, true) {}  // TODO
+STAGE(mirror_x, true) { r = mirror(r, *(const int*)ctx); }
+STAGE(mirror_y, true) { g = mirror(g, *(const int*)ctx); }
 
 
 struct NearestCtx {

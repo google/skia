@@ -610,6 +610,7 @@ public:
         AI SkNx  rsqrt() const { return _mm256_rsqrt_ps(fVec); }
         AI SkNx invert() const { return _mm256_rcp_ps  (fVec); }
 
+        AI SkNx abs() const { return _mm256_andnot_ps(_mm256_set1_ps(-0.0f), fVec); }
         AI SkNx floor() const { return _mm256_floor_ps(fVec); }
 
         AI float operator[](int k) const {
