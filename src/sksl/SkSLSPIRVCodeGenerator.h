@@ -34,8 +34,8 @@
 #include "ir/SkSLStatement.h"
 #include "ir/SkSLSwizzle.h"
 #include "ir/SkSLTernaryExpression.h"
-#include "ir/SkSLVarDeclaration.h"
-#include "ir/SkSLVarDeclarationStatement.h"
+#include "ir/SkSLVarDeclarations.h"
+#include "ir/SkSLVarDeclarationsStatement.h"
 #include "ir/SkSLVariableReference.h"
 #include "spirv.h"
 
@@ -115,7 +115,7 @@ private:
 
     SpvId writeFunction(const FunctionDefinition& f, std::ostream& out);
 
-    void writeGlobalVars(const VarDeclarations& v, std::ostream& out);
+    void writeGlobalVars(Program::Kind kind, const VarDeclarations& v, std::ostream& out);
 
     void writeVarDeclarations(const VarDeclarations& decl, std::ostream& out);
 

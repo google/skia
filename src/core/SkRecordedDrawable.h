@@ -12,11 +12,11 @@
 
 class SkRecordedDrawable : public SkDrawable {
 public:
-    SkRecordedDrawable(SkRecord* record, SkBBoxHierarchy* bbh, SkDrawableList* drawableList,
-                       const SkRect& bounds)
-        : fRecord(SkRef(record))
-        , fBBH(SkSafeRef(bbh))
-        , fDrawableList(drawableList)   // we take ownership
+    SkRecordedDrawable(sk_sp<SkRecord> record, sk_sp<SkBBoxHierarchy> bbh,
+                       std::unique_ptr<SkDrawableList> drawableList, const SkRect& bounds)
+        : fRecord(std::move(record))
+        , fBBH(std::move(bbh))
+        , fDrawableList(std::move(drawableList))
         , fBounds(bounds)
     {}
 
@@ -34,8 +34,8 @@ protected:
     SkPicture* onNewPictureSnapshot() override;
 
 private:
-    SkAutoTUnref<SkRecord>          fRecord;
-    SkAutoTUnref<SkBBoxHierarchy>   fBBH;
-    SkAutoTDelete<SkDrawableList>   fDrawableList;
+    sk_sp<SkRecord>                 fRecord;
+    sk_sp<SkBBoxHierarchy>          fBBH;
+    std::unique_ptr<SkDrawableList> fDrawableList;
     const SkRect                    fBounds;
 };

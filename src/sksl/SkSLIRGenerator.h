@@ -25,6 +25,7 @@
 #include "ast/SkSLASTIfStatement.h"
 #include "ast/SkSLASTInterfaceBlock.h"
 #include "ast/SkSLASTModifiers.h"
+#include "ast/SkSLASTModifiersDeclaration.h"
 #include "ast/SkSLASTPrefixExpression.h"
 #include "ast/SkSLASTReturnStatement.h"
 #include "ast/SkSLASTStatement.h"
@@ -39,11 +40,12 @@
 #include "ir/SkSLFunctionDefinition.h"
 #include "ir/SkSLInterfaceBlock.h"
 #include "ir/SkSLModifiers.h"
+#include "ir/SkSLModifiersDeclaration.h"
 #include "ir/SkSLSymbolTable.h"
 #include "ir/SkSLStatement.h"
 #include "ir/SkSLType.h"
 #include "ir/SkSLTypeReference.h"
-#include "ir/SkSLVarDeclaration.h"
+#include "ir/SkSLVarDeclarations.h"
 
 namespace SkSL {
 
@@ -61,6 +63,8 @@ public:
     std::unique_ptr<FunctionDefinition> convertFunction(const ASTFunction& f);
     std::unique_ptr<Statement> convertStatement(const ASTStatement& statement);
     std::unique_ptr<Expression> convertExpression(const ASTExpression& expression);
+    std::unique_ptr<ModifiersDeclaration> convertModifiersDeclaration(
+                                                                  const ASTModifiersDeclaration& m);
 
 private:
     void pushSymbolTable();
@@ -85,6 +89,11 @@ private:
     std::unique_ptr<Statement> convertDiscard(const ASTDiscardStatement& d);
     std::unique_ptr<Statement> convertDo(const ASTDoStatement& d);
     std::unique_ptr<Expression> convertBinaryExpression(const ASTBinaryExpression& expression);
+    // Returns null if it cannot fold the expression. Note that unlike most other functions here, a 
+    // null return does not represent a compilation error.
+    std::unique_ptr<Expression> constantFold(const Expression& left,
+                                             Token::Kind op,
+                                             const Expression& right);
     std::unique_ptr<Extension> convertExtension(const ASTExtension& e);
     std::unique_ptr<Statement> convertExpressionStatement(const ASTExpressionStatement& s);
     std::unique_ptr<Statement> convertFor(const ASTForStatement& f);
@@ -112,9 +121,11 @@ private:
     const Context& fContext;
     const FunctionDeclaration* fCurrentFunction;
     std::shared_ptr<SymbolTable> fSymbolTable;
+    int fLoopLevel;
     ErrorReporter& fErrors;
 
     friend class AutoSymbolTable;
+    friend class AutoLoopLevel;
     friend class Compiler;
 };
 

@@ -13,12 +13,12 @@
 
 /**
  * Gr uses the stencil buffer to implement complex clipping inside the
- * GrDrawTarget class. The GrDrawTarget makes a subset of the stencil buffer
+ * GrOpList class. The GrOpList makes a subset of the stencil buffer
  * bits available for other uses by external code (user bits). Client code can
- * modify these bits. GrDrawTarget will ignore ref, mask, and writemask bits
+ * modify these bits. GrOpList will ignore ref, mask, and writemask bits
  * provided by clients that fall outside the user range.
  *
- * When code outside the GrDrawTarget class uses the stencil buffer the contract
+ * When code outside the GrOpList class uses the stencil buffer the contract
  * is as follows:
  *
  * > Normal stencil funcs allow the client to pass / fail regardless of the
@@ -181,6 +181,22 @@ struct GrUserStencilSettings {
     // This struct can only be constructed with static initializers.
     GrUserStencilSettings() = delete;
     GrUserStencilSettings(const GrUserStencilSettings&) = delete;
+
+    uint16_t flags(bool hasStencilClip) const {
+        return fFrontFlags[hasStencilClip] & fBackFlags[hasStencilClip];
+    }
+    bool isDisabled(bool hasStencilClip) const {
+        return this->flags(hasStencilClip) & kDisabled_StencilFlag;
+    }
+    bool doesWrite(bool hasStencilClip) const {
+        return !(this->flags(hasStencilClip) & kNoModifyStencil_StencilFlag);
+    }
+    bool isTwoSided(bool hasStencilClip) const {
+        return !(this->flags(hasStencilClip) & kSingleSided_StencilFlag);
+    }
+    bool usesWrapOp(bool hasStencilClip) const {
+        return !(this->flags(hasStencilClip) & kNoWrapOps_StencilFlag);
+    }
 
     const uint16_t   fFrontFlags[2]; // frontFlagsForDraw = fFrontFlags[hasStencilClip].
     const Face       fFront;

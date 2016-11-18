@@ -435,14 +435,14 @@ void InstancedRendering::beginFlush(GrResourceProvider* rp) {
     }
 
     if (!fVertexBuffer) {
-        fVertexBuffer.reset(InstanceProcessor::FindOrCreateVertexBuffer(fGpu));
+        fVertexBuffer.reset(InstanceProcessor::FindOrCreateVertexBuffer(fGpu.get()));
         if (!fVertexBuffer) {
             return;
         }
     }
 
     if (!fIndexBuffer) {
-      fIndexBuffer.reset(InstanceProcessor::FindOrCreateIndex8Buffer(fGpu));
+      fIndexBuffer.reset(InstanceProcessor::FindOrCreateIndex8Buffer(fGpu.get()));
         if (!fIndexBuffer) {
             return;
         }
@@ -462,7 +462,7 @@ void InstancedRendering::beginFlush(GrResourceProvider* rp) {
     this->onBeginFlush(rp);
 }
 
-void InstancedRendering::Batch::onDraw(GrBatchFlushState* state) {
+void InstancedRendering::Batch::onDraw(GrBatchFlushState* state, const SkRect& bounds) {
     SkASSERT(State::kFlushing == fInstancedRendering->fState);
     SkASSERT(state->gpu() == fInstancedRendering->gpu());
 
@@ -471,7 +471,7 @@ void InstancedRendering::Batch::onDraw(GrBatchFlushState* state) {
         state->gpu()->xferBarrier(this->pipeline()->getRenderTarget(), barrierType);
     }
 
-    InstanceProcessor instProc(fInfo, fInstancedRendering->fParamsBuffer);
+    InstanceProcessor instProc(fInfo, fInstancedRendering->fParamsBuffer.get());
     fInstancedRendering->onDraw(*this->pipeline(), instProc, this);
 }
 

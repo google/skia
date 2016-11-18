@@ -6,6 +6,7 @@
  */
 
 #include "Sk4fLinearGradient.h"
+#include "SkColorSpace_XYZ.h"
 #include "SkGradientShaderPriv.h"
 #include "SkHalf.h"
 #include "SkLinearGradient.h"
@@ -216,7 +217,7 @@ SkGradientShaderBase::SkGradientShaderBase(const Descriptor& desc, const SkMatri
 
     if (!desc.fColorSpace) {
         // This happens if we were constructed from SkColors, so our colors are really sRGB
-        fColorSpace = SkColorSpace::NewNamed(SkColorSpace::kSRGBLinear_Named);
+        fColorSpace = SkColorSpace::MakeNamed(SkColorSpace::kSRGBLinear_Named);
     } else {
         // The color space refers to the float colors, so it must be linear gamma
         SkASSERT(desc.fColorSpace->gammaIsLinear());
@@ -665,7 +666,7 @@ void SkGradientShaderBase::initLinearBitmap(SkBitmap* bitmap) const {
  *  The gradient holds a cache for the most recent value of alpha. Successive
  *  callers with the same alpha value will share the same cache.
  */
-SkGradientShaderBase::GradientShaderCache* SkGradientShaderBase::refCache(U8CPU alpha,
+sk_sp<SkGradientShaderBase::GradientShaderCache> SkGradientShaderBase::refCache(U8CPU alpha,
                                                                           bool dither) const {
     SkAutoMutexAcquire ama(fCacheMutex);
     if (!fCache || fCache->getAlpha() != alpha || fCache->getDither() != dither) {
@@ -674,7 +675,6 @@ SkGradientShaderBase::GradientShaderCache* SkGradientShaderBase::refCache(U8CPU 
     // Increment the ref counter inside the mutex to ensure the returned pointer is still valid.
     // Otherwise, the pointer may have been overwritten on a different thread before the object's
     // ref count was incremented.
-    fCache.get()->ref();
     return fCache;
 }
 
@@ -690,7 +690,7 @@ SK_DECLARE_STATIC_MUTEX(gGradientCacheMutex);
 void SkGradientShaderBase::getGradientTableBitmap(SkBitmap* bitmap,
                                                   GradientBitmapType bitmapType) const {
     // our caller assumes no external alpha, so we ensure that our cache is built with 0xFF
-    SkAutoTUnref<GradientShaderCache> cache(this->refCache(0xFF, true));
+    sk_sp<GradientShaderCache> cache(this->refCache(0xFF, true));
 
     // build our key: [numColors + colors[] + {positions[]} + flags + colorType ]
     int count = 1 + fColorCount + 1 + 1;
@@ -740,12 +740,12 @@ void SkGradientShaderBase::getGradientTableBitmap(SkBitmap* bitmap,
                 case GradientBitmapType::kSRGB:
                     info = SkImageInfo::Make(kCache32Count, 1, kRGBA_8888_SkColorType,
                                              kPremul_SkAlphaType,
-                                             SkColorSpace::NewNamed(SkColorSpace::kSRGB_Named));
+                                             SkColorSpace::MakeNamed(SkColorSpace::kSRGB_Named));
                     break;
                 case GradientBitmapType::kHalfFloat:
                     info = SkImageInfo::Make(
                         kCache32Count, 1, kRGBA_F16_SkColorType, kPremul_SkAlphaType,
-                        SkColorSpace::NewNamed(SkColorSpace::kSRGBLinear_Named));
+                        SkColorSpace::MakeNamed(SkColorSpace::kSRGBLinear_Named));
                     break;
                 default:
                     SkFAIL("Unexpected bitmap type");
@@ -1125,7 +1125,7 @@ static inline bool close_to_one_half(const SkFixed& val) {
 static inline int color_type_to_color_count(GrGradientEffect::ColorType colorType) {
     switch (colorType) {
 #if GR_GL_USE_ACCURATE_HARD_STOP_GRADIENTS
-        case GrGradientEffect::kHardStopCentered_ColorType:
+        case GrGradientEffect::kSingleHardStop_ColorType:
             return 4;
         case GrGradientEffect::kHardStopLeftEdged_ColorType:
         case GrGradientEffect::kHardStopRightEdged_ColorType:
@@ -1149,11 +1149,10 @@ GrGradientEffect::ColorType GrGradientEffect::determineColorType(
     if (shader.fOrigPos) {
         if (4 == shader.fColorCount) {
             if (SkScalarNearlyEqual(shader.fOrigPos[0], 0.0f) &&
-                SkScalarNearlyEqual(shader.fOrigPos[1], 0.5f) &&
-                SkScalarNearlyEqual(shader.fOrigPos[2], 0.5f) &&
+                SkScalarNearlyEqual(shader.fOrigPos[1], shader.fOrigPos[2]) &&
                 SkScalarNearlyEqual(shader.fOrigPos[3], 1.0f)) {
 
-                return kHardStopCentered_ColorType;
+                return kSingleHardStop_ColorType;
             }
         } else if (3 == shader.fColorCount) {
             if (SkScalarNearlyEqual(shader.fOrigPos[0], 0.0f) &&
@@ -1191,6 +1190,10 @@ void GrGradientEffect::GLSLProcessor::emitUniforms(GrGLSLUniformHandler* uniform
                                                      kDefault_GrSLPrecision,
                                                      "Colors",
                                                      colorCount);
+        if (ge.fColorType == kSingleHardStop_ColorType) {
+            fHardStopT = uniformHandler->addUniform(kFragment_GrShaderFlag, kFloat_GrSLType,
+                                                    kDefault_GrSLPrecision, "HardStopT");
+        }
     } else {
         fFSYUni = uniformHandler->addUniform(kFragment_GrShaderFlag,
                                              kFloat_GrSLType, kDefault_GrSLPrecision,
@@ -1291,7 +1294,9 @@ void GrGradientEffect::GLSLProcessor::onSetData(const GrGLSLProgramDataManager& 
 
     switch (e.getColorType()) {
 #if GR_GL_USE_ACCURATE_HARD_STOP_GRADIENTS
-        case GrGradientEffect::kHardStopCentered_ColorType:
+        case GrGradientEffect::kSingleHardStop_ColorType:
+            pdman.set1f(fHardStopT, e.fPositions[1]);
+            // fall through
         case GrGradientEffect::kHardStopLeftEdged_ColorType:
         case GrGradientEffect::kHardStopRightEdged_ColorType:
 #endif
@@ -1347,7 +1352,7 @@ uint32_t GrGradientEffect::GLSLProcessor::GenBaseGradientKey(const GrProcessor& 
         key |= kThreeColorKey;
     }
 #if GR_GL_USE_ACCURATE_HARD_STOP_GRADIENTS
-    else if (GrGradientEffect::kHardStopCentered_ColorType == e.getColorType()) {
+    else if (GrGradientEffect::kSingleHardStop_ColorType == e.getColorType()) {
         key |= kHardStopCenteredKey;
     } else if (GrGradientEffect::kHardStopLeftEdged_ColorType == e.getColorType()) {
         key |= kHardStopZeroZeroOneKey;
@@ -1379,9 +1384,10 @@ void GrGradientEffect::GLSLProcessor::emitColor(GrGLSLFPFragmentBuilder* fragBui
                                                 const TextureSamplers& texSamplers) {
     switch (ge.getColorType()) {
 #if GR_GL_USE_ACCURATE_HARD_STOP_GRADIENTS
-        case kHardStopCentered_ColorType: {
+        case kSingleHardStop_ColorType: {
             const char* t      = gradientTValue;
             const char* colors = uniformHandler->getUniformCStr(fColorsUni);
+            const char* stopT = uniformHandler->getUniformCStr(fHardStopT);
 
             fragBuilder->codeAppendf("float clamp_t = clamp(%s, 0.0, 1.0);", t);
 
@@ -1399,18 +1405,18 @@ void GrGradientEffect::GLSLProcessor::emitColor(GrGLSLFPFragmentBuilder* fragBui
             }
 
             // Calculate color
-            fragBuilder->codeAppendf("float relative_t = fract(2.0 * clamp_t);");
-            if (SkShader::kClamp_TileMode == ge.fTileMode) {
-                fragBuilder->codeAppendf("relative_t += step(1.0, %s);", t);
-            }
-
-            fragBuilder->codeAppendf("vec4 start = %s[0];", colors);
-            fragBuilder->codeAppendf("vec4 end   = %s[1];", colors);
-            fragBuilder->codeAppendf("if (clamp_t >= 0.5) {");
+            fragBuilder->codeAppend ("vec4 start, end;");
+            fragBuilder->codeAppend ("float relative_t;");
+            fragBuilder->codeAppendf("if (clamp_t < %s) {", stopT);
+            fragBuilder->codeAppendf("    start = %s[0];", colors);
+            fragBuilder->codeAppendf("    end   = %s[1];", colors);
+            fragBuilder->codeAppendf("    relative_t = clamp_t / %s;", stopT);
+            fragBuilder->codeAppend ("} else {");
             fragBuilder->codeAppendf("    start = %s[2];", colors);
             fragBuilder->codeAppendf("    end   = %s[3];", colors);
-            fragBuilder->codeAppendf("}");
-            fragBuilder->codeAppendf("vec4 colorTemp = mix(start, end, relative_t);");
+            fragBuilder->codeAppendf("    relative_t = (clamp_t - %s) / (1 - %s);", stopT, stopT);
+            fragBuilder->codeAppend ("}");
+            fragBuilder->codeAppend ("vec4 colorTemp = mix(start, end, relative_t);");
 
             if (GrGradientEffect::kAfterInterp_PremulType == ge.getPremulType()) {
                 fragBuilder->codeAppend("colorTemp.rgb *= colorTemp.a;");
@@ -1599,7 +1605,7 @@ GrGradientEffect::GrGradientEffect(const CreateArgs& args) {
 #if GR_GL_USE_ACCURATE_HARD_STOP_GRADIENTS
         case kHardStopLeftEdged_ColorType:
         case kHardStopRightEdged_ColorType:
-        case kHardStopCentered_ColorType:
+        case kSingleHardStop_ColorType:
 #endif
             fRow = -1;
 
@@ -1655,14 +1661,14 @@ GrGradientEffect::GrGradientEffect(const CreateArgs& args) {
                 fCoordTransform.reset(*args.fMatrix, fAtlas->getTexture(), params.filterMode());
                 fTextureAccess.reset(fAtlas->getTexture(), params);
             } else {
-                SkAutoTUnref<GrTexture> texture(
-                    GrRefCachedBitmapTexture(args.fContext, bitmap, params,
-                                             SkSourceGammaTreatment::kRespect));
+                sk_sp<GrTexture> texture(GrRefCachedBitmapTexture(
+                                          args.fContext, bitmap, params,
+                                          SkDestinationSurfaceColorMode::kGammaAndColorSpaceAware));
                 if (!texture) {
                     return;
                 }
-                fCoordTransform.reset(*args.fMatrix, texture, params.filterMode());
-                fTextureAccess.reset(texture, params);
+                fCoordTransform.reset(*args.fMatrix, texture.get(), params.filterMode());
+                fTextureAccess.reset(texture.get(), params);
                 fYCoord = SK_ScalarHalf;
             }
 
@@ -1683,36 +1689,38 @@ GrGradientEffect::~GrGradientEffect() {
 bool GrGradientEffect::onIsEqual(const GrFragmentProcessor& processor) const {
     const GrGradientEffect& ge = processor.cast<GrGradientEffect>();
 
-    if (this->fColorType == ge.getColorType()) {
-        if (kTexture_ColorType == fColorType) {
-            if (fYCoord != ge.getYCoord()) {
+    if (this->fColorType != ge.getColorType()) {
+        return false;
+    }
+    SkASSERT(this->useAtlas() == ge.useAtlas());
+    if (kTexture_ColorType == fColorType) {
+        if (fYCoord != ge.getYCoord()) {
+            return false;
+        }
+    } else {
+        if (kSingleHardStop_ColorType == fColorType) {
+            if (!SkScalarNearlyEqual(ge.fPositions[1], fPositions[1])) {
                 return false;
-            }
-        } else {
-            if (this->getPremulType() != ge.getPremulType() ||
-                this->fColors.count() != ge.fColors.count() ||
-                this->fColors4f.count() != ge.fColors4f.count()) {
-                return false;
-            }
-
-            for (int i = 0; i < this->fColors.count(); i++) {
-                if (*this->getColors(i) != *ge.getColors(i)) {
-                    return false;
-                }
-            }
-            for (int i = 0; i < this->fColors4f.count(); i++) {
-                if (*this->getColors4f(i) != *ge.getColors4f(i)) {
-                    return false;
-                }
             }
         }
+        if (this->getPremulType() != ge.getPremulType() ||
+            this->fColors.count() != ge.fColors.count() ||
+            this->fColors4f.count() != ge.fColors4f.count()) {
+            return false;
+        }
 
-
-        SkASSERT(this->useAtlas() == ge.useAtlas());
-        return GrColorSpaceXform::Equals(this->fColorSpaceXform.get(), ge.fColorSpaceXform.get());
+        for (int i = 0; i < this->fColors.count(); i++) {
+            if (*this->getColors(i) != *ge.getColors(i)) {
+                return false;
+            }
+        }
+        for (int i = 0; i < this->fColors4f.count(); i++) {
+            if (*this->getColors4f(i) != *ge.getColors4f(i)) {
+                return false;
+            }
+        }
     }
-
-    return false;
+    return GrColorSpaceXform::Equals(this->fColorSpaceXform.get(), ge.fColorSpaceXform.get());
 }
 
 void GrGradientEffect::onComputeInvariantOutput(GrInvariantOutput* inout) const {
@@ -1723,28 +1731,42 @@ void GrGradientEffect::onComputeInvariantOutput(GrInvariantOutput* inout) const 
     }
 }
 
-int GrGradientEffect::RandomGradientParams(SkRandom* random,
-                                           SkColor colors[],
-                                           SkScalar** stops,
-                                           SkShader::TileMode* tm) {
-    int outColors = random->nextRangeU(1, kMaxRandomGradientColors);
+GrGradientEffect::RandomGradientParams::RandomGradientParams(SkRandom* random) {
+    fColorCount = random->nextRangeU(1, kMaxRandomGradientColors);
+    fUseColors4f = random->nextBool();
 
     // if one color, omit stops, otherwise randomly decide whether or not to
-    if (outColors == 1 || (outColors >= 2 && random->nextBool())) {
-        *stops = nullptr;
+    if (fColorCount == 1 || (fColorCount >= 2 && random->nextBool())) {
+        fStops = nullptr;
+    } else {
+        fStops = fStopStorage;
+    }
+
+    // if using SkColor4f, attach a random (possibly null) color space (with linear gamma)
+    if (fUseColors4f) {
+        fColorSpace = GrTest::TestColorSpace(random);
+        if (fColorSpace) {
+            SkASSERT(SkColorSpace_Base::Type::kXYZ == as_CSB(fColorSpace)->type());
+            fColorSpace = static_cast<SkColorSpace_XYZ*>(fColorSpace.get())->makeLinearGamma();
+        }
     }
 
     SkScalar stop = 0.f;
-    for (int i = 0; i < outColors; ++i) {
-        colors[i] = random->nextU();
-        if (*stops) {
-            (*stops)[i] = stop;
-            stop = i < outColors - 1 ? stop + random->nextUScalar1() * (1.f - stop) : 1.f;
+    for (int i = 0; i < fColorCount; ++i) {
+        if (fUseColors4f) {
+            fColors4f[i].fR = random->nextUScalar1();
+            fColors4f[i].fG = random->nextUScalar1();
+            fColors4f[i].fB = random->nextUScalar1();
+            fColors4f[i].fA = random->nextUScalar1();
+        } else {
+            fColors[i] = random->nextU();
+        }
+        if (fStops) {
+            fStops[i] = stop;
+            stop = i < fColorCount - 1 ? stop + random->nextUScalar1() * (1.f - stop) : 1.f;
         }
     }
-    *tm = static_cast<SkShader::TileMode>(random->nextULessThan(SkShader::kTileModeCount));
-
-    return outColors;
+    fTileMode = static_cast<SkShader::TileMode>(random->nextULessThan(SkShader::kTileModeCount));
 }
 
 #endif

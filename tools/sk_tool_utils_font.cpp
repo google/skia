@@ -23,7 +23,7 @@ namespace sk_tool_utils {
 void release_portable_typefaces() {
     for (int index = 0; index < gTestFontsCount; ++index) {
         SkTestFontData& fontData = gTestFonts[index];
-        SkSafeUnref(fontData.fFontCache);
+        fontData.fCachedFont.reset();
     }
 }
 
@@ -47,26 +47,26 @@ sk_sp<SkTypeface> create_font(const char* name, SkFontStyle style) {
                      name, style.weight(), style.width(), style.slant());
             // If we called SkTypeface::CreateFromName() here we'd recurse infinitely,
             // so we reimplement its core logic here inline without the recursive aspect.
-            SkAutoTUnref<SkFontMgr> fm(SkFontMgr::RefDefault());
+            sk_sp<SkFontMgr> fm(SkFontMgr::RefDefault());
             return sk_sp<SkTypeface>(fm->legacyCreateTypeface(name, style));
         }
     } else {
         sub = &gSubFonts[gDefaultFontIndex];
         fontData = &sub->fFont;
     }
-    SkTestFont* font;
+    sk_sp<SkTestFont> font;
     {
         SkAutoMutexAcquire ac(gTestFontMutex);
-        if (fontData->fFontCache) {
-            font = SkSafeRef(fontData->fFontCache);
+        if (fontData->fCachedFont) {
+            font = fontData->fCachedFont;
         } else {
-            font = new SkTestFont(*fontData);
+            font = sk_make_sp<SkTestFont>(*fontData);
             SkDEBUGCODE(font->fDebugName = sub->fName);
             SkDEBUGCODE(font->fDebugStyle = sub->fStyle);
-            fontData->fFontCache = SkSafeRef(font);
+            fontData->fCachedFont = font;
         }
     }
-    return sk_make_sp<SkTestTypeface>(font, style);
+    return sk_make_sp<SkTestTypeface>(std::move(font), style);
 }
 
 }

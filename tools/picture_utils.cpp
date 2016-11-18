@@ -11,6 +11,7 @@
 #include "SkHalf.h"
 #include "SkImageEncoder.h"
 #include "SkOSFile.h"
+#include "SkOSPath.h"
 #include "SkPM4fPriv.h"
 #include "SkPicture.h"
 #include "SkStream.h"
@@ -79,7 +80,7 @@ namespace sk_tools {
 
         SkAutoTMalloc<uint32_t> rgba(w*h);
 
-        auto srgbColorSpace = SkColorSpace::NewNamed(SkColorSpace::kSRGB_Named);
+        auto srgbColorSpace = SkColorSpace::MakeNamed(SkColorSpace::kSRGB_Named);
         if (bitmap. colorType() ==  kN32_SkColorType &&
             bitmap.colorSpace() == srgbColorSpace.get()) {
             // These are premul sRGB 8-bit pixels in SkPMColor order.

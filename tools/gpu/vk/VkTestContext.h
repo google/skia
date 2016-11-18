@@ -24,7 +24,7 @@ public:
 
     bool isValid() const override { return NULL != this->vk(); }
 
-    const GrVkInterface* vk() const { return fVk->fInterface; }
+    const GrVkInterface* vk() const { return fVk->fInterface.get(); }
 
 protected:
     VkTestContext(sk_sp<const GrVkBackendContext> vk) : fVk(std::move(vk)) {}

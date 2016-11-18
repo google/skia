@@ -111,7 +111,7 @@ bool SkBmpCodec::ReadHeader(SkStream* stream, bool inIco, SkCodec** codecOut) {
     // Bmps embedded in Icos skip the first Bmp header
     if (!inIco) {
         // Read the first header and the size of the second header
-        SkAutoTDeleteArray<uint8_t> hBuffer(new uint8_t[kBmpHeaderBytesPlusFour]);
+        std::unique_ptr<uint8_t[]> hBuffer(new uint8_t[kBmpHeaderBytesPlusFour]);
         if (stream->read(hBuffer.get(), kBmpHeaderBytesPlusFour) !=
                 kBmpHeaderBytesPlusFour) {
             SkCodecPrintf("Error: unable to read first bitmap header.\n");
@@ -145,7 +145,7 @@ bool SkBmpCodec::ReadHeader(SkStream* stream, bool inIco, SkCodec** codecOut) {
         offset = 0;
 
         // Read the size of the second header
-        SkAutoTDeleteArray<uint8_t> hBuffer(new uint8_t[4]);
+        std::unique_ptr<uint8_t[]> hBuffer(new uint8_t[4]);
         if (stream->read(hBuffer.get(), 4) != 4) {
             SkCodecPrintf("Error: unable to read size of second bitmap header.\n");
             return false;
@@ -161,7 +161,7 @@ bool SkBmpCodec::ReadHeader(SkStream* stream, bool inIco, SkCodec** codecOut) {
     const uint32_t infoBytesRemaining = infoBytes - 4;
 
     // Read the second header
-    SkAutoTDeleteArray<uint8_t> iBuffer(new uint8_t[infoBytesRemaining]);
+    std::unique_ptr<uint8_t[]> iBuffer(new uint8_t[infoBytesRemaining]);
     if (stream->read(iBuffer.get(), infoBytesRemaining) != infoBytesRemaining) {
         SkCodecPrintf("Error: unable to read second bitmap header.\n");
         return false;
@@ -320,7 +320,7 @@ bool SkBmpCodec::ReadHeader(SkStream* stream, bool inIco, SkCodec** codecOut) {
             switch (headerType) {
                 case kInfoV1_BmpHeaderType: {
                     // The V1 header stores the bit masks after the header
-                    SkAutoTDeleteArray<uint8_t> mBuffer(new uint8_t[kBmpMaskBytes]);
+                    std::unique_ptr<uint8_t[]> mBuffer(new uint8_t[kBmpMaskBytes]);
                     if (stream->read(mBuffer.get(), kBmpMaskBytes) !=
                             kBmpMaskBytes) {
                         SkCodecPrintf("Error: unable to read bit inputMasks.\n");
@@ -503,7 +503,7 @@ bool SkBmpCodec::ReadHeader(SkStream* stream, bool inIco, SkCodec** codecOut) {
 
             if (codecOut) {
                 // Check that input bit masks are valid and create the masks object
-                SkAutoTDelete<SkMasks> masks(SkMasks::CreateMasks(inputMasks, bitsPerPixel));
+                std::unique_ptr<SkMasks> masks(SkMasks::CreateMasks(inputMasks, bitsPerPixel));
                 if (nullptr == masks) {
                     SkCodecPrintf("Error: invalid input masks.\n");
                     return false;
@@ -569,7 +569,7 @@ bool SkBmpCodec::ReadHeader(SkStream* stream, bool inIco, SkCodec** codecOut) {
  * Reads enough of the stream to determine the image format
  */
 SkCodec* SkBmpCodec::NewFromStream(SkStream* stream, bool inIco) {
-    SkAutoTDelete<SkStream> streamDeleter(stream);
+    std::unique_ptr<SkStream> streamDeleter(stream);
     SkCodec* codec = nullptr;
     if (ReadHeader(stream, inIco, &codec)) {
         // codec has taken ownership of stream, so we do not need to
@@ -583,10 +583,11 @@ SkCodec* SkBmpCodec::NewFromStream(SkStream* stream, bool inIco) {
 
 SkBmpCodec::SkBmpCodec(int width, int height, const SkEncodedInfo& info, SkStream* stream,
         uint16_t bitsPerPixel, SkCodec::SkScanlineOrder rowOrder)
-    : INHERITED(width, height, info, stream)
+    : INHERITED(width, height, info, stream, SkColorSpace::MakeNamed(SkColorSpace::kSRGB_Named))
     , fBitsPerPixel(bitsPerPixel)
     , fRowOrder(rowOrder)
     , fSrcRowBytes(SkAlign4(compute_row_bytes(width, fBitsPerPixel)))
+    , fXformBuffer(nullptr)
 {}
 
 bool SkBmpCodec::onRewind() {
@@ -601,13 +602,17 @@ int32_t SkBmpCodec::getDstRow(int32_t y, int32_t height) const {
     return height - y - 1;
 }
 
-SkCodec::Result SkBmpCodec::onStartScanlineDecode(const SkImageInfo& dstInfo,
+SkCodec::Result SkBmpCodec::prepareToDecode(const SkImageInfo& dstInfo,
         const SkCodec::Options& options, SkPMColor inputColorPtr[], int* inputColorCount) {
-    if (!conversion_possible_ignore_color_space(dstInfo, this->getInfo())) {
-        SkCodecPrintf("Error: cannot convert input type to output type.\n");
+    if (!conversion_possible(dstInfo, this->getInfo()) || !this->initializeColorXform(dstInfo)) {
         return kInvalidConversion;
     }
 
+    return this->onPrepareToDecode(dstInfo, options, inputColorPtr, inputColorCount);
+}
+
+SkCodec::Result SkBmpCodec::onStartScanlineDecode(const SkImageInfo& dstInfo,
+        const SkCodec::Options& options, SkPMColor inputColorPtr[], int* inputColorCount) {
     return prepareToDecode(dstInfo, options, inputColorPtr, inputColorCount);
 }
 
@@ -626,4 +631,16 @@ bool SkBmpCodec::skipRows(int count) {
 
 bool SkBmpCodec::onSkipScanlines(int count) {
     return this->skipRows(count);
+}
+
+void SkBmpCodec::applyColorXform(const SkImageInfo& dstInfo, void* dst, void* src) const {
+    SkColorSpaceXform* xform = this->colorXform();
+    if (xform) {
+        const SkColorSpaceXform::ColorFormat dstFormat = select_xform_format(dstInfo.colorType());
+        const SkColorSpaceXform::ColorFormat srcFormat = select_xform_format(kXformSrcColorType);
+        const SkAlphaType alphaType = select_xform_alpha(dstInfo.alphaType(),
+                                                         this->getInfo().alphaType());
+        SkAssertResult(xform->apply(dstFormat, dst, srcFormat, src, dstInfo.width(),
+                                    alphaType));
+    }
 }

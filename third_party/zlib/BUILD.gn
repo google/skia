@@ -4,29 +4,36 @@
 # found in the LICENSE file.
 
 declare_args() {
+  skia_use_system_zlib = false
 }
 
 import("../third_party.gni")
 
-third_party("zlib") {
-  public_include_dirs = [ "../externals/zlib" ]
+if (skia_use_system_zlib) {
+  system("zlib") {
+    libs = [ "z" ]
+  }
+} else {
+  third_party("zlib") {
+    public_include_dirs = [ "../externals/zlib" ]
 
-  sources = [
-    "../externals/zlib/adler32.c",
-    "../externals/zlib/compress.c",
-    "../externals/zlib/crc32.c",
-    "../externals/zlib/deflate.c",
-    "../externals/zlib/gzclose.c",
-    "../externals/zlib/gzlib.c",
-    "../externals/zlib/gzread.c",
-    "../externals/zlib/gzwrite.c",
-    "../externals/zlib/infback.c",
-    "../externals/zlib/inffast.c",
-    "../externals/zlib/inflate.c",
-    "../externals/zlib/inftrees.c",
-    "../externals/zlib/simd_stub.c",
-    "../externals/zlib/trees.c",
-    "../externals/zlib/uncompr.c",
-    "../externals/zlib/zutil.c",
-  ]
+    sources = [
+      "../externals/zlib/adler32.c",
+      "../externals/zlib/compress.c",
+      "../externals/zlib/crc32.c",
+      "../externals/zlib/deflate.c",
+      "../externals/zlib/gzclose.c",
+      "../externals/zlib/gzlib.c",
+      "../externals/zlib/gzread.c",
+      "../externals/zlib/gzwrite.c",
+      "../externals/zlib/infback.c",
+      "../externals/zlib/inffast.c",
+      "../externals/zlib/inflate.c",
+      "../externals/zlib/inftrees.c",
+      "../externals/zlib/simd_stub.c",
+      "../externals/zlib/trees.c",
+      "../externals/zlib/uncompr.c",
+      "../externals/zlib/zutil.c",
+    ]
+  }
 }

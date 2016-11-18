@@ -21,7 +21,7 @@
 DEF_GPUTEST_FOR_NULLGL_CONTEXT(GrSurface, reporter, ctxInfo) {
     GrContext* context = ctxInfo.grContext();
     GrSurfaceDesc desc;
-    desc.fConfig = kSkia8888_GrPixelConfig;
+    desc.fConfig = kRGBA_8888_GrPixelConfig;
     desc.fFlags = kRenderTarget_GrSurfaceFlag;
     desc.fWidth = 256;
     desc.fHeight = 256;
@@ -45,19 +45,19 @@ DEF_GPUTEST_FOR_NULLGL_CONTEXT(GrSurface, reporter, ctxInfo) {
     REPORTER_ASSERT(reporter, static_cast<GrSurface*>(tex1) == tex1->asTexture());
 
     GrBackendObject backendTex = context->getGpu()->createTestingOnlyBackendTexture(
-        nullptr, 256, 256, kSkia8888_GrPixelConfig);
+        nullptr, 256, 256, kRGBA_8888_GrPixelConfig);
 
     GrBackendTextureDesc backendDesc;
-    backendDesc.fConfig = kSkia8888_GrPixelConfig;
+    backendDesc.fConfig = kRGBA_8888_GrPixelConfig;
     backendDesc.fFlags = kRenderTarget_GrBackendTextureFlag;
     backendDesc.fWidth = 256;
     backendDesc.fHeight = 256;
     backendDesc.fSampleCnt = 0;
     backendDesc.fTextureHandle = backendTex;
-    GrSurface* texRT2 = context->textureProvider()->wrapBackendTexture(
+    sk_sp<GrSurface> texRT2 = context->textureProvider()->wrapBackendTexture(
         backendDesc, kBorrow_GrWrapOwnership);
-    REPORTER_ASSERT(reporter, texRT2 == texRT2->asRenderTarget());
-    REPORTER_ASSERT(reporter, texRT2 == texRT2->asTexture());
+    REPORTER_ASSERT(reporter, texRT2.get() == texRT2->asRenderTarget());
+    REPORTER_ASSERT(reporter, texRT2.get() == texRT2->asTexture());
     REPORTER_ASSERT(reporter, static_cast<GrSurface*>(texRT2->asRenderTarget()) ==
                     texRT2->asTexture());
     REPORTER_ASSERT(reporter, texRT2->asRenderTarget() ==
@@ -66,7 +66,6 @@ DEF_GPUTEST_FOR_NULLGL_CONTEXT(GrSurface, reporter, ctxInfo) {
                     static_cast<GrSurface*>(texRT2->asTexture()));
 
     texRT1->unref();
-    texRT2->unref();
     tex1->unref();
     context->getGpu()->deleteTestingOnlyBackendTexture(backendTex);
 }

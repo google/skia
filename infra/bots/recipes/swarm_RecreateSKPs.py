@@ -10,6 +10,7 @@ DEPS = [
   'build/file',
   'core',
   'depot_tools/gclient',
+  'infra',
   'recipe_engine/path',
   'recipe_engine/properties',
   'recipe_engine/python',
@@ -67,7 +68,7 @@ with open(token_file, 'w') as f:
     )
 
   def __exit__(self, t, v, tb):
-    return self.m.python.inline(
+    self.m.python.inline(
         'depot-tools-auth logout',
         """
 import os
@@ -88,6 +89,7 @@ if os.path.isfile(backup_file):
         """ % (DEPOT_TOOLS_AUTH_TOKEN_FILE,
                DEPOT_TOOLS_AUTH_TOKEN_FILE_BACKUP),
     )
+    return v is None
 
 
 def RunSteps(api):
@@ -110,28 +112,6 @@ def RunSteps(api):
            ['ninja', '-C', out_dir, 'chrome'],
            cwd=src_dir)
 
-  # Download boto file (needed by recreate_skps.py) to tmp dir.
-  boto_file = api.path['slave_build'].join('tmp', '.boto')
-  api.python.inline(
-      'download boto file',
-      """
-import os
-import urllib2
-
-BOTO_URL = 'http://metadata/computeMetadata/v1/project/attributes/boto-file'
-
-dest_path = '%s'
-dest_dir = os.path.dirname(dest_path)
-if not os.path.exists(dest_dir):
-  os.makedirs(dest_dir)
-
-req = urllib2.Request(BOTO_URL, headers={'Metadata-Flavor': 'Google'})
-contents = urllib2.urlopen(req).read()
-
-with open(dest_path, 'w') as f:
-  f.write(contents)
-        """ % boto_file)
-
   # Clean up the output dir.
   output_dir = api.path['slave_build'].join('skp_output')
   if api.path.exists(output_dir):
@@ -144,13 +124,6 @@ with open(dest_path, 'w') as f:
       'CHROME_HEADLESS': '1',
       'PATH': path_var,
   }
-  boto_env = {
-      'AWS_CREDENTIAL_FILE': boto_file,
-      'BOTO_CONFIG': boto_file,
-  }
-  recreate_skps_env = {}
-  recreate_skps_env.update(env)
-  recreate_skps_env.update(boto_env)
   asset_dir = api.vars.infrabots_dir.join('assets', 'skp')
   cmd = ['python', asset_dir.join('create.py'),
          '--chrome_src_path', src_dir,
@@ -161,13 +134,15 @@ with open(dest_path, 'w') as f:
   api.step('Recreate SKPs',
            cmd=cmd,
            cwd=api.vars.skia_dir,
-           env=recreate_skps_env)
+           env=env)
 
   # Upload the SKPs.
   if 'Canary' not in api.properties['buildername']:
+    api.infra.update_go_deps()
     cmd = ['python',
            api.vars.skia_dir.join('infra', 'bots', 'upload_skps.py'),
            '--target_dir', output_dir]
+    env.update(api.infra.go_env)
     with depot_tools_auth(api, UPDATE_SKPS_KEY):
       api.step('Upload SKPs',
                cmd=cmd,
@@ -176,18 +151,43 @@ with open(dest_path, 'w') as f:
 
 
 def GenTests(api):
-  for mastername, slaves in TEST_BUILDERS.iteritems():
-    for slavename, builders_by_slave in slaves.iteritems():
-      for builder in builders_by_slave:
-        test = (
-            api.test(builder) +
-            api.properties(buildername=builder,
-                           mastername=mastername,
-                           slavename=slavename,
-                           revision='abc123',
-                           buildnumber=2,
-                           path_config='kitchen',
-                           swarm_out_dir='[SWARM_OUT_DIR]') +
-            api.path.exists(api.path['slave_build'].join('skp_output'))
-        )
-        yield test
+  mastername = 'client.skia.compile'
+  slavename = 'skiabot-linux-swarm-000'
+  builder = 'Housekeeper-Nightly-RecreateSKPs_Canary'
+  yield (
+      api.test(builder) +
+      api.properties(buildername=builder,
+                     mastername=mastername,
+                     slavename=slavename,
+                     revision='abc123',
+                     buildnumber=2,
+                     path_config='kitchen',
+                     swarm_out_dir='[SWARM_OUT_DIR]') +
+      api.path.exists(api.path['slave_build'].join('skp_output'))
+  )
+
+  builder = 'Housekeeper-Weekly-RecreateSKPs'
+  yield (
+      api.test(builder) +
+      api.properties(buildername=builder,
+                     mastername=mastername,
+                     slavename=slavename,
+                     revision='abc123',
+                     buildnumber=2,
+                     path_config='kitchen',
+                     swarm_out_dir='[SWARM_OUT_DIR]') +
+      api.path.exists(api.path['slave_build'].join('skp_output'))
+  )
+
+  yield (
+      api.test('failed_upload') +
+      api.properties(buildername=builder,
+                     mastername=mastername,
+                     slavename=slavename,
+                     revision='abc123',
+                     buildnumber=2,
+                     path_config='kitchen',
+                     swarm_out_dir='[SWARM_OUT_DIR]') +
+      api.path.exists(api.path['slave_build'].join('skp_output')) +
+      api.step_data('Upload SKPs', retcode=1)
+  )

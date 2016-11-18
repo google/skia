@@ -29,12 +29,6 @@ public:
     SK_TO_STRING_OVERRIDE()
     SK_DECLARE_PUBLIC_FLATTENABLE_DESERIALIZATION_PROCS(SkPaintImageFilter)
 
-#ifdef SK_SUPPORT_LEGACY_IMAGEFILTER_PTR
-    static SkImageFilter* Create(const SkPaint& paint, const CropRect* rect = nullptr) {
-        return Make(paint, rect).release();
-    }
-#endif
-
 protected:
     void flatten(SkWriteBuffer&) const override;
     sk_sp<SkSpecialImage> onFilterImage(SkSpecialImage* source, const Context&,

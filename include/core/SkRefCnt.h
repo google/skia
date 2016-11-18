@@ -71,15 +71,7 @@ public:
     /** Increment the reference count. Must be balanced by a call to unref().
     */
     void ref() const {
-#ifdef SK_BUILD_FOR_ANDROID_FRAMEWORK
-        // Android employs some special subclasses that enable the fRefCnt to
-        // go to zero, but not below, prior to reusing the object.  This breaks
-        // the use of unique() on such objects and as such should be removed
-        // once the Android code is fixed.
-        SkASSERT(getRefCnt() >= 0);
-#else
         SkASSERT(getRefCnt() > 0);
-#endif
         // No barrier required.
         (void)fRefCnt.fetch_add(+1, std::memory_order_relaxed);
     }
@@ -188,32 +180,6 @@ template<typename T> static inline void SkSafeSetNull(T*& obj) {
 }
 
 ///////////////////////////////////////////////////////////////////////////////
-
-template <typename T> struct SkTUnref {
-    void operator()(T* t) { t->unref(); }
-};
-
-/**
- *  Utility class that simply unref's its argument in the destructor.
- */
-template <typename T> class SkAutoTUnref : public std::unique_ptr<T, SkTUnref<T>> {
-public:
-    explicit SkAutoTUnref(T* obj = nullptr) : std::unique_ptr<T, SkTUnref<T>>(obj) {}
-
-    operator T*() const { return this->get(); }
-
-#if defined(SK_BUILD_FOR_ANDROID_FRAMEWORK)
-    // Need to update graphics/Shader.cpp.
-    T* detach() { return this->release(); }
-#endif
-};
-// Can't use the #define trick below to guard a bare SkAutoTUnref(...) because it's templated. :(
-
-class SkAutoUnref : public SkAutoTUnref<SkRefCnt> {
-public:
-    SkAutoUnref(SkRefCnt* obj) : SkAutoTUnref<SkRefCnt>(obj) {}
-};
-#define SkAutoUnref(...) SK_REQUIRE_LOCAL_VAR(SkAutoUnref)
 
 // This is a variant of SkRefCnt that's Not Virtual, so weighs 4 bytes instead of 8 or 16.
 // There's only benefit to using this if the deriving class does not otherwise need a vtable.

@@ -518,7 +518,7 @@ public:
     void setOppValue(int oppValue) {
         SkASSERT(!final());
         SkASSERT(fOppSum == SK_MinS32);
-        SkASSERT(!oppValue || !fDone);
+        SkOPASSERT(!oppValue || !fDone);
         fOppValue = oppValue;
     }
 

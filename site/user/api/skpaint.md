@@ -252,10 +252,11 @@ Several shaders are defined (besides the linear gradient already mentioned):
         matrix.setScale(0.75f, 0.75f);
         matrix.preRotate(30.0f);
         SkPaint paint;
-        paint.setShader(SkShader::MakeBitmapShader(source,
-                    SkShader::kRepeat_TileMode,
-                    SkShader::kRepeat_TileMode,
-                    &matrix));
+        paint.setShader(
+            image->makeShader(
+                SkShader::kRepeat_TileMode,
+                SkShader::kRepeat_TileMode,
+                &matrix));
         canvas->drawPaint(paint);
 
     <a href='https://fiddle.skia.org/c/@skpaint_bitmap_shader'><img
@@ -403,7 +404,7 @@ SkColorFilter
         void f(SkCanvas* c, SkScalar x, SkScalar y, SkScalar colorMatrix[20]) {
             SkPaint paint;
             paint.setColorFilter(SkColorFilter::MakeMatrixFilterRowMajor255(colorMatrix));
-            c->drawBitmap(source, x, y, &paint);
+            c->drawImage(image, x, y, &paint);
         }
 
         void draw(SkCanvas* c) {
@@ -480,8 +481,9 @@ SkColorFilter
                 ct[i] = x < 0 ? 0 : x > 255 ? 255 : x;
             }
             SkPaint paint;
-          paint.setColorFilter(SkTableColorFilter::MakeARGB(nullptr, ct, ct, ct));
-            canvas->drawBitmap(source, 0, 0, &paint);
+            paint.setColorFilter(
+                    SkTableColorFilter::MakeARGB(nullptr, ct, ct, ct));
+            canvas->drawImage(image, 0, 0, &paint);
         }
 
     <a href='https://fiddle.skia.org/c/@skpaint_color_table_filter'><img

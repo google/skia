@@ -168,14 +168,8 @@ private:
     explicit SkData(size_t size);   // inplace new/delete
     ~SkData();
 
-
-    // Objects of this type are sometimes created in a custom fashion using sk_malloc_throw and
-    // therefore must be sk_freed. We overload new to also call sk_malloc_throw so that memory
-    // can be unconditionally released using sk_free in an overloaded delete. Overloading regular
-    // new means we must also overload placement new.
-    void* operator new(size_t size) { return sk_malloc_throw(size); }
-    void* operator new(size_t, void* p) { return p; }
-    void operator delete(void* p) { sk_free(p); }
+    // Ensure the unsized delete is called.
+    void operator delete(void* p) { ::operator delete(p); }
 
     // Called the first time someone calls NewEmpty to initialize the singleton.
     friend SkData* sk_new_empty_data();

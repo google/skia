@@ -223,6 +223,7 @@
       "--config",
       "8888",
       "gpu",
+      "gpudft",
       "gpusrgb",
       "pdf",
       "msaa16",
@@ -365,6 +366,18 @@
       "serialize-8888",
       "gm",
       "_",
+      "parsedpaths",
+      "serialize-8888",
+      "gm",
+      "_",
+      "ImageGeneratorExternal_rect",
+      "serialize-8888",
+      "gm",
+      "_",
+      "ImageGeneratorExternal_shader",
+      "serialize-8888",
+      "gm",
+      "_",
       "bleed_alpha_image",
       "serialize-8888",
       "gm",
@@ -455,11 +468,7 @@
       "_",
       "gamut"
     ],
-    "env": {
-      "BUILDTYPE": "Release",
-      "CHROME_HEADLESS": "1",
-      "SKIA_OUT": "[SLAVE_BUILD]/out"
-    },
+    "cwd": "[SLAVE_BUILD]/skia",
     "name": "dm"
   },
   {

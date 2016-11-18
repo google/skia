@@ -192,7 +192,7 @@ bool SkJpegCodec::ReadHeader(SkStream* stream, SkCodec** codecOut,
         JpegDecoderMgr** decoderMgrOut) {
 
     // Create a JpegDecoderMgr to own all of the decompress information
-    SkAutoTDelete<JpegDecoderMgr> decoderMgr(new JpegDecoderMgr(stream));
+    std::unique_ptr<JpegDecoderMgr> decoderMgr(new JpegDecoderMgr(stream));
 
     // libjpeg errors will be caught and reported here
     if (setjmp(decoderMgr->getJmpBuf())) {
@@ -229,20 +229,20 @@ bool SkJpegCodec::ReadHeader(SkStream* stream, SkCodec** codecOut,
         sk_sp<SkData> iccData = get_icc_profile(decoderMgr->dinfo());
         sk_sp<SkColorSpace> colorSpace = nullptr;
         if (iccData) {
-            colorSpace = SkColorSpace::NewICC(iccData->data(), iccData->size());
+            colorSpace = SkColorSpace::MakeICC(iccData->data(), iccData->size());
             if (!colorSpace) {
                 SkCodecPrintf("Could not create SkColorSpace from ICC data.\n");
             }
         }
         if (!colorSpace) {
             // Treat unmarked jpegs as sRGB.
-            colorSpace = SkColorSpace::NewNamed(SkColorSpace::kSRGB_Named);
+            colorSpace = SkColorSpace::MakeNamed(SkColorSpace::kSRGB_Named);
         }
 
         const int width = decoderMgr->dinfo()->image_width;
         const int height = decoderMgr->dinfo()->image_height;
         *codecOut = new SkJpegCodec(width, height, info, stream, decoderMgr.release(),
-                std::move(colorSpace), orientation, std::move(iccData));
+                std::move(colorSpace), orientation);
     } else {
         SkASSERT(nullptr != decoderMgrOut);
         *decoderMgrOut = decoderMgr.release();
@@ -251,7 +251,7 @@ bool SkJpegCodec::ReadHeader(SkStream* stream, SkCodec** codecOut,
 }
 
 SkCodec* SkJpegCodec::NewFromStream(SkStream* stream) {
-    SkAutoTDelete<SkStream> streamDeleter(stream);
+    std::unique_ptr<SkStream> streamDeleter(stream);
     SkCodec* codec = nullptr;
     if (ReadHeader(stream,  &codec, nullptr)) {
         // Codec has taken ownership of the stream, we do not need to delete it
@@ -263,15 +263,13 @@ SkCodec* SkJpegCodec::NewFromStream(SkStream* stream) {
 }
 
 SkJpegCodec::SkJpegCodec(int width, int height, const SkEncodedInfo& info, SkStream* stream,
-        JpegDecoderMgr* decoderMgr, sk_sp<SkColorSpace> colorSpace, Origin origin,
-        sk_sp<SkData> iccData)
+        JpegDecoderMgr* decoderMgr, sk_sp<SkColorSpace> colorSpace, Origin origin)
     : INHERITED(width, height, info, stream, std::move(colorSpace), origin)
     , fDecoderMgr(decoderMgr)
     , fReadyState(decoderMgr->dinfo()->global_state)
     , fSwizzleSrcRow(nullptr)
     , fColorXformSrcRow(nullptr)
     , fSwizzlerSubset(SkIRect::MakeEmpty())
-    , fICCData(std::move(iccData))
 {}
 
 /*
@@ -347,7 +345,6 @@ bool SkJpegCodec::onRewind() {
     fSwizzleSrcRow = nullptr;
     fColorXformSrcRow = nullptr;
     fStorage.reset();
-    fColorXform.reset(nullptr);
 
     return true;
 }
@@ -371,6 +368,9 @@ bool SkJpegCodec::setOutputColorSpace(const SkImageInfo& dstInfo) {
     // we must do it ourselves.
     J_COLOR_SPACE encodedColorType = fDecoderMgr->dinfo()->jpeg_color_space;
     bool isCMYK = (JCS_CMYK == encodedColorType || JCS_YCCK == encodedColorType);
+    if (isCMYK && this->colorXform()) {
+        return false;
+    }
 
     // Check for valid color types and set the output color space
     switch (dstInfo.colorType()) {
@@ -384,16 +384,16 @@ bool SkJpegCodec::setOutputColorSpace(const SkImageInfo& dstInfo) {
         case kBGRA_8888_SkColorType:
             if (isCMYK) {
                 fDecoderMgr->dinfo()->out_color_space = JCS_CMYK;
-            } else if (fColorXform) {
-                // Our color transformation code requires RGBA order inputs, but it'll swizzle
-                // to BGRA for us.
+            } else if (this->colorXform()) {
+                // Always using RGBA as the input format for color xforms makes the
+                // implementation a little simpler.
                 fDecoderMgr->dinfo()->out_color_space = JCS_EXT_RGBA;
             } else {
                 fDecoderMgr->dinfo()->out_color_space = JCS_EXT_BGRA;
             }
             return true;
         case kRGB_565_SkColorType:
-            if (fColorXform) {
+            if (this->colorXform()) {
                 return false;
             }
 
@@ -405,14 +405,15 @@ bool SkJpegCodec::setOutputColorSpace(const SkImageInfo& dstInfo) {
             }
             return true;
         case kGray_8_SkColorType:
-            if (fColorXform || JCS_GRAYSCALE != encodedColorType) {
+            if (this->colorXform() || JCS_GRAYSCALE != encodedColorType) {
                 return false;
             }
 
             fDecoderMgr->dinfo()->out_color_space = JCS_GRAYSCALE;
             return true;
         case kRGBA_F16_SkColorType:
-            SkASSERT(fColorXform);
+            SkASSERT(this->colorXform());
+
             if (!dstInfo.colorSpace()->gammaIsLinear()) {
                 return false;
             }
@@ -481,7 +482,7 @@ int SkJpegCodec::readRows(const SkImageInfo& dstInfo, void* dst, size_t rowBytes
     // subsetting.
     // When fColorXformSrcRow is non-null, it means that we need to color xform and that
     // we cannot color xform "in place" (many times we can, but not when the dst is F16).
-    // In this case, we will color xform from fColorXformSrc into the dst.
+    // In this case, we will color xform from fColorXformSrcRow into the dst.
     JSAMPLE* decodeDst = (JSAMPLE*) dst;
     uint32_t* swizzleDst = (uint32_t*) dst;
     size_t decodeDstRowBytes = rowBytes;
@@ -516,9 +517,10 @@ int SkJpegCodec::readRows(const SkImageInfo& dstInfo, void* dst, size_t rowBytes
             fSwizzler->swizzle(swizzleDst, decodeDst);
         }
 
-        if (fColorXform) {
-            fColorXform->apply(dst, swizzleDst, dstWidth, select_xform_format(dstInfo.colorType()),
-                               SkColorSpaceXform::kRGBA_8888_ColorFormat, kOpaque_SkAlphaType);
+        if (this->colorXform()) {
+            SkAssertResult(this->colorXform()->apply(select_xform_format(dstInfo.colorType()), dst,
+                    SkColorSpaceXform::kRGBA_8888_ColorFormat, swizzleDst, dstWidth,
+                    kOpaque_SkAlphaType));
             dst = SkTAddOffset<void>(dst, rowBytes);
         }
 
@@ -549,7 +551,9 @@ SkCodec::Result SkJpegCodec::onGetPixels(const SkImageInfo& dstInfo,
         return fDecoderMgr->returnFailure("setjmp", kInvalidInput);
     }
 
-    this->initializeColorXform(dstInfo);
+    if (!this->initializeColorXform(dstInfo)) {
+        return kInvalidConversion;
+    }
 
     // Check if we can decode to the requested destination and set the output color space
     if (!this->setOutputColorSpace(dstInfo)) {
@@ -587,12 +591,12 @@ void SkJpegCodec::allocateStorage(const SkImageInfo& dstInfo) {
     if (fSwizzler) {
         swizzleBytes = get_row_bytes(fDecoderMgr->dinfo());
         dstWidth = fSwizzler->swizzleWidth();
-        SkASSERT(!fColorXform || SkIsAlign4(swizzleBytes));
+        SkASSERT(!this->colorXform() || SkIsAlign4(swizzleBytes));
     }
 
     size_t xformBytes = 0;
     if (kRGBA_F16_SkColorType == dstInfo.colorType()) {
-        SkASSERT(fColorXform);
+        SkASSERT(this->colorXform());
         xformBytes = dstWidth * sizeof(uint32_t);
     }
 
@@ -631,22 +635,15 @@ void SkJpegCodec::initializeSwizzler(const SkImageInfo& dstInfo, const Options& 
     SkASSERT(fSwizzler);
 }
 
-void SkJpegCodec::initializeColorXform(const SkImageInfo& dstInfo) {
-    if (needs_color_xform(dstInfo, this->getInfo())) {
-        fColorXform = SkColorSpaceXform::New(this->getInfo().colorSpace(), dstInfo.colorSpace());
-        SkASSERT(fColorXform);
-    }
-}
-
 SkSampler* SkJpegCodec::getSampler(bool createIfNecessary) {
     if (!createIfNecessary || fSwizzler) {
         SkASSERT(!fSwizzler || (fSwizzleSrcRow && fStorage.get() == fSwizzleSrcRow));
-        return fSwizzler;
+        return fSwizzler.get();
     }
 
     this->initializeSwizzler(this->dstInfo(), this->options());
     this->allocateStorage(this->dstInfo());
-    return fSwizzler;
+    return fSwizzler.get();
 }
 
 SkCodec::Result SkJpegCodec::onStartScanlineDecode(const SkImageInfo& dstInfo,
@@ -657,7 +654,9 @@ SkCodec::Result SkJpegCodec::onStartScanlineDecode(const SkImageInfo& dstInfo,
         return kInvalidInput;
     }
 
-    this->initializeColorXform(dstInfo);
+    if (!this->initializeColorXform(dstInfo)) {
+        return kInvalidConversion;
+    }
 
     // Check if we can decode to the requested destination and set the output color space
     if (!this->setOutputColorSpace(dstInfo)) {

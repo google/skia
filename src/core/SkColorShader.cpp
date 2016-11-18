@@ -7,6 +7,9 @@
 
 #include "SkColorShader.h"
 #include "SkColorSpace.h"
+#include "SkFixedAlloc.h"
+#include "SkPM4fPriv.h"
+#include "SkRasterPipeline.h"
 #include "SkReadBuffer.h"
 #include "SkUtils.h"
 
@@ -89,8 +92,8 @@ SkShader::GradientType SkColorShader::asAGradient(GradientInfo* info) const {
 
 #include "SkGr.h"
 #include "effects/GrConstColorProcessor.h"
-sk_sp<GrFragmentProcessor> SkColorShader::asFragmentProcessor(const AsFPArgs&) const {
-    GrColor color = SkColorToPremulGrColor(fColor);
+sk_sp<GrFragmentProcessor> SkColorShader::asFragmentProcessor(const AsFPArgs& args) const {
+    GrColor4f color = SkColorToPremulGrColor4f(fColor, args.fDstColorSpace);
     return GrConstColorProcessor::Make(color, GrConstColorProcessor::kModulateA_InputMode);
 }
 
@@ -208,10 +211,14 @@ SkShader::GradientType SkColor4Shader::asAGradient(GradientInfo* info) const {
 
 #include "SkGr.h"
 #include "effects/GrConstColorProcessor.h"
-sk_sp<GrFragmentProcessor> SkColor4Shader::asFragmentProcessor(const AsFPArgs&) const {
-    // TODO: how to communicate color4f to Gr
-    GrColor color = SkColorToPremulGrColor(fCachedByteColor);
-    return GrConstColorProcessor::Make(color, GrConstColorProcessor::kModulateA_InputMode);
+sk_sp<GrFragmentProcessor> SkColor4Shader::asFragmentProcessor(const AsFPArgs& args) const {
+    sk_sp<GrColorSpaceXform> colorSpaceXform = GrColorSpaceXform::Make(fColorSpace.get(),
+                                                                       args.fDstColorSpace);
+    GrColor4f color = GrColor4f::FromSkColor4f(fColor4);
+    if (colorSpaceXform) {
+        color = colorSpaceXform->apply(color);
+    }
+    return GrConstColorProcessor::Make(color.premul(), GrConstColorProcessor::kModulateA_InputMode);
 }
 
 #endif
@@ -242,28 +249,28 @@ static void D32_BlitBW(SkShader::Context::BlitState* state, int x, int y, const 
                        int count) {
     SkXfermode::D32Proc proc = (SkXfermode::D32Proc)state->fStorage[0];
     const SkPM4f* src = (const SkPM4f*)state->fStorage[1];
-    proc(state->fXfer, dst.writable_addr32(x, y), src, count, nullptr);
+    proc(state->fMode, dst.writable_addr32(x, y), src, count, nullptr);
 }
 
 static void D32_BlitAA(SkShader::Context::BlitState* state, int x, int y, const SkPixmap& dst,
                        int count, const SkAlpha aa[]) {
     SkXfermode::D32Proc proc = (SkXfermode::D32Proc)state->fStorage[0];
     const SkPM4f* src = (const SkPM4f*)state->fStorage[1];
-    proc(state->fXfer, dst.writable_addr32(x, y), src, count, aa);
+    proc(state->fMode, dst.writable_addr32(x, y), src, count, aa);
 }
 
 static void F16_BlitBW(SkShader::Context::BlitState* state, int x, int y, const SkPixmap& dst,
                        int count) {
     SkXfermode::F16Proc proc = (SkXfermode::F16Proc)state->fStorage[0];
     const SkPM4f* src = (const SkPM4f*)state->fStorage[1];
-    proc(state->fXfer, dst.writable_addr64(x, y), src, count, nullptr);
+    proc(state->fMode, dst.writable_addr64(x, y), src, count, nullptr);
 }
 
 static void F16_BlitAA(SkShader::Context::BlitState* state, int x, int y, const SkPixmap& dst,
                        int count, const SkAlpha aa[]) {
     SkXfermode::F16Proc proc = (SkXfermode::F16Proc)state->fStorage[0];
     const SkPM4f* src = (const SkPM4f*)state->fStorage[1];
-    proc(state->fXfer, dst.writable_addr64(x, y), src, count, aa);
+    proc(state->fMode, dst.writable_addr64(x, y), src, count, aa);
 }
 
 static bool choose_blitprocs(const SkPM4f* pm4, const SkImageInfo& info,
@@ -277,13 +284,13 @@ static bool choose_blitprocs(const SkPM4f* pm4, const SkImageInfo& info,
             if (info.gammaCloseToSRGB()) {
                 flags |= SkXfermode::kDstIsSRGB_D32Flag;
             }
-            state->fStorage[0] = (void*)SkXfermode::GetD32Proc(state->fXfer, flags);
+            state->fStorage[0] = (void*)SkXfermode::GetD32Proc(state->fMode, flags);
             state->fStorage[1] = (void*)pm4;
             state->fBlitBW = D32_BlitBW;
             state->fBlitAA = D32_BlitAA;
             return true;
         case kRGBA_F16_SkColorType:
-            state->fStorage[0] = (void*)SkXfermode::GetF16Proc(state->fXfer, flags);
+            state->fStorage[0] = (void*)SkXfermode::GetF16Proc(state->fMode, flags);
             state->fStorage[1] = (void*)pm4;
             state->fBlitBW = F16_BlitBW;
             state->fBlitAA = F16_BlitAA;
@@ -300,4 +307,23 @@ bool SkColorShader::ColorShaderContext::onChooseBlitProcs(const SkImageInfo& inf
 
 bool SkColor4Shader::Color4Context::onChooseBlitProcs(const SkImageInfo& info, BlitState* state) {
     return choose_blitprocs(&fPM4f, info, state);
+}
+
+bool SkColorShader::onAppendStages(SkRasterPipeline* p,
+                                   SkColorSpace* dst,
+                                   SkFallbackAlloc* scratch,
+                                   const SkMatrix& ctm) const {
+    auto color = scratch->make<SkPM4f>(SkPM4f_from_SkColor(fColor, dst));
+    p->append(SkRasterPipeline::constant_color, color);
+    return append_gamut_transform(p, scratch,
+                                  SkColorSpace::MakeNamed(SkColorSpace::kSRGB_Named).get(), dst);
+}
+
+bool SkColor4Shader::onAppendStages(SkRasterPipeline* p,
+                                    SkColorSpace* dst,
+                                    SkFallbackAlloc* scratch,
+                                    const SkMatrix& ctm) const {
+    auto color = scratch->make<SkPM4f>(fColor4.premul());
+    p->append(SkRasterPipeline::constant_color, color);
+    return append_gamut_transform(p, scratch, fColorSpace.get(), dst);
 }

@@ -534,6 +534,12 @@ DEF_TEST(Math, reporter) {
         REPORTER_ASSERT(reporter, result == 3);
     }
 
+    {
+        REPORTER_ASSERT(reporter, (SkFixedRoundToFixed(-SK_Fixed1 * 10) >> 1) == -SK_Fixed1 * 5);
+        REPORTER_ASSERT(reporter, (SkFixedFloorToFixed(-SK_Fixed1 * 10) >> 1) == -SK_Fixed1 * 5);
+        REPORTER_ASSERT(reporter, (SkFixedCeilToFixed(-SK_Fixed1 * 10) >> 1) == -SK_Fixed1 * 5);
+    }
+
     unittest_fastfloat(reporter);
     unittest_isfinite(reporter);
     unittest_half(reporter);
@@ -678,4 +684,42 @@ DEF_TEST(divmod_s32, r) {
 
 DEF_TEST(divmod_s64, r) {
     test_divmod<int64_t>(r);
+}
+
+static void test_nextsizepow2(skiatest::Reporter* r, size_t test, size_t expectedAns) {
+    size_t ans = GrNextSizePow2(test);
+
+    REPORTER_ASSERT(r, ans == expectedAns);
+    //SkDebugf("0x%zx -> 0x%zx (0x%zx)\n", test, ans, expectedAns);
+}
+
+DEF_TEST(GrNextSizePow2, reporter) {
+    constexpr int kNumSizeTBits = 8 * sizeof(size_t);
+
+    size_t test = 0, expectedAns = 1;
+
+    test_nextsizepow2(reporter, test, expectedAns);
+
+    test = 1; expectedAns = 1;
+
+    for (int i = 1; i < kNumSizeTBits; ++i) {
+        test_nextsizepow2(reporter, test, expectedAns);
+
+        test++;
+        expectedAns <<= 1;
+
+        test_nextsizepow2(reporter, test, expectedAns);
+
+        test = expectedAns;
+    }
+
+    // For the remaining three tests there is no higher power (of 2)
+    test = 0x1;
+    test <<= kNumSizeTBits-1;
+    test_nextsizepow2(reporter, test, test);
+
+    test++;
+    test_nextsizepow2(reporter, test, test);
+
+    test_nextsizepow2(reporter, SIZE_MAX, SIZE_MAX);
 }

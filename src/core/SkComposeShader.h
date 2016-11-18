@@ -9,7 +9,7 @@
 #define SkComposeShader_DEFINED
 
 #include "SkShader.h"
-#include "SkXfermode.h"
+#include "SkBlendMode.h"
 
 ///////////////////////////////////////////////////////////////////////////////////////////
 
@@ -28,10 +28,10 @@ public:
         @param mode     The xfermode that combines the colors from the two shaders. If mode
                         is null, then SRC_OVER is assumed.
     */
-    SkComposeShader(sk_sp<SkShader> sA, sk_sp<SkShader> sB, sk_sp<SkXfermode> mode)
+    SkComposeShader(sk_sp<SkShader> sA, sk_sp<SkShader> sB, SkBlendMode mode)
         : fShaderA(std::move(sA))
         , fShaderB(std::move(sB))
-        , fMode(std::move(mode))
+        , fMode(mode)
     {}
 
 #if SK_SUPPORT_GPU
@@ -78,7 +78,7 @@ protected:
 private:
     sk_sp<SkShader>     fShaderA;
     sk_sp<SkShader>     fShaderB;
-    sk_sp<SkXfermode>   fMode;
+    SkBlendMode         fMode;
 
     typedef SkShader INHERITED;
 };

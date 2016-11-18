@@ -66,10 +66,6 @@ public:
         return fMustDoCopiesFromOrigin;
     }
 
-    bool allowInitializationErrorOnTearDown() const {
-        return fAllowInitializationErrorOnTearDown;
-    }
-
     bool supportsCopiesAsDraws() const {
         return fSupportsCopiesAsDraws;
     }
@@ -131,11 +127,6 @@ private:
     // On Adreno vulkan, they do not respect the imageOffset parameter at least in
     // copyImageToBuffer. This flag says that we must do the copy starting from the origin always.
     bool fMustDoCopiesFromOrigin;
-
-    // On Adreno, there is a bug where vkQueueWaitIdle will once in a while return
-    // VK_ERROR_INITIALIZATION_FAILED instead of the required VK_SUCCESS or VK_DEVICE_LOST. This
-    // flag says we will accept VK_ERROR_INITIALIZATION_FAILED as well.
-    bool fAllowInitializationErrorOnTearDown;
 
     // Check whether we support using draws for copies.
     bool fSupportsCopiesAsDraws;

@@ -6,17 +6,25 @@
   'includes': [
     'apptype_console.gypi',
   ],
-  'variables': {
-    'includes': [ 'skia_sources.gypi' ],
-  },
   'targets': [
     {
       'target_name': 'skslc',
       'type': 'executable',
-      'include_dirs': [ '<@(sksl_include_dirs)' ],
+      'include_dirs': [
+         '../include/config',
+         '../include/core',
+         '../include/gpu',
+         '../include/private',
+         '../include/utils',
+         '../src/gpu',
+         '../src/sksl',
+      ],
       'sources': [
-        '<@(sksl_sources)',
+        '<!@(python read_gni.py ../gn/sksl.gni skia_sksl_sources)',
         '../src/sksl/SkSLMain.cpp',
+      ],
+      'dependencies': [
+        'skia_lib.gyp:skia_lib',
       ],
       'configurations': {
         'Debug': {

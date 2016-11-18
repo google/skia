@@ -67,21 +67,6 @@ public:
     SK_TO_STRING_OVERRIDE()
     SK_DECLARE_PUBLIC_FLATTENABLE_DESERIALIZATION_PROCS(SkMatrixConvolutionImageFilter)
 
-#ifdef SK_SUPPORT_LEGACY_IMAGEFILTER_PTR
-    static SkImageFilter* Create(const SkISize& kernelSize,
-                                 const SkScalar* kernel,
-                                 SkScalar gain,
-                                 SkScalar bias,
-                                 const SkIPoint& kernelOffset,
-                                 TileMode tileMode,
-                                 bool convolveAlpha,
-                                 SkImageFilter* input = NULL,
-                                 const CropRect* cropRect = NULL) {
-        return Make(kernelSize, kernel, gain, bias, kernelOffset, tileMode, convolveAlpha,
-                    sk_ref_sp<SkImageFilter>(input), cropRect).release();
-    }
-#endif
-
 protected:
     SkMatrixConvolutionImageFilter(const SkISize& kernelSize,
                                    const SkScalar* kernel,

@@ -23,7 +23,7 @@ DEF_TEST(MipMap, reporter) {
         int width = 1 + rand.nextU() % 1000;
         int height = 1 + rand.nextU() % 1000;
         make_bitmap(&bm, width, height);
-        SkAutoTUnref<SkMipMap> mm(SkMipMap::Build(bm, SkSourceGammaTreatment::kIgnore, nullptr));
+        sk_sp<SkMipMap> mm(SkMipMap::Build(bm, SkDestinationSurfaceColorMode::kLegacy, nullptr));
 
         REPORTER_ASSERT(reporter, mm->countLevels() == SkMipMap::ComputeLevelCount(width, height));
         REPORTER_ASSERT(reporter, !mm->extractLevel(SkSize::Make(SK_Scalar1, SK_Scalar1),
@@ -60,7 +60,7 @@ static void test_mipmap_generation(int width, int height, int expectedMipLevelCo
     SkBitmap bm;
     bm.allocN32Pixels(width, height);
     bm.eraseColor(SK_ColorWHITE);
-    SkAutoTUnref<SkMipMap> mm(SkMipMap::Build(bm, SkSourceGammaTreatment::kIgnore, nullptr));
+    sk_sp<SkMipMap> mm(SkMipMap::Build(bm, SkDestinationSurfaceColorMode::kLegacy, nullptr));
 
     const int mipLevelCount = mm->countLevels();
     REPORTER_ASSERT(reporter, mipLevelCount == expectedMipLevelCount);
@@ -90,7 +90,7 @@ DEF_TEST(MipMap_DirectLevelAccess, reporter) {
         SkBitmap bm;
         bm.allocN32Pixels(1, 1);
         bm.eraseColor(SK_ColorWHITE);
-        SkAutoTUnref<SkMipMap> mm(SkMipMap::Build(bm, SkSourceGammaTreatment::kIgnore, nullptr));
+        sk_sp<SkMipMap> mm(SkMipMap::Build(bm, SkDestinationSurfaceColorMode::kLegacy, nullptr));
 
         REPORTER_ASSERT(reporter, mm == nullptr);
     }

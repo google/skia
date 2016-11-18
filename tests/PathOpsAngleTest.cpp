@@ -81,7 +81,9 @@ DEF_TEST(PathOpsAngleFindQuadEpsilon, reporter) {
         SkDPoint qPt2 = line.ptAtT(t3);
         qPt.fX += qPt2.fY;
         qPt.fY -= qPt2.fX;
-        SkDQuad quad = {{line[0], dPt, qPt}};
+        QuadPts q = {{line[0], dPt, qPt}};
+        SkDQuad quad;
+        quad.debugSet(q.fPts);
         // binary search for maximum movement of quad[1] towards test that still has 1 intersection
         double moveT = 0.5f;
         double deltaT = moveT / 2;
@@ -223,7 +225,7 @@ public:
 };
 
 struct CircleData {
-    const SkDCubic fPts;
+    const CubicPts fPts;
     const int fPtCount;
     SkPoint fShortPts[4];
 };
@@ -266,7 +268,7 @@ DEF_TEST(PathOpsAngleCircle, reporter) {
 }
 
 struct IntersectData {
-    const SkDCubic fPts;
+    const CubicPts fPts;
     const int fPtCount;
     double fTStart;
     double fTEnd;

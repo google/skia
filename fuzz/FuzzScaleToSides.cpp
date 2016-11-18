@@ -16,9 +16,8 @@
 #include <cmath>
 
 DEF_FUZZ(ScaleToSides, fuzz) {
-    float radius1 = fuzz->nextF(),
-          radius2 = fuzz->nextF(),
-          width   = fuzz->nextF();
+    float radius1, radius2, width;
+    fuzz->next(&radius1, &radius2, &width);
 
     if (!std::isfinite(radius1) ||
         !std::isfinite(radius2) ||
@@ -27,12 +26,12 @@ DEF_FUZZ(ScaleToSides, fuzz) {
         radius2 <= 0.0f         ||
         width <= 0.0f)
     {
-        fuzz->signalBoring();
+        return;
     }
 
     double scale = (double)width / ((double)radius1 + (double)radius2);
     if (scale >= 1.0 || scale <= 0.0) {
-        fuzz->signalBoring();
+        return;
     }
     SkDebugf("%g %g %g %g\n", radius1, radius2, width, scale);
     SkScaleToSides::AdjustRadii(width, scale, &radius1, &radius2);

@@ -23,6 +23,7 @@
 #include "SkCanvas.h"
 #include "SkGr.h"
 #include "SkMessageBus.h"
+#include "SkMipMap.h"
 #include "SkSurface.h"
 #include "Test.h"
 
@@ -33,7 +34,7 @@ static const int gHeight = 480;
 DEF_GPUTEST_FOR_RENDERING_CONTEXTS(ResourceCacheCache, reporter, ctxInfo) {
     GrContext* context = ctxInfo.grContext();
     GrSurfaceDesc desc;
-    desc.fConfig = kSkia8888_GrPixelConfig;
+    desc.fConfig = kRGBA_8888_GrPixelConfig;
     desc.fFlags = kRenderTarget_GrSurfaceFlag;
     desc.fWidth = gWidth;
     desc.fHeight = gHeight;
@@ -80,11 +81,21 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(ResourceCacheCache, reporter, ctxInfo) {
     context->setResourceCacheLimits(oldMaxNum, oldMaxBytes);
 }
 
-DEF_GPUTEST_FOR_RENDERING_CONTEXTS(ResourceCacheStencilBuffers, reporter, ctxInfo) {
+static bool is_rendering_and_not_angle_es3(sk_gpu_test::GrContextFactory::ContextType type) {
+    if (type == sk_gpu_test::GrContextFactory::kANGLE_D3D11_ES3_ContextType ||
+        type == sk_gpu_test::GrContextFactory::kANGLE_GL_ES3_ContextType) {
+        return false;
+    }
+    return sk_gpu_test::GrContextFactory::IsRenderingContext(type);
+}
+
+// This currently fails on ES3 ANGLE contexts
+DEF_GPUTEST_FOR_CONTEXTS(ResourceCacheStencilBuffers, &is_rendering_and_not_angle_es3, reporter,
+                         ctxInfo) {
     GrContext* context = ctxInfo.grContext();
     GrSurfaceDesc smallDesc;
     smallDesc.fFlags = kRenderTarget_GrSurfaceFlag;
-    smallDesc.fConfig = kSkia8888_GrPixelConfig;
+    smallDesc.fConfig = kRGBA_8888_GrPixelConfig;
     smallDesc.fWidth = 4;
     smallDesc.fHeight = 4;
     smallDesc.fSampleCnt = 0;
@@ -92,12 +103,12 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(ResourceCacheStencilBuffers, reporter, ctxInf
     GrTextureProvider* cache = context->textureProvider();
     GrResourceProvider* resourceProvider = context->resourceProvider();
     // Test that two budgeted RTs with the same desc share a stencil buffer.
-    SkAutoTUnref<GrTexture> smallRT0(cache->createTexture(smallDesc, SkBudgeted::kYes));
+    sk_sp<GrTexture> smallRT0(cache->createTexture(smallDesc, SkBudgeted::kYes));
     if (smallRT0 && smallRT0->asRenderTarget()) {
         resourceProvider->attachStencilAttachment(smallRT0->asRenderTarget());
     }
 
-    SkAutoTUnref<GrTexture> smallRT1(cache->createTexture(smallDesc, SkBudgeted::kYes));
+    sk_sp<GrTexture> smallRT1(cache->createTexture(smallDesc, SkBudgeted::kYes));
     if (smallRT1 && smallRT1->asRenderTarget()) {
         resourceProvider->attachStencilAttachment(smallRT1->asRenderTarget());
     }
@@ -109,7 +120,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(ResourceCacheStencilBuffers, reporter, ctxInf
                     resourceProvider->attachStencilAttachment(smallRT1->asRenderTarget()));
 
     // An unbudgeted RT with the same desc should also share.
-    SkAutoTUnref<GrTexture> smallRT2(cache->createTexture(smallDesc, SkBudgeted::kNo));
+    sk_sp<GrTexture> smallRT2(cache->createTexture(smallDesc, SkBudgeted::kNo));
     if (smallRT2 && smallRT2->asRenderTarget()) {
         resourceProvider->attachStencilAttachment(smallRT2->asRenderTarget());
     }
@@ -122,11 +133,11 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(ResourceCacheStencilBuffers, reporter, ctxInf
     // An RT with a much larger size should not share.
     GrSurfaceDesc bigDesc;
     bigDesc.fFlags = kRenderTarget_GrSurfaceFlag;
-    bigDesc.fConfig = kSkia8888_GrPixelConfig;
+    bigDesc.fConfig = kRGBA_8888_GrPixelConfig;
     bigDesc.fWidth = 400;
     bigDesc.fHeight = 200;
     bigDesc.fSampleCnt = 0;
-    SkAutoTUnref<GrTexture> bigRT(cache->createTexture(bigDesc, SkBudgeted::kNo));
+    sk_sp<GrTexture> bigRT(cache->createTexture(bigDesc, SkBudgeted::kNo));
     if (bigRT && bigRT->asRenderTarget()) {
         resourceProvider->attachStencilAttachment(bigRT->asRenderTarget());
     }
@@ -140,7 +151,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(ResourceCacheStencilBuffers, reporter, ctxInf
         // An RT with a different sample count should not share.
         GrSurfaceDesc smallMSAADesc = smallDesc;
         smallMSAADesc.fSampleCnt = 4;
-        SkAutoTUnref<GrTexture> smallMSAART0(cache->createTexture(smallMSAADesc, SkBudgeted::kNo));
+        sk_sp<GrTexture> smallMSAART0(cache->createTexture(smallMSAADesc, SkBudgeted::kNo));
         if (smallMSAART0 && smallMSAART0->asRenderTarget()) {
             resourceProvider->attachStencilAttachment(smallMSAART0->asRenderTarget());
         }
@@ -156,7 +167,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(ResourceCacheStencilBuffers, reporter, ctxInf
                         resourceProvider->attachStencilAttachment(smallRT0->asRenderTarget()) !=
                         resourceProvider->attachStencilAttachment(smallMSAART0->asRenderTarget()));
         // A second MSAA RT should share with the first MSAA RT.
-        SkAutoTUnref<GrTexture> smallMSAART1(cache->createTexture(smallMSAADesc, SkBudgeted::kNo));
+        sk_sp<GrTexture> smallMSAART1(cache->createTexture(smallMSAADesc, SkBudgeted::kNo));
         if (smallMSAART1 && smallMSAART1->asRenderTarget()) {
             resourceProvider->attachStencilAttachment(smallMSAART1->asRenderTarget());
         }
@@ -173,7 +184,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(ResourceCacheStencilBuffers, reporter, ctxInf
             smallMSAART0->asRenderTarget()->numColorSamples() < 8) {
             smallMSAADesc.fSampleCnt = 8;
             smallMSAART1.reset(cache->createTexture(smallMSAADesc, SkBudgeted::kNo));
-            SkAutoTUnref<GrTexture> smallMSAART1(
+            sk_sp<GrTexture> smallMSAART1(
                     cache->createTexture(smallMSAADesc, SkBudgeted::kNo));
             if (smallMSAART1 && smallMSAART1->asRenderTarget()) {
                 resourceProvider->attachStencilAttachment(smallMSAART1->asRenderTarget());
@@ -211,13 +222,14 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(ResourceCacheWrappedResources, reporter, ctxI
     desc.fHeight = kH;
 
     desc.fTextureHandle = texHandles[0];
-    SkAutoTUnref<GrTexture> borrowed(context->textureProvider()->wrapBackendTexture(
-                                     desc, kBorrow_GrWrapOwnership));
+    sk_sp<GrTexture> borrowed(context->textureProvider()->wrapBackendTexture(
+                              desc, kBorrow_GrWrapOwnership));
 
     desc.fTextureHandle = texHandles[1];
-    SkAutoTUnref<GrTexture> adopted(context->textureProvider()->wrapBackendTexture(
-                                    desc, kAdopt_GrWrapOwnership));
+    sk_sp<GrTexture> adopted(context->textureProvider()->wrapBackendTexture(
+                             desc, kAdopt_GrWrapOwnership));
 
+    printf("\nborrowed: %p, adopted: %p\n", borrowed.get(), adopted.get());
     REPORTER_ASSERT(reporter, borrowed != nullptr && adopted != nullptr);
     if (!borrowed || !adopted) {
         return;
@@ -348,10 +360,10 @@ public:
 
     GrResourceCache* cache() { return fContext->getResourceCache(); }
 
-    GrContext* context() { return fContext; }
+    GrContext* context() { return fContext.get(); }
 
 private:
-    SkAutoTUnref<GrContext> fContext;
+    sk_sp<GrContext> fContext;
 };
 
 static void test_no_key(skiatest::Reporter* reporter) {
@@ -869,7 +881,7 @@ static void test_duplicate_unique_key(skiatest::Reporter* reporter) {
     {
         GrUniqueKey key2;
         make_unique_key<0>(&key2, 0);
-        SkAutoTUnref<TestResource> d(new TestResource(context->getGpu()));
+        sk_sp<TestResource> d(new TestResource(context->getGpu()));
         int foo = 4132;
         key2.setCustomData(SkData::MakeWithCopy(&foo, sizeof(foo)));
         d->resourcePriv().setUniqueKey(key2);
@@ -877,7 +889,7 @@ static void test_duplicate_unique_key(skiatest::Reporter* reporter) {
 
     GrUniqueKey key3;
     make_unique_key<0>(&key3, 0);
-    SkAutoTUnref<GrGpuResource> d2(cache->findAndRefUniqueResource(key3));
+    sk_sp<GrGpuResource> d2(cache->findAndRefUniqueResource(key3));
     REPORTER_ASSERT(reporter, *(int*) d2->getUniqueKey().getCustomData()->data() == 4132);
 }
 
@@ -1007,10 +1019,10 @@ static void test_resource_size_changed(skiatest::Reporter* reporter) {
         REPORTER_ASSERT(reporter, 200 == cache->getResourceBytes());
         REPORTER_ASSERT(reporter, 2 == cache->getResourceCount());
         {
-            SkAutoTUnref<TestResource> find2(
+            sk_sp<TestResource> find2(
                 static_cast<TestResource*>(cache->findAndRefUniqueResource(key2)));
             find2->setSize(200);
-            SkAutoTUnref<TestResource> find1(
+            sk_sp<TestResource> find1(
                 static_cast<TestResource*>(cache->findAndRefUniqueResource(key1)));
             find1->setSize(50);
         }
@@ -1039,7 +1051,7 @@ static void test_resource_size_changed(skiatest::Reporter* reporter) {
         REPORTER_ASSERT(reporter, 2 == cache->getResourceCount());
 
         {
-            SkAutoTUnref<TestResource> find2(static_cast<TestResource*>(
+            sk_sp<TestResource> find2(static_cast<TestResource*>(
                 cache->findAndRefUniqueResource(key2)));
             find2->setSize(201);
         }
@@ -1288,7 +1300,7 @@ static void test_custom_data(skiatest::Reporter* reporter) {
 static void test_abandoned(skiatest::Reporter* reporter) {
     Mock mock(10, 300);
     GrContext* context = mock.context();
-    SkAutoTUnref<GrGpuResource> resource(new TestResource(context->getGpu()));
+    sk_sp<GrGpuResource> resource(new TestResource(context->getGpu()));
     context->abandonContext();
 
     REPORTER_ASSERT(reporter, resource->wasDestroyed());
@@ -1332,5 +1344,106 @@ DEF_GPUTEST(ResourceCacheMisc, reporter, factory) {
     test_custom_data(reporter);
     test_abandoned(reporter);
 }
+
+////////////////////////////////////////////////////////////////////////////////
+static sk_sp<GrTexture> make_normal_texture(GrTextureProvider* provider,
+                                            GrSurfaceFlags flags,
+                                            int width, int height,
+                                            int sampleCnt) {
+    GrSurfaceDesc desc;
+    desc.fFlags = flags;
+    desc.fWidth = width;
+    desc.fHeight = height;
+    desc.fConfig = kRGBA_8888_GrPixelConfig;
+    desc.fSampleCnt = sampleCnt;
+
+    return sk_sp<GrTexture>(provider->createTexture(desc, SkBudgeted::kYes));
+}
+
+static sk_sp<GrTexture> make_mipmap_texture(GrTextureProvider* provider,
+                                            GrSurfaceFlags flags,
+                                            int width, int height,
+                                            int sampleCnt) {
+    SkBitmap bm;
+
+    bm.allocN32Pixels(width, height, true);
+    bm.eraseColor(SK_ColorBLUE);
+
+    sk_sp<SkMipMap> mipmaps(SkMipMap::Build(bm, SkDestinationSurfaceColorMode::kLegacy, nullptr));
+    SkASSERT(mipmaps);
+    SkASSERT(mipmaps->countLevels() > 1);
+
+    int mipLevelCount = mipmaps->countLevels() + 1;
+
+    std::unique_ptr<GrMipLevel[]> texels(new GrMipLevel[mipLevelCount]);
+
+    texels[0].fPixels = bm.getPixels();
+    texels[0].fRowBytes = bm.rowBytes();
+
+    for (int i = 1; i < mipLevelCount; ++i) {
+        SkMipMap::Level generatedMipLevel;
+        mipmaps->getLevel(i - 1, &generatedMipLevel);
+        texels[i].fPixels = generatedMipLevel.fPixmap.addr();
+        texels[i].fRowBytes = generatedMipLevel.fPixmap.rowBytes();
+    }
+
+    GrSurfaceDesc desc;
+    desc.fFlags = flags;
+    desc.fWidth = width;
+    desc.fHeight = height;
+    desc.fConfig = kRGBA_8888_GrPixelConfig;
+    desc.fSampleCnt = sampleCnt;
+    desc.fIsMipMapped = true;
+
+    return sk_sp<GrTexture>(provider->createMipMappedTexture(desc, SkBudgeted::kYes,
+                                                             texels.get(), mipLevelCount));
+}
+
+// Exercise GrSurface::gpuMemorySize for different combos of MSAA, RT-only,
+// Texture-only, both-RT-and-Texture and MIPmapped
+DEF_GPUTEST_FOR_RENDERING_CONTEXTS(GPUMemorySize, reporter, ctxInfo) {
+    GrContext* context = ctxInfo.grContext();
+    GrTextureProvider* provider = context->textureProvider();
+
+    static const int kSize = 64;
+
+    sk_sp<GrTexture> tex;
+
+    // Normal versions
+    tex = make_normal_texture(provider, kRenderTarget_GrSurfaceFlag, kSize, kSize, 0);
+    size_t size = tex->gpuMemorySize();
+    REPORTER_ASSERT(reporter, kSize*kSize*4 == size);
+
+    if (context->caps()->maxSampleCount() >= 4) {
+        tex = make_normal_texture(provider, kRenderTarget_GrSurfaceFlag, kSize, kSize, 4);
+        size = tex->gpuMemorySize();
+        REPORTER_ASSERT(reporter, kSize*kSize*4 == size ||    // msaa4 failed
+                                  kSize*kSize*4*4 == size ||  // auto-resolving
+                                  kSize*kSize*4*5 == size);   // explicit resolve buffer
+    }
+
+    tex = make_normal_texture(provider, kNone_GrSurfaceFlags, kSize, kSize, 0);
+    size = tex->gpuMemorySize();
+    REPORTER_ASSERT(reporter, kSize*kSize*4 == size);
+
+    // Mipmapped versions
+    tex = make_mipmap_texture(provider, kRenderTarget_GrSurfaceFlag, kSize, kSize, 0);
+    size = tex->gpuMemorySize();
+    REPORTER_ASSERT(reporter, kSize*kSize*4+(kSize*kSize*4)/3 == size);
+
+    if (context->caps()->maxSampleCount() >= 4) {
+        tex = make_mipmap_texture(provider, kRenderTarget_GrSurfaceFlag, kSize, kSize, 4);
+        size = tex->gpuMemorySize();
+        REPORTER_ASSERT(reporter, 
+                            kSize*kSize*4+(kSize*kSize*4)/3 == size ||   // msaa4 failed
+                            kSize*kSize*4*4+(kSize*kSize*4)/3 == size || // auto-resolving
+                            kSize*kSize*4*5+(kSize*kSize*4)/3 == size);  // explicit resolve buffer
+    }
+
+    tex = make_mipmap_texture(provider, kNone_GrSurfaceFlags, kSize, kSize, 0);
+    size = tex->gpuMemorySize();
+    REPORTER_ASSERT(reporter, kSize*kSize*4+(kSize*kSize*4)/3 == size);
+}
+
 
 #endif

@@ -43,6 +43,7 @@ struct Request {
     SkCanvas* getCanvas();
     SkBitmap* getBitmapFromCanvas(SkCanvas* canvas);
     bool enableGPU(bool enable);
+    bool setOverdraw(bool enable);
     bool setColorMode(int mode);
     bool hasPicture() const { return SkToBool(fPicture.get()); }
     int getLastOp() const { return fDebugCanvas->getSize() - 1; }
@@ -62,7 +63,7 @@ struct Request {
     SkColor getPixel(int x, int y);
 
     UploadContext* fUploadContext;
-    SkAutoTUnref<SkDebugCanvas> fDebugCanvas;
+    std::unique_ptr<SkDebugCanvas> fDebugCanvas;
     UrlDataManager fUrlDataManager;
 
 private:
@@ -75,8 +76,9 @@ private:
 
     sk_sp<SkPicture> fPicture;
     sk_gpu_test::GrContextFactory* fContextFactory;
-    SkAutoTUnref<SkSurface> fSurface;
+    sk_sp<SkSurface> fSurface;
     bool fGPUEnabled;
+    bool fOverdraw;
     int fColorMode;
 };
 

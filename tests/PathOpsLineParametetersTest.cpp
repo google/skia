@@ -9,7 +9,7 @@
 #include "Test.h"
 
 // tests to verify that distance calculations are coded correctly
-static const SkDCubic tests[] = {
+static const CubicPts tests[] = {
     {{{0, 0}, {1, 1}, {2, 2}, {0, 3}}},
     {{{0, 0}, {1, 1}, {2, 2}, {3, 0}}},
     {{{0, 0}, {5, 0}, {-2, 4}, {3, 4}}},
@@ -40,7 +40,9 @@ static const size_t tests_count = SK_ARRAY_COUNT(tests);
 DEF_TEST(PathOpsLineParameters, reporter) {
     for (size_t index = 0; index < tests_count; ++index) {
         SkLineParameters lineParameters;
-        const SkDCubic& cubic = tests[index];
+        const CubicPts& c = tests[index];
+        SkDCubic cubic;
+        cubic.debugSet(c.fPts);
         SkASSERT(ValidCubic(cubic));
         lineParameters.cubicEndPoints(cubic, 0, 3);
         double denormalizedDistance[2];

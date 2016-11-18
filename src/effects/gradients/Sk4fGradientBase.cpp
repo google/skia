@@ -20,28 +20,6 @@ Sk4f pack_color(SkColor c, bool premul, const Sk4f& component_scale) {
     return pm4f * component_scale;
 }
 
-template<SkShader::TileMode>
-SkScalar tileProc(SkScalar t);
-
-template<>
-SkScalar tileProc<SkShader::kClamp_TileMode>(SkScalar t) {
-    // synthetic clamp-mode edge intervals allow for a free-floating t:
-    //   [-inf..0)[0..1)[1..+inf)
-    return t;
-}
-
-template<>
-SkScalar tileProc<SkShader::kRepeat_TileMode>(SkScalar t) {
-    // t % 1  (intervals range: [0..1))
-    return t - SkScalarFloorToScalar(t);
-}
-
-template<>
-SkScalar tileProc<SkShader::kMirror_TileMode>(SkScalar t) {
-    // t % 2  (synthetic mirror intervals expand the range to [0..2)
-    return t - SkScalarFloorToScalar(t / 2) * 2;
-}
-
 class IntervalIterator {
 public:
     IntervalIterator(const SkColor* colors, const SkScalar* pos, int count, bool reverse)
@@ -125,9 +103,15 @@ Interval::Interval(const Sk4f& c0, SkScalar p0,
     : fP0(p0)
     , fP1(p1)
     , fZeroRamp((c0 == c1).allTrue()) {
-
     SkASSERT(p0 != p1);
-    const Sk4f dc = (c1 - c0) / (p1 - p0);
+    // Either p0 or p1 can be (-)inf for synthetic clamp edge intervals.
+    SkASSERT(SkScalarIsFinite(p0) || SkScalarIsFinite(p1));
+
+    const auto dp = p1 - p0;
+
+    // Clamp edge intervals are always zero-ramp.
+    SkASSERT(SkScalarIsFinite(dp) || fZeroRamp);
+    const Sk4f dc = SkScalarIsFinite(dp) ? (c1 - c0) / dp : 0;
 
     c0.store(&fC0.fVec);
     dc.store(&fDc.fVec);
@@ -223,7 +207,7 @@ GradientShaderBase4fContext::buildIntervals(const SkGradientShaderBase& shader,
         // synthetic edge interval: -/+inf .. P0
         const Sk4f clamp_color = pack_color(shader.fOrigColors[first_index],
                                             fColorsArePremul, componentScale);
-        const SkScalar clamp_pos = reverse ? SK_ScalarMax : SK_ScalarMin;
+        const SkScalar clamp_pos = reverse ? SK_ScalarInfinity : SK_ScalarNegativeInfinity;
         fIntervals.emplace_back(clamp_color, clamp_pos,
                                 clamp_color, first_pos);
     } else if (shader.fTileMode == SkShader::kMirror_TileMode && reverse) {
@@ -248,7 +232,7 @@ GradientShaderBase4fContext::buildIntervals(const SkGradientShaderBase& shader,
         // synthetic edge interval: Pn .. +/-inf
         const Sk4f clamp_color = pack_color(shader.fOrigColors[last_index],
                                             fColorsArePremul, componentScale);
-        const SkScalar clamp_pos = reverse ? SK_ScalarMin : SK_ScalarMax;
+        const SkScalar clamp_pos = reverse ? SK_ScalarNegativeInfinity : SK_ScalarInfinity;
         fIntervals.emplace_back(clamp_color, last_pos,
                                 clamp_color, clamp_pos);
     } else if (shader.fTileMode == SkShader::kMirror_TileMode && !reverse) {
@@ -267,10 +251,16 @@ GradientShaderBase4fContext::addMirrorIntervals(const SkGradientShaderBase& shad
     iter.iterate([this, &componentScale] (SkColor c0, SkColor c1, SkScalar p0, SkScalar p1) {
         SkASSERT(fIntervals.empty() || fIntervals.back().fP1 == 2 - p0);
 
-        fIntervals.emplace_back(pack_color(c0, fColorsArePremul, componentScale),
-                                2 - p0,
-                                pack_color(c1, fColorsArePremul, componentScale),
-                                2 - p1);
+        const auto mirror_p0 = 2 - p0;
+        const auto mirror_p1 = 2 - p1;
+        // mirror_p1 & mirror_p1 may collapse for very small values - recheck to avoid
+        // triggering Interval asserts.
+        if (mirror_p0 != mirror_p1) {
+            fIntervals.emplace_back(pack_color(c0, fColorsArePremul, componentScale),
+                                    mirror_p0,
+                                    pack_color(c1, fColorsArePremul, componentScale),
+                                    mirror_p1);
+        }
     });
 }
 
@@ -326,7 +316,7 @@ GradientShaderBase4fContext::shadeSpanInternal(int x, int y,
                                                int count) const {
     static const int kBufSize = 128;
     SkScalar ts[kBufSize];
-    TSampler<dstType, tileMode> sampler(*this);
+    TSampler<dstType, premul, tileMode> sampler(*this);
 
     SkASSERT(count > 0);
     do {
@@ -341,18 +331,19 @@ GradientShaderBase4fContext::shadeSpanInternal(int x, int y,
     } while (count > 0);
 }
 
-template<DstType dstType, SkShader::TileMode tileMode>
+template<DstType dstType, ApplyPremul premul, SkShader::TileMode tileMode>
 class SkGradientShaderBase::GradientShaderBase4fContext::TSampler {
 public:
     TSampler(const GradientShaderBase4fContext& ctx)
         : fFirstInterval(ctx.fIntervals.begin())
         , fLastInterval(ctx.fIntervals.end() - 1)
-        , fInterval(nullptr) {
+        , fInterval(nullptr)
+        , fLargestLessThanTwo(nextafterf(2, 0)) {
         SkASSERT(fLastInterval >= fFirstInterval);
     }
 
     Sk4f sample(SkScalar t) {
-        const SkScalar tiled_t = tileProc<tileMode>(t);
+        const auto tiled_t = tileProc(t);
 
         if (!fInterval) {
             // Very first sample => locate the initial interval.
@@ -369,6 +360,25 @@ public:
     }
 
 private:
+    SkScalar tileProc(SkScalar t) const {
+        switch (tileMode) {
+        case kClamp_TileMode:
+            // synthetic clamp-mode edge intervals allow for a free-floating t:
+            //   [-inf..0)[0..1)[1..+inf)
+            return t;
+        case kRepeat_TileMode:
+            // t % 1  (intervals range: [0..1))
+            return t - SkScalarFloorToScalar(t);
+        case kMirror_TileMode:
+            // t % 2  (synthetic mirror intervals expand the range to [0..2)
+            // Due to the extra arithmetic, we must clamp to ensure the value remains less than 2.
+            return SkTMin(t - SkScalarFloorToScalar(t / 2) * 2, fLargestLessThanTwo);
+        }
+
+        SK_ABORT("Unhandled tile mode.");
+        return 0;
+    }
+
     Sk4f lerp(SkScalar t) {
         SkASSERT(t >= fInterval->fP0 && t < fInterval->fP1);
         return fCc + fDc * (t - fInterval->fP0);
@@ -424,14 +434,15 @@ private:
     }
 
     void loadIntervalData(const Interval* i) {
-        fCc = DstTraits<dstType>::load(i->fC0);
-        fDc = DstTraits<dstType>::load(i->fDc);
+        fCc = DstTraits<dstType, premul>::load(i->fC0);
+        fDc = DstTraits<dstType, premul>::load(i->fDc);
     }
 
     const Interval* fFirstInterval;
     const Interval* fLastInterval;
     const Interval* fInterval;
     SkScalar        fPrevT;
+    SkScalar        fLargestLessThanTwo;
     Sk4f            fCc;
     Sk4f            fDc;
 };

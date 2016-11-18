@@ -167,32 +167,14 @@ def _ToolFlags(input_api, output_api):
   return results
 
 
-def _RecipeSimulationTest(input_api, output_api):
-  """Run the recipe simulation test."""
+def _InfraTests(input_api, output_api):
+  """Run the infra tests."""
   results = []
   if not any(f.LocalPath().startswith('infra')
              for f in input_api.AffectedFiles()):
     return results
 
-  recipes_py = os.path.join('infra', 'bots', 'recipes.py')
-  cmd = ['python', recipes_py, 'simulation_test']
-  try:
-    subprocess.check_output(cmd)
-  except subprocess.CalledProcessError as e:
-    results.append(output_api.PresubmitError(
-        '`%s` failed:\n%s' % (' '.join(cmd), e.output)))
-  return results
-
-
-def _GenTasksTest(input_api, output_api):
-  """Run gen_tasks.go test."""
-  results = []
-  if not any(f.LocalPath().startswith('infra')
-             for f in input_api.AffectedFiles()):
-    return results
-
-  gen_tasks = os.path.join('infra', 'bots', 'gen_tasks.go')
-  cmd = ['go', 'run', gen_tasks, '--test']
+  cmd = ['python', os.path.join('infra', 'bots', 'infra_tests.py')]
   try:
     subprocess.check_output(cmd)
   except subprocess.CalledProcessError as e:
@@ -205,10 +187,12 @@ def _CheckGNFormatted(input_api, output_api):
   """Make sure any .gn files we're changing have been formatted."""
   results = []
   for f in input_api.AffectedFiles():
-    if not f.LocalPath().endswith('.gn'):
+    if (not f.LocalPath().endswith('.gn') and
+        not f.LocalPath().endswith('.gni')):
       continue
 
-    cmd = ['gn', 'format', '--dry-run', f.LocalPath()]
+    gn = 'gn.bat' if 'win32' in sys.platform else 'gn'
+    cmd = [gn, 'format', '--dry-run', f.LocalPath()]
     try:
       subprocess.check_output(cmd)
     except subprocess.CalledProcessError:
@@ -253,8 +237,7 @@ def CheckChangeOnUpload(input_api, output_api):
   results.extend(_CommonChecks(input_api, output_api))
   # Run on upload, not commit, since the presubmit bot apparently doesn't have
   # coverage or Go installed.
-  results.extend(_RecipeSimulationTest(input_api, output_api))
-  results.extend(_GenTasksTest(input_api, output_api))
+  results.extend(_InfraTests(input_api, output_api))
 
   results.extend(_CheckGNFormatted(input_api, output_api))
   return results

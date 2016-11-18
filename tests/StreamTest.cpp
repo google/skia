@@ -9,6 +9,7 @@
 #include "SkData.h"
 #include "SkFrontBufferedStream.h"
 #include "SkOSFile.h"
+#include "SkOSPath.h"
 #include "SkRandom.h"
 #include "SkStream.h"
 #include "SkStreamPriv.h"
@@ -61,7 +62,7 @@ static void test_filestreams(skiatest::Reporter* reporter, const char* tmpDir) {
         REPORTER_ASSERT(reporter, stream.isValid());
         test_loop_stream(reporter, &stream, s, 26, 100);
 
-        SkAutoTDelete<SkStreamAsset> stream2(stream.duplicate());
+        std::unique_ptr<SkStreamAsset> stream2(stream.duplicate());
         test_loop_stream(reporter, stream2.get(), s, 26, 100);
     }
 
@@ -71,7 +72,7 @@ static void test_filestreams(skiatest::Reporter* reporter, const char* tmpDir) {
         REPORTER_ASSERT(reporter, stream.isValid());
         test_loop_stream(reporter, &stream, s, 26, 100);
 
-        SkAutoTDelete<SkStreamAsset> stream2(stream.duplicate());
+        std::unique_ptr<SkStreamAsset> stream2(stream.duplicate());
         test_loop_stream(reporter, stream2.get(), s, 26, 100);
     }
 }
@@ -94,15 +95,15 @@ static void TestWStream(skiatest::Reporter* reporter) {
     }
 
     {
-        SkAutoTDelete<SkStreamAsset> stream(ds.detachAsStream());
+        std::unique_ptr<SkStreamAsset> stream(ds.detachAsStream());
         REPORTER_ASSERT(reporter, 100 * 26 == stream->getLength());
         REPORTER_ASSERT(reporter, ds.getOffset() == 0);
         test_loop_stream(reporter, stream.get(), s, 26, 100);
 
-        SkAutoTDelete<SkStreamAsset> stream2(stream->duplicate());
+        std::unique_ptr<SkStreamAsset> stream2(stream->duplicate());
         test_loop_stream(reporter, stream2.get(), s, 26, 100);
 
-        SkAutoTDelete<SkStreamAsset> stream3(stream->fork());
+        std::unique_ptr<SkStreamAsset> stream3(stream->fork());
         REPORTER_ASSERT(reporter, stream3->isAtEnd());
         char tmp;
         size_t bytes = stream->read(&tmp, 1);
@@ -124,11 +125,11 @@ static void TestWStream(skiatest::Reporter* reporter) {
 
     {
         // Test that this works after a snapshot.
-        SkAutoTDelete<SkStreamAsset> stream(ds.detachAsStream());
+        std::unique_ptr<SkStreamAsset> stream(ds.detachAsStream());
         REPORTER_ASSERT(reporter, ds.getOffset() == 0);
         test_loop_stream(reporter, stream.get(), s, 26, 100);
 
-        SkAutoTDelete<SkStreamAsset> stream2(stream->duplicate());
+        std::unique_ptr<SkStreamAsset> stream2(stream->duplicate());
         test_loop_stream(reporter, stream2.get(), s, 26, 100);
     }
     delete[] dst;
@@ -192,6 +193,7 @@ DEF_TEST(Stream, reporter) {
     TestNullData();
 }
 
+#ifndef SK_BUILD_FOR_IOS
 /**
  *  Tests peeking and then reading the same amount. The two should provide the
  *  same results.
@@ -234,12 +236,12 @@ static void test_peeking_front_buffered_stream(skiatest::Reporter* r,
                                                size_t bufferSize) {
     SkStream* dupe = original.duplicate();
     REPORTER_ASSERT(r, dupe != nullptr);
-    SkAutoTDelete<SkStream> bufferedStream(SkFrontBufferedStream::Create(dupe, bufferSize));
+    std::unique_ptr<SkStream> bufferedStream(SkFrontBufferedStream::Create(dupe, bufferSize));
     REPORTER_ASSERT(r, bufferedStream != nullptr);
 
     size_t peeked = 0;
     for (size_t i = 1; !bufferedStream->isAtEnd(); i++) {
-        const size_t unpeekableBytes = compare_peek_to_read(r, bufferedStream, i);
+        const size_t unpeekableBytes = compare_peek_to_read(r, bufferedStream.get(), i);
         if (unpeekableBytes > 0) {
             // This could not have returned a number greater than i.
             REPORTER_ASSERT(r, unpeekableBytes <= i);
@@ -285,7 +287,6 @@ static void test_peeking_front_buffered_stream(skiatest::Reporter* r,
 // This test uses file system operations that don't work out of the
 // box on iOS. It's likely that we don't need them on iOS. Ignoring for now.
 // TODO(stephana): Re-evaluate if we need this in the future.
-#ifndef SK_BUILD_FOR_IOS
 DEF_TEST(StreamPeek, reporter) {
     // Test a memory stream.
     const char gAbcs[] = "abcdefghijklmnopqrstuvwxyz";
@@ -359,7 +360,7 @@ DEF_TEST(StreamPeek_BlockMemoryStream, rep) {
         }
         dynamicMemoryWStream.write(buffer, size);
     }
-    SkAutoTDelete<SkStreamAsset> asset(dynamicMemoryWStream.detachAsStream());
+    std::unique_ptr<SkStreamAsset> asset(dynamicMemoryWStream.detachAsStream());
     sk_sp<SkData> expected(SkData::MakeUninitialized(asset->getLength()));
     uint8_t* expectedPtr = static_cast<uint8_t*>(expected->writable_data());
     valueSource.setSeed(kSeed);  // reseed.
@@ -369,7 +370,7 @@ DEF_TEST(StreamPeek_BlockMemoryStream, rep) {
     for (size_t i = 0; i < asset->getLength(); ++i) {
         expectedPtr[i] = valueSource.nextU() & 0xFF;
     }
-    stream_peek_test(rep, asset, expected.get());
+    stream_peek_test(rep, asset.get(), expected.get());
 }
 
 namespace {
@@ -429,6 +430,6 @@ DEF_TEST(StreamCopy, reporter) {
 
 DEF_TEST(StreamEmptyStreamMemoryBase, r) {
     SkDynamicMemoryWStream tmp;
-    SkAutoTDelete<SkStreamAsset> asset(tmp.detachAsStream());
+    std::unique_ptr<SkStreamAsset> asset(tmp.detachAsStream());
     REPORTER_ASSERT(r, nullptr == asset->getMemoryBase());
 }

@@ -26,12 +26,12 @@ SkString GrDrawPathBatch::dumpInfo() const {
     return string;
 }
 
-void GrDrawPathBatch::onDraw(GrBatchFlushState* state) {
+void GrDrawPathBatch::onDraw(GrBatchFlushState* state, const SkRect& bounds) {
     GrProgramDesc  desc;
 
-    SkAutoTUnref<GrPathProcessor> pathProc(GrPathProcessor::Create(this->color(),
-                                                                   this->overrides(),
-                                                                   this->viewMatrix()));
+    sk_sp<GrPathProcessor> pathProc(GrPathProcessor::Create(this->color(),
+                                                            this->overrides(),
+                                                            this->viewMatrix()));
     state->gpu()->pathRendering()->drawPath(*this->pipeline(), *pathProc,
                                             this->stencilPassSettings(), fPath.get());
 }
@@ -116,7 +116,7 @@ bool GrDrawPathRangeBatch::onCombineIfPossible(GrBatch* t, const GrCaps& caps) {
     return true;
 }
 
-void GrDrawPathRangeBatch::onDraw(GrBatchFlushState* state) {
+void GrDrawPathRangeBatch::onDraw(GrBatchFlushState* state, const SkRect& bounds) {
     const Draw& head = *fDraws.head();
 
     SkMatrix drawMatrix(this->viewMatrix());
@@ -127,10 +127,10 @@ void GrDrawPathRangeBatch::onDraw(GrBatchFlushState* state) {
     localMatrix.setScale(fScale, fScale);
     localMatrix.preTranslate(head.fX, head.fY);
 
-    SkAutoTUnref<GrPathProcessor> pathProc(GrPathProcessor::Create(this->color(),
-                                                                   this->overrides(),
-                                                                   drawMatrix,
-                                                                   localMatrix));
+    sk_sp<GrPathProcessor> pathProc(GrPathProcessor::Create(this->color(),
+                                                            this->overrides(),
+                                                            drawMatrix,
+                                                            localMatrix));
 
     if (fDraws.count() == 1) {
         const InstanceData& instances = *head.fInstanceData;

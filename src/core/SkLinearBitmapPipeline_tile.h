@@ -18,11 +18,11 @@ namespace {
 class XClampStrategy {
 public:
     XClampStrategy(int32_t max)
-        : fXsMax{SkScalar(max - 0.5f)}
+        : fXMaxPixel{SkScalar(max - 0.5f)}
         , fXMax{SkScalar(max)} { }
 
     void tileXPoints(Sk4s* xs) {
-        *xs = Sk4s::Min(Sk4s::Max(*xs, 0.0f), fXsMax);
+        *xs = Sk4s::Min(Sk4s::Max(*xs, 0.0f), fXMaxPixel);
         SkASSERT(0 <= (*xs)[0] && (*xs)[0] < fXMax);
         SkASSERT(0 <= (*xs)[1] && (*xs)[1] < fXMax);
         SkASSERT(0 <= (*xs)[2] && (*xs)[2] < fXMax);
@@ -108,18 +108,17 @@ public:
     }
 
 private:
-    const Sk4s     fXsMax;
+    const SkScalar fXMaxPixel;
     const SkScalar fXMax;
 };
 
 class YClampStrategy {
 public:
     YClampStrategy(int32_t max)
-        : fYMax{SkScalar(max) - 0.5f}
-        , fYsMax{SkScalar(max) - 0.5f} { }
+        : fYMax{SkScalar(max) - 0.5f} { }
 
     void tileYPoints(Sk4s* ys) {
-        *ys = Sk4s::Min(Sk4s::Max(*ys, 0.0f), fYsMax);
+        *ys = Sk4s::Min(Sk4s::Max(*ys, 0.0f), fYMax);
         SkASSERT(0 <= (*ys)[0] && (*ys)[0] <= fYMax);
         SkASSERT(0 <= (*ys)[1] && (*ys)[1] <= fYMax);
         SkASSERT(0 <= (*ys)[2] && (*ys)[2] <= fYMax);
@@ -132,7 +131,6 @@ public:
 
 private:
     const SkScalar fYMax;
-    const Sk4s     fYsMax;
 };
 
 SkScalar tile_mod(SkScalar x, SkScalar base) {
@@ -143,14 +141,13 @@ class XRepeatStrategy {
 public:
     XRepeatStrategy(int32_t max)
         : fXMax{SkScalar(max)}
-        , fXsMax{SkScalar(max)}
-        , fXsCap{SkScalar(nextafterf(SkScalar(max), 0.0f))}
-        , fXsInvMax{1.0f / SkScalar(max)} { }
+        , fXCap{SkScalar(nextafterf(SkScalar(max), 0.0f))}
+        , fXInvMax{1.0f / SkScalar(max)} { }
 
     void tileXPoints(Sk4s* xs) {
-        Sk4s divX = *xs * fXsInvMax;
-        Sk4s modX = *xs - divX.floor() * fXsMax;
-        *xs = Sk4s::Min(fXsCap, modX);
+        Sk4s divX = *xs * fXInvMax;
+        Sk4s modX = *xs - divX.floor() * fXMax;
+        *xs = Sk4s::Min(fXCap, modX);
         SkASSERT(0 <= (*xs)[0] && (*xs)[0] < fXMax);
         SkASSERT(0 <= (*xs)[1] && (*xs)[1] < fXMax);
         SkASSERT(0 <= (*xs)[2] && (*xs)[2] < fXMax);
@@ -228,9 +225,8 @@ public:
 
 private:
     const SkScalar fXMax;
-    const Sk4s     fXsMax;
-    const Sk4s     fXsCap;
-    const Sk4s     fXsInvMax;
+    const SkScalar fXCap;
+    const SkScalar fXInvMax;
 };
 
 // The XRepeatUnitScaleStrategy exploits the situation where dx = 1.0. The main advantage is that
@@ -242,14 +238,13 @@ class XRepeatUnitScaleStrategy {
 public:
     XRepeatUnitScaleStrategy(int32_t max)
         : fXMax{SkScalar(max)}
-        , fXsMax{SkScalar(max)}
-        , fXsCap{SkScalar(nextafterf(SkScalar(max), 0.0f))}
-        , fXsInvMax{1.0f / SkScalar(max)} { }
+        , fXCap{SkScalar(nextafterf(SkScalar(max), 0.0f))}
+        , fXInvMax{1.0f / SkScalar(max)} { }
 
     void tileXPoints(Sk4s* xs) {
-        Sk4s divX = *xs * fXsInvMax;
-        Sk4s modX = *xs - divX.floor() * fXsMax;
-        *xs = Sk4s::Min(fXsCap, modX);
+        Sk4s divX = *xs * fXInvMax;
+        Sk4s modX = *xs - divX.floor() * fXMax;
+        *xs = Sk4s::Min(fXCap, modX);
         SkASSERT(0 <= (*xs)[0] && (*xs)[0] < fXMax);
         SkASSERT(0 <= (*xs)[1] && (*xs)[1] < fXMax);
         SkASSERT(0 <= (*xs)[2] && (*xs)[2] < fXMax);
@@ -319,21 +314,19 @@ public:
 
 private:
     const SkScalar fXMax;
-    const Sk4s     fXsMax;
-    const Sk4s     fXsCap;
-    const Sk4s     fXsInvMax;
+    const SkScalar fXCap;
+    const SkScalar fXInvMax;
 };
 
 class YRepeatStrategy {
 public:
     YRepeatStrategy(int32_t max)
         : fYMax{SkScalar(max)}
-        , fYsMax{SkScalar(max)}
         , fYsInvMax{1.0f / SkScalar(max)} { }
 
     void tileYPoints(Sk4s* ys) {
         Sk4s divY = *ys * fYsInvMax;
-        Sk4s modY = *ys - divY.floor() * fYsMax;
+        Sk4s modY = *ys - divY.floor() * fYMax;
         *ys = modY;
         SkASSERT(0 <= (*ys)[0] && (*ys)[0] < fYMax);
         SkASSERT(0 <= (*ys)[1] && (*ys)[1] < fYMax);
@@ -349,53 +342,51 @@ public:
 
 private:
     const SkScalar fYMax;
-    const Sk4s     fYsMax;
-    const Sk4s     fYsInvMax;
+    const SkScalar fYsInvMax;
 };
 // max = 40
 // mq2[x_] := Abs[(x - 40) - Floor[(x - 40)/80] * 80 - 40]
 class XMirrorStrategy {
 public:
     XMirrorStrategy(int32_t max)
-        : fXsMax{SkScalar(max)}
-        , fXsCap{SkScalar(nextafterf(SkScalar(max), 0.0f))}
-        , fXsDoubleInvMax{1.0f / (2.0f * SkScalar(max))} { }
+        : fXMax{SkScalar(max)}
+        , fXCap{SkScalar(nextafterf(SkScalar(max), 0.0f))}
+        , fXDoubleInvMax{1.0f / (2.0f * SkScalar(max))} { }
 
     void tileXPoints(Sk4s* xs) {
-        Sk4f bias   = *xs - fXsMax;
-        Sk4f div    = bias * fXsDoubleInvMax;
-        Sk4f mod    = bias - div.floor() * 2.0f * fXsMax;
-        Sk4f unbias = mod - fXsMax;
-        *xs = Sk4f::Min(unbias.abs(), fXsCap);
-        SkASSERT(0 <= (*xs)[0] && (*xs)[0] < fXsMax[0]);
-        SkASSERT(0 <= (*xs)[1] && (*xs)[1] < fXsMax[0]);
-        SkASSERT(0 <= (*xs)[2] && (*xs)[2] < fXsMax[0]);
-        SkASSERT(0 <= (*xs)[3] && (*xs)[3] < fXsMax[0]);
+        Sk4f bias   = *xs - fXMax;
+        Sk4f div    = bias * fXDoubleInvMax;
+        Sk4f mod    = bias - div.floor() * 2.0f * fXMax;
+        Sk4f unbias = mod - fXMax;
+        *xs = Sk4f::Min(unbias.abs(), fXCap);
+        SkASSERT(0 <= (*xs)[0] && (*xs)[0] < fXMax);
+        SkASSERT(0 <= (*xs)[1] && (*xs)[1] < fXMax);
+        SkASSERT(0 <= (*xs)[2] && (*xs)[2] < fXMax);
+        SkASSERT(0 <= (*xs)[3] && (*xs)[3] < fXMax);
     }
 
     template <typename Next>
     bool maybeProcessSpan(Span originalSpan, Next* next) { return false; }
 
 private:
-    Sk4f     fXsMax;
-    Sk4f     fXsCap;
-    Sk4f     fXsDoubleInvMax;
+    SkScalar fXMax;
+    SkScalar fXCap;
+    SkScalar fXDoubleInvMax;
 };
 
 class YMirrorStrategy {
 public:
     YMirrorStrategy(int32_t max)
         : fYMax{SkScalar(max)}
-        , fYsMax{SkScalar(max)}
-        , fYsCap{nextafterf(SkScalar(max), 0.0f)}
-        , fYsDoubleInvMax{1.0f / (2.0f * SkScalar(max))} { }
+        , fYCap{nextafterf(SkScalar(max), 0.0f)}
+        , fYDoubleInvMax{1.0f / (2.0f * SkScalar(max))} { }
 
     void tileYPoints(Sk4s* ys) {
-        Sk4f bias   = *ys - fYsMax;
-        Sk4f div    = bias * fYsDoubleInvMax;
-        Sk4f mod    = bias - div.floor() * 2.0f * fYsMax;
-        Sk4f unbias = mod - fYsMax;
-        *ys = Sk4f::Min(unbias.abs(), fYsCap);
+        Sk4f bias   = *ys - fYMax;
+        Sk4f div    = bias * fYDoubleInvMax;
+        Sk4f mod    = bias - div.floor() * 2.0f * fYMax;
+        Sk4f unbias = mod - fYMax;
+        *ys = Sk4f::Min(unbias.abs(), fYCap);
         SkASSERT(0 <= (*ys)[0] && (*ys)[0] < fYMax);
         SkASSERT(0 <= (*ys)[1] && (*ys)[1] < fYMax);
         SkASSERT(0 <= (*ys)[2] && (*ys)[2] < fYMax);
@@ -404,19 +395,18 @@ public:
 
     SkScalar tileY(SkScalar y) {
         SkScalar bias   = y - fYMax;
-        SkScalar div    = bias * fYsDoubleInvMax[0];
+        SkScalar div    = bias * fYDoubleInvMax;
         SkScalar mod    = bias - SkScalarFloorToScalar(div) * 2.0f * fYMax;
         SkScalar unbias = mod - fYMax;
-        SkScalar answer = SkMinScalar(SkScalarAbs(unbias), fYsCap[0]);
+        SkScalar answer = SkMinScalar(SkScalarAbs(unbias), fYCap);
         SkASSERT(0 <= answer && answer < fYMax);
         return answer;
     }
 
 private:
     SkScalar fYMax;
-    Sk4f     fYsMax;
-    Sk4f     fYsCap;
-    Sk4f     fYsDoubleInvMax;
+    SkScalar fYCap;
+    SkScalar fYDoubleInvMax;
 };
 
 }  // namespace

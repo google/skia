@@ -42,6 +42,14 @@ static inline GrColor SkColorToUnpremulGrColor(SkColor c) {
     return GrColorPackRGBA(r, g, b, a);
 }
 
+/** Transform an SkColor (sRGB bytes) to GrColor4f for the specified color space. */
+GrColor4f SkColorToPremulGrColor4f(SkColor c, SkColorSpace* dstColorSpace);
+GrColor4f SkColorToUnpremulGrColor4f(SkColor c, SkColorSpace* dstColorSpace);
+
+/**
+ * As above, but with explicit control over the linearization and gamut xform steps.
+ * Typically used when you have easy access to a pre-computed xform.
+ */
 GrColor4f SkColorToPremulGrColor4f(SkColor c, bool gammaCorrect, GrColorSpaceXform* gamutXform);
 GrColor4f SkColorToUnpremulGrColor4f(SkColor c, bool gammaCorrect, GrColorSpaceXform* gamutXform);
 
@@ -73,10 +81,10 @@ static inline GrColor SkPMColorToGrColor(SkPMColor c) {
     texture is inserted into the cache (unless the bitmap is marked volatile) and can be
     retrieved again via this function. */
 GrTexture* GrRefCachedBitmapTexture(GrContext*, const SkBitmap&, const GrTextureParams&,
-                                    SkSourceGammaTreatment);
+                                    SkDestinationSurfaceColorMode);
 
 sk_sp<GrTexture> GrMakeCachedBitmapTexture(GrContext*, const SkBitmap&, const GrTextureParams&,
-                                           SkSourceGammaTreatment);
+                                           SkDestinationSurfaceColorMode);
 
 // TODO: Move SkImageInfo2GrPixelConfig to SkGrPriv.h (requires cleanup to SkWindow its subclasses).
 GrPixelConfig SkImageInfo2GrPixelConfig(SkColorType, SkAlphaType, const SkColorSpace*,

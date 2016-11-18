@@ -144,7 +144,7 @@ protected:
     }
 
 private:
-    SkAutoTDelete<SkStreamAsset> fAsset;
+    std::unique_ptr<SkStreamAsset> fAsset;
 };
 
 // Test speed of SkPDFUtils::FloatToDecimal for typical floats that

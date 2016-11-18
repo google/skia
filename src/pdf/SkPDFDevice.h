@@ -116,7 +116,7 @@ public:
     void drawVertices(const SkDraw&, SkCanvas::VertexMode,
                       int vertexCount, const SkPoint verts[],
                       const SkPoint texs[], const SkColor colors[],
-                      SkXfermode* xmode, const uint16_t indices[],
+                      SkBlendMode, const uint16_t indices[],
                       int indexCount, const SkPaint& paint) override;
     void drawDevice(const SkDraw&, SkBaseDevice*, int x, int y,
                     const SkPaint&) override;

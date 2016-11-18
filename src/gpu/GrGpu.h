@@ -124,17 +124,17 @@ public:
     /**
      * Implements GrTextureProvider::wrapBackendTexture
      */
-    GrTexture* wrapBackendTexture(const GrBackendTextureDesc&, GrWrapOwnership);
+    sk_sp<GrTexture> wrapBackendTexture(const GrBackendTextureDesc&, GrWrapOwnership);
 
     /**
      * Implements GrTextureProvider::wrapBackendRenderTarget
      */
-    GrRenderTarget* wrapBackendRenderTarget(const GrBackendRenderTargetDesc&, GrWrapOwnership);
+    sk_sp<GrRenderTarget> wrapBackendRenderTarget(const GrBackendRenderTargetDesc&,GrWrapOwnership);
 
     /**
      * Implements GrTextureProvider::wrapBackendTextureAsRenderTarget
      */
-    GrRenderTarget* wrapBackendTextureAsRenderTarget(const GrBackendTextureDesc&);
+    sk_sp<GrRenderTarget> wrapBackendTextureAsRenderTarget(const GrBackendTextureDesc&);
 
     /**
      * Creates a buffer in GPU memory. For a client-side buffer use GrBuffer::CreateCPUBacked.
@@ -331,7 +331,7 @@ public:
     ResetTimestamp getResetTimestamp() const { return fResetTimestamp; }
 
     // Called to perform a surface to surface copy. Fallbacks to issuing a draw from the src to dst
-    // take place at the GrDrawTarget level and this function implement faster copy paths. The rect
+    // take place at the GrOpList level and this function implement faster copy paths. The rect
     // and point are pre-clipped. The src rect and implied dst rect are guaranteed to be within the
     // src/dst bounds and non-empty.
     bool copySurface(GrSurface* dst,
@@ -355,21 +355,27 @@ public:
         const SkPoint*   fSampleLocations;
     };
 
-    // Finds a render target's multisample specs. The stencil settings are only needed to flush the
-    // draw state prior to querying multisample information; they should not have any effect on the
-    // multisample information itself.
-    const MultisampleSpecs& getMultisampleSpecs(GrRenderTarget*, const GrStencilSettings&);
+    // Finds a render target's multisample specs. The pipeline is only needed in case we need to
+    // flush the draw state prior to querying multisample info. The pipeline is not expected to
+    // affect the multisample information itself.
+    const MultisampleSpecs& queryMultisampleSpecs(const GrPipeline&);
 
-    // Creates a GrGpuCommandBuffer in which the GrDrawTarget can send draw commands to instead of
+    // Finds the multisample specs with a given unique id.
+    const MultisampleSpecs& getMultisampleSpecs(uint8_t uniqueID) {
+        SkASSERT(uniqueID > 0 && uniqueID < fMultisampleSpecs.count());
+        return fMultisampleSpecs[uniqueID];
+    }
+
+    // Creates a GrGpuCommandBuffer in which the GrOpList can send draw commands to instead of
     // directly to the Gpu object.
     virtual GrGpuCommandBuffer* createCommandBuffer(
             GrRenderTarget* target,
             const GrGpuCommandBuffer::LoadAndStoreInfo& colorInfo,
             const GrGpuCommandBuffer::LoadAndStoreInfo& stencilInfo) = 0;
 
-    // Called by drawtarget when flushing.
+    // Called by GrOpList when flushing.
     // Provides a hook for post-flush actions (e.g. PLS reset and Vulkan command buffer submits).
-    virtual void finishDrawTarget() {}
+    virtual void finishOpList() {}
 
     virtual GrFence SK_WARN_UNUSED_RESULT insertFence() const = 0;
     virtual bool waitFence(GrFence, uint64_t timeout = 1000) const = 0;
@@ -507,10 +513,10 @@ protected:
     // Handles cases where a surface will be updated without a call to flushRenderTarget
     void didWriteToSurface(GrSurface* surface, const SkIRect* bounds, uint32_t mipLevels = 1) const;
 
-    Stats                                   fStats;
-    SkAutoTDelete<GrPathRendering>          fPathRendering;
+    Stats                            fStats;
+    std::unique_ptr<GrPathRendering> fPathRendering;
     // Subclass must initialize this in its constructor.
-    SkAutoTUnref<const GrCaps>    fCaps;
+    sk_sp<const GrCaps>              fCaps;
 
     typedef SkTArray<SkPoint, true> SamplePattern;
 
@@ -532,10 +538,10 @@ private:
                                                  SkBudgeted budgeted,
                                                  const SkTArray<GrMipLevel>& texels) = 0;
 
-    virtual GrTexture* onWrapBackendTexture(const GrBackendTextureDesc&, GrWrapOwnership) = 0;
-    virtual GrRenderTarget* onWrapBackendRenderTarget(const GrBackendRenderTargetDesc&,
-                                                      GrWrapOwnership) = 0;
-    virtual GrRenderTarget* onWrapBackendTextureAsRenderTarget(const GrBackendTextureDesc&) = 0;
+    virtual sk_sp<GrTexture> onWrapBackendTexture(const GrBackendTextureDesc&, GrWrapOwnership) = 0;
+    virtual sk_sp<GrRenderTarget> onWrapBackendRenderTarget(const GrBackendRenderTargetDesc&,
+                                                            GrWrapOwnership) = 0;
+    virtual sk_sp<GrRenderTarget> onWrapBackendTextureAsRenderTarget(const GrBackendTextureDesc&)=0;
     virtual GrBuffer* onCreateBuffer(size_t size, GrBufferType intendedType, GrAccessPattern,
                                      const void* data) = 0;
 
@@ -581,8 +587,8 @@ private:
                                const SkIPoint& dstPoint) = 0;
 
     // overridden by backend specific derived class to perform the multisample queries
-    virtual void onGetMultisampleSpecs(GrRenderTarget*, const GrStencilSettings&,
-                                       int* effectiveSampleCnt, SamplePattern*) = 0;
+    virtual void onQueryMultisampleSpecs(GrRenderTarget*, const GrStencilSettings&,
+                                         int* effectiveSampleCnt, SamplePattern*) = 0;
 
     void resetContext() {
         this->onResetContext(fResetBits);

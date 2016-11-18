@@ -58,14 +58,12 @@ SkSurfaceProps::SkSurfaceProps(const SkSurfaceProps& other)
 SkSurface_Base::SkSurface_Base(int width, int height, const SkSurfaceProps* props)
     : INHERITED(width, height, props)
 {
-    fCachedCanvas = nullptr;
     fCachedImage = nullptr;
 }
 
 SkSurface_Base::SkSurface_Base(const SkImageInfo& info, const SkSurfaceProps* props)
     : INHERITED(info, props)
 {
-    fCachedCanvas = nullptr;
     fCachedImage = nullptr;
 }
 
@@ -76,7 +74,6 @@ SkSurface_Base::~SkSurface_Base() {
     }
 
     SkSafeUnref(fCachedImage);
-    SkSafeUnref(fCachedCanvas);
 }
 
 void SkSurface_Base::onDraw(SkCanvas* canvas, SkScalar x, SkScalar y, const SkPaint* paint) {
@@ -185,22 +182,6 @@ void SkSurface::draw(SkCanvas* canvas, SkScalar x, SkScalar y,
 bool SkSurface::peekPixels(SkPixmap* pmap) {
     return this->getCanvas()->peekPixels(pmap);
 }
-
-#ifdef SK_SUPPORT_LEGACY_PEEKPIXELS_PARMS
-const void* SkSurface::peekPixels(SkImageInfo* info, size_t* rowBytes) {
-    SkPixmap pm;
-    if (this->peekPixels(&pm)) {
-        if (info) {
-            *info = pm.info();
-        }
-        if (rowBytes) {
-            *rowBytes = pm.rowBytes();
-        }
-        return pm.addr();
-    }
-    return nullptr;
-}
-#endif
 
 bool SkSurface::readPixels(const SkImageInfo& dstInfo, void* dstPixels, size_t dstRowBytes,
                            int srcX, int srcY) {

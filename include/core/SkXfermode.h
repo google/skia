@@ -12,6 +12,8 @@
 #include "SkColor.h"
 #include "SkFlattenable.h"
 
+#ifdef SK_SUPPORT_LEGACY_XFERMODE_IS_PUBLIC
+
 class GrFragmentProcessor;
 class GrTexture;
 class GrXPFactory;
@@ -152,16 +154,8 @@ public:
 
     /** Return an SkXfermode object for the specified mode.
      */
-    static sk_sp<SkXfermode> Make(Mode);
-#ifdef SK_SUPPORT_LEGACY_XFERMODE_PTR
-    static SkXfermode* Create(Mode mode) {
-        return Make(mode).release();
-    }
-    SK_ATTR_DEPRECATED("use AsMode(...)")
-    static bool IsMode(const SkXfermode* xfer, Mode* mode) {
-        return AsMode(xfer, mode);
-    }
-#endif
+    static sk_sp<SkXfermode> Make(SkBlendMode);
+    static sk_sp<SkXfermode> Make(Mode m) { return Make((SkBlendMode)m); }
 
     /**
      *  Skia maintains global xfermode objects corresponding to each BlendMode. This returns a
@@ -178,25 +172,14 @@ public:
         return xfer.get();
     }
 
-    static sk_sp<SkXfermode> Make(SkBlendMode bm) {
-        return Make((Mode)bm);
-    }
-
     SkBlendMode blend() const {
         Mode mode;
         SkAssertResult(this->asMode(&mode));
         return (SkBlendMode)mode;
     }
 
-    /** Return a function pointer to a routine that applies the specified
-        porter-duff transfer mode.
-     */
-    static SkXfermodeProc GetProc(Mode mode);
-    static SkXfermodeProc4f GetProc4f(Mode);
-
-    virtual SkXfermodeProc4f getProc4f() const;
-
-    bool appendStages(SkRasterPipeline*) const;
+    static SkXfermodeProc GetProc(SkBlendMode);
+    static SkXfermodeProc4f GetProc4f(SkBlendMode);
 
     /**
      *  If the specified mode can be represented by a pair of Coeff, then return
@@ -205,6 +188,9 @@ public:
      *  src and dst parameters.
      */
     static bool ModeAsCoeff(Mode mode, Coeff* src, Coeff* dst);
+    static bool ModeAsCoeff(SkBlendMode mode, Coeff* src, Coeff* dst) {
+        return ModeAsCoeff((Mode)mode, src, dst);
+    }
 
     /**
      * Returns whether or not the xfer mode can support treating coverage as alpha
@@ -274,23 +260,17 @@ public:
         kSrcIsSingle_D32Flag  = 1 << 1,
         kDstIsSRGB_D32Flag    = 1 << 2,
     };
-    typedef void (*D32Proc)(const SkXfermode*, uint32_t dst[], const SkPM4f src[],
+    typedef void (*D32Proc)(SkBlendMode, uint32_t dst[], const SkPM4f src[],
                             int count, const SkAlpha coverage[]);
-    static D32Proc GetD32Proc(SkXfermode*, uint32_t flags);
-    static D32Proc GetD32Proc(const sk_sp<SkXfermode>& xfer, uint32_t flags) {
-        return GetD32Proc(xfer.get(), flags);
-    }
+    static D32Proc GetD32Proc(SkBlendMode, uint32_t flags);
 
     enum F16Flags {
         kSrcIsOpaque_F16Flag  = 1 << 0,
         kSrcIsSingle_F16Flag  = 1 << 1,
     };
-    typedef void (*F16Proc)(const SkXfermode*, uint64_t dst[], const SkPM4f src[], int count,
+    typedef void (*F16Proc)(SkBlendMode, uint64_t dst[], const SkPM4f src[], int count,
                             const SkAlpha coverage[]);
-    static F16Proc GetF16Proc(SkXfermode*, uint32_t flags);
-    static F16Proc GetF16Proc(const sk_sp<SkXfermode>& xfer, uint32_t flags) {
-        return GetF16Proc(xfer.get(), flags);
-    }
+    static F16Proc GetF16Proc(SkBlendMode, uint32_t flags);
 
     enum LCDFlags {
         kSrcIsOpaque_LCDFlag    = 1 << 0,   // else src(s) may have alpha < 1
@@ -316,10 +296,6 @@ protected:
     */
     virtual SkPMColor xferColor(SkPMColor src, SkPMColor dst) const;
 
-    virtual D32Proc onGetD32Proc(uint32_t flags) const;
-    virtual F16Proc onGetF16Proc(uint32_t flags) const;
-    virtual bool onAppendStages(SkRasterPipeline*) const;
-
 private:
     enum {
         kModeCount = kLastMode + 1
@@ -327,5 +303,7 @@ private:
 
     typedef SkFlattenable INHERITED;
 };
+
+#endif
 
 #endif

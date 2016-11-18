@@ -13,7 +13,7 @@
 
 #include "GrContext.h"
 #include "GrDefaultGeoProcFactory.h"
-#include "GrDrawContextPriv.h"
+#include "GrRenderTargetContextPriv.h"
 #include "GrPathUtils.h"
 #include "GrTest.h"
 #include "SkColorPriv.h"
@@ -153,8 +153,9 @@ protected:
     }
 
     void onDraw(SkCanvas* canvas) override {
-        GrDrawContext* drawContext = canvas->internal_private_accessTopLayerDrawContext();
-        if (!drawContext) {
+        GrRenderTargetContext* renderTargetContext =
+            canvas->internal_private_accessTopLayerRenderTargetContext();
+        if (!renderTargetContext) {
             skiagm::GM::DrawGpuOnlyMessage(canvas);
             return;
         }
@@ -179,12 +180,12 @@ protected:
                 }
 
                 GrPaint grPaint;
-                grPaint.setXPFactory(GrPorterDuffXPFactory::Make(SkXfermode::kSrc_Mode));
+                grPaint.setXPFactory(GrPorterDuffXPFactory::Make(SkBlendMode::kSrc));
                 grPaint.addCoverageFragmentProcessor(std::move(fp));
 
-                SkAutoTUnref<GrDrawBatch> batch(new PolyBoundsBatch(p.getBounds(), 0xff000000));
+                sk_sp<GrDrawBatch> batch(new PolyBoundsBatch(p.getBounds(), 0xff000000));
 
-                drawContext->drawContextPriv().testingOnly_drawBatch(grPaint, batch);
+                renderTargetContext->priv().testingOnly_drawBatch(grPaint, batch.get());
 
                 x += SkScalarCeilToScalar(path->getBounds().width() + kDX);
             }
@@ -218,12 +219,12 @@ protected:
                 }
 
                 GrPaint grPaint;
-                grPaint.setXPFactory(GrPorterDuffXPFactory::Make(SkXfermode::kSrc_Mode));
+                grPaint.setXPFactory(GrPorterDuffXPFactory::Make(SkBlendMode::kSrc));
                 grPaint.addCoverageFragmentProcessor(std::move(fp));
 
-                SkAutoTUnref<GrDrawBatch> batch(new PolyBoundsBatch(rect, 0xff000000));
+                sk_sp<GrDrawBatch> batch(new PolyBoundsBatch(rect, 0xff000000));
 
-                drawContext->drawContextPriv().testingOnly_drawBatch(grPaint, batch);
+                renderTargetContext->priv().testingOnly_drawBatch(grPaint, batch.get());
 
                 x += SkScalarCeilToScalar(rect.width() + kDX);
             }

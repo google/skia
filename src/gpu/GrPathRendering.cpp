@@ -53,30 +53,20 @@ public:
 #endif
     {}
 
-    virtual ~GlyphGenerator() {
-#ifdef SK_DEBUG
-        SkDescriptor::Free(fDesc);
-#endif
-    }
-
     int getNumPaths() override {
         return fScalerContext->getGlyphCount();
     }
 
     void generatePath(int glyphID, SkPath* out) override {
-        SkGlyph skGlyph;
-        skGlyph.initWithGlyphID(glyphID);
-        fScalerContext->getMetrics(&skGlyph);
-
-        fScalerContext->getPath(skGlyph, out);
+        fScalerContext->getPath(glyphID, out);
     }
 #ifdef SK_DEBUG
     bool isEqualTo(const SkDescriptor& desc) const override { return *fDesc == desc; }
 #endif
 private:
-    const SkAutoTDelete<SkScalerContext> fScalerContext;
+    const std::unique_ptr<SkScalerContext> fScalerContext;
 #ifdef SK_DEBUG
-    SkDescriptor* const fDesc;
+    const std::unique_ptr<SkDescriptor> fDesc;
 #endif
 };
 
@@ -90,8 +80,8 @@ GrPathRange* GrPathRendering::createGlyphs(const SkTypeface* typeface,
     }
 
     if (desc) {
-        SkAutoTUnref<GlyphGenerator> generator(new GlyphGenerator(*typeface, effects, *desc));
-        return this->createPathRange(generator, style);
+        sk_sp<GlyphGenerator> generator(new GlyphGenerator(*typeface, effects, *desc));
+        return this->createPathRange(generator.get(), style);
     }
 
     SkScalerContextRec rec;
@@ -111,6 +101,6 @@ GrPathRange* GrPathRendering::createGlyphs(const SkTypeface* typeface,
     // No effects, so we make a dummy struct
     SkScalerContextEffects noEffects;
 
-    SkAutoTUnref<GlyphGenerator> generator(new GlyphGenerator(*typeface, noEffects, *genericDesc));
-    return this->createPathRange(generator, style);
+    sk_sp<GlyphGenerator> generator(new GlyphGenerator(*typeface, noEffects, *genericDesc));
+    return this->createPathRange(generator.get(), style);
 }

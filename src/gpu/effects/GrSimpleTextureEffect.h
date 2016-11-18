@@ -31,8 +31,8 @@ public:
     /* clamp mode */
     static sk_sp<GrFragmentProcessor> Make(GrTexture* tex,
                                            sk_sp<GrColorSpaceXform> colorSpaceXform,
-                                            const SkMatrix& matrix,
-                                            GrTextureParams::FilterMode filterMode) {
+                                           const SkMatrix& matrix,
+                                           GrTextureParams::FilterMode filterMode) {
         return sk_sp<GrFragmentProcessor>(
             new GrSimpleTextureEffect(tex, std::move(colorSpaceXform), matrix, filterMode));
     }

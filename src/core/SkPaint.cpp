@@ -367,58 +367,6 @@ MOVE_FIELD(DrawLooper)
 #undef MOVE_FIELD
 void SkPaint::setLooper(sk_sp<SkDrawLooper> looper) { fDrawLooper = std::move(looper); }
 
-#define SET_PTR(Field)                              \
-    Sk##Field* SkPaint::set##Field(Sk##Field* f) {  \
-        this->f##Field.reset(SkSafeRef(f));         \
-        return f;                                   \
-    }
-#ifdef SK_SUPPORT_LEGACY_TYPEFACE_PTR
-SET_PTR(Typeface)
-#endif
-#ifdef SK_SUPPORT_LEGACY_MINOR_EFFECT_PTR
-SET_PTR(Rasterizer)
-#endif
-SET_PTR(ImageFilter)
-#ifdef SK_SUPPORT_LEGACY_CREATESHADER_PTR
-SET_PTR(Shader)
-#endif
-#ifdef SK_SUPPORT_LEGACY_COLORFILTER_PTR
-SET_PTR(ColorFilter)
-#endif
-#ifdef SK_SUPPORT_LEGACY_XFERMODE_PTR
-SkXfermode* SkPaint::setXfermode(SkXfermode* xfer) {
-    this->setBlendMode(xfer ? xfer->blend() : SkBlendMode::kSrcOver);
-    return this->getXfermode();
-}
-#endif
-#ifdef SK_SUPPORT_LEGACY_PATHEFFECT_PTR
-SET_PTR(PathEffect)
-#endif
-#ifdef SK_SUPPORT_LEGACY_MASKFILTER_PTR
-SET_PTR(MaskFilter)
-#endif
-#undef SET_PTR
-
-#ifdef SK_SUPPORT_LEGACY_MINOR_EFFECT_PTR
-SkDrawLooper* SkPaint::setLooper(SkDrawLooper* looper) {
-    fDrawLooper.reset(SkSafeRef(looper));
-    return looper;
-}
-#endif
-
-#ifdef SK_SUPPORT_LEGACY_XFERMODE_OBJECT
-void SkPaint::setXfermode(sk_sp<SkXfermode> mode) {
-    this->setBlendMode(mode ? mode->blend() : SkBlendMode::kSrcOver);
-}
-SkXfermode* SkPaint::getXfermode() const {
-    return SkXfermode::Peek((SkBlendMode)fBlendMode);
-}
-SkXfermode* SkPaint::setXfermodeMode(SkXfermode::Mode mode) {
-    this->setBlendMode((SkBlendMode)mode);
-    return SkXfermode::Peek((SkBlendMode)mode);
-}
-#endif
-
 ///////////////////////////////////////////////////////////////////////////////
 
 static SkScalar mag2(SkScalar x, SkScalar y) {
@@ -2092,10 +2040,10 @@ void SkPaint::toString(SkString* str) const {
     if (typeface) {
         SkDynamicMemoryWStream ostream;
         typeface->serialize(&ostream);
-        SkAutoTDelete<SkStreamAsset> istream(ostream.detachAsStream());
+        std::unique_ptr<SkStreamAsset> istream(ostream.detachAsStream());
 
         SkFontDescriptor descriptor;
-        if (!SkFontDescriptor::Deserialize(istream, &descriptor)) {
+        if (!SkFontDescriptor::Deserialize(istream.get(), &descriptor)) {
             str->append("<dt>FontDescriptor deserialization failed</dt>");
         } else {
             str->append("<dt>Font Family Name:</dt><dd>");

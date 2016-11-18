@@ -498,8 +498,7 @@ SkBlitter* CreateLATCBlitter(int width, int height, void* outputBuffer,
     sk_bzero(outputBuffer, width * height / 2);
 
     return allocator->createT<
-        SkTCompressedAlphaBlitter<4, 8, CompressorLATC>, int, int, void* >
-        (width, height, outputBuffer);
+        SkTCompressedAlphaBlitter<4, 8, CompressorLATC>>(width, height, outputBuffer);
 #elif COMPRESS_LATC_SLOW
     // TODO (krajcevski)
     return nullptr;

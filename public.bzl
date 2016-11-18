@@ -84,6 +84,8 @@ BASE_SRCS_ALL = struct(
         # Third Party
         "third_party/etc1/*.cpp",
         "third_party/etc1/*.h",
+        "third_party/gif/*.cpp",
+        "third_party/gif/*.h",
         "third_party/ktx/*.cpp",
         "third_party/ktx/*.h",
     ],
@@ -248,7 +250,6 @@ BASE_SRCS_IOS = struct(
         "src/utils/mac/*.cpp",
     ],
     exclude = [
-        "src/codec/*Gif*.cpp",
         "src/codec/*Ico*.cpp",
         "src/codec/*Jpeg*.cpp",
         "src/codec/*Webp*.cpp",
@@ -385,6 +386,7 @@ INCLUDES = [
     "src/sksl",
     "src/utils",
     "third_party/etc1",
+    "third_party/gif",
     "third_party/ktx",
 ]
 
@@ -570,7 +572,6 @@ DEFINES_UNIX = [
     "SK_SAMPLES_FOR_X",
     "SK_PDF_USE_SFNTLY",
     "SK_CODEC_DECODES_RAW",
-    "SK_HAS_GIF_LIBRARY",
     "SK_HAS_JPEG_LIBRARY",
     "SK_HAS_PNG_LIBRARY",
     "SK_HAS_WEBP_LIBRARY",
@@ -579,7 +580,6 @@ DEFINES_UNIX = [
 DEFINES_ANDROID = [
     "SK_BUILD_FOR_ANDROID",
     "SK_CODEC_DECODES_RAW",
-    "SK_HAS_GIF_LIBRARY",
     "SK_HAS_JPEG_LIBRARY",
     "SK_HAS_PNG_LIBRARY",
     "SK_HAS_WEBP_LIBRARY",
@@ -600,23 +600,10 @@ DEFINES_ALL = [
     "GOOGLE3",
     # Staging flags for API changes
     "SK_SUPPORT_LEGACY_ACCESSBITMAP",
-    "SK_SUPPORT_LEGACY_ARITHMETICMODE",
-    "SK_SUPPORT_LEGACY_COLORFILTER_PTR",
-    "SK_SUPPORT_LEGACY_CREATESHADER_PTR",
-    "SK_SUPPORT_LEGACY_IMAGEFACTORY",
-    "SK_SUPPORT_LEGACY_IMAGEFILTER_PTR",
-    "SK_SUPPORT_LEGACY_MASKFILTER_PTR",
-    "SK_SUPPORT_LEGACY_MINOR_EFFECT_PTR",
-    "SK_SUPPORT_LEGACY_NEW_SURFACE_API",
-    "SK_SUPPORT_LEGACY_PATHEFFECT_PTR",
-    "SK_SUPPORT_LEGACY_PICTURE_PTR",
-    "SK_SUPPORT_LEGACY_TYPEFACE_PTR",
-    "SK_SUPPORT_LEGACY_XFERMODE_PTR",
-    "SK_SUPPORT_LEGACY_PICTUREINSTALLPIXELREF",
-    "SK_SUPPORT_LEGACY_STREAM_DATA",
     "SK_SUPPORT_LEGACY_CLIP_REGIONOPS",
-    "SK_SUPPORT_LEGACY_SHADER_ISABITMAP",
-    "SK_SUPPORT_LEGACY_XFERMODE_OBJECT",
+    "SK_SUPPORT_LEGACY_XFERMODE_IS_PUBLIC",
+    # Temporarily Disable analytic AA for Google3
+    "SK_NO_ANALYTIC_AA",
 ]
 
 ################################################################################

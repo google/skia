@@ -333,3 +333,136 @@ private:
     typedef SampleView INHERITED;
 };
 DEF_SAMPLE( return new ArcToView; )
+
+/////////////
+
+class FatStroke : public SampleView {
+    bool fClosed, fShowStroke, fShowHidden, fShowSkeleton;
+    int  fJoinType, fCapType;
+    SkPaint fPtsPaint, fHiddenPaint, fSkeletonPaint, fStrokePaint;
+public:
+    enum {
+        N = 4
+    };
+    SkPoint fPts[N];
+    
+    FatStroke() : fClosed(false), fShowStroke(true), fShowHidden(false), fShowSkeleton(true),
+                  fJoinType(0), fCapType(0)
+    {
+        SkRandom rand;
+        for (int i = 0; i < N; ++i) {
+            fPts[i].fX = 20 + rand.nextUScalar1() * 640;
+            fPts[i].fY = 20 + rand.nextUScalar1() * 480;
+        }
+        
+        fPtsPaint.setAntiAlias(true);
+        fPtsPaint.setStrokeWidth(10);
+        fPtsPaint.setStrokeCap(SkPaint::kRound_Cap);
+        
+        fHiddenPaint.setAntiAlias(true);
+        fHiddenPaint.setStyle(SkPaint::kStroke_Style);
+        fHiddenPaint.setColor(0xFF0000FF);
+        
+        fStrokePaint.setAntiAlias(true);
+        fStrokePaint.setStyle(SkPaint::kStroke_Style);
+        fStrokePaint.setStrokeWidth(50);
+        fStrokePaint.setColor(0x8000FF00);
+        
+        fSkeletonPaint.setAntiAlias(true);
+        fSkeletonPaint.setStyle(SkPaint::kStroke_Style);
+        fSkeletonPaint.setColor(SK_ColorRED);
+    }
+    
+    void toggle(bool& value) {
+        value = !value;
+        this->inval(nullptr);
+    }
+    
+    void toggle3(int& value) {
+        value = (value + 1) % 3;
+        this->inval(nullptr);
+    }
+    
+protected:
+    // overrides from SkEventSink
+    bool onQuery(SkEvent* evt) override {
+        if (SampleCode::TitleQ(*evt)) {
+            SampleCode::TitleR(evt, "FatStroke");
+            return true;
+        }
+        SkUnichar uni;
+        if (SampleCode::CharQ(*evt, &uni)) {
+            switch (uni) {
+                case '1': this->toggle(fShowSkeleton); return true;
+                case '2': this->toggle(fShowStroke); return true;
+                case '3': this->toggle(fShowHidden); return true;
+                case '4': this->toggle3(fJoinType); return true;
+                case '5': this->toggle3(fCapType); return true;
+                case '6': this->toggle(fClosed); return true;
+                default: break;
+            }
+        }
+        return this->INHERITED::onQuery(evt);
+    }
+    
+    void makePath(SkPath* path) {
+        path->moveTo(fPts[0]);
+        for (int i = 1; i < N; ++i) {
+            path->lineTo(fPts[i]);
+        }
+        if (fClosed) {
+            path->close();
+        }
+    }
+    
+    void onDrawContent(SkCanvas* canvas) override {
+        canvas->drawColor(0xFFEEEEEE);
+
+        SkPath path;
+        this->makePath(&path);
+
+        fStrokePaint.setStrokeJoin((SkPaint::Join)fJoinType);
+        fStrokePaint.setStrokeCap((SkPaint::Cap)fCapType);
+
+        if (fShowStroke) {
+            canvas->drawPath(path, fStrokePaint);
+        }
+        if (fShowHidden) {
+            SkPath hidden;
+            fStrokePaint.getFillPath(path, &hidden);
+            canvas->drawPath(hidden, fHiddenPaint);
+        }
+        if (fShowSkeleton) {
+            canvas->drawPath(path, fSkeletonPaint);
+        }
+        canvas->drawPoints(SkCanvas::kPoints_PointMode, N, fPts, fPtsPaint);
+    }
+    
+    bool onClick(Click* click) override {
+        int32_t index;
+        if (click->fMeta.findS32("index", &index)) {
+            SkASSERT((unsigned)index < N);
+            fPts[index] = click->fCurr;
+            this->inval(nullptr);
+            return true;
+        }
+        return false;
+    }
+    
+    SkView::Click* onFindClickHandler(SkScalar x, SkScalar y, unsigned modi) override {
+        const SkScalar tol = 4;
+        const SkRect r = SkRect::MakeXYWH(x - tol, y - tol, tol * 2, tol * 2);
+        for (int i = 0; i < N; ++i) {
+            if (r.intersects(SkRect::MakeXYWH(fPts[i].fX, fPts[i].fY, 1, 1))) {
+                Click* click = new Click(this);
+                click->fMeta.setS32("index", i);
+                return click;
+            }
+        }
+        return this->INHERITED::onFindClickHandler(x, y, modi);
+    }
+    
+private:
+    typedef SampleView INHERITED;
+};
+DEF_SAMPLE( return new FatStroke; )

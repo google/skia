@@ -45,12 +45,13 @@ protected:
         {
             sk_sp<SkImageFilter> bitmapSource(SkImageSource::Make(fImage));
             sk_sp<SkColorFilter> cf(SkColorFilter::MakeModeFilter(SK_ColorRED,
-                                                                  SkXfermode::kSrcIn_Mode));
+                                                                  SkBlendMode::kSrcIn));
             sk_sp<SkImageFilter> blur(SkBlurImageFilter::Make(4.0f, 4.0f, std::move(bitmapSource)));
             sk_sp<SkImageFilter> erode(SkErodeImageFilter::Make(4, 4, blur));
             sk_sp<SkImageFilter> color(SkColorFilterImageFilter::Make(std::move(cf),
                                                                       std::move(erode)));
-            sk_sp<SkImageFilter> merge(SkMergeImageFilter::Make(blur, color));
+            sk_sp<SkImageFilter> merge(SkMergeImageFilter::Make(blur, color,
+                                                                SkBlendMode::kSrcOver));
 
             SkPaint paint;
             paint.setImageFilter(std::move(merge));
@@ -143,9 +144,9 @@ protected:
         {
             // Test that crop offsets are absolute, not relative to the parent's crop rect.
             sk_sp<SkColorFilter> cf1(SkColorFilter::MakeModeFilter(SK_ColorBLUE,
-                                                                   SkXfermode::kSrcIn_Mode));
+                                                                   SkBlendMode::kSrcIn));
             sk_sp<SkColorFilter> cf2(SkColorFilter::MakeModeFilter(SK_ColorGREEN,
-                                                                   SkXfermode::kSrcIn_Mode));
+                                                                   SkBlendMode::kSrcIn));
             SkImageFilter::CropRect outerRect(SkRect::MakeXYWH(SkIntToScalar(10), SkIntToScalar(10),
                                                                SkIntToScalar(80), SkIntToScalar(80)));
             SkImageFilter::CropRect innerRect(SkRect::MakeXYWH(SkIntToScalar(20), SkIntToScalar(20),

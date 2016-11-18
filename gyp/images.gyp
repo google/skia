@@ -13,7 +13,6 @@
       'standalone_static_library': 1,
       'dependencies': [
         'core.gyp:*',
-        'giflib.gyp:giflib',
         'libjpeg-turbo-selector.gyp:libjpeg-turbo-selector',
         'etc1.gyp:libetc1',
         'ktx.gyp:libSkKTX',
@@ -32,10 +31,8 @@
       ],
       'sources': [
         '../include/images/SkForceLinking.h',
-        '../include/images/SkMovie.h',
 
         '../src/images/SkForceLinking.cpp',
-        '../src/images/SkMovie_FactoryDefault.cpp',
 
         # If encoders are added/removed to/from (all/individual)
         # platform(s), be sure to update SkForceLinking.cpp
@@ -49,20 +46,12 @@
         '../src/images/SkImageEncoder.cpp',
         '../src/images/SkImageEncoder_Factory.cpp',
         '../src/images/SkJPEGWriteUtility.cpp',
-        '../src/images/SkMovie.cpp',
-        '../src/images/SkGIFMovie.cpp',
 
         '../src/ports/SkImageEncoder_CG.cpp',
         '../src/ports/SkImageEncoder_WIC.cpp',
       ],
       'conditions': [
         [ 'skia_os == "win"', {
-          'sources!': [
-            '../src/images/SkGIFMovie.cpp',
-          ],
-          'dependencies!': [
-            'giflib.gyp:giflib'
-          ],
           'link_settings': {
             'libraries': [
               '-lwindowscodecs.lib',
@@ -74,9 +63,6 @@
           ],
         }],
         [ 'skia_os in ["mac", "ios"]', {
-          'sources!': [
-            '../src/images/SkGIFMovie.cpp',
-          ],
         },{ #else if skia_os != mac
           'sources!': [
             '../src/ports/SkImageEncoder_CG.cpp',

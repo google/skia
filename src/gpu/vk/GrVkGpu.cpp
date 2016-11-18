@@ -56,6 +56,7 @@ VKAPI_ATTR VkBool32 VKAPI_CALL DebugReportCallback(
     void*                       pUserData) {
     if (flags & VK_DEBUG_REPORT_ERROR_BIT_EXT) {
         SkDebugf("Vulkan error [%s]: code: %d: %s\n", pLayerPrefix, messageCode, pMessage);
+        return VK_TRUE; // skip further layers
     } else if (flags & VK_DEBUG_REPORT_WARNING_BIT_EXT) {
         SkDebugf("Vulkan warning [%s]: code: %d: %s\n", pLayerPrefix, messageCode, pMessage);
     } else if (flags & VK_DEBUG_REPORT_PERFORMANCE_WARNING_BIT_EXT) {
@@ -78,6 +79,10 @@ GrGpu* GrVkGpu::Create(GrBackendContext backendContext, const GrContextOptions& 
         }
     } else {
         vkBackendContext->ref();
+    }
+
+    if (!vkBackendContext->fInterface->validate(vkBackendContext->fExtensions)) {
+        return nullptr;
     }
 
     return new GrVkGpu(context, options, vkBackendContext);
@@ -162,12 +167,12 @@ GrVkGpu::~GrVkGpu() {
 
     // wait for all commands to finish
     fResourceProvider.checkCommandBuffers();
-    SkDEBUGCODE(VkResult res = ) VK_CALL(QueueWaitIdle(fQueue));
+    VkResult res = VK_CALL(QueueWaitIdle(fQueue));
 
     // On windows, sometimes calls to QueueWaitIdle return before actually signalling the fences
     // on the command buffers even though they have completed. This causes an assert to fire when
     // destroying the command buffers. Currently this ony seems to happen on windows, so we add a
-    // sleep to make sure the fence singals.
+    // sleep to make sure the fence signals.
 #ifdef SK_DEBUG
 #if defined(SK_BUILD_FOR_WIN)
     Sleep(10); // In milliseconds
@@ -178,19 +183,13 @@ GrVkGpu::~GrVkGpu() {
 #endif
 
 #ifdef SK_DEBUG
-    if (this->vkCaps().allowInitializationErrorOnTearDown()) {
-        SkASSERT(VK_SUCCESS == res ||
-                 VK_ERROR_DEVICE_LOST == res ||
-                 VK_ERROR_INITIALIZATION_FAILED == res);
-    } else {
-        SkASSERT(VK_SUCCESS == res || VK_ERROR_DEVICE_LOST == res);
-    }
+    SkASSERT(VK_SUCCESS == res || VK_ERROR_DEVICE_LOST == res);
 #endif
 
     fCopyManager.destroyResources(this);
 
-    // must call this just before we destroy the VkDevice
-    fResourceProvider.destroyResources();
+    // must call this just before we destroy the command pool and VkDevice
+    fResourceProvider.destroyResources(VK_ERROR_DEVICE_LOST == res);
 
     VK_CALL(DestroyCommandPool(fDevice, fCmdPool, nullptr));
 
@@ -400,8 +399,6 @@ void GrVkGpu::resolveImage(GrVkRenderTarget* dst, GrVkRenderTarget* src, const S
     resolveInfo.srcOffset = { srcVkRect.fLeft, srcVkRect.fTop, 0 };
     resolveInfo.dstSubresource = { VK_IMAGE_ASPECT_COLOR_BIT, 0, 0, 1 };
     resolveInfo.dstOffset = { dstPoint.fX, dstY, 0 };
-    // By the spec the depth of the extent should be ignored for 2D images, but certain devices
-    // (e.g. nexus 5x) currently fail if it is not 1
     resolveInfo.extent = { (uint32_t)srcVkRect.width(), (uint32_t)srcVkRect.height(), 1 };
 
     dst->setImageLayout(this,
@@ -752,8 +749,8 @@ static GrSurfaceOrigin resolve_origin(GrSurfaceOrigin origin) {
     }
 }
 
-GrTexture* GrVkGpu::onWrapBackendTexture(const GrBackendTextureDesc& desc,
-                                         GrWrapOwnership ownership) {
+sk_sp<GrTexture> GrVkGpu::onWrapBackendTexture(const GrBackendTextureDesc& desc,
+                                               GrWrapOwnership ownership) {
     if (0 == desc.fTextureHandle) {
         return nullptr;
     }
@@ -787,22 +784,14 @@ GrTexture* GrVkGpu::onWrapBackendTexture(const GrBackendTextureDesc& desc,
     // In VK, we don't have this restriction
     surfDesc.fOrigin = resolve_origin(desc.fOrigin);
 
-    GrVkTexture* texture = nullptr;
-    if (renderTarget) {
-        texture = GrVkTextureRenderTarget::CreateWrappedTextureRenderTarget(this, surfDesc,
-                                                                            ownership, info);
-    } else {
-        texture = GrVkTexture::CreateWrappedTexture(this, surfDesc, ownership, info);
+    if (!renderTarget) {
+        return GrVkTexture::MakeWrappedTexture(this, surfDesc, ownership, info);
     }
-    if (!texture) {
-        return nullptr;
-    }
-
-    return texture;
+    return GrVkTextureRenderTarget::MakeWrappedTextureRenderTarget(this, surfDesc, ownership, info);
 }
 
-GrRenderTarget* GrVkGpu::onWrapBackendRenderTarget(const GrBackendRenderTargetDesc& wrapDesc,
-                                                   GrWrapOwnership ownership) {
+sk_sp<GrRenderTarget> GrVkGpu::onWrapBackendRenderTarget(const GrBackendRenderTargetDesc& wrapDesc,
+                                                         GrWrapOwnership ownership) {
 
     const GrVkImageInfo* info =
         reinterpret_cast<const GrVkImageInfo*>(wrapDesc.fRenderTargetHandle);
@@ -813,19 +802,17 @@ GrRenderTarget* GrVkGpu::onWrapBackendRenderTarget(const GrBackendRenderTargetDe
 
     GrSurfaceDesc desc;
     desc.fConfig = wrapDesc.fConfig;
-    desc.fFlags = kCheckAllocation_GrSurfaceFlag;
+    desc.fFlags = kCheckAllocation_GrSurfaceFlag | kRenderTarget_GrSurfaceFlag;
     desc.fWidth = wrapDesc.fWidth;
     desc.fHeight = wrapDesc.fHeight;
     desc.fSampleCnt = SkTMin(wrapDesc.fSampleCnt, this->caps()->maxSampleCount());
 
     desc.fOrigin = resolve_origin(wrapDesc.fOrigin);
 
-    GrVkRenderTarget* tgt = GrVkRenderTarget::CreateWrappedRenderTarget(this, desc,
-                                                                        ownership,
-                                                                        info);
+    sk_sp<GrVkRenderTarget> tgt = GrVkRenderTarget::MakeWrappedRenderTarget(this, desc,
+                                                                            ownership, info);
     if (tgt && wrapDesc.fStencilBits) {
-        if (!createStencilAttachmentForRenderTarget(tgt, desc.fWidth, desc.fHeight)) {
-            tgt->unref();
+        if (!createStencilAttachmentForRenderTarget(tgt.get(), desc.fWidth, desc.fHeight)) {
             return nullptr;
         }
     }
@@ -1319,7 +1306,7 @@ void GrVkGpu::addImageMemoryBarrier(VkPipelineStageFlags srcStageMask,
                                        barrier);
 }
 
-void GrVkGpu::finishDrawTarget() {
+void GrVkGpu::finishOpList() {
     // Submit the current command buffer to the Queue
     this->submitCommandBuffer(kSkip_SyncQueue);
 }
@@ -1423,9 +1410,6 @@ void GrVkGpu::copySurfaceAsCopyImage(GrSurface* dst,
     copyRegion.srcOffset = { srcVkRect.fLeft, srcVkRect.fTop, 0 };
     copyRegion.dstSubresource = { VK_IMAGE_ASPECT_COLOR_BIT, 0, 0, 1 };
     copyRegion.dstOffset = { dstPoint.fX, dstY, 0 };
-    // The depth value of the extent is ignored according the vulkan spec for 2D images. However, on
-    // at least the nexus 5X it seems to be checking it. Thus as a working around we must have the
-    // depth value be 1.
     copyRegion.extent = { (uint32_t)srcVkRect.width(), (uint32_t)srcVkRect.height(), 1 };
 
     fCurrentCmdBuffer->copyImage(this,
@@ -1517,10 +1501,10 @@ void GrVkGpu::copySurfaceAsBlit(GrSurface* dst,
     memset(&blitRegion, 0, sizeof(VkImageBlit));
     blitRegion.srcSubresource = { VK_IMAGE_ASPECT_COLOR_BIT, 0, 0, 1 };
     blitRegion.srcOffsets[0] = { srcVkRect.fLeft, srcVkRect.fTop, 0 };
-    blitRegion.srcOffsets[1] = { srcVkRect.fRight, srcVkRect.fBottom, 0 };
+    blitRegion.srcOffsets[1] = { srcVkRect.fRight, srcVkRect.fBottom, 1 };
     blitRegion.dstSubresource = { VK_IMAGE_ASPECT_COLOR_BIT, 0, 0, 1 };
     blitRegion.dstOffsets[0] = { dstRect.fLeft, dstRect.fTop, 0 };
-    blitRegion.dstOffsets[1] = { dstRect.fRight, dstRect.fBottom, 0 };
+    blitRegion.dstOffsets[1] = { dstRect.fRight, dstRect.fBottom, 1 };
 
     fCurrentCmdBuffer->blitImage(this,
                                  *srcImage,
@@ -1642,8 +1626,8 @@ bool GrVkGpu::initDescForDstCopy(const GrRenderTarget* src, GrSurfaceDesc* desc)
     return true;
 }
 
-void GrVkGpu::onGetMultisampleSpecs(GrRenderTarget* rt, const GrStencilSettings&,
-                                    int* effectiveSampleCnt, SamplePattern*) {
+void GrVkGpu::onQueryMultisampleSpecs(GrRenderTarget* rt, const GrStencilSettings&,
+                                      int* effectiveSampleCnt, SamplePattern*) {
     // TODO: stub.
     SkASSERT(!this->caps()->sampleLocationsSupport());
     *effectiveSampleCnt = rt->desc().fSampleCnt;

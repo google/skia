@@ -13,6 +13,43 @@
 
 class SkData;
 
+/**
+ *  Describes a color gamut with primaries and a white point.
+ */
+struct SK_API SkColorSpacePrimaries {
+    float fRX, fRY;
+    float fGX, fGY;
+    float fBX, fBY;
+    float fWX, fWY;
+
+    /**
+     *  Convert primaries and a white point to a toXYZD50 matrix, the preferred color gamut
+     *  representation of SkColorSpace.
+     */
+    bool toXYZD50(SkMatrix44* toXYZD50) const;
+};
+
+/**
+ *  Contains the coefficients for a common transfer function equation, specified as
+ *  a transformation from a curved space to linear.
+ *
+ *  LinearVal = E*InputVal + F        , for 0.0f <= InputVal <  D
+ *  LinearVal = (A*InputVal + B)^G + C, for D    <= InputVal <= 1.0f
+ *
+ *  Function is undefined if InputVal is not in [ 0.0f, 1.0f ].
+ *  Resulting LinearVals must be in [ 0.0f, 1.0f ].
+ *  Function must be positive and increasing.
+ */
+struct SK_API SkColorSpaceTransferFn {
+    float fG;
+    float fA;
+    float fB;
+    float fC;
+    float fD;
+    float fE;
+    float fF;
+};
+
 class SK_API SkColorSpace : public SkRefCnt {
 public:
 
@@ -50,24 +87,25 @@ public:
     };
 
     /**
-     *  Create an SkColorSpace from a transfer function and a color gamut transform to D50 XYZ.
+     *  Create an SkColorSpace from a transfer function and a color gamut.
+     *
+     *  Transfer function can be specified as a render target, as the coefficients to an equation,
+     *  or as three exponents (R, G, B).
+     *  Gamut is specified using the matrix transformation to XYZ D50.
      */
-    static sk_sp<SkColorSpace> NewRGB(RenderTargetGamma gamma, const SkMatrix44& toXYZD50);
+    static sk_sp<SkColorSpace> MakeRGB(RenderTargetGamma gamma, const SkMatrix44& toXYZD50);
+    static sk_sp<SkColorSpace> MakeRGB(const SkColorSpaceTransferFn& coeffs,
+                                      const SkMatrix44& toXYZD50);
 
     /**
      *  Create a common, named SkColorSpace.
      */
-    static sk_sp<SkColorSpace> NewNamed(Named);
+    static sk_sp<SkColorSpace> MakeNamed(Named);
 
     /**
      *  Create an SkColorSpace from an ICC profile.
      */
-    static sk_sp<SkColorSpace> NewICC(const void*, size_t);
-
-    /**
-     *  Create an SkColorSpace with the same gamut as this color space, but with linear gamma.
-     */
-    sk_sp<SkColorSpace> makeLinearGamma();
+    static sk_sp<SkColorSpace> MakeICC(const void*, size_t);
 
     /**
      *  Returns true if the color space gamma is near enough to be approximated as sRGB.

@@ -8,13 +8,13 @@
 #ifndef SkScalerContext_DEFINED
 #define SkScalerContext_DEFINED
 
+#include "SkGlyph.h"
 #include "SkMask.h"
 #include "SkMaskGamma.h"
 #include "SkMatrix.h"
 #include "SkPaint.h"
 #include "SkTypeface.h"
 
-class SkGlyph;
 class SkDescriptor;
 class SkMaskFilter;
 class SkPathEffect;
@@ -211,7 +211,7 @@ public:
         kHinting_Mask   = kHintingBit1_Flag | kHintingBit2_Flag,
     };
 
-    SkScalerContext(SkTypeface*, const SkScalerContextEffects&, const SkDescriptor*);
+    SkScalerContext(sk_sp<SkTypeface>, const SkScalerContextEffects&, const SkDescriptor*);
     virtual ~SkScalerContext();
 
     SkTypeface* getTypeface() const { return fTypeface.get(); }
@@ -248,7 +248,7 @@ public:
     void        getAdvance(SkGlyph*);
     void        getMetrics(SkGlyph*);
     void        getImage(const SkGlyph&);
-    void        getPath(const SkGlyph&, SkPath*);
+    void        getPath(SkPackedGlyphID, SkPath*);
     void        getFontMetrics(SkPaint::FontMetrics*);
 
     /** Return the size in bytes of the associated gamma lookup table
@@ -309,11 +309,8 @@ protected:
     /** Sets the passed path to the glyph outline.
      *  If this cannot be done the path is set to empty;
      *  this is indistinguishable from a glyph with an empty path.
-     *  This does not set glyph.fPath.
-     *
-     *  TODO: path is always glyph.fPath, no reason to pass separately.
      */
-    virtual void generatePath(const SkGlyph& glyph, SkPath* path) = 0;
+    virtual void generatePath(SkGlyphID glyphId, SkPath* path) = 0;
 
     /** Retrieves font metrics. */
     virtual void generateFontMetrics(SkPaint::FontMetrics*) = 0;
@@ -350,13 +347,8 @@ private:
     // calling generateImage.
     bool fGenerateImageFromPath;
 
-    void internalGetPath(const SkGlyph& glyph, SkPath* fillPath,
+    void internalGetPath(SkPackedGlyphID id, SkPath* fillPath,
                          SkPath* devPath, SkMatrix* fillToDevMatrix);
-
-    // returns the right context from our link-list for this char. If no match
-    // is found it returns nullptr. If a match is found then the glyphID param is
-    // set to the glyphID that maps to the provided char.
-    SkScalerContext* getContextFromChar(SkUnichar uni, uint16_t* glyphID);
 
     // SkMaskGamma::PreBlend converts linear masks to gamma correcting masks.
 protected:

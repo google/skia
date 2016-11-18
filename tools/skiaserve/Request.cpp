@@ -24,6 +24,7 @@ Request::Request(SkString rootUrl)
     : fUploadContext(nullptr)
     , fUrlDataManager(rootUrl)
     , fGPUEnabled(false)
+    , fOverdraw(false)
     , fColorMode(0) {
     // create surface
 #if SK_SUPPORT_GPU
@@ -54,7 +55,7 @@ SkBitmap* Request::getBitmapFromCanvas(SkCanvas* canvas) {
 
 sk_sp<SkData> Request::writeCanvasToPng(SkCanvas* canvas) {
     // capture pixels
-    SkAutoTDelete<SkBitmap> bmp(this->getBitmapFromCanvas(canvas));
+    std::unique_ptr<SkBitmap> bmp(this->getBitmapFromCanvas(canvas));
     SkASSERT(bmp);
 
     // Convert to format suitable for PNG output
@@ -63,7 +64,7 @@ sk_sp<SkData> Request::writeCanvasToPng(SkCanvas* canvas) {
 
     // write to an opaque png (black background)
     SkDynamicMemoryWStream buffer;
-    SkDrawCommand::WritePNG((const png_bytep) encodedBitmap->bytes(), bmp->width(), bmp->height(),
+    SkDrawCommand::WritePNG(encodedBitmap->bytes(), bmp->width(), bmp->height(),
                             buffer, true);
     return buffer.detachAsData();
 }
@@ -97,7 +98,9 @@ void Request::drawToCanvas(int n, int m) {
 }
 
 sk_sp<SkData> Request::drawToPng(int n, int m) {
+    //fDebugCanvas->setOverdrawViz(true);
     this->drawToCanvas(n, m);
+    //fDebugCanvas->setOverdrawViz(false);
     return writeCanvasToPng(this->getCanvas());
 }
 
@@ -114,8 +117,8 @@ sk_sp<SkData> Request::writeOutSkp() {
 
     SkDynamicMemoryWStream outStream;
 
-    SkAutoTUnref<SkPixelSerializer> serializer(SkImageEncoder::CreatePixelSerializer());
-    picture->serialize(&outStream, serializer);
+    sk_sp<SkPixelSerializer> serializer(SkImageEncoder::CreatePixelSerializer());
+    picture->serialize(&outStream, serializer.get());
 
     return outStream.detachAsData();
 }
@@ -174,10 +177,9 @@ ColorAndProfile ColorModes[] = {
 SkSurface* Request::createCPUSurface() {
     SkIRect bounds = this->getBounds();
     ColorAndProfile cap = ColorModes[fColorMode];
-    auto colorSpace = SkColorSpace::NewNamed(SkColorSpace::kSRGB_Named);
-    if (kRGBA_F16_SkColorType == cap.fColorType) {
-        colorSpace = colorSpace->makeLinearGamma();
-    }
+    auto colorSpace = kRGBA_F16_SkColorType == cap.fColorType
+                    ? SkColorSpace::MakeNamed(SkColorSpace::kSRGBLinear_Named)
+                    : SkColorSpace::MakeNamed(SkColorSpace::kSRGB_Named);
     SkImageInfo info = SkImageInfo::Make(bounds.width(), bounds.height(), cap.fColorType,
                                          kPremul_SkAlphaType, cap.fSRGB ? colorSpace : nullptr);
     return SkSurface::MakeRaster(info).release();
@@ -187,14 +189,18 @@ SkSurface* Request::createGPUSurface() {
     GrContext* context = this->getContext();
     SkIRect bounds = this->getBounds();
     ColorAndProfile cap = ColorModes[fColorMode];
-    auto colorSpace = SkColorSpace::NewNamed(SkColorSpace::kSRGB_Named);
-    if (kRGBA_F16_SkColorType == cap.fColorType) {
-        colorSpace = colorSpace->makeLinearGamma();
-    }
+    auto colorSpace = kRGBA_F16_SkColorType == cap.fColorType
+                    ? SkColorSpace::MakeNamed(SkColorSpace::kSRGBLinear_Named)
+                    : SkColorSpace::MakeNamed(SkColorSpace::kSRGB_Named);
     SkImageInfo info = SkImageInfo::Make(bounds.width(), bounds.height(), cap.fColorType,
                                          kPremul_SkAlphaType, cap.fSRGB ? colorSpace: nullptr);
     SkSurface* surface = SkSurface::MakeRenderTarget(context, SkBudgeted::kNo, info).release();
     return surface;
+}
+
+bool Request::setOverdraw(bool enable) {
+    fOverdraw = enable;
+    return true;
 }
 
 bool Request::setColorMode(int mode) {
@@ -274,7 +280,7 @@ sk_sp<SkData> Request::getJsonBatchList(int n) {
 
 sk_sp<SkData> Request::getJsonInfo(int n) {
     // drawTo
-    SkAutoTUnref<SkSurface> surface(this->createCPUSurface());
+    sk_sp<SkSurface> surface(this->createCPUSurface());
     SkCanvas* canvas = surface->getCanvas();
 
     // TODO this is really slow and we should cache the matrix and clip
@@ -296,7 +302,7 @@ sk_sp<SkData> Request::getJsonInfo(int n) {
 SkColor Request::getPixel(int x, int y) {
     SkCanvas* canvas = this->getCanvas();
     canvas->flush();
-    SkAutoTDelete<SkBitmap> bitmap(this->getBitmapFromCanvas(canvas));
+    std::unique_ptr<SkBitmap> bitmap(this->getBitmapFromCanvas(canvas));
     SkASSERT(bitmap);
 
     // Convert to format suitable for inspection

@@ -96,14 +96,6 @@ GrGLSLFragmentShaderBuilder::GrGLSLFragmentShaderBuilder(GrGLSLProgramBuilder* p
 bool GrGLSLFragmentShaderBuilder::enableFeature(GLSLFeature feature) {
     const GrGLSLCaps& glslCaps = *fProgramBuilder->glslCaps();
     switch (feature) {
-        case kStandardDerivatives_GLSLFeature:
-            if (!glslCaps.shaderDerivativeSupport()) {
-                return false;
-            }
-            if (const char* extension = glslCaps.shaderDerivativeExtensionString()) {
-                this->addFeature(1 << kStandardDerivatives_GLSLFeature, extension);
-            }
-            return true;
         case kPixelLocalStorage_GLSLFeature:
             if (glslCaps.pixelLocalStorageSize() <= 0) {
                 return false;
@@ -291,10 +283,10 @@ void GrGLSLFragmentShaderBuilder::enableCustomOutput() {
     if (!fHasCustomColorOutput) {
         fHasCustomColorOutput = true;
         fCustomColorOutputIndex = fOutputs.count();
-        fOutputs.push_back().set(kVec4f_GrSLType,
-                                 GrGLSLShaderVar::kOut_TypeModifier,
-                                 DeclaredColorOutputName());
-        fProgramBuilder->finalizeFragmentOutputColor(fOutputs.back());
+        fOutputs.push_back().set(kVec4f_GrSLType,  
+                                 GrGLSLShaderVar::kOut_TypeModifier,   
+                                 DeclaredColorOutputName());   
+        fProgramBuilder->finalizeFragmentOutputColor(fOutputs.back()); 
     }
 }
 
@@ -318,7 +310,7 @@ void GrGLSLFragmentShaderBuilder::enableSecondaryOutput() {
 }
 
 const char* GrGLSLFragmentShaderBuilder::getPrimaryColorOutputName() const {
-    return fHasCustomColorOutput ? DeclaredColorOutputName() : "gl_FragColor";
+    return fHasCustomColorOutput ? DeclaredColorOutputName() : "sk_FragColor";
 }
 
 void GrGLSLFragmentBuilder::declAppendf(const char* fmt, ...) {
@@ -365,7 +357,7 @@ void GrGLSLFragmentShaderBuilder::defineSampleOffsetArray(const char* name, cons
     SkASSERT(fProgramBuilder->caps()->sampleLocationsSupport());
     const GrPipeline& pipeline = fProgramBuilder->pipeline();
     const GrRenderTargetPriv& rtp = pipeline.getRenderTarget()->renderTargetPriv();
-    const GrGpu::MultisampleSpecs& specs = rtp.getMultisampleSpecs(pipeline.getStencil());
+    const GrGpu::MultisampleSpecs& specs = rtp.getMultisampleSpecs(pipeline);
     SkSTArray<16, SkPoint, true> offsets;
     offsets.push_back_n(specs.fEffectiveSampleCnt);
     m.mapPoints(offsets.begin(), specs.fSampleLocations, specs.fEffectiveSampleCnt);

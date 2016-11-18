@@ -12,6 +12,7 @@
 #include <tuple>
 #include <unordered_map>
 
+#include "glsl/GrGLSLCaps.h"
 #include "SkSLCodeGenerator.h"
 #include "ir/SkSLBinaryExpression.h"
 #include "ir/SkSLBoolLiteral.h"
@@ -35,22 +36,14 @@
 #include "ir/SkSLStatement.h"
 #include "ir/SkSLSwizzle.h"
 #include "ir/SkSLTernaryExpression.h"
-#include "ir/SkSLVarDeclaration.h"
-#include "ir/SkSLVarDeclarationStatement.h"
+#include "ir/SkSLVarDeclarations.h"
+#include "ir/SkSLVarDeclarationsStatement.h"
 #include "ir/SkSLVariableReference.h"
 #include "ir/SkSLWhileStatement.h"
 
 namespace SkSL {
 
 #define kLast_Capability SpvCapabilityMultiViewport
-
-struct GLCaps {
-    int fVersion;
-    enum {
-        kGL_Standard,
-        kGLES_Standard
-    } fStandard;
-};
 
 /**
  * Converts a Program into GLSL code.
@@ -78,11 +71,9 @@ public:
         kTopLevel_Precedence       = 18
     };
 
-    GLSLCodeGenerator(const Context* context, GLCaps caps)
+    GLSLCodeGenerator(const Context* context, const GrGLSLCaps* caps)
     : fContext(*context)
-    , fCaps(caps)
-    , fIndentation(0)
-    , fAtLineStart(true) {}
+    , fCaps(*caps) {}
 
     void generateCode(const Program& program, std::ostream& out) override;
 
@@ -111,17 +102,19 @@ private:
 
     void writeLayout(const Layout& layout);
 
-    void writeModifiers(const Modifiers& modifiers);
+    void writeModifiers(const Modifiers& modifiers, bool globalContext);
     
     void writeGlobalVars(const VarDeclaration& vs);
 
-    void writeVarDeclarations(const VarDeclarations& decl);
+    void writeVarDeclarations(const VarDeclarations& decl, bool global);
 
     void writeVariableReference(const VariableReference& ref);
 
     void writeExpression(const Expression& expr, Precedence parentPrecedence);
     
     void writeIntrinsicCall(const FunctionCall& c);
+
+    void writeMinAbsHack(Expression& absExpr, Expression& otherExpr);
 
     void writeFunctionCall(const FunctionCall& c);
 
@@ -162,14 +155,21 @@ private:
     void writeReturnStatement(const ReturnStatement& r);
 
     const Context& fContext;
-    const GLCaps fCaps;
-    std::ostream* fOut;
-    int fIndentation;
-    bool fAtLineStart;
+    const GrGLSLCaps& fCaps;
+    std::ostream* fOut = nullptr;
+    std::stringstream fHeader;
+    std::string fFunctionHeader;
+    Program::Kind fProgramKind;
+    int fVarCount = 0;
+    int fIndentation = 0;
+    bool fAtLineStart = false;
     // Keeps track of which struct types we have written. Given that we are unlikely to ever write 
     // more than one or two structs per shader, a simple linear search will be faster than anything 
     // fancier.
     std::vector<const Type*> fWrittenStructs;
+    // true if we have run into usages of dFdx / dFdy
+    bool fFoundDerivatives = false;
+    bool fFoundImageDecl = false;
 };
 
 }

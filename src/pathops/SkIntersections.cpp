@@ -67,7 +67,7 @@ int SkIntersections::insert(double one, double two, const SkDPoint& pt) {
         }
     }
     if (fUsed >= fMax) {
-        SkASSERT(0);  // FIXME : this error, if it is to be handled at runtime in release, must
+        SkOPASSERT(0);  // FIXME : this error, if it is to be handled at runtime in release, must
                       // be propagated all the way back down to the caller, and return failure.
         fUsed = 0;
         return 0;

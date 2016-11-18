@@ -24,7 +24,7 @@ class SkCommandLineConfigGpu;
 // The string has following form:
 // tag:
 //   [via-]*backend
-// where 'backend' consists of chars excluding hyphen or "angle-gl"
+// where 'backend' consists of chars excluding hyphen
 // and each 'via' consists of chars excluding hyphen.
 class SkCommandLineConfig {
   public:
@@ -75,7 +75,7 @@ class SkCommandLineConfigGpu : public SkCommandLineConfig {
 };
 #endif
 
-typedef SkTArray<SkAutoTDelete<SkCommandLineConfig>, true> SkCommandLineConfigArray;
+typedef SkTArray<std::unique_ptr<SkCommandLineConfig>, true> SkCommandLineConfigArray;
 void ParseConfigs(const SkCommandLineFlags::StringArray& configList,
                   SkCommandLineConfigArray* outResult);
 

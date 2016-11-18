@@ -9,6 +9,8 @@
 
 #include "Test.h"
 
+#if SKIA_SUPPORT_GPU
+
 static void test_failure(skiatest::Reporter* r, const char* src, const char* error) {
     SkSL::Compiler compiler;
     std::stringstream out;
@@ -43,7 +45,12 @@ DEF_TEST(SkSLUndefinedFunction, r) {
 DEF_TEST(SkSLGenericArgumentMismatch, r) {
     test_failure(r,
                  "void main() { float x = sin(1, 2); }", 
-                 "error: 1: no match for sin(int, int)\n1 error\n");
+                 "error: 1: call to 'sin' expected 1 argument, but found 2\n1 error\n");
+    test_failure(r,
+                 "void main() { float x = sin(true); }", 
+                 "error: 1: no match for sin(bool)\n1 error\n");
+    test_success(r,
+                 "void main() { float x = sin(1); }");
 }
 
 DEF_TEST(SkSLArgumentCountMismatch, r) {
@@ -88,6 +95,12 @@ DEF_TEST(SkSLConstructorTypeMismatch, r) {
     test_failure(r,
                  "void main() { vec2 x = vec2(1.0, false); }", 
                  "error: 1: expected 'float', but found 'bool'\n1 error\n");
+    test_failure(r,
+                 "void main() { vec2 x = vec2(bvec2(false)); }",
+                 "error: 1: 'bvec2' is not a valid parameter to 'vec2' constructor\n1 error\n");
+    test_failure(r,
+                 "void main() { bvec2 x = bvec2(vec2(1)); }",
+                 "error: 1: 'vec2' is not a valid parameter to 'bvec2' constructor\n1 error\n");
     test_failure(r,
                  "void main() { bool x = bool(1.0); }",
                  "error: 1: cannot construct 'bool'\n1 error\n");
@@ -139,10 +152,19 @@ DEF_TEST(SkSLSwizzleDuplicateOutput, r) {
                  "void main() { vec4 test = vec4(1); test.xyyz = vec4(1); }",
                  "error: 1: cannot write to the same swizzle field more than once\n1 error\n");
 }
+
 DEF_TEST(SkSLAssignmentTypeMismatch, r) {
     test_failure(r,
                  "void main() { int x = 1.0; }",
                  "error: 1: expected 'int', but found 'float'\n1 error\n");
+    test_failure(r,
+                 "void main() { int x; x = 1.0; }",
+                 "error: 1: type mismatch: '=' cannot operate on 'int', 'float'\n1 error\n");
+    test_success(r,
+                 "void main() { vec3 x = vec3(0); x *= 1.0; }");
+    test_failure(r,
+                 "void main() { ivec3 x = ivec3(0); x *= 1.0; }",
+                 "error: 1: type mismatch: '*=' cannot operate on 'ivec3', 'float'\n1 error\n");
 }
 
 DEF_TEST(SkSLReturnFromVoid, r) {
@@ -181,7 +203,7 @@ DEF_TEST(SkSLUsingInvalidValue, r) {
 }
 DEF_TEST(SkSLDifferentReturnType, r) {
     test_failure(r,
-                 "int main() { } void main() { }", 
+                 "int main() { return 1; } void main() { }", 
                  "error: 1: functions 'void main()' and 'int main()' differ only in return type\n1 "
                  "error\n");
 }
@@ -263,8 +285,8 @@ DEF_TEST(SkSLBadIndex, r) {
                  "void main() { int x = 2[0]; }",
                  "error: 1: expected array, but found 'int'\n1 error\n");
     test_failure(r,
-                 "void main() { vec2 x = vec2(0); int y = x[0]; }",
-                 "error: 1: expected array, but found 'vec2'\n1 error\n");
+                 "void main() { vec2 x = vec2(0); int y = x[0][0]; }",
+                 "error: 1: expected array, but found 'float'\n1 error\n");
 }
 
 DEF_TEST(SkSLTernaryMismatch, r) {
@@ -278,3 +300,75 @@ DEF_TEST(SkSLInterfaceBlockStorageModifiers, r) {
                  "uniform foo { out int x; };",
                  "error: 1: interface block fields may not have storage qualifiers\n1 error\n");
 }
+
+DEF_TEST(SkSLUseWithoutInitialize, r) {
+    test_failure(r,
+                 "void main() { int x; if (5 == 2) x = 3; x++; }",
+                 "error: 1: 'x' has not been assigned\n1 error\n");
+    test_failure(r,
+                 "void main() { int x[2][2]; int i; x[i][1] = 4; }",
+                 "error: 1: 'i' has not been assigned\n1 error\n");
+    test_failure(r,
+                 "int main() { int r; return r; }",
+                 "error: 1: 'r' has not been assigned\n1 error\n");
+    test_failure(r,
+                 "void main() { int x; int y = x; }",
+                 "error: 1: 'x' has not been assigned\n1 error\n");
+    test_failure(r,
+                 "void main() { bool x; if (true && (false || x)) return; }",
+                 "error: 1: 'x' has not been assigned\n1 error\n");
+}
+
+DEF_TEST(SkSLUnreachable, r) {
+    test_failure(r,
+                 "void main() { return; return; }",
+                 "error: 1: unreachable\n1 error\n");
+    test_failure(r,
+                 "void main() { for (;;) { continue; int x = 1; } }",
+                 "error: 1: unreachable\n1 error\n");
+    test_failure(r,
+                 "void main() { for (;;) { } return; }",
+                 "error: 1: unreachable\n1 error\n");
+    test_failure(r,
+                 "void main() { if (true) return; else discard; return; }",
+                 "error: 1: unreachable\n1 error\n");
+    test_failure(r,
+                 "void main() { return; while (true); }",
+                 "error: 1: unreachable\n1 error\n");
+}
+
+DEF_TEST(SkSLNoReturn, r) {
+    test_failure(r,
+                 "int foo() { if (2 > 5) return 3; }",
+                 "error: 1: function can exit without returning a value\n1 error\n");
+}
+
+DEF_TEST(SkSLBreakOutsideLoop, r) {
+    test_failure(r,
+                 "void foo() { while(true) {} if (true) break; }",
+                 "error: 1: break statement must be inside a loop\n1 error\n");
+}
+
+DEF_TEST(SkSLContinueOutsideLoop, r) {
+    test_failure(r,
+                 "void foo() { for(;;); continue; }",
+                 "error: 1: continue statement must be inside a loop\n1 error\n");
+}
+
+DEF_TEST(SkSLStaticIfError, r) {
+    // ensure eliminated branch of static if / ternary is still checked for errors
+    test_failure(r,
+                 "void foo() { if (true); else x = 5; }",
+                 "error: 1: unknown identifier 'x'\n1 error\n");
+    test_failure(r,
+                 "void foo() { if (false) x = 5; }",
+                 "error: 1: unknown identifier 'x'\n1 error\n");
+    test_failure(r,
+                 "void foo() { true ? 5 : x; }",
+                 "error: 1: unknown identifier 'x'\n1 error\n");
+    test_failure(r,
+                 "void foo() { false ? x : 5; }",
+                 "error: 1: unknown identifier 'x'\n1 error\n");
+}
+
+#endif

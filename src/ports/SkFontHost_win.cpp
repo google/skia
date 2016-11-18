@@ -16,6 +16,7 @@
 #include "SkFontDescriptor.h"
 #include "SkGlyph.h"
 #include "SkHRESULT.h"
+#include "SkMakeUnique.h"
 #include "SkMaskGamma.h"
 #include "SkMatrix22.h"
 #include "SkOTTable_maxp.h"
@@ -362,7 +363,7 @@ static void populate_glyph_to_unicode(HDC fontHdc, const unsigned glyphCount,
         return;
     }
 
-    SkAutoTDeleteArray<BYTE> glyphSetBuffer(new BYTE[glyphSetBufferSize]);
+    std::unique_ptr<BYTE[]> glyphSetBuffer(new BYTE[glyphSetBufferSize]);
     GLYPHSET* glyphSet =
         reinterpret_cast<LPGLYPHSET>(glyphSetBuffer.get());
     if (GetFontUnicodeRanges(fontHdc, glyphSet) != glyphSetBufferSize) {
@@ -530,7 +531,9 @@ const void* HDCOffscreen::draw(const SkGlyph& glyph, bool isBW,
 
 class SkScalerContext_GDI : public SkScalerContext {
 public:
-    SkScalerContext_GDI(SkTypeface*, const SkScalerContextEffects&, const SkDescriptor* desc);
+    SkScalerContext_GDI(sk_sp<LogFontTypeface>,
+                        const SkScalerContextEffects&,
+                        const SkDescriptor* desc);
     virtual ~SkScalerContext_GDI();
 
     // Returns true if the constructor was able to complete all of its
@@ -543,11 +546,11 @@ protected:
     void generateAdvance(SkGlyph* glyph) override;
     void generateMetrics(SkGlyph* glyph) override;
     void generateImage(const SkGlyph& glyph) override;
-    void generatePath(const SkGlyph& glyph, SkPath* path) override;
+    void generatePath(SkGlyphID glyph, SkPath* path) override;
     void generateFontMetrics(SkPaint::FontMetrics*) override;
 
 private:
-    DWORD getGDIGlyphPath(const SkGlyph& glyph, UINT flags,
+    DWORD getGDIGlyphPath(SkGlyphID glyph, UINT flags,
                           SkAutoSTMalloc<BUFFERSIZE, uint8_t>* glyphbuf);
 
     HDCOffscreen fOffscreen;
@@ -600,17 +603,17 @@ static BYTE compute_quality(const SkScalerContext::Rec& rec) {
     }
 }
 
-SkScalerContext_GDI::SkScalerContext_GDI(SkTypeface* rawTypeface,
+SkScalerContext_GDI::SkScalerContext_GDI(sk_sp<LogFontTypeface> rawTypeface,
                                          const SkScalerContextEffects& effects,
                                          const SkDescriptor* desc)
-        : SkScalerContext(rawTypeface, effects, desc)
+        : SkScalerContext(std::move(rawTypeface), effects, desc)
         , fDDC(0)
         , fSavefont(0)
         , fFont(0)
         , fSC(0)
         , fGlyphCount(-1)
 {
-    LogFontTypeface* typeface = reinterpret_cast<LogFontTypeface*>(rawTypeface);
+    LogFontTypeface* typeface = static_cast<LogFontTypeface*>(this->getTypeface());
 
     fDDC = ::CreateCompatibleDC(nullptr);
     if (!fDDC) {
@@ -1586,22 +1589,22 @@ static bool sk_path_from_gdi_paths(SkPath* path, const uint8_t* glyphbuf, DWORD 
     return true;
 }
 
-DWORD SkScalerContext_GDI::getGDIGlyphPath(const SkGlyph& glyph, UINT flags,
-                                               SkAutoSTMalloc<BUFFERSIZE, uint8_t>* glyphbuf)
+DWORD SkScalerContext_GDI::getGDIGlyphPath(SkGlyphID glyph, UINT flags,
+                                           SkAutoSTMalloc<BUFFERSIZE, uint8_t>* glyphbuf)
 {
     GLYPHMETRICS gm;
 
-    DWORD total_size = GetGlyphOutlineW(fDDC, glyph.getGlyphID(), flags, &gm, BUFFERSIZE, glyphbuf->get(), &fMat22);
+    DWORD total_size = GetGlyphOutlineW(fDDC, glyph, flags, &gm, BUFFERSIZE, glyphbuf->get(), &fMat22);
     // Sometimes GetGlyphOutlineW returns a number larger than BUFFERSIZE even if BUFFERSIZE > 0.
     // It has been verified that this does not involve a buffer overrun.
     if (GDI_ERROR == total_size || total_size > BUFFERSIZE) {
         // GDI_ERROR because the BUFFERSIZE was too small, or because the data was not accessible.
         // When the data is not accessable GetGlyphOutlineW fails rather quickly,
         // so just try to get the size. If that fails then ensure the data is accessible.
-        total_size = GetGlyphOutlineW(fDDC, glyph.getGlyphID(), flags, &gm, 0, nullptr, &fMat22);
+        total_size = GetGlyphOutlineW(fDDC, glyph, flags, &gm, 0, nullptr, &fMat22);
         if (GDI_ERROR == total_size) {
             LogFontTypeface::EnsureAccessible(this->getTypeface());
-            total_size = GetGlyphOutlineW(fDDC, glyph.getGlyphID(), flags, &gm, 0, nullptr, &fMat22);
+            total_size = GetGlyphOutlineW(fDDC, glyph, flags, &gm, 0, nullptr, &fMat22);
             if (GDI_ERROR == total_size) {
                 // GetGlyphOutlineW is known to fail for some characters, such as spaces.
                 // In these cases, just return that the glyph does not have a shape.
@@ -1611,10 +1614,10 @@ DWORD SkScalerContext_GDI::getGDIGlyphPath(const SkGlyph& glyph, UINT flags,
 
         glyphbuf->reset(total_size);
 
-        DWORD ret = GetGlyphOutlineW(fDDC, glyph.getGlyphID(), flags, &gm, total_size, glyphbuf->get(), &fMat22);
+        DWORD ret = GetGlyphOutlineW(fDDC, glyph, flags, &gm, total_size, glyphbuf->get(), &fMat22);
         if (GDI_ERROR == ret) {
             LogFontTypeface::EnsureAccessible(this->getTypeface());
-            ret = GetGlyphOutlineW(fDDC, glyph.getGlyphID(), flags, &gm, total_size, glyphbuf->get(), &fMat22);
+            ret = GetGlyphOutlineW(fDDC, glyph, flags, &gm, total_size, glyphbuf->get(), &fMat22);
             if (GDI_ERROR == ret) {
                 SkASSERT(false);
                 return 0;
@@ -1624,7 +1627,7 @@ DWORD SkScalerContext_GDI::getGDIGlyphPath(const SkGlyph& glyph, UINT flags,
     return total_size;
 }
 
-void SkScalerContext_GDI::generatePath(const SkGlyph& glyph, SkPath* path) {
+void SkScalerContext_GDI::generatePath(SkGlyphID glyph, SkPath* path) {
     SkASSERT(path);
     SkASSERT(fDDC);
 
@@ -2254,13 +2257,12 @@ size_t LogFontTypeface::onGetTableData(SkFontTableTag tag, size_t offset,
 
 SkScalerContext* LogFontTypeface::onCreateScalerContext(const SkScalerContextEffects& effects,
                                                         const SkDescriptor* desc) const {
-    SkScalerContext_GDI* ctx = new SkScalerContext_GDI(const_cast<LogFontTypeface*>(this),
-                                                       effects, desc);
+    auto ctx = skstd::make_unique<SkScalerContext_GDI>(
+            sk_ref_sp(const_cast<LogFontTypeface*>(this)), effects, desc);
     if (!ctx->isValid()) {
-        delete ctx;
-        ctx = nullptr;
+        return nullptr;
     }
-    return ctx;
+    return ctx.release();
 }
 
 void LogFontTypeface::onFilterRec(SkScalerContextRec* rec) const {
@@ -2433,7 +2435,7 @@ protected:
     virtual SkTypeface* onMatchFamilyStyle(const char familyName[],
                                            const SkFontStyle& fontstyle) const override {
         // could be in base impl
-        SkAutoTUnref<SkFontStyleSet> sset(this->matchFamily(familyName));
+        sk_sp<SkFontStyleSet> sset(this->matchFamily(familyName));
         return sset->matchStyle(fontstyle);
     }
 
@@ -2452,8 +2454,8 @@ protected:
     }
 
     SkTypeface* onCreateFromStream(SkStreamAsset* bareStream, int ttcIndex) const override {
-        SkAutoTDelete<SkStreamAsset> stream(bareStream);
-        return create_from_stream(stream);
+        std::unique_ptr<SkStreamAsset> stream(bareStream);
+        return create_from_stream(stream.get());
     }
 
     SkTypeface* onCreateFromData(SkData* data, int ttcIndex) const override {

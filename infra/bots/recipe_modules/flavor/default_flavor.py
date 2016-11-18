@@ -84,76 +84,8 @@ class DefaultFlavorUtils(object):
     if not self.m.path.exists(win_toolchain_asset_path):
       self._win_toolchain_dir = self.m.vars.slave_dir
 
-
-  def step(self, name, cmd, **kwargs):
-    """Wrapper for the Step API; runs a step as appropriate for this flavor."""
-    path_to_app = self.m.vars.skia_out.join(
-        self.m.vars.configuration, cmd[0])
-    if (self.m.platform.is_linux and
-        'x86_64' in self.m.vars.builder_name and
-        not 'TSAN' in self.m.vars.builder_name):
-      new_cmd = ['catchsegv', path_to_app]
-    else:
-      new_cmd = [path_to_app]
-    new_cmd.extend(cmd[1:])
-    return self.m.run(self.m.step,
-                              name, cmd=new_cmd, **kwargs)
-
-  @property
-  def chrome_path(self):
-    """Path to a checkout of Chrome on this machine."""
-    return self._win_toolchain_dir.join('src')
-
-  def bootstrap_win_toolchain(self):
-    """Run bootstrapping script for the Windows toolchain."""
-    bootstrap_script = self.m.vars.infrabots_dir.join(
-        'bootstrap_win_toolchain_json.py')
-    win_toolchain_json = self._win_toolchain_dir.join(
-        'src', 'build', 'win_toolchain.json')
-    self.m.python(
-        'bootstrap win toolchain',
-        script=bootstrap_script,
-        args=['--win_toolchain_json', win_toolchain_json,
-              '--depot_tools_parent_dir',
-              self._win_toolchain_dir])
-
-  def compile(self, target, **kwargs):
-    """Build the given target."""
-    env = kwargs.pop('env', {})
-    # The CHROME_PATH environment variable is needed for builders that use
-    # toolchains downloaded by Chrome.
-    env['CHROME_PATH'] = self.chrome_path
-    if self.m.platform.is_win:
-      make_cmd = ['python', 'make.py']
-      self.m.run.run_once(self.bootstrap_win_toolchain)
-      if 'Vulkan' in self.m.vars.builder_name:
-        env['VULKAN_SDK'] = self.m.vars.slave_dir.join('win_vulkan_sdk')
-    else:
-      make_cmd = ['make']
-    cmd = make_cmd + [target]
-    try:
-      self.m.run(self.m.step, 'build %s' % target, cmd=cmd,
-                 env=env, cwd=self.m.path['checkout'], **kwargs)
-    except self.m.step.StepFailure:
-      if self.m.platform.is_win:
-        # The linker occasionally crashes on Windows. Try again.
-        self.m.run(self.m.step, 'build %s' % target, cmd=cmd,
-                   env=env, cwd=self.m.path['checkout'], **kwargs)
-      else:
-        raise
-
   def copy_extra_build_products(self, swarming_out_dir):
-    """Copy extra build products to specified directory.
-
-    Copy flavor-specific build products to swarming_out_dir for use in test and
-    perf steps."""
-    if ("Win" in self.m.vars.builder_name and
-        "Vulkan" in self.m.vars.builder_name):
-      # This copies vulkan-1.dll that has been bundled into win_vulkan_sdk
-      # since version 2  See skia/api BUILD_PRODUCTS_ISOLATE_WHITELIST
-      self.m.run.copy_build_products(
-          self.m.path['slave_build'].join('win_vulkan_sdk'),
-          swarming_out_dir)
+    pass
 
   @property
   def out_dir(self):

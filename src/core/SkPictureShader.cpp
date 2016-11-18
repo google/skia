@@ -11,6 +11,7 @@
 #include "SkBitmapProcShader.h"
 #include "SkCanvas.h"
 #include "SkImage.h"
+#include "SkImageShader.h"
 #include "SkMatrixUtils.h"
 #include "SkPicture.h"
 #include "SkReadBuffer.h"
@@ -63,27 +64,27 @@ private:
 };
 
 struct BitmapShaderRec : public SkResourceCache::Rec {
-    BitmapShaderRec(const BitmapShaderKey& key, SkShader* tileShader, size_t bitmapBytes)
+    BitmapShaderRec(const BitmapShaderKey& key, SkShader* tileShader)
         : fKey(key)
-        , fShader(SkRef(tileShader))
-        , fBitmapBytes(bitmapBytes) {}
+        , fShader(SkRef(tileShader)) {}
 
-    BitmapShaderKey        fKey;
-    SkAutoTUnref<SkShader> fShader;
-    size_t                 fBitmapBytes;
+    BitmapShaderKey fKey;
+    sk_sp<SkShader> fShader;
+    size_t          fBitmapBytes;
 
     const Key& getKey() const override { return fKey; }
     size_t bytesUsed() const override {
-        return sizeof(fKey) + sizeof(SkShader) + fBitmapBytes;
+        // Just the record overhead -- the actual pixels are accounted by SkImageCacherator.
+        return sizeof(fKey) + sizeof(SkImageShader);
     }
     const char* getCategory() const override { return "bitmap-shader"; }
     SkDiscardableMemory* diagnostic_only_getDiscardable() const override { return nullptr; }
 
     static bool Visitor(const SkResourceCache::Rec& baseRec, void* contextShader) {
         const BitmapShaderRec& rec = static_cast<const BitmapShaderRec&>(baseRec);
-        SkAutoTUnref<SkShader>* result = reinterpret_cast<SkAutoTUnref<SkShader>*>(contextShader);
+        sk_sp<SkShader>* result = reinterpret_cast<sk_sp<SkShader>*>(contextShader);
 
-        result->reset(SkRef(rec.fShader.get()));
+        *result = rec.fShader;
 
         // The bitmap shader is backed by an image generator, thus it can always re-generate its
         // pixels if discarded.
@@ -233,9 +234,7 @@ sk_sp<SkShader> SkPictureShader::refBitmapShader(const SkMatrix& viewMatrix, con
         shaderMatrix.preScale(1 / tileScale.width(), 1 / tileScale.height());
         tileShader = tileImage->makeShader(fTmx, fTmy, &shaderMatrix);
 
-        const SkImageInfo tileInfo = SkImageInfo::MakeN32Premul(tileSize);
-        SkResourceCache::Add(new BitmapShaderRec(key, tileShader.get(),
-                                                 tileInfo.getSafeSize(tileInfo.minRowBytes())));
+        SkResourceCache::Add(new BitmapShaderRec(key, tileShader.get()));
     }
 
     return tileShader;
@@ -330,6 +329,6 @@ sk_sp<GrFragmentProcessor> SkPictureShader::asFragmentProcessor(const AsFPArgs& 
     }
     return bitmapShader->asFragmentProcessor(SkShader::AsFPArgs(
         args.fContext, args.fViewMatrix, nullptr, args.fFilterQuality, args.fDstColorSpace,
-        args.fGammaTreatment));
+        args.fColorMode));
 }
 #endif

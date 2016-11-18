@@ -1,9 +1,257 @@
 {
   "jobs": {
+    "Build-Mac-Clang-Arm7-Debug-iOS": {
+      "priority": 0.8,
+      "tasks": [
+        "Build-Mac-Clang-Arm7-Debug-iOS"
+      ]
+    },
+    "Build-Mac-Clang-Arm7-Release-iOS": {
+      "priority": 0.8,
+      "tasks": [
+        "Build-Mac-Clang-Arm7-Release-iOS"
+      ]
+    },
+    "Build-Mac-Clang-arm64-Debug-GN_iOS": {
+      "priority": 0.8,
+      "tasks": [
+        "Build-Mac-Clang-arm64-Debug-GN_iOS"
+      ]
+    },
+    "Build-Ubuntu-Clang-arm-Debug-GN_Android": {
+      "priority": 0.8,
+      "tasks": [
+        "Build-Ubuntu-Clang-arm-Debug-GN_Android"
+      ]
+    },
+    "Build-Ubuntu-Clang-arm-Release-GN_Android": {
+      "priority": 0.8,
+      "tasks": [
+        "Build-Ubuntu-Clang-arm-Release-GN_Android"
+      ]
+    },
+    "Build-Ubuntu-Clang-arm64-Debug-GN_Android": {
+      "priority": 0.8,
+      "tasks": [
+        "Build-Ubuntu-Clang-arm64-Debug-GN_Android"
+      ]
+    },
+    "Build-Ubuntu-Clang-arm64-Debug-GN_Android_Vulkan": {
+      "priority": 0.8,
+      "tasks": [
+        "Build-Ubuntu-Clang-arm64-Debug-GN_Android_Vulkan"
+      ]
+    },
+    "Build-Ubuntu-Clang-arm64-Release-GN_Android": {
+      "priority": 0.8,
+      "tasks": [
+        "Build-Ubuntu-Clang-arm64-Release-GN_Android"
+      ]
+    },
+    "Build-Ubuntu-Clang-arm64-Release-GN_Android_Vulkan": {
+      "priority": 0.8,
+      "tasks": [
+        "Build-Ubuntu-Clang-arm64-Release-GN_Android_Vulkan"
+      ]
+    },
     "Build-Ubuntu-GCC-x86_64-Release-GN": {
       "priority": 0.8,
       "tasks": [
         "Build-Ubuntu-GCC-x86_64-Release-GN"
+      ]
+    },
+    "Build-Win-Clang-arm64-Release-GN_Android": {
+      "priority": 0.8,
+      "tasks": [
+        "Build-Win-Clang-arm64-Release-GN_Android"
+      ]
+    },
+    "Housekeeper-Nightly-RecreateSKPs_Canary": {
+      "priority": 0.8,
+      "tasks": [
+        "Housekeeper-Nightly-RecreateSKPs_Canary"
+      ],
+      "trigger": "nightly"
+    },
+    "Housekeeper-PerCommit-InfraTests": {
+      "priority": 0.8,
+      "tasks": [
+        "Housekeeper-PerCommit-InfraTests"
+      ]
+    },
+    "Housekeeper-Weekly-RecreateSKPs": {
+      "priority": 0.8,
+      "tasks": [
+        "Housekeeper-Weekly-RecreateSKPs"
+      ],
+      "trigger": "weekly"
+    },
+    "Perf-Android-Clang-AndroidOne-CPU-MT6582-arm-Debug-GN_Android": {
+      "priority": 0.8,
+      "tasks": [
+        "Perf-Android-Clang-AndroidOne-CPU-MT6582-arm-Debug-GN_Android"
+      ]
+    },
+    "Perf-Android-Clang-AndroidOne-CPU-MT6582-arm-Release-GN_Android": {
+      "priority": 0.8,
+      "tasks": [
+        "Upload-Perf-Android-Clang-AndroidOne-CPU-MT6582-arm-Release-GN_Android"
+      ]
+    },
+    "Perf-Android-Clang-AndroidOne-GPU-Mali400MP2-arm-Debug-GN_Android": {
+      "priority": 0.8,
+      "tasks": [
+        "Perf-Android-Clang-AndroidOne-GPU-Mali400MP2-arm-Debug-GN_Android"
+      ]
+    },
+    "Perf-Android-Clang-AndroidOne-GPU-Mali400MP2-arm-Release-GN_Android": {
+      "priority": 0.8,
+      "tasks": [
+        "Upload-Perf-Android-Clang-AndroidOne-GPU-Mali400MP2-arm-Release-GN_Android"
+      ]
+    },
+    "Perf-Android-Clang-GalaxyS7-GPU-Adreno530-arm64-Debug-GN_Android": {
+      "priority": 0.8,
+      "tasks": [
+        "Perf-Android-Clang-GalaxyS7-GPU-Adreno530-arm64-Debug-GN_Android"
+      ]
+    },
+    "Perf-Android-Clang-GalaxyS7-GPU-Adreno530-arm64-Debug-GN_Android_Vulkan": {
+      "priority": 0.8,
+      "tasks": [
+        "Perf-Android-Clang-GalaxyS7-GPU-Adreno530-arm64-Debug-GN_Android_Vulkan"
+      ]
+    },
+    "Perf-Android-Clang-GalaxyS7-GPU-Adreno530-arm64-Release-GN_Android": {
+      "priority": 0.8,
+      "tasks": [
+        "Upload-Perf-Android-Clang-GalaxyS7-GPU-Adreno530-arm64-Release-GN_Android"
+      ]
+    },
+    "Perf-Android-Clang-GalaxyS7-GPU-Adreno530-arm64-Release-GN_Android_Vulkan": {
+      "priority": 0.8,
+      "tasks": [
+        "Upload-Perf-Android-Clang-GalaxyS7-GPU-Adreno530-arm64-Release-GN_Android_Vulkan"
+      ]
+    },
+    "Perf-Android-Clang-NVIDIA_Shield-GPU-TegraX1-arm64-Debug-GN_Android": {
+      "priority": 0.8,
+      "tasks": [
+        "Perf-Android-Clang-NVIDIA_Shield-GPU-TegraX1-arm64-Debug-GN_Android"
+      ]
+    },
+    "Perf-Android-Clang-NVIDIA_Shield-GPU-TegraX1-arm64-Debug-GN_Android_Vulkan": {
+      "priority": 0.8,
+      "tasks": [
+        "Perf-Android-Clang-NVIDIA_Shield-GPU-TegraX1-arm64-Debug-GN_Android_Vulkan"
+      ]
+    },
+    "Perf-Android-Clang-NVIDIA_Shield-GPU-TegraX1-arm64-Release-GN_Android": {
+      "priority": 0.8,
+      "tasks": [
+        "Upload-Perf-Android-Clang-NVIDIA_Shield-GPU-TegraX1-arm64-Release-GN_Android"
+      ]
+    },
+    "Perf-Android-Clang-NVIDIA_Shield-GPU-TegraX1-arm64-Release-GN_Android_Vulkan": {
+      "priority": 0.8,
+      "tasks": [
+        "Upload-Perf-Android-Clang-NVIDIA_Shield-GPU-TegraX1-arm64-Release-GN_Android_Vulkan"
+      ]
+    },
+    "Perf-Android-Clang-Nexus10-GPU-MaliT604-arm-Debug-GN_Android": {
+      "priority": 0.8,
+      "tasks": [
+        "Perf-Android-Clang-Nexus10-GPU-MaliT604-arm-Debug-GN_Android"
+      ]
+    },
+    "Perf-Android-Clang-Nexus10-GPU-MaliT604-arm-Release-GN_Android": {
+      "priority": 0.8,
+      "tasks": [
+        "Upload-Perf-Android-Clang-Nexus10-GPU-MaliT604-arm-Release-GN_Android"
+      ]
+    },
+    "Perf-Android-Clang-Nexus5-GPU-Adreno330-arm-Debug-GN_Android": {
+      "priority": 0.8,
+      "tasks": [
+        "Perf-Android-Clang-Nexus5-GPU-Adreno330-arm-Debug-GN_Android"
+      ]
+    },
+    "Perf-Android-Clang-Nexus5-GPU-Adreno330-arm-Release-GN_Android": {
+      "priority": 0.8,
+      "tasks": [
+        "Upload-Perf-Android-Clang-Nexus5-GPU-Adreno330-arm-Release-GN_Android"
+      ]
+    },
+    "Perf-Android-Clang-Nexus6p-CPU-Snapdragon810-arm64-Debug-GN_Android": {
+      "priority": 0.8,
+      "tasks": [
+        "Perf-Android-Clang-Nexus6p-CPU-Snapdragon810-arm64-Debug-GN_Android"
+      ]
+    },
+    "Perf-Android-Clang-Nexus6p-CPU-Snapdragon810-arm64-Release-GN_Android": {
+      "priority": 0.8,
+      "tasks": [
+        "Upload-Perf-Android-Clang-Nexus6p-CPU-Snapdragon810-arm64-Release-GN_Android"
+      ]
+    },
+    "Perf-Android-Clang-Nexus6p-GPU-Adreno430-arm64-Debug-GN_Android": {
+      "priority": 0.8,
+      "tasks": [
+        "Perf-Android-Clang-Nexus6p-GPU-Adreno430-arm64-Debug-GN_Android"
+      ]
+    },
+    "Perf-Android-Clang-Nexus6p-GPU-Adreno430-arm64-Debug-GN_Android_Vulkan": {
+      "priority": 0.8,
+      "tasks": [
+        "Perf-Android-Clang-Nexus6p-GPU-Adreno430-arm64-Debug-GN_Android_Vulkan"
+      ]
+    },
+    "Perf-Android-Clang-Nexus6p-GPU-Adreno430-arm64-Release-GN_Android": {
+      "priority": 0.8,
+      "tasks": [
+        "Upload-Perf-Android-Clang-Nexus6p-GPU-Adreno430-arm64-Release-GN_Android"
+      ]
+    },
+    "Perf-Android-Clang-Nexus6p-GPU-Adreno430-arm64-Release-GN_Android_Vulkan": {
+      "priority": 0.8,
+      "tasks": [
+        "Upload-Perf-Android-Clang-Nexus6p-GPU-Adreno430-arm64-Release-GN_Android_Vulkan"
+      ]
+    },
+    "Perf-Android-Clang-Nexus7-GPU-Tegra3-arm-Debug-GN_Android": {
+      "priority": 0.8,
+      "tasks": [
+        "Perf-Android-Clang-Nexus7-GPU-Tegra3-arm-Debug-GN_Android"
+      ]
+    },
+    "Perf-Android-Clang-Nexus7-GPU-Tegra3-arm-Release-GN_Android": {
+      "priority": 0.8,
+      "tasks": [
+        "Upload-Perf-Android-Clang-Nexus7-GPU-Tegra3-arm-Release-GN_Android"
+      ]
+    },
+    "Perf-Android-Clang-Nexus9-GPU-TegraK1-arm64-Debug-GN_Android": {
+      "priority": 0.8,
+      "tasks": [
+        "Perf-Android-Clang-Nexus9-GPU-TegraK1-arm64-Debug-GN_Android"
+      ]
+    },
+    "Perf-Android-Clang-Nexus9-GPU-TegraK1-arm64-Release-GN_Android": {
+      "priority": 0.8,
+      "tasks": [
+        "Upload-Perf-Android-Clang-Nexus9-GPU-TegraK1-arm64-Release-GN_Android"
+      ]
+    },
+    "Perf-Android-Clang-PixelC-GPU-TegraX1-arm64-Release-GN_Android_Skpbench": {
+      "priority": 0.8,
+      "tasks": [
+        "Upload-Perf-Android-Clang-PixelC-GPU-TegraX1-arm64-Release-GN_Android_Skpbench"
+      ]
+    },
+    "Perf-Android-Clang-PixelC-GPU-TegraX1-arm64-Release-GN_Android_Vulkan_Skpbench": {
+      "priority": 0.8,
+      "tasks": [
+        "Upload-Perf-Android-Clang-PixelC-GPU-TegraX1-arm64-Release-GN_Android_Vulkan_Skpbench"
       ]
     },
     "Perf-Ubuntu-GCC-GCE-CPU-AVX2-x86_64-Release-GN": {
@@ -12,14 +260,461 @@
         "Upload-Perf-Ubuntu-GCC-GCE-CPU-AVX2-x86_64-Release-GN"
       ]
     },
+    "Perf-iOS-Clang-iPadMini4-GPU-GX6450-Arm7-Debug": {
+      "priority": 0.8,
+      "tasks": [
+        "Perf-iOS-Clang-iPadMini4-GPU-GX6450-Arm7-Debug"
+      ]
+    },
+    "Perf-iOS-Clang-iPadMini4-GPU-GX6450-Arm7-Release": {
+      "priority": 0.8,
+      "tasks": [
+        "Upload-Perf-iOS-Clang-iPadMini4-GPU-GX6450-Arm7-Release"
+      ]
+    },
+    "Test-Android-Clang-AndroidOne-CPU-MT6582-arm-Debug-GN_Android": {
+      "priority": 0.8,
+      "tasks": [
+        "Upload-Test-Android-Clang-AndroidOne-CPU-MT6582-arm-Debug-GN_Android"
+      ]
+    },
+    "Test-Android-Clang-AndroidOne-CPU-MT6582-arm-Release-GN_Android": {
+      "priority": 0.8,
+      "tasks": [
+        "Upload-Test-Android-Clang-AndroidOne-CPU-MT6582-arm-Release-GN_Android"
+      ]
+    },
+    "Test-Android-Clang-AndroidOne-GPU-Mali400MP2-arm-Debug-GN_Android": {
+      "priority": 0.8,
+      "tasks": [
+        "Upload-Test-Android-Clang-AndroidOne-GPU-Mali400MP2-arm-Debug-GN_Android"
+      ]
+    },
+    "Test-Android-Clang-AndroidOne-GPU-Mali400MP2-arm-Release-GN_Android": {
+      "priority": 0.8,
+      "tasks": [
+        "Upload-Test-Android-Clang-AndroidOne-GPU-Mali400MP2-arm-Release-GN_Android"
+      ]
+    },
+    "Test-Android-Clang-GalaxyS7-GPU-Adreno530-arm64-Debug-GN_Android": {
+      "priority": 0.8,
+      "tasks": [
+        "Upload-Test-Android-Clang-GalaxyS7-GPU-Adreno530-arm64-Debug-GN_Android"
+      ]
+    },
+    "Test-Android-Clang-GalaxyS7-GPU-Adreno530-arm64-Debug-GN_Android_Vulkan": {
+      "priority": 0.8,
+      "tasks": [
+        "Upload-Test-Android-Clang-GalaxyS7-GPU-Adreno530-arm64-Debug-GN_Android_Vulkan"
+      ]
+    },
+    "Test-Android-Clang-GalaxyS7-GPU-Adreno530-arm64-Release-GN_Android": {
+      "priority": 0.8,
+      "tasks": [
+        "Upload-Test-Android-Clang-GalaxyS7-GPU-Adreno530-arm64-Release-GN_Android"
+      ]
+    },
+    "Test-Android-Clang-GalaxyS7-GPU-Adreno530-arm64-Release-GN_Android_Vulkan": {
+      "priority": 0.8,
+      "tasks": [
+        "Upload-Test-Android-Clang-GalaxyS7-GPU-Adreno530-arm64-Release-GN_Android_Vulkan"
+      ]
+    },
+    "Test-Android-Clang-NVIDIA_Shield-GPU-TegraX1-arm64-Debug-GN_Android": {
+      "priority": 0.8,
+      "tasks": [
+        "Upload-Test-Android-Clang-NVIDIA_Shield-GPU-TegraX1-arm64-Debug-GN_Android"
+      ]
+    },
+    "Test-Android-Clang-NVIDIA_Shield-GPU-TegraX1-arm64-Debug-GN_Android_Vulkan": {
+      "priority": 0.8,
+      "tasks": [
+        "Upload-Test-Android-Clang-NVIDIA_Shield-GPU-TegraX1-arm64-Debug-GN_Android_Vulkan"
+      ]
+    },
+    "Test-Android-Clang-NVIDIA_Shield-GPU-TegraX1-arm64-Release-GN_Android": {
+      "priority": 0.8,
+      "tasks": [
+        "Upload-Test-Android-Clang-NVIDIA_Shield-GPU-TegraX1-arm64-Release-GN_Android"
+      ]
+    },
+    "Test-Android-Clang-NVIDIA_Shield-GPU-TegraX1-arm64-Release-GN_Android_Vulkan": {
+      "priority": 0.8,
+      "tasks": [
+        "Upload-Test-Android-Clang-NVIDIA_Shield-GPU-TegraX1-arm64-Release-GN_Android_Vulkan"
+      ]
+    },
+    "Test-Android-Clang-Nexus10-GPU-MaliT604-arm-Debug-GN_Android": {
+      "priority": 0.8,
+      "tasks": [
+        "Upload-Test-Android-Clang-Nexus10-GPU-MaliT604-arm-Debug-GN_Android"
+      ]
+    },
+    "Test-Android-Clang-Nexus10-GPU-MaliT604-arm-Release-GN_Android": {
+      "priority": 0.8,
+      "tasks": [
+        "Upload-Test-Android-Clang-Nexus10-GPU-MaliT604-arm-Release-GN_Android"
+      ]
+    },
+    "Test-Android-Clang-Nexus5-GPU-Adreno330-arm-Debug-GN_Android": {
+      "priority": 0.8,
+      "tasks": [
+        "Upload-Test-Android-Clang-Nexus5-GPU-Adreno330-arm-Debug-GN_Android"
+      ]
+    },
+    "Test-Android-Clang-Nexus5-GPU-Adreno330-arm-Release-GN_Android": {
+      "priority": 0.8,
+      "tasks": [
+        "Upload-Test-Android-Clang-Nexus5-GPU-Adreno330-arm-Release-GN_Android"
+      ]
+    },
+    "Test-Android-Clang-Nexus6p-CPU-Snapdragon810-arm64-Debug-GN_Android": {
+      "priority": 0.8,
+      "tasks": [
+        "Upload-Test-Android-Clang-Nexus6p-CPU-Snapdragon810-arm64-Debug-GN_Android"
+      ]
+    },
+    "Test-Android-Clang-Nexus6p-CPU-Snapdragon810-arm64-Release-GN_Android": {
+      "priority": 0.8,
+      "tasks": [
+        "Upload-Test-Android-Clang-Nexus6p-CPU-Snapdragon810-arm64-Release-GN_Android"
+      ]
+    },
+    "Test-Android-Clang-Nexus6p-GPU-Adreno430-arm64-Debug-GN_Android": {
+      "priority": 0.8,
+      "tasks": [
+        "Upload-Test-Android-Clang-Nexus6p-GPU-Adreno430-arm64-Debug-GN_Android"
+      ]
+    },
+    "Test-Android-Clang-Nexus6p-GPU-Adreno430-arm64-Debug-GN_Android_Vulkan": {
+      "priority": 0.8,
+      "tasks": [
+        "Upload-Test-Android-Clang-Nexus6p-GPU-Adreno430-arm64-Debug-GN_Android_Vulkan"
+      ]
+    },
+    "Test-Android-Clang-Nexus6p-GPU-Adreno430-arm64-Release-GN_Android": {
+      "priority": 0.8,
+      "tasks": [
+        "Upload-Test-Android-Clang-Nexus6p-GPU-Adreno430-arm64-Release-GN_Android"
+      ]
+    },
+    "Test-Android-Clang-Nexus6p-GPU-Adreno430-arm64-Release-GN_Android_Vulkan": {
+      "priority": 0.8,
+      "tasks": [
+        "Upload-Test-Android-Clang-Nexus6p-GPU-Adreno430-arm64-Release-GN_Android_Vulkan"
+      ]
+    },
+    "Test-Android-Clang-Nexus7-GPU-Tegra3-arm-Debug-GN_Android": {
+      "priority": 0.8,
+      "tasks": [
+        "Upload-Test-Android-Clang-Nexus7-GPU-Tegra3-arm-Debug-GN_Android"
+      ]
+    },
+    "Test-Android-Clang-Nexus7-GPU-Tegra3-arm-Release-GN_Android": {
+      "priority": 0.8,
+      "tasks": [
+        "Upload-Test-Android-Clang-Nexus7-GPU-Tegra3-arm-Release-GN_Android"
+      ]
+    },
+    "Test-Android-Clang-Nexus9-GPU-TegraK1-arm64-Debug-GN_Android": {
+      "priority": 0.8,
+      "tasks": [
+        "Upload-Test-Android-Clang-Nexus9-GPU-TegraK1-arm64-Debug-GN_Android"
+      ]
+    },
+    "Test-Android-Clang-Nexus9-GPU-TegraK1-arm64-Release-GN_Android": {
+      "priority": 0.8,
+      "tasks": [
+        "Upload-Test-Android-Clang-Nexus9-GPU-TegraK1-arm64-Release-GN_Android"
+      ]
+    },
     "Test-Ubuntu-GCC-GCE-CPU-AVX2-x86_64-Release-GN": {
       "priority": 0.8,
       "tasks": [
         "Upload-Test-Ubuntu-GCC-GCE-CPU-AVX2-x86_64-Release-GN"
       ]
+    },
+    "Test-iOS-Clang-iPadMini4-GPU-GX6450-Arm7-Debug": {
+      "priority": 0.8,
+      "tasks": [
+        "Upload-Test-iOS-Clang-iPadMini4-GPU-GX6450-Arm7-Debug"
+      ]
+    },
+    "Test-iOS-Clang-iPadMini4-GPU-GX6450-Arm7-Release": {
+      "priority": 0.8,
+      "tasks": [
+        "Upload-Test-iOS-Clang-iPadMini4-GPU-GX6450-Arm7-Release"
+      ]
     }
   },
   "tasks": {
+    "Build-Mac-Clang-Arm7-Debug-iOS": {
+      "dimensions": [
+        "gpu:none",
+        "os:Mac",
+        "pool:Skia"
+      ],
+      "extra_args": [
+        "--workdir",
+        "../../..",
+        "swarm_compile",
+        "repository=<(REPO)",
+        "buildername=Build-Mac-Clang-Arm7-Debug-iOS",
+        "mastername=fake-master",
+        "buildnumber=2",
+        "slavename=fake-buildslave",
+        "nobuildbot=True",
+        "swarm_out_dir=${ISOLATED_OUTDIR}",
+        "revision=<(REVISION)",
+        "patch_storage=<(PATCH_STORAGE)",
+        "patch_issue=<(ISSUE)",
+        "patch_set=<(PATCHSET)"
+      ],
+      "isolate": "compile_skia.isolate",
+      "priority": 0.8
+    },
+    "Build-Mac-Clang-Arm7-Release-iOS": {
+      "dimensions": [
+        "gpu:none",
+        "os:Mac",
+        "pool:Skia"
+      ],
+      "extra_args": [
+        "--workdir",
+        "../../..",
+        "swarm_compile",
+        "repository=<(REPO)",
+        "buildername=Build-Mac-Clang-Arm7-Release-iOS",
+        "mastername=fake-master",
+        "buildnumber=2",
+        "slavename=fake-buildslave",
+        "nobuildbot=True",
+        "swarm_out_dir=${ISOLATED_OUTDIR}",
+        "revision=<(REVISION)",
+        "patch_storage=<(PATCH_STORAGE)",
+        "patch_issue=<(ISSUE)",
+        "patch_set=<(PATCHSET)"
+      ],
+      "isolate": "compile_skia.isolate",
+      "priority": 0.8
+    },
+    "Build-Mac-Clang-arm64-Debug-GN_iOS": {
+      "dimensions": [
+        "gpu:none",
+        "os:Mac",
+        "pool:Skia"
+      ],
+      "extra_args": [
+        "--workdir",
+        "../../..",
+        "swarm_compile",
+        "repository=<(REPO)",
+        "buildername=Build-Mac-Clang-arm64-Debug-GN_iOS",
+        "mastername=fake-master",
+        "buildnumber=2",
+        "slavename=fake-buildslave",
+        "nobuildbot=True",
+        "swarm_out_dir=${ISOLATED_OUTDIR}",
+        "revision=<(REVISION)",
+        "patch_storage=<(PATCH_STORAGE)",
+        "patch_issue=<(ISSUE)",
+        "patch_set=<(PATCHSET)"
+      ],
+      "isolate": "compile_skia.isolate",
+      "priority": 0.8
+    },
+    "Build-Ubuntu-Clang-arm-Debug-GN_Android": {
+      "cipd_packages": [
+        {
+          "name": "skia/bots/android_ndk_linux",
+          "path": "android_ndk_linux",
+          "version": "version:5"
+        }
+      ],
+      "dimensions": [
+        "gpu:none",
+        "os:Ubuntu",
+        "pool:Skia"
+      ],
+      "extra_args": [
+        "--workdir",
+        "../../..",
+        "swarm_compile",
+        "repository=<(REPO)",
+        "buildername=Build-Ubuntu-Clang-arm-Debug-GN_Android",
+        "mastername=fake-master",
+        "buildnumber=2",
+        "slavename=fake-buildslave",
+        "nobuildbot=True",
+        "swarm_out_dir=${ISOLATED_OUTDIR}",
+        "revision=<(REVISION)",
+        "patch_storage=<(PATCH_STORAGE)",
+        "patch_issue=<(ISSUE)",
+        "patch_set=<(PATCHSET)"
+      ],
+      "isolate": "compile_skia.isolate",
+      "priority": 0.8
+    },
+    "Build-Ubuntu-Clang-arm-Release-GN_Android": {
+      "cipd_packages": [
+        {
+          "name": "skia/bots/android_ndk_linux",
+          "path": "android_ndk_linux",
+          "version": "version:5"
+        }
+      ],
+      "dimensions": [
+        "gpu:none",
+        "os:Ubuntu",
+        "pool:Skia"
+      ],
+      "extra_args": [
+        "--workdir",
+        "../../..",
+        "swarm_compile",
+        "repository=<(REPO)",
+        "buildername=Build-Ubuntu-Clang-arm-Release-GN_Android",
+        "mastername=fake-master",
+        "buildnumber=2",
+        "slavename=fake-buildslave",
+        "nobuildbot=True",
+        "swarm_out_dir=${ISOLATED_OUTDIR}",
+        "revision=<(REVISION)",
+        "patch_storage=<(PATCH_STORAGE)",
+        "patch_issue=<(ISSUE)",
+        "patch_set=<(PATCHSET)"
+      ],
+      "isolate": "compile_skia.isolate",
+      "priority": 0.8
+    },
+    "Build-Ubuntu-Clang-arm64-Debug-GN_Android": {
+      "cipd_packages": [
+        {
+          "name": "skia/bots/android_ndk_linux",
+          "path": "android_ndk_linux",
+          "version": "version:5"
+        }
+      ],
+      "dimensions": [
+        "gpu:none",
+        "os:Ubuntu",
+        "pool:Skia"
+      ],
+      "extra_args": [
+        "--workdir",
+        "../../..",
+        "swarm_compile",
+        "repository=<(REPO)",
+        "buildername=Build-Ubuntu-Clang-arm64-Debug-GN_Android",
+        "mastername=fake-master",
+        "buildnumber=2",
+        "slavename=fake-buildslave",
+        "nobuildbot=True",
+        "swarm_out_dir=${ISOLATED_OUTDIR}",
+        "revision=<(REVISION)",
+        "patch_storage=<(PATCH_STORAGE)",
+        "patch_issue=<(ISSUE)",
+        "patch_set=<(PATCHSET)"
+      ],
+      "isolate": "compile_skia.isolate",
+      "priority": 0.8
+    },
+    "Build-Ubuntu-Clang-arm64-Debug-GN_Android_Vulkan": {
+      "cipd_packages": [
+        {
+          "name": "skia/bots/android_ndk_linux",
+          "path": "android_ndk_linux",
+          "version": "version:5"
+        }
+      ],
+      "dimensions": [
+        "gpu:none",
+        "os:Ubuntu",
+        "pool:Skia"
+      ],
+      "extra_args": [
+        "--workdir",
+        "../../..",
+        "swarm_compile",
+        "repository=<(REPO)",
+        "buildername=Build-Ubuntu-Clang-arm64-Debug-GN_Android_Vulkan",
+        "mastername=fake-master",
+        "buildnumber=2",
+        "slavename=fake-buildslave",
+        "nobuildbot=True",
+        "swarm_out_dir=${ISOLATED_OUTDIR}",
+        "revision=<(REVISION)",
+        "patch_storage=<(PATCH_STORAGE)",
+        "patch_issue=<(ISSUE)",
+        "patch_set=<(PATCHSET)"
+      ],
+      "isolate": "compile_skia.isolate",
+      "priority": 0.8
+    },
+    "Build-Ubuntu-Clang-arm64-Release-GN_Android": {
+      "cipd_packages": [
+        {
+          "name": "skia/bots/android_ndk_linux",
+          "path": "android_ndk_linux",
+          "version": "version:5"
+        }
+      ],
+      "dimensions": [
+        "gpu:none",
+        "os:Ubuntu",
+        "pool:Skia"
+      ],
+      "extra_args": [
+        "--workdir",
+        "../../..",
+        "swarm_compile",
+        "repository=<(REPO)",
+        "buildername=Build-Ubuntu-Clang-arm64-Release-GN_Android",
+        "mastername=fake-master",
+        "buildnumber=2",
+        "slavename=fake-buildslave",
+        "nobuildbot=True",
+        "swarm_out_dir=${ISOLATED_OUTDIR}",
+        "revision=<(REVISION)",
+        "patch_storage=<(PATCH_STORAGE)",
+        "patch_issue=<(ISSUE)",
+        "patch_set=<(PATCHSET)"
+      ],
+      "isolate": "compile_skia.isolate",
+      "priority": 0.8
+    },
+    "Build-Ubuntu-Clang-arm64-Release-GN_Android_Vulkan": {
+      "cipd_packages": [
+        {
+          "name": "skia/bots/android_ndk_linux",
+          "path": "android_ndk_linux",
+          "version": "version:5"
+        }
+      ],
+      "dimensions": [
+        "gpu:none",
+        "os:Ubuntu",
+        "pool:Skia"
+      ],
+      "extra_args": [
+        "--workdir",
+        "../../..",
+        "swarm_compile",
+        "repository=<(REPO)",
+        "buildername=Build-Ubuntu-Clang-arm64-Release-GN_Android_Vulkan",
+        "mastername=fake-master",
+        "buildnumber=2",
+        "slavename=fake-buildslave",
+        "nobuildbot=True",
+        "swarm_out_dir=${ISOLATED_OUTDIR}",
+        "revision=<(REVISION)",
+        "patch_storage=<(PATCH_STORAGE)",
+        "patch_issue=<(ISSUE)",
+        "patch_set=<(PATCHSET)"
+      ],
+      "isolate": "compile_skia.isolate",
+      "priority": 0.8
+    },
     "Build-Ubuntu-GCC-x86_64-Release-GN": {
       "dimensions": [
         "gpu:none",
@@ -30,14 +725,1485 @@
         "--workdir",
         "../../..",
         "swarm_compile",
+        "repository=<(REPO)",
         "buildername=Build-Ubuntu-GCC-x86_64-Release-GN",
         "mastername=fake-master",
         "buildnumber=2",
         "slavename=fake-buildslave",
+        "nobuildbot=True",
         "swarm_out_dir=${ISOLATED_OUTDIR}",
-        "revision=<(REVISION)"
+        "revision=<(REVISION)",
+        "patch_storage=<(PATCH_STORAGE)",
+        "patch_issue=<(ISSUE)",
+        "patch_set=<(PATCHSET)"
       ],
       "isolate": "compile_skia.isolate",
+      "priority": 0.8
+    },
+    "Build-Win-Clang-arm64-Release-GN_Android": {
+      "cipd_packages": [
+        {
+          "name": "skia/bots/android_ndk_windows",
+          "path": "n",
+          "version": "version:2"
+        }
+      ],
+      "dimensions": [
+        "gpu:none",
+        "os:Windows",
+        "pool:Skia"
+      ],
+      "extra_args": [
+        "--workdir",
+        "../../..",
+        "swarm_compile",
+        "repository=<(REPO)",
+        "buildername=Build-Win-Clang-arm64-Release-GN_Android",
+        "mastername=fake-master",
+        "buildnumber=2",
+        "slavename=fake-buildslave",
+        "nobuildbot=True",
+        "swarm_out_dir=${ISOLATED_OUTDIR}",
+        "revision=<(REVISION)",
+        "patch_storage=<(PATCH_STORAGE)",
+        "patch_issue=<(ISSUE)",
+        "patch_set=<(PATCHSET)"
+      ],
+      "isolate": "compile_skia.isolate",
+      "priority": 0.8
+    },
+    "Housekeeper-Nightly-RecreateSKPs_Canary": {
+      "dimensions": [
+        "cpu:x86-64-avx2",
+        "gpu:none",
+        "os:Ubuntu",
+        "pool:Skia"
+      ],
+      "execution_timeout_ns": 14400000000000,
+      "extra_args": [
+        "--workdir",
+        "../../..",
+        "swarm_RecreateSKPs",
+        "repository=<(REPO)",
+        "buildername=Housekeeper-Nightly-RecreateSKPs_Canary",
+        "mastername=fake-master",
+        "buildnumber=2",
+        "slavename=fake-buildslave",
+        "nobuildbot=True",
+        "swarm_out_dir=${ISOLATED_OUTDIR}",
+        "revision=<(REVISION)",
+        "patch_storage=<(PATCH_STORAGE)",
+        "patch_issue=<(ISSUE)",
+        "patch_set=<(PATCHSET)"
+      ],
+      "io_timeout_ns": 2400000000000,
+      "isolate": "compile_skia.isolate",
+      "priority": 0.8
+    },
+    "Housekeeper-PerCommit-InfraTests": {
+      "dimensions": [
+        "cpu:x86-64-avx2",
+        "gpu:none",
+        "os:Ubuntu",
+        "pool:Skia"
+      ],
+      "extra_args": [
+        "--workdir",
+        "../../..",
+        "swarm_infra",
+        "repository=<(REPO)",
+        "buildername=Housekeeper-PerCommit-InfraTests",
+        "mastername=fake-master",
+        "buildnumber=2",
+        "slavename=fake-buildslave",
+        "nobuildbot=True",
+        "swarm_out_dir=${ISOLATED_OUTDIR}",
+        "revision=<(REVISION)",
+        "patch_storage=<(PATCH_STORAGE)",
+        "patch_issue=<(ISSUE)",
+        "patch_set=<(PATCHSET)"
+      ],
+      "isolate": "infra_skia.isolate",
+      "priority": 0.8
+    },
+    "Housekeeper-Weekly-RecreateSKPs": {
+      "dimensions": [
+        "cpu:x86-64-avx2",
+        "gpu:none",
+        "os:Ubuntu",
+        "pool:Skia"
+      ],
+      "execution_timeout_ns": 14400000000000,
+      "extra_args": [
+        "--workdir",
+        "../../..",
+        "swarm_RecreateSKPs",
+        "repository=<(REPO)",
+        "buildername=Housekeeper-Weekly-RecreateSKPs",
+        "mastername=fake-master",
+        "buildnumber=2",
+        "slavename=fake-buildslave",
+        "nobuildbot=True",
+        "swarm_out_dir=${ISOLATED_OUTDIR}",
+        "revision=<(REVISION)",
+        "patch_storage=<(PATCH_STORAGE)",
+        "patch_issue=<(ISSUE)",
+        "patch_set=<(PATCHSET)"
+      ],
+      "io_timeout_ns": 2400000000000,
+      "isolate": "compile_skia.isolate",
+      "priority": 0.8
+    },
+    "Perf-Android-Clang-AndroidOne-CPU-MT6582-arm-Debug-GN_Android": {
+      "cipd_packages": [
+        {
+          "name": "skia/bots/skimage",
+          "path": "skimage",
+          "version": "version:13"
+        },
+        {
+          "name": "skia/bots/skp",
+          "path": "skp",
+          "version": "version:15"
+        },
+        {
+          "name": "skia/bots/svg",
+          "path": "svg",
+          "version": "version:3"
+        }
+      ],
+      "dependencies": [
+        "Build-Ubuntu-Clang-arm-Debug-GN_Android"
+      ],
+      "dimensions": [
+        "device_os:MOB30Q",
+        "device_type:sprout",
+        "os:Android",
+        "pool:Skia"
+      ],
+      "execution_timeout_ns": 14400000000000,
+      "expiration_ns": 72000000000000,
+      "extra_args": [
+        "--workdir",
+        "../../..",
+        "swarm_perf",
+        "repository=<(REPO)",
+        "buildername=Perf-Android-Clang-AndroidOne-CPU-MT6582-arm-Debug-GN_Android",
+        "mastername=fake-master",
+        "buildnumber=2",
+        "slavename=fake-buildslave",
+        "nobuildbot=True",
+        "swarm_out_dir=${ISOLATED_OUTDIR}",
+        "revision=<(REVISION)",
+        "patch_storage=<(PATCH_STORAGE)",
+        "patch_issue=<(ISSUE)",
+        "patch_set=<(PATCHSET)"
+      ],
+      "io_timeout_ns": 2400000000000,
+      "isolate": "perf_skia.isolate",
+      "priority": 0.8
+    },
+    "Perf-Android-Clang-AndroidOne-CPU-MT6582-arm-Release-GN_Android": {
+      "cipd_packages": [
+        {
+          "name": "skia/bots/skimage",
+          "path": "skimage",
+          "version": "version:13"
+        },
+        {
+          "name": "skia/bots/skp",
+          "path": "skp",
+          "version": "version:15"
+        },
+        {
+          "name": "skia/bots/svg",
+          "path": "svg",
+          "version": "version:3"
+        }
+      ],
+      "dependencies": [
+        "Build-Ubuntu-Clang-arm-Release-GN_Android"
+      ],
+      "dimensions": [
+        "device_os:MOB30Q",
+        "device_type:sprout",
+        "os:Android",
+        "pool:Skia"
+      ],
+      "execution_timeout_ns": 14400000000000,
+      "expiration_ns": 72000000000000,
+      "extra_args": [
+        "--workdir",
+        "../../..",
+        "swarm_perf",
+        "repository=<(REPO)",
+        "buildername=Perf-Android-Clang-AndroidOne-CPU-MT6582-arm-Release-GN_Android",
+        "mastername=fake-master",
+        "buildnumber=2",
+        "slavename=fake-buildslave",
+        "nobuildbot=True",
+        "swarm_out_dir=${ISOLATED_OUTDIR}",
+        "revision=<(REVISION)",
+        "patch_storage=<(PATCH_STORAGE)",
+        "patch_issue=<(ISSUE)",
+        "patch_set=<(PATCHSET)"
+      ],
+      "io_timeout_ns": 2400000000000,
+      "isolate": "perf_skia.isolate",
+      "priority": 0.8
+    },
+    "Perf-Android-Clang-AndroidOne-GPU-Mali400MP2-arm-Debug-GN_Android": {
+      "cipd_packages": [
+        {
+          "name": "skia/bots/skimage",
+          "path": "skimage",
+          "version": "version:13"
+        },
+        {
+          "name": "skia/bots/skp",
+          "path": "skp",
+          "version": "version:15"
+        },
+        {
+          "name": "skia/bots/svg",
+          "path": "svg",
+          "version": "version:3"
+        }
+      ],
+      "dependencies": [
+        "Build-Ubuntu-Clang-arm-Debug-GN_Android"
+      ],
+      "dimensions": [
+        "device_os:MOB30Q",
+        "device_type:sprout",
+        "os:Android",
+        "pool:Skia"
+      ],
+      "execution_timeout_ns": 14400000000000,
+      "expiration_ns": 72000000000000,
+      "extra_args": [
+        "--workdir",
+        "../../..",
+        "swarm_perf",
+        "repository=<(REPO)",
+        "buildername=Perf-Android-Clang-AndroidOne-GPU-Mali400MP2-arm-Debug-GN_Android",
+        "mastername=fake-master",
+        "buildnumber=2",
+        "slavename=fake-buildslave",
+        "nobuildbot=True",
+        "swarm_out_dir=${ISOLATED_OUTDIR}",
+        "revision=<(REVISION)",
+        "patch_storage=<(PATCH_STORAGE)",
+        "patch_issue=<(ISSUE)",
+        "patch_set=<(PATCHSET)"
+      ],
+      "io_timeout_ns": 2400000000000,
+      "isolate": "perf_skia.isolate",
+      "priority": 0.8
+    },
+    "Perf-Android-Clang-AndroidOne-GPU-Mali400MP2-arm-Release-GN_Android": {
+      "cipd_packages": [
+        {
+          "name": "skia/bots/skimage",
+          "path": "skimage",
+          "version": "version:13"
+        },
+        {
+          "name": "skia/bots/skp",
+          "path": "skp",
+          "version": "version:15"
+        },
+        {
+          "name": "skia/bots/svg",
+          "path": "svg",
+          "version": "version:3"
+        }
+      ],
+      "dependencies": [
+        "Build-Ubuntu-Clang-arm-Release-GN_Android"
+      ],
+      "dimensions": [
+        "device_os:MOB30Q",
+        "device_type:sprout",
+        "os:Android",
+        "pool:Skia"
+      ],
+      "execution_timeout_ns": 14400000000000,
+      "expiration_ns": 72000000000000,
+      "extra_args": [
+        "--workdir",
+        "../../..",
+        "swarm_perf",
+        "repository=<(REPO)",
+        "buildername=Perf-Android-Clang-AndroidOne-GPU-Mali400MP2-arm-Release-GN_Android",
+        "mastername=fake-master",
+        "buildnumber=2",
+        "slavename=fake-buildslave",
+        "nobuildbot=True",
+        "swarm_out_dir=${ISOLATED_OUTDIR}",
+        "revision=<(REVISION)",
+        "patch_storage=<(PATCH_STORAGE)",
+        "patch_issue=<(ISSUE)",
+        "patch_set=<(PATCHSET)"
+      ],
+      "io_timeout_ns": 2400000000000,
+      "isolate": "perf_skia.isolate",
+      "priority": 0.8
+    },
+    "Perf-Android-Clang-GalaxyS7-GPU-Adreno530-arm64-Debug-GN_Android": {
+      "cipd_packages": [
+        {
+          "name": "skia/bots/skimage",
+          "path": "skimage",
+          "version": "version:13"
+        },
+        {
+          "name": "skia/bots/skp",
+          "path": "skp",
+          "version": "version:15"
+        },
+        {
+          "name": "skia/bots/svg",
+          "path": "svg",
+          "version": "version:3"
+        }
+      ],
+      "dependencies": [
+        "Build-Ubuntu-Clang-arm64-Debug-GN_Android"
+      ],
+      "dimensions": [
+        "device_os:MMB29M",
+        "device_type:heroqlteatt",
+        "os:Android",
+        "pool:Skia"
+      ],
+      "execution_timeout_ns": 14400000000000,
+      "expiration_ns": 72000000000000,
+      "extra_args": [
+        "--workdir",
+        "../../..",
+        "swarm_perf",
+        "repository=<(REPO)",
+        "buildername=Perf-Android-Clang-GalaxyS7-GPU-Adreno530-arm64-Debug-GN_Android",
+        "mastername=fake-master",
+        "buildnumber=2",
+        "slavename=fake-buildslave",
+        "nobuildbot=True",
+        "swarm_out_dir=${ISOLATED_OUTDIR}",
+        "revision=<(REVISION)",
+        "patch_storage=<(PATCH_STORAGE)",
+        "patch_issue=<(ISSUE)",
+        "patch_set=<(PATCHSET)"
+      ],
+      "io_timeout_ns": 2400000000000,
+      "isolate": "perf_skia.isolate",
+      "priority": 0.8
+    },
+    "Perf-Android-Clang-GalaxyS7-GPU-Adreno530-arm64-Debug-GN_Android_Vulkan": {
+      "cipd_packages": [
+        {
+          "name": "skia/bots/skimage",
+          "path": "skimage",
+          "version": "version:13"
+        },
+        {
+          "name": "skia/bots/skp",
+          "path": "skp",
+          "version": "version:15"
+        },
+        {
+          "name": "skia/bots/svg",
+          "path": "svg",
+          "version": "version:3"
+        }
+      ],
+      "dependencies": [
+        "Build-Ubuntu-Clang-arm64-Debug-GN_Android_Vulkan"
+      ],
+      "dimensions": [
+        "device_os:MMB29M",
+        "device_type:heroqlteatt",
+        "os:Android",
+        "pool:Skia"
+      ],
+      "execution_timeout_ns": 14400000000000,
+      "expiration_ns": 72000000000000,
+      "extra_args": [
+        "--workdir",
+        "../../..",
+        "swarm_perf",
+        "repository=<(REPO)",
+        "buildername=Perf-Android-Clang-GalaxyS7-GPU-Adreno530-arm64-Debug-GN_Android_Vulkan",
+        "mastername=fake-master",
+        "buildnumber=2",
+        "slavename=fake-buildslave",
+        "nobuildbot=True",
+        "swarm_out_dir=${ISOLATED_OUTDIR}",
+        "revision=<(REVISION)",
+        "patch_storage=<(PATCH_STORAGE)",
+        "patch_issue=<(ISSUE)",
+        "patch_set=<(PATCHSET)"
+      ],
+      "io_timeout_ns": 2400000000000,
+      "isolate": "perf_skia.isolate",
+      "priority": 0.8
+    },
+    "Perf-Android-Clang-GalaxyS7-GPU-Adreno530-arm64-Release-GN_Android": {
+      "cipd_packages": [
+        {
+          "name": "skia/bots/skimage",
+          "path": "skimage",
+          "version": "version:13"
+        },
+        {
+          "name": "skia/bots/skp",
+          "path": "skp",
+          "version": "version:15"
+        },
+        {
+          "name": "skia/bots/svg",
+          "path": "svg",
+          "version": "version:3"
+        }
+      ],
+      "dependencies": [
+        "Build-Ubuntu-Clang-arm64-Release-GN_Android"
+      ],
+      "dimensions": [
+        "device_os:MMB29M",
+        "device_type:heroqlteatt",
+        "os:Android",
+        "pool:Skia"
+      ],
+      "execution_timeout_ns": 14400000000000,
+      "expiration_ns": 72000000000000,
+      "extra_args": [
+        "--workdir",
+        "../../..",
+        "swarm_perf",
+        "repository=<(REPO)",
+        "buildername=Perf-Android-Clang-GalaxyS7-GPU-Adreno530-arm64-Release-GN_Android",
+        "mastername=fake-master",
+        "buildnumber=2",
+        "slavename=fake-buildslave",
+        "nobuildbot=True",
+        "swarm_out_dir=${ISOLATED_OUTDIR}",
+        "revision=<(REVISION)",
+        "patch_storage=<(PATCH_STORAGE)",
+        "patch_issue=<(ISSUE)",
+        "patch_set=<(PATCHSET)"
+      ],
+      "io_timeout_ns": 2400000000000,
+      "isolate": "perf_skia.isolate",
+      "priority": 0.8
+    },
+    "Perf-Android-Clang-GalaxyS7-GPU-Adreno530-arm64-Release-GN_Android_Vulkan": {
+      "cipd_packages": [
+        {
+          "name": "skia/bots/skimage",
+          "path": "skimage",
+          "version": "version:13"
+        },
+        {
+          "name": "skia/bots/skp",
+          "path": "skp",
+          "version": "version:15"
+        },
+        {
+          "name": "skia/bots/svg",
+          "path": "svg",
+          "version": "version:3"
+        }
+      ],
+      "dependencies": [
+        "Build-Ubuntu-Clang-arm64-Release-GN_Android_Vulkan"
+      ],
+      "dimensions": [
+        "device_os:MMB29M",
+        "device_type:heroqlteatt",
+        "os:Android",
+        "pool:Skia"
+      ],
+      "execution_timeout_ns": 14400000000000,
+      "expiration_ns": 72000000000000,
+      "extra_args": [
+        "--workdir",
+        "../../..",
+        "swarm_perf",
+        "repository=<(REPO)",
+        "buildername=Perf-Android-Clang-GalaxyS7-GPU-Adreno530-arm64-Release-GN_Android_Vulkan",
+        "mastername=fake-master",
+        "buildnumber=2",
+        "slavename=fake-buildslave",
+        "nobuildbot=True",
+        "swarm_out_dir=${ISOLATED_OUTDIR}",
+        "revision=<(REVISION)",
+        "patch_storage=<(PATCH_STORAGE)",
+        "patch_issue=<(ISSUE)",
+        "patch_set=<(PATCHSET)"
+      ],
+      "io_timeout_ns": 2400000000000,
+      "isolate": "perf_skia.isolate",
+      "priority": 0.8
+    },
+    "Perf-Android-Clang-NVIDIA_Shield-GPU-TegraX1-arm64-Debug-GN_Android": {
+      "cipd_packages": [
+        {
+          "name": "skia/bots/skimage",
+          "path": "skimage",
+          "version": "version:13"
+        },
+        {
+          "name": "skia/bots/skp",
+          "path": "skp",
+          "version": "version:15"
+        },
+        {
+          "name": "skia/bots/svg",
+          "path": "svg",
+          "version": "version:3"
+        }
+      ],
+      "dependencies": [
+        "Build-Ubuntu-Clang-arm64-Debug-GN_Android"
+      ],
+      "dimensions": [
+        "device_os:MRA58K",
+        "device_type:foster",
+        "os:Android",
+        "pool:Skia"
+      ],
+      "execution_timeout_ns": 14400000000000,
+      "expiration_ns": 72000000000000,
+      "extra_args": [
+        "--workdir",
+        "../../..",
+        "swarm_perf",
+        "repository=<(REPO)",
+        "buildername=Perf-Android-Clang-NVIDIA_Shield-GPU-TegraX1-arm64-Debug-GN_Android",
+        "mastername=fake-master",
+        "buildnumber=2",
+        "slavename=fake-buildslave",
+        "nobuildbot=True",
+        "swarm_out_dir=${ISOLATED_OUTDIR}",
+        "revision=<(REVISION)",
+        "patch_storage=<(PATCH_STORAGE)",
+        "patch_issue=<(ISSUE)",
+        "patch_set=<(PATCHSET)"
+      ],
+      "io_timeout_ns": 2400000000000,
+      "isolate": "perf_skia.isolate",
+      "priority": 0.8
+    },
+    "Perf-Android-Clang-NVIDIA_Shield-GPU-TegraX1-arm64-Debug-GN_Android_Vulkan": {
+      "cipd_packages": [
+        {
+          "name": "skia/bots/skimage",
+          "path": "skimage",
+          "version": "version:13"
+        },
+        {
+          "name": "skia/bots/skp",
+          "path": "skp",
+          "version": "version:15"
+        },
+        {
+          "name": "skia/bots/svg",
+          "path": "svg",
+          "version": "version:3"
+        }
+      ],
+      "dependencies": [
+        "Build-Ubuntu-Clang-arm64-Debug-GN_Android_Vulkan"
+      ],
+      "dimensions": [
+        "device_os:MRA58K",
+        "device_type:foster",
+        "os:Android",
+        "pool:Skia"
+      ],
+      "execution_timeout_ns": 14400000000000,
+      "expiration_ns": 72000000000000,
+      "extra_args": [
+        "--workdir",
+        "../../..",
+        "swarm_perf",
+        "repository=<(REPO)",
+        "buildername=Perf-Android-Clang-NVIDIA_Shield-GPU-TegraX1-arm64-Debug-GN_Android_Vulkan",
+        "mastername=fake-master",
+        "buildnumber=2",
+        "slavename=fake-buildslave",
+        "nobuildbot=True",
+        "swarm_out_dir=${ISOLATED_OUTDIR}",
+        "revision=<(REVISION)",
+        "patch_storage=<(PATCH_STORAGE)",
+        "patch_issue=<(ISSUE)",
+        "patch_set=<(PATCHSET)"
+      ],
+      "io_timeout_ns": 2400000000000,
+      "isolate": "perf_skia.isolate",
+      "priority": 0.8
+    },
+    "Perf-Android-Clang-NVIDIA_Shield-GPU-TegraX1-arm64-Release-GN_Android": {
+      "cipd_packages": [
+        {
+          "name": "skia/bots/skimage",
+          "path": "skimage",
+          "version": "version:13"
+        },
+        {
+          "name": "skia/bots/skp",
+          "path": "skp",
+          "version": "version:15"
+        },
+        {
+          "name": "skia/bots/svg",
+          "path": "svg",
+          "version": "version:3"
+        }
+      ],
+      "dependencies": [
+        "Build-Ubuntu-Clang-arm64-Release-GN_Android"
+      ],
+      "dimensions": [
+        "device_os:MRA58K",
+        "device_type:foster",
+        "os:Android",
+        "pool:Skia"
+      ],
+      "execution_timeout_ns": 14400000000000,
+      "expiration_ns": 72000000000000,
+      "extra_args": [
+        "--workdir",
+        "../../..",
+        "swarm_perf",
+        "repository=<(REPO)",
+        "buildername=Perf-Android-Clang-NVIDIA_Shield-GPU-TegraX1-arm64-Release-GN_Android",
+        "mastername=fake-master",
+        "buildnumber=2",
+        "slavename=fake-buildslave",
+        "nobuildbot=True",
+        "swarm_out_dir=${ISOLATED_OUTDIR}",
+        "revision=<(REVISION)",
+        "patch_storage=<(PATCH_STORAGE)",
+        "patch_issue=<(ISSUE)",
+        "patch_set=<(PATCHSET)"
+      ],
+      "io_timeout_ns": 2400000000000,
+      "isolate": "perf_skia.isolate",
+      "priority": 0.8
+    },
+    "Perf-Android-Clang-NVIDIA_Shield-GPU-TegraX1-arm64-Release-GN_Android_Vulkan": {
+      "cipd_packages": [
+        {
+          "name": "skia/bots/skimage",
+          "path": "skimage",
+          "version": "version:13"
+        },
+        {
+          "name": "skia/bots/skp",
+          "path": "skp",
+          "version": "version:15"
+        },
+        {
+          "name": "skia/bots/svg",
+          "path": "svg",
+          "version": "version:3"
+        }
+      ],
+      "dependencies": [
+        "Build-Ubuntu-Clang-arm64-Release-GN_Android_Vulkan"
+      ],
+      "dimensions": [
+        "device_os:MRA58K",
+        "device_type:foster",
+        "os:Android",
+        "pool:Skia"
+      ],
+      "execution_timeout_ns": 14400000000000,
+      "expiration_ns": 72000000000000,
+      "extra_args": [
+        "--workdir",
+        "../../..",
+        "swarm_perf",
+        "repository=<(REPO)",
+        "buildername=Perf-Android-Clang-NVIDIA_Shield-GPU-TegraX1-arm64-Release-GN_Android_Vulkan",
+        "mastername=fake-master",
+        "buildnumber=2",
+        "slavename=fake-buildslave",
+        "nobuildbot=True",
+        "swarm_out_dir=${ISOLATED_OUTDIR}",
+        "revision=<(REVISION)",
+        "patch_storage=<(PATCH_STORAGE)",
+        "patch_issue=<(ISSUE)",
+        "patch_set=<(PATCHSET)"
+      ],
+      "io_timeout_ns": 2400000000000,
+      "isolate": "perf_skia.isolate",
+      "priority": 0.8
+    },
+    "Perf-Android-Clang-Nexus10-GPU-MaliT604-arm-Debug-GN_Android": {
+      "cipd_packages": [
+        {
+          "name": "skia/bots/skimage",
+          "path": "skimage",
+          "version": "version:13"
+        },
+        {
+          "name": "skia/bots/skp",
+          "path": "skp",
+          "version": "version:15"
+        },
+        {
+          "name": "skia/bots/svg",
+          "path": "svg",
+          "version": "version:3"
+        }
+      ],
+      "dependencies": [
+        "Build-Ubuntu-Clang-arm-Debug-GN_Android"
+      ],
+      "dimensions": [
+        "device_os:LMY49J",
+        "device_type:manta",
+        "os:Android",
+        "pool:Skia"
+      ],
+      "execution_timeout_ns": 14400000000000,
+      "expiration_ns": 72000000000000,
+      "extra_args": [
+        "--workdir",
+        "../../..",
+        "swarm_perf",
+        "repository=<(REPO)",
+        "buildername=Perf-Android-Clang-Nexus10-GPU-MaliT604-arm-Debug-GN_Android",
+        "mastername=fake-master",
+        "buildnumber=2",
+        "slavename=fake-buildslave",
+        "nobuildbot=True",
+        "swarm_out_dir=${ISOLATED_OUTDIR}",
+        "revision=<(REVISION)",
+        "patch_storage=<(PATCH_STORAGE)",
+        "patch_issue=<(ISSUE)",
+        "patch_set=<(PATCHSET)"
+      ],
+      "io_timeout_ns": 2400000000000,
+      "isolate": "perf_skia.isolate",
+      "priority": 0.8
+    },
+    "Perf-Android-Clang-Nexus10-GPU-MaliT604-arm-Release-GN_Android": {
+      "cipd_packages": [
+        {
+          "name": "skia/bots/skimage",
+          "path": "skimage",
+          "version": "version:13"
+        },
+        {
+          "name": "skia/bots/skp",
+          "path": "skp",
+          "version": "version:15"
+        },
+        {
+          "name": "skia/bots/svg",
+          "path": "svg",
+          "version": "version:3"
+        }
+      ],
+      "dependencies": [
+        "Build-Ubuntu-Clang-arm-Release-GN_Android"
+      ],
+      "dimensions": [
+        "device_os:LMY49J",
+        "device_type:manta",
+        "os:Android",
+        "pool:Skia"
+      ],
+      "execution_timeout_ns": 14400000000000,
+      "expiration_ns": 72000000000000,
+      "extra_args": [
+        "--workdir",
+        "../../..",
+        "swarm_perf",
+        "repository=<(REPO)",
+        "buildername=Perf-Android-Clang-Nexus10-GPU-MaliT604-arm-Release-GN_Android",
+        "mastername=fake-master",
+        "buildnumber=2",
+        "slavename=fake-buildslave",
+        "nobuildbot=True",
+        "swarm_out_dir=${ISOLATED_OUTDIR}",
+        "revision=<(REVISION)",
+        "patch_storage=<(PATCH_STORAGE)",
+        "patch_issue=<(ISSUE)",
+        "patch_set=<(PATCHSET)"
+      ],
+      "io_timeout_ns": 2400000000000,
+      "isolate": "perf_skia.isolate",
+      "priority": 0.8
+    },
+    "Perf-Android-Clang-Nexus5-GPU-Adreno330-arm-Debug-GN_Android": {
+      "cipd_packages": [
+        {
+          "name": "skia/bots/skimage",
+          "path": "skimage",
+          "version": "version:13"
+        },
+        {
+          "name": "skia/bots/skp",
+          "path": "skp",
+          "version": "version:15"
+        },
+        {
+          "name": "skia/bots/svg",
+          "path": "svg",
+          "version": "version:3"
+        }
+      ],
+      "dependencies": [
+        "Build-Ubuntu-Clang-arm-Debug-GN_Android"
+      ],
+      "dimensions": [
+        "device_os:MOB31E",
+        "device_type:hammerhead",
+        "os:Android",
+        "pool:Skia"
+      ],
+      "execution_timeout_ns": 14400000000000,
+      "expiration_ns": 72000000000000,
+      "extra_args": [
+        "--workdir",
+        "../../..",
+        "swarm_perf",
+        "repository=<(REPO)",
+        "buildername=Perf-Android-Clang-Nexus5-GPU-Adreno330-arm-Debug-GN_Android",
+        "mastername=fake-master",
+        "buildnumber=2",
+        "slavename=fake-buildslave",
+        "nobuildbot=True",
+        "swarm_out_dir=${ISOLATED_OUTDIR}",
+        "revision=<(REVISION)",
+        "patch_storage=<(PATCH_STORAGE)",
+        "patch_issue=<(ISSUE)",
+        "patch_set=<(PATCHSET)"
+      ],
+      "io_timeout_ns": 2400000000000,
+      "isolate": "perf_skia.isolate",
+      "priority": 0.8
+    },
+    "Perf-Android-Clang-Nexus5-GPU-Adreno330-arm-Release-GN_Android": {
+      "cipd_packages": [
+        {
+          "name": "skia/bots/skimage",
+          "path": "skimage",
+          "version": "version:13"
+        },
+        {
+          "name": "skia/bots/skp",
+          "path": "skp",
+          "version": "version:15"
+        },
+        {
+          "name": "skia/bots/svg",
+          "path": "svg",
+          "version": "version:3"
+        }
+      ],
+      "dependencies": [
+        "Build-Ubuntu-Clang-arm-Release-GN_Android"
+      ],
+      "dimensions": [
+        "device_os:MOB31E",
+        "device_type:hammerhead",
+        "os:Android",
+        "pool:Skia"
+      ],
+      "execution_timeout_ns": 14400000000000,
+      "expiration_ns": 72000000000000,
+      "extra_args": [
+        "--workdir",
+        "../../..",
+        "swarm_perf",
+        "repository=<(REPO)",
+        "buildername=Perf-Android-Clang-Nexus5-GPU-Adreno330-arm-Release-GN_Android",
+        "mastername=fake-master",
+        "buildnumber=2",
+        "slavename=fake-buildslave",
+        "nobuildbot=True",
+        "swarm_out_dir=${ISOLATED_OUTDIR}",
+        "revision=<(REVISION)",
+        "patch_storage=<(PATCH_STORAGE)",
+        "patch_issue=<(ISSUE)",
+        "patch_set=<(PATCHSET)"
+      ],
+      "io_timeout_ns": 2400000000000,
+      "isolate": "perf_skia.isolate",
+      "priority": 0.8
+    },
+    "Perf-Android-Clang-Nexus6p-CPU-Snapdragon810-arm64-Debug-GN_Android": {
+      "cipd_packages": [
+        {
+          "name": "skia/bots/skimage",
+          "path": "skimage",
+          "version": "version:13"
+        },
+        {
+          "name": "skia/bots/skp",
+          "path": "skp",
+          "version": "version:15"
+        },
+        {
+          "name": "skia/bots/svg",
+          "path": "svg",
+          "version": "version:3"
+        }
+      ],
+      "dependencies": [
+        "Build-Ubuntu-Clang-arm64-Debug-GN_Android"
+      ],
+      "dimensions": [
+        "device_os:NMF26C",
+        "device_type:angler",
+        "os:Android",
+        "pool:Skia"
+      ],
+      "execution_timeout_ns": 14400000000000,
+      "expiration_ns": 72000000000000,
+      "extra_args": [
+        "--workdir",
+        "../../..",
+        "swarm_perf",
+        "repository=<(REPO)",
+        "buildername=Perf-Android-Clang-Nexus6p-CPU-Snapdragon810-arm64-Debug-GN_Android",
+        "mastername=fake-master",
+        "buildnumber=2",
+        "slavename=fake-buildslave",
+        "nobuildbot=True",
+        "swarm_out_dir=${ISOLATED_OUTDIR}",
+        "revision=<(REVISION)",
+        "patch_storage=<(PATCH_STORAGE)",
+        "patch_issue=<(ISSUE)",
+        "patch_set=<(PATCHSET)"
+      ],
+      "io_timeout_ns": 2400000000000,
+      "isolate": "perf_skia.isolate",
+      "priority": 0.8
+    },
+    "Perf-Android-Clang-Nexus6p-CPU-Snapdragon810-arm64-Release-GN_Android": {
+      "cipd_packages": [
+        {
+          "name": "skia/bots/skimage",
+          "path": "skimage",
+          "version": "version:13"
+        },
+        {
+          "name": "skia/bots/skp",
+          "path": "skp",
+          "version": "version:15"
+        },
+        {
+          "name": "skia/bots/svg",
+          "path": "svg",
+          "version": "version:3"
+        }
+      ],
+      "dependencies": [
+        "Build-Ubuntu-Clang-arm64-Release-GN_Android"
+      ],
+      "dimensions": [
+        "device_os:NMF26C",
+        "device_type:angler",
+        "os:Android",
+        "pool:Skia"
+      ],
+      "execution_timeout_ns": 14400000000000,
+      "expiration_ns": 72000000000000,
+      "extra_args": [
+        "--workdir",
+        "../../..",
+        "swarm_perf",
+        "repository=<(REPO)",
+        "buildername=Perf-Android-Clang-Nexus6p-CPU-Snapdragon810-arm64-Release-GN_Android",
+        "mastername=fake-master",
+        "buildnumber=2",
+        "slavename=fake-buildslave",
+        "nobuildbot=True",
+        "swarm_out_dir=${ISOLATED_OUTDIR}",
+        "revision=<(REVISION)",
+        "patch_storage=<(PATCH_STORAGE)",
+        "patch_issue=<(ISSUE)",
+        "patch_set=<(PATCHSET)"
+      ],
+      "io_timeout_ns": 2400000000000,
+      "isolate": "perf_skia.isolate",
+      "priority": 0.8
+    },
+    "Perf-Android-Clang-Nexus6p-GPU-Adreno430-arm64-Debug-GN_Android": {
+      "cipd_packages": [
+        {
+          "name": "skia/bots/skimage",
+          "path": "skimage",
+          "version": "version:13"
+        },
+        {
+          "name": "skia/bots/skp",
+          "path": "skp",
+          "version": "version:15"
+        },
+        {
+          "name": "skia/bots/svg",
+          "path": "svg",
+          "version": "version:3"
+        }
+      ],
+      "dependencies": [
+        "Build-Ubuntu-Clang-arm64-Debug-GN_Android"
+      ],
+      "dimensions": [
+        "device_os:NMF26C",
+        "device_type:angler",
+        "os:Android",
+        "pool:Skia"
+      ],
+      "execution_timeout_ns": 14400000000000,
+      "expiration_ns": 72000000000000,
+      "extra_args": [
+        "--workdir",
+        "../../..",
+        "swarm_perf",
+        "repository=<(REPO)",
+        "buildername=Perf-Android-Clang-Nexus6p-GPU-Adreno430-arm64-Debug-GN_Android",
+        "mastername=fake-master",
+        "buildnumber=2",
+        "slavename=fake-buildslave",
+        "nobuildbot=True",
+        "swarm_out_dir=${ISOLATED_OUTDIR}",
+        "revision=<(REVISION)",
+        "patch_storage=<(PATCH_STORAGE)",
+        "patch_issue=<(ISSUE)",
+        "patch_set=<(PATCHSET)"
+      ],
+      "io_timeout_ns": 2400000000000,
+      "isolate": "perf_skia.isolate",
+      "priority": 0.8
+    },
+    "Perf-Android-Clang-Nexus6p-GPU-Adreno430-arm64-Debug-GN_Android_Vulkan": {
+      "cipd_packages": [
+        {
+          "name": "skia/bots/skimage",
+          "path": "skimage",
+          "version": "version:13"
+        },
+        {
+          "name": "skia/bots/skp",
+          "path": "skp",
+          "version": "version:15"
+        },
+        {
+          "name": "skia/bots/svg",
+          "path": "svg",
+          "version": "version:3"
+        }
+      ],
+      "dependencies": [
+        "Build-Ubuntu-Clang-arm64-Debug-GN_Android_Vulkan"
+      ],
+      "dimensions": [
+        "device_os:NMF26C",
+        "device_type:angler",
+        "os:Android",
+        "pool:Skia"
+      ],
+      "execution_timeout_ns": 14400000000000,
+      "expiration_ns": 72000000000000,
+      "extra_args": [
+        "--workdir",
+        "../../..",
+        "swarm_perf",
+        "repository=<(REPO)",
+        "buildername=Perf-Android-Clang-Nexus6p-GPU-Adreno430-arm64-Debug-GN_Android_Vulkan",
+        "mastername=fake-master",
+        "buildnumber=2",
+        "slavename=fake-buildslave",
+        "nobuildbot=True",
+        "swarm_out_dir=${ISOLATED_OUTDIR}",
+        "revision=<(REVISION)",
+        "patch_storage=<(PATCH_STORAGE)",
+        "patch_issue=<(ISSUE)",
+        "patch_set=<(PATCHSET)"
+      ],
+      "io_timeout_ns": 2400000000000,
+      "isolate": "perf_skia.isolate",
+      "priority": 0.8
+    },
+    "Perf-Android-Clang-Nexus6p-GPU-Adreno430-arm64-Release-GN_Android": {
+      "cipd_packages": [
+        {
+          "name": "skia/bots/skimage",
+          "path": "skimage",
+          "version": "version:13"
+        },
+        {
+          "name": "skia/bots/skp",
+          "path": "skp",
+          "version": "version:15"
+        },
+        {
+          "name": "skia/bots/svg",
+          "path": "svg",
+          "version": "version:3"
+        }
+      ],
+      "dependencies": [
+        "Build-Ubuntu-Clang-arm64-Release-GN_Android"
+      ],
+      "dimensions": [
+        "device_os:NMF26C",
+        "device_type:angler",
+        "os:Android",
+        "pool:Skia"
+      ],
+      "execution_timeout_ns": 14400000000000,
+      "expiration_ns": 72000000000000,
+      "extra_args": [
+        "--workdir",
+        "../../..",
+        "swarm_perf",
+        "repository=<(REPO)",
+        "buildername=Perf-Android-Clang-Nexus6p-GPU-Adreno430-arm64-Release-GN_Android",
+        "mastername=fake-master",
+        "buildnumber=2",
+        "slavename=fake-buildslave",
+        "nobuildbot=True",
+        "swarm_out_dir=${ISOLATED_OUTDIR}",
+        "revision=<(REVISION)",
+        "patch_storage=<(PATCH_STORAGE)",
+        "patch_issue=<(ISSUE)",
+        "patch_set=<(PATCHSET)"
+      ],
+      "io_timeout_ns": 2400000000000,
+      "isolate": "perf_skia.isolate",
+      "priority": 0.8
+    },
+    "Perf-Android-Clang-Nexus6p-GPU-Adreno430-arm64-Release-GN_Android_Vulkan": {
+      "cipd_packages": [
+        {
+          "name": "skia/bots/skimage",
+          "path": "skimage",
+          "version": "version:13"
+        },
+        {
+          "name": "skia/bots/skp",
+          "path": "skp",
+          "version": "version:15"
+        },
+        {
+          "name": "skia/bots/svg",
+          "path": "svg",
+          "version": "version:3"
+        }
+      ],
+      "dependencies": [
+        "Build-Ubuntu-Clang-arm64-Release-GN_Android_Vulkan"
+      ],
+      "dimensions": [
+        "device_os:NMF26C",
+        "device_type:angler",
+        "os:Android",
+        "pool:Skia"
+      ],
+      "execution_timeout_ns": 14400000000000,
+      "expiration_ns": 72000000000000,
+      "extra_args": [
+        "--workdir",
+        "../../..",
+        "swarm_perf",
+        "repository=<(REPO)",
+        "buildername=Perf-Android-Clang-Nexus6p-GPU-Adreno430-arm64-Release-GN_Android_Vulkan",
+        "mastername=fake-master",
+        "buildnumber=2",
+        "slavename=fake-buildslave",
+        "nobuildbot=True",
+        "swarm_out_dir=${ISOLATED_OUTDIR}",
+        "revision=<(REVISION)",
+        "patch_storage=<(PATCH_STORAGE)",
+        "patch_issue=<(ISSUE)",
+        "patch_set=<(PATCHSET)"
+      ],
+      "io_timeout_ns": 2400000000000,
+      "isolate": "perf_skia.isolate",
+      "priority": 0.8
+    },
+    "Perf-Android-Clang-Nexus7-GPU-Tegra3-arm-Debug-GN_Android": {
+      "cipd_packages": [
+        {
+          "name": "skia/bots/skimage",
+          "path": "skimage",
+          "version": "version:13"
+        },
+        {
+          "name": "skia/bots/skp",
+          "path": "skp",
+          "version": "version:15"
+        },
+        {
+          "name": "skia/bots/svg",
+          "path": "svg",
+          "version": "version:3"
+        }
+      ],
+      "dependencies": [
+        "Build-Ubuntu-Clang-arm-Debug-GN_Android"
+      ],
+      "dimensions": [
+        "device_os:LMY47V",
+        "device_type:grouper",
+        "os:Android",
+        "pool:Skia"
+      ],
+      "execution_timeout_ns": 14400000000000,
+      "expiration_ns": 72000000000000,
+      "extra_args": [
+        "--workdir",
+        "../../..",
+        "swarm_perf",
+        "repository=<(REPO)",
+        "buildername=Perf-Android-Clang-Nexus7-GPU-Tegra3-arm-Debug-GN_Android",
+        "mastername=fake-master",
+        "buildnumber=2",
+        "slavename=fake-buildslave",
+        "nobuildbot=True",
+        "swarm_out_dir=${ISOLATED_OUTDIR}",
+        "revision=<(REVISION)",
+        "patch_storage=<(PATCH_STORAGE)",
+        "patch_issue=<(ISSUE)",
+        "patch_set=<(PATCHSET)"
+      ],
+      "io_timeout_ns": 2400000000000,
+      "isolate": "perf_skia.isolate",
+      "priority": 0.8
+    },
+    "Perf-Android-Clang-Nexus7-GPU-Tegra3-arm-Release-GN_Android": {
+      "cipd_packages": [
+        {
+          "name": "skia/bots/skimage",
+          "path": "skimage",
+          "version": "version:13"
+        },
+        {
+          "name": "skia/bots/skp",
+          "path": "skp",
+          "version": "version:15"
+        },
+        {
+          "name": "skia/bots/svg",
+          "path": "svg",
+          "version": "version:3"
+        }
+      ],
+      "dependencies": [
+        "Build-Ubuntu-Clang-arm-Release-GN_Android"
+      ],
+      "dimensions": [
+        "device_os:LMY47V",
+        "device_type:grouper",
+        "os:Android",
+        "pool:Skia"
+      ],
+      "execution_timeout_ns": 14400000000000,
+      "expiration_ns": 72000000000000,
+      "extra_args": [
+        "--workdir",
+        "../../..",
+        "swarm_perf",
+        "repository=<(REPO)",
+        "buildername=Perf-Android-Clang-Nexus7-GPU-Tegra3-arm-Release-GN_Android",
+        "mastername=fake-master",
+        "buildnumber=2",
+        "slavename=fake-buildslave",
+        "nobuildbot=True",
+        "swarm_out_dir=${ISOLATED_OUTDIR}",
+        "revision=<(REVISION)",
+        "patch_storage=<(PATCH_STORAGE)",
+        "patch_issue=<(ISSUE)",
+        "patch_set=<(PATCHSET)"
+      ],
+      "io_timeout_ns": 2400000000000,
+      "isolate": "perf_skia.isolate",
+      "priority": 0.8
+    },
+    "Perf-Android-Clang-Nexus9-GPU-TegraK1-arm64-Debug-GN_Android": {
+      "cipd_packages": [
+        {
+          "name": "skia/bots/skimage",
+          "path": "skimage",
+          "version": "version:13"
+        },
+        {
+          "name": "skia/bots/skp",
+          "path": "skp",
+          "version": "version:15"
+        },
+        {
+          "name": "skia/bots/svg",
+          "path": "svg",
+          "version": "version:3"
+        }
+      ],
+      "dependencies": [
+        "Build-Ubuntu-Clang-arm64-Debug-GN_Android"
+      ],
+      "dimensions": [
+        "device_os:NRD91D",
+        "device_type:flounder",
+        "os:Android",
+        "pool:Skia"
+      ],
+      "execution_timeout_ns": 14400000000000,
+      "expiration_ns": 72000000000000,
+      "extra_args": [
+        "--workdir",
+        "../../..",
+        "swarm_perf",
+        "repository=<(REPO)",
+        "buildername=Perf-Android-Clang-Nexus9-GPU-TegraK1-arm64-Debug-GN_Android",
+        "mastername=fake-master",
+        "buildnumber=2",
+        "slavename=fake-buildslave",
+        "nobuildbot=True",
+        "swarm_out_dir=${ISOLATED_OUTDIR}",
+        "revision=<(REVISION)",
+        "patch_storage=<(PATCH_STORAGE)",
+        "patch_issue=<(ISSUE)",
+        "patch_set=<(PATCHSET)"
+      ],
+      "io_timeout_ns": 2400000000000,
+      "isolate": "perf_skia.isolate",
+      "priority": 0.8
+    },
+    "Perf-Android-Clang-Nexus9-GPU-TegraK1-arm64-Release-GN_Android": {
+      "cipd_packages": [
+        {
+          "name": "skia/bots/skimage",
+          "path": "skimage",
+          "version": "version:13"
+        },
+        {
+          "name": "skia/bots/skp",
+          "path": "skp",
+          "version": "version:15"
+        },
+        {
+          "name": "skia/bots/svg",
+          "path": "svg",
+          "version": "version:3"
+        }
+      ],
+      "dependencies": [
+        "Build-Ubuntu-Clang-arm64-Release-GN_Android"
+      ],
+      "dimensions": [
+        "device_os:NRD91D",
+        "device_type:flounder",
+        "os:Android",
+        "pool:Skia"
+      ],
+      "execution_timeout_ns": 14400000000000,
+      "expiration_ns": 72000000000000,
+      "extra_args": [
+        "--workdir",
+        "../../..",
+        "swarm_perf",
+        "repository=<(REPO)",
+        "buildername=Perf-Android-Clang-Nexus9-GPU-TegraK1-arm64-Release-GN_Android",
+        "mastername=fake-master",
+        "buildnumber=2",
+        "slavename=fake-buildslave",
+        "nobuildbot=True",
+        "swarm_out_dir=${ISOLATED_OUTDIR}",
+        "revision=<(REVISION)",
+        "patch_storage=<(PATCH_STORAGE)",
+        "patch_issue=<(ISSUE)",
+        "patch_set=<(PATCHSET)"
+      ],
+      "io_timeout_ns": 2400000000000,
+      "isolate": "perf_skia.isolate",
+      "priority": 0.8
+    },
+    "Perf-Android-Clang-PixelC-GPU-TegraX1-arm64-Release-GN_Android_Skpbench": {
+      "cipd_packages": [
+        {
+          "name": "skia/bots/skp",
+          "path": "skp",
+          "version": "version:15"
+        }
+      ],
+      "dependencies": [
+        "Build-Ubuntu-Clang-arm64-Release-GN_Android"
+      ],
+      "dimensions": [
+        "device_os:NMF26C",
+        "device_type:dragon",
+        "os:Android",
+        "pool:Skia"
+      ],
+      "execution_timeout_ns": 14400000000000,
+      "expiration_ns": 72000000000000,
+      "extra_args": [
+        "--workdir",
+        "../../..",
+        "swarm_skpbench",
+        "repository=<(REPO)",
+        "buildername=Perf-Android-Clang-PixelC-GPU-TegraX1-arm64-Release-GN_Android_Skpbench",
+        "mastername=fake-master",
+        "buildnumber=2",
+        "slavename=fake-buildslave",
+        "nobuildbot=True",
+        "swarm_out_dir=${ISOLATED_OUTDIR}",
+        "revision=<(REVISION)",
+        "patch_storage=<(PATCH_STORAGE)",
+        "patch_issue=<(ISSUE)",
+        "patch_set=<(PATCHSET)"
+      ],
+      "io_timeout_ns": 2400000000000,
+      "isolate": "skpbench_skia.isolate",
+      "priority": 0.8
+    },
+    "Perf-Android-Clang-PixelC-GPU-TegraX1-arm64-Release-GN_Android_Vulkan_Skpbench": {
+      "cipd_packages": [
+        {
+          "name": "skia/bots/skp",
+          "path": "skp",
+          "version": "version:15"
+        }
+      ],
+      "dependencies": [
+        "Build-Ubuntu-Clang-arm64-Release-GN_Android_Vulkan"
+      ],
+      "dimensions": [
+        "device_os:NMF26C",
+        "device_type:dragon",
+        "os:Android",
+        "pool:Skia"
+      ],
+      "execution_timeout_ns": 14400000000000,
+      "expiration_ns": 72000000000000,
+      "extra_args": [
+        "--workdir",
+        "../../..",
+        "swarm_skpbench",
+        "repository=<(REPO)",
+        "buildername=Perf-Android-Clang-PixelC-GPU-TegraX1-arm64-Release-GN_Android_Vulkan_Skpbench",
+        "mastername=fake-master",
+        "buildnumber=2",
+        "slavename=fake-buildslave",
+        "nobuildbot=True",
+        "swarm_out_dir=${ISOLATED_OUTDIR}",
+        "revision=<(REVISION)",
+        "patch_storage=<(PATCH_STORAGE)",
+        "patch_issue=<(ISSUE)",
+        "patch_set=<(PATCHSET)"
+      ],
+      "io_timeout_ns": 2400000000000,
+      "isolate": "skpbench_skia.isolate",
       "priority": 0.8
     },
     "Perf-Ubuntu-GCC-GCE-CPU-AVX2-x86_64-Release-GN": {
@@ -45,12 +2211,12 @@
         {
           "name": "skia/bots/skimage",
           "path": "skimage",
-          "version": "version:8"
+          "version": "version:13"
         },
         {
           "name": "skia/bots/skp",
           "path": "skp",
-          "version": "version:10"
+          "version": "version:15"
         },
         {
           "name": "skia/bots/svg",
@@ -67,18 +2233,1396 @@
         "os:Ubuntu",
         "pool:Skia"
       ],
+      "execution_timeout_ns": 14400000000000,
+      "expiration_ns": 72000000000000,
       "extra_args": [
         "--workdir",
         "../../..",
         "swarm_perf",
+        "repository=<(REPO)",
         "buildername=Perf-Ubuntu-GCC-GCE-CPU-AVX2-x86_64-Release-GN",
         "mastername=fake-master",
         "buildnumber=2",
         "slavename=fake-buildslave",
+        "nobuildbot=True",
         "swarm_out_dir=${ISOLATED_OUTDIR}",
-        "revision=<(REVISION)"
+        "revision=<(REVISION)",
+        "patch_storage=<(PATCH_STORAGE)",
+        "patch_issue=<(ISSUE)",
+        "patch_set=<(PATCHSET)"
       ],
+      "io_timeout_ns": 2400000000000,
       "isolate": "perf_skia.isolate",
+      "priority": 0.8
+    },
+    "Perf-iOS-Clang-iPadMini4-GPU-GX6450-Arm7-Debug": {
+      "cipd_packages": [
+        {
+          "name": "skia/bots/skimage",
+          "path": "skimage",
+          "version": "version:13"
+        },
+        {
+          "name": "skia/bots/skp",
+          "path": "skp",
+          "version": "version:15"
+        },
+        {
+          "name": "skia/bots/svg",
+          "path": "svg",
+          "version": "version:3"
+        }
+      ],
+      "dependencies": [
+        "Build-Mac-Clang-Arm7-Debug-iOS"
+      ],
+      "dimensions": [
+        "device:iPad5,1",
+        "os:iOS-9.3.1",
+        "pool:Skia"
+      ],
+      "execution_timeout_ns": 14400000000000,
+      "expiration_ns": 72000000000000,
+      "extra_args": [
+        "--workdir",
+        "../../..",
+        "swarm_perf",
+        "repository=<(REPO)",
+        "buildername=Perf-iOS-Clang-iPadMini4-GPU-GX6450-Arm7-Debug",
+        "mastername=fake-master",
+        "buildnumber=2",
+        "slavename=fake-buildslave",
+        "nobuildbot=True",
+        "swarm_out_dir=${ISOLATED_OUTDIR}",
+        "revision=<(REVISION)",
+        "patch_storage=<(PATCH_STORAGE)",
+        "patch_issue=<(ISSUE)",
+        "patch_set=<(PATCHSET)"
+      ],
+      "io_timeout_ns": 2400000000000,
+      "isolate": "perf_skia.isolate",
+      "priority": 0.8
+    },
+    "Perf-iOS-Clang-iPadMini4-GPU-GX6450-Arm7-Release": {
+      "cipd_packages": [
+        {
+          "name": "skia/bots/skimage",
+          "path": "skimage",
+          "version": "version:13"
+        },
+        {
+          "name": "skia/bots/skp",
+          "path": "skp",
+          "version": "version:15"
+        },
+        {
+          "name": "skia/bots/svg",
+          "path": "svg",
+          "version": "version:3"
+        }
+      ],
+      "dependencies": [
+        "Build-Mac-Clang-Arm7-Release-iOS"
+      ],
+      "dimensions": [
+        "device:iPad5,1",
+        "os:iOS-9.3.1",
+        "pool:Skia"
+      ],
+      "execution_timeout_ns": 14400000000000,
+      "expiration_ns": 72000000000000,
+      "extra_args": [
+        "--workdir",
+        "../../..",
+        "swarm_perf",
+        "repository=<(REPO)",
+        "buildername=Perf-iOS-Clang-iPadMini4-GPU-GX6450-Arm7-Release",
+        "mastername=fake-master",
+        "buildnumber=2",
+        "slavename=fake-buildslave",
+        "nobuildbot=True",
+        "swarm_out_dir=${ISOLATED_OUTDIR}",
+        "revision=<(REVISION)",
+        "patch_storage=<(PATCH_STORAGE)",
+        "patch_issue=<(ISSUE)",
+        "patch_set=<(PATCHSET)"
+      ],
+      "io_timeout_ns": 2400000000000,
+      "isolate": "perf_skia.isolate",
+      "priority": 0.8
+    },
+    "Test-Android-Clang-AndroidOne-CPU-MT6582-arm-Debug-GN_Android": {
+      "cipd_packages": [
+        {
+          "name": "skia/bots/skimage",
+          "path": "skimage",
+          "version": "version:13"
+        },
+        {
+          "name": "skia/bots/skp",
+          "path": "skp",
+          "version": "version:15"
+        },
+        {
+          "name": "skia/bots/svg",
+          "path": "svg",
+          "version": "version:3"
+        }
+      ],
+      "dependencies": [
+        "Build-Ubuntu-Clang-arm-Debug-GN_Android"
+      ],
+      "dimensions": [
+        "device_os:MOB30Q",
+        "device_type:sprout",
+        "os:Android",
+        "pool:Skia"
+      ],
+      "execution_timeout_ns": 14400000000000,
+      "expiration_ns": 72000000000000,
+      "extra_args": [
+        "--workdir",
+        "../../..",
+        "swarm_test",
+        "repository=<(REPO)",
+        "buildername=Test-Android-Clang-AndroidOne-CPU-MT6582-arm-Debug-GN_Android",
+        "mastername=fake-master",
+        "buildnumber=2",
+        "slavename=fake-buildslave",
+        "nobuildbot=True",
+        "swarm_out_dir=${ISOLATED_OUTDIR}",
+        "revision=<(REVISION)",
+        "patch_storage=<(PATCH_STORAGE)",
+        "patch_issue=<(ISSUE)",
+        "patch_set=<(PATCHSET)"
+      ],
+      "io_timeout_ns": 2400000000000,
+      "isolate": "test_skia.isolate",
+      "priority": 0.8
+    },
+    "Test-Android-Clang-AndroidOne-CPU-MT6582-arm-Release-GN_Android": {
+      "cipd_packages": [
+        {
+          "name": "skia/bots/skimage",
+          "path": "skimage",
+          "version": "version:13"
+        },
+        {
+          "name": "skia/bots/skp",
+          "path": "skp",
+          "version": "version:15"
+        },
+        {
+          "name": "skia/bots/svg",
+          "path": "svg",
+          "version": "version:3"
+        }
+      ],
+      "dependencies": [
+        "Build-Ubuntu-Clang-arm-Release-GN_Android"
+      ],
+      "dimensions": [
+        "device_os:MOB30Q",
+        "device_type:sprout",
+        "os:Android",
+        "pool:Skia"
+      ],
+      "execution_timeout_ns": 14400000000000,
+      "expiration_ns": 72000000000000,
+      "extra_args": [
+        "--workdir",
+        "../../..",
+        "swarm_test",
+        "repository=<(REPO)",
+        "buildername=Test-Android-Clang-AndroidOne-CPU-MT6582-arm-Release-GN_Android",
+        "mastername=fake-master",
+        "buildnumber=2",
+        "slavename=fake-buildslave",
+        "nobuildbot=True",
+        "swarm_out_dir=${ISOLATED_OUTDIR}",
+        "revision=<(REVISION)",
+        "patch_storage=<(PATCH_STORAGE)",
+        "patch_issue=<(ISSUE)",
+        "patch_set=<(PATCHSET)"
+      ],
+      "io_timeout_ns": 2400000000000,
+      "isolate": "test_skia.isolate",
+      "priority": 0.8
+    },
+    "Test-Android-Clang-AndroidOne-GPU-Mali400MP2-arm-Debug-GN_Android": {
+      "cipd_packages": [
+        {
+          "name": "skia/bots/skimage",
+          "path": "skimage",
+          "version": "version:13"
+        },
+        {
+          "name": "skia/bots/skp",
+          "path": "skp",
+          "version": "version:15"
+        },
+        {
+          "name": "skia/bots/svg",
+          "path": "svg",
+          "version": "version:3"
+        }
+      ],
+      "dependencies": [
+        "Build-Ubuntu-Clang-arm-Debug-GN_Android"
+      ],
+      "dimensions": [
+        "device_os:MOB30Q",
+        "device_type:sprout",
+        "os:Android",
+        "pool:Skia"
+      ],
+      "execution_timeout_ns": 14400000000000,
+      "expiration_ns": 72000000000000,
+      "extra_args": [
+        "--workdir",
+        "../../..",
+        "swarm_test",
+        "repository=<(REPO)",
+        "buildername=Test-Android-Clang-AndroidOne-GPU-Mali400MP2-arm-Debug-GN_Android",
+        "mastername=fake-master",
+        "buildnumber=2",
+        "slavename=fake-buildslave",
+        "nobuildbot=True",
+        "swarm_out_dir=${ISOLATED_OUTDIR}",
+        "revision=<(REVISION)",
+        "patch_storage=<(PATCH_STORAGE)",
+        "patch_issue=<(ISSUE)",
+        "patch_set=<(PATCHSET)"
+      ],
+      "io_timeout_ns": 2400000000000,
+      "isolate": "test_skia.isolate",
+      "priority": 0.8
+    },
+    "Test-Android-Clang-AndroidOne-GPU-Mali400MP2-arm-Release-GN_Android": {
+      "cipd_packages": [
+        {
+          "name": "skia/bots/skimage",
+          "path": "skimage",
+          "version": "version:13"
+        },
+        {
+          "name": "skia/bots/skp",
+          "path": "skp",
+          "version": "version:15"
+        },
+        {
+          "name": "skia/bots/svg",
+          "path": "svg",
+          "version": "version:3"
+        }
+      ],
+      "dependencies": [
+        "Build-Ubuntu-Clang-arm-Release-GN_Android"
+      ],
+      "dimensions": [
+        "device_os:MOB30Q",
+        "device_type:sprout",
+        "os:Android",
+        "pool:Skia"
+      ],
+      "execution_timeout_ns": 14400000000000,
+      "expiration_ns": 72000000000000,
+      "extra_args": [
+        "--workdir",
+        "../../..",
+        "swarm_test",
+        "repository=<(REPO)",
+        "buildername=Test-Android-Clang-AndroidOne-GPU-Mali400MP2-arm-Release-GN_Android",
+        "mastername=fake-master",
+        "buildnumber=2",
+        "slavename=fake-buildslave",
+        "nobuildbot=True",
+        "swarm_out_dir=${ISOLATED_OUTDIR}",
+        "revision=<(REVISION)",
+        "patch_storage=<(PATCH_STORAGE)",
+        "patch_issue=<(ISSUE)",
+        "patch_set=<(PATCHSET)"
+      ],
+      "io_timeout_ns": 2400000000000,
+      "isolate": "test_skia.isolate",
+      "priority": 0.8
+    },
+    "Test-Android-Clang-GalaxyS7-GPU-Adreno530-arm64-Debug-GN_Android": {
+      "cipd_packages": [
+        {
+          "name": "skia/bots/skimage",
+          "path": "skimage",
+          "version": "version:13"
+        },
+        {
+          "name": "skia/bots/skp",
+          "path": "skp",
+          "version": "version:15"
+        },
+        {
+          "name": "skia/bots/svg",
+          "path": "svg",
+          "version": "version:3"
+        }
+      ],
+      "dependencies": [
+        "Build-Ubuntu-Clang-arm64-Debug-GN_Android"
+      ],
+      "dimensions": [
+        "device_os:MMB29M",
+        "device_type:heroqlteatt",
+        "os:Android",
+        "pool:Skia"
+      ],
+      "execution_timeout_ns": 14400000000000,
+      "expiration_ns": 72000000000000,
+      "extra_args": [
+        "--workdir",
+        "../../..",
+        "swarm_test",
+        "repository=<(REPO)",
+        "buildername=Test-Android-Clang-GalaxyS7-GPU-Adreno530-arm64-Debug-GN_Android",
+        "mastername=fake-master",
+        "buildnumber=2",
+        "slavename=fake-buildslave",
+        "nobuildbot=True",
+        "swarm_out_dir=${ISOLATED_OUTDIR}",
+        "revision=<(REVISION)",
+        "patch_storage=<(PATCH_STORAGE)",
+        "patch_issue=<(ISSUE)",
+        "patch_set=<(PATCHSET)"
+      ],
+      "io_timeout_ns": 2400000000000,
+      "isolate": "test_skia.isolate",
+      "priority": 0.8
+    },
+    "Test-Android-Clang-GalaxyS7-GPU-Adreno530-arm64-Debug-GN_Android_Vulkan": {
+      "cipd_packages": [
+        {
+          "name": "skia/bots/skimage",
+          "path": "skimage",
+          "version": "version:13"
+        },
+        {
+          "name": "skia/bots/skp",
+          "path": "skp",
+          "version": "version:15"
+        },
+        {
+          "name": "skia/bots/svg",
+          "path": "svg",
+          "version": "version:3"
+        }
+      ],
+      "dependencies": [
+        "Build-Ubuntu-Clang-arm64-Debug-GN_Android_Vulkan"
+      ],
+      "dimensions": [
+        "device_os:MMB29M",
+        "device_type:heroqlteatt",
+        "os:Android",
+        "pool:Skia"
+      ],
+      "execution_timeout_ns": 14400000000000,
+      "expiration_ns": 72000000000000,
+      "extra_args": [
+        "--workdir",
+        "../../..",
+        "swarm_test",
+        "repository=<(REPO)",
+        "buildername=Test-Android-Clang-GalaxyS7-GPU-Adreno530-arm64-Debug-GN_Android_Vulkan",
+        "mastername=fake-master",
+        "buildnumber=2",
+        "slavename=fake-buildslave",
+        "nobuildbot=True",
+        "swarm_out_dir=${ISOLATED_OUTDIR}",
+        "revision=<(REVISION)",
+        "patch_storage=<(PATCH_STORAGE)",
+        "patch_issue=<(ISSUE)",
+        "patch_set=<(PATCHSET)"
+      ],
+      "io_timeout_ns": 2400000000000,
+      "isolate": "test_skia.isolate",
+      "priority": 0.8
+    },
+    "Test-Android-Clang-GalaxyS7-GPU-Adreno530-arm64-Release-GN_Android": {
+      "cipd_packages": [
+        {
+          "name": "skia/bots/skimage",
+          "path": "skimage",
+          "version": "version:13"
+        },
+        {
+          "name": "skia/bots/skp",
+          "path": "skp",
+          "version": "version:15"
+        },
+        {
+          "name": "skia/bots/svg",
+          "path": "svg",
+          "version": "version:3"
+        }
+      ],
+      "dependencies": [
+        "Build-Ubuntu-Clang-arm64-Release-GN_Android"
+      ],
+      "dimensions": [
+        "device_os:MMB29M",
+        "device_type:heroqlteatt",
+        "os:Android",
+        "pool:Skia"
+      ],
+      "execution_timeout_ns": 14400000000000,
+      "expiration_ns": 72000000000000,
+      "extra_args": [
+        "--workdir",
+        "../../..",
+        "swarm_test",
+        "repository=<(REPO)",
+        "buildername=Test-Android-Clang-GalaxyS7-GPU-Adreno530-arm64-Release-GN_Android",
+        "mastername=fake-master",
+        "buildnumber=2",
+        "slavename=fake-buildslave",
+        "nobuildbot=True",
+        "swarm_out_dir=${ISOLATED_OUTDIR}",
+        "revision=<(REVISION)",
+        "patch_storage=<(PATCH_STORAGE)",
+        "patch_issue=<(ISSUE)",
+        "patch_set=<(PATCHSET)"
+      ],
+      "io_timeout_ns": 2400000000000,
+      "isolate": "test_skia.isolate",
+      "priority": 0.8
+    },
+    "Test-Android-Clang-GalaxyS7-GPU-Adreno530-arm64-Release-GN_Android_Vulkan": {
+      "cipd_packages": [
+        {
+          "name": "skia/bots/skimage",
+          "path": "skimage",
+          "version": "version:13"
+        },
+        {
+          "name": "skia/bots/skp",
+          "path": "skp",
+          "version": "version:15"
+        },
+        {
+          "name": "skia/bots/svg",
+          "path": "svg",
+          "version": "version:3"
+        }
+      ],
+      "dependencies": [
+        "Build-Ubuntu-Clang-arm64-Release-GN_Android_Vulkan"
+      ],
+      "dimensions": [
+        "device_os:MMB29M",
+        "device_type:heroqlteatt",
+        "os:Android",
+        "pool:Skia"
+      ],
+      "execution_timeout_ns": 14400000000000,
+      "expiration_ns": 72000000000000,
+      "extra_args": [
+        "--workdir",
+        "../../..",
+        "swarm_test",
+        "repository=<(REPO)",
+        "buildername=Test-Android-Clang-GalaxyS7-GPU-Adreno530-arm64-Release-GN_Android_Vulkan",
+        "mastername=fake-master",
+        "buildnumber=2",
+        "slavename=fake-buildslave",
+        "nobuildbot=True",
+        "swarm_out_dir=${ISOLATED_OUTDIR}",
+        "revision=<(REVISION)",
+        "patch_storage=<(PATCH_STORAGE)",
+        "patch_issue=<(ISSUE)",
+        "patch_set=<(PATCHSET)"
+      ],
+      "io_timeout_ns": 2400000000000,
+      "isolate": "test_skia.isolate",
+      "priority": 0.8
+    },
+    "Test-Android-Clang-NVIDIA_Shield-GPU-TegraX1-arm64-Debug-GN_Android": {
+      "cipd_packages": [
+        {
+          "name": "skia/bots/skimage",
+          "path": "skimage",
+          "version": "version:13"
+        },
+        {
+          "name": "skia/bots/skp",
+          "path": "skp",
+          "version": "version:15"
+        },
+        {
+          "name": "skia/bots/svg",
+          "path": "svg",
+          "version": "version:3"
+        }
+      ],
+      "dependencies": [
+        "Build-Ubuntu-Clang-arm64-Debug-GN_Android"
+      ],
+      "dimensions": [
+        "device_os:MRA58K",
+        "device_type:foster",
+        "os:Android",
+        "pool:Skia"
+      ],
+      "execution_timeout_ns": 14400000000000,
+      "expiration_ns": 72000000000000,
+      "extra_args": [
+        "--workdir",
+        "../../..",
+        "swarm_test",
+        "repository=<(REPO)",
+        "buildername=Test-Android-Clang-NVIDIA_Shield-GPU-TegraX1-arm64-Debug-GN_Android",
+        "mastername=fake-master",
+        "buildnumber=2",
+        "slavename=fake-buildslave",
+        "nobuildbot=True",
+        "swarm_out_dir=${ISOLATED_OUTDIR}",
+        "revision=<(REVISION)",
+        "patch_storage=<(PATCH_STORAGE)",
+        "patch_issue=<(ISSUE)",
+        "patch_set=<(PATCHSET)"
+      ],
+      "io_timeout_ns": 2400000000000,
+      "isolate": "test_skia.isolate",
+      "priority": 0.8
+    },
+    "Test-Android-Clang-NVIDIA_Shield-GPU-TegraX1-arm64-Debug-GN_Android_Vulkan": {
+      "cipd_packages": [
+        {
+          "name": "skia/bots/skimage",
+          "path": "skimage",
+          "version": "version:13"
+        },
+        {
+          "name": "skia/bots/skp",
+          "path": "skp",
+          "version": "version:15"
+        },
+        {
+          "name": "skia/bots/svg",
+          "path": "svg",
+          "version": "version:3"
+        }
+      ],
+      "dependencies": [
+        "Build-Ubuntu-Clang-arm64-Debug-GN_Android_Vulkan"
+      ],
+      "dimensions": [
+        "device_os:MRA58K",
+        "device_type:foster",
+        "os:Android",
+        "pool:Skia"
+      ],
+      "execution_timeout_ns": 14400000000000,
+      "expiration_ns": 72000000000000,
+      "extra_args": [
+        "--workdir",
+        "../../..",
+        "swarm_test",
+        "repository=<(REPO)",
+        "buildername=Test-Android-Clang-NVIDIA_Shield-GPU-TegraX1-arm64-Debug-GN_Android_Vulkan",
+        "mastername=fake-master",
+        "buildnumber=2",
+        "slavename=fake-buildslave",
+        "nobuildbot=True",
+        "swarm_out_dir=${ISOLATED_OUTDIR}",
+        "revision=<(REVISION)",
+        "patch_storage=<(PATCH_STORAGE)",
+        "patch_issue=<(ISSUE)",
+        "patch_set=<(PATCHSET)"
+      ],
+      "io_timeout_ns": 2400000000000,
+      "isolate": "test_skia.isolate",
+      "priority": 0.8
+    },
+    "Test-Android-Clang-NVIDIA_Shield-GPU-TegraX1-arm64-Release-GN_Android": {
+      "cipd_packages": [
+        {
+          "name": "skia/bots/skimage",
+          "path": "skimage",
+          "version": "version:13"
+        },
+        {
+          "name": "skia/bots/skp",
+          "path": "skp",
+          "version": "version:15"
+        },
+        {
+          "name": "skia/bots/svg",
+          "path": "svg",
+          "version": "version:3"
+        }
+      ],
+      "dependencies": [
+        "Build-Ubuntu-Clang-arm64-Release-GN_Android"
+      ],
+      "dimensions": [
+        "device_os:MRA58K",
+        "device_type:foster",
+        "os:Android",
+        "pool:Skia"
+      ],
+      "execution_timeout_ns": 14400000000000,
+      "expiration_ns": 72000000000000,
+      "extra_args": [
+        "--workdir",
+        "../../..",
+        "swarm_test",
+        "repository=<(REPO)",
+        "buildername=Test-Android-Clang-NVIDIA_Shield-GPU-TegraX1-arm64-Release-GN_Android",
+        "mastername=fake-master",
+        "buildnumber=2",
+        "slavename=fake-buildslave",
+        "nobuildbot=True",
+        "swarm_out_dir=${ISOLATED_OUTDIR}",
+        "revision=<(REVISION)",
+        "patch_storage=<(PATCH_STORAGE)",
+        "patch_issue=<(ISSUE)",
+        "patch_set=<(PATCHSET)"
+      ],
+      "io_timeout_ns": 2400000000000,
+      "isolate": "test_skia.isolate",
+      "priority": 0.8
+    },
+    "Test-Android-Clang-NVIDIA_Shield-GPU-TegraX1-arm64-Release-GN_Android_Vulkan": {
+      "cipd_packages": [
+        {
+          "name": "skia/bots/skimage",
+          "path": "skimage",
+          "version": "version:13"
+        },
+        {
+          "name": "skia/bots/skp",
+          "path": "skp",
+          "version": "version:15"
+        },
+        {
+          "name": "skia/bots/svg",
+          "path": "svg",
+          "version": "version:3"
+        }
+      ],
+      "dependencies": [
+        "Build-Ubuntu-Clang-arm64-Release-GN_Android_Vulkan"
+      ],
+      "dimensions": [
+        "device_os:MRA58K",
+        "device_type:foster",
+        "os:Android",
+        "pool:Skia"
+      ],
+      "execution_timeout_ns": 14400000000000,
+      "expiration_ns": 72000000000000,
+      "extra_args": [
+        "--workdir",
+        "../../..",
+        "swarm_test",
+        "repository=<(REPO)",
+        "buildername=Test-Android-Clang-NVIDIA_Shield-GPU-TegraX1-arm64-Release-GN_Android_Vulkan",
+        "mastername=fake-master",
+        "buildnumber=2",
+        "slavename=fake-buildslave",
+        "nobuildbot=True",
+        "swarm_out_dir=${ISOLATED_OUTDIR}",
+        "revision=<(REVISION)",
+        "patch_storage=<(PATCH_STORAGE)",
+        "patch_issue=<(ISSUE)",
+        "patch_set=<(PATCHSET)"
+      ],
+      "io_timeout_ns": 2400000000000,
+      "isolate": "test_skia.isolate",
+      "priority": 0.8
+    },
+    "Test-Android-Clang-Nexus10-GPU-MaliT604-arm-Debug-GN_Android": {
+      "cipd_packages": [
+        {
+          "name": "skia/bots/skimage",
+          "path": "skimage",
+          "version": "version:13"
+        },
+        {
+          "name": "skia/bots/skp",
+          "path": "skp",
+          "version": "version:15"
+        },
+        {
+          "name": "skia/bots/svg",
+          "path": "svg",
+          "version": "version:3"
+        }
+      ],
+      "dependencies": [
+        "Build-Ubuntu-Clang-arm-Debug-GN_Android"
+      ],
+      "dimensions": [
+        "device_os:LMY49J",
+        "device_type:manta",
+        "os:Android",
+        "pool:Skia"
+      ],
+      "execution_timeout_ns": 14400000000000,
+      "expiration_ns": 72000000000000,
+      "extra_args": [
+        "--workdir",
+        "../../..",
+        "swarm_test",
+        "repository=<(REPO)",
+        "buildername=Test-Android-Clang-Nexus10-GPU-MaliT604-arm-Debug-GN_Android",
+        "mastername=fake-master",
+        "buildnumber=2",
+        "slavename=fake-buildslave",
+        "nobuildbot=True",
+        "swarm_out_dir=${ISOLATED_OUTDIR}",
+        "revision=<(REVISION)",
+        "patch_storage=<(PATCH_STORAGE)",
+        "patch_issue=<(ISSUE)",
+        "patch_set=<(PATCHSET)"
+      ],
+      "io_timeout_ns": 2400000000000,
+      "isolate": "test_skia.isolate",
+      "priority": 0.8
+    },
+    "Test-Android-Clang-Nexus10-GPU-MaliT604-arm-Release-GN_Android": {
+      "cipd_packages": [
+        {
+          "name": "skia/bots/skimage",
+          "path": "skimage",
+          "version": "version:13"
+        },
+        {
+          "name": "skia/bots/skp",
+          "path": "skp",
+          "version": "version:15"
+        },
+        {
+          "name": "skia/bots/svg",
+          "path": "svg",
+          "version": "version:3"
+        }
+      ],
+      "dependencies": [
+        "Build-Ubuntu-Clang-arm-Release-GN_Android"
+      ],
+      "dimensions": [
+        "device_os:LMY49J",
+        "device_type:manta",
+        "os:Android",
+        "pool:Skia"
+      ],
+      "execution_timeout_ns": 14400000000000,
+      "expiration_ns": 72000000000000,
+      "extra_args": [
+        "--workdir",
+        "../../..",
+        "swarm_test",
+        "repository=<(REPO)",
+        "buildername=Test-Android-Clang-Nexus10-GPU-MaliT604-arm-Release-GN_Android",
+        "mastername=fake-master",
+        "buildnumber=2",
+        "slavename=fake-buildslave",
+        "nobuildbot=True",
+        "swarm_out_dir=${ISOLATED_OUTDIR}",
+        "revision=<(REVISION)",
+        "patch_storage=<(PATCH_STORAGE)",
+        "patch_issue=<(ISSUE)",
+        "patch_set=<(PATCHSET)"
+      ],
+      "io_timeout_ns": 2400000000000,
+      "isolate": "test_skia.isolate",
+      "priority": 0.8
+    },
+    "Test-Android-Clang-Nexus5-GPU-Adreno330-arm-Debug-GN_Android": {
+      "cipd_packages": [
+        {
+          "name": "skia/bots/skimage",
+          "path": "skimage",
+          "version": "version:13"
+        },
+        {
+          "name": "skia/bots/skp",
+          "path": "skp",
+          "version": "version:15"
+        },
+        {
+          "name": "skia/bots/svg",
+          "path": "svg",
+          "version": "version:3"
+        }
+      ],
+      "dependencies": [
+        "Build-Ubuntu-Clang-arm-Debug-GN_Android"
+      ],
+      "dimensions": [
+        "device_os:MOB31E",
+        "device_type:hammerhead",
+        "os:Android",
+        "pool:Skia"
+      ],
+      "execution_timeout_ns": 14400000000000,
+      "expiration_ns": 72000000000000,
+      "extra_args": [
+        "--workdir",
+        "../../..",
+        "swarm_test",
+        "repository=<(REPO)",
+        "buildername=Test-Android-Clang-Nexus5-GPU-Adreno330-arm-Debug-GN_Android",
+        "mastername=fake-master",
+        "buildnumber=2",
+        "slavename=fake-buildslave",
+        "nobuildbot=True",
+        "swarm_out_dir=${ISOLATED_OUTDIR}",
+        "revision=<(REVISION)",
+        "patch_storage=<(PATCH_STORAGE)",
+        "patch_issue=<(ISSUE)",
+        "patch_set=<(PATCHSET)"
+      ],
+      "io_timeout_ns": 2400000000000,
+      "isolate": "test_skia.isolate",
+      "priority": 0.8
+    },
+    "Test-Android-Clang-Nexus5-GPU-Adreno330-arm-Release-GN_Android": {
+      "cipd_packages": [
+        {
+          "name": "skia/bots/skimage",
+          "path": "skimage",
+          "version": "version:13"
+        },
+        {
+          "name": "skia/bots/skp",
+          "path": "skp",
+          "version": "version:15"
+        },
+        {
+          "name": "skia/bots/svg",
+          "path": "svg",
+          "version": "version:3"
+        }
+      ],
+      "dependencies": [
+        "Build-Ubuntu-Clang-arm-Release-GN_Android"
+      ],
+      "dimensions": [
+        "device_os:MOB31E",
+        "device_type:hammerhead",
+        "os:Android",
+        "pool:Skia"
+      ],
+      "execution_timeout_ns": 14400000000000,
+      "expiration_ns": 72000000000000,
+      "extra_args": [
+        "--workdir",
+        "../../..",
+        "swarm_test",
+        "repository=<(REPO)",
+        "buildername=Test-Android-Clang-Nexus5-GPU-Adreno330-arm-Release-GN_Android",
+        "mastername=fake-master",
+        "buildnumber=2",
+        "slavename=fake-buildslave",
+        "nobuildbot=True",
+        "swarm_out_dir=${ISOLATED_OUTDIR}",
+        "revision=<(REVISION)",
+        "patch_storage=<(PATCH_STORAGE)",
+        "patch_issue=<(ISSUE)",
+        "patch_set=<(PATCHSET)"
+      ],
+      "io_timeout_ns": 2400000000000,
+      "isolate": "test_skia.isolate",
+      "priority": 0.8
+    },
+    "Test-Android-Clang-Nexus6p-CPU-Snapdragon810-arm64-Debug-GN_Android": {
+      "cipd_packages": [
+        {
+          "name": "skia/bots/skimage",
+          "path": "skimage",
+          "version": "version:13"
+        },
+        {
+          "name": "skia/bots/skp",
+          "path": "skp",
+          "version": "version:15"
+        },
+        {
+          "name": "skia/bots/svg",
+          "path": "svg",
+          "version": "version:3"
+        }
+      ],
+      "dependencies": [
+        "Build-Ubuntu-Clang-arm64-Debug-GN_Android"
+      ],
+      "dimensions": [
+        "device_os:NMF26C",
+        "device_type:angler",
+        "os:Android",
+        "pool:Skia"
+      ],
+      "execution_timeout_ns": 14400000000000,
+      "expiration_ns": 72000000000000,
+      "extra_args": [
+        "--workdir",
+        "../../..",
+        "swarm_test",
+        "repository=<(REPO)",
+        "buildername=Test-Android-Clang-Nexus6p-CPU-Snapdragon810-arm64-Debug-GN_Android",
+        "mastername=fake-master",
+        "buildnumber=2",
+        "slavename=fake-buildslave",
+        "nobuildbot=True",
+        "swarm_out_dir=${ISOLATED_OUTDIR}",
+        "revision=<(REVISION)",
+        "patch_storage=<(PATCH_STORAGE)",
+        "patch_issue=<(ISSUE)",
+        "patch_set=<(PATCHSET)"
+      ],
+      "io_timeout_ns": 2400000000000,
+      "isolate": "test_skia.isolate",
+      "priority": 0.8
+    },
+    "Test-Android-Clang-Nexus6p-CPU-Snapdragon810-arm64-Release-GN_Android": {
+      "cipd_packages": [
+        {
+          "name": "skia/bots/skimage",
+          "path": "skimage",
+          "version": "version:13"
+        },
+        {
+          "name": "skia/bots/skp",
+          "path": "skp",
+          "version": "version:15"
+        },
+        {
+          "name": "skia/bots/svg",
+          "path": "svg",
+          "version": "version:3"
+        }
+      ],
+      "dependencies": [
+        "Build-Ubuntu-Clang-arm64-Release-GN_Android"
+      ],
+      "dimensions": [
+        "device_os:NMF26C",
+        "device_type:angler",
+        "os:Android",
+        "pool:Skia"
+      ],
+      "execution_timeout_ns": 14400000000000,
+      "expiration_ns": 72000000000000,
+      "extra_args": [
+        "--workdir",
+        "../../..",
+        "swarm_test",
+        "repository=<(REPO)",
+        "buildername=Test-Android-Clang-Nexus6p-CPU-Snapdragon810-arm64-Release-GN_Android",
+        "mastername=fake-master",
+        "buildnumber=2",
+        "slavename=fake-buildslave",
+        "nobuildbot=True",
+        "swarm_out_dir=${ISOLATED_OUTDIR}",
+        "revision=<(REVISION)",
+        "patch_storage=<(PATCH_STORAGE)",
+        "patch_issue=<(ISSUE)",
+        "patch_set=<(PATCHSET)"
+      ],
+      "io_timeout_ns": 2400000000000,
+      "isolate": "test_skia.isolate",
+      "priority": 0.8
+    },
+    "Test-Android-Clang-Nexus6p-GPU-Adreno430-arm64-Debug-GN_Android": {
+      "cipd_packages": [
+        {
+          "name": "skia/bots/skimage",
+          "path": "skimage",
+          "version": "version:13"
+        },
+        {
+          "name": "skia/bots/skp",
+          "path": "skp",
+          "version": "version:15"
+        },
+        {
+          "name": "skia/bots/svg",
+          "path": "svg",
+          "version": "version:3"
+        }
+      ],
+      "dependencies": [
+        "Build-Ubuntu-Clang-arm64-Debug-GN_Android"
+      ],
+      "dimensions": [
+        "device_os:NMF26C",
+        "device_type:angler",
+        "os:Android",
+        "pool:Skia"
+      ],
+      "execution_timeout_ns": 14400000000000,
+      "expiration_ns": 72000000000000,
+      "extra_args": [
+        "--workdir",
+        "../../..",
+        "swarm_test",
+        "repository=<(REPO)",
+        "buildername=Test-Android-Clang-Nexus6p-GPU-Adreno430-arm64-Debug-GN_Android",
+        "mastername=fake-master",
+        "buildnumber=2",
+        "slavename=fake-buildslave",
+        "nobuildbot=True",
+        "swarm_out_dir=${ISOLATED_OUTDIR}",
+        "revision=<(REVISION)",
+        "patch_storage=<(PATCH_STORAGE)",
+        "patch_issue=<(ISSUE)",
+        "patch_set=<(PATCHSET)"
+      ],
+      "io_timeout_ns": 2400000000000,
+      "isolate": "test_skia.isolate",
+      "priority": 0.8
+    },
+    "Test-Android-Clang-Nexus6p-GPU-Adreno430-arm64-Debug-GN_Android_Vulkan": {
+      "cipd_packages": [
+        {
+          "name": "skia/bots/skimage",
+          "path": "skimage",
+          "version": "version:13"
+        },
+        {
+          "name": "skia/bots/skp",
+          "path": "skp",
+          "version": "version:15"
+        },
+        {
+          "name": "skia/bots/svg",
+          "path": "svg",
+          "version": "version:3"
+        }
+      ],
+      "dependencies": [
+        "Build-Ubuntu-Clang-arm64-Debug-GN_Android_Vulkan"
+      ],
+      "dimensions": [
+        "device_os:NMF26C",
+        "device_type:angler",
+        "os:Android",
+        "pool:Skia"
+      ],
+      "execution_timeout_ns": 14400000000000,
+      "expiration_ns": 72000000000000,
+      "extra_args": [
+        "--workdir",
+        "../../..",
+        "swarm_test",
+        "repository=<(REPO)",
+        "buildername=Test-Android-Clang-Nexus6p-GPU-Adreno430-arm64-Debug-GN_Android_Vulkan",
+        "mastername=fake-master",
+        "buildnumber=2",
+        "slavename=fake-buildslave",
+        "nobuildbot=True",
+        "swarm_out_dir=${ISOLATED_OUTDIR}",
+        "revision=<(REVISION)",
+        "patch_storage=<(PATCH_STORAGE)",
+        "patch_issue=<(ISSUE)",
+        "patch_set=<(PATCHSET)"
+      ],
+      "io_timeout_ns": 2400000000000,
+      "isolate": "test_skia.isolate",
+      "priority": 0.8
+    },
+    "Test-Android-Clang-Nexus6p-GPU-Adreno430-arm64-Release-GN_Android": {
+      "cipd_packages": [
+        {
+          "name": "skia/bots/skimage",
+          "path": "skimage",
+          "version": "version:13"
+        },
+        {
+          "name": "skia/bots/skp",
+          "path": "skp",
+          "version": "version:15"
+        },
+        {
+          "name": "skia/bots/svg",
+          "path": "svg",
+          "version": "version:3"
+        }
+      ],
+      "dependencies": [
+        "Build-Ubuntu-Clang-arm64-Release-GN_Android"
+      ],
+      "dimensions": [
+        "device_os:NMF26C",
+        "device_type:angler",
+        "os:Android",
+        "pool:Skia"
+      ],
+      "execution_timeout_ns": 14400000000000,
+      "expiration_ns": 72000000000000,
+      "extra_args": [
+        "--workdir",
+        "../../..",
+        "swarm_test",
+        "repository=<(REPO)",
+        "buildername=Test-Android-Clang-Nexus6p-GPU-Adreno430-arm64-Release-GN_Android",
+        "mastername=fake-master",
+        "buildnumber=2",
+        "slavename=fake-buildslave",
+        "nobuildbot=True",
+        "swarm_out_dir=${ISOLATED_OUTDIR}",
+        "revision=<(REVISION)",
+        "patch_storage=<(PATCH_STORAGE)",
+        "patch_issue=<(ISSUE)",
+        "patch_set=<(PATCHSET)"
+      ],
+      "io_timeout_ns": 2400000000000,
+      "isolate": "test_skia.isolate",
+      "priority": 0.8
+    },
+    "Test-Android-Clang-Nexus6p-GPU-Adreno430-arm64-Release-GN_Android_Vulkan": {
+      "cipd_packages": [
+        {
+          "name": "skia/bots/skimage",
+          "path": "skimage",
+          "version": "version:13"
+        },
+        {
+          "name": "skia/bots/skp",
+          "path": "skp",
+          "version": "version:15"
+        },
+        {
+          "name": "skia/bots/svg",
+          "path": "svg",
+          "version": "version:3"
+        }
+      ],
+      "dependencies": [
+        "Build-Ubuntu-Clang-arm64-Release-GN_Android_Vulkan"
+      ],
+      "dimensions": [
+        "device_os:NMF26C",
+        "device_type:angler",
+        "os:Android",
+        "pool:Skia"
+      ],
+      "execution_timeout_ns": 14400000000000,
+      "expiration_ns": 72000000000000,
+      "extra_args": [
+        "--workdir",
+        "../../..",
+        "swarm_test",
+        "repository=<(REPO)",
+        "buildername=Test-Android-Clang-Nexus6p-GPU-Adreno430-arm64-Release-GN_Android_Vulkan",
+        "mastername=fake-master",
+        "buildnumber=2",
+        "slavename=fake-buildslave",
+        "nobuildbot=True",
+        "swarm_out_dir=${ISOLATED_OUTDIR}",
+        "revision=<(REVISION)",
+        "patch_storage=<(PATCH_STORAGE)",
+        "patch_issue=<(ISSUE)",
+        "patch_set=<(PATCHSET)"
+      ],
+      "io_timeout_ns": 2400000000000,
+      "isolate": "test_skia.isolate",
+      "priority": 0.8
+    },
+    "Test-Android-Clang-Nexus7-GPU-Tegra3-arm-Debug-GN_Android": {
+      "cipd_packages": [
+        {
+          "name": "skia/bots/skimage",
+          "path": "skimage",
+          "version": "version:13"
+        },
+        {
+          "name": "skia/bots/skp",
+          "path": "skp",
+          "version": "version:15"
+        },
+        {
+          "name": "skia/bots/svg",
+          "path": "svg",
+          "version": "version:3"
+        }
+      ],
+      "dependencies": [
+        "Build-Ubuntu-Clang-arm-Debug-GN_Android"
+      ],
+      "dimensions": [
+        "device_os:LMY47V",
+        "device_type:grouper",
+        "os:Android",
+        "pool:Skia"
+      ],
+      "execution_timeout_ns": 14400000000000,
+      "expiration_ns": 72000000000000,
+      "extra_args": [
+        "--workdir",
+        "../../..",
+        "swarm_test",
+        "repository=<(REPO)",
+        "buildername=Test-Android-Clang-Nexus7-GPU-Tegra3-arm-Debug-GN_Android",
+        "mastername=fake-master",
+        "buildnumber=2",
+        "slavename=fake-buildslave",
+        "nobuildbot=True",
+        "swarm_out_dir=${ISOLATED_OUTDIR}",
+        "revision=<(REVISION)",
+        "patch_storage=<(PATCH_STORAGE)",
+        "patch_issue=<(ISSUE)",
+        "patch_set=<(PATCHSET)"
+      ],
+      "io_timeout_ns": 2400000000000,
+      "isolate": "test_skia.isolate",
+      "priority": 0.8
+    },
+    "Test-Android-Clang-Nexus7-GPU-Tegra3-arm-Release-GN_Android": {
+      "cipd_packages": [
+        {
+          "name": "skia/bots/skimage",
+          "path": "skimage",
+          "version": "version:13"
+        },
+        {
+          "name": "skia/bots/skp",
+          "path": "skp",
+          "version": "version:15"
+        },
+        {
+          "name": "skia/bots/svg",
+          "path": "svg",
+          "version": "version:3"
+        }
+      ],
+      "dependencies": [
+        "Build-Ubuntu-Clang-arm-Release-GN_Android"
+      ],
+      "dimensions": [
+        "device_os:LMY47V",
+        "device_type:grouper",
+        "os:Android",
+        "pool:Skia"
+      ],
+      "execution_timeout_ns": 14400000000000,
+      "expiration_ns": 72000000000000,
+      "extra_args": [
+        "--workdir",
+        "../../..",
+        "swarm_test",
+        "repository=<(REPO)",
+        "buildername=Test-Android-Clang-Nexus7-GPU-Tegra3-arm-Release-GN_Android",
+        "mastername=fake-master",
+        "buildnumber=2",
+        "slavename=fake-buildslave",
+        "nobuildbot=True",
+        "swarm_out_dir=${ISOLATED_OUTDIR}",
+        "revision=<(REVISION)",
+        "patch_storage=<(PATCH_STORAGE)",
+        "patch_issue=<(ISSUE)",
+        "patch_set=<(PATCHSET)"
+      ],
+      "io_timeout_ns": 2400000000000,
+      "isolate": "test_skia.isolate",
+      "priority": 0.8
+    },
+    "Test-Android-Clang-Nexus9-GPU-TegraK1-arm64-Debug-GN_Android": {
+      "cipd_packages": [
+        {
+          "name": "skia/bots/skimage",
+          "path": "skimage",
+          "version": "version:13"
+        },
+        {
+          "name": "skia/bots/skp",
+          "path": "skp",
+          "version": "version:15"
+        },
+        {
+          "name": "skia/bots/svg",
+          "path": "svg",
+          "version": "version:3"
+        }
+      ],
+      "dependencies": [
+        "Build-Ubuntu-Clang-arm64-Debug-GN_Android"
+      ],
+      "dimensions": [
+        "device_os:NRD91D",
+        "device_type:flounder",
+        "os:Android",
+        "pool:Skia"
+      ],
+      "execution_timeout_ns": 14400000000000,
+      "expiration_ns": 72000000000000,
+      "extra_args": [
+        "--workdir",
+        "../../..",
+        "swarm_test",
+        "repository=<(REPO)",
+        "buildername=Test-Android-Clang-Nexus9-GPU-TegraK1-arm64-Debug-GN_Android",
+        "mastername=fake-master",
+        "buildnumber=2",
+        "slavename=fake-buildslave",
+        "nobuildbot=True",
+        "swarm_out_dir=${ISOLATED_OUTDIR}",
+        "revision=<(REVISION)",
+        "patch_storage=<(PATCH_STORAGE)",
+        "patch_issue=<(ISSUE)",
+        "patch_set=<(PATCHSET)"
+      ],
+      "io_timeout_ns": 2400000000000,
+      "isolate": "test_skia.isolate",
+      "priority": 0.8
+    },
+    "Test-Android-Clang-Nexus9-GPU-TegraK1-arm64-Release-GN_Android": {
+      "cipd_packages": [
+        {
+          "name": "skia/bots/skimage",
+          "path": "skimage",
+          "version": "version:13"
+        },
+        {
+          "name": "skia/bots/skp",
+          "path": "skp",
+          "version": "version:15"
+        },
+        {
+          "name": "skia/bots/svg",
+          "path": "svg",
+          "version": "version:3"
+        }
+      ],
+      "dependencies": [
+        "Build-Ubuntu-Clang-arm64-Release-GN_Android"
+      ],
+      "dimensions": [
+        "device_os:NRD91D",
+        "device_type:flounder",
+        "os:Android",
+        "pool:Skia"
+      ],
+      "execution_timeout_ns": 14400000000000,
+      "expiration_ns": 72000000000000,
+      "extra_args": [
+        "--workdir",
+        "../../..",
+        "swarm_test",
+        "repository=<(REPO)",
+        "buildername=Test-Android-Clang-Nexus9-GPU-TegraK1-arm64-Release-GN_Android",
+        "mastername=fake-master",
+        "buildnumber=2",
+        "slavename=fake-buildslave",
+        "nobuildbot=True",
+        "swarm_out_dir=${ISOLATED_OUTDIR}",
+        "revision=<(REVISION)",
+        "patch_storage=<(PATCH_STORAGE)",
+        "patch_issue=<(ISSUE)",
+        "patch_set=<(PATCHSET)"
+      ],
+      "io_timeout_ns": 2400000000000,
+      "isolate": "test_skia.isolate",
       "priority": 0.8
     },
     "Test-Ubuntu-GCC-GCE-CPU-AVX2-x86_64-Release-GN": {
@@ -86,12 +3630,12 @@
         {
           "name": "skia/bots/skimage",
           "path": "skimage",
-          "version": "version:8"
+          "version": "version:13"
         },
         {
           "name": "skia/bots/skp",
           "path": "skp",
-          "version": "version:10"
+          "version": "version:15"
         },
         {
           "name": "skia/bots/svg",
@@ -108,18 +3652,557 @@
         "os:Ubuntu",
         "pool:Skia"
       ],
+      "execution_timeout_ns": 14400000000000,
+      "expiration_ns": 72000000000000,
       "extra_args": [
         "--workdir",
         "../../..",
         "swarm_test",
+        "repository=<(REPO)",
         "buildername=Test-Ubuntu-GCC-GCE-CPU-AVX2-x86_64-Release-GN",
         "mastername=fake-master",
         "buildnumber=2",
         "slavename=fake-buildslave",
+        "nobuildbot=True",
         "swarm_out_dir=${ISOLATED_OUTDIR}",
-        "revision=<(REVISION)"
+        "revision=<(REVISION)",
+        "patch_storage=<(PATCH_STORAGE)",
+        "patch_issue=<(ISSUE)",
+        "patch_set=<(PATCHSET)"
       ],
+      "io_timeout_ns": 2400000000000,
       "isolate": "test_skia.isolate",
+      "priority": 0.8
+    },
+    "Test-iOS-Clang-iPadMini4-GPU-GX6450-Arm7-Debug": {
+      "cipd_packages": [
+        {
+          "name": "skia/bots/skimage",
+          "path": "skimage",
+          "version": "version:13"
+        },
+        {
+          "name": "skia/bots/skp",
+          "path": "skp",
+          "version": "version:15"
+        },
+        {
+          "name": "skia/bots/svg",
+          "path": "svg",
+          "version": "version:3"
+        }
+      ],
+      "dependencies": [
+        "Build-Mac-Clang-Arm7-Debug-iOS"
+      ],
+      "dimensions": [
+        "device:iPad5,1",
+        "os:iOS-9.3.1",
+        "pool:Skia"
+      ],
+      "execution_timeout_ns": 14400000000000,
+      "expiration_ns": 72000000000000,
+      "extra_args": [
+        "--workdir",
+        "../../..",
+        "swarm_test",
+        "repository=<(REPO)",
+        "buildername=Test-iOS-Clang-iPadMini4-GPU-GX6450-Arm7-Debug",
+        "mastername=fake-master",
+        "buildnumber=2",
+        "slavename=fake-buildslave",
+        "nobuildbot=True",
+        "swarm_out_dir=${ISOLATED_OUTDIR}",
+        "revision=<(REVISION)",
+        "patch_storage=<(PATCH_STORAGE)",
+        "patch_issue=<(ISSUE)",
+        "patch_set=<(PATCHSET)"
+      ],
+      "io_timeout_ns": 2400000000000,
+      "isolate": "test_skia.isolate",
+      "priority": 0.8
+    },
+    "Test-iOS-Clang-iPadMini4-GPU-GX6450-Arm7-Release": {
+      "cipd_packages": [
+        {
+          "name": "skia/bots/skimage",
+          "path": "skimage",
+          "version": "version:13"
+        },
+        {
+          "name": "skia/bots/skp",
+          "path": "skp",
+          "version": "version:15"
+        },
+        {
+          "name": "skia/bots/svg",
+          "path": "svg",
+          "version": "version:3"
+        }
+      ],
+      "dependencies": [
+        "Build-Mac-Clang-Arm7-Release-iOS"
+      ],
+      "dimensions": [
+        "device:iPad5,1",
+        "os:iOS-9.3.1",
+        "pool:Skia"
+      ],
+      "execution_timeout_ns": 14400000000000,
+      "expiration_ns": 72000000000000,
+      "extra_args": [
+        "--workdir",
+        "../../..",
+        "swarm_test",
+        "repository=<(REPO)",
+        "buildername=Test-iOS-Clang-iPadMini4-GPU-GX6450-Arm7-Release",
+        "mastername=fake-master",
+        "buildnumber=2",
+        "slavename=fake-buildslave",
+        "nobuildbot=True",
+        "swarm_out_dir=${ISOLATED_OUTDIR}",
+        "revision=<(REVISION)",
+        "patch_storage=<(PATCH_STORAGE)",
+        "patch_issue=<(ISSUE)",
+        "patch_set=<(PATCHSET)"
+      ],
+      "io_timeout_ns": 2400000000000,
+      "isolate": "test_skia.isolate",
+      "priority": 0.8
+    },
+    "Upload-Perf-Android-Clang-AndroidOne-CPU-MT6582-arm-Release-GN_Android": {
+      "dependencies": [
+        "Perf-Android-Clang-AndroidOne-CPU-MT6582-arm-Release-GN_Android"
+      ],
+      "dimensions": [
+        "cpu:x86-64-avx2",
+        "gpu:none",
+        "os:Ubuntu",
+        "pool:Skia"
+      ],
+      "extra_args": [
+        "--workdir",
+        "../../..",
+        "upload_nano_results",
+        "repository=<(REPO)",
+        "buildername=Perf-Android-Clang-AndroidOne-CPU-MT6582-arm-Release-GN_Android",
+        "mastername=fake-master",
+        "buildnumber=2",
+        "slavename=fake-buildslave",
+        "nobuildbot=True",
+        "swarm_out_dir=${ISOLATED_OUTDIR}",
+        "revision=<(REVISION)",
+        "patch_storage=<(PATCH_STORAGE)",
+        "patch_issue=<(ISSUE)",
+        "patch_set=<(PATCHSET)"
+      ],
+      "isolate": "upload_nano_results.isolate",
+      "priority": 0.8
+    },
+    "Upload-Perf-Android-Clang-AndroidOne-GPU-Mali400MP2-arm-Release-GN_Android": {
+      "dependencies": [
+        "Perf-Android-Clang-AndroidOne-GPU-Mali400MP2-arm-Release-GN_Android"
+      ],
+      "dimensions": [
+        "cpu:x86-64-avx2",
+        "gpu:none",
+        "os:Ubuntu",
+        "pool:Skia"
+      ],
+      "extra_args": [
+        "--workdir",
+        "../../..",
+        "upload_nano_results",
+        "repository=<(REPO)",
+        "buildername=Perf-Android-Clang-AndroidOne-GPU-Mali400MP2-arm-Release-GN_Android",
+        "mastername=fake-master",
+        "buildnumber=2",
+        "slavename=fake-buildslave",
+        "nobuildbot=True",
+        "swarm_out_dir=${ISOLATED_OUTDIR}",
+        "revision=<(REVISION)",
+        "patch_storage=<(PATCH_STORAGE)",
+        "patch_issue=<(ISSUE)",
+        "patch_set=<(PATCHSET)"
+      ],
+      "isolate": "upload_nano_results.isolate",
+      "priority": 0.8
+    },
+    "Upload-Perf-Android-Clang-GalaxyS7-GPU-Adreno530-arm64-Release-GN_Android": {
+      "dependencies": [
+        "Perf-Android-Clang-GalaxyS7-GPU-Adreno530-arm64-Release-GN_Android"
+      ],
+      "dimensions": [
+        "cpu:x86-64-avx2",
+        "gpu:none",
+        "os:Ubuntu",
+        "pool:Skia"
+      ],
+      "extra_args": [
+        "--workdir",
+        "../../..",
+        "upload_nano_results",
+        "repository=<(REPO)",
+        "buildername=Perf-Android-Clang-GalaxyS7-GPU-Adreno530-arm64-Release-GN_Android",
+        "mastername=fake-master",
+        "buildnumber=2",
+        "slavename=fake-buildslave",
+        "nobuildbot=True",
+        "swarm_out_dir=${ISOLATED_OUTDIR}",
+        "revision=<(REVISION)",
+        "patch_storage=<(PATCH_STORAGE)",
+        "patch_issue=<(ISSUE)",
+        "patch_set=<(PATCHSET)"
+      ],
+      "isolate": "upload_nano_results.isolate",
+      "priority": 0.8
+    },
+    "Upload-Perf-Android-Clang-GalaxyS7-GPU-Adreno530-arm64-Release-GN_Android_Vulkan": {
+      "dependencies": [
+        "Perf-Android-Clang-GalaxyS7-GPU-Adreno530-arm64-Release-GN_Android_Vulkan"
+      ],
+      "dimensions": [
+        "cpu:x86-64-avx2",
+        "gpu:none",
+        "os:Ubuntu",
+        "pool:Skia"
+      ],
+      "extra_args": [
+        "--workdir",
+        "../../..",
+        "upload_nano_results",
+        "repository=<(REPO)",
+        "buildername=Perf-Android-Clang-GalaxyS7-GPU-Adreno530-arm64-Release-GN_Android_Vulkan",
+        "mastername=fake-master",
+        "buildnumber=2",
+        "slavename=fake-buildslave",
+        "nobuildbot=True",
+        "swarm_out_dir=${ISOLATED_OUTDIR}",
+        "revision=<(REVISION)",
+        "patch_storage=<(PATCH_STORAGE)",
+        "patch_issue=<(ISSUE)",
+        "patch_set=<(PATCHSET)"
+      ],
+      "isolate": "upload_nano_results.isolate",
+      "priority": 0.8
+    },
+    "Upload-Perf-Android-Clang-NVIDIA_Shield-GPU-TegraX1-arm64-Release-GN_Android": {
+      "dependencies": [
+        "Perf-Android-Clang-NVIDIA_Shield-GPU-TegraX1-arm64-Release-GN_Android"
+      ],
+      "dimensions": [
+        "cpu:x86-64-avx2",
+        "gpu:none",
+        "os:Ubuntu",
+        "pool:Skia"
+      ],
+      "extra_args": [
+        "--workdir",
+        "../../..",
+        "upload_nano_results",
+        "repository=<(REPO)",
+        "buildername=Perf-Android-Clang-NVIDIA_Shield-GPU-TegraX1-arm64-Release-GN_Android",
+        "mastername=fake-master",
+        "buildnumber=2",
+        "slavename=fake-buildslave",
+        "nobuildbot=True",
+        "swarm_out_dir=${ISOLATED_OUTDIR}",
+        "revision=<(REVISION)",
+        "patch_storage=<(PATCH_STORAGE)",
+        "patch_issue=<(ISSUE)",
+        "patch_set=<(PATCHSET)"
+      ],
+      "isolate": "upload_nano_results.isolate",
+      "priority": 0.8
+    },
+    "Upload-Perf-Android-Clang-NVIDIA_Shield-GPU-TegraX1-arm64-Release-GN_Android_Vulkan": {
+      "dependencies": [
+        "Perf-Android-Clang-NVIDIA_Shield-GPU-TegraX1-arm64-Release-GN_Android_Vulkan"
+      ],
+      "dimensions": [
+        "cpu:x86-64-avx2",
+        "gpu:none",
+        "os:Ubuntu",
+        "pool:Skia"
+      ],
+      "extra_args": [
+        "--workdir",
+        "../../..",
+        "upload_nano_results",
+        "repository=<(REPO)",
+        "buildername=Perf-Android-Clang-NVIDIA_Shield-GPU-TegraX1-arm64-Release-GN_Android_Vulkan",
+        "mastername=fake-master",
+        "buildnumber=2",
+        "slavename=fake-buildslave",
+        "nobuildbot=True",
+        "swarm_out_dir=${ISOLATED_OUTDIR}",
+        "revision=<(REVISION)",
+        "patch_storage=<(PATCH_STORAGE)",
+        "patch_issue=<(ISSUE)",
+        "patch_set=<(PATCHSET)"
+      ],
+      "isolate": "upload_nano_results.isolate",
+      "priority": 0.8
+    },
+    "Upload-Perf-Android-Clang-Nexus10-GPU-MaliT604-arm-Release-GN_Android": {
+      "dependencies": [
+        "Perf-Android-Clang-Nexus10-GPU-MaliT604-arm-Release-GN_Android"
+      ],
+      "dimensions": [
+        "cpu:x86-64-avx2",
+        "gpu:none",
+        "os:Ubuntu",
+        "pool:Skia"
+      ],
+      "extra_args": [
+        "--workdir",
+        "../../..",
+        "upload_nano_results",
+        "repository=<(REPO)",
+        "buildername=Perf-Android-Clang-Nexus10-GPU-MaliT604-arm-Release-GN_Android",
+        "mastername=fake-master",
+        "buildnumber=2",
+        "slavename=fake-buildslave",
+        "nobuildbot=True",
+        "swarm_out_dir=${ISOLATED_OUTDIR}",
+        "revision=<(REVISION)",
+        "patch_storage=<(PATCH_STORAGE)",
+        "patch_issue=<(ISSUE)",
+        "patch_set=<(PATCHSET)"
+      ],
+      "isolate": "upload_nano_results.isolate",
+      "priority": 0.8
+    },
+    "Upload-Perf-Android-Clang-Nexus5-GPU-Adreno330-arm-Release-GN_Android": {
+      "dependencies": [
+        "Perf-Android-Clang-Nexus5-GPU-Adreno330-arm-Release-GN_Android"
+      ],
+      "dimensions": [
+        "cpu:x86-64-avx2",
+        "gpu:none",
+        "os:Ubuntu",
+        "pool:Skia"
+      ],
+      "extra_args": [
+        "--workdir",
+        "../../..",
+        "upload_nano_results",
+        "repository=<(REPO)",
+        "buildername=Perf-Android-Clang-Nexus5-GPU-Adreno330-arm-Release-GN_Android",
+        "mastername=fake-master",
+        "buildnumber=2",
+        "slavename=fake-buildslave",
+        "nobuildbot=True",
+        "swarm_out_dir=${ISOLATED_OUTDIR}",
+        "revision=<(REVISION)",
+        "patch_storage=<(PATCH_STORAGE)",
+        "patch_issue=<(ISSUE)",
+        "patch_set=<(PATCHSET)"
+      ],
+      "isolate": "upload_nano_results.isolate",
+      "priority": 0.8
+    },
+    "Upload-Perf-Android-Clang-Nexus6p-CPU-Snapdragon810-arm64-Release-GN_Android": {
+      "dependencies": [
+        "Perf-Android-Clang-Nexus6p-CPU-Snapdragon810-arm64-Release-GN_Android"
+      ],
+      "dimensions": [
+        "cpu:x86-64-avx2",
+        "gpu:none",
+        "os:Ubuntu",
+        "pool:Skia"
+      ],
+      "extra_args": [
+        "--workdir",
+        "../../..",
+        "upload_nano_results",
+        "repository=<(REPO)",
+        "buildername=Perf-Android-Clang-Nexus6p-CPU-Snapdragon810-arm64-Release-GN_Android",
+        "mastername=fake-master",
+        "buildnumber=2",
+        "slavename=fake-buildslave",
+        "nobuildbot=True",
+        "swarm_out_dir=${ISOLATED_OUTDIR}",
+        "revision=<(REVISION)",
+        "patch_storage=<(PATCH_STORAGE)",
+        "patch_issue=<(ISSUE)",
+        "patch_set=<(PATCHSET)"
+      ],
+      "isolate": "upload_nano_results.isolate",
+      "priority": 0.8
+    },
+    "Upload-Perf-Android-Clang-Nexus6p-GPU-Adreno430-arm64-Release-GN_Android": {
+      "dependencies": [
+        "Perf-Android-Clang-Nexus6p-GPU-Adreno430-arm64-Release-GN_Android"
+      ],
+      "dimensions": [
+        "cpu:x86-64-avx2",
+        "gpu:none",
+        "os:Ubuntu",
+        "pool:Skia"
+      ],
+      "extra_args": [
+        "--workdir",
+        "../../..",
+        "upload_nano_results",
+        "repository=<(REPO)",
+        "buildername=Perf-Android-Clang-Nexus6p-GPU-Adreno430-arm64-Release-GN_Android",
+        "mastername=fake-master",
+        "buildnumber=2",
+        "slavename=fake-buildslave",
+        "nobuildbot=True",
+        "swarm_out_dir=${ISOLATED_OUTDIR}",
+        "revision=<(REVISION)",
+        "patch_storage=<(PATCH_STORAGE)",
+        "patch_issue=<(ISSUE)",
+        "patch_set=<(PATCHSET)"
+      ],
+      "isolate": "upload_nano_results.isolate",
+      "priority": 0.8
+    },
+    "Upload-Perf-Android-Clang-Nexus6p-GPU-Adreno430-arm64-Release-GN_Android_Vulkan": {
+      "dependencies": [
+        "Perf-Android-Clang-Nexus6p-GPU-Adreno430-arm64-Release-GN_Android_Vulkan"
+      ],
+      "dimensions": [
+        "cpu:x86-64-avx2",
+        "gpu:none",
+        "os:Ubuntu",
+        "pool:Skia"
+      ],
+      "extra_args": [
+        "--workdir",
+        "../../..",
+        "upload_nano_results",
+        "repository=<(REPO)",
+        "buildername=Perf-Android-Clang-Nexus6p-GPU-Adreno430-arm64-Release-GN_Android_Vulkan",
+        "mastername=fake-master",
+        "buildnumber=2",
+        "slavename=fake-buildslave",
+        "nobuildbot=True",
+        "swarm_out_dir=${ISOLATED_OUTDIR}",
+        "revision=<(REVISION)",
+        "patch_storage=<(PATCH_STORAGE)",
+        "patch_issue=<(ISSUE)",
+        "patch_set=<(PATCHSET)"
+      ],
+      "isolate": "upload_nano_results.isolate",
+      "priority": 0.8
+    },
+    "Upload-Perf-Android-Clang-Nexus7-GPU-Tegra3-arm-Release-GN_Android": {
+      "dependencies": [
+        "Perf-Android-Clang-Nexus7-GPU-Tegra3-arm-Release-GN_Android"
+      ],
+      "dimensions": [
+        "cpu:x86-64-avx2",
+        "gpu:none",
+        "os:Ubuntu",
+        "pool:Skia"
+      ],
+      "extra_args": [
+        "--workdir",
+        "../../..",
+        "upload_nano_results",
+        "repository=<(REPO)",
+        "buildername=Perf-Android-Clang-Nexus7-GPU-Tegra3-arm-Release-GN_Android",
+        "mastername=fake-master",
+        "buildnumber=2",
+        "slavename=fake-buildslave",
+        "nobuildbot=True",
+        "swarm_out_dir=${ISOLATED_OUTDIR}",
+        "revision=<(REVISION)",
+        "patch_storage=<(PATCH_STORAGE)",
+        "patch_issue=<(ISSUE)",
+        "patch_set=<(PATCHSET)"
+      ],
+      "isolate": "upload_nano_results.isolate",
+      "priority": 0.8
+    },
+    "Upload-Perf-Android-Clang-Nexus9-GPU-TegraK1-arm64-Release-GN_Android": {
+      "dependencies": [
+        "Perf-Android-Clang-Nexus9-GPU-TegraK1-arm64-Release-GN_Android"
+      ],
+      "dimensions": [
+        "cpu:x86-64-avx2",
+        "gpu:none",
+        "os:Ubuntu",
+        "pool:Skia"
+      ],
+      "extra_args": [
+        "--workdir",
+        "../../..",
+        "upload_nano_results",
+        "repository=<(REPO)",
+        "buildername=Perf-Android-Clang-Nexus9-GPU-TegraK1-arm64-Release-GN_Android",
+        "mastername=fake-master",
+        "buildnumber=2",
+        "slavename=fake-buildslave",
+        "nobuildbot=True",
+        "swarm_out_dir=${ISOLATED_OUTDIR}",
+        "revision=<(REVISION)",
+        "patch_storage=<(PATCH_STORAGE)",
+        "patch_issue=<(ISSUE)",
+        "patch_set=<(PATCHSET)"
+      ],
+      "isolate": "upload_nano_results.isolate",
+      "priority": 0.8
+    },
+    "Upload-Perf-Android-Clang-PixelC-GPU-TegraX1-arm64-Release-GN_Android_Skpbench": {
+      "dependencies": [
+        "Perf-Android-Clang-PixelC-GPU-TegraX1-arm64-Release-GN_Android_Skpbench"
+      ],
+      "dimensions": [
+        "cpu:x86-64-avx2",
+        "gpu:none",
+        "os:Ubuntu",
+        "pool:Skia"
+      ],
+      "extra_args": [
+        "--workdir",
+        "../../..",
+        "upload_nano_results",
+        "repository=<(REPO)",
+        "buildername=Perf-Android-Clang-PixelC-GPU-TegraX1-arm64-Release-GN_Android_Skpbench",
+        "mastername=fake-master",
+        "buildnumber=2",
+        "slavename=fake-buildslave",
+        "nobuildbot=True",
+        "swarm_out_dir=${ISOLATED_OUTDIR}",
+        "revision=<(REVISION)",
+        "patch_storage=<(PATCH_STORAGE)",
+        "patch_issue=<(ISSUE)",
+        "patch_set=<(PATCHSET)"
+      ],
+      "isolate": "upload_nano_results.isolate",
+      "priority": 0.8
+    },
+    "Upload-Perf-Android-Clang-PixelC-GPU-TegraX1-arm64-Release-GN_Android_Vulkan_Skpbench": {
+      "dependencies": [
+        "Perf-Android-Clang-PixelC-GPU-TegraX1-arm64-Release-GN_Android_Vulkan_Skpbench"
+      ],
+      "dimensions": [
+        "cpu:x86-64-avx2",
+        "gpu:none",
+        "os:Ubuntu",
+        "pool:Skia"
+      ],
+      "extra_args": [
+        "--workdir",
+        "../../..",
+        "upload_nano_results",
+        "repository=<(REPO)",
+        "buildername=Perf-Android-Clang-PixelC-GPU-TegraX1-arm64-Release-GN_Android_Vulkan_Skpbench",
+        "mastername=fake-master",
+        "buildnumber=2",
+        "slavename=fake-buildslave",
+        "nobuildbot=True",
+        "swarm_out_dir=${ISOLATED_OUTDIR}",
+        "revision=<(REVISION)",
+        "patch_storage=<(PATCH_STORAGE)",
+        "patch_issue=<(ISSUE)",
+        "patch_set=<(PATCHSET)"
+      ],
+      "isolate": "upload_nano_results.isolate",
       "priority": 0.8
     },
     "Upload-Perf-Ubuntu-GCC-GCE-CPU-AVX2-x86_64-Release-GN": {
@@ -136,14 +4219,802 @@
         "--workdir",
         "../../..",
         "upload_nano_results",
+        "repository=<(REPO)",
         "buildername=Perf-Ubuntu-GCC-GCE-CPU-AVX2-x86_64-Release-GN",
         "mastername=fake-master",
         "buildnumber=2",
         "slavename=fake-buildslave",
+        "nobuildbot=True",
         "swarm_out_dir=${ISOLATED_OUTDIR}",
-        "revision=<(REVISION)"
+        "revision=<(REVISION)",
+        "patch_storage=<(PATCH_STORAGE)",
+        "patch_issue=<(ISSUE)",
+        "patch_set=<(PATCHSET)"
       ],
       "isolate": "upload_nano_results.isolate",
+      "priority": 0.8
+    },
+    "Upload-Perf-iOS-Clang-iPadMini4-GPU-GX6450-Arm7-Release": {
+      "dependencies": [
+        "Perf-iOS-Clang-iPadMini4-GPU-GX6450-Arm7-Release"
+      ],
+      "dimensions": [
+        "cpu:x86-64-avx2",
+        "gpu:none",
+        "os:Ubuntu",
+        "pool:Skia"
+      ],
+      "extra_args": [
+        "--workdir",
+        "../../..",
+        "upload_nano_results",
+        "repository=<(REPO)",
+        "buildername=Perf-iOS-Clang-iPadMini4-GPU-GX6450-Arm7-Release",
+        "mastername=fake-master",
+        "buildnumber=2",
+        "slavename=fake-buildslave",
+        "nobuildbot=True",
+        "swarm_out_dir=${ISOLATED_OUTDIR}",
+        "revision=<(REVISION)",
+        "patch_storage=<(PATCH_STORAGE)",
+        "patch_issue=<(ISSUE)",
+        "patch_set=<(PATCHSET)"
+      ],
+      "isolate": "upload_nano_results.isolate",
+      "priority": 0.8
+    },
+    "Upload-Test-Android-Clang-AndroidOne-CPU-MT6582-arm-Debug-GN_Android": {
+      "dependencies": [
+        "Test-Android-Clang-AndroidOne-CPU-MT6582-arm-Debug-GN_Android"
+      ],
+      "dimensions": [
+        "cpu:x86-64-avx2",
+        "gpu:none",
+        "os:Ubuntu",
+        "pool:Skia"
+      ],
+      "extra_args": [
+        "--workdir",
+        "../../..",
+        "upload_dm_results",
+        "repository=<(REPO)",
+        "buildername=Test-Android-Clang-AndroidOne-CPU-MT6582-arm-Debug-GN_Android",
+        "mastername=fake-master",
+        "buildnumber=2",
+        "slavename=fake-buildslave",
+        "nobuildbot=True",
+        "swarm_out_dir=${ISOLATED_OUTDIR}",
+        "revision=<(REVISION)",
+        "patch_storage=<(PATCH_STORAGE)",
+        "patch_issue=<(ISSUE)",
+        "patch_set=<(PATCHSET)"
+      ],
+      "isolate": "upload_dm_results.isolate",
+      "priority": 0.8
+    },
+    "Upload-Test-Android-Clang-AndroidOne-CPU-MT6582-arm-Release-GN_Android": {
+      "dependencies": [
+        "Test-Android-Clang-AndroidOne-CPU-MT6582-arm-Release-GN_Android"
+      ],
+      "dimensions": [
+        "cpu:x86-64-avx2",
+        "gpu:none",
+        "os:Ubuntu",
+        "pool:Skia"
+      ],
+      "extra_args": [
+        "--workdir",
+        "../../..",
+        "upload_dm_results",
+        "repository=<(REPO)",
+        "buildername=Test-Android-Clang-AndroidOne-CPU-MT6582-arm-Release-GN_Android",
+        "mastername=fake-master",
+        "buildnumber=2",
+        "slavename=fake-buildslave",
+        "nobuildbot=True",
+        "swarm_out_dir=${ISOLATED_OUTDIR}",
+        "revision=<(REVISION)",
+        "patch_storage=<(PATCH_STORAGE)",
+        "patch_issue=<(ISSUE)",
+        "patch_set=<(PATCHSET)"
+      ],
+      "isolate": "upload_dm_results.isolate",
+      "priority": 0.8
+    },
+    "Upload-Test-Android-Clang-AndroidOne-GPU-Mali400MP2-arm-Debug-GN_Android": {
+      "dependencies": [
+        "Test-Android-Clang-AndroidOne-GPU-Mali400MP2-arm-Debug-GN_Android"
+      ],
+      "dimensions": [
+        "cpu:x86-64-avx2",
+        "gpu:none",
+        "os:Ubuntu",
+        "pool:Skia"
+      ],
+      "extra_args": [
+        "--workdir",
+        "../../..",
+        "upload_dm_results",
+        "repository=<(REPO)",
+        "buildername=Test-Android-Clang-AndroidOne-GPU-Mali400MP2-arm-Debug-GN_Android",
+        "mastername=fake-master",
+        "buildnumber=2",
+        "slavename=fake-buildslave",
+        "nobuildbot=True",
+        "swarm_out_dir=${ISOLATED_OUTDIR}",
+        "revision=<(REVISION)",
+        "patch_storage=<(PATCH_STORAGE)",
+        "patch_issue=<(ISSUE)",
+        "patch_set=<(PATCHSET)"
+      ],
+      "isolate": "upload_dm_results.isolate",
+      "priority": 0.8
+    },
+    "Upload-Test-Android-Clang-AndroidOne-GPU-Mali400MP2-arm-Release-GN_Android": {
+      "dependencies": [
+        "Test-Android-Clang-AndroidOne-GPU-Mali400MP2-arm-Release-GN_Android"
+      ],
+      "dimensions": [
+        "cpu:x86-64-avx2",
+        "gpu:none",
+        "os:Ubuntu",
+        "pool:Skia"
+      ],
+      "extra_args": [
+        "--workdir",
+        "../../..",
+        "upload_dm_results",
+        "repository=<(REPO)",
+        "buildername=Test-Android-Clang-AndroidOne-GPU-Mali400MP2-arm-Release-GN_Android",
+        "mastername=fake-master",
+        "buildnumber=2",
+        "slavename=fake-buildslave",
+        "nobuildbot=True",
+        "swarm_out_dir=${ISOLATED_OUTDIR}",
+        "revision=<(REVISION)",
+        "patch_storage=<(PATCH_STORAGE)",
+        "patch_issue=<(ISSUE)",
+        "patch_set=<(PATCHSET)"
+      ],
+      "isolate": "upload_dm_results.isolate",
+      "priority": 0.8
+    },
+    "Upload-Test-Android-Clang-GalaxyS7-GPU-Adreno530-arm64-Debug-GN_Android": {
+      "dependencies": [
+        "Test-Android-Clang-GalaxyS7-GPU-Adreno530-arm64-Debug-GN_Android"
+      ],
+      "dimensions": [
+        "cpu:x86-64-avx2",
+        "gpu:none",
+        "os:Ubuntu",
+        "pool:Skia"
+      ],
+      "extra_args": [
+        "--workdir",
+        "../../..",
+        "upload_dm_results",
+        "repository=<(REPO)",
+        "buildername=Test-Android-Clang-GalaxyS7-GPU-Adreno530-arm64-Debug-GN_Android",
+        "mastername=fake-master",
+        "buildnumber=2",
+        "slavename=fake-buildslave",
+        "nobuildbot=True",
+        "swarm_out_dir=${ISOLATED_OUTDIR}",
+        "revision=<(REVISION)",
+        "patch_storage=<(PATCH_STORAGE)",
+        "patch_issue=<(ISSUE)",
+        "patch_set=<(PATCHSET)"
+      ],
+      "isolate": "upload_dm_results.isolate",
+      "priority": 0.8
+    },
+    "Upload-Test-Android-Clang-GalaxyS7-GPU-Adreno530-arm64-Debug-GN_Android_Vulkan": {
+      "dependencies": [
+        "Test-Android-Clang-GalaxyS7-GPU-Adreno530-arm64-Debug-GN_Android_Vulkan"
+      ],
+      "dimensions": [
+        "cpu:x86-64-avx2",
+        "gpu:none",
+        "os:Ubuntu",
+        "pool:Skia"
+      ],
+      "extra_args": [
+        "--workdir",
+        "../../..",
+        "upload_dm_results",
+        "repository=<(REPO)",
+        "buildername=Test-Android-Clang-GalaxyS7-GPU-Adreno530-arm64-Debug-GN_Android_Vulkan",
+        "mastername=fake-master",
+        "buildnumber=2",
+        "slavename=fake-buildslave",
+        "nobuildbot=True",
+        "swarm_out_dir=${ISOLATED_OUTDIR}",
+        "revision=<(REVISION)",
+        "patch_storage=<(PATCH_STORAGE)",
+        "patch_issue=<(ISSUE)",
+        "patch_set=<(PATCHSET)"
+      ],
+      "isolate": "upload_dm_results.isolate",
+      "priority": 0.8
+    },
+    "Upload-Test-Android-Clang-GalaxyS7-GPU-Adreno530-arm64-Release-GN_Android": {
+      "dependencies": [
+        "Test-Android-Clang-GalaxyS7-GPU-Adreno530-arm64-Release-GN_Android"
+      ],
+      "dimensions": [
+        "cpu:x86-64-avx2",
+        "gpu:none",
+        "os:Ubuntu",
+        "pool:Skia"
+      ],
+      "extra_args": [
+        "--workdir",
+        "../../..",
+        "upload_dm_results",
+        "repository=<(REPO)",
+        "buildername=Test-Android-Clang-GalaxyS7-GPU-Adreno530-arm64-Release-GN_Android",
+        "mastername=fake-master",
+        "buildnumber=2",
+        "slavename=fake-buildslave",
+        "nobuildbot=True",
+        "swarm_out_dir=${ISOLATED_OUTDIR}",
+        "revision=<(REVISION)",
+        "patch_storage=<(PATCH_STORAGE)",
+        "patch_issue=<(ISSUE)",
+        "patch_set=<(PATCHSET)"
+      ],
+      "isolate": "upload_dm_results.isolate",
+      "priority": 0.8
+    },
+    "Upload-Test-Android-Clang-GalaxyS7-GPU-Adreno530-arm64-Release-GN_Android_Vulkan": {
+      "dependencies": [
+        "Test-Android-Clang-GalaxyS7-GPU-Adreno530-arm64-Release-GN_Android_Vulkan"
+      ],
+      "dimensions": [
+        "cpu:x86-64-avx2",
+        "gpu:none",
+        "os:Ubuntu",
+        "pool:Skia"
+      ],
+      "extra_args": [
+        "--workdir",
+        "../../..",
+        "upload_dm_results",
+        "repository=<(REPO)",
+        "buildername=Test-Android-Clang-GalaxyS7-GPU-Adreno530-arm64-Release-GN_Android_Vulkan",
+        "mastername=fake-master",
+        "buildnumber=2",
+        "slavename=fake-buildslave",
+        "nobuildbot=True",
+        "swarm_out_dir=${ISOLATED_OUTDIR}",
+        "revision=<(REVISION)",
+        "patch_storage=<(PATCH_STORAGE)",
+        "patch_issue=<(ISSUE)",
+        "patch_set=<(PATCHSET)"
+      ],
+      "isolate": "upload_dm_results.isolate",
+      "priority": 0.8
+    },
+    "Upload-Test-Android-Clang-NVIDIA_Shield-GPU-TegraX1-arm64-Debug-GN_Android": {
+      "dependencies": [
+        "Test-Android-Clang-NVIDIA_Shield-GPU-TegraX1-arm64-Debug-GN_Android"
+      ],
+      "dimensions": [
+        "cpu:x86-64-avx2",
+        "gpu:none",
+        "os:Ubuntu",
+        "pool:Skia"
+      ],
+      "extra_args": [
+        "--workdir",
+        "../../..",
+        "upload_dm_results",
+        "repository=<(REPO)",
+        "buildername=Test-Android-Clang-NVIDIA_Shield-GPU-TegraX1-arm64-Debug-GN_Android",
+        "mastername=fake-master",
+        "buildnumber=2",
+        "slavename=fake-buildslave",
+        "nobuildbot=True",
+        "swarm_out_dir=${ISOLATED_OUTDIR}",
+        "revision=<(REVISION)",
+        "patch_storage=<(PATCH_STORAGE)",
+        "patch_issue=<(ISSUE)",
+        "patch_set=<(PATCHSET)"
+      ],
+      "isolate": "upload_dm_results.isolate",
+      "priority": 0.8
+    },
+    "Upload-Test-Android-Clang-NVIDIA_Shield-GPU-TegraX1-arm64-Debug-GN_Android_Vulkan": {
+      "dependencies": [
+        "Test-Android-Clang-NVIDIA_Shield-GPU-TegraX1-arm64-Debug-GN_Android_Vulkan"
+      ],
+      "dimensions": [
+        "cpu:x86-64-avx2",
+        "gpu:none",
+        "os:Ubuntu",
+        "pool:Skia"
+      ],
+      "extra_args": [
+        "--workdir",
+        "../../..",
+        "upload_dm_results",
+        "repository=<(REPO)",
+        "buildername=Test-Android-Clang-NVIDIA_Shield-GPU-TegraX1-arm64-Debug-GN_Android_Vulkan",
+        "mastername=fake-master",
+        "buildnumber=2",
+        "slavename=fake-buildslave",
+        "nobuildbot=True",
+        "swarm_out_dir=${ISOLATED_OUTDIR}",
+        "revision=<(REVISION)",
+        "patch_storage=<(PATCH_STORAGE)",
+        "patch_issue=<(ISSUE)",
+        "patch_set=<(PATCHSET)"
+      ],
+      "isolate": "upload_dm_results.isolate",
+      "priority": 0.8
+    },
+    "Upload-Test-Android-Clang-NVIDIA_Shield-GPU-TegraX1-arm64-Release-GN_Android": {
+      "dependencies": [
+        "Test-Android-Clang-NVIDIA_Shield-GPU-TegraX1-arm64-Release-GN_Android"
+      ],
+      "dimensions": [
+        "cpu:x86-64-avx2",
+        "gpu:none",
+        "os:Ubuntu",
+        "pool:Skia"
+      ],
+      "extra_args": [
+        "--workdir",
+        "../../..",
+        "upload_dm_results",
+        "repository=<(REPO)",
+        "buildername=Test-Android-Clang-NVIDIA_Shield-GPU-TegraX1-arm64-Release-GN_Android",
+        "mastername=fake-master",
+        "buildnumber=2",
+        "slavename=fake-buildslave",
+        "nobuildbot=True",
+        "swarm_out_dir=${ISOLATED_OUTDIR}",
+        "revision=<(REVISION)",
+        "patch_storage=<(PATCH_STORAGE)",
+        "patch_issue=<(ISSUE)",
+        "patch_set=<(PATCHSET)"
+      ],
+      "isolate": "upload_dm_results.isolate",
+      "priority": 0.8
+    },
+    "Upload-Test-Android-Clang-NVIDIA_Shield-GPU-TegraX1-arm64-Release-GN_Android_Vulkan": {
+      "dependencies": [
+        "Test-Android-Clang-NVIDIA_Shield-GPU-TegraX1-arm64-Release-GN_Android_Vulkan"
+      ],
+      "dimensions": [
+        "cpu:x86-64-avx2",
+        "gpu:none",
+        "os:Ubuntu",
+        "pool:Skia"
+      ],
+      "extra_args": [
+        "--workdir",
+        "../../..",
+        "upload_dm_results",
+        "repository=<(REPO)",
+        "buildername=Test-Android-Clang-NVIDIA_Shield-GPU-TegraX1-arm64-Release-GN_Android_Vulkan",
+        "mastername=fake-master",
+        "buildnumber=2",
+        "slavename=fake-buildslave",
+        "nobuildbot=True",
+        "swarm_out_dir=${ISOLATED_OUTDIR}",
+        "revision=<(REVISION)",
+        "patch_storage=<(PATCH_STORAGE)",
+        "patch_issue=<(ISSUE)",
+        "patch_set=<(PATCHSET)"
+      ],
+      "isolate": "upload_dm_results.isolate",
+      "priority": 0.8
+    },
+    "Upload-Test-Android-Clang-Nexus10-GPU-MaliT604-arm-Debug-GN_Android": {
+      "dependencies": [
+        "Test-Android-Clang-Nexus10-GPU-MaliT604-arm-Debug-GN_Android"
+      ],
+      "dimensions": [
+        "cpu:x86-64-avx2",
+        "gpu:none",
+        "os:Ubuntu",
+        "pool:Skia"
+      ],
+      "extra_args": [
+        "--workdir",
+        "../../..",
+        "upload_dm_results",
+        "repository=<(REPO)",
+        "buildername=Test-Android-Clang-Nexus10-GPU-MaliT604-arm-Debug-GN_Android",
+        "mastername=fake-master",
+        "buildnumber=2",
+        "slavename=fake-buildslave",
+        "nobuildbot=True",
+        "swarm_out_dir=${ISOLATED_OUTDIR}",
+        "revision=<(REVISION)",
+        "patch_storage=<(PATCH_STORAGE)",
+        "patch_issue=<(ISSUE)",
+        "patch_set=<(PATCHSET)"
+      ],
+      "isolate": "upload_dm_results.isolate",
+      "priority": 0.8
+    },
+    "Upload-Test-Android-Clang-Nexus10-GPU-MaliT604-arm-Release-GN_Android": {
+      "dependencies": [
+        "Test-Android-Clang-Nexus10-GPU-MaliT604-arm-Release-GN_Android"
+      ],
+      "dimensions": [
+        "cpu:x86-64-avx2",
+        "gpu:none",
+        "os:Ubuntu",
+        "pool:Skia"
+      ],
+      "extra_args": [
+        "--workdir",
+        "../../..",
+        "upload_dm_results",
+        "repository=<(REPO)",
+        "buildername=Test-Android-Clang-Nexus10-GPU-MaliT604-arm-Release-GN_Android",
+        "mastername=fake-master",
+        "buildnumber=2",
+        "slavename=fake-buildslave",
+        "nobuildbot=True",
+        "swarm_out_dir=${ISOLATED_OUTDIR}",
+        "revision=<(REVISION)",
+        "patch_storage=<(PATCH_STORAGE)",
+        "patch_issue=<(ISSUE)",
+        "patch_set=<(PATCHSET)"
+      ],
+      "isolate": "upload_dm_results.isolate",
+      "priority": 0.8
+    },
+    "Upload-Test-Android-Clang-Nexus5-GPU-Adreno330-arm-Debug-GN_Android": {
+      "dependencies": [
+        "Test-Android-Clang-Nexus5-GPU-Adreno330-arm-Debug-GN_Android"
+      ],
+      "dimensions": [
+        "cpu:x86-64-avx2",
+        "gpu:none",
+        "os:Ubuntu",
+        "pool:Skia"
+      ],
+      "extra_args": [
+        "--workdir",
+        "../../..",
+        "upload_dm_results",
+        "repository=<(REPO)",
+        "buildername=Test-Android-Clang-Nexus5-GPU-Adreno330-arm-Debug-GN_Android",
+        "mastername=fake-master",
+        "buildnumber=2",
+        "slavename=fake-buildslave",
+        "nobuildbot=True",
+        "swarm_out_dir=${ISOLATED_OUTDIR}",
+        "revision=<(REVISION)",
+        "patch_storage=<(PATCH_STORAGE)",
+        "patch_issue=<(ISSUE)",
+        "patch_set=<(PATCHSET)"
+      ],
+      "isolate": "upload_dm_results.isolate",
+      "priority": 0.8
+    },
+    "Upload-Test-Android-Clang-Nexus5-GPU-Adreno330-arm-Release-GN_Android": {
+      "dependencies": [
+        "Test-Android-Clang-Nexus5-GPU-Adreno330-arm-Release-GN_Android"
+      ],
+      "dimensions": [
+        "cpu:x86-64-avx2",
+        "gpu:none",
+        "os:Ubuntu",
+        "pool:Skia"
+      ],
+      "extra_args": [
+        "--workdir",
+        "../../..",
+        "upload_dm_results",
+        "repository=<(REPO)",
+        "buildername=Test-Android-Clang-Nexus5-GPU-Adreno330-arm-Release-GN_Android",
+        "mastername=fake-master",
+        "buildnumber=2",
+        "slavename=fake-buildslave",
+        "nobuildbot=True",
+        "swarm_out_dir=${ISOLATED_OUTDIR}",
+        "revision=<(REVISION)",
+        "patch_storage=<(PATCH_STORAGE)",
+        "patch_issue=<(ISSUE)",
+        "patch_set=<(PATCHSET)"
+      ],
+      "isolate": "upload_dm_results.isolate",
+      "priority": 0.8
+    },
+    "Upload-Test-Android-Clang-Nexus6p-CPU-Snapdragon810-arm64-Debug-GN_Android": {
+      "dependencies": [
+        "Test-Android-Clang-Nexus6p-CPU-Snapdragon810-arm64-Debug-GN_Android"
+      ],
+      "dimensions": [
+        "cpu:x86-64-avx2",
+        "gpu:none",
+        "os:Ubuntu",
+        "pool:Skia"
+      ],
+      "extra_args": [
+        "--workdir",
+        "../../..",
+        "upload_dm_results",
+        "repository=<(REPO)",
+        "buildername=Test-Android-Clang-Nexus6p-CPU-Snapdragon810-arm64-Debug-GN_Android",
+        "mastername=fake-master",
+        "buildnumber=2",
+        "slavename=fake-buildslave",
+        "nobuildbot=True",
+        "swarm_out_dir=${ISOLATED_OUTDIR}",
+        "revision=<(REVISION)",
+        "patch_storage=<(PATCH_STORAGE)",
+        "patch_issue=<(ISSUE)",
+        "patch_set=<(PATCHSET)"
+      ],
+      "isolate": "upload_dm_results.isolate",
+      "priority": 0.8
+    },
+    "Upload-Test-Android-Clang-Nexus6p-CPU-Snapdragon810-arm64-Release-GN_Android": {
+      "dependencies": [
+        "Test-Android-Clang-Nexus6p-CPU-Snapdragon810-arm64-Release-GN_Android"
+      ],
+      "dimensions": [
+        "cpu:x86-64-avx2",
+        "gpu:none",
+        "os:Ubuntu",
+        "pool:Skia"
+      ],
+      "extra_args": [
+        "--workdir",
+        "../../..",
+        "upload_dm_results",
+        "repository=<(REPO)",
+        "buildername=Test-Android-Clang-Nexus6p-CPU-Snapdragon810-arm64-Release-GN_Android",
+        "mastername=fake-master",
+        "buildnumber=2",
+        "slavename=fake-buildslave",
+        "nobuildbot=True",
+        "swarm_out_dir=${ISOLATED_OUTDIR}",
+        "revision=<(REVISION)",
+        "patch_storage=<(PATCH_STORAGE)",
+        "patch_issue=<(ISSUE)",
+        "patch_set=<(PATCHSET)"
+      ],
+      "isolate": "upload_dm_results.isolate",
+      "priority": 0.8
+    },
+    "Upload-Test-Android-Clang-Nexus6p-GPU-Adreno430-arm64-Debug-GN_Android": {
+      "dependencies": [
+        "Test-Android-Clang-Nexus6p-GPU-Adreno430-arm64-Debug-GN_Android"
+      ],
+      "dimensions": [
+        "cpu:x86-64-avx2",
+        "gpu:none",
+        "os:Ubuntu",
+        "pool:Skia"
+      ],
+      "extra_args": [
+        "--workdir",
+        "../../..",
+        "upload_dm_results",
+        "repository=<(REPO)",
+        "buildername=Test-Android-Clang-Nexus6p-GPU-Adreno430-arm64-Debug-GN_Android",
+        "mastername=fake-master",
+        "buildnumber=2",
+        "slavename=fake-buildslave",
+        "nobuildbot=True",
+        "swarm_out_dir=${ISOLATED_OUTDIR}",
+        "revision=<(REVISION)",
+        "patch_storage=<(PATCH_STORAGE)",
+        "patch_issue=<(ISSUE)",
+        "patch_set=<(PATCHSET)"
+      ],
+      "isolate": "upload_dm_results.isolate",
+      "priority": 0.8
+    },
+    "Upload-Test-Android-Clang-Nexus6p-GPU-Adreno430-arm64-Debug-GN_Android_Vulkan": {
+      "dependencies": [
+        "Test-Android-Clang-Nexus6p-GPU-Adreno430-arm64-Debug-GN_Android_Vulkan"
+      ],
+      "dimensions": [
+        "cpu:x86-64-avx2",
+        "gpu:none",
+        "os:Ubuntu",
+        "pool:Skia"
+      ],
+      "extra_args": [
+        "--workdir",
+        "../../..",
+        "upload_dm_results",
+        "repository=<(REPO)",
+        "buildername=Test-Android-Clang-Nexus6p-GPU-Adreno430-arm64-Debug-GN_Android_Vulkan",
+        "mastername=fake-master",
+        "buildnumber=2",
+        "slavename=fake-buildslave",
+        "nobuildbot=True",
+        "swarm_out_dir=${ISOLATED_OUTDIR}",
+        "revision=<(REVISION)",
+        "patch_storage=<(PATCH_STORAGE)",
+        "patch_issue=<(ISSUE)",
+        "patch_set=<(PATCHSET)"
+      ],
+      "isolate": "upload_dm_results.isolate",
+      "priority": 0.8
+    },
+    "Upload-Test-Android-Clang-Nexus6p-GPU-Adreno430-arm64-Release-GN_Android": {
+      "dependencies": [
+        "Test-Android-Clang-Nexus6p-GPU-Adreno430-arm64-Release-GN_Android"
+      ],
+      "dimensions": [
+        "cpu:x86-64-avx2",
+        "gpu:none",
+        "os:Ubuntu",
+        "pool:Skia"
+      ],
+      "extra_args": [
+        "--workdir",
+        "../../..",
+        "upload_dm_results",
+        "repository=<(REPO)",
+        "buildername=Test-Android-Clang-Nexus6p-GPU-Adreno430-arm64-Release-GN_Android",
+        "mastername=fake-master",
+        "buildnumber=2",
+        "slavename=fake-buildslave",
+        "nobuildbot=True",
+        "swarm_out_dir=${ISOLATED_OUTDIR}",
+        "revision=<(REVISION)",
+        "patch_storage=<(PATCH_STORAGE)",
+        "patch_issue=<(ISSUE)",
+        "patch_set=<(PATCHSET)"
+      ],
+      "isolate": "upload_dm_results.isolate",
+      "priority": 0.8
+    },
+    "Upload-Test-Android-Clang-Nexus6p-GPU-Adreno430-arm64-Release-GN_Android_Vulkan": {
+      "dependencies": [
+        "Test-Android-Clang-Nexus6p-GPU-Adreno430-arm64-Release-GN_Android_Vulkan"
+      ],
+      "dimensions": [
+        "cpu:x86-64-avx2",
+        "gpu:none",
+        "os:Ubuntu",
+        "pool:Skia"
+      ],
+      "extra_args": [
+        "--workdir",
+        "../../..",
+        "upload_dm_results",
+        "repository=<(REPO)",
+        "buildername=Test-Android-Clang-Nexus6p-GPU-Adreno430-arm64-Release-GN_Android_Vulkan",
+        "mastername=fake-master",
+        "buildnumber=2",
+        "slavename=fake-buildslave",
+        "nobuildbot=True",
+        "swarm_out_dir=${ISOLATED_OUTDIR}",
+        "revision=<(REVISION)",
+        "patch_storage=<(PATCH_STORAGE)",
+        "patch_issue=<(ISSUE)",
+        "patch_set=<(PATCHSET)"
+      ],
+      "isolate": "upload_dm_results.isolate",
+      "priority": 0.8
+    },
+    "Upload-Test-Android-Clang-Nexus7-GPU-Tegra3-arm-Debug-GN_Android": {
+      "dependencies": [
+        "Test-Android-Clang-Nexus7-GPU-Tegra3-arm-Debug-GN_Android"
+      ],
+      "dimensions": [
+        "cpu:x86-64-avx2",
+        "gpu:none",
+        "os:Ubuntu",
+        "pool:Skia"
+      ],
+      "extra_args": [
+        "--workdir",
+        "../../..",
+        "upload_dm_results",
+        "repository=<(REPO)",
+        "buildername=Test-Android-Clang-Nexus7-GPU-Tegra3-arm-Debug-GN_Android",
+        "mastername=fake-master",
+        "buildnumber=2",
+        "slavename=fake-buildslave",
+        "nobuildbot=True",
+        "swarm_out_dir=${ISOLATED_OUTDIR}",
+        "revision=<(REVISION)",
+        "patch_storage=<(PATCH_STORAGE)",
+        "patch_issue=<(ISSUE)",
+        "patch_set=<(PATCHSET)"
+      ],
+      "isolate": "upload_dm_results.isolate",
+      "priority": 0.8
+    },
+    "Upload-Test-Android-Clang-Nexus7-GPU-Tegra3-arm-Release-GN_Android": {
+      "dependencies": [
+        "Test-Android-Clang-Nexus7-GPU-Tegra3-arm-Release-GN_Android"
+      ],
+      "dimensions": [
+        "cpu:x86-64-avx2",
+        "gpu:none",
+        "os:Ubuntu",
+        "pool:Skia"
+      ],
+      "extra_args": [
+        "--workdir",
+        "../../..",
+        "upload_dm_results",
+        "repository=<(REPO)",
+        "buildername=Test-Android-Clang-Nexus7-GPU-Tegra3-arm-Release-GN_Android",
+        "mastername=fake-master",
+        "buildnumber=2",
+        "slavename=fake-buildslave",
+        "nobuildbot=True",
+        "swarm_out_dir=${ISOLATED_OUTDIR}",
+        "revision=<(REVISION)",
+        "patch_storage=<(PATCH_STORAGE)",
+        "patch_issue=<(ISSUE)",
+        "patch_set=<(PATCHSET)"
+      ],
+      "isolate": "upload_dm_results.isolate",
+      "priority": 0.8
+    },
+    "Upload-Test-Android-Clang-Nexus9-GPU-TegraK1-arm64-Debug-GN_Android": {
+      "dependencies": [
+        "Test-Android-Clang-Nexus9-GPU-TegraK1-arm64-Debug-GN_Android"
+      ],
+      "dimensions": [
+        "cpu:x86-64-avx2",
+        "gpu:none",
+        "os:Ubuntu",
+        "pool:Skia"
+      ],
+      "extra_args": [
+        "--workdir",
+        "../../..",
+        "upload_dm_results",
+        "repository=<(REPO)",
+        "buildername=Test-Android-Clang-Nexus9-GPU-TegraK1-arm64-Debug-GN_Android",
+        "mastername=fake-master",
+        "buildnumber=2",
+        "slavename=fake-buildslave",
+        "nobuildbot=True",
+        "swarm_out_dir=${ISOLATED_OUTDIR}",
+        "revision=<(REVISION)",
+        "patch_storage=<(PATCH_STORAGE)",
+        "patch_issue=<(ISSUE)",
+        "patch_set=<(PATCHSET)"
+      ],
+      "isolate": "upload_dm_results.isolate",
+      "priority": 0.8
+    },
+    "Upload-Test-Android-Clang-Nexus9-GPU-TegraK1-arm64-Release-GN_Android": {
+      "dependencies": [
+        "Test-Android-Clang-Nexus9-GPU-TegraK1-arm64-Release-GN_Android"
+      ],
+      "dimensions": [
+        "cpu:x86-64-avx2",
+        "gpu:none",
+        "os:Ubuntu",
+        "pool:Skia"
+      ],
+      "extra_args": [
+        "--workdir",
+        "../../..",
+        "upload_dm_results",
+        "repository=<(REPO)",
+        "buildername=Test-Android-Clang-Nexus9-GPU-TegraK1-arm64-Release-GN_Android",
+        "mastername=fake-master",
+        "buildnumber=2",
+        "slavename=fake-buildslave",
+        "nobuildbot=True",
+        "swarm_out_dir=${ISOLATED_OUTDIR}",
+        "revision=<(REVISION)",
+        "patch_storage=<(PATCH_STORAGE)",
+        "patch_issue=<(ISSUE)",
+        "patch_set=<(PATCHSET)"
+      ],
+      "isolate": "upload_dm_results.isolate",
       "priority": 0.8
     },
     "Upload-Test-Ubuntu-GCC-GCE-CPU-AVX2-x86_64-Release-GN": {
@@ -160,12 +5031,75 @@
         "--workdir",
         "../../..",
         "upload_dm_results",
+        "repository=<(REPO)",
         "buildername=Test-Ubuntu-GCC-GCE-CPU-AVX2-x86_64-Release-GN",
         "mastername=fake-master",
         "buildnumber=2",
         "slavename=fake-buildslave",
+        "nobuildbot=True",
         "swarm_out_dir=${ISOLATED_OUTDIR}",
-        "revision=<(REVISION)"
+        "revision=<(REVISION)",
+        "patch_storage=<(PATCH_STORAGE)",
+        "patch_issue=<(ISSUE)",
+        "patch_set=<(PATCHSET)"
+      ],
+      "isolate": "upload_dm_results.isolate",
+      "priority": 0.8
+    },
+    "Upload-Test-iOS-Clang-iPadMini4-GPU-GX6450-Arm7-Debug": {
+      "dependencies": [
+        "Test-iOS-Clang-iPadMini4-GPU-GX6450-Arm7-Debug"
+      ],
+      "dimensions": [
+        "cpu:x86-64-avx2",
+        "gpu:none",
+        "os:Ubuntu",
+        "pool:Skia"
+      ],
+      "extra_args": [
+        "--workdir",
+        "../../..",
+        "upload_dm_results",
+        "repository=<(REPO)",
+        "buildername=Test-iOS-Clang-iPadMini4-GPU-GX6450-Arm7-Debug",
+        "mastername=fake-master",
+        "buildnumber=2",
+        "slavename=fake-buildslave",
+        "nobuildbot=True",
+        "swarm_out_dir=${ISOLATED_OUTDIR}",
+        "revision=<(REVISION)",
+        "patch_storage=<(PATCH_STORAGE)",
+        "patch_issue=<(ISSUE)",
+        "patch_set=<(PATCHSET)"
+      ],
+      "isolate": "upload_dm_results.isolate",
+      "priority": 0.8
+    },
+    "Upload-Test-iOS-Clang-iPadMini4-GPU-GX6450-Arm7-Release": {
+      "dependencies": [
+        "Test-iOS-Clang-iPadMini4-GPU-GX6450-Arm7-Release"
+      ],
+      "dimensions": [
+        "cpu:x86-64-avx2",
+        "gpu:none",
+        "os:Ubuntu",
+        "pool:Skia"
+      ],
+      "extra_args": [
+        "--workdir",
+        "../../..",
+        "upload_dm_results",
+        "repository=<(REPO)",
+        "buildername=Test-iOS-Clang-iPadMini4-GPU-GX6450-Arm7-Release",
+        "mastername=fake-master",
+        "buildnumber=2",
+        "slavename=fake-buildslave",
+        "nobuildbot=True",
+        "swarm_out_dir=${ISOLATED_OUTDIR}",
+        "revision=<(REVISION)",
+        "patch_storage=<(PATCH_STORAGE)",
+        "patch_issue=<(ISSUE)",
+        "patch_set=<(PATCHSET)"
       ],
       "isolate": "upload_dm_results.isolate",
       "priority": 0.8

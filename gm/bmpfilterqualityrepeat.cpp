@@ -35,10 +35,17 @@ protected:
 
     SkString onShortName() override { return SkString("bmp_filter_quality_repeat"); }
 
-    SkISize onISize() override { return SkISize::Make(1000, 235); }
+    SkISize onISize() override { return SkISize::Make(1000, 400); }
 
     void onDraw(SkCanvas* canvas) override {
+        this->drawAll(canvas, 2.5f);
+        canvas->translate(0, 250);
+        canvas->scale(0.5, 0.5);
+        this->drawAll(canvas, 1);
+    }
 
+private:
+    void drawAll(SkCanvas* canvas, SkScalar scaleX) const {
         constexpr struct {
             SkFilterQuality fQuality;
             const char* fName;
@@ -49,27 +56,31 @@ protected:
             {kHigh_SkFilterQuality, "high"},
         };
 
-        for (size_t q = 0; q < SK_ARRAY_COUNT(kQualities); ++q) {
-            SkPaint paint;
-            sk_tool_utils::set_portable_typeface(&paint);
-            paint.setFilterQuality(kQualities[q].fQuality);
-            SkPaint bmpPaint(paint);
-            SkMatrix lm = SkMatrix::I();
-            lm.setScaleX(2.5);
-            lm.setTranslateX(423);
-            lm.setTranslateY(330);
+        SkRect rect = SkRect::MakeLTRB(20, 60, 220, 210);
+        SkMatrix lm = SkMatrix::I();
+        lm.setScaleX(scaleX);
+        lm.setTranslateX(423);
+        lm.setTranslateY(330);
 
+        SkPaint textPaint;
+        sk_tool_utils::set_portable_typeface(&textPaint);
+        textPaint.setAntiAlias(true);
+
+        SkPaint bmpPaint(textPaint);
+
+        SkAutoCanvasRestore acr(canvas, true);
+
+        for (size_t q = 0; q < SK_ARRAY_COUNT(kQualities); ++q) {
             constexpr SkShader::TileMode kTM = SkShader::kRepeat_TileMode;
             bmpPaint.setShader(SkShader::MakeBitmapShader(fBmp, kTM, kTM, &lm));
-            SkRect rect = SkRect::MakeLTRB(20, 60, 220, 210);
+            bmpPaint.setFilterQuality(kQualities[q].fQuality);
             canvas->drawRect(rect, bmpPaint);
-            paint.setAntiAlias(true);
-            canvas->drawText(kQualities[q].fName, strlen(kQualities[q].fName), 20, 40, paint);
+            canvas->drawText(kQualities[q].fName, strlen(kQualities[q].fName), 20, 40, textPaint);
             canvas->translate(250, 0);
         }
+
     }
 
-private:
     SkBitmap    fBmp;
 
     typedef skiagm::GM INHERITED;

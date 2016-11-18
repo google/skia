@@ -7,6 +7,8 @@
 
 #include "SkDrawCommand.h"
 
+#include "png.h"
+
 #include "SkBlurMaskFilter.h"
 #include "SkColorFilter.h"
 #include "SkDashPathEffect.h"
@@ -661,7 +663,7 @@ static void write_png_callback(png_structp png_ptr, png_bytep data, png_size_t l
     out->write(data, length);
 }
 
-void SkDrawCommand::WritePNG(const png_bytep rgba, png_uint_32 width, png_uint_32 height,
+void SkDrawCommand::WritePNG(const uint8_t* rgba, unsigned width, unsigned height,
                              SkWStream& out, bool isOpaque) {
     png_structp png = png_create_write_struct(PNG_LIBPNG_VER_STRING, NULL, NULL, NULL);
     SkASSERT(png != nullptr);
@@ -678,7 +680,7 @@ void SkDrawCommand::WritePNG(const png_bytep rgba, png_uint_32 width, png_uint_3
     png_bytepp rows = (png_bytepp) sk_malloc_throw(height * sizeof(png_byte*));
     png_bytep pixels = (png_bytep) sk_malloc_throw(width * height * 4);
     for (png_size_t y = 0; y < height; ++y) {
-        const png_bytep src = rgba + y * width * 4;
+        const uint8_t* src = rgba + y * width * 4;
         rows[y] = pixels + y * width * 4;
         for (png_size_t x = 0; x < width; ++x) {
             rows[y][x * 4] = src[x * 4];
@@ -714,7 +716,7 @@ bool SkDrawCommand::flatten(const SkImage& image, Json::Value* target,
     sk_sp<SkData> encodedBitmap = sk_tools::encode_bitmap_for_png(bm);
 
     SkDynamicMemoryWStream out;
-    SkDrawCommand::WritePNG((const png_bytep) encodedBitmap->bytes(), image.width(), image.height(),
+    SkDrawCommand::WritePNG(encodedBitmap->bytes(), image.width(), image.height(),
                             out, false);
     sk_sp<SkData> encoded = out.detachAsData();
     Json::Value jsonData;
@@ -845,9 +847,9 @@ static SkBitmap* load_bitmap(const Json::Value& jsonBitmap, UrlDataManager& urlD
     sk_sp<SkData> encoded(SkData::MakeWithoutCopy(data, size));
     sk_sp<SkImage> image(SkImage::MakeFromEncoded(std::move(encoded), nullptr));
 
-    SkAutoTDelete<SkBitmap> bitmap(new SkBitmap());
+    std::unique_ptr<SkBitmap> bitmap(new SkBitmap());
     if (nullptr != image) {
-        if (!image->asLegacyBitmap(bitmap, SkImage::kRW_LegacyBitmapMode)) {
+        if (!image->asLegacyBitmap(bitmap.get(), SkImage::kRW_LegacyBitmapMode)) {
             SkDebugf("image decode failed\n");
             return nullptr;
         }
@@ -1250,11 +1252,10 @@ static void extract_json_paint_imagefilter(Json::Value& jsonPaint, UrlDataManage
                                            SkPaint* target) {
     if (jsonPaint.isMember(SKDEBUGCANVAS_ATTRIBUTE_IMAGEFILTER)) {
         Json::Value jsonImageFilter = jsonPaint[SKDEBUGCANVAS_ATTRIBUTE_IMAGEFILTER];
-        SkImageFilter* imageFilter = (SkImageFilter*) load_flattenable(jsonImageFilter,
-                                                                       urlDataManager);
+        sk_sp<SkImageFilter> imageFilter((SkImageFilter*) load_flattenable(jsonImageFilter,
+                                                                           urlDataManager));
         if (imageFilter != nullptr) {
             target->setImageFilter(imageFilter);
-            imageFilter->unref();
         }
     }
 }
@@ -2098,7 +2099,7 @@ SkDrawImageCommand::SkDrawImageCommand(const SkImage* image, SkScalar left, SkSc
 }
 
 void SkDrawImageCommand::execute(SkCanvas* canvas) const {
-    canvas->drawImage(fImage, fLeft, fTop, fPaint.getMaybeNull());
+    canvas->drawImage(fImage.get(), fLeft, fTop, fPaint.getMaybeNull());
 }
 
 bool SkDrawImageCommand::render(SkCanvas* canvas) const {
@@ -2192,8 +2193,8 @@ SkDrawImageRectCommand::SkDrawImageRectCommand(const SkImage* image, const SkRec
 }
 
 void SkDrawImageRectCommand::execute(SkCanvas* canvas) const {
-    canvas->legacy_drawImageRect(fImage, fSrc.getMaybeNull(), fDst, fPaint.getMaybeNull(),
-                                 fConstraint);
+    canvas->legacy_drawImageRect(fImage.get(), fSrc.getMaybeNull(), fDst,
+                                 fPaint.getMaybeNull(), fConstraint);
 }
 
 bool SkDrawImageRectCommand::render(SkCanvas* canvas) const {
@@ -2790,18 +2791,18 @@ SkDrawTextBlobCommand::SkDrawTextBlobCommand(sk_sp<SkTextBlob> blob, SkScalar x,
     , fYPos(y)
     , fPaint(paint) {
 
-    SkAutoTDelete<SkString> runsStr(new SkString);
+    std::unique_ptr<SkString> runsStr(new SkString);
     fInfo.push(SkObjectParser::ScalarToString(x, "XPOS: "));
     fInfo.push(SkObjectParser::ScalarToString(y, "YPOS: "));
     fInfo.push(SkObjectParser::RectToString(fBlob->bounds(), "Bounds: "));
-    fInfo.push(runsStr);
+    fInfo.push(runsStr.get());
     fInfo.push(SkObjectParser::PaintToString(paint));
 
     unsigned runs = 0;
     SkPaint runPaint(paint);
     SkTextBlobRunIterator iter(fBlob.get());
     while (!iter.done()) {
-        SkAutoTDelete<SkString> tmpStr(new SkString);
+        std::unique_ptr<SkString> tmpStr(new SkString);
         tmpStr->printf("==== Run [%d] ====", runs++);
         fInfo.push(tmpStr.release());
 
@@ -2939,9 +2940,11 @@ SkDrawTextBlobCommand* SkDrawTextBlobCommand::fromJSON(Json::Value& command,
 }
 
 SkDrawPatchCommand::SkDrawPatchCommand(const SkPoint cubics[12], const SkColor colors[4],
-                                       const SkPoint texCoords[4], SkXfermode* xfermode,
+                                       const SkPoint texCoords[4], SkBlendMode bmode,
                                        const SkPaint& paint)
-    : INHERITED(kDrawPatch_OpType) {
+    : INHERITED(kDrawPatch_OpType)
+    , fBlendMode(bmode)
+{
     memcpy(fCubics, cubics, sizeof(fCubics));
     if (colors != nullptr) {
         memcpy(fColors, colors, sizeof(fColors));
@@ -2955,16 +2958,13 @@ SkDrawPatchCommand::SkDrawPatchCommand(const SkPoint cubics[12], const SkColor c
     } else {
         fTexCoordsPtr = nullptr;
     }
-    if (xfermode != nullptr) {
-        fXfermode.reset(SkRef(xfermode));
-    }
     fPaint = paint;
 
     fInfo.push(SkObjectParser::PaintToString(paint));
 }
 
 void SkDrawPatchCommand::execute(SkCanvas* canvas) const {
-    canvas->drawPatch(fCubics, fColorsPtr, fTexCoordsPtr, fXfermode, fPaint);
+    canvas->drawPatch(fCubics, fColorsPtr, fTexCoordsPtr, fBlendMode, fPaint);
 }
 
 Json::Value SkDrawPatchCommand::toJSON(UrlDataManager& urlDataManager) const {
@@ -2988,11 +2988,7 @@ Json::Value SkDrawPatchCommand::toJSON(UrlDataManager& urlDataManager) const {
         }
         result[SKDEBUGCANVAS_ATTRIBUTE_TEXTURECOORDS] = texCoords;
     }
-    if (fXfermode.get() != nullptr) {
-        Json::Value jsonXfermode;
-        flatten(fXfermode, &jsonXfermode, urlDataManager);
-        result[SKDEBUGCANVAS_ATTRIBUTE_XFERMODE] = jsonXfermode;
-    }
+    // fBlendMode
     return result;
 }
 
@@ -3027,14 +3023,12 @@ SkDrawPatchCommand* SkDrawPatchCommand::fromJSON(Json::Value& command,
     else {
         texCoordsPtr = nullptr;
     }
-    SkAutoTUnref<SkXfermode> xfermode;
-    if (command.isMember(SKDEBUGCANVAS_ATTRIBUTE_XFERMODE)) {
-        Json::Value jsonXfermode = command[SKDEBUGCANVAS_ATTRIBUTE_XFERMODE];
-        xfermode.reset((SkXfermode*) load_flattenable(jsonXfermode, urlDataManager));
-    }
+
+    SkBlendMode bmode = SkBlendMode::kSrcOver; // TODO: extract from json
+
     SkPaint paint;
     extract_json_paint(command[SKDEBUGCANVAS_ATTRIBUTE_PAINT], urlDataManager, &paint);
-    return new SkDrawPatchCommand(cubics, colorsPtr, texCoordsPtr, xfermode, paint);
+    return new SkDrawPatchCommand(cubics, colorsPtr, texCoordsPtr, bmode, paint);
 }
 
 SkDrawRectCommand::SkDrawRectCommand(const SkRect& rect, const SkPaint& paint)
@@ -3306,10 +3300,12 @@ SkDrawTextRSXformCommand* SkDrawTextRSXformCommand::fromJSON(Json::Value& comman
 
 SkDrawVerticesCommand::SkDrawVerticesCommand(SkCanvas::VertexMode vmode, int vertexCount,
                                              const SkPoint vertices[], const SkPoint texs[],
-                                             const SkColor colors[], SkXfermode* xfermode,
+                                             const SkColor colors[], SkBlendMode bmode,
                                              const uint16_t indices[], int indexCount,
                                              const SkPaint& paint)
-    : INHERITED(kDrawVertices_OpType) {
+    : INHERITED(kDrawVertices_OpType)
+    , fBlendMode(bmode)
+{
     fVmode = vmode;
 
     fVertexCount = vertexCount;
@@ -3331,11 +3327,6 @@ SkDrawVerticesCommand::SkDrawVerticesCommand(SkCanvas::VertexMode vmode, int ver
         fColors = nullptr;
     }
 
-    fXfermode = xfermode;
-    if (fXfermode) {
-        fXfermode->ref();
-    }
-
     if (indexCount > 0) {
         fIndices = new uint16_t[indexCount];
         memcpy(fIndices, indices, indexCount * sizeof(uint16_t));
@@ -3355,13 +3346,12 @@ SkDrawVerticesCommand::~SkDrawVerticesCommand() {
     delete [] fVertices;
     delete [] fTexs;
     delete [] fColors;
-    SkSafeUnref(fXfermode);
     delete [] fIndices;
 }
 
 void SkDrawVerticesCommand::execute(SkCanvas* canvas) const {
     canvas->drawVertices(fVmode, fVertexCount, fVertices,
-                         fTexs, fColors, fXfermode, fIndices,
+                         fTexs, fColors, fBlendMode, fIndices,
                          fIndexCount, fPaint);
 }
 

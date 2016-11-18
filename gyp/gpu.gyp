@@ -83,9 +83,6 @@
         'ktx.gyp:libSkKTX',
         'sksl.gyp:sksl',
       ],
-      'includes': [
-        'gpu.gypi',
-      ],
       'include_dirs': [
         '../include/gpu',
         '../include/private',
@@ -95,10 +92,9 @@
         '../src/sksl',
       ],
       'sources': [
-        '<@(skgpu_sources)',
-        '<@(skgpu_native_gl_sources)',
-        '<@(skgpu_vk_sources)',
-        'gpu.gypi', # Makes the gypi appear in IDEs (but does not modify the build).
+        '<!@(python read_gni.py ../gn/gpu.gni skia_gpu_sources)',
+        '<!@(python read_gni.py ../gn/gpu.gni skia_native_gpu_sources)',
+        '<!@(python read_gni.py ../gn/gpu.gni skia_vk_sources)',
       ],
       'conditions': [
         [ 'skia_gpu_extra_dependency_path', {
@@ -177,9 +173,6 @@
           'link_settings': {
             'libraries': [ '<(vulkan_lib_name)', ],
           },
-          'dependencies': [
-            'shaderc.gyp:shaderc_combined',
-          ],
           'conditions': [
             [ 'skia_os == "win"', {
              'variables': {
@@ -237,9 +230,6 @@
                   '../tools/viewer/sk_app/android',
                 ],
               },
-              'dependencies!': [
-                'shaderc.gyp:shaderc_combined',
-              ],
               'sources': [
                 # the gyp -> android.mk generator doesn't seem to like cpp files
                 # in directories outside of src, bench, or dm.  Until this gets fixed
@@ -252,7 +242,7 @@
           ],
         }, {
           'sources!': [
-            '<@(skgpu_vk_sources)',
+            '<!@(python read_gni.py ../gn/gpu.gni skia_vk_sources)',
           ],
         }],
       ],

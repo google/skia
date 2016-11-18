@@ -21,12 +21,6 @@ public:
     SK_TO_STRING_OVERRIDE()
     SK_DECLARE_PUBLIC_FLATTENABLE_DESERIALIZATION_PROCS(SkLocalMatrixImageFilter)
 
-#ifdef SK_SUPPORT_LEGACY_IMAGEFILTER_PTR
-    static SkImageFilter* Create(const SkMatrix& localM, SkImageFilter* input) {
-        return Make(localM, sk_sp<SkImageFilter>(SkSafeRef(input))).release();
-    }
-#endif
-
 protected:
     void flatten(SkWriteBuffer&) const override;
     sk_sp<SkSpecialImage> onFilterImage(SkSpecialImage* source, const Context&,

@@ -37,15 +37,15 @@ enum GrVkFeatureFlags {
 // creation, and any GrBackendObjects handed to us (e.g., for wrapped textures) need to be created
 // in or transitioned to that family.
 struct GrVkBackendContext : public SkRefCnt {
-    VkInstance                        fInstance;
-    VkPhysicalDevice                  fPhysicalDevice;
-    VkDevice                          fDevice;
-    VkQueue                           fQueue;
-    uint32_t                          fGraphicsQueueIndex;
-    uint32_t                          fMinAPIVersion;
-    uint32_t                          fExtensions;
-    uint32_t                          fFeatures;
-    SkAutoTUnref<const GrVkInterface> fInterface;
+    VkInstance                 fInstance;
+    VkPhysicalDevice           fPhysicalDevice;
+    VkDevice                   fDevice;
+    VkQueue                    fQueue;
+    uint32_t                   fGraphicsQueueIndex;
+    uint32_t                   fMinAPIVersion;
+    uint32_t                   fExtensions;
+    uint32_t                   fFeatures;
+    sk_sp<const GrVkInterface> fInterface;
 
     using CanPresentFn = std::function<bool(VkInstance, VkPhysicalDevice,
                                             uint32_t queueFamilyIndex)>;

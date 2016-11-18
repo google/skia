@@ -26,7 +26,7 @@ TEST_BUILDERS = {
     'skiabot-linux-swarm-000': [
       'Test-Android-Clang-AndroidOne-CPU-MT6582-arm-Release-GN_Android',
       'Test-Android-Clang-AndroidOne-GPU-Mali400MP2-arm-Release-GN_Android',
-      'Test-Android-Clang-GalaxyS3-GPU-Mali400-arm-Debug-GN_Android',
+      'Test-Android-Clang-GalaxyS7-GPU-Adreno530-arm64-Debug-GN_Android',
       'Test-Android-Clang-NVIDIA_Shield-GPU-TegraX1-arm64-Debug-GN_Android',
       'Test-Android-Clang-Nexus10-GPU-MaliT604-arm-Release-GN_Android',
       'Test-Android-Clang-Nexus6-GPU-Adreno420-arm-Debug-GN_Android',
@@ -34,6 +34,7 @@ TEST_BUILDERS = {
       'Test-Android-Clang-Nexus7-GPU-Tegra3-arm-Debug-GN_Android',
       'Test-Android-Clang-Nexus9-CPU-Denver-arm64-Debug-GN_Android',
       'Test-Android-Clang-NexusPlayer-CPU-SSE4-x86-Release-GN_Android',
+      'Test-Android-Clang-PixelC-GPU-TegraX1-arm64-Debug-GN_Android',
       'Test-Mac-Clang-MacMini4.1-GPU-GeForce320M-x86_64-Debug',
       'Test-Mac-Clang-MacMini6.2-CPU-AVX-x86_64-Debug',
       'Test-Mac-Clang-MacMini6.2-GPU-HD4000-x86_64-Debug-CommandBuffer',
@@ -63,27 +64,29 @@ def dm_flags(bot):
 
   # These are the canonical configs that we would ideally run on all bots. We
   # may opt out or substitute some below for specific bots
-  configs = ['8888', 'gpu', 'gpusrgb', 'pdf']
+  configs = ['8888', 'gpu', 'gpudft', 'gpusrgb', 'pdf']
   # Add in either msaa4 or msaa16 to the canonical set of configs to run
   if 'Android' in bot or 'iOS' in bot:
     configs.append('msaa4')
   else:
     configs.append('msaa16')
 
-  # With msaa, the S4 crashes and the NP produces a long error stream when we
-  # run with MSAA. The Tegra2 and Tegra3 just don't support it. No record of
-  # why we're not running msaa on iOS, probably started with gpu config and just
-  # haven't tried.
-  if ('GalaxyS4'    in bot or
-      'NexusPlayer' in bot or
+  # The NP produces a long error stream when we run with MSAA. The Tegra3 just
+  # doesn't support it.
+  if ('NexusPlayer' in bot or
       'Tegra3'      in bot or
-      'iOS'         in bot or
+      # We aren't interested in fixing msaa bugs on iPad4.
+      'iPad4'       in bot or
       # skia:5792
       'iHD530'      in bot):
     configs = [x for x in configs if 'msaa' not in x]
 
-  # Runs out of memory on Android bots and Daisy.  Everyone else seems fine.
-  if 'Android' in bot or 'Daisy' in bot:
+  # The NP produces different images for dft on every run.
+  if 'NexusPlayer' in bot:
+    configs = [x for x in configs if 'gpudft' not in x]
+
+  # Runs out of memory on Android bots.  Everyone else seems fine.
+  if 'Android' in bot:
     configs.remove('pdf')
 
   if '-GCE-' in bot:
@@ -103,8 +106,8 @@ def dm_flags(bot):
       else:
         configs.append('nvprdit16')
 
-  # We want to test the OpenGL config not the GLES config on the X1
-  if 'TegraX1' in bot:
+  # We want to test the OpenGL config not the GLES config on the Shield
+  if 'NVIDIA_Shield' in bot:
     configs = [x.replace('gpu', 'gl') for x in configs]
     configs = [x.replace('msaa', 'glmsaa') for x in configs]
     configs = [x.replace('nvpr', 'glnvpr') for x in configs]
@@ -114,26 +117,30 @@ def dm_flags(bot):
     configs.extend(mode + '-8888' for mode in
                    ['serialize', 'tiles_rt', 'pic'])
 
-  if 'ANGLE' in bot:
-    configs.append('angle')
-
-  # We want to run gpudft on atleast the mali 400
-  if 'GalaxyS3' in bot:
-    configs.append('gpudft')
-
   # Test instanced rendering on a limited number of platforms
   if 'Nexus6' in bot:
     configs.append('esinst') # esinst4 isn't working yet on Adreno.
-  elif 'TegraX1' in bot:
+  elif 'NVIDIA_Shield' in bot:
     # Multisampled instanced configs use nvpr.
     configs = [x.replace('glnvpr', 'glinst') for x in configs]
     configs.append('glinst')
+  elif 'PixelC' in bot:
+    # Multisampled instanced configs use nvpr.
+    configs = [x.replace('nvpr', 'esinst') for x in configs]
+    configs.append('esinst')
   elif 'MacMini6.2' in bot:
     configs.extend(['glinst', 'glinst16'])
 
   # CommandBuffer bot *only* runs the command_buffer config.
   if 'CommandBuffer' in bot:
     configs = ['commandbuffer']
+
+  # ANGLE bot *only* runs the angle configs
+  if 'ANGLE' in bot:
+    configs = ['angle_d3d11_es2',
+               'angle_d3d9_es2',
+               'angle_d3d11_es2_msaa4',
+               'angle_gl_es2']
 
   # Vulkan bot *only* runs the vk config.
   if 'Vulkan' in bot:
@@ -266,8 +273,16 @@ def dm_flags(bot):
   bad_serialize_gms.extend(['composeshader_bitmap',
                             'scaled_tilemodes_npot',
                             'scaled_tilemodes'])
+
   # skia:5778
   bad_serialize_gms.append('typefacerendering_pfaMac')
+  # skia:5942
+  bad_serialize_gms.append('parsedpaths')
+
+  # these use a custom image generator which doesn't serialize
+  bad_serialize_gms.append('ImageGeneratorExternal_rect')
+  bad_serialize_gms.append('ImageGeneratorExternal_shader')
+
   for test in bad_serialize_gms:
     blacklist(['serialize-8888', 'gm', '_', test])
 
@@ -329,9 +344,6 @@ def dm_flags(bot):
   if 'Valgrind' in bot: # skia:3021
     match.append('~Threaded')
 
-  if 'GalaxyS3' in bot:  # skia:1699
-    match.append('~WritePixels')
-
   if 'AndroidOne' in bot:  # skia:4711
     match.append('~WritePixels')
 
@@ -349,6 +361,8 @@ def dm_flags(bot):
 
   if 'TSAN' in bot:
     match.extend(['~ReadWriteAlpha'])   # Flaky on TSAN-covered on nvidia bots.
+    match.extend(['~RGBA4444TextureTest',  # Flakier than they are important.
+                  '~RGB565TextureTest'])
 
   if 'Vulkan' in bot and 'Adreno' in bot:
     # skia:5777
@@ -472,6 +486,10 @@ def test_steps(api):
       'patchset',      api.vars.patchset,
       'patch_storage', api.vars.patch_storage,
     ])
+  if api.vars.no_buildbot:
+    properties.extend(['no_buildbot', 'True'])
+    properties.extend(['swarming_bot_id', api.vars.swarming_bot_id])
+    properties.extend(['swarming_task_id', api.vars.swarming_task_id])
 
   args = [
     'dm',
@@ -530,7 +548,7 @@ def test_steps(api):
 def RunSteps(api):
   api.core.setup()
   try:
-    api.flavor.install()
+    api.flavor.install_everything()
     test_steps(api)
   finally:
     api.flavor.cleanup_steps()
@@ -667,12 +685,6 @@ def GenTests(api):
   )
 
   builder = 'Test-Ubuntu-GCC-GCE-CPU-AVX2-x86-Debug-Trybot'
-  gerrit_kwargs = {
-    'patch_storage': 'gerrit',
-    'repository': 'skia',
-    'event.patchSet.ref': 'refs/changes/00/2100/2',
-    'event.change.number': '2100',
-  }
   yield (
       api.test('recipe_with_gerrit_patch') +
       api.properties(
@@ -683,5 +695,32 @@ def GenTests(api):
           path_config='kitchen',
           swarm_out_dir='[SWARM_OUT_DIR]',
           revision='abc123',
-          **gerrit_kwargs)
+          patch_storage='gerrit') +
+      api.properties.tryserver(
+          buildername=builder,
+          gerrit_project='skia',
+          gerrit_url='https://skia-review.googlesource.com/',
+      )
+  )
+
+  yield (
+      api.test('nobuildbot') +
+      api.properties(
+          buildername=builder,
+          mastername='client.skia',
+          slavename='skiabot-linux-swarm-000',
+          buildnumber=5,
+          path_config='kitchen',
+          swarm_out_dir='[SWARM_OUT_DIR]',
+          revision='abc123',
+          nobuildbot='True',
+          patch_storage='gerrit') +
+      api.properties.tryserver(
+          buildername=builder,
+          gerrit_project='skia',
+          gerrit_url='https://skia-review.googlesource.com/',
+      ) +
+      api.step_data('get swarming bot id',
+          stdout=api.raw_io.output('skia-bot-123')) +
+      api.step_data('get swarming task id', stdout=api.raw_io.output('123456'))
   )

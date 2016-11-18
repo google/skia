@@ -40,18 +40,18 @@ static void test_flatten(skiatest::Reporter* reporter, const SkImageInfo& info) 
 DEF_TEST(ImageInfo_flattening, reporter) {
      sk_sp<SkData> data =
              SkData::MakeFromFileName(GetResourcePath("icc_profiles/HP_ZR30w.icc").c_str());
-    sk_sp<SkColorSpace> space0 = SkColorSpace::NewICC(data->data(), data->size());
+    sk_sp<SkColorSpace> space0 = SkColorSpace::MakeICC(data->data(), data->size());
     data = SkData::MakeFromFileName( GetResourcePath("icc_profiles/HP_Z32x.icc").c_str());
-    sk_sp<SkColorSpace> space1 = SkColorSpace::NewICC(data->data(), data->size());
+    sk_sp<SkColorSpace> space1 = SkColorSpace::MakeICC(data->data(), data->size());
     data = SkData::MakeFromFileName(GetResourcePath("icc_profiles/upperLeft.icc").c_str());
-    sk_sp<SkColorSpace> space2 = SkColorSpace::NewICC(data->data(), data->size());
+    sk_sp<SkColorSpace> space2 = SkColorSpace::MakeICC(data->data(), data->size());
     data = SkData::MakeFromFileName(GetResourcePath("icc_profiles/upperRight.icc").c_str());
-    sk_sp<SkColorSpace> space3 = SkColorSpace::NewICC(data->data(), data->size());
+    sk_sp<SkColorSpace> space3 = SkColorSpace::MakeICC(data->data(), data->size());
 
     sk_sp<SkColorSpace> spaces[] = {
         nullptr,
-        SkColorSpace::NewNamed(SkColorSpace::kSRGB_Named),
-        SkColorSpace::NewNamed(SkColorSpace::kAdobeRGB_Named),
+        SkColorSpace::MakeNamed(SkColorSpace::kSRGB_Named),
+        SkColorSpace::MakeNamed(SkColorSpace::kAdobeRGB_Named),
         space0,
         space1,
         space2,
@@ -102,3 +102,34 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(ImageIsOpaqueTest_Gpu, reporter, ctxInfo) {
 }
 
 #endif
+
+///////////////////////////////////////////////////////////////////////////////////////////////////
+#include "SkPictureRecorder.h"
+
+static sk_sp<SkPicture> make_picture() {
+    SkPictureRecorder recorder;
+    SkCanvas* canvas = recorder.beginRecording({ 0, 0, 10, 10 });
+    canvas->drawColor(SK_ColorRED);
+    return recorder.finishRecordingAsPicture();
+}
+
+DEF_TEST(Image_isAlphaOnly, reporter) {
+    SkPMColor pmColors = 0;
+    SkPixmap pmap = {
+        SkImageInfo::MakeN32Premul(1, 1),
+        &pmColors,
+        sizeof(pmColors)
+    };
+    for (auto& image : {
+        SkImage::MakeRasterCopy(pmap),
+        GetResourceAsImage("mandrill_128.png"),
+        GetResourceAsImage("color_wheel.jpg"),
+        SkImage::MakeFromPicture(make_picture(), { 10, 10 }, nullptr, nullptr),
+    })
+    {
+        REPORTER_ASSERT(reporter, image->isAlphaOnly() == false);
+    }
+
+    REPORTER_ASSERT(reporter, SkImage::MakeRasterCopy({
+        SkImageInfo::MakeA8(1, 1), (uint8_t*)&pmColors, 1})->isAlphaOnly() == true);
+}

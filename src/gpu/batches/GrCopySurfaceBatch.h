@@ -32,10 +32,14 @@ public:
 
     const char* name() const override { return "CopySurface"; }
 
-    uint32_t renderTargetUniqueID() const override {
+    // TODO: this needs to be updated to return GrSurfaceProxy::UniqueID
+    GrGpuResource::UniqueID renderTargetUniqueID() const override {
+        // TODO: When we have CopyContexts it seems that this should return the ID
+        // of the SurfaceProxy underlying the CopyContext.
         GrRenderTarget* rt = fDst.get()->asRenderTarget();
-        return rt ? rt->uniqueID() : 0;
+        return rt ? rt->uniqueID() : GrGpuResource::UniqueID::InvalidID();
     }
+    // TODO: this seems odd - figure it out and add a comment!
     GrRenderTarget* renderTarget() const override { return nullptr; }
 
     SkString dumpInfo() const override {
@@ -66,7 +70,7 @@ private:
 
     void onPrepare(GrBatchFlushState*) override {}
 
-    void onDraw(GrBatchFlushState* state) override {
+    void onDraw(GrBatchFlushState* state, const SkRect& /*bounds*/) override {
         if (!state->commandBuffer()) {
             state->gpu()->copySurface(fDst.get(), fSrc.get(), fSrcRect, fDstPoint);
         } else {

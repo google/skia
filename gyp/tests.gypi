@@ -54,8 +54,6 @@
     '../tools/debugger/SkJsonWriteBuffer.cpp',
     '../tools/debugger/SkObjectParser.h',
     '../tools/debugger/SkObjectParser.cpp',
-    '../tools/debugger/SkOverdrawMode.h',
-    '../tools/debugger/SkOverdrawMode.cpp',
   ],
   'sources!': [
     '../tests/SkpSkGrTest.cpp',

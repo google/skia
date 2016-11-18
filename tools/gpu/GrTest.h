@@ -9,7 +9,7 @@
 #define GrTest_DEFINED
 
 #include "GrContext.h"
-#include "GrDrawContext.h"
+#include "GrRenderTargetContext.h"
 
 namespace GrTest {
     /**
@@ -20,20 +20,20 @@ namespace GrTest {
 };
 
 /** TODO Please do not use this if you can avoid it.  We are in the process of deleting it.
-    Allows a test to temporarily draw to a GrDrawTarget owned by a GrContext. Tests that use this
-    should be careful not to mix using the GrDrawTarget directly and drawing via SkCanvas or
+    Allows a test to temporarily draw to a GrOpList owned by a GrContext. Tests that use this
+    should be careful not to mix using the GrOpList directly and drawing via SkCanvas or
     GrContext. In the future this object may provide some guards to prevent this. */
 class GrTestTarget {
 public:
     GrTestTarget() {}
 
-    void init(GrContext*, sk_sp<GrDrawContext>);
+    void init(GrContext*, sk_sp<GrRenderTargetContext>);
 
     GrResourceProvider* resourceProvider() { return fContext->resourceProvider(); }
 
 private:
-    SkAutoTUnref<GrContext>                 fContext;
-    sk_sp<GrDrawContext>                    fDrawContext;
+    sk_sp<GrContext>             fContext;
+    sk_sp<GrRenderTargetContext> fRenderTargetContext;
 };
 
 #endif

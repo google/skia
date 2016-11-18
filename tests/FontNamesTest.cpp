@@ -142,16 +142,16 @@ static void test_synthetic(skiatest::Reporter* reporter, bool verbose) {
 static void test_systemfonts(skiatest::Reporter* reporter, bool verbose) {
     static const SkFontTableTag nameTag = SkSetFourByteTag('n','a','m','e');
 
-    SkAutoTUnref<SkFontMgr> fm(SkFontMgr::RefDefault());
+    sk_sp<SkFontMgr> fm(SkFontMgr::RefDefault());
     int count = SkMin32(fm->countFamilies(), MAX_FAMILIES);
     for (int i = 0; i < count; ++i) {
-        SkAutoTUnref<SkFontStyleSet> set(fm->createStyleSet(i));
+        sk_sp<SkFontStyleSet> set(fm->createStyleSet(i));
         for (int j = 0; j < set->count(); ++j) {
             SkString sname;
             SkFontStyle fs;
             set->getStyle(j, &fs, &sname);
 
-            SkAutoTUnref<SkTypeface> typeface(set->createTypeface(j));
+            sk_sp<SkTypeface> typeface(set->createTypeface(j));
 
             SkString familyName;
             typeface->getFamilyName(&familyName);
@@ -159,7 +159,7 @@ static void test_systemfonts(skiatest::Reporter* reporter, bool verbose) {
                 SkDebugf("[%s]\n", familyName.c_str());
             }
 
-            SkAutoTUnref<SkTypeface::LocalizedStrings> familyNamesIter(
+            sk_sp<SkTypeface::LocalizedStrings> familyNamesIter(
                 typeface->createFamilyNameIterator());
             SkTypeface::LocalizedString familyNameLocalized;
             while (familyNamesIter->next(&familyNameLocalized)) {

@@ -691,6 +691,9 @@ void SkScan::AntiFillPath(const SkPath& path, const SkRegion& origClip,
         return;
     }
 
+    SkASSERT(clipper.getClipRect() == nullptr ||
+            *clipper.getClipRect() == clipRgn->getBounds());
+
     // now use the (possibly wrapped) blitter
     blitter = clipper.getBlitter();
 
@@ -715,10 +718,12 @@ void SkScan::AntiFillPath(const SkPath& path, const SkRegion& origClip,
     if (!isInverse && MaskSuperBlitter::CanHandleRect(ir) && !forceRLE) {
         MaskSuperBlitter    superBlit(blitter, ir, *clipRgn, isInverse);
         SkASSERT(SkIntToScalar(ir.fTop) <= path.getBounds().fTop);
-        sk_fill_path(path, superClipRect, &superBlit, ir.fTop, ir.fBottom, SHIFT, *clipRgn);
+        sk_fill_path(path, clipRgn->getBounds(), &superBlit, ir.fTop, ir.fBottom, SHIFT,
+                superClipRect == nullptr);
     } else {
         SuperBlitter    superBlit(blitter, ir, *clipRgn, isInverse);
-        sk_fill_path(path, superClipRect, &superBlit, ir.fTop, ir.fBottom, SHIFT, *clipRgn);
+        sk_fill_path(path, clipRgn->getBounds(), &superBlit, ir.fTop, ir.fBottom, SHIFT,
+                superClipRect == nullptr);
     }
 
     if (isInverse) {

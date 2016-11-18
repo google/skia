@@ -32,7 +32,7 @@ static void check_fill(skiatest::Reporter* r,
     const size_t totalBytes = imageInfo.getSafeSize(rowBytes) + offset;
 
     // Create fake image data where every byte has a value of 0
-    SkAutoTDeleteArray<uint8_t> storage(new uint8_t[totalBytes]);
+    std::unique_ptr<uint8_t[]> storage(new uint8_t[totalBytes]);
     memset(storage.get(), 0, totalBytes);
     // Adjust the pointer in order to test on different memory alignments
     uint8_t* imageData = storage.get() + offset;

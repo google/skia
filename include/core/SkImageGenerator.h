@@ -14,10 +14,12 @@
 #include "SkYUVSizeInfo.h"
 
 class GrContext;
+class GrContextThreadSafeProxy;
 class GrTexture;
 class GrTextureParams;
 class SkBitmap;
 class SkData;
+class SkImage;
 class SkImageGenerator;
 class SkMatrix;
 class SkPaint;
@@ -29,36 +31,6 @@ class SkPicture;
     #define SK_REFENCODEDDATA_CTXPARAM  GrContext* ctx
 #endif
 
-/**
- *  Takes ownership of SkImageGenerator.  If this method fails for
- *  whatever reason, it will return false and immediatetely delete
- *  the generator.  If it succeeds, it will modify destination
- *  bitmap.
- *
- *  If generator is NULL, will safely return false.
- *
- *  If this fails or when the SkDiscardablePixelRef that is
- *  installed into destination is destroyed, it will
- *  delete the generator.  Therefore, generator should be
- *  allocated with new.
- *
- *  @param destination Upon success, this bitmap will be
- *  configured and have a pixelref installed.
- *
- *  @return true iff successful.
- */
-SK_API bool SkDEPRECATED_InstallDiscardablePixelRef(SkImageGenerator*, SkBitmap* destination);
-
-/**
- *  On success, installs a discardable pixelref into destination, based on encoded data.
- *  Regardless of success or failure, the caller must still balance their ownership of encoded.
- */
-SK_API bool SkDEPRECATED_InstallDiscardablePixelRef(SkData* encoded, SkBitmap* destination);
-
-/**
- *  An interface that allows a purgeable PixelRef (such as a
- *  SkDiscardablePixelRef) to decode and re-decode an image as needed.
- */
 class SK_API SkImageGenerator : public SkNoncopyable {
 public:
     /**
@@ -152,6 +124,15 @@ public:
     bool getYUV8Planes(const SkYUVSizeInfo& sizeInfo, void* planes[3]);
 
     /**
+     *  Returns true if the generate can efficiently return a texture (given the properties of the
+     *  proxy). By default, simple codecs will usually return false, since they must be decoded
+     *  on the CPU and then uploaded to become a texture.
+     */
+    bool canGenerateTexture(const GrContextThreadSafeProxy& proxy) {
+        return this->onCanGenerateTexture(proxy);
+    }
+
+    /**
      *  If the generator can natively/efficiently return its pixels as a GPU image (backed by a
      *  texture) this will return that image. If not, this will return NULL.
      *
@@ -219,6 +200,40 @@ public:
     }
 
     /**
+     *  External generator API: provides efficient access to externally-managed image data.
+     *
+     *  Skia calls accessScaledPixels() during rasterization, to gain temporary access to
+     *  the external pixel data, packaged as a raster SkImage.
+     *
+     *  @param srcRect     the source rect in use for the current draw
+     *  @param totalMatrix full matrix in effect (mapping srcRect -> device space)
+     *  @param quality     the SkFilterQuality requested for rasterization.
+     *  @param rec         out param, expected to be set when the call succeeds:
+     *
+     *                       - fImage wraps the external pixel data
+     *                       - fSrcRect is an adjusted srcRect
+     *                       - fQuality is the adjusted filter quality
+     *
+     *  @return            true on success, false otherwise (error or if this API is not supported;
+     *                     in this case Skia will fall back to its internal scaling and caching
+     *                     heuristics)
+     *
+     *  Implementors can return pixmaps with a different size than requested, by adjusting the
+     *  src rect.  The contract is that Skia will observe the adjusted src rect, and will map it
+     *  to the same dest as the original draw (the impl doesn't get to control the destination).
+     *
+     */
+
+    struct ScaledImageRec {
+        sk_sp<SkImage>  fImage;
+        SkRect          fSrcRect;
+        SkFilterQuality fQuality;
+    };
+
+    bool accessScaledImage(const SkRect& srcRect, const SkMatrix& totalMatrix,
+                           SkFilterQuality quality, ScaledImageRec* rec);
+
+    /**
      *  If the default image decoder system can interpret the specified (encoded) data, then
      *  this returns a new ImageGenerator for it. Otherwise this returns NULL. Either way
      *  the caller is still responsible for managing their ownership of the data.
@@ -269,6 +284,9 @@ protected:
         return false;
     }
 
+    virtual bool onCanGenerateTexture(const GrContextThreadSafeProxy&) {
+        return false;
+    }
     virtual GrTexture* onGenerateTexture(GrContext*, const SkIRect*) {
         return nullptr;
     }
@@ -277,6 +295,11 @@ protected:
         return false;
     }
     virtual bool onGenerateScaledPixels(const SkISize&, const SkIPoint&, const SkPixmap&) {
+        return false;
+    }
+
+    virtual bool onAccessScaledImage(const SkRect&, const SkMatrix&, SkFilterQuality,
+                                     ScaledImageRec*) {
         return false;
     }
 

@@ -9,7 +9,10 @@
 
 #include "Test.h"
 
-static void test(skiatest::Reporter* r, const char* src, SkSL::GLCaps caps, const char* expected) {
+#if SKIA_SUPPORT_GPU
+
+static void test(skiatest::Reporter* r, const char* src, const GrGLSLCaps& caps, 
+                 const char* expected) {
     SkSL::Compiler compiler;
     std::string output;
     bool result = compiler.toGLSL(SkSL::Program::kFragment_Kind, src, caps, &output);
@@ -27,45 +30,42 @@ static void test(skiatest::Reporter* r, const char* src, SkSL::GLCaps caps, cons
 }
 
 DEF_TEST(SkSLHelloWorld, r) {
-    SkSL::GLCaps caps = { 400, SkSL::GLCaps::kGL_Standard };
     test(r,
-         "out vec4 fragColor; void main() { fragColor = vec4(0.75); }",
-         caps,
+         "void main() { sk_FragColor = vec4(0.75); }",
+         *SkSL::GLSLCapsFactory::Default(),
          "#version 400\n"
-         "out vec4 fragColor;\n"
+         "out vec4 sk_FragColor;\n"
          "void main() {\n"
-         "    fragColor = vec4(0.75);\n"
+         "    sk_FragColor = vec4(0.75);\n"
          "}\n");
 }
 
 DEF_TEST(SkSLControl, r) {
-    SkSL::GLCaps caps = { 400, SkSL::GLCaps::kGL_Standard };
     test(r,
-         "out vec4 fragColor;"
          "void main() {"
-         "if (1 + 2 + 3 > 5) { fragColor = vec4(0.75); } else { discard; }"
+         "if (sqrt(2) > 5) { sk_FragColor = vec4(0.75); } else { discard; }"
          "int i = 0;"
-         "while (i < 10) fragColor *= 0.5;"
-         "do { fragColor += 0.01; } while (fragColor.x < 0.7);"
+         "while (i < 10) sk_FragColor *= 0.5;"
+         "do { sk_FragColor += 0.01; } while (sk_FragColor.x < 0.7);"
          "for (int i = 0; i < 10; i++) {"
          "if (i % 0 == 1) break; else continue;"
          "}"
          "return;"
          "}",
-         caps,
+         *SkSL::GLSLCapsFactory::Default(),
          "#version 400\n"
-         "out vec4 fragColor;\n"
+         "out vec4 sk_FragColor;\n"
          "void main() {\n"
-         "    if ((1 + 2) + 3 > 5) {\n"
-         "        fragColor = vec4(0.75);\n"
+         "    if (sqrt(2.0) > 5.0) {\n"
+         "        sk_FragColor = vec4(0.75);\n"
          "    } else {\n"
          "        discard;\n"
          "    }\n"
          "    int i = 0;\n"
-         "    while (i < 10) fragColor *= 0.5;\n"
+         "    while (i < 10) sk_FragColor *= 0.5;\n"
          "    do {\n"
-         "        fragColor += 0.01;\n"
-         "    } while (fragColor.x < 0.7);\n"
+         "        sk_FragColor += 0.01;\n"
+         "    } while (sk_FragColor.x < 0.7);\n"
          "    for (int i = 0;i < 10; i++) {\n"
          "        if (i % 0 == 1) break; else continue;\n"
          "    }\n"
@@ -74,34 +74,31 @@ DEF_TEST(SkSLControl, r) {
 }
 
 DEF_TEST(SkSLFunctions, r) {
-    SkSL::GLCaps caps = { 400, SkSL::GLCaps::kGL_Standard };
     test(r,
-         "out vec4 fragColor;"
          "float foo(float v[2]) { return v[0] * v[1]; }"
          "void bar(inout float x) { float y[2], z; y[0] = x; y[1] = x * 2; z = foo(y); x = z; }"
-         "void main() { float x = 10; bar(x); fragColor = vec4(x); }",
-         caps,
+         "void main() { float x = 10; bar(x); sk_FragColor = vec4(x); }",
+         *SkSL::GLSLCapsFactory::Default(),
          "#version 400\n"
-         "out vec4 fragColor;\n"
-         "float foo(in float[2] v) {\n"
+         "out vec4 sk_FragColor;\n"
+         "float foo(in float v[2]) {\n"
          "    return v[0] * v[1];\n"
          "}\n"
          "void bar(inout float x) {\n"
          "    float y[2], z;\n"
          "    y[0] = x;\n"
-         "    y[1] = x * 2;\n"
+         "    y[1] = x * 2.0;\n"
          "    z = foo(y);\n"
          "    x = z;\n"
          "}\n"
          "void main() {\n"
-         "    float x = 10;\n"
+         "    float x = 10.0;\n"
          "    bar(x);\n"
-         "    fragColor = vec4(x);\n"
+         "    sk_FragColor = vec4(x);\n"
          "}\n");
 }
 
 DEF_TEST(SkSLOperators, r) {
-    SkSL::GLCaps caps = { 400, SkSL::GLCaps::kGL_Standard };
     test(r,
          "void main() {"
          "float x = 1, y = 2;"
@@ -109,7 +106,7 @@ DEF_TEST(SkSLOperators, r) {
          "x = x + y * z * x * (y - z);"
          "y = x / y / z;"
          "z = (z / 2 % 3 << 4) >> 2 << 1;"
-         "bool b = (x > 4) == x < 2 || 2 >= 5 && y <= z && 12 != 11;"
+         "bool b = (x > 4) == x < 2 || 2 >= sqrt(2) && y <= z;"
          "x += 12;"
          "x -= 12;"
          "x *= y /= z = 10;"
@@ -123,17 +120,18 @@ DEF_TEST(SkSLOperators, r) {
          "z <<= 4;"
          "z %= 5;"
          "}",
-         caps,
+         *SkSL::GLSLCapsFactory::Default(),
          "#version 400\n"
+         "out vec4 sk_FragColor;\n"
          "void main() {\n"
-         "    float x = 1, y = 2;\n"
+         "    float x = 1.0, y = 2.0;\n"
          "    int z = 3;\n"
          "    x = x + ((y * float(z)) * x) * (y - float(z));\n"
          "    y = (x / y) / float(z);\n"
          "    z = (((z / 2) % 3 << 4) >> 2) << 1;\n"
-         "    bool b = x > 4 == x < 2 || (2 >= 5 && y <= float(z)) && 12 != 11;\n"
-         "    x += 12;\n"
-         "    x -= 12;\n"
+         "    bool b = x > 4.0 == x < 2.0 || 2.0 >= sqrt(2.0) && y <= float(z);\n"
+         "    x += 12.0;\n"
+         "    x -= 12.0;\n"
          "    x *= (y /= float(z = 10));\n"
          "    b ||= false;\n"
          "    b &&= true;\n"
@@ -148,7 +146,6 @@ DEF_TEST(SkSLOperators, r) {
 }
 
 DEF_TEST(SkSLMatrices, r) {
-    SkSL::GLCaps caps = { 400, SkSL::GLCaps::kGL_Standard };
     test(r,
          "void main() {"
          "mat2x4 x = mat2x4(1);"
@@ -157,19 +154,19 @@ DEF_TEST(SkSLMatrices, r) {
          "vec3 v1 = mat3(1) * vec3(1);"
          "vec3 v2 = vec3(1) * mat3(1);"
          "}",
-         caps,
+         *SkSL::GLSLCapsFactory::Default(),
          "#version 400\n"
+         "out vec4 sk_FragColor;\n"
          "void main() {\n"
-         "    mat2x4 x = mat2x4(1);\n"
-         "    mat3x2 y = mat3x2(1, 0, 0, 1, vec2(2, 2));\n"
+         "    mat2x4 x = mat2x4(1.0);\n"
+         "    mat3x2 y = mat3x2(1.0, 0.0, 0.0, 1.0, vec2(2.0, 2.0));\n"
          "    mat3x4 z = x * y;\n"
-         "    vec3 v1 = mat3(1) * vec3(1);\n"
-         "    vec3 v2 = vec3(1) * mat3(1);\n"
+         "    vec3 v1 = mat3(1.0) * vec3(1.0);\n"
+         "    vec3 v2 = vec3(1.0) * mat3(1.0);\n"
          "}\n");
 }
 
 DEF_TEST(SkSLInterfaceBlock, r) {
-    SkSL::GLCaps caps = { 400, SkSL::GLCaps::kGL_Standard };
     test(r,
          "uniform testBlock {"
          "float x;"
@@ -179,12 +176,13 @@ DEF_TEST(SkSLInterfaceBlock, r) {
          "};"
          "void main() {"
          "}",
-         caps,
+         *SkSL::GLSLCapsFactory::Default(),
          "#version 400\n"
+         "out vec4 sk_FragColor;\n"
          "uniform testBlock {\n"
          "    float x;\n"
          "    float[2] y;\n"
-         "    layout (binding = 12)mat3x2 z;\n"
+         "    layout (binding = 12) mat3x2 z;\n"
          "    bool w;\n"
          "};\n"
          "void main() {\n"
@@ -192,7 +190,6 @@ DEF_TEST(SkSLInterfaceBlock, r) {
 }
 
 DEF_TEST(SkSLStructs, r) {
-    SkSL::GLCaps caps = { 400, SkSL::GLCaps::kGL_Standard };
     test(r,
          "struct A {"
          "int x;"
@@ -207,8 +204,9 @@ DEF_TEST(SkSLStructs, r) {
          "B b1, b2, b3;"
          "void main() {"
          "}",
-         caps,
+         *SkSL::GLSLCapsFactory::Default(),
          "#version 400\n"
+         "out vec4 sk_FragColor;\n"
          "struct A {\n"
          "    int x;\n"
          "    int y;\n"
@@ -218,10 +216,311 @@ DEF_TEST(SkSLStructs, r) {
          "struct B {\n"
          "    float x;\n"
          "    float[2] y;\n"
-         "    layout (binding = 1)A z;\n"
+         "    layout (binding = 1) A z;\n"
          "}\n"
          " b1, b2, b3;\n"
          "void main() {\n"
          "}\n");
-
 }
+
+DEF_TEST(SkSLVersion, r) {
+    test(r,
+         "in float test; void main() { sk_FragColor = vec4(0.75); }",
+         *SkSL::GLSLCapsFactory::Version450Core(),
+         "#version 450 core\n"
+         "out vec4 sk_FragColor;\n"
+         "in float test;\n"
+         "void main() {\n"
+         "    sk_FragColor = vec4(0.75);\n"
+         "}\n");
+    test(r,
+         "in float test; void main() { sk_FragColor = vec4(0.75); }",
+         *SkSL::GLSLCapsFactory::Version110(),
+         "#version 110\n"
+         "varying float test;\n"
+         "void main() {\n"
+         "    gl_FragColor = vec4(0.75);\n"
+         "}\n");
+}
+
+DEF_TEST(SkSLUsesPrecisionModifiers, r) {
+    test(r,
+         "void main() { float x = 0.75; highp float y = 1; }",
+         *SkSL::GLSLCapsFactory::Default(),
+         "#version 400\n"
+         "out vec4 sk_FragColor;\n"
+         "void main() {\n"
+         "    float x = 0.75;\n"
+         "    float y = 1.0;\n"
+         "}\n");    
+    test(r,
+         "void main() { float x = 0.75; highp float y = 1; }",
+         *SkSL::GLSLCapsFactory::UsesPrecisionModifiers(),
+         "#version 400\n"
+         "precision highp float;\n"
+         "out mediump vec4 sk_FragColor;\n"
+         "void main() {\n"
+         "    float x = 0.75;\n"
+         "    highp float y = 1.0;\n"
+         "}\n");    
+}
+
+DEF_TEST(SkSLMinAbs, r) {
+    test(r,
+         "void main() {"
+         "float x = -5;"
+         "x = min(abs(x), 6);"
+         "}",
+         *SkSL::GLSLCapsFactory::Default(),
+         "#version 400\n"
+         "out vec4 sk_FragColor;\n"
+         "void main() {\n"
+         "    float x = -5.0;\n"
+         "    x = min(abs(x), 6.0);\n"
+         "}\n");
+
+    test(r,
+         "void main() {"
+         "float x = -5.0;"
+         "x = min(abs(x), 6.0);"
+         "}",
+         *SkSL::GLSLCapsFactory::CannotUseMinAndAbsTogether(),
+         "#version 400\n"
+         "out vec4 sk_FragColor;\n"
+         "void main() {\n"
+         "    float minAbsHackVar0;\n"
+         "    float minAbsHackVar1;\n"
+         "    float x = -5.0;\n"
+         "    x = ((minAbsHackVar0 = abs(x)) < (minAbsHackVar1 = 6.0) ? minAbsHackVar0 : "
+                                                                                "minAbsHackVar1);\n"
+         "}\n");
+}
+
+DEF_TEST(SkSLNegatedAtan, r) {
+    test(r,
+         "void main() { vec2 x = vec2(1, 2); float y = atan(x.x, -(2 * x.y)); }",
+         *SkSL::GLSLCapsFactory::Default(),
+         "#version 400\n"
+         "out vec4 sk_FragColor;\n"
+         "void main() {\n"
+         "    vec2 x = vec2(1.0, 2.0);\n"
+         "    float y = atan(x.x, -(2.0 * x.y));\n"
+         "}\n");
+    test(r,
+         "void main() { vec2 x = vec2(1, 2); float y = atan(x.x, -(2 * x.y)); }",
+         *SkSL::GLSLCapsFactory::MustForceNegatedAtanParamToFloat(),
+         "#version 400\n"
+         "out vec4 sk_FragColor;\n"
+         "void main() {\n"
+         "    vec2 x = vec2(1.0, 2.0);\n"
+         "    float y = atan(x.x, -1.0 * (2.0 * x.y));\n"
+         "}\n");
+}
+
+DEF_TEST(SkSLModifiersDeclaration, r) {
+    test(r,
+         "layout(blend_support_all_equations) out;"
+         "void main() { }",
+         *SkSL::GLSLCapsFactory::Default(),
+         "#version 400\n"
+         "out vec4 sk_FragColor;\n"
+         "layout (blend_support_all_equations) out ;\n"
+         "void main() {\n"
+         "}\n");
+}
+
+DEF_TEST(SkSLHex, r) {
+    test(r,
+         "void main() {"
+         "int i1 = 0x0;"
+         "int i2 = 0x1234abcd;"
+         "int i3 = 0x7fffffff;"
+         "int i4 = 0xffffffff;"
+         "int i5 = -0xbeef;"
+         "uint u1 = 0x0;"
+         "uint u2 = 0x1234abcd;"
+         "uint u3 = 0x7fffffff;"
+         "uint u4 = 0xffffffff;"
+         "}",
+         *SkSL::GLSLCapsFactory::Default(),
+         "#version 400\n"
+         "out vec4 sk_FragColor;\n"
+         "void main() {\n"
+         "    int i1 = 0;\n"
+         "    int i2 = 305441741;\n"
+         "    int i3 = 2147483647;\n"
+         "    int i4 = -1;\n"
+         "    int i5 = -48879;\n"
+         "    uint u1 = 0u;\n"
+         "    uint u2 = 305441741u;\n"
+         "    uint u3 = 2147483647u;\n"
+         "    uint u4 = 4294967295u;\n"
+         "}\n");
+}
+
+DEF_TEST(SkSLVectorConstructors, r) {
+    test(r,
+         "vec2 v1 = vec2(1);"
+         "vec2 v2 = vec2(1, 2);"
+         "vec2 v3 = vec2(vec2(1));"
+         "vec2 v4 = vec2(vec3(1));"
+         "vec3 v5 = vec3(vec2(1), 1.0);"
+         "vec3 v6 = vec3(vec4(1, 2, 3, 4));"
+         "ivec2 v7 = ivec2(1);"
+         "ivec2 v8 = ivec2(vec2(1, 2));"
+         "vec2 v9 = vec2(ivec2(1, 2));",
+         *SkSL::GLSLCapsFactory::Default(),
+         "#version 400\n"
+         "out vec4 sk_FragColor;\n"
+         "vec2 v1 = vec2(1.0);\n"
+         "vec2 v2 = vec2(1.0, 2.0);\n"
+         "vec2 v3 = vec2(1.0);\n"
+         "vec2 v4 = vec2(vec3(1.0));\n"
+         "vec3 v5 = vec3(vec2(1.0), 1.0);\n"
+         "vec3 v6 = vec3(vec4(1.0, 2.0, 3.0, 4.0));\n"
+         "ivec2 v7 = ivec2(1);\n"
+         "ivec2 v8 = ivec2(vec2(1.0, 2.0));\n"
+         "vec2 v9 = vec2(ivec2(1, 2));\n");
+}
+
+DEF_TEST(SkSLArrayConstructors, r) {
+    test(r,
+         "float test1[] = float[](1, 2, 3, 4);"
+         "vec2 test2[] = vec2[](vec2(1, 2), vec2(3, 4));"
+         "mat4 test3[] = mat4[]();",
+         *SkSL::GLSLCapsFactory::Default(),
+         "#version 400\n"
+         "out vec4 sk_FragColor;\n"
+         "float test1[] = float[](1.0, 2.0, 3.0, 4.0);\n"
+         "vec2 test2[] = vec2[](vec2(1.0, 2.0), vec2(3.0, 4.0));\n"
+         "mat4 test3[] = mat4[]();\n");
+}
+
+DEF_TEST(SkSLDerivatives, r) {
+    test(r,
+         "void main() { float x = dFdx(1); }",
+         *SkSL::GLSLCapsFactory::Default(),
+         "#version 400\n"
+         "out vec4 sk_FragColor;\n"
+         "void main() {\n"
+         "    float x = dFdx(1.0);\n"
+         "}\n");
+    test(r,
+         "void main() { float x = 1; }",
+         *SkSL::GLSLCapsFactory::ShaderDerivativeExtensionString(),
+         "#version 400\n"
+         "out vec4 sk_FragColor;\n"
+         "void main() {\n"
+         "    float x = 1.0;\n"
+         "}\n");
+    test(r,
+         "void main() { float x = dFdx(1); }",
+         *SkSL::GLSLCapsFactory::ShaderDerivativeExtensionString(),
+         "#version 400\n"
+         "#extension GL_OES_standard_derivatives : require\n"
+         "out vec4 sk_FragColor;\n"
+         "void main() {\n"
+         "    float x = dFdx(1.0);\n"
+         "}\n");
+}
+
+DEF_TEST(SkSLConstantFolding, r) {
+    test(r,
+         "void main() {"
+         "float f_add = 32 + 2;"
+         "float f_sub = 32 - 2;"
+         "float f_mul = 32 * 2;"
+         "float f_div = 32 / 2;"
+         "float mixed = (12 > 2.0) ? (10 * 2 / 5 + 18 - 3) : 0;"
+         "int i_add = 32 + 2;"
+         "int i_sub = 32 - 2;"
+         "int i_mul = 32 * 2;"
+         "int i_div = 32 / 2;"
+         "int i_or = 12 | 6;"
+         "int i_and = 254 & 7;"
+         "int i_xor = 2 ^ 7;"
+         "int i_shl = 1 << 4;"
+         "int i_shr = 128 >> 2;"
+         "bool gt_it = 6 > 5;"
+         "bool gt_if = 6 > 6;"
+         "bool gt_ft = 6.0 > 5.0;"
+         "bool gt_ff = 6.0 > 6.0;"
+         "bool gte_it = 6 >= 6;"
+         "bool gte_if = 6 >= 7;"
+         "bool gte_ft = 6.0 >= 6.0;"
+         "bool gte_ff = 6.0 >= 7.0;"
+         "bool lte_it = 6 <= 6;"
+         "bool lte_if = 6 <= 5;"
+         "bool lte_ft = 6.0 <= 6.0;"
+         "bool lte_ff = 6.0 <= 5.0;"
+         "bool or_t = 1 == 1 || 2 == 8;"
+         "bool or_f = 1 > 1 || 2 == 8;"
+         "bool and_t = 1 == 1 && 2 <= 8;"
+         "bool and_f = 1 == 2 && 2 == 8;"
+         "bool xor_t = 1 == 1 ^^ 1 != 1;"
+         "bool xor_f = 1 == 1 ^^ 1 == 1;"
+         "int ternary = 10 > 5 ? 10 : 5;"
+         "}",
+         *SkSL::GLSLCapsFactory::Default(),
+         "#version 400\n"
+         "out vec4 sk_FragColor;\n"
+         "void main() {\n"
+         "    float f_add = 34.0;\n"
+         "    float f_sub = 30.0;\n"
+         "    float f_mul = 64.0;\n"
+         "    float f_div = 16.0;\n"
+         "    float mixed = 19.0;\n"
+         "    int i_add = 34;\n"
+         "    int i_sub = 30;\n"
+         "    int i_mul = 64;\n"
+         "    int i_div = 16;\n"
+         "    int i_or = 14;\n"
+         "    int i_and = 6;\n"
+         "    int i_xor = 5;\n"
+         "    int i_shl = 16;\n"
+         "    int i_shr = 32;\n"
+         "    bool gt_it = true;\n"
+         "    bool gt_if = false;\n"
+         "    bool gt_ft = true;\n"
+         "    bool gt_ff = false;\n"
+         "    bool gte_it = true;\n"
+         "    bool gte_if = false;\n"
+         "    bool gte_ft = true;\n"
+         "    bool gte_ff = false;\n"
+         "    bool lte_it = true;\n"
+         "    bool lte_if = false;\n"
+         "    bool lte_ft = true;\n"
+         "    bool lte_ff = false;\n"
+         "    bool or_t = true;\n"
+         "    bool or_f = false;\n"
+         "    bool and_t = true;\n"
+         "    bool and_f = false;\n"
+         "    bool xor_t = true;\n"
+         "    bool xor_f = false;\n"
+         "    int ternary = 10;\n"
+         "}\n");
+}
+
+DEF_TEST(SkSLStaticIf, r) {
+    test(r,
+         "void main() {"
+         "int x;"
+         "if (true) x = 1;"
+         "if (2 > 1) x = 2; else x = 3;"
+         "if (1 > 2) x = 4; else x = 5;"
+         "if (false) x = 6;"
+         "}",
+         *SkSL::GLSLCapsFactory::Default(),
+         "#version 400\n"
+         "out vec4 sk_FragColor;\n"
+         "void main() {\n"
+         "    int x;\n"
+         "    x = 1;\n"
+         "    x = 2;\n"
+         "    x = 5;\n"
+         "    {\n"
+         "    }\n"
+         "}\n");
+}
+
+#endif

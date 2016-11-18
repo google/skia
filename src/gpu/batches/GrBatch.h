@@ -9,6 +9,7 @@
 #define GrBatch_DEFINED
 
 #include "../private/SkAtomics.h"
+#include "GrGpuResource.h"
 #include "GrNonAtomicRef.h"
 #include "SkMatrix.h"
 #include "SkRect.h"
@@ -125,11 +126,12 @@ public:
     void prepare(GrBatchFlushState* state) { this->onPrepare(state); }
 
     /** Issues the batches commands to GrGpu. */
-    void draw(GrBatchFlushState* state) { this->onDraw(state); }
+    void draw(GrBatchFlushState* state, const SkRect& bounds) { this->onDraw(state, bounds); }
 
     /** Used to block batching across render target changes. Remove this once we store
         GrBatches for different RTs in different targets. */
-    virtual uint32_t renderTargetUniqueID() const = 0;
+    // TODO: this needs to be updated to return GrSurfaceProxy::UniqueID
+    virtual GrGpuResource::UniqueID renderTargetUniqueID() const = 0;
 
     /** Used for spewing information about batches when debugging. */
     virtual SkString dumpInfo() const {
@@ -191,7 +193,7 @@ private:
     virtual bool onCombineIfPossible(GrBatch*, const GrCaps& caps) = 0;
 
     virtual void onPrepare(GrBatchFlushState*) = 0;
-    virtual void onDraw(GrBatchFlushState*) = 0;
+    virtual void onDraw(GrBatchFlushState*, const SkRect& bounds) = 0;
 
     static uint32_t GenID(int32_t* idCounter) {
         // The atomic inc returns the old value not the incremented value. So we add

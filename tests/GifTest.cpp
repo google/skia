@@ -52,7 +52,7 @@ static void test_gif_data_no_colormap(skiatest::Reporter* r,
     REPORTER_ASSERT(r, bm.height() == 1);
     REPORTER_ASSERT(r, !(bm.empty()));
     if (!(bm.empty())) {
-        REPORTER_ASSERT(r, bm.getColor(0, 0) == 0xFF000000);
+        REPORTER_ASSERT(r, bm.getColor(0, 0) == 0x00000000);
     }
 }
 static void test_gif_data(skiatest::Reporter* r, void* data, size_t size) {
@@ -191,21 +191,21 @@ DEF_TEST(Gif, reporter) {
 // Regression test for decoding a gif image with sampleSize of 4, which was
 // previously crashing.
 DEF_TEST(Gif_Sampled, r) {
-    SkAutoTDelete<SkFILEStream> stream(
+    std::unique_ptr<SkFILEStream> stream(
             new SkFILEStream(GetResourcePath("test640x479.gif").c_str()));
     REPORTER_ASSERT(r, stream->isValid());
     if (!stream->isValid()) {
         return;
     }
 
-    SkAutoTDelete<SkAndroidCodec> codec(SkAndroidCodec::NewFromStream(stream.release()));
+    std::unique_ptr<SkAndroidCodec> codec(SkAndroidCodec::NewFromStream(stream.release()));
     REPORTER_ASSERT(r, codec);
     if (!codec) {
         return;
     }
 
     // Construct a color table for the decode if necessary
-    SkAutoTUnref<SkColorTable> colorTable(nullptr);
+    sk_sp<SkColorTable> colorTable(nullptr);
     SkPMColor* colorPtr = nullptr;
     int* colorCountPtr = nullptr;
     int maxColors = 256;

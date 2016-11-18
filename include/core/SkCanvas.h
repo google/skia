@@ -23,7 +23,7 @@
 #include "../private/SkShadowParams.h"
 
 class GrContext;
-class GrDrawContext;
+class GrRenderTargetContext;
 class SkBaseDevice;
 class SkCanvasClipVisitor;
 class SkClipStack;
@@ -60,7 +60,13 @@ class SkTextBlob;
     color, typeface, textSize, strokeWidth, shader (e.g. gradients, patterns),
     etc.
 */
-class SK_API SkCanvas : public SkRefCnt {
+class SK_API SkCanvas
+#ifdef SK_SUPPORT_LEGACY_CANVAS_IS_REFCNT
+: public SkRefCnt
+#else
+: SkNoncopyable
+#endif
+{
     enum PrivateSaveLayerFlags {
         kDontClipToLayer_PrivateSaveLayerFlag   = 1U << 31,
     };
@@ -100,11 +106,22 @@ public:
      *  Note: it is valid to request a supported ImageInfo, but with zero
      *  dimensions.
      */
-    static SkCanvas* NewRasterDirect(const SkImageInfo&, void*, size_t);
+    static std::unique_ptr<SkCanvas> MakeRasterDirect(const SkImageInfo&, void*, size_t);
+
+    static std::unique_ptr<SkCanvas> MakeRasterDirectN32(int width, int height, SkPMColor* pixels,
+                                                         size_t rowBytes) {
+        return MakeRasterDirect(SkImageInfo::MakeN32Premul(width, height), pixels, rowBytes);
+    }
+
+#ifdef SK_SUPPORT_LEGACY_CANVAS_IS_REFCNT
+    static SkCanvas* NewRasterDirect(const SkImageInfo& info, void* pixels, size_t rowBytes) {
+        return MakeRasterDirect(info, pixels, rowBytes).release();
+    }
 
     static SkCanvas* NewRasterDirectN32(int width, int height, SkPMColor* pixels, size_t rowBytes) {
-        return NewRasterDirect(SkImageInfo::MakeN32Premul(width, height), pixels, rowBytes);
+        return MakeRasterDirectN32(width, height, pixels, rowBytes).release();
     }
+#endif
 
     /**
      *  Creates an empty canvas with no backing device/pixels, and zero
@@ -220,9 +237,6 @@ public:
      *  surface, then the new surface is created with default properties.
      */
     sk_sp<SkSurface> makeSurface(const SkImageInfo&, const SkSurfaceProps* = nullptr);
-#ifdef SK_SUPPORT_LEGACY_NEW_SURFACE_API
-    SkSurface* newSurface(const SkImageInfo& info, const SkSurfaceProps* props = NULL);
-#endif
 
     /**
      * Return the GPU context of the device that is associated with the canvas.
@@ -257,10 +271,6 @@ public:
      *  On failure, returns false and the pixmap parameter will be ignored.
      */
     bool peekPixels(SkPixmap*);
-
-#ifdef SK_SUPPORT_LEGACY_PEEKPIXELS_PARMS
-    const void* peekPixels(SkImageInfo* info, size_t* rowBytes);
-#endif
 
     /**
      *  Copy the pixels from the base-layer into the specified buffer (pixels + rowBytes),
@@ -597,11 +607,6 @@ public:
         @param mode the mode to apply the color in (defaults to SrcOver)
     */
     void drawARGB(U8CPU a, U8CPU r, U8CPU g, U8CPU b, SkBlendMode mode = SkBlendMode::kSrcOver);
-#ifdef SK_SUPPORT_LEGACY_XFERMODE_OBJECT
-    void drawARGB(U8CPU a, U8CPU r, U8CPU g, U8CPU b, SkXfermode::Mode mode) {
-        this->drawARGB(a, r, g, b, (SkBlendMode)mode);
-    }
-#endif
 
     /** Fill the entire canvas' bitmap (restricted to the current clip) with the
         specified color and mode.
@@ -609,11 +614,6 @@ public:
         @param mode the mode to apply the color in (defaults to SrcOver)
     */
     void drawColor(SkColor color, SkBlendMode mode = SkBlendMode::kSrcOver);
-#ifdef SK_SUPPORT_LEGACY_XFERMODE_OBJECT
-    void drawColor(SkColor color, SkXfermode::Mode mode) {
-        this->drawColor(color, (SkBlendMode)mode);
-    }
-#endif
 
     /**
      *  Helper method for drawing a color in SRC mode, completely replacing all the pixels
@@ -1196,10 +1196,9 @@ public:
                     in _texture_ space (not uv space) for each vertex.
         @param colors May be null. If not null, specifies a color for each
                       vertex, to be interpolated across the triangle.
-        @param xmode Used if both texs and colors are present. In this
+        @param mode Used if both texs and colors are present. In this
                     case the colors are combined with the texture using mode,
-                    before being drawn using the paint. If mode is null, then
-                    kModulate_Mode is used.
+                    before being drawn using the paint. 
         @param indices If not null, array of indices to reference into the
                     vertex (texs, colors) array.
         @param indexCount number of entries in the indices array (if not null)
@@ -1207,15 +1206,14 @@ public:
     */
     void drawVertices(VertexMode vmode, int vertexCount,
                       const SkPoint vertices[], const SkPoint texs[],
-                      const SkColor colors[], SkXfermode* xmode,
+                      const SkColor colors[], SkBlendMode mode,
                       const uint16_t indices[], int indexCount,
                       const SkPaint& paint);
     void drawVertices(VertexMode vmode, int vertexCount,
                       const SkPoint vertices[], const SkPoint texs[],
-                      const SkColor colors[], const sk_sp<SkXfermode>& xmode,
-                      const uint16_t indices[], int indexCount,
+                      const SkColor colors[], const uint16_t indices[], int indexCount,
                       const SkPaint& paint) {
-        this->drawVertices(vmode, vertexCount, vertices, texs, colors, xmode.get(),
+        this->drawVertices(vmode, vertexCount, vertices, texs, colors, SkBlendMode::kModulate,
                            indices, indexCount, paint);
     }
 
@@ -1228,15 +1226,15 @@ public:
                     their order is clockwise starting at the top left corner.
      @param texCoords specifies the texture coordinates that will be bilerp across the patch,
                     their order is the same as the colors.
-     @param xmode specifies how are the colors and the textures combined if both of them are
+     @param mode specifies how are the colors and the textures combined if both of them are
                     present.
      @param paint Specifies the shader/texture if present.
      */
     void drawPatch(const SkPoint cubics[12], const SkColor colors[4],
-                   const SkPoint texCoords[4], SkXfermode* xmode, const SkPaint& paint);
-    void drawPatch(const SkPoint cubics[12], const SkColor colors[4], const SkPoint texCoords[4],
-                   const sk_sp<SkXfermode>& xmode, const SkPaint& paint) {
-        this->drawPatch(cubics, colors, texCoords, xmode.get(), paint);
+                   const SkPoint texCoords[4], SkBlendMode mode, const SkPaint& paint);
+    void drawPatch(const SkPoint cubics[12], const SkColor colors[4],
+                   const SkPoint texCoords[4], const SkPaint& paint) {
+        this->drawPatch(cubics, colors, texCoords, SkBlendMode::kModulate, paint);
     }
 
     /**
@@ -1247,32 +1245,30 @@ public:
      *      xform maps [0, 0, tex.width, tex.height] -> quad
      *
      *  The color array is optional. When specified, each color modulates the pixels in its
-     *  corresponding quad (via the specified SkXfermode::Mode).
+     *  corresponding quad (via the specified SkBlendMode).
      *
      *  The cullRect is optional. When specified, it must be a conservative bounds of all of the
      *  resulting transformed quads, allowing the canvas to skip drawing if the cullRect does not
      *  intersect the current clip.
      *
      *  The paint is optional. If specified, its antialiasing, alpha, color-filter, image-filter
-     *  and xfermode are used to affect each of the quads.
+     *  and blendmode are used to affect each of the quads.
      */
     void drawAtlas(const SkImage* atlas, const SkRSXform xform[], const SkRect tex[],
-                   const SkColor colors[], int count, SkXfermode::Mode, const SkRect* cullRect,
+                   const SkColor colors[], int count, SkBlendMode, const SkRect* cullRect,
                    const SkPaint* paint);
-
+    void drawAtlas(const sk_sp<SkImage>& atlas, const SkRSXform xform[], const SkRect tex[],
+                   const SkColor colors[], int count, SkBlendMode mode, const SkRect* cullRect,
+                   const SkPaint* paint) {
+        this->drawAtlas(atlas.get(), xform, tex, colors, count, mode, cullRect, paint);
+    }
     void drawAtlas(const SkImage* atlas, const SkRSXform xform[], const SkRect tex[], int count,
                    const SkRect* cullRect, const SkPaint* paint) {
-        this->drawAtlas(atlas, xform, tex, NULL, count, SkXfermode::kDst_Mode, cullRect, paint);
-    }
-
-    void drawAtlas(const sk_sp<SkImage>& atlas, const SkRSXform xform[], const SkRect tex[],
-                   const SkColor colors[], int count, SkXfermode::Mode mode, const SkRect* cull,
-                   const SkPaint* paint) {
-        this->drawAtlas(atlas.get(), xform, tex, colors, count, mode, cull, paint);
+        this->drawAtlas(atlas, xform, tex, nullptr, count, SkBlendMode::kDst, cullRect, paint);
     }
     void drawAtlas(const sk_sp<SkImage>& atlas, const SkRSXform xform[], const SkRect tex[],
                    int count, const SkRect* cullRect, const SkPaint* paint) {
-        this->drawAtlas(atlas.get(), xform, tex, nullptr, count, SkXfermode::kDst_Mode,
+        this->drawAtlas(atlas.get(), xform, tex, nullptr, count, SkBlendMode::kDst,
                         cullRect, paint);
     }
 
@@ -1357,7 +1353,7 @@ public:
      *  @return the current clip stack ("list" of individual clip elements)
      */
     const SkClipStack* getClipStack() const {
-        return fClipStack;
+        return fClipStack.get();
     }
 
     typedef SkCanvasClipVisitor ClipVisitor;
@@ -1371,7 +1367,7 @@ public:
     ///////////////////////////////////////////////////////////////////////////
 
     // don't call
-    GrDrawContext* internal_private_accessTopLayerDrawContext();
+    GrRenderTargetContext* internal_private_accessTopLayerRenderTargetContext();
 
     // don't call
     static void Internal_Private_SetIgnoreSaveLayerBounds(bool);
@@ -1460,7 +1456,7 @@ protected:
                                 const SkPaint& paint);
 
     virtual void onDrawPatch(const SkPoint cubics[12], const SkColor colors[4],
-                           const SkPoint texCoords[4], SkXfermode* xmode, const SkPaint& paint);
+                           const SkPoint texCoords[4], SkBlendMode, const SkPaint& paint);
 
     virtual void onDrawDrawable(SkDrawable*, const SkMatrix*);
 
@@ -1473,11 +1469,11 @@ protected:
     virtual void onDrawRRect(const SkRRect&, const SkPaint&);
     virtual void onDrawPoints(PointMode, size_t count, const SkPoint pts[], const SkPaint&);
     virtual void onDrawVertices(VertexMode, int vertexCount, const SkPoint vertices[],
-                                const SkPoint texs[], const SkColor colors[], SkXfermode*,
+                                const SkPoint texs[], const SkColor colors[], SkBlendMode,
                                 const uint16_t indices[], int indexCount, const SkPaint&);
 
     virtual void onDrawAtlas(const SkImage*, const SkRSXform[], const SkRect[], const SkColor[],
-                             int count, SkXfermode::Mode, const SkRect* cull, const SkPaint*);
+                             int count, SkBlendMode, const SkRect* cull, const SkPaint*);
     virtual void onDrawPath(const SkPath&, const SkPaint&);
     virtual void onDrawImage(const SkImage*, SkScalar dx, SkScalar dy, const SkPaint*);
     virtual void onDrawImageRect(const SkImage*, const SkRect*, const SkRect&, const SkPaint*,
@@ -1515,12 +1511,6 @@ protected:
                                        const SkPaint*,
                                        const SkShadowParams& params);
 #endif
-    
-    // Returns the canvas to be used by DrawIter. Default implementation
-    // returns this. Subclasses that encapsulate an indirect canvas may
-    // need to overload this method. The impl must keep track of this, as it
-    // is not released or deleted by the caller.
-    virtual SkCanvas* canvasForDrawIter();
 
     // Clip rectangle bounds. Called internally by saveLayer.
     // returns false if the entire rectangle is entirely clipped out
@@ -1567,7 +1557,7 @@ private:
         SkPaint           fDefaultPaint;
         bool              fDone;
     };
-    
+
     static bool BoundsAffectsClip(SaveLayerFlags);
     static SaveLayerFlags LegacySaveFlagsToSaveLayerFlags(uint32_t legacySaveFlags);
 
@@ -1592,7 +1582,7 @@ private:
 
     class MCRec;
 
-    SkAutoTUnref<SkClipStack> fClipStack;
+    sk_sp<SkClipStack> fClipStack;
     SkDeque     fMCStack;
     // points to top of stack
     MCRec*      fMCRec;
@@ -1637,6 +1627,8 @@ private:
     friend class SkPictureImageFilter;  // SkCanvas(SkBaseDevice*, SkSurfaceProps*, InitFlags)
     friend class SkPictureRecord;   // predrawNotify (why does it need it? <reed>)
     friend class SkPicturePlayback; // SaveFlagsToSaveLayerFlags
+    friend class SkPipeCanvas;      // InitFlags
+    friend class SkDeferredCanvas;  // For use of resetForNextPicture
 
     enum InitFlags {
         kDefault_InitFlags                  = 0,

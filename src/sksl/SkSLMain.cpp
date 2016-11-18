@@ -8,6 +8,14 @@
 #include "stdio.h"
 #include <fstream>
 #include "SkSLCompiler.h"
+#include "GrContextOptions.h"
+
+bool endsWith(const std::string& s, const std::string& ending) {
+    if (s.length() >= ending.length()) {
+        return (0 == s.compare(s.length() - ending.length(), ending.length(), ending));
+    }
+    return false;
+}
 
 /**
  * Very simple standalone executable to facilitate testing.
@@ -35,14 +43,30 @@ int main(int argc, const char** argv) {
         printf("error reading '%s'\n", argv[1]);
         exit(2);
     }
-    std::ofstream out(argv[2], std::ofstream::binary);
-    SkSL::Compiler compiler;
-    if (!compiler.toSPIRV(kind, text, out)) {
-        printf("%s", compiler.errorText().c_str());
-        exit(3);
-    }
-    if (out.rdstate()) {
-        printf("error writing '%s'\n", argv[2]);
-        exit(4);
+    std::string name(argv[2]);
+    if (endsWith(name, ".spirv")) {
+        std::ofstream out(argv[2], std::ofstream::binary);
+        SkSL::Compiler compiler;
+        if (!compiler.toSPIRV(kind, text, out)) {
+            printf("%s", compiler.errorText().c_str());
+            exit(3);
+        }
+        if (out.rdstate()) {
+            printf("error writing '%s'\n", argv[2]);
+            exit(4);
+        }
+    } else if (endsWith(name, ".glsl")) {
+        std::ofstream out(argv[2], std::ofstream::binary);
+        SkSL::Compiler compiler;
+        if (!compiler.toGLSL(kind, text, *SkSL::GLSLCapsFactory::Default(), out)) {
+            printf("%s", compiler.errorText().c_str());
+            exit(3);
+        }
+        if (out.rdstate()) {
+            printf("error writing '%s'\n", argv[2]);
+            exit(4);
+        }
+    } else {
+        printf("expected output filename to end with '.spirv' or '.glsl'");
     }
 }

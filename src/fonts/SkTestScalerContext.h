@@ -26,13 +26,11 @@ struct SkTestFontData {
     const SkPaint::FontMetrics& fMetrics;
     const char* fName;
     SkTypeface::Style fStyle;
-    SkTestFont* fFontCache;
+    sk_sp<SkTestFont> fCachedFont;
 };
 
 class SkTestFont : public SkRefCnt {
 public:
-    
-
     SkTestFont(const SkTestFontData& );
     virtual ~SkTestFont();
     int codeToIndex(SkUnichar charCode) const;
@@ -58,14 +56,11 @@ private:
 
 class SkTestTypeface : public SkTypeface {
 public:
-    SkTestTypeface(SkTestFont*, const SkFontStyle& style);
-    virtual ~SkTestTypeface() {
-        SkSafeUnref(fTestFont);
-    }
+    SkTestTypeface(sk_sp<SkTestFont>, const SkFontStyle& style);
     void getAdvance(SkGlyph* glyph);
     void getFontMetrics(SkPaint::FontMetrics* metrics);
     void getMetrics(SkGlyph* glyph);
-    void getPath(const SkGlyph& glyph, SkPath* path);
+    void getPath(SkGlyphID glyph, SkPath* path);
 protected:
     SkScalerContext* onCreateScalerContext(const SkScalerContextEffects&,
                                            const SkDescriptor* desc) const override;
@@ -105,7 +100,7 @@ protected:
         return 0;
     }
 private:
-    SkTestFont* fTestFont;
+    sk_sp<SkTestFont> fTestFont;
     friend class SkTestScalerContext;
 };
 

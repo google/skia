@@ -317,7 +317,7 @@ DEF_TEST(SkNx_4fLoad4Store4, r) {
     };
 
     Sk4f a, b, c, d;
-    Sk4f_load4(src, &a, &b, &c, &d);
+    Sk4f::Load4(src, &a, &b, &c, &d);
     REPORTER_ASSERT(r,  0.0f == a[0]);
     REPORTER_ASSERT(r,  4.0f == a[1]);
     REPORTER_ASSERT(r,  8.0f == a[2]);
@@ -336,6 +336,6 @@ DEF_TEST(SkNx_4fLoad4Store4, r) {
     REPORTER_ASSERT(r, 15.0f == d[3]);
 
     float dst[16];
-    Sk4f_store4(dst, a, b, c, d);
+    Sk4f::Store4(dst, a, b, c, d);
     REPORTER_ASSERT(r, 0 == memcmp(dst, src, 16 * sizeof(float)));
 }

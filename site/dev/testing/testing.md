@@ -4,11 +4,12 @@ Correctness Testing
 Skia correctness testing is primarily served by a tool named DM.
 This is a quickstart to building and running DM.
 
-~~~
-$ python bin/sync-and-gyp
-$ ninja -C out/Debug dm
-$ out/Debug/dm -v -w dm_output
-~~~
+<!--?prettify lang=sh?-->
+
+    python bin/sync
+    gn gen out/Debug
+    ninja -C out/Debug dm
+    out/Debug/dm -v -w dm_output
 
 When you run this, you may notice your CPU peg to 100% for a while, then taper
 off to 1 or 2 active cores as the run finishes.  This is intentional.  DM is
@@ -145,46 +146,47 @@ they happen and then again all together after everything is done running.
 These failures are also included in the dm.json file.
 
 DM has a simple facility to compare against the results of a previous run:
-~~~
-$ python bin/sync-and-gyp
-$ ninja -C out/Debug dm
-$ out/Debug/dm -w good
 
-  # do some work
+<!--?prettify lang=sh?-->
 
-$ python bin/sync-and-gyp
-$ ninja -C out/Debug dm
-$ out/Debug/dm -r good -w bad
-~~~
+    ninja -C out/Debug dm
+    out/Debug/dm -w good
+
+    # do some work
+
+    ninja -C out/Debug dm
+    out/Debug/dm -r good -w bad
+
 When using `-r`, DM will display a failure for any test that didn't produce the
 same image as the `good` run.
 
 For anything fancier, I suggest using skdiff:
-~~~
-$ python bin/sync-and-gyp
-$ ninja -C out/Debug dm
-$ out/Debug/dm -w good
 
-  # do some work
+<!--?prettify lang=sh?-->
 
-$ python bin/sync-and-gyp
-$ ninja -C out/Debug dm
-$ out/Debug/dm -w bad
+    ninja -C out/Debug dm
+    out/Debug/dm -w good
 
-$ ninja -C out/Debug skdiff
-$ mkdir diff
-$ out/Debug/skdiff good bad diff
+    # do some work
 
-  # open diff/index.html in your web browser
-~~~
+    ninja -C out/Debug dm
+    out/Debug/dm -w bad
+
+    ninja -C out/Debug skdiff
+    mkdir diff
+    out/Debug/skdiff good bad diff
+
+    # open diff/index.html in your web browser
 
 That's the basics of DM.  DM supports many other modes and flags.  Here are a
 few examples you might find handy.
-~~~
-$ out/Debug/dm --help        # Print all flags, their defaults, and a brief explanation of each.
-$ out/Debug/dm --src tests   # Run only unit tests.
-$ out/Debug/dm --nocpu       # Test only GPU-backed work.
-$ out/Debug/dm --nogpu       # Test only CPU-backed work.
-$ out/Debug/dm --match blur  # Run only work with "blur" in its name.
-$ out/Debug/dm --dryRun      # Don't really do anything, just print out what we'd do.
-~~~
+
+<!--?prettify lang=sh?-->
+
+    out/Debug/dm --help        # Print all flags, their defaults, and a brief explanation of each.
+    out/Debug/dm --src tests   # Run only unit tests.
+    out/Debug/dm --nocpu       # Test only GPU-backed work.
+    out/Debug/dm --nogpu       # Test only CPU-backed work.
+    out/Debug/dm --match blur  # Run only work with "blur" in its name.
+    out/Debug/dm --dryRun      # Don't really do anything, just print out what we'd do.
+

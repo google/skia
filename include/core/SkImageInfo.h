@@ -169,9 +169,9 @@ enum SkYUVColorSpace {
 
 ///////////////////////////////////////////////////////////////////////////////
 
-enum class SkSourceGammaTreatment {
-    kRespect,
-    kIgnore,
+enum class SkDestinationSurfaceColorMode {
+    kLegacy,
+    kGammaAndColorSpaceAware,
 };
 
 /**
@@ -277,7 +277,11 @@ public:
     }
 
     size_t minRowBytes() const {
-        return (size_t)this->minRowBytes64();
+        uint64_t minRowBytes = this->minRowBytes64();
+        if (!sk_64_isS32(minRowBytes)) {
+            return 0;
+        }
+        return sk_64_asS32(minRowBytes);
     }
 
     size_t computeOffset(int x, int y, size_t rowBytes) const {
@@ -302,7 +306,7 @@ public:
         if (0 == fHeight) {
             return 0;
         }
-        return sk_64_mul(fHeight - 1, rowBytes) + fWidth * this->bytesPerPixel();
+        return sk_64_mul(fHeight - 1, rowBytes) + sk_64_mul(fWidth, this->bytesPerPixel());
     }
 
     size_t getSafeSize(size_t rowBytes) const {
@@ -343,17 +347,5 @@ private:
         , fAlphaType(at)
     {}
 };
-
-///////////////////////////////////////////////////////////////////////////////
-
-static inline bool SkColorAndColorSpaceAreGammaCorrect(SkColorType ct, SkColorSpace* cs) {
-    // Anything with a color-space attached is gamma-correct, as is F16.
-    // To get legacy behavior, you need to ask for non-F16, with a nullptr color space.
-    return (cs != nullptr) || kRGBA_F16_SkColorType == ct;
-}
-
-static inline bool SkImageInfoIsGammaCorrect(const SkImageInfo& info) {
-    return SkColorAndColorSpaceAreGammaCorrect(info.colorType(), info.colorSpace());
-}
 
 #endif

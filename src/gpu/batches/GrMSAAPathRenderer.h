@@ -21,7 +21,7 @@ private:
 
     void onStencilPath(const StencilPathArgs&) override;
 
-    bool internalDrawPath(GrDrawContext*,
+    bool internalDrawPath(GrRenderTargetContext*,
                           const GrPaint&,
                           const GrUserStencilSettings&,
                           const GrClip&,

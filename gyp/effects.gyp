@@ -16,9 +16,6 @@
         'images.gyp:*',
         'utils.gyp:utils',
       ],
-      'includes': [
-        'effects.gypi',
-      ],
       'include_dirs': [
         '../include/effects',
         '../include/client/android',
@@ -35,7 +32,7 @@
         ],
       },
       'sources': [
-        'effects.gypi', # Makes the gypi appear in IDEs (but does not modify the build).
+        '<!@(python read_gni.py ../gn/effects.gni skia_effects_sources)'
       ],
       'conditions': [
         ['skia_gpu == 1', {

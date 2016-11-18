@@ -401,19 +401,6 @@ bool BGRAConvolve2D(const unsigned char* sourceData,
     // We need to check which is the last line to convolve before we advance 4
     // lines in one iteration.
     int lastFilterOffset, lastFilterLength;
-
-    // SSE2 can access up to 3 extra pixels past the end of the
-    // buffer. At the bottom of the image, we have to be careful
-    // not to access data past the end of the buffer. Normally
-    // we fall back to the C++ implementation for the last row.
-    // If the last row is less than 3 pixels wide, we may have to fall
-    // back to the C++ version for more rows. Compute how many
-    // rows we need to avoid the SSE implementation for here.
-    filterX.FilterForValue(filterX.numValues() - 1, &lastFilterOffset,
-                           &lastFilterLength);
-    int avoidSimdRows = 1 + convolveProcs.fExtraHorizontalReads /
-        (lastFilterOffset + lastFilterLength);
-
     filterY.FilterForValue(numOutputRows - 1, &lastFilterOffset,
                            &lastFilterLength);
 
@@ -424,8 +411,7 @@ bool BGRAConvolve2D(const unsigned char* sourceData,
         // Generate output rows until we have enough to run the current filter.
         while (nextXRow < filterOffset + filterLength) {
             if (convolveProcs.fConvolve4RowsHorizontally &&
-                nextXRow + 3 < lastFilterOffset + lastFilterLength -
-                avoidSimdRows) {
+                nextXRow + 3 < lastFilterOffset + lastFilterLength) {
                 const unsigned char* src[4];
                 unsigned char* outRow[4];
                 for (int i = 0; i < 4; ++i) {
@@ -435,10 +421,7 @@ bool BGRAConvolve2D(const unsigned char* sourceData,
                 convolveProcs.fConvolve4RowsHorizontally(src, filterX, outRow, 4*rowBufferWidth);
                 nextXRow += 4;
             } else {
-                // Check if we need to avoid SSE2 for this row.
-                if (convolveProcs.fConvolveHorizontally &&
-                    nextXRow < lastFilterOffset + lastFilterLength -
-                    avoidSimdRows) {
+                if (convolveProcs.fConvolveHorizontally) {
                     convolveProcs.fConvolveHorizontally(
                         &sourceData[(uint64_t)nextXRow * sourceByteRowStride],
                         filterX, rowBuffer.advanceRow(), sourceHasAlpha);

@@ -14,6 +14,7 @@
 GrVkPipelineState* GrVkPipelineStateBuilder::CreatePipelineState(
                                                                GrVkGpu* gpu,
                                                                const GrPipeline& pipeline,
+                                                               const GrStencilSettings& stencil,
                                                                const GrPrimitiveProcessor& primProc,
                                                                GrPrimitiveType primitiveType,
                                                                const GrVkPipelineState::Desc& desc,
@@ -30,7 +31,7 @@ GrVkPipelineState* GrVkPipelineStateBuilder::CreatePipelineState(
         return nullptr;
     }
 
-    return builder.finalize(primitiveType, renderPass, desc);
+    return builder.finalize(stencil, primitiveType, renderPass, desc);
 }
 
 GrVkPipelineStateBuilder::GrVkPipelineStateBuilder(GrVkGpu* gpu,
@@ -73,7 +74,8 @@ bool GrVkPipelineStateBuilder::CreateVkShaderModule(const GrVkGpu* gpu,
     return GrCompileVkShaderModule(gpu, shaderString.c_str(), stage, shaderModule, stageInfo);
 }
 
-GrVkPipelineState* GrVkPipelineStateBuilder::finalize(GrPrimitiveType primitiveType,
+GrVkPipelineState* GrVkPipelineStateBuilder::finalize(const GrStencilSettings& stencil,
+                                                      GrPrimitiveType primitiveType,
                                                       const GrVkRenderPass& renderPass,
                                                       const GrVkPipelineState::Desc& desc) {
     VkDescriptorSetLayout dsLayout[2];
@@ -129,6 +131,7 @@ GrVkPipelineState* GrVkPipelineStateBuilder::finalize(GrPrimitiveType primitiveT
                                         &shaderStageInfo[1]));
 
     GrVkPipeline* pipeline = resourceProvider.createPipeline(fPipeline,
+                                                             stencil,
                                                              fPrimProc,
                                                              shaderStageInfo,
                                                              2,

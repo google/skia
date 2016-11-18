@@ -30,7 +30,7 @@ static void test_find_existing(skiatest::Reporter* reporter,
                                const sk_sp<SkSpecialImage>& image,
                                const sk_sp<SkSpecialImage>& subset) {
     static const size_t kCacheSize = 1000000;
-    SkAutoTUnref<SkImageFilterCache> cache(SkImageFilterCache::Create(kCacheSize));
+    sk_sp<SkImageFilterCache> cache(SkImageFilterCache::Create(kCacheSize));
 
     SkIRect clip = SkIRect::MakeWH(100, 100);
     SkImageFilterCacheKey key1(0, SkMatrix::I(), clip, image->uniqueID(), image->subset());
@@ -54,7 +54,7 @@ static void test_dont_find_if_diff_key(skiatest::Reporter* reporter,
                                        const sk_sp<SkSpecialImage>& image,
                                        const sk_sp<SkSpecialImage>& subset) {
     static const size_t kCacheSize = 1000000;
-    SkAutoTUnref<SkImageFilterCache> cache(SkImageFilterCache::Create(kCacheSize));
+    sk_sp<SkImageFilterCache> cache(SkImageFilterCache::Create(kCacheSize));
 
     SkIRect clip1 = SkIRect::MakeWH(100, 100);
     SkIRect clip2 = SkIRect::MakeWH(200, 200);
@@ -79,7 +79,7 @@ static void test_dont_find_if_diff_key(skiatest::Reporter* reporter,
 static void test_internal_purge(skiatest::Reporter* reporter, const sk_sp<SkSpecialImage>& image) {
     SkASSERT(image->getSize());
     const size_t kCacheSize = image->getSize() + 10;
-    SkAutoTUnref<SkImageFilterCache> cache(SkImageFilterCache::Create(kCacheSize));
+    sk_sp<SkImageFilterCache> cache(SkImageFilterCache::Create(kCacheSize));
 
     SkIRect clip = SkIRect::MakeWH(100, 100);
     SkImageFilterCacheKey key1(0, SkMatrix::I(), clip, image->uniqueID(), image->subset());
@@ -104,7 +104,7 @@ static void test_explicit_purging(skiatest::Reporter* reporter,
                                   const sk_sp<SkSpecialImage>& image,
                                   const sk_sp<SkSpecialImage>& subset) {
     static const size_t kCacheSize = 1000000;
-    SkAutoTUnref<SkImageFilterCache> cache(SkImageFilterCache::Create(kCacheSize));
+    sk_sp<SkImageFilterCache> cache(SkImageFilterCache::Create(kCacheSize));
 
     SkIRect clip = SkIRect::MakeWH(100, 100);
     SkImageFilterCacheKey key1(0, SkMatrix::I(), clip, image->uniqueID(), image->subset());
@@ -182,7 +182,7 @@ static GrTexture* create_texture(GrContext* context) {
     SkBitmap srcBM = create_bm();
 
     GrSurfaceDesc desc;
-    desc.fConfig = kSkia8888_GrPixelConfig;
+    desc.fConfig = kRGBA_8888_GrPixelConfig;
     desc.fFlags  = kNone_GrSurfaceFlags;
     desc.fWidth  = kFullSize;
     desc.fHeight = kFullSize;
@@ -191,13 +191,13 @@ static GrTexture* create_texture(GrContext* context) {
 }
 
 DEF_GPUTEST_FOR_RENDERING_CONTEXTS(ImageFilterCache_ImageBackedGPU, reporter, ctxInfo) {
-    SkAutoTUnref<GrTexture> srcTexture(create_texture(ctxInfo.grContext()));
+    sk_sp<GrTexture> srcTexture(create_texture(ctxInfo.grContext()));
     if (!srcTexture) {
         return;
     }
 
     GrBackendTextureDesc backendDesc;
-    backendDesc.fConfig = kSkia8888_GrPixelConfig;
+    backendDesc.fConfig = kRGBA_8888_GrPixelConfig;
     backendDesc.fFlags = kNone_GrBackendTextureFlag;
     backendDesc.fWidth = kFullSize;
     backendDesc.fHeight = kFullSize;

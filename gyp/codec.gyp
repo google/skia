@@ -17,7 +17,6 @@
       'standalone_static_library': 1,
       'dependencies': [
         'core.gyp:*',
-        'giflib.gyp:giflib',
         'libjpeg-turbo-selector.gyp:libjpeg-turbo-selector',
         'libpng.gyp:libpng',
         'libwebp.gyp:libwebp',
@@ -28,6 +27,7 @@
         '../src/codec',
         '../src/core',
         '../src/utils',
+        '../third_party/gif',
       ],
       'sources': [
         '../src/codec/SkAndroidCodec.cpp',
@@ -46,6 +46,7 @@
         '../src/codec/SkPngCodec.cpp',
         '../src/codec/SkSampler.cpp',
         '../src/codec/SkSampledCodec.cpp',
+        '../src/codec/SkStreamBuffer.cpp',
         '../src/codec/SkSwizzler.cpp',
         '../src/codec/SkWbmpCodec.cpp',
         '../src/codec/SkWebpAdapterCodec.cpp',
@@ -53,6 +54,8 @@
 
         '../src/codec/SkCodecImageGenerator.cpp',
         '../src/ports/SkImageGenerator_skia.cpp',
+
+        '../third_party/gif/SkGifImageReader.cpp',
       ],
       'direct_dependent_settings': {
         'include_dirs': [

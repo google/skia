@@ -8,7 +8,7 @@
 #include "SkHalf.h"
 #include "SkPM4fPriv.h"
 #include "SkUtils.h"
-#include "SkXfermode.h"
+#include "SkXfermodePriv.h"
 
 static Sk4f lerp_by_coverage(const Sk4f& src, const Sk4f& dst, uint8_t srcCoverage) {
     return dst + (src - dst) * Sk4f(srcCoverage * (1/255.0f));
@@ -16,9 +16,9 @@ static Sk4f lerp_by_coverage(const Sk4f& src, const Sk4f& dst, uint8_t srcCovera
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
-static void xfer_1(const SkXfermode* xfer, uint64_t dst[], const SkPM4f* src, int count,
+static void xfer_1(SkBlendMode mode, uint64_t dst[], const SkPM4f* src, int count,
                        const SkAlpha aa[]) {
-    SkXfermodeProc4f proc = xfer->getProc4f();
+    SkXfermodeProc4f proc = SkXfermode::GetProc4f(mode);
     SkPM4f d;
     if (aa) {
         for (int i = 0; i < count; ++i) {
@@ -36,9 +36,9 @@ static void xfer_1(const SkXfermode* xfer, uint64_t dst[], const SkPM4f* src, in
     }
 }
 
-static void xfer_n(const SkXfermode* xfer, uint64_t dst[], const SkPM4f src[], int count,
+static void xfer_n(SkBlendMode mode, uint64_t dst[], const SkPM4f src[], int count,
                        const SkAlpha aa[]) {
-    SkXfermodeProc4f proc = xfer->getProc4f();
+    SkXfermodeProc4f proc = SkXfermode::GetProc4f(mode);
     SkPM4f d;
     if (aa) {
         for (int i = 0; i < count; ++i) {
@@ -60,7 +60,7 @@ const SkXfermode::F16Proc gProcs_General[] = { xfer_n, xfer_n, xfer_1, xfer_1 };
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
-static void clear(const SkXfermode*, uint64_t dst[], const SkPM4f*, int count, const SkAlpha aa[]) {
+static void clear(SkBlendMode, uint64_t dst[], const SkPM4f*, int count, const SkAlpha aa[]) {
     if (aa) {
         for (int i = 0; i < count; ++i) {
             if (aa[i]) {
@@ -77,8 +77,7 @@ const SkXfermode::F16Proc gProcs_Clear[] = { clear, clear, clear, clear };
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
-static void src_1(const SkXfermode*, uint64_t dst[], const SkPM4f* src, int count,
-                  const SkAlpha aa[]) {
+static void src_1(SkBlendMode, uint64_t dst[], const SkPM4f* src, int count, const SkAlpha aa[]) {
     const Sk4f s4 = Sk4f::Load(src->fVec);
     if (aa) {
         for (int i = 0; i < count; ++i) {
@@ -92,8 +91,7 @@ static void src_1(const SkXfermode*, uint64_t dst[], const SkPM4f* src, int coun
     }
 }
 
-static void src_n(const SkXfermode*, uint64_t dst[], const SkPM4f src[], int count,
-                  const SkAlpha aa[]) {
+static void src_n(SkBlendMode, uint64_t dst[], const SkPM4f src[], int count, const SkAlpha aa[]) {
     if (aa) {
         for (int i = 0; i < count; ++i) {
             const Sk4f s4 = Sk4f::Load(src[i].fVec);
@@ -112,13 +110,13 @@ const SkXfermode::F16Proc gProcs_Src[] = { src_n, src_n, src_1,  src_1 };
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
-static void dst(const SkXfermode*, uint64_t*, const SkPM4f*, int count, const SkAlpha[]) {}
+static void dst(SkBlendMode, uint64_t*, const SkPM4f*, int count, const SkAlpha[]) {}
 
 const SkXfermode::F16Proc gProcs_Dst[] = { dst, dst, dst, dst };
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
-static void srcover_1(const SkXfermode*, uint64_t dst[], const SkPM4f* src, int count,
+static void srcover_1(SkBlendMode, uint64_t dst[], const SkPM4f* src, int count,
                       const SkAlpha aa[]) {
     const Sk4f s4 = Sk4f::Load(src->fVec);
     const Sk4f dst_scale = Sk4f(1 - get_alpha(s4));
@@ -133,7 +131,7 @@ static void srcover_1(const SkXfermode*, uint64_t dst[], const SkPM4f* src, int 
     }
 }
 
-static void srcover_n(const SkXfermode*, uint64_t dst[], const SkPM4f src[], int count,
+static void srcover_n(SkBlendMode, uint64_t dst[], const SkPM4f src[], int count,
                       const SkAlpha aa[]) {
     for (int i = 0; i < count; ++i) {
         Sk4f s = Sk4f::Load(src+i),
@@ -150,29 +148,17 @@ const SkXfermode::F16Proc gProcs_SrcOver[] = { srcover_n, src_n, srcover_1, src_
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
-static SkXfermode::F16Proc find_proc(SkXfermode::Mode mode, uint32_t flags) {
+SkXfermode::F16Proc SkXfermode::GetF16Proc(SkBlendMode mode, uint32_t flags) {
     SkASSERT(0 == (flags & ~3));
     flags &= 3;
 
     switch (mode) {
-        case SkXfermode::kClear_Mode:   return gProcs_Clear[flags];
-        case SkXfermode::kSrc_Mode:     return gProcs_Src[flags];
-        case SkXfermode::kDst_Mode:     return gProcs_Dst[flags];
-        case SkXfermode::kSrcOver_Mode: return gProcs_SrcOver[flags];
+        case SkBlendMode::kClear:   return gProcs_Clear[flags];
+        case SkBlendMode::kSrc:     return gProcs_Src[flags];
+        case SkBlendMode::kDst:     return gProcs_Dst[flags];
+        case SkBlendMode::kSrcOver: return gProcs_SrcOver[flags];
         default:
             break;
     }
     return gProcs_General[flags];
-}
-
-SkXfermode::F16Proc SkXfermode::onGetF16Proc(uint32_t flags) const {
-    SkASSERT(0 == (flags & ~3));
-    flags &= 3;
-
-    Mode mode;
-    return this->asMode(&mode) ? find_proc(mode, flags) : gProcs_General[flags];
-}
-
-SkXfermode::F16Proc SkXfermode::GetF16Proc(SkXfermode* xfer, uint32_t flags) {
-    return xfer ? xfer->onGetF16Proc(flags) : find_proc(SkXfermode::kSrcOver_Mode, flags);
 }

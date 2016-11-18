@@ -940,7 +940,7 @@ public:
         SET_CONTROL(Res);
         SET_CONTROL(Filter);
         SET_CONTROL(Weight);
-    };
+    }
     
     #undef SET_CONTROL
 

@@ -8,17 +8,8 @@
 #include "SkBitmap.h"
 #include "SkImage.h"
 #include "SkImageEncoder.h"
-#include "SkMovie.h"
 #include "SkPixelSerializer.h"
 #include "SkStream.h"
-
-/////////////////////////////////////////////////////////////////////////
-
-// Empty implementation for SkMovie.
-
-SkMovie* SkMovie::DecodeStream(SkStreamRewindable* stream) {
-    return nullptr;
-}
 
 /////////////////////////////////////////////////////////////////////////
 

@@ -22,14 +22,10 @@ class SK_API SkGammaColorFilter : public SkColorFilter {
 public:
     static sk_sp<SkColorFilter> Make(SkScalar gamma);
 
-#ifdef SK_SUPPORT_LEGACY_COLORFILTER_PTR
-    static SkColorFilter* Create(SkScalar gamma) { return Make(gamma).release(); }
-#endif
-
     void filterSpan(const SkPMColor src[], int count, SkPMColor[]) const override;
 
 #if SK_SUPPORT_GPU
-    sk_sp<GrFragmentProcessor> asFragmentProcessor(GrContext*) const override;
+    sk_sp<GrFragmentProcessor> asFragmentProcessor(GrContext*, SkColorSpace*) const override;
 #endif
 
     SK_TO_STRING_OVERRIDE()

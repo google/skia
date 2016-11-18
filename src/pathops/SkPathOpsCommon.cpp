@@ -235,11 +235,14 @@ static void move_nearby(SkOpContourHead* contourList  DEBUG_COIN_DECLARE_PARAMS(
     } while ((contour = contour->next()));
 }
 
-static void sort_angles(SkOpContourHead* contourList) {
+static bool sort_angles(SkOpContourHead* contourList) {
     SkOpContour* contour = contourList;
     do {
-        contour->sortAngles();
+        if (!contour->sortAngles()) {
+            return false;
+        }
     } while ((contour = contour->next()));
+    return true;
 }
 
 bool HandleCoincidence(SkOpContourHead* contourList, SkOpCoincidence* coincidence) {
@@ -302,7 +305,9 @@ bool HandleCoincidence(SkOpContourHead* contourList, SkOpCoincidence* coincidenc
         if (!coincidence->addExpanded(DEBUG_COIN_ONLY_PARAMS())) {
             return false;
         }
-        coincidence->mark(DEBUG_PHASE_ONLY_PARAMS(kWalking));
+        if (!coincidence->mark(DEBUG_PHASE_ONLY_PARAMS(kWalking))) {
+            return false;
+        }
     } else {
         (void) coincidence->expand(DEBUG_COIN_ONLY_PARAMS());
     }
@@ -313,17 +318,23 @@ bool HandleCoincidence(SkOpContourHead* contourList, SkOpCoincidence* coincidenc
     do {
         SkOpCoincidence* pairs = overlaps.isEmpty() ? coincidence : &overlaps;
         // adjust the winding value to account for coincident edges
-        pairs->apply(DEBUG_ITER_ONLY_PARAMS(SAFETY_COUNT - safetyHatch));  
+        if (!pairs->apply(DEBUG_ITER_ONLY_PARAMS(SAFETY_COUNT - safetyHatch))) {
+            return false;
+        } 
         // For each coincident pair that overlaps another, when the receivers (the 1st of the pair)
         // are different, construct a new pair to resolve their mutual span
-        pairs->findOverlaps(&overlaps  DEBUG_ITER_PARAMS(SAFETY_COUNT - safetyHatch));
+        if (!pairs->findOverlaps(&overlaps  DEBUG_ITER_PARAMS(SAFETY_COUNT - safetyHatch))) {
+            return false;
+        }
         if (!--safetyHatch) {
             SkASSERT(globalState->debugSkipAssert());
             return false;
         }
     } while (!overlaps.isEmpty());
     calc_angles(contourList  DEBUG_COIN_PARAMS());
-    sort_angles(contourList);
+    if (!sort_angles(contourList)) {
+        return false;
+    }
 #if DEBUG_COINCIDENCE_VERBOSE
     coincidence->debugShowCoincidence();
 #endif
