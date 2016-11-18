@@ -683,25 +683,25 @@ private:
       : fType(type)
       , fNumOctaves(numOctaves)
       , fStitchTiles(stitchTiles)
-      , fPermutationsAccess(permutationsTexture)
-      , fNoiseAccess(noiseTexture)
+      , fPermutationsSampler(permutationsTexture)
+      , fNoiseSampler(noiseTexture)
       , fPaintingData(paintingData) {
         this->initClassID<GrPerlinNoise2Effect>();
-        this->addTextureAccess(&fPermutationsAccess);
-        this->addTextureAccess(&fNoiseAccess);
+        this->addTextureSampler(&fPermutationsSampler);
+        this->addTextureSampler(&fNoiseSampler);
         fCoordTransform.reset(matrix);
         this->addCoordTransform(&fCoordTransform);
     }
 
     GR_DECLARE_FRAGMENT_PROCESSOR_TEST;
 
-    SkPerlinNoiseShader2::Type       fType;
-    GrCoordTransform                fCoordTransform;
-    int                             fNumOctaves;
-    bool                            fStitchTiles;
-    GrTextureAccess                 fPermutationsAccess;
-    GrTextureAccess                 fNoiseAccess;
-    SkPerlinNoiseShader2::PaintingData *fPaintingData;
+    SkPerlinNoiseShader2::Type          fType;
+    GrCoordTransform                    fCoordTransform;
+    int                                 fNumOctaves;
+    bool                                fStitchTiles;
+    TextureSampler                      fPermutationsSampler;
+    TextureSampler                      fNoiseSampler;
+    SkPerlinNoiseShader2::PaintingData* fPaintingData;
 
 private:
     typedef GrFragmentProcessor INHERITED;
@@ -1093,24 +1093,24 @@ private:
                                 const SkMatrix& matrix)
       : fOctaves(octaves)
       , fZ(z)
-      , fPermutationsAccess(permutationsTexture)
-      , fGradientAccess(gradientTexture)
+      , fPermutationsSampler(permutationsTexture)
+      , fGradientSampler(gradientTexture)
       , fPaintingData(paintingData) {
         this->initClassID<GrImprovedPerlinNoiseEffect>();
-        this->addTextureAccess(&fPermutationsAccess);
-        this->addTextureAccess(&fGradientAccess);
+        this->addTextureSampler(&fPermutationsSampler);
+        this->addTextureSampler(&fGradientSampler);
         fCoordTransform.reset(matrix);
         this->addCoordTransform(&fCoordTransform);
     }
 
     GR_DECLARE_FRAGMENT_PROCESSOR_TEST;
 
-    GrCoordTransform                  fCoordTransform;
-    int                               fOctaves;
-    SkScalar                          fZ;
-    GrTextureAccess                   fPermutationsAccess;
-    GrTextureAccess                   fGradientAccess;
-    SkPerlinNoiseShader2::PaintingData *fPaintingData;
+    GrCoordTransform                    fCoordTransform;
+    int                                 fOctaves;
+    SkScalar                            fZ;
+    TextureSampler                      fPermutationsSampler;
+    TextureSampler                      fGradientSampler;
+    SkPerlinNoiseShader2::PaintingData* fPaintingData;
 
 private:
     typedef GrFragmentProcessor INHERITED;
@@ -1319,8 +1319,8 @@ sk_sp<GrFragmentProcessor> SkPerlinNoiseShader2::asFragmentProcessor(const AsFPA
     m.setTranslateY(-localMatrix.getTranslateY() + SK_Scalar1);
 
     if (fType == kImprovedNoise_Type) {
-        GrTextureParams textureParams(SkShader::TileMode::kRepeat_TileMode, 
-                                      GrTextureParams::FilterMode::kNone_FilterMode);
+        GrSamplerParams textureParams(SkShader::TileMode::kRepeat_TileMode,
+                                      GrSamplerParams::FilterMode::kNone_FilterMode);
         sk_sp<GrTexture> permutationsTexture(
             GrRefCachedBitmapTexture(args.fContext, paintingData->getImprovedPermutationsBitmap(),
                                      textureParams, args.fColorMode));
@@ -1350,10 +1350,10 @@ sk_sp<GrFragmentProcessor> SkPerlinNoiseShader2::asFragmentProcessor(const AsFPA
 
     sk_sp<GrTexture> permutationsTexture(
         GrRefCachedBitmapTexture(args.fContext, paintingData->getPermutationsBitmap(),
-                                 GrTextureParams::ClampNoFilter(), args.fColorMode));
+                                 GrSamplerParams::ClampNoFilter(), args.fColorMode));
     sk_sp<GrTexture> noiseTexture(
         GrRefCachedBitmapTexture(args.fContext, paintingData->getNoiseBitmap(),
-                                 GrTextureParams::ClampNoFilter(), args.fColorMode));
+                                 GrSamplerParams::ClampNoFilter(), args.fColorMode));
 
     if ((permutationsTexture) && (noiseTexture)) {
         sk_sp<GrFragmentProcessor> inner(

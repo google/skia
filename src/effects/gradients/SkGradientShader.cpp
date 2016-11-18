@@ -1651,15 +1651,15 @@ GrGradientEffect::GrGradientEffect(const CreateArgs& args) {
 
             // We always filter the gradient table. Each table is one row of a texture, always
             // y-clamp.
-            GrTextureParams params;
-            params.setFilterMode(GrTextureParams::kBilerp_FilterMode);
+            GrSamplerParams params;
+            params.setFilterMode(GrSamplerParams::kBilerp_FilterMode);
             params.setTileModeX(args.fTileMode);
 
             fRow = fAtlas->lockRow(bitmap);
             if (-1 != fRow) {
                 fYCoord = fAtlas->getYOffset(fRow)+SK_ScalarHalf*fAtlas->getNormalizedTexelHeight();
                 fCoordTransform.reset(*args.fMatrix, fAtlas->getTexture(), params.filterMode());
-                fTextureAccess.reset(fAtlas->getTexture(), params);
+                fTextureSampler.reset(fAtlas->getTexture(), params);
             } else {
                 sk_sp<GrTexture> texture(GrRefCachedBitmapTexture(
                                           args.fContext, bitmap, params,
@@ -1668,11 +1668,11 @@ GrGradientEffect::GrGradientEffect(const CreateArgs& args) {
                     return;
                 }
                 fCoordTransform.reset(*args.fMatrix, texture.get(), params.filterMode());
-                fTextureAccess.reset(texture.get(), params);
+                fTextureSampler.reset(texture.get(), params);
                 fYCoord = SK_ScalarHalf;
             }
 
-            this->addTextureAccess(&fTextureAccess);
+            this->addTextureSampler(&fTextureSampler);
 
             break;
     }

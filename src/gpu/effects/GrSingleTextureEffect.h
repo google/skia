@@ -26,7 +26,7 @@ public:
 
     SkString dumpInfo() const override {
         SkString str;
-        str.appendf("Texture: %d", fTextureAccess.getTexture()->uniqueID().asUInt());
+        str.appendf("Texture: %d", fTextureSampler.texture()->uniqueID().asUInt());
         return str;
     }
 
@@ -37,11 +37,11 @@ protected:
     GrSingleTextureEffect(GrTexture*, sk_sp<GrColorSpaceXform>, const SkMatrix&);
     /** clamp mode */
     GrSingleTextureEffect(GrTexture*, sk_sp<GrColorSpaceXform>, const SkMatrix&,
-                          GrTextureParams::FilterMode filterMode);
+                          GrSamplerParams::FilterMode filterMode);
     GrSingleTextureEffect(GrTexture*,
                           sk_sp<GrColorSpaceXform>,
                           const SkMatrix&,
-                          const GrTextureParams&);
+                          const GrSamplerParams&);
 
     /**
      * Can be used as a helper to implement subclass onComputeInvariantOutput(). It assumes that
@@ -49,9 +49,10 @@ protected:
      * texture.
      */
     void updateInvariantOutputForModulation(GrInvariantOutput* inout) const {
-        if (GrPixelConfigIsAlphaOnly(this->texture(0)->config())) {
+        GrPixelConfig config = this->textureSampler(0).texture()->config();
+        if (GrPixelConfigIsAlphaOnly(config)) {
             inout->mulByUnknownSingleComponent();
-        } else if (GrPixelConfigIsOpaque(this->texture(0)->config())) {
+        } else if (GrPixelConfigIsOpaque(config)) {
             inout->mulByUnknownOpaqueFourComponents();
         } else {
             inout->mulByUnknownFourComponents();
@@ -60,7 +61,7 @@ protected:
 
 private:
     GrCoordTransform fCoordTransform;
-    GrTextureAccess  fTextureAccess;
+    TextureSampler fTextureSampler;
     sk_sp<GrColorSpaceXform> fColorSpaceXform;
 
     typedef GrFragmentProcessor INHERITED;

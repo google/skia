@@ -18,7 +18,7 @@
 
 #include <new>
 
-class GrTextureParams;
+class GrSamplerParams;
 class SkImageCacherator;
 
 enum {
@@ -55,7 +55,7 @@ public:
     virtual bool getROPixels(SkBitmap*, CachingHint = kAllow_CachingHint) const = 0;
 
     // Caller must call unref when they are done.
-    virtual GrTexture* asTextureRef(GrContext*, const GrTextureParams&,
+    virtual GrTexture* asTextureRef(GrContext*, const GrSamplerParams&,
                                     SkDestinationSurfaceColorMode) const = 0;
 
     virtual sk_sp<SkImage> onMakeSubset(const SkIRect&) const = 0;

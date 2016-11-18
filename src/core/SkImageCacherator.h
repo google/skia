@@ -13,7 +13,7 @@
 #include "SkTemplates.h"
 
 class GrContext;
-class GrTextureParams;
+class GrSamplerParams;
 class GrUniqueKey;
 class SkBitmap;
 class SkImage;
@@ -50,7 +50,7 @@ public:
      *
      *  The caller is responsible for calling texture->unref() when they are done.
      */
-    GrTexture* lockAsTexture(GrContext*, const GrTextureParams&,
+    GrTexture* lockAsTexture(GrContext*, const GrSamplerParams&,
                              SkDestinationSurfaceColorMode colorMode, const SkImage* client,
                              SkImage::CachingHint = SkImage::kAllow_CachingHint);
 

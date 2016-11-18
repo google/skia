@@ -11,7 +11,7 @@
 #include "GrGpu.h"
 
 void GrCoordTransform::reset(const SkMatrix& m, const GrTexture* texture,
-                             GrTextureParams::FilterMode filter) {
+                             GrSamplerParams::FilterMode filter) {
     SkASSERT(texture);
     SkASSERT(!fInProcessor);
 
@@ -23,7 +23,7 @@ void GrCoordTransform::reset(const SkMatrix& m, const GrTexture* texture,
     // coords between 0 to 1 when bi- or tri-lerping and 1 value when nearest filtering. Note that
     // this still might not be enough when drawing with repeat or mirror-repeat modes but that case
     // can be arbitrarily bad.
-    int subPixelThresh = filter > GrTextureParams::kNone_FilterMode ? 4 : 1;
+    int subPixelThresh = filter > GrSamplerParams::kNone_FilterMode ? 4 : 1;
     fPrecision = kDefault_GrSLPrecision;
     if (texture->getContext()) {
         const GrShaderCaps* caps = texture->getContext()->caps()->shaderCaps();

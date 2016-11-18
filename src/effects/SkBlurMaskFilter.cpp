@@ -825,7 +825,7 @@ private:
 
     SkRect          fRect;
     float           fSigma;
-    GrTextureAccess fBlurProfileAccess;
+    TextureSampler  fBlurProfileSampler;
     GrSLPrecision   fPrecision;
 
     GR_DECLARE_FRAGMENT_PROCESSOR_TEST;
@@ -975,10 +975,10 @@ GrRectBlurEffect::GrRectBlurEffect(const SkRect& rect, float sigma, GrTexture *b
                                    GrSLPrecision precision)
     : fRect(rect)
     , fSigma(sigma)
-    , fBlurProfileAccess(blurProfile)
+    , fBlurProfileSampler(blurProfile)
     , fPrecision(precision) {
     this->initClassID<GrRectBlurEffect>();
-    this->addTextureAccess(&fBlurProfileAccess);
+    this->addTextureSampler(&fBlurProfileSampler);
     this->setWillReadFragmentPosition();
 }
 
@@ -1093,7 +1093,7 @@ private:
 
     SkRRect             fRRect;
     float               fSigma;
-    GrTextureAccess     fNinePatchAccess;
+    TextureSampler      fNinePatchSampler;
 
     GR_DECLARE_FRAGMENT_PROCESSOR_TEST;
 
@@ -1205,9 +1205,9 @@ void GrRRectBlurEffect::onComputeInvariantOutput(GrInvariantOutput* inout) const
 GrRRectBlurEffect::GrRRectBlurEffect(float sigma, const SkRRect& rrect, GrTexture *ninePatchTexture)
     : fRRect(rrect),
       fSigma(sigma),
-      fNinePatchAccess(ninePatchTexture) {
+      fNinePatchSampler(ninePatchTexture) {
     this->initClassID<GrRRectBlurEffect>();
-    this->addTextureAccess(&fNinePatchAccess);
+    this->addTextureSampler(&fNinePatchSampler);
     this->setWillReadFragmentPosition();
 }
 

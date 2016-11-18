@@ -275,12 +275,12 @@ sk_sp<GrRenderTargetContext> GaussianBlur(GrContext* context,
                                                         matrix,
                                                         domain,
                                                         GrTextureDomain::kDecal_Mode,
-                                                        GrTextureParams::kBilerp_FilterMode));
+                                                        GrSamplerParams::kBilerp_FilterMode));
             paint.addColorFragmentProcessor(std::move(fp));
             srcRect.offset(-srcOffset);
             srcOffset.set(0, 0);
         } else {
-            GrTextureParams params(SkShader::kClamp_TileMode, GrTextureParams::kBilerp_FilterMode);
+            GrSamplerParams params(SkShader::kClamp_TileMode, GrSamplerParams::kBilerp_FilterMode);
             paint.addColorTextureProcessor(srcTexture.get(), nullptr, matrix, params);
         }
         paint.setPorterDuffXPFactory(SkBlendMode::kSrc);
@@ -356,7 +356,7 @@ sk_sp<GrRenderTargetContext> GaussianBlur(GrContext* context,
         GrPaint paint;
         paint.setGammaCorrect(dstRenderTargetContext->isGammaCorrect());
         // FIXME:  this should be mitchell, not bilinear.
-        GrTextureParams params(SkShader::kClamp_TileMode, GrTextureParams::kBilerp_FilterMode);
+        GrSamplerParams params(SkShader::kClamp_TileMode, GrSamplerParams::kBilerp_FilterMode);
         sk_sp<GrTexture> tex(srcRenderTargetContext->asTexture());
         paint.addColorTextureProcessor(tex.get(), nullptr, matrix, params);
         paint.setPorterDuffXPFactory(SkBlendMode::kSrc);

@@ -42,9 +42,8 @@ public:
      * Creates an SkGpuDevice from a GrRenderTargetContext whose backing width/height is
      * different than its actual width/height (e.g., approx-match scratch texture).
      */
-    static sk_sp<SkGpuDevice> Make(sk_sp<GrRenderTargetContext> renderTargetContext,
-                                   int width, int height,
-                                   InitContents);
+    static sk_sp<SkGpuDevice> Make(GrContext*, sk_sp<GrRenderTargetContext> renderTargetContext,
+                                   int width, int height, InitContents);
 
     /**
      * New device that will create an offscreen renderTarget based on the ImageInfo and
@@ -148,7 +147,7 @@ private:
     static bool CheckAlphaTypeAndGetFlags(const SkImageInfo* info, InitContents init,
                                           unsigned* flags);
 
-    SkGpuDevice(sk_sp<GrRenderTargetContext>, int width, int height, unsigned flags);
+    SkGpuDevice(GrContext*, sk_sp<GrRenderTargetContext>, int width, int height, unsigned flags);
 
     SkBaseDevice* onCreateDevice(const CreateInfo&, const SkPaint*) override;
 
@@ -170,7 +169,7 @@ private:
     bool shouldTileImageID(uint32_t imageID, const SkIRect& imageRect,
                            const SkMatrix& viewMatrix,
                            const SkMatrix& srcToDstRectMatrix,
-                           const GrTextureParams& params,
+                           const GrSamplerParams& params,
                            const SkRect* srcRectPtr,
                            int maxTileSize,
                            int* tileSize,
@@ -193,7 +192,7 @@ private:
                          const SkMatrix& srcToDstMatrix,
                          const SkRect& srcRect,
                          const SkIRect& clippedSrcRect,
-                         const GrTextureParams& params,
+                         const GrSamplerParams& params,
                          const SkPaint& paint,
                          SkCanvas::SrcRectConstraint,
                          int tileSize,
@@ -204,7 +203,7 @@ private:
                         const SkMatrix& viewMatrix,
                         const SkRect& dstRect,
                         const SkRect& srcRect,
-                        const GrTextureParams& params,
+                        const GrSamplerParams& params,
                         const SkPaint& paint,
                         SkCanvas::SrcRectConstraint,
                         bool bicubic,

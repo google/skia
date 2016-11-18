@@ -173,13 +173,14 @@ void GrVkPipelineState::abandonGPUResources() {
 }
 
 static void append_texture_bindings(const GrProcessor& processor,
-                                    SkTArray<const GrTextureAccess*>* textureBindings) {
-    if (int numTextures = processor.numTextures()) {
-        const GrTextureAccess** bindings = textureBindings->push_back_n(numTextures);
+                                    SkTArray<const GrProcessor::TextureSampler*>* textureBindings) {
+    if (int numTextureSamplers = processor.numTextureSamplers()) {
+        const GrProcessor::TextureSampler** bindings =
+                textureBindings->push_back_n(numTextureSamplers);
         int i = 0;
         do {
-            bindings[i] = &processor.textureAccess(i);
-        } while (++i < numTextures);
+            bindings[i] = &processor.textureSampler(i);
+        } while (++i < numTextureSamplers);
     }
 }
 
@@ -192,7 +193,7 @@ void GrVkPipelineState::setData(GrVkGpu* gpu,
 
     this->setRenderTargetState(pipeline);
 
-    SkSTArray<8, const GrTextureAccess*> textureBindings;
+    SkSTArray<8, const GrProcessor::TextureSampler*> textureBindings;
 
     fGeometryProcessor->setData(fDataManager, primProc,
                                 GrFragmentProcessor::CoordTransformIter(pipeline));
@@ -302,15 +303,16 @@ void GrVkPipelineState::writeUniformBuffers(const GrVkGpu* gpu) {
     }
 }
 
-void GrVkPipelineState::writeSamplers(GrVkGpu* gpu,
-                                      const SkTArray<const GrTextureAccess*>& textureBindings,
-                                      bool allowSRGBInputs) {
+void GrVkPipelineState::writeSamplers(
+        GrVkGpu* gpu,
+        const SkTArray<const GrProcessor::TextureSampler*>& textureBindings,
+        bool allowSRGBInputs) {
     SkASSERT(fNumSamplers == textureBindings.count());
 
     for (int i = 0; i < textureBindings.count(); ++i) {
-        const GrTextureParams& params = textureBindings[i]->getParams();
+        const GrSamplerParams& params = textureBindings[i]->params();
 
-        GrVkTexture* texture = static_cast<GrVkTexture*>(textureBindings[i]->getTexture());
+        GrVkTexture* texture = static_cast<GrVkTexture*>(textureBindings[i]->texture());
 
         fSamplers.push(gpu->resourceProvider().findOrCreateCompatibleSampler(params,
                                                           texture->texturePriv().maxMipMapLevel()));

@@ -188,9 +188,9 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(IntTexture, reporter, ctxInfo) {
     sk_sp<GrRenderTargetContext> rtContext = context->makeRenderTargetContext(
             SkBackingFit::kExact, kS, kS, kRGBA_8888_GrPixelConfig, nullptr);
 
-    for (auto filter : {GrTextureParams::kNone_FilterMode,
-                        GrTextureParams::kBilerp_FilterMode,
-                        GrTextureParams::kMipMap_FilterMode}) {
+    for (auto filter : {GrSamplerParams::kNone_FilterMode,
+                        GrSamplerParams::kBilerp_FilterMode,
+                        GrSamplerParams::kMipMap_FilterMode}) {
         SkMatrix m;
         m.setIDiv(kS, kS);
         sk_sp<GrFragmentProcessor> fp(GrSimpleTextureEffect::Make(texture.get(), nullptr, m,

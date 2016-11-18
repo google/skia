@@ -7,7 +7,6 @@
 
 #include "GrVkSampler.h"
 
-#include "GrTextureAccess.h"
 #include "GrVkGpu.h"
 
 static inline VkSamplerAddressMode tile_to_vk_sampler_address(SkShader::TileMode tm) {
@@ -23,7 +22,7 @@ static inline VkSamplerAddressMode tile_to_vk_sampler_address(SkShader::TileMode
     return gWrapModes[tm];
 }
 
-GrVkSampler* GrVkSampler::Create(const GrVkGpu* gpu, const GrTextureParams& params,
+GrVkSampler* GrVkSampler::Create(const GrVkGpu* gpu, const GrSamplerParams& params,
                                  uint32_t mipLevels) {
     static VkFilter vkMinFilterModes[] = {
         VK_FILTER_NEAREST,
@@ -58,7 +57,7 @@ GrVkSampler* GrVkSampler::Create(const GrVkGpu* gpu, const GrTextureParams& para
     // level mip). If the filters weren't the same we could set min = 0 and max = 0.25 to force
     // the minFilter on mip level 0.
     createInfo.minLod = 0.0f;
-    bool useMipMaps = GrTextureParams::kMipMap_FilterMode == params.filterMode() && mipLevels > 1;
+    bool useMipMaps = GrSamplerParams::kMipMap_FilterMode == params.filterMode() && mipLevels > 1;
     createInfo.maxLod = !useMipMaps ? 0.0f : (float)(mipLevels);
     createInfo.borderColor = VK_BORDER_COLOR_FLOAT_TRANSPARENT_BLACK;
     createInfo.unnormalizedCoordinates = VK_FALSE;
@@ -77,7 +76,7 @@ void GrVkSampler::freeGPUData(const GrVkGpu* gpu) const {
     GR_VK_CALL(gpu->vkInterface(), DestroySampler(gpu->device(), fSampler, nullptr));
 }
 
-uint16_t GrVkSampler::GenerateKey(const GrTextureParams& params, uint32_t mipLevels) {
+uint16_t GrVkSampler::GenerateKey(const GrSamplerParams& params, uint32_t mipLevels) {
     const int kTileModeXShift = 2;
     const int kTileModeYShift = 4;
     const int kMipLevelShift = 6;

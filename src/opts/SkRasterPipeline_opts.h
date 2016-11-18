@@ -31,6 +31,7 @@ namespace {
     using SkNf = SkNx<N, float>;
     using SkNi = SkNx<N, int>;
     using SkNh = SkNx<N, uint16_t>;
+    using SkNb = SkNx<N, uint8_t>;
 
     struct BodyStage;
     struct TailStage;
@@ -548,6 +549,16 @@ STAGE(luminance_to_alpha, true) {
     r = g = b = 0;
 }
 
+STAGE(matrix_2x3, true) {
+    auto m = (const float*)ctx;
+
+    auto fma = [](const SkNf& f, const SkNf& m, const SkNf& a) { return SkNx_fma(f,m,a); };
+    auto R = fma(r,m[0], fma(g,m[2], m[4])),
+         G = fma(r,m[1], fma(g,m[3], m[5]));
+    r = R;
+    g = G;
+}
+
 STAGE(matrix_3x4, true) {
     auto m = (const float*)ctx;
 
@@ -573,6 +584,19 @@ STAGE(matrix_4x5, true) {
     b = B;
     a = A;
 }
+
+STAGE(matrix_perspective, true) {
+    // N.B. unlike the matrix_NxM stages, this takes a row-major matrix.
+    auto m = (const float*)ctx;
+
+    auto fma = [](const SkNf& f, const SkNf& m, const SkNf& a) { return SkNx_fma(f,m,a); };
+    auto R = fma(r,m[0], fma(g,m[1], m[2])),
+         G = fma(r,m[3], fma(g,m[4], m[5])),
+         Z = fma(r,m[6], fma(g,m[7], m[8]));
+    r = R * Z.invert();
+    g = G * Z.invert();
+}
+
 
 SI SkNf parametric(const SkNf& v, const SkColorSpaceTransferFn& p) {
     float result[N];   // Unconstrained powf() doesn't vectorize well...
@@ -657,6 +681,99 @@ STAGE(lab_to_xyz, true) {
 
 STAGE(swap_rb, true) {
     SkTSwap(r, b);
+}
+
+SI SkNf assert_in_tile(const SkNf& v, float limit) {
+    for (int i = 0; i < N; i++) {
+        SkASSERT(0 <= v[i] && v[i] < limit);
+    }
+    return v;
+}
+
+SI SkNf clamp(const SkNf& v, float limit) {
+    SkNf result = SkNf::Max(0, SkNf::Min(v, limit - 0.5f));
+    return assert_in_tile(result, limit);
+}
+
+SI SkNf repeat(const SkNf& v, float limit) {
+    SkNf result = v - (v/limit).floor()*limit;
+
+    // For small negative v, (v/limit).floor()*limit can dominate v in the subtraction,
+    // which leaves result == limit.  We want result < limit, so clamp it one ULP.
+    result = SkNf::Min(result, nextafterf(limit, 0));
+
+    return assert_in_tile(result, limit);
+}
+
+STAGE(clamp_x,  true) { r = clamp (r, *(const int*)ctx); }
+STAGE(clamp_y,  true) { g = clamp (g, *(const int*)ctx); }
+STAGE(repeat_x, true) { r = repeat(r, *(const int*)ctx); }
+STAGE(repeat_y, true) { g = repeat(g, *(const int*)ctx); }
+
+STAGE(mirror_x, true) {}  // TODO
+STAGE(mirror_y, true) {}  // TODO
+
+
+struct NearestCtx {
+    const void* pixels;
+    int         stride;
+};
+
+STAGE(nearest_565, true) {}  // TODO
+STAGE(nearest_f16, true) {}  // TODO
+
+STAGE(nearest_8888, true) {
+    auto nc = (const NearestCtx*)ctx;
+
+    SkNi ix = SkNx_cast<int>(r),
+         iy = SkNx_cast<int>(g);
+    SkNi offset = iy*nc->stride + ix;
+
+    auto p = (const uint32_t*)nc->pixels;
+    uint8_t R[N], G[N], B[N], A[N];
+    for (size_t i = 0; i < N; i++) {
+        if (kIsTail && i >= tail) {
+            R[i] = G[i] = B[i] = A[i] = 0;
+            continue;
+        }
+        uint32_t rgba = p[offset[i]];
+        R[i] = rgba >>  0;
+        G[i] = rgba >>  8;
+        B[i] = rgba >> 16;
+        A[i] = rgba >> 24;
+    }
+
+    r = SkNx_cast<float>(SkNb::Load(R)) * (1/255.0f);
+    g = SkNx_cast<float>(SkNb::Load(G)) * (1/255.0f);
+    b = SkNx_cast<float>(SkNb::Load(B)) * (1/255.0f);
+    a = SkNx_cast<float>(SkNb::Load(A)) * (1/255.0f);
+}
+
+STAGE(nearest_srgb, true) {
+    auto nc = (const NearestCtx*)ctx;
+
+    SkNi ix = SkNx_cast<int>(r),
+         iy = SkNx_cast<int>(g);
+    SkNi offset = iy*nc->stride + ix;
+
+    auto p = (const uint32_t*)nc->pixels;
+    uint8_t R[N], G[N], B[N], A[N];
+    for (size_t i = 0; i < N; i++) {
+        if (kIsTail && i >= tail) {
+            R[i] = G[i] = B[i] = A[i] = 0;
+            continue;
+        }
+        uint32_t rgba = p[offset[i]];
+        R[i] = rgba >>  0;
+        G[i] = rgba >>  8;
+        B[i] = rgba >> 16;
+        A[i] = rgba >> 24;
+    }
+
+    r = sk_linear_from_srgb_math(SkNx_cast<int>(SkNb::Load(R)));
+    g = sk_linear_from_srgb_math(SkNx_cast<int>(SkNb::Load(G)));
+    b = sk_linear_from_srgb_math(SkNx_cast<int>(SkNb::Load(B)));
+    a = SkNx_cast<float>(SkNb::Load(A)) * (1/255.0f);
 }
 
 template <typename Fn>

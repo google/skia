@@ -23,8 +23,8 @@ public:
 
 static inline SkFixed quickSkFDot6Div(SkFDot6 a, SkFDot6 b) {
     // Max inverse of b is 2^6 which is 2^22 in SkFixed format.
-    // Hence the safe value of abs(a) should be less than 2^10.
-    if (SkAbs32(b) < kInverseTableSize && SkAbs32(a) < (1 << 10)) {
+    // Hence the safe value of abs(a) should be less than 2^9.
+    if (SkAbs32(b) < kInverseTableSize && SkAbs32(a) < (1 << 9)) {
         SkASSERT((int64_t)a * QuickFDot6Inverse::Lookup(b) <= SK_MaxS32
                 && (int64_t)a * QuickFDot6Inverse::Lookup(b) >= SK_MinS32);
         SkFixed ourAnswer = (a * QuickFDot6Inverse::Lookup(b)) >> 6;
@@ -139,7 +139,7 @@ bool SkAnalyticQuadraticEdge::updateQuadratic() {
             slope = dy >> 10 > 0 ? quickSkFDot6Div(dx >> 10, dy >> 10) : SK_MaxS32;
             if (SkAbs32(dy) >= SK_Fixed1 * 2) { // only snap when dy is large enough
                 newSnappedY = SkTMin<SkFixed>(fQEdge.fQLastY, SkFixedRoundToFixed(newy));
-                newSnappedX = newx + SkFixedMul_lowprec(slope, newSnappedY - newy);
+                newSnappedX = newx + SkFixedMul(slope, newSnappedY - newy);
             } else {
                 newSnappedY = SkTMin(fQEdge.fQLastY, snapY(newy));
                 newSnappedX = newx;

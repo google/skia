@@ -15,7 +15,6 @@
 #include "GrCaps.h"
 #include "GrCoordTransform.h"
 #include "GrFragmentProcessor.h"
-#include "GrTextureAccess.h"
 #include "GrTypes.h"
 #include "GrXferProcessor.h"
 

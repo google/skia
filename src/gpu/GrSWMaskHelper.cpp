@@ -192,7 +192,7 @@ void GrSWMaskHelper::DrawToTargetWithShapeMask(GrTexture* texture,
                          GrSimpleTextureEffect::Make(texture,
                                                      nullptr,
                                                      maskMatrix,
-                                                     GrTextureParams::kNone_FilterMode));
+                                                     GrSamplerParams::kNone_FilterMode));
 
     sk_sp<GrDrawBatch> batch(GrRectBatchFactory::CreateNonAAFill(paint.getColor(),
                                                                  SkMatrix::I(),

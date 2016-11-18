@@ -72,7 +72,7 @@ public:
     using TransformedCoordVars = BuilderInputProvider<GrShaderVar, GrFragmentProcessor,
                                                       &GrFragmentProcessor::numCoordTransforms>;
     using TextureSamplers = BuilderInputProvider<SamplerHandle, GrProcessor,
-                                                 &GrProcessor::numTextures>;
+                                                 &GrProcessor::numTextureSamplers>;
     using BufferSamplers = BuilderInputProvider<SamplerHandle, GrProcessor,
                                                 &GrProcessor::numBuffers>;
 
@@ -94,7 +94,7 @@ public:
                                  info about its output.
         @param transformedCoords Fragment shader variables containing the coords computed using
                                  each of the GrFragmentProcessor's GrCoordTransforms.
-        @param texSamplers       Contains one entry for each GrTextureAccess of the GrProcessor.
+        @param texSamplers       Contains one entry for each TextureSampler  of the GrProcessor.
                                  These can be passed to the builder to emit texture reads in the
                                  generated code.
         @param bufferSamplers    Contains one entry for each GrBufferAccess of the GrProcessor.

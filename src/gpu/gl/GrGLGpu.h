@@ -57,12 +57,12 @@ public:
     }
 
     // Used by GrGLProgram to configure OpenGL state.
-    void bindTexture(int unitIdx, const GrTextureParams& params, bool allowSRGBInputs,
+    void bindTexture(int unitIdx, const GrSamplerParams& params, bool allowSRGBInputs,
                      GrGLTexture* texture);
 
     void bindTexelBuffer(int unitIdx, GrPixelConfig, GrGLBuffer*);
 
-    void generateMipmaps(const GrTextureParams& params, bool allowSRGBInputs, GrGLTexture* texture);
+    void generateMipmaps(const GrSamplerParams& params, bool allowSRGBInputs, GrGLTexture* texture);
 
     bool onGetReadPixelsInfo(GrSurface* srcSurface, int readWidth, int readHeight, size_t rowBytes,
                              GrPixelConfig readConfig, DrawPreference*,
@@ -184,7 +184,7 @@ private:
                            bool renderTarget, GrGLTexture::TexParams* initialTexParams,
                            const SkTArray<GrMipLevel>& texels);
 
-    bool onMakeCopyForTextureParams(GrTexture*, const GrTextureParams&,
+    bool onMakeCopyForTextureParams(GrTexture*, const GrSamplerParams&,
                                     GrTextureProducer::CopyParams*) const override;
 
     // Checks whether glReadPixels can be called to get pixel values in readConfig from the

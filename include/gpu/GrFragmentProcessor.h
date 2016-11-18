@@ -183,10 +183,10 @@ public:
                                           &GrFragmentProcessor::numCoordTransforms,
                                           &GrFragmentProcessor::coordTransform>;
 
-    using TextureAccessIter = FPItemIter<GrTextureAccess,
+    using TextureAccessIter = FPItemIter<TextureSampler,
                                          GrProcessor,
-                                         &GrProcessor::numTextures,
-                                         &GrProcessor::textureAccess>;
+                                         &GrProcessor::numTextureSamplers,
+                                         &GrProcessor::textureSampler>;
 
 protected:
     /**

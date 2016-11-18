@@ -1303,6 +1303,7 @@ bool SkOpCoincidence::mark(DEBUG_COIN_DECLARE_ONLY_PARAMS()) {
         }
         /* coin and opp spans may not match up. Mark the ends, and then let the interior
            get marked as many times as the spans allow */
+        FAIL_IF(!oStart->upCastable());
         start->insertCoincidence(oStart->upCast());
         end->insertCoinEnd(oEnd);
         const SkOpSegment* segment = start->segment();

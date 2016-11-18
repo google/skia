@@ -8,20 +8,20 @@
 #ifndef GrTextureMaker_DEFINED
 #define GrTextureMaker_DEFINED
 
-#include "GrTextureParams.h"
+#include "GrSamplerParams.h"
 #include "GrResourceKey.h"
 #include "GrTexture.h"
 #include "SkTLazy.h"
 
 class GrContext;
-class GrTextureParams;
+class GrSamplerParams;
 class GrUniqueKey;
 class SkBitmap;
 
 /**
  * Different GPUs and API extensions have different requirements with respect to what texture
  * sampling parameters may be used with textures of various types. This class facilitates making
- * texture compatible with a given GrTextureParams. There are two immediate subclasses defined
+ * texture compatible with a given GrSamplerParams. There are two immediate subclasses defined
  * below. One is a base class for sources that are inherently texture-backed (e.g. a texture-backed
  * SkImage). It supports subsetting the original texture. The other is for use cases where the
  * source can generate a texture that represents some content (e.g. cpu pixels, SkPicture, ...).
@@ -29,7 +29,7 @@ class SkBitmap;
 class GrTextureProducer : public SkNoncopyable {
 public:
     struct CopyParams {
-        GrTextureParams::FilterMode fFilter;
+        GrSamplerParams::FilterMode fFilter;
         int                         fWidth;
         int                         fHeight;
     };
@@ -64,7 +64,7 @@ public:
                                     const SkRect& constraintRect,
                                     FilterConstraint filterConstraint,
                                     bool coordsLimitedToConstraintRect,
-                                    const GrTextureParams::FilterMode* filterOrNullForBicubic,
+                                    const GrSamplerParams::FilterMode* filterOrNullForBicubic,
                                     SkColorSpace* dstColorSpace,
                                     SkDestinationSurfaceColorMode) = 0;
 
@@ -131,7 +131,7 @@ public:
         outOffset will be the top-left corner of the subset if a copy is not made. Otherwise,
         the copy will be tight to the contents and outOffset will be (0, 0). If the copy's size
         does not match subset's dimensions then the contents are scaled to fit the copy.*/
-    GrTexture* refTextureSafeForParams(const GrTextureParams&, SkDestinationSurfaceColorMode,
+    GrTexture* refTextureSafeForParams(const GrSamplerParams&, SkDestinationSurfaceColorMode,
                                        SkIPoint* outOffset);
 
     sk_sp<GrFragmentProcessor> createFragmentProcessor(
@@ -139,7 +139,7 @@ public:
                                 const SkRect& constraintRect,
                                 FilterConstraint,
                                 bool coordsLimitedToConstraintRect,
-                                const GrTextureParams::FilterMode* filterOrNullForBicubic,
+                                const GrSamplerParams::FilterMode* filterOrNullForBicubic,
                                 SkColorSpace* dstColorSpace,
                                 SkDestinationSurfaceColorMode) override;
 
@@ -180,14 +180,14 @@ public:
     /** Returns a texture that is safe for use with the params. If the size of the returned texture
         does not match width()/height() then the contents of the original must be scaled to fit
         the texture. */
-    GrTexture* refTextureForParams(const GrTextureParams&, SkDestinationSurfaceColorMode);
+    GrTexture* refTextureForParams(const GrSamplerParams&, SkDestinationSurfaceColorMode);
 
     sk_sp<GrFragmentProcessor> createFragmentProcessor(
                                 const SkMatrix& textureMatrix,
                                 const SkRect& constraintRect,
                                 FilterConstraint filterConstraint,
                                 bool coordsLimitedToConstraintRect,
-                                const GrTextureParams::FilterMode* filterOrNullForBicubic,
+                                const GrSamplerParams::FilterMode* filterOrNullForBicubic,
                                 SkColorSpace* dstColorSpace,
                                 SkDestinationSurfaceColorMode) override;
 

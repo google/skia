@@ -93,7 +93,7 @@ public:
      * kNearest).
      */
     static bool ShouldUseBicubic(const SkMatrix& localCoordsToDevice,
-                                 GrTextureParams::FilterMode* filterMode);
+                                 GrSamplerParams::FilterMode* filterMode);
 
 private:
     GrBicubicEffect(GrTexture*, sk_sp<GrColorSpaceXform>, const SkScalar coefficients[16],

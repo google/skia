@@ -84,7 +84,7 @@ GrVkPipelineState* GrVkPipelineStateBuilder::finalize(const GrStencilSettings& s
     VkShaderModule fragShaderModule;
 
     GrVkResourceProvider& resourceProvider = fGpu->resourceProvider();
-    // This layout is not owned by the PipelineStateBuilder and thus should no be destroyed
+    // These layouts are not owned by the PipelineStateBuilder and thus should not be destroyed
     dsLayout[GrVkUniformHandler::kUniformBufferDescSet] = resourceProvider.getUniformDSLayout();
 
     GrVkDescriptorSetManager::Handle samplerDSHandle;
@@ -146,11 +146,6 @@ GrVkPipelineState* GrVkPipelineStateBuilder::finalize(const GrStencilSettings& s
     if (!pipeline) {
         GR_VK_CALL(fGpu->vkInterface(), DestroyPipelineLayout(fGpu->device(), pipelineLayout,
                                                               nullptr));
-        GR_VK_CALL(fGpu->vkInterface(),
-                   DestroyDescriptorSetLayout(fGpu->device(),
-                                              dsLayout[GrVkUniformHandler::kSamplerDescSet],
-                                              nullptr));
-
         this->cleanupFragmentProcessors();
         return nullptr;
     }

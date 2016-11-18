@@ -9,7 +9,7 @@
 #define SkGr_DEFINED
 
 #include "GrColor.h"
-#include "GrTextureAccess.h"
+#include "GrSamplerParams.h"
 #include "SkColor.h"
 #include "SkColorPriv.h"
 #include "SkFilterQuality.h"
@@ -19,7 +19,6 @@ class GrCaps;
 class GrColorSpaceXform;
 class GrContext;
 class GrTexture;
-class GrTextureParams;
 class SkBitmap;
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -77,13 +76,13 @@ static inline GrColor SkPMColorToGrColor(SkPMColor c) {
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-/** Returns a texture representing the bitmap that is compatible with the GrTextureParams. The
+/** Returns a texture representing the bitmap that is compatible with the GrSamplerParams. The
     texture is inserted into the cache (unless the bitmap is marked volatile) and can be
     retrieved again via this function. */
-GrTexture* GrRefCachedBitmapTexture(GrContext*, const SkBitmap&, const GrTextureParams&,
+GrTexture* GrRefCachedBitmapTexture(GrContext*, const SkBitmap&, const GrSamplerParams&,
                                     SkDestinationSurfaceColorMode);
 
-sk_sp<GrTexture> GrMakeCachedBitmapTexture(GrContext*, const SkBitmap&, const GrTextureParams&,
+sk_sp<GrTexture> GrMakeCachedBitmapTexture(GrContext*, const SkBitmap&, const GrSamplerParams&,
                                            SkDestinationSurfaceColorMode);
 
 // TODO: Move SkImageInfo2GrPixelConfig to SkGrPriv.h (requires cleanup to SkWindow its subclasses).
@@ -94,7 +93,7 @@ static inline GrPixelConfig SkImageInfo2GrPixelConfig(const SkImageInfo& info, c
     return SkImageInfo2GrPixelConfig(info.colorType(), info.alphaType(), info.colorSpace(), caps);
 }
 
-GrTextureParams::FilterMode GrSkFilterQualityToGrFilterMode(SkFilterQuality paintFilterQuality,
+GrSamplerParams::FilterMode GrSkFilterQualityToGrFilterMode(SkFilterQuality paintFilterQuality,
                                                             const SkMatrix& viewM,
                                                             const SkMatrix& localM,
                                                             bool* doBicubic);

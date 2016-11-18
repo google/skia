@@ -85,7 +85,7 @@ bool SkImage_Gpu::getROPixels(SkBitmap* dst, CachingHint chint) const {
     return true;
 }
 
-GrTexture* SkImage_Gpu::asTextureRef(GrContext* ctx, const GrTextureParams& params,
+GrTexture* SkImage_Gpu::asTextureRef(GrContext* ctx, const GrSamplerParams& params,
                                      SkDestinationSurfaceColorMode colorMode) const {
     GrTextureAdjuster adjuster(this->peekTexture(), this->alphaType(), this->bounds(), this->uniqueID(),
                                this->onImageInfo().colorSpace());
@@ -270,6 +270,10 @@ static sk_sp<SkImage> make_from_yuv_textures_copy(GrContext* ctx, SkYUVColorSpac
     const SkRect rect = SkRect::MakeWH(SkIntToScalar(width), SkIntToScalar(height));
 
     renderTargetContext->drawRect(GrNoClip(), paint, SkMatrix::I(), rect);
+
+    if (!renderTargetContext->accessRenderTarget()) {
+        return nullptr;
+    }
     ctx->flushSurfaceWrites(renderTargetContext->accessRenderTarget());
     return sk_make_sp<SkImage_Gpu>(width, height, kNeedNewImageUniqueID,
                                    kOpaque_SkAlphaType, renderTargetContext->asTexture(),
@@ -295,7 +299,7 @@ sk_sp<SkImage> SkImage::MakeFromNV12TexturesCopy(GrContext* ctx, SkYUVColorSpace
 
 static sk_sp<SkImage> create_image_from_maker(GrTextureMaker* maker, SkAlphaType at, uint32_t id) {
     sk_sp<GrTexture> texture(
-        maker->refTextureForParams(GrTextureParams::ClampNoFilter(),
+        maker->refTextureForParams(GrSamplerParams::ClampNoFilter(),
                                    SkDestinationSurfaceColorMode::kGammaAndColorSpaceAware));
     if (!texture) {
         return nullptr;
