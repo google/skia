@@ -7,8 +7,17 @@
 
 #include "SkFixedAlloc.h"
 
+static char* align_ptr(void* ptr) {
+    return (char*)(((uintptr_t)ptr + 7) & ~7);
+}
+
+static size_t align_limit(void* vptr, size_t len) {
+    char* ptr = (char*)vptr;
+    return (ptr + len) - align_ptr(vptr);
+}
+
 SkFixedAlloc::SkFixedAlloc(void* ptr, size_t len)
-    : fBuffer((char*)ptr), fUsed(0), fLimit(len) {}
+    : fBuffer(align_ptr(ptr)), fUsed(0), fLimit(align_limit(ptr, len)) {}
 
 void SkFixedAlloc::undo() {
     // This function is essentially make() in reverse.
@@ -17,11 +26,8 @@ void SkFixedAlloc::undo() {
     Footer footer;
     memcpy(&footer, fBuffer + fUsed - sizeof(Footer), sizeof(Footer));
 
-    // That tells us where the T starts and how to destroy it.
-    footer.dtor(fBuffer + fUsed - sizeof(Footer) - footer.len);
-
-    // We can reuse bytes that stored the Footer, the T, and any that we skipped for alignment.
-    fUsed -= sizeof(Footer) + footer.len + footer.skip;
+    // That tells us where the T starts, how to destroy it and returns the size used.
+    fUsed -= footer.dtor(fBuffer + fUsed);
 }
 
 void SkFixedAlloc::reset() {
