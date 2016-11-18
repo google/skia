@@ -101,10 +101,10 @@ GrGLuint GLVec4ScalarBench::setupShader(const GrGLContext* ctx) {
     // corner of the screen than the previous circle.
 
     // set up vertex shader; this is a trivial vertex shader that passes through position and color
-    GrGLSLShaderVar aPosition("a_position", kVec2f_GrSLType, GrShaderVar::kAttribute_TypeModifier);
-    GrGLSLShaderVar oPosition("o_position", kVec2f_GrSLType, GrShaderVar::kVaryingOut_TypeModifier);
-    GrGLSLShaderVar aColor("a_color", kVec3f_GrSLType, GrShaderVar::kAttribute_TypeModifier);
-    GrGLSLShaderVar oColor("o_color", kVec3f_GrSLType, GrShaderVar::kVaryingOut_TypeModifier);
+    GrGLSLShaderVar aPosition("a_position", kVec2f_GrSLType, GrShaderVar::kIn_TypeModifier);
+    GrGLSLShaderVar oPosition("o_position", kVec2f_GrSLType, GrShaderVar::kOut_TypeModifier);
+    GrGLSLShaderVar aColor("a_color", kVec3f_GrSLType, GrShaderVar::kIn_TypeModifier);
+    GrGLSLShaderVar oColor("o_color", kVec3f_GrSLType, GrShaderVar::kOut_TypeModifier);
 
     SkString vshaderTxt(version);
     aPosition.appendDecl(glslCaps, &vshaderTxt);
@@ -132,10 +132,10 @@ GrGLuint GLVec4ScalarBench::setupShader(const GrGLContext* ctx) {
     GrGLSLShaderVar oFragColor("o_FragColor", kVec4f_GrSLType, GrShaderVar::kOut_TypeModifier);
     SkString fshaderTxt(version);
     GrGLSLAppendDefaultFloatPrecisionDeclaration(kDefault_GrSLPrecision, *glslCaps, &fshaderTxt);
-    oPosition.setTypeModifier(GrShaderVar::kVaryingIn_TypeModifier);
+    oPosition.setTypeModifier(GrShaderVar::kIn_TypeModifier);
     oPosition.appendDecl(glslCaps, &fshaderTxt);
     fshaderTxt.append(";\n");
-    oColor.setTypeModifier(GrShaderVar::kVaryingIn_TypeModifier);
+    oColor.setTypeModifier(GrShaderVar::kIn_TypeModifier);
     oColor.appendDecl(glslCaps, &fshaderTxt);
     fshaderTxt.append(";\n");
 

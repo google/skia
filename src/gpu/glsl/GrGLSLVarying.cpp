@@ -72,14 +72,14 @@ void GrGLSLVaryingHandler::emitAttributes(const GrGeometryProcessor& gp) {
         const GrGeometryProcessor::Attribute& attr = gp.getAttrib(i);
         this->addAttribute(GrShaderVar(attr.fName,
                                        GrVertexAttribTypeToSLType(attr.fType),
-                                       GrShaderVar::kAttribute_TypeModifier,
+                                       GrShaderVar::kIn_TypeModifier,
                                        GrShaderVar::kNonArray,
                                        attr.fPrecision));
     }
 }
 
 void GrGLSLVaryingHandler::addAttribute(const GrShaderVar& var) {
-    SkASSERT(GrShaderVar::kAttribute_TypeModifier == var.getTypeModifier());
+    SkASSERT(GrShaderVar::kIn_TypeModifier == var.getTypeModifier());
     for (int j = 0; j < fVertexInputs.count(); ++j) {
         const GrGLSLShaderVar& attr = fVertexInputs[j];
         // if attribute already added, don't add it again
@@ -111,10 +111,10 @@ void GrGLSLVaryingHandler::finalize() {
         const VaryingInfo& v = this->fVaryings[i];
         const char* modifier = v.fIsFlat ? "flat" : fDefaultInterpolationModifier;
         if (v.fVisibility & kVertex_GrShaderFlag) {
-            fVertexOutputs.push_back().set(v.fType, GrShaderVar::kVaryingOut_TypeModifier, v.fVsOut,
+            fVertexOutputs.push_back().set(v.fType, GrShaderVar::kOut_TypeModifier, v.fVsOut,
                                            v.fPrecision, nullptr, modifier);
             if (v.fVisibility & kGeometry_GrShaderFlag) {
-                fGeomInputs.push_back().set(v.fType, GrShaderVar::kVaryingIn_TypeModifier, v.fVsOut,
+                fGeomInputs.push_back().set(v.fType, GrShaderVar::kIn_TypeModifier, v.fVsOut,
                                             GrShaderVar::kUnsizedArray, v.fPrecision, nullptr,
                                             modifier);
             }
@@ -122,11 +122,11 @@ void GrGLSLVaryingHandler::finalize() {
         if (v.fVisibility & kFragment_GrShaderFlag) {
             const char* fsIn = v.fVsOut.c_str();
             if (v.fVisibility & kGeometry_GrShaderFlag) {
-                fGeomOutputs.push_back().set(v.fType, GrGLSLShaderVar::kVaryingOut_TypeModifier,
+                fGeomOutputs.push_back().set(v.fType, GrGLSLShaderVar::kOut_TypeModifier,
                                              v.fGsOut, v.fPrecision, nullptr, modifier);
                 fsIn = v.fGsOut.c_str();
             }
-            fFragInputs.push_back().set(v.fType, GrShaderVar::kVaryingIn_TypeModifier, fsIn,
+            fFragInputs.push_back().set(v.fType, GrShaderVar::kIn_TypeModifier, fsIn,
                                         v.fPrecision, nullptr, modifier);
         }
     }
