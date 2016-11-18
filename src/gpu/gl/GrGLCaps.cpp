@@ -1656,7 +1656,7 @@ void GrGLCaps::initConfigTable(const GrGLContextInfo& ctxInfo, const GrGLInterfa
     fConfigTable[kRGB_565_GrPixelConfig].fFormatType = kNormalizedFixedPoint_FormatType;
     fConfigTable[kRGB_565_GrPixelConfig].fFlags = ConfigInfo::kTextureable_Flag;
     if (kGL_GrGLStandard == standard) {
-        if (version >= GR_GL_VER(4, 2) || ctxInfo.hasExtension("GL_ES2_compatibility")) {
+        if (version >= GR_GL_VER(4, 2) || ctxInfo.hasExtension("GL_ARB_ES2_compatibility")) {
             fConfigTable[kRGB_565_GrPixelConfig].fFlags |= allRenderFlags;
         }
     } else {
