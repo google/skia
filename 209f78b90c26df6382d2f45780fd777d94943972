@@ -1,0 +1,55 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "b09b987b_080b3006",
+        "filename": "src/core/SkFDot6Constants.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 28,
+      "author": {
+        "id": 5632
+      },
+      "writtenOn": "2016-11-18T12:43:34Z",
+      "side": 1,
+      "message": "Since this code is in a comment, it\u0027s subject to bit-rot. It\u0027s preferable to move it to live code that is always compiled and run during testing. \n\nWhile you may not want to regenerate the table\u0027s text form, it would be reasonable to assert that table[i] \u003d\u003d SkFDot6Div(... as a runtime test.\n\nAlso, it looks wrong. Doesn\u0027t the table below include \u00270\u0027 when i \u003d\u003d 0? I don\u0027t see where storage[kInverseTableSize] is initialized above.",
+      "revId": "209f78b90c26df6382d2f45780fd777d94943972",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "b09b987b_48f458d8",
+        "filename": "src/core/SkFDot6Constants.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 217,
+      "author": {
+        "id": 5632
+      },
+      "writtenOn": "2016-11-18T12:43:34Z",
+      "side": 1,
+      "message": "It looks like this should run:\n\nfor (int i \u003d 1; i \u003c kInverseTableSize: ++i) \n    SkASSERT(gFDot6INVERSE[i] \u003d\u003d -gFDot6INVERSE[kInverseTableSize * 2 - i]);\n\nWorth adding this in the test section.",
+      "revId": "209f78b90c26df6382d2f45780fd777d94943972",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "b09b987b_88ee4004",
+        "filename": "tests/MathTest.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 42,
+      "author": {
+        "id": 5632
+      },
+      "writtenOn": "2016-11-18T12:43:34Z",
+      "side": 1,
+      "message": "This test looks fine, but I expect more testing than this single entry. Sound reasonable?",
+      "revId": "209f78b90c26df6382d2f45780fd777d94943972",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
