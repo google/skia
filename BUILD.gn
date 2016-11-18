@@ -11,19 +11,23 @@ if (!defined(is_skia_standalone)) {
 }
 
 declare_args() {
-  skia_use_angle = false
-  skia_use_expat = true
+  skia_use_third_party = true
+}
+declare_args() {
+  skia_use_angle = skia_use_third_party && false
+  skia_use_expat = skia_use_third_party && true
   skia_use_fontconfig = is_linux
-  skia_use_freetype = is_android || is_fuchsia || is_linux
+  skia_use_freetype =
+      skia_use_third_party && (is_android || is_fuchsia || is_linux)
   skia_use_gdi = false
-  skia_use_icu = !is_fuchsia && !is_ios && !is_win  # TODO: Windows
-  skia_use_libjpeg_turbo = true
-  skia_use_libpng = true
-  skia_use_libwebp = !is_fuchsia
-  skia_use_lua = false
+  skia_use_icu = skia_use_third_party && (!is_fuchsia && !is_ios && !is_win)  # TODO: Windows
+  skia_use_libjpeg_turbo = skia_use_third_party && true
+  skia_use_libpng = skia_use_third_party && true
+  skia_use_libwebp = skia_use_third_party && !is_fuchsia
+  skia_use_lua = skia_use_third_party && false
   skia_use_mesa = false
-  skia_use_piex = !is_win
-  skia_use_zlib = true
+  skia_use_piex = skia_use_third_party && !is_win
+  skia_use_zlib = skia_use_third_party && true
 
   skia_enable_android_framework_defines = false
   skia_enable_gpu = true
