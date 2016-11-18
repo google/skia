@@ -21,6 +21,10 @@ struct SkAnalyticEdge {
     SkAnalyticEdge* fNext;
     SkAnalyticEdge* fPrev;
 
+    // During aaa_walk_edges, if this edge is a left edge,
+    // then fRiteE is its corresponding right edge. Otherwise it's nullptr.
+    SkAnalyticEdge* fRiteE = nullptr;
+
     SkFixed fX;
     SkFixed fDX;
     SkFixed fUpperX;        // The x value when y = fUpperY
@@ -29,6 +33,10 @@ struct SkAnalyticEdge {
     SkFixed fLowerY;        // The lower bound of y (our edge is from y = fUpperY to y = fLowerY)
     SkFixed fDY;            // abs(1/fDX); may be SK_MaxS32 when fDX is close to 0.
                             // fDY is only used for blitting trapezoids.
+
+    SkFixed fSavedX;        // For deferred blitting
+    SkFixed fSavedY;        // For deferred blitting
+    SkFixed fSavedDY;       // For deferred blitting
 
     int8_t  fCurveCount;    // only used by kQuad(+) and kCubic(-)
     uint8_t fCurveShift;    // appled to all Dx/DDx/DDDx except for fCubicDShift exception
@@ -53,6 +61,12 @@ struct SkAnalyticEdge {
             fX = fUpperX + SkFixedMul(fDX, y - fUpperY);
             fY = y;
         }
+    }
+
+    inline void saveXY(SkFixed x, SkFixed y, SkFixed dY) {
+        fSavedX = x;
+        fSavedY = y;
+        fSavedDY = dY;
     }
 
     inline bool setLine(const SkPoint& p0, const SkPoint& p1, const SkIRect* clip = nullptr);
@@ -89,14 +103,14 @@ struct SkAnalyticQuadraticEdge : public SkAnalyticEdge {
     SkFixed fSnappedX, fSnappedY;
 
     bool setQuadratic(const SkPoint pts[3]);
-    bool updateQuadratic();
+    bool updateQuadratic(bool isInitializing = false);
 };
 
 struct SkAnalyticCubicEdge : public SkAnalyticEdge {
     SkCubicEdge fCEdge;
 
     bool setCubic(const SkPoint pts[4]);
-    bool updateCubic();
+    bool updateCubic(bool isInitializing = false);
 };
 
 bool SkAnalyticEdge::setLine(const SkPoint& p0, const SkPoint& p1, const SkIRect* clip) {
