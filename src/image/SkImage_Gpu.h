@@ -38,9 +38,9 @@ public:
         }
     }
 
-    bool getROPixels(SkBitmap*, CachingHint) const override;
+    bool getROPixels(SkBitmap*, SkDestinationSurfaceColorMode, CachingHint) const override;
     GrTexture* asTextureRef(GrContext* ctx, const GrSamplerParams& params,
-                            SkDestinationSurfaceColorMode) const override;
+                            SkDestinationSurfaceColorMode, sk_sp<SkColorSpace>*) const override;
     sk_sp<SkImage> onMakeSubset(const SkIRect&) const override;
 
     GrTexture* peekTexture() const override { return fTexture.get(); }
