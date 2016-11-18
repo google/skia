@@ -1,0 +1,324 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "b09b987b_88cf206d",
+        "filename": "fuzz/fuzz.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 405,
+      "author": {
+        "id": 5120
+      },
+      "writtenOn": "2016-11-18T15:40:48Z",
+      "side": 1,
+      "message": "nit: Seems like the SkWStream version would be faster, or even do something like DevNull: https://cs.chromium.org/chromium/src/third_party/skia/src/core/SkPictureData.cpp?l\u003d277",
+      "revId": "3b7f67b5b84a795ae21a630c20aa8f12b76d2470",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "b09b987b_a8ddc42f",
+        "filename": "fuzz/fuzz.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 407,
+      "author": {
+        "id": 5120
+      },
+      "writtenOn": "2016-11-18T15:40:48Z",
+      "side": 1,
+      "message": "nit: When we know the size, we should pass it in to SkString.",
+      "range": {
+        "startLine": 407,
+        "startChar": 8,
+        "endLine": 407,
+        "endChar": 17
+      },
+      "revId": "3b7f67b5b84a795ae21a630c20aa8f12b76d2470",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "b09b987b_63be9d9a",
+        "filename": "src/sksl/SkSLCompiler.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 140,
+      "author": {
+        "id": 5120
+      },
+      "writtenOn": "2016-11-18T15:40:48Z",
+      "side": 1,
+      "message": "nit: make a static local.\n\n(You might want to do this in other places also, but I\u0027m not sure the memory barrier to increment the ref count would be cheaper than copying the string. In this case, SKSL_INCLUDE is very likely more expensive to copy than to increment the ref count.)\n\n(OTOH, doesn\u0027t allocating and deallocating memory for SkString also cause a memory barrier? \u003cshrug\u003e)",
+      "range": {
+        "startLine": 140,
+        "startChar": 33,
+        "endLine": 140,
+        "endChar": 55
+      },
+      "revId": "3b7f67b5b84a795ae21a630c20aa8f12b76d2470",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "b09b987b_83c38127",
+        "filename": "src/sksl/SkSLCompiler.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 289,
+      "author": {
+        "id": 5120
+      },
+      "writtenOn": "2016-11-18T15:40:48Z",
+      "side": 1,
+      "message": "nit: I think this method has an override for char*, but it doesn\u0027t seem like you used it anywhere.",
+      "range": {
+        "startLine": 289,
+        "startChar": 12,
+        "endLine": 289,
+        "endChar": 23
+      },
+      "revId": "3b7f67b5b84a795ae21a630c20aa8f12b76d2470",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "b09b987b_43e0b9b1",
+        "filename": "src/sksl/SkSLCompiler.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 412,
+      "author": {
+        "id": 5120
+      },
+      "writtenOn": "2016-11-18T15:40:48Z",
+      "side": 1,
+      "message": "nit: remove \".c_str()\"",
+      "range": {
+        "startLine": 412,
+        "startChar": 62,
+        "endLine": 412,
+        "endChar": 73
+      },
+      "revId": "3b7f67b5b84a795ae21a630c20aa8f12b76d2470",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "b09b987b_c3d3c9ee",
+        "filename": "src/sksl/SkSLCompiler.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 443,
+      "author": {
+        "id": 5120
+      },
+      "writtenOn": "2016-11-18T15:40:48Z",
+      "side": 1,
+      "message": "nit: This copies the output twice. Why not:\nout-\u003eresize(buffer.bytesWritten());\nbuffer.copyTo(out-\u003ewritable_str());\n\nOr add a snapshotAsString() method to SkDynamicMemoryWStream.",
+      "range": {
+        "startLine": 443,
+        "startChar": 8,
+        "endLine": 443,
+        "endChar": 50
+      },
+      "revId": "3b7f67b5b84a795ae21a630c20aa8f12b76d2470",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "b09b987b_e3d0cde4",
+        "filename": "src/sksl/SkSLCompiler.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 464,
+      "author": {
+        "id": 5120
+      },
+      "writtenOn": "2016-11-18T15:40:48Z",
+      "side": 1,
+      "message": "nit: see above.",
+      "revId": "3b7f67b5b84a795ae21a630c20aa8f12b76d2470",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "b09b987b_83f0e172",
+        "filename": "src/sksl/SkSLGLSLCodeGenerator.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 33,
+      "author": {
+        "id": 5120
+      },
+      "writtenOn": "2016-11-18T15:40:48Z",
+      "side": 1,
+      "message": "nit: possibly better to move this code to the write(const SkString\u0026 s) method(s) to avoid recomputing the string length multiple times (and implement write(const char* s) in terms of write(const SkString\u0026 s)).\n\nMaybe add a write(const SkString\u0026) method to SkWStream.",
+      "range": {
+        "startLine": 33,
+        "startChar": 4,
+        "endLine": 33,
+        "endChar": 23
+      },
+      "revId": "3b7f67b5b84a795ae21a630c20aa8f12b76d2470",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "b09b987b_a3f5e562",
+        "filename": "src/sksl/SkSLGLSLCodeGenerator.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 391,
+      "author": {
+        "id": 5120
+      },
+      "writtenOn": "2016-11-18T15:40:48Z",
+      "side": 1,
+      "message": "nit: see above",
+      "revId": "3b7f67b5b84a795ae21a630c20aa8f12b76d2470",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "b09b987b_434439ba",
+        "filename": "src/sksl/SkSLGLSLCodeGenerator.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 669,
+      "author": {
+        "id": 5120
+      },
+      "writtenOn": "2016-11-18T15:40:48Z",
+      "side": 1,
+      "message": "nit:\nfHeader.writeToStream(\u0026out);\nbody.writeToStream(\u0026out);",
+      "range": {
+        "startLine": 668,
+        "startChar": 0,
+        "endLine": 669,
+        "endChar": 42
+      },
+      "revId": "3b7f67b5b84a795ae21a630c20aa8f12b76d2470",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "b09b987b_036f9116",
+        "filename": "src/sksl/SkSLParser.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 166,
+      "author": {
+        "id": 5120
+      },
+      "writtenOn": "2016-11-18T15:40:48Z",
+      "side": 1,
+      "message": "nit: maybe add second arg skslget_leng(fScanner)",
+      "revId": "3b7f67b5b84a795ae21a630c20aa8f12b76d2470",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "b09b987b_831f0187",
+        "filename": "src/sksl/SkSLSPIRVCodeGenerator.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 849,
+      "author": {
+        "id": 5120
+      },
+      "writtenOn": "2016-11-18T15:40:48Z",
+      "side": 1,
+      "message": "nit: out.write(string, length)",
+      "range": {
+        "startLine": 849,
+        "startChar": 4,
+        "endLine": 849,
+        "endChar": 25
+      },
+      "revId": "3b7f67b5b84a795ae21a630c20aa8f12b76d2470",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "b09b987b_c308294d",
+        "filename": "src/sksl/SkSLSPIRVCodeGenerator.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 2304,
+      "author": {
+        "id": 5120
+      },
+      "writtenOn": "2016-11-18T15:40:48Z",
+      "side": 1,
+      "message": "nit: fGlobalInitializersBuffer.writeToStream(\u0026out)\n\nAlso for other uses of write_data in this file.",
+      "revId": "3b7f67b5b84a795ae21a630c20aa8f12b76d2470",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "b09b987b_83f6211d",
+        "filename": "src/sksl/SkSLUtil.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 76,
+      "author": {
+        "id": 5120
+      },
+      "writtenOn": "2016-11-18T15:40:48Z",
+      "side": 1,
+      "message": "nit: I think I nitted all uses of this.",
+      "revId": "3b7f67b5b84a795ae21a630c20aa8f12b76d2470",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "b09b987b_03ea312d",
+        "filename": "src/sksl/SkSLUtil.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 78,
+      "author": {
+        "id": 5120
+      },
+      "writtenOn": "2016-11-18T15:40:48Z",
+      "side": 1,
+      "message": "Seems like a bad idea to define operators on SkString outside of SkString.h.",
+      "revId": "3b7f67b5b84a795ae21a630c20aa8f12b76d2470",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "b09b987b_63205db1",
+        "filename": "src/sksl/SkSLUtil.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 125,
+      "author": {
+        "id": 5120
+      },
+      "writtenOn": "2016-11-18T15:40:48Z",
+      "side": 1,
+      "message": "Also should be in SkString.h.",
+      "revId": "3b7f67b5b84a795ae21a630c20aa8f12b76d2470",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
