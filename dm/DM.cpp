@@ -35,6 +35,7 @@
 #include "Timer.h"
 #include "picture_utils.h"
 #include "sk_tool_utils.h"
+#include "SkScan.h"
 
 #include <vector>
 
@@ -1294,6 +1295,10 @@ int dm_main();
 int dm_main() {
     setbuf(stdout, nullptr);
     setup_crash_handler();
+
+    if (FLAGS_analyticAA) {
+        gSkUseAnalyticAA = true;
+    }
 
     if (FLAGS_verbose) {
         gVLog = stderr;

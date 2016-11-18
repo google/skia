@@ -32,6 +32,7 @@ DECLARE_bool(verbose);
 DECLARE_bool(veryVerbose);
 DECLARE_string(writePath);
 DECLARE_bool(pre_log);
+DECLARE_bool(analyticAA);
 
 DECLARE_string(key);
 DECLARE_string(properties);
