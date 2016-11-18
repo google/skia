@@ -62,7 +62,7 @@ class GitBranch(object):
 
   def commit_and_upload(self, use_commit_queue=False):
     """Commit all changes and upload a CL, returning the issue URL."""
-    subprocess.check_call(['git', 'commit', '-a', '-m', self._commit_msg])
+    subprocess.check_call(['git', 'commit', '-a', '-m', self._commit_msg], stderr=subprocess.STDOUT)
     upload_cmd = ['git', 'cl', 'upload', '-f', '--bypass-hooks',
                   '--bypass-watchlists']
     self._patch_set += 1
@@ -70,7 +70,7 @@ class GitBranch(object):
       upload_cmd.extend(['-t', 'Patch set %d' % self._patch_set])
     if use_commit_queue:
       upload_cmd.append('--use-commit-queue')
-    subprocess.check_call(upload_cmd)
+    subprocess.check_call(upload_cmd, stderr=subprocess.STDOUT)
     output = subprocess.check_output(['git', 'cl', 'issue']).rstrip()
     return re.match('^Issue number: (?P<issue>\d+) \((?P<issue_url>.+)\)$',
                     output).group('issue_url')
