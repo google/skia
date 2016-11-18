@@ -9,37 +9,6 @@
 #include "SkAnalyticEdge.h"
 #include "SkFDot6.h"
 #include "SkMathPriv.h"
-#include "SkAAAConstants.h"
-
-class QuickFDot6Inverse {
-private:
-    static constexpr const SkFDot6* table = gFDot6INVERSE + kInverseTableSize;
-public:
-    inline static SkFixed Lookup(SkFDot6 x) {
-        SkASSERT(SkAbs32(x) < kInverseTableSize);
-        return table[x];
-    }
-};
-
-static inline SkFixed quickSkFDot6Div(SkFDot6 a, SkFDot6 b) {
-    // Max inverse of b is 2^6 which is 2^22 in SkFixed format.
-    // Hence the safe value of abs(a) should be less than 2^9.
-    if (SkAbs32(b) < kInverseTableSize && SkAbs32(a) < (1 << 9)) {
-        SkASSERT((int64_t)a * QuickFDot6Inverse::Lookup(b) <= SK_MaxS32
-                && (int64_t)a * QuickFDot6Inverse::Lookup(b) >= SK_MinS32);
-        SkFixed ourAnswer = (a * QuickFDot6Inverse::Lookup(b)) >> 6;
-        #ifdef SK_DEBUG
-        SkFixed directAnswer = SkFDot6Div(a, b);
-        SkASSERT(
-            (directAnswer == 0 && ourAnswer == 0) ||
-            SkFixedDiv(SkAbs32(directAnswer - ourAnswer), SkAbs32(directAnswer)) <= 1 << 10
-        );
-        #endif
-        return ourAnswer;
-    } else {
-        return SkFDot6Div(a, b);
-    }
-}
 
 // This will become a bottleneck for small ovals rendering if we call SkFixedDiv twice here.
 // Therefore, we'll let the outter function compute the slope once and send in the value.
@@ -74,7 +43,7 @@ bool SkAnalyticEdge::updateLine(SkFixed x0, SkFixed y0, SkFixed x1, SkFixed y1, 
                   ? SK_MaxS32
                   : absSlope < kInverseTableSize
                     ? QuickFDot6Inverse::Lookup(absSlope)
-                    : SkAbs32(quickSkFDot6Div(dy, dx));
+                    : SkAbs32(QuickSkFDot6Div(dy, dx));
 
     return true;
 }
@@ -136,7 +105,7 @@ bool SkAnalyticQuadraticEdge::updateQuadratic() {
         {
             newx    = oldx + (dx >> shift);
             newy    = oldy + (dy >> shift);
-            slope = dy >> 10 > 0 ? quickSkFDot6Div(dx >> 10, dy >> 10) : SK_MaxS32;
+            slope = dy >> 10 > 0 ? QuickSkFDot6Div(dx >> 10, dy >> 10) : SK_MaxS32;
             if (SkAbs32(dy) >= SK_Fixed1 * 2) { // only snap when dy is large enough
                 newSnappedY = SkTMin<SkFixed>(fQEdge.fQLastY, SkFixedRoundToFixed(newy));
                 newSnappedX = newx + SkFixedMul(slope, newSnappedY - newy);
@@ -154,7 +123,7 @@ bool SkAnalyticQuadraticEdge::updateQuadratic() {
             newSnappedY = newy;
             newSnappedX = newx;
             slope = (newSnappedY - fSnappedY) >> 10
-                    ? quickSkFDot6Div((newx - fSnappedX) >> 10, (newy - fSnappedY) >> 10)
+                    ? QuickSkFDot6Div((newx - fSnappedX) >> 10, (newy - fSnappedY) >> 10)
                     : SK_MaxS32;
         }
         if (slope < SK_MaxS32) {
