@@ -31,7 +31,7 @@ GrGLProgram::GrGLProgram(GrGLGpu* gpu,
                          const BuiltinUniformHandles& builtinUniforms,
                          GrGLuint programID,
                          const UniformInfoArray& uniforms,
-                         const SkTArray<GrGLSampler>& samplers,
+                         const UniformInfoArray& samplers,
                          const VaryingInfoArray& pathProcVaryings,
                          GrGLSLPrimitiveProcessor* geometryProcessor,
                          GrGLSLXferProcessor* xferProcessor,
@@ -158,7 +158,7 @@ void GrGLProgram::bindTextures(const GrProcessor& processor,
                           allowSRGBInputs, static_cast<GrGLTexture*>(sampler.texture()));
     }
     for (int i = 0; i < processor.numBuffers(); ++i) {
-        const GrBufferAccess& access = processor.bufferAccess(i);
+        const GrProcessor::BufferAccess& access = processor.bufferAccess(i);
         fGpu->bindTexelBuffer((*nextSamplerIdx)++, access.texelConfig(),
                               static_cast<GrGLBuffer*>(access.buffer()));
     }

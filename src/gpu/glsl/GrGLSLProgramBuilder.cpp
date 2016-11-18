@@ -264,7 +264,7 @@ void GrGLSLProgramBuilder::emitSamplers(const GrProcessor& processor,
         GrShaderFlags texelBufferVisibility = kNone_GrShaderFlags;
 
         for (int b = 0; b < numBuffers; ++b) {
-            const GrBufferAccess& access = processor.bufferAccess(b);
+            const GrProcessor::BufferAccess& access = processor.bufferAccess(b);
             name.printf("BufferSampler_%d", outBufferSamplers->count());
             this->emitSampler(kBufferSampler_GrSLType, access.texelConfig(), name.c_str(),
                               access.visibility(), outBufferSamplers);
@@ -295,8 +295,9 @@ void GrGLSLProgramBuilder::emitSampler(GrSLType samplerType,
         ++fNumFragmentSamplers;
     }
     GrSLPrecision precision = this->glslCaps()->samplerPrecision(config, visibility);
+    GrSwizzle swizzle = this->glslCaps()->configTextureSwizzle(config);
     SamplerHandle handle = this->uniformHandler()->addSampler(visibility,
-                                                              config,
+                                                              swizzle,
                                                               samplerType,
                                                               precision,
                                                               name);
@@ -390,9 +391,6 @@ void GrGLSLProgramBuilder::appendUniformDecls(GrShaderFlags visibility, SkString
     this->uniformHandler()->appendUniformDecls(visibility, out);
 }
 
-const GrGLSLSampler& GrGLSLProgramBuilder::getSampler(SamplerHandle handle) const {
-    return this->uniformHandler()->getSampler(handle);
-}
 
 void GrGLSLProgramBuilder::addRTAdjustmentUniform(GrSLPrecision precision,
                                                   const char* name,

@@ -111,8 +111,8 @@ protected:
                 const GrProgramDesc&,
                 const BuiltinUniformHandles&,
                 GrGLuint programID,
-                const UniformInfoArray&,
-                const SkTArray<GrGLSampler>&,
+                const UniformInfoArray& uniforms,
+                const UniformInfoArray& samplers,
                 const VaryingInfoArray&, // used for NVPR only currently
                 GrGLSLPrimitiveProcessor* geometryProcessor,
                 GrGLSLXferProcessor* xferProcessor,

@@ -9,7 +9,6 @@
 #define GrGLSLXferProcessor_DEFINED
 
 #include "glsl/GrGLSLProgramDataManager.h"
-#include "glsl/GrGLSLSampler.h"
 
 class GrXferProcessor;
 class GrGLSLCaps;
