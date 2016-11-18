@@ -25,6 +25,24 @@
     },
     {
       "key": {
+        "uuid": "b09b987b_e307edc7",
+        "filename": "src/core/SkColorSpace_ICC.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 860,
+      "author": {
+        "id": 5740
+      },
+      "writtenOn": "2016-11-18T16:35:24Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "503c1cf2_876f2515",
+      "revId": "d55d05a12f66a31c43908437c910a9042575fa58",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "503c1cf2_c7980d0b",
         "filename": "src/core/SkColorSpace_ICC.cpp",
         "patchSetId": 2
@@ -42,6 +60,24 @@
         "endLine": 863,
         "endChar": 89
       },
+      "revId": "d55d05a12f66a31c43908437c910a9042575fa58",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "b09b987b_8301c1b9",
+        "filename": "src/core/SkColorSpace_ICC.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 863,
+      "author": {
+        "id": 5740
+      },
+      "writtenOn": "2016-11-18T16:35:24Z",
+      "side": 1,
+      "message": "No, although we only have a couple profiles so that wouldn\u0027t be a very good sample of what\u0027s out there. I just did this since the other profile parsing code did it, so I assumed it might happen somewhat often.",
+      "parentUuid": "503c1cf2_c7980d0b",
       "revId": "d55d05a12f66a31c43908437c910a9042575fa58",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
@@ -71,6 +107,24 @@
     },
     {
       "key": {
+        "uuid": "b09b987b_c30ae9d2",
+        "filename": "src/core/SkColorSpace_ICC.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 909,
+      "author": {
+        "id": 5740
+      },
+      "writtenOn": "2016-11-18T16:35:24Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "503c1cf2_e7c9d110",
+      "revId": "d55d05a12f66a31c43908437c910a9042575fa58",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "503c1cf2_c7448dbc",
         "filename": "src/core/SkColorSpace_ICC.cpp",
         "patchSetId": 2
@@ -88,6 +142,24 @@
         "endLine": 962,
         "endChar": 30
       },
+      "revId": "d55d05a12f66a31c43908437c910a9042575fa58",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "b09b987b_0315d1f1",
+        "filename": "src/core/SkColorSpace_ICC.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 962,
+      "author": {
+        "id": 5740
+      },
+      "writtenOn": "2016-11-18T16:35:24Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "503c1cf2_c7448dbc",
       "revId": "d55d05a12f66a31c43908437c910a9042575fa58",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
@@ -117,6 +189,24 @@
     },
     {
       "key": {
+        "uuid": "b09b987b_43def92e",
+        "filename": "src/core/SkColorSpace_ICC.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 1023,
+      "author": {
+        "id": 5740
+      },
+      "writtenOn": "2016-11-18T16:35:24Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "503c1cf2_47519d7e",
+      "revId": "d55d05a12f66a31c43908437c910a9042575fa58",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "503c1cf2_2408d7d8",
         "filename": "src/core/SkColorSpace_ICC.cpp",
         "patchSetId": 2
@@ -134,6 +224,42 @@
         "endLine": 1038,
         "endChar": 15
       },
+      "revId": "d55d05a12f66a31c43908437c910a9042575fa58",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "b09b987b_a33085b1",
+        "filename": "src/core/SkColorSpace_ICC.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 1038,
+      "author": {
+        "id": 5740
+      },
+      "writtenOn": "2016-11-18T16:35:24Z",
+      "side": 1,
+      "message": "Yes.",
+      "parentUuid": "503c1cf2_2408d7d8",
+      "revId": "d55d05a12f66a31c43908437c910a9042575fa58",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "b09b987b_63269d7f",
+        "filename": "src/core/SkColorSpace_ICC.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 1038,
+      "author": {
+        "id": 5740
+      },
+      "writtenOn": "2016-11-18T16:35:24Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "503c1cf2_2408d7d8",
       "revId": "d55d05a12f66a31c43908437c910a9042575fa58",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
@@ -163,6 +289,24 @@
     },
     {
       "key": {
+        "uuid": "b09b987b_c38d8954",
+        "filename": "src/core/SkColorSpace_ICC.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 1046,
+      "author": {
+        "id": 5740
+      },
+      "writtenOn": "2016-11-18T16:35:24Z",
+      "side": 1,
+      "message": "Yes, they\u0027re always 256 for lut8 and lut16 can have varying sizes as per 10.9 in the specs.",
+      "parentUuid": "503c1cf2_c4de4b2d",
+      "revId": "d55d05a12f66a31c43908437c910a9042575fa58",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "503c1cf2_0768352f",
         "filename": "src/core/SkColorSpace_ICC.cpp",
         "patchSetId": 2
@@ -180,6 +324,24 @@
         "endLine": 1066,
         "endChar": 83
       },
+      "revId": "d55d05a12f66a31c43908437c910a9042575fa58",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "b09b987b_7edab608",
+        "filename": "src/core/SkColorSpace_ICC.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 1066,
+      "author": {
+        "id": 5740
+      },
+      "writtenOn": "2016-11-18T16:35:24Z",
+      "side": 1,
+      "message": "I think it\u0027s more clear in some ways, but I\u0027m not sure about here. It definitely would be better if it was a place that changed often or had more stages.",
+      "parentUuid": "503c1cf2_0768352f",
       "revId": "d55d05a12f66a31c43908437c910a9042575fa58",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
@@ -209,6 +371,24 @@
     },
     {
       "key": {
+        "uuid": "b09b987b_dea9e25a",
+        "filename": "src/core/SkColorSpace_ICC.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 1070,
+      "author": {
+        "id": 5740
+      },
+      "writtenOn": "2016-11-18T16:35:24Z",
+      "side": 1,
+      "message": "There\u0027s a return_if_false now.",
+      "parentUuid": "503c1cf2_27aa994e",
+      "revId": "d55d05a12f66a31c43908437c910a9042575fa58",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "503c1cf2_07db150c",
         "filename": "src/core/SkColorSpace_ICC.cpp",
         "patchSetId": 2
@@ -226,6 +406,24 @@
         "endLine": 1084,
         "endChar": 63
       },
+      "revId": "d55d05a12f66a31c43908437c910a9042575fa58",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "b09b987b_feb6a6b9",
+        "filename": "src/core/SkColorSpace_ICC.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 1084,
+      "author": {
+        "id": 5740
+      },
+      "writtenOn": "2016-11-18T16:35:24Z",
+      "side": 1,
+      "message": "See above.",
+      "parentUuid": "503c1cf2_07db150c",
       "revId": "d55d05a12f66a31c43908437c910a9042575fa58",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
