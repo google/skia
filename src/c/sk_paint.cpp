@@ -127,7 +127,7 @@ sk_colorfilter_t* sk_paint_get_colorfilter(sk_paint_t* cpaint) {
 }
 
 void sk_paint_set_imagefilter(sk_paint_t* cpaint, sk_imagefilter_t* cfilter) {
-    AsPaint(cpaint)->setImageFilter(AsImageFilter(cfilter));
+    AsPaint(cpaint)->setImageFilter(sk_ref_sp(AsImageFilter(cfilter)));
 }
 
 sk_imagefilter_t* sk_paint_get_imagefilter(sk_paint_t* cpaint) {
