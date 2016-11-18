@@ -6,13 +6,14 @@
  */
 
 #include <memory>
-#include "SkColor.h"
-#include "SkLinearBitmapPipeline.h"
-#include "SkBitmapProcShader.h"
-#include "SkPM4f.h"
 #include "Benchmark.h"
-#include "SkShader.h"
+#include "SkBitmapProcShader.h"
+#include "SkColor.h"
+#include "SkFixedAlloc.h"
 #include "SkImage.h"
+#include "SkLinearBitmapPipeline.h"
+#include "SkPM4f.h"
+#include "SkShader.h"
 
 struct CommonBitmapFPBenchmark : public Benchmark {
     CommonBitmapFPBenchmark(
@@ -146,8 +147,12 @@ struct SkBitmapFPGeneral final : public CommonBitmapFPBenchmark {
 
         SkPixmap srcPixmap{fInfo, fBitmap.get(), static_cast<size_t>(4 * width)};
 
+
+        char storage[600];
+        SkFixedAlloc fixedAlloc{storage, sizeof(storage)};
+        SkFallbackAlloc allocator{&fixedAlloc};
         SkLinearBitmapPipeline pipeline{
-            fInvert, filterQuality, fXTile, fYTile, SK_ColorBLACK, srcPixmap};
+            fInvert, filterQuality, fXTile, fYTile, SK_ColorBLACK, srcPixmap, &allocator};
 
         int count = 100;
 

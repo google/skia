@@ -12,6 +12,7 @@
 #include <limits>
 #include <tuple>
 
+#include "SkFixedAlloc.h"
 #include "SkLinearBitmapPipeline_core.h"
 #include "SkLinearBitmapPipeline_matrix.h"
 #include "SkLinearBitmapPipeline_tile.h"
@@ -349,7 +350,8 @@ SkLinearBitmapPipeline::SkLinearBitmapPipeline(
     SkFilterQuality filterQuality,
     SkShader::TileMode xTile, SkShader::TileMode yTile,
     SkColor paintColor,
-    const SkPixmap& srcPixmap)
+    const SkPixmap& srcPixmap,
+    SkFallbackAlloc* allocator)
 {
     SkISize dimensions = srcPixmap.info().dimensions();
     const SkImageInfo& srcImageInfo = srcPixmap.info();
@@ -377,55 +379,21 @@ SkLinearBitmapPipeline::SkLinearBitmapPipeline(
     float postAlpha = SkColorGetA(paintColor) * (1.0f / 255.0f);
     // As the stages are built, the chooser function may skip a stage. For example, with the
     // identity matrix, the matrix stage is skipped, and the tilerStage is the first stage.
-    auto blenderStage = this->chooseBlenderForShading(alphaType, postAlpha);
+    auto blenderStage = this->chooseBlenderForShading(alphaType, postAlpha, allocator);
     auto samplerStage = this->chooseSampler(
-        blenderStage, filterQuality, xTile, yTile, srcPixmap, paintColor);
+        blenderStage, filterQuality, xTile, yTile, srcPixmap, paintColor, allocator);
     auto tilerStage   = this->chooseTiler(
-        samplerStage, dimensions, xTile, yTile, filterQuality, dx);
-    fFirstStage       = this->chooseMatrix(tilerStage, adjustedInverse);
+        samplerStage, dimensions, xTile, yTile, filterQuality, dx, allocator);
+    fFirstStage       = this->chooseMatrix(tilerStage, adjustedInverse, allocator);
     fLastStage        = blenderStage;
-}
-
-bool SkLinearBitmapPipeline::ClonePipelineForBlitting(
-    SkEmbeddableLinearPipeline* pipelineStorage,
-    const SkLinearBitmapPipeline& pipeline,
-    SkMatrix::TypeMask matrixMask,
-    SkShader::TileMode xTileMode,
-    SkShader::TileMode yTileMode,
-    SkFilterQuality filterQuality,
-    const SkPixmap& srcPixmap,
-    float finalAlpha,
-    SkBlendMode blendMode,
-    const SkImageInfo& dstInfo)
-{
-    if (blendMode == SkBlendMode::kSrcOver && srcPixmap.info().alphaType() == kOpaque_SkAlphaType) {
-        blendMode = SkBlendMode::kSrc;
-    }
-
-    if (matrixMask & ~SkMatrix::kTranslate_Mask ) { return false; }
-    if (filterQuality != SkFilterQuality::kNone_SkFilterQuality) { return false; }
-    if (finalAlpha != 1.0f) { return false; }
-    if (srcPixmap.info().colorType() != kRGBA_8888_SkColorType
-        || dstInfo.colorType() != kRGBA_8888_SkColorType) { return false; }
-
-    if (!srcPixmap.info().gammaCloseToSRGB() || !dstInfo.gammaCloseToSRGB()) {
-        return false;
-    }
-
-    if (blendMode != SkBlendMode::kSrc && blendMode != SkBlendMode::kSrcOver) {
-        return false;
-    }
-
-    pipelineStorage->init(pipeline, srcPixmap, blendMode, dstInfo);
-
-    return true;
 }
 
 SkLinearBitmapPipeline::SkLinearBitmapPipeline(
     const SkLinearBitmapPipeline& pipeline,
     const SkPixmap& srcPixmap,
     SkBlendMode mode,
-    const SkImageInfo& dstInfo)
+    const SkImageInfo& dstInfo,
+    SkFallbackAlloc* allocator)
 {
     SkASSERT(mode == SkBlendMode::kSrc || mode == SkBlendMode::kSrcOver);
     SkASSERT(srcPixmap.info().colorType() == dstInfo.colorType()
@@ -433,20 +401,52 @@ SkLinearBitmapPipeline::SkLinearBitmapPipeline(
 
     SampleProcessorInterface* sampleStage;
     if (mode == SkBlendMode::kSrc) {
-        auto sampler = fMemory.createT<RGBA8888UnitRepeatSrc>(
+        auto sampler = allocator->make<RGBA8888UnitRepeatSrc>(
             srcPixmap.writable_addr32(0, 0), srcPixmap.rowBytes() / 4);
         sampleStage = sampler;
         fLastStage = sampler;
     } else {
-        auto sampler = fMemory.createT<RGBA8888UnitRepeatSrcOver>(
+        auto sampler = allocator->make<RGBA8888UnitRepeatSrcOver>(
             srcPixmap.writable_addr32(0, 0), srcPixmap.rowBytes() / 4);
         sampleStage = sampler;
         fLastStage = sampler;
     }
 
-    auto tilerStage = pipeline.fTileStageCloner(sampleStage, &fMemory);
-    auto matrixStage = pipeline.fMatrixStageCloner(tilerStage, &fMemory);
+    auto tilerStage = pipeline.fTileStageCloner(sampleStage, allocator);
+    auto matrixStage = pipeline.fMatrixStageCloner(tilerStage, allocator);
     fFirstStage = matrixStage;
+}
+
+SkLinearBitmapPipeline* SkLinearBitmapPipeline::ClonePipelineForBlitting(
+    const SkLinearBitmapPipeline& pipeline,
+    SkMatrix::TypeMask matrixMask,
+    SkFilterQuality filterQuality,
+    const SkPixmap& srcPixmap,
+    float finalAlpha,
+    SkBlendMode blendMode,
+    const SkImageInfo& dstInfo,
+    SkFallbackAlloc* allocator)
+{
+    if (blendMode == SkBlendMode::kSrcOver && srcPixmap.info().alphaType() == kOpaque_SkAlphaType) {
+        blendMode = SkBlendMode::kSrc;
+    }
+
+    if (matrixMask & ~SkMatrix::kTranslate_Mask ) { return nullptr; }
+    if (filterQuality != SkFilterQuality::kNone_SkFilterQuality) { return nullptr; }
+    if (finalAlpha != 1.0f) { return nullptr; }
+    if (srcPixmap.info().colorType() != kRGBA_8888_SkColorType
+        || dstInfo.colorType() != kRGBA_8888_SkColorType) { return nullptr; }
+
+    if (!srcPixmap.info().gammaCloseToSRGB() || !dstInfo.gammaCloseToSRGB()) {
+        return nullptr;
+    }
+
+    if (blendMode != SkBlendMode::kSrc && blendMode != SkBlendMode::kSrcOver) {
+        return nullptr;
+    }
+
+    return allocator->make<SkLinearBitmapPipeline>(
+        pipeline, srcPixmap, blendMode, dstInfo, allocator);
 }
 
 void SkLinearBitmapPipeline::shadeSpan4f(int x, int y, SkPM4f* dst, int count) {
@@ -466,9 +466,13 @@ void SkLinearBitmapPipeline::blitSpan(int x, int y, void* dst, int count) {
 }
 
 SkLinearBitmapPipeline::PointProcessorInterface*
-SkLinearBitmapPipeline::chooseMatrix(PointProcessorInterface* next, const SkMatrix& inverse) {
+SkLinearBitmapPipeline::chooseMatrix(
+    PointProcessorInterface* next,
+    const SkMatrix& inverse,
+    SkFallbackAlloc* allocator)
+{
     if (inverse.hasPerspective()) {
-        auto matrixStage = fMemory.createT<PerspectiveMatrix<>>(
+        auto matrixStage = allocator->make<PerspectiveMatrix<>>(
             next,
             SkVector{inverse.getTranslateX(), inverse.getTranslateY()},
             SkVector{inverse.getScaleX(), inverse.getScaleY()},
@@ -476,42 +480,42 @@ SkLinearBitmapPipeline::chooseMatrix(PointProcessorInterface* next, const SkMatr
             SkVector{inverse.getPerspX(), inverse.getPerspY()},
             inverse.get(SkMatrix::kMPersp2));
         fMatrixStageCloner =
-            [matrixStage](PointProcessorInterface* cloneNext, MemoryAllocator* memory) {
-                return memory->createT<PerspectiveMatrix<>>(cloneNext, matrixStage);
+            [matrixStage](PointProcessorInterface* cloneNext, SkFallbackAlloc* memory) {
+                return memory->make<PerspectiveMatrix<>>(cloneNext, matrixStage);
             };
         return matrixStage;
     } else if (inverse.getSkewX() != 0.0f || inverse.getSkewY() != 0.0f) {
-        auto matrixStage = fMemory.createT<AffineMatrix<>>(
+        auto matrixStage = allocator->make<AffineMatrix<>>(
             next,
             SkVector{inverse.getTranslateX(), inverse.getTranslateY()},
             SkVector{inverse.getScaleX(), inverse.getScaleY()},
             SkVector{inverse.getSkewX(), inverse.getSkewY()});
         fMatrixStageCloner =
-            [matrixStage](PointProcessorInterface* cloneNext, MemoryAllocator* memory) {
-                return memory->createT<AffineMatrix<>>(cloneNext, matrixStage);
+            [matrixStage](PointProcessorInterface* cloneNext, SkFallbackAlloc* memory) {
+                return memory->make<AffineMatrix<>>(cloneNext, matrixStage);
             };
         return matrixStage;
     } else if (inverse.getScaleX() != 1.0f || inverse.getScaleY() != 1.0f) {
-        auto matrixStage = fMemory.createT<ScaleMatrix<>>(
+        auto matrixStage = allocator->make<ScaleMatrix<>>(
             next,
             SkVector{inverse.getTranslateX(), inverse.getTranslateY()},
             SkVector{inverse.getScaleX(), inverse.getScaleY()});
         fMatrixStageCloner =
-            [matrixStage](PointProcessorInterface* cloneNext, MemoryAllocator* memory) {
-                return memory->createT<ScaleMatrix<>>(cloneNext, matrixStage);
+            [matrixStage](PointProcessorInterface* cloneNext, SkFallbackAlloc* memory) {
+                return memory->make<ScaleMatrix<>>(cloneNext, matrixStage);
             };
         return matrixStage;
     } else if (inverse.getTranslateX() != 0.0f || inverse.getTranslateY() != 0.0f) {
-        auto matrixStage = fMemory.createT<TranslateMatrix<>>(
+        auto matrixStage = allocator->make<TranslateMatrix<>>(
             next,
             SkVector{inverse.getTranslateX(), inverse.getTranslateY()});
         fMatrixStageCloner =
-            [matrixStage](PointProcessorInterface* cloneNext, MemoryAllocator* memory) {
-                return memory->createT<TranslateMatrix<>>(cloneNext, matrixStage);
+            [matrixStage](PointProcessorInterface* cloneNext, SkFallbackAlloc* memory) {
+                return memory->make<TranslateMatrix<>>(cloneNext, matrixStage);
             };
         return matrixStage;
     } else {
-        fMatrixStageCloner = [](PointProcessorInterface* cloneNext, MemoryAllocator* memory) {
+        fMatrixStageCloner = [](PointProcessorInterface* cloneNext, SkFallbackAlloc* memory) {
             return cloneNext;
         };
         return next;
@@ -520,31 +524,38 @@ SkLinearBitmapPipeline::chooseMatrix(PointProcessorInterface* next, const SkMatr
 
 template <typename Tiler>
 SkLinearBitmapPipeline::PointProcessorInterface* SkLinearBitmapPipeline::createTiler(
-    SampleProcessorInterface* next, SkISize dimensions) {
-    auto tilerStage = fMemory.createT<Tiler>(next, dimensions);
+    SampleProcessorInterface* next,
+    SkISize dimensions,
+    SkFallbackAlloc* allocator)
+{
+    auto tilerStage = allocator->make<Tiler>(next, dimensions);
     fTileStageCloner =
         [tilerStage](SampleProcessorInterface* cloneNext,
-                     MemoryAllocator* memory) -> PointProcessorInterface* {
-            return memory->createT<Tiler>(cloneNext, tilerStage);
+                     SkFallbackAlloc* memory) -> PointProcessorInterface* {
+            return memory->make<Tiler>(cloneNext, tilerStage);
         };
     return tilerStage;
 }
 
 template <typename XStrategy>
 SkLinearBitmapPipeline::PointProcessorInterface* SkLinearBitmapPipeline::chooseTilerYMode(
-    SampleProcessorInterface* next, SkShader::TileMode yMode, SkISize dimensions) {
+    SampleProcessorInterface* next,
+    SkShader::TileMode yMode,
+    SkISize dimensions,
+    SkFallbackAlloc* allocator)
+{
     switch (yMode) {
         case SkShader::kClamp_TileMode: {
             using Tiler = CombinedTileStage<XStrategy, YClampStrategy, SampleProcessorInterface>;
-            return this->createTiler<Tiler>(next, dimensions);
+            return this->createTiler<Tiler>(next, dimensions, allocator);
         }
         case SkShader::kRepeat_TileMode: {
             using Tiler = CombinedTileStage<XStrategy, YRepeatStrategy, SampleProcessorInterface>;
-            return this->createTiler<Tiler>(next, dimensions);
+            return this->createTiler<Tiler>(next, dimensions, allocator);
         }
         case SkShader::kMirror_TileMode: {
             using Tiler = CombinedTileStage<XStrategy, YMirrorStrategy, SampleProcessorInterface>;
-            return this->createTiler<Tiler>(next, dimensions);
+            return this->createTiler<Tiler>(next, dimensions, allocator);
         }
     }
 
@@ -559,19 +570,22 @@ SkLinearBitmapPipeline::PointProcessorInterface* SkLinearBitmapPipeline::chooseT
     SkShader::TileMode xMode,
     SkShader::TileMode yMode,
     SkFilterQuality filterQuality,
-    SkScalar dx)
+    SkScalar dx,
+    SkFallbackAlloc* allocator)
 {
     switch (xMode) {
         case SkShader::kClamp_TileMode:
-            return this->chooseTilerYMode<XClampStrategy>(next, yMode, dimensions);
+            return this->chooseTilerYMode<XClampStrategy>(next, yMode, dimensions, allocator);
         case SkShader::kRepeat_TileMode:
             if (dx == 1.0f && filterQuality == kNone_SkFilterQuality) {
-                return this->chooseTilerYMode<XRepeatUnitScaleStrategy>(next, yMode, dimensions);
+                return this->chooseTilerYMode<XRepeatUnitScaleStrategy>(
+                    next, yMode, dimensions, allocator);
             } else {
-                return this->chooseTilerYMode<XRepeatStrategy>(next, yMode, dimensions);
+                return this->chooseTilerYMode<XRepeatStrategy>(
+                    next, yMode, dimensions, allocator);
             }
         case SkShader::kMirror_TileMode:
-            return this->chooseTilerYMode<XMirrorStrategy>(next, yMode, dimensions);
+            return this->chooseTilerYMode<XMirrorStrategy>(next, yMode, dimensions, allocator);
     }
 
     // Should never get here.
@@ -582,43 +596,45 @@ SkLinearBitmapPipeline::PointProcessorInterface* SkLinearBitmapPipeline::chooseT
 template <SkColorType colorType>
 SkLinearBitmapPipeline::PixelAccessorInterface*
     SkLinearBitmapPipeline::chooseSpecificAccessor(
-    const SkPixmap& srcPixmap)
+    const SkPixmap& srcPixmap,
+    SkFallbackAlloc* allocator)
 {
     if (srcPixmap.info().gammaCloseToSRGB()) {
         using Accessor = PixelAccessor<colorType, kSRGB_SkGammaType>;
-        return fMemory.createT<Accessor>(srcPixmap);
+        return allocator->make<Accessor>(srcPixmap);
     } else {
         using Accessor = PixelAccessor<colorType, kLinear_SkGammaType>;
-        return fMemory.createT<Accessor>(srcPixmap);
+        return allocator->make<Accessor>(srcPixmap);
     }
 }
 
 SkLinearBitmapPipeline::PixelAccessorInterface* SkLinearBitmapPipeline::choosePixelAccessor(
     const SkPixmap& srcPixmap,
-    const SkColor A8TintColor)
+    const SkColor A8TintColor,
+    SkFallbackAlloc* allocator)
 {
     const SkImageInfo& imageInfo = srcPixmap.info();
 
     switch (imageInfo.colorType()) {
         case kAlpha_8_SkColorType: {
             using Accessor = PixelAccessor<kAlpha_8_SkColorType, kLinear_SkGammaType>;
-            return fMemory.createT<Accessor>(srcPixmap, A8TintColor);
+            return allocator->make<Accessor>(srcPixmap, A8TintColor);
         }
         case kARGB_4444_SkColorType:
-            return this->chooseSpecificAccessor<kARGB_4444_SkColorType>(srcPixmap);
+            return this->chooseSpecificAccessor<kARGB_4444_SkColorType>(srcPixmap, allocator);
         case kRGB_565_SkColorType:
-            return this->chooseSpecificAccessor<kRGB_565_SkColorType>(srcPixmap);
+            return this->chooseSpecificAccessor<kRGB_565_SkColorType>(srcPixmap, allocator);
         case kRGBA_8888_SkColorType:
-            return this->chooseSpecificAccessor<kRGBA_8888_SkColorType>(srcPixmap);
+            return this->chooseSpecificAccessor<kRGBA_8888_SkColorType>(srcPixmap, allocator);
         case kBGRA_8888_SkColorType:
-            return this->chooseSpecificAccessor<kBGRA_8888_SkColorType>(srcPixmap);
+            return this->chooseSpecificAccessor<kBGRA_8888_SkColorType>(srcPixmap, allocator);
         case kIndex_8_SkColorType:
-            return this->chooseSpecificAccessor<kIndex_8_SkColorType>(srcPixmap);
+            return this->chooseSpecificAccessor<kIndex_8_SkColorType>(srcPixmap, allocator);
         case kGray_8_SkColorType:
-            return this->chooseSpecificAccessor<kGray_8_SkColorType>(srcPixmap);
+            return this->chooseSpecificAccessor<kGray_8_SkColorType>(srcPixmap, allocator);
         case kRGBA_F16_SkColorType: {
             using Accessor = PixelAccessor<kRGBA_F16_SkColorType, kLinear_SkGammaType>;
-            return fMemory.createT<Accessor>(srcPixmap);
+            return allocator->make<Accessor>(srcPixmap);
         }
         default:
             // Should never get here.
@@ -632,7 +648,8 @@ SkLinearBitmapPipeline::SampleProcessorInterface* SkLinearBitmapPipeline::choose
     SkFilterQuality filterQuality,
     SkShader::TileMode xTile, SkShader::TileMode yTile,
     const SkPixmap& srcPixmap,
-    const SkColor A8TintColor)
+    const SkColor A8TintColor,
+    SkFallbackAlloc* allocator)
 {
     const SkImageInfo& imageInfo = srcPixmap.info();
     SkISize dimensions = imageInfo.dimensions();
@@ -645,13 +662,13 @@ SkLinearBitmapPipeline::SampleProcessorInterface* SkLinearBitmapPipeline::choose
                     using Sampler =
                     NearestNeighborSampler<
                         PixelAccessor<kN32_SkColorType, kSRGB_SkGammaType>, Blender>;
-                    return fMemory.createT<Sampler>(next, srcPixmap);
+                    return allocator->make<Sampler>(next, srcPixmap);
                 }
                 case kIndex_8_SkColorType: {
                     using Sampler =
                     NearestNeighborSampler<
                         PixelAccessor<kIndex_8_SkColorType, kSRGB_SkGammaType>, Blender>;
-                    return fMemory.createT<Sampler>(next, srcPixmap);
+                    return allocator->make<Sampler>(next, srcPixmap);
                 }
                 default:
                     break;
@@ -662,13 +679,13 @@ SkLinearBitmapPipeline::SampleProcessorInterface* SkLinearBitmapPipeline::choose
                     using Sampler =
                     BilerpSampler<
                         PixelAccessor<kN32_SkColorType, kSRGB_SkGammaType>, Blender>;
-                    return fMemory.createT<Sampler>(next, dimensions, xTile, yTile, srcPixmap);
+                    return allocator->make<Sampler>(next, dimensions, xTile, yTile, srcPixmap);
                 }
                 case kIndex_8_SkColorType: {
                     using Sampler =
                     BilerpSampler<
                         PixelAccessor<kIndex_8_SkColorType, kSRGB_SkGammaType>, Blender>;
-                    return fMemory.createT<Sampler>(next, dimensions, xTile, yTile, srcPixmap);
+                    return allocator->make<Sampler>(next, dimensions, xTile, yTile, srcPixmap);
                 }
                 default:
                     break;
@@ -676,24 +693,26 @@ SkLinearBitmapPipeline::SampleProcessorInterface* SkLinearBitmapPipeline::choose
         }
     }
 
-    auto pixelAccessor = this->choosePixelAccessor(srcPixmap, A8TintColor);
+    auto pixelAccessor = this->choosePixelAccessor(srcPixmap, A8TintColor, allocator);
     // General cases.
     if (filterQuality == kNone_SkFilterQuality) {
         using Sampler = NearestNeighborSampler<PixelAccessorShim, Blender>;
-        return fMemory.createT<Sampler>(next, pixelAccessor);
+        return allocator->make<Sampler>(next, pixelAccessor);
     } else {
         using Sampler = BilerpSampler<PixelAccessorShim, Blender>;
-        return fMemory.createT<Sampler>(next, dimensions, xTile, yTile, pixelAccessor);
+        return allocator->make<Sampler>(next, dimensions, xTile, yTile, pixelAccessor);
     }
 }
 
 Blender* SkLinearBitmapPipeline::chooseBlenderForShading(
     SkAlphaType alphaType,
-    float postAlpha) {
+    float postAlpha,
+    SkFallbackAlloc* allocator)
+{
     if (alphaType == kUnpremul_SkAlphaType) {
-        return fMemory.createT<SrcFPPixel<kUnpremul_SkAlphaType>>(postAlpha);
+        return allocator->make<SrcFPPixel<kUnpremul_SkAlphaType>>(postAlpha);
     } else {
         // kOpaque_SkAlphaType is treated the same as kPremul_SkAlphaType
-        return fMemory.createT<SrcFPPixel<kPremul_SkAlphaType>>(postAlpha);
+        return allocator->make<SrcFPPixel<kPremul_SkAlphaType>>(postAlpha);
     }
 }
