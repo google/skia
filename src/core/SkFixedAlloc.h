@@ -10,11 +10,30 @@
 
 #include "SkTFitsIn.h"
 #include "SkTypes.h"
+#include <cmath>
 #include <new>
 #include <utility>
 #include <vector>
 
+// max_align_t is needed to calculate the alignment for createWithIniterT when the T used is an
+// abstract type. The complication with max_align_t is that it is defined differently for
+// different builds.
+namespace {
+#if defined(SK_BUILD_FOR_WIN32) || defined(SK_BUILD_FOR_MAC)
+// Use std::max_align_t for compiles that follow the standard.
+#include <cstddef>
+using SkStdMaxAlignT = std::max_align_t;
+#else
+// Ubuntu compiles don't have std::max_align_t defined, but MSVC does not define max_align_t.
+    #include <stddef.h>
+    using SkStdMaxAlignT = max_align_t;
+#endif
+}
+
 // SkFixedAlloc allocates objects out of a fixed-size buffer and destroys them when destroyed.
+// This code accounts for two alignments 8 and 16. If an object's alignment is less than 8, it is
+// rounded up to 8. Therefore, there is only a single alignment adjustment for allocating a
+// pointer. This single bit is encoded in the cleanup function that is used.
 class SkFixedAlloc {
 public:
     SkFixedAlloc(void* ptr, size_t len);
@@ -23,24 +42,42 @@ public:
     // Allocates a new T in the buffer if possible.  If not, returns nullptr.
     template <typename T, typename... Args>
     T* make(Args&&... args) {
-        auto aligned = ((uintptr_t)(fBuffer+fUsed) + alignof(T) - 1) & ~(alignof(T)-1);
-        size_t skip = aligned - (uintptr_t)(fBuffer+fUsed);
+        size_t alignmentAdjust = 0;
+        if (alignof(T) == 16 && (fUsed & 0xF) != 0) {
+            alignmentAdjust = 8;
+        }
 
-        if (!SkTFitsIn<uint32_t>(skip)      ||
-            !SkTFitsIn<uint32_t>(sizeof(T)) ||
-            fUsed + skip + sizeof(T) + sizeof(Footer) > fLimit) {
+        if (fUsed + alignmentAdjust + sizeof(T) + sizeof(Footer) > fLimit) {
             return nullptr;
         }
 
         // Skip ahead until our buffer is aligned for T.
-        fUsed += skip;
+        fUsed += alignmentAdjust;
 
         // Make space for T.
         auto ptr = (T*)(fBuffer+fUsed);
         fUsed += sizeof(T);
 
+        Footer footer;
         // Stamp a footer after the T that we can use to clean it up.
-        Footer footer = { [](void* ptr) { ((T*)ptr)->~T(); }, SkToU32(skip), SkToU32(sizeof(T)) };
+        if (alignmentAdjust == 0) {
+            footer = {
+                [](char* ptr) -> size_t {
+                    char* objStart = ptr - (sizeof(T) + sizeof(Footer));
+                    ((T*)objStart)->~T();
+                    return sizeof(T) + sizeof(Footer);
+                }
+            };
+        } else {
+            footer = {
+                [](char* ptr) -> size_t {
+                    char* objStart = ptr - (sizeof(T) + sizeof(Footer));
+                    ((T*)objStart)->~T();
+                    return sizeof(T) + sizeof(Footer) + 8;
+                }
+            };
+        }
+
         memcpy(fBuffer+fUsed, &footer, sizeof(Footer));
         fUsed += sizeof(Footer);
 
@@ -56,8 +93,7 @@ public:
 
 private:
     struct Footer {
-        void (*dtor)(void*);
-        uint32_t skip, len;
+        size_t (*dtor)(char*);
     };
 
     char* fBuffer;
