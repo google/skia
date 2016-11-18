@@ -20,6 +20,8 @@ GrTextureProxy::GrTextureProxy(sk_sp<GrSurface> surf)
 }
 
 GrTexture* GrTextureProxy::instantiate(GrTextureProvider* texProvider) {
+    return nullptr;
+
     GrSurface* surf = this->INHERITED::instantiate(texProvider);
     if (!surf) {
         return nullptr;

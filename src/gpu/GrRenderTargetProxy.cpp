@@ -41,6 +41,8 @@ int GrRenderTargetProxy::maxWindowRectangles(const GrCaps& caps) const {
 }
 
 GrRenderTarget* GrRenderTargetProxy::instantiate(GrTextureProvider* texProvider) {
+    return nullptr;
+
     SkASSERT(fDesc.fFlags & GrSurfaceFlags::kRenderTarget_GrSurfaceFlag);
 
     GrSurface* surf = INHERITED::instantiate(texProvider);

@@ -136,6 +136,9 @@ public:
     ~SkSpecialSurface_Gpu() override { }
 
     sk_sp<SkSpecialImage> onMakeImageSnapshot() override {
+        if (!fRenderTargetContext->asTexture()) {
+            return nullptr;
+        }
         sk_sp<SkSpecialImage> tmp(SkSpecialImage::MakeFromGpu(
                                                    this->subset(),
                                                    kNeedNewImageUniqueID_SpecialImage,
