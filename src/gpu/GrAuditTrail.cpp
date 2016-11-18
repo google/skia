@@ -45,7 +45,7 @@ void GrAuditTrail::addBatch(const GrBatch* batch) {
 
     // We use the batch pointer as a key to find the batchnode we are 'glomming' batches onto
     fIDLookup.set(batch->uniqueID(), auditBatch->fBatchListID);
-    BatchNode* batchNode = new BatchNode(batch->renderTargetUniqueID());
+    BatchNode* batchNode = new BatchNode(batch->renderTargetProxyUniqueID());
     batchNode->fBounds = batch->bounds();
     batchNode->fChildren.push_back(auditBatch);
     fBatchList.emplace_back(batchNode);

@@ -11,6 +11,7 @@
 #include "GrAuditTrail.h"
 #include "GrCaps.h"
 #include "GrRenderTargetContext.h"
+#include "GrRenderTargetContextPriv.h"
 #include "GrGpu.h"
 #include "GrGpuCommandBuffer.h"
 #include "GrPath.h"
@@ -145,16 +146,22 @@ bool GrRenderTargetOpList::setupDstReadIfNecessary(const GrPipelineBuilder& pipe
     desc.fWidth = copyRect.width();
     desc.fHeight = copyRect.height();
 
-    static const uint32_t kFlags = 0;
-    sk_sp<GrTexture> copy(fResourceProvider->createApproxTexture(desc, kFlags));
-
-    if (!copy) {
+    sk_sp<GrSurfaceProxy> proxy(GrSurfaceProxy::MakeDeferred(*this->caps(), desc,
+                                                             SkBackingFit::kApprox,
+                                                             SkBudgeted::kYes));
+    if (!proxy) {
         SkDebugf("Failed to create temporary copy of destination texture.\n");
         return false;
     }
     SkIPoint dstPoint = {0, 0};
-    this->copySurface(copy.get(), rt, copyRect, dstPoint);
-    dstTexture->setTexture(std::move(copy));
+    this->copySurface(proxy.get(), rt, copyRect, dstPoint);
+
+    GrSurface* surface = proxy->instantiate(fContext->textureProvider());
+    if (!surface) {
+        SkDebugf("Failed to instantiate copy of destination texture.\n");
+        return false;
+    }
+    dstTexture->setTexture(sk_ref_sp(surface->asTexture()));
     dstTexture->setOffset(copyRect.fLeft, copyRect.fTop);
     return true;
 }
@@ -187,26 +194,29 @@ bool GrRenderTargetOpList::drawBatches(GrBatchFlushState* flushState) {
     }
     // Draw all the generated geometry.
     SkRandom random;
-    GrRenderTarget* currentRT = nullptr;
+    GrRenderTargetProxy* currentRTP = nullptr;
     std::unique_ptr<GrGpuCommandBuffer> commandBuffer;
     for (int i = 0; i < fRecordedBatches.count(); ++i) {
         if (!fRecordedBatches[i].fBatch) {
             continue;
         }
-        if (fRecordedBatches[i].fBatch->renderTarget() != currentRT) {
+        if (fRecordedBatches[i].fBatch->renderTargetProxy() != currentRTP) {
             if (commandBuffer) {
                 commandBuffer->end();
                 commandBuffer->submit();
                 commandBuffer.reset();
             }
-            currentRT = fRecordedBatches[i].fBatch->renderTarget();
-            if (currentRT) {
+            currentRTP = fRecordedBatches[i].fBatch->renderTargetProxy();
+            if (currentRTP) {
                 static const GrGpuCommandBuffer::LoadAndStoreInfo kBasicLoadStoreInfo
                     { GrGpuCommandBuffer::LoadOp::kLoad,GrGpuCommandBuffer::StoreOp::kStore,
                       GrColor_ILLEGAL };
-                commandBuffer.reset(fGpu->createCommandBuffer(currentRT,
-                                                              kBasicLoadStoreInfo,   // Color
-                                                              kBasicLoadStoreInfo)); // Stencil
+                GrSurface* surface = currentRTP->instantiate(fContext->textureProvider());
+                if (surface && surface->asRenderTarget()) {
+                    commandBuffer.reset(fGpu->createCommandBuffer(surface->asRenderTarget(),
+                                                                  kBasicLoadStoreInfo,   // Color
+                                                                  kBasicLoadStoreInfo)); // Stencil
+                }
             }
             flushState->setCommandBuffer(commandBuffer.get());
         }
@@ -216,8 +226,12 @@ bool GrRenderTargetOpList::drawBatches(GrBatchFlushState* flushState) {
             bounds.roundOut(&ibounds);
             // In multi-draw buffer all the batches use the same render target and we won't need to
             // get the batchs bounds.
-            if (GrRenderTarget* rt = fRecordedBatches[i].fBatch->renderTarget()) {
-                fGpu->drawDebugWireRect(rt, ibounds, 0xFF000000 | random.nextU());
+            if (GrRenderTargetProxy* rtp = fRecordedBatches[i].fBatch->renderTargetProxy()) {
+                GrSurface* surface = rtp->instantiate(fContext->textureProvider());
+                if (surface && surface->asRenderTarget()) {
+                    fGpu->drawDebugWireRect(surface->asRenderTarget(),
+                                            ibounds, 0xFF000000 | random.nextU());
+                }
             }
         }
         fRecordedBatches[i].fBatch->draw(flushState, fRecordedBatches[i].fClippedBounds);
@@ -406,7 +420,8 @@ void GrRenderTargetOpList::stencilPath(GrRenderTargetContext* renderTargetContex
                                                 appliedClip.hasStencilClip(),
                                                 stencilAttachment->bits(),
                                                 appliedClip.scissorState(),
-                                                renderTargetContext->accessRenderTarget(),
+                                                fContext->textureProvider(),
+                                                renderTargetContext->priv().accessRenderTargetProxy(),
                                                 path);
     this->recordBatch(batch, appliedClip.clippedDrawBounds());
     batch->unref();
@@ -416,30 +431,30 @@ void GrRenderTargetOpList::addBatch(sk_sp<GrBatch> batch) {
     this->recordBatch(batch.get(), batch->bounds());
 }
 
-void GrRenderTargetOpList::fullClear(GrRenderTarget* renderTarget, GrColor color) {
+void GrRenderTargetOpList::fullClear(GrRenderTargetProxy* rtp, GrColor color) {
     // Currently this just inserts or updates the last clear batch. However, once in MDB this can
     // remove all the previously recorded batches and change the load op to clear with supplied
     // color.
     // TODO: this needs to be updated to use GrSurfaceProxy::UniqueID
     if (fLastFullClearBatch &&
-        fLastFullClearBatch->renderTargetUniqueID() == renderTarget->uniqueID()) {
+        fLastFullClearBatch->renderTargetProxyUniqueID() == rtp->uniqueID()) {
         // As currently implemented, fLastFullClearBatch should be the last batch because we would
         // have cleared it when another batch was recorded.
         SkASSERT(fRecordedBatches.back().fBatch.get() == fLastFullClearBatch);
         fLastFullClearBatch->setColor(color);
         return;
     }
-    sk_sp<GrClearBatch> batch(GrClearBatch::Make(GrFixedClip::Disabled(), color, renderTarget));
+    sk_sp<GrClearBatch> batch(GrClearBatch::Make(GrFixedClip::Disabled(), color, rtp));
     if (batch.get() == this->recordBatch(batch.get(), batch->bounds())) {
         fLastFullClearBatch = batch.get();
     }
 }
 
-void GrRenderTargetOpList::discard(GrRenderTarget* renderTarget) {
+void GrRenderTargetOpList::discard(GrRenderTargetProxy* renderTargetProxy) {
     // Currently this just inserts a discard batch. However, once in MDB this can remove all the
     // previously recorded batches and change the load op to discard.
     if (this->caps()->discardRenderTargetSupport()) {
-        GrBatch* batch = new GrDiscardBatch(renderTarget);
+        GrBatch* batch = new GrDiscardBatch(renderTargetProxy);
         this->recordBatch(batch, batch->bounds());
         batch->unref();
     }
@@ -447,11 +462,12 @@ void GrRenderTargetOpList::discard(GrRenderTarget* renderTarget) {
 
 ////////////////////////////////////////////////////////////////////////////////
 
-bool GrRenderTargetOpList::copySurface(GrSurface* dst,
+bool GrRenderTargetOpList::copySurface(GrSurfaceProxy* dst,
                                        GrSurface* src,
                                        const SkIRect& srcRect,
                                        const SkIPoint& dstPoint) {
-    GrBatch* batch = GrCopySurfaceBatch::Create(dst, src, srcRect, dstPoint);
+    GrBatch* batch = GrCopySurfaceBatch::Create(fContext->textureProvider(),
+                                                dst, src, srcRect, dstPoint);
     if (!batch) {
         return false;
     }
@@ -504,7 +520,7 @@ GrBatch* GrRenderTargetOpList::recordBatch(GrBatch* batch, const SkRect& clipped
         while (true) {
             GrBatch* candidate = fRecordedBatches.fromBack(i).fBatch.get();
             // We cannot continue to search backwards if the render target changes
-            if (candidate->renderTargetUniqueID() != batch->renderTargetUniqueID()) {
+            if (candidate->renderTargetProxyUniqueID() != batch->renderTargetProxyUniqueID()) {
                 GrBATCH_INFO("\t\tBreaking because of (%s, B%u) Rendertarget\n",
                     candidate->name(), candidate->uniqueID());
                 break;
@@ -551,7 +567,7 @@ void GrRenderTargetOpList::forwardCombine() {
         while (true) {
             GrBatch* candidate = fRecordedBatches[j].fBatch.get();
             // We cannot continue to search if the render target changes
-            if (candidate->renderTargetUniqueID() != batch->renderTargetUniqueID()) {
+            if (candidate->renderTargetProxyUniqueID() != batch->renderTargetProxyUniqueID()) {
                 GrBATCH_INFO("\t\tBreaking because of (%s, B%u) Rendertarget\n",
                              candidate->name(), candidate->uniqueID());
                 break;
@@ -589,8 +605,8 @@ void GrRenderTargetOpList::forwardCombine() {
 
 void GrRenderTargetOpList::clearStencilClip(const GrFixedClip& clip,
                                             bool insideStencilMask,
-                                            GrRenderTarget* rt) {
-    GrBatch* batch = new GrClearStencilClipBatch(clip, insideStencilMask, rt);
+                                            GrRenderTargetProxy* rtProxy) {
+    GrBatch* batch = new GrClearStencilClipBatch(clip, insideStencilMask, rtProxy);
     this->recordBatch(batch, batch->bounds());
     batch->unref();
 }

@@ -9,7 +9,7 @@
 #include "GrCopySurfaceBatch.h"
 
 // returns true if the read/written rect intersects the src/dst and false if not.
-bool GrCopySurfaceBatch::ClipSrcRectAndDstPoint(const GrSurface* dst,
+bool GrCopySurfaceBatch::ClipSrcRectAndDstPoint(const GrSurfaceProxy* dst,
                                                 const GrSurface* src,
                                                 const SkIRect& srcRect,
                                                 const SkIPoint& dstPoint,
@@ -59,7 +59,8 @@ bool GrCopySurfaceBatch::ClipSrcRectAndDstPoint(const GrSurface* dst,
     return !clippedSrcRect->isEmpty();
 }
 
-GrBatch* GrCopySurfaceBatch::Create(GrSurface* dst, GrSurface* src, const SkIRect& srcRect,
+GrBatch* GrCopySurfaceBatch::Create(GrTextureProvider* textureProvider,
+                                    GrSurfaceProxy* dst, GrSurface* src, const SkIRect& srcRect,
                                     const SkIPoint& dstPoint) {
     SkASSERT(dst);
     SkASSERT(src);
@@ -75,5 +76,5 @@ GrBatch* GrCopySurfaceBatch::Create(GrSurface* dst, GrSurface* src, const SkIRec
     if (!ClipSrcRectAndDstPoint(dst, src, srcRect, dstPoint, &clippedSrcRect, &clippedDstPoint)) {
         return nullptr;
     }
-    return new GrCopySurfaceBatch(dst, src, clippedSrcRect, clippedDstPoint);
+    return new GrCopySurfaceBatch(textureProvider, dst, src, clippedSrcRect, clippedDstPoint);
 }

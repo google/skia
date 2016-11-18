@@ -10,6 +10,8 @@
 #include "GrContext.h"
 #include "GrContextPriv.h"
 #include "GrRenderTargetContext.h"
+#include "GrTextureProxy.h"
+
 #include "gl/GrGLGpu.h"
 #include "gl/GrGLUtil.h"
 #include "gl/GLTestContext.h"
@@ -59,10 +61,16 @@ static void test_copy_surface_src(skiatest::Reporter* reporter, GrContext* conte
         copyDstDesc.fWidth = rectangleTexture->width();
         copyDstDesc.fHeight = rectangleTexture->height();
         copyDstDesc.fFlags = flags;
-        sk_sp<GrTexture> dst(
-                context->textureProvider()->createTexture(copyDstDesc, SkBudgeted::kYes));
-        context->copySurface(dst.get(), rectangleTexture);
-        test_read_pixels(reporter, context, dst.get(), expectedPixelValues);
+
+        sk_sp<GrSurfaceProxy> dstProxy(GrSurfaceProxy::MakeDeferred(*context->caps(), copyDstDesc,
+                                                                    SkBackingFit::kExact,
+                                                                    SkBudgeted::kYes));
+
+        context->copySurface(dstProxy.get(), rectangleTexture);
+
+        GrSurface* dst = dstProxy->instantiate(context->textureProvider());
+
+        test_read_pixels(reporter, context, dst->asTexture(), expectedPixelValues);
     }
 }
 
@@ -75,6 +83,9 @@ static void test_copy_surface_dst(skiatest::Reporter* reporter, GrContext* conte
             pixels.get()[y * rectangleTexture->width() + x] = GrColorPackRGBA(y, x, x * y, x *+ y);
         }
     }
+
+    sk_sp<GrSurfaceProxy> dstProxy(GrSurfaceProxy::MakeWrapped(sk_ref_sp(rectangleTexture)));
+
     for (auto flags : {kNone_GrSurfaceFlags, kRenderTarget_GrSurfaceFlag}) {
         GrSurfaceDesc copySrcDesc;
         copySrcDesc.fConfig = kRGBA_8888_GrPixelConfig;
@@ -84,8 +95,11 @@ static void test_copy_surface_dst(skiatest::Reporter* reporter, GrContext* conte
         sk_sp<GrTexture> src(context->textureProvider()->createTexture(
                 copySrcDesc, SkBudgeted::kYes, pixels.get(), 0));
 
-        context->copySurface(rectangleTexture, src.get());
-        test_read_pixels(reporter, context, rectangleTexture, pixels.get());
+        context->copySurface(dstProxy.get(), src.get());
+
+        GrSurface* dst = dstProxy->instantiate(context->textureProvider());
+
+        test_read_pixels(reporter, context, dst->asTexture(), pixels.get());
     }
 }
 

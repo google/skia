@@ -197,7 +197,7 @@ public:
         bool isInvalid() const { return SK_InvalidUniqueID == fID; }
 
     private:
-        const uint32_t fID;
+        uint32_t fID;
     };
 
     /*
