@@ -10,7 +10,6 @@
 #include "GrSamplerParams.h"
 #include "GrVkCommandBuffer.h"
 #include "GrVkCopyPipeline.h"
-#include "GrVkGLSLSampler.h"
 #include "GrVkPipeline.h"
 #include "GrVkRenderTarget.h"
 #include "GrVkSampler.h"

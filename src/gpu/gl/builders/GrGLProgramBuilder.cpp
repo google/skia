@@ -22,7 +22,6 @@
 #include "glsl/GrGLSLFragmentProcessor.h"
 #include "glsl/GrGLSLGeometryProcessor.h"
 #include "glsl/GrGLSLProgramDataManager.h"
-#include "glsl/GrGLSLSampler.h"
 #include "glsl/GrGLSLXferProcessor.h"
 
 #define GL_CALL(X) GR_GL_CALL(this->gpu()->glInterface(), X)
