@@ -43,14 +43,31 @@ var (
 		"Build-Ubuntu-Clang-arm-Debug-GN_Android",
 		"Build-Ubuntu-Clang-arm-Release-GN_Android",
 		"Build-Ubuntu-Clang-arm64-Debug-GN_Android",
+		"Build-Ubuntu-Clang-arm64-Debug-GN_Android_FrameworkDefs",
 		"Build-Ubuntu-Clang-arm64-Debug-GN_Android_Vulkan",
 		"Build-Ubuntu-Clang-arm64-Release-GN_Android",
 		"Build-Ubuntu-Clang-arm64-Release-GN_Android_Vulkan",
+		"Build-Ubuntu-Clang-mips64el-Debug-GN_Android",
+		"Build-Ubuntu-Clang-mips64el-Release-GN_Android",
+		"Build-Ubuntu-Clang-mipsel-Debug-GN_Android",
+		"Build-Ubuntu-Clang-mipsel-Release-GN_Android",
+		"Build-Ubuntu-Clang-x64-Debug-GN_Android",
+		"Build-Ubuntu-Clang-x64-Release-GN_Android",
 		"Build-Ubuntu-Clang-x86-Debug-GN_Android",
 		"Build-Ubuntu-Clang-x86-Debug-GN_Android_Vulkan",
 		"Build-Ubuntu-Clang-x86-Release-GN_Android",
 		"Build-Ubuntu-Clang-x86-Release-GN_Android_Vulkan",
+		"Build-Ubuntu-Clang-x86_64-Debug-GN",
+		"Build-Ubuntu-Clang-x86_64-Release-GN",
+		"Build-Ubuntu-GCC-x86-Debug",
+		"Build-Ubuntu-GCC-x86-Release",
+		"Build-Ubuntu-GCC-x86_64-Debug-GN",
+		"Build-Ubuntu-GCC-x86_64-Debug-NoGPU",
+		"Build-Ubuntu-GCC-x86_64-Release-ANGLE",
 		"Build-Ubuntu-GCC-x86_64-Release-GN",
+		"Build-Ubuntu-GCC-x86_64-Release-Mesa",
+		"Build-Ubuntu-GCC-x86_64-Release-NoGPU",
+		"Build-Ubuntu-GCC-x86_64-Release-PDFium",
 		"Build-Win-Clang-arm64-Release-GN_Android",
 		"Housekeeper-Nightly-RecreateSKPs_Canary",
 		"Housekeeper-PerCommit-InfraTests",
@@ -93,6 +110,13 @@ var (
 		"Perf-Android-Clang-Pixel-GPU-Adreno530-arm64-Release-GN_Android_Vulkan",
 		"Perf-Android-Clang-PixelC-GPU-TegraX1-arm64-Release-GN_Android_Skpbench",
 		"Perf-Android-Clang-PixelC-GPU-TegraX1-arm64-Release-GN_Android_Vulkan_Skpbench",
+		"Perf-Ubuntu-Clang-GCE-CPU-AVX2-x86_64-Debug-ASAN",
+		"Perf-Ubuntu-Clang-GCE-CPU-AVX2-x86_64-Debug-GN",
+		"Perf-Ubuntu-Clang-GCE-CPU-AVX2-x86_64-Debug-MSAN",
+		"Perf-Ubuntu-Clang-GCE-CPU-AVX2-x86_64-Release-GN",
+		"Perf-Ubuntu-GCC-GCE-CPU-AVX2-x86-Debug",
+		"Perf-Ubuntu-GCC-GCE-CPU-AVX2-x86_64-Debug-GN",
+		"Perf-Ubuntu-GCC-GCE-CPU-AVX2-x86_64-Debug-SK_USE_DISCARDABLE_SCALEDIMAGECACHE",
 		"Perf-Ubuntu-GCC-GCE-CPU-AVX2-x86_64-Release-GN",
 		"Perf-iOS-Clang-iPadMini4-GPU-GX6450-Arm7-Debug",
 		"Perf-iOS-Clang-iPadMini4-GPU-GX6450-Arm7-Release",
@@ -132,7 +156,17 @@ var (
 		"Test-Android-Clang-PixelXL-GPU-Adreno530-arm64-Debug-GN_Android_Vulkan",
 		"Test-Android-Clang-PixelXL-GPU-Adreno530-arm64-Release-GN_Android",
 		"Test-Android-Clang-PixelXL-GPU-Adreno530-arm64-Release-GN_Android_Vulkan",
+		"Test-Ubuntu-Clang-GCE-CPU-AVX2-x86_64-Debug-ASAN",
+		"Test-Ubuntu-Clang-GCE-CPU-AVX2-x86_64-Debug-GN",
+		"Test-Ubuntu-Clang-GCE-CPU-AVX2-x86_64-Debug-MSAN",
+		"Test-Ubuntu-Clang-GCE-CPU-AVX2-x86_64-Release-GN",
+		"Test-Ubuntu-Clang-GCE-CPU-AVX2-x86_64-Release-TSAN",
+		"Test-Ubuntu-GCC-GCE-CPU-AVX2-x86-Debug",
+		"Test-Ubuntu-GCC-GCE-CPU-AVX2-x86_64-Debug-GN",
+		"Test-Ubuntu-GCC-GCE-CPU-AVX2-x86_64-Debug-SK_USE_DISCARDABLE_SCALEDIMAGECACHE",
+		"Test-Ubuntu-GCC-GCE-CPU-AVX2-x86_64-Release-Fast",
 		"Test-Ubuntu-GCC-GCE-CPU-AVX2-x86_64-Release-GN",
+		"Test-Ubuntu-GCC-GCE-CPU-AVX2-x86_64-Release-SKNX_NO_SIMD",
 		"Test-iOS-Clang-iPadMini4-GPU-GX6450-Arm7-Debug",
 		"Test-iOS-Clang-iPadMini4-GPU-GX6450-Arm7-Release",
 	}
@@ -172,14 +206,17 @@ func deriveCompileTaskName(jobName string, parts map[string]string) string {
 		} else if strings.Contains(task_os, "Win") {
 			task_os = "Win"
 		}
-		name, err := jobNameSchema.MakeJobName(map[string]string{
+		jobNameMap := map[string]string{
 			"role":          "Build",
 			"os":            task_os,
 			"compiler":      parts["compiler"],
 			"target_arch":   parts["arch"],
 			"configuration": parts["configuration"],
-			"extra_config":  ec,
-		})
+		}
+		if ec != "" {
+			jobNameMap["extra_config"] = ec
+		}
+		name, err := jobNameSchema.MakeJobName(jobNameMap)
 		if err != nil {
 			glog.Fatal(err)
 		}
