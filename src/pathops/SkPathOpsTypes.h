@@ -310,7 +310,9 @@ const double FLT_EPSILON_HALF = FLT_EPSILON / 2;
 const double FLT_EPSILON_DOUBLE = FLT_EPSILON * 2;
 const double FLT_EPSILON_ORDERABLE_ERR = FLT_EPSILON * 16;
 const double FLT_EPSILON_SQUARED = FLT_EPSILON * FLT_EPSILON;
-const double FLT_EPSILON_SQRT = sqrt(FLT_EPSILON);
+// Use a compile-time constant for FLT_EPSILON_SQRT to avoid initializers.
+// A 17 digit constant guarantees exact results.
+const double FLT_EPSILON_SQRT = 0.00034526697709225118; // sqrt(FLT_EPSILON);
 const double FLT_EPSILON_INVERSE = 1 / FLT_EPSILON;
 const double DBL_EPSILON_ERR = DBL_EPSILON * 4;  // FIXME: tune -- allow a few bits of error
 const double DBL_EPSILON_SUBDIVIDE_ERR = DBL_EPSILON * 16;
