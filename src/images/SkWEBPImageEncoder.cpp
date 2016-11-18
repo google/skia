@@ -14,11 +14,15 @@
  * limitations under the License.
  */
 
-#include "SkBitmap.h"
 #include "SkImageEncoderPriv.h"
+
+#ifdef SK_HAS_WEBP_LIBRARY
+
+#include "SkBitmap.h"
 #include "SkColorPriv.h"
 #include "SkStream.h"
 #include "SkTemplates.h"
+#include "SkUnPreMultiply.h"
 #include "SkUtils.h"
 
 // A WebP decoder only, on top of (subset of) libwebp
@@ -33,8 +37,6 @@ extern "C" {
 // updated accordingly. Here, we enforce using local copy in webp sub-directory.
 #include "webp/encode.h"
 }
-
-#include "SkUnPreMultiply.h"
 
 typedef void (*ScanlineImporter)(const uint8_t* in, uint8_t* out, int width,
                                  const SkPMColor* SK_RESTRICT ctable);
@@ -172,19 +174,10 @@ static int stream_writer(const uint8_t* data, size_t data_size,
   return stream->write(data, data_size) ? 1 : 0;
 }
 
-class SkWEBPImageEncoder : public SkImageEncoder {
-protected:
-    bool onEncode(SkWStream* stream, const SkBitmap& bm, int quality) override;
-
-private:
-    typedef SkImageEncoder INHERITED;
-};
-
-bool SkWEBPImageEncoder::onEncode(SkWStream* stream, const SkBitmap& bm,
-                                  int quality) {
-    const bool hasAlpha = !bm.isOpaque();
+bool SkEncodeImageAsWEBP(SkWStream* stream, const SkPixmap& pixmap, int quality) {
+    const bool hasAlpha = !pixmap.isOpaque();
     int bpp = -1;
-    const ScanlineImporter scanline_import = ChooseImporter(bm.colorType(), hasAlpha, &bpp);
+    const ScanlineImporter scanline_import = ChooseImporter(pixmap.colorType(), hasAlpha, &bpp);
     if (nullptr == scanline_import) {
         return false;
     }
@@ -192,8 +185,7 @@ bool SkWEBPImageEncoder::onEncode(SkWStream* stream, const SkBitmap& bm,
         return false;
     }
 
-    SkAutoLockPixels alp(bm);
-    if (nullptr == bm.getPixels()) {
+    if (nullptr == pixmap.addr()) {
         return false;
     }
 
@@ -204,44 +196,33 @@ bool SkWEBPImageEncoder::onEncode(SkWStream* stream, const SkBitmap& bm,
 
     WebPPicture pic;
     WebPPictureInit(&pic);
-    pic.width = bm.width();
-    pic.height = bm.height();
+    pic.width = pixmap.width();
+    pic.height = pixmap.height();
     pic.writer = stream_writer;
     pic.custom_ptr = (void*)stream;
 
-    const SkPMColor* colors = bm.getColorTable() ? bm.getColorTable()->readColors() : nullptr;
-    const uint8_t* src = (uint8_t*)bm.getPixels();
+    const SkPMColor* colors = pixmap.ctable() ? pixmap.ctable()->readColors() : nullptr;
+    const uint8_t* src = (uint8_t*)pixmap.addr();
     const int rgbStride = pic.width * bpp;
+    const size_t rowBytes = pixmap.rowBytes();
 
     // Import (for each scanline) the bit-map image (in appropriate color-space)
     // to RGB color space.
-    uint8_t* rgb = new uint8_t[rgbStride * pic.height];
+    std::unique_ptr<uint8_t[]> rgb(new uint8_t[rgbStride * pic.height]);
     for (int y = 0; y < pic.height; ++y) {
-        scanline_import(src + y * bm.rowBytes(), rgb + y * rgbStride,
-                        pic.width, colors);
+        scanline_import(src + y * rowBytes, &rgb[y * rgbStride], pic.width, colors);
     }
 
     bool ok;
     if (bpp == 3) {
-        ok = SkToBool(WebPPictureImportRGB(&pic, rgb, rgbStride));
+        ok = SkToBool(WebPPictureImportRGB(&pic, &rgb[0], rgbStride));
     } else {
-        ok = SkToBool(WebPPictureImportRGBA(&pic, rgb, rgbStride));
+        ok = SkToBool(WebPPictureImportRGBA(&pic, &rgb[0], rgbStride));
     }
-    delete[] rgb;
 
     ok = ok && WebPEncode(&webp_config, &pic);
     WebPPictureFree(&pic);
 
     return ok;
 }
-
-
-///////////////////////////////////////////////////////////////////////////////
-DEFINE_ENCODER_CREATOR(WEBPImageEncoder);
-///////////////////////////////////////////////////////////////////////////////
-
-static SkImageEncoder* sk_libwebp_efactory(SkImageEncoder::Type t) {
-    return (SkEncodedImageFormat::kWEBP == (SkEncodedImageFormat)t) ? new SkWEBPImageEncoder : nullptr;
-}
-
-static SkImageEncoder_EncodeReg gEReg(sk_libwebp_efactory);
+#endif

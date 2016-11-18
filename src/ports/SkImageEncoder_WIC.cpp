@@ -46,23 +46,10 @@
 #undef CLSID_WICImagingFactory
 #endif
 
-class SkImageEncoder_WIC : public SkImageEncoder {
-public:
-    SkImageEncoder_WIC(SkEncodedImageFormat t) : fType(t) {}
-
-protected:
-    virtual bool onEncode(SkWStream* stream, const SkBitmap& bm, int quality);
-
-private:
-    SkEncodedImageFormat fType;
-};
-
-bool SkImageEncoder_WIC::onEncode(SkWStream* stream
-                                , const SkBitmap& bitmapOrig
-                                , int quality)
-{
+bool SkEncodeImageWithWIC(SkWStream* stream, const SkPixmap& pixmap,
+                          SkEncodedImageFormat format, int quality) {
     GUID type;
-    switch (fType) {
+    switch (format) {
         case SkEncodedImageFormat::kJPEG:
             type = GUID_ContainerFormatJpeg;
             break;
@@ -72,6 +59,11 @@ bool SkImageEncoder_WIC::onEncode(SkWStream* stream
         default:
             return false;
     }
+    SkBitmap bitmapOrig;
+    if (!bitmapOrig.installPixels(pixmap)) {
+        return false;
+    }
+    bitmapOrig.setImmutable();
 
     // First convert to BGRA if necessary.
     SkBitmap bitmap;
@@ -97,7 +89,7 @@ bool SkImageEncoder_WIC::onEncode(SkWStream* stream
     size_t rowBytes = bitmap.rowBytes();
     SkAutoMalloc pixelStorage;
     WICPixelFormatGUID formatDesired = GUID_WICPixelFormat32bppBGRA;
-    if (SkEncodedImageFormat::kJPEG == fType) {
+    if (SkEncodedImageFormat::kJPEG == format) {
         formatDesired = GUID_WICPixelFormat24bppBGR;
         rowBytes = SkAlign4(bitmap.width() * 3);
         pixelStorage.reset(rowBytes * bitmap.height());
@@ -214,27 +206,6 @@ bool SkImageEncoder_WIC::onEncode(SkWStream* stream
     }
 
     return SUCCEEDED(hr);
-}
-
-///////////////////////////////////////////////////////////////////////////////
-
-#ifdef SK_USE_WIC_ENCODER
-static SkImageEncoder* sk_imageencoder_wic_factory(SkEncodedImageFormat t) {
-    switch (t) {
-        case SkEncodedImageFormat::kPNG:
-        case SkEncodedImageFormat::kJPEG:
-            break;
-        default:
-            return nullptr;
-    }
-    return new SkImageEncoder_WIC(t);
-}
-
-static SkImageEncoder_EncodeReg gEReg(sk_imageencoder_wic_factory);
-#endif
-
-SkImageEncoder* CreateImageEncoder_WIC(SkImageEncoder::Type type) {
-    return new SkImageEncoder_WIC((SkEncodedImageFormat)type);
 }
 
 #endif // defined(SK_BUILD_FOR_WIN32)
