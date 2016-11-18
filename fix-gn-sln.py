@@ -7,15 +7,29 @@ import glob
 import sys
 from shutil import copyfile
 
-srcDir = sys.argv[1]
-
 # Get list of existing directories to use as configs
 configs = []
+configsWithSln = []
+srcDir = ""
+newestSlnTimestamp = 0
 for root, dirs, files in os.walk("out"):
     for outDir in dirs:
-        if os.path.exists("out/" + outDir + "/build.ninja.d"):
+        gnFile = os.path.join("out", outDir, "build.ninja.d")
+        slnFile = os.path.join("out", outDir, "all.sln")
+        if os.path.exists(gnFile):
             configs.append(outDir)
+        if os.path.exists(slnFile):
+            configsWithSln.append(outDir)
+            slnTimestamp = os.path.getmtime(slnFile)
+            if slnTimestamp > newestSlnTimestamp:
+                newestSlnTimestamp = slnTimestamp
+                srcDir = outDir
     break
+
+# We need at least one config with a solution
+if len(configsWithSln) == 0:
+    print "ERROR: At least one GN directory must have been built with --ide=vs"
+    sys.exit()
 
 # Ensure directories exist
 try:
