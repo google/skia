@@ -11,7 +11,7 @@
 #include "SkDrawLooper.h"
 #include "SkPaint.h"
 #include "SkPoint.h"
-#include "SkXfermode.h"
+#include "SkBlendMode.h"
 
 class SK_API SkLayerDrawLooper : public SkDrawLooper {
 public:
@@ -51,9 +51,9 @@ public:
      *      The layer's paint's color is treated as the SRC
      *      The draw's paint's color is treated as the DST
      *      final-color = Mode(layers-color, draws-color);
-     *  Any SkXfermode::Mode will work. Two common choices are:
-     *      kSrc_Mode: to use the layer's color, ignoring the draw's
-     *      kDst_Mode: to just keep the draw's color, ignoring the layer's
+     *  Any SkBlendMode will work. Two common choices are:
+     *      kSrc: to use the layer's color, ignoring the draw's
+     *      kDst: to just keep the draw's color, ignoring the layer's
      */
     struct SK_API LayerInfo {
         BitFlags    fPaintBits;

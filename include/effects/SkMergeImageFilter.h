@@ -8,9 +8,8 @@
 #ifndef SkMergeImageFilter_DEFINED
 #define SkMergeImageFilter_DEFINED
 
+#include "SkBlendMode.h"
 #include "SkImageFilter.h"
-
-#include "SkXfermode.h"
 
 class SK_API SkMergeImageFilter : public SkImageFilter {
 public:
@@ -34,7 +33,7 @@ private:
     SkMergeImageFilter(sk_sp<SkImageFilter> filters[], int count, const SkBlendMode modes[],
                        const CropRect* cropRect);
 
-    uint8_t*    fModes; // SkXfermode::Mode
+    uint8_t*    fModes; // SkBlendMode
 
     // private storage, to avoid dynamically allocating storage for our copy
     // of the modes (unless the count is so large we can't fit).

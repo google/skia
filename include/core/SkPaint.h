@@ -12,7 +12,7 @@
 #include "SkColor.h"
 #include "SkFilterQuality.h"
 #include "SkMatrix.h"
-#include "SkXfermode.h"
+#include "SkRefCnt.h"
 
 class SkAutoDescriptor;
 class SkAutoGlyphCache;
@@ -1056,7 +1056,7 @@ private:
     SkColor         fColor;
     SkScalar        fWidth;
     SkScalar        fMiterLimit;
-    uint32_t        fBlendMode; // just need 5-6 bits for SkXfermode::Mode
+    uint32_t        fBlendMode; // just need 5-6 bits
     union {
         struct {
             // all of these bitfields should add up to 32

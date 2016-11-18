@@ -29,7 +29,6 @@ class SkPixelRef;
 class SkPixmap;
 class SkRRect;
 class SkSurface;
-class SkXfermode;
 struct SkPoint;
 
 ///////////////////////////////////////////////////////////////////////////////
