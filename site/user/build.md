@@ -114,7 +114,7 @@ Skia offers several features that make use of third-party libraries, like
 libpng, libwebp, or libjpeg-turbo to decode images, or ICU and sftnly to subset
 fonts.  All these third-party dependencies are optional, and can be controlled
 by a GN argument that looks something like `skia_use_foo` for appropriate
-`foo`.
+`foo`.  Setting `skia_use_third_party` to `false` will disable all of these.
 
 Most of these third-party dependencies can also be satisfied by pre-built
 system libraries.  If `skia_use_foo` is enabled, turn on `skia_use_system_foo`
