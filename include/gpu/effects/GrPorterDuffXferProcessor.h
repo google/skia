@@ -10,7 +10,7 @@
 
 #include "GrTypes.h"
 #include "GrXferProcessor.h"
-#include "SkXfermode.h"
+#include "SkBlendMode.h"
 
 class GrProcOptInfo;
 
