@@ -15,6 +15,32 @@
     Currently there is no way to specify an arbitrary swizzle, just some static swizzles and an
     assignment operator. That could be relaxed. */
 class GrSwizzle {
+private:
+    char fSwiz[5];
+    uint8_t fKey;
+
+    static constexpr int CToI(char c) {
+        return ('r' == c) ? (GrColor_SHIFT_R / 8) :
+               ('g' == c) ? (GrColor_SHIFT_G / 8) :
+               ('b' == c) ? (GrColor_SHIFT_B / 8) :
+               ('a' == c) ? (GrColor_SHIFT_A / 8) : -1;
+    }
+
+    static constexpr char IToC(int idx) {
+        return (8 * idx) == GrColor_SHIFT_R ? 'r' :
+               (8 * idx) == GrColor_SHIFT_G ? 'g' :
+               (8 * idx) == GrColor_SHIFT_B ? 'b' :
+               (8 * idx) == GrColor_SHIFT_A ? 'a' : 'x';
+    }
+
+    constexpr GrSwizzle(const char c[4])
+        : fSwiz{c[0], c[1], c[2], c[3], 0}
+        , fKey((CToI(c[0]) << 0) | (CToI(c[1]) << 2) | (CToI(c[2]) << 4) | (CToI(c[3]) << 6)) {}
+
+    GR_STATIC_ASSERT(sizeof(char[4]) == sizeof(uint32_t));
+    uint32_t* asUIntPtr() { return SkTCast<uint32_t*>(fSwiz); }
+    uint32_t asUInt() const { return *SkTCast<const uint32_t*>(fSwiz); }
+
 public:
     GrSwizzle() { *this = RGBA(); }
 
@@ -29,7 +55,7 @@ public:
     void setFromKey(uint8_t key) {
         fKey = key;
         for (int i = 0; i < 4; ++i) {
-            fSwiz[i] = IdxToChar(key & 3);
+            fSwiz[i] = IToC(key & 3);
             key >>= 2;
         }
         SkASSERT(fSwiz[4] == 0);
@@ -64,27 +90,12 @@ public:
         return GrColorPackRGBA(outR, outG, outB, outA);
     }
 
-    static const GrSwizzle& RGBA() {
-        static GrSwizzle gRGBA("rgba");
-        return gRGBA;
-    }
+    static GrSwizzle RGBA() { return GrSwizzle("rgba"); }
+    static GrSwizzle AAAA() { return GrSwizzle("aaaa"); }
+    static GrSwizzle RRRR() { return GrSwizzle("rrrr"); }
+    static GrSwizzle BGRA() { return GrSwizzle("bgra"); }
 
-    static const GrSwizzle& AAAA() {
-        static GrSwizzle gAAAA("aaaa");
-        return gAAAA;
-    }
-
-    static const GrSwizzle& RRRR() {
-        static GrSwizzle gRRRR("rrrr");
-        return gRRRR;
-    }
-
-    static const GrSwizzle& BGRA() {
-        static GrSwizzle gBGRA("bgra");
-        return gBGRA;
-    }
-
-    static const GrSwizzle& CreateRandom(SkRandom* random) {
+    static GrSwizzle CreateRandom(SkRandom* random) {
         switch (random->nextU() % 4) {
             case 0:
                 return RGBA();
@@ -99,54 +110,6 @@ public:
                 return RGBA();
         }
     }
-
-private:
-    char fSwiz[5];
-    uint8_t fKey;
-
-    static int CharToIdx(char c) {
-        switch (c) {
-            case 'r':
-                return (GrColor_SHIFT_R / 8);
-            case 'g':
-                return (GrColor_SHIFT_G / 8);
-            case 'b':
-                return (GrColor_SHIFT_B / 8);
-            case 'a':
-                return (GrColor_SHIFT_A / 8);
-            default:
-                SkFAIL("Invalid swizzle char");
-                return 0;
-        }
-    }
-
-    static /* constexpr */ char IToC(int idx) {
-        return (8*idx) == GrColor_SHIFT_R ? 'r' :
-               (8*idx) == GrColor_SHIFT_G ? 'g' :
-               (8*idx) == GrColor_SHIFT_B ? 'b' : 'a';
-    }
-
-    static char IdxToChar(int c) {
-        // Hopefully this array gets computed at compile time.
-        static const char gStr[4] = { IToC(0), IToC(1), IToC(2), IToC(3) };
-        return gStr[c];
-    }
-
-    explicit GrSwizzle(const char* str) {
-        SkASSERT(strlen(str) == 4);
-        fSwiz[0] = str[0];
-        fSwiz[1] = str[1];
-        fSwiz[2] = str[2];
-        fSwiz[3] = str[3];
-        fSwiz[4] = 0;
-        fKey = SkToU8(CharToIdx(fSwiz[0]) | (CharToIdx(fSwiz[1]) << 2) |
-                      (CharToIdx(fSwiz[2]) << 4) | (CharToIdx(fSwiz[3]) << 6));
-    }
-
-    uint32_t* asUIntPtr() { return SkTCast<uint32_t*>(fSwiz); }
-    uint32_t asUInt() const { return *SkTCast<const uint32_t*>(fSwiz); }
-
-    GR_STATIC_ASSERT(sizeof(char[4]) == sizeof(uint32_t));
 };
 
 #endif
