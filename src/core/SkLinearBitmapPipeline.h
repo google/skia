@@ -9,10 +9,10 @@
 #define SkLinearBitmapPipeline_DEFINED
 
 #include "SkColor.h"
+#include "SkFixedAlloc.h"
 #include "SkImageInfo.h"
 #include "SkMatrix.h"
 #include "SkShader.h"
-#include "SkSmallAllocator.h"
 
 class SkEmbeddableLinearPipeline;
 
@@ -33,25 +33,25 @@ public:
         SkFilterQuality filterQuality,
         SkShader::TileMode xTile, SkShader::TileMode yTile,
         SkColor paintColor,
-        const SkPixmap& srcPixmap);
+        const SkPixmap& srcPixmap,
+        SkFallbackAlloc* allocator);
 
     SkLinearBitmapPipeline(
         const SkLinearBitmapPipeline& pipeline,
         const SkPixmap& srcPixmap,
         SkBlendMode,
-        const SkImageInfo& dstInfo);
+        const SkImageInfo& dstInfo,
+        SkFallbackAlloc* allocator);
 
-    static bool ClonePipelineForBlitting(
-        SkEmbeddableLinearPipeline* pipelineStorage,
+    static SkLinearBitmapPipeline* ClonePipelineForBlitting(
         const SkLinearBitmapPipeline& pipeline,
         SkMatrix::TypeMask matrixMask,
-        SkShader::TileMode xTileMode,
-        SkShader::TileMode yTileMode,
         SkFilterQuality filterQuality,
         const SkPixmap& srcPixmap,
         float finalAlpha,
         SkBlendMode,
-        const SkImageInfo& dstInfo);
+        const SkImageInfo& dstInfo,
+        SkFallbackAlloc* allocator);
 
     ~SkLinearBitmapPipeline();
 
@@ -64,82 +64,59 @@ public:
     class DestinationInterface;
     class PixelAccessorInterface;
 
-private:
-    using MemoryAllocator = SkSmallAllocator<5, 256>;
     using MatrixCloner =
-        std::function<PointProcessorInterface* (PointProcessorInterface*, MemoryAllocator*)>;
+        std::function<PointProcessorInterface* (PointProcessorInterface*, SkFallbackAlloc*)>;
     using TilerCloner =
-        std::function<PointProcessorInterface* (SampleProcessorInterface*, MemoryAllocator*)>;
+        std::function<PointProcessorInterface* (SampleProcessorInterface*, SkFallbackAlloc*)>;
 
     PointProcessorInterface* chooseMatrix(
         PointProcessorInterface* next,
-        const SkMatrix& inverse);
+        const SkMatrix& inverse,
+        SkFallbackAlloc* allocator);
 
     template <typename Tiler>
-    PointProcessorInterface* createTiler(SampleProcessorInterface* next, SkISize dimensions);
+    PointProcessorInterface* createTiler(SampleProcessorInterface* next, SkISize dimensions,
+                                         SkFallbackAlloc* allocator);
 
     template <typename XStrategy>
     PointProcessorInterface* chooseTilerYMode(
-        SampleProcessorInterface* next, SkShader::TileMode yMode, SkISize dimensions);
+        SampleProcessorInterface* next, SkShader::TileMode yMode, SkISize dimensions,
+        SkFallbackAlloc* allocator);
 
     PointProcessorInterface* chooseTiler(
         SampleProcessorInterface* next,
         SkISize dimensions,
         SkShader::TileMode xMode, SkShader::TileMode yMode,
         SkFilterQuality filterQuality,
-        SkScalar dx);
+        SkScalar dx,
+        SkFallbackAlloc* allocator);
 
     template <SkColorType colorType>
-    PixelAccessorInterface* chooseSpecificAccessor(const SkPixmap& srcPixmap);
+    PixelAccessorInterface* chooseSpecificAccessor(const SkPixmap& srcPixmap,
+                                                   SkFallbackAlloc* allocator);
 
     PixelAccessorInterface* choosePixelAccessor(
         const SkPixmap& srcPixmap,
-        const SkColor A8TintColor);
+        const SkColor A8TintColor,
+        SkFallbackAlloc* allocator);
 
     SampleProcessorInterface* chooseSampler(
         BlendProcessorInterface* next,
         SkFilterQuality filterQuality,
         SkShader::TileMode xTile, SkShader::TileMode yTile,
         const SkPixmap& srcPixmap,
-        const SkColor A8TintColor);
+        const SkColor A8TintColor,
+        SkFallbackAlloc* allocator);
 
     BlendProcessorInterface* chooseBlenderForShading(
         SkAlphaType alphaType,
-        float postAlpha);
+        float postAlpha,
+        SkFallbackAlloc* allocator);
 
-    MemoryAllocator          fMemory;
     PointProcessorInterface* fFirstStage;
     MatrixCloner             fMatrixStageCloner;
     TilerCloner              fTileStageCloner;
     DestinationInterface*    fLastStage;
-};
-
-////////////////////////////////////////////////////////////////////////////////////////////////////
-// SkEmbeddableLinearPipeline - manage stricter alignment needs for SkLinearBitmapPipeline.
-class SkEmbeddableLinearPipeline {
-public:
-    SkEmbeddableLinearPipeline() { }
-    ~SkEmbeddableLinearPipeline() {
-        if (fInitialized) {
-            get()->~SkLinearBitmapPipeline();
-        }
-    }
-
-    template <typename... Args>
-    void init(Args&&... args) {
-        new (fPipelineStorage) SkLinearBitmapPipeline{std::forward<Args>(args)...};
-        fInitialized = true;
-    }
-
-    SkLinearBitmapPipeline* get() const {
-        return reinterpret_cast<SkLinearBitmapPipeline*>(fPipelineStorage);
-    }
-    SkLinearBitmapPipeline& operator*()  const { return *this->get(); }
-    SkLinearBitmapPipeline* operator->() const { return  this->get(); }
-
-private:
-    alignas(SkLinearBitmapPipeline) mutable char fPipelineStorage[sizeof(SkLinearBitmapPipeline)];
-    bool                                         fInitialized {false};
 };
 
 #endif  // SkLinearBitmapPipeline_DEFINED

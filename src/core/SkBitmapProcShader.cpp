@@ -113,16 +113,15 @@ public:
         // Save things off in case we need to build a blitter pipeline.
         fSrcPixmap = info->fPixmap;
         fAlpha = SkColorGetA(info->fPaintColor) / 255.0f;
-        fXMode = info->fTileModeX;
-        fYMode = info->fTileModeY;
         fFilterQuality = info->fFilterQuality;
         fMatrixTypeMask = info->fRealInvMatrix.getType();
 
-        fShaderPipeline.init(
+        fShaderPipeline = fAllocator.make<SkLinearBitmapPipeline>(
             info->fRealInvMatrix, info->fFilterQuality,
             info->fTileModeX, info->fTileModeY,
             info->fPaintColor,
-            info->fPixmap);
+            info->fPixmap,
+            &fAllocator);
 
         // To implement the old shadeSpan entry-point, we need to efficiently convert our native
         // floats into SkPMColor. The SkXfermode::D32Procs do exactly that.
@@ -149,14 +148,13 @@ public:
     }
 
     bool onChooseBlitProcs(const SkImageInfo& dstInfo, BlitState* state) override {
-        if (SkLinearBitmapPipeline::ClonePipelineForBlitting(
-            &fBlitterPipeline, *fShaderPipeline,
+        if ((fBlitterPipeline = SkLinearBitmapPipeline::ClonePipelineForBlitting(
+            *fShaderPipeline,
             fMatrixTypeMask,
-            fXMode, fYMode,
             fFilterQuality, fSrcPixmap,
-            fAlpha, state->fMode, dstInfo))
+            fAlpha, state->fMode, dstInfo, &fAllocator)))
         {
-            state->fStorage[0] = fBlitterPipeline.get();
+            state->fStorage[0] = fBlitterPipeline;
             state->fBlitBW = &LinearPipelineContext::ForwardToPipeline;
 
             return true;
@@ -172,15 +170,16 @@ public:
     }
 
 private:
-    SkEmbeddableLinearPipeline fShaderPipeline;
-    SkEmbeddableLinearPipeline fBlitterPipeline;
-    SkXfermode::D32Proc        fSrcModeProc;
-    SkPixmap                   fSrcPixmap;
-    float                      fAlpha;
-    SkShader::TileMode         fXMode;
-    SkShader::TileMode         fYMode;
-    SkMatrix::TypeMask         fMatrixTypeMask;
-    SkFilterQuality            fFilterQuality;
+    char                    fStorage[512 + 96];
+    SkFixedAlloc            fFixedAlloc {fStorage, sizeof(fStorage)};
+    SkFallbackAlloc         fAllocator {&fFixedAlloc};
+    SkLinearBitmapPipeline* fShaderPipeline;
+    SkLinearBitmapPipeline* fBlitterPipeline;
+    SkXfermode::D32Proc     fSrcModeProc;
+    SkPixmap                fSrcPixmap;
+    float                   fAlpha;
+    SkMatrix::TypeMask      fMatrixTypeMask;
+    SkFilterQuality         fFilterQuality;
 
     typedef BitmapProcInfoContext INHERITED;
 };
