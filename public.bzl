@@ -168,7 +168,6 @@ BASE_SRCS_UNIX = struct(
         # Included in :opts_avx or :opts_hsw
         "src/opts/*avx*",
         "src/opts/*hsw*",
-        "src/opts/SkBitmapProcState_opts_none.cpp",
         "src/opts/SkBlitMask_opts_none.cpp",
         "src/opts/SkBlitRow_opts_none.cpp",
         "src/ports/*CG*",
@@ -265,7 +264,6 @@ BASE_SRCS_IOS = struct(
         "src/opts/*sse4*",
         "src/opts/*avx*",
         "src/opts/*x86*",
-        "src/opts/SkBitmapProcState_opts_none.cpp",
         "src/opts/SkBlitMask_opts_arm*.cpp",
         "src/opts/SkBlitRow_opts_arm*.cpp",
         "src/ports/*CG*",
