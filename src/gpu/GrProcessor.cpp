@@ -120,7 +120,7 @@ void GrProcessor::addTextureSampler(const TextureSampler* access) {
     this->addGpuResource(access->programTexture());
 }
 
-void GrProcessor::addBufferAccess(const GrBufferAccess* access) {
+void GrProcessor::addBufferAccess(const BufferAccess* access) {
     fBufferAccesses.push_back(access);
     this->addGpuResource(access->getProgramBuffer());
 }

@@ -9,7 +9,6 @@
 #define gr_instanced_InstanceProcessor_DEFINED
 
 #include "GrCaps.h"
-#include "GrBufferAccess.h"
 #include "GrGeometryProcessor.h"
 #include "instanced/InstancedRenderingTypes.h"
 
@@ -57,8 +56,8 @@ private:
      */
     static GrCaps::InstancedSupport CheckSupport(const GrGLSLCaps&, const GrCaps&);
 
-    const BatchInfo   fBatchInfo;
-    GrBufferAccess    fParamsAccess;
+    const BatchInfo fBatchInfo;
+    BufferAccess    fParamsAccess;
 
     friend class GLInstancedRendering; // For CheckSupport.
 
