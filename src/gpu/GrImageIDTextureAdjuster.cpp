@@ -52,7 +52,9 @@ GrTexture* GrBitmapTextureMaker::refOriginalTexture(bool willBeMipped,
     return tex;
 }
 
-void GrBitmapTextureMaker::makeCopyKey(const CopyParams& copyParams, GrUniqueKey* copyKey) {
+void GrBitmapTextureMaker::makeCopyKey(const CopyParams& copyParams, GrUniqueKey* copyKey,
+                                       SkDestinationSurfaceColorMode colorMode) {
+    // Color mode is irrelevant in this case - we always upload the bitmap's contents as-is
     if (fOriginalKey.isValid()) {
         MakeCopyKeyFromOrigKey(fOriginalKey, copyParams, copyKey);
     }
@@ -66,8 +68,9 @@ SkAlphaType GrBitmapTextureMaker::alphaType() const {
     return fBitmap.alphaType();
 }
 
-SkColorSpace* GrBitmapTextureMaker::getColorSpace() {
-    return fBitmap.colorSpace();
+sk_sp<SkColorSpace> GrBitmapTextureMaker::getColorSpace(SkDestinationSurfaceColorMode colorMode) {
+    // Color space doesn't depend on mode - it's just whatever is in the bitmap
+    return sk_ref_sp(fBitmap.colorSpace());
 }
 
 //////////////////////////////////////////////////////////////////////////////
@@ -93,9 +96,14 @@ GrTexture* GrImageTextureMaker::refOriginalTexture(bool willBeMipped,
                                 colorMode);
 }
 
-void GrImageTextureMaker::makeCopyKey(const CopyParams& stretch, GrUniqueKey* paramsCopyKey) {
+void GrImageTextureMaker::makeCopyKey(const CopyParams& stretch, GrUniqueKey* paramsCopyKey,
+                                      SkDestinationSurfaceColorMode colorMode) {
     if (fOriginalKey.isValid() && SkImage::kAllow_CachingHint == fCachingHint) {
-        MakeCopyKeyFromOrigKey(fOriginalKey, stretch, paramsCopyKey);
+        SkImageCacherator::CachedFormat cacheFormat =
+            fCacher->chooseCacheFormat(colorMode, this->context()->caps());
+        GrUniqueKey cacheKey;
+        fCacher->makeCacheKeyFromOrigKey(fOriginalKey, cacheFormat, &cacheKey);
+        MakeCopyKeyFromOrigKey(cacheKey, stretch, paramsCopyKey);
     }
 }
 
@@ -108,7 +116,6 @@ void GrImageTextureMaker::didCacheCopy(const GrUniqueKey& copyKey) {
 SkAlphaType GrImageTextureMaker::alphaType() const {
     return fCacher->info().alphaType();
 }
-
-SkColorSpace* GrImageTextureMaker::getColorSpace() {
-    return fCacher->info().colorSpace();
+sk_sp<SkColorSpace> GrImageTextureMaker::getColorSpace(SkDestinationSurfaceColorMode colorMode) {
+    return fCacher->getColorSpace(this->context(), colorMode);
 }

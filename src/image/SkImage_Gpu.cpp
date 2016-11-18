@@ -20,6 +20,7 @@
 #include "SkBitmapCache.h"
 #include "SkGrPriv.h"
 #include "SkImage_Gpu.h"
+#include "SkImageCacherator.h"
 #include "SkMipMap.h"
 #include "SkPixelRef.h"
 
@@ -60,7 +61,8 @@ static SkImageInfo make_info(int w, int h, SkAlphaType at, sk_sp<SkColorSpace> c
     return SkImageInfo::MakeN32(w, h, at, std::move(colorSpace));
 }
 
-bool SkImage_Gpu::getROPixels(SkBitmap* dst, CachingHint chint) const {
+bool SkImage_Gpu::getROPixels(SkBitmap* dst, SkDestinationSurfaceColorMode,
+                              CachingHint chint) const {
     if (SkBitmapCache::Find(this->uniqueID(), dst)) {
         SkASSERT(dst->getGenerationID() == this->uniqueID());
         SkASSERT(dst->isImmutable());
@@ -86,9 +88,13 @@ bool SkImage_Gpu::getROPixels(SkBitmap* dst, CachingHint chint) const {
 }
 
 GrTexture* SkImage_Gpu::asTextureRef(GrContext* ctx, const GrSamplerParams& params,
-                                     SkDestinationSurfaceColorMode colorMode) const {
-    GrTextureAdjuster adjuster(this->peekTexture(), this->alphaType(), this->bounds(), this->uniqueID(),
-                               this->onImageInfo().colorSpace());
+                                     SkDestinationSurfaceColorMode colorMode,
+                                     sk_sp<SkColorSpace>* texColorSpace) const {
+    if (texColorSpace) {
+        *texColorSpace = this->fColorSpace;
+    }
+    GrTextureAdjuster adjuster(this->peekTexture(), this->alphaType(), this->bounds(),
+                               this->uniqueID(), this->fColorSpace.get());
     return adjuster.refTextureSafeForParams(params, colorMode, nullptr);
 }
 
@@ -298,14 +304,16 @@ sk_sp<SkImage> SkImage::MakeFromNV12TexturesCopy(GrContext* ctx, SkYUVColorSpace
 }
 
 static sk_sp<SkImage> create_image_from_maker(GrTextureMaker* maker, SkAlphaType at, uint32_t id) {
+    sk_sp<SkColorSpace> texColorSpace;
     sk_sp<GrTexture> texture(
         maker->refTextureForParams(GrSamplerParams::ClampNoFilter(),
-                                   SkDestinationSurfaceColorMode::kGammaAndColorSpaceAware));
+                                   SkDestinationSurfaceColorMode::kGammaAndColorSpaceAware,
+                                   &texColorSpace));
     if (!texture) {
         return nullptr;
     }
     return sk_make_sp<SkImage_Gpu>(texture->width(), texture->height(), id, at, std::move(texture),
-                                   sk_ref_sp(maker->getColorSpace()), SkBudgeted::kNo);
+                                   std::move(texColorSpace), SkBudgeted::kNo);
 }
 
 sk_sp<SkImage> SkImage::makeTextureImage(GrContext *context) const {
@@ -498,7 +506,19 @@ size_t SkImage::getDeferredTextureImageData(const GrContextThreadSafeProxy& prox
         if (!data && !this->peekPixels(nullptr)) {
             return 0;
         }
-        info = as_IB(this)->onImageInfo().makeWH(scaledSize.width(), scaledSize.height());
+        if (SkImageCacherator* cacher = as_IB(this)->peekCacherator()) {
+            // Generator backed image. Tweak info to trigger correct kind of decode.
+            SkDestinationSurfaceColorMode decodeColorMode = dstColorSpace
+                ? SkDestinationSurfaceColorMode::kGammaAndColorSpaceAware
+                : SkDestinationSurfaceColorMode::kLegacy;
+            SkImageCacherator::CachedFormat cacheFormat = cacher->chooseCacheFormat(
+                decodeColorMode, proxy.fCaps.get());
+            info = cacher->buildCacheInfo(cacheFormat).makeWH(scaledSize.width(),
+                                                              scaledSize.height());
+
+        } else {
+            info = as_IB(this)->onImageInfo().makeWH(scaledSize.width(), scaledSize.height());
+        }
         pixelSize = SkAlign8(SkAutoPixmapStorage::AllocSize(info, nullptr));
         if (fillMode) {
             pixmap.alloc(info);

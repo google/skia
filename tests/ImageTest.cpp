@@ -43,7 +43,8 @@ static void assert_equal(skiatest::Reporter* reporter, SkImage* a, const SkIRect
     // see https://bug.skia.org/3965
     //REPORTER_ASSERT(reporter, a->isOpaque() == b->isOpaque());
 
-    SkImageInfo info = SkImageInfo::MakeN32(widthA, heightA, a->alphaType());
+    // The codecs may have given us back F16, we can't read from F16 raster to N32, only S32.
+    SkImageInfo info = SkImageInfo::MakeS32(widthA, heightA, a->alphaType());
     SkAutoPixmapStorage pmapA, pmapB;
     pmapA.alloc(info);
     pmapB.alloc(info);

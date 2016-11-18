@@ -426,13 +426,16 @@ GrTexture* GrUploadMipMapToTexture(GrContext* ctx, const SkImageInfo& info,
 GrTexture* GrRefCachedBitmapTexture(GrContext* ctx, const SkBitmap& bitmap,
                                     const GrSamplerParams& params,
                                     SkDestinationSurfaceColorMode colorMode) {
-    return GrBitmapTextureMaker(ctx, bitmap).refTextureForParams(params, colorMode);
+    // Caller doesn't care about the texture's color space (they can always get it from the bitmap)
+    return GrBitmapTextureMaker(ctx, bitmap).refTextureForParams(params, colorMode, nullptr);
 }
 
 sk_sp<GrTexture> GrMakeCachedBitmapTexture(GrContext* ctx, const SkBitmap& bitmap,
                                            const GrSamplerParams& params,
                                            SkDestinationSurfaceColorMode colorMode) {
-    GrTexture* tex = GrBitmapTextureMaker(ctx, bitmap).refTextureForParams(params, colorMode);
+    // Caller doesn't care about the texture's color space (they can always get it from the bitmap)
+    GrTexture* tex = GrBitmapTextureMaker(ctx, bitmap).refTextureForParams(params, colorMode,
+                                                                           nullptr);
     return sk_sp<GrTexture>(tex);
 }
 
