@@ -261,7 +261,6 @@ config("warnings") {
       "/wd4244",  # conversion from 'float' to 'int', possible loss of data
       "/wd4267",  # conversion from 'size_t' to 'int', possible loss of data
       "/wd4800",  # forcing value to bool 'true' or 'false' (performance warning)
-      "/wd4752",  # We use AVX but don't let the compiler do so itself.  See crbug.com/666707.
 
       # Probably only triggers when /EHsc is enabled.
       "/wd4291",  # no matching operator delete found;

@@ -250,7 +250,7 @@ opts("avx") {
   enabled = is_x86
   sources = skia_opts.avx_sources
   if (is_win) {
-    defines = [ "SK_CPU_SSE_LEVEL=SK_CPU_SSE_LEVEL_AVX" ]
+    cflags = [ "/arch:AVX" ]
   } else {
     cflags = [ "-mavx" ]
   }
@@ -260,7 +260,7 @@ opts("hsw") {
   enabled = is_x86
   sources = skia_opts.hsw_sources
   if (is_win) {
-    defines = [ "SK_CPU_SSE_LEVEL=SK_CPU_SSE_LEVEL_AVX2" ]
+    cflags = [ "/arch:AVX2" ]
   } else {
     cflags = [
       "-mavx2",
