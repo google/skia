@@ -11,6 +11,7 @@
 #include "SkTFitsIn.h"
 #include "SkTypes.h"
 #include <new>
+#include <tuple>
 #include <utility>
 #include <vector>
 
@@ -19,6 +20,7 @@ class SkFixedAlloc {
 public:
     SkFixedAlloc(void* ptr, size_t len);
     ~SkFixedAlloc() { this->reset(); }
+
 
     // Allocates a new T in the buffer if possible.  If not, returns nullptr.
     template <typename T, typename... Args>
@@ -39,6 +41,9 @@ public:
         auto ptr = (T*)(fBuffer+fUsed);
         fUsed += sizeof(T);
 
+        Deleter deleter = [](char* ptr, Footer footer) {
+            return nullptr;
+        };
         // Stamp a footer after the T that we can use to clean it up.
         Footer footer = { [](void* ptr) { ((T*)ptr)->~T(); }, SkToU32(skip), SkToU32(sizeof(T)) };
         memcpy(fBuffer+fUsed, &footer, sizeof(Footer));
@@ -55,11 +60,29 @@ public:
     void reset();
 
 private:
-    struct Footer {
-        void (*dtor)(void*);
-        uint32_t skip, len;
+    using Footer = int32_t;
+    using Deleter = char*(*)(char*, Footer);
+
+    // The base function to difference from.
+    static char* Sentinel(char*, Footer) {
+        SkFAIL("End of allocation stack.");
+    }
+
+    static Footer EncodeFooter(Deleter deleter, ptrdiff_t padding) {
+        ptrdiff_t deleteDiff = (char*)deleter - (char*)Sentinel;
+
+        return (Footer)((deleteDiff << 5) | padding);
+    }
+
+    static std::tuple<Deleter, ptrdiff_t> DecodeFooter(Footer footer) {
+        ptrdiff_t deleteDiff = footer >> 5;
+        Deleter deleter = (Deleter)((char*)Sentinel + deleteDiff);
+        ptrdiff_t padding = footer & 0x1F;
+        return std::make_tuple(deleter, padding);
     };
 
+    char*       fCursor;
+    char* const fEnd;
     char* fBuffer;
     size_t fUsed, fLimit;
 };
