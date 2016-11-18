@@ -738,13 +738,10 @@ DEFINE_string(pdfPath, "", "Path to direcotry of pdf files.");
 #endif
 
 #include "SkTaskGroup.h"
-#include "SkForceLinking.h"
 
 SampleWindow::SampleWindow(void* hwnd, int argc, char** argv, DeviceManager* devManager)
     : INHERITED(hwnd)
     , fDevManager(nullptr) {
-
-    SkForceLinking(false);
 
     SkCommandLineFlags::Parse(argc, argv);
 
