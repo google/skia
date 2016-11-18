@@ -11,7 +11,6 @@
 #include "GrVkDescriptorSet.h"
 #include "GrVkGpu.h"
 #include "GrVkUniformHandler.h"
-#include "glsl/GrGLSLSampler.h"
 
 GrVkDescriptorSetManager::GrVkDescriptorSetManager(GrVkGpu* gpu,
                                                    VkDescriptorType type,
@@ -20,7 +19,7 @@ GrVkDescriptorSetManager::GrVkDescriptorSetManager(GrVkGpu* gpu,
     if (type == VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER) {
         SkASSERT(uniformHandler);
         for (int i = 0; i < uniformHandler->numSamplers(); ++i) {
-            fBindingVisibilities.push_back(uniformHandler->getSampler(i).visibility());
+            fBindingVisibilities.push_back(uniformHandler->samplerVisibility(i));
         }
     } else {
         SkASSERT(type == VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER);
@@ -103,7 +102,7 @@ bool GrVkDescriptorSetManager::isCompatible(VkDescriptorType type,
             return false;
         }
         for (int i = 0; i < uniHandler->numSamplers(); ++i) {
-            if (uniHandler->getSampler(i).visibility() != fBindingVisibilities[i]) {
+            if (uniHandler->samplerVisibility(i) != fBindingVisibilities[i]) {
                 return false;
             }
         }
@@ -185,10 +184,7 @@ void GrVkDescriptorSetManager::DescriptorPoolManager::init(GrVkGpu* gpu,
         for (uint32_t i = 0; i < numSamplers; ++i) {
             uint32_t visibility;
             if (uniformHandler) {
-                const GrVkGLSLSampler& sampler =
-                    static_cast<const GrVkGLSLSampler&>(uniformHandler->getSampler(i));
-                SkASSERT(sampler.binding() == i);
-                visibility = sampler.visibility();
+                visibility = uniformHandler->samplerVisibility(i);
             } else {
                 visibility = (*visibilities)[i];
             }

@@ -29,8 +29,8 @@ public:
 
     /** Appends a 2D texture sample with projection if necessary. coordType must either be Vec2f or
         Vec3f. The latter is interpreted as projective texture coords. The vec length and swizzle
-        order of the result depends on the GrProcessor::TextureSampelr associated with the
-        GrGLSLSampler.
+        order of the result depends on the GrProcessor::TextureSampler associated with the
+        SamplerHandle.
         */
     void appendTextureLookup(SkString* out,
                              SamplerHandle,
@@ -45,7 +45,7 @@ public:
 
 
     /** Does the work of appendTextureLookup and modulates the result by modulation. The result is
-        always a vec4. modulation and the swizzle specified by GrGLSLSampler must both be
+        always a vec4. modulation and the swizzle specified by SamplerHandle must both be
         vec4 or float. If modulation is "" or nullptr it this function acts as though
         appendTextureLookup were called. */
     void appendTextureLookupAndModulate(const char* modulation,
@@ -202,12 +202,6 @@ protected:
     void addLayoutQualifier(const char* param, InterfaceQualifier);
 
     void compileAndAppendLayoutQualifiers();
-
-    /* Appends any swizzling we may need to get from some backend internal format to the format used
-     * in GrPixelConfig. If this is implemented by the GrGpu object, then swizzle will be rgba. For
-     * shader prettiness we omit the swizzle rather than appending ".rgba".
-     */
-    void appendTextureSwizzle(SkString* out, GrPixelConfig) const;
 
     void nextStage() {
         fShaderStrings.push_back();
