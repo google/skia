@@ -30,6 +30,8 @@ GrSurfaceProxy::~GrSurfaceProxy() {
 }
 
 GrSurface* GrSurfaceProxy::instantiate(GrTextureProvider* texProvider) {
+    return nullptr;
+
     if (fTarget) {
         return fTarget;
     }
