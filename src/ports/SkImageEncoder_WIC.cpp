@@ -31,7 +31,7 @@
 #include <wincodec.h>
 #include "SkAutoCoInitialize.h"
 #include "SkBitmap.h"
-#include "SkImageEncoder.h"
+#include "SkImageEncoderPriv.h"
 #include "SkIStream.h"
 #include "SkStream.h"
 #include "SkTScopedComPtr.h"
@@ -48,13 +48,13 @@
 
 class SkImageEncoder_WIC : public SkImageEncoder {
 public:
-    SkImageEncoder_WIC(Type t) : fType(t) {}
+    SkImageEncoder_WIC(SkEncodedImageFormat t) : fType(t) {}
 
 protected:
     virtual bool onEncode(SkWStream* stream, const SkBitmap& bm, int quality);
 
 private:
-    Type fType;
+    SkEncodedImageFormat fType;
 };
 
 bool SkImageEncoder_WIC::onEncode(SkWStream* stream
@@ -63,10 +63,10 @@ bool SkImageEncoder_WIC::onEncode(SkWStream* stream
 {
     GUID type;
     switch (fType) {
-        case kJPEG_Type:
+        case SkEncodedImageFormat::kJPEG:
             type = GUID_ContainerFormatJpeg;
             break;
-        case kPNG_Type:
+        case SkEncodedImageFormat::kPNG:
             type = GUID_ContainerFormatPng;
             break;
         default:
@@ -97,7 +97,7 @@ bool SkImageEncoder_WIC::onEncode(SkWStream* stream
     size_t rowBytes = bitmap.rowBytes();
     SkAutoMalloc pixelStorage;
     WICPixelFormatGUID formatDesired = GUID_WICPixelFormat32bppBGRA;
-    if (kJPEG_Type == fType) {
+    if (SkEncodedImageFormat::kJPEG == fType) {
         formatDesired = GUID_WICPixelFormat24bppBGR;
         rowBytes = SkAlign4(bitmap.width() * 3);
         pixelStorage.reset(rowBytes * bitmap.height());
@@ -219,10 +219,10 @@ bool SkImageEncoder_WIC::onEncode(SkWStream* stream
 ///////////////////////////////////////////////////////////////////////////////
 
 #ifdef SK_USE_WIC_ENCODER
-static SkImageEncoder* sk_imageencoder_wic_factory(SkImageEncoder::Type t) {
+static SkImageEncoder* sk_imageencoder_wic_factory(SkEncodedImageFormat t) {
     switch (t) {
-        case SkImageEncoder::kPNG_Type:
-        case SkImageEncoder::kJPEG_Type:
+        case SkEncodedImageFormat::kPNG:
+        case SkEncodedImageFormat::kJPEG:
             break;
         default:
             return nullptr;
@@ -234,7 +234,7 @@ static SkImageEncoder_EncodeReg gEReg(sk_imageencoder_wic_factory);
 #endif
 
 SkImageEncoder* CreateImageEncoder_WIC(SkImageEncoder::Type type) {
-    return new SkImageEncoder_WIC(type);
+    return new SkImageEncoder_WIC((SkEncodedImageFormat)type);
 }
 
 #endif // defined(SK_BUILD_FOR_WIN32)
