@@ -691,57 +691,57 @@ component("skia") {
   }
 }
 
-config("skia.h_config") {
-  include_dirs = [ "$target_gen_dir" ]
-}
-action("skia.h") {
-  public_configs = [ ":skia.h_config" ]
-  skia_h = "$target_gen_dir/skia.h"
-  script = "gn/find_headers.py"
-  args = [ rebase_path(skia_h, root_build_dir) ] +
-         rebase_path(skia_public_includes)
-  depfile = "$skia_h.deps"
-  outputs = [
-    skia_h,
-  ]
-}
-
-if (skia_enable_gpu && target_cpu == "x64") {
-  # Our bots only have 64-bit libOSMesa installed.
-  # TODO: worth fixing?
-  executable("fiddle") {
-    libs = []
-    if (is_linux) {
-      libs += [ "OSMesa" ]
-    }
-
-    sources = [
-      "src/images/SkForceLinking.cpp",
-      "tools/fiddle/draw.cpp",
-      "tools/fiddle/fiddle_main.cpp",
-    ]
-    deps = [
-      ":skia",
-      ":skia.h",
-    ]
-  }
-}
-
-if (is_skia_standalone && skia_enable_gpu) {
-  source_set("public_headers_warnings_check") {
-    sources = [
-      "tools/public_headers_warnings_check.cpp",
-    ]
-    configs -= [ "//gn:warnings_except_public_headers" ]
-    deps = [
-      ":skia",
-      ":skia.h",
-    ]
-  }
-}
-
 # Targets guarded by skia_enable_tools may use //third_party freely.
 if (skia_enable_tools) {
+  config("skia.h_config") {
+    include_dirs = [ "$target_gen_dir" ]
+  }
+  action("skia.h") {
+    public_configs = [ ":skia.h_config" ]
+    skia_h = "$target_gen_dir/skia.h"
+    script = "gn/find_headers.py"
+    args = [ rebase_path(skia_h, root_build_dir) ] +
+           rebase_path(skia_public_includes)
+    depfile = "$skia_h.deps"
+    outputs = [
+      skia_h,
+    ]
+  }
+
+  if (skia_enable_gpu && target_cpu == "x64") {
+    # Our bots only have 64-bit libOSMesa installed.
+    # TODO: worth fixing?
+    executable("fiddle") {
+      libs = []
+      if (is_linux) {
+        libs += [ "OSMesa" ]
+      }
+
+      sources = [
+        "src/images/SkForceLinking.cpp",
+        "tools/fiddle/draw.cpp",
+        "tools/fiddle/fiddle_main.cpp",
+      ]
+      deps = [
+        ":skia",
+        ":skia.h",
+      ]
+    }
+  }
+
+  if (skia_enable_gpu) {
+    source_set("public_headers_warnings_check") {
+      sources = [
+        "tools/public_headers_warnings_check.cpp",
+      ]
+      configs -= [ "//gn:warnings_except_public_headers" ]
+      deps = [
+        ":skia",
+        ":skia.h",
+      ]
+    }
+  }
+
   template("test_lib") {
     config(target_name + "_config") {
       include_dirs = invoker.public_include_dirs
