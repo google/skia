@@ -36,7 +36,7 @@ public:
         fUsed += skip;
 
         // Make space for T.
-        auto ptr = (T*)(fBuffer+fUsed);
+        void* ptr = fBuffer+fUsed;
         fUsed += sizeof(T);
 
         // Stamp a footer after the T that we can use to clean it up.
@@ -45,7 +45,7 @@ public:
         fUsed += sizeof(Footer);
 
         // Creating a T must be last for nesting to work.
-        return new (ptr) T(std::forward<Args>(args)...);
+        return new (reinterpret_cast<T*>(ptr)) T(std::forward<Args>(args)...);
     }
 
     // Destroys the last object allocated and frees its space in the buffer.
