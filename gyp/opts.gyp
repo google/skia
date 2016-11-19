@@ -110,6 +110,7 @@
           '../src/utils',
       ],
       'sources': [ '<!@(python read_gni.py ../gn/opts.gni ssse3)' ],
+      'xcode_settings': { 'CLANG_X86_VECTOR_INSTRUCTIONS': 'ssse3' },
       'conditions': [
         [ 'skia_os == "win"', { 'defines' : [ 'SK_CPU_SSE_LEVEL=31' ] }],
         [ 'not skia_android_framework', { 'cflags': [ '-mssse3' ] }],
