@@ -240,6 +240,20 @@ sk_sp<SkShader> SkPictureShader::refBitmapShader(const SkMatrix& viewMatrix, con
     return tileShader;
 }
 
+SkPicture* SkPictureShader::onIsAPicture(SkMatrix* localMatrix, TileMode xy[2], SkRect* tile) const {
+    if (localMatrix) {
+        *localMatrix = this->getLocalMatrix();
+    }
+    if (xy) {
+        xy[0] = (TileMode)fTmx;
+        xy[1] = (TileMode)fTmy;
+    }
+    if (tile) {
+        *tile = fTile;
+    }
+    return fPicture.get();
+}
+
 size_t SkPictureShader::onContextSize(const ContextRec&) const {
     return sizeof(PictureShaderContext);
 }

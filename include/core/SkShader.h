@@ -255,6 +255,11 @@ public:
         return this->isAImage(nullptr, nullptr) != nullptr;
     }
 
+    SkPicture* isAPicture(SkMatrix* localMatrix, TileMode xy[2], SkRect* tile) {
+        return this->onIsAPicture(localMatrix, xy, tile);
+    }
+    
+
     /**
      *  If the shader subclass can be represented as a gradient, asAGradient
      *  returns the matching GradientType enum (or kNone_GradientType if it
@@ -495,6 +500,10 @@ protected:
 #endif
 
     virtual SkImage* onIsAImage(SkMatrix*, TileMode[2]) const {
+        return nullptr;
+    }
+
+    virtual SkPicture* onIsAPicture(SkMatrix* localMatrix, TileMode xy[2], SkRect* tile) const {
         return nullptr;
     }
 

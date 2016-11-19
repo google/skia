@@ -37,6 +37,8 @@ protected:
     size_t onContextSize(const ContextRec&) const override;
     Context* onCreateContext(const ContextRec&, void* storage) const override;
 
+    SkPicture* onIsAPicture(SkMatrix* localMatrix, TileMode xy[2], SkRect* tile) const override;
+
 private:
     SkPictureShader(sk_sp<SkPicture>, TileMode, TileMode, const SkMatrix*, const SkRect*);
 

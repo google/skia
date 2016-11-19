@@ -30,6 +30,10 @@ class SkWStream;
 class SkWriteBuffer;
 struct SkPictInfo;
 
+namespace cc {
+    class ImageHijackPicture;
+}
+
 /** \class SkPicture
 
     An SkPicture records drawing commands made to a canvas to be played back at a later time.
@@ -172,6 +176,7 @@ private:
     SkPicture();
     friend class SkBigPicture;
     friend class SkEmptyPicture;
+    friend class cc::ImageHijackPicture;
     template <typename> friend class SkMiniPicture;
 
     void serialize(SkWStream*, SkPixelSerializer*, SkRefCntSet* typefaces) const;
