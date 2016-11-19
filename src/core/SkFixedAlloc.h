@@ -36,7 +36,7 @@ public:
         fUsed += skip;
 
         // Make space for T.
-        auto ptr = (T*)(fBuffer+fUsed);
+        void* ptr = fBuffer+fUsed;
         fUsed += sizeof(T);
 
         // Stamp a footer after the T that we can use to clean it up.
