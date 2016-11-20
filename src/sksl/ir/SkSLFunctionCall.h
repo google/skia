@@ -23,9 +23,9 @@ struct FunctionCall : public Expression {
     , fFunction(std::move(function))
     , fArguments(std::move(arguments)) {}
 
-    SkString description() const override {
-        SkString result = fFunction.fName + "(";
-        SkString separator;
+    std::string description() const override {
+        std::string result = fFunction.fName + "(";
+        std::string separator = "";
         for (size_t i = 0; i < fArguments.size(); i++) {
             result += separator;
             result += fArguments[i]->description();

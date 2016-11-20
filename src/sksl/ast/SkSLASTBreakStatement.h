@@ -19,8 +19,8 @@ struct ASTBreakStatement : public ASTStatement {
     ASTBreakStatement(Position position)
     : INHERITED(position, kBreak_Kind) {}
 
-    SkString description() const override {
-        return SkString("break;");
+    std::string description() const override {
+        return "break;";
     }
 
     typedef ASTStatement INHERITED;

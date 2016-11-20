@@ -107,9 +107,9 @@ private:
     std::unique_ptr<Statement> convertReturn(const ASTReturnStatement& r);
     std::unique_ptr<Expression> convertSuffixExpression(const ASTSuffixExpression& expression);
     std::unique_ptr<Expression> convertField(std::unique_ptr<Expression> base, 
-                                             const SkString& field);
+                                             const std::string& field);
     std::unique_ptr<Expression> convertSwizzle(std::unique_ptr<Expression> base,
-                                               const SkString& fields);
+                                               const std::string& fields);
     std::unique_ptr<Expression> convertTernaryExpression(const ASTTernaryExpression& expression);
     std::unique_ptr<Statement> convertVarDeclarationStatement(const ASTVarDeclarationStatement& s);
     std::unique_ptr<Statement> convertWhile(const ASTWhileStatement& w);

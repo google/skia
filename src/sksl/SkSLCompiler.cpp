@@ -7,6 +7,9 @@
 
 #include "SkSLCompiler.h"
 
+#include <fstream>
+#include <streambuf>
+
 #include "ast/SkSLASTPrecision.h"
 #include "SkSLCFGGenerator.h"
 #include "SkSLIRGenerator.h"
@@ -68,17 +71,17 @@ Compiler::Compiler()
     ADD_TYPE(BVec3);
     ADD_TYPE(BVec4);
     ADD_TYPE(Mat2x2);
-    types->addWithoutOwnership(SkString("mat2x2"), fContext.fMat2x2_Type.get());
+    types->addWithoutOwnership("mat2x2", fContext.fMat2x2_Type.get());
     ADD_TYPE(Mat2x3);
     ADD_TYPE(Mat2x4);
     ADD_TYPE(Mat3x2);
     ADD_TYPE(Mat3x3);
-    types->addWithoutOwnership(SkString("mat3x3"), fContext.fMat3x3_Type.get());
+    types->addWithoutOwnership("mat3x3", fContext.fMat3x3_Type.get());
     ADD_TYPE(Mat3x4);
     ADD_TYPE(Mat4x2);
     ADD_TYPE(Mat4x3);
     ADD_TYPE(Mat4x4);
-    types->addWithoutOwnership(SkString("mat4x4"), fContext.fMat4x4_Type.get());
+    types->addWithoutOwnership("mat4x4", fContext.fMat4x4_Type.get());
     ADD_TYPE(GenType);
     ADD_TYPE(GenDType);
     ADD_TYPE(GenIType);
@@ -137,7 +140,7 @@ Compiler::Compiler()
 
     Modifiers::Flag ignored1;
     std::vector<std::unique_ptr<ProgramElement>> ignored2;
-    this->internalConvertProgram(SkString(SKSL_INCLUDE), &ignored1, &ignored2);
+    this->internalConvertProgram(SKSL_INCLUDE, &ignored1, &ignored2);
     fIRGenerator->fSymbolTable->markAllFunctionsBuiltin();
     ASSERT(!fErrorCount);
 }
@@ -286,7 +289,7 @@ void Compiler::scanCFG(const FunctionDefinition& f) {
     for (size_t i = 0; i < cfg.fBlocks.size(); i++) {
         if (i != cfg.fStart && !cfg.fBlocks[i].fEntrances.size() &&
             cfg.fBlocks[i].fNodes.size()) {
-            this->error(cfg.fBlocks[i].fNodes[0].fNode->fPosition, SkString("unreachable"));
+            this->error(cfg.fBlocks[i].fNodes[0].fNode->fPosition, "unreachable");
         }
     }
     if (fErrorCount) {
@@ -315,12 +318,12 @@ void Compiler::scanCFG(const FunctionDefinition& f) {
     // check for missing return
     if (f.fDeclaration.fReturnType != *fContext.fVoid_Type) {
         if (cfg.fBlocks[cfg.fExit].fEntrances.size()) {
-            this->error(f.fPosition, SkString("function can exit without returning a value"));
+            this->error(f.fPosition, "function can exit without returning a value");
         }
     }
 }
 
-void Compiler::internalConvertProgram(SkString text,
+void Compiler::internalConvertProgram(std::string text,
                                       Modifiers::Flag* defaultPrecision,
                                       std::vector<std::unique_ptr<ProgramElement>>* result) {
     Parser parser(text, *fTypes, *this);
@@ -383,7 +386,7 @@ void Compiler::internalConvertProgram(SkString text,
     }
 }
 
-std::unique_ptr<Program> Compiler::convertProgram(Program::Kind kind, SkString text) {
+std::unique_ptr<Program> Compiler::convertProgram(Program::Kind kind, std::string text) {
     fErrorText = "";
     fErrorCount = 0;
     fIRGenerator->pushSymbolTable();
@@ -391,10 +394,10 @@ std::unique_ptr<Program> Compiler::convertProgram(Program::Kind kind, SkString t
     Modifiers::Flag ignored;
     switch (kind) {
         case Program::kVertex_Kind:
-            this->internalConvertProgram(SkString(SKSL_VERT_INCLUDE), &ignored, &elements);
+            this->internalConvertProgram(SKSL_VERT_INCLUDE, &ignored, &elements);
             break;
         case Program::kFragment_Kind:
-            this->internalConvertProgram(SkString(SKSL_FRAG_INCLUDE), &ignored, &elements);
+            this->internalConvertProgram(SKSL_FRAG_INCLUDE, &ignored, &elements);
             break;
     }
     fIRGenerator->fSymbolTable->markAllFunctionsBuiltin();
@@ -407,13 +410,13 @@ std::unique_ptr<Program> Compiler::convertProgram(Program::Kind kind, SkString t
     return result;
 }
 
-void Compiler::error(Position position, SkString msg) {
+void Compiler::error(Position position, std::string msg) {
     fErrorCount++;
     fErrorText += "error: " + position.description() + ": " + msg.c_str() + "\n";
 }
 
-SkString Compiler::errorText() {
-    SkString result = fErrorText;
+std::string Compiler::errorText() {
+    std::string result = fErrorText;
     return result;
 }
 
@@ -427,42 +430,42 @@ void Compiler::writeErrorCount() {
     }
 }
 
-bool Compiler::toSPIRV(Program::Kind kind, const SkString& text, SkWStream& out) {
+bool Compiler::toSPIRV(Program::Kind kind, const std::string& text, std::ostream& out) {
     auto program = this->convertProgram(kind, text);
     if (fErrorCount == 0) {
         SkSL::SPIRVCodeGenerator cg(&fContext);
         cg.generateCode(*program.get(), out);
+        ASSERT(!out.rdstate());
     }
     return fErrorCount == 0;
 }
 
-bool Compiler::toSPIRV(Program::Kind kind, const SkString& text, SkString* out) {
-    SkDynamicMemoryWStream buffer;
+bool Compiler::toSPIRV(Program::Kind kind, const std::string& text, std::string* out) {
+    std::stringstream buffer;
     bool result = this->toSPIRV(kind, text, buffer);
     if (result) {
-        sk_sp<SkData> data(buffer.detachAsData());
-        *out = SkString((const char*) data->data(), data->size());
+        *out = buffer.str();
     }
     return result;
 }
 
-bool Compiler::toGLSL(Program::Kind kind, const SkString& text, const GrGLSLCaps& caps,
-                      SkWStream& out) {
+bool Compiler::toGLSL(Program::Kind kind, const std::string& text, const GrGLSLCaps& caps,
+                      std::ostream& out) {
     auto program = this->convertProgram(kind, text);
     if (fErrorCount == 0) {
         SkSL::GLSLCodeGenerator cg(&fContext, &caps);
         cg.generateCode(*program.get(), out);
+        ASSERT(!out.rdstate());
     }
     return fErrorCount == 0;
 }
 
-bool Compiler::toGLSL(Program::Kind kind, const SkString& text, const GrGLSLCaps& caps,
-                      SkString* out) {
-    SkDynamicMemoryWStream buffer;
+bool Compiler::toGLSL(Program::Kind kind, const std::string& text, const GrGLSLCaps& caps,
+                      std::string* out) {
+    std::stringstream buffer;
     bool result = this->toGLSL(kind, text, caps, buffer);
     if (result) {
-        sk_sp<SkData> data(buffer.detachAsData());
-        *out = SkString((const char*) data->data(), data->size());
+        *out = buffer.str();
     }
     return result;
 }

@@ -24,11 +24,11 @@ struct ReturnStatement : public Statement {
     : INHERITED(expression->fPosition, kReturn_Kind) 
     , fExpression(std::move(expression)) {}
 
-    SkString description() const override {
+    std::string description() const override {
         if (fExpression) {
             return "return " + fExpression->description() + ";";
         } else {
-            return SkString("return;");
+            return "return;";
         }
     }
 

@@ -48,7 +48,7 @@ struct ASTLayout : public ASTNode {
         return "";
     }
 
-    static bool ReadFormat(SkString str, Format* format) {
+    static bool ReadFormat(std::string str, Format* format) {
         if (str == "rgba32f") {
             *format = Format::kRGBA32F;
             return true;
@@ -90,9 +90,9 @@ struct ASTLayout : public ASTNode {
     , fBlendSupportAllEquations(blendSupportAllEquations)
     , fFormat(format) {}
 
-    SkString description() const {
-        SkString result;
-        SkString separator;
+    std::string description() const {
+        std::string result;
+        std::string separator;
         if (fLocation >= 0) {
             result += separator + "location = " + to_string(fLocation);
             separator = ", ";
@@ -129,7 +129,7 @@ struct ASTLayout : public ASTNode {
             result += separator + FormatToStr(fFormat);
             separator = ", ";
         }
-        if (result.size() > 0) {
+        if (result.length() > 0) {
             result = "layout (" + result + ")";
         }
         return result;

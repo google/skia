@@ -9,25 +9,24 @@
 
 #include "Test.h"
 
-#if SK_SUPPORT_GPU
+#if SKIA_SUPPORT_GPU
 
 static void test_failure(skiatest::Reporter* r, const char* src, const char* error) {
     SkSL::Compiler compiler;
-    SkDynamicMemoryWStream out;
-    bool result = compiler.toSPIRV(SkSL::Program::kFragment_Kind, SkString(src), out);
-    SkString skError(error);
-    if (compiler.errorText() != skError) {
+    std::stringstream out;
+    bool result = compiler.toSPIRV(SkSL::Program::kFragment_Kind, src, out);
+    if (compiler.errorText() != error) {
         SkDebugf("SKSL ERROR:\n    source: %s\n    expected: %s    received: %s", src, error,
                  compiler.errorText().c_str());
     }
     REPORTER_ASSERT(r, !result);
-    REPORTER_ASSERT(r, compiler.errorText() == skError);
+    REPORTER_ASSERT(r, compiler.errorText() == error);
 }
 
 static void test_success(skiatest::Reporter* r, const char* src) {
     SkSL::Compiler compiler;
-    SkDynamicMemoryWStream out;
-    bool result = compiler.toSPIRV(SkSL::Program::kFragment_Kind, SkString(src), out);
+    std::stringstream out;
+    bool result = compiler.toSPIRV(SkSL::Program::kFragment_Kind, src, out);
     REPORTER_ASSERT(r, result);
 }
 

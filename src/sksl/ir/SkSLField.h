@@ -26,7 +26,7 @@ struct Field : public Symbol {
     , fOwner(owner)
     , fFieldIndex(fieldIndex) {}
 
-    virtual SkString description() const override {
+    virtual std::string description() const override {
         return fOwner.description() + "." + fOwner.fType.fields()[fFieldIndex].fName;
     }
 

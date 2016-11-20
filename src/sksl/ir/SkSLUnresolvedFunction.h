@@ -26,7 +26,7 @@ struct UnresolvedFunction : public Symbol {
 #endif
     }
 
-    virtual SkString description() const override {
+    virtual std::string description() const override {
         return fName;
     }
 

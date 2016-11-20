@@ -173,7 +173,7 @@ std::unique_ptr<VarDeclarations> IRGenerator::convertVarDeclarations(const ASTVa
                 if (!size) {
                     return nullptr;
                 }
-                SkString name = type->fName;
+                std::string name = type->fName;
                 uint64_t count;
                 if (size->fKind == Expression::kIntLiteral_Kind) {
                     count = ((IntLiteral&) *size).fValue;
@@ -204,7 +204,7 @@ std::unique_ptr<VarDeclarations> IRGenerator::convertVarDeclarations(const ASTVa
             }
             value = this->coerce(std::move(value), *type);
         }
-        if (storage == Variable::kGlobal_Storage && varDecl.fName == SkString("sk_FragColor") && 
+        if (storage == Variable::kGlobal_Storage && "sk_FragColor" == varDecl.fName && 
             (*fSymbolTable)[varDecl.fName]) {
             // already defined, ignore
         } else if (storage == Variable::kGlobal_Storage && (*fSymbolTable)[varDecl.fName] &&
@@ -397,12 +397,12 @@ std::unique_ptr<FunctionDefinition> IRGenerator::convertFunction(const ASTFuncti
         }
         for (int j = (int) param->fSizes.size() - 1; j >= 0; j--) {
             int size = param->fSizes[j];
-            SkString name = type->name() + "[" + to_string(size) + "]";
+            std::string name = type->name() + "[" + to_string(size) + "]";
             Type* newType = new Type(std::move(name), Type::kArray_Kind, *type, size);
             fSymbolTable->takeOwnership(newType);
             type = newType;
         }
-        SkString name = param->fName;
+        std::string name = param->fName;
         Modifiers modifiers = this->convertModifiers(param->fModifiers);
         Position pos = param->fPosition;
         Variable* var = new Variable(pos, modifiers, std::move(name), *type,
@@ -523,10 +523,10 @@ std::unique_ptr<InterfaceBlock> IRGenerator::convertInterfaceBlock(const ASTInte
     }
     Type* type = new Type(intf.fInterfaceName, fields);
     fSymbolTable->takeOwnership(type);
-    SkString name = intf.fValueName.size() > 0 ? intf.fValueName : intf.fInterfaceName;
+    std::string name = intf.fValueName.length() > 0 ? intf.fValueName : intf.fInterfaceName;
     Variable* var = new Variable(intf.fPosition, mods, name, *type, Variable::kGlobal_Storage);
     fSymbolTable->takeOwnership(var);
-    if (intf.fValueName.size()) {
+    if (intf.fValueName.length()) {
         old->addWithoutOwnership(intf.fValueName, var);
     } else {
         for (size_t i = 0; i < fields.size(); i++) {
@@ -966,7 +966,7 @@ std::unique_ptr<Expression> IRGenerator::call(Position position,
                                               const FunctionDeclaration& function, 
                                               std::vector<std::unique_ptr<Expression>> arguments) {
     if (function.fParameters.size() != arguments.size()) {
-        SkString msg = "call to '" + function.fName + "' expected " + 
+        std::string msg = "call to '" + function.fName + "' expected " + 
                                  to_string((uint64_t) function.fParameters.size()) + 
                                  " argument";
         if (function.fParameters.size() != 1) {
@@ -979,8 +979,8 @@ std::unique_ptr<Expression> IRGenerator::call(Position position,
     std::vector<const Type*> types;
     const Type* returnType;
     if (!function.determineFinalTypes(arguments, &types, &returnType)) {
-        SkString msg = "no match for " + function.fName + "(";
-        SkString separator;
+        std::string msg = "no match for " + function.fName + "(";
+        std::string separator = "";
         for (size_t i = 0; i < arguments.size(); i++) {
             msg += separator;
             separator = ", ";
@@ -1058,8 +1058,8 @@ std::unique_ptr<Expression> IRGenerator::call(Position position,
         if (best) {
             return this->call(position, *best, std::move(arguments));
         }
-        SkString msg = "no match for " + ref->fFunctions[0]->fName + "(";
-        SkString separator;
+        std::string msg = "no match for " + ref->fFunctions[0]->fName + "(";
+        std::string separator = "";
         for (size_t i = 0; i < arguments.size(); i++) {
             msg += separator;
             separator = ", ";
@@ -1267,7 +1267,7 @@ std::unique_ptr<Expression> IRGenerator::convertIndex(std::unique_ptr<Expression
 }
 
 std::unique_ptr<Expression> IRGenerator::convertField(std::unique_ptr<Expression> base,
-                                                      const SkString& field) {
+                                                      const std::string& field) {
     auto fields = base->fType.fields();
     for (size_t i = 0; i < fields.size(); i++) {
         if (fields[i].fName == field) {
@@ -1280,14 +1280,14 @@ std::unique_ptr<Expression> IRGenerator::convertField(std::unique_ptr<Expression
 }
 
 std::unique_ptr<Expression> IRGenerator::convertSwizzle(std::unique_ptr<Expression> base,
-                                                        const SkString& fields) {
+                                                        const std::string& fields) {
     if (base->fType.kind() != Type::kVector_Kind) {
         fErrors.error(base->fPosition, "cannot swizzle type '" + base->fType.description() + "'");
         return nullptr;
     }
     std::vector<int> swizzleComponents;
-    for (size_t i = 0; i < fields.size(); i++) {
-        switch (fields[i]) {
+    for (char c : fields) {
+        switch (c) {
             case 'x': // fall through
             case 'r': // fall through
             case 's': 
@@ -1318,8 +1318,8 @@ std::unique_ptr<Expression> IRGenerator::convertSwizzle(std::unique_ptr<Expressi
                 }
                 // fall through
             default:
-                fErrors.error(base->fPosition, SkStringPrintf("invalid swizzle component '%c'",
-                                                              fields[i]));
+                fErrors.error(base->fPosition, "invalid swizzle component '" + std::string(1, c) +
+                                               "'");
                 return nullptr;
         }
     }

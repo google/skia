@@ -20,8 +20,8 @@ struct DiscardStatement : public Statement {
     DiscardStatement(Position position)
     : INHERITED(position, kDiscard_Kind) {}
 
-    SkString description() const override {
-        return SkString("discard;");
+    std::string description() const override {
+        return "discard;";
     }
 
     typedef Statement INHERITED;

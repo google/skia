@@ -19,16 +19,16 @@ struct ASTType : public ASTPositionNode {
         kStruct_Kind
     };
 
-    ASTType(Position position, SkString name, Kind kind)
+    ASTType(Position position, std::string name, Kind kind)
     : INHERITED(position)
     , fName(std::move(name))
     , fKind(kind) {}
 
-    SkString description() const override {
+    std::string description() const override {
         return fName;
     }
 
-    const SkString fName;
+    const std::string fName;
 
     const Kind fKind;
 

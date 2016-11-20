@@ -21,7 +21,7 @@ std::vector<const FunctionDeclaration*> SymbolTable::GetFunctions(const Symbol& 
     }
 }
 
-const Symbol* SymbolTable::operator[](const SkString& name) {
+const Symbol* SymbolTable::operator[](const std::string& name) {
     const auto& entry = fSymbols.find(name);
     if (entry == fSymbols.end()) {
         if (fParent) {
@@ -64,12 +64,12 @@ Symbol* SymbolTable::takeOwnership(Symbol* s) {
     return s;
 }
 
-void SymbolTable::add(const SkString& name, std::unique_ptr<Symbol> symbol) {
+void SymbolTable::add(const std::string& name, std::unique_ptr<Symbol> symbol) {
     this->addWithoutOwnership(name, symbol.get());
     fOwnedPointers.push_back(std::move(symbol));
 }
 
-void SymbolTable::addWithoutOwnership(const SkString& name, const Symbol* symbol) {
+void SymbolTable::addWithoutOwnership(const std::string& name, const Symbol* symbol) {
     const auto& existing = fSymbols.find(name);
     if (existing == fSymbols.end()) {
         fSymbols[name] = symbol;

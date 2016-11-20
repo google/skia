@@ -38,8 +38,8 @@ struct Modifiers {
     : fLayout(layout)
     , fFlags(flags) {}
 
-    SkString description() const {
-        SkString result = fLayout.description();
+    std::string description() const {
+        std::string result = fLayout.description();
         if (fFlags & kUniform_Flag) {
             result += "uniform ";
         }

@@ -20,8 +20,8 @@ struct BreakStatement : public Statement {
     BreakStatement(Position position)
     : INHERITED(position, kBreak_Kind) {}
 
-    SkString description() const override {
-        return SkString("break;");
+    std::string description() const override {
+        return "break;";
     }
 
     typedef Statement INHERITED;

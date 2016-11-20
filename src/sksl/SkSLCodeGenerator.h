@@ -9,6 +9,8 @@
 #define SKSL_CODEGENERATOR
 
 #include "ir/SkSLProgram.h"
+#include <vector>
+#include <ostream>
 
 namespace SkSL {
 
@@ -20,7 +22,7 @@ class CodeGenerator {
 public:
     virtual ~CodeGenerator() {}
     
-    virtual void generateCode(const Program& program, SkWStream& out) = 0;
+    virtual void generateCode(const Program& program, std::ostream& out) = 0;
 };
 
 } // namespace

@@ -22,7 +22,7 @@ struct ASTSuffixExpression : public ASTExpression {
     , fBase(std::move(base))
     , fSuffix(std::move(suffix)) {}
 
-    SkString description() const override {
+    std::string description() const override {
         return fBase->description() + fSuffix->description();
     }
 

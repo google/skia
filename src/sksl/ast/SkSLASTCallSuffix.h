@@ -8,6 +8,7 @@
 #ifndef SKSL_ASTCALLSUFFIX
 #define SKSL_ASTCALLSUFFIX
 
+#include <sstream>
 #include <vector>
 #include "SkSLASTSuffix.h"
 
@@ -21,9 +22,9 @@ struct ASTCallSuffix : public ASTSuffix {
     : INHERITED(position, ASTSuffix::kCall_Kind)
     , fArguments(std::move(arguments)) {}
 
-    SkString description() const override {
-        SkString result("(");
-        SkString separator;
+    std::string description() const override {
+        std::string result("(");
+        std::string separator = "";
         for (size_t i = 0; i < fArguments.size(); ++i) {
             result += separator;
             separator = ", ";

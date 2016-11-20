@@ -24,7 +24,7 @@ struct ASTTernaryExpression : public ASTExpression {
     , fIfTrue(std::move(ifTrue))
     , fIfFalse(std::move(ifFalse)) {}
 
-    SkString description() const override {
+    std::string description() const override {
         return "(" + fTest->description() + " ? " + fIfTrue->description() + " : " +
                fIfFalse->description() + ")";        
     }
