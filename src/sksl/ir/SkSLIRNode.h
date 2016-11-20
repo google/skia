@@ -22,7 +22,7 @@ struct IRNode {
 
     virtual ~IRNode() {}
 
-    virtual SkString description() const = 0;
+    virtual std::string description() const = 0;
 
     const Position fPosition;
 };

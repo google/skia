@@ -37,21 +37,21 @@ public:
 
     ~Compiler();
 
-    std::unique_ptr<Program> convertProgram(Program::Kind kind, SkString text);
+    std::unique_ptr<Program> convertProgram(Program::Kind kind, std::string text);
 
-    bool toSPIRV(Program::Kind kind, const SkString& text, SkWStream& out);
+    bool toSPIRV(Program::Kind kind, const std::string& text, std::ostream& out);
     
-    bool toSPIRV(Program::Kind kind, const SkString& text, SkString* out);
+    bool toSPIRV(Program::Kind kind, const std::string& text, std::string* out);
 
-    bool toGLSL(Program::Kind kind, const SkString& text, const GrGLSLCaps& caps,
-                SkWStream& out);
+    bool toGLSL(Program::Kind kind, const std::string& text, const GrGLSLCaps& caps,
+                std::ostream& out);
     
-    bool toGLSL(Program::Kind kind, const SkString& text, const GrGLSLCaps& caps,
-                SkString* out);
+    bool toGLSL(Program::Kind kind, const std::string& text, const GrGLSLCaps& caps,
+                std::string* out);
 
-    void error(Position position, SkString msg) override;
+    void error(Position position, std::string msg) override;
 
-    SkString errorText();
+    std::string errorText();
 
     void writeErrorCount();
 
@@ -66,17 +66,17 @@ private:
 
     void scanCFG(const FunctionDefinition& f);
 
-    void internalConvertProgram(SkString text,
+    void internalConvertProgram(std::string text,
                                 Modifiers::Flag* defaultPrecision,
                                 std::vector<std::unique_ptr<ProgramElement>>* result);
 
     std::shared_ptr<SymbolTable> fTypes;
     IRGenerator* fIRGenerator;
-    SkString fSkiaVertText; // FIXME store parsed version instead
+    std::string fSkiaVertText; // FIXME store parsed version instead
 
     Context fContext;
     int fErrorCount;
-    SkString fErrorText;
+    std::string fErrorText;
 };
 
 } // namespace

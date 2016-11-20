@@ -25,7 +25,7 @@ struct Position {
     : fLine(line)
     , fColumn(column) {}
 
-    SkString description() const {
+    std::string description() const {
         return to_string(fLine);
     }
 

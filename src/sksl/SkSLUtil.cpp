@@ -7,63 +7,61 @@
 
 #include "SkSLUtil.h"
 
-#include <cinttypes>
-
 namespace SkSL {
 
-SkString to_string(double value) {
-#ifdef SK_BUILD_FOR_WIN
-    #define SNPRINTF    _snprintf
-#else
-    #define SNPRINTF    snprintf
-#endif
-#define MAX_DOUBLE_CHARS 25
-    char buffer[MAX_DOUBLE_CHARS];
-    SkDEBUGCODE(int len = )SNPRINTF(buffer, sizeof(buffer), "%.17g", value);
-    ASSERT(len < MAX_DOUBLE_CHARS);
-    SkString result(buffer);
-    if (!strchr(buffer, '.') && !strchr(buffer, 'e')) {
+std::string to_string(double value) {
+    std::stringstream buffer;
+    buffer << std::setprecision(std::numeric_limits<double>::digits10) << value;
+    std::string result = buffer.str();
+    if (result.find_last_of(".") == std::string::npos && 
+        result.find_last_of("e") == std::string::npos) {
         result += ".0";
     }
     return result;
-#undef SNPRINTF
-#undef MAX_DOUBLE_CHARS
 }
 
-SkString to_string(int32_t value) {
-    return SkStringPrintf("%d", value);
+std::string to_string(int32_t value) {
+    std::stringstream buffer;
+    buffer << value;
+    return buffer.str();
 }
 
-SkString to_string(uint32_t value) {
-    return SkStringPrintf("%u", value);
+std::string to_string(uint32_t value) {
+    std::stringstream buffer;
+    buffer << value;
+    return buffer.str();
 }
 
-SkString to_string(int64_t value) {
-    return SkStringPrintf("%" PRId64, value);
+std::string to_string(int64_t value) {
+    std::stringstream buffer;
+    buffer << value;
+    return buffer.str();
 }
 
-SkString to_string(uint64_t value) {
-    return SkStringPrintf("%" PRIu64, value);
+std::string to_string(uint64_t value) {
+    std::stringstream buffer;
+    buffer << value;
+    return buffer.str();
 }
 
-int stoi(SkString s) {
+int stoi(std::string s) {
     if (s.size() > 2 && s[0] == '0' && s[1] == 'x') {
         char* p;
-        int result = strtoul(s.c_str() + 2, &p, 16);
+        int result = strtoul(s.substr(2).c_str(), &p, 16);
         ASSERT(*p == 0);
         return result;
     }
     return atoi(s.c_str());
 }
 
-double stod(SkString s) {
+double stod(std::string s) {
     return atof(s.c_str());
 }
 
-long stol(SkString s) {
+long stol(std::string s) {
     if (s.size() > 2 && s[0] == '0' && s[1] == 'x') {
         char* p;
-        long result = strtoul(s.c_str() + 2, &p, 16);
+        long result = strtoul(s.substr(2).c_str(), &p, 16);
         ASSERT(*p == 0);
         return result;
     }
@@ -79,37 +77,4 @@ void sksl_abort() {
 #endif
 }
 
-void write_data(const SkData& data, SkWStream& out) {
-    out.write(data.data(), data.size());
-}
-
-SkString operator+(const SkString& s, const char* c) {
-    SkString result(s);
-    result += c;
-    return result;
-}
-
-SkString operator+(const char* c, const SkString& s) {
-    SkString result(c);
-    result += s;
-    return result;
-}
-
-SkString operator+(const SkString& s1, const SkString& s2) {
-    SkString result(s1);
-    result += s2;
-    return result;
-}
-
-bool operator==(const SkString& s1, const char* s2) {
-    return !strcmp(s1.c_str(), s2);
-}
-
-bool operator!=(const SkString& s1, const char* s2) {
-    return strcmp(s1.c_str(), s2);
-}
-
-bool operator!=(const char* s1, const SkString& s2) {
-    return strcmp(s1, s2.c_str());
-}
 } // namespace

@@ -402,9 +402,9 @@ int fuzz_color_deserialize(sk_sp<SkData> bytes) {
 #if SK_SUPPORT_GPU
 int fuzz_sksl2glsl(sk_sp<SkData> bytes) {
     SkSL::Compiler compiler;
-    SkString output;
+    std::string output;
     bool result = compiler.toGLSL(SkSL::Program::kFragment_Kind,
-        SkString((const char*)bytes->data()), *SkSL::GLSLCapsFactory::Default(), &output);
+        (const char*)bytes->data(), *SkSL::GLSLCapsFactory::Default(), &output);
 
     if (!result) {
         SkDebugf("[terminated] Couldn't compile input.\n");

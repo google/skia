@@ -19,11 +19,7 @@ class ErrorReporter {
 public:
     virtual ~ErrorReporter() {}
 
-    void error(Position position, const char* msg) {
-        this->error(position, SkString(msg));
-    }
-
-    virtual void error(Position position, SkString msg) = 0;
+    virtual void error(Position position, std::string msg) = 0;
 };
 
 } // namespace

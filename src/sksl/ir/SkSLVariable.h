@@ -27,7 +27,7 @@ struct Variable : public Symbol {
         kParameter_Storage
     };
 
-    Variable(Position position, Modifiers modifiers, SkString name, const Type& type,
+    Variable(Position position, Modifiers modifiers, std::string name, const Type& type,
              Storage storage)
     : INHERITED(position, kVariable_Kind, std::move(name))
     , fModifiers(modifiers)
@@ -36,7 +36,7 @@ struct Variable : public Symbol {
     , fIsReadFrom(false)
     , fIsWrittenTo(false) {}
 
-    virtual SkString description() const override {
+    virtual std::string description() const override {
         return fModifiers.description() + fType.fName + " " + fName;
     }
 

@@ -21,7 +21,7 @@ struct ExpressionStatement : public Statement {
     : INHERITED(expression->fPosition, kExpression_Kind)
     , fExpression(std::move(expression)) {}
 
-    SkString description() const override {
+    std::string description() const override {
         return fExpression->description() + ";";
     }
 

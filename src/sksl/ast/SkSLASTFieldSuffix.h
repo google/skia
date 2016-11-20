@@ -17,15 +17,15 @@ namespace SkSL {
  * actually vector swizzle (which looks the same to the parser).
  */
 struct ASTFieldSuffix : public ASTSuffix {
-    ASTFieldSuffix(Position position, SkString field) 
+    ASTFieldSuffix(Position position, std::string field) 
     : INHERITED(position, ASTSuffix::kField_Kind)
     , fField(std::move(field)) {}
 
-    SkString description() const override {
+    std::string description() const override {
         return "." + fField;
     }
 
-    SkString fField;
+    std::string fField;
 
     typedef ASTSuffix INHERITED;
 };

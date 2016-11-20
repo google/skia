@@ -24,7 +24,7 @@ struct VariableReference : public Expression {
     : INHERITED(position, kVariableReference_Kind, variable.fType)
     , fVariable(variable) {}
 
-    SkString description() const override {
+    std::string description() const override {
         return fVariable.fName;
     }
 

@@ -10,6 +10,7 @@
 
 #include "SkSLASTExpression.h"
 #include "../SkSLToken.h"
+#include <sstream>
 
 namespace SkSL {
 
@@ -24,7 +25,7 @@ struct ASTBinaryExpression : public ASTExpression {
     , fOperator(op.fKind)
     , fRight(std::move(right)) {}
 
-    SkString description() const override {
+    std::string description() const override {
         return "(" + fLeft->description() + " " + Token::OperatorName(fOperator) + " " +
                fRight->description() + ")";
     }

@@ -27,24 +27,24 @@ void GLSLCodeGenerator::write(const char* s) {
     }
     if (fAtLineStart) {
         for (int i = 0; i < fIndentation; i++) {
-            fOut->writeText("    ");
+            *fOut << "    ";
         }
     }
-    fOut->writeText(s);
+    *fOut << s;
     fAtLineStart = false;
 }
 
 void GLSLCodeGenerator::writeLine(const char* s) {
     this->write(s);
-    fOut->writeText("\n");
+    *fOut << "\n";
     fAtLineStart = true;
 }
 
-void GLSLCodeGenerator::write(const SkString& s) {
+void GLSLCodeGenerator::write(const std::string& s) {
     this->write(s.c_str());
 }
 
-void GLSLCodeGenerator::writeLine(const SkString& s) {
+void GLSLCodeGenerator::writeLine(const std::string& s) {
     this->writeLine(s.c_str());
 }
 
@@ -138,8 +138,8 @@ static bool is_abs(Expression& expr) {
 // Tegra3 compiler bug.
 void GLSLCodeGenerator::writeMinAbsHack(Expression& absExpr, Expression& otherExpr) {
     ASSERT(!fCaps.canUseMinAndAbsTogether());
-    SkString tmpVar1 = "minAbsHackVar" + to_string(fVarCount++);
-    SkString tmpVar2 = "minAbsHackVar" + to_string(fVarCount++);
+    std::string tmpVar1 = "minAbsHackVar" + to_string(fVarCount++);
+    std::string tmpVar2 = "minAbsHackVar" + to_string(fVarCount++);
     this->fFunctionHeader += "    " + absExpr.fType.name() + " " + tmpVar1 + ";\n";
     this->fFunctionHeader += "    " + otherExpr.fType.name() + " " + tmpVar2 + ";\n";
     this->write("((" + tmpVar1 + " = ");
@@ -179,9 +179,7 @@ void GLSLCodeGenerator::writeFunctionCall(const FunctionCall& c) {
     if (!fFoundDerivatives && (c.fFunction.fName == "dFdx" || c.fFunction.fName == "dFdy") && 
         c.fFunction.fBuiltin && fCaps.shaderDerivativeExtensionString()) {
         ASSERT(fCaps.shaderDerivativeSupport());
-        fHeader.writeText("#extension ");
-        fHeader.writeText(fCaps.shaderDerivativeExtensionString());
-        fHeader.writeText(" : require\n");
+        fHeader << "#extension " << fCaps.shaderDerivativeExtensionString() << " : require\n";
         fFoundDerivatives = true;
     }
     this->write(c.fFunction.fName + "(");
@@ -375,8 +373,8 @@ void GLSLCodeGenerator::writeFunction(const FunctionDefinition& f) {
     this->writeLine(") {");
 
     fFunctionHeader = "";
-    SkWStream* oldOut = fOut;
-    SkDynamicMemoryWStream buffer;
+    std::ostream* oldOut = fOut;
+    std::stringstream buffer;
     fOut = &buffer;
     fIndentation++;
     for (const auto& s : f.fBody->fStatements) {
@@ -388,8 +386,7 @@ void GLSLCodeGenerator::writeFunction(const FunctionDefinition& f) {
 
     fOut = oldOut;
     this->write(fFunctionHeader);
-    sk_sp<SkData> data(buffer.detachAsData());
-    this->write(SkString((const char*) data->data(), data->size()));
+    this->write(buffer.str());
 }
 
 void GLSLCodeGenerator::writeModifiers(const Modifiers& modifiers, 
@@ -400,8 +397,8 @@ void GLSLCodeGenerator::writeModifiers(const Modifiers& modifiers,
     if (modifiers.fFlags & Modifiers::kFlat_Flag) {
         this->write("flat ");
     }
-    SkString layout = modifiers.fLayout.description();
-    if (layout.size()) {
+    std::string layout = modifiers.fLayout.description();
+    if (layout.length()) {
         this->write(layout + " ");
     }
     if ((modifiers.fFlags & Modifiers::kIn_Flag) && 
@@ -460,11 +457,11 @@ void GLSLCodeGenerator::writeVarDeclarations(const VarDeclarations& decl, bool g
     ASSERT(decl.fVars.size() > 0);
     this->writeModifiers(decl.fVars[0].fVar->fModifiers, global);
     this->writeType(decl.fBaseType);
-    SkString separator(" ");
+    std::string separator = " ";
     for (const auto& var : decl.fVars) {
         ASSERT(var.fVar->fModifiers == decl.fVars[0].fVar->fModifiers);
         this->write(separator);
-        separator = SkString(", ");
+        separator = ", ";
         this->write(var.fVar->fName);
         for (const auto& size : var.fSizes) {
             this->write("[");
@@ -479,9 +476,7 @@ void GLSLCodeGenerator::writeVarDeclarations(const VarDeclarations& decl, bool g
         }
         if (!fFoundImageDecl && var.fVar->fType == *fContext.fImage2D_Type) {
             if (fCaps.imageLoadStoreExtensionString()) {
-                fHeader.writeText("#extension ");
-                fHeader.writeText(fCaps.imageLoadStoreExtensionString());
-                fHeader.writeText(" : require\n");
+                fHeader << "#extension " << fCaps.imageLoadStoreExtensionString() << " : require\n";
             }
             fFoundImageDecl = true;
         }
@@ -594,7 +589,7 @@ void GLSLCodeGenerator::writeReturnStatement(const ReturnStatement& r) {
     this->write(";");
 }
 
-void GLSLCodeGenerator::generateCode(const Program& program, SkWStream& out) {
+void GLSLCodeGenerator::generateCode(const Program& program, std::ostream& out) {
     ASSERT(fOut == nullptr);
     fOut = &fHeader;
     fProgramKind = program.fKind;
@@ -605,7 +600,7 @@ void GLSLCodeGenerator::generateCode(const Program& program, SkWStream& out) {
             this->writeExtension((Extension&) *e);
         }
     }
-    SkDynamicMemoryWStream body;
+    std::stringstream body;
     fOut = &body;
     if (fCaps.usesPrecisionModifiers()) {
         this->write("precision ");
@@ -665,8 +660,8 @@ void GLSLCodeGenerator::generateCode(const Program& program, SkWStream& out) {
     }
     fOut = nullptr;
 
-    write_data(*fHeader.detachAsData(), out);
-    write_data(*body.detachAsData(), out);
+    out << fHeader.str();
+    out << body.str();
 }
 
 }

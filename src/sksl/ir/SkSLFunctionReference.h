@@ -23,9 +23,9 @@ struct FunctionReference : public Expression {
     : INHERITED(position, kFunctionReference_Kind, *context.fInvalid_Type)
     , fFunctions(function) {}
 
-    virtual SkString description() const override {
+    virtual std::string description() const override {
         ASSERT(false);
-        return SkString("<function>");
+        return "<function>";
     }
 
     const std::vector<const FunctionDeclaration*> fFunctions;

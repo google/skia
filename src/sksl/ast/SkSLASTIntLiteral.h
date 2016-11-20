@@ -21,7 +21,7 @@ struct ASTIntLiteral : public ASTExpression {
     : INHERITED(position, kInt_Kind)
     , fValue(value) {}
 
-    SkString description() const override {
+    std::string description() const override {
         return to_string(fValue);
     }
 

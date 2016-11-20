@@ -14,6 +14,7 @@
 #include "gl/builders/GrGLShaderStringBuilder.h"
 #include "SkSLCompiler.h"
 #include <stdio.h>
+#include <string>
 
 const GrGLContext* GLBench::getGLContext(SkCanvas* canvas) {
     // This bench exclusively tests GL calls directly
@@ -65,11 +66,11 @@ void GLBench::onDraw(int loops, SkCanvas* canvas) {
 
 GrGLuint GLBench::CompileShader(const GrGLContext* context, const char* sksl, GrGLenum type) {
     const GrGLInterface* gl = context->interface();
-    SkString glsl;
+    std::string glsl;
     bool result = context->compiler()->toGLSL(type == GR_GL_VERTEX_SHADER 
                                                                     ? SkSL::Program::kVertex_Kind
                                                                     : SkSL::Program::kFragment_Kind,
-                                              SkString(sksl),
+                                              std::string(sksl),
                                               *context->caps()->glslCaps(),
                                               &glsl);
     if (!result) {

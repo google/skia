@@ -26,17 +26,17 @@ class Context;
 class Type : public Symbol {
 public:
     struct Field {
-        Field(Modifiers modifiers, SkString name, const Type* type)
+        Field(Modifiers modifiers, std::string name, const Type* type)
         : fModifiers(modifiers)
         , fName(std::move(name))
         , fType(std::move(type)) {}
 
-        const SkString description() const {
+        const std::string description() const {
             return fType->description() + " " + fName + ";";
         }
 
         Modifiers fModifiers;
-        SkString fName;
+        std::string fName;
         const Type* fType;
     };
 
@@ -53,14 +53,14 @@ public:
 
     // Create an "other" (special) type with the given name. These types cannot be directly 
     // referenced from user code.
-    Type(SkString name)
+    Type(std::string name)
     : INHERITED(Position(), kType_Kind, std::move(name))
     , fTypeKind(kOther_Kind) {}
 
     // Create a generic type which maps to the listed types. As currently implemented, there are 
     // always exactly four coercion targets, mapping to the scalar, vec2, vec3, and vec4 versions of 
     // a type.
-    Type(SkString name, std::vector<const Type*> types)
+    Type(std::string name, std::vector<const Type*> types)
     : INHERITED(Position(), kType_Kind, std::move(name))
     , fTypeKind(kGeneric_Kind)
     , fCoercibleTypes(std::move(types)) {
@@ -68,13 +68,13 @@ public:
     }
 
     // Create a struct type with the given fields.
-    Type(SkString name, std::vector<Field> fields)
+    Type(std::string name, std::vector<Field> fields)
     : INHERITED(Position(), kType_Kind, std::move(name))
     , fTypeKind(kStruct_Kind)
     , fFields(std::move(fields)) {}
 
     // Create a scalar type.
-    Type(SkString name, bool isNumber)
+    Type(std::string name, bool isNumber)
     : INHERITED(Position(), kType_Kind, std::move(name))
     , fTypeKind(kScalar_Kind)
     , fIsNumber(isNumber)
@@ -82,7 +82,7 @@ public:
     , fRows(1) {}
 
     // Create a scalar type which can be coerced to the listed types.
-    Type(SkString name, bool isNumber, std::vector<const Type*> coercibleTypes)
+    Type(std::string name, bool isNumber, std::vector<const Type*> coercibleTypes)
     : INHERITED(Position(), kType_Kind, std::move(name))
     , fTypeKind(kScalar_Kind)
     , fIsNumber(isNumber)
@@ -91,11 +91,11 @@ public:
     , fRows(1) {}
 
     // Create a vector type.
-    Type(SkString name, const Type& componentType, int columns)
+    Type(std::string name, const Type& componentType, int columns)
     : Type(name, kVector_Kind, componentType, columns) {}
 
     // Create a vector or array type.
-    Type(SkString name, Kind kind, const Type& componentType, int columns)
+    Type(std::string name, Kind kind, const Type& componentType, int columns)
     : INHERITED(Position(), kType_Kind, std::move(name))
     , fTypeKind(kind)
     , fComponentType(&componentType)
@@ -104,7 +104,7 @@ public:
     , fDimensions(SpvDim1D) {}
 
     // Create a matrix type.
-    Type(SkString name, const Type& componentType, int columns, int rows)
+    Type(std::string name, const Type& componentType, int columns, int rows)
     : INHERITED(Position(), kType_Kind, std::move(name))
     , fTypeKind(kMatrix_Kind)
     , fComponentType(&componentType)
@@ -113,7 +113,7 @@ public:
     , fDimensions(SpvDim1D) {}
 
     // Create a sampler type.
-    Type(SkString name, SpvDim_ dimensions, bool isDepth, bool isArrayed, bool isMultisampled, 
+    Type(std::string name, SpvDim_ dimensions, bool isDepth, bool isArrayed, bool isMultisampled, 
          bool isSampled) 
     : INHERITED(Position(), kType_Kind, std::move(name))
     , fTypeKind(kSampler_Kind)
@@ -123,11 +123,11 @@ public:
     , fIsMultisampled(isMultisampled)
     , fIsSampled(isSampled) {}
 
-    SkString name() const {
+    std::string name() const {
         return fName;
     }
 
-    SkString description() const override {
+    std::string description() const override {
         return fName;
     }
 

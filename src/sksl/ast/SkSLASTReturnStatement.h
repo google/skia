@@ -21,8 +21,8 @@ struct ASTReturnStatement : public ASTStatement {
     : INHERITED(position, kReturn_Kind)
     , fExpression(std::move(expression)) {}
 
-    SkString description() const override {
-        SkString result("return");
+    std::string description() const override {
+        std::string result("return");
         if (fExpression) {
             result += " " + fExpression->description();
         }

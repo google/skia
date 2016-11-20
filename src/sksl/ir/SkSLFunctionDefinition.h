@@ -24,7 +24,7 @@ struct FunctionDefinition : public ProgramElement {
     , fDeclaration(declaration)
     , fBody(std::move(body)) {}
 
-    SkString description() const override {
+    std::string description() const override {
         return fDeclaration.description() + " " + fBody->description();
     }
 
