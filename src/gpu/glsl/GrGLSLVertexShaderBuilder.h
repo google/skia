@@ -20,11 +20,14 @@ class GrGLSLVertexBuilder : public GrGLSLShaderBuilder {
 public:
     GrGLSLVertexBuilder(GrGLSLProgramBuilder* program);
 
-    void transformToNormalizedDeviceSpace(const GrShaderVar& posVar);
-private:
-    void onFinalize() override;
+    void appendTransformToWindowSpace2D(const char* coord2D);
+    void appendTransformToWindowSpace3D(const char* coord3D);
 
-    const char* fRtAdjustName;
+    void emitVertexPosition(const GrShaderVar& posVar);
+
+private:
+
+    void onFinalize() override;
 
     friend class GrGLProgramBuilder;
 

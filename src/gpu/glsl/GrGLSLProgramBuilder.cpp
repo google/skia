@@ -392,16 +392,14 @@ void GrGLSLProgramBuilder::appendUniformDecls(GrShaderFlags visibility, SkString
 }
 
 
-void GrGLSLProgramBuilder::addRTAdjustmentUniform(GrSLPrecision precision,
-                                                  const char* name,
-                                                  const char** outName) {
-        SkASSERT(!fUniformHandles.fRTAdjustmentUni.isValid());
-        fUniformHandles.fRTAdjustmentUni =
-            this->uniformHandler()->addUniform(kVertex_GrShaderFlag,
-                                               kVec4f_GrSLType,
-                                               precision,
-                                               name,
-                                               outName);
+const char* GrGLSLProgramBuilder::getRTAdjustmentUniform() {
+    if (!fUniformHandles.fRTAdjustmentUni.isValid()) {
+        fUniformHandles.fRTAdjustmentUni = this->uniformHandler()->addUniform(kVertex_GrShaderFlag,
+                                                                              kVec4f_GrSLType,
+                                                                              kHigh_GrSLPrecision,
+                                                                              "rtAdjustment");
+    }
+    return this->uniformHandler()->getUniformCStr(fUniformHandles.fRTAdjustmentUni);
 }
 
 void GrGLSLProgramBuilder::addRTHeightUniform(const char* name, const char** outName) {
