@@ -18,8 +18,9 @@ class GrGLSLUniformHandler {
 public:
     virtual ~GrGLSLUniformHandler() {}
 
-    typedef GrGLSLProgramDataManager::UniformHandle UniformHandle;
-    typedef GrGLSLProgramDataManager::UniformHandle SamplerHandle;
+    using UniformHandle = GrGLSLProgramDataManager::UniformHandle;
+    GR_DEFINE_RESOURCE_HANDLE_CLASS(SamplerHandle);
+    GR_DEFINE_RESOURCE_HANDLE_CLASS(StorageImageHandle);
 
     /** Add a uniform variable to the current program, that has visibility in one or more shaders.
         visibility is a bitfield of GrShaderFlag values indicating from which shaders the uniform
@@ -66,6 +67,10 @@ private:
 
     virtual SamplerHandle addSampler(uint32_t visibility, GrSwizzle, GrSLType, GrSLPrecision,
                                      const char* name) = 0;
+
+    virtual const GrShaderVar& storageImageVariable(StorageImageHandle) const = 0;
+    virtual StorageImageHandle addStorageImage(uint32_t visibility, GrPixelConfig config,
+                                               const char* name) = 0;
 
     virtual UniformHandle internalAddUniformArray(uint32_t visibility,
                                                   GrSLType type,

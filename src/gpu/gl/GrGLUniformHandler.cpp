@@ -80,11 +80,58 @@ GrGLSLUniformHandler::SamplerHandle GrGLUniformHandler::addSampler(uint32_t visi
     return GrGLSLUniformHandler::SamplerHandle(fSamplers.count() - 1);
 }
 
+GrGLSLUniformHandler::StorageImageHandle GrGLUniformHandler::addStorageImage(uint32_t visibility,
+                                                                             GrPixelConfig config,
+                                                                             const char* name) {
+    SkASSERT(name && strlen(name));
+    SkDEBUGCODE(static const uint32_t kVisMask = kVertex_GrShaderFlag | kFragment_GrShaderFlag);
+    SkASSERT(0 == (~kVisMask & visibility));
+    SkASSERT(0 != visibility);
+    SkString mangleName;
+    char prefix = 'u';
+    fProgramBuilder->nameVariable(&mangleName, prefix, name, true);
+
+    UniformInfo& storageImage = fStorageImages.push_back();
+    storageImage.fVariable.setName(mangleName);
+    if (GrPixelConfigIsSint(config)) {
+        storageImage.fVariable.setType(GrSLType::kIImage2D_GrSLType);
+    } else {
+        storageImage.fVariable.setType(GrSLType::kImage2D_GrSLType);
+    }
+    storageImage.fVariable.setTypeModifier(GrShaderVar::kUniform_TypeModifier);
+    const char* layout;
+    switch (config) {
+        case kUnknown_GrPixelConfig:
+            layout = "";
+            break;
+        case kRGBA_8888_GrPixelConfig:
+            layout = "rgba8";
+            break;
+        case kRGBA_float_GrPixelConfig:
+            layout = "rgba32";
+            break;
+        case kRGBA_half_GrPixelConfig:
+            layout = "rgba16f";
+            break;
+        case kRGBA_8888_sint_GrPixelConfig:
+            layout = "rgba8i";
+            break;
+        default:
+            SkFAIL("Unexpected config for 2D image.");
+            layout = "--invalid--";
+            break;
+    }
+    storageImage.fVariable.setLayoutQualifier(layout);
+    storageImage.fLocation = -1;
+    storageImage.fVisibility = visibility;
+    return GrGLSLUniformHandler::StorageImageHandle(fStorageImages.count() - 1);
+}
+
 void GrGLUniformHandler::appendUniformDecls(GrShaderFlags visibility, SkString* out) const {
     for (int i = 0; i < fUniforms.count(); ++i) {
         if (fUniforms[i].fVisibility & visibility) {
             fUniforms[i].fVariable.appendDecl(fProgramBuilder->glslCaps(), out);
-            out->append(";\n");
+            out->append(";");
         }
     }
     for (int i = 0; i < fSamplers.count(); ++i) {
@@ -93,19 +140,29 @@ void GrGLUniformHandler::appendUniformDecls(GrShaderFlags visibility, SkString* 
             out->append(";\n");
         }
     }
+    for (int i = 0; i < fStorageImages.count(); ++i) {
+        if (fStorageImages[i].fVisibility & visibility) {
+            fStorageImages[i].fVariable.appendDecl(fProgramBuilder->glslCaps(), out);
+            out->append(";");
+        }
+    }
 }
 
 void GrGLUniformHandler::bindUniformLocations(GrGLuint programID, const GrGLCaps& caps) {
     if (caps.bindUniformLocationSupport()) {
-        int uniformCnt = fUniforms.count();
-        for (int i = 0; i < uniformCnt; ++i) {
-            GL_CALL(BindUniformLocation(programID, i, fUniforms[i].fVariable.c_str()));
-            fUniforms[i].fLocation = i;
+        int currUniform = 0;
+        for (int i = 0; i < fUniforms.count(); ++i, ++currUniform) {
+            GL_CALL(BindUniformLocation(programID, currUniform, fUniforms[i].fVariable.c_str()));
+            fUniforms[i].fLocation = currUniform;
         }
-        for (int i = 0; i < fSamplers.count(); ++i) {
-            GrGLint location = i + uniformCnt;
-            GL_CALL(BindUniformLocation(programID, location, fSamplers[i].fVariable.c_str()));
-            fSamplers[i].fLocation = location;
+        for (int i = 0; i < fSamplers.count(); ++i, ++currUniform) {
+            GL_CALL(BindUniformLocation(programID, currUniform, fSamplers[i].fVariable.c_str()));
+            fSamplers[i].fLocation = currUniform;
+        }
+        for (int i = 0; i < fStorageImages.count(); ++i) {
+            GL_CALL(BindUniformLocation(programID, currUniform,
+                                        fStorageImages[i].fVariable.c_str()));
+            fStorageImages[i].fLocation = currUniform;
         }
     }
 }
@@ -122,6 +179,12 @@ void GrGLUniformHandler::getUniformLocations(GrGLuint programID, const GrGLCaps&
             GrGLint location;
             GL_CALL_RET(location, GetUniformLocation(programID, fSamplers[i].fVariable.c_str()));
             fSamplers[i].fLocation = location;
+        }
+        for (int i = 0; i < fStorageImages.count(); ++i) {
+            GrGLint location;
+            GL_CALL_RET(location, GetUniformLocation(programID,
+                                                     fStorageImages[i].fVariable.c_str()));
+            fStorageImages[i].fLocation = location;
         }
     }
 }

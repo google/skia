@@ -122,7 +122,12 @@ void GrProcessor::addTextureSampler(const TextureSampler* access) {
 
 void GrProcessor::addBufferAccess(const BufferAccess* access) {
     fBufferAccesses.push_back(access);
-    this->addGpuResource(access->getProgramBuffer());
+    this->addGpuResource(access->programBuffer());
+}
+
+void GrProcessor::addStorageImageAccess(const StorageImageAccess* access) {
+    fStorageImageAccesses.push_back(access);
+    this->addGpuResource(access->programTexture());
 }
 
 void* GrProcessor::operator new(size_t size) {
@@ -133,9 +138,10 @@ void GrProcessor::operator delete(void* target) {
     return MemoryPoolAccessor().pool()->release(target);
 }
 
-bool GrProcessor::hasSameSamplers(const GrProcessor& that) const {
+bool GrProcessor::hasSameSamplersAndImages(const GrProcessor& that) const {
     if (this->numTextureSamplers() != that.numTextureSamplers() ||
-        this->numBuffers() != that.numBuffers()) {
+        this->numBuffers() != that.numBuffers() ||
+        this->numStorageImages() != that.numStorageImages()) {
         return false;
     }
     for (int i = 0; i < this->numTextureSamplers(); ++i) {
@@ -145,6 +151,11 @@ bool GrProcessor::hasSameSamplers(const GrProcessor& that) const {
     }
     for (int i = 0; i < this->numBuffers(); ++i) {
         if (this->bufferAccess(i) != that.bufferAccess(i)) {
+            return false;
+        }
+    }
+    for (int i = 0; i < this->numStorageImages(); ++i) {
+        if (this->storageImageAccess(i) != that.storageImageAccess(i)) {
             return false;
         }
     }

@@ -76,6 +76,18 @@ private:
         return fSamplers[handle.toIndex()].fVisibility;
     }
 
+    StorageImageHandle addStorageImage(uint32_t visibility, GrPixelConfig,
+                                       const char* name) override {
+        SkFAIL("Storage images not implemented for Vulkan.");
+        return 0;
+    }
+
+    const GrShaderVar& storageImageVariable(StorageImageHandle handle) const override {
+        SkFAIL("Storage images not implemented for Vulkan.");
+        GrShaderVar* gVar = nullptr;
+        return *gVar;
+    }
+
     void appendUniformDecls(GrShaderFlags, SkString*) const override;
 
     bool hasVertexUniforms() const { return fCurrentVertexUBOOffset > 0; }

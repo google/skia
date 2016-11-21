@@ -232,6 +232,7 @@ GrGLProgram* GrGLProgramBuilder::createProgram(GrGLuint programID) {
                            programID,
                            fUniformHandler.fUniforms,
                            fUniformHandler.fSamplers,
+                           fUniformHandler.fStorageImages,
                            fVaryingHandler.fPathProcVaryingInfos,
                            fGeometryProcessor,
                            fXferProcessor,
