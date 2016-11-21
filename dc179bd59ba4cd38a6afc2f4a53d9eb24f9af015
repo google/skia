@@ -22,6 +22,24 @@
       "revId": "dc179bd59ba4cd38a6afc2f4a53d9eb24f9af015",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "500b3ca9_fabd289c",
+        "filename": "include/core/SkEncodedImageFormat.h",
+        "patchSetId": 18
+      },
+      "lineNbr": 16,
+      "author": {
+        "id": 5110
+      },
+      "writtenOn": "2016-11-21T16:09:13Z",
+      "side": 1,
+      "message": "Good question.  I wanted to make sure that the underlying type of the three enums (two of which are temporary) was the same.  That\u0027s probably unnecessary and I\u0027ll delete it.",
+      "parentUuid": "500b3ca9_bfaa0267",
+      "revId": "dc179bd59ba4cd38a6afc2f4a53d9eb24f9af015",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
