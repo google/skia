@@ -10,6 +10,10 @@
 #define SK_OPTS_NS hsw
 #include "SkRasterPipeline_opts.h"
 
+#if defined(_INC_MATH) && !defined(SkSafe_math_DEFINED)
+    #error We have included ucrt\math.h without protecting it against easy ODR violations.
+#endif
+
 namespace SkOpts {
     void Init_hsw() {
         compile_pipeline = hsw::compile_pipeline;
