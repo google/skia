@@ -79,7 +79,7 @@
     M(color_lookup_table) M(lab_to_xyz) M(swap_rb)               \
     M(clamp_x) M(mirror_x) M(repeat_x)                           \
     M(clamp_y) M(mirror_y) M(repeat_y)                           \
-    M(nearest_565) M(nearest_8888) M(nearest_srgb) M(nearest_f16)
+    M(accum_565) M(accum_8888) M(accum_srgb) M(accum_f16)
 
 class SkRasterPipeline {
 public:

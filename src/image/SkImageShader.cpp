@@ -319,14 +319,14 @@ bool SkImageShader::onAppendStages(SkRasterPipeline* p, SkColorSpace* dst, SkFal
         }
     }
 
-    struct context {
+    struct Context {
         const void* pixels;
         int         stride;
         int         width;
         int         height;
         float       matrix[9];
     };
-    auto ctx = scratch->make<context>();
+    auto ctx = scratch->make<Context>();
 
     ctx->pixels   = pm.addr();
     ctx->stride   = pm.rowBytesAsPixels();
@@ -339,38 +339,48 @@ bool SkImageShader::onAppendStages(SkRasterPipeline* p, SkColorSpace* dst, SkFal
         p->append(SkRasterPipeline::matrix_perspective, ctx->matrix);
     }
 
-    switch (fTileModeX) {
-        case kClamp_TileMode:  p->append(SkRasterPipeline::clamp_x,  &ctx->width); break;
-        case kMirror_TileMode: p->append(SkRasterPipeline::mirror_x, &ctx->width); break;
-        case kRepeat_TileMode: p->append(SkRasterPipeline::repeat_x, &ctx->width); break;
-    }
-    switch (fTileModeY) {
-        case kClamp_TileMode:  p->append(SkRasterPipeline::clamp_y,  &ctx->height); break;
-        case kMirror_TileMode: p->append(SkRasterPipeline::mirror_y, &ctx->height); break;
-        case kRepeat_TileMode: p->append(SkRasterPipeline::repeat_y, &ctx->height); break;
+    auto append_tiling = [&] {
+        switch (fTileModeX) {
+            case kClamp_TileMode:  p->append(SkRasterPipeline::clamp_x,  &ctx->width); break;
+            case kMirror_TileMode: p->append(SkRasterPipeline::mirror_x, &ctx->width); break;
+            case kRepeat_TileMode: p->append(SkRasterPipeline::repeat_x, &ctx->width); break;
+        }
+        switch (fTileModeY) {
+            case kClamp_TileMode:  p->append(SkRasterPipeline::clamp_y,  &ctx->height); break;
+            case kMirror_TileMode: p->append(SkRasterPipeline::mirror_y, &ctx->height); break;
+            case kRepeat_TileMode: p->append(SkRasterPipeline::repeat_y, &ctx->height); break;
+        }
+    };
+
+    auto append_accum = [&] {
+        switch (info.colorType()) {
+            case kRGBA_8888_SkColorType:
+            case kBGRA_8888_SkColorType:
+                if (info.gammaCloseToSRGB() && dst) {
+                    p->append(SkRasterPipeline::accum_srgb, ctx);
+                } else {
+                    p->append(SkRasterPipeline::accum_8888, ctx);
+                }
+                break;
+            case kRGBA_F16_SkColorType:
+                p->append(SkRasterPipeline::accum_f16, ctx);
+                break;
+            case kRGB_565_SkColorType:
+                p->append(SkRasterPipeline::accum_565, ctx);
+                break;
+
+            default:
+                SkASSERT(false);
+                break;
+        }
+    };
+
+    if (quality == kNone_SkFilterQuality) {
+        append_tiling();
+        append_accum();
     }
 
-    switch(info.colorType()) {
-        case kRGBA_8888_SkColorType:
-        case kBGRA_8888_SkColorType:
-            if (info.gammaCloseToSRGB() && dst) {
-                p->append(SkRasterPipeline::nearest_srgb, ctx);
-            } else {
-                p->append(SkRasterPipeline::nearest_8888, ctx);
-            }
-            break;
-        case kRGBA_F16_SkColorType:
-            p->append(SkRasterPipeline::nearest_f16, ctx);
-            break;
-        case kRGB_565_SkColorType:
-            p->append(SkRasterPipeline::nearest_565, ctx);
-            break;
-
-        default:
-            SkASSERT(false);
-            break;
-    }
-
+    p->append(SkRasterPipeline::dst);
     if (info.colorType() == kBGRA_8888_SkColorType) {
         p->append(SkRasterPipeline::swap_rb);
     }
