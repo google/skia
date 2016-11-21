@@ -5,7 +5,6 @@
  * found in the LICENSE file.
  */
 
-#include "glsl/GrGLSLCaps.h"
 #include "Sk4fLinearGradient.h"
 #include "SkColorSpace_XYZ.h"
 #include "SkGradientShaderPriv.h"
@@ -1113,6 +1112,7 @@ SK_DEFINE_FLATTENABLE_REGISTRAR_GROUP_END
 #include "GrInvariantOutput.h"
 #include "GrTextureStripAtlas.h"
 #include "gl/GrGLContext.h"
+#include "glsl/GrGLSLCaps.h"
 #include "glsl/GrGLSLColorSpaceXformHelper.h"
 #include "glsl/GrGLSLFragmentShaderBuilder.h"
 #include "glsl/GrGLSLProgramDataManager.h"
