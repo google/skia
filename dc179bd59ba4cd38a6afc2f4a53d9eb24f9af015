@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "500b3ca9_bfaa0267",
+        "filename": "include/core/SkEncodedImageFormat.h",
+        "patchSetId": 18
+      },
+      "lineNbr": 16,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2016-11-21T15:58:22Z",
+      "side": 1,
+      "message": "Why declare this to be a byte? Is that necessary in public enums?",
+      "range": {
+        "startLine": 16,
+        "startChar": 34,
+        "endLine": 16,
+        "endChar": 41
+      },
+      "revId": "dc179bd59ba4cd38a6afc2f4a53d9eb24f9af015",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
