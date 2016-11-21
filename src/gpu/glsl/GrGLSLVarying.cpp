@@ -28,12 +28,8 @@ void GrGLSLVaryingHandler::addFlatPassThroughAttribute(const GrGeometryProcessor
 
 void GrGLSLVaryingHandler::writePassThroughAttribute(const GrGeometryProcessor::Attribute* input,
                                                      const char* output, const GrGLSLVarying& v) {
+    SkASSERT(!fProgramBuilder->primitiveProcessor().willUseGeoShader());
     fProgramBuilder->fVS.codeAppendf("%s = %s;", v.vsOut(), input->fName);
-
-    if (fProgramBuilder->primitiveProcessor().willUseGeoShader()) {
-        fProgramBuilder->fGS.codeAppendf("%s = %s[0];", v.gsOut(), v.gsIn());
-    }
-
     fProgramBuilder->fFS.codeAppendf("%s = %s;", output, v.fsIn());
 }
 

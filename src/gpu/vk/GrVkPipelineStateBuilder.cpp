@@ -126,6 +126,9 @@ GrVkPipelineState* GrVkPipelineStateBuilder::finalize(const GrStencilSettings& s
                                         &vertShaderModule,
                                         &shaderStageInfo[0]));
 
+    // TODO: geometry shader support.
+    SkASSERT(!this->primitiveProcessor().willUseGeoShader());
+
     SkAssertResult(CreateVkShaderModule(fGpu,
                                         VK_SHADER_STAGE_FRAGMENT_BIT,
                                         fFS,

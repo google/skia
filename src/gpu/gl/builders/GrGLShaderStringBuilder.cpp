@@ -63,23 +63,28 @@ GrGLuint GrGLCompileAndAttachShader(const GrGLContext& glCtx,
 #endif
 
     SkString glsl;
-    SkSL::Compiler& compiler = *glCtx.compiler();
-    SkASSERT(type == GR_GL_VERTEX_SHADER || type == GR_GL_FRAGMENT_SHADER);
-    SkDEBUGCODE(bool result = )compiler.toGLSL(type == GR_GL_VERTEX_SHADER 
+    if (type == GR_GL_VERTEX_SHADER || type == GR_GL_FRAGMENT_SHADER) {
+        SkSL::Compiler& compiler = *glCtx.compiler();
+        SkDEBUGCODE(bool result = )compiler.toGLSL(type == GR_GL_VERTEX_SHADER 
                                                                     ? SkSL::Program::kVertex_Kind
                                                                     : SkSL::Program::kFragment_Kind,
-                                               sksl,
-                                               *glCtx.caps()->glslCaps(),
-                                               &glsl);
+                                                   sksl,
+                                                   *glCtx.caps()->glslCaps(),
+                                                   &glsl);
 #ifdef SK_DEBUG
-    if (!result) {
-        SkDebugf("SKSL compilation error\n----------------------\n");
-        SkDebugf("SKSL:\n");
-        dump_string(sksl);
-        SkDebugf("\nErrors:\n%s\n", compiler.errorText().c_str());
-        SkDEBUGFAIL("SKSL compilation failed!\n");
-    }
+        if (!result) {
+            SkDebugf("SKSL compilation error\n----------------------\n");
+            SkDebugf("SKSL:\n");
+            dump_string(sksl);
+            SkDebugf("\nErrors:\n%s\n", compiler.errorText().c_str());
+            SkDEBUGFAIL("SKSL compilation failed!\n");
+        }
 #endif
+    } else {
+        // TODO: geometry shader support in sksl.
+        SkASSERT(type == GR_GL_GEOMETRY_SHADER);
+        glsl = sksl;
+    }
 
     const char* glslChars = glsl.c_str();
     GrGLint glslLength = (GrGLint) glsl.size();
@@ -129,6 +134,13 @@ GrGLuint GrGLCompileAndAttachShader(const GrGLContext& glCtx,
     }
 
     if (c_PrintShaders) {
+        const char* typeName = "Unknown";
+        switch (type) {
+            case GR_GL_VERTEX_SHADER: typeName = "Vertex"; break;
+            case GR_GL_GEOMETRY_SHADER: typeName = "Geometry"; break;
+            case GR_GL_FRAGMENT_SHADER: typeName = "Fragment"; break;
+        }
+        SkDebugf("---- %s shader ----------------------------------------------------\n", typeName);
         print_shader_source(strings, lengths, count);
     }
 

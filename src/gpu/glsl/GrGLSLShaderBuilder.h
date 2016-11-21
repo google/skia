@@ -188,6 +188,7 @@ protected:
     bool addFeature(uint32_t featureBit, const char* extensionName);
 
     enum InterfaceQualifier {
+        kIn_InterfaceQualifier,
         kOut_InterfaceQualifier,
         kLastInterfaceQualifier = kOut_InterfaceQualifier
     };
