@@ -22,6 +22,24 @@
       "revId": "0dab4dfb793bbdc0907837df6b954d6abad1b190",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "500b3ca9_7a0818da",
+        "filename": "src/core/SkColorSpace_ICC.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 673,
+      "author": {
+        "id": 5740
+      },
+      "writtenOn": "2016-11-21T18:01:00Z",
+      "side": 1,
+      "message": "Eventually I\u0027ll get it right...",
+      "parentUuid": "500b3ca9_df7256c2",
+      "revId": "0dab4dfb793bbdc0907837df6b954d6abad1b190",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
