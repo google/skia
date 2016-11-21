@@ -8,7 +8,6 @@
 #ifndef SKSL_PARSER
 #define SKSL_PARSER
 
-#include <string>
 #include <vector>
 #include <memory>
 #include <unordered_set>
@@ -49,7 +48,7 @@ class SymbolTable;
  */
 class Parser {
 public:
-    Parser(std::string text, SymbolTable& types, ErrorReporter& errors);
+    Parser(SkString text, SymbolTable& types, ErrorReporter& errors);
 
     ~Parser();
 
@@ -87,15 +86,17 @@ private:
      * If 'result' is non-null, it is set to point to the token that was read.
      * Returns true if the read token was as expected, false otherwise.
      */
-    bool expect(Token::Kind kind, std::string expected, Token* result = nullptr);
+    bool expect(Token::Kind kind, const char* expected, Token* result = nullptr);
+    bool expect(Token::Kind kind, SkString expected, Token* result = nullptr);
 
-    void error(Position p, std::string msg);
+    void error(Position p, const char* msg);
+    void error(Position p, SkString msg);
     
     /**
      * Returns true if the 'name' identifier refers to a type name. For instance, isType("int") will
      * always return true.
      */
-    bool isType(std::string name);
+    bool isType(SkString name);
 
     // these functions parse individual grammar rules from the current parse position; you probably
     // don't need to call any of these outside of the parser. The function declarations in the .cpp
@@ -115,7 +116,7 @@ private:
 
     std::unique_ptr<ASTVarDeclarations> varDeclarationEnd(ASTModifiers modifiers,
                                                           std::unique_ptr<ASTType> type, 
-                                                          std::string name);
+                                                          SkString name);
 
     std::unique_ptr<ASTParameter> parameter();
 
@@ -195,7 +196,7 @@ private:
 
     bool boolLiteral(bool* dest);
 
-    bool identifier(std::string* dest);
+    bool identifier(SkString* dest);
 
     void* fScanner;
     YY_BUFFER_STATE fBuffer;

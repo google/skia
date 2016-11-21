@@ -26,7 +26,7 @@ struct TernaryExpression : public Expression {
         ASSERT(fIfTrue->fType == fIfFalse->fType);
     }
 
-    std::string description() const override {
+    SkString description() const override {
         return "(" + fTest->description() + " ? " + fIfTrue->description() + " : " + 
                fIfFalse->description() + ")";
     }
