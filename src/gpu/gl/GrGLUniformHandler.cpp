@@ -30,7 +30,7 @@ GrGLSLUniformHandler::UniformHandle GrGLUniformHandler::internalAddUniformArray(
 
     UniformInfo& uni = fUniforms.push_back();
     uni.fVariable.setType(type);
-    uni.fVariable.setTypeModifier(GrGLSLShaderVar::kUniform_TypeModifier);
+    uni.fVariable.setTypeModifier(GrShaderVar::kUniform_TypeModifier);
     // TODO this is a bit hacky, lets think of a better way.  Basically we need to be able to use
     // the uniform view matrix name in the GP, and the GP is immutable so it has to tell the PB
     // exactly what name it wants to use for the uniform view matrix.  If we prefix anythings, then
@@ -70,7 +70,7 @@ GrGLSLUniformHandler::SamplerHandle GrGLUniformHandler::addSampler(uint32_t visi
     UniformInfo& sampler = fSamplers.push_back();
     SkASSERT(GrSLTypeIsCombinedSamplerType(type));
     sampler.fVariable.setType(type);
-    sampler.fVariable.setTypeModifier(GrGLSLShaderVar::kUniform_TypeModifier);
+    sampler.fVariable.setTypeModifier(GrShaderVar::kUniform_TypeModifier);
     sampler.fVariable.setPrecision(precision);
     sampler.fVariable.setName(mangleName);
     sampler.fLocation = -1;

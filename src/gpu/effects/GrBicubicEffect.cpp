@@ -7,6 +7,7 @@
 
 #include "GrBicubicEffect.h"
 #include "GrInvariantOutput.h"
+#include "glsl/GrGLSL.h"
 #include "glsl/GrGLSLColorSpaceXformHelper.h"
 #include "glsl/GrGLSLFragmentShaderBuilder.h"
 #include "glsl/GrGLSLProgramDataManager.h"
@@ -66,13 +67,13 @@ void GrGLBicubicEffect::emitCode(EmitArgs& args) {
 
     SkString cubicBlendName;
 
-    static const GrGLSLShaderVar gCubicBlendArgs[] = {
-        GrGLSLShaderVar("coefficients",  kMat44f_GrSLType),
-        GrGLSLShaderVar("t",             kFloat_GrSLType),
-        GrGLSLShaderVar("c0",            kVec4f_GrSLType),
-        GrGLSLShaderVar("c1",            kVec4f_GrSLType),
-        GrGLSLShaderVar("c2",            kVec4f_GrSLType),
-        GrGLSLShaderVar("c3",            kVec4f_GrSLType),
+    static const GrShaderVar gCubicBlendArgs[] = {
+        GrShaderVar("coefficients",  kMat44f_GrSLType),
+        GrShaderVar("t",             kFloat_GrSLType),
+        GrShaderVar("c0",            kVec4f_GrSLType),
+        GrShaderVar("c1",            kVec4f_GrSLType),
+        GrShaderVar("c2",            kVec4f_GrSLType),
+        GrShaderVar("c3",            kVec4f_GrSLType),
     };
     GrGLSLFPFragmentBuilder* fragBuilder = args.fFragBuilder;
     SkString coords2D = fragBuilder->ensureCoords2D(args.fTransformedCoords[0]);

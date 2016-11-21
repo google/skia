@@ -12,7 +12,7 @@
 
 #define ASSERT_ARRAY_UPLOAD_IN_BOUNDS(UNI, COUNT) \
          SkASSERT((COUNT) <= (UNI).fArrayCount || \
-                  (1 == (COUNT) && GrGLSLShaderVar::kNonArray == (UNI).fArrayCount))
+                  (1 == (COUNT) && GrShaderVar::kNonArray == (UNI).fArrayCount))
 
 GrGLProgramDataManager::GrGLProgramDataManager(GrGLGpu* gpu, GrGLuint programID,
                                                const UniformInfoArray& uniforms,
@@ -24,7 +24,7 @@ GrGLProgramDataManager::GrGLProgramDataManager(GrGLGpu* gpu, GrGLuint programID,
     for (int i = 0; i < count; i++) {
         Uniform& uniform = fUniforms[i];
         const UniformInfo& builderUniform = uniforms[i];
-        SkASSERT(GrGLSLShaderVar::kNonArray == builderUniform.fVariable.getArrayCount() ||
+        SkASSERT(GrShaderVar::kNonArray == builderUniform.fVariable.getArrayCount() ||
                  builderUniform.fVariable.getArrayCount() > 0);
         SkDEBUGCODE(
             uniform.fArrayCount = builderUniform.fVariable.getArrayCount();
@@ -40,7 +40,7 @@ GrGLProgramDataManager::GrGLProgramDataManager(GrGLGpu* gpu, GrGLuint programID,
         SkASSERT(fGpu->glCaps().shaderCaps()->pathRenderingSupport());
         PathProcVarying& pathProcVarying = fPathProcVaryings[i];
         const VaryingInfo& builderPathProcVarying = pathProcVaryings[i];
-        SkASSERT(GrGLSLShaderVar::kNonArray == builderPathProcVarying.fVariable.getArrayCount() ||
+        SkASSERT(GrShaderVar::kNonArray == builderPathProcVarying.fVariable.getArrayCount() ||
                  builderPathProcVarying.fVariable.getArrayCount() > 0);
         SkDEBUGCODE(
             pathProcVarying.fArrayCount = builderPathProcVarying.fVariable.getArrayCount();
@@ -68,7 +68,7 @@ void GrGLProgramDataManager::setSamplers(const UniformInfoArray& samplers) const
 void GrGLProgramDataManager::set1i(UniformHandle u, int32_t i) const {
     const Uniform& uni = fUniforms[u.toIndex()];
     SkASSERT(uni.fType == kInt_GrSLType);
-    SkASSERT(GrGLSLShaderVar::kNonArray == uni.fArrayCount);
+    SkASSERT(GrShaderVar::kNonArray == uni.fArrayCount);
     SkDEBUGCODE(this->printUnused(uni));
     if (kUnusedUniform != uni.fLocation) {
         GR_GL_CALL(fGpu->glInterface(), Uniform1i(uni.fLocation, i));
@@ -90,7 +90,7 @@ void GrGLProgramDataManager::set1iv(UniformHandle u,
 void GrGLProgramDataManager::set1f(UniformHandle u, float v0) const {
     const Uniform& uni = fUniforms[u.toIndex()];
     SkASSERT(uni.fType == kFloat_GrSLType);
-    SkASSERT(GrGLSLShaderVar::kNonArray == uni.fArrayCount);
+    SkASSERT(GrShaderVar::kNonArray == uni.fArrayCount);
     SkDEBUGCODE(this->printUnused(uni);)
     if (kUnusedUniform != uni.fLocation) {
         GR_GL_CALL(fGpu->glInterface(), Uniform1f(uni.fLocation, v0));
@@ -116,7 +116,7 @@ void GrGLProgramDataManager::set1fv(UniformHandle u,
 void GrGLProgramDataManager::set2f(UniformHandle u, float v0, float v1) const {
     const Uniform& uni = fUniforms[u.toIndex()];
     SkASSERT(uni.fType == kVec2f_GrSLType);
-    SkASSERT(GrGLSLShaderVar::kNonArray == uni.fArrayCount);
+    SkASSERT(GrShaderVar::kNonArray == uni.fArrayCount);
     SkDEBUGCODE(this->printUnused(uni);)
     if (kUnusedUniform != uni.fLocation) {
         GR_GL_CALL(fGpu->glInterface(), Uniform2f(uni.fLocation, v0, v1));
@@ -139,7 +139,7 @@ void GrGLProgramDataManager::set2fv(UniformHandle u,
 void GrGLProgramDataManager::set3f(UniformHandle u, float v0, float v1, float v2) const {
     const Uniform& uni = fUniforms[u.toIndex()];
     SkASSERT(uni.fType == kVec3f_GrSLType);
-    SkASSERT(GrGLSLShaderVar::kNonArray == uni.fArrayCount);
+    SkASSERT(GrShaderVar::kNonArray == uni.fArrayCount);
     SkDEBUGCODE(this->printUnused(uni);)
     if (kUnusedUniform != uni.fLocation) {
         GR_GL_CALL(fGpu->glInterface(), Uniform3f(uni.fLocation, v0, v1, v2));
@@ -166,7 +166,7 @@ void GrGLProgramDataManager::set4f(UniformHandle u,
                                    float v3) const {
     const Uniform& uni = fUniforms[u.toIndex()];
     SkASSERT(uni.fType == kVec4f_GrSLType);
-    SkASSERT(GrGLSLShaderVar::kNonArray == uni.fArrayCount);
+    SkASSERT(GrShaderVar::kNonArray == uni.fArrayCount);
     SkDEBUGCODE(this->printUnused(uni);)
     if (kUnusedUniform != uni.fLocation) {
         GR_GL_CALL(fGpu->glInterface(), Uniform4f(uni.fLocation, v0, v1, v2, v3));

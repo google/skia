@@ -708,7 +708,7 @@ void FocalInside2PtConicalEffect::GLSLFocalInside2PtConicalProcessor::emitCode(E
 
     // this is the distance along x-axis from the end center to focal point in
     // transformed coordinates
-    GrGLSLShaderVar focal = uniformHandler->getUniformVariable(fFocalUni);
+    GrShaderVar focal = uniformHandler->getUniformVariable(fFocalUni);
 
     // if we have a vec3 from being in perspective, convert it to a vec2 first
     GrGLSLFPFragmentBuilder* fragBuilder = args.fFragBuilder;
@@ -958,11 +958,11 @@ void CircleInside2PtConicalEffect::GLSLCircleInside2PtConicalProcessor::emitCode
                                            "Conical2FSParams");
     SkString tName("t");
 
-    GrGLSLShaderVar center = uniformHandler->getUniformVariable(fCenterUni);
+    GrShaderVar center = uniformHandler->getUniformVariable(fCenterUni);
     // params.x = A
     // params.y = B
     // params.z = C
-    GrGLSLShaderVar params = uniformHandler->getUniformVariable(fParamUni);
+    GrShaderVar params = uniformHandler->getUniformVariable(fParamUni);
 
     // if we have a vec3 from being in perspective, convert it to a vec2 first
     GrGLSLFPFragmentBuilder* fragBuilder = args.fFragBuilder;
@@ -1194,11 +1194,11 @@ void CircleOutside2PtConicalEffect::GLSLCircleOutside2PtConicalProcessor::emitCo
                                            "Conical2FSParams");
     SkString tName("t");
 
-    GrGLSLShaderVar center = uniformHandler->getUniformVariable(fCenterUni);
+    GrShaderVar center = uniformHandler->getUniformVariable(fCenterUni);
     // params.x = A
     // params.y = B
     // params.z = C
-    GrGLSLShaderVar params = uniformHandler->getUniformVariable(fParamUni);
+    GrShaderVar params = uniformHandler->getUniformVariable(fParamUni);
 
     // if we have a vec3 from being in perspective, convert it to a vec2 first
     GrGLSLFPFragmentBuilder* fragBuilder = args.fFragBuilder;

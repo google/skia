@@ -8,10 +8,9 @@
 #ifndef GrVkUniformHandler_DEFINED
 #define GrVkUniformHandler_DEFINED
 
-#include "glsl/GrGLSLUniformHandler.h"
-
 #include "GrAllocator.h"
-#include "glsl/GrGLSLShaderVar.h"
+#include "GrShaderVar.h"
+#include "glsl/GrGLSLUniformHandler.h"
 
 class GrVkUniformHandler : public GrGLSLUniformHandler {
 public:
@@ -28,13 +27,13 @@ public:
 
     // fUBOffset is only valid if the GrSLType of the fVariable is not a sampler
     struct UniformInfo {
-        GrGLSLShaderVar fVariable;
+        GrShaderVar fVariable;
         uint32_t        fVisibility;
         uint32_t        fUBOffset;
     };
     typedef GrTAllocator<UniformInfo> UniformInfoArray;
 
-    const GrGLSLShaderVar& getUniformVariable(UniformHandle u) const override {
+    const GrShaderVar& getUniformVariable(UniformHandle u) const override {
         return fUniforms[u.toIndex()].fVariable;
     }
 
@@ -67,7 +66,7 @@ private:
                              const char* name) override;
 
     int numSamplers() const { return fSamplers.count(); }
-    const GrGLSLShaderVar& samplerVariable(SamplerHandle handle) const override {
+    const GrShaderVar& samplerVariable(SamplerHandle handle) const override {
         return fSamplers[handle.toIndex()].fVariable;
     }
     GrSwizzle samplerSwizzle(SamplerHandle handle) const override {
