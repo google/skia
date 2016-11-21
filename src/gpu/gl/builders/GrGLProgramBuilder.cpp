@@ -111,14 +111,19 @@ GrGLProgram* GrGLProgramBuilder::finalize() {
     }
 
     // NVPR actually requires a vertex shader to compile
-    bool useNvpr = primitiveProcessor().isPathRendering();
+    const GrPrimitiveProcessor& primProc = this->primitiveProcessor();
+    bool useNvpr = primProc.isPathRendering();
     if (!useNvpr) {
-        const GrPrimitiveProcessor& primProc = this->primitiveProcessor();
-
         int vaCount = primProc.numAttribs();
         for (int i = 0; i < vaCount; i++) {
             GL_CALL(BindAttribLocation(programID, i, primProc.getAttrib(i).fName));
         }
+    }
+
+    if (primProc.willUseGeoShader() &&
+        !this->compileAndAttachShaders(fGS, programID, GR_GL_GEOMETRY_SHADER, &shadersToDelete)) {
+        this->cleanupProgram(programID, shadersToDelete);
+        return nullptr;
     }
 
     if (!this->compileAndAttachShaders(fFS, programID, GR_GL_FRAGMENT_SHADER, &shadersToDelete)) {
