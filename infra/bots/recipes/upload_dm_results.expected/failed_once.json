@@ -4,7 +4,7 @@
       "python",
       "-u",
       "\nimport sys, os\npath = sys.argv[1]\nmode = int(sys.argv[2])\nif not os.path.isdir(path):\n  if os.path.exists(path):\n    print \"%s exists but is not a dir\" % path\n    sys.exit(1)\n  os.makedirs(path, mode)\n",
-      "[CWD]/tmp_upload",
+      "[START_DIR]/tmp_upload",
       "511"
     ],
     "name": "makedirs tmp dir",
@@ -26,8 +26,8 @@
       "python",
       "-u",
       "\nimport shutil\nimport sys\nshutil.copy(sys.argv[1], sys.argv[2])\n",
-      "[CWD]/dm/dm.json",
-      "[CWD]/tmp_upload"
+      "[START_DIR]/dm/dm.json",
+      "[START_DIR]/tmp_upload"
     ],
     "name": "copy dm.json"
   },
@@ -36,8 +36,8 @@
       "python",
       "-u",
       "\nimport shutil\nimport sys\nshutil.copy(sys.argv[1], sys.argv[2])\n",
-      "[CWD]/dm/verbose.log",
-      "[CWD]/tmp_upload"
+      "[START_DIR]/dm/verbose.log",
+      "[START_DIR]/tmp_upload"
     ],
     "name": "copy verbose.log"
   },
@@ -46,7 +46,7 @@
       "python",
       "-u",
       "\nimport os\nimport sys\nos.remove(sys.argv[1])\n",
-      "[CWD]/dm/dm.json"
+      "[START_DIR]/dm/dm.json"
     ],
     "name": "rm old dm.json",
     "~followup_annotations": [
@@ -62,7 +62,7 @@
       "python",
       "-u",
       "\nimport os\nimport sys\nos.remove(sys.argv[1])\n",
-      "[CWD]/dm/verbose.log"
+      "[START_DIR]/dm/verbose.log"
     ],
     "name": "rm old verbose.log",
     "~followup_annotations": [
@@ -79,7 +79,7 @@
       "-u",
       "\nimport glob\nimport sys\nwith open(sys.argv[1], 'w') as f:\n  f.write('\\n'.join(glob.glob(sys.argv[2])))\n",
       "/path/to/tmp/",
-      "[CWD]/dm/*"
+      "[START_DIR]/dm/*"
     ],
     "name": "find images"
   },
@@ -87,7 +87,7 @@
     "cmd": [
       "gsutil",
       "cp",
-      "[CWD]/dm/*",
+      "[START_DIR]/dm/*",
       "gs://skia-infra-gm/dm-images-v1"
     ],
     "name": "upload images",
@@ -100,7 +100,7 @@
     "cmd": [
       "gsutil",
       "cp",
-      "[CWD]/dm/*",
+      "[START_DIR]/dm/*",
       "gs://skia-infra-gm/dm-images-v1"
     ],
     "name": "upload images (attempt 2)"
@@ -111,7 +111,7 @@
       "cp",
       "-z",
       "json,log",
-      "[CWD]/tmp_upload/*",
+      "[START_DIR]/tmp_upload/*",
       "gs://skia-infra-gm/dm-json-v1/2012/05/14/12/abc123/Test-Ubuntu-GCC-GCE-CPU-AVX2-x86_64-Debug/1337000001"
     ],
     "name": "upload JSON and logs"

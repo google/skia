@@ -77,7 +77,7 @@
       "-u",
       "RECIPE_MODULE[depot_tools::git]/resources/git_setup.py",
       "--path",
-      "[SLAVE_BUILD]/swarming.client",
+      "[START_DIR]/swarming.client",
       "--url",
       "https://chromium.googlesource.com/external/swarming.client.git"
     ],
@@ -91,7 +91,7 @@
       "origin",
       "master"
     ],
-    "cwd": "[SLAVE_BUILD]/swarming.client",
+    "cwd": "[START_DIR]/swarming.client",
     "env": {
       "PATH": "RECIPE_PACKAGE_REPO[depot_tools]:%(PATH)s"
     },
@@ -104,7 +104,7 @@
       "-f",
       "FETCH_HEAD"
     ],
-    "cwd": "[SLAVE_BUILD]/swarming.client",
+    "cwd": "[START_DIR]/swarming.client",
     "name": "git checkout (swarming_client)"
   },
   {
@@ -113,7 +113,7 @@
       "rev-parse",
       "HEAD"
     ],
-    "cwd": "[SLAVE_BUILD]/swarming.client",
+    "cwd": "[START_DIR]/swarming.client",
     "name": "read revision",
     "stdout": "/path/to/tmp/",
     "~followup_annotations": [
@@ -128,7 +128,7 @@
       "-d",
       "-x"
     ],
-    "cwd": "[SLAVE_BUILD]/swarming.client",
+    "cwd": "[START_DIR]/swarming.client",
     "name": "git clean (swarming_client)"
   },
   {
@@ -137,7 +137,7 @@
       "submodule",
       "sync"
     ],
-    "cwd": "[SLAVE_BUILD]/swarming.client",
+    "cwd": "[START_DIR]/swarming.client",
     "name": "submodule sync (swarming_client)"
   },
   {
@@ -148,14 +148,14 @@
       "--init",
       "--recursive"
     ],
-    "cwd": "[SLAVE_BUILD]/swarming.client",
+    "cwd": "[START_DIR]/swarming.client",
     "name": "submodule update (swarming_client)"
   },
   {
     "cmd": [
       "python",
       "-u",
-      "[SLAVE_BUILD]/swarming.client/swarming.py",
+      "[START_DIR]/swarming.client/swarming.py",
       "--version"
     ],
     "name": "swarming.py --version",
@@ -294,7 +294,7 @@
       "python",
       "-u",
       "RECIPE_MODULE[build::isolate]/resources/isolate.py",
-      "[SLAVE_BUILD]/swarming.client",
+      "[START_DIR]/swarming.client",
       "batcharchive",
       "--dump-json",
       "/path/to/tmp/json",
@@ -316,7 +316,7 @@
     "cmd": [
       "python",
       "-u",
-      "[SLAVE_BUILD]/swarming.client/swarming.py",
+      "[START_DIR]/swarming.client/swarming.py",
       "trigger",
       "--swarming",
       "https://chromium-swarm.appspot.com",
@@ -405,7 +405,7 @@
     "cmd": [
       "python",
       "-u",
-      "[SLAVE_BUILD]/swarming.client/swarming.py",
+      "[START_DIR]/swarming.client/swarming.py",
       "collect",
       "--swarming",
       "https://chromium-swarm.appspot.com",
@@ -528,7 +528,7 @@
       "python",
       "-u",
       "RECIPE_MODULE[build::isolate]/resources/isolate.py",
-      "[SLAVE_BUILD]/swarming.client",
+      "[START_DIR]/swarming.client",
       "batcharchive",
       "--dump-json",
       "/path/to/tmp/json",
@@ -574,7 +574,7 @@
     "cmd": [
       "python",
       "-u",
-      "[SLAVE_BUILD]/swarming.client/isolateserver.py",
+      "[START_DIR]/swarming.client/isolateserver.py",
       "archive",
       "--isolate-server",
       "https://isolateserver.appspot.com",
@@ -587,7 +587,7 @@
     "cmd": [
       "python",
       "-u",
-      "[SLAVE_BUILD]/swarming.client/swarming.py",
+      "[START_DIR]/swarming.client/swarming.py",
       "trigger",
       "--swarming",
       "https://chromium-swarm.appspot.com",
@@ -684,7 +684,7 @@
     "cmd": [
       "python",
       "-u",
-      "[SLAVE_BUILD]/swarming.client/swarming.py",
+      "[START_DIR]/swarming.client/swarming.py",
       "collect",
       "--swarming",
       "https://chromium-swarm.appspot.com",
@@ -777,7 +777,7 @@
       "python",
       "-u",
       "RECIPE_MODULE[build::isolate]/resources/isolate.py",
-      "[SLAVE_BUILD]/swarming.client",
+      "[START_DIR]/swarming.client",
       "batcharchive",
       "--dump-json",
       "/path/to/tmp/json",
@@ -823,7 +823,7 @@
     "cmd": [
       "python",
       "-u",
-      "[SLAVE_BUILD]/swarming.client/isolateserver.py",
+      "[START_DIR]/swarming.client/isolateserver.py",
       "archive",
       "--isolate-server",
       "https://isolateserver.appspot.com",
@@ -836,7 +836,7 @@
     "cmd": [
       "python",
       "-u",
-      "[SLAVE_BUILD]/swarming.client/swarming.py",
+      "[START_DIR]/swarming.client/swarming.py",
       "trigger",
       "--swarming",
       "https://chromium-swarm.appspot.com",
@@ -928,7 +928,7 @@
     "cmd": [
       "python",
       "-u",
-      "[SLAVE_BUILD]/swarming.client/swarming.py",
+      "[START_DIR]/swarming.client/swarming.py",
       "collect",
       "--swarming",
       "https://chromium-swarm.appspot.com",
