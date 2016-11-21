@@ -40,17 +40,11 @@ public:
 
         ptrdiff_t deleterDiff = (char*)releaser - (char*)Base;
 
-        // TODO: combine both if statments when study is done.
-        if (objStart + sizeof(T) + sizeof(Footer) > fEnd) {
-            return nullptr;
-        }
-
-        if (padding >= 32
+        if (objStart + sizeof(T) + sizeof(Footer) > fEnd
+            || padding >= 32
             || deleterDiff >= (1 << 26)
             || deleterDiff < -(1 << 26)) {
-            // Can't encode padding or deleter function offset.
-            SkDebugf("SkFixedAlloc - padding: %dt, deleteDiff: %dt\n", padding, deleterDiff);
-            SkFAIL("Failed to allocate due to constraint.");
+            // Ran out of space, or code not store info in the Footer.
             return nullptr;
         }
 
