@@ -25,6 +25,24 @@
     },
     {
       "key": {
+        "uuid": "500b3ca9_150fafa8",
+        "filename": "src/gpu/gl/GrGLProgramDataManager.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 85,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2016-11-21T17:58:01Z",
+      "side": 1,
+      "message": "The two locations were for an old workaround for a driver bug. If the uniform had dual visibility and the workaround was in play the uniform would be duplicated to two different uniforms, one in the VS and one FS. The workaround no longer exists but the two slots here were never consolidated.",
+      "parentUuid": "500b3ca9_5a71d488",
+      "revId": "5d3b578e331c4777c871fff388e9a56004b73317",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "500b3ca9_daedc409",
         "filename": "src/gpu/gl/GrGLUniformHandler.h",
         "patchSetId": 4
@@ -42,6 +60,24 @@
         "endLine": 32,
         "endChar": 37
       },
+      "revId": "5d3b578e331c4777c871fff388e9a56004b73317",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "500b3ca9_d518f7f0",
+        "filename": "src/gpu/gl/GrGLUniformHandler.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 32,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2016-11-21T17:58:01Z",
+      "side": 1,
+      "message": "No, but GrGLUniformHandler only has the lifetime of GrProgramGLBuilder, not GrGLProgram lifetime, so it didn\u0027t seem harmful. There\u0027s at most one GrGLUniformHandler at a time (per GrContext).",
+      "parentUuid": "500b3ca9_daedc409",
       "revId": "5d3b578e331c4777c871fff388e9a56004b73317",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
