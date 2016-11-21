@@ -1,0 +1,96 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "500b3ca9_3adaa07b",
+        "filename": "bench/GLVertexAttributesBench.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 84,
+      "author": {
+        "id": 5640
+      },
+      "writtenOn": "2016-11-21T17:36:53Z",
+      "side": 1,
+      "message": "nit: indentation",
+      "range": {
+        "startLine": 84,
+        "startChar": 38,
+        "endLine": 84,
+        "endChar": 53
+      },
+      "revId": "219fe54bd296e9ba81f34a07ad6a6d08518ac0ce",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "500b3ca9_faaac8b9",
+        "filename": "bench/GLVertexAttributesBench.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 95,
+      "author": {
+        "id": 5640
+      },
+      "writtenOn": "2016-11-21T17:36:53Z",
+      "side": 1,
+      "message": "nit: indentation",
+      "range": {
+        "startLine": 95,
+        "startChar": 38,
+        "endLine": 95,
+        "endChar": 53
+      },
+      "revId": "219fe54bd296e9ba81f34a07ad6a6d08518ac0ce",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "500b3ca9_ba1b305a",
+        "filename": "include/gpu/GrShaderVar.h",
+        "patchSetId": 5
+      },
+      "lineNbr": 2,
+      "author": {
+        "id": 5640
+      },
+      "writtenOn": "2016-11-21T17:36:53Z",
+      "side": 1,
+      "message": "nit: 2011?",
+      "range": {
+        "startLine": 2,
+        "startChar": 13,
+        "endLine": 2,
+        "endChar": 17
+      },
+      "revId": "219fe54bd296e9ba81f34a07ad6a6d08518ac0ce",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "500b3ca9_1a211c66",
+        "filename": "src/gpu/gl/GrGLSampler.h",
+        "patchSetId": 5
+      },
+      "lineNbr": 37,
+      "author": {
+        "id": 5640
+      },
+      "writtenOn": "2016-11-21T17:36:53Z",
+      "side": 1,
+      "message": "nit: indentation",
+      "range": {
+        "startLine": 37,
+        "startChar": 20,
+        "endLine": 37,
+        "endChar": 29
+      },
+      "revId": "219fe54bd296e9ba81f34a07ad6a6d08518ac0ce",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
