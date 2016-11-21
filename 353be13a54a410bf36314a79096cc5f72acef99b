@@ -1,0 +1,61 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "500b3ca9_ad7f7718",
+        "filename": "include/private/SkSafe_math.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 29,
+      "author": {
+        "id": 5980
+      },
+      "writtenOn": "2016-11-21T23:42:24Z",
+      "side": 1,
+      "message": "Consider reversing the two blocks in order to use \"#if defined(_MSC_VER)\" - non-negated logic is slightly easier to read.",
+      "range": {
+        "startLine": 29,
+        "startChar": 5,
+        "endLine": 29,
+        "endChar": 12
+      },
+      "revId": "353be13a54a410bf36314a79096cc5f72acef99b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "500b3ca9_6db73fb7",
+        "filename": "include/private/SkSafe_math.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 40,
+      "author": {
+        "id": 5980
+      },
+      "writtenOn": "2016-11-21T23:42:24Z",
+      "side": 1,
+      "message": "Maybe add before/after checks for _INC_MATH to make sure it wasn\u0027t and then is defined, since we depend on that elsewhere.\n\nAlso, has copying the necessary definitions here been considered?  Copying the function prototypes is ugly, but so is #define __inline. I know that VC++ detects and rejects using #define on some C/C++ keywords and they may extend that detection to __inline at some point.",
+      "revId": "353be13a54a410bf36314a79096cc5f72acef99b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "500b3ca9_4d86bbfc",
+        "filename": "src/opts/SkOpts_avx.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 12,
+      "author": {
+        "id": 5980
+      },
+      "writtenOn": "2016-11-21T23:42:24Z",
+      "side": 1,
+      "message": "Should this be a Windows specific check? I suppose it doesn\u0027t need to be but it feels weird to be checking _INC_MATH on non-Windows platforms.",
+      "revId": "353be13a54a410bf36314a79096cc5f72acef99b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
