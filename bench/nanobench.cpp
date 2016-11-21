@@ -1198,8 +1198,8 @@ int nanobench_main() {
         start_keepalive();
     }
 
-    if (FLAGS_analyticAA) {
-        gSkUseAnalyticAA = true;
+    if (FLAGS_noAnalyticAA) {
+        gSkUseAnalyticAA = false;
     }
 
     int runs = 0;
