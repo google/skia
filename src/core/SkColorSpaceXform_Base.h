@@ -49,7 +49,7 @@ enum ColorSpaceMatch {
     kFull_ColorSpaceMatch,
 };
 
-template <SrcGamma kSrc, DstGamma kDst, ColorSpaceMatch kCSM>
+template <SrcGamma kSrc, DstGamma kDst>
 class SkColorSpaceXform_XYZ : public SkColorSpaceXform_Base {
 protected:
     bool onApply(ColorFormat dstFormat, void* dst, ColorFormat srcFormat, const void* src,
@@ -57,15 +57,15 @@ protected:
 
 private:
     SkColorSpaceXform_XYZ(SkColorSpace_XYZ* srcSpace, const SkMatrix44& srcToDst,
-                          SkColorSpace_XYZ* dstSpace);
+                          SkColorSpace_XYZ* dstSpace, ColorSpaceMatch csm);
 
     // Contain pointers into storage or pointers into precomputed tables.
     const float*              fSrcGammaTables[3];
     SkAutoTMalloc<float>      fSrcStorage;
     const uint8_t*            fDstGammaTables[3];
     sk_sp<SkData>             fDstStorage;
-
     float                     fSrcToDst[16];
+    const ColorSpaceMatch     fCSM;
 
     friend class SkColorSpaceXform;
     friend std::unique_ptr<SkColorSpaceXform> SlowIdentityXform(SkColorSpace_XYZ* space);
