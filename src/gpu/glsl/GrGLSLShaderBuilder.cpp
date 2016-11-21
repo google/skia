@@ -199,6 +199,7 @@ void GrGLSLShaderBuilder::addLayoutQualifier(const char* param, InterfaceQualifi
 
 void GrGLSLShaderBuilder::compileAndAppendLayoutQualifiers() {
     static const char* interfaceQualifierNames[] = {
+        "in",
         "out"
     };
 
@@ -214,7 +215,8 @@ void GrGLSLShaderBuilder::compileAndAppendLayoutQualifiers() {
         this->layoutQualifiers().appendf(") %s;\n", interfaceQualifierNames[interface]);
     }
 
-    GR_STATIC_ASSERT(0 == GrGLSLShaderBuilder::kOut_InterfaceQualifier);
+    GR_STATIC_ASSERT(0 == GrGLSLShaderBuilder::kIn_InterfaceQualifier);
+    GR_STATIC_ASSERT(1 == GrGLSLShaderBuilder::kOut_InterfaceQualifier);
     GR_STATIC_ASSERT(SK_ARRAY_COUNT(interfaceQualifierNames) == kLastInterfaceQualifier + 1);
 }
 

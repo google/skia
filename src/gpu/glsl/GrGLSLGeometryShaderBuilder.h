@@ -16,8 +16,26 @@ class GrGLSLGeometryBuilder : public GrGLSLShaderBuilder {
 public:
     GrGLSLGeometryBuilder(GrGLSLProgramBuilder* program);
 
+    enum class InputType {
+        kPoints,
+        kLines,
+        kLinesAdjacency,
+        kTriangles,
+        kTrianglesAdjacency
+    };
+
+    enum class OutputType {
+        kPoints,
+        kLineStrip,
+        kTriangleStrip
+    };
+
+    void configure(InputType, OutputType, int maxVertices, int numInvocations = 1);
+
 private:
     void onFinalize() override;
+
+    bool fIsConfigured;
 
     friend class GrGLProgramBuilder;
 
