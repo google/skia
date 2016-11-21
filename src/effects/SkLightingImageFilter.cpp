@@ -27,6 +27,7 @@
 #include "SkGrPriv.h"
 #include "effects/GrSingleTextureEffect.h"
 #include "effects/GrTextureDomain.h"
+#include "glsl/GrGLSL.h"
 #include "glsl/GrGLSLFragmentProcessor.h"
 #include "glsl/GrGLSLFragmentShaderBuilder.h"
 #include "glsl/GrGLSLProgramDataManager.h"
@@ -1801,14 +1802,14 @@ void GrGLLightingEffect::emitCode(EmitArgs& args) {
     GrGLSLFPFragmentBuilder* fragBuilder = args.fFragBuilder;
     SkString lightFunc;
     this->emitLightFunc(uniformHandler, fragBuilder, &lightFunc);
-    static const GrGLSLShaderVar gSobelArgs[] =  {
-        GrGLSLShaderVar("a", kFloat_GrSLType),
-        GrGLSLShaderVar("b", kFloat_GrSLType),
-        GrGLSLShaderVar("c", kFloat_GrSLType),
-        GrGLSLShaderVar("d", kFloat_GrSLType),
-        GrGLSLShaderVar("e", kFloat_GrSLType),
-        GrGLSLShaderVar("f", kFloat_GrSLType),
-        GrGLSLShaderVar("scale", kFloat_GrSLType),
+    static const GrShaderVar gSobelArgs[] =  {
+        GrShaderVar("a", kFloat_GrSLType),
+        GrShaderVar("b", kFloat_GrSLType),
+        GrShaderVar("c", kFloat_GrSLType),
+        GrShaderVar("d", kFloat_GrSLType),
+        GrShaderVar("e", kFloat_GrSLType),
+        GrShaderVar("f", kFloat_GrSLType),
+        GrShaderVar("scale", kFloat_GrSLType),
     };
     SkString sobelFuncName;
     SkString coords2D = fragBuilder->ensureCoords2D(args.fTransformedCoords[0]);
@@ -1819,10 +1820,10 @@ void GrGLLightingEffect::emitCode(EmitArgs& args) {
                               gSobelArgs,
                               "\treturn (-a + b - 2.0 * c + 2.0 * d -e + f) * scale;\n",
                               &sobelFuncName);
-    static const GrGLSLShaderVar gPointToNormalArgs[] =  {
-        GrGLSLShaderVar("x", kFloat_GrSLType),
-        GrGLSLShaderVar("y", kFloat_GrSLType),
-        GrGLSLShaderVar("scale", kFloat_GrSLType),
+    static const GrShaderVar gPointToNormalArgs[] =  {
+        GrShaderVar("x", kFloat_GrSLType),
+        GrShaderVar("y", kFloat_GrSLType),
+        GrShaderVar("scale", kFloat_GrSLType),
     };
     SkString pointToNormalName;
     fragBuilder->emitFunction(kVec3f_GrSLType,
@@ -1832,9 +1833,9 @@ void GrGLLightingEffect::emitCode(EmitArgs& args) {
                               "\treturn normalize(vec3(-x * scale, -y * scale, 1));\n",
                               &pointToNormalName);
 
-    static const GrGLSLShaderVar gInteriorNormalArgs[] =  {
-        GrGLSLShaderVar("m", kFloat_GrSLType, 9),
-        GrGLSLShaderVar("surfaceScale", kFloat_GrSLType),
+    static const GrShaderVar gInteriorNormalArgs[] =  {
+        GrShaderVar("m", kFloat_GrSLType, 9),
+        GrShaderVar("surfaceScale", kFloat_GrSLType),
     };
     SkString normalBody = emitNormalFunc(le.boundaryMode(),
                                          pointToNormalName.c_str(),
@@ -1922,10 +1923,10 @@ void GrGLDiffuseLightingEffect::emitLightFunc(GrGLSLUniformHandler* uniformHandl
                                  kFloat_GrSLType, kDefault_GrSLPrecision,
                                  "KD", &kd);
 
-    static const GrGLSLShaderVar gLightArgs[] = {
-        GrGLSLShaderVar("normal", kVec3f_GrSLType),
-        GrGLSLShaderVar("surfaceToLight", kVec3f_GrSLType),
-        GrGLSLShaderVar("lightColor", kVec3f_GrSLType)
+    static const GrShaderVar gLightArgs[] = {
+        GrShaderVar("normal", kVec3f_GrSLType),
+        GrShaderVar("surfaceToLight", kVec3f_GrSLType),
+        GrShaderVar("lightColor", kVec3f_GrSLType)
     };
     SkString lightBody;
     lightBody.appendf("\tfloat colorScale = %s * dot(normal, surfaceToLight);\n", kd);
@@ -2017,10 +2018,10 @@ void GrGLSpecularLightingEffect::emitLightFunc(GrGLSLUniformHandler* uniformHand
                                                "Shininess",
                                                &shininess);
 
-    static const GrGLSLShaderVar gLightArgs[] = {
-        GrGLSLShaderVar("normal", kVec3f_GrSLType),
-        GrGLSLShaderVar("surfaceToLight", kVec3f_GrSLType),
-        GrGLSLShaderVar("lightColor", kVec3f_GrSLType)
+    static const GrShaderVar gLightArgs[] = {
+        GrShaderVar("normal", kVec3f_GrSLType),
+        GrShaderVar("surfaceToLight", kVec3f_GrSLType),
+        GrShaderVar("lightColor", kVec3f_GrSLType)
     };
     SkString lightBody;
     lightBody.appendf("\tvec3 halfDir = vec3(normalize(surfaceToLight + vec3(0, 0, 1)));\n");
@@ -2156,8 +2157,8 @@ void GrGLSpotLight::emitLightColor(GrGLSLUniformHandler* uniformHandler,
     fSUni = uniformHandler->addUniform(kFragment_GrShaderFlag,
                                        kVec3f_GrSLType, kDefault_GrSLPrecision, "S", &s);
 
-    static const GrGLSLShaderVar gLightColorArgs[] = {
-        GrGLSLShaderVar("surfaceToLight", kVec3f_GrSLType)
+    static const GrShaderVar gLightColorArgs[] = {
+        GrShaderVar("surfaceToLight", kVec3f_GrSLType)
     };
     SkString lightColorBody;
     lightColorBody.appendf("\tfloat cosAngle = -dot(surfaceToLight, %s);\n", s);

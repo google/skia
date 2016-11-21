@@ -5,6 +5,7 @@
  * found in the LICENSE file.
  */
 
+#include "glsl/GrGLSLCaps.h"
 #include "Sk4fLinearGradient.h"
 #include "SkColorSpace_XYZ.h"
 #include "SkGradientShaderPriv.h"

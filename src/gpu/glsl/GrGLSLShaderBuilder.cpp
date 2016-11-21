@@ -5,11 +5,11 @@
  * found in the LICENSE file.
  */
 
+#include "GrShaderVar.h"
 #include "GrSwizzle.h"
 #include "glsl/GrGLSLShaderBuilder.h"
 #include "glsl/GrGLSLCaps.h"
 #include "glsl/GrGLSLColorSpaceXformHelper.h"
-#include "glsl/GrGLSLShaderVar.h"
 #include "glsl/GrGLSLSampler.h"
 #include "glsl/GrGLSLProgramBuilder.h"
 
@@ -30,7 +30,7 @@ GrGLSLShaderBuilder::GrGLSLShaderBuilder(GrGLSLProgramBuilder* program)
     this->main() = "void main() {";
 }
 
-void GrGLSLShaderBuilder::declAppend(const GrGLSLShaderVar& var) {
+void GrGLSLShaderBuilder::declAppend(const GrShaderVar& var) {
     SkString tempDecl;
     var.appendDecl(fProgramBuilder->glslCaps(), &tempDecl);
     this->codeAppendf("%s;", tempDecl.c_str());
@@ -45,7 +45,7 @@ void GrGLSLShaderBuilder::appendPrecisionModifier(GrSLPrecision precision) {
 void GrGLSLShaderBuilder::emitFunction(GrSLType returnType,
                                        const char* name,
                                        int argCnt,
-                                       const GrGLSLShaderVar* args,
+                                       const GrShaderVar* args,
                                        const char* body,
                                        SkString* outName) {
     this->functions().append(GrGLSLTypeString(returnType));
@@ -134,9 +134,9 @@ void GrGLSLShaderBuilder::appendColorGamutXform(SkString* out,
     // Our color is (r, g, b, a), but we want to multiply (r, g, b, 1) by our matrix, then
     // re-insert the original alpha. The supplied srcColor is likely to be of the form
     // "texture(...)", and we don't want to evaluate that twice, so wrap everything in a function.
-    static const GrGLSLShaderVar gColorGamutXformArgs[] = {
-        GrGLSLShaderVar("color", kVec4f_GrSLType),
-        GrGLSLShaderVar("xform", kMat44f_GrSLType),
+    static const GrShaderVar gColorGamutXformArgs[] = {
+        GrShaderVar("color", kVec4f_GrSLType),
+        GrShaderVar("xform", kMat44f_GrSLType),
     };
     SkString functionBody;
     // Gamut xform, clamp to destination gamut

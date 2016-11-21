@@ -12,6 +12,7 @@
 #include "gl/GrGLGpu.h"
 #include "gl/GrGLUtil.h"
 #include "gl/GLTestContext.h"
+#include "glsl/GrGLSLCaps.h"
 
 using sk_gpu_test::GLTestContext;
 

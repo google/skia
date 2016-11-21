@@ -26,6 +26,7 @@
 #include "SkGr.h"
 #include "SkGrPriv.h"
 #include "effects/Gr1DKernelEffect.h"
+#include "glsl/GrGLSL.h"
 #include "glsl/GrGLSLFragmentProcessor.h"
 #include "glsl/GrGLSLFragmentShaderBuilder.h"
 #include "glsl/GrGLSLProgramDataManager.h"
