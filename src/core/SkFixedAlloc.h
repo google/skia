@@ -21,31 +21,47 @@ public:
     ~SkFixedAlloc() { this->reset(); }
 
     // Allocates a new T in the buffer if possible.  If not, returns nullptr.
+    // Assumptions:
+    // * max alignment value is 32 - if alignment is greater than 32, the allocation is best effort.
+    // * footer is 32 bits - 5 bits of alignment and 27 bits of deleter difference from Base.
+    // * deleter difference - the difference D is -2^26 <= D < 2^26.
     template <typename T, typename... Args>
     T* make(Args&&... args) {
-        auto aligned = ((uintptr_t)(fBuffer+fUsed) + alignof(T) - 1) & ~(alignof(T)-1);
-        size_t skip = aligned - (uintptr_t)(fBuffer+fUsed);
+        auto mask = alignof(T) - 1;
 
-        if (!SkTFitsIn<uint32_t>(skip)      ||
-            !SkTFitsIn<uint32_t>(sizeof(T)) ||
-            fUsed + skip + sizeof(T) + sizeof(Footer) > fLimit) {
+        // Align fCursor for this allocation.
+        char* objStart = (char*)((uintptr_t)(fCursor + mask) & ~mask);
+        ptrdiff_t padding = objStart - fCursor;
+        Releaser releaser = [](char* objEnd) {
+            char* objStart = objEnd - (sizeof(T) + sizeof(Footer));
+            ((T*)objStart)->~T();
+            return objStart;
+        };
+
+        ptrdiff_t deleterDiff = (char*)releaser - (char*)Base;
+
+        // TODO: combine both if statments when study is done.
+        if (objStart + sizeof(T) + sizeof(Footer) > fEnd) {
             return nullptr;
         }
 
-        // Skip ahead until our buffer is aligned for T.
-        fUsed += skip;
+        if (padding >= 32
+            || deleterDiff >= (1 << 26)
+            || deleterDiff < -(1 << 26)) {
+            // Can't encode padding or deleter function offset.
+            SkDebugf("SkFixedAlloc - padding: %dt, deleteDiff: %dt\n", padding, deleterDiff);
+            SkFAIL("Failed to allocate due to constraint.");
+            return nullptr;
+        }
 
-        // Make space for T.
-        void* ptr = fBuffer+fUsed;
-        fUsed += sizeof(T);
+        // Advance cursor to end of the object.
+        fCursor = objStart + sizeof(T);
 
-        // Stamp a footer after the T that we can use to clean it up.
-        Footer footer = { [](void* ptr) { ((T*)ptr)->~T(); }, SkToU32(skip), SkToU32(sizeof(T)) };
-        memcpy(fBuffer+fUsed, &footer, sizeof(Footer));
-        fUsed += sizeof(Footer);
+        Footer footer = (Footer)(SkLeftShift((int64_t)deleterDiff, 5) | padding);
+        memcpy(fCursor, &footer, sizeof(Footer));
+        fCursor += sizeof(Footer);
 
-        // Creating a T must be last for nesting to work.
-        return new (ptr) T(std::forward<Args>(args)...);
+        return new (objStart) T(std::forward<Args>(args)...);
     }
 
     // Destroys the last object allocated and frees its space in the buffer.
@@ -55,13 +71,15 @@ public:
     void reset();
 
 private:
-    struct Footer {
-        void (*dtor)(void*);
-        uint32_t skip, len;
-    };
+    using Footer  = int32_t;
+    using Releaser = char*(*)(char*);
 
-    char* fBuffer;
-    size_t fUsed, fLimit;
+    // A function pointer to use for offsets of releasers.
+    static void Base();
+
+    char* const fStorage;
+    char*       fCursor;
+    char* const fEnd;
 };
 
 class SkFallbackAlloc {
