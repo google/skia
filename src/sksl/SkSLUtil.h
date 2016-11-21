@@ -71,6 +71,17 @@ public:
         result->fShaderDerivativeExtensionString = "GL_OES_standard_derivatives";
         return result;
     }
+
+    static sk_sp<GrGLSLCaps> VariousCaps() {
+        sk_sp<GrGLSLCaps> result = sk_make_sp<GrGLSLCaps>(GrContextOptions());
+        result->fVersionDeclString = "#version 400";
+        result->fExternalTextureSupport = true;
+        result->fFBFetchSupport = false;
+        result->fDropsTileOnZeroDivide = true;
+        result->fTexelFetchSupport = true;
+        result->fCanUseAnyFunctionInShader = false;
+        return result;
+    }
 };
 
 void write_data(const SkData& d, SkWStream& out);

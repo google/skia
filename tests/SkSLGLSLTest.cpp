@@ -524,4 +524,27 @@ DEF_TEST(SkSLStaticIf, r) {
          "}\n");
 }
 
+DEF_TEST(SkSLCaps, r) {
+    test(r,
+         "void main() {"
+         "int x;"
+         "if (sk_Caps.externalTextureSupport) x = 1;"
+         "if (sk_Caps.fbFetchSupport) x = 2;"
+         "if (sk_Caps.dropsTileOnZeroDivide && sk_Caps.texelFetchSupport) x = 3;"
+         "if (sk_Caps.dropsTileOnZeroDivide && sk_Caps.canUseAnyFunctionInShader) x = 4;"
+         "}",
+         *SkSL::GLSLCapsFactory::VariousCaps(),
+         "#version 400\n"
+         "out vec4 sk_FragColor;\n"
+         "void main() {\n"
+         "    int x;\n"
+         "    x = 1;\n"
+         "    {\n"
+         "    }\n"
+         "    x = 3;\n"
+         "    {\n"
+         "    }\n"
+         "}\n");
+}
+
 #endif

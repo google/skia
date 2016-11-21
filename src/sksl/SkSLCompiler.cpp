@@ -135,6 +135,11 @@ Compiler::Compiler()
     ADD_TYPE(GSampler2DArrayShadow);
     ADD_TYPE(GSamplerCubeArrayShadow);
 
+    SkString skCapsName("sk_Caps");
+    Variable* skCaps = new Variable(Position(), Modifiers(), skCapsName, 
+                                    *fContext.fSkCaps_Type, Variable::kGlobal_Storage);
+    fIRGenerator->fSymbolTable->add(skCapsName, std::unique_ptr<Symbol>(skCaps));
+
     Modifiers::Flag ignored1;
     std::vector<std::unique_ptr<ProgramElement>> ignored2;
     this->internalConvertProgram(SkString(SKSL_INCLUDE), &ignored1, &ignored2);
@@ -383,10 +388,11 @@ void Compiler::internalConvertProgram(SkString text,
     }
 }
 
-std::unique_ptr<Program> Compiler::convertProgram(Program::Kind kind, SkString text) {
+std::unique_ptr<Program> Compiler::convertProgram(Program::Kind kind, SkString text,
+                                                  std::unordered_map<SkString, CapValue> caps) {
     fErrorText = "";
     fErrorCount = 0;
-    fIRGenerator->pushSymbolTable();
+    fIRGenerator->start(&caps);
     std::vector<std::unique_ptr<ProgramElement>> elements;
     Modifiers::Flag ignored;
     switch (kind) {
@@ -402,7 +408,7 @@ std::unique_ptr<Program> Compiler::convertProgram(Program::Kind kind, SkString t
     this->internalConvertProgram(text, &defaultPrecision, &elements);
     auto result = std::unique_ptr<Program>(new Program(kind, defaultPrecision, std::move(elements),
                                                        fIRGenerator->fSymbolTable));
-    fIRGenerator->popSymbolTable();
+    fIRGenerator->finish();
     this->writeErrorCount();
     return result;
 }
@@ -428,7 +434,8 @@ void Compiler::writeErrorCount() {
 }
 
 bool Compiler::toSPIRV(Program::Kind kind, const SkString& text, SkWStream& out) {
-    auto program = this->convertProgram(kind, text);
+    std::unordered_map<SkString, CapValue> capsMap;
+    auto program = this->convertProgram(kind, text, capsMap);
     if (fErrorCount == 0) {
         SkSL::SPIRVCodeGenerator cg(&fContext);
         cg.generateCode(*program.get(), out);
@@ -446,9 +453,32 @@ bool Compiler::toSPIRV(Program::Kind kind, const SkString& text, SkString* out) 
     return result;
 }
 
+static void fill_caps(const GrGLSLCaps& caps, std::unordered_map<SkString, CapValue>* capsMap) {
+#define CAP(name) capsMap->insert(std::make_pair(SkString(#name), CapValue(caps.name())));
+    CAP(fbFetchSupport);
+    CAP(fbFetchNeedsCustomOutput);
+    CAP(bindlessTextureSupport);
+    CAP(dropsTileOnZeroDivide);
+    CAP(flatInterpolationSupport);
+    CAP(noperspectiveInterpolationSupport);
+    CAP(multisampleInterpolationSupport);
+    CAP(sampleVariablesSupport);
+    CAP(sampleMaskOverrideCoverageSupport);
+    CAP(externalTextureSupport);
+    CAP(texelFetchSupport);
+    CAP(imageLoadStoreSupport);
+    CAP(mustEnableAdvBlendEqs);
+    CAP(mustEnableSpecificAdvBlendEqs);
+    CAP(mustDeclareFragmentShaderOutput);
+    CAP(canUseAnyFunctionInShader);
+#undef CAP
+}
+
 bool Compiler::toGLSL(Program::Kind kind, const SkString& text, const GrGLSLCaps& caps,
                       SkWStream& out) {
-    auto program = this->convertProgram(kind, text);
+    std::unordered_map<SkString, CapValue> capsMap;
+    fill_caps(caps, &capsMap);
+    auto program = this->convertProgram(kind, text, capsMap);
     if (fErrorCount == 0) {
         SkSL::GLSLCodeGenerator cg(&fContext, &caps);
         cg.generateCode(*program.get(), out);

@@ -49,6 +49,28 @@
 
 namespace SkSL {
 
+struct CapValue {
+    CapValue()
+    : fKind(kInt_Kind)
+    , fValue(-1) {
+        ASSERT(false);
+    }
+
+    CapValue(bool b)
+    : fKind(kBool_Kind)
+    , fValue(b) {}
+
+    CapValue(int i)
+    : fKind(kInt_Kind)
+    , fValue(i) {}
+
+    enum {
+        kBool_Kind,
+        kInt_Kind,
+    } fKind;
+    int fValue;
+};
+
 /**
  * Performs semantic analysis on an abstract syntax tree (AST) and produces the corresponding 
  * (unoptimized) intermediate representation (IR).
@@ -67,6 +89,17 @@ public:
                                                                   const ASTModifiersDeclaration& m);
 
 private:
+    /**
+     * Prepare to compile a program. Pushes a new symbol table and installs the caps so that
+     * references to sk_Caps.<cap> can be resolved.
+     */
+    void start(std::unordered_map<SkString, CapValue>* caps);
+
+    /**
+     * Performs cleanup after compilation is complete.
+     */
+    void finish();
+
     void pushSymbolTable();
     void popSymbolTable();
 
@@ -105,6 +138,7 @@ private:
     Modifiers convertModifiers(const ASTModifiers& m);
     std::unique_ptr<Expression> convertPrefixExpression(const ASTPrefixExpression& expression);
     std::unique_ptr<Statement> convertReturn(const ASTReturnStatement& r);
+    std::unique_ptr<Expression> getCap(Position position, SkString name);
     std::unique_ptr<Expression> convertSuffixExpression(const ASTSuffixExpression& expression);
     std::unique_ptr<Expression> convertField(std::unique_ptr<Expression> base, 
                                              const SkString& field);
@@ -120,6 +154,7 @@ private:
 
     const Context& fContext;
     const FunctionDeclaration* fCurrentFunction;
+    const std::unordered_map<SkString, CapValue>* fCapsMap;
     std::shared_ptr<SymbolTable> fSymbolTable;
     int fLoopLevel;
     ErrorReporter& fErrors;
