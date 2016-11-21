@@ -29,7 +29,7 @@ class SkiaVarsApi(recipe_api.RecipeApi):
     self.slave_name = self.m.properties['slavename']
     self.build_number = self.m.properties['buildnumber']
 
-    self.slave_dir = self.m.path['slave_build']
+    self.slave_dir = self.m.path['start_dir']
     self.checkout_root = self.slave_dir
     self.default_env = {}
     self.gclient_env = {}
@@ -41,7 +41,7 @@ class SkiaVarsApi(recipe_api.RecipeApi):
     # The 'depot_tools' directory comes from recipe DEPS and isn't provided by
     # default. We have to set it manually.
     self.m.path.c.base_paths['depot_tools'] = (
-        self.m.path.c.base_paths['slave_build'] +
+        self.m.path.c.base_paths['start_dir'] +
         ('skia', 'infra', 'bots', '.recipe_deps', 'depot_tools'))
     if 'Win' in self.builder_name:
       self.m.path.c.base_paths['depot_tools'] = (
@@ -81,7 +81,7 @@ class SkiaVarsApi(recipe_api.RecipeApi):
     self.local_svg_dir = self.slave_dir.join('svg')
     if not self.is_compile_bot:
       self.skia_out = self.slave_dir.join('out')
-    self.tmp_dir = self.m.path['slave_build'].join('tmp')
+    self.tmp_dir = self.m.path['start_dir'].join('tmp')
 
     # Some bots also require a checkout of chromium.
     self.need_chromium_checkout = False

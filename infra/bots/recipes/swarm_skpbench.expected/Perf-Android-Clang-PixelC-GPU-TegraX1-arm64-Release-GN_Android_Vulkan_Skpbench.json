@@ -4,7 +4,7 @@
       "python",
       "-u",
       "\nimport sys, os\npath = sys.argv[1]\nmode = int(sys.argv[2])\nif not os.path.isdir(path):\n  if os.path.exists(path):\n    print \"%s exists but is not a dir\" % path\n    sys.exit(1)\n  os.makedirs(path, mode)\n",
-      "[SLAVE_BUILD]/tmp",
+      "[START_DIR]/tmp",
       "511"
     ],
     "name": "makedirs tmp_dir",
@@ -29,7 +29,7 @@
       "-p",
       "/sdcard/revenge_of_the_skiabot/resources"
     ],
-    "cwd": "[SLAVE_BUILD]/skia",
+    "cwd": "[START_DIR]/skia",
     "name": "mkdir /sdcard/revenge_of_the_skiabot/resources"
   },
   {
@@ -37,7 +37,7 @@
       "python",
       "-u",
       "\nimport shutil\nimport sys\nshutil.copy(sys.argv[1], sys.argv[2])\n",
-      "[SLAVE_BUILD]/skia/infra/bots/assets/skp/VERSION",
+      "[START_DIR]/skia/infra/bots/assets/skp/VERSION",
       "/path/to/tmp/"
     ],
     "name": "Get downloaded SKP VERSION"
@@ -48,7 +48,7 @@
       "-u",
       "\nimport shutil\nimport sys\nshutil.copy(sys.argv[1], sys.argv[2])\n",
       "42",
-      "[SLAVE_BUILD]/tmp/SKP_VERSION"
+      "[START_DIR]/tmp/SKP_VERSION"
     ],
     "name": "write SKP_VERSION"
   },
@@ -59,7 +59,7 @@
       "cat",
       "/sdcard/revenge_of_the_skiabot/SKP_VERSION"
     ],
-    "cwd": "[SLAVE_BUILD]/skia",
+    "cwd": "[START_DIR]/skia",
     "name": "read /sdcard/revenge_of_the_skiabot/SKP_VERSION",
     "stdout": "/path/to/tmp/"
   },
@@ -71,7 +71,7 @@
       "-f",
       "/sdcard/revenge_of_the_skiabot/SKP_VERSION"
     ],
-    "cwd": "[SLAVE_BUILD]/skia",
+    "cwd": "[START_DIR]/skia",
     "name": "rm /sdcard/revenge_of_the_skiabot/SKP_VERSION"
   },
   {
@@ -82,7 +82,7 @@
       "-rf",
       "/sdcard/revenge_of_the_skiabot/skps"
     ],
-    "cwd": "[SLAVE_BUILD]/skia",
+    "cwd": "[START_DIR]/skia",
     "name": "rm /sdcard/revenge_of_the_skiabot/skps"
   },
   {
@@ -93,7 +93,7 @@
       "-p",
       "/sdcard/revenge_of_the_skiabot/skps"
     ],
-    "cwd": "[SLAVE_BUILD]/skia",
+    "cwd": "[START_DIR]/skia",
     "name": "mkdir /sdcard/revenge_of_the_skiabot/skps"
   },
   {
@@ -101,11 +101,11 @@
       "python",
       "-u",
       "\nimport os\nimport subprocess\nimport sys\nhost   = sys.argv[1]\ndevice = sys.argv[2]\nfor d, _, fs in os.walk(host):\n  p = os.path.relpath(d, host)\n  if p != '.' and p.startswith('.'):\n    continue\n  for f in fs:\n    print os.path.join(p,f)\n    subprocess.check_call(['adb', 'push',\n                           os.path.realpath(os.path.join(host, p, f)),\n                           os.path.join(device, p, f)])\n",
-      "[SLAVE_BUILD]/skp",
+      "[START_DIR]/skp",
       "/sdcard/revenge_of_the_skiabot/skps"
     ],
-    "cwd": "[SLAVE_BUILD]/skia",
-    "name": "push [SLAVE_BUILD]/skp/* /sdcard/revenge_of_the_skiabot/skps",
+    "cwd": "[START_DIR]/skia",
+    "name": "push [START_DIR]/skp/* /sdcard/revenge_of_the_skiabot/skps",
     "~followup_annotations": [
       "@@@STEP_LOG_LINE@python.inline@@@@",
       "@@@STEP_LOG_LINE@python.inline@import os@@@",
@@ -129,27 +129,27 @@
     "cmd": [
       "adb",
       "push",
-      "[SLAVE_BUILD]/tmp/SKP_VERSION",
+      "[START_DIR]/tmp/SKP_VERSION",
       "/sdcard/revenge_of_the_skiabot/SKP_VERSION"
     ],
-    "cwd": "[SLAVE_BUILD]/skia",
-    "name": "push [SLAVE_BUILD]/tmp/SKP_VERSION /sdcard/revenge_of_the_skiabot/SKP_VERSION"
+    "cwd": "[START_DIR]/skia",
+    "name": "push [START_DIR]/tmp/SKP_VERSION /sdcard/revenge_of_the_skiabot/SKP_VERSION"
   },
   {
     "cmd": [
       "adb",
       "push",
-      "[SLAVE_BUILD]/out/Release/skpbench",
+      "[START_DIR]/out/Release/skpbench",
       "/data/local/tmp/"
     ],
-    "cwd": "[SLAVE_BUILD]/skia",
+    "cwd": "[START_DIR]/skia",
     "name": "push skpbench"
   },
   {
     "cmd": [
       "python",
       "-u",
-      "[SLAVE_BUILD]/skia/tools/skpbench/skpbench.py",
+      "[START_DIR]/skia/tools/skpbench/skpbench.py",
       "/data/local/tmp/skpbench",
       "/sdcard/revenge_of_the_skiabot/skps",
       "--adb",
@@ -214,7 +214,7 @@
     "cmd": [
       "python",
       "-u",
-      "[SLAVE_BUILD]/skia/tools/skpbench/skiaperf.py",
+      "[START_DIR]/skia/tools/skpbench/skiaperf.py",
       "[CUSTOM_[SWARM_OUT_DIR]]/table",
       "--properties",
       "gitHash",
@@ -252,7 +252,7 @@
       "python",
       "-u",
       "\nimport os\nimport subprocess\nimport sys\nout = sys.argv[1]\nlog = subprocess.check_output(['adb', 'logcat', '-d'])\nfor line in log.split('\\n'):\n  tokens = line.split()\n  if len(tokens) == 11 and tokens[-7] == 'F' and tokens[-3] == 'pc':\n    addr, path = tokens[-2:]\n    local = os.path.join(out, os.path.basename(path))\n    if os.path.exists(local):\n      sym = subprocess.check_output(['addr2line', '-Cfpe', local, addr])\n      line = line.replace(addr, addr + ' ' + sym.strip())\n  print line\n",
-      "[SLAVE_BUILD]/out/Release"
+      "[START_DIR]/out/Release"
     ],
     "name": "dump log",
     "~followup_annotations": [
@@ -279,7 +279,7 @@
       "adb",
       "kill-server"
     ],
-    "cwd": "[SLAVE_BUILD]/skia",
+    "cwd": "[START_DIR]/skia",
     "name": "kill adb server"
   },
   {

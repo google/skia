@@ -92,7 +92,7 @@
       "gn",
       "gen",
       "[CUSTOM_/_B_WORK]/skia/out/Build-Ubuntu-Clang-arm64-Release-GN_Android_Vulkan/Release",
-      "--args=is_debug=false ndk=\"[SLAVE_BUILD]/android_ndk_linux\" ndk_api=24 skia_enable_vulkan_debug_layers=false target_cpu=\"arm64\""
+      "--args=is_debug=false ndk=\"[START_DIR]/android_ndk_linux\" ndk_api=24 skia_enable_vulkan_debug_layers=false target_cpu=\"arm64\""
     ],
     "cwd": "[CUSTOM_/_B_WORK]/skia",
     "env": {

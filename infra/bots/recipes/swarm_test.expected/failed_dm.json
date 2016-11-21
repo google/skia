@@ -4,7 +4,7 @@
       "python",
       "-u",
       "\nimport shutil\nimport sys\nshutil.copy(sys.argv[1], sys.argv[2])\n",
-      "[SLAVE_BUILD]/skia/infra/bots/assets/skp/VERSION",
+      "[START_DIR]/skia/infra/bots/assets/skp/VERSION",
       "/path/to/tmp/"
     ],
     "name": "Get downloaded SKP VERSION"
@@ -15,7 +15,7 @@
       "-u",
       "\nimport shutil\nimport sys\nshutil.copy(sys.argv[1], sys.argv[2])\n",
       "42",
-      "[SLAVE_BUILD]/tmp/SKP_VERSION"
+      "[START_DIR]/tmp/SKP_VERSION"
     ],
     "name": "write SKP_VERSION"
   },
@@ -24,7 +24,7 @@
       "python",
       "-u",
       "\nimport shutil\nimport sys\nshutil.copy(sys.argv[1], sys.argv[2])\n",
-      "[SLAVE_BUILD]/skia/infra/bots/assets/skimage/VERSION",
+      "[START_DIR]/skia/infra/bots/assets/skimage/VERSION",
       "/path/to/tmp/"
     ],
     "name": "Get downloaded skimage VERSION"
@@ -35,7 +35,7 @@
       "-u",
       "\nimport shutil\nimport sys\nshutil.copy(sys.argv[1], sys.argv[2])\n",
       "42",
-      "[SLAVE_BUILD]/tmp/SK_IMAGE_VERSION"
+      "[START_DIR]/tmp/SK_IMAGE_VERSION"
     ],
     "name": "write SK_IMAGE_VERSION"
   },
@@ -44,7 +44,7 @@
       "python",
       "-u",
       "\nimport shutil\nimport sys\nshutil.copy(sys.argv[1], sys.argv[2])\n",
-      "[SLAVE_BUILD]/skia/infra/bots/assets/svg/VERSION",
+      "[START_DIR]/skia/infra/bots/assets/svg/VERSION",
       "/path/to/tmp/"
     ],
     "name": "Get downloaded SVG VERSION"
@@ -55,7 +55,7 @@
       "-u",
       "\nimport shutil\nimport sys\nshutil.copy(sys.argv[1], sys.argv[2])\n",
       "42",
-      "[SLAVE_BUILD]/tmp/SVG_VERSION"
+      "[START_DIR]/tmp/SVG_VERSION"
     ],
     "name": "write SVG_VERSION"
   },
@@ -67,7 +67,7 @@
       "[CUSTOM_[SWARM_OUT_DIR]]/dm"
     ],
     "env": {
-      "PYTHONPATH": "[SLAVE_BUILD]/skia/infra/bots/.recipe_deps/build/scripts"
+      "PYTHONPATH": "[START_DIR]/skia/infra/bots/.recipe_deps/build/scripts"
     },
     "name": "rmtree dm",
     "~followup_annotations": [
@@ -108,7 +108,7 @@
       "python",
       "-u",
       "\nimport sys, os\npath = sys.argv[1]\nmode = int(sys.argv[2])\nif not os.path.isdir(path):\n  if os.path.exists(path):\n    print \"%s exists but is not a dir\" % path\n    sys.exit(1)\n  os.makedirs(path, mode)\n",
-      "[SLAVE_BUILD]/tmp",
+      "[START_DIR]/tmp",
       "511"
     ],
     "name": "makedirs tmp_dir",
@@ -130,13 +130,13 @@
       "python",
       "-u",
       "\nimport contextlib\nimport math\nimport socket\nimport sys\nimport time\nimport urllib2\n\nHASHES_URL = 'https://gold.skia.org/_/hashes'\nRETRIES = 5\nTIMEOUT = 60\nWAIT_BASE = 15\n\nsocket.setdefaulttimeout(TIMEOUT)\nfor retry in range(RETRIES):\n  try:\n    with contextlib.closing(\n        urllib2.urlopen(HASHES_URL, timeout=TIMEOUT)) as w:\n      hashes = w.read()\n      with open(sys.argv[1], 'w') as f:\n        f.write(hashes)\n        break\n  except Exception as e:\n    print 'Failed to get uninteresting hashes from %s:' % HASHES_URL\n    print e\n    if retry == RETRIES:\n      raise\n    waittime = WAIT_BASE * math.pow(2, retry)\n    print 'Retry in %d seconds.' % waittime\n    time.sleep(waittime)\n",
-      "[SLAVE_BUILD]/tmp/uninteresting_hashes.txt"
+      "[START_DIR]/tmp/uninteresting_hashes.txt"
     ],
-    "cwd": "[SLAVE_BUILD]/skia",
+    "cwd": "[START_DIR]/skia",
     "env": {
       "BUILDTYPE": "Debug",
       "CHROME_HEADLESS": "1",
-      "SKIA_OUT": "[SLAVE_BUILD]/out"
+      "SKIA_OUT": "[START_DIR]/out"
     },
     "name": "get uninteresting hashes",
     "~followup_annotations": [
@@ -176,16 +176,16 @@
   {
     "cmd": [
       "catchsegv",
-      "[SLAVE_BUILD]/out/Debug/dm",
+      "[START_DIR]/out/Debug/dm",
       "--undefok",
       "--resourcePath",
-      "[SLAVE_BUILD]/skia/resources",
+      "[START_DIR]/skia/resources",
       "--skps",
-      "[SLAVE_BUILD]/skp",
+      "[START_DIR]/skp",
       "--images",
-      "[SLAVE_BUILD]/skimage/dm",
+      "[START_DIR]/skimage/dm",
       "--colorImages",
-      "[SLAVE_BUILD]/skimage/colorspace",
+      "[START_DIR]/skimage/colorspace",
       "--nameByHash",
       "--properties",
       "gitHash",
@@ -197,7 +197,7 @@
       "build_number",
       "6",
       "--svgs",
-      "[SLAVE_BUILD]/svg",
+      "[START_DIR]/svg",
       "--key",
       "arch",
       "x86_64",
@@ -214,7 +214,7 @@
       "os",
       "Ubuntu",
       "--uninterestingHashesFile",
-      "[SLAVE_BUILD]/tmp/uninteresting_hashes.txt",
+      "[START_DIR]/tmp/uninteresting_hashes.txt",
       "--writePath",
       "[CUSTOM_[SWARM_OUT_DIR]]/dm",
       "--nogpu",
@@ -466,7 +466,7 @@
       "_",
       "gamut"
     ],
-    "cwd": "[SLAVE_BUILD]/skia",
+    "cwd": "[START_DIR]/skia",
     "name": "dm",
     "~followup_annotations": [
       "step returned non-zero exit code: 1",

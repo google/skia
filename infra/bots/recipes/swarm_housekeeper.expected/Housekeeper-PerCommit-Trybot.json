@@ -4,7 +4,7 @@
       "python",
       "-u",
       "\nimport sys, os\npath = sys.argv[1]\nmode = int(sys.argv[2])\nif not os.path.isdir(path):\n  if os.path.exists(path):\n    print \"%s exists but is not a dir\" % path\n    sys.exit(1)\n  os.makedirs(path, mode)\n",
-      "[SLAVE_BUILD]/tmp",
+      "[START_DIR]/tmp",
       "511"
     ],
     "name": "makedirs tmp_dir",
@@ -24,13 +24,13 @@
   {
     "cmd": [
       "python",
-      "[SLAVE_BUILD]/skia/platform_tools/android/tests/run_all.py"
+      "[START_DIR]/skia/platform_tools/android/tests/run_all.py"
     ],
-    "cwd": "[SLAVE_BUILD]/skia",
+    "cwd": "[START_DIR]/skia",
     "env": {
       "BUILDTYPE": "Release",
       "CHROME_HEADLESS": "1",
-      "SKIA_OUT": "[SLAVE_BUILD]/out"
+      "SKIA_OUT": "[START_DIR]/out"
     },
     "name": "android platform self-tests"
   },
@@ -39,7 +39,7 @@
       "python",
       "RECIPE_MODULE[skia::core]/resources/run_binary_size_analysis.py",
       "--library",
-      "[SLAVE_BUILD]/out/Release/lib/libskia.so",
+      "[START_DIR]/out/Release/lib/libskia.so",
       "--githash",
       "abc123",
       "--gsutil_path",
@@ -47,43 +47,43 @@
       "--issue_number",
       "500"
     ],
-    "cwd": "[SLAVE_BUILD]/skia",
+    "cwd": "[START_DIR]/skia",
     "env": {
       "BUILDTYPE": "Release",
       "CHROME_HEADLESS": "1",
-      "SKIA_OUT": "[SLAVE_BUILD]/out"
+      "SKIA_OUT": "[START_DIR]/out"
     },
     "name": "generate and upload binary size data"
   },
   {
     "cmd": [
-      "[SLAVE_BUILD]/go/go/bin/go",
+      "[START_DIR]/go/go/bin/go",
       "get",
       "go.skia.org/infra/comments/go/extract_comments"
     ],
-    "cwd": "[SLAVE_BUILD]/skia",
+    "cwd": "[START_DIR]/skia",
     "env": {
       "BUILDTYPE": "Release",
       "CHROME_HEADLESS": "1",
-      "GOPATH": "[SLAVE_BUILD]/tmp/golib",
-      "SKIA_OUT": "[SLAVE_BUILD]/out"
+      "GOPATH": "[START_DIR]/tmp/golib",
+      "SKIA_OUT": "[START_DIR]/out"
     },
     "name": "compile extract_comments"
   },
   {
     "cmd": [
-      "[SLAVE_BUILD]/tmp/golib/bin/extract_comments",
+      "[START_DIR]/tmp/golib/bin/extract_comments",
       "--dir",
       "gm",
       "--dest",
       "gs://skia-doc/gm/comments.json"
     ],
-    "cwd": "[SLAVE_BUILD]/skia",
+    "cwd": "[START_DIR]/skia",
     "env": {
       "BUILDTYPE": "Release",
       "CHROME_HEADLESS": "1",
-      "GOPATH": "[SLAVE_BUILD]/tmp/golib",
-      "SKIA_OUT": "[SLAVE_BUILD]/out"
+      "GOPATH": "[START_DIR]/tmp/golib",
+      "SKIA_OUT": "[START_DIR]/out"
     },
     "name": "run extract_comments"
   },
