@@ -372,4 +372,10 @@ DEF_TEST(SkSLStaticIfError, r) {
                  "error: 1: unknown identifier 'x'\n1 error\n");
 }
 
+DEF_TEST(SkSLBadCap, r) {
+    test_failure(r,
+                 "bool b = sk_Caps.bugFreeDriver;",
+                 "error: 1: unknown capability flag 'bugFreeDriver'\n1 error\n");
+}
+
 #endif
