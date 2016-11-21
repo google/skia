@@ -30,6 +30,10 @@ struct Modifiers {
         kNoPerspective_Flag = ASTModifiers::kNoPerspective_Flag
     };
 
+    Modifiers()
+    : fLayout(Layout())
+    , fFlags(0) {}
+
     Modifiers(const ASTModifiers& modifiers)
     : fLayout(modifiers.fLayout)
     , fFlags(modifiers.fFlags) {}

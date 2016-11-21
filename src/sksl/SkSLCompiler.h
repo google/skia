@@ -15,6 +15,7 @@
 #include "SkSLCFGGenerator.h"
 #include "SkSLContext.h"
 #include "SkSLErrorReporter.h"
+#include "SkSLIRGenerator.h"
 #include "SkSLGLSLCodeGenerator.h"
 
 #define SK_FRAGCOLOR_BUILTIN 10001
@@ -37,7 +38,8 @@ public:
 
     ~Compiler();
 
-    std::unique_ptr<Program> convertProgram(Program::Kind kind, SkString text);
+    std::unique_ptr<Program> convertProgram(Program::Kind kind, SkString text, 
+                                            std::unordered_map<SkString, CapValue> caps);
 
     bool toSPIRV(Program::Kind kind, const SkString& text, SkWStream& out);
     
