@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "500b3ca9_1f0d8e1e",
+        "filename": "fuzz/FuzzDrawFunctions.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 17,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2016-11-21T15:11:27Z",
+      "side": 1,
+      "message": "All static and named to be kFoo",
+      "parentUuid": "500b3ca9_df1ed68a",
+      "revId": "6dcbf21ac0ec67c246742e306b2e1a12989130a9",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "500b3ca9_7f06ca3e",
         "filename": "fuzz/FuzzDrawFunctions.cpp",
         "patchSetId": 3
@@ -30,6 +48,24 @@
       "writtenOn": "2016-11-21T14:14:14Z",
       "side": 1,
       "message": "We typically give static global scope functions names like init_bitmap().",
+      "revId": "6dcbf21ac0ec67c246742e306b2e1a12989130a9",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "500b3ca9_9f017ee8",
+        "filename": "fuzz/FuzzDrawFunctions.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 24,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2016-11-21T15:11:27Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "500b3ca9_7f06ca3e",
       "revId": "6dcbf21ac0ec67c246742e306b2e1a12989130a9",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
@@ -59,6 +95,24 @@
     },
     {
       "key": {
+        "uuid": "500b3ca9_5f0b0606",
+        "filename": "fuzz/FuzzDrawFunctions.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 47,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2016-11-21T15:11:27Z",
+      "side": 1,
+      "message": "It does not appear so.  There was some code in the original patch, but it was commented out.  I\u0027ll remove it for now.",
+      "parentUuid": "500b3ca9_5f13067f",
+      "revId": "6dcbf21ac0ec67c246742e306b2e1a12989130a9",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "500b3ca9_1ffc6eff",
         "filename": "fuzz/FuzzDrawFunctions.cpp",
         "patchSetId": 3
@@ -76,6 +130,24 @@
     },
     {
       "key": {
+        "uuid": "500b3ca9_bf1b225a",
+        "filename": "fuzz/FuzzDrawFunctions.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 54,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2016-11-21T15:11:27Z",
+      "side": 1,
+      "message": "Not yet.  If we need to copy/paste a third time, I\u0027ll create the shared fuzzing routines.  For now, I\u0027m okay with the adaptation as needed.",
+      "parentUuid": "500b3ca9_1ffc6eff",
+      "revId": "6dcbf21ac0ec67c246742e306b2e1a12989130a9",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "500b3ca9_5feae62e",
         "filename": "fuzz/FuzzDrawFunctions.cpp",
         "patchSetId": 3
@@ -87,6 +159,24 @@
       "writtenOn": "2016-11-21T14:14:14Z",
       "side": 1,
       "message": "I suspect we want all functions in this file to be static.  It would be awkward if someone else defined fuzzDrawText() in another FuzzFoo.cpp file...",
+      "revId": "6dcbf21ac0ec67c246742e306b2e1a12989130a9",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "500b3ca9_df16d631",
+        "filename": "fuzz/FuzzDrawFunctions.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 103,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2016-11-21T15:11:27Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "500b3ca9_5feae62e",
       "revId": "6dcbf21ac0ec67c246742e306b2e1a12989130a9",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
@@ -127,6 +217,24 @@
     },
     {
       "key": {
+        "uuid": "500b3ca9_3f085207",
+        "filename": "fuzz/FuzzDrawFunctions.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 159,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2016-11-21T15:11:27Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "500b3ca9_7fedaa44",
+      "revId": "6dcbf21ac0ec67c246742e306b2e1a12989130a9",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "500b3ca9_df2496c5",
         "filename": "fuzz/FuzzDrawFunctions.cpp",
         "patchSetId": 3
@@ -138,6 +246,24 @@
       "writtenOn": "2016-11-21T14:14:14Z",
       "side": 1,
       "message": "Fuzzing a path also seems like some code that\u0027d go in that shared core of fuzzing routines.",
+      "revId": "6dcbf21ac0ec67c246742e306b2e1a12989130a9",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "500b3ca9_7fe5aa1b",
+        "filename": "fuzz/FuzzDrawFunctions.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 215,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2016-11-21T15:11:27Z",
+      "side": 1,
+      "message": "Added a TODO",
+      "parentUuid": "500b3ca9_df2496c5",
       "revId": "6dcbf21ac0ec67c246742e306b2e1a12989130a9",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
@@ -161,6 +287,24 @@
     },
     {
       "key": {
+        "uuid": "500b3ca9_5fe2e615",
+        "filename": "fuzz/FuzzDrawFunctions.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 319,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2016-11-21T15:11:27Z",
+      "side": 1,
+      "message": "These are all related to the canvas drawing functions and so it make sense to keep them together.  \n\nAdditionally, it is easier to just add one fuzzer to our infrastructure than to add a bunch of small individual ones.",
+      "parentUuid": "500b3ca9_bf29e29d",
+      "revId": "6dcbf21ac0ec67c246742e306b2e1a12989130a9",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "500b3ca9_3f3612fa",
         "filename": "fuzz/FuzzDrawFunctions.cpp",
         "patchSetId": 3
@@ -178,6 +322,24 @@
     },
     {
       "key": {
+        "uuid": "500b3ca9_3fdf3254",
+        "filename": "fuzz/FuzzDrawFunctions.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 323,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2016-11-21T15:11:27Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "500b3ca9_3f3612fa",
+      "revId": "6dcbf21ac0ec67c246742e306b2e1a12989130a9",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "500b3ca9_9f2f3e9f",
         "filename": "fuzz/FuzzDrawFunctions.cpp",
         "patchSetId": 3
@@ -189,6 +351,24 @@
       "writtenOn": "2016-11-21T14:14:14Z",
       "side": 1,
       "message": "Also probably not needed. :)",
+      "revId": "6dcbf21ac0ec67c246742e306b2e1a12989130a9",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "500b3ca9_1f534efe",
+        "filename": "fuzz/FuzzDrawFunctions.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 361,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2016-11-21T15:11:27Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "500b3ca9_9f2f3e9f",
       "revId": "6dcbf21ac0ec67c246742e306b2e1a12989130a9",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
