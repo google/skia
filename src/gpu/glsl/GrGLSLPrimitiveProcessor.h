@@ -17,6 +17,7 @@ class GrBatchTracker;
 class GrPrimitiveProcessor;
 class GrGLSLCaps;
 class GrGLSLPPFragmentBuilder;
+class GrGLSLGeometryBuilder;
 class GrGLSLGPBuilder;
 class GrGLSLUniformHandler;
 class GrGLSLVaryingHandler;
@@ -66,6 +67,7 @@ public:
 
     struct EmitArgs {
         EmitArgs(GrGLSLVertexBuilder* vertBuilder,
+                 GrGLSLGeometryBuilder* geomBuilder,
                  GrGLSLPPFragmentBuilder* fragBuilder,
                  GrGLSLVaryingHandler* varyingHandler,
                  GrGLSLUniformHandler* uniformHandler,
@@ -78,6 +80,7 @@ public:
                  const SamplerHandle* bufferSamplers,
                  FPCoordTransformHandler* transformHandler)
             : fVertBuilder(vertBuilder)
+            , fGeomBuilder(geomBuilder)
             , fFragBuilder(fragBuilder)
             , fVaryingHandler(varyingHandler)
             , fUniformHandler(uniformHandler)
@@ -90,6 +93,7 @@ public:
             , fBufferSamplers(bufferSamplers)
             , fFPCoordTransformHandler(transformHandler) {}
         GrGLSLVertexBuilder* fVertBuilder;
+        GrGLSLGeometryBuilder* fGeomBuilder;
         GrGLSLPPFragmentBuilder* fFragBuilder;
         GrGLSLVaryingHandler* fVaryingHandler;
         GrGLSLUniformHandler* fUniformHandler;
