@@ -723,10 +723,10 @@ struct NearestCtx {
     int         stride;
 };
 
-STAGE(nearest_565, true) {}  // TODO
-STAGE(nearest_f16, true) {}  // TODO
+STAGE(accum_565, true) {}  // TODO
+STAGE(accum_f16, true) {}  // TODO
 
-STAGE(nearest_8888, true) {
+STAGE(accum_8888, true) {
     auto nc = (const NearestCtx*)ctx;
 
     SkNi ix = SkNx_cast<int>(r),
@@ -747,13 +747,14 @@ STAGE(nearest_8888, true) {
         A[i] = rgba >> 24;
     }
 
-    r = SkNx_cast<float>(SkNb::Load(R)) * (1/255.0f);
-    g = SkNx_cast<float>(SkNb::Load(G)) * (1/255.0f);
-    b = SkNx_cast<float>(SkNb::Load(B)) * (1/255.0f);
-    a = SkNx_cast<float>(SkNb::Load(A)) * (1/255.0f);
+    SkNf scale = b;
+    dr += scale * SkNx_cast<float>(SkNb::Load(R)) * (1/255.0f);
+    dg += scale * SkNx_cast<float>(SkNb::Load(G)) * (1/255.0f);
+    db += scale * SkNx_cast<float>(SkNb::Load(B)) * (1/255.0f);
+    da += scale * SkNx_cast<float>(SkNb::Load(A)) * (1/255.0f);
 }
 
-STAGE(nearest_srgb, true) {
+STAGE(accum_srgb, true) {
     auto nc = (const NearestCtx*)ctx;
 
     SkNi ix = SkNx_cast<int>(r),
@@ -774,10 +775,11 @@ STAGE(nearest_srgb, true) {
         A[i] = rgba >> 24;
     }
 
-    r = sk_linear_from_srgb_math(SkNx_cast<int>(SkNb::Load(R)));
-    g = sk_linear_from_srgb_math(SkNx_cast<int>(SkNb::Load(G)));
-    b = sk_linear_from_srgb_math(SkNx_cast<int>(SkNb::Load(B)));
-    a = SkNx_cast<float>(SkNb::Load(A)) * (1/255.0f);
+    SkNf scale = b;
+    dr += scale * sk_linear_from_srgb_math(SkNx_cast<int>(SkNb::Load(R)));
+    dg += scale * sk_linear_from_srgb_math(SkNx_cast<int>(SkNb::Load(G)));
+    db += scale * sk_linear_from_srgb_math(SkNx_cast<int>(SkNb::Load(B)));
+    da += scale * SkNx_cast<float>(SkNb::Load(A)) * (1/255.0f);
 }
 
 template <typename Fn>
@@ -850,20 +852,20 @@ namespace SK_OPTS_NS {
             }
 
             void operator()(size_t x, size_t y, size_t n) {
-                SkNf v;  // Fastest to start uninitialized.
-
                 float dx[] = { 0,1,2,3,4,5,6,7 };
                 SkNf X = SkNf(x) + SkNf::Load(dx) + 0.5f,
-                     Y = SkNf(y) + 0.5f;
+                     Y = SkNf(y) + 0.5f,
+                    _0 = SkNf(0),
+                    _1 = SkNf(1);
 
                 while (n >= N) {
-                    fBodyStart(fBody, x, X,Y,v,v, v,v,v,v);
+                    fBodyStart(fBody, x, X,Y,_1,_0, _0,_0,_0,_0);
                     X += (float)N;
                     x += N;
                     n -= N;
                 }
                 if (n) {
-                    fTailStart(fTail, x,n, X,Y,v,v, v,v,v,v);
+                    fTailStart(fTail, x,n, X,Y,_1,_0, _0,_0,_0,_0);
                 }
             }
 
