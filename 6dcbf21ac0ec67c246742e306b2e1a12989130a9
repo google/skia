@@ -1,0 +1,197 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "500b3ca9_df1ed68a",
+        "filename": "fuzz/FuzzDrawFunctions.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 17,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2016-11-21T14:14:14Z",
+      "side": 1,
+      "message": "Skia style leans a little more toward kBmpSize, but no one will be too confused reading BMP_SIZE.  They may just assume it\u0027s a macro.\n\nWe should probably mark these explicitly static.  It can be hard to remember that global const values are implicitly static, so an explicit static helps as a reminder.  Even if you know the rule, it can still be hard to know when it applies and when it doesn\u0027t (as a non-const pointer to const, TEST_FONT is _not_ implicitly static here, but the other 5 are).",
+      "revId": "6dcbf21ac0ec67c246742e306b2e1a12989130a9",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "500b3ca9_7f06ca3e",
+        "filename": "fuzz/FuzzDrawFunctions.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 24,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2016-11-21T14:14:14Z",
+      "side": 1,
+      "message": "We typically give static global scope functions names like init_bitmap().",
+      "revId": "6dcbf21ac0ec67c246742e306b2e1a12989130a9",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "500b3ca9_5f13067f",
+        "filename": "fuzz/FuzzDrawFunctions.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 47,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2016-11-21T14:14:14Z",
+      "side": 1,
+      "message": "Is this still needed?",
+      "range": {
+        "startLine": 47,
+        "startChar": 62,
+        "endLine": 47,
+        "endChar": 76
+      },
+      "revId": "6dcbf21ac0ec67c246742e306b2e1a12989130a9",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "500b3ca9_1ffc6eff",
+        "filename": "fuzz/FuzzDrawFunctions.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 54,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2016-11-21T14:14:14Z",
+      "side": 1,
+      "message": "Think we should spin off some shared fuzzing routines?",
+      "revId": "6dcbf21ac0ec67c246742e306b2e1a12989130a9",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "500b3ca9_5feae62e",
+        "filename": "fuzz/FuzzDrawFunctions.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 103,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2016-11-21T14:14:14Z",
+      "side": 1,
+      "message": "I suspect we want all functions in this file to be static.  It would be awkward if someone else defined fuzzDrawText() in another FuzzFoo.cpp file...",
+      "revId": "6dcbf21ac0ec67c246742e306b2e1a12989130a9",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "500b3ca9_9ff05e21",
+        "filename": "fuzz/FuzzDrawFunctions.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 157,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2016-11-21T14:14:14Z",
+      "side": 1,
+      "message": "Does Firefox call drawText()?  It\u0027s kind of a toy API... we typically would expect to see layout done already by the time we get to Skia, so mostly drawPosText[H] or their SkTextBlob equivalents.",
+      "revId": "6dcbf21ac0ec67c246742e306b2e1a12989130a9",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "500b3ca9_7fedaa44",
+        "filename": "fuzz/FuzzDrawFunctions.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 159,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2016-11-21T14:14:14Z",
+      "side": 1,
+      "message": "Probably safe to drop.  :)",
+      "revId": "6dcbf21ac0ec67c246742e306b2e1a12989130a9",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "500b3ca9_df2496c5",
+        "filename": "fuzz/FuzzDrawFunctions.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 215,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2016-11-21T14:14:14Z",
+      "side": 1,
+      "message": "Fuzzing a path also seems like some code that\u0027d go in that shared core of fuzzing routines.",
+      "revId": "6dcbf21ac0ec67c246742e306b2e1a12989130a9",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "500b3ca9_bf29e29d",
+        "filename": "fuzz/FuzzDrawFunctions.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 319,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2016-11-21T14:14:14Z",
+      "side": 1,
+      "message": "Just curious, is there a reason to do this rather than run these as 8 separate fuzzes?",
+      "revId": "6dcbf21ac0ec67c246742e306b2e1a12989130a9",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "500b3ca9_3f3612fa",
+        "filename": "fuzz/FuzzDrawFunctions.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 323,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2016-11-21T14:14:14Z",
+      "side": 1,
+      "message": "You may find SkTypeface::MakeDefault() a more robust option.  That should work most everywhere.",
+      "revId": "6dcbf21ac0ec67c246742e306b2e1a12989130a9",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "500b3ca9_9f2f3e9f",
+        "filename": "fuzz/FuzzDrawFunctions.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 361,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2016-11-21T14:14:14Z",
+      "side": 1,
+      "message": "Also probably not needed. :)",
+      "revId": "6dcbf21ac0ec67c246742e306b2e1a12989130a9",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
