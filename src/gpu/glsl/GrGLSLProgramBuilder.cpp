@@ -40,7 +40,7 @@ void GrGLSLProgramBuilder::addFeature(GrShaderFlags shaders,
         fVS.addFeature(featureBit, extensionName);
     }
     if (shaders & kGeometry_GrShaderFlag) {
-        SkASSERT(this->glslCaps()->geometryShaderSupport());
+        SkASSERT(this->primitiveProcessor().willUseGeoShader());
         fGS.addFeature(featureBit, extensionName);
     }
     if (shaders & kFragment_GrShaderFlag) {
@@ -103,6 +103,7 @@ void GrGLSLProgramBuilder::emitAndInstallPrimProc(const GrPrimitiveProcessor& pr
     GrGLSLPrimitiveProcessor::FPCoordTransformHandler transformHandler(fPipeline,
                                                                        &fTransformedCoordVars);
     GrGLSLGeometryProcessor::EmitArgs args(&fVS,
+                                           proc.willUseGeoShader() ? &fGS : nullptr,
                                            &fFS,
                                            this->varyingHandler(),
                                            this->uniformHandler(),
@@ -424,5 +425,9 @@ void GrGLSLProgramBuilder::cleanupFragmentProcessors() {
 void GrGLSLProgramBuilder::finalizeShaders() {
     this->varyingHandler()->finalize();
     fVS.finalize(kVertex_GrShaderFlag);
+    if (this->primitiveProcessor().willUseGeoShader()) {
+        SkASSERT(this->glslCaps()->geometryShaderSupport());
+        fGS.finalize(kGeometry_GrShaderFlag);
+    }
     fFS.finalize(kFragment_GrShaderFlag);
 }
