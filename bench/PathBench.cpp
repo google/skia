@@ -173,6 +173,27 @@ private:
     typedef PathBench INHERITED;
 };
 
+class ConcavePathBench : public PathBench {
+public:
+    ConcavePathBench(Flags flags) : INHERITED(flags) {}
+
+    void appendName(SkString* name) override {
+        name->append("concave");
+    }
+
+    void makePath(SkPath* path) override {
+        path->moveTo(20/5, 20/5);
+        path->lineTo(40/5, 40/5);
+        path->lineTo(80/5, 20/5);
+        path->lineTo(80/5, 80/5);
+        path->lineTo(20/5, 80/5);
+        path->close();
+    }
+
+private:
+    typedef PathBench INHERITED;
+};
+
 class SawToothPathBench : public PathBench {
 public:
     SawToothPathBench(Flags flags) : INHERITED(flags) {}
@@ -1048,6 +1069,9 @@ DEF_BENCH( return new CirclePathBench(FLAGS00); )
 DEF_BENCH( return new CirclePathBench(FLAGS01); )
 DEF_BENCH( return new CirclePathBench(FLAGS10); )
 DEF_BENCH( return new CirclePathBench(FLAGS11); )
+
+DEF_BENCH( return new ConcavePathBench(FLAGS00); )
+DEF_BENCH( return new ConcavePathBench(FLAGS10); )
 
 DEF_BENCH( return new SawToothPathBench(FLAGS00); )
 DEF_BENCH( return new SawToothPathBench(FLAGS01); )
