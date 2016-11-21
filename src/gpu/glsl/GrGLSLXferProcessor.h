@@ -9,10 +9,10 @@
 #define GrGLSLXferProcessor_DEFINED
 
 #include "glsl/GrGLSLProgramDataManager.h"
+#include "glsl/GrGLSLUniformHandler.h"
 
 class GrXferProcessor;
 class GrGLSLCaps;
-class GrGLSLUniformHandler;
 class GrGLSLXPBuilder;
 class GrGLSLXPFragmentBuilder;
 
@@ -21,7 +21,8 @@ public:
     GrGLSLXferProcessor() {}
     virtual ~GrGLSLXferProcessor() {}
 
-    typedef GrGLSLProgramDataManager::UniformHandle SamplerHandle;
+    using SamplerHandle = GrGLSLUniformHandler::SamplerHandle;
+    using ImageHandle   = GrGLSLUniformHandler::ImageHandle;
 
     struct EmitArgs {
         EmitArgs(GrGLSLXPFragmentBuilder* fragBuilder,
@@ -34,6 +35,7 @@ public:
                  const char* outputSecondary,
                  const SamplerHandle* texSamplers,
                  const SamplerHandle* bufferSamplers,
+                 const ImageHandle* images,
                  const bool usePLSDstRead)
             : fXPFragBuilder(fragBuilder)
             , fUniformHandler(uniformHandler)
@@ -45,6 +47,7 @@ public:
             , fOutputSecondary(outputSecondary)
             , fTexSamplers(texSamplers)
             , fBufferSamplers(bufferSamplers)
+            , fImages(images)
             , fUsePLSDstRead(usePLSDstRead) {}
 
         GrGLSLXPFragmentBuilder* fXPFragBuilder;
@@ -57,6 +60,7 @@ public:
         const char* fOutputSecondary;
         const SamplerHandle* fTexSamplers;
         const SamplerHandle* fBufferSamplers;
+        const ImageHandle* fImages;
         bool fUsePLSDstRead;
     };
     /**

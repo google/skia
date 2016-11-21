@@ -175,6 +175,16 @@ void GrGLSLShaderBuilder::appendTexelFetch(SamplerHandle samplerHandle, const ch
     this->appendTexelFetch(&this->code(), samplerHandle, coordExpr);
 }
 
+void GrGLSLShaderBuilder::appendImageLoad(SkString* out, ImageHandle handle,
+                                          const char* coordExpr) {
+    const GrShaderVar& image = fProgramBuilder->imageVariable(handle);
+    out->appendf("imageLoad(%s, %s)", image.c_str(), coordExpr);
+}
+
+void GrGLSLShaderBuilder::appendImageLoad(ImageHandle handle, const char* coordExpr) {
+    this->appendImageLoad(&this->code(), handle, coordExpr);
+}
+
 bool GrGLSLShaderBuilder::addFeature(uint32_t featureBit, const char* extensionName) {
     if (featureBit & fFeaturesAddedMask) {
         return false;

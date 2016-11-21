@@ -76,6 +76,17 @@ private:
         return fSamplers[handle.toIndex()].fVisibility;
     }
 
+    ImageHandle addImage(uint32_t visibility, GrPixelConfig config, const char* name) override {
+        SkFAIL("Images not implemented for Vulkan.");
+        return 0;
+    }
+
+    const GrShaderVar& imageVariable(ImageHandle handle) const override {
+        SkFAIL("Images not implemented for Vulkan.");
+        GrShaderVar* gImg = nullptr;
+        return *gImg;
+    }
+
     void appendUniformDecls(GrShaderFlags, SkString*) const override;
 
     bool hasVertexUniforms() const { return fCurrentVertexUBOOffset > 0; }

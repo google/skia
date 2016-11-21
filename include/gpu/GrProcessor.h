@@ -62,6 +62,7 @@ class GrProcessor : public GrProgramElement {
 public:
     class TextureSampler;
     class BufferAccess;
+    class ImageAccess;
 
     virtual ~GrProcessor();
 
@@ -89,6 +90,17 @@ public:
     const BufferAccess& bufferAccess(int index) const { return *fBufferAccesses[index]; }
 
     /** Platform specific built-in features that a processor can request for the fragment shader. */
+    int numImages() const { return fImageAccesses.count(); }
+
+    /** Returns the access object for the image at index. index must be valid according to
+        numImages(). */
+    const ImageAccess& imageAccess(int index) const {
+        return *fImageAccesses[index];
+    }
+
+    /**
+     * Platform specific built-in features that a processor can request for the fragment shader.
+     */
     enum RequiredFeatures {
         kNone_RequiredFeatures             = 0,
         kFragmentPosition_RequiredFeature  = 1 << 0,
@@ -118,15 +130,16 @@ protected:
     GrProcessor() : fClassID(kIllegalProcessorClassID), fRequiredFeatures(kNone_RequiredFeatures) {}
 
     /**
-     * Subclasses call these from their constructor to register sampler sources. The processor
+     * Subclasses call these from their constructor to register sampler/image sources. The processor
      * subclass manages the lifetime of the objects (these functions only store pointers). The
      * TextureSampler and/or BufferAccess instances are typically member fields of the GrProcessor
      * subclass. These must only be called from the constructor because GrProcessors are immutable.
      */
     void addTextureSampler(const TextureSampler*);
-    void addBufferAccess(const BufferAccess* bufferAccess);
+    void addBufferAccess(const BufferAccess*);
+    void addImageAccess(const ImageAccess*);
 
-    bool hasSameSamplers(const GrProcessor&) const;
+    bool hasSameSamplersAndImages(const GrProcessor&) const;
 
     /**
      * If the prcoessor will generate code that uses platform specific built-in features, then it
@@ -166,7 +179,8 @@ private:
 
     RequiredFeatures fRequiredFeatures;
     SkSTArray<4, const TextureSampler*, true>   fTextureSamplers;
-    SkSTArray<2, const BufferAccess*, true>     fBufferAccesses;
+    SkSTArray<1, const BufferAccess*, true>     fBufferAccesses;
+    SkSTArray<1, const ImageAccess*, true>          fImageAccesses;
 
     typedef GrProgramElement INHERITED;
 };
@@ -262,6 +276,40 @@ public:
 private:
     GrPixelConfig                 fTexelConfig;
     GrTGpuResourceRef<GrBuffer>   fBuffer;
+    GrShaderFlags                 fVisibility;
+
+    typedef SkNoncopyable INHERITED;
+};
+
+/**
+ * This is used by a GrProcessor to access a texture using image load/store in its shader code.
+ * Image accesses currently always have "top left" semantics regardless of the texture's origin.
+ */
+class GrProcessor::ImageAccess : public SkNoncopyable {
+public:
+    ImageAccess(sk_sp<GrTexture> texture, GrIOType ioType,
+                  GrShaderFlags visibility = kFragment_GrShaderFlag) {
+        fTexture.set(texture.release(), ioType);
+        fVisibility = visibility;
+    }
+
+    bool operator==(const ImageAccess& that) const {
+        return this->texture() == that.texture() && fVisibility == that.fVisibility;
+    }
+
+    bool operator!=(const ImageAccess& that) const { return !(*this == that); }
+
+    GrTexture* texture() const { return fTexture.get(); }
+    GrShaderFlags visibility() const { return fVisibility; }
+    GrIOType ioType() const { return fTexture.ioType(); }
+
+    /**
+     * For internal use by GrProcessor.
+     */
+    const GrGpuResourceRef* getProgramBuffer() const { return &fTexture; }
+
+private:
+    GrTGpuResourceRef<GrTexture>  fTexture;
     GrShaderFlags                 fVisibility;
 
     typedef SkNoncopyable INHERITED;
