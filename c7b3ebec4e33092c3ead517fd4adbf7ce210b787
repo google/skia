@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "500b3ca9_df3b76de",
+        "filename": "src/gpu/glsl/GrGLSLGeometryShaderBuilder.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 16,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2016-11-21T14:16:51Z",
+      "side": 1,
+      "message": "In general we\u0027ve been moving away from this style of implementation for helpers that do a simple conversion from an enum. Instead we\u0027ve been writing them as switches. The reasons are that it there is no performance advantage to the array style and it requires the ugly static asserts to guard against changes to the enum values. If written as a switch statement with no default then clang will give a warning if a enum value is added and doesn\u0027t appear in a case. One of other comilers (gcc or cl.exe, can\u0027t recall) gives an error if there isn\u0027t a return in a default or at the end so we typically write something like:\n\nconst char* e_to_string(E e) {\n  switch (e) {\n    case E::kE1:\n      return \"e1\";\n    case E::kE2;\n      return \"e2\";\n    //...\n    case E::kN;\n      return \"eN\";\n  }\n  SkFAIL(\"Illegal E\");\n  return \"\u003cillegal\u003e\";\n}",
+      "revId": "c7b3ebec4e33092c3ead517fd4adbf7ce210b787",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
