@@ -1135,6 +1135,9 @@ static sk_sp<GrTexture> find_or_create_rrect_blur_mask(GrContext* context,
         rtc->drawRRect(GrNoClip(), grPaint, SkMatrix::I(), rrectToDraw, GrStyle::SimpleFill());
 
         sk_sp<GrTexture> srcTexture(rtc->asTexture());
+        if (!srcTexture) {
+            return nullptr;
+        }
         sk_sp<GrRenderTargetContext> rtc2(SkGpuBlurUtils::GaussianBlur(context,
                                                                        srcTexture.get(),
                                                                        nullptr,

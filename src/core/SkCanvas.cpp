@@ -1419,9 +1419,11 @@ void SkCanvas::internalDrawDevice(SkBaseDevice* srcDev, int x, int y, const SkPa
         paint = &looper.paint();
         SkImageFilter* filter = paint->getImageFilter();
         SkIPoint pos = { x - iter.getX(), y - iter.getY() };
-        sk_sp<SkSpecialImage> specialImage;
-        if (filter && (specialImage = srcDev->snapSpecial())) {
-            dstDev->drawSpecial(iter, specialImage.get(), pos.x(), pos.y(), *paint);
+        if (filter) {
+            sk_sp<SkSpecialImage> specialImage = srcDev->snapSpecial();
+            if (specialImage) {
+                dstDev->drawSpecial(iter, specialImage.get(), pos.x(), pos.y(), *paint);
+            }
         } else {
             dstDev->drawDevice(iter, srcDev, pos.x(), pos.y(), *paint);
         }
