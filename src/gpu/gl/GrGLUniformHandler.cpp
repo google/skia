@@ -30,7 +30,7 @@ GrGLSLUniformHandler::UniformHandle GrGLUniformHandler::internalAddUniformArray(
 
     UniformInfo& uni = fUniforms.push_back();
     uni.fVariable.setType(type);
-    uni.fVariable.setTypeModifier(GrGLSLShaderVar::kUniform_TypeModifier);
+    uni.fVariable.setTypeModifier(GrShaderVar::kUniform_TypeModifier);
     // TODO this is a bit hacky, lets think of a better way.  Basically we need to be able to use
     // the uniform view matrix name in the GP, and the GP is immutable so it has to tell the PB
     // exactly what name it wants to use for the uniform view matrix.  If we prefix anythings, then

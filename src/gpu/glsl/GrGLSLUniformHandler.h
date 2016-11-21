@@ -9,7 +9,7 @@
 #define GrGLSLUniformHandler_DEFINED
 
 #include "GrGLSLProgramDataManager.h"
-#include "GrGLSLShaderVar.h"
+#include "GrShaderVar.h"
 
 class GrGLSLProgramBuilder;
 class GrGLSLSampler;
@@ -47,7 +47,7 @@ public:
                                              outName);
     }
 
-    virtual const GrGLSLShaderVar& getUniformVariable(UniformHandle u) const = 0;
+    virtual const GrShaderVar& getUniformVariable(UniformHandle u) const = 0;
 
     /**
      * Shortcut for getUniformVariable(u).c_str()

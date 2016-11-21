@@ -7,6 +7,7 @@
 
 #include "GrGLTexture.h"
 #include "GrGLGpu.h"
+#include "glsl/GrGLSLCaps.h"
 #include "SkTraceMemoryDump.h"
 
 #define GPUGL static_cast<GrGLGpu*>(this->getGpu())
