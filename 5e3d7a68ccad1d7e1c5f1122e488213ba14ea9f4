@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "500b3ca9_faf888cd",
+        "filename": "src/core/SkFixedAlloc.h",
+        "patchSetId": 9
+      },
+      "lineNbr": 43,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2016-11-21T17:27:16Z",
+      "side": 1,
+      "message": "Time to remove?  Or are you waiting to see that the second test doesn\u0027t fail on any post-CQ bot first?",
+      "revId": "5e3d7a68ccad1d7e1c5f1122e488213ba14ea9f4",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "500b3ca9_9ae86cf8",
+        "filename": "src/core/SkFixedAlloc.h",
+        "patchSetId": 9
+      },
+      "lineNbr": 53,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2016-11-21T17:27:16Z",
+      "side": 1,
+      "message": "Maybe SkFAIL(\"Can\u0027t encode padding or deleter function offset.\"), and remove the comment?",
+      "revId": "5e3d7a68ccad1d7e1c5f1122e488213ba14ea9f4",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
