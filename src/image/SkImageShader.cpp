@@ -13,6 +13,7 @@
 #include "SkFixedAlloc.h"
 #include "SkImage_Base.h"
 #include "SkImageShader.h"
+#include "SkImageShaderContext.h"
 #include "SkPM4fPriv.h"
 #include "SkReadBuffer.h"
 #include "SkWriteBuffer.h"
@@ -302,8 +303,8 @@ bool SkImageShader::onAppendStages(SkRasterPipeline* p, SkColorSpace* dst, SkFal
         quality = kNone_SkFilterQuality;
     }
 
-    // TODO: bilerp
-    if (quality != kNone_SkFilterQuality) {
+    // TODO: front-patch with SkDefaultBitmapControllerState, then assert we're kNone or kLow.
+    if (quality > kLow_SkFilterQuality) {
         return false;
     }
 
@@ -319,14 +320,7 @@ bool SkImageShader::onAppendStages(SkRasterPipeline* p, SkColorSpace* dst, SkFal
         }
     }
 
-    struct Context {
-        const void* pixels;
-        int         stride;
-        int         width;
-        int         height;
-        float       matrix[9];
-    };
-    auto ctx = scratch->make<Context>();
+    auto ctx = scratch->make<SkImageShaderContext>();
 
     ctx->pixels   = pm.addr();
     ctx->stride   = pm.rowBytesAsPixels();
@@ -339,7 +333,7 @@ bool SkImageShader::onAppendStages(SkRasterPipeline* p, SkColorSpace* dst, SkFal
         p->append(SkRasterPipeline::matrix_perspective, ctx->matrix);
     }
 
-    auto append_tiling = [&] {
+    auto append_tiling_and_accum = [&] {
         switch (fTileModeX) {
             case kClamp_TileMode:  p->append(SkRasterPipeline::clamp_x,  &ctx->width); break;
             case kMirror_TileMode: p->append(SkRasterPipeline::mirror_x, &ctx->width); break;
@@ -350,9 +344,7 @@ bool SkImageShader::onAppendStages(SkRasterPipeline* p, SkColorSpace* dst, SkFal
             case kMirror_TileMode: p->append(SkRasterPipeline::mirror_y, &ctx->height); break;
             case kRepeat_TileMode: p->append(SkRasterPipeline::repeat_y, &ctx->height); break;
         }
-    };
 
-    auto append_accum = [&] {
         switch (info.colorType()) {
             case kRGBA_8888_SkColorType:
             case kBGRA_8888_SkColorType:
@@ -376,8 +368,20 @@ bool SkImageShader::onAppendStages(SkRasterPipeline* p, SkColorSpace* dst, SkFal
     };
 
     if (quality == kNone_SkFilterQuality) {
-        append_tiling();
-        append_accum();
+        append_tiling_and_accum();
+
+    } else {
+        p->append(SkRasterPipeline::top_left, ctx);
+        append_tiling_and_accum();
+
+        p->append(SkRasterPipeline::top_right, ctx);
+        append_tiling_and_accum();
+
+        p->append(SkRasterPipeline::bottom_left, ctx);
+        append_tiling_and_accum();
+
+        p->append(SkRasterPipeline::bottom_right, ctx);
+        append_tiling_and_accum();
     }
 
     p->append(SkRasterPipeline::dst);
