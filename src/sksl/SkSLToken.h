@@ -103,45 +103,45 @@ struct Token {
         INVALID_TOKEN
     };
 
-    static std::string OperatorName(Kind kind) {
+    static SkString OperatorName(Kind kind) {
         switch (kind) {
-            case Token::PLUS:         return "+";
-            case Token::MINUS:        return "-";
-            case Token::STAR:         return "*";
-            case Token::SLASH:        return "/";
-            case Token::PERCENT:      return "%";
-            case Token::SHL:          return "<<";
-            case Token::SHR:          return ">>";
-            case Token::LOGICALNOT:   return "!";
-            case Token::LOGICALAND:   return "&&";
-            case Token::LOGICALOR:    return "||";
-            case Token::LOGICALXOR:   return "^^";
-            case Token::BITWISENOT:   return "~";
-            case Token::BITWISEAND:   return "&";
-            case Token::BITWISEOR:    return "|";
-            case Token::BITWISEXOR:   return "^";
-            case Token::EQ:           return "=";
-            case Token::EQEQ:         return "==";
-            case Token::NEQ:          return "!=";
-            case Token::LT:           return "<";
-            case Token::GT:           return ">";
-            case Token::LTEQ:         return "<=";
-            case Token::GTEQ:         return ">=";
-            case Token::PLUSEQ:       return "+=";
-            case Token::MINUSEQ:      return "-=";
-            case Token::STAREQ:       return "*=";
-            case Token::SLASHEQ:      return "/=";
-            case Token::PERCENTEQ:    return "%=";
-            case Token::SHLEQ:        return "<<=";
-            case Token::SHREQ:        return ">>=";
-            case Token::LOGICALANDEQ: return "&&=";
-            case Token::LOGICALOREQ:  return "||=";
-            case Token::LOGICALXOREQ: return "^^=";
-            case Token::BITWISEANDEQ: return "&=";
-            case Token::BITWISEOREQ:  return "|=";
-            case Token::BITWISEXOREQ: return "^=";
-            case Token::PLUSPLUS:     return "++";
-            case Token::MINUSMINUS:   return "--";
+            case Token::PLUS:         return SkString("+");
+            case Token::MINUS:        return SkString("-");
+            case Token::STAR:         return SkString("*");
+            case Token::SLASH:        return SkString("/");
+            case Token::PERCENT:      return SkString("%");
+            case Token::SHL:          return SkString("<<");
+            case Token::SHR:          return SkString(">>");
+            case Token::LOGICALNOT:   return SkString("!");
+            case Token::LOGICALAND:   return SkString("&&");
+            case Token::LOGICALOR:    return SkString("||");
+            case Token::LOGICALXOR:   return SkString("^^");
+            case Token::BITWISENOT:   return SkString("~");
+            case Token::BITWISEAND:   return SkString("&");
+            case Token::BITWISEOR:    return SkString("|");
+            case Token::BITWISEXOR:   return SkString("^");
+            case Token::EQ:           return SkString("=");
+            case Token::EQEQ:         return SkString("==");
+            case Token::NEQ:          return SkString("!=");
+            case Token::LT:           return SkString("<");
+            case Token::GT:           return SkString(">");
+            case Token::LTEQ:         return SkString("<=");
+            case Token::GTEQ:         return SkString(">=");
+            case Token::PLUSEQ:       return SkString("+=");
+            case Token::MINUSEQ:      return SkString("-=");
+            case Token::STAREQ:       return SkString("*=");
+            case Token::SLASHEQ:      return SkString("/=");
+            case Token::PERCENTEQ:    return SkString("%=");
+            case Token::SHLEQ:        return SkString("<<=");
+            case Token::SHREQ:        return SkString(">>=");
+            case Token::LOGICALANDEQ: return SkString("&&=");
+            case Token::LOGICALOREQ:  return SkString("||=");
+            case Token::LOGICALXOREQ: return SkString("^^=");
+            case Token::BITWISEANDEQ: return SkString("&=");
+            case Token::BITWISEOREQ:  return SkString("|=");
+            case Token::BITWISEXOREQ: return SkString("^=");
+            case Token::PLUSPLUS:     return SkString("++");
+            case Token::MINUSMINUS:   return SkString("--");
             default:
                 ABORT("unsupported operator: %d\n", kind); 
         }        
@@ -150,7 +150,7 @@ struct Token {
     Token() {
     }
 
-    Token(Position position, Kind kind, std::string text)
+    Token(Position position, Kind kind, SkString text)
     : fPosition(position)
     , fKind(kind)
     , fText(std::move(text)) {}
@@ -159,7 +159,7 @@ struct Token {
     Kind fKind;
     // will be the empty string unless the token has variable text content (identifiers, numeric
     // literals, and directives)
-    std::string fText;
+    SkString fText;
 };
 
 } // namespace

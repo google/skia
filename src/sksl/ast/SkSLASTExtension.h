@@ -16,15 +16,15 @@ namespace SkSL {
  * An extension declaration. 
  */
 struct ASTExtension : public ASTDeclaration {
-    ASTExtension(Position position, std::string name)
+    ASTExtension(Position position, SkString name)
     : INHERITED(position, kExtension_Kind)
     , fName(std::move(name)) {}
 
-    std::string description() const override {
+    SkString description() const override {
         return "#extension " + fName + " : enable";
     }
 
-    const std::string fName;
+    const SkString fName;
 
     typedef ASTDeclaration INHERITED;
 };

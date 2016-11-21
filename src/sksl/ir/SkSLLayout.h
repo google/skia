@@ -50,9 +50,9 @@ struct Layout {
     , fBlendSupportAllEquations(false)
     , fFormat(ASTLayout::Format::kUnspecified) {}
 
-    std::string description() const {
-        std::string result;
-        std::string separator;
+    SkString description() const {
+        SkString result;
+        SkString separator;
         if (fLocation >= 0) {
             result += separator + "location = " + to_string(fLocation);
             separator = ", ";
@@ -89,7 +89,7 @@ struct Layout {
             result += separator + ASTLayout::FormatToStr(fFormat);
             separator = ", ";
         }
-        if (result.length() > 0) {
+        if (result.size() > 0) {
             result = "layout (" + result + ")";
         }
         return result;

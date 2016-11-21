@@ -10,13 +10,15 @@
       'standalone_static_library': 1,
       'sources': [ '<!@(python read_gni.py ../gn/sksl.gni skia_sksl_sources)' ],
       'include_dirs': [
-         '../include/config',
-         '../include/core',
-         '../include/gpu',
-         '../include/private',
-         '../include/utils',
-         '../src/gpu',
-         '../src/sksl',
+        '../include/config',
+        '../include/core',
+        '../include/gpu',
+        '../include/private',
+        '../include/utils',
+        '../src/core',
+        '../src/gpu',
+        '../src/sksl',
+        '../src/utils',
       ],
       'defines': [
         'SKIA'

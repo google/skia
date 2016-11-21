@@ -26,11 +26,11 @@ struct ASTIndexSuffix : public ASTSuffix {
     : INHERITED(expression ? expression->fPosition : Position(), ASTSuffix::kIndex_Kind)
     , fExpression(std::move(expression)) {}
 
-    std::string description() const override {
+    SkString description() const override {
         if (fExpression) {
             return "[" + fExpression->description() + "]";
         } else {
-            return "[]";
+            return SkString("[]");
         }
     }
 

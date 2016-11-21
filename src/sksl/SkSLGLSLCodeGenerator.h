@@ -12,6 +12,7 @@
 #include <tuple>
 #include <unordered_map>
 
+#include "SkStream.h"
 #include "glsl/GrGLSLCaps.h"
 #include "SkSLCodeGenerator.h"
 #include "ir/SkSLBinaryExpression.h"
@@ -75,7 +76,7 @@ public:
     : fContext(*context)
     , fCaps(*caps) {}
 
-    void generateCode(const Program& program, std::ostream& out) override;
+    void generateCode(const Program& program, SkWStream& out) override;
 
 private:
     void write(const char* s);
@@ -84,9 +85,9 @@ private:
 
     void writeLine(const char* s);
 
-    void write(const std::string& s);
+    void write(const SkString& s);
 
-    void writeLine(const std::string& s);
+    void writeLine(const SkString& s);
 
     void writeType(const Type& type);
 
@@ -156,9 +157,9 @@ private:
 
     const Context& fContext;
     const GrGLSLCaps& fCaps;
-    std::ostream* fOut = nullptr;
-    std::stringstream fHeader;
-    std::string fFunctionHeader;
+    SkWStream* fOut = nullptr;
+    SkDynamicMemoryWStream fHeader;
+    SkString fFunctionHeader;
     Program::Kind fProgramKind;
     int fVarCount = 0;
     int fIndentation = 0;

@@ -30,12 +30,12 @@ struct ASTSuffix : public ASTPositionNode {
     : INHERITED(position)
     , fKind(kind) {}
 
-    std::string description() const override {
+    SkString description() const override {
         switch (fKind) {
             case kPostIncrement_Kind:
-                return "++";
+                return SkString("++");
             case kPostDecrement_Kind:
-                return "--";
+                return SkString("--");
             default:
                 ABORT("unsupported suffix operator");
         }        

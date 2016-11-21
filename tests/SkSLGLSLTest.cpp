@@ -9,23 +9,24 @@
 
 #include "Test.h"
 
-#if SKIA_SUPPORT_GPU
+#if SK_SUPPORT_GPU
 
 static void test(skiatest::Reporter* r, const char* src, const GrGLSLCaps& caps, 
                  const char* expected) {
     SkSL::Compiler compiler;
-    std::string output;
-    bool result = compiler.toGLSL(SkSL::Program::kFragment_Kind, src, caps, &output);
+    SkString output;
+    bool result = compiler.toGLSL(SkSL::Program::kFragment_Kind, SkString(src), caps, &output);
     if (!result) {
         SkDebugf("Unexpected error compiling %s\n%s", src, compiler.errorText().c_str());
     }
     REPORTER_ASSERT(r, result);
     if (result) {
-        if (output != expected) {
+        SkString skExpected(expected);
+        if (output != skExpected) {
             SkDebugf("GLSL MISMATCH:\nsource:\n%s\n\nexpected:\n'%s'\n\nreceived:\n'%s'", src, 
                      expected, output.c_str());
         }
-        REPORTER_ASSERT(r, output == expected);
+        REPORTER_ASSERT(r, output == skExpected);
     }
 }
 
@@ -46,7 +47,7 @@ DEF_TEST(SkSLControl, r) {
          "if (sqrt(2) > 5) { sk_FragColor = vec4(0.75); } else { discard; }"
          "int i = 0;"
          "while (i < 10) sk_FragColor *= 0.5;"
-         "do { sk_FragColor += 0.01; } while (sk_FragColor.x < 0.7);"
+         "do { sk_FragColor += 0.01; } while (sk_FragColor.x < 0.75);"
          "for (int i = 0; i < 10; i++) {"
          "if (i % 0 == 1) break; else continue;"
          "}"
@@ -65,7 +66,7 @@ DEF_TEST(SkSLControl, r) {
          "    while (i < 10) sk_FragColor *= 0.5;\n"
          "    do {\n"
          "        sk_FragColor += 0.01;\n"
-         "    } while (sk_FragColor.x < 0.7);\n"
+         "    } while (sk_FragColor.x < 0.75);\n"
          "    for (int i = 0;i < 10; i++) {\n"
          "        if (i % 0 == 1) break; else continue;\n"
          "    }\n"

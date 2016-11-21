@@ -22,7 +22,7 @@ struct TypeReference : public Expression {
     : INHERITED(position, kTypeReference_Kind, *context.fInvalid_Type)
     , fValue(type) {}
 
-    std::string description() const override {
+    SkString description() const override {
         return fValue.name();
     }
 
