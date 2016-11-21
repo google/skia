@@ -857,13 +857,13 @@ namespace SK_OPTS_NS {
                      Y = SkNf(y) + 0.5f;
 
                 while (n >= N) {
-                    fBodyStart(fBody, x, v,v,v,v, X,Y,v,v);
+                    fBodyStart(fBody, x, X,Y,v,v, v,v,v,v);
                     X += (float)N;
                     x += N;
                     n -= N;
                 }
                 if (n) {
-                    fTailStart(fTail, x,n, v,v,v,v, X,Y,v,v);
+                    fTailStart(fTail, x,n, X,Y,v,v, v,v,v,v);
                 }
             }
 
