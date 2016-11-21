@@ -599,60 +599,45 @@ static size_t load_gammas(void* memory, size_t offset, SkGammas::Type type,
     }
 }
 
-static constexpr uint32_t kTAG_AtoBType = SkSetFourByteTag('m', 'A', 'B', ' ');
+static constexpr uint32_t kTAG_AtoBType  = SkSetFourByteTag('m', 'A', 'B', ' ');
+static constexpr uint32_t kTAG_lut8Type  = SkSetFourByteTag('m', 'f', 't', '1');
+static constexpr uint32_t kTAG_lut16Type = SkSetFourByteTag('m', 'f', 't', '2');
 
 static bool load_color_lut(sk_sp<SkColorLookUpTable>* colorLUT, uint32_t inputChannels,
-                           const uint8_t* src, size_t len) {
-    // 16 bytes reserved for grid points, 2 for precision, 2 for padding.
-    // The color LUT data follows after this header.
-    static constexpr uint32_t kColorLUTHeaderSize = 20;
-    if (len < kColorLUTHeaderSize) {
-        SkColorSpacePrintf("Color LUT tag is too small (%d bytes).", len);
-        return false;
+                           size_t precision, const uint8_t gridPoints[3], const uint8_t* src,
+                           size_t len) {
+    switch (precision) {
+        case 1: //  8-bit data
+        case 2: // 16-bit data
+            break;
+        default:
+            SkColorSpacePrintf("Color LUT precision must be 8-bit or 16-bit. Found: %d-bit\n",
+                               8*precision);
+            return false;
     }
-    size_t dataLen = len - kColorLUTHeaderSize;
 
     SkASSERT(3 == inputChannels);
-    uint8_t gridPoints[3];
-    uint32_t numEntries = 1;
+    uint32_t numEntries = SkColorLookUpTable::kOutputChannels;
     for (uint32_t i = 0; i < inputChannels; i++) {
-        gridPoints[i] = src[i];
-        if (0 == src[i]) {
+        if (0 == gridPoints[i]) {
             SkColorSpacePrintf("Each input channel must have at least one grid point.");
             return false;
         }
 
-        if (!safe_mul(numEntries, src[i], &numEntries)) {
+        if (!safe_mul(numEntries, gridPoints[i], &numEntries)) {
             SkColorSpacePrintf("Too many entries in Color LUT.");
             return false;
         }
     }
 
-    if (!safe_mul(numEntries, SkColorLookUpTable::kOutputChannels, &numEntries)) {
-        SkColorSpacePrintf("Too many entries in Color LUT.");
-        return false;
-    }
-
-    // Space is provided for a maximum of the 16 input channels.  Now we determine the precision
-    // of the table values.
-    uint8_t precision = src[16];
-    switch (precision) {
-        case 1: // 8-bit data
-        case 2: // 16-bit data
-            break;
-        default:
-            SkColorSpacePrintf("Color LUT precision must be 8-bit or 16-bit.\n");
-            return false;
-    }
-
     uint32_t clutBytes;
     if (!safe_mul(numEntries, precision, &clutBytes)) {
-        SkColorSpacePrintf("Too many entries in Color LUT.");
+        SkColorSpacePrintf("Too many entries in Color LUT.\n");
         return false;
     }
 
-    if (dataLen < clutBytes) {
-        SkColorSpacePrintf("Color LUT tag is too small (%d bytes).", len);
+    if (len < clutBytes) {
+        SkColorSpacePrintf("Color LUT tag is too small (%d / %d bytes).\n", len, clutBytes);
         return false;
     }
 
@@ -662,7 +647,7 @@ static bool load_color_lut(sk_sp<SkColorLookUpTable>* colorLUT, uint32_t inputCh
                                                                           gridPoints));
 
     float* table = SkTAddOffset<float>(memory, sizeof(SkColorLookUpTable));
-    const uint8_t* ptr = src + kColorLUTHeaderSize;
+    const uint8_t* ptr = src;
     for (uint32_t i = 0; i < numEntries; i++, ptr += precision) {
         if (1 == precision) {
             table[i] = ((float) *ptr) / 255.0f;
@@ -855,7 +840,7 @@ static bool parse_and_load_gamma(SkGammaNamed* gammaNamed, sk_sp<SkGammas>* gamm
         (*gammas)->fGreenData = gData;
         (*gammas)->fBlueData = bData;
     }
-    
+
     if (kNonStandard_SkGammaNamed == *gammaNamed) {
         *gammaNamed = is_named(*gammas);
         if (kNonStandard_SkGammaNamed != *gammaNamed) {
@@ -866,8 +851,85 @@ static bool parse_and_load_gamma(SkGammaNamed* gammaNamed, sk_sp<SkGammas>* gamm
     return true;
 }
 
+static bool load_lut_gammas(sk_sp<SkGammas>* gammas, size_t numTables, size_t entriesPerTable,
+                            size_t precision, const uint8_t* src, size_t len) {
+    if (precision != 1 && precision != 2) {
+        SkColorSpacePrintf("Invalid gamma table precision %d\n", precision);
+        return false;
+    }
+    uint32_t totalEntries;
+    return_if_false(safe_mul(entriesPerTable, numTables, &totalEntries),
+                    "Too many entries in gamma table.");
+    uint32_t readBytes;
+    return_if_false(safe_mul(precision, totalEntries, &readBytes),
+                    "SkGammas struct is too large to read");
+    if (len < readBytes) {
+        SkColorSpacePrintf("Gamma table is too small. Provided: %d. Required: %d\n",
+                           len, readBytes);
+        return false;
+    }
+
+    uint32_t writeBytesPerChannel;
+    return_if_false(safe_mul(sizeof(float), entriesPerTable, &writeBytesPerChannel),
+                    "SkGammas struct is too large to allocate");
+    const size_t readBytesPerChannel = precision * entriesPerTable;
+    size_t numTablesToUse = 1;
+    for (size_t tableIndex = 1; tableIndex < numTables; ++tableIndex) {
+        if (0 != memcmp(src, src + readBytesPerChannel * tableIndex, readBytesPerChannel)) {
+            numTablesToUse = numTables;
+            break;
+        }
+    }
+
+    uint32_t writetableBytes;
+    return_if_false(safe_mul(numTablesToUse, writeBytesPerChannel, &writetableBytes),
+                    "SkGammas struct is too large to allocate");
+    size_t allocSize = sizeof(SkGammas);
+    return_if_false(safe_add(allocSize, (size_t)writetableBytes, &allocSize),
+                    "SkGammas struct is too large to allocate");
+
+    void* memory = sk_malloc_throw(allocSize);
+    *gammas = sk_sp<SkGammas>(new (memory) SkGammas());
+
+    for (size_t tableIndex = 0; tableIndex < numTablesToUse; ++tableIndex) {
+        const uint8_t* ptr = src + readBytesPerChannel * tableIndex;
+        const size_t offset = sizeof(SkGammas) + tableIndex * writeBytesPerChannel;
+        float* table = SkTAddOffset<float>(memory, offset);
+        if (1 == precision) {
+            for (uint32_t i = 0; i < entriesPerTable; ++i, ptr += 1) {
+                table[i] = ((float) *ptr) / 255.0f;
+            }
+        } else if (2 == precision) {
+            for (uint32_t i = 0; i < entriesPerTable; ++i, ptr += 2) {
+                table[i] = ((float) read_big_endian_u16(ptr)) / 65535.0f;
+            }
+        }
+    }
+
+    (*gammas)->fRedType   = SkGammas::Type::kTable_Type;
+    (*gammas)->fGreenType = SkGammas::Type::kTable_Type;
+    (*gammas)->fBlueType  = SkGammas::Type::kTable_Type;
+
+    if (1 == numTablesToUse) {
+        (*gammas)->fRedData.fTable.fOffset   = 0;
+        (*gammas)->fGreenData.fTable.fOffset = 0;
+        (*gammas)->fBlueData.fTable.fOffset  = 0;
+    } else {
+        (*gammas)->fRedData.fTable.fOffset   = 0;
+        (*gammas)->fGreenData.fTable.fOffset = writeBytesPerChannel;
+        (*gammas)->fBlueData.fTable.fOffset  = writeBytesPerChannel * 2;
+    }
+
+    (*gammas)->fRedData.fTable.fSize   = entriesPerTable;
+    (*gammas)->fGreenData.fTable.fSize = entriesPerTable;
+    (*gammas)->fBlueData.fTable.fSize  = entriesPerTable;
+
+    return true;
+}
+
 bool load_a2b0_a_to_b_type(std::vector<SkColorSpace_A2B::Element>* elements, const uint8_t* src,
                            size_t len, SkColorSpace_A2B::PCS pcs) {
+    SkASSERT(len >= 32);
     // Read the number of channels.  The four bytes (4-7) that we skipped are reserved and
     // must be zero.
     const uint8_t inputChannels = src[8];
@@ -903,8 +965,26 @@ bool load_a2b0_a_to_b_type(std::vector<SkColorSpace_A2B::Element>* elements, con
     const uint32_t offsetToColorLUT = read_big_endian_i32(src + 24);
     if (0 != offsetToColorLUT && offsetToColorLUT < len) {
         sk_sp<SkColorLookUpTable> colorLUT;
-        if (!load_color_lut(&colorLUT, inputChannels, src + offsetToColorLUT,
-                            len - offsetToColorLUT)) {
+        const uint8_t* clutSrc = src + offsetToColorLUT;
+        const size_t clutLen = len - offsetToColorLUT;
+        // 16 bytes reserved for grid points, 1 for precision, 3 for padding.
+        // The color LUT data follows after this header.
+        static constexpr uint32_t kColorLUTHeaderSize = 20;
+        if (clutLen < kColorLUTHeaderSize) {
+            SkColorSpacePrintf("Color LUT tag is too small (%d bytes).", clutLen);
+            return false;
+        }
+
+        SkASSERT(3 == inputChannels);
+        uint8_t gridPoints[3];
+        for (uint32_t i = 0; i < inputChannels; ++i) {
+            gridPoints[i] = clutSrc[i];
+        }
+        // Space is provided for a maximum of 16 input channels.
+        // Now we determine the precision of the table values.
+        const uint8_t precision = clutSrc[16];
+        if (!load_color_lut(&colorLUT, inputChannels, precision, gridPoints,
+                            clutSrc + kColorLUTHeaderSize, clutLen - kColorLUTHeaderSize)) {
             SkColorSpacePrintf("Failed to read color LUT from A to B tag.\n");
             return false;
         }
@@ -954,6 +1034,94 @@ bool load_a2b0_a_to_b_type(std::vector<SkColorSpace_A2B::Element>* elements, con
     return true;
 }
 
+bool load_a2b0_lutn_type(std::vector<SkColorSpace_A2B::Element>* elements, const uint8_t* src,
+                         size_t len, SkColorSpace_A2B::PCS pcs) {
+    const uint32_t type = read_big_endian_u32(src);
+    switch (type) {
+        case kTAG_lut8Type:
+            SkASSERT(len >= 48);
+            break;
+        case kTAG_lut16Type:
+            SkASSERT(len >= 52);
+            break;
+        default:
+            SkASSERT(false);
+            return false;
+    }
+    // Read the number of channels.
+    // The four bytes (4-7) that we skipped are reserved and must be zero.
+    const uint8_t inputChannels = src[8];
+    const uint8_t outputChannels = src[9];
+    if (3 != inputChannels || SkColorLookUpTable::kOutputChannels != outputChannels) {
+        // We only handle (supposedly) RGB inputs and RGB outputs.  The numbers of input
+        // channels and output channels both must be 3.
+        // TODO (msarett):
+        // Support different numbers of input channels.  Ex: CMYK (4).
+        SkColorSpacePrintf("Input and output channels must equal 3 in A to B tag.\n");
+        return false;
+    }
+
+    const uint8_t clutGridPoints = src[10];
+    // 11th byte reserved for padding (required to be zero)
+
+    SkMatrix44 matrix(SkMatrix44::kUninitialized_Constructor);
+    load_matrix(&matrix, &src[12], len - 12, false, pcs);
+    elements->push_back(SkColorSpace_A2B::Element(matrix));
+
+    size_t dataOffset      = 48;
+    // # of input table entries
+    size_t inTableEntries  = 256;
+    // # of output table entries
+    size_t outTableEntries = 256;
+    size_t precision       = 1;
+    if (kTAG_lut16Type == type) {
+        dataOffset      = 52;
+        inTableEntries  = read_big_endian_u16(src + 48);
+        outTableEntries = read_big_endian_u16(src + 50);
+        precision       = 2;
+    }
+
+    const size_t inputOffset = dataOffset;
+    return_if_false(len >= inputOffset, "A2B0 lutnType tag too small for input gamma table");
+    sk_sp<SkGammas> inputGammas;
+    if (!load_lut_gammas(&inputGammas, inputChannels, inTableEntries, precision,
+                         src + inputOffset, len - inputOffset)) {
+        SkColorSpacePrintf("Failed to read input gammas from lutnType tag.\n");
+        return false;
+    }
+    SkASSERT(inputGammas);
+    elements->push_back(SkColorSpace_A2B::Element(std::move(inputGammas)));
+
+    const size_t clutOffset = inputOffset + precision*inTableEntries*inputChannels;
+    return_if_false(len >= clutOffset, "A2B0 lutnType tag too small for CLUT");
+    sk_sp<SkColorLookUpTable> colorLUT;
+    const uint8_t gridPoints[3] = {clutGridPoints, clutGridPoints, clutGridPoints};
+    if (!load_color_lut(&colorLUT, inputChannels, precision, gridPoints, src + clutOffset,
+                        len - clutOffset)) {
+        SkColorSpacePrintf("Failed to read color LUT from lutnType tag.\n");
+        return false;
+    }
+    SkASSERT(colorLUT);
+    elements->push_back(SkColorSpace_A2B::Element(std::move(colorLUT)));
+
+    size_t clutSize = precision * outputChannels;
+    for (int i = 0; i < inputChannels; ++i) {
+        clutSize *= clutGridPoints;
+    }
+    const size_t outputOffset = clutOffset + clutSize;
+    return_if_false(len >= outputOffset, "A2B0 lutnType tag too small for output gamma table");
+    sk_sp<SkGammas> outputGammas;
+    if (!load_lut_gammas(&outputGammas, outputChannels, outTableEntries, precision,
+                         src + outputOffset, len - outputOffset)) {
+        SkColorSpacePrintf("Failed to read output gammas from lutnType tag.\n");
+        return false;
+    }
+    SkASSERT(outputGammas);
+    elements->push_back(SkColorSpace_A2B::Element(std::move(outputGammas)));
+
+    return true;
+}
+
 static bool load_a2b0(std::vector<SkColorSpace_A2B::Element>* elements, const uint8_t* src,
                       size_t len, SkColorSpace_A2B::PCS pcs) {
     const uint32_t type = read_big_endian_u32(src);
@@ -965,6 +1133,20 @@ static bool load_a2b0(std::vector<SkColorSpace_A2B::Element>* elements, const ui
             }
             SkColorSpacePrintf("A2B0 tag is of type lutAtoBType\n");
             return load_a2b0_a_to_b_type(elements, src, len, pcs);
+        case kTAG_lut8Type:
+            if (len < 48) {
+                SkColorSpacePrintf("lut8 tag is too small (%d bytes).", len);
+                return false;
+            }
+            SkColorSpacePrintf("A2B0 tag of type lut8Type\n");
+            return load_a2b0_lutn_type(elements, src, len, pcs);
+        case kTAG_lut16Type:
+            if (len < 52) {
+                SkColorSpacePrintf("lut16 tag is too small (%d bytes).", len);
+                return false;
+            }
+            SkColorSpacePrintf("A2B0 tag of type lut16Type\n");
+            return load_a2b0_lutn_type(elements, src, len, pcs);
         default:
             SkColorSpacePrintf("Unsupported A to B tag type: %c%c%c%c\n", (type>>24)&0xFF,
                                (type>>16)&0xFF, (type>>8)&0xFF, type&0xFF);
