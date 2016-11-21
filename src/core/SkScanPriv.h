@@ -24,7 +24,7 @@ private:
     SkRectClipBlitter   fRectBlitter;
     SkRgnClipBlitter    fRgnBlitter;
 #ifdef SK_DEBUG
-    // SkRectClipCheckBlitter fRectClipCheckBlitter;
+    SkRectClipCheckBlitter fRectClipCheckBlitter;
 #endif
     SkBlitter*          fBlitter;
     const SkIRect*      fClipRect;

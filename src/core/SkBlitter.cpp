@@ -1070,4 +1070,14 @@ const SkPixmap* SkRectClipCheckBlitter::justAnOpaqueColor(uint32_t* value) {
     return fBlitter->justAnOpaqueColor(value);
 }
 
+void SkRectClipCheckBlitter::blitAntiH2(int x, int y, U8CPU a0, U8CPU a1) {
+    SkASSERT(fClipRect.contains(SkIRect::MakeXYWH(x, y, 2, 1)));
+    fBlitter->blitAntiH2(x, y, a0, a1);
+}
+
+void SkRectClipCheckBlitter::blitAntiV2(int x, int y, U8CPU a0, U8CPU a1) {
+    SkASSERT(fClipRect.contains(SkIRect::MakeXYWH(x, y, 1, 2)));
+    fBlitter->blitAntiV2(x, y, a0, a1);
+}
+
 #endif
