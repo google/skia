@@ -17,9 +17,13 @@ void GrGLSLGeometryProcessor::emitCode(EmitArgs& args) {
     GrGLSLVertexBuilder* vBuilder = args.fVertBuilder;
     GrGPArgs gpArgs;
     this->onEmitCode(args, &gpArgs);
-    vBuilder->transformToNormalizedDeviceSpace(gpArgs.fPositionVar);
-    if (kVec2f_GrSLType == gpArgs.fPositionVar.getType()) {
-        args.fVaryingHandler->setNoPerspective();
+    if (!gpArgs.fPositionVar.getName().isEmpty()) {
+        vBuilder->emitVertexPosition(gpArgs.fPositionVar);
+        if (kVec2f_GrSLType == gpArgs.fPositionVar.getType()) {
+            args.fVaryingHandler->setNoPerspective();
+        }
+    } else {
+        SkASSERT(args.fGP.willUseGeoShader());
     }
 }
 

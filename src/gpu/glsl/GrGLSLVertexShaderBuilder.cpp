@@ -11,17 +11,21 @@
 #include "glsl/GrGLSLVarying.h"
 
 GrGLSLVertexBuilder::GrGLSLVertexBuilder(GrGLSLProgramBuilder* program)
-    : INHERITED(program)
-    , fRtAdjustName(nullptr) {
+    : INHERITED(program) {
 }
 
-void GrGLSLVertexBuilder::transformToNormalizedDeviceSpace(const GrShaderVar& posVar) {
-    SkASSERT(!fRtAdjustName);
+void GrGLSLVertexBuilder::appendTransformToWindowSpace2D(const char* coord2D) {
+    const char* rtAdjustName = fProgramBuilder->getRTAdjustmentUniform();
+    this->codeAppendf("(%s * %s.xz + %s.yw)", coord2D, rtAdjustName, rtAdjustName);
+}
 
-    // setup RT Uniform
-    fProgramBuilder->addRTAdjustmentUniform(kHigh_GrSLPrecision,
-                                            fProgramBuilder->rtAdjustment(),
-                                            &fRtAdjustName);
+void GrGLSLVertexBuilder::appendTransformToWindowSpace3D(const char* coord3D) {
+    const char* rtAdjustName = fProgramBuilder->getRTAdjustmentUniform();
+    this->codeAppendf("vec4(dot(%s.xz, %s.xy), dot(%s.yz, %s.zw), 0, %s.z);",
+                      coord3D, rtAdjustName, coord3D, rtAdjustName, coord3D);
+}
+
+void GrGLSLVertexBuilder::emitVertexPosition(const GrShaderVar& posVar) {
     if (this->getProgramBuilder()->desc().header().fSnapVerticesToPixelCenters) {
         if (kVec3f_GrSLType == posVar.getType()) {
             const char* p = posVar.c_str();
@@ -30,20 +34,19 @@ void GrGLSLVertexBuilder::transformToNormalizedDeviceSpace(const GrShaderVar& po
             SkASSERT(kVec2f_GrSLType == posVar.getType());
             this->codeAppendf("{vec2 _posTmp = %s;", posVar.c_str());
         }
-        this->codeAppendf("_posTmp = floor(_posTmp) + vec2(0.5, 0.5);"
-                          "gl_Position = vec4(_posTmp.x * %s.x + %s.y,"
-                                             "_posTmp.y * %s.z + %s.w, 0, 1);}",
-                          fRtAdjustName, fRtAdjustName, fRtAdjustName, fRtAdjustName);
+        this->codeAppend("_posTmp = floor(_posTmp) + vec2(0.5, 0.5);"
+                         "gl_Position = vec4(");
+        this->appendTransformToWindowSpace2D("_posTmp");
+        this->codeAppend(", 0, 1);}");
     } else if (kVec3f_GrSLType == posVar.getType()) {
-        this->codeAppendf("gl_Position = vec4(dot(%s.xz, %s.xy), dot(%s.yz, %s.zw), 0, %s.z);",
-                          posVar.c_str(), fRtAdjustName,
-                          posVar.c_str(), fRtAdjustName,
-                          posVar.c_str());
+        this->codeAppend("gl_Position = ");
+        this->appendTransformToWindowSpace3D(posVar.c_str());
+        this->codeAppend(";");
     } else {
         SkASSERT(kVec2f_GrSLType == posVar.getType());
-        this->codeAppendf("gl_Position = vec4(%s.x * %s.x + %s.y, %s.y * %s.z + %s.w, 0, 1);",
-                          posVar.c_str(), fRtAdjustName, fRtAdjustName,
-                          posVar.c_str(), fRtAdjustName, fRtAdjustName);
+        this->codeAppend("gl_Position = vec4(");
+        this->appendTransformToWindowSpace2D(posVar.c_str());
+        this->codeAppend(", 0, 1);");
     }
     // We could have the GrGeometryProcessor do this, but its just easier to have it performed
     // here. If we ever need to set variable pointsize, then we can reinvestigate.
