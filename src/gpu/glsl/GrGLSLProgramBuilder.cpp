@@ -103,6 +103,7 @@ void GrGLSLProgramBuilder::emitAndInstallPrimProc(const GrPrimitiveProcessor& pr
     GrGLSLPrimitiveProcessor::FPCoordTransformHandler transformHandler(fPipeline,
                                                                        &fTransformedCoordVars);
     GrGLSLGeometryProcessor::EmitArgs args(&fVS,
+                                           &fGS,
                                            &fFS,
                                            this->varyingHandler(),
                                            this->uniformHandler(),
@@ -424,5 +425,6 @@ void GrGLSLProgramBuilder::cleanupFragmentProcessors() {
 void GrGLSLProgramBuilder::finalizeShaders() {
     this->varyingHandler()->finalize();
     fVS.finalize(kVertex_GrShaderFlag);
+    fGS.finalize(kGeometry_GrShaderFlag);
     fFS.finalize(kFragment_GrShaderFlag);
 }
