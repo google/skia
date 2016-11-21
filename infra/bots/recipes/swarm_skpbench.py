@@ -126,8 +126,8 @@ def GenTests(api):
                          path_config='kitchen',
                          swarm_out_dir='[SWARM_OUT_DIR]') +
           api.path.exists(
-              api.path['slave_build'].join('skia'),
-              api.path['slave_build'].join('skia', 'infra', 'bots', 'assets',
+              api.path['start_dir'].join('skia'),
+              api.path['start_dir'].join('skia', 'infra', 'bots', 'assets',
                                            'skp', 'VERSION'),
           ) +
           api.step_data('get swarming bot id',

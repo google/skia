@@ -92,7 +92,7 @@
       "gn",
       "gen",
       "[CUSTOM_/_B_WORK]/skia/out/Build-Ubuntu-Clang-x86_64-Debug-ASAN/Debug",
-      "--args=cc=\"[SLAVE_BUILD]/clang_linux/bin/clang\" cxx=\"[SLAVE_BUILD]/clang_linux/bin/clang++\" extra_cflags=[\"-O1\"] extra_ldflags=[\"-fuse-ld=lld\"] sanitize=\"ASAN\""
+      "--args=cc=\"[START_DIR]/clang_linux/bin/clang\" cxx=\"[START_DIR]/clang_linux/bin/clang++\" extra_cflags=[\"-O1\"] extra_ldflags=[\"-fuse-ld=lld\"] sanitize=\"ASAN\""
     ],
     "cwd": "[CUSTOM_/_B_WORK]/skia",
     "env": {

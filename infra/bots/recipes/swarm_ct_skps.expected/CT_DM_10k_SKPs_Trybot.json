@@ -51,7 +51,7 @@
       "BUILDTYPE": "Debug",
       "CHROME_HEADLESS": "1",
       "PATH": "%(PATH)s:RECIPE_PACKAGE_REPO[depot_tools]",
-      "SKIA_OUT": "[SLAVE_BUILD]/out"
+      "SKIA_OUT": "[START_DIR]/out"
     },
     "name": "bot_update",
     "~followup_annotations": [
@@ -86,7 +86,7 @@
       "python",
       "-u",
       "\nimport sys, os\npath = sys.argv[1]\nmode = int(sys.argv[2])\nif not os.path.isdir(path):\n  if os.path.exists(path):\n    print \"%s exists but is not a dir\" % path\n    sys.exit(1)\n  os.makedirs(path, mode)\n",
-      "[SLAVE_BUILD]/tmp",
+      "[START_DIR]/tmp",
       "511"
     ],
     "name": "makedirs tmp_dir",
@@ -119,7 +119,7 @@
     "cmd": [
       "gn",
       "gen",
-      "[SLAVE_BUILD]/out/Debug",
+      "[START_DIR]/out/Debug",
       "--args=cc=\"gcc\" cxx=\"g++\" extra_cflags=[\"-O1\"]"
     ],
     "cwd": "[CUSTOM_/_B_WORK]/skia",
@@ -132,7 +132,7 @@
     "cmd": [
       "ninja",
       "-C",
-      "[SLAVE_BUILD]/out/Debug"
+      "[START_DIR]/out/Debug"
     ],
     "cwd": "[CUSTOM_/_B_WORK]/skia",
     "env": {
@@ -145,7 +145,7 @@
       "python",
       "-u",
       "import errno\nimport glob\nimport os\nimport shutil\nimport sys\n\nsrc = sys.argv[1]\ndst = sys.argv[2]\nbuild_products_whitelist = ['dm', 'dm.exe', 'get_images_from_skps', 'get_images_from_skps.exe', 'nanobench', 'nanobench.exe', 'skpbench', '*.so', '*.dll', '*.dylib', 'skia_launcher', 'lib/*.so', 'iOSShell.app', 'iOSShell.ipa', 'visualbench', 'visualbench.exe', 'vulkan-1.dll']\n\ntry:\n  os.makedirs(dst)\nexcept OSError as e:\n  if e.errno != errno.EEXIST:\n    raise\n\nfor pattern in build_products_whitelist:\n  path = os.path.join(src, pattern)\n  for f in glob.glob(path):\n    dst_path = os.path.join(dst, os.path.relpath(f, src))\n    if not os.path.isdir(os.path.dirname(dst_path)):\n      os.makedirs(os.path.dirname(dst_path))\n    print 'Copying build product %s to %s' % (f, dst_path)\n    shutil.move(f, dst_path)\n",
-      "[SLAVE_BUILD]/out/Debug",
+      "[START_DIR]/out/Debug",
       "[CUSTOM_/_B_WORK]/skia/infra/bots/ct"
     ],
     "name": "copy build products",
@@ -183,7 +183,7 @@
       "-u",
       "RECIPE_MODULE[depot_tools::git]/resources/git_setup.py",
       "--path",
-      "[SLAVE_BUILD]/swarming.client",
+      "[START_DIR]/swarming.client",
       "--url",
       "https://chromium.googlesource.com/external/swarming.client.git"
     ],
@@ -197,7 +197,7 @@
       "origin",
       "master"
     ],
-    "cwd": "[SLAVE_BUILD]/swarming.client",
+    "cwd": "[START_DIR]/swarming.client",
     "env": {
       "PATH": "RECIPE_PACKAGE_REPO[depot_tools]:%(PATH)s"
     },
@@ -210,7 +210,7 @@
       "-f",
       "FETCH_HEAD"
     ],
-    "cwd": "[SLAVE_BUILD]/swarming.client",
+    "cwd": "[START_DIR]/swarming.client",
     "name": "git checkout (swarming_client)"
   },
   {
@@ -219,7 +219,7 @@
       "rev-parse",
       "HEAD"
     ],
-    "cwd": "[SLAVE_BUILD]/swarming.client",
+    "cwd": "[START_DIR]/swarming.client",
     "name": "read revision",
     "stdout": "/path/to/tmp/",
     "~followup_annotations": [
@@ -234,7 +234,7 @@
       "-d",
       "-x"
     ],
-    "cwd": "[SLAVE_BUILD]/swarming.client",
+    "cwd": "[START_DIR]/swarming.client",
     "name": "git clean (swarming_client)"
   },
   {
@@ -243,7 +243,7 @@
       "submodule",
       "sync"
     ],
-    "cwd": "[SLAVE_BUILD]/swarming.client",
+    "cwd": "[START_DIR]/swarming.client",
     "name": "submodule sync (swarming_client)"
   },
   {
@@ -254,14 +254,14 @@
       "--init",
       "--recursive"
     ],
-    "cwd": "[SLAVE_BUILD]/swarming.client",
+    "cwd": "[START_DIR]/swarming.client",
     "name": "submodule update (swarming_client)"
   },
   {
     "cmd": [
       "python",
       "-u",
-      "[SLAVE_BUILD]/swarming.client/swarming.py",
+      "[START_DIR]/swarming.client/swarming.py",
       "--version"
     ],
     "name": "swarming.py --version",
@@ -323,10 +323,10 @@
       "python",
       "-u",
       "\nimport os, sys\nfrom common import chromium_utils # Error? See https://crbug.com/584783.\n\n\nif os.path.exists(sys.argv[1]):\n  chromium_utils.RemoveDirectory(sys.argv[1])\n",
-      "[SLAVE_BUILD]/luci-go"
+      "[START_DIR]/luci-go"
     ],
     "env": {
-      "PYTHONPATH": "[SLAVE_BUILD]/skia/infra/bots/.recipe_deps/build/scripts"
+      "PYTHONPATH": "[START_DIR]/skia/infra/bots/.recipe_deps/build/scripts"
     },
     "name": "rmtree luci-go",
     "~followup_annotations": [
@@ -346,7 +346,7 @@
       "-u",
       "\nimport shutil\nimport sys\nshutil.copytree(sys.argv[1], sys.argv[2], symlinks=bool(sys.argv[3]))\n",
       "[CUSTOM_/_B_WORK]/skia/infra/bots/tools/luci-go",
-      "[SLAVE_BUILD]/luci-go",
+      "[START_DIR]/luci-go",
       "0"
     ],
     "name": "Copy Go binary",
@@ -360,10 +360,10 @@
       "python",
       "-u",
       "\nimport os, sys\nfrom common import chromium_utils # Error? See https://crbug.com/584783.\n\n\nif os.path.exists(sys.argv[1]):\n  chromium_utils.RemoveDirectory(sys.argv[1])\n",
-      "[SLAVE_BUILD]/swarming_temp_dir"
+      "[START_DIR]/swarming_temp_dir"
     ],
     "env": {
-      "PYTHONPATH": "[SLAVE_BUILD]/skia/infra/bots/.recipe_deps/build/scripts"
+      "PYTHONPATH": "[START_DIR]/skia/infra/bots/.recipe_deps/build/scripts"
     },
     "name": "rmtree swarming_temp_dir",
     "~followup_annotations": [
@@ -385,7 +385,7 @@
       "[CUSTOM_/_B_WORK]/skps/Test-Ubuntu-GCC-GCE-CPU-AVX2-x86_64-Debug-CT_DM_10k_SKPs-Trybot/slave1"
     ],
     "env": {
-      "PYTHONPATH": "[SLAVE_BUILD]/skia/infra/bots/.recipe_deps/build/scripts"
+      "PYTHONPATH": "[START_DIR]/skia/infra/bots/.recipe_deps/build/scripts"
     },
     "name": "rmtree slave1",
     "~followup_annotations": [
@@ -448,7 +448,7 @@
       "python",
       "-u",
       "\nimport sys, os\npath = sys.argv[1]\nmode = int(sys.argv[2])\nif not os.path.isdir(path):\n  if os.path.exists(path):\n    print \"%s exists but is not a dir\" % path\n    sys.exit(1)\n  os.makedirs(path, mode)\n",
-      "[SLAVE_BUILD]/swarming_temp_dir",
+      "[START_DIR]/swarming_temp_dir",
       "511"
     ],
     "name": "makedirs swarming tmp dir",
@@ -470,8 +470,8 @@
       "python",
       "-u",
       "\nimport shutil\nimport sys\nshutil.copy(sys.argv[1], sys.argv[2])\n",
-      "{\n    \"args\": [\n        \"--isolate\", \n        \"[CUSTOM_/_B_WORK]/skia/infra/bots/ct/ct_skps.isolate\", \n        \"--isolated\", \n        \"[SLAVE_BUILD]/swarming_temp_dir/skia-task-ct-dm-1.isolated\", \n        \"--config-variable\", \n        \"OS\", \n        \"linux\", \n        \"--extra-variable\", \n        \"CONFIGURATION\", \n        \"Debug\", \n        \"--extra-variable\", \n        \"BUILDER\", \n        \"Test-Ubuntu-GCC-GCE-CPU-AVX2-x86_64-Debug-CT_DM_10k_SKPs-Trybot\", \n        \"--extra-variable\", \n        \"GIT_HASH\", \n        \"9046e2e693bb92a76e972b694580e5d17ad10748\", \n        \"--extra-variable\", \n        \"SLAVE_NUM\", \n        \"1\", \n        \"--extra-variable\", \n        \"TOOL_NAME\", \n        \"dm\"\n    ], \n    \"dir\": \"[CUSTOM_/_B_WORK]/skia/infra/bots/ct\", \n    \"version\": 1\n}",
-      "[SLAVE_BUILD]/swarming_temp_dir/ct-dm-1.isolated.gen.json"
+      "{\n    \"args\": [\n        \"--isolate\", \n        \"[CUSTOM_/_B_WORK]/skia/infra/bots/ct/ct_skps.isolate\", \n        \"--isolated\", \n        \"[START_DIR]/swarming_temp_dir/skia-task-ct-dm-1.isolated\", \n        \"--config-variable\", \n        \"OS\", \n        \"linux\", \n        \"--extra-variable\", \n        \"CONFIGURATION\", \n        \"Debug\", \n        \"--extra-variable\", \n        \"BUILDER\", \n        \"Test-Ubuntu-GCC-GCE-CPU-AVX2-x86_64-Debug-CT_DM_10k_SKPs-Trybot\", \n        \"--extra-variable\", \n        \"GIT_HASH\", \n        \"9046e2e693bb92a76e972b694580e5d17ad10748\", \n        \"--extra-variable\", \n        \"SLAVE_NUM\", \n        \"1\", \n        \"--extra-variable\", \n        \"TOOL_NAME\", \n        \"dm\"\n    ], \n    \"dir\": \"[CUSTOM_/_B_WORK]/skia/infra/bots/ct\", \n    \"version\": 1\n}",
+      "[START_DIR]/swarming_temp_dir/ct-dm-1.isolated.gen.json"
     ],
     "name": "Write ct-dm-1.isolated.gen.json"
   },
@@ -483,7 +483,7 @@
       "[CUSTOM_/_B_WORK]/skps/Test-Ubuntu-GCC-GCE-CPU-AVX2-x86_64-Debug-CT_DM_10k_SKPs-Trybot/slave2"
     ],
     "env": {
-      "PYTHONPATH": "[SLAVE_BUILD]/skia/infra/bots/.recipe_deps/build/scripts"
+      "PYTHONPATH": "[START_DIR]/skia/infra/bots/.recipe_deps/build/scripts"
     },
     "name": "rmtree slave2",
     "~followup_annotations": [
@@ -546,7 +546,7 @@
       "python",
       "-u",
       "\nimport sys, os\npath = sys.argv[1]\nmode = int(sys.argv[2])\nif not os.path.isdir(path):\n  if os.path.exists(path):\n    print \"%s exists but is not a dir\" % path\n    sys.exit(1)\n  os.makedirs(path, mode)\n",
-      "[SLAVE_BUILD]/swarming_temp_dir",
+      "[START_DIR]/swarming_temp_dir",
       "511"
     ],
     "name": "makedirs swarming tmp dir (2)",
@@ -568,8 +568,8 @@
       "python",
       "-u",
       "\nimport shutil\nimport sys\nshutil.copy(sys.argv[1], sys.argv[2])\n",
-      "{\n    \"args\": [\n        \"--isolate\", \n        \"[CUSTOM_/_B_WORK]/skia/infra/bots/ct/ct_skps.isolate\", \n        \"--isolated\", \n        \"[SLAVE_BUILD]/swarming_temp_dir/skia-task-ct-dm-2.isolated\", \n        \"--config-variable\", \n        \"OS\", \n        \"linux\", \n        \"--extra-variable\", \n        \"CONFIGURATION\", \n        \"Debug\", \n        \"--extra-variable\", \n        \"BUILDER\", \n        \"Test-Ubuntu-GCC-GCE-CPU-AVX2-x86_64-Debug-CT_DM_10k_SKPs-Trybot\", \n        \"--extra-variable\", \n        \"GIT_HASH\", \n        \"9046e2e693bb92a76e972b694580e5d17ad10748\", \n        \"--extra-variable\", \n        \"SLAVE_NUM\", \n        \"2\", \n        \"--extra-variable\", \n        \"TOOL_NAME\", \n        \"dm\"\n    ], \n    \"dir\": \"[CUSTOM_/_B_WORK]/skia/infra/bots/ct\", \n    \"version\": 1\n}",
-      "[SLAVE_BUILD]/swarming_temp_dir/ct-dm-2.isolated.gen.json"
+      "{\n    \"args\": [\n        \"--isolate\", \n        \"[CUSTOM_/_B_WORK]/skia/infra/bots/ct/ct_skps.isolate\", \n        \"--isolated\", \n        \"[START_DIR]/swarming_temp_dir/skia-task-ct-dm-2.isolated\", \n        \"--config-variable\", \n        \"OS\", \n        \"linux\", \n        \"--extra-variable\", \n        \"CONFIGURATION\", \n        \"Debug\", \n        \"--extra-variable\", \n        \"BUILDER\", \n        \"Test-Ubuntu-GCC-GCE-CPU-AVX2-x86_64-Debug-CT_DM_10k_SKPs-Trybot\", \n        \"--extra-variable\", \n        \"GIT_HASH\", \n        \"9046e2e693bb92a76e972b694580e5d17ad10748\", \n        \"--extra-variable\", \n        \"SLAVE_NUM\", \n        \"2\", \n        \"--extra-variable\", \n        \"TOOL_NAME\", \n        \"dm\"\n    ], \n    \"dir\": \"[CUSTOM_/_B_WORK]/skia/infra/bots/ct\", \n    \"version\": 1\n}",
+      "[START_DIR]/swarming_temp_dir/ct-dm-2.isolated.gen.json"
     ],
     "name": "Write ct-dm-2.isolated.gen.json"
   },
@@ -581,7 +581,7 @@
       "[CUSTOM_/_B_WORK]/skps/Test-Ubuntu-GCC-GCE-CPU-AVX2-x86_64-Debug-CT_DM_10k_SKPs-Trybot/slave3"
     ],
     "env": {
-      "PYTHONPATH": "[SLAVE_BUILD]/skia/infra/bots/.recipe_deps/build/scripts"
+      "PYTHONPATH": "[START_DIR]/skia/infra/bots/.recipe_deps/build/scripts"
     },
     "name": "rmtree slave3",
     "~followup_annotations": [
@@ -644,7 +644,7 @@
       "python",
       "-u",
       "\nimport sys, os\npath = sys.argv[1]\nmode = int(sys.argv[2])\nif not os.path.isdir(path):\n  if os.path.exists(path):\n    print \"%s exists but is not a dir\" % path\n    sys.exit(1)\n  os.makedirs(path, mode)\n",
-      "[SLAVE_BUILD]/swarming_temp_dir",
+      "[START_DIR]/swarming_temp_dir",
       "511"
     ],
     "name": "makedirs swarming tmp dir (3)",
@@ -666,8 +666,8 @@
       "python",
       "-u",
       "\nimport shutil\nimport sys\nshutil.copy(sys.argv[1], sys.argv[2])\n",
-      "{\n    \"args\": [\n        \"--isolate\", \n        \"[CUSTOM_/_B_WORK]/skia/infra/bots/ct/ct_skps.isolate\", \n        \"--isolated\", \n        \"[SLAVE_BUILD]/swarming_temp_dir/skia-task-ct-dm-3.isolated\", \n        \"--config-variable\", \n        \"OS\", \n        \"linux\", \n        \"--extra-variable\", \n        \"CONFIGURATION\", \n        \"Debug\", \n        \"--extra-variable\", \n        \"BUILDER\", \n        \"Test-Ubuntu-GCC-GCE-CPU-AVX2-x86_64-Debug-CT_DM_10k_SKPs-Trybot\", \n        \"--extra-variable\", \n        \"GIT_HASH\", \n        \"9046e2e693bb92a76e972b694580e5d17ad10748\", \n        \"--extra-variable\", \n        \"SLAVE_NUM\", \n        \"3\", \n        \"--extra-variable\", \n        \"TOOL_NAME\", \n        \"dm\"\n    ], \n    \"dir\": \"[CUSTOM_/_B_WORK]/skia/infra/bots/ct\", \n    \"version\": 1\n}",
-      "[SLAVE_BUILD]/swarming_temp_dir/ct-dm-3.isolated.gen.json"
+      "{\n    \"args\": [\n        \"--isolate\", \n        \"[CUSTOM_/_B_WORK]/skia/infra/bots/ct/ct_skps.isolate\", \n        \"--isolated\", \n        \"[START_DIR]/swarming_temp_dir/skia-task-ct-dm-3.isolated\", \n        \"--config-variable\", \n        \"OS\", \n        \"linux\", \n        \"--extra-variable\", \n        \"CONFIGURATION\", \n        \"Debug\", \n        \"--extra-variable\", \n        \"BUILDER\", \n        \"Test-Ubuntu-GCC-GCE-CPU-AVX2-x86_64-Debug-CT_DM_10k_SKPs-Trybot\", \n        \"--extra-variable\", \n        \"GIT_HASH\", \n        \"9046e2e693bb92a76e972b694580e5d17ad10748\", \n        \"--extra-variable\", \n        \"SLAVE_NUM\", \n        \"3\", \n        \"--extra-variable\", \n        \"TOOL_NAME\", \n        \"dm\"\n    ], \n    \"dir\": \"[CUSTOM_/_B_WORK]/skia/infra/bots/ct\", \n    \"version\": 1\n}",
+      "[START_DIR]/swarming_temp_dir/ct-dm-3.isolated.gen.json"
     ],
     "name": "Write ct-dm-3.isolated.gen.json"
   },
@@ -679,7 +679,7 @@
       "[CUSTOM_/_B_WORK]/skps/Test-Ubuntu-GCC-GCE-CPU-AVX2-x86_64-Debug-CT_DM_10k_SKPs-Trybot/slave4"
     ],
     "env": {
-      "PYTHONPATH": "[SLAVE_BUILD]/skia/infra/bots/.recipe_deps/build/scripts"
+      "PYTHONPATH": "[START_DIR]/skia/infra/bots/.recipe_deps/build/scripts"
     },
     "name": "rmtree slave4",
     "~followup_annotations": [
@@ -742,7 +742,7 @@
       "python",
       "-u",
       "\nimport sys, os\npath = sys.argv[1]\nmode = int(sys.argv[2])\nif not os.path.isdir(path):\n  if os.path.exists(path):\n    print \"%s exists but is not a dir\" % path\n    sys.exit(1)\n  os.makedirs(path, mode)\n",
-      "[SLAVE_BUILD]/swarming_temp_dir",
+      "[START_DIR]/swarming_temp_dir",
       "511"
     ],
     "name": "makedirs swarming tmp dir (4)",
@@ -764,8 +764,8 @@
       "python",
       "-u",
       "\nimport shutil\nimport sys\nshutil.copy(sys.argv[1], sys.argv[2])\n",
-      "{\n    \"args\": [\n        \"--isolate\", \n        \"[CUSTOM_/_B_WORK]/skia/infra/bots/ct/ct_skps.isolate\", \n        \"--isolated\", \n        \"[SLAVE_BUILD]/swarming_temp_dir/skia-task-ct-dm-4.isolated\", \n        \"--config-variable\", \n        \"OS\", \n        \"linux\", \n        \"--extra-variable\", \n        \"CONFIGURATION\", \n        \"Debug\", \n        \"--extra-variable\", \n        \"BUILDER\", \n        \"Test-Ubuntu-GCC-GCE-CPU-AVX2-x86_64-Debug-CT_DM_10k_SKPs-Trybot\", \n        \"--extra-variable\", \n        \"GIT_HASH\", \n        \"9046e2e693bb92a76e972b694580e5d17ad10748\", \n        \"--extra-variable\", \n        \"SLAVE_NUM\", \n        \"4\", \n        \"--extra-variable\", \n        \"TOOL_NAME\", \n        \"dm\"\n    ], \n    \"dir\": \"[CUSTOM_/_B_WORK]/skia/infra/bots/ct\", \n    \"version\": 1\n}",
-      "[SLAVE_BUILD]/swarming_temp_dir/ct-dm-4.isolated.gen.json"
+      "{\n    \"args\": [\n        \"--isolate\", \n        \"[CUSTOM_/_B_WORK]/skia/infra/bots/ct/ct_skps.isolate\", \n        \"--isolated\", \n        \"[START_DIR]/swarming_temp_dir/skia-task-ct-dm-4.isolated\", \n        \"--config-variable\", \n        \"OS\", \n        \"linux\", \n        \"--extra-variable\", \n        \"CONFIGURATION\", \n        \"Debug\", \n        \"--extra-variable\", \n        \"BUILDER\", \n        \"Test-Ubuntu-GCC-GCE-CPU-AVX2-x86_64-Debug-CT_DM_10k_SKPs-Trybot\", \n        \"--extra-variable\", \n        \"GIT_HASH\", \n        \"9046e2e693bb92a76e972b694580e5d17ad10748\", \n        \"--extra-variable\", \n        \"SLAVE_NUM\", \n        \"4\", \n        \"--extra-variable\", \n        \"TOOL_NAME\", \n        \"dm\"\n    ], \n    \"dir\": \"[CUSTOM_/_B_WORK]/skia/infra/bots/ct\", \n    \"version\": 1\n}",
+      "[START_DIR]/swarming_temp_dir/ct-dm-4.isolated.gen.json"
     ],
     "name": "Write ct-dm-4.isolated.gen.json"
   },
@@ -777,7 +777,7 @@
       "[CUSTOM_/_B_WORK]/skps/Test-Ubuntu-GCC-GCE-CPU-AVX2-x86_64-Debug-CT_DM_10k_SKPs-Trybot/slave5"
     ],
     "env": {
-      "PYTHONPATH": "[SLAVE_BUILD]/skia/infra/bots/.recipe_deps/build/scripts"
+      "PYTHONPATH": "[START_DIR]/skia/infra/bots/.recipe_deps/build/scripts"
     },
     "name": "rmtree slave5",
     "~followup_annotations": [
@@ -840,7 +840,7 @@
       "python",
       "-u",
       "\nimport sys, os\npath = sys.argv[1]\nmode = int(sys.argv[2])\nif not os.path.isdir(path):\n  if os.path.exists(path):\n    print \"%s exists but is not a dir\" % path\n    sys.exit(1)\n  os.makedirs(path, mode)\n",
-      "[SLAVE_BUILD]/swarming_temp_dir",
+      "[START_DIR]/swarming_temp_dir",
       "511"
     ],
     "name": "makedirs swarming tmp dir (5)",
@@ -862,8 +862,8 @@
       "python",
       "-u",
       "\nimport shutil\nimport sys\nshutil.copy(sys.argv[1], sys.argv[2])\n",
-      "{\n    \"args\": [\n        \"--isolate\", \n        \"[CUSTOM_/_B_WORK]/skia/infra/bots/ct/ct_skps.isolate\", \n        \"--isolated\", \n        \"[SLAVE_BUILD]/swarming_temp_dir/skia-task-ct-dm-5.isolated\", \n        \"--config-variable\", \n        \"OS\", \n        \"linux\", \n        \"--extra-variable\", \n        \"CONFIGURATION\", \n        \"Debug\", \n        \"--extra-variable\", \n        \"BUILDER\", \n        \"Test-Ubuntu-GCC-GCE-CPU-AVX2-x86_64-Debug-CT_DM_10k_SKPs-Trybot\", \n        \"--extra-variable\", \n        \"GIT_HASH\", \n        \"9046e2e693bb92a76e972b694580e5d17ad10748\", \n        \"--extra-variable\", \n        \"SLAVE_NUM\", \n        \"5\", \n        \"--extra-variable\", \n        \"TOOL_NAME\", \n        \"dm\"\n    ], \n    \"dir\": \"[CUSTOM_/_B_WORK]/skia/infra/bots/ct\", \n    \"version\": 1\n}",
-      "[SLAVE_BUILD]/swarming_temp_dir/ct-dm-5.isolated.gen.json"
+      "{\n    \"args\": [\n        \"--isolate\", \n        \"[CUSTOM_/_B_WORK]/skia/infra/bots/ct/ct_skps.isolate\", \n        \"--isolated\", \n        \"[START_DIR]/swarming_temp_dir/skia-task-ct-dm-5.isolated\", \n        \"--config-variable\", \n        \"OS\", \n        \"linux\", \n        \"--extra-variable\", \n        \"CONFIGURATION\", \n        \"Debug\", \n        \"--extra-variable\", \n        \"BUILDER\", \n        \"Test-Ubuntu-GCC-GCE-CPU-AVX2-x86_64-Debug-CT_DM_10k_SKPs-Trybot\", \n        \"--extra-variable\", \n        \"GIT_HASH\", \n        \"9046e2e693bb92a76e972b694580e5d17ad10748\", \n        \"--extra-variable\", \n        \"SLAVE_NUM\", \n        \"5\", \n        \"--extra-variable\", \n        \"TOOL_NAME\", \n        \"dm\"\n    ], \n    \"dir\": \"[CUSTOM_/_B_WORK]/skia/infra/bots/ct\", \n    \"version\": 1\n}",
+      "[START_DIR]/swarming_temp_dir/ct-dm-5.isolated.gen.json"
     ],
     "name": "Write ct-dm-5.isolated.gen.json"
   },
@@ -882,18 +882,18 @@
       "python",
       "-u",
       "RECIPE_MODULE[build::isolate]/resources/isolate.py",
-      "[SLAVE_BUILD]/swarming.client",
+      "[START_DIR]/swarming.client",
       "batcharchive",
       "--dump-json",
       "/path/to/tmp/json",
       "--isolate-server",
       "https://isolateserver.appspot.com",
       "--verbose",
-      "[SLAVE_BUILD]/swarming_temp_dir/ct-dm-1.isolated.gen.json",
-      "[SLAVE_BUILD]/swarming_temp_dir/ct-dm-2.isolated.gen.json",
-      "[SLAVE_BUILD]/swarming_temp_dir/ct-dm-3.isolated.gen.json",
-      "[SLAVE_BUILD]/swarming_temp_dir/ct-dm-4.isolated.gen.json",
-      "[SLAVE_BUILD]/swarming_temp_dir/ct-dm-5.isolated.gen.json"
+      "[START_DIR]/swarming_temp_dir/ct-dm-1.isolated.gen.json",
+      "[START_DIR]/swarming_temp_dir/ct-dm-2.isolated.gen.json",
+      "[START_DIR]/swarming_temp_dir/ct-dm-3.isolated.gen.json",
+      "[START_DIR]/swarming_temp_dir/ct-dm-4.isolated.gen.json",
+      "[START_DIR]/swarming_temp_dir/ct-dm-5.isolated.gen.json"
     ],
     "name": "isolate tests",
     "~followup_annotations": [
@@ -912,7 +912,7 @@
     "cmd": [
       "python",
       "-u",
-      "[SLAVE_BUILD]/swarming.client/swarming.py",
+      "[START_DIR]/swarming.client/swarming.py",
       "trigger",
       "--swarming",
       "https://chromium-swarm.appspot.com",
@@ -983,7 +983,7 @@
     "cmd": [
       "python",
       "-u",
-      "[SLAVE_BUILD]/swarming.client/swarming.py",
+      "[START_DIR]/swarming.client/swarming.py",
       "trigger",
       "--swarming",
       "https://chromium-swarm.appspot.com",
@@ -1054,7 +1054,7 @@
     "cmd": [
       "python",
       "-u",
-      "[SLAVE_BUILD]/swarming.client/swarming.py",
+      "[START_DIR]/swarming.client/swarming.py",
       "trigger",
       "--swarming",
       "https://chromium-swarm.appspot.com",
@@ -1125,7 +1125,7 @@
     "cmd": [
       "python",
       "-u",
-      "[SLAVE_BUILD]/swarming.client/swarming.py",
+      "[START_DIR]/swarming.client/swarming.py",
       "trigger",
       "--swarming",
       "https://chromium-swarm.appspot.com",
@@ -1196,7 +1196,7 @@
     "cmd": [
       "python",
       "-u",
-      "[SLAVE_BUILD]/swarming.client/swarming.py",
+      "[START_DIR]/swarming.client/swarming.py",
       "trigger",
       "--swarming",
       "https://chromium-swarm.appspot.com",
@@ -1268,7 +1268,7 @@
     "cmd": [
       "python",
       "-u",
-      "[SLAVE_BUILD]/swarming.client/swarming.py",
+      "[START_DIR]/swarming.client/swarming.py",
       "collect",
       "--swarming",
       "https://chromium-swarm.appspot.com",
@@ -1279,7 +1279,7 @@
       "--task-summary-json",
       "/path/to/tmp/json",
       "--task-output-dir",
-      "[SLAVE_BUILD]/swarming_temp_dir/outputs/ct-dm-1"
+      "[START_DIR]/swarming_temp_dir/outputs/ct-dm-1"
     ],
     "name": "ct-dm-1 on Ubuntu-14.04",
     "~followup_annotations": [
@@ -1330,7 +1330,7 @@
     "cmd": [
       "python",
       "-u",
-      "[SLAVE_BUILD]/swarming.client/swarming.py",
+      "[START_DIR]/swarming.client/swarming.py",
       "collect",
       "--swarming",
       "https://chromium-swarm.appspot.com",
@@ -1341,7 +1341,7 @@
       "--task-summary-json",
       "/path/to/tmp/json",
       "--task-output-dir",
-      "[SLAVE_BUILD]/swarming_temp_dir/outputs/ct-dm-2"
+      "[START_DIR]/swarming_temp_dir/outputs/ct-dm-2"
     ],
     "name": "ct-dm-2 on Ubuntu-14.04",
     "~followup_annotations": [
@@ -1392,7 +1392,7 @@
     "cmd": [
       "python",
       "-u",
-      "[SLAVE_BUILD]/swarming.client/swarming.py",
+      "[START_DIR]/swarming.client/swarming.py",
       "collect",
       "--swarming",
       "https://chromium-swarm.appspot.com",
@@ -1403,7 +1403,7 @@
       "--task-summary-json",
       "/path/to/tmp/json",
       "--task-output-dir",
-      "[SLAVE_BUILD]/swarming_temp_dir/outputs/ct-dm-3"
+      "[START_DIR]/swarming_temp_dir/outputs/ct-dm-3"
     ],
     "name": "ct-dm-3 on Ubuntu-14.04",
     "~followup_annotations": [
@@ -1454,7 +1454,7 @@
     "cmd": [
       "python",
       "-u",
-      "[SLAVE_BUILD]/swarming.client/swarming.py",
+      "[START_DIR]/swarming.client/swarming.py",
       "collect",
       "--swarming",
       "https://chromium-swarm.appspot.com",
@@ -1465,7 +1465,7 @@
       "--task-summary-json",
       "/path/to/tmp/json",
       "--task-output-dir",
-      "[SLAVE_BUILD]/swarming_temp_dir/outputs/ct-dm-4"
+      "[START_DIR]/swarming_temp_dir/outputs/ct-dm-4"
     ],
     "name": "ct-dm-4 on Ubuntu-14.04",
     "~followup_annotations": [
@@ -1516,7 +1516,7 @@
     "cmd": [
       "python",
       "-u",
-      "[SLAVE_BUILD]/swarming.client/swarming.py",
+      "[START_DIR]/swarming.client/swarming.py",
       "collect",
       "--swarming",
       "https://chromium-swarm.appspot.com",
@@ -1527,7 +1527,7 @@
       "--task-summary-json",
       "/path/to/tmp/json",
       "--task-output-dir",
-      "[SLAVE_BUILD]/swarming_temp_dir/outputs/ct-dm-5"
+      "[START_DIR]/swarming_temp_dir/outputs/ct-dm-5"
     ],
     "name": "ct-dm-5 on Ubuntu-14.04",
     "~followup_annotations": [

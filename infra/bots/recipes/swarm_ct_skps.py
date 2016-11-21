@@ -320,8 +320,8 @@ def GenTests(api):
         revision=skia_revision,
     ) +
     api.path.exists(
-        api.path['slave_build'].join('skia'),
-        api.path['slave_build'].join('src')
+        api.path['start_dir'].join('skia'),
+        api.path['start_dir'].join('src')
     )
   )
 
@@ -340,8 +340,8 @@ def GenTests(api):
         revision=skia_revision,
     ) +
     api.path.exists(
-        api.path['slave_build'].join('skia'),
-        api.path['slave_build'].join('src')
+        api.path['start_dir'].join('skia'),
+        api.path['start_dir'].join('src')
     )
   )
 
@@ -360,8 +360,8 @@ def GenTests(api):
         revision=skia_revision,
     ) +
     api.path.exists(
-        api.path['slave_build'].join('skia'),
-        api.path['slave_build'].join('src')
+        api.path['start_dir'].join('skia'),
+        api.path['start_dir'].join('src')
     )
   )
 

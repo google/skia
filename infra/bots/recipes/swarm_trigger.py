@@ -233,11 +233,11 @@ def trigger_task(api, task_name, builder, master, slave, buildnumber,
   for k, v in properties.iteritems():
     extra_args.append('%s=%s' % (k, v))
 
-  isolate_base_dir = api.path['slave_build']
+  isolate_base_dir = api.path['start_dir']
   dimensions = dimensions or swarm_dimensions(builder_cfg)
   isolate_blacklist = ['.git', 'out', '*.pyc', '.recipe_deps']
   isolate_vars = {
-    'WORKDIR': api.path['slave_build'],
+    'WORKDIR': api.path['start_dir'],
   }
 
   isolate_file = isolate_file or '%s_skia.isolate' % task_name
@@ -266,7 +266,7 @@ def checkout_steps(api):
   """Run the steps to obtain a checkout of Skia."""
   # In this case, we're already running inside a checkout of Skia, so just
   # report the currently-checked-out commit.
-  checkout_path = api.path['slave_build'].join('skia')
+  checkout_path = api.path['start_dir'].join('skia')
   got_revision = api.git(
       'rev-parse', 'HEAD', cwd=checkout_path,
       stdout=api.raw_io.output(),
@@ -278,7 +278,7 @@ def checkout_steps(api):
   api.path['checkout'] = checkout_path
 
   # Write a fake .gclient file if none exists. This is required by .isolates.
-  dot_gclient = api.path['slave_build'].join('.gclient')
+  dot_gclient = api.path['start_dir'].join('.gclient')
   if not api.path.exists(dot_gclient):
     api.run.writefile(dot_gclient, '')
 
@@ -699,8 +699,8 @@ def test_for_bot(api, builder, mastername, slavename, testname=None):
                    revision='abc123')
   )
   paths = [
-      api.path['slave_build'].join('skia'),
-      api.path['slave_build'].join('tmp', 'uninteresting_hashes.txt'),
+      api.path['start_dir'].join('skia'),
+      api.path['start_dir'].join('tmp', 'uninteresting_hashes.txt'),
   ]
   if 'Trybot' in builder:
     test += api.properties(issue=500,
@@ -729,15 +729,15 @@ def test_for_bot(api, builder, mastername, slavename, testname=None):
         'upload new .isolated file for housekeeper_skia',
         stdout=api.raw_io.output('def456 XYZ.isolated'))
   if 'Win' in builder:
-    paths.append(api.path['slave_build'].join(
+    paths.append(api.path['start_dir'].join(
         'skia', 'infra', 'bots', 'assets', 'win_toolchain', 'VERSION'))
-    paths.append(api.path['slave_build'].join(
+    paths.append(api.path['start_dir'].join(
         'skia', 'infra', 'bots', 'assets', 'win_vulkan_sdk', 'VERSION'))
-  paths.append(api.path['slave_build'].join(
+  paths.append(api.path['start_dir'].join(
       'skia', 'infra', 'bots', 'assets', 'skimage', 'VERSION'))
-  paths.append(api.path['slave_build'].join(
+  paths.append(api.path['start_dir'].join(
       'skia', 'infra', 'bots', 'assets', 'skp', 'VERSION'))
-  paths.append(api.path['slave_build'].join(
+  paths.append(api.path['start_dir'].join(
       'skia', 'infra', 'bots', 'assets', 'svg', 'VERSION'))
 
   test += api.path.exists(*paths)

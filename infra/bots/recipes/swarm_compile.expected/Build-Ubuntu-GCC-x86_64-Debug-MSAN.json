@@ -92,7 +92,7 @@
       "gn",
       "gen",
       "[CUSTOM_/_B_WORK]/skia/out/Build-Ubuntu-GCC-x86_64-Debug-MSAN/Debug",
-      "--args=cc=\"gcc\" cxx=\"g++\" extra_cflags=[\"-O1\"] extra_ldflags=[\"-L[SLAVE_BUILD]/clang_linux/msan\"] sanitize=\"MSAN\" skia_use_fontconfig=false"
+      "--args=cc=\"gcc\" cxx=\"g++\" extra_cflags=[\"-O1\"] extra_ldflags=[\"-L[START_DIR]/clang_linux/msan\"] sanitize=\"MSAN\" skia_use_fontconfig=false"
     ],
     "cwd": "[CUSTOM_/_B_WORK]/skia",
     "env": {

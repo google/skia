@@ -92,7 +92,7 @@
       "gn.bat",
       "gen",
       "[CUSTOM_C:\\_B_WORK]\\skia\\out\\Build-Win-Clang-arm64-Release-GN_Android\\Release",
-      "--args=is_debug=false ndk=\"[SLAVE_BUILD]\\n\" target_cpu=\"arm64\""
+      "--args=is_debug=false ndk=\"[START_DIR]\\n\" target_cpu=\"arm64\""
     ],
     "cwd": "[CUSTOM_C:\\_B_WORK]\\skia",
     "env": {

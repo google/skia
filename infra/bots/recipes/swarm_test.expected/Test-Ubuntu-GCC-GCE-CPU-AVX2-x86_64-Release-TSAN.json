@@ -4,7 +4,7 @@
       "python",
       "-u",
       "\nimport shutil\nimport sys\nshutil.copy(sys.argv[1], sys.argv[2])\n",
-      "[SLAVE_BUILD]/skia/infra/bots/assets/skp/VERSION",
+      "[START_DIR]/skia/infra/bots/assets/skp/VERSION",
       "/path/to/tmp/"
     ],
     "name": "Get downloaded SKP VERSION"
@@ -15,7 +15,7 @@
       "-u",
       "\nimport shutil\nimport sys\nshutil.copy(sys.argv[1], sys.argv[2])\n",
       "42",
-      "[SLAVE_BUILD]/tmp/SKP_VERSION"
+      "[START_DIR]/tmp/SKP_VERSION"
     ],
     "name": "write SKP_VERSION"
   },
@@ -24,7 +24,7 @@
       "python",
       "-u",
       "\nimport shutil\nimport sys\nshutil.copy(sys.argv[1], sys.argv[2])\n",
-      "[SLAVE_BUILD]/skia/infra/bots/assets/skimage/VERSION",
+      "[START_DIR]/skia/infra/bots/assets/skimage/VERSION",
       "/path/to/tmp/"
     ],
     "name": "Get downloaded skimage VERSION"
@@ -35,7 +35,7 @@
       "-u",
       "\nimport shutil\nimport sys\nshutil.copy(sys.argv[1], sys.argv[2])\n",
       "42",
-      "[SLAVE_BUILD]/tmp/SK_IMAGE_VERSION"
+      "[START_DIR]/tmp/SK_IMAGE_VERSION"
     ],
     "name": "write SK_IMAGE_VERSION"
   },
@@ -44,7 +44,7 @@
       "python",
       "-u",
       "\nimport shutil\nimport sys\nshutil.copy(sys.argv[1], sys.argv[2])\n",
-      "[SLAVE_BUILD]/skia/infra/bots/assets/svg/VERSION",
+      "[START_DIR]/skia/infra/bots/assets/svg/VERSION",
       "/path/to/tmp/"
     ],
     "name": "Get downloaded SVG VERSION"
@@ -55,22 +55,22 @@
       "-u",
       "\nimport shutil\nimport sys\nshutil.copy(sys.argv[1], sys.argv[2])\n",
       "42",
-      "[SLAVE_BUILD]/tmp/SVG_VERSION"
+      "[START_DIR]/tmp/SVG_VERSION"
     ],
     "name": "write SVG_VERSION"
   },
   {
     "cmd": [
-      "[SLAVE_BUILD]/out/Release/dm",
+      "[START_DIR]/out/Release/dm",
       "--undefok",
       "--resourcePath",
-      "[SLAVE_BUILD]/skia/resources",
+      "[START_DIR]/skia/resources",
       "--skps",
-      "[SLAVE_BUILD]/skp",
+      "[START_DIR]/skp",
       "--images",
-      "[SLAVE_BUILD]/skimage/dm",
+      "[START_DIR]/skimage/dm",
       "--colorImages",
-      "[SLAVE_BUILD]/skimage/colorspace",
+      "[START_DIR]/skimage/colorspace",
       "--nameByHash",
       "--properties",
       "gitHash",
@@ -82,7 +82,7 @@
       "build_number",
       "5",
       "--svgs",
-      "[SLAVE_BUILD]/svg",
+      "[START_DIR]/svg",
       "--key",
       "arch",
       "x86_64",
@@ -353,9 +353,9 @@
       "~RGBA4444TextureTest",
       "~RGB565TextureTest"
     ],
-    "cwd": "[SLAVE_BUILD]/skia",
+    "cwd": "[START_DIR]/skia",
     "env": {
-      "PATH": "%(PATH)s:[SLAVE_BUILD]/clang_linux/bin"
+      "PATH": "%(PATH)s:[START_DIR]/clang_linux/bin"
     },
     "name": "dm"
   },

@@ -7,7 +7,7 @@
       "/path/to/tmp/",
       "*.json"
     ],
-    "cwd": "[CWD]/perfdata/Test-Ubuntu-GCC-GCE-CPU-AVX2-x86_64-Debug/data",
+    "cwd": "[START_DIR]/perfdata/Test-Ubuntu-GCC-GCE-CPU-AVX2-x86_64-Debug/data",
     "name": "find results"
   },
   {
@@ -18,7 +18,7 @@
       "public-read",
       "-z",
       "json",
-      "[CWD]/perfdata/Test-Ubuntu-GCC-GCE-CPU-AVX2-x86_64-Debug/data/nanobench_abc123.json",
+      "[START_DIR]/perfdata/Test-Ubuntu-GCC-GCE-CPU-AVX2-x86_64-Debug/data/nanobench_abc123.json",
       "gs://skia-perf/nano-json-v1/2012/05/14/12/Test-Ubuntu-GCC-GCE-CPU-AVX2-x86_64-Debug/nanobench_abc123.json"
     ],
     "name": "upload"

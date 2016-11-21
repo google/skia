@@ -113,7 +113,7 @@ def RunSteps(api):
            cwd=src_dir)
 
   # Clean up the output dir.
-  output_dir = api.path['slave_build'].join('skp_output')
+  output_dir = api.path['start_dir'].join('skp_output')
   if api.path.exists(output_dir):
     api.file.rmtree('skp_output', output_dir)
   api.file.makedirs('skp_output', output_dir)
@@ -163,7 +163,7 @@ def GenTests(api):
                      buildnumber=2,
                      path_config='kitchen',
                      swarm_out_dir='[SWARM_OUT_DIR]') +
-      api.path.exists(api.path['slave_build'].join('skp_output'))
+      api.path.exists(api.path['start_dir'].join('skp_output'))
   )
 
   builder = 'Housekeeper-Weekly-RecreateSKPs'
@@ -176,7 +176,7 @@ def GenTests(api):
                      buildnumber=2,
                      path_config='kitchen',
                      swarm_out_dir='[SWARM_OUT_DIR]') +
-      api.path.exists(api.path['slave_build'].join('skp_output'))
+      api.path.exists(api.path['start_dir'].join('skp_output'))
   )
 
   yield (
@@ -188,6 +188,6 @@ def GenTests(api):
                      buildnumber=2,
                      path_config='kitchen',
                      swarm_out_dir='[SWARM_OUT_DIR]') +
-      api.path.exists(api.path['slave_build'].join('skp_output')) +
+      api.path.exists(api.path['start_dir'].join('skp_output')) +
       api.step_data('Upload SKPs', retcode=1)
   )

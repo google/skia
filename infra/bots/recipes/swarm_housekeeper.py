@@ -102,7 +102,7 @@ def GenTests(api):
                          revision='abc123',
                          path_config='kitchen',
                          swarm_out_dir='[SWARM_OUT_DIR]') +
-          api.path.exists(api.path['slave_build'])
+          api.path.exists(api.path['start_dir'])
         )
         if 'Trybot' in buildername:
           test.properties['issue'] = '500'

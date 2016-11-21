@@ -92,7 +92,7 @@
       "gn",
       "gen",
       "[CUSTOM_/_B_WORK]/skia/out/Build-Ubuntu-Clang-arm64-Release-GN_Android/Release",
-      "--args=is_debug=false ndk=\"[SLAVE_BUILD]/android_ndk_linux\" target_cpu=\"arm64\""
+      "--args=is_debug=false ndk=\"[START_DIR]/android_ndk_linux\" target_cpu=\"arm64\""
     ],
     "cwd": "[CUSTOM_/_B_WORK]/skia",
     "env": {
