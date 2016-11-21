@@ -559,8 +559,8 @@ SkScanClipper::SkScanClipper(SkBlitter* blitter, const SkRegion* clip,
         if (clip->isRect()) {
             if (fClipRect->contains(ir)) {
 #ifdef SK_DEBUG
-                // fRectClipCheckBlitter.init(blitter, *fClipRect);
-                // blitter = &fRectClipCheckBlitter;
+                fRectClipCheckBlitter.init(blitter, *fClipRect);
+                blitter = &fRectClipCheckBlitter;
 #endif
                 fClipRect = nullptr;
             } else {
@@ -570,8 +570,8 @@ SkScanClipper::SkScanClipper(SkBlitter* blitter, const SkRegion* clip,
                     blitter = &fRectBlitter;
                 } else {
 #ifdef SK_DEBUG
-                    // fRectClipCheckBlitter.init(blitter, *fClipRect);
-                    // blitter = &fRectClipCheckBlitter;
+                    fRectClipCheckBlitter.init(blitter, *fClipRect);
+                    blitter = &fRectClipCheckBlitter;
 #endif
                 }
             }
