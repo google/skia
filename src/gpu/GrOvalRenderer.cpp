@@ -17,6 +17,7 @@
 #include "SkRRect.h"
 #include "SkStrokeRec.h"
 #include "batches/GrVertexBatch.h"
+#include "glsl/GrGLSLCaps.h"
 #include "glsl/GrGLSLFragmentShaderBuilder.h"
 #include "glsl/GrGLSLGeometryProcessor.h"
 #include "glsl/GrGLSLProgramDataManager.h"

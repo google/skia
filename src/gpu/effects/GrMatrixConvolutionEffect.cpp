@@ -5,6 +5,7 @@
  * found in the LICENSE file.
  */
 #include "GrMatrixConvolutionEffect.h"
+#include "glsl/GrGLSL.h"
 #include "glsl/GrGLSLFragmentProcessor.h"
 #include "glsl/GrGLSLFragmentShaderBuilder.h"
 #include "glsl/GrGLSLProgramDataManager.h"

@@ -19,7 +19,7 @@ class GrGLUniformHandler : public GrGLSLUniformHandler {
 public:
     static const int kUniformsPerBlock = 8;
 
-    const GrGLSLShaderVar& getUniformVariable(UniformHandle u) const override {
+    const GrShaderVar& getUniformVariable(UniformHandle u) const override {
         return fUniforms[u.toIndex()].fVariable;
     }
 

@@ -42,8 +42,8 @@ public:
 
     GrVkGpu* gpu() const { return fGpu; }
 
-    void finalizeFragmentOutputColor(GrGLSLShaderVar& outputColor) override;
-    void finalizeFragmentSecondaryColor(GrGLSLShaderVar& outputColor) override;
+    void finalizeFragmentOutputColor(GrShaderVar& outputColor) override;
+    void finalizeFragmentSecondaryColor(GrShaderVar& outputColor) override;
 
 private:
     GrVkPipelineStateBuilder(GrVkGpu*,
