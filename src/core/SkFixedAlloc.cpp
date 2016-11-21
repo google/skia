@@ -8,28 +8,29 @@
 #include "SkFixedAlloc.h"
 
 SkFixedAlloc::SkFixedAlloc(void* ptr, size_t len)
-    : fBuffer((char*)ptr), fUsed(0), fLimit(len) {}
+    : fStorage((char*)ptr), fCursor(fStorage), fEnd(fStorage + len) {}
 
 void SkFixedAlloc::undo() {
     // This function is essentially make() in reverse.
 
     // First, read the Footer we stamped at the end.
     Footer footer;
-    memcpy(&footer, fBuffer + fUsed - sizeof(Footer), sizeof(Footer));
+    memcpy(&footer, fCursor - sizeof(Footer), sizeof(Footer));
 
-    // That tells us where the T starts and how to destroy it.
-    footer.dtor(fBuffer + fUsed - sizeof(Footer) - footer.len);
+    Releaser releaser = (Releaser)((char*)Base + (footer >> 5));
+    ptrdiff_t padding = footer & 31;
 
-    // We can reuse bytes that stored the Footer, the T, and any that we skipped for alignment.
-    fUsed -= sizeof(Footer) + footer.len + footer.skip;
+    fCursor = releaser(fCursor);
+    fCursor -= padding;
 }
 
 void SkFixedAlloc::reset() {
-    while (fUsed) {
+    while (fCursor > fStorage) {
         this->undo();
     }
 }
 
+void SkFixedAlloc::Base() { }
 
 SkFallbackAlloc::SkFallbackAlloc(SkFixedAlloc* fixed) : fFixedAlloc(fixed) {}
 
