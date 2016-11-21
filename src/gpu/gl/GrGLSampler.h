@@ -8,10 +8,9 @@
 #ifndef GrGLSampler_DEFINED
 #define GrGLSampler_DEFINED
 
-#include "glsl/GrGLSLSampler.h"
-
+#include "GrShaderVar.h"
 #include "gl/GrGLTypes.h"
-#include "glsl/GrGLSLShaderVar.h"
+#include "glsl/GrGLSLSampler.h"
 
 class GrGLSampler : public GrGLSLSampler {
 public:
@@ -22,7 +21,7 @@ public:
                 const char* name) : INHERITED(visibility, config) {
         SkASSERT(GrSLTypeIsCombinedSamplerType(type));
         fShaderVar.setType(type);
-        fShaderVar.setTypeModifier(GrGLSLShaderVar::kUniform_TypeModifier);
+        fShaderVar.setTypeModifier(GrShadeVar::kUniform_TypeModifier);
         fShaderVar.setPrecision(precision);
         fShaderVar.accessName()->set(name);
     }
@@ -34,7 +33,7 @@ public:
     const char* getSamplerNameForTexelFetch() const override { return fShaderVar.c_str(); }
 
 private:
-    GrGLSLShaderVar fShaderVar;
+    GrShadeVar fShaderVar;
     GrGLint         fLocation;
 
     friend class GrGLUniformHandler;
