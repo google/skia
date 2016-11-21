@@ -12,6 +12,7 @@
 #include "GrContext.h"
 #include "GrPaint.h"
 #include "GrRenderTarget.h"
+#include "GrSurfaceContext.h"
 #include "SkRefCnt.h"
 #include "SkRegion.h"
 #include "SkSurfaceProps.h"
@@ -51,11 +52,11 @@ class SkTextBlob;
 /*
  * A helper object to orchestrate draws
  */
-class SK_API GrRenderTargetContext : public SkRefCnt {
+class SK_API GrRenderTargetContext : public GrSurfaceContext {
 public:
     ~GrRenderTargetContext() override;
 
-    bool copySurface(GrSurface* src, const SkIRect& srcRect, const SkIPoint& dstPoint);
+    bool copySurface(GrSurface* src, const SkIRect& srcRect, const SkIPoint& dstPoint) override;
 
     // TODO: it is odd that we need both the SkPaint in the following 3 methods.
     // We should extract the text parameters from SkPaint and pass them separately
@@ -368,8 +369,6 @@ public:
     GrRenderTargetContextPriv priv();
     const GrRenderTargetContextPriv priv() const;
 
-    GrAuditTrail* auditTrail() { return fAuditTrail; }
-
     bool isWrapped_ForTesting() const;
 
 protected:
@@ -379,7 +378,6 @@ protected:
 
     GrDrawingManager* drawingManager() { return fDrawingManager; }
 
-    SkDEBUGCODE(GrSingleOwner* singleOwner() { return fSingleOwner; })
     SkDEBUGCODE(void validate() const;)
 
 private:
@@ -445,16 +443,11 @@ private:
     // In MDB-mode the GrOpList can be closed by some other renderTargetContext that has picked
     // it up. For this reason, the GrOpList should only ever be accessed via 'getOpList'.
     GrRenderTargetOpList*             fOpList;
-    GrContext*                        fContext;
     GrInstancedPipelineInfo           fInstancedPipelineInfo;
 
     sk_sp<SkColorSpace>               fColorSpace;
     sk_sp<GrColorSpaceXform>          fColorXformFromSRGB;
     SkSurfaceProps                    fSurfaceProps;
-    GrAuditTrail*                     fAuditTrail;
-
-    // In debug builds we guard against improper thread handling
-    SkDEBUGCODE(mutable GrSingleOwner* fSingleOwner;)
 };
 
 #endif

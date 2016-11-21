@@ -14,6 +14,7 @@
 #include "GrResourceProvider.h"
 #include "GrRenderTargetProxy.h"
 #include "GrSoftwarePathRenderer.h"
+#include "GrSurfaceContext.h"
 #include "GrSurfacePriv.h"
 
 #include "SkConfig8888.h"
@@ -572,14 +573,14 @@ bool GrContext::copySurface(GrSurface* dst, GrSurface* src, const SkIRect& srcRe
         src->flushWrites();
         return fGpu->copySurface(dst, src, clippedSrcRect, clippedDstPoint);
     }
-    sk_sp<GrRenderTargetContext> renderTargetContext(
+    sk_sp<GrSurfaceContext> surfaceContext(
         this->contextPriv().makeWrappedRenderTargetContext(sk_ref_sp(dst->asRenderTarget()),
                                                            nullptr));
-    if (!renderTargetContext) {
+    if (!surfaceContext) {
         return false;
     }
 
-    if (!renderTargetContext->copySurface(src, srcRect, dstPoint)) {
+    if (!surfaceContext->copySurface(src, srcRect, dstPoint)) {
         return false;
     }
     return true;

@@ -109,3 +109,12 @@ sk_sp<GrSurfaceProxy> GrSurfaceProxy::MakeDeferred(const GrCaps& caps,
     return GrSurfaceProxy::MakeDeferred(caps, desc, SkBackingFit::kExact, budgeted);
 }
 
+#ifdef SK_DEBUG
+void GrSurfaceProxy::validate(GrContext* context) const {
+    if (fTarget) {
+        SkASSERT(fTarget->getContext() == context);
+    }
+
+    INHERITED::validate();
+}
+#endif
