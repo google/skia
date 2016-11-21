@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "500b3ca9_b590e32d",
+        "filename": "src/core/SkColorSpace_ICC.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 1032,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2016-11-21T17:44:29Z",
+      "side": 1,
+      "message": "I get a Clang compiler error here:\n../../src/core/SkColorSpace_ICC.cpp:1032:9: error: variable \u0027requiredLen\u0027 is used uninitialized whenever switch default is taken [-Werror,-Wsometimes-uninitialized]\n        default:\n        ^~~~~~~\n../../src/core/SkColorSpace_ICC.cpp:1035:28: note: uninitialized use occurs here\n    return_if_false(len \u003e\u003d requiredLen, \"A2B0Type tag too small\");\n\nPerhaps initialize requiredLen to 0 on line 1024?",
+      "revId": "78e9f662c06864e31249ecc114c706ea41637ae4",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
