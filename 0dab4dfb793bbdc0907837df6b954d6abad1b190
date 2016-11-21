@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "500b3ca9_df7256c2",
+        "filename": "src/core/SkColorSpace_ICC.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 673,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2016-11-21T14:24:24Z",
+      "side": 1,
+      "message": "nit: profile connection space",
+      "range": {
+        "startLine": 673,
+        "startChar": 25,
+        "endLine": 673,
+        "endChar": 47
+      },
+      "revId": "0dab4dfb793bbdc0907837df6b954d6abad1b190",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
