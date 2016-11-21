@@ -1,0 +1,44 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "500b3ca9_7f080ada",
+        "filename": "fuzz/FuzzDrawFunctions.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 94,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2016-11-21T15:46:49Z",
+      "side": 1,
+      "message": "we usually put the * with the type.",
+      "range": {
+        "startLine": 94,
+        "startChar": 52,
+        "endLine": 94,
+        "endChar": 55
+      },
+      "revId": "0fbb12295eacf19e667ca529fba4dda8e5385807",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "500b3ca9_dfd7f60c",
+        "filename": "fuzz/FuzzDrawFunctions.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 102,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2016-11-21T15:46:49Z",
+      "side": 1,
+      "message": "These might be clearest as\n\nfuzz_drawText\nfuzz_drawCircle\n\netc, keeping both the static naming convention and the literal name of the canvas method.",
+      "revId": "0fbb12295eacf19e667ca529fba4dda8e5385807",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
