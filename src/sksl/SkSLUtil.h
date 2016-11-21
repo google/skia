@@ -8,12 +8,12 @@
 #ifndef SKSL_UTIL
 #define SKSL_UTIL
 
-#include <iomanip>
-#include <string>
-#include <sstream>
 #include "stdlib.h"
 #include "assert.h"
+#include "SkOpts.h"
 #include "SkRefCnt.h"
+#include "SkStream.h"
+#include "SkString.h"
 #include "SkTypes.h"
 #include "glsl/GrGLSLCaps.h"
 #include "GrContextOptions.h"
@@ -73,40 +73,47 @@ public:
     }
 };
 
-// our own definitions of certain std:: functions, because they are not always present on Android
+void write_data(const SkData& d, SkWStream& out);
 
-std::string to_string(double value);
+SkString operator+(const SkString& s, const char* c);
 
-std::string to_string(int32_t value);
+SkString operator+(const char* c, const SkString& s);
 
-std::string to_string(uint32_t value);
+SkString operator+(const SkString& s1, const SkString& s2);
 
-std::string to_string(int64_t value);
+bool operator==(const SkString& s1, const char* s2);
 
-std::string to_string(uint64_t value);
+bool operator!=(const SkString& s1, const char* s2);
+
+bool operator!=(const char* s1, const SkString& s2);
+
+SkString to_string(double value);
+
+SkString to_string(int32_t value);
+
+SkString to_string(uint32_t value);
+
+SkString to_string(int64_t value);
+
+SkString to_string(uint64_t value);
 
 #if _MSC_VER
 #define NORETURN __declspec(noreturn)
 #else
 #define NORETURN __attribute__((__noreturn__))
 #endif
-int stoi(std::string s);
+int stoi(SkString s);
 
-double stod(std::string s);
+double stod(SkString s);
 
-long stol(std::string s);
+long stol(SkString s);
 
 NORETURN void sksl_abort();
 
 } // namespace
 
-#ifdef DEBUG
-#define ASSERT(x) assert(x)
-#define ASSERT_RESULT(x) ASSERT(x);
-#else
-#define ASSERT(x)
-#define ASSERT_RESULT(x) x
-#endif
+#define ASSERT(x) SkASSERT(x)
+#define ASSERT_RESULT(x) SkAssertResult(x);
 
 #ifdef SKIA
 #define ABORT(...) { SkDebugf(__VA_ARGS__); sksl_abort(); }
@@ -114,4 +121,11 @@ NORETURN void sksl_abort();
 #define ABORT(...) { sksl_abort(); }
 #endif
 
+namespace std {
+    template<> struct hash<SkString> {
+        size_t operator()(const SkString& s) const {
+            return SkOpts::hash_fn(s.c_str(), s.size(), 0);
+        }
+    };
+}
 #endif

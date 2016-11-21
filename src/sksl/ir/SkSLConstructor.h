@@ -21,9 +21,9 @@ struct Constructor : public Expression {
     : INHERITED(position, kConstructor_Kind, type)
     , fArguments(std::move(arguments)) {}
 
-    std::string description() const override {
-        std::string result = fType.description() + "(";
-        std::string separator = "";
+    SkString description() const override {
+        SkString result = fType.description() + "(";
+        SkString separator;
         for (size_t i = 0; i < fArguments.size(); i++) {
             result += separator;
             result += fArguments[i]->description();
