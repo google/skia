@@ -114,21 +114,21 @@ SkBlitter* SkRasterPipelineBlitter::Create(const SkPixmap& dst,
 
     bool is_opaque   = paintColor->a() == 1.0f,
          is_constant = true;
-    pipeline->append(SkRasterPipeline::constant_color, paintColor);
 
     if (shader) {
-        // Shaders start with the paint color in (r,g,b,a) and dst-space (x,y) in (dr,dg).
-        // Before the shader runs, move the paint color to (dr,dg,db,da), and put (x,y) in (r,g).
-        pipeline->append(SkRasterPipeline::swap_src_dst);
         if (!shader->appendStages(pipeline, dst.colorSpace(), &blitter->fScratchFallback,
                                   ctm, paint.getFilterQuality())) {
             return earlyOut();
         }
-        // srcin, s' = s * da, i.e. modulate the output of the shader by the paint alpha.
-        pipeline->append(SkRasterPipeline::srcin);
+        if (!is_opaque) {
+            pipeline->append(SkRasterPipeline::scale_constant_float,
+                             &paintColor->fVec[SkPM4f::A]);
+        }
 
         is_opaque   = is_opaque && shader->isOpaque();
         is_constant = shader->isConstant();
+    } else {
+        pipeline->append(SkRasterPipeline::constant_color, paintColor);
     }
 
     if (colorFilter) {
