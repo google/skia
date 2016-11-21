@@ -61,7 +61,7 @@ class SkiaApi(recipe_api.RecipeApi):
   def checkout_steps(self):
     """Run the steps to obtain a checkout of Skia."""
     cfg_kwargs = {}
-    if not self.m.vars.persistent_checkout:
+    if (not self.m.vars.persistent_checkout):
       # We should've obtained the Skia checkout through isolates, so we don't
       # need to perform the checkout ourselves.
       return
