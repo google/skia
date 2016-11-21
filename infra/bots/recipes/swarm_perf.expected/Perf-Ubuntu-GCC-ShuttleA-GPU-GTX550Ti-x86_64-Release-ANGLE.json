@@ -4,7 +4,7 @@
       "python",
       "-u",
       "\nimport shutil\nimport sys\nshutil.copy(sys.argv[1], sys.argv[2])\n",
-      "[SLAVE_BUILD]/skia/infra/bots/assets/skp/VERSION",
+      "[START_DIR]/skia/infra/bots/assets/skp/VERSION",
       "/path/to/tmp/"
     ],
     "name": "Get downloaded SKP VERSION"
@@ -15,7 +15,7 @@
       "-u",
       "\nimport shutil\nimport sys\nshutil.copy(sys.argv[1], sys.argv[2])\n",
       "42",
-      "[SLAVE_BUILD]/tmp/SKP_VERSION"
+      "[START_DIR]/tmp/SKP_VERSION"
     ],
     "name": "write SKP_VERSION"
   },
@@ -24,7 +24,7 @@
       "python",
       "-u",
       "\nimport shutil\nimport sys\nshutil.copy(sys.argv[1], sys.argv[2])\n",
-      "[SLAVE_BUILD]/skia/infra/bots/assets/skimage/VERSION",
+      "[START_DIR]/skia/infra/bots/assets/skimage/VERSION",
       "/path/to/tmp/"
     ],
     "name": "Get downloaded skimage VERSION"
@@ -35,7 +35,7 @@
       "-u",
       "\nimport shutil\nimport sys\nshutil.copy(sys.argv[1], sys.argv[2])\n",
       "42",
-      "[SLAVE_BUILD]/tmp/SK_IMAGE_VERSION"
+      "[START_DIR]/tmp/SK_IMAGE_VERSION"
     ],
     "name": "write SK_IMAGE_VERSION"
   },
@@ -44,7 +44,7 @@
       "python",
       "-u",
       "\nimport shutil\nimport sys\nshutil.copy(sys.argv[1], sys.argv[2])\n",
-      "[SLAVE_BUILD]/skia/infra/bots/assets/svg/VERSION",
+      "[START_DIR]/skia/infra/bots/assets/svg/VERSION",
       "/path/to/tmp/"
     ],
     "name": "Get downloaded SVG VERSION"
@@ -55,7 +55,7 @@
       "-u",
       "\nimport shutil\nimport sys\nshutil.copy(sys.argv[1], sys.argv[2])\n",
       "42",
-      "[SLAVE_BUILD]/tmp/SVG_VERSION"
+      "[START_DIR]/tmp/SVG_VERSION"
     ],
     "name": "write SVG_VERSION"
   },
@@ -67,7 +67,7 @@
       "[CUSTOM_[SWARM_OUT_DIR]]/perfdata/Perf-Ubuntu-GCC-ShuttleA-GPU-GTX550Ti-x86_64-Release-ANGLE/data"
     ],
     "env": {
-      "PYTHONPATH": "[SLAVE_BUILD]/skia/infra/bots/.recipe_deps/build/scripts"
+      "PYTHONPATH": "[START_DIR]/skia/infra/bots/.recipe_deps/build/scripts"
     },
     "name": "rmtree data",
     "~followup_annotations": [
@@ -106,16 +106,16 @@
   {
     "cmd": [
       "catchsegv",
-      "[SLAVE_BUILD]/out/Release/nanobench",
+      "[START_DIR]/out/Release/nanobench",
       "--undefok",
       "-i",
-      "[SLAVE_BUILD]/skia/resources",
+      "[START_DIR]/skia/resources",
       "--skps",
-      "[SLAVE_BUILD]/skp",
+      "[START_DIR]/skp",
       "--images",
-      "[SLAVE_BUILD]/skimage/nanobench",
+      "[START_DIR]/skimage/nanobench",
       "--svgs",
-      "[SLAVE_BUILD]/svg",
+      "[START_DIR]/svg",
       "--nocpu",
       "--pre_log",
       "--images",
@@ -179,7 +179,7 @@
       "os",
       "Ubuntu"
     ],
-    "cwd": "[SLAVE_BUILD]/skia",
+    "cwd": "[START_DIR]/skia",
     "name": "nanobench"
   },
   {

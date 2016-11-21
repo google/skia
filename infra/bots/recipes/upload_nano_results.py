@@ -20,7 +20,7 @@ def RunSteps(api):
   builder_name = api.properties['buildername']
 
   now = api.time.utcnow()
-  src_path = api.path['cwd'].join(
+  src_path = api.path['start_dir'].join(
       'perfdata', builder_name, 'data')
   results = api.file.glob(
       'find results',

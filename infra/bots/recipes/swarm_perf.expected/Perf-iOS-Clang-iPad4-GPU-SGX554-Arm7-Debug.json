@@ -1,27 +1,27 @@
 [
   {
     "cmd": [
-      "[SLAVE_BUILD]/skia/platform_tools/ios/bin/ios_install"
+      "[START_DIR]/skia/platform_tools/ios/bin/ios_install"
     ],
     "env": {
       "BUILDTYPE": "Debug",
       "CHROME_HEADLESS": "1",
-      "SKIA_OUT": "[SLAVE_BUILD]/out",
-      "XCODEBUILD": "[SLAVE_BUILD]/xcodebuild"
+      "SKIA_OUT": "[START_DIR]/out",
+      "XCODEBUILD": "[START_DIR]/xcodebuild"
     },
     "name": "install iOSShell"
   },
   {
     "cmd": [
-      "[SLAVE_BUILD]/skia/platform_tools/ios/bin/ios_push_if_needed",
-      "[SLAVE_BUILD]/skia/resources",
+      "[START_DIR]/skia/platform_tools/ios/bin/ios_push_if_needed",
+      "[START_DIR]/skia/resources",
       "skiabot/skia_resources"
     ],
     "env": {
       "BUILDTYPE": "Debug",
       "CHROME_HEADLESS": "1",
-      "SKIA_OUT": "[SLAVE_BUILD]/out",
-      "XCODEBUILD": "[SLAVE_BUILD]/xcodebuild"
+      "SKIA_OUT": "[START_DIR]/out",
+      "XCODEBUILD": "[START_DIR]/xcodebuild"
     },
     "name": "push resources to skia_resources"
   },
@@ -30,7 +30,7 @@
       "python",
       "-u",
       "\nimport shutil\nimport sys\nshutil.copy(sys.argv[1], sys.argv[2])\n",
-      "[SLAVE_BUILD]/skia/infra/bots/assets/skp/VERSION",
+      "[START_DIR]/skia/infra/bots/assets/skp/VERSION",
       "/path/to/tmp/"
     ],
     "name": "Get downloaded SKP VERSION"
@@ -41,97 +41,97 @@
       "-u",
       "\nimport shutil\nimport sys\nshutil.copy(sys.argv[1], sys.argv[2])\n",
       "42",
-      "[SLAVE_BUILD]/tmp/SKP_VERSION"
+      "[START_DIR]/tmp/SKP_VERSION"
     ],
     "name": "write SKP_VERSION"
   },
   {
     "cmd": [
-      "[SLAVE_BUILD]/skia/platform_tools/ios/bin/ios_cat_file",
+      "[START_DIR]/skia/platform_tools/ios/bin/ios_cat_file",
       "skiabot/skia_tmp_dir/SKP_VERSION"
     ],
     "env": {
       "BUILDTYPE": "Debug",
       "CHROME_HEADLESS": "1",
-      "SKIA_OUT": "[SLAVE_BUILD]/out",
-      "XCODEBUILD": "[SLAVE_BUILD]/xcodebuild"
+      "SKIA_OUT": "[START_DIR]/out",
+      "XCODEBUILD": "[START_DIR]/xcodebuild"
     },
     "name": "read SKP_VERSION",
     "stdout": "/path/to/tmp/"
   },
   {
     "cmd": [
-      "[SLAVE_BUILD]/skia/platform_tools/ios/bin/ios_rm",
+      "[START_DIR]/skia/platform_tools/ios/bin/ios_rm",
       "skiabot/skia_tmp_dir/SKP_VERSION"
     ],
     "env": {
       "BUILDTYPE": "Debug",
       "CHROME_HEADLESS": "1",
-      "SKIA_OUT": "[SLAVE_BUILD]/out",
-      "XCODEBUILD": "[SLAVE_BUILD]/xcodebuild"
+      "SKIA_OUT": "[START_DIR]/out",
+      "XCODEBUILD": "[START_DIR]/xcodebuild"
     },
     "name": "rm skiabot/skia_tmp_dir/SKP_VERSION"
   },
   {
     "cmd": [
-      "[SLAVE_BUILD]/skia/platform_tools/ios/bin/ios_rm",
+      "[START_DIR]/skia/platform_tools/ios/bin/ios_rm",
       "skiabot/skia_skp/skps"
     ],
     "env": {
       "BUILDTYPE": "Debug",
       "CHROME_HEADLESS": "1",
-      "SKIA_OUT": "[SLAVE_BUILD]/out",
-      "XCODEBUILD": "[SLAVE_BUILD]/xcodebuild"
+      "SKIA_OUT": "[START_DIR]/out",
+      "XCODEBUILD": "[START_DIR]/xcodebuild"
     },
     "name": "rmdir skiabot/skia_skp/skps"
   },
   {
     "cmd": [
-      "[SLAVE_BUILD]/skia/platform_tools/ios/bin/ios_mkdir",
+      "[START_DIR]/skia/platform_tools/ios/bin/ios_mkdir",
       "skiabot/skia_skp/skps"
     ],
     "env": {
       "BUILDTYPE": "Debug",
       "CHROME_HEADLESS": "1",
-      "SKIA_OUT": "[SLAVE_BUILD]/out",
-      "XCODEBUILD": "[SLAVE_BUILD]/xcodebuild"
+      "SKIA_OUT": "[START_DIR]/out",
+      "XCODEBUILD": "[START_DIR]/xcodebuild"
     },
     "name": "mkdir skiabot/skia_skp/skps"
   },
   {
     "cmd": [
-      "[SLAVE_BUILD]/skia/platform_tools/ios/bin/ios_push_if_needed",
-      "[SLAVE_BUILD]/skp",
+      "[START_DIR]/skia/platform_tools/ios/bin/ios_push_if_needed",
+      "[START_DIR]/skp",
       "skiabot/skia_skp/skps"
     ],
     "env": {
       "BUILDTYPE": "Debug",
       "CHROME_HEADLESS": "1",
-      "SKIA_OUT": "[SLAVE_BUILD]/out",
-      "XCODEBUILD": "[SLAVE_BUILD]/xcodebuild"
+      "SKIA_OUT": "[START_DIR]/out",
+      "XCODEBUILD": "[START_DIR]/xcodebuild"
     },
     "name": "push skp to skps"
   },
   {
     "cmd": [
-      "[SLAVE_BUILD]/skia/platform_tools/ios/bin/ios_push_file",
-      "[SLAVE_BUILD]/tmp/SKP_VERSION",
+      "[START_DIR]/skia/platform_tools/ios/bin/ios_push_file",
+      "[START_DIR]/tmp/SKP_VERSION",
       "skiabot/skia_tmp_dir/SKP_VERSION"
     ],
     "env": {
       "BUILDTYPE": "Debug",
       "CHROME_HEADLESS": "1",
-      "SKIA_OUT": "[SLAVE_BUILD]/out",
-      "XCODEBUILD": "[SLAVE_BUILD]/xcodebuild"
+      "SKIA_OUT": "[START_DIR]/out",
+      "XCODEBUILD": "[START_DIR]/xcodebuild"
     },
-    "name": "push [SLAVE_BUILD]/tmp/SKP_VERSION"
+    "name": "push [START_DIR]/tmp/SKP_VERSION"
   },
   {
     "cmd": [
       "python",
       "-u",
       "\nimport shutil\nimport sys\nshutil.copy(sys.argv[1], sys.argv[2])\n",
-      "[SLAVE_BUILD]/skia/infra/bots/assets/skimage/VERSION",
+      "[START_DIR]/skia/infra/bots/assets/skimage/VERSION",
       "/path/to/tmp/"
     ],
     "name": "Get downloaded skimage VERSION"
@@ -142,97 +142,97 @@
       "-u",
       "\nimport shutil\nimport sys\nshutil.copy(sys.argv[1], sys.argv[2])\n",
       "42",
-      "[SLAVE_BUILD]/tmp/SK_IMAGE_VERSION"
+      "[START_DIR]/tmp/SK_IMAGE_VERSION"
     ],
     "name": "write SK_IMAGE_VERSION"
   },
   {
     "cmd": [
-      "[SLAVE_BUILD]/skia/platform_tools/ios/bin/ios_cat_file",
+      "[START_DIR]/skia/platform_tools/ios/bin/ios_cat_file",
       "skiabot/skia_tmp_dir/SK_IMAGE_VERSION"
     ],
     "env": {
       "BUILDTYPE": "Debug",
       "CHROME_HEADLESS": "1",
-      "SKIA_OUT": "[SLAVE_BUILD]/out",
-      "XCODEBUILD": "[SLAVE_BUILD]/xcodebuild"
+      "SKIA_OUT": "[START_DIR]/out",
+      "XCODEBUILD": "[START_DIR]/xcodebuild"
     },
     "name": "read SK_IMAGE_VERSION",
     "stdout": "/path/to/tmp/"
   },
   {
     "cmd": [
-      "[SLAVE_BUILD]/skia/platform_tools/ios/bin/ios_rm",
+      "[START_DIR]/skia/platform_tools/ios/bin/ios_rm",
       "skiabot/skia_tmp_dir/SK_IMAGE_VERSION"
     ],
     "env": {
       "BUILDTYPE": "Debug",
       "CHROME_HEADLESS": "1",
-      "SKIA_OUT": "[SLAVE_BUILD]/out",
-      "XCODEBUILD": "[SLAVE_BUILD]/xcodebuild"
+      "SKIA_OUT": "[START_DIR]/out",
+      "XCODEBUILD": "[START_DIR]/xcodebuild"
     },
     "name": "rm skiabot/skia_tmp_dir/SK_IMAGE_VERSION"
   },
   {
     "cmd": [
-      "[SLAVE_BUILD]/skia/platform_tools/ios/bin/ios_rm",
+      "[START_DIR]/skia/platform_tools/ios/bin/ios_rm",
       "skiabot/skia_images"
     ],
     "env": {
       "BUILDTYPE": "Debug",
       "CHROME_HEADLESS": "1",
-      "SKIA_OUT": "[SLAVE_BUILD]/out",
-      "XCODEBUILD": "[SLAVE_BUILD]/xcodebuild"
+      "SKIA_OUT": "[START_DIR]/out",
+      "XCODEBUILD": "[START_DIR]/xcodebuild"
     },
     "name": "rmdir skiabot/skia_images"
   },
   {
     "cmd": [
-      "[SLAVE_BUILD]/skia/platform_tools/ios/bin/ios_mkdir",
+      "[START_DIR]/skia/platform_tools/ios/bin/ios_mkdir",
       "skiabot/skia_images"
     ],
     "env": {
       "BUILDTYPE": "Debug",
       "CHROME_HEADLESS": "1",
-      "SKIA_OUT": "[SLAVE_BUILD]/out",
-      "XCODEBUILD": "[SLAVE_BUILD]/xcodebuild"
+      "SKIA_OUT": "[START_DIR]/out",
+      "XCODEBUILD": "[START_DIR]/xcodebuild"
     },
     "name": "mkdir skiabot/skia_images"
   },
   {
     "cmd": [
-      "[SLAVE_BUILD]/skia/platform_tools/ios/bin/ios_push_if_needed",
-      "[SLAVE_BUILD]/skimage",
+      "[START_DIR]/skia/platform_tools/ios/bin/ios_push_if_needed",
+      "[START_DIR]/skimage",
       "skiabot/skia_images"
     ],
     "env": {
       "BUILDTYPE": "Debug",
       "CHROME_HEADLESS": "1",
-      "SKIA_OUT": "[SLAVE_BUILD]/out",
-      "XCODEBUILD": "[SLAVE_BUILD]/xcodebuild"
+      "SKIA_OUT": "[START_DIR]/out",
+      "XCODEBUILD": "[START_DIR]/xcodebuild"
     },
     "name": "push skimage to skia_images"
   },
   {
     "cmd": [
-      "[SLAVE_BUILD]/skia/platform_tools/ios/bin/ios_push_file",
-      "[SLAVE_BUILD]/tmp/SK_IMAGE_VERSION",
+      "[START_DIR]/skia/platform_tools/ios/bin/ios_push_file",
+      "[START_DIR]/tmp/SK_IMAGE_VERSION",
       "skiabot/skia_tmp_dir/SK_IMAGE_VERSION"
     ],
     "env": {
       "BUILDTYPE": "Debug",
       "CHROME_HEADLESS": "1",
-      "SKIA_OUT": "[SLAVE_BUILD]/out",
-      "XCODEBUILD": "[SLAVE_BUILD]/xcodebuild"
+      "SKIA_OUT": "[START_DIR]/out",
+      "XCODEBUILD": "[START_DIR]/xcodebuild"
     },
-    "name": "push [SLAVE_BUILD]/tmp/SK_IMAGE_VERSION"
+    "name": "push [START_DIR]/tmp/SK_IMAGE_VERSION"
   },
   {
     "cmd": [
       "python",
       "-u",
       "\nimport shutil\nimport sys\nshutil.copy(sys.argv[1], sys.argv[2])\n",
-      "[SLAVE_BUILD]/skia/infra/bots/assets/svg/VERSION",
+      "[START_DIR]/skia/infra/bots/assets/svg/VERSION",
       "/path/to/tmp/"
     ],
     "name": "Get downloaded SVG VERSION"
@@ -243,94 +243,94 @@
       "-u",
       "\nimport shutil\nimport sys\nshutil.copy(sys.argv[1], sys.argv[2])\n",
       "42",
-      "[SLAVE_BUILD]/tmp/SVG_VERSION"
+      "[START_DIR]/tmp/SVG_VERSION"
     ],
     "name": "write SVG_VERSION"
   },
   {
     "cmd": [
-      "[SLAVE_BUILD]/skia/platform_tools/ios/bin/ios_cat_file",
+      "[START_DIR]/skia/platform_tools/ios/bin/ios_cat_file",
       "skiabot/skia_tmp_dir/SVG_VERSION"
     ],
     "env": {
       "BUILDTYPE": "Debug",
       "CHROME_HEADLESS": "1",
-      "SKIA_OUT": "[SLAVE_BUILD]/out",
-      "XCODEBUILD": "[SLAVE_BUILD]/xcodebuild"
+      "SKIA_OUT": "[START_DIR]/out",
+      "XCODEBUILD": "[START_DIR]/xcodebuild"
     },
     "name": "read SVG_VERSION",
     "stdout": "/path/to/tmp/"
   },
   {
     "cmd": [
-      "[SLAVE_BUILD]/skia/platform_tools/ios/bin/ios_rm",
+      "[START_DIR]/skia/platform_tools/ios/bin/ios_rm",
       "skiabot/skia_tmp_dir/SVG_VERSION"
     ],
     "env": {
       "BUILDTYPE": "Debug",
       "CHROME_HEADLESS": "1",
-      "SKIA_OUT": "[SLAVE_BUILD]/out",
-      "XCODEBUILD": "[SLAVE_BUILD]/xcodebuild"
+      "SKIA_OUT": "[START_DIR]/out",
+      "XCODEBUILD": "[START_DIR]/xcodebuild"
     },
     "name": "rm skiabot/skia_tmp_dir/SVG_VERSION"
   },
   {
     "cmd": [
-      "[SLAVE_BUILD]/skia/platform_tools/ios/bin/ios_rm",
+      "[START_DIR]/skia/platform_tools/ios/bin/ios_rm",
       "skiabot/skia_svg/svgs"
     ],
     "env": {
       "BUILDTYPE": "Debug",
       "CHROME_HEADLESS": "1",
-      "SKIA_OUT": "[SLAVE_BUILD]/out",
-      "XCODEBUILD": "[SLAVE_BUILD]/xcodebuild"
+      "SKIA_OUT": "[START_DIR]/out",
+      "XCODEBUILD": "[START_DIR]/xcodebuild"
     },
     "name": "rmdir skiabot/skia_svg/svgs"
   },
   {
     "cmd": [
-      "[SLAVE_BUILD]/skia/platform_tools/ios/bin/ios_mkdir",
+      "[START_DIR]/skia/platform_tools/ios/bin/ios_mkdir",
       "skiabot/skia_svg/svgs"
     ],
     "env": {
       "BUILDTYPE": "Debug",
       "CHROME_HEADLESS": "1",
-      "SKIA_OUT": "[SLAVE_BUILD]/out",
-      "XCODEBUILD": "[SLAVE_BUILD]/xcodebuild"
+      "SKIA_OUT": "[START_DIR]/out",
+      "XCODEBUILD": "[START_DIR]/xcodebuild"
     },
     "name": "mkdir skiabot/skia_svg/svgs"
   },
   {
     "cmd": [
-      "[SLAVE_BUILD]/skia/platform_tools/ios/bin/ios_push_if_needed",
-      "[SLAVE_BUILD]/svg",
+      "[START_DIR]/skia/platform_tools/ios/bin/ios_push_if_needed",
+      "[START_DIR]/svg",
       "skiabot/skia_svg/svgs"
     ],
     "env": {
       "BUILDTYPE": "Debug",
       "CHROME_HEADLESS": "1",
-      "SKIA_OUT": "[SLAVE_BUILD]/out",
-      "XCODEBUILD": "[SLAVE_BUILD]/xcodebuild"
+      "SKIA_OUT": "[START_DIR]/out",
+      "XCODEBUILD": "[START_DIR]/xcodebuild"
     },
     "name": "push svg to svgs"
   },
   {
     "cmd": [
-      "[SLAVE_BUILD]/skia/platform_tools/ios/bin/ios_push_file",
-      "[SLAVE_BUILD]/tmp/SVG_VERSION",
+      "[START_DIR]/skia/platform_tools/ios/bin/ios_push_file",
+      "[START_DIR]/tmp/SVG_VERSION",
       "skiabot/skia_tmp_dir/SVG_VERSION"
     ],
     "env": {
       "BUILDTYPE": "Debug",
       "CHROME_HEADLESS": "1",
-      "SKIA_OUT": "[SLAVE_BUILD]/out",
-      "XCODEBUILD": "[SLAVE_BUILD]/xcodebuild"
+      "SKIA_OUT": "[START_DIR]/out",
+      "XCODEBUILD": "[START_DIR]/xcodebuild"
     },
-    "name": "push [SLAVE_BUILD]/tmp/SVG_VERSION"
+    "name": "push [START_DIR]/tmp/SVG_VERSION"
   },
   {
     "cmd": [
-      "[SLAVE_BUILD]/skia/platform_tools/ios/bin/ios_run_skia",
+      "[START_DIR]/skia/platform_tools/ios/bin/ios_run_skia",
       "--nanobench",
       "--undefok",
       "-i",
@@ -391,20 +391,20 @@
     "env": {
       "BUILDTYPE": "Debug",
       "CHROME_HEADLESS": "1",
-      "SKIA_OUT": "[SLAVE_BUILD]/out",
-      "XCODEBUILD": "[SLAVE_BUILD]/xcodebuild"
+      "SKIA_OUT": "[START_DIR]/out",
+      "XCODEBUILD": "[START_DIR]/xcodebuild"
     },
     "name": "nanobench"
   },
   {
     "cmd": [
-      "[SLAVE_BUILD]/skia/platform_tools/ios/bin/ios_restart"
+      "[START_DIR]/skia/platform_tools/ios/bin/ios_restart"
     ],
     "env": {
       "BUILDTYPE": "Debug",
       "CHROME_HEADLESS": "1",
-      "SKIA_OUT": "[SLAVE_BUILD]/out",
-      "XCODEBUILD": "[SLAVE_BUILD]/xcodebuild"
+      "SKIA_OUT": "[START_DIR]/out",
+      "XCODEBUILD": "[START_DIR]/xcodebuild"
     },
     "name": "reboot"
   },
@@ -416,8 +416,8 @@
     "env": {
       "BUILDTYPE": "Debug",
       "CHROME_HEADLESS": "1",
-      "SKIA_OUT": "[SLAVE_BUILD]/out",
-      "XCODEBUILD": "[SLAVE_BUILD]/xcodebuild"
+      "SKIA_OUT": "[START_DIR]/out",
+      "XCODEBUILD": "[START_DIR]/xcodebuild"
     },
     "name": "wait for reboot"
   },

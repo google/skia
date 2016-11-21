@@ -84,7 +84,7 @@
       "python",
       "-u",
       "\nimport sys, os\npath = sys.argv[1]\nmode = int(sys.argv[2])\nif not os.path.isdir(path):\n  if os.path.exists(path):\n    print \"%s exists but is not a dir\" % path\n    sys.exit(1)\n  os.makedirs(path, mode)\n",
-      "[SLAVE_BUILD]\\tmp",
+      "[START_DIR]\\tmp",
       "511"
     ],
     "name": "makedirs tmp_dir",
@@ -118,7 +118,7 @@
       "gn.bat",
       "gen",
       "[CUSTOM_C:\\_B_WORK]\\skia\\out\\Build-Win-MSVC-x86-Debug-Trybot\\Debug",
-      "--args=target_cpu=\"x86\" windk=\"[SLAVE_BUILD]\\t\\depot_tools\\win_toolchain\\vs_files\\95ddda401ec5678f15eeed01d2bee08fcbc5ee97\""
+      "--args=target_cpu=\"x86\" windk=\"[START_DIR]\\t\\depot_tools\\win_toolchain\\vs_files\\95ddda401ec5678f15eeed01d2bee08fcbc5ee97\""
     ],
     "cwd": "[CUSTOM_C:\\_B_WORK]\\skia",
     "env": {
