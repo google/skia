@@ -261,6 +261,8 @@ public:
 
     bool isWrapped_ForTesting() const;
 
+    SkDEBUGCODE(void validate(GrContext*) const;)
+
 protected:
     // Deferred version
     GrSurfaceProxy(const GrSurfaceDesc& desc, SkBackingFit fit, SkBudgeted budgeted)

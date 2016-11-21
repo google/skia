@@ -14,6 +14,8 @@
 #include "GrResourceProvider.h"
 #include "GrSoftwarePathRenderer.h"
 #include "GrSurfacePriv.h"
+#include "GrTextureContext.h"
+#include "GrTextureOpList.h"
 #include "SkSurface_Gpu.h"
 #include "SkTTopoSort.h"
 
@@ -172,6 +174,20 @@ GrRenderTargetOpList* GrDrawingManager::newOpList(GrRenderTargetProxy* rtp) {
     return SkRef(opList);
 }
 
+GrTextureOpList* GrDrawingManager::newOpList(GrTextureProxy* textureProxy) {
+    SkASSERT(fContext);
+
+    GrTextureOpList* opList = new GrTextureOpList(textureProxy, fContext->getGpu(),
+                                                  fContext->getAuditTrail());
+
+#ifdef ENABLE_MDB
+    *fOpLists.append() = opList;
+#endif
+
+    // DrawingManager gets the creation ref - this ref is for the caller
+    return SkRef(opList);
+}
+
 GrAtlasTextContext* GrDrawingManager::getAtlasTextContext() {
     if (!fAtlasTextContext) {
         fAtlasTextContext.reset(GrAtlasTextContext::Create());
@@ -252,4 +268,15 @@ sk_sp<GrRenderTargetContext> GrDrawingManager::makeRenderTargetContext(
                                                                   surfaceProps,
                                                                   fContext->getAuditTrail(),
                                                                   fSingleOwner));
+}
+
+sk_sp<GrTextureContext> GrDrawingManager::makeTextureContext(sk_sp<GrSurfaceProxy> sProxy) {
+    if (this->wasAbandoned() || !sProxy->asTextureProxy()) {
+        return nullptr;
+    }
+
+    sk_sp<GrTextureProxy> textureProxy(sk_ref_sp(sProxy->asTextureProxy()));
+
+    return sk_sp<GrTextureContext>(new GrTextureContext(fContext, this, std::move(textureProxy),
+                                                        fContext->getAuditTrail(), fSingleOwner));
 }
