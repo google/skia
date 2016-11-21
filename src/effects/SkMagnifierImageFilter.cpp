@@ -19,6 +19,7 @@
 #include "GrContext.h"
 #include "GrInvariantOutput.h"
 #include "effects/GrSingleTextureEffect.h"
+#include "glsl/GrGLSL.h"
 #include "glsl/GrGLSLFragmentProcessor.h"
 #include "glsl/GrGLSLFragmentShaderBuilder.h"
 #include "glsl/GrGLSLProgramDataManager.h"

@@ -8,6 +8,7 @@
 #include "glsl/GrGLSLXferProcessor.h"
 
 #include "GrXferProcessor.h"
+#include "glsl/GrGLSLCaps.h"
 #include "glsl/GrGLSLFragmentShaderBuilder.h"
 #include "glsl/GrGLSLProgramDataManager.h"
 #include "glsl/GrGLSLUniformHandler.h"

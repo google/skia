@@ -7,6 +7,7 @@
 
 #include "GrBezierEffect.h"
 
+#include "glsl/GrGLSLCaps.h"
 #include "glsl/GrGLSLFragmentShaderBuilder.h"
 #include "glsl/GrGLSLGeometryProcessor.h"
 #include "glsl/GrGLSLProgramDataManager.h"
@@ -116,14 +117,14 @@ void GrGLConicEffect::onEmitCode(EmitArgs& args, GrGPArgs* gpArgs) {
         precision = kMedium_GrSLPrecision;
     }
 
-    GrGLSLShaderVar edgeAlpha("edgeAlpha", kFloat_GrSLType, 0, precision);
-    GrGLSLShaderVar dklmdx("dklmdx", kVec3f_GrSLType, 0, precision);
-    GrGLSLShaderVar dklmdy("dklmdy", kVec3f_GrSLType, 0, precision);
-    GrGLSLShaderVar dfdx("dfdx", kFloat_GrSLType, 0, precision);
-    GrGLSLShaderVar dfdy("dfdy", kFloat_GrSLType, 0, precision);
-    GrGLSLShaderVar gF("gF", kVec2f_GrSLType, 0, precision);
-    GrGLSLShaderVar gFM("gFM", kFloat_GrSLType, 0, precision);
-    GrGLSLShaderVar func("func", kFloat_GrSLType, 0, precision);
+    GrShadeVar edgeAlpha("edgeAlpha", kFloat_GrSLType, 0, precision);
+    GrShadeVar dklmdx("dklmdx", kVec3f_GrSLType, 0, precision);
+    GrShadeVar dklmdy("dklmdy", kVec3f_GrSLType, 0, precision);
+    GrShadeVar dfdx("dfdx", kFloat_GrSLType, 0, precision);
+    GrShadeVar dfdy("dfdy", kFloat_GrSLType, 0, precision);
+    GrShadeVar gF("gF", kVec2f_GrSLType, 0, precision);
+    GrShadeVar gFM("gFM", kFloat_GrSLType, 0, precision);
+    GrShadeVar func("func", kFloat_GrSLType, 0, precision);
 
     fragBuilder->declAppend(edgeAlpha);
     fragBuilder->declAppend(dklmdx);
@@ -564,14 +565,14 @@ void GrGLCubicEffect::onEmitCode(EmitArgs& args, GrGPArgs* gpArgs) {
                          args.fFPCoordTransformHandler);
 
 
-    GrGLSLShaderVar edgeAlpha("edgeAlpha", kFloat_GrSLType, 0, kHigh_GrSLPrecision);
-    GrGLSLShaderVar dklmdx("dklmdx", kVec3f_GrSLType, 0, kHigh_GrSLPrecision);
-    GrGLSLShaderVar dklmdy("dklmdy", kVec3f_GrSLType, 0, kHigh_GrSLPrecision);
-    GrGLSLShaderVar dfdx("dfdx", kFloat_GrSLType, 0, kHigh_GrSLPrecision);
-    GrGLSLShaderVar dfdy("dfdy", kFloat_GrSLType, 0, kHigh_GrSLPrecision);
-    GrGLSLShaderVar gF("gF", kVec2f_GrSLType, 0, kHigh_GrSLPrecision);
-    GrGLSLShaderVar gFM("gFM", kFloat_GrSLType, 0, kHigh_GrSLPrecision);
-    GrGLSLShaderVar func("func", kFloat_GrSLType, 0, kHigh_GrSLPrecision);
+    GrShadeVar edgeAlpha("edgeAlpha", kFloat_GrSLType, 0, kHigh_GrSLPrecision);
+    GrShadeVar dklmdx("dklmdx", kVec3f_GrSLType, 0, kHigh_GrSLPrecision);
+    GrShadeVar dklmdy("dklmdy", kVec3f_GrSLType, 0, kHigh_GrSLPrecision);
+    GrShadeVar dfdx("dfdx", kFloat_GrSLType, 0, kHigh_GrSLPrecision);
+    GrShadeVar dfdy("dfdy", kFloat_GrSLType, 0, kHigh_GrSLPrecision);
+    GrShadeVar gF("gF", kVec2f_GrSLType, 0, kHigh_GrSLPrecision);
+    GrShadeVar gFM("gFM", kFloat_GrSLType, 0, kHigh_GrSLPrecision);
+    GrShadeVar func("func", kFloat_GrSLType, 0, kHigh_GrSLPrecision);
 
     fragBuilder->declAppend(edgeAlpha);
     fragBuilder->declAppend(dklmdx);
