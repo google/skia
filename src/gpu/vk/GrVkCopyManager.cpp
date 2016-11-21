@@ -21,6 +21,7 @@
 #include "GrVkTexture.h"
 #include "GrVkUniformBuffer.h"
 #include "GrVkVertexBuffer.h"
+#include "glsl/GrGLSLCaps.h"
 #include "SkPoint.h"
 #include "SkRect.h"
 

@@ -8,11 +8,10 @@
 #ifndef GrGLProgramDataManager_DEFINED
 #define GrGLProgramDataManager_DEFINED
 
-#include "glsl/GrGLSLProgramDataManager.h"
-
 #include "GrAllocator.h"
+#include "GrShaderVar.h"
 #include "gl/GrGLTypes.h"
-#include "glsl/GrGLSLShaderVar.h"
+#include "glsl/GrGLSLProgramDataManager.h"
 
 #include "SkTArray.h"
 
@@ -27,18 +26,17 @@ class GrGLProgram;
 class GrGLProgramDataManager : public GrGLSLProgramDataManager {
 public:
     struct UniformInfo {
-        GrGLSLShaderVar fVariable;
+        GrShaderVar fVariable;
         uint32_t        fVisibility;
         GrGLint         fLocation;
     };
 
     struct VaryingInfo {
-        GrGLSLShaderVar fVariable;
+        GrShaderVar fVariable;
         GrGLint         fLocation;
     };
 
-
-    // This uses an allocator rather than array so that the GrGLSLShaderVars don't move in memory
+    // This uses an allocator rather than array so that the GrShaderVars don't move in memory
     // after they are inserted. Users of GrGLShaderBuilder get refs to the vars and ptrs to their
     // name strings. Otherwise, we'd have to hand out copies.
     typedef GrTAllocator<UniformInfo> UniformInfoArray;

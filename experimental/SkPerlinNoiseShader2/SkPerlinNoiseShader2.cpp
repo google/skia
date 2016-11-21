@@ -774,15 +774,15 @@ void GrGLPerlinNoise2::emitCode(EmitArgs& args) {
     const char* dotLattice  = "dot(((%s.ga + %s.rb * vec2(%s)) * vec2(2.0) - vec2(1.0)), %s);";
 
     // Add noise function
-    static const GrGLSLShaderVar gPerlinNoiseArgs[] =  {
-        GrGLSLShaderVar(chanCoord, kFloat_GrSLType),
-        GrGLSLShaderVar(noiseVec, kVec2f_GrSLType)
+    static const GrShaderVar gPerlinNoiseArgs[] =  {
+        GrShaderVar(chanCoord, kFloat_GrSLType),
+        GrShaderVar(noiseVec, kVec2f_GrSLType)
     };
 
-    static const GrGLSLShaderVar gPerlinNoiseStitchArgs[] =  {
-        GrGLSLShaderVar(chanCoord, kFloat_GrSLType),
-        GrGLSLShaderVar(noiseVec, kVec2f_GrSLType),
-        GrGLSLShaderVar(stitchData, kVec2f_GrSLType)
+    static const GrShaderVar gPerlinNoiseStitchArgs[] =  {
+        GrShaderVar(chanCoord, kFloat_GrSLType),
+        GrShaderVar(noiseVec, kVec2f_GrSLType),
+        GrShaderVar(stitchData, kVec2f_GrSLType)
     };
 
     SkString noiseCode;
@@ -1157,8 +1157,8 @@ void GrGLImprovedPerlinNoise::emitCode(EmitArgs& args) {
     const char* zUni = uniformHandler->getUniformCStr(fZUni);
 
     // fade function
-    static const GrGLSLShaderVar fadeArgs[] =  {
-        GrGLSLShaderVar("t", kVec3f_GrSLType)
+    static const GrShaderVar fadeArgs[] =  {
+        GrShaderVar("t", kVec3f_GrSLType)
     };
     SkString fadeFuncName;
     fsBuilder->emitFunction(kVec3f_GrSLType, "fade", SK_ARRAY_COUNT(fadeArgs),
@@ -1167,8 +1167,8 @@ void GrGLImprovedPerlinNoise::emitCode(EmitArgs& args) {
                             &fadeFuncName);
 
     // perm function
-    static const GrGLSLShaderVar permArgs[] =  {
-        GrGLSLShaderVar("x", kFloat_GrSLType)
+    static const GrShaderVar permArgs[] =  {
+        GrShaderVar("x", kFloat_GrSLType)
     };
     SkString permFuncName;
     SkString permCode("return ");
@@ -1181,9 +1181,9 @@ void GrGLImprovedPerlinNoise::emitCode(EmitArgs& args) {
                             permCode.c_str(), &permFuncName);
 
     // grad function
-    static const GrGLSLShaderVar gradArgs[] =  {
-        GrGLSLShaderVar("x", kFloat_GrSLType),
-        GrGLSLShaderVar("p", kVec3f_GrSLType)
+    static const GrShaderVar gradArgs[] =  {
+        GrShaderVar("x", kFloat_GrSLType),
+        GrShaderVar("p", kVec3f_GrSLType)
     };
     SkString gradFuncName;
     SkString gradCode("return dot(");
@@ -1194,18 +1194,18 @@ void GrGLImprovedPerlinNoise::emitCode(EmitArgs& args) {
                             gradCode.c_str(), &gradFuncName);
 
     // lerp function
-    static const GrGLSLShaderVar lerpArgs[] =  {
-        GrGLSLShaderVar("a", kFloat_GrSLType),
-        GrGLSLShaderVar("b", kFloat_GrSLType),
-        GrGLSLShaderVar("w", kFloat_GrSLType)
+    static const GrShaderVar lerpArgs[] =  {
+        GrShaderVar("a", kFloat_GrSLType),
+        GrShaderVar("b", kFloat_GrSLType),
+        GrShaderVar("w", kFloat_GrSLType)
     };
     SkString lerpFuncName;
     fsBuilder->emitFunction(kFloat_GrSLType, "lerp", SK_ARRAY_COUNT(lerpArgs), lerpArgs, 
                             "return a + w * (b - a);", &lerpFuncName);
 
     // noise function
-    static const GrGLSLShaderVar noiseArgs[] =  {
-        GrGLSLShaderVar("p", kVec3f_GrSLType),
+    static const GrShaderVar noiseArgs[] =  {
+        GrShaderVar("p", kVec3f_GrSLType),
     };
     SkString noiseFuncName;
     SkString noiseCode;
@@ -1241,9 +1241,9 @@ void GrGLImprovedPerlinNoise::emitCode(EmitArgs& args) {
                             noiseCode.c_str(), &noiseFuncName);
     
     // noiseOctaves function
-    static const GrGLSLShaderVar noiseOctavesArgs[] =  {
-        GrGLSLShaderVar("p", kVec3f_GrSLType),
-        GrGLSLShaderVar("octaves", kFloat_GrSLType),
+    static const GrShaderVar noiseOctavesArgs[] =  {
+        GrShaderVar("p", kVec3f_GrSLType),
+        GrShaderVar("octaves", kFloat_GrSLType),
     };
     SkString noiseOctavesFuncName;
     SkString noiseOctavesCode;

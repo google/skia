@@ -155,7 +155,7 @@ GrGLSLUniformHandler::UniformHandle GrVkUniformHandler::internalAddUniformArray(
     uni.fVariable.setPrecision(precision);
     // When outputing the GLSL, only the outer uniform block will get the Uniform modifier. Thus
     // we set the modifier to none for all uniforms declared inside the block.
-    uni.fVariable.setTypeModifier(GrGLSLShaderVar::kNone_TypeModifier);
+    uni.fVariable.setTypeModifier(GrShaderVar::kNone_TypeModifier);
 
     uint32_t* currentOffset = kVertex_GrShaderFlag == visibility ? &fCurrentVertexUBOOffset
                                                                    : &fCurrentFragmentUBOOffset;
@@ -184,7 +184,7 @@ GrGLSLUniformHandler::SamplerHandle GrVkUniformHandler::addSampler(uint32_t visi
     UniformInfo& info = fSamplers.push_back();
     SkASSERT(GrSLTypeIsCombinedSamplerType(type));
     info.fVariable.setType(type);
-    info.fVariable.setTypeModifier(GrGLSLShaderVar::kUniform_TypeModifier);
+    info.fVariable.setTypeModifier(GrShaderVar::kUniform_TypeModifier);
     info.fVariable.setPrecision(precision);
     info.fVariable.setName(mangleName);
     SkString layoutQualifier;

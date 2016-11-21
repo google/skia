@@ -6,6 +6,7 @@
  */
 
 #include "GrConvolutionEffect.h"
+#include "glsl/GrGLSL.h"
 #include "glsl/GrGLSLFragmentProcessor.h"
 #include "glsl/GrGLSLFragmentShaderBuilder.h"
 #include "glsl/GrGLSLProgramDataManager.h"
@@ -58,7 +59,7 @@ void GrGLConvolutionEffect::emitCode(EmitArgs& args) {
 
     fragBuilder->codeAppendf("%s = vec4(0, 0, 0, 0);", args.fOutputColor);
 
-    const GrGLSLShaderVar& kernel = uniformHandler->getUniformVariable(fKernelUni);
+    const GrShaderVar& kernel = uniformHandler->getUniformVariable(fKernelUni);
     const char* imgInc = uniformHandler->getUniformCStr(fImageIncrementUni);
 
     fragBuilder->codeAppendf("vec2 coord = %s - %d.0 * %s;", coords2D.c_str(), ce.radius(), imgInc);

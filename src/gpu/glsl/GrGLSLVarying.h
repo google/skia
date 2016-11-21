@@ -10,9 +10,9 @@
 
 #include "GrAllocator.h"
 #include "GrGeometryProcessor.h"
+#include "GrShaderVar.h"
 #include "GrTypesPriv.h"
 #include "glsl/GrGLSLProgramDataManager.h"
-#include "glsl/GrGLSLShaderVar.h"
 
 class GrGLSLProgramBuilder;
 
@@ -152,7 +152,7 @@ protected:
     };
 
     typedef GrTAllocator<VaryingInfo> VaryingList;
-    typedef GrTAllocator<GrGLSLShaderVar> VarArray;
+    typedef GrTAllocator<GrShaderVar> VarArray;
     typedef GrGLSLProgramDataManager::VaryingHandle VaryingHandle;
 
     VaryingList    fVaryings;

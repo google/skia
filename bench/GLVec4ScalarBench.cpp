@@ -11,12 +11,12 @@
 
 #if SK_SUPPORT_GPU
 #include "GLBench.h"
+#include "GrShaderVar.h"
 #include "gl/GrGLContext.h"
 #include "gl/GrGLInterface.h"
 #include "gl/GrGLUtil.h"
 #include "glsl/GrGLSL.h"
 #include "glsl/GrGLSLCaps.h"
-#include "glsl/GrGLSLShaderVar.h"
 
 #include <stdio.h>
 
@@ -101,10 +101,10 @@ GrGLuint GLVec4ScalarBench::setupShader(const GrGLContext* ctx) {
     // corner of the screen than the previous circle.
 
     // set up vertex shader; this is a trivial vertex shader that passes through position and color
-    GrGLSLShaderVar aPosition("a_position", kVec2f_GrSLType, GrShaderVar::kIn_TypeModifier);
-    GrGLSLShaderVar oPosition("o_position", kVec2f_GrSLType, GrShaderVar::kOut_TypeModifier);
-    GrGLSLShaderVar aColor("a_color", kVec3f_GrSLType, GrShaderVar::kIn_TypeModifier);
-    GrGLSLShaderVar oColor("o_color", kVec3f_GrSLType, GrShaderVar::kOut_TypeModifier);
+    GrShaderVar aPosition("a_position", kVec2f_GrSLType, GrShaderVar::kIn_TypeModifier);
+    GrShaderVar oPosition("o_position", kVec2f_GrSLType, GrShaderVar::kOut_TypeModifier);
+    GrShaderVar aColor("a_color", kVec3f_GrSLType, GrShaderVar::kIn_TypeModifier);
+    GrShaderVar oColor("o_color", kVec3f_GrSLType, GrShaderVar::kOut_TypeModifier);
 
     SkString vshaderTxt(version);
     aPosition.appendDecl(glslCaps, &vshaderTxt);
@@ -129,7 +129,7 @@ GrGLuint GLVec4ScalarBench::setupShader(const GrGLContext* ctx) {
     // coded center and compare that to some hard-coded circle radius to compute a coverage.
     // Then, this coverage is mixed with the coverage from the previous stage and passed to the
     // next stage.
-    GrGLSLShaderVar oFragColor("o_FragColor", kVec4f_GrSLType, GrShaderVar::kOut_TypeModifier);
+    GrShaderVar oFragColor("o_FragColor", kVec4f_GrSLType, GrShaderVar::kOut_TypeModifier);
     SkString fshaderTxt(version);
     GrGLSLAppendDefaultFloatPrecisionDeclaration(kDefault_GrSLPrecision, *glslCaps, &fshaderTxt);
     oPosition.setTypeModifier(GrShaderVar::kIn_TypeModifier);

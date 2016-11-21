@@ -147,8 +147,8 @@ const char* GrGLSLFragmentShaderBuilder::fragmentPosition() {
                                  extension);
             }
             fInputs.push_back().set(kVec4f_GrSLType,
-                                    GrGLSLShaderVar::kIn_TypeModifier,
                                     "gl_FragCoord",
+                                    GrShaderVar::kIn_TypeModifier,
                                     kDefault_GrSLPrecision,
                                     "origin_upper_left");
             fSetupFragPosition = true;
@@ -226,9 +226,8 @@ void GrGLSLFragmentShaderBuilder::overrideSampleCoverage(const char* mask) {
     if (this->addFeature(1 << kSampleMaskOverrideCoverage_GLSLPrivateFeature,
                          "GL_NV_sample_mask_override_coverage")) {
         // Redeclare gl_SampleMask with layout(override_coverage) if we haven't already.
-        fOutputs.push_back().set(kInt_GrSLType, GrShaderVar::kOut_TypeModifier,
-                                 "gl_SampleMask", 1, kHigh_GrSLPrecision,
-                                 "override_coverage");
+        fOutputs.push_back().set(kInt_GrSLType, "gl_SampleMask", 1, GrShaderVar::kOut_TypeModifier,
+                                 kHigh_GrSLPrecision, "override_coverage");
     }
     this->codeAppendf("gl_SampleMask[0] = %s;", mask);
     fHasInitializedSampleMask = true;
@@ -283,9 +282,8 @@ void GrGLSLFragmentShaderBuilder::enableCustomOutput() {
     if (!fHasCustomColorOutput) {
         fHasCustomColorOutput = true;
         fCustomColorOutputIndex = fOutputs.count();
-        fOutputs.push_back().set(kVec4f_GrSLType,  
-                                 GrGLSLShaderVar::kOut_TypeModifier,   
-                                 DeclaredColorOutputName());   
+        fOutputs.push_back().set(kVec4f_GrSLType, DeclaredColorOutputName(),
+                                 GrShaderVar::kOut_TypeModifier);
         fProgramBuilder->finalizeFragmentOutputColor(fOutputs.back()); 
     }
 }
@@ -303,8 +301,8 @@ void GrGLSLFragmentShaderBuilder::enableSecondaryOutput() {
     // output. The condition also co-incides with the condition in whici GLES SL 2.0
     // requires the built-in gl_SecondaryFragColorEXT, where as 3.0 requires a custom output.
     if (caps.mustDeclareFragmentShaderOutput()) {
-        fOutputs.push_back().set(kVec4f_GrSLType, GrGLSLShaderVar::kOut_TypeModifier,
-                                 DeclaredSecondaryColorOutputName());
+        fOutputs.push_back().set(kVec4f_GrSLType, DeclaredSecondaryColorOutputName(),
+                                 GrShaderVar::kOut_TypeModifier);
         fProgramBuilder->finalizeFragmentSecondaryColor(fOutputs.back());
     }
 }

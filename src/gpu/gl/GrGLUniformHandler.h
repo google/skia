@@ -18,7 +18,7 @@ class GrGLUniformHandler : public GrGLSLUniformHandler {
 public:
     static const int kUniformsPerBlock = 8;
 
-    const GrGLSLShaderVar& getUniformVariable(UniformHandle u) const override {
+    const GrShaderVar& getUniformVariable(UniformHandle u) const override {
         return fUniforms[u.toIndex()].fVariable;
     }
 
@@ -42,7 +42,7 @@ private:
     SamplerHandle addSampler(uint32_t visibility, GrSwizzle, GrSLType, GrSLPrecision,
                              const char* name) override;
 
-    const GrGLSLShaderVar& samplerVariable(SamplerHandle handle) const override {
+    const GrShaderVar& samplerVariable(SamplerHandle handle) const override {
         return fSamplers[handle.toIndex()].fVariable;
     }
 

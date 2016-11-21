@@ -9,7 +9,8 @@
 #define GrGLSLUniformHandler_DEFINED
 
 #include "GrGLSLProgramDataManager.h"
-#include "GrGLSLShaderVar.h"
+#include "GrShaderVar.h"
+#include "GrSwizzle.h"
 
 class GrGLSLProgramBuilder;
 
@@ -46,7 +47,7 @@ public:
                                              outName);
     }
 
-    virtual const GrGLSLShaderVar& getUniformVariable(UniformHandle u) const = 0;
+    virtual const GrShaderVar& getUniformVariable(UniformHandle u) const = 0;
 
     /**
      * Shortcut for getUniformVariable(u).c_str()
@@ -60,7 +61,7 @@ protected:
     GrGLSLProgramBuilder* fProgramBuilder;
 
 private:
-    virtual const GrGLSLShaderVar& samplerVariable(SamplerHandle) const = 0;
+    virtual const GrShaderVar& samplerVariable(SamplerHandle) const = 0;
     virtual GrSwizzle samplerSwizzle(SamplerHandle) const = 0;
 
     virtual SamplerHandle addSampler(uint32_t visibility, GrSwizzle, GrSLType, GrSLPrecision,

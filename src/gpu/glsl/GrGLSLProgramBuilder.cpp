@@ -9,6 +9,7 @@
 
 #include "GrPipeline.h"
 #include "GrTexturePriv.h"
+#include "glsl/GrGLSLCaps.h"
 #include "glsl/GrGLSLFragmentProcessor.h"
 #include "glsl/GrGLSLGeometryProcessor.h"
 #include "glsl/GrGLSLVarying.h"

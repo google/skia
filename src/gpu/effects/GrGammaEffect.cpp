@@ -29,8 +29,8 @@ public:
         }
 
         SkString srgbFuncName;
-        static const GrGLSLShaderVar gSrgbArgs[] = {
-            GrGLSLShaderVar("x", kFloat_GrSLType),
+        static const GrShaderVar gSrgbArgs[] = {
+            GrShaderVar("x", kFloat_GrSLType),
         };
         switch (ge.mode()) {
             case GrGammaEffect::Mode::kLinearToSRGB:

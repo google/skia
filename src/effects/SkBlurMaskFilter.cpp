@@ -24,6 +24,7 @@
 #include "GrInvariantOutput.h"
 #include "GrStyle.h"
 #include "effects/GrSimpleTextureEffect.h"
+#include "glsl/GrGLSLCaps.h"
 #include "glsl/GrGLSLFragmentProcessor.h"
 #include "glsl/GrGLSLFragmentShaderBuilder.h"
 #include "glsl/GrGLSLProgramDataManager.h"

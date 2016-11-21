@@ -11,6 +11,7 @@
 #include "GrRenderTargetPriv.h"
 #include "GrResourceCache.h"
 #include "GrResourceProvider.h"
+#include "glsl/GrGLSLCaps.h"
 #include "glsl/GrGLSLGeometryProcessor.h"
 #include "glsl/GrGLSLFragmentShaderBuilder.h"
 #include "glsl/GrGLSLProgramBuilder.h"
@@ -1367,7 +1368,7 @@ void GLSLInstanceProcessor::BackendMultisample::onEmitCode(GrGLSLVertexBuilder*,
     }
 
     if (kRect_ShapeFlag != (fBatchInfo.fShapeTypes | fBatchInfo.fInnerShapeTypes)) {
-        GrGLSLShaderVar x("x", kVec2f_GrSLType, GrGLSLShaderVar::kNonArray, kHigh_GrSLPrecision);
+        GrShaderVar x("x", kVec2f_GrSLType, GrShaderVar::kNonArray, kHigh_GrSLPrecision);
         f->emitFunction(kFloat_GrSLType, "square", 1, &x, "return dot(x, x);", &fSquareFun);
     }
 

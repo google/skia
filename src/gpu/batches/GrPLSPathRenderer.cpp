@@ -521,9 +521,9 @@ public:
             SkAssertResult(fsBuilder->enableFeature(
                            GrGLSLFragmentShaderBuilder::kPixelLocalStorage_GLSLFeature));
             static const int QUAD_ARGS = 2;
-            GrGLSLShaderVar inQuadArgs[QUAD_ARGS] = {
-                GrGLSLShaderVar("dot", kFloat_GrSLType, 0, kHigh_GrSLPrecision),
-                GrGLSLShaderVar("uv", kVec2f_GrSLType, 0, kHigh_GrSLPrecision)
+            GrShaderVar inQuadArgs[QUAD_ARGS] = {
+                GrShaderVar("dot", kFloat_GrSLType, 0, kHigh_GrSLPrecision),
+                GrShaderVar("uv", kVec2f_GrSLType, 0, kHigh_GrSLPrecision)
             };
             SkString inQuadName;
 

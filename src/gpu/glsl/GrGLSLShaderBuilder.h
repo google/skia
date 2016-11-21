@@ -9,8 +9,8 @@
 #define GrGLSLShaderBuilder_DEFINED
 
 #include "GrAllocator.h"
+#include "GrShaderVar.h"
 #include "glsl/GrGLSLUniformHandler.h"
-#include "glsl/GrGLSLShaderVar.h"
 #include "SkTDArray.h"
 
 #include <stdarg.h>
@@ -118,7 +118,7 @@ public:
     /**
      * Appends a variable declaration to one of the shaders
      */
-    void declAppend(const GrGLSLShaderVar& var);
+    void declAppend(const GrShaderVar& var);
 
     /**
      * Appends a precision qualifier followed by a space, if relevant for the GLSL version.
@@ -129,7 +129,7 @@ public:
     void emitFunction(GrSLType returnType,
                       const char* name,
                       int argCnt,
-                      const GrGLSLShaderVar* args,
+                      const GrShaderVar* args,
                       const char* body,
                       SkString* outName);
 
@@ -161,7 +161,7 @@ public:
     };
 
 protected:
-    typedef GrTAllocator<GrGLSLShaderVar> VarArray;
+    typedef GrTAllocator<GrShaderVar> VarArray;
     void appendDecls(const VarArray& vars, SkString* out) const;
 
     /**

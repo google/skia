@@ -7,9 +7,11 @@
 
 #include "vk/GrVkPipelineStateBuilder.h"
 
+#include "glsl/GrGLSLCaps.h"
 #include "vk/GrVkDescriptorSetManager.h"
 #include "vk/GrVkGpu.h"
 #include "vk/GrVkRenderPass.h"
+
 
 GrVkPipelineState* GrVkPipelineStateBuilder::CreatePipelineState(
                                                                GrVkGpu* gpu,
@@ -51,11 +53,11 @@ const GrGLSLCaps* GrVkPipelineStateBuilder::glslCaps() const {
     return fGpu->vkCaps().glslCaps();
 }
 
-void GrVkPipelineStateBuilder::finalizeFragmentOutputColor(GrGLSLShaderVar& outputColor) {
+void GrVkPipelineStateBuilder::finalizeFragmentOutputColor(GrShaderVar& outputColor) {
     outputColor.setLayoutQualifier("location = 0, index = 0");
 }
 
-void GrVkPipelineStateBuilder::finalizeFragmentSecondaryColor(GrGLSLShaderVar& outputColor) {
+void GrVkPipelineStateBuilder::finalizeFragmentSecondaryColor(GrShaderVar& outputColor) {
     outputColor.setLayoutQualifier("location = 0, index = 1");
 }
 

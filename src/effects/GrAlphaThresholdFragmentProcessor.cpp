@@ -12,6 +12,7 @@
 #include "GrInvariantOutput.h"
 #include "SkRefCnt.h"
 
+#include "glsl/GrGLSL.h"
 #include "glsl/GrGLSLColorSpaceXformHelper.h"
 #include "glsl/GrGLSLFragmentProcessor.h"
 #include "glsl/GrGLSLFragmentShaderBuilder.h"

@@ -9,6 +9,7 @@
 #include "GrInvariantOutput.h"
 #include "SkPathPriv.h"
 #include "effects/GrConstColorProcessor.h"
+#include "glsl/GrGLSL.h"
 #include "glsl/GrGLSLFragmentProcessor.h"
 #include "glsl/GrGLSLFragmentShaderBuilder.h"
 #include "glsl/GrGLSLProgramDataManager.h"

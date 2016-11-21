@@ -8,8 +8,8 @@
 #ifndef GrGLSLFragmentShaderBuilder_DEFINED
 #define GrGLSLFragmentShaderBuilder_DEFINED
 
+#include "GrBlend.h"
 #include "GrGLSLShaderBuilder.h"
-
 #include "GrProcessor.h"
 
 class GrRenderTarget;

@@ -11,6 +11,7 @@
 #include "GrInvariantOutput.h"
 #include "GrSimpleTextureEffect.h"
 #include "SkMatrix.h"
+#include "glsl/GrGLSL.h"
 #include "glsl/GrGLSLFragmentProcessor.h"
 #include "glsl/GrGLSLFragmentShaderBuilder.h"
 
@@ -22,7 +23,7 @@ public:
         GrConfigConversionEffect::PMConversion pmConversion = cce.pmConversion();
 
         // Using highp for GLES here in order to avoid some precision issues on specific GPUs.
-        GrGLSLShaderVar tmpVar("tmpColor", kVec4f_GrSLType, 0, kHigh_GrSLPrecision);
+        GrShaderVar tmpVar("tmpColor", kVec4f_GrSLType, 0, kHigh_GrSLPrecision);
         SkString tmpDecl;
         tmpVar.appendDecl(args.fGLSLCaps, &tmpDecl);
 
