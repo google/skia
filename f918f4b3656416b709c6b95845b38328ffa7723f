@@ -1,0 +1,123 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "500b3ca9_df27f6de",
+        "filename": "src/core/SkFixedAlloc.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 21,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2016-11-21T13:55:16Z",
+      "side": 1,
+      "message": "May be clearer as \u0026 31, given that it\u0027s actually a number in [0,31] and not a bit pattern.",
+      "revId": "f918f4b3656416b709c6b95845b38328ffa7723f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "500b3ca9_7f3feae8",
+        "filename": "src/core/SkFixedAlloc.h",
+        "patchSetId": 6
+      },
+      "lineNbr": 18,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2016-11-21T13:55:16Z",
+      "side": 1,
+      "message": "These probably don\u0027t need to be part of the user docs for the class.",
+      "revId": "f918f4b3656416b709c6b95845b38328ffa7723f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "500b3ca9_5f654622",
+        "filename": "src/core/SkFixedAlloc.h",
+        "patchSetId": 6
+      },
+      "lineNbr": 40,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2016-11-21T13:55:16Z",
+      "side": 1,
+      "message": "Seems like it\u0027d simplify Deleter a little logically if you keeping padding out of it?  Have undo() and make() deal with padding, but not inside Deleter?",
+      "revId": "f918f4b3656416b709c6b95845b38328ffa7723f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "500b3ca9_3f62921c",
+        "filename": "src/core/SkFixedAlloc.h",
+        "patchSetId": 6
+      },
+      "lineNbr": 62,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2016-11-21T13:55:16Z",
+      "side": 1,
+      "message": "The -ASAN bot will probably yell at you here if deleter diff is negative.  I think switching to SkLeftShift ought to handle it.",
+      "revId": "f918f4b3656416b709c6b95845b38328ffa7723f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "500b3ca9_ff32ba22",
+        "filename": "src/core/SkFixedAlloc.h",
+        "patchSetId": 6
+      },
+      "lineNbr": 63,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2016-11-21T13:55:16Z",
+      "side": 1,
+      "message": "Given that they\u0027re the same, it may read easier to stick with sizeof(Footer) across this function.  Switching to sizeof(footer) here made me look for why the switch mattered.",
+      "revId": "f918f4b3656416b709c6b95845b38328ffa7723f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "500b3ca9_9f429e79",
+        "filename": "src/core/SkFixedAlloc.h",
+        "patchSetId": 6
+      },
+      "lineNbr": 77,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2016-11-21T13:55:16Z",
+      "side": 1,
+      "message": "I\u0027m a little hesitant to call this Deleter.  It doesn\u0027t call delete.  But obviously, it does more than call the destructor, so Destructor is pretty much out too.\n\nDestroyer?  Undo?",
+      "revId": "f918f4b3656416b709c6b95845b38328ffa7723f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "500b3ca9_bf2c42c4",
+        "filename": "src/core/SkFixedAlloc.h",
+        "patchSetId": 6
+      },
+      "lineNbr": 80,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2016-11-21T13:55:16Z",
+      "side": 1,
+      "message": "Can we not use the address of the constructor or undo()?",
+      "revId": "f918f4b3656416b709c6b95845b38328ffa7723f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
