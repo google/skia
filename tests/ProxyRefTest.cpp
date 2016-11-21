@@ -106,7 +106,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(ProxyRefTest, reporter, ctxInfo) {
             // extra ref and write
             bool proxyGetsDiscardRef = !sProxy->isWrapped_ForTesting() &&
                                        caps.discardRenderTargetSupport();
-	    int expectedWrites = proxyGetsDiscardRef ? 2 : 1;
+            int expectedWrites = proxyGetsDiscardRef ? 2 : 1;
 
             sProxy->instantiate(provider);
 

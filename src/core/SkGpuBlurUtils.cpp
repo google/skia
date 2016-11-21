@@ -229,7 +229,7 @@ sk_sp<GrRenderTargetContext> GaussianBlur(GrContext* context,
     const int height = dstBounds.height();
     const GrPixelConfig config = srcTexture->config();
 
-    sk_sp<GrRenderTargetContext> dstRenderTargetContext(context->makeRenderTargetContext(
+    sk_sp<GrRenderTargetContext> dstRenderTargetContext(context->makeDeferredRenderTargetContext(
         fit, width, height, config, colorSpace, 0, kDefault_GrSurfaceOrigin));
     if (!dstRenderTargetContext) {
         return nullptr;
@@ -248,7 +248,7 @@ sk_sp<GrRenderTargetContext> GaussianBlur(GrContext* context,
         return dstRenderTargetContext;
     } 
 
-    sk_sp<GrRenderTargetContext> tmpRenderTargetContext(context->makeRenderTargetContext(
+    sk_sp<GrRenderTargetContext> tmpRenderTargetContext(context->makeDeferredRenderTargetContext(
         fit, width, height, config, colorSpace, 0, kDefault_GrSurfaceOrigin));
     if (!tmpRenderTargetContext) {
         return nullptr;
@@ -261,6 +261,8 @@ sk_sp<GrRenderTargetContext> GaussianBlur(GrContext* context,
     for (int i = 1; i < scaleFactorX || i < scaleFactorY; i *= 2) {
         GrPaint paint;
         paint.setGammaCorrect(dstRenderTargetContext->isGammaCorrect());
+        // TODO: this matrix relies on the final instantiated size of the texture. This
+        // will have to be deferred for TextureProxys
         SkMatrix matrix;
         matrix.setIDiv(srcTexture->width(), srcTexture->height());
         SkIRect dstRect(srcRect);
@@ -292,6 +294,9 @@ sk_sp<GrRenderTargetContext> GaussianBlur(GrContext* context,
         srcRenderTargetContext = dstRenderTargetContext;
         srcRect = dstRect;
         srcTexture = srcRenderTargetContext->asTexture();
+        if (!srcTexture) {
+            return nullptr;
+        }
         dstRenderTargetContext.swap(tmpRenderTargetContext);
         localSrcBounds = srcRect;
     }
@@ -314,6 +319,9 @@ sk_sp<GrRenderTargetContext> GaussianBlur(GrContext* context,
                           srcBounds, srcOffset);
         srcRenderTargetContext = dstRenderTargetContext;
         srcTexture = srcRenderTargetContext->asTexture();
+        if (!srcTexture) {
+            return nullptr;
+        }
         srcRect.offsetTo(0, 0);
         dstRenderTargetContext.swap(tmpRenderTargetContext);
         localSrcBounds = srcRect;
@@ -350,14 +358,20 @@ sk_sp<GrRenderTargetContext> GaussianBlur(GrContext* context,
         clearRect = SkIRect::MakeXYWH(srcRect.fRight, srcRect.fTop, 1, srcRect.height());
         srcRenderTargetContext->clear(&clearRect, 0x0, false);
 
-        SkMatrix matrix;
-        matrix.setIDiv(srcRenderTargetContext->width(), srcRenderTargetContext->height());
-
         GrPaint paint;
         paint.setGammaCorrect(dstRenderTargetContext->isGammaCorrect());
         // FIXME:  this should be mitchell, not bilinear.
         GrSamplerParams params(SkShader::kClamp_TileMode, GrSamplerParams::kBilerp_FilterMode);
         sk_sp<GrTexture> tex(srcRenderTargetContext->asTexture());
+        if (!tex) {
+            return nullptr;
+        }
+
+        // TODO: this matrix relies on the final instantiated size of the texture. This
+        // will have to be deferred for TextureProxys
+        SkMatrix matrix;
+        matrix.setIDiv(tex->width(), tex->height());
+
         paint.addColorTextureProcessor(tex.get(), nullptr, matrix, params);
         paint.setPorterDuffXPFactory(SkBlendMode::kSrc);
 

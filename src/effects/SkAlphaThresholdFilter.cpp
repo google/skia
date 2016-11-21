@@ -16,8 +16,9 @@
 #if SK_SUPPORT_GPU
 #include "GrAlphaThresholdFragmentProcessor.h"
 #include "GrContext.h"
-#include "GrRenderTargetContext.h"
 #include "GrFixedClip.h"
+#include "GrRenderTargetContext.h"
+#include "GrTextureProxy.h"
 #endif
 
 class SK_API SkAlphaThresholdFilterImpl : public SkImageFilter {
@@ -37,7 +38,9 @@ protected:
                                         SkIPoint* offset) const override;
 
 #if SK_SUPPORT_GPU
-    sk_sp<GrTexture> createMaskTexture(GrContext*, const SkMatrix&, const SkIRect& bounds) const;
+    sk_sp<GrTextureProxy> createMaskTexture(GrContext*, 
+                                            const SkMatrix&,
+                                            const SkIRect& bounds) const;
 #endif
 
 private:
@@ -93,29 +96,29 @@ SkAlphaThresholdFilterImpl::SkAlphaThresholdFilterImpl(const SkRegion& region,
 }
 
 #if SK_SUPPORT_GPU
-sk_sp<GrTexture> SkAlphaThresholdFilterImpl::createMaskTexture(GrContext* context,
-                                                               const SkMatrix& inMatrix,
-                                                               const SkIRect& bounds) const {
+sk_sp<GrTextureProxy> SkAlphaThresholdFilterImpl::createMaskTexture(GrContext* context,
+                                                                    const SkMatrix& inMatrix,
+                                                                    const SkIRect& bounds) const {
 
-    sk_sp<GrRenderTargetContext> renderTargetContext(context->makeRenderTargetContextWithFallback(
+    sk_sp<GrRenderTargetContext> rtContext(context->makeDeferredRenderTargetContextWithFallback(
         SkBackingFit::kApprox, bounds.width(), bounds.height(), kAlpha_8_GrPixelConfig, nullptr));
-    if (!renderTargetContext) {
+    if (!rtContext) {
         return nullptr;
     }
 
     GrPaint grPaint;
     grPaint.setPorterDuffXPFactory(SkBlendMode::kSrc);
     SkRegion::Iterator iter(fRegion);
-    renderTargetContext->clear(nullptr, 0x0, true);
+    rtContext->clear(nullptr, 0x0, true);
 
     GrFixedClip clip(SkIRect::MakeWH(bounds.width(), bounds.height()));
     while (!iter.done()) {
         SkRect rect = SkRect::Make(iter.rect());
-        renderTargetContext->drawRect(clip, grPaint, inMatrix, rect);
+        rtContext->drawRect(clip, grPaint, inMatrix, rect);
         iter.next();
     }
 
-    return renderTargetContext->asTexture();
+    return sk_ref_sp(rtContext->asDeferredTexture());
 }
 #endif
 
@@ -158,21 +161,26 @@ sk_sp<SkSpecialImage> SkAlphaThresholdFilterImpl::onFilterImage(SkSpecialImage* 
         SkMatrix matrix(ctx.ctm());
         matrix.postTranslate(SkIntToScalar(-bounds.left()), SkIntToScalar(-bounds.top()));
 
-        sk_sp<GrTexture> maskTexture(this->createMaskTexture(context, matrix, bounds));
-        if (!maskTexture) {
+        sk_sp<GrTextureProxy> maskProxy(this->createMaskTexture(context, matrix, bounds));
+        if (!maskProxy) {
             return nullptr;
         }
 
         const OutputProperties& outProps = ctx.outputProperties();
         sk_sp<GrColorSpaceXform> colorSpaceXform = GrColorSpaceXform::Make(input->getColorSpace(),
                                                                            outProps.colorSpace());
+
+        GrTexture* maskTex = maskProxy->instantiate(context->textureProvider());
+        if (!maskTex) {
+            return nullptr;
+        }
         sk_sp<GrFragmentProcessor> fp(GrAlphaThresholdFragmentProcessor::Make(
-                                                                         inputTexture.get(),
-                                                                         std::move(colorSpaceXform),
-                                                                         maskTexture.get(),
-                                                                         fInnerThreshold,
-                                                                         fOuterThreshold,
-                                                                         bounds));
+                                            inputTexture.get(),
+                                            std::move(colorSpaceXform),
+                                            maskTex,
+                                            fInnerThreshold,
+                                            fOuterThreshold,
+                                            bounds));
         if (!fp) {
             return nullptr;
         }
