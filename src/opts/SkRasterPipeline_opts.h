@@ -13,6 +13,7 @@
 #include "SkColorSpaceXform_A2B.h"
 #include "SkColorSpaceXformPriv.h"
 #include "SkHalf.h"
+#include "SkImageShaderContext.h"
 #include "SkPM4f.h"
 #include "SkPM4fPriv.h"
 #include "SkRasterPipeline.h"
@@ -717,23 +718,64 @@ STAGE(repeat_y, true) { g = repeat(g, *(const int*)ctx); }
 STAGE(mirror_x, true) { r = mirror(r, *(const int*)ctx); }
 STAGE(mirror_y, true) { g = mirror(g, *(const int*)ctx); }
 
+STAGE(top_left, true) {
+    auto sc = (SkImageShaderContext*)ctx;
 
-struct NearestCtx {
-    const void* pixels;
-    int         stride;
+    r.store(sc->x);
+    g.store(sc->y);
+
+    r -= 0.5f;
+    g -= 0.5f;
+
+    auto fx = r - r.floor(),
+         fy = g - g.floor();
+    b = (1.0f - fx) * (1.0f - fy);
+};
+
+STAGE(top_right, true) {
+    auto sc = (const SkImageShaderContext*)ctx;
+
+    r = SkNf::Load(sc->x) + 0.5f;
+    g = SkNf::Load(sc->y) - 0.5f;
+
+    auto fx = r - r.floor(),
+         fy = g - g.floor();
+    b = fx * (1.0f - fy);
+};
+
+STAGE(bottom_left, true) {
+    auto sc = (const SkImageShaderContext*)ctx;
+
+    r = SkNf::Load(sc->x) - 0.5f;
+    g = SkNf::Load(sc->y) + 0.5f;
+
+    auto fx = r - r.floor(),
+         fy = g - g.floor();
+    b = (1.0f - fx) * fy;
+};
+
+STAGE(bottom_right, true) {
+    auto sc = (const SkImageShaderContext*)ctx;
+
+    r = SkNf::Load(sc->x) + 0.5f;
+    g = SkNf::Load(sc->y) + 0.5f;
+
+    auto fx = r - r.floor(),
+         fy = g - g.floor();
+    b = fx * fy;
 };
 
 STAGE(accum_565, true) {}  // TODO
 STAGE(accum_f16, true) {}  // TODO
 
 STAGE(accum_8888, true) {
-    auto nc = (const NearestCtx*)ctx;
+    auto sc = (const SkImageShaderContext*)ctx;
 
     SkNi ix = SkNx_cast<int>(r),
          iy = SkNx_cast<int>(g);
-    SkNi offset = iy*nc->stride + ix;
+    SkNi offset = iy*sc->stride + ix;
 
-    auto p = (const uint32_t*)nc->pixels;
+    auto p = (const uint32_t*)sc->pixels;
     uint8_t R[N], G[N], B[N], A[N];
     for (size_t i = 0; i < N; i++) {
         if (kIsTail && i >= tail) {
@@ -755,13 +797,13 @@ STAGE(accum_8888, true) {
 }
 
 STAGE(accum_srgb, true) {
-    auto nc = (const NearestCtx*)ctx;
+    auto sc = (const SkImageShaderContext*)ctx;
 
     SkNi ix = SkNx_cast<int>(r),
          iy = SkNx_cast<int>(g);
-    SkNi offset = iy*nc->stride + ix;
+    SkNi offset = iy*sc->stride + ix;
 
-    auto p = (const uint32_t*)nc->pixels;
+    auto p = (const uint32_t*)sc->pixels;
     uint8_t R[N], G[N], B[N], A[N];
     for (size_t i = 0; i < N; i++) {
         if (kIsTail && i >= tail) {
