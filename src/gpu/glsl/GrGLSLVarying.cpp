@@ -111,8 +111,9 @@ void GrGLSLVaryingHandler::finalize() {
                                            v.fPrecision, nullptr, modifier);
             if (v.fVisibility & kGeometry_GrShaderFlag) {
                 fGeomInputs.push_back().set(v.fType, v.fVsOut, GrShaderVar::kUnsizedArray,
-                                            GrShaderVar::kIn_TypeModifier, v.fPrecision, nullptr,
-                                            modifier);
+                                            GrShaderVar::kIn_TypeModifier,
+                                            GrShaderVar::ImageStorageFormat::kNone,
+                                            v.fPrecision, nullptr, modifier);
             }
         }
         if (v.fVisibility & kFragment_GrShaderFlag) {
