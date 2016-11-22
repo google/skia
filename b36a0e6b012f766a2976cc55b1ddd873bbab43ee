@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "30324888_9cef4d91",
+        "filename": "infra/bots/git_utils.py",
+        "patchSetId": 38
+      },
+      "lineNbr": 92,
+      "author": {
+        "id": 5145
+      },
+      "writtenOn": "2016-11-22T19:49:11Z",
+      "side": 1,
+      "message": "Copied from common repo.",
+      "revId": "b36a0e6b012f766a2976cc55b1ddd873bbab43ee",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "30324888_7c359135",
+        "filename": "infra/bots/upload_skps.py",
+        "patchSetId": 38
+      },
+      "lineNbr": 30,
+      "author": {
+        "id": 5145
+      },
+      "writtenOn": "2016-11-22T19:49:11Z",
+      "side": 1,
+      "message": "Could not make using skia_dir work, and could not use the persistent checkout due to the cache. So creating a new checkout for the upload part which makes this script nicely self contained.",
+      "revId": "b36a0e6b012f766a2976cc55b1ddd873bbab43ee",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
