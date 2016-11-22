@@ -173,6 +173,24 @@
       "revId": "40f30cef21d5cfb5c17eb6a8184ad39d5d1fabbb",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "30324888_0a144bb9",
+        "filename": "src/gpu/GrDrawingManager.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 278,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2016-11-22T20:59:54Z",
+      "side": 1,
+      "message": "... although it\u0027s worth noting that currently - that will never happen. We only reach this via one path, and GrContext::copySurface chooses which kind of context to try and make based on whether or not the destination surface is a render target. Not future-proof, though.",
+      "parentUuid": "30324888_4a9d6340",
+      "revId": "40f30cef21d5cfb5c17eb6a8184ad39d5d1fabbb",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
