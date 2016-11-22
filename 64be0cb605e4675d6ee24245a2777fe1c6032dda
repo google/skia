@@ -1,0 +1,73 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "500b3ca9_251f1b89",
+        "filename": "src/core/SkOverdrawCanvas.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 123,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2016-11-22T15:44:45Z",
+      "side": 1,
+      "message": "Should probably add a default case with assert here.",
+      "range": {
+        "startLine": 123,
+        "startChar": 0,
+        "endLine": 123,
+        "endChar": 5
+      },
+      "revId": "64be0cb605e4675d6ee24245a2777fe1c6032dda",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "500b3ca9_65151367",
+        "filename": "src/core/SkOverdrawCanvas.h",
+        "patchSetId": 5
+      },
+      "lineNbr": 60,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2016-11-22T15:44:45Z",
+      "side": 1,
+      "message": "Maybe just \u0027drawPosTextCommon\u0027. The \u0027on\u0027 part makes me think there is some \u0027drawTextHelper\u0027 non-virtual dispatching to \u0027onDrawTextHelper\u0027, as well as making the implementation site look like an override.",
+      "range": {
+        "startLine": 60,
+        "startChar": 9,
+        "endLine": 60,
+        "endChar": 25
+      },
+      "revId": "64be0cb605e4675d6ee24245a2777fe1c6032dda",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "500b3ca9_8562471a",
+        "filename": "src/image/SkSurface_Base.h",
+        "patchSetId": 5
+      },
+      "lineNbr": 89,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2016-11-22T15:44:45Z",
+      "side": 1,
+      "message": "std::unique_ptr\u003cSkCanvas\u003e onMakeOverdrawCanvas()",
+      "range": {
+        "startLine": 89,
+        "startChar": 4,
+        "endLine": 89,
+        "endChar": 36
+      },
+      "revId": "64be0cb605e4675d6ee24245a2777fe1c6032dda",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
