@@ -389,6 +389,9 @@ public:
 
     bool isWrapped_ForTesting() const;
 
+    int worstCaseWidth() const { return fRenderTargetProxy->worstCaseWidth(); }
+    int worstCaseHeight() const { return fRenderTargetProxy->worstCaseHeight(); }
+
 protected:
     GrRenderTargetContext(GrContext*, GrDrawingManager*, sk_sp<GrRenderTargetProxy>,
                           sk_sp<SkColorSpace>, const SkSurfaceProps* surfaceProps, GrAuditTrail*,

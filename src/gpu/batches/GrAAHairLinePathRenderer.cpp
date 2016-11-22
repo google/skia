@@ -961,8 +961,8 @@ bool GrAAHairLinePathRenderer::onDrawPath(const DrawPathArgs& args) {
     SkASSERT(!args.fRenderTargetContext->isUnifiedMultisampled());
 
     SkIRect devClipBounds;
-    args.fClip->getConservativeBounds(args.fRenderTargetContext->width(),
-                                      args.fRenderTargetContext->height(),
+    args.fClip->getConservativeBounds(args.fRenderTargetContext->worstCaseWidth(),
+                                      args.fRenderTargetContext->worstCaseHeight(),
                                       &devClipBounds);
 
     SkPath path;
