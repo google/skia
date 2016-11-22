@@ -290,8 +290,8 @@ bool SkImageShader::onAppendStages(SkRasterPipeline* p, SkColorSpace* dst, SkFal
     switch (info.colorType()) {
         case kRGBA_8888_SkColorType:
         case kBGRA_8888_SkColorType:
-//      case   kRGB_565_SkColorType:
-//      case  kRGBA_F16_SkColorType:
+        case   kRGB_565_SkColorType:
+        case  kRGBA_F16_SkColorType:
             break;
         default: return false;
     }
