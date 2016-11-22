@@ -5,11 +5,11 @@
  * found in the LICENSE file.
  */
 
-#include "SkImageEncoderPriv.h"
+#include "SkImageEncoder.h"
 
 template SkImageEncoder_EncodeReg* SkImageEncoder_EncodeReg::gHead;
 
-SkImageEncoder* SkImageEncoder::Create(SkImageEncoder::Type t) {
+SkImageEncoder* SkImageEncoder::Create(Type t) {
     SkImageEncoder* codec = nullptr;
     const SkImageEncoder_EncodeReg* curr = SkImageEncoder_EncodeReg::Head();
     while (curr) {

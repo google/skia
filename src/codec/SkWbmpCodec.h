@@ -24,7 +24,7 @@ public:
     static SkCodec* NewFromStream(SkStream*);
 
 protected:
-    SkEncodedImageFormat onGetEncodedFormat() const override;
+    SkEncodedFormat onGetEncodedFormat() const override;
     Result onGetPixels(const SkImageInfo&, void*, size_t,
                        const Options&, SkPMColor[], int*, int*) override;
     bool onRewind() override;

@@ -51,7 +51,7 @@ public:
     /**
      *  Format of the encoded data.
      */
-    SkEncodedFormat getEncodedFormat() const { return (SkEncodedFormat)fCodec->getEncodedFormat(); }
+    SkEncodedFormat getEncodedFormat() const { return fCodec->getEncodedFormat(); }
 
     /**
      *  @param requestedColorType Color type requested by the client
@@ -154,7 +154,7 @@ public:
          *
          *  Must be within the bounds returned by getInfo().
          *
-         *  If the EncodedFormat is SkEncodedImageFormat::kWEBP, the top and left
+         *  If the EncodedFormat is kWEBP_SkEncodedFormat, the top and left
          *  values must be even.
          *
          *  The default is NULL, meaning a decode of the entire image.

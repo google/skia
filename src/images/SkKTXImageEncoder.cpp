@@ -6,7 +6,7 @@
  */
 
 #include "SkColorPriv.h"
-#include "SkImageEncoderPriv.h"
+#include "SkImageEncoder.h"
 #include "SkImageGenerator.h"
 #include "SkPixelRef.h"
 #include "SkStream.h"
@@ -40,7 +40,7 @@ protected:
 DEFINE_ENCODER_CREATOR(KTXImageEncoder);
 
 SkImageEncoder* sk_libktx_efactory(SkImageEncoder::Type t) {
-    return (SkEncodedImageFormat::kKTX == (SkEncodedImageFormat)t) ? new SkKTXImageEncoder : nullptr;
+    return (SkImageEncoder::kKTX_Type == t) ? new SkKTXImageEncoder : nullptr;
 }
 
 static SkImageEncoder_EncodeReg gEReg(sk_libktx_efactory);

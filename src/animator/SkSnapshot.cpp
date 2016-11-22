@@ -30,7 +30,7 @@ DEFINE_GET_MEMBER(SkSnapshot);
 SkSnapshot::SkSnapshot()
 {
     quality     = 100 * SK_Scalar1;
-    type        = (SkEncodedImageFormat) -1;
+    type        = (SkImageEncoder::Type) -1;
     sequence    = false;
     fSeqVal     = 0;
 }
@@ -38,7 +38,7 @@ SkSnapshot::SkSnapshot()
 bool SkSnapshot::draw(SkAnimateMaker& maker) {
     SkASSERT(type >= 0);
     SkASSERT(filename.size() > 0);
-    SkImageEncoder* encoder = SkImageEncoder::Create((SkEncodedImageFormat) type);
+    SkImageEncoder* encoder = SkImageEncoder::Create((SkImageEncoder::Type) type);
     if (!encoder) {
         return false;
     }
@@ -54,9 +54,9 @@ bool SkSnapshot::draw(SkAnimateMaker& maker) {
         if (++fSeqVal > 999)
             sequence = false;
     }
-    if (type == SkEncodedImageFormat::kJPEG)
+    if (type == SkImageEncoder::kJPEG_Type)
         name.append(".jpg");
-    else if (type == SkEncodedImageFormat::kPNG)
+    else if (type == SkImageEncoder::kPNG_Type)
         name.append(".png");
 
     SkBitmap pixels;
