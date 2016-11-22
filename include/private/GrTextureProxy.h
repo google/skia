@@ -12,6 +12,7 @@
 #include "GrTexture.h"
 
 class GrCaps;
+class GrTextureOpList;
 class GrTextureProvider;
 
 // This class delays the acquisition of textures until they are actually required
@@ -22,6 +23,10 @@ public:
 
     // Actually instantiate the backing texture, if necessary
     GrTexture* instantiate(GrTextureProvider*);
+
+    GrTextureOpList* getLastTextureOpList() {
+        return (GrTextureOpList*) this->getLastOpList();
+    }
 
 protected:
     friend class GrSurfaceProxy; // for ctors
