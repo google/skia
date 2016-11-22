@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "30324888_5c153502",
+        "filename": "include/gpu/GrShaderVar.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 280,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2016-11-22T20:02:06Z",
+      "side": 1,
+      "message": "passing in null for layoutQualifier will add an extra comma",
+      "range": {
+        "startLine": 280,
+        "startChar": 36,
+        "endLine": 280,
+        "endChar": 69
+      },
+      "revId": "e7a481941298d580c593d93b88f0592f65835a8f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
