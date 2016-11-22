@@ -184,6 +184,15 @@ SI void store(size_t tail, const SkNx<N,T>& v, T* dst) {
     v.store(dst);
 }
 
+SI void from_4444(const SkNh& _4444, SkNf* r, SkNf* g, SkNf* b, SkNf* a) {
+    auto _32_bit = SkNx_cast<int>(_4444);
+
+    *r = SkNx_cast<float>(_32_bit & (0xF << SK_R4444_SHIFT)) * (1.0f / (0xF << SK_R4444_SHIFT));
+    *g = SkNx_cast<float>(_32_bit & (0xF << SK_G4444_SHIFT)) * (1.0f / (0xF << SK_G4444_SHIFT));
+    *b = SkNx_cast<float>(_32_bit & (0xF << SK_B4444_SHIFT)) * (1.0f / (0xF << SK_B4444_SHIFT));
+    *a = SkNx_cast<float>(_32_bit & (0xF << SK_A4444_SHIFT)) * (1.0f / (0xF << SK_A4444_SHIFT));
+}
+
 SI void from_565(const SkNh& _565, SkNf* r, SkNf* g, SkNf* b) {
     auto _32_bit = SkNx_cast<int>(_565);
 
@@ -777,6 +786,74 @@ SI SkNi offset_and_ptr(T** ptr, const void* ctx, const SkNf& x, const SkNf& y) {
     return offset;
 }
 
+STAGE(accum_g8, true) {
+    const uint8_t* p;
+    SkNi offset = offset_and_ptr(&p, ctx, r, g);
+
+    uint8_t px[N];
+    for (size_t i = 0; i < N; i++) {
+        if (kIsTail && i >= tail) {
+            px[i] = 0;
+            continue;
+        }
+        px[i] = p[offset[i]];
+    }
+
+    SkNf gray = SkNx_cast<float>(SkNb::Load(px)) * (1/255.0f);
+
+    SkNf scale = b;
+    dr += scale * gray;
+    dg += scale * gray;
+    db += scale * gray;
+    da += scale;
+}
+
+// TODO: need to apply paint color
+STAGE(accum_a8, true) {
+    const uint8_t* p;
+    SkNi offset = offset_and_ptr(&p, ctx, r, g);
+
+    uint8_t px[N];
+    for (size_t i = 0; i < N; i++) {
+        if (kIsTail && i >= tail) {
+            px[i] = 0;
+            continue;
+        }
+        px[i] = p[offset[i]];
+    }
+
+    SkNf alpha = SkNx_cast<float>(SkNb::Load(px)) * (1/255.0f);
+
+    SkNf scale = b;
+    da += scale * alpha;
+}
+
+// TODO: need a color table
+STAGE(accum_i8, true) {}
+
+STAGE(accum_4444, true) {
+    const uint16_t* p;
+    SkNi offset = offset_and_ptr(&p, ctx, r, g);
+
+    uint16_t px[N];
+    for (size_t i = 0; i < N; i++) {
+        if (kIsTail && i >= tail) {
+            px[i] = 0;
+            continue;
+        }
+        px[i] = p[offset[i]];
+    }
+
+    SkNf R,G,B,A;
+    from_4444(SkNh::Load(px), &R, &G, &B, &A);
+
+    SkNf scale = b;
+    dr += scale * R;
+    dg += scale * G;
+    db += scale * B;
+    da += scale * A;
+}
+
 STAGE(accum_565, true) {
     const uint16_t* p;
     SkNi offset = offset_and_ptr(&p, ctx, r, g);
@@ -797,29 +874,6 @@ STAGE(accum_565, true) {
     dg += scale * G;
     db += scale * B;
     da += scale;
-}
-
-STAGE(accum_f16, true) {
-    const uint64_t* p;
-    SkNi offset = offset_and_ptr(&p, ctx, r, g);
-
-    uint16_t R[N], G[N], B[N], A[N];
-    for (size_t i = 0; i < N; i++) {
-        if (kIsTail && i >= tail) {
-            R[i] = G[i] = B[i] = A[i] = 0;
-            continue;
-        }
-        uint64_t rgba = p[offset[i]];
-        R[i] = rgba >>  0;
-        G[i] = rgba >> 16;
-        B[i] = rgba >> 32;
-        A[i] = rgba >> 48;
-    }
-    SkNf scale = b;
-    dr += scale * SkHalfToFloat_finite_ftz(SkNh::Load(R));
-    dg += scale * SkHalfToFloat_finite_ftz(SkNh::Load(G));
-    db += scale * SkHalfToFloat_finite_ftz(SkNh::Load(B));
-    da += scale * SkHalfToFloat_finite_ftz(SkNh::Load(A));
 }
 
 STAGE(accum_8888, true) {
@@ -869,6 +923,30 @@ STAGE(accum_srgb, true) {
     db += scale * sk_linear_from_srgb_math(SkNx_cast<int>(SkNb::Load(B)));
     da += scale * SkNx_cast<float>(SkNb::Load(A)) * (1/255.0f);
 }
+
+STAGE(accum_f16, true) {
+    const uint64_t* p;
+    SkNi offset = offset_and_ptr(&p, ctx, r, g);
+
+    uint16_t R[N], G[N], B[N], A[N];
+    for (size_t i = 0; i < N; i++) {
+        if (kIsTail && i >= tail) {
+            R[i] = G[i] = B[i] = A[i] = 0;
+            continue;
+        }
+        uint64_t rgba = p[offset[i]];
+        R[i] = rgba >>  0;
+        G[i] = rgba >> 16;
+        B[i] = rgba >> 32;
+        A[i] = rgba >> 48;
+    }
+    SkNf scale = b;
+    dr += scale * SkHalfToFloat_finite_ftz(SkNh::Load(R));
+    dg += scale * SkHalfToFloat_finite_ftz(SkNh::Load(G));
+    db += scale * SkHalfToFloat_finite_ftz(SkNh::Load(B));
+    da += scale * SkHalfToFloat_finite_ftz(SkNh::Load(A));
+}
+
 
 template <typename Fn>
 SI Fn enum_to_Fn(SkRasterPipeline::StockStage st) {
