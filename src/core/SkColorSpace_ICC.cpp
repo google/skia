@@ -1079,6 +1079,27 @@ bool load_a2b0_lutn_type(std::vector<SkColorSpace_A2B::Element>* elements, const
         inTableEntries  = read_big_endian_u16(src + 48);
         outTableEntries = read_big_endian_u16(src + 50);
         precision       = 2;
+        
+        constexpr size_t kMaxLut16GammaEntries = 4096;
+        if (inTableEntries < 2) {
+            SkColorSpacePrintf("Too few (%d) input gamma table entries. Must have at least 2.\n",
+                               inTableEntries);
+            return false;
+        } else if (inTableEntries > kMaxLut16GammaEntries) {
+            SkColorSpacePrintf("Too many (%d) input gamma table entries. Must have at most %d.\n",
+                               inTableEntries, kMaxLut16GammaEntries);
+            return false;
+        }
+        
+        if (outTableEntries < 2) {
+            SkColorSpacePrintf("Too few (%d) output gamma table entries. Must have at least 2.\n",
+                               outTableEntries);
+            return false;
+        } else if (outTableEntries > kMaxLut16GammaEntries) {
+            SkColorSpacePrintf("Too many (%d) output gamma table entries. Must have at most %d.\n",
+                               outTableEntries, kMaxLut16GammaEntries);
+            return false;
+        }
     }
 
     const size_t inputOffset = dataOffset;
