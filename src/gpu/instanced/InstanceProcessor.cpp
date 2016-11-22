@@ -11,7 +11,7 @@
 #include "GrRenderTargetPriv.h"
 #include "GrResourceCache.h"
 #include "GrResourceProvider.h"
-#include "glsl/GrGLSLCaps.h"
+#include "GrShaderCaps.h"
 #include "glsl/GrGLSLGeometryProcessor.h"
 #include "glsl/GrGLSLFragmentShaderBuilder.h"
 #include "glsl/GrGLSLProgramBuilder.h"
@@ -19,7 +19,7 @@
 
 namespace gr_instanced {
 
-GrCaps::InstancedSupport InstanceProcessor::CheckSupport(const GrGLSLCaps& glslCaps,
+GrCaps::InstancedSupport InstanceProcessor::CheckSupport(const GrShaderCaps& glslCaps,
                                                          const GrCaps& caps) {
     if (!glslCaps.canUseAnyFunctionInShader() ||
         !glslCaps.flatInterpolationSupport() ||
@@ -95,7 +95,7 @@ private:
     typedef GrGLSLGeometryProcessor INHERITED;
 };
 
-GrGLSLPrimitiveProcessor* InstanceProcessor::createGLSLInstance(const GrGLSLCaps&) const {
+GrGLSLPrimitiveProcessor* InstanceProcessor::createGLSLInstance(const GrShaderCaps&) const {
     return new GLSLInstanceProcessor();
 }
 
@@ -926,7 +926,7 @@ void GLSLInstanceProcessor::BackendCoverage::onEmitCode(GrGLSLVertexBuilder* v,
     }
 
     SkString coverage("float coverage");
-    if (f->getProgramBuilder()->glslCaps()->usesPrecisionModifiers()) {
+    if (f->getProgramBuilder()->shaderCaps()->usesPrecisionModifiers()) {
         coverage.prependf("lowp ");
     }
     if (fBatchInfo.fInnerShapeTypes || (!fTweakAlphaForCoverage && fTriangleIsArc.fsIn())) {
@@ -956,7 +956,7 @@ void GLSLInstanceProcessor::BackendCoverage::onEmitCode(GrGLSLVertexBuilder* v,
     if (fBatchInfo.fInnerShapeTypes) {
         f->codeAppendf("// Inner shape.\n");
         SkString innerCoverageDecl("float innerCoverage");
-        if (f->getProgramBuilder()->glslCaps()->usesPrecisionModifiers()) {
+        if (f->getProgramBuilder()->shaderCaps()->usesPrecisionModifiers()) {
             innerCoverageDecl.prependf("lowp ");
         }
         if (kOval_ShapeFlag == fBatchInfo.fInnerShapeTypes) {

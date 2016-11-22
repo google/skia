@@ -176,7 +176,7 @@ public:
             fragBuilder->codeAppendf("%s = vec4(vec3(closestDistHere / 2.0),1);", args.fOutputColor);
         }
 
-        static void GenKey(const GrProcessor& proc, const GrGLSLCaps&,
+        static void GenKey(const GrProcessor& proc, const GrShaderCaps&,
                            GrProcessorKeyBuilder* b) {
             b->add32(0); // nothing to add here
         }
@@ -213,7 +213,7 @@ public:
         GrGLSLProgramDataManager::UniformHandle fHeightUni;
     };
 
-    void onGetGLSLProcessorKey(const GrGLSLCaps& caps, GrProcessorKeyBuilder* b) const override {
+    void onGetGLSLProcessorKey(const GrShaderCaps& caps, GrProcessorKeyBuilder* b) const override {
         GLSLRadialShadowMapFP::GenKey(*this, caps, b);
     }
 
