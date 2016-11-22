@@ -84,6 +84,24 @@
     },
     {
       "key": {
+        "uuid": "d079ec3f_ce9743d7",
+        "filename": "include/gpu/GrShaderVar.h",
+        "patchSetId": 22
+      },
+      "lineNbr": 335,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2016-11-22T18:32:07Z",
+      "side": 1,
+      "message": "In the long run a think a system where we have specific layout modifiers that we set would work better.  As of now we are already restricted on what layouts qualifiers we can use by what we support in the compiler. If SkSL evolves pass using glsl to describe shaders, I think having a set of \"property\" values that can be set and are supported by the sksl compiler makes the most sense.",
+      "parentUuid": "d079ec3f_ab2f494f",
+      "revId": "9a52a43178bca9482d710fe60def82fe0fa44b4b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "d079ec3f_ab7f49c9",
         "filename": "src/gpu/gl/GrGLUniformHandler.cpp",
         "patchSetId": 22
