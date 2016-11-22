@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "30324888_9fce5f70",
+        "filename": "include/gpu/GrRenderTargetContext.h",
+        "patchSetId": 6
+      },
+      "lineNbr": 46,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2016-11-22T20:56:44Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "30324888_3f64ebf5",
+      "revId": "40f30cef21d5cfb5c17eb6a8184ad39d5d1fabbb",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "30324888_9f72dfc1",
         "filename": "include/gpu/GrSurfaceContext.h",
         "patchSetId": 6
@@ -36,6 +54,24 @@
     },
     {
       "key": {
+        "uuid": "30324888_7f390393",
+        "filename": "include/gpu/GrSurfaceContext.h",
+        "patchSetId": 6
+      },
+      "lineNbr": 20,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2016-11-22T20:56:44Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "30324888_9f72dfc1",
+      "revId": "40f30cef21d5cfb5c17eb6a8184ad39d5d1fabbb",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "30324888_bf8ebb7e",
         "filename": "include/gpu/GrTextureContext.h",
         "patchSetId": 6
@@ -47,6 +83,24 @@
       "writtenOn": "2016-11-22T20:39:07Z",
       "side": 1,
       "message": "/**\n\nUsed for GrSurfaces that are GrTextures and not GrRenderTargets?",
+      "revId": "40f30cef21d5cfb5c17eb6a8184ad39d5d1fabbb",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "30324888_dff617b8",
+        "filename": "include/gpu/GrTextureContext.h",
+        "patchSetId": 6
+      },
+      "lineNbr": 23,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2016-11-22T20:56:44Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "30324888_bf8ebb7e",
       "revId": "40f30cef21d5cfb5c17eb6a8184ad39d5d1fabbb",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
@@ -98,6 +152,24 @@
       "writtenOn": "2016-11-22T20:39:07Z",
       "side": 1,
       "message": "Just checking, a GrSurfaceProxy that is renderable will return null for asTextureProxy()?",
+      "revId": "40f30cef21d5cfb5c17eb6a8184ad39d5d1fabbb",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "30324888_4a9d6340",
+        "filename": "src/gpu/GrDrawingManager.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 278,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2016-11-22T20:56:44Z",
+      "side": 1,
+      "message": "Ah, nope. You can end up with a GrTextureRenderTargetProxy, which will sneak past this check. Better to ensure that sProxy-\u003easRenderTargetProxy() returns false here?",
+      "parentUuid": "30324888_1f0b2f07",
       "revId": "40f30cef21d5cfb5c17eb6a8184ad39d5d1fabbb",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
