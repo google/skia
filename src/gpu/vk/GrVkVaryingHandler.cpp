@@ -58,7 +58,7 @@ void finalize_helper(GrVkVaryingHandler::VarArray& vars) {
         GrShaderVar& var = vars[i];
         SkString location;
         location.appendf("location = %d", locationIndex);
-        var.setLayoutQualifier(location.c_str());
+        var.addLayoutQualifier(location.c_str());
 
         int elementSize = grsltype_to_location_size(var.getType());
         SkASSERT(elementSize);
