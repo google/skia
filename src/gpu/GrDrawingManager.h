@@ -22,6 +22,8 @@ class GrRenderTargetContext;
 class GrRenderTargetProxy;
 class GrSingleOWner;
 class GrSoftwarePathRenderer;
+class GrTextureContext;
+class GrTextureOpList;
 
 // The GrDrawingManager allocates a new GrRenderTargetContext for each GrRenderTarget
 // but all of them still land in the same GrOpList!
@@ -38,10 +40,12 @@ public:
     sk_sp<GrRenderTargetContext> makeRenderTargetContext(sk_sp<GrSurfaceProxy>,
                                                          sk_sp<SkColorSpace>,
                                                          const SkSurfaceProps*);
+    sk_sp<GrTextureContext> makeTextureContext(sk_sp<GrSurfaceProxy>);
 
     // The caller automatically gets a ref on the returned opList. It must
     // be balanced by an unref call.
     GrRenderTargetOpList* newOpList(GrRenderTargetProxy* rtp);
+    GrTextureOpList* newOpList(GrTextureProxy* textureProxy);
 
     GrContext* getContext() { return fContext; }
 
