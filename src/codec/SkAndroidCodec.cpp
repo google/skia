@@ -28,24 +28,24 @@ SkAndroidCodec* SkAndroidCodec::NewFromStream(SkStream* stream, SkPngChunkReader
         return nullptr;
     }
 
-    switch ((SkEncodedImageFormat)codec->getEncodedFormat()) {
+    switch (codec->getEncodedFormat()) {
 #ifdef SK_HAS_PNG_LIBRARY
-        case SkEncodedImageFormat::kPNG:
-        case SkEncodedImageFormat::kICO:
+        case kPNG_SkEncodedFormat:
+        case kICO_SkEncodedFormat:
 #endif
 #ifdef SK_HAS_JPEG_LIBRARY
-        case SkEncodedImageFormat::kJPEG:
+        case kJPEG_SkEncodedFormat:
 #endif
-        case SkEncodedImageFormat::kGIF:
-        case SkEncodedImageFormat::kBMP:
-        case SkEncodedImageFormat::kWBMP:
+        case kGIF_SkEncodedFormat:
+        case kBMP_SkEncodedFormat:
+        case kWBMP_SkEncodedFormat:
             return new SkSampledCodec(codec.release());
 #ifdef SK_HAS_WEBP_LIBRARY
-        case SkEncodedImageFormat::kWEBP:
+        case kWEBP_SkEncodedFormat:
             return new SkWebpAdapterCodec((SkWebpCodec*) codec.release());
 #endif
 #ifdef SK_CODEC_DECODES_RAW
-        case SkEncodedImageFormat::kDNG:
+        case kDNG_SkEncodedFormat:
             return new SkRawAdapterCodec((SkRawCodec*)codec.release());
 #endif
         default:
@@ -64,8 +64,8 @@ SkAndroidCodec* SkAndroidCodec::NewFromData(sk_sp<SkData> data, SkPngChunkReader
 SkColorType SkAndroidCodec::computeOutputColorType(SkColorType requestedColorType) {
     // The legacy GIF and WBMP decoders always decode to kIndex_8_SkColorType.
     // We will maintain this behavior.
-    SkEncodedImageFormat format = (SkEncodedImageFormat)this->getEncodedFormat();
-    if (SkEncodedImageFormat::kGIF == format || SkEncodedImageFormat::kWBMP == format) {
+    SkEncodedFormat format = this->getEncodedFormat();
+    if (kGIF_SkEncodedFormat == format || kWBMP_SkEncodedFormat == format) {
         return kIndex_8_SkColorType;
     }
 
