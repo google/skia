@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "30324888_f948d3cf",
+        "filename": "src/images/SkImageEncoder.cpp",
+        "patchSetId": 23
+      },
+      "lineNbr": 14,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2016-11-22T19:11:00Z",
+      "side": 1,
+      "message": "can\u0027t convert nullptr -\u003e bool",
+      "range": {
+        "startLine": 14,
+        "startChar": 14,
+        "endLine": 14,
+        "endChar": 15
+      },
+      "revId": "248ff02331d7f73ee4b6c5a7eabeae1080c16cd4",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
