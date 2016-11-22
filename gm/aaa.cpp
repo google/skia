@@ -6,6 +6,7 @@
  */
 
 #include "gm.h"
+#include "SkAnimTimer.h"
 #include "SkPath.h"
 #include "SkScan.h"
 
@@ -81,4 +82,129 @@ private:
     typedef skiagm::GM INHERITED;
 };
 
+class AnalyticAntiAliasGeneralGM : public skiagm::GM {
+public:
+    AnalyticAntiAliasGeneralGM() {}
+
+protected:
+
+    SkString onShortName() override {
+        return SkString("analytic_antialias_general");
+    }
+
+    SkISize onISize() override {
+        return SkISize::Make(W, H);
+    }
+
+    void onDraw(SkCanvas* canvas) override {
+        SkPaint p;
+        p.setColor(SK_ColorRED);
+        p.setAntiAlias(true);
+
+        canvas->clear(0xFFFFFFFF);
+
+        canvas->save();
+
+        canvas->rotate(1);
+        const SkScalar R = 115.2f, C = 128.0f;
+        SkPath path;
+        path.moveTo(C + R, C);
+        for (int i = 1; i < 8; ++i) {
+            SkScalar a = 2.6927937f * i;
+            path.lineTo(C + R * cos(a), C + R * sin(a));
+        }
+        canvas->drawPath(path, p);
+        canvas->restore();
+
+        canvas->translate(200, 0);
+        canvas->rotate(1);
+        p.setStyle(SkPaint::kStroke_Style);
+        p.setStrokeWidth(5);
+        canvas->drawPath(path, p);
+        canvas->restore();
+    }
+
+private:
+    typedef skiagm::GM INHERITED;
+};
+
+class AnalyticAntiAliasInverseGM : public skiagm::GM {
+public:
+    AnalyticAntiAliasInverseGM() {}
+
+protected:
+
+    SkString onShortName() override {
+        return SkString("analytic_antialias_inverse");
+    }
+
+    SkISize onISize() override {
+        return SkISize::Make(W, H);
+    }
+
+    void onDraw(SkCanvas* canvas) override {
+        SkPaint p;
+        p.setColor(SK_ColorRED);
+        p.setAntiAlias(true);
+
+        canvas->save();
+
+        SkPath path;
+        path.addCircle(100, 100, 30);
+        path.setFillType(SkPath::kInverseWinding_FillType);
+        canvas->drawPath(path, p);
+        canvas->restore();
+    }
+
+private:
+    typedef skiagm::GM INHERITED;
+};
+
+class AnalyticAntiAliasTestGM : public skiagm::GM {
+public:
+    AnalyticAntiAliasTestGM() {}
+
+protected:
+
+    SkString onShortName() override {
+        return SkString("aaatest");
+    }
+
+    SkISize onISize() override {
+        return SkISize::Make(W, H);
+    }
+
+    void onDraw(SkCanvas* canvas) override {
+        SkPaint p;
+        p.setColor(SK_ColorRED);
+        p.setAntiAlias(true);
+
+        canvas->save();
+
+        SkPath path;
+        path.moveTo(SkBits2Float(0x443a3e98), SkBits2Float(0x41a00000));  // 744.978f, 20
+        path.lineTo(SkBits2Float(0x443974fe), SkBits2Float(0x41933333));  // 741.828f, 18.4f
+        path.lineTo(SkBits2Float(0x44387fdf), SkBits2Float(0x41933333));  // 737.998f, 18.4f
+        path.lineTo(SkBits2Float(0x44387fdf), SkBits2Float(0x41accccd));  // 737.998f, 21.6f
+        path.lineTo(SkBits2Float(0x443974fe), SkBits2Float(0x41accccd));  // 741.828f, 21.6f
+        path.lineTo(SkBits2Float(0x443a3e98), SkBits2Float(0x41a00000));  // 744.978f, 20
+        path.close();
+        path.moveTo(SkBits2Float(0x443a3e98), SkBits2Float(0x41a00000));  // 744.978f, 20
+        path.lineTo(SkBits2Float(0x443a7800), SkBits2Float(0x419c5a1d));  // 745.875f, 19.544f
+        path.lineTo(SkBits2Float(0x443a7800), SkBits2Float(0x41933333));  // 745.875f, 18.4f
+        path.lineTo(SkBits2Float(0x443974fe), SkBits2Float(0x41933333));  // 741.828f, 18.4f
+        path.lineTo(SkBits2Float(0x443a3e98), SkBits2Float(0x41a00000));  // 744.978f, 20
+        path.close();
+        // p.setStyle(SkPaint::kStroke_Style);
+        canvas->drawPath(path, p);
+        canvas->restore();
+    }
+
+private:
+    typedef skiagm::GM INHERITED;
+};
+
 DEF_GM( return new AnalyticAntiAliasConvexGM; )
+DEF_GM( return new AnalyticAntiAliasGeneralGM; )
+DEF_GM( return new AnalyticAntiAliasInverseGM; )
+DEF_GM( return new AnalyticAntiAliasTestGM; )
