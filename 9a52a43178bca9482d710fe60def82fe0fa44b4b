@@ -25,6 +25,24 @@
     },
     {
       "key": {
+        "uuid": "d079ec3f_ab1bc959",
+        "filename": "include/gpu/GrProcessor.h",
+        "patchSetId": 22
+      },
+      "lineNbr": 142,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2016-11-22T18:07:57Z",
+      "side": 1,
+      "message": "Like it",
+      "parentUuid": "d079ec3f_8baccd3d",
+      "revId": "9a52a43178bca9482d710fe60def82fe0fa44b4b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "d079ec3f_2b62791c",
         "filename": "include/gpu/GrShaderVar.h",
         "patchSetId": 22
@@ -42,6 +60,24 @@
         "endLine": 335,
         "endChar": 43
       },
+      "revId": "9a52a43178bca9482d710fe60def82fe0fa44b4b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "d079ec3f_ab2f494f",
+        "filename": "include/gpu/GrShaderVar.h",
+        "patchSetId": 22
+      },
+      "lineNbr": 335,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2016-11-22T18:07:57Z",
+      "side": 1,
+      "message": "I\u0027m in the process undoing the \"shader/sl\" and \"glsl\" split since with SkSL we don\u0027t really need the split. These Gr-types will really be used to construct sksl code which has layout qualifiers currently. Until yesterday there was a GrGLSLShaderVar that had layout qualifiers but now there is just GrShaderVar.\n\nOn the field, I kind of think this class should become more structured rather than less. That is, I\u0027d support making the existing uses of layout qualifiers and modifiers move towards enums, key value pairs, or something along those lines. If a caller wants to append a bunch of strings together to declare a variable it seems like they don\u0027t need this class which provides inspectability and could be a place to catch contradictory settings. I\u0027m not totally convinced on this but that thinking is was lead me to implementing it the way I did. I\u0027m definitely open to being convinced the other way.\n\nThat said, I do think the constructors and set() methods here could use some cleanup. It\u0027d be OK for the rarely used fields to have explicit standalone setters only.",
+      "parentUuid": "d079ec3f_2b62791c",
       "revId": "9a52a43178bca9482d710fe60def82fe0fa44b4b",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
