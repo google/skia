@@ -765,17 +765,67 @@ STAGE(bottom_right, true) {
     b = fx * fy;
 };
 
-STAGE(accum_565, true) {}  // TODO
-STAGE(accum_f16, true) {}  // TODO
-
-STAGE(accum_8888, true) {
+template <typename T>
+SI SkNi offset_and_ptr(T** ptr, const void* ctx, const SkNf& x, const SkNf& y) {
     auto sc = (const SkImageShaderContext*)ctx;
 
-    SkNi ix = SkNx_cast<int>(r),
-         iy = SkNx_cast<int>(g);
+    SkNi ix = SkNx_cast<int>(x),
+         iy = SkNx_cast<int>(y);
     SkNi offset = iy*sc->stride + ix;
 
-    auto p = (const uint32_t*)sc->pixels;
+    *ptr = (const T*)sc->pixels;
+    return offset;
+}
+
+STAGE(accum_565, true) {
+    const uint16_t* p;
+    SkNi offset = offset_and_ptr(&p, ctx, r, g);
+
+    uint16_t px[N];
+    for (size_t i = 0; i < N; i++) {
+        if (kIsTail && i >= tail) {
+            px[i] = 0;
+            continue;
+        }
+        px[i] = p[offset[i]];
+    }
+    SkNf R,G,B;
+    from_565(SkNh::Load(px), &R, &G, &B);
+
+    SkNf scale = b;
+    dr += scale * R;
+    dg += scale * G;
+    db += scale * B;
+    da += scale;
+}
+
+STAGE(accum_f16, true) {
+    const uint64_t* p;
+    SkNi offset = offset_and_ptr(&p, ctx, r, g);
+
+    uint16_t R[N], G[N], B[N], A[N];
+    for (size_t i = 0; i < N; i++) {
+        if (kIsTail && i >= tail) {
+            R[i] = G[i] = B[i] = A[i] = 0;
+            continue;
+        }
+        uint64_t rgba = p[offset[i]];
+        R[i] = rgba >>  0;
+        G[i] = rgba >> 16;
+        B[i] = rgba >> 32;
+        A[i] = rgba >> 48;
+    }
+    SkNf scale = b;
+    dr += scale * SkHalfToFloat_finite_ftz(SkNh::Load(R));
+    dg += scale * SkHalfToFloat_finite_ftz(SkNh::Load(G));
+    db += scale * SkHalfToFloat_finite_ftz(SkNh::Load(B));
+    da += scale * SkHalfToFloat_finite_ftz(SkNh::Load(A));
+}
+
+STAGE(accum_8888, true) {
+    const uint32_t* p;
+    SkNi offset = offset_and_ptr(&p, ctx, r, g);
+
     uint8_t R[N], G[N], B[N], A[N];
     for (size_t i = 0; i < N; i++) {
         if (kIsTail && i >= tail) {
@@ -797,13 +847,9 @@ STAGE(accum_8888, true) {
 }
 
 STAGE(accum_srgb, true) {
-    auto sc = (const SkImageShaderContext*)ctx;
+    const uint32_t* p;
+    SkNi offset = offset_and_ptr(&p, ctx, r, g);
 
-    SkNi ix = SkNx_cast<int>(r),
-         iy = SkNx_cast<int>(g);
-    SkNi offset = iy*sc->stride + ix;
-
-    auto p = (const uint32_t*)sc->pixels;
     uint8_t R[N], G[N], B[N], A[N];
     for (size_t i = 0; i < N; i++) {
         if (kIsTail && i >= tail) {
