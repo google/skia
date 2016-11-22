@@ -47,10 +47,10 @@ GrGLSLCaps::GrGLSLCaps(const GrContextOptions& options) {
     fMaxGeometrySamplers = 0;
     fMaxFragmentSamplers = 0;
     fMaxCombinedSamplers = 0;
-    fMaxVertexImages = 0;
-    fMaxGeometryImages = 0;
-    fMaxFragmentImages = 0;
-    fMaxCombinedImages   = 0;
+    fMaxVertexImageStorages = 0;
+    fMaxGeometryImageStorages = 0;
+    fMaxFragmentImageStorages = 0;
+    fMaxCombinedImageStorages   = 0;
     fAdvBlendEqInteraction = kNotSupported_AdvBlendEqInteraction;
 }
 
@@ -95,10 +95,10 @@ SkString GrGLSLCaps::dump() const {
     r.appendf("Max GS Samplers: %d\n", fMaxGeometrySamplers);
     r.appendf("Max FS Samplers: %d\n", fMaxFragmentSamplers);
     r.appendf("Max Combined Samplers: %d\n", fMaxFragmentSamplers);
-    r.appendf("Max VS Images: %d\n", fMaxVertexImages);
-    r.appendf("Max GS Images: %d\n", fMaxGeometryImages);
-    r.appendf("Max FS Images: %d\n", fMaxFragmentImages);
-    r.appendf("Max Combined Images: %d\n", fMaxFragmentImages);
+    r.appendf("Max VS Image Storages: %d\n", fMaxVertexImageStorages);
+    r.appendf("Max GS Image Storages: %d\n", fMaxGeometryImageStorages);
+    r.appendf("Max FS Image Storages: %d\n", fMaxFragmentImageStorages);
+    r.appendf("Max Combined Image Storages: %d\n", fMaxFragmentImageStorages);
     r.appendf("Advanced blend equation interaction: %s\n",
               kAdvBlendEqInteractionStr[fAdvBlendEqInteraction]);
     return r;
