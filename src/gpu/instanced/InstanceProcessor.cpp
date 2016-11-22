@@ -925,10 +925,7 @@ void GLSLInstanceProcessor::BackendCoverage::onEmitCode(GrGLSLVertexBuilder* v,
         v->codeAppendf("%s = rectCoverage;", fRectCoverage.vsOut());
     }
 
-    SkString coverage("float coverage");
-    if (f->getProgramBuilder()->glslCaps()->usesPrecisionModifiers()) {
-        coverage.prependf("lowp ");
-    }
+    SkString coverage("lowp float coverage");
     if (fBatchInfo.fInnerShapeTypes || (!fTweakAlphaForCoverage && fTriangleIsArc.fsIn())) {
         f->codeAppendf("%s;", coverage.c_str());
         coverage = "coverage";
@@ -955,10 +952,7 @@ void GLSLInstanceProcessor::BackendCoverage::onEmitCode(GrGLSLVertexBuilder* v,
 
     if (fBatchInfo.fInnerShapeTypes) {
         f->codeAppendf("// Inner shape.\n");
-        SkString innerCoverageDecl("float innerCoverage");
-        if (f->getProgramBuilder()->glslCaps()->usesPrecisionModifiers()) {
-            innerCoverageDecl.prependf("lowp ");
-        }
+        SkString innerCoverageDecl("lowp float innerCoverage");
         if (kOval_ShapeFlag == fBatchInfo.fInnerShapeTypes) {
             this->emitArc(f, fInnerEllipseCoords.fsIn(), fInnerEllipseName.fsIn(),
                           true /*ellipseCoordsNeedClamp*/, true /*ellipseCoordsMayBeNegative*/,

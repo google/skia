@@ -167,10 +167,9 @@ const char* GrGLSLFragmentShaderBuilder::fragmentPosition() {
             // depending on the surrounding code, accessing .xy with a uniform involved can
             // do the same thing. Copying gl_FragCoord.xy into a temp vec2 beforehand
             // (and only accessing .xy) seems to "fix" things.
-            const char* precision = glslCaps->usesPrecisionModifiers() ? "highp " : "";
-            this->codePrependf("\t%svec4 %s = vec4(%s.x, %s - %s.y, 1.0, 1.0);\n",
-                               precision, kCoordName, kTempName, rtHeightName, kTempName);
-            this->codePrependf("%svec2 %s = gl_FragCoord.xy;", precision, kTempName);
+            this->codePrependf("\thighp vec4 %s = vec4(%s.x, %s - %s.y, 1.0, 1.0);\n", kCoordName,
+                               kTempName, rtHeightName, kTempName);
+            this->codePrependf("highp vec2 %s = gl_FragCoord.xy;", kTempName);
             fSetupFragPosition = true;
         }
         SkASSERT(fProgramBuilder->fUniformHandles.fRTHeightUni.isValid());
@@ -359,11 +358,7 @@ void GrGLSLFragmentShaderBuilder::defineSampleOffsetArray(const char* name, cons
     SkSTArray<16, SkPoint, true> offsets;
     offsets.push_back_n(specs.fEffectiveSampleCnt);
     m.mapPoints(offsets.begin(), specs.fSampleLocations, specs.fEffectiveSampleCnt);
-    this->definitions().append("const ");
-    if (fProgramBuilder->glslCaps()->usesPrecisionModifiers()) {
-        this->definitions().append("highp ");
-    }
-    this->definitions().appendf("vec2 %s[] = vec2[](", name);
+    this->definitions().appendf("const highp vec2 %s[] = vec2[](", name);
     for (int i = 0; i < specs.fEffectiveSampleCnt; ++i) {
         this->definitions().appendf("vec2(%f, %f)", offsets[i].x(), offsets[i].y());
         this->definitions().append(i + 1 != specs.fEffectiveSampleCnt ? ", " : ");\n");
