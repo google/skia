@@ -96,8 +96,7 @@ public:
                                  dfTexEffect.inTextureCoords()->fName);
 
         // Use highp to work around aliasing issues
-        fragBuilder->appendPrecisionModifier(kHigh_GrSLPrecision);
-        fragBuilder->codeAppendf("vec2 uv = %s;\n", uv.fsIn());
+        fragBuilder->codeAppendf("highp vec2 uv = %s;\n", uv.fsIn());
 
         fragBuilder->codeAppend("\tfloat texColor = ");
         fragBuilder->appendTextureLookup(args.fTexSamplers[0],
@@ -350,8 +349,7 @@ public:
                                                      "TextureSize", &textureSizeUniName);
 
         // Use highp to work around aliasing issues
-        fragBuilder->appendPrecisionModifier(kHigh_GrSLPrecision);
-        fragBuilder->codeAppendf("vec2 uv = %s;", v.fsIn());
+        fragBuilder->codeAppendf("highp vec2 uv = %s;", v.fsIn());
 
         fragBuilder->codeAppend("float texColor = ");
         fragBuilder->appendTextureLookup(args.fTexSamplers[0],
@@ -361,8 +359,7 @@ public:
         fragBuilder->codeAppend("float distance = "
             SK_DistanceFieldMultiplier "*(texColor - " SK_DistanceFieldThreshold ");");
 
-        fragBuilder->appendPrecisionModifier(kHigh_GrSLPrecision);
-        fragBuilder->codeAppendf("vec2 st = uv*%s;", textureSizeUniName);
+        fragBuilder->codeAppendf("highp vec2 st = uv*%s;", textureSizeUniName);
         fragBuilder->codeAppend("float afwidth;");
         bool isUniformScale = (dfTexEffect.getFlags() & kUniformScale_DistanceFieldEffectMask) ==
                                kUniformScale_DistanceFieldEffectMask;
@@ -608,15 +605,13 @@ public:
 
         // create LCD offset adjusted by inverse of transform
         // Use highp to work around aliasing issues
-        fragBuilder->appendPrecisionModifier(kHigh_GrSLPrecision);
-        fragBuilder->codeAppendf("vec2 uv = %s;\n", uv.fsIn());
-        fragBuilder->appendPrecisionModifier(kHigh_GrSLPrecision);
+        fragBuilder->codeAppendf("highp vec2 uv = %s;\n", uv.fsIn());
 
         SkScalar lcdDelta = 1.0f / (3.0f * atlas->width());
         if (dfTexEffect.getFlags() & kBGR_DistanceFieldEffectFlag) {
-            fragBuilder->codeAppendf("float delta = -%.*f;\n", SK_FLT_DECIMAL_DIG, lcdDelta);
+            fragBuilder->codeAppendf("highp float delta = -%.*f;\n", SK_FLT_DECIMAL_DIG, lcdDelta);
         } else {
-            fragBuilder->codeAppendf("float delta = %.*f;\n", SK_FLT_DECIMAL_DIG, lcdDelta);
+            fragBuilder->codeAppendf("highp float delta = %.*f;\n", SK_FLT_DECIMAL_DIG, lcdDelta);
         }
         if (isUniformScale) {
 #ifdef SK_VULKAN
