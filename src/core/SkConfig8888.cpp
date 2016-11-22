@@ -11,7 +11,82 @@
 #include "SkColorPriv.h"
 #include "SkDither.h"
 #include "SkMathPriv.h"
+#include "SkRasterPipeline.h"
 #include "SkUnPreMultiply.h"
+
+static bool copy_pipeline_pixels(const SkImageInfo& dstInfo, void* dstRow, size_t dstRB,
+                                 const SkImageInfo& srcInfo, const void* srcRow, size_t srcRB,
+                                 SkColorTable* ctable) {
+    SkASSERT(srcInfo.width() == dstInfo.width());
+    SkASSERT(srcInfo.height() == dstInfo.height());
+
+    bool src_srgb = srcInfo.colorSpace() && srcInfo.colorSpace()->gammaCloseToSRGB();
+    const bool dst_srgb = dstInfo.colorSpace() && dstInfo.colorSpace()->gammaCloseToSRGB();
+    if (!dstInfo.colorSpace()) {
+        src_srgb = false;   // untagged dst means ignore tags on src
+    }
+
+    SkRasterPipeline pipeline;
+
+    switch (srcInfo.colorType()) {
+        case kRGBA_8888_SkColorType:
+        case kBGRA_8888_SkColorType:
+            pipeline.append(src_srgb ? SkRasterPipeline::load_s_srgb
+                            : SkRasterPipeline::load_s_8888, &srcRow);
+            if (kBGRA_8888_SkColorType == srcInfo.colorType()) {
+                pipeline.append(SkRasterPipeline::swap_rb);
+            }
+            break;
+#if 0
+        case kRGB_565_SkColorType:
+            pipeline.append(SkRasterPipeline::load_s_565, &srcRow);
+            break;
+#endif
+        case kRGBA_F16_SkColorType:
+            pipeline.append(SkRasterPipeline::load_s_f16, &srcRow);
+            break;
+        default:
+            return false;   // src colortype unsupported
+    }
+
+    SkAlphaType sat = srcInfo.alphaType();
+    SkAlphaType dat = dstInfo.alphaType();
+    if (sat == kPremul_SkAlphaType && dat == kUnpremul_SkAlphaType) {
+        pipeline.append(SkRasterPipeline::unpremul);
+    } else if (sat == kUnpremul_SkAlphaType && dat == kPremul_SkAlphaType) {
+        pipeline.append(SkRasterPipeline::premul);
+    }
+
+    switch (dstInfo.colorType()) {
+        case kRGBA_8888_SkColorType:
+        case kBGRA_8888_SkColorType:
+            if (kBGRA_8888_SkColorType == dstInfo.colorType()) {
+                pipeline.append(SkRasterPipeline::swap_rb);
+            }
+            pipeline.append(dst_srgb ? SkRasterPipeline::store_srgb
+                            : SkRasterPipeline::store_8888, &dstRow);
+            break;
+#if 0
+        case kRGB_565_SkColorType:
+            pipeline.append(SkRasterPipeline::store_565, &dstRow);
+            break;
+#endif
+        case kRGBA_F16_SkColorType:
+            pipeline.append(SkRasterPipeline::store_f16, &dstRow);
+            break;
+        default:
+            return false;   // dst colortype unsupported
+    }
+
+    auto p = pipeline.compile();
+
+    for (int y = 0; y < srcInfo.height(); ++y) {
+        p(0,0, srcInfo.width());
+        srcRow = (const char*)srcRow + srcRB;
+        dstRow = (char*)dstRow + dstRB;
+    }
+    return true;
+}
 
 enum AlphaVerb {
     kNothing_AlphaVerb,
@@ -243,6 +318,12 @@ bool SkPixelInfo::CopyPixels(const SkImageInfo& dstInfo, void* dstPixels, size_t
             srcPixels = (const char*)srcPixels + srcRB;
             dstPixels = (char*)dstPixels + dstRB;
         }
+        return true;
+    }
+
+    //  Try the pipeline (todo: can it handle the memcpy fast-case?)
+    //
+    if (copy_pipeline_pixels(dstInfo, dstPixels, dstRB, srcInfo, srcPixels, srcRB, ctable)) {
         return true;
     }
 
