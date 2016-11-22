@@ -39,6 +39,10 @@ SkOverdrawCanvas::SkOverdrawCanvas(SkCanvas* canvas)
     : INHERITED(canvas->onImageInfo().width(), canvas->onImageInfo().height())
     , fCanvas(canvas)
 {
+    // Non-drawing calls that SkOverdrawCanvas does not override (translate, save, etc.)
+    // will pass through to the input canvas.
+    this->addCanvas(canvas);
+
     static constexpr float kIncrementAlpha[] = {
             0.0f, 0.0f, 0.0f, 0.0f, 0.0f,
             0.0f, 0.0f, 0.0f, 0.0f, 0.0f,
@@ -172,7 +176,12 @@ void SkOverdrawCanvas::onDrawPatch(const SkPoint cubics[12], const SkColor color
     fCanvas->onDrawPatch(cubics, colors, texCoords, blendMode, fPaint);
 }
 
-void SkOverdrawCanvas::onDrawPaint(const SkPaint&) {
+void SkOverdrawCanvas::onDrawPaint(const SkPaint& paint) {
+    if (0 == paint.getColor() && !paint.getColorFilter() && !paint.getShader()) {
+        // This is a clear, ignore it.
+        return;
+    }
+
     fCanvas->onDrawPaint(fPaint);
 }
 
