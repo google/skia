@@ -535,7 +535,7 @@ int Parser::layoutInt() {
     return -1;
 }
 
-/* LAYOUT LPAREN IDENTIFIER EQ INT_LITERAL (COMMA IDENTIFIER EQ INT_LITERAL)* 
+/* LAYOUT LPAREN IDENTIFIER EQ INT_LITERAL (COMMA IDENTIFIER EQ INT_LITERAL)*
    RPAREN */
 ASTLayout Parser::layout() {
     int location = -1;
@@ -543,6 +543,7 @@ ASTLayout Parser::layout() {
     int index = -1;
     int set = -1;
     int builtin = -1;
+    int inputAttachmentIndex = -1;
     bool originUpperLeft = false;
     bool overrideCoverage = false;
     bool blendSupportAllEquations = false;
@@ -550,8 +551,8 @@ ASTLayout Parser::layout() {
     if (this->peek().fKind == Token::LAYOUT) {
         this->nextToken();
         if (!this->expect(Token::LPAREN, "'('")) {
-            return ASTLayout(location, binding, index, set, builtin, originUpperLeft,
-                             overrideCoverage, blendSupportAllEquations, format);
+            return ASTLayout(location, binding, index, set, builtin, inputAttachmentIndex,
+                             originUpperLeft, overrideCoverage, blendSupportAllEquations, format);
         }
         for (;;) {
             Token t = this->nextToken();
@@ -565,6 +566,8 @@ ASTLayout Parser::layout() {
                 set = this->layoutInt();
             } else if (t.fText == "builtin") {
                 builtin = this->layoutInt();
+            } else if (t.fText == "input_attachment_index") {
+                 inputAttachmentIndex = this->layoutInt();
             } else if (t.fText == "origin_upper_left") {
                 originUpperLeft = true;
             } else if (t.fText == "override_coverage") {
@@ -574,7 +577,7 @@ ASTLayout Parser::layout() {
             } else if (ASTLayout::ReadFormat(t.fText, &format)) {
                // AST::ReadFormat stored the result in 'format'.
             } else {
-                this->error(t.fPosition, ("'" + t.fText + 
+                this->error(t.fPosition, ("'" + t.fText +
                                           "' is not a valid layout qualifier").c_str());
             }
             if (this->peek().fKind == Token::RPAREN) {
@@ -586,8 +589,8 @@ ASTLayout Parser::layout() {
             }
         }
     }
-    return ASTLayout(location, binding, index, set, builtin, originUpperLeft, overrideCoverage,
-                     blendSupportAllEquations, format);
+    return ASTLayout(location, binding, index, set, builtin, inputAttachmentIndex, originUpperLeft,
+                     overrideCoverage, blendSupportAllEquations, format);
 }
 
 /* layout? (UNIFORM | CONST | IN | OUT | INOUT | LOWP | MEDIUMP | HIGHP | FLAT | NOPERSPECTIVE)* */
