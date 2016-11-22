@@ -352,6 +352,9 @@ sk_sp<SkImage> SkImage::makeWithFilter(const SkImageFilter* filter, const SkIRec
     if (result->isTextureBacked()) {
         GrContext* context = result->getContext();
         sk_sp<GrTexture> texture = result->asTextureRef(context);
+        if (!texture) {
+            return nullptr;
+        }
         fullSize = SkIRect::MakeWH(texture->width(), texture->height());
     }
 #endif
