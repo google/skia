@@ -87,7 +87,6 @@ public:
     bool onPeekPixels(SkPixmap*) const override;
     const SkBitmap* onPeekBitmap() const override { return &fBitmap; }
 
-    SkData* onRefEncoded(GrContext*) const override;
     bool getROPixels(SkBitmap*, SkDestinationSurfaceColorMode, CachingHint) const override;
     GrTexture* asTextureRef(GrContext*, const GrSamplerParams&,
                             SkDestinationSurfaceColorMode, sk_sp<SkColorSpace>*) const override;
@@ -178,18 +177,6 @@ bool SkImage_Raster::onReadPixels(const SkImageInfo& dstInfo, void* dstPixels, s
 
 bool SkImage_Raster::onPeekPixels(SkPixmap* pm) const {
     return fBitmap.peekPixels(pm);
-}
-
-SkData* SkImage_Raster::onRefEncoded(GrContext*) const {
-    SkPixelRef* pr = fBitmap.pixelRef();
-    const SkImageInfo prInfo = pr->info();
-    const SkImageInfo bmInfo = fBitmap.info();
-
-    // we only try if we (the image) cover the entire area of the pixelRef
-    if (prInfo.width() == bmInfo.width() && prInfo.height() == bmInfo.height()) {
-        return pr->refEncodedData();
-    }
-    return nullptr;
 }
 
 bool SkImage_Raster::getROPixels(SkBitmap* dst, SkDestinationSurfaceColorMode, CachingHint) const {
