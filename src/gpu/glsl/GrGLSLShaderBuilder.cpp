@@ -66,25 +66,18 @@ void GrGLSLShaderBuilder::appendTextureLookup(SkString* out,
                                               SamplerHandle samplerHandle,
                                               const char* coordName,
                                               GrSLType varyingType) const {
-    const GrGLSLCaps* glslCaps = fProgramBuilder->glslCaps();
     const GrShaderVar& sampler = fProgramBuilder->samplerVariable(samplerHandle);
     GrSLType samplerType = sampler.getType();
     if (samplerType == kTexture2DRectSampler_GrSLType) {
         if (varyingType == kVec2f_GrSLType) {
-            out->appendf("%s(%s, textureSize(%s) * %s)",
-                         GrGLSLTexture2DFunctionName(varyingType, samplerType,
-                                                     glslCaps->generation()),
+            out->appendf("texture(%s, textureSize(%s) * %s)",
                          sampler.c_str(), sampler.c_str(), coordName);
         } else {
-            out->appendf("%s(%s, vec3(textureSize(%s) * %s.xy, %s.z))",
-                         GrGLSLTexture2DFunctionName(varyingType, samplerType,
-                                                     glslCaps->generation()),
+            out->appendf("texture(%s, vec3(textureSize(%s) * %s.xy, %s.z))",
                          sampler.c_str(), sampler.c_str(), coordName, coordName);
         }
     } else {
-        out->appendf("%s(%s, %s)",
-                     GrGLSLTexture2DFunctionName(varyingType, samplerType, glslCaps->generation()),
-                     sampler.c_str(), coordName);
+        out->appendf("texture(%s, %s)", sampler.c_str(), coordName);
     }
     append_texture_swizzle(out, fProgramBuilder->samplerSwizzle(samplerHandle));
 }
