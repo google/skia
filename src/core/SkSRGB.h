@@ -57,24 +57,36 @@ static inline SkNx<N,int> sk_linear_to_srgb(const SkNx<N,float>& x) {
     return SkNx_cast<int>(sk_clamp_0_255(f));
 }
 
-// sRGB -> linear, using math instead of table lookups, scaling better to larger SIMD vectors.
+// sRGB -> linear, using math instead of table lookups.
+template <int N>
+static inline SkNx<N,float> sk_linear_from_srgb_math(const SkNx<N,float>& x) {
+    // Non-linear segment of sRGB curve approximated by
+    // l = 0.0025 + 0.6975x^2 + 0.3x^3
+    const SkNx<N,float> k0 = 0.0025f,
+                        k2 = 0.6975f,
+                        k3 = 0.3000f;
+    auto hi = SkNx_fma(x*x, SkNx_fma(x, k3, k2), k0);
+
+    // Linear segment of sRGB curve: the normal slope, extended a little further than normal.
+    auto lo = x * (1/12.92f);
+
+    return (x < 0.055f).thenElse(lo, hi);
+}
+
+// Same as above, starting from ints.
 template <int N>
 static inline SkNx<N,float> sk_linear_from_srgb_math(const SkNx<N,int>& s) {
     auto x = SkNx_cast<float>(s);
 
-    const float u = 1/255.0f;  // x is [0,255], so x^n needs scaling by u^n.
+    // Same math as above, but working with x in [0,255], so x^n needs scaling by u^n.
+    const float u = 1/255.0f;
 
-    // Non-linear segment of sRGB curve approximated by
-    // l = 0.0025 + 0.6975x^2 + 0.3x^3
     const SkNx<N,float> k0 = 0.0025f,
                         k2 = 0.6975f * u*u,
                         k3 = 0.3000f * u*u*u;
     auto hi = SkNx_fma(x*x, SkNx_fma(x, k3, k2), k0);
-
-    // Linear segment of sRGB curve: the normal slope, extended a little further than normal.
     auto lo = x * (u/12.92f);
-
-    return (x < 14.025f).thenElse(lo, hi);
+    return (x < (0.055f/u)).thenElse(lo, hi);
 }
 
 #endif//SkSRGB_DEFINED

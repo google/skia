@@ -345,20 +345,22 @@ bool SkImageShader::onAppendStages(SkRasterPipeline* p, SkColorSpace* dst, SkFal
             case kRepeat_TileMode: p->append(SkRasterPipeline::repeat_y, &ctx->height); break;
         }
 
+        bool srgb = info.gammaCloseToSRGB() && dst != nullptr;
+
         switch (info.colorType()) {
+            case kRGB_565_SkColorType:
+                p->append(srgb ? SkRasterPipeline::accum_565_srgb
+                               : SkRasterPipeline::accum_565, ctx);
+                break;
+
             case kRGBA_8888_SkColorType:
             case kBGRA_8888_SkColorType:
-                if (info.gammaCloseToSRGB() && dst) {
-                    p->append(SkRasterPipeline::accum_srgb, ctx);
-                } else {
-                    p->append(SkRasterPipeline::accum_8888, ctx);
-                }
+                p->append(srgb ? SkRasterPipeline::accum_8888_srgb
+                               : SkRasterPipeline::accum_8888, ctx);
                 break;
+
             case kRGBA_F16_SkColorType:
                 p->append(SkRasterPipeline::accum_f16, ctx);
-                break;
-            case kRGB_565_SkColorType:
-                p->append(SkRasterPipeline::accum_565, ctx);
                 break;
 
             default:
