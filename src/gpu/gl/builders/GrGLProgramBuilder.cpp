@@ -11,6 +11,7 @@
 #include "GrCoordTransform.h"
 #include "GrGLProgramBuilder.h"
 #include "GrProgramDesc.h"
+#include "GrShaderCaps.h"
 #include "GrSwizzle.h"
 #include "GrTexture.h"
 #include "SkTraceEvent.h"
@@ -18,7 +19,6 @@
 #include "gl/GrGLProgram.h"
 #include "gl/GrGLSLPrettyPrint.h"
 #include "gl/builders/GrGLShaderStringBuilder.h"
-#include "glsl/GrGLSLCaps.h"
 #include "glsl/GrGLSLFragmentProcessor.h"
 #include "glsl/GrGLSLGeometryProcessor.h"
 #include "glsl/GrGLSLProgramDataManager.h"
@@ -64,10 +64,6 @@ GrGLProgramBuilder::GrGLProgramBuilder(GrGLGpu* gpu,
 
 const GrCaps* GrGLProgramBuilder::caps() const {
     return fGpu->caps();
-}
-
-const GrGLSLCaps* GrGLProgramBuilder::glslCaps() const {
-    return fGpu->ctxInfo().caps()->glslCaps();
 }
 
 bool GrGLProgramBuilder::compileAndAttachShaders(GrGLSLShaderBuilder& shader,

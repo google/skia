@@ -501,7 +501,7 @@ bool GrVkPipelineState::Desc::Build(Desc* desc,
                                     const GrPipeline& pipeline,
                                     const GrStencilSettings& stencil,
                                     GrPrimitiveType primitiveType,
-                                    const GrGLSLCaps& caps) {
+                                    const GrShaderCaps& caps) {
     if (!INHERITED::Build(desc, primProc, primitiveType == kPoints_GrPrimitiveType, pipeline,
                           caps)) {
         return false;

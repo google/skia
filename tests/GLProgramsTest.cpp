@@ -55,7 +55,7 @@ public:
         }
     }
 
-    static void GenKey(const GrProcessor& processor, const GrGLSLCaps&, GrProcessorKeyBuilder* b) {
+    static void GenKey(const GrProcessor&, const GrShaderCaps&, GrProcessorKeyBuilder* b) {
         for (uint32_t i = 0; i < kMaxKeySize; i++) {
             b->add32(i);
         }
@@ -81,7 +81,7 @@ private:
     BigKeyProcessor() {
         this->initClassID<BigKeyProcessor>();
     }
-    virtual void onGetGLSLProcessorKey(const GrGLSLCaps& caps,
+    virtual void onGetGLSLProcessorKey(const GrShaderCaps& caps,
                                        GrProcessorKeyBuilder* b) const override {
         GLBigKeyProcessor::GenKey(*this, caps, b);
     }
@@ -127,7 +127,7 @@ private:
         this->registerChildProcessor(std::move(child));
     }
 
-    void onGetGLSLProcessorKey(const GrGLSLCaps& caps, GrProcessorKeyBuilder* b) const override {}
+    void onGetGLSLProcessorKey(const GrShaderCaps& caps, GrProcessorKeyBuilder* b) const override {}
 
     bool onIsEqual(const GrFragmentProcessor&) const override { return true; }
 

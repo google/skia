@@ -12,8 +12,8 @@
 #include <tuple>
 #include <unordered_map>
 
+#include "GrShaderCaps.h"
 #include "SkStream.h"
-#include "glsl/GrGLSLCaps.h"
 #include "SkSLCodeGenerator.h"
 #include "ir/SkSLBinaryExpression.h"
 #include "ir/SkSLBoolLiteral.h"
@@ -72,7 +72,7 @@ public:
         kTopLevel_Precedence       = 18
     };
 
-    GLSLCodeGenerator(const Context* context, const GrGLSLCaps* caps)
+    GLSLCodeGenerator(const Context* context, const GrShaderCaps* caps)
     : fContext(*context)
     , fCaps(*caps) {}
 
@@ -156,7 +156,7 @@ private:
     void writeReturnStatement(const ReturnStatement& r);
 
     const Context& fContext;
-    const GrGLSLCaps& fCaps;
+    const GrShaderCaps& fCaps;
     SkWStream* fOut = nullptr;
     SkDynamicMemoryWStream fHeader;
     SkString fFunctionHeader;

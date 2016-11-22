@@ -80,7 +80,7 @@ public:
         }
     }
 
-    static inline void GenKey(const GrProcessor& processor, const GrGLSLCaps&,
+    static inline void GenKey(const GrProcessor& processor, const GrShaderCaps&,
                               GrProcessorKeyBuilder* b) {
         const GrGammaEffect& ge = processor.cast<GrGammaEffect>();
         uint32_t key = static_cast<uint32_t>(ge.mode());
@@ -125,8 +125,8 @@ sk_sp<GrFragmentProcessor> GrGammaEffect::TestCreate(GrProcessorTestData* d) {
 
 ///////////////////////////////////////////////////////////////////////////////
 
-void GrGammaEffect::onGetGLSLProcessorKey(const GrGLSLCaps& caps,
-                                               GrProcessorKeyBuilder* b) const {
+void GrGammaEffect::onGetGLSLProcessorKey(const GrShaderCaps& caps,
+                                          GrProcessorKeyBuilder* b) const {
     GrGLGammaEffect::GenKey(*this, caps, b);
 }
 
