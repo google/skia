@@ -102,6 +102,24 @@
     },
     {
       "key": {
+        "uuid": "30324888_f61f8076",
+        "filename": "include/gpu/GrShaderVar.h",
+        "patchSetId": 22
+      },
+      "lineNbr": 335,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2016-11-22T18:50:33Z",
+      "side": 1,
+      "message": "Agreed for sksl.\n\nI guess my main beef with having it as a member of the class is just that the image store format is so specific to such an an uncommon type of variable. It\u0027s unfortunate to tack that onto everything. I also agree that tossing around raw strings defeats the purpose of this class. Maybe we just need real layout qualifier types with key/value pairs, like you suggested.\n\nObviously putting together a system of typed layout qualifiers is out of the scope of this change. So unless we want to implement that first, we need to choose one of those other two options. The rationale for sticking with raw strings still as layout qualifiers would be that it\u0027s correct in terms of optional key/value properties, and we already implement all the other layout qualifiers as raw strings anyway. But I\u0027m fine with either way.\n\nUltimately it would be cool if we could get rid of all this shader glue and link everything together with sksl\u0027s own flavor of optional properties and builtins!",
+      "parentUuid": "d079ec3f_ab2f494f",
+      "revId": "9a52a43178bca9482d710fe60def82fe0fa44b4b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "d079ec3f_ab7f49c9",
         "filename": "src/gpu/gl/GrGLUniformHandler.cpp",
         "patchSetId": 22
