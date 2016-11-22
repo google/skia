@@ -40,8 +40,8 @@ protected:
     Result onGetPixels(const SkImageInfo&, void*, size_t, const Options&,
             SkPMColor*, int*, int*) override;
 
-    SkEncodedFormat onGetEncodedFormat() const override {
-        return kGIF_SkEncodedFormat;
+    SkEncodedImageFormat onGetEncodedFormat() const override {
+        return SkEncodedImageFormat::kGIF;
     }
 
     bool onRewind() override;

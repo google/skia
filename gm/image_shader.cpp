@@ -55,7 +55,7 @@ static sk_sp<SkImage> make_encode_gen(GrContext* ctx, SkPicture* pic, const SkIm
     if (!src) {
         return nullptr;
     }
-    sk_sp<SkData> encoded(src->encode(SkImageEncoder::kPNG_Type, 100));
+    sk_sp<SkData> encoded(src->encode(SkEncodedImageFormat::kPNG, 100));
     if (!encoded) {
         return nullptr;
     }
