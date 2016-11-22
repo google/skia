@@ -4,7 +4,7 @@
  * Use of this source code is governed by a BSD-style license that can be
  * found in the LICENSE file.
  */
- 
+
 #ifndef SKIASL_TYPE
 #define SKIASL_TYPE
 
@@ -51,14 +51,14 @@ public:
         kOther_Kind
     };
 
-    // Create an "other" (special) type with the given name. These types cannot be directly 
+    // Create an "other" (special) type with the given name. These types cannot be directly
     // referenced from user code.
     Type(SkString name)
     : INHERITED(Position(), kType_Kind, std::move(name))
     , fTypeKind(kOther_Kind) {}
 
-    // Create a generic type which maps to the listed types. As currently implemented, there are 
-    // always exactly four coercion targets, mapping to the scalar, vec2, vec3, and vec4 versions of 
+    // Create a generic type which maps to the listed types. As currently implemented, there are
+    // always exactly four coercion targets, mapping to the scalar, vec2, vec3, and vec4 versions of
     // a type.
     Type(SkString name, std::vector<const Type*> types)
     : INHERITED(Position(), kType_Kind, std::move(name))
@@ -100,7 +100,7 @@ public:
     , fTypeKind(kind)
     , fComponentType(&componentType)
     , fColumns(columns)
-    , fRows(1)    
+    , fRows(1)
     , fDimensions(SpvDim1D) {}
 
     // Create a matrix type.
@@ -109,12 +109,12 @@ public:
     , fTypeKind(kMatrix_Kind)
     , fComponentType(&componentType)
     , fColumns(columns)
-    , fRows(rows)    
+    , fRows(rows)
     , fDimensions(SpvDim1D) {}
 
     // Create a sampler type.
-    Type(SkString name, SpvDim_ dimensions, bool isDepth, bool isArrayed, bool isMultisampled, 
-         bool isSampled) 
+    Type(SkString name, SpvDim_ dimensions, bool isDepth, bool isArrayed, bool isMultisampled,
+         bool isSampled)
     : INHERITED(Position(), kType_Kind, std::move(name))
     , fTypeKind(kSampler_Kind)
     , fDimensions(dimensions)
@@ -154,7 +154,7 @@ public:
     }
 
     /**
-     * Returns true if an instance of this type can be freely coerced (implicitly converted) to 
+     * Returns true if an instance of this type can be freely coerced (implicitly converted) to
      * another type.
      */
     bool canCoerceTo(const Type& other) const {
@@ -164,8 +164,8 @@ public:
 
     /**
      * Determines the "cost" of coercing (implicitly converting) this type to another type. The cost
-     * is a number with no particular meaning other than that lower costs are preferable to higher 
-     * costs. Returns true if a conversion is possible, false otherwise. The value of the out 
+     * is a number with no particular meaning other than that lower costs are preferable to higher
+     * costs. Returns true if a conversion is possible, false otherwise. The value of the out
      * parameter is undefined if false is returned.
      */
     bool determineCoercionCost(const Type& other, int* outCost) const;
@@ -181,11 +181,11 @@ public:
 
     /**
      * For matrices and vectors, returns the number of columns (e.g. both mat3 and vec3 return 3).
-     * For scalars, returns 1. For arrays, returns either the size of the array (if known) or -1. 
+     * For scalars, returns 1. For arrays, returns either the size of the array (if known) or -1.
      * For all other types, causes an assertion failure.
      */
     int columns() const {
-        ASSERT(fTypeKind == kScalar_Kind || fTypeKind == kVector_Kind || 
+        ASSERT(fTypeKind == kScalar_Kind || fTypeKind == kVector_Kind ||
                fTypeKind == kMatrix_Kind || fTypeKind == kArray_Kind);
         return fColumns;
     }
@@ -214,27 +214,27 @@ public:
     }
 
     int dimensions() const {
-        ASSERT(fTypeKind == kSampler_Kind);
+        ASSERT(kSampler_Kind == fTypeKind);
         return fDimensions;
     }
 
     bool isDepth() const {
-        ASSERT(fTypeKind == kSampler_Kind);
+        ASSERT(kSampler_Kind == fTypeKind);
         return fIsDepth;
     }
 
     bool isArrayed() const {
-        ASSERT(fTypeKind == kSampler_Kind);
+        ASSERT(kSampler_Kind == fTypeKind);
         return fIsArrayed;
     }
 
     bool isMultisampled() const {
-        ASSERT(fTypeKind == kSampler_Kind);
+        ASSERT(kSampler_Kind == fTypeKind);
         return fIsMultisampled;
     }
 
     bool isSampled() const {
-        ASSERT(fTypeKind == kSampler_Kind);
+        ASSERT(kSampler_Kind == fTypeKind);
         return fIsSampled;
     }
 
@@ -320,7 +320,7 @@ public:
     }
 
     /**
-     * Returns the corresponding vector or matrix type with the specified number of columns and 
+     * Returns the corresponding vector or matrix type with the specified number of columns and
      * rows.
      */
     const Type& toCompound(const Context& context, int columns, int rows) const;
