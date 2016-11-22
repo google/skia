@@ -484,6 +484,7 @@ DM_INCLUDES = [
     "src/effects",
     "src/effects/gradients",
     "src/fonts",
+    "src/images",
     "src/pathops",
     "src/pipe/utils",
     "src/ports",
