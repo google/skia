@@ -213,7 +213,7 @@ public:
         return fCoercibleTypes;
     }
 
-    int dimensions() const {
+    SpvDim_ dimensions() const {
         ASSERT(kSampler_Kind == fTypeKind);
         return fDimensions;
     }

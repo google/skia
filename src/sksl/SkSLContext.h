@@ -65,8 +65,9 @@ public:
     , fSampler3D_Type(new Type(SkString("sampler3D"), SpvDim3D, false, false, false, true))
     , fSamplerExternalOES_Type(new Type(SkString("samplerExternalOES"), SpvDim2D, false, false,
                                         false, true))
-    , fSamplerCube_Type(new Type(SkString("samplerCube")))
-    , fSampler2DRect_Type(new Type(SkString("sampler2DRect")))
+    , fSamplerCube_Type(new Type(SkString("samplerCube"), SpvDimCube, false, false, false, true))
+    , fSampler2DRect_Type(new Type(SkString("sampler2DRect"), SpvDimRect, false, false, false, 
+                                   true))
     , fSampler1DArray_Type(new Type(SkString("sampler1DArray")))
     , fSampler2DArray_Type(new Type(SkString("sampler2DArray")))
     , fSamplerCubeArray_Type(new Type(SkString("samplerCubeArray")))
