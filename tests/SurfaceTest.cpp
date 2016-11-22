@@ -14,6 +14,7 @@
 #include "SkPath.h"
 #include "SkRRect.h"
 #include "SkSurface.h"
+#include "SkSurface_Base.h"
 #include "SkUtils.h"
 #include "Test.h"
 
