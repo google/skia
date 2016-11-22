@@ -40,6 +40,8 @@ following differences between SkSL and GLSL:
   have to be expressed "vec2(x, y) * 4.0". There is no performance penalty for 
   this, as the number is converted to a float at compile time)
 * type suffixes on numbers (1.0f, 0xFFu) are both unnecessary and unsupported
+* Use texture() instead of textureProj(), e.g. texture(sampler2D, vec3) is
+  equivalent to GLSL's textureProj(sampler2D, vec3)
 * some built-in functions and one or two rarely-used language features are not
   yet supported (sorry!)
 

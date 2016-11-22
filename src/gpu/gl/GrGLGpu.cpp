@@ -3807,9 +3807,8 @@ bool GrGLGpu::createCopyProgram(GrTexture* srcTex) {
     fshaderTxt.appendf(
         "// Copy Program FS\n"
         "void main() {"
-        "  sk_FragColor = %s(u_texture, v_texCoord);"
-        "}",
-        GrGLSLTexture2DFunctionName(kVec2f_GrSLType, samplerType, this->glslGeneration())
+        "  sk_FragColor = texture(u_texture, v_texCoord);"
+        "}"
     );
 
     const char* str;
@@ -3940,29 +3939,26 @@ bool GrGLGpu::createMipmapProgram(int progIdx) {
     }
     uTexture.appendDecl(glslCaps, &fshaderTxt);
     fshaderTxt.append(";");
-    const char* sampleFunction = GrGLSLTexture2DFunctionName(kVec2f_GrSLType,
-                                                             kTexture2DSampler_GrSLType,
-                                                             this->glslGeneration());
     fshaderTxt.append(
         "// Mipmap Program FS\n"
         "void main() {"
     );
 
     if (oddWidth && oddHeight) {
-        fshaderTxt.appendf(
-            "  sk_FragColor = (%s(u_texture, v_texCoord0) + %s(u_texture, v_texCoord1) + "
-            "                  %s(u_texture, v_texCoord2) + %s(u_texture, v_texCoord3)) * 0.25;",
-            sampleFunction, sampleFunction, sampleFunction, sampleFunction
+        fshaderTxt.append(
+            "  sk_FragColor = (texture(u_texture, v_texCoord0) + "
+            "                  texture(u_texture, v_texCoord1) + "
+            "                  texture(u_texture, v_texCoord2) + "
+            "                  texture(u_texture, v_texCoord3)) * 0.25;"
         );
     } else if (oddWidth || oddHeight) {
-        fshaderTxt.appendf(
-            "  sk_FragColor = (%s(u_texture, v_texCoord0) + %s(u_texture, v_texCoord1)) * 0.5;",
-            sampleFunction, sampleFunction
+        fshaderTxt.append(
+            "  sk_FragColor = (texture(u_texture, v_texCoord0) + "
+            "                  texture(u_texture, v_texCoord1)) * 0.5;"
         );
     } else {
-        fshaderTxt.appendf(
-            "  sk_FragColor = %s(u_texture, v_texCoord0);",
-            sampleFunction
+        fshaderTxt.append(
+            "  sk_FragColor = texture(u_texture, v_texCoord0);"
         );
     }
 
