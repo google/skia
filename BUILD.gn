@@ -1243,7 +1243,6 @@ if (skia_enable_tools) {
     deps = [
       ":flags",
       ":skia",
-      ":tool_utils",
     ]
     testonly = true
   }

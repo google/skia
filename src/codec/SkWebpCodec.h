@@ -10,7 +10,7 @@
 
 #include "SkCodec.h"
 #include "SkColorSpace.h"
-#include "SkEncodedImageFormat.h"
+#include "SkEncodedFormat.h"
 #include "SkImageInfo.h"
 #include "SkTypes.h"
 
@@ -30,7 +30,7 @@ public:
 protected:
     Result onGetPixels(const SkImageInfo&, void*, size_t, const Options&, SkPMColor*, int*, int*)
             override;
-    SkEncodedImageFormat onGetEncodedFormat() const override { return SkEncodedImageFormat::kWEBP; }
+    SkEncodedFormat onGetEncodedFormat() const override { return kWEBP_SkEncodedFormat; }
 
     SkISize onGetScaledDimensions(float desiredScale) const override;
 

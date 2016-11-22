@@ -281,7 +281,8 @@ void SkDebuggerGUI::saveToFile(const SkString& filename) {
     SkFILEWStream file(filename.c_str());
     sk_sp<SkPicture> copy(fDebugger.copyPicture());
 
-    sk_sp<SkPixelSerializer> serializer(sk_tool_utils::MakePixelSerializer());
+    sk_sp<SkPixelSerializer> serializer(
+            SkImageEncoder::CreatePixelSerializer());
     copy->serialize(&file, serializer.get());
 }
 

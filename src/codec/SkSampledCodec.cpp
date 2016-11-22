@@ -26,7 +26,7 @@ SkISize SkSampledCodec::accountForNativeScaling(int* sampleSizePtr, int* nativeS
     }
 
     // Only JPEG supports native downsampling.
-    if (this->codec()->getEncodedFormat() == SkEncodedImageFormat::kJPEG) {
+    if (this->codec()->getEncodedFormat() == kJPEG_SkEncodedFormat) {
         // See if libjpeg supports this scale directly
         switch (sampleSize) {
             case 2:

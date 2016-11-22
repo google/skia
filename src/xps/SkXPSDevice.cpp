@@ -658,7 +658,8 @@ HRESULT SkXPSDevice::createXpsImageBrush(
         const SkAlpha alpha,
         IXpsOMTileBrush** xpsBrush) {
     SkDynamicMemoryWStream write;
-    if (!SkEncodeImage(&write, bitmap, SkEncodedImageFormat::kPNG, 100)) {
+    if (!SkImageEncoder::EncodeStream(&write, bitmap,
+                                      SkImageEncoder::kPNG_Type, 100)) {
         HRM(E_FAIL, "Unable to encode bitmap as png.");
     }
     SkMemoryStream* read = new SkMemoryStream;

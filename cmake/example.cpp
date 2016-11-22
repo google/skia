@@ -82,7 +82,7 @@ int main(int, char**) {
     // Grab a snapshot of the surface as an immutable SkImage.
     sk_sp<SkImage> image = surface->makeImageSnapshot();
     // Encode that image as a .png into a blob in memory.
-    std::shared_ptr<SkData> png = adopt(image->encode(SkEncodedImageFormat::kPNG, 100));
+    std::shared_ptr<SkData> png = adopt(image->encode(SkImageEncoder::kPNG_Type, 100));
 
     // This code is no longer Skia-specific.  We just dump the .png to disk.  Any way works.
     static const char* path = "example.png";

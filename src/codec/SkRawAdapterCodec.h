@@ -10,7 +10,7 @@
 
 #include "SkAndroidCodec.h"
 #include "SkCodec.h"
-#include "SkEncodedImageFormat.h"
+#include "SkEncodedFormat.h"
 #include "SkRawCodec.h"
 #include "SkStream.h"
 #include "SkTypes.h"

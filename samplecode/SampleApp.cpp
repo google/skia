@@ -1407,8 +1407,8 @@ void SampleWindow::afterChildren(SkCanvas* orig) {
             static int gSampleGrabCounter;
             SkString name;
             name.printf("sample_grab_%d.png", gSampleGrabCounter++);
-            sk_tool_utils::EncodeImageToFile(name.c_str(), bmp,
-                                       SkEncodedImageFormat::kPNG, 100);
+            SkImageEncoder::EncodeFile(name.c_str(), bmp,
+                                       SkImageEncoder::kPNG_Type, 100);
         }
         this->inval(nullptr);
         return;
