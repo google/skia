@@ -671,6 +671,14 @@ typedef enum {
 
 typedef void (*sk_bitmap_release_proc)(void* addr, void* context);
 
+typedef enum {
+    NONE_SK_SHADOWMASKFILTER_SHADOWFLAGS = 0x00,
+    TRANSPARENT_OCCLUDER_SK_SHADOWMASKFILTER_SHADOWFLAGS = 0x01,
+    LARGER_UMBRA_SK_SHADOWMASKFILTER_SHADOWFLAGS = 0x02,
+    GAUSSIAN_EDGE_SK_SHADOWMASKFILTER_SHADOWFLAGS = 0x04,
+    ALL_SK_SHADOWMASKFILTER_SHADOWFLAGS = 0x07
+} sk_shadowmaskfilter_shadowflags_t;
+
 SK_C_PLUS_PLUS_END_GUARD
 
 #endif

@@ -6,6 +6,7 @@
  */
 
 #include "sk_types_priv.h"
+#include "SkShadowMaskFilter.h"
 
 #if __cplusplus >= 199711L
 
@@ -312,5 +313,12 @@ static_assert ((int)SkCanvas::Lattice::Flags::kTransparent_Flags   == (int)TRANS
 static_assert ((int)SkPathMeasure::MatrixFlags::kGetPosition_MatrixFlag    == (int)GET_POSITION_SK_PATHMEASURE_MATRIXFLAGS,      ASSERT_MSG(SkPathMeasure::MatrixFlags, sk_pathmeasure_matrixflags_t));
 static_assert ((int)SkPathMeasure::MatrixFlags::kGetTangent_MatrixFlag     == (int)GET_TANGENT_SK_PATHMEASURE_MATRIXFLAGS,       ASSERT_MSG(SkPathMeasure::MatrixFlags, sk_pathmeasure_matrixflags_t));
 static_assert ((int)SkPathMeasure::MatrixFlags::kGetPosAndTan_MatrixFlag   == (int)GET_POS_AND_TAN_SK_PATHMEASURE_MATRIXFLAGS,   ASSERT_MSG(SkPathMeasure::MatrixFlags, sk_pathmeasure_matrixflags_t));
+
+// sk_shadowmaskfilter_shadowflags_t
+static_assert ((int)SkShadowMaskFilter::ShadowFlags::kNone_ShadowFlag                  == (int)NONE_SK_SHADOWMASKFILTER_SHADOWFLAGS,                   ASSERT_MSG(SkShadowMaskFilter::ShadowFlags, sk_shadowmaskfilter_shadowflags_t));
+static_assert ((int)SkShadowMaskFilter::ShadowFlags::kTransparentOccluder_ShadowFlag   == (int)TRANSPARENT_OCCLUDER_SK_SHADOWMASKFILTER_SHADOWFLAGS,   ASSERT_MSG(SkShadowMaskFilter::ShadowFlags, sk_shadowmaskfilter_shadowflags_t));
+static_assert ((int)SkShadowMaskFilter::ShadowFlags::kLargerUmbra_ShadowFlag           == (int)LARGER_UMBRA_SK_SHADOWMASKFILTER_SHADOWFLAGS,           ASSERT_MSG(SkShadowMaskFilter::ShadowFlags, sk_shadowmaskfilter_shadowflags_t));
+static_assert ((int)SkShadowMaskFilter::ShadowFlags::kGaussianEdge_ShadowFlag          == (int)GAUSSIAN_EDGE_SK_SHADOWMASKFILTER_SHADOWFLAGS,          ASSERT_MSG(SkShadowMaskFilter::ShadowFlags, sk_shadowmaskfilter_shadowflags_t));
+static_assert ((int)SkShadowMaskFilter::ShadowFlags::kAll_ShadowFlag                   == (int)ALL_SK_SHADOWMASKFILTER_SHADOWFLAGS,                    ASSERT_MSG(SkShadowMaskFilter::ShadowFlags, sk_shadowmaskfilter_shadowflags_t));
 
 #endif
