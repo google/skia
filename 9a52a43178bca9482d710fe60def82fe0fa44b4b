@@ -1,0 +1,73 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "d079ec3f_8baccd3d",
+        "filename": "include/gpu/GrProcessor.h",
+        "patchSetId": 22
+      },
+      "lineNbr": 142,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2016-11-22T17:46:18Z",
+      "side": 1,
+      "message": "total nit: this name precludes buffers. What about.. hasSameSamplersAndAccesses",
+      "range": {
+        "startLine": 142,
+        "startChar": 9,
+        "endLine": 142,
+        "endChar": 40
+      },
+      "revId": "9a52a43178bca9482d710fe60def82fe0fa44b4b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "d079ec3f_2b62791c",
+        "filename": "include/gpu/GrShaderVar.h",
+        "patchSetId": 22
+      },
+      "lineNbr": 335,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2016-11-22T17:46:18Z",
+      "side": 1,
+      "message": "I think this field is a bit specific for a generic shader variable.\n\nWhat if we just convert:\n\nsetLayoutQualifier -\u003e addLayoutQualifier(const char* qualifier) {\n    if (!fLayoutQualifiers.isEmpty()) {\n        fLayoutQualifiers.append(\", \");\n    }\n    fLayoutQualifiers.append(qualifier);\n}\n\n(also, layout qualifiers are GLSL specific afaik. Is there a reason they were dropped down into here?)",
+      "range": {
+        "startLine": 335,
+        "startChar": 24,
+        "endLine": 335,
+        "endChar": 43
+      },
+      "revId": "9a52a43178bca9482d710fe60def82fe0fa44b4b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "d079ec3f_ab7f49c9",
+        "filename": "src/gpu/gl/GrGLUniformHandler.cpp",
+        "patchSetId": 22
+      },
+      "lineNbr": 100,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2016-11-22T17:46:18Z",
+      "side": 1,
+      "message": "... and then here we could do:\n\nimageStorage.fVariable.addLayoutQualifier(get_qualifier(format))",
+      "range": {
+        "startLine": 100,
+        "startChar": 17,
+        "endLine": 100,
+        "endChar": 26
+      },
+      "revId": "9a52a43178bca9482d710fe60def82fe0fa44b4b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
