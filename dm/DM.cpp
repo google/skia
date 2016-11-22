@@ -524,17 +524,17 @@ static void push_codec_srcs(Path path) {
     nativeModes.push_back(CodecSrc::kCodec_Mode);
     nativeModes.push_back(CodecSrc::kCodecZeroInit_Mode);
     switch (codec->getEncodedFormat()) {
-        case SkEncodedImageFormat::kJPEG:
+        case SkEncodedFormat::kJPEG_SkEncodedFormat:
             nativeModes.push_back(CodecSrc::kScanline_Mode);
             nativeModes.push_back(CodecSrc::kStripe_Mode);
             nativeModes.push_back(CodecSrc::kCroppedScanline_Mode);
             supportsNativeScaling = true;
             break;
-        case SkEncodedImageFormat::kWEBP:
+        case SkEncodedFormat::kWEBP_SkEncodedFormat:
             nativeModes.push_back(CodecSrc::kSubset_Mode);
             supportsNativeScaling = true;
             break;
-        case SkEncodedImageFormat::kDNG:
+        case SkEncodedFormat::kDNG_SkEncodedFormat:
             break;
         default:
             nativeModes.push_back(CodecSrc::kScanline_Mode);
@@ -547,7 +547,7 @@ static void push_codec_srcs(Path path) {
     switch (codec->getInfo().colorType()) {
         case kGray_8_SkColorType:
             colorTypes.push_back(CodecSrc::kGrayscale_Always_DstColorType);
-            if (SkEncodedImageFormat::kWBMP == codec->getEncodedFormat()) {
+            if (kWBMP_SkEncodedFormat == codec->getEncodedFormat()) {
                 colorTypes.push_back(CodecSrc::kIndex8_Always_DstColorType);
             }
             break;
@@ -640,15 +640,15 @@ static void push_codec_srcs(Path path) {
         push_image_gen_src(path, ImageGenSrc::kCodec_Mode, alphaType, false);
 
 #if defined(SK_BUILD_FOR_MAC) || defined(SK_BUILD_FOR_IOS)
-        if (SkEncodedImageFormat::kWEBP != codec->getEncodedFormat() &&
-            SkEncodedImageFormat::kWBMP != codec->getEncodedFormat() &&
+        if (kWEBP_SkEncodedFormat != codec->getEncodedFormat() &&
+            kWBMP_SkEncodedFormat != codec->getEncodedFormat() &&
             kUnpremul_SkAlphaType != alphaType)
         {
             push_image_gen_src(path, ImageGenSrc::kPlatform_Mode, alphaType, false);
         }
 #elif defined(SK_BUILD_FOR_WIN)
-        if (SkEncodedImageFormat::kWEBP != codec->getEncodedFormat() &&
-            SkEncodedImageFormat::kWBMP != codec->getEncodedFormat())
+        if (kWEBP_SkEncodedFormat != codec->getEncodedFormat() &&
+            kWBMP_SkEncodedFormat != codec->getEncodedFormat())
         {
             push_image_gen_src(path, ImageGenSrc::kPlatform_Mode, alphaType, false);
         }

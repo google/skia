@@ -12,8 +12,6 @@
 #include "SkRect.h"
 #include "Test.h"
 
-#include "sk_tool_utils.h"
-
 // these are in the same order as the SkColorType enum
 static const char* gColorTypeName[] = {
     "None", "A8", "565", "4444", "RGBA", "BGRA", "Index8"
@@ -180,7 +178,7 @@ struct Mesh {
 
 #include "SkImageEncoder.h"
 static void save_bm(const SkBitmap& bm, const char name[]) {
-    sk_tool_utils::EncodeImageToFile(name, bm, SkEncodedImageFormat::kPNG, 100);
+    SkImageEncoder::EncodeFile(name, bm, SkImageEncoder::kPNG_Type, 100);
 }
 
 static bool gOnce;

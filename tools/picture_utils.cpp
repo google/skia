@@ -17,8 +17,6 @@
 #include "SkStream.h"
 #include "SkString.h"
 
-#include "sk_tool_utils.h"
-
 namespace sk_tools {
     void force_all_opaque(const SkBitmap& bitmap) {
         SkASSERT(kN32_SkColorType == bitmap.colorType());
@@ -65,7 +63,7 @@ namespace sk_tools {
             partialPath.set(dirPath);
         }
         SkString fullPath = SkOSPath::Join(partialPath.c_str(), baseName.c_str());
-        if (sk_tool_utils::EncodeImageToFile(fullPath.c_str(), bm, SkEncodedImageFormat::kPNG, 100)) {
+        if (SkImageEncoder::EncodeFile(fullPath.c_str(), bm, SkImageEncoder::kPNG_Type, 100)) {
             return true;
         } else {
             SkDebugf("Failed to write the bitmap to %s.\n", fullPath.c_str());
