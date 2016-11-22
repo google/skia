@@ -193,8 +193,10 @@ sk_sp<SkColorFilter> SkColorFilter::MakeComposeFilter(sk_sp<SkColorFilter> outer
 }
 
 #include "SkModeColorFilter.h"
+#include "SkOverdrawColorFilter.h"
 
 SK_DEFINE_FLATTENABLE_REGISTRAR_GROUP_START(SkColorFilter)
 SK_DEFINE_FLATTENABLE_REGISTRAR_ENTRY(SkComposeColorFilter)
 SK_DEFINE_FLATTENABLE_REGISTRAR_ENTRY(SkModeColorFilter)
+SK_DEFINE_FLATTENABLE_REGISTRAR_ENTRY(SkOverdrawColorFilter)
 SK_DEFINE_FLATTENABLE_REGISTRAR_GROUP_END
