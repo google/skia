@@ -10,7 +10,7 @@
 #define SkFloatBits_DEFINED
 
 #include "SkTypes.h"
-#include <math.h>
+#include "SkSafe_math.h"
 
 /** Convert a sign-bit int (i.e. float interpreted as int) into a 2s compliement
     int. This also converts -0 (0x80000000) to 0. Doing this to a float allows

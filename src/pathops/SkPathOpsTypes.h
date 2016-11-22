@@ -8,12 +8,12 @@
 #define SkPathOpsTypes_DEFINED
 
 #include <float.h>  // for FLT_EPSILON
-#include <math.h>   // for fabs, sqrt
 
 #include "SkFloatingPoint.h"
 #include "SkPath.h"
 #include "SkPathOps.h"
 #include "SkPathOpsDebug.h"
+#include "SkSafe_math.h"  // for fabs, sqrt
 #include "SkScalar.h"
 
 enum SkPathOpsMask {
@@ -146,7 +146,7 @@ public:
     SkOpPhase phase() const {
         return fPhase;
     }
-    
+
     void resetAllocatedOpSpan() {
         fAllocatedOpSpan = false;
     }
@@ -158,7 +158,7 @@ public:
     void setCoincidence(SkOpCoincidence* coincidence) {
         fCoincidence = coincidence;
     }
-    
+
     void setContourHead(SkOpContourHead* contourHead) {
         fContourHead = contourHead;
     }

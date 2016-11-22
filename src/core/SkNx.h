@@ -8,10 +8,10 @@
 #ifndef SkNx_DEFINED
 #define SkNx_DEFINED
 
+#include "SkSafe_math.h"
 #include "SkScalar.h"
 #include "SkTypes.h"
 #include <limits>
-#include <math.h>
 #include <type_traits>
 
 // These _abi types are data-only, and so can be used to store SkNx in structs or
