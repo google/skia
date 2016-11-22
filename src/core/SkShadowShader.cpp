@@ -448,7 +448,7 @@ public:
 
         }
 
-        static void GenKey(const GrProcessor& proc, const GrGLSLCaps&,
+        static void GenKey(const GrProcessor& proc, const GrShaderCaps&,
                            GrProcessorKeyBuilder* b) {
             const ShadowFP& shadowFP = proc.cast<ShadowFP>();
             b->add32(shadowFP.fNumNonAmbLights);
@@ -552,7 +552,7 @@ public:
         GrGLSLProgramDataManager::UniformHandle fAmbientColorUni;
     };
 
-    void onGetGLSLProcessorKey(const GrGLSLCaps& caps, GrProcessorKeyBuilder* b) const override {
+    void onGetGLSLProcessorKey(const GrShaderCaps& caps, GrProcessorKeyBuilder* b) const override {
         GLSLShadowFP::GenKey(*this, caps, b);
     }
 

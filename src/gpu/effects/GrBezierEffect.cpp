@@ -7,7 +7,7 @@
 
 #include "GrBezierEffect.h"
 
-#include "glsl/GrGLSLCaps.h"
+#include "GrShaderCaps.h"
 #include "glsl/GrGLSLFragmentShaderBuilder.h"
 #include "glsl/GrGLSLGeometryProcessor.h"
 #include "glsl/GrGLSLProgramDataManager.h"
@@ -23,7 +23,7 @@ public:
     void onEmitCode(EmitArgs&, GrGPArgs*) override;
 
     static inline void GenKey(const GrGeometryProcessor&,
-                              const GrGLSLCaps&,
+                              const GrShaderCaps&,
                               GrProcessorKeyBuilder*);
 
     void setData(const GrGLSLProgramDataManager& pdman, const GrPrimitiveProcessor& primProc,
@@ -218,7 +218,7 @@ void GrGLConicEffect::onEmitCode(EmitArgs& args, GrGPArgs* gpArgs) {
 }
 
 void GrGLConicEffect::GenKey(const GrGeometryProcessor& gp,
-                             const GrGLSLCaps&,
+                             const GrShaderCaps&,
                              GrProcessorKeyBuilder* b) {
     const GrConicEffect& ce = gp.cast<GrConicEffect>();
     uint32_t key = ce.isAntiAliased() ? (ce.isFilled() ? 0x0 : 0x1) : 0x2;
@@ -233,12 +233,12 @@ void GrGLConicEffect::GenKey(const GrGeometryProcessor& gp,
 
 GrConicEffect::~GrConicEffect() {}
 
-void GrConicEffect::getGLSLProcessorKey(const GrGLSLCaps& caps,
+void GrConicEffect::getGLSLProcessorKey(const GrShaderCaps& caps,
                                         GrProcessorKeyBuilder* b) const {
     GrGLConicEffect::GenKey(*this, caps, b);
 }
 
-GrGLSLPrimitiveProcessor* GrConicEffect::createGLSLInstance(const GrGLSLCaps&) const {
+GrGLSLPrimitiveProcessor* GrConicEffect::createGLSLInstance(const GrShaderCaps&) const {
     return new GrGLConicEffect(*this);
 }
 
@@ -285,7 +285,7 @@ public:
     void onEmitCode(EmitArgs&, GrGPArgs*) override;
 
     static inline void GenKey(const GrGeometryProcessor&,
-                              const GrGLSLCaps&,
+                              const GrShaderCaps&,
                               GrProcessorKeyBuilder*);
 
     void setData(const GrGLSLProgramDataManager& pdman, const GrPrimitiveProcessor& primProc,
@@ -422,7 +422,7 @@ void GrGLQuadEffect::onEmitCode(EmitArgs& args, GrGPArgs* gpArgs) {
 }
 
 void GrGLQuadEffect::GenKey(const GrGeometryProcessor& gp,
-                            const GrGLSLCaps&,
+                            const GrShaderCaps&,
                             GrProcessorKeyBuilder* b) {
     const GrQuadEffect& ce = gp.cast<GrQuadEffect>();
     uint32_t key = ce.isAntiAliased() ? (ce.isFilled() ? 0x0 : 0x1) : 0x2;
@@ -437,12 +437,12 @@ void GrGLQuadEffect::GenKey(const GrGeometryProcessor& gp,
 
 GrQuadEffect::~GrQuadEffect() {}
 
-void GrQuadEffect::getGLSLProcessorKey(const GrGLSLCaps& caps,
+void GrQuadEffect::getGLSLProcessorKey(const GrShaderCaps& caps,
                                        GrProcessorKeyBuilder* b) const {
     GrGLQuadEffect::GenKey(*this, caps, b);
 }
 
-GrGLSLPrimitiveProcessor* GrQuadEffect::createGLSLInstance(const GrGLSLCaps&) const {
+GrGLSLPrimitiveProcessor* GrQuadEffect::createGLSLInstance(const GrShaderCaps&) const {
     return new GrGLQuadEffect(*this);
 }
 
@@ -490,7 +490,7 @@ public:
     void onEmitCode(EmitArgs&, GrGPArgs*) override;
 
     static inline void GenKey(const GrGeometryProcessor&,
-                              const GrGLSLCaps&,
+                              const GrShaderCaps&,
                               GrProcessorKeyBuilder*);
 
     void setData(const GrGLSLProgramDataManager& pdman, const GrPrimitiveProcessor& primProc,
@@ -652,7 +652,7 @@ void GrGLCubicEffect::onEmitCode(EmitArgs& args, GrGPArgs* gpArgs) {
 }
 
 void GrGLCubicEffect::GenKey(const GrGeometryProcessor& gp,
-                             const GrGLSLCaps&,
+                             const GrShaderCaps&,
                              GrProcessorKeyBuilder* b) {
     const GrCubicEffect& ce = gp.cast<GrCubicEffect>();
     uint32_t key = ce.isAntiAliased() ? (ce.isFilled() ? 0x0 : 0x1) : 0x2;
@@ -665,11 +665,11 @@ void GrGLCubicEffect::GenKey(const GrGeometryProcessor& gp,
 
 GrCubicEffect::~GrCubicEffect() {}
 
-void GrCubicEffect::getGLSLProcessorKey(const GrGLSLCaps& caps, GrProcessorKeyBuilder* b) const {
+void GrCubicEffect::getGLSLProcessorKey(const GrShaderCaps& caps, GrProcessorKeyBuilder* b) const {
     GrGLCubicEffect::GenKey(*this, caps, b);
 }
 
-GrGLSLPrimitiveProcessor* GrCubicEffect::createGLSLInstance(const GrGLSLCaps&) const {
+GrGLSLPrimitiveProcessor* GrCubicEffect::createGLSLInstance(const GrShaderCaps&) const {
     return new GrGLCubicEffect(*this);
 }
 

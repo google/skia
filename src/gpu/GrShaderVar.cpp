@@ -7,7 +7,7 @@
 
 
 #include "GrShaderVar.h"
-#include "glsl/GrGLSLCaps.h"
+#include "GrShaderCaps.h"
 
 static const char* type_modifier_string(GrShaderVar::TypeModifier t) {
     switch (t) {
@@ -33,7 +33,7 @@ static const char* image_storage_format_string(GrShaderVar::ImageStorageFormat f
     return "";
 }
 
-void GrShaderVar::appendDecl(const GrGLSLCaps* glslCaps, SkString* out) const {
+void GrShaderVar::appendDecl(const GrShaderCaps* glslCaps, SkString* out) const {
     SkASSERT(kDefault_GrSLPrecision == fPrecision || GrSLTypeAcceptsPrecision(fType));
     SkString layout = fLayoutQualifier;
     if (ImageStorageFormat::kNone != fImageStorageFormat) {

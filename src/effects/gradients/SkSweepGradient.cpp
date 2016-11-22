@@ -122,8 +122,8 @@ void SkSweepGradient::SweepGradientContext::shadeSpan(int x, int y, SkPMColor* S
 #if SK_SUPPORT_GPU
 
 #include "SkGr.h"
+#include "GrShaderCaps.h"
 #include "gl/GrGLContext.h"
-#include "glsl/GrGLSLCaps.h"
 #include "glsl/GrGLSLFragmentShaderBuilder.h"
 
 class GrSweepGradient : public GrGradientEffect {
@@ -145,7 +145,7 @@ private:
 
     GrGLSLFragmentProcessor* onCreateGLSLInstance() const override;
 
-    virtual void onGetGLSLProcessorKey(const GrGLSLCaps& caps,
+    virtual void onGetGLSLProcessorKey(const GrShaderCaps& caps,
                                        GrProcessorKeyBuilder* b) const override;
 
     GR_DECLARE_FRAGMENT_PROCESSOR_TEST;
@@ -162,7 +162,7 @@ public:
 
     virtual void emitCode(EmitArgs&) override;
 
-    static void GenKey(const GrProcessor& processor, const GrGLSLCaps&, GrProcessorKeyBuilder* b) {
+    static void GenKey(const GrProcessor& processor, const GrShaderCaps&, GrProcessorKeyBuilder* b) {
         b->add32(GenBaseGradientKey(processor));
     }
 
@@ -177,7 +177,7 @@ GrGLSLFragmentProcessor* GrSweepGradient::onCreateGLSLInstance() const {
     return new GrSweepGradient::GLSLSweepProcessor(*this);
 }
 
-void GrSweepGradient::onGetGLSLProcessorKey(const GrGLSLCaps& caps,
+void GrSweepGradient::onGetGLSLProcessorKey(const GrShaderCaps& caps,
                                             GrProcessorKeyBuilder* b) const {
     GrSweepGradient::GLSLSweepProcessor::GenKey(*this, caps, b);
 }

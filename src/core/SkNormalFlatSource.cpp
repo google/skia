@@ -34,8 +34,7 @@ public:
             fragBuilder->codeAppendf("%s = vec4(0, 0, 1, 0);", args.fOutputColor);
         }
 
-        static void GenKey(const GrProcessor& proc, const GrGLSLCaps&,
-                           GrProcessorKeyBuilder* b) {
+        static void GenKey(const GrProcessor& proc, const GrShaderCaps&, GrProcessorKeyBuilder* b) {
             b->add32(0x0);
         }
 
@@ -44,7 +43,7 @@ public:
                            const GrProcessor& proc) override {}
     };
 
-    void onGetGLSLProcessorKey(const GrGLSLCaps& caps, GrProcessorKeyBuilder* b) const override {
+    void onGetGLSLProcessorKey(const GrShaderCaps& caps, GrProcessorKeyBuilder* b) const override {
         GLSLNormalFlatFP::GenKey(*this, caps, b);
     }
 

@@ -62,7 +62,7 @@ private:
             }
             const char* name() const override { return "Dummy GP"; }
 
-            GrGLSLPrimitiveProcessor* createGLSLInstance(const GrGLSLCaps&) const override {
+            GrGLSLPrimitiveProcessor* createGLSLInstance(const GrShaderCaps&) const override {
                 class GLSLGP : public GrGLSLGeometryProcessor {
                 public:
                     void onEmitCode(EmitArgs& args, GrGPArgs* gpArgs) override {
@@ -79,7 +79,7 @@ private:
                 };
                 return new GLSLGP();
             }
-            void getGLSLProcessorKey(const GrGLSLCaps&,
+            void getGLSLProcessorKey(const GrShaderCaps&,
                                      GrProcessorKeyBuilder* builder) const override {
                 builder->add32(this->numAttribs());
             }

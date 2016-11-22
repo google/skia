@@ -8,6 +8,7 @@
 #ifndef GrGLSLProgramBuilder_DEFINED
 #define GrGLSLProgramBuilder_DEFINED
 
+#include "GrCaps.h"
 #include "GrGeometryProcessor.h"
 #include "GrGpu.h"
 #include "glsl/GrGLSLFragmentProcessor.h"
@@ -19,10 +20,10 @@
 #include "glsl/GrGLSLVertexShaderBuilder.h"
 #include "glsl/GrGLSLXferProcessor.h"
 
-class GrGLSLCaps;
 class GrShaderVar;
 class GrGLSLVaryingHandler;
 class GrGLSLExpr4;
+class GrShaderCaps;
 
 typedef SkSTArray<8, GrGLSLFragmentProcessor*, true> GrGLSLFragProcs;
 
@@ -35,7 +36,7 @@ public:
     virtual ~GrGLSLProgramBuilder() {}
 
     virtual const GrCaps* caps() const = 0;
-    virtual const GrGLSLCaps* glslCaps() const = 0;
+    const GrShaderCaps* shaderCaps() const { return this->caps()->shaderCaps(); }
 
     const GrPrimitiveProcessor& primitiveProcessor() const { return fPrimProc; }
     const GrPipeline& pipeline() const { return fPipeline; }

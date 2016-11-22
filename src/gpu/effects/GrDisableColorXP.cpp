@@ -36,7 +36,7 @@ private:
         return GrXferProcessor::kIgnoreColor_OptFlag | GrXferProcessor::kIgnoreCoverage_OptFlag;
     }
 
-    void onGetGLSLProcessorKey(const GrGLSLCaps& caps, GrProcessorKeyBuilder* b) const override;
+    void onGetGLSLProcessorKey(const GrShaderCaps& caps, GrProcessorKeyBuilder* b) const override;
 
     void onGetBlendInfo(GrXferProcessor::BlendInfo* blendInfo) const override;
 
@@ -55,7 +55,7 @@ public:
 
     ~GLDisableColorXP() override {}
 
-    static void GenKey(const GrProcessor&, const GrGLSLCaps&, GrProcessorKeyBuilder*) {}
+    static void GenKey(const GrProcessor&, const GrShaderCaps&, GrProcessorKeyBuilder*) {}
 
 private:
     void emitOutputsForBlendState(const EmitArgs& args) override {
@@ -77,7 +77,7 @@ DisableColorXP::DisableColorXP() {
     this->initClassID<DisableColorXP>();
 }
 
-void DisableColorXP::onGetGLSLProcessorKey(const GrGLSLCaps& caps, GrProcessorKeyBuilder* b) const {
+void DisableColorXP::onGetGLSLProcessorKey(const GrShaderCaps& caps, GrProcessorKeyBuilder* b) const {
     GLDisableColorXP::GenKey(*this, caps, b);
 }
 
