@@ -62,6 +62,8 @@ public:
 
     void bindTexelBuffer(int unitIdx, GrPixelConfig, GrGLBuffer*);
 
+    void bindImageStorage(int unitIdx, GrIOType, GrGLTexture *);
+
     void generateMipmaps(const GrSamplerParams& params, bool allowSRGBInputs, GrGLTexture* texture);
 
     bool onGetReadPixelsInfo(GrSurface* srcSurface, int readWidth, int readHeight, size_t rowBytes,
@@ -568,6 +570,12 @@ private:
     GrGpuResource::UniqueID                 fHWBoundRenderTargetUniqueID;
     TriState                                fHWSRGBFramebuffer;
     SkTArray<GrGpuResource::UniqueID, true> fHWBoundTextureUniqueIDs;
+
+    struct Image {
+        GrGpuResource::UniqueID fTextureUniqueID;
+        GrIOType                fIOType;
+    };
+    SkTArray<Image, true>                   fHWBoundImageStorages;
 
     struct BufferTexture {
         BufferTexture() : fTextureID(0), fKnownBound(false),

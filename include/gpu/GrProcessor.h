@@ -14,6 +14,7 @@
 #include "GrProcessorUnitTest.h"
 #include "GrProgramElement.h"
 #include "GrSamplerParams.h"
+#include "GrShaderVar.h"
 #include "SkMath.h"
 #include "SkString.h"
 #include "../private/SkAtomics.h"
@@ -62,6 +63,7 @@ class GrProcessor : public GrProgramElement {
 public:
     class TextureSampler;
     class BufferAccess;
+    class ImageStorageAccess;
 
     virtual ~GrProcessor();
 
@@ -88,7 +90,17 @@ public:
         numBuffers(). */
     const BufferAccess& bufferAccess(int index) const { return *fBufferAccesses[index]; }
 
-    /** Platform specific built-in features that a processor can request for the fragment shader. */
+    int numImageStorages() const { return fImageStorageAccesses.count(); }
+
+    /** Returns the access object for the image at index. index must be valid according to
+        numImages(). */
+    const ImageStorageAccess& imageStorageAccess(int index) const {
+        return *fImageStorageAccesses[index];
+    }
+
+    /**
+     * Platform specific built-in features that a processor can request for the fragment shader.
+     */
     enum RequiredFeatures {
         kNone_RequiredFeatures             = 0,
         kFragmentPosition_RequiredFeature  = 1 << 0,
@@ -118,15 +130,16 @@ protected:
     GrProcessor() : fClassID(kIllegalProcessorClassID), fRequiredFeatures(kNone_RequiredFeatures) {}
 
     /**
-     * Subclasses call these from their constructor to register sampler sources. The processor
+     * Subclasses call these from their constructor to register sampler/image sources. The processor
      * subclass manages the lifetime of the objects (these functions only store pointers). The
      * TextureSampler and/or BufferAccess instances are typically member fields of the GrProcessor
      * subclass. These must only be called from the constructor because GrProcessors are immutable.
      */
     void addTextureSampler(const TextureSampler*);
-    void addBufferAccess(const BufferAccess* bufferAccess);
+    void addBufferAccess(const BufferAccess*);
+    void addImageStorageAccess(const ImageStorageAccess*);
 
-    bool hasSameSamplers(const GrProcessor&) const;
+    bool hasSameSamplersAndAccesses(const GrProcessor &) const;
 
     /**
      * If the prcoessor will generate code that uses platform specific built-in features, then it
@@ -145,7 +158,6 @@ protected:
          fClassID = kClassID;
     }
 
-    uint32_t fClassID;
 private:
     static uint32_t GenClassID() {
         // fCurrProcessorClassID has been initialized to kIllegalProcessorClassID. The
@@ -164,9 +176,11 @@ private:
     };
     static int32_t gCurrProcessorClassID;
 
-    RequiredFeatures fRequiredFeatures;
-    SkSTArray<4, const TextureSampler*, true>   fTextureSamplers;
-    SkSTArray<2, const BufferAccess*, true>     fBufferAccesses;
+    uint32_t                                        fClassID;
+    RequiredFeatures                                fRequiredFeatures;
+    SkSTArray<4, const TextureSampler*, true>       fTextureSamplers;
+    SkSTArray<1, const BufferAccess*, true>         fBufferAccesses;
+    SkSTArray<1, const ImageStorageAccess*, true>   fImageStorageAccesses;
 
     typedef GrProgramElement INHERITED;
 };
@@ -175,7 +189,8 @@ GR_MAKE_BITFIELD_OPS(GrProcessor::RequiredFeatures);
 
 /**
  * Used to represent a texture that is required by a GrProcessor. It holds a GrTexture along with
- * an associated GrSamplerParams
+ * an associated GrSamplerParams. TextureSamplers don't perform any coord manipulation to account
+ * for texture origin.
  */
 class GrProcessor::TextureSampler : public SkNoncopyable {
 public:
@@ -257,13 +272,47 @@ public:
     /**
      * For internal use by GrProcessor.
      */
-    const GrGpuResourceRef* getProgramBuffer() const { return &fBuffer;}
+    const GrGpuResourceRef* programBuffer() const { return &fBuffer;}
 
 private:
     GrPixelConfig                 fTexelConfig;
     GrTGpuResourceRef<GrBuffer>   fBuffer;
     GrShaderFlags                 fVisibility;
 
+    typedef SkNoncopyable INHERITED;
+};
+
+/**
+ * This is used by a GrProcessor to access a texture using image load/store in its shader code.
+ * ImageStorageAccesses don't perform any coord manipulation to account for texture origin.
+ * Currently the format of the load/store data in the shader is inferred from the texture config,
+ * though it could be made explicit.
+ */
+class GrProcessor::ImageStorageAccess : public SkNoncopyable {
+public:
+    ImageStorageAccess(sk_sp<GrTexture> texture, GrIOType ioType,
+                       GrShaderFlags visibility = kFragment_GrShaderFlag);
+
+    bool operator==(const ImageStorageAccess& that) const {
+        return this->texture() == that.texture() && fVisibility == that.fVisibility;
+    }
+
+    bool operator!=(const ImageStorageAccess& that) const { return !(*this == that); }
+
+    GrTexture* texture() const { return fTexture.get(); }
+    GrShaderFlags visibility() const { return fVisibility; }
+    GrIOType ioType() const { return fTexture.ioType(); }
+    GrImageStorageFormat format() const { return fFormat; }
+
+    /**
+     * For internal use by GrProcessor.
+     */
+    const GrGpuResourceRef* programTexture() const { return &fTexture; }
+
+private:
+    GrTGpuResourceRef<GrTexture>    fTexture;
+    GrShaderFlags                   fVisibility;
+    GrImageStorageFormat            fFormat;
     typedef SkNoncopyable INHERITED;
 };
 
