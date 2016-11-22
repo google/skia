@@ -273,8 +273,12 @@ public:
     /**
      * Set the layout qualifier
      */
-    void setLayoutQualifier(const char* layoutQualifier) {
-        fLayoutQualifier = layoutQualifier;
+    void addLayoutQualifier(const char* layoutQualifier) {
+        if (fLayoutQualifier.isEmpty()) {
+            fLayoutQualifier = layoutQualifier;
+        } else {
+            fLayoutQualifier.appendf(", %s", fLayoutQualifier.c_str());
+        }
     }
 
     void addModifier(const char* modifier) {
