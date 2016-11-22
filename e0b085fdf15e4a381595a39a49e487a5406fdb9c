@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "30324888_e54340b1",
+        "filename": "include/private/GrTextureProxy.h",
+        "patchSetId": 8
+      },
+      "lineNbr": 27,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2016-11-22T21:58:38Z",
+      "side": 1,
+      "message": "Yes. Thinking that it might be better to put asTextureOpList and asRenderTargetOpList as virtuals on GrOpList, then make getLastTextureOpList and getLastRenderTargetOpList just call those on fLastOpList. Avoids the need for strange behavior here.",
+      "parentUuid": "30324888_caf2d3e9",
+      "revId": "e0b085fdf15e4a381595a39a49e487a5406fdb9c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "30324888_8a64dbc9",
         "filename": "src/gpu/GrContext.cpp",
         "patchSetId": 8
@@ -71,6 +89,24 @@
     },
     {
       "key": {
+        "uuid": "30324888_e55ca09e",
+        "filename": "src/gpu/GrDrawingManager.cpp",
+        "patchSetId": 8
+      },
+      "lineNbr": 191,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2016-11-22T21:58:38Z",
+      "side": 1,
+      "message": "Oops. Yes - lost that while shuffling this code around for better readability.",
+      "parentUuid": "30324888_aa73d78d",
+      "revId": "e0b085fdf15e4a381595a39a49e487a5406fdb9c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "30324888_caaad368",
         "filename": "src/gpu/GrDrawingManager.cpp",
         "patchSetId": 8
@@ -82,6 +118,24 @@
       "writtenOn": "2016-11-22T21:49:35Z",
       "side": 1,
       "message": "??",
+      "revId": "e0b085fdf15e4a381595a39a49e487a5406fdb9c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "30324888_6551707f",
+        "filename": "src/gpu/GrDrawingManager.cpp",
+        "patchSetId": 8
+      },
+      "lineNbr": 282,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2016-11-22T21:58:38Z",
+      "side": 1,
+      "message": "Just trying to document that you should never attempt to make a GrTextureContext from a GrTextureRenderTargetProxy (you should instead be a making a GrRenderTargetContext). Might be better to fold that into the check above (rather than assert)?",
+      "parentUuid": "30324888_caaad368",
       "revId": "e0b085fdf15e4a381595a39a49e487a5406fdb9c",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
