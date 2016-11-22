@@ -2,6 +2,23 @@
   "comments": [
     {
       "key": {
+        "uuid": "30324888_caf2d3e9",
+        "filename": "include/private/GrTextureProxy.h",
+        "patchSetId": 8
+      },
+      "lineNbr": 27,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2016-11-22T21:49:35Z",
+      "side": 1,
+      "message": "Should this fail if it is actually a GrTextureRenderTargetProxy ?",
+      "revId": "e0b085fdf15e4a381595a39a49e487a5406fdb9c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "30324888_8a64dbc9",
         "filename": "src/gpu/GrContext.cpp",
         "patchSetId": 8
@@ -31,6 +48,40 @@
       "side": 1,
       "message": "This should be fine. Even with a new/different SurfaceContext, we will continue to append to the previous (shared) OpList (assuming it\u0027s not closed).",
       "parentUuid": "30324888_8a64dbc9",
+      "revId": "e0b085fdf15e4a381595a39a49e487a5406fdb9c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "30324888_aa73d78d",
+        "filename": "src/gpu/GrDrawingManager.cpp",
+        "patchSetId": 8
+      },
+      "lineNbr": 191,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2016-11-22T21:49:35Z",
+      "side": 1,
+      "message": "return here ?",
+      "revId": "e0b085fdf15e4a381595a39a49e487a5406fdb9c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "30324888_caaad368",
+        "filename": "src/gpu/GrDrawingManager.cpp",
+        "patchSetId": 8
+      },
+      "lineNbr": 282,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2016-11-22T21:49:35Z",
+      "side": 1,
+      "message": "??",
       "revId": "e0b085fdf15e4a381595a39a49e487a5406fdb9c",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
