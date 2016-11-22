@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "30324888_8a64dbc9",
+        "filename": "src/gpu/GrContext.cpp",
+        "patchSetId": 8
+      },
+      "lineNbr": 568,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2016-11-22T21:33:55Z",
+      "side": 1,
+      "message": "One last q to check my understanding: What happens if dst already has a SurfacContext?",
+      "revId": "e0b085fdf15e4a381595a39a49e487a5406fdb9c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
