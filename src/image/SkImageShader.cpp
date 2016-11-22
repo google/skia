@@ -280,7 +280,6 @@ bool SkImageShader::onAppendStages(SkRasterPipeline* p, SkColorSpace* dst, SkFal
     }
     auto info = pm.info();
 
-
     auto matrix = SkMatrix::Concat(ctm, this->getLocalMatrix());
     if (!matrix.invert(&matrix)) {
         return false;
@@ -288,12 +287,10 @@ bool SkImageShader::onAppendStages(SkRasterPipeline* p, SkColorSpace* dst, SkFal
 
     // TODO: all formats
     switch (info.colorType()) {
-        case kRGBA_8888_SkColorType:
-        case kBGRA_8888_SkColorType:
-        case   kRGB_565_SkColorType:
-        case  kRGBA_F16_SkColorType:
-            break;
-        default: return false;
+        case kAlpha_8_SkColorType:
+        case kIndex_8_SkColorType:
+            return false;
+        default: break;
     }
 
     // When the matrix is just an integer translate, bilerp == nearest neighbor.
@@ -346,6 +343,23 @@ bool SkImageShader::onAppendStages(SkRasterPipeline* p, SkColorSpace* dst, SkFal
         }
 
         switch (info.colorType()) {
+            case kGray_8_SkColorType:
+                p->append(SkRasterPipeline::accum_g8, ctx);
+                break;
+            case kAlpha_8_SkColorType:
+                p->append(SkRasterPipeline::accum_a8, ctx);
+                break;
+            case kIndex_8_SkColorType:
+                p->append(SkRasterPipeline::accum_i8, ctx);
+                break;
+
+            case kARGB_4444_SkColorType:
+                p->append(SkRasterPipeline::accum_4444, ctx);
+                break;
+            case kRGB_565_SkColorType:
+                p->append(SkRasterPipeline::accum_565, ctx);
+                break;
+
             case kRGBA_8888_SkColorType:
             case kBGRA_8888_SkColorType:
                 if (info.gammaCloseToSRGB() && dst) {
@@ -354,11 +368,9 @@ bool SkImageShader::onAppendStages(SkRasterPipeline* p, SkColorSpace* dst, SkFal
                     p->append(SkRasterPipeline::accum_8888, ctx);
                 }
                 break;
+
             case kRGBA_F16_SkColorType:
                 p->append(SkRasterPipeline::accum_f16, ctx);
-                break;
-            case kRGB_565_SkColorType:
-                p->append(SkRasterPipeline::accum_565, ctx);
                 break;
 
             default:

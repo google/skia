@@ -79,6 +79,7 @@
     M(color_lookup_table) M(lab_to_xyz) M(swap_rb)               \
     M(clamp_x) M(mirror_x) M(repeat_x)                           \
     M(clamp_y) M(mirror_y) M(repeat_y)                           \
+    M(accum_g8) M(accum_a8) M(accum_i8) M(accum_4444)            \
     M(accum_565) M(accum_8888) M(accum_srgb) M(accum_f16)        \
     M(top_left) M(top_right) M(bottom_left) M(bottom_right)
 
