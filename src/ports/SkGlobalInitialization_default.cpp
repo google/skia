@@ -40,6 +40,7 @@
 #include "SkMorphologyImageFilter.h"
 #include "SkNormalSource.h"
 #include "SkOffsetImageFilter.h"
+#include "../../src/effects/SkOverdrawColorFilter.h"
 #include "SkPaintImageFilter.h"
 #include "SkPerlinNoiseShader.h"
 #include "SkPictureImageFilter.h"
@@ -86,6 +87,7 @@ void SkFlattenable::PrivateInitializer::InitEffects() {
     SkAlphaThresholdFilter::InitializeFlattenables();
     SkArithmeticMode::InitializeFlattenables();
     SkTableColorFilter::InitializeFlattenables();
+    SkOverdrawColorFilter::InitializeFlattenables();
 
     // Shader
     SK_DEFINE_FLATTENABLE_REGISTRAR_ENTRY(SkPerlinNoiseShader)
