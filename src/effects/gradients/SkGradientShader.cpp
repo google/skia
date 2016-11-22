@@ -1110,9 +1110,9 @@ SK_DEFINE_FLATTENABLE_REGISTRAR_GROUP_END
 
 #include "GrContext.h"
 #include "GrInvariantOutput.h"
+#include "GrShaderCaps.h"
 #include "GrTextureStripAtlas.h"
 #include "gl/GrGLContext.h"
-#include "glsl/GrGLSLCaps.h"
 #include "glsl/GrGLSLColorSpaceXformHelper.h"
 #include "glsl/GrGLSLFragmentShaderBuilder.h"
 #include "glsl/GrGLSLProgramDataManager.h"
@@ -1377,7 +1377,7 @@ uint32_t GrGradientEffect::GLSLProcessor::GenBaseGradientKey(const GrProcessor& 
 
 void GrGradientEffect::GLSLProcessor::emitColor(GrGLSLFPFragmentBuilder* fragBuilder,
                                                 GrGLSLUniformHandler* uniformHandler,
-                                                const GrGLSLCaps* glslCaps,
+                                                const GrShaderCaps* glslCaps,
                                                 const GrGradientEffect& ge,
                                                 const char* gradientTValue,
                                                 const char* outputColor,

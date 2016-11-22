@@ -5,8 +5,8 @@
  * found in the LICENSE file.
  */
 
+#include "GrShaderCaps.h"
 #include "glsl/GrGLSLVarying.h"
-#include "glsl/GrGLSLCaps.h"
 #include "glsl/GrGLSLProgramBuilder.h"
 
 void GrGLSLVaryingHandler::addPassThroughAttribute(const GrGeometryProcessor::Attribute* input,
@@ -87,7 +87,7 @@ void GrGLSLVaryingHandler::addAttribute(const GrShaderVar& var) {
 }
 
 void GrGLSLVaryingHandler::setNoPerspective() {
-    const GrGLSLCaps& caps = *fProgramBuilder->glslCaps();
+    const GrShaderCaps& caps = *fProgramBuilder->shaderCaps();
     if (!caps.noperspectiveInterpolationSupport()) {
         return;
     }
@@ -131,7 +131,7 @@ void GrGLSLVaryingHandler::finalize() {
 
 void GrGLSLVaryingHandler::appendDecls(const VarArray& vars, SkString* out) const {
     for (int i = 0; i < vars.count(); ++i) {
-        vars[i].appendDecl(fProgramBuilder->glslCaps(), out);
+        vars[i].appendDecl(fProgramBuilder->shaderCaps(), out);
         out->append(";");
     }
 }
@@ -148,7 +148,7 @@ void GrGLSLVaryingHandler::getGeomDecls(SkString* inputDecls, SkString* outputDe
 
 void GrGLSLVaryingHandler::getFragDecls(SkString* inputDecls, SkString* outputDecls) const {
     // We should not have any outputs in the fragment shader when using version 1.10
-    SkASSERT(k110_GrGLSLGeneration != fProgramBuilder->glslCaps()->generation() ||
+    SkASSERT(k110_GrGLSLGeneration != fProgramBuilder->shaderCaps()->generation() ||
              fFragOutputs.empty());
     this->appendDecls(fFragInputs, inputDecls);
     this->appendDecls(fFragOutputs, outputDecls);

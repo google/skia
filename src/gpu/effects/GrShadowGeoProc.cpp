@@ -62,7 +62,7 @@ public:
     }
 
     static inline void GenKey(const GrGeometryProcessor& gp,
-                              const GrGLSLCaps&,
+                              const GrShaderCaps&,
                               GrProcessorKeyBuilder* b) {
         const GrRRectShadowGeoProc& rsgp = gp.cast<GrRRectShadowGeoProc>();
         uint16_t key;
@@ -86,12 +86,12 @@ GrRRectShadowGeoProc::GrRRectShadowGeoProc(const SkMatrix& localMatrix)
     fInShadowParams = &this->addVertexAttrib("inShadowParams", kVec4f_GrVertexAttribType);
 }
 
-void GrRRectShadowGeoProc::getGLSLProcessorKey(const GrGLSLCaps& caps,
+void GrRRectShadowGeoProc::getGLSLProcessorKey(const GrShaderCaps& caps,
                                                GrProcessorKeyBuilder* b) const {
     GrGLSLRRectShadowGeoProc::GenKey(*this, caps, b);
 }
 
-GrGLSLPrimitiveProcessor* GrRRectShadowGeoProc::createGLSLInstance(const GrGLSLCaps&) const {
+GrGLSLPrimitiveProcessor* GrRRectShadowGeoProc::createGLSLInstance(const GrShaderCaps&) const {
     return new GrGLSLRRectShadowGeoProc();
 }
 
