@@ -1233,6 +1233,7 @@ if (skia_enable_tools) {
   executable("fuzz") {
     sources = [
       "fuzz/FilterFuzz.cpp",
+      "fuzz/FuzzDrawFunctions.cpp",
       "fuzz/FuzzGradients.cpp",
       "fuzz/FuzzParsePath.cpp",
       "fuzz/FuzzPathop.cpp",
