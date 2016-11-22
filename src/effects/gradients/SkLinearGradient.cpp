@@ -343,7 +343,7 @@ SkShader::GradientType SkLinearGradient::asAGradient(GradientInfo* info) const {
 #if SK_SUPPORT_GPU
 
 #include "GrColorSpaceXform.h"
-#include "glsl/GrGLSLCaps.h"
+#include "GrShaderCaps.h"
 #include "glsl/GrGLSLFragmentShaderBuilder.h"
 #include "SkGr.h"
 
@@ -369,7 +369,7 @@ private:
 
     GrGLSLFragmentProcessor* onCreateGLSLInstance() const override;
 
-    virtual void onGetGLSLProcessorKey(const GrGLSLCaps& caps,
+    virtual void onGetGLSLProcessorKey(const GrShaderCaps& caps,
                                        GrProcessorKeyBuilder* b) const override;
 
     GR_DECLARE_FRAGMENT_PROCESSOR_TEST;
@@ -387,7 +387,7 @@ public:
 
     virtual void emitCode(EmitArgs&) override;
 
-    static void GenKey(const GrProcessor& processor, const GrGLSLCaps&, GrProcessorKeyBuilder* b) {
+    static void GenKey(const GrProcessor& processor, const GrShaderCaps&, GrProcessorKeyBuilder* b) {
         b->add32(GenBaseGradientKey(processor));
     }
 
@@ -401,7 +401,7 @@ GrGLSLFragmentProcessor* GrLinearGradient::onCreateGLSLInstance() const {
     return new GrLinearGradient::GLSLLinearProcessor(*this);
 }
 
-void GrLinearGradient::onGetGLSLProcessorKey(const GrGLSLCaps& caps,
+void GrLinearGradient::onGetGLSLProcessorKey(const GrShaderCaps& caps,
                                              GrProcessorKeyBuilder* b) const {
     GrLinearGradient::GLSLLinearProcessor::GenKey(*this, caps, b);
 }

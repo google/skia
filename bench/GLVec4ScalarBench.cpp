@@ -11,12 +11,12 @@
 
 #if SK_SUPPORT_GPU
 #include "GLBench.h"
+#include "GrShaderCaps.h"
 #include "GrShaderVar.h"
 #include "gl/GrGLContext.h"
 #include "gl/GrGLInterface.h"
 #include "gl/GrGLUtil.h"
-#include "glsl/GrGLSL.h"
-#include "glsl/GrGLSLCaps.h"
+#include "../private/GrGLSL.h"
 
 #include <stdio.h>
 
@@ -93,7 +93,7 @@ private:
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
 GrGLuint GLVec4ScalarBench::setupShader(const GrGLContext* ctx) {
-    const GrGLSLCaps* glslCaps = ctx->caps()->glslCaps();
+    const GrShaderCaps* glslCaps = ctx->caps()->glslCaps();
     const char* version = glslCaps->versionDeclString();
 
     // this shader draws fNumStages overlapping circles of increasing opacity (coverage) and

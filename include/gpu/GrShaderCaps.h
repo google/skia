@@ -6,19 +6,53 @@
  */
 
 
-#ifndef GrGLSLCaps_DEFINED
-#define GrGLSLCaps_DEFINED
+#ifndef GrShaderCaps_DEFINED
+#define GrShaderCaps_DEFINED
 
-#include "GrCaps.h"
-#include "GrGLSL.h"
-#include "GrSwizzle.h"
+#include "../private/GrSwizzle.h"
+#include "../private/GrGLSL.h"
 
 namespace SkSL {
     class GLSLCapsFactory;
 }
+struct GrContextOptions;
 
-class GrGLSLCaps : public GrShaderCaps {
+class GrShaderCaps : public SkRefCnt {
 public:
+    /** Info about shader variable precision within a given shader stage. That is, this info
+        is relevant to a float (or vecNf) variable declared with a GrSLPrecision
+        in a given GrShaderType. The info here is hoisted from the OpenGL spec. */
+    struct PrecisionInfo {
+        PrecisionInfo() {
+            fLogRangeLow = 0;
+            fLogRangeHigh = 0;
+            fBits = 0;
+        }
+
+        /** Is this precision level allowed in the shader stage? */
+        bool supported() const { return 0 != fBits; }
+
+        bool operator==(const PrecisionInfo& that) const {
+            return fLogRangeLow == that.fLogRangeLow && fLogRangeHigh == that.fLogRangeHigh &&
+                   fBits == that.fBits;
+        }
+        bool operator!=(const PrecisionInfo& that) const { return !(*this == that); }
+
+        /** floor(log2(|min_value|)) */
+        int fLogRangeLow;
+        /** floor(log2(|max_value|)) */
+        int fLogRangeHigh;
+        /** Number of bits of precision. As defined in OpenGL (with names modified to reflect this
+            struct) :
+            """
+            If the smallest representable value greater than 1 is 1 + e, then fBits will
+            contain floor(log2(e)), and every value in the range [2^fLogRangeLow,
+            2^fLogRangeHigh] can be represented to at least one part in 2^fBits.
+            """
+          */
+        int fBits;
+    };
+
     /**
     * Indicates how GLSL must interact with advanced blend equations. The KHR extension requires
     * special layout qualifiers in the fragment shader.
@@ -32,10 +66,54 @@ public:
         kLast_AdvBlendEqInteraction = kSpecificEnables_AdvBlendEqInteraction
     };
 
+    GrShaderCaps(const GrContextOptions&);
+
+    SkString dump() const;
+
+    bool shaderDerivativeSupport() const { return fShaderDerivativeSupport; }
+    bool geometryShaderSupport() const { return fGeometryShaderSupport; }
+    bool pathRenderingSupport() const { return fPathRenderingSupport; }
+    bool dstReadInShaderSupport() const { return fDstReadInShaderSupport; }
+    bool dualSourceBlendingSupport() const { return fDualSourceBlendingSupport; }
+    bool integerSupport() const { return fIntegerSupport; }
+    bool texelBufferSupport() const { return fTexelBufferSupport; }
+    int imageLoadStoreSupport() const { return fImageLoadStoreSupport; }
+
     /**
-     * Initializes the GrGLSLCaps to a default set of features
+    * Get the precision info for a variable of type kFloat_GrSLType, kVec2f_GrSLType, etc in a
+    * given shader type. If the shader type is not supported or the precision level is not
+    * supported in that shader type then the returned struct will report false when supported() is
+    * called.
+    */
+    const PrecisionInfo& getFloatShaderPrecisionInfo(GrShaderType shaderType,
+                                                     GrSLPrecision precision) const {
+        return fFloatPrecisions[shaderType][precision];
+    }
+
+    /**
+    * Is there any difference between the float shader variable precision types? If this is true
+    * then unless the shader type is not supported, any call to getFloatShaderPrecisionInfo() would
+    * report the same info for all precisions in all shader types.
+    */
+    bool floatPrecisionVaries() const { return fShaderPrecisionVaries; }
+
+    /**
+     * PLS storage size in bytes (0 when not supported). The PLS spec defines a minimum size of 16
+     * bytes whenever PLS is supported.
      */
-    GrGLSLCaps(const GrContextOptions&);
+    int pixelLocalStorageSize() const { return fPixelLocalStorageSize; }
+
+    /**
+     * True if this context supports the necessary extensions and features to enable the PLS path
+     * renderer.
+     */
+    bool plsPathRenderingSupport() const {
+#if GR_ENABLE_PLS_PATH_RENDERING
+        return fPLSPathRenderingSupport;
+#else
+        return false;
+#endif
+    }
 
     /**
      * Some helper functions for encapsulating various extensions to read FB Buffer on openglES
@@ -186,19 +264,24 @@ public:
 
     GrGLSLGeneration generation() const { return fGLSLGeneration; }
 
-    /**
-    * Returns a string containing the caps info.
-    */
-    SkString dump() const override;
-
 private:
     /** GrCaps subclasses must call this after filling in the shader precision table. */
     void initSamplerPrecisionTable();
 
-    void onApplyOptionsOverrides(const GrContextOptions& options) override;
+    void applyOptionsOverrides(const GrContextOptions& options);
 
     GrGLSLGeneration fGLSLGeneration;
 
+    bool fShaderDerivativeSupport   : 1;
+    bool fGeometryShaderSupport     : 1;
+    bool fPathRenderingSupport      : 1;
+    bool fDstReadInShaderSupport    : 1;
+    bool fDualSourceBlendingSupport : 1;
+    bool fIntegerSupport            : 1;
+    bool fTexelBufferSupport        : 1;
+    bool fImageLoadStoreSupport     : 1;
+    bool fPLSPathRenderingSupport   : 1;
+    bool fShaderPrecisionVaries     : 1;
     bool fDropsTileOnZeroDivide : 1;
     bool fFBFetchSupport : 1;
     bool fFBFetchNeedsCustomOutput : 1;
@@ -217,6 +300,9 @@ private:
     bool fCanUseMinAndAbsTogether : 1;
     bool fMustForceNegatedAtanParamToFloat : 1;
     bool fRequiresLocalOutputColorForFBFetch : 1;
+
+    PrecisionInfo fFloatPrecisions[kGrShaderTypeCount][kGrSLPrecisionCount];
+    int fPixelLocalStorageSize;
 
     const char* fVersionDeclString;
 
@@ -253,8 +339,6 @@ private:
     friend class GrGLCaps;  // For initialization.
     friend class GrVkCaps;
     friend class SkSL::GLSLCapsFactory;
-
-    typedef GrShaderCaps INHERITED;
 };
 
 #endif

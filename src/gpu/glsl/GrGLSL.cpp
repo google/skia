@@ -5,9 +5,9 @@
  * found in the LICENSE file.
  */
 
-#include "GrGLSL.h"
-#include "GrGLSLCaps.h"
+#include "GrShaderCaps.h"
 #include "SkString.h"
+#include "../private/GrGLSL.h"
 
 bool GrGLSLSupportsNamedFragmentShaderOutputs(GrGLSLGeneration gen) {
     switch (gen) {
@@ -27,7 +27,7 @@ bool GrGLSLSupportsNamedFragmentShaderOutputs(GrGLSLGeneration gen) {
 }
 
 void GrGLSLAppendDefaultFloatPrecisionDeclaration(GrSLPrecision p,
-                                                  const GrGLSLCaps& glslCaps,
+                                                  const GrShaderCaps& glslCaps,
                                                   SkString* out) {
     if (glslCaps.usesPrecisionModifiers()) {
         switch (p) {
