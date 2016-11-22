@@ -72,6 +72,24 @@
     },
     {
       "key": {
+        "uuid": "30324888_e52d80c3",
+        "filename": "src/gpu/GrContext.cpp",
+        "patchSetId": 8
+      },
+      "lineNbr": 568,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2016-11-22T22:05:41Z",
+      "side": 1,
+      "message": "So I suppose this means SurfaceContexts can\u0027t be stateful.",
+      "parentUuid": "30324888_6af29fba",
+      "revId": "e0b085fdf15e4a381595a39a49e487a5406fdb9c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "30324888_aa73d78d",
         "filename": "src/gpu/GrDrawingManager.cpp",
         "patchSetId": 8
