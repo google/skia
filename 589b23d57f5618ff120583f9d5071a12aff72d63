@@ -34,6 +34,24 @@
       "revId": "589b23d57f5618ff120583f9d5071a12aff72d63",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "d079ec3f_0b5bfda0",
+        "filename": "fuzz/FuzzDrawFunctions.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 319,
+      "author": {
+        "id": 5950
+      },
+      "writtenOn": "2016-11-22T17:20:18Z",
+      "side": 1,
+      "message": "The \u0027% 8\u0027 is still present. Wrong patch uploaded?\n\nOnce this is changed I have no other suggestions.",
+      "parentUuid": "500b3ca9_5ae2f415",
+      "revId": "589b23d57f5618ff120583f9d5071a12aff72d63",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
