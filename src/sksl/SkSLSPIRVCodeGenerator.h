@@ -51,7 +51,7 @@ public:
     class LValue {
     public:
         virtual ~LValue() {}
-        
+
         // returns a pointer to the lvalue, if possible. If the lvalue cannot be directly referenced
         // by a pointer (e.g. vector swizzles), returns 0.
         virtual SpvId getPointer() = 0;
@@ -84,7 +84,8 @@ private:
         kAtan_SpecialIntrinsic,
         kTexture_SpecialIntrinsic,
         kTexture2D_SpecialIntrinsic,
-        kTextureProj_SpecialIntrinsic
+        kTextureProj_SpecialIntrinsic,
+        kSubpassLoad_SpecialIntrinsic,
     };
 
     void setupIntrinsics();

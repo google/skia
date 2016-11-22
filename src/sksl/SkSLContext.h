@@ -88,6 +88,13 @@ public:
     , fImage2D_Type(new Type(SkString("image2D"), SpvDim2D, false, false, false, true))
     , fIImage2D_Type(new Type(SkString("iimage2D"), SpvDim2D, false, false, false, true))
 
+    // FIXME express these as "gsubpassInput" that expand to subpassInput, isubpassInput,
+    // and usubpassInput.
+    , fSubpassInput_Type(new Type(SkString("subpassInput"), SpvDimSubpassData, false, false,
+                                           false, false))
+    , fSubpassInputMS_Type(new Type(SkString("subpassInputMS"), SpvDimSubpassData, false, false,
+                                             true, false))
+
     // FIXME figure out what we're supposed to do with the gsampler et al. types)
     , fGSampler1D_Type(new Type(SkString("$gsampler1D"), static_type(*fSampler1D_Type)))
     , fGSampler2D_Type(new Type(SkString("$gsampler2D"), static_type(*fSampler2D_Type)))
@@ -137,7 +144,7 @@ public:
     , fDefined_Expression(new Defined(*fInvalid_Type)) {}
 
     static std::vector<const Type*> static_type(const Type& t) {
-        return { &t, &t, &t, &t };   
+        return { &t, &t, &t, &t };
     }
 
     const std::unique_ptr<Type> fInvalid_Type;
@@ -213,6 +220,9 @@ public:
 
     const std::unique_ptr<Type> fImage2D_Type;
     const std::unique_ptr<Type> fIImage2D_Type;
+
+    const std::unique_ptr<Type> fSubpassInput_Type;
+    const std::unique_ptr<Type> fSubpassInputMS_Type;
 
     const std::unique_ptr<Type> fGSampler1D_Type;
     const std::unique_ptr<Type> fGSampler2D_Type;

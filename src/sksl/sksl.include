@@ -286,6 +286,15 @@ $gvec4 texture($gsampler2DRect sampler, vec2 P);
 float texture(sampler2DRectShadow sampler, vec3 P);
 float texture($gsamplerCubeArrayShadow sampler, vec4 P, float compare);
 */
+
+// Currently we do not support the generic types of loading subpassInput so we have some explicit
+// versions that we currently use
+vec4 subpassLoad(subpassInput subpass);
+vec4 subpassLoad(subpassInputMS subpass, int sample);
+/*
+$gvec4 subpassLoad(gsubpassInput subpass);
+$gvec4 subpassLoad(gsubpassInputMS subpass, int sample);
+*/
 )
 
 // split into multiple chunks, as MSVC++ complains if a single string is too long

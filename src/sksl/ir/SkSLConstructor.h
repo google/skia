@@ -4,7 +4,7 @@
  * Use of this source code is governed by a BSD-style license that can be
  * found in the LICENSE file.
  */
- 
+
 #ifndef SKSL_CONSTRUCTOR
 #define SKSL_CONSTRUCTOR
 
@@ -16,7 +16,7 @@ namespace SkSL {
  * Represents the construction of a compound type, such as "vec2(x, y)".
  */
 struct Constructor : public Expression {
-    Constructor(Position position, const Type& type, 
+    Constructor(Position position, const Type& type,
                 std::vector<std::unique_ptr<Expression>> arguments)
     : INHERITED(position, kConstructor_Kind, type)
     , fArguments(std::move(arguments)) {}
