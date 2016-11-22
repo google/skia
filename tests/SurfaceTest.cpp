@@ -1021,3 +1021,31 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(SurfaceCreationWithColorSpace_Gpu, reporter, 
     }
 }
 #endif
+
+static void test_overdraw_surface(skiatest::Reporter* r, SkSurface* surface) {
+    std::unique_ptr<SkCanvas> canvas = ((SkSurface_Base*) surface)->onMakeOverdrawCanvas();
+    canvas->drawPaint(SkPaint());
+    sk_sp<SkImage> image = surface->makeImageSnapshot();
+
+    SkBitmap bitmap;
+    image->asLegacyBitmap(&bitmap, SkImage::kRO_LegacyBitmapMode);
+    bitmap.lockPixels();
+    for (int y = 0; y < 10; y++) {
+        for (int x = 0; x < 10; x++) {
+            REPORTER_ASSERT(r, 1 == SkGetPackedA32(*bitmap.getAddr32(x, y)));
+        }
+    }
+}
+
+DEF_TEST(OverdrawSurface_Raster, r) {
+    sk_sp<SkSurface> surface = create_surface();
+    test_overdraw_surface(r, surface.get());
+}
+
+#if SK_SUPPORT_GPU
+DEF_GPUTEST_FOR_RENDERING_CONTEXTS(OverdrawSurface_Gpu, r, ctxInfo) {
+    GrContext* context = ctxInfo.grContext();
+    sk_sp<SkSurface> surface = create_gpu_surface(context);
+    test_overdraw_surface(r, surface.get());
+}
+#endif

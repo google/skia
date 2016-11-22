@@ -80,6 +80,13 @@ public:
      */
     virtual void onPrepareForExternalIO() {}
 
+    /**
+     *  Creates an overdraw debugging canvas.
+     *  Draws to this canvas will not actually draw any content.  Instead, they will
+     *  increment the alpha channel each time a pixel would have been touched.
+     *  It may be efficient to use kAlpha8 as the color type on the surface.
+     */
+    std::unique_ptr<SkCanvas> onMakeOverdrawCanvas();
     inline SkCanvas* getCachedCanvas();
     inline sk_sp<SkImage> refCachedImage(SkBudgeted, ForceUnique);
 

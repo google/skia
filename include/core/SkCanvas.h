@@ -1628,6 +1628,7 @@ private:
     friend class SkPicturePlayback; // SaveFlagsToSaveLayerFlags
     friend class SkPipeCanvas;      // InitFlags
     friend class SkDeferredCanvas;  // For use of resetForNextPicture
+    friend class SkOverdrawCanvas;
 
     enum InitFlags {
         kDefault_InitFlags                  = 0,
