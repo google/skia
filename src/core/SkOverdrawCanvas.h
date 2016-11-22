@@ -8,14 +8,14 @@
 #ifndef SkOverdrawCanvas_DEFINED
 #define SkOverdrawCanvas_DEFINED
 
-#include "SkCanvas.h"
+#include "SkNWayCanvas.h"
 
 /**
  *  Captures all drawing commands.  Rather than draw the actual content, this device
  *  increments the alpha channel of each pixel every time it would have been touched
  *  by a draw call.  This is useful for detecting overdraw.
  */
-class SkOverdrawCanvas : public SkCanvas {
+class SkOverdrawCanvas : public SkNWayCanvas {
 public:
     /* Does not take ownership of canvas */
     SkOverdrawCanvas(SkCanvas*);
@@ -63,7 +63,7 @@ private:
     SkCanvas* fCanvas;
     SkPaint   fPaint;
 
-    typedef SkCanvas INHERITED;
+    typedef SkNWayCanvas INHERITED;
 };
 
 #endif
