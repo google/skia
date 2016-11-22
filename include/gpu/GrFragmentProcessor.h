@@ -11,11 +11,11 @@
 #include "GrProcessor.h"
 
 class GrCoordTransform;
-class GrGLSLCaps;
 class GrGLSLFragmentProcessor;
 class GrInvariantOutput;
 class GrPipeline;
 class GrProcessorKeyBuilder;
+class GrShaderCaps;
 
 /** Provides custom fragment shader code. Fragment processors receive an input color (vec4f) and
     produce an output color. They may reference textures and uniforms. They may use
@@ -73,7 +73,7 @@ public:
 
     GrGLSLFragmentProcessor* createGLSLInstance() const;
 
-    void getGLSLProcessorKey(const GrGLSLCaps& caps, GrProcessorKeyBuilder* b) const {
+    void getGLSLProcessorKey(const GrShaderCaps& caps, GrProcessorKeyBuilder* b) const {
         this->onGetGLSLProcessorKey(caps, b);
         for (int i = 0; i < fChildProcessors.count(); ++i) {
             fChildProcessors[i]->getGLSLProcessorKey(caps, b);
@@ -241,8 +241,7 @@ private:
     virtual GrGLSLFragmentProcessor* onCreateGLSLInstance() const = 0;
 
     /** Implemented using GLFragmentProcessor::GenKey as described in this class's comment. */
-    virtual void onGetGLSLProcessorKey(const GrGLSLCaps& caps,
-                                       GrProcessorKeyBuilder* b) const = 0;
+    virtual void onGetGLSLProcessorKey(const GrShaderCaps&, GrProcessorKeyBuilder*) const = 0;
 
     /**
      * Subclass implements this to support isEqual(). It will only be called if it is known that

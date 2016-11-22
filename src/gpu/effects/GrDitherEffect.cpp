@@ -9,9 +9,9 @@
 #include "GrFragmentProcessor.h"
 #include "GrInvariantOutput.h"
 #include "SkRect.h"
-#include "glsl/GrGLSL.h"
 #include "glsl/GrGLSLFragmentProcessor.h"
 #include "glsl/GrGLSLFragmentShaderBuilder.h"
+#include "../private/GrGLSL.h"
 
 //////////////////////////////////////////////////////////////////////////////
 
@@ -33,7 +33,7 @@ private:
 
     GrGLSLFragmentProcessor* onCreateGLSLInstance() const override;
 
-    void onGetGLSLProcessorKey(const GrGLSLCaps&, GrProcessorKeyBuilder*) const override;
+    void onGetGLSLProcessorKey(const GrShaderCaps&, GrProcessorKeyBuilder*) const override;
 
     // All dither effects are equal
     bool onIsEqual(const GrFragmentProcessor&) const override { return true; }
@@ -87,7 +87,7 @@ void GLDitherEffect::emitCode(EmitArgs& args) {
 
 //////////////////////////////////////////////////////////////////////////////
 
-void DitherEffect::onGetGLSLProcessorKey(const GrGLSLCaps& caps,
+void DitherEffect::onGetGLSLProcessorKey(const GrShaderCaps& caps,
                                          GrProcessorKeyBuilder* b) const {
     GLDitherEffect::GenKey(*this, caps, b);
 }

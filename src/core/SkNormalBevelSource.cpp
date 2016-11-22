@@ -104,8 +104,7 @@ public:
             fragBuilder->codeAppendf("%s = vec4(normal, 0.0);", args.fOutputColor);
         }
 
-        static void GenKey(const GrProcessor& proc, const GrGLSLCaps&,
-                           GrProcessorKeyBuilder* b) {
+        static void GenKey(const GrProcessor& proc, const GrShaderCaps&, GrProcessorKeyBuilder* b) {
             const NormalBevelFP& fp = proc.cast<NormalBevelFP>();
             b->add32(static_cast<int>(fp.fBevelType));
         }
@@ -217,7 +216,7 @@ public:
         GrGLSLProgramDataManager::UniformHandle fNormalizedHeightUni;
     };
 
-    void onGetGLSLProcessorKey(const GrGLSLCaps& caps, GrProcessorKeyBuilder* b) const override {
+    void onGetGLSLProcessorKey(const GrShaderCaps& caps, GrProcessorKeyBuilder* b) const override {
         GLSLNormalBevelFP::GenKey(*this, caps, b);
     }
 

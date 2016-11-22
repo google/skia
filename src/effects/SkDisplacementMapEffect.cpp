@@ -243,7 +243,7 @@ public:
 private:
     GrGLSLFragmentProcessor* onCreateGLSLInstance() const override;
 
-    void onGetGLSLProcessorKey(const GrGLSLCaps& caps, GrProcessorKeyBuilder* b) const override;
+    void onGetGLSLProcessorKey(const GrShaderCaps& caps, GrProcessorKeyBuilder* b) const override;
 
     bool onIsEqual(const GrFragmentProcessor&) const override;
 
@@ -454,7 +454,7 @@ class GrGLDisplacementMapEffect : public GrGLSLFragmentProcessor {
 public:
     void emitCode(EmitArgs&) override;
 
-    static inline void GenKey(const GrProcessor&, const GrGLSLCaps&, GrProcessorKeyBuilder*);
+    static inline void GenKey(const GrProcessor&, const GrShaderCaps&, GrProcessorKeyBuilder*);
 
 protected:
     void onSetData(const GrGLSLProgramDataManager&, const GrProcessor&) override;
@@ -472,7 +472,7 @@ GrGLSLFragmentProcessor* GrDisplacementMapEffect::onCreateGLSLInstance() const {
     return new GrGLDisplacementMapEffect;
 }
 
-void GrDisplacementMapEffect::onGetGLSLProcessorKey(const GrGLSLCaps& caps,
+void GrDisplacementMapEffect::onGetGLSLProcessorKey(const GrShaderCaps& caps,
                                                     GrProcessorKeyBuilder* b) const {
     GrGLDisplacementMapEffect::GenKey(*this, caps, b);
 }
@@ -635,7 +635,7 @@ void GrGLDisplacementMapEffect::onSetData(const GrGLSLProgramDataManager& pdman,
 }
 
 void GrGLDisplacementMapEffect::GenKey(const GrProcessor& proc,
-                                       const GrGLSLCaps&, GrProcessorKeyBuilder* b) {
+                                       const GrShaderCaps&, GrProcessorKeyBuilder* b) {
     const GrDisplacementMapEffect& displacementMap = proc.cast<GrDisplacementMapEffect>();
 
     uint32_t xKey = displacementMap.xChannelSelector();

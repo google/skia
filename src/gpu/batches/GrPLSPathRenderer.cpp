@@ -381,7 +381,7 @@ public:
         }
 
         static inline void GenKey(const GrGeometryProcessor& gp,
-                                  const GrGLSLCaps&,
+                                  const GrShaderCaps&,
                                   GrProcessorKeyBuilder* b) {
             const PLSAATriangleEffect& te = gp.cast<PLSAATriangleEffect>();
             uint32_t key = 0;
@@ -399,12 +399,12 @@ public:
         typedef GrGLSLGeometryProcessor INHERITED;
     };
 
-    virtual void getGLSLProcessorKey(const GrGLSLCaps& caps,
+    virtual void getGLSLProcessorKey(const GrShaderCaps& caps,
                                    GrProcessorKeyBuilder* b) const override {
         GLSLProcessor::GenKey(*this, caps, b);
     }
 
-    virtual GrGLSLPrimitiveProcessor* createGLSLInstance(const GrGLSLCaps&) const override {
+    virtual GrGLSLPrimitiveProcessor* createGLSLInstance(const GrShaderCaps&) const override {
         return new GLSLProcessor(*this);
     }
 
@@ -563,7 +563,7 @@ public:
         }
 
         static inline void GenKey(const GrGeometryProcessor& gp,
-                                  const GrGLSLCaps&,
+                                  const GrShaderCaps&,
                                   GrProcessorKeyBuilder* b) {
             const PLSQuadEdgeEffect& qee = gp.cast<PLSQuadEdgeEffect>();
             uint32_t key = 0;
@@ -581,12 +581,12 @@ public:
         typedef GrGLSLGeometryProcessor INHERITED;
     };
 
-    virtual void getGLSLProcessorKey(const GrGLSLCaps& caps,
+    virtual void getGLSLProcessorKey(const GrShaderCaps& caps,
                                    GrProcessorKeyBuilder* b) const override {
         GLSLProcessor::GenKey(*this, caps, b);
     }
 
-    virtual GrGLSLPrimitiveProcessor* createGLSLInstance(const GrGLSLCaps&) const override {
+    virtual GrGLSLPrimitiveProcessor* createGLSLInstance(const GrShaderCaps&) const override {
         return new GLSLProcessor(*this);
     }
 
@@ -692,7 +692,7 @@ public:
         }
 
         static inline void GenKey(const GrGeometryProcessor& gp,
-                                  const GrGLSLCaps&,
+                                  const GrShaderCaps&,
                                   GrProcessorKeyBuilder* b) {
             const PLSFinishEffect& fe = gp.cast<PLSFinishEffect>();
             uint32_t key = 0;
@@ -721,12 +721,12 @@ public:
         typedef GrGLSLGeometryProcessor INHERITED;
     };
 
-    virtual void getGLSLProcessorKey(const GrGLSLCaps& caps,
+    virtual void getGLSLProcessorKey(const GrShaderCaps& caps,
                                    GrProcessorKeyBuilder* b) const override {
         GLSLProcessor::GenKey(*this, caps, b);
     }
 
-    virtual GrGLSLPrimitiveProcessor* createGLSLInstance(const GrGLSLCaps&) const override {
+    virtual GrGLSLPrimitiveProcessor* createGLSLInstance(const GrShaderCaps&) const override {
         return new GLSLProcessor(*this);
     }
 

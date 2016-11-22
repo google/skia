@@ -11,12 +11,12 @@
 
 #if SK_SUPPORT_GPU
 #include "GLBench.h"
+#include "GrShaderCaps.h"
 #include "GrShaderVar.h"
 #include "gl/GrGLContext.h"
 #include "gl/GrGLInterface.h"
 #include "gl/GrGLUtil.h"
-#include "glsl/GrGLSL.h"
-#include "glsl/GrGLSLCaps.h"
+#include "../private/GrGLSL.h"
 
 /*
  * This is a native GL benchmark for instanced arrays vs vertex buffer objects.  To benchmark this
@@ -107,7 +107,7 @@ private:
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
 GrGLuint GLCpuPosInstancedArraysBench::setupShader(const GrGLContext* ctx) {
-    const GrGLSLCaps* glslCaps = ctx->caps()->glslCaps();
+    const GrShaderCaps* glslCaps = ctx->caps()->glslCaps();
     const char* version = glslCaps->versionDeclString();
 
     // setup vertex shader
