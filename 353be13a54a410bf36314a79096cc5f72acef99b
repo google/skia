@@ -78,6 +78,24 @@
     },
     {
       "key": {
+        "uuid": "500b3ca9_02476d1c",
+        "filename": "include/private/SkSafe_math.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 40,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2016-11-22T13:58:15Z",
+      "side": 1,
+      "message": "I\u0027ve reworked the checks a little bit after thinking about what exactly we needed.",
+      "parentUuid": "500b3ca9_a2e2e112",
+      "revId": "353be13a54a410bf36314a79096cc5f72acef99b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "500b3ca9_4d86bbfc",
         "filename": "src/opts/SkOpts_avx.cpp",
         "patchSetId": 3
