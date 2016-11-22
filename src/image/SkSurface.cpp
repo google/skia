@@ -9,6 +9,7 @@
 #include "SkSurface_Base.h"
 #include "SkImagePriv.h"
 #include "SkCanvas.h"
+#include "SkOverdrawCanvas.h"
 
 #include "SkFontLCDConfig.h"
 static SkPixelGeometry compute_default_geometry() {
@@ -115,6 +116,10 @@ void SkSurface_Base::aboutToDraw(ContentChangeMode mode) {
     } else if (kDiscard_ContentChangeMode == mode) {
         this->onDiscard();
     }
+}
+
+std::unique_ptr<SkCanvas> SkSurface_Base::onMakeOverdrawCanvas() {
+    return std::unique_ptr<SkCanvas>(new SkOverdrawCanvas(this->getCachedCanvas()));
 }
 
 uint32_t SkSurface_Base::newGenerationID() {
