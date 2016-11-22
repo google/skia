@@ -14,6 +14,7 @@
  *  Enum describing format of encoded data.
  */
 enum class SkEncodedImageFormat {
+    kUnknown,
     kBMP,
     kGIF,
     kICO,

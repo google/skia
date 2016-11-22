@@ -47,6 +47,7 @@ inline bool SkEncodeImage(SkWStream* dst, const SkBitmap& src, SkEncodedImageFor
 class SkImageEncoder {
 public:
     enum Type {
+        kUnknown_Type = (uint8_t)SkEncodedImageFormat::kUnknown,
         kBMP_Type     = (uint8_t)SkEncodedImageFormat::kBMP,
         kGIF_Type     = (uint8_t)SkEncodedImageFormat::kGIF,
         kICO_Type     = (uint8_t)SkEncodedImageFormat::kICO,
