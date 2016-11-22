@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "30324888_aa18b7ef",
+        "filename": "src/gpu/GrContext.cpp",
+        "patchSetId": 7
+      },
+      "lineNbr": 563,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2016-11-22T21:00:00Z",
+      "side": 1,
+      "message": "Could we have a function that we call here that makes the appropriate context type depending on whether dst is a RT or not? And then assert in the texture context creation code that the surface/proxy is not a RT?",
+      "revId": "8078271fc4b8c591b50dab7ff18fb6b96ca152a9",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
