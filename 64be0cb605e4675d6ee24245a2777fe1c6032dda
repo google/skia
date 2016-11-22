@@ -43,6 +43,24 @@
     },
     {
       "key": {
+        "uuid": "500b3ca9_4520cfb0",
+        "filename": "src/core/SkOverdrawCanvas.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 123,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2016-11-22T15:58:29Z",
+      "side": 1,
+      "message": "If there is no default case then clang will give a warning if a new TextEncoding enum value is added and this is not updated. If we want an assert, perhaps an assert after the end of the switch that proc is not null?",
+      "parentUuid": "500b3ca9_251f1b89",
+      "revId": "64be0cb605e4675d6ee24245a2777fe1c6032dda",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "500b3ca9_65151367",
         "filename": "src/core/SkOverdrawCanvas.h",
         "patchSetId": 5
