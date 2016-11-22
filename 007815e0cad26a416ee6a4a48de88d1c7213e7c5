@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "30324888_25b7f8b7",
+        "filename": "src/core/SkConfig8888.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 64,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2016-11-22T21:53:34Z",
+      "side": 1,
+      "message": "Remove both RB swaps if both src and dst are BGRA?",
+      "revId": "007815e0cad26a416ee6a4a48de88d1c7213e7c5",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "30324888_6523b01b",
+        "filename": "src/core/SkConfig8888.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 331,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2016-11-22T21:53:34Z",
+      "side": 1,
+      "message": "This whole case seems like it can  go away?",
+      "revId": "007815e0cad26a416ee6a4a48de88d1c7213e7c5",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
