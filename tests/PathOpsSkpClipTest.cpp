@@ -429,7 +429,7 @@ static void drawPict(SkPicture* pic, SkCanvas* canvas, int scale) {
 static void writePict(const SkBitmap& bitmap, const char* outDir, const char* pngName) {
     SkString outFile = get_sum_path(outDir);
     outFile.appendf("%s%s", PATH_SLASH, pngName);
-    if (!SkImageEncoder::EncodeFile(outFile.c_str(), bitmap, SkImageEncoder::kPNG_Type, 100)) {
+    if (!sk_tool_utils::EncodeImageToFile(outFile.c_str(), bitmap, SkEncodedImageFormat::kPNG, 100)) {
         SkDebugf("unable to encode gr %s (width=%d height=%d)\n", pngName,
                     bitmap.width(), bitmap.height());
     }

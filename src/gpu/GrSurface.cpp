@@ -165,6 +165,11 @@ bool GrSurface::readPixels(int left, int top, int width, int height,
                                       rowBytes, pixelOpsFlags);
 }
 
+static bool encode_image_to_file(const char* path, const SkBitmap& src) {
+    SkFILEWStream file(path);
+    return file.isValid() && SkEncodeImage(&file, src, SkEncodedImageFormat::kPNG, 100);
+}
+
 // TODO: This should probably be a non-member helper function. It might only be needed in
 // debug or developer builds.
 bool GrSurface::savePixels(const char* filename) {
@@ -183,7 +188,7 @@ bool GrSurface::savePixels(const char* filename) {
     // remove any previous version of this file
     remove(filename);
 
-    if (!SkImageEncoder::EncodeFile(filename, bm, SkImageEncoder::kPNG_Type, 100)) {
+    if (!encode_image_to_file(filename, bm)) {
         SkDebugf("------ failed to encode %s\n", filename);
         remove(filename);   // remove any partial file
         return false;

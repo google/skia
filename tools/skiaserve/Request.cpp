@@ -11,6 +11,7 @@
 #include "SkPixelSerializer.h"
 #include "SkPM4fPriv.h"
 #include "picture_utils.h"
+#include "sk_tool_utils.h"
 
 using namespace sk_gpu_test;
 
@@ -117,7 +118,7 @@ sk_sp<SkData> Request::writeOutSkp() {
 
     SkDynamicMemoryWStream outStream;
 
-    sk_sp<SkPixelSerializer> serializer(SkImageEncoder::CreatePixelSerializer());
+    sk_sp<SkPixelSerializer> serializer = sk_tool_utils::MakePixelSerializer();
     picture->serialize(&outStream, serializer.get());
 
     return outStream.detachAsData();
