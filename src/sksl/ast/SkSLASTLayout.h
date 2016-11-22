@@ -78,13 +78,15 @@ struct ASTLayout : public ASTNode {
     }
 
     // For int parameters, a -1 means no value
-    ASTLayout(int location, int binding, int index, int set, int builtin, bool originUpperLeft,
-              bool overrideCoverage, bool blendSupportAllEquations, Format format)
+    ASTLayout(int location, int binding, int index, int set, int builtin, int inputAttachmentIndex,
+              bool originUpperLeft, bool overrideCoverage, bool blendSupportAllEquations,
+              Format format)
     : fLocation(location)
     , fBinding(binding)
     , fIndex(index)
     , fSet(set)
     , fBuiltin(builtin)
+    , fInputAttachmentIndex(inputAttachmentIndex)
     , fOriginUpperLeft(originUpperLeft)
     , fOverrideCoverage(overrideCoverage)
     , fBlendSupportAllEquations(blendSupportAllEquations)
@@ -111,6 +113,10 @@ struct ASTLayout : public ASTNode {
         }
         if (fBuiltin >= 0) {
             result += separator + "builtin = " + to_string(fBuiltin);
+            separator = ", ";
+        }
+        if (fInputAttachmentIndex >= 0) {
+            result += separator + "input_attachment_index = " + to_string(fBuiltin);
             separator = ", ";
         }
         if (fOriginUpperLeft) {
@@ -140,6 +146,7 @@ struct ASTLayout : public ASTNode {
     const int fIndex;
     const int fSet;
     const int fBuiltin;
+    const int fInputAttachmentIndex;
     const bool fOriginUpperLeft;
     const bool fOverrideCoverage;
     const bool fBlendSupportAllEquations;
