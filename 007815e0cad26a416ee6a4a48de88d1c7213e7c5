@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "30324888_255b78a1",
+        "filename": "src/core/SkConfig8888.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 64,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2016-11-22T22:01:27Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "30324888_25b7f8b7",
+      "revId": "007815e0cad26a416ee6a4a48de88d1c7213e7c5",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "30324888_6523b01b",
         "filename": "src/core/SkConfig8888.cpp",
         "patchSetId": 2
@@ -30,6 +48,24 @@
       "writtenOn": "2016-11-22T21:53:34Z",
       "side": 1,
       "message": "This whole case seems like it can  go away?",
+      "revId": "007815e0cad26a416ee6a4a48de88d1c7213e7c5",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "30324888_c56ba42b",
+        "filename": "src/core/SkConfig8888.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 331,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2016-11-22T22:01:27Z",
+      "side": 1,
+      "message": "At the moment, yes. I vote to keep it in, so that if we need to *not* support some combo in the pipeline code, we can just return false.\n\nEventually I hope we can delete most of this file, and use the pipeline for (nearly) everything.",
+      "parentUuid": "30324888_6523b01b",
       "revId": "007815e0cad26a416ee6a4a48de88d1c7213e7c5",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
