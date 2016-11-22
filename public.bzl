@@ -599,6 +599,7 @@ DEFINES_ALL = [
     # Staging flags for API changes
     "SK_SUPPORT_LEGACY_ACCESSBITMAP",
     "SK_SUPPORT_LEGACY_CLIP_REGIONOPS",
+    "SK_SUPPORT_LEGACY_IMAGE_ENCODER_CLASS",
     "SK_SUPPORT_LEGACY_XFERMODE_IS_PUBLIC",
     # Temporarily Disable analytic AA for Google3
     "SK_NO_ANALYTIC_AA",
