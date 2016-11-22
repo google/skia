@@ -6,7 +6,7 @@
  */
 
 #include "GrGLSL.h"
-#include "GrGLSLCaps.h"
+#include "GrShaderCaps.h"
 #include "SkString.h"
 
 bool GrGLSLSupportsNamedFragmentShaderOutputs(GrGLSLGeneration gen) {
@@ -27,7 +27,7 @@ bool GrGLSLSupportsNamedFragmentShaderOutputs(GrGLSLGeneration gen) {
 }
 
 void GrGLSLAppendDefaultFloatPrecisionDeclaration(GrSLPrecision p,
-                                                  const GrGLSLCaps& glslCaps,
+                                                  const GrShaderCaps& glslCaps,
                                                   SkString* out) {
     if (glslCaps.usesPrecisionModifiers()) {
         switch (p) {

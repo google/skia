@@ -9,10 +9,10 @@
 #if SK_SUPPORT_GPU
 #include "GrContext.h"
 #include "GrContextFactory.h"
+#include "GrShaderCaps.h"
 #include "gl/GrGLGpu.h"
 #include "gl/GrGLUtil.h"
 #include "gl/GLTestContext.h"
-#include "glsl/GrGLSLCaps.h"
 
 using sk_gpu_test::GLTestContext;
 

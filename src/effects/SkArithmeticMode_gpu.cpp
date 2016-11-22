@@ -64,7 +64,7 @@ public:
                             arith.enforcePMColor());
     }
 
-    static void GenKey(const GrProcessor& proc, const GrGLSLCaps&, GrProcessorKeyBuilder* b) {
+    static void GenKey(const GrProcessor& proc, const GrShaderCaps&, GrProcessorKeyBuilder* b) {
         const GrArithmeticFP& arith = proc.cast<GrArithmeticFP>();
         uint32_t key = arith.enforcePMColor() ? 1 : 0;
         b->add32(key);
@@ -94,7 +94,8 @@ GrArithmeticFP::GrArithmeticFP(float k1, float k2, float k3, float k4, bool enfo
     SkASSERT(0 == dstIndex);
 }
 
-void GrArithmeticFP::onGetGLSLProcessorKey(const GrGLSLCaps& caps, GrProcessorKeyBuilder* b) const {
+void GrArithmeticFP::onGetGLSLProcessorKey(const GrShaderCaps& caps,
+                                           GrProcessorKeyBuilder* b) const {
     GLArithmeticFP::GenKey(*this, caps, b);
 }
 
@@ -156,7 +157,7 @@ private:
                                                  GrColor* overrideColor,
                                                  const GrCaps& caps) const override;
 
-    void onGetGLSLProcessorKey(const GrGLSLCaps& caps, GrProcessorKeyBuilder* b) const override;
+    void onGetGLSLProcessorKey(const GrShaderCaps& caps, GrProcessorKeyBuilder* b) const override;
 
     bool onIsEqual(const GrXferProcessor& xpBase) const override {
         const ArithmeticXP& xp = xpBase.cast<ArithmeticXP>();
@@ -186,7 +187,7 @@ public:
 
     ~GLArithmeticXP() override {}
 
-    static void GenKey(const GrProcessor& processor, const GrGLSLCaps& caps,
+    static void GenKey(const GrProcessor& processor, const GrShaderCaps& caps,
                        GrProcessorKeyBuilder* b) {
         const ArithmeticXP& arith = processor.cast<ArithmeticXP>();
         uint32_t key = arith.enforcePMColor() ? 1 : 0;
@@ -240,7 +241,7 @@ ArithmeticXP::ArithmeticXP(const DstTexture* dstTexture, bool hasMixedSamples,
     this->initClassID<ArithmeticXP>();
 }
 
-void ArithmeticXP::onGetGLSLProcessorKey(const GrGLSLCaps& caps, GrProcessorKeyBuilder* b) const {
+void ArithmeticXP::onGetGLSLProcessorKey(const GrShaderCaps& caps, GrProcessorKeyBuilder* b) const {
     GLArithmeticXP::GenKey(*this, caps, b);
 }
 

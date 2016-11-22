@@ -27,7 +27,7 @@ class GrGLBicubicEffect : public GrGLSLFragmentProcessor {
 public:
     void emitCode(EmitArgs&) override;
 
-    static inline void GenKey(const GrProcessor& effect, const GrGLSLCaps&,
+    static inline void GenKey(const GrProcessor& effect, const GrShaderCaps&,
                               GrProcessorKeyBuilder* b) {
         const GrBicubicEffect& bicubicEffect = effect.cast<GrBicubicEffect>();
         b->add32(GrTextureDomain::GLDomain::DomainKey(bicubicEffect.domain()));
@@ -177,7 +177,7 @@ GrBicubicEffect::GrBicubicEffect(GrTexture* texture,
 GrBicubicEffect::~GrBicubicEffect() {
 }
 
-void GrBicubicEffect::onGetGLSLProcessorKey(const GrGLSLCaps& caps,
+void GrBicubicEffect::onGetGLSLProcessorKey(const GrShaderCaps& caps,
                                             GrProcessorKeyBuilder* b) const {
     GrGLBicubicEffect::GenKey(*this, caps, b);
 }

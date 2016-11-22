@@ -9,8 +9,8 @@
 #include "GrPathRendererChain.h"
 
 #include "GrCaps.h"
+#include "GrShaderCaps.h"
 #include "gl/GrGLCaps.h"
-#include "glsl/GrGLSLCaps.h"
 #include "GrContext.h"
 #include "GrGpu.h"
 

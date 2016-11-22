@@ -11,7 +11,7 @@
 #include "GrTypesPriv.h"
 #include "SkString.h"
 
-class GrGLSLCaps;
+class GrShaderCaps;
 
 // Limited set of GLSL versions we build shaders for. Caller should round
 // down the GLSL version to one of these enums.
@@ -85,7 +85,7 @@ inline const char* GrGLSLTexture2DFunctionName(GrSLType coordType, GrSLType samp
  * Adds a line of GLSL code to declare the default precision for float types.
  */
 void GrGLSLAppendDefaultFloatPrecisionDeclaration(GrSLPrecision,
-                                                  const GrGLSLCaps& glslCaps,
+                                                  const GrShaderCaps&,
                                                   SkString* out);
 
 /**
