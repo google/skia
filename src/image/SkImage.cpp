@@ -103,22 +103,27 @@ sk_sp<SkShader> SkImage::makeShader(SkShader::TileMode tileX, SkShader::TileMode
     return SkImageShader::Make(sk_ref_sp(const_cast<SkImage*>(this)), tileX, tileY, localMatrix);
 }
 
-SkData* SkImage::encode(SkEncodedImageFormat type, int quality) const {
+SkData* SkImage::encode(SkImageEncoder::Type type, int quality) const {
     SkBitmap bm;
     // TODO: Right now, the encoders don't handle F16 or linearly premultiplied data. Once they do,
     // we should decode in "color space aware" mode, then re-encode that. For now, work around this
     // by asking for a legacy decode (which gives us the raw data in N32).
     if (as_IB(this)->getROPixels(&bm, SkDestinationSurfaceColorMode::kLegacy)) {
-        SkDynamicMemoryWStream buf;
-        return SkEncodeImage(&buf, bm, type, quality) ? buf.detachAsData().release() : nullptr;
+        return SkImageEncoder::EncodeData(bm, type, quality);
     }
     return nullptr;
 }
 
 SkData* SkImage::encode(SkPixelSerializer* serializer) const {
+    sk_sp<SkPixelSerializer> defaultSerializer;
+    SkPixelSerializer* effectiveSerializer = serializer;
+    if (!effectiveSerializer) {
+        defaultSerializer.reset(SkImageEncoder::CreatePixelSerializer());
+        SkASSERT(defaultSerializer.get());
+        effectiveSerializer = defaultSerializer.get();
+    }
     sk_sp<SkData> encoded(this->refEncoded());
-    if (encoded &&
-        (!serializer || serializer->useEncodedData(encoded->data(), encoded->size()))) {
+    if (encoded && effectiveSerializer->useEncodedData(encoded->data(), encoded->size())) {
         return encoded.release();
     }
 
@@ -129,13 +134,7 @@ SkData* SkImage::encode(SkPixelSerializer* serializer) const {
     // by asking for a legacy decode (which gives us the raw data in N32).
     if (as_IB(this)->getROPixels(&bm, SkDestinationSurfaceColorMode::kLegacy) &&
         bm.requestLock(&apu)) {
-        if (serializer) {
-            return serializer->encode(apu.pixmap());
-        } else {
-            SkDynamicMemoryWStream buf;
-            return SkEncodeImage(&buf, apu.pixmap(), SkEncodedImageFormat::kPNG, 100)
-                   ? buf.detachAsData().release() : nullptr;
-        }
+        return effectiveSerializer->encode(apu.pixmap());
     }
 
     return nullptr;
@@ -189,7 +188,7 @@ GrBackendObject SkImage::getTextureHandle(bool flushPendingGrContextIO) const {
     GrTexture* texture = as_IB(this)->peekTexture();
     if (texture) {
         GrContext* context = texture->getContext();
-        if (context) {
+        if (context) {            
             if (flushPendingGrContextIO) {
                 context->prepareSurfaceForExternalIO(texture);
             }

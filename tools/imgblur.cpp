@@ -66,7 +66,7 @@ int tool_main(int argc, char** argv) {
 
     SkBitmap dst = sk_tool_utils::slow_blur(src, (float) FLAGS_sigma);
 
-    if (!sk_tool_utils::EncodeImageToFile(FLAGS_out[0], dst, SkEncodedImageFormat::kPNG, 100)) {
+    if (!SkImageEncoder::EncodeFile(FLAGS_out[0], dst, SkImageEncoder::kPNG_Type, 100)) {
         if (!FLAGS_quiet) {
             SkDebugf("Couldn't write to file: %s\n", FLAGS_out[0]);
         }

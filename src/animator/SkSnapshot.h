@@ -22,7 +22,7 @@ class SkSnapshot: public SkADrawable {
     SkString filename;
     SkScalar quality;
     SkBool sequence;
-    int /*SkEncodedImageFormat*/    type;
+    int /*SkImageEncoder::Type*/    type;
     int fSeqVal;
 };
 

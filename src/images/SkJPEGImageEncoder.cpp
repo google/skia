@@ -5,20 +5,20 @@
  * found in the LICENSE file.
  */
 
-#include "SkImageEncoderPriv.h"
 
-#include "SkCanvas.h"
+#include "SkImageEncoder.h"
 #include "SkColorPriv.h"
 #include "SkDither.h"
-#include "SkJPEGWriteUtility.h"
-#include "SkRect.h"
 #include "SkStream.h"
 #include "SkTemplates.h"
 #include "SkTime.h"
 #include "SkUtils.h"
+#include "SkRect.h"
+#include "SkCanvas.h"
+
 
 #include <stdio.h>
-
+#include "SkJPEGWriteUtility.h"
 extern "C" {
     #include "jpeglib.h"
     #include "jerror.h"
@@ -178,7 +178,7 @@ DEFINE_ENCODER_CREATOR(JPEGImageEncoder);
 ///////////////////////////////////////////////////////////////////////////////
 
 static SkImageEncoder* sk_libjpeg_efactory(SkImageEncoder::Type t) {
-    return (SkEncodedImageFormat::kJPEG == (SkEncodedImageFormat)t) ? new SkJPEGImageEncoder : nullptr;
+    return (SkImageEncoder::kJPEG_Type == t) ? new SkJPEGImageEncoder : nullptr;
 }
 
 static SkImageEncoder_EncodeReg gEReg(sk_libjpeg_efactory);

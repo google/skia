@@ -15,8 +15,6 @@
 #include "SkSLCompiler.h"
 #include <stdio.h>
 
-#include "sk_tool_utils.h"
-
 const GrGLContext* GLBench::getGLContext(SkCanvas* canvas) {
     // This bench exclusively tests GL calls directly
     if (nullptr == canvas->getGrContext()) {
@@ -183,7 +181,7 @@ void GLBench::DumpImage(const GrGLInterface* gl, uint32_t screenWidth, uint32_t 
 
     bm.setPixels(readback.get());
 
-    if (!sk_tool_utils::EncodeImageToFile(filename, bm, SkEncodedImageFormat::kPNG, 100)) {
+    if (!SkImageEncoder::EncodeFile(filename, bm, SkImageEncoder::kPNG_Type, 100)) {
         SkDebugf("------ failed to encode %s\n", filename);
         remove(filename);   // remove any partial file
         return;

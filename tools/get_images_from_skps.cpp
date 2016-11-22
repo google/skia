@@ -65,14 +65,14 @@ struct Sniffer : public SkPixelSerializer {
         }
         SkString ext;
         switch (codec->getEncodedFormat()) {
-            case SkEncodedImageFormat::kBMP:  ext =  "bmp"; break;
-            case SkEncodedImageFormat::kGIF:  ext =  "gif"; break;
-            case SkEncodedImageFormat::kICO:  ext =  "ico"; break;
-            case SkEncodedImageFormat::kJPEG: ext =  "jpg"; break;
-            case SkEncodedImageFormat::kPNG:  ext =  "png"; break;
-            case SkEncodedImageFormat::kDNG:  ext =  "dng"; break;
-            case SkEncodedImageFormat::kWBMP: ext = "wbmp"; break;
-            case SkEncodedImageFormat::kWEBP: ext = "webp"; break;
+            case SkEncodedFormat::kBMP_SkEncodedFormat:  ext =  "bmp"; break;
+            case SkEncodedFormat::kGIF_SkEncodedFormat:  ext =  "gif"; break;
+            case SkEncodedFormat::kICO_SkEncodedFormat:  ext =  "ico"; break;
+            case SkEncodedFormat::kJPEG_SkEncodedFormat: ext =  "jpg"; break;
+            case SkEncodedFormat::kPNG_SkEncodedFormat:  ext =  "png"; break;
+            case SkEncodedFormat::kDNG_SkEncodedFormat:  ext =  "dng"; break;
+            case SkEncodedFormat::kWBMP_SkEncodedFormat: ext = "wbmp"; break;
+            case SkEncodedFormat::kWEBP_SkEncodedFormat: ext = "webp"; break;
             default:
                 // This should be unreachable because we cannot create a codec if we do not know
                 // the image type.

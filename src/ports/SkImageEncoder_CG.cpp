@@ -12,7 +12,7 @@
 #include "SkCGUtils.h"
 #include "SkColorPriv.h"
 #include "SkData.h"
-#include "SkImageEncoderPriv.h"
+#include "SkImageEncoder.h"
 #include "SkStream.h"
 #include "SkStreamPriv.h"
 #include "SkTemplates.h"
@@ -59,13 +59,13 @@ static CGImageDestinationRef SkStreamToImageDestination(SkWStream* stream,
 
 class SkImageEncoder_CG : public SkImageEncoder {
 public:
-    SkImageEncoder_CG(SkEncodedImageFormat t) : fType(t) {}
+    SkImageEncoder_CG(Type t) : fType(t) {}
 
 protected:
     virtual bool onEncode(SkWStream* stream, const SkBitmap& bm, int quality);
 
 private:
-    SkEncodedImageFormat fType;
+    Type fType;
 };
 
 /*  Encode bitmaps via CGImageDestination. We setup a DataConsumer which writes
@@ -80,19 +80,19 @@ bool SkImageEncoder_CG::onEncode(SkWStream* stream, const SkBitmap& bm,
 
     CFStringRef type;
     switch (fType) {
-        case SkEncodedImageFormat::kICO:
+        case kICO_Type:
             type = kUTTypeICO;
             break;
-        case SkEncodedImageFormat::kBMP:
+        case kBMP_Type:
             type = kUTTypeBMP;
             break;
-        case SkEncodedImageFormat::kGIF:
+        case kGIF_Type:
             type = kUTTypeGIF;
             break;
-        case SkEncodedImageFormat::kJPEG:
+        case kJPEG_Type:
             type = kUTTypeJPEG;
             break;
-        case SkEncodedImageFormat::kPNG:
+        case kPNG_Type:
             // PNG encoding an ARGB_4444 bitmap gives the following errors in GM:
             // <Error>: CGImageDestinationAddImage image could not be converted to destination
             // format.
@@ -127,13 +127,13 @@ bool SkImageEncoder_CG::onEncode(SkWStream* stream, const SkBitmap& bm,
 ///////////////////////////////////////////////////////////////////////////////
 
 #ifdef SK_USE_CG_ENCODER
-static SkImageEncoder* sk_imageencoder_cg_factory(SkEncodedImageFormat t) {
+static SkImageEncoder* sk_imageencoder_cg_factory(SkImageEncoder::Type t) {
     switch (t) {
-        case SkEncodedImageFormat::kICO:
-        case SkEncodedImageFormat::kBMP:
-        case SkEncodedImageFormat::kGIF:
-        case SkEncodedImageFormat::kJPEG:
-        case SkEncodedImageFormat::kPNG:
+        case SkImageEncoder::kICO_Type:
+        case SkImageEncoder::kBMP_Type:
+        case SkImageEncoder::kGIF_Type:
+        case SkImageEncoder::kJPEG_Type:
+        case SkImageEncoder::kPNG_Type:
             break;
         default:
             return nullptr;
@@ -145,7 +145,7 @@ static SkImageEncoder_EncodeReg gEReg(sk_imageencoder_cg_factory);
 #endif
 
 SkImageEncoder* CreateImageEncoder_CG(SkImageEncoder::Type type) {
-    return new SkImageEncoder_CG((SkEncodedImageFormat)type);
+    return new SkImageEncoder_CG(type);
 }
 
 #endif//defined(SK_BUILD_FOR_MAC) || defined(SK_BUILD_FOR_IOS)

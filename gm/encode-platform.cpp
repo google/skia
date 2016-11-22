@@ -6,11 +6,10 @@
  */
 
 #include "gm.h"
-
 #include "Resources.h"
 #include "SkCanvas.h"
 #include "SkData.h"
-#include "SkImageEncoderPriv.h"
+#include "SkImageEncoder.h"
 #include "SkUnPreMultiply.h"
 
 namespace skiagm {
@@ -37,18 +36,18 @@ static void make_unpremul_256(SkBitmap* bitmap) {
     bitmap->setAlphaType(kUnpremul_SkAlphaType);
 }
 
-static SkImageEncoder* make_encoder(SkEncodedImageFormat type) {
+static SkImageEncoder* make_encoder(SkImageEncoder::Type type) {
 #if defined(SK_BUILD_FOR_MAC) || defined(SK_BUILD_FOR_IOS)
-    return CreateImageEncoder_CG((SkImageEncoder::Type)type);
+    return CreateImageEncoder_CG(type);
 #elif defined(SK_BUILD_FOR_WIN)
-    return CreateImageEncoder_WIC((SkImageEncoder::Type)type);
+    return CreateImageEncoder_WIC(type);
 #else
     switch (type) {
-        case SkEncodedImageFormat::kPNG:
+        case SkImageEncoder::kPNG_Type:
             return CreatePNGImageEncoder();
-        case SkEncodedImageFormat::kJPEG:
+        case SkImageEncoder::kJPEG_Type:
             return CreateJPEGImageEncoder();
-        case SkEncodedImageFormat::kWEBP:
+        case SkImageEncoder::kWEBP_Type:
             return CreateWEBPImageEncoder();
         default:
             SkASSERT(false);
@@ -58,28 +57,24 @@ static SkImageEncoder* make_encoder(SkEncodedImageFormat type) {
 }
 
 #if defined(SK_BUILD_FOR_MAC) || defined(SK_BUILD_FOR_IOS)
-static SkEncodedImageFormat kTypes[] {
-        SkEncodedImageFormat::kPNG, SkEncodedImageFormat::kJPEG, SkEncodedImageFormat::kGIF,
-        SkEncodedImageFormat::kBMP, SkEncodedImageFormat::kICO,
+static SkImageEncoder::Type kTypes[] {
+        SkImageEncoder::kPNG_Type, SkImageEncoder::kJPEG_Type, SkImageEncoder::kGIF_Type,
+        SkImageEncoder::kBMP_Type, SkImageEncoder::kICO_Type,
 };
 #elif defined(SK_BUILD_FOR_WIN)
 // Use PNG multiple times because our WIC encoder does not support GIF, BMP, or ICO.
-static SkEncodedImageFormat kTypes[] {
-        SkEncodedImageFormat::kPNG, SkEncodedImageFormat::kJPEG, SkEncodedImageFormat::kPNG,
-        SkEncodedImageFormat::kPNG, SkEncodedImageFormat::kPNG,
+static SkImageEncoder::Type kTypes[] {
+        SkImageEncoder::kPNG_Type, SkImageEncoder::kJPEG_Type, SkImageEncoder::kPNG_Type,
+        SkImageEncoder::kPNG_Type, SkImageEncoder::kPNG_Type,
 };
 #else
 // Use WEBP in place of GIF.  Use PNG two extra times.  We don't support GIF, BMP, or ICO.
-static SkEncodedImageFormat kTypes[] {
-        SkEncodedImageFormat::kPNG, SkEncodedImageFormat::kJPEG, SkEncodedImageFormat::kWEBP,
-        SkEncodedImageFormat::kPNG, SkEncodedImageFormat::kPNG,
+static SkImageEncoder::Type kTypes[] {
+        SkImageEncoder::kPNG_Type, SkImageEncoder::kJPEG_Type, SkImageEncoder::kWEBP_Type,
+        SkImageEncoder::kPNG_Type, SkImageEncoder::kPNG_Type,
 };
 #endif
 
-static sk_sp<SkData> encode_data(std::unique_ptr<SkImageEncoder>& encoder, const SkBitmap& src) {
-    SkDynamicMemoryWStream buffer;
-    return encoder->encodeStream(&buffer, src, 100) ? buffer.detachAsData() : nullptr;
-}
 
 class EncodePlatformGM : public GM {
 public:
@@ -100,12 +95,15 @@ protected:
         make_premul_256(&premulBm);
         make_unpremul_256(&unpremulBm);
 
-        for (SkEncodedImageFormat type : kTypes) {
+        for (SkImageEncoder::Type type : kTypes) {
             std::unique_ptr<SkImageEncoder> encoder(make_encoder(type));
+            sk_sp<SkData> opaqueData(encoder->encodeData(opaqueBm, 100));
+            sk_sp<SkData> premulData(encoder->encodeData(premulBm, 100));
+            sk_sp<SkData> unpremulData(encoder->encodeData(unpremulBm, 100));
 
-            auto opaqueImage = SkImage::MakeFromEncoded(encode_data(encoder, opaqueBm));
-            auto premulImage = SkImage::MakeFromEncoded(encode_data(encoder, premulBm));
-            auto unpremulImage = SkImage::MakeFromEncoded(encode_data(encoder, unpremulBm));
+            sk_sp<SkImage> opaqueImage = SkImage::MakeFromEncoded(opaqueData);
+            sk_sp<SkImage> premulImage = SkImage::MakeFromEncoded(premulData);
+            sk_sp<SkImage> unpremulImage = SkImage::MakeFromEncoded(unpremulData);
 
             canvas->drawImage(opaqueImage.get(), 0.0f, 0.0f);
             canvas->drawImage(premulImage.get(), 0.0f, 256.0f);

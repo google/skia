@@ -659,14 +659,10 @@ void SkSVGDevice::drawPath(const SkDraw& draw, const SkPath& path, const SkPaint
     }
 }
 
-static sk_sp<SkData> encode(const SkBitmap& src) {
-    SkDynamicMemoryWStream buf;
-    return SkEncodeImage(&buf, src, SkEncodedImageFormat::kPNG, 80) ? buf.detachAsData() : nullptr;
-}
-
 void SkSVGDevice::drawBitmapCommon(const SkDraw& draw, const SkBitmap& bm,
                                    const SkPaint& paint) {
-    sk_sp<SkData> pngData = encode(bm);
+    sk_sp<const SkData> pngData(
+        SkImageEncoder::EncodeData(bm, SkImageEncoder::kPNG_Type, SkImageEncoder::kDefaultQuality));
     if (!pngData) {
         return;
     }

@@ -113,8 +113,8 @@ SkWbmpCodec::SkWbmpCodec(int width, int height, const SkEncodedInfo& info, SkStr
     , fColorTable(nullptr)
 {}
 
-SkEncodedImageFormat SkWbmpCodec::onGetEncodedFormat() const {
-    return SkEncodedImageFormat::kWBMP;
+SkEncodedFormat SkWbmpCodec::onGetEncodedFormat() const {
+    return kWBMP_SkEncodedFormat;
 }
 
 SkCodec::Result SkWbmpCodec::onGetPixels(const SkImageInfo& info,

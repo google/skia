@@ -29,10 +29,11 @@ SkBitmapRegionDecoder* SkBitmapRegionDecoder::Create(
                 return NULL;
             }
 
-            switch ((SkEncodedImageFormat)codec->getEncodedFormat()) {
-                case SkEncodedImageFormat::kJPEG:
-                case SkEncodedImageFormat::kPNG:
-                case SkEncodedImageFormat::kWEBP:
+            SkEncodedFormat format = codec->getEncodedFormat();
+            switch (format) {
+                case SkEncodedFormat::kJPEG_SkEncodedFormat:
+                case SkEncodedFormat::kPNG_SkEncodedFormat:
+                case SkEncodedFormat::kWEBP_SkEncodedFormat:
                     break;
                 default:
                     return nullptr;

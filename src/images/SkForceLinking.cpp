@@ -5,7 +5,7 @@
  * found in the LICENSE file.
  */
 
-#include "SkImageEncoderPriv.h"
+#include "SkImageEncoder.h"
 #include "SkForceLinking.h"
 
 // This method is required to fool the linker into not discarding the pre-main
@@ -30,10 +30,10 @@ int SkForceLinking(bool doNotPassTrue) {
 #endif
 
 #if defined (SK_USE_CG_ENCODER)
-        CreateImageEncoder_CG(SkEncodedImageFormat::kPNG);
+        CreateImageEncoder_CG(SkImageEncoder::kPNG_Type);
 #endif
 #if defined (SK_USE_WIC_ENCODER)
-        CreateImageEncoder_WIC(SkEncodedImageFormat::kPNG);
+        CreateImageEncoder_WIC(SkImageEncoder::kPNG_Type);
 #endif
         return -1;
     }

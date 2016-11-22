@@ -9,7 +9,7 @@
 #include "SkColorSpaceXform.h"
 #include "SkColorTable.h"
 #include "SkPngChunkReader.h"
-#include "SkEncodedImageFormat.h"
+#include "SkEncodedFormat.h"
 #include "SkImageInfo.h"
 #include "SkRefCnt.h"
 #include "SkSwizzler.h"
@@ -51,7 +51,7 @@ protected:
 
     Result onGetPixels(const SkImageInfo&, void*, size_t, const Options&, SkPMColor*, int*, int*)
             override;
-    SkEncodedImageFormat onGetEncodedFormat() const override { return SkEncodedImageFormat::kPNG; }
+    SkEncodedFormat onGetEncodedFormat() const override { return kPNG_SkEncodedFormat; }
     bool onRewind() override;
     uint64_t onGetFillValue(const SkImageInfo&) const override;
 

@@ -23,8 +23,6 @@
 
 #include "png.h"
 
-#include "sk_tool_utils.h"
-
 #if PNG_LIBPNG_VER_MAJOR == 1 && PNG_LIBPNG_VER_MINOR < 5
     // FIXME (scroggo): Google3 needs to be updated to use a newer version of libpng. In
     // the meantime, we had to break some pieces of SkPngCodec in order to support Google3.
@@ -1104,7 +1102,7 @@ static void check_round_trip(skiatest::Reporter* r, SkCodec* origCodec, const Sk
 
     // Encode the image to png.
     sk_sp<SkData> data =
-            sk_sp<SkData>(sk_tool_utils::EncodeImageToData(bm1, SkEncodedImageFormat::kPNG, 100));
+            sk_sp<SkData>(SkImageEncoder::EncodeData(bm1, SkImageEncoder::kPNG_Type, 100));
 
     std::unique_ptr<SkCodec> codec(SkCodec::NewFromData(data));
     REPORTER_ASSERT(r, color_type_match(info.colorType(), codec->getInfo().colorType()));

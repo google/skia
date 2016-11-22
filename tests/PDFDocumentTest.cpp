@@ -14,8 +14,6 @@
 #include "SkStream.h"
 #include "SkPixelSerializer.h"
 
-#include "sk_tool_utils.h"
-
 static void test_empty(skiatest::Reporter* reporter) {
     SkDynamicMemoryWStream stream;
 
@@ -121,7 +119,14 @@ namespace {
 class JPEGSerializer final : public SkPixelSerializer {
     bool onUseEncodedData(const void*, size_t) override { return true; }
     SkData* onEncode(const SkPixmap& pixmap) override {
-        return sk_tool_utils::EncodeImageToData(pixmap, SkEncodedImageFormat::kJPEG, 85).release();
+        SkBitmap bm;
+        return bm.installPixels(pixmap.info(),
+                                pixmap.writable_addr(),
+                                pixmap.rowBytes(),
+                                pixmap.ctable(),
+                                nullptr, nullptr)
+            ? SkImageEncoder::EncodeData(bm, SkImageEncoder::kJPEG_Type, 85)
+            : nullptr;
     }
 };
 }  // namespace

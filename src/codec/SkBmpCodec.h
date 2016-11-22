@@ -41,7 +41,7 @@ protected:
     SkBmpCodec(int width, int height, const SkEncodedInfo& info, SkStream* stream,
             uint16_t bitsPerPixel, SkCodec::SkScanlineOrder rowOrder);
 
-    SkEncodedImageFormat onGetEncodedFormat() const override { return SkEncodedImageFormat::kBMP; }
+    SkEncodedFormat onGetEncodedFormat() const override { return kBMP_SkEncodedFormat; }
 
     /*
      * Read enough of the stream to initialize the SkBmpCodec. Returns a bool

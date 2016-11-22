@@ -5,7 +5,7 @@
  * found in the LICENSE file.
  */
 
-#include "SkImageEncoderPriv.h"
+#include "SkImageEncoder.h"
 #include "SkColor.h"
 #include "SkColorPriv.h"
 #include "SkDither.h"
@@ -356,7 +356,7 @@ DEFINE_ENCODER_CREATOR(PNGImageEncoder);
 ///////////////////////////////////////////////////////////////////////////////
 
 SkImageEncoder* sk_libpng_efactory(SkImageEncoder::Type t) {
-    return (SkEncodedImageFormat::kPNG == (SkEncodedImageFormat)t) ? new SkPNGImageEncoder : nullptr;
+    return (SkImageEncoder::kPNG_Type == t) ? new SkPNGImageEncoder : nullptr;
 }
 
 static SkImageEncoder_EncodeReg gEReg(sk_libpng_efactory);

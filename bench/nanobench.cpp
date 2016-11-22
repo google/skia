@@ -300,7 +300,7 @@ static bool write_canvas_png(Target* target, const SkString& filename) {
         SkDebugf("Can't write %s.\n", filename.c_str());
         return false;
     }
-    if (!SkEncodeImage(&stream, bmp, SkEncodedImageFormat::kPNG, 100)) {
+    if (!SkImageEncoder::EncodeStream(&stream, bmp, SkImageEncoder::kPNG_Type, 100)) {
         SkDebugf("Can't encode a PNG.\n");
         return false;
     }
