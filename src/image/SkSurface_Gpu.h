@@ -27,6 +27,7 @@ public:
     void onCopyOnWrite(ContentChangeMode) override;
     void onDiscard() override;
     void onPrepareForExternalIO() override;
+    std::unique_ptr<SkCanvas> onMakeOverdrawCanvas() override;
 
     SkGpuDevice* getDevice() { return fDevice.get(); }
 
