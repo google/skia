@@ -11,7 +11,7 @@ bool SkEncodeImage(SkWStream* dst, const SkPixmap& src,
                    SkEncodedImageFormat format, int quality) {
     SkBitmap bm;
     if (!bm.installPixels(src)) {
-        return nullptr;
+        return false;
     }
     bm.setImmutable();
     std::unique_ptr<SkImageEncoder> enc(SkImageEncoder::Create((SkImageEncoder::Type)format));
