@@ -10,6 +10,8 @@
 
 #include "GrGpuResource.h"
 #include "GrSurface.h"
+
+#include "SkMathPriv.h"
 #include "SkRect.h"
 
 class GrCaps;
@@ -224,6 +226,30 @@ public:
      */
     SkRect getBoundsRect() const { return SkRect::MakeIWH(this->width(), this->height()); }
   
+    int worstCaseWidth() const { 
+        if (fTarget) {
+            return fTarget->width();
+        }
+
+        if (SkBackingFit::kExact == fFit) {
+            return fDesc.fWidth;
+        }
+
+        return GrNextPow2(fDesc.fWidth);
+    }
+
+    int worstCaseHeight() const { 
+        if (fTarget) {
+            return fTarget->height();
+        }
+
+        if (SkBackingFit::kExact == fFit) {
+            return fDesc.fHeight;
+        }
+
+        return GrNextPow2(fDesc.fHeight);
+    }
+
     /**
      * @return the texture proxy associated with the surface proxy, may be NULL.
      */
