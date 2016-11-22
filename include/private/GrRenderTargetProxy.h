@@ -57,8 +57,6 @@ public:
         return (GrRenderTargetOpList*) this->getLastOpList();
     }
 
-    SkDEBUGCODE(void validate(GrContext*) const;)
-
 protected:
     friend class GrSurfaceProxy;  // for ctors
 
