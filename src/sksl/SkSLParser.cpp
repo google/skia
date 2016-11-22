@@ -535,8 +535,7 @@ int Parser::layoutInt() {
     return -1;
 }
 
-/* LAYOUT LPAREN IDENTIFIER EQ INT_LITERAL (COMMA IDENTIFIER EQ INT_LITERAL)*
-   RPAREN */
+/* LAYOUT LPAREN IDENTIFIER (EQ INT_LITERAL)? (COMMA IDENTIFIER (EQ INT_LITERAL)?)* RPAREN */
 ASTLayout Parser::layout() {
     int location = -1;
     int binding = -1;
@@ -548,11 +547,13 @@ ASTLayout Parser::layout() {
     bool overrideCoverage = false;
     bool blendSupportAllEquations = false;
     ASTLayout::Format format = ASTLayout::Format::kUnspecified;
+    bool pushConstant = false;
     if (this->peek().fKind == Token::LAYOUT) {
         this->nextToken();
         if (!this->expect(Token::LPAREN, "'('")) {
             return ASTLayout(location, binding, index, set, builtin, inputAttachmentIndex,
-                             originUpperLeft, overrideCoverage, blendSupportAllEquations, format);
+                             originUpperLeft, overrideCoverage, blendSupportAllEquations, format,
+                             pushConstant);
         }
         for (;;) {
             Token t = this->nextToken();
@@ -576,6 +577,8 @@ ASTLayout Parser::layout() {
                 blendSupportAllEquations = true;
             } else if (ASTLayout::ReadFormat(t.fText, &format)) {
                // AST::ReadFormat stored the result in 'format'.
+            } else if (t.fText == "push_constant") {
+                pushConstant = true;
             } else {
                 this->error(t.fPosition, ("'" + t.fText +
                                           "' is not a valid layout qualifier").c_str());
@@ -590,7 +593,7 @@ ASTLayout Parser::layout() {
         }
     }
     return ASTLayout(location, binding, index, set, builtin, inputAttachmentIndex, originUpperLeft,
-                     overrideCoverage, blendSupportAllEquations, format);
+                     overrideCoverage, blendSupportAllEquations, format, pushConstant);
 }
 
 /* layout? (UNIFORM | CONST | IN | OUT | INOUT | LOWP | MEDIUMP | HIGHP | FLAT | NOPERSPECTIVE)* */

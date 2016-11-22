@@ -26,11 +26,12 @@ struct Layout {
     , fOriginUpperLeft(layout.fOriginUpperLeft)
     , fOverrideCoverage(layout.fOverrideCoverage)
     , fBlendSupportAllEquations(layout.fBlendSupportAllEquations)
-    , fFormat(layout.fFormat) {}
+    , fFormat(layout.fFormat)
+    , fPushConstant(layout.fPushConstant) {}
 
     Layout(int location, int binding, int index, int set, int builtin, int inputAttachmentIndex,
            bool originUpperLeft, bool overrideCoverage, bool blendSupportAllEquations,
-           ASTLayout::Format format)
+           ASTLayout::Format format, bool pushconstant)
     : fLocation(location)
     , fBinding(binding)
     , fIndex(index)
@@ -40,7 +41,8 @@ struct Layout {
     , fOriginUpperLeft(originUpperLeft)
     , fOverrideCoverage(overrideCoverage)
     , fBlendSupportAllEquations(blendSupportAllEquations)
-    , fFormat(format) {}
+    , fFormat(format)
+    , fPushConstant(pushconstant) {}
 
     Layout()
     : fLocation(-1)
@@ -52,7 +54,8 @@ struct Layout {
     , fOriginUpperLeft(false)
     , fOverrideCoverage(false)
     , fBlendSupportAllEquations(false)
-    , fFormat(ASTLayout::Format::kUnspecified) {}
+    , fFormat(ASTLayout::Format::kUnspecified)
+    , fPushConstant(false) {}
 
     SkString description() const {
         SkString result;
@@ -97,6 +100,10 @@ struct Layout {
             result += separator + ASTLayout::FormatToStr(fFormat);
             separator = ", ";
         }
+        if (fPushConstant) {
+            result += separator + "push_constant";
+            separator = ", ";
+        }
         if (result.size() > 0) {
             result = "layout (" + result + ")";
         }
@@ -134,6 +141,7 @@ struct Layout {
     bool fOverrideCoverage;
     bool fBlendSupportAllEquations;
     ASTLayout::Format fFormat;
+    bool fPushConstant;
 };
 
 } // namespace

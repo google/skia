@@ -80,7 +80,7 @@ struct ASTLayout : public ASTNode {
     // For int parameters, a -1 means no value
     ASTLayout(int location, int binding, int index, int set, int builtin, int inputAttachmentIndex,
               bool originUpperLeft, bool overrideCoverage, bool blendSupportAllEquations,
-              Format format)
+              Format format, bool pushConstant)
     : fLocation(location)
     , fBinding(binding)
     , fIndex(index)
@@ -90,7 +90,8 @@ struct ASTLayout : public ASTNode {
     , fOriginUpperLeft(originUpperLeft)
     , fOverrideCoverage(overrideCoverage)
     , fBlendSupportAllEquations(blendSupportAllEquations)
-    , fFormat(format) {}
+    , fFormat(format)
+    , fPushConstant(pushConstant) {}
 
     SkString description() const {
         SkString result;
@@ -135,6 +136,10 @@ struct ASTLayout : public ASTNode {
             result += separator + FormatToStr(fFormat);
             separator = ", ";
         }
+        if (fPushConstant) {
+            result += separator + "push_constant";
+            separator = ", ";
+        }
         if (result.size() > 0) {
             result = "layout (" + result + ")";
         }
@@ -151,6 +156,7 @@ struct ASTLayout : public ASTNode {
     const bool fOverrideCoverage;
     const bool fBlendSupportAllEquations;
     const Format fFormat;
+    const bool fPushConstant;
 };
 
 } // namespace
