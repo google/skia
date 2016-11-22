@@ -28,6 +28,15 @@ public:
         kUniform_TypeModifier,
     };
 
+    /** Format qualifiers for image storage uniforms */
+    enum class ImageStorageFormat {
+        kNone,
+        kRGBA8,
+        kRGBA16f,
+        kRGBA32f,
+        kRGBA8i,
+    };
+
     /**
      * Values for array count that have special meaning. We allow 1-sized arrays.git 
      */
@@ -42,6 +51,7 @@ public:
     GrShaderVar()
         : fType(kFloat_GrSLType)
         , fTypeModifier(kNone_TypeModifier)
+        , fImageStorageFormat(ImageStorageFormat::kNone)
         , fCount(kNonArray)
         , fPrecision(kDefault_GrSLPrecision)
         , fUseUniformFloatArrays(USE_UNIFORM_FLOAT_ARRAYS) {
@@ -51,6 +61,7 @@ public:
                 GrSLPrecision precision = kDefault_GrSLPrecision)
         : fType(type)
         , fTypeModifier(kNone_TypeModifier)
+        , fImageStorageFormat(ImageStorageFormat::kNone)
         , fCount(arrayCount)
         , fPrecision(precision)
         , fUseUniformFloatArrays(USE_UNIFORM_FLOAT_ARRAYS)
@@ -63,6 +74,7 @@ public:
                 GrSLPrecision precision = kDefault_GrSLPrecision)
         : fType(type)
         , fTypeModifier(kNone_TypeModifier)
+        , fImageStorageFormat(ImageStorageFormat::kNone)
         , fCount(arrayCount)
         , fPrecision(precision)
         , fUseUniformFloatArrays(USE_UNIFORM_FLOAT_ARRAYS)
@@ -75,6 +87,7 @@ public:
                 GrSLPrecision precision = kDefault_GrSLPrecision)
         : fType(type)
         , fTypeModifier(typeModifier)
+        , fImageStorageFormat(ImageStorageFormat::kNone)
         , fCount(kNonArray)
         , fPrecision(precision)
         , fUseUniformFloatArrays(USE_UNIFORM_FLOAT_ARRAYS)
@@ -86,6 +99,7 @@ public:
                 int arrayCount, GrSLPrecision precision = kDefault_GrSLPrecision)
         : fType(type)
         , fTypeModifier(typeModifier)
+        , fImageStorageFormat(ImageStorageFormat::kNone)
         , fCount(arrayCount)
         , fPrecision(precision)
         , fUseUniformFloatArrays(USE_UNIFORM_FLOAT_ARRAYS)
@@ -96,6 +110,7 @@ public:
     GrShaderVar(const GrShaderVar& that)
         : fType(that.fType)
         , fTypeModifier(that.fTypeModifier)
+        , fImageStorageFormat(that.fImageStorageFormat)
         , fCount(that.fCount)
         , fPrecision(that.fPrecision)
         , fUseUniformFloatArrays(USE_UNIFORM_FLOAT_ARRAYS)
@@ -119,6 +134,7 @@ public:
         SkASSERT(kDefault_GrSLPrecision == precision || GrSLTypeAcceptsPrecision(type));
         fType = type;
         fTypeModifier = typeModifier;
+        fImageStorageFormat = ImageStorageFormat::kNone;
         fName = name;
         fCount = kNonArray;
         fPrecision = precision;
@@ -143,6 +159,7 @@ public:
         SkASSERT(kDefault_GrSLPrecision == precision || GrSLTypeAcceptsPrecision(type));
         fType = type;
         fTypeModifier = typeModifier;
+        fImageStorageFormat = ImageStorageFormat::kNone;
         fName = name;
         fCount = kNonArray;
         fPrecision = precision;
@@ -160,6 +177,7 @@ public:
              const SkString& name,
              int count,
              TypeModifier typeModifier,
+             ImageStorageFormat imageStorageFormat = ImageStorageFormat::kNone,
              GrSLPrecision precision = kDefault_GrSLPrecision,
              const char* layoutQualifier = nullptr,
              const char* extraModifiers = nullptr,
@@ -168,6 +186,7 @@ public:
         SkASSERT(kDefault_GrSLPrecision == precision || GrSLTypeAcceptsPrecision(type));
         fType = type;
         fTypeModifier = typeModifier;
+        fImageStorageFormat = imageStorageFormat;
         fName = name;
         fCount = count;
         fPrecision = precision;
@@ -185,6 +204,7 @@ public:
              const char* name,
              int count,
              TypeModifier typeModifier,
+             ImageStorageFormat imageStorageFormat = ImageStorageFormat::kNone,
              GrSLPrecision precision = kDefault_GrSLPrecision,
              const char* layoutQualifier = nullptr,
              const char* extraModifiers = nullptr,
@@ -193,6 +213,7 @@ public:
         SkASSERT(kDefault_GrSLPrecision == precision || GrSLTypeAcceptsPrecision(type));
         fType = type;
         fTypeModifier = typeModifier;
+        fImageStorageFormat = imageStorageFormat;
         fName = name;
         fCount = count;
         fPrecision = precision;
@@ -260,6 +281,12 @@ public:
     TypeModifier getTypeModifier() const { return fTypeModifier; }
     void setTypeModifier(TypeModifier type) { fTypeModifier = type; }
 
+    /** Gets the data format for an image storage variable. */
+    ImageStorageFormat getImageFormat() const { return fImageStorageFormat; }
+
+    /** Sets the data format for an image storage variable. */
+    void setImageFormat(ImageStorageFormat imageFormat) { fImageStorageFormat = imageFormat; }
+
     /**
      * Get the precision of the var
      */
@@ -303,34 +330,18 @@ public:
     }
 
 private:
-    static const char* TypeModifierString(TypeModifier t) {
-        switch (t) {
-            case kNone_TypeModifier:
-                return "";
-            case kIn_TypeModifier:
-                return "in";
-            case kInOut_TypeModifier:
-                return "inout";
-            case kOut_TypeModifier:
-                return "out";
-            case kUniform_TypeModifier:
-                return "uniform";
-        }
-        SkFAIL("Unknown shader variable type modifier.");
-        return ""; // suppress warning
-    }
-
-    GrSLType        fType;
-    TypeModifier    fTypeModifier;
-    int             fCount;
-    GrSLPrecision   fPrecision;
+    GrSLType            fType;
+    TypeModifier        fTypeModifier;
+    ImageStorageFormat  fImageStorageFormat;
+    int                 fCount;
+    GrSLPrecision       fPrecision;
     /// Work around driver bugs on some hardware that don't correctly
     /// support uniform float []
-    bool            fUseUniformFloatArrays;
+    bool                fUseUniformFloatArrays;
 
-    SkString        fName;
-    SkString        fLayoutQualifier;
-    SkString        fExtraModifiers;
+    SkString            fName;
+    SkString            fLayoutQualifier;
+    SkString            fExtraModifiers;
 };
 
  #endif
