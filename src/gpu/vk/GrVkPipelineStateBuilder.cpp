@@ -54,11 +54,11 @@ const GrGLSLCaps* GrVkPipelineStateBuilder::glslCaps() const {
 }
 
 void GrVkPipelineStateBuilder::finalizeFragmentOutputColor(GrShaderVar& outputColor) {
-    outputColor.setLayoutQualifier("location = 0, index = 0");
+    outputColor.addLayoutQualifier("location = 0, index = 0");
 }
 
 void GrVkPipelineStateBuilder::finalizeFragmentSecondaryColor(GrShaderVar& outputColor) {
-    outputColor.setLayoutQualifier("location = 0, index = 1");
+    outputColor.addLayoutQualifier("location = 0, index = 1");
 }
 
 bool GrVkPipelineStateBuilder::CreateVkShaderModule(const GrVkGpu* gpu,

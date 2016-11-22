@@ -271,10 +271,17 @@ public:
     void setPrecision(GrSLPrecision p) { fPrecision = p; }
 
     /**
-     * Set the layout qualifier
+     * Appends to the layout qualifier
      */
-    void setLayoutQualifier(const char* layoutQualifier) {
-        fLayoutQualifier = layoutQualifier;
+    void addLayoutQualifier(const char* layoutQualifier) {
+        if (!layoutQualifier || !strlen(layoutQualifier)) {
+            return;
+        }
+        if (fLayoutQualifier.isEmpty()) {
+            fLayoutQualifier = layoutQualifier;
+        } else {
+            fLayoutQualifier.appendf(", %s", layoutQualifier);
+        }
     }
 
     void addModifier(const char* modifier) {
