@@ -9,6 +9,7 @@
 #define GrContextPriv_DEFINED
 
 #include "GrContext.h"
+#include "GrTextureContext.h"
 
 /** Class that adds methods to GrContext that are only intended for use internal to Skia.
     This class is purely a privileged window into GrContext. It should never have additional
@@ -21,6 +22,9 @@ public:
     sk_sp<GrRenderTargetContext> makeWrappedRenderTargetContext(sk_sp<GrRenderTarget> rt,
                                                                 sk_sp<SkColorSpace> colorSpace,
                                                                 const SkSurfaceProps* = nullptr);
+
+    // Create a textureContext that wraps an existing texture
+    sk_sp<GrTextureContext> makeWrappedTextureContext(sk_sp<GrTexture> tex);
 
     sk_sp<GrRenderTargetContext> makeBackendTextureRenderTargetContext(
                                                          const GrBackendTextureDesc& desc,
