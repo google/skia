@@ -4,7 +4,7 @@
  * Use of this source code is governed by a BSD-style license that can be
  * found in the LICENSE file.
  */
- 
+
 #include "SkSLGLSLCodeGenerator.h"
 
 #include "string.h"
@@ -392,7 +392,7 @@ void GLSLCodeGenerator::writeFunction(const FunctionDefinition& f) {
     this->write(SkString((const char*) data->data(), data->size()));
 }
 
-void GLSLCodeGenerator::writeModifiers(const Modifiers& modifiers, 
+void GLSLCodeGenerator::writeModifiers(const Modifiers& modifiers,
                                        bool globalContext) {
     if (modifiers.fFlags & Modifiers::kNoPerspective_Flag) {
         this->write("noperspective ");
@@ -404,7 +404,7 @@ void GLSLCodeGenerator::writeModifiers(const Modifiers& modifiers,
     if (layout.size()) {
         this->write(layout + " ");
     }
-    if ((modifiers.fFlags & Modifiers::kIn_Flag) && 
+    if ((modifiers.fFlags & Modifiers::kIn_Flag) &&
         (modifiers.fFlags & Modifiers::kOut_Flag)) {
         this->write("inout ");
     } else if (modifiers.fFlags & Modifiers::kIn_Flag) {
