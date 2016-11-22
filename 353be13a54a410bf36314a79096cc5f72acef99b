@@ -25,6 +25,24 @@
     },
     {
       "key": {
+        "uuid": "500b3ca9_e2e8d9f8",
+        "filename": "include/private/SkSafe_math.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 29,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2016-11-22T13:41:39Z",
+      "side": 1,
+      "message": "Done.",
+      "parentUuid": "500b3ca9_ad7f7718",
+      "revId": "353be13a54a410bf36314a79096cc5f72acef99b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "500b3ca9_6db73fb7",
         "filename": "include/private/SkSafe_math.h",
         "patchSetId": 3
@@ -42,6 +60,24 @@
     },
     {
       "key": {
+        "uuid": "500b3ca9_a2e2e112",
+        "filename": "include/private/SkSafe_math.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 40,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2016-11-22T13:41:39Z",
+      "side": 1,
+      "message": "Good idea!  Done.\n\nI have considered writing our own math.h, but this seems like an easier and more robust strategy to start with.  It seems really easy for the header to get out of sync with future toolchains.  I\u0027ll keep this as a backup plan for sure.",
+      "parentUuid": "500b3ca9_6db73fb7",
+      "revId": "353be13a54a410bf36314a79096cc5f72acef99b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "500b3ca9_4d86bbfc",
         "filename": "src/opts/SkOpts_avx.cpp",
         "patchSetId": 3
@@ -53,6 +89,24 @@
       "writtenOn": "2016-11-21T23:42:24Z",
       "side": 1,
       "message": "Should this be a Windows specific check? I suppose it doesn\u0027t need to be but it feels weird to be checking _INC_MATH on non-Windows platforms.",
+      "revId": "353be13a54a410bf36314a79096cc5f72acef99b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "500b3ca9_0262cdbf",
+        "filename": "src/opts/SkOpts_avx.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 12,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2016-11-22T13:41:39Z",
+      "side": 1,
+      "message": "The bug\u0027s in math.h, not Windows or MSVC.  If somehow we include that math.h on Linux or Mac (however unlikely) it\u0027d still be buggy.  This feels like the most direct test to me.\n\nIn SkSafe_math.h I have to check for _MSC_VER, because I have no real way of talking about the particular header until it\u0027s already included, and at that point it\u0027s too late.  Ideally I\u0027d want to write:\n\n#include \u003cmath.h\u003e\n\n#if defined(_INC_MATH)\n   // This header is buggy because...\n   #exclude \u003cmath.h\u003e\n   #define __inline static __inline\n   #include \u003cmath.h\u003e\n   #undef __inline\n#endif\n\nbut of course there is no #exclude.",
+      "parentUuid": "500b3ca9_4d86bbfc",
       "revId": "353be13a54a410bf36314a79096cc5f72acef99b",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
