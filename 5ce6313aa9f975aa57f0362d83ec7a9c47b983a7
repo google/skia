@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "d079ec3f_7162b02f",
+        "filename": "src/core/SkOverdrawCanvas.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 63,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2016-11-22T21:42:17Z",
+      "side": 1,
+      "message": "You would need to remove this, would you not?",
+      "range": {
+        "startLine": 63,
+        "startChar": 4,
+        "endLine": 63,
+        "endChar": 22
+      },
+      "revId": "5ce6313aa9f975aa57f0362d83ec7a9c47b983a7",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
