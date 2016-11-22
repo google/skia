@@ -348,7 +348,7 @@ func recreateSKPs(b *specs.TasksCfgBuilder, name string) string {
 			fmt.Sprintf("patch_set=%s", specs.PLACEHOLDER_PATCHSET),
 		},
 		IoTimeout: 40 * time.Minute,
-		Isolate:   "compile_skia.isolate",
+		Isolate:   "complete_skia.isolate",
 		Priority:  0.8,
 	})
 	return name
