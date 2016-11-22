@@ -103,10 +103,8 @@ void GrTextureDomain::GLDomain::sampleTexture(GrGLSLShaderBuilder* builder,
                                                           inCoords.c_str());
                 builder->codeAppend(";");
 
-                builder->appendPrecisionModifier(kHigh_GrSLPrecision);
-                builder->codeAppendf("float x = (%s).x;", inCoords.c_str());
-                builder->appendPrecisionModifier(kHigh_GrSLPrecision);
-                builder->codeAppendf("float y = (%s).y;", inCoords.c_str());
+                builder->codeAppendf("highp float x = (%s).x;", inCoords.c_str());
+                builder->codeAppendf("highp float y = (%s).y;", inCoords.c_str());
 
                 builder->codeAppendf("x = abs(2.0*(x - %s.x)/(%s.z - %s.x) - 1.0);",
                                      domain, domain, domain);
