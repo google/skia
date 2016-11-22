@@ -227,7 +227,8 @@ void GrGLSLFragmentShaderBuilder::overrideSampleCoverage(const char* mask) {
                          "GL_NV_sample_mask_override_coverage")) {
         // Redeclare gl_SampleMask with layout(override_coverage) if we haven't already.
         fOutputs.push_back().set(kInt_GrSLType, "gl_SampleMask", 1, GrShaderVar::kOut_TypeModifier,
-                                 kHigh_GrSLPrecision, "override_coverage");
+                                 GrShaderVar::ImageStorageFormat::kNone, kHigh_GrSLPrecision,
+                                 "override_coverage");
     }
     this->codeAppendf("gl_SampleMask[0] = %s;", mask);
     fHasInitializedSampleMask = true;

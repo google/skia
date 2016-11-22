@@ -9,14 +9,46 @@
 #include "GrShaderVar.h"
 #include "glsl/GrGLSLCaps.h"
 
+static const char* type_modifier_string(GrShaderVar::TypeModifier t) {
+    switch (t) {
+        case GrShaderVar::kNone_TypeModifier: return "";
+        case GrShaderVar::kIn_TypeModifier: return "in";
+        case GrShaderVar::kInOut_TypeModifier: return "inout";
+        case GrShaderVar::kOut_TypeModifier: return "out";
+        case GrShaderVar::kUniform_TypeModifier: return "uniform";
+    }
+    SkFAIL("Unknown shader variable type modifier.");
+    return "";
+}
+
+static const char* image_storage_format_string(GrShaderVar::ImageStorageFormat f) {
+    switch (f) {
+        case GrShaderVar::ImageStorageFormat::kNone: return "";
+        case GrShaderVar::ImageStorageFormat::kRGBA8: return "rgba8";
+        case GrShaderVar::ImageStorageFormat::kRGBA8i: return "rgba8i";
+        case GrShaderVar::ImageStorageFormat::kRGBA16f: return "rgba16f";
+        case GrShaderVar::ImageStorageFormat::kRGBA32f: return "rgba32f";
+    }
+    SkFAIL("Unknown image storage format");
+    return "";
+}
+
 void GrShaderVar::appendDecl(const GrGLSLCaps* glslCaps, SkString* out) const {
     SkASSERT(kDefault_GrSLPrecision == fPrecision || GrSLTypeAcceptsPrecision(fType));
-    if (!fLayoutQualifier.isEmpty()) {
-        out->appendf("layout(%s) ", fLayoutQualifier.c_str());
+    SkString layout = fLayoutQualifier;
+    if (ImageStorageFormat::kNone != fImageStorageFormat) {
+        if (layout.isEmpty()) {
+            layout = image_storage_format_string(fImageStorageFormat);
+        } else {
+            layout.appendf(", %s", image_storage_format_string(fImageStorageFormat));
+        }
+    }
+    if (!layout.isEmpty()) {
+        out->appendf("layout(%s) ", layout.c_str());
     }
     out->append(fExtraModifiers);
     if (this->getTypeModifier() != kNone_TypeModifier) {
-        out->append(TypeModifierString(this->getTypeModifier()));
+        out->append(type_modifier_string(this->getTypeModifier()));
         out->append(" ");
     }
     GrSLType effectiveType = this->getType();
