@@ -10,6 +10,7 @@
 #include "SkCanvas.h"
 #include "SkDevice.h"
 #include "SkMallocPixelRef.h"
+#include "SkOverdrawCanvas.h"
 
 static const size_t kIgnoreRowBytesValue = (size_t)~0;
 
@@ -28,6 +29,7 @@ public:
     void onDraw(SkCanvas*, SkScalar x, SkScalar y, const SkPaint*) override;
     void onCopyOnWrite(ContentChangeMode) override;
     void onRestoreBackingMutability() override;
+    std::unique_ptr<SkCanvas> onMakeOverdrawCanvas() override;
 
 private:
     SkBitmap    fBitmap;
@@ -177,6 +179,10 @@ void SkSurface_Raster::onCopyOnWrite(ContentChangeMode mode) {
         SkASSERT(this->getCachedCanvas());
         this->getCachedCanvas()->getDevice()->replaceBitmapBackendForRasterSurface(fBitmap);
     }
+}
+
+std::unique_ptr<SkCanvas> SkSurface_Raster::onMakeOverdrawCanvas() {
+    return std::unique_ptr<SkCanvas>(new SkOverdrawCanvas(fBitmap));
 }
 
 ///////////////////////////////////////////////////////////////////////////////

@@ -17,8 +17,8 @@
  */
 class SkOverdrawCanvas : public SkCanvas {
 public:
-    /* Does not take ownership of canvas */
-    SkOverdrawCanvas(SkCanvas*);
+    SkOverdrawCanvas(const SkBitmap& bitmap);
+    SkOverdrawCanvas(SkBaseDevice* device);
 
     void onDrawDRRect(const SkRRect&, const SkRRect&, const SkPaint&) override;
     void onDrawText(const void*, size_t, SkScalar, SkScalar, const SkPaint&) override;

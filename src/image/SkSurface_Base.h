@@ -86,7 +86,8 @@ public:
      *  increment the alpha channel each time a pixel would have been touched.
      *  It may be efficient to use kAlpha8 as the color type on the surface.
      */
-    std::unique_ptr<SkCanvas> onMakeOverdrawCanvas();
+    virtual std::unique_ptr<SkCanvas> onMakeOverdrawCanvas() = 0;
+
     inline SkCanvas* getCachedCanvas();
     inline sk_sp<SkImage> refCachedImage(SkBudgeted, ForceUnique);
 

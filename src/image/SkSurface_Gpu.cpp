@@ -14,6 +14,7 @@
 #include "SkImage_Base.h"
 #include "SkImage_Gpu.h"
 #include "SkImagePriv.h"
+#include "SkOverdrawCanvas.h"
 #include "SkSurface_Base.h"
 
 #if SK_SUPPORT_GPU
@@ -141,6 +142,10 @@ void SkSurface_Gpu::onDiscard() {
 
 void SkSurface_Gpu::onPrepareForExternalIO() {
     fDevice->flush();
+}
+
+std::unique_ptr<SkCanvas> SkSurface_Gpu::onMakeOverdrawCanvas() {
+    return std::unique_ptr<SkCanvas>(new SkOverdrawCanvas(fDevice.get()));
 }
 
 ///////////////////////////////////////////////////////////////////////////////
