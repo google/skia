@@ -189,7 +189,7 @@ GrGLSLUniformHandler::SamplerHandle GrVkUniformHandler::addSampler(uint32_t visi
     info.fVariable.setName(mangleName);
     SkString layoutQualifier;
     layoutQualifier.appendf("set=%d, binding=%d", kSamplerDescSet, fSamplers.count() - 1);
-    info.fVariable.setLayoutQualifier(layoutQualifier.c_str());
+    info.fVariable.addLayoutQualifier(layoutQualifier.c_str());
     info.fVisibility = visibility;
     info.fUBOffset = 0;
     fSamplerSwizzles.push_back(swizzle);
