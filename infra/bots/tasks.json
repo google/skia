@@ -222,6 +222,12 @@
         "Build-Ubuntu-GCC-x86_64-Release-SKNX_NO_SIMD"
       ]
     },
+    "Build-Ubuntu-GCC-x86_64-Release-Valgrind": {
+      "priority": 0.8,
+      "tasks": [
+        "Build-Ubuntu-GCC-x86_64-Release-Valgrind"
+      ]
+    },
     "Build-Win-Clang-arm64-Release-GN_Android": {
       "priority": 0.8,
       "tasks": [
@@ -500,6 +506,12 @@
         "Upload-Perf-Ubuntu-Clang-GCE-CPU-AVX2-x86_64-Release-GN"
       ]
     },
+    "Perf-Ubuntu-Clang-Golo-GPU-GT610-x86_64-Debug-ASAN": {
+      "priority": 0.8,
+      "tasks": [
+        "Perf-Ubuntu-Clang-Golo-GPU-GT610-x86_64-Debug-ASAN"
+      ]
+    },
     "Perf-Ubuntu-GCC-GCE-CPU-AVX2-x86-Debug": {
       "priority": 0.8,
       "tasks": [
@@ -522,6 +534,24 @@
       "priority": 0.8,
       "tasks": [
         "Upload-Perf-Ubuntu-GCC-GCE-CPU-AVX2-x86_64-Release-GN"
+      ]
+    },
+    "Perf-Ubuntu-GCC-ShuttleA-GPU-GTX550Ti-x86_64-Release-Valgrind": {
+      "priority": 0.8,
+      "tasks": [
+        "Perf-Ubuntu-GCC-ShuttleA-GPU-GTX550Ti-x86_64-Release-Valgrind"
+      ]
+    },
+    "Perf-Ubuntu-GCC-ShuttleA-GPU-GTX660-x86_64-Debug-GN": {
+      "priority": 0.8,
+      "tasks": [
+        "Perf-Ubuntu-GCC-ShuttleA-GPU-GTX660-x86_64-Debug-GN"
+      ]
+    },
+    "Perf-Ubuntu-GCC-ShuttleA-GPU-GTX660-x86_64-Release-GN": {
+      "priority": 0.8,
+      "tasks": [
+        "Upload-Perf-Ubuntu-GCC-ShuttleA-GPU-GTX660-x86_64-Release-GN"
       ]
     },
     "Perf-iOS-Clang-iPadMini4-GPU-GX6450-Arm7-Debug": {
@@ -782,6 +812,18 @@
         "Test-Ubuntu-Clang-GCE-CPU-AVX2-x86_64-Release-TSAN"
       ]
     },
+    "Test-Ubuntu-Clang-Golo-GPU-GT610-x86_64-Debug-ASAN": {
+      "priority": 0.8,
+      "tasks": [
+        "Test-Ubuntu-Clang-Golo-GPU-GT610-x86_64-Debug-ASAN"
+      ]
+    },
+    "Test-Ubuntu-Clang-Golo-GPU-GT610-x86_64-Release-TSAN": {
+      "priority": 0.8,
+      "tasks": [
+        "Test-Ubuntu-Clang-Golo-GPU-GT610-x86_64-Release-TSAN"
+      ]
+    },
     "Test-Ubuntu-GCC-GCE-CPU-AVX2-x86-Debug": {
       "priority": 0.8,
       "tasks": [
@@ -816,6 +858,24 @@
       "priority": 0.8,
       "tasks": [
         "Upload-Test-Ubuntu-GCC-GCE-CPU-AVX2-x86_64-Release-SKNX_NO_SIMD"
+      ]
+    },
+    "Test-Ubuntu-GCC-ShuttleA-GPU-GTX550Ti-x86_64-Release-Valgrind": {
+      "priority": 0.8,
+      "tasks": [
+        "Test-Ubuntu-GCC-ShuttleA-GPU-GTX550Ti-x86_64-Release-Valgrind"
+      ]
+    },
+    "Test-Ubuntu-GCC-ShuttleA-GPU-GTX660-x86_64-Debug-GN": {
+      "priority": 0.8,
+      "tasks": [
+        "Upload-Test-Ubuntu-GCC-ShuttleA-GPU-GTX660-x86_64-Debug-GN"
+      ]
+    },
+    "Test-Ubuntu-GCC-ShuttleA-GPU-GTX660-x86_64-Release-GN": {
+      "priority": 0.8,
+      "tasks": [
+        "Upload-Test-Ubuntu-GCC-ShuttleA-GPU-GTX660-x86_64-Release-GN"
       ]
     },
     "Test-iOS-Clang-iPadMini4-GPU-GX6450-Arm7-Debug": {
@@ -1898,6 +1958,31 @@
         "swarm_compile",
         "repository=<(REPO)",
         "buildername=Build-Ubuntu-GCC-x86_64-Release-SKNX_NO_SIMD",
+        "mastername=fake-master",
+        "buildnumber=2",
+        "slavename=fake-buildslave",
+        "nobuildbot=True",
+        "swarm_out_dir=${ISOLATED_OUTDIR}",
+        "revision=<(REVISION)",
+        "patch_storage=<(PATCH_STORAGE)",
+        "patch_issue=<(ISSUE)",
+        "patch_set=<(PATCHSET)"
+      ],
+      "isolate": "compile_skia.isolate",
+      "priority": 0.8
+    },
+    "Build-Ubuntu-GCC-x86_64-Release-Valgrind": {
+      "dimensions": [
+        "gpu:none",
+        "os:Ubuntu",
+        "pool:Skia"
+      ],
+      "extra_args": [
+        "--workdir",
+        "../../..",
+        "swarm_compile",
+        "repository=<(REPO)",
+        "buildername=Build-Ubuntu-GCC-x86_64-Release-Valgrind",
         "mastername=fake-master",
         "buildnumber=2",
         "slavename=fake-buildslave",
@@ -4073,6 +4158,59 @@
       "isolate": "perf_skia.isolate",
       "priority": 0.8
     },
+    "Perf-Ubuntu-Clang-Golo-GPU-GT610-x86_64-Debug-ASAN": {
+      "cipd_packages": [
+        {
+          "name": "skia/bots/skimage",
+          "path": "skimage",
+          "version": "version:13"
+        },
+        {
+          "name": "skia/bots/skp",
+          "path": "skp",
+          "version": "version:15"
+        },
+        {
+          "name": "skia/bots/svg",
+          "path": "svg",
+          "version": "version:3"
+        },
+        {
+          "name": "skia/bots/clang_linux",
+          "path": "clang_linux",
+          "version": "version:4"
+        }
+      ],
+      "dependencies": [
+        "Build-Ubuntu-Clang-x86_64-Debug-ASAN"
+      ],
+      "dimensions": [
+        "gpu:10de:104a",
+        "os:Ubuntu",
+        "pool:Skia"
+      ],
+      "execution_timeout_ns": 14400000000000,
+      "expiration_ns": 72000000000000,
+      "extra_args": [
+        "--workdir",
+        "../../..",
+        "swarm_perf",
+        "repository=<(REPO)",
+        "buildername=Perf-Ubuntu-Clang-Golo-GPU-GT610-x86_64-Debug-ASAN",
+        "mastername=fake-master",
+        "buildnumber=2",
+        "slavename=fake-buildslave",
+        "nobuildbot=True",
+        "swarm_out_dir=${ISOLATED_OUTDIR}",
+        "revision=<(REVISION)",
+        "patch_storage=<(PATCH_STORAGE)",
+        "patch_issue=<(ISSUE)",
+        "patch_set=<(PATCHSET)"
+      ],
+      "io_timeout_ns": 2400000000000,
+      "isolate": "perf_skia.isolate",
+      "priority": 0.8
+    },
     "Perf-Ubuntu-GCC-GCE-CPU-AVX2-x86-Debug": {
       "cipd_packages": [
         {
@@ -4255,6 +4393,150 @@
         "swarm_perf",
         "repository=<(REPO)",
         "buildername=Perf-Ubuntu-GCC-GCE-CPU-AVX2-x86_64-Release-GN",
+        "mastername=fake-master",
+        "buildnumber=2",
+        "slavename=fake-buildslave",
+        "nobuildbot=True",
+        "swarm_out_dir=${ISOLATED_OUTDIR}",
+        "revision=<(REVISION)",
+        "patch_storage=<(PATCH_STORAGE)",
+        "patch_issue=<(ISSUE)",
+        "patch_set=<(PATCHSET)"
+      ],
+      "io_timeout_ns": 2400000000000,
+      "isolate": "perf_skia.isolate",
+      "priority": 0.8
+    },
+    "Perf-Ubuntu-GCC-ShuttleA-GPU-GTX550Ti-x86_64-Release-Valgrind": {
+      "cipd_packages": [
+        {
+          "name": "skia/bots/skimage",
+          "path": "skimage",
+          "version": "version:13"
+        },
+        {
+          "name": "skia/bots/skp",
+          "path": "skp",
+          "version": "version:15"
+        },
+        {
+          "name": "skia/bots/svg",
+          "path": "svg",
+          "version": "version:3"
+        }
+      ],
+      "dependencies": [
+        "Build-Ubuntu-GCC-x86_64-Release-Valgrind"
+      ],
+      "dimensions": [
+        "gpu:10de:1244",
+        "os:Ubuntu",
+        "pool:Skia"
+      ],
+      "execution_timeout_ns": 32400000000000,
+      "expiration_ns": 172800000000000,
+      "extra_args": [
+        "--workdir",
+        "../../..",
+        "swarm_perf",
+        "repository=<(REPO)",
+        "buildername=Perf-Ubuntu-GCC-ShuttleA-GPU-GTX550Ti-x86_64-Release-Valgrind",
+        "mastername=fake-master",
+        "buildnumber=2",
+        "slavename=fake-buildslave",
+        "nobuildbot=True",
+        "swarm_out_dir=${ISOLATED_OUTDIR}",
+        "revision=<(REVISION)",
+        "patch_storage=<(PATCH_STORAGE)",
+        "patch_issue=<(ISSUE)",
+        "patch_set=<(PATCHSET)"
+      ],
+      "io_timeout_ns": 3600000000000,
+      "isolate": "perf_skia.isolate",
+      "priority": 0.8
+    },
+    "Perf-Ubuntu-GCC-ShuttleA-GPU-GTX660-x86_64-Debug-GN": {
+      "cipd_packages": [
+        {
+          "name": "skia/bots/skimage",
+          "path": "skimage",
+          "version": "version:13"
+        },
+        {
+          "name": "skia/bots/skp",
+          "path": "skp",
+          "version": "version:15"
+        },
+        {
+          "name": "skia/bots/svg",
+          "path": "svg",
+          "version": "version:3"
+        }
+      ],
+      "dependencies": [
+        "Build-Ubuntu-GCC-x86_64-Debug-GN"
+      ],
+      "dimensions": [
+        "gpu:10de:11c0",
+        "os:Ubuntu",
+        "pool:Skia"
+      ],
+      "execution_timeout_ns": 14400000000000,
+      "expiration_ns": 72000000000000,
+      "extra_args": [
+        "--workdir",
+        "../../..",
+        "swarm_perf",
+        "repository=<(REPO)",
+        "buildername=Perf-Ubuntu-GCC-ShuttleA-GPU-GTX660-x86_64-Debug-GN",
+        "mastername=fake-master",
+        "buildnumber=2",
+        "slavename=fake-buildslave",
+        "nobuildbot=True",
+        "swarm_out_dir=${ISOLATED_OUTDIR}",
+        "revision=<(REVISION)",
+        "patch_storage=<(PATCH_STORAGE)",
+        "patch_issue=<(ISSUE)",
+        "patch_set=<(PATCHSET)"
+      ],
+      "io_timeout_ns": 2400000000000,
+      "isolate": "perf_skia.isolate",
+      "priority": 0.8
+    },
+    "Perf-Ubuntu-GCC-ShuttleA-GPU-GTX660-x86_64-Release-GN": {
+      "cipd_packages": [
+        {
+          "name": "skia/bots/skimage",
+          "path": "skimage",
+          "version": "version:13"
+        },
+        {
+          "name": "skia/bots/skp",
+          "path": "skp",
+          "version": "version:15"
+        },
+        {
+          "name": "skia/bots/svg",
+          "path": "svg",
+          "version": "version:3"
+        }
+      ],
+      "dependencies": [
+        "Build-Ubuntu-GCC-x86_64-Release-GN"
+      ],
+      "dimensions": [
+        "gpu:10de:11c0",
+        "os:Ubuntu",
+        "pool:Skia"
+      ],
+      "execution_timeout_ns": 14400000000000,
+      "expiration_ns": 72000000000000,
+      "extra_args": [
+        "--workdir",
+        "../../..",
+        "swarm_perf",
+        "repository=<(REPO)",
+        "buildername=Perf-Ubuntu-GCC-ShuttleA-GPU-GTX660-x86_64-Release-GN",
         "mastername=fake-master",
         "buildnumber=2",
         "slavename=fake-buildslave",
@@ -6389,6 +6671,112 @@
       "isolate": "test_skia.isolate",
       "priority": 0.8
     },
+    "Test-Ubuntu-Clang-Golo-GPU-GT610-x86_64-Debug-ASAN": {
+      "cipd_packages": [
+        {
+          "name": "skia/bots/skimage",
+          "path": "skimage",
+          "version": "version:13"
+        },
+        {
+          "name": "skia/bots/skp",
+          "path": "skp",
+          "version": "version:15"
+        },
+        {
+          "name": "skia/bots/svg",
+          "path": "svg",
+          "version": "version:3"
+        },
+        {
+          "name": "skia/bots/clang_linux",
+          "path": "clang_linux",
+          "version": "version:4"
+        }
+      ],
+      "dependencies": [
+        "Build-Ubuntu-Clang-x86_64-Debug-ASAN"
+      ],
+      "dimensions": [
+        "gpu:10de:104a",
+        "os:Ubuntu",
+        "pool:Skia"
+      ],
+      "execution_timeout_ns": 14400000000000,
+      "expiration_ns": 72000000000000,
+      "extra_args": [
+        "--workdir",
+        "../../..",
+        "swarm_test",
+        "repository=<(REPO)",
+        "buildername=Test-Ubuntu-Clang-Golo-GPU-GT610-x86_64-Debug-ASAN",
+        "mastername=fake-master",
+        "buildnumber=2",
+        "slavename=fake-buildslave",
+        "nobuildbot=True",
+        "swarm_out_dir=${ISOLATED_OUTDIR}",
+        "revision=<(REVISION)",
+        "patch_storage=<(PATCH_STORAGE)",
+        "patch_issue=<(ISSUE)",
+        "patch_set=<(PATCHSET)"
+      ],
+      "io_timeout_ns": 2400000000000,
+      "isolate": "test_skia.isolate",
+      "priority": 0.8
+    },
+    "Test-Ubuntu-Clang-Golo-GPU-GT610-x86_64-Release-TSAN": {
+      "cipd_packages": [
+        {
+          "name": "skia/bots/skimage",
+          "path": "skimage",
+          "version": "version:13"
+        },
+        {
+          "name": "skia/bots/skp",
+          "path": "skp",
+          "version": "version:15"
+        },
+        {
+          "name": "skia/bots/svg",
+          "path": "svg",
+          "version": "version:3"
+        },
+        {
+          "name": "skia/bots/clang_linux",
+          "path": "clang_linux",
+          "version": "version:4"
+        }
+      ],
+      "dependencies": [
+        "Build-Ubuntu-Clang-x86_64-Release-TSAN"
+      ],
+      "dimensions": [
+        "gpu:10de:104a",
+        "os:Ubuntu",
+        "pool:Skia"
+      ],
+      "execution_timeout_ns": 14400000000000,
+      "expiration_ns": 72000000000000,
+      "extra_args": [
+        "--workdir",
+        "../../..",
+        "swarm_test",
+        "repository=<(REPO)",
+        "buildername=Test-Ubuntu-Clang-Golo-GPU-GT610-x86_64-Release-TSAN",
+        "mastername=fake-master",
+        "buildnumber=2",
+        "slavename=fake-buildslave",
+        "nobuildbot=True",
+        "swarm_out_dir=${ISOLATED_OUTDIR}",
+        "revision=<(REVISION)",
+        "patch_storage=<(PATCH_STORAGE)",
+        "patch_issue=<(ISSUE)",
+        "patch_set=<(PATCHSET)"
+      ],
+      "io_timeout_ns": 2400000000000,
+      "isolate": "test_skia.isolate",
+      "priority": 0.8
+    },
     "Test-Ubuntu-GCC-GCE-CPU-AVX2-x86-Debug": {
       "cipd_packages": [
         {
@@ -6669,6 +7057,150 @@
         "swarm_test",
         "repository=<(REPO)",
         "buildername=Test-Ubuntu-GCC-GCE-CPU-AVX2-x86_64-Release-SKNX_NO_SIMD",
+        "mastername=fake-master",
+        "buildnumber=2",
+        "slavename=fake-buildslave",
+        "nobuildbot=True",
+        "swarm_out_dir=${ISOLATED_OUTDIR}",
+        "revision=<(REVISION)",
+        "patch_storage=<(PATCH_STORAGE)",
+        "patch_issue=<(ISSUE)",
+        "patch_set=<(PATCHSET)"
+      ],
+      "io_timeout_ns": 2400000000000,
+      "isolate": "test_skia.isolate",
+      "priority": 0.8
+    },
+    "Test-Ubuntu-GCC-ShuttleA-GPU-GTX550Ti-x86_64-Release-Valgrind": {
+      "cipd_packages": [
+        {
+          "name": "skia/bots/skimage",
+          "path": "skimage",
+          "version": "version:13"
+        },
+        {
+          "name": "skia/bots/skp",
+          "path": "skp",
+          "version": "version:15"
+        },
+        {
+          "name": "skia/bots/svg",
+          "path": "svg",
+          "version": "version:3"
+        }
+      ],
+      "dependencies": [
+        "Build-Ubuntu-GCC-x86_64-Release-Valgrind"
+      ],
+      "dimensions": [
+        "gpu:10de:1244",
+        "os:Ubuntu",
+        "pool:Skia"
+      ],
+      "execution_timeout_ns": 32400000000000,
+      "expiration_ns": 172800000000000,
+      "extra_args": [
+        "--workdir",
+        "../../..",
+        "swarm_test",
+        "repository=<(REPO)",
+        "buildername=Test-Ubuntu-GCC-ShuttleA-GPU-GTX550Ti-x86_64-Release-Valgrind",
+        "mastername=fake-master",
+        "buildnumber=2",
+        "slavename=fake-buildslave",
+        "nobuildbot=True",
+        "swarm_out_dir=${ISOLATED_OUTDIR}",
+        "revision=<(REVISION)",
+        "patch_storage=<(PATCH_STORAGE)",
+        "patch_issue=<(ISSUE)",
+        "patch_set=<(PATCHSET)"
+      ],
+      "io_timeout_ns": 3600000000000,
+      "isolate": "test_skia.isolate",
+      "priority": 0.8
+    },
+    "Test-Ubuntu-GCC-ShuttleA-GPU-GTX660-x86_64-Debug-GN": {
+      "cipd_packages": [
+        {
+          "name": "skia/bots/skimage",
+          "path": "skimage",
+          "version": "version:13"
+        },
+        {
+          "name": "skia/bots/skp",
+          "path": "skp",
+          "version": "version:15"
+        },
+        {
+          "name": "skia/bots/svg",
+          "path": "svg",
+          "version": "version:3"
+        }
+      ],
+      "dependencies": [
+        "Build-Ubuntu-GCC-x86_64-Debug-GN"
+      ],
+      "dimensions": [
+        "gpu:10de:11c0",
+        "os:Ubuntu",
+        "pool:Skia"
+      ],
+      "execution_timeout_ns": 14400000000000,
+      "expiration_ns": 72000000000000,
+      "extra_args": [
+        "--workdir",
+        "../../..",
+        "swarm_test",
+        "repository=<(REPO)",
+        "buildername=Test-Ubuntu-GCC-ShuttleA-GPU-GTX660-x86_64-Debug-GN",
+        "mastername=fake-master",
+        "buildnumber=2",
+        "slavename=fake-buildslave",
+        "nobuildbot=True",
+        "swarm_out_dir=${ISOLATED_OUTDIR}",
+        "revision=<(REVISION)",
+        "patch_storage=<(PATCH_STORAGE)",
+        "patch_issue=<(ISSUE)",
+        "patch_set=<(PATCHSET)"
+      ],
+      "io_timeout_ns": 2400000000000,
+      "isolate": "test_skia.isolate",
+      "priority": 0.8
+    },
+    "Test-Ubuntu-GCC-ShuttleA-GPU-GTX660-x86_64-Release-GN": {
+      "cipd_packages": [
+        {
+          "name": "skia/bots/skimage",
+          "path": "skimage",
+          "version": "version:13"
+        },
+        {
+          "name": "skia/bots/skp",
+          "path": "skp",
+          "version": "version:15"
+        },
+        {
+          "name": "skia/bots/svg",
+          "path": "svg",
+          "version": "version:3"
+        }
+      ],
+      "dependencies": [
+        "Build-Ubuntu-GCC-x86_64-Release-GN"
+      ],
+      "dimensions": [
+        "gpu:10de:11c0",
+        "os:Ubuntu",
+        "pool:Skia"
+      ],
+      "execution_timeout_ns": 14400000000000,
+      "expiration_ns": 72000000000000,
+      "extra_args": [
+        "--workdir",
+        "../../..",
+        "swarm_test",
+        "repository=<(REPO)",
+        "buildername=Test-Ubuntu-GCC-ShuttleA-GPU-GTX660-x86_64-Release-GN",
         "mastername=fake-master",
         "buildnumber=2",
         "slavename=fake-buildslave",
@@ -7404,6 +7936,35 @@
         "upload_nano_results",
         "repository=<(REPO)",
         "buildername=Perf-Ubuntu-GCC-GCE-CPU-AVX2-x86_64-Release-GN",
+        "mastername=fake-master",
+        "buildnumber=2",
+        "slavename=fake-buildslave",
+        "nobuildbot=True",
+        "swarm_out_dir=${ISOLATED_OUTDIR}",
+        "revision=<(REVISION)",
+        "patch_storage=<(PATCH_STORAGE)",
+        "patch_issue=<(ISSUE)",
+        "patch_set=<(PATCHSET)"
+      ],
+      "isolate": "upload_nano_results.isolate",
+      "priority": 0.8
+    },
+    "Upload-Perf-Ubuntu-GCC-ShuttleA-GPU-GTX660-x86_64-Release-GN": {
+      "dependencies": [
+        "Perf-Ubuntu-GCC-ShuttleA-GPU-GTX660-x86_64-Release-GN"
+      ],
+      "dimensions": [
+        "cpu:x86-64-avx2",
+        "gpu:none",
+        "os:Ubuntu",
+        "pool:Skia"
+      ],
+      "extra_args": [
+        "--workdir",
+        "../../..",
+        "upload_nano_results",
+        "repository=<(REPO)",
+        "buildername=Perf-Ubuntu-GCC-ShuttleA-GPU-GTX660-x86_64-Release-GN",
         "mastername=fake-master",
         "buildnumber=2",
         "slavename=fake-buildslave",
@@ -8709,6 +9270,64 @@
         "upload_dm_results",
         "repository=<(REPO)",
         "buildername=Test-Ubuntu-GCC-GCE-CPU-AVX2-x86_64-Release-SKNX_NO_SIMD",
+        "mastername=fake-master",
+        "buildnumber=2",
+        "slavename=fake-buildslave",
+        "nobuildbot=True",
+        "swarm_out_dir=${ISOLATED_OUTDIR}",
+        "revision=<(REVISION)",
+        "patch_storage=<(PATCH_STORAGE)",
+        "patch_issue=<(ISSUE)",
+        "patch_set=<(PATCHSET)"
+      ],
+      "isolate": "upload_dm_results.isolate",
+      "priority": 0.8
+    },
+    "Upload-Test-Ubuntu-GCC-ShuttleA-GPU-GTX660-x86_64-Debug-GN": {
+      "dependencies": [
+        "Test-Ubuntu-GCC-ShuttleA-GPU-GTX660-x86_64-Debug-GN"
+      ],
+      "dimensions": [
+        "cpu:x86-64-avx2",
+        "gpu:none",
+        "os:Ubuntu",
+        "pool:Skia"
+      ],
+      "extra_args": [
+        "--workdir",
+        "../../..",
+        "upload_dm_results",
+        "repository=<(REPO)",
+        "buildername=Test-Ubuntu-GCC-ShuttleA-GPU-GTX660-x86_64-Debug-GN",
+        "mastername=fake-master",
+        "buildnumber=2",
+        "slavename=fake-buildslave",
+        "nobuildbot=True",
+        "swarm_out_dir=${ISOLATED_OUTDIR}",
+        "revision=<(REVISION)",
+        "patch_storage=<(PATCH_STORAGE)",
+        "patch_issue=<(ISSUE)",
+        "patch_set=<(PATCHSET)"
+      ],
+      "isolate": "upload_dm_results.isolate",
+      "priority": 0.8
+    },
+    "Upload-Test-Ubuntu-GCC-ShuttleA-GPU-GTX660-x86_64-Release-GN": {
+      "dependencies": [
+        "Test-Ubuntu-GCC-ShuttleA-GPU-GTX660-x86_64-Release-GN"
+      ],
+      "dimensions": [
+        "cpu:x86-64-avx2",
+        "gpu:none",
+        "os:Ubuntu",
+        "pool:Skia"
+      ],
+      "extra_args": [
+        "--workdir",
+        "../../..",
+        "upload_dm_results",
+        "repository=<(REPO)",
+        "buildername=Test-Ubuntu-GCC-ShuttleA-GPU-GTX660-x86_64-Release-GN",
         "mastername=fake-master",
         "buildnumber=2",
         "slavename=fake-buildslave",
