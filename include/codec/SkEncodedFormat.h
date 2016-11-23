@@ -8,21 +8,29 @@
 #ifndef SkEncodedFormat_DEFINED
 #define SkEncodedFormat_DEFINED
 
-/**
- *  Enum describing format of encoded data.
- */
+#include "SkEncodedImageFormat.h"
+#include "SkTypes.h"
+
+#ifdef SK_SUPPORT_LEGACY_IMAGE_ENCODER_CLASS
+
 enum SkEncodedFormat {
-    kUnknown_SkEncodedFormat,
-    kBMP_SkEncodedFormat,
-    kGIF_SkEncodedFormat,
-    kICO_SkEncodedFormat,
-    kJPEG_SkEncodedFormat,
-    kPNG_SkEncodedFormat,
-    kWBMP_SkEncodedFormat,
-    kWEBP_SkEncodedFormat,
-    kPKM_SkEncodedFormat,
-    kKTX_SkEncodedFormat,
-    kASTC_SkEncodedFormat,
-    kDNG_SkEncodedFormat,
+    kBMP_SkEncodedFormat  = (int)SkEncodedImageFormat::kBMP,
+    kGIF_SkEncodedFormat  = (int)SkEncodedImageFormat::kGIF,
+    kICO_SkEncodedFormat  = (int)SkEncodedImageFormat::kICO,
+    kJPEG_SkEncodedFormat = (int)SkEncodedImageFormat::kJPEG,
+    kPNG_SkEncodedFormat  = (int)SkEncodedImageFormat::kPNG,
+    kWBMP_SkEncodedFormat = (int)SkEncodedImageFormat::kWBMP,
+    kWEBP_SkEncodedFormat = (int)SkEncodedImageFormat::kWEBP,
+    kPKM_SkEncodedFormat  = (int)SkEncodedImageFormat::kPKM,
+    kKTX_SkEncodedFormat  = (int)SkEncodedImageFormat::kKTX,
+    kASTC_SkEncodedFormat = (int)SkEncodedImageFormat::kASTC,
+    kDNG_SkEncodedFormat  = (int)SkEncodedImageFormat::kDNG,
 };
+
+#else
+
+typedef SkEncodedImageFormat SkEncodedFormat;
+
+#endif  // SK_SUPPORT_LEGACY_IMAGE_ENCODER_CLASS
+
 #endif  // SkEncodedFormat_DEFINED
