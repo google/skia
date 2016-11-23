@@ -83,17 +83,8 @@ struct SkGammas : SkRefCnt {
     }
 
     const Data& data(int i) const {
-        switch (i) {
-            case 0:
-                return fRedData;
-            case 1:
-                return fGreenData;
-            case 2:
-                return fBlueData;
-            default:
-                SkASSERT(false);
-                return fRedData;
-        }
+        SkASSERT(i >= 0 && i < fChannels);
+        return fData[i];
     }
 
     const float* table(int i) const {
@@ -107,32 +98,24 @@ struct SkGammas : SkRefCnt {
     }
 
     Type type(int i) const {
-        switch (i) {
-            case 0:
-                return fRedType;
-            case 1:
-                return fGreenType;
-            case 2:
-                return fBlueType;
-            default:
-                SkASSERT(false);
-                return fRedType;
+        SkASSERT(i >= 0 && i < fChannels);
+        return fType[i];
+    }
+    
+    uint8_t channels() const { return fChannels; }
+
+    SkGammas(uint8_t channels)
+        : fChannels(channels) {
+        SkASSERT(channels <= kMaxColorChannels);
+        for (uint8_t i = 0; i < kMaxColorChannels; ++i) {
+            fType[i] = Type::kNone_Type;
         }
     }
 
-    SkGammas()
-        : fRedType(Type::kNone_Type)
-        , fGreenType(Type::kNone_Type)
-        , fBlueType(Type::kNone_Type)
-    {}
-
     // These fields should only be modified when initializing the struct.
-    Data fRedData;
-    Data fGreenData;
-    Data fBlueData;
-    Type fRedType;
-    Type fGreenType;
-    Type fBlueType;
+    uint8_t fChannels;
+    Data    fData[kMaxColorChannels];
+    Type    fType[kMaxColorChannels];
 
     // Objects of this type are sometimes created in a custom fashion using
     // sk_malloc_throw and therefore must be sk_freed.  We overload new to
@@ -188,9 +171,17 @@ public:
         kXYZ,
         kA2B
     };
-    
+
     virtual Type type() const = 0;
-    
+
+    enum class InputColorFormat {
+        kRGB,
+        kCMYK
+    };
+
+    static sk_sp<SkColorSpace> MakeICC(const void* input, size_t len,
+                                       InputColorFormat inputColorFormat);
+
 protected:
     SkColorSpace_Base(sk_sp<SkData> profileData);
 

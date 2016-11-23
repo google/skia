@@ -627,6 +627,9 @@ STAGE(parametric_g, true) {
 STAGE(parametric_b, true) {
     b = parametric(b, *(const SkColorSpaceTransferFn*)ctx);
 }
+STAGE(parametric_a, true) {
+    a = parametric(a, *(const SkColorSpaceTransferFn*)ctx);
+}
 
 SI SkNf table(const SkNf& v, const SkTableTransferFn& table) {
     float result[N];
@@ -645,23 +648,44 @@ STAGE(table_g, true) {
 STAGE(table_b, true) {
     b = table(b, *(const SkTableTransferFn*)ctx);
 }
+STAGE(table_a, true) {
+    a = table(a, *(const SkTableTransferFn*)ctx);
+}
 
 STAGE(color_lookup_table, true) {
     const SkColorLookUpTable* colorLUT = (const SkColorLookUpTable*)ctx;
-    float rgb[3];
-    float result[3][N];
+    static_assert(4 == kMaxColorChannels,
+                  "color_lookup_table stage channel size does not match SkColorLookUpTable");
+    float out[4];
+    float in[4];
+    float result[4][N];
     for (int i = 0; i < N; ++i) {
-        rgb[0] = r[i];
-        rgb[1] = g[i];
-        rgb[2] = b[i];
-        colorLUT->interp3D(rgb, rgb);
-        result[0][i] = rgb[0];
-        result[1][i] = rgb[1];
-        result[2][i] = rgb[2];
+        in[0] = r[i];
+        in[1] = g[i];
+        in[2] = b[i];
+        in[3] = a[i];
+        colorLUT->interp(out, in);
+        for (int j = 0; j < colorLUT->outputChannels(); ++j) {
+            result[j][i] = out[j];
+        }
     }
-    r = SkNf::Load(result[0]);
-    g = SkNf::Load(result[1]);
-    b = SkNf::Load(result[2]);
+    // if there are fewer output channels than input channels, we arbitrarily assign those
+    // to ensure the image still makes sense, most notably that it is opaque after CMYK -> RGB
+    static_assert(3 == SkColorLookUpTable::kOutputChannels, "TODO: in defaults for r/g/b here");
+    a = 1.f;
+    switch (colorLUT->outputChannels()) {
+        case 4:
+            a = SkNf::Load(result[3]);
+        case 3:
+            b = SkNf::Load(result[2]);
+        case 2:
+            g = SkNf::Load(result[1]);
+        case 1:
+            r = SkNf::Load(result[0]);
+            break;
+        default:
+            SkASSERT(false);
+    }
 }
 
 STAGE(lab_to_xyz, true) {

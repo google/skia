@@ -33,10 +33,14 @@ private:
     SkColorSpaceXform_A2B(SkColorSpace_A2B* srcSpace, SkColorSpace_XYZ* dstSpace);
 
     enum Channels {
-        kRGB_Channels = -1,
-        kR_Channels   =  0,
-        kG_Channels   =  1,
-        kB_Channels   =  2
+        // for multi-channel value is -n for n channels
+        kRGBA_Channels = -4,
+        kRGB_Channels  = -3,
+        // for only the ith channel, value is i (0-indexed)
+        kR_Channels    =  0,
+        kG_Channels    =  1,
+        kB_Channels    =  2,
+        kA_Channels    =  3
     };
 
 
