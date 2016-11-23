@@ -43,10 +43,6 @@ public:
     /** Does this object own a pending read or write on the resource it is wrapping. */
     bool ownsPendingIO() const { return fPendingIO; }
 
-    /** What type of IO does this represent? This is independent of whether a normal ref or a
-        pending IO is currently held. */
-    GrIOType ioType() const { return fIOType; }
-
     /** Shortcut for calling setResource() with NULL. It cannot be called after markingPendingIO
         is called. */
     void reset();

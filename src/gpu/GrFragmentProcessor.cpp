@@ -27,7 +27,7 @@ GrFragmentProcessor::~GrFragmentProcessor() {
 
 bool GrFragmentProcessor::isEqual(const GrFragmentProcessor& that) const {
     if (this->classID() != that.classID() ||
-        !this->hasSameSamplersAndAccesses(that)) {
+        !this->hasSameSamplers(that)) {
         return false;
     }
     if (!this->hasSameTransforms(that)) {

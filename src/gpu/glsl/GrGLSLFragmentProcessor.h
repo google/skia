@@ -11,13 +11,13 @@
 #include "GrFragmentProcessor.h"
 #include "GrShaderVar.h"
 #include "glsl/GrGLSLProgramDataManager.h"
-#include "glsl/GrGLSLUniformHandler.h"
 
 class GrProcessor;
 class GrProcessorKeyBuilder;
 class GrGLSLCaps;
 class GrGLSLFPBuilder;
 class GrGLSLFPFragmentBuilder;
+class GrGLSLUniformHandler;
 
 class GrGLSLFragmentProcessor {
 public:
@@ -29,9 +29,8 @@ public:
         }
     }
 
-    using UniformHandle      = GrGLSLUniformHandler::UniformHandle;
-    using SamplerHandle      = GrGLSLUniformHandler::SamplerHandle;
-    using ImageStorageHandle = GrGLSLUniformHandler::ImageStorageHandle;
+    typedef GrGLSLProgramDataManager::UniformHandle UniformHandle;
+    typedef GrGLSLProgramDataManager::UniformHandle SamplerHandle;
 
 private:
     /**
@@ -75,8 +74,6 @@ public:
                                                  &GrProcessor::numTextureSamplers>;
     using BufferSamplers = BuilderInputProvider<SamplerHandle, GrProcessor,
                                                 &GrProcessor::numBuffers>;
-    using ImageStorages = BuilderInputProvider<ImageStorageHandle, GrProcessor,
-                                               &GrProcessor::numImageStorages>;
 
     /** Called when the program stage should insert its code into the shaders. The code in each
         shader will be in its own block ({}) and so locally scoped names will not collide across
@@ -102,12 +99,6 @@ public:
         @param bufferSamplers    Contains one entry for each BufferAccess of the GrProcessor. These
                                  can be passed to the builder to emit buffer reads in the generated
                                  code.
-        @param imageStorages     Contains one entry for each ImageStorageAccess of the GrProcessor.
-                                 These can be passed to the builder to emit image loads and stores
-                                 in the generated code.
-        @param gpImplementsDistanceVector
-                                 Does the GrGeometryProcessor implement the feature where it
-                                 provides a vector to the nearest edge of the shape being rendered.
      */
     struct EmitArgs {
         EmitArgs(GrGLSLFPFragmentBuilder* fragBuilder,
@@ -119,7 +110,6 @@ public:
                  const TransformedCoordVars& transformedCoordVars,
                  const TextureSamplers& textureSamplers,
                  const BufferSamplers& bufferSamplers,
-                 const ImageStorages& imageStorages,
                  bool gpImplementsDistanceVector)
             : fFragBuilder(fragBuilder)
             , fUniformHandler(uniformHandler)
@@ -130,7 +120,6 @@ public:
             , fTransformedCoords(transformedCoordVars)
             , fTexSamplers(textureSamplers)
             , fBufferSamplers(bufferSamplers)
-            , fImageStorages(imageStorages)
             , fGpImplementsDistanceVector(gpImplementsDistanceVector) {}
         GrGLSLFPFragmentBuilder* fFragBuilder;
         GrGLSLUniformHandler* fUniformHandler;
@@ -141,7 +130,6 @@ public:
         const TransformedCoordVars& fTransformedCoords;
         const TextureSamplers& fTexSamplers;
         const BufferSamplers& fBufferSamplers;
-        const ImageStorages& fImageStorages;
         bool fGpImplementsDistanceVector;
     };
 

@@ -28,9 +28,7 @@ typedef SkSTArray<8, GrGLSLFragmentProcessor*, true> GrGLSLFragProcs;
 
 class GrGLSLProgramBuilder {
 public:
-    using UniformHandle      = GrGLSLUniformHandler::UniformHandle;
-    using SamplerHandle      = GrGLSLUniformHandler::SamplerHandle;
-    using ImageStorageHandle = GrGLSLUniformHandler::ImageStorageHandle;
+    typedef GrGLSLUniformHandler::UniformHandle UniformHandle;
 
     virtual ~GrGLSLProgramBuilder() {}
 
@@ -44,16 +42,14 @@ public:
 
     void appendUniformDecls(GrShaderFlags visibility, SkString*) const;
 
+    typedef GrGLSLUniformHandler::SamplerHandle SamplerHandle;
+
     const GrShaderVar& samplerVariable(SamplerHandle handle) const {
         return this->uniformHandler()->samplerVariable(handle);
     }
 
     GrSwizzle samplerSwizzle(SamplerHandle handle) const {
         return this->uniformHandler()->samplerSwizzle(handle);
-    }
-
-    const GrShaderVar& imageStorageVariable(ImageStorageHandle handle) const {
-        return this->uniformHandler()->imageStorageVariable(handle);
     }
 
     // Handles for program uniforms (other than per-effect uniforms)
@@ -160,18 +156,17 @@ private:
                                 const GrGLSLExpr4& coverageIn,
                                 bool ignoresCoverage,
                                 GrPixelLocalStorageState plsState);
-    void emitSamplersAndImageStorages(const GrProcessor& processor,
-                                      SkTArray<SamplerHandle>* outTexSamplerHandles,
-                                      SkTArray<SamplerHandle>* outBufferSamplerHandles,
-                                      SkTArray<ImageStorageHandle>* outImageStorageHandles);
-    void emitSampler(GrSLType samplerType, GrPixelConfig, const char* name,
-                     GrShaderFlags visibility, SkTArray<SamplerHandle >* outSamplerHandles);
-    void emitImageStorage(const GrProcessor::ImageStorageAccess&,
-                          const char* name,
-                          SkTArray<ImageStorageHandle>* outImageStorageHandles);
+
+    void emitSamplers(const GrProcessor& processor,
+                      SkTArray<SamplerHandle>* outTexSamplers,
+                      SkTArray<SamplerHandle>* outBufferSamplers);
+    void emitSampler(GrSLType samplerType,
+                     GrPixelConfig,
+                     const char* name,
+                     GrShaderFlags visibility,
+                     SkTArray<SamplerHandle>* outSamplers);
     void emitFSOutputSwizzle(bool hasSecondaryOutput);
     bool checkSamplerCounts();
-    bool checkImageStorageCounts();
 
 #ifdef SK_DEBUG
     void verify(const GrPrimitiveProcessor&);
@@ -182,9 +177,6 @@ private:
     int                         fNumVertexSamplers;
     int                         fNumGeometrySamplers;
     int                         fNumFragmentSamplers;
-    int                         fNumVertexImageStorages;
-    int                         fNumGeometryImageStorages;
-    int                         fNumFragmentImageStorages;
     SkSTArray<4, GrShaderVar>   fTransformedCoordVars;
 };
 

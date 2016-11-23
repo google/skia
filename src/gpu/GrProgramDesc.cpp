@@ -15,88 +15,48 @@
 #include "glsl/GrGLSLFragmentShaderBuilder.h"
 #include "glsl/GrGLSLCaps.h"
 
-enum {
-    kSamplerOrImageTypeKeyBits = 4
-};
-
-static inline uint16_t image_storage_or_sampler_uniform_type_key(GrSLType type ) {
-    int value = UINT16_MAX;
-    switch (type) {
-        case kTexture2DSampler_GrSLType:
-            value = 0;
-            break;
-        case kITexture2DSampler_GrSLType:
-            value = 1;
-            break;
-        case kTextureExternalSampler_GrSLType:
-            value = 2;
-            break;
-        case kTexture2DRectSampler_GrSLType:
-            value = 3;
-            break;
-        case kBufferSampler_GrSLType:
-            value = 4;
-            break;
-        case kImageStorage2D_GrSLType:
-            value = 5;
-            break;
-        case kIImageStorage2D_GrSLType:
-            value = 6;
-            break;
-
-        default:
-            break;
-    }
-    SkASSERT((value & ((1 << kSamplerOrImageTypeKeyBits) - 1)) == value);
-    return value;
-}
-
 static uint16_t sampler_key(GrSLType samplerType, GrPixelConfig config, GrShaderFlags visibility,
                             const GrGLSLCaps& caps) {
-    int samplerTypeKey = image_storage_or_sampler_uniform_type_key(samplerType);
+    enum {
+        kFirstSamplerType = kTexture2DSampler_GrSLType,
+        kLastSamplerType = kBufferSampler_GrSLType,
+        kSamplerTypeKeyBits = 4
+    };
+    GR_STATIC_ASSERT(kLastSamplerType - kFirstSamplerType < (1 << kSamplerTypeKeyBits));
 
-    GR_STATIC_ASSERT(1 == sizeof(caps.configTextureSwizzle(config).asKey()));
-    return SkToU16(samplerTypeKey |
-                   caps.configTextureSwizzle(config).asKey() << kSamplerOrImageTypeKeyBits |
-                   (caps.samplerPrecision(config, visibility) << (8 + kSamplerOrImageTypeKeyBits)));
+    SkASSERT((int)samplerType >= kFirstSamplerType && (int)samplerType <= kLastSamplerType);
+    int samplerTypeKey = samplerType - kFirstSamplerType;
+
+    return SkToU16(caps.configTextureSwizzle(config).asKey() |
+                   (samplerTypeKey << 8) |
+                   (caps.samplerPrecision(config, visibility) << (8 + kSamplerTypeKeyBits)));
 }
 
-static uint16_t storage_image_key(const GrProcessor::ImageStorageAccess& imageAccess) {
-    GrSLType type = imageAccess.texture()->texturePriv().imageStorageType();
-    return image_storage_or_sampler_uniform_type_key(type) |
-           (int)imageAccess.format() << kSamplerOrImageTypeKeyBits;
-}
-
-static void add_sampler_and_image_keys(GrProcessorKeyBuilder* b, const GrProcessor& proc,
-                                       const GrGLSLCaps& caps) {
+static void add_sampler_keys(GrProcessorKeyBuilder* b, const GrProcessor& proc,
+                             const GrGLSLCaps& caps) {
     int numTextureSamplers = proc.numTextureSamplers();
-    int numBuffers = proc.numBuffers();
-    int numImageStorages = proc.numImageStorages();
-    int numUniforms = numTextureSamplers + numBuffers + numImageStorages;
-    // Need two bytes per key.
-    int word32Count = (numUniforms + 1) / 2;
+    int numSamplers = numTextureSamplers + proc.numBuffers();
+    // Need two bytes per key (swizzle, sampler type, and precision).
+    int word32Count = (numSamplers + 1) / 2;
     if (0 == word32Count) {
         return;
     }
     uint16_t* k16 = SkTCast<uint16_t*>(b->add32n(word32Count));
-    int j = 0;
-    for (int i = 0; i < numTextureSamplers; ++i, ++j) {
-        const GrProcessor::TextureSampler& sampler = proc.textureSampler(i);
-        const GrTexture* tex = sampler.texture();
-        k16[j] = sampler_key(tex->texturePriv().samplerType(), tex->config(), sampler.visibility(),
-                             caps);
+    int i = 0;
+    for (; i < numTextureSamplers; ++i) {
+        const GrProcessor::TextureSampler& textureSampler = proc.textureSampler(i);
+        const GrTexture* tex = textureSampler.texture();
+        k16[i] = sampler_key(tex->texturePriv().samplerType(), tex->config(),
+                             textureSampler.visibility(), caps);
     }
-    for (int i = 0; i < numBuffers; ++i, ++j) {
-        const GrProcessor::BufferAccess& access = proc.bufferAccess(i);
-        k16[j] = sampler_key(kBufferSampler_GrSLType, access.texelConfig(), access.visibility(),
-                             caps);
+    for (; i < numSamplers; ++i) {
+        const GrProcessor::BufferAccess& access = proc.bufferAccess(i - numTextureSamplers);
+        k16[i] = sampler_key(kBufferSampler_GrSLType, access.texelConfig(),
+                             access.visibility(), caps);
     }
-    for (int i = 0; i < numImageStorages; ++i, ++j) {
-        k16[j] = storage_image_key(proc.imageStorageAccess(i));
-    }
-    // zero the last 16 bits if the number of uniforms for samplers and image storages is odd.
-    if (numUniforms & 0x1) {
-        k16[numUniforms] = 0;
+    // zero the last 16 bits if the number of samplers is odd.
+    if (numSamplers & 0x1) {
+        k16[numSamplers] = 0;
     }
 }
 
@@ -122,7 +82,7 @@ static bool gen_meta_key(const GrProcessor& proc,
         return false;
     }
 
-    add_sampler_and_image_keys(b, proc, glslCaps);
+    add_sampler_keys(b, proc, glslCaps);
 
     uint32_t* key = b->add32n(2);
     key[0] = (classID << 16) | SkToU32(processorKeySize);
