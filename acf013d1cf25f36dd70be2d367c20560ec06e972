@@ -1,0 +1,55 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "f01d104e_c4c27e24",
+        "filename": "src/core/SkColorLookUpTable.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 14,
+      "author": {
+        "id": 5740
+      },
+      "writtenOn": "2016-11-23T18:17:13Z",
+      "side": 1,
+      "message": "This is also used for SkGammas and is referenced in SkColorSpace_ICC for gammas/cluts. I couldn\u0027t think of a good place to put it without creating a file just for it... (SkColorSpace_Base contains way more info + would create a circular inclusion if I put it there).\n\nCan you think of a better place, or do you think it\u0027s okay here?",
+      "revId": "acf013d1cf25f36dd70be2d367c20560ec06e972",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "f01d104e_a4bd829d",
+        "filename": "src/core/SkColorLookUpTable.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 25,
+      "author": {
+        "id": 5740
+      },
+      "writtenOn": "2016-11-23T18:17:13Z",
+      "side": 1,
+      "message": "I\u0027ll update this comment to say that it does tetrahedral for 3 input dimensions.",
+      "revId": "acf013d1cf25f36dd70be2d367c20560ec06e972",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "f01d104e_a4e4a2c5",
+        "filename": "tests/ColorSpaceXformTest.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 107,
+      "author": {
+        "id": 5740
+      },
+      "writtenOn": "2016-11-23T18:17:13Z",
+      "side": 1,
+      "message": "A2B xforms don\u0027t cache the destination colour space in tables like XYZ ones do, so I removed the repeat.",
+      "revId": "acf013d1cf25f36dd70be2d367c20560ec06e972",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
