@@ -484,6 +484,7 @@ DM_INCLUDES = [
     "src/effects",
     "src/effects/gradients",
     "src/fonts",
+    "src/images",
     "src/pathops",
     "src/pipe/utils",
     "src/ports",
@@ -600,6 +601,7 @@ DEFINES_ALL = [
     "SK_SUPPORT_LEGACY_ACCESSBITMAP",
     "SK_SUPPORT_LEGACY_CLIP_REGIONOPS",
     "SK_SUPPORT_LEGACY_XFERMODE_IS_PUBLIC",
+    "SK_SUPPORT_LEGACY_IMAGE_ENCODER_CLASS",
     # Temporarily Disable analytic AA for Google3
     "SK_NO_ANALYTIC_AA",
 ]

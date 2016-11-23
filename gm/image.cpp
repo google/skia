@@ -348,13 +348,13 @@ static SkImageGenerator* gen_picture(const SkImageInfo& info) {
 
 static SkImageGenerator* gen_png(const SkImageInfo& info) {
     sk_sp<SkImage> image(make_raster(info, nullptr, draw_opaque_contents));
-    sk_sp<SkData> data(image->encode(SkImageEncoder::kPNG_Type, 100));
+    sk_sp<SkData> data(image->encode(SkEncodedImageFormat::kPNG, 100));
     return SkImageGenerator::NewFromEncoded(data.get());
 }
 
 static SkImageGenerator* gen_jpg(const SkImageInfo& info) {
     sk_sp<SkImage> image(make_raster(info, nullptr, draw_opaque_contents));
-    sk_sp<SkData> data(image->encode(SkImageEncoder::kJPEG_Type, 100));
+    sk_sp<SkData> data(image->encode(SkEncodedImageFormat::kJPEG, 100));
     return SkImageGenerator::NewFromEncoded(data.get());
 }
 
@@ -467,7 +467,7 @@ DEF_SIMPLE_GM(new_texture_image, canvas, 225, 60) {
         // Create encoded image.
         [bmp] {
             sk_sp<SkData> src(
-                SkImageEncoder::EncodeData(bmp, SkImageEncoder::kPNG_Type, 100));
+                sk_tool_utils::EncodeImageToData(bmp, SkEncodedImageFormat::kPNG, 100));
             return SkImage::MakeFromEncoded(std::move(src));
         },
         // Create a picture image.
