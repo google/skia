@@ -1,22 +1,18 @@
 /*
- * Copyright 2015 Google Inc.
+ * Copyright 2016 Google Inc.
  *
  * Use of this source code is governed by a BSD-style license that can be
  * found in the LICENSE file.
  */
 
-#ifndef GrTextureMaker_DEFINED
-#define GrTextureMaker_DEFINED
+#ifndef GrTextureProducer_DEFINED
+#define GrTextureProducer_DEFINED
 
 #include "GrSamplerParams.h"
 #include "GrResourceKey.h"
-#include "GrTexture.h"
-#include "SkTLazy.h"
 
-class GrContext;
-class GrSamplerParams;
-class GrUniqueKey;
-class SkBitmap;
+class GrColorSpaceXform;
+class GrTexture;
 
 /**
  * Different GPUs and API extensions have different requirements with respect to what texture
@@ -112,125 +108,39 @@ protected:
     */
     virtual void didCacheCopy(const GrUniqueKey& copyKey) = 0;
 
+
+    enum DomainMode {
+        kNoDomain_DomainMode,
+        kDomain_DomainMode,
+        kTightCopy_DomainMode
+    };
+
+    static GrTexture* CopyOnGpu(GrTexture* inputTexture, const SkIRect* subset,
+                                const CopyParams& copyParams);
+
+    static DomainMode DetermineDomainMode(
+        const SkRect& constraintRect,
+        FilterConstraint filterConstraint,
+        bool coordsLimitedToConstraintRect,
+        int texW, int texH,
+        const SkIRect* textureContentArea,
+        const GrSamplerParams::FilterMode* filterModeOrNullForBicubic,
+        SkRect* domainRect);
+
+    static sk_sp<GrFragmentProcessor> CreateFragmentProcessorForDomainAndFilter(
+        GrTexture* texture,
+        sk_sp<GrColorSpaceXform> colorSpaceXform,
+        const SkMatrix& textureMatrix,
+        DomainMode domainMode,
+        const SkRect& domain,
+        const GrSamplerParams::FilterMode* filterOrNullForBicubic);
+
 private:
     const int   fWidth;
     const int   fHeight;
     const bool  fIsAlphaOnly;
 
     typedef SkNoncopyable INHERITED;
-};
-
-/**
- * Base class for sources that start out as textures. Optionally allows for a content area subrect.
- * The intent is not to use content area for subrect rendering. Rather, the pixels outside the
- * content area have undefined values and shouldn't be read *regardless* of filtering mode or
- * the SkCanvas::SrcRectConstraint used for subrect draws.
- */
-class GrTextureAdjuster : public GrTextureProducer {
-public:
-    /** Makes the subset of the texture safe to use with the given texture parameters.
-        outOffset will be the top-left corner of the subset if a copy is not made. Otherwise,
-        the copy will be tight to the contents and outOffset will be (0, 0). If the copy's size
-        does not match subset's dimensions then the contents are scaled to fit the copy.*/
-    GrTexture* refTextureSafeForParams(const GrSamplerParams&, SkDestinationSurfaceColorMode,
-                                       SkIPoint* outOffset);
-
-    sk_sp<GrFragmentProcessor> createFragmentProcessor(
-                                const SkMatrix& textureMatrix,
-                                const SkRect& constraintRect,
-                                FilterConstraint,
-                                bool coordsLimitedToConstraintRect,
-                                const GrSamplerParams::FilterMode* filterOrNullForBicubic,
-                                SkColorSpace* dstColorSpace,
-                                SkDestinationSurfaceColorMode) override;
-
-    // We do not ref the texture nor the colorspace, so the caller must keep them in scope while
-    // this Adjuster is alive.
-    GrTextureAdjuster(GrTexture*, SkAlphaType, const SkIRect& area, uint32_t uniqueID,
-                      SkColorSpace*);
-
-protected:
-    SkAlphaType alphaType() const override { return fAlphaType; }
-    void makeCopyKey(const CopyParams& params, GrUniqueKey* copyKey,
-                     SkDestinationSurfaceColorMode colorMode) override;
-    void didCacheCopy(const GrUniqueKey& copyKey) override;
-
-    GrTexture* originalTexture() const { return fOriginal; }
-
-    /** Returns the content area or null for the whole original texture */
-    const SkIRect* contentAreaOrNull() { return fContentArea.getMaybeNull(); }
-
-private:
-    SkTLazy<SkIRect>    fContentArea;
-    GrTexture*          fOriginal;
-    SkAlphaType         fAlphaType;
-    SkColorSpace*       fColorSpace;
-    uint32_t            fUniqueID;
-
-    GrTexture* refCopy(const CopyParams &copyParams);
-
-    typedef GrTextureProducer INHERITED;
-};
-
-/**
- * Base class for sources that start out as something other than a texture (encoded image,
- * picture, ...).
- */
-class GrTextureMaker : public GrTextureProducer {
-public:
-    /**
-     *  Returns a texture that is safe for use with the params. If the size of the returned texture
-     *  does not match width()/height() then the contents of the original must be scaled to fit
-     *  the texture. Places the color space of the texture in (*texColorSpace).
-     */
-    GrTexture* refTextureForParams(const GrSamplerParams&, SkDestinationSurfaceColorMode,
-                                   sk_sp<SkColorSpace>* texColorSpace);
-
-    sk_sp<GrFragmentProcessor> createFragmentProcessor(
-                                const SkMatrix& textureMatrix,
-                                const SkRect& constraintRect,
-                                FilterConstraint filterConstraint,
-                                bool coordsLimitedToConstraintRect,
-                                const GrSamplerParams::FilterMode* filterOrNullForBicubic,
-                                SkColorSpace* dstColorSpace,
-                                SkDestinationSurfaceColorMode) override;
-
-protected:
-    GrTextureMaker(GrContext* context, int width, int height, bool isAlphaOnly)
-        : INHERITED(width, height, isAlphaOnly)
-        , fContext(context) {}
-
-    /**
-     *  Return the maker's "original" texture. It is the responsibility of the maker to handle any
-     *  caching of the original if desired.
-     */
-    virtual GrTexture* refOriginalTexture(bool willBeMipped, SkDestinationSurfaceColorMode) = 0;
-
-    /**
-     *  Returns the color space of the maker's "original" texture, assuming it was retrieved with
-     *  the same destination color mode.
-     */
-    virtual sk_sp<SkColorSpace> getColorSpace(SkDestinationSurfaceColorMode) = 0;
-
-    /**
-     *  Return a new (uncached) texture that is the stretch of the maker's original.
-     *
-     *  The base-class handles general logic for this, and only needs access to the following
-     *  method:
-     *  - refOriginalTexture()
-     *
-     *  Subclass may override this if they can handle creating the texture more directly than
-     *  by copying.
-     */
-    virtual GrTexture* generateTextureForParams(const CopyParams&, bool willBeMipped,
-                                                SkDestinationSurfaceColorMode);
-
-    GrContext* context() const { return fContext; }
-
-private:
-    GrContext*  fContext;
-
-    typedef GrTextureProducer INHERITED;
 };
 
 #endif
