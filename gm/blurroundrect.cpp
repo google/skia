@@ -17,7 +17,6 @@
 #include "SkRect.h"
 #include "SkRRect.h"
 #include "SkString.h"
-#include "SkXfermode.h"
 
 // This GM mimics a blurred RR seen in the wild.
 class BlurRoundRectGM : public skiagm::GM {
