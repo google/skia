@@ -394,6 +394,8 @@ optional("gpu") {
     sources += [ "src/gpu/gl/glx/GrGLCreateNativeInterface_glx.cpp" ]
   } else if (is_mac) {
     sources += [ "src/gpu/gl/mac/GrGLCreateNativeInterface_mac.cpp" ]
+  } else if (is_ios) {
+    sources += [ "src/gpu/gl/iOS/GrGLCreateNativeInterface_iOS.cpp" ]
   } else if (is_win) {
     sources += [ "src/gpu/gl/win/GrGLCreateNativeInterface_win.cpp" ]
     libs += [ "OpenGL32.lib" ]
