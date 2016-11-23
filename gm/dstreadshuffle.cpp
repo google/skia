@@ -9,7 +9,6 @@
 #include "SkPath.h"
 #include "SkRandom.h"
 #include "SkShader.h"
-#include "SkXfermode.h"
 
 namespace skiagm {
 

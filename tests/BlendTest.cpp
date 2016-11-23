@@ -9,7 +9,6 @@
 #include "SkColor.h"
 #include "SkColorPriv.h"
 #include "SkTaskGroup.h"
-#include "SkXfermode.h"
 #include <functional>
 
 struct Results { int diffs, diffs_0x00, diffs_0xff, diffs_by_1; };
