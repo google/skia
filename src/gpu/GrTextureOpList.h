@@ -55,6 +55,8 @@ public:
                      const SkIRect& srcRect,
                      const SkIPoint& dstPoint);
 
+    GrTextureOpList* asTextureOpList() override { return this; }
+
     SkDEBUGCODE(void dump() const override;)
 
 private:

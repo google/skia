@@ -13,11 +13,11 @@
 #include "SkRect.h"
 
 class GrCaps;
-class GrOpList;
+class GrRenderTargetOpList;
+class GrRenderTargetProxy;
+class GrTextureOpList;
 class GrTextureProvider;
 class GrTextureProxy;
-class GrRenderTargetProxy;
-class GrTextureProvider;
 
 // This class replicates the functionality GrIORef<GrSurface> but tracks the
 // utilitization for later resource allocation (for the deferred case) and
@@ -244,6 +244,9 @@ public:
     void setLastOpList(GrOpList* opList);
     GrOpList* getLastOpList() { return fLastOpList; }
 
+    GrRenderTargetOpList* getLastRenderTargetOpList();
+    GrTextureOpList* getLastTextureOpList();
+
     /**
      * Retrieves the amount of GPU memory that will be or currently is used by this resource 
      * in bytes. It is approximate since we aren't aware of additional padding or copies made
@@ -260,6 +263,8 @@ public:
     }
 
     bool isWrapped_ForTesting() const;
+
+    SkDEBUGCODE(void validate(GrContext*) const;)
 
 protected:
     // Deferred version

@@ -81,18 +81,14 @@ GrRenderTargetContext::GrRenderTargetContext(GrContext* context,
                                              const SkSurfaceProps* surfaceProps,
                                              GrAuditTrail* auditTrail,
                                              GrSingleOwner* singleOwner)
-    : fDrawingManager(drawingMgr)
+    : GrSurfaceContext(context, auditTrail, singleOwner)
+    , fDrawingManager(drawingMgr)
     , fRenderTargetProxy(std::move(rtp))
     , fOpList(SkSafeRef(fRenderTargetProxy->getLastRenderTargetOpList()))
-    , fContext(context)
     , fInstancedPipelineInfo(fRenderTargetProxy.get())
     , fColorSpace(std::move(colorSpace))
     , fColorXformFromSRGB(nullptr)
     , fSurfaceProps(SkSurfacePropsCopyOrDefault(surfaceProps))
-    , fAuditTrail(auditTrail)
-#ifdef SK_DEBUG
-    , fSingleOwner(singleOwner)
-#endif
 {
     if (fColorSpace) {
         // sRGB sources are very common (SkColor, etc...), so we cache that gamut transformation

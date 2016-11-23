@@ -54,17 +54,6 @@ GrRenderTarget* GrRenderTargetProxy::instantiate(GrTextureProvider* texProvider)
     return surf->asRenderTarget();
 }
 
-
-#ifdef SK_DEBUG
-void GrRenderTargetProxy::validate(GrContext* context) const {
-    if (fTarget) {
-        SkASSERT(fTarget->getContext() == context);
-    }
-
-    INHERITED::validate();
-}
-#endif
-
 size_t GrRenderTargetProxy::onGpuMemorySize() const {
     if (fTarget) {
         return fTarget->gpuMemorySize();

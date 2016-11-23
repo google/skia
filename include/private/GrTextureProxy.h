@@ -12,6 +12,7 @@
 #include "GrTexture.h"
 
 class GrCaps;
+class GrTextureOpList;
 class GrTextureProvider;
 
 // This class delays the acquisition of textures until they are actually required
