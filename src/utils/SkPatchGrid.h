@@ -10,7 +10,6 @@
 
 #include "SkCanvas.h"
 #include "SkPatchUtils.h"
-#include "SkXfermode.h"
 
 /**
  * Class that represents a grid of patches. Adjacent patches share their corners and a color is

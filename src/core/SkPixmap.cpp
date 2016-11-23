@@ -241,7 +241,6 @@ bool SkPixmap::erase(const SkColor4f& origColor, const SkIRect* subset) const {
 #include "SkBitmap.h"
 #include "SkCanvas.h"
 #include "SkSurface.h"
-#include "SkXfermode.h"
 
 bool SkPixmap::scalePixels(const SkPixmap& dst, SkFilterQuality quality) const {
     // Can't do anthing with empty src or dst
