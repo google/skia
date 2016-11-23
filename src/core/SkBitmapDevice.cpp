@@ -20,6 +20,7 @@
 #include "SkShader.h"
 #include "SkSpecialImage.h"
 #include "SkSurface.h"
+#include "SkXfermode.h"
 
 class SkColorTable;
 

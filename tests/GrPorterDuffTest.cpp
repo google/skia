@@ -5,6 +5,7 @@
  * found in the LICENSE file.
  */
 
+#include "SkXfermode.h"
 #include "Test.h"
 
 #if SK_SUPPORT_GPU

@@ -12,6 +12,10 @@
 #include "SkColor.h"
 #include "SkFlattenable.h"
 
+#ifdef SK_SUPPORT_LEGACY_XFERMODE_IS_PUBLIC
+#include "SkXfermode.h"
+#else
+
 class GrFragmentProcessor;
 class GrTexture;
 class GrXPFactory;
@@ -301,5 +305,7 @@ private:
 
     typedef SkFlattenable INHERITED;
 };
+
+#endif
 
 #endif

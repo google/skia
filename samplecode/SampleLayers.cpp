@@ -23,6 +23,7 @@
 #include "SkTypeface.h"
 #include "SkUtils.h"
 #include "SkKey.h"
+#include "SkXfermode.h"
 #include "SkDrawFilter.h"
 
 static void make_paint(SkPaint* paint, const SkMatrix& localMatrix) {

@@ -13,6 +13,7 @@
 #include "SkPaint.h"
 #include "SkShader.h"
 #include "SkTypeface.h"
+#include "SkXfermode.h"
 
 class SkDrawPaint;
 class SkDrawMatrix;

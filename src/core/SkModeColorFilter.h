@@ -7,6 +7,7 @@
 
 #include "SkColorFilter.h"
 #include "SkPM4f.h"
+#include "SkXfermode.h"
 
 #ifndef SkModeColorFilter_DEFINED
 #define SkModeColorFilter_DEFINED

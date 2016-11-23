@@ -26,6 +26,8 @@
 #include "SkColorFilter.h"
 #include "SkTime.h"
 #include "SkTypeface.h"
+#include "SkXfermode.h"
+
 #include "SkPdfRenderer.h"
 
 class PdfFileViewer : public SampleView {

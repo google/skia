@@ -6,6 +6,7 @@
  */
 
 #include "gm.h"
+#include "SkArithmeticMode.h"
 #include "SkBlendModePriv.h"
 #include "SkPath.h"
 #include "SkShader.h"

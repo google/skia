@@ -32,6 +32,7 @@
 #include "SkRandom.h"
 #include "SkTypeface.h"
 #include "SkUtils.h"
+#include "SkXfermode.h"
 
 #include <math.h>
 #include "DecodeFile.h"

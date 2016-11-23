@@ -150,6 +150,8 @@ constexpr raster_proc gRastProcs[] = {
     r0, r1, r2, r3, r4, r5, r6, r7, r8, r9
 };
 
+#include "SkXfermode.h"
+
 static void apply_shader(SkPaint* paint, int index) {
     raster_proc proc = gRastProcs[index];
     if (proc) {

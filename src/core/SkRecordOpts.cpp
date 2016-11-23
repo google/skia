@@ -10,6 +10,7 @@
 #include "SkRecordPattern.h"
 #include "SkRecords.h"
 #include "SkTDArray.h"
+#include "SkXfermode.h"
 
 using namespace SkRecords;
 
