@@ -8,19 +8,18 @@
 #ifndef SkOverdrawCanvas_DEFINED
 #define SkOverdrawCanvas_DEFINED
 
-#include "SkCanvas.h"
+#include "SkNWayCanvas.h"
 
 /**
  *  Captures all drawing commands.  Rather than draw the actual content, this device
  *  increments the alpha channel of each pixel every time it would have been touched
  *  by a draw call.  This is useful for detecting overdraw.
  */
-class SkOverdrawCanvas : public SkCanvas {
+class SkOverdrawCanvas : public SkNWayCanvas {
 public:
     /* Does not take ownership of canvas */
     SkOverdrawCanvas(SkCanvas*);
 
-    void onDrawDRRect(const SkRRect&, const SkRRect&, const SkPaint&) override;
     void onDrawText(const void*, size_t, SkScalar, SkScalar, const SkPaint&) override;
     void onDrawPosText(const void*, size_t, const SkPoint[], const SkPaint&) override;
     void onDrawPosTextH(const void*, size_t, const SkScalar[], SkScalar, const SkPaint&) override;
@@ -36,6 +35,7 @@ public:
     void onDrawRegion(const SkRegion&, const SkPaint&) override;
     void onDrawOval(const SkRect&, const SkPaint&) override;
     void onDrawArc(const SkRect&, SkScalar, SkScalar, bool, const SkPaint&) override;
+    void onDrawDRRect(const SkRRect&, const SkRRect&, const SkPaint&) override;
     void onDrawRRect(const SkRRect&, const SkPaint&) override;
     void onDrawPoints(PointMode, size_t, const SkPoint[], const SkPaint&) override;
     void onDrawVertices(VertexMode, int, const SkPoint[], const SkPoint[], const SkColor[],
@@ -60,10 +60,12 @@ private:
     void drawPosTextCommon(const void*, size_t, const SkScalar[], int, const SkPoint&,
                            const SkPaint&);
 
+    inline SkPaint overdrawPaint(const SkPaint& paint);
+
     SkCanvas* fCanvas;
     SkPaint   fPaint;
 
-    typedef SkCanvas INHERITED;
+    typedef SkNWayCanvas INHERITED;
 };
 
 #endif
