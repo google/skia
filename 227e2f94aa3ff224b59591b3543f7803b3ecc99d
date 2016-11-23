@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "50d33c96_0adbdbd9",
+        "filename": "infra/bots/git_utils.py",
+        "patchSetId": 39
+      },
+      "lineNbr": 131,
+      "author": {
+        "id": 5015
+      },
+      "writtenOn": "2016-11-23T12:43:21Z",
+      "side": 1,
+      "message": "I recommend using utils.chdir into the new git checkout for the convenience of the caller.  In fact, you could just subclass utils.tmp_dir, have __enter__ call the superclass __enter__ followed by a \"git clone \u003crepo\u003e .\"",
+      "range": {
+        "startLine": 131,
+        "startChar": 9,
+        "endLine": 131,
+        "endChar": 25
+      },
+      "revId": "227e2f94aa3ff224b59591b3543f7803b3ecc99d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
