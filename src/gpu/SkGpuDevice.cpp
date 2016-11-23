@@ -14,6 +14,7 @@
 #include "GrGpu.h"
 #include "GrImageTextureMaker.h"
 #include "GrStyle.h"
+#include "GrTextureAdjuster.h"
 #include "GrTracing.h"
 
 #include "SkCanvasPriv.h"
