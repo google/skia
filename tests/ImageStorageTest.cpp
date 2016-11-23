@@ -139,9 +139,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(ImageStorageLoad, reporter, ctxInfo) {
                 uint32_t rd = readData[j * kS + i];
                 if (d != rd) {
                     failed = true;
-#if 0  // This test currently fails on a number of GPUs, under investigation.
                     ERRORF(reporter, "Expected 0x%08x, got 0x%08x at %d, %d.", d, rd, i, j);
-#endif
                 }
             }
         }
