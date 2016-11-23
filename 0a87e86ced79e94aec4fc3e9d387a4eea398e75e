@@ -1,0 +1,44 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "4df48341_a2b280c4",
+        "filename": "src/gpu/GrTextureProducer.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 137,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2016-11-23T18:43:57Z",
+      "side": 1,
+      "message": "All of these were file-static helpers in the (shared) cpp before, used by both Adjuster and Maker. Promoted them to the base class to allow usage from both derived class\u0027 cpp files.",
+      "range": {
+        "startLine": 112,
+        "startChar": 0,
+        "endLine": 137,
+        "endChar": 0
+      },
+      "revId": "0a87e86ced79e94aec4fc3e9d387a4eea398e75e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "4df48341_c2cea444",
+        "filename": "src/gpu/SkGpuDevice_drawTexture.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 171,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2016-11-23T18:43:57Z",
+      "side": 1,
+      "message": "This enum was always declared in GrTextureProducer, FYI.",
+      "revId": "0a87e86ced79e94aec4fc3e9d387a4eea398e75e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
