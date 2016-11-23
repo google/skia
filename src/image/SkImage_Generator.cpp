@@ -33,6 +33,8 @@ public:
     bool getROPixels(SkBitmap*, CachingHint) const override;
     GrTexture* asTextureRef(GrContext*, const GrSamplerParams&,
                             SkDestinationSurfaceColorMode) const override;
+    bool onScalePixels(const SkPixmap& pixmap,
+                       SkFilterQuality quality) const override;
     bool onIsLazyGenerated() const override { return true; }
 
 private:
@@ -72,6 +74,11 @@ SkData* SkImage_Generator::onRefEncoded(GrContext* ctx) const {
 
 bool SkImage_Generator::getROPixels(SkBitmap* bitmap, CachingHint chint) const {
     return fCache.lockAsBitmap(bitmap, this, chint);
+}
+
+bool SkImage_Generator::onScalePixels(const SkPixmap& pixmap,
+                                      SkFilterQuality quality) const {
+    return fCache.generateScaledPixels(pixmap, quality);
 }
 
 GrTexture* SkImage_Generator::asTextureRef(GrContext* ctx, const GrSamplerParams& params,

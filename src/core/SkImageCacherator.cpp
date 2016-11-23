@@ -13,6 +13,7 @@
 #include "SkNextID.h"
 #include "SkPixelRef.h"
 #include "SkResourceCache.h"
+#include "SkTime.h" // TODO(aleksandar.stojiljkovic): remove this for review.
 
 #if SK_SUPPORT_GPU
 #include "GrContext.h"
@@ -162,6 +163,41 @@ bool SkImageCacherator::directAccessScaledImage(const SkRect& srcRect,
                                                 SkFilterQuality fq,
                                                 SkImageGenerator::ScaledImageRec* rec) {
     return ScopedGenerator(fSharedGenerator)->accessScaledImage(srcRect, totalMatrix, fq, rec);
+}
+
+bool SkImageCacherator::generateScaledPixels(const SkPixmap& dst,
+                                             SkFilterQuality quality) {
+    ScopedGenerator generator(fSharedGenerator);
+    const SkImageInfo& genInfo = generator->getInfo();
+    if (genInfo.width() <= 0 || genInfo.height() <= 0 || dst.width() <= 0 || dst.height() <= 0)
+        return false;
+    SkImageGenerator::SupportedSizes sizes;
+    if (!generator->computeScaledDimensions(SkTMax<SkScalar>(SkIntToScalar(dst.width()) / genInfo.width(),
+        SkIntToScalar(dst.height()) / genInfo.height()), &sizes))
+        return false;
+    // We use only size larger than required.
+    SkISize* size = (sizes.fSizes[0].width() >= dst.width() && sizes.fSizes[0].height() >= dst.height())
+                    ? &(sizes.fSizes[0]) : &(sizes.fSizes[1]);
+    SkASSERT(size->width() >= dst.width() && size->height() >= dst.height());
+    // If the nearest larger scaled size is the same as full size, don't continue
+    // this path further.
+    if (size->width() >= genInfo.width() && size->height() >= genInfo.height())
+        return false;
+    SkBitmap bitmap;
+    if (!bitmap.tryAllocPixels(genInfo.makeWH(size->width(), size->height())))
+        return false;
+    SkPixmap pmap;
+    bitmap.peekPixels(&pmap);
+    bool result = false;
+    double start = SkTime::GetNSecs();
+    if (generator->generateScaledPixels(pmap)) {
+        double step = SkTime::GetNSecs();
+        printf("%s generator->generateScaledPixels %d x %d -> %d x %d took %f ms\n", __func__, genInfo.width() , genInfo.height(), pmap.width(), pmap.height(), (step - start) / 1000000);
+        result = pmap.scalePixels(dst, quality);
+        double end = SkTime::GetNSecs();
+        printf("%s pmap.scalePixels after generate %d x %d -> %d x %d took %f ms\n", __func__, pmap.width() , pmap.height(), dst.width(), dst.height(), (end - step) / 1000000);
+    }
+    return result;
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////////////

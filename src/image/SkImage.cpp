@@ -24,6 +24,7 @@
 #include "SkSpecialImage.h"
 #include "SkString.h"
 #include "SkSurface.h"
+#include "SkTime.h" // TODO(aleksandar.stojiljkovic): Measurement code, remove for review.
 
 #if SK_SUPPORT_GPU
 #include "GrTexture.h"
@@ -62,18 +63,28 @@ bool SkImage::scalePixels(const SkPixmap& dst, SkFilterQuality quality, CachingH
         return this->readPixels(dst, 0, 0, chint);
     }
 
-    // Idea: If/when SkImageGenerator supports a native-scaling API (where the generator itself
-    //       can scale more efficiently) we should take advantage of it here.
-    //
+    // TODO(aleksandar.stojiljkovic): Measurement code, remove for review.
+    double start = SkTime::GetNSecs();
+    // If/when SkImageGenerator supports a native-scaling API (where the
+    // generator itself can scale more efficiently).
+    if (chint == SkImage::kDisallow_CachingHint && as_IB(this)->onScalePixels(dst, quality)) {
+        printf("%s scale decode %d x %d -> %d x %d took %f ms\n", __func__, width() , height(), dst.width(), dst.height(), (SkTime::GetNSecs() - start) / 1000000);
+        return true;
+    }
+
     SkBitmap bm;
     if (as_IB(this)->getROPixels(&bm, chint)) {
+        double step = SkTime::GetNSecs();
+        printf("%s full size decode %d x %d -> %d x %d took %f ms\n", __func__, width() , height(), width(), height(), (step - start) / 1000000);
         bm.lockPixels();
         SkPixmap pmap;
         // Note: By calling the pixmap scaler, we never cache the final result, so the chint
         //       is (currently) only being applied to the getROPixels. If we get a request to
         //       also attempt to cache the final (scaled) result, we would add that logic here.
         //
-        return bm.peekPixels(&pmap) && pmap.scalePixels(dst, quality);
+        bool result = bm.peekPixels(&pmap) && pmap.scalePixels(dst, quality);
+        printf("%s scale after full size decode %d x %d -> %d x %d took %f ms\n", __func__, width() , height(), dst.width(), dst.height(), (SkTime::GetNSecs() - step) / 1000000);
+        return result;
     }
     return false;
 }

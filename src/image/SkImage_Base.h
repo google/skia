@@ -38,6 +38,10 @@ public:
 
     virtual bool onPeekPixels(SkPixmap*) const { return false; }
 
+    virtual bool onScalePixels(const SkPixmap&, SkFilterQuality) const {
+        return false;
+    }
+
     virtual const SkBitmap* onPeekBitmap() const { return nullptr; }
 
     // Default impl calls onDraw
