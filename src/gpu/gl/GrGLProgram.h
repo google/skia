@@ -17,6 +17,7 @@
 #include "glsl/GrGLSLUniformHandler.h"
 
 #include "SkString.h"
+#include "SkXfermode.h"
 
 #include "builders/GrGLProgramBuilder.h"
 

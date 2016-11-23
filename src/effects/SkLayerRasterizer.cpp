@@ -17,6 +17,7 @@
 #include "SkPathEffect.h"
 #include "../core/SkRasterClip.h"
 #include "../core/SkStrokeRec.h"
+#include "SkXfermode.h"
 #include <new>
 
 struct SkLayerRasterizer_Rec {

@@ -15,6 +15,7 @@
 #include "SkPM4fPriv.h"
 #include "SkRasterPipeline.h"
 #include "SkShader.h"
+#include "SkXfermode.h"
 
 
 class SkRasterPipelineBlitter : public SkBlitter {

@@ -15,6 +15,7 @@
 #include "SkTypeface.h"
 #include "SkUtils.h"
 #include "SkWriteBuffer.h"
+#include "SkXfermode.h"
 #include "Test.h"
 
 static size_t uni_to_utf8(const SkUnichar src[], void* dst, int count) {

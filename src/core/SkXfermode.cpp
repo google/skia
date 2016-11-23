@@ -5,6 +5,7 @@
  * found in the LICENSE file.
  */
 
+#include "SkXfermode.h"
 #include "SkXfermode_proccoeff.h"
 #include "SkColorPriv.h"
 #include "SkMathPriv.h"

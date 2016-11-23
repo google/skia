@@ -16,6 +16,7 @@
 #include "SkRefCnt.h"
 #include "SkScalar.h"
 #include "SkSmallAllocator.h"
+#include "SkXfermode.h"
 #include "Test.h"
 
 static SkBitmap make_bm(int w, int h) {

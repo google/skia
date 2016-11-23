@@ -14,6 +14,7 @@
 #include "GrPipeline.h"
 #include "GrProcessor.h"
 #include "GrTexture.h"
+#include "SkXfermode.h"
 #include "glsl/GrGLSLBlend.h"
 #include "glsl/GrGLSLCaps.h"
 #include "glsl/GrGLSLFragmentProcessor.h"

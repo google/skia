@@ -8,6 +8,10 @@
 #ifndef SkArithmeticMode_DEFINED
 #define SkArithmeticMode_DEFINED
 
-//#error "SkArithmeticMode.h is deprecated"
+#include "SkFlattenable.h"
+#include "SkScalar.h"
+#include "SkXfermode.h"
+
+// TODO : remove this header from public
 
 #endif

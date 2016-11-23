@@ -21,6 +21,7 @@
 #include "SkColorFilter.h"
 #include "SkTime.h"
 #include "SkTypeface.h"
+#include "SkXfermode.h"
 
 class EmbossView : public SampleView {
     SkEmbossMaskFilter::Light   fLight;

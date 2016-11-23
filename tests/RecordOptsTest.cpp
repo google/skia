@@ -13,6 +13,7 @@
 #include "SkRecordOpts.h"
 #include "SkRecorder.h"
 #include "SkRecords.h"
+#include "SkXfermode.h"
 #include "SkPictureRecorder.h"
 #include "SkPictureImageFilter.h"
 #include "SkSurface.h"

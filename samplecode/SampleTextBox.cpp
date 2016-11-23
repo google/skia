@@ -16,6 +16,7 @@
 #include "SkRegion.h"
 #include "SkShader.h"
 #include "SkUtils.h"
+#include "SkXfermode.h"
 #include "SkColorPriv.h"
 #include "SkColorFilter.h"
 #include "SkTime.h"

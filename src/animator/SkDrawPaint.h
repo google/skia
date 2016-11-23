@@ -14,6 +14,7 @@
 #include "SkIntArray.h"
 #include "SkMemberInfo.h"
 #include "SkPaint.h"
+#include "SkXfermode.h"
 
 class SkDrawMaskFilter;
 class SkDrawPathEffect;
