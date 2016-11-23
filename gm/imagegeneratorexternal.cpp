@@ -14,6 +14,10 @@
 
 namespace {
 
+void release_proc(void*, void* releaseCtx) {
+    reinterpret_cast<SkImage*>(releaseCtx)->unref();
+}
+
 class ExternalGenerator : public SkImageGenerator {
 public:
     ExternalGenerator(const SkISize size)
@@ -53,10 +57,11 @@ protected:
         const SkScalar scale = SkTMin(scaleSize.width(), scaleSize.height());
         const int lvl = SkScalarFloorToInt(-SkScalarLog2(scale));
 
-        rec->fImage = fMips[SkTPin(lvl, 0, fMips.count())];
+        const sk_sp<SkImage>& img = fMips[SkTPin(lvl, 0, fMips.count())];
+        SkAssertResult(img->peekPixels(&rec->fPixmap));
 
         const SkRect origBounds = SkRect::Make(this->getInfo().bounds());
-        const SkRect  newBounds = SkRect::Make(rec->fImage->bounds());
+        const SkRect  newBounds = SkRect::Make(img->bounds());
 
         SkMatrix srcMap = SkMatrix::MakeScale(newBounds.width()  / origBounds.width(),
                                               newBounds.height() / origBounds.height());
@@ -64,6 +69,9 @@ protected:
         srcMap.mapRect(&rec->fSrcRect, SkRect::MakeWH(src.width(), src.height()));
 
         rec->fQuality = kLow_SkFilterQuality;
+
+        rec->fReleaseProc = release_proc;
+        rec->fReleaseCtx  = SkRef(img.get());
 
         return true;
     }

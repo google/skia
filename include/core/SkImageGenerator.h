@@ -196,16 +196,20 @@ public:
      *  External generator API: provides efficient access to externally-managed image data.
      *
      *  Skia calls accessScaledPixels() during rasterization, to gain temporary access to
-     *  the external pixel data, packaged as a raster SkImage.
+     *  the external pixel data.  When done, the provided callback is invoked to release the
+     *  associated resources.
      *
      *  @param srcRect     the source rect in use for the current draw
      *  @param totalMatrix full matrix in effect (mapping srcRect -> device space)
      *  @param quality     the SkFilterQuality requested for rasterization.
      *  @param rec         out param, expected to be set when the call succeeds:
      *
-     *                       - fImage wraps the external pixel data
-     *                       - fSrcRect is an adjusted srcRect
-     *                       - fQuality is the adjusted filter quality
+     *                       - fPixmap      external pixel data
+     *                       - fSrcRect     is an adjusted srcRect
+     *                       - fQuality     is the adjusted filter quality
+     *                       - fReleaseProc pixmap release callback, same signature as the
+     *                                      SkBitmap::installPixels() callback
+     *                       - fReleaseCtx  opaque release context argument
      *
      *  @return            true on success, false otherwise (error or if this API is not supported;
      *                     in this case Skia will fall back to its internal scaling and caching
@@ -218,9 +222,14 @@ public:
      */
 
     struct ScaledImageRec {
-        sk_sp<SkImage>  fImage;
+        SkPixmap        fPixmap;
         SkRect          fSrcRect;
         SkFilterQuality fQuality;
+
+        using ReleaseProcT = void (*)(void* pixels, void* releaseCtx);
+
+        ReleaseProcT    fReleaseProc;
+        void*           fReleaseCtx;
     };
 
     bool accessScaledImage(const SkRect& srcRect, const SkMatrix& totalMatrix,

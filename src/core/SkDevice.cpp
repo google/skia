@@ -209,11 +209,10 @@ bool SkBaseDevice::drawExternallyScaledImage(const SkDraw& draw,
         return false;
     }
 
-    SkDestinationSurfaceColorMode colorMode = this->imageInfo().colorSpace()
-        ? SkDestinationSurfaceColorMode::kGammaAndColorSpaceAware
-        : SkDestinationSurfaceColorMode::kLegacy;
     SkBitmap bm;
-    if (!as_IB(rec.fImage)->getROPixels(&bm, colorMode)) {
+    if (!bm.installPixels(rec.fPixmap.info(), const_cast<void*>(rec.fPixmap.addr()),
+                          rec.fPixmap.rowBytes(), rec.fPixmap.ctable(),
+                          rec.fReleaseProc, rec.fReleaseCtx)) {
         return false;
     }
 
