@@ -6,7 +6,11 @@
 """This module contains functions for using git."""
 
 import re
+import shutil
 import subprocess
+import tempfile
+
+import utils
 
 
 class GitLocalConfig(object):
@@ -85,3 +89,45 @@ class GitBranch(object):
         subprocess.check_call(['git', 'checkout', 'master'])
         if self._delete_when_finished:
           subprocess.check_call(['git', 'branch', '-D', self._branch_name])
+
+
+class NewGitCheckout(utils.tmp_dir):
+  """Creates a new local checkout of a Git repository."""
+
+  def __init__(self, repository, commit='HEAD'):
+    """Set parameters for this local copy of a Git repository.
+
+    Because this is a new checkout, rather than a reference to an existing
+    checkout on disk, it is safe to assume that the calling thread is the
+    only thread manipulating the checkout.
+
+    You must use the 'with' statement to create this object:
+
+    with NewGitCheckout(*args) as checkout:
+      # use checkout instance
+    # the checkout is automatically cleaned up here
+
+    Args:
+      repository: URL of the remote repository (e.g.,
+          'https://skia.googlesource.com/common') or path to a local repository
+          (e.g., '/path/to/repo/.git') to check out a copy of
+      commit: commit hash, branch, or tag within refspec, indicating what point
+          to update the local checkout to
+    """
+    super(NewGitCheckout, self).__init__()
+    self._repository = repository
+    self._commit = commit
+
+  @property
+  def root(self):
+    """Returns the root directory containing the checked-out files."""
+    return self.name
+
+  def __enter__(self):
+    """Check out a new local copy of the repository.
+
+    Uses the parameters that were passed into the constructor.
+    """
+    super(NewGitCheckout, self).__enter__()
+    subprocess.check_output(args=['git', 'clone', self._repository, self.root])
+    return self
