@@ -27,7 +27,12 @@ struct Modifiers {
         kHighp_Flag         = ASTModifiers::kHighp_Flag,
         kUniform_Flag       = ASTModifiers::kUniform_Flag,
         kFlat_Flag          = ASTModifiers::kFlat_Flag,
-        kNoPerspective_Flag = ASTModifiers::kNoPerspective_Flag
+        kNoPerspective_Flag = ASTModifiers::kNoPerspective_Flag,
+        kReadOnly_Flag      = ASTModifiers::kReadOnly_Flag,
+        kWriteOnly_Flag     = ASTModifiers::kWriteOnly_Flag,
+        kCoherent_Flag      = ASTModifiers::kCoherent_Flag,
+        kVolatile_Flag      = ASTModifiers::kVolatile_Flag,
+        kRestrict_Flag      = ASTModifiers::kRestrict_Flag
     };
 
     Modifiers()
@@ -64,6 +69,21 @@ struct Modifiers {
         }
         if (fFlags & kNoPerspective_Flag) {
             result += "noperspective ";
+        }
+        if (fFlags & kReadOnly_Flag) {
+            result += "readonly ";
+        }
+        if (fFlags & kWriteOnly_Flag) {
+            result += "writeonly ";
+        }
+        if (fFlags & kCoherent_Flag) {
+            result += "coherent ";
+        }
+        if (fFlags & kVolatile_Flag) {
+            result += "volatile ";
+        }
+        if (fFlags & kRestrict_Flag) {
+            result += "restrict ";
         }
 
         if ((fFlags & kIn_Flag) && (fFlags & kOut_Flag)) {

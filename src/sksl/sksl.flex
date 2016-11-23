@@ -74,6 +74,16 @@ flat { return SkSL::Token::FLAT; }
 
 noperspective { return SkSL::Token::NOPERSPECTIVE; }
 
+readonly { return SkSL::Token::READONLY; }
+
+writeonly { return SkSL::Token::WRITEONLY; }
+
+coherent { return SkSL::Token::COHERENT; }
+
+volatile { return SkSL::Token::VOLATILE; }
+
+restrict { return SkSL::Token::RESTRICT; }
+
 struct { return SkSL::Token::STRUCT; }
 
 layout { return SkSL::Token::LAYOUT; }
