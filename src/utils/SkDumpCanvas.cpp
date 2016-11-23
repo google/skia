@@ -19,7 +19,6 @@
 // needed just to know that these are all subclassed from SkFlattenable
 #include "SkShader.h"
 #include "SkPathEffect.h"
-#include "SkXfermode.h"
 #include "SkColorFilter.h"
 #include "SkPathEffect.h"
 #include "SkMaskFilter.h"
