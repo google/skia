@@ -596,7 +596,8 @@ ASTLayout Parser::layout() {
                      overrideCoverage, blendSupportAllEquations, format, pushConstant);
 }
 
-/* layout? (UNIFORM | CONST | IN | OUT | INOUT | LOWP | MEDIUMP | HIGHP | FLAT | NOPERSPECTIVE)* */
+/* layout? (UNIFORM | CONST | IN | OUT | INOUT | LOWP | MEDIUMP | HIGHP | FLAT | NOPERSPECTIVE |
+            READONLY | WRITEONLY | COHERENT | VOLATILE | RESTRICT)* */
 ASTModifiers Parser::modifiers() {
     ASTLayout layout = this->layout();
     int flags = 0;
@@ -643,6 +644,26 @@ ASTModifiers Parser::modifiers() {
             case Token::NOPERSPECTIVE:
                 this->nextToken();
                 flags |= ASTModifiers::kNoPerspective_Flag;
+                break;
+            case Token::READONLY:
+                this->nextToken();
+                flags |= ASTModifiers::kReadOnly_Flag;
+                break;
+            case Token::WRITEONLY:
+                this->nextToken();
+                flags |= ASTModifiers::kWriteOnly_Flag;
+                break;
+            case Token::COHERENT:
+                this->nextToken();
+                flags |= ASTModifiers::kCoherent_Flag;
+                break;
+            case Token::VOLATILE:
+                this->nextToken();
+                flags |= ASTModifiers::kVolatile_Flag;
+                break;
+            case Token::RESTRICT:
+                this->nextToken();
+                flags |= ASTModifiers::kRestrict_Flag;
                 break;
             default:
                 return ASTModifiers(layout, flags);

@@ -29,7 +29,8 @@ private:
     explicit GrGLUniformHandler(GrGLSLProgramBuilder* program)
         : INHERITED(program)
         , fUniforms(kUniformsPerBlock)
-        , fSamplers(kUniformsPerBlock) {}
+        , fSamplers(kUniformsPerBlock)
+        , fImageStorages(kUniformsPerBlock) {}
 
     UniformHandle internalAddUniformArray(uint32_t visibility,
                                           GrSLType type,
@@ -46,8 +47,16 @@ private:
         return fSamplers[handle.toIndex()].fVariable;
     }
 
+    ImageStorageHandle addImageStorage(uint32_t visibility, GrSLType, GrImageStorageFormat,
+                                       GrSLMemoryModel, GrSLRestrict, GrIOType,
+                                       const char* name) override;
+
     GrSwizzle samplerSwizzle(SamplerHandle handle) const override {
         return fSamplerSwizzles[handle.toIndex()];
+    }
+
+    const GrShaderVar& imageStorageVariable(ImageStorageHandle handle) const override {
+        return fImageStorages[handle.toIndex()].fVariable;
     }
 
     void appendUniformDecls(GrShaderFlags visibility, SkString*) const override;
@@ -66,6 +75,7 @@ private:
     UniformInfoArray    fUniforms;
     UniformInfoArray    fSamplers;
     SkTArray<GrSwizzle> fSamplerSwizzles;
+    UniformInfoArray    fImageStorages;
 
     friend class GrGLProgramBuilder;
 
