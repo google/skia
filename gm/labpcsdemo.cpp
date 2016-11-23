@@ -115,7 +115,7 @@ protected:
 
                     float lab[4] = { r * (1.f/255.f), g * (1.f/255.f), b * (1.f/255.f), 1.f };
 
-                    colorLUT->interp3D(lab, lab);
+                    colorLUT->interp(lab, lab);
 
                     // Lab has ranges [0,100] for L and [-128,127] for a and b
                     // but the ICC profile loader stores as [0,1]. The ICC
