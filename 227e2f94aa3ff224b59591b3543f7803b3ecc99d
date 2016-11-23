@@ -22,6 +22,24 @@
       "revId": "227e2f94aa3ff224b59591b3543f7803b3ecc99d",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "50d33c96_2a5b3f73",
+        "filename": "infra/bots/git_utils.py",
+        "patchSetId": 39
+      },
+      "lineNbr": 131,
+      "author": {
+        "id": 5145
+      },
+      "writtenOn": "2016-11-23T13:28:52Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "50d33c96_0adbdbd9",
+      "revId": "227e2f94aa3ff224b59591b3543f7803b3ecc99d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
