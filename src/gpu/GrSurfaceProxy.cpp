@@ -66,6 +66,14 @@ void GrSurfaceProxy::setLastOpList(GrOpList* opList) {
     SkRefCnt_SafeAssign(fLastOpList, opList);
 }
 
+GrRenderTargetOpList* GrSurfaceProxy::getLastRenderTargetOpList() {
+    return fLastOpList ? fLastOpList->asRenderTargetOpList() : nullptr;
+}
+
+GrTextureOpList* GrSurfaceProxy::getLastTextureOpList() {
+    return fLastOpList ? fLastOpList->asTextureOpList() : nullptr;
+}
+
 sk_sp<GrSurfaceProxy> GrSurfaceProxy::MakeWrapped(sk_sp<GrSurface> surf) {
     if (surf->asTexture()) {
         if (surf->asRenderTarget()) {
@@ -109,3 +117,12 @@ sk_sp<GrSurfaceProxy> GrSurfaceProxy::MakeDeferred(const GrCaps& caps,
     return GrSurfaceProxy::MakeDeferred(caps, desc, SkBackingFit::kExact, budgeted);
 }
 
+#ifdef SK_DEBUG
+void GrSurfaceProxy::validate(GrContext* context) const {
+    if (fTarget) {
+        SkASSERT(fTarget->getContext() == context);
+    }
+
+    INHERITED::validate();
+}
+#endif

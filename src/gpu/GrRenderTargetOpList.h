@@ -128,6 +128,8 @@ public:
         return fInstancedRendering.get();
     }
 
+    GrRenderTargetOpList* asRenderTargetOpList() override { return this; }
+
     SkDEBUGCODE(void dump() const override;)
 
 private:
