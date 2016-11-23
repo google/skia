@@ -15,6 +15,8 @@
 #include "SkPaint.h"
 #include "SkView.h"
 
+#include "sk_tool_utils.h"
+
 #define BG_COLOR    0xFFDDDDDD
 
 typedef void (*SlideProc)(SkCanvas*);
@@ -681,7 +683,7 @@ public:
             canvas.restore();
             SkString str;
             str.printf("/skimages/slide_" SK_SIZE_T_SPECIFIER ".png", i);
-            SkImageEncoder::EncodeFile(str.c_str(), bm, SkImageEncoder::kPNG_Type, 100);
+            sk_tool_utils::EncodeImageToFile(str.c_str(), bm, SkEncodedImageFormat::kPNG, 100);
         }
         this->setBGColor(BG_COLOR);
     }

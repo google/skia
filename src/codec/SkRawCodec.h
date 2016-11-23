@@ -37,8 +37,8 @@ protected:
     Result onGetPixels(const SkImageInfo& dstInfo, void* dst, size_t dstRowBytes, const Options&,
             SkPMColor*, int*, int*) override;
 
-    SkEncodedFormat onGetEncodedFormat() const override {
-        return kDNG_SkEncodedFormat;
+    SkEncodedImageFormat onGetEncodedFormat() const override {
+        return SkEncodedImageFormat::kDNG;
     }
 
     SkISize onGetScaledDimensions(float desiredScale) const override;

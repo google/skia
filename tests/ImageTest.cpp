@@ -26,6 +26,8 @@
 #include "SkUtils.h"
 #include "Test.h"
 
+#include "sk_tool_utils.h"
+
 #if SK_SUPPORT_GPU
 #include "GrGpu.h"
 #endif
@@ -153,7 +155,7 @@ static sk_sp<SkImage> create_codec_image() {
     sk_sp<SkData> data(create_image_data(&info));
     SkBitmap bitmap;
     bitmap.installPixels(info, data->writable_data(), info.minRowBytes());
-    sk_sp<SkData> src(SkImageEncoder::EncodeData(bitmap, SkImageEncoder::kPNG_Type, 100));
+    sk_sp<SkData> src(sk_tool_utils::EncodeImageToData(bitmap, SkEncodedImageFormat::kPNG, 100));
     return SkImage::MakeFromEncoded(std::move(src));
 }
 #if SK_SUPPORT_GPU
@@ -1026,7 +1028,7 @@ DEF_TEST(image_roundtrip_encode, reporter) {
     make_all_premul(&bm0);
 
     auto img0 = SkImage::MakeFromBitmap(bm0);
-    sk_sp<SkData> data(img0->encode(SkImageEncoder::kPNG_Type, 100));
+    sk_sp<SkData> data(img0->encode(SkEncodedImageFormat::kPNG, 100));
     auto img1 = SkImage::MakeFromEncoded(data);
 
     SkBitmap bm1;

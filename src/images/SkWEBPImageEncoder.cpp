@@ -15,7 +15,7 @@
  */
 
 #include "SkBitmap.h"
-#include "SkImageEncoder.h"
+#include "SkImageEncoderPriv.h"
 #include "SkColorPriv.h"
 #include "SkStream.h"
 #include "SkTemplates.h"
@@ -241,7 +241,7 @@ DEFINE_ENCODER_CREATOR(WEBPImageEncoder);
 ///////////////////////////////////////////////////////////////////////////////
 
 static SkImageEncoder* sk_libwebp_efactory(SkImageEncoder::Type t) {
-    return (SkImageEncoder::kWEBP_Type == t) ? new SkWEBPImageEncoder : nullptr;
+    return (SkEncodedImageFormat::kWEBP == (SkEncodedImageFormat)t) ? new SkWEBPImageEncoder : nullptr;
 }
 
 static SkImageEncoder_EncodeReg gEReg(sk_libwebp_efactory);

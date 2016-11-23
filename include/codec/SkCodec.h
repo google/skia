@@ -10,7 +10,7 @@
 
 #include "../private/SkTemplates.h"
 #include "SkColor.h"
-#include "SkEncodedFormat.h"
+#include "SkEncodedImageFormat.h"
 #include "SkEncodedInfo.h"
 #include "SkImageInfo.h"
 #include "SkSize.h"
@@ -176,7 +176,7 @@ public:
     /**
      *  Format of the encoded data.
      */
-    SkEncodedFormat getEncodedFormat() const { return this->onGetEncodedFormat(); }
+    SkEncodedImageFormat getEncodedFormat() const { return this->onGetEncodedFormat(); }
 
     /**
      *  Used to describe the result of a call to getPixels().
@@ -255,7 +255,7 @@ public:
         /**
          *  If not NULL, represents a subset of the original image to decode.
          *  Must be within the bounds returned by getInfo().
-         *  If the EncodedFormat is kWEBP_SkEncodedFormat (the only one which
+         *  If the EncodedFormat is SkEncodedImageFormat::kWEBP (the only one which
          *  currently supports subsets), the top and left values must be even.
          *
          *  In getPixels and incremental decode, we will attempt to decode the
@@ -667,7 +667,7 @@ protected:
         return false;
     }
 
-    virtual SkEncodedFormat onGetEncodedFormat() const = 0;
+    virtual SkEncodedImageFormat onGetEncodedFormat() const = 0;
 
     /**
      * @param rowsDecoded When the encoded image stream is incomplete, this function
