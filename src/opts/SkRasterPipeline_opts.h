@@ -569,6 +569,15 @@ STAGE(matrix_2x3, true) {
     g = G;
 }
 
+STAGE(matrix_3x1, true) {
+    auto m = (const float*)ctx;
+
+    g = m[1] * r;
+    b = m[2] * r;
+    // this is last so g/b get set correctly.
+    r = m[0] * r;
+}
+
 STAGE(matrix_3x4, true) {
     auto m = (const float*)ctx;
 

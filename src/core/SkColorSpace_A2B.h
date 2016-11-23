@@ -160,7 +160,8 @@ public:
     // the input color format that this colour space starts in - default is RGB
     enum class ICS : uint8_t {
         kRGB,
-        kCMYK
+        kCMYK,
+        kGray
     };
     
     ICS ics() const { return fICS; }

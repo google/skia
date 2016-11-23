@@ -36,6 +36,7 @@ private:
         // for multi-channel value is -n for n channels
         kRGBA_Channels = -4,
         kRGB_Channels  = -3,
+        kGray_Channels = -1,
         // for only the ith channel, value is i (0-indexed)
         kR_Channels    =  0,
         kG_Channels    =  1,

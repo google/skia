@@ -50,6 +50,7 @@ static constexpr size_t kICCTagTableEntrySize = 12;
 
 static constexpr uint32_t kRGB_ColorSpace     = SkSetFourByteTag('R', 'G', 'B', ' ');
 static constexpr uint32_t kCMYK_ColorSpace    = SkSetFourByteTag('C', 'M', 'Y', 'K');
+static constexpr uint32_t kGray_ColorSpace    = SkSetFourByteTag('G', 'R', 'A', 'Y');
 static constexpr uint32_t kDisplay_Profile    = SkSetFourByteTag('m', 'n', 't', 'r');
 static constexpr uint32_t kInput_Profile      = SkSetFourByteTag('s', 'c', 'n', 'r');
 static constexpr uint32_t kOutput_Profile     = SkSetFourByteTag('p', 'r', 't', 'r');
@@ -128,14 +129,15 @@ struct ICCProfileHeader {
                         fProfileClass == kColorSpace_Profile,
                         "Unsupported profile");
 
-        // TODO (msarett):
-        // All the profiles we've tested so far use RGB as the input color space.
         switch (fInputColorSpace) {
             case kRGB_ColorSpace:
                 SkColorSpacePrintf("RGB Input Color Space");
                 break;
             case kCMYK_ColorSpace:
                 SkColorSpacePrintf("CMYK Input Color Space\n");
+                break;
+            case kGray_ColorSpace:
+                SkColorSpacePrintf("Gray Input Color Space\n");
                 break;
             default:
                 SkColorSpacePrintf("Unsupported Input Color Space: %c%c%c%c\n",
@@ -247,6 +249,7 @@ static constexpr uint32_t kTAG_bXYZ = SkSetFourByteTag('b', 'X', 'Y', 'Z');
 static constexpr uint32_t kTAG_rTRC = SkSetFourByteTag('r', 'T', 'R', 'C');
 static constexpr uint32_t kTAG_gTRC = SkSetFourByteTag('g', 'T', 'R', 'C');
 static constexpr uint32_t kTAG_bTRC = SkSetFourByteTag('b', 'T', 'R', 'C');
+static constexpr uint32_t kTAG_kTRC = SkSetFourByteTag('k', 'T', 'R', 'C');
 static constexpr uint32_t kTAG_A2B0 = SkSetFourByteTag('A', '2', 'B', '0');
 
 static bool load_xyz(float dst[3], const uint8_t* src, size_t len) {
@@ -1190,6 +1193,8 @@ static inline int ics_channels(SkColorSpace_A2B::ICS ics) {
             return 3;
         case SkColorSpace_A2B::ICS::kCMYK:
             return 4;
+        case SkColorSpace_A2B::ICS::kGray:
+            return 1;
         default:
             SkASSERT(false);
             return -1;
@@ -1301,8 +1306,8 @@ sk_sp<SkColorSpace> SkColorSpace_Base::MakeICC(const void* input, size_t len,
     // Create our own copy of the input.
     void* memory = sk_malloc_throw(len);
     memcpy(memory, input, len);
-    sk_sp<SkData> data = SkData::MakeFromMalloc(memory, len);
-    const uint8_t* base = data->bytes();
+    sk_sp<SkData> profileData = SkData::MakeFromMalloc(memory, len);
+    const uint8_t* base = profileData->bytes();
     const uint8_t* ptr = base;
 
     // Read the ICC profile header and check to make sure that it is valid.
@@ -1321,7 +1326,11 @@ sk_sp<SkColorSpace> SkColorSpace_Base::MakeICC(const void* input, size_t len,
         case InputColorFormat::kCMYK:
             if (header.fInputColorSpace != kCMYK_ColorSpace) {
                 return_null("Provided input color format (CMYK) does not match profile.\n");
-                return nullptr;
+            }
+            break;
+        case InputColorFormat::kGray:
+            if (header.fInputColorSpace != kGray_ColorSpace) {
+                return_null("Provided input color format (Gray) does not match profile.\n");
             }
             break;
         default:
@@ -1491,11 +1500,47 @@ sk_sp<SkColorSpace> SkColorSpace_Base::MakeICC(const void* input, size_t len,
             if (kNonStandard_SkGammaNamed == gammaNamed) {
                 return sk_sp<SkColorSpace>(new SkColorSpace_XYZ(gammaNamed,
                                                                 std::move(gammas),
-                                                                mat, std::move(data)));
+                                                                mat, std::move(profileData)));
             }
 
             return SkColorSpace_Base::MakeRGB(gammaNamed, mat);
         }
+    } else if (kGray_ColorSpace == header.fInputColorSpace) {
+        const ICCTag* grayTRC = ICCTag::Find(tags.get(), tagCount, kTAG_kTRC);
+        if (!grayTRC) {
+            return_null("grayTRC tag required for Grayscale profiles.");
+        }
+        if (ICCTag::Find(tags.get(), tagCount, kTAG_A2B0)) {
+            return_null("A2B0 Grayscale profiles are not supported (do they even exist?)");
+        }
+        SkGammas::Data data;
+        SkColorSpaceTransferFn params;
+        size_t tagBytes;
+        SkGammas::Type type =
+                parse_gamma(&data, &params, &tagBytes, grayTRC->addr(base), grayTRC->fLength);
+        handle_invalid_gamma(&type, &data);
+
+        std::vector<SkColorSpace_A2B::Element> elements;
+        if (SkGammas::Type::kNamed_Type == type) {
+            elements.push_back(SkColorSpace_A2B::Element(data.fNamed, 1));
+        } else {
+            size_t allocSize = sizeof(SkGammas);
+            if (!safe_add(allocSize, gamma_alloc_size(type, data), &allocSize)) {
+                return_null("SkGammas struct is too large to allocate");
+            }
+            void* memory = sk_malloc_throw(allocSize);
+            sk_sp<SkGammas> gammas = sk_sp<SkGammas>(new (memory) SkGammas(1));
+            load_gammas(memory, 0, type, &data, params, grayTRC->addr(base));
+            gammas->fType[0] = type;
+            gammas->fData[0] = data;
+            elements.push_back(SkColorSpace_A2B::Element(std::move(gammas)));
+        }
+        const SkColorSpace_A2B::PCS pcs = kXYZ_PCSSpace == header.fPCS
+                                        ? SkColorSpace_A2B::PCS::kXYZ
+                                        : SkColorSpace_A2B::PCS::kLAB;    
+        return sk_sp<SkColorSpace>(new SkColorSpace_A2B(pcs, SkColorSpace_A2B::ICS::kGray,
+                                                        std::move(profileData),
+                                                        std::move(elements)));
     }
 
     // Recognize color profile specified by A2B0 tag.
@@ -1512,14 +1557,18 @@ sk_sp<SkColorSpace> SkColorSpace_Base::MakeICC(const void* input, size_t len,
             case kCMYK_ColorSpace:
                 ics = SkColorSpace_A2B::ICS::kCMYK;
                 break;
+            case kGray_ColorSpace:
+                SkASSERT(false);
+                return nullptr;
             default:
+                SkASSERT(false); // header.fInputColorSpace should be checked earlier
                 return_null("ICC profile has invalid color input space");
         }
         std::vector<SkColorSpace_A2B::Element> elements;
         if (!load_a2b0(&elements, a2b0->addr(base), a2b0->fLength, pcs, ics)) {
             return_null("Failed to parse A2B0 tag");
         }
-        return sk_sp<SkColorSpace>(new SkColorSpace_A2B(pcs, ics, std::move(data),
+        return sk_sp<SkColorSpace>(new SkColorSpace_A2B(pcs, ics, std::move(profileData),
                                                         std::move(elements)));
     }
 
