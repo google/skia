@@ -15,8 +15,10 @@
 
 class GrAuditTrail;
 class GrBatchFlushState;
+class GrRenderTargetOpList;
 class GrSurface;
 class GrSurfaceProxy;
+class GrTextureOpList;
 
 class GrOpList : public SkRefCnt {
 public:
@@ -60,6 +62,16 @@ public:
     bool dependsOn(GrOpList* dependedOn) const {
         return fDependencies.find(dependedOn) >= 0;
     }
+
+    /*
+     * Safely cast this GrOpList to a GrTextureOpList (if possible).
+     */
+    virtual GrTextureOpList* asTextureOpList() { return nullptr; }
+
+    /*
+     * Safely case this GrOpList to a GrRenderTargetOpList (if possible).
+     */
+    virtual GrRenderTargetOpList* asRenderTargetOpList() { return nullptr; }
 
     /*
      * Dump out the GrOpList dependency DAG
