@@ -16,7 +16,6 @@
 #include "SkString.h"
 #include "SkTLazy.h"
 #include "SkUtils.h"
-#include "SkXfermode.h"
 #include "SkXfermodeInterpretation.h"
 
 // define this for testing srgb blits

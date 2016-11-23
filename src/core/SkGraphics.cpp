@@ -28,7 +28,6 @@
 #include "SkTSearch.h"
 #include "SkTime.h"
 #include "SkUtils.h"
-#include "SkXfermode.h"
 
 #include <stdlib.h>
 

@@ -15,7 +15,6 @@
 #include "SkSystemEventTypes.h"
 #include "SkTime.h"
 #include "SkTypeface.h"
-#include "SkXfermode.h"
 #include "Timer.h"
 
 #if SK_SUPPORT_GPU

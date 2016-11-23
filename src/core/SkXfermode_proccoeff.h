@@ -8,7 +8,6 @@
 #ifndef SkXfermode_proccoeff_DEFINED
 #define SkXfermode_proccoeff_DEFINED
 
-#include "SkXfermode.h"
 #include "SkReadBuffer.h"
 #include "SkWriteBuffer.h"
 

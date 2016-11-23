@@ -33,7 +33,6 @@
 #include "SkTLazy.h"
 #include "SkUtils.h"
 #include "SkVertState.h"
-#include "SkXfermode.h"
 
 #include "SkBitmapProcShader.h"
 #include "SkDrawProcs.h"

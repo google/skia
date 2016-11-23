@@ -19,7 +19,6 @@
 #include "SkPathEffect.h"
 #include "SkPictureShader.h"
 #include "SkRecordedDrawable.h"
-#include "SkXfermode.h"
 
 /*
  *  Registers all of the required effects subclasses for picture deserialization.
