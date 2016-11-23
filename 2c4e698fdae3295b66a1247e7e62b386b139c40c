@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "4df48341_681337d5",
+        "filename": "src/core/SkColorSpace_Base.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 177,
+      "author": {
+        "id": 5740
+      },
+      "writtenOn": "2016-11-23T20:24:15Z",
+      "side": 1,
+      "message": "Should this enum be merged with the SkColorSpace_A2B::ICS one and just have SkColorSpace_A2B use this one?",
+      "revId": "2c4e698fdae3295b66a1247e7e62b386b139c40c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
