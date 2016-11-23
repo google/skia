@@ -159,11 +159,6 @@ public:
 
     bool getRenderbufferFormat(GrPixelConfig config, GrGLenum* internalFormat) const;
 
-    /** The format to use read/write a texture as an image in a shader */
-    GrGLenum getImageFormat(GrPixelConfig config) const {
-        return fConfigTable[config].fFormats.fSizedInternalFormat;
-    }
-
     /**
     * Gets an array of legal stencil formats. These formats are not guaranteed
     * to be supported by the driver but are legal GLenum names given the GL
@@ -455,6 +450,7 @@ private:
             GL contexts. */
         GrGLenum fExternalFormat[kExternalFormatUsageCnt];
         GrGLenum fExternalType;
+
 
         // Either the base or sized internal format depending on the GL and config.
         GrGLenum fInternalFormatTexImage;

@@ -106,7 +106,6 @@ tests_sources = [
   "$_tests/ImageGeneratorTest.cpp",
   "$_tests/ImageIsOpaqueTest.cpp",
   "$_tests/ImageNewShaderTest.cpp",
-  "$_tests/ImageStorageTest.cpp",
   "$_tests/ImageTest.cpp",
   "$_tests/IndexedPngOverflowTest.cpp",
   "$_tests/InfRectTest.cpp",

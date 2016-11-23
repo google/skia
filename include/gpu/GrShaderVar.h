@@ -284,8 +284,6 @@ public:
         }
     }
 
-    void setImageStorageFormat(GrImageStorageFormat format);
-
     void addModifier(const char* modifier) {
         if (modifier) {
             fExtraModifiers.appendf("%s ", modifier);
@@ -312,6 +310,23 @@ public:
     }
 
 private:
+    static const char* TypeModifierString(TypeModifier t) {
+        switch (t) {
+            case kNone_TypeModifier:
+                return "";
+            case kIn_TypeModifier:
+                return "in";
+            case kInOut_TypeModifier:
+                return "inout";
+            case kOut_TypeModifier:
+                return "out";
+            case kUniform_TypeModifier:
+                return "uniform";
+        }
+        SkFAIL("Unknown shader variable type modifier.");
+        return ""; // suppress warning
+    }
+
     GrSLType        fType;
     TypeModifier    fTypeModifier;
     int             fCount;

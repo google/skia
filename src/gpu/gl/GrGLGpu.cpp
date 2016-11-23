@@ -217,7 +217,6 @@ GrGLGpu::GrGLGpu(GrGLContext* ctx, GrContext* context)
     fCaps.reset(SkRef(ctx->caps()));
 
     fHWBoundTextureUniqueIDs.reset(this->glCaps().glslCaps()->maxCombinedSamplers());
-    fHWBoundImageStorages.reset(this->glCaps().glslCaps()->maxCombinedImageStorages());
 
     fHWBufferState[kVertex_GrBufferType].fGLTarget = GR_GL_ARRAY_BUFFER;
     fHWBufferState[kIndex_GrBufferType].fGLTarget = GR_GL_ELEMENT_ARRAY_BUFFER;
@@ -557,10 +556,6 @@ void GrGLGpu::onResetContext(uint32_t resetBits) {
         for (int b = 0; b < fHWBufferTextures.count(); ++b) {
             SkASSERT(this->caps()->shaderCaps()->texelBufferSupport());
             fHWBufferTextures[b].fKnownBound = false;
-        }
-        for (int i = 0; i < fHWBoundImageStorages.count(); ++i) {
-            SkASSERT(this->caps()->shaderCaps()->imageLoadStoreSupport());
-            fHWBoundImageStorages[i].fTextureUniqueID.makeInvalid();
         }
     }
 
@@ -3344,27 +3339,6 @@ void GrGLGpu::bindTexelBuffer(int unitIdx, GrPixelConfig texelConfig, GrGLBuffer
 
         buffer->setHasAttachedToTexture();
         fHWMaxUsedBufferTextureUnit = SkTMax(unitIdx, fHWMaxUsedBufferTextureUnit);
-    }
-}
-
-void GrGLGpu::bindImageStorage(int unitIdx, GrIOType ioType, GrGLTexture *texture) {
-    SkASSERT(texture);
-    if (texture->uniqueID() != fHWBoundImageStorages[unitIdx].fTextureUniqueID ||
-        ioType != fHWBoundImageStorages[unitIdx].fIOType) {
-        GrGLenum access;
-        switch (ioType) {
-            case kRead_GrIOType:
-                access = GR_GL_READ_ONLY;
-                break;
-            case kWrite_GrIOType:
-                access = GR_GL_WRITE_ONLY;
-                break;
-            case kRW_GrIOType:
-                access = GR_GL_READ_WRITE;
-                break;
-        }
-        GrGLenum format = this->glCaps().getImageFormat(texture->config());
-        GL_CALL(BindImageTexture(unitIdx, texture->textureID(), 0, GR_GL_FALSE, 0, access, format));
     }
 }
 

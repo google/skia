@@ -34,8 +34,6 @@ enum GrSLType {
     kBufferSampler_GrSLType,
     kTexture2D_GrSLType,
     kSampler_GrSLType,
-    kImageStorage2D_GrSLType,
-    kIImageStorage2D_GrSLType,
 };
 
 enum GrShaderType {
@@ -105,8 +103,6 @@ static inline bool GrSLTypeIsFloatType(GrSLType type) {
         case kUint_GrSLType:
         case kTexture2D_GrSLType:
         case kSampler_GrSLType:
-        case kImageStorage2D_GrSLType:
-        case kIImageStorage2D_GrSLType:
             return false;
     }
     SkFAIL("Unexpected type");
@@ -135,8 +131,6 @@ static inline bool GrSLTypeIs2DCombinedSamplerType(GrSLType type) {
         case kBool_GrSLType:
         case kTexture2D_GrSLType:
         case kSampler_GrSLType:
-        case kImageStorage2D_GrSLType:
-        case kIImageStorage2D_GrSLType:
             return false;
     }
     SkFAIL("Unexpected type");
@@ -165,38 +159,6 @@ static inline bool GrSLTypeIsCombinedSamplerType(GrSLType type) {
         case kBool_GrSLType:
         case kTexture2D_GrSLType:
         case kSampler_GrSLType:
-        case kImageStorage2D_GrSLType:
-        case kIImageStorage2D_GrSLType:
-            return false;
-    }
-    SkFAIL("Unexpected type");
-    return false;
-}
-
-static inline bool GrSLTypeIsImageStorage(GrSLType type) {
-    switch (type) {
-        case kImageStorage2D_GrSLType:
-        case kIImageStorage2D_GrSLType:
-            return true;
-
-        case kVoid_GrSLType:
-        case kFloat_GrSLType:
-        case kVec2f_GrSLType:
-        case kVec3f_GrSLType:
-        case kVec4f_GrSLType:
-        case kMat22f_GrSLType:
-        case kMat33f_GrSLType:
-        case kMat44f_GrSLType:
-        case kInt_GrSLType:
-        case kUint_GrSLType:
-        case kBool_GrSLType:
-        case kTexture2D_GrSLType:
-        case kSampler_GrSLType:
-        case kTexture2DSampler_GrSLType:
-        case kITexture2DSampler_GrSLType:
-        case kTextureExternalSampler_GrSLType:
-        case kTexture2DRectSampler_GrSLType:
-        case kBufferSampler_GrSLType:
             return false;
     }
     SkFAIL("Unexpected type");
@@ -221,8 +183,6 @@ static inline bool GrSLTypeAcceptsPrecision(GrSLType type) {
         case kBufferSampler_GrSLType:
         case kTexture2D_GrSLType:
         case kSampler_GrSLType:
-        case kImageStorage2D_GrSLType:
-        case kIImageStorage2D_GrSLType:
             return true;
 
         case kVoid_GrSLType:
@@ -337,15 +297,6 @@ static inline GrSLType GrVertexAttribTypeToSLType(GrVertexAttribType type) {
     SkFAIL("Unsupported type conversion");
     return kVoid_GrSLType;
 }
-
-//////////////////////////////////////////////////////////////////////////////
-
-enum class GrImageStorageFormat {
-    kRGBA8,
-    kRGBA8i,
-    kRGBA16f,
-    kRGBA32f,
-};
 
 //////////////////////////////////////////////////////////////////////////////
 

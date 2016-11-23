@@ -25,8 +25,7 @@ public:
     GrGLSLShaderBuilder(GrGLSLProgramBuilder* program);
     virtual ~GrGLSLShaderBuilder() {}
 
-    using SamplerHandle      = GrGLSLUniformHandler::SamplerHandle;
-    using ImageStorageHandle = GrGLSLUniformHandler::ImageStorageHandle;
+    typedef GrGLSLUniformHandler::SamplerHandle SamplerHandle;
 
     /** Appends a 2D texture sample with projection if necessary. coordType must either be Vec2f or
         Vec3f. The latter is interpreted as projective texture coords. The vec length and swizzle
@@ -72,11 +71,6 @@ public:
 
     /** Version of above that appends the result to the shader code instead.*/
     void appendTexelFetch(SamplerHandle, const char* coordExpr);
-
-    /** Creates a string of shader code that performs an image load. */
-    void appendImageStorageLoad(SkString* out, ImageStorageHandle, const char* coordExpr);
-    /** Version of above that appends the result to the shader code instead. */
-    void appendImageStorageLoad(ImageStorageHandle, const char* coordExpr);
 
     /**
     * Adds a constant declaration to the top of the shader.

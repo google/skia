@@ -122,12 +122,7 @@ void GrProcessor::addTextureSampler(const TextureSampler* access) {
 
 void GrProcessor::addBufferAccess(const BufferAccess* access) {
     fBufferAccesses.push_back(access);
-    this->addGpuResource(access->programBuffer());
-}
-
-void GrProcessor::addImageStorageAccess(const ImageStorageAccess* access) {
-    fImageStorageAccesses.push_back(access);
-    this->addGpuResource(access->programTexture());
+    this->addGpuResource(access->getProgramBuffer());
 }
 
 void* GrProcessor::operator new(size_t size) {
@@ -138,10 +133,9 @@ void GrProcessor::operator delete(void* target) {
     return MemoryPoolAccessor().pool()->release(target);
 }
 
-bool GrProcessor::hasSameSamplersAndAccesses(const GrProcessor &that) const {
+bool GrProcessor::hasSameSamplers(const GrProcessor& that) const {
     if (this->numTextureSamplers() != that.numTextureSamplers() ||
-        this->numBuffers() != that.numBuffers() ||
-        this->numImageStorages() != that.numImageStorages()) {
+        this->numBuffers() != that.numBuffers()) {
         return false;
     }
     for (int i = 0; i < this->numTextureSamplers(); ++i) {
@@ -151,11 +145,6 @@ bool GrProcessor::hasSameSamplersAndAccesses(const GrProcessor &that) const {
     }
     for (int i = 0; i < this->numBuffers(); ++i) {
         if (this->bufferAccess(i) != that.bufferAccess(i)) {
-            return false;
-        }
-    }
-    for (int i = 0; i < this->numImageStorages(); ++i) {
-        if (this->imageStorageAccess(i) != that.imageStorageAccess(i)) {
             return false;
         }
     }
@@ -196,34 +185,6 @@ void GrProcessor::TextureSampler::reset(GrTexture* texture,
     filterMode = SkTMin(filterMode, texture->texturePriv().highestFilterMode());
     fParams.reset(tileXAndY, filterMode);
     fVisibility = visibility;
-}
-
-///////////////////////////////////////////////////////////////////////////////////////////////////
-
-GrProcessor::ImageStorageAccess::ImageStorageAccess(sk_sp<GrTexture> texture, GrIOType ioType,
-                                                    GrShaderFlags visibility) {
-    SkASSERT(texture);
-    fTexture.set(texture.release(), ioType);
-    fVisibility = visibility;
-    // We currently infer this from the config. However, we could allow the client to specify
-    // a format that is different but compatible with the config.
-    switch (fTexture.get()->config()) {
-        case kRGBA_8888_GrPixelConfig:
-            fFormat = GrImageStorageFormat::kRGBA8;
-            break;
-        case kRGBA_8888_sint_GrPixelConfig:
-            fFormat = GrImageStorageFormat::kRGBA8i;
-            break;
-        case kRGBA_half_GrPixelConfig:
-            fFormat = GrImageStorageFormat::kRGBA16f;
-            break;
-        case kRGBA_float_GrPixelConfig:
-            fFormat = GrImageStorageFormat::kRGBA32f;
-            break;
-        default:
-            SkFAIL("Config is not (yet) supported as image storage.");
-            break;
-    }
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
