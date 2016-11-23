@@ -26,7 +26,6 @@
 #include "SkTArray.h"
 #include "SkTLazy.h"
 #include "SkTypes.h"
-#include "SkXfermode.h"
 
 class GrAuditTrail;
 class GrBatch;
