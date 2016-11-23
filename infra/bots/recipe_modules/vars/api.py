@@ -121,16 +121,16 @@ class SkiaVarsApi(recipe_api.RecipeApi):
         self.issue = self.m.properties['issue']
         self.patchset = self.m.properties['patchset']
       elif (self.m.properties.get('patch_issue', '') and
-            self.m.properties.get('patch_ref', '')):
+            self.m.properties.get('patch_set', '')):
         self.is_trybot = True
         self.issue = self.m.properties['patch_issue']
-        self.patchset = self.m.properties['patch_ref'].split('/')[-1]
+        self.patchset = self.m.properties['patch_set']
     else:
       self.is_trybot = self.builder_cfg['is_trybot']
       if self.is_trybot:
         if self.patch_storage == 'gerrit':
           self.issue = self.m.properties['patch_issue']
-          self.patchset = self.m.properties['patch_ref'].split('/')[-1]
+          self.patchset = self.m.properties['patch_set']
         else:
           self.issue = self.m.properties['issue']
           self.patchset = self.m.properties['patchset']
