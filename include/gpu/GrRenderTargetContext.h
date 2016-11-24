@@ -382,6 +382,13 @@ public:
 
     bool isWrapped_ForTesting() const;
 
+    // These two methods return the worst case size of the backing GPU resource when it is
+    // finally allocated. In the approx-match case the allocated size could be smaller than
+    // what is reported by these entry points (i.e., Ganesh could, optionally, return an
+    // exact match)
+    int worstCaseWidth() const { return fRenderTargetProxy->worstCaseWidth(); }
+    int worstCaseHeight() const { return fRenderTargetProxy->worstCaseHeight(); }
+
 protected:
     GrRenderTargetContext(GrContext*, GrDrawingManager*, sk_sp<GrRenderTargetProxy>,
                           sk_sp<SkColorSpace>, const SkSurfaceProps* surfaceProps, GrAuditTrail*,

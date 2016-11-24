@@ -254,10 +254,10 @@ void GrRenderTargetContext::internalClear(const GrFixedClip& clip,
         // This works around a driver bug with clear by drawing a rect instead.
         // The driver will ignore a clear if it is the only thing rendered to a
         // target before the target is read.
-        SkRect clearRect = SkRect::MakeIWH(this->width(), this->height());
+        SkIRect clearRect = SkIRect::MakeWH(this->worstCaseWidth(), this->worstCaseHeight());
         if (isFull) {
             this->discard();
-        } else if (!clearRect.intersect(SkRect::Make(clip.scissorRect()))) {
+        } else if (!clearRect.intersect(clip.scissorRect())) {
             return;
         }
 
@@ -265,7 +265,7 @@ void GrRenderTargetContext::internalClear(const GrFixedClip& clip,
         paint.setColor4f(GrColor4f::FromGrColor(color));
         paint.setXPFactory(GrPorterDuffXPFactory::Make(SkBlendMode::kSrc));
 
-        this->drawRect(clip, paint, SkMatrix::I(), clearRect);
+        this->drawRect(clip, paint, SkMatrix::I(), SkRect::Make(clearRect));
     } else if (isFull) {
         if (this->accessRenderTarget()) {
             this->getOpList()->fullClear(this->accessRenderTarget(), color);
@@ -415,7 +415,8 @@ bool GrRenderTargetContext::drawFilledRect(const GrClip& clip,
                                            const SkRect& rect,
                                            const GrUserStencilSettings* ss) {
     SkRect croppedRect = rect;
-    if (!crop_filled_rect(this->width(), this->height(), clip, viewMatrix, &croppedRect)) {
+    if (!crop_filled_rect(this->worstCaseWidth(), this->worstCaseHeight(),
+                          clip, viewMatrix, &croppedRect)) {
         return true;
     }
 
