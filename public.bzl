@@ -598,7 +598,6 @@ DEFINES_ALL = [
     # Turn on a few Google3-specific build fixes.
     "GOOGLE3",
     # Staging flags for API changes
-    "SK_SUPPORT_LEGACY_ACCESSBITMAP",
     "SK_SUPPORT_LEGACY_CLIP_REGIONOPS",
     "SK_SUPPORT_LEGACY_IMAGE_ENCODER_CLASS",
     # Temporarily Disable analytic AA for Google3
