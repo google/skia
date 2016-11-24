@@ -141,7 +141,8 @@ static void draw_path_with_mask_filter(GrContext* context,
     SkASSERT(maskFilter);
 
     SkIRect clipBounds;
-    clip.getConservativeBounds(renderTargetContext->width(), renderTargetContext->height(),
+    clip.getConservativeBounds(renderTargetContext->worstCaseWidth(),
+                               renderTargetContext->worstCaseHeight(),
                                &clipBounds);
     SkTLazy<SkPath> tmpPath;
     SkStrokeRec::InitStyle fillOrHairline;
