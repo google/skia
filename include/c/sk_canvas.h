@@ -15,7 +15,7 @@
 
 SK_C_PLUS_PLUS_BEGIN_GUARD
 
-SK_API void sk_canvas_unref(sk_canvas_t*);
+SK_API void sk_canvas_destroy(sk_canvas_t*);
 
 /**
     Save the current matrix and clip on the canvas.  When the
