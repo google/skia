@@ -679,6 +679,33 @@ typedef enum {
     ALL_SK_SHADOWMASKFILTER_SHADOWFLAGS = 0x07
 } sk_shadowmaskfilter_shadowflags_t;
 
+typedef enum {
+    OPAQUE_SK_ENCODEDINFO_ALPHA,
+    UNPREMUL_SK_ENCODEDINFO_ALPHA,
+    BINARY_SK_ENCODEDINFO_ALPHA,
+} sk_encodedinfo_alpha_t;
+
+typedef enum {
+    GRAY_SK_ENCODEDINFO_COLOR,
+    GRAY_ALPHA_SK_ENCODEDINFO_COLOR,
+    PALETTE_SK_ENCODEDINFO_COLOR,
+    RGB_SK_ENCODEDINFO_COLOR,
+    RGBA_SK_ENCODEDINFO_COLOR,
+    BGR_SK_ENCODEDINFO_COLOR,
+    BGRX_SK_ENCODEDINFO_COLOR,
+    BGRA_SK_ENCODEDINFO_COLOR,
+    YUV_SK_ENCODEDINFO_COLOR,
+    YUVA_SK_ENCODEDINFO_COLOR,
+    INVERTED_CMYK_SK_ENCODEDINFO_COLOR,
+    YCCK_SK_ENCODEDINFO_COLOR,
+} sk_encodedinfo_color_t;
+
+typedef struct {
+    sk_encodedinfo_color_t fColor;
+    sk_encodedinfo_alpha_t fAlpha;
+    uint8_t fBitsPerComponent;
+} sk_encodedinfo_t;
+
 SK_C_PLUS_PLUS_END_GUARD
 
 #endif

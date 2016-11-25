@@ -321,4 +321,23 @@ static_assert ((int)SkShadowMaskFilter::ShadowFlags::kLargerUmbra_ShadowFlag    
 static_assert ((int)SkShadowMaskFilter::ShadowFlags::kGaussianEdge_ShadowFlag          == (int)GAUSSIAN_EDGE_SK_SHADOWMASKFILTER_SHADOWFLAGS,          ASSERT_MSG(SkShadowMaskFilter::ShadowFlags, sk_shadowmaskfilter_shadowflags_t));
 static_assert ((int)SkShadowMaskFilter::ShadowFlags::kAll_ShadowFlag                   == (int)ALL_SK_SHADOWMASKFILTER_SHADOWFLAGS,                    ASSERT_MSG(SkShadowMaskFilter::ShadowFlags, sk_shadowmaskfilter_shadowflags_t));
 
+// sk_encodedinfo_alpha_t
+static_assert ((int)SkEncodedInfo::Alpha::kOpaque_Alpha     == (int)OPAQUE_SK_ENCODEDINFO_ALPHA,     ASSERT_MSG(SkEncodedInfo::Alpha, sk_encodedinfo_alpha_t));
+static_assert ((int)SkEncodedInfo::Alpha::kUnpremul_Alpha   == (int)UNPREMUL_SK_ENCODEDINFO_ALPHA,   ASSERT_MSG(SkEncodedInfo::Alpha, sk_encodedinfo_alpha_t));
+static_assert ((int)SkEncodedInfo::Alpha::kBinary_Alpha     == (int)BINARY_SK_ENCODEDINFO_ALPHA,     ASSERT_MSG(SkEncodedInfo::Alpha, sk_encodedinfo_alpha_t));
+
+// sk_encodedinfo_color_t
+static_assert ((int)SkEncodedInfo::Color::kGray_Color           == (int)GRAY_SK_ENCODEDINFO_COLOR,            ASSERT_MSG(SkEncodedInfo::Color, sk_encodedinfo_color_t));
+static_assert ((int)SkEncodedInfo::Color::kGrayAlpha_Color      == (int)GRAY_ALPHA_SK_ENCODEDINFO_COLOR,      ASSERT_MSG(SkEncodedInfo::Color, sk_encodedinfo_color_t));
+static_assert ((int)SkEncodedInfo::Color::kPalette_Color        == (int)PALETTE_SK_ENCODEDINFO_COLOR,         ASSERT_MSG(SkEncodedInfo::Color, sk_encodedinfo_color_t));
+static_assert ((int)SkEncodedInfo::Color::kRGB_Color            == (int)RGB_SK_ENCODEDINFO_COLOR,             ASSERT_MSG(SkEncodedInfo::Color, sk_encodedinfo_color_t));
+static_assert ((int)SkEncodedInfo::Color::kRGBA_Color           == (int)RGBA_SK_ENCODEDINFO_COLOR,            ASSERT_MSG(SkEncodedInfo::Color, sk_encodedinfo_color_t));
+static_assert ((int)SkEncodedInfo::Color::kBGR_Color            == (int)BGR_SK_ENCODEDINFO_COLOR,             ASSERT_MSG(SkEncodedInfo::Color, sk_encodedinfo_color_t));
+static_assert ((int)SkEncodedInfo::Color::kBGRX_Color           == (int)BGRX_SK_ENCODEDINFO_COLOR,            ASSERT_MSG(SkEncodedInfo::Color, sk_encodedinfo_color_t));
+static_assert ((int)SkEncodedInfo::Color::kBGRA_Color           == (int)BGRA_SK_ENCODEDINFO_COLOR,            ASSERT_MSG(SkEncodedInfo::Color, sk_encodedinfo_color_t));
+static_assert ((int)SkEncodedInfo::Color::kYUV_Color            == (int)YUV_SK_ENCODEDINFO_COLOR,             ASSERT_MSG(SkEncodedInfo::Color, sk_encodedinfo_color_t));
+static_assert ((int)SkEncodedInfo::Color::kYUVA_Color           == (int)YUVA_SK_ENCODEDINFO_COLOR,            ASSERT_MSG(SkEncodedInfo::Color, sk_encodedinfo_color_t));
+static_assert ((int)SkEncodedInfo::Color::kInvertedCMYK_Color   == (int)INVERTED_CMYK_SK_ENCODEDINFO_COLOR,   ASSERT_MSG(SkEncodedInfo::Color, sk_encodedinfo_color_t));
+static_assert ((int)SkEncodedInfo::Color::kYCCK_Color           == (int)YCCK_SK_ENCODEDINFO_COLOR,            ASSERT_MSG(SkEncodedInfo::Color, sk_encodedinfo_color_t));
+
 #endif
