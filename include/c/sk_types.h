@@ -706,6 +706,11 @@ typedef struct {
     uint8_t fBitsPerComponent;
 } sk_encodedinfo_t;
 
+typedef struct {
+    size_t fRequiredFrame;
+    size_t fDuration;
+} sk_codec_frameinfo_t;
+
 SK_C_PLUS_PLUS_END_GUARD
 
 #endif

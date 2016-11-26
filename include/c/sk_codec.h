@@ -31,6 +31,9 @@ SK_API sk_codec_result_t sk_codec_get_pixels(sk_codec_t* codec, const sk_imagein
 SK_API sk_codec_result_t sk_codec_get_pixels_using_defaults(sk_codec_t* codec, const sk_imageinfo_t* info, void* pixels, size_t rowBytes);
 SK_API sk_codec_result_t sk_codec_start_incremental_decode(sk_codec_t* codec, const sk_imageinfo_t* info, void* pixels, size_t rowBytes, const sk_codec_options_t* options, sk_color_t ctable[], int* ctableCount);
 SK_API sk_codec_result_t sk_codec_incremental_decode(sk_codec_t* codec, int* rowsDecoded);
+SK_API int sk_codec_get_frame_count(sk_codec_t* codec);
+SK_API void sk_codec_get_frame_info(sk_codec_t* codec, sk_codec_frameinfo_t* frameInfo);
+SK_API int sk_codec_get_repetition_count(sk_codec_t* codec);
 
 SK_C_PLUS_PLUS_END_GUARD
 

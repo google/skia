@@ -86,3 +86,16 @@ sk_codec_result_t sk_codec_incremental_decode(sk_codec_t* codec, int* rowsDecode
 {
     return (sk_codec_result_t)AsCodec(codec)->incrementalDecode(rowsDecoded);
 }
+
+int sk_codec_get_frame_count(sk_codec_t* codec) {
+    return AsCodec(codec)->getFrameInfo().size();
+}
+
+void sk_codec_get_frame_info(sk_codec_t* codec, sk_codec_frameinfo_t* frameInfo) {
+    std::vector<SkCodec::FrameInfo> frames = AsCodec(codec)->getFrameInfo();
+    std::copy(frames.begin(), frames.end(), AsFrameInfo(frameInfo));
+}
+
+int sk_codec_get_repetition_count(sk_codec_t* codec) {
+    return AsCodec(codec)->getRepetitionCount();
+}

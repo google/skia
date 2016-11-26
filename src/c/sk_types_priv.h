@@ -559,6 +559,26 @@ static inline const sk_encodedinfo_t& ToEncodedInfo(const SkEncodedInfo &p) {
     return reinterpret_cast<const sk_encodedinfo_t&>(p);
 }
 
+static inline SkCodec::FrameInfo* AsFrameInfo(sk_codec_frameinfo_t *p) {
+    return reinterpret_cast<SkCodec::FrameInfo*>(p);
+}
+
+static inline sk_codec_frameinfo_t* ToFrameInfo(SkCodec::FrameInfo *p) {
+    return reinterpret_cast<sk_codec_frameinfo_t*>(p);
+}
+
+static inline sk_codec_frameinfo_t& ToFrameInfo(SkCodec::FrameInfo &p) {
+    return reinterpret_cast<sk_codec_frameinfo_t&>(p);
+}
+
+static inline const sk_codec_frameinfo_t* ToFrameInfo(const SkCodec::FrameInfo *p) {
+    return reinterpret_cast<const sk_codec_frameinfo_t*>(p);
+}
+
+static inline const sk_codec_frameinfo_t& ToFrameInfo(const SkCodec::FrameInfo &p) {
+    return reinterpret_cast<const sk_codec_frameinfo_t&>(p);
+}
+
 static inline void from_c(const sk_matrix_t* cmatrix, SkMatrix* matrix) {
     matrix->setAll(
         cmatrix->mat[0], cmatrix->mat[1], cmatrix->mat[2],
