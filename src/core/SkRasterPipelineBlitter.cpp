@@ -160,9 +160,7 @@ void SkRasterPipelineBlitter::append_load_d(SkRasterPipeline* p) const {
 
     switch (fDst.info().colorType()) {
         case kN32_SkColorType:
-            if (fDst.info().gammaCloseToSRGB()) {
-                p->append(SkRasterPipeline::load_d_srgb, &fDstPtr);
-            }
+            p->append(SkRasterPipeline::load_d_8888, &fDstPtr);
             break;
         case kRGBA_F16_SkColorType:
             p->append(SkRasterPipeline::load_d_f16, &fDstPtr);
@@ -172,16 +170,20 @@ void SkRasterPipelineBlitter::append_load_d(SkRasterPipeline* p) const {
             break;
         default: break;
     }
+    if (fDst.info().gammaCloseToSRGB()) {
+        p->append(SkRasterPipeline::from_srgb_d);
+    }
 }
 
 void SkRasterPipelineBlitter::append_store(SkRasterPipeline* p) const {
     SkASSERT(supported(fDst.info()));
 
+    if (fDst.info().gammaCloseToSRGB()) {
+        p->append(SkRasterPipeline::to_srgb);
+    }
     switch (fDst.info().colorType()) {
         case kN32_SkColorType:
-            if (fDst.info().gammaCloseToSRGB()) {
-                p->append(SkRasterPipeline::store_srgb, &fDstPtr);
-            }
+            p->append(SkRasterPipeline::store_8888, &fDstPtr);
             break;
         case kRGBA_F16_SkColorType:
             p->append(SkRasterPipeline::store_f16, &fDstPtr);
