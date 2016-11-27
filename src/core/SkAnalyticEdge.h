@@ -21,6 +21,10 @@ struct SkAnalyticEdge {
     SkAnalyticEdge* fNext;
     SkAnalyticEdge* fPrev;
 
+    // During aaa_walk_edges, if this edge is a left edge,
+    // then fRiteE is its corresponding right edge. Otherwise it's nullptr.
+    SkAnalyticEdge* fRiteE;
+
     SkFixed fX;
     SkFixed fDX;
     SkFixed fUpperX;        // The x value when y = fUpperY
@@ -30,16 +34,26 @@ struct SkAnalyticEdge {
     SkFixed fDY;            // abs(1/fDX); may be SK_MaxS32 when fDX is close to 0.
                             // fDY is only used for blitting trapezoids.
 
+    SkFixed fSavedX;        // For deferred blitting
+    SkFixed fSavedY;        // For deferred blitting
+    SkFixed fSavedDY;       // For deferred blitting
+
     int8_t  fCurveCount;    // only used by kQuad(+) and kCubic(-)
     uint8_t fCurveShift;    // appled to all Dx/DDx/DDDx except for fCubicDShift exception
     uint8_t fCubicDShift;   // applied to fCDx and fCDy only in cubic
     int8_t  fWinding;       // 1 or -1
+
+    bool    fIsAdded;
 
     static const int kDefaultAccuracy = 2; // default accuracy for snapping
 
     static inline SkFixed snapY(SkFixed y, int accuracy = kDefaultAccuracy) {
         // This approach is safer than left shift, round, then right shift
         return ((unsigned)y + (SK_Fixed1 >> (accuracy + 1))) >> (16 - accuracy) << (16 - accuracy);
+    }
+
+    static inline SkFixed ceilSnapY(SkFixed y, int accuracy = kDefaultAccuracy) {
+        return snapY(y + (SK_Fixed1 >> (accuracy + 1)) - 1);
     }
 
     // Update fX, fY of this edge so fY = y
@@ -53,6 +67,12 @@ struct SkAnalyticEdge {
             fX = fUpperX + SkFixedMul(fDX, y - fUpperY);
             fY = y;
         }
+    }
+
+    inline void saveXY(SkFixed x, SkFixed y, SkFixed dY) {
+        fSavedX = x;
+        fSavedY = y;
+        fSavedDY = dY;
     }
 
     inline bool setLine(const SkPoint& p0, const SkPoint& p1, const SkIRect* clip = nullptr);
@@ -89,14 +109,16 @@ struct SkAnalyticQuadraticEdge : public SkAnalyticEdge {
     SkFixed fSnappedX, fSnappedY;
 
     bool setQuadratic(const SkPoint pts[3]);
-    bool updateQuadratic();
+    bool updateQuadratic(bool isInitializing = false);
 };
 
 struct SkAnalyticCubicEdge : public SkAnalyticEdge {
     SkCubicEdge fCEdge;
 
+    SkFixed fSnappedY; // to make sure that y is increasing with smooth jump and snapping
+
     bool setCubic(const SkPoint pts[4]);
-    bool updateCubic();
+    bool updateCubic(bool isInitializing = false);
 };
 
 bool SkAnalyticEdge::setLine(const SkPoint& p0, const SkPoint& p1, const SkIRect* clip) {
