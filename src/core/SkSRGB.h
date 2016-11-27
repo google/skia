@@ -45,9 +45,25 @@ static inline V sk_linear_to_srgb_needs_trunc(const V& x) {
 
     auto lo = (13.0471f * 255.0f) * x;
 
-    auto hi = SkNx_fma(V{+0.412999f  * 255.0f}, ftrt,
-              SkNx_fma(V{+0.687999f  * 255.0f}, sqrt,
+    auto hi = SkNx_fma(V{+0.4129990f * 255.0f}, ftrt,
+              SkNx_fma(V{+0.6879990f * 255.0f}, sqrt,
                        V{-0.0974983f * 255.0f}));
+    return (x < 0.0048f).thenElse(lo, hi);
+}
+
+// [0.0f,1.0f] -> [0.0f,1.0f], tuned to hit 0 and 1 exactly and round trip each sRGB byte.
+// TODO: actually tune this
+template <typename V>
+static inline V sk_linear_to_srgb_math(const V& x) {
+    auto rsqrt = x.rsqrt(),
+          sqrt = rsqrt.invert(),
+          ftrt = rsqrt.rsqrt();
+
+    auto lo = 13.0471f * x;
+
+    auto hi = SkNx_fma(V{+0.4129990f}, ftrt,
+              SkNx_fma(V{+0.6879990f}, sqrt,
+                       V{-0.0974883f}));
     return (x < 0.0048f).thenElse(lo, hi);
 }
 
@@ -56,6 +72,7 @@ static inline SkNx<N,int> sk_linear_to_srgb(const SkNx<N,float>& x) {
     auto f = sk_linear_to_srgb_needs_trunc(x);
     return SkNx_cast<int>(sk_clamp_0_255(f));
 }
+
 
 // sRGB -> linear, using math instead of table lookups.
 template <int N>
