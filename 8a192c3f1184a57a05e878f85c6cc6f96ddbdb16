@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "f01d104e_78da497c",
+        "filename": "src/core/SkConfig8888.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 29,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2016-11-27T16:20:24Z",
+      "side": 1,
+      "message": "I think this may be one of those rare places where ^ is clearest:\n\nbool swap_rb \u003d (kBGRA_8888_SkColorType \u003d\u003d srcInfo.colorType())\n             ^ (kBGRA_8888_SkColorType \u003d\u003d dstInfo.colorType());\n\n(It doesn\u0027t matter when you swap.)",
+      "revId": "8a192c3f1184a57a05e878f85c6cc6f96ddbdb16",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
