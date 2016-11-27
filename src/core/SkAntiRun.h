@@ -21,10 +21,19 @@ public:
     int16_t*    fRuns;
     uint8_t*     fAlpha;
 
-    // Return 0-255 given 0-256
     static inline SkAlpha CatchOverflow(int alpha) {
-        SkASSERT(alpha >= 0 && alpha <= 256);
-        return alpha - (alpha >> 8);
+        return SkTMin(alpha, 0xFF);
+        // SkASSERT(0 <= alpha && alpha <= 257);
+        // int a = alpha - (alpha >> 8);
+        // return a - (a >> 8);
+        // // return SkTMin(alpha, 255);
+        // const int kPrecision = 5;
+        // const int kMask = (1 << 16) - (1 << kPrecision);
+        // int a = (alpha + (1 << (kPrecision - 1))) & kMask;
+        // int result = a - (a >> 8);
+        // SkASSERT(alpha >= 0 && alpha < 0xFF + (1 << kPrecision));
+        // SkASSERT(result <= 0xFF && result >= 0 && SkAbs32(result - alpha) < (1 << kPrecision));
+        // return result;
     }
 
     /// Returns true if the scanline contains only a single run,
