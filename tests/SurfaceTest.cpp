@@ -11,10 +11,10 @@
 #include "SkData.h"
 #include "SkDevice.h"
 #include "SkImage_Base.h"
+#include "SkOverdrawCanvas.h"
 #include "SkPath.h"
 #include "SkRRect.h"
 #include "SkSurface.h"
-#include "SkSurface_Base.h"
 #include "SkUtils.h"
 #include "Test.h"
 
@@ -1024,8 +1024,8 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(SurfaceCreationWithColorSpace_Gpu, reporter, 
 #endif
 
 static void test_overdraw_surface(skiatest::Reporter* r, SkSurface* surface) {
-    std::unique_ptr<SkCanvas> canvas = ((SkSurface_Base*) surface)->onMakeOverdrawCanvas();
-    canvas->drawPaint(SkPaint());
+    SkOverdrawCanvas canvas(surface->getCanvas());
+    canvas.drawPaint(SkPaint());
     sk_sp<SkImage> image = surface->makeImageSnapshot();
 
     SkBitmap bitmap;
