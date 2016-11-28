@@ -292,6 +292,19 @@ STAGE(swap_rb, true) {
     SkTSwap(r, b);
 }
 
+STAGE(from_srgb_s, true) {
+    r = sk_linear_from_srgb_math(r);
+    g = sk_linear_from_srgb_math(g);
+    b = sk_linear_from_srgb_math(b);
+}
+STAGE(from_srgb_d, true) {
+    dr = sk_linear_from_srgb_math(dr);
+    dg = sk_linear_from_srgb_math(dg);
+    db = sk_linear_from_srgb_math(db);
+}
+STAGE(to_srgb, true) {
+    // TODO
+}
 
 // The default shader produces a constant color (from the SkPaint).
 STAGE(constant_color, true) {
@@ -743,41 +756,51 @@ STAGE(top_left, true) {
 
     auto fx = r - r.floor(),
          fy = g - g.floor();
-    b = (1.0f - fx) * (1.0f - fy);
+    ((1.0f - fx) * (1.0f - fy)).store(sc->scale);
 };
 
 STAGE(top_right, true) {
-    auto sc = (const SkImageShaderContext*)ctx;
+    auto sc = (SkImageShaderContext*)ctx;
 
     r = SkNf::Load(sc->x) + 0.5f;
     g = SkNf::Load(sc->y) - 0.5f;
 
     auto fx = r - r.floor(),
          fy = g - g.floor();
-    b = fx * (1.0f - fy);
+    (fx * (1.0f - fy)).store(sc->scale);
 };
 
 STAGE(bottom_left, true) {
-    auto sc = (const SkImageShaderContext*)ctx;
+    auto sc = (SkImageShaderContext*)ctx;
 
     r = SkNf::Load(sc->x) - 0.5f;
     g = SkNf::Load(sc->y) + 0.5f;
 
     auto fx = r - r.floor(),
          fy = g - g.floor();
-    b = (1.0f - fx) * fy;
+    ((1.0f - fx) * fy).store(sc->scale);
 };
 
 STAGE(bottom_right, true) {
-    auto sc = (const SkImageShaderContext*)ctx;
+    auto sc = (SkImageShaderContext*)ctx;
 
     r = SkNf::Load(sc->x) + 0.5f;
     g = SkNf::Load(sc->y) + 0.5f;
 
     auto fx = r - r.floor(),
          fy = g - g.floor();
-    b = fx * fy;
+    (fx * fy).store(sc->scale);
 };
+
+STAGE(accumulate, true) {
+    auto sc = (const SkImageShaderContext*)ctx;
+
+    auto scale = SkNf::Load(sc->scale);
+    dr += scale * r;
+    dg += scale * g;
+    db += scale * b;
+    da += scale * a;
+}
 
 template <typename T>
 SI SkNi offset_and_ptr(T** ptr, const void* ctx, const SkNf& x, const SkNf& y) {
@@ -798,142 +821,47 @@ SI void gather(T (&dst)[N], const T* src, const SkNi& offset, size_t tail) {
     for (size_t i = n; i < N; i++) { dst[i] = 0; }
 }
 
-STAGE(accum_a8, true) {}  // TODO
-
-STAGE(accum_i8,      true) {}  // TODO
-STAGE(accum_i8_srgb, true) {}  // TODO
-
-STAGE(accum_g8, true) {
+STAGE(gather_a8, true) {}  // TODO
+STAGE(gather_i8, true) {}  // TODO
+STAGE(gather_g8, true) {
     const uint8_t* p;
     SkNi offset = offset_and_ptr(&p, ctx, r, g);
 
     uint8_t px[N];
     gather(px, p, offset, tail);
 
-    SkNf gray = SkNx_cast<float>(SkNb::Load(px)) * (1/255.0f);
-
-    SkNf scale = b;
-    dr += scale * gray;
-    dg += scale * gray;
-    db += scale * gray;
-    da += scale;
+    r = g = b = SkNx_cast<float>(SkNb::Load(px)) * (1/255.0f);
+    a = 1.0f;
 }
-STAGE(accum_g8_srgb, true) {
-    const uint8_t* p;
-    SkNi offset = offset_and_ptr(&p, ctx, r, g);
-
-    uint8_t px[N];
-    gather(px, p, offset, tail);
-
-    SkNf gray = sk_linear_from_srgb_math(SkNx_cast<int>(SkNb::Load(px)));
-
-    SkNf scale = b;
-    dr += scale * gray;
-    dg += scale * gray;
-    db += scale * gray;
-    da += scale;
-}
-
-STAGE(accum_565, true) {
+STAGE(gather_565, true) {
     const uint16_t* p;
     SkNi offset = offset_and_ptr(&p, ctx, r, g);
 
     uint16_t px[N];
     gather(px, p, offset, tail);
 
-    SkNf R,G,B;
-    from_565(SkNh::Load(px), &R, &G, &B);
-
-    SkNf scale = b;
-    dr += scale * R;
-    dg += scale * G;
-    db += scale * B;
-    da += scale;
+    from_565(SkNh::Load(px), &r, &g, &b);
+    a = 1.0f;
 }
-STAGE(accum_565_srgb, true) {
+STAGE(gather_4444, true) {
     const uint16_t* p;
     SkNi offset = offset_and_ptr(&p, ctx, r, g);
 
     uint16_t px[N];
     gather(px, p, offset, tail);
 
-    SkNf R,G,B;
-    from_565(SkNh::Load(px), &R, &G, &B);
-
-    SkNf scale = b;
-    dr += scale * sk_linear_from_srgb_math(R);
-    dg += scale * sk_linear_from_srgb_math(G);
-    db += scale * sk_linear_from_srgb_math(B);
-    da += scale;
+    from_4444(SkNh::Load(px), &r, &g, &b, &a);
 }
-
-STAGE(accum_4444, true) {
-    const uint16_t* p;
-    SkNi offset = offset_and_ptr(&p, ctx, r, g);
-
-    uint16_t px[N];
-    gather(px, p, offset, tail);
-
-    SkNf R,G,B,A;
-    from_4444(SkNh::Load(px), &R, &G, &B, &A);
-
-    SkNf scale = b;
-    dr += scale * R;
-    dg += scale * G;
-    db += scale * B;
-    da += scale * A;
-}
-STAGE(accum_4444_srgb, true) {
-    const uint16_t* p;
-    SkNi offset = offset_and_ptr(&p, ctx, r, g);
-
-    uint16_t px[N];
-    gather(px, p, offset, tail);
-
-    SkNf R,G,B,A;
-    from_4444(SkNh::Load(px), &R, &G, &B, &A);
-
-    SkNf scale = b;
-    dr += scale * sk_linear_from_srgb_math(R);
-    dg += scale * sk_linear_from_srgb_math(G);
-    db += scale * sk_linear_from_srgb_math(B);
-    da += scale * A;
-}
-
-STAGE(accum_8888, true) {
+STAGE(gather_8888, true) {
     const uint32_t* p;
     SkNi offset = offset_and_ptr(&p, ctx, r, g);
 
     uint32_t px[N];
     gather(px, p, offset, tail);
 
-    SkNf R,G,B,A;
-    from_8888(SkNu::Load(px), &R, &G, &B, &A);
-
-    SkNf scale = b;
-    dr += scale * R;
-    dg += scale * G;
-    db += scale * B;
-    da += scale * A;
+    from_8888(SkNu::Load(px), &r, &g, &b, &a);
 }
-STAGE(accum_8888_srgb, true) {
-    const uint32_t* p;
-    SkNi offset = offset_and_ptr(&p, ctx, r, g);
-
-    uint32_t px[N];
-    gather(px, p, offset, tail);
-
-    SkNf R,G,B,A;
-    from_8888(SkNu::Load(px), &R, &G, &B, &A);
-
-    SkNf scale = b;
-    dr += scale * sk_linear_from_srgb_math(R);
-    dg += scale * sk_linear_from_srgb_math(G);
-    db += scale * sk_linear_from_srgb_math(B);
-    da += scale * A;
-}
-
-STAGE(accum_f16, true) {
+STAGE(gather_f16, true) {
     const uint64_t* p;
     SkNi offset = offset_and_ptr(&p, ctx, r, g);
 
@@ -951,11 +879,10 @@ STAGE(accum_f16, true) {
     for (size_t i = n; i < N; i++) {
         R[i] = G[i] = B[i] = A[i] = 0;
     }
-    SkNf scale = b;
-    dr += scale * SkHalfToFloat_finite_ftz(SkNh::Load(R));
-    dg += scale * SkHalfToFloat_finite_ftz(SkNh::Load(G));
-    db += scale * SkHalfToFloat_finite_ftz(SkNh::Load(B));
-    da += scale * SkHalfToFloat_finite_ftz(SkNh::Load(A));
+    r = SkHalfToFloat_finite_ftz(SkNh::Load(R));
+    g = SkHalfToFloat_finite_ftz(SkNh::Load(G));
+    b = SkHalfToFloat_finite_ftz(SkNh::Load(B));
+    a = SkHalfToFloat_finite_ftz(SkNh::Load(A));
 }
 
 

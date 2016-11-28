@@ -19,6 +19,7 @@ struct SkImageShaderContext {
     float       matrix[9];
     float       x[8];
     float       y[8];
+    float       scale[8];
 };
 
 #endif//SkImageShaderContext_DEFINED

@@ -331,7 +331,7 @@ bool SkImageShader::onAppendStages(SkRasterPipeline* p, SkColorSpace* dst, SkFal
         p->append(SkRasterPipeline::matrix_perspective, ctx->matrix);
     }
 
-    auto append_tiling_and_accum = [&] {
+    auto append_tiling_and_gather = [&] {
         switch (fTileModeX) {
             case kClamp_TileMode:  p->append(SkRasterPipeline::clamp_x,  &ctx->width); break;
             case kMirror_TileMode: p->append(SkRasterPipeline::mirror_x, &ctx->width); break;
@@ -342,58 +342,43 @@ bool SkImageShader::onAppendStages(SkRasterPipeline* p, SkColorSpace* dst, SkFal
             case kMirror_TileMode: p->append(SkRasterPipeline::mirror_y, &ctx->height); break;
             case kRepeat_TileMode: p->append(SkRasterPipeline::repeat_y, &ctx->height); break;
         }
-
-        bool srgb = info.gammaCloseToSRGB() && dst != nullptr;
-
         switch (info.colorType()) {
-            case kGray_8_SkColorType:
-                p->append(srgb ? SkRasterPipeline::accum_g8_srgb
-                               : SkRasterPipeline::accum_g8, ctx);
-                break;
-
-            case kARGB_4444_SkColorType:
-                p->append(srgb ? SkRasterPipeline::accum_4444_srgb
-                               : SkRasterPipeline::accum_4444, ctx);
-                break;
-            case kRGB_565_SkColorType:
-                p->append(srgb ? SkRasterPipeline::accum_565_srgb
-                               : SkRasterPipeline::accum_565, ctx);
-                break;
-
+            case kGray_8_SkColorType:    p->append(SkRasterPipeline::gather_g8,   ctx); break;
+            case kRGB_565_SkColorType:   p->append(SkRasterPipeline::gather_565,  ctx); break;
+            case kARGB_4444_SkColorType: p->append(SkRasterPipeline::gather_4444, ctx); break;
             case kRGBA_8888_SkColorType:
-            case kBGRA_8888_SkColorType:
-                p->append(srgb ? SkRasterPipeline::accum_8888_srgb
-                               : SkRasterPipeline::accum_8888, ctx);
-                break;
-
-            case kRGBA_F16_SkColorType:
-                p->append(SkRasterPipeline::accum_f16, ctx);
-                break;
-
-            default:
-                SkASSERT(false);
-                break;
+            case kBGRA_8888_SkColorType: p->append(SkRasterPipeline::gather_8888, ctx); break;
+            case kRGBA_F16_SkColorType:  p->append(SkRasterPipeline::gather_f16,  ctx); break;
+            default: SkASSERT(false);
+        }
+        if (info.gammaCloseToSRGB() && dst != nullptr) {
+            p->append(SkRasterPipeline::from_srgb_s);
         }
     };
 
     if (quality == kNone_SkFilterQuality) {
-        append_tiling_and_accum();
+        append_tiling_and_gather();
 
     } else {
         p->append(SkRasterPipeline::top_left, ctx);
-        append_tiling_and_accum();
+        append_tiling_and_gather();
+        p->append(SkRasterPipeline::accumulate, ctx);
 
         p->append(SkRasterPipeline::top_right, ctx);
-        append_tiling_and_accum();
+        append_tiling_and_gather();
+        p->append(SkRasterPipeline::accumulate, ctx);
 
         p->append(SkRasterPipeline::bottom_left, ctx);
-        append_tiling_and_accum();
+        append_tiling_and_gather();
+        p->append(SkRasterPipeline::accumulate, ctx);
 
         p->append(SkRasterPipeline::bottom_right, ctx);
-        append_tiling_and_accum();
+        append_tiling_and_gather();
+        p->append(SkRasterPipeline::accumulate, ctx);
+
+        p->append(SkRasterPipeline::move_dst_src);
     }
 
-    p->append(SkRasterPipeline::move_dst_src);
     if (info.colorType() == kBGRA_8888_SkColorType) {
         p->append(SkRasterPipeline::swap_rb);
     }

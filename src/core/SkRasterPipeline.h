@@ -59,6 +59,7 @@
     M(move_src_dst) M(move_dst_src) M(swap_rb)                   \
     M(clamp_0) M(clamp_a) M(clamp_1)                             \
     M(unpremul) M(premul)                                        \
+    M(from_srgb_s) M(from_srgb_d) M(to_srgb)                     \
     M(constant_color) M(store_f32)                               \
     M(load_s_565)  M(load_d_565)  M(store_565)                   \
     M(load_s_srgb) M(load_d_srgb) M(store_srgb)                  \
@@ -79,13 +80,10 @@
     M(color_lookup_table) M(lab_to_xyz)                          \
     M(clamp_x) M(mirror_x) M(repeat_x)                           \
     M(clamp_y) M(mirror_y) M(repeat_y)                           \
-    M(accum_f16) M(accum_a8)                                     \
-    M(accum_g8)   M(accum_g8_srgb)                               \
-    M(accum_i8)   M(accum_i8_srgb)                               \
-    M(accum_565)  M(accum_565_srgb)                              \
-    M(accum_4444) M(accum_4444_srgb)                             \
-    M(accum_8888) M(accum_8888_srgb)                             \
-    M(top_left) M(top_right) M(bottom_left) M(bottom_right)
+    M(gather_a8) M(gather_g8) M(gather_i8)                       \
+    M(gather_565) M(gather_4444) M(gather_8888) M(gather_f16)    \
+    M(top_left) M(top_right) M(bottom_left) M(bottom_right)      \
+    M(accumulate)
 
 class SkRasterPipeline {
 public:
