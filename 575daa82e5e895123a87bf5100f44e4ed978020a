@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "4df48341_66f6b670",
+        "filename": "src/core/SkColorSpace_ICC.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 1273,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2016-11-28T23:30:27Z",
+      "side": 1,
+      "message": "I don\u0027t think this is in the right spot",
+      "range": {
+        "startLine": 1273,
+        "startChar": 20,
+        "endLine": 1273,
+        "endChar": 73
+      },
+      "revId": "575daa82e5e895123a87bf5100f44e4ed978020a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
