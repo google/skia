@@ -4,12 +4,12 @@
  * Use of this source code is governed by a BSD-style license that can be
  * found in the LICENSE file.
  */
- 
+
 #ifndef SKSL_ASTPARAMETER
 #define SKSL_ASTPARAMETER
 
-#include "SkSLASTModifiers.h"
 #include "SkSLASTType.h"
+#include "../ir/SkSLModifiers.h"
 
 namespace SkSL {
 
@@ -17,9 +17,9 @@ namespace SkSL {
  * A declaration of a parameter, as part of a function declaration.
  */
 struct ASTParameter : public ASTPositionNode {
-    // 'sizes' is a list of the array sizes appearing on a parameter, in source order. 
+    // 'sizes' is a list of the array sizes appearing on a parameter, in source order.
     // e.g. int x[3][1] would have sizes [3, 1].
-    ASTParameter(Position position, ASTModifiers modifiers, std::unique_ptr<ASTType> type, 
+    ASTParameter(Position position, Modifiers modifiers, std::unique_ptr<ASTType> type,
                  SkString name, std::vector<int> sizes)
     : INHERITED(position)
     , fModifiers(modifiers)
@@ -35,7 +35,7 @@ struct ASTParameter : public ASTPositionNode {
         return result;
     }
 
-    const ASTModifiers fModifiers;
+    const Modifiers fModifiers;
     const std::unique_ptr<ASTType> fType;
     const SkString fName;
     const std::vector<int> fSizes;

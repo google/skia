@@ -4,9 +4,12 @@
  * Use of this source code is governed by a BSD-style license that can be
  * found in the LICENSE file.
  */
- 
+
 #ifndef SKSL_LAYOUT
 #define SKSL_LAYOUT
+
+#include "SkString.h"
+#include "SkSLUtil.h"
 
 namespace SkSL {
 
@@ -16,22 +19,67 @@ namespace SkSL {
  * layout (location = 0) int x;
  */
 struct Layout {
-    Layout(const ASTLayout& layout)
-    : fLocation(layout.fLocation)
-    , fBinding(layout.fBinding)
-    , fIndex(layout.fIndex)
-    , fSet(layout.fSet)
-    , fBuiltin(layout.fBuiltin)
-    , fInputAttachmentIndex(layout.fInputAttachmentIndex)
-    , fOriginUpperLeft(layout.fOriginUpperLeft)
-    , fOverrideCoverage(layout.fOverrideCoverage)
-    , fBlendSupportAllEquations(layout.fBlendSupportAllEquations)
-    , fFormat(layout.fFormat)
-    , fPushConstant(layout.fPushConstant) {}
+    // These are used by images in GLSL. We only support a subset of what GL supports.
+    enum class Format {
+        kUnspecified = -1,
+        kRGBA32F,
+        kR32F,
+        kRGBA16F,
+        kR16F,
+        kRGBA8,
+        kR8,
+        kRGBA8I,
+        kR8I,
+    };
+
+    static const char* FormatToStr(Format format) {
+        switch (format) {
+            case Format::kUnspecified:  return "";
+            case Format::kRGBA32F:      return "rgba32f";
+            case Format::kR32F:         return "r32f";
+            case Format::kRGBA16F:      return "rgba16f";
+            case Format::kR16F:         return "r16f";
+            case Format::kRGBA8:        return "rgba8";
+            case Format::kR8:           return "r8";
+            case Format::kRGBA8I:       return "rgba8i";
+            case Format::kR8I:          return "r8i";
+        }
+        SkFAIL("Unexpected format");
+        return "";
+    }
+
+    static bool ReadFormat(SkString str, Format* format) {
+        if (str == "rgba32f") {
+            *format = Format::kRGBA32F;
+            return true;
+        } else if (str == "r32f") {
+            *format = Format::kR32F;
+            return true;
+        } else if (str == "rgba16f") {
+            *format = Format::kRGBA16F;
+            return true;
+        } else if (str == "r16f") {
+            *format = Format::kR16F;
+            return true;
+        } else if (str == "rgba8") {
+            *format = Format::kRGBA8;
+            return true;
+        } else if (str == "r8") {
+            *format = Format::kR8;
+            return true;
+        } else if (str == "rgba8i") {
+            *format = Format::kRGBA8I;
+            return true;
+        } else if (str == "r8i") {
+            *format = Format::kR8I;
+            return true;
+        }
+        return false;
+    }
 
     Layout(int location, int binding, int index, int set, int builtin, int inputAttachmentIndex,
            bool originUpperLeft, bool overrideCoverage, bool blendSupportAllEquations,
-           ASTLayout::Format format, bool pushconstant)
+           Format format, bool pushconstant)
     : fLocation(location)
     , fBinding(binding)
     , fIndex(index)
@@ -54,7 +102,7 @@ struct Layout {
     , fOriginUpperLeft(false)
     , fOverrideCoverage(false)
     , fBlendSupportAllEquations(false)
-    , fFormat(ASTLayout::Format::kUnspecified)
+    , fFormat(Format::kUnspecified)
     , fPushConstant(false) {}
 
     SkString description() const {
@@ -96,8 +144,8 @@ struct Layout {
             result += separator + "blend_support_all_equations";
             separator = ", ";
         }
-        if (ASTLayout::Format::kUnspecified != fFormat) {
-            result += separator + ASTLayout::FormatToStr(fFormat);
+        if (Format::kUnspecified != fFormat) {
+            result += separator + FormatToStr(fFormat);
             separator = ", ";
         }
         if (fPushConstant) {
@@ -140,7 +188,7 @@ struct Layout {
     bool fOriginUpperLeft;
     bool fOverrideCoverage;
     bool fBlendSupportAllEquations;
-    ASTLayout::Format fFormat;
+    Format fFormat;
     bool fPushConstant;
 };
 
