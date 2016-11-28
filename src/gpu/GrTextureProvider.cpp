@@ -14,6 +14,7 @@
 #include "../private/GrSingleOwner.h"
 #include "SkMathPriv.h"
 #include "SkTArray.h"
+#include "SkTLazy.h"
 
 #define ASSERT_SINGLE_OWNER \
     SkDEBUGCODE(GrSingleOwner::AutoEnforce debug_SingleOwner(fSingleOwner);)

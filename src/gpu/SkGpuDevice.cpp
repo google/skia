@@ -14,6 +14,7 @@
 #include "GrImageTextureMaker.h"
 #include "GrRenderTargetContextPriv.h"
 #include "GrStyle.h"
+#include "GrTextureAdjuster.h"
 #include "GrTracing.h"
 
 #include "SkCanvasPriv.h"

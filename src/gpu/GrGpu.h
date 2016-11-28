@@ -12,7 +12,7 @@
 #include "GrProgramDesc.h"
 #include "GrSwizzle.h"
 #include "GrAllocator.h"
-#include "GrTextureParamsAdjuster.h"
+#include "GrTextureProducer.h"
 #include "GrTypes.h"
 #include "GrXferProcessor.h"
 #include "SkPath.h"

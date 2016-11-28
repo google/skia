@@ -8,7 +8,7 @@
 #ifndef GrImageTextureMaker_DEFINED
 #define GrImageTextureMaker_DEFINED
 
-#include "GrTextureParamsAdjuster.h"
+#include "GrTextureMaker.h"
 #include "SkImage.h"
 
 class SkImageCacherator;

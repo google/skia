@@ -8,7 +8,7 @@
 #ifndef GrBitmapTextureMaker_DEFINED
 #define GrBitmapTextureMaker_DEFINED
 
-#include "GrTextureParamsAdjuster.h"
+#include "GrTextureMaker.h"
 
 /** This class manages the conversion of SW-backed bitmaps to GrTextures. If the input bitmap is
     non-volatile the texture is cached using a key created from the pixels' image id and the

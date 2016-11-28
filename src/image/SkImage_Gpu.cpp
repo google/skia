@@ -15,6 +15,7 @@
 #include "GrContext.h"
 #include "GrImageTextureMaker.h"
 #include "GrRenderTargetContext.h"
+#include "GrTextureAdjuster.h"
 #include "GrTexturePriv.h"
 #include "effects/GrYUVEffect.h"
 #include "SkCanvas.h"
