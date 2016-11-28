@@ -65,6 +65,16 @@ void GrGLProgramDataManager::setSamplers(const UniformInfoArray& samplers) const
     }
 }
 
+void GrGLProgramDataManager::setImageStorages(const UniformInfoArray& images) const {
+    for (int i = 0; i < images.count(); ++i) {
+        const UniformInfo& image = images[i];
+        SkASSERT(image.fVisibility);
+        if (kUnusedUniform != image.fLocation) {
+            GR_GL_CALL(fGpu->glInterface(), Uniform1i(image.fLocation, i));
+        }
+    }
+}
+
 void GrGLProgramDataManager::set1i(UniformHandle u, int32_t i) const {
     const Uniform& uni = fUniforms[u.toIndex()];
     SkASSERT(uni.fType == kInt_GrSLType);

@@ -11,6 +11,7 @@
 #include "GrFragmentProcessor.h"
 #include "GrPrimitiveProcessor.h"
 #include "glsl/GrGLSLProgramDataManager.h"
+#include "glsl/GrGLSLUniformHandler.h"
 
 class GrBatchTracker;
 class GrPrimitiveProcessor;
@@ -18,7 +19,6 @@ class GrGLSLCaps;
 class GrGLSLPPFragmentBuilder;
 class GrGLSLGeometryBuilder;
 class GrGLSLGPBuilder;
-class GrGLSLUniformHandler;
 class GrGLSLVaryingHandler;
 class GrGLSLVertexBuilder;
 
@@ -28,8 +28,9 @@ public:
 
     virtual ~GrGLSLPrimitiveProcessor() {}
 
-    typedef GrGLSLProgramDataManager::UniformHandle UniformHandle;
-    typedef GrGLSLProgramDataManager::UniformHandle SamplerHandle;
+    using UniformHandle      = GrGLSLProgramDataManager::UniformHandle;
+    using SamplerHandle      = GrGLSLUniformHandler::SamplerHandle;
+    using ImageStorageHandle = GrGLSLUniformHandler::ImageStorageHandle;
 
     /**
      * This class provides access to the GrCoordTransforms across all GrFragmentProcessors in a
@@ -77,6 +78,7 @@ public:
                  const char* distanceVectorName,
                  const SamplerHandle* texSamplers,
                  const SamplerHandle* bufferSamplers,
+                 const ImageStorageHandle* imageStorages,
                  FPCoordTransformHandler* transformHandler)
             : fVertBuilder(vertBuilder)
             , fGeomBuilder(geomBuilder)
@@ -90,6 +92,7 @@ public:
             , fDistanceVectorName(distanceVectorName)
             , fTexSamplers(texSamplers)
             , fBufferSamplers(bufferSamplers)
+            , fImageStorages(imageStorages)
             , fFPCoordTransformHandler(transformHandler) {}
         GrGLSLVertexBuilder* fVertBuilder;
         GrGLSLGeometryBuilder* fGeomBuilder;
@@ -103,6 +106,7 @@ public:
         const char* fDistanceVectorName;
         const SamplerHandle* fTexSamplers;
         const SamplerHandle* fBufferSamplers;
+        const ImageStorageHandle* fImageStorages;
         FPCoordTransformHandler* fFPCoordTransformHandler;
     };
 

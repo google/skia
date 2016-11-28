@@ -455,11 +455,26 @@ void GLSLCodeGenerator::writeFunction(const FunctionDefinition& f) {
 
 void GLSLCodeGenerator::writeModifiers(const Modifiers& modifiers,
                                        bool globalContext) {
+    if (modifiers.fFlags & Modifiers::kFlat_Flag) {
+        this->write("flat ");
+    }
     if (modifiers.fFlags & Modifiers::kNoPerspective_Flag) {
         this->write("noperspective ");
     }
-    if (modifiers.fFlags & Modifiers::kFlat_Flag) {
-        this->write("flat ");
+    if (modifiers.fFlags & Modifiers::kReadOnly_Flag) {
+        this->write("readonly ");
+    }
+    if (modifiers.fFlags & Modifiers::kWriteOnly_Flag) {
+        this->write("writeonly ");
+    }
+    if (modifiers.fFlags & Modifiers::kCoherent_Flag) {
+        this->write("coherent ");
+    }
+    if (modifiers.fFlags & Modifiers::kVolatile_Flag) {
+        this->write("volatile ");
+    }
+    if (modifiers.fFlags & Modifiers::kRestrict_Flag) {
+        this->write("restrict ");
     }
     SkString layout = modifiers.fLayout.description();
     if (layout.size()) {
