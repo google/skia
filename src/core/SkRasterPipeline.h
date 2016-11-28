@@ -56,8 +56,9 @@
 
 #define SK_RASTER_PIPELINE_STAGES(M)                             \
     M(trace) M(registers)                                        \
-    M(move_src_dst) M(swap_src_dst)                              \
-    M(clamp_0) M(clamp_a) M(clamp_1) M(unpremul) M(premul)       \
+    M(move_src_dst) M(move_dst_src) M(swap_rb)                   \
+    M(clamp_0) M(clamp_a) M(clamp_1)                             \
+    M(unpremul) M(premul)                                        \
     M(constant_color) M(store_f32)                               \
     M(load_s_565)  M(load_d_565)  M(store_565)                   \
     M(load_s_srgb) M(load_d_srgb) M(store_srgb)                  \
@@ -65,7 +66,6 @@
     M(load_s_8888) M(store_8888)                                 \
     M(scale_u8) M(scale_constant_float)                          \
     M(lerp_u8) M(lerp_565) M(lerp_constant_float)                \
-    M(dst)                                                       \
     M(dstatop) M(dstin) M(dstout) M(dstover)                     \
     M(srcatop) M(srcin) M(srcout) M(srcover)                     \
     M(clear) M(modulate) M(multiply) M(plus_) M(screen) M(xor_)  \
@@ -76,7 +76,7 @@
     M(matrix_perspective)                                        \
     M(parametric_r) M(parametric_g) M(parametric_b)              \
     M(table_r) M(table_g) M(table_b)                             \
-    M(color_lookup_table) M(lab_to_xyz) M(swap_rb)               \
+    M(color_lookup_table) M(lab_to_xyz)                          \
     M(clamp_x) M(mirror_x) M(repeat_x)                           \
     M(clamp_y) M(mirror_y) M(repeat_y)                           \
     M(accum_f16) M(accum_a8)                                     \

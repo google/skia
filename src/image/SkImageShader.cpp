@@ -393,7 +393,7 @@ bool SkImageShader::onAppendStages(SkRasterPipeline* p, SkColorSpace* dst, SkFal
         append_tiling_and_accum();
     }
 
-    p->append(SkRasterPipeline::dst);
+    p->append(SkRasterPipeline::move_dst_src);
     if (info.colorType() == kBGRA_8888_SkColorType) {
         p->append(SkRasterPipeline::swap_rb);
     }
