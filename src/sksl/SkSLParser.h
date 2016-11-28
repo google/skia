@@ -31,8 +31,6 @@ struct ASTExpressionStatement;
 struct ASTForStatement;
 struct ASTIfStatement;
 struct ASTInterfaceBlock;
-struct ASTLayout;
-struct ASTModifiers;
 struct ASTParameter;
 struct ASTPrecision;
 struct ASTReturnStatement;
@@ -41,6 +39,8 @@ struct ASTSuffix;
 struct ASTType;
 struct ASTWhileStatement;
 struct ASTVarDeclarations;
+struct Layout;
+struct Modifiers;
 class SymbolTable;
 
 /**
@@ -112,9 +112,9 @@ private:
 
     std::unique_ptr<ASTType> structDeclaration();
 
-    std::unique_ptr<ASTVarDeclarations> structVarDeclaration(ASTModifiers modifiers);
+    std::unique_ptr<ASTVarDeclarations> structVarDeclaration(Modifiers modifiers);
 
-    std::unique_ptr<ASTVarDeclarations> varDeclarationEnd(ASTModifiers modifiers,
+    std::unique_ptr<ASTVarDeclarations> varDeclarationEnd(Modifiers modifiers,
                                                           std::unique_ptr<ASTType> type, 
                                                           SkString name);
 
@@ -122,17 +122,17 @@ private:
 
     int layoutInt();
     
-    ASTLayout layout();
+    Layout layout();
 
-    ASTModifiers modifiers();
+    Modifiers modifiers();
 
-    ASTModifiers modifiersWithDefaults(int defaultFlags);
+    Modifiers modifiersWithDefaults(int defaultFlags);
 
     std::unique_ptr<ASTStatement> statement();
 
     std::unique_ptr<ASTType> type();
 
-    std::unique_ptr<ASTDeclaration> interfaceBlock(ASTModifiers mods);
+    std::unique_ptr<ASTDeclaration> interfaceBlock(Modifiers mods);
 
     std::unique_ptr<ASTIfStatement> ifStatement();
 

@@ -24,7 +24,6 @@
 #include "ast/SkSLASTIdentifier.h"
 #include "ast/SkSLASTIfStatement.h"
 #include "ast/SkSLASTInterfaceBlock.h"
-#include "ast/SkSLASTModifiers.h"
 #include "ast/SkSLASTModifiersDeclaration.h"
 #include "ast/SkSLASTPrefixExpression.h"
 #include "ast/SkSLASTReturnStatement.h"
@@ -135,7 +134,7 @@ private:
     std::unique_ptr<Expression> convertIndex(std::unique_ptr<Expression> base,
                                              const ASTExpression& index);
     std::unique_ptr<InterfaceBlock> convertInterfaceBlock(const ASTInterfaceBlock& s);
-    Modifiers convertModifiers(const ASTModifiers& m);
+    Modifiers convertModifiers(const Modifiers& m);
     std::unique_ptr<Expression> convertPrefixExpression(const ASTPrefixExpression& expression);
     std::unique_ptr<Statement> convertReturn(const ASTReturnStatement& r);
     std::unique_ptr<Expression> getCap(Position position, SkString name);

@@ -162,10 +162,6 @@ std::unique_ptr<Statement> IRGenerator::convertVarDeclarationStatement(
     return std::unique_ptr<Statement>(new VarDeclarationsStatement(std::move(decl)));
 }
 
-Modifiers IRGenerator::convertModifiers(const ASTModifiers& modifiers) {
-    return Modifiers(modifiers);
-}
-
 std::unique_ptr<VarDeclarations> IRGenerator::convertVarDeclarations(const ASTVarDeclarations& decl,
                                                                      Variable::Storage storage) {
     std::vector<VarDeclaration> variables;
@@ -174,7 +170,6 @@ std::unique_ptr<VarDeclarations> IRGenerator::convertVarDeclarations(const ASTVa
         return nullptr;
     }
     for (const auto& varDecl : decl.fVars) {
-        Modifiers modifiers = this->convertModifiers(decl.fModifiers);
         const Type* type = baseType;
         ASSERT(type->kind() != Type::kArray_Kind);
         std::vector<std::unique_ptr<Expression>> sizes;
@@ -205,8 +200,8 @@ std::unique_ptr<VarDeclarations> IRGenerator::convertVarDeclarations(const ASTVa
                 sizes.push_back(nullptr);
             }
         }
-        auto var = std::unique_ptr<Variable>(new Variable(decl.fPosition, modifiers, varDecl.fName, 
-                                                          *type, storage));
+        auto var = std::unique_ptr<Variable>(new Variable(decl.fPosition, decl.fModifiers,
+                                                          varDecl.fName, *type, storage));
         std::unique_ptr<Expression> value;
         if (varDecl.fValue) {
             value = this->convertExpression(*varDecl.fValue);
@@ -236,8 +231,7 @@ std::unique_ptr<VarDeclarations> IRGenerator::convertVarDeclarations(const ASTVa
 
 std::unique_ptr<ModifiersDeclaration> IRGenerator::convertModifiersDeclaration(
                                                                  const ASTModifiersDeclaration& m) {
-    Modifiers modifiers = this->convertModifiers(m.fModifiers);
-    return std::unique_ptr<ModifiersDeclaration>(new ModifiersDeclaration(modifiers));
+    return std::unique_ptr<ModifiersDeclaration>(new ModifiersDeclaration(m.fModifiers));
 }
 
 std::unique_ptr<Statement> IRGenerator::convertIf(const ASTIfStatement& s) {
@@ -414,9 +408,8 @@ std::unique_ptr<FunctionDefinition> IRGenerator::convertFunction(const ASTFuncti
             type = newType;
         }
         SkString name = param->fName;
-        Modifiers modifiers = this->convertModifiers(param->fModifiers);
         Position pos = param->fPosition;
-        Variable* var = new Variable(pos, modifiers, std::move(name), *type,
+        Variable* var = new Variable(pos, param->fModifiers, std::move(name), *type,
                                      Variable::kParameter_Storage);
         fSymbolTable->takeOwnership(var);
         parameters.push_back(var);
@@ -507,7 +500,6 @@ std::unique_ptr<FunctionDefinition> IRGenerator::convertFunction(const ASTFuncti
 std::unique_ptr<InterfaceBlock> IRGenerator::convertInterfaceBlock(const ASTInterfaceBlock& intf) {
     std::shared_ptr<SymbolTable> old = fSymbolTable;
     AutoSymbolTable table(this);
-    Modifiers mods = this->convertModifiers(intf.fModifiers);
     std::vector<Type::Field> fields;
     for (size_t i = 0; i < intf.fDeclarations.size(); i++) {
         std::unique_ptr<VarDeclarations> decl = this->convertVarDeclarations(
@@ -535,7 +527,8 @@ std::unique_ptr<InterfaceBlock> IRGenerator::convertInterfaceBlock(const ASTInte
     Type* type = new Type(intf.fInterfaceName, fields);
     fSymbolTable->takeOwnership(type);
     SkString name = intf.fValueName.size() > 0 ? intf.fValueName : intf.fInterfaceName;
-    Variable* var = new Variable(intf.fPosition, mods, name, *type, Variable::kGlobal_Storage);
+    Variable* var = new Variable(intf.fPosition, intf.fModifiers, name, *type,
+                                 Variable::kGlobal_Storage);
     fSymbolTable->takeOwnership(var);
     if (intf.fValueName.size()) {
         old->addWithoutOwnership(intf.fValueName, var);

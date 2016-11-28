@@ -69,6 +69,7 @@
 #include "ast/SkSLASTVarDeclarationStatement.h"
 #include "ast/SkSLASTWhileStatement.h"
 #include "ir/SkSLSymbolTable.h"
+#include "ir/SkSLModifiers.h"
 #include "ir/SkSLType.h"
 
 namespace SkSL {
@@ -280,7 +281,7 @@ std::unique_ptr<ASTDeclaration> Parser::directive() {
 /* modifiers (structVarDeclaration | type IDENTIFIER ((LPAREN parameter 
    (COMMA parameter)* RPAREN (block | SEMICOLON)) | SEMICOLON) | interfaceBlock) */
 std::unique_ptr<ASTDeclaration> Parser::declaration() {
-    ASTModifiers modifiers = this->modifiers();
+    Modifiers modifiers = this->modifiers();
     Token lookahead = this->peek();
     if (lookahead.fKind == Token::IDENTIFIER && !this->isType(lookahead.fText)) {
         // we have an identifier that's not a type, could be the start of an interface block
@@ -341,7 +342,7 @@ std::unique_ptr<ASTDeclaration> Parser::declaration() {
 
 /* modifiers type IDENTIFIER varDeclarationEnd */
 std::unique_ptr<ASTVarDeclarations> Parser::varDeclarations() {
-    ASTModifiers modifiers = this->modifiers();
+    Modifiers modifiers = this->modifiers();
     std::unique_ptr<ASTType> type(this->type());
     if (!type) {
         return nullptr;
@@ -398,7 +399,7 @@ std::unique_ptr<ASTType> Parser::structDeclaration() {
 }
 
 /* structDeclaration ((IDENTIFIER varDeclarationEnd) | SEMICOLON) */
-std::unique_ptr<ASTVarDeclarations> Parser::structVarDeclaration(ASTModifiers modifiers) {
+std::unique_ptr<ASTVarDeclarations> Parser::structVarDeclaration(Modifiers modifiers) {
     std::unique_ptr<ASTType> type = this->structDeclaration();
     if (!type) {
         return nullptr;
@@ -424,7 +425,7 @@ std::unique_ptr<ASTVarDeclarations> Parser::structVarDeclaration(ASTModifiers mo
 
 /* (LBRACKET expression? RBRACKET)* (EQ expression)? (COMMA IDENTIFER 
    (LBRACKET expression? RBRACKET)* (EQ expression)?)* SEMICOLON */
-std::unique_ptr<ASTVarDeclarations> Parser::varDeclarationEnd(ASTModifiers mods,
+std::unique_ptr<ASTVarDeclarations> Parser::varDeclarationEnd(Modifiers mods,
                                                               std::unique_ptr<ASTType> type,
                                                               SkString name) {
     std::vector<ASTVarDeclaration> vars;
@@ -497,7 +498,7 @@ std::unique_ptr<ASTVarDeclarations> Parser::varDeclarationEnd(ASTModifiers mods,
 
 /* modifiers type IDENTIFIER (LBRACKET INT_LITERAL RBRACKET)? */
 std::unique_ptr<ASTParameter> Parser::parameter() {
-    ASTModifiers modifiers = this->modifiersWithDefaults(ASTModifiers::kIn_Flag);
+    Modifiers modifiers = this->modifiersWithDefaults(Modifiers::kIn_Flag);
     std::unique_ptr<ASTType> type = this->type();
     if (!type) {
         return nullptr;
@@ -536,7 +537,7 @@ int Parser::layoutInt() {
 }
 
 /* LAYOUT LPAREN IDENTIFIER (EQ INT_LITERAL)? (COMMA IDENTIFIER (EQ INT_LITERAL)?)* RPAREN */
-ASTLayout Parser::layout() {
+Layout Parser::layout() {
     int location = -1;
     int binding = -1;
     int index = -1;
@@ -546,14 +547,14 @@ ASTLayout Parser::layout() {
     bool originUpperLeft = false;
     bool overrideCoverage = false;
     bool blendSupportAllEquations = false;
-    ASTLayout::Format format = ASTLayout::Format::kUnspecified;
+    Layout::Format format = Layout::Format::kUnspecified;
     bool pushConstant = false;
     if (this->peek().fKind == Token::LAYOUT) {
         this->nextToken();
         if (!this->expect(Token::LPAREN, "'('")) {
-            return ASTLayout(location, binding, index, set, builtin, inputAttachmentIndex,
-                             originUpperLeft, overrideCoverage, blendSupportAllEquations, format,
-                             pushConstant);
+            return Layout(location, binding, index, set, builtin, inputAttachmentIndex,
+                          originUpperLeft, overrideCoverage, blendSupportAllEquations, format,
+                          pushConstant);
         }
         for (;;) {
             Token t = this->nextToken();
@@ -575,7 +576,7 @@ ASTLayout Parser::layout() {
                 overrideCoverage = true;
             } else if (t.fText == "blend_support_all_equations") {
                 blendSupportAllEquations = true;
-            } else if (ASTLayout::ReadFormat(t.fText, &format)) {
+            } else if (Layout::ReadFormat(t.fText, &format)) {
                // AST::ReadFormat stored the result in 'format'.
             } else if (t.fText == "push_constant") {
                 pushConstant = true;
@@ -592,68 +593,68 @@ ASTLayout Parser::layout() {
             }
         }
     }
-    return ASTLayout(location, binding, index, set, builtin, inputAttachmentIndex, originUpperLeft,
+    return Layout(location, binding, index, set, builtin, inputAttachmentIndex, originUpperLeft,
                      overrideCoverage, blendSupportAllEquations, format, pushConstant);
 }
 
 /* layout? (UNIFORM | CONST | IN | OUT | INOUT | LOWP | MEDIUMP | HIGHP | FLAT | NOPERSPECTIVE)* */
-ASTModifiers Parser::modifiers() {
-    ASTLayout layout = this->layout();
+Modifiers Parser::modifiers() {
+    Layout layout = this->layout();
     int flags = 0;
     for (;;) {
         // TODO: handle duplicate / incompatible flags
         switch (peek().fKind) {
             case Token::UNIFORM:
                 this->nextToken();
-                flags |= ASTModifiers::kUniform_Flag;
+                flags |= Modifiers::kUniform_Flag;
                 break;
             case Token::CONST:
                 this->nextToken();
-                flags |= ASTModifiers::kConst_Flag;
+                flags |= Modifiers::kConst_Flag;
                 break;
             case Token::IN:
                 this->nextToken();
-                flags |= ASTModifiers::kIn_Flag;
+                flags |= Modifiers::kIn_Flag;
                 break;
             case Token::OUT:
                 this->nextToken();
-                flags |= ASTModifiers::kOut_Flag;
+                flags |= Modifiers::kOut_Flag;
                 break;
             case Token::INOUT:
                 this->nextToken();
-                flags |= ASTModifiers::kIn_Flag;
-                flags |= ASTModifiers::kOut_Flag;
+                flags |= Modifiers::kIn_Flag;
+                flags |= Modifiers::kOut_Flag;
                 break;
             case Token::LOWP:
                 this->nextToken();
-                flags |= ASTModifiers::kLowp_Flag;
+                flags |= Modifiers::kLowp_Flag;
                 break;
             case Token::MEDIUMP:
                 this->nextToken();
-                flags |= ASTModifiers::kMediump_Flag;
+                flags |= Modifiers::kMediump_Flag;
                 break;
             case Token::HIGHP:
                 this->nextToken();
-                flags |= ASTModifiers::kHighp_Flag;
+                flags |= Modifiers::kHighp_Flag;
                 break;
             case Token::FLAT:
                 this->nextToken();
-                flags |= ASTModifiers::kFlat_Flag;
+                flags |= Modifiers::kFlat_Flag;
                 break;
             case Token::NOPERSPECTIVE:
                 this->nextToken();
-                flags |= ASTModifiers::kNoPerspective_Flag;
+                flags |= Modifiers::kNoPerspective_Flag;
                 break;
             default:
-                return ASTModifiers(layout, flags);
+                return Modifiers(layout, flags);
         }
     }
 }
 
-ASTModifiers Parser::modifiersWithDefaults(int defaultFlags) {
-    ASTModifiers result = this->modifiers();
+Modifiers Parser::modifiersWithDefaults(int defaultFlags) {
+    Modifiers result = this->modifiers();
     if (!result.fFlags) {
-        return ASTModifiers(result.fLayout, defaultFlags);
+        return Modifiers(result.fLayout, defaultFlags);
     }
     return result;
 }
@@ -724,7 +725,7 @@ std::unique_ptr<ASTType> Parser::type() {
 }
 
 /* IDENTIFIER LBRACE varDeclaration* RBRACE */
-std::unique_ptr<ASTDeclaration> Parser::interfaceBlock(ASTModifiers mods) {
+std::unique_ptr<ASTDeclaration> Parser::interfaceBlock(Modifiers mods) {
     Token name;
     if (!this->expect(Token::IDENTIFIER, "an identifier", &name)) {
         return nullptr;

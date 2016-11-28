@@ -9,10 +9,10 @@
 #define SKSL_ASTVARDECLARATIONS
 
 #include "SkSLASTDeclaration.h"
-#include "SkSLASTModifiers.h"
 #include "SkSLASTStatement.h"
 #include "SkSLASTType.h"
 #include "../SkSLUtil.h"
+#include "../ir/SkSLModifiers.h"
 
 namespace SkSL {
 
@@ -57,7 +57,7 @@ struct ASTVarDeclaration {
  * A variable declaration statement, which may consist of one or more individual variables.
  */
 struct ASTVarDeclarations : public ASTDeclaration {
-    ASTVarDeclarations(ASTModifiers modifiers, 
+    ASTVarDeclarations(Modifiers modifiers, 
                        std::unique_ptr<ASTType> type, 
                        std::vector<ASTVarDeclaration> vars)
     : INHERITED(type->fPosition, kVar_Kind)
@@ -76,7 +76,7 @@ struct ASTVarDeclarations : public ASTDeclaration {
         return result;
     }
 
-    const ASTModifiers fModifiers;
+    const Modifiers fModifiers;
     const std::unique_ptr<ASTType> fType;
     const std::vector<ASTVarDeclaration> fVars;
 
