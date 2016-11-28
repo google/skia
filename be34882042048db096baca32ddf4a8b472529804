@@ -22,6 +22,24 @@
       "revId": "be34882042048db096baca32ddf4a8b472529804",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "f01d104e_53c1eeea",
+        "filename": "src/core/SkColorLookUpTable.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 19,
+      "author": {
+        "id": 5740
+      },
+      "writtenOn": "2016-11-28T18:35:35Z",
+      "side": 0,
+      "message": "Done",
+      "parentUuid": "4df48341_f2ea892b",
+      "revId": "be34882042048db096baca32ddf4a8b472529804",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }

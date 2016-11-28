@@ -25,6 +25,24 @@
     },
     {
       "key": {
+        "uuid": "4df48341_4d2e38bd",
+        "filename": "dm/DMSrcSink.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 1022,
+      "author": {
+        "id": 5740
+      },
+      "writtenOn": "2016-11-28T18:35:35Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "4df48341_522ed5bc",
+      "revId": "acf013d1cf25f36dd70be2d367c20560ec06e972",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "4df48341_32435181",
         "filename": "gm/labpcsdemo.cpp",
         "patchSetId": 2
@@ -42,6 +60,24 @@
         "endLine": 30,
         "endChar": 40
       },
+      "revId": "acf013d1cf25f36dd70be2d367c20560ec06e972",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "4df48341_2d43f480",
+        "filename": "gm/labpcsdemo.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 30,
+      "author": {
+        "id": 5740
+      },
+      "writtenOn": "2016-11-28T18:35:35Z",
+      "side": 1,
+      "message": "Gladly.",
+      "parentUuid": "4df48341_32435181",
       "revId": "acf013d1cf25f36dd70be2d367c20560ec06e972",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
@@ -71,6 +107,24 @@
     },
     {
       "key": {
+        "uuid": "f01d104e_f3b1fa95",
+        "filename": "src/codec/SkJpegCodec.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 233,
+      "author": {
+        "id": 5740
+      },
+      "writtenOn": "2016-11-28T18:35:35Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "4df48341_b214016e",
+      "revId": "acf013d1cf25f36dd70be2d367c20560ec06e972",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "4df48341_9219fda4",
         "filename": "src/codec/SkJpegCodec.cpp",
         "patchSetId": 2
@@ -88,6 +142,24 @@
         "endLine": 234,
         "endChar": 60
       },
+      "revId": "acf013d1cf25f36dd70be2d367c20560ec06e972",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "f01d104e_d3acfe3e",
+        "filename": "src/codec/SkJpegCodec.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 234,
+      "author": {
+        "id": 5740
+      },
+      "writtenOn": "2016-11-28T18:35:35Z",
+      "side": 1,
+      "message": "I put the switch there for when we supported more formats later on. I later ended up putting a case for JCS_GRAYSCALE in that other CL as well.",
+      "parentUuid": "4df48341_9219fda4",
       "revId": "acf013d1cf25f36dd70be2d367c20560ec06e972",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
@@ -117,6 +189,24 @@
     },
     {
       "key": {
+        "uuid": "f01d104e_13b77689",
+        "filename": "src/codec/SkJpegCodec.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 242,
+      "author": {
+        "id": 5740
+      },
+      "writtenOn": "2016-11-28T18:35:35Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "4df48341_721e798c",
+      "revId": "acf013d1cf25f36dd70be2d367c20560ec06e972",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "4df48341_f2b4c91c",
         "filename": "src/codec/SkJpegCodec.cpp",
         "patchSetId": 2
@@ -140,6 +230,24 @@
     },
     {
       "key": {
+        "uuid": "f01d104e_33b47282",
+        "filename": "src/codec/SkJpegCodec.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 579,
+      "author": {
+        "id": 5740
+      },
+      "writtenOn": "2016-11-28T18:35:35Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "4df48341_f2b4c91c",
+      "revId": "acf013d1cf25f36dd70be2d367c20560ec06e972",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "4df48341_926d7de3",
         "filename": "src/core/SkColorLookUpTable.cpp",
         "patchSetId": 2
@@ -157,6 +265,24 @@
         "endLine": 18,
         "endChar": 38
       },
+      "revId": "acf013d1cf25f36dd70be2d367c20560ec06e972",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "f01d104e_d33b1ede",
+        "filename": "src/core/SkColorLookUpTable.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 18,
+      "author": {
+        "id": 5740
+      },
+      "writtenOn": "2016-11-28T18:35:35Z",
+      "side": 1,
+      "message": "I guess I could add a src !\u003d dst restriction. I had this here to make it behave the same with respect to src \u003d dst as the 3-\u003e3 case did.",
+      "parentUuid": "4df48341_926d7de3",
       "revId": "acf013d1cf25f36dd70be2d367c20560ec06e972",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
@@ -192,6 +318,24 @@
       "side": 1,
       "message": "SkColorSpaceXformPriv.h?",
       "parentUuid": "f01d104e_c4c27e24",
+      "revId": "acf013d1cf25f36dd70be2d367c20560ec06e972",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "f01d104e_73beea63",
+        "filename": "src/core/SkColorLookUpTable.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 14,
+      "author": {
+        "id": 5740
+      },
+      "writtenOn": "2016-11-28T18:35:35Z",
+      "side": 1,
+      "message": "Wouldn\u0027t that expose a bunch of internals about color space xforms to pretty much everyone using anything related to color space stuff? This file is included in SkColorSpace_Base.h",
+      "parentUuid": "4df48341_b2fd21fe",
       "revId": "acf013d1cf25f36dd70be2d367c20560ec06e972",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
@@ -256,6 +400,24 @@
     },
     {
       "key": {
+        "uuid": "f01d104e_537e4e84",
+        "filename": "src/core/SkColorLookUpTable.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 26,
+      "author": {
+        "id": 5740
+      },
+      "writtenOn": "2016-11-28T18:35:35Z",
+      "side": 1,
+      "message": "Oops. Will fix in next patch.",
+      "parentUuid": "4df48341_d2e78563",
+      "revId": "acf013d1cf25f36dd70be2d367c20560ec06e972",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "4df48341_722439c5",
         "filename": "src/core/SkColorLookUpTable.h",
         "patchSetId": 2
@@ -273,6 +435,24 @@
         "endLine": 29,
         "endChar": 97
       },
+      "revId": "acf013d1cf25f36dd70be2d367c20560ec06e972",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "f01d104e_93c9a615",
+        "filename": "src/core/SkColorLookUpTable.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 29,
+      "author": {
+        "id": 5740
+      },
+      "writtenOn": "2016-11-28T18:35:35Z",
+      "side": 1,
+      "message": "It would work if kOutputChannels \u003c fInputChannels too. And if KOutputChannels \u003e fInputChannels if the buffer is big enough.\n\nI removed it anyway following your comments in the .cpp. The raster pipeline does not rely on src \u003d\u003d dst anymore either.",
+      "parentUuid": "4df48341_722439c5",
       "revId": "acf013d1cf25f36dd70be2d367c20560ec06e972",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
@@ -302,6 +482,24 @@
     },
     {
       "key": {
+        "uuid": "f01d104e_73d50aa0",
+        "filename": "src/core/SkColorSpace_A2B.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 74,
+      "author": {
+        "id": 5740
+      },
+      "writtenOn": "2016-11-28T18:35:35Z",
+      "side": 1,
+      "message": "The CMYK files I checked were lut16Type ICC profiles, which have mandatory gammas before the CLUT. There\u0027s no offset business like with AtoBTypes, just all in a row and the table must be 2-4096 big (can\u0027t be empty).",
+      "parentUuid": "4df48341_d262e5eb",
+      "revId": "acf013d1cf25f36dd70be2d367c20560ec06e972",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "4df48341_92969d9b",
         "filename": "src/core/SkColorSpace_A2B.h",
         "patchSetId": 2
@@ -325,6 +523,24 @@
     },
     {
       "key": {
+        "uuid": "f01d104e_9370c6fd",
+        "filename": "src/core/SkColorSpace_A2B.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 164,
+      "author": {
+        "id": 5740
+      },
+      "writtenOn": "2016-11-28T18:35:35Z",
+      "side": 1,
+      "message": "That\u0027s what I was thinking when I asked in the Grayscale CL comment.",
+      "parentUuid": "4df48341_92969d9b",
+      "revId": "acf013d1cf25f36dd70be2d367c20560ec06e972",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "4df48341_5290159d",
         "filename": "src/core/SkColorSpace_ICC.cpp",
         "patchSetId": 2
@@ -342,6 +558,24 @@
         "endLine": 132,
         "endChar": 81
       },
+      "revId": "acf013d1cf25f36dd70be2d367c20560ec06e972",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "f01d104e_b375c2ec",
+        "filename": "src/core/SkColorSpace_ICC.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 132,
+      "author": {
+        "id": 5740
+      },
+      "writtenOn": "2016-11-28T18:35:35Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "4df48341_5290159d",
       "revId": "acf013d1cf25f36dd70be2d367c20560ec06e972",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
