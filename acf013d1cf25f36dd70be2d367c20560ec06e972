@@ -117,6 +117,29 @@
     },
     {
       "key": {
+        "uuid": "4df48341_f2b4c91c",
+        "filename": "src/codec/SkJpegCodec.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 579,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2016-11-28T14:49:31Z",
+      "side": 1,
+      "message": "nit: this-\u003ecolorXform()",
+      "range": {
+        "startLine": 579,
+        "startChar": 45,
+        "endLine": 579,
+        "endChar": 55
+      },
+      "revId": "acf013d1cf25f36dd70be2d367c20560ec06e972",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "4df48341_926d7de3",
         "filename": "src/core/SkColorLookUpTable.cpp",
         "patchSetId": 2
