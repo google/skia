@@ -7,11 +7,12 @@
 
 #include "SkGpuDevice.h"
 
+#include "GrBitmapTextureMaker.h"
 #include "GrBlurUtils.h"
 #include "GrContext.h"
-#include "GrRenderTargetContextPriv.h"
 #include "GrGpu.h"
-#include "GrImageIDTextureAdjuster.h"
+#include "GrImageTextureMaker.h"
+#include "GrRenderTargetContextPriv.h"
 #include "GrStyle.h"
 #include "GrTracing.h"
 

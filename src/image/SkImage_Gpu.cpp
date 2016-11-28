@@ -10,10 +10,11 @@
 #include <type_traits>
 
 #include "SkAutoPixmapStorage.h"
+#include "GrBitmapTextureMaker.h"
 #include "GrCaps.h"
 #include "GrContext.h"
+#include "GrImageTextureMaker.h"
 #include "GrRenderTargetContext.h"
-#include "GrImageIDTextureAdjuster.h"
 #include "GrTexturePriv.h"
 #include "effects/GrYUVEffect.h"
 #include "SkCanvas.h"
