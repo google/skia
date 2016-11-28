@@ -51,6 +51,11 @@ SI void SK_VECTORCALL next(Stage* st, size_t x_tail, SkNf  r, SkNf  g, SkNf  b, 
     st->next(st+1, x_tail, r,g,b,a, dr,dg,db,da);
 }
 
+// Stages defined below always call next.
+// This is always the last stage, a backstop that actually returns to the caller when done.
+SI void SK_VECTORCALL just_return(Stage*, size_t, SkNf, SkNf, SkNf, SkNf,
+                                                  SkNf, SkNf, SkNf, SkNf) {}
+
 #define STAGE(name)                                                                      \
     static SK_ALWAYS_INLINE void name##_kernel(void* ctx, size_t x, size_t tail,         \
                                                SkNf&  r, SkNf&  g, SkNf&  b, SkNf&  a,   \
@@ -98,12 +103,6 @@ SI void SK_VECTORCALL next(Stage* st, size_t x_tail, SkNf  r, SkNf  g, SkNf  b, 
     static SK_ALWAYS_INLINE SkNf name##_kernel(const SkNf& s, const SkNf& sa,   \
                                                const SkNf& d, const SkNf& da)
 
-SI SkNf inv(const SkNf& x) { return 1.0f - x; }
-
-SI SkNf lerp(const SkNf& from, const SkNf& to, const SkNf& cov) {
-    return SkNx_fma(to-from, cov, from);
-}
-
 template <typename T>
 SI SkNx<N,T> load(size_t tail, const T* src) {
     // TODO: maskload for 32- and 64-bit T
@@ -122,7 +121,6 @@ SI SkNx<N,T> load(size_t tail, const T* src) {
     }
     return SkNx<N,T>::Load(src);
 }
-
 template <typename T>
 SI void store(size_t tail, const SkNx<N,T>& v, T* dst) {
     // TODO: maskstore for 32- and 64-bit T
@@ -148,7 +146,6 @@ SI void from_8888(const SkNu& _8888, SkNf* r, SkNf* g, SkNf* b, SkNf* a) {
     *b = (1/255.0f)*to_float((_8888 >> 16) & 0xff);
     *a = (1/255.0f)*to_float( _8888 >> 24        );
 }
-
 SI void from_4444(const SkNh& _4444, SkNf* r, SkNf* g, SkNf* b, SkNf* a) {
     auto _32_bit = SkNx_cast<int>(_4444);
 
@@ -157,7 +154,6 @@ SI void from_4444(const SkNh& _4444, SkNf* r, SkNf* g, SkNf* b, SkNf* a) {
     *b = SkNx_cast<float>(_32_bit & (0xF << SK_B4444_SHIFT)) * (1.0f / (0xF << SK_B4444_SHIFT));
     *a = SkNx_cast<float>(_32_bit & (0xF << SK_A4444_SHIFT)) * (1.0f / (0xF << SK_A4444_SHIFT));
 }
-
 SI void from_565(const SkNh& _565, SkNf* r, SkNf* g, SkNf* b) {
     auto _32_bit = SkNx_cast<int>(_565);
 
@@ -166,19 +162,9 @@ SI void from_565(const SkNh& _565, SkNf* r, SkNf* g, SkNf* b) {
     *b = SkNx_cast<float>(_32_bit & SK_B16_MASK_IN_PLACE) * (1.0f / SK_B16_MASK_IN_PLACE);
 }
 
-SI SkNh to_565(const SkNf& r, const SkNf& g, const SkNf& b) {
-    return SkNx_cast<uint16_t>( SkNx_cast<int>(r * SK_R16_MASK + 0.5f) << SK_R16_SHIFT
-                              | SkNx_cast<int>(g * SK_G16_MASK + 0.5f) << SK_G16_SHIFT
-                              | SkNx_cast<int>(b * SK_B16_MASK + 0.5f) << SK_B16_SHIFT);
-}
-
-SI void SK_VECTORCALL just_return(Stage*, size_t, SkNf, SkNf, SkNf, SkNf,
-                                                  SkNf, SkNf, SkNf, SkNf) {}
-
 STAGE(trace) {
     SkDebugf("%s\n", (const char*)ctx);
 }
-
 STAGE(registers) {
     auto print = [](const char* name, const SkNf& v) {
         SkDebugf("%s:", name);
@@ -203,14 +189,12 @@ STAGE(clamp_0) {
     g = SkNf::Max(g, 0.0f);
     b = SkNf::Max(b, 0.0f);
 }
-
 STAGE(clamp_a) {
     a = SkNf::Min(a, 1.0f);
     r = SkNf::Min(r, a);
     g = SkNf::Min(g, a);
     b = SkNf::Min(b, a);
 }
-
 STAGE(clamp_1) {
     a = SkNf::Min(a, 1.0f);
     r = SkNf::Min(r, 1.0f);
@@ -224,7 +208,6 @@ STAGE(unpremul) {
     g *= scale;
     b *= scale;
 }
-
 STAGE(premul) {
     r *= a;
     g *= a;
@@ -237,7 +220,6 @@ STAGE(move_src_dst) {
     db = b;
     da = a;
 }
-
 STAGE(move_dst_src) {
     r = dr;
     g = dg;
@@ -245,10 +227,10 @@ STAGE(move_dst_src) {
     a = da;
 }
 
-STAGE(swap_rb) { SkTSwap( r,  b); }
-STAGE(swap_drdb) { SkTSwap(dr, db); }
+STAGE(swap_rb)   { SkTSwap( r,  b); }
+STAGE(swap_rb_d) { SkTSwap(dr, db); }
 
-STAGE(from_srgb_s) {
+STAGE(from_srgb) {
     r = sk_linear_from_srgb_math(r);
     g = sk_linear_from_srgb_math(g);
     b = sk_linear_from_srgb_math(b);
@@ -282,17 +264,6 @@ STAGE(scale_constant_float) {
     b *= c;
     a *= c;
 }
-
-// s' = d(1-c) + sc, for a constant c.
-STAGE(lerp_constant_float) {
-    SkNf c = *(const float*)ctx;
-
-    r = lerp(dr, r, c);
-    g = lerp(dg, g, c);
-    b = lerp(db, b, c);
-    a = lerp(da, a, c);
-}
-
 // s' = sc for 8-bit c.
 STAGE(scale_u8) {
     auto ptr = *(const uint8_t**)ctx + x;
@@ -302,6 +273,20 @@ STAGE(scale_u8) {
     g = g*c;
     b = b*c;
     a = a*c;
+}
+
+SI SkNf lerp(const SkNf& from, const SkNf& to, const SkNf& cov) {
+    return SkNx_fma(to-from, cov, from);
+}
+
+// s' = d(1-c) + sc, for a constant c.
+STAGE(lerp_constant_float) {
+    SkNf c = *(const float*)ctx;
+
+    r = lerp(dr, r, c);
+    g = lerp(dg, g, c);
+    b = lerp(db, b, c);
+    a = lerp(da, a, c);
 }
 
 // s' = d(1-c) + sc for 8-bit c.
@@ -327,50 +312,25 @@ STAGE(lerp_565) {
     a = 1.0f;
 }
 
-STAGE(load_d_565) {
-    auto ptr = *(const uint16_t**)ctx + x;
-    from_565(load(tail, ptr), &dr,&dg,&db);
-    da = 1.0f;
-}
-
-STAGE(load_s_565) {
+STAGE(load_565) {
     auto ptr = *(const uint16_t**)ctx + x;
     from_565(load(tail, ptr), &r,&g,&b);
     a = 1.0f;
 }
-
+STAGE(load_565_d) {
+    auto ptr = *(const uint16_t**)ctx + x;
+    from_565(load(tail, ptr), &dr,&dg,&db);
+    da = 1.0f;
+}
 STAGE(store_565) {
     auto ptr = *(uint16_t**)ctx + x;
-    store(tail, to_565(r,g,b), ptr);
+    store(tail, SkNx_cast<uint16_t>( SkNx_cast<int>(r*SK_R16_MASK + 0.5f) << SK_R16_SHIFT
+                                   | SkNx_cast<int>(g*SK_G16_MASK + 0.5f) << SK_G16_SHIFT
+                                   | SkNx_cast<int>(b*SK_B16_MASK + 0.5f) << SK_B16_SHIFT), ptr);
 }
 
-STAGE(load_d_f16) {
-    auto ptr = *(const uint64_t**)ctx + x;
 
-    SkNh rh, gh, bh, ah;
-    if (tail) {
-        uint64_t buf[8] = {0};
-        switch (tail & (N-1)) {
-            case 7: buf[6] = ptr[6];
-            case 6: buf[5] = ptr[5];
-            case 5: buf[4] = ptr[4];
-            case 4: buf[3] = ptr[3];
-            case 3: buf[2] = ptr[2];
-            case 2: buf[1] = ptr[1];
-        }
-        buf[0] = ptr[0];
-        SkNh::Load4(buf, &rh, &gh, &bh, &ah);
-    } else {
-        SkNh::Load4(ptr, &rh, &gh, &bh, &ah);
-    }
-
-    dr = SkHalfToFloat_finite_ftz(rh);
-    dg = SkHalfToFloat_finite_ftz(gh);
-    db = SkHalfToFloat_finite_ftz(bh);
-    da = SkHalfToFloat_finite_ftz(ah);
-}
-
-STAGE(load_s_f16) {
+STAGE(load_f16) {
     auto ptr = *(const uint64_t**)ctx + x;
 
     SkNh rh, gh, bh, ah;
@@ -395,7 +355,31 @@ STAGE(load_s_f16) {
     b = SkHalfToFloat_finite_ftz(bh);
     a = SkHalfToFloat_finite_ftz(ah);
 }
+STAGE(load_f16_d) {
+    auto ptr = *(const uint64_t**)ctx + x;
 
+    SkNh rh, gh, bh, ah;
+    if (tail) {
+        uint64_t buf[8] = {0};
+        switch (tail & (N-1)) {
+            case 7: buf[6] = ptr[6];
+            case 6: buf[5] = ptr[5];
+            case 5: buf[4] = ptr[4];
+            case 4: buf[3] = ptr[3];
+            case 3: buf[2] = ptr[2];
+            case 2: buf[1] = ptr[1];
+        }
+        buf[0] = ptr[0];
+        SkNh::Load4(buf, &rh, &gh, &bh, &ah);
+    } else {
+        SkNh::Load4(ptr, &rh, &gh, &bh, &ah);
+    }
+
+    dr = SkHalfToFloat_finite_ftz(rh);
+    dg = SkHalfToFloat_finite_ftz(gh);
+    db = SkHalfToFloat_finite_ftz(bh);
+    da = SkHalfToFloat_finite_ftz(ah);
+}
 STAGE(store_f16) {
     auto ptr = *(uint64_t**)ctx + x;
 
@@ -436,11 +420,11 @@ STAGE(store_f32) {
 }
 
 
-STAGE(load_s_8888) {
+STAGE(load_8888) {
     auto ptr = *(const uint32_t**)ctx + x;
     from_8888(load(tail, ptr), &r, &g, &b, &a);
 }
-STAGE(load_d_8888) {
+STAGE(load_8888_d) {
     auto ptr = *(const uint32_t**)ctx + x;
     from_8888(load(tail, ptr), &dr, &dg, &db, &da);
 }
@@ -451,6 +435,8 @@ STAGE(store_8888) {
                 | SkNx_cast<int>(255.0f * b + 0.5f) << 16
                 | SkNx_cast<int>(255.0f * a + 0.5f) << 24 ), (int*)ptr);
 }
+
+SI SkNf inv(const SkNf& x) { return 1.0f - x; }
 
 RGBA_XFERMODE(clear)    { return 0.0f; }
 RGBA_XFERMODE(srcatop)  { return s*da + d*inv(sa); }
@@ -517,7 +503,6 @@ STAGE(matrix_2x3) {
     r = R;
     g = G;
 }
-
 STAGE(matrix_3x4) {
     auto m = (const float*)ctx;
 
@@ -529,7 +514,6 @@ STAGE(matrix_3x4) {
     g = G;
     b = B;
 }
-
 STAGE(matrix_4x5) {
     auto m = (const float*)ctx;
 
@@ -543,7 +527,6 @@ STAGE(matrix_4x5) {
     b = B;
     a = A;
 }
-
 STAGE(matrix_perspective) {
     // N.B. unlike the matrix_NxM stages, this takes a row-major matrix.
     auto m = (const float*)ctx;
@@ -566,16 +549,9 @@ SI SkNf parametric(const SkNf& v, const SkColorSpaceTransferFn& p) {
     }
     return SkNf::Load(result);
 }
-
-STAGE(parametric_r) {
-    r = parametric(r, *(const SkColorSpaceTransferFn*)ctx);
-}
-STAGE(parametric_g) {
-    g = parametric(g, *(const SkColorSpaceTransferFn*)ctx);
-}
-STAGE(parametric_b) {
-    b = parametric(b, *(const SkColorSpaceTransferFn*)ctx);
-}
+STAGE(parametric_r) { r = parametric(r, *(const SkColorSpaceTransferFn*)ctx); }
+STAGE(parametric_g) { g = parametric(g, *(const SkColorSpaceTransferFn*)ctx); }
+STAGE(parametric_b) { b = parametric(b, *(const SkColorSpaceTransferFn*)ctx); }
 
 SI SkNf table(const SkNf& v, const SkTableTransferFn& table) {
     float result[N];
@@ -584,16 +560,9 @@ SI SkNf table(const SkNf& v, const SkTableTransferFn& table) {
     }
     return SkNf::Load(result);
 }
-
-STAGE(table_r) {
-    r = table(r, *(const SkTableTransferFn*)ctx);
-}
-STAGE(table_g) {
-    g = table(g, *(const SkTableTransferFn*)ctx);
-}
-STAGE(table_b) {
-    b = table(b, *(const SkTableTransferFn*)ctx);
-}
+STAGE(table_r) { r = table(r, *(const SkTableTransferFn*)ctx); }
+STAGE(table_g) { g = table(g, *(const SkTableTransferFn*)ctx); }
+STAGE(table_b) { b = table(b, *(const SkTableTransferFn*)ctx); }
 
 STAGE(color_lookup_table) {
     const SkColorLookUpTable* colorLUT = (const SkColorLookUpTable*)ctx;
@@ -649,7 +618,6 @@ SI SkNf clamp(const SkNf& v, float limit) {
     SkNf result = SkNf::Max(0, SkNf::Min(v, limit - 0.5f));
     return assert_in_tile(result, limit);
 }
-
 SI SkNf repeat(const SkNf& v, float limit) {
     SkNf result = v - (v/limit).floor()*limit;
     // For small negative v, (v/limit).floor()*limit can dominate v in the subtraction,
@@ -657,14 +625,12 @@ SI SkNf repeat(const SkNf& v, float limit) {
     result = SkNf::Min(result, nextafterf(limit, 0));
     return assert_in_tile(result, limit);
 }
-
 SI SkNf mirror(const SkNf& v, float l/*imit*/) {
     SkNf result = ((v - l) - ((v - l) / (2*l)).floor()*(2*l) - l).abs();
     // Same deal as repeat.
     result = SkNf::Min(result, nextafterf(l, 0));
     return assert_in_tile(result, l);
 }
-
 STAGE( clamp_x) { r = clamp (r, *(const int*)ctx); }
 STAGE(repeat_x) { r = repeat(r, *(const int*)ctx); }
 STAGE(mirror_x) { r = mirror(r, *(const int*)ctx); }
@@ -685,7 +651,6 @@ STAGE(top_left) {
          fy = g - g.floor();
     ((1.0f - fx) * (1.0f - fy)).store(sc->scale);
 };
-
 STAGE(top_right) {
     auto sc = (SkImageShaderContext*)ctx;
 
@@ -696,7 +661,6 @@ STAGE(top_right) {
          fy = g - g.floor();
     (fx * (1.0f - fy)).store(sc->scale);
 };
-
 STAGE(bottom_left) {
     auto sc = (SkImageShaderContext*)ctx;
 
@@ -707,7 +671,6 @@ STAGE(bottom_left) {
          fy = g - g.floor();
     ((1.0f - fx) * fy).store(sc->scale);
 };
-
 STAGE(bottom_right) {
     auto sc = (SkImageShaderContext*)ctx;
 
@@ -718,7 +681,6 @@ STAGE(bottom_right) {
          fy = g - g.floor();
     (fx * fy).store(sc->scale);
 };
-
 STAGE(accumulate) {
     auto sc = (const SkImageShaderContext*)ctx;
 
@@ -830,13 +792,11 @@ namespace SK_OPTS_NS {
         uint16_t val;
         void operator()(size_t x, size_t, size_t n) { sk_memset16(*dst + x, val, n); }
     };
-
     struct Memset32 {
         uint32_t** dst;
         uint32_t val;
         void operator()(size_t x, size_t, size_t n) { sk_memset32(*dst + x, val, n); }
     };
-
     struct Memset64 {
         uint64_t** dst;
         uint64_t val;
@@ -868,7 +828,6 @@ namespace SK_OPTS_NS {
                 if (nstages == 0) {
                     return;
                 }
-
                 fStart = enum_to_Fn(stages[0].stage);
                 for (int i = 0; i < nstages-1; i++) {
                     fStages[i].next = enum_to_Fn(stages[i+1].stage);
