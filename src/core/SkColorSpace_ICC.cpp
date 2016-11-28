@@ -1259,6 +1259,23 @@ sk_sp<SkColorSpace> SkColorSpace::MakeICC(const void* input, size_t len) {
 
     switch (header.fInputColorSpace) {
         case kRGB_ColorSpace: {
+            // Recognize color profile specified by A2B0 tag.
+            // this must be done before XYZ profile checking, as a profile can have both
+            // in which case we should use the A2B case to be accurate
+            // (XYZ is there as a fallback / quick preview)
+            const ICCTag* a2b0 = ICCTag::Find(tags.get(), tagCount, kTAG_A2B0);
+            if (a2b0) {
+                const SkColorSpace_A2B::PCS pcs = kXYZ_PCSSpace == header.fPCS
+                                                ? SkColorSpace_A2B::PCS::kXYZ
+                                                : SkColorSpace_A2B::PCS::kLAB;
+                std::vector<SkColorSpace_A2B::Element> elements;
+                if (load_a2b0(&elements, a2b0->addr(base), a2b0->fLength, pcs)) {
+                    return sk_sp<SkColorSpace>(new SkColorSpace_A2B(pcs, std::move(data),
+                                                                    std::move(elements)));
+                }
+                SkColorSpacePrintf("Ignoring malformed A2B0 tag.\n");
+            }
+
             // Recognize the rXYZ, gXYZ, and bXYZ tags.
             const ICCTag* r = ICCTag::Find(tags.get(), tagCount, kTAG_rXYZ);
             const ICCTag* g = ICCTag::Find(tags.get(), tagCount, kTAG_gXYZ);
@@ -1399,20 +1416,6 @@ sk_sp<SkColorSpace> SkColorSpace::MakeICC(const void* input, size_t len) {
                 }
 
                 return SkColorSpace_Base::MakeRGB(gammaNamed, mat);
-            }
-
-            // Recognize color profile specified by A2B0 tag.
-            const ICCTag* a2b0 = ICCTag::Find(tags.get(), tagCount, kTAG_A2B0);
-            if (a2b0) {
-                const SkColorSpace_A2B::PCS pcs = kXYZ_PCSSpace == header.fPCS
-                                                ? SkColorSpace_A2B::PCS::kXYZ
-                                                : SkColorSpace_A2B::PCS::kLAB;
-                std::vector<SkColorSpace_A2B::Element> elements;
-                if (!load_a2b0(&elements, a2b0->addr(base), a2b0->fLength, pcs)) {
-                    return_null("Failed to parse A2B0 tag");
-                }
-                return sk_sp<SkColorSpace>(new SkColorSpace_A2B(pcs, std::move(data),
-                                                                std::move(elements)));
             }
         }
         default:
