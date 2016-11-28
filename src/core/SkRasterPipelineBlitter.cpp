@@ -159,36 +159,34 @@ void SkRasterPipelineBlitter::append_load_d(SkRasterPipeline* p) const {
     SkASSERT(supported(fDst.info()));
 
     switch (fDst.info().colorType()) {
-        case kN32_SkColorType:
-            if (fDst.info().gammaCloseToSRGB()) {
-                p->append(SkRasterPipeline::load_d_srgb, &fDstPtr);
-            }
-            break;
-        case kRGBA_F16_SkColorType:
-            p->append(SkRasterPipeline::load_d_f16, &fDstPtr);
-            break;
-        case kRGB_565_SkColorType:
-            p->append(SkRasterPipeline::load_d_565, &fDstPtr);
-            break;
+        case kRGB_565_SkColorType:   p->append(SkRasterPipeline::load_d_565,  &fDstPtr); break;
+        case kBGRA_8888_SkColorType:
+        case kRGBA_8888_SkColorType: p->append(SkRasterPipeline::load_d_8888, &fDstPtr); break;
+        case kRGBA_F16_SkColorType:  p->append(SkRasterPipeline::load_d_f16,  &fDstPtr); break;
         default: break;
+    }
+    if (fDst.info().colorType() == kBGRA_8888_SkColorType) {
+        p->append(SkRasterPipeline::swap_drdb);
+    }
+    if (fDst.info().gammaCloseToSRGB()) {
+        p->append(SkRasterPipeline::from_srgb_d);
     }
 }
 
 void SkRasterPipelineBlitter::append_store(SkRasterPipeline* p) const {
     SkASSERT(supported(fDst.info()));
 
+    if (fDst.info().gammaCloseToSRGB()) {
+        p->append(SkRasterPipeline::to_srgb);
+    }
+    if (fDst.info().colorType() == kBGRA_8888_SkColorType) {
+        p->append(SkRasterPipeline::swap_rb);
+    }
     switch (fDst.info().colorType()) {
-        case kN32_SkColorType:
-            if (fDst.info().gammaCloseToSRGB()) {
-                p->append(SkRasterPipeline::store_srgb, &fDstPtr);
-            }
-            break;
-        case kRGBA_F16_SkColorType:
-            p->append(SkRasterPipeline::store_f16, &fDstPtr);
-            break;
-        case kRGB_565_SkColorType:
-            p->append(SkRasterPipeline::store_565, &fDstPtr);
-            break;
+        case kRGB_565_SkColorType:   p->append(SkRasterPipeline::store_565,  &fDstPtr); break;
+        case kBGRA_8888_SkColorType:
+        case kRGBA_8888_SkColorType: p->append(SkRasterPipeline::store_8888, &fDstPtr); break;
+        case kRGBA_F16_SkColorType:  p->append(SkRasterPipeline::store_f16,  &fDstPtr); break;
         default: break;
     }
 }
@@ -198,7 +196,9 @@ void SkRasterPipelineBlitter::append_blend(SkRasterPipeline* p) const {
 }
 
 void SkRasterPipelineBlitter::maybe_clamp(SkRasterPipeline* p) const {
-    if (SkBlendMode_CanOverflow(fBlend)) { p->append(SkRasterPipeline::clamp_a); }
+    if (SkBlendMode_CanOverflow(fBlend)) {
+        p->append(SkRasterPipeline::clamp_a);
+    }
 }
 
 void SkRasterPipelineBlitter::blitH(int x, int y, int w) {
