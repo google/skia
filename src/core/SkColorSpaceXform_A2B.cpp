@@ -26,11 +26,11 @@ bool SkColorSpaceXform_A2B::onApply(ColorFormat dstFormat, void* dst, ColorForma
     SkRasterPipeline pipeline;
     switch (srcFormat) {
         case kBGRA_8888_ColorFormat:
-            pipeline.append(SkRasterPipeline::load_s_8888, &src);
+            pipeline.append(SkRasterPipeline::load_8888, &src);
             pipeline.append(SkRasterPipeline::swap_rb);
             break;
         case kRGBA_8888_ColorFormat:
-            pipeline.append(SkRasterPipeline::load_s_8888, &src);
+            pipeline.append(SkRasterPipeline::load_8888, &src);
             break;
         default:
             SkCSXformPrintf("F16/F32 source color format not supported\n");
