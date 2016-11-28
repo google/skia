@@ -17,7 +17,7 @@
 
 #if SK_SUPPORT_GPU
 #include "GrContext.h"
-#include "GrImageIDTextureAdjuster.h"
+#include "GrTextureParamsAdjuster.h"
 #include "SkGr.h"
 #include "SkGrPriv.h"
 #endif

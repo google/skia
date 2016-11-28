@@ -9,11 +9,11 @@
 #include "SkGr.h"
 #include "SkGrPriv.h"
 
+#include "GrBitmapTextureMaker.h"
 #include "GrCaps.h"
 #include "GrContext.h"
-#include "GrRenderTargetContext.h"
 #include "GrGpuResourcePriv.h"
-#include "GrImageIDTextureAdjuster.h"
+#include "GrRenderTargetContext.h"
 #include "GrTextureParamsAdjuster.h"
 #include "GrTexturePriv.h"
 #include "GrTypes.h"
