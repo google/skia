@@ -441,7 +441,8 @@ bool Compiler::toSPIRV(Program::Kind kind, const SkString& text, SkWStream& out)
     auto program = this->convertProgram(kind, text, capsMap);
     if (fErrorCount == 0) {
         SkSL::SPIRVCodeGenerator cg(&fContext);
-        cg.generateCode(*program.get(), out);
+        cg.generateCode(*program.get(), *this, out);
+        this->writeErrorCount();
     }
     return fErrorCount == 0;
 }
@@ -484,7 +485,8 @@ bool Compiler::toGLSL(Program::Kind kind, const SkString& text, const GrGLSLCaps
     auto program = this->convertProgram(kind, text, capsMap);
     if (fErrorCount == 0) {
         SkSL::GLSLCodeGenerator cg(&fContext, &caps);
-        cg.generateCode(*program.get(), out);
+        cg.generateCode(*program.get(), *this, out);
+        this->writeErrorCount();
     }
     return fErrorCount == 0;
 }

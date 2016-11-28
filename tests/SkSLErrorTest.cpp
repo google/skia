@@ -378,4 +378,13 @@ DEF_TEST(SkSLBadCap, r) {
                  "error: 1: unknown capability flag 'bugFreeDriver'\n1 error\n");
 }
 
+DEF_TEST(SkSLBadOffset, r) {
+    test_failure(r,
+                 "struct Bad { layout (offset = 5) int x; } bad; void main() { bad.x = 5; }",
+                 "error: 1: offset of field 'x' must be a multiple of 4\n1 error\n");
+    test_failure(r,
+                 "struct Bad { int x; layout (offset = 0) int y; } bad; void main() { bad.x = 5; }",
+                 "error: 1: offset of field 'y' must be at least 4\n1 error\n");
+}
+
 #endif

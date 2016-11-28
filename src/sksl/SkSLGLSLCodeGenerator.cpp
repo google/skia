@@ -75,7 +75,7 @@ void GLSLCodeGenerator::writeType(const Type& type) {
             this->writeLine(" " + f.fName + ";");
         }
         fIndentation--;
-        this->writeLine("}");
+        this->write("}");
     } else {
         this->write(type.name());
     }
@@ -655,7 +655,8 @@ void GLSLCodeGenerator::writeReturnStatement(const ReturnStatement& r) {
     this->write(";");
 }
 
-void GLSLCodeGenerator::generateCode(const Program& program, SkWStream& out) {
+void GLSLCodeGenerator::generateCode(const Program& program, ErrorReporter& errors,
+                                     SkWStream& out) {
     ASSERT(fOut == nullptr);
     fOut = &fHeader;
     fProgramKind = program.fKind;

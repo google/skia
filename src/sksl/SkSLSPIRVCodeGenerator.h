@@ -73,7 +73,7 @@ public:
         this->setupIntrinsics();
     }
 
-    void generateCode(const Program& program, SkWStream& out) override;
+    void generateCode(const Program& program, ErrorReporter& errors, SkWStream& out) override;
 
 private:
     enum IntrinsicKind {
@@ -236,6 +236,7 @@ private:
 
     const Context& fContext;
     const MemoryLayout fDefaultLayout;
+    ErrorReporter* fErrors;
 
     uint64_t fCapabilities;
     SpvId fIdCount;

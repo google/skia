@@ -19,8 +19,8 @@ namespace SkSL {
 class CodeGenerator {
 public:
     virtual ~CodeGenerator() {}
-    
-    virtual void generateCode(const Program& program, SkWStream& out) = 0;
+
+    virtual void generateCode(const Program& program, ErrorReporter& errors, SkWStream& out) = 0;
 };
 
 } // namespace

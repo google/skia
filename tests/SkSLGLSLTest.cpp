@@ -211,15 +211,13 @@ DEF_TEST(SkSLStructs, r) {
          "struct A {\n"
          "    int x;\n"
          "    int y;\n"
-         "}\n"
-         " a1, a2;\n"
+         "} a1, a2;\n"
          "A a3;\n"
          "struct B {\n"
          "    float x;\n"
          "    float[2] y;\n"
          "    layout (binding = 1) A z;\n"
-         "}\n"
-         " b1, b2, b3;\n"
+         "} b1, b2, b3;\n"
          "void main() {\n"
          "}\n");
 }
@@ -589,4 +587,20 @@ DEF_TEST(SkSLTexture, r) {
          "}\n");
 }
 
+DEF_TEST(SkSLOffset, r) {
+    test(r,
+         "struct Test {"
+         "layout(offset = 0) int x;"
+         "layout(offset = 4) int y;"
+         "int z;"
+         "} test;",
+         *SkSL::GLSLCapsFactory::Default(),
+         "#version 400\n"
+         "out vec4 sk_FragColor;\n"
+         "struct Test {\n"
+         "    layout (offset = 0) int x;\n"
+         "    layout (offset = 4) int y;\n"
+         "    int z;\n"
+         "} test;\n");
+}
 #endif

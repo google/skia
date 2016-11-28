@@ -76,7 +76,7 @@ public:
     : fContext(*context)
     , fCaps(*caps) {}
 
-    void generateCode(const Program& program, SkWStream& out) override;
+    void generateCode(const Program& program, ErrorReporter& errors, SkWStream& out) override;
 
 private:
     void write(const char* s);

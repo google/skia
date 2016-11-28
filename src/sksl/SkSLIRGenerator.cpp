@@ -524,7 +524,7 @@ std::unique_ptr<InterfaceBlock> IRGenerator::convertInterfaceBlock(const ASTInte
             }
         }
     }
-    Type* type = new Type(intf.fInterfaceName, fields);
+    Type* type = new Type(intf.fPosition, intf.fInterfaceName, fields);
     fSymbolTable->takeOwnership(type);
     SkString name = intf.fValueName.size() > 0 ? intf.fValueName : intf.fInterfaceName;
     Variable* var = new Variable(intf.fPosition, intf.fModifiers, name, *type,

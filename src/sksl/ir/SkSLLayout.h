@@ -77,10 +77,11 @@ struct Layout {
         return false;
     }
 
-    Layout(int location, int binding, int index, int set, int builtin, int inputAttachmentIndex,
-           bool originUpperLeft, bool overrideCoverage, bool blendSupportAllEquations,
-           Format format, bool pushconstant)
+    Layout(int location, int offset, int binding, int index, int set, int builtin,
+           int inputAttachmentIndex, bool originUpperLeft, bool overrideCoverage,
+           bool blendSupportAllEquations, Format format, bool pushconstant)
     : fLocation(location)
+    , fOffset(offset)
     , fBinding(binding)
     , fIndex(index)
     , fSet(set)
@@ -94,6 +95,7 @@ struct Layout {
 
     Layout()
     : fLocation(-1)
+    , fOffset(-1)
     , fBinding(-1)
     , fIndex(-1)
     , fSet(-1)
@@ -110,6 +112,10 @@ struct Layout {
         SkString separator;
         if (fLocation >= 0) {
             result += separator + "location = " + to_string(fLocation);
+            separator = ", ";
+        }
+        if (fOffset >= 0) {
+            result += separator + "offset = " + to_string(fOffset);
             separator = ", ";
         }
         if (fBinding >= 0) {
@@ -160,6 +166,7 @@ struct Layout {
 
     bool operator==(const Layout& other) const {
         return fLocation                 == other.fLocation &&
+               fOffset                   == other.fOffset &&
                fBinding                  == other.fBinding &&
                fIndex                    == other.fIndex &&
                fSet                      == other.fSet &&
@@ -176,6 +183,7 @@ struct Layout {
     }
 
     int fLocation;
+    int fOffset;
     int fBinding;
     int fIndex;
     int fSet;

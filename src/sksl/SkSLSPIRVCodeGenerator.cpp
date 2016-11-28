@@ -973,13 +973,14 @@ SpvId SPIRVCodeGenerator::nextId() {
     return fIdCount++;
 }
 
-void SPIRVCodeGenerator::writeStruct(const Type& type, const MemoryLayout& layout, SpvId resultId) {
+void SPIRVCodeGenerator::writeStruct(const Type& type, const MemoryLayout& memoryLayout,
+                                     SpvId resultId) {
     this->writeInstruction(SpvOpName, resultId, type.name().c_str(), fNameBuffer);
     // go ahead and write all of the field types, so we don't inadvertently write them while we're
     // in the middle of writing the struct instruction
     std::vector<SpvId> types;
     for (const auto& f : type.fields()) {
-        types.push_back(this->getType(*f.fType, layout));
+        types.push_back(this->getType(*f.fType, memoryLayout));
     }
     this->writeOpCode(SpvOpTypeStruct, 2 + (int32_t) types.size(), fConstantBuffer);
     this->writeWord(resultId, fConstantBuffer);
@@ -988,15 +989,30 @@ void SPIRVCodeGenerator::writeStruct(const Type& type, const MemoryLayout& layou
     }
     size_t offset = 0;
     for (int32_t i = 0; i < (int32_t) type.fields().size(); i++) {
-        size_t size = layout.size(*type.fields()[i].fType);
-        size_t alignment = layout.alignment(*type.fields()[i].fType);
-        size_t mod = offset % alignment;
-        if (mod != 0) {
-            offset += alignment - mod;
+        size_t size = memoryLayout.size(*type.fields()[i].fType);
+        size_t alignment = memoryLayout.alignment(*type.fields()[i].fType);
+        const Layout& fieldLayout = type.fields()[i].fModifiers.fLayout;
+        if (fieldLayout.fOffset >= 0) {
+            if (fieldLayout.fOffset <= (int) offset) {
+                fErrors->error(type.fPosition,
+                               "offset of field '" + type.fields()[i].fName + "' must be at "
+                               "least " + to_string((int) offset));
+            }
+            if (fieldLayout.fOffset % alignment) {
+                fErrors->error(type.fPosition,
+                               "offset of field '" + type.fields()[i].fName + "' must be a multiple"
+                               " of " + to_string((int) alignment));
+            }
+            offset = fieldLayout.fOffset;
+        } else {
+            size_t mod = offset % alignment;
+            if (mod) {
+                offset += alignment - mod;
+            }
         }
         this->writeInstruction(SpvOpMemberName, resultId, i, type.fields()[i].fName.c_str(),
                                fNameBuffer);
-        this->writeLayout(type.fields()[i].fModifiers.fLayout, resultId, i);
+        this->writeLayout(fieldLayout, resultId, i);
         if (type.fields()[i].fModifiers.fLayout.fBuiltin < 0) {
             this->writeInstruction(SpvOpMemberDecorate, resultId, (SpvId) i, SpvDecorationOffset,
                                    (SpvId) offset, fDecorationBuffer);
@@ -1005,7 +1021,7 @@ void SPIRVCodeGenerator::writeStruct(const Type& type, const MemoryLayout& layou
             this->writeInstruction(SpvOpMemberDecorate, resultId, i, SpvDecorationColMajor,
                                    fDecorationBuffer);
             this->writeInstruction(SpvOpMemberDecorate, resultId, i, SpvDecorationMatrixStride,
-                                   (SpvId) layout.stride(*type.fields()[i].fType),
+                                   (SpvId) memoryLayout.stride(*type.fields()[i].fType),
                                    fDecorationBuffer);
         }
         offset += size;
@@ -2711,7 +2727,9 @@ void SPIRVCodeGenerator::writeInstructions(const Program& program, SkWStream& ou
     write_data(*body.detachAsData(), out);
 }
 
-void SPIRVCodeGenerator::generateCode(const Program& program, SkWStream& out) {
+void SPIRVCodeGenerator::generateCode(const Program& program, ErrorReporter& errors,
+                                      SkWStream& out) {
+    fErrors = &errors;
     this->writeWord(SpvMagicNumber, out);
     this->writeWord(SpvVersion, out);
     this->writeWord(SKSL_MAGIC, out);
@@ -2720,6 +2738,7 @@ void SPIRVCodeGenerator::generateCode(const Program& program, SkWStream& out) {
     this->writeWord(fIdCount, out);
     this->writeWord(0, out); // reserved, always zero
     write_data(*buffer.detachAsData(), out);
+    fErrors = nullptr;
 }
 
 }

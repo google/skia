@@ -68,8 +68,8 @@ public:
     }
 
     // Create a struct type with the given fields.
-    Type(SkString name, std::vector<Field> fields)
-    : INHERITED(Position(), kType_Kind, std::move(name))
+    Type(Position position, SkString name, std::vector<Field> fields)
+    : INHERITED(position, kType_Kind, std::move(name))
     , fTypeKind(kStruct_Kind)
     , fFields(std::move(fields)) {}
 
