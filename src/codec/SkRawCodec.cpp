@@ -711,8 +711,8 @@ SkCodec::Result SkRawCodec::onGetPixels(const SkImageInfo& dstInfo, void* dst,
     // difference. Only the overlapping region will be converted.
     const float maxDiffRatio = 1.03f;
     const dng_point& imageSize = image->Size();
-    if (imageSize.h / width > maxDiffRatio || imageSize.h < width ||
-        imageSize.v / height > maxDiffRatio || imageSize.v < height) {
+    if (imageSize.h / (float) width > maxDiffRatio || imageSize.h < width ||
+        imageSize.v / (float) height > maxDiffRatio || imageSize.v < height) {
         return SkCodec::kInvalidScale;
     }
 
