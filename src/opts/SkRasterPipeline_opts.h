@@ -246,9 +246,9 @@ STAGE(move_dst_src) {
 }
 
 STAGE(swap_rb) { SkTSwap( r,  b); }
-STAGE(swap_drdb) { SkTSwap(dr, db); }
+STAGE(swap_rb_d) { SkTSwap(dr, db); }
 
-STAGE(from_srgb_s) {
+STAGE(from_srgb) {
     r = sk_linear_from_srgb_math(r);
     g = sk_linear_from_srgb_math(g);
     b = sk_linear_from_srgb_math(b);
@@ -327,13 +327,13 @@ STAGE(lerp_565) {
     a = 1.0f;
 }
 
-STAGE(load_d_565) {
+STAGE(load_565_d) {
     auto ptr = *(const uint16_t**)ctx + x;
     from_565(load(tail, ptr), &dr,&dg,&db);
     da = 1.0f;
 }
 
-STAGE(load_s_565) {
+STAGE(load_565) {
     auto ptr = *(const uint16_t**)ctx + x;
     from_565(load(tail, ptr), &r,&g,&b);
     a = 1.0f;
@@ -344,7 +344,7 @@ STAGE(store_565) {
     store(tail, to_565(r,g,b), ptr);
 }
 
-STAGE(load_d_f16) {
+STAGE(load_f16_d) {
     auto ptr = *(const uint64_t**)ctx + x;
 
     SkNh rh, gh, bh, ah;
@@ -370,7 +370,7 @@ STAGE(load_d_f16) {
     da = SkHalfToFloat_finite_ftz(ah);
 }
 
-STAGE(load_s_f16) {
+STAGE(load_f16) {
     auto ptr = *(const uint64_t**)ctx + x;
 
     SkNh rh, gh, bh, ah;
@@ -436,11 +436,11 @@ STAGE(store_f32) {
 }
 
 
-STAGE(load_s_8888) {
+STAGE(load_8888) {
     auto ptr = *(const uint32_t**)ctx + x;
     from_8888(load(tail, ptr), &r, &g, &b, &a);
 }
-STAGE(load_d_8888) {
+STAGE(load_8888_d) {
     auto ptr = *(const uint32_t**)ctx + x;
     from_8888(load(tail, ptr), &dr, &dg, &db, &da);
 }

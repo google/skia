@@ -37,13 +37,13 @@ public:
         void*  dst_ctx = dst;
 
         SkRasterPipeline p;
-        p.append(SkRasterPipeline::load_s_8888, &src_ctx);
-        p.append(SkRasterPipeline::from_srgb_s);
+        p.append(SkRasterPipeline::load_8888, &src_ctx);
+        p.append(SkRasterPipeline::from_srgb);
         p.append(SkRasterPipeline::scale_u8, &mask_ctx);
         if (kF16) {
-            p.append(SkRasterPipeline::load_d_f16, &dst_ctx);
+            p.append(SkRasterPipeline::load_f16_d, &dst_ctx);
         } else {
-            p.append(SkRasterPipeline::load_d_8888, &dst_ctx);
+            p.append(SkRasterPipeline::load_8888_d, &dst_ctx);
             p.append(SkRasterPipeline::from_srgb_d);
         }
         p.append(SkRasterPipeline::srcover);

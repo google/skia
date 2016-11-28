@@ -1016,8 +1016,12 @@ static bool equal(const SkBitmap& a, const SkBitmap& b) {
     SkASSERT(a.width() == b.width());
     SkASSERT(a.height() == b.height());
     for (int y = 0; y < a.height(); ++y) {
-        if (0 != memcmp(a.getAddr32(0, y), b.getAddr32(0, y), a.width() * sizeof(SkPMColor))) {
-            return false;
+        for (int x = 0; x < a.width(); ++x) {
+            SkPMColor pa = *a.getAddr32(x, y);
+            SkPMColor pb = *b.getAddr32(x, y);
+            if (pa != pb) {
+                return false;
+            }
         }
     }
     return true;
