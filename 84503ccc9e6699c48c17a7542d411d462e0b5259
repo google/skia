@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "4df48341_72167935",
+        "filename": "src/core/SkOverdrawCanvas.h",
+        "patchSetId": 7
+      },
+      "lineNbr": 65,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2016-11-28T14:48:24Z",
+      "side": 1,
+      "message": "Minor, but should we be redundantly storing the canvas pointer in both SkNWayCanvas and SkOverdrawCanvas?",
+      "revId": "84503ccc9e6699c48c17a7542d411d462e0b5259",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
