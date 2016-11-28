@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "4df48341_063daaed",
+        "filename": "src/core/SkColorSpace_ICC.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 1277,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2016-11-28T23:40:21Z",
+      "side": 1,
+      "message": "nit: No need to wrap this in an else statement since we return in the \"if\".",
+      "range": {
+        "startLine": 1275,
+        "startChar": 17,
+        "endLine": 1277,
+        "endChar": 17
+      },
+      "revId": "cc1af0f3d5905980959224198ac7776ebf1daf3d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
