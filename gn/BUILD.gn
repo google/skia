@@ -64,6 +64,7 @@ config("default") {
       "/FS",  # Preserve previous PDB behavior.
       "/bigobj",  # Some of our files are bigger than the regular limits.
       "/WX",  # Treat warnings as errors.
+      "/MD",  # Link against dynamic, non-debug standard library.
     ]
     defines += [
       "_CRT_SECURE_NO_WARNINGS",  # Disables warnings about sscanf().
