@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "4df48341_2b119717",
+        "filename": "src/core/SkColorSpace_ICC.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 1276,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2016-11-28T23:17:44Z",
+      "side": 1,
+      "message": "How about this?\n\nif (load_a2b0()) {\n  return new SkColorSpace_A2B();\n}\n\n// Maybe print a warning?  But fall through to the XYZ case",
+      "range": {
+        "startLine": 1272,
+        "startChar": 0,
+        "endLine": 1276,
+        "endChar": 86
+      },
+      "revId": "aa6df1eb49751988386d641fa11afe89b22574f5",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "4df48341_4b573b1e",
+        "filename": "src/core/SkColorSpace_ICC.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 1278,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2016-11-28T23:17:44Z",
+      "side": 1,
+      "message": "nit: whitespace",
+      "range": {
+        "startLine": 1278,
+        "startChar": 0,
+        "endLine": 1278,
+        "endChar": 12
+      },
+      "revId": "aa6df1eb49751988386d641fa11afe89b22574f5",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
