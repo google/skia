@@ -262,9 +262,10 @@ STAGE(clamp_1, true) {
 }
 
 STAGE(unpremul, true) {
-    r *= a.invert();
-    g *= a.invert();
-    b *= a.invert();
+    auto scale = (a == 0.0f).thenElse(0.0f, 1.0f/a);
+    r *= scale;
+    g *= scale;
+    b *= scale;
 }
 
 STAGE(premul, true) {
