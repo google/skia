@@ -184,7 +184,68 @@ void GLSLCodeGenerator::writeFunctionCall(const FunctionCall& c) {
         fHeader.writeText(" : require\n");
         fFoundDerivatives = true;
     }
-    this->write(c.fFunction.fName + "(");
+    if (c.fFunction.fName == "texture" && c.fFunction.fBuiltin) {
+        const char* dim = "";
+        bool proj = false;
+        switch (c.fArguments[0]->fType.dimensions()) {
+            case SpvDim1D:
+                dim = "1D";
+                if (c.fArguments[1]->fType == *fContext.fFloat_Type) {
+                    proj = false;
+                } else {
+                    ASSERT(c.fArguments[1]->fType == *fContext.fVec2_Type);
+                    proj = true;
+                }
+                break;
+            case SpvDim2D:
+                dim = "2D";
+                if (c.fArguments[1]->fType == *fContext.fVec2_Type) {
+                    proj = false;
+                } else {
+                    ASSERT(c.fArguments[1]->fType == *fContext.fVec3_Type);
+                    proj = true;
+                }
+                break;
+            case SpvDim3D:
+                dim = "3D";
+                if (c.fArguments[1]->fType == *fContext.fVec3_Type) {
+                    proj = false;
+                } else {
+                    ASSERT(c.fArguments[1]->fType == *fContext.fVec4_Type);
+                    proj = true;
+                }
+                break;
+            case SpvDimCube:
+                dim = "Cube";
+                proj = false;
+                break;
+            case SpvDimRect:
+                dim = "Rect";
+                proj = false;
+                break;
+            case SpvDimBuffer:
+                ASSERT(false); // doesn't exist
+                dim = "Buffer";
+                proj = false;
+                break;
+            case SpvDimSubpassData:
+                ASSERT(false); // doesn't exist
+                dim = "SubpassData";
+                proj = false;
+                break;
+        }
+        this->write("texture");
+        if (fCaps.generation() < k130_GrGLSLGeneration) {
+            this->write(dim);
+        }
+        if (proj) {
+            this->write("Proj");
+        }
+
+    } else {
+        this->write(c.fFunction.fName);
+    }
+    this->write("(");
     const char* separator = "";
     for (const auto& arg : c.fArguments) {
         this->write(separator);
