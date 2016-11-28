@@ -62,7 +62,6 @@ private:
 
     inline SkPaint overdrawPaint(const SkPaint& paint);
 
-    SkCanvas* fCanvas;
     SkPaint   fPaint;
 
     typedef SkNWayCanvas INHERITED;

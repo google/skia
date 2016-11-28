@@ -38,7 +38,6 @@ private:
 
 SkOverdrawCanvas::SkOverdrawCanvas(SkCanvas* canvas)
     : INHERITED(canvas->onImageInfo().width(), canvas->onImageInfo().height())
-    , fCanvas(canvas)
 {
     // Non-drawing calls that SkOverdrawCanvas does not override (translate, save, etc.)
     // will pass through to the input canvas.
@@ -170,46 +169,46 @@ void SkOverdrawCanvas::onDrawTextBlob(const SkTextBlob* blob, SkScalar x, SkScal
 void SkOverdrawCanvas::onDrawPatch(const SkPoint cubics[12], const SkColor colors[4],
                                    const SkPoint texCoords[4], SkBlendMode blendMode,
                                    const SkPaint&) {
-    fCanvas->onDrawPatch(cubics, colors, texCoords, blendMode, fPaint);
+    fList[0]->onDrawPatch(cubics, colors, texCoords, blendMode, fPaint);
 }
 
 void SkOverdrawCanvas::onDrawPaint(const SkPaint& paint) {
     if (0 == paint.getColor() && !paint.getColorFilter() && !paint.getShader()) {
         // This is a clear, ignore it.
     } else {
-        fCanvas->onDrawPaint(this->overdrawPaint(paint));
+        fList[0]->onDrawPaint(this->overdrawPaint(paint));
     }
 }
 
 void SkOverdrawCanvas::onDrawRect(const SkRect& rect, const SkPaint& paint) {
-    fCanvas->onDrawRect(rect, this->overdrawPaint(paint));
+    fList[0]->onDrawRect(rect, this->overdrawPaint(paint));
 }
 
 void SkOverdrawCanvas::onDrawRegion(const SkRegion& region, const SkPaint& paint) {
-    fCanvas->onDrawRegion(region, this->overdrawPaint(paint));
+    fList[0]->onDrawRegion(region, this->overdrawPaint(paint));
 }
 
 void SkOverdrawCanvas::onDrawOval(const SkRect& oval, const SkPaint& paint) {
-    fCanvas->onDrawOval(oval, this->overdrawPaint(paint));
+    fList[0]->onDrawOval(oval, this->overdrawPaint(paint));
 }
 
 void SkOverdrawCanvas::onDrawArc(const SkRect& arc, SkScalar startAngle, SkScalar sweepAngle,
                                  bool useCenter, const SkPaint& paint) {
-    fCanvas->onDrawArc(arc, startAngle, sweepAngle, useCenter, this->overdrawPaint(paint));
+    fList[0]->onDrawArc(arc, startAngle, sweepAngle, useCenter, this->overdrawPaint(paint));
 }
 
 void SkOverdrawCanvas::onDrawDRRect(const SkRRect& outer, const SkRRect& inner,
                                     const SkPaint& paint) {
-    fCanvas->onDrawDRRect(outer, inner, this->overdrawPaint(paint));
+    fList[0]->onDrawDRRect(outer, inner, this->overdrawPaint(paint));
 }
 
 void SkOverdrawCanvas::onDrawRRect(const SkRRect& rect, const SkPaint& paint) {
-    fCanvas->onDrawRRect(rect, this->overdrawPaint(paint));
+    fList[0]->onDrawRRect(rect, this->overdrawPaint(paint));
 }
 
 void SkOverdrawCanvas::onDrawPoints(PointMode mode, size_t count, const SkPoint points[],
                                     const SkPaint& paint) {
-    fCanvas->onDrawPoints(mode, count, points, this->overdrawPaint(paint));
+    fList[0]->onDrawPoints(mode, count, points, this->overdrawPaint(paint));
 }
 
 void SkOverdrawCanvas::onDrawVertices(VertexMode vertexMode, int vertexCount,
@@ -217,7 +216,7 @@ void SkOverdrawCanvas::onDrawVertices(VertexMode vertexMode, int vertexCount,
                                       const SkColor colors[], SkBlendMode blendMode,
                                       const uint16_t indices[], int indexCount,
                                       const SkPaint& paint) {
-    fCanvas->onDrawVertices(vertexMode, vertexCount, vertices, texs, colors, blendMode, indices,
+    fList[0]->onDrawVertices(vertexMode, vertexCount, vertices, texs, colors, blendMode, indices,
                             indexCount, this->overdrawPaint(paint));
 }
 
@@ -231,25 +230,25 @@ void SkOverdrawCanvas::onDrawAtlas(const SkImage* image, const SkRSXform xform[]
         paintPtr = &storage;
     }
 
-    fCanvas->onDrawAtlas(image, xform, texs, colors, count, mode, cull, paintPtr);
+    fList[0]->onDrawAtlas(image, xform, texs, colors, count, mode, cull, paintPtr);
 }
 
 void SkOverdrawCanvas::onDrawPath(const SkPath& path, const SkPaint& paint) {
-    fCanvas->onDrawPath(path, fPaint);
+    fList[0]->onDrawPath(path, fPaint);
 }
 
 void SkOverdrawCanvas::onDrawImage(const SkImage* image, SkScalar x, SkScalar y, const SkPaint*) {
-    fCanvas->onDrawRect(SkRect::MakeXYWH(x, y, image->width(), image->height()), fPaint);
+    fList[0]->onDrawRect(SkRect::MakeXYWH(x, y, image->width(), image->height()), fPaint);
 }
 
 void SkOverdrawCanvas::onDrawImageRect(const SkImage* image, const SkRect* src, const SkRect& dst,
                                        const SkPaint*, SrcRectConstraint) {
-    fCanvas->onDrawRect(dst, fPaint);
+    fList[0]->onDrawRect(dst, fPaint);
 }
 
 void SkOverdrawCanvas::onDrawImageNine(const SkImage*, const SkIRect&, const SkRect& dst,
                                        const SkPaint*) {
-    fCanvas->onDrawRect(dst, fPaint);
+    fList[0]->onDrawRect(dst, fPaint);
 }
 
 void SkOverdrawCanvas::onDrawImageLattice(const SkImage* image, const Lattice& lattice,
@@ -266,26 +265,26 @@ void SkOverdrawCanvas::onDrawImageLattice(const SkImage* image, const Lattice& l
 
         SkRect dummy, iterDst;
         while (iter.next(&dummy, &iterDst)) {
-            fCanvas->onDrawRect(iterDst, fPaint);
+            fList[0]->onDrawRect(iterDst, fPaint);
         }
     } else {
-        fCanvas->onDrawRect(dst, fPaint);
+        fList[0]->onDrawRect(dst, fPaint);
     }
 }
 
 void SkOverdrawCanvas::onDrawBitmap(const SkBitmap& bitmap, SkScalar x, SkScalar y,
                                     const SkPaint*) {
-    fCanvas->onDrawRect(SkRect::MakeXYWH(x, y, bitmap.width(), bitmap.height()), fPaint);
+    fList[0]->onDrawRect(SkRect::MakeXYWH(x, y, bitmap.width(), bitmap.height()), fPaint);
 }
 
 void SkOverdrawCanvas::onDrawBitmapRect(const SkBitmap&, const SkRect*, const SkRect& dst,
                                         const SkPaint*, SrcRectConstraint) {
-    fCanvas->onDrawRect(dst, fPaint);
+    fList[0]->onDrawRect(dst, fPaint);
 }
 
 void SkOverdrawCanvas::onDrawBitmapNine(const SkBitmap&, const SkIRect&, const SkRect& dst,
                                         const SkPaint*) {
-    fCanvas->onDrawRect(dst, fPaint);
+    fList[0]->onDrawRect(dst, fPaint);
 }
 
 void SkOverdrawCanvas::onDrawBitmapLattice(const SkBitmap& bitmap, const Lattice& lattice,
