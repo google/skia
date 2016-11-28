@@ -11,6 +11,11 @@
 SkRasterPipeline::SkRasterPipeline() {}
 
 void SkRasterPipeline::append(StockStage stage, void* ctx) {
+#ifdef SK_DEBUG
+    if (fNum == (int)SK_ARRAY_COUNT(fStages)) {
+        this->dump();
+    }
+#endif
     SkASSERT(fNum < (int)SK_ARRAY_COUNT(fStages));
     fStages[fNum++] = { stage, ctx };
 }

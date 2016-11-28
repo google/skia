@@ -37,13 +37,22 @@ public:
         void*  dst_ctx = dst;
 
         SkRasterPipeline p;
-        p.append(SkRasterPipeline::load_s_srgb, &src_ctx);
+        p.append(SkRasterPipeline::load_s_8888, &src_ctx);
+        p.append(SkRasterPipeline::from_srgb_s);
         p.append(SkRasterPipeline::scale_u8, &mask_ctx);
-        p.append(kF16 ? SkRasterPipeline::load_d_f16
-                      : SkRasterPipeline::load_d_srgb, &dst_ctx);
+        if (kF16) {
+            p.append(SkRasterPipeline::load_d_f16, &dst_ctx);
+        } else {
+            p.append(SkRasterPipeline::load_d_8888, &dst_ctx);
+            p.append(SkRasterPipeline::from_srgb_d);
+        }
         p.append(SkRasterPipeline::srcover);
-        p.append(kF16 ? SkRasterPipeline::store_f16
-                      : SkRasterPipeline::store_srgb, &dst_ctx);
+        if (kF16) {
+            p.append(SkRasterPipeline::store_f16, &dst_ctx);
+        } else {
+            p.append(SkRasterPipeline::to_srgb);
+            p.append(SkRasterPipeline::store_8888, &dst_ctx);
+        }
         auto compiled = p.compile();
 
         while (loops --> 0) {
