@@ -288,9 +288,8 @@ STAGE(move_dst_src, true) {
     a = da;
 }
 
-STAGE(swap_rb, true) {
-    SkTSwap(r, b);
-}
+STAGE(swap_rb,   true) { SkTSwap( r,  b); }
+STAGE(swap_drdb, true) { SkTSwap(dr, db); }
 
 STAGE(from_srgb_s, true) {
     r = sk_linear_from_srgb_math(r);
@@ -303,7 +302,9 @@ STAGE(from_srgb_d, true) {
     db = sk_linear_from_srgb_math(db);
 }
 STAGE(to_srgb, true) {
-    // TODO
+    r = sk_linear_to_srgb_needs_round(r);
+    g = sk_linear_to_srgb_needs_round(g);
+    b = sk_linear_to_srgb_needs_round(b);
 }
 
 // The default shader produces a constant color (from the SkPaint).
@@ -478,42 +479,14 @@ STAGE(store_f32, false) {
 }
 
 
-// Load 8-bit SkPMColor-order sRGB.
-STAGE(load_d_srgb, true) {
-    auto ptr = *(const uint32_t**)ctx + x;
-
-    auto px = load<kIsTail>(tail, ptr);
-    auto to_int = [](const SkNx<N, uint32_t>& v) { return SkNi::Load(&v); };
-    dr =    sk_linear_from_srgb_math(to_int((px >> SK_R32_SHIFT) & 0xff));
-    dg =    sk_linear_from_srgb_math(to_int((px >> SK_G32_SHIFT) & 0xff));
-    db =    sk_linear_from_srgb_math(to_int((px >> SK_B32_SHIFT) & 0xff));
-    da = (1/255.0f)*SkNx_cast<float>(to_int( px >> SK_A32_SHIFT        ));
-}
-
-STAGE(load_s_srgb, true) {
-    auto ptr = *(const uint32_t**)ctx + x;
-
-    auto px = load<kIsTail>(tail, ptr);
-    auto to_int = [](const SkNx<N, uint32_t>& v) { return SkNi::Load(&v); };
-    r =    sk_linear_from_srgb_math(to_int((px >> SK_R32_SHIFT) & 0xff));
-    g =    sk_linear_from_srgb_math(to_int((px >> SK_G32_SHIFT) & 0xff));
-    b =    sk_linear_from_srgb_math(to_int((px >> SK_B32_SHIFT) & 0xff));
-    a = (1/255.0f)*SkNx_cast<float>(to_int( px >> SK_A32_SHIFT        ));
-}
-
-STAGE(store_srgb, false) {
-    auto ptr = *(uint32_t**)ctx + x;
-    store<kIsTail>(tail, (              sk_linear_to_srgb(r) << SK_R32_SHIFT
-                         |              sk_linear_to_srgb(g) << SK_G32_SHIFT
-                         |              sk_linear_to_srgb(b) << SK_B32_SHIFT
-                         | SkNx_cast<int>(0.5f + 255.0f * a) << SK_A32_SHIFT), (int*)ptr);
-}
-
 STAGE(load_s_8888, true) {
     auto ptr = *(const uint32_t**)ctx + x;
     from_8888(load<kIsTail>(tail, ptr), &r, &g, &b, &a);
 }
-
+STAGE(load_d_8888, true) {
+    auto ptr = *(const uint32_t**)ctx + x;
+    from_8888(load<kIsTail>(tail, ptr), &dr, &dg, &db, &da);
+}
 STAGE(store_8888, false) {
     auto ptr = *(uint32_t**)ctx + x;
     store<kIsTail>(tail, ( SkNx_cast<int>(255.0f * r + 0.5f) << 0
@@ -523,9 +496,6 @@ STAGE(store_8888, false) {
 }
 
 RGBA_XFERMODE(clear)    { return 0.0f; }
-//RGBA_XFERMODE(src)      { return s; }   // This would be a no-op stage, so we just omit it.
-RGBA_XFERMODE(dst)      { return d; }
-
 RGBA_XFERMODE(srcatop)  { return s*da + d*inv(sa); }
 RGBA_XFERMODE(srcin)    { return s * da; }
 RGBA_XFERMODE(srcout)   { return s * inv(da); }
@@ -927,8 +897,8 @@ namespace SK_OPTS_NS {
                     return Memset16{(uint16_t**)dst, SkPackRGB16(src.r() * SK_R16_MASK + 0.5f,
                                                                  src.g() * SK_G16_MASK + 0.5f,
                                                                  src.b() * SK_B16_MASK + 0.5f)};
-                case SkRasterPipeline::store_srgb:
-                    return Memset32{(uint32_t**)dst, Sk4f_toS32(src.to4f_pmorder())};
+                case SkRasterPipeline::store_8888:
+                    return Memset32{(uint32_t**)dst, Sk4f_toL32(src.to4f())};
 
                 case SkRasterPipeline::store_f16:
                     return Memset64{(uint64_t**)dst, src.toF16()};
