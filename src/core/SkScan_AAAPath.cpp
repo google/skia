@@ -1017,7 +1017,7 @@ static inline void aaa_walk_convex_edges(SkAnalyticEdge* prevHead, AdditiveBlitt
                 }
             } else { // left and rite are within the same pixel
                 if (partialTop > 0) {
-                    blitter->getRealBlitter()->blitV(fullLeft - 1, fullTop - 1, 1,
+                    blitter->blitAntiH(fullLeft - 1, fullTop - 1, 1,
                             f2a(SkFixedMul(partialTop, rite - left)));
                     blitter->flush_if_y_changed(y, y + partialTop);
                 }
@@ -1026,7 +1026,7 @@ static inline void aaa_walk_convex_edges(SkAnalyticEdge* prevHead, AdditiveBlitt
                             f2a(rite - left));
                 }
                 if (partialBot > 0) {
-                    blitter->getRealBlitter()->blitV(fullLeft - 1, fullBot, 1,
+                    blitter->blitAntiH(fullLeft - 1, fullBot, 1,
                             f2a(SkFixedMul(partialBot, rite - left)));
                 }
             }
