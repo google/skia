@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "4df48341_7a776bb3",
+        "filename": "src/sksl/SkSLSPIRVCodeGenerator.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 997,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2016-11-28T21:13:27Z",
+      "side": 1,
+      "message": "Should this be an else statement to and stencil attachments instead of always doing it?",
+      "range": {
+        "startLine": 994,
+        "startChar": 0,
+        "endLine": 997,
+        "endChar": 9
+      },
+      "revId": "16bc7eee71b90a77d32a946cbc57a4b797957272",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
