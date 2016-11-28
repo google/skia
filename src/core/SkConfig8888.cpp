@@ -267,22 +267,21 @@ bool SkPixelInfo::CopyPixels(const SkImageInfo& dstInfo, void* dstPixels, size_t
     // Note: we've already taken care of 32bit colortypes above.
     if (srcInfo.colorType() == dstInfo.colorType()) {
         switch (srcInfo.colorType()) {
-            case kRGB_565_SkColorType:
-            case kAlpha_8_SkColorType:
-            case kGray_8_SkColorType:
-                break;
             case kIndex_8_SkColorType:
             case kARGB_4444_SkColorType:
             case kRGBA_F16_SkColorType:
                 if (srcInfo.alphaType() != dstInfo.alphaType()) {
-                    return false;
+                    break;
                 }
-                break;
+            case kRGB_565_SkColorType:
+            case kAlpha_8_SkColorType:
+            case kGray_8_SkColorType:
+                SkRectMemcpy(dstPixels, dstRB, srcPixels, srcRB,
+                             width * srcInfo.bytesPerPixel(), height);
+                return true;
             default:
-                return false;
+                break;
         }
-        SkRectMemcpy(dstPixels, dstRB, srcPixels, srcRB, width * srcInfo.bytesPerPixel(), height);
-        return true;
     }
 
     /*
