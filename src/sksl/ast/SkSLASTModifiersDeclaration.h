@@ -4,12 +4,12 @@
  * Use of this source code is governed by a BSD-style license that can be
  * found in the LICENSE file.
  */
- 
+
 #ifndef SKSL_ASTMODIFIERDECLARATION
 #define SKSL_ASTMODIFIERDECLARATION
 
 #include "SkSLASTDeclaration.h"
-#include "SkSLASTModifiers.h"
+#include "../ir/SkSLModifiers.h"
 
 namespace SkSL {
 
@@ -19,7 +19,7 @@ namespace SkSL {
  * layout(blend_support_all_equations) out;
  */
 struct ASTModifiersDeclaration : public ASTDeclaration {
-    ASTModifiersDeclaration(ASTModifiers modifiers)
+    ASTModifiersDeclaration(Modifiers modifiers)
     : INHERITED(Position(), kModifiers_Kind)
     , fModifiers(modifiers) {}
 
@@ -27,7 +27,7 @@ struct ASTModifiersDeclaration : public ASTDeclaration {
         return fModifiers.description() + ";";
     }
 
-    ASTModifiers fModifiers;
+    Modifiers fModifiers;
 
     typedef ASTDeclaration INHERITED;
 };

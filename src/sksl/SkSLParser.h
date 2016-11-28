@@ -4,7 +4,7 @@
  * Use of this source code is governed by a BSD-style license that can be
  * found in the LICENSE file.
  */
- 
+
 #ifndef SKSL_PARSER
 #define SKSL_PARSER
 
@@ -31,8 +31,6 @@ struct ASTExpressionStatement;
 struct ASTForStatement;
 struct ASTIfStatement;
 struct ASTInterfaceBlock;
-struct ASTLayout;
-struct ASTModifiers;
 struct ASTParameter;
 struct ASTPrecision;
 struct ASTReturnStatement;
@@ -41,6 +39,8 @@ struct ASTSuffix;
 struct ASTType;
 struct ASTWhileStatement;
 struct ASTVarDeclarations;
+struct Layout;
+struct Modifiers;
 class SymbolTable;
 
 /**
@@ -73,7 +73,7 @@ private:
     void pushback(Token t);
 
     /**
-     * Returns the next token without consuming it from the stream. 
+     * Returns the next token without consuming it from the stream.
      */
     Token peek();
 
@@ -91,7 +91,7 @@ private:
 
     void error(Position p, const char* msg);
     void error(Position p, SkString msg);
-    
+   
     /**
      * Returns true if the 'name' identifier refers to a type name. For instance, isType("int") will
      * always return true.
@@ -112,27 +112,27 @@ private:
 
     std::unique_ptr<ASTType> structDeclaration();
 
-    std::unique_ptr<ASTVarDeclarations> structVarDeclaration(ASTModifiers modifiers);
+    std::unique_ptr<ASTVarDeclarations> structVarDeclaration(Modifiers modifiers);
 
-    std::unique_ptr<ASTVarDeclarations> varDeclarationEnd(ASTModifiers modifiers,
-                                                          std::unique_ptr<ASTType> type, 
+    std::unique_ptr<ASTVarDeclarations> varDeclarationEnd(Modifiers modifiers,
+                                                          std::unique_ptr<ASTType> type,
                                                           SkString name);
 
     std::unique_ptr<ASTParameter> parameter();
 
     int layoutInt();
-    
-    ASTLayout layout();
+   
+    Layout layout();
 
-    ASTModifiers modifiers();
+    Modifiers modifiers();
 
-    ASTModifiers modifiersWithDefaults(int defaultFlags);
+    Modifiers modifiersWithDefaults(int defaultFlags);
 
     std::unique_ptr<ASTStatement> statement();
 
     std::unique_ptr<ASTType> type();
 
-    std::unique_ptr<ASTDeclaration> interfaceBlock(ASTModifiers mods);
+    std::unique_ptr<ASTDeclaration> interfaceBlock(Modifiers mods);
 
     std::unique_ptr<ASTIfStatement> ifStatement();
 
@@ -157,7 +157,7 @@ private:
     std::unique_ptr<ASTExpression> expression();
 
     std::unique_ptr<ASTExpression> assignmentExpression();
-    
+   
     std::unique_ptr<ASTExpression> ternaryExpression();
 
     std::unique_ptr<ASTExpression> logicalOrExpression();

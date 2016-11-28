@@ -4,11 +4,12 @@
  * Use of this source code is governed by a BSD-style license that can be
  * found in the LICENSE file.
  */
- 
+
 #ifndef SKSL_ASTINTERFACEBLOCK
 #define SKSL_ASTINTERFACEBLOCK
 
 #include "SkSLASTVarDeclaration.h"
+#include "../ir/SkSLModifiers.h"
 
 namespace SkSL {
 
@@ -23,9 +24,9 @@ namespace SkSL {
 struct ASTInterfaceBlock : public ASTDeclaration {
     // valueName is empty when it was not present in the source
     ASTInterfaceBlock(Position position,
-                      ASTModifiers modifiers, 
-                      SkString interfaceName, 
-                      SkString valueName, 
+                      Modifiers modifiers,
+                      SkString interfaceName,
+                      SkString valueName,
                       std::vector<std::unique_ptr<ASTVarDeclarations>> declarations)
     : INHERITED(position, kInterfaceBlock_Kind)
     , fModifiers(modifiers)
@@ -45,7 +46,7 @@ struct ASTInterfaceBlock : public ASTDeclaration {
         return result + ";";
     }
 
-    const ASTModifiers fModifiers;
+    const Modifiers fModifiers;
     const SkString fInterfaceName;
     const SkString fValueName;
     const std::vector<std::unique_ptr<ASTVarDeclarations>> fDeclarations;
