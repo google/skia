@@ -324,6 +324,12 @@ bool SkPixelInfo::CopyPixels(const SkImageInfo& dstInfo, void* dstPixels, size_t
         return false;
     }
 
+    if (srcInfo.colorType() == kAlpha_8_SkColorType &&
+        dstInfo.colorType() != kAlpha_8_SkColorType)
+    {
+        return false;   // can't convert from alpha to non-alpha
+    }
+
     const int width = srcInfo.width();
     const int height = srcInfo.height();
 
