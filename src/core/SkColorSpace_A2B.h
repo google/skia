@@ -71,27 +71,35 @@ public:
 
     class Element {
     public:
-        explicit Element(SkGammaNamed gammaNamed)
+        Element(SkGammaNamed gammaNamed, int channelCount)
             : fType(Type::kGammaNamed)
             , fGammaNamed(gammaNamed)
             , fMatrix(SkMatrix44::kUninitialized_Constructor)
+            , fInputChannels(channelCount)
+            , fOutputChannels(channelCount)
         {}
 
         explicit Element(sk_sp<SkGammas> gammas)
             : fType(Type::kGammas)
             , fGammas(std::move(gammas))
-            , fMatrix(SkMatrix44::kUninitialized_Constructor)  
+            , fMatrix(SkMatrix44::kUninitialized_Constructor)
+            , fInputChannels(fGammas->channels())
+            , fOutputChannels(fGammas->channels())
         {}
 
         explicit Element(sk_sp<SkColorLookUpTable> colorLUT)
             : fType(Type::kCLUT)
             , fCLUT(std::move(colorLUT))
             , fMatrix(SkMatrix44::kUninitialized_Constructor)
+            , fInputChannels(fCLUT->inputChannels())
+            , fOutputChannels(fCLUT->outputChannels())
         {}
 
         explicit Element(const SkMatrix44& matrix)
             : fType(Type::kMatrix)
             , fMatrix(matrix)
+            , fInputChannels(3)
+            , fOutputChannels(3)
         {}
     
         enum class Type {
@@ -122,6 +130,10 @@ public:
             SkASSERT(Type::kMatrix == fType);
             return fMatrix;
         }
+        
+        int inputChannels() const { return fInputChannels; }
+        
+        int outputChannels() const { return fOutputChannels; }
 
     private:
         Type                      fType;
@@ -129,8 +141,10 @@ public:
         sk_sp<SkGammas>           fGammas;
         sk_sp<SkColorLookUpTable> fCLUT;
         SkMatrix44                fMatrix;
+        int                       fInputChannels;
+        int                       fOutputChannels;
     };
-    const Element& element(size_t i) const { return fElements[i]; }
+    const Element& element(int i) const { return fElements[i]; }
     
     int count() const { return (int)fElements.size(); }
 
@@ -142,14 +156,18 @@ public:
     };
     
     PCS pcs() const { return fPCS; }
+    
+    InputColorFormat inputColorFormat() const { return fInputColorFormat; }
 
 private:
-    SkColorSpace_A2B(PCS pcs, sk_sp<SkData> profileData, std::vector<Element> elements);
+    SkColorSpace_A2B(PCS pcs, InputColorFormat inputColorFormat, sk_sp<SkData> profileData,
+                     std::vector<Element> elements);
 
     PCS                  fPCS;
+    InputColorFormat     fInputColorFormat;
     std::vector<Element> fElements;
 
-    friend class SkColorSpace;
+    friend class SkColorSpace_Base;
     friend class ColorSpaceXformTest;
     typedef SkColorSpace_Base INHERITED;
 };
