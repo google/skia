@@ -393,7 +393,7 @@ std::unique_ptr<ASTType> Parser::structDeclaration() {
     if (!this->expect(Token::RBRACE, "'}'")) {
         return nullptr;
     }
-    fTypes.add(name.fText, std::unique_ptr<Type>(new Type(name.fText, fields)));
+    fTypes.add(name.fText, std::unique_ptr<Type>(new Type(name.fPosition, name.fText, fields)));
     return std::unique_ptr<ASTType>(new ASTType(name.fPosition, name.fText,
                                                 ASTType::kStruct_Kind));
 }
@@ -539,6 +539,7 @@ int Parser::layoutInt() {
 /* LAYOUT LPAREN IDENTIFIER (EQ INT_LITERAL)? (COMMA IDENTIFIER (EQ INT_LITERAL)?)* RPAREN */
 Layout Parser::layout() {
     int location = -1;
+    int offset = -1;
     int binding = -1;
     int index = -1;
     int set = -1;
@@ -552,7 +553,7 @@ Layout Parser::layout() {
     if (this->peek().fKind == Token::LAYOUT) {
         this->nextToken();
         if (!this->expect(Token::LPAREN, "'('")) {
-            return Layout(location, binding, index, set, builtin, inputAttachmentIndex,
+            return Layout(location, offset, binding, index, set, builtin, inputAttachmentIndex,
                           originUpperLeft, overrideCoverage, blendSupportAllEquations, format,
                           pushConstant);
         }
@@ -560,6 +561,8 @@ Layout Parser::layout() {
             Token t = this->nextToken();
             if (t.fText == "location") {
                 location = this->layoutInt();
+            } else if (t.fText == "offset") {
+                offset = this->layoutInt();
             } else if (t.fText == "binding") {
                 binding = this->layoutInt();
             } else if (t.fText == "index") {
@@ -593,8 +596,9 @@ Layout Parser::layout() {
             }
         }
     }
-    return Layout(location, binding, index, set, builtin, inputAttachmentIndex, originUpperLeft,
-                     overrideCoverage, blendSupportAllEquations, format, pushConstant);
+    return Layout(location, offset, binding, index, set, builtin, inputAttachmentIndex,
+                  originUpperLeft, overrideCoverage, blendSupportAllEquations, format,
+                  pushConstant);
 }
 
 /* layout? (UNIFORM | CONST | IN | OUT | INOUT | LOWP | MEDIUMP | HIGHP | FLAT | NOPERSPECTIVE)* */
