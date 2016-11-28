@@ -547,4 +547,46 @@ DEF_TEST(SkSLCaps, r) {
          "}\n");
 }
 
+DEF_TEST(SkSLTexture, r) {
+    test(r,
+         "uniform sampler1D one;"
+         "uniform sampler2D two;"
+         "void main() {"
+         "vec4 a = texture(one, 0);"
+         "vec4 b = texture(two, vec2(0));"
+         "vec4 c = texture(one, vec2(0));"
+         "vec4 d = texture(two, vec3(0));"
+         "}",
+         *SkSL::GLSLCapsFactory::Default(),
+         "#version 400\n"
+         "out vec4 sk_FragColor;\n"
+         "uniform sampler1D one;\n"
+         "uniform sampler2D two;\n"
+         "void main() {\n"
+         "    vec4 a = texture(one, 0.0);\n"
+         "    vec4 b = texture(two, vec2(0.0));\n"
+         "    vec4 c = textureProj(one, vec2(0.0));\n"
+         "    vec4 d = textureProj(two, vec3(0.0));\n"
+         "}\n");
+    test(r,
+         "uniform sampler1D one;"
+         "uniform sampler2D two;"
+         "void main() {"
+         "vec4 a = texture(one, 0);"
+         "vec4 b = texture(two, vec2(0));"
+         "vec4 c = texture(one, vec2(0));"
+         "vec4 d = texture(two, vec3(0));"
+         "}",
+         *SkSL::GLSLCapsFactory::Version110(),
+         "#version 110\n"
+         "uniform sampler1D one;\n"
+         "uniform sampler2D two;\n"
+         "void main() {\n"
+         "    vec4 a = texture1D(one, 0.0);\n"
+         "    vec4 b = texture2D(two, vec2(0.0));\n"
+         "    vec4 c = texture1DProj(one, vec2(0.0));\n"
+         "    vec4 d = texture2DProj(two, vec3(0.0));\n"
+         "}\n");
+}
+
 #endif

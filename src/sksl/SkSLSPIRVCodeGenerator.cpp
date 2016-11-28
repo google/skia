@@ -103,8 +103,6 @@ void SPIRVCodeGenerator::setupIntrinsics() {
     fIntrinsicMap[SkString("dFdy")]        = std::make_tuple(kSPIRV_IntrinsicKind, SpvOpDPdy,
                                                              SpvOpUndef, SpvOpUndef, SpvOpUndef);
     fIntrinsicMap[SkString("texture")]     = SPECIAL(Texture);
-    fIntrinsicMap[SkString("texture2D")]   = SPECIAL(Texture2D);
-    fIntrinsicMap[SkString("textureProj")] = SPECIAL(TextureProj);
 
     fIntrinsicMap[SkString("subpassLoad")] = SPECIAL(SubpassLoad);
 
@@ -1285,45 +1283,48 @@ SpvId SPIRVCodeGenerator::writeSpecialIntrinsic(const FunctionCall& c, SpecialIn
             return result;
         }
         case kTexture_SpecialIntrinsic: {
+            SpvOp_ op = SpvOpImageSampleImplicitLod;
+            switch (c.fArguments[0]->fType.dimensions()) {
+                case SpvDim1D:
+                    if (c.fArguments[1]->fType == *fContext.fVec2_Type) {
+                        op = SpvOpImageSampleProjImplicitLod;
+                    } else {
+                        ASSERT(c.fArguments[1]->fType == *fContext.fFloat_Type);
+                    }
+                    break;
+                case SpvDim2D:
+                    if (c.fArguments[1]->fType == *fContext.fVec3_Type) {
+                        op = SpvOpImageSampleProjImplicitLod;
+                    } else {
+                        ASSERT(c.fArguments[1]->fType == *fContext.fVec2_Type);
+                    }
+                    break;
+                case SpvDim3D:
+                    if (c.fArguments[1]->fType == *fContext.fVec4_Type) {
+                        op = SpvOpImageSampleProjImplicitLod;
+                    } else {
+                        ASSERT(c.fArguments[1]->fType == *fContext.fVec3_Type);
+                    }
+                    break;
+                case SpvDimCube:   // fall through
+                case SpvDimRect:   // fall through
+                case SpvDimBuffer: // fall through
+                case SpvDimSubpassData:
+                    break;
+            }
             SpvId type = this->getType(c.fType);
             SpvId sampler = this->writeExpression(*c.fArguments[0], out);
             SpvId uv = this->writeExpression(*c.fArguments[1], out);
             if (c.fArguments.size() == 3) {
-                this->writeInstruction(SpvOpImageSampleImplicitLod, type, result, sampler, uv,
+                this->writeInstruction(op, type, result, sampler, uv,
                                        SpvImageOperandsBiasMask,
                                        this->writeExpression(*c.fArguments[2], out),
                                        out);
             } else {
                 ASSERT(c.fArguments.size() == 2);
-                this->writeInstruction(SpvOpImageSampleImplicitLod, type, result, sampler, uv, out);
-            }
-            break;
-        }
-        case kTextureProj_SpecialIntrinsic: {
-            SpvId type = this->getType(c.fType);
-            SpvId sampler = this->writeExpression(*c.fArguments[0], out);
-            SpvId uv = this->writeExpression(*c.fArguments[1], out);
-            if (c.fArguments.size() == 3) {
-                this->writeInstruction(SpvOpImageSampleProjImplicitLod, type, result, sampler, uv,
-                                       SpvImageOperandsBiasMask,
-                                       this->writeExpression(*c.fArguments[2], out),
-                                       out);
-            } else {
-                ASSERT(c.fArguments.size() == 2);
-                this->writeInstruction(SpvOpImageSampleProjImplicitLod, type, result, sampler, uv,
+                this->writeInstruction(op, type, result, sampler, uv,
                                        out);
             }
-            break;
-        }
-        case kTexture2D_SpecialIntrinsic: {
-            SpvId img = this->writeExpression(*c.fArguments[0], out);
-            SpvId coords = this->writeExpression(*c.fArguments[1], out);
-            this->writeInstruction(SpvOpImageSampleImplicitLod,
-                                   this->getType(c.fType),
-                                   result,
-                                   img,
-                                   coords,
-                                   out);
             break;
         }
         case kSubpassLoad_SpecialIntrinsic: {

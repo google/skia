@@ -85,8 +85,6 @@ private:
     enum SpecialIntrinsic {
         kAtan_SpecialIntrinsic,
         kTexture_SpecialIntrinsic,
-        kTexture2D_SpecialIntrinsic,
-        kTextureProj_SpecialIntrinsic,
         kSubpassLoad_SpecialIntrinsic,
     };
 
