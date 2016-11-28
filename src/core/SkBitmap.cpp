@@ -707,15 +707,18 @@ bool SkBitmap::extractSubset(SkBitmap* result, const SkIRect& subset) const {
 
 ///////////////////////////////////////////////////////////////////////////////
 
-bool SkBitmap::canCopyTo(SkColorType dstColorType) const {
+bool SkBitmap::canCopyTo(SkColorType dstCT) const {
     const SkColorType srcCT = this->colorType();
 
     if (srcCT == kUnknown_SkColorType) {
         return false;
     }
+    if (srcCT == kAlpha_8_SkColorType && dstCT != kAlpha_8_SkColorType) {
+        return false;   // can't convert from alpha to non-alpha
+    }
 
-    bool sameConfigs = (srcCT == dstColorType);
-    switch (dstColorType) {
+    bool sameConfigs = (srcCT == dstCT);
+    switch (dstCT) {
         case kAlpha_8_SkColorType:
         case kRGB_565_SkColorType:
         case kRGBA_8888_SkColorType:
