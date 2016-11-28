@@ -56,14 +56,14 @@
 
 #define SK_RASTER_PIPELINE_STAGES(M)                             \
     M(trace) M(registers)                                        \
-    M(move_src_dst) M(move_dst_src) M(swap_rb) M(swap_drdb)      \
+    M(move_src_dst) M(move_dst_src) M(swap_rb) M(swap_rb_d)      \
     M(clamp_0) M(clamp_a) M(clamp_1)                             \
     M(unpremul) M(premul)                                        \
-    M(from_srgb_s) M(from_srgb_d) M(to_srgb)                     \
+    M(from_srgb) M(from_srgb_d) M(to_srgb)                       \
     M(constant_color) M(store_f32)                               \
-    M(load_s_565)  M(load_d_565)  M(store_565)                   \
-    M(load_s_f16)  M(load_d_f16)  M(store_f16)                   \
-    M(load_s_8888) M(load_d_8888) M(store_8888)                  \
+    M(load_565)  M(load_565_d)  M(store_565)                     \
+    M(load_f16)  M(load_f16_d)  M(store_f16)                     \
+    M(load_8888) M(load_8888_d) M(store_8888)                    \
     M(scale_u8) M(scale_constant_float)                          \
     M(lerp_u8) M(lerp_565) M(lerp_constant_float)                \
     M(dstatop) M(dstin) M(dstout) M(dstover)                     \

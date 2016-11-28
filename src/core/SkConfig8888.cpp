@@ -45,9 +45,9 @@ static bool copy_pipeline_pixels(const SkImageInfo& dstInfo, void* dstRow, size_
     switch (srcInfo.colorType()) {
         case kRGBA_8888_SkColorType:
         case kBGRA_8888_SkColorType:
-            pipeline.append(SkRasterPipeline::load_s_8888, &srcRow);
+            pipeline.append(SkRasterPipeline::load_8888, &srcRow);
             if (src_srgb) {
-                pipeline.append(SkRasterPipeline::from_srgb_s);
+                pipeline.append(SkRasterPipeline::from_srgb);
             }
             if (swap_rb) {
                 pipeline.append(SkRasterPipeline::swap_rb);
@@ -55,11 +55,11 @@ static bool copy_pipeline_pixels(const SkImageInfo& dstInfo, void* dstRow, size_
             break;
 #ifdef PIPELINE_HANDLES_565
         case kRGB_565_SkColorType:
-            pipeline.append(SkRasterPipeline::load_s_565, &srcRow);
+            pipeline.append(SkRasterPipeline::load_565, &srcRow);
             break;
 #endif
         case kRGBA_F16_SkColorType:
-            pipeline.append(SkRasterPipeline::load_s_f16, &srcRow);
+            pipeline.append(SkRasterPipeline::load_f16, &srcRow);
             break;
         default:
             return false;   // src colortype unsupported

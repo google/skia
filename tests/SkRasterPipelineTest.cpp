@@ -21,8 +21,8 @@ DEF_TEST(SkRasterPipeline, r) {
     void* store_ctx  = &result;
 
     SkRasterPipeline p;
-    p.append(SkRasterPipeline::load_s_f16, &load_s_ctx);
-    p.append(SkRasterPipeline::load_d_f16, &load_d_ctx);
+    p.append(SkRasterPipeline::load_f16, &load_s_ctx);
+    p.append(SkRasterPipeline::load_f16_d, &load_d_ctx);
     p.append(SkRasterPipeline::srcover);
     p.append(SkRasterPipeline::store_f16, &store_ctx);
     p.compile()(0,0, 1);
