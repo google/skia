@@ -106,7 +106,7 @@ bool SkAnalyticQuadraticEdge::updateQuadratic() {
             newx    = oldx + (dx >> shift);
             newy    = oldy + (dy >> shift);
             slope = dy >> 10 > 0 ? QuickSkFDot6Div(dx >> 10, dy >> 10) : SK_MaxS32;
-            if (SkAbs32(dy) >= SK_Fixed1 * 2) { // only snap when dy is large enough
+            if (SkAbs32(dy >> shift) >= SK_Fixed1 * 2) { // only snap when dy is large enough
                 newSnappedY = SkTMin<SkFixed>(fQEdge.fQLastY, SkFixedRoundToFixed(newy));
                 newSnappedX = newx + SkFixedMul(slope, newSnappedY - newy);
             } else {
