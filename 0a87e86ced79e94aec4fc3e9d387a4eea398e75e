@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "f01d104e_f379fa36",
+        "filename": "src/gpu/GrTextureAdjuster.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 25,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2016-11-28T15:09:22Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "4df48341_3200f1e1",
+      "revId": "0a87e86ced79e94aec4fc3e9d387a4eea398e75e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "4df48341_f209690c",
         "filename": "src/gpu/GrTextureProducer.h",
         "patchSetId": 4
@@ -30,6 +48,24 @@
       "writtenOn": "2016-11-28T14:51:02Z",
       "side": 1,
       "message": "wrap?",
+      "revId": "0a87e86ced79e94aec4fc3e9d387a4eea398e75e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "f01d104e_d374fe3f",
+        "filename": "src/gpu/GrTextureProducer.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 47,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2016-11-28T15:09:22Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "4df48341_f209690c",
       "revId": "0a87e86ced79e94aec4fc3e9d387a4eea398e75e",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
@@ -76,6 +112,24 @@
     },
     {
       "key": {
+        "uuid": "f01d104e_b36f8269",
+        "filename": "src/gpu/SkGpuDevice.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 13,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2016-11-28T15:09:22Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "4df48341_92fa1dc2",
+      "revId": "0a87e86ced79e94aec4fc3e9d387a4eea398e75e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "4df48341_c2cea444",
         "filename": "src/gpu/SkGpuDevice_drawTexture.cpp",
         "patchSetId": 4
@@ -104,6 +158,24 @@
       "writtenOn": "2016-11-28T14:52:56Z",
       "side": 1,
       "message": "misplaced ?",
+      "revId": "0a87e86ced79e94aec4fc3e9d387a4eea398e75e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "f01d104e_936a865a",
+        "filename": "src/image/SkImage_Gpu.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 16,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2016-11-28T15:09:22Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "4df48341_72ef9901",
       "revId": "0a87e86ced79e94aec4fc3e9d387a4eea398e75e",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
