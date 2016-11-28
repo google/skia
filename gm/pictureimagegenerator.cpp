@@ -156,7 +156,7 @@ protected:
                 SkImageGenerator::NewFromPicture(configs[i].size, fPicture.get(), &m,
                                                  p.getAlpha() != 255 ? &p : nullptr));
             SkBitmap bm;
-            gen->generateBitmap(&bm);
+            gen->generateBitmap(&bm, SkImageInfo::MakeN32Premul(configs[i].size));
 
             const SkScalar x = kDrawSize * (i % kDrawsPerRow);
             const SkScalar y = kDrawSize * (i / kDrawsPerRow);

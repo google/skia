@@ -26,9 +26,6 @@ protected:
     bool onGenerateScaledPixels(const SkISize&, const SkIPoint&, const SkPixmap&) override;
 
 #if SK_SUPPORT_GPU
-    bool onCanGenerateTexture(const GrContextThreadSafeProxy&) override {
-        return true;
-    }
     GrTexture* onGenerateTexture(GrContext*, const SkIRect*) override;
 #endif
 
