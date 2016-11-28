@@ -11,7 +11,99 @@
 #include "SkColorPriv.h"
 #include "SkDither.h"
 #include "SkMathPriv.h"
+#include "SkRasterPipeline.h"
 #include "SkUnPreMultiply.h"
+
+// For now disable 565 in the pipeline. Its (higher) quality is so different its too much to
+// rebase (for now)
+//
+//#define PIPELINE_HANDLES_565
+
+static bool is_srgb(const SkImageInfo& info) {
+    return info.colorSpace() && info.colorSpace()->gammaCloseToSRGB();
+}
+
+static bool copy_pipeline_pixels(const SkImageInfo& dstInfo, void* dstRow, size_t dstRB,
+                                 const SkImageInfo& srcInfo, const void* srcRow, size_t srcRB,
+                                 SkColorTable* ctable) {
+    SkASSERT(srcInfo.width() == dstInfo.width());
+    SkASSERT(srcInfo.height() == dstInfo.height());
+
+    bool src_srgb = is_srgb(srcInfo);
+    const bool dst_srgb = is_srgb(dstInfo);
+    if (!dstInfo.colorSpace()) {
+        src_srgb = false;   // untagged dst means ignore tags on src
+    }
+
+    // Nothing in the pipeline distinguishes between r,g,b, so if we need to swap, it doesn't
+    // matter when we do it. Just need to track if we need it at all.
+    const bool swap_rb = (kBGRA_8888_SkColorType == srcInfo.colorType())
+                       ^ (kBGRA_8888_SkColorType == dstInfo.colorType());
+
+    SkRasterPipeline pipeline;
+
+    switch (srcInfo.colorType()) {
+        case kRGBA_8888_SkColorType:
+        case kBGRA_8888_SkColorType:
+            pipeline.append(SkRasterPipeline::load_s_8888, &srcRow);
+            if (src_srgb) {
+                pipeline.append(SkRasterPipeline::from_srgb_s);
+            }
+            if (swap_rb) {
+                pipeline.append(SkRasterPipeline::swap_rb);
+            }
+            break;
+#ifdef PIPELINE_HANDLES_565
+        case kRGB_565_SkColorType:
+            pipeline.append(SkRasterPipeline::load_s_565, &srcRow);
+            break;
+#endif
+        case kRGBA_F16_SkColorType:
+            pipeline.append(SkRasterPipeline::load_s_f16, &srcRow);
+            break;
+        default:
+            return false;   // src colortype unsupported
+    }
+
+    SkAlphaType sat = srcInfo.alphaType();
+    SkAlphaType dat = dstInfo.alphaType();
+    if (sat == kPremul_SkAlphaType && dat == kUnpremul_SkAlphaType) {
+        pipeline.append(SkRasterPipeline::unpremul);
+    } else if (sat == kUnpremul_SkAlphaType && dat == kPremul_SkAlphaType) {
+        pipeline.append(SkRasterPipeline::premul);
+    }
+
+    switch (dstInfo.colorType()) {
+        case kRGBA_8888_SkColorType:
+        case kBGRA_8888_SkColorType:
+            if (dst_srgb) {
+                pipeline.append(SkRasterPipeline::to_srgb);
+            }
+            pipeline.append(SkRasterPipeline::store_8888, &dstRow);
+            break;
+#ifdef PIPELINE_HANDLES_565
+        case kRGB_565_SkColorType:
+            pipeline.append(SkRasterPipeline::store_565, &dstRow);
+            break;
+#endif
+        case kRGBA_F16_SkColorType:
+            pipeline.append(SkRasterPipeline::store_f16, &dstRow);
+            break;
+        default:
+            return false;   // dst colortype unsupported
+    }
+
+    auto p = pipeline.compile();
+
+    for (int y = 0; y < srcInfo.height(); ++y) {
+        p(0,0, srcInfo.width());
+        // The pipeline has pointers to srcRow and dstRow, so we just need to update them in the
+        // loop to move between rows of src/dst.
+        srcRow = (const char*)srcRow + srcRB;
+        dstRow = (char*)dstRow + dstRB;
+    }
+    return true;
+}
 
 enum AlphaVerb {
     kNothing_AlphaVerb,
@@ -300,6 +392,12 @@ bool SkPixelInfo::CopyPixels(const SkImageInfo& dstInfo, void* dstPixels, size_t
 
     if (kAlpha_8_SkColorType == dstInfo.colorType() &&
         extract_alpha(dstPixels, dstRB, srcPixels, srcRB, srcInfo, ctable)) {
+        return true;
+    }
+
+    //  Try the pipeline
+    //
+    if (copy_pipeline_pixels(dstInfo, dstPixels, dstRB, srcInfo, srcPixels, srcRB, ctable)) {
         return true;
     }
 
