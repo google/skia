@@ -11,7 +11,7 @@
 #include "GrCaps.h"
 #include "GrRenderTargetContext.h"
 #include "GrStyle.h"
-#include "GrTextureParamsAdjuster.h"
+#include "GrTextureAdjuster.h"
 #include "SkDraw.h"
 #include "SkGrPriv.h"
 #include "SkMaskFilter.h"
@@ -168,7 +168,7 @@ void SkGpuDevice::drawTextureProducerImpl(GrTextureProducer* producer,
                                         &doBicubic);
     const GrSamplerParams::FilterMode* filterMode = doBicubic ? nullptr : &fm;
 
-    GrTextureAdjuster::FilterConstraint constraintMode;
+    GrTextureProducer::FilterConstraint constraintMode;
     if (SkCanvas::kFast_SrcRectConstraint == constraint) {
         constraintMode = GrTextureAdjuster::kNo_FilterConstraint;
     } else {
