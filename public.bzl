@@ -500,7 +500,7 @@ DM_INCLUDES = [
 ## DM_ARGS
 ################################################################################
 
-def DM_ARGS(base_dir, asan):
+def DM_ARGS(asan):
   source = ["tests", "gm", "image"]
   # TODO(benjaminwagner): f16 and serialize-8888 fail.
   config = ["565", "8888", "pdf", "srgb", "tiles_rt", "pic"]
@@ -518,14 +518,12 @@ def DM_ARGS(base_dir, asan):
       "~Stream",
   ]
   if asan:
-    # Running all sources and configs under ASAN causes the test to exceed
-    # "large" size and time out.
-    source = ["tests", "gm"]
-    config = ["8888"]
+    # The ASAN we use with Bazel has some strict checks, so omit tests that
+    # trigger them.
     match += [
         "~clippedcubic2",
         "~conicpaths",
-        "~gradients_2pt_conical",
+        "~^gradients",
         "~Math",
         "~Matrix",
         "~PathOpsCubic",
@@ -536,15 +534,9 @@ def DM_ARGS(base_dir, asan):
         "~PathOpsTightBoundsQuads",
         "~Point",
         "~sk_linear_to_srgb",
+        "~small_color_stop",
     ]
-  return [
-      "--src %s" % " ".join(source),
-      "--config %s" % " ".join(config),
-      "--verbose",
-      "--match %s" % " ".join(match),
-      "--resourcePath %s/resources" % base_dir,
-      "--images %s/resources" % base_dir,
-  ]
+  return ["--src"] + source + ["--config"] + config + ["--match"] + match
 
 ################################################################################
 ## COPTS
