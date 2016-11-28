@@ -25,6 +25,24 @@
     },
     {
       "key": {
+        "uuid": "f01d104e_de27a5de",
+        "filename": "src/core/SkColorSpace_ICC.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 1276,
+      "author": {
+        "id": 5740
+      },
+      "writtenOn": "2016-11-28T23:29:23Z",
+      "side": 1,
+      "message": "Yeah, that makes more sense given the context.",
+      "parentUuid": "4df48341_2b119717",
+      "revId": "aa6df1eb49751988386d641fa11afe89b22574f5",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "4df48341_4b573b1e",
         "filename": "src/core/SkColorSpace_ICC.cpp",
         "patchSetId": 1
@@ -42,6 +60,24 @@
         "endLine": 1278,
         "endChar": 12
       },
+      "revId": "aa6df1eb49751988386d641fa11afe89b22574f5",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "f01d104e_fe2c61c5",
+        "filename": "src/core/SkColorSpace_ICC.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 1278,
+      "author": {
+        "id": 5740
+      },
+      "writtenOn": "2016-11-28T23:29:23Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "4df48341_4b573b1e",
       "revId": "aa6df1eb49751988386d641fa11afe89b22574f5",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
