@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "4df48341_f2ea892b",
+        "filename": "src/core/SkColorLookUpTable.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 19,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2016-11-28T14:33:11Z",
+      "side": 0,
+      "message": "Can we still assert something here?  Like 0 \u003c iC \u003c\u003d kMax?  Or 3 \u003d\u003d iC || 4 \u003d\u003d iC?",
+      "range": {
+        "startLine": 19,
+        "startChar": 8,
+        "endLine": 19,
+        "endChar": 37
+      },
+      "revId": "be34882042048db096baca32ddf4a8b472529804",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}

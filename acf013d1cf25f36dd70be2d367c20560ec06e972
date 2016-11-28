@@ -2,6 +2,144 @@
   "comments": [
     {
       "key": {
+        "uuid": "4df48341_522ed5bc",
+        "filename": "dm/DMSrcSink.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 1022,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2016-11-28T14:33:11Z",
+      "side": 1,
+      "message": "nit: Remove whitespace\n\nOr can this fit on one line?",
+      "range": {
+        "startLine": 1022,
+        "startChar": 30,
+        "endLine": 1022,
+        "endChar": 46
+      },
+      "revId": "acf013d1cf25f36dd70be2d367c20560ec06e972",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "4df48341_32435181",
+        "filename": "gm/labpcsdemo.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 30,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2016-11-28T14:33:11Z",
+      "side": 1,
+      "message": "Can we delete this GM?  Does it test anything that is not tested by ColorCodecSrc?  It requires a lot of internal knowledge of SkColorSpaceXform.",
+      "range": {
+        "startLine": 30,
+        "startChar": 0,
+        "endLine": 30,
+        "endChar": 40
+      },
+      "revId": "acf013d1cf25f36dd70be2d367c20560ec06e972",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "4df48341_b214016e",
+        "filename": "src/codec/SkJpegCodec.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 233,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2016-11-28T14:33:11Z",
+      "side": 1,
+      "message": "nit: 100 chars",
+      "range": {
+        "startLine": 233,
+        "startChar": 12,
+        "endLine": 233,
+        "endChar": 109
+      },
+      "revId": "acf013d1cf25f36dd70be2d367c20560ec06e972",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "4df48341_9219fda4",
+        "filename": "src/codec/SkJpegCodec.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 234,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2016-11-28T14:33:11Z",
+      "side": 1,
+      "message": "I think I would prefer an \"if\" statement here, but this is fine as well.",
+      "range": {
+        "startLine": 234,
+        "startChar": 12,
+        "endLine": 234,
+        "endChar": 60
+      },
+      "revId": "acf013d1cf25f36dd70be2d367c20560ec06e972",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "4df48341_721e798c",
+        "filename": "src/codec/SkJpegCodec.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 242,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2016-11-28T14:33:11Z",
+      "side": 1,
+      "message": "nit: 100 chars",
+      "range": {
+        "startLine": 242,
+        "startChar": 12,
+        "endLine": 242,
+        "endChar": 104
+      },
+      "revId": "acf013d1cf25f36dd70be2d367c20560ec06e972",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "4df48341_926d7de3",
+        "filename": "src/core/SkColorLookUpTable.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 18,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2016-11-28T14:33:11Z",
+      "side": 1,
+      "message": "Why do we need this?  Can we just store directly to |dst|?",
+      "range": {
+        "startLine": 18,
+        "startChar": 8,
+        "endLine": 18,
+        "endChar": 38
+      },
+      "revId": "acf013d1cf25f36dd70be2d367c20560ec06e972",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "f01d104e_c4c27e24",
         "filename": "src/core/SkColorLookUpTable.h",
         "patchSetId": 2
@@ -19,6 +157,24 @@
     },
     {
       "key": {
+        "uuid": "4df48341_b2fd21fe",
+        "filename": "src/core/SkColorLookUpTable.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 14,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2016-11-28T14:33:11Z",
+      "side": 1,
+      "message": "SkColorSpaceXformPriv.h?",
+      "parentUuid": "f01d104e_c4c27e24",
+      "revId": "acf013d1cf25f36dd70be2d367c20560ec06e972",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "f01d104e_a4bd829d",
         "filename": "src/core/SkColorLookUpTable.h",
         "patchSetId": 2
@@ -30,6 +186,139 @@
       "writtenOn": "2016-11-23T18:17:13Z",
       "side": 1,
       "message": "I\u0027ll update this comment to say that it does tetrahedral for 3 input dimensions.",
+      "revId": "acf013d1cf25f36dd70be2d367c20560ec06e972",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "4df48341_52293599",
+        "filename": "src/core/SkColorLookUpTable.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 25,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2016-11-28T14:33:11Z",
+      "side": 1,
+      "message": "Acknowledged.",
+      "parentUuid": "f01d104e_a4bd829d",
+      "revId": "acf013d1cf25f36dd70be2d367c20560ec06e972",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "4df48341_d2e78563",
+        "filename": "src/core/SkColorLookUpTable.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 26,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2016-11-28T14:33:11Z",
+      "side": 1,
+      "message": "nit: spacing?",
+      "range": {
+        "startLine": 26,
+        "startChar": 57,
+        "endLine": 26,
+        "endChar": 58
+      },
+      "revId": "acf013d1cf25f36dd70be2d367c20560ec06e972",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "4df48341_722439c5",
+        "filename": "src/core/SkColorLookUpTable.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 29,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2016-11-28T14:33:11Z",
+      "side": 1,
+      "message": "Only if kOutputChannels \u003d\u003d fInputChannels?",
+      "range": {
+        "startLine": 29,
+        "startChar": 79,
+        "endLine": 29,
+        "endChar": 97
+      },
+      "revId": "acf013d1cf25f36dd70be2d367c20560ec06e972",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "4df48341_d262e5eb",
+        "filename": "src/core/SkColorSpace_A2B.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 74,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2016-11-28T14:33:11Z",
+      "side": 1,
+      "message": "Do we have any test images where there is a 4-channel gamma curve to be applied before the CLUT?",
+      "range": {
+        "startLine": 74,
+        "startChar": 39,
+        "endLine": 74,
+        "endChar": 57
+      },
+      "revId": "acf013d1cf25f36dd70be2d367c20560ec06e972",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "4df48341_92969d9b",
+        "filename": "src/core/SkColorSpace_A2B.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 164,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2016-11-28T14:33:11Z",
+      "side": 1,
+      "message": "Can we delete this and just use the enum in SkColorSpace_Base?",
+      "range": {
+        "startLine": 160,
+        "startChar": 0,
+        "endLine": 164,
+        "endChar": 6
+      },
+      "revId": "acf013d1cf25f36dd70be2d367c20560ec06e972",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "4df48341_5290159d",
+        "filename": "src/core/SkColorSpace_ICC.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 132,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2016-11-28T14:33:11Z",
+      "side": 1,
+      "message": "nit: Delete comment",
+      "range": {
+        "startLine": 131,
+        "startChar": 0,
+        "endLine": 132,
+        "endChar": 81
+      },
       "revId": "acf013d1cf25f36dd70be2d367c20560ec06e972",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
