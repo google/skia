@@ -47,6 +47,8 @@
     #define CHECK_ALLOC_ERROR(iface)          GR_GL_NO_ERROR
 #endif
 
+//#define USE_NSIGHT
+
 ///////////////////////////////////////////////////////////////////////////////
 
 using gr_instanced::InstancedRendering;
@@ -494,8 +496,8 @@ void GrGLGpu::onResetContext(uint32_t resetBits) {
         fHWBufferState[kXferGpuToCpu_GrBufferType].invalidate();
 
         fHWDrawFace = GrDrawFace::kInvalid;
-
         if (kGL_GrGLStandard == this->glStandard()) {
+#ifndef USE_NSIGHT
             // Desktop-only state that we never change
             if (!this->glCaps().isCoreProfile()) {
                 GL_CALL(Disable(GR_GL_POINT_SMOOTH));
@@ -512,6 +514,7 @@ void GrGLGpu::onResetContext(uint32_t resetBits) {
                 GL_CALL(Disable(GR_GL_COLOR_TABLE));
             }
             GL_CALL(Disable(GR_GL_POLYGON_OFFSET_FILL));
+#endif
             // Since ES doesn't support glPointSize at all we always use the VS to
             // set the point size
             GL_CALL(Enable(GR_GL_VERTEX_PROGRAM_POINT_SIZE));
@@ -1977,6 +1980,7 @@ void GrGLGpu::flushScissor(const GrScissorState& scissorState,
 
 void GrGLGpu::flushWindowRectangles(const GrWindowRectsState& windowState,
                                     const GrGLRenderTarget* rt) {
+#ifndef USE_NSIGHT
     typedef GrWindowRectsState::Mode Mode;
     SkASSERT(!windowState.enabled() || rt->renderFBOID()); // Window rects can't be used on-screen.
     SkASSERT(windowState.numWindows() <= this->caps()->maxWindowRectangles());
@@ -2003,14 +2007,17 @@ void GrGLGpu::flushWindowRectangles(const GrWindowRectsState& windowState,
     GL_CALL(WindowRectangles(glmode, numWindows, glwindows->asInts()));
 
     fHWWindowRectsState.set(rt->origin(), rt->getViewport(), windowState);
+#endif
 }
 
 void GrGLGpu::disableWindowRectangles() {
+#ifndef USE_NSIGHT
     if (!this->caps()->maxWindowRectangles() || fHWWindowRectsState.knownDisabled()) {
         return;
     }
     GL_CALL(WindowRectangles(GR_GL_EXCLUSIVE, 0, nullptr));
     fHWWindowRectsState.setDisabled();
+#endif
 }
 
 void GrGLGpu::flushMinSampleShading(float minSampleShading) {
