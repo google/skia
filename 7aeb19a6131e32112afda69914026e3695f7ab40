@@ -1,0 +1,89 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "4df48341_52fc95fc",
+        "filename": "src/gpu/GrBitmapTextureMaker.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 21,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2016-11-28T14:01:19Z",
+      "side": 1,
+      "message": "up a line ?",
+      "revId": "7aeb19a6131e32112afda69914026e3695f7ab40",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "4df48341_72f7991c",
+        "filename": "src/gpu/GrBitmapTextureMaker.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 29,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2016-11-28T14:01:19Z",
+      "side": 1,
+      "message": "Don\u0027t we usually return objects from get* calls as raw pointers ?",
+      "revId": "7aeb19a6131e32112afda69914026e3695f7ab40",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "4df48341_322eb1a3",
+        "filename": "src/gpu/SkGpuDevice.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 13,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2016-11-28T14:01:19Z",
+      "side": 1,
+      "message": "nit: this guy seems misplaced",
+      "revId": "7aeb19a6131e32112afda69914026e3695f7ab40",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "4df48341_f23729f6",
+        "filename": "src/gpu/SkGr.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 15,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2016-11-28T14:01:19Z",
+      "side": 1,
+      "message": "this guy too",
+      "revId": "7aeb19a6131e32112afda69914026e3695f7ab40",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "4df48341_b243e162",
+        "filename": "src/image/SkImage_Gpu.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 16,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2016-11-28T14:01:19Z",
+      "side": 1,
+      "message": "this guy too",
+      "revId": "7aeb19a6131e32112afda69914026e3695f7ab40",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
