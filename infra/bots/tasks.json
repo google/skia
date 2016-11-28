@@ -12,10 +12,40 @@
         "Build-Mac-Clang-Arm7-Release-iOS"
       ]
     },
+    "Build-Mac-Clang-arm64-Debug-GN_Android": {
+      "priority": 0.8,
+      "tasks": [
+        "Build-Mac-Clang-arm64-Debug-GN_Android"
+      ]
+    },
     "Build-Mac-Clang-arm64-Debug-GN_iOS": {
       "priority": 0.8,
       "tasks": [
         "Build-Mac-Clang-arm64-Debug-GN_iOS"
+      ]
+    },
+    "Build-Mac-Clang-x86_64-Debug-CommandBuffer": {
+      "priority": 0.8,
+      "tasks": [
+        "Build-Mac-Clang-x86_64-Debug-CommandBuffer"
+      ]
+    },
+    "Build-Mac-Clang-x86_64-Debug-GN": {
+      "priority": 0.8,
+      "tasks": [
+        "Build-Mac-Clang-x86_64-Debug-GN"
+      ]
+    },
+    "Build-Mac-Clang-x86_64-Release-CommandBuffer": {
+      "priority": 0.8,
+      "tasks": [
+        "Build-Mac-Clang-x86_64-Release-CommandBuffer"
+      ]
+    },
+    "Build-Mac-Clang-x86_64-Release-GN": {
+      "priority": 0.8,
+      "tasks": [
+        "Build-Mac-Clang-x86_64-Release-GN"
       ]
     },
     "Build-Ubuntu-Clang-arm-Debug-GN_Android": {
@@ -482,6 +512,48 @@
         "Upload-Perf-Android-Clang-PixelC-GPU-TegraX1-arm64-Release-GN_Android_Vulkan_Skpbench"
       ]
     },
+    "Perf-Mac-Clang-MacMini4.1-GPU-GeForce320M-x86_64-Debug-GN": {
+      "priority": 0.8,
+      "tasks": [
+        "Perf-Mac-Clang-MacMini4.1-GPU-GeForce320M-x86_64-Debug-GN"
+      ]
+    },
+    "Perf-Mac-Clang-MacMini4.1-GPU-GeForce320M-x86_64-Release-GN": {
+      "priority": 0.8,
+      "tasks": [
+        "Upload-Perf-Mac-Clang-MacMini4.1-GPU-GeForce320M-x86_64-Release-GN"
+      ]
+    },
+    "Perf-Mac-Clang-MacMini6.2-CPU-AVX-x86_64-Debug-GN": {
+      "priority": 0.8,
+      "tasks": [
+        "Perf-Mac-Clang-MacMini6.2-CPU-AVX-x86_64-Debug-GN"
+      ]
+    },
+    "Perf-Mac-Clang-MacMini6.2-CPU-AVX-x86_64-Release-GN": {
+      "priority": 0.8,
+      "tasks": [
+        "Upload-Perf-Mac-Clang-MacMini6.2-CPU-AVX-x86_64-Release-GN"
+      ]
+    },
+    "Perf-Mac-Clang-MacMini6.2-GPU-HD4000-x86_64-Debug-GN": {
+      "priority": 0.8,
+      "tasks": [
+        "Perf-Mac-Clang-MacMini6.2-GPU-HD4000-x86_64-Debug-GN"
+      ]
+    },
+    "Perf-Mac-Clang-MacMini6.2-GPU-HD4000-x86_64-Release-CommandBuffer": {
+      "priority": 0.8,
+      "tasks": [
+        "Upload-Perf-Mac-Clang-MacMini6.2-GPU-HD4000-x86_64-Release-CommandBuffer"
+      ]
+    },
+    "Perf-Mac-Clang-MacMini6.2-GPU-HD4000-x86_64-Release-GN": {
+      "priority": 0.8,
+      "tasks": [
+        "Upload-Perf-Mac-Clang-MacMini6.2-GPU-HD4000-x86_64-Release-GN"
+      ]
+    },
     "Perf-Ubuntu-Clang-GCE-CPU-AVX2-x86_64-Debug-ASAN": {
       "priority": 0.8,
       "tasks": [
@@ -782,6 +854,48 @@
         "Upload-Test-Android-Clang-PixelXL-GPU-Adreno530-arm64-Release-GN_Android_Vulkan"
       ]
     },
+    "Test-Mac-Clang-MacMini4.1-GPU-GeForce320M-x86_64-Debug-GN": {
+      "priority": 0.8,
+      "tasks": [
+        "Upload-Test-Mac-Clang-MacMini4.1-GPU-GeForce320M-x86_64-Debug-GN"
+      ]
+    },
+    "Test-Mac-Clang-MacMini4.1-GPU-GeForce320M-x86_64-Release-GN": {
+      "priority": 0.8,
+      "tasks": [
+        "Upload-Test-Mac-Clang-MacMini4.1-GPU-GeForce320M-x86_64-Release-GN"
+      ]
+    },
+    "Test-Mac-Clang-MacMini6.2-CPU-AVX-x86_64-Debug-GN": {
+      "priority": 0.8,
+      "tasks": [
+        "Upload-Test-Mac-Clang-MacMini6.2-CPU-AVX-x86_64-Debug-GN"
+      ]
+    },
+    "Test-Mac-Clang-MacMini6.2-CPU-AVX-x86_64-Release-GN": {
+      "priority": 0.8,
+      "tasks": [
+        "Upload-Test-Mac-Clang-MacMini6.2-CPU-AVX-x86_64-Release-GN"
+      ]
+    },
+    "Test-Mac-Clang-MacMini6.2-GPU-HD4000-x86_64-Debug-CommandBuffer": {
+      "priority": 0.8,
+      "tasks": [
+        "Upload-Test-Mac-Clang-MacMini6.2-GPU-HD4000-x86_64-Debug-CommandBuffer"
+      ]
+    },
+    "Test-Mac-Clang-MacMini6.2-GPU-HD4000-x86_64-Debug-GN": {
+      "priority": 0.8,
+      "tasks": [
+        "Upload-Test-Mac-Clang-MacMini6.2-GPU-HD4000-x86_64-Debug-GN"
+      ]
+    },
+    "Test-Mac-Clang-MacMini6.2-GPU-HD4000-x86_64-Release-GN": {
+      "priority": 0.8,
+      "tasks": [
+        "Upload-Test-Mac-Clang-MacMini6.2-GPU-HD4000-x86_64-Release-GN"
+      ]
+    },
     "Test-Ubuntu-Clang-GCE-CPU-AVX2-x86_64-Debug-ASAN": {
       "priority": 0.8,
       "tasks": [
@@ -942,6 +1056,38 @@
       "isolate": "compile_skia.isolate",
       "priority": 0.8
     },
+    "Build-Mac-Clang-arm64-Debug-GN_Android": {
+      "cipd_packages": [
+        {
+          "name": "skia/bots/android_ndk_darwin",
+          "path": "android_ndk_darwin",
+          "version": "version:1"
+        }
+      ],
+      "dimensions": [
+        "gpu:none",
+        "os:Mac",
+        "pool:Skia"
+      ],
+      "extra_args": [
+        "--workdir",
+        "../../..",
+        "swarm_compile",
+        "repository=<(REPO)",
+        "buildername=Build-Mac-Clang-arm64-Debug-GN_Android",
+        "mastername=fake-master",
+        "buildnumber=2",
+        "slavename=fake-buildslave",
+        "nobuildbot=True",
+        "swarm_out_dir=${ISOLATED_OUTDIR}",
+        "revision=<(REVISION)",
+        "patch_storage=<(PATCH_STORAGE)",
+        "patch_issue=<(ISSUE)",
+        "patch_set=<(PATCHSET)"
+      ],
+      "isolate": "compile_skia.isolate",
+      "priority": 0.8
+    },
     "Build-Mac-Clang-arm64-Debug-GN_iOS": {
       "dimensions": [
         "gpu:none",
@@ -954,6 +1100,106 @@
         "swarm_compile",
         "repository=<(REPO)",
         "buildername=Build-Mac-Clang-arm64-Debug-GN_iOS",
+        "mastername=fake-master",
+        "buildnumber=2",
+        "slavename=fake-buildslave",
+        "nobuildbot=True",
+        "swarm_out_dir=${ISOLATED_OUTDIR}",
+        "revision=<(REVISION)",
+        "patch_storage=<(PATCH_STORAGE)",
+        "patch_issue=<(ISSUE)",
+        "patch_set=<(PATCHSET)"
+      ],
+      "isolate": "compile_skia.isolate",
+      "priority": 0.8
+    },
+    "Build-Mac-Clang-x86_64-Debug-CommandBuffer": {
+      "dimensions": [
+        "gpu:none",
+        "os:Mac",
+        "pool:Skia"
+      ],
+      "extra_args": [
+        "--workdir",
+        "../../..",
+        "swarm_compile",
+        "repository=<(REPO)",
+        "buildername=Build-Mac-Clang-x86_64-Debug-CommandBuffer",
+        "mastername=fake-master",
+        "buildnumber=2",
+        "slavename=fake-buildslave",
+        "nobuildbot=True",
+        "swarm_out_dir=${ISOLATED_OUTDIR}",
+        "revision=<(REVISION)",
+        "patch_storage=<(PATCH_STORAGE)",
+        "patch_issue=<(ISSUE)",
+        "patch_set=<(PATCHSET)"
+      ],
+      "isolate": "compile_skia.isolate",
+      "priority": 0.8
+    },
+    "Build-Mac-Clang-x86_64-Debug-GN": {
+      "dimensions": [
+        "gpu:none",
+        "os:Mac",
+        "pool:Skia"
+      ],
+      "extra_args": [
+        "--workdir",
+        "../../..",
+        "swarm_compile",
+        "repository=<(REPO)",
+        "buildername=Build-Mac-Clang-x86_64-Debug-GN",
+        "mastername=fake-master",
+        "buildnumber=2",
+        "slavename=fake-buildslave",
+        "nobuildbot=True",
+        "swarm_out_dir=${ISOLATED_OUTDIR}",
+        "revision=<(REVISION)",
+        "patch_storage=<(PATCH_STORAGE)",
+        "patch_issue=<(ISSUE)",
+        "patch_set=<(PATCHSET)"
+      ],
+      "isolate": "compile_skia.isolate",
+      "priority": 0.8
+    },
+    "Build-Mac-Clang-x86_64-Release-CommandBuffer": {
+      "dimensions": [
+        "gpu:none",
+        "os:Mac",
+        "pool:Skia"
+      ],
+      "extra_args": [
+        "--workdir",
+        "../../..",
+        "swarm_compile",
+        "repository=<(REPO)",
+        "buildername=Build-Mac-Clang-x86_64-Release-CommandBuffer",
+        "mastername=fake-master",
+        "buildnumber=2",
+        "slavename=fake-buildslave",
+        "nobuildbot=True",
+        "swarm_out_dir=${ISOLATED_OUTDIR}",
+        "revision=<(REVISION)",
+        "patch_storage=<(PATCH_STORAGE)",
+        "patch_issue=<(ISSUE)",
+        "patch_set=<(PATCHSET)"
+      ],
+      "isolate": "compile_skia.isolate",
+      "priority": 0.8
+    },
+    "Build-Mac-Clang-x86_64-Release-GN": {
+      "dimensions": [
+        "gpu:none",
+        "os:Mac",
+        "pool:Skia"
+      ],
+      "extra_args": [
+        "--workdir",
+        "../../..",
+        "swarm_compile",
+        "repository=<(REPO)",
+        "buildername=Build-Mac-Clang-x86_64-Release-GN",
         "mastername=fake-master",
         "buildnumber=2",
         "slavename=fake-buildslave",
@@ -3952,6 +4198,344 @@
       "isolate": "skpbench_skia.isolate",
       "priority": 0.8
     },
+    "Perf-Mac-Clang-MacMini4.1-GPU-GeForce320M-x86_64-Debug-GN": {
+      "cipd_packages": [
+        {
+          "name": "skia/bots/skimage",
+          "path": "skimage",
+          "version": "version:13"
+        },
+        {
+          "name": "skia/bots/skp",
+          "path": "skp",
+          "version": "version:22"
+        },
+        {
+          "name": "skia/bots/svg",
+          "path": "svg",
+          "version": "version:3"
+        }
+      ],
+      "dependencies": [
+        "Build-Mac-Clang-x86_64-Debug-GN"
+      ],
+      "dimensions": [
+        "gpu:10de:08a4",
+        "os:Mac",
+        "pool:Skia"
+      ],
+      "execution_timeout_ns": 14400000000000,
+      "expiration_ns": 72000000000000,
+      "extra_args": [
+        "--workdir",
+        "../../..",
+        "swarm_perf",
+        "repository=<(REPO)",
+        "buildername=Perf-Mac-Clang-MacMini4.1-GPU-GeForce320M-x86_64-Debug-GN",
+        "mastername=fake-master",
+        "buildnumber=2",
+        "slavename=fake-buildslave",
+        "nobuildbot=True",
+        "swarm_out_dir=${ISOLATED_OUTDIR}",
+        "revision=<(REVISION)",
+        "patch_storage=<(PATCH_STORAGE)",
+        "patch_issue=<(ISSUE)",
+        "patch_set=<(PATCHSET)"
+      ],
+      "io_timeout_ns": 2400000000000,
+      "isolate": "perf_skia.isolate",
+      "priority": 0.8
+    },
+    "Perf-Mac-Clang-MacMini4.1-GPU-GeForce320M-x86_64-Release-GN": {
+      "cipd_packages": [
+        {
+          "name": "skia/bots/skimage",
+          "path": "skimage",
+          "version": "version:13"
+        },
+        {
+          "name": "skia/bots/skp",
+          "path": "skp",
+          "version": "version:22"
+        },
+        {
+          "name": "skia/bots/svg",
+          "path": "svg",
+          "version": "version:3"
+        }
+      ],
+      "dependencies": [
+        "Build-Mac-Clang-x86_64-Release-GN"
+      ],
+      "dimensions": [
+        "gpu:10de:08a4",
+        "os:Mac",
+        "pool:Skia"
+      ],
+      "execution_timeout_ns": 14400000000000,
+      "expiration_ns": 72000000000000,
+      "extra_args": [
+        "--workdir",
+        "../../..",
+        "swarm_perf",
+        "repository=<(REPO)",
+        "buildername=Perf-Mac-Clang-MacMini4.1-GPU-GeForce320M-x86_64-Release-GN",
+        "mastername=fake-master",
+        "buildnumber=2",
+        "slavename=fake-buildslave",
+        "nobuildbot=True",
+        "swarm_out_dir=${ISOLATED_OUTDIR}",
+        "revision=<(REVISION)",
+        "patch_storage=<(PATCH_STORAGE)",
+        "patch_issue=<(ISSUE)",
+        "patch_set=<(PATCHSET)"
+      ],
+      "io_timeout_ns": 2400000000000,
+      "isolate": "perf_skia.isolate",
+      "priority": 0.8
+    },
+    "Perf-Mac-Clang-MacMini6.2-CPU-AVX-x86_64-Debug-GN": {
+      "cipd_packages": [
+        {
+          "name": "skia/bots/skimage",
+          "path": "skimage",
+          "version": "version:13"
+        },
+        {
+          "name": "skia/bots/skp",
+          "path": "skp",
+          "version": "version:22"
+        },
+        {
+          "name": "skia/bots/svg",
+          "path": "svg",
+          "version": "version:3"
+        }
+      ],
+      "dependencies": [
+        "Build-Mac-Clang-x86_64-Debug-GN"
+      ],
+      "dimensions": [
+        "cpu:x86-64",
+        "gpu:none",
+        "os:Mac",
+        "pool:Skia"
+      ],
+      "execution_timeout_ns": 14400000000000,
+      "expiration_ns": 72000000000000,
+      "extra_args": [
+        "--workdir",
+        "../../..",
+        "swarm_perf",
+        "repository=<(REPO)",
+        "buildername=Perf-Mac-Clang-MacMini6.2-CPU-AVX-x86_64-Debug-GN",
+        "mastername=fake-master",
+        "buildnumber=2",
+        "slavename=fake-buildslave",
+        "nobuildbot=True",
+        "swarm_out_dir=${ISOLATED_OUTDIR}",
+        "revision=<(REVISION)",
+        "patch_storage=<(PATCH_STORAGE)",
+        "patch_issue=<(ISSUE)",
+        "patch_set=<(PATCHSET)"
+      ],
+      "io_timeout_ns": 2400000000000,
+      "isolate": "perf_skia.isolate",
+      "priority": 0.8
+    },
+    "Perf-Mac-Clang-MacMini6.2-CPU-AVX-x86_64-Release-GN": {
+      "cipd_packages": [
+        {
+          "name": "skia/bots/skimage",
+          "path": "skimage",
+          "version": "version:13"
+        },
+        {
+          "name": "skia/bots/skp",
+          "path": "skp",
+          "version": "version:22"
+        },
+        {
+          "name": "skia/bots/svg",
+          "path": "svg",
+          "version": "version:3"
+        }
+      ],
+      "dependencies": [
+        "Build-Mac-Clang-x86_64-Release-GN"
+      ],
+      "dimensions": [
+        "cpu:x86-64",
+        "gpu:none",
+        "os:Mac",
+        "pool:Skia"
+      ],
+      "execution_timeout_ns": 14400000000000,
+      "expiration_ns": 72000000000000,
+      "extra_args": [
+        "--workdir",
+        "../../..",
+        "swarm_perf",
+        "repository=<(REPO)",
+        "buildername=Perf-Mac-Clang-MacMini6.2-CPU-AVX-x86_64-Release-GN",
+        "mastername=fake-master",
+        "buildnumber=2",
+        "slavename=fake-buildslave",
+        "nobuildbot=True",
+        "swarm_out_dir=${ISOLATED_OUTDIR}",
+        "revision=<(REVISION)",
+        "patch_storage=<(PATCH_STORAGE)",
+        "patch_issue=<(ISSUE)",
+        "patch_set=<(PATCHSET)"
+      ],
+      "io_timeout_ns": 2400000000000,
+      "isolate": "perf_skia.isolate",
+      "priority": 0.8
+    },
+    "Perf-Mac-Clang-MacMini6.2-GPU-HD4000-x86_64-Debug-GN": {
+      "cipd_packages": [
+        {
+          "name": "skia/bots/skimage",
+          "path": "skimage",
+          "version": "version:13"
+        },
+        {
+          "name": "skia/bots/skp",
+          "path": "skp",
+          "version": "version:22"
+        },
+        {
+          "name": "skia/bots/svg",
+          "path": "svg",
+          "version": "version:3"
+        }
+      ],
+      "dependencies": [
+        "Build-Mac-Clang-x86_64-Debug-GN"
+      ],
+      "dimensions": [
+        "gpu:8086:0a2e",
+        "os:Mac",
+        "pool:Skia"
+      ],
+      "execution_timeout_ns": 14400000000000,
+      "expiration_ns": 72000000000000,
+      "extra_args": [
+        "--workdir",
+        "../../..",
+        "swarm_perf",
+        "repository=<(REPO)",
+        "buildername=Perf-Mac-Clang-MacMini6.2-GPU-HD4000-x86_64-Debug-GN",
+        "mastername=fake-master",
+        "buildnumber=2",
+        "slavename=fake-buildslave",
+        "nobuildbot=True",
+        "swarm_out_dir=${ISOLATED_OUTDIR}",
+        "revision=<(REVISION)",
+        "patch_storage=<(PATCH_STORAGE)",
+        "patch_issue=<(ISSUE)",
+        "patch_set=<(PATCHSET)"
+      ],
+      "io_timeout_ns": 2400000000000,
+      "isolate": "perf_skia.isolate",
+      "priority": 0.8
+    },
+    "Perf-Mac-Clang-MacMini6.2-GPU-HD4000-x86_64-Release-CommandBuffer": {
+      "cipd_packages": [
+        {
+          "name": "skia/bots/skimage",
+          "path": "skimage",
+          "version": "version:13"
+        },
+        {
+          "name": "skia/bots/skp",
+          "path": "skp",
+          "version": "version:22"
+        },
+        {
+          "name": "skia/bots/svg",
+          "path": "svg",
+          "version": "version:3"
+        }
+      ],
+      "dependencies": [
+        "Build-Mac-Clang-x86_64-Release-CommandBuffer"
+      ],
+      "dimensions": [
+        "gpu:8086:0a2e",
+        "os:Mac",
+        "pool:Skia"
+      ],
+      "execution_timeout_ns": 14400000000000,
+      "expiration_ns": 72000000000000,
+      "extra_args": [
+        "--workdir",
+        "../../..",
+        "swarm_perf",
+        "repository=<(REPO)",
+        "buildername=Perf-Mac-Clang-MacMini6.2-GPU-HD4000-x86_64-Release-CommandBuffer",
+        "mastername=fake-master",
+        "buildnumber=2",
+        "slavename=fake-buildslave",
+        "nobuildbot=True",
+        "swarm_out_dir=${ISOLATED_OUTDIR}",
+        "revision=<(REVISION)",
+        "patch_storage=<(PATCH_STORAGE)",
+        "patch_issue=<(ISSUE)",
+        "patch_set=<(PATCHSET)"
+      ],
+      "io_timeout_ns": 2400000000000,
+      "isolate": "perf_skia.isolate",
+      "priority": 0.8
+    },
+    "Perf-Mac-Clang-MacMini6.2-GPU-HD4000-x86_64-Release-GN": {
+      "cipd_packages": [
+        {
+          "name": "skia/bots/skimage",
+          "path": "skimage",
+          "version": "version:13"
+        },
+        {
+          "name": "skia/bots/skp",
+          "path": "skp",
+          "version": "version:22"
+        },
+        {
+          "name": "skia/bots/svg",
+          "path": "svg",
+          "version": "version:3"
+        }
+      ],
+      "dependencies": [
+        "Build-Mac-Clang-x86_64-Release-GN"
+      ],
+      "dimensions": [
+        "gpu:8086:0a2e",
+        "os:Mac",
+        "pool:Skia"
+      ],
+      "execution_timeout_ns": 14400000000000,
+      "expiration_ns": 72000000000000,
+      "extra_args": [
+        "--workdir",
+        "../../..",
+        "swarm_perf",
+        "repository=<(REPO)",
+        "buildername=Perf-Mac-Clang-MacMini6.2-GPU-HD4000-x86_64-Release-GN",
+        "mastername=fake-master",
+        "buildnumber=2",
+        "slavename=fake-buildslave",
+        "nobuildbot=True",
+        "swarm_out_dir=${ISOLATED_OUTDIR}",
+        "revision=<(REVISION)",
+        "patch_storage=<(PATCH_STORAGE)",
+        "patch_issue=<(ISSUE)",
+        "patch_set=<(PATCHSET)"
+      ],
+      "io_timeout_ns": 2400000000000,
+      "isolate": "perf_skia.isolate",
+      "priority": 0.8
+    },
     "Perf-Ubuntu-Clang-GCE-CPU-AVX2-x86_64-Debug-ASAN": {
       "cipd_packages": [
         {
@@ -6411,6 +6995,344 @@
       "isolate": "test_skia.isolate",
       "priority": 0.8
     },
+    "Test-Mac-Clang-MacMini4.1-GPU-GeForce320M-x86_64-Debug-GN": {
+      "cipd_packages": [
+        {
+          "name": "skia/bots/skimage",
+          "path": "skimage",
+          "version": "version:13"
+        },
+        {
+          "name": "skia/bots/skp",
+          "path": "skp",
+          "version": "version:22"
+        },
+        {
+          "name": "skia/bots/svg",
+          "path": "svg",
+          "version": "version:3"
+        }
+      ],
+      "dependencies": [
+        "Build-Mac-Clang-x86_64-Debug-GN"
+      ],
+      "dimensions": [
+        "gpu:10de:08a4",
+        "os:Mac",
+        "pool:Skia"
+      ],
+      "execution_timeout_ns": 14400000000000,
+      "expiration_ns": 72000000000000,
+      "extra_args": [
+        "--workdir",
+        "../../..",
+        "swarm_test",
+        "repository=<(REPO)",
+        "buildername=Test-Mac-Clang-MacMini4.1-GPU-GeForce320M-x86_64-Debug-GN",
+        "mastername=fake-master",
+        "buildnumber=2",
+        "slavename=fake-buildslave",
+        "nobuildbot=True",
+        "swarm_out_dir=${ISOLATED_OUTDIR}",
+        "revision=<(REVISION)",
+        "patch_storage=<(PATCH_STORAGE)",
+        "patch_issue=<(ISSUE)",
+        "patch_set=<(PATCHSET)"
+      ],
+      "io_timeout_ns": 2400000000000,
+      "isolate": "test_skia.isolate",
+      "priority": 0.8
+    },
+    "Test-Mac-Clang-MacMini4.1-GPU-GeForce320M-x86_64-Release-GN": {
+      "cipd_packages": [
+        {
+          "name": "skia/bots/skimage",
+          "path": "skimage",
+          "version": "version:13"
+        },
+        {
+          "name": "skia/bots/skp",
+          "path": "skp",
+          "version": "version:22"
+        },
+        {
+          "name": "skia/bots/svg",
+          "path": "svg",
+          "version": "version:3"
+        }
+      ],
+      "dependencies": [
+        "Build-Mac-Clang-x86_64-Release-GN"
+      ],
+      "dimensions": [
+        "gpu:10de:08a4",
+        "os:Mac",
+        "pool:Skia"
+      ],
+      "execution_timeout_ns": 14400000000000,
+      "expiration_ns": 72000000000000,
+      "extra_args": [
+        "--workdir",
+        "../../..",
+        "swarm_test",
+        "repository=<(REPO)",
+        "buildername=Test-Mac-Clang-MacMini4.1-GPU-GeForce320M-x86_64-Release-GN",
+        "mastername=fake-master",
+        "buildnumber=2",
+        "slavename=fake-buildslave",
+        "nobuildbot=True",
+        "swarm_out_dir=${ISOLATED_OUTDIR}",
+        "revision=<(REVISION)",
+        "patch_storage=<(PATCH_STORAGE)",
+        "patch_issue=<(ISSUE)",
+        "patch_set=<(PATCHSET)"
+      ],
+      "io_timeout_ns": 2400000000000,
+      "isolate": "test_skia.isolate",
+      "priority": 0.8
+    },
+    "Test-Mac-Clang-MacMini6.2-CPU-AVX-x86_64-Debug-GN": {
+      "cipd_packages": [
+        {
+          "name": "skia/bots/skimage",
+          "path": "skimage",
+          "version": "version:13"
+        },
+        {
+          "name": "skia/bots/skp",
+          "path": "skp",
+          "version": "version:22"
+        },
+        {
+          "name": "skia/bots/svg",
+          "path": "svg",
+          "version": "version:3"
+        }
+      ],
+      "dependencies": [
+        "Build-Mac-Clang-x86_64-Debug-GN"
+      ],
+      "dimensions": [
+        "cpu:x86-64",
+        "gpu:none",
+        "os:Mac",
+        "pool:Skia"
+      ],
+      "execution_timeout_ns": 14400000000000,
+      "expiration_ns": 72000000000000,
+      "extra_args": [
+        "--workdir",
+        "../../..",
+        "swarm_test",
+        "repository=<(REPO)",
+        "buildername=Test-Mac-Clang-MacMini6.2-CPU-AVX-x86_64-Debug-GN",
+        "mastername=fake-master",
+        "buildnumber=2",
+        "slavename=fake-buildslave",
+        "nobuildbot=True",
+        "swarm_out_dir=${ISOLATED_OUTDIR}",
+        "revision=<(REVISION)",
+        "patch_storage=<(PATCH_STORAGE)",
+        "patch_issue=<(ISSUE)",
+        "patch_set=<(PATCHSET)"
+      ],
+      "io_timeout_ns": 2400000000000,
+      "isolate": "test_skia.isolate",
+      "priority": 0.8
+    },
+    "Test-Mac-Clang-MacMini6.2-CPU-AVX-x86_64-Release-GN": {
+      "cipd_packages": [
+        {
+          "name": "skia/bots/skimage",
+          "path": "skimage",
+          "version": "version:13"
+        },
+        {
+          "name": "skia/bots/skp",
+          "path": "skp",
+          "version": "version:22"
+        },
+        {
+          "name": "skia/bots/svg",
+          "path": "svg",
+          "version": "version:3"
+        }
+      ],
+      "dependencies": [
+        "Build-Mac-Clang-x86_64-Release-GN"
+      ],
+      "dimensions": [
+        "cpu:x86-64",
+        "gpu:none",
+        "os:Mac",
+        "pool:Skia"
+      ],
+      "execution_timeout_ns": 14400000000000,
+      "expiration_ns": 72000000000000,
+      "extra_args": [
+        "--workdir",
+        "../../..",
+        "swarm_test",
+        "repository=<(REPO)",
+        "buildername=Test-Mac-Clang-MacMini6.2-CPU-AVX-x86_64-Release-GN",
+        "mastername=fake-master",
+        "buildnumber=2",
+        "slavename=fake-buildslave",
+        "nobuildbot=True",
+        "swarm_out_dir=${ISOLATED_OUTDIR}",
+        "revision=<(REVISION)",
+        "patch_storage=<(PATCH_STORAGE)",
+        "patch_issue=<(ISSUE)",
+        "patch_set=<(PATCHSET)"
+      ],
+      "io_timeout_ns": 2400000000000,
+      "isolate": "test_skia.isolate",
+      "priority": 0.8
+    },
+    "Test-Mac-Clang-MacMini6.2-GPU-HD4000-x86_64-Debug-CommandBuffer": {
+      "cipd_packages": [
+        {
+          "name": "skia/bots/skimage",
+          "path": "skimage",
+          "version": "version:13"
+        },
+        {
+          "name": "skia/bots/skp",
+          "path": "skp",
+          "version": "version:22"
+        },
+        {
+          "name": "skia/bots/svg",
+          "path": "svg",
+          "version": "version:3"
+        }
+      ],
+      "dependencies": [
+        "Build-Mac-Clang-x86_64-Debug-CommandBuffer"
+      ],
+      "dimensions": [
+        "gpu:8086:0a2e",
+        "os:Mac",
+        "pool:Skia"
+      ],
+      "execution_timeout_ns": 14400000000000,
+      "expiration_ns": 72000000000000,
+      "extra_args": [
+        "--workdir",
+        "../../..",
+        "swarm_test",
+        "repository=<(REPO)",
+        "buildername=Test-Mac-Clang-MacMini6.2-GPU-HD4000-x86_64-Debug-CommandBuffer",
+        "mastername=fake-master",
+        "buildnumber=2",
+        "slavename=fake-buildslave",
+        "nobuildbot=True",
+        "swarm_out_dir=${ISOLATED_OUTDIR}",
+        "revision=<(REVISION)",
+        "patch_storage=<(PATCH_STORAGE)",
+        "patch_issue=<(ISSUE)",
+        "patch_set=<(PATCHSET)"
+      ],
+      "io_timeout_ns": 2400000000000,
+      "isolate": "test_skia.isolate",
+      "priority": 0.8
+    },
+    "Test-Mac-Clang-MacMini6.2-GPU-HD4000-x86_64-Debug-GN": {
+      "cipd_packages": [
+        {
+          "name": "skia/bots/skimage",
+          "path": "skimage",
+          "version": "version:13"
+        },
+        {
+          "name": "skia/bots/skp",
+          "path": "skp",
+          "version": "version:22"
+        },
+        {
+          "name": "skia/bots/svg",
+          "path": "svg",
+          "version": "version:3"
+        }
+      ],
+      "dependencies": [
+        "Build-Mac-Clang-x86_64-Debug-GN"
+      ],
+      "dimensions": [
+        "gpu:8086:0a2e",
+        "os:Mac",
+        "pool:Skia"
+      ],
+      "execution_timeout_ns": 14400000000000,
+      "expiration_ns": 72000000000000,
+      "extra_args": [
+        "--workdir",
+        "../../..",
+        "swarm_test",
+        "repository=<(REPO)",
+        "buildername=Test-Mac-Clang-MacMini6.2-GPU-HD4000-x86_64-Debug-GN",
+        "mastername=fake-master",
+        "buildnumber=2",
+        "slavename=fake-buildslave",
+        "nobuildbot=True",
+        "swarm_out_dir=${ISOLATED_OUTDIR}",
+        "revision=<(REVISION)",
+        "patch_storage=<(PATCH_STORAGE)",
+        "patch_issue=<(ISSUE)",
+        "patch_set=<(PATCHSET)"
+      ],
+      "io_timeout_ns": 2400000000000,
+      "isolate": "test_skia.isolate",
+      "priority": 0.8
+    },
+    "Test-Mac-Clang-MacMini6.2-GPU-HD4000-x86_64-Release-GN": {
+      "cipd_packages": [
+        {
+          "name": "skia/bots/skimage",
+          "path": "skimage",
+          "version": "version:13"
+        },
+        {
+          "name": "skia/bots/skp",
+          "path": "skp",
+          "version": "version:22"
+        },
+        {
+          "name": "skia/bots/svg",
+          "path": "svg",
+          "version": "version:3"
+        }
+      ],
+      "dependencies": [
+        "Build-Mac-Clang-x86_64-Release-GN"
+      ],
+      "dimensions": [
+        "gpu:8086:0a2e",
+        "os:Mac",
+        "pool:Skia"
+      ],
+      "execution_timeout_ns": 14400000000000,
+      "expiration_ns": 72000000000000,
+      "extra_args": [
+        "--workdir",
+        "../../..",
+        "swarm_test",
+        "repository=<(REPO)",
+        "buildername=Test-Mac-Clang-MacMini6.2-GPU-HD4000-x86_64-Release-GN",
+        "mastername=fake-master",
+        "buildnumber=2",
+        "slavename=fake-buildslave",
+        "nobuildbot=True",
+        "swarm_out_dir=${ISOLATED_OUTDIR}",
+        "revision=<(REVISION)",
+        "patch_storage=<(PATCH_STORAGE)",
+        "patch_issue=<(ISSUE)",
+        "patch_set=<(PATCHSET)"
+      ],
+      "io_timeout_ns": 2400000000000,
+      "isolate": "test_skia.isolate",
+      "priority": 0.8
+    },
     "Test-Ubuntu-Clang-GCE-CPU-AVX2-x86_64-Debug-ASAN": {
       "cipd_packages": [
         {
@@ -7891,6 +8813,122 @@
       "isolate": "upload_nano_results.isolate",
       "priority": 0.8
     },
+    "Upload-Perf-Mac-Clang-MacMini4.1-GPU-GeForce320M-x86_64-Release-GN": {
+      "dependencies": [
+        "Perf-Mac-Clang-MacMini4.1-GPU-GeForce320M-x86_64-Release-GN"
+      ],
+      "dimensions": [
+        "cpu:x86-64-avx2",
+        "gpu:none",
+        "os:Ubuntu",
+        "pool:Skia"
+      ],
+      "extra_args": [
+        "--workdir",
+        "../../..",
+        "upload_nano_results",
+        "repository=<(REPO)",
+        "buildername=Perf-Mac-Clang-MacMini4.1-GPU-GeForce320M-x86_64-Release-GN",
+        "mastername=fake-master",
+        "buildnumber=2",
+        "slavename=fake-buildslave",
+        "nobuildbot=True",
+        "swarm_out_dir=${ISOLATED_OUTDIR}",
+        "revision=<(REVISION)",
+        "patch_storage=<(PATCH_STORAGE)",
+        "patch_issue=<(ISSUE)",
+        "patch_set=<(PATCHSET)"
+      ],
+      "isolate": "upload_nano_results.isolate",
+      "priority": 0.8
+    },
+    "Upload-Perf-Mac-Clang-MacMini6.2-CPU-AVX-x86_64-Release-GN": {
+      "dependencies": [
+        "Perf-Mac-Clang-MacMini6.2-CPU-AVX-x86_64-Release-GN"
+      ],
+      "dimensions": [
+        "cpu:x86-64-avx2",
+        "gpu:none",
+        "os:Ubuntu",
+        "pool:Skia"
+      ],
+      "extra_args": [
+        "--workdir",
+        "../../..",
+        "upload_nano_results",
+        "repository=<(REPO)",
+        "buildername=Perf-Mac-Clang-MacMini6.2-CPU-AVX-x86_64-Release-GN",
+        "mastername=fake-master",
+        "buildnumber=2",
+        "slavename=fake-buildslave",
+        "nobuildbot=True",
+        "swarm_out_dir=${ISOLATED_OUTDIR}",
+        "revision=<(REVISION)",
+        "patch_storage=<(PATCH_STORAGE)",
+        "patch_issue=<(ISSUE)",
+        "patch_set=<(PATCHSET)"
+      ],
+      "isolate": "upload_nano_results.isolate",
+      "priority": 0.8
+    },
+    "Upload-Perf-Mac-Clang-MacMini6.2-GPU-HD4000-x86_64-Release-CommandBuffer": {
+      "dependencies": [
+        "Perf-Mac-Clang-MacMini6.2-GPU-HD4000-x86_64-Release-CommandBuffer"
+      ],
+      "dimensions": [
+        "cpu:x86-64-avx2",
+        "gpu:none",
+        "os:Ubuntu",
+        "pool:Skia"
+      ],
+      "extra_args": [
+        "--workdir",
+        "../../..",
+        "upload_nano_results",
+        "repository=<(REPO)",
+        "buildername=Perf-Mac-Clang-MacMini6.2-GPU-HD4000-x86_64-Release-CommandBuffer",
+        "mastername=fake-master",
+        "buildnumber=2",
+        "slavename=fake-buildslave",
+        "nobuildbot=True",
+        "swarm_out_dir=${ISOLATED_OUTDIR}",
+        "revision=<(REVISION)",
+        "patch_storage=<(PATCH_STORAGE)",
+        "patch_issue=<(ISSUE)",
+        "patch_set=<(PATCHSET)"
+      ],
+      "isolate": "upload_nano_results.isolate",
+      "priority": 0.8
+    },
+    "Upload-Perf-Mac-Clang-MacMini6.2-GPU-HD4000-x86_64-Release-GN": {
+      "dependencies": [
+        "Perf-Mac-Clang-MacMini6.2-GPU-HD4000-x86_64-Release-GN"
+      ],
+      "dimensions": [
+        "cpu:x86-64-avx2",
+        "gpu:none",
+        "os:Ubuntu",
+        "pool:Skia"
+      ],
+      "extra_args": [
+        "--workdir",
+        "../../..",
+        "upload_nano_results",
+        "repository=<(REPO)",
+        "buildername=Perf-Mac-Clang-MacMini6.2-GPU-HD4000-x86_64-Release-GN",
+        "mastername=fake-master",
+        "buildnumber=2",
+        "slavename=fake-buildslave",
+        "nobuildbot=True",
+        "swarm_out_dir=${ISOLATED_OUTDIR}",
+        "revision=<(REVISION)",
+        "patch_storage=<(PATCH_STORAGE)",
+        "patch_issue=<(ISSUE)",
+        "patch_set=<(PATCHSET)"
+      ],
+      "isolate": "upload_nano_results.isolate",
+      "priority": 0.8
+    },
     "Upload-Perf-Ubuntu-Clang-GCE-CPU-AVX2-x86_64-Release-GN": {
       "dependencies": [
         "Perf-Ubuntu-Clang-GCE-CPU-AVX2-x86_64-Release-GN"
@@ -9038,6 +10076,209 @@
         "upload_dm_results",
         "repository=<(REPO)",
         "buildername=Test-Android-Clang-PixelXL-GPU-Adreno530-arm64-Release-GN_Android_Vulkan",
+        "mastername=fake-master",
+        "buildnumber=2",
+        "slavename=fake-buildslave",
+        "nobuildbot=True",
+        "swarm_out_dir=${ISOLATED_OUTDIR}",
+        "revision=<(REVISION)",
+        "patch_storage=<(PATCH_STORAGE)",
+        "patch_issue=<(ISSUE)",
+        "patch_set=<(PATCHSET)"
+      ],
+      "isolate": "upload_dm_results.isolate",
+      "priority": 0.8
+    },
+    "Upload-Test-Mac-Clang-MacMini4.1-GPU-GeForce320M-x86_64-Debug-GN": {
+      "dependencies": [
+        "Test-Mac-Clang-MacMini4.1-GPU-GeForce320M-x86_64-Debug-GN"
+      ],
+      "dimensions": [
+        "cpu:x86-64-avx2",
+        "gpu:none",
+        "os:Ubuntu",
+        "pool:Skia"
+      ],
+      "extra_args": [
+        "--workdir",
+        "../../..",
+        "upload_dm_results",
+        "repository=<(REPO)",
+        "buildername=Test-Mac-Clang-MacMini4.1-GPU-GeForce320M-x86_64-Debug-GN",
+        "mastername=fake-master",
+        "buildnumber=2",
+        "slavename=fake-buildslave",
+        "nobuildbot=True",
+        "swarm_out_dir=${ISOLATED_OUTDIR}",
+        "revision=<(REVISION)",
+        "patch_storage=<(PATCH_STORAGE)",
+        "patch_issue=<(ISSUE)",
+        "patch_set=<(PATCHSET)"
+      ],
+      "isolate": "upload_dm_results.isolate",
+      "priority": 0.8
+    },
+    "Upload-Test-Mac-Clang-MacMini4.1-GPU-GeForce320M-x86_64-Release-GN": {
+      "dependencies": [
+        "Test-Mac-Clang-MacMini4.1-GPU-GeForce320M-x86_64-Release-GN"
+      ],
+      "dimensions": [
+        "cpu:x86-64-avx2",
+        "gpu:none",
+        "os:Ubuntu",
+        "pool:Skia"
+      ],
+      "extra_args": [
+        "--workdir",
+        "../../..",
+        "upload_dm_results",
+        "repository=<(REPO)",
+        "buildername=Test-Mac-Clang-MacMini4.1-GPU-GeForce320M-x86_64-Release-GN",
+        "mastername=fake-master",
+        "buildnumber=2",
+        "slavename=fake-buildslave",
+        "nobuildbot=True",
+        "swarm_out_dir=${ISOLATED_OUTDIR}",
+        "revision=<(REVISION)",
+        "patch_storage=<(PATCH_STORAGE)",
+        "patch_issue=<(ISSUE)",
+        "patch_set=<(PATCHSET)"
+      ],
+      "isolate": "upload_dm_results.isolate",
+      "priority": 0.8
+    },
+    "Upload-Test-Mac-Clang-MacMini6.2-CPU-AVX-x86_64-Debug-GN": {
+      "dependencies": [
+        "Test-Mac-Clang-MacMini6.2-CPU-AVX-x86_64-Debug-GN"
+      ],
+      "dimensions": [
+        "cpu:x86-64-avx2",
+        "gpu:none",
+        "os:Ubuntu",
+        "pool:Skia"
+      ],
+      "extra_args": [
+        "--workdir",
+        "../../..",
+        "upload_dm_results",
+        "repository=<(REPO)",
+        "buildername=Test-Mac-Clang-MacMini6.2-CPU-AVX-x86_64-Debug-GN",
+        "mastername=fake-master",
+        "buildnumber=2",
+        "slavename=fake-buildslave",
+        "nobuildbot=True",
+        "swarm_out_dir=${ISOLATED_OUTDIR}",
+        "revision=<(REVISION)",
+        "patch_storage=<(PATCH_STORAGE)",
+        "patch_issue=<(ISSUE)",
+        "patch_set=<(PATCHSET)"
+      ],
+      "isolate": "upload_dm_results.isolate",
+      "priority": 0.8
+    },
+    "Upload-Test-Mac-Clang-MacMini6.2-CPU-AVX-x86_64-Release-GN": {
+      "dependencies": [
+        "Test-Mac-Clang-MacMini6.2-CPU-AVX-x86_64-Release-GN"
+      ],
+      "dimensions": [
+        "cpu:x86-64-avx2",
+        "gpu:none",
+        "os:Ubuntu",
+        "pool:Skia"
+      ],
+      "extra_args": [
+        "--workdir",
+        "../../..",
+        "upload_dm_results",
+        "repository=<(REPO)",
+        "buildername=Test-Mac-Clang-MacMini6.2-CPU-AVX-x86_64-Release-GN",
+        "mastername=fake-master",
+        "buildnumber=2",
+        "slavename=fake-buildslave",
+        "nobuildbot=True",
+        "swarm_out_dir=${ISOLATED_OUTDIR}",
+        "revision=<(REVISION)",
+        "patch_storage=<(PATCH_STORAGE)",
+        "patch_issue=<(ISSUE)",
+        "patch_set=<(PATCHSET)"
+      ],
+      "isolate": "upload_dm_results.isolate",
+      "priority": 0.8
+    },
+    "Upload-Test-Mac-Clang-MacMini6.2-GPU-HD4000-x86_64-Debug-CommandBuffer": {
+      "dependencies": [
+        "Test-Mac-Clang-MacMini6.2-GPU-HD4000-x86_64-Debug-CommandBuffer"
+      ],
+      "dimensions": [
+        "cpu:x86-64-avx2",
+        "gpu:none",
+        "os:Ubuntu",
+        "pool:Skia"
+      ],
+      "extra_args": [
+        "--workdir",
+        "../../..",
+        "upload_dm_results",
+        "repository=<(REPO)",
+        "buildername=Test-Mac-Clang-MacMini6.2-GPU-HD4000-x86_64-Debug-CommandBuffer",
+        "mastername=fake-master",
+        "buildnumber=2",
+        "slavename=fake-buildslave",
+        "nobuildbot=True",
+        "swarm_out_dir=${ISOLATED_OUTDIR}",
+        "revision=<(REVISION)",
+        "patch_storage=<(PATCH_STORAGE)",
+        "patch_issue=<(ISSUE)",
+        "patch_set=<(PATCHSET)"
+      ],
+      "isolate": "upload_dm_results.isolate",
+      "priority": 0.8
+    },
+    "Upload-Test-Mac-Clang-MacMini6.2-GPU-HD4000-x86_64-Debug-GN": {
+      "dependencies": [
+        "Test-Mac-Clang-MacMini6.2-GPU-HD4000-x86_64-Debug-GN"
+      ],
+      "dimensions": [
+        "cpu:x86-64-avx2",
+        "gpu:none",
+        "os:Ubuntu",
+        "pool:Skia"
+      ],
+      "extra_args": [
+        "--workdir",
+        "../../..",
+        "upload_dm_results",
+        "repository=<(REPO)",
+        "buildername=Test-Mac-Clang-MacMini6.2-GPU-HD4000-x86_64-Debug-GN",
+        "mastername=fake-master",
+        "buildnumber=2",
+        "slavename=fake-buildslave",
+        "nobuildbot=True",
+        "swarm_out_dir=${ISOLATED_OUTDIR}",
+        "revision=<(REVISION)",
+        "patch_storage=<(PATCH_STORAGE)",
+        "patch_issue=<(ISSUE)",
+        "patch_set=<(PATCHSET)"
+      ],
+      "isolate": "upload_dm_results.isolate",
+      "priority": 0.8
+    },
+    "Upload-Test-Mac-Clang-MacMini6.2-GPU-HD4000-x86_64-Release-GN": {
+      "dependencies": [
+        "Test-Mac-Clang-MacMini6.2-GPU-HD4000-x86_64-Release-GN"
+      ],
+      "dimensions": [
+        "cpu:x86-64-avx2",
+        "gpu:none",
+        "os:Ubuntu",
+        "pool:Skia"
+      ],
+      "extra_args": [
+        "--workdir",
+        "../../..",
+        "upload_dm_results",
+        "repository=<(REPO)",
+        "buildername=Test-Mac-Clang-MacMini6.2-GPU-HD4000-x86_64-Release-GN",
         "mastername=fake-master",
         "buildnumber=2",
         "slavename=fake-buildslave",
