@@ -1466,10 +1466,8 @@ void GrGLCaps::initConfigTable(const GrGLContextInfo& ctxInfo, const GrGLInterfa
                               ctxInfo.hasExtension("GL_ARB_texture_storage") ||
                               ctxInfo.hasExtension("GL_EXT_texture_storage");
     } else {
-        // Qualcomm Adreno drivers appear to have issues with texture storage.
-        texStorageSupported = (version >= GR_GL_VER(3,0) &&
-                               kQualcomm_GrGLVendor != ctxInfo.vendor()) &&
-                               ctxInfo.hasExtension("GL_EXT_texture_storage");
+        texStorageSupported = version >= GR_GL_VER(3,0) ||
+                              ctxInfo.hasExtension("GL_EXT_texture_storage");
     }
 
     // TODO: remove after command buffer supports full ES 3.0
