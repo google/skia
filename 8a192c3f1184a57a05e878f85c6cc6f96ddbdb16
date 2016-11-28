@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "4df48341_92fb3d9f",
+        "filename": "src/core/SkConfig8888.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 29,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2016-11-28T15:46:38Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "f01d104e_78da497c",
+      "revId": "8a192c3f1184a57a05e878f85c6cc6f96ddbdb16",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "4df48341_32e911fa",
         "filename": "src/core/SkConfig8888.cpp",
         "patchSetId": 3
@@ -54,6 +72,24 @@
       "side": 1,
       "message": "Yes, the load_ and store_ stages take indirect context pointers, \u0026srcRow and \u0026dstRow, a const T** and a T**.  They dereference those context pointers to get to the T* they use to load and store.  This lets us change scanlines without having to rebuild the pipeline.",
       "parentUuid": "4df48341_32e911fa",
+      "revId": "8a192c3f1184a57a05e878f85c6cc6f96ddbdb16",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "4df48341_7200b9b4",
+        "filename": "src/core/SkConfig8888.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 92,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2016-11-28T15:46:38Z",
+      "side": 1,
+      "message": "Added comment",
+      "parentUuid": "f01d104e_18a07585",
       "revId": "8a192c3f1184a57a05e878f85c6cc6f96ddbdb16",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
