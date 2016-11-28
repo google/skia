@@ -30,7 +30,8 @@ namespace {
 #endif
 
     using SkNf = SkNx<N, float>;
-    using SkNi = SkNx<N, int>;
+    using SkNi = SkNx<N, int32_t>;
+    using SkNu = SkNx<N, uint32_t>;
     using SkNh = SkNx<N, uint16_t>;
     using SkNb = SkNx<N, uint8_t>;
 
@@ -184,6 +185,14 @@ SI void store(size_t tail, const SkNx<N,T>& v, T* dst) {
     v.store(dst);
 }
 
+SI void from_8888(const SkNu& _8888, SkNf* r, SkNf* g, SkNf* b, SkNf* a) {
+    auto to_float = [](const SkNu& v) { return SkNx_cast<float>(SkNi::Load(&v)); };
+    *r = (1/255.0f)*to_float((_8888 >>  0) & 0xff);
+    *g = (1/255.0f)*to_float((_8888 >>  8) & 0xff);
+    *b = (1/255.0f)*to_float((_8888 >> 16) & 0xff);
+    *a = (1/255.0f)*to_float( _8888 >> 24        );
+}
+
 SI void from_4444(const SkNh& _4444, SkNf* r, SkNf* g, SkNf* b, SkNf* a) {
     auto _32_bit = SkNx_cast<int>(_4444);
 
@@ -271,12 +280,17 @@ STAGE(move_src_dst, true) {
     da = a;
 }
 
-STAGE(swap_src_dst, true) {
-    SkTSwap(r, dr);
-    SkTSwap(g, dg);
-    SkTSwap(b, db);
-    SkTSwap(a, da);
+STAGE(move_dst_src, true) {
+    r = dr;
+    g = dg;
+    b = db;
+    a = da;
 }
+
+STAGE(swap_rb, true) {
+    SkTSwap(r, b);
+}
+
 
 // The default shader produces a constant color (from the SkPaint).
 STAGE(constant_color, true) {
@@ -483,13 +497,7 @@ STAGE(store_srgb, false) {
 
 STAGE(load_s_8888, true) {
     auto ptr = *(const uint32_t**)ctx + x;
-
-    auto px = load<kIsTail>(tail, ptr);
-    auto to_int = [](const SkNx<N, uint32_t>& v) { return SkNi::Load(&v); };
-    r = (1/255.0f)*SkNx_cast<float>(to_int((px >> 0) & 0xff));
-    g = (1/255.0f)*SkNx_cast<float>(to_int((px >> 8) & 0xff));
-    b = (1/255.0f)*SkNx_cast<float>(to_int((px >> 16) & 0xff));
-    a = (1/255.0f)*SkNx_cast<float>(to_int(px >> 24));
+    from_8888(load<kIsTail>(tail, ptr), &r, &g, &b, &a);
 }
 
 STAGE(store_8888, false) {
@@ -689,10 +697,6 @@ STAGE(lab_to_xyz, true) {
     b = Z;
 }
 
-STAGE(swap_rb, true) {
-    SkTSwap(r, b);
-}
-
 SI SkNf assert_in_tile(const SkNf& v, float limit) {
     for (int i = 0; i < N; i++) {
         SkASSERT(0 <= v[i] && v[i] < limit);
@@ -786,6 +790,13 @@ SI SkNi offset_and_ptr(T** ptr, const void* ctx, const SkNf& x, const SkNf& y) {
     return offset;
 }
 
+template <typename T>
+SI void gather(T (&dst)[N], const T* src, const SkNi& offset, size_t tail) {
+    size_t n = tail ? tail : N;
+    for (size_t i = 0; i < n; i++) { dst[i] = src[offset[i]]; }
+    for (size_t i = n; i < N; i++) { dst[i] = 0; }
+}
+
 STAGE(accum_a8, true) {}  // TODO
 
 STAGE(accum_i8,      true) {}  // TODO
@@ -796,13 +807,7 @@ STAGE(accum_g8, true) {
     SkNi offset = offset_and_ptr(&p, ctx, r, g);
 
     uint8_t px[N];
-    for (size_t i = 0; i < N; i++) {
-        if (kIsTail && i >= tail) {
-            px[i] = 0;
-            continue;
-        }
-        px[i] = p[offset[i]];
-    }
+    gather(px, p, offset, tail);
 
     SkNf gray = SkNx_cast<float>(SkNb::Load(px)) * (1/255.0f);
 
@@ -817,13 +822,7 @@ STAGE(accum_g8_srgb, true) {
     SkNi offset = offset_and_ptr(&p, ctx, r, g);
 
     uint8_t px[N];
-    for (size_t i = 0; i < N; i++) {
-        if (kIsTail && i >= tail) {
-            px[i] = 0;
-            continue;
-        }
-        px[i] = p[offset[i]];
-    }
+    gather(px, p, offset, tail);
 
     SkNf gray = sk_linear_from_srgb_math(SkNx_cast<int>(SkNb::Load(px)));
 
@@ -839,13 +838,8 @@ STAGE(accum_565, true) {
     SkNi offset = offset_and_ptr(&p, ctx, r, g);
 
     uint16_t px[N];
-    for (size_t i = 0; i < N; i++) {
-        if (kIsTail && i >= tail) {
-            px[i] = 0;
-            continue;
-        }
-        px[i] = p[offset[i]];
-    }
+    gather(px, p, offset, tail);
+
     SkNf R,G,B;
     from_565(SkNh::Load(px), &R, &G, &B);
 
@@ -860,13 +854,8 @@ STAGE(accum_565_srgb, true) {
     SkNi offset = offset_and_ptr(&p, ctx, r, g);
 
     uint16_t px[N];
-    for (size_t i = 0; i < N; i++) {
-        if (kIsTail && i >= tail) {
-            px[i] = 0;
-            continue;
-        }
-        px[i] = p[offset[i]];
-    }
+    gather(px, p, offset, tail);
+
     SkNf R,G,B;
     from_565(SkNh::Load(px), &R, &G, &B);
 
@@ -882,13 +871,7 @@ STAGE(accum_4444, true) {
     SkNi offset = offset_and_ptr(&p, ctx, r, g);
 
     uint16_t px[N];
-    for (size_t i = 0; i < N; i++) {
-        if (kIsTail && i >= tail) {
-            px[i] = 0;
-            continue;
-        }
-        px[i] = p[offset[i]];
-    }
+    gather(px, p, offset, tail);
 
     SkNf R,G,B,A;
     from_4444(SkNh::Load(px), &R, &G, &B, &A);
@@ -904,13 +887,7 @@ STAGE(accum_4444_srgb, true) {
     SkNi offset = offset_and_ptr(&p, ctx, r, g);
 
     uint16_t px[N];
-    for (size_t i = 0; i < N; i++) {
-        if (kIsTail && i >= tail) {
-            px[i] = 0;
-            continue;
-        }
-        px[i] = p[offset[i]];
-    }
+    gather(px, p, offset, tail);
 
     SkNf R,G,B,A;
     from_4444(SkNh::Load(px), &R, &G, &B, &A);
@@ -926,64 +903,52 @@ STAGE(accum_8888, true) {
     const uint32_t* p;
     SkNi offset = offset_and_ptr(&p, ctx, r, g);
 
-    uint8_t R[N], G[N], B[N], A[N];
-    for (size_t i = 0; i < N; i++) {
-        if (kIsTail && i >= tail) {
-            R[i] = G[i] = B[i] = A[i] = 0;
-            continue;
-        }
-        uint32_t rgba = p[offset[i]];
-        R[i] = rgba >>  0;
-        G[i] = rgba >>  8;
-        B[i] = rgba >> 16;
-        A[i] = rgba >> 24;
-    }
+    uint32_t px[N];
+    gather(px, p, offset, tail);
+
+    SkNf R,G,B,A;
+    from_8888(SkNu::Load(px), &R, &G, &B, &A);
 
     SkNf scale = b;
-    dr += scale * SkNx_cast<float>(SkNb::Load(R)) * (1/255.0f);
-    dg += scale * SkNx_cast<float>(SkNb::Load(G)) * (1/255.0f);
-    db += scale * SkNx_cast<float>(SkNb::Load(B)) * (1/255.0f);
-    da += scale * SkNx_cast<float>(SkNb::Load(A)) * (1/255.0f);
+    dr += scale * R;
+    dg += scale * G;
+    db += scale * B;
+    da += scale * A;
 }
 STAGE(accum_8888_srgb, true) {
     const uint32_t* p;
     SkNi offset = offset_and_ptr(&p, ctx, r, g);
 
-    uint8_t R[N], G[N], B[N], A[N];
-    for (size_t i = 0; i < N; i++) {
-        if (kIsTail && i >= tail) {
-            R[i] = G[i] = B[i] = A[i] = 0;
-            continue;
-        }
-        uint32_t rgba = p[offset[i]];
-        R[i] = rgba >>  0;
-        G[i] = rgba >>  8;
-        B[i] = rgba >> 16;
-        A[i] = rgba >> 24;
-    }
+    uint32_t px[N];
+    gather(px, p, offset, tail);
+
+    SkNf R,G,B,A;
+    from_8888(SkNu::Load(px), &R, &G, &B, &A);
 
     SkNf scale = b;
-    dr += scale * sk_linear_from_srgb_math(SkNx_cast<int>(SkNb::Load(R)));
-    dg += scale * sk_linear_from_srgb_math(SkNx_cast<int>(SkNb::Load(G)));
-    db += scale * sk_linear_from_srgb_math(SkNx_cast<int>(SkNb::Load(B)));
-    da += scale * SkNx_cast<float>(SkNb::Load(A)) * (1/255.0f);
+    dr += scale * sk_linear_from_srgb_math(R);
+    dg += scale * sk_linear_from_srgb_math(G);
+    db += scale * sk_linear_from_srgb_math(B);
+    da += scale * A;
 }
 
 STAGE(accum_f16, true) {
     const uint64_t* p;
     SkNi offset = offset_and_ptr(&p, ctx, r, g);
 
+    // f16 -> f32 conversion works best with tightly packed f16s,
+    // so we gather each component rather than using gather().
     uint16_t R[N], G[N], B[N], A[N];
-    for (size_t i = 0; i < N; i++) {
-        if (kIsTail && i >= tail) {
-            R[i] = G[i] = B[i] = A[i] = 0;
-            continue;
-        }
+    size_t n = tail ? tail : N;
+    for (size_t i = 0; i < n; i++) {
         uint64_t rgba = p[offset[i]];
         R[i] = rgba >>  0;
         G[i] = rgba >> 16;
         B[i] = rgba >> 32;
         A[i] = rgba >> 48;
+    }
+    for (size_t i = n; i < N; i++) {
+        R[i] = G[i] = B[i] = A[i] = 0;
     }
     SkNf scale = b;
     dr += scale * SkHalfToFloat_finite_ftz(SkNh::Load(R));
