@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "f01d104e_1ac86243",
+        "filename": "src/opts/SkRasterPipeline_opts.h",
+        "patchSetId": 11
+      },
+      "lineNbr": 163,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2016-11-29T16:33:57Z",
+      "side": 1,
+      "message": "Have you thought about instead of tail representing the prefix number of bytes to change, it could count the postfix number of bytes not to change. That way you have a logical progression from 0 to 1. 0 would be the full mask 1 would be the full mask except for the last byte ... 7 would be only the first byte.",
+      "range": {
+        "startLine": 163,
+        "startChar": 25,
+        "endLine": 163,
+        "endChar": 30
+      },
+      "revId": "7212be9ba515d199280f253d0cf10349759002f6",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
