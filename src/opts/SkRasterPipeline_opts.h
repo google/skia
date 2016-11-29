@@ -109,7 +109,6 @@ SI void SK_VECTORCALL just_return(Stage*, size_t, SkNf, SkNf, SkNf, SkNf,
 
 template <typename T>
 SI SkNx<N,T> load(size_t tail, const T* src) {
-    // TODO: maskload for 32- and 64-bit T
     if (tail) {
         T buf[8] = {0};
         switch (tail & (N-1)) {
@@ -126,8 +125,28 @@ SI SkNx<N,T> load(size_t tail, const T* src) {
     return SkNx<N,T>::Load(src);
 }
 template <typename T>
+SI SkNx<N,T> gather(size_t tail, const T* src, const SkNi& offset) {
+    if (tail) {
+        T buf[8] = {0};
+        switch (tail & (N-1)) {
+            case 7: buf[6] = src[offset[6]];
+            case 6: buf[5] = src[offset[5]];
+            case 5: buf[4] = src[offset[4]];
+            case 4: buf[3] = src[offset[3]];
+            case 3: buf[2] = src[offset[2]];
+            case 2: buf[1] = src[offset[1]];
+        }
+        buf[0] = src[offset[0]];
+        return SkNx<N,T>::Load(buf);
+    }
+    T buf[8];
+    for (size_t i = 0; i < N; i++) {
+        buf[i] = src[offset[i]];
+    }
+    return SkNx<N,T>::Load(buf);
+}
+template <typename T>
 SI void store(size_t tail, const SkNx<N,T>& v, T* dst) {
-    // TODO: maskstore for 32- and 64-bit T
     if (tail) {
         switch (tail & (N-1)) {
             case 7: dst[6] = v[6];
@@ -142,6 +161,47 @@ SI void store(size_t tail, const SkNx<N,T>& v, T* dst) {
     }
     v.store(dst);
 }
+
+#if !defined(SKNX_NO_SIMD) && SK_CPU_SSE_LEVEL >= SK_CPU_SSE_LEVEL_AVX2
+    SI __m256i mask(size_t tail) {
+        static const int masks[][8] = {
+            {~0,~0,~0,~0, ~0,~0,~0,~0 },  // remember, tail == 0 ~~> load all N
+            {~0, 0, 0, 0,  0, 0, 0, 0 },
+            {~0,~0, 0, 0,  0, 0, 0, 0 },
+            {~0,~0,~0, 0,  0, 0, 0, 0 },
+            {~0,~0,~0,~0,  0, 0, 0, 0 },
+            {~0,~0,~0,~0, ~0, 0, 0, 0 },
+            {~0,~0,~0,~0, ~0,~0, 0, 0 },
+            {~0,~0,~0,~0, ~0,~0,~0, 0 },
+        };
+        return SkNi::Load(masks + tail).fVec;
+    }
+
+    SI SkNi load(size_t tail, const  int32_t* src) {
+        return tail ? _mm256_maskload_epi32((const int*)src, mask(tail))
+                    : SkNi::Load(src);
+    }
+    SI SkNu load(size_t tail, const uint32_t* src) {
+        return tail ? _mm256_maskload_epi32((const int*)src, mask(tail))
+                    : SkNu::Load(src);
+    }
+    SI SkNi gather(size_t tail, const  int32_t* src, const SkNi& offset) {
+        return _mm256_mask_i32gather_epi32(SkNi(0).fVec,
+                                           (const int*)src, offset.fVec, mask(tail), 4);
+    }
+    SI SkNu gather(size_t tail, const uint32_t* src, const SkNi& offset) {
+        return _mm256_mask_i32gather_epi32(SkNi(0).fVec,
+                                           (const int*)src, offset.fVec, mask(tail), 4);
+    }
+    SI void store(size_t tail, const SkNi& v,  int32_t* dst) {
+        tail ? _mm256_maskstore_epi32((int*)dst, mask(tail), v.fVec)
+             : v.store(dst);
+    }
+    SI void store(size_t tail, const SkNu& v, uint32_t* dst) {
+        tail ? _mm256_maskstore_epi32((int*)dst, mask(tail), v.fVec)
+             : v.store(dst);
+    }
+#endif
 
 SI void from_8888(const SkNu& _8888, SkNf* r, SkNf* g, SkNf* b, SkNf* a) {
     auto to_float = [](const SkNu& v) { return SkNx_cast<float>(SkNi::Load(&v)); };
@@ -707,52 +767,33 @@ SI SkNi offset_and_ptr(T** ptr, const void* ctx, const SkNf& x, const SkNf& y) {
     return offset;
 }
 
-template <typename T>
-SI void gather(T (&dst)[N], const T* src, const SkNi& offset, size_t tail) {
-    size_t n = tail ? tail : N;
-    for (size_t i = 0; i < n; i++) { dst[i] = src[offset[i]]; }
-    for (size_t i = n; i < N; i++) { dst[i] = 0; }
-}
-
 STAGE(gather_a8) {}  // TODO
 STAGE(gather_i8) {}  // TODO
 STAGE(gather_g8) {
     const uint8_t* p;
     SkNi offset = offset_and_ptr(&p, ctx, r, g);
 
-    uint8_t px[N];
-    gather(px, p, offset, tail);
-
-    r = g = b = SkNx_cast<float>(SkNb::Load(px)) * (1/255.0f);
+    r = g = b = SkNx_cast<float>(gather(tail, p, offset)) * (1/255.0f);
     a = 1.0f;
 }
 STAGE(gather_565) {
     const uint16_t* p;
     SkNi offset = offset_and_ptr(&p, ctx, r, g);
 
-    uint16_t px[N];
-    gather(px, p, offset, tail);
-
-    from_565(SkNh::Load(px), &r, &g, &b);
+    from_565(gather(tail, p, offset), &r, &g, &b);
     a = 1.0f;
 }
 STAGE(gather_4444) {
     const uint16_t* p;
     SkNi offset = offset_and_ptr(&p, ctx, r, g);
 
-    uint16_t px[N];
-    gather(px, p, offset, tail);
-
-    from_4444(SkNh::Load(px), &r, &g, &b, &a);
+    from_4444(gather(tail, p, offset), &r, &g, &b, &a);
 }
 STAGE(gather_8888) {
     const uint32_t* p;
     SkNi offset = offset_and_ptr(&p, ctx, r, g);
 
-    uint32_t px[N];
-    gather(px, p, offset, tail);
-
-    from_8888(SkNu::Load(px), &r, &g, &b, &a);
+    from_8888(gather(tail, p, offset), &r, &g, &b, &a);
 }
 STAGE(gather_f16) {
     const uint64_t* p;
