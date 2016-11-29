@@ -36,9 +36,13 @@ namespace {
     using SkNb = SkNx<N, uint8_t>;
 
     struct Stage;
-    using Fn = void(SK_VECTORCALL *)(Stage*, size_t, SkNf,SkNf,SkNf,SkNf,
-                                                     SkNf,SkNf,SkNf,SkNf);
+    using Fn = void(SK_VECTORCALL *)(Stage*, size_t x_tail, SkNf,SkNf,SkNf,SkNf,
+                                                            SkNf,SkNf,SkNf,SkNf);
     struct Stage { Fn next; void* ctx; };
+
+    // x_tail encodes two values x and tail as x*N+tail, where 0 <= tail < N.
+    // x is the induction variable we're walking along, incrementing by N each step.
+    // tail == 0 means work with a full N pixels; otherwise use only the low tail pixels.
 
 }  // namespace
 
