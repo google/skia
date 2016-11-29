@@ -33,6 +33,24 @@
       "revId": "ed904de049a6ce26b5608168bfb2391040d3a502",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "f01d104e_dcc96314",
+        "filename": "src/core/SkColorLookUpTable.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 101,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2016-11-29T21:47:13Z",
+      "side": 1,
+      "message": "By arbitrary, non-increasing, I don\u0027t necessarily mean strictly decreasing.  The idea is that if we fill in the table with arbitrary values, we can make the output go above 1 or less than 0 - so we must clamp to defend against these strange inputs.",
+      "parentUuid": "f01d104e_1f79346e",
+      "revId": "ed904de049a6ce26b5608168bfb2391040d3a502",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
