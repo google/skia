@@ -1,0 +1,234 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "f01d104e_ff161831",
+        "filename": "src/codec/SkJpegCodec.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 233,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2016-11-29T15:55:16Z",
+      "side": 1,
+      "message": "nit: 100 chars",
+      "range": {
+        "startLine": 233,
+        "startChar": 12,
+        "endLine": 233,
+        "endChar": 109
+      },
+      "revId": "24384baa7b801d0dce7d0e4e774b3ef09c91ca93",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "f01d104e_3f0190e6",
+        "filename": "src/codec/SkJpegCodec.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 242,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2016-11-29T15:55:16Z",
+      "side": 1,
+      "message": "nit: 100 chars",
+      "range": {
+        "startLine": 242,
+        "startChar": 12,
+        "endLine": 242,
+        "endChar": 104
+      },
+      "revId": "24384baa7b801d0dce7d0e4e774b3ef09c91ca93",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "f01d104e_5ffe4cbd",
+        "filename": "src/codec/SkJpegCodec.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 579,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2016-11-29T15:55:16Z",
+      "side": 1,
+      "message": "nit: this-\u003ecolorXform()",
+      "range": {
+        "startLine": 579,
+        "startChar": 45,
+        "endLine": 579,
+        "endChar": 57
+      },
+      "revId": "24384baa7b801d0dce7d0e4e774b3ef09c91ca93",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "f01d104e_3f84305d",
+        "filename": "src/core/SkColorLookUpTable.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 25,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2016-11-29T15:55:16Z",
+      "side": 1,
+      "message": "nit: whitespace",
+      "range": {
+        "startLine": 25,
+        "startChar": 0,
+        "endLine": 25,
+        "endChar": 4
+      },
+      "revId": "24384baa7b801d0dce7d0e4e774b3ef09c91ca93",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "f01d104e_1f8f747d",
+        "filename": "src/core/SkColorLookUpTable.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 28,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2016-11-29T15:55:16Z",
+      "side": 1,
+      "message": "nit: whitespace",
+      "range": {
+        "startLine": 28,
+        "startChar": 57,
+        "endLine": 28,
+        "endChar": 58
+      },
+      "revId": "24384baa7b801d0dce7d0e4e774b3ef09c91ca93",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "f01d104e_9f7b6492",
+        "filename": "src/core/SkColorLookUpTable.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 37,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2016-11-29T15:55:16Z",
+      "side": 1,
+      "message": "nit: whitespace",
+      "range": {
+        "startLine": 37,
+        "startChar": 0,
+        "endLine": 37,
+        "endChar": 4
+      },
+      "revId": "24384baa7b801d0dce7d0e4e774b3ef09c91ca93",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "f01d104e_bff3c0ef",
+        "filename": "src/core/SkColorLookUpTable.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 44,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2016-11-29T15:55:16Z",
+      "side": 1,
+      "message": "nit: whitespace",
+      "range": {
+        "startLine": 44,
+        "startChar": 0,
+        "endLine": 44,
+        "endChar": 4
+      },
+      "revId": "24384baa7b801d0dce7d0e4e774b3ef09c91ca93",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "f01d104e_dff87cce",
+        "filename": "src/core/SkColorLookUpTable.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 50,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2016-11-29T15:55:16Z",
+      "side": 1,
+      "message": "nit: whitespace",
+      "range": {
+        "startLine": 50,
+        "startChar": 0,
+        "endLine": 50,
+        "endChar": 4
+      },
+      "revId": "24384baa7b801d0dce7d0e4e774b3ef09c91ca93",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "f01d104e_3fd3506a",
+        "filename": "src/core/SkColorSpace_A2B.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 157,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2016-11-29T15:55:16Z",
+      "side": 1,
+      "message": "nit: whitespace",
+      "range": {
+        "startLine": 157,
+        "startChar": 0,
+        "endLine": 157,
+        "endChar": 4
+      },
+      "revId": "24384baa7b801d0dce7d0e4e774b3ef09c91ca93",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "f01d104e_5fd00c5b",
+        "filename": "src/core/SkColorSpace_A2B.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 159,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2016-11-29T15:55:16Z",
+      "side": 1,
+      "message": "nit: whitespace",
+      "range": {
+        "startLine": 159,
+        "startChar": 0,
+        "endLine": 159,
+        "endChar": 4
+      },
+      "revId": "24384baa7b801d0dce7d0e4e774b3ef09c91ca93",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
