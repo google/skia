@@ -5,6 +5,7 @@
  * found in the LICENSE file.
  */
 
+#include "SkBitmapController.h"
 #include "SkBitmapProcShader.h"
 #include "SkBitmapProvider.h"
 #include "SkColorShader.h"
@@ -274,30 +275,33 @@ SK_DEFINE_FLATTENABLE_REGISTRAR_GROUP_END
 
 bool SkImageShader::onAppendStages(SkRasterPipeline* p, SkColorSpace* dst, SkFallbackAlloc* scratch,
                                    const SkMatrix& ctm, const SkPaint& paint) const {
-    SkPixmap pm;
-    if (!fImage->peekPixels(&pm)) {
-        return false;
-    }
-    auto info = pm.info();
-
-
     auto matrix = SkMatrix::Concat(ctm, this->getLocalMatrix());
     if (!matrix.invert(&matrix)) {
         return false;
     }
-
     auto quality = paint.getFilterQuality();
+
+    auto mode = (dst == nullptr) ? SkDestinationSurfaceColorMode::kLegacy
+                                 : SkDestinationSurfaceColorMode::kGammaAndColorSpaceAware;
+    SkBitmapProvider provider(fImage.get(), mode);
+    SkDefaultBitmapController controller(mode);
+    std::unique_ptr<SkBitmapController::State> state {
+        controller.requestBitmap(provider, matrix, quality)
+    };
+    if (!state) {
+        return false;
+    }
+
+    const SkPixmap& pm = state->pixmap();
+    matrix  = state->invMatrix();
+    quality = state->quality();
+    auto info = pm.info();
 
     // When the matrix is just an integer translate, bilerp == nearest neighbor.
     if (matrix.getType() <= SkMatrix::kTranslate_Mask &&
         matrix.getTranslateX() == (int)matrix.getTranslateX() &&
         matrix.getTranslateY() == (int)matrix.getTranslateY()) {
         quality = kNone_SkFilterQuality;
-    }
-
-    // TODO: front-patch with SkDefaultBitmapControllerState, then assert we're kNone or kLow.
-    if (quality > kLow_SkFilterQuality) {
-        return false;
     }
 
     // See skia:4649 and the GM image_scale_aligned.
@@ -313,6 +317,7 @@ bool SkImageShader::onAppendStages(SkRasterPipeline* p, SkColorSpace* dst, SkFal
     }
 
     auto ctx = scratch->make<SkImageShaderContext>();
+    ctx->state   = std::move(state);  // Extend lifetime to match the pipeline's.
     ctx->pixels  = pm.addr();
     ctx->ctable  = pm.ctable();
     ctx->color4f = SkColor4f_from_SkColor(paint.getColor(), dst);
