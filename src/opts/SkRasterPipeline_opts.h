@@ -685,10 +685,10 @@ STAGE(accumulate) {
     auto sc = (const SkImageShaderContext*)ctx;
 
     auto scale = SkNf::Load(sc->scale);
-    dr += scale * r;
-    dg += scale * g;
-    db += scale * b;
-    da += scale * a;
+    dr = SkNx_fma(scale, r, dr);
+    dg = SkNx_fma(scale, g, dg);
+    db = SkNx_fma(scale, b, db);
+    da = SkNx_fma(scale, a, da);
 }
 
 template <typename T>
