@@ -477,7 +477,7 @@ public:
     SK_DECLARE_FLATTENABLE_REGISTRAR_GROUP()
 
     bool appendStages(SkRasterPipeline*, SkColorSpace*, SkFallbackAlloc*,
-                      const SkMatrix& ctm, SkFilterQuality) const;
+                      const SkMatrix& ctm, const SkPaint&) const;
 
 protected:
     void flatten(SkWriteBuffer&) const override;
@@ -511,7 +511,7 @@ protected:
     }
 
     virtual bool onAppendStages(SkRasterPipeline*, SkColorSpace*, SkFallbackAlloc*,
-                                const SkMatrix&, SkFilterQuality) const {
+                                const SkMatrix&, const SkPaint&) const {
         return false;
     }
 

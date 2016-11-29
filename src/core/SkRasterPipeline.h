@@ -59,6 +59,7 @@
     M(move_src_dst) M(move_dst_src) M(swap_rb) M(swap_rb_d)      \
     M(clamp_0) M(clamp_a) M(clamp_1)                             \
     M(unpremul) M(premul)                                        \
+    M(set_rgb)                                                   \
     M(from_srgb) M(from_srgb_d) M(to_srgb)                       \
     M(constant_color) M(store_f32)                               \
     M(load_565)  M(load_565_d)  M(store_565)                     \
