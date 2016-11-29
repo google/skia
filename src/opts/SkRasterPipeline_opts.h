@@ -768,7 +768,14 @@ SI SkNi offset_and_ptr(T** ptr, const void* ctx, const SkNf& x, const SkNf& y) {
 }
 
 STAGE(gather_a8) {}  // TODO
-STAGE(gather_i8) {}  // TODO
+STAGE(gather_i8) {
+    auto sc = (const SkImageShaderContext*)ctx;
+    const uint8_t* p;
+    SkNi offset = offset_and_ptr(&p, sc, r, g);
+
+    SkNi ix = SkNx_cast<int>(gather(tail, p, offset));
+    from_8888(gather(tail, sc->ctable->readColors(), ix), &r, &g, &b, &a);
+}
 STAGE(gather_g8) {
     const uint8_t* p;
     SkNi offset = offset_and_ptr(&p, ctx, r, g);

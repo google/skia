@@ -8,18 +8,21 @@
 #ifndef SkImageShaderContext_DEFINED
 #define SkImageShaderContext_DEFINED
 
+class SkColorTable;
+
 // Definition used by SkImageShader.cpp and SkRasterPipeline_opts.h.
 // Otherwise, completely uninteresting.
 
 struct SkImageShaderContext {
-    const void* pixels;
-    int         stride;
-    int         width;
-    int         height;
-    float       matrix[9];
-    float       x[8];
-    float       y[8];
-    float       scale[8];
+    const void*   pixels;
+    SkColorTable* ctable;
+    int           stride;
+    int           width;
+    int           height;
+    float         matrix[9];
+    float         x[8];
+    float         y[8];
+    float         scale[8];
 };
 
 #endif//SkImageShaderContext_DEFINED
