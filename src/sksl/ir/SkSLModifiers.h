@@ -17,16 +17,21 @@ namespace SkSL {
  */
 struct Modifiers {
     enum Flag {
-        kNo_Flag            =   0,
-        kConst_Flag         =   1,
-        kIn_Flag            =   2,
-        kOut_Flag           =   4,
-        kLowp_Flag          =   8,
-        kMediump_Flag       =  16,
-        kHighp_Flag         =  32,
-        kUniform_Flag       =  64,
-        kFlat_Flag          = 128,
-        kNoPerspective_Flag = 256
+        kNo_Flag            =    0,
+        kConst_Flag         =    1,
+        kIn_Flag            =    2,
+        kOut_Flag           =    4,
+        kLowp_Flag          =    8,
+        kMediump_Flag       =   16,
+        kHighp_Flag         =   32,
+        kUniform_Flag       =   64,
+        kFlat_Flag          =  128,
+        kNoPerspective_Flag =  256,
+        kReadOnly_Flag      =  512,
+        kWriteOnly_Flag     = 1024,
+        kCoherent_Flag      = 2048,
+        kVolatile_Flag      = 4096,
+        kRestrict_Flag      = 8192
     };
 
     Modifiers()
@@ -59,6 +64,21 @@ struct Modifiers {
         }
         if (fFlags & kNoPerspective_Flag) {
             result += "noperspective ";
+        }
+        if (fFlags & kReadOnly_Flag) {
+            result += "readonly ";
+        }
+        if (fFlags & kWriteOnly_Flag) {
+            result += "writeonly ";
+        }
+        if (fFlags & kCoherent_Flag) {
+            result += "coherent ";
+        }
+        if (fFlags & kVolatile_Flag) {
+            result += "volatile ";
+        }
+        if (fFlags & kRestrict_Flag) {
+            result += "restrict ";
         }
 
         if ((fFlags & kIn_Flag) && (fFlags & kOut_Flag)) {

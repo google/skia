@@ -126,7 +126,9 @@ public:
             return SkToBool(fConfigTable[config].fFlags & ConfigInfo::kRenderable_Flag);
         }
     }
-
+    bool canConfigBeImageStorage(GrPixelConfig config) const override {
+        return SkToBool(fConfigTable[config].fFlags & ConfigInfo::kCanUseAsImageStorage_Flag);
+    }
     bool canConfigBeFBOColorAttachment(GrPixelConfig config) const {
         return SkToBool(fConfigTable[config].fFlags & ConfigInfo::kFBOColorAttachment_Flag);
     }
@@ -158,6 +160,11 @@ public:
                              GrGLenum* externalFormat, GrGLenum* externalType) const;
 
     bool getRenderbufferFormat(GrPixelConfig config, GrGLenum* internalFormat) const;
+
+    /** The format to use read/write a texture as an image in a shader */
+    GrGLenum getImageFormat(GrPixelConfig config) const {
+        return fConfigTable[config].fFormats.fSizedInternalFormat;
+    }
 
     /**
     * Gets an array of legal stencil formats. These formats are not guaranteed
@@ -451,7 +458,6 @@ private:
         GrGLenum fExternalFormat[kExternalFormatUsageCnt];
         GrGLenum fExternalType;
 
-
         // Either the base or sized internal format depending on the GL and config.
         GrGLenum fInternalFormatTexImage;
         GrGLenum fInternalFormatRenderbuffer;
@@ -489,6 +495,7 @@ private:
             kFBOColorAttachment_Flag      = 0x10,
             kCanUseTexStorage_Flag        = 0x20,
             kCanUseWithTexelBuffer_Flag   = 0x40,
+            kCanUseAsImageStorage_Flag    = 0x80,
         };
         uint32_t fFlags;
 
