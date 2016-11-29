@@ -30,15 +30,13 @@ The CQ will block till these tryjobs pass just like the default list of tryjobs.
 
 This is the format of the values of this keyword:
 
-    CQ_INCLUDE_TRYBOTS=master1:bot1,bot2;master2:bot3,bot4
+    CQ_INCLUDE_TRYBOTS=bucket1:bot1,bot2;bucket2:bot3,bot4
 
 Here are some real world examples:
 
     CQ_INCLUDE_TRYBOTS=master.tryserver.chromium.linux:linux_chromium_asan_rel_ng
 
-    CQ_INCLUDE_TRYBOTS=master.client.skia:Test-Win-MSVC-ShuttleC-GPU-GTX960-x86_64-Debug-ANGLE-Trybot
-
-**IMPORTANT**: Make sure each bot name ends in "-Trybot", otherwise your trybots may be treated as non-trybot builds!
+    CQ_INCLUDE_TRYBOTS=skia.primary:Test-Win-MSVC-ShuttleC-GPU-GTX960-x86_64-Debug-ANGLE
 
 TBR
 ---
