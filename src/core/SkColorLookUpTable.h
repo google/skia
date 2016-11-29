@@ -29,6 +29,8 @@ private:
 
     uint8_t fGridPoints[3];
 
+    friend class SkColorSpaceXform_A2B;
+
 public:
     // Objects of this type are created in a custom fashion using sk_malloc_throw
     // and therefore must be sk_freed.
