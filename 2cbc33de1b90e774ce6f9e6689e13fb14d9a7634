@@ -75,6 +75,24 @@
       "revId": "2cbc33de1b90e774ce6f9e6689e13fb14d9a7634",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "f01d104e_15911331",
+        "filename": "src/opts/SkRasterPipeline_opts.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 61,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2016-11-29T17:52:17Z",
+      "side": 1,
+      "message": "I know that N is a compile time constant. My point is that his does not need to be two separate numbers to keep in mind. You could simplify down to one number.",
+      "parentUuid": "f01d104e_1a06a2cf",
+      "revId": "2cbc33de1b90e774ce6f9e6689e13fb14d9a7634",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
