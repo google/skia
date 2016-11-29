@@ -1,0 +1,44 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "f01d104e_ffd7f80b",
+        "filename": "src/opts/SkRasterPipeline_opts.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 39,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2016-11-29T16:23:10Z",
+      "side": 1,
+      "message": "Can you document the encoding of x_tail here?",
+      "range": {
+        "startLine": 39,
+        "startChar": 45,
+        "endLine": 39,
+        "endChar": 51
+      },
+      "revId": "2cbc33de1b90e774ce6f9e6689e13fb14d9a7634",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "f01d104e_dfc95c6b",
+        "filename": "src/opts/SkRasterPipeline_opts.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 61,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2016-11-29T16:23:10Z",
+      "side": 1,
+      "message": "Have you tested the performance of using \u0026 and \u003e\u003e instead of \u0026 and /? Instead of N, can you just make this 64?\n\nOtherwise add a todo to investigate.",
+      "revId": "2cbc33de1b90e774ce6f9e6689e13fb14d9a7634",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
