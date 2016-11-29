@@ -71,6 +71,24 @@
     },
     {
       "key": {
+        "uuid": "f01d104e_fa74663f",
+        "filename": "src/codec/SkJpegCodec.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 579,
+      "author": {
+        "id": 5740
+      },
+      "writtenOn": "2016-11-29T23:01:58Z",
+      "side": 1,
+      "message": "Oops. I had made the changes in this file then forgot to upload it with the last patchset.",
+      "parentUuid": "f01d104e_5ffe4cbd",
+      "revId": "24384baa7b801d0dce7d0e4e774b3ef09c91ca93",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "f01d104e_794ec1df",
         "filename": "src/core/SkColorLookUpTable.cpp",
         "patchSetId": 3
@@ -88,6 +106,24 @@
         "endLine": 20,
         "endChar": 32
       },
+      "revId": "24384baa7b801d0dce7d0e4e774b3ef09c91ca93",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "f01d104e_bcb4a7b1",
+        "filename": "src/core/SkColorLookUpTable.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 20,
+      "author": {
+        "id": 5740
+      },
+      "writtenOn": "2016-11-29T23:01:58Z",
+      "side": 1,
+      "message": "Well, I moved the raster pipeline to have src !\u003d dst before when I had it not be fixed 3-\u003e3.",
+      "parentUuid": "f01d104e_794ec1df",
       "revId": "24384baa7b801d0dce7d0e4e774b3ef09c91ca93",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
@@ -117,6 +153,24 @@
     },
     {
       "key": {
+        "uuid": "f01d104e_3cc8b743",
+        "filename": "src/core/SkColorLookUpTable.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 119,
+      "author": {
+        "id": 5740
+      },
+      "writtenOn": "2016-11-29T23:01:58Z",
+      "side": 1,
+      "message": "Moved the base case, although I think it makes the condition weird. The reason I don\u0027t check if inputDimension \u003d\u003d 0 instead is that it would duplicate LERP-logic into two places when it\u0027s not needed.",
+      "parentUuid": "f01d104e_f948f1cf",
+      "revId": "24384baa7b801d0dce7d0e4e774b3ef09c91ca93",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "f01d104e_394369b1",
         "filename": "src/core/SkColorLookUpTable.cpp",
         "patchSetId": 3
@@ -134,6 +188,24 @@
         "endLine": 125,
         "endChar": 25
       },
+      "revId": "24384baa7b801d0dce7d0e4e774b3ef09c91ca93",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "f01d104e_1cc3fb29",
+        "filename": "src/core/SkColorLookUpTable.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 125,
+      "author": {
+        "id": 5740
+      },
+      "writtenOn": "2016-11-29T23:01:58Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "f01d104e_394369b1",
       "revId": "24384baa7b801d0dce7d0e4e774b3ef09c91ca93",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
@@ -278,6 +350,24 @@
     },
     {
       "key": {
+        "uuid": "0d51ab1f_255c4e09",
+        "filename": "src/core/SkColorSpaceXform_A2B.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 201,
+      "author": {
+        "id": 5740
+      },
+      "writtenOn": "2016-11-29T23:01:58Z",
+      "side": 1,
+      "message": "Sounds good.",
+      "parentUuid": "f01d104e_f97e3157",
+      "revId": "24384baa7b801d0dce7d0e4e774b3ef09c91ca93",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "f01d104e_99e29d13",
         "filename": "src/core/SkColorSpaceXform_A2B.h",
         "patchSetId": 3
@@ -295,6 +385,24 @@
         "endLine": 44,
         "endChar": 6
       },
+      "revId": "24384baa7b801d0dce7d0e4e774b3ef09c91ca93",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "f01d104e_5c565321",
+        "filename": "src/core/SkColorSpaceXform_A2B.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 44,
+      "author": {
+        "id": 5740
+      },
+      "writtenOn": "2016-11-29T23:01:58Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "f01d104e_99e29d13",
       "revId": "24384baa7b801d0dce7d0e4e774b3ef09c91ca93",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
@@ -324,6 +432,24 @@
     },
     {
       "key": {
+        "uuid": "f01d104e_3cdfd7f7",
+        "filename": "src/core/SkColorSpace_A2B.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 11,
+      "author": {
+        "id": 5740
+      },
+      "writtenOn": "2016-11-29T23:01:58Z",
+      "side": 1,
+      "message": "Seems logical.",
+      "parentUuid": "f01d104e_598ca5c6",
+      "revId": "24384baa7b801d0dce7d0e4e774b3ef09c91ca93",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "f01d104e_f9ce3119",
         "filename": "src/core/SkColorSpace_A2B.h",
         "patchSetId": 3
@@ -341,6 +467,24 @@
         "endLine": 104,
         "endChar": 4
       },
+      "revId": "24384baa7b801d0dce7d0e4e774b3ef09c91ca93",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "f01d104e_dcdfa3f7",
+        "filename": "src/core/SkColorSpace_A2B.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 104,
+      "author": {
+        "id": 5740
+      },
+      "writtenOn": "2016-11-29T23:01:58Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "f01d104e_f9ce3119",
       "revId": "24384baa7b801d0dce7d0e4e774b3ef09c91ca93",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
@@ -462,6 +606,24 @@
     },
     {
       "key": {
+        "uuid": "f01d104e_3c6c3743",
+        "filename": "src/core/SkColorSpace_ICC.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 940,
+      "author": {
+        "id": 5740
+      },
+      "writtenOn": "2016-11-29T23:01:58Z",
+      "side": 1,
+      "message": "There isn\u0027t an assert, but the profile will fail to parse if the dimensions don\u0027t match up. It checks to see if the ICS matches the first element\u0027s input, then checks if all element\u0027s inputs match the previous one\u0027s output, then checks to see if the last element\u0027s output matches the PCS dimension. It\u0027s in load_a2b0(). This was just a check to see if it matches what we could possibly support.",
+      "parentUuid": "f01d104e_39fb6908",
+      "revId": "24384baa7b801d0dce7d0e4e774b3ef09c91ca93",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "f01d104e_9939bded",
         "filename": "src/core/SkColorSpace_ICC.cpp",
         "patchSetId": 3
@@ -508,6 +670,24 @@
     },
     {
       "key": {
+        "uuid": "0d51ab1f_e5d19661",
+        "filename": "src/core/SkColorSpace_ICC.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 1086,
+      "author": {
+        "id": 5740
+      },
+      "writtenOn": "2016-11-29T23:01:58Z",
+      "side": 1,
+      "message": "No, I meant \"PCSXYZ\", not \"not PCSXYZ\". Every input color space can have identity, but only PCSXYZ input color space (not profile connection space!) can have non-identity.\n\nnon-XYZ input color space \u003d\u003e matrix is identity\n\nBasically we should never have a non-identity matrix in a lutntype profile.",
+      "parentUuid": "f01d104e_193cedd5",
+      "revId": "24384baa7b801d0dce7d0e4e774b3ef09c91ca93",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "f01d104e_19730dc8",
         "filename": "src/core/SkColorSpace_ICC.cpp",
         "patchSetId": 3
@@ -525,6 +705,24 @@
         "endLine": 1087,
         "endChar": 42
       },
+      "revId": "24384baa7b801d0dce7d0e4e774b3ef09c91ca93",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "0d51ab1f_a5db9e7d",
+        "filename": "src/core/SkColorSpace_ICC.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 1087,
+      "author": {
+        "id": 5740
+      },
+      "writtenOn": "2016-11-29T23:01:58Z",
+      "side": 1,
+      "message": "It didn\u0027t. I\u0027ll rewrite it with less negatives.",
+      "parentUuid": "f01d104e_19730dc8",
       "revId": "24384baa7b801d0dce7d0e4e774b3ef09c91ca93",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
@@ -554,6 +752,24 @@
     },
     {
       "key": {
+        "uuid": "0d51ab1f_05a6f2f4",
+        "filename": "src/core/SkColorSpace_ICC.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 1252,
+      "author": {
+        "id": 5740
+      },
+      "writtenOn": "2016-11-29T23:01:58Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "f01d104e_f9c39197",
+      "revId": "24384baa7b801d0dce7d0e4e774b3ef09c91ca93",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "f01d104e_19eead05",
         "filename": "src/core/SkColorSpace_ICC.cpp",
         "patchSetId": 3
@@ -571,6 +787,24 @@
         "endLine": 1362,
         "endChar": 53
       },
+      "revId": "24384baa7b801d0dce7d0e4e774b3ef09c91ca93",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "0d51ab1f_c5b7ba1f",
+        "filename": "src/core/SkColorSpace_ICC.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 1362,
+      "author": {
+        "id": 5740
+      },
+      "writtenOn": "2016-11-29T23:01:58Z",
+      "side": 1,
+      "message": "I just adapted it to use fData[] and fType[] instead of f(Red/Green/Blue)Data/f(Red/Green/Blue)Type. Everything before then just had its indent changed since I removed the switch.",
+      "parentUuid": "f01d104e_19eead05",
       "revId": "24384baa7b801d0dce7d0e4e774b3ef09c91ca93",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
@@ -600,6 +834,24 @@
     },
     {
       "key": {
+        "uuid": "f01d104e_3c80b792",
+        "filename": "src/core/SkColorSpace_ICC.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 1519,
+      "author": {
+        "id": 5740
+      },
+      "writtenOn": "2016-11-29T23:01:58Z",
+      "side": 1,
+      "message": "I guess we don\u0027t need this switch after I removed SkColorSpace_A2B\u0027s enum.",
+      "parentUuid": "f01d104e_79fec1bd",
+      "revId": "24384baa7b801d0dce7d0e4e774b3ef09c91ca93",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "f01d104e_79396193",
         "filename": "src/opts/SkRasterPipeline_opts.h",
         "patchSetId": 3
@@ -617,6 +869,24 @@
         "endLine": 688,
         "endChar": 5
       },
+      "revId": "24384baa7b801d0dce7d0e4e774b3ef09c91ca93",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "f01d104e_5c01f3e4",
+        "filename": "src/opts/SkRasterPipeline_opts.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 688,
+      "author": {
+        "id": 5740
+      },
+      "writtenOn": "2016-11-29T23:01:58Z",
+      "side": 1,
+      "message": "I don\u0027t really like either of the two ways, but okay.",
+      "parentUuid": "f01d104e_79396193",
       "revId": "24384baa7b801d0dce7d0e4e774b3ef09c91ca93",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
