@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "f01d104e_1fddb42d",
+        "filename": "src/core/SkColorLookUpTable.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 65,
+      "author": {
+        "id": 5740
+      },
+      "writtenOn": "2016-11-29T16:18:26Z",
+      "side": 1,
+      "message": "Good catch. I just checked all the 6 cases and everything seems correct now.",
+      "revId": "ed904de049a6ce26b5608168bfb2391040d3a502",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "f01d104e_1f79346e",
+        "filename": "src/core/SkColorLookUpTable.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 101,
+      "author": {
+        "id": 5740
+      },
+      "writtenOn": "2016-11-29T16:18:26Z",
+      "side": 1,
+      "message": "Wouldn\u0027t a decreasing table get you smaller results? I\u0027m probably missing something as to why it is going above 0 as I don\u0027t know a whole lot about tetrahedral interpolation, but diffX/Y/Z are 0-1, ptr[n000] is 0-1, and ptr[n110]-ptr[010] would be negative if it\u0027s decreasing in the z-axis. Does it behave weirdly when it\u0027s only decreasing in some of the dimensions?",
+      "revId": "ed904de049a6ce26b5608168bfb2391040d3a502",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
