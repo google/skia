@@ -14,6 +14,7 @@
 #include "SkColorSpaceXformPriv.h"
 #include "SkHalf.h"
 #include "SkImageShaderContext.h"
+#include "SkMSAN.h"
 #include "SkPM4f.h"
 #include "SkPM4fPriv.h"
 #include "SkRasterPipeline.h"
@@ -193,13 +194,22 @@ SI void store(size_t tail, const SkNx<N,T>& v, T* dst) {
         return _mm256_mask_i32gather_epi32(SkNi(0).fVec,
                                            (const int*)src, offset.fVec, mask(tail), 4);
     }
+
+    static const char* bug = "I don't think MSAN understands maskstore.";
+
     SI void store(size_t tail, const SkNi& v,  int32_t* dst) {
-        tail ? _mm256_maskstore_epi32((int*)dst, mask(tail), v.fVec)
-             : v.store(dst);
+        if (tail) {
+            _mm256_maskstore_epi32((int*)dst, mask(tail), v.fVec);
+            return sk_msan_mark_initialized(dst, dst+tail, bug);
+        }
+        v.store(dst);
     }
     SI void store(size_t tail, const SkNu& v, uint32_t* dst) {
-        tail ? _mm256_maskstore_epi32((int*)dst, mask(tail), v.fVec)
-             : v.store(dst);
+        if (tail) {
+            _mm256_maskstore_epi32((int*)dst, mask(tail), v.fVec);
+            return sk_msan_mark_initialized(dst, dst+tail, bug);
+        }
+        v.store(dst);
     }
 #endif
 
