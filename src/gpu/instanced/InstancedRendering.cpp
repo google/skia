@@ -18,7 +18,7 @@ namespace gr_instanced {
 InstancedRendering::InstancedRendering(GrGpu* gpu)
     : fGpu(SkRef(gpu)),
       fState(State::kRecordingDraws),
-      fDrawPool(1024 * sizeof(Batch::Draw), 1024 * sizeof(Batch::Draw)) {
+      fDrawPool(1024, 1024) {
 }
 
 GrDrawBatch* InstancedRendering::recordRect(const SkRect& rect, const SkMatrix& viewMatrix,
@@ -241,7 +241,7 @@ InstancedRendering::Batch::Batch(uint32_t classID, InstancedRendering* ir)
       fIsTracked(false),
       fNumDraws(1),
       fNumChangesInGeometry(0) {
-    fHeadDraw = fTailDraw = (Draw*)fInstancedRendering->fDrawPool.allocate(sizeof(Draw));
+    fHeadDraw = fTailDraw = fInstancedRendering->fDrawPool.allocate();
 #ifdef SK_DEBUG
     fHeadDraw->fGeometry = {-1, 0};
 #endif

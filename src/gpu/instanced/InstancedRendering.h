@@ -173,7 +173,7 @@ private:
 
     const sk_sp<GrGpu>                   fGpu;
     State                                fState;
-    GrMemoryPool                         fDrawPool;
+    GrObjectMemoryPool<Batch::Draw>      fDrawPool;
     SkSTArray<1024, ParamsTexel, true>   fParams;
     BatchList                            fTrackedBatches;
     sk_sp<const GrBuffer>                fVertexBuffer;
