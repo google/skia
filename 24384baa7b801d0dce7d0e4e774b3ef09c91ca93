@@ -130,6 +130,24 @@
     },
     {
       "key": {
+        "uuid": "f01d104e_5fe805f7",
+        "filename": "src/core/SkColorLookUpTable.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 20,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2016-11-29T23:31:51Z",
+      "side": 1,
+      "message": "Gotcha this seems fine as is.  Doesn\u0027t make much sense to be in place when numInputChannels !\u003d numOutputChannels.",
+      "parentUuid": "f01d104e_bcb4a7b1",
+      "revId": "24384baa7b801d0dce7d0e4e774b3ef09c91ca93",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "f01d104e_f948f1cf",
         "filename": "src/core/SkColorLookUpTable.cpp",
         "patchSetId": 3
@@ -618,6 +636,24 @@
       "side": 1,
       "message": "There isn\u0027t an assert, but the profile will fail to parse if the dimensions don\u0027t match up. It checks to see if the ICS matches the first element\u0027s input, then checks if all element\u0027s inputs match the previous one\u0027s output, then checks to see if the last element\u0027s output matches the PCS dimension. It\u0027s in load_a2b0(). This was just a check to see if it matches what we could possibly support.",
       "parentUuid": "f01d104e_39fb6908",
+      "revId": "24384baa7b801d0dce7d0e4e774b3ef09c91ca93",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "f01d104e_ff253171",
+        "filename": "src/core/SkColorSpace_ICC.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 940,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2016-11-29T23:31:51Z",
+      "side": 1,
+      "message": "Sorry this made more sense when I saw the code below, forgot to delete this comment.",
+      "parentUuid": "f01d104e_3c6c3743",
       "revId": "24384baa7b801d0dce7d0e4e774b3ef09c91ca93",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
