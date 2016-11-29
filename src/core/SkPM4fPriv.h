@@ -111,7 +111,7 @@ static inline bool append_gamut_transform(SkRasterPipeline* p, SkFallbackAlloc* 
     return append_gamut_transform(p, scratch->make<matrix_3x4>()->arr, src, dst);
 }
 
-static inline SkPM4f SkPM4f_from_SkColor(SkColor color, SkColorSpace* dst) {
+static inline SkColor4f SkColor4f_from_SkColor(SkColor color, SkColorSpace* dst) {
     SkColor4f color4f;
     if (dst) {
         // sRGB gamma, sRGB gamut.
@@ -131,7 +131,11 @@ static inline SkPM4f SkPM4f_from_SkColor(SkColor color, SkColorSpace* dst) {
         // Linear gamma, dst gamut.
         swizzle_rb(SkNx_cast<float>(Sk4b::Load(&color)) * (1/255.0f)).store(&color4f);
     }
-    return color4f.premul();
+    return color4f;
+}
+
+static inline SkPM4f SkPM4f_from_SkColor(SkColor color, SkColorSpace* dst) {
+    return SkColor4f_from_SkColor(color, dst).premul();
 }
 
 #endif

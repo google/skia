@@ -261,8 +261,8 @@ bool SkShader::appendStages(SkRasterPipeline* pipeline,
                             SkColorSpace* dst,
                             SkFallbackAlloc* scratch,
                             const SkMatrix& ctm,
-                            SkFilterQuality quality) const {
-    return this->onAppendStages(pipeline, dst, scratch, ctm, quality);
+                            const SkPaint& paint) const {
+    return this->onAppendStages(pipeline, dst, scratch, ctm, paint);
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////

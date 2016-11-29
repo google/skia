@@ -8,6 +8,7 @@
 #ifndef SkImageShaderContext_DEFINED
 #define SkImageShaderContext_DEFINED
 
+#include "SkColor.h"
 class SkColorTable;
 
 // Definition used by SkImageShader.cpp and SkRasterPipeline_opts.h.
@@ -16,6 +17,7 @@ class SkColorTable;
 struct SkImageShaderContext {
     const void*   pixels;
     SkColorTable* ctable;
+    SkColor4f     color4f;
     int           stride;
     int           width;
     int           height;
