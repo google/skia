@@ -105,14 +105,10 @@ bool SkAnalyticQuadraticEdge::updateQuadratic() {
         {
             newx    = oldx + (dx >> shift);
             newy    = oldy + (dy >> shift);
-            SkFDot6 diffY = (newy - fSnappedY) >> 10;
-            slope = diffY ? QuickSkFDot6Div((newx - fSnappedX) >> 10, diffY) : SK_MaxS32;
-            #ifdef SK_ANALYTIC_AA_GUARD
             slope = dy >> 10 > 0 ? QuickSkFDot6Div(dx >> 10, dy >> 10) : SK_MaxS32;
-            #endif
             if (SkAbs32(dy) >= SK_Fixed1 * 2) { // only snap when dy is large enough
                 newSnappedY = SkTMin<SkFixed>(fQEdge.fQLastY, SkFixedRoundToFixed(newy));
-                newSnappedX = newx - SkFixedMul(slope, newy - newSnappedY);
+                newSnappedX = newx + SkFixedMul(slope, newSnappedY - newy);
             } else {
                 newSnappedY = SkTMin(fQEdge.fQLastY, snapY(newy));
                 newSnappedX = newx;
@@ -126,8 +122,9 @@ bool SkAnalyticQuadraticEdge::updateQuadratic() {
             newy    = fQEdge.fQLastY;
             newSnappedY = newy;
             newSnappedX = newx;
-            SkFDot6 diffY = (newy - fSnappedY) >> 10;
-            slope = diffY ? QuickSkFDot6Div((newx - fSnappedX) >> 10, diffY) : SK_MaxS32;
+            slope = (newSnappedY - fSnappedY) >> 10
+                    ? QuickSkFDot6Div((newx - fSnappedX) >> 10, (newy - fSnappedY) >> 10)
+                    : SK_MaxS32;
         }
         if (slope < SK_MaxS32) {
             success = this->updateLine(fSnappedX, fSnappedY, newSnappedX, newSnappedY, slope);
