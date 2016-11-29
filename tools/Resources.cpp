@@ -30,6 +30,9 @@ bool GetResourceAsBitmap(const char* resource, SkBitmap* dst) {
     SkString resourcePath = GetResourcePath(resource);
     sk_sp<SkData> resourceData(SkData::MakeFromFileName(resourcePath.c_str()));
     std::unique_ptr<SkImageGenerator> gen(SkImageGenerator::NewFromEncoded(resourceData.get()));
+    if (!gen) {
+        return false;
+    }
     SkPMColor ctStorage[256];
     sk_sp<SkColorTable> ctable(new SkColorTable(ctStorage, 256));
     int count = ctable->count();
