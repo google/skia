@@ -25,6 +25,42 @@
     },
     {
       "key": {
+        "uuid": "f01d104e_9f6c4421",
+        "filename": "src/core/SkAnalyticEdge.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 108,
+      "author": {
+        "id": 5647
+      },
+      "writtenOn": "2016-11-29T15:09:31Z",
+      "side": 1,
+      "message": "Done, except that in the third occurrence, newSnappedY !\u003d fSnappedY. But the same simplification could also be applied later. Thank you for the suggestion!",
+      "parentUuid": "f01d104e_c4f8b3ce",
+      "revId": "d3f0df1c05e114f37e5f76acc14e8277dfdc862e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "f01d104e_7f6f8815",
+        "filename": "src/core/SkAnalyticEdge.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 108,
+      "author": {
+        "id": 5647
+      },
+      "writtenOn": "2016-11-29T15:09:31Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "f01d104e_c4f8b3ce",
+      "revId": "d3f0df1c05e114f37e5f76acc14e8277dfdc862e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "f01d104e_64e29f16",
         "filename": "src/core/SkAnalyticEdge.cpp",
         "patchSetId": 2
@@ -65,6 +101,24 @@
         "endLine": 127,
         "endChar": 51
       },
+      "revId": "d3f0df1c05e114f37e5f76acc14e8277dfdc862e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "f01d104e_3f651036",
+        "filename": "src/core/SkAnalyticEdge.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 127,
+      "author": {
+        "id": 5647
+      },
+      "writtenOn": "2016-11-29T15:09:31Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "f01d104e_c4aa73ba",
       "revId": "d3f0df1c05e114f37e5f76acc14e8277dfdc862e",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
