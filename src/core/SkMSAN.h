@@ -37,4 +37,10 @@ static inline void sk_msan_mark_initialized(const void* begin, const void* end, 
 #endif
 }
 
+template <typename T>
+static inline void sk_msan_mark_initialized(const T& obj, const char* skbug) {
+    sk_msan_mark_initialized(&obj, &obj+1, skbug);
+}
+
+
 #endif//SkMSAN_DEFINED
