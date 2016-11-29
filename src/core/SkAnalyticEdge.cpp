@@ -109,14 +109,18 @@ bool SkAnalyticQuadraticEdge::updateQuadratic() {
             slope = diffY ? QuickSkFDot6Div((newx - fSnappedX) >> 10, diffY) : SK_MaxS32;
             #ifdef SK_ANALYTIC_AA_GUARD
             slope = dy >> 10 > 0 ? QuickSkFDot6Div(dx >> 10, dy >> 10) : SK_MaxS32;
+            shift = 0;
             #endif
-            if (SkAbs32(dy) >= SK_Fixed1 * 2) { // only snap when dy is large enough
+            if (SkAbs32(dy >> shift) >= SK_Fixed1 * 2) { // only snap when dy is large enough
                 newSnappedY = SkTMin<SkFixed>(fQEdge.fQLastY, SkFixedRoundToFixed(newy));
                 newSnappedX = newx - SkFixedMul(slope, newy - newSnappedY);
             } else {
                 newSnappedY = SkTMin(fQEdge.fQLastY, snapY(newy));
                 newSnappedX = newx;
             }
+            #ifdef SK_ANALYTIC_AA_GUARD
+            shift = fCurveShift;
+            #endif
             dx += fQEdge.fQDDx;
             dy += fQEdge.fQDDy;
         }
