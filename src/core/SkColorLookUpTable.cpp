@@ -8,7 +8,23 @@
 #include "SkColorLookUpTable.h"
 #include "SkFloatingPoint.h"
 
-void SkColorLookUpTable::interp3D(float dst[3], float src[3]) const {
+void SkColorLookUpTable::interp(float* dst, const float* src) const {
+    if (fInputChannels == 3) {
+        interp3D(dst, src);
+    } else {
+        SkASSERT(dst != src);
+        // index gets initialized as the algorithm proceeds by interpDimension.
+        // It's just there to store the choice of low/high so far.
+        int index[kMaxColorChannels];
+        for (uint8_t outputDimension = 0; outputDimension < kOutputChannels; ++outputDimension) {
+            dst[outputDimension] = interpDimension(src, fInputChannels - 1, outputDimension,
+                                                   index);
+        }
+    }
+}
+
+void SkColorLookUpTable::interp3D(float* dst, const float* src) const {
+    SkASSERT(3 == kOutputChannels);
     // Call the src components x, y, and z.
     const uint8_t maxX = fGridPoints[0] - 1;
     const uint8_t maxY = fGridPoints[1] - 1;
@@ -110,4 +126,28 @@ void SkColorLookUpTable::interp3D(float dst[3], float src[3]) const {
         // components.
         ptr++;
     }
+}
+
+float SkColorLookUpTable::interpDimension(const float* src, int inputDimension,
+                                          int outputDimension,
+                                          int index[kMaxColorChannels]) const {
+    if (inputDimension >= 0) {
+        // for each dimension (input channel), try both the low and high point
+        // and then LERP the results.
+        const float x    = src[inputDimension] * (fGridPoints[inputDimension] - 1);
+        index[inputDimension] = sk_float_floor2int(x);
+        const float diff   = x - index[inputDimension];
+        const float lo   = interpDimension(src, inputDimension - 1, outputDimension, index);
+        index[inputDimension] = sk_float_ceil2int(x);
+        const float hi   = interpDimension(src, inputDimension - 1, outputDimension, index);
+        return (1 - diff) * lo + diff * hi;
+    }
+    // base case. just look up index[] into the CLUT.
+    int outputIndex = outputDimension;
+    int indexMultiplier = kOutputChannels;
+    for (int i = fInputChannels - 1; i >= 0; --i) {
+        outputIndex += index[i] * indexMultiplier;
+        indexMultiplier *= fGridPoints[i];
+    }
+    return table()[outputIndex];
 }

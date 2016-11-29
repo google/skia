@@ -633,6 +633,7 @@ SI SkNf parametric(const SkNf& v, const SkColorSpaceTransferFn& p) {
 STAGE(parametric_r) { r = parametric(r, *(const SkColorSpaceTransferFn*)ctx); }
 STAGE(parametric_g) { g = parametric(g, *(const SkColorSpaceTransferFn*)ctx); }
 STAGE(parametric_b) { b = parametric(b, *(const SkColorSpaceTransferFn*)ctx); }
+STAGE(parametric_a) { a = parametric(a, *(const SkColorSpaceTransferFn*)ctx); }
 
 SI SkNf table(const SkNf& v, const SkTableTransferFn& table) {
     float result[N];
@@ -644,23 +645,37 @@ SI SkNf table(const SkNf& v, const SkTableTransferFn& table) {
 STAGE(table_r) { r = table(r, *(const SkTableTransferFn*)ctx); }
 STAGE(table_g) { g = table(g, *(const SkTableTransferFn*)ctx); }
 STAGE(table_b) { b = table(b, *(const SkTableTransferFn*)ctx); }
+STAGE(table_a) { a = table(a, *(const SkTableTransferFn*)ctx); }
 
 STAGE(color_lookup_table) {
     const SkColorLookUpTable* colorLUT = (const SkColorLookUpTable*)ctx;
-    float rgb[3];
-    float result[3][N];
+    static_assert(4 == kMaxColorChannels,
+                  "color_lookup_table stage channel size does not match SkColorLookUpTable");
+    float out[4];
+    float in[4];
+    float result[4][N];
     for (int i = 0; i < N; ++i) {
-        rgb[0] = r[i];
-        rgb[1] = g[i];
-        rgb[2] = b[i];
-        colorLUT->interp3D(rgb, rgb);
-        result[0][i] = rgb[0];
-        result[1][i] = rgb[1];
-        result[2][i] = rgb[2];
+        in[0] = r[i];
+        in[1] = g[i];
+        in[2] = b[i];
+        in[3] = a[i];
+        colorLUT->interp(out, in);
+        for (int j = 0; j < colorLUT->outputChannels(); ++j) {
+            result[j][i] = out[j];
+        }
     }
+    SkASSERT(colorLUT->outputChannels() >= 3);
     r = SkNf::Load(result[0]);
     g = SkNf::Load(result[1]);
     b = SkNf::Load(result[2]);
+    if (colorLUT->inputChannels() >= 4) {
+        if (3 == colorLUT->outputChannels()) {
+            a = 1.f; // preserve alpha
+        } else {
+            SkASSERT(4 == colorLUT->outputChannels());
+            a = SkNf::Load(result[3]);
+        }
+    }
 }
 
 STAGE(lab_to_xyz) {
