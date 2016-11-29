@@ -694,7 +694,7 @@ DEF_TEST(PaintFilterCanvas_ConsistentState, reporter) {
     filterCanvas.scale(0.75f, 0.5f);
     REPORTER_ASSERT(reporter, canvas.getTotalMatrix() == filterCanvas.getTotalMatrix());
     REPORTER_ASSERT(reporter, canvas.getClipBounds(&clip1) == filterCanvas.getClipBounds(&clip2));
-    REPORTER_ASSERT(reporter, clip1 == clip2);
+    REPORTER_ASSERT(reporter, clip2.contains(clip1));
 
 #ifdef SK_EXPERIMENTAL_SHADOWING
     SkShadowTestCanvas* tCanvas = new SkShadowTestCanvas(100,100, reporter);
