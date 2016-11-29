@@ -25,6 +25,24 @@
     },
     {
       "key": {
+        "uuid": "f01d104e_3ab99ecd",
+        "filename": "src/opts/SkRasterPipeline_opts.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 39,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2016-11-29T17:47:19Z",
+      "side": 1,
+      "message": "Incoming.",
+      "parentUuid": "f01d104e_ffd7f80b",
+      "revId": "2cbc33de1b90e774ce6f9e6689e13fb14d9a7634",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "f01d104e_dfc95c6b",
         "filename": "src/opts/SkRasterPipeline_opts.h",
         "patchSetId": 4
@@ -36,6 +54,24 @@
       "writtenOn": "2016-11-29T16:23:10Z",
       "side": 1,
       "message": "Have you tested the performance of using \u0026 and \u003e\u003e instead of \u0026 and /? Instead of N, can you just make this 64?\n\nOtherwise add a todo to investigate.",
+      "revId": "2cbc33de1b90e774ce6f9e6689e13fb14d9a7634",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "f01d104e_1a06a2cf",
+        "filename": "src/opts/SkRasterPipeline_opts.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 61,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2016-11-29T17:47:19Z",
+      "side": 1,
+      "message": "Yes, these compile to \u0026 and \u003e\u003e, and only happen as needed.  This is just easier to write with a single constant (e.g., 8 instead of 7 and 3, 4 instead of 3 and 2).  N is a compile time constant, so there\u0027s no need to overapproximate with something like 64.\n\nTail being down there at the bottom also makes for efficient test instructions, as they have the mask built in.",
+      "parentUuid": "f01d104e_dfc95c6b",
       "revId": "2cbc33de1b90e774ce6f9e6689e13fb14d9a7634",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
