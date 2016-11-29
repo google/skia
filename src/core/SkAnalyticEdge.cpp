@@ -114,6 +114,10 @@ bool SkAnalyticQuadraticEdge::updateQuadratic() {
             if (SkAbs32(dy >> shift) >= SK_Fixed1 * 2) { // only snap when dy is large enough
                 newSnappedY = SkTMin<SkFixed>(fQEdge.fQLastY, SkFixedRoundToFixed(newy));
                 newSnappedX = newx - SkFixedMul(slope, newy - newSnappedY);
+                #ifdef SK_ANALYTIC_AA_GUARD
+                // Note that SkFixedMul use (>> 16) so we'll have different answers
+                newSnappedX = newx + SkFixedMul(slope, newSnappedY - newy);
+                #endif
             } else {
                 newSnappedY = SkTMin(fQEdge.fQLastY, snapY(newy));
                 newSnappedX = newx;
