@@ -45,7 +45,7 @@ GrTextureDomain::GrTextureDomain(const SkRect& domain, Mode mode, int index)
 
 void GrTextureDomain::GLDomain::sampleTexture(GrGLSLShaderBuilder* builder,
                                               GrGLSLUniformHandler* uniformHandler,
-                                              const GrShaderCaps* glslCaps,
+                                              const GrShaderCaps* shaderCaps,
                                               const GrTextureDomain& textureDomain,
                                               const char* outColor,
                                               const SkString& inCoords,
@@ -90,7 +90,7 @@ void GrTextureDomain::GLDomain::sampleTexture(GrGLSLShaderBuilder* builder,
             GrGLSLShaderBuilder::ShaderBlock block(builder);
 
             const char* domain = fDomainName.c_str();
-            if (!glslCaps->canUseAnyFunctionInShader()) {
+            if (!shaderCaps->canUseAnyFunctionInShader()) {
                 // On the NexusS and GalaxyNexus, the other path (with the 'any'
                 // call) causes the compilation error "Calls to any function that
                 // may require a gradient calculation inside a conditional block
@@ -215,7 +215,7 @@ GrGLSLFragmentProcessor* GrTextureDomainEffect::onCreateGLSLInstance() const  {
             SkString coords2D = fragBuilder->ensureCoords2D(args.fTransformedCoords[0]);
             fGLDomain.sampleTexture(fragBuilder,
                                     args.fUniformHandler,
-                                    args.fGLSLCaps,
+                                    args.fShaderCaps,
                                     domain,
                                     args.fOutputColor,
                                     coords2D,
@@ -318,7 +318,7 @@ GrGLSLFragmentProcessor* GrDeviceSpaceTextureDecalFragmentProcessor::onCreateGLS
                                            scaleAndTranslateName, scaleAndTranslateName);
             fGLDomain.sampleTexture(args.fFragBuilder,
                                     args.fUniformHandler,
-                                    args.fGLSLCaps,
+                                    args.fShaderCaps,
                                     dstdfp.fTextureDomain,
                                     args.fOutputColor,
                                     SkString("coords"),

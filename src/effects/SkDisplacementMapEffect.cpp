@@ -614,7 +614,7 @@ void GrGLDisplacementMapEffect::emitCode(EmitArgs& args) {
 
     fGLDomain.sampleTexture(fragBuilder,
                             args.fUniformHandler,
-                            args.fGLSLCaps,
+                            args.fShaderCaps,
                             domain,
                             args.fOutputColor,
                             SkString(cCoords),

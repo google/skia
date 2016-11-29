@@ -26,8 +26,8 @@
 #include "SkRect.h"
 
 bool GrVkCopyManager::createCopyProgram(GrVkGpu* gpu) {
-    const GrShaderCaps* glslCaps = gpu->vkCaps().glslCaps();
-    const char* version = glslCaps->versionDeclString();
+    const GrShaderCaps* shaderCaps = gpu->caps()->shaderCaps();
+    const char* version = shaderCaps->versionDeclString();
     SkString vertShaderText(version);
     vertShaderText.append(
         "#extension GL_ARB_separate_shader_objects : enable\n"

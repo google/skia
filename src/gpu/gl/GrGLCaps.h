@@ -356,8 +356,6 @@ public:
         return fRGBAToBGRAReadbackConversionsAreSlow;
     }
 
-    const GrShaderCaps* glslCaps() const { return fShaderCaps.get(); }
-
 private:
     enum ExternalFormatUsage {
         kTexImage_ExternalFormatUsage,
@@ -380,11 +378,9 @@ private:
     void initBlendEqationSupport(const GrGLContextInfo&);
     void initStencilFormats(const GrGLContextInfo&);
     // This must be called after initFSAASupport().
-    void initConfigTable(const GrGLContextInfo&, const GrGLInterface* gli, GrShaderCaps* glslCaps);
+    void initConfigTable(const GrGLContextInfo&, const GrGLInterface*, GrShaderCaps*);
 
-    void initShaderPrecisionTable(const GrGLContextInfo& ctxInfo,
-                                  const GrGLInterface* intf,
-                                  GrShaderCaps* glslCaps);
+    void initShaderPrecisionTable(const GrGLContextInfo&, const GrGLInterface*, GrShaderCaps*);
 
     GrGLStandard fStandard;
 

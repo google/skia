@@ -63,7 +63,7 @@ void GrGLSLXferProcessor::emitCode(const EmitArgs& args) {
         fragBuilder->appendTextureLookup(args.fTexSamplers[0], "_dstTexCoord", kVec2f_GrSLType);
         fragBuilder->codeAppend(";");
     } else {
-        needsLocalOutColor = args.fGLSLCaps->requiresLocalOutputColorForFBFetch();
+        needsLocalOutColor = args.fShaderCaps->requiresLocalOutputColorForFBFetch();
     }
 
     const char* outColor = "_localColorOut";

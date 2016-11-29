@@ -1864,7 +1864,7 @@ void GrGLLightingEffect::emitCode(EmitArgs& args) {
             fragBuilder->codeAppendf("vec4 %s;", temp.c_str());
             fDomain.sampleTexture(fragBuilder,
                                   args.fUniformHandler,
-                                  args.fGLSLCaps,
+                                  args.fShaderCaps,
                                   le.domain(),
                                   temp.c_str(),
                                   texCoords,

@@ -274,7 +274,7 @@ void Edge2PtConicalEffect::GLSLEdge2PtConicalProcessor::emitCode(EmitArgs& args)
     fragBuilder->codeAppend("\t");
     this->emitColor(fragBuilder,
                     uniformHandler,
-                    args.fGLSLCaps,
+                    args.fShaderCaps,
                     ge,
                     tName.c_str(),
                     args.fOutputColor,
@@ -540,7 +540,7 @@ void FocalOutside2PtConicalEffect::GLSLFocalOutside2PtConicalProcessor::emitCode
     fragBuilder->codeAppend("\t\t");
     this->emitColor(fragBuilder,
                     uniformHandler,
-                    args.fGLSLCaps,
+                    args.fShaderCaps,
                     ge,
                     tName.c_str(),
                     args.fOutputColor,
@@ -721,7 +721,7 @@ void FocalInside2PtConicalEffect::GLSLFocalInside2PtConicalProcessor::emitCode(E
 
     this->emitColor(fragBuilder,
                     uniformHandler,
-                    args.fGLSLCaps,
+                    args.fShaderCaps,
                     ge,
                     tName.c_str(),
                     args.fOutputColor,
@@ -985,7 +985,7 @@ void CircleInside2PtConicalEffect::GLSLCircleInside2PtConicalProcessor::emitCode
 
     this->emitColor(fragBuilder,
                     uniformHandler,
-                    args.fGLSLCaps,
+                    args.fShaderCaps,
                     ge,
                     tName.c_str(),
                     args.fOutputColor,
@@ -1237,7 +1237,7 @@ void CircleOutside2PtConicalEffect::GLSLCircleOutside2PtConicalProcessor::emitCo
     fragBuilder->codeAppend("\t\t");
     this->emitColor(fragBuilder,
                     uniformHandler,
-                    args.fGLSLCaps,
+                    args.fShaderCaps,
                     ge,
                     tName.c_str(),
                     args.fOutputColor,

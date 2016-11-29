@@ -330,7 +330,7 @@ void GrRadialGradient::GLSLRadialProcessor::emitCode(EmitArgs& args) {
     t.append(")");
     this->emitColor(args.fFragBuilder,
                     args.fUniformHandler,
-                    args.fGLSLCaps,
+                    args.fShaderCaps,
                     ge, t.c_str(),
                     args.fOutputColor,
                     args.fInputColor,

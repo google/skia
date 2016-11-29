@@ -94,20 +94,20 @@ GrGLSLFragmentShaderBuilder::GrGLSLFragmentShaderBuilder(GrGLSLProgramBuilder* p
 }
 
 bool GrGLSLFragmentShaderBuilder::enableFeature(GLSLFeature feature) {
-    const GrShaderCaps& glslCaps = *fProgramBuilder->shaderCaps();
+    const GrShaderCaps& shaderCaps = *fProgramBuilder->shaderCaps();
     switch (feature) {
         case kPixelLocalStorage_GLSLFeature:
-            if (glslCaps.pixelLocalStorageSize() <= 0) {
+            if (shaderCaps.pixelLocalStorageSize() <= 0) {
                 return false;
             }
             this->addFeature(1 << kPixelLocalStorage_GLSLFeature,
                              "GL_EXT_shader_pixel_local_storage");
             return true;
         case kMultisampleInterpolation_GLSLFeature:
-            if (!glslCaps.multisampleInterpolationSupport()) {
+            if (!shaderCaps.multisampleInterpolationSupport()) {
                 return false;
             }
-            if (const char* extension = glslCaps.multisampleInterpolationExtensionString()) {
+            if (const char* extension = shaderCaps.multisampleInterpolationExtensionString()) {
                 this->addFeature(1 << kMultisampleInterpolation_GLSLFeature, extension);
             }
             return true;
@@ -133,16 +133,16 @@ SkString GrGLSLFragmentShaderBuilder::ensureCoords2D(const GrShaderVar& coords) 
 const char* GrGLSLFragmentShaderBuilder::fragmentPosition() {
     SkDEBUGCODE(fUsedProcessorFeatures |= GrProcessor::kFragmentPosition_RequiredFeature;)
 
-    const GrShaderCaps* glslCaps = fProgramBuilder->shaderCaps();
+    const GrShaderCaps* shaderCaps = fProgramBuilder->shaderCaps();
     // We only declare "gl_FragCoord" when we're in the case where we want to use layout qualifiers
     // to reverse y. Otherwise it isn't necessary and whether the "in" qualifier appears in the
     // declaration varies in earlier GLSL specs. So it is simpler to omit it.
     if (kTopLeft_GrSurfaceOrigin == this->getSurfaceOrigin()) {
         fSetupFragPosition = true;
         return "gl_FragCoord";
-    } else if (const char* extension = glslCaps->fragCoordConventionsExtensionString()) {
+    } else if (const char* extension = shaderCaps->fragCoordConventionsExtensionString()) {
         if (!fSetupFragPosition) {
-            if (glslCaps->generation() < k150_GrGLSLGeneration) {
+            if (shaderCaps->generation() < k150_GrGLSLGeneration) {
                 this->addFeature(1 << kFragCoordConventions_GLSLPrivateFeature,
                                  extension);
             }
@@ -193,12 +193,12 @@ void GrGLSLFragmentShaderBuilder::appendOffsetToSample(const char* sampleIdx, Co
 }
 
 void GrGLSLFragmentShaderBuilder::maskSampleCoverage(const char* mask, bool invert) {
-    const GrShaderCaps& glslCaps = *fProgramBuilder->shaderCaps();
-    if (!glslCaps.sampleVariablesSupport()) {
+    const GrShaderCaps& shaderCaps = *fProgramBuilder->shaderCaps();
+    if (!shaderCaps.sampleVariablesSupport()) {
         SkDEBUGFAIL("Attempted to mask sample coverage without support.");
         return;
     }
-    if (const char* extension = glslCaps.sampleVariablesExtensionString()) {
+    if (const char* extension = shaderCaps.sampleVariablesExtensionString()) {
         this->addFeature(1 << kSampleVariables_GLSLPrivateFeature, extension);
     }
     if (!fHasInitializedSampleMask) {
@@ -213,13 +213,13 @@ void GrGLSLFragmentShaderBuilder::maskSampleCoverage(const char* mask, bool inve
 }
 
 void GrGLSLFragmentShaderBuilder::overrideSampleCoverage(const char* mask) {
-    const GrShaderCaps& glslCaps = *fProgramBuilder->shaderCaps();
-    if (!glslCaps.sampleMaskOverrideCoverageSupport()) {
+    const GrShaderCaps& shaderCaps = *fProgramBuilder->shaderCaps();
+    if (!shaderCaps.sampleMaskOverrideCoverageSupport()) {
         SkDEBUGFAIL("Attempted to override sample coverage without support.");
         return;
     }
-    SkASSERT(glslCaps.sampleVariablesSupport());
-    if (const char* extension = glslCaps.sampleVariablesExtensionString()) {
+    SkASSERT(shaderCaps.sampleVariablesSupport());
+    if (const char* extension = shaderCaps.sampleVariablesExtensionString()) {
         this->addFeature(1 << kSampleVariables_GLSLPrivateFeature, extension);
     }
     if (this->addFeature(1 << kSampleMaskOverrideCoverage_GLSLPrivateFeature,
@@ -240,14 +240,14 @@ const char* GrGLSLFragmentShaderBuilder::dstColor() {
         return override;
     }
 
-    const GrShaderCaps* glslCaps = fProgramBuilder->shaderCaps();
-    if (glslCaps->fbFetchSupport()) {
+    const GrShaderCaps* shaderCaps = fProgramBuilder->shaderCaps();
+    if (shaderCaps->fbFetchSupport()) {
         this->addFeature(1 << kFramebufferFetch_GLSLPrivateFeature,
-                         glslCaps->fbFetchExtensionString());
+                         shaderCaps->fbFetchExtensionString());
 
         // Some versions of this extension string require declaring custom color output on ES 3.0+
-        const char* fbFetchColorName = glslCaps->fbFetchColorName();
-        if (glslCaps->fbFetchNeedsCustomOutput()) {
+        const char* fbFetchColorName = shaderCaps->fbFetchColorName();
+        if (shaderCaps->fbFetchNeedsCustomOutput()) {
             this->enableCustomOutput();
             fOutputs[fCustomColorOutputIndex].setTypeModifier(GrShaderVar::kInOut_TypeModifier);
             fbFetchColorName = DeclaredColorOutputName();

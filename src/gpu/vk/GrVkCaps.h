@@ -83,8 +83,6 @@ public:
         return fPreferedStencilFormat;
     }
 
-    GrShaderCaps* glslCaps() const { return fShaderCaps.get(); }
-
 private:
     enum VkVendor {
         kQualcomm_VkVendor = 20803,
@@ -96,7 +94,7 @@ private:
     void initGrCaps(const VkPhysicalDeviceProperties&,
                     const VkPhysicalDeviceMemoryProperties&,
                     uint32_t featureFlags);
-    void initGLSLCaps(const VkPhysicalDeviceProperties&, uint32_t featureFlags);
+    void initShaderCaps(const VkPhysicalDeviceProperties&, uint32_t featureFlags);
     void initSampleCount(const VkPhysicalDeviceProperties& properties);
 
 

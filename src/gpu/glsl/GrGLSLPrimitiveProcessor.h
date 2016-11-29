@@ -85,7 +85,7 @@ public:
             , fFragBuilder(fragBuilder)
             , fVaryingHandler(varyingHandler)
             , fUniformHandler(uniformHandler)
-            , fGLSLCaps(caps)
+            , fShaderCaps(caps)
             , fGP(gp)
             , fOutputColor(outputColor)
             , fOutputCoverage(outputCoverage)
@@ -99,7 +99,7 @@ public:
         GrGLSLPPFragmentBuilder* fFragBuilder;
         GrGLSLVaryingHandler* fVaryingHandler;
         GrGLSLUniformHandler* fUniformHandler;
-        const GrShaderCaps* fGLSLCaps;
+        const GrShaderCaps* fShaderCaps;
         const GrPrimitiveProcessor& fGP;
         const char* fOutputColor;
         const char* fOutputCoverage;

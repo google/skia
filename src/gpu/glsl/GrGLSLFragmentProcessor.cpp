@@ -52,7 +52,7 @@ void GrGLSLFragmentProcessor::internalEmitChild(int childIndex, const char* inpu
     ImageStorages imageStorages = args.fImageStorages.childInputs(childIndex);
     EmitArgs childArgs(fragBuilder,
                        args.fUniformHandler,
-                       args.fGLSLCaps,
+                       args.fShaderCaps,
                        childProc,
                        outputColor,
                        inputColor,

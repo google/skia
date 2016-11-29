@@ -80,7 +80,7 @@ void GrShaderVar::setIOType(GrIOType ioType) {
     SkFAIL("Unknown io type.");
 }
 
-void GrShaderVar::appendDecl(const GrShaderCaps* glslCaps, SkString* out) const {
+void GrShaderVar::appendDecl(const GrShaderCaps* shaderCaps, SkString* out) const {
     SkASSERT(kDefault_GrSLPrecision == fPrecision || GrSLTypeAcceptsPrecision(fType));
     SkString layout = fLayoutQualifier;
     if (!fLayoutQualifier.isEmpty()) {
@@ -92,7 +92,7 @@ void GrShaderVar::appendDecl(const GrShaderCaps* glslCaps, SkString* out) const 
         out->append(" ");
     }
     GrSLType effectiveType = this->getType();
-    if (glslCaps->usesPrecisionModifiers() && GrSLTypeAcceptsPrecision(effectiveType)) {
+    if (shaderCaps->usesPrecisionModifiers() && GrSLTypeAcceptsPrecision(effectiveType)) {
         // Desktop GLSL has added precision qualifiers but they don't do anything.
         out->appendf("%s ", GrGLSLPrecisionString(fPrecision));
     }

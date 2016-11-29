@@ -435,7 +435,7 @@ void GrLinearGradient::GLSLLinearProcessor::emitCode(EmitArgs& args) {
     t.append(".x");
     this->emitColor(args.fFragBuilder,
                     args.fUniformHandler,
-                    args.fGLSLCaps,
+                    args.fShaderCaps,
                     ge,
                     t.c_str(),
                     args.fOutputColor,

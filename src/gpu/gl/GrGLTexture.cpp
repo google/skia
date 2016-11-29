@@ -16,7 +16,7 @@
 static inline GrSLType sampler_type(const GrGLTexture::IDDesc& idDesc, GrPixelConfig config,
                                     const GrGLGpu* gpu) {
     if (idDesc.fInfo.fTarget == GR_GL_TEXTURE_EXTERNAL) {
-        SkASSERT(gpu->glCaps().glslCaps()->externalTextureSupport());
+        SkASSERT(gpu->caps()->shaderCaps()->externalTextureSupport());
         SkASSERT(!GrPixelConfigIsSint(config));
         return kTextureExternalSampler_GrSLType;
     } else if (idDesc.fInfo.fTarget == GR_GL_TEXTURE_RECTANGLE) {
