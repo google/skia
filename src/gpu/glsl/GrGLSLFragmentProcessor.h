@@ -15,7 +15,6 @@
 
 class GrProcessor;
 class GrProcessorKeyBuilder;
-class GrGLSLCaps;
 class GrGLSLFPBuilder;
 class GrGLSLFPFragmentBuilder;
 
@@ -112,7 +111,7 @@ public:
     struct EmitArgs {
         EmitArgs(GrGLSLFPFragmentBuilder* fragBuilder,
                  GrGLSLUniformHandler* uniformHandler,
-                 const GrGLSLCaps* caps,
+                 const GrShaderCaps* caps,
                  const GrFragmentProcessor& fp,
                  const char* outputColor,
                  const char* inputColor,
@@ -134,7 +133,7 @@ public:
             , fGpImplementsDistanceVector(gpImplementsDistanceVector) {}
         GrGLSLFPFragmentBuilder* fFragBuilder;
         GrGLSLUniformHandler* fUniformHandler;
-        const GrGLSLCaps* fGLSLCaps;
+        const GrShaderCaps* fGLSLCaps;
         const GrFragmentProcessor& fFp;
         const char* fOutputColor;
         const char* fInputColor;
@@ -149,7 +148,7 @@ public:
 
     void setData(const GrGLSLProgramDataManager& pdman, const GrFragmentProcessor& processor);
 
-    static void GenKey(const GrProcessor&, const GrGLSLCaps&, GrProcessorKeyBuilder*) {}
+    static void GenKey(const GrProcessor&, const GrShaderCaps&, GrProcessorKeyBuilder*) {}
 
     int numChildProcessors() const { return fChildProcessors.count(); }
 

@@ -10,12 +10,12 @@
 #include "GrFragmentProcessor.h"
 #include "GrInvariantOutput.h"
 #include "SkRect.h"
-#include "glsl/GrGLSL.h"
-#include "glsl/GrGLSLCaps.h"
+#include "GrShaderCaps.h"
 #include "glsl/GrGLSLFragmentProcessor.h"
 #include "glsl/GrGLSLFragmentShaderBuilder.h"
 #include "glsl/GrGLSLProgramDataManager.h"
 #include "glsl/GrGLSLUniformHandler.h"
+#include "../private/GrGLSL.h"
 
 //////////////////////////////////////////////////////////////////////////////
 
@@ -38,7 +38,7 @@ private:
 
     GrGLSLFragmentProcessor* onCreateGLSLInstance() const override;
 
-    void onGetGLSLProcessorKey(const GrGLSLCaps&, GrProcessorKeyBuilder*) const override;
+    void onGetGLSLProcessorKey(const GrShaderCaps&, GrProcessorKeyBuilder*) const override;
 
     bool onIsEqual(const GrFragmentProcessor&) const override;
 
@@ -100,7 +100,7 @@ public:
 
     virtual void emitCode(EmitArgs&) override;
 
-    static inline void GenKey(const GrProcessor&, const GrGLSLCaps&, GrProcessorKeyBuilder*);
+    static inline void GenKey(const GrProcessor&, const GrShaderCaps&, GrProcessorKeyBuilder*);
 
 protected:
     void onSetData(const GrGLSLProgramDataManager&, const GrProcessor&) override;
@@ -148,7 +148,7 @@ void GLCircleEffect::emitCode(EmitArgs& args) {
                              (GrGLSLExpr4(args.fInputColor) * GrGLSLExpr1("d")).c_str());
 }
 
-void GLCircleEffect::GenKey(const GrProcessor& processor, const GrGLSLCaps&,
+void GLCircleEffect::GenKey(const GrProcessor& processor, const GrShaderCaps&,
                             GrProcessorKeyBuilder* b) {
     const CircleEffect& ce = processor.cast<CircleEffect>();
     b->add32(ce.getEdgeType());
@@ -173,7 +173,7 @@ void GLCircleEffect::onSetData(const GrGLSLProgramDataManager& pdman,
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
-void CircleEffect::onGetGLSLProcessorKey(const GrGLSLCaps& caps,
+void CircleEffect::onGetGLSLProcessorKey(const GrShaderCaps& caps,
                                          GrProcessorKeyBuilder* b) const {
     GLCircleEffect::GenKey(*this, caps, b);
 }
@@ -203,7 +203,7 @@ private:
 
     GrGLSLFragmentProcessor* onCreateGLSLInstance() const override;
 
-    void onGetGLSLProcessorKey(const GrGLSLCaps&, GrProcessorKeyBuilder*) const override;
+    void onGetGLSLProcessorKey(const GrShaderCaps&, GrProcessorKeyBuilder*) const override;
 
     bool onIsEqual(const GrFragmentProcessor&) const override;
 
@@ -270,7 +270,7 @@ public:
 
     void emitCode(EmitArgs&) override;
 
-    static inline void GenKey(const GrProcessor&, const GrGLSLCaps&, GrProcessorKeyBuilder*);
+    static inline void GenKey(const GrProcessor&, const GrShaderCaps&, GrProcessorKeyBuilder*);
 
 protected:
     void onSetData(const GrGLSLProgramDataManager&, const GrProcessor&) override;
@@ -345,7 +345,7 @@ void GLEllipseEffect::emitCode(EmitArgs& args) {
                              (GrGLSLExpr4(args.fInputColor) * GrGLSLExpr1("alpha")).c_str());
 }
 
-void GLEllipseEffect::GenKey(const GrProcessor& effect, const GrGLSLCaps&,
+void GLEllipseEffect::GenKey(const GrProcessor& effect, const GrShaderCaps&,
                              GrProcessorKeyBuilder* b) {
     const EllipseEffect& ee = effect.cast<EllipseEffect>();
     b->add32(ee.getEdgeType());
@@ -383,7 +383,7 @@ void GLEllipseEffect::onSetData(const GrGLSLProgramDataManager& pdman,
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
-void EllipseEffect::onGetGLSLProcessorKey(const GrGLSLCaps& caps,
+void EllipseEffect::onGetGLSLProcessorKey(const GrShaderCaps& caps,
                                           GrProcessorKeyBuilder* b) const {
     GLEllipseEffect::GenKey(*this, caps, b);
 }

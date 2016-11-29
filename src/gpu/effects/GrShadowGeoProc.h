@@ -34,9 +34,9 @@ public:
     bool colorIgnored() const { return GrColor_ILLEGAL == fColor; }
     const SkMatrix& localMatrix() const { return fLocalMatrix; }
 
-    void getGLSLProcessorKey(const GrGLSLCaps& caps, GrProcessorKeyBuilder* b) const override;
+    void getGLSLProcessorKey(const GrShaderCaps& caps, GrProcessorKeyBuilder* b) const override;
 
-    GrGLSLPrimitiveProcessor* createGLSLInstance(const GrGLSLCaps&) const override;
+    GrGLSLPrimitiveProcessor* createGLSLInstance(const GrShaderCaps&) const override;
 
 private:
     GrRRectShadowGeoProc(const SkMatrix& localMatrix);

@@ -15,12 +15,12 @@
 
 class GrBatchTracker;
 class GrPrimitiveProcessor;
-class GrGLSLCaps;
 class GrGLSLPPFragmentBuilder;
 class GrGLSLGeometryBuilder;
 class GrGLSLGPBuilder;
 class GrGLSLVaryingHandler;
 class GrGLSLVertexBuilder;
+class GrShaderCaps;
 
 class GrGLSLPrimitiveProcessor {
 public:
@@ -71,7 +71,7 @@ public:
                  GrGLSLPPFragmentBuilder* fragBuilder,
                  GrGLSLVaryingHandler* varyingHandler,
                  GrGLSLUniformHandler* uniformHandler,
-                 const GrGLSLCaps* caps,
+                 const GrShaderCaps* caps,
                  const GrPrimitiveProcessor& gp,
                  const char* outputColor,
                  const char* outputCoverage,
@@ -99,7 +99,7 @@ public:
         GrGLSLPPFragmentBuilder* fFragBuilder;
         GrGLSLVaryingHandler* fVaryingHandler;
         GrGLSLUniformHandler* fUniformHandler;
-        const GrGLSLCaps* fGLSLCaps;
+        const GrShaderCaps* fGLSLCaps;
         const GrPrimitiveProcessor& fGP;
         const char* fOutputColor;
         const char* fOutputCoverage;

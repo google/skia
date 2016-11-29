@@ -601,7 +601,7 @@ public:
         }
 
         static inline void GenKey(const GrGeometryProcessor& gp,
-                                  const GrGLSLCaps&,
+                                  const GrShaderCaps&,
                                   GrProcessorKeyBuilder* b) {
             const QuadEdgeEffect& qee = gp.cast<QuadEdgeEffect>();
             uint32_t key = 0;
@@ -630,11 +630,11 @@ public:
         typedef GrGLSLGeometryProcessor INHERITED;
     };
 
-    void getGLSLProcessorKey(const GrGLSLCaps& caps, GrProcessorKeyBuilder* b) const override {
+    void getGLSLProcessorKey(const GrShaderCaps& caps, GrProcessorKeyBuilder* b) const override {
         GLSLProcessor::GenKey(*this, caps, b);
     }
 
-    GrGLSLPrimitiveProcessor* createGLSLInstance(const GrGLSLCaps&) const override {
+    GrGLSLPrimitiveProcessor* createGLSLInstance(const GrShaderCaps&) const override {
         return new GLSLProcessor();
     }
 

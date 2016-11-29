@@ -12,11 +12,11 @@
 #include "GrInvariantOutput.h"
 #include "SkRefCnt.h"
 
-#include "glsl/GrGLSL.h"
 #include "glsl/GrGLSLColorSpaceXformHelper.h"
 #include "glsl/GrGLSLFragmentProcessor.h"
 #include "glsl/GrGLSLFragmentShaderBuilder.h"
 #include "glsl/GrGLSLUniformHandler.h"
+#include "../private/GrGLSL.h"
 
 sk_sp<GrFragmentProcessor> GrAlphaThresholdFragmentProcessor::Make(
                                                            GrTexture* texture,
@@ -85,7 +85,7 @@ class GrGLAlphaThresholdFragmentProcessor : public GrGLSLFragmentProcessor {
 public:
     void emitCode(EmitArgs&) override;
 
-    static inline void GenKey(const GrProcessor& effect, const GrGLSLCaps&,
+    static inline void GenKey(const GrProcessor& effect, const GrShaderCaps&,
                               GrProcessorKeyBuilder* b) {
         const GrAlphaThresholdFragmentProcessor& atfp =
             effect.cast<GrAlphaThresholdFragmentProcessor>();
@@ -187,7 +187,7 @@ sk_sp<GrFragmentProcessor> GrAlphaThresholdFragmentProcessor::TestCreate(GrProce
 
 ///////////////////////////////////////////////////////////////////////////////
 
-void GrAlphaThresholdFragmentProcessor::onGetGLSLProcessorKey(const GrGLSLCaps& caps,
+void GrAlphaThresholdFragmentProcessor::onGetGLSLProcessorKey(const GrShaderCaps& caps,
                                                               GrProcessorKeyBuilder* b) const {
     GrGLAlphaThresholdFragmentProcessor::GenKey(*this, caps, b);
 }

@@ -7,7 +7,7 @@
 
 
 #include "GrShaderVar.h"
-#include "glsl/GrGLSLCaps.h"
+#include "GrShaderCaps.h"
 
 static const char* type_modifier_string(GrShaderVar::TypeModifier t) {
     switch (t) {
@@ -80,7 +80,7 @@ void GrShaderVar::setIOType(GrIOType ioType) {
     SkFAIL("Unknown io type.");
 }
 
-void GrShaderVar::appendDecl(const GrGLSLCaps* glslCaps, SkString* out) const {
+void GrShaderVar::appendDecl(const GrShaderCaps* glslCaps, SkString* out) const {
     SkASSERT(kDefault_GrSLPrecision == fPrecision || GrSLTypeAcceptsPrecision(fType));
     SkString layout = fLayoutQualifier;
     if (!fLayoutQualifier.isEmpty()) {

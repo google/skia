@@ -19,11 +19,11 @@
 #include "GrContext.h"
 #include "GrInvariantOutput.h"
 #include "effects/GrSingleTextureEffect.h"
-#include "glsl/GrGLSL.h"
 #include "glsl/GrGLSLFragmentProcessor.h"
 #include "glsl/GrGLSLFragmentShaderBuilder.h"
 #include "glsl/GrGLSLProgramDataManager.h"
 #include "glsl/GrGLSLUniformHandler.h"
+#include "../private/GrGLSL.h"
 
 class GrMagnifierEffect : public GrSingleTextureEffect {
 
@@ -81,7 +81,7 @@ private:
 
     GrGLSLFragmentProcessor* onCreateGLSLInstance() const override;
 
-    void onGetGLSLProcessorKey(const GrGLSLCaps&, GrProcessorKeyBuilder*) const override;
+    void onGetGLSLProcessorKey(const GrShaderCaps&, GrProcessorKeyBuilder*) const override;
 
     bool onIsEqual(const GrFragmentProcessor&) const override;
 
@@ -181,7 +181,7 @@ void GrGLMagnifierEffect::onSetData(const GrGLSLProgramDataManager& pdman,
 
 /////////////////////////////////////////////////////////////////////
 
-void GrMagnifierEffect::onGetGLSLProcessorKey(const GrGLSLCaps& caps,
+void GrMagnifierEffect::onGetGLSLProcessorKey(const GrShaderCaps& caps,
                                               GrProcessorKeyBuilder* b) const {
     GrGLMagnifierEffect::GenKey(*this, caps, b);
 }

@@ -42,9 +42,9 @@ public:
     const SkMatrix& localMatrix() const { return fLocalMatrix; }
     bool usesLocalCoords() const { return fUsesLocalCoords; }
 
-    void getGLSLProcessorKey(const GrGLSLCaps& caps, GrProcessorKeyBuilder* b) const override;
+    void getGLSLProcessorKey(const GrShaderCaps& caps, GrProcessorKeyBuilder* b) const override;
 
-    GrGLSLPrimitiveProcessor* createGLSLInstance(const GrGLSLCaps& caps) const override;
+    GrGLSLPrimitiveProcessor* createGLSLInstance(const GrShaderCaps& caps) const override;
 
 private:
     GrBitmapTextGeoProc(GrColor, GrTexture* texture, const GrSamplerParams& params,

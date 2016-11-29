@@ -355,7 +355,7 @@ public:
 private:
     GrGLSLFragmentProcessor* onCreateGLSLInstance() const override;
 
-    void onGetGLSLProcessorKey(const GrGLSLCaps&, GrProcessorKeyBuilder*) const override;
+    void onGetGLSLProcessorKey(const GrShaderCaps&, GrProcessorKeyBuilder*) const override;
 
     bool onIsEqual(const GrFragmentProcessor&) const override;
 
@@ -380,7 +380,7 @@ class GLColorTableEffect : public GrGLSLFragmentProcessor {
 public:
     void emitCode(EmitArgs&) override;
 
-    static void GenKey(const GrProcessor&, const GrGLSLCaps&, GrProcessorKeyBuilder*) {}
+    static void GenKey(const GrProcessor&, const GrShaderCaps&, GrProcessorKeyBuilder*) {}
 
 protected:
     void onSetData(const GrGLSLProgramDataManager&, const GrProcessor&) override;
@@ -499,7 +499,7 @@ ColorTableEffect::~ColorTableEffect() {
     }
 }
 
-void ColorTableEffect::onGetGLSLProcessorKey(const GrGLSLCaps& caps,
+void ColorTableEffect::onGetGLSLProcessorKey(const GrShaderCaps& caps,
                                              GrProcessorKeyBuilder* b) const {
     GLColorTableEffect::GenKey(*this, caps, b);
 }

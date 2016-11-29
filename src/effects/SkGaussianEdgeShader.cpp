@@ -95,8 +95,7 @@ public:
             }
         }
 
-        static void GenKey(const GrProcessor& proc, const GrGLSLCaps&,
-                           GrProcessorKeyBuilder* b) {
+        static void GenKey(const GrProcessor& proc, const GrShaderCaps&, GrProcessorKeyBuilder* b) {
             // only one shader generated currently
             b->add32(0x0);
         }
@@ -107,7 +106,7 @@ public:
         bool fLargerBlur;
     };
 
-    void onGetGLSLProcessorKey(const GrGLSLCaps& caps, GrProcessorKeyBuilder* b) const override {
+    void onGetGLSLProcessorKey(const GrShaderCaps& caps, GrProcessorKeyBuilder* b) const override {
         GLSLGaussianEdgeFP::GenKey(*this, caps, b);
     }
 

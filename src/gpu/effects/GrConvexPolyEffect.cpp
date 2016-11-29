@@ -9,11 +9,11 @@
 #include "GrInvariantOutput.h"
 #include "SkPathPriv.h"
 #include "effects/GrConstColorProcessor.h"
-#include "glsl/GrGLSL.h"
 #include "glsl/GrGLSLFragmentProcessor.h"
 #include "glsl/GrGLSLFragmentShaderBuilder.h"
 #include "glsl/GrGLSLProgramDataManager.h"
 #include "glsl/GrGLSLUniformHandler.h"
+#include "../private/GrGLSL.h"
 
 //////////////////////////////////////////////////////////////////////////////
 class AARectEffect : public GrFragmentProcessor {
@@ -28,7 +28,7 @@ public:
 
     const char* name() const override { return "AARect"; }
 
-    void onGetGLSLProcessorKey(const GrGLSLCaps&, GrProcessorKeyBuilder*) const override;
+    void onGetGLSLProcessorKey(const GrShaderCaps&, GrProcessorKeyBuilder*) const override;
 
 private:
     AARectEffect(GrPrimitiveEdgeType edgeType, const SkRect& rect)
@@ -89,7 +89,7 @@ public:
 
     void emitCode(EmitArgs&) override;
 
-    static inline void GenKey(const GrProcessor&, const GrGLSLCaps&, GrProcessorKeyBuilder*);
+    static inline void GenKey(const GrProcessor&, const GrShaderCaps&, GrProcessorKeyBuilder*);
 
 protected:
     void onSetData(const GrGLSLProgramDataManager&, const GrProcessor&) override;
@@ -151,13 +151,13 @@ void GLAARectEffect::onSetData(const GrGLSLProgramDataManager& pdman,
     }
 }
 
-void GLAARectEffect::GenKey(const GrProcessor& processor, const GrGLSLCaps&,
+void GLAARectEffect::GenKey(const GrProcessor& processor, const GrShaderCaps&,
                             GrProcessorKeyBuilder* b) {
     const AARectEffect& aare = processor.cast<AARectEffect>();
     b->add32(aare.getEdgeType());
 }
 
-void AARectEffect::onGetGLSLProcessorKey(const GrGLSLCaps& caps, GrProcessorKeyBuilder* b) const {
+void AARectEffect::onGetGLSLProcessorKey(const GrShaderCaps& caps, GrProcessorKeyBuilder* b) const {
     GLAARectEffect::GenKey(*this, caps, b);
 }
 
@@ -175,7 +175,7 @@ public:
 
     void emitCode(EmitArgs&) override;
 
-    static inline void GenKey(const GrProcessor&, const GrGLSLCaps&, GrProcessorKeyBuilder*);
+    static inline void GenKey(const GrProcessor&, const GrShaderCaps&, GrProcessorKeyBuilder*);
 
 protected:
     void onSetData(const GrGLSLProgramDataManager&, const GrProcessor&) override;
@@ -228,7 +228,7 @@ void GrGLConvexPolyEffect::onSetData(const GrGLSLProgramDataManager& pdman,
     }
 }
 
-void GrGLConvexPolyEffect::GenKey(const GrProcessor& processor, const GrGLSLCaps&,
+void GrGLConvexPolyEffect::GenKey(const GrProcessor& processor, const GrShaderCaps&,
                                   GrProcessorKeyBuilder* b) {
     const GrConvexPolyEffect& cpe = processor.cast<GrConvexPolyEffect>();
     GR_STATIC_ASSERT(kGrProcessorEdgeTypeCnt <= 8);
@@ -327,7 +327,7 @@ void GrConvexPolyEffect::onComputeInvariantOutput(GrInvariantOutput* inout) cons
     inout->mulByUnknownSingleComponent();
 }
 
-void GrConvexPolyEffect::onGetGLSLProcessorKey(const GrGLSLCaps& caps,
+void GrConvexPolyEffect::onGetGLSLProcessorKey(const GrShaderCaps& caps,
                                                GrProcessorKeyBuilder* b) const {
     GrGLConvexPolyEffect::GenKey(*this, caps, b);
 }

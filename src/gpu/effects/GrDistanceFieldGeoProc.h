@@ -82,9 +82,9 @@ public:
 #endif
     uint32_t getFlags() const { return fFlags; }
 
-    void getGLSLProcessorKey(const GrGLSLCaps& caps, GrProcessorKeyBuilder* b) const override;
+    void getGLSLProcessorKey(const GrShaderCaps& caps, GrProcessorKeyBuilder* b) const override;
 
-    GrGLSLPrimitiveProcessor* createGLSLInstance(const GrGLSLCaps&) const override;
+    GrGLSLPrimitiveProcessor* createGLSLInstance(const GrShaderCaps&) const override;
 
 private:
     GrDistanceFieldA8TextGeoProc(GrColor, const SkMatrix& viewMatrix,
@@ -140,9 +140,9 @@ public:
     uint32_t getFlags() const { return fFlags; }
     bool usesLocalCoords() const { return fUsesLocalCoords; }
 
-    void getGLSLProcessorKey(const GrGLSLCaps& caps, GrProcessorKeyBuilder* b) const override;
+    void getGLSLProcessorKey(const GrShaderCaps& caps, GrProcessorKeyBuilder* b) const override;
 
-    GrGLSLPrimitiveProcessor* createGLSLInstance(const GrGLSLCaps&) const override;
+    GrGLSLPrimitiveProcessor* createGLSLInstance(const GrShaderCaps&) const override;
 
 private:
     GrDistanceFieldPathGeoProc(GrColor, const SkMatrix& viewMatrix, GrTexture* texture,
@@ -209,9 +209,9 @@ public:
     uint32_t getFlags() const { return fFlags; }
     bool usesLocalCoords() const { return fUsesLocalCoords; }
 
-    void getGLSLProcessorKey(const GrGLSLCaps& caps, GrProcessorKeyBuilder* b) const override;
+    void getGLSLProcessorKey(const GrShaderCaps& caps, GrProcessorKeyBuilder* b) const override;
 
-    GrGLSLPrimitiveProcessor* createGLSLInstance(const GrGLSLCaps&) const override;
+    GrGLSLPrimitiveProcessor* createGLSLInstance(const GrShaderCaps&) const override;
 
 private:
     GrDistanceFieldLCDTextGeoProc(GrColor, const SkMatrix& viewMatrix,

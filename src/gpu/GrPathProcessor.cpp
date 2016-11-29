@@ -7,8 +7,8 @@
 
 #include "GrPathProcessor.h"
 
+#include "GrShaderCaps.h"
 #include "gl/GrGLGpu.h"
-#include "glsl/GrGLSLCaps.h"
 #include "glsl/GrGLSLFragmentShaderBuilder.h"
 #include "glsl/GrGLSLUniformHandler.h"
 #include "glsl/GrGLSLVarying.h"
@@ -18,7 +18,7 @@ public:
     GrGLPathProcessor() : fColor(GrColor_ILLEGAL) {}
 
     static void GenKey(const GrPathProcessor& pathProc,
-                       const GrGLSLCaps&,
+                       const GrShaderCaps&,
                        GrProcessorKeyBuilder* b) {
         b->add32(SkToInt(pathProc.overrides().readsColor()) |
                  (SkToInt(pathProc.overrides().readsCoverage()) << 1) |
@@ -130,12 +130,12 @@ GrPathProcessor::GrPathProcessor(GrColor color,
     this->initClassID<GrPathProcessor>();
 }
 
-void GrPathProcessor::getGLSLProcessorKey(const GrGLSLCaps& caps,
+void GrPathProcessor::getGLSLProcessorKey(const GrShaderCaps& caps,
                                           GrProcessorKeyBuilder* b) const {
     GrGLPathProcessor::GenKey(*this, caps, b);
 }
 
-GrGLSLPrimitiveProcessor* GrPathProcessor::createGLSLInstance(const GrGLSLCaps& caps) const {
+GrGLSLPrimitiveProcessor* GrPathProcessor::createGLSLInstance(const GrShaderCaps& caps) const {
     SkASSERT(caps.pathRenderingSupport());
     return new GrGLPathProcessor();
 }

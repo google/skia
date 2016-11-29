@@ -479,7 +479,7 @@ class GrGLPerlinNoise : public GrGLSLFragmentProcessor {
 public:
     void emitCode(EmitArgs&) override;
 
-    static inline void GenKey(const GrProcessor&, const GrGLSLCaps&, GrProcessorKeyBuilder*);
+    static inline void GenKey(const GrProcessor&, const GrShaderCaps&, GrProcessorKeyBuilder*);
 
 protected:
     void onSetData(const GrGLSLProgramDataManager&, const GrProcessor&) override;
@@ -522,7 +522,7 @@ private:
         return new GrGLPerlinNoise;
     }
 
-    virtual void onGetGLSLProcessorKey(const GrGLSLCaps& caps,
+    virtual void onGetGLSLProcessorKey(const GrShaderCaps& caps,
                                        GrProcessorKeyBuilder* b) const override {
         GrGLPerlinNoise::GenKey(*this, caps, b);
     }
@@ -848,7 +848,7 @@ void GrGLPerlinNoise::emitCode(EmitArgs& args) {
                              args.fOutputColor, args.fOutputColor);
 }
 
-void GrGLPerlinNoise::GenKey(const GrProcessor& processor, const GrGLSLCaps&,
+void GrGLPerlinNoise::GenKey(const GrProcessor& processor, const GrShaderCaps&,
                              GrProcessorKeyBuilder* b) {
     const GrPerlinNoiseEffect& turbulence = processor.cast<GrPerlinNoiseEffect>();
 

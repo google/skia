@@ -11,16 +11,15 @@
 
 #include <functional>
 
-#include "glsl/GrGLSL.h"
 #include "GrCaps.h"
 #include "GrGLStencilAttachment.h"
 #include "GrSwizzle.h"
 #include "SkChecksum.h"
 #include "SkTHash.h"
 #include "SkTArray.h"
+#include "../private/GrGLSL.h"
 
 class GrGLContextInfo;
-class GrGLSLCaps;
 class GrGLRenderTarget;
 
 /**
@@ -357,7 +356,7 @@ public:
         return fRGBAToBGRAReadbackConversionsAreSlow;
     }
 
-    const GrGLSLCaps* glslCaps() const { return reinterpret_cast<GrGLSLCaps*>(fShaderCaps.get()); }
+    const GrShaderCaps* glslCaps() const { return fShaderCaps.get(); }
 
 private:
     enum ExternalFormatUsage {
@@ -381,11 +380,11 @@ private:
     void initBlendEqationSupport(const GrGLContextInfo&);
     void initStencilFormats(const GrGLContextInfo&);
     // This must be called after initFSAASupport().
-    void initConfigTable(const GrGLContextInfo&, const GrGLInterface* gli, GrGLSLCaps* glslCaps);
+    void initConfigTable(const GrGLContextInfo&, const GrGLInterface* gli, GrShaderCaps* glslCaps);
 
     void initShaderPrecisionTable(const GrGLContextInfo& ctxInfo,
                                   const GrGLInterface* intf,
-                                  GrGLSLCaps* glslCaps);
+                                  GrShaderCaps* glslCaps);
 
     GrGLStandard fStandard;
 

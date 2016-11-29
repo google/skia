@@ -13,7 +13,7 @@
 #include "vk/GrVkDefines.h"
 
 struct GrVkInterface;
-class GrGLSLCaps;
+class GrShaderCaps;
 
 /**
  * Stores some capabilities of a Vk backend.
@@ -83,7 +83,7 @@ public:
         return fPreferedStencilFormat;
     }
 
-    GrGLSLCaps* glslCaps() const { return reinterpret_cast<GrGLSLCaps*>(fShaderCaps.get()); }
+    GrShaderCaps* glslCaps() const { return fShaderCaps.get(); }
 
 private:
     enum VkVendor {

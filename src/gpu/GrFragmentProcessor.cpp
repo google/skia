@@ -132,7 +132,7 @@ sk_sp<GrFragmentProcessor> GrFragmentProcessor::PremulInput(sk_sp<GrFragmentProc
             return new GLFP;
         }
 
-        void onGetGLSLProcessorKey(const GrGLSLCaps&, GrProcessorKeyBuilder*) const override {}
+        void onGetGLSLProcessorKey(const GrShaderCaps&, GrProcessorKeyBuilder*) const override {}
 
         bool onIsEqual(const GrFragmentProcessor&) const override { return true; }
 
@@ -174,7 +174,7 @@ sk_sp<GrFragmentProcessor> GrFragmentProcessor::MulOutputByInputUnpremulColor(
             return new GLFP;
         }
 
-        void onGetGLSLProcessorKey(const GrGLSLCaps&, GrProcessorKeyBuilder*) const override {}
+        void onGetGLSLProcessorKey(const GrShaderCaps&, GrProcessorKeyBuilder*) const override {}
 
         bool onIsEqual(const GrFragmentProcessor&) const override { return true; }
 
@@ -264,7 +264,7 @@ sk_sp<GrFragmentProcessor> GrFragmentProcessor::OverrideInput(sk_sp<GrFragmentPr
         }
 
     private:
-        void onGetGLSLProcessorKey(const GrGLSLCaps& caps, GrProcessorKeyBuilder* b) const override
+        void onGetGLSLProcessorKey(const GrShaderCaps& caps, GrProcessorKeyBuilder* b) const override
         {}
 
         bool onIsEqual(const GrFragmentProcessor& that) const override {
@@ -324,7 +324,7 @@ sk_sp<GrFragmentProcessor> GrFragmentProcessor::RunInSeries(sk_sp<GrFragmentProc
         }
 
     private:
-        void onGetGLSLProcessorKey(const GrGLSLCaps&, GrProcessorKeyBuilder*) const override {}
+        void onGetGLSLProcessorKey(const GrShaderCaps&, GrProcessorKeyBuilder*) const override {}
 
         bool onIsEqual(const GrFragmentProcessor&) const override { return true; }
 
