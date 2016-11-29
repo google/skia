@@ -95,7 +95,11 @@ inline void Fuzz::nextRange(float* f, float min, float max) {
 template <typename T, typename Min, typename Max>
 inline void Fuzz::nextRange(T* n, Min min, Max max) {
     this->next<T>(n);
-    if (min >= max) {
+    if (min == max) {
+        *n = min;
+        return;
+    }
+    if (min > max) {
         // Avoid misuse of nextRange
         this->signalBug();
     }
