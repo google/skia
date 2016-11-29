@@ -64,11 +64,6 @@ public:
      */
     void getPipelineOptimizations(GrPipelineOptimizations* override) const;
 
-    const GrPipeline* pipeline() const {
-        SkASSERT(fPipelineInstalled);
-        return reinterpret_cast<const GrPipeline*>(fPipelineStorage.get());
-    }
-
     bool installPipeline(const GrPipeline::CreateArgs&);
 
     // TODO no GrPrimitiveProcessors yet read fragment position
@@ -77,13 +72,11 @@ public:
     // TODO: this needs to be updated to return GrSurfaceProxy::UniqueID
     // This is a bit more exciting than the other call sites since it uses the pipeline
     GrGpuResource::UniqueID renderTargetUniqueID() const final {
-        SkASSERT(fPipelineInstalled);
         return this->pipeline()->getRenderTarget()->uniqueID();
     }
 
     // TODO: store a GrRenderTargetContext instead
     GrRenderTarget* renderTarget() const final {
-        SkASSERT(fPipelineInstalled);
         return this->pipeline()->getRenderTarget();
     }
 
@@ -121,6 +114,11 @@ public:
     }
 
 protected:
+    const GrPipeline* pipeline() const {
+        SkASSERT(fPipelineInstalled);
+        return reinterpret_cast<const GrPipeline*>(fPipelineStorage.get());
+    }
+
     virtual void computePipelineOptimizations(GrInitInvariantOutput* color,
                                               GrInitInvariantOutput* coverage,
                                               GrBatchToXPOverrides* overrides) const = 0;
