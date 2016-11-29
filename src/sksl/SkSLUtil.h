@@ -21,7 +21,7 @@
 namespace SkSL {
 
 // Various sets of caps for use in tests
-class GLSLCapsFactory {
+class ShaderCapsFactory {
 public:
     static sk_sp<GrShaderCaps> Default() {
         sk_sp<GrShaderCaps> result = sk_make_sp<GrShaderCaps>(GrContextOptions());

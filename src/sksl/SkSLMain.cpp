@@ -56,7 +56,7 @@ int main(int argc, const char** argv) {
             printf("error writing '%s'\n", argv[2]);
             exit(4);
         }
-        if (!compiler.toGLSL(kind, text, *SkSL::GLSLCapsFactory::Default(), out)) {
+        if (!compiler.toGLSL(kind, text, *SkSL::ShaderCapsFactory::Default(), out)) {
             printf("%s", compiler.errorText().c_str());
             exit(3);
         }
