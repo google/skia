@@ -197,7 +197,7 @@ public:
     }
 
     static inline void GenKey(const GrGeometryProcessor& gp,
-                              const GrGLSLCaps&,
+                              const GrShaderCaps&,
                               GrProcessorKeyBuilder* b) {
         const GrDistanceFieldA8TextGeoProc& dfTexEffect = gp.cast<GrDistanceFieldA8TextGeoProc>();
         uint32_t key = dfTexEffect.getFlags();
@@ -254,12 +254,13 @@ GrDistanceFieldA8TextGeoProc::GrDistanceFieldA8TextGeoProc(GrColor color,
     this->addTextureSampler(&fTextureSampler);
 }
 
-void GrDistanceFieldA8TextGeoProc::getGLSLProcessorKey(const GrGLSLCaps& caps,
+void GrDistanceFieldA8TextGeoProc::getGLSLProcessorKey(const GrShaderCaps& caps,
                                                        GrProcessorKeyBuilder* b) const {
     GrGLDistanceFieldA8TextGeoProc::GenKey(*this, caps, b);
 }
 
-GrGLSLPrimitiveProcessor* GrDistanceFieldA8TextGeoProc::createGLSLInstance(const GrGLSLCaps&) const {
+GrGLSLPrimitiveProcessor*
+GrDistanceFieldA8TextGeoProc::createGLSLInstance(const GrShaderCaps&) const {
     return new GrGLDistanceFieldA8TextGeoProc();
 }
 
@@ -451,7 +452,7 @@ public:
     }
 
     static inline void GenKey(const GrGeometryProcessor& gp,
-                              const GrGLSLCaps&,
+                              const GrShaderCaps&,
                               GrProcessorKeyBuilder* b) {
         const GrDistanceFieldPathGeoProc& dfTexEffect = gp.cast<GrDistanceFieldPathGeoProc>();
 
@@ -494,12 +495,13 @@ GrDistanceFieldPathGeoProc::GrDistanceFieldPathGeoProc(
     this->addTextureSampler(&fTextureSampler);
 }
 
-void GrDistanceFieldPathGeoProc::getGLSLProcessorKey(const GrGLSLCaps& caps,
+void GrDistanceFieldPathGeoProc::getGLSLProcessorKey(const GrShaderCaps& caps,
                                                      GrProcessorKeyBuilder* b) const {
     GrGLDistanceFieldPathGeoProc::GenKey(*this, caps, b);
 }
 
-GrGLSLPrimitiveProcessor* GrDistanceFieldPathGeoProc::createGLSLInstance(const GrGLSLCaps&) const {
+GrGLSLPrimitiveProcessor*
+GrDistanceFieldPathGeoProc::createGLSLInstance(const GrShaderCaps&) const {
     return new GrGLDistanceFieldPathGeoProc();
 }
 
@@ -745,7 +747,7 @@ public:
     }
 
     static inline void GenKey(const GrGeometryProcessor& gp,
-                              const GrGLSLCaps&,
+                              const GrShaderCaps&,
                               GrProcessorKeyBuilder* b) {
         const GrDistanceFieldLCDTextGeoProc& dfTexEffect = gp.cast<GrDistanceFieldLCDTextGeoProc>();
 
@@ -795,12 +797,12 @@ GrDistanceFieldLCDTextGeoProc::GrDistanceFieldLCDTextGeoProc(
     this->addTextureSampler(&fTextureSampler);
 }
 
-void GrDistanceFieldLCDTextGeoProc::getGLSLProcessorKey(const GrGLSLCaps& caps,
+void GrDistanceFieldLCDTextGeoProc::getGLSLProcessorKey(const GrShaderCaps& caps,
                                                         GrProcessorKeyBuilder* b) const {
     GrGLDistanceFieldLCDTextGeoProc::GenKey(*this, caps, b);
 }
 
-GrGLSLPrimitiveProcessor* GrDistanceFieldLCDTextGeoProc::createGLSLInstance(const GrGLSLCaps&) const {
+GrGLSLPrimitiveProcessor* GrDistanceFieldLCDTextGeoProc::createGLSLInstance(const GrShaderCaps&) const {
     return new GrGLDistanceFieldLCDTextGeoProc();
 }
 

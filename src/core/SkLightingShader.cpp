@@ -199,8 +199,7 @@ public:
                                                "diffuseColor.a);", args.fOutputColor);
         }
 
-        static void GenKey(const GrProcessor& proc, const GrGLSLCaps&,
-                           GrProcessorKeyBuilder* b) {
+        static void GenKey(const GrProcessor& proc, const GrShaderCaps&, GrProcessorKeyBuilder* b) {
             const LightingFP& lightingFP = proc.cast<LightingFP>();
             b->add32(lightingFP.fDirectionalLights.count());
         }
@@ -240,7 +239,7 @@ public:
         GrGLSLProgramDataManager::UniformHandle fAmbientColorUni;
     };
 
-    void onGetGLSLProcessorKey(const GrGLSLCaps& caps, GrProcessorKeyBuilder* b) const override {
+    void onGetGLSLProcessorKey(const GrShaderCaps& caps, GrProcessorKeyBuilder* b) const override {
         GLSLLightingFP::GenKey(*this, caps, b);
     }
 

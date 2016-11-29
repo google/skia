@@ -13,9 +13,9 @@
 #include "GrInvariantOutput.h"
 #include "GrPipeline.h"
 #include "GrProcessor.h"
+#include "GrShaderCaps.h"
 #include "GrTexture.h"
 #include "glsl/GrGLSLBlend.h"
-#include "glsl/GrGLSLCaps.h"
 #include "glsl/GrGLSLFragmentProcessor.h"
 #include "glsl/GrGLSLFragmentShaderBuilder.h"
 #include "glsl/GrGLSLProgramDataManager.h"
@@ -107,7 +107,7 @@ private:
                                                  GrColor* overrideColor,
                                                  const GrCaps& caps) const override;
 
-    void onGetGLSLProcessorKey(const GrGLSLCaps& caps, GrProcessorKeyBuilder* b) const override;
+    void onGetGLSLProcessorKey(const GrShaderCaps& caps, GrProcessorKeyBuilder* b) const override;
 
     GrXferBarrierType onXferBarrier(const GrRenderTarget*, const GrCaps&) const override;
 
@@ -128,13 +128,14 @@ public:
     GLCustomXP(const GrXferProcessor&) {}
     ~GLCustomXP() override {}
 
-    static void GenKey(const GrXferProcessor& p, const GrGLSLCaps& caps, GrProcessorKeyBuilder* b) {
+    static void GenKey(const GrXferProcessor& p, const GrShaderCaps& caps,
+                       GrProcessorKeyBuilder* b) {
         const CustomXP& xp = p.cast<CustomXP>();
         uint32_t key = 0;
         if (xp.hasHWBlendEquation()) {
             SkASSERT(caps.advBlendEqInteraction() > 0);  // 0 will mean !xp.hasHWBlendEquation().
             key |= caps.advBlendEqInteraction();
-            GR_STATIC_ASSERT(GrGLSLCaps::kLast_AdvBlendEqInteraction < 4);
+            GR_STATIC_ASSERT(GrShaderCaps::kLast_AdvBlendEqInteraction < 4);
         }
         if (!xp.hasHWBlendEquation() || caps.mustEnableSpecificAdvBlendEqs()) {
             key |= (int)xp.mode() << 3;
@@ -185,7 +186,7 @@ private:
 
 ///////////////////////////////////////////////////////////////////////////////
 
-void CustomXP::onGetGLSLProcessorKey(const GrGLSLCaps& caps, GrProcessorKeyBuilder* b) const {
+void CustomXP::onGetGLSLProcessorKey(const GrShaderCaps& caps, GrProcessorKeyBuilder* b) const {
     GLCustomXP::GenKey(*this, caps, b);
 }
 

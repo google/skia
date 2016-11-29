@@ -11,9 +11,9 @@
 #include "GrFragmentProcessor.h"
 #include "GrInvariantOutput.h"
 #include "GrOvalEffect.h"
+#include "GrShaderCaps.h"
 #include "SkRRect.h"
 #include "SkTLazy.h"
-#include "glsl/GrGLSLCaps.h"
 #include "glsl/GrGLSLFragmentProcessor.h"
 #include "glsl/GrGLSLFragmentShaderBuilder.h"
 #include "glsl/GrGLSLProgramDataManager.h"
@@ -64,7 +64,7 @@ private:
 
     GrGLSLFragmentProcessor* onCreateGLSLInstance() const override;
 
-    void onGetGLSLProcessorKey(const GrGLSLCaps&, GrProcessorKeyBuilder*) const override;
+    void onGetGLSLProcessorKey(const GrShaderCaps&, GrProcessorKeyBuilder*) const override;
 
     bool onIsEqual(const GrFragmentProcessor& other) const override;
 
@@ -137,7 +137,7 @@ public:
 
     virtual void emitCode(EmitArgs&) override;
 
-    static inline void GenKey(const GrProcessor&, const GrGLSLCaps&, GrProcessorKeyBuilder*);
+    static inline void GenKey(const GrProcessor&, const GrShaderCaps&, GrProcessorKeyBuilder*);
 
 protected:
     void onSetData(const GrGLSLProgramDataManager&, const GrProcessor&) override;
@@ -287,7 +287,7 @@ void GLCircularRRectEffect::emitCode(EmitArgs& args) {
                              (GrGLSLExpr4(args.fInputColor) * GrGLSLExpr1("alpha")).c_str());
 }
 
-void GLCircularRRectEffect::GenKey(const GrProcessor& processor, const GrGLSLCaps&,
+void GLCircularRRectEffect::GenKey(const GrProcessor& processor, const GrShaderCaps&,
                                    GrProcessorKeyBuilder* b) {
     const CircularRRectEffect& crre = processor.cast<CircularRRectEffect>();
     GR_STATIC_ASSERT(kGrProcessorEdgeTypeCnt <= 8);
@@ -376,7 +376,7 @@ void GLCircularRRectEffect::onSetData(const GrGLSLProgramDataManager& pdman,
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-void CircularRRectEffect::onGetGLSLProcessorKey(const GrGLSLCaps& caps,
+void CircularRRectEffect::onGetGLSLProcessorKey(const GrShaderCaps& caps,
                                                 GrProcessorKeyBuilder* b) const {
     GLCircularRRectEffect::GenKey(*this, caps, b);
 }
@@ -404,7 +404,7 @@ private:
 
     GrGLSLFragmentProcessor* onCreateGLSLInstance() const override;
 
-    void onGetGLSLProcessorKey(const GrGLSLCaps&, GrProcessorKeyBuilder*) const override;
+    void onGetGLSLProcessorKey(const GrShaderCaps&, GrProcessorKeyBuilder*) const override;
 
     bool onIsEqual(const GrFragmentProcessor& other) const override;
 
@@ -492,7 +492,7 @@ public:
 
     void emitCode(EmitArgs&) override;
 
-    static inline void GenKey(const GrProcessor&, const GrGLSLCaps&, GrProcessorKeyBuilder*);
+    static inline void GenKey(const GrProcessor&, const GrShaderCaps&, GrProcessorKeyBuilder*);
 
 protected:
     void onSetData(const GrGLSLProgramDataManager&, const GrProcessor&) override;
@@ -603,7 +603,7 @@ void GLEllipticalRRectEffect::emitCode(EmitArgs& args) {
                              (GrGLSLExpr4(args.fInputColor) * GrGLSLExpr1("alpha")).c_str());
 }
 
-void GLEllipticalRRectEffect::GenKey(const GrProcessor& effect, const GrGLSLCaps&,
+void GLEllipticalRRectEffect::GenKey(const GrProcessor& effect, const GrShaderCaps&,
                                      GrProcessorKeyBuilder* b) {
     const EllipticalRRectEffect& erre = effect.cast<EllipticalRRectEffect>();
     GR_STATIC_ASSERT(kLast_GrProcessorEdgeType < (1 << 3));
@@ -671,7 +671,7 @@ void GLEllipticalRRectEffect::onSetData(const GrGLSLProgramDataManager& pdman,
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-void EllipticalRRectEffect::onGetGLSLProcessorKey(const GrGLSLCaps& caps,
+void EllipticalRRectEffect::onGetGLSLProcessorKey(const GrShaderCaps& caps,
                                                   GrProcessorKeyBuilder* b) const {
     GLEllipticalRRectEffect::GenKey(*this, caps, b);
 }

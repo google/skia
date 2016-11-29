@@ -457,7 +457,7 @@ bool Compiler::toSPIRV(Program::Kind kind, const SkString& text, SkString* out) 
     return result;
 }
 
-static void fill_caps(const GrGLSLCaps& caps, std::unordered_map<SkString, CapValue>* capsMap) {
+static void fill_caps(const GrShaderCaps& caps, std::unordered_map<SkString, CapValue>* capsMap) {
 #define CAP(name) capsMap->insert(std::make_pair(SkString(#name), CapValue(caps.name())));
     CAP(fbFetchSupport);
     CAP(fbFetchNeedsCustomOutput);
@@ -478,7 +478,7 @@ static void fill_caps(const GrGLSLCaps& caps, std::unordered_map<SkString, CapVa
 #undef CAP
 }
 
-bool Compiler::toGLSL(Program::Kind kind, const SkString& text, const GrGLSLCaps& caps,
+bool Compiler::toGLSL(Program::Kind kind, const SkString& text, const GrShaderCaps& caps,
                       SkWStream& out) {
     std::unordered_map<SkString, CapValue> capsMap;
     fill_caps(caps, &capsMap);
@@ -491,7 +491,7 @@ bool Compiler::toGLSL(Program::Kind kind, const SkString& text, const GrGLSLCaps
     return fErrorCount == 0;
 }
 
-bool Compiler::toGLSL(Program::Kind kind, const SkString& text, const GrGLSLCaps& caps,
+bool Compiler::toGLSL(Program::Kind kind, const SkString& text, const GrShaderCaps& caps,
                       SkString* out) {
     SkDynamicMemoryWStream buffer;
     bool result = this->toGLSL(kind, text, caps, buffer);

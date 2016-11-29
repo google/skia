@@ -189,7 +189,7 @@ public:
         }
 
         static void GenKey(const GrGeometryProcessor& gp,
-                           const GrGLSLCaps&,
+                           const GrShaderCaps&,
                            GrProcessorKeyBuilder* b) {
             b->add32(0x0);
         }
@@ -204,11 +204,11 @@ public:
         typedef GrGLSLGeometryProcessor INHERITED;
     };
 
-    void getGLSLProcessorKey(const GrGLSLCaps& caps, GrProcessorKeyBuilder* b) const override {
+    void getGLSLProcessorKey(const GrShaderCaps& caps, GrProcessorKeyBuilder* b) const override {
         GLSLProcessor::GenKey(*this, caps, b);
     }
 
-    GrGLSLPrimitiveProcessor* createGLSLInstance(const GrGLSLCaps&) const override {
+    GrGLSLPrimitiveProcessor* createGLSLInstance(const GrShaderCaps&) const override {
         return new GLSLProcessor();
     }
 

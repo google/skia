@@ -7,8 +7,8 @@
 
 #include "GrVkCaps.h"
 
+#include "GrShaderCaps.h"
 #include "GrVkUtil.h"
-#include "glsl/GrGLSLCaps.h"
 #include "vk/GrVkInterface.h"
 #include "vk/GrVkBackendContext.h"
 
@@ -45,7 +45,7 @@ GrVkCaps::GrVkCaps(const GrContextOptions& contextOptions, const GrVkInterface* 
     fMaxColorSampleCount = 4; // minimum required by spec
     fMaxStencilSampleCount = 4; // minimum required by spec
 
-    fShaderCaps.reset(new GrGLSLCaps(contextOptions));
+    fShaderCaps.reset(new GrShaderCaps(contextOptions));
 
     this->init(contextOptions, vkInterface, physDev, featureFlags, extensionFlags);
 }
@@ -80,7 +80,7 @@ void GrVkCaps::init(const GrContextOptions& contextOptions, const GrVkInterface*
     }
 
     this->applyOptionsOverrides(contextOptions);
-    GrGLSLCaps* glslCaps = static_cast<GrGLSLCaps*>(fShaderCaps.get());
+    GrShaderCaps* glslCaps = fShaderCaps.get();
     glslCaps->applyOptionsOverrides(contextOptions);
 }
 
@@ -139,7 +139,7 @@ void GrVkCaps::initGrCaps(const VkPhysicalDeviceProperties& properties,
 
 void GrVkCaps::initGLSLCaps(const VkPhysicalDeviceProperties& properties,
                             uint32_t featureFlags) {
-    GrGLSLCaps* glslCaps = static_cast<GrGLSLCaps*>(fShaderCaps.get());
+    GrShaderCaps* glslCaps = fShaderCaps.get();
     glslCaps->fVersionDeclString = "#version 330\n";
 
 

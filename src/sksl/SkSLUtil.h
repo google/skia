@@ -15,65 +15,65 @@
 #include "SkStream.h"
 #include "SkString.h"
 #include "SkTypes.h"
-#include "glsl/GrGLSLCaps.h"
 #include "GrContextOptions.h"
+#include "GrShaderCaps.h"
 
 namespace SkSL {
 
 // Various sets of caps for use in tests
 class GLSLCapsFactory {
 public:
-    static sk_sp<GrGLSLCaps> Default() {
-        sk_sp<GrGLSLCaps> result = sk_make_sp<GrGLSLCaps>(GrContextOptions());
+    static sk_sp<GrShaderCaps> Default() {
+        sk_sp<GrShaderCaps> result = sk_make_sp<GrShaderCaps>(GrContextOptions());
         result->fVersionDeclString = "#version 400";
         result->fShaderDerivativeSupport = true;
         return result;
     }
 
-    static sk_sp<GrGLSLCaps> Version450Core() {
-        sk_sp<GrGLSLCaps> result = sk_make_sp<GrGLSLCaps>(GrContextOptions());
+    static sk_sp<GrShaderCaps> Version450Core() {
+        sk_sp<GrShaderCaps> result = sk_make_sp<GrShaderCaps>(GrContextOptions());
         result->fVersionDeclString = "#version 450 core";
         return result;
     }
 
-    static sk_sp<GrGLSLCaps> Version110() {
-        sk_sp<GrGLSLCaps> result = sk_make_sp<GrGLSLCaps>(GrContextOptions());
+    static sk_sp<GrShaderCaps> Version110() {
+        sk_sp<GrShaderCaps> result = sk_make_sp<GrShaderCaps>(GrContextOptions());
         result->fVersionDeclString = "#version 110";
         result->fGLSLGeneration = GrGLSLGeneration::k110_GrGLSLGeneration;
         return result;
     }
 
-    static sk_sp<GrGLSLCaps> UsesPrecisionModifiers() {
-        sk_sp<GrGLSLCaps> result = sk_make_sp<GrGLSLCaps>(GrContextOptions());
+    static sk_sp<GrShaderCaps> UsesPrecisionModifiers() {
+        sk_sp<GrShaderCaps> result = sk_make_sp<GrShaderCaps>(GrContextOptions());
         result->fVersionDeclString = "#version 400";
         result->fUsesPrecisionModifiers = true;
         return result;
     }
 
-    static sk_sp<GrGLSLCaps> CannotUseMinAndAbsTogether() {
-        sk_sp<GrGLSLCaps> result = sk_make_sp<GrGLSLCaps>(GrContextOptions());
+    static sk_sp<GrShaderCaps> CannotUseMinAndAbsTogether() {
+        sk_sp<GrShaderCaps> result = sk_make_sp<GrShaderCaps>(GrContextOptions());
         result->fVersionDeclString = "#version 400";
         result->fCanUseMinAndAbsTogether = false;
         return result;
     }
 
-    static sk_sp<GrGLSLCaps> MustForceNegatedAtanParamToFloat() {
-        sk_sp<GrGLSLCaps> result = sk_make_sp<GrGLSLCaps>(GrContextOptions());
+    static sk_sp<GrShaderCaps> MustForceNegatedAtanParamToFloat() {
+        sk_sp<GrShaderCaps> result = sk_make_sp<GrShaderCaps>(GrContextOptions());
         result->fVersionDeclString = "#version 400";
         result->fMustForceNegatedAtanParamToFloat = true;
         return result;
     }
 
-    static sk_sp<GrGLSLCaps> ShaderDerivativeExtensionString() {
-        sk_sp<GrGLSLCaps> result = sk_make_sp<GrGLSLCaps>(GrContextOptions());
+    static sk_sp<GrShaderCaps> ShaderDerivativeExtensionString() {
+        sk_sp<GrShaderCaps> result = sk_make_sp<GrShaderCaps>(GrContextOptions());
         result->fVersionDeclString = "#version 400";
         result->fShaderDerivativeSupport = true;
         result->fShaderDerivativeExtensionString = "GL_OES_standard_derivatives";
         return result;
     }
 
-    static sk_sp<GrGLSLCaps> VariousCaps() {
-        sk_sp<GrGLSLCaps> result = sk_make_sp<GrGLSLCaps>(GrContextOptions());
+    static sk_sp<GrShaderCaps> VariousCaps() {
+        sk_sp<GrShaderCaps> result = sk_make_sp<GrShaderCaps>(GrContextOptions());
         result->fVersionDeclString = "#version 400";
         result->fExternalTextureSupport = true;
         result->fFBFetchSupport = false;

@@ -30,7 +30,7 @@ public:
         fragBuilder->codeAppend(";");
     }
 
-    static inline void GenKey(const GrProcessor& effect, const GrGLSLCaps&,
+    static inline void GenKey(const GrProcessor& effect, const GrShaderCaps&,
                               GrProcessorKeyBuilder* b) {
         const GrSimpleTextureEffect& textureEffect = effect.cast<GrSimpleTextureEffect>();
         b->add32(GrColorSpaceXform::XformKey(textureEffect.colorSpaceXform()));
@@ -56,7 +56,7 @@ void GrSimpleTextureEffect::onComputeInvariantOutput(GrInvariantOutput* inout) c
     this->updateInvariantOutputForModulation(inout);
 }
 
-void GrSimpleTextureEffect::onGetGLSLProcessorKey(const GrGLSLCaps& caps,
+void GrSimpleTextureEffect::onGetGLSLProcessorKey(const GrShaderCaps& caps,
                                                   GrProcessorKeyBuilder* b) const {
     GrGLSimpleTextureEffect::GenKey(*this, caps, b);
 }

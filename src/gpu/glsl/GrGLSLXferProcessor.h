@@ -12,9 +12,9 @@
 #include "glsl/GrGLSLUniformHandler.h"
 
 class GrXferProcessor;
-class GrGLSLCaps;
 class GrGLSLXPBuilder;
 class GrGLSLXPFragmentBuilder;
+class GrShaderCaps;
 
 class GrGLSLXferProcessor {
 public:
@@ -27,7 +27,7 @@ public:
     struct EmitArgs {
         EmitArgs(GrGLSLXPFragmentBuilder* fragBuilder,
                  GrGLSLUniformHandler* uniformHandler,
-                 const GrGLSLCaps* caps,
+                 const GrShaderCaps* caps,
                  const GrXferProcessor& xp,
                  const char* inputColor,
                  const char* inputCoverage,
@@ -52,7 +52,7 @@ public:
 
         GrGLSLXPFragmentBuilder* fXPFragBuilder;
         GrGLSLUniformHandler* fUniformHandler;
-        const GrGLSLCaps* fGLSLCaps;
+        const GrShaderCaps* fGLSLCaps;
         const GrXferProcessor& fXP;
         const char* fInputColor;
         const char* fInputCoverage;

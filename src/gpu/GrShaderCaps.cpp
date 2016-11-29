@@ -6,15 +6,48 @@
  */
 
 
-#include "GrGLSLCaps.h"
+#include "GrShaderCaps.h"
 
 #include "GrContextOptions.h"
 
 ////////////////////////////////////////////////////////////////////////////////////////////
 
-GrGLSLCaps::GrGLSLCaps(const GrContextOptions& options) {
-    fGLSLGeneration = k330_GrGLSLGeneration;
+static const char* shader_type_to_string(GrShaderType type) {
+    switch (type) {
+    case kVertex_GrShaderType:
+        return "vertex";
+    case kGeometry_GrShaderType:
+        return "geometry";
+    case kFragment_GrShaderType:
+        return "fragment";
+    }
+    return "";
+}
 
+static const char* precision_to_string(GrSLPrecision p) {
+    switch (p) {
+    case kLow_GrSLPrecision:
+        return "low";
+    case kMedium_GrSLPrecision:
+        return "medium";
+    case kHigh_GrSLPrecision:
+        return "high";
+    }
+    return "";
+}
+
+GrShaderCaps::GrShaderCaps(const GrContextOptions& options) {
+    fGLSLGeneration = k330_GrGLSLGeneration;
+    fShaderDerivativeSupport = false;
+    fGeometryShaderSupport = false;
+    fPathRenderingSupport = false;
+    fDstReadInShaderSupport = false;
+    fDualSourceBlendingSupport = false;
+    fIntegerSupport = false;
+    fTexelBufferSupport = false;
+    fImageLoadStoreSupport = false;
+    fShaderPrecisionVaries = false;
+    fPLSPathRenderingSupport = false;
     fDropsTileOnZeroDivide = false;
     fFBFetchSupport = false;
     fFBFetchNeedsCustomOutput = false;
@@ -31,6 +64,9 @@ GrGLSLCaps::GrGLSLCaps(const GrContextOptions& options) {
     fSampleMaskOverrideCoverageSupport = false;
     fExternalTextureSupport = false;
     fTexelFetchSupport = false;
+
+    fPixelLocalStorageSize = 0;
+
     fVersionDeclString = nullptr;
     fShaderDerivativeExtensionString = nullptr;
     fFragCoordConventionsExtensionString = nullptr;
@@ -54,8 +90,34 @@ GrGLSLCaps::GrGLSLCaps(const GrContextOptions& options) {
     fAdvBlendEqInteraction = kNotSupported_AdvBlendEqInteraction;
 }
 
-SkString GrGLSLCaps::dump() const {
-    SkString r = INHERITED::dump();
+SkString GrShaderCaps::dump() const {
+    SkString r;
+    static const char* gNY[] = { "NO", "YES" };
+    r.appendf("Shader Derivative Support          : %s\n", gNY[fShaderDerivativeSupport]);
+    r.appendf("Geometry Shader Support            : %s\n", gNY[fGeometryShaderSupport]);
+    r.appendf("Path Rendering Support             : %s\n", gNY[fPathRenderingSupport]);
+    r.appendf("Dst Read In Shader Support         : %s\n", gNY[fDstReadInShaderSupport]);
+    r.appendf("Dual Source Blending Support       : %s\n", gNY[fDualSourceBlendingSupport]);
+    r.appendf("Integer Support                    : %s\n", gNY[fIntegerSupport]);
+    r.appendf("Texel Buffer Support               : %s\n", gNY[fTexelBufferSupport]);
+    r.appendf("Image Load Store Support           : %s\n", gNY[fImageLoadStoreSupport]);
+
+    r.appendf("Shader Float Precisions (varies: %s):\n", gNY[fShaderPrecisionVaries]);
+
+    for (int s = 0; s < kGrShaderTypeCount; ++s) {
+        GrShaderType shaderType = static_cast<GrShaderType>(s);
+        r.appendf("\t%s:\n", shader_type_to_string(shaderType));
+        for (int p = 0; p < kGrSLPrecisionCount; ++p) {
+            if (fFloatPrecisions[s][p].supported()) {
+                GrSLPrecision precision = static_cast<GrSLPrecision>(p);
+                r.appendf("\t\t%s: log_low: %d log_high: %d bits: %d\n",
+                    precision_to_string(precision),
+                    fFloatPrecisions[s][p].fLogRangeLow,
+                    fFloatPrecisions[s][p].fLogRangeHigh,
+                    fFloatPrecisions[s][p].fBits);
+            }
+        }
+    }
 
     static const char* kAdvBlendEqInteractionStr[] = {
         "Not Supported",
@@ -104,7 +166,7 @@ SkString GrGLSLCaps::dump() const {
     return r;
 }
 
-void GrGLSLCaps::initSamplerPrecisionTable() {
+void GrShaderCaps::initSamplerPrecisionTable() {
     // Determine the largest precision qualifiers that are effectively the same as lowp/mediump.
     //   e.g. if lowp == mediump, then use mediump instead of lowp.
     GrSLPrecision effectiveMediumP[kGrShaderTypeCount];
@@ -160,5 +222,6 @@ void GrGLSLCaps::initSamplerPrecisionTable() {
     }
 }
 
-void GrGLSLCaps::onApplyOptionsOverrides(const GrContextOptions& options) {
+void GrShaderCaps::applyOptionsOverrides(const GrContextOptions& options) {
+    fDualSourceBlendingSupport = fDualSourceBlendingSupport && !options.fSuppressDualSourceBlending;
 }

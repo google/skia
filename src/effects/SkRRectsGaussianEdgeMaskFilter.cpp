@@ -393,8 +393,7 @@ public:
                                      args.fOutputColor, args.fInputColor);
         }
 
-        static void GenKey(const GrProcessor& proc, const GrGLSLCaps&,
-                           GrProcessorKeyBuilder* b) {
+        static void GenKey(const GrProcessor& proc, const GrShaderCaps&, GrProcessorKeyBuilder* b) {
             const RRectsGaussianEdgeFP& fp = proc.cast<RRectsGaussianEdgeFP>();
 
             b->add32(fp.firstMode() | (fp.secondMode() << 4));
@@ -451,7 +450,7 @@ public:
         typedef GrGLSLFragmentProcessor INHERITED;
     };
 
-    void onGetGLSLProcessorKey(const GrGLSLCaps& caps, GrProcessorKeyBuilder* b) const override {
+    void onGetGLSLProcessorKey(const GrShaderCaps& caps, GrProcessorKeyBuilder* b) const override {
         GLSLRRectsGaussianEdgeFP::GenKey(*this, caps, b);
     }
 

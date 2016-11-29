@@ -11,7 +11,7 @@
 #include "SkString.h"
 #include "GrTypesPriv.h"
 
-class GrGLSLCaps;
+class GrShaderCaps;
 
 #define USE_UNIFORM_FLOAT_ARRAYS true
 
@@ -301,7 +301,7 @@ public:
     /**
      * Write a declaration of this variable to out.
      */
-    void appendDecl(const GrGLSLCaps* glslCaps, SkString* out) const;
+    void appendDecl(const GrShaderCaps*, SkString* out) const;
 
     void appendArrayAccess(int index, SkString* out) const {
         out->appendf("%s[%d]%s",
@@ -331,4 +331,4 @@ private:
     SkString        fExtraModifiers;
 };
 
- #endif
+#endif

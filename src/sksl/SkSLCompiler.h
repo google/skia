@@ -45,10 +45,10 @@ public:
     
     bool toSPIRV(Program::Kind kind, const SkString& text, SkString* out);
 
-    bool toGLSL(Program::Kind kind, const SkString& text, const GrGLSLCaps& caps,
+    bool toGLSL(Program::Kind kind, const SkString& text, const GrShaderCaps& caps,
                 SkWStream& out);
     
-    bool toGLSL(Program::Kind kind, const SkString& text, const GrGLSLCaps& caps,
+    bool toGLSL(Program::Kind kind, const SkString& text, const GrShaderCaps& caps,
                 SkString* out);
 
     void error(Position position, SkString msg) override;

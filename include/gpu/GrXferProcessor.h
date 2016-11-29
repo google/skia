@@ -15,7 +15,6 @@
 #include "GrTypes.h"
 
 class GrShaderCaps;
-class GrGLSLCaps;
 class GrGLSLXferProcessor;
 class GrProcOptInfo;
 struct GrPipelineOptimizations;
@@ -94,7 +93,7 @@ public:
      * Sets a unique key on the GrProcessorKeyBuilder calls onGetGLSLProcessorKey(...) to get the
      * specific subclass's key.
      */ 
-    void getGLSLProcessorKey(const GrGLSLCaps& caps, GrProcessorKeyBuilder* b) const;
+    void getGLSLProcessorKey(const GrShaderCaps&, GrProcessorKeyBuilder*) const;
 
     /** Returns a new instance of the appropriate *GL* implementation class
         for the given GrXferProcessor; caller is responsible for deleting
@@ -245,8 +244,7 @@ private:
      * Sets a unique key on the GrProcessorKeyBuilder that is directly associated with this xfer
      * processor's GL backend implementation.
      */
-    virtual void onGetGLSLProcessorKey(const GrGLSLCaps& caps,
-                                       GrProcessorKeyBuilder* b) const = 0;
+    virtual void onGetGLSLProcessorKey(const GrShaderCaps&, GrProcessorKeyBuilder*) const = 0;
 
     /**
      * Determines the type of barrier (if any) required by the subclass. Note that the possibility

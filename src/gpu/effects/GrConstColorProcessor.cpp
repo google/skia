@@ -86,7 +86,7 @@ void GrConstColorProcessor::onComputeInvariantOutput(GrInvariantOutput* inout) c
     }
 }
 
-void GrConstColorProcessor::onGetGLSLProcessorKey(const GrGLSLCaps&,
+void GrConstColorProcessor::onGetGLSLProcessorKey(const GrShaderCaps&,
                                                   GrProcessorKeyBuilder* b) const {
     b->add32(fMode);
 }

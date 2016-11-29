@@ -31,10 +31,10 @@ public:
 
     bool willUseGeoShader() const override { return false; }
 
-    virtual void getGLSLProcessorKey(const GrGLSLCaps& caps,
+    virtual void getGLSLProcessorKey(const GrShaderCaps& caps,
                                      GrProcessorKeyBuilder* b) const override;
 
-    virtual GrGLSLPrimitiveProcessor* createGLSLInstance(const GrGLSLCaps& caps) const override;
+    virtual GrGLSLPrimitiveProcessor* createGLSLInstance(const GrShaderCaps& caps) const override;
 
     const GrXPOverridesForBatch& overrides() const { return fOverrides; }
 

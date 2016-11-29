@@ -98,7 +98,7 @@ public:
     }
 
     static inline void GenKey(const GrGeometryProcessor& proc,
-                              const GrGLSLCaps&,
+                              const GrShaderCaps&,
                               GrProcessorKeyBuilder* b) {
         const GrBitmapTextGeoProc& gp = proc.cast<GrBitmapTextGeoProc>();
         uint32_t key = 0;
@@ -146,12 +146,12 @@ GrBitmapTextGeoProc::GrBitmapTextGeoProc(GrColor color, GrTexture* texture,
     this->addTextureSampler(&fTextureSampler);
 }
 
-void GrBitmapTextGeoProc::getGLSLProcessorKey(const GrGLSLCaps& caps,
+void GrBitmapTextGeoProc::getGLSLProcessorKey(const GrShaderCaps& caps,
                                               GrProcessorKeyBuilder* b) const {
     GrGLBitmapTextGeoProc::GenKey(*this, caps, b);
 }
 
-GrGLSLPrimitiveProcessor* GrBitmapTextGeoProc::createGLSLInstance(const GrGLSLCaps& caps) const {
+GrGLSLPrimitiveProcessor* GrBitmapTextGeoProc::createGLSLInstance(const GrShaderCaps& caps) const {
     return new GrGLBitmapTextGeoProc();
 }
 

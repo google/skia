@@ -289,7 +289,7 @@ public:
     class GLSLProcessor : public GrGLSLFragmentProcessor {
     public:
         // this class always generates the same code.
-        static void GenKey(const GrProcessor&, const GrGLSLCaps&, GrProcessorKeyBuilder*) {}
+        static void GenKey(const GrProcessor&, const GrShaderCaps&, GrProcessorKeyBuilder*) {}
 
         void emitCode(EmitArgs& args) override {
             GrGLSLUniformHandler* uniformHandler = args.fUniformHandler;
@@ -356,7 +356,7 @@ private:
         return new GLSLProcessor;
     }
 
-    virtual void onGetGLSLProcessorKey(const GrGLSLCaps& caps,
+    virtual void onGetGLSLProcessorKey(const GrShaderCaps& caps,
                                        GrProcessorKeyBuilder* b) const override {
         GLSLProcessor::GenKey(*this, caps, b);
     }

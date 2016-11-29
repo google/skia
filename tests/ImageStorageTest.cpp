@@ -34,7 +34,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(ImageStorageLoad, reporter, ctxInfo) {
             this->addImageStorageAccess(&fImageStorageAccess);
         }
 
-        void onGetGLSLProcessorKey(const GrGLSLCaps&, GrProcessorKeyBuilder*) const override {}
+        void onGetGLSLProcessorKey(const GrShaderCaps&, GrProcessorKeyBuilder*) const override {}
 
         void onComputeInvariantOutput(GrInvariantOutput* inout) const override {
             inout->setToUnknown(GrInvariantOutput::kWillNot_ReadInput);

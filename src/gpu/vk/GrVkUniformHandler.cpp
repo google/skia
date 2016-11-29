@@ -208,7 +208,7 @@ void GrVkUniformHandler::appendUniformDecls(GrShaderFlags visibility, SkString* 
         const UniformInfo& sampler = fSamplers[i];
         SkASSERT(sampler.fVariable.getType() == kTexture2DSampler_GrSLType);
         if (visibility == sampler.fVisibility) {
-            sampler.fVariable.appendDecl(fProgramBuilder->glslCaps(), out);
+            sampler.fVariable.appendDecl(fProgramBuilder->shaderCaps(), out);
             out->append(";\n");
         }
     }
@@ -218,7 +218,7 @@ void GrVkUniformHandler::appendUniformDecls(GrShaderFlags visibility, SkString* 
         const UniformInfo& localUniform = fUniforms[i];
         if (visibility == localUniform.fVisibility) {
             if (GrSLTypeIsFloatType(localUniform.fVariable.getType())) {
-                localUniform.fVariable.appendDecl(fProgramBuilder->glslCaps(), &uniformsString);
+                localUniform.fVariable.appendDecl(fProgramBuilder->shaderCaps(), &uniformsString);
                 uniformsString.append(";\n");
             }
         }

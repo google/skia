@@ -7,9 +7,9 @@
 
 #include "GrTextureDomain.h"
 #include "GrInvariantOutput.h"
+#include "GrShaderCaps.h"
 #include "GrSimpleTextureEffect.h"
 #include "SkFloatingPoint.h"
-#include "glsl/GrGLSLCaps.h"
 #include "glsl/GrGLSLFragmentProcessor.h"
 #include "glsl/GrGLSLFragmentShaderBuilder.h"
 #include "glsl/GrGLSLProgramDataManager.h"
@@ -45,7 +45,7 @@ GrTextureDomain::GrTextureDomain(const SkRect& domain, Mode mode, int index)
 
 void GrTextureDomain::GLDomain::sampleTexture(GrGLSLShaderBuilder* builder,
                                               GrGLSLUniformHandler* uniformHandler,
-                                              const GrGLSLCaps* glslCaps,
+                                              const GrShaderCaps* glslCaps,
                                               const GrTextureDomain& textureDomain,
                                               const char* outColor,
                                               const SkString& inCoords,
@@ -199,7 +199,7 @@ GrTextureDomainEffect::GrTextureDomainEffect(GrTexture* texture,
     this->initClassID<GrTextureDomainEffect>();
 }
 
-void GrTextureDomainEffect::onGetGLSLProcessorKey(const GrGLSLCaps& caps,
+void GrTextureDomainEffect::onGetGLSLProcessorKey(const GrShaderCaps& caps,
                                                   GrProcessorKeyBuilder* b) const {
     b->add32(GrTextureDomain::GLDomain::DomainKey(fTextureDomain));
 }

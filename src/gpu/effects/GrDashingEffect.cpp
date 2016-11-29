@@ -784,9 +784,9 @@ public:
 
     bool usesLocalCoords() const { return fUsesLocalCoords; }
 
-    void getGLSLProcessorKey(const GrGLSLCaps&, GrProcessorKeyBuilder* b) const override;
+    void getGLSLProcessorKey(const GrShaderCaps&, GrProcessorKeyBuilder* b) const override;
 
-    GrGLSLPrimitiveProcessor* createGLSLInstance(const GrGLSLCaps&) const override;
+    GrGLSLPrimitiveProcessor* createGLSLInstance(const GrShaderCaps&) const override;
 
 private:
     DashingCircleEffect(GrColor, AAMode aaMode, const SkMatrix& localMatrix,
@@ -814,7 +814,7 @@ public:
     void onEmitCode(EmitArgs&, GrGPArgs*) override;
 
     static inline void GenKey(const GrGeometryProcessor&,
-                              const GrGLSLCaps&,
+                              const GrShaderCaps&,
                               GrProcessorKeyBuilder*);
 
     void setData(const GrGLSLProgramDataManager&, const GrPrimitiveProcessor&,
@@ -905,7 +905,7 @@ void GLDashingCircleEffect::setData(const GrGLSLProgramDataManager& pdman,
 }
 
 void GLDashingCircleEffect::GenKey(const GrGeometryProcessor& gp,
-                                   const GrGLSLCaps&,
+                                   const GrShaderCaps&,
                                    GrProcessorKeyBuilder* b) {
     const DashingCircleEffect& dce = gp.cast<DashingCircleEffect>();
     uint32_t key = 0;
@@ -925,12 +925,12 @@ sk_sp<GrGeometryProcessor> DashingCircleEffect::Make(GrColor color,
         new DashingCircleEffect(color, aaMode, localMatrix, usesLocalCoords));
 }
 
-void DashingCircleEffect::getGLSLProcessorKey(const GrGLSLCaps& caps,
+void DashingCircleEffect::getGLSLProcessorKey(const GrShaderCaps& caps,
                                               GrProcessorKeyBuilder* b) const {
     GLDashingCircleEffect::GenKey(*this, caps, b);
 }
 
-GrGLSLPrimitiveProcessor* DashingCircleEffect::createGLSLInstance(const GrGLSLCaps&) const {
+GrGLSLPrimitiveProcessor* DashingCircleEffect::createGLSLInstance(const GrShaderCaps&) const {
     return new GLDashingCircleEffect();
 }
 
@@ -997,9 +997,9 @@ public:
 
     bool usesLocalCoords() const { return fUsesLocalCoords; }
 
-    void getGLSLProcessorKey(const GrGLSLCaps& caps, GrProcessorKeyBuilder* b) const override;
+    void getGLSLProcessorKey(const GrShaderCaps& caps, GrProcessorKeyBuilder* b) const override;
 
-    GrGLSLPrimitiveProcessor* createGLSLInstance(const GrGLSLCaps&) const override;
+    GrGLSLPrimitiveProcessor* createGLSLInstance(const GrShaderCaps&) const override;
 
 private:
     DashingLineEffect(GrColor, AAMode aaMode, const SkMatrix& localMatrix,
@@ -1027,7 +1027,7 @@ public:
     void onEmitCode(EmitArgs&, GrGPArgs*) override;
 
     static inline void GenKey(const GrGeometryProcessor&,
-                              const GrGLSLCaps&,
+                              const GrShaderCaps&,
                               GrProcessorKeyBuilder*);
 
     void setData(const GrGLSLProgramDataManager&, const GrPrimitiveProcessor&,
@@ -1132,7 +1132,7 @@ void GLDashingLineEffect::setData(const GrGLSLProgramDataManager& pdman,
 }
 
 void GLDashingLineEffect::GenKey(const GrGeometryProcessor& gp,
-                                 const GrGLSLCaps&,
+                                 const GrShaderCaps&,
                                  GrProcessorKeyBuilder* b) {
     const DashingLineEffect& de = gp.cast<DashingLineEffect>();
     uint32_t key = 0;
@@ -1152,12 +1152,12 @@ sk_sp<GrGeometryProcessor> DashingLineEffect::Make(GrColor color,
         new DashingLineEffect(color, aaMode, localMatrix, usesLocalCoords));
 }
 
-void DashingLineEffect::getGLSLProcessorKey(const GrGLSLCaps& caps,
+void DashingLineEffect::getGLSLProcessorKey(const GrShaderCaps& caps,
                                             GrProcessorKeyBuilder* b) const {
     GLDashingLineEffect::GenKey(*this, caps, b);
 }
 
-GrGLSLPrimitiveProcessor* DashingLineEffect::createGLSLInstance(const GrGLSLCaps&) const {
+GrGLSLPrimitiveProcessor* DashingLineEffect::createGLSLInstance(const GrShaderCaps&) const {
     return new GLDashingLineEffect();
 }
 
