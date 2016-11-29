@@ -9,6 +9,7 @@
 
 #include "GMSlide.h"
 #include "ImageSlide.h"
+#include "Resources.h"
 #include "SampleSlide.h"
 #include "SKPSlide.h"
 
@@ -138,6 +139,9 @@ Viewer::Viewer(int argc, char** argv, void* platformData)
     SkDebugf("\n");
 
     SkCommandLineFlags::Parse(argc, argv);
+#ifdef SK_BUILD_FOR_ANDROID
+    SetResourcePath("/data/local/tmp/skia");
+#endif
 
     if (FLAGS_atrace) {
         SkEventTracer::SetInstance(new SkATrace());
