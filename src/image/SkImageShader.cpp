@@ -289,7 +289,6 @@ bool SkImageShader::onAppendStages(SkRasterPipeline* p, SkColorSpace* dst, SkFal
     // TODO: all formats
     switch (info.colorType()) {
         case kAlpha_8_SkColorType:
-        case kIndex_8_SkColorType:
             return false;
         default: break;
     }
@@ -319,11 +318,11 @@ bool SkImageShader::onAppendStages(SkRasterPipeline* p, SkColorSpace* dst, SkFal
     }
 
     auto ctx = scratch->make<SkImageShaderContext>();
-
-    ctx->pixels   = pm.addr();
-    ctx->stride   = pm.rowBytesAsPixels();
-    ctx->width    = pm.width();
-    ctx->height   = pm.height();
+    ctx->pixels = pm.addr();
+    ctx->ctable = pm.ctable();
+    ctx->stride = pm.rowBytesAsPixels();
+    ctx->width  = pm.width();
+    ctx->height = pm.height();
     if (matrix.asAffine(ctx->matrix)) {
         p->append(SkRasterPipeline::matrix_2x3, ctx->matrix);
     } else {
@@ -343,6 +342,7 @@ bool SkImageShader::onAppendStages(SkRasterPipeline* p, SkColorSpace* dst, SkFal
             case kRepeat_TileMode: p->append(SkRasterPipeline::repeat_y, &ctx->height); break;
         }
         switch (info.colorType()) {
+            case kIndex_8_SkColorType:   p->append(SkRasterPipeline::gather_i8,   ctx); break;
             case kGray_8_SkColorType:    p->append(SkRasterPipeline::gather_g8,   ctx); break;
             case kRGB_565_SkColorType:   p->append(SkRasterPipeline::gather_565,  ctx); break;
             case kARGB_4444_SkColorType: p->append(SkRasterPipeline::gather_4444, ctx); break;
@@ -379,7 +379,11 @@ bool SkImageShader::onAppendStages(SkRasterPipeline* p, SkColorSpace* dst, SkFal
         p->append(SkRasterPipeline::move_dst_src);
     }
 
-    if (info.colorType() == kBGRA_8888_SkColorType) {
+    auto effective_color_type = [](SkColorType ct) {
+        return ct == kIndex_8_SkColorType ? kN32_SkColorType : ct;
+    };
+
+    if (effective_color_type(info.colorType()) == kBGRA_8888_SkColorType) {
         p->append(SkRasterPipeline::swap_rb);
     }
     if (info.alphaType() == kUnpremul_SkAlphaType) {
