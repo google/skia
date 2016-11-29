@@ -364,22 +364,22 @@ void GrGLSLProgramBuilder::emitFSOutputSwizzle(bool hasSecondaryOutput) {
 }
 
 bool GrGLSLProgramBuilder::checkSamplerCounts() {
-    const GrShaderCaps& glslCaps = *this->shaderCaps();
-    if (fNumVertexSamplers > glslCaps.maxVertexSamplers()) {
+    const GrShaderCaps& shaderCaps = *this->shaderCaps();
+    if (fNumVertexSamplers > shaderCaps.maxVertexSamplers()) {
         GrCapsDebugf(this->caps(), "Program would use too many vertex samplers\n");
         return false;
     }
-    if (fNumGeometrySamplers > glslCaps.maxGeometrySamplers()) {
+    if (fNumGeometrySamplers > shaderCaps.maxGeometrySamplers()) {
         GrCapsDebugf(this->caps(), "Program would use too many geometry samplers\n");
         return false;
     }
-    if (fNumFragmentSamplers > glslCaps.maxFragmentSamplers()) {
+    if (fNumFragmentSamplers > shaderCaps.maxFragmentSamplers()) {
         GrCapsDebugf(this->caps(), "Program would use too many fragment samplers\n");
         return false;
     }
     // If the same sampler is used in two different shaders, it counts as two combined samplers.
     int numCombinedSamplers = fNumVertexSamplers + fNumGeometrySamplers + fNumFragmentSamplers;
-    if (numCombinedSamplers > glslCaps.maxCombinedSamplers()) {
+    if (numCombinedSamplers > shaderCaps.maxCombinedSamplers()) {
         GrCapsDebugf(this->caps(), "Program would use too many combined samplers\n");
         return false;
     }
@@ -387,23 +387,23 @@ bool GrGLSLProgramBuilder::checkSamplerCounts() {
 }
 
 bool GrGLSLProgramBuilder::checkImageStorageCounts() {
-    const GrShaderCaps& glslCaps = *this->shaderCaps();
-    if (fNumVertexImageStorages > glslCaps.maxVertexImageStorages()) {
+    const GrShaderCaps& shaderCaps = *this->shaderCaps();
+    if (fNumVertexImageStorages > shaderCaps.maxVertexImageStorages()) {
         GrCapsDebugf(this->caps(), "Program would use too many vertex images\n");
         return false;
     }
-    if (fNumGeometryImageStorages > glslCaps.maxGeometryImageStorages()) {
+    if (fNumGeometryImageStorages > shaderCaps.maxGeometryImageStorages()) {
         GrCapsDebugf(this->caps(), "Program would use too many geometry images\n");
         return false;
     }
-    if (fNumFragmentImageStorages > glslCaps.maxFragmentImageStorages()) {
+    if (fNumFragmentImageStorages > shaderCaps.maxFragmentImageStorages()) {
         GrCapsDebugf(this->caps(), "Program would use too many fragment images\n");
         return false;
     }
     // If the same image is used in two different shaders, it counts as two combined images.
     int numCombinedImages = fNumVertexImageStorages + fNumGeometryImageStorages +
         fNumFragmentImageStorages;
-    if (numCombinedImages > glslCaps.maxCombinedImageStorages()) {
+    if (numCombinedImages > shaderCaps.maxCombinedImageStorages()) {
         GrCapsDebugf(this->caps(), "Program would use too many combined images\n");
         return false;
     }

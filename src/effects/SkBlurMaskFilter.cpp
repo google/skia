@@ -885,7 +885,7 @@ void GrGLRectBlurEffect::emitCode(EmitArgs& args) {
     const char *profileSizeName;
 
     SkString precisionString;
-    if (args.fGLSLCaps->usesPrecisionModifiers()) {
+    if (args.fShaderCaps->usesPrecisionModifiers()) {
         precisionString.printf("%s ", GrGLSLPrecisionString(rbe.precision()));
     }
     fProxyRectUniform = uniformHandler->addUniform(kFragment_GrShaderFlag,

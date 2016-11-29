@@ -83,7 +83,7 @@ void GrGLMatrixConvolutionEffect::emitCode(EmitArgs& args) {
             coord.printf("coord + vec2(%d, %d) * %s", x, y, imgInc);
             fDomain.sampleTexture(fragBuilder,
                                   uniformHandler,
-                                  args.fGLSLCaps,
+                                  args.fShaderCaps,
                                   domain,
                                   "c",
                                   coord,
@@ -102,7 +102,7 @@ void GrGLMatrixConvolutionEffect::emitCode(EmitArgs& args) {
     } else {
         fDomain.sampleTexture(fragBuilder,
                               uniformHandler,
-                              args.fGLSLCaps,
+                              args.fShaderCaps,
                               domain,
                               "c",
                               coords2D,

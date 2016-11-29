@@ -214,7 +214,7 @@ void GrSweepGradient::GLSLSweepProcessor::emitCode(EmitArgs& args) {
              coords2D.c_str(), coords2D.c_str());
     this->emitColor(args.fFragBuilder,
                     args.fUniformHandler,
-                    args.fGLSLCaps,
+                    args.fShaderCaps,
                     ge, t.c_str(),
                     args.fOutputColor,
                     args.fInputColor,

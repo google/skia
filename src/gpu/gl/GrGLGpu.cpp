@@ -217,8 +217,8 @@ GrGLGpu::GrGLGpu(GrGLContext* ctx, GrContext* context)
     SkASSERT(ctx);
     fCaps.reset(SkRef(ctx->caps()));
 
-    fHWBoundTextureUniqueIDs.reset(this->glCaps().glslCaps()->maxCombinedSamplers());
-    fHWBoundImageStorages.reset(this->glCaps().glslCaps()->maxCombinedImageStorages());
+    fHWBoundTextureUniqueIDs.reset(this->caps()->shaderCaps()->maxCombinedSamplers());
+    fHWBoundImageStorages.reset(this->caps()->shaderCaps()->maxCombinedImageStorages());
 
     fHWBufferState[kVertex_GrBufferType].fGLTarget = GR_GL_ARRAY_BUFFER;
     fHWBufferState[kIndex_GrBufferType].fGLTarget = GR_GL_ELEMENT_ARRAY_BUFFER;
@@ -236,7 +236,7 @@ GrGLGpu::GrGLGpu(GrGLContext* ctx, GrContext* context)
     GR_STATIC_ASSERT(6 == SK_ARRAY_COUNT(fHWBufferState));
 
     if (this->caps()->shaderCaps()->texelBufferSupport()) {
-        fHWBufferTextures.reset(this->glCaps().glslCaps()->maxCombinedSamplers());
+        fHWBufferTextures.reset(this->caps()->shaderCaps()->maxCombinedSamplers());
     }
 
     if (this->glCaps().shaderCaps()->pathRenderingSupport()) {
@@ -333,8 +333,8 @@ bool GrGLGpu::createPLSSetupProgram() {
         return false;
     }
 
-    const GrShaderCaps* glslCaps = this->glCaps().glslCaps();
-    const char* version = glslCaps->versionDeclString();
+    const GrShaderCaps* shaderCaps = this->caps()->shaderCaps();
+    const char* version = shaderCaps->versionDeclString();
 
     GrShaderVar aVertex("a_vertex", kVec2f_GrSLType, GrShaderVar::kIn_TypeModifier);
     GrShaderVar uTexCoordXform("u_texCoordXform", kVec4f_GrSLType,
@@ -345,19 +345,19 @@ bool GrGLGpu::createPLSSetupProgram() {
     GrShaderVar vTexCoord("v_texCoord", kVec2f_GrSLType, GrShaderVar::kOut_TypeModifier);
 
     SkString vshaderTxt(version);
-    if (glslCaps->noperspectiveInterpolationSupport()) {
-        if (const char* extension = glslCaps->noperspectiveInterpolationExtensionString()) {
+    if (shaderCaps->noperspectiveInterpolationSupport()) {
+        if (const char* extension = shaderCaps->noperspectiveInterpolationExtensionString()) {
             vshaderTxt.appendf("#extension %s : require\n", extension);
         }
         vTexCoord.addModifier("noperspective");
     }
-    aVertex.appendDecl(glslCaps, &vshaderTxt);
+    aVertex.appendDecl(shaderCaps, &vshaderTxt);
     vshaderTxt.append(";");
-    uTexCoordXform.appendDecl(glslCaps, &vshaderTxt);
+    uTexCoordXform.appendDecl(shaderCaps, &vshaderTxt);
     vshaderTxt.append(";");
-    uPosXform.appendDecl(glslCaps, &vshaderTxt);
+    uPosXform.appendDecl(shaderCaps, &vshaderTxt);
     vshaderTxt.append(";");
-    vTexCoord.appendDecl(glslCaps, &vshaderTxt);
+    vTexCoord.appendDecl(shaderCaps, &vshaderTxt);
     vshaderTxt.append(";");
 
     vshaderTxt.append(
@@ -369,20 +369,20 @@ bool GrGLGpu::createPLSSetupProgram() {
     );
 
     SkString fshaderTxt(version);
-    if (glslCaps->noperspectiveInterpolationSupport()) {
-        if (const char* extension = glslCaps->noperspectiveInterpolationExtensionString()) {
+    if (shaderCaps->noperspectiveInterpolationSupport()) {
+        if (const char* extension = shaderCaps->noperspectiveInterpolationExtensionString()) {
             fshaderTxt.appendf("#extension %s : require\n", extension);
         }
     }
     fshaderTxt.append("#extension ");
-    fshaderTxt.append(glslCaps->fbFetchExtensionString());
+    fshaderTxt.append(shaderCaps->fbFetchExtensionString());
     fshaderTxt.append(" : require\n");
     fshaderTxt.append("#extension GL_EXT_shader_pixel_local_storage : require\n");
-    GrGLSLAppendDefaultFloatPrecisionDeclaration(kDefault_GrSLPrecision, *glslCaps, &fshaderTxt);
+    GrGLSLAppendDefaultFloatPrecisionDeclaration(kDefault_GrSLPrecision, *shaderCaps, &fshaderTxt);
     vTexCoord.setTypeModifier(GrShaderVar::kIn_TypeModifier);
-    vTexCoord.appendDecl(glslCaps, &fshaderTxt);
+    vTexCoord.appendDecl(shaderCaps, &fshaderTxt);
     fshaderTxt.append(";");
-    uTexture.appendDecl(glslCaps, &fshaderTxt);
+    uTexture.appendDecl(shaderCaps, &fshaderTxt);
     fshaderTxt.append(";");
 
     fshaderTxt.appendf(
@@ -648,7 +648,7 @@ sk_sp<GrTexture> GrGLGpu::onWrapBackendTexture(const GrBackendTextureDesc& desc,
             // This combination is not supported.
             return nullptr;
         }
-        if (!this->glCaps().glslCaps()->externalTextureSupport()) {
+        if (!this->caps()->shaderCaps()->externalTextureSupport()) {
             return nullptr;
         }
     } else  if (GR_GL_TEXTURE_RECTANGLE == idDesc.fInfo.fTarget) {
@@ -2056,7 +2056,7 @@ bool GrGLGpu::flushGLState(const GrPipeline& pipeline, const GrPrimitiveProcesso
 
     if (blendInfo.fWriteColor) {
         // Swizzle the blend to match what the shader will output.
-        const GrSwizzle& swizzle = this->glCaps().glslCaps()->configOutputSwizzle(
+        const GrSwizzle& swizzle = this->caps()->shaderCaps()->configOutputSwizzle(
             pipeline.getRenderTarget()->config());
         this->flushBlend(blendInfo, swizzle);
     }
@@ -2843,7 +2843,7 @@ void GrGLGpu::draw(const GrPipeline& pipeline,
 }
 
 void GrGLGpu::stampPLSSetupRect(const SkRect& bounds) {
-    SkASSERT(this->glCaps().glslCaps()->plsPathRenderingSupport());
+    SkASSERT(this->caps()->shaderCaps()->plsPathRenderingSupport());
 
     if (!fPLSSetupProgram.fProgram) {
         if (!this->createPLSSetupProgram()) {
@@ -3728,8 +3728,8 @@ bool GrGLGpu::onCopySurface(GrSurface* dst,
                             const SkIPoint& dstPoint) {
     // None of our copy methods can handle a swizzle. TODO: Make copySurfaceAsDraw handle the
     // swizzle.
-    if (this->glCaps().glslCaps()->configOutputSwizzle(src->config()) !=
-        this->glCaps().glslCaps()->configOutputSwizzle(dst->config())) {
+    if (this->caps()->shaderCaps()->configOutputSwizzle(src->config()) !=
+        this->caps()->shaderCaps()->configOutputSwizzle(dst->config())) {
         return false;
     }
     // Don't prefer copying as a draw if the dst doesn't already have a FBO object.
@@ -3760,7 +3760,7 @@ bool GrGLGpu::onCopySurface(GrSurface* dst,
 
 bool GrGLGpu::createCopyProgram(GrTexture* srcTex) {
     int progIdx = TextureToCopyProgramIdx(srcTex);
-    const GrShaderCaps* glslCaps = this->glCaps().glslCaps();
+    const GrShaderCaps* shaderCaps = this->caps()->shaderCaps();
     GrSLType samplerType = srcTex->texturePriv().samplerType();
 
     if (!fCopyProgramArrayBuffer) {
@@ -3783,7 +3783,7 @@ bool GrGLGpu::createCopyProgram(GrTexture* srcTex) {
         return false;
     }
 
-    const char* version = glslCaps->versionDeclString();
+    const char* version = shaderCaps->versionDeclString();
     GrShaderVar aVertex("a_vertex", kVec2f_GrSLType, GrShaderVar::kIn_TypeModifier);
     GrShaderVar uTexCoordXform("u_texCoordXform", kVec4f_GrSLType,
                                GrShaderVar::kUniform_TypeModifier);
@@ -3793,20 +3793,20 @@ bool GrGLGpu::createCopyProgram(GrTexture* srcTex) {
     GrShaderVar oFragColor("o_FragColor", kVec4f_GrSLType, GrShaderVar::kOut_TypeModifier);
 
     SkString vshaderTxt(version);
-    if (glslCaps->noperspectiveInterpolationSupport()) {
-        if (const char* extension = glslCaps->noperspectiveInterpolationExtensionString()) {
+    if (shaderCaps->noperspectiveInterpolationSupport()) {
+        if (const char* extension = shaderCaps->noperspectiveInterpolationExtensionString()) {
             vshaderTxt.appendf("#extension %s : require\n", extension);
         }
         vTexCoord.addModifier("noperspective");
     }
 
-    aVertex.appendDecl(glslCaps, &vshaderTxt);
+    aVertex.appendDecl(shaderCaps, &vshaderTxt);
     vshaderTxt.append(";");
-    uTexCoordXform.appendDecl(glslCaps, &vshaderTxt);
+    uTexCoordXform.appendDecl(shaderCaps, &vshaderTxt);
     vshaderTxt.append(";");
-    uPosXform.appendDecl(glslCaps, &vshaderTxt);
+    uPosXform.appendDecl(shaderCaps, &vshaderTxt);
     vshaderTxt.append(";");
-    vTexCoord.appendDecl(glslCaps, &vshaderTxt);
+    vTexCoord.appendDecl(shaderCaps, &vshaderTxt);
     vshaderTxt.append(";");
 
     vshaderTxt.append(
@@ -3819,21 +3819,21 @@ bool GrGLGpu::createCopyProgram(GrTexture* srcTex) {
     );
 
     SkString fshaderTxt(version);
-    if (glslCaps->noperspectiveInterpolationSupport()) {
-        if (const char* extension = glslCaps->noperspectiveInterpolationExtensionString()) {
+    if (shaderCaps->noperspectiveInterpolationSupport()) {
+        if (const char* extension = shaderCaps->noperspectiveInterpolationExtensionString()) {
             fshaderTxt.appendf("#extension %s : require\n", extension);
         }
     }
     if (samplerType == kTextureExternalSampler_GrSLType) {
         fshaderTxt.appendf("#extension %s : require\n",
-                           glslCaps->externalTextureExtensionString());
+                           shaderCaps->externalTextureExtensionString());
     }
-    GrGLSLAppendDefaultFloatPrecisionDeclaration(kDefault_GrSLPrecision, *glslCaps,
+    GrGLSLAppendDefaultFloatPrecisionDeclaration(kDefault_GrSLPrecision, *shaderCaps,
                                                  &fshaderTxt);
     vTexCoord.setTypeModifier(GrShaderVar::kIn_TypeModifier);
-    vTexCoord.appendDecl(glslCaps, &fshaderTxt);
+    vTexCoord.appendDecl(shaderCaps, &fshaderTxt);
     fshaderTxt.append(";");
-    uTexture.appendDecl(glslCaps, &fshaderTxt);
+    uTexture.appendDecl(shaderCaps, &fshaderTxt);
     fshaderTxt.append(";");
     fshaderTxt.appendf(
         "// Copy Program FS\n"
@@ -3879,7 +3879,7 @@ bool GrGLGpu::createMipmapProgram(int progIdx) {
     const bool oddHeight = SkToBool(progIdx & 0x1);
     const int numTaps = (oddWidth ? 2 : 1) * (oddHeight ? 2 : 1);
 
-    const GrShaderCaps* glslCaps = this->glCaps().glslCaps();
+    const GrShaderCaps* shaderCaps = this->caps()->shaderCaps();
 
     SkASSERT(!fMipmapPrograms[progIdx].fProgram);
     GL_CALL_RET(fMipmapPrograms[progIdx].fProgram, CreateProgram());
@@ -3887,7 +3887,7 @@ bool GrGLGpu::createMipmapProgram(int progIdx) {
         return false;
     }
 
-    const char* version = glslCaps->versionDeclString();
+    const char* version = shaderCaps->versionDeclString();
     GrShaderVar aVertex("a_vertex", kVec2f_GrSLType, GrShaderVar::kIn_TypeModifier);
     GrShaderVar uTexCoordXform("u_texCoordXform", kVec4f_GrSLType,
                                GrShaderVar::kUniform_TypeModifier);
@@ -3903,8 +3903,8 @@ bool GrGLGpu::createMipmapProgram(int progIdx) {
     GrShaderVar oFragColor("o_FragColor", kVec4f_GrSLType,GrShaderVar::kOut_TypeModifier);
 
     SkString vshaderTxt(version);
-    if (glslCaps->noperspectiveInterpolationSupport()) {
-        if (const char* extension = glslCaps->noperspectiveInterpolationExtensionString()) {
+    if (shaderCaps->noperspectiveInterpolationSupport()) {
+        if (const char* extension = shaderCaps->noperspectiveInterpolationExtensionString()) {
             vshaderTxt.appendf("#extension %s : require\n", extension);
         }
         vTexCoords[0].addModifier("noperspective");
@@ -3913,12 +3913,12 @@ bool GrGLGpu::createMipmapProgram(int progIdx) {
         vTexCoords[3].addModifier("noperspective");
     }
 
-    aVertex.appendDecl(glslCaps, &vshaderTxt);
+    aVertex.appendDecl(shaderCaps, &vshaderTxt);
     vshaderTxt.append(";");
-    uTexCoordXform.appendDecl(glslCaps, &vshaderTxt);
+    uTexCoordXform.appendDecl(shaderCaps, &vshaderTxt);
     vshaderTxt.append(";");
     for (int i = 0; i < numTaps; ++i) {
-        vTexCoords[i].appendDecl(glslCaps, &vshaderTxt);
+        vTexCoords[i].appendDecl(shaderCaps, &vshaderTxt);
         vshaderTxt.append(";");
     }
 
@@ -3956,19 +3956,19 @@ bool GrGLGpu::createMipmapProgram(int progIdx) {
     vshaderTxt.append("}");
 
     SkString fshaderTxt(version);
-    if (glslCaps->noperspectiveInterpolationSupport()) {
-        if (const char* extension = glslCaps->noperspectiveInterpolationExtensionString()) {
+    if (shaderCaps->noperspectiveInterpolationSupport()) {
+        if (const char* extension = shaderCaps->noperspectiveInterpolationExtensionString()) {
             fshaderTxt.appendf("#extension %s : require\n", extension);
         }
     }
-    GrGLSLAppendDefaultFloatPrecisionDeclaration(kDefault_GrSLPrecision, *glslCaps,
+    GrGLSLAppendDefaultFloatPrecisionDeclaration(kDefault_GrSLPrecision, *shaderCaps,
                                                  &fshaderTxt);
     for (int i = 0; i < numTaps; ++i) {
         vTexCoords[i].setTypeModifier(GrShaderVar::kIn_TypeModifier);
-        vTexCoords[i].appendDecl(glslCaps, &fshaderTxt);
+        vTexCoords[i].appendDecl(shaderCaps, &fshaderTxt);
         fshaderTxt.append(";");
     }
-    uTexture.appendDecl(glslCaps, &fshaderTxt);
+    uTexture.appendDecl(shaderCaps, &fshaderTxt);
     fshaderTxt.append(";");
     fshaderTxt.append(
         "// Mipmap Program FS\n"
@@ -4049,15 +4049,15 @@ bool GrGLGpu::createWireRectProgram() {
     GrShaderVar uColor("u_color", kVec4f_GrSLType, GrShaderVar::kUniform_TypeModifier);
     GrShaderVar uRect("u_rect", kVec4f_GrSLType, GrShaderVar::kUniform_TypeModifier);
     GrShaderVar aVertex("a_vertex", kVec2f_GrSLType, GrShaderVar::kIn_TypeModifier);
-    const char* version = this->glCaps().glslCaps()->versionDeclString();
+    const char* version = this->caps()->shaderCaps()->versionDeclString();
 
     // The rect uniform specifies the rectangle in NDC space as a vec4 (left,top,right,bottom). The
     // program is used with a vbo containing the unit square. Vertices are computed from the rect
     // uniform using the 4 vbo vertices.
     SkString vshaderTxt(version);
-    aVertex.appendDecl(this->glCaps().glslCaps(), &vshaderTxt);
+    aVertex.appendDecl(this->caps()->shaderCaps(), &vshaderTxt);
     vshaderTxt.append(";");
-    uRect.appendDecl(this->glCaps().glslCaps(), &vshaderTxt);
+    uRect.appendDecl(this->caps()->shaderCaps(), &vshaderTxt);
     vshaderTxt.append(";");
     vshaderTxt.append(
         "// Wire Rect Program VS\n"
@@ -4072,9 +4072,9 @@ bool GrGLGpu::createWireRectProgram() {
 
     SkString fshaderTxt(version);
     GrGLSLAppendDefaultFloatPrecisionDeclaration(kDefault_GrSLPrecision,
-                                                 *this->glCaps().glslCaps(),
+                                                 *this->caps()->shaderCaps(),
                                                  &fshaderTxt);
-    uColor.appendDecl(this->glCaps().glslCaps(), &fshaderTxt);
+    uColor.appendDecl(this->caps()->shaderCaps(), &fshaderTxt);
     fshaderTxt.append(";");
     fshaderTxt.appendf(
         "// Write Rect Program FS\n"

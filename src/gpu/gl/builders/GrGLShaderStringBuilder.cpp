@@ -69,7 +69,7 @@ GrGLuint GrGLCompileAndAttachShader(const GrGLContext& glCtx,
                                                                     ? SkSL::Program::kVertex_Kind
                                                                     : SkSL::Program::kFragment_Kind,
                                                    sksl,
-                                                   *glCtx.caps()->glslCaps(),
+                                                   *glCtx.caps()->shaderCaps(),
                                                    &glsl);
 #ifdef SK_DEBUG
         if (!result) {

@@ -38,7 +38,7 @@ GrCaps::InstancedSupport GLInstancedRendering::CheckSupport(const GrGLCaps& glCa
         (!glCaps.drawIndirectSupport() && !glCaps.drawInstancedSupport())) {
         return GrCaps::InstancedSupport::kNone;
     }
-    return InstanceProcessor::CheckSupport(*glCaps.glslCaps(), glCaps);
+    return InstanceProcessor::CheckSupport(*glCaps.shaderCaps(), glCaps);
 }
 
 GLInstancedRendering::GLInstancedRendering(GrGLGpu* gpu)

@@ -39,7 +39,7 @@ public:
                  const bool usePLSDstRead)
             : fXPFragBuilder(fragBuilder)
             , fUniformHandler(uniformHandler)
-            , fGLSLCaps(caps)
+            , fShaderCaps(caps)
             , fXP(xp)
             , fInputColor(inputColor)
             , fInputCoverage(inputCoverage)
@@ -52,7 +52,7 @@ public:
 
         GrGLSLXPFragmentBuilder* fXPFragBuilder;
         GrGLSLUniformHandler* fUniformHandler;
-        const GrShaderCaps* fGLSLCaps;
+        const GrShaderCaps* fShaderCaps;
         const GrXferProcessor& fXP;
         const char* fInputColor;
         const char* fInputCoverage;

@@ -1377,7 +1377,7 @@ uint32_t GrGradientEffect::GLSLProcessor::GenBaseGradientKey(const GrProcessor& 
 
 void GrGradientEffect::GLSLProcessor::emitColor(GrGLSLFPFragmentBuilder* fragBuilder,
                                                 GrGLSLUniformHandler* uniformHandler,
-                                                const GrShaderCaps* glslCaps,
+                                                const GrShaderCaps* shaderCaps,
                                                 const GrGradientEffect& ge,
                                                 const char* gradientTValue,
                                                 const char* outputColor,
@@ -1531,7 +1531,7 @@ void GrGradientEffect::GLSLProcessor::emitColor(GrGLSLFPFragmentBuilder* fragBui
             fragBuilder->codeAppendf("float oneMinus2t = 1.0 - (2.0 * %s);", t);
             fragBuilder->codeAppendf("vec4 colorTemp = clamp(oneMinus2t, 0.0, 1.0) * %s[0];",
                                      colors);
-            if (!glslCaps->canUseMinAndAbsTogether()) {
+            if (!shaderCaps->canUseMinAndAbsTogether()) {
                 // The Tegra3 compiler will sometimes never return if we have
                 // min(abs(oneMinus2t), 1.0), or do the abs first in a separate expression.
                 fragBuilder->codeAppendf("float minAbs = abs(oneMinus2t);");

@@ -107,8 +107,8 @@ private:
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
 GrGLuint GLCpuPosInstancedArraysBench::setupShader(const GrGLContext* ctx) {
-    const GrShaderCaps* glslCaps = ctx->caps()->glslCaps();
-    const char* version = glslCaps->versionDeclString();
+    const GrShaderCaps* shaderCaps = ctx->caps()->shaderCaps();
+    const char* version = shaderCaps->versionDeclString();
 
     // setup vertex shader
     GrShaderVar aPosition("a_position", kVec2f_GrSLType, GrShaderVar::kIn_TypeModifier);
@@ -116,11 +116,11 @@ GrGLuint GLCpuPosInstancedArraysBench::setupShader(const GrGLContext* ctx) {
     GrShaderVar oColor("o_color", kVec3f_GrSLType, GrShaderVar::kOut_TypeModifier);
 
     SkString vshaderTxt(version);
-    aPosition.appendDecl(glslCaps, &vshaderTxt);
+    aPosition.appendDecl(shaderCaps, &vshaderTxt);
     vshaderTxt.append(";\n");
-    aColor.appendDecl(glslCaps, &vshaderTxt);
+    aColor.appendDecl(shaderCaps, &vshaderTxt);
     vshaderTxt.append(";\n");
-    oColor.appendDecl(glslCaps, &vshaderTxt);
+    oColor.appendDecl(shaderCaps, &vshaderTxt);
     vshaderTxt.append(";\n");
 
     vshaderTxt.append(
@@ -133,14 +133,14 @@ GrGLuint GLCpuPosInstancedArraysBench::setupShader(const GrGLContext* ctx) {
     // setup fragment shader
     GrShaderVar oFragColor("o_FragColor", kVec4f_GrSLType, GrShaderVar::kOut_TypeModifier);
     SkString fshaderTxt(version);
-    GrGLSLAppendDefaultFloatPrecisionDeclaration(kDefault_GrSLPrecision, *glslCaps, &fshaderTxt);
+    GrGLSLAppendDefaultFloatPrecisionDeclaration(kDefault_GrSLPrecision, *shaderCaps, &fshaderTxt);
     oColor.setTypeModifier(GrShaderVar::kIn_TypeModifier);
-    oColor.appendDecl(glslCaps, &fshaderTxt);
+    oColor.appendDecl(shaderCaps, &fshaderTxt);
     fshaderTxt.append(";\n");
 
     const char* fsOutName;
-    if (glslCaps->mustDeclareFragmentShaderOutput()) {
-        oFragColor.appendDecl(glslCaps, &fshaderTxt);
+    if (shaderCaps->mustDeclareFragmentShaderOutput()) {
+        oFragColor.appendDecl(shaderCaps, &fshaderTxt);
         fshaderTxt.append(";\n");
         fsOutName = oFragColor.c_str();
     } else {

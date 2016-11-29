@@ -122,7 +122,7 @@ public:
                  bool gpImplementsDistanceVector)
             : fFragBuilder(fragBuilder)
             , fUniformHandler(uniformHandler)
-            , fGLSLCaps(caps)
+            , fShaderCaps(caps)
             , fFp(fp)
             , fOutputColor(outputColor)
             , fInputColor(inputColor)
@@ -133,7 +133,7 @@ public:
             , fGpImplementsDistanceVector(gpImplementsDistanceVector) {}
         GrGLSLFPFragmentBuilder* fFragBuilder;
         GrGLSLUniformHandler* fUniformHandler;
-        const GrShaderCaps* fGLSLCaps;
+        const GrShaderCaps* fShaderCaps;
         const GrFragmentProcessor& fFp;
         const char* fOutputColor;
         const char* fInputColor;

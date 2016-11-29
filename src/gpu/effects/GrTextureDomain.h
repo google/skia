@@ -115,7 +115,7 @@ public:
          */
         void sampleTexture(GrGLSLShaderBuilder* builder,
                            GrGLSLUniformHandler* uniformHandler,
-                           const GrShaderCaps* glslCaps,
+                           const GrShaderCaps* shaderCaps,
                            const GrTextureDomain& textureDomain,
                            const char* outColor,
                            const SkString& inCoords,

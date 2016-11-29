@@ -170,7 +170,7 @@ void GLCircularRRectEffect::emitCode(EmitArgs& args) {
 
     // If we're on a device with a "real" mediump then the length calculation could overflow.
     SkString clampedCircleDistance;
-    if (args.fGLSLCaps->floatPrecisionVaries()) {
+    if (args.fShaderCaps->floatPrecisionVaries()) {
         clampedCircleDistance.printf("clamp(%s.x * (1.0 - length(dxy * %s.y)), 0.0, 1.0);",
                                      radiusPlusHalfName, radiusPlusHalfName);
     } else {
@@ -536,7 +536,7 @@ void GLEllipticalRRectEffect::emitCode(EmitArgs& args) {
     // that is normalized by the largest radius. The scale uniform will be scale, 1/scale. The
     // radii uniform values are already in this normalized space.
     const char* scaleName = nullptr;
-    if (args.fGLSLCaps->floatPrecisionVaries()) {
+    if (args.fShaderCaps->floatPrecisionVaries()) {
         fScaleUniform = uniformHandler->addUniform(kFragment_GrShaderFlag,
                                                    kVec2f_GrSLType, kDefault_GrSLPrecision,
                                                    "scale", &scaleName);

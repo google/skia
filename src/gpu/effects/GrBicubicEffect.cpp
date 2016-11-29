@@ -102,7 +102,7 @@ void GrGLBicubicEffect::emitCode(EmitArgs& args) {
             sampleVar.printf("rowColors[%d]", x);
             fDomain.sampleTexture(fragBuilder,
                                   args.fUniformHandler,
-                                  args.fGLSLCaps,
+                                  args.fShaderCaps,
                                   bicubicEffect.domain(),
                                   sampleVar.c_str(),
                                   coord,

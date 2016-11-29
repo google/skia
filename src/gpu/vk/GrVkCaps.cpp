@@ -60,7 +60,7 @@ void GrVkCaps::init(const GrContextOptions& contextOptions, const GrVkInterface*
     GR_VK_CALL(vkInterface, GetPhysicalDeviceMemoryProperties(physDev, &memoryProperties));
 
     this->initGrCaps(properties, memoryProperties, featureFlags);
-    this->initGLSLCaps(properties, featureFlags);
+    this->initShaderCaps(properties, featureFlags);
     this->initConfigTable(vkInterface, physDev);
     this->initStencilFormat(vkInterface, physDev);
 
@@ -80,8 +80,7 @@ void GrVkCaps::init(const GrContextOptions& contextOptions, const GrVkInterface*
     }
 
     this->applyOptionsOverrides(contextOptions);
-    GrShaderCaps* glslCaps = fShaderCaps.get();
-    glslCaps->applyOptionsOverrides(contextOptions);
+    fShaderCaps->applyOptionsOverrides(contextOptions);
 }
 
 int get_max_sample_count(VkSampleCountFlags flags) {
@@ -137,68 +136,69 @@ void GrVkCaps::initGrCaps(const VkPhysicalDeviceProperties& properties,
     fSampleShadingSupport = SkToBool(featureFlags & kSampleRateShading_GrVkFeatureFlag);
 }
 
-void GrVkCaps::initGLSLCaps(const VkPhysicalDeviceProperties& properties,
-                            uint32_t featureFlags) {
-    GrShaderCaps* glslCaps = fShaderCaps.get();
-    glslCaps->fVersionDeclString = "#version 330\n";
+void GrVkCaps::initShaderCaps(const VkPhysicalDeviceProperties& properties, uint32_t featureFlags) {
+    GrShaderCaps* shaderCaps = fShaderCaps.get();
+    shaderCaps->fVersionDeclString = "#version 330\n";
 
 
     // fConfigOutputSwizzle will default to RGBA so we only need to set it for alpha only config.
     for (int i = 0; i < kGrPixelConfigCnt; ++i) {
         GrPixelConfig config = static_cast<GrPixelConfig>(i);
         if (GrPixelConfigIsAlphaOnly(config)) {
-            glslCaps->fConfigTextureSwizzle[i] = GrSwizzle::RRRR();
-            glslCaps->fConfigOutputSwizzle[i] = GrSwizzle::AAAA();
+            shaderCaps->fConfigTextureSwizzle[i] = GrSwizzle::RRRR();
+            shaderCaps->fConfigOutputSwizzle[i] = GrSwizzle::AAAA();
         } else {
             if (kRGBA_4444_GrPixelConfig == config) {
                 // The vulkan spec does not require R4G4B4A4 to be supported for texturing so we
                 // store the data in a B4G4R4A4 texture and then swizzle it when doing texture reads
                 // or writing to outputs. Since we're not actually changing the data at all, the
                 // only extra work is the swizzle in the shader for all operations.
-                glslCaps->fConfigTextureSwizzle[i] = GrSwizzle::BGRA();
-                glslCaps->fConfigOutputSwizzle[i] = GrSwizzle::BGRA();
+                shaderCaps->fConfigTextureSwizzle[i] = GrSwizzle::BGRA();
+                shaderCaps->fConfigOutputSwizzle[i] = GrSwizzle::BGRA();
             } else {
-                glslCaps->fConfigTextureSwizzle[i] = GrSwizzle::RGBA();
+                shaderCaps->fConfigTextureSwizzle[i] = GrSwizzle::RGBA();
             }
         }
     }
 
     // Vulkan is based off ES 3.0 so the following should all be supported
-    glslCaps->fUsesPrecisionModifiers = true;
-    glslCaps->fFlatInterpolationSupport = true;
+    shaderCaps->fUsesPrecisionModifiers = true;
+    shaderCaps->fFlatInterpolationSupport = true;
 
     // GrShaderCaps
 
-    glslCaps->fShaderDerivativeSupport = true;
-    glslCaps->fGeometryShaderSupport = SkToBool(featureFlags & kGeometryShader_GrVkFeatureFlag);
+    shaderCaps->fShaderDerivativeSupport = true;
+    shaderCaps->fGeometryShaderSupport = SkToBool(featureFlags & kGeometryShader_GrVkFeatureFlag);
 
-    glslCaps->fDualSourceBlendingSupport = SkToBool(featureFlags & kDualSrcBlend_GrVkFeatureFlag);
+    shaderCaps->fDualSourceBlendingSupport = SkToBool(featureFlags & kDualSrcBlend_GrVkFeatureFlag);
 
-    glslCaps->fIntegerSupport = true;
+    shaderCaps->fIntegerSupport = true;
 
     // Assume the minimum precisions mandated by the SPIR-V spec.
-    glslCaps->fShaderPrecisionVaries = true;
+    shaderCaps->fShaderPrecisionVaries = true;
     for (int s = 0; s < kGrShaderTypeCount; ++s) {
-        auto& highp = glslCaps->fFloatPrecisions[s][kHigh_GrSLPrecision];
+        auto& highp = shaderCaps->fFloatPrecisions[s][kHigh_GrSLPrecision];
         highp.fLogRangeLow = highp.fLogRangeHigh = 127;
         highp.fBits = 23;
 
-        auto& mediump = glslCaps->fFloatPrecisions[s][kMedium_GrSLPrecision];
+        auto& mediump = shaderCaps->fFloatPrecisions[s][kMedium_GrSLPrecision];
         mediump.fLogRangeLow = mediump.fLogRangeHigh = 14;
         mediump.fBits = 10;
 
-        glslCaps->fFloatPrecisions[s][kLow_GrSLPrecision] = mediump;
+        shaderCaps->fFloatPrecisions[s][kLow_GrSLPrecision] = mediump;
     }
-    glslCaps->initSamplerPrecisionTable();
+    shaderCaps->initSamplerPrecisionTable();
 
-    glslCaps->fMaxVertexSamplers =
-    glslCaps->fMaxGeometrySamplers =
-    glslCaps->fMaxFragmentSamplers = SkTMin(SkTMin(properties.limits.maxPerStageDescriptorSampledImages,
-                                                   properties.limits.maxPerStageDescriptorSamplers),
-                                            (uint32_t)INT_MAX);
-    glslCaps->fMaxCombinedSamplers = SkTMin(SkTMin(properties.limits.maxDescriptorSetSampledImages,
-                                                   properties.limits.maxDescriptorSetSamplers),
-                                            (uint32_t)INT_MAX);
+    shaderCaps->fMaxVertexSamplers =
+    shaderCaps->fMaxGeometrySamplers =
+    shaderCaps->fMaxFragmentSamplers = SkTMin(
+                                       SkTMin(properties.limits.maxPerStageDescriptorSampledImages,
+                                              properties.limits.maxPerStageDescriptorSamplers),
+                                              (uint32_t)INT_MAX);
+    shaderCaps->fMaxCombinedSamplers = SkTMin(
+                                       SkTMin(properties.limits.maxDescriptorSetSampledImages,
+                                              properties.limits.maxDescriptorSetSamplers),
+                                              (uint32_t)INT_MAX);
 }
 
 bool stencil_format_supported(const GrVkInterface* interface,

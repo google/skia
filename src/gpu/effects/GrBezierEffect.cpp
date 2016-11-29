@@ -110,7 +110,7 @@ void GrGLConicEffect::onEmitCode(EmitArgs& args, GrGPArgs* gpArgs) {
     // Additionally we should assert that the upstream code only lets us get here if
     // either high or medium provides the required number of bits.
     GrSLPrecision precision = kHigh_GrSLPrecision;
-    const GrShaderCaps::PrecisionInfo& highP = args.fGLSLCaps->getFloatShaderPrecisionInfo(
+    const GrShaderCaps::PrecisionInfo& highP = args.fShaderCaps->getFloatShaderPrecisionInfo(
                                                              kFragment_GrShaderType,
                                                              kHigh_GrSLPrecision);
     if (!highP.supported()) {

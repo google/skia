@@ -298,7 +298,7 @@ void GLEllipseEffect::emitCode(EmitArgs& args) {
     // inverse squared radii uniform values are already in this normalized space. The center is
     // not.
     const char* scaleName = nullptr;
-    if (args.fGLSLCaps->floatPrecisionVaries()) {
+    if (args.fShaderCaps->floatPrecisionVaries()) {
         fScaleUniform = args.fUniformHandler->addUniform(
             kFragment_GrShaderFlag, kVec2f_GrSLType, kDefault_GrSLPrecision,
             "scale", &scaleName);
