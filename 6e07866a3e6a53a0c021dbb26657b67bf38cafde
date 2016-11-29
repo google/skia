@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "f01d104e_5cde53ca",
+        "filename": "src/image/SkImageShaderContext.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 13,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2016-11-29T21:50:07Z",
+      "side": 1,
+      "message": "Why the change from forward declaration to include for SkColorTable? Seems like definition isn\u0027t needed in this header.",
+      "revId": "6e07866a3e6a53a0c021dbb26657b67bf38cafde",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
