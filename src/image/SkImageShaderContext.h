@@ -8,13 +8,17 @@
 #ifndef SkImageShaderContext_DEFINED
 #define SkImageShaderContext_DEFINED
 
+#include "SkBitmapController.h"
 #include "SkColor.h"
-class SkColorTable;
+#include "SkColorTable.h"
+#include <memory>
 
 // Definition used by SkImageShader.cpp and SkRasterPipeline_opts.h.
 // Otherwise, completely uninteresting.
 
 struct SkImageShaderContext {
+    std::unique_ptr<SkBitmapController::State> state;
+
     const void*   pixels;
     SkColorTable* ctable;
     SkColor4f     color4f;
