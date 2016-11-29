@@ -22,6 +22,24 @@
       "revId": "7212be9ba515d199280f253d0cf10349759002f6",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "f01d104e_9586e3f9",
+        "filename": "src/opts/SkRasterPipeline_opts.h",
+        "patchSetId": 11
+      },
+      "lineNbr": 163,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2016-11-29T17:51:41Z",
+      "side": 1,
+      "message": "I like that.  I will give it a try.  It certainly makes tail \u003d\u003d 0 less weird.  It may also help make creating masks programatically easier / less branchy.",
+      "parentUuid": "f01d104e_1ac86243",
+      "revId": "7212be9ba515d199280f253d0cf10349759002f6",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
