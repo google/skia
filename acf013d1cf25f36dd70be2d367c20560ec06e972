@@ -289,6 +289,24 @@
     },
     {
       "key": {
+        "uuid": "f01d104e_ffc8d8b6",
+        "filename": "src/core/SkColorLookUpTable.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 18,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2016-11-29T15:55:16Z",
+      "side": 1,
+      "message": "Hmm ok I didn\u0027t understand that this forces src !\u003d dst...  Can we keep this code the same, but change the implementation to remove the restriction?",
+      "parentUuid": "f01d104e_d33b1ede",
+      "revId": "acf013d1cf25f36dd70be2d367c20560ec06e972",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "f01d104e_c4c27e24",
         "filename": "src/core/SkColorLookUpTable.h",
         "patchSetId": 2
@@ -336,6 +354,24 @@
       "side": 1,
       "message": "Wouldn\u0027t that expose a bunch of internals about color space xforms to pretty much everyone using anything related to color space stuff? This file is included in SkColorSpace_Base.h",
       "parentUuid": "4df48341_b2fd21fe",
+      "revId": "acf013d1cf25f36dd70be2d367c20560ec06e972",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "f01d104e_df94fc94",
+        "filename": "src/core/SkColorLookUpTable.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 14,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2016-11-29T15:55:16Z",
+      "side": 1,
+      "message": "SkColorSpaceXformPriv.h is a private header (in src/core).  This needs to be in a header in src/core.  And it is shared between color space xform classes?  I think that SkColorSpaceXformPriv.h is the right place for it.",
+      "parentUuid": "f01d104e_73beea63",
       "revId": "acf013d1cf25f36dd70be2d367c20560ec06e972",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
@@ -494,6 +530,24 @@
       "side": 1,
       "message": "The CMYK files I checked were lut16Type ICC profiles, which have mandatory gammas before the CLUT. There\u0027s no offset business like with AtoBTypes, just all in a row and the table must be 2-4096 big (can\u0027t be empty).",
       "parentUuid": "4df48341_d262e5eb",
+      "revId": "acf013d1cf25f36dd70be2d367c20560ec06e972",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "f01d104e_bfa580eb",
+        "filename": "src/core/SkColorSpace_A2B.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 74,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2016-11-29T15:55:16Z",
+      "side": 1,
+      "message": "Acknowledged.",
+      "parentUuid": "f01d104e_73d50aa0",
       "revId": "acf013d1cf25f36dd70be2d367c20560ec06e972",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
