@@ -121,6 +121,10 @@ static inline const char* GrGLSLTypeString(GrSLType t) {
             return "texture2D";
         case kSampler_GrSLType:
             return "sampler";
+        case kImageStorage2D_GrSLType:
+            return "image2D";
+        case kIImageStorage2D_GrSLType:
+            return "iimage2D";
     }
     SkFAIL("Unknown shader var type.");
     return ""; // suppress warning
