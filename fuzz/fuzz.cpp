@@ -406,7 +406,7 @@ int fuzz_sksl2glsl(sk_sp<SkData> bytes) {
     SkSL::Compiler compiler;
     SkString output;
     bool result = compiler.toGLSL(SkSL::Program::kFragment_Kind,
-        SkString((const char*)bytes->data()), *SkSL::GLSLCapsFactory::Default(), &output);
+        SkString((const char*)bytes->data()), *SkSL::ShaderCapsFactory::Default(), &output);
 
     if (!result) {
         SkDebugf("[terminated] Couldn't compile input.\n");

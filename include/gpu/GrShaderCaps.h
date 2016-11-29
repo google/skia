@@ -13,7 +13,7 @@
 #include "../private/GrGLSL.h"
 
 namespace SkSL {
-    class GLSLCapsFactory;
+    class ShaderCapsFactory;
 }
 struct GrContextOptions;
 
@@ -338,7 +338,7 @@ private:
 
     friend class GrGLCaps;  // For initialization.
     friend class GrVkCaps;
-    friend class SkSL::GLSLCapsFactory;
+    friend class SkSL::ShaderCapsFactory;
 };
 
 #endif
