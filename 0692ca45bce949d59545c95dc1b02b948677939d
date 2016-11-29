@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "f01d104e_3f6269c0",
+        "filename": "src/core/SkColorLookUpTable.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 142,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2016-11-29T23:31:51Z",
+      "side": 1,
+      "message": "Still spacing issues in this block of code.",
+      "range": {
+        "startLine": 137,
+        "startChar": 8,
+        "endLine": 142,
+        "endChar": 92
+      },
+      "revId": "0692ca45bce949d59545c95dc1b02b948677939d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "f01d104e_1fd84d3e",
+        "filename": "src/opts/SkRasterPipeline_opts.h",
+        "patchSetId": 5
+      },
+      "lineNbr": 676,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2016-11-29T23:31:51Z",
+      "side": 1,
+      "message": "Is it possible to hit this case?",
+      "range": {
+        "startLine": 676,
+        "startChar": 12,
+        "endLine": 676,
+        "endChar": 38
+      },
+      "revId": "0692ca45bce949d59545c95dc1b02b948677939d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
