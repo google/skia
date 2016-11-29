@@ -63,7 +63,7 @@ void SkColorLookUpTable::interp3D(float dst[3], float src[3]) const {
     // tetrahedral or trilinear.
     for (int i = 0; i < 3; i++) {
         if (diffZ < diffY) {
-            if (diffZ < diffX) {
+            if (diffZ > diffX) {
                 dst[i] = (ptr[n000] + diffZ * (ptr[n110] - ptr[n010]) +
                                       diffY * (ptr[n010] - ptr[n000]) +
                                       diffX * (ptr[n111] - ptr[n110]));
@@ -92,7 +92,12 @@ void SkColorLookUpTable::interp3D(float dst[3], float src[3]) const {
             }
         }
 
-        // TODO(raftias): Figure out why this is going out of range (up to 1.0359!)
+        // |src| is guaranteed to be in the 0-1 range as are all entries
+        // in the table.  For "increasing" tables, outputs will also be
+        // in the 0-1 range.  While this property is logical for color
+        // look up tables, we don't check for it.
+        // And for arbitrary, non-increasing tables, it is easy to see how
+        // the output might not be 0-1.  So we clamp here.
         if (dst[i] > 1.f) {
             dst[i] = 1.f;
         } else if (dst[i] < 0.f) {
