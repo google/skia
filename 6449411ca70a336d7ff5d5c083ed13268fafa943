@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "f01d104e_1c921be7",
+        "filename": "include/core/SkImageEncoder.h",
+        "patchSetId": 11
+      },
+      "lineNbr": 43,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2016-11-29T21:54:58Z",
+      "side": 1,
+      "message": "Commit message says this is gone. Can this class be deleted now?",
+      "range": {
+        "startLine": 43,
+        "startChar": 7,
+        "endLine": 43,
+        "endChar": 44
+      },
+      "revId": "6449411ca70a336d7ff5d5c083ed13268fafa943",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
