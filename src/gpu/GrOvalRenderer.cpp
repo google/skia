@@ -13,11 +13,11 @@
 #include "GrInvariantOutput.h"
 #include "GrProcessor.h"
 #include "GrResourceProvider.h"
+#include "GrShaderCaps.h"
 #include "GrStyle.h"
 #include "SkRRect.h"
 #include "SkStrokeRec.h"
 #include "batches/GrVertexBatch.h"
-#include "glsl/GrGLSLCaps.h"
 #include "glsl/GrGLSLFragmentShaderBuilder.h"
 #include "glsl/GrGLSLGeometryProcessor.h"
 #include "glsl/GrGLSLProgramDataManager.h"
@@ -110,11 +110,11 @@ public:
 
     const char* name() const override { return "CircleEdge"; }
 
-    void getGLSLProcessorKey(const GrGLSLCaps& caps, GrProcessorKeyBuilder* b) const override {
+    void getGLSLProcessorKey(const GrShaderCaps& caps, GrProcessorKeyBuilder* b) const override {
         GLSLProcessor::GenKey(*this, caps, b);
     }
 
-    GrGLSLPrimitiveProcessor* createGLSLInstance(const GrGLSLCaps&) const override {
+    GrGLSLPrimitiveProcessor* createGLSLInstance(const GrShaderCaps&) const override {
         return new GLSLProcessor();
     }
 
@@ -198,7 +198,7 @@ private:
         }
 
         static void GenKey(const GrGeometryProcessor& gp,
-                           const GrGLSLCaps&,
+                           const GrShaderCaps&,
                            GrProcessorKeyBuilder* b) {
             const CircleGeometryProcessor& cgp = gp.cast<CircleGeometryProcessor>();
             uint16_t key;
@@ -269,11 +269,11 @@ public:
 
     const char* name() const override { return "EllipseEdge"; }
 
-    void getGLSLProcessorKey(const GrGLSLCaps& caps, GrProcessorKeyBuilder* b) const override {
+    void getGLSLProcessorKey(const GrShaderCaps& caps, GrProcessorKeyBuilder* b) const override {
         GLSLProcessor::GenKey(*this, caps, b);
     }
 
-    GrGLSLPrimitiveProcessor* createGLSLInstance(const GrGLSLCaps&) const override {
+    GrGLSLPrimitiveProcessor* createGLSLInstance(const GrShaderCaps&) const override {
         return new GLSLProcessor();
     }
 
@@ -344,7 +344,7 @@ private:
         }
 
         static void GenKey(const GrGeometryProcessor& gp,
-                           const GrGLSLCaps&,
+                           const GrShaderCaps&,
                            GrProcessorKeyBuilder* b) {
             const EllipseGeometryProcessor& egp = gp.cast<EllipseGeometryProcessor>();
             uint16_t key = egp.fStroke ? 0x1 : 0x0;
@@ -412,11 +412,11 @@ public:
 
     const char* name() const override { return "DIEllipseEdge"; }
 
-    void getGLSLProcessorKey(const GrGLSLCaps& caps, GrProcessorKeyBuilder* b) const override {
+    void getGLSLProcessorKey(const GrShaderCaps& caps, GrProcessorKeyBuilder* b) const override {
         GLSLProcessor::GenKey(*this, caps, b);
     }
 
-    GrGLSLPrimitiveProcessor* createGLSLInstance(const GrGLSLCaps&) const override {
+    GrGLSLPrimitiveProcessor* createGLSLInstance(const GrShaderCaps&) const override {
         return new GLSLProcessor();
     }
 
@@ -504,7 +504,7 @@ private:
         }
 
         static void GenKey(const GrGeometryProcessor& gp,
-                           const GrGLSLCaps&,
+                           const GrShaderCaps&,
                            GrProcessorKeyBuilder* b) {
             const DIEllipseGeometryProcessor& diegp = gp.cast<DIEllipseGeometryProcessor>();
             uint16_t key = static_cast<uint16_t>(diegp.fStyle);

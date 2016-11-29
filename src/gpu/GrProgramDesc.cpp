@@ -9,11 +9,11 @@
 #include "GrProcessor.h"
 #include "GrPipeline.h"
 #include "GrRenderTargetPriv.h"
+#include "GrShaderCaps.h"
 #include "GrTexturePriv.h"
 #include "SkChecksum.h"
 #include "glsl/GrGLSLFragmentProcessor.h"
 #include "glsl/GrGLSLFragmentShaderBuilder.h"
-#include "glsl/GrGLSLCaps.h"
 
 enum {
     kSamplerOrImageTypeKeyBits = 4
@@ -52,7 +52,7 @@ static inline uint16_t image_storage_or_sampler_uniform_type_key(GrSLType type )
 }
 
 static uint16_t sampler_key(GrSLType samplerType, GrPixelConfig config, GrShaderFlags visibility,
-                            const GrGLSLCaps& caps) {
+                            const GrShaderCaps& caps) {
     int samplerTypeKey = image_storage_or_sampler_uniform_type_key(samplerType);
 
     GR_STATIC_ASSERT(1 == sizeof(caps.configTextureSwizzle(config).asKey()));
@@ -68,7 +68,7 @@ static uint16_t storage_image_key(const GrProcessor::ImageStorageAccess& imageAc
 }
 
 static void add_sampler_and_image_keys(GrProcessorKeyBuilder* b, const GrProcessor& proc,
-                                       const GrGLSLCaps& caps) {
+                                       const GrShaderCaps& caps) {
     int numTextureSamplers = proc.numTextureSamplers();
     int numBuffers = proc.numBuffers();
     int numImageStorages = proc.numImageStorages();
@@ -110,7 +110,7 @@ static void add_sampler_and_image_keys(GrProcessorKeyBuilder* b, const GrProcess
  * function because it is hairy, though FPs do not have attribs, and GPs do not have transforms
  */
 static bool gen_meta_key(const GrProcessor& proc,
-                         const GrGLSLCaps& glslCaps,
+                         const GrShaderCaps& glslCaps,
                          uint32_t transformKey,
                          GrProcessorKeyBuilder* b) {
     size_t processorKeySize = b->size();
@@ -132,7 +132,7 @@ static bool gen_meta_key(const GrProcessor& proc,
 
 static bool gen_frag_proc_and_meta_keys(const GrPrimitiveProcessor& primProc,
                                         const GrFragmentProcessor& fp,
-                                        const GrGLSLCaps& glslCaps,
+                                        const GrShaderCaps& glslCaps,
                                         GrProcessorKeyBuilder* b) {
     for (int i = 0; i < fp.numChildProcessors(); ++i) {
         if (!gen_frag_proc_and_meta_keys(primProc, fp.childProcessor(i), glslCaps, b)) {
@@ -150,7 +150,7 @@ bool GrProgramDesc::Build(GrProgramDesc* desc,
                           const GrPrimitiveProcessor& primProc,
                           bool hasPointSize,
                           const GrPipeline& pipeline,
-                          const GrGLSLCaps& glslCaps) {
+                          const GrShaderCaps& glslCaps) {
     // The descriptor is used as a cache key. Thus when a field of the
     // descriptor will not affect program generation (because of the attribute
     // bindings in use or other descriptor field settings) it should be set

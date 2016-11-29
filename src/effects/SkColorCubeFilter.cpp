@@ -179,7 +179,7 @@ public:
     public:
         void emitCode(EmitArgs&) override;
 
-        static inline void GenKey(const GrProcessor&, const GrGLSLCaps&, GrProcessorKeyBuilder*);
+        static inline void GenKey(const GrProcessor&, const GrShaderCaps&, GrProcessorKeyBuilder*);
 
     protected:
         void onSetData(const GrGLSLProgramDataManager&, const GrProcessor&) override;
@@ -192,7 +192,7 @@ public:
     };
 
 private:
-    virtual void onGetGLSLProcessorKey(const GrGLSLCaps& caps,
+    virtual void onGetGLSLProcessorKey(const GrShaderCaps& caps,
                                      GrProcessorKeyBuilder* b) const override;
 
     GrGLSLFragmentProcessor* onCreateGLSLInstance() const override;
@@ -217,7 +217,7 @@ GrColorCubeEffect::GrColorCubeEffect(GrTexture* colorCube)
 GrColorCubeEffect::~GrColorCubeEffect() {
 }
 
-void GrColorCubeEffect::onGetGLSLProcessorKey(const GrGLSLCaps& caps,
+void GrColorCubeEffect::onGetGLSLProcessorKey(const GrShaderCaps& caps,
                                               GrProcessorKeyBuilder* b) const {
     GLSLProcessor::GenKey(*this, caps, b);
 }
@@ -295,7 +295,7 @@ void GrColorCubeEffect::GLSLProcessor::onSetData(const GrGLSLProgramDataManager&
 }
 
 void GrColorCubeEffect::GLSLProcessor::GenKey(const GrProcessor& proc,
-                                              const GrGLSLCaps&, GrProcessorKeyBuilder* b) {
+                                              const GrShaderCaps&, GrProcessorKeyBuilder* b) {
 }
 
 sk_sp<GrFragmentProcessor> SkColorCubeFilter::asFragmentProcessor(GrContext* context,

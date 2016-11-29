@@ -11,7 +11,7 @@
 
 #if SK_SUPPORT_GPU
 
-static void test(skiatest::Reporter* r, const char* src, const GrGLSLCaps& caps, 
+static void test(skiatest::Reporter* r, const char* src, const GrShaderCaps& caps,
                  const char* expected) {
     SkSL::Compiler compiler;
     SkString output;

@@ -39,7 +39,7 @@ private:
                                                  GrColor* color,
                                                  const GrCaps& caps) const override;
 
-    void onGetGLSLProcessorKey(const GrGLSLCaps& caps, GrProcessorKeyBuilder* b) const override;
+    void onGetGLSLProcessorKey(const GrShaderCaps& caps, GrProcessorKeyBuilder* b) const override;
 
     void onGetBlendInfo(GrXferProcessor::BlendInfo* blendInfo) const override;
 
@@ -63,7 +63,7 @@ public:
 
     ~GLCoverageSetOpXP() override {}
 
-    static void GenKey(const GrProcessor& processor, const GrGLSLCaps& caps,
+    static void GenKey(const GrProcessor& processor, const GrShaderCaps& caps,
                        GrProcessorKeyBuilder* b) {
         const CoverageSetOpXP& xp = processor.cast<CoverageSetOpXP>();
         uint32_t key = xp.invertCoverage() ?  0x0 : 0x1;
@@ -98,7 +98,7 @@ CoverageSetOpXP::CoverageSetOpXP(SkRegion::Op regionOp, bool invertCoverage)
 CoverageSetOpXP::~CoverageSetOpXP() {
 }
 
-void CoverageSetOpXP::onGetGLSLProcessorKey(const GrGLSLCaps& caps,
+void CoverageSetOpXP::onGetGLSLProcessorKey(const GrShaderCaps& caps,
                                             GrProcessorKeyBuilder* b) const {
     GLCoverageSetOpXP::GenKey(*this, caps, b);
 }
@@ -174,7 +174,7 @@ private:
         return GrXferProcessor::kIgnoreColor_OptFlag;
     }
 
-    void onGetGLSLProcessorKey(const GrGLSLCaps& caps, GrProcessorKeyBuilder* b) const override;
+    void onGetGLSLProcessorKey(const GrShaderCaps& caps, GrProcessorKeyBuilder* b) const override;
 
     bool onIsEqual(const GrXferProcessor& xpBase) const override {
         const ShaderCSOXferProcessor& xp = xpBase.cast<ShaderCSOXferProcessor>();
@@ -226,7 +226,7 @@ private:
 
 ///////////////////////////////////////////////////////////////////////////////
 
-void ShaderCSOXferProcessor::onGetGLSLProcessorKey(const GrGLSLCaps&,
+void ShaderCSOXferProcessor::onGetGLSLProcessorKey(const GrShaderCaps&,
                                                    GrProcessorKeyBuilder* b) const {
     GLShaderCSOXferProcessor::GenKey(*this, b);
 }

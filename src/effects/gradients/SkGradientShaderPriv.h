@@ -481,7 +481,7 @@ protected:
     // of hard stop gradients
     void emitColor(GrGLSLFPFragmentBuilder* fragBuilder,
                    GrGLSLUniformHandler* uniformHandler,
-                   const GrGLSLCaps* caps,
+                   const GrShaderCaps* caps,
                    const GrGradientEffect&,
                    const char* gradientTValue,
                    const char* outputColor,

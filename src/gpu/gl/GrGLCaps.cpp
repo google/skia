@@ -11,7 +11,7 @@
 #include "GrContextOptions.h"
 #include "GrGLContext.h"
 #include "GrGLRenderTarget.h"
-#include "glsl/GrGLSLCaps.h"
+#include "GrShaderCaps.h"
 #include "instanced/GLInstancedRendering.h"
 #include "SkTSearch.h"
 #include "SkTSort.h"
@@ -54,7 +54,7 @@ GrGLCaps::GrGLCaps(const GrContextOptions& contextOptions,
 
     fBlitFramebufferFlags = kNoSupport_BlitFramebufferFlag;
 
-    fShaderCaps.reset(new GrGLSLCaps(contextOptions));
+    fShaderCaps.reset(new GrShaderCaps(contextOptions));
 
     this->init(contextOptions, ctxInfo, glInterface);
 }
@@ -254,7 +254,7 @@ void GrGLCaps::init(const GrContextOptions& contextOptions,
 
     // This must be called after fCoreProfile is set on the GrGLCaps
     this->initGLSL(ctxInfo);
-    GrGLSLCaps* glslCaps = static_cast<GrGLSLCaps*>(fShaderCaps.get());
+    GrShaderCaps* glslCaps = static_cast<GrShaderCaps*>(fShaderCaps.get());
 
     glslCaps->fPathRenderingSupport = this->hasPathRenderingSupport(ctxInfo, gli);
 
@@ -688,7 +688,7 @@ void GrGLCaps::initGLSL(const GrGLContextInfo& ctxInfo) {
     * Caps specific to GrGLSLCaps
     **************************************************************************/
 
-    GrGLSLCaps* glslCaps = static_cast<GrGLSLCaps*>(fShaderCaps.get());
+    GrShaderCaps* glslCaps = fShaderCaps.get();
     glslCaps->fGLSLGeneration = ctxInfo.glslGeneration();
     if (kGLES_GrGLStandard == standard) {
         if (ctxInfo.hasExtension("GL_EXT_shader_framebuffer_fetch")) {
@@ -1030,7 +1030,7 @@ void GrGLCaps::initFSAASupport(const GrGLContextInfo& ctxInfo, const GrGLInterfa
 }
 
 void GrGLCaps::initBlendEqationSupport(const GrGLContextInfo& ctxInfo) {
-    GrGLSLCaps* glslCaps = static_cast<GrGLSLCaps*>(fShaderCaps.get());
+    GrShaderCaps* glslCaps = static_cast<GrShaderCaps*>(fShaderCaps.get());
 
     // Disabling advanced blend on various platforms with major known issues. We also block Chrome
     // for now until its own blacklists can be updated.
@@ -1043,20 +1043,20 @@ void GrGLCaps::initBlendEqationSupport(const GrGLContextInfo& ctxInfo) {
 
     if (ctxInfo.hasExtension("GL_NV_blend_equation_advanced_coherent")) {
         fBlendEquationSupport = kAdvancedCoherent_BlendEquationSupport;
-        glslCaps->fAdvBlendEqInteraction = GrGLSLCaps::kAutomatic_AdvBlendEqInteraction;
+        glslCaps->fAdvBlendEqInteraction = GrShaderCaps::kAutomatic_AdvBlendEqInteraction;
     } else if (ctxInfo.hasExtension("GL_KHR_blend_equation_advanced_coherent")) {
         fBlendEquationSupport = kAdvancedCoherent_BlendEquationSupport;
-        glslCaps->fAdvBlendEqInteraction = GrGLSLCaps::kGeneralEnable_AdvBlendEqInteraction;
+        glslCaps->fAdvBlendEqInteraction = GrShaderCaps::kGeneralEnable_AdvBlendEqInteraction;
     } else if (kNVIDIA_GrGLDriver == ctxInfo.driver() &&
                ctxInfo.driverVersion() < GR_GL_DRIVER_VER(337,00)) {
         // Non-coherent advanced blend has an issue on NVIDIA pre 337.00.
         return;
     } else if (ctxInfo.hasExtension("GL_NV_blend_equation_advanced")) {
         fBlendEquationSupport = kAdvanced_BlendEquationSupport;
-        glslCaps->fAdvBlendEqInteraction = GrGLSLCaps::kAutomatic_AdvBlendEqInteraction;
+        glslCaps->fAdvBlendEqInteraction = GrShaderCaps::kAutomatic_AdvBlendEqInteraction;
     } else if (ctxInfo.hasExtension("GL_KHR_blend_equation_advanced")) {
         fBlendEquationSupport = kAdvanced_BlendEquationSupport;
-        glslCaps->fAdvBlendEqInteraction = GrGLSLCaps::kGeneralEnable_AdvBlendEqInteraction;
+        glslCaps->fAdvBlendEqInteraction = GrShaderCaps::kGeneralEnable_AdvBlendEqInteraction;
         // TODO: Use kSpecificEnables_AdvBlendEqInteraction if "blend_support_all_equations" is
         // slow on a particular platform.
     } else {
@@ -1260,7 +1260,7 @@ static GrGLenum shader_type_to_gl_shader(GrShaderType type) {
 
 void GrGLCaps::initShaderPrecisionTable(const GrGLContextInfo& ctxInfo,
                                         const GrGLInterface* intf,
-                                        GrGLSLCaps* glslCaps) {
+                                        GrShaderCaps* glslCaps) {
     if (kGLES_GrGLStandard == ctxInfo.standard() || ctxInfo.version() >= GR_GL_VER(4, 1) ||
         ctxInfo.hasExtension("GL_ARB_ES2_compatibility")) {
         for (int s = 0; s < kGrShaderTypeCount; ++s) {
@@ -1393,7 +1393,7 @@ bool GrGLCaps::getExternalFormat(GrPixelConfig surfaceConfig, GrPixelConfig memo
 }
 
 void GrGLCaps::initConfigTable(const GrGLContextInfo& ctxInfo, const GrGLInterface* gli,
-                               GrGLSLCaps* glslCaps) {
+                               GrShaderCaps* glslCaps) {
     /*
         Comments on renderability of configs on various GL versions.
           OpenGL < 3.0:

@@ -7,7 +7,6 @@
 
 #include "GrGLGpu.h"
 #include "GrGLBuffer.h"
-#include "GrGLGLSL.h"
 #include "GrGLGpuCommandBuffer.h"
 #include "GrGLStencilAttachment.h"
 #include "GrGLTextureRenderTarget.h"
@@ -17,12 +16,11 @@
 #include "GrPipeline.h"
 #include "GrPLSGeometryProcessor.h"
 #include "GrRenderTargetPriv.h"
+#include "GrShaderCaps.h"
 #include "GrSurfacePriv.h"
 #include "GrTexturePriv.h"
 #include "GrTypes.h"
 #include "builders/GrGLShaderStringBuilder.h"
-#include "glsl/GrGLSL.h"
-#include "glsl/GrGLSLCaps.h"
 #include "glsl/GrGLSLPLSPathRendering.h"
 #include "instanced/GLInstancedRendering.h"
 #include "SkMakeUnique.h"
@@ -31,6 +29,7 @@
 #include "SkStrokeRec.h"
 #include "SkTemplates.h"
 #include "SkTypes.h"
+#include "../private/GrGLSL.h"
 
 #define GL_CALL(X) GR_GL_CALL(this->glInterface(), X)
 #define GL_CALL_RET(RET, X) GR_GL_CALL_RET(this->glInterface(), RET, X)
@@ -334,7 +333,7 @@ bool GrGLGpu::createPLSSetupProgram() {
         return false;
     }
 
-    const GrGLSLCaps* glslCaps = this->glCaps().glslCaps();
+    const GrShaderCaps* glslCaps = this->glCaps().glslCaps();
     const char* version = glslCaps->versionDeclString();
 
     GrShaderVar aVertex("a_vertex", kVec2f_GrSLType, GrShaderVar::kIn_TypeModifier);
@@ -3761,7 +3760,7 @@ bool GrGLGpu::onCopySurface(GrSurface* dst,
 
 bool GrGLGpu::createCopyProgram(GrTexture* srcTex) {
     int progIdx = TextureToCopyProgramIdx(srcTex);
-    const GrGLSLCaps* glslCaps = this->glCaps().glslCaps();
+    const GrShaderCaps* glslCaps = this->glCaps().glslCaps();
     GrSLType samplerType = srcTex->texturePriv().samplerType();
 
     if (!fCopyProgramArrayBuffer) {
@@ -3880,7 +3879,7 @@ bool GrGLGpu::createMipmapProgram(int progIdx) {
     const bool oddHeight = SkToBool(progIdx & 0x1);
     const int numTaps = (oddWidth ? 2 : 1) * (oddHeight ? 2 : 1);
 
-    const GrGLSLCaps* glslCaps = this->glCaps().glslCaps();
+    const GrShaderCaps* glslCaps = this->glCaps().glslCaps();
 
     SkASSERT(!fMipmapPrograms[progIdx].fProgram);
     GL_CALL_RET(fMipmapPrograms[progIdx].fProgram, CreateProgram());

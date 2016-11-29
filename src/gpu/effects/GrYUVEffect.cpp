@@ -177,7 +177,7 @@ private:
         return new GLSLProcessor;
     }
 
-    void onGetGLSLProcessorKey(const GrGLSLCaps& caps, GrProcessorKeyBuilder* b) const override {
+    void onGetGLSLProcessorKey(const GrShaderCaps& caps, GrProcessorKeyBuilder* b) const override {
         b->add32(fNV12);
     }
 
@@ -334,7 +334,7 @@ private:
         return new GLSLProcessor;
     }
 
-    void onGetGLSLProcessorKey(const GrGLSLCaps& caps, GrProcessorKeyBuilder* b) const override {
+    void onGetGLSLProcessorKey(const GrShaderCaps& caps, GrProcessorKeyBuilder* b) const override {
         // kY, kU, and kV all generate the same code, just upload different coefficients.
         if (kU_OutputChannels == fOutputChannels || kV_OutputChannels == fOutputChannels) {
             b->add32(kY_OutputChannels);

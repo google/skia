@@ -11,9 +11,9 @@
 #include "GrInvariantOutput.h"
 #include "GrSimpleTextureEffect.h"
 #include "SkMatrix.h"
-#include "glsl/GrGLSL.h"
 #include "glsl/GrGLSLFragmentProcessor.h"
 #include "glsl/GrGLSLFragmentShaderBuilder.h"
+#include "../private/GrGLSL.h"
 
 class GrGLConfigConversionEffect : public GrGLSLFragmentProcessor {
 public:
@@ -81,7 +81,7 @@ public:
         fragBuilder->codeAppend(modulate.c_str());
     }
 
-    static inline void GenKey(const GrProcessor& processor, const GrGLSLCaps&,
+    static inline void GenKey(const GrProcessor& processor, const GrShaderCaps&,
                               GrProcessorKeyBuilder* b) {
         const GrConfigConversionEffect& cce = processor.cast<GrConfigConversionEffect>();
         uint32_t key = (cce.swizzle().asKey()) | (cce.pmConversion() << 16);
@@ -150,7 +150,7 @@ sk_sp<GrFragmentProcessor> GrConfigConversionEffect::TestCreate(GrProcessorTestD
 
 ///////////////////////////////////////////////////////////////////////////////
 
-void GrConfigConversionEffect::onGetGLSLProcessorKey(const GrGLSLCaps& caps,
+void GrConfigConversionEffect::onGetGLSLProcessorKey(const GrShaderCaps& caps,
                                                      GrProcessorKeyBuilder* b) const {
     GrGLConfigConversionEffect::GenKey(*this, caps, b);
 }

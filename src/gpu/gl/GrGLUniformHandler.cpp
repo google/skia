@@ -110,19 +110,19 @@ GrGLSLUniformHandler::ImageStorageHandle GrGLUniformHandler::addImageStorage(
 void GrGLUniformHandler::appendUniformDecls(GrShaderFlags visibility, SkString* out) const {
     for (int i = 0; i < fUniforms.count(); ++i) {
         if (fUniforms[i].fVisibility & visibility) {
-            fUniforms[i].fVariable.appendDecl(fProgramBuilder->glslCaps(), out);
+            fUniforms[i].fVariable.appendDecl(fProgramBuilder->shaderCaps(), out);
             out->append(";");
         }
     }
     for (int i = 0; i < fSamplers.count(); ++i) {
         if (fSamplers[i].fVisibility & visibility) {
-            fSamplers[i].fVariable.appendDecl(fProgramBuilder->glslCaps(), out);
+            fSamplers[i].fVariable.appendDecl(fProgramBuilder->shaderCaps(), out);
             out->append(";\n");
         }
     }
     for (int i = 0; i < fImageStorages.count(); ++i) {
         if (fImageStorages[i].fVisibility & visibility) {
-            fImageStorages[i].fVariable.appendDecl(fProgramBuilder->glslCaps(), out);
+            fImageStorages[i].fVariable.appendDecl(fProgramBuilder->shaderCaps(), out);
             out->append(";");
         }
     }

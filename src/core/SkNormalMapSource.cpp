@@ -73,7 +73,7 @@ public:
             fragBuilder->codeAppend( "}");
         }
 
-        static void GenKey(const GrProcessor&, const GrGLSLCaps&, GrProcessorKeyBuilder* b) {
+        static void GenKey(const GrProcessor&, const GrShaderCaps&, GrProcessorKeyBuilder* b) {
             b->add32(0x0);
         }
 
@@ -96,7 +96,7 @@ public:
         GrGLSLProgramDataManager::UniformHandle fXformUni;
     };
 
-    void onGetGLSLProcessorKey(const GrGLSLCaps& caps, GrProcessorKeyBuilder* b) const override {
+    void onGetGLSLProcessorKey(const GrShaderCaps& caps, GrProcessorKeyBuilder* b) const override {
         GLSLNormalMapFP::GenKey(*this, caps, b);
     }
 

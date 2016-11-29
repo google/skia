@@ -19,7 +19,7 @@ class GrFragmentProcessor;
 class GrGLContextInfo;
 class GrProgramDesc;
 class GrGLSLShaderBuilder;
-class GrGLSLCaps;
+class GrShaderCaps;
 
 class GrGLProgramBuilder : public GrGLSLProgramBuilder {
 public:
@@ -36,7 +36,6 @@ public:
                                       GrGLGpu*);
 
     const GrCaps* caps() const override;
-    const GrGLSLCaps* glslCaps() const override;
 
     GrGLGpu* gpu() const { return fGpu; }
 

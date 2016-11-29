@@ -9,10 +9,10 @@
 #define GrGLInitGLSL_DEFINED
 
 #include "gl/GrGLInterface.h"
-#include "glsl/GrGLSL.h"
 #include "GrColor.h"
 #include "GrTypesPriv.h"
 #include "SkString.h"
+#include "../private/GrGLSL.h"
 
 class GrGLContextInfo;
 

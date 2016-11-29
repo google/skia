@@ -38,7 +38,6 @@ public:
                                                   const GrVkRenderPass& renderPass);
 
     const GrCaps* caps() const override;
-    const GrGLSLCaps* glslCaps() const override;
 
     GrVkGpu* gpu() const { return fGpu; }
 
