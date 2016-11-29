@@ -343,12 +343,6 @@ void GrGLCaps::init(const GrContextOptions& contextOptions,
                                                        shaderCaps->fMaxGeometryImageStorages);
         shaderCaps->fMaxFragmentImageStorages =  SkTMin(maxUnits,
                                                         shaderCaps->fMaxFragmentImageStorages);
-        // HACK: Currently we only use images in a unit test in the fragment shader. The individual
-        // stage image limits aren't exposed through GrShaderCaps. Soon GrShaderCaps and GrGLSLCaps
-        // will merge and the test can look for fragment support.
-        if (!shaderCaps->fMaxFragmentImageStorages) {
-            shaderCaps->fImageLoadStoreSupport = false;
-        }
     }
 
     /**************************************************************************

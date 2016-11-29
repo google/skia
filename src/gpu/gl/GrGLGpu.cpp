@@ -561,6 +561,7 @@ void GrGLGpu::onResetContext(uint32_t resetBits) {
             fHWBufferTextures[b].fKnownBound = false;
         }
         for (int i = 0; i < fHWBoundImageStorages.count(); ++i) {
+            SkASSERT(this->caps()->shaderCaps()->imageLoadStoreSupport());
             fHWBoundImageStorages[i].fTextureUniqueID.makeInvalid();
         }
     }
