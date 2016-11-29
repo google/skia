@@ -79,7 +79,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(ImageStorageLoad, reporter, ctxInfo) {
 
     static constexpr int kS = 256;
     GrContext* context = ctxInfo.grContext();
-    if (!context->caps()->shaderCaps()->imageLoadStoreSupport()) {
+    if (context->caps()->shaderCaps()->maxFragmentImageStorages() < 1) {
         return;
     }
 
