@@ -7,9 +7,6 @@
 
 #include <stdio.h>
 #include <stdlib.h>
-#include "SkForceLinking.h"
-
-__SK_FORCE_IMAGE_DECODER_LINKING;
 
 #include "fiddle_main.h"
 
