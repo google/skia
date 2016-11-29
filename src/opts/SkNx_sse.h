@@ -15,11 +15,6 @@
 
 #define SKNX_IS_FAST
 
-template <> struct SkNx_abi<4,float> { __m128 vec; };
-#if SK_CPU_SSE_LEVEL >= SK_CPU_SSE_LEVEL_AVX2
-    template <> struct SkNx_abi<8,float> { __m256 vec; };
-#endif
-
 namespace {
 
 template <>
@@ -75,9 +70,6 @@ public:
     AI SkNx() {}
     AI SkNx(float val)           : fVec( _mm_set1_ps(val) ) {}
     AI SkNx(float a, float b, float c, float d) : fVec(_mm_setr_ps(a,b,c,d)) {}
-
-    AI SkNx(const SkNx_abi<4,float>& a) : fVec(a.vec) {}
-    AI operator SkNx_abi<4,float>() const { return { fVec }; }
 
     AI static SkNx Load(const void* ptr) { return _mm_loadu_ps((const float*)ptr); }
     AI void store(void* ptr) const { _mm_storeu_ps((float*)ptr, fVec); }
@@ -561,9 +553,6 @@ public:
         AI SkNx(float val) : fVec(_mm256_set1_ps(val)) {}
         AI SkNx(float a, float b, float c, float d,
                 float e, float f, float g, float h) : fVec(_mm256_setr_ps(a,b,c,d,e,f,g,h)) {}
-
-        AI SkNx(const SkNx_abi<8,float>& a) : fVec(a.vec) {}
-        AI operator SkNx_abi<8,float>() const { return { fVec }; }
 
         AI static SkNx Load(const void* ptr) { return _mm256_loadu_ps((const float*)ptr); }
         AI void store(void* ptr) const { _mm256_storeu_ps((float*)ptr, fVec); }
