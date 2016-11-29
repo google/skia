@@ -71,6 +71,75 @@
     },
     {
       "key": {
+        "uuid": "f01d104e_794ec1df",
+        "filename": "src/core/SkColorLookUpTable.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 20,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2016-11-29T21:14:46Z",
+      "side": 1,
+      "message": "Ahh ok I see why this doesn\u0027t work in place...  What you had before was fine.  Might be more clear to call the variable \"tmp\" or something like that.  And better to use memcpy() to copy to dst.",
+      "range": {
+        "startLine": 20,
+        "startChar": 12,
+        "endLine": 20,
+        "endChar": 32
+      },
+      "revId": "24384baa7b801d0dce7d0e4e774b3ef09c91ca93",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "f01d104e_f948f1cf",
+        "filename": "src/core/SkColorLookUpTable.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 119,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2016-11-29T21:14:46Z",
+      "side": 1,
+      "message": "It took me a long time to understand what was going on in this function - now that I (finally) get it, I don\u0027t immediately have any suggestions to make it more readable.\n\nMaybe it would help to have the base case first (though I think this is personal preference)?",
+      "range": {
+        "startLine": 119,
+        "startChar": 26,
+        "endLine": 119,
+        "endChar": 41
+      },
+      "revId": "24384baa7b801d0dce7d0e4e774b3ef09c91ca93",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "f01d104e_394369b1",
+        "filename": "src/core/SkColorLookUpTable.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 125,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2016-11-29T21:14:46Z",
+      "side": 1,
+      "message": "nit: spacing issues in this function",
+      "range": {
+        "startLine": 125,
+        "startChar": 21,
+        "endLine": 125,
+        "endChar": 25
+      },
+      "revId": "24384baa7b801d0dce7d0e4e774b3ef09c91ca93",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "f01d104e_3f84305d",
         "filename": "src/core/SkColorLookUpTable.h",
         "patchSetId": 3
@@ -186,6 +255,98 @@
     },
     {
       "key": {
+        "uuid": "f01d104e_f97e3157",
+        "filename": "src/core/SkColorSpaceXform_A2B.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 201,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2016-11-29T21:14:46Z",
+      "side": 1,
+      "message": "How about two variants of this?\n\naddTransferFns(fn, numChannels);\naddTransferFn(fn, channelIndex);\n\naddTransferFns can call addTransferFn in a loop.",
+      "range": {
+        "startLine": 201,
+        "startChar": 20,
+        "endLine": 201,
+        "endChar": 84
+      },
+      "revId": "24384baa7b801d0dce7d0e4e774b3ef09c91ca93",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "f01d104e_99e29d13",
+        "filename": "src/core/SkColorSpaceXform_A2B.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 44,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2016-11-29T21:14:46Z",
+      "side": 1,
+      "message": "I thought this enum was a little confusing the first time...  Now I think it\u0027s more confusing.  Let\u0027s find a better way to do this?",
+      "range": {
+        "startLine": 35,
+        "startChar": 0,
+        "endLine": 44,
+        "endChar": 6
+      },
+      "revId": "24384baa7b801d0dce7d0e4e774b3ef09c91ca93",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "f01d104e_598ca5c6",
+        "filename": "src/core/SkColorSpace_A2B.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 11,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2016-11-29T21:14:46Z",
+      "side": 1,
+      "message": "Just a suggestion: my SkColorSpace convention has been to list parameters (and fields) in src to dst order.  So for this class it would be:\nInputColorFormat\nvector\u003cElement\u003e\nPCS\nSkData (always at the end)",
+      "range": {
+        "startLine": 10,
+        "startChar": 35,
+        "endLine": 11,
+        "endChar": 92
+      },
+      "revId": "24384baa7b801d0dce7d0e4e774b3ef09c91ca93",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "f01d104e_f9ce3119",
+        "filename": "src/core/SkColorSpace_A2B.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 104,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2016-11-29T21:14:46Z",
+      "side": 1,
+      "message": "nit: extra white space throughout this file",
+      "range": {
+        "startLine": 104,
+        "startChar": 0,
+        "endLine": 104,
+        "endChar": 4
+      },
+      "revId": "24384baa7b801d0dce7d0e4e774b3ef09c91ca93",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "f01d104e_3fd3506a",
         "filename": "src/core/SkColorSpace_A2B.h",
         "patchSetId": 3
@@ -225,6 +386,236 @@
         "startChar": 0,
         "endLine": 159,
         "endChar": 4
+      },
+      "revId": "24384baa7b801d0dce7d0e4e774b3ef09c91ca93",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "f01d104e_d946d599",
+        "filename": "src/core/SkColorSpace_Base.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 104,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2016-11-29T21:14:46Z",
+      "side": 1,
+      "message": "nit: extra whitespace",
+      "range": {
+        "startLine": 104,
+        "startChar": 0,
+        "endLine": 104,
+        "endChar": 4
+      },
+      "revId": "24384baa7b801d0dce7d0e4e774b3ef09c91ca93",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "f01d104e_392d29c0",
+        "filename": "src/core/SkColorSpace_ICC.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 802,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2016-11-29T21:14:46Z",
+      "side": 1,
+      "message": "Cool, I think this code actually got simpler",
+      "range": {
+        "startLine": 802,
+        "startChar": 4,
+        "endLine": 802,
+        "endChar": 26
+      },
+      "revId": "24384baa7b801d0dce7d0e4e774b3ef09c91ca93",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "f01d104e_39fb6908",
+        "filename": "src/core/SkColorSpace_ICC.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 940,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2016-11-29T21:14:46Z",
+      "side": 1,
+      "message": "I think we need to be stricter here?\n\ninputChannels must be 3 in the RGB case and must be 4 in the CMYK case.  Do we check that anywhere?  Then it\u0027s fine to comment that we could easily support 1-8 input channels if we had any inputs that required it.",
+      "range": {
+        "startLine": 940,
+        "startChar": 4,
+        "endLine": 940,
+        "endChar": 50
+      },
+      "revId": "24384baa7b801d0dce7d0e4e774b3ef09c91ca93",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "f01d104e_9939bded",
+        "filename": "src/core/SkColorSpace_ICC.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 1069,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2016-11-29T21:14:46Z",
+      "side": 1,
+      "message": "Same comment above applies here?",
+      "range": {
+        "startLine": 1069,
+        "startChar": 4,
+        "endLine": 1069,
+        "endChar": 50
+      },
+      "revId": "24384baa7b801d0dce7d0e4e774b3ef09c91ca93",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "f01d104e_193cedd5",
+        "filename": "src/core/SkColorSpace_ICC.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 1086,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2016-11-29T21:14:46Z",
+      "side": 1,
+      "message": "Do you mean identity here?",
+      "range": {
+        "startLine": 1086,
+        "startChar": 72,
+        "endLine": 1086,
+        "endChar": 84
+      },
+      "revId": "24384baa7b801d0dce7d0e4e774b3ef09c91ca93",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "f01d104e_19730dc8",
+        "filename": "src/core/SkColorSpace_ICC.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 1087,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2016-11-29T21:14:46Z",
+      "side": 1,
+      "message": "I\u0027m confused, does this comment say what you mean?  There\u0027s a lot of negatives.",
+      "range": {
+        "startLine": 1087,
+        "startChar": 39,
+        "endLine": 1087,
+        "endChar": 42
+      },
+      "revId": "24384baa7b801d0dce7d0e4e774b3ef09c91ca93",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "f01d104e_f9c39197",
+        "filename": "src/core/SkColorSpace_ICC.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 1252,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2016-11-29T21:14:46Z",
+      "side": 1,
+      "message": "I think I prefer the following:\n\nstatic constexpr int kPCSChannels \u003d 3; // PCS must be XYZ or Lab\nif (kPCSChannels !\u003d ...",
+      "range": {
+        "startLine": 1252,
+        "startChar": 8,
+        "endLine": 1252,
+        "endChar": 25
+      },
+      "revId": "24384baa7b801d0dce7d0e4e774b3ef09c91ca93",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "f01d104e_19eead05",
+        "filename": "src/core/SkColorSpace_ICC.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 1362,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2016-11-29T21:14:46Z",
+      "side": 1,
+      "message": "Can you comment if anything below here has changed?  I think it\u0027s just code being moved, but want to be sure.",
+      "range": {
+        "startLine": 1362,
+        "startChar": 4,
+        "endLine": 1362,
+        "endChar": 53
+      },
+      "revId": "24384baa7b801d0dce7d0e4e774b3ef09c91ca93",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "f01d104e_79fec1bd",
+        "filename": "src/core/SkColorSpace_ICC.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 1519,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2016-11-29T21:14:46Z",
+      "side": 1,
+      "message": "Haven\u0027t we already done this?",
+      "range": {
+        "startLine": 1509,
+        "startChar": 8,
+        "endLine": 1519,
+        "endChar": 9
+      },
+      "revId": "24384baa7b801d0dce7d0e4e774b3ef09c91ca93",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "f01d104e_79396193",
+        "filename": "src/opts/SkRasterPipeline_opts.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 688,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2016-11-29T21:14:46Z",
+      "side": 1,
+      "message": "I think this is not quite right...  Can we?\n\nAlways load r, g, b (assert whatever is needed to make this ok).\nIf this is a 3-\u003e3 color LUT, I think we need to preserve the value of alpha.\nIf this is a 4-\u003e3 color LUT, set alpha to 1.0f.",
+      "range": {
+        "startLine": 672,
+        "startChar": 0,
+        "endLine": 688,
+        "endChar": 5
       },
       "revId": "24384baa7b801d0dce7d0e4e774b3ef09c91ca93",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
