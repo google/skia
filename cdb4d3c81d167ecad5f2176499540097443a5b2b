@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "f01d104e_d5321b23",
+        "filename": "fuzz/FuzzDrawFunctions.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 81,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2016-11-29T18:10:51Z",
+      "side": 1,
+      "message": "I think you can drop this.  The later draw will be enough.",
+      "revId": "cdb4d3c81d167ecad5f2176499540097443a5b2b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "f01d104e_f52717de",
+        "filename": "fuzz/FuzzDrawFunctions.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 94,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2016-11-29T18:10:51Z",
+      "side": 1,
+      "message": "Probably looking for canvas.drawPaint(p) ?",
+      "revId": "cdb4d3c81d167ecad5f2176499540097443a5b2b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
