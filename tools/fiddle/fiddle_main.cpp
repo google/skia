@@ -105,9 +105,19 @@ int main() {
         }
     }
     sk_sp<SkData> rasterData, gpuData, pdfData, skpData;
+    SkColorType colorType = kN32_SkColorType;
+    sk_sp<SkColorSpace> colorSpace = nullptr;
+    if (options.f16) {
+        SkASSERT(options.srgb);
+        colorType = kRGBA_F16_SkColorType;
+        colorSpace = SkColorSpace::MakeNamed(SkColorSpace::kSRGBLinear_Named);
+    } else if (options.srgb) {
+        colorSpace = SkColorSpace::MakeNamed(SkColorSpace::kSRGB_Named);
+    }
+    SkImageInfo info = SkImageInfo::Make(options.size.width(), options.size.height(), colorType,
+                                         kPremul_SkAlphaType, colorSpace);
     if (options.raster) {
-        auto rasterSurface =
-                SkSurface::MakeRaster(SkImageInfo::MakeN32Premul(options.size));
+        auto rasterSurface = SkSurface::MakeRaster(info);
         srand(0);
         draw(rasterSurface->getCanvas());
         rasterData.reset(encode_snapshot(rasterSurface));
@@ -117,10 +127,7 @@ int main() {
         if (!grContext) {
             fputs("Unable to get GrContext.\n", stderr);
         } else {
-            auto surface = SkSurface::MakeRenderTarget(
-                    grContext.get(),
-                    SkBudgeted::kNo,
-                    SkImageInfo::MakeN32Premul(options.size));
+            auto surface = SkSurface::MakeRenderTarget(grContext.get(), SkBudgeted::kNo, info);
             if (!surface) {
                 fputs("Unable to get render surface.\n", stderr);
                 exit(1);
