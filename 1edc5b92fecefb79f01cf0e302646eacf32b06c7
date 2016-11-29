@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "f01d104e_9cdd2b75",
+        "filename": "src/gpu/batches/GrDrawBatch.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 80,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2016-11-29T22:10:06Z",
+      "side": 0,
+      "message": "This assertion is already made by pipeline().",
+      "range": {
+        "startLine": 80,
+        "startChar": 8,
+        "endLine": 80,
+        "endChar": 37
+      },
+      "revId": "1edc5b92fecefb79f01cf0e302646eacf32b06c7",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
