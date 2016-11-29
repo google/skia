@@ -1,0 +1,73 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "f01d104e_c4f8b3ce",
+        "filename": "src/core/SkAnalyticEdge.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 108,
+      "author": {
+        "id": 5632
+      },
+      "writtenOn": "2016-11-29T13:48:48Z",
+      "side": 1,
+      "message": "\"newy  - fSnappedY\" occurs three times (including newSnappedY - newy \u003d\u003d\u003d -(newy - fSnappedY)\nDoes the compiler fold these together?",
+      "range": {
+        "startLine": 108,
+        "startChar": 21,
+        "endLine": 108,
+        "endChar": 26
+      },
+      "revId": "d3f0df1c05e114f37e5f76acc14e8277dfdc862e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "f01d104e_64e29f16",
+        "filename": "src/core/SkAnalyticEdge.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 113,
+      "author": {
+        "id": 5632
+      },
+      "writtenOn": "2016-11-29T13:48:48Z",
+      "side": 1,
+      "message": "newSnappedX \u003d newx - SkFixedMul(slope, newy - newSnappedY);",
+      "range": {
+        "startLine": 113,
+        "startChar": 36,
+        "endLine": 113,
+        "endChar": 37
+      },
+      "revId": "d3f0df1c05e114f37e5f76acc14e8277dfdc862e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "f01d104e_c4aa73ba",
+        "filename": "src/core/SkAnalyticEdge.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 127,
+      "author": {
+        "id": 5632
+      },
+      "writtenOn": "2016-11-29T13:48:48Z",
+      "side": 1,
+      "message": "slope \u003d (newy - fSnappedY) \u003e\u003e 10\n(match expression used elsewhere)",
+      "range": {
+        "startLine": 127,
+        "startChar": 12,
+        "endLine": 127,
+        "endChar": 51
+      },
+      "revId": "d3f0df1c05e114f37e5f76acc14e8277dfdc862e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
