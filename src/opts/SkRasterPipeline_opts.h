@@ -288,6 +288,13 @@ STAGE(premul) {
     b *= a;
 }
 
+STAGE(set_rgb) {
+    auto rgb = (const float*)ctx;
+    r = rgb[0];
+    g = rgb[1];
+    b = rgb[2];
+}
+
 STAGE(move_src_dst) {
     dr = r;
     dg = g;
@@ -777,7 +784,13 @@ SI SkNi offset_and_ptr(T** ptr, const void* ctx, const SkNf& x, const SkNf& y) {
     return offset;
 }
 
-STAGE(gather_a8) {}  // TODO
+STAGE(gather_a8) {
+    const uint8_t* p;
+    SkNi offset = offset_and_ptr(&p, ctx, r, g);
+
+    r = g = b = 0.0f;
+    a = SkNx_cast<float>(gather(tail, p, offset)) * (1/255.0f);
+}
 STAGE(gather_i8) {
     auto sc = (const SkImageShaderContext*)ctx;
     const uint8_t* p;

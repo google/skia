@@ -66,7 +66,7 @@ protected:
         return true;
     }
     bool onAppendStages(SkRasterPipeline*, SkColorSpace*, SkFallbackAlloc*,
-                        const SkMatrix& ctm, SkFilterQuality) const override;
+                        const SkMatrix& ctm, const SkPaint&) const override;
 
 private:
     SkColor fColor;
@@ -122,7 +122,7 @@ protected:
         return true;
     }
     bool onAppendStages(SkRasterPipeline*, SkColorSpace*, SkFallbackAlloc*,
-                        const SkMatrix& ctm, SkFilterQuality) const override;
+                        const SkMatrix& ctm, const SkPaint&) const override;
 
 private:
     sk_sp<SkColorSpace> fColorSpace;

@@ -116,7 +116,7 @@ SkBlitter* SkRasterPipelineBlitter::Create(const SkPixmap& dst,
 
     if (shader) {
         if (!shader->appendStages(pipeline, dst.colorSpace(), &blitter->fScratchFallback,
-                                  ctm, paint.getFilterQuality())) {
+                                  ctm, paint)) {
             return earlyOut();
         }
         if (!is_opaque) {
