@@ -324,16 +324,29 @@ void GrGLCaps::init(const GrContextOptions& contextOptions,
         static constexpr int kMaxSaneImages = 4;
         GrGLint maxUnits;
         GR_GL_GetIntegerv(gli, GR_GL_MAX_IMAGE_UNITS, &maxUnits);
-        GR_GL_GetIntegerv(gli, GR_GL_MAX_VERTEX_IMAGE_UNIFORMS, &glslCaps->fMaxVertexImages);
-        GR_GL_GetIntegerv(gli, GR_GL_MAX_GEOMETRY_IMAGE_UNIFORMS, &glslCaps->fMaxGeometryImages);
-        GR_GL_GetIntegerv(gli, GR_GL_MAX_FRAGMENT_IMAGE_UNIFORMS, &glslCaps->fMaxFragmentImages);
-        GR_GL_GetIntegerv(gli, GR_GL_MAX_COMBINED_IMAGE_UNIFORMS, &glslCaps->fMaxCombinedImages);
+        GR_GL_GetIntegerv(gli, GR_GL_MAX_VERTEX_IMAGE_UNIFORMS,
+                          &glslCaps->fMaxVertexImageStorages);
+        if (glslCaps->fGeometryShaderSupport) {
+            GR_GL_GetIntegerv(gli, GR_GL_MAX_GEOMETRY_IMAGE_UNIFORMS,
+                              &glslCaps->fMaxGeometryImageStorages);
+        }
+        GR_GL_GetIntegerv(gli, GR_GL_MAX_FRAGMENT_IMAGE_UNIFORMS,
+                          &glslCaps->fMaxFragmentImageStorages);
+        GR_GL_GetIntegerv(gli, GR_GL_MAX_COMBINED_IMAGE_UNIFORMS,
+                          &glslCaps->fMaxCombinedImageStorages);
         // We use one unit for every image uniform
-        glslCaps->fMaxCombinedImages = SkTMin(SkTMin(glslCaps->fMaxCombinedImages, maxUnits),
-                                                     kMaxSaneImages);
-        glslCaps->fMaxVertexImages = SkTMin(maxUnits, glslCaps->fMaxVertexImages);
-        glslCaps->fMaxGeometryImages = SkTMin(maxUnits, glslCaps->fMaxGeometryImages);
-        glslCaps->fMaxFragmentImages =  SkTMin(maxUnits, glslCaps->fMaxFragmentImages);
+        glslCaps->fMaxCombinedImageStorages = SkTMin(SkTMin(glslCaps->fMaxCombinedImageStorages,
+                                                            maxUnits), kMaxSaneImages);
+        glslCaps->fMaxVertexImageStorages = SkTMin(maxUnits, glslCaps->fMaxVertexImageStorages);
+        glslCaps->fMaxGeometryImageStorages = SkTMin(maxUnits, glslCaps->fMaxGeometryImageStorages);
+        glslCaps->fMaxFragmentImageStorages =  SkTMin(maxUnits,
+                                                      glslCaps->fMaxFragmentImageStorages);
+        // HACK: Currently we only use images in a unit test in the fragment shader. The individual
+        // stage image limits aren't exposed through GrShaderCaps. Soon GrShaderCaps and GrGLSLCaps
+        // will merge and the test can look for fragment support.
+        if (!glslCaps->fMaxFragmentImageStorages) {
+            glslCaps->fImageLoadStoreSupport = false;
+        }
     }
 
     /**************************************************************************
@@ -2020,6 +2033,24 @@ void GrGLCaps::initConfigTable(const GrGLContextInfo& ctxInfo, const GrGLInterfa
                 fConfigTable[i].fFormats.fBaseInternalFormat == GR_GL_RED) {
                 glslCaps->fConfigOutputSwizzle[i] = GrSwizzle::AAAA();
             }
+        }
+    }
+
+    // We currently only support images on rgba textures formats. We could add additional formats
+    // if desired. The shader builder would have to be updated to add swizzles where appropriate
+    // (e.g. where we use GL_RED textures to implement alpha configs).
+    if (this->shaderCaps()->imageLoadStoreSupport()) {
+        fConfigTable[kRGBA_8888_sint_GrPixelConfig].fFlags |=
+                ConfigInfo::kCanUseAsImageStorage_Flag;
+        // In OpenGL ES a texture may only be used with BindImageTexture if it has been made
+        // immutable via TexStorage. We create non-integer textures as mutable textures using
+        // TexImage because we may lazily add MIP levels. Thus, on ES we currently disable image
+        // storage support for non-integer textures.
+        if (kGL_GrGLStandard == ctxInfo.standard()) {
+            fConfigTable[kRGBA_8888_GrPixelConfig].fFlags |= ConfigInfo::kCanUseAsImageStorage_Flag;
+            fConfigTable[kRGBA_float_GrPixelConfig].fFlags |=
+                    ConfigInfo::kCanUseAsImageStorage_Flag;
+            fConfigTable[kRGBA_half_GrPixelConfig].fFlags |= ConfigInfo::kCanUseAsImageStorage_Flag;
         }
     }
 

@@ -287,6 +287,8 @@ public:
     explicit MockCaps(const GrContextOptions& options) : INHERITED(options) {}
     bool isConfigTexturable(GrPixelConfig config) const override { return false; }
     bool isConfigRenderable(GrPixelConfig config, bool withMSAA) const override { return false; }
+    bool canConfigBeImageStorage(GrPixelConfig) const override { return false; }
+
 private:
     typedef GrCaps INHERITED;
 };

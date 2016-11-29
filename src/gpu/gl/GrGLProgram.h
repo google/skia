@@ -102,9 +102,9 @@ public:
     void generateMipmaps(const GrPrimitiveProcessor&, const GrPipeline&);
 
 protected:
-    typedef GrGLSLProgramDataManager::UniformHandle UniformHandle;
-    typedef GrGLProgramDataManager::UniformInfoArray UniformInfoArray;
-    typedef GrGLProgramDataManager::VaryingInfoArray VaryingInfoArray;
+    using UniformHandle    = GrGLSLProgramDataManager::UniformHandle ;
+    using UniformInfoArray = GrGLProgramDataManager::UniformInfoArray;
+    using VaryingInfoArray = GrGLProgramDataManager::VaryingInfoArray;
 
     GrGLProgram(GrGLGpu*,
                 const GrProgramDesc&,
@@ -112,6 +112,7 @@ protected:
                 GrGLuint programID,
                 const UniformInfoArray& uniforms,
                 const UniformInfoArray& samplers,
+                const UniformInfoArray& imageStorages,
                 const VaryingInfoArray&, // used for NVPR only currently
                 GrGLSLPrimitiveProcessor* geometryProcessor,
                 GrGLSLXferProcessor* xferProcessor,

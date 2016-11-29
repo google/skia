@@ -157,13 +157,13 @@ public:
 
     int maxCombinedSamplers() const { return fMaxCombinedSamplers; }
 
-    int maxVertexImages() const { return fMaxVertexImages; }
+    int maxVertexImageStorages() const { return fMaxVertexImageStorages; }
 
-    int maxGeometryImages() const { return fMaxGeometryImages; }
+    int maxGeometryImageStorages() const { return fMaxGeometryImageStorages; }
 
-    int maxFragmentImages() const { return fMaxFragmentImages; }
+    int maxFragmentImageStorages() const { return fMaxFragmentImageStorages; }
 
-    int maxCombinedImages() const { return fMaxCombinedImages; }
+    int maxCombinedImageStorages() const { return fMaxCombinedImageStorages; }
 
     /**
      * Given a texture's config, this determines what swizzle must be appended to accesses to the
@@ -238,10 +238,10 @@ private:
     int fMaxFragmentSamplers;
     int fMaxCombinedSamplers;
 
-    int fMaxVertexImages;
-    int fMaxGeometryImages;
-    int fMaxFragmentImages;
-    int fMaxCombinedImages;
+    int fMaxVertexImageStorages;
+    int fMaxGeometryImageStorages;
+    int fMaxFragmentImageStorages;
+    int fMaxCombinedImageStorages;
 
     AdvBlendEqInteraction fAdvBlendEqInteraction;
 
