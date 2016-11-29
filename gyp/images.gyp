@@ -30,21 +30,12 @@
         '../src/image/',
       ],
       'sources': [
-        '../include/images/SkForceLinking.h',
-
-        '../src/images/SkForceLinking.cpp',
-
-        # If encoders are added/removed to/from (all/individual)
-        # platform(s), be sure to update SkForceLinking.cpp
-        # so the right decoders will be forced to link.
-
         '../src/images/SkKTXImageEncoder.cpp',
         '../src/images/SkWEBPImageEncoder.cpp',
         '../src/images/SkJPEGImageEncoder.cpp',
         '../src/images/SkPNGImageEncoder.cpp',
 
         '../src/images/SkImageEncoder.cpp',
-        '../src/images/SkImageEncoder_Factory.cpp',
         '../src/images/SkJPEGWriteUtility.cpp',
 
         '../src/ports/SkImageEncoder_CG.cpp',
