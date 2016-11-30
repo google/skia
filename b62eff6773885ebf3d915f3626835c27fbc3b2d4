@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "f01d104e_2ba30150",
+        "filename": "include/core/SkCanvas.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 522,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2016-11-30T22:19:06Z",
+      "side": 1,
+      "message": "Is this really only for kReplace_Op? What about the other expanding ops?\n\n1. Does this ever change during the lifetime of the canvas?\n2. Can it be integers?\n3. (related to #1) does a user ever want to remove it?",
+      "range": {
+        "startLine": 522,
+        "startChar": 37,
+        "endLine": 522,
+        "endChar": 48
+      },
+      "revId": "b62eff6773885ebf3d915f3626835c27fbc3b2d4",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
