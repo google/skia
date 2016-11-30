@@ -50,6 +50,23 @@
       "revId": "e3afa452ca9767221aa8eafd929b0db87fe15341",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "f01d104e_7115ed02",
+        "filename": "src/opts/SkRasterPipeline_opts.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 557,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2016-11-30T17:44:49Z",
+      "side": 1,
+      "message": "Something like,\n\nSTAGE(store_tables) {\n    const RGBTables info \u003d *(const RGBTables*)ctx;\n    auto ptr \u003d info.fPixels + x;\n      \n    SkNi ri \u003d SkNx_cast\u003cint\u003e(1023.0f * r + 0.5f);\n    SkNi gi \u003d SkNx_cast\u003cint\u003e(1023.0f * g + 0.5f);\n    SkNi bi \u003d SkNx_cast\u003cint\u003e(1023.0f * b + 0.5f);\n    \n    store(tail, ( SkNx_cast\u003cint\u003e(gather(tail, (const uint8_t*)info.fRTable, ri)) \u003c\u003c 0\n                | SkNx_cast\u003cint\u003e(gather(tail, (const uint8_t*)info.fGTable, gi)) \u003c\u003c 8\n                | SkNx_cast\u003cint\u003e(gather(tail, (const uint8_t*)info.fBTable, bi)) \u003c\u003c 16\n                | SkNx_cast\u003cint\u003e(255.0f * a + 0.5f)                              \u003c\u003c 24), (int*)ptr);\n}",
+      "revId": "e3afa452ca9767221aa8eafd929b0db87fe15341",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
