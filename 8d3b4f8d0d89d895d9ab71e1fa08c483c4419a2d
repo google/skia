@@ -36,6 +36,23 @@
     },
     {
       "key": {
+        "uuid": "2d6e6f0e_1657fce9",
+        "filename": "src/opts/SkRasterPipeline_opts.h",
+        "patchSetId": 5
+      },
+      "lineNbr": 181,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2016-11-30T23:10:53Z",
+      "side": 1,
+      "message": "Before I forget, let\u0027s make sure to write float versions of each of these.  There\u0027s maskload_ps, mask_i32gather_ps, and maskstore_ps for us to use to make load(), gather() and store() all faster to/from floats.",
+      "revId": "8d3b4f8d0d89d895d9ab71e1fa08c483c4419a2d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "f01d104e_6cf276ba",
         "filename": "src/opts/SkRasterPipeline_opts.h",
         "patchSetId": 5
