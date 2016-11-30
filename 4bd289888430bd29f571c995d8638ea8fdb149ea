@@ -16,6 +16,47 @@
       "revId": "4bd289888430bd29f571c995d8638ea8fdb149ea",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "2d82efcd_39924b37",
+        "filename": "infra/bots/gen_tasks.go",
+        "patchSetId": 1
+      },
+      "lineNbr": 148,
+      "author": {
+        "id": 5120
+      },
+      "writtenOn": "2016-11-30T19:59:01Z",
+      "side": 1,
+      "message": "+1\n\nIf the task cares what version of Windows it runs on, the task name should include the version. I suspect that\u0027s true for Perf and Test tasks.\n\nIf the task doesn\u0027t care, we shouldn\u0027t include the version in the dimensions.\n\nIMO, same goes for Mac, Ubuntu, etc., at least where we don\u0027t map from device type to OS version. But I don\u0027t think it matters enough to do a mass rename for those.",
+      "parentUuid": "f01d104e_4c621ac1",
+      "revId": "4bd289888430bd29f571c995d8638ea8fdb149ea",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "f01d104e_a7e2c712",
+        "filename": "infra/bots/gen_tasks.go",
+        "patchSetId": 1
+      },
+      "lineNbr": 327,
+      "author": {
+        "id": 5120
+      },
+      "writtenOn": "2016-11-30T19:59:01Z",
+      "side": 1,
+      "message": "Maybe I should just reimage this?",
+      "range": {
+        "startLine": 327,
+        "startChar": 3,
+        "endLine": 327,
+        "endChar": 31
+      },
+      "revId": "4bd289888430bd29f571c995d8638ea8fdb149ea",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
