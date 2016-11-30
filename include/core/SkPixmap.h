@@ -100,6 +100,13 @@ public:
      */
     SkColor getColor(int x, int y) const;
 
+    /**
+     *  This will brute-force return true if all of the pixels in the pixmap
+     *  are opaque. If it fails to read the pixels, or encounters an error,
+     *  it will return false.
+     */
+    bool computeIsOpaque() const;
+
     const void* addr(int x, int y) const {
         return (const char*)fPixels + fInfo.computeOffset(x, y, fRowBytes);
     }
