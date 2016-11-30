@@ -30,7 +30,6 @@ public:
     GrGpuResource::UniqueID renderTargetUniqueID() const override {
         return fRenderTarget.get()->uniqueID();
     }
-    GrRenderTarget* renderTarget() const override { return fRenderTarget.get(); }
 
     SkString dumpInfo() const override {
         SkString string;

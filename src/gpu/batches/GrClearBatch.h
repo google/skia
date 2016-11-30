@@ -21,7 +21,7 @@ public:
 
     static sk_sp<GrClearBatch> Make(const GrFixedClip& clip, GrColor color, GrRenderTarget* rt) {
         sk_sp<GrClearBatch> batch(new GrClearBatch(clip, color, rt));
-        if (!batch->renderTarget()) {
+        if (!batch->fRenderTarget) {
             return nullptr; // The clip did not contain any pixels within the render target.
         }
         return batch;
@@ -33,8 +33,6 @@ public:
     GrGpuResource::UniqueID renderTargetUniqueID() const override {
         return fRenderTarget.get()->uniqueID();
     }
-    // TODO: store a GrRenderTargetContext instead
-    GrRenderTarget* renderTarget() const override { return fRenderTarget.get(); }
 
     SkString dumpInfo() const override {
         SkString string("Scissor [");
