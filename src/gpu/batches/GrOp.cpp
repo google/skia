@@ -5,7 +5,7 @@
  * found in the LICENSE file.
  */
 
-#include "GrBatch.h"
+#include "GrOp.h"
 
 #include "GrMemoryPool.h"
 #include "SkSpinlock.h"
@@ -40,24 +40,24 @@ public:
 };
 }
 
-int32_t GrBatch::gCurrBatchClassID = GrBatch::kIllegalBatchID;
+int32_t GrOp::gCurrOpClassID = GrOp::kIllegalOpID;
 
-int32_t GrBatch::gCurrBatchUniqueID = GrBatch::kIllegalBatchID;
+int32_t GrOp::gCurrOpUniqueID = GrOp::kIllegalOpID;
 
-void* GrBatch::operator new(size_t size) {
+void* GrOp::operator new(size_t size) {
     return MemoryPoolAccessor().pool()->allocate(size);
 }
 
-void GrBatch::operator delete(void* target) {
+void GrOp::operator delete(void* target) {
     return MemoryPoolAccessor().pool()->release(target);
 }
 
-GrBatch::GrBatch(uint32_t classID)
+GrOp::GrOp(uint32_t classID)
     : fClassID(classID)
-    , fUniqueID(kIllegalBatchID) {
+    , fUniqueID(kIllegalOpID) {
     SkASSERT(classID == SkToU32(fClassID));
     SkDEBUGCODE(fUsed = false;)
     SkDEBUGCODE(fBoundsFlags = kUninitialized_BoundsFlag);
 }
 
-GrBatch::~GrBatch() {}
+GrOp::~GrOp() {}
