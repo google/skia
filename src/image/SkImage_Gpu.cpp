@@ -400,24 +400,10 @@ struct DeferredTextureImage {
 }  // anonymous namespace
 
 static bool should_use_mip_maps(const SkImage::DeferredTextureImageUsageParams & param) {
-    bool shouldUseMipMaps = false;
-
-    // Use mipmaps if either
-    // 1.) it is a perspective matrix, or
-    // 2.) the quality is med/high and the scale is < 1
-    if (param.fMatrix.hasPerspective()) {
-        shouldUseMipMaps = true;
-    }
-    if (param.fQuality == kMedium_SkFilterQuality ||
-        param.fQuality == kHigh_SkFilterQuality) {
-        SkScalar minAxisScale = param.fMatrix.getMinScale();
-        if (minAxisScale != -1.f && minAxisScale < 1.f) {
-            shouldUseMipMaps = true;
-        }
-    }
-
-
-    return shouldUseMipMaps;
+    // There is a bug in the mipmap pre-generation logic in use in getDeferredTextureImageData.
+    // This can cause runaway memory leaks, so we are disabling this path until we can
+    // investigate further. crbug.com/669775
+    return false;
 }
 
 namespace {
