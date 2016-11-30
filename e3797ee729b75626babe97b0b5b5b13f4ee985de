@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "f01d104e_ec14a66d",
+        "filename": "src/core/SkColorLookUpTable.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 137,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2016-11-30T18:36:04Z",
+      "side": 1,
+      "message": "nit: I prefer inputDImension \u003c 0",
+      "range": {
+        "startLine": 137,
+        "startChar": 8,
+        "endLine": 137,
+        "endChar": 28
+      },
+      "revId": "e3797ee729b75626babe97b0b5b5b13f4ee985de",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
