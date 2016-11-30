@@ -47,7 +47,7 @@ protected:
     };
 
     SkPngCodec(const SkEncodedInfo&, const SkImageInfo&, SkStream*, SkPngChunkReader*,
-            void* png_ptr, void* info_ptr, int bitDepth);
+            void* png_ptr, void* info_ptr, int bitDepth, bool unsupportedICC);
 
     Result onGetPixels(const SkImageInfo&, void*, size_t, const Options&, SkPMColor*, int*, int*)
             override;
@@ -90,6 +90,8 @@ protected:
             const SkCodec::Options&,
             SkPMColor* ctable, int* ctableCount) override;
     Result onIncrementalDecode(int*) override;
+
+    bool unsupportedICC() const override { return fUnsupportedICC; }
 
     sk_sp<SkPngChunkReader>     fPngChunkReader;
     voidp                       fPng_ptr;
@@ -135,6 +137,8 @@ private:
 #ifdef SK_GOOGLE3_PNG_HACK
     bool        fNeedsToRereadHeader;
 #endif
+
+    bool                           fUnsupportedICC;
 
     typedef SkCodec INHERITED;
 };

@@ -62,10 +62,11 @@ SkCodec* SkWebpCodec::NewFromStream(SkStream* stream) {
     WebPChunkIterator chunkIterator;
     SkAutoTCallVProc<WebPChunkIterator, WebPDemuxReleaseChunkIterator> autoCI(&chunkIterator);
     sk_sp<SkColorSpace> colorSpace = nullptr;
-    if (WebPDemuxGetChunk(demux, "ICCP", 1, &chunkIterator)) {
+    const bool hasICCData = WebPDemuxGetChunk(demux, "ICCP", 1, &chunkIterator) != 0;
+    if (hasICCData) {
         colorSpace = SkColorSpace::MakeICC(chunkIterator.chunk.bytes, chunkIterator.chunk.size);
     }
-
+    const bool unsupportedICC = hasICCData && !colorSpace;
     if (!colorSpace) {
         colorSpace = SkColorSpace::MakeNamed(SkColorSpace::kSRGB_Named);
     }
@@ -141,7 +142,8 @@ SkCodec* SkWebpCodec::NewFromStream(SkStream* stream) {
 
     SkEncodedInfo info = SkEncodedInfo::Make(color, alpha, 8);
     return new SkWebpCodec(features.width, features.height, info, std::move(colorSpace),
-                           streamDeleter.release(), demux.release(), std::move(data));
+                           streamDeleter.release(), demux.release(), std::move(data),
+                           unsupportedICC);
 }
 
 SkISize SkWebpCodec::onGetScaledDimensions(float desiredScale) const {
@@ -326,8 +328,9 @@ SkCodec::Result SkWebpCodec::onGetPixels(const SkImageInfo& dstInfo, void* dst, 
 
 SkWebpCodec::SkWebpCodec(int width, int height, const SkEncodedInfo& info,
                          sk_sp<SkColorSpace> colorSpace, SkStream* stream, WebPDemuxer* demux,
-                         sk_sp<SkData> data)
+                         sk_sp<SkData> data, bool unsupportedICC)
     : INHERITED(width, height, info, stream, std::move(colorSpace))
     , fDemux(demux)
     , fData(std::move(data))
+    , fUnsupportedICC(unsupportedICC)
 {}

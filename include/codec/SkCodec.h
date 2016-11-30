@@ -784,6 +784,8 @@ protected:
     virtual int onGetRepetitionCount() {
         return 0;
     }
+    
+    virtual bool unsupportedICC() const { return false; }
 
 private:
     const SkEncodedInfo                fEncodedInfo;
@@ -864,5 +866,6 @@ private:
     friend class DM::CodecSrc;  // for fillIncompleteImage
     friend class SkSampledCodec;
     friend class SkIcoCodec;
+    friend struct Sniffer; // for unsupportedICC()
 };
 #endif // SkCodec_DEFINED

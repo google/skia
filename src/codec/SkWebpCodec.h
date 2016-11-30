@@ -37,15 +37,19 @@ protected:
     bool onDimensionsSupported(const SkISize&) override;
 
     bool onGetValidSubset(SkIRect* /* desiredSubset */) const override;
+
+    bool unsupportedICC() const override { return fUnsupportedICC; }
 private:
     SkWebpCodec(int width, int height, const SkEncodedInfo&, sk_sp<SkColorSpace>, SkStream*,
-                WebPDemuxer*, sk_sp<SkData>);
+                WebPDemuxer*, sk_sp<SkData>, bool unsupportedICC);
 
     SkAutoTCallVProc<WebPDemuxer, WebPDemuxDelete> fDemux;
 
     // fDemux has a pointer into this data.
     // This should not be freed until the decode is completed.
     sk_sp<SkData> fData;
+    
+    bool          fUnsupportedICC;
 
     typedef SkCodec INHERITED;
 };

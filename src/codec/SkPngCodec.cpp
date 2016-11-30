@@ -328,7 +328,7 @@ static constexpr float gSRGB_toXYZD50[] {
 // Returns a colorSpace object that represents any color space information in
 // the encoded data.  If the encoded data contains no color space, this will
 // return NULL.
-sk_sp<SkColorSpace> read_color_space(png_structp png_ptr, png_infop info_ptr) {
+sk_sp<SkColorSpace> read_color_space(png_structp png_ptr, png_infop info_ptr, bool* hasICC) {
 
 #if (PNG_LIBPNG_VER_MAJOR > 1) || (PNG_LIBPNG_VER_MAJOR == 1 && PNG_LIBPNG_VER_MINOR >= 6)
 
@@ -345,8 +345,10 @@ sk_sp<SkColorSpace> read_color_space(png_structp png_ptr, png_infop info_ptr) {
     int compression;
     if (PNG_INFO_iCCP == png_get_iCCP(png_ptr, info_ptr, &name, &compression, &profile,
             &length)) {
+        *hasICC = true;
         return SkColorSpace::MakeICC(profile, length);
     }
+    *hasICC = false;
 
     // Second, check for sRGB.
     if (png_get_valid(png_ptr, info_ptr, PNG_INFO_sRGB)) {
@@ -453,8 +455,9 @@ void SkPngCodec::applyXformRow(void* dst, const void* src) {
 class SkPngNormalDecoder : public SkPngCodec {
 public:
     SkPngNormalDecoder(const SkEncodedInfo& info, const SkImageInfo& imageInfo, SkStream* stream,
-            SkPngChunkReader* reader, png_structp png_ptr, png_infop info_ptr, int bitDepth)
-        : INHERITED(info, imageInfo, stream, reader, png_ptr, info_ptr, bitDepth)
+            SkPngChunkReader* reader, png_structp png_ptr, png_infop info_ptr, int bitDepth,
+            bool unsupportedICC)
+        : INHERITED(info, imageInfo, stream, reader, png_ptr, info_ptr, bitDepth, unsupportedICC)
         , fRowsWrittenToOutput(0)
         , fDst(nullptr)
         , fRowBytes(0)
@@ -585,8 +588,8 @@ class SkPngInterlacedDecoder : public SkPngCodec {
 public:
     SkPngInterlacedDecoder(const SkEncodedInfo& info, const SkImageInfo& imageInfo,
             SkStream* stream, SkPngChunkReader* reader, png_structp png_ptr, png_infop info_ptr,
-            int bitDepth, int numberPasses)
-        : INHERITED(info, imageInfo, stream, reader, png_ptr, info_ptr, bitDepth)
+            int bitDepth, int numberPasses, bool unsupportedICC)
+        : INHERITED(info, imageInfo, stream, reader, png_ptr, info_ptr, bitDepth, unsupportedICC)
         , fNumberPasses(numberPasses)
         , fFirstRow(0)
         , fLastRow(0)
@@ -983,7 +986,9 @@ void AutoCleanPng::infoCallback() {
 #endif
     if (fOutCodec) {
         SkASSERT(nullptr == *fOutCodec);
-        sk_sp<SkColorSpace> colorSpace = read_color_space(fPng_ptr, fInfo_ptr);
+        bool hasICC;
+        sk_sp<SkColorSpace> colorSpace = read_color_space(fPng_ptr, fInfo_ptr, &hasICC);
+        const bool unsupportedICC = hasICC && !colorSpace;
         if (!colorSpace) {
             // Treat unmarked pngs as sRGB.
             colorSpace = SkColorSpace::MakeNamed(SkColorSpace::kSRGB_Named);
@@ -1009,10 +1014,10 @@ void AutoCleanPng::infoCallback() {
 
         if (1 == numberPasses) {
             *fOutCodec = new SkPngNormalDecoder(encodedInfo, imageInfo, fStream,
-                    fChunkReader, fPng_ptr, fInfo_ptr, bitDepth);
+                    fChunkReader, fPng_ptr, fInfo_ptr, bitDepth, unsupportedICC);
         } else {
             *fOutCodec = new SkPngInterlacedDecoder(encodedInfo, imageInfo, fStream,
-                    fChunkReader, fPng_ptr, fInfo_ptr, bitDepth, numberPasses);
+                    fChunkReader, fPng_ptr, fInfo_ptr, bitDepth, numberPasses, unsupportedICC);
         }
     }
 
@@ -1024,7 +1029,7 @@ void AutoCleanPng::infoCallback() {
 
 SkPngCodec::SkPngCodec(const SkEncodedInfo& encodedInfo, const SkImageInfo& imageInfo,
                        SkStream* stream, SkPngChunkReader* chunkReader, void* png_ptr,
-                       void* info_ptr, int bitDepth)
+                       void* info_ptr, int bitDepth, bool unsupportedICC)
     : INHERITED(encodedInfo, imageInfo, stream)
     , fPngChunkReader(SkSafeRef(chunkReader))
     , fPng_ptr(png_ptr)
@@ -1034,6 +1039,7 @@ SkPngCodec::SkPngCodec(const SkEncodedInfo& encodedInfo, const SkImageInfo& imag
 #ifdef SK_GOOGLE3_PNG_HACK
     , fNeedsToRereadHeader(true)
 #endif
+    , fUnsupportedICC(unsupportedICC)
 {}
 
 SkPngCodec::~SkPngCodec() {
