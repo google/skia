@@ -100,7 +100,7 @@ private:
     void onPrepare(GrBatchFlushState*) override {}
 
     void onDraw(GrBatchFlushState* state, const SkRect& /*bounds*/) override {
-        state->commandBuffer()->clear(fClip, fColor);
+        state->commandBuffer()->clear(fRenderTarget.get(), fClip, fColor);
     }
 
     GrFixedClip                                             fClip;

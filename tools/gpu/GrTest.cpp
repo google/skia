@@ -322,8 +322,7 @@ public:
         return false;
     }
 
-    GrGpuCommandBuffer* createCommandBuffer(GrRenderTarget* target,
-                                            const GrGpuCommandBuffer::LoadAndStoreInfo&,
+    GrGpuCommandBuffer* createCommandBuffer(const GrGpuCommandBuffer::LoadAndStoreInfo&,
                                             const GrGpuCommandBuffer::LoadAndStoreInfo&) override {
         return nullptr;
     }

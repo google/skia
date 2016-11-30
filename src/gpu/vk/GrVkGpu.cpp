@@ -210,11 +210,9 @@ GrVkGpu::~GrVkGpu() {
 ///////////////////////////////////////////////////////////////////////////////
 
 GrGpuCommandBuffer* GrVkGpu::createCommandBuffer(
-            GrRenderTarget* target,
             const GrGpuCommandBuffer::LoadAndStoreInfo& colorInfo,
             const GrGpuCommandBuffer::LoadAndStoreInfo& stencilInfo) {
-    GrVkRenderTarget* vkRT = static_cast<GrVkRenderTarget*>(target);
-    return new GrVkGpuCommandBuffer(this, vkRT, colorInfo, stencilInfo);
+    return new GrVkGpuCommandBuffer(this, colorInfo, stencilInfo);
 }
 
 void GrVkGpu::submitCommandBuffer(SyncQueue sync) {
