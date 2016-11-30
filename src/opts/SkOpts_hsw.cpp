@@ -17,6 +17,7 @@
 
 namespace SkOpts {
     void Init_hsw() {
+        run_pipeline     = hsw::run_pipeline;
         compile_pipeline = hsw::compile_pipeline;
     }
 }

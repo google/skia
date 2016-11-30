@@ -25,7 +25,7 @@ DEF_TEST(SkRasterPipeline, r) {
     p.append(SkRasterPipeline::load_f16_d, &load_d_ctx);
     p.append(SkRasterPipeline::srcover);
     p.append(SkRasterPipeline::store_f16, &store_ctx);
-    p.compile()(0,0, 1);
+    p.run(0,0, 1);
 
     // We should see half-intensity magenta.
     REPORTER_ASSERT(r, ((result >>  0) & 0xffff) == 0x3800);
@@ -37,7 +37,7 @@ DEF_TEST(SkRasterPipeline, r) {
 DEF_TEST(SkRasterPipeline_empty, r) {
     // No asserts... just a test that this is safe to run.
     SkRasterPipeline p;
-    p.compile()(0,0, 20);
+    p.run(0,0, 20);
 }
 
 DEF_TEST(SkRasterPipeline_nonsense, r) {
@@ -45,5 +45,5 @@ DEF_TEST(SkRasterPipeline_nonsense, r) {
     // srcover() calls st->next(); this makes sure we've always got something there to call.
     SkRasterPipeline p;
     p.append(SkRasterPipeline::srcover);
-    p.compile()(0,0, 20);
+    p.run(0,0, 20);
 }

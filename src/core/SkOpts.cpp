@@ -90,6 +90,7 @@ namespace SkOpts {
 
     DEFINE_DEFAULT(hash_fn);
 
+    DEFINE_DEFAULT(run_pipeline);
     DEFINE_DEFAULT(compile_pipeline);
 
     DEFINE_DEFAULT(convolve_vertically);

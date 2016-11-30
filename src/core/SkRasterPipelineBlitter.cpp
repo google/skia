@@ -140,7 +140,7 @@ SkBlitter* SkRasterPipelineBlitter::Create(const SkPixmap& dst,
 
     if (is_constant) {
         pipeline->append(SkRasterPipeline::store_f32, &paintColor);
-        pipeline->compile()(0,0, 1);
+        pipeline->run(0,0, 1);
 
         *pipeline = SkRasterPipeline();
         pipeline->append(SkRasterPipeline::constant_color, paintColor);
