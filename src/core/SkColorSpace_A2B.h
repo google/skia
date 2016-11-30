@@ -77,8 +77,9 @@ public:
             , fGammaNamed(gammaNamed)
             , fMatrix(SkMatrix44::kUninitialized_Constructor)
             , fInputChannels(channelCount)
-            , fOutputChannels(channelCount)
-        {}
+            , fOutputChannels(channelCount) {
+            SkASSERT(kNonStandard_SkGammaNamed != gammaNamed);
+        }
 
         explicit Element(sk_sp<SkGammas> gammas)
             : fType(Type::kGammas)
