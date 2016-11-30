@@ -31,6 +31,15 @@ public:
 
     const char* name() const override { return "DrawVerticesBatch"; }
 
+    SkString dumpInfo() const override {
+        SkString string;
+        string.appendf("PrimType: %d, VarColor: %d, VCount: %d, ICount: %d\n",
+                       fPrimitiveType, fVariableColor, fVertexCount, fIndexCount);
+        string.append(DumpPipelineInfo(*this->pipeline()));
+        string.append(INHERITED::dumpInfo());
+        return string;
+    }
+
     void computePipelineOptimizations(GrInitInvariantOutput* color,
                                       GrInitInvariantOutput* coverage,
                                       GrBatchToXPOverrides* overrides) const override;

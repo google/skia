@@ -107,6 +107,7 @@ public:
                         i, info.fColor,
                         info.fRect.fLeft, info.fRect.fTop, info.fRect.fRight, info.fRect.fBottom);
         }
+        str.append(DumpPipelineInfo(*this->pipeline()));
         str.append(INHERITED::dumpInfo());
         return str;
     }

@@ -46,7 +46,6 @@ public:
     SkString dumpInfo() const override {
         SkString str;
         str.appendf("Direction: %s, Radius: %d ", kX_Direction == fDirection ? "X" : "Y", fRadius);
-        str.append(INHERITED::dumpInfo());
         return str;
     }
 

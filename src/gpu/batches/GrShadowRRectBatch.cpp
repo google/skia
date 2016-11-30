@@ -143,6 +143,7 @@ public:
                            fGeoData[i].fOuterRadius, fGeoData[i].fInnerRadius,
                            fGeoData[i].fBlurRadius);
         }
+        string.append(DumpPipelineInfo(*this->pipeline()));
         string.append(INHERITED::dumpInfo());
         return string;
     }
@@ -574,6 +575,7 @@ public:
                            fGeoData[i].fOuterRadius, fGeoData[i].fInnerRadius,
                            fGeoData[i].fBlurRadius);
         }
+        string.append(DumpPipelineInfo(*this->pipeline()));
         string.append(INHERITED::dumpInfo());
         return string;
     }

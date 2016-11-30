@@ -791,6 +791,7 @@ public:
                            fGeoData[i].fInnerRadius,
                            fGeoData[i].fOuterRadius);
         }
+        string.append(DumpPipelineInfo(*this->pipeline()));
         string.append(INHERITED::dumpInfo());
         return string;
     }
@@ -1231,6 +1232,25 @@ public:
 
     const char* name() const override { return "EllipseBatch"; }
 
+    SkString dumpInfo() const override {
+        SkString string;
+        string.appendf("Stroked: %d\n", fStroked);
+        for (int i = 0; i < fGeoData.count(); ++i) {
+            string.appendf("Color: 0x%08x Rect [L: %.2f, T: %.2f, R: %.2f, B: %.2f], "
+                           "XRad: %.2f, YRad: %.2f, InnerXRad: %.2f, InnerYRad: %.2f\n",
+                           fGeoData[i].fColor,
+                           fGeoData[i].fDevBounds.fLeft, fGeoData[i].fDevBounds.fTop,
+                           fGeoData[i].fDevBounds.fRight, fGeoData[i].fDevBounds.fBottom,
+                           fGeoData[i].fXRadius,
+                           fGeoData[i].fYRadius,
+                           fGeoData[i].fInnerXRadius,
+                           fGeoData[i].fInnerYRadius);
+        }
+        string.append(DumpPipelineInfo(*this->pipeline()));
+        string.append(INHERITED::dumpInfo());
+        return string;
+    }
+
     void computePipelineOptimizations(GrInitInvariantOutput* color,
                                       GrInitInvariantOutput* coverage,
                                       GrBatchToXPOverrides* overrides) const override {
@@ -1442,6 +1462,27 @@ public:
     }
 
     const char* name() const override { return "DIEllipseBatch"; }
+
+    SkString dumpInfo() const override {
+        SkString string;
+        for (int i = 0; i < fGeoData.count(); ++i) {
+            string.appendf("Color: 0x%08x Rect [L: %.2f, T: %.2f, R: %.2f, B: %.2f], XRad: %.2f, "
+                           "YRad: %.2f, InnerXRad: %.2f, InnerYRad: %.2f, GeoDX: %.2f, "
+                           "GeoDY: %.2f\n",
+                           fGeoData[i].fColor,
+                           fGeoData[i].fBounds.fLeft, fGeoData[i].fBounds.fTop,
+                           fGeoData[i].fBounds.fRight, fGeoData[i].fBounds.fBottom,
+                           fGeoData[i].fXRadius,
+                           fGeoData[i].fYRadius,
+                           fGeoData[i].fInnerXRadius,
+                           fGeoData[i].fInnerYRadius,
+                           fGeoData[i].fGeoDx,
+                           fGeoData[i].fGeoDy);
+        }
+        string.append(DumpPipelineInfo(*this->pipeline()));
+        string.append(INHERITED::dumpInfo());
+        return string;
+    }
 
     void computePipelineOptimizations(GrInitInvariantOutput* color,
                                       GrInitInvariantOutput* coverage,
@@ -1754,6 +1795,7 @@ public:
                            fGeoData[i].fInnerRadius,
                            fGeoData[i].fOuterRadius);
         }
+        string.append(DumpPipelineInfo(*this->pipeline()));
         string.append(INHERITED::dumpInfo());
         return string;
     }
@@ -2103,6 +2145,25 @@ public:
     }
 
     const char* name() const override { return "RRectEllipseRendererBatch"; }
+
+    SkString dumpInfo() const override {
+        SkString string;
+        string.appendf("Stroked: %d\n", fStroked);
+        for (int i = 0; i < fGeoData.count(); ++i) {
+            string.appendf("Color: 0x%08x Rect [L: %.2f, T: %.2f, R: %.2f, B: %.2f], "
+                           "XRad: %.2f, YRad: %.2f, InnerXRad: %.2f, InnerYRad: %.2f\n",
+                           fGeoData[i].fColor,
+                           fGeoData[i].fDevBounds.fLeft, fGeoData[i].fDevBounds.fTop,
+                           fGeoData[i].fDevBounds.fRight, fGeoData[i].fDevBounds.fBottom,
+                           fGeoData[i].fXRadius,
+                           fGeoData[i].fYRadius,
+                           fGeoData[i].fInnerXRadius,
+                           fGeoData[i].fInnerYRadius);
+        }
+        string.append(DumpPipelineInfo(*this->pipeline()));
+        string.append(INHERITED::dumpInfo());
+        return string;
+    }
 
     void computePipelineOptimizations(GrInitInvariantOutput* color,
                                       GrInitInvariantOutput* coverage,

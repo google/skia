@@ -152,6 +152,27 @@ public:
 
     const char* name() const override { return "AAStrokeRect"; }
 
+    SkString dumpInfo() const override {
+        SkString string;
+        for (int i = 0; i < fGeoData.count(); ++i) {
+            string.appendf("Color: 0x%08x, ORect [L: %.2f, T: %.2f, R: %.2f, B: %.2f], "
+                           "AssistORect [L: %.2f, T: %.2f, R: %.2f, B: %.2f], "
+                           "IRect [L: %.2f, T: %.2f, R: %.2f, B: %.2f], Degen: %d",
+                           fGeoData[i].fColor,
+                           fGeoData[i].fDevOutside.fLeft, fGeoData[i].fDevOutside.fTop,
+                           fGeoData[i].fDevOutside.fRight, fGeoData[i].fDevOutside.fBottom,
+                           fGeoData[i].fDevOutsideAssist.fLeft, fGeoData[i].fDevOutsideAssist.fTop,
+                           fGeoData[i].fDevOutsideAssist.fRight,
+                           fGeoData[i].fDevOutsideAssist.fBottom,
+                           fGeoData[i].fDevInside.fLeft, fGeoData[i].fDevInside.fTop,
+                           fGeoData[i].fDevInside.fRight, fGeoData[i].fDevInside.fBottom,
+                           fGeoData[i].fDegenerate);
+        }
+        string.append(DumpPipelineInfo(*this->pipeline()));
+        string.append(INHERITED::dumpInfo());
+        return string;
+    }
+
     void computePipelineOptimizations(GrInitInvariantOutput* color,
                                       GrInitInvariantOutput* coverage,
                                       GrBatchToXPOverrides* overrides) const override {
