@@ -1225,7 +1225,6 @@ Error GPUSink::draw(const Src& src, SkBitmap* dst, SkWStream*, SkString* log) co
     GrContextOptions grOptions;
     grOptions.fImmediateMode = FLAGS_imm;
     grOptions.fClipBatchToBounds = FLAGS_batchClip;
-    grOptions.fDrawBatchBounds = FLAGS_batchBounds;
     grOptions.fMaxBatchLookback = FLAGS_batchLookback;
     grOptions.fMaxBatchLookahead = FLAGS_batchLookahead;
 
