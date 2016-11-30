@@ -16,6 +16,8 @@
 #include "SkColorSpaceXform_Base.h"
 #include "Test.h"
 
+static constexpr int kChannels = 3;
+
 class ColorSpaceXformTest {
 public:
     static std::unique_ptr<SkColorSpaceXform> CreateIdentityXform(const sk_sp<SkGammas>& gammas) {
@@ -40,13 +42,16 @@ public:
         SkMatrix44 arbitraryMatrix{SkMatrix44::kUninitialized_Constructor};
         arbitraryMatrix.setRowMajorf(values);
         if (kNonStandard_SkGammaNamed == gammaNamed) {
+            SkASSERT(gammas);
             srcElements.push_back(SkColorSpace_A2B::Element(gammas));
         } else {
-            srcElements.push_back(SkColorSpace_A2B::Element(gammaNamed));
+            srcElements.push_back(SkColorSpace_A2B::Element(gammaNamed, kChannels));
         }
         srcElements.push_back(SkColorSpace_A2B::Element(arbitraryMatrix));
-        auto srcSpace = ColorSpaceXformTest::CreateA2BSpace(SkColorSpace_A2B::PCS::kXYZ,
-                                                            std::move(srcElements));
+        auto srcSpace =
+                ColorSpaceXformTest::CreateA2BSpace(SkColorSpace_A2B::PCS::kXYZ,
+                                                    SkColorSpace_Base::InputColorFormat::kRGB,
+                                                    std::move(srcElements));
         sk_sp<SkColorSpace> dstSpace(new SkColorSpace_XYZ(gammaNamed, gammas, arbitraryMatrix,
                                                           nullptr));
 
@@ -55,13 +60,15 @@ public:
     }
 
     static sk_sp<SkColorSpace> CreateA2BSpace(SkColorSpace_A2B::PCS pcs,
+                                              SkColorSpace_Base::InputColorFormat inputColorFormat,
                                               std::vector<SkColorSpace_A2B::Element> elements) {
-        return sk_sp<SkColorSpace>(new SkColorSpace_A2B(pcs, nullptr, std::move(elements)));
+        return sk_sp<SkColorSpace>(new SkColorSpace_A2B(inputColorFormat, std::move(elements),
+                                                        pcs, nullptr));
     }
 };
 
 static bool almost_equal(int x, int y) {
-    return SkTAbs(x - y) <= 1 ;
+    return SkTAbs(x - y) <= 1;
 }
 
 static void test_identity_xform(skiatest::Reporter* r, const sk_sp<SkGammas>& gammas,
@@ -101,7 +108,7 @@ static void test_identity_xform(skiatest::Reporter* r, const sk_sp<SkGammas>& ga
 }
 
 static void test_identity_xform_A2B(skiatest::Reporter* r, SkGammaNamed gammaNamed,
-                                    const sk_sp<SkGammas>& gammas, bool repeat) {
+                                    const sk_sp<SkGammas>& gammas) {
     // Arbitrary set of 10 pixels
     constexpr int width = 10;
     constexpr uint32_t srcPixels[width] = {
@@ -128,24 +135,19 @@ static void test_identity_xform_A2B(skiatest::Reporter* r, SkGammaNamed gammaNam
         REPORTER_ASSERT(r, almost_equal(((srcPixels[i] >> 24) & 0xFF),
                                         SkGetPackedA32(dstPixels[i])));
     }
-
-    if (repeat) {
-        // We should cache part of the transform after the run.  So it is interesting
-        // to make sure it still runs correctly the second time.
-        test_identity_xform_A2B(r, gammaNamed, gammas, false);
-    }
 }
 
 DEF_TEST(ColorSpaceXform_TableGamma, r) {
     // Lookup-table based gamma curves
     constexpr size_t tableSize = 10;
     void* memory = sk_malloc_throw(sizeof(SkGammas) + sizeof(float) * tableSize);
-    sk_sp<SkGammas> gammas = sk_sp<SkGammas>(new (memory) SkGammas());
-    gammas->fRedType = gammas->fGreenType = gammas->fBlueType = SkGammas::Type::kTable_Type;
-    gammas->fRedData.fTable.fSize = gammas->fGreenData.fTable.fSize =
-            gammas->fBlueData.fTable.fSize = tableSize;
-    gammas->fRedData.fTable.fOffset = gammas->fGreenData.fTable.fOffset =
-            gammas->fBlueData.fTable.fOffset = 0;
+    sk_sp<SkGammas> gammas = sk_sp<SkGammas>(new (memory) SkGammas(kChannels));
+    for (int i = 0; i < kChannels; ++i) {
+        gammas->fType[i] = SkGammas::Type::kTable_Type;
+        gammas->fData[i].fTable.fSize = tableSize;
+        gammas->fData[i].fTable.fOffset = 0;
+    }
+
     float* table = SkTAddOffset<float>(memory, sizeof(SkGammas));
 
     table[0] = 0.00f;
@@ -159,16 +161,18 @@ DEF_TEST(ColorSpaceXform_TableGamma, r) {
     table[8] = 0.75f;
     table[9] = 1.00f;
     test_identity_xform(r, gammas, true);
-    test_identity_xform_A2B(r, kNonStandard_SkGammaNamed, gammas, true);
+    test_identity_xform_A2B(r, kNonStandard_SkGammaNamed, gammas);
 }
 
 DEF_TEST(ColorSpaceXform_ParametricGamma, r) {
     // Parametric gamma curves
     void* memory = sk_malloc_throw(sizeof(SkGammas) + sizeof(SkColorSpaceTransferFn));
-    sk_sp<SkGammas> gammas = sk_sp<SkGammas>(new (memory) SkGammas());
-    gammas->fRedType = gammas->fGreenType = gammas->fBlueType = SkGammas::Type::kParam_Type;
-    gammas->fRedData.fParamOffset = gammas->fGreenData.fParamOffset =
-            gammas->fBlueData.fParamOffset = 0;
+    sk_sp<SkGammas> gammas = sk_sp<SkGammas>(new (memory) SkGammas(kChannels));
+    for (int i = 0; i < kChannels; ++i) {
+        gammas->fType[i] = SkGammas::Type::kParam_Type;
+        gammas->fData[i].fParamOffset = 0;
+    }
+
     SkColorSpaceTransferFn* params = SkTAddOffset<SkColorSpaceTransferFn>
             (memory, sizeof(SkGammas));
 
@@ -186,36 +190,38 @@ DEF_TEST(ColorSpaceXform_ParametricGamma, r) {
     params->fC = 0.0f;
     params->fG = 2.4f;
     test_identity_xform(r, gammas, true);
-    test_identity_xform_A2B(r, kNonStandard_SkGammaNamed, gammas, true);
+    test_identity_xform_A2B(r, kNonStandard_SkGammaNamed, gammas);
 }
 
 DEF_TEST(ColorSpaceXform_ExponentialGamma, r) {
     // Exponential gamma curves
-    sk_sp<SkGammas> gammas = sk_sp<SkGammas>(new SkGammas());
-    gammas->fRedType = gammas->fGreenType = gammas->fBlueType = SkGammas::Type::kValue_Type;
-    gammas->fRedData.fValue = gammas->fGreenData.fValue = gammas->fBlueData.fValue = 1.4f;
+    sk_sp<SkGammas> gammas = sk_sp<SkGammas>(new SkGammas(kChannels));
+    for (int i = 0; i < kChannels; ++i) {
+        gammas->fType[i] = SkGammas::Type::kValue_Type;
+        gammas->fData[i].fValue = 1.4f;
+    }
     test_identity_xform(r, gammas, true);
-    test_identity_xform_A2B(r, kNonStandard_SkGammaNamed, gammas, true);
+    test_identity_xform_A2B(r, kNonStandard_SkGammaNamed, gammas);
 }
 
 DEF_TEST(ColorSpaceXform_NamedGamma, r) {
-    sk_sp<SkGammas> gammas = sk_sp<SkGammas>(new SkGammas());
-    gammas->fRedType = gammas->fGreenType = gammas->fBlueType = SkGammas::Type::kNamed_Type;
-    gammas->fRedData.fNamed = kSRGB_SkGammaNamed;
-    gammas->fGreenData.fNamed = k2Dot2Curve_SkGammaNamed;
-    gammas->fBlueData.fNamed = kLinear_SkGammaNamed;
+    sk_sp<SkGammas> gammas = sk_sp<SkGammas>(new SkGammas(kChannels));
+    gammas->fType[0] = gammas->fType[1] = gammas->fType[2] = SkGammas::Type::kNamed_Type;
+    gammas->fData[0].fNamed = kSRGB_SkGammaNamed;
+    gammas->fData[1].fNamed = k2Dot2Curve_SkGammaNamed;
+    gammas->fData[2].fNamed = kLinear_SkGammaNamed;
     test_identity_xform(r, gammas, true);
-    test_identity_xform_A2B(r, kNonStandard_SkGammaNamed, gammas, true);
-    test_identity_xform_A2B(r, kSRGB_SkGammaNamed, nullptr, true);
-    test_identity_xform_A2B(r, k2Dot2Curve_SkGammaNamed, nullptr, true);
-    test_identity_xform_A2B(r, kLinear_SkGammaNamed, nullptr, true);
+    test_identity_xform_A2B(r, kNonStandard_SkGammaNamed, gammas);
+    test_identity_xform_A2B(r, kSRGB_SkGammaNamed, nullptr);
+    test_identity_xform_A2B(r, k2Dot2Curve_SkGammaNamed, nullptr);
+    test_identity_xform_A2B(r, kLinear_SkGammaNamed, nullptr);
 }
 
 DEF_TEST(ColorSpaceXform_NonMatchingGamma, r) {
     constexpr size_t tableSize = 10;
     void* memory = sk_malloc_throw(sizeof(SkGammas) + sizeof(float) * tableSize +
                                    sizeof(SkColorSpaceTransferFn));
-    sk_sp<SkGammas> gammas = sk_sp<SkGammas>(new (memory) SkGammas());
+    sk_sp<SkGammas> gammas = sk_sp<SkGammas>(new (memory) SkGammas(kChannels));
 
     float* table = SkTAddOffset<float>(memory, sizeof(SkGammas));
     table[0] = 0.00f;
@@ -239,18 +245,18 @@ DEF_TEST(ColorSpaceXform_NonMatchingGamma, r) {
     params->fF = 0.0f;
     params->fG = 2.4f;
 
-    gammas->fRedType = SkGammas::Type::kValue_Type;
-    gammas->fRedData.fValue = 1.2f;
+    gammas->fType[0] = SkGammas::Type::kValue_Type;
+    gammas->fData[0].fValue = 1.2f;
 
-    gammas->fGreenType = SkGammas::Type::kTable_Type;
-    gammas->fGreenData.fTable.fSize = tableSize;
-    gammas->fGreenData.fTable.fOffset = 0;
+    gammas->fType[1] = SkGammas::Type::kTable_Type;
+    gammas->fData[1].fTable.fSize = tableSize;
+    gammas->fData[1].fTable.fOffset = 0;
 
-    gammas->fBlueType = SkGammas::Type::kParam_Type;
-    gammas->fBlueData.fParamOffset = sizeof(float) * tableSize;
+    gammas->fType[2] = SkGammas::Type::kParam_Type;
+    gammas->fData[2].fParamOffset = sizeof(float) * tableSize;
 
     test_identity_xform(r, gammas, true);
-    test_identity_xform_A2B(r, kNonStandard_SkGammaNamed, gammas, true);
+    test_identity_xform_A2B(r, kNonStandard_SkGammaNamed, gammas);
 }
 
 DEF_TEST(ColorSpaceXform_A2BCLUT, r) {
@@ -258,7 +264,7 @@ DEF_TEST(ColorSpaceXform_A2BCLUT, r) {
     constexpr int gp            = 4; // # grid points
 
     constexpr int numEntries    = gp*gp*gp*3;
-    uint8_t gridPoints[3] = {gp, gp, gp};
+    const uint8_t gridPoints[3] = {gp, gp, gp};
     void* memory = sk_malloc_throw(sizeof(SkColorLookUpTable) + sizeof(float) * numEntries);
     sk_sp<SkColorLookUpTable> colorLUT(new (memory) SkColorLookUpTable(inputChannels, gridPoints));
     // make a CLUT that rotates R, G, and B ie R->G, G->B, B->R
@@ -296,6 +302,7 @@ DEF_TEST(ColorSpaceXform_A2BCLUT, r) {
     std::vector<SkColorSpace_A2B::Element> srcElements;
     srcElements.push_back(SkColorSpace_A2B::Element(std::move(colorLUT)));
     auto srcSpace = ColorSpaceXformTest::CreateA2BSpace(SkColorSpace_A2B::PCS::kXYZ,
+                                                        SkColorSpace_Base::InputColorFormat::kRGB,
                                                         std::move(srcElements));
     // dst space is entirely identity
     auto dstSpace = SkColorSpace::MakeRGB(SkColorSpace::kLinear_RenderTargetGamma, SkMatrix44::I());
