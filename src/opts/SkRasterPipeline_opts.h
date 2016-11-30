@@ -336,8 +336,8 @@ STAGE(constant_color) {
     a = color->a();
 }
 
-// s' = sc for a constant c.
-STAGE(scale_constant_float) {
+// s' = sc for a scalar c.
+STAGE(scale_1_float) {
     SkNf c = *(const float*)ctx;
 
     r *= c;
@@ -360,8 +360,8 @@ SI SkNf lerp(const SkNf& from, const SkNf& to, const SkNf& cov) {
     return SkNx_fma(to-from, cov, from);
 }
 
-// s' = d(1-c) + sc, for a constant c.
-STAGE(lerp_constant_float) {
+// s' = d(1-c) + sc, for a scalar c.
+STAGE(lerp_1_float) {
     SkNf c = *(const float*)ctx;
 
     r = lerp(dr, r, c);

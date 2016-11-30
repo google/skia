@@ -57,9 +57,9 @@ private:
 
     // These values are pointed to by the compiled blit functions
     // above, which allows us to adjust them from call to call.
-    void*       fDstPtr           = nullptr;
-    const void* fMaskPtr          = nullptr;
-    float       fConstantCoverage = 0.0f;
+    void*       fDstPtr          = nullptr;
+    const void* fMaskPtr         = nullptr;
+    float       fCurrentCoverage = 0.0f;
 
     // Scratch space for shaders and color filters to use.
     char            fScratch[64];
@@ -120,7 +120,7 @@ SkBlitter* SkRasterPipelineBlitter::Create(const SkPixmap& dst,
             return earlyOut();
         }
         if (!is_opaque) {
-            pipeline->append(SkRasterPipeline::scale_constant_float,
+            pipeline->append(SkRasterPipeline::scale_1_float,
                              &paintColor->fVec[SkPM4f::A]);
         }
 
@@ -223,13 +223,13 @@ void SkRasterPipelineBlitter::blitAntiH(int x, int y, const SkAlpha aa[], const 
         SkRasterPipeline p;
         p.extend(fShader);
         if (fBlend == SkBlendMode::kSrcOver) {
-            p.append(SkRasterPipeline::scale_constant_float, &fConstantCoverage);
+            p.append(SkRasterPipeline::scale_1_float, &fCurrentCoverage);
             this->append_load_d(&p);
             this->append_blend(&p);
         } else {
             this->append_load_d(&p);
             this->append_blend(&p);
-            p.append(SkRasterPipeline::lerp_constant_float, &fConstantCoverage);
+            p.append(SkRasterPipeline::lerp_1_float, &fCurrentCoverage);
         }
         this->maybe_clamp(&p);
         this->append_store(&p);
@@ -242,7 +242,7 @@ void SkRasterPipelineBlitter::blitAntiH(int x, int y, const SkAlpha aa[], const 
             case 0x00:                       break;
             case 0xff: this->blitH(x,y,run); break;
             default:
-                fConstantCoverage = *aa * (1/255.0f);
+                fCurrentCoverage = *aa * (1/255.0f);
                 fBlitAntiH(x,y, run);
         }
         x    += run;
