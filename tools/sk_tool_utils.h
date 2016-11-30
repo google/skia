@@ -13,6 +13,7 @@
 #include "SkImageInfo.h"
 #include "SkPixelSerializer.h"
 #include "SkRandom.h"
+#include "SkStream.h"
 #include "SkTDArray.h"
 #include "SkTypeface.h"
 
