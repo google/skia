@@ -10,7 +10,6 @@
 
 #include "GrColor.h"
 
-class GrBatch;
 class GrDrawBatch;
 class GrResourceProvider;
 class SkMatrix;

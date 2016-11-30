@@ -10,9 +10,9 @@
 
 #include "GrColor.h"
 
-class GrBatch;
 class GrDrawBatch;
 class SkMatrix;
+class GrOp;
 struct SkRect;
 
 namespace GrAAFillRectBatch {
