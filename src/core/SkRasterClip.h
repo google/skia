@@ -94,6 +94,10 @@ public:
     void validate() const {}
 #endif
 
+    void setBoundRect(const SkRect& rect) {
+        rect.roundOut(&fBoundRect);
+    }
+
 private:
     SkRegion    fBW;
     SkAAClip    fAA;
@@ -102,6 +106,7 @@ private:
     // these 2 are caches based on querying the right obj based on fIsBW
     bool        fIsEmpty;
     bool        fIsRect;
+    SkIRect     fBoundRect = SkIRect::MakeEmpty();
 
     bool computeIsEmpty() const {
         return fIsBW ? fBW.isEmpty() : fAA.isEmpty();
@@ -131,6 +136,14 @@ private:
     bool setPath(const SkPath& path, const SkIRect& clip, bool doAA);
     bool op(const SkRasterClip&, SkRegion::Op);
     bool setConservativeRect(const SkRect& r, const SkIRect& clipR, bool isInverse);
+
+    inline void applyBounds(SkRegion::Op op, SkIRect& bounds) {
+        if (SkRegion::kReplace_Op == op && !fBoundRect.isEmpty()) {
+            if (!bounds.intersect(fBoundRect)) {
+                bounds.setEmpty();
+            }
+        }
+    }
 };
 
 class SkAutoRasterClipValidate : SkNoncopyable {

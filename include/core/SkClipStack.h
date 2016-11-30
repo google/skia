@@ -356,6 +356,7 @@ public:
     void clipPath(const SkPath&, const SkMatrix& matrix, SkCanvas::ClipOp, bool doAA);
     // An optimized version of clipDevRect(emptyRect, kIntersect, ...)
     void clipEmpty();
+    void setBoundRect(const SkRect& rect) { fBoundRect = rect; }
 
     /**
      * isWideOpen returns true if the clip state corresponds to the infinite
@@ -497,6 +498,7 @@ private:
     // clipDevRect and clipDevPath call. 0 is reserved to indicate an
     // invalid ID.
     static int32_t     gGenID;
+    SkRect fBoundRect = SkRect::MakeEmpty();
 
     bool internalQuickContains(const SkRect& devRect) const;
     bool internalQuickContains(const SkRRect& devRRect) const;

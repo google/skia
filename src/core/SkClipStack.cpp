@@ -746,6 +746,11 @@ void SkClipStack::clipRect(const SkRect& rect, const SkMatrix& matrix, SkCanvas:
     if (matrix.rectStaysRect()) {
         SkRect devRect;
         matrix.mapRect(&devRect, rect);
+        if (SkCanvas::kReplace_Op == op && !fBoundRect.isEmpty()) {
+            if (!devRect.intersect(fBoundRect)) {
+                devRect.setEmpty();
+            }
+        }
         Element element(fSaveCount, devRect, op, doAA);
         this->pushElement(element);
         return;
@@ -760,9 +765,12 @@ void SkClipStack::clipPath(const SkPath& path, const SkMatrix& matrix, SkCanvas:
                            bool doAA) {
     SkPath devPath;
     path.transform(matrix, &devPath);
-
     Element element(fSaveCount, devPath, op, doAA);
     this->pushElement(element);
+    if (SkCanvas::kReplace_Op == op && !fBoundRect.isEmpty()) {
+        Element element(fSaveCount, fBoundRect, SkCanvas::kIntersect_Op, doAA);
+        this->pushElement(element);
+    }
 }
 
 void SkClipStack::clipEmpty() {

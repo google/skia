@@ -518,6 +518,13 @@ public:
     }
 
     /**
+     * Sets the max clip rectangle, which can be set by clipRect,
+     * clipRRect and clipPath with a kReplace_Op op.
+     * @param rect   The maximum allowed clip in device coordinates.
+     */
+    void setBoundRect(const SkRect& rect);
+
+    /**
      *  Modify the current clip with the specified SkRRect.
      *  @param rrect The rrect to combine with the current clip
      *  @param op The region op to apply to the current clip
