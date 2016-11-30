@@ -58,7 +58,7 @@ enum GrPixelLocalStorageState {
 
 /*
  * This class allows the GrPipeline to communicate information about the pipeline to a
- * GrBatch which should be forwarded to the GrPrimitiveProcessor(s) created by the batch.
+ * GrOp which should be forwarded to the GrPrimitiveProcessor(s) created by the batch.
  * These are not properly part of the pipeline because they assume the specific inputs
  * that the batch provided when it created the pipeline. Identical pipelines may be
  * created by different batches with different input assumptions and therefore different

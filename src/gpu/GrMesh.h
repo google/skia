@@ -35,7 +35,7 @@ protected:
 };
 
 /**
- * Used to communicate index and vertex buffers, counts, and offsets for a draw from GrBatch to
+ * Used to communicate index and vertex buffers, counts, and offsets for a draw from GrOp to
  * GrGpu. It also holds the primitive type for the draw. TODO: Consider moving ownership of this
  * and draw-issuing responsibility to GrPrimitiveProcessor. The rest of the vertex info lives there
  * already (stride, attribute mappings).

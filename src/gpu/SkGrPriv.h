@@ -67,7 +67,7 @@ bool SkPaintToGrPaintReplaceShader(GrContext*,
                                    GrPaint* grPaint);
 
 /** Blends the SkPaint's shader (or color if no shader) with the color which specified via a
-    GrBatch's GrPrimitiveProcesssor. Currently there is a bool param to indicate whether the
+    GrOp's GrPrimitiveProcesssor. Currently there is a bool param to indicate whether the
     primitive color is the dst or src color to the blend in order to work around differences between
     drawVertices and drawAtlas. */
 bool SkPaintToGrPaintWithXfermode(GrContext* context,

@@ -17,7 +17,7 @@
 #include "GrPaint.h"
 #include "SkMatrix.h"
 
-class GrBatch;
+class GrOp;
 struct SkRect;
 class SkStrokeRec;
 
