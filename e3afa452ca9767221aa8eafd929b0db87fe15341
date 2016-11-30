@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "f01d104e_ecf3c6ee",
+        "filename": "src/core/SkColorSpaceXform_Base.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 74,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2016-11-30T19:00:04Z",
+      "side": 1,
+      "message": "Agreed, trying to share this got out of hand...",
+      "parentUuid": "f01d104e_d17b0191",
+      "revId": "e3afa452ca9767221aa8eafd929b0db87fe15341",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "f01d104e_11c4b99f",
         "filename": "src/opts/SkRasterPipeline_opts.h",
         "patchSetId": 4
@@ -30,6 +48,24 @@
       "writtenOn": "2016-11-30T17:32:47Z",
       "side": 1,
       "message": "Might be nice as a lambda inside from_2dot2?",
+      "revId": "e3afa452ca9767221aa8eafd929b0db87fe15341",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "f01d104e_8ce5f21e",
+        "filename": "src/opts/SkRasterPipeline_opts.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 345,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2016-11-30T19:00:04Z",
+      "side": 1,
+      "message": "Yes, I think so.",
+      "parentUuid": "f01d104e_11c4b99f",
       "revId": "e3afa452ca9767221aa8eafd929b0db87fe15341",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
@@ -53,6 +89,24 @@
     },
     {
       "key": {
+        "uuid": "2d82efcd_36a6d8f5",
+        "filename": "src/opts/SkRasterPipeline_opts.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 551,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2016-11-30T19:00:04Z",
+      "side": 1,
+      "message": "\u003e I think you can do this with the existing helpers, without needing to write from_table or from_tables:\n\u003e \n\u003e   STAGE(load_tables) {\n\u003e       const RGBTables info \u003d *(const RGBTables*)ctx;\n\u003e       auto ptr \u003d info.fPixels + x;\n\u003e  \n\u003e      SkNu rgba \u003d load(tail, ptr);\n\u003e      auto to_int \u003d [](const SkNu\u0026 v) { return SkNi::Load(\u0026v); };\n\u003e      r \u003d gather(tail, (const float*)info.fRTable, to_int((rgba \u003e\u003e  0) \u0026 0xff));\n\u003e      g \u003d gather(tail, (const float*)info.fGTable, to_int((rgba \u003e\u003e  8) \u0026 0xff));\n\u003e      b \u003d gather(tail, (const float*)info.fBTable, to_int((rgba \u003e\u003e 16) \u0026 0xff));\n\u003e      a \u003d (1/255.0f) * SkNx_cast\u003cfloat\u003e(to_int(rgba \u003e\u003e 24));\n\u003e  }\n\nCool.",
+      "parentUuid": "f01d104e_b10be504",
+      "revId": "e3afa452ca9767221aa8eafd929b0db87fe15341",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "f01d104e_7115ed02",
         "filename": "src/opts/SkRasterPipeline_opts.h",
         "patchSetId": 4
@@ -64,6 +118,24 @@
       "writtenOn": "2016-11-30T17:44:49Z",
       "side": 1,
       "message": "Something like,\n\nSTAGE(store_tables) {\n    const RGBTables info \u003d *(const RGBTables*)ctx;\n    auto ptr \u003d info.fPixels + x;\n      \n    SkNi ri \u003d SkNx_cast\u003cint\u003e(1023.0f * r + 0.5f);\n    SkNi gi \u003d SkNx_cast\u003cint\u003e(1023.0f * g + 0.5f);\n    SkNi bi \u003d SkNx_cast\u003cint\u003e(1023.0f * b + 0.5f);\n    \n    store(tail, ( SkNx_cast\u003cint\u003e(gather(tail, (const uint8_t*)info.fRTable, ri)) \u003c\u003c 0\n                | SkNx_cast\u003cint\u003e(gather(tail, (const uint8_t*)info.fGTable, gi)) \u003c\u003c 8\n                | SkNx_cast\u003cint\u003e(gather(tail, (const uint8_t*)info.fBTable, bi)) \u003c\u003c 16\n                | SkNx_cast\u003cint\u003e(255.0f * a + 0.5f)                              \u003c\u003c 24), (int*)ptr);\n}",
+      "revId": "e3afa452ca9767221aa8eafd929b0db87fe15341",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "f01d104e_0c7f4255",
+        "filename": "src/opts/SkRasterPipeline_opts.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 557,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2016-11-30T19:00:04Z",
+      "side": 1,
+      "message": "\u003e Something like,\n\u003e \n\u003e STAGE(store_tables) {\n\u003e     const RGBTables info \u003d *(const RGBTables*)ctx;\n\u003e     auto ptr \u003d info.fPixels + x;\n\u003e       \n\u003e     SkNi ri \u003d SkNx_cast\u003cint\u003e(1023.0f * r + 0.5f);\n\u003e     SkNi gi \u003d SkNx_cast\u003cint\u003e(1023.0f * g + 0.5f);\n\u003e     SkNi bi \u003d SkNx_cast\u003cint\u003e(1023.0f * b + 0.5f);\n\u003e     \n\u003e     store(tail, ( SkNx_cast\u003cint\u003e(gather(tail, (const uint8_t*)info.fRTable, ri)) \u003c\u003c 0\n\u003e                 | SkNx_cast\u003cint\u003e(gather(tail, (const uint8_t*)info.fGTable, gi)) \u003c\u003c 8\n\u003e                 | SkNx_cast\u003cint\u003e(gather(tail, (const uint8_t*)info.fBTable, bi)) \u003c\u003c 16\n\u003e                 | SkNx_cast\u003cint\u003e(255.0f * a + 0.5f)                              \u003c\u003c 24), (int*)ptr);\n\u003e }\n\nYeah that works!",
+      "parentUuid": "f01d104e_7115ed02",
       "revId": "e3afa452ca9767221aa8eafd929b0db87fe15341",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
