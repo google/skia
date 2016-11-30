@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "f01d104e_82d139e9",
+        "filename": "src/core/SkColorSpace_ICC.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 351,
+      "author": {
+        "id": 5740
+      },
+      "writtenOn": "2016-11-30T20:26:44Z",
+      "side": 1,
+      "message": "I tried putting these checks in, but none of the test images I have + none of the sksp images I had contained curves matching to these in lutntype profiles.\n\nI also tried putting more generalized linear checks here and not a single image with an AtoBType or XYZTRC seemed to specify linear gamma by a table (besides via count\u003d0), at least within the color_space_almost_equal error margin. This is probably due to the fact that in non-lutnType profiles you can simply avoid putting in a table in the first place (ie 0 offset), or you can encode linear by having a count of 0. This is not the case for lutntype, hence the incredible amount of linear tables.",
+      "revId": "9b9dcdd271e5638a10a6008da840fe3b563a6b99",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "f01d104e_421e61db",
+        "filename": "src/core/SkColorSpace_ICC.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 880,
+      "author": {
+        "id": 5740
+      },
+      "writtenOn": "2016-11-30T20:26:44Z",
+      "side": 1,
+      "message": "Oops. Will fix whitespace before submitting.",
+      "revId": "9b9dcdd271e5638a10a6008da840fe3b563a6b99",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
