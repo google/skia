@@ -14,6 +14,7 @@
 #include "SkGrPriv.h"
 #include "SkImageEncoder.h"
 #include "SkMathPriv.h"
+#include "SkStream.h"
 #include <stdio.h>
 
 GrSurface::~GrSurface() {

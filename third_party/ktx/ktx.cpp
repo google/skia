@@ -6,7 +6,7 @@
  */
 
 #include "ktx.h"
-#include "SkBitmap.h"
+#include "SkPixmap.h"
 #include "SkStream.h"
 #include "SkEndian.h"
 
@@ -395,7 +395,7 @@ bool SkKTXFile::WriteETC1ToKTX(SkWStream* stream, const uint8_t *etc1Data,
 
     // !FIXME! The spec suggests that we put KTXOrientation as a
     // key value pair in the header, but that means that we'd have to
-    // pipe through the bitmap's orientation to properly do that.
+    // pipe through the pixmap's orientation to properly do that.
     hdr.fBytesOfKeyValueData = 0;
 
     // Write the header
@@ -417,16 +417,17 @@ bool SkKTXFile::WriteETC1ToKTX(SkWStream* stream, const uint8_t *etc1Data,
     return true;
 }
 
-bool SkKTXFile::WriteBitmapToKTX(SkWStream* stream, const SkBitmap& bitmap) {
-    const SkColorType ct = bitmap.colorType();
-    SkAutoLockPixels alp(bitmap);
+bool SkKTXFile::WritePixmapToKTX(SkWStream* stream, const SkPixmap& pixmap) {
+    const SkColorType ct = pixmap.colorType();
 
-    const int width = bitmap.width();
-    const int height = bitmap.height();
-    const uint8_t* src = reinterpret_cast<uint8_t*>(bitmap.getPixels());
-    if (NULL == bitmap.getPixels()) {
+    const int width = pixmap.width();
+    const int height = pixmap.height();
+    const uint8_t* src = reinterpret_cast<const uint8_t*>(pixmap.addr());
+    if (!src) {
         return false;
     }
+    const size_t rowBytes = pixmap.rowBytes();
+    const int bytesPerPixel = pixmap.info().bytesPerPixel();
 
     // First thing's first, write out the magic identifier and endianness...
     if (!stream->write(KTX_FILE_IDENTIFIER, KTX_FILE_IDENTIFIER_SIZE) ||
@@ -437,16 +438,16 @@ bool SkKTXFile::WriteBitmapToKTX(SkWStream* stream, const SkBitmap& bitmap) {
     // Collect our key/value pairs...
     SkTArray<KeyValue> kvPairs;
 
-    // Next, write the header based on the bitmap's config.
+    // Next, write the header based on the pixmap's config.
     Header hdr;
     switch (ct) {
         case kIndex_8_SkColorType:
             // There is a compressed format for this, but we don't support it yet.
-            SkDebugf("Writing indexed bitmap to KTX unsupported.\n");
+            SkDebugf("Writing indexed pixmap to KTX unsupported.\n");
             // VVV fall through VVV
         default:
         case kUnknown_SkColorType:
-            // Bitmap hasn't been configured.
+            // Pixmap hasn't been configured.
             return false;
 
         case kAlpha_8_SkColorType:
@@ -516,10 +517,9 @@ bool SkKTXFile::WriteBitmapToKTX(SkWStream* stream, const SkBitmap& bitmap) {
     }
 
     // Calculate the size of the data
-    int bpp = bitmap.bytesPerPixel();
-    uint32_t dataSz = bpp * width * height;
+    uint32_t dataSz = bytesPerPixel * width * height;
 
-    if (0 >= bpp) {
+    if (0 >= bytesPerPixel) {
         return false;
     }
 
@@ -544,14 +544,14 @@ bool SkKTXFile::WriteBitmapToKTX(SkWStream* stream, const SkBitmap& bitmap) {
                     return false;
                 }
             }
-            rowPtr += bitmap.rowBytes();
+            rowPtr += rowBytes;
         }
     } else {
         for (int i = 0; i < height; ++i) {
-            if (!stream->write(rowPtr, bpp*width)) {
+            if (!stream->write(rowPtr, bytesPerPixel * width)) {
                 return false;
             }
-            rowPtr += bitmap.rowBytes();
+            rowPtr += rowBytes;
         }
     }
 

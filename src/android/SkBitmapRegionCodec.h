@@ -26,9 +26,7 @@ public:
 
     bool conversionSupported(SkColorType colorType) override;
 
-    SkEncodedFormat getEncodedFormat() override {
-        return (SkEncodedFormat)fCodec->getEncodedFormat();
-    }
+    SkEncodedImageFormat getEncodedFormat() override { return fCodec->getEncodedFormat(); }
 
 private:
 

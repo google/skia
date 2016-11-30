@@ -576,7 +576,6 @@ component("skia") {
     "src/codec/SkSwizzler.cpp",
     "src/codec/SkWbmpCodec.cpp",
     "src/images/SkImageEncoder.cpp",
-    "src/images/SkImageEncoder_Factory.cpp",
     "src/images/SkKTXImageEncoder.cpp",
     "src/ports/SkDiscardableMemory_none.cpp",
     "src/ports/SkGlobalInitialization_default.cpp",
@@ -720,7 +719,6 @@ if (skia_enable_tools) {
       }
 
       sources = [
-        "src/images/SkForceLinking.cpp",
         "tools/fiddle/draw.cpp",
         "tools/fiddle/fiddle_main.cpp",
       ]
@@ -848,7 +846,6 @@ if (skia_enable_tools) {
       "tools/timer",
     ]
     sources = [
-      "src/images/SkForceLinking.cpp",
       "src/utils/SkMultiPictureDocumentReader.cpp",  # TODO(halcanary): move to tools?
       "tools/AndroidSkDebugToStdOut.cpp",
       "tools/CrashHandler.cpp",

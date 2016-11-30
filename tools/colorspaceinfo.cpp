@@ -12,14 +12,11 @@
 #include "SkCodec.h"
 #include "SkColorSpace_XYZ.h"
 #include "SkCommandLineFlags.h"
-#include "SkForceLinking.h"
 #include "SkImageEncoder.h"
 #include "SkMatrix44.h"
 #include "SkOSFile.h"
 
 #include "sk_tool_utils.h"
-
-__SK_FORCE_IMAGE_DECODER_LINKING;
 
 DEFINE_string(input, "input.png", "A path to the input image or icc profile.");
 DEFINE_string(output, "output.png", "A path to the output image.");

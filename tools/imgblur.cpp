@@ -9,14 +9,11 @@
 #include "SkCommandLineFlags.h"
 #include "SkCommonFlags.h"
 #include "SkData.h"
-#include "SkForceLinking.h"
 #include "SkImage.h"
 #include "SkStream.h"
 #include "SkTypes.h"
 
 #include "sk_tool_utils.h"
-
-__SK_FORCE_IMAGE_DECODER_LINKING;
 
 DEFINE_string(in, "input.png", "Input image");
 DEFINE_string(out, "blurred.png", "Output image");

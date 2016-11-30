@@ -9,11 +9,18 @@
 
 bool SkEncodeImage(SkWStream* dst, const SkPixmap& src,
                    SkEncodedImageFormat format, int quality) {
-    SkBitmap bm;
-    if (!bm.installPixels(src)) {
-        return false;
-    }
-    bm.setImmutable();
-    std::unique_ptr<SkImageEncoder> enc(SkImageEncoder::Create((SkImageEncoder::Type)format));
-    return enc && enc->encodeStream(dst, bm, quality);
+    #ifdef SK_USE_CG_ENCODER
+        (void)quality;
+        return SkEncodeImageWithCG(dst, src, format);
+    #elif SK_USE_WIC_ENCODER
+        return SkEncodeImageWithWIC(dst, src, format, quality);
+    #else
+        switch(format) {
+            case SkEncodedImageFormat::kJPEG: return SkEncodeImageAsJPEG(dst, src, quality);
+            case SkEncodedImageFormat::kPNG:  return SkEncodeImageAsPNG(dst, src);
+            case SkEncodedImageFormat::kWEBP: return SkEncodeImageAsWEBP(dst, src, quality);
+            case SkEncodedImageFormat::kKTX:  return SkEncodeImageAsKTX(dst, src);
+            default:                          return false;
+        }
+    #endif
 }

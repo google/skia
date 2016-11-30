@@ -22,6 +22,7 @@
 #include "SkPixelSerializer.h"
 #include "SkReadPixelsRec.h"
 #include "SkSpecialImage.h"
+#include "SkStream.h"
 #include "SkString.h"
 #include "SkSurface.h"
 

@@ -32,7 +32,6 @@
 #include "SkCommonFlags.h"
 #include "SkCommonFlagsConfig.h"
 #include "SkData.h"
-#include "SkForceLinking.h"
 #include "SkGraphics.h"
 #include "SkLeanWindows.h"
 #include "SkOSFile.h"
@@ -68,8 +67,6 @@
 #endif
 
     struct GrContextOptions;
-
-__SK_FORCE_IMAGE_DECODER_LINKING;
 
 static const int kAutoTuneLoops = 0;
 
