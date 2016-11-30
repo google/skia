@@ -95,7 +95,6 @@ void GrContext::initCommon(const GrContextOptions& options) {
 
     GrRenderTargetOpList::Options rtOpListOptions;
     rtOpListOptions.fClipBatchToBounds = options.fClipBatchToBounds;
-    rtOpListOptions.fDrawBatchBounds = options.fDrawBatchBounds;
     rtOpListOptions.fMaxBatchLookback = options.fMaxBatchLookback;
     rtOpListOptions.fMaxBatchLookahead = options.fMaxBatchLookahead;
     GrPathRendererChain::Options prcOptions;
