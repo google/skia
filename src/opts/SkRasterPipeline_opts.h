@@ -236,6 +236,21 @@ SI void from_565(const SkNh& _565, SkNf* r, SkNf* g, SkNf* b) {
     *b = SkNx_cast<float>(_32_bit & SK_B16_MASK_IN_PLACE) * (1.0f / SK_B16_MASK_IN_PLACE);
 }
 
+SI void from_table(const SkNu& _8888, SkNf* v, int shift, const float* table) {
+    int32_t* x = (int32_t*)v;
+    for (int i = 0; i < N ; i++) {
+        x[i] = table[(_8888[i] >> shift) & 0xFF];
+    }
+}
+
+SI void from_tables(const SkNu& _8888, SkNf* r, SkNf* g, SkNf* b, SkNf* a, const RGBTables& info) {
+    auto to_float = [](const SkNu& v) { return SkNx_cast<float>(SkNi::Load(&v)); };
+    from_table(_8888, r,  0, (const float*) info.fRTable);
+    from_table(_8888, g,  8, (const float*) info.fGTable);
+    from_table(_8888, b, 16, (const float*) info.fBTable);
+    *a = (1/255.0f)*to_float( _8888 >> 24);
+}
+
 STAGE(trace) {
     SkDebugf("%s\n", (const char*)ctx);
 }
@@ -325,6 +340,22 @@ STAGE(to_srgb) {
     r = sk_linear_to_srgb_needs_round(r);
     g = sk_linear_to_srgb_needs_round(g);
     b = sk_linear_to_srgb_needs_round(b);
+}
+
+static inline SkNf linear_from_2dot2(const SkNf& x) {
+    // x^(29/64) is a very good approximation of the true value, x^(1/2.2).
+    auto x2  = x.rsqrt(),                            // x^(-1/2)
+         x32 = x2.rsqrt().rsqrt().rsqrt().rsqrt(),   // x^(-1/32)
+         x64 = x32.rsqrt();                          // x^(+1/64)
+
+    // 29 = 32 - 2 - 1
+    return x2.invert() * x32 * x64.invert();
+}
+
+STAGE(from_2dot2) {
+    r = linear_from_2dot2(r);
+    g = linear_from_2dot2(g);
+    b = linear_from_2dot2(b);
 }
 
 // The default shader produces a constant color (from the SkPaint).
@@ -515,6 +546,31 @@ STAGE(store_8888) {
                 | SkNx_cast<int>(255.0f * g + 0.5f) << 8
                 | SkNx_cast<int>(255.0f * b + 0.5f) << 16
                 | SkNx_cast<int>(255.0f * a + 0.5f) << 24 ), (int*)ptr);
+}
+
+STAGE(load_tables) {
+    const RGBTables info = *(const RGBTables*)ctx;
+    auto ptr = info.fPixels + x;
+    from_tables(load(tail, ptr), &r, &g, &b, &a, info);
+}
+
+STAGE(store_tables) {
+    const RGBTables info = *(const RGBTables*)ctx;
+    auto ptr = info.fPixels + x;
+
+    SkNi tr = SkNx_cast<int>(1023.0f * r + 0.5f);
+    SkNi tg = SkNx_cast<int>(1023.0f * g + 0.5f);
+    SkNi tb = SkNx_cast<int>(1023.0f * b + 0.5f);
+    SkNi ta = SkNx_cast<int>(255.0f * a + 0.5f) << 24;
+
+    int32_t rgba[N];
+    for (int i = 0; i < N; i++) {
+        rgba[i] = ((uint8_t*) info.fRTable)[tr[i]] <<  0
+                | ((uint8_t*) info.fGTable)[tg[i]] <<  8
+                | ((uint8_t*) info.fBTable)[tb[i]] << 16
+                | ta[i];
+    }
+    store(tail, SkNi::Load(&rgba), (int*)ptr);
 }
 
 SI SkNf inv(const SkNf& x) { return 1.0f - x; }
