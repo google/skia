@@ -25,6 +25,97 @@
     },
     {
       "key": {
+        "uuid": "0d51ab1f_c8046f38",
+        "filename": "src/opts/SkRasterPipeline_opts.h",
+        "patchSetId": 5
+      },
+      "lineNbr": 650,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2016-11-30T01:03:47Z",
+      "side": 1,
+      "message": "Seems like a bunch of logic in here is intermixed dealing with whether this is a 4-\u003e3 color table look up or a 3-\u003e3 color table lookup (are there other possibilities?).  Would it be clearer as two (or more) stages, color_lookup_table_33 and color_lookup_table_43?",
+      "revId": "0692ca45bce949d59545c95dc1b02b948677939d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "f01d104e_c54346b1",
+        "filename": "src/opts/SkRasterPipeline_opts.h",
+        "patchSetId": 5
+      },
+      "lineNbr": 652,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2016-11-30T01:03:47Z",
+      "side": 1,
+      "message": "This is probably a too generic a name... max color channels, for what?  Something like SkColorLookupTable::kMaxColorChannels?  Even still, is that inputs, outputs?\n\nIf we\u0027re going to assert 4 \u003d\u003d some constant, I\u0027d rather just find a way to write this code to use that constant.\n\nI\u0027m not actually sure I see the direct connection to the rest of the code though.  Is this better expressed as\n  SkASSERT(colorLUT-\u003eoutputChannels() \u003d\u003d 3 || colorLUT-\u003eoutputChannels() \u003d\u003d 4);\n?  It might help to get all the asserts together in one place at the beginning?",
+      "range": {
+        "startLine": 652,
+        "startChar": 23,
+        "endLine": 652,
+        "endChar": 40
+      },
+      "revId": "0692ca45bce949d59545c95dc1b02b948677939d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "f01d104e_e5468270",
+        "filename": "src/opts/SkRasterPipeline_opts.h",
+        "patchSetId": 5
+      },
+      "lineNbr": 658,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2016-11-30T01:03:47Z",
+      "side": 1,
+      "message": "This sort of thing is probably more readable if you scope in and out more tightly inside the loop:\n\nfloat result[4][N];\nfor (int i \u003d 0...) {\n    float out[4], in[4] \u003d { r[i], g[i], b[i], a[i] };\n    colorLUT-\u003einterp(out, in);\n    ...\n}",
+      "revId": "0692ca45bce949d59545c95dc1b02b948677939d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "f01d104e_653ff2e8",
+        "filename": "src/opts/SkRasterPipeline_opts.h",
+        "patchSetId": 5
+      },
+      "lineNbr": 671,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2016-11-30T01:03:47Z",
+      "side": 1,
+      "message": "This might read a little more clearly with less nesting:\n\na \u003d (colorLut-\u003eoutputChannels() \u003d\u003d 4) ? SkNf::Load(result[3]) : 1.0f;\n\nWhat exactly are the constraints on inputChannels() and outputChannels()?  Are there case where we have 4 outputChannels() but don\u0027t want to load them if there were only 3 inputChannels()?",
+      "revId": "0692ca45bce949d59545c95dc1b02b948677939d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "f01d104e_85506e23",
+        "filename": "src/opts/SkRasterPipeline_opts.h",
+        "patchSetId": 5
+      },
+      "lineNbr": 673,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2016-11-30T01:03:47Z",
+      "side": 1,
+      "message": "Preserve seems like an odd word here.  We\u0027re generating opacity from nothing... what is being preserved?",
+      "revId": "0692ca45bce949d59545c95dc1b02b948677939d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "f01d104e_1fd84d3e",
         "filename": "src/opts/SkRasterPipeline_opts.h",
         "patchSetId": 5
@@ -42,6 +133,24 @@
         "endLine": 676,
         "endChar": 38
       },
+      "revId": "0692ca45bce949d59545c95dc1b02b948677939d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "f01d104e_a539ea03",
+        "filename": "src/opts/SkRasterPipeline_opts.h",
+        "patchSetId": 5
+      },
+      "lineNbr": 676,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2016-11-30T01:03:47Z",
+      "side": 1,
+      "message": "Yeah... CMYK doesn\u0027t encode an alpha, right?\n\nSo just a \u003d 1.0f; ?",
+      "parentUuid": "f01d104e_1fd84d3e",
       "revId": "0692ca45bce949d59545c95dc1b02b948677939d",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false

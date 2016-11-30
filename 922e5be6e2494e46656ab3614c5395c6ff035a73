@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "f01d104e_4523d61a",
+        "filename": "gn/tests.gni",
+        "patchSetId": 5
+      },
+      "lineNbr": 109,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2016-11-30T01:03:47Z",
+      "side": 0,
+      "message": "If we\u0027re gonna remove this, we should probably also delete the file?",
+      "revId": "922e5be6e2494e46656ab3614c5395c6ff035a73",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
