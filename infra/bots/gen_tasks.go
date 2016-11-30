@@ -141,7 +141,9 @@ var (
 		"Perf-Ubuntu-GCC-GCE-CPU-AVX2-x86-Debug",
 		"Perf-Ubuntu-GCC-GCE-CPU-AVX2-x86_64-Debug-GN",
 		"Perf-Ubuntu-GCC-GCE-CPU-AVX2-x86_64-Debug-SK_USE_DISCARDABLE_SCALEDIMAGECACHE",
+		"Perf-Ubuntu-GCC-GCE-CPU-AVX2-x86_64-Release-CT_BENCH_1k_SKPs",
 		"Perf-Ubuntu-GCC-GCE-CPU-AVX2-x86_64-Release-GN",
+		"Perf-Ubuntu-GCC-Golo-GPU-GT610-x86_64-Release-CT_BENCH_1k_SKPs",
 		"Perf-Ubuntu-GCC-ShuttleA-GPU-GTX550Ti-x86_64-Release-Valgrind",
 		"Perf-Ubuntu-GCC-ShuttleA-GPU-GTX660-x86_64-Debug-GN",
 		"Perf-Ubuntu-GCC-ShuttleA-GPU-GTX660-x86_64-Release-GN",
@@ -219,6 +221,9 @@ var (
 		"Test-Ubuntu-Clang-Golo-GPU-GT610-x86_64-Debug-ASAN",
 		"Test-Ubuntu-Clang-Golo-GPU-GT610-x86_64-Release-TSAN",
 		"Test-Ubuntu-GCC-GCE-CPU-AVX2-x86-Debug",
+		"Test-Ubuntu-GCC-GCE-CPU-AVX2-x86_64-Debug-CT_DM_100k_SKPs",
+		"Test-Ubuntu-GCC-GCE-CPU-AVX2-x86_64-Debug-CT_DM_1m_SKPs",
+		"Test-Ubuntu-GCC-GCE-CPU-AVX2-x86_64-Debug-CT_IMG_DECODE_100k_SKPs",
 		"Test-Ubuntu-GCC-GCE-CPU-AVX2-x86_64-Debug-GN",
 		"Test-Ubuntu-GCC-GCE-CPU-AVX2-x86_64-Debug-SK_USE_DISCARDABLE_SCALEDIMAGECACHE",
 		"Test-Ubuntu-GCC-GCE-CPU-AVX2-x86_64-Release-Fast",
@@ -744,7 +749,8 @@ func process(b *specs.TasksCfgBuilder, name string) {
 	// These bots do not need a compile task.
 	if parts["role"] != "Build" &&
 		name != "Housekeeper-PerCommit-InfraTests" &&
-		!strings.Contains(name, "RecreateSKPs") {
+		!strings.Contains(name, "RecreateSKPs") &&
+		!strings.Contains(name, "-CT_") {
 		compile(b, compileTaskName, compileTaskParts)
 	}
 
@@ -770,12 +776,12 @@ func process(b *specs.TasksCfgBuilder, name string) {
 	}
 
 	// Test bots.
-	if parts["role"] == "Test" {
+	if parts["role"] == "Test" && !strings.Contains(name, "-CT_") {
 		deps = append(deps, test(b, name, parts, compileTaskName, pkgs))
 	}
 
 	// Perf bots.
-	if parts["role"] == "Perf" {
+	if parts["role"] == "Perf" && !strings.Contains(name, "-CT_") {
 		deps = append(deps, perf(b, name, parts, compileTaskName, pkgs))
 	}
 
@@ -788,6 +794,9 @@ func process(b *specs.TasksCfgBuilder, name string) {
 		j.Trigger = "nightly"
 	}
 	if name == "Housekeeper-Weekly-RecreateSKPs" {
+		j.Trigger = "weekly"
+	}
+	if name == "Test-Ubuntu-GCC-GCE-CPU-AVX2-x86_64-Debug-CT_DM_1m_SKPs" {
 		j.Trigger = "weekly"
 	}
 	b.AddJob(name, j)

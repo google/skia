@@ -704,10 +704,22 @@
         "Perf-Ubuntu-GCC-GCE-CPU-AVX2-x86_64-Debug-SK_USE_DISCARDABLE_SCALEDIMAGECACHE"
       ]
     },
+    "Perf-Ubuntu-GCC-GCE-CPU-AVX2-x86_64-Release-CT_BENCH_1k_SKPs": {
+      "priority": 0.8,
+      "tasks": [
+        "Perf-Ubuntu-GCC-GCE-CPU-AVX2-x86_64-Release-CT_BENCH_1k_SKPs"
+      ]
+    },
     "Perf-Ubuntu-GCC-GCE-CPU-AVX2-x86_64-Release-GN": {
       "priority": 0.8,
       "tasks": [
         "Upload-Perf-Ubuntu-GCC-GCE-CPU-AVX2-x86_64-Release-GN"
+      ]
+    },
+    "Perf-Ubuntu-GCC-Golo-GPU-GT610-x86_64-Release-CT_BENCH_1k_SKPs": {
+      "priority": 0.8,
+      "tasks": [
+        "Perf-Ubuntu-GCC-Golo-GPU-GT610-x86_64-Release-CT_BENCH_1k_SKPs"
       ]
     },
     "Perf-Ubuntu-GCC-ShuttleA-GPU-GTX550Ti-x86_64-Release-Valgrind": {
@@ -1170,6 +1182,25 @@
       "priority": 0.8,
       "tasks": [
         "Upload-Test-Ubuntu-GCC-GCE-CPU-AVX2-x86-Debug"
+      ]
+    },
+    "Test-Ubuntu-GCC-GCE-CPU-AVX2-x86_64-Debug-CT_DM_100k_SKPs": {
+      "priority": 0.8,
+      "tasks": [
+        "Test-Ubuntu-GCC-GCE-CPU-AVX2-x86_64-Debug-CT_DM_100k_SKPs"
+      ]
+    },
+    "Test-Ubuntu-GCC-GCE-CPU-AVX2-x86_64-Debug-CT_DM_1m_SKPs": {
+      "priority": 0.8,
+      "tasks": [
+        "Test-Ubuntu-GCC-GCE-CPU-AVX2-x86_64-Debug-CT_DM_1m_SKPs"
+      ],
+      "trigger": "weekly"
+    },
+    "Test-Ubuntu-GCC-GCE-CPU-AVX2-x86_64-Debug-CT_IMG_DECODE_100k_SKPs": {
+      "priority": 0.8,
+      "tasks": [
+        "Test-Ubuntu-GCC-GCE-CPU-AVX2-x86_64-Debug-CT_IMG_DECODE_100k_SKPs"
       ]
     },
     "Test-Ubuntu-GCC-GCE-CPU-AVX2-x86_64-Debug-GN": {
@@ -5856,6 +5887,31 @@
       "isolate": "perf_skia.isolate",
       "priority": 0.8
     },
+    "Perf-Ubuntu-GCC-GCE-CPU-AVX2-x86_64-Release-CT_BENCH_1k_SKPs": {
+      "dimensions": [
+        "pool:SkiaCT"
+      ],
+      "execution_timeout_ns": 86400000000000,
+      "extra_args": [
+        "--workdir",
+        "../../..",
+        "swarm_ct_skps",
+        "repository=<(REPO)",
+        "buildername=Perf-Ubuntu-GCC-GCE-CPU-AVX2-x86_64-Release-CT_BENCH_1k_SKPs",
+        "mastername=fake-master",
+        "buildnumber=2",
+        "slavename=fake-buildslave",
+        "nobuildbot=True",
+        "swarm_out_dir=${ISOLATED_OUTDIR}",
+        "revision=<(REVISION)",
+        "patch_storage=<(PATCH_STORAGE)",
+        "patch_issue=<(ISSUE)",
+        "patch_set=<(PATCHSET)"
+      ],
+      "io_timeout_ns": 3600000000000,
+      "isolate": "ct_skps_skia.isolate",
+      "priority": 0.8
+    },
     "Perf-Ubuntu-GCC-GCE-CPU-AVX2-x86_64-Release-GN": {
       "cipd_packages": [
         {
@@ -5903,6 +5959,31 @@
       ],
       "io_timeout_ns": 2400000000000,
       "isolate": "perf_skia.isolate",
+      "priority": 0.8
+    },
+    "Perf-Ubuntu-GCC-Golo-GPU-GT610-x86_64-Release-CT_BENCH_1k_SKPs": {
+      "dimensions": [
+        "pool:SkiaCT"
+      ],
+      "execution_timeout_ns": 86400000000000,
+      "extra_args": [
+        "--workdir",
+        "../../..",
+        "swarm_ct_skps",
+        "repository=<(REPO)",
+        "buildername=Perf-Ubuntu-GCC-Golo-GPU-GT610-x86_64-Release-CT_BENCH_1k_SKPs",
+        "mastername=fake-master",
+        "buildnumber=2",
+        "slavename=fake-buildslave",
+        "nobuildbot=True",
+        "swarm_out_dir=${ISOLATED_OUTDIR}",
+        "revision=<(REVISION)",
+        "patch_storage=<(PATCH_STORAGE)",
+        "patch_issue=<(ISSUE)",
+        "patch_set=<(PATCHSET)"
+      ],
+      "io_timeout_ns": 3600000000000,
+      "isolate": "ct_skps_skia.isolate",
       "priority": 0.8
     },
     "Perf-Ubuntu-GCC-ShuttleA-GPU-GTX550Ti-x86_64-Release-Valgrind": {
@@ -9672,6 +9753,81 @@
       ],
       "io_timeout_ns": 2400000000000,
       "isolate": "test_skia.isolate",
+      "priority": 0.8
+    },
+    "Test-Ubuntu-GCC-GCE-CPU-AVX2-x86_64-Debug-CT_DM_100k_SKPs": {
+      "dimensions": [
+        "pool:SkiaCT"
+      ],
+      "execution_timeout_ns": 86400000000000,
+      "extra_args": [
+        "--workdir",
+        "../../..",
+        "swarm_ct_skps",
+        "repository=<(REPO)",
+        "buildername=Test-Ubuntu-GCC-GCE-CPU-AVX2-x86_64-Debug-CT_DM_100k_SKPs",
+        "mastername=fake-master",
+        "buildnumber=2",
+        "slavename=fake-buildslave",
+        "nobuildbot=True",
+        "swarm_out_dir=${ISOLATED_OUTDIR}",
+        "revision=<(REVISION)",
+        "patch_storage=<(PATCH_STORAGE)",
+        "patch_issue=<(ISSUE)",
+        "patch_set=<(PATCHSET)"
+      ],
+      "io_timeout_ns": 3600000000000,
+      "isolate": "ct_skps_skia.isolate",
+      "priority": 0.8
+    },
+    "Test-Ubuntu-GCC-GCE-CPU-AVX2-x86_64-Debug-CT_DM_1m_SKPs": {
+      "dimensions": [
+        "pool:SkiaCT"
+      ],
+      "execution_timeout_ns": 86400000000000,
+      "extra_args": [
+        "--workdir",
+        "../../..",
+        "swarm_ct_skps",
+        "repository=<(REPO)",
+        "buildername=Test-Ubuntu-GCC-GCE-CPU-AVX2-x86_64-Debug-CT_DM_1m_SKPs",
+        "mastername=fake-master",
+        "buildnumber=2",
+        "slavename=fake-buildslave",
+        "nobuildbot=True",
+        "swarm_out_dir=${ISOLATED_OUTDIR}",
+        "revision=<(REVISION)",
+        "patch_storage=<(PATCH_STORAGE)",
+        "patch_issue=<(ISSUE)",
+        "patch_set=<(PATCHSET)"
+      ],
+      "io_timeout_ns": 3600000000000,
+      "isolate": "ct_skps_skia.isolate",
+      "priority": 0.8
+    },
+    "Test-Ubuntu-GCC-GCE-CPU-AVX2-x86_64-Debug-CT_IMG_DECODE_100k_SKPs": {
+      "dimensions": [
+        "pool:SkiaCT"
+      ],
+      "execution_timeout_ns": 86400000000000,
+      "extra_args": [
+        "--workdir",
+        "../../..",
+        "swarm_ct_skps",
+        "repository=<(REPO)",
+        "buildername=Test-Ubuntu-GCC-GCE-CPU-AVX2-x86_64-Debug-CT_IMG_DECODE_100k_SKPs",
+        "mastername=fake-master",
+        "buildnumber=2",
+        "slavename=fake-buildslave",
+        "nobuildbot=True",
+        "swarm_out_dir=${ISOLATED_OUTDIR}",
+        "revision=<(REVISION)",
+        "patch_storage=<(PATCH_STORAGE)",
+        "patch_issue=<(ISSUE)",
+        "patch_set=<(PATCHSET)"
+      ],
+      "io_timeout_ns": 3600000000000,
+      "isolate": "ct_skps_skia.isolate",
       "priority": 0.8
     },
     "Test-Ubuntu-GCC-GCE-CPU-AVX2-x86_64-Debug-GN": {
