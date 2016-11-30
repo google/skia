@@ -770,54 +770,6 @@
         "Upload-Perf-Win-MSVC-NUC-GPU-IntelIris6100-x86_64-Release"
       ]
     },
-    "Perf-Win-MSVC-ShuttleA-GPU-GTX660-x86_64-Debug": {
-      "priority": 0.8,
-      "tasks": [
-        "Perf-Win-MSVC-ShuttleA-GPU-GTX660-x86_64-Debug"
-      ]
-    },
-    "Perf-Win-MSVC-ShuttleA-GPU-GTX660-x86_64-Debug-Vulkan": {
-      "priority": 0.8,
-      "tasks": [
-        "Perf-Win-MSVC-ShuttleA-GPU-GTX660-x86_64-Debug-Vulkan"
-      ]
-    },
-    "Perf-Win-MSVC-ShuttleA-GPU-GTX660-x86_64-Release": {
-      "priority": 0.8,
-      "tasks": [
-        "Upload-Perf-Win-MSVC-ShuttleA-GPU-GTX660-x86_64-Release"
-      ]
-    },
-    "Perf-Win-MSVC-ShuttleA-GPU-GTX660-x86_64-Release-Vulkan": {
-      "priority": 0.8,
-      "tasks": [
-        "Upload-Perf-Win-MSVC-ShuttleA-GPU-GTX660-x86_64-Release-Vulkan"
-      ]
-    },
-    "Perf-Win-MSVC-ShuttleA-GPU-HD7770-x86_64-Debug": {
-      "priority": 0.8,
-      "tasks": [
-        "Perf-Win-MSVC-ShuttleA-GPU-HD7770-x86_64-Debug"
-      ]
-    },
-    "Perf-Win-MSVC-ShuttleA-GPU-HD7770-x86_64-Release": {
-      "priority": 0.8,
-      "tasks": [
-        "Upload-Perf-Win-MSVC-ShuttleA-GPU-HD7770-x86_64-Release"
-      ]
-    },
-    "Perf-Win-MSVC-ShuttleB-GPU-HD4600-x86_64-Debug": {
-      "priority": 0.8,
-      "tasks": [
-        "Perf-Win-MSVC-ShuttleB-GPU-HD4600-x86_64-Debug"
-      ]
-    },
-    "Perf-Win-MSVC-ShuttleB-GPU-HD4600-x86_64-Release": {
-      "priority": 0.8,
-      "tasks": [
-        "Upload-Perf-Win-MSVC-ShuttleB-GPU-HD4600-x86_64-Release"
-      ]
-    },
     "Perf-Win-MSVC-ShuttleC-GPU-GTX960-x86_64-Debug": {
       "priority": 0.8,
       "tasks": [
@@ -852,6 +804,54 @@
       "priority": 0.8,
       "tasks": [
         "Upload-Perf-Win-MSVC-ShuttleC-GPU-iHD530-x86_64-Release"
+      ]
+    },
+    "Perf-Win10-MSVC-ShuttleA-GPU-GTX660-x86_64-Debug": {
+      "priority": 0.8,
+      "tasks": [
+        "Perf-Win10-MSVC-ShuttleA-GPU-GTX660-x86_64-Debug"
+      ]
+    },
+    "Perf-Win10-MSVC-ShuttleA-GPU-GTX660-x86_64-Debug-Vulkan": {
+      "priority": 0.8,
+      "tasks": [
+        "Perf-Win10-MSVC-ShuttleA-GPU-GTX660-x86_64-Debug-Vulkan"
+      ]
+    },
+    "Perf-Win10-MSVC-ShuttleA-GPU-GTX660-x86_64-Release": {
+      "priority": 0.8,
+      "tasks": [
+        "Upload-Perf-Win10-MSVC-ShuttleA-GPU-GTX660-x86_64-Release"
+      ]
+    },
+    "Perf-Win10-MSVC-ShuttleA-GPU-GTX660-x86_64-Release-Vulkan": {
+      "priority": 0.8,
+      "tasks": [
+        "Upload-Perf-Win10-MSVC-ShuttleA-GPU-GTX660-x86_64-Release-Vulkan"
+      ]
+    },
+    "Perf-Win8-MSVC-ShuttleA-GPU-HD7770-x86_64-Debug": {
+      "priority": 0.8,
+      "tasks": [
+        "Perf-Win8-MSVC-ShuttleA-GPU-HD7770-x86_64-Debug"
+      ]
+    },
+    "Perf-Win8-MSVC-ShuttleA-GPU-HD7770-x86_64-Release": {
+      "priority": 0.8,
+      "tasks": [
+        "Upload-Perf-Win8-MSVC-ShuttleA-GPU-HD7770-x86_64-Release"
+      ]
+    },
+    "Perf-Win8-MSVC-ShuttleB-GPU-HD4600-x86_64-Debug": {
+      "priority": 0.8,
+      "tasks": [
+        "Perf-Win8-MSVC-ShuttleB-GPU-HD4600-x86_64-Debug"
+      ]
+    },
+    "Perf-Win8-MSVC-ShuttleB-GPU-HD4600-x86_64-Release": {
+      "priority": 0.8,
+      "tasks": [
+        "Upload-Perf-Win8-MSVC-ShuttleB-GPU-HD4600-x86_64-Release"
       ]
     },
     "Perf-iOS-Clang-iPadMini4-GPU-GX6450-Arm7-Debug": {
@@ -1274,48 +1274,6 @@
         "Upload-Test-Win-MSVC-NUC-GPU-IntelIris6100-x86_64-Release"
       ]
     },
-    "Test-Win-MSVC-ShuttleA-GPU-GTX660-x86_64-Debug": {
-      "priority": 0.8,
-      "tasks": [
-        "Upload-Test-Win-MSVC-ShuttleA-GPU-GTX660-x86_64-Debug"
-      ]
-    },
-    "Test-Win-MSVC-ShuttleA-GPU-GTX660-x86_64-Debug-Vulkan": {
-      "priority": 0.8,
-      "tasks": [
-        "Upload-Test-Win-MSVC-ShuttleA-GPU-GTX660-x86_64-Debug-Vulkan"
-      ]
-    },
-    "Test-Win-MSVC-ShuttleA-GPU-GTX660-x86_64-Release": {
-      "priority": 0.8,
-      "tasks": [
-        "Upload-Test-Win-MSVC-ShuttleA-GPU-GTX660-x86_64-Release"
-      ]
-    },
-    "Test-Win-MSVC-ShuttleA-GPU-HD7770-x86_64-Debug": {
-      "priority": 0.8,
-      "tasks": [
-        "Upload-Test-Win-MSVC-ShuttleA-GPU-HD7770-x86_64-Debug"
-      ]
-    },
-    "Test-Win-MSVC-ShuttleA-GPU-HD7770-x86_64-Release": {
-      "priority": 0.8,
-      "tasks": [
-        "Upload-Test-Win-MSVC-ShuttleA-GPU-HD7770-x86_64-Release"
-      ]
-    },
-    "Test-Win-MSVC-ShuttleB-GPU-HD4600-x86_64-Debug": {
-      "priority": 0.8,
-      "tasks": [
-        "Upload-Test-Win-MSVC-ShuttleB-GPU-HD4600-x86_64-Debug"
-      ]
-    },
-    "Test-Win-MSVC-ShuttleB-GPU-HD4600-x86_64-Release": {
-      "priority": 0.8,
-      "tasks": [
-        "Upload-Test-Win-MSVC-ShuttleB-GPU-HD4600-x86_64-Release"
-      ]
-    },
     "Test-Win-MSVC-ShuttleC-GPU-GTX960-x86_64-Debug": {
       "priority": 0.8,
       "tasks": [
@@ -1350,6 +1308,48 @@
       "priority": 0.8,
       "tasks": [
         "Upload-Test-Win-MSVC-ShuttleC-GPU-iHD530-x86_64-Release"
+      ]
+    },
+    "Test-Win10-MSVC-ShuttleA-GPU-GTX660-x86_64-Debug": {
+      "priority": 0.8,
+      "tasks": [
+        "Upload-Test-Win10-MSVC-ShuttleA-GPU-GTX660-x86_64-Debug"
+      ]
+    },
+    "Test-Win10-MSVC-ShuttleA-GPU-GTX660-x86_64-Debug-Vulkan": {
+      "priority": 0.8,
+      "tasks": [
+        "Upload-Test-Win10-MSVC-ShuttleA-GPU-GTX660-x86_64-Debug-Vulkan"
+      ]
+    },
+    "Test-Win10-MSVC-ShuttleA-GPU-GTX660-x86_64-Release": {
+      "priority": 0.8,
+      "tasks": [
+        "Upload-Test-Win10-MSVC-ShuttleA-GPU-GTX660-x86_64-Release"
+      ]
+    },
+    "Test-Win8-MSVC-ShuttleA-GPU-HD7770-x86_64-Debug": {
+      "priority": 0.8,
+      "tasks": [
+        "Upload-Test-Win8-MSVC-ShuttleA-GPU-HD7770-x86_64-Debug"
+      ]
+    },
+    "Test-Win8-MSVC-ShuttleA-GPU-HD7770-x86_64-Release": {
+      "priority": 0.8,
+      "tasks": [
+        "Upload-Test-Win8-MSVC-ShuttleA-GPU-HD7770-x86_64-Release"
+      ]
+    },
+    "Test-Win8-MSVC-ShuttleB-GPU-HD4600-x86_64-Debug": {
+      "priority": 0.8,
+      "tasks": [
+        "Upload-Test-Win8-MSVC-ShuttleB-GPU-HD4600-x86_64-Debug"
+      ]
+    },
+    "Test-Win8-MSVC-ShuttleB-GPU-HD4600-x86_64-Release": {
+      "priority": 0.8,
+      "tasks": [
+        "Upload-Test-Win8-MSVC-ShuttleB-GPU-HD4600-x86_64-Release"
       ]
     },
     "Test-iOS-Clang-iPadMini4-GPU-GX6450-Arm7-Debug": {
@@ -6389,390 +6389,6 @@
       "isolate": "perf_skia.isolate",
       "priority": 0.8
     },
-    "Perf-Win-MSVC-ShuttleA-GPU-GTX660-x86_64-Debug": {
-      "cipd_packages": [
-        {
-          "name": "skia/bots/skimage",
-          "path": "skimage",
-          "version": "version:14"
-        },
-        {
-          "name": "skia/bots/skp",
-          "path": "skp",
-          "version": "version:22"
-        },
-        {
-          "name": "skia/bots/svg",
-          "path": "svg",
-          "version": "version:3"
-        }
-      ],
-      "dependencies": [
-        "Build-Win-MSVC-x86_64-Debug"
-      ],
-      "dimensions": [
-        "gpu:10de:11c0",
-        "os:Windows",
-        "pool:Skia"
-      ],
-      "execution_timeout_ns": 14400000000000,
-      "expiration_ns": 72000000000000,
-      "extra_args": [
-        "--workdir",
-        "../../..",
-        "swarm_perf",
-        "repository=<(REPO)",
-        "buildername=Perf-Win-MSVC-ShuttleA-GPU-GTX660-x86_64-Debug",
-        "mastername=fake-master",
-        "buildnumber=2",
-        "slavename=fake-buildslave",
-        "nobuildbot=True",
-        "swarm_out_dir=${ISOLATED_OUTDIR}",
-        "revision=<(REVISION)",
-        "patch_storage=<(PATCH_STORAGE)",
-        "patch_issue=<(ISSUE)",
-        "patch_set=<(PATCHSET)"
-      ],
-      "io_timeout_ns": 2400000000000,
-      "isolate": "perf_skia.isolate",
-      "priority": 0.8
-    },
-    "Perf-Win-MSVC-ShuttleA-GPU-GTX660-x86_64-Debug-Vulkan": {
-      "cipd_packages": [
-        {
-          "name": "skia/bots/skimage",
-          "path": "skimage",
-          "version": "version:14"
-        },
-        {
-          "name": "skia/bots/skp",
-          "path": "skp",
-          "version": "version:22"
-        },
-        {
-          "name": "skia/bots/svg",
-          "path": "svg",
-          "version": "version:3"
-        }
-      ],
-      "dependencies": [
-        "Build-Win-MSVC-x86_64-Debug-Vulkan"
-      ],
-      "dimensions": [
-        "gpu:10de:11c0",
-        "os:Windows",
-        "pool:Skia"
-      ],
-      "execution_timeout_ns": 14400000000000,
-      "expiration_ns": 72000000000000,
-      "extra_args": [
-        "--workdir",
-        "../../..",
-        "swarm_perf",
-        "repository=<(REPO)",
-        "buildername=Perf-Win-MSVC-ShuttleA-GPU-GTX660-x86_64-Debug-Vulkan",
-        "mastername=fake-master",
-        "buildnumber=2",
-        "slavename=fake-buildslave",
-        "nobuildbot=True",
-        "swarm_out_dir=${ISOLATED_OUTDIR}",
-        "revision=<(REVISION)",
-        "patch_storage=<(PATCH_STORAGE)",
-        "patch_issue=<(ISSUE)",
-        "patch_set=<(PATCHSET)"
-      ],
-      "io_timeout_ns": 2400000000000,
-      "isolate": "perf_skia.isolate",
-      "priority": 0.8
-    },
-    "Perf-Win-MSVC-ShuttleA-GPU-GTX660-x86_64-Release": {
-      "cipd_packages": [
-        {
-          "name": "skia/bots/skimage",
-          "path": "skimage",
-          "version": "version:14"
-        },
-        {
-          "name": "skia/bots/skp",
-          "path": "skp",
-          "version": "version:22"
-        },
-        {
-          "name": "skia/bots/svg",
-          "path": "svg",
-          "version": "version:3"
-        }
-      ],
-      "dependencies": [
-        "Build-Win-MSVC-x86_64-Release"
-      ],
-      "dimensions": [
-        "gpu:10de:11c0",
-        "os:Windows",
-        "pool:Skia"
-      ],
-      "execution_timeout_ns": 14400000000000,
-      "expiration_ns": 72000000000000,
-      "extra_args": [
-        "--workdir",
-        "../../..",
-        "swarm_perf",
-        "repository=<(REPO)",
-        "buildername=Perf-Win-MSVC-ShuttleA-GPU-GTX660-x86_64-Release",
-        "mastername=fake-master",
-        "buildnumber=2",
-        "slavename=fake-buildslave",
-        "nobuildbot=True",
-        "swarm_out_dir=${ISOLATED_OUTDIR}",
-        "revision=<(REVISION)",
-        "patch_storage=<(PATCH_STORAGE)",
-        "patch_issue=<(ISSUE)",
-        "patch_set=<(PATCHSET)"
-      ],
-      "io_timeout_ns": 2400000000000,
-      "isolate": "perf_skia.isolate",
-      "priority": 0.8
-    },
-    "Perf-Win-MSVC-ShuttleA-GPU-GTX660-x86_64-Release-Vulkan": {
-      "cipd_packages": [
-        {
-          "name": "skia/bots/skimage",
-          "path": "skimage",
-          "version": "version:14"
-        },
-        {
-          "name": "skia/bots/skp",
-          "path": "skp",
-          "version": "version:22"
-        },
-        {
-          "name": "skia/bots/svg",
-          "path": "svg",
-          "version": "version:3"
-        }
-      ],
-      "dependencies": [
-        "Build-Win-MSVC-x86_64-Release-Vulkan"
-      ],
-      "dimensions": [
-        "gpu:10de:11c0",
-        "os:Windows",
-        "pool:Skia"
-      ],
-      "execution_timeout_ns": 14400000000000,
-      "expiration_ns": 72000000000000,
-      "extra_args": [
-        "--workdir",
-        "../../..",
-        "swarm_perf",
-        "repository=<(REPO)",
-        "buildername=Perf-Win-MSVC-ShuttleA-GPU-GTX660-x86_64-Release-Vulkan",
-        "mastername=fake-master",
-        "buildnumber=2",
-        "slavename=fake-buildslave",
-        "nobuildbot=True",
-        "swarm_out_dir=${ISOLATED_OUTDIR}",
-        "revision=<(REVISION)",
-        "patch_storage=<(PATCH_STORAGE)",
-        "patch_issue=<(ISSUE)",
-        "patch_set=<(PATCHSET)"
-      ],
-      "io_timeout_ns": 2400000000000,
-      "isolate": "perf_skia.isolate",
-      "priority": 0.8
-    },
-    "Perf-Win-MSVC-ShuttleA-GPU-HD7770-x86_64-Debug": {
-      "cipd_packages": [
-        {
-          "name": "skia/bots/skimage",
-          "path": "skimage",
-          "version": "version:14"
-        },
-        {
-          "name": "skia/bots/skp",
-          "path": "skp",
-          "version": "version:22"
-        },
-        {
-          "name": "skia/bots/svg",
-          "path": "svg",
-          "version": "version:3"
-        }
-      ],
-      "dependencies": [
-        "Build-Win-MSVC-x86_64-Debug"
-      ],
-      "dimensions": [
-        "gpu:1002:683d",
-        "os:Windows",
-        "pool:Skia"
-      ],
-      "execution_timeout_ns": 14400000000000,
-      "expiration_ns": 72000000000000,
-      "extra_args": [
-        "--workdir",
-        "../../..",
-        "swarm_perf",
-        "repository=<(REPO)",
-        "buildername=Perf-Win-MSVC-ShuttleA-GPU-HD7770-x86_64-Debug",
-        "mastername=fake-master",
-        "buildnumber=2",
-        "slavename=fake-buildslave",
-        "nobuildbot=True",
-        "swarm_out_dir=${ISOLATED_OUTDIR}",
-        "revision=<(REVISION)",
-        "patch_storage=<(PATCH_STORAGE)",
-        "patch_issue=<(ISSUE)",
-        "patch_set=<(PATCHSET)"
-      ],
-      "io_timeout_ns": 2400000000000,
-      "isolate": "perf_skia.isolate",
-      "priority": 0.8
-    },
-    "Perf-Win-MSVC-ShuttleA-GPU-HD7770-x86_64-Release": {
-      "cipd_packages": [
-        {
-          "name": "skia/bots/skimage",
-          "path": "skimage",
-          "version": "version:14"
-        },
-        {
-          "name": "skia/bots/skp",
-          "path": "skp",
-          "version": "version:22"
-        },
-        {
-          "name": "skia/bots/svg",
-          "path": "svg",
-          "version": "version:3"
-        }
-      ],
-      "dependencies": [
-        "Build-Win-MSVC-x86_64-Release"
-      ],
-      "dimensions": [
-        "gpu:1002:683d",
-        "os:Windows",
-        "pool:Skia"
-      ],
-      "execution_timeout_ns": 14400000000000,
-      "expiration_ns": 72000000000000,
-      "extra_args": [
-        "--workdir",
-        "../../..",
-        "swarm_perf",
-        "repository=<(REPO)",
-        "buildername=Perf-Win-MSVC-ShuttleA-GPU-HD7770-x86_64-Release",
-        "mastername=fake-master",
-        "buildnumber=2",
-        "slavename=fake-buildslave",
-        "nobuildbot=True",
-        "swarm_out_dir=${ISOLATED_OUTDIR}",
-        "revision=<(REVISION)",
-        "patch_storage=<(PATCH_STORAGE)",
-        "patch_issue=<(ISSUE)",
-        "patch_set=<(PATCHSET)"
-      ],
-      "io_timeout_ns": 2400000000000,
-      "isolate": "perf_skia.isolate",
-      "priority": 0.8
-    },
-    "Perf-Win-MSVC-ShuttleB-GPU-HD4600-x86_64-Debug": {
-      "cipd_packages": [
-        {
-          "name": "skia/bots/skimage",
-          "path": "skimage",
-          "version": "version:14"
-        },
-        {
-          "name": "skia/bots/skp",
-          "path": "skp",
-          "version": "version:22"
-        },
-        {
-          "name": "skia/bots/svg",
-          "path": "svg",
-          "version": "version:3"
-        }
-      ],
-      "dependencies": [
-        "Build-Win-MSVC-x86_64-Debug"
-      ],
-      "dimensions": [
-        "gpu:8086:0412",
-        "os:Windows",
-        "pool:Skia"
-      ],
-      "execution_timeout_ns": 14400000000000,
-      "expiration_ns": 72000000000000,
-      "extra_args": [
-        "--workdir",
-        "../../..",
-        "swarm_perf",
-        "repository=<(REPO)",
-        "buildername=Perf-Win-MSVC-ShuttleB-GPU-HD4600-x86_64-Debug",
-        "mastername=fake-master",
-        "buildnumber=2",
-        "slavename=fake-buildslave",
-        "nobuildbot=True",
-        "swarm_out_dir=${ISOLATED_OUTDIR}",
-        "revision=<(REVISION)",
-        "patch_storage=<(PATCH_STORAGE)",
-        "patch_issue=<(ISSUE)",
-        "patch_set=<(PATCHSET)"
-      ],
-      "io_timeout_ns": 2400000000000,
-      "isolate": "perf_skia.isolate",
-      "priority": 0.8
-    },
-    "Perf-Win-MSVC-ShuttleB-GPU-HD4600-x86_64-Release": {
-      "cipd_packages": [
-        {
-          "name": "skia/bots/skimage",
-          "path": "skimage",
-          "version": "version:14"
-        },
-        {
-          "name": "skia/bots/skp",
-          "path": "skp",
-          "version": "version:22"
-        },
-        {
-          "name": "skia/bots/svg",
-          "path": "svg",
-          "version": "version:3"
-        }
-      ],
-      "dependencies": [
-        "Build-Win-MSVC-x86_64-Release"
-      ],
-      "dimensions": [
-        "gpu:8086:0412",
-        "os:Windows",
-        "pool:Skia"
-      ],
-      "execution_timeout_ns": 14400000000000,
-      "expiration_ns": 72000000000000,
-      "extra_args": [
-        "--workdir",
-        "../../..",
-        "swarm_perf",
-        "repository=<(REPO)",
-        "buildername=Perf-Win-MSVC-ShuttleB-GPU-HD4600-x86_64-Release",
-        "mastername=fake-master",
-        "buildnumber=2",
-        "slavename=fake-buildslave",
-        "nobuildbot=True",
-        "swarm_out_dir=${ISOLATED_OUTDIR}",
-        "revision=<(REVISION)",
-        "patch_storage=<(PATCH_STORAGE)",
-        "patch_issue=<(ISSUE)",
-        "patch_set=<(PATCHSET)"
-      ],
-      "io_timeout_ns": 2400000000000,
-      "isolate": "perf_skia.isolate",
-      "priority": 0.8
-    },
     "Perf-Win-MSVC-ShuttleC-GPU-GTX960-x86_64-Debug": {
       "cipd_packages": [
         {
@@ -7047,6 +6663,390 @@
         "swarm_perf",
         "repository=<(REPO)",
         "buildername=Perf-Win-MSVC-ShuttleC-GPU-iHD530-x86_64-Release",
+        "mastername=fake-master",
+        "buildnumber=2",
+        "slavename=fake-buildslave",
+        "nobuildbot=True",
+        "swarm_out_dir=${ISOLATED_OUTDIR}",
+        "revision=<(REVISION)",
+        "patch_storage=<(PATCH_STORAGE)",
+        "patch_issue=<(ISSUE)",
+        "patch_set=<(PATCHSET)"
+      ],
+      "io_timeout_ns": 2400000000000,
+      "isolate": "perf_skia.isolate",
+      "priority": 0.8
+    },
+    "Perf-Win10-MSVC-ShuttleA-GPU-GTX660-x86_64-Debug": {
+      "cipd_packages": [
+        {
+          "name": "skia/bots/skimage",
+          "path": "skimage",
+          "version": "version:14"
+        },
+        {
+          "name": "skia/bots/skp",
+          "path": "skp",
+          "version": "version:22"
+        },
+        {
+          "name": "skia/bots/svg",
+          "path": "svg",
+          "version": "version:3"
+        }
+      ],
+      "dependencies": [
+        "Build-Win-MSVC-x86_64-Debug"
+      ],
+      "dimensions": [
+        "gpu:10de:11c0",
+        "os:Windows",
+        "pool:Skia"
+      ],
+      "execution_timeout_ns": 14400000000000,
+      "expiration_ns": 72000000000000,
+      "extra_args": [
+        "--workdir",
+        "../../..",
+        "swarm_perf",
+        "repository=<(REPO)",
+        "buildername=Perf-Win10-MSVC-ShuttleA-GPU-GTX660-x86_64-Debug",
+        "mastername=fake-master",
+        "buildnumber=2",
+        "slavename=fake-buildslave",
+        "nobuildbot=True",
+        "swarm_out_dir=${ISOLATED_OUTDIR}",
+        "revision=<(REVISION)",
+        "patch_storage=<(PATCH_STORAGE)",
+        "patch_issue=<(ISSUE)",
+        "patch_set=<(PATCHSET)"
+      ],
+      "io_timeout_ns": 2400000000000,
+      "isolate": "perf_skia.isolate",
+      "priority": 0.8
+    },
+    "Perf-Win10-MSVC-ShuttleA-GPU-GTX660-x86_64-Debug-Vulkan": {
+      "cipd_packages": [
+        {
+          "name": "skia/bots/skimage",
+          "path": "skimage",
+          "version": "version:14"
+        },
+        {
+          "name": "skia/bots/skp",
+          "path": "skp",
+          "version": "version:22"
+        },
+        {
+          "name": "skia/bots/svg",
+          "path": "svg",
+          "version": "version:3"
+        }
+      ],
+      "dependencies": [
+        "Build-Win-MSVC-x86_64-Debug-Vulkan"
+      ],
+      "dimensions": [
+        "gpu:10de:11c0",
+        "os:Windows",
+        "pool:Skia"
+      ],
+      "execution_timeout_ns": 14400000000000,
+      "expiration_ns": 72000000000000,
+      "extra_args": [
+        "--workdir",
+        "../../..",
+        "swarm_perf",
+        "repository=<(REPO)",
+        "buildername=Perf-Win10-MSVC-ShuttleA-GPU-GTX660-x86_64-Debug-Vulkan",
+        "mastername=fake-master",
+        "buildnumber=2",
+        "slavename=fake-buildslave",
+        "nobuildbot=True",
+        "swarm_out_dir=${ISOLATED_OUTDIR}",
+        "revision=<(REVISION)",
+        "patch_storage=<(PATCH_STORAGE)",
+        "patch_issue=<(ISSUE)",
+        "patch_set=<(PATCHSET)"
+      ],
+      "io_timeout_ns": 2400000000000,
+      "isolate": "perf_skia.isolate",
+      "priority": 0.8
+    },
+    "Perf-Win10-MSVC-ShuttleA-GPU-GTX660-x86_64-Release": {
+      "cipd_packages": [
+        {
+          "name": "skia/bots/skimage",
+          "path": "skimage",
+          "version": "version:14"
+        },
+        {
+          "name": "skia/bots/skp",
+          "path": "skp",
+          "version": "version:22"
+        },
+        {
+          "name": "skia/bots/svg",
+          "path": "svg",
+          "version": "version:3"
+        }
+      ],
+      "dependencies": [
+        "Build-Win-MSVC-x86_64-Release"
+      ],
+      "dimensions": [
+        "gpu:10de:11c0",
+        "os:Windows",
+        "pool:Skia"
+      ],
+      "execution_timeout_ns": 14400000000000,
+      "expiration_ns": 72000000000000,
+      "extra_args": [
+        "--workdir",
+        "../../..",
+        "swarm_perf",
+        "repository=<(REPO)",
+        "buildername=Perf-Win10-MSVC-ShuttleA-GPU-GTX660-x86_64-Release",
+        "mastername=fake-master",
+        "buildnumber=2",
+        "slavename=fake-buildslave",
+        "nobuildbot=True",
+        "swarm_out_dir=${ISOLATED_OUTDIR}",
+        "revision=<(REVISION)",
+        "patch_storage=<(PATCH_STORAGE)",
+        "patch_issue=<(ISSUE)",
+        "patch_set=<(PATCHSET)"
+      ],
+      "io_timeout_ns": 2400000000000,
+      "isolate": "perf_skia.isolate",
+      "priority": 0.8
+    },
+    "Perf-Win10-MSVC-ShuttleA-GPU-GTX660-x86_64-Release-Vulkan": {
+      "cipd_packages": [
+        {
+          "name": "skia/bots/skimage",
+          "path": "skimage",
+          "version": "version:14"
+        },
+        {
+          "name": "skia/bots/skp",
+          "path": "skp",
+          "version": "version:22"
+        },
+        {
+          "name": "skia/bots/svg",
+          "path": "svg",
+          "version": "version:3"
+        }
+      ],
+      "dependencies": [
+        "Build-Win-MSVC-x86_64-Release-Vulkan"
+      ],
+      "dimensions": [
+        "gpu:10de:11c0",
+        "os:Windows",
+        "pool:Skia"
+      ],
+      "execution_timeout_ns": 14400000000000,
+      "expiration_ns": 72000000000000,
+      "extra_args": [
+        "--workdir",
+        "../../..",
+        "swarm_perf",
+        "repository=<(REPO)",
+        "buildername=Perf-Win10-MSVC-ShuttleA-GPU-GTX660-x86_64-Release-Vulkan",
+        "mastername=fake-master",
+        "buildnumber=2",
+        "slavename=fake-buildslave",
+        "nobuildbot=True",
+        "swarm_out_dir=${ISOLATED_OUTDIR}",
+        "revision=<(REVISION)",
+        "patch_storage=<(PATCH_STORAGE)",
+        "patch_issue=<(ISSUE)",
+        "patch_set=<(PATCHSET)"
+      ],
+      "io_timeout_ns": 2400000000000,
+      "isolate": "perf_skia.isolate",
+      "priority": 0.8
+    },
+    "Perf-Win8-MSVC-ShuttleA-GPU-HD7770-x86_64-Debug": {
+      "cipd_packages": [
+        {
+          "name": "skia/bots/skimage",
+          "path": "skimage",
+          "version": "version:14"
+        },
+        {
+          "name": "skia/bots/skp",
+          "path": "skp",
+          "version": "version:22"
+        },
+        {
+          "name": "skia/bots/svg",
+          "path": "svg",
+          "version": "version:3"
+        }
+      ],
+      "dependencies": [
+        "Build-Win-MSVC-x86_64-Debug"
+      ],
+      "dimensions": [
+        "gpu:1002:683d",
+        "os:Windows",
+        "pool:Skia"
+      ],
+      "execution_timeout_ns": 14400000000000,
+      "expiration_ns": 72000000000000,
+      "extra_args": [
+        "--workdir",
+        "../../..",
+        "swarm_perf",
+        "repository=<(REPO)",
+        "buildername=Perf-Win8-MSVC-ShuttleA-GPU-HD7770-x86_64-Debug",
+        "mastername=fake-master",
+        "buildnumber=2",
+        "slavename=fake-buildslave",
+        "nobuildbot=True",
+        "swarm_out_dir=${ISOLATED_OUTDIR}",
+        "revision=<(REVISION)",
+        "patch_storage=<(PATCH_STORAGE)",
+        "patch_issue=<(ISSUE)",
+        "patch_set=<(PATCHSET)"
+      ],
+      "io_timeout_ns": 2400000000000,
+      "isolate": "perf_skia.isolate",
+      "priority": 0.8
+    },
+    "Perf-Win8-MSVC-ShuttleA-GPU-HD7770-x86_64-Release": {
+      "cipd_packages": [
+        {
+          "name": "skia/bots/skimage",
+          "path": "skimage",
+          "version": "version:14"
+        },
+        {
+          "name": "skia/bots/skp",
+          "path": "skp",
+          "version": "version:22"
+        },
+        {
+          "name": "skia/bots/svg",
+          "path": "svg",
+          "version": "version:3"
+        }
+      ],
+      "dependencies": [
+        "Build-Win-MSVC-x86_64-Release"
+      ],
+      "dimensions": [
+        "gpu:1002:683d",
+        "os:Windows",
+        "pool:Skia"
+      ],
+      "execution_timeout_ns": 14400000000000,
+      "expiration_ns": 72000000000000,
+      "extra_args": [
+        "--workdir",
+        "../../..",
+        "swarm_perf",
+        "repository=<(REPO)",
+        "buildername=Perf-Win8-MSVC-ShuttleA-GPU-HD7770-x86_64-Release",
+        "mastername=fake-master",
+        "buildnumber=2",
+        "slavename=fake-buildslave",
+        "nobuildbot=True",
+        "swarm_out_dir=${ISOLATED_OUTDIR}",
+        "revision=<(REVISION)",
+        "patch_storage=<(PATCH_STORAGE)",
+        "patch_issue=<(ISSUE)",
+        "patch_set=<(PATCHSET)"
+      ],
+      "io_timeout_ns": 2400000000000,
+      "isolate": "perf_skia.isolate",
+      "priority": 0.8
+    },
+    "Perf-Win8-MSVC-ShuttleB-GPU-HD4600-x86_64-Debug": {
+      "cipd_packages": [
+        {
+          "name": "skia/bots/skimage",
+          "path": "skimage",
+          "version": "version:14"
+        },
+        {
+          "name": "skia/bots/skp",
+          "path": "skp",
+          "version": "version:22"
+        },
+        {
+          "name": "skia/bots/svg",
+          "path": "svg",
+          "version": "version:3"
+        }
+      ],
+      "dependencies": [
+        "Build-Win-MSVC-x86_64-Debug"
+      ],
+      "dimensions": [
+        "gpu:8086:0412",
+        "os:Windows",
+        "pool:Skia"
+      ],
+      "execution_timeout_ns": 14400000000000,
+      "expiration_ns": 72000000000000,
+      "extra_args": [
+        "--workdir",
+        "../../..",
+        "swarm_perf",
+        "repository=<(REPO)",
+        "buildername=Perf-Win8-MSVC-ShuttleB-GPU-HD4600-x86_64-Debug",
+        "mastername=fake-master",
+        "buildnumber=2",
+        "slavename=fake-buildslave",
+        "nobuildbot=True",
+        "swarm_out_dir=${ISOLATED_OUTDIR}",
+        "revision=<(REVISION)",
+        "patch_storage=<(PATCH_STORAGE)",
+        "patch_issue=<(ISSUE)",
+        "patch_set=<(PATCHSET)"
+      ],
+      "io_timeout_ns": 2400000000000,
+      "isolate": "perf_skia.isolate",
+      "priority": 0.8
+    },
+    "Perf-Win8-MSVC-ShuttleB-GPU-HD4600-x86_64-Release": {
+      "cipd_packages": [
+        {
+          "name": "skia/bots/skimage",
+          "path": "skimage",
+          "version": "version:14"
+        },
+        {
+          "name": "skia/bots/skp",
+          "path": "skp",
+          "version": "version:22"
+        },
+        {
+          "name": "skia/bots/svg",
+          "path": "svg",
+          "version": "version:3"
+        }
+      ],
+      "dependencies": [
+        "Build-Win-MSVC-x86_64-Release"
+      ],
+      "dimensions": [
+        "gpu:8086:0412",
+        "os:Windows",
+        "pool:Skia"
+      ],
+      "execution_timeout_ns": 14400000000000,
+      "expiration_ns": 72000000000000,
+      "extra_args": [
+        "--workdir",
+        "../../..",
+        "swarm_perf",
+        "repository=<(REPO)",
+        "buildername=Perf-Win8-MSVC-ShuttleB-GPU-HD4600-x86_64-Release",
         "mastername=fake-master",
         "buildnumber=2",
         "slavename=fake-buildslave",
@@ -10501,342 +10501,6 @@
       "isolate": "test_skia.isolate",
       "priority": 0.8
     },
-    "Test-Win-MSVC-ShuttleA-GPU-GTX660-x86_64-Debug": {
-      "cipd_packages": [
-        {
-          "name": "skia/bots/skimage",
-          "path": "skimage",
-          "version": "version:14"
-        },
-        {
-          "name": "skia/bots/skp",
-          "path": "skp",
-          "version": "version:22"
-        },
-        {
-          "name": "skia/bots/svg",
-          "path": "svg",
-          "version": "version:3"
-        }
-      ],
-      "dependencies": [
-        "Build-Win-MSVC-x86_64-Debug"
-      ],
-      "dimensions": [
-        "gpu:10de:11c0",
-        "os:Windows",
-        "pool:Skia"
-      ],
-      "execution_timeout_ns": 14400000000000,
-      "expiration_ns": 72000000000000,
-      "extra_args": [
-        "--workdir",
-        "../../..",
-        "swarm_test",
-        "repository=<(REPO)",
-        "buildername=Test-Win-MSVC-ShuttleA-GPU-GTX660-x86_64-Debug",
-        "mastername=fake-master",
-        "buildnumber=2",
-        "slavename=fake-buildslave",
-        "nobuildbot=True",
-        "swarm_out_dir=${ISOLATED_OUTDIR}",
-        "revision=<(REVISION)",
-        "patch_storage=<(PATCH_STORAGE)",
-        "patch_issue=<(ISSUE)",
-        "patch_set=<(PATCHSET)"
-      ],
-      "io_timeout_ns": 2400000000000,
-      "isolate": "test_skia.isolate",
-      "priority": 0.8
-    },
-    "Test-Win-MSVC-ShuttleA-GPU-GTX660-x86_64-Debug-Vulkan": {
-      "cipd_packages": [
-        {
-          "name": "skia/bots/skimage",
-          "path": "skimage",
-          "version": "version:14"
-        },
-        {
-          "name": "skia/bots/skp",
-          "path": "skp",
-          "version": "version:22"
-        },
-        {
-          "name": "skia/bots/svg",
-          "path": "svg",
-          "version": "version:3"
-        }
-      ],
-      "dependencies": [
-        "Build-Win-MSVC-x86_64-Debug-Vulkan"
-      ],
-      "dimensions": [
-        "gpu:10de:11c0",
-        "os:Windows",
-        "pool:Skia"
-      ],
-      "execution_timeout_ns": 14400000000000,
-      "expiration_ns": 72000000000000,
-      "extra_args": [
-        "--workdir",
-        "../../..",
-        "swarm_test",
-        "repository=<(REPO)",
-        "buildername=Test-Win-MSVC-ShuttleA-GPU-GTX660-x86_64-Debug-Vulkan",
-        "mastername=fake-master",
-        "buildnumber=2",
-        "slavename=fake-buildslave",
-        "nobuildbot=True",
-        "swarm_out_dir=${ISOLATED_OUTDIR}",
-        "revision=<(REVISION)",
-        "patch_storage=<(PATCH_STORAGE)",
-        "patch_issue=<(ISSUE)",
-        "patch_set=<(PATCHSET)"
-      ],
-      "io_timeout_ns": 2400000000000,
-      "isolate": "test_skia.isolate",
-      "priority": 0.8
-    },
-    "Test-Win-MSVC-ShuttleA-GPU-GTX660-x86_64-Release": {
-      "cipd_packages": [
-        {
-          "name": "skia/bots/skimage",
-          "path": "skimage",
-          "version": "version:14"
-        },
-        {
-          "name": "skia/bots/skp",
-          "path": "skp",
-          "version": "version:22"
-        },
-        {
-          "name": "skia/bots/svg",
-          "path": "svg",
-          "version": "version:3"
-        }
-      ],
-      "dependencies": [
-        "Build-Win-MSVC-x86_64-Release"
-      ],
-      "dimensions": [
-        "gpu:10de:11c0",
-        "os:Windows",
-        "pool:Skia"
-      ],
-      "execution_timeout_ns": 14400000000000,
-      "expiration_ns": 72000000000000,
-      "extra_args": [
-        "--workdir",
-        "../../..",
-        "swarm_test",
-        "repository=<(REPO)",
-        "buildername=Test-Win-MSVC-ShuttleA-GPU-GTX660-x86_64-Release",
-        "mastername=fake-master",
-        "buildnumber=2",
-        "slavename=fake-buildslave",
-        "nobuildbot=True",
-        "swarm_out_dir=${ISOLATED_OUTDIR}",
-        "revision=<(REVISION)",
-        "patch_storage=<(PATCH_STORAGE)",
-        "patch_issue=<(ISSUE)",
-        "patch_set=<(PATCHSET)"
-      ],
-      "io_timeout_ns": 2400000000000,
-      "isolate": "test_skia.isolate",
-      "priority": 0.8
-    },
-    "Test-Win-MSVC-ShuttleA-GPU-HD7770-x86_64-Debug": {
-      "cipd_packages": [
-        {
-          "name": "skia/bots/skimage",
-          "path": "skimage",
-          "version": "version:14"
-        },
-        {
-          "name": "skia/bots/skp",
-          "path": "skp",
-          "version": "version:22"
-        },
-        {
-          "name": "skia/bots/svg",
-          "path": "svg",
-          "version": "version:3"
-        }
-      ],
-      "dependencies": [
-        "Build-Win-MSVC-x86_64-Debug"
-      ],
-      "dimensions": [
-        "gpu:1002:683d",
-        "os:Windows",
-        "pool:Skia"
-      ],
-      "execution_timeout_ns": 14400000000000,
-      "expiration_ns": 72000000000000,
-      "extra_args": [
-        "--workdir",
-        "../../..",
-        "swarm_test",
-        "repository=<(REPO)",
-        "buildername=Test-Win-MSVC-ShuttleA-GPU-HD7770-x86_64-Debug",
-        "mastername=fake-master",
-        "buildnumber=2",
-        "slavename=fake-buildslave",
-        "nobuildbot=True",
-        "swarm_out_dir=${ISOLATED_OUTDIR}",
-        "revision=<(REVISION)",
-        "patch_storage=<(PATCH_STORAGE)",
-        "patch_issue=<(ISSUE)",
-        "patch_set=<(PATCHSET)"
-      ],
-      "io_timeout_ns": 2400000000000,
-      "isolate": "test_skia.isolate",
-      "priority": 0.8
-    },
-    "Test-Win-MSVC-ShuttleA-GPU-HD7770-x86_64-Release": {
-      "cipd_packages": [
-        {
-          "name": "skia/bots/skimage",
-          "path": "skimage",
-          "version": "version:14"
-        },
-        {
-          "name": "skia/bots/skp",
-          "path": "skp",
-          "version": "version:22"
-        },
-        {
-          "name": "skia/bots/svg",
-          "path": "svg",
-          "version": "version:3"
-        }
-      ],
-      "dependencies": [
-        "Build-Win-MSVC-x86_64-Release"
-      ],
-      "dimensions": [
-        "gpu:1002:683d",
-        "os:Windows",
-        "pool:Skia"
-      ],
-      "execution_timeout_ns": 14400000000000,
-      "expiration_ns": 72000000000000,
-      "extra_args": [
-        "--workdir",
-        "../../..",
-        "swarm_test",
-        "repository=<(REPO)",
-        "buildername=Test-Win-MSVC-ShuttleA-GPU-HD7770-x86_64-Release",
-        "mastername=fake-master",
-        "buildnumber=2",
-        "slavename=fake-buildslave",
-        "nobuildbot=True",
-        "swarm_out_dir=${ISOLATED_OUTDIR}",
-        "revision=<(REVISION)",
-        "patch_storage=<(PATCH_STORAGE)",
-        "patch_issue=<(ISSUE)",
-        "patch_set=<(PATCHSET)"
-      ],
-      "io_timeout_ns": 2400000000000,
-      "isolate": "test_skia.isolate",
-      "priority": 0.8
-    },
-    "Test-Win-MSVC-ShuttleB-GPU-HD4600-x86_64-Debug": {
-      "cipd_packages": [
-        {
-          "name": "skia/bots/skimage",
-          "path": "skimage",
-          "version": "version:14"
-        },
-        {
-          "name": "skia/bots/skp",
-          "path": "skp",
-          "version": "version:22"
-        },
-        {
-          "name": "skia/bots/svg",
-          "path": "svg",
-          "version": "version:3"
-        }
-      ],
-      "dependencies": [
-        "Build-Win-MSVC-x86_64-Debug"
-      ],
-      "dimensions": [
-        "gpu:8086:0412",
-        "os:Windows",
-        "pool:Skia"
-      ],
-      "execution_timeout_ns": 14400000000000,
-      "expiration_ns": 72000000000000,
-      "extra_args": [
-        "--workdir",
-        "../../..",
-        "swarm_test",
-        "repository=<(REPO)",
-        "buildername=Test-Win-MSVC-ShuttleB-GPU-HD4600-x86_64-Debug",
-        "mastername=fake-master",
-        "buildnumber=2",
-        "slavename=fake-buildslave",
-        "nobuildbot=True",
-        "swarm_out_dir=${ISOLATED_OUTDIR}",
-        "revision=<(REVISION)",
-        "patch_storage=<(PATCH_STORAGE)",
-        "patch_issue=<(ISSUE)",
-        "patch_set=<(PATCHSET)"
-      ],
-      "io_timeout_ns": 2400000000000,
-      "isolate": "test_skia.isolate",
-      "priority": 0.8
-    },
-    "Test-Win-MSVC-ShuttleB-GPU-HD4600-x86_64-Release": {
-      "cipd_packages": [
-        {
-          "name": "skia/bots/skimage",
-          "path": "skimage",
-          "version": "version:14"
-        },
-        {
-          "name": "skia/bots/skp",
-          "path": "skp",
-          "version": "version:22"
-        },
-        {
-          "name": "skia/bots/svg",
-          "path": "svg",
-          "version": "version:3"
-        }
-      ],
-      "dependencies": [
-        "Build-Win-MSVC-x86_64-Release"
-      ],
-      "dimensions": [
-        "gpu:8086:0412",
-        "os:Windows",
-        "pool:Skia"
-      ],
-      "execution_timeout_ns": 14400000000000,
-      "expiration_ns": 72000000000000,
-      "extra_args": [
-        "--workdir",
-        "../../..",
-        "swarm_test",
-        "repository=<(REPO)",
-        "buildername=Test-Win-MSVC-ShuttleB-GPU-HD4600-x86_64-Release",
-        "mastername=fake-master",
-        "buildnumber=2",
-        "slavename=fake-buildslave",
-        "nobuildbot=True",
-        "swarm_out_dir=${ISOLATED_OUTDIR}",
-        "revision=<(REVISION)",
-        "patch_storage=<(PATCH_STORAGE)",
-        "patch_issue=<(ISSUE)",
-        "patch_set=<(PATCHSET)"
-      ],
-      "io_timeout_ns": 2400000000000,
-      "isolate": "test_skia.isolate",
-      "priority": 0.8
-    },
     "Test-Win-MSVC-ShuttleC-GPU-GTX960-x86_64-Debug": {
       "cipd_packages": [
         {
@@ -11111,6 +10775,342 @@
         "swarm_test",
         "repository=<(REPO)",
         "buildername=Test-Win-MSVC-ShuttleC-GPU-iHD530-x86_64-Release",
+        "mastername=fake-master",
+        "buildnumber=2",
+        "slavename=fake-buildslave",
+        "nobuildbot=True",
+        "swarm_out_dir=${ISOLATED_OUTDIR}",
+        "revision=<(REVISION)",
+        "patch_storage=<(PATCH_STORAGE)",
+        "patch_issue=<(ISSUE)",
+        "patch_set=<(PATCHSET)"
+      ],
+      "io_timeout_ns": 2400000000000,
+      "isolate": "test_skia.isolate",
+      "priority": 0.8
+    },
+    "Test-Win10-MSVC-ShuttleA-GPU-GTX660-x86_64-Debug": {
+      "cipd_packages": [
+        {
+          "name": "skia/bots/skimage",
+          "path": "skimage",
+          "version": "version:14"
+        },
+        {
+          "name": "skia/bots/skp",
+          "path": "skp",
+          "version": "version:22"
+        },
+        {
+          "name": "skia/bots/svg",
+          "path": "svg",
+          "version": "version:3"
+        }
+      ],
+      "dependencies": [
+        "Build-Win-MSVC-x86_64-Debug"
+      ],
+      "dimensions": [
+        "gpu:10de:11c0",
+        "os:Windows",
+        "pool:Skia"
+      ],
+      "execution_timeout_ns": 14400000000000,
+      "expiration_ns": 72000000000000,
+      "extra_args": [
+        "--workdir",
+        "../../..",
+        "swarm_test",
+        "repository=<(REPO)",
+        "buildername=Test-Win10-MSVC-ShuttleA-GPU-GTX660-x86_64-Debug",
+        "mastername=fake-master",
+        "buildnumber=2",
+        "slavename=fake-buildslave",
+        "nobuildbot=True",
+        "swarm_out_dir=${ISOLATED_OUTDIR}",
+        "revision=<(REVISION)",
+        "patch_storage=<(PATCH_STORAGE)",
+        "patch_issue=<(ISSUE)",
+        "patch_set=<(PATCHSET)"
+      ],
+      "io_timeout_ns": 2400000000000,
+      "isolate": "test_skia.isolate",
+      "priority": 0.8
+    },
+    "Test-Win10-MSVC-ShuttleA-GPU-GTX660-x86_64-Debug-Vulkan": {
+      "cipd_packages": [
+        {
+          "name": "skia/bots/skimage",
+          "path": "skimage",
+          "version": "version:14"
+        },
+        {
+          "name": "skia/bots/skp",
+          "path": "skp",
+          "version": "version:22"
+        },
+        {
+          "name": "skia/bots/svg",
+          "path": "svg",
+          "version": "version:3"
+        }
+      ],
+      "dependencies": [
+        "Build-Win-MSVC-x86_64-Debug-Vulkan"
+      ],
+      "dimensions": [
+        "gpu:10de:11c0",
+        "os:Windows",
+        "pool:Skia"
+      ],
+      "execution_timeout_ns": 14400000000000,
+      "expiration_ns": 72000000000000,
+      "extra_args": [
+        "--workdir",
+        "../../..",
+        "swarm_test",
+        "repository=<(REPO)",
+        "buildername=Test-Win10-MSVC-ShuttleA-GPU-GTX660-x86_64-Debug-Vulkan",
+        "mastername=fake-master",
+        "buildnumber=2",
+        "slavename=fake-buildslave",
+        "nobuildbot=True",
+        "swarm_out_dir=${ISOLATED_OUTDIR}",
+        "revision=<(REVISION)",
+        "patch_storage=<(PATCH_STORAGE)",
+        "patch_issue=<(ISSUE)",
+        "patch_set=<(PATCHSET)"
+      ],
+      "io_timeout_ns": 2400000000000,
+      "isolate": "test_skia.isolate",
+      "priority": 0.8
+    },
+    "Test-Win10-MSVC-ShuttleA-GPU-GTX660-x86_64-Release": {
+      "cipd_packages": [
+        {
+          "name": "skia/bots/skimage",
+          "path": "skimage",
+          "version": "version:14"
+        },
+        {
+          "name": "skia/bots/skp",
+          "path": "skp",
+          "version": "version:22"
+        },
+        {
+          "name": "skia/bots/svg",
+          "path": "svg",
+          "version": "version:3"
+        }
+      ],
+      "dependencies": [
+        "Build-Win-MSVC-x86_64-Release"
+      ],
+      "dimensions": [
+        "gpu:10de:11c0",
+        "os:Windows",
+        "pool:Skia"
+      ],
+      "execution_timeout_ns": 14400000000000,
+      "expiration_ns": 72000000000000,
+      "extra_args": [
+        "--workdir",
+        "../../..",
+        "swarm_test",
+        "repository=<(REPO)",
+        "buildername=Test-Win10-MSVC-ShuttleA-GPU-GTX660-x86_64-Release",
+        "mastername=fake-master",
+        "buildnumber=2",
+        "slavename=fake-buildslave",
+        "nobuildbot=True",
+        "swarm_out_dir=${ISOLATED_OUTDIR}",
+        "revision=<(REVISION)",
+        "patch_storage=<(PATCH_STORAGE)",
+        "patch_issue=<(ISSUE)",
+        "patch_set=<(PATCHSET)"
+      ],
+      "io_timeout_ns": 2400000000000,
+      "isolate": "test_skia.isolate",
+      "priority": 0.8
+    },
+    "Test-Win8-MSVC-ShuttleA-GPU-HD7770-x86_64-Debug": {
+      "cipd_packages": [
+        {
+          "name": "skia/bots/skimage",
+          "path": "skimage",
+          "version": "version:14"
+        },
+        {
+          "name": "skia/bots/skp",
+          "path": "skp",
+          "version": "version:22"
+        },
+        {
+          "name": "skia/bots/svg",
+          "path": "svg",
+          "version": "version:3"
+        }
+      ],
+      "dependencies": [
+        "Build-Win-MSVC-x86_64-Debug"
+      ],
+      "dimensions": [
+        "gpu:1002:683d",
+        "os:Windows",
+        "pool:Skia"
+      ],
+      "execution_timeout_ns": 14400000000000,
+      "expiration_ns": 72000000000000,
+      "extra_args": [
+        "--workdir",
+        "../../..",
+        "swarm_test",
+        "repository=<(REPO)",
+        "buildername=Test-Win8-MSVC-ShuttleA-GPU-HD7770-x86_64-Debug",
+        "mastername=fake-master",
+        "buildnumber=2",
+        "slavename=fake-buildslave",
+        "nobuildbot=True",
+        "swarm_out_dir=${ISOLATED_OUTDIR}",
+        "revision=<(REVISION)",
+        "patch_storage=<(PATCH_STORAGE)",
+        "patch_issue=<(ISSUE)",
+        "patch_set=<(PATCHSET)"
+      ],
+      "io_timeout_ns": 2400000000000,
+      "isolate": "test_skia.isolate",
+      "priority": 0.8
+    },
+    "Test-Win8-MSVC-ShuttleA-GPU-HD7770-x86_64-Release": {
+      "cipd_packages": [
+        {
+          "name": "skia/bots/skimage",
+          "path": "skimage",
+          "version": "version:14"
+        },
+        {
+          "name": "skia/bots/skp",
+          "path": "skp",
+          "version": "version:22"
+        },
+        {
+          "name": "skia/bots/svg",
+          "path": "svg",
+          "version": "version:3"
+        }
+      ],
+      "dependencies": [
+        "Build-Win-MSVC-x86_64-Release"
+      ],
+      "dimensions": [
+        "gpu:1002:683d",
+        "os:Windows",
+        "pool:Skia"
+      ],
+      "execution_timeout_ns": 14400000000000,
+      "expiration_ns": 72000000000000,
+      "extra_args": [
+        "--workdir",
+        "../../..",
+        "swarm_test",
+        "repository=<(REPO)",
+        "buildername=Test-Win8-MSVC-ShuttleA-GPU-HD7770-x86_64-Release",
+        "mastername=fake-master",
+        "buildnumber=2",
+        "slavename=fake-buildslave",
+        "nobuildbot=True",
+        "swarm_out_dir=${ISOLATED_OUTDIR}",
+        "revision=<(REVISION)",
+        "patch_storage=<(PATCH_STORAGE)",
+        "patch_issue=<(ISSUE)",
+        "patch_set=<(PATCHSET)"
+      ],
+      "io_timeout_ns": 2400000000000,
+      "isolate": "test_skia.isolate",
+      "priority": 0.8
+    },
+    "Test-Win8-MSVC-ShuttleB-GPU-HD4600-x86_64-Debug": {
+      "cipd_packages": [
+        {
+          "name": "skia/bots/skimage",
+          "path": "skimage",
+          "version": "version:14"
+        },
+        {
+          "name": "skia/bots/skp",
+          "path": "skp",
+          "version": "version:22"
+        },
+        {
+          "name": "skia/bots/svg",
+          "path": "svg",
+          "version": "version:3"
+        }
+      ],
+      "dependencies": [
+        "Build-Win-MSVC-x86_64-Debug"
+      ],
+      "dimensions": [
+        "gpu:8086:0412",
+        "os:Windows",
+        "pool:Skia"
+      ],
+      "execution_timeout_ns": 14400000000000,
+      "expiration_ns": 72000000000000,
+      "extra_args": [
+        "--workdir",
+        "../../..",
+        "swarm_test",
+        "repository=<(REPO)",
+        "buildername=Test-Win8-MSVC-ShuttleB-GPU-HD4600-x86_64-Debug",
+        "mastername=fake-master",
+        "buildnumber=2",
+        "slavename=fake-buildslave",
+        "nobuildbot=True",
+        "swarm_out_dir=${ISOLATED_OUTDIR}",
+        "revision=<(REVISION)",
+        "patch_storage=<(PATCH_STORAGE)",
+        "patch_issue=<(ISSUE)",
+        "patch_set=<(PATCHSET)"
+      ],
+      "io_timeout_ns": 2400000000000,
+      "isolate": "test_skia.isolate",
+      "priority": 0.8
+    },
+    "Test-Win8-MSVC-ShuttleB-GPU-HD4600-x86_64-Release": {
+      "cipd_packages": [
+        {
+          "name": "skia/bots/skimage",
+          "path": "skimage",
+          "version": "version:14"
+        },
+        {
+          "name": "skia/bots/skp",
+          "path": "skp",
+          "version": "version:22"
+        },
+        {
+          "name": "skia/bots/svg",
+          "path": "svg",
+          "version": "version:3"
+        }
+      ],
+      "dependencies": [
+        "Build-Win-MSVC-x86_64-Release"
+      ],
+      "dimensions": [
+        "gpu:8086:0412",
+        "os:Windows",
+        "pool:Skia"
+      ],
+      "execution_timeout_ns": 14400000000000,
+      "expiration_ns": 72000000000000,
+      "extra_args": [
+        "--workdir",
+        "../../..",
+        "swarm_test",
+        "repository=<(REPO)",
+        "buildername=Test-Win8-MSVC-ShuttleB-GPU-HD4600-x86_64-Release",
         "mastername=fake-master",
         "buildnumber=2",
         "slavename=fake-buildslave",
@@ -12091,122 +12091,6 @@
       "isolate": "upload_nano_results.isolate",
       "priority": 0.8
     },
-    "Upload-Perf-Win-MSVC-ShuttleA-GPU-GTX660-x86_64-Release": {
-      "dependencies": [
-        "Perf-Win-MSVC-ShuttleA-GPU-GTX660-x86_64-Release"
-      ],
-      "dimensions": [
-        "cpu:x86-64-avx2",
-        "gpu:none",
-        "os:Ubuntu",
-        "pool:Skia"
-      ],
-      "extra_args": [
-        "--workdir",
-        "../../..",
-        "upload_nano_results",
-        "repository=<(REPO)",
-        "buildername=Perf-Win-MSVC-ShuttleA-GPU-GTX660-x86_64-Release",
-        "mastername=fake-master",
-        "buildnumber=2",
-        "slavename=fake-buildslave",
-        "nobuildbot=True",
-        "swarm_out_dir=${ISOLATED_OUTDIR}",
-        "revision=<(REVISION)",
-        "patch_storage=<(PATCH_STORAGE)",
-        "patch_issue=<(ISSUE)",
-        "patch_set=<(PATCHSET)"
-      ],
-      "isolate": "upload_nano_results.isolate",
-      "priority": 0.8
-    },
-    "Upload-Perf-Win-MSVC-ShuttleA-GPU-GTX660-x86_64-Release-Vulkan": {
-      "dependencies": [
-        "Perf-Win-MSVC-ShuttleA-GPU-GTX660-x86_64-Release-Vulkan"
-      ],
-      "dimensions": [
-        "cpu:x86-64-avx2",
-        "gpu:none",
-        "os:Ubuntu",
-        "pool:Skia"
-      ],
-      "extra_args": [
-        "--workdir",
-        "../../..",
-        "upload_nano_results",
-        "repository=<(REPO)",
-        "buildername=Perf-Win-MSVC-ShuttleA-GPU-GTX660-x86_64-Release-Vulkan",
-        "mastername=fake-master",
-        "buildnumber=2",
-        "slavename=fake-buildslave",
-        "nobuildbot=True",
-        "swarm_out_dir=${ISOLATED_OUTDIR}",
-        "revision=<(REVISION)",
-        "patch_storage=<(PATCH_STORAGE)",
-        "patch_issue=<(ISSUE)",
-        "patch_set=<(PATCHSET)"
-      ],
-      "isolate": "upload_nano_results.isolate",
-      "priority": 0.8
-    },
-    "Upload-Perf-Win-MSVC-ShuttleA-GPU-HD7770-x86_64-Release": {
-      "dependencies": [
-        "Perf-Win-MSVC-ShuttleA-GPU-HD7770-x86_64-Release"
-      ],
-      "dimensions": [
-        "cpu:x86-64-avx2",
-        "gpu:none",
-        "os:Ubuntu",
-        "pool:Skia"
-      ],
-      "extra_args": [
-        "--workdir",
-        "../../..",
-        "upload_nano_results",
-        "repository=<(REPO)",
-        "buildername=Perf-Win-MSVC-ShuttleA-GPU-HD7770-x86_64-Release",
-        "mastername=fake-master",
-        "buildnumber=2",
-        "slavename=fake-buildslave",
-        "nobuildbot=True",
-        "swarm_out_dir=${ISOLATED_OUTDIR}",
-        "revision=<(REVISION)",
-        "patch_storage=<(PATCH_STORAGE)",
-        "patch_issue=<(ISSUE)",
-        "patch_set=<(PATCHSET)"
-      ],
-      "isolate": "upload_nano_results.isolate",
-      "priority": 0.8
-    },
-    "Upload-Perf-Win-MSVC-ShuttleB-GPU-HD4600-x86_64-Release": {
-      "dependencies": [
-        "Perf-Win-MSVC-ShuttleB-GPU-HD4600-x86_64-Release"
-      ],
-      "dimensions": [
-        "cpu:x86-64-avx2",
-        "gpu:none",
-        "os:Ubuntu",
-        "pool:Skia"
-      ],
-      "extra_args": [
-        "--workdir",
-        "../../..",
-        "upload_nano_results",
-        "repository=<(REPO)",
-        "buildername=Perf-Win-MSVC-ShuttleB-GPU-HD4600-x86_64-Release",
-        "mastername=fake-master",
-        "buildnumber=2",
-        "slavename=fake-buildslave",
-        "nobuildbot=True",
-        "swarm_out_dir=${ISOLATED_OUTDIR}",
-        "revision=<(REVISION)",
-        "patch_storage=<(PATCH_STORAGE)",
-        "patch_issue=<(ISSUE)",
-        "patch_set=<(PATCHSET)"
-      ],
-      "isolate": "upload_nano_results.isolate",
-      "priority": 0.8
-    },
     "Upload-Perf-Win-MSVC-ShuttleC-GPU-GTX960-x86_64-Release": {
       "dependencies": [
         "Perf-Win-MSVC-ShuttleC-GPU-GTX960-x86_64-Release"
@@ -12281,6 +12165,122 @@
         "upload_nano_results",
         "repository=<(REPO)",
         "buildername=Perf-Win-MSVC-ShuttleC-GPU-iHD530-x86_64-Release",
+        "mastername=fake-master",
+        "buildnumber=2",
+        "slavename=fake-buildslave",
+        "nobuildbot=True",
+        "swarm_out_dir=${ISOLATED_OUTDIR}",
+        "revision=<(REVISION)",
+        "patch_storage=<(PATCH_STORAGE)",
+        "patch_issue=<(ISSUE)",
+        "patch_set=<(PATCHSET)"
+      ],
+      "isolate": "upload_nano_results.isolate",
+      "priority": 0.8
+    },
+    "Upload-Perf-Win10-MSVC-ShuttleA-GPU-GTX660-x86_64-Release": {
+      "dependencies": [
+        "Perf-Win10-MSVC-ShuttleA-GPU-GTX660-x86_64-Release"
+      ],
+      "dimensions": [
+        "cpu:x86-64-avx2",
+        "gpu:none",
+        "os:Ubuntu",
+        "pool:Skia"
+      ],
+      "extra_args": [
+        "--workdir",
+        "../../..",
+        "upload_nano_results",
+        "repository=<(REPO)",
+        "buildername=Perf-Win10-MSVC-ShuttleA-GPU-GTX660-x86_64-Release",
+        "mastername=fake-master",
+        "buildnumber=2",
+        "slavename=fake-buildslave",
+        "nobuildbot=True",
+        "swarm_out_dir=${ISOLATED_OUTDIR}",
+        "revision=<(REVISION)",
+        "patch_storage=<(PATCH_STORAGE)",
+        "patch_issue=<(ISSUE)",
+        "patch_set=<(PATCHSET)"
+      ],
+      "isolate": "upload_nano_results.isolate",
+      "priority": 0.8
+    },
+    "Upload-Perf-Win10-MSVC-ShuttleA-GPU-GTX660-x86_64-Release-Vulkan": {
+      "dependencies": [
+        "Perf-Win10-MSVC-ShuttleA-GPU-GTX660-x86_64-Release-Vulkan"
+      ],
+      "dimensions": [
+        "cpu:x86-64-avx2",
+        "gpu:none",
+        "os:Ubuntu",
+        "pool:Skia"
+      ],
+      "extra_args": [
+        "--workdir",
+        "../../..",
+        "upload_nano_results",
+        "repository=<(REPO)",
+        "buildername=Perf-Win10-MSVC-ShuttleA-GPU-GTX660-x86_64-Release-Vulkan",
+        "mastername=fake-master",
+        "buildnumber=2",
+        "slavename=fake-buildslave",
+        "nobuildbot=True",
+        "swarm_out_dir=${ISOLATED_OUTDIR}",
+        "revision=<(REVISION)",
+        "patch_storage=<(PATCH_STORAGE)",
+        "patch_issue=<(ISSUE)",
+        "patch_set=<(PATCHSET)"
+      ],
+      "isolate": "upload_nano_results.isolate",
+      "priority": 0.8
+    },
+    "Upload-Perf-Win8-MSVC-ShuttleA-GPU-HD7770-x86_64-Release": {
+      "dependencies": [
+        "Perf-Win8-MSVC-ShuttleA-GPU-HD7770-x86_64-Release"
+      ],
+      "dimensions": [
+        "cpu:x86-64-avx2",
+        "gpu:none",
+        "os:Ubuntu",
+        "pool:Skia"
+      ],
+      "extra_args": [
+        "--workdir",
+        "../../..",
+        "upload_nano_results",
+        "repository=<(REPO)",
+        "buildername=Perf-Win8-MSVC-ShuttleA-GPU-HD7770-x86_64-Release",
+        "mastername=fake-master",
+        "buildnumber=2",
+        "slavename=fake-buildslave",
+        "nobuildbot=True",
+        "swarm_out_dir=${ISOLATED_OUTDIR}",
+        "revision=<(REVISION)",
+        "patch_storage=<(PATCH_STORAGE)",
+        "patch_issue=<(ISSUE)",
+        "patch_set=<(PATCHSET)"
+      ],
+      "isolate": "upload_nano_results.isolate",
+      "priority": 0.8
+    },
+    "Upload-Perf-Win8-MSVC-ShuttleB-GPU-HD4600-x86_64-Release": {
+      "dependencies": [
+        "Perf-Win8-MSVC-ShuttleB-GPU-HD4600-x86_64-Release"
+      ],
+      "dimensions": [
+        "cpu:x86-64-avx2",
+        "gpu:none",
+        "os:Ubuntu",
+        "pool:Skia"
+      ],
+      "extra_args": [
+        "--workdir",
+        "../../..",
+        "upload_nano_results",
+        "repository=<(REPO)",
+        "buildername=Perf-Win8-MSVC-ShuttleB-GPU-HD4600-x86_64-Release",
         "mastername=fake-master",
         "buildnumber=2",
         "slavename=fake-buildslave",
@@ -14121,209 +14121,6 @@
       "isolate": "upload_dm_results.isolate",
       "priority": 0.8
     },
-    "Upload-Test-Win-MSVC-ShuttleA-GPU-GTX660-x86_64-Debug": {
-      "dependencies": [
-        "Test-Win-MSVC-ShuttleA-GPU-GTX660-x86_64-Debug"
-      ],
-      "dimensions": [
-        "cpu:x86-64-avx2",
-        "gpu:none",
-        "os:Ubuntu",
-        "pool:Skia"
-      ],
-      "extra_args": [
-        "--workdir",
-        "../../..",
-        "upload_dm_results",
-        "repository=<(REPO)",
-        "buildername=Test-Win-MSVC-ShuttleA-GPU-GTX660-x86_64-Debug",
-        "mastername=fake-master",
-        "buildnumber=2",
-        "slavename=fake-buildslave",
-        "nobuildbot=True",
-        "swarm_out_dir=${ISOLATED_OUTDIR}",
-        "revision=<(REVISION)",
-        "patch_storage=<(PATCH_STORAGE)",
-        "patch_issue=<(ISSUE)",
-        "patch_set=<(PATCHSET)"
-      ],
-      "isolate": "upload_dm_results.isolate",
-      "priority": 0.8
-    },
-    "Upload-Test-Win-MSVC-ShuttleA-GPU-GTX660-x86_64-Debug-Vulkan": {
-      "dependencies": [
-        "Test-Win-MSVC-ShuttleA-GPU-GTX660-x86_64-Debug-Vulkan"
-      ],
-      "dimensions": [
-        "cpu:x86-64-avx2",
-        "gpu:none",
-        "os:Ubuntu",
-        "pool:Skia"
-      ],
-      "extra_args": [
-        "--workdir",
-        "../../..",
-        "upload_dm_results",
-        "repository=<(REPO)",
-        "buildername=Test-Win-MSVC-ShuttleA-GPU-GTX660-x86_64-Debug-Vulkan",
-        "mastername=fake-master",
-        "buildnumber=2",
-        "slavename=fake-buildslave",
-        "nobuildbot=True",
-        "swarm_out_dir=${ISOLATED_OUTDIR}",
-        "revision=<(REVISION)",
-        "patch_storage=<(PATCH_STORAGE)",
-        "patch_issue=<(ISSUE)",
-        "patch_set=<(PATCHSET)"
-      ],
-      "isolate": "upload_dm_results.isolate",
-      "priority": 0.8
-    },
-    "Upload-Test-Win-MSVC-ShuttleA-GPU-GTX660-x86_64-Release": {
-      "dependencies": [
-        "Test-Win-MSVC-ShuttleA-GPU-GTX660-x86_64-Release"
-      ],
-      "dimensions": [
-        "cpu:x86-64-avx2",
-        "gpu:none",
-        "os:Ubuntu",
-        "pool:Skia"
-      ],
-      "extra_args": [
-        "--workdir",
-        "../../..",
-        "upload_dm_results",
-        "repository=<(REPO)",
-        "buildername=Test-Win-MSVC-ShuttleA-GPU-GTX660-x86_64-Release",
-        "mastername=fake-master",
-        "buildnumber=2",
-        "slavename=fake-buildslave",
-        "nobuildbot=True",
-        "swarm_out_dir=${ISOLATED_OUTDIR}",
-        "revision=<(REVISION)",
-        "patch_storage=<(PATCH_STORAGE)",
-        "patch_issue=<(ISSUE)",
-        "patch_set=<(PATCHSET)"
-      ],
-      "isolate": "upload_dm_results.isolate",
-      "priority": 0.8
-    },
-    "Upload-Test-Win-MSVC-ShuttleA-GPU-HD7770-x86_64-Debug": {
-      "dependencies": [
-        "Test-Win-MSVC-ShuttleA-GPU-HD7770-x86_64-Debug"
-      ],
-      "dimensions": [
-        "cpu:x86-64-avx2",
-        "gpu:none",
-        "os:Ubuntu",
-        "pool:Skia"
-      ],
-      "extra_args": [
-        "--workdir",
-        "../../..",
-        "upload_dm_results",
-        "repository=<(REPO)",
-        "buildername=Test-Win-MSVC-ShuttleA-GPU-HD7770-x86_64-Debug",
-        "mastername=fake-master",
-        "buildnumber=2",
-        "slavename=fake-buildslave",
-        "nobuildbot=True",
-        "swarm_out_dir=${ISOLATED_OUTDIR}",
-        "revision=<(REVISION)",
-        "patch_storage=<(PATCH_STORAGE)",
-        "patch_issue=<(ISSUE)",
-        "patch_set=<(PATCHSET)"
-      ],
-      "isolate": "upload_dm_results.isolate",
-      "priority": 0.8
-    },
-    "Upload-Test-Win-MSVC-ShuttleA-GPU-HD7770-x86_64-Release": {
-      "dependencies": [
-        "Test-Win-MSVC-ShuttleA-GPU-HD7770-x86_64-Release"
-      ],
-      "dimensions": [
-        "cpu:x86-64-avx2",
-        "gpu:none",
-        "os:Ubuntu",
-        "pool:Skia"
-      ],
-      "extra_args": [
-        "--workdir",
-        "../../..",
-        "upload_dm_results",
-        "repository=<(REPO)",
-        "buildername=Test-Win-MSVC-ShuttleA-GPU-HD7770-x86_64-Release",
-        "mastername=fake-master",
-        "buildnumber=2",
-        "slavename=fake-buildslave",
-        "nobuildbot=True",
-        "swarm_out_dir=${ISOLATED_OUTDIR}",
-        "revision=<(REVISION)",
-        "patch_storage=<(PATCH_STORAGE)",
-        "patch_issue=<(ISSUE)",
-        "patch_set=<(PATCHSET)"
-      ],
-      "isolate": "upload_dm_results.isolate",
-      "priority": 0.8
-    },
-    "Upload-Test-Win-MSVC-ShuttleB-GPU-HD4600-x86_64-Debug": {
-      "dependencies": [
-        "Test-Win-MSVC-ShuttleB-GPU-HD4600-x86_64-Debug"
-      ],
-      "dimensions": [
-        "cpu:x86-64-avx2",
-        "gpu:none",
-        "os:Ubuntu",
-        "pool:Skia"
-      ],
-      "extra_args": [
-        "--workdir",
-        "../../..",
-        "upload_dm_results",
-        "repository=<(REPO)",
-        "buildername=Test-Win-MSVC-ShuttleB-GPU-HD4600-x86_64-Debug",
-        "mastername=fake-master",
-        "buildnumber=2",
-        "slavename=fake-buildslave",
-        "nobuildbot=True",
-        "swarm_out_dir=${ISOLATED_OUTDIR}",
-        "revision=<(REVISION)",
-        "patch_storage=<(PATCH_STORAGE)",
-        "patch_issue=<(ISSUE)",
-        "patch_set=<(PATCHSET)"
-      ],
-      "isolate": "upload_dm_results.isolate",
-      "priority": 0.8
-    },
-    "Upload-Test-Win-MSVC-ShuttleB-GPU-HD4600-x86_64-Release": {
-      "dependencies": [
-        "Test-Win-MSVC-ShuttleB-GPU-HD4600-x86_64-Release"
-      ],
-      "dimensions": [
-        "cpu:x86-64-avx2",
-        "gpu:none",
-        "os:Ubuntu",
-        "pool:Skia"
-      ],
-      "extra_args": [
-        "--workdir",
-        "../../..",
-        "upload_dm_results",
-        "repository=<(REPO)",
-        "buildername=Test-Win-MSVC-ShuttleB-GPU-HD4600-x86_64-Release",
-        "mastername=fake-master",
-        "buildnumber=2",
-        "slavename=fake-buildslave",
-        "nobuildbot=True",
-        "swarm_out_dir=${ISOLATED_OUTDIR}",
-        "revision=<(REVISION)",
-        "patch_storage=<(PATCH_STORAGE)",
-        "patch_issue=<(ISSUE)",
-        "patch_set=<(PATCHSET)"
-      ],
-      "isolate": "upload_dm_results.isolate",
-      "priority": 0.8
-    },
     "Upload-Test-Win-MSVC-ShuttleC-GPU-GTX960-x86_64-Debug": {
       "dependencies": [
         "Test-Win-MSVC-ShuttleC-GPU-GTX960-x86_64-Debug"
@@ -14485,6 +14282,209 @@
         "upload_dm_results",
         "repository=<(REPO)",
         "buildername=Test-Win-MSVC-ShuttleC-GPU-iHD530-x86_64-Release",
+        "mastername=fake-master",
+        "buildnumber=2",
+        "slavename=fake-buildslave",
+        "nobuildbot=True",
+        "swarm_out_dir=${ISOLATED_OUTDIR}",
+        "revision=<(REVISION)",
+        "patch_storage=<(PATCH_STORAGE)",
+        "patch_issue=<(ISSUE)",
+        "patch_set=<(PATCHSET)"
+      ],
+      "isolate": "upload_dm_results.isolate",
+      "priority": 0.8
+    },
+    "Upload-Test-Win10-MSVC-ShuttleA-GPU-GTX660-x86_64-Debug": {
+      "dependencies": [
+        "Test-Win10-MSVC-ShuttleA-GPU-GTX660-x86_64-Debug"
+      ],
+      "dimensions": [
+        "cpu:x86-64-avx2",
+        "gpu:none",
+        "os:Ubuntu",
+        "pool:Skia"
+      ],
+      "extra_args": [
+        "--workdir",
+        "../../..",
+        "upload_dm_results",
+        "repository=<(REPO)",
+        "buildername=Test-Win10-MSVC-ShuttleA-GPU-GTX660-x86_64-Debug",
+        "mastername=fake-master",
+        "buildnumber=2",
+        "slavename=fake-buildslave",
+        "nobuildbot=True",
+        "swarm_out_dir=${ISOLATED_OUTDIR}",
+        "revision=<(REVISION)",
+        "patch_storage=<(PATCH_STORAGE)",
+        "patch_issue=<(ISSUE)",
+        "patch_set=<(PATCHSET)"
+      ],
+      "isolate": "upload_dm_results.isolate",
+      "priority": 0.8
+    },
+    "Upload-Test-Win10-MSVC-ShuttleA-GPU-GTX660-x86_64-Debug-Vulkan": {
+      "dependencies": [
+        "Test-Win10-MSVC-ShuttleA-GPU-GTX660-x86_64-Debug-Vulkan"
+      ],
+      "dimensions": [
+        "cpu:x86-64-avx2",
+        "gpu:none",
+        "os:Ubuntu",
+        "pool:Skia"
+      ],
+      "extra_args": [
+        "--workdir",
+        "../../..",
+        "upload_dm_results",
+        "repository=<(REPO)",
+        "buildername=Test-Win10-MSVC-ShuttleA-GPU-GTX660-x86_64-Debug-Vulkan",
+        "mastername=fake-master",
+        "buildnumber=2",
+        "slavename=fake-buildslave",
+        "nobuildbot=True",
+        "swarm_out_dir=${ISOLATED_OUTDIR}",
+        "revision=<(REVISION)",
+        "patch_storage=<(PATCH_STORAGE)",
+        "patch_issue=<(ISSUE)",
+        "patch_set=<(PATCHSET)"
+      ],
+      "isolate": "upload_dm_results.isolate",
+      "priority": 0.8
+    },
+    "Upload-Test-Win10-MSVC-ShuttleA-GPU-GTX660-x86_64-Release": {
+      "dependencies": [
+        "Test-Win10-MSVC-ShuttleA-GPU-GTX660-x86_64-Release"
+      ],
+      "dimensions": [
+        "cpu:x86-64-avx2",
+        "gpu:none",
+        "os:Ubuntu",
+        "pool:Skia"
+      ],
+      "extra_args": [
+        "--workdir",
+        "../../..",
+        "upload_dm_results",
+        "repository=<(REPO)",
+        "buildername=Test-Win10-MSVC-ShuttleA-GPU-GTX660-x86_64-Release",
+        "mastername=fake-master",
+        "buildnumber=2",
+        "slavename=fake-buildslave",
+        "nobuildbot=True",
+        "swarm_out_dir=${ISOLATED_OUTDIR}",
+        "revision=<(REVISION)",
+        "patch_storage=<(PATCH_STORAGE)",
+        "patch_issue=<(ISSUE)",
+        "patch_set=<(PATCHSET)"
+      ],
+      "isolate": "upload_dm_results.isolate",
+      "priority": 0.8
+    },
+    "Upload-Test-Win8-MSVC-ShuttleA-GPU-HD7770-x86_64-Debug": {
+      "dependencies": [
+        "Test-Win8-MSVC-ShuttleA-GPU-HD7770-x86_64-Debug"
+      ],
+      "dimensions": [
+        "cpu:x86-64-avx2",
+        "gpu:none",
+        "os:Ubuntu",
+        "pool:Skia"
+      ],
+      "extra_args": [
+        "--workdir",
+        "../../..",
+        "upload_dm_results",
+        "repository=<(REPO)",
+        "buildername=Test-Win8-MSVC-ShuttleA-GPU-HD7770-x86_64-Debug",
+        "mastername=fake-master",
+        "buildnumber=2",
+        "slavename=fake-buildslave",
+        "nobuildbot=True",
+        "swarm_out_dir=${ISOLATED_OUTDIR}",
+        "revision=<(REVISION)",
+        "patch_storage=<(PATCH_STORAGE)",
+        "patch_issue=<(ISSUE)",
+        "patch_set=<(PATCHSET)"
+      ],
+      "isolate": "upload_dm_results.isolate",
+      "priority": 0.8
+    },
+    "Upload-Test-Win8-MSVC-ShuttleA-GPU-HD7770-x86_64-Release": {
+      "dependencies": [
+        "Test-Win8-MSVC-ShuttleA-GPU-HD7770-x86_64-Release"
+      ],
+      "dimensions": [
+        "cpu:x86-64-avx2",
+        "gpu:none",
+        "os:Ubuntu",
+        "pool:Skia"
+      ],
+      "extra_args": [
+        "--workdir",
+        "../../..",
+        "upload_dm_results",
+        "repository=<(REPO)",
+        "buildername=Test-Win8-MSVC-ShuttleA-GPU-HD7770-x86_64-Release",
+        "mastername=fake-master",
+        "buildnumber=2",
+        "slavename=fake-buildslave",
+        "nobuildbot=True",
+        "swarm_out_dir=${ISOLATED_OUTDIR}",
+        "revision=<(REVISION)",
+        "patch_storage=<(PATCH_STORAGE)",
+        "patch_issue=<(ISSUE)",
+        "patch_set=<(PATCHSET)"
+      ],
+      "isolate": "upload_dm_results.isolate",
+      "priority": 0.8
+    },
+    "Upload-Test-Win8-MSVC-ShuttleB-GPU-HD4600-x86_64-Debug": {
+      "dependencies": [
+        "Test-Win8-MSVC-ShuttleB-GPU-HD4600-x86_64-Debug"
+      ],
+      "dimensions": [
+        "cpu:x86-64-avx2",
+        "gpu:none",
+        "os:Ubuntu",
+        "pool:Skia"
+      ],
+      "extra_args": [
+        "--workdir",
+        "../../..",
+        "upload_dm_results",
+        "repository=<(REPO)",
+        "buildername=Test-Win8-MSVC-ShuttleB-GPU-HD4600-x86_64-Debug",
+        "mastername=fake-master",
+        "buildnumber=2",
+        "slavename=fake-buildslave",
+        "nobuildbot=True",
+        "swarm_out_dir=${ISOLATED_OUTDIR}",
+        "revision=<(REVISION)",
+        "patch_storage=<(PATCH_STORAGE)",
+        "patch_issue=<(ISSUE)",
+        "patch_set=<(PATCHSET)"
+      ],
+      "isolate": "upload_dm_results.isolate",
+      "priority": 0.8
+    },
+    "Upload-Test-Win8-MSVC-ShuttleB-GPU-HD4600-x86_64-Release": {
+      "dependencies": [
+        "Test-Win8-MSVC-ShuttleB-GPU-HD4600-x86_64-Release"
+      ],
+      "dimensions": [
+        "cpu:x86-64-avx2",
+        "gpu:none",
+        "os:Ubuntu",
+        "pool:Skia"
+      ],
+      "extra_args": [
+        "--workdir",
+        "../../..",
+        "upload_dm_results",
+        "repository=<(REPO)",
+        "buildername=Test-Win8-MSVC-ShuttleB-GPU-HD4600-x86_64-Release",
         "mastername=fake-master",
         "buildnumber=2",
         "slavename=fake-buildslave",
