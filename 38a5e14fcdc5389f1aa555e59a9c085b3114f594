@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "f01d104e_2be061b1",
+        "filename": "include/utils/SkNoDrawCanvas.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 24,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2016-11-30T22:12:22Z",
+      "side": 1,
+      "message": "nit: lets make the impl for each of these (constructor, strategy) in the impl file (SkCanvas.cpp), not here.",
+      "range": {
+        "startLine": 24,
+        "startChar": 18,
+        "endLine": 24,
+        "endChar": 19
+      },
+      "revId": "38a5e14fcdc5389f1aa555e59a9c085b3114f594",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "f01d104e_ab237119",
+        "filename": "include/utils/SkNoSaveLayerCanvas.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 18,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2016-11-30T22:12:22Z",
+      "side": 1,
+      "message": "do we have external users of this?",
+      "range": {
+        "startLine": 18,
+        "startChar": 19,
+        "endLine": 18,
+        "endChar": 33
+      },
+      "revId": "38a5e14fcdc5389f1aa555e59a9c085b3114f594",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
