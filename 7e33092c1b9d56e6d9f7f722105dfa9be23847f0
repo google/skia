@@ -1,0 +1,169 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "f01d104e_a21555f3",
+        "filename": "src/gpu/GrRenderTargetOpList.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 410,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2016-11-30T21:18:58Z",
+      "side": 1,
+      "message": "nit: indentation",
+      "range": {
+        "startLine": 403,
+        "startChar": 0,
+        "endLine": 410,
+        "endChar": 0
+      },
+      "revId": "7e33092c1b9d56e6d9f7f722105dfa9be23847f0",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "f01d104e_42abc16c",
+        "filename": "src/gpu/GrRenderTargetOpList.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 499,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2016-11-30T21:18:58Z",
+      "side": 1,
+      "message": "nit: indentation",
+      "range": {
+        "startLine": 497,
+        "startChar": 0,
+        "endLine": 499,
+        "endChar": 0
+      },
+      "revId": "7e33092c1b9d56e6d9f7f722105dfa9be23847f0",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "f01d104e_62a0bd86",
+        "filename": "src/gpu/GrRenderTargetOpList.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 555,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2016-11-30T21:18:58Z",
+      "side": 1,
+      "message": "indentation",
+      "revId": "7e33092c1b9d56e6d9f7f722105dfa9be23847f0",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "f01d104e_829db955",
+        "filename": "src/gpu/GrRenderTargetOpList.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 564,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2016-11-30T21:18:58Z",
+      "side": 1,
+      "message": "indentation",
+      "revId": "7e33092c1b9d56e6d9f7f722105dfa9be23847f0",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "2d82efcd_d942377b",
+        "filename": "src/gpu/GrRenderTargetOpList.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 575,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2016-11-30T21:18:58Z",
+      "side": 1,
+      "message": "indentation",
+      "revId": "7e33092c1b9d56e6d9f7f722105dfa9be23847f0",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "f01d104e_6875ff38",
+        "filename": "src/gpu/GrTextureOpList.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 66,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2016-11-30T21:18:58Z",
+      "side": 1,
+      "message": "line up variable names?",
+      "revId": "7e33092c1b9d56e6d9f7f722105dfa9be23847f0",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "f01d104e_c21c1130",
+        "filename": "src/gpu/batches/GrOp.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 23,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2016-11-30T21:18:58Z",
+      "side": 1,
+      "message": "Rename this as part of this phase of the change? (No external dependencies).",
+      "revId": "7e33092c1b9d56e6d9f7f722105dfa9be23847f0",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "f01d104e_c2dfb150",
+        "filename": "src/gpu/batches/GrOp.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 36,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2016-11-30T21:18:58Z",
+      "side": 1,
+      "message": "nit: \"ie\" should be \"eg\" in this comment",
+      "revId": "7e33092c1b9d56e6d9f7f722105dfa9be23847f0",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "f01d104e_a271d58b",
+        "filename": "src/gpu/batches/GrOp.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 157,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2016-11-30T21:18:58Z",
+      "side": 1,
+      "message": "are there other examples of zero area geometry? If so, this should also be eg, not ie.",
+      "revId": "7e33092c1b9d56e6d9f7f722105dfa9be23847f0",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
