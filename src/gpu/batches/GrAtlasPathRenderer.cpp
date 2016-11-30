@@ -5,7 +5,7 @@
  * found in the LICENSE file.
  */
 
-#include "GrAADistanceFieldPathRenderer.h"
+#include "GrAtlasPathRenderer.h"
 
 #include "GrBatchFlushState.h"
 #include "GrBatchTest.h"
@@ -17,12 +17,15 @@
 #include "GrSWMaskHelper.h"
 #include "GrTexturePriv.h"
 #include "batches/GrVertexBatch.h"
+#include "effects/GrBitmapTextGeoProc.h"
 #include "effects/GrDistanceFieldGeoProc.h"
 
 #include "SkDistanceFieldGen.h"
 
 #define ATLAS_TEXTURE_WIDTH 2048
 #define ATLAS_TEXTURE_HEIGHT 2048
+#define ATLAS_TEXTURE_LOG2_WIDTH 11
+#define ATLAS_TEXTURE_LOG2_HEIGHT 11
 #define PLOT_WIDTH  512
 #define PLOT_HEIGHT 256
 
@@ -34,14 +37,19 @@ static int g_NumCachedShapes = 0;
 static int g_NumFreedShapes = 0;
 #endif
 
+// only use signed distance field representation on mobile
+#if defined(SK_BUILD_FOR_ANDROID) || defined(SK_BUILD_FOR_IOS)
+#define USE_SDF_PATHS
+#endif
+
 // mip levels
-static const int kSmallMIP = 32;
+static const int kSmallMIP = 64;
 static const int kMediumMIP = 73;
 static const int kLargeMIP = 162;
 
 // Callback to clear out internal path cache when eviction occurs
-void GrAADistanceFieldPathRenderer::HandleEviction(GrBatchAtlas::AtlasID id, void* pr) {
-    GrAADistanceFieldPathRenderer* dfpr = (GrAADistanceFieldPathRenderer*)pr;
+void GrAtlasPathRenderer::HandleEviction(GrBatchAtlas::AtlasID id, void* pr) {
+    GrAtlasPathRenderer* dfpr = (GrAtlasPathRenderer*)pr;
     // remove any paths that use this plot
     ShapeDataList::Iter iter;
     iter.init(dfpr->fShapeList, ShapeDataList::Iter::kHead_IterStart);
@@ -60,9 +68,9 @@ void GrAADistanceFieldPathRenderer::HandleEviction(GrBatchAtlas::AtlasID id, voi
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-GrAADistanceFieldPathRenderer::GrAADistanceFieldPathRenderer() : fAtlas(nullptr) {}
+GrAtlasPathRenderer::GrAtlasPathRenderer() : fAtlas(nullptr) {}
 
-GrAADistanceFieldPathRenderer::~GrAADistanceFieldPathRenderer() {
+GrAtlasPathRenderer::~GrAtlasPathRenderer() {
     ShapeDataList::Iter iter;
     iter.init(fShapeList, ShapeDataList::Iter::kHead_IterStart);
     ShapeData* shapeData;
@@ -77,7 +85,7 @@ GrAADistanceFieldPathRenderer::~GrAADistanceFieldPathRenderer() {
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-bool GrAADistanceFieldPathRenderer::onCanDrawPath(const CanDrawPathArgs& args) const {
+bool GrAtlasPathRenderer::onCanDrawPath(const CanDrawPathArgs& args) const {
     if (!args.fShaderCaps->shaderDerivativeSupport()) {
         return false;
     }
@@ -105,7 +113,7 @@ bool GrAADistanceFieldPathRenderer::onCanDrawPath(const CanDrawPathArgs& args) c
 
     // only support paths with bounds within kMediumMIP by kMediumMIP,
     // scaled to have bounds within 2.0f*kLargeMIP by 2.0f*kLargeMIP
-    // the goal is to accelerate rendering of lots of small paths that may be scaling
+    // the goal is to accelerate rendering of lots of small paths that may be scaled
     SkScalar maxScale = args.fViewMatrix->getMaxScale();
     SkRect bounds = args.fShape->styledBounds();
     SkScalar maxDim = SkMaxScalar(bounds.width(), bounds.height());
@@ -118,21 +126,21 @@ bool GrAADistanceFieldPathRenderer::onCanDrawPath(const CanDrawPathArgs& args) c
 // padding around path bounds to allow for antialiased pixels
 static const SkScalar kAntiAliasPad = 1.0f;
 
-class AADistanceFieldPathBatch : public GrVertexBatch {
+class AtlasPathBatch : public GrVertexBatch {
 public:
     DEFINE_BATCH_CLASS_ID
 
-    typedef GrAADistanceFieldPathRenderer::ShapeData ShapeData;
+    typedef GrAtlasPathRenderer::ShapeData ShapeData;
     typedef SkTDynamicHash<ShapeData, ShapeData::Key> ShapeCache;
-    typedef GrAADistanceFieldPathRenderer::ShapeDataList ShapeDataList;
+    typedef GrAtlasPathRenderer::ShapeDataList ShapeDataList;
 
-    AADistanceFieldPathBatch(GrColor color,
-                             const GrShape& shape,
-                             bool antiAlias,
-                             const SkMatrix& viewMatrix,
-                             GrBatchAtlas* atlas,
-                             ShapeCache* shapeCache, ShapeDataList* shapeList,
-                             bool gammaCorrect)
+    AtlasPathBatch(GrColor color,
+                   const GrShape& shape,
+                   bool antiAlias,
+                   const SkMatrix& viewMatrix,
+                   GrBatchAtlas* atlas,
+                   ShapeCache* shapeCache, ShapeDataList* shapeList,
+                   bool gammaCorrect)
             : INHERITED(ClassID()) {
         SkASSERT(shape.hasUnstyledKey());
         fBatch.fViewMatrix = viewMatrix;
@@ -145,14 +153,19 @@ public:
 
         // Compute bounds
         this->setTransformedBounds(shape.bounds(), viewMatrix, HasAABloat::kYes, IsZeroArea::kNo);
-        // There is currently an issue where we may produce 2 pixels worth of AA around the path.
-        // A workaround is to outset the bounds by 1 in device space. (skbug.com/5989)
+        SkScalar minSize = SkMinScalar(bounds().width(), bounds().height());
+
         SkRect bounds = this->bounds();
+#ifdef USE_SDF_PATHS
+        // There is currently an issue where we may produce 2 pixels worth of AA around the path
+        // when using the signed distance field representation.
+        // A workaround is to outset the bounds by 1 in device space. (skbug.com/5989)
         bounds.outset(1.f, 1.f);
+#endif
         this->setBounds(bounds, HasAABloat::kYes, IsZeroArea::kNo);
     }
 
-    const char* name() const override { return "AADistanceFieldPathBatch"; }
+    const char* name() const override { return "AtlasPathBatch"; }
 
     void computePipelineOptimizations(GrInitInvariantOutput* color,
                                       GrInitInvariantOutput* coverage,
@@ -192,6 +205,11 @@ private:
             return;
         }
 
+        FlushInfo flushInfo;
+
+        // Setup GrGeometryProcessor
+        GrBatchAtlas* atlas = fAtlas;
+#ifdef USE_SDF_PATHS
         const SkMatrix& ctm = this->viewMatrix();
         uint32_t flags = 0;
         flags |= ctm.isScaleTranslate() ? kScaleOnly_DistanceFieldEffectFlag : 0;
@@ -200,20 +218,35 @@ private:
 
         GrSamplerParams params(SkShader::kRepeat_TileMode, GrSamplerParams::kBilerp_FilterMode);
 
-        FlushInfo flushInfo;
-
-        // Setup GrGeometryProcessor
-        GrBatchAtlas* atlas = fAtlas;
         flushInfo.fGeometryProcessor = GrDistanceFieldPathGeoProc::Make(this->color(),
                                                                         this->viewMatrix(),
                                                                         atlas->getTexture(),
                                                                         params,
                                                                         flags,
                                                                         this->usesLocalCoords());
+#else
+        GrSamplerParams params(SkShader::kRepeat_TileMode, GrSamplerParams::kNone_FilterMode);
+
+        SkMatrix localMatrix;
+        if (this->usesLocalCoords() && !this->viewMatrix().invert(&localMatrix)) {
+            SkDebugf("Cannot invert viewmatrix\n");
+            return;
+        }
+        flushInfo.fGeometryProcessor = GrBitmapTextGeoProc::Make(this->color(),
+                                                                 atlas->getTexture(),
+                                                                 params,
+                                                                 kA8_GrMaskFormat,
+                                                                 localMatrix,
+                                                                 this->usesLocalCoords());
+#endif
 
         // allocate vertices
         size_t vertexStride = flushInfo.fGeometryProcessor->getVertexStride();
+#ifdef USE_SDF_PATHS
         SkASSERT(vertexStride == 2 * sizeof(SkPoint) + sizeof(GrColor));
+#else
+        SkASSERT(vertexStride == sizeof(SkPoint) + 2 * sizeof(uint16_t) + sizeof(GrColor));
+#endif
 
         const GrBuffer* vertexBuffer;
         void* vertices = target->makeVertexSpace(vertexStride,
@@ -239,6 +272,7 @@ private:
             SkScalar maxDim = SkMaxScalar(bounds.width(), bounds.height());
             SkScalar size = maxScale * maxDim;
             uint32_t desiredDimension;
+#ifdef USE_SDF_PATH
             if (size <= kSmallMIP) {
                 desiredDimension = kSmallMIP;
             } else if (size <= kMediumMIP) {
@@ -247,8 +281,18 @@ private:
                 desiredDimension = kLargeMIP;
             }
 
+            const SkMatrix& ctm = SkMatrix::I();
+#else
+            desiredDimension = size;
+
+            SkMatrix modifiedCtm = this->viewMatrix();
+            // subtract out any integer translation
+            modifiedCtm[SkMatrix::kMTransX] -= (int)modifiedCtm[SkMatrix::kMTransX];
+            modifiedCtm[SkMatrix::kMTransY] -= (int)modifiedCtm[SkMatrix::kMTransY];
+            const SkMatrix& ctm = modifiedCtm;
+#endif
+            ShapeData::Key key(args.fShape, desiredDimension, ctm);
             // check to see if path is cached
-            ShapeData::Key key(args.fShape, desiredDimension);
             ShapeData* shapeData = fShapeCache->find(key);
             if (nullptr == shapeData || !atlas->hasID(shapeData->fID)) {
                 // Remove the stale cache entry
@@ -257,7 +301,11 @@ private:
                     fShapeList->remove(shapeData);
                     delete shapeData;
                 }
+#ifdef USE_SDF_PATH
                 SkScalar scale = desiredDimension/maxDim;
+#else
+                SkScalar scale = SK_Scalar1;
+#endif
                 shapeData = new ShapeData;
                 if (!this->addPathToAtlas(target,
                                           &flushInfo,
@@ -266,7 +314,8 @@ private:
                                           args.fShape,
                                           args.fAntiAlias,
                                           desiredDimension,
-                                          scale)) {
+                                          scale,
+                                          ctm)) {
                     delete shapeData;
                     SkDebugf("Can't rasterize path\n");
                     continue;
@@ -296,7 +345,8 @@ private:
                         const GrShape& shape,
                         bool antiAlias,
                         uint32_t dimension,
-                        SkScalar scale) const {
+                        SkScalar scale,
+                        const SkMatrix ctm) const {
         const SkRect& bounds = shape.bounds();
 
         // generate bounding rect for bitmap draw
@@ -358,6 +408,7 @@ private:
         shape.asPath(&path);
         draw.drawPathCoverage(path, paint);
 
+#ifdef USE_SDF_PATHS
         // generate signed distance field
         devPathBounds.outset(SK_DistanceFieldPad, SK_DistanceFieldPad);
         width = devPathBounds.width();
@@ -369,21 +420,27 @@ private:
         SkGenerateDistanceFieldFromA8Image((unsigned char*)dfStorage.get(),
                                            (const unsigned char*)dst.addr(),
                                            dst.width(), dst.height(), dst.rowBytes());
-
+        const void* pathData = dfStorage.get();
+#else
+        width = devPathBounds.width();
+        height = devPathBounds.height();
+        const void* pathData = dst.addr();
+#endif
         // add to atlas
         SkIPoint16 atlasLocation;
         GrBatchAtlas::AtlasID id;
-       if (!atlas->addToAtlas(&id, target, width, height, dfStorage.get(), &atlasLocation)) {
+        if (!atlas->addToAtlas(&id, target, width, height, pathData, &atlasLocation)) {
             this->flush(target, flushInfo);
-            if (!atlas->addToAtlas(&id, target, width, height, dfStorage.get(), &atlasLocation)) {
+            if (!atlas->addToAtlas(&id, target, width, height, pathData, &atlasLocation)) {
                 return false;
             }
         }
 
         // add to cache
-        shapeData->fKey.set(shape, dimension);
+        shapeData->fKey.set(shape, dimension, ctm);
         shapeData->fScale = scale;
         shapeData->fID = id;
+#ifdef USE_SDF_PATH
         // change the scaled rect to match the size of the inset distance field
         scaledBounds.fRight = scaledBounds.fLeft +
             SkIntToScalar(devPathBounds.width() - 2*SK_DistanceFieldInset);
@@ -393,10 +450,11 @@ private:
         // need to also restore the fractional translation
         scaledBounds.offset(-SkIntToScalar(SK_DistanceFieldInset) - kAntiAliasPad + dx,
                             -SkIntToScalar(SK_DistanceFieldInset) - kAntiAliasPad + dy);
-        shapeData->fBounds = scaledBounds;
         // origin we render from is inset from distance field edge
         atlasLocation.fX += SK_DistanceFieldInset;
         atlasLocation.fY += SK_DistanceFieldInset;
+#endif
+        shapeData->fBounds = scaledBounds;
         shapeData->fAtlasLocation = atlasLocation;
 
         fShapeCache->add(shapeData);
@@ -427,6 +485,13 @@ private:
         width *= invScale;
         height *= invScale;
 
+#ifndef USE_SDF_PATHS
+        // add just the integer part of the translation
+        // (rest of ctm is baked into cached path)
+        dx += (int) viewMatrix[SkMatrix::kMTransX];
+        dy += (int)viewMatrix[SkMatrix::kMTransY];
+#endif
+
         SkPoint* positions = reinterpret_cast<SkPoint*>(offset);
 
         // vertex positions
@@ -440,6 +505,7 @@ private:
             *colorPtr = color;
         }
 
+#ifdef USE_SDF_PATHS
         const SkScalar tx = SkIntToScalar(shapeData->fAtlasLocation.fX);
         const SkScalar ty = SkIntToScalar(shapeData->fAtlasLocation.fY);
 
@@ -450,6 +516,41 @@ private:
                                   (tx + shapeData->fBounds.width()) / texture->width(),
                                   (ty + shapeData->fBounds.height())  / texture->height(),
                                   vertexStride);
+#else
+        int u0, v0, u1, v1;
+        u0 = shapeData->fAtlasLocation.fX;
+        v0 = shapeData->fAtlasLocation.fY;
+        u1 = u0 + (int)width;
+        v1 = v0 + (int)height;
+
+        // normalize
+        u0 *= 65535;
+        u0 >>= ATLAS_TEXTURE_LOG2_WIDTH;
+        u1 *= 65535;
+        u1 >>= ATLAS_TEXTURE_LOG2_WIDTH;
+        v0 *= 65535;
+        v0 >>= ATLAS_TEXTURE_LOG2_HEIGHT;
+        v1 *= 65535;
+        v1 >>= ATLAS_TEXTURE_LOG2_HEIGHT;
+        SkASSERT(u0 >= 0 && u0 <= 65535);
+        SkASSERT(u1 >= 0 && u1 <= 65535);
+        SkASSERT(v0 >= 0 && v0 <= 65535);
+        SkASSERT(v1 >= 0 && v1 <= 65535);
+
+        // vertex texture coords
+        uint16_t* textureCoords = (uint16_t*)(offset + sizeof(SkPoint) + sizeof(GrColor));
+        textureCoords[0] = u0;
+        textureCoords[1] = v0;
+        textureCoords += vertexStride / sizeof(uint16_t);
+        textureCoords[0] = u0;
+        textureCoords[1] = v1;
+        textureCoords += vertexStride / sizeof(uint16_t);
+        textureCoords[0] = u1;
+        textureCoords[1] = v1;
+        textureCoords += vertexStride / sizeof(uint16_t);
+        textureCoords[0] = u1;
+        textureCoords[1] = v0;
+#endif
     }
 
     void flush(GrVertexBatch::Target* target, FlushInfo* flushInfo) const {
@@ -471,7 +572,7 @@ private:
     bool usesLocalCoords() const { return fBatch.fUsesLocalCoords; }
 
     bool onCombineIfPossible(GrBatch* t, const GrCaps& caps) override {
-        AADistanceFieldPathBatch* that = t->cast<AADistanceFieldPathBatch>();
+        AtlasPathBatch* that = t->cast<AtlasPathBatch>();
         if (!GrPipeline::CanCombine(*this->pipeline(), this->bounds(), *that->pipeline(),
                                     that->bounds(), caps)) {
             return false;
@@ -510,9 +611,9 @@ private:
     typedef GrVertexBatch INHERITED;
 };
 
-bool GrAADistanceFieldPathRenderer::onDrawPath(const DrawPathArgs& args) {
+bool GrAtlasPathRenderer::onDrawPath(const DrawPathArgs& args) {
     GR_AUDIT_TRAIL_AUTO_FRAME(args.fRenderTargetContext->auditTrail(),
-                              "GrAADistanceFieldPathRenderer::onDrawPath");
+                              "GrAtlasPathRenderer::onDrawPath");
     SkASSERT(!args.fRenderTargetContext->isUnifiedMultisampled());
     SkASSERT(args.fShape->style().isSimpleFill());
 
@@ -523,14 +624,14 @@ bool GrAADistanceFieldPathRenderer::onDrawPath(const DrawPathArgs& args) {
         fAtlas = args.fResourceProvider->makeAtlas(kAlpha_8_GrPixelConfig,
                                                    ATLAS_TEXTURE_WIDTH, ATLAS_TEXTURE_HEIGHT,
                                                    NUM_PLOTS_X, NUM_PLOTS_Y,
-                                                   &GrAADistanceFieldPathRenderer::HandleEviction,
+                                                   &GrAtlasPathRenderer::HandleEviction,
                                                    (void*)this);
         if (!fAtlas) {
             return false;
         }
     }
 
-    sk_sp<GrDrawBatch> batch(new AADistanceFieldPathBatch(args.fPaint->getColor(),
+    sk_sp<GrDrawBatch> batch(new AtlasPathBatch(args.fPaint->getColor(),
                                                           *args.fShape,
                                                           args.fAntiAlias, *args.fViewMatrix,
                                                           fAtlas.get(), &fShapeCache, &fShapeList,
@@ -548,9 +649,9 @@ bool GrAADistanceFieldPathRenderer::onDrawPath(const DrawPathArgs& args) {
 #ifdef GR_TEST_UTILS
 
 struct PathTestStruct {
-    typedef GrAADistanceFieldPathRenderer::ShapeCache ShapeCache;
-    typedef GrAADistanceFieldPathRenderer::ShapeData ShapeData;
-    typedef GrAADistanceFieldPathRenderer::ShapeDataList ShapeDataList;
+    typedef GrAtlasPathRenderer::ShapeCache ShapeCache;
+    typedef GrAtlasPathRenderer::ShapeData ShapeData;
+    typedef GrAtlasPathRenderer::ShapeDataList ShapeDataList;
     PathTestStruct() : fContextID(SK_InvalidGenID), fAtlas(nullptr) {}
     ~PathTestStruct() { this->reset(); }
 
@@ -589,7 +690,7 @@ struct PathTestStruct {
     ShapeDataList fShapeList;
 };
 
-DRAW_BATCH_TEST_DEFINE(AADistanceFieldPathBatch) {
+DRAW_BATCH_TEST_DEFINE(AtlasPathBatch) {
     static PathTestStruct gTestStruct;
 
     if (context->uniqueID() != gTestStruct.fContextID) {
@@ -611,7 +712,7 @@ DRAW_BATCH_TEST_DEFINE(AADistanceFieldPathBatch) {
     GrShape shape(GrTest::TestPath(random), GrStyle::SimpleFill());
     bool antiAlias = random->nextBool();
 
-    return new AADistanceFieldPathBatch(color,
+    return new AtlasPathBatch(color,
                                         shape,
                                         antiAlias,
                                         viewMatrix,

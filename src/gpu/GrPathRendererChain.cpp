@@ -15,9 +15,9 @@
 #include "GrGpu.h"
 
 #include "batches/GrAAConvexPathRenderer.h"
-#include "batches/GrAADistanceFieldPathRenderer.h"
 #include "batches/GrAAHairLinePathRenderer.h"
 #include "batches/GrAALinearizingConvexPathRenderer.h"
+#include "batches/GrAtlasPathRenderer.h"
 #include "batches/GrDashLinePathRenderer.h"
 #include "batches/GrDefaultPathRenderer.h"
 #include "batches/GrMSAAPathRenderer.h"
@@ -45,8 +45,8 @@ GrPathRendererChain::GrPathRendererChain(GrContext* context, const Options& opti
         if (caps.shaderCaps()->plsPathRenderingSupport()) {
             this->addPathRenderer(new GrPLSPathRenderer)->unref();
         }
-        if (!options.fDisableDistanceFieldRenderer) {
-            this->addPathRenderer(new GrAADistanceFieldPathRenderer)->unref();
+        if (!options.fDisableAtlasRenderer) {
+            this->addPathRenderer(new GrAtlasPathRenderer)->unref();
         }
         this->addPathRenderer(new GrTessellatingPathRenderer)->unref();
         this->addPathRenderer(new GrDefaultPathRenderer(caps.twoSidedStencilSupport(),
