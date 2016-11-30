@@ -479,6 +479,12 @@ enum Order {
     kBGRA_Order,
 };
 
+enum Clamp {
+    kToAlpha_Clamp,
+    kToOne_Clamp,
+    kNo_Clamp,
+};
+
 static AI void set_rb_shifts(Order kOrder, int* kRShift, int* kBShift) {
     if (kRGBA_Order == kOrder) {
         *kRShift = 0;
@@ -636,8 +642,8 @@ static AI void premultiply_1(const Sk4f& a, Sk4f& rgba) {
     rgba = a * rgba;
 }
 
-template <Order kOrder>
-static AI void store_srgb(void* dst, const uint32_t* src, Sk4f& dr, Sk4f& dg, Sk4f& db, Sk4f&,
+template <Order kOrder, Clamp kClamp>
+static AI void store_srgb(void* dst, const uint32_t* src, Sk4f& dr, Sk4f& dg, Sk4f& db, Sk4f& da,
                           const uint8_t* const[3]) {
     int kRShift, kGShift = 8, kBShift;
     set_rb_shifts(kOrder, &kRShift, &kBShift);
@@ -645,24 +651,36 @@ static AI void store_srgb(void* dst, const uint32_t* src, Sk4f& dr, Sk4f& dg, Sk
     dg = sk_linear_to_srgb_needs_trunc(dg);
     db = sk_linear_to_srgb_needs_trunc(db);
 
-    dr = sk_clamp_0_255(dr);
-    dg = sk_clamp_0_255(dg);
-    db = sk_clamp_0_255(db);
+    if (kToOne_Clamp == kClamp) {
+        dr = sk_clamp_0_255(dr);
+        dg = sk_clamp_0_255(dg);
+        db = sk_clamp_0_255(db);
+    } else {
+        dr = sk_clamp_0_a(dr, 255.0f * da);
+        dg = sk_clamp_0_a(dg, 255.0f * da);
+        db = sk_clamp_0_a(db, 255.0f * da);
+    }
 
-    Sk4i da = Sk4i::Load(src) & 0xFF000000;
+    Sk4i ia = Sk4i::Load(src) & 0xFF000000;
 
     Sk4i rgba = (SkNx_cast<int>(dr) << kRShift)
               | (SkNx_cast<int>(dg) << kGShift)
               | (SkNx_cast<int>(db) << kBShift)
-              | (da                           );
+              | (ia                           );
     rgba.store(dst);
 }
 
-template <Order kOrder>
+template <Order kOrder, Clamp kClamp>
 static AI void store_srgb_1(void* dst, const uint32_t* src,
-                            Sk4f& rgba, const Sk4f&,
+                            Sk4f& rgba, const Sk4f& a,
                             const uint8_t* const[3]) {
-    rgba = sk_clamp_0_255(sk_linear_to_srgb_needs_trunc(rgba));
+    rgba = sk_linear_to_srgb_needs_trunc(rgba);
+
+    if (kToOne_Clamp == kClamp) {
+        rgba = sk_clamp_0_255(rgba);
+    } else {
+        rgba = sk_clamp_0_a(rgba, 255.0f * a);
+    }
 
     uint32_t tmp;
     SkNx_cast<uint8_t>(SkNx_cast<int32_t>(rgba)).store(&tmp);
@@ -684,8 +702,8 @@ static AI Sk4f linear_to_2dot2(const Sk4f& x) {
     return 255.0f * x2.invert() * x32 * x64.invert();
 }
 
-template <Order kOrder>
-static AI void store_2dot2(void* dst, const uint32_t* src, Sk4f& dr, Sk4f& dg, Sk4f& db, Sk4f&,
+template <Order kOrder, Clamp kClamp>
+static AI void store_2dot2(void* dst, const uint32_t* src, Sk4f& dr, Sk4f& dg, Sk4f& db, Sk4f& da,
                            const uint8_t* const[3]) {
     int kRShift, kGShift = 8, kBShift;
     set_rb_shifts(kOrder, &kRShift, &kBShift);
@@ -693,24 +711,36 @@ static AI void store_2dot2(void* dst, const uint32_t* src, Sk4f& dr, Sk4f& dg, S
     dg = linear_to_2dot2(dg);
     db = linear_to_2dot2(db);
 
-    dr = sk_clamp_0_255(dr);
-    dg = sk_clamp_0_255(dg);
-    db = sk_clamp_0_255(db);
+    if (kToOne_Clamp == kClamp) {
+        dr = sk_clamp_0_255(dr);
+        dg = sk_clamp_0_255(dg);
+        db = sk_clamp_0_255(db);
+    } else {
+        dr = sk_clamp_0_a(dr, 255.0f * da);
+        dg = sk_clamp_0_a(dg, 255.0f * da);
+        db = sk_clamp_0_a(db, 255.0f * da);
+    }
 
-    Sk4i da = Sk4i::Load(src) & 0xFF000000;
+    Sk4i ia = Sk4i::Load(src) & 0xFF000000;
 
     Sk4i rgba = (Sk4f_round(dr) << kRShift)
               | (Sk4f_round(dg) << kGShift)
               | (Sk4f_round(db) << kBShift)
-              | (da                       );
+              | (ia                       );
     rgba.store(dst);
 }
 
-template <Order kOrder>
+template <Order kOrder, Clamp kClamp>
 static AI void store_2dot2_1(void* dst, const uint32_t* src,
-                             Sk4f& rgba, const Sk4f&,
+                             Sk4f& rgba, const Sk4f& a,
                              const uint8_t* const[3]) {
-    rgba = sk_clamp_0_255(linear_to_2dot2(rgba));
+    rgba = linear_to_2dot2(rgba);
+
+    if (kToOne_Clamp == kClamp) {
+        rgba = sk_clamp_0_255(rgba);
+    } else {
+        rgba = sk_clamp_0_a(rgba, 255.0f * a);
+    }
 
     uint32_t tmp;
     SkNx_cast<uint8_t>(Sk4f_round(rgba)).store(&tmp);
@@ -722,29 +752,39 @@ static AI void store_2dot2_1(void* dst, const uint32_t* src,
     *(uint32_t*)dst = tmp;
 }
 
-template <Order kOrder>
-static AI void store_linear(void* dst, const uint32_t* src, Sk4f& dr, Sk4f& dg, Sk4f& db, Sk4f&,
+template <Order kOrder, Clamp kClamp>
+static AI void store_linear(void* dst, const uint32_t* src, Sk4f& dr, Sk4f& dg, Sk4f& db, Sk4f& da,
                             const uint8_t* const[3]) {
     int kRShift, kGShift = 8, kBShift;
     set_rb_shifts(kOrder, &kRShift, &kBShift);
-    dr = sk_clamp_0_255(255.0f * dr);
-    dg = sk_clamp_0_255(255.0f * dg);
-    db = sk_clamp_0_255(255.0f * db);
+    if (kToOne_Clamp == kClamp) {
+        dr = sk_clamp_0_255(255.0f * dr);
+        dg = sk_clamp_0_255(255.0f * dg);
+        db = sk_clamp_0_255(255.0f * db);
+    } else {
+        dr = 255.0f * sk_clamp_0_a(dr, da);
+        dg = 255.0f * sk_clamp_0_a(dg, da);
+        db = 255.0f * sk_clamp_0_a(db, da);
+    }
 
-    Sk4i da = Sk4i::Load(src) & 0xFF000000;
+    Sk4i ia = Sk4i::Load(src) & 0xFF000000;
 
     Sk4i rgba = (Sk4f_round(dr) << kRShift)
               | (Sk4f_round(dg) << kGShift)
               | (Sk4f_round(db) << kBShift)
-              | (da                       );
+              | (ia                       );
     rgba.store(dst);
 }
 
-template <Order kOrder>
+template <Order kOrder, Clamp kClamp>
 static AI void store_linear_1(void* dst, const uint32_t* src,
-                              Sk4f& rgba, const Sk4f&,
+                              Sk4f& rgba, const Sk4f& a,
                               const uint8_t* const[3]) {
-    rgba = sk_clamp_0_255(255.0f * rgba);
+    if (kToOne_Clamp == kClamp) {
+        rgba = sk_clamp_0_255(255.0f * rgba);
+    } else {
+        rgba = 255.0f * sk_clamp_0_a(rgba, a);
+    }
 
     uint32_t tmp;
     SkNx_cast<uint8_t>(Sk4f_round(rgba)).store(&tmp);
@@ -756,7 +796,7 @@ static AI void store_linear_1(void* dst, const uint32_t* src,
     *(uint32_t*)dst = tmp;
 }
 
-template <Order kOrder>
+template <Order kOrder, Clamp kClamp>
 static AI void store_f16(void* dst, const uint32_t* src, Sk4f& dr, Sk4f& dg, Sk4f& db, Sk4f& da,
                          const uint8_t* const[3]) {
     Sk4h::Store4(dst, SkFloatToHalf_finite_ftz(dr),
@@ -765,7 +805,7 @@ static AI void store_f16(void* dst, const uint32_t* src, Sk4f& dr, Sk4f& dg, Sk4
                       SkFloatToHalf_finite_ftz(da));
 }
 
-template <Order kOrder>
+template <Order kOrder, Clamp kClamp>
 static AI void store_f16_1(void* dst, const uint32_t* src,
                            Sk4f& rgba, const Sk4f& a,
                            const uint8_t* const[3]) {
@@ -773,13 +813,13 @@ static AI void store_f16_1(void* dst, const uint32_t* src,
     SkFloatToHalf_finite_ftz(rgba).store((uint64_t*) dst);
 }
 
-template <Order kOrder>
+template <Order kOrder, Clamp kClamp>
 static AI void store_f32(void* dst, const uint32_t* src, Sk4f& dr, Sk4f& dg, Sk4f& db, Sk4f& da,
                          const uint8_t* const[3]) {
     Sk4f::Store4(dst, dr, dg, db, da);
 }
 
-template <Order kOrder>
+template <Order kOrder, Clamp kClamp>
 static AI void store_f32_1(void* dst, const uint32_t* src,
                            Sk4f& rgba, const Sk4f& a,
                            const uint8_t* const[3]) {
@@ -787,7 +827,7 @@ static AI void store_f32_1(void* dst, const uint32_t* src,
     rgba.store((float*) dst);
 }
 
-template <Order kOrder>
+template <Order kOrder, Clamp kClamp>
 static AI void store_f16_opaque(void* dst, const uint32_t* src, Sk4f& dr, Sk4f& dg, Sk4f& db,
                                 Sk4f&, const uint8_t* const[3]) {
     Sk4h::Store4(dst, SkFloatToHalf_finite_ftz(dr),
@@ -796,7 +836,7 @@ static AI void store_f16_opaque(void* dst, const uint32_t* src, Sk4f& dr, Sk4f& 
                       SK_Half1);
 }
 
-template <Order kOrder>
+template <Order kOrder, Clamp kClamp>
 static AI void store_f16_1_opaque(void* dst, const uint32_t* src,
                                   Sk4f& rgba, const Sk4f&,
                                   const uint8_t* const[3]) {
@@ -806,47 +846,57 @@ static AI void store_f16_1_opaque(void* dst, const uint32_t* src,
     *((uint64_t*) dst) = tmp;
 }
 
-template <Order kOrder>
-static AI void store_generic(void* dst, const uint32_t* src, Sk4f& dr, Sk4f& dg, Sk4f& db, Sk4f&,
+template <Order kOrder, Clamp kClamp>
+static AI void store_generic(void* dst, const uint32_t* src, Sk4f& dr, Sk4f& dg, Sk4f& db, Sk4f& da,
                              const uint8_t* const dstTables[3]) {
     int kRShift, kGShift = 8, kBShift;
     set_rb_shifts(kOrder, &kRShift, &kBShift);
-    dr = Sk4f::Min(Sk4f::Max(1023.0f * dr, 0.0f), 1023.0f);
-    dg = Sk4f::Min(Sk4f::Max(1023.0f * dg, 0.0f), 1023.0f);
-    db = Sk4f::Min(Sk4f::Max(1023.0f * db, 0.0f), 1023.0f);
+    if (kToOne_Clamp == kClamp) {
+        dr = Sk4f::Min(Sk4f::Max(1023.0f * dr, 0.0f), 1023.0f);
+        dg = Sk4f::Min(Sk4f::Max(1023.0f * dg, 0.0f), 1023.0f);
+        db = Sk4f::Min(Sk4f::Max(1023.0f * db, 0.0f), 1023.0f);
+    } else {
+        dr = Sk4f::Min(Sk4f::Max(1023.0f * dr, 0.0f), 1023.0f * da);
+        dg = Sk4f::Min(Sk4f::Max(1023.0f * dg, 0.0f), 1023.0f * da);
+        db = Sk4f::Min(Sk4f::Max(1023.0f * db, 0.0f), 1023.0f * da);
+    }
 
     Sk4i ir = Sk4f_round(dr);
     Sk4i ig = Sk4f_round(dg);
     Sk4i ib = Sk4f_round(db);
 
-    Sk4i da = Sk4i::Load(src) & 0xFF000000;
+    Sk4i ia = Sk4i::Load(src) & 0xFF000000;
 
     uint32_t* dst32 = (uint32_t*) dst;
     dst32[0] = dstTables[0][ir[0]] << kRShift
              | dstTables[1][ig[0]] << kGShift
              | dstTables[2][ib[0]] << kBShift
-             | da[0];
+             | ia[0];
     dst32[1] = dstTables[0][ir[1]] << kRShift
              | dstTables[1][ig[1]] << kGShift
              | dstTables[2][ib[1]] << kBShift
-             | da[1];
+             | ia[1];
     dst32[2] = dstTables[0][ir[2]] << kRShift
              | dstTables[1][ig[2]] << kGShift
              | dstTables[2][ib[2]] << kBShift
-             | da[2];
+             | ia[2];
     dst32[3] = dstTables[0][ir[3]] << kRShift
              | dstTables[1][ig[3]] << kGShift
              | dstTables[2][ib[3]] << kBShift
-             | da[3];
+             | ia[3];
 }
 
-template <Order kOrder>
+template <Order kOrder, Clamp kClamp>
 static AI void store_generic_1(void* dst, const uint32_t* src,
-                               Sk4f& rgba, const Sk4f&,
+                               Sk4f& rgba, const Sk4f& a,
                                const uint8_t* const dstTables[3]) {
     int kRShift, kGShift = 8, kBShift;
     set_rb_shifts(kOrder, &kRShift, &kBShift);
-    rgba = Sk4f::Min(Sk4f::Max(1023.0f * rgba, 0.0f), 1023.0f);
+    if (kToOne_Clamp == kClamp) {
+        rgba = Sk4f::Min(Sk4f::Max(1023.0f * rgba, 0.0f), 1023.0f);
+    } else {
+        rgba = Sk4f::Min(Sk4f::Max(1023.0f * rgba, 0.0f), 1023.0f * a);
+    }
 
     Sk4i indices = Sk4f_round(rgba);
 
@@ -858,8 +908,8 @@ static AI void store_generic_1(void* dst, const uint32_t* src,
 
 typedef decltype(load_rgb_from_tables<kRGBA_Order>  )* LoadFn;
 typedef decltype(load_rgb_from_tables_1<kRGBA_Order>)* Load1Fn;
-typedef decltype(store_generic<kRGBA_Order>         )* StoreFn;
-typedef decltype(store_generic_1<kRGBA_Order>       )* Store1Fn;
+typedef decltype(store_generic<kRGBA_Order, kToOne_Clamp>  )* StoreFn;
+typedef decltype(store_generic_1<kRGBA_Order, kToOne_Clamp>)* Store1Fn;
 
 enum SrcFormat {
     kRGBA_8888_Linear_SrcFormat,
@@ -937,55 +987,89 @@ static void color_xform_RGBA(void* dst, const void* vsrc, int len,
     size_t sizeOfDstPixel;
     switch (kDst) {
         case kRGBA_8888_Linear_DstFormat:
-            store   = store_linear<kRGBA_Order>;
-            store_1 = store_linear_1<kRGBA_Order>;
+            store   = (kPremul_SkAlphaType == kAlphaType) ?
+                    store_linear<kRGBA_Order, kToAlpha_Clamp> :
+                    store_linear<kRGBA_Order, kToOne_Clamp>;
+            store_1 = (kPremul_SkAlphaType == kAlphaType) ?
+                    store_linear_1<kRGBA_Order, kToAlpha_Clamp> :
+                    store_linear_1<kRGBA_Order, kToOne_Clamp>;
             sizeOfDstPixel = 4;
             break;
         case kRGBA_8888_SRGB_DstFormat:
-            store   = store_srgb<kRGBA_Order>;
-            store_1 = store_srgb_1<kRGBA_Order>;
+            store   = (kPremul_SkAlphaType == kAlphaType) ?
+                    store_srgb<kRGBA_Order, kToAlpha_Clamp> :
+                    store_srgb<kRGBA_Order, kToOne_Clamp>;
+            store_1 = (kPremul_SkAlphaType == kAlphaType) ?
+                    store_srgb_1<kRGBA_Order, kToAlpha_Clamp> :
+                    store_srgb_1<kRGBA_Order, kToOne_Clamp>;
             sizeOfDstPixel = 4;
             break;
         case kRGBA_8888_2Dot2_DstFormat:
-            store   = store_2dot2<kRGBA_Order>;
-            store_1 = store_2dot2_1<kRGBA_Order>;
+            store   = (kPremul_SkAlphaType == kAlphaType) ?
+                    store_2dot2<kRGBA_Order, kToAlpha_Clamp> :
+                    store_2dot2<kRGBA_Order, kToOne_Clamp>;
+            store_1 = (kPremul_SkAlphaType == kAlphaType) ?
+                    store_2dot2_1<kRGBA_Order, kToAlpha_Clamp> :
+                    store_2dot2_1<kRGBA_Order, kToOne_Clamp>;
             sizeOfDstPixel = 4;
             break;
         case kRGBA_8888_Table_DstFormat:
-            store   = store_generic<kRGBA_Order>;
-            store_1 = store_generic_1<kRGBA_Order>;
+            store   = (kPremul_SkAlphaType == kAlphaType) ?
+                    store_generic<kRGBA_Order, kToAlpha_Clamp> :
+                    store_generic<kRGBA_Order, kToOne_Clamp>;
+            store_1 = (kPremul_SkAlphaType == kAlphaType) ?
+                    store_generic_1<kRGBA_Order, kToAlpha_Clamp> :
+                    store_generic_1<kRGBA_Order, kToOne_Clamp>;
             sizeOfDstPixel = 4;
             break;
         case kBGRA_8888_Linear_DstFormat:
-            store   = store_linear<kBGRA_Order>;
-            store_1 = store_linear_1<kBGRA_Order>;
+            store   = (kPremul_SkAlphaType == kAlphaType) ?
+                    store_linear<kBGRA_Order, kToAlpha_Clamp> :
+                    store_linear<kBGRA_Order, kToOne_Clamp>;
+            store_1 = (kPremul_SkAlphaType == kAlphaType) ?
+                    store_linear_1<kBGRA_Order, kToAlpha_Clamp> :
+                    store_linear_1<kBGRA_Order, kToOne_Clamp>;
             sizeOfDstPixel = 4;
             break;
         case kBGRA_8888_SRGB_DstFormat:
-            store   = store_srgb<kBGRA_Order>;
-            store_1 = store_srgb_1<kBGRA_Order>;
+            store   = (kPremul_SkAlphaType == kAlphaType) ?
+                    store_srgb<kBGRA_Order, kToAlpha_Clamp> :
+                    store_srgb<kBGRA_Order, kToOne_Clamp>;
+            store_1 = (kPremul_SkAlphaType == kAlphaType) ?
+                    store_srgb_1<kBGRA_Order, kToAlpha_Clamp> :
+                    store_srgb_1<kBGRA_Order, kToOne_Clamp>;
             sizeOfDstPixel = 4;
             break;
         case kBGRA_8888_2Dot2_DstFormat:
-            store   = store_2dot2<kBGRA_Order>;
-            store_1 = store_2dot2_1<kBGRA_Order>;
+            store   = (kPremul_SkAlphaType == kAlphaType) ?
+                    store_2dot2<kBGRA_Order, kToAlpha_Clamp> :
+                    store_2dot2<kBGRA_Order, kToOne_Clamp>;
+            store_1 = (kPremul_SkAlphaType == kAlphaType) ?
+                    store_2dot2_1<kBGRA_Order, kToAlpha_Clamp> :
+                    store_2dot2_1<kBGRA_Order, kToOne_Clamp>;
             sizeOfDstPixel = 4;
             break;
         case kBGRA_8888_Table_DstFormat:
-            store   = store_generic<kBGRA_Order>;
-            store_1 = store_generic_1<kBGRA_Order>;
+            store   = (kPremul_SkAlphaType == kAlphaType) ?
+                    store_generic<kBGRA_Order, kToAlpha_Clamp> :
+                    store_generic<kBGRA_Order, kToOne_Clamp>;
+            store_1 = (kPremul_SkAlphaType == kAlphaType) ?
+                    store_generic_1<kBGRA_Order, kToAlpha_Clamp> :
+                    store_generic_1<kBGRA_Order, kToOne_Clamp>;
             sizeOfDstPixel = 4;
             break;
         case kF16_Linear_DstFormat:
-            store   = (kOpaque_SkAlphaType == kAlphaType) ? store_f16_opaque<kRGBA_Order> :
-                                                            store_f16<kRGBA_Order>;
-            store_1 = (kOpaque_SkAlphaType == kAlphaType) ? store_f16_1_opaque<kRGBA_Order> :
-                                                            store_f16_1<kRGBA_Order>;
+            store   = (kOpaque_SkAlphaType == kAlphaType) ?
+                    store_f16_opaque<kRGBA_Order, kNo_Clamp> :
+                    store_f16<kRGBA_Order, kNo_Clamp>;
+            store_1 = (kOpaque_SkAlphaType == kAlphaType) ?
+                    store_f16_1_opaque<kRGBA_Order, kNo_Clamp> :
+                    store_f16_1<kRGBA_Order, kNo_Clamp>;
             sizeOfDstPixel = 8;
             break;
         case kF32_Linear_DstFormat:
-            store   = store_f32<kRGBA_Order>;
-            store_1 = store_f32_1<kRGBA_Order>;
+            store   = store_f32<kRGBA_Order, kNo_Clamp>;
+            store_1 = store_f32_1<kRGBA_Order, kNo_Clamp>;
             sizeOfDstPixel = 16;
             break;
     }
@@ -1171,26 +1255,23 @@ bool SkColorSpaceXform_XYZ<kSrc, kDst, kCSM>
           int len, SkAlphaType alphaType) const
 {
     if (kFull_ColorSpaceMatch == kCSM) {
-        switch (alphaType) {
-            case kPremul_SkAlphaType:
-                // We can't skip the xform since we need to perform a premultiply in the
-                // linear space.
-                break;
-            default:
-                switch (dstColorFormat) {
-                    case kRGBA_8888_ColorFormat:
-                        memcpy(dst, src, len * sizeof(uint32_t));
-                        return true;
-                    case kBGRA_8888_ColorFormat:
-                        SkOpts::RGBA_to_BGRA((uint32_t*) dst, src, len);
-                        return true;
-                    case kRGBA_F16_ColorFormat:
-                    case kRGBA_F32_ColorFormat:
-                        // There's still work to do to xform to linear floats.
-                        break;
-                    default:
-                        return false;
-                }
+        if (kPremul_SkAlphaType != alphaType) {
+            if ((kRGBA_8888_ColorFormat == dstColorFormat &&
+                 kRGBA_8888_ColorFormat == srcColorFormat) ||
+                (kBGRA_8888_ColorFormat == dstColorFormat &&
+                 kBGRA_8888_ColorFormat == srcColorFormat))
+            {
+                memcpy(dst, src, len * sizeof(uint32_t));
+                return true;
+            }
+            if ((kRGBA_8888_ColorFormat == dstColorFormat &&
+                 kBGRA_8888_ColorFormat == srcColorFormat) ||
+                (kBGRA_8888_ColorFormat == dstColorFormat &&
+                 kRGBA_8888_ColorFormat == srcColorFormat))
+            {
+                SkOpts::RGBA_to_BGRA((uint32_t*) dst, src, len);
+                return true;
+            }
         }
     }
 
