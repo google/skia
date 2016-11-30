@@ -126,7 +126,7 @@ static inline SkColor4f SkColor4f_from_SkColor(SkColor color, SkColorSpace* dst)
                                SkColorSpace::MakeNamed(SkColorSpace::kSRGB_Named).get(), dst);
         p.append(SkRasterPipeline::store_f32, &color4f_ptr);
 
-        p.compile()(0,0,1);
+        p.run(0,0,1);
     } else {
         // Linear gamma, dst gamut.
         swizzle_rb(SkNx_cast<float>(Sk4b::Load(&color)) * (1/255.0f)).store(&color4f);
