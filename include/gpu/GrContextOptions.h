@@ -43,11 +43,6 @@ struct GrContextOptions {
         verify that the clip bounds are conservative. */
     bool fClipBatchToBounds = false;
 
-    /** For debugging purposes draw a wireframe device bounds rect for each GrBatch. The wire
-        frame rect is draw before the GrBatch in order to visualize batches that draw outside
-        of their dev bounds. */
-    bool fDrawBatchBounds = false;
-
     /** For debugging, override the default maximum look-back or look-ahead window for GrBatch
         combining. */
     int fMaxBatchLookback = -1;

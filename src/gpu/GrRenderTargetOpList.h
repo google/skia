@@ -43,11 +43,9 @@ public:
     struct Options {
         Options ()
             : fClipBatchToBounds(false)
-            , fDrawBatchBounds(false)
             , fMaxBatchLookback(-1)
             , fMaxBatchLookahead(-1) {}
         bool fClipBatchToBounds;
-        bool fDrawBatchBounds;
         int  fMaxBatchLookback;
         int  fMaxBatchLookahead;
     };
@@ -164,7 +162,6 @@ private:
     GrResourceProvider*                             fResourceProvider;
 
     bool                                            fClipBatchToBounds;
-    bool                                            fDrawBatchBounds;
     int                                             fMaxBatchLookback;
     int                                             fMaxBatchLookahead;
 

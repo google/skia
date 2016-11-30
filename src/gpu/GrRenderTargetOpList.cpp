@@ -58,7 +58,6 @@ GrRenderTargetOpList::GrRenderTargetOpList(GrRenderTargetProxy* rtp, GrGpu* gpu,
     fContext = fGpu->getContext();
 
     fClipBatchToBounds = options.fClipBatchToBounds;
-    fDrawBatchBounds = options.fDrawBatchBounds;
     fMaxBatchLookback = (options.fMaxBatchLookback < 0) ? kDefaultMaxBatchLookback :
                                                           options.fMaxBatchLookback;
     fMaxBatchLookahead = (options.fMaxBatchLookahead < 0) ? kDefaultMaxBatchLookahead :
@@ -208,16 +207,6 @@ bool GrRenderTargetOpList::drawBatches(GrBatchFlushState* flushState) {
                                                               kBasicLoadStoreInfo)); // Stencil
             }
             flushState->setCommandBuffer(commandBuffer.get());
-        }
-        if (fDrawBatchBounds) {
-            const SkRect& bounds = fRecordedBatches[i].fClippedBounds;
-            SkIRect ibounds;
-            bounds.roundOut(&ibounds);
-            // In multi-draw buffer all the batches use the same render target and we won't need to
-            // get the batchs bounds.
-            if (GrRenderTarget* rt = fRecordedBatches[i].fBatch->renderTarget()) {
-                fGpu->drawDebugWireRect(rt, ibounds, 0xFF000000 | random.nextU());
-            }
         }
         fRecordedBatches[i].fBatch->draw(flushState, fRecordedBatches[i].fClippedBounds);
     }
