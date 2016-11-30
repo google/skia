@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "f01d104e_8cb7b21e",
+        "filename": "src/gpu/effects/Gr1DKernelEffect.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 49,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2016-11-30T18:50:25Z",
+      "side": 0,
+      "message": "was this removal intentional? seems out of place in this change",
+      "range": {
+        "startLine": 49,
+        "startChar": 8,
+        "endLine": 49,
+        "endChar": 42
+      },
+      "revId": "994d36c3fa57683ce16e0c4666032e22fb49435f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}

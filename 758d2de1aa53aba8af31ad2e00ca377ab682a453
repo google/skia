@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "f01d104e_2cc95eb9",
+        "filename": "src/gpu/batches/GrRegionBatch.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 80,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2016-11-30T18:50:25Z",
+      "side": 1,
+      "message": "duplicate line",
+      "range": {
+        "startLine": 80,
+        "startChar": 8,
+        "endLine": 80,
+        "endChar": 42
+      },
+      "revId": "758d2de1aa53aba8af31ad2e00ca377ab682a453",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
