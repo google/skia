@@ -955,9 +955,13 @@ namespace SK_OPTS_NS {
 
             Fn fStart = just_return;
             Stage fStages[SkRasterPipeline::kMaxStages];
+        };
+        return Compiled{stages, nstages};
+    }
 
-        } fn { stages, nstages };
-        return fn;
+    SI void run_pipeline(size_t x, size_t y, size_t n,
+                         const SkRasterPipeline::Stage* stages, int nstages) {
+        compile_pipeline(stages, nstages)(x,y,n);
     }
 
 }  // namespace SK_OPTS_NS

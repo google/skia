@@ -104,6 +104,9 @@ public:
     void extend(const SkRasterPipeline&);
 
     // Runs the pipeline walking x through [x,x+n), holding y constant.
+    void run(size_t x, size_t y, size_t n) const;
+
+    // If you're going to run() the pipeline more than once, it's best to compile it.
     std::function<void(size_t x, size_t y, size_t n)> compile() const;
 
     void dump() const;
