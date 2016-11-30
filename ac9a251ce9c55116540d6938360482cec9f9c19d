@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "f01d104e_65aa9250",
+        "filename": "src/core/SkColorSpace_XYZ.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 65,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2016-11-30T00:37:31Z",
+      "side": 1,
+      "message": "Aren\u0027t these coefficients less precise than the standard definitions?  I always remember this one being 0.04045",
+      "revId": "ac9a251ce9c55116540d6938360482cec9f9c19d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "f01d104e_05755e39",
+        "filename": "tests/ColorSpaceTest.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 429,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2016-11-30T00:37:31Z",
+      "side": 1,
+      "message": "might be nice to put the \u0027f\u0027 on all of these.",
+      "revId": "ac9a251ce9c55116540d6938360482cec9f9c19d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
