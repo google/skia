@@ -65,8 +65,8 @@
     M(load_565)  M(load_565_d)  M(store_565)                     \
     M(load_f16)  M(load_f16_d)  M(store_f16)                     \
     M(load_8888) M(load_8888_d) M(store_8888)                    \
-    M(scale_u8) M(scale_constant_float)                          \
-    M(lerp_u8) M(lerp_565) M(lerp_constant_float)                \
+    M(scale_u8) M(scale_1_float)                                 \
+    M(lerp_u8) M(lerp_565) M(lerp_1_float)                       \
     M(dstatop) M(dstin) M(dstout) M(dstover)                     \
     M(srcatop) M(srcin) M(srcout) M(srcover)                     \
     M(clear) M(modulate) M(multiply) M(plus_) M(screen) M(xor_)  \
