@@ -280,6 +280,10 @@ bool SkImageShader::onAppendStages(SkRasterPipeline* p, SkColorSpace* dst, SkFal
     }
     auto info = pm.info();
 
+    if (!info.colorSpace()) {
+        info = info.makeColorSpace(sk_ref_sp(dst));
+    }
+
 
     auto matrix = SkMatrix::Concat(ctm, this->getLocalMatrix());
     if (!matrix.invert(&matrix)) {
