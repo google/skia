@@ -118,6 +118,19 @@ public:
     bool gammaIsLinear() const;
 
     /**
+     *  If the transfer function can be represented as coefficients to the standard
+     *  equation, returns true and sets |coeffs| to the proper values.
+     *
+     *  If not, returns false.  This indicates one of the following:
+     *  (1) The R, G, and B transfer functions are not the same.
+     *  (2) The transfer function is represented as a table that we have not managed
+     *      to match to a standard curve.
+     *  (3) The color space is too complex to be represented as single transfer function
+     *      and matrix.
+     */
+    bool isNumericalTransferFn(SkColorSpaceTransferFn* coeffs) const;
+
+    /**
      *  Returns nullptr on failure.  Fails when we fallback to serializing ICC data and
      *  the data is too large to serialize.
      */

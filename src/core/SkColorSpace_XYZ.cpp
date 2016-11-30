@@ -56,6 +56,63 @@ bool SkColorSpace_XYZ::onGammaIsLinear() const {
     return kLinear_SkGammaNamed == fGammaNamed;
 }
 
+bool SkColorSpace_XYZ::onIsNumericalTransferFn(SkColorSpaceTransferFn* coeffs) const {
+    switch (fGammaNamed) {
+        case kSRGB_SkGammaNamed:
+            coeffs->fA = 1.0f / 1.055f;
+            coeffs->fB = 0.055f / 1.055f;
+            coeffs->fC = 0.0f;
+            coeffs->fD = 0.04045f;
+            coeffs->fE = 1.0f / 12.92f;
+            coeffs->fF = 0.0f;
+            coeffs->fG = 2.4f;
+            return true;
+        case k2Dot2Curve_SkGammaNamed:
+            coeffs->fA = 1.0f;
+            coeffs->fB = 0.0f;
+            coeffs->fC = 0.0f;
+            coeffs->fD = 0.0f;
+            coeffs->fE = 0.0f;
+            coeffs->fF = 0.0f;
+            coeffs->fG = 2.2f;
+            return true;
+        case kLinear_SkGammaNamed:
+            coeffs->fA = 1.0f;
+            coeffs->fB = 0.0f;
+            coeffs->fC = 0.0f;
+            coeffs->fD = 0.0f;
+            coeffs->fE = 0.0f;
+            coeffs->fF = 0.0f;
+            coeffs->fG = 1.0f;
+            return true;
+        default:
+            break;
+    }
+
+    SkASSERT(fGammas);
+    if (fGammas->data(0) != fGammas->data(1) || fGammas->data(0) != fGammas->data(2)) {
+        return false;
+    }
+
+    if (fGammas->isValue(0)) {
+        coeffs->fA = 1.0f;
+        coeffs->fB = 0.0f;
+        coeffs->fC = 0.0f;
+        coeffs->fD = 0.0f;
+        coeffs->fE = 0.0f;
+        coeffs->fF = 0.0f;
+        coeffs->fG = fGammas->data(0).fValue;
+        return true;
+    }
+
+    if (fGammas->isParametric(0)) {
+        *coeffs = fGammas->params(0);
+        return true;
+    }
+
+    return false;
+}
+
 sk_sp<SkColorSpace> SkColorSpace_XYZ::makeLinearGamma() {
     if (this->gammaIsLinear()) {
         return sk_ref_sp(this);
