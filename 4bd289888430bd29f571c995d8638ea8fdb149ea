@@ -37,6 +37,24 @@
     },
     {
       "key": {
+        "uuid": "f01d104e_02be2998",
+        "filename": "infra/bots/gen_tasks.go",
+        "patchSetId": 1
+      },
+      "lineNbr": 148,
+      "author": {
+        "id": 5015
+      },
+      "writtenOn": "2016-11-30T20:21:29Z",
+      "side": 1,
+      "message": "Okay, changed the Test and Perf Win- bots to Win2k8.\n\nI disagree about the task not caring.  The task may not care what version of the OS it runs on, but we probably do care that it doesn\u0027t change without notice.  IMO specifying a version in dimensions is helpful since it allows us to upgrade in lockstep with a commit.\n\nWe need to decide soon what the policy will be for supporting different OS versions.  If we actually want to test multiple versions, then we should include the versions in the builder names when we care.  Otherwise, we should just choose a single version of each OS and not include it in the builder name.  Either way, I think we should specify the version as a dimension.",
+      "parentUuid": "2d82efcd_39924b37",
+      "revId": "4bd289888430bd29f571c995d8638ea8fdb149ea",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "f01d104e_a7e2c712",
         "filename": "infra/bots/gen_tasks.go",
         "patchSetId": 1
@@ -54,6 +72,24 @@
         "endLine": 327,
         "endChar": 31
       },
+      "revId": "4bd289888430bd29f571c995d8638ea8fdb149ea",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "2d82efcd_1918afec",
+        "filename": "infra/bots/gen_tasks.go",
+        "patchSetId": 1
+      },
+      "lineNbr": 327,
+      "author": {
+        "id": 5015
+      },
+      "writtenOn": "2016-11-30T20:21:29Z",
+      "side": 1,
+      "message": "SGTM, I was just trying to make everything continue working as-is.",
+      "parentUuid": "f01d104e_a7e2c712",
       "revId": "4bd289888430bd29f571c995d8638ea8fdb149ea",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
