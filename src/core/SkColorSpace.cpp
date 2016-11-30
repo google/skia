@@ -152,7 +152,17 @@ sk_sp<SkColorSpace> SkColorSpace_Base::MakeRGB(SkGammaNamed gammaNamed, const Sk
     return sk_sp<SkColorSpace>(new SkColorSpace_XYZ(gammaNamed, toXYZD50));
 }
 
+static inline bool is_3x3_matrix(const SkMatrix44& toXYZD50) {
+    return 0.0f == toXYZD50.get(0, 3) && 0.0f == toXYZD50.get(1, 3) && 0.0f == toXYZD50.get(2, 3) &&
+           0.0f == toXYZD50.get(3, 0) && 0.0f == toXYZD50.get(3, 1) && 0.0f == toXYZD50.get(3, 2) &&
+           1.0f == toXYZD50.get(3, 3);
+}
+
 sk_sp<SkColorSpace> SkColorSpace::MakeRGB(RenderTargetGamma gamma, const SkMatrix44& toXYZD50) {
+    if (!is_3x3_matrix(toXYZD50)) {
+        return nullptr;
+    }
+
     switch (gamma) {
         case kLinear_RenderTargetGamma:
             return SkColorSpace_Base::MakeRGB(kLinear_SkGammaNamed, toXYZD50);
@@ -165,12 +175,12 @@ sk_sp<SkColorSpace> SkColorSpace::MakeRGB(RenderTargetGamma gamma, const SkMatri
 
 sk_sp<SkColorSpace> SkColorSpace::MakeRGB(const SkColorSpaceTransferFn& coeffs,
                                           const SkMatrix44& toXYZD50) {
-    if (!is_valid_transfer_fn(coeffs)) {
+    if (!is_valid_transfer_fn(coeffs) || !is_3x3_matrix(toXYZD50)) {
         return nullptr;
     }
 
     if (is_almost_srgb(coeffs)) {
-        return SkColorSpace::MakeRGB(kSRGB_RenderTargetGamma, toXYZD50);
+        return SkColorSpace_Base::MakeRGB(kSRGB_SkGammaNamed, toXYZD50);
     }
 
     if (is_almost_2dot2(coeffs)) {

@@ -466,12 +466,11 @@ std::unique_ptr<SkColorSpaceXform> SkColorSpaceXform::New(SkColorSpace* srcSpace
 
 #define AI SK_ALWAYS_INLINE
 
-static AI void load_matrix(const float matrix[16],
-                           Sk4f& rXgXbX, Sk4f& rYgYbY, Sk4f& rZgZbZ, Sk4f& rTgTbT) {
+static AI void load_matrix(const float matrix[12],
+                           Sk4f& rXgXbX, Sk4f& rYgYbY, Sk4f& rZgZbZ) {
     rXgXbX = Sk4f::Load(matrix +  0);
     rYgYbY = Sk4f::Load(matrix +  4);
     rZgZbZ = Sk4f::Load(matrix +  8);
-    rTgTbT = Sk4f::Load(matrix + 12);
 }
 
 enum Order {
@@ -614,16 +613,6 @@ static AI void transform_gamut_1(const Sk4f& r, const Sk4f& g, const Sk4f& b,
                                  const Sk4f& rXgXbX, const Sk4f& rYgYbY, const Sk4f& rZgZbZ,
                                  Sk4f& rgba) {
     rgba = rXgXbX*r + rYgYbY*g + rZgZbZ*b;
-}
-
-static AI void translate_gamut(const Sk4f& rTgTbT, Sk4f& dr, Sk4f& dg, Sk4f& db) {
-    dr = dr + rTgTbT[0];
-    dg = dg + rTgTbT[1];
-    db = db + rTgTbT[2];
-}
-
-static AI void translate_gamut_1(const Sk4f& rTgTbT, Sk4f& rgba) {
-    rgba = rgba + rTgTbT;
 }
 
 static AI void premultiply(Sk4f& dr, Sk4f& dg, Sk4f& db, const Sk4f& da) {
@@ -886,7 +875,7 @@ template <SrcFormat kSrc,
           SkAlphaType kAlphaType,
           ColorSpaceMatch kCSM>
 static void color_xform_RGBA(void* dst, const void* vsrc, int len,
-                             const float* const srcTables[3], const float matrix[16],
+                             const float* const srcTables[3], const float matrix[12],
                              const uint8_t* const dstTables[3]) {
     LoadFn load;
     Load1Fn load_1;
@@ -991,8 +980,8 @@ static void color_xform_RGBA(void* dst, const void* vsrc, int len,
     }
 
     const uint32_t* src = (const uint32_t*) vsrc;
-    Sk4f rXgXbX, rYgYbY, rZgZbZ, rTgTbT;
-    load_matrix(matrix, rXgXbX, rYgYbY, rZgZbZ, rTgTbT);
+    Sk4f rXgXbX, rYgYbY, rZgZbZ;
+    load_matrix(matrix, rXgXbX, rYgYbY, rZgZbZ);
 
     if (len >= 4) {
         // Naively this would be a loop of load-transform-store, but we found it faster to
@@ -1006,7 +995,6 @@ static void color_xform_RGBA(void* dst, const void* vsrc, int len,
         while (len >= 4) {
             if (kNone_ColorSpaceMatch == kCSM) {
                 transform_gamut(r, g, b, a, rXgXbX, rYgYbY, rZgZbZ, dr, dg, db, da);
-                translate_gamut(rTgTbT, dr, dg, db);
             } else {
                 dr = r;
                 dg = g;
@@ -1028,7 +1016,6 @@ static void color_xform_RGBA(void* dst, const void* vsrc, int len,
 
         if (kNone_ColorSpaceMatch == kCSM) {
             transform_gamut(r, g, b, a, rXgXbX, rYgYbY, rZgZbZ, dr, dg, db, da);
-            translate_gamut(rTgTbT, dr, dg, db);
         } else {
             dr = r;
             dg = g;
@@ -1051,7 +1038,6 @@ static void color_xform_RGBA(void* dst, const void* vsrc, int len,
         Sk4f rgba;
         if (kNone_ColorSpaceMatch == kCSM) {
             transform_gamut_1(r, g, b, rXgXbX, rYgYbY, rZgZbZ, rgba);
-            translate_gamut_1(rTgTbT, rgba);
         } else {
             rgba = Sk4f(r[0], g[0], b[0], a[0]);
         }
@@ -1097,7 +1083,7 @@ SkColorSpaceXform_XYZ<kSrc, kDst, kCSM>
 ::SkColorSpaceXform_XYZ(SkColorSpace_XYZ* srcSpace, const SkMatrix44& srcToDst,
                         SkColorSpace_XYZ* dstSpace)
 {
-    srcToDst.asColMajorf(fSrcToDst);
+    srcToDst.as3x4ColMajorf(fSrcToDst);
 
     const int numSrcTables = num_tables(srcSpace);
     const size_t srcEntries = numSrcTables * 256;
@@ -1114,7 +1100,7 @@ SkColorSpaceXform_XYZ<kSrc, kDst, kCSM>
 
 template <SrcFormat kSrc, DstFormat kDst, ColorSpaceMatch kCSM>
 static AI bool apply_set_alpha(void* dst, const void* src, int len, SkAlphaType alphaType,
-                               const float* const srcTables[3], const float matrix[16],
+                               const float* const srcTables[3], const float matrix[12],
                                const uint8_t* const dstTables[3]) {
     switch (alphaType) {
         case kOpaque_SkAlphaType:
@@ -1136,7 +1122,7 @@ static AI bool apply_set_alpha(void* dst, const void* src, int len, SkAlphaType 
 
 template <SrcGamma kSrc, DstFormat kDst, ColorSpaceMatch kCSM>
 static AI bool apply_set_src(void* dst, const void* src, int len, SkAlphaType alphaType,
-                             const float* const srcTables[3], const float matrix[16],
+                             const float* const srcTables[3], const float matrix[12],
                              const uint8_t* const dstTables[3],
                              SkColorSpaceXform::ColorFormat srcColorFormat) {
     switch (srcColorFormat) {

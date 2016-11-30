@@ -95,7 +95,7 @@ public:
      */
     static sk_sp<SkColorSpace> MakeRGB(RenderTargetGamma gamma, const SkMatrix44& toXYZD50);
     static sk_sp<SkColorSpace> MakeRGB(const SkColorSpaceTransferFn& coeffs,
-                                      const SkMatrix44& toXYZD50);
+                                       const SkMatrix44& toXYZD50);
 
     /**
      *  Create a common, named SkColorSpace.

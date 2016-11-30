@@ -65,7 +65,7 @@ private:
     const uint8_t*            fDstGammaTables[3];
     sk_sp<SkData>             fDstStorage;
 
-    float                     fSrcToDst[16];
+    float                     fSrcToDst[12];
 
     friend class SkColorSpaceXform;
     friend std::unique_ptr<SkColorSpaceXform> SlowIdentityXform(SkColorSpace_XYZ* space);

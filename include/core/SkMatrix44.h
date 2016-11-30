@@ -285,14 +285,15 @@ public:
     }
 
     /** These methods allow one to efficiently read matrix entries into an
-     *  array. The given array must have room for exactly 16 entries. Whenever
-     *  possible, they will try to use memcpy rather than an entry-by-entry
-     *  copy.
+     *  array. The given array must have room for exactly 16 entries (or 12
+     *  in the 3x4 case). Whenever possible, they will try to use memcpy rather
+     *  than an entry-by-entry copy.
      *
      *  Col major indicates that consecutive elements of columns will be stored
      *  contiguously in memory.  Row major indicates that consecutive elements
      *  of rows will be stored contiguously in memory.
      */
+    void as3x4ColMajorf(float[]) const;
     void asColMajorf(float[]) const;
     void asColMajord(double[]) const;
     void asRowMajorf(float[]) const;
