@@ -152,6 +152,26 @@ public:
 
     const char* name() const override { return "AAStrokeRect"; }
 
+    SkString dumpInfo() const override {
+        SkString string;
+        for (const auto& geo : fGeoData) {
+            string.appendf("Color: 0x%08x, ORect [L: %.2f, T: %.2f, R: %.2f, B: %.2f], "
+                           "AssistORect [L: %.2f, T: %.2f, R: %.2f, B: %.2f], "
+                           "IRect [L: %.2f, T: %.2f, R: %.2f, B: %.2f], Degen: %d",
+                           geo.fColor,
+                           geo.fDevOutside.fLeft, geo.fDevOutside.fTop,
+                           geo.fDevOutside.fRight, geo.fDevOutside.fBottom,
+                           geo.fDevOutsideAssist.fLeft, geo.fDevOutsideAssist.fTop,
+                           geo.fDevOutsideAssist.fRight, geo.fDevOutsideAssist.fBottom,
+                           geo.fDevInside.fLeft, geo.fDevInside.fTop,
+                           geo.fDevInside.fRight, geo.fDevInside.fBottom,
+                           geo.fDegenerate);
+        }
+        string.append(DumpPipelineInfo(*this->pipeline()));
+        string.append(INHERITED::dumpInfo());
+        return string;
+    }
+
     void computePipelineOptimizations(GrInitInvariantOutput* color,
                                       GrInitInvariantOutput* coverage,
                                       GrBatchToXPOverrides* overrides) const override {

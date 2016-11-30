@@ -75,40 +75,38 @@ public:
         return this->pipeline()->getRenderTarget()->uniqueID();
     }
 
-    SkString dumpInfo() const override {
+protected:
+    static SkString DumpPipelineInfo(const GrPipeline& pipeline) {
         SkString string;
-        string.appendf("RT: %d\n", this->renderTargetUniqueID().asUInt());
+        string.appendf("RT: %d\n", pipeline.getRenderTarget()->uniqueID().asUInt());
         string.append("ColorStages:\n");
-        for (int i = 0; i < this->pipeline()->numColorFragmentProcessors(); i++) {
+        for (int i = 0; i < pipeline.numColorFragmentProcessors(); i++) {
             string.appendf("\t\t%s\n\t\t%s\n",
-                           this->pipeline()->getColorFragmentProcessor(i).name(),
-                           this->pipeline()->getColorFragmentProcessor(i).dumpInfo().c_str());
+                           pipeline.getColorFragmentProcessor(i).name(),
+                           pipeline.getColorFragmentProcessor(i).dumpInfo().c_str());
         }
         string.append("CoverageStages:\n");
-        for (int i = 0; i < this->pipeline()->numCoverageFragmentProcessors(); i++) {
+        for (int i = 0; i < pipeline.numCoverageFragmentProcessors(); i++) {
             string.appendf("\t\t%s\n\t\t%s\n",
-                           this->pipeline()->getCoverageFragmentProcessor(i).name(),
-                           this->pipeline()->getCoverageFragmentProcessor(i).dumpInfo().c_str());
+                           pipeline.getCoverageFragmentProcessor(i).name(),
+                           pipeline.getCoverageFragmentProcessor(i).dumpInfo().c_str());
         }
-        string.appendf("XP: %s\n", this->pipeline()->getXferProcessor().name());
+        string.appendf("XP: %s\n", pipeline.getXferProcessor().name());
 
-        bool scissorEnabled = this->pipeline()->getScissorState().enabled();
+        bool scissorEnabled = pipeline.getScissorState().enabled();
         string.appendf("Scissor: ");
         if (scissorEnabled) {
             string.appendf("[L: %d, T: %d, R: %d, B: %d]\n",
-                           this->pipeline()->getScissorState().rect().fLeft,
-                           this->pipeline()->getScissorState().rect().fTop,
-                           this->pipeline()->getScissorState().rect().fRight,
-                           this->pipeline()->getScissorState().rect().fBottom);
+                           pipeline.getScissorState().rect().fLeft,
+                           pipeline.getScissorState().rect().fTop,
+                           pipeline.getScissorState().rect().fRight,
+                           pipeline.getScissorState().rect().fBottom);
         } else {
             string.appendf("<disabled>\n");
         }
-        string.append(INHERITED::dumpInfo());
-
         return string;
     }
 
-protected:
     const GrPipeline* pipeline() const {
         SkASSERT(fPipelineInstalled);
         return reinterpret_cast<const GrPipeline*>(fPipelineStorage.get());

@@ -744,6 +744,16 @@ public:
 
     const char* name() const override { return "AAConvexBatch"; }
 
+    SkString dumpInfo() const override {
+        SkString string;
+        for (const auto& geo : fGeoData) {
+            string.appendf("Color: 0x%08x\n", geo.fColor);
+        }
+        string.append(DumpPipelineInfo(*this->pipeline()));
+        string.append(INHERITED::dumpInfo());
+        return string;
+    }
+
     void computePipelineOptimizations(GrInitInvariantOutput* color,
                                       GrInitInvariantOutput* coverage,
                                       GrBatchToXPOverrides* overrides) const override {

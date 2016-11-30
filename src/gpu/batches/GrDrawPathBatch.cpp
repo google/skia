@@ -22,6 +22,7 @@ void GrDrawPathBatchBase::onPrepare(GrBatchFlushState*) {
 SkString GrDrawPathBatch::dumpInfo() const {
     SkString string;
     string.printf("PATH: 0x%p", fPath.get());
+    string.append(DumpPipelineInfo(*this->pipeline()));
     string.append(INHERITED::dumpInfo());
     return string;
 }
@@ -44,6 +45,7 @@ SkString GrDrawPathRangeBatch::dumpInfo() const {
     }
     string.remove(string.size() - 2, 2);
     string.append("]");
+    string.append(DumpPipelineInfo(*this->pipeline()));
     string.append(INHERITED::dumpInfo());
     return string;
 }

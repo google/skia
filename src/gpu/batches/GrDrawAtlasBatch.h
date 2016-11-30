@@ -21,6 +21,16 @@ public:
 
     const char* name() const override { return "DrawAtlasBatch"; }
 
+    SkString dumpInfo() const override {
+        SkString string;
+        for (const auto& geo : fGeoData) {
+            string.appendf("Color: 0x%08x, Quads: %d\n", geo.fColor, geo.fVerts.count() / 4);
+        }
+        string.append(DumpPipelineInfo(*this->pipeline()));
+        string.append(INHERITED::dumpInfo());
+        return string;
+    }
+
     void computePipelineOptimizations(GrInitInvariantOutput* color,
                                       GrInitInvariantOutput* coverage,
                                       GrBatchToXPOverrides* overrides) const override {
