@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "2d82efcd_19c2ef25",
+        "filename": "dm/DMSrcSink.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 1219,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2016-11-30T19:59:55Z",
+      "side": 0,
+      "message": "rm this too ?",
+      "revId": "9fcc743a5c82d6799ae8e5f37901810ee0b46ebf",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
