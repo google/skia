@@ -233,11 +233,6 @@ private:
                               const SkIRect& srcRect,
                               const SkIPoint& dstPoint);
 
-    void copySurfaceAsDraw(GrSurface* dst,
-                           GrSurface* src,
-                           const SkIRect& srcRect,
-                           const SkIPoint& dstPoint);
-
     // helpers for onCreateTexture and writeTexturePixels
     bool uploadTexDataLinear(GrVkTexture* tex,
                              int left, int top, int width, int height,

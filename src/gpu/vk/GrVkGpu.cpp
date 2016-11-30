@@ -1545,19 +1545,6 @@ void GrVkGpu::copySurfaceAsResolve(GrSurface* dst,
     this->resolveImage(dstRT, srcRT, srcRect, dstPoint);
 }
 
-inline bool can_copy_as_draw(const GrSurface* dst,
-                             const GrSurface* src,
-                             const GrVkGpu* gpu) {
-    return false;
-}
-
-void GrVkGpu::copySurfaceAsDraw(GrSurface* dst,
-                                GrSurface* src,
-                                const SkIRect& srcRect,
-                                const SkIPoint& dstPoint) {
-    SkASSERT(false);
-}
-
 bool GrVkGpu::onCopySurface(GrSurface* dst,
                             GrSurface* src,
                             const SkIRect& srcRect,
