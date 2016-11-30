@@ -34,6 +34,24 @@
       "revId": "422ba196948e7c136e5a19e6429627fdaf1b0725",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "f01d104e_a213957d",
+        "filename": "infra/bots/gen_tasks.go",
+        "patchSetId": 2
+      },
+      "lineNbr": 321,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2016-11-30T20:52:24Z",
+      "side": 1,
+      "message": "Ah, sure.  Yeah, definitely don\u0027t care what the builder is.",
+      "parentUuid": "f01d104e_e2c90d14",
+      "revId": "422ba196948e7c136e5a19e6429627fdaf1b0725",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
