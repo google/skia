@@ -5,13 +5,13 @@
  * found in the LICENSE file.
  */
 
-#include "SkColorPriv.h"
 #include "SkImageEncoderPriv.h"
+
+#include "SkColorPriv.h"
 #include "SkImageGenerator.h"
 #include "SkPixelRef.h"
 #include "SkStream.h"
 #include "SkStreamPriv.h"
-#include "SkTypes.h"
 
 #include "ktx.h"
 #include "etc1.h"
@@ -30,17 +30,6 @@
 // be represented as a full resolution 8-bit image dump with the appropriate
 // OpenGL defines in the header).
 
-class SkKTXImageEncoder : public SkImageEncoder {
-protected:
-    bool onEncode(SkWStream* stream, const SkBitmap& bitmap, int) override {
-        return SkKTXFile::WriteBitmapToKTX(stream, bitmap);
-    }
-};
-
-DEFINE_ENCODER_CREATOR(KTXImageEncoder);
-
-SkImageEncoder* sk_libktx_efactory(SkImageEncoder::Type t) {
-    return (SkEncodedImageFormat::kKTX == (SkEncodedImageFormat)t) ? new SkKTXImageEncoder : nullptr;
+bool SkEncodeImageAsKTX(SkWStream* stream, const SkPixmap& pixmap) {
+    return SkKTXFile::WritePixmapToKTX(stream, pixmap);
 }
-
-static SkImageEncoder_EncodeReg gEReg(sk_libktx_efactory);

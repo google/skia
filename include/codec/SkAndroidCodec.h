@@ -9,7 +9,7 @@
 #define SkAndroidCodec_DEFINED
 
 #include "SkCodec.h"
-#include "SkEncodedFormat.h"
+#include "SkEncodedImageFormat.h"
 #include "SkStream.h"
 #include "SkTypes.h"
 
@@ -51,7 +51,7 @@ public:
     /**
      *  Format of the encoded data.
      */
-    SkEncodedFormat getEncodedFormat() const { return (SkEncodedFormat)fCodec->getEncodedFormat(); }
+    SkEncodedImageFormat getEncodedFormat() const { return fCodec->getEncodedFormat(); }
 
     /**
      *  @param requestedColorType Color type requested by the client

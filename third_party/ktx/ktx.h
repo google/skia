@@ -16,7 +16,7 @@
 #include "SkString.h"
 #include "SkRefCnt.h"
 
-class SkBitmap;
+class SkPixmap;
 class SkStreamRewindable;
 class SkWStream;
 
@@ -65,7 +65,7 @@ public:
 
     static bool WriteETC1ToKTX(SkWStream* stream, const uint8_t *etc1Data,
                                uint32_t width, uint32_t height);
-    static bool WriteBitmapToKTX(SkWStream* stream, const SkBitmap& bitmap);
+    static bool WritePixmapToKTX(SkWStream* stream, const SkPixmap& bitmap);
 private:
 
     // The blob holding the file data.
