@@ -73,6 +73,24 @@
     },
     {
       "key": {
+        "uuid": "f01d104e_42b2e19a",
+        "filename": "infra/bots/gen_tasks.go",
+        "patchSetId": 1
+      },
+      "lineNbr": 148,
+      "author": {
+        "id": 5120
+      },
+      "writtenOn": "2016-11-30T20:39:29Z",
+      "side": 1,
+      "message": "Ok, SGTM. (I assume for Build tasks, we just want whatever version of Windows our GCE machines are running.)\n\nFor Windows, I believe the plan we settled on is to do all GPU testing on Win10, and do CPU testing on each supported Win version. We haven\u0027t upgraded all the Win8 GPU machines yet, nor have we added CPU machines for Win8 and Win10.\n\nNow that it\u0027s easier to change and add task names (aka builder names), it\u0027s a great time to make all these changes.",
+      "parentUuid": "f01d104e_02be2998",
+      "revId": "4bd289888430bd29f571c995d8638ea8fdb149ea",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "f01d104e_a7e2c712",
         "filename": "infra/bots/gen_tasks.go",
         "patchSetId": 1
