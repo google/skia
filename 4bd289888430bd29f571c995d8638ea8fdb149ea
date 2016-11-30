@@ -55,6 +55,24 @@
     },
     {
       "key": {
+        "uuid": "f01d104e_0249c9d1",
+        "filename": "infra/bots/gen_tasks.go",
+        "patchSetId": 1
+      },
+      "lineNbr": 148,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2016-11-30T20:37:02Z",
+      "side": 1,
+      "message": "Eric\u0027s plan here sounds good to me.\n\nGenerally, the Test bots may care about OS version they run on, but mostly only for things like fonts that vary from release to release, annoyingly both major and minor.\n\nGenerally, the Perf bots don\u0027t care about what OS version they run on, and it\u0027s nice to be stable.\n\nAll the GPU bots probably do care about driver versions, which is sometimes coupled to the OS (Android, Mac) and sometimes not (Win, Linux).\n\nSo, now while some bots may care about the OS they use, I don\u0027t know that each of those bots has a human that particularly cares it exists, especially w.r.t Win 8 or 10.  I certainly don\u0027t.  I\u0027d be happy with everything on the latest everything.  You probably want to consult with bungeman to see about fonts, and if he doesn\u0027t care, we can update all bots to consistent OS versions (and re-drop the version suffixes).",
+      "parentUuid": "f01d104e_02be2998",
+      "revId": "4bd289888430bd29f571c995d8638ea8fdb149ea",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "f01d104e_a7e2c712",
         "filename": "infra/bots/gen_tasks.go",
         "patchSetId": 1
@@ -90,6 +108,24 @@
       "side": 1,
       "message": "SGTM, I was just trying to make everything continue working as-is.",
       "parentUuid": "f01d104e_a7e2c712",
+      "revId": "4bd289888430bd29f571c995d8638ea8fdb149ea",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "f01d104e_8235b938",
+        "filename": "infra/bots/gen_tasks.go",
+        "patchSetId": 1
+      },
+      "lineNbr": 327,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2016-11-30T20:37:02Z",
+      "side": 1,
+      "message": "sgtm too",
+      "parentUuid": "2d82efcd_1918afec",
       "revId": "4bd289888430bd29f571c995d8638ea8fdb149ea",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
