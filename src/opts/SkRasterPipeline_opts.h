@@ -327,6 +327,22 @@ STAGE(to_srgb) {
     b = sk_linear_to_srgb_needs_round(b);
 }
 
+STAGE(to_2dot2) {
+    auto to_2dot2 = [](const SkNf& x) {
+        // x^(29/64) is a very good approximation of the true value, x^(1/2.2).
+        auto x2  = x.rsqrt(),                            // x^(-1/2)
+             x32 = x2.rsqrt().rsqrt().rsqrt().rsqrt(),   // x^(-1/32)
+             x64 = x32.rsqrt();                          // x^(+1/64)
+
+        // 29 = 32 - 2 - 1
+        return x2.invert() * x32 * x64.invert();
+    };
+
+    r = to_2dot2(r);
+    g = to_2dot2(g);
+    b = to_2dot2(b);
+}
+
 // The default shader produces a constant color (from the SkPaint).
 STAGE(constant_color) {
     auto color = (const SkPM4f*)ctx;
@@ -515,6 +531,33 @@ STAGE(store_8888) {
                 | SkNx_cast<int>(255.0f * g + 0.5f) << 8
                 | SkNx_cast<int>(255.0f * b + 0.5f) << 16
                 | SkNx_cast<int>(255.0f * a + 0.5f) << 24 ), (int*)ptr);
+}
+
+STAGE(load_tables) {
+    const LoadTablesContext loadCtx = *(const LoadTablesContext*)ctx;
+    auto ptr = loadCtx.fSrc + x;
+
+    SkNu rgba = load(tail, ptr);
+    auto to_int = [](const SkNu& v) { return SkNi::Load(&v); };
+    r = gather(tail, loadCtx.fR, to_int((rgba >>  0) & 0xff));
+    g = gather(tail, loadCtx.fG, to_int((rgba >>  8) & 0xff));
+    b = gather(tail, loadCtx.fB, to_int((rgba >> 16) & 0xff));
+    a = (1/255.0f) * SkNx_cast<float>(to_int(rgba >> 24));
+}
+
+STAGE(store_tables) {
+    const StoreTablesContext storeCtx = *(const StoreTablesContext*)ctx;
+    auto ptr = storeCtx.fDst + x;
+
+    float scale = storeCtx.fCount - 1;
+    SkNi ri = SkNx_cast<int>(scale * r + 0.5f);
+    SkNi gi = SkNx_cast<int>(scale * g + 0.5f);
+    SkNi bi = SkNx_cast<int>(scale * b + 0.5f);
+
+    store(tail, ( SkNx_cast<int>(gather(tail, (const uint8_t*)storeCtx.fR, ri)) << 0
+                | SkNx_cast<int>(gather(tail, (const uint8_t*)storeCtx.fG, gi)) << 8
+                | SkNx_cast<int>(gather(tail, (const uint8_t*)storeCtx.fB, bi)) << 16
+                | SkNx_cast<int>(255.0f * a + 0.5f)                             << 24), (int*)ptr);
 }
 
 SI SkNf inv(const SkNf& x) { return 1.0f - x; }
