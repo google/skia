@@ -72,16 +72,16 @@ public:
     /**
      * Clear the passed in render target. Ignores the draw state and clip.
      */
-    void clear(const GrFixedClip&, GrColor);
+    void clear(GrRenderTarget*, const GrFixedClip&, GrColor);
 
-    void clearStencilClip(const GrFixedClip&, bool insideStencilMask);
+    void clearStencilClip(GrRenderTarget*, const GrFixedClip&, bool insideStencilMask);
 
     /**
      * Discards the contents render target. nullptr indicates that the current render target should
      * be discarded.
      */
     // TODO: This should be removed in the future to favor using the load and store ops for discard
-    virtual void discard() = 0;
+    virtual void discard(GrRenderTarget*) = 0;
 
 private:
     virtual GrGpu* gpu() = 0;
@@ -97,9 +97,9 @@ private:
                         const SkRect& bounds) = 0;
 
     // overridden by backend-specific derived class to perform the clear.
-    virtual void onClear(const GrFixedClip&, GrColor) = 0;
+    virtual void onClear(GrRenderTarget*, const GrFixedClip&, GrColor) = 0;
 
-    virtual void onClearStencilClip(const GrFixedClip&,
+    virtual void onClearStencilClip(GrRenderTarget*, const GrFixedClip&,
                                     bool insideStencilMask) = 0;
 
 };

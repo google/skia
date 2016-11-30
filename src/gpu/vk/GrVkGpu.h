@@ -102,7 +102,6 @@ public:
     void clearStencil(GrRenderTarget* target) override;
 
     GrGpuCommandBuffer* createCommandBuffer(
-            GrRenderTarget* target,
             const GrGpuCommandBuffer::LoadAndStoreInfo& colorInfo,
             const GrGpuCommandBuffer::LoadAndStoreInfo& stencilInfo) override;
 
