@@ -52,6 +52,23 @@
       "revId": "422ba196948e7c136e5a19e6429627fdaf1b0725",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "f01d104e_c2da517a",
+        "filename": "infra/bots/gen_tasks.go",
+        "patchSetId": 2
+      },
+      "lineNbr": 328,
+      "author": {
+        "id": 5120
+      },
+      "writtenOn": "2016-11-30T21:00:18Z",
+      "side": 1,
+      "message": "I\u0027ve already wiped the hard drive, so assuming it comes back, it will come back as Windows-10-10586.",
+      "revId": "422ba196948e7c136e5a19e6429627fdaf1b0725",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
