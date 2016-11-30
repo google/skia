@@ -3356,7 +3356,7 @@ void GrGLGpu::bindImageStorage(int unitIdx, GrIOType ioType, GrGLTexture *textur
     SkASSERT(texture);
     if (texture->uniqueID() != fHWBoundImageStorages[unitIdx].fTextureUniqueID ||
         ioType != fHWBoundImageStorages[unitIdx].fIOType) {
-        GrGLenum access;
+        GrGLenum access = GR_GL_READ_ONLY;
         switch (ioType) {
             case kRead_GrIOType:
                 access = GR_GL_READ_ONLY;
