@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "2d82efcd_76bd309a",
+        "filename": "src/core/SkColorSpace_XYZ.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 83,
+      "author": {
+        "id": 5740
+      },
+      "writtenOn": "2016-11-30T15:49:42Z",
+      "side": 1,
+      "message": "Wouldn\u0027t it be better to use the linear segment? That way whoever\u0027s using it can avoid using a powf() call.\n\nie set e and d to 1",
+      "revId": "0995549cc71e53d3e1ac938dd1e9b66b69e1738b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
