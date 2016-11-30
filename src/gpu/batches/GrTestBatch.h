@@ -55,9 +55,7 @@ protected:
     const Optimizations optimizations() const { return fOptimizations; }
 
 private:
-    bool onCombineIfPossible(GrBatch* t, const GrCaps&) override {
-        return false;
-    }
+    bool onCombineIfPossible(GrOp*, const GrCaps&) override { return false; }
 
     GrColor       fColor;
     Optimizations fOptimizations;

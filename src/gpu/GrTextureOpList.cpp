@@ -82,7 +82,7 @@ bool GrTextureOpList::copySurface(GrSurface* dst,
                                   GrSurface* src,
                                   const SkIRect& srcRect,
                                   const SkIPoint& dstPoint) {
-    GrBatch* batch = GrCopySurfaceBatch::Create(dst, src, srcRect, dstPoint);
+    GrOp* batch = GrCopySurfaceBatch::Create(dst, src, srcRect, dstPoint);
     if (!batch) {
         return false;
     }
@@ -95,18 +95,18 @@ bool GrTextureOpList::copySurface(GrSurface* dst,
     return true;
 }
 
-void GrTextureOpList::recordBatch(GrBatch* batch) {
+void GrTextureOpList::recordBatch(GrOp* batch) {
     // A closed GrOpList should never receive new/more batches
     SkASSERT(!this->isClosed());
 
     GR_AUDIT_TRAIL_ADDBATCH(fAuditTrail, batch);
-    GrBATCH_INFO("Re-Recording (%s, B%u)\n"
+    GrOP_INFO("Re-Recording (%s, B%u)\n"
         "\tBounds LRTB (%f, %f, %f, %f)\n",
         batch->name(),
         batch->uniqueID(),
         batch->bounds().fLeft, batch->bounds().fRight,
         batch->bounds().fTop, batch->bounds().fBottom);
-    GrBATCH_INFO(SkTabString(batch->dumpInfo(), 1).c_str());
+    GrOP_INFO(SkTabString(batch->dumpInfo(), 1).c_str());
     GR_AUDIT_TRAIL_BATCHING_RESULT_NEW(fAuditTrail, batch);
 
     fRecordedBatches.emplace_back(sk_ref_sp(batch));

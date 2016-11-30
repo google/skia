@@ -63,7 +63,7 @@ private:
 
 class GrDrawPathBatch final : public GrDrawPathBatchBase {
 public:
-    DEFINE_BATCH_CLASS_ID
+    DEFINE_OP_CLASS_ID
 
     static GrDrawBatch* Create(const SkMatrix& viewMatrix, GrColor color, const GrPath* path) {
         return new GrDrawPathBatch(viewMatrix, color, path);
@@ -80,7 +80,7 @@ private:
         this->setTransformedBounds(path->getBounds(), viewMatrix, HasAABloat::kNo, IsZeroArea::kNo);
     }
 
-    bool onCombineIfPossible(GrBatch* t, const GrCaps& caps) override { return false; }
+    bool onCombineIfPossible(GrOp* t, const GrCaps& caps) override { return false; }
 
     void onDraw(GrBatchFlushState* state, const SkRect& bounds) override;
 
@@ -94,7 +94,7 @@ class GrDrawPathRangeBatch final : public GrDrawPathBatchBase {
 public:
     typedef GrPathRendering::PathTransformType TransformType;
 
-    DEFINE_BATCH_CLASS_ID
+    DEFINE_OP_CLASS_ID
 
     struct InstanceData : public SkNoncopyable {
     public:
@@ -173,7 +173,7 @@ private:
 
     TransformType transformType() const { return fDraws.head()->fInstanceData->transformType(); }
 
-    bool onCombineIfPossible(GrBatch* t, const GrCaps& caps) override;
+    bool onCombineIfPossible(GrOp* t, const GrCaps& caps) override;
 
     void onDraw(GrBatchFlushState* state, const SkRect& bounds) override;
 

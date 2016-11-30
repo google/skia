@@ -15,7 +15,7 @@ class GrFragmentProcessor;
 
 /**
  * Produced by GrClip. It provides a set of modifications to the drawing state that are used to
- * create the final GrPipeline for a GrBatch.
+ * create the final GrPipeline for a GrOp.
  */
 class GrAppliedClip : public SkNoncopyable {
 public:
