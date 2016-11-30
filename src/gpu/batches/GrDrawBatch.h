@@ -75,11 +75,6 @@ public:
         return this->pipeline()->getRenderTarget()->uniqueID();
     }
 
-    // TODO: store a GrRenderTargetContext instead
-    GrRenderTarget* renderTarget() const final {
-        return this->pipeline()->getRenderTarget();
-    }
-
     SkString dumpInfo() const override {
         SkString string;
         string.appendf("RT: %d\n", this->renderTargetUniqueID().asUInt());
