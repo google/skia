@@ -103,30 +103,29 @@ Here is an example program that uses the C api.  To try it out, get the file
 
 <a href="https://fiddle.skia.org/c/6c6c01438d9c3d80e9c22e606359432e"><img src="https://fiddle.skia.org/i/6c6c01438d9c3d80e9c22e606359432e_raster.png" alt=""></a>
 
-Cmake example
--------------
+Example
+-------
 
 The following proof-of-concept workflow currently works on MacOS and
-Ubuntu and depends on a C/C++ compiler, git, and cmake:
+Ubuntu.
 
-1.  Aquire, compile, and install Skia as a shared library:
+1.  Compile Skia as a shared library:
 
     <!--?prettify lang=sh?-->
 
-        prefix="$HOME"
-        cd $(mktemp -d /tmp/skiaXXXX)
-        git clone 'https://skia.googlesource.com/skia'
-        cmake -DCMAKE_INSTALL_PREFIX:PATH="$prefix" skia/cmake
-        cmake --build . --target skia
-        cmake --build . --target install
+        cd ...../skia
+        bin/sync
+        gn gen out/Shared --args='is_official_build=true is_component_build=true'
+        ninja -C out/Shared
+        SKIA_LIB_DIR="${PWD}/out/Shared"
 
 2.  Compile, link, and run the example program:
 
     <!--?prettify lang=sh?-->
 
-        cc -o skia-c-example -I "$prefix/include" \
-            skia/experimental/c-api-example/skia-c-example.c \
-            "$prefix"/lib/libskia.* -Wl,-rpath -Wl,"$prefix/lib"
+        cc -o skia-c-example -I include/c \
+            experimental/c-api-example/skia-c-example.c \
+            "$SKIA_LIB_DIR"/libskia.* -Wl,-rpath -Wl,"$SKIA_LIB_DIR"
         ./skia-c-example
         [ $(uname) = Darwin ] && open     skia-c-example.png
         [ $(uname) = Linux  ] && xdg-open skia-c-example.png
