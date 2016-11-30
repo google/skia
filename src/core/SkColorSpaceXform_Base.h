@@ -71,6 +71,38 @@ private:
     friend std::unique_ptr<SkColorSpaceXform> SlowIdentityXform(SkColorSpace_XYZ* space);
 };
 
+struct RGBTables {
+    uint32_t*   fPixels;
+    const void* fRTable;
+    const void* fGTable;
+    const void* fBTable;
+};
+
+class SkColorSpaceXform_Pipeline : public SkColorSpaceXform {
+protected:
+    virtual bool onApply(ColorFormat dstFormat, void* dst, ColorFormat srcFormat, const void* src,
+                         int count, SkAlphaType alphaType) const;
+
+private:
+    SkColorSpaceXform_Pipeline(SkColorSpace_XYZ* srcSpace, const SkMatrix44& srcToDst,
+                               SkColorSpace_XYZ* dstSpace, ColorSpaceMatch csm, SrcGamma srcGamma,
+                               DstGamma dstGamma);
+
+    // Contain pointers into storage or pointers into precomputed tables.
+    const float*              fSrcGammaTables[3];
+    SkAutoTMalloc<float>      fSrcStorage;
+    const uint8_t*            fDstGammaTables[3];
+    sk_sp<SkData>             fDstStorage;
+
+    float                     fSrcToDst[16];
+
+    ColorSpaceMatch           fCSM;
+    SrcGamma                  fSrcGamma;
+    DstGamma                  fDstGamma;
+
+    friend class SkColorSpaceXform;
+};
+
 // For testing.  Bypasses opts for when src and dst color spaces are equal.
 std::unique_ptr<SkColorSpaceXform> SlowIdentityXform(SkColorSpace_XYZ* space);
 
