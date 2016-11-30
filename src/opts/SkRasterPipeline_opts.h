@@ -897,29 +897,6 @@ namespace SK_OPTS_NS {
                 default: break;
             }
         }
-        if (nstages == 3 && stages[0].stage == SkRasterPipeline::constant_color
-                         && stages[1].stage == SkRasterPipeline::to_srgb
-                         && stages[2].stage == SkRasterPipeline::store_8888) {
-            auto src = (const SkPM4f*)stages[0].ctx;
-            auto dst =    (uint32_t**)stages[2].ctx;
-            return Memset32{dst, Sk4f_toS32(src->to4f())};
-        }
-        if (nstages == 4 && stages[0].stage == SkRasterPipeline::constant_color
-                         && stages[1].stage == SkRasterPipeline::to_srgb
-                         && stages[2].stage == SkRasterPipeline::swap_rb
-                         && stages[3].stage == SkRasterPipeline::store_8888) {
-            auto src = (const SkPM4f*)stages[0].ctx;
-            auto dst =    (uint32_t**)stages[3].ctx;
-            return Memset32{dst, Sk4f_toS32(swizzle_rb(src->to4f())) };
-        }
-        if (nstages == 4 && stages[0].stage == SkRasterPipeline::constant_color
-                         && stages[1].stage == SkRasterPipeline::swap_rb
-                         && stages[2].stage == SkRasterPipeline::to_srgb
-                         && stages[3].stage == SkRasterPipeline::store_8888) {
-            auto src = (const SkPM4f*)stages[0].ctx;
-            auto dst =    (uint32_t**)stages[3].ctx;
-            return Memset32{dst, Sk4f_toS32(swizzle_rb(src->to4f())) };
-        }
 
         struct Compiled {
             Compiled(const SkRasterPipeline::Stage* stages, int nstages) {
