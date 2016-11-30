@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "2d82efcd_16c87cb2",
+        "filename": "include/codec/SkCodec.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 788,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2016-11-30T18:49:43Z",
+      "side": 1,
+      "message": "Is this only for testing? It sounds like at the moment it\u0027s only for a very specific case. Maybe this should be behind a flag?\n\nOn another note, this exclusive with SkColorSpace. Would it make sense to have some dummy color space that means unsupported ICC? (Again, maybe only behind some flag?)",
+      "range": {
+        "startLine": 788,
+        "startChar": 17,
+        "endLine": 788,
+        "endChar": 31
+      },
+      "revId": "8e001806c26d6bca5ffbc07e6af17847c4621b83",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "f01d104e_4cce9ac1",
+        "filename": "src/codec/SkPngCodec.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 141,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2016-11-30T18:49:43Z",
+      "side": 1,
+      "message": "These can be const. Also, I don\u0027t think unsupportedICC needs to be virtual - we can make it a const boolean on the base class.",
+      "range": {
+        "startLine": 141,
+        "startChar": 4,
+        "endLine": 141,
+        "endChar": 8
+      },
+      "revId": "8e001806c26d6bca5ffbc07e6af17847c4621b83",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
