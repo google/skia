@@ -25,6 +25,24 @@
     },
     {
       "key": {
+        "uuid": "f01d104e_368a8b6e",
+        "filename": "src/core/SkColorLookUpTable.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 142,
+      "author": {
+        "id": 5740
+      },
+      "writtenOn": "2016-11-30T16:21:53Z",
+      "side": 1,
+      "message": "I had some issues merging a bunch of unrelated (all in src/gpu) files. I have no idea why, maybe from an earlier pull? I never changed them... so I\u0027m going to blame this on being related to trying to fix that. This is the previous code exactly. I had re-ordered it and stuffed it full of comments. Luckily the updated code is still in the buffer of my text editor. Let me upload that as a patch-set.",
+      "parentUuid": "f01d104e_3f6269c0",
+      "revId": "0692ca45bce949d59545c95dc1b02b948677939d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "0d51ab1f_c8046f38",
         "filename": "src/opts/SkRasterPipeline_opts.h",
         "patchSetId": 5
@@ -36,6 +54,24 @@
       "writtenOn": "2016-11-30T01:03:47Z",
       "side": 1,
       "message": "Seems like a bunch of logic in here is intermixed dealing with whether this is a 4-\u003e3 color table look up or a 3-\u003e3 color table lookup (are there other possibilities?).  Would it be clearer as two (or more) stages, color_lookup_table_33 and color_lookup_table_43?",
+      "revId": "0692ca45bce949d59545c95dc1b02b948677939d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "f01d104e_7684035e",
+        "filename": "src/opts/SkRasterPipeline_opts.h",
+        "patchSetId": 5
+      },
+      "lineNbr": 650,
+      "author": {
+        "id": 5740
+      },
+      "writtenOn": "2016-11-30T16:21:53Z",
+      "side": 1,
+      "message": "For the profiles currently allowed through the MakeICC parsing, only 4-\u003e3 and 3-\u003e3 are allowed, but the ICC specs allow for arbitrary ones.",
+      "parentUuid": "0d51ab1f_c8046f38",
       "revId": "0692ca45bce949d59545c95dc1b02b948677939d",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
@@ -65,6 +101,24 @@
     },
     {
       "key": {
+        "uuid": "2d82efcd_96b56cb1",
+        "filename": "src/opts/SkRasterPipeline_opts.h",
+        "patchSetId": 5
+      },
+      "lineNbr": 652,
+      "author": {
+        "id": 5740
+      },
+      "writtenOn": "2016-11-30T16:21:53Z",
+      "side": 1,
+      "message": "It\u0027s the maximum for both the CLUT and the gamma tables. Basically anything involved in the colour space transformation.\nThe connection was just that the arrays would have to be made bigger if it was increased, and more lines of code would have to be added for loading the dr/dg/etc channels.",
+      "parentUuid": "f01d104e_c54346b1",
+      "revId": "0692ca45bce949d59545c95dc1b02b948677939d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "f01d104e_e5468270",
         "filename": "src/opts/SkRasterPipeline_opts.h",
         "patchSetId": 5
@@ -76,6 +130,24 @@
       "writtenOn": "2016-11-30T01:03:47Z",
       "side": 1,
       "message": "This sort of thing is probably more readable if you scope in and out more tightly inside the loop:\n\nfloat result[4][N];\nfor (int i \u003d 0...) {\n    float out[4], in[4] \u003d { r[i], g[i], b[i], a[i] };\n    colorLUT-\u003einterp(out, in);\n    ...\n}",
+      "revId": "0692ca45bce949d59545c95dc1b02b948677939d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "f01d104e_b61f5b22",
+        "filename": "src/opts/SkRasterPipeline_opts.h",
+        "patchSetId": 5
+      },
+      "lineNbr": 658,
+      "author": {
+        "id": 5740
+      },
+      "writtenOn": "2016-11-30T16:21:53Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "f01d104e_e5468270",
       "revId": "0692ca45bce949d59545c95dc1b02b948677939d",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
@@ -99,6 +171,24 @@
     },
     {
       "key": {
+        "uuid": "f01d104e_763c0385",
+        "filename": "src/opts/SkRasterPipeline_opts.h",
+        "patchSetId": 5
+      },
+      "lineNbr": 671,
+      "author": {
+        "id": 5740
+      },
+      "writtenOn": "2016-11-30T16:21:53Z",
+      "side": 1,
+      "message": "Yeah, we would still always want to load it in general. Right now the constraints on input is 3 or 4, and output is 3 as per what we allow through the MakeICC parsing code.",
+      "parentUuid": "f01d104e_653ff2e8",
+      "revId": "0692ca45bce949d59545c95dc1b02b948677939d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "f01d104e_85506e23",
         "filename": "src/opts/SkRasterPipeline_opts.h",
         "patchSetId": 5
@@ -110,6 +200,24 @@
       "writtenOn": "2016-11-30T01:03:47Z",
       "side": 1,
       "message": "Preserve seems like an odd word here.  We\u0027re generating opacity from nothing... what is being preserved?",
+      "revId": "0692ca45bce949d59545c95dc1b02b948677939d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "f01d104e_56ce27c1",
+        "filename": "src/opts/SkRasterPipeline_opts.h",
+        "patchSetId": 5
+      },
+      "lineNbr": 673,
+      "author": {
+        "id": 5740
+      },
+      "writtenOn": "2016-11-30T16:21:53Z",
+      "side": 1,
+      "message": "Reworded. I chose preserve because we were preserving an implied opacity.",
+      "parentUuid": "f01d104e_85506e23",
       "revId": "0692ca45bce949d59545c95dc1b02b948677939d",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
@@ -151,6 +259,24 @@
       "side": 1,
       "message": "Yeah... CMYK doesn\u0027t encode an alpha, right?\n\nSo just a \u003d 1.0f; ?",
       "parentUuid": "f01d104e_1fd84d3e",
+      "revId": "0692ca45bce949d59545c95dc1b02b948677939d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "f01d104e_36c9abb9",
+        "filename": "src/opts/SkRasterPipeline_opts.h",
+        "patchSetId": 5
+      },
+      "lineNbr": 676,
+      "author": {
+        "id": 5740
+      },
+      "writtenOn": "2016-11-30T16:21:53Z",
+      "side": 1,
+      "message": "Removed. I guess even other input colour spaces would still always be n-\u003e3 never n-\u003e4, unless we start supporting MPET type A2B0 profiles.",
+      "parentUuid": "f01d104e_a539ea03",
       "revId": "0692ca45bce949d59545c95dc1b02b948677939d",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
