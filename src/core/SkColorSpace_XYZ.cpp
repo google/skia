@@ -31,8 +31,9 @@ SkColorSpace_XYZ::SkColorSpace_XYZ(SkGammaNamed gammaNamed, sk_sp<SkGammas> gamm
     , fGammas(std::move(gammas))
     , fToXYZD50(toXYZD50)
     , fToXYZD50Hash(SkGoodHash()(toXYZD50))
-    , fFromXYZD50(SkMatrix44::kUninitialized_Constructor)
-{}
+    , fFromXYZD50(SkMatrix44::kUninitialized_Constructor) {
+    SkASSERT(!fGammas || 3 == fGammas->channels());
+}
 
 const SkMatrix44* SkColorSpace_XYZ::fromXYZD50() const {
     fFromXYZOnce([this] {

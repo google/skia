@@ -632,6 +632,7 @@ SI SkNf parametric(const SkNf& v, const SkColorSpaceTransferFn& p) {
 STAGE(parametric_r) { r = parametric(r, *(const SkColorSpaceTransferFn*)ctx); }
 STAGE(parametric_g) { g = parametric(g, *(const SkColorSpaceTransferFn*)ctx); }
 STAGE(parametric_b) { b = parametric(b, *(const SkColorSpaceTransferFn*)ctx); }
+STAGE(parametric_a) { a = parametric(a, *(const SkColorSpaceTransferFn*)ctx); }
 
 SI SkNf table(const SkNf& v, const SkTableTransferFn& table) {
     float result[N];
@@ -643,23 +644,29 @@ SI SkNf table(const SkNf& v, const SkTableTransferFn& table) {
 STAGE(table_r) { r = table(r, *(const SkTableTransferFn*)ctx); }
 STAGE(table_g) { g = table(g, *(const SkTableTransferFn*)ctx); }
 STAGE(table_b) { b = table(b, *(const SkTableTransferFn*)ctx); }
+STAGE(table_a) { a = table(a, *(const SkTableTransferFn*)ctx); }
 
 STAGE(color_lookup_table) {
     const SkColorLookUpTable* colorLUT = (const SkColorLookUpTable*)ctx;
-    float rgb[3];
+    SkASSERT(3 == colorLUT->inputChannels() || 4 == colorLUT->inputChannels());
+    SkASSERT(3 == colorLUT->outputChannels());
     float result[3][N];
     for (int i = 0; i < N; ++i) {
-        rgb[0] = r[i];
-        rgb[1] = g[i];
-        rgb[2] = b[i];
-        colorLUT->interp3D(rgb, rgb);
-        result[0][i] = rgb[0];
-        result[1][i] = rgb[1];
-        result[2][i] = rgb[2];
+        const float in[4] = { r[i], g[i], b[i], a[i] };
+        float out[3];
+        colorLUT->interp(out, in);
+        for (int j = 0; j < colorLUT->outputChannels(); ++j) {
+            result[j][i] = out[j];
+        }
     }
     r = SkNf::Load(result[0]);
     g = SkNf::Load(result[1]);
     b = SkNf::Load(result[2]);
+    if (4 == colorLUT->inputChannels()) {
+        // we must set the pixel to opaque, as the alpha channel was used
+        // as input before this.
+        a = 1.f;
+    }
 }
 
 STAGE(lab_to_xyz) {
