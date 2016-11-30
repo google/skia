@@ -7,6 +7,8 @@
 
 #include "SkImageEncoderPriv.h"
 
+#ifdef SK_HAS_JPEG_LIBRARY
+
 #include "SkCanvas.h"
 #include "SkColorPriv.h"
 #include "SkDither.h"
@@ -83,8 +85,8 @@ static void Write_Index_RGB(uint8_t* SK_RESTRICT dst,
     }
 }
 
-static WriteScanline ChooseWriter(const SkBitmap& bm) {
-    switch (bm.colorType()) {
+static WriteScanline ChooseWriter(SkColorType ct) {
+    switch (ct) {
         case kN32_SkColorType:
             return Write_32_RGB;
         case kRGB_565_SkColorType:
@@ -98,87 +100,73 @@ static WriteScanline ChooseWriter(const SkBitmap& bm) {
     }
 }
 
-class SkJPEGImageEncoder : public SkImageEncoder {
-protected:
-    virtual bool onEncode(SkWStream* stream, const SkBitmap& bm, int quality) {
+bool SkEncodeImageAsJPEG(SkWStream* stream, const SkPixmap& pixmap, int quality) {
 #ifdef TIME_ENCODE
-        SkAutoTime atm("JPEG Encode");
+    SkAutoTime atm("JPEG Encode");
 #endif
 
-        SkAutoLockPixels alp(bm);
-        if (nullptr == bm.getPixels()) {
-            return false;
-        }
-
-        jpeg_compress_struct    cinfo;
-        skjpeg_error_mgr        sk_err;
-        skjpeg_destination_mgr  sk_wstream(stream);
-
-        // allocate these before set call setjmp
-        SkAutoTMalloc<uint8_t>  oneRow;
-
-        cinfo.err = jpeg_std_error(&sk_err);
-        sk_err.error_exit = skjpeg_error_exit;
-        if (setjmp(sk_err.fJmpBuf)) {
-            return false;
-        }
-
-        // Keep after setjmp or mark volatile.
-        const WriteScanline writer = ChooseWriter(bm);
-        if (nullptr == writer) {
-            return false;
-        }
-
-        jpeg_create_compress(&cinfo);
-        cinfo.dest = &sk_wstream;
-        cinfo.image_width = bm.width();
-        cinfo.image_height = bm.height();
-        cinfo.input_components = 3;
-        
-        // FIXME: Can we take advantage of other in_color_spaces in libjpeg-turbo?
-        cinfo.in_color_space = JCS_RGB;
-
-        // The gamma value is ignored by libjpeg-turbo.
-        cinfo.input_gamma = 1;
-
-        jpeg_set_defaults(&cinfo);
-        
-        // Tells libjpeg-turbo to compute optimal Huffman coding tables
-        // for the image.  This improves compression at the cost of
-        // slower encode performance.
-        cinfo.optimize_coding = TRUE;
-        jpeg_set_quality(&cinfo, quality, TRUE /* limit to baseline-JPEG values */);
-
-        jpeg_start_compress(&cinfo, TRUE);
-
-        const int       width = bm.width();
-        uint8_t*        oneRowP = oneRow.reset(width * 3);
-
-        const SkPMColor* colors = bm.getColorTable() ? bm.getColorTable()->readColors() : nullptr;
-        const void*      srcRow = bm.getPixels();
-
-        while (cinfo.next_scanline < cinfo.image_height) {
-            JSAMPROW row_pointer[1];    /* pointer to JSAMPLE row[s] */
-
-            writer(oneRowP, srcRow, width, colors);
-            row_pointer[0] = oneRowP;
-            (void) jpeg_write_scanlines(&cinfo, row_pointer, 1);
-            srcRow = (const void*)((const char*)srcRow + bm.rowBytes());
-        }
-
-        jpeg_finish_compress(&cinfo);
-        jpeg_destroy_compress(&cinfo);
-
-        return true;
+    if (!pixmap.addr()) {
+        return false;
     }
-};
+    jpeg_compress_struct    cinfo;
+    skjpeg_error_mgr        sk_err;
+    skjpeg_destination_mgr  sk_wstream(stream);
 
-///////////////////////////////////////////////////////////////////////////////
-DEFINE_ENCODER_CREATOR(JPEGImageEncoder);
-///////////////////////////////////////////////////////////////////////////////
+    // allocate these before set call setjmp
+    SkAutoTMalloc<uint8_t>  oneRow;
 
-static SkImageEncoder* sk_libjpeg_efactory(SkImageEncoder::Type t) {
-    return (SkEncodedImageFormat::kJPEG == (SkEncodedImageFormat)t) ? new SkJPEGImageEncoder : nullptr;
+    cinfo.err = jpeg_std_error(&sk_err);
+    sk_err.error_exit = skjpeg_error_exit;
+    if (setjmp(sk_err.fJmpBuf)) {
+        return false;
+    }
+
+    // Keep after setjmp or mark volatile.
+    const WriteScanline writer = ChooseWriter(pixmap.colorType());
+    if (!writer) {
+        return false;
+    }
+
+    jpeg_create_compress(&cinfo);
+    cinfo.dest = &sk_wstream;
+    cinfo.image_width = pixmap.width();
+    cinfo.image_height = pixmap.height();
+    cinfo.input_components = 3;
+
+    // FIXME: Can we take advantage of other in_color_spaces in libjpeg-turbo?
+    cinfo.in_color_space = JCS_RGB;
+
+    // The gamma value is ignored by libjpeg-turbo.
+    cinfo.input_gamma = 1;
+
+    jpeg_set_defaults(&cinfo);
+
+    // Tells libjpeg-turbo to compute optimal Huffman coding tables
+    // for the image.  This improves compression at the cost of
+    // slower encode performance.
+    cinfo.optimize_coding = TRUE;
+    jpeg_set_quality(&cinfo, quality, TRUE /* limit to baseline-JPEG values */);
+
+    jpeg_start_compress(&cinfo, TRUE);
+
+    const int       width = pixmap.width();
+    uint8_t*        oneRowP = oneRow.reset(width * 3);
+
+    const SkPMColor* colors = pixmap.ctable() ? pixmap.ctable()->readColors() : nullptr;
+    const void*      srcRow = pixmap.addr();
+
+    while (cinfo.next_scanline < cinfo.image_height) {
+        JSAMPROW row_pointer[1];    /* pointer to JSAMPLE row[s] */
+
+        writer(oneRowP, srcRow, width, colors);
+        row_pointer[0] = oneRowP;
+        (void) jpeg_write_scanlines(&cinfo, row_pointer, 1);
+        srcRow = (const void*)((const char*)srcRow + pixmap.rowBytes());
+    }
+
+    jpeg_finish_compress(&cinfo);
+    jpeg_destroy_compress(&cinfo);
+
+    return true;
 }
-
-static SkImageEncoder_EncodeReg gEReg(sk_libjpeg_efactory);
+#endif

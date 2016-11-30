@@ -9,7 +9,6 @@
 #include "PathOpsThreadedCommon.h"
 #include "SkBitmap.h"
 #include "SkCanvas.h"
-#include "SkForceLinking.h"
 #include "SkMatrix.h"
 #include "SkMutex.h"
 #include "SkPaint.h"
@@ -28,9 +27,6 @@ bool OpDebug(const SkPath& one, const SkPath& two, SkPathOp op, SkPath* result
 bool SimplifyDebug(const SkPath& one, SkPath* result
                    SkDEBUGPARAMS(bool skipAssert)
                    SkDEBUGPARAMS(const char* testName));
-
-
-__SK_FORCE_IMAGE_DECODER_LINKING;
 
 static const char marker[] =
     "</div>\n"

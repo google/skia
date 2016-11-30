@@ -10,7 +10,7 @@
 
 #include "SkBitmap.h"
 #include "SkBRDAllocator.h"
-#include "SkEncodedFormat.h"
+#include "SkEncodedImageFormat.h"
 #include "SkStream.h"
 
 /*
@@ -66,7 +66,7 @@ public:
      */
     virtual bool conversionSupported(SkColorType colorType) = 0;
 
-    virtual SkEncodedFormat getEncodedFormat() = 0;
+    virtual SkEncodedImageFormat getEncodedFormat() = 0;
 
     int width() const { return fWidth; }
     int height() const { return fHeight; }

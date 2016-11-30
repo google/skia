@@ -6,12 +6,16 @@
  */
 
 #include "SkImageEncoderPriv.h"
+
+#ifdef SK_HAS_PNG_LIBRARY
+
 #include "SkColor.h"
 #include "SkColorPriv.h"
 #include "SkDither.h"
 #include "SkMath.h"
 #include "SkStream.h"
 #include "SkTemplates.h"
+#include "SkUnPreMultiply.h"
 #include "SkUtils.h"
 #include "transform_scanline.h"
 
@@ -40,9 +44,6 @@ static const bool c_suppressPNGImageDecoderWarnings{
     DEFAULT_FOR_SUPPRESS_PNG_IMAGE_DECODER_WARNINGS};
 
 ///////////////////////////////////////////////////////////////////////////////
-
-#include "SkColorPriv.h"
-#include "SkUnPreMultiply.h"
 
 static void sk_error_fn(png_structp png_ptr, png_const_charp msg) {
     if (!c_suppressPNGImageDecoderWarnings) {
@@ -165,22 +166,13 @@ static inline int pack_palette(SkColorTable* ctable, png_color* SK_RESTRICT pale
     return numWithAlpha;
 }
 
-class SkPNGImageEncoder : public SkImageEncoder {
-protected:
-    bool onEncode(SkWStream* stream, const SkBitmap& bm, int quality) override;
-private:
-    bool doEncode(SkWStream* stream, const SkBitmap& bm,
-                  SkAlphaType alphaType, int colorType,
-                  int bitDepth, SkColorType ct,
-                  png_color_8& sig_bit);
+static bool do_encode(SkWStream*, const SkPixmap&, int, int, png_color_8&);
 
-    typedef SkImageEncoder INHERITED;
-};
-
-bool SkPNGImageEncoder::onEncode(SkWStream* stream,
-                                 const SkBitmap& bitmap,
-                                 int /*quality*/) {
-    const SkColorType ct = bitmap.colorType();
+bool SkEncodeImageAsPNG(SkWStream* stream, const SkPixmap& pixmap) {
+    if (!pixmap.addr() || pixmap.info().isEmpty()) {
+        return false;
+    }
+    const SkColorType ct = pixmap.colorType();
     switch (ct) {
         case kIndex_8_SkColorType:
         case kGray_8_SkColorType:
@@ -193,7 +185,7 @@ bool SkPNGImageEncoder::onEncode(SkWStream* stream,
             return false;
     }
 
-    const SkAlphaType alphaType = bitmap.alphaType();
+    const SkAlphaType alphaType = pixmap.alphaType();
     switch (alphaType) {
         case kUnpremul_SkAlphaType:
             if (kARGB_4444_SkColorType == ct) {
@@ -252,36 +244,26 @@ bool SkPNGImageEncoder::onEncode(SkWStream* stream,
         default:
             return false;
     }
-
-    SkAutoLockPixels alp(bitmap);
-    // readyToDraw checks for pixels (and colortable if that is required)
-    if (!bitmap.readyToDraw()) {
-        return false;
-    }
-
-    // we must do this after we have locked the pixels
-    SkColorTable* ctable = bitmap.getColorTable();
-    if (ctable) {
-        if (ctable->count() == 0) {
+    if (kIndex_8_SkColorType == ct) {
+        SkColorTable* ctable = pixmap.ctable();
+        if (!ctable || ctable->count() == 0) {
             return false;
         }
         // check if we can store in fewer than 8 bits
         bitDepth = computeBitDepth(ctable->count());
     }
-
-    return doEncode(stream, bitmap, alphaType, colorType, bitDepth, ct, sig_bit);
+    return do_encode(stream, pixmap, colorType, bitDepth, sig_bit);
 }
 
-bool SkPNGImageEncoder::doEncode(SkWStream* stream, const SkBitmap& bitmap,
-                  SkAlphaType alphaType, int colorType,
-                  int bitDepth, SkColorType ct,
-                  png_color_8& sig_bit) {
+static bool do_encode(SkWStream* stream, const SkPixmap& pixmap,
+                      int colorType, int bitDepth, png_color_8& sig_bit) {
+    SkAlphaType alphaType = pixmap.alphaType();
+    SkColorType ct = pixmap.colorType();
 
     png_structp png_ptr;
     png_infop info_ptr;
 
-    png_ptr = png_create_write_struct(PNG_LIBPNG_VER_STRING, nullptr, sk_error_fn,
-                                      nullptr);
+    png_ptr = png_create_write_struct(PNG_LIBPNG_VER_STRING, nullptr, sk_error_fn, nullptr);
     if (nullptr == png_ptr) {
         return false;
     }
@@ -311,7 +293,7 @@ bool SkPNGImageEncoder::doEncode(SkWStream* stream, const SkBitmap& bitmap,
     * currently be PNG_COMPRESSION_TYPE_BASE and PNG_FILTER_TYPE_BASE. REQUIRED
     */
 
-    png_set_IHDR(png_ptr, info_ptr, bitmap.width(), bitmap.height(),
+    png_set_IHDR(png_ptr, info_ptr, pixmap.width(), pixmap.height(),
                  bitDepth, colorType,
                  PNG_INTERLACE_NONE, PNG_COMPRESSION_TYPE_BASE,
                  PNG_FILTER_TYPE_BASE);
@@ -320,7 +302,7 @@ bool SkPNGImageEncoder::doEncode(SkWStream* stream, const SkBitmap& bitmap,
     png_color paletteColors[256];
     png_byte trans[256];
     if (kIndex_8_SkColorType == ct) {
-        SkColorTable* colorTable = bitmap.getColorTable();
+        SkColorTable* colorTable = pixmap.ctable();
         SkASSERT(colorTable);
         int numTrans = pack_palette(colorTable, paletteColors, trans, alphaType);
         png_set_PLTE(png_ptr, info_ptr, paletteColors, colorTable->count());
@@ -332,16 +314,16 @@ bool SkPNGImageEncoder::doEncode(SkWStream* stream, const SkBitmap& bitmap,
     png_set_sBIT(png_ptr, info_ptr, &sig_bit);
     png_write_info(png_ptr, info_ptr);
 
-    const char* srcImage = (const char*)bitmap.getPixels();
-    SkAutoSTMalloc<1024, char> rowStorage(bitmap.width() << 2);
+    const char* srcImage = (const char*)pixmap.addr();
+    SkAutoSTMalloc<1024, char> rowStorage(pixmap.width() << 2);
     char* storage = rowStorage.get();
     transform_scanline_proc proc = choose_proc(ct, alphaType);
 
-    for (int y = 0; y < bitmap.height(); y++) {
+    for (int y = 0; y < pixmap.height(); y++) {
         png_bytep row_ptr = (png_bytep)storage;
-        proc(storage, srcImage, bitmap.width(), SkColorTypeBytesPerPixel(ct));
+        proc(storage, srcImage, pixmap.width(), SkColorTypeBytesPerPixel(ct));
         png_write_rows(png_ptr, &row_ptr, 1);
-        srcImage += bitmap.rowBytes();
+        srcImage += pixmap.rowBytes();
     }
 
     png_write_end(png_ptr, info_ptr);
@@ -351,12 +333,4 @@ bool SkPNGImageEncoder::doEncode(SkWStream* stream, const SkBitmap& bitmap,
     return true;
 }
 
-///////////////////////////////////////////////////////////////////////////////
-DEFINE_ENCODER_CREATOR(PNGImageEncoder);
-///////////////////////////////////////////////////////////////////////////////
-
-SkImageEncoder* sk_libpng_efactory(SkImageEncoder::Type t) {
-    return (SkEncodedImageFormat::kPNG == (SkEncodedImageFormat)t) ? new SkPNGImageEncoder : nullptr;
-}
-
-static SkImageEncoder_EncodeReg gEReg(sk_libpng_efactory);
+#endif
