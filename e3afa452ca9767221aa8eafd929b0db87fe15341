@@ -1,0 +1,55 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "f01d104e_d17b0191",
+        "filename": "src/core/SkColorSpaceXform_Base.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 74,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2016-11-30T17:32:47Z",
+      "side": 1,
+      "message": "Probably clearer split into two types, one for loads and one for stores:\n\nstruct LoadTablesContext {\n    const uint32_t* pixels;\n    const float* r;\n    const float* g;\n    const float* b;\n};\n\nstruct StoreTablesContext {\n    uint32_t* pixels;\n    const uint8_t* r;\n    const uint8_t* g;\n    const uint8_t* b;\n};",
+      "revId": "e3afa452ca9767221aa8eafd929b0db87fe15341",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "f01d104e_11c4b99f",
+        "filename": "src/opts/SkRasterPipeline_opts.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 345,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2016-11-30T17:32:47Z",
+      "side": 1,
+      "message": "Might be nice as a lambda inside from_2dot2?",
+      "revId": "e3afa452ca9767221aa8eafd929b0db87fe15341",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "f01d104e_b10be504",
+        "filename": "src/opts/SkRasterPipeline_opts.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 551,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2016-11-30T17:32:47Z",
+      "side": 1,
+      "message": "I think you can do this with the existing helpers, without needing to write from_table or from_tables:\n\n  STAGE(load_tables) {\n      const RGBTables info \u003d *(const RGBTables*)ctx;\n      auto ptr \u003d info.fPixels + x;\n \n     SkNu rgba \u003d load(tail, ptr);\n     auto to_int \u003d [](const SkNu\u0026 v) { return SkNi::Load(\u0026v); };\n     r \u003d gather(tail, (const float*)info.fRTable, to_int((rgba \u003e\u003e  0) \u0026 0xff));\n     g \u003d gather(tail, (const float*)info.fGTable, to_int((rgba \u003e\u003e  8) \u0026 0xff));\n     b \u003d gather(tail, (const float*)info.fBTable, to_int((rgba \u003e\u003e 16) \u0026 0xff));\n     a \u003d (1/255.0f) * SkNx_cast\u003cfloat\u003e(to_int(rgba \u003e\u003e 24));\n }",
+      "revId": "e3afa452ca9767221aa8eafd929b0db87fe15341",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
