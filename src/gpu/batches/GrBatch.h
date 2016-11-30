@@ -20,7 +20,6 @@
 class GrCaps;
 class GrGpuCommandBuffer;
 class GrBatchFlushState;
-class GrRenderTarget;
 
 /**
  * GrBatch is the base class for all Ganesh deferred geometry generators.  To facilitate
@@ -140,9 +139,6 @@ public:
                        fBounds.fLeft, fBounds.fTop, fBounds.fRight, fBounds.fBottom);
         return string;
     }
-
-    /** Can remove this when multi-draw-buffer lands */
-    virtual GrRenderTarget* renderTarget() const = 0;
 
 protected:
     /**

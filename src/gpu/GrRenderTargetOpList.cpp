@@ -186,20 +186,20 @@ bool GrRenderTargetOpList::drawBatches(GrBatchFlushState* flushState) {
     }
     // Draw all the generated geometry.
     SkRandom random;
-    GrRenderTarget* currentRT = nullptr;
+    GrGpuResource::UniqueID currentRTID = GrGpuResource::UniqueID::InvalidID();
     std::unique_ptr<GrGpuCommandBuffer> commandBuffer;
     for (int i = 0; i < fRecordedBatches.count(); ++i) {
         if (!fRecordedBatches[i].fBatch) {
             continue;
         }
-        if (fRecordedBatches[i].fBatch->renderTarget() != currentRT) {
+        if (fRecordedBatches[i].fBatch->renderTargetUniqueID() != currentRTID) {
             if (commandBuffer) {
                 commandBuffer->end();
                 commandBuffer->submit();
                 commandBuffer.reset();
             }
-            currentRT = fRecordedBatches[i].fBatch->renderTarget();
-            if (currentRT) {
+            currentRTID = fRecordedBatches[i].fBatch->renderTargetUniqueID();
+            if (!currentRTID.isInvalid()) {
                 static const GrGpuCommandBuffer::LoadAndStoreInfo kBasicLoadStoreInfo
                     { GrGpuCommandBuffer::LoadOp::kLoad,GrGpuCommandBuffer::StoreOp::kStore,
                       GrColor_ILLEGAL };
