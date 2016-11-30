@@ -2645,10 +2645,9 @@ bool GrGLGpu::onReadPixels(GrSurface* surface,
 }
 
 GrGpuCommandBuffer* GrGLGpu::createCommandBuffer(
-        GrRenderTarget* target,
         const GrGpuCommandBuffer::LoadAndStoreInfo& colorInfo,
         const GrGpuCommandBuffer::LoadAndStoreInfo& stencilInfo) {
-    return new GrGLGpuCommandBuffer(this, static_cast<GrGLRenderTarget*>(target));
+    return new GrGLGpuCommandBuffer(this);
 }
 
 void GrGLGpu::finishOpList() {

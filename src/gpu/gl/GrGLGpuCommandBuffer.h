@@ -22,13 +22,19 @@ class GrGLGpuCommandBuffer : public GrGpuCommandBuffer {
  * pass through functions to corresponding calls in the GrGLGpu class.
  */
 public:
-    GrGLGpuCommandBuffer(GrGLGpu* gpu, GrGLRenderTarget* rt) : fGpu(gpu), fRenderTarget(rt) {}
+    GrGLGpuCommandBuffer(GrGLGpu* gpu) : fGpu(gpu), fRenderTarget(nullptr) {}
 
     virtual ~GrGLGpuCommandBuffer() {}
 
     void end() override {}
 
-    void discard() override {}
+    void discard(GrRenderTarget* rt) override {
+        GrGLRenderTarget* target = static_cast<GrGLRenderTarget*>(rt);
+        if (!fRenderTarget) {
+            fRenderTarget = target;
+        }
+        SkASSERT(target == fRenderTarget);
+    }
 
     void inlineUpload(GrBatchFlushState* state, GrDrawBatch::DeferredUploadFn& upload) override {
         state->doUpload(upload);
@@ -45,15 +51,30 @@ private:
                 const GrMesh* mesh,
                 int meshCount,
                 const SkRect& bounds) override {
+        GrGLRenderTarget* target = static_cast<GrGLRenderTarget*>(pipeline.getRenderTarget());
+        if (!fRenderTarget) {
+            fRenderTarget = target;
+        }
+        SkASSERT(target == fRenderTarget);
         fGpu->draw(pipeline, primProc, mesh, meshCount);
     }
 
-    void onClear(const GrFixedClip& clip, GrColor color) override {
+    void onClear(GrRenderTarget* rt, const GrFixedClip& clip, GrColor color) override {
+        GrGLRenderTarget* target = static_cast<GrGLRenderTarget*>(rt);
+        if (!fRenderTarget) {
+            fRenderTarget = target;
+        }
+        SkASSERT(target == fRenderTarget);
         fGpu->clear(clip, color, fRenderTarget);
     }
 
-    void onClearStencilClip(const GrFixedClip& clip,
+    void onClearStencilClip(GrRenderTarget* rt, const GrFixedClip& clip,
                             bool insideStencilMask) override {
+        GrGLRenderTarget* target = static_cast<GrGLRenderTarget*>(rt);
+        if (!fRenderTarget) {
+            fRenderTarget = target;
+        }
+        SkASSERT(target == fRenderTarget);
         fGpu->clearStencilClip(clip, insideStencilMask, fRenderTarget);
     }
 
