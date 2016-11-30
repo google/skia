@@ -22,6 +22,24 @@
       "revId": "994d36c3fa57683ce16e0c4666032e22fb49435f",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "f01d104e_8cfed2ba",
+        "filename": "src/gpu/effects/Gr1DKernelEffect.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 49,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2016-11-30T18:53:32Z",
+      "side": 0,
+      "message": "nope, fixed",
+      "parentUuid": "f01d104e_8cb7b21e",
+      "revId": "994d36c3fa57683ce16e0c4666032e22fb49435f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
