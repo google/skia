@@ -1,0 +1,78 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "f01d104e_67d44fd8",
+        "filename": "src/core/SkColorSpaceXform.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 1381,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2016-11-30T19:20:40Z",
+      "side": 1,
+      "message": "I guess it doesn\u0027t make a difference, but I\u0027d have expected\n\nappend(clamp_0)\nappend(clamp_1)\nif (premul) {\n   append(premul);\n}",
+      "revId": "8d3b4f8d0d89d895d9ab71e1fa08c483c4419a2d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "f01d104e_2ca6bea4",
+        "filename": "src/core/SkColorSpaceXform.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 1443,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2016-11-30T19:20:40Z",
+      "side": 1,
+      "message": "Keep an eye on https://skia-review.googlesource.com/c/5353/",
+      "revId": "8d3b4f8d0d89d895d9ab71e1fa08c483c4419a2d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "f01d104e_6cf276ba",
+        "filename": "src/opts/SkRasterPipeline_opts.h",
+        "patchSetId": 5
+      },
+      "lineNbr": 537,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2016-11-30T19:20:40Z",
+      "side": 1,
+      "message": "This is probably just personal preference, but it may be clearer / simpler to leave this as a pointer?  Copying it here makes it sort of look like the copy matters.\n\nauto loadCtx \u003d (const LoadTablesContext*)ctx;\nauto ptr \u003d loadCtx-\u003efSrc + x;\netc..",
+      "revId": "8d3b4f8d0d89d895d9ab71e1fa08c483c4419a2d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "f01d104e_8cb6d2d9",
+        "filename": "src/opts/SkRasterPipeline_opts.h",
+        "patchSetId": 5
+      },
+      "lineNbr": 557,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2016-11-30T19:20:40Z",
+      "side": 1,
+      "message": "Don\u0027t think you need this cast anymore.",
+      "range": {
+        "startLine": 557,
+        "startChar": 47,
+        "endLine": 557,
+        "endChar": 62
+      },
+      "revId": "8d3b4f8d0d89d895d9ab71e1fa08c483c4419a2d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
