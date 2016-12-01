@@ -12,20 +12,20 @@
 #include "GrClip.h"
 #include "GrDefaultGeoProcFactory.h"
 #include "GrFixedClip.h"
+#include "GrMesh.h"
 #include "GrPathStencilSettings.h"
 #include "GrPathUtils.h"
 #include "GrPipelineBuilder.h"
-#include "GrMesh.h"
 #include "SkGeometry.h"
 #include "SkTraceEvent.h"
-#include "glsl/GrGLSLGeometryProcessor.h"
+#include "batches/GrMeshDrawOp.h"
+#include "batches/GrRectBatchFactory.h"
+#include "gl/GrGLVaryingHandler.h"
 #include "glsl/GrGLSLFragmentShaderBuilder.h"
-#include "glsl/GrGLSLVertexShaderBuilder.h"
+#include "glsl/GrGLSLGeometryProcessor.h"
 #include "glsl/GrGLSLProgramDataManager.h"
 #include "glsl/GrGLSLUtil.h"
-#include "gl/GrGLVaryingHandler.h"
-#include "batches/GrRectBatchFactory.h"
-#include "batches/GrVertexBatch.h"
+#include "glsl/GrGLSLVertexShaderBuilder.h"
 
 static const float kTolerance = 0.5f;
 
@@ -214,7 +214,7 @@ private:
     typedef GrGeometryProcessor INHERITED;
 };
 
-class MSAAPathBatch : public GrVertexBatch {
+class MSAAPathBatch : public GrMeshDrawOp {
 public:
     DEFINE_OP_CLASS_ID
 
@@ -557,7 +557,7 @@ private:
     int fMaxQuadIndices;
     bool fIsIndexed;
 
-    typedef GrVertexBatch INHERITED;
+    typedef GrMeshDrawOp INHERITED;
 };
 
 bool GrMSAAPathRenderer::internalDrawPath(GrRenderTargetContext* renderTargetContext,

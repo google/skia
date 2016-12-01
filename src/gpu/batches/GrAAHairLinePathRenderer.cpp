@@ -21,7 +21,7 @@
 #include "SkStroke.h"
 #include "SkTemplates.h"
 
-#include "batches/GrVertexBatch.h"
+#include "batches/GrMeshDrawOp.h"
 
 #include "effects/GrBezierEffect.h"
 
@@ -675,7 +675,7 @@ bool check_bounds(const SkMatrix& viewMatrix, const SkRect& devBounds, void* ver
     return true;
 }
 
-class AAHairlineBatch : public GrVertexBatch {
+class AAHairlineBatch : public GrMeshDrawOp {
 public:
     DEFINE_OP_CLASS_ID
 
@@ -798,7 +798,7 @@ private:
     BatchTracker fBatch;
     SkSTArray<1, Geometry, true> fGeoData;
 
-    typedef GrVertexBatch INHERITED;
+    typedef GrMeshDrawOp INHERITED;
 };
 
 void AAHairlineBatch::onPrepareDraws(Target* target) const {

@@ -13,10 +13,10 @@
 #include "GrContext.h"
 #include "GrPipelineBuilder.h"
 #include "GrResourceProvider.h"
-#include "GrSurfacePriv.h"
 #include "GrSWMaskHelper.h"
+#include "GrSurfacePriv.h"
 #include "GrTexturePriv.h"
-#include "batches/GrVertexBatch.h"
+#include "batches/GrMeshDrawOp.h"
 #include "effects/GrDistanceFieldGeoProc.h"
 
 #include "SkDistanceFieldGen.h"
@@ -118,7 +118,7 @@ bool GrAADistanceFieldPathRenderer::onCanDrawPath(const CanDrawPathArgs& args) c
 // padding around path bounds to allow for antialiased pixels
 static const SkScalar kAntiAliasPad = 1.0f;
 
-class AADistanceFieldPathBatch : public GrVertexBatch {
+class AADistanceFieldPathBatch : public GrMeshDrawOp {
 public:
     DEFINE_OP_CLASS_ID
 
@@ -299,14 +299,9 @@ private:
         this->flush(target, &flushInfo);
     }
 
-    bool addPathToAtlas(GrVertexBatch::Target* target,
-                        FlushInfo* flushInfo,
-                        GrBatchAtlas* atlas,
-                        ShapeData* shapeData,
-                        const GrShape& shape,
-                        bool antiAlias,
-                        uint32_t dimension,
-                        SkScalar scale) const {
+    bool addPathToAtlas(GrMeshDrawOp::Target* target, FlushInfo* flushInfo, GrBatchAtlas* atlas,
+                        ShapeData* shapeData, const GrShape& shape, bool antiAlias,
+                        uint32_t dimension, SkScalar scale) const {
         const SkRect& bounds = shape.bounds();
 
         // generate bounding rect for bitmap draw
@@ -462,7 +457,7 @@ private:
                                   vertexStride);
     }
 
-    void flush(GrVertexBatch::Target* target, FlushInfo* flushInfo) const {
+    void flush(GrMeshDrawOp::Target* target, FlushInfo* flushInfo) const {
         if (flushInfo->fInstancesToFlush) {
             GrMesh mesh;
             int maxInstancesPerDraw =
@@ -517,7 +512,7 @@ private:
     ShapeDataList* fShapeList;
     bool fGammaCorrect;
 
-    typedef GrVertexBatch INHERITED;
+    typedef GrMeshDrawOp INHERITED;
 };
 
 bool GrAADistanceFieldPathRenderer::onDrawPath(const DrawPathArgs& args) {

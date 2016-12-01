@@ -7,27 +7,27 @@
 
 #include "GrPLSPathRenderer.h"
 
+#include "GrBatchFlushState.h"
+#include "GrBatchTest.h"
+#include "GrCaps.h"
+#include "GrContext.h"
+#include "GrDefaultGeoProcFactory.h"
+#include "GrInvariantOutput.h"
+#include "GrPLSGeometryProcessor.h"
+#include "GrPathUtils.h"
+#include "GrPipelineBuilder.h"
+#include "GrProcessor.h"
+#include "GrStyle.h"
+#include "GrTessellator.h"
 #include "SkChunkAlloc.h"
 #include "SkGeometry.h"
 #include "SkPathPriv.h"
 #include "SkString.h"
 #include "SkTSort.h"
 #include "SkTraceEvent.h"
-#include "GrBatchFlushState.h"
-#include "GrBatchTest.h"
-#include "GrCaps.h"
-#include "GrContext.h"
-#include "GrDefaultGeoProcFactory.h"
-#include "GrPLSGeometryProcessor.h"
-#include "GrInvariantOutput.h"
-#include "GrPathUtils.h"
-#include "GrProcessor.h"
-#include "GrPipelineBuilder.h"
-#include "GrStyle.h"
-#include "GrTessellator.h"
-#include "batches/GrVertexBatch.h"
-#include "glsl/GrGLSLGeometryProcessor.h"
+#include "batches/GrMeshDrawOp.h"
 #include "gl/builders/GrGLProgramBuilder.h"
+#include "glsl/GrGLSLGeometryProcessor.h"
 #include "glsl/GrGLSLPLSPathRendering.h"
 
 GrPLSPathRenderer::GrPLSPathRenderer() {
@@ -763,7 +763,7 @@ bool GrPLSPathRenderer::onCanDrawPath(const CanDrawPathArgs& args) const {
             path.getFillType() == SkPath::FillType::kWinding_FillType;
 }
 
-class PLSPathBatch : public GrVertexBatch {
+class PLSPathBatch : public GrMeshDrawOp {
 public:
     DEFINE_OP_CLASS_ID
     PLSPathBatch(GrColor color, const SkPath& path, const SkMatrix& viewMatrix)
@@ -924,7 +924,7 @@ private:
     GrColor fColor;
     SkPath fPath;
     SkMatrix fViewMatrix;
-    typedef GrVertexBatch INHERITED;
+    typedef GrMeshDrawOp INHERITED;
 };
 
 SkDEBUGCODE(bool inPLSDraw = false;)
