@@ -33,6 +33,13 @@ SkColorSpace_XYZ::SkColorSpace_XYZ(SkGammaNamed gammaNamed, sk_sp<SkGammas> gamm
     , fToXYZD50Hash(SkGoodHash()(toXYZD50))
     , fFromXYZD50(SkMatrix44::kUninitialized_Constructor) {
     SkASSERT(!fGammas || 3 == fGammas->channels());
+    if (fGammas) {
+        for (int i = 0; i < fGammas->channels(); ++i) {
+            if (SkGammas::Type::kTable_Type == fGammas->type(i)) {
+                SkASSERT(fGammas->data(i).fTable.fSize >= 2);
+            }
+        }
+    }
 }
 
 const SkMatrix44* SkColorSpace_XYZ::fromXYZD50() const {
