@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "2d6e6f0e_8b43dd10",
+        "filename": "src/gpu/.clang-format",
+        "patchSetId": 1
+      },
+      "lineNbr": 26,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2016-12-01T17:33:14Z",
+      "side": 1,
+      "message": "shame there\u0027s no option to eliminate trailing whitespace",
+      "range": {
+        "startLine": 26,
+        "startChar": 14,
+        "endLine": 26,
+        "endChar": 17
+      },
+      "revId": "5f986f0d1e1c9c83299ff19622aa2aa5d0faca15",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
