@@ -6,7 +6,7 @@
  */
 
 #include "ktx.h"
-#include "SkPixmap.h"
+#include "SkBitmap.h"
 #include "SkStream.h"
 #include "SkEndian.h"
 
@@ -556,4 +556,10 @@ bool SkKTXFile::WritePixmapToKTX(SkWStream* stream, const SkPixmap& pixmap) {
     }
 
     return true;
+}
+
+bool SkKTXFile::WriteBitmapToKTX(SkWStream* stream, const SkBitmap& bitmap) {
+    SkAutoLockPixels autoLockPixels(bitmap);
+    SkPixmap pixmap;
+    return bitmap.peekPixels(&pixmap) && SkKTXFile::WritePixmapToKTX(stream, pixmap);
 }
