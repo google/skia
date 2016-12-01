@@ -31,7 +31,7 @@
 #include "batches/GrClearStencilClipBatch.h"
 #include "batches/GrCopySurfaceBatch.h"
 #include "batches/GrDiscardBatch.h"
-#include "batches/GrDrawBatch.h"
+#include "batches/GrDrawOp.h"
 #include "batches/GrDrawPathBatch.h"
 #include "batches/GrRectBatchFactory.h"
 #include "batches/GrStencilPathBatch.h"
@@ -271,7 +271,7 @@ static void batch_bounds(SkRect* bounds, const GrOp* batch) {
 void GrRenderTargetOpList::drawBatch(const GrPipelineBuilder& pipelineBuilder,
                                      GrRenderTargetContext* renderTargetContext,
                                      const GrClip& clip,
-                                     GrDrawBatch* batch) {
+                                     GrDrawOp* batch) {
     // Setup clip
     SkRect bounds;
     batch_bounds(&bounds, batch);

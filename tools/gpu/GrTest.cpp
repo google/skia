@@ -244,7 +244,7 @@ void GrResourceCache::changeTimestamp(uint32_t newTimestamp) { fTimestamp = newT
 #define RETURN_IF_ABANDONED        if (fRenderTargetContext->fDrawingManager->wasAbandoned()) { return; }
 
 void GrRenderTargetContextPriv::testingOnly_drawBatch(const GrPaint& paint,
-                                                      GrDrawBatch* batch,
+                                                      GrDrawOp* batch,
                                                       const GrUserStencilSettings* uss,
                                                       bool snapToCenters) {
     ASSERT_SINGLE_OWNER

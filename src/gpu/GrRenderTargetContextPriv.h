@@ -91,7 +91,7 @@ public:
     }
 
     void testingOnly_drawBatch(const GrPaint&,
-                               GrDrawBatch* batch,
+                               GrDrawOp* batch,
                                const GrUserStencilSettings* = nullptr,
                                bool snapToCenters = false);
 

@@ -388,11 +388,11 @@ private:
     typedef GrVertexBatch INHERITED;
 };
 
-GrDrawBatch* GrAnalyticRectBatch::CreateAnalyticRectBatch(GrColor color,
-                                                          const SkMatrix& viewMatrix,
-                                                          const SkRect& rect,
-                                                          const SkRect& croppedRect,
-                                                          const SkRect& bounds) {
+GrDrawOp* GrAnalyticRectBatch::CreateAnalyticRectBatch(GrColor color,
+                                                       const SkMatrix& viewMatrix,
+                                                       const SkRect& rect,
+                                                       const SkRect& croppedRect,
+                                                       const SkRect& bounds) {
     return new AnalyticRectBatch(color, viewMatrix, rect, croppedRect, bounds);
 }
 

@@ -17,7 +17,7 @@
 #include "GrBatchTest.h"
 #endif
 
-class GrDrawBatch;
+class GrDrawOp;
 class GrRenderTargetContext;
 class GrPipelineBuilder;
 class GrTextBlobCache;

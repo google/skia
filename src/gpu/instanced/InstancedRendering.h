@@ -11,7 +11,7 @@
 #include "GrGpu.h"
 #include "GrMemoryPool.h"
 #include "SkTInternalLList.h"
-#include "batches/GrDrawBatch.h"
+#include "batches/GrDrawOp.h"
 #include "instanced/InstancedRenderingTypes.h"
 #include "../private/GrInstancedPipelineInfo.h"
 
@@ -45,29 +45,29 @@ public:
      * this class before attempting to flush batches returned by it. It is invalid to record new
      * draws between beginFlush() and endFlush().
      */
-    GrDrawBatch* SK_WARN_UNUSED_RESULT recordRect(const SkRect&, const SkMatrix&, GrColor,
-                                                  bool antialias, const GrInstancedPipelineInfo&,
-                                                  bool* useHWAA);
+    GrDrawOp* SK_WARN_UNUSED_RESULT recordRect(const SkRect&, const SkMatrix&, GrColor,
+                                               bool antialias, const GrInstancedPipelineInfo&,
+                                               bool* useHWAA);
 
-    GrDrawBatch* SK_WARN_UNUSED_RESULT recordRect(const SkRect&, const SkMatrix&, GrColor,
-                                                  const SkRect& localRect, bool antialias,
-                                                  const GrInstancedPipelineInfo&, bool* useHWAA);
+    GrDrawOp* SK_WARN_UNUSED_RESULT recordRect(const SkRect&, const SkMatrix&, GrColor,
+                                               const SkRect& localRect, bool antialias,
+                                               const GrInstancedPipelineInfo&, bool* useHWAA);
 
-    GrDrawBatch* SK_WARN_UNUSED_RESULT recordRect(const SkRect&, const SkMatrix&, GrColor,
-                                                  const SkMatrix& localMatrix, bool antialias,
-                                                  const GrInstancedPipelineInfo&, bool* useHWAA);
+    GrDrawOp* SK_WARN_UNUSED_RESULT recordRect(const SkRect&, const SkMatrix&, GrColor,
+                                               const SkMatrix& localMatrix, bool antialias,
+                                               const GrInstancedPipelineInfo&, bool* useHWAA);
 
-    GrDrawBatch* SK_WARN_UNUSED_RESULT recordOval(const SkRect&, const SkMatrix&, GrColor,
-                                                  bool antialias, const GrInstancedPipelineInfo&,
-                                                  bool* useHWAA);
+    GrDrawOp* SK_WARN_UNUSED_RESULT recordOval(const SkRect&, const SkMatrix&, GrColor,
+                                               bool antialias, const GrInstancedPipelineInfo&,
+                                               bool* useHWAA);
 
-    GrDrawBatch* SK_WARN_UNUSED_RESULT recordRRect(const SkRRect&, const SkMatrix&, GrColor,
-                                                   bool antialias, const GrInstancedPipelineInfo&,
-                                                   bool* useHWAA);
+    GrDrawOp* SK_WARN_UNUSED_RESULT recordRRect(const SkRRect&, const SkMatrix&, GrColor,
+                                                bool antialias, const GrInstancedPipelineInfo&,
+                                                bool* useHWAA);
 
-    GrDrawBatch* SK_WARN_UNUSED_RESULT recordDRRect(const SkRRect& outer, const SkRRect& inner,
-                                                    const SkMatrix&, GrColor, bool antialias,
-                                                    const GrInstancedPipelineInfo&, bool* useHWAA);
+    GrDrawOp* SK_WARN_UNUSED_RESULT recordDRRect(const SkRRect& outer, const SkRRect& inner,
+                                                 const SkMatrix&, GrColor, bool antialias,
+                                                 const GrInstancedPipelineInfo&, bool* useHWAA);
 
     /**
      * Compiles all recorded draws into GPU buffers and allows the client to begin flushing the
@@ -93,7 +93,7 @@ public:
     void resetGpuResources(ResetType);
 
 protected:
-    class Batch : public GrDrawBatch {
+    class Batch : public GrDrawOp {
     public:
         SK_DECLARE_INTERNAL_LLIST_INTERFACE(Batch);
 
@@ -156,7 +156,7 @@ protected:
         Draw*                             fHeadDraw;
         Draw*                             fTailDraw;
 
-        typedef GrDrawBatch INHERITED;
+        typedef GrDrawOp INHERITED;
 
         friend class InstancedRendering;
     };

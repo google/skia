@@ -253,8 +253,8 @@ public:
         GrColor fColor;
     };
 
-    static GrDrawBatch* Create(const Geometry& geometry, SkPaint::Cap cap, AAMode aaMode,
-                               bool fullDash) {
+    static GrDrawOp* Create(const Geometry& geometry, SkPaint::Cap cap, AAMode aaMode,
+                            bool fullDash) {
         return new DashBatch(geometry, cap, aaMode, fullDash);
     }
 
@@ -707,11 +707,11 @@ private:
     typedef GrVertexBatch INHERITED;
 };
 
-GrDrawBatch* GrDashingEffect::CreateDashLineBatch(GrColor color,
-                                                  const SkMatrix& viewMatrix,
-                                                  const SkPoint pts[2],
-                                                  AAMode aaMode,
-                                                  const GrStyle& style) {
+GrDrawOp* GrDashingEffect::CreateDashLineBatch(GrColor color,
+                                               const SkMatrix& viewMatrix,
+                                               const SkPoint pts[2],
+                                               AAMode aaMode,
+                                               const GrStyle& style) {
     SkASSERT(GrDashingEffect::CanDrawDashLine(pts, style, viewMatrix));
     const SkScalar* intervals = style.dashIntervals();
     SkScalar phase = style.dashPhase();

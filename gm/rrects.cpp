@@ -9,7 +9,7 @@
 #if SK_SUPPORT_GPU
 #include "GrContext.h"
 #include "GrRenderTargetContextPriv.h"
-#include "batches/GrDrawBatch.h"
+#include "batches/GrDrawOp.h"
 #include "batches/GrRectBatchFactory.h"
 #include "effects/GrRRectEffect.h"
 #endif
@@ -115,7 +115,7 @@ protected:
                             SkRect bounds = rrect.getBounds();
                             bounds.outset(2.f, 2.f);
 
-                            sk_sp<GrDrawBatch> batch(
+                            sk_sp<GrDrawOp> batch(
                                     GrRectBatchFactory::CreateNonAAFill(0xff000000, SkMatrix::I(),
                                                                         bounds, nullptr, nullptr));
                             renderTargetContext->priv().testingOnly_drawBatch(grPaint, batch.get());

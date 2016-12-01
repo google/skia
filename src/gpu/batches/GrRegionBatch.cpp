@@ -160,9 +160,7 @@ private:
 
 namespace GrRegionBatch {
 
-GrDrawBatch* Create(GrColor color,
-                    const SkMatrix& viewMatrix,
-                    const SkRegion& region) {
+GrDrawOp* Create(GrColor color, const SkMatrix& viewMatrix, const SkRegion& region) {
     return new RegionBatch(color, viewMatrix, region);
 }
 
