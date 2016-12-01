@@ -66,6 +66,24 @@
     },
     {
       "key": {
+        "uuid": "2d6e6f0e_50adf480",
+        "filename": "include/codec/SkCodec.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 788,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2016-12-01T15:31:31Z",
+      "side": 1,
+      "message": "\u003e Yes this is testing only.  What do you think about it being a debug only API?  Ex:\n\u003e #if defined(SK_DEBUG)\n\nI like it less than a dummy color space (though I suppose that is ugly outside of SkCodec?), but more than always having the API.\n\nThinking about this some more - you don\u0027t need this method at all. You can have a private const bool fHadAnUnsupportedICC field. Sniffer (the only client, I think?) is a friend, so it can access the field directly.\n\n\u003e \n\u003e Looking at the rest of the CL, this could be really messy (though SkDEBUGCODE() would help).\n\nWithout the method, I\u0027ll feel more comfortable with leaving the field in in non-debug code. There are probably ways to make it less messy but I don\u0027t know whether we\u0027ll run into the compiler complaining that we did not use a variable.",
+      "parentUuid": "2d6e6f0e_d08e244e",
+      "revId": "8e001806c26d6bca5ffbc07e6af17847c4621b83",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "2d6e6f0e_b08ba83c",
         "filename": "src/codec/SkJpegCodec.h",
         "patchSetId": 1
