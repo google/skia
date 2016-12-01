@@ -994,14 +994,14 @@ void SPIRVCodeGenerator::writeStruct(const Type& type, const MemoryLayout& memor
         const Layout& fieldLayout = type.fields()[i].fModifiers.fLayout;
         if (fieldLayout.fOffset >= 0) {
             if (fieldLayout.fOffset <= (int) offset) {
-                fErrors->error(type.fPosition,
-                               "offset of field '" + type.fields()[i].fName + "' must be at "
-                               "least " + to_string((int) offset));
+                fErrors.error(type.fPosition,
+                              "offset of field '" + type.fields()[i].fName + "' must be at "
+                              "least " + to_string((int) offset));
             }
             if (fieldLayout.fOffset % alignment) {
-                fErrors->error(type.fPosition,
-                               "offset of field '" + type.fields()[i].fName + "' must be a multiple"
-                               " of " + to_string((int) alignment));
+                fErrors.error(type.fPosition,
+                              "offset of field '" + type.fields()[i].fName + "' must be a multiple"
+                              " of " + to_string((int) alignment));
             }
             offset = fieldLayout.fOffset;
         } else {
@@ -2741,18 +2741,15 @@ void SPIRVCodeGenerator::writeInstructions(const Program& program, SkWStream& ou
     write_data(*body.detachAsData(), out);
 }
 
-void SPIRVCodeGenerator::generateCode(const Program& program, ErrorReporter& errors,
-                                      SkWStream& out) {
-    fErrors = &errors;
-    this->writeWord(SpvMagicNumber, out);
-    this->writeWord(SpvVersion, out);
-    this->writeWord(SKSL_MAGIC, out);
+void SPIRVCodeGenerator::generateCode() {
+    this->writeWord(SpvMagicNumber, *fOut);
+    this->writeWord(SpvVersion, *fOut);
+    this->writeWord(SKSL_MAGIC, *fOut);
     SkDynamicMemoryWStream buffer;
-    this->writeInstructions(program, buffer);
-    this->writeWord(fIdCount, out);
-    this->writeWord(0, out); // reserved, always zero
-    write_data(*buffer.detachAsData(), out);
-    fErrors = nullptr;
+    this->writeInstructions(fProgram, buffer);
+    this->writeWord(fIdCount, *fOut);
+    this->writeWord(0, *fOut); // reserved, always zero
+    write_data(*buffer.detachAsData(), *fOut);
 }
 
 }

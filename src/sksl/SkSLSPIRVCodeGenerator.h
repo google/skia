@@ -62,8 +62,11 @@ public:
         virtual void store(SpvId value, SkWStream& out) = 0;
     };
 
-    SPIRVCodeGenerator(const Context* context)
-    : fContext(*context)
+    SPIRVCodeGenerator(const Compiler::Settings* settings, const Context* context, 
+                       const Program* program, ErrorReporter* errors, SkWStream* out, 
+                       Compiler::Inputs* inputs)
+    : INHERITED(settings, program, errors, out, inputs)
+    , fContext(*context)
     , fDefaultLayout(MemoryLayout::k140_Standard)
     , fCapabilities(1 << SpvCapabilityShader)
     , fIdCount(1)
@@ -73,7 +76,7 @@ public:
         this->setupIntrinsics();
     }
 
-    void generateCode(const Program& program, ErrorReporter& errors, SkWStream& out) override;
+    void generateCode() override;
 
 private:
     enum IntrinsicKind {
@@ -236,7 +239,6 @@ private:
 
     const Context& fContext;
     const MemoryLayout fDefaultLayout;
-    ErrorReporter* fErrors;
 
     uint64_t fCapabilities;
     SpvId fIdCount;
@@ -268,6 +270,8 @@ private:
 
     friend class PointerLValue;
     friend class SwizzleLValue;
+
+    typedef CodeGenerator INHERITED;
 };
 
 }

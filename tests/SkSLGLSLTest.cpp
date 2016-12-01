@@ -12,10 +12,13 @@
 #if SK_SUPPORT_GPU
 
 static void test(skiatest::Reporter* r, const char* src, const GrShaderCaps& caps,
-                 const char* expected) {
+                 const char* expected, SkSL::Compiler::Inputs* inputs) {
     SkSL::Compiler compiler;
     SkString output;
-    bool result = compiler.toGLSL(SkSL::Program::kFragment_Kind, SkString(src), caps, &output);
+    SkSL::Compiler::Settings settings;
+    settings.fCaps = &caps;
+    bool result = compiler.toGLSL(SkSL::Program::kFragment_Kind, SkString(src), settings, &output,
+                                  inputs);
     if (!result) {
         SkDebugf("Unexpected error compiling %s\n%s", src, compiler.errorText().c_str());
     }
@@ -28,6 +31,12 @@ static void test(skiatest::Reporter* r, const char* src, const GrShaderCaps& cap
         }
         REPORTER_ASSERT(r, output == skExpected);
     }
+}
+
+static void test(skiatest::Reporter* r, const char* src, const GrShaderCaps& caps, 
+                 const char* expected) {
+    SkSL::Compiler::Inputs inputs;
+    test(r, src, caps, expected, &inputs);
 }
 
 DEF_TEST(SkSLHelloWorld, r) {
@@ -603,4 +612,45 @@ DEF_TEST(SkSLOffset, r) {
          "    int z;\n"
          "} test;\n");
 }
+
+DEF_TEST(SkSLFragCoord, r) {
+    SkSL::Compiler::Inputs inputs;
+    test(r,
+         "void main() { sk_FragColor.xy = sk_FragCoord.xy; }",
+         *SkSL::ShaderCapsFactory::FragCoordsOld(),
+         "#version 110\n"
+         "#extension GL_ARB_fragment_coord_conventions : require\n"
+         "layout(origin_upper_left) in vec4 gl_FragCoord;\n"
+         "void main() {\n"
+         "    gl_FragColor.xy = gl_FragCoord.xy;\n"
+         "}\n",
+         &inputs);
+    REPORTER_ASSERT(r, !inputs.fRTHeightUniformName);
+    test(r,
+         "void main() { sk_FragColor.xy = sk_FragCoord.xy; }",
+         *SkSL::ShaderCapsFactory::FragCoordsNew(),
+         "#version 400\n"
+         "layout(origin_upper_left) in vec4 gl_FragCoord;\n"
+         "out vec4 sk_FragColor;\n"
+         "void main() {\n"
+         "    sk_FragColor.xy = gl_FragCoord.xy;\n"
+         "}\n",
+         &inputs);
+    REPORTER_ASSERT(r, !inputs.fRTHeightUniformName);
+    test(r,
+         "void main() { sk_FragColor.xy = sk_FragCoord.xy; }",
+         *SkSL::ShaderCapsFactory::Default(),
+         "#version 400\n"
+         "uniform float u_skHeight;\n"
+         "out vec4 sk_FragColor;\n"
+         "void main() {\n"
+         "    highp vec2 _sktmpCoord = gl_FragCoord.xy;\n"
+         "    highp vec4 sk_FragCoord = vec4(_sktmpCoord.x, u_skHeight - _sktmpCoord.y, 1.0, "
+         "1.0);\n"
+         "    sk_FragColor.xy = sk_FragCoord.xy;\n"
+         "}\n",
+         &inputs);
+    REPORTER_ASSERT(r, !strcmp(inputs.fRTHeightUniformName, "u_skHeight"));
+}
+
 #endif

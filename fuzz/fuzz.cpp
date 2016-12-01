@@ -405,9 +405,13 @@ int fuzz_color_deserialize(sk_sp<SkData> bytes) {
 int fuzz_sksl2glsl(sk_sp<SkData> bytes) {
     SkSL::Compiler compiler;
     SkString output;
+    SkSL::Compiler::Settings settings;
+    sk_sp<GrShaderCaps> caps = SkSL::ShaderCapsFactory::Default();
+    settings.fCaps = caps.get();
+    settings.fOrigin = GrSurfaceOrigin::kTopLeft_GrSurfaceOrigin;
+    SkSL::Compiler::Inputs inputs;
     bool result = compiler.toGLSL(SkSL::Program::kFragment_Kind,
-        SkString((const char*)bytes->data()), *SkSL::ShaderCapsFactory::Default(), &output);
-
+        SkString((const char*)bytes->data()), settings, &output, &inputs);
     if (!result) {
         SkDebugf("[terminated] Couldn't compile input.\n");
         return 1;

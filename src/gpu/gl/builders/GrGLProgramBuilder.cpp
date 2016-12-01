@@ -69,7 +69,8 @@ const GrCaps* GrGLProgramBuilder::caps() const {
 bool GrGLProgramBuilder::compileAndAttachShaders(GrGLSLShaderBuilder& shader,
                                                  GrGLuint programId,
                                                  GrGLenum type,
-                                                 SkTDArray<GrGLuint>* shaderIds) {
+                                                 SkTDArray<GrGLuint>* shaderIds,
+                                                 SkSL::Compiler::Inputs* outInputs) {
     GrGLGpu* gpu = this->gpu();
     GrGLuint shaderId = GrGLCompileAndAttachShader(gpu->glContext(),
                                                    programId,
@@ -77,7 +78,8 @@ bool GrGLProgramBuilder::compileAndAttachShaders(GrGLSLShaderBuilder& shader,
                                                    shader.fCompilerStrings.begin(),
                                                    shader.fCompilerStringLengths.begin(),
                                                    shader.fCompilerStrings.count(),
-                                                   gpu->stats());
+                                                   gpu->stats(),
+                                                   outInputs);
 
     if (!shaderId) {
         return false;
@@ -100,8 +102,10 @@ GrGLProgram* GrGLProgramBuilder::finalize() {
     this->finalizeShaders();
 
     // compile shaders and bind attributes / uniforms
+    SkSL::Compiler::Inputs inputs;
     SkTDArray<GrGLuint> shadersToDelete;
-    if (!this->compileAndAttachShaders(fVS, programID, GR_GL_VERTEX_SHADER, &shadersToDelete)) {
+    if (!this->compileAndAttachShaders(fVS, programID, GR_GL_VERTEX_SHADER, &shadersToDelete,
+                                       &inputs)) {
         this->cleanupProgram(programID, shadersToDelete);
         return nullptr;
     }
@@ -117,14 +121,20 @@ GrGLProgram* GrGLProgramBuilder::finalize() {
     }
 
     if (primProc.willUseGeoShader() &&
-        !this->compileAndAttachShaders(fGS, programID, GR_GL_GEOMETRY_SHADER, &shadersToDelete)) {
+        !this->compileAndAttachShaders(fGS, programID, GR_GL_GEOMETRY_SHADER, &shadersToDelete,
+                                       &inputs)) {
         this->cleanupProgram(programID, shadersToDelete);
         return nullptr;
     }
 
-    if (!this->compileAndAttachShaders(fFS, programID, GR_GL_FRAGMENT_SHADER, &shadersToDelete)) {
+    if (!this->compileAndAttachShaders(fFS, programID, GR_GL_FRAGMENT_SHADER, &shadersToDelete,
+                                       &inputs)) {
         this->cleanupProgram(programID, shadersToDelete);
         return nullptr;
+    }
+
+    if (inputs.fRTHeightUniformName) {
+        this->addRTHeightUniform(inputs.fRTHeightUniformName + 1);
     }
 
     this->bindProgramResourceLocations(programID);
@@ -143,7 +153,8 @@ GrGLProgram* GrGLProgramBuilder::finalize() {
 
     this->cleanupShaders(shadersToDelete);
 
-    return this->createProgram(programID);
+    GrGLProgram* result = this->createProgram(programID);
+    return result;
 }
 
 void GrGLProgramBuilder::bindProgramResourceLocations(GrGLuint programID) {

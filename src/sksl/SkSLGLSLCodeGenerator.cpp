@@ -18,6 +18,7 @@
 #include "ir/SkSLVariableReference.h"
 
 #define SK_FRAGCOLOR_BUILTIN 10001
+#define SK_FRAGCOORD_BUILTIN 15
 
 namespace SkSL {
 
@@ -137,7 +138,7 @@ static bool is_abs(Expression& expr) {
 // turns min(abs(x), y) into ((tmpVar1 = abs(x)) < (tmpVar2 = y) ? tmpVar1 : tmpVar2) to avoid a 
 // Tegra3 compiler bug.
 void GLSLCodeGenerator::writeMinAbsHack(Expression& absExpr, Expression& otherExpr) {
-    ASSERT(!fCaps.canUseMinAndAbsTogether());
+    ASSERT(!fSettings.fCaps->canUseMinAndAbsTogether());
     SkString tmpVar1 = "minAbsHackVar" + to_string(fVarCount++);
     SkString tmpVar2 = "minAbsHackVar" + to_string(fVarCount++);
     this->fFunctionHeader += "    " + absExpr.fType.name() + " " + tmpVar1 + ";\n";
@@ -150,7 +151,8 @@ void GLSLCodeGenerator::writeMinAbsHack(Expression& absExpr, Expression& otherEx
 }
 
 void GLSLCodeGenerator::writeFunctionCall(const FunctionCall& c) {
-    if (!fCaps.canUseMinAndAbsTogether() && c.fFunction.fName == "min" && c.fFunction.fBuiltin) {
+    if (!fSettings.fCaps->canUseMinAndAbsTogether() && c.fFunction.fName == "min" && 
+        c.fFunction.fBuiltin) {
         ASSERT(c.fArguments.size() == 2);
         if (is_abs(*c.fArguments[0])) {
             this->writeMinAbsHack(*c.fArguments[0], *c.fArguments[1]);
@@ -163,7 +165,7 @@ void GLSLCodeGenerator::writeFunctionCall(const FunctionCall& c) {
             return;
         }
     }
-    if (fCaps.mustForceNegatedAtanParamToFloat() && c.fFunction.fName == "atan" && 
+    if (fSettings.fCaps->mustForceNegatedAtanParamToFloat() && c.fFunction.fName == "atan" && 
         c.fFunction.fBuiltin && c.fArguments.size() == 2 && 
         c.fArguments[1]->fKind == Expression::kPrefix_Kind) {
         const PrefixExpression& p = (PrefixExpression&) *c.fArguments[1];
@@ -177,10 +179,10 @@ void GLSLCodeGenerator::writeFunctionCall(const FunctionCall& c) {
         }
     }
     if (!fFoundDerivatives && (c.fFunction.fName == "dFdx" || c.fFunction.fName == "dFdy") && 
-        c.fFunction.fBuiltin && fCaps.shaderDerivativeExtensionString()) {
-        ASSERT(fCaps.shaderDerivativeSupport());
+        c.fFunction.fBuiltin && fSettings.fCaps->shaderDerivativeExtensionString()) {
+        ASSERT(fSettings.fCaps->shaderDerivativeSupport());
         fHeader.writeText("#extension ");
-        fHeader.writeText(fCaps.shaderDerivativeExtensionString());
+        fHeader.writeText(fSettings.fCaps->shaderDerivativeExtensionString());
         fHeader.writeText(" : require\n");
         fFoundDerivatives = true;
     }
@@ -235,7 +237,7 @@ void GLSLCodeGenerator::writeFunctionCall(const FunctionCall& c) {
                 break;
         }
         this->write("texture");
-        if (fCaps.generation() < k130_GrGLSLGeneration) {
+        if (fSettings.fCaps->generation() < k130_GrGLSLGeneration) {
             this->write(dim);
         }
         if (proj) {
@@ -266,15 +268,56 @@ void GLSLCodeGenerator::writeConstructor(const Constructor& c) {
     this->write(")");
 }
 
-void GLSLCodeGenerator::writeVariableReference(const VariableReference& ref) {
-    if (ref.fVariable.fModifiers.fLayout.fBuiltin == SK_FRAGCOLOR_BUILTIN) {
-        if (fCaps.mustDeclareFragmentShaderOutput()) {
-            this->write("sk_FragColor");
-        } else {
-            this->write("gl_FragColor");
+void GLSLCodeGenerator::writeFragCoord() {
+    // We only declare "gl_FragCoord" when we're in the case where we want to use layout qualifiers
+    // to reverse y. Otherwise it isn't necessary and whether the "in" qualifier appears in the
+    // declaration varies in earlier GLSL specs. So it is simpler to omit it.
+/*    if (kTopLeft_GrSurfaceOrigin == this->getSurfaceOrigin()) {
+        fSetupFragPosition = true;
+        this->write("gl_FragCoord");
+    } else */if (const char* extension = fSettings.fCaps->fragCoordConventionsExtensionString()) {
+        if (!fSetupFragPosition) {
+            if (fSettings.fCaps->generation() < k150_GrGLSLGeneration) {
+                fHeader.writeText("#extension ");
+                fHeader.writeText(extension);
+                fHeader.writeText(" : require\n");
+            }
+            fHeader.writeText("layout(origin_upper_left) in vec4 gl_FragCoord;\n");
+            fSetupFragPosition = true;
         }
+        this->write("gl_FragCoord");
     } else {
-        this->write(ref.fVariable.fName);
+        if (!fSetupFragPosition) {
+            fInputs->fRTHeightUniformName = "u_skHeight";
+            fHeader.writeText("uniform float u_skHeight;\n");
+            // The Adreno compiler seems to be very touchy about access to "gl_FragCoord".
+            // Accessing glFragCoord.zw can cause a program to fail to link. Additionally,
+            // depending on the surrounding code, accessing .xy with a uniform involved can
+            // do the same thing. Copying gl_FragCoord.xy into a temp vec2 beforehand
+            // (and only accessing .xy) seems to "fix" things.
+            fFunctionHeader += "    highp vec2 _sktmpCoord = gl_FragCoord.xy;\n"
+                               "    highp vec4 sk_FragCoord = vec4(_sktmpCoord.x, u_skHeight - "
+                               "_sktmpCoord.y, 1.0, 1.0);\n";
+            fSetupFragPosition = true;
+        }
+        this->write("sk_FragCoord");
+    }
+}
+
+void GLSLCodeGenerator::writeVariableReference(const VariableReference& ref) {
+    switch (ref.fVariable.fModifiers.fLayout.fBuiltin) {
+        case SK_FRAGCOLOR_BUILTIN:
+            if (fSettings.fCaps->mustDeclareFragmentShaderOutput()) {
+                this->write("sk_FragColor");
+            } else {
+                this->write("gl_FragColor");
+            }
+            break;
+        case SK_FRAGCOORD_BUILTIN:
+            this->writeFragCoord();
+            break;
+        default:
+            this->write(ref.fVariable.fName);
     }
 }
 
@@ -484,14 +527,16 @@ void GLSLCodeGenerator::writeModifiers(const Modifiers& modifiers,
         (modifiers.fFlags & Modifiers::kOut_Flag)) {
         this->write("inout ");
     } else if (modifiers.fFlags & Modifiers::kIn_Flag) {
-        if (globalContext && fCaps.generation() < GrGLSLGeneration::k130_GrGLSLGeneration) {
+        if (globalContext &&
+            fSettings.fCaps->generation() < GrGLSLGeneration::k130_GrGLSLGeneration) {
             this->write(fProgramKind == Program::kVertex_Kind ? "attribute "
                                                               : "varying ");
         } else {
             this->write("in ");
         }
     } else if (modifiers.fFlags & Modifiers::kOut_Flag) {
-        if (globalContext && fCaps.generation() < GrGLSLGeneration::k130_GrGLSLGeneration) {
+        if (globalContext &&
+            fSettings.fCaps->generation() < GrGLSLGeneration::k130_GrGLSLGeneration) {
             this->write("varying ");
         } else {
             this->write("out ");
@@ -503,7 +548,7 @@ void GLSLCodeGenerator::writeModifiers(const Modifiers& modifiers,
     if (modifiers.fFlags & Modifiers::kConst_Flag) {
         this->write("const ");
     }
-    if (fCaps.usesPrecisionModifiers()) {
+    if (fSettings.fCaps->usesPrecisionModifiers()) {
         if (modifiers.fFlags & Modifiers::kLowp_Flag) {
             this->write("lowp ");
         }
@@ -554,9 +599,9 @@ void GLSLCodeGenerator::writeVarDeclarations(const VarDeclarations& decl, bool g
             this->writeExpression(*var.fValue, kTopLevel_Precedence);
         }
         if (!fFoundImageDecl && var.fVar->fType == *fContext.fImage2D_Type) {
-            if (fCaps.imageLoadStoreExtensionString()) {
+            if (fSettings.fCaps->imageLoadStoreExtensionString()) {
                 fHeader.writeText("#extension ");
-                fHeader.writeText(fCaps.imageLoadStoreExtensionString());
+                fHeader.writeText(fSettings.fCaps->imageLoadStoreExtensionString());
                 fHeader.writeText(" : require\n");
             }
             fFoundImageDecl = true;
@@ -670,23 +715,22 @@ void GLSLCodeGenerator::writeReturnStatement(const ReturnStatement& r) {
     this->write(";");
 }
 
-void GLSLCodeGenerator::generateCode(const Program& program, ErrorReporter& errors,
-                                     SkWStream& out) {
-    ASSERT(fOut == nullptr);
+void GLSLCodeGenerator::generateCode() {
+    SkWStream* rawOut = fOut;
     fOut = &fHeader;
-    fProgramKind = program.fKind;
-    this->write(fCaps.versionDeclString());
+    fProgramKind = fProgram.fKind;
+    this->write(fSettings.fCaps->versionDeclString());
     this->writeLine();
-    for (const auto& e : program.fElements) {
+    for (const auto& e : fProgram.fElements) {
         if (e->fKind == ProgramElement::kExtension_Kind) {
             this->writeExtension((Extension&) *e);
         }
     }
     SkDynamicMemoryWStream body;
     fOut = &body;
-    if (fCaps.usesPrecisionModifiers()) {
+    if (fSettings.fCaps->usesPrecisionModifiers()) {
         this->write("precision ");
-        switch (program.fDefaultPrecision) {
+        switch (fProgram.fDefaultPrecision) {
             case Modifiers::kLowp_Flag:
                 this->write("lowp");
                 break;
@@ -702,7 +746,7 @@ void GLSLCodeGenerator::generateCode(const Program& program, ErrorReporter& erro
         }
         this->writeLine(" float;");
     }
-    for (const auto& e : program.fElements) {
+    for (const auto& e : fProgram.fElements) {
         switch (e->fKind) {
             case ProgramElement::kExtension_Kind:
                 break;
@@ -715,9 +759,9 @@ void GLSLCodeGenerator::generateCode(const Program& program, ErrorReporter& erro
                         this->writeVarDeclarations(decl, true);
                         this->writeLine();
                     } else if (builtin == SK_FRAGCOLOR_BUILTIN &&
-                               fCaps.mustDeclareFragmentShaderOutput()) {
+                               fSettings.fCaps->mustDeclareFragmentShaderOutput()) {
                         this->write("out ");
-                        if (fCaps.usesPrecisionModifiers()) {
+                        if (fSettings.fCaps->usesPrecisionModifiers()) {
                             this->write("mediump ");
                         }
                         this->writeLine("vec4 sk_FragColor;");
@@ -742,8 +786,8 @@ void GLSLCodeGenerator::generateCode(const Program& program, ErrorReporter& erro
     }
     fOut = nullptr;
 
-    write_data(*fHeader.detachAsData(), out);
-    write_data(*body.detachAsData(), out);
+    write_data(*fHeader.detachAsData(), *rawOut);
+    write_data(*body.detachAsData(), *rawOut);
 }
 
 }

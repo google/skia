@@ -9,6 +9,7 @@
 
 #include "ast/SkSLASTPrecision.h"
 #include "SkSLCFGGenerator.h"
+#include "SkSLGLSLCodeGenerator.h"
 #include "SkSLIRGenerator.h"
 #include "SkSLParser.h"
 #include "SkSLSPIRVCodeGenerator.h"
@@ -436,20 +437,27 @@ void Compiler::writeErrorCount() {
     }
 }
 
-bool Compiler::toSPIRV(Program::Kind kind, const SkString& text, SkWStream& out) {
+static void init_inputs(Compiler::Inputs* inputs) {
+    inputs->fRTHeightUniformName = nullptr;
+}
+
+bool Compiler::toSPIRV(Program::Kind kind, const SkString& text, const Compiler::Settings& settings,
+                       SkWStream& out, Inputs* outInputs) {
+    init_inputs(outInputs);
     std::unordered_map<SkString, CapValue> capsMap;
     auto program = this->convertProgram(kind, text, capsMap);
     if (fErrorCount == 0) {
-        SkSL::SPIRVCodeGenerator cg(&fContext);
-        cg.generateCode(*program.get(), *this, out);
+        SkSL::SPIRVCodeGenerator cg(&settings, &fContext, program.get(), this, &out, outInputs);
+        cg.generateCode();
         this->writeErrorCount();
     }
     return fErrorCount == 0;
 }
 
-bool Compiler::toSPIRV(Program::Kind kind, const SkString& text, SkString* out) {
+bool Compiler::toSPIRV(Program::Kind kind, const SkString& text, const Settings& settings,
+                       SkString* out, Inputs* outInputs) {
     SkDynamicMemoryWStream buffer;
-    bool result = this->toSPIRV(kind, text, buffer);
+    bool result = this->toSPIRV(kind, text, settings, buffer, outInputs);
     if (result) {
         sk_sp<SkData> data(buffer.detachAsData());
         *out = SkString((const char*) data->data(), data->size());
@@ -478,23 +486,24 @@ static void fill_caps(const GrShaderCaps& caps, std::unordered_map<SkString, Cap
 #undef CAP
 }
 
-bool Compiler::toGLSL(Program::Kind kind, const SkString& text, const GrShaderCaps& caps,
-                      SkWStream& out) {
+bool Compiler::toGLSL(Program::Kind kind, const SkString& text, const Settings& settings,
+                      SkWStream& out, Inputs* outInputs) {
+    init_inputs(outInputs);
     std::unordered_map<SkString, CapValue> capsMap;
-    fill_caps(caps, &capsMap);
+    fill_caps(*settings.fCaps, &capsMap);
     auto program = this->convertProgram(kind, text, capsMap);
     if (fErrorCount == 0) {
-        SkSL::GLSLCodeGenerator cg(&fContext, &caps);
-        cg.generateCode(*program.get(), *this, out);
+        SkSL::GLSLCodeGenerator cg(&fContext, &settings, program.get(), this, &out, outInputs);
+        cg.generateCode();
         this->writeErrorCount();
     }
     return fErrorCount == 0;
 }
 
-bool Compiler::toGLSL(Program::Kind kind, const SkString& text, const GrShaderCaps& caps,
-                      SkString* out) {
+bool Compiler::toGLSL(Program::Kind kind, const SkString& text, const Settings& settings,
+                      SkString* out, Inputs* outInputs) {
     SkDynamicMemoryWStream buffer;
-    bool result = this->toGLSL(kind, text, caps, buffer);
+    bool result = this->toGLSL(kind, text, settings, buffer, outInputs);
     if (result) {
         sk_sp<SkData> data(buffer.detachAsData());
         *out = SkString((const char*) data->data(), data->size());

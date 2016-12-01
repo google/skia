@@ -9,6 +9,7 @@
 #define SKSL_CODEGENERATOR
 
 #include "ir/SkSLProgram.h"
+#include "SkSLCompiler.h"
 
 namespace SkSL {
 
@@ -18,9 +19,25 @@ namespace SkSL {
  */
 class CodeGenerator {
 public:
+    CodeGenerator(const Compiler::Settings* settings, const Program* program, ErrorReporter* errors,
+                  SkWStream* out, Compiler::Inputs* outInputs)
+    : fSettings(*settings)
+    , fProgram(*program)
+    , fErrors(*errors)
+    , fOut(out)
+    , fInputs(outInputs) {}
+
     virtual ~CodeGenerator() {}
 
-    virtual void generateCode(const Program& program, ErrorReporter& errors, SkWStream& out) = 0;
+    virtual void generateCode() = 0;
+
+protected:
+
+    const Compiler::Settings& fSettings;
+    const Program& fProgram;
+    ErrorReporter& fErrors;
+    SkWStream* fOut;
+    Compiler::Inputs* fInputs;
 };
 
 } // namespace

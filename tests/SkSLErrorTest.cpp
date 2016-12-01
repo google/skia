@@ -14,7 +14,12 @@
 static void test_failure(skiatest::Reporter* r, const char* src, const char* error) {
     SkSL::Compiler compiler;
     SkDynamicMemoryWStream out;
-    bool result = compiler.toSPIRV(SkSL::Program::kFragment_Kind, SkString(src), out);
+    SkSL::Compiler::Settings settings;
+    sk_sp<GrShaderCaps> caps = SkSL::ShaderCapsFactory::Default();
+    settings.fCaps = caps.get();
+    SkSL::Compiler::Inputs inputs;
+    bool result = compiler.toSPIRV(SkSL::Program::kFragment_Kind, SkString(src), settings, out,
+                                   &inputs);
     SkString skError(error);
     if (compiler.errorText() != skError) {
         SkDebugf("SKSL ERROR:\n    source: %s\n    expected: %s    received: %s", src, error,
@@ -27,7 +32,12 @@ static void test_failure(skiatest::Reporter* r, const char* src, const char* err
 static void test_success(skiatest::Reporter* r, const char* src) {
     SkSL::Compiler compiler;
     SkDynamicMemoryWStream out;
-    bool result = compiler.toSPIRV(SkSL::Program::kFragment_Kind, SkString(src), out);
+    SkSL::Compiler::Settings settings;
+    sk_sp<GrShaderCaps> caps = SkSL::ShaderCapsFactory::Default();
+    settings.fCaps = caps.get();
+    SkSL::Compiler::Inputs inputs;
+    bool result = compiler.toSPIRV(SkSL::Program::kFragment_Kind, SkString(src), settings, out,
+                                   &inputs);
     REPORTER_ASSERT(r, result);
 }
 

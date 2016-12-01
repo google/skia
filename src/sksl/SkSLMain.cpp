@@ -37,6 +37,10 @@ int main(int argc, const char** argv) {
         printf("error reading '%s'\n", argv[1]);
         exit(2);
     }
+    SkSL::Compiler::Settings settings;
+    sk_sp<GrShaderCaps> caps = SkSL::ShaderCapsFactory::Default();
+    settings.fCaps = caps.get();
+    settings.fOrigin = GrSurfaceOrigin::kTopLeft_GrSurfaceOrigin;
     SkString name(argv[2]);
     if (name.endsWith(".spirv")) {
         SkFILEWStream out(argv[2]);
@@ -45,7 +49,8 @@ int main(int argc, const char** argv) {
             printf("error writing '%s'\n", argv[2]);
             exit(4);
         }
-        if (!compiler.toSPIRV(kind, text, out)) {
+        SkSL::Compiler::Inputs inputs;
+        if (!compiler.toSPIRV(kind, text, settings, out, &inputs)) {
             printf("%s", compiler.errorText().c_str());
             exit(3);
         }
@@ -56,7 +61,8 @@ int main(int argc, const char** argv) {
             printf("error writing '%s'\n", argv[2]);
             exit(4);
         }
-        if (!compiler.toGLSL(kind, text, *SkSL::ShaderCapsFactory::Default(), out)) {
+        SkSL::Compiler::Inputs inputs;
+        if (!compiler.toGLSL(kind, text, settings, out, &inputs)) {
             printf("%s", compiler.errorText().c_str());
             exit(3);
         }

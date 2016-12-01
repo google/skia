@@ -14,6 +14,7 @@
 #include "gl/GrGLVaryingHandler.h"
 #include "glsl/GrGLSLProgramBuilder.h"
 #include "glsl/GrGLSLProgramDataManager.h"
+#include "SkSLCompiler.h"
 
 class GrFragmentProcessor;
 class GrGLContextInfo;
@@ -46,7 +47,8 @@ private:
     bool compileAndAttachShaders(GrGLSLShaderBuilder& shader,
                                  GrGLuint programId,
                                  GrGLenum type,
-                                 SkTDArray<GrGLuint>* shaderIds);
+                                 SkTDArray<GrGLuint>* shaderIds,
+                                 SkSL::Compiler::Inputs* outInputs);
     GrGLProgram* finalize();
     void bindProgramResourceLocations(GrGLuint programID);
     bool checkLinkStatus(GrGLuint programID);

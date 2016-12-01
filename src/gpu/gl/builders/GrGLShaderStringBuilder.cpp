@@ -44,7 +44,8 @@ GrGLuint GrGLCompileAndAttachShader(const GrGLContext& glCtx,
                                     const char** strings,
                                     int* lengths,
                                     int count,
-                                    GrGpu::Stats* stats) {
+                                    GrGpu::Stats* stats,
+                                    SkSL::Compiler::Inputs* outInputs) {
     const GrGLInterface* gli = glCtx.interface();
 
     GrGLuint shaderId;
@@ -63,14 +64,17 @@ GrGLuint GrGLCompileAndAttachShader(const GrGLContext& glCtx,
 #endif
 
     SkString glsl;
+    SkSL::Compiler::Settings settings;
+    settings.fCaps = glCtx.caps()->shaderCaps();
     if (type == GR_GL_VERTEX_SHADER || type == GR_GL_FRAGMENT_SHADER) {
         SkSL::Compiler& compiler = *glCtx.compiler();
         SkDEBUGCODE(bool result = )compiler.toGLSL(type == GR_GL_VERTEX_SHADER 
                                                                     ? SkSL::Program::kVertex_Kind
                                                                     : SkSL::Program::kFragment_Kind,
                                                    sksl,
-                                                   *glCtx.caps()->shaderCaps(),
-                                                   &glsl);
+                                                   settings,
+                                                   &glsl,
+                                                   outInputs);
 #ifdef SK_DEBUG
         if (!result) {
             SkDebugf("SKSL compilation error\n----------------------\n");
