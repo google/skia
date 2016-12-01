@@ -51,7 +51,7 @@ static BatchTestFunc gTestBatches[] = {
     DRAW_BATCH_TEST_ENTRY(VerticesBatch)
 };
 
-GrDrawBatch* GrRandomDrawBatch(SkRandom* random, GrContext* context) {
+GrDrawOp* GrRandomDrawBatch(SkRandom* random, GrContext* context) {
     uint32_t index = random->nextULessThan(static_cast<uint32_t>(SK_ARRAY_COUNT(gTestBatches)));
     BatchTestFunc func = gTestBatches[index];
     return (*func)(random, context);

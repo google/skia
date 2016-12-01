@@ -5,17 +5,17 @@
  * found in the LICENSE file.
  */
 
-#include "GrDrawBatch.h"
+#include "GrDrawOp.h"
 
-GrDrawBatch::GrDrawBatch(uint32_t classID) : INHERITED(classID), fPipelineInstalled(false) { }
+GrDrawOp::GrDrawOp(uint32_t classID) : INHERITED(classID), fPipelineInstalled(false) { }
 
-GrDrawBatch::~GrDrawBatch() {
+GrDrawOp::~GrDrawOp() {
     if (fPipelineInstalled) {
         this->pipeline()->~GrPipeline();
     }
 }
 
-void GrDrawBatch::getPipelineOptimizations(GrPipelineOptimizations* opt) const {
+void GrDrawOp::getPipelineOptimizations(GrPipelineOptimizations* opt) const {
     GrInitInvariantOutput color;
     GrInitInvariantOutput coverage;
     this->computePipelineOptimizations(&color, &coverage, &opt->fOverrides);
@@ -23,7 +23,7 @@ void GrDrawBatch::getPipelineOptimizations(GrPipelineOptimizations* opt) const {
     opt->fCoveragePOI.initUsingInvariantOutput(coverage);
 }
 
-bool GrDrawBatch::installPipeline(const GrPipeline::CreateArgs& args) {
+bool GrDrawOp::installPipeline(const GrPipeline::CreateArgs& args) {
     GrXPOverridesForBatch overrides;
     void* location = fPipelineStorage.get();
     if (!GrPipeline::CreateAt(location, args, &overrides)) {

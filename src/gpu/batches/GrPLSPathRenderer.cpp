@@ -927,8 +927,7 @@ bool GrPLSPathRenderer::onDrawPath(const DrawPathArgs& args) {
     SkPath path;
     args.fShape->asPath(&path);
 
-    sk_sp<GrDrawBatch> batch(new PLSPathBatch(args.fPaint->getColor(),
-                                              path, *args.fViewMatrix));
+    sk_sp<GrDrawOp> batch(new PLSPathBatch(args.fPaint->getColor(), path, *args.fViewMatrix));
 
     GrPipelineBuilder pipelineBuilder(*args.fPaint,
                                       args.fRenderTargetContext->mustUseHWAA(*args.fPaint));

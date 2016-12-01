@@ -192,8 +192,8 @@ protected:
                     GrPaint grPaint;
                     grPaint.setXPFactory(GrPorterDuffXPFactory::Make(SkBlendMode::kSrc));
 
-                    sk_sp<GrDrawBatch> batch = sk_make_sp<BezierCubicOrConicTestBatch>(
-                                    gp, bounds, color, klmEqs, klmSigns[c]);
+                    sk_sp<GrDrawOp> batch = sk_make_sp<BezierCubicOrConicTestBatch>(
+                            gp, bounds, color, klmEqs, klmSigns[c]);
 
                     renderTargetContext->priv().testingOnly_drawBatch(grPaint, batch.get());
                 }
@@ -324,7 +324,7 @@ protected:
                     GrPaint grPaint;
                     grPaint.setXPFactory(GrPorterDuffXPFactory::Make(SkBlendMode::kSrc));
 
-                    sk_sp<GrDrawBatch> batch(
+                    sk_sp<GrDrawOp> batch(
                         new BezierCubicOrConicTestBatch(gp, bounds, color, klmEqs, 1.f));
 
                     renderTargetContext->priv().testingOnly_drawBatch(grPaint, batch.get());
@@ -536,7 +536,7 @@ protected:
 
                     GrPathUtils::QuadUVMatrix DevToUV(pts);
 
-                    sk_sp<GrDrawBatch> batch(new BezierQuadTestBatch(gp, bounds, color, DevToUV));
+                    sk_sp<GrDrawOp> batch(new BezierQuadTestBatch(gp, bounds, color, DevToUV));
 
                     renderTargetContext->priv().testingOnly_drawBatch(grPaint, batch.get());
                 }

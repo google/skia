@@ -59,8 +59,8 @@ public:
         coverage->setKnownSingleComponent(0xff);
     }
 
-    static GrDrawBatch* Create(GrColor color, const SkMatrix& viewMatrix, const SkRect& rect,
-                               const SkStrokeRec& stroke, bool snapToPixelCenters) {
+    static GrDrawOp* Create(GrColor color, const SkMatrix& viewMatrix, const SkRect& rect,
+                            const SkStrokeRec& stroke, bool snapToPixelCenters) {
         if (!allowed_stroke(stroke)) {
             return nullptr;
         }
@@ -178,11 +178,11 @@ private:
 
 namespace GrNonAAStrokeRectBatch {
 
-GrDrawBatch* Create(GrColor color,
-                    const SkMatrix& viewMatrix,
-                    const SkRect& rect,
-                    const SkStrokeRec& stroke,
-                    bool snapToPixelCenters) {
+GrDrawOp* Create(GrColor color,
+                 const SkMatrix& viewMatrix,
+                 const SkRect& rect,
+                 const SkStrokeRec& stroke,
+                 bool snapToPixelCenters) {
     return NonAAStrokeRectBatch::Create(color, viewMatrix, rect, stroke, snapToPixelCenters);
 }
 
