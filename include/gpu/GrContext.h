@@ -8,7 +8,7 @@
 #ifndef GrContext_DEFINED
 #define GrContext_DEFINED
 
-#include "GrCaps.h"
+#include "GrCaps.h"     
 #include "GrClip.h"
 #include "GrColor.h"
 #include "GrPaint.h"
@@ -21,11 +21,11 @@
 #include "../private/GrSingleOwner.h"
 #include "../private/SkMutex.h"
 
-struct GrBatchAtlasConfig;
+struct GrBatchAtlasConfig;    
 class GrBatchFontCache;
 struct GrContextOptions;
 class GrContextPriv;
-class GrContextThreadSafeProxy;
+class GrContextThreadSafeProxy;             
 class GrDrawingManager;
 class GrRenderTargetContext;
 class GrFragmentProcessor;
