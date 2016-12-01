@@ -93,10 +93,11 @@ public:
      * to not using GL_NV_path_rendering extension  even when the driver supports it.
      */
     enum class ContextOptions {
-        kNone                = 0x0,
-        kEnableNVPR          = 0x1,
-        kUseInstanced        = 0x2,
-        kRequireSRGBSupport  = 0x4,
+        kNone                            = 0x0,
+        kEnableNVPR                      = 0x1,
+        kUseInstanced                    = 0x2,
+        kRequireSRGBSupport              = 0x4,
+        kRequireSRGBDecodeDisableSupport = 0x8,
     };
 
     static ContextType NativeContextTypeForBackend(GrBackend backend) {

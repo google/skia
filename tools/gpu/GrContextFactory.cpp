@@ -198,6 +198,8 @@ ContextInfo GrContextFactory::getContextInfo(ContextType type, ContextOptions op
     if (ContextOptions::kUseInstanced & options) {
         grOptions.fEnableInstancedRendering = true;
     }
+    grOptions.fRequireDecodeDisableForSRGB =
+        SkToBool(ContextOptions::kRequireSRGBDecodeDisableSupport & options);
     grCtx.reset(GrContext::Create(backend, backendContext, grOptions));
     if (!grCtx.get()) {
         return ContextInfo();
