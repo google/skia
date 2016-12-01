@@ -866,52 +866,54 @@ SI Fn enum_to_Fn(SkRasterPipeline::StockStage st) {
     return just_return;
 }
 
+namespace {
+    struct Compiled {
+        Compiled(const SkRasterPipeline::Stage* stages, int nstages) {
+            if (nstages == 0) {
+                return;
+            }
+            fStart = enum_to_Fn(stages[0].stage);
+            for (int i = 0; i < nstages-1; i++) {
+                fStages[i].next = enum_to_Fn(stages[i+1].stage);
+                fStages[i].ctx  = stages[i].ctx;
+            }
+            fStages[nstages-1].next = just_return;
+            fStages[nstages-1].ctx  = stages[nstages-1].ctx;
+        }
+
+        void operator()(size_t x, size_t y, size_t n) {
+            float dx[] = { 0,1,2,3,4,5,6,7 };
+            SkNf X = SkNf(x) + SkNf::Load(dx) + 0.5f,
+                 Y = SkNf(y) + 0.5f,
+                _0 = SkNf(0),
+                _1 = SkNf(1);
+
+            while (n >= N) {
+                fStart(fStages, x*N, X,Y,_1,_0, _0,_0,_0,_0);
+                X += (float)N;
+                x += N;
+                n -= N;
+            }
+            if (n) {
+                fStart(fStages, x*N+n, X,Y,_1,_0, _0,_0,_0,_0);
+            }
+        }
+
+        Fn fStart = just_return;
+        Stage fStages[SkRasterPipeline::kMaxStages];
+    };
+}
+
 namespace SK_OPTS_NS {
 
     SI std::function<void(size_t, size_t, size_t)>
     compile_pipeline(const SkRasterPipeline::Stage* stages, int nstages) {
-        struct Compiled {
-            Compiled(const SkRasterPipeline::Stage* stages, int nstages) {
-                if (nstages == 0) {
-                    return;
-                }
-                fStart = enum_to_Fn(stages[0].stage);
-                for (int i = 0; i < nstages-1; i++) {
-                    fStages[i].next = enum_to_Fn(stages[i+1].stage);
-                    fStages[i].ctx  = stages[i].ctx;
-                }
-                fStages[nstages-1].next = just_return;
-                fStages[nstages-1].ctx  = stages[nstages-1].ctx;
-            }
-
-            void operator()(size_t x, size_t y, size_t n) {
-                float dx[] = { 0,1,2,3,4,5,6,7 };
-                SkNf X = SkNf(x) + SkNf::Load(dx) + 0.5f,
-                     Y = SkNf(y) + 0.5f,
-                    _0 = SkNf(0),
-                    _1 = SkNf(1);
-
-                while (n >= N) {
-                    fStart(fStages, x*N, X,Y,_1,_0, _0,_0,_0,_0);
-                    X += (float)N;
-                    x += N;
-                    n -= N;
-                }
-                if (n) {
-                    fStart(fStages, x*N+n, X,Y,_1,_0, _0,_0,_0,_0);
-                }
-            }
-
-            Fn fStart = just_return;
-            Stage fStages[SkRasterPipeline::kMaxStages];
-
-        } fn { stages, nstages };
-        return fn;
+        return Compiled{stages,nstages};
     }
 
     SI void run_pipeline(size_t x, size_t y, size_t n,
                          const SkRasterPipeline::Stage* stages, int nstages) {
-        compile_pipeline(stages, nstages)(x,y,n);
+        Compiled{stages,nstages}(x,y,n);
     }
 
 }  // namespace SK_OPTS_NS
