@@ -216,7 +216,7 @@ private:
 
 class MSAAPathBatch : public GrVertexBatch {
 public:
-    DEFINE_BATCH_CLASS_ID
+    DEFINE_OP_CLASS_ID
 
     MSAAPathBatch(GrColor color, const SkPath& path, const SkMatrix& viewMatrix,
                   const SkRect& devBounds)
@@ -447,7 +447,7 @@ private:
         }
     }
 
-    bool onCombineIfPossible(GrBatch* t, const GrCaps& caps) override {
+    bool onCombineIfPossible(GrOp* t, const GrCaps& caps) override {
         MSAAPathBatch* that = t->cast<MSAAPathBatch>();
         if (!GrPipeline::CanCombine(*this->pipeline(), this->bounds(), *that->pipeline(),
                                      that->bounds(), caps)) {

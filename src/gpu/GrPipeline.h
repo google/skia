@@ -26,10 +26,10 @@
 #include "effects/GrPorterDuffXferProcessor.h"
 #include "effects/GrSimpleTextureEffect.h"
 
-class GrBatch;
-class GrRenderTargetContext;
 class GrDeviceCoordTexture;
+class GrOp;
 class GrPipelineBuilder;
+class GrRenderTargetContext;
 
 struct GrBatchToXPOverrides {
     GrBatchToXPOverrides()
@@ -81,7 +81,7 @@ public:
     static bool AreEqual(const GrPipeline& a, const GrPipeline& b);
 
     /**
-     * Allows a GrBatch subclass to determine whether two GrBatches can combine. This is a stricter
+     * Allows a GrOp subclass to determine whether two GrBatches can combine. This is a stricter
      * test than isEqual because it also considers blend barriers when the two batches' bounds
      * overlap
      */

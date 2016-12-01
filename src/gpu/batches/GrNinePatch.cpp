@@ -25,7 +25,7 @@ static sk_sp<GrGeometryProcessor> create_gp(bool readsCoverage) {
 
 class GrNonAANinePatchBatch : public GrVertexBatch {
 public:
-    DEFINE_BATCH_CLASS_ID
+    DEFINE_OP_CLASS_ID
 
     static const int kVertsPerRect = 4;
     static const int kIndicesPerRect = 6;
@@ -143,7 +143,7 @@ private:
         fOverrides = overrides;
     }
 
-    bool onCombineIfPossible(GrBatch* t, const GrCaps& caps) override {
+    bool onCombineIfPossible(GrOp* t, const GrCaps& caps) override {
         GrNonAANinePatchBatch* that = t->cast<GrNonAANinePatchBatch>();
         if (!GrPipeline::CanCombine(*this->pipeline(), this->bounds(), *that->pipeline(),
                                     that->bounds(), caps)) {

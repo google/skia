@@ -28,12 +28,12 @@
 #include "SkTypes.h"
 
 class GrAuditTrail;
-class GrBatch;
 class GrClearBatch;
 class GrClip;
 class GrCaps;
 class GrPath;
 class GrDrawPathBatchBase;
+class GrOp;
 class GrPipelineBuilder;
 class GrRenderTargetProxy;
 
@@ -84,7 +84,7 @@ public:
 
     void drawBatch(const GrPipelineBuilder&, GrRenderTargetContext*, const GrClip&, GrDrawBatch*);
 
-    void addBatch(sk_sp<GrBatch>);
+    void addBatch(sk_sp<GrOp>);
 
     /**
      * Draws the path into user stencil bits. Upon return, all user stencil values
@@ -134,7 +134,7 @@ private:
 
     // Returns the batch that the input batch was combined with or the input batch if it wasn't
     // combined.
-    GrBatch* recordBatch(GrBatch*, const SkRect& clippedBounds);
+    GrOp* recordBatch(GrOp*, const SkRect& clippedBounds);
     void forwardCombine();
 
     // Makes a copy of the dst if it is necessary for the draw. Returns false if a copy is required
@@ -151,7 +151,7 @@ private:
     void clearStencilClip(const GrFixedClip&, bool insideStencilMask, GrRenderTarget*);
 
     struct RecordedBatch {
-        sk_sp<GrBatch> fBatch;
+        sk_sp<GrOp> fBatch;
         SkRect         fClippedBounds;
     };
     SkSTArray<256, RecordedBatch, true>             fRecordedBatches;

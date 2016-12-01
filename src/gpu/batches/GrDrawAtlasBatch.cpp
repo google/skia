@@ -162,7 +162,7 @@ GrDrawAtlasBatch::GrDrawAtlasBatch(GrColor color, const SkMatrix& viewMatrix, in
     this->setTransformedBounds(bounds, viewMatrix, HasAABloat::kNo, IsZeroArea::kNo);
 }
 
-bool GrDrawAtlasBatch::onCombineIfPossible(GrBatch* t, const GrCaps& caps) {
+bool GrDrawAtlasBatch::onCombineIfPossible(GrOp* t, const GrCaps& caps) {
     GrDrawAtlasBatch* that = t->cast<GrDrawAtlasBatch>();
 
     if (!GrPipeline::CanCombine(*this->pipeline(), this->bounds(), *that->pipeline(),

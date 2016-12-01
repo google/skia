@@ -382,7 +382,7 @@ void InstancedRendering::Batch::initBatchTracker(const GrXPOverridesForBatch& ov
     fIsTracked = true;
 }
 
-bool InstancedRendering::Batch::onCombineIfPossible(GrBatch* other, const GrCaps& caps) {
+bool InstancedRendering::Batch::onCombineIfPossible(GrOp* other, const GrCaps& caps) {
     Batch* that = static_cast<Batch*>(other);
     SkASSERT(fInstancedRendering == that->fInstancedRendering);
     SkASSERT(fTailDraw);

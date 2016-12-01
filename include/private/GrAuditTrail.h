@@ -15,7 +15,7 @@
 #include "SkTArray.h"
 #include "SkTHash.h"
 
-class GrBatch;
+class GrOp;
 
 /*
  * GrAuditTrail collects a list of draw ops, detailed information about those ops, and can dump them
@@ -85,9 +85,9 @@ public:
         fCurrentStackTrace.push_back(SkString(framename));
     }
 
-    void addBatch(const GrBatch* batch);
+    void addBatch(const GrOp* batch);
 
-    void batchingResultCombined(const GrBatch* consumer, const GrBatch* consumed);
+    void batchingResultCombined(const GrOp* consumer, const GrOp* consumed);
 
     // Because batching is heavily dependent on sequence of draw calls, these calls will only
     // produce valid information for the given draw sequence which preceeded them.

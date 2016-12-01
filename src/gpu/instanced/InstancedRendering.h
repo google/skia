@@ -137,7 +137,7 @@ protected:
         Batch(uint32_t classID, InstancedRendering* ir);
 
         void initBatchTracker(const GrXPOverridesForBatch&) override;
-        bool onCombineIfPossible(GrBatch* other, const GrCaps& caps) override;
+        bool onCombineIfPossible(GrOp* other, const GrCaps& caps) override;
 
         void computePipelineOptimizations(GrInitInvariantOutput* color,
                                           GrInitInvariantOutput* coverage,

@@ -96,7 +96,7 @@ static inline void add_quad(SkPoint** vert, const SkPoint* base, const SkPoint p
 
 class DefaultPathBatch : public GrVertexBatch {
 public:
-    DEFINE_BATCH_CLASS_ID
+    DEFINE_OP_CLASS_ID
 
     DefaultPathBatch(GrColor color, const SkPath& path, SkScalar tolerance,
                      uint8_t coverage, const SkMatrix& viewMatrix, bool isHairline,
@@ -268,7 +268,7 @@ private:
         target->putBackVertices((size_t)(maxVertices - vertexOffset), (size_t)vertexStride);
     }
 
-    bool onCombineIfPossible(GrBatch* t, const GrCaps& caps) override {
+    bool onCombineIfPossible(GrOp* t, const GrCaps& caps) override {
         DefaultPathBatch* that = t->cast<DefaultPathBatch>();
         if (!GrPipeline::CanCombine(*this->pipeline(), this->bounds(), *that->pipeline(),
                                      that->bounds(), caps)) {

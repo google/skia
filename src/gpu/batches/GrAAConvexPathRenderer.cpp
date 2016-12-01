@@ -734,7 +734,7 @@ static sk_sp<GrGeometryProcessor> create_fill_gp(bool tweakAlphaForCoverage,
 
 class AAConvexPathBatch : public GrVertexBatch {
 public:
-    DEFINE_BATCH_CLASS_ID
+    DEFINE_OP_CLASS_ID
     AAConvexPathBatch(GrColor color, const SkMatrix& viewMatrix, const SkPath& path)
         : INHERITED(ClassID()) {
         fGeoData.emplace_back(Geometry{color, viewMatrix, path});
@@ -932,7 +932,7 @@ private:
         }
     }
 
-    bool onCombineIfPossible(GrBatch* t, const GrCaps& caps) override {
+    bool onCombineIfPossible(GrOp* t, const GrCaps& caps) override {
         AAConvexPathBatch* that = t->cast<AAConvexPathBatch>();
         if (!GrPipeline::CanCombine(*this->pipeline(), this->bounds(), *that->pipeline(),
                                     that->bounds(), caps)) {

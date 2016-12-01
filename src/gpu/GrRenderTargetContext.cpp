@@ -20,7 +20,7 @@
 #include "GrResourceProvider.h"
 #include "SkSurfacePriv.h"
 
-#include "batches/GrBatch.h"
+#include "batches/GrOp.h"
 #include "batches/GrClearBatch.h"
 #include "batches/GrDrawAtlasBatch.h"
 #include "batches/GrDrawVerticesBatch.h"
@@ -274,7 +274,7 @@ void GrRenderTargetContext::internalClear(const GrFixedClip& clip,
         if (!this->accessRenderTarget()) {
             return;
         }
-        sk_sp<GrBatch> batch(GrClearBatch::Make(clip, color, this->accessRenderTarget()));
+        sk_sp<GrOp> batch(GrClearBatch::Make(clip, color, this->accessRenderTarget()));
         if (!batch) {
             return;
         }

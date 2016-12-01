@@ -13,8 +13,8 @@
 #include "SkTArray.h"
 
 class GrAuditTrail;
-class GrBatch;
 class GrGpu;
+class GrOp;
 class GrTextureProxy;
 struct SkIPoint;
 struct SkIRect;
@@ -60,10 +60,10 @@ public:
     SkDEBUGCODE(void dump() const override;)
 
 private:
-    void recordBatch(GrBatch*);
+    void recordBatch(GrOp*);
 
-    SkSTArray<2, sk_sp<GrBatch>, true> fRecordedBatches;
-    GrGpu*                             fGpu;
+    SkSTArray<2, sk_sp<GrOp>, true> fRecordedBatches;
+    GrGpu*                          fGpu;
 
     typedef GrOpList INHERITED;
 };

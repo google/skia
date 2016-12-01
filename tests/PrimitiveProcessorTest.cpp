@@ -27,7 +27,7 @@
 namespace {
 class Batch : public GrVertexBatch {
 public:
-    DEFINE_BATCH_CLASS_ID
+    DEFINE_OP_CLASS_ID
 
     const char* name() const override { return "Dummy Batch"; }
     void computePipelineOptimizations(GrInitInvariantOutput* color,
@@ -46,7 +46,7 @@ public:
     }
 
 private:
-    bool onCombineIfPossible(GrBatch*, const GrCaps&) override { return false; }
+    bool onCombineIfPossible(GrOp*, const GrCaps&) override { return false; }
     void onPrepareDraws(Target* target) const override {
         class GP : public GrGeometryProcessor {
         public:

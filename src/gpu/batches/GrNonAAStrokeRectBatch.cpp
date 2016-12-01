@@ -47,7 +47,7 @@ inline static bool allowed_stroke(const SkStrokeRec& stroke) {
 
 class NonAAStrokeRectBatch : public GrVertexBatch {
 public:
-    DEFINE_BATCH_CLASS_ID
+    DEFINE_OP_CLASS_ID
 
     const char* name() const override { return "NonAAStrokeRectBatch"; }
 
@@ -167,7 +167,7 @@ private:
         fOverrides = overrides;
     }
 
-    bool onCombineIfPossible(GrBatch* t, const GrCaps&) override {
+    bool onCombineIfPossible(GrOp* t, const GrCaps&) override {
         // NonAA stroke rects cannot batch right now
         // TODO make these batchable
         return false;

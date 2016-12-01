@@ -8,14 +8,14 @@
 #ifndef GrDiscardBatch_DEFINED
 #define GrDiscardBatch_DEFINED
 
-#include "GrBatch.h"
 #include "GrBatchFlushState.h"
 #include "GrGpu.h"
+#include "GrOp.h"
 #include "GrRenderTarget.h"
 
-class GrDiscardBatch final : public GrBatch {
+class GrDiscardBatch final : public GrOp {
 public:
-    DEFINE_BATCH_CLASS_ID
+    DEFINE_OP_CLASS_ID
 
     GrDiscardBatch(GrRenderTarget* rt)
         : INHERITED(ClassID())
@@ -39,7 +39,7 @@ public:
     }
 
 private:
-    bool onCombineIfPossible(GrBatch* that, const GrCaps& caps) override {
+    bool onCombineIfPossible(GrOp* that, const GrCaps& caps) override {
         return this->renderTargetUniqueID() == that->renderTargetUniqueID();
     }
 
@@ -51,7 +51,7 @@ private:
 
     GrPendingIOResource<GrRenderTarget, kWrite_GrIOType> fRenderTarget;
 
-    typedef GrBatch INHERITED;
+    typedef GrOp INHERITED;
 };
 
 #endif

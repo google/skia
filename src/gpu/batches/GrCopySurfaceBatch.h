@@ -8,14 +8,14 @@
 #ifndef GrCopySurfaceBatch_DEFINED
 #define GrCopySurfaceBatch_DEFINED
 
-#include "GrBatch.h"
 #include "GrBatchFlushState.h"
 #include "GrGpu.h"
+#include "GrOp.h"
 #include "GrRenderTarget.h"
 
-class GrCopySurfaceBatch final : public GrBatch {
+class GrCopySurfaceBatch final : public GrOp {
 public:
-    DEFINE_BATCH_CLASS_ID
+    DEFINE_OP_CLASS_ID
 
     /** This should not really be exposed as Create() will apply this clipping, but there is
      *  currently a workaround in GrContext::copySurface() for non-render target dsts that relies
@@ -27,7 +27,7 @@ public:
                                        SkIRect* clippedSrcRect,
                                        SkIPoint* clippedDstPoint);
 
-    static GrBatch* Create(GrSurface* dst, GrSurface* src, const SkIRect& srcRect,
+    static GrOp* Create(GrSurface* dst, GrSurface* src, const SkIRect& srcRect,
                            const SkIPoint& dstPoint);
 
     const char* name() const override { return "CopySurface"; }
@@ -64,7 +64,7 @@ private:
         this->setBounds(bounds, HasAABloat::kNo, IsZeroArea::kNo);
     }
 
-    bool onCombineIfPossible(GrBatch* that, const GrCaps& caps) override { return false; }
+    bool onCombineIfPossible(GrOp* that, const GrCaps& caps) override { return false; }
 
     void onPrepare(GrBatchFlushState*) override {}
 
@@ -83,7 +83,7 @@ private:
     SkIRect                                         fSrcRect;
     SkIPoint                                        fDstPoint;
 
-    typedef GrBatch INHERITED;
+    typedef GrOp INHERITED;
 };
 
 #endif

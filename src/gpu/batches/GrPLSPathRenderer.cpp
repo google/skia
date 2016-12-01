@@ -765,7 +765,7 @@ bool GrPLSPathRenderer::onCanDrawPath(const CanDrawPathArgs& args) const {
 
 class PLSPathBatch : public GrVertexBatch {
 public:
-    DEFINE_BATCH_CLASS_ID
+    DEFINE_OP_CLASS_ID
     PLSPathBatch(GrColor color, const SkPath& path, const SkMatrix& viewMatrix)
             : INHERITED(ClassID())
             , fColor(color)
@@ -915,7 +915,7 @@ public:
     }
 
 private:
-    bool onCombineIfPossible(GrBatch* t, const GrCaps& caps) override {
+    bool onCombineIfPossible(GrOp* t, const GrCaps& caps) override {
         return false;
     }
 

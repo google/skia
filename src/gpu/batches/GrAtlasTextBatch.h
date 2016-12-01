@@ -15,7 +15,7 @@
 
 class GrAtlasTextBatch : public GrVertexBatch {
 public:
-    DEFINE_BATCH_CLASS_ID
+    DEFINE_OP_CLASS_ID
 
     static const int kVerticesPerGlyph = GrAtlasTextBlob::kVerticesPerGlyph;
     static const int kIndicesPerGlyph = 6;
@@ -152,7 +152,7 @@ private:
     bool usesLocalCoords() const { return fBatch.fUsesLocalCoords; }
     int numGlyphs() const { return fBatch.fNumGlyphs; }
 
-    bool onCombineIfPossible(GrBatch* t, const GrCaps& caps) override;
+    bool onCombineIfPossible(GrOp* t, const GrCaps& caps) override;
 
     // TODO just use class params
     // TODO trying to figure out why lcd is so whack

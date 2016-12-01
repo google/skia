@@ -73,7 +73,7 @@ static void tesselate(intptr_t vertices,
 
 class NonAAFillRectBatch : public GrVertexBatch {
 public:
-    DEFINE_BATCH_CLASS_ID
+    DEFINE_OP_CLASS_ID
 
     NonAAFillRectBatch(GrColor color, const SkMatrix& viewMatrix, const SkRect& rect,
                        const SkRect* localRect, const SkMatrix* localMatrix)
@@ -159,7 +159,7 @@ private:
         helper.recordDraw(target, gp.get());
     }
 
-    bool onCombineIfPossible(GrBatch* t, const GrCaps& caps) override {
+    bool onCombineIfPossible(GrOp* t, const GrCaps& caps) override {
         NonAAFillRectBatch* that = t->cast<NonAAFillRectBatch>();
         if (!GrPipeline::CanCombine(*this->pipeline(), this->bounds(), *that->pipeline(),
                                     that->bounds(), caps)) {

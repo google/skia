@@ -677,7 +677,7 @@ bool check_bounds(const SkMatrix& viewMatrix, const SkRect& devBounds, void* ver
 
 class AAHairlineBatch : public GrVertexBatch {
 public:
-    DEFINE_BATCH_CLASS_ID
+    DEFINE_OP_CLASS_ID
 
     AAHairlineBatch(GrColor color,
                     uint8_t coverage,
@@ -732,7 +732,7 @@ private:
     typedef SkTArray<int, true> IntArray;
     typedef SkTArray<float, true> FloatArray;
 
-    bool onCombineIfPossible(GrBatch* t, const GrCaps& caps) override {
+    bool onCombineIfPossible(GrOp* t, const GrCaps& caps) override {
         AAHairlineBatch* that = t->cast<AAHairlineBatch>();
 
         if (!GrPipeline::CanCombine(*this->pipeline(), this->bounds(), *that->pipeline(),

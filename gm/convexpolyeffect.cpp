@@ -42,7 +42,7 @@ static SkRect sorted_rect(const SkRect& unsorted) {
 namespace skiagm {
 class PolyBoundsBatch : public GrTestBatch {
 public:
-    DEFINE_BATCH_CLASS_ID
+    DEFINE_OP_CLASS_ID
 
     const char* name() const override { return "PolyBoundsBatch"; }
 

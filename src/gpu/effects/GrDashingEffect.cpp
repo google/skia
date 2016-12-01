@@ -240,7 +240,7 @@ static sk_sp<GrGeometryProcessor> make_dash_gp(GrColor,
 
 class DashBatch : public GrVertexBatch {
 public:
-    DEFINE_BATCH_CLASS_ID
+    DEFINE_OP_CLASS_ID
     struct Geometry {
         SkMatrix fViewMatrix;
         SkMatrix fSrcRotInv;
@@ -646,7 +646,7 @@ private:
         helper.recordDraw(target, gp.get());
     }
 
-    bool onCombineIfPossible(GrBatch* t, const GrCaps& caps) override {
+    bool onCombineIfPossible(GrOp* t, const GrCaps& caps) override {
         DashBatch* that = t->cast<DashBatch>();
         if (!GrPipeline::CanCombine(*this->pipeline(), this->bounds(), *that->pipeline(),
                                     that->bounds(), caps)) {

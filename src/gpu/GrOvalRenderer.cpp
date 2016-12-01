@@ -26,7 +26,7 @@
 #include "glsl/GrGLSLUniformHandler.h"
 #include "glsl/GrGLSLUtil.h"
 
-// TODO(joshualitt) - Break this file up during GrBatch post implementation cleanup
+// TODO(joshualitt) - Break this file up during GrOp post implementation cleanup
 
 namespace {
 
@@ -599,7 +599,7 @@ static const uint16_t* circle_type_to_indices(bool stroked) {
 
 class CircleBatch : public GrVertexBatch {
 public:
-    DEFINE_BATCH_CLASS_ID
+    DEFINE_OP_CLASS_ID
 
     /** Optional extra params to render a partial arc rather than a full circle. */
     struct ArcParams {
@@ -1098,7 +1098,7 @@ private:
         target->draw(gp.get(), mesh);
     }
 
-    bool onCombineIfPossible(GrBatch* t, const GrCaps& caps) override {
+    bool onCombineIfPossible(GrOp* t, const GrCaps& caps) override {
         CircleBatch* that = t->cast<CircleBatch>();
         if (!GrPipeline::CanCombine(*this->pipeline(), this->bounds(), *that->pipeline(),
                                     that->bounds(), caps)) {
@@ -1150,7 +1150,7 @@ private:
 
 class EllipseBatch : public GrVertexBatch {
 public:
-    DEFINE_BATCH_CLASS_ID
+    DEFINE_OP_CLASS_ID
     static GrDrawBatch* Create(GrColor color, const SkMatrix& viewMatrix, const SkRect& ellipse,
                                const SkStrokeRec& stroke) {
         SkASSERT(viewMatrix.rectStaysRect());
@@ -1340,7 +1340,7 @@ private:
         helper.recordDraw(target, gp.get());
     }
 
-    bool onCombineIfPossible(GrBatch* t, const GrCaps& caps) override {
+    bool onCombineIfPossible(GrOp* t, const GrCaps& caps) override {
         EllipseBatch* that = t->cast<EllipseBatch>();
 
         if (!GrPipeline::CanCombine(*this->pipeline(), this->bounds(), *that->pipeline(),
@@ -1381,7 +1381,7 @@ private:
 
 class DIEllipseBatch : public GrVertexBatch {
 public:
-    DEFINE_BATCH_CLASS_ID
+    DEFINE_OP_CLASS_ID
 
     static GrDrawBatch* Create(GrColor color,
                                const SkMatrix& viewMatrix,
@@ -1558,7 +1558,7 @@ private:
         helper.recordDraw(target, gp.get());
     }
 
-    bool onCombineIfPossible(GrBatch* t, const GrCaps& caps) override {
+    bool onCombineIfPossible(GrOp* t, const GrCaps& caps) override {
         DIEllipseBatch* that = t->cast<DIEllipseBatch>();
         if (!GrPipeline::CanCombine(*this->pipeline(), this->bounds(), *that->pipeline(),
                                     that->bounds(), caps)) {
@@ -1723,7 +1723,7 @@ static const uint16_t* rrect_type_to_indices(RRectType type) {
 
 class RRectCircleRendererBatch : public GrVertexBatch {
 public:
-    DEFINE_BATCH_CLASS_ID
+    DEFINE_OP_CLASS_ID
 
     // A devStrokeWidth <= 0 indicates a fill only. If devStrokeWidth > 0 then strokeOnly indicates
     // whether the rrect is only stroked or stroked and filled.
@@ -2022,7 +2022,7 @@ private:
         target->draw(gp.get(), mesh);
     }
 
-    bool onCombineIfPossible(GrBatch* t, const GrCaps& caps) override {
+    bool onCombineIfPossible(GrOp* t, const GrCaps& caps) override {
         RRectCircleRendererBatch* that = t->cast<RRectCircleRendererBatch>();
         if (!GrPipeline::CanCombine(*this->pipeline(), this->bounds(), *that->pipeline(),
                                     that->bounds(), caps)) {
@@ -2083,7 +2083,7 @@ static const GrBuffer* ref_rrect_index_buffer(RRectType type,
 
 class RRectEllipseRendererBatch : public GrVertexBatch {
 public:
-    DEFINE_BATCH_CLASS_ID
+    DEFINE_OP_CLASS_ID
 
     // If devStrokeWidths values are <= 0 indicates then fill only. Otherwise, strokeOnly indicates
     // whether the rrect is only stroked or stroked and filled.
@@ -2275,7 +2275,7 @@ private:
         helper.recordDraw(target, gp.get());
     }
 
-    bool onCombineIfPossible(GrBatch* t, const GrCaps& caps) override {
+    bool onCombineIfPossible(GrOp* t, const GrCaps& caps) override {
         RRectEllipseRendererBatch* that = t->cast<RRectEllipseRendererBatch>();
 
         if (!GrPipeline::CanCombine(*this->pipeline(), this->bounds(), *that->pipeline(),

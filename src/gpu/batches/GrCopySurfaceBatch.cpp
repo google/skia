@@ -59,7 +59,7 @@ bool GrCopySurfaceBatch::ClipSrcRectAndDstPoint(const GrSurface* dst,
     return !clippedSrcRect->isEmpty();
 }
 
-GrBatch* GrCopySurfaceBatch::Create(GrSurface* dst, GrSurface* src, const SkIRect& srcRect,
+GrOp* GrCopySurfaceBatch::Create(GrSurface* dst, GrSurface* src, const SkIRect& srcRect,
                                     const SkIPoint& dstPoint) {
     SkASSERT(dst);
     SkASSERT(src);

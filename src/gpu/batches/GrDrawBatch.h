@@ -9,7 +9,7 @@
 #define GrDrawBatch_DEFINED
 
 #include <functional>
-#include "GrBatch.h"
+#include "GrOp.h"
 #include "GrPipeline.h"
 
 struct GrInitInvariantOutput;
@@ -44,7 +44,7 @@ private:
 /**
  * Base class for GrBatches that draw. These batches have a GrPipeline installed by GrOpList.
  */
-class GrDrawBatch : public GrBatch {
+class GrDrawBatch : public GrOp {
 public:
     /** Method that performs an upload on behalf of a DeferredUploadFn. */
     using WritePixelsFn = std::function<bool(GrSurface* texture,
@@ -136,7 +136,7 @@ protected:
 private:
     SkAlignedSTStorage<1, GrPipeline>               fPipelineStorage;
     bool                                            fPipelineInstalled;
-    typedef GrBatch INHERITED;
+    typedef GrOp INHERITED;
 };
 
 #endif

@@ -18,7 +18,7 @@ class SkRandom;
 
 /*
  * This file defines some macros for testing batches, and also declares functions / objects which
- * are generally useful for GrBatch testing
+ * are generally useful for GrOp testing
  */
 
 // Batches should define test functions using DRAW_BATCH_TEST_DEFINE.  The other macros defined

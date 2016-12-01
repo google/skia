@@ -5,14 +5,14 @@
  * found in the LICENSE file.
  */
 
-#include "GrBatch.h"
+#include "GrOp.h"
 
 #include "GrMemoryPool.h"
 #include "SkSpinlock.h"
 
-// TODO I noticed a small benefit to using a larger exclusive pool for batches.  Its very small,
-// but seems to be mostly consistent.  There is a lot in flux right now, but we should really
-// revisit this when batch is everywhere
+// TODO I noticed a small benefit to using a larger exclusive pool for ops. Its very small, but
+// seems to be mostly consistent.  There is a lot in flux right now, but we should really revisit
+// this.
 
 
 // We use a global pool protected by a mutex(spinlock). Chrome may use the same GrContext on
@@ -20,7 +20,7 @@
 // memory barrier between accesses of a context on different threads. Also, there may be multiple
 // GrContexts and those contexts may be in use concurrently on different threads.
 namespace {
-static SkSpinlock gBatchSpinlock;
+static SkSpinlock gOpPoolSpinLock;
 class MemoryPoolAccessor {
 public:
 
@@ -29,8 +29,8 @@ public:
     MemoryPoolAccessor() {}
     ~MemoryPoolAccessor() {}
 #else
-    MemoryPoolAccessor() { gBatchSpinlock.acquire(); }
-    ~MemoryPoolAccessor() { gBatchSpinlock.release(); }
+    MemoryPoolAccessor() { gOpPoolSpinLock.acquire(); }
+    ~MemoryPoolAccessor() { gOpPoolSpinLock.release(); }
 #endif
 
     GrMemoryPool* pool() const {
@@ -40,24 +40,24 @@ public:
 };
 }
 
-int32_t GrBatch::gCurrBatchClassID = GrBatch::kIllegalBatchID;
+int32_t GrOp::gCurrOpClassID = GrOp::kIllegalOpID;
 
-int32_t GrBatch::gCurrBatchUniqueID = GrBatch::kIllegalBatchID;
+int32_t GrOp::gCurrOpUniqueID = GrOp::kIllegalOpID;
 
-void* GrBatch::operator new(size_t size) {
+void* GrOp::operator new(size_t size) {
     return MemoryPoolAccessor().pool()->allocate(size);
 }
 
-void GrBatch::operator delete(void* target) {
+void GrOp::operator delete(void* target) {
     return MemoryPoolAccessor().pool()->release(target);
 }
 
-GrBatch::GrBatch(uint32_t classID)
+GrOp::GrOp(uint32_t classID)
     : fClassID(classID)
-    , fUniqueID(kIllegalBatchID) {
+    , fUniqueID(kIllegalOpID) {
     SkASSERT(classID == SkToU32(fClassID));
     SkDEBUGCODE(fUsed = false;)
     SkDEBUGCODE(fBoundsFlags = kUninitialized_BoundsFlag);
 }
 
-GrBatch::~GrBatch() {}
+GrOp::~GrOp() {}

@@ -12,7 +12,7 @@
 #include "GrPipeline.h"
 #include "GrProcOptInfo.h"
 #include "GrXferProcessor.h"
-#include "batches/GrBatch.h"
+#include "batches/GrOp.h"
 #include "effects/GrPorterDuffXferProcessor.h"
 
 GrPipelineBuilder::GrPipelineBuilder()

@@ -8,18 +8,18 @@
 #ifndef GrStencilPathBatch_DEFINED
 #define GrStencilPathBatch_DEFINED
 
-#include "GrBatch.h"
 #include "GrBatchFlushState.h"
 #include "GrGpu.h"
+#include "GrOp.h"
 #include "GrPath.h"
 #include "GrPathRendering.h"
 #include "GrRenderTarget.h"
 
-class GrStencilPathBatch final : public GrBatch {
+class GrStencilPathBatch final : public GrOp {
 public:
-    DEFINE_BATCH_CLASS_ID
+    DEFINE_OP_CLASS_ID
 
-    static GrBatch* Create(const SkMatrix& viewMatrix,
+    static GrOp* Create(const SkMatrix& viewMatrix,
                            bool useHWAA,
                            GrPathRendering::FillType fillType,
                            bool hasStencilClip,
@@ -64,7 +64,7 @@ private:
         this->setBounds(path->getBounds(), HasAABloat::kNo, IsZeroArea::kNo);
     }
 
-    bool onCombineIfPossible(GrBatch* t, const GrCaps& caps) override { return false; }
+    bool onCombineIfPossible(GrOp* t, const GrCaps& caps) override { return false; }
 
     void onPrepare(GrBatchFlushState*) override {}
 
@@ -81,7 +81,7 @@ private:
     GrPendingIOResource<GrRenderTarget, kWrite_GrIOType>    fRenderTarget;
     GrPendingIOResource<const GrPath, kRead_GrIOType>       fPath;
 
-    typedef GrBatch INHERITED;
+    typedef GrOp INHERITED;
 };
 
 #endif

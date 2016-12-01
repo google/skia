@@ -6,11 +6,11 @@
  */
 
 #include "GrAuditTrail.h"
-#include "batches/GrBatch.h"
+#include "batches/GrOp.h"
 
 const int GrAuditTrail::kGrAuditTrailInvalidID = -1;
 
-void GrAuditTrail::addBatch(const GrBatch* batch) {
+void GrAuditTrail::addBatch(const GrOp* batch) {
     SkASSERT(fEnabled);
     Batch* auditBatch = new Batch;
     fBatchPool.emplace_back(auditBatch);
@@ -51,7 +51,7 @@ void GrAuditTrail::addBatch(const GrBatch* batch) {
     fBatchList.emplace_back(batchNode);
 }
 
-void GrAuditTrail::batchingResultCombined(const GrBatch* consumer, const GrBatch* consumed) {
+void GrAuditTrail::batchingResultCombined(const GrOp* consumer, const GrOp* consumed) {
     // Look up the batch we are going to glom onto
     int* indexPtr = fIDLookup.find(consumer->uniqueID());
     SkASSERT(indexPtr);

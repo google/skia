@@ -39,11 +39,11 @@ struct GrContextOptions {
         immediately. Intended to ease debugging. */
     bool fImmediateMode = false;
 
-    /** For debugging purposes turn each GrBatch's bounds into a clip rect. This is used to
+    /** For debugging purposes turn each GrOp's bounds into a clip rect. This is used to
         verify that the clip bounds are conservative. */
     bool fClipBatchToBounds = false;
 
-    /** For debugging, override the default maximum look-back or look-ahead window for GrBatch
+    /** For debugging, override the default maximum look-back or look-ahead window for GrOp
         combining. */
     int fMaxBatchLookback = -1;
     int fMaxBatchLookahead = -1;

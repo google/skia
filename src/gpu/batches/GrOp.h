@@ -22,48 +22,47 @@ class GrGpuCommandBuffer;
 class GrBatchFlushState;
 
 /**
- * GrBatch is the base class for all Ganesh deferred geometry generators.  To facilitate
- * reorderable batching, Ganesh does not generate geometry inline with draw calls.  Instead, it
- * captures the arguments to the draw and then generates the geometry on demand.  This gives GrBatch
- * subclasses complete freedom to decide how / what they can batch.
+ * GrOp is the base class for all Ganesh deferred GPU operations. To facilitate reorderable
+ * batching, Ganesh does not generate geometry inline with draw calls. Instead, it captures the
+ * arguments to the draw and then generates the geometry on demand. This gives GrOp subclasses
+ * complete freedom to decide how/what they can batch.
  *
- * Batches are created when GrContext processes a draw call. Batches of the same  subclass may be
- * merged using combineIfPossible. When two batches merge, one takes on the union of the data
- * and the other is left empty. The merged batch becomes responsible for drawing the data from both
- * the original batches.
+ * Ops of the same subclass may be merged using combineIfPossible. When two ops merge, one
+ * takes on the union of the data and the other is left empty. The merged op becomes responsible
+ * for drawing the data from both the original ops.
  *
  * If there are any possible optimizations which might require knowing more about the full state of
- * the draw, ie whether or not the GrBatch is allowed to tweak alpha for coverage, then this
- * information will be communicated to the GrBatch prior to geometry generation.
+ * the draw, e.g. whether or not the GrOp is allowed to tweak alpha for coverage, then this
+ * information will be communicated to the GrOp prior to geometry generation.
  *
- * The bounds of the batch must contain all the vertices in device space *irrespective* of the clip.
+ * The bounds of the op must contain all the vertices in device space *irrespective* of the clip.
  * The bounds are used in determining which clip elements must be applied and thus the bounds cannot
  * in turn depend upon the clip.
  */
-#define GR_BATCH_SPEW 0
-#if GR_BATCH_SPEW
-    #define GrBATCH_INFO(...) SkDebugf(__VA_ARGS__)
-    #define GrBATCH_SPEW(code) code
+#define GR_OP_SPEW 0
+#if GR_OP_SPEW
+    #define GrOP_SPEW(code) code
+    #define GrOP_INFO(...) SkDebugf(__VA_ARGS__)
 #else
-    #define GrBATCH_SPEW(code)
-    #define GrBATCH_INFO(...)
+    #define GrOP_SPEW(code)
+    #define GrOP_INFO(...)
 #endif
 
 // A helper macro to generate a class static id
-#define DEFINE_BATCH_CLASS_ID \
+#define DEFINE_OP_CLASS_ID \
     static uint32_t ClassID() { \
-        static uint32_t kClassID = GenBatchClassID(); \
+        static uint32_t kClassID = GenOpClassID(); \
         return kClassID; \
     }
 
-class GrBatch : public GrNonAtomicRef<GrBatch> {
+class GrOp : public GrNonAtomicRef<GrOp> {
 public:
-    GrBatch(uint32_t classID);
-    virtual ~GrBatch();
+    GrOp(uint32_t classID);
+    virtual ~GrOp();
 
     virtual const char* name() const = 0;
 
-    bool combineIfPossible(GrBatch* that, const GrCaps& caps) {
+    bool combineIfPossible(GrOp* that, const GrCaps& caps) {
         if (this->classID() != that->classID()) {
             return false;
         }
@@ -97,7 +96,7 @@ public:
     }
 
     /**
-     * Helper for safely down-casting to a GrBatch subclass
+     * Helper for safely down-casting to a GrOp subclass
      */
     template <typename T> const T& cast() const {
         SkASSERT(T::ClassID() == this->classID());
@@ -109,40 +108,40 @@ public:
         return static_cast<T*>(this);
     }
 
-    uint32_t classID() const { SkASSERT(kIllegalBatchID != fClassID); return fClassID; }
+    uint32_t classID() const { SkASSERT(kIllegalOpID != fClassID); return fClassID; }
 
     // We lazily initialize the uniqueID because currently the only user is GrAuditTrail
     uint32_t uniqueID() const {
-        if (kIllegalBatchID == fUniqueID) {
-            fUniqueID = GenBatchID();
+        if (kIllegalOpID == fUniqueID) {
+            fUniqueID = GenOpID();
         }
         return fUniqueID;
     }
     SkDEBUGCODE(bool isUsed() const { return fUsed; })
 
-    /** Called prior to drawing. The batch should perform any resource creation necessary to
+    /** Called prior to drawing. The op should perform any resource creation necessary to
         to quickly issue its draw when draw is called. */
     void prepare(GrBatchFlushState* state) { this->onPrepare(state); }
 
-    /** Issues the batches commands to GrGpu. */
+    /** Issues the op's commands to GrGpu. */
     void draw(GrBatchFlushState* state, const SkRect& bounds) { this->onDraw(state, bounds); }
 
     /** Used to block batching across render target changes. Remove this once we store
-        GrBatches for different RTs in different targets. */
+        GrOps for different RTs in different targets. */
     // TODO: this needs to be updated to return GrSurfaceProxy::UniqueID
     virtual GrGpuResource::UniqueID renderTargetUniqueID() const = 0;
 
-    /** Used for spewing information about batches when debugging. */
+    /** Used for spewing information about ops when debugging. */
     virtual SkString dumpInfo() const {
         SkString string;
-        string.appendf("BatchBounds: [L: %.2f, T: %.2f, R: %.2f, B: %.2f]\n",
+        string.appendf("OpBounds: [L: %.2f, T: %.2f, R: %.2f, B: %.2f]\n",
                        fBounds.fLeft, fBounds.fTop, fBounds.fRight, fBounds.fBottom);
         return string;
     }
 
 protected:
     /**
-     * Indicates that the batch will produce geometry that extends beyond its bounds for the
+     * Indicates that the op will produce geometry that extends beyond its bounds for the
      * purpose of ensuring that the fragment shader runs on partially covered pixels for
      * non-MSAA antialiasing.
      */
@@ -151,8 +150,8 @@ protected:
         kNo
     };
     /**
-     * Indicates that the geometry represented by the batch has zero area (i.e. it is hairline
-     * or points).
+     * Indicates that the geometry represented by the op has zero area (e.g. it is hairline or
+     * points).
      */
     enum class IsZeroArea {
         kYes,
@@ -168,7 +167,7 @@ protected:
         this->setBoundsFlags(aabloat, zeroArea);
     }
 
-    void joinBounds(const GrBatch& that) {
+    void joinBounds(const GrOp& that) {
         if (that.hasAABloat()) {
             fBoundsFlags |= kAABloat_BoundsFlag;
         }
@@ -178,15 +177,15 @@ protected:
         return fBounds.joinPossiblyEmptyRect(that.fBounds);
     }
 
-    void replaceBounds(const GrBatch& that) {
+    void replaceBounds(const GrOp& that) {
         fBounds = that.fBounds;
         fBoundsFlags = that.fBoundsFlags;
     }
 
-    static uint32_t GenBatchClassID() { return GenID(&gCurrBatchClassID); }
+    static uint32_t GenOpClassID() { return GenID(&gCurrOpClassID); }
 
 private:
-    virtual bool onCombineIfPossible(GrBatch*, const GrCaps& caps) = 0;
+    virtual bool onCombineIfPossible(GrOp*, const GrCaps& caps) = 0;
 
     virtual void onPrepare(GrBatchFlushState*) = 0;
     virtual void onDraw(GrBatchFlushState*, const SkRect& bounds) = 0;
@@ -196,7 +195,7 @@ private:
         // 1 to the returned value.
         uint32_t id = static_cast<uint32_t>(sk_atomic_inc(idCounter)) + 1;
         if (!id) {
-            SkFAIL("This should never wrap as it should only be called once for each GrBatch "
+            SkFAIL("This should never wrap as it should only be called once for each GrOp "
                    "subclass.");
         }
         return id;
@@ -209,7 +208,7 @@ private:
     }
 
     enum {
-        kIllegalBatchID = 0,
+        kIllegalOpID = 0,
     };
 
     enum BoundsFlags {
@@ -222,12 +221,12 @@ private:
     const uint16_t                      fClassID;
     uint16_t                            fBoundsFlags;
 
-    static uint32_t GenBatchID() { return GenID(&gCurrBatchUniqueID); }
+    static uint32_t GenOpID() { return GenID(&gCurrOpUniqueID); }
     mutable uint32_t                    fUniqueID;
     SkRect                              fBounds;
 
-    static int32_t                      gCurrBatchUniqueID;
-    static int32_t                      gCurrBatchClassID;
+    static int32_t                      gCurrOpUniqueID;
+    static int32_t                      gCurrOpClassID;
 };
 
 #endif

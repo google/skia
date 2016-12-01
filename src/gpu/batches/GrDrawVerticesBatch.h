@@ -20,7 +20,7 @@ struct GrInitInvariantOutput;
 
 class GrDrawVerticesBatch : public GrVertexBatch {
 public:
-    DEFINE_BATCH_CLASS_ID
+    DEFINE_OP_CLASS_ID
 
 
     GrDrawVerticesBatch(GrColor color, GrPrimitiveType primitiveType,
@@ -55,7 +55,7 @@ private:
                kPoints_GrPrimitiveType == fPrimitiveType;
     }
 
-    bool onCombineIfPossible(GrBatch* t, const GrCaps&) override;
+    bool onCombineIfPossible(GrOp* t, const GrCaps&) override;
 
     struct Mesh {
         GrColor fColor; // Only used if there are no per-vertex colors

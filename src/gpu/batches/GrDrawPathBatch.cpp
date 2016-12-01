@@ -62,7 +62,7 @@ GrDrawPathRangeBatch::GrDrawPathRangeBatch(const SkMatrix& viewMatrix, SkScalar 
     this->setBounds(bounds, HasAABloat::kNo, IsZeroArea::kNo);
 }
 
-bool GrDrawPathRangeBatch::onCombineIfPossible(GrBatch* t, const GrCaps& caps) {
+bool GrDrawPathRangeBatch::onCombineIfPossible(GrOp* t, const GrCaps& caps) {
     GrDrawPathRangeBatch* that = t->cast<GrDrawPathRangeBatch>();
     if (this->fPathRange.get() != that->fPathRange.get() ||
         this->transformType() != that->transformType() ||

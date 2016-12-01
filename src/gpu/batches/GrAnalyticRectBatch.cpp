@@ -236,7 +236,7 @@ sk_sp<GrGeometryProcessor> RectGeometryProcessor::TestCreate(GrProcessorTestData
 
 class AnalyticRectBatch : public GrVertexBatch {
 public:
-    DEFINE_BATCH_CLASS_ID
+    DEFINE_OP_CLASS_ID
 
     AnalyticRectBatch(GrColor color, const SkMatrix& viewMatrix, const SkRect& rect,
                       const SkRect& croppedRect, const SkRect& bounds)
@@ -357,7 +357,7 @@ private:
         helper.recordDraw(target, gp.get());
     }
 
-    bool onCombineIfPossible(GrBatch* t, const GrCaps& caps) override {
+    bool onCombineIfPossible(GrOp* t, const GrCaps& caps) override {
         AnalyticRectBatch* that = t->cast<AnalyticRectBatch>();
         if (!GrPipeline::CanCombine(*this->pipeline(), this->bounds(), *that->pipeline(),
                                     that->bounds(), caps)) {

@@ -92,7 +92,7 @@ static void tesselate(intptr_t vertices,
 // We handle perspective in the local matrix or viewmatrix with special batches
 class GrNonAAFillRectPerspectiveBatch : public GrVertexBatch {
 public:
-    DEFINE_BATCH_CLASS_ID
+    DEFINE_OP_CLASS_ID
 
     GrNonAAFillRectPerspectiveBatch(GrColor color, const SkMatrix& viewMatrix, const SkRect& rect,
                                     const SkRect* localRect, const SkMatrix* localMatrix)
@@ -187,7 +187,7 @@ private:
         helper.recordDraw(target, gp.get());
     }
 
-    bool onCombineIfPossible(GrBatch* t, const GrCaps& caps) override {
+    bool onCombineIfPossible(GrOp* t, const GrCaps& caps) override {
         GrNonAAFillRectPerspectiveBatch* that = t->cast<GrNonAAFillRectPerspectiveBatch>();
         if (!GrPipeline::CanCombine(*this->pipeline(), this->bounds(), *that->pipeline(),
                                     that->bounds(), caps)) {

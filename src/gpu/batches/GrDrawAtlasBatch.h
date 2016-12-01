@@ -14,7 +14,7 @@
 
 class GrDrawAtlasBatch : public GrVertexBatch {
 public:
-    DEFINE_BATCH_CLASS_ID
+    DEFINE_OP_CLASS_ID
 
     GrDrawAtlasBatch(GrColor color, const SkMatrix& viewMatrix, int spriteCount,
                      const SkRSXform* xforms, const SkRect* rects, const SkColor* colors);
@@ -55,7 +55,7 @@ private:
     int quadCount() const { return fQuadCount; }
     bool coverageIgnored() const { return fCoverageIgnored; }
 
-    bool onCombineIfPossible(GrBatch* t, const GrCaps&) override;
+    bool onCombineIfPossible(GrOp* t, const GrCaps&) override;
 
     struct Geometry {
         GrColor                 fColor;

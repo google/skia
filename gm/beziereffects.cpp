@@ -30,7 +30,7 @@ namespace skiagm {
 
 class BezierCubicOrConicTestBatch : public GrTestBatch {
 public:
-    DEFINE_BATCH_CLASS_ID
+    DEFINE_OP_CLASS_ID
 
     const char* name() const override { return "BezierCubicOrConicTestBatch"; }
 
@@ -386,7 +386,7 @@ private:
 
 class BezierQuadTestBatch : public GrTestBatch {
 public:
-    DEFINE_BATCH_CLASS_ID
+    DEFINE_OP_CLASS_ID
     const char* name() const override { return "BezierQuadTestBatch"; }
 
     BezierQuadTestBatch(sk_sp<GrGeometryProcessor> gp, const SkRect& bounds, GrColor color,

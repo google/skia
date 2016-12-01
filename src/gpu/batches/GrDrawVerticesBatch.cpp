@@ -171,7 +171,7 @@ void GrDrawVerticesBatch::onPrepareDraws(Target* target) const {
     target->draw(gp.get(), mesh);
 }
 
-bool GrDrawVerticesBatch::onCombineIfPossible(GrBatch* t, const GrCaps& caps) {
+bool GrDrawVerticesBatch::onCombineIfPossible(GrOp* t, const GrCaps& caps) {
     GrDrawVerticesBatch* that = t->cast<GrDrawVerticesBatch>();
 
     if (!GrPipeline::CanCombine(*this->pipeline(), this->bounds(), *that->pipeline(),

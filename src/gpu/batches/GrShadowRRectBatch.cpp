@@ -61,7 +61,7 @@ static const uint16_t* circle_type_to_indices(bool stroked) {
 
 class ShadowCircleBatch : public GrVertexBatch {
 public:
-    DEFINE_BATCH_CLASS_ID
+    DEFINE_OP_CLASS_ID
 
     static GrDrawBatch* Create(GrColor color, const SkMatrix& viewMatrix, SkPoint center,
                                SkScalar radius, SkScalar blurRadius, const GrStyle& style) {
@@ -367,7 +367,7 @@ private:
         target->draw(gp.get(), mesh);
     }
 
-    bool onCombineIfPossible(GrBatch* t, const GrCaps& caps) override {
+    bool onCombineIfPossible(GrOp* t, const GrCaps& caps) override {
         ShadowCircleBatch* that = t->cast<ShadowCircleBatch>();
         if (!GrPipeline::CanCombine(*this->pipeline(), this->bounds(), *that->pipeline(),
                                     that->bounds(), caps)) {
@@ -506,7 +506,7 @@ static const uint16_t* rrect_type_to_indices(RRectType type) {
 
 class ShadowCircularRRectBatch : public GrVertexBatch {
 public:
-    DEFINE_BATCH_CLASS_ID
+    DEFINE_OP_CLASS_ID
 
     // A devStrokeWidth <= 0 indicates a fill only. If devStrokeWidth > 0 then strokeOnly indicates
     // whether the rrect is only stroked or stroked and filled.
@@ -796,7 +796,7 @@ private:
         target->draw(gp.get(), mesh);
     }
 
-    bool onCombineIfPossible(GrBatch* t, const GrCaps& caps) override {
+    bool onCombineIfPossible(GrOp* t, const GrCaps& caps) override {
         ShadowCircularRRectBatch* that = t->cast<ShadowCircularRRectBatch>();
         if (!GrPipeline::CanCombine(*this->pipeline(), this->bounds(), *that->pipeline(),
                                     that->bounds(), caps)) {

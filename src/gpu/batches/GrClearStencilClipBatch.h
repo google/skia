@@ -8,16 +8,16 @@
 #ifndef GrClearStencilClipBatch_DEFINED
 #define GrClearStencilClipBatch_DEFINED
 
-#include "GrBatch.h"
 #include "GrBatchFlushState.h"
 #include "GrFixedClip.h"
 #include "GrGpu.h"
 #include "GrGpuCommandBuffer.h"
+#include "GrOp.h"
 #include "GrRenderTarget.h"
 
-class GrClearStencilClipBatch final : public GrBatch {
+class GrClearStencilClipBatch final : public GrOp {
 public:
-    DEFINE_BATCH_CLASS_ID
+    DEFINE_OP_CLASS_ID
 
     GrClearStencilClipBatch(const GrFixedClip& clip, bool insideStencilMask, GrRenderTarget* rt)
         : INHERITED(ClassID())
@@ -49,7 +49,7 @@ public:
     }
 
 private:
-    bool onCombineIfPossible(GrBatch* t, const GrCaps& caps) override { return false; }
+    bool onCombineIfPossible(GrOp* t, const GrCaps& caps) override { return false; }
 
     void onPrepare(GrBatchFlushState*) override {}
 
@@ -61,7 +61,7 @@ private:
     const bool                                              fInsideStencilMask;
     GrPendingIOResource<GrRenderTarget, kWrite_GrIOType>    fRenderTarget;
 
-    typedef GrBatch INHERITED;
+    typedef GrOp INHERITED;
 };
 
 #endif

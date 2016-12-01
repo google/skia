@@ -16,7 +16,7 @@
 #include "GrRenderTargetPriv.h"
 #include "GrXferProcessor.h"
 
-#include "batches/GrBatch.h"
+#include "batches/GrOp.h"
 
 GrPipeline* GrPipeline::CreateAt(void* memory, const CreateArgs& args,
                                  GrXPOverridesForBatch* overrides) {
