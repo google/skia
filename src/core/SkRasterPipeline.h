@@ -61,10 +61,12 @@
     M(unpremul) M(premul)                                        \
     M(set_rgb)                                                   \
     M(from_srgb) M(from_srgb_d) M(to_srgb)                       \
+    M(to_2dot2)                                                  \
     M(constant_color) M(store_f32)                               \
     M(load_565)  M(load_565_d)  M(store_565)                     \
     M(load_f16)  M(load_f16_d)  M(store_f16)                     \
     M(load_8888) M(load_8888_d) M(store_8888)                    \
+    M(load_tables) M(store_tables)                               \
     M(scale_u8) M(scale_1_float)                                 \
     M(lerp_u8) M(lerp_565) M(lerp_1_float)                       \
     M(dstatop) M(dstin) M(dstout) M(dstover)                     \
