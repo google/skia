@@ -628,13 +628,23 @@ static AI void translate_gamut_1(const Sk4f& rTgTbT, Sk4f& rgba) {
     rgba = rgba + rTgTbT;
 }
 
-static AI void premultiply(Sk4f& dr, Sk4f& dg, Sk4f& db, const Sk4f& da) {
+static AI void premultiply(Sk4f& dr, Sk4f& dg, Sk4f& db, const Sk4f& da, bool kClamp) {
+    if (kClamp) {
+        dr = Sk4f::Max(dr, 1.0f);
+        dg = Sk4f::Max(dg, 1.0f);
+        db = Sk4f::Max(db, 1.0f);
+    }
+
     dr = da * dr;
     dg = da * dg;
     db = da * db;
 }
 
-static AI void premultiply_1(const Sk4f& a, Sk4f& rgba) {
+static AI void premultiply_1(const Sk4f& a, Sk4f& rgba, bool kClamp) {
+    if (kClamp) {
+        rgba = Sk4f::Max(rgba, 1.0f);
+    }
+
     rgba = a * rgba;
 }
 
@@ -892,12 +902,12 @@ static void color_xform_RGBA(void* dst, const void* vsrc, int len,
                              const uint8_t* const dstTables[3]) {
     LoadFn load;
     Load1Fn load_1;
-    static constexpr bool loadAlpha = (kPremul_SkAlphaType == kAlphaType) ||
-                                      (kF16_Linear_DstFormat == kDst) ||
-                                      (kF32_Linear_DstFormat == kDst);
+    const bool kLoadAlpha = (kPremul_SkAlphaType == kAlphaType) ||
+                            (kF16_Linear_DstFormat == kDst) ||
+                            (kF32_Linear_DstFormat == kDst);
     switch (kSrc) {
         case kRGBA_8888_Linear_SrcFormat:
-            if (loadAlpha) {
+            if (kLoadAlpha) {
                 load = load_rgba_linear<kRGBA_Order>;
                 load_1 = load_rgba_linear_1<kRGBA_Order>;
             } else {
@@ -906,7 +916,7 @@ static void color_xform_RGBA(void* dst, const void* vsrc, int len,
             }
             break;
         case kRGBA_8888_Table_SrcFormat:
-            if (loadAlpha) {
+            if (kLoadAlpha) {
                 load = load_rgba_from_tables<kRGBA_Order>;
                 load_1 = load_rgba_from_tables_1<kRGBA_Order>;
             } else {
@@ -915,7 +925,7 @@ static void color_xform_RGBA(void* dst, const void* vsrc, int len,
             }
             break;
         case kBGRA_8888_Linear_SrcFormat:
-            if (loadAlpha) {
+            if (kLoadAlpha) {
                 load = load_rgba_linear<kBGRA_Order>;
                 load_1 = load_rgba_linear_1<kBGRA_Order>;
             } else {
@@ -924,7 +934,7 @@ static void color_xform_RGBA(void* dst, const void* vsrc, int len,
             }
             break;
         case kBGRA_8888_Table_SrcFormat:
-            if (loadAlpha) {
+            if (kLoadAlpha) {
                 load = load_rgba_from_tables<kBGRA_Order>;
                 load_1 = load_rgba_from_tables_1<kBGRA_Order>;
             } else {
@@ -992,6 +1002,14 @@ static void color_xform_RGBA(void* dst, const void* vsrc, int len,
             break;
     }
 
+    // We always clamp before converting to 8888 outputs (because we have to).
+    // In these cases, we also need a clamp before the premul step to make sure
+    // R, G, B are not logically greater than A.
+    const bool kClamp = kRGBA_8888_Linear_DstFormat == kDst ||
+                        kRGBA_8888_SRGB_DstFormat == kDst ||
+                        kRGBA_8888_2Dot2_DstFormat == kDst ||
+                        kRGBA_8888_Table_DstFormat == kDst;
+
     const uint32_t* src = (const uint32_t*) vsrc;
     Sk4f rXgXbX, rYgYbY, rZgZbZ, rTgTbT;
     load_matrix(matrix, rXgXbX, rYgYbY, rZgZbZ, rTgTbT);
@@ -1017,7 +1035,7 @@ static void color_xform_RGBA(void* dst, const void* vsrc, int len,
             }
 
             if (kPremul_SkAlphaType == kAlphaType) {
-                premultiply(dr, dg, db, da);
+                premultiply(dr, dg, db, da, kClamp);
             }
 
             load(src, r, g, b, a, srcTables);
@@ -1039,7 +1057,7 @@ static void color_xform_RGBA(void* dst, const void* vsrc, int len,
         }
 
         if (kPremul_SkAlphaType == kAlphaType) {
-            premultiply(dr, dg, db, da);
+            premultiply(dr, dg, db, da, kClamp);
         }
 
         store(dst, src - 4, dr, dg, db, da, dstTables);
@@ -1059,7 +1077,7 @@ static void color_xform_RGBA(void* dst, const void* vsrc, int len,
         }
 
         if (kPremul_SkAlphaType == kAlphaType) {
-            premultiply_1(a, rgba);
+            premultiply_1(a, rgba, kClamp);
         }
 
         store_1(dst, src, rgba, a, dstTables);
@@ -1173,26 +1191,23 @@ bool SkColorSpaceXform_XYZ<kSrc, kDst, kCSM>
           int len, SkAlphaType alphaType) const
 {
     if (kFull_ColorSpaceMatch == kCSM) {
-        switch (alphaType) {
-            case kPremul_SkAlphaType:
-                // We can't skip the xform since we need to perform a premultiply in the
-                // linear space.
-                break;
-            default:
-                switch (dstColorFormat) {
-                    case kRGBA_8888_ColorFormat:
-                        memcpy(dst, src, len * sizeof(uint32_t));
-                        return true;
-                    case kBGRA_8888_ColorFormat:
-                        SkOpts::RGBA_to_BGRA((uint32_t*) dst, src, len);
-                        return true;
-                    case kRGBA_F16_ColorFormat:
-                    case kRGBA_F32_ColorFormat:
-                        // There's still work to do to xform to linear floats.
-                        break;
-                    default:
-                        return false;
-                }
+        if (kPremul_SkAlphaType != alphaType) {
+            if ((kRGBA_8888_ColorFormat == dstColorFormat &&
+                 kRGBA_8888_ColorFormat == srcColorFormat) ||
+                (kBGRA_8888_ColorFormat == dstColorFormat &&
+                 kBGRA_8888_ColorFormat == srcColorFormat))
+            {
+                memcpy(dst, src, len * sizeof(uint32_t));
+                return true;
+            }
+            if ((kRGBA_8888_ColorFormat == dstColorFormat &&
+                 kBGRA_8888_ColorFormat == srcColorFormat) ||
+                (kBGRA_8888_ColorFormat == dstColorFormat &&
+                 kRGBA_8888_ColorFormat == srcColorFormat))
+            {
+                SkOpts::RGBA_to_BGRA((uint32_t*) dst, src, len);
+                return true;
+            }
         }
     }
 

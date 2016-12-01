@@ -349,7 +349,7 @@ STAGE(to_2dot2) {
              x64 = x32.rsqrt();                          // x^(+1/64)
 
         // 29 = 32 - 2 - 1
-        return x2.invert() * x32 * x64.invert();
+        return SkNf::Max(x2.invert() * x32 * x64.invert(), 0.0f); // Watch out for NaN.
     };
 
     r = to_2dot2(r);
