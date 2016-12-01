@@ -10,7 +10,6 @@
 #include "GrCaps.h"
 #include "GrContext.h"
 #include "GrRenderTargetContext.h"
-#include "gl/GrGLGpu.h"
 #include "SkCanvas.h"
 #include "SkSurface.h"
 
@@ -143,18 +142,8 @@ DEF_GPUTEST_FOR_GL_RENDERING_CONTEXTS(SRGBMipMaps, reporter, ctxInfo) {
     // 2) Draw texture to L32 surface (should generate/use linear mips)
     paint.setGammaCorrect(false);
     l32RenderTargetContext->drawRect(noClip, paint, SkMatrix::I(), rect);
-
-    // Right now, this test only runs on GL (because Vulkan doesn't support legacy mip-mapping
-    // skbug.com/5048). On GL, we may not have sRGB decode support. In that case, rendering sRGB
-    // textures to a legacy surface produces nonsense, so this part of the test is meaningless.
-    //
-    // TODO: Once Vulkan supports legacy mip-mapping, we can promote this to GrCaps. Right now,
-    // Vulkan has most of the functionality, but not the mip-mapping part that's being tested here.
-    GrGLGpu* glGpu = static_cast<GrGLGpu*>(context->getGpu());
-    if (glGpu->glCaps().srgbDecodeDisableSupport()) {
-        read_and_check_pixels(reporter, l32RenderTargetContext->asTexture().get(), expectedLinear,
-                              error, "re-render as linear");
-    }
+    read_and_check_pixels(reporter, l32RenderTargetContext->asTexture().get(), expectedLinear,
+                          error, "re-render as linear");
 
     // 3) Go back to sRGB
     paint.setGammaCorrect(true);
