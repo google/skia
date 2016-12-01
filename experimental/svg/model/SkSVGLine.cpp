@@ -56,7 +56,7 @@ void SkSVGLine::onSetAttribute(SkSVGAttribute attr, const SkSVGValue& v) {
 }
 
 void SkSVGLine::onDraw(SkCanvas* canvas, const SkSVGLengthContext& lctx,
-                       const SkPaint& paint) const {
+                       const SkPaint& paint, SkPath::FillType) const {
     const auto x1 = lctx.resolve(fX1, SkSVGLengthContext::LengthType::kHorizontal);
     const auto y1 = lctx.resolve(fY1, SkSVGLengthContext::LengthType::kVertical);
     const auto x2 = lctx.resolve(fX2, SkSVGLengthContext::LengthType::kHorizontal);

@@ -191,4 +191,27 @@ private:
     Type fType;
 };
 
+class SkSVGFillRule {
+public:
+    enum class Type {
+        kNonZero,
+        kEvenOdd,
+        kInherit,
+    };
+
+    constexpr SkSVGFillRule() : fType(Type::kInherit) {}
+    constexpr explicit SkSVGFillRule(Type t) : fType(t) {}
+
+    SkSVGFillRule(const SkSVGFillRule&)            = default;
+    SkSVGFillRule& operator=(const SkSVGFillRule&) = default;
+
+    bool operator==(const SkSVGFillRule& other) const { return fType == other.fType; }
+    bool operator!=(const SkSVGFillRule& other) const { return !(*this == other); }
+
+    Type type() const { return fType; }
+
+private:
+    Type fType;
+};
+
 #endif // SkSVGTypes_DEFINED

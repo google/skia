@@ -15,6 +15,7 @@ public:
     SkSVGAttributeParser(const char[]);
 
     bool parseColor(SkSVGColorType*);
+    bool parseFillRule(SkSVGFillRule*);
     bool parseNumber(SkSVGNumberType*);
     bool parseLength(SkSVGLength*);
     bool parseViewBox(SkSVGViewBoxType*);

@@ -8,6 +8,7 @@
 #ifndef SkSVGShape_DEFINED
 #define SkSVGShape_DEFINED
 
+#include "SkPath.h"
 #include "SkSVGTransformableNode.h"
 
 class SkSVGLengthContext;
@@ -24,7 +25,10 @@ protected:
 
     void onRender(const SkSVGRenderContext&) const final;
 
-    virtual void onDraw(SkCanvas*, const SkSVGLengthContext&, const SkPaint&) const = 0;
+    virtual void onDraw(SkCanvas*, const SkSVGLengthContext&, const SkPaint&,
+                        SkPath::FillType) const = 0;
+
+    static SkPath::FillType FillRuleToFillType(const SkSVGFillRule&);
 
 private:
     typedef SkSVGTransformableNode INHERITED;

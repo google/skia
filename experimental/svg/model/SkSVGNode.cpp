@@ -49,6 +49,10 @@ void SkSVGNode::setFillOpacity(const SkSVGNumberType& opacity) {
         SkSVGNumberType(SkTPin<SkScalar>(opacity.value(), 0, 1)));
 }
 
+void SkSVGNode::setFillRule(const SkSVGFillRule& fillRule) {
+    fPresentationAttributes.fFillRule.set(fillRule);
+}
+
 void SkSVGNode::setOpacity(const SkSVGNumberType& opacity) {
     fPresentationAttributes.fOpacity.set(
         SkSVGNumberType(SkTPin<SkScalar>(opacity.value(), 0, 1)));
@@ -77,6 +81,11 @@ void SkSVGNode::onSetAttribute(SkSVGAttribute attr, const SkSVGValue& v) {
     case SkSVGAttribute::kFillOpacity:
         if (const SkSVGNumberValue* opacity = v.as<SkSVGNumberValue>()) {
             this->setFillOpacity(*opacity);
+        }
+        break;
+    case SkSVGAttribute::kFillRule:
+        if (const SkSVGFillRuleValue* fillRule = v.as<SkSVGFillRuleValue>()) {
+            this->setFillRule(*fillRule);
         }
         break;
     case SkSVGAttribute::kOpacity:

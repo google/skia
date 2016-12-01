@@ -6,6 +6,7 @@
  */
 
 #include "SkCanvas.h"
+#include "SkPath.h"
 #include "SkSVGAttribute.h"
 #include "SkSVGNode.h"
 #include "SkSVGRenderContext.h"
@@ -188,6 +189,13 @@ void commitToPaint<SkSVGAttribute::kStrokeWidth>(const SkSVGPresentationAttribut
     pctx->fStrokePaint.setStrokeWidth(strokeWidth);
 }
 
+template <>
+void commitToPaint<SkSVGAttribute::kFillRule>(const SkSVGPresentationAttributes&,
+                                              const SkSVGRenderContext&,
+                                              SkSVGPresentationContext*) {
+    // Not part of the SkPaint state; applied to the path at render time.
+}
+
 } // anonymous ns
 
 SkSVGPresentationContext::SkSVGPresentationContext()
@@ -258,6 +266,7 @@ void SkSVGRenderContext::applyPresentationAttributes(const SkSVGPresentationAttr
 
     ApplyLazyInheritedAttribute(Fill);
     ApplyLazyInheritedAttribute(FillOpacity);
+    ApplyLazyInheritedAttribute(FillRule);
     ApplyLazyInheritedAttribute(Stroke);
     ApplyLazyInheritedAttribute(StrokeLineCap);
     ApplyLazyInheritedAttribute(StrokeLineJoin);

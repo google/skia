@@ -173,6 +173,18 @@ bool SetPointsAttribute(const sk_sp<SkSVGNode>& node, SkSVGAttribute attr,
     return true;
 }
 
+bool SetFillRuleAttribute(const sk_sp<SkSVGNode>& node, SkSVGAttribute attr,
+                          const char* stringValue) {
+    SkSVGFillRule fillRule;
+    SkSVGAttributeParser parser(stringValue);
+    if (!parser.parseFillRule(&fillRule)) {
+        return false;
+    }
+
+    node->setAttribute(attr, SkSVGFillRuleValue(fillRule));
+    return true;
+}
+
 SkString TrimmedString(const char* first, const char* last) {
     SkASSERT(first);
     SkASSERT(last);
@@ -256,6 +268,7 @@ SortedDictionaryEntry<AttrParseInfo> gAttributeParseInfo[] = {
     { "d"                , { SkSVGAttribute::kD                , SetPathDataAttribute     }},
     { "fill"             , { SkSVGAttribute::kFill             , SetPaintAttribute        }},
     { "fill-opacity"     , { SkSVGAttribute::kFillOpacity      , SetNumberAttribute       }},
+    { "fill-rule"        , { SkSVGAttribute::kFillRule         , SetFillRuleAttribute     }},
     { "gradientTransform", { SkSVGAttribute::kGradientTransform, SetTransformAttribute    }},
     { "height"           , { SkSVGAttribute::kHeight           , SetLengthAttribute       }},
     { "offset"           , { SkSVGAttribute::kOffset           , SetLengthAttribute       }},

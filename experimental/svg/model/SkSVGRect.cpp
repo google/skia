@@ -75,7 +75,7 @@ void SkSVGRect::onSetAttribute(SkSVGAttribute attr, const SkSVGValue& v) {
 }
 
 void SkSVGRect::onDraw(SkCanvas* canvas, const SkSVGLengthContext& lctx,
-                       const SkPaint& paint) const {
+                       const SkPaint& paint, SkPath::FillType) const {
     const SkRect rect = lctx.resolveRect(fX, fY, fWidth, fHeight);
     const SkScalar rx = lctx.resolve(fRx, SkSVGLengthContext::LengthType::kHorizontal);
     const SkScalar ry = lctx.resolve(fRy, SkSVGLengthContext::LengthType::kVertical);

@@ -18,6 +18,7 @@ class SkSVGValue : public SkNoncopyable {
 public:
     enum class Type {
         kColor,
+        kFillRule,
         kLength,
         kLineCap,
         kLineJoin,
@@ -70,6 +71,7 @@ private:
 };
 
 using SkSVGColorValue        = SkSVGWrapperValue<SkSVGColorType    , SkSVGValue::Type::kColor    >;
+using SkSVGFillRuleValue     = SkSVGWrapperValue<SkSVGFillRule     , SkSVGValue::Type::kFillRule >;
 using SkSVGLengthValue       = SkSVGWrapperValue<SkSVGLength       , SkSVGValue::Type::kLength   >;
 using SkSVGPathValue         = SkSVGWrapperValue<SkPath            , SkSVGValue::Type::kPath     >;
 using SkSVGTransformValue    = SkSVGWrapperValue<SkSVGTransformType, SkSVGValue::Type::kTransform>;

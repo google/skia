@@ -56,7 +56,7 @@ void SkSVGEllipse::onSetAttribute(SkSVGAttribute attr, const SkSVGValue& v) {
 }
 
 void SkSVGEllipse::onDraw(SkCanvas* canvas, const SkSVGLengthContext& lctx,
-                          const SkPaint& paint) const {
+                          const SkPaint& paint, SkPath::FillType) const {
     const auto cx = lctx.resolve(fCx, SkSVGLengthContext::LengthType::kHorizontal);
     const auto cy = lctx.resolve(fCy, SkSVGLengthContext::LengthType::kVertical);
     const auto rx = lctx.resolve(fRx, SkSVGLengthContext::LengthType::kHorizontal);
