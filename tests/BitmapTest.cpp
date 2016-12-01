@@ -166,3 +166,31 @@ DEF_TEST(Bitmap_eraseColor_Premul, r) {
     test_erasecolor_premul(r, kRGBA_8888_SkColorType, color, color);
     test_erasecolor_premul(r, kBGRA_8888_SkColorType, color, color);
 }
+
+DEF_TEST(Bitmap_opaque, r) {
+    struct {
+        SkColorType fCT;
+        SkAlphaType fAT;
+    } types[] = {
+        { kGray_8_SkColorType,    kOpaque_SkAlphaType },
+        { kAlpha_8_SkColorType,   kPremul_SkAlphaType },
+        { kARGB_4444_SkColorType, kPremul_SkAlphaType },
+        { kRGB_565_SkColorType,   kOpaque_SkAlphaType },
+        { kBGRA_8888_SkColorType, kPremul_SkAlphaType },
+        { kRGBA_8888_SkColorType, kPremul_SkAlphaType },
+        { kRGBA_F16_SkColorType,  kPremul_SkAlphaType },
+    };
+    for (auto type : types) {
+        SkBitmap bm;
+        REPORTER_ASSERT(r, !SkBitmap::ComputeIsOpaque(bm));
+
+        bm.allocPixels(SkImageInfo::Make(13, 17, type.fCT, type.fAT));
+        bm.eraseColor(SkColorSetARGB(255, 10, 20, 30));
+        REPORTER_ASSERT(r, SkBitmap::ComputeIsOpaque(bm));
+
+        bm.eraseColor(SkColorSetARGB(128, 255, 255, 255));
+        bool isOpaque = SkBitmap::ComputeIsOpaque(bm);
+        bool shouldBeOpaque = (type.fAT == kOpaque_SkAlphaType);
+        REPORTER_ASSERT(r, isOpaque == shouldBeOpaque);
+    }
+}
