@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "2d6e6f0e_5d934c3d",
+        "filename": "src/opts/SkRasterPipeline_opts.h",
+        "patchSetId": 9
+      },
+      "lineNbr": 201,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2016-12-01T17:38:08Z",
+      "side": 1,
+      "message": "e.g\n\n    SI SkNi gather(size_t tail, const  int32_t* src, const SkNi\u0026 offset) {\n        auto m \u003d mask(tail);\n        return _mm256_mask_i32gather_epi32(SkNi(0).fVec, (const int*)src, offset.fVec, m, 4);\n    }\n    SI SkNu gather(size_t tail, const uint32_t* src, const SkNi\u0026 offset) {\n        auto m \u003d mask(tail);\n        return _mm256_mask_i32gather_epi32(SkNi(0).fVec, (const int*)src, offset.fVec, m, 4);\n    }\n    SI SkNf gather(size_t tail, const float* src, const SkNi\u0026 offset) {\n        auto m \u003d _mm256_castsi256_ps(mask(tail));\n        return _mm256_mask_i32gather_ps(SkNf(0).fVec, (const float*)src, offset.fVec, m, 4);\n    }",
+      "revId": "4cbc79bcde7211cd8d02a9bc7b34f7d617c8147c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
