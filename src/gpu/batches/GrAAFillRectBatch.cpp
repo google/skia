@@ -13,7 +13,7 @@
 #include "GrResourceKey.h"
 #include "GrResourceProvider.h"
 #include "GrTypes.h"
-#include "GrVertexBatch.h"
+#include "GrMeshDrawOp.h"
 #include "SkMatrix.h"
 #include "SkRect.h"
 
@@ -157,7 +157,7 @@ static void generate_aa_fill_rect_geometry(intptr_t verts,
         }
     }
 }
-class AAFillRectBatch : public GrVertexBatch {
+class AAFillRectBatch : public GrMeshDrawOp {
 public:
     DEFINE_OP_CLASS_ID
 
@@ -339,7 +339,7 @@ private:
     SkSTArray<4 * sizeof(RectWithLocalMatrixInfo), uint8_t, true> fRectData;
     int fRectCnt;
 
-    typedef GrVertexBatch INHERITED;
+    typedef GrMeshDrawOp INHERITED;
 };
 
 namespace GrAAFillRectBatch {

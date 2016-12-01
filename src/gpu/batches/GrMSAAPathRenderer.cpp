@@ -25,7 +25,7 @@
 #include "glsl/GrGLSLUtil.h"
 #include "gl/GrGLVaryingHandler.h"
 #include "batches/GrRectBatchFactory.h"
-#include "batches/GrVertexBatch.h"
+#include "batches/GrMeshDrawOp.h"
 
 static const float kTolerance = 0.5f;
 
@@ -214,7 +214,7 @@ private:
     typedef GrGeometryProcessor INHERITED;
 };
 
-class MSAAPathBatch : public GrVertexBatch {
+class MSAAPathBatch : public GrMeshDrawOp {
 public:
     DEFINE_OP_CLASS_ID
 
@@ -557,7 +557,7 @@ private:
     int fMaxQuadIndices;
     bool fIsIndexed;
 
-    typedef GrVertexBatch INHERITED;
+    typedef GrMeshDrawOp INHERITED;
 };
 
 bool GrMSAAPathRenderer::internalDrawPath(GrRenderTargetContext* renderTargetContext,

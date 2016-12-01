@@ -10,7 +10,7 @@
 #include "GrBatchFlushState.h"
 #include "GrDefaultGeoProcFactory.h"
 #include "GrResourceProvider.h"
-#include "GrVertexBatch.h"
+#include "GrMeshDrawOp.h"
 #include "SkBitmap.h"
 #include "SkLatticeIter.h"
 #include "SkRect.h"
@@ -23,7 +23,7 @@ static sk_sp<GrGeometryProcessor> create_gp(bool readsCoverage) {
     return GrDefaultGeoProcFactory::Make(color, coverage, localCoords, SkMatrix::I());
 }
 
-class GrNonAANinePatchBatch : public GrVertexBatch {
+class GrNonAANinePatchBatch : public GrMeshDrawOp {
 public:
     DEFINE_OP_CLASS_ID
 
@@ -176,7 +176,7 @@ private:
     int fImageHeight;
     SkSTArray<1, Patch, true> fPatches;
 
-    typedef GrVertexBatch INHERITED;
+    typedef GrMeshDrawOp INHERITED;
 };
 
 namespace GrNinePatch {

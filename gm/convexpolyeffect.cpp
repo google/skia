@@ -21,7 +21,7 @@
 #include "SkTLList.h"
 
 #include "batches/GrTestBatch.h"
-#include "batches/GrVertexBatch.h"
+#include "batches/GrMeshDrawOp.h"
 
 #include "effects/GrConvexPolyEffect.h"
 

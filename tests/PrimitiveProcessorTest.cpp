@@ -21,11 +21,11 @@
 #include "glsl/GrGLSLGeometryProcessor.h"
 #include "glsl/GrGLSLFragmentShaderBuilder.h"
 #include "glsl/GrGLSLVarying.h"
-#include "batches/GrVertexBatch.h"
+#include "batches/GrMeshDrawOp.h"
 #include "SkString.h"
 
 namespace {
-class Batch : public GrVertexBatch {
+class Batch : public GrMeshDrawOp {
 public:
     DEFINE_OP_CLASS_ID
 
@@ -97,7 +97,7 @@ private:
 
     int fNumAttribs;
 
-    typedef GrVertexBatch INHERITED;
+    typedef GrMeshDrawOp INHERITED;
 };
 }
 

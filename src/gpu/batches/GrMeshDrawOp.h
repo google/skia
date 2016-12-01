@@ -18,13 +18,13 @@
 class GrBatchFlushState;
 
 /**
- * Base class for vertex-based GrBatches.
+ * Base class for mesh-drawing GrDrawOps.
  */
-class GrVertexBatch : public GrDrawOp {
+class GrMeshDrawOp : public GrDrawOp {
 public:
     class Target;
 
-    GrVertexBatch(uint32_t classID);
+    GrMeshDrawOp(uint32_t classID);
 
 protected:
     /** Helper for rendering instances using an instanced index index buffer. This class creates the

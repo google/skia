@@ -15,7 +15,7 @@
 #include "GrResourceProvider.h"
 #include "SkRRect.h"
 #include "SkStrokeRec.h"
-#include "batches/GrVertexBatch.h"
+#include "batches/GrMeshDrawOp.h"
 #include "glsl/GrGLSLFragmentShaderBuilder.h"
 #include "glsl/GrGLSLGeometryProcessor.h"
 #include "glsl/GrGLSLGeometryProcessor.h"
@@ -234,7 +234,7 @@ sk_sp<GrGeometryProcessor> RectGeometryProcessor::TestCreate(GrProcessorTestData
 
 ///////////////////////////////////////////////////////////////////////////////
 
-class AnalyticRectBatch : public GrVertexBatch {
+class AnalyticRectBatch : public GrMeshDrawOp {
 public:
     DEFINE_OP_CLASS_ID
 
@@ -385,7 +385,7 @@ private:
     SkMatrix                     fViewMatrixIfUsingLocalCoords;
     SkSTArray<1, Geometry, true> fGeoData;
 
-    typedef GrVertexBatch INHERITED;
+    typedef GrMeshDrawOp INHERITED;
 };
 
 GrDrawOp* GrAnalyticRectBatch::CreateAnalyticRectBatch(GrColor color,

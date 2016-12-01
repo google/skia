@@ -10,7 +10,7 @@
 
 #include "GrColor.h"
 #include "GrTypes.h"
-#include "GrVertexBatch.h"
+#include "GrMeshDrawOp.h"
 #include "SkMatrix.h"
 #include "SkRect.h"
 #include "SkTDArray.h"
@@ -18,7 +18,7 @@
 class GrBatchFlushState;
 struct GrInitInvariantOutput;
 
-class GrDrawVerticesBatch : public GrVertexBatch {
+class GrDrawVerticesBatch : public GrMeshDrawOp {
 public:
     DEFINE_OP_CLASS_ID
 
@@ -74,7 +74,7 @@ private:
 
     SkSTArray<1, Mesh, true> fMeshes;
 
-    typedef GrVertexBatch INHERITED;
+    typedef GrMeshDrawOp INHERITED;
 };
 
 #endif

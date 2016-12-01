@@ -22,7 +22,7 @@
 #include "SkTraceEvent.h"
 
 #include "batches/GrRectBatchFactory.h"
-#include "batches/GrVertexBatch.h"
+#include "batches/GrMeshDrawOp.h"
 
 GrDefaultPathRenderer::GrDefaultPathRenderer(bool separateStencilSupport,
                                              bool stencilWrapOpsSupport)
@@ -94,7 +94,7 @@ static inline void add_quad(SkPoint** vert, const SkPoint* base, const SkPoint p
     }
 }
 
-class DefaultPathBatch : public GrVertexBatch {
+class DefaultPathBatch : public GrMeshDrawOp {
 public:
     DEFINE_OP_CLASS_ID
 
@@ -419,7 +419,7 @@ private:
     BatchTracker fBatch;
     SkSTArray<1, Geometry, true> fGeoData;
 
-    typedef GrVertexBatch INHERITED;
+    typedef GrMeshDrawOp INHERITED;
 };
 
 bool GrDefaultPathRenderer::internalDrawPath(GrRenderTargetContext* renderTargetContext,

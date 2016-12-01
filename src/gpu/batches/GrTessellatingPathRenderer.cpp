@@ -20,7 +20,7 @@
 #include "GrTessellator.h"
 #include "SkGeometry.h"
 
-#include "batches/GrVertexBatch.h"
+#include "batches/GrMeshDrawOp.h"
 
 #include <stdio.h>
 
@@ -103,7 +103,7 @@ private:
 
 class DynamicVertexAllocator : public GrTessellator::VertexAllocator {
 public:
-    DynamicVertexAllocator(size_t stride, GrVertexBatch::Target* target)
+    DynamicVertexAllocator(size_t stride, GrMeshDrawOp::Target* target)
       : VertexAllocator(stride)
       , fTarget(target)
       , fVertexBuffer(nullptr)
@@ -121,7 +121,7 @@ public:
     const GrBuffer* vertexBuffer() const { return fVertexBuffer; }
     int firstVertex() const { return fFirstVertex; }
 private:
-    GrVertexBatch::Target* fTarget;
+    GrMeshDrawOp::Target* fTarget;
     const GrBuffer* fVertexBuffer;
     int fVertexCount;
     int fFirstVertex;
@@ -160,7 +160,7 @@ bool GrTessellatingPathRenderer::onCanDrawPath(const CanDrawPathArgs& args) cons
     return true;
 }
 
-class TessellatingPathBatch : public GrVertexBatch {
+class TessellatingPathBatch : public GrMeshDrawOp {
 public:
     DEFINE_OP_CLASS_ID
 
@@ -354,7 +354,7 @@ private:
     bool                    fAntiAlias;
     GrXPOverridesForBatch   fPipelineInfo;
 
-    typedef GrVertexBatch INHERITED;
+    typedef GrMeshDrawOp INHERITED;
 };
 
 bool GrTessellatingPathRenderer::onDrawPath(const DrawPathArgs& args) {

@@ -25,7 +25,7 @@
 #include "GrPipelineBuilder.h"
 #include "GrStyle.h"
 #include "GrTessellator.h"
-#include "batches/GrVertexBatch.h"
+#include "batches/GrMeshDrawOp.h"
 #include "glsl/GrGLSLGeometryProcessor.h"
 #include "gl/builders/GrGLProgramBuilder.h"
 #include "glsl/GrGLSLPLSPathRendering.h"
@@ -763,7 +763,7 @@ bool GrPLSPathRenderer::onCanDrawPath(const CanDrawPathArgs& args) const {
             path.getFillType() == SkPath::FillType::kWinding_FillType;
 }
 
-class PLSPathBatch : public GrVertexBatch {
+class PLSPathBatch : public GrMeshDrawOp {
 public:
     DEFINE_OP_CLASS_ID
     PLSPathBatch(GrColor color, const SkPath& path, const SkMatrix& viewMatrix)
@@ -924,7 +924,7 @@ private:
     GrColor fColor;
     SkPath fPath;
     SkMatrix fViewMatrix;
-    typedef GrVertexBatch INHERITED;
+    typedef GrMeshDrawOp INHERITED;
 };
 
 SkDEBUGCODE(bool inPLSDraw = false;)
