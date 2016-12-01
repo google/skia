@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "2d6e6f0e_f1d19f61",
+        "filename": "src/core/SkColorSpaceXform.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 1034,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2016-12-01T22:02:47Z",
+      "side": 1,
+      "message": "I guess the convention is to use constexpr only when necessary, but I like that this documents for me \"this is a constant, not a real branch\".  Having said that, I think prefixing with \"k\" kind of has the same effect.",
+      "parentUuid": "2d6e6f0e_514b33a1",
+      "revId": "fab7a98e6f02dda82614d2fe7a9fe0bbe38cbaf8",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "2d6e6f0e_f1599f78",
         "filename": "src/opts/SkRasterPipeline_opts.h",
         "patchSetId": 6
@@ -30,6 +48,24 @@
       "writtenOn": "2016-12-01T21:50:40Z",
       "side": 1,
       "message": "// Watch out for NaN.",
+      "revId": "fab7a98e6f02dda82614d2fe7a9fe0bbe38cbaf8",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "2d6e6f0e_d1046338",
+        "filename": "src/opts/SkRasterPipeline_opts.h",
+        "patchSetId": 6
+      },
+      "lineNbr": 352,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2016-12-01T22:02:47Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "2d6e6f0e_f1599f78",
       "revId": "fab7a98e6f02dda82614d2fe7a9fe0bbe38cbaf8",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
