@@ -9,11 +9,12 @@ set -e
 rm -f .android_config
 
 SCRIPT_DIR=$(dirname "${BASH_SOURCE[0]}")
-source $SCRIPT_DIR/android_setup.sh
+source $SCRIPT_DIR/utils/android_setup.sh
 
 SKIA_SRC_DIR=$(cd "${SCRIPT_DIR}/../../.."; pwd)
-GYP_GENERATORS=ninja-android "${SKIA_SRC_DIR}/gyp_skia"
-ninja -C $SKIA_OUT/$BUILDTYPE ${APP_ARGS[@]}
+echo $GN_ARGS
+gn gen $SKIA_OUT --args="${GN_ARGS}"
+ninja -C $SKIA_OUT ${APP_ARGS[@]}
 
 # Write the device id into the .android_config file.  This tells
 # android_run_skia the last build we completed.

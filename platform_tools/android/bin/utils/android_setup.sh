@@ -11,8 +11,7 @@
 # Fail-fast if anything in the script fails.
 set -e
 
-BUILDTYPE=${BUILDTYPE-Release_Developer}
-USE_CLANG="true"
+IS_DEBUG="false"
 
 while (( "$#" )); do
   if [[ "$1" == "-d" ]]; then
@@ -25,17 +24,8 @@ while (( "$#" )); do
   elif [[ "$1" == "-s" ]]; then
     DEVICE_SERIAL="-s $2"
     shift
-  elif [[ "$1" == "-t" ]]; then
-    BUILDTYPE=$2
-    shift
   elif [[ "$1" == "--debug" ]]; then
-    BUILDTYPE=Debug
-  elif [[ "$1" == "--release" ]]; then
-    BUILDTYPE=Release
-  elif [[ "$1" == "--gcc" ]]; then
-    USE_CLANG="false"
-  elif [[ "$1" == "--clang" ]]; then
-    USE_CLANG="true"
+    IS_DEBUG="true"
   elif [[ "$1" == "--logcat" ]]; then
     LOGCAT=1
   elif [[ "$1" == "--verbose" ]]; then
@@ -47,10 +37,6 @@ while (( "$#" )); do
   fi
   shift
 done
-
-if [ "$USE_CLANG" == "true" ]; then
-  export GYP_DEFINES="skia_clang_build=1 $GYP_DEFINES"
-fi
 
 function verbose {
   if [[ -n $VERBOSE ]]; then
@@ -69,7 +55,7 @@ function absPath {
   (cd $1; pwd)
 }
 
-SCRIPT_DIR=$(absPath "$(dirname "$BASH_SOURCE[0]}")")
+UTIL_DIR=$(absPath "$(dirname "$BASH_SOURCE[0]}")")
 
 if [ -z "$ANDROID_SDK_ROOT" ]; then
   if ANDROID_SDK_ROOT="$(dirname $(which android))/.."; then
@@ -85,19 +71,22 @@ if [ -z "$ANDROID_HOME" ]; then
   exportVar ANDROID_HOME $ANDROID_SDK_ROOT
 fi
 
-if [ "$SKIA_VULKAN" == "true" ]; then
-  export GYP_DEFINES="skia_vulkan=1 $GYP_DEFINES"
+if [ -z "$ANDROID_NDK_ROOT" ]; then
+  if [ -d "${ANDROID_SDK_ROOT}/ndk-bundle" ]; then
+    exportVar ANDROID_NDK_ROOT ${ANDROID_SDK_ROOT}/ndk-bundle
+  else
+     echo "No ANDROID_NDK_ROOT set and can't auto detect it from location of SDK."
+     exit 1
+  fi
 fi
 
-# Helper function to configure the GYP defines to the appropriate values
+# Helper function to configure the GN defines to the appropriate values
 # based on the target device.
 setup_device() {
-  DEFINES="OS=android"
-  DEFINES="${DEFINES} host_os=$(uname -s | sed -e 's/Linux/linux/;s/Darwin/mac/')"
-  DEFINES="${DEFINES} skia_os=android"
-  DEFINES="${DEFINES} android_base=$(absPath ${SCRIPT_DIR}/..)"
-  if [[ "$GYP_DEFINES" != *skia_shared_lib=* ]]; then
-      DEFINES="${DEFINES} skia_shared_lib=1"
+  DEFINES="ndk=\"${ANDROID_NDK_ROOT}\" is_debug=${IS_DEBUG}"
+
+  if [ $SKIA_VULKAN == "true" ]; then
+    DEFINES="${DEFINES} ndk_api=24"
   fi
 
   # Setup the build variation depending on the target device
@@ -108,79 +97,57 @@ setup_device() {
       TARGET_DEVICE=$(cat .android_config)
       verbose "no target device (-d), using ${TARGET_DEVICE} from most recent build"
     else
-      TARGET_DEVICE="arm_v7_neon"
+      TARGET_DEVICE="arm_v7"
       verbose "no target device (-d), using ${TARGET_DEVICE}"
     fi
   fi
 
   case $TARGET_DEVICE in
-    arm)
-      DEFINES="${DEFINES} skia_arch_type=arm arm_neon=0"
-      ANDROID_ARCH="arm"
+    arm_v7 | nexus_4 | nexus_5 | nexus_6 | nexus_7 | nexus_10)
+      DEFINES="${DEFINES} target_cpu=\"arm\""
+      GDBSERVER_DIR="${ANDROID_NDK_ROOT}/prebuilt/android-arm"
+      IS_64_BIT=false
       ;;
-    arm_v7 | xoom)
-      DEFINES="${DEFINES} skia_arch_type=arm arm_neon=0 arm_version=7"
-      ANDROID_ARCH="arm"
-      ;;
-    arm_v7_neon | nexus_4 | nexus_5 | nexus_6 | nexus_7 | nexus_10)
-      DEFINES="${DEFINES} skia_arch_type=arm arm_neon=1 arm_version=7"
-      ANDROID_ARCH="arm"
-      ;;
-    arm64 | nexus_9)
-      DEFINES="${DEFINES} skia_arch_type=arm64 arm_version=8"
-      ANDROID_ARCH="arm64"
+    arm64 | nexus_9 | nexus_5x | nexus_6p | pixel)
+      DEFINES="${DEFINES} target_cpu=\"arm64\""
+      GDBSERVER_DIR="${ANDROID_NDK_ROOT}/prebuilt/android-arm64"
+      IS_64_BIT=true
       ;;
     x86)
-      DEFINES="${DEFINES} skia_arch_type=x86"
-      ANDROID_ARCH="x86"
+      DEFINES="${DEFINES} target_cpu=\"x86\""
+      GDBSERVER_DIR="${ANDROID_NDK_ROOT}/prebuilt/android-x86"
+      IS_64_BIT=false
       ;;
     x86_64 | x64)
-      DEFINES="${DEFINES} skia_arch_type=x86_64"
-      ANDROID_ARCH="x86_64"
+      DEFINES="${DEFINES} target_cpu=\"x64\""
+      GDBSERVER_DIR="${ANDROID_NDK_ROOT}/prebuilt/android-x86_64"
+      IS_64_BIT=true
       ;;
     mips)
-      DEFINES="${DEFINES} skia_arch_type=mips32"
-      DEFINES="${DEFINES} skia_resource_cache_mb_limit=32"
-      ANDROID_ARCH="mips"
-      ;;
-    mips_dsp2)
-      DEFINES="${DEFINES} skia_arch_type=mips32"
-      DEFINES="${DEFINES} mips_arch_variant=mips32r2 mips_dsp=2"
-      ANDROID_ARCH="mips"
+      DEFINES="${DEFINES} target_cpu=\"mipsel\""
+      GDBSERVER_DIR="${ANDROID_NDK_ROOT}/prebuilt/android-mips"
+      IS_64_BIT=false
+      #DEFINES="${DEFINES} skia_resource_cache_mb_limit=32"
       ;;
     mips64)
-      DEFINES="${DEFINES} skia_arch_type=mips64"
-      ANDROID_ARCH="mips64"
+      DEFINES="${DEFINES} target_cpu=\"mips64el\""
+      GDBSERVER_DIR="${ANDROID_NDK_ROOT}/prebuilt/android-mips64"
+      IS_64_BIT=true
       ;;
     *)
-      if [ -z "$ANDROID_IGNORE_UNKNOWN_DEVICE" ]; then
-          echo "ERROR: unknown device $TARGET_DEVICE"
-          exit 1
-      fi
-      # If ANDROID_IGNORE_UNKNOWN_DEVICE is set, then ANDROID_TOOLCHAIN
-      # or ANDROID_ARCH should be set; Otherwise, ANDROID_ARCH
-      # defaults to 'arm' and the default ARM toolchain is used.
-      DEFINES="${DEFINES} skia_arch_type=${ANDROID_ARCH-arm}"
-      # If ANDROID_IGNORE_UNKNOWN_DEVICE is set, extra gyp defines can be
-      # added via ANDROID_GYP_DEFINES
-      DEFINES="${DEFINES} ${ANDROID_GYP_DEFINES}"
+      echo "ERROR: unknown device $TARGET_DEVICE"
+      exit 1
       ;;
   esac
 
   verbose "The build is targeting the device: $TARGET_DEVICE"
   exportVar DEVICE_ID $TARGET_DEVICE
+  exportVar GN_ARGS "$DEFINES"
+  exportVar GDBSERVER_DIR $GDBSERVER_DIR
+  exportVar IS_64_BIT $IS_64_BIT
 
-  if [ -z "$SKIP_TOOLCHAIN_SETUP" ]; then
-    # setup the appropriate cross compiling toolchains
-    source $SCRIPT_DIR/utils/setup_toolchain.sh
-  fi
-
-  DEFINES="${DEFINES} android_toolchain=${ANDROID_TOOLCHAIN}"
-  DEFINES="${DEFINES} android_buildtype=${BUILDTYPE}"
-  exportVar GYP_DEFINES "$DEFINES $GYP_DEFINES"
-
-  SKIA_SRC_DIR=$(cd "${SCRIPT_DIR}/../../.."; pwd)
-  DEFAULT_SKIA_OUT="${SKIA_SRC_DIR}/out/config/android-${TARGET_DEVICE}"
+  SKIA_SRC_DIR=$(cd "${UTIL_DIR}/../../../.."; pwd)
+  DEFAULT_SKIA_OUT="${SKIA_SRC_DIR}/out/android-${TARGET_DEVICE}"
   exportVar SKIA_OUT "${SKIA_OUT:-${DEFAULT_SKIA_OUT}}"
 }
 
