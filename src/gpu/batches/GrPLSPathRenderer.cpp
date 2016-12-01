@@ -778,6 +778,14 @@ public:
 
     const char* name() const override { return "PLSBatch"; }
 
+    SkString dumpInfo() const override {
+        SkString string;
+        string.printf("Color 0x%08x, UsesLocalCoords: %d\n", fColor, fUsesLocalCoords);
+        string.append(DumpPipelineInfo(*this->pipeline()));
+        string.append(INHERITED::dumpInfo());
+        return string;
+    }
+
     void computePipelineOptimizations(GrInitInvariantOutput* color,
                                       GrInitInvariantOutput* coverage,
                                       GrBatchToXPOverrides* overrides) const override {
@@ -927,8 +935,7 @@ bool GrPLSPathRenderer::onDrawPath(const DrawPathArgs& args) {
     SkPath path;
     args.fShape->asPath(&path);
 
-    sk_sp<GrDrawBatch> batch(new PLSPathBatch(args.fPaint->getColor(),
-                                              path, *args.fViewMatrix));
+    sk_sp<GrDrawBatch> batch(new PLSPathBatch(args.fPaint->getColor(), path, *args.fViewMatrix));
 
     GrPipelineBuilder pipelineBuilder(*args.fPaint,
                                       args.fRenderTargetContext->mustUseHWAA(*args.fPaint));

@@ -191,6 +191,7 @@ public:
                         i, info->color(), rect.fLeft, rect.fTop, rect.fRight, rect.fBottom);
             info = this->next(info);
         }
+        str.append(DumpPipelineInfo(*this->pipeline()));
         str.append(INHERITED::dumpInfo());
         return str;
     }

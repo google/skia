@@ -260,6 +260,23 @@ public:
 
     const char* name() const override { return "DashBatch"; }
 
+    SkString dumpInfo() const override {
+        SkString string;
+        for (const auto& geo : fGeoData) {
+            string.appendf("Pt0: [%.2f, %.2f], Pt1: [%.2f, %.2f], Width: %.2f, Ival0: %.2f, "
+                           "Ival1 : %.2f, Phase: %.2f\n",
+                           geo.fPtsRot[0].fX, geo.fPtsRot[0].fY,
+                           geo.fPtsRot[1].fX, geo.fPtsRot[1].fY,
+                           geo.fSrcStrokeWidth,
+                           geo.fIntervals[0],
+                           geo.fIntervals[1],
+                           geo.fPhase);
+        }
+        string.append(DumpPipelineInfo(*this->pipeline()));
+        string.append(INHERITED::dumpInfo());
+        return string;
+    }
+
     void computePipelineOptimizations(GrInitInvariantOutput* color,
                                       GrInitInvariantOutput* coverage,
                                       GrBatchToXPOverrides* overrides) const override {

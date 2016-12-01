@@ -151,7 +151,19 @@ public:
         this->setTransformedBounds(bounds, viewMatrix, HasAABloat::kYes, IsZeroArea::kNo);
     }
 
-    const char* name() const override { return "AAConvexBatch"; }
+    const char* name() const override { return "AAFlatteningConvexBatch"; }
+
+    SkString dumpInfo() const override {
+        SkString string;
+        for (const auto& geo : fGeoData) {
+            string.appendf("Color: 0x%08x, StrokeWidth: %.2f, Style: %d, Join: %d, "
+                           "MiterLimit: %.2f\n",
+                           geo.fColor, geo.fStrokeWidth, geo.fStyle, geo.fJoin, geo.fMiterLimit);
+        }
+        string.append(DumpPipelineInfo(*this->pipeline()));
+        string.append(INHERITED::dumpInfo());
+        return string;
+    }
 
     void computePipelineOptimizations(GrInitInvariantOutput* color,
                                       GrInitInvariantOutput* coverage,

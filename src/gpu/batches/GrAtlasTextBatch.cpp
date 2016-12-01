@@ -40,6 +40,7 @@ SkString GrAtlasTextBatch::dumpInfo() const {
                     fGeoData[i].fBlob->runCount());
     }
 
+    str.append(DumpPipelineInfo(*this->pipeline()));
     str.append(INHERITED::dumpInfo());
     return str;
 }

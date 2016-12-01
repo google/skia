@@ -59,6 +59,7 @@ public:
                         fPatches[i].fDst.fRight, fPatches[i].fDst.fBottom);
         }
 
+        str.append(DumpPipelineInfo(*this->pipeline()));
         str.append(INHERITED::dumpInfo());
         return str;
     }

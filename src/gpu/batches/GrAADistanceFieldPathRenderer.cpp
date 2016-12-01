@@ -154,6 +154,16 @@ public:
 
     const char* name() const override { return "AADistanceFieldPathBatch"; }
 
+    SkString dumpInfo() const override {
+        SkString string;
+        for (const auto& geo : fGeoData) {
+            string.appendf("Color: 0x%08x AA:%d\n", geo.fColor, geo.fAntiAlias);
+        }
+        string.append(DumpPipelineInfo(*this->pipeline()));
+        string.append(INHERITED::dumpInfo());
+        return string;
+    }
+
     void computePipelineOptimizations(GrInitInvariantOutput* color,
                                       GrInitInvariantOutput* coverage,
                                       GrBatchToXPOverrides* overrides) const override {
