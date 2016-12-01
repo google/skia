@@ -177,7 +177,7 @@ void GrRenderTargetOpList::prepareBatches(GrBatchFlushState* flushState) {
     }
 }
 
-// TODO: this is where GrBatch::renderTarget is used (which is fine since it
+// TODO: this is where GrOp::renderTarget is used (which is fine since it
 // is at flush time). However, we need to store the RenderTargetProxy in the
 // Batches and instantiate them here.
 bool GrRenderTargetOpList::drawBatches(GrBatchFlushState* flushState) {
@@ -242,7 +242,7 @@ void GrRenderTargetOpList::freeGpuResources() {
     }
 }
 
-static void batch_bounds(SkRect* bounds, const GrBatch* batch) {
+static void batch_bounds(SkRect* bounds, const GrOp* batch) {
     *bounds = batch->bounds();
     if (batch->hasZeroArea()) {
         if (batch->hasAABloat()) {
@@ -388,19 +388,19 @@ void GrRenderTargetOpList::stencilPath(GrRenderTargetContext* renderTargetContex
         return;
     }
 
-    GrBatch* batch = GrStencilPathBatch::Create(viewMatrix,
-                                                useHWAA,
-                                                path->getFillType(),
-                                                appliedClip.hasStencilClip(),
-                                                stencilAttachment->bits(),
-                                                appliedClip.scissorState(),
-                                                renderTargetContext->accessRenderTarget(),
-                                                path);
+    GrOp* batch = GrStencilPathBatch::Create(viewMatrix,
+                                             useHWAA,
+                                             path->getFillType(),
+                                             appliedClip.hasStencilClip(),
+                                             stencilAttachment->bits(),
+                                             appliedClip.scissorState(),
+                                             renderTargetContext->accessRenderTarget(),
+                                             path);
     this->recordBatch(batch, appliedClip.clippedDrawBounds());
     batch->unref();
 }
 
-void GrRenderTargetOpList::addBatch(sk_sp<GrBatch> batch) {
+void GrRenderTargetOpList::addBatch(sk_sp<GrOp> batch) {
     this->recordBatch(batch.get(), batch->bounds());
 }
 
@@ -427,7 +427,7 @@ void GrRenderTargetOpList::discard(GrRenderTarget* renderTarget) {
     // Currently this just inserts a discard batch. However, once in MDB this can remove all the
     // previously recorded batches and change the load op to discard.
     if (this->caps()->discardRenderTargetSupport()) {
-        GrBatch* batch = new GrDiscardBatch(renderTarget);
+        GrOp* batch = new GrDiscardBatch(renderTarget);
         this->recordBatch(batch, batch->bounds());
         batch->unref();
     }
@@ -439,7 +439,7 @@ bool GrRenderTargetOpList::copySurface(GrSurface* dst,
                                        GrSurface* src,
                                        const SkIRect& srcRect,
                                        const SkIPoint& dstPoint) {
-    GrBatch* batch = GrCopySurfaceBatch::Create(dst, src, srcRect, dstPoint);
+    GrOp* batch = GrCopySurfaceBatch::Create(dst, src, srcRect, dstPoint);
     if (!batch) {
         return false;
     }
@@ -466,7 +466,7 @@ static void join(SkRect* out, const SkRect& a, const SkRect& b) {
     out->fBottom = SkTMax(a.fBottom, b.fBottom);
 }
 
-GrBatch* GrRenderTargetOpList::recordBatch(GrBatch* batch, const SkRect& clippedBounds) {
+GrOp* GrRenderTargetOpList::recordBatch(GrOp* batch, const SkRect& clippedBounds) {
     // A closed GrOpList should never receive new/more batches
     SkASSERT(!this->isClosed());
 
@@ -475,31 +475,31 @@ GrBatch* GrRenderTargetOpList::recordBatch(GrBatch* batch, const SkRect& clipped
     // 2) intersect with something
     // 3) find a 'blocker'
     GR_AUDIT_TRAIL_ADDBATCH(fAuditTrail, batch);
-    GrBATCH_INFO("Re-Recording (%s, B%u)\n"
-        "\tBounds LRTB (%f, %f, %f, %f)\n",
-        batch->name(),
-        batch->uniqueID(),
-        batch->bounds().fLeft, batch->bounds().fRight,
-        batch->bounds().fTop, batch->bounds().fBottom);
-    GrBATCH_INFO(SkTabString(batch->dumpInfo(), 1).c_str());
-    GrBATCH_INFO("\tClipped Bounds: [L: %.2f, T: %.2f, R: %.2f, B: %.2f]\n",
-                 clippedBounds.fLeft, clippedBounds.fTop, clippedBounds.fRight,
-                 clippedBounds.fBottom);
-    GrBATCH_INFO("\tOutcome:\n");
+    GrOP_INFO("Re-Recording (%s, B%u)\n"
+              "\tBounds LRTB (%f, %f, %f, %f)\n",
+               batch->name(),
+               batch->uniqueID(),
+               batch->bounds().fLeft, batch->bounds().fRight,
+               batch->bounds().fTop, batch->bounds().fBottom);
+    GrOP_INFO(SkTabString(batch->dumpInfo(), 1).c_str());
+    GrOP_INFO("\tClipped Bounds: [L: %.2f, T: %.2f, R: %.2f, B: %.2f]\n",
+              clippedBounds.fLeft, clippedBounds.fTop, clippedBounds.fRight,
+              clippedBounds.fBottom);
+    GrOP_INFO("\tOutcome:\n");
     int maxCandidates = SkTMin(fMaxBatchLookback, fRecordedBatches.count());
     if (maxCandidates) {
         int i = 0;
         while (true) {
-            GrBatch* candidate = fRecordedBatches.fromBack(i).fBatch.get();
+            GrOp* candidate = fRecordedBatches.fromBack(i).fBatch.get();
             // We cannot continue to search backwards if the render target changes
             if (candidate->renderTargetUniqueID() != batch->renderTargetUniqueID()) {
-                GrBATCH_INFO("\t\tBreaking because of (%s, B%u) Rendertarget\n",
-                    candidate->name(), candidate->uniqueID());
+                GrOP_INFO("\t\tBreaking because of (%s, B%u) Rendertarget\n",
+                          candidate->name(), candidate->uniqueID());
                 break;
             }
             if (candidate->combineIfPossible(batch, *this->caps())) {
-                GrBATCH_INFO("\t\tCombining with (%s, B%u)\n", candidate->name(),
-                    candidate->uniqueID());
+                GrOP_INFO("\t\tCombining with (%s, B%u)\n", candidate->name(),
+                          candidate->uniqueID());
                 GR_AUDIT_TRAIL_BATCHING_RESULT_COMBINED(fAuditTrail, candidate, batch);
                 join(&fRecordedBatches.fromBack(i).fClippedBounds,
                      fRecordedBatches.fromBack(i).fClippedBounds, clippedBounds);
@@ -508,18 +508,18 @@ GrBatch* GrRenderTargetOpList::recordBatch(GrBatch* batch, const SkRect& clipped
             // Stop going backwards if we would cause a painter's order violation.
             const SkRect& candidateBounds = fRecordedBatches.fromBack(i).fClippedBounds;
             if (!can_reorder(candidateBounds, clippedBounds)) {
-                GrBATCH_INFO("\t\tIntersects with (%s, B%u)\n", candidate->name(),
-                    candidate->uniqueID());
+                GrOP_INFO("\t\tIntersects with (%s, B%u)\n", candidate->name(),
+                          candidate->uniqueID());
                 break;
             }
             ++i;
             if (i == maxCandidates) {
-                GrBATCH_INFO("\t\tReached max lookback or beginning of batch array %d\n", i);
+                GrOP_INFO("\t\tReached max lookback or beginning of batch array %d\n", i);
                 break;
             }
         }
     } else {
-        GrBATCH_INFO("\t\tFirstBatch\n");
+        GrOP_INFO("\t\tFirstBatch\n");
     }
     GR_AUDIT_TRAIL_BATCHING_RESULT_NEW(fAuditTrail, batch);
     fRecordedBatches.emplace_back(RecordedBatch{sk_ref_sp(batch), clippedBounds});
@@ -532,16 +532,16 @@ void GrRenderTargetOpList::forwardCombine() {
         return;
     }
     for (int i = 0; i < fRecordedBatches.count() - 2; ++i) {
-        GrBatch* batch = fRecordedBatches[i].fBatch.get();
+        GrOp* batch = fRecordedBatches[i].fBatch.get();
         const SkRect& batchBounds = fRecordedBatches[i].fClippedBounds;
         int maxCandidateIdx = SkTMin(i + fMaxBatchLookahead, fRecordedBatches.count() - 1);
         int j = i + 1;
         while (true) {
-            GrBatch* candidate = fRecordedBatches[j].fBatch.get();
+            GrOp* candidate = fRecordedBatches[j].fBatch.get();
             // We cannot continue to search if the render target changes
             if (candidate->renderTargetUniqueID() != batch->renderTargetUniqueID()) {
-                GrBATCH_INFO("\t\tBreaking because of (%s, B%u) Rendertarget\n",
-                             candidate->name(), candidate->uniqueID());
+                GrOP_INFO("\t\tBreaking because of (%s, B%u) Rendertarget\n",
+                          candidate->name(), candidate->uniqueID());
                 break;
             }
             if (j == i +1) {
@@ -549,8 +549,8 @@ void GrRenderTargetOpList::forwardCombine() {
                 // via backwards combining in recordBatch.
                 SkASSERT(!batch->combineIfPossible(candidate, *this->caps()));
             } else if (batch->combineIfPossible(candidate, *this->caps())) {
-                GrBATCH_INFO("\t\tCombining with (%s, B%u)\n", candidate->name(),
-                             candidate->uniqueID());
+                GrOP_INFO("\t\tCombining with (%s, B%u)\n", candidate->name(),
+                          candidate->uniqueID());
                 GR_AUDIT_TRAIL_BATCHING_RESULT_COMBINED(fAuditTrail, batch, candidate);
                 fRecordedBatches[j].fBatch = std::move(fRecordedBatches[i].fBatch);
                 join(&fRecordedBatches[j].fClippedBounds, fRecordedBatches[j].fClippedBounds,
@@ -560,13 +560,13 @@ void GrRenderTargetOpList::forwardCombine() {
             // Stop going traversing if we would cause a painter's order violation.
             const SkRect& candidateBounds = fRecordedBatches[j].fClippedBounds;
             if (!can_reorder(candidateBounds, batchBounds)) {
-                GrBATCH_INFO("\t\tIntersects with (%s, B%u)\n", candidate->name(),
-                             candidate->uniqueID());
+                GrOP_INFO("\t\tIntersects with (%s, B%u)\n", candidate->name(),
+                          candidate->uniqueID());
                 break;
             }
             ++j;
             if (j > maxCandidateIdx) {
-                GrBATCH_INFO("\t\tReached max lookahead or end of batch array %d\n", i);
+                GrOP_INFO("\t\tReached max lookahead or end of batch array %d\n", i);
                 break;
             }
         }
@@ -578,7 +578,7 @@ void GrRenderTargetOpList::forwardCombine() {
 void GrRenderTargetOpList::clearStencilClip(const GrFixedClip& clip,
                                             bool insideStencilMask,
                                             GrRenderTarget* rt) {
-    GrBatch* batch = new GrClearStencilClipBatch(clip, insideStencilMask, rt);
+    GrOp* batch = new GrClearStencilClipBatch(clip, insideStencilMask, rt);
     this->recordBatch(batch, batch->bounds());
     batch->unref();
 }

@@ -8,16 +8,16 @@
 #ifndef GrClearBatch_DEFINED
 #define GrClearBatch_DEFINED
 
-#include "GrBatch.h"
 #include "GrBatchFlushState.h"
 #include "GrFixedClip.h"
 #include "GrGpu.h"
 #include "GrGpuCommandBuffer.h"
+#include "GrOp.h"
 #include "GrRenderTarget.h"
 
-class GrClearBatch final : public GrBatch {
+class GrClearBatch final : public GrOp {
 public:
-    DEFINE_BATCH_CLASS_ID
+    DEFINE_OP_CLASS_ID
 
     static sk_sp<GrClearBatch> Make(const GrFixedClip& clip, GrColor color, GrRenderTarget* rt) {
         sk_sp<GrClearBatch> batch(new GrClearBatch(clip, color, rt));
@@ -68,7 +68,7 @@ private:
         fRenderTarget.reset(rt);
     }
 
-    bool onCombineIfPossible(GrBatch* t, const GrCaps& caps) override {
+    bool onCombineIfPossible(GrOp* t, const GrCaps& caps) override {
         // This could be much more complicated. Currently we look at cases where the new clear
         // contains the old clear, or when the new clear is a subset of the old clear and is the
         // same color.
@@ -105,7 +105,7 @@ private:
     GrColor                                                 fColor;
     GrPendingIOResource<GrRenderTarget, kWrite_GrIOType>    fRenderTarget;
 
-    typedef GrBatch INHERITED;
+    typedef GrOp INHERITED;
 };
 
 #endif

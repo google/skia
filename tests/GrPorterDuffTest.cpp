@@ -1092,7 +1092,7 @@ static void test_color_opaque_no_coverage(skiatest::Reporter* reporter, const Gr
 static void test_lcd_coverage_fallback_case(skiatest::Reporter* reporter, const GrCaps& caps) {
     class TestLCDCoverageBatch: public GrVertexBatch {
     public:
-        DEFINE_BATCH_CLASS_ID
+        DEFINE_OP_CLASS_ID
 
         TestLCDCoverageBatch() : INHERITED(ClassID()) {}
 
@@ -1106,7 +1106,7 @@ static void test_lcd_coverage_fallback_case(skiatest::Reporter* reporter, const 
 
         const char* name() const override { return "Test LCD Text Batch"; }
         void initBatchTracker(const GrXPOverridesForBatch&) override {}
-        bool onCombineIfPossible(GrBatch*, const GrCaps&) override  { return false; }
+        bool onCombineIfPossible(GrOp*, const GrCaps&) override  { return false; }
         void onPrepareDraws(Target*) const override {}
 
         typedef GrVertexBatch INHERITED;
