@@ -24,7 +24,8 @@ public:
 protected:
     void onSetAttribute(SkSVGAttribute, const SkSVGValue&) override;
 
-    void onDraw(SkCanvas*, const SkSVGLengthContext&, const SkPaint&) const override;
+    void onDraw(SkCanvas*, const SkSVGLengthContext&, const SkPaint&,
+                SkPath::FillType) const override;
 
 private:
     SkSVGEllipse();

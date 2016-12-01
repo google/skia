@@ -65,6 +65,8 @@ public:
     const SkSVGLengthContext& lengthContext() const { return *fLengthContext; }
     SkSVGLengthContext* writableLengthContext() { return fLengthContext.writable(); }
 
+    const SkSVGPresentationContext& presentationContext() const { return *fPresentationContext; }
+
     SkCanvas* canvas() const { return fCanvas; }
 
     enum ApplyFlags {

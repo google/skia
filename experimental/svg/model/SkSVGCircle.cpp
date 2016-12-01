@@ -47,7 +47,7 @@ void SkSVGCircle::onSetAttribute(SkSVGAttribute attr, const SkSVGValue& v) {
 }
 
 void SkSVGCircle::onDraw(SkCanvas* canvas, const SkSVGLengthContext& lctx,
-                         const SkPaint& paint) const {
+                         const SkPaint& paint, SkPath::FillType) const {
     const auto cx = lctx.resolve(fCx, SkSVGLengthContext::LengthType::kHorizontal);
     const auto cy = lctx.resolve(fCy, SkSVGLengthContext::LengthType::kVertical);
     const auto  r = lctx.resolve(fR , SkSVGLengthContext::LengthType::kOther);

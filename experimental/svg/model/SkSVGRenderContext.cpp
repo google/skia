@@ -6,6 +6,7 @@
  */
 
 #include "SkCanvas.h"
+#include "SkPath.h"
 #include "SkSVGAttribute.h"
 #include "SkSVGNode.h"
 #include "SkSVGRenderContext.h"
@@ -99,6 +100,18 @@ SkPaint::Join toSkJoin(const SkSVGLineJoin& join) {
     }
 }
 
+SkPath::FillType toSkFillType(const SkSVGFillRule& fillRule) {
+    switch (fillRule.type()) {
+    case SkSVGFillRule::Type::kNonZero:
+        return SkPath::kWinding_FillType;
+    case SkSVGFillRule::Type::kEvenOdd:
+        return SkPath::kEvenOdd_FillType;
+    default:
+        SkASSERT(false);
+        return SkPath::kWinding_FillType;
+    }
+}
+
 void applySvgPaint(const SkSVGRenderContext& ctx, const SkSVGPaint& svgPaint, SkPaint* p) {
     switch (svgPaint.type()) {
     case SkSVGPaint::Type::kColor:
@@ -188,6 +201,13 @@ void commitToPaint<SkSVGAttribute::kStrokeWidth>(const SkSVGPresentationAttribut
     pctx->fStrokePaint.setStrokeWidth(strokeWidth);
 }
 
+template <>
+void commitToPaint<SkSVGAttribute::kFillRule>(const SkSVGPresentationAttributes&,
+                                              const SkSVGRenderContext&,
+                                              SkSVGPresentationContext*) {
+    // Not part of the SkPaint state; applied to the path at render time.
+}
+
 } // anonymous ns
 
 SkSVGPresentationContext::SkSVGPresentationContext()
@@ -258,6 +278,7 @@ void SkSVGRenderContext::applyPresentationAttributes(const SkSVGPresentationAttr
 
     ApplyLazyInheritedAttribute(Fill);
     ApplyLazyInheritedAttribute(FillOpacity);
+    ApplyLazyInheritedAttribute(FillRule);
     ApplyLazyInheritedAttribute(Stroke);
     ApplyLazyInheritedAttribute(StrokeLineCap);
     ApplyLazyInheritedAttribute(StrokeLineJoin);
