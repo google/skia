@@ -10,17 +10,17 @@
 
 #include "GrColor.h"
 
-class GrDrawBatch;
+class GrDrawOp;
 class GrShaderCaps;
 class SkMatrix;
 class SkRRect;
 class SkStrokeRec;
 
-GrDrawBatch* CreateShadowRRectBatch(GrColor,
-                                    const SkMatrix& viewMatrix,
-                                    const SkRRect& rrect,
-                                    const SkScalar blurRadius,
-                                    const SkStrokeRec& stroke,
-                                    const GrShaderCaps* shaderCaps);
+GrDrawOp* CreateShadowRRectBatch(GrColor,
+                                 const SkMatrix& viewMatrix,
+                                 const SkRRect& rrect,
+                                 const SkScalar blurRadius,
+                                 const SkStrokeRec& stroke,
+                                 const GrShaderCaps* shaderCaps);
 
 #endif

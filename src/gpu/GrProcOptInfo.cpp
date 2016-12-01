@@ -9,7 +9,7 @@
 
 #include "GrGeometryProcessor.h"
 
-#include "batches/GrDrawBatch.h"
+#include "batches/GrDrawOp.h"
 
 void GrProcOptInfo::calcWithInitialValues(const GrFragmentProcessor * const processors[],
                                           int cnt,
