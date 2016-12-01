@@ -16,6 +16,40 @@
       "revId": "58767dbfeebb45a6ac77fd7b643eb51cf20ddee9",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "2d6e6f0e_d6de19c8",
+        "filename": "src/opts/SkRasterPipeline_opts.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 588,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2016-12-01T20:37:09Z",
+      "side": 1,
+      "message": "Is this important enough to not just use a 3x4 matrix with mostly zeros?",
+      "revId": "58767dbfeebb45a6ac77fd7b643eb51cf20ddee9",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "2d6e6f0e_963f811a",
+        "filename": "src/opts/SkRasterPipeline_opts.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 593,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2016-12-01T20:37:09Z",
+      "side": 1,
+      "message": "Or... we could make this clear without a comment by writing it to look like the other matrix_NxM stages:\n\nauto R \u003d m[0]*r,\n     G \u003d m[1]*r,\n     B \u003d m[2]*r;\nr \u003d R;\ng \u003d G;\nb \u003d B;",
+      "revId": "58767dbfeebb45a6ac77fd7b643eb51cf20ddee9",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
