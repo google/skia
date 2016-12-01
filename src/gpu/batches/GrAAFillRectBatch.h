@@ -10,32 +10,32 @@
 
 #include "GrColor.h"
 
-class GrDrawBatch;
+class GrDrawOp;
 class SkMatrix;
 class GrOp;
 struct SkRect;
 
 namespace GrAAFillRectBatch {
-GrDrawBatch* Create(GrColor color,
-                    const SkMatrix& viewMatrix,
-                    const SkRect& rect,
-                    const SkRect& devRect);
+GrDrawOp* Create(GrColor color,
+                 const SkMatrix& viewMatrix,
+                 const SkRect& rect,
+                 const SkRect& devRect);
 
-GrDrawBatch* Create(GrColor color,
-                    const SkMatrix& viewMatrix,
-                    const SkMatrix& localMatrix,
-                    const SkRect& rect);
+GrDrawOp* Create(GrColor color,
+                 const SkMatrix& viewMatrix,
+                 const SkMatrix& localMatrix,
+                 const SkRect& rect);
 
-GrDrawBatch* Create(GrColor color,
-                    const SkMatrix& viewMatrix,
-                    const SkMatrix& localMatrix,
-                    const SkRect& rect,
-                    const SkRect& devRect);
+GrDrawOp* Create(GrColor color,
+                 const SkMatrix& viewMatrix,
+                 const SkMatrix& localMatrix,
+                 const SkRect& rect,
+                 const SkRect& devRect);
 
-GrDrawBatch* CreateWithLocalRect(GrColor color,
-                                 const SkMatrix& viewMatrix,
-                                 const SkRect& rect,
-                                 const SkRect& localRect);
+GrDrawOp* CreateWithLocalRect(GrColor color,
+                              const SkMatrix& viewMatrix,
+                              const SkRect& rect,
+                              const SkRect& localRect);
 };
 
 #endif

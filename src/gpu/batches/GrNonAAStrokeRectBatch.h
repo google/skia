@@ -12,18 +12,18 @@
 
 #include "SkTypes.h"
 
-class GrDrawBatch;
+class GrDrawOp;
 struct SkRect;
 class SkStrokeRec;
 class SkMatrix;
 
 namespace GrNonAAStrokeRectBatch {
 
-GrDrawBatch* Create(GrColor color,
-                    const SkMatrix& viewMatrix,
-                    const SkRect& rect,
-                    const SkStrokeRec&,
-                    bool snapToPixelCenters);
+GrDrawOp* Create(GrColor color,
+                 const SkMatrix& viewMatrix,
+                 const SkRect& rect,
+                 const SkStrokeRec&,
+                 bool snapToPixelCenters);
 
 }
 

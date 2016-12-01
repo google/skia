@@ -192,11 +192,11 @@ private:
 
 namespace GrNonAAFillRectBatch {
 
-GrDrawBatch* Create(GrColor color,
-                    const SkMatrix& viewMatrix,
-                    const SkRect& rect,
-                    const SkRect* localRect,
-                    const SkMatrix* localMatrix) {
+GrDrawOp* Create(GrColor color,
+                 const SkMatrix& viewMatrix,
+                 const SkRect& rect,
+                 const SkRect* localRect,
+                 const SkMatrix* localMatrix) {
     return new NonAAFillRectBatch(color, viewMatrix, rect, localRect, localMatrix);
 }
 

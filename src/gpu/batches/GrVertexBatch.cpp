@@ -11,7 +11,7 @@
 
 GrVertexBatch::GrVertexBatch(uint32_t classID)
     : INHERITED(classID)
-    , fBaseDrawToken(GrBatchDrawToken::AlreadyFlushedToken()) {
+    , fBaseDrawToken(GrDrawOpUploadToken::AlreadyFlushedToken()) {
 }
 
 void GrVertexBatch::onPrepare(GrBatchFlushState* state) {
@@ -70,7 +70,7 @@ void GrVertexBatch::onDraw(GrBatchFlushState* state, const SkRect& bounds) {
     SkASSERT(fQueuedDraws.empty() || fBaseDrawToken == state->nextTokenToFlush());
 
     for (int currDrawIdx = 0; currDrawIdx < fQueuedDraws.count(); ++currDrawIdx) {
-        GrBatchDrawToken drawToken = state->nextTokenToFlush();
+        GrDrawOpUploadToken drawToken = state->nextTokenToFlush();
         while (currUploadIdx < fInlineUploads.count() &&
                fInlineUploads[currUploadIdx].fUploadBeforeToken == drawToken) {
             state->commandBuffer()->inlineUpload(state, fInlineUploads[currUploadIdx++].fUpload);
@@ -104,7 +104,7 @@ void GrVertexBatch::Target::draw(const GrGeometryProcessor* gp, const GrMesh& me
         }
     }
     GrVertexBatch::QueuedDraw& draw = this->vertexBatch()->fQueuedDraws.push_back();
-    GrBatchDrawToken token = this->state()->issueDrawToken();
+    GrDrawOpUploadToken token = this->state()->issueDrawToken();
     draw.fGeometryProcessor.reset(gp);
     draw.fMeshCnt = 1;
     if (batch->fQueuedDraws.count() == 1) {

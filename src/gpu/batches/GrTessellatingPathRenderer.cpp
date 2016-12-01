@@ -164,11 +164,11 @@ class TessellatingPathBatch : public GrVertexBatch {
 public:
     DEFINE_OP_CLASS_ID
 
-    static GrDrawBatch* Create(const GrColor& color,
-                               const GrShape& shape,
-                               const SkMatrix& viewMatrix,
-                               SkIRect devClipBounds,
-                               bool antiAlias) {
+    static GrDrawOp* Create(const GrColor& color,
+                            const GrShape& shape,
+                            const SkMatrix& viewMatrix,
+                            SkIRect devClipBounds,
+                            bool antiAlias) {
         return new TessellatingPathBatch(color, shape, viewMatrix, devClipBounds, antiAlias);
     }
 
@@ -364,11 +364,11 @@ bool GrTessellatingPathRenderer::onDrawPath(const DrawPathArgs& args) {
     args.fClip->getConservativeBounds(args.fRenderTargetContext->worstCaseWidth(),
                                       args.fRenderTargetContext->worstCaseHeight(),
                                       &clipBoundsI);
-    sk_sp<GrDrawBatch> batch(TessellatingPathBatch::Create(args.fPaint->getColor(),
-                                                           *args.fShape,
-                                                           *args.fViewMatrix,
-                                                           clipBoundsI,
-                                                           args.fAntiAlias));
+    sk_sp<GrDrawOp> batch(TessellatingPathBatch::Create(args.fPaint->getColor(),
+                                                        *args.fShape,
+                                                        *args.fViewMatrix,
+                                                        clipBoundsI,
+                                                        args.fAntiAlias));
 
     GrPipelineBuilder pipelineBuilder(*args.fPaint,
                                       args.fRenderTargetContext->mustUseHWAA(*args.fPaint));
