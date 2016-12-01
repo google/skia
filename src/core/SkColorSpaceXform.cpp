@@ -15,7 +15,14 @@
 #include "SkColorSpaceXformPriv.h"
 #include "SkHalf.h"
 #include "SkOpts.h"
+#include "SkRasterPipeline.h"
 #include "SkSRGB.h"
+
+#if defined(SK_DEBUG) && defined(SK_BUILD_FOR_UNIX)
+static constexpr bool kUseRasterPipeline = true;
+#else
+static constexpr bool kUseRasterPipeline = false;
+#endif
 
 static constexpr float sk_linear_from_2dot2[256] = {
         0.000000000000000000f, 0.000005077051900662f, 0.000023328004666099f, 0.000056921765712193f,
@@ -348,6 +355,27 @@ std::unique_ptr<SkColorSpaceXform> SkColorSpaceXform::New(SkColorSpace* srcSpace
         } else {
             srcToDst.setConcat(*dstSpaceXYZ->fromXYZD50(), *srcSpaceXYZ->toXYZD50());
         }
+    }
+
+    if (kUseRasterPipeline) {
+        SrcGamma srcGamma = srcSpaceXYZ->gammaIsLinear() ? kLinear_SrcGamma : kTable_SrcGamma;
+        DstGamma dstGamma;
+        switch (dstSpaceXYZ->gammaNamed()) {
+            case kSRGB_SkGammaNamed:
+                dstGamma = kSRGB_DstGamma;
+                break;
+            case k2Dot2Curve_SkGammaNamed:
+                dstGamma = k2Dot2_DstGamma;
+                break;
+            case kLinear_SkGammaNamed:
+                dstGamma = kLinear_DstGamma;
+                break;
+            default:
+                dstGamma = kTable_DstGamma;
+                break;
+        }
+        return std::unique_ptr<SkColorSpaceXform>(new SkColorSpaceXform_Pipeline(
+                srcSpaceXYZ, srcToDst, dstSpaceXYZ, csm, srcGamma, dstGamma));
     }
 
     switch (csm) {
@@ -1268,8 +1296,172 @@ bool SkColorSpaceXform::apply(ColorFormat dstColorFormat, void* dst, ColorFormat
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
+SkColorSpaceXform_Pipeline::SkColorSpaceXform_Pipeline(SkColorSpace_XYZ* srcSpace,
+                                                       const SkMatrix44& srcToDst,
+                                                       SkColorSpace_XYZ* dstSpace,
+                                                       ColorSpaceMatch csm,
+                                                       SrcGamma srcGamma,
+                                                       DstGamma dstGamma)
+    : fCSM(csm)
+    , fSrcGamma(srcGamma)
+    , fDstGamma(dstGamma)
+{
+    fSrcToDst[ 0] = srcToDst.get(0, 0);
+    fSrcToDst[ 1] = srcToDst.get(1, 0);
+    fSrcToDst[ 2] = srcToDst.get(2, 0);
+    fSrcToDst[ 3] = srcToDst.get(0, 1);
+    fSrcToDst[ 4] = srcToDst.get(1, 1);
+    fSrcToDst[ 5] = srcToDst.get(2, 1);
+    fSrcToDst[ 6] = srcToDst.get(0, 2);
+    fSrcToDst[ 7] = srcToDst.get(1, 2);
+    fSrcToDst[ 8] = srcToDst.get(2, 2);
+    fSrcToDst[ 9] = srcToDst.get(0, 3);
+    fSrcToDst[10] = srcToDst.get(1, 3);
+    fSrcToDst[11] = srcToDst.get(2, 3);
+
+    const int numSrcTables = num_tables(srcSpace);
+    const size_t srcEntries = numSrcTables * 256;
+    const bool srcGammasAreMatching = (1 >= numSrcTables);
+    fSrcStorage.reset(srcEntries);
+    build_gamma_tables(fSrcGammaTables, fSrcStorage.get(), 256, srcSpace, kToLinear,
+                       srcGammasAreMatching);
+
+    const int numDstTables = num_tables(dstSpace);
+    dstSpace->toDstGammaTables(fDstGammaTables, &fDstStorage, numDstTables);
+}
+
+bool SkColorSpaceXform_Pipeline::onApply(ColorFormat dstColorFormat, void* dst,
+                                         ColorFormat srcColorFormat, const void* src, int len,
+                                         SkAlphaType alphaType) const {
+    if (kFull_ColorSpaceMatch == fCSM) {
+        if (kPremul_SkAlphaType != alphaType) {
+            if ((kRGBA_8888_ColorFormat == dstColorFormat &&
+                 kRGBA_8888_ColorFormat == srcColorFormat) ||
+                (kBGRA_8888_ColorFormat == dstColorFormat &&
+                 kBGRA_8888_ColorFormat == srcColorFormat))
+            {
+                memcpy(dst, src, len * sizeof(uint32_t));
+                return true;
+            }
+
+            if ((kRGBA_8888_ColorFormat == dstColorFormat &&
+                 kBGRA_8888_ColorFormat == srcColorFormat) ||
+                (kBGRA_8888_ColorFormat == dstColorFormat &&
+                 kRGBA_8888_ColorFormat == srcColorFormat))
+            {
+                SkOpts::RGBA_to_BGRA((uint32_t*) dst, src, len);
+                return true;
+            }
+        }
+    }
+
+    if (kRGBA_F16_ColorFormat == srcColorFormat || kRGBA_F32_ColorFormat == srcColorFormat) {
+        return false;
+    }
+
+    SkRasterPipeline pipeline;
+
+    LoadTablesContext loadTables;
+    if (kLinear_SrcGamma == fSrcGamma) {
+        pipeline.append(SkRasterPipeline::load_8888, &src);
+        if (kBGRA_8888_ColorFormat == srcColorFormat) {
+            pipeline.append(SkRasterPipeline::swap_rb);
+        }
+    } else {
+        loadTables.fSrc = (const uint32_t*) src;
+        loadTables.fG = fSrcGammaTables[1];
+        if (kRGBA_8888_ColorFormat == srcColorFormat) {
+            loadTables.fR = fSrcGammaTables[0];
+            loadTables.fB = fSrcGammaTables[2];
+            pipeline.append(SkRasterPipeline::load_tables, &loadTables);
+        } else {
+            loadTables.fR = fSrcGammaTables[2];
+            loadTables.fB = fSrcGammaTables[0];
+            pipeline.append(SkRasterPipeline::load_tables, &loadTables);
+            pipeline.append(SkRasterPipeline::swap_rb);
+        }
+    }
+
+    if (kNone_ColorSpaceMatch == fCSM) {
+        pipeline.append(SkRasterPipeline::matrix_3x4, fSrcToDst);
+    }
+
+    if (kRGBA_8888_ColorFormat == dstColorFormat || kBGRA_8888_ColorFormat == dstColorFormat) {
+        pipeline.append(SkRasterPipeline::clamp_0);
+        pipeline.append(SkRasterPipeline::clamp_1);
+    }
+
+    if (kPremul_SkAlphaType == alphaType) {
+        pipeline.append(SkRasterPipeline::premul);
+    }
+
+    StoreTablesContext storeTables;
+    switch (fDstGamma) {
+        case kSRGB_DstGamma:
+            pipeline.append(SkRasterPipeline::to_srgb);
+            break;
+        case k2Dot2_DstGamma:
+            pipeline.append(SkRasterPipeline::to_2dot2);
+            break;
+        default:
+            break;
+    }
+
+    switch (dstColorFormat) {
+        case kRGBA_8888_ColorFormat:
+            if (kTable_DstGamma == fDstGamma) {
+                storeTables.fDst = (uint32_t*) dst;
+                storeTables.fR = fDstGammaTables[0];
+                storeTables.fG = fDstGammaTables[1];
+                storeTables.fB = fDstGammaTables[2];
+                storeTables.fCount = SkColorSpaceXform_Base::kDstGammaTableSize;
+                pipeline.append(SkRasterPipeline::store_tables, &storeTables);
+            } else {
+                pipeline.append(SkRasterPipeline::store_8888, &dst);
+            }
+            break;
+        case kBGRA_8888_ColorFormat:
+            if (kTable_DstGamma == fDstGamma) {
+                storeTables.fDst = (uint32_t*) dst;
+                storeTables.fR = fDstGammaTables[2];
+                storeTables.fG = fDstGammaTables[1];
+                storeTables.fB = fDstGammaTables[0];
+                storeTables.fCount = SkColorSpaceXform_Base::kDstGammaTableSize;
+                pipeline.append(SkRasterPipeline::swap_rb);
+                pipeline.append(SkRasterPipeline::store_tables, &storeTables);
+            } else {
+                pipeline.append(SkRasterPipeline::swap_rb);
+                pipeline.append(SkRasterPipeline::store_8888, &dst);
+            }
+            break;
+        case kRGBA_F16_ColorFormat:
+            if (kLinear_DstGamma != fDstGamma) {
+                return false;
+            }
+            pipeline.append(SkRasterPipeline::store_f16, &dst);
+            break;
+        case kRGBA_F32_ColorFormat:
+            if (kLinear_DstGamma != fDstGamma) {
+                return false;
+            }
+            pipeline.append(SkRasterPipeline::store_f32, &dst);
+            break;
+    }
+
+    pipeline.run(0, 0, len);
+    return true;
+}
+
+///////////////////////////////////////////////////////////////////////////////////////////////////
+
 std::unique_ptr<SkColorSpaceXform> SlowIdentityXform(SkColorSpace_XYZ* space) {
+    if (kUseRasterPipeline) {
+        return std::unique_ptr<SkColorSpaceXform>(new SkColorSpaceXform_Pipeline(
+                space, SkMatrix::I(), space, kNone_ColorSpaceMatch, kTable_SrcGamma,
+                kTable_DstGamma));
+    } else {
         return std::unique_ptr<SkColorSpaceXform>(new SkColorSpaceXform_XYZ
                 <kTable_SrcGamma, kTable_DstGamma, kNone_ColorSpaceMatch>
                 (space, SkMatrix::I(), space));
+    }
 }
