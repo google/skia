@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "2d6e6f0e_d985b729",
+        "filename": "src/core/SkColorSpaceXform.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 1381,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2016-12-01T00:28:16Z",
+      "side": 1,
+      "message": "Yeah this seems a lot clearer to me.",
+      "parentUuid": "f01d104e_67d44fd8",
+      "revId": "8d3b4f8d0d89d895d9ab71e1fa08c483c4419a2d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "f01d104e_2ca6bea4",
         "filename": "src/core/SkColorSpaceXform.cpp",
         "patchSetId": 5
@@ -30,6 +48,24 @@
       "writtenOn": "2016-11-30T19:20:40Z",
       "side": 1,
       "message": "Keep an eye on https://skia-review.googlesource.com/c/5353/",
+      "revId": "8d3b4f8d0d89d895d9ab71e1fa08c483c4419a2d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "2d6e6f0e_59dec72a",
+        "filename": "src/core/SkColorSpaceXform.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 1443,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2016-12-01T00:28:16Z",
+      "side": 1,
+      "message": "Now using run()",
+      "parentUuid": "f01d104e_2ca6bea4",
       "revId": "8d3b4f8d0d89d895d9ab71e1fa08c483c4419a2d",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
@@ -53,6 +89,24 @@
     },
     {
       "key": {
+        "uuid": "2d6e6f0e_bcab8951",
+        "filename": "src/opts/SkRasterPipeline_opts.h",
+        "patchSetId": 5
+      },
+      "lineNbr": 181,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2016-12-01T00:28:16Z",
+      "side": 1,
+      "message": "Done, I think.",
+      "parentUuid": "2d6e6f0e_1657fce9",
+      "revId": "8d3b4f8d0d89d895d9ab71e1fa08c483c4419a2d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "f01d104e_6cf276ba",
         "filename": "src/opts/SkRasterPipeline_opts.h",
         "patchSetId": 5
@@ -64,6 +118,24 @@
       "writtenOn": "2016-11-30T19:20:40Z",
       "side": 1,
       "message": "This is probably just personal preference, but it may be clearer / simpler to leave this as a pointer?  Copying it here makes it sort of look like the copy matters.\n\nauto loadCtx \u003d (const LoadTablesContext*)ctx;\nauto ptr \u003d loadCtx-\u003efSrc + x;\netc..",
+      "revId": "8d3b4f8d0d89d895d9ab71e1fa08c483c4419a2d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "2d6e6f0e_99b4dfd5",
+        "filename": "src/opts/SkRasterPipeline_opts.h",
+        "patchSetId": 5
+      },
+      "lineNbr": 537,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2016-12-01T00:28:16Z",
+      "side": 1,
+      "message": "I agree, fixed.",
+      "parentUuid": "f01d104e_6cf276ba",
       "revId": "8d3b4f8d0d89d895d9ab71e1fa08c483c4419a2d",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
@@ -87,6 +159,24 @@
         "endLine": 557,
         "endChar": 62
       },
+      "revId": "8d3b4f8d0d89d895d9ab71e1fa08c483c4419a2d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "2d6e6f0e_39c4ab52",
+        "filename": "src/opts/SkRasterPipeline_opts.h",
+        "patchSetId": 5
+      },
+      "lineNbr": 557,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2016-12-01T00:28:16Z",
+      "side": 1,
+      "message": "Agree, removed.",
+      "parentUuid": "f01d104e_8cb6d2d9",
       "revId": "8d3b4f8d0d89d895d9ab71e1fa08c483c4419a2d",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
