@@ -69,6 +69,24 @@
       "revId": "422ba196948e7c136e5a19e6429627fdaf1b0725",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ede617fe_7f446bb8",
+        "filename": "infra/bots/gen_tasks.go",
+        "patchSetId": 2
+      },
+      "lineNbr": 328,
+      "author": {
+        "id": 5120
+      },
+      "writtenOn": "2016-12-01T23:05:51Z",
+      "side": 1,
+      "message": "GTX660 is working fine now.",
+      "parentUuid": "f01d104e_c2da517a",
+      "revId": "422ba196948e7c136e5a19e6429627fdaf1b0725",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
