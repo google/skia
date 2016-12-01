@@ -23,32 +23,62 @@ static inline float interp_lut(float input, const float* table, int tableSize) {
            table[(int) sk_float_ceil2int(index)] * diff;
 }
 
-// Inverse table lookup.  Ex: what index corresponds to the input value?  This will
-// have strange results when the table is non-increasing.  But any sane gamma
-// function will be increasing.
-static inline float inverse_interp_lut(float input, const float* table, int tableSize) {
-    if (input <= table[0]) {
-        return table[0];
-    } else if (input >= table[tableSize - 1]) {
-        return 1.0f;
+// Expand range from 0-1 to 0-255, then convert.
+static inline uint8_t clamp_normalized_float_to_byte(float v) {
+    // The ordering of the logic is a little strange here in order
+    // to make sure we convert NaNs to 0.
+    v = v * 255.0f;
+    if (v >= 254.5f) {
+        return 255;
+    } else if (v >= 0.5f) {
+        return (uint8_t) (v + 0.5f);
+    } else {
+        return 0;
     }
-
-    for (int i = 1; i < tableSize; i++) {
-        if (table[i] >= input) {
-            // We are guaranteed that input is greater than table[i - 1].
-            float diff = input - table[i - 1];
-            float distance = table[i] - table[i - 1];
-            float index = (i - 1) + diff / distance;
-            return index / (tableSize - 1);
-        }
-    }
-
-    // Should be unreachable, since we'll return before the loop if input is
-    // larger than the last entry.
-    SkASSERT(false);
-    return 0.0f;
 }
 
-#undef AI
+static inline float clamp_0_1(float v) {
+    if (v >= 1.0f) {
+        return 1.0f;
+    } else if (v >= 0.0f) {
+        return v;
+    } else {
+        return 0.0f;
+    }
+}
+
+/**
+ *  Invert table lookup.  Ex: what indices corresponds to the input values?
+ *  This will have strange results when the table is not increasing.
+ *  But any sane gamma function will be increasing.
+ *  @param outTableFloat Destination table for float (0-1) results. Can be nullptr if not wanted.
+ *  @param outTableByte  Destination table for byte (0-255) results. Can be nullptr if not wanted.
+ *  @param outTableSize  Number of elements in |outTableFloat| or |outTableBytes|
+ *  @param inTable       The source table to invert
+ *  @param inTableSize   The number of elements in |inTable|
+ */
+static inline void invert_table_gamma(float* outTableFloat, uint8_t* outTableByte,
+                                      int outTableSize, const float* inTable, int inTableSize) {
+    // should never have a gamma table this small anyway, 0/1 are either not allowed
+    // or imply a non-table gamma such as linear/exponential
+    SkASSERT(inTableSize >= 2);
+    int inIndex = 1;
+    for (int outIndex = 0; outIndex < outTableSize; ++outIndex) {
+        const float input = outIndex / (outTableSize - 1.0f);
+        while (inIndex < inTableSize - 1 && inTable[inIndex] < input) {
+            ++inIndex;
+        }
+        const float diff            = input - inTable[inIndex - 1];
+        const float distance        = inTable[inIndex] - inTable[inIndex - 1];
+        const float normalizedIndex = (inIndex - 1) + diff / distance;
+        const float index           = normalizedIndex / (inTableSize - 1);
+        if (outTableByte) {
+            outTableByte[outIndex] = clamp_normalized_float_to_byte(index);
+        }
+        if (outTableFloat) {
+            outTableFloat[outIndex] = clamp_0_1(index);
+        }
+    }
+}
 
 #endif
