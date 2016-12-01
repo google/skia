@@ -185,21 +185,13 @@ SI void store(size_t tail, const SkNx<N,T>& v, T* dst) {
         return tail ? _mm256_maskload_epi32((const int*)src, mask(tail))
                     : SkNu::Load(src);
     }
-    SI SkNf load(size_t tail, const float* src) {
-        return tail ? _mm256_maskload_ps((const float*)src, mask(tail))
-                    : SkNf::Load(src);
-    }
     SI SkNi gather(size_t tail, const  int32_t* src, const SkNi& offset) {
-        auto m = mask(tail);
-        return _mm256_mask_i32gather_epi32(SkNi(0).fVec, (const int*)src, offset.fVec, m, 4);
+        return _mm256_mask_i32gather_epi32(SkNi(0).fVec,
+                                           (const int*)src, offset.fVec, mask(tail), 4);
     }
     SI SkNu gather(size_t tail, const uint32_t* src, const SkNi& offset) {
-        auto m = mask(tail);
-        return _mm256_mask_i32gather_epi32(SkNi(0).fVec, (const int*)src, offset.fVec, m, 4);
-    }
-    SI SkNf gather(size_t tail, const float* src, const SkNi& offset) {
-        auto m = _mm256_castsi256_ps(mask(tail));
-        return _mm256_mask_i32gather_ps(SkNf(0).fVec, (const float*)src, offset.fVec, m, 4);
+        return _mm256_mask_i32gather_epi32(SkNi(0).fVec,
+                                           (const int*)src, offset.fVec, mask(tail), 4);
     }
 
     static const char* bug = "I don't think MSAN understands maskstore.";
@@ -214,13 +206,6 @@ SI void store(size_t tail, const SkNx<N,T>& v, T* dst) {
     SI void store(size_t tail, const SkNu& v, uint32_t* dst) {
         if (tail) {
             _mm256_maskstore_epi32((int*)dst, mask(tail), v.fVec);
-            return sk_msan_mark_initialized(dst, dst+tail, bug);
-        }
-        v.store(dst);
-    }
-    SI void store(size_t tail, const SkNf& v, float* dst) {
-        if (tail) {
-            _mm256_maskstore_ps((float*)dst, mask(tail), v.fVec);
             return sk_msan_mark_initialized(dst, dst+tail, bug);
         }
         v.store(dst);
@@ -339,22 +324,6 @@ STAGE(to_srgb) {
     r = sk_linear_to_srgb_needs_round(r);
     g = sk_linear_to_srgb_needs_round(g);
     b = sk_linear_to_srgb_needs_round(b);
-}
-
-STAGE(to_2dot2) {
-    auto to_2dot2 = [](const SkNf& x) {
-        // x^(29/64) is a very good approximation of the true value, x^(1/2.2).
-        auto x2  = x.rsqrt(),                            // x^(-1/2)
-             x32 = x2.rsqrt().rsqrt().rsqrt().rsqrt(),   // x^(-1/32)
-             x64 = x32.rsqrt();                          // x^(+1/64)
-
-        // 29 = 32 - 2 - 1
-        return x2.invert() * x32 * x64.invert();
-    };
-
-    r = to_2dot2(r);
-    g = to_2dot2(g);
-    b = to_2dot2(b);
 }
 
 // The default shader produces a constant color (from the SkPaint).
@@ -545,33 +514,6 @@ STAGE(store_8888) {
                 | SkNx_cast<int>(255.0f * g + 0.5f) << 8
                 | SkNx_cast<int>(255.0f * b + 0.5f) << 16
                 | SkNx_cast<int>(255.0f * a + 0.5f) << 24 ), (int*)ptr);
-}
-
-STAGE(load_tables) {
-    auto loadCtx = (const LoadTablesContext*)ctx;
-    auto ptr = loadCtx->fSrc + x;
-
-    SkNu rgba = load(tail, ptr);
-    auto to_int = [](const SkNu& v) { return SkNi::Load(&v); };
-    r = gather(tail, loadCtx->fR, to_int((rgba >>  0) & 0xff));
-    g = gather(tail, loadCtx->fG, to_int((rgba >>  8) & 0xff));
-    b = gather(tail, loadCtx->fB, to_int((rgba >> 16) & 0xff));
-    a = (1/255.0f) * SkNx_cast<float>(to_int(rgba >> 24));
-}
-
-STAGE(store_tables) {
-    auto storeCtx = (const StoreTablesContext*)ctx;
-    auto ptr = storeCtx->fDst + x;
-
-    float scale = storeCtx->fCount - 1;
-    SkNi ri = SkNx_cast<int>(scale * r + 0.5f);
-    SkNi gi = SkNx_cast<int>(scale * g + 0.5f);
-    SkNi bi = SkNx_cast<int>(scale * b + 0.5f);
-
-    store(tail, ( SkNx_cast<int>(gather(tail, storeCtx->fR, ri)) << 0
-                | SkNx_cast<int>(gather(tail, storeCtx->fG, gi)) << 8
-                | SkNx_cast<int>(gather(tail, storeCtx->fB, bi)) << 16
-                | SkNx_cast<int>(255.0f * a + 0.5f)              << 24), (int*)ptr);
 }
 
 SI SkNf inv(const SkNf& x) { return 1.0f - x; }
