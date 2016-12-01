@@ -1,6 +1,10 @@
 {
   'includes': [
-    'skia_repo.isolate',
     'swarm_recipe.isolate',
   ],
+  'variables': {
+    'files': [
+      '../../../.gclient',
+    ],
+  },
 }

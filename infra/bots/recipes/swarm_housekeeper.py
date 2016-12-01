@@ -57,7 +57,7 @@ def RunSteps(api):
          '--githash', api.properties['revision'],
          '--gsutil_path', gsutil_path]
   if api.vars.is_trybot:
-    cmd.extend(['--issue_number', str(api.properties['issue'])])
+    cmd.extend(['--issue_number', str(api.properties['patch_issue'])])
   api.run(
     api.step,
     'generate and upload binary size data',
