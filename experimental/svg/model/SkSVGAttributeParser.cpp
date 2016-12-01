@@ -551,3 +551,26 @@ bool SkSVGAttributeParser::parsePoints(SkSVGPointsType* points) {
 
     return false;
 }
+
+// https://www.w3.org/TR/SVG/painting.html#FillRuleProperty
+bool SkSVGAttributeParser::parseFillRule(SkSVGFillRule* fillRule) {
+    static const struct {
+        SkSVGFillRule::Type fType;
+        const char*         fName;
+    } gFillRuleInfo[] = {
+        { SkSVGFillRule::Type::kNonZero, "nonzero" },
+        { SkSVGFillRule::Type::kEvenOdd, "evenodd" },
+        { SkSVGFillRule::Type::kInherit, "inherit" },
+    };
+
+    bool parsedValue = false;
+    for (size_t i = 0; i < SK_ARRAY_COUNT(gFillRuleInfo); ++i) {
+        if (this->parseExpectedStringToken(gFillRuleInfo[i].fName)) {
+            *fillRule = SkSVGFillRule(gFillRuleInfo[i].fType);
+            parsedValue = true;
+            break;
+        }
+    }
+
+    return parsedValue && this->parseEOSToken();
+}

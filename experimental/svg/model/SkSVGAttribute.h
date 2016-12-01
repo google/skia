@@ -19,6 +19,7 @@ enum class SkSVGAttribute {
     kD,
     kFill,
     kFillOpacity,
+    kFillRule,
     kGradientTransform,
     kHeight,
     kHref,
@@ -56,6 +57,7 @@ struct SkSVGPresentationAttributes {
 
     SkTLazy<SkSVGPaint>      fFill;
     SkTLazy<SkSVGNumberType> fFillOpacity;
+    SkTLazy<SkSVGFillRule>   fFillRule;
 
     SkTLazy<SkSVGPaint>      fStroke;
     SkTLazy<SkSVGLineCap>    fStrokeLineCap;
