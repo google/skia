@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "ede617fe_dc110d78",
+        "filename": "src/core/SkColorSpace_ICC.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 1558,
+      "author": {
+        "id": 5740
+      },
+      "writtenOn": "2016-12-01T20:26:25Z",
+      "side": 1,
+      "message": "Will remove whitespace.",
+      "revId": "58767dbfeebb45a6ac77fd7b643eb51cf20ddee9",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}

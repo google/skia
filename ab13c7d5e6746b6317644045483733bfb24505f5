@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "ede617fe_3c02f126",
+        "filename": "src/core/SkColorSpace_ICC.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 1439,
+      "author": {
+        "id": 5740
+      },
+      "writtenOn": "2016-12-01T20:26:25Z",
+      "side": 0,
+      "message": "I don\u0027t know why this wasn\u0027t removed in the CMYK CL.",
+      "revId": "ab13c7d5e6746b6317644045483733bfb24505f5",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
