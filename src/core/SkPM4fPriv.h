@@ -75,6 +75,29 @@ static inline float exact_srgb_to_linear(float srgb) {
     return linear;
 }
 
+static inline void analyze_3x4_matrix(const float matrix[12],
+                                      bool* can_underflow, bool* can_overflow) {
+    // | 0 3 6  9 |   |r|   |x|
+    // | 1 4 7 10 | x |g| = |y|
+    // | 2 5 8 11 |   |b|   |z|
+    //                |1|
+    // We'll find min/max bounds on each of x,y,z assuming r,g,b are all in [0,1].
+    // If any can be <0, we'll set can_underflow; if any can be >1, can_overflow.
+    bool underflow = false,
+          overflow = false;
+    for (int i = 0; i < 3; i++) {
+        SkScalar min = matrix[i+9],
+                 max = matrix[i+9];
+        (matrix[i+0] < 0 ? min : max) += matrix[i+0];
+        (matrix[i+3] < 0 ? min : max) += matrix[i+3];
+        (matrix[i+6] < 0 ? min : max) += matrix[i+6];
+        underflow = underflow || min < 0;
+        overflow  =  overflow || max > 1;
+    }
+    *can_underflow = underflow;
+    *can_overflow  =  overflow;
+}
+
 
 // N.B. scratch_matrix_3x4 must live at least as long as p.
 static inline bool append_gamut_transform(SkRasterPipeline* p, float scratch_matrix_3x4[12],
@@ -98,10 +121,12 @@ static inline bool append_gamut_transform(SkRasterPipeline* p, float scratch_mat
     *ptr++ = m44.get(0,2); *ptr++ = m44.get(1,2); *ptr++ = m44.get(2,2);
     *ptr++ = m44.get(0,3); *ptr++ = m44.get(1,3); *ptr++ = m44.get(2,3);
 
+    bool needs_clamp_0, needs_clamp_a;
+    analyze_3x4_matrix(scratch_matrix_3x4, &needs_clamp_0, &needs_clamp_a);
+
     p->append(SkRasterPipeline::matrix_3x4, scratch_matrix_3x4);
-    // TODO: detect whether we can skip the clamps?
-    p->append(SkRasterPipeline::clamp_0);
-    p->append(SkRasterPipeline::clamp_a);
+    if (needs_clamp_0) { p->append(SkRasterPipeline::clamp_0); }
+    if (needs_clamp_a) { p->append(SkRasterPipeline::clamp_a); }
     return true;
 }
 
