@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "2d6e6f0e_d11e23d7",
+        "filename": "src/core/SkColorSpaceXform.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 1392,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2016-12-01T21:38:26Z",
+      "side": 1,
+      "message": "Should we move this whole block into the kNone_CSM block?  We never need to clamp unless there is a matrix anyway...",
+      "range": {
+        "startLine": 1386,
+        "startChar": 0,
+        "endLine": 1392,
+        "endChar": 5
+      },
+      "revId": "96b650495cf42fdac153a359e138f2e1c59a1ec1",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
