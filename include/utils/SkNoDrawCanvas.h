@@ -29,4 +29,4 @@ private:
     typedef SkCanvas INHERITED;
 };
 
-#endif // SkNoSaveLayerCanvas_DEFINED
+#endif // SkNoDrawCanvas_DEFINED

@@ -1623,7 +1623,6 @@ private:
     friend class SkRecorder;        // InitFlags
     friend class SkLiteRecorder;        // InitFlags
     friend class SkNoDrawCanvas;        // InitFlags
-    friend class SkNoSaveLayerCanvas;   // InitFlags
     friend class SkNWayCanvas;          // InitFlags
     friend class SkPictureImageFilter;  // SkCanvas(SkBaseDevice*, SkSurfaceProps*, InitFlags)
     friend class SkPictureRecord;   // predrawNotify (why does it need it? <reed>)
