@@ -169,33 +169,16 @@ SkColorSpaceXform_A2B::SkColorSpaceXform_A2B(SkColorSpace_A2B* srcSpace,
         "None", "Named", "Value", "Table", "Param"
     };
 #endif
-    int currentChannels = -1;
-    switch (srcSpace->inputColorFormat()) {
-        case SkColorSpace_Base::InputColorFormat::kRGB:
-            currentChannels = 3;
-            break;
-        case SkColorSpace_Base::InputColorFormat::kCMYK:
-            currentChannels = 4;
-            // CMYK images from JPEGs (the only format that supports it) are actually
-            // inverted CMYK, so we need to invert every channel.
-            // TransferFn is y = -x + 1 for x < 1.f, otherwise 0x + 0, ie y = 1 - x for x in [0,1]
-            this->addTransferFns({1.f, 0.f, 0.f, 0.f, 1.f, -1.f, 1.f}, 4);
-            break;
-        default:
-            SkASSERT(false);
-    }
     // add in all input color space -> PCS xforms
     for (int i = 0; i < srcSpace->count(); ++i) {
         const SkColorSpace_A2B::Element& e = srcSpace->element(i);
-        SkASSERT(e.inputChannels() == currentChannels);
-        currentChannels = e.outputChannels();
         switch (e.type()) {
             case SkColorSpace_A2B::Element::Type::kGammaNamed:
                 if (kLinear_SkGammaNamed != e.gammaNamed()) {
                     SkCSXformPrintf("Gamma stage added: %s\n",
                                     debugGammaNamed[(int)e.gammaNamed()]);
                     SkColorSpaceTransferFn fn = gammanamed_to_parametric(e.gammaNamed());
-                    this->addTransferFns(fn, currentChannels);
+                    this->addTransferFn(fn, kRGB_Channels);
 
                     fElementsPipeline.append(SkRasterPipeline::clamp_0);
                     fElementsPipeline.append(SkRasterPipeline::clamp_1);
@@ -204,23 +187,23 @@ SkColorSpaceXform_A2B::SkColorSpaceXform_A2B(SkColorSpace_A2B* srcSpace,
             case SkColorSpace_A2B::Element::Type::kGammas: {
                 const SkGammas& gammas = e.gammas();
                 SkCSXformPrintf("Gamma stage added:");
-                for (int channel = 0; channel < gammas.channels(); ++channel) {
+                for (int channel = 0; channel < 3; ++channel) {
                     SkCSXformPrintf("  %s", debugGammas[(int)gammas.type(channel)]);
                 }
                 SkCSXformPrintf("\n");
                 bool gammaNeedsRef = false;
-                for (int channel = 0; channel < gammas.channels(); ++channel) {
+                for (int channel = 0; channel < 3; ++channel) {
                     if (SkGammas::Type::kTable_Type == gammas.type(channel)) {
                         SkTableTransferFn table = {
                                 gammas.table(channel),
                                 gammas.data(channel).fTable.fSize,
                         };
 
-                        this->addTableFn(table, channel);
+                        this->addTableFn(table, static_cast<Channels>(channel));
                         gammaNeedsRef = true;
                     } else {
                         SkColorSpaceTransferFn fn = gamma_to_parametric(gammas, channel);
-                        this->addTransferFn(fn, channel);
+                        this->addTransferFn(fn, static_cast<Channels>(channel));
                     }
                 }
                 if (gammaNeedsRef) {
@@ -232,8 +215,8 @@ SkColorSpaceXform_A2B::SkColorSpaceXform_A2B(SkColorSpace_A2B* srcSpace,
                 break;
             }
             case SkColorSpace_A2B::Element::Type::kCLUT:
-                SkCSXformPrintf("CLUT (%d -> %d) stage added\n", e.colorLUT().inputChannels(),
-                                                                 e.colorLUT().outputChannels());
+                SkCSXformPrintf("CLUT stage added [%d][%d][%d]\n", e.colorLUT().fGridPoints[0],
+                                e.colorLUT().fGridPoints[1], e.colorLUT().fGridPoints[2]);
                 fCLUTs.push_back(sk_ref_sp(&e.colorLUT()));
                 fElementsPipeline.append(SkRasterPipeline::color_lookup_table,
                                          fCLUTs.back().get());
@@ -246,8 +229,6 @@ SkColorSpaceXform_A2B::SkColorSpaceXform_A2B(SkColorSpace_A2B* srcSpace,
                 break;
         }
     }
-
-    SkASSERT(3 == currentChannels);
 
     // Lab PCS -> XYZ PCS
     if (SkColorSpace_A2B::PCS::kLAB == srcSpace->pcs()) {
@@ -264,7 +245,7 @@ SkColorSpaceXform_A2B::SkColorSpaceXform_A2B(SkColorSpace_A2B* srcSpace,
         if (!fLinearDstGamma) {
             SkColorSpaceTransferFn fn =
                     invert_parametric(gammanamed_to_parametric(dstSpace->gammaNamed()));
-            this->addTransferFns(fn, 3);
+            this->addTransferFn(fn, kRGB_Channels);
             fElementsPipeline.append(SkRasterPipeline::clamp_0);
             fElementsPipeline.append(SkRasterPipeline::clamp_1);
         }
@@ -280,10 +261,10 @@ SkColorSpaceXform_A2B::SkColorSpaceXform_A2B(SkColorSpace_A2B* srcSpace,
                 };
                 fTableStorage.push_front(std::move(storage));
 
-                this->addTableFn(table, channel);
+                this->addTableFn(table, static_cast<Channels>(channel));
             } else {
                 SkColorSpaceTransferFn fn = invert_parametric(gamma_to_parametric(gammas, channel));
-                this->addTransferFn(fn, channel);
+                this->addTransferFn(fn, static_cast<Channels>(channel));
             }
         }
 
@@ -292,46 +273,44 @@ SkColorSpaceXform_A2B::SkColorSpaceXform_A2B(SkColorSpace_A2B* srcSpace,
     }
 }
 
-void SkColorSpaceXform_A2B::addTransferFns(const SkColorSpaceTransferFn& fn, int channelCount) {
-    for (int i = 0; i < channelCount; ++i) {
-        this->addTransferFn(fn, i);
-    }
-}
-
-void SkColorSpaceXform_A2B::addTransferFn(const SkColorSpaceTransferFn& fn, int channelIndex) {
+void SkColorSpaceXform_A2B::addTransferFn(const SkColorSpaceTransferFn& fn, Channels channels) {
     fTransferFns.push_front(fn);
-    switch (channelIndex) {
-        case 0:
+    switch (channels) {
+        case kRGB_Channels:
             fElementsPipeline.append(SkRasterPipeline::parametric_r, &fTransferFns.front());
-            break;
-        case 1:
             fElementsPipeline.append(SkRasterPipeline::parametric_g, &fTransferFns.front());
-            break;
-        case 2:
             fElementsPipeline.append(SkRasterPipeline::parametric_b, &fTransferFns.front());
             break;
-        case 3:
-            fElementsPipeline.append(SkRasterPipeline::parametric_a, &fTransferFns.front());
+        case kR_Channels:
+            fElementsPipeline.append(SkRasterPipeline::parametric_r, &fTransferFns.front());
+            break;
+        case kG_Channels:
+            fElementsPipeline.append(SkRasterPipeline::parametric_g, &fTransferFns.front());
+            break;
+        case kB_Channels:
+            fElementsPipeline.append(SkRasterPipeline::parametric_b, &fTransferFns.front());
             break;
         default:
             SkASSERT(false);
     }
 }
 
-void SkColorSpaceXform_A2B::addTableFn(const SkTableTransferFn& fn, int channelIndex) {
+void SkColorSpaceXform_A2B::addTableFn(const SkTableTransferFn& fn, Channels channels) {
     fTableTransferFns.push_front(fn);
-    switch (channelIndex) {
-        case 0:
+    switch (channels) {
+        case kRGB_Channels:
             fElementsPipeline.append(SkRasterPipeline::table_r, &fTableTransferFns.front());
-            break;
-        case 1:
             fElementsPipeline.append(SkRasterPipeline::table_g, &fTableTransferFns.front());
-            break;
-        case 2:
             fElementsPipeline.append(SkRasterPipeline::table_b, &fTableTransferFns.front());
             break;
-        case 3:
-            fElementsPipeline.append(SkRasterPipeline::table_a, &fTableTransferFns.front());
+        case kR_Channels:
+            fElementsPipeline.append(SkRasterPipeline::table_r, &fTableTransferFns.front());
+            break;
+        case kG_Channels:
+            fElementsPipeline.append(SkRasterPipeline::table_g, &fTableTransferFns.front());
+            break;
+        case kB_Channels:
+            fElementsPipeline.append(SkRasterPipeline::table_b, &fTableTransferFns.front());
             break;
         default:
             SkASSERT(false);

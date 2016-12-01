@@ -7,10 +7,9 @@
 
 #include "SkColorSpace_A2B.h"
 
-SkColorSpace_A2B::SkColorSpace_A2B(InputColorFormat inputColorFormat, std::vector<Element> elements, 
-                                   PCS pcs, sk_sp<SkData> profileData)
+SkColorSpace_A2B::SkColorSpace_A2B(PCS pcs, sk_sp<SkData> profileData,
+                                   std::vector<Element> elements)
     : INHERITED(std::move(profileData))
-    , fInputColorFormat(inputColorFormat)
-    , fElements(std::move(elements))
     , fPCS(pcs)
+    , fElements(std::move(elements))
 {}

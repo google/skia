@@ -32,11 +32,17 @@ public:
 private:
     SkColorSpaceXform_A2B(SkColorSpace_A2B* srcSpace, SkColorSpace_XYZ* dstSpace);
 
-    void addTransferFns(const SkColorSpaceTransferFn& fn, int channelCount);
+    enum Channels {
+        kRGB_Channels = -1,
+        kR_Channels   =  0,
+        kG_Channels   =  1,
+        kB_Channels   =  2
+    };
 
-    void addTransferFn(const SkColorSpaceTransferFn& fn, int channelIndex);
 
-    void addTableFn(const SkTableTransferFn& table, int channelIndex);
+
+    void addTransferFn(const SkColorSpaceTransferFn& fn, Channels channels);
+    void addTableFn(const SkTableTransferFn& table, Channels channels);
 
     void addMatrix(const SkMatrix44& matrix);
 
