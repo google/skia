@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "2d6e6f0e_76cd85c2",
+        "filename": "src/opts/SkRasterPipeline_opts.h",
+        "patchSetId": 5
+      },
+      "lineNbr": 588,
+      "author": {
+        "id": 5740
+      },
+      "writtenOn": "2016-12-01T21:02:34Z",
+      "side": 1,
+      "message": "Oops. Will return whitespace to how it was.",
+      "revId": "ee3be605db5d7db3dc0150386c01cefd307d6df7",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
