@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "f01d104e_eb1f2921",
+        "filename": "src/opts/SkRasterPipeline_opts.h",
+        "patchSetId": 8
+      },
+      "lineNbr": 202,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2016-12-01T00:55:26Z",
+      "side": 1,
+      "message": "SkNf, as I\u0027m sure you\u0027ve figured out.",
+      "range": {
+        "startLine": 202,
+        "startChar": 40,
+        "endLine": 202,
+        "endChar": 44
+      },
+      "revId": "ec1f58e0a347974098e6124c41566049d5497fdc",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
