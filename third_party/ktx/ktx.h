@@ -65,7 +65,13 @@ public:
 
     static bool WriteETC1ToKTX(SkWStream* stream, const uint8_t *etc1Data,
                                uint32_t width, uint32_t height);
-    static bool WritePixmapToKTX(SkWStream* stream, const SkPixmap& bitmap);
+    static bool WritePixmapToKTX(SkWStream* stream, const SkPixmap& pixmap);
+    static bool WriteBitmapToKTX(SkWStream* stream, const SkBitmap& bitmap) {
+        SkAutoLockPixels autoLockPixels(bitmap);
+        SkPixmap pixmap;
+        return bitmap.peekPixels(&pixmap) && SkKTXFile::WritePixmapToKTX(stream, pixmap);
+    }
+
 private:
 
     // The blob holding the file data.
