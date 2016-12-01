@@ -14,6 +14,8 @@
 // The NoSaveLayerCanvas is used to play back SkPictures when the saveLayer
 // functionality isn't required (e.g., during analysis of the draw calls).
 // It also simplifies the clipping calls to only use rectangles.
+//
+// DEPRECATED: use SkNoDrawCanvas instead.
 class SK_API SkNoSaveLayerCanvas : public SkCanvas {
 public:
     SkNoSaveLayerCanvas(SkBaseDevice* device)

@@ -1622,6 +1622,7 @@ private:
     friend class SkSurface_Raster;  // needs getDevice()
     friend class SkRecorder;        // InitFlags
     friend class SkLiteRecorder;        // InitFlags
+    friend class SkNoDrawCanvas;        // InitFlags
     friend class SkNoSaveLayerCanvas;   // InitFlags
     friend class SkNWayCanvas;          // InitFlags
     friend class SkPictureImageFilter;  // SkCanvas(SkBaseDevice*, SkSurfaceProps*, InitFlags)
