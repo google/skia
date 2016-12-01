@@ -645,6 +645,10 @@ static AI void store_srgb(void* dst, const uint32_t* src, Sk4f& dr, Sk4f& dg, Sk
     dg = sk_linear_to_srgb_needs_trunc(dg);
     db = sk_linear_to_srgb_needs_trunc(db);
 
+    dr = sk_clamp_0_255(dr);
+    dg = sk_clamp_0_255(dg);
+    db = sk_clamp_0_255(db);
+
     Sk4i da = Sk4i::Load(src) & 0xFF000000;
 
     Sk4i rgba = (SkNx_cast<int>(dr) << kRShift)
@@ -658,7 +662,7 @@ template <Order kOrder>
 static AI void store_srgb_1(void* dst, const uint32_t* src,
                             Sk4f& rgba, const Sk4f&,
                             const uint8_t* const[3]) {
-    rgba = sk_linear_to_srgb_needs_trunc(rgba);
+    rgba = sk_clamp_0_255(sk_linear_to_srgb_needs_trunc(rgba));
 
     uint32_t tmp;
     SkNx_cast<uint8_t>(SkNx_cast<int32_t>(rgba)).store(&tmp);
@@ -689,6 +693,10 @@ static AI void store_2dot2(void* dst, const uint32_t* src, Sk4f& dr, Sk4f& dg, S
     dg = linear_to_2dot2(dg);
     db = linear_to_2dot2(db);
 
+    dr = sk_clamp_0_255(dr);
+    dg = sk_clamp_0_255(dg);
+    db = sk_clamp_0_255(db);
+
     Sk4i da = Sk4i::Load(src) & 0xFF000000;
 
     Sk4i rgba = (Sk4f_round(dr) << kRShift)
@@ -702,7 +710,7 @@ template <Order kOrder>
 static AI void store_2dot2_1(void* dst, const uint32_t* src,
                              Sk4f& rgba, const Sk4f&,
                              const uint8_t* const[3]) {
-    rgba = linear_to_2dot2(rgba);
+    rgba = sk_clamp_0_255(linear_to_2dot2(rgba));
 
     uint32_t tmp;
     SkNx_cast<uint8_t>(Sk4f_round(rgba)).store(&tmp);
@@ -719,9 +727,9 @@ static AI void store_linear(void* dst, const uint32_t* src, Sk4f& dr, Sk4f& dg, 
                             const uint8_t* const[3]) {
     int kRShift, kGShift = 8, kBShift;
     set_rb_shifts(kOrder, &kRShift, &kBShift);
-    dr = 255.0f * dr;
-    dg = 255.0f * dg;
-    db = 255.0f * db;
+    dr = sk_clamp_0_255(255.0f * dr);
+    dg = sk_clamp_0_255(255.0f * dg);
+    db = sk_clamp_0_255(255.0f * db);
 
     Sk4i da = Sk4i::Load(src) & 0xFF000000;
 
@@ -736,7 +744,7 @@ template <Order kOrder>
 static AI void store_linear_1(void* dst, const uint32_t* src,
                               Sk4f& rgba, const Sk4f&,
                               const uint8_t* const[3]) {
-    rgba = 255.0f * rgba;
+    rgba = sk_clamp_0_255(255.0f * rgba);
 
     uint32_t tmp;
     SkNx_cast<uint8_t>(Sk4f_round(rgba)).store(&tmp);
@@ -803,9 +811,9 @@ static AI void store_generic(void* dst, const uint32_t* src, Sk4f& dr, Sk4f& dg,
                              const uint8_t* const dstTables[3]) {
     int kRShift, kGShift = 8, kBShift;
     set_rb_shifts(kOrder, &kRShift, &kBShift);
-    dr = 1023.0f * dr;
-    dg = 1023.0f * dg;
-    db = 1023.0f * db;
+    dr = Sk4f::Min(Sk4f::Max(1023.0f * dr, 0.0f), 1023.0f);
+    dg = Sk4f::Min(Sk4f::Max(1023.0f * dg, 0.0f), 1023.0f);
+    db = Sk4f::Min(Sk4f::Max(1023.0f * db, 0.0f), 1023.0f);
 
     Sk4i ir = Sk4f_round(dr);
     Sk4i ig = Sk4f_round(dg);
@@ -838,7 +846,7 @@ static AI void store_generic_1(void* dst, const uint32_t* src,
                                const uint8_t* const dstTables[3]) {
     int kRShift, kGShift = 8, kBShift;
     set_rb_shifts(kOrder, &kRShift, &kBShift);
-    rgba = 1023.0f * rgba;
+    rgba = Sk4f::Min(Sk4f::Max(1023.0f * rgba, 0.0f), 1023.0f);
 
     Sk4i indices = Sk4f_round(rgba);
 
@@ -982,9 +990,6 @@ static void color_xform_RGBA(void* dst, const void* vsrc, int len,
             break;
     }
 
-    static constexpr bool dstIs8888 = kF16_Linear_DstFormat != kDst &&
-                                      kF32_Linear_DstFormat != kDst;
-
     const uint32_t* src = (const uint32_t*) vsrc;
     Sk4f rXgXbX, rYgYbY, rZgZbZ, rTgTbT;
     load_matrix(matrix, rXgXbX, rYgYbY, rZgZbZ, rTgTbT);
@@ -1002,12 +1007,6 @@ static void color_xform_RGBA(void* dst, const void* vsrc, int len,
             if (kNone_ColorSpaceMatch == kCSM) {
                 transform_gamut(r, g, b, a, rXgXbX, rYgYbY, rZgZbZ, dr, dg, db, da);
                 translate_gamut(rTgTbT, dr, dg, db);
-
-                if (dstIs8888) {
-                    dr = sk_clamp_0_1(dr);
-                    dg = sk_clamp_0_1(dg);
-                    db = sk_clamp_0_1(db);
-                }
             } else {
                 dr = r;
                 dg = g;
@@ -1030,12 +1029,6 @@ static void color_xform_RGBA(void* dst, const void* vsrc, int len,
         if (kNone_ColorSpaceMatch == kCSM) {
             transform_gamut(r, g, b, a, rXgXbX, rYgYbY, rZgZbZ, dr, dg, db, da);
             translate_gamut(rTgTbT, dr, dg, db);
-
-            if (dstIs8888) {
-                dr = sk_clamp_0_1(dr);
-                dg = sk_clamp_0_1(dg);
-                db = sk_clamp_0_1(db);
-            }
         } else {
             dr = r;
             dg = g;
@@ -1178,23 +1171,26 @@ bool SkColorSpaceXform_XYZ<kSrc, kDst, kCSM>
           int len, SkAlphaType alphaType) const
 {
     if (kFull_ColorSpaceMatch == kCSM) {
-        if (kPremul_SkAlphaType != alphaType) {
-            if ((kRGBA_8888_ColorFormat == dstColorFormat &&
-                 kRGBA_8888_ColorFormat == srcColorFormat) ||
-                (kBGRA_8888_ColorFormat == dstColorFormat &&
-                 kBGRA_8888_ColorFormat == srcColorFormat))
-            {
-                memcpy(dst, src, len * sizeof(uint32_t));
-                return true;
-            }
-            if ((kRGBA_8888_ColorFormat == dstColorFormat &&
-                 kBGRA_8888_ColorFormat == srcColorFormat) ||
-                (kBGRA_8888_ColorFormat == dstColorFormat &&
-                 kRGBA_8888_ColorFormat == srcColorFormat))
-            {
-                SkOpts::RGBA_to_BGRA((uint32_t*) dst, src, len);
-                return true;
-            }
+        switch (alphaType) {
+            case kPremul_SkAlphaType:
+                // We can't skip the xform since we need to perform a premultiply in the
+                // linear space.
+                break;
+            default:
+                switch (dstColorFormat) {
+                    case kRGBA_8888_ColorFormat:
+                        memcpy(dst, src, len * sizeof(uint32_t));
+                        return true;
+                    case kBGRA_8888_ColorFormat:
+                        SkOpts::RGBA_to_BGRA((uint32_t*) dst, src, len);
+                        return true;
+                    case kRGBA_F16_ColorFormat:
+                    case kRGBA_F32_ColorFormat:
+                        // There's still work to do to xform to linear floats.
+                        break;
+                    default:
+                        return false;
+                }
         }
     }
 

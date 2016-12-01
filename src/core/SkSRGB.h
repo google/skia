@@ -29,13 +29,6 @@ static inline V sk_clamp_0_255(const V& x) {
     return V::Min(V::Max(x, 0.0f), 255.0f);
 }
 
-template <typename V>
-static inline V sk_clamp_0_1(const V& x) {
-    // The order of the arguments is important here.  We want to make sure that NaN
-    // clamps to zero.  Note that max(NaN, 0) = 0, while max(0, NaN) = NaN.
-    return V::Min(V::Max(x, 0.0f), 1.0f);
-}
-
 // [0.0f, 1.0f] -> [0.0f, 255.xf], for small x.  Correct after truncation.
 template <typename V>
 static inline V sk_linear_to_srgb_needs_trunc(const V& x) {
