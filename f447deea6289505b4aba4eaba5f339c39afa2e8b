@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "f01d104e_ce643bcb",
+        "filename": "platform_tools/android/bin/adb_pull_if_needed",
+        "patchSetId": 2
+      },
+      "lineNbr": 2,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2016-12-01T15:06:42Z",
+      "side": 0,
+      "message": "You call this script directly?",
+      "parentUuid": "2d6e6f0e_d03c6486",
+      "revId": "f447deea6289505b4aba4eaba5f339c39afa2e8b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "2d6e6f0e_b039e894",
         "filename": "platform_tools/android/bin/android_run_skia",
         "patchSetId": 2
@@ -36,6 +54,24 @@
     },
     {
       "key": {
+        "uuid": "f01d104e_ee71f78a",
+        "filename": "platform_tools/android/bin/android_run_skia",
+        "patchSetId": 2
+      },
+      "lineNbr": 4,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2016-12-01T15:06:42Z",
+      "side": 0,
+      "message": "That\u0027s unacceptable.  You are long overdue to switch to GN.",
+      "parentUuid": "2d6e6f0e_b039e894",
+      "revId": "f447deea6289505b4aba4eaba5f339c39afa2e8b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "f01d104e_cee51b1e",
         "filename": "platform_tools/android/bin/android_setup.sh",
         "patchSetId": 2
@@ -47,6 +83,24 @@
       "writtenOn": "2016-12-01T15:00:25Z",
       "side": 0,
       "message": "with GN do we  still have bot that builds without neon?",
+      "revId": "f447deea6289505b4aba4eaba5f339c39afa2e8b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "f01d104e_ae67ffcc",
+        "filename": "platform_tools/android/bin/android_setup.sh",
+        "patchSetId": 2
+      },
+      "lineNbr": 122,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2016-12-01T15:06:42Z",
+      "side": 0,
+      "message": "No.",
+      "parentUuid": "f01d104e_cee51b1e",
       "revId": "f447deea6289505b4aba4eaba5f339c39afa2e8b",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
