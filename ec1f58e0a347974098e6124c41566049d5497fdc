@@ -40,6 +40,24 @@
       "revId": "ec1f58e0a347974098e6124c41566049d5497fdc",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "f01d104e_4eca0b60",
+        "filename": "src/opts/SkRasterPipeline_opts.h",
+        "patchSetId": 8
+      },
+      "lineNbr": 202,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2016-12-01T16:08:09Z",
+      "side": 1,
+      "message": "Ugh.... we need to pun mask(tail) to __m256 too.  I think that\u0027s _mm256_castsi256_ps().",
+      "parentUuid": "2d6e6f0e_6bc76135",
+      "revId": "ec1f58e0a347974098e6124c41566049d5497fdc",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
