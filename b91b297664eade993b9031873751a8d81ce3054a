@@ -22,6 +22,24 @@
       "revId": "b91b297664eade993b9031873751a8d81ce3054a",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "2d6e6f0e_30e4b8f5",
+        "filename": "src/core/SkColorSpaceXformPriv.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 64,
+      "author": {
+        "id": 5740
+      },
+      "writtenOn": "2016-12-01T15:43:19Z",
+      "side": 1,
+      "message": "At least for the ICC parsing we do, at least for now. I\u0027m not sure how MPET gamma do it. In the XYZTRC/AtoBType gamma tables size 0 \u003d linear, 1 \u003d exponential. For the lut8Type 256 is the min, and for lut16Type 2 is the min.",
+      "parentUuid": "2d6e6f0e_701bd059",
+      "revId": "b91b297664eade993b9031873751a8d81ce3054a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
