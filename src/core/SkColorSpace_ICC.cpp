@@ -1233,8 +1233,12 @@ static bool load_a2b0(std::vector<SkColorSpace_A2B::Element>* elements, const ui
                                (type>>16)&0xFF, (type>>8)&0xFF, type&0xFF);
             return false;
     }
+    SkASSERT(SkColorSpace_A2B::PCS::kLAB == pcs || SkColorSpace_A2B::PCS::kXYZ == pcs);
+    static constexpr int kPCSChannels = 3; // must be PCSLAB or PCSXYZ
+    if (elements->empty()) {
+        return kPCSChannels == icf_channels(inputColorFormat);
+    }
     // now let's verify that the input/output channels of each A2B element actually match up
-    SkASSERT(!elements->empty());
     if (icf_channels(inputColorFormat) != elements->front().inputChannels()) {
         SkColorSpacePrintf("Input channel count does not match first A2B element's input count");
         return false;
@@ -1245,8 +1249,6 @@ static bool load_a2b0(std::vector<SkColorSpace_A2B::Element>* elements, const ui
             return false;
         }
     }
-    SkASSERT(SkColorSpace_A2B::PCS::kLAB == pcs || SkColorSpace_A2B::PCS::kXYZ == pcs);
-    static constexpr int kPCSChannels = 3; // must be PCSLAB or PCSXYZ
     if (kPCSChannels != elements->back().outputChannels()) {
         SkColorSpacePrintf("PCS channel count doesn't match last A2B element's output count");
         return false;
