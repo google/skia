@@ -58,6 +58,24 @@
       "revId": "b91b297664eade993b9031873751a8d81ce3054a",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "2d6e6f0e_20510327",
+        "filename": "src/core/SkColorSpaceXformPriv.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 64,
+      "author": {
+        "id": 5740
+      },
+      "writtenOn": "2016-12-01T20:34:45Z",
+      "side": 1,
+      "message": "I think this is the most centralized place. There\u0027s a bunch of difference places that construct SkGammas inside of SkColorSpace_ICC, since the table specification is totally different for lutntype and AtoBtype gammas.",
+      "parentUuid": "2d6e6f0e_eb8411f6",
+      "revId": "b91b297664eade993b9031873751a8d81ce3054a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
