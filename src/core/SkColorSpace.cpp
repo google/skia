@@ -87,6 +87,7 @@ SkColorSpace_Base::SkColorSpace_Base(sk_sp<SkData> profileData)
     : fProfileData(std::move(profileData))
 {}
 
+#if defined(SK_USE_LEGACY_D50_MATRICES)
 static constexpr float gSRGB_toXYZD50[] {
     0.4358f, 0.3853f, 0.1430f,    // Rx, Gx, Bx
     0.2224f, 0.7170f, 0.0606f,    // Ry, Gy, Gz
@@ -98,6 +99,19 @@ static constexpr float gAdobeRGB_toXYZD50[] {
     0.3111f, 0.6257f, 0.0632f,    // Ry, Gy, By
     0.0195f, 0.0609f, 0.7448f,    // Rz, Gz, Bz
 };
+#else
+static constexpr float gSRGB_toXYZD50[] {
+    0.4360747f, 0.3850649f, 0.1430804f, // Rx, Gx, Bx
+    0.2225045f, 0.7168786f, 0.0606169f, // Ry, Gy, Gz
+    0.0139322f, 0.0971045f, 0.7141733f, // Rz, Gz, Bz
+};
+
+static constexpr float gAdobeRGB_toXYZD50[] {
+    0.6097559f, 0.2052401f, 0.1492240f, // Rx, Gx, Bx
+    0.3111242f, 0.6256560f, 0.0632197f, // Ry, Gy, Gz
+    0.0194811f, 0.0608902f, 0.7448387f, // Rz, Gz, Bz
+};
+#endif
 
 /**
  *  Checks if our toXYZ matrix is a close match to a known color gamut.
