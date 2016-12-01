@@ -15,6 +15,7 @@ gm_sources = [
   "$_gm/all_bitmap_configs.cpp",
   "$_gm/alphagradients.cpp",
   "$_gm/animatedGif.cpp",
+  "$_gm/animatedimageblurs.cpp",
   "$_gm/anisotropic.cpp",
   "$_gm/annotated_text.cpp",
   "$_gm/arcofzorro.cpp",
