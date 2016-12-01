@@ -95,6 +95,23 @@
     },
     {
       "key": {
+        "uuid": "2d6e6f0e_f60eb552",
+        "filename": "src/gpu/batches/GrAtlasTextBatch.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 200,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2016-12-01T20:52:12Z",
+      "side": 1,
+      "message": "It seems that you can\u0027t make it put each of the constructor initializers on its own line. You can make it wrap before the commas using \u0027BreakConstructorInitializersBeforeComma\u0027 and you can make it do one per line *if* it needs to break via ConstructorInitializerAllOnOneLineOrOnePerLine. You just can\u0027t force it to always break when it fits on one line.",
+      "revId": "5f986f0d1e1c9c83299ff19622aa2aa5d0faca15",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "2d6e6f0e_9dc844b5",
         "filename": "src/gpu/gl/GrGLCaps.cpp",
         "patchSetId": 1
