@@ -60,6 +60,24 @@
     },
     {
       "key": {
+        "uuid": "f01d104e_0eb2d32d",
+        "filename": "src/core/SkColorSpace_ICC.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 858,
+      "author": {
+        "id": 5740
+      },
+      "writtenOn": "2016-12-01T22:28:23Z",
+      "side": 1,
+      "message": "I originally had it detecting other stuff. I don\u0027t know if we\u0027ll want to check any common SRGB/etc curves in these profiles.",
+      "parentUuid": "2d6e6f0e_b06288bc",
+      "revId": "9b9dcdd271e5638a10a6008da840fe3b563a6b99",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "2d6e6f0e_505214fa",
         "filename": "src/core/SkColorSpace_ICC.cpp",
         "patchSetId": 1
@@ -100,6 +118,24 @@
         "endLine": 873,
         "endChar": 22
       },
+      "revId": "9b9dcdd271e5638a10a6008da840fe3b563a6b99",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "f01d104e_2e0dcf1e",
+        "filename": "src/core/SkColorSpace_ICC.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 873,
+      "author": {
+        "id": 5740
+      },
+      "writtenOn": "2016-12-01T22:28:23Z",
+      "side": 1,
+      "message": "Was originally detecting the other curves as well until I removed them. I could remove it. There might be a lot of common sRGB curves in the images. I think the linear ones is mostly because lutnType images force two gammas, one for before and after the CLUT, so one of them is pretty much always linear, but the other is only linear sometimes. 95% of our test images have non-linear input gamma, but linear output gamma.\n\nI guess for A2B processed images, sRGB/etc detection isn\u0027t as much of a win compared to in other code since we\u0027d just convert the sRGB to parametric anyway. For linear it is since we just entirely omit the stage.",
+      "parentUuid": "2d6e6f0e_905cac0b",
       "revId": "9b9dcdd271e5638a10a6008da840fe3b563a6b99",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
