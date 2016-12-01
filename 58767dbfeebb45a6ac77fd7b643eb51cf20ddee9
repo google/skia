@@ -36,6 +36,24 @@
     },
     {
       "key": {
+        "uuid": "2d6e6f0e_36966d9d",
+        "filename": "src/opts/SkRasterPipeline_opts.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 588,
+      "author": {
+        "id": 5740
+      },
+      "writtenOn": "2016-12-01T21:02:34Z",
+      "side": 1,
+      "message": "Probably not. I\u0027ll just use a 3x4.",
+      "parentUuid": "2d6e6f0e_d6de19c8",
+      "revId": "58767dbfeebb45a6ac77fd7b643eb51cf20ddee9",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "2d6e6f0e_963f811a",
         "filename": "src/opts/SkRasterPipeline_opts.h",
         "patchSetId": 4
