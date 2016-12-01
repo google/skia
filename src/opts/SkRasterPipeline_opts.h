@@ -584,6 +584,7 @@ STAGE(matrix_2x3) {
     r = R;
     g = G;
 }
+
 STAGE(matrix_3x4) {
     auto m = (const float*)ctx;
 

@@ -14,10 +14,11 @@
 #include "SkColorSpaceXformPriv.h"
 #include "SkMakeUnique.h"
 #include "SkNx.h"
+#include "SkRasterPipeline_opts.h"
 #include "SkSRGB.h"
 #include "SkTypes.h"
 
-#include "SkRasterPipeline_opts.h"
+#include <algorithm>
 
 #define AI SK_ALWAYS_INLINE
 
@@ -184,6 +185,9 @@ SkColorSpaceXform_A2B::SkColorSpaceXform_A2B(SkColorSpace_A2B* srcSpace,
             // TransferFn is y = -x + 1 for x < 1.f, otherwise 0x + 0, ie y = 1 - x for x in [0,1]
             this->addTransferFns({1.f, 0.f, 0.f, 0.f, 1.f, -1.f, 1.f}, 4);
             break;
+        case SkColorSpace_Base::InputColorFormat::kGray:
+            currentChannels = 1;
+            break;
         default:
             SkASSERT(false);
     }
@@ -250,13 +254,38 @@ SkColorSpaceXform_A2B::SkColorSpaceXform_A2B(SkColorSpace_A2B* srcSpace,
         }
     }
 
-    SkASSERT(3 == currentChannels);
+    if (SkColorSpace_Base::InputColorFormat::kGray == srcSpace->inputColorFormat()) {
+        SkASSERT(1 == currentChannels);
+        // Gray color spaces must multiply their channel by the PCS whitepoint
+        // to convert to the PCS
+
+        // in PCSLab the whitepoint is 100, 0, 0, but it's encoded as
+        // Lab_l = 100r
+        // Lab_a = 255g - 128
+        // Lab_b = 255b - 128
+        constexpr float PCSLabWhitePoint[3] = {
+            1.f,         // 100 = Lab_l = 100r         =>   r = 1
+            128/255.f,   //   0 = Lab_a = 255g - 128   =>   g = 128/255
+            128/255.f    //   0 = Lab_b = 255b - 128   =>   b = 128/255
+        };
+        constexpr float PCSXYZWhitePoint[3] = {0.9642f, 1.f, 0.8249f};
+        const float* whitePoint = SkColorSpace_A2B::PCS::kLAB == srcSpace->pcs()
+                                ? PCSLabWhitePoint
+                                : PCSXYZWhitePoint;
+        fMatrices.push_front(std::vector<float>(12, 0.f));
+        std::copy_n(whitePoint, 3, fMatrices.front().begin());
+        fElementsPipeline.append(SkRasterPipeline::matrix_3x4, fMatrices.front().data());
+        currentChannels = 3;
+    }
 
     // Lab PCS -> XYZ PCS
     if (SkColorSpace_A2B::PCS::kLAB == srcSpace->pcs()) {
         SkCSXformPrintf("Lab -> XYZ element added\n");
         fElementsPipeline.append(SkRasterPipeline::lab_to_xyz);
     }
+
+    // we should now be in XYZ PCS
+    SkASSERT(3 == currentChannels);
 
     // and XYZ PCS -> output color space xforms
     if (!dstSpace->fromXYZD50()->isIdentity()) {
