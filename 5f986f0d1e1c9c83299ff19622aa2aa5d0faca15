@@ -77,6 +77,24 @@
     },
     {
       "key": {
+        "uuid": "2d6e6f0e_20058379",
+        "filename": "src/gpu/GrRenderTargetContext.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 1269,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2016-12-01T18:43:44Z",
+      "side": 1,
+      "message": "I think SkDEBUGCODE\u0027s lack of trailing semicolon is what trips it up here. I don\u0027t see any obvious way of fixing this other than adding semicolons or using #ifdef SK_DEBUG instead. But maybe there are knobs i don\u0027t understand that could help.",
+      "parentUuid": "2d6e6f0e_dda0fc88",
+      "revId": "5f986f0d1e1c9c83299ff19622aa2aa5d0faca15",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "2d6e6f0e_9dc844b5",
         "filename": "src/gpu/gl/GrGLCaps.cpp",
         "patchSetId": 1
@@ -88,6 +106,24 @@
       "writtenOn": "2016-12-01T18:30:33Z",
       "side": 1,
       "message": "ick",
+      "revId": "5f986f0d1e1c9c83299ff19622aa2aa5d0faca15",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "2d6e6f0e_202c6307",
+        "filename": "src/gpu/gl/GrGLCaps.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 428,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2016-12-01T18:43:44Z",
+      "side": 1,
+      "message": "So far I don\u0027t see a knob for this. Maybe turning off ReflowComments would do this, but not sure we want to do that. Perhaps such comments could be moved inside the #if.",
+      "parentUuid": "2d6e6f0e_9dc844b5",
       "revId": "5f986f0d1e1c9c83299ff19622aa2aa5d0faca15",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
