@@ -770,16 +770,16 @@
         "Upload-Perf-Win-MSVC-Golo-GPU-GT610-x86_64-Release"
       ]
     },
-    "Perf-Win-MSVC-NUC-GPU-IntelIris6100-x86_64-Debug": {
+    "Perf-Win-MSVC-NUC-GPU-IntelIris6100-x86_64-Debug-ANGLE": {
       "priority": 0.8,
       "tasks": [
-        "Perf-Win-MSVC-NUC-GPU-IntelIris6100-x86_64-Debug"
+        "Perf-Win-MSVC-NUC-GPU-IntelIris6100-x86_64-Debug-ANGLE"
       ]
     },
-    "Perf-Win-MSVC-NUC-GPU-IntelIris6100-x86_64-Release": {
+    "Perf-Win-MSVC-NUC-GPU-IntelIris6100-x86_64-Release-ANGLE": {
       "priority": 0.8,
       "tasks": [
-        "Upload-Perf-Win-MSVC-NUC-GPU-IntelIris6100-x86_64-Release"
+        "Upload-Perf-Win-MSVC-NUC-GPU-IntelIris6100-x86_64-Release-ANGLE"
       ]
     },
     "Perf-Win-MSVC-ShuttleC-GPU-GTX960-x86_64-Debug": {
@@ -1293,16 +1293,16 @@
         "Upload-Test-Win-MSVC-Golo-GPU-GT610-x86_64-Release"
       ]
     },
-    "Test-Win-MSVC-NUC-GPU-IntelIris6100-x86_64-Debug": {
+    "Test-Win-MSVC-NUC-GPU-IntelIris6100-x86_64-Debug-ANGLE": {
       "priority": 0.8,
       "tasks": [
-        "Upload-Test-Win-MSVC-NUC-GPU-IntelIris6100-x86_64-Debug"
+        "Upload-Test-Win-MSVC-NUC-GPU-IntelIris6100-x86_64-Debug-ANGLE"
       ]
     },
-    "Test-Win-MSVC-NUC-GPU-IntelIris6100-x86_64-Release": {
+    "Test-Win-MSVC-NUC-GPU-IntelIris6100-x86_64-Release-ANGLE": {
       "priority": 0.8,
       "tasks": [
-        "Upload-Test-Win-MSVC-NUC-GPU-IntelIris6100-x86_64-Release"
+        "Upload-Test-Win-MSVC-NUC-GPU-IntelIris6100-x86_64-Release-ANGLE"
       ]
     },
     "Test-Win-MSVC-ShuttleC-GPU-GTX960-x86_64-Debug": {
@@ -6374,7 +6374,7 @@
       "isolate": "perf_skia.isolate",
       "priority": 0.8
     },
-    "Perf-Win-MSVC-NUC-GPU-IntelIris6100-x86_64-Debug": {
+    "Perf-Win-MSVC-NUC-GPU-IntelIris6100-x86_64-Debug-ANGLE": {
       "cipd_packages": [
         {
           "name": "skia/bots/skimage",
@@ -6393,7 +6393,7 @@
         }
       ],
       "dependencies": [
-        "Build-Win-MSVC-x86_64-Debug"
+        "Build-Win-MSVC-x86_64-Debug-ANGLE"
       ],
       "dimensions": [
         "gpu:8086:162b",
@@ -6407,7 +6407,7 @@
         "../../..",
         "swarm_perf",
         "repository=<(REPO)",
-        "buildername=Perf-Win-MSVC-NUC-GPU-IntelIris6100-x86_64-Debug",
+        "buildername=Perf-Win-MSVC-NUC-GPU-IntelIris6100-x86_64-Debug-ANGLE",
         "mastername=fake-master",
         "buildnumber=2",
         "slavename=fake-buildslave",
@@ -6422,7 +6422,7 @@
       "isolate": "perf_skia.isolate",
       "priority": 0.8
     },
-    "Perf-Win-MSVC-NUC-GPU-IntelIris6100-x86_64-Release": {
+    "Perf-Win-MSVC-NUC-GPU-IntelIris6100-x86_64-Release-ANGLE": {
       "cipd_packages": [
         {
           "name": "skia/bots/skimage",
@@ -6441,7 +6441,7 @@
         }
       ],
       "dependencies": [
-        "Build-Win-MSVC-x86_64-Release"
+        "Build-Win-MSVC-x86_64-Release-ANGLE"
       ],
       "dimensions": [
         "gpu:8086:162b",
@@ -6455,7 +6455,7 @@
         "../../..",
         "swarm_perf",
         "repository=<(REPO)",
-        "buildername=Perf-Win-MSVC-NUC-GPU-IntelIris6100-x86_64-Release",
+        "buildername=Perf-Win-MSVC-NUC-GPU-IntelIris6100-x86_64-Release-ANGLE",
         "mastername=fake-master",
         "buildnumber=2",
         "slavename=fake-buildslave",
@@ -10561,7 +10561,7 @@
       "isolate": "test_skia.isolate",
       "priority": 0.8
     },
-    "Test-Win-MSVC-NUC-GPU-IntelIris6100-x86_64-Debug": {
+    "Test-Win-MSVC-NUC-GPU-IntelIris6100-x86_64-Debug-ANGLE": {
       "cipd_packages": [
         {
           "name": "skia/bots/skimage",
@@ -10580,7 +10580,7 @@
         }
       ],
       "dependencies": [
-        "Build-Win-MSVC-x86_64-Debug"
+        "Build-Win-MSVC-x86_64-Debug-ANGLE"
       ],
       "dimensions": [
         "gpu:8086:162b",
@@ -10594,7 +10594,7 @@
         "../../..",
         "swarm_test",
         "repository=<(REPO)",
-        "buildername=Test-Win-MSVC-NUC-GPU-IntelIris6100-x86_64-Debug",
+        "buildername=Test-Win-MSVC-NUC-GPU-IntelIris6100-x86_64-Debug-ANGLE",
         "mastername=fake-master",
         "buildnumber=2",
         "slavename=fake-buildslave",
@@ -10609,7 +10609,7 @@
       "isolate": "test_skia.isolate",
       "priority": 0.8
     },
-    "Test-Win-MSVC-NUC-GPU-IntelIris6100-x86_64-Release": {
+    "Test-Win-MSVC-NUC-GPU-IntelIris6100-x86_64-Release-ANGLE": {
       "cipd_packages": [
         {
           "name": "skia/bots/skimage",
@@ -10628,7 +10628,7 @@
         }
       ],
       "dependencies": [
-        "Build-Win-MSVC-x86_64-Release"
+        "Build-Win-MSVC-x86_64-Release-ANGLE"
       ],
       "dimensions": [
         "gpu:8086:162b",
@@ -10642,7 +10642,7 @@
         "../../..",
         "swarm_test",
         "repository=<(REPO)",
-        "buildername=Test-Win-MSVC-NUC-GPU-IntelIris6100-x86_64-Release",
+        "buildername=Test-Win-MSVC-NUC-GPU-IntelIris6100-x86_64-Release-ANGLE",
         "mastername=fake-master",
         "buildnumber=2",
         "slavename=fake-buildslave",
@@ -12218,9 +12218,9 @@
       "isolate": "upload_nano_results.isolate",
       "priority": 0.8
     },
-    "Upload-Perf-Win-MSVC-NUC-GPU-IntelIris6100-x86_64-Release": {
+    "Upload-Perf-Win-MSVC-NUC-GPU-IntelIris6100-x86_64-Release-ANGLE": {
       "dependencies": [
-        "Perf-Win-MSVC-NUC-GPU-IntelIris6100-x86_64-Release"
+        "Perf-Win-MSVC-NUC-GPU-IntelIris6100-x86_64-Release-ANGLE"
       ],
       "dimensions": [
         "cpu:x86-64-avx2",
@@ -12233,7 +12233,7 @@
         "../../..",
         "upload_nano_results",
         "repository=<(REPO)",
-        "buildername=Perf-Win-MSVC-NUC-GPU-IntelIris6100-x86_64-Release",
+        "buildername=Perf-Win-MSVC-NUC-GPU-IntelIris6100-x86_64-Release-ANGLE",
         "mastername=fake-master",
         "buildnumber=2",
         "slavename=fake-buildslave",
@@ -14219,9 +14219,9 @@
       "isolate": "upload_dm_results.isolate",
       "priority": 0.8
     },
-    "Upload-Test-Win-MSVC-NUC-GPU-IntelIris6100-x86_64-Debug": {
+    "Upload-Test-Win-MSVC-NUC-GPU-IntelIris6100-x86_64-Debug-ANGLE": {
       "dependencies": [
-        "Test-Win-MSVC-NUC-GPU-IntelIris6100-x86_64-Debug"
+        "Test-Win-MSVC-NUC-GPU-IntelIris6100-x86_64-Debug-ANGLE"
       ],
       "dimensions": [
         "cpu:x86-64-avx2",
@@ -14234,7 +14234,7 @@
         "../../..",
         "upload_dm_results",
         "repository=<(REPO)",
-        "buildername=Test-Win-MSVC-NUC-GPU-IntelIris6100-x86_64-Debug",
+        "buildername=Test-Win-MSVC-NUC-GPU-IntelIris6100-x86_64-Debug-ANGLE",
         "mastername=fake-master",
         "buildnumber=2",
         "slavename=fake-buildslave",
@@ -14248,9 +14248,9 @@
       "isolate": "upload_dm_results.isolate",
       "priority": 0.8
     },
-    "Upload-Test-Win-MSVC-NUC-GPU-IntelIris6100-x86_64-Release": {
+    "Upload-Test-Win-MSVC-NUC-GPU-IntelIris6100-x86_64-Release-ANGLE": {
       "dependencies": [
-        "Test-Win-MSVC-NUC-GPU-IntelIris6100-x86_64-Release"
+        "Test-Win-MSVC-NUC-GPU-IntelIris6100-x86_64-Release-ANGLE"
       ],
       "dimensions": [
         "cpu:x86-64-avx2",
@@ -14263,7 +14263,7 @@
         "../../..",
         "upload_dm_results",
         "repository=<(REPO)",
-        "buildername=Test-Win-MSVC-NUC-GPU-IntelIris6100-x86_64-Release",
+        "buildername=Test-Win-MSVC-NUC-GPU-IntelIris6100-x86_64-Release-ANGLE",
         "mastername=fake-master",
         "buildnumber=2",
         "slavename=fake-buildslave",
