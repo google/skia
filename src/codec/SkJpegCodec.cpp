@@ -11,7 +11,6 @@
 #include "SkJpegDecoderMgr.h"
 #include "SkCodecPriv.h"
 #include "SkColorPriv.h"
-#include "SkColorSpace_Base.h"
 #include "SkStream.h"
 #include "SkTemplates.h"
 #include "SkTypes.h"
@@ -230,18 +229,7 @@ bool SkJpegCodec::ReadHeader(SkStream* stream, SkCodec** codecOut,
         sk_sp<SkData> iccData = get_icc_profile(decoderMgr->dinfo());
         sk_sp<SkColorSpace> colorSpace = nullptr;
         if (iccData) {
-            SkColorSpace_Base::InputColorFormat inputColorFormat =
-                    SkColorSpace_Base::InputColorFormat::kRGB;
-            switch (decoderMgr->dinfo()->jpeg_color_space) {
-                case JCS_CMYK:
-                case JCS_YCCK:
-                    inputColorFormat = SkColorSpace_Base::InputColorFormat::kCMYK;
-                    break;
-                default:
-                    break;
-            }
-            colorSpace = SkColorSpace_Base::MakeICC(iccData->data(), iccData->size(),
-                                                    inputColorFormat);
+            colorSpace = SkColorSpace::MakeICC(iccData->data(), iccData->size());
             if (!colorSpace) {
                 SkCodecPrintf("Could not create SkColorSpace from ICC data.\n");
             }
@@ -380,6 +368,9 @@ bool SkJpegCodec::setOutputColorSpace(const SkImageInfo& dstInfo) {
     // we must do it ourselves.
     J_COLOR_SPACE encodedColorType = fDecoderMgr->dinfo()->jpeg_color_space;
     bool isCMYK = (JCS_CMYK == encodedColorType || JCS_YCCK == encodedColorType);
+    if (isCMYK && this->colorXform()) {
+        return false;
+    }
 
     // Check for valid color types and set the output color space
     switch (dstInfo.colorType()) {
@@ -578,7 +569,7 @@ SkCodec::Result SkJpegCodec::onGetPixels(const SkImageInfo& dstInfo,
     SkASSERT(1 == dinfo->rec_outbuf_height);
 
     J_COLOR_SPACE colorSpace = dinfo->out_color_space;
-    if (JCS_CMYK == colorSpace && nullptr == this->colorXform()) {
+    if (JCS_CMYK == colorSpace) {
         this->initializeSwizzler(dstInfo, options);
     }
 

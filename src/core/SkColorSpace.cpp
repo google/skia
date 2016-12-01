@@ -178,15 +178,18 @@ sk_sp<SkColorSpace> SkColorSpace::MakeRGB(const SkColorSpaceTransferFn& coeffs,
     }
 
     void* memory = sk_malloc_throw(sizeof(SkGammas) + sizeof(SkColorSpaceTransferFn));
-    sk_sp<SkGammas> gammas = sk_sp<SkGammas>(new (memory) SkGammas(3));
+    sk_sp<SkGammas> gammas = sk_sp<SkGammas>(new (memory) SkGammas());
     SkColorSpaceTransferFn* fn = SkTAddOffset<SkColorSpaceTransferFn>(memory, sizeof(SkGammas));
     *fn = coeffs;
+    gammas->fRedType = SkGammas::Type::kParam_Type;
+    gammas->fGreenType = SkGammas::Type::kParam_Type;
+    gammas->fBlueType = SkGammas::Type::kParam_Type;
+
     SkGammas::Data data;
     data.fParamOffset = 0;
-    for (int channel = 0; channel < 3; ++channel) {
-        gammas->fType[channel] = SkGammas::Type::kParam_Type;
-        gammas->fData[channel] = data;
-    }
+    gammas->fRedData = data;
+    gammas->fGreenData = data;
+    gammas->fBlueData = data;
     return sk_sp<SkColorSpace>(new SkColorSpace_XYZ(kNonStandard_SkGammaNamed,
                                                     std::move(gammas), toXYZD50, nullptr));
 }
