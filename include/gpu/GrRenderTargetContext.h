@@ -413,7 +413,7 @@ private:
     friend class GrDashLinePathRenderer;         // for access to drawBatch
     friend class GrAAHairLinePathRenderer;       // for access to drawBatch
     friend class GrAALinearizingConvexPathRenderer;  // for access to drawBatch
-    friend class GrAADistanceFieldPathRenderer;  // for access to drawBatch
+    friend class GrAtlasPathRenderer;            // for access to drawBatch
     friend class GrDefaultPathRenderer;          // for access to drawBatch
     friend class GrPLSPathRenderer;              // for access to drawBatch
     friend class GrMSAAPathRenderer;             // for access to drawBatch

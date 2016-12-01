@@ -99,7 +99,7 @@ void GrContext::initCommon(const GrContextOptions& options) {
     rtOpListOptions.fMaxBatchLookback = options.fMaxBatchLookback;
     rtOpListOptions.fMaxBatchLookahead = options.fMaxBatchLookahead;
     GrPathRendererChain::Options prcOptions;
-    prcOptions.fDisableDistanceFieldRenderer = options.fDisableDistanceFieldPaths;
+    prcOptions.fDisableAtlasRenderer = options.fDisableDistanceFieldPaths;
     prcOptions.fAllowPathMaskCaching = options.fAllowPathMaskCaching;
     prcOptions.fDisableAllPathRenderers = options.fForceSWPathMasks;
     fDrawingManager.reset(new GrDrawingManager(this, rtOpListOptions, prcOptions,

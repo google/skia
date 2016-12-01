@@ -88,6 +88,7 @@ gm_sources = [
   "$_gm/dashing.cpp",
   "$_gm/deferredtextureimage.cpp",
   "$_gm/degeneratesegments.cpp",
+  "$_gm/dfpath.cpp",
   "$_gm/dftext.cpp",
   "$_gm/discard.cpp",
   "$_gm/displacement.cpp",

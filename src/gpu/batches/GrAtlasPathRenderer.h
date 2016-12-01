@@ -5,8 +5,8 @@
  * found in the LICENSE file.
  */
 
-#ifndef GrAADistanceFieldPathRenderer_DEFINED
-#define GrAADistanceFieldPathRenderer_DEFINED
+#ifndef GrAtlasPathRenderer_DEFINED
+#define GrAtlasPathRenderer_DEFINED
 
 #include "GrBatchAtlas.h"
 #include "GrPathRenderer.h"
@@ -18,10 +18,10 @@
 
 class GrContext;
 
-class GrAADistanceFieldPathRenderer : public GrPathRenderer {
+class GrAtlasPathRenderer : public GrPathRenderer {
 public:
-    GrAADistanceFieldPathRenderer();
-    virtual ~GrAADistanceFieldPathRenderer();
+    GrAtlasPathRenderer();
+    virtual ~GrAtlasPathRenderer();
 
 private:
     StencilSupport onGetStencilSupport(const GrShape&) const override {
@@ -37,7 +37,7 @@ private:
         public:
             Key() {}
             Key(const Key& that) { *this = that; }
-            Key(const GrShape& shape, uint32_t dim) { this->set(shape, dim); }
+            Key(const GrShape& shape, uint32_t dim, const SkMatrix& m) { this->set(shape, dim, m); }
 
             Key& operator=(const Key& that) {
                 fKey.reset(that.fKey.count());
@@ -45,15 +45,16 @@ private:
                 return *this;
             }
 
-            void set(const GrShape& shape, uint32_t dim) {
+            void set(const GrShape& shape, uint32_t dim, const SkMatrix& viewMatrix) {
                 // Shapes' keys are for their pre-style geometry, but by now we shouldn't have any
                 // relevant styling information.
                 SkASSERT(shape.style().isSimpleFill());
                 SkASSERT(shape.hasUnstyledKey());
                 int shapeKeySize = shape.unstyledKeySize();
-                fKey.reset(1 + shapeKeySize);
+                fKey.reset(10 + shapeKeySize);
                 fKey[0] = dim;
-                shape.writeUnstyledKey(&fKey[1]);
+                memcpy(&fKey[1], &viewMatrix, sizeof(SkMatrix));
+                shape.writeUnstyledKey(&fKey[10]);
             }
 
             bool operator==(const Key& that) const {
@@ -96,7 +97,7 @@ private:
 
     typedef GrPathRenderer INHERITED;
 
-    friend class AADistanceFieldPathBatch;
+    friend class AtlasPathBatch;
     friend struct PathTestStruct;
 };
 
