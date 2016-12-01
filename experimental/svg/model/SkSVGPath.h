@@ -21,12 +21,13 @@ public:
 protected:
     void onSetAttribute(SkSVGAttribute, const SkSVGValue&) override;
 
-    void onDraw(SkCanvas*, const SkSVGLengthContext&, const SkPaint&) const override;
+    void onDraw(SkCanvas*, const SkSVGLengthContext&, const SkPaint&,
+                SkPath::FillType) const override;
 
 private:
     SkSVGPath();
 
-    SkPath fPath;
+    mutable SkPath fPath; // mutated in onDraw(), to apply inherited fill types.
 
     typedef SkSVGShape INHERITED;
 };

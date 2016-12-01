@@ -12,6 +12,7 @@ SkSVGPresentationAttributes SkSVGPresentationAttributes::MakeInitial() {
 
     result.fFill.set(SkSVGPaint(SkSVGColorType(SK_ColorBLACK)));
     result.fFillOpacity.set(SkSVGNumberType(1));
+    result.fFillRule.set(SkSVGFillRule(SkSVGFillRule::Type::kNonZero));
 
     result.fStroke.set(SkSVGPaint(SkSVGPaint::Type::kNone));
     result.fStrokeLineCap.set(SkSVGLineCap(SkSVGLineCap::Type::kButt));
