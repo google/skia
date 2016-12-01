@@ -4,10 +4,9 @@
 #                     and enters command line debugging environment.
 
 SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
-source $SCRIPT_DIR/android_setup.sh
+source $SCRIPT_DIR/utils/android_setup.sh
 
 # setup the gdbserver
-export BUILDTYPE  # from android_setup.sh
 $SCRIPT_DIR/android_gdbserver -d ${DEVICE_ID} ${APP_ARGS[@]}
 
 # quit if gdbserver setup failed
@@ -27,25 +26,29 @@ PORT=5039
 # Set up gdb commands
 GDBSETUP=$GDB_TMP_DIR/gdb.setup
 {
-    echo "file ${GDB_TMP_DIR}/skia_launcher"
+    echo "file ${GDB_TMP_DIR}/${APP_NAME}"
     echo "target remote :${PORT}"
     echo "set solib-absolute-prefix ${GDB_TMP_DIR}"
     echo "set solib-search-path ${GDB_TMP_DIR}"
 
-    # The apps shared library symbols are not loaded by default so we
-    # load them here.
-    echo "break launch_app"
+    echo "break main"
     echo "continue"
-    echo "sharedLibrary ${APP_NAME}"
-
-    # Load libskia_android.so here.
-    echo "sharedLibrary skia_android"
 } > $GDBSETUP
 
 
 # Launch gdb client
+HOST=`uname | tr '[A-Z]' '[a-z]'`
+if [ $HOST == "darwin" ]; then
+    GDB_HOST=$ANDROID_NDK_ROOT/prebuilt/darwin-x86_64/bin/gdb
+elif [ $HOST == "linux" ]; then
+     GDB_HOST=$ANDROID_NDK_ROOT/prebuilt/linux-x86_64/bin/gdb
+else
+    echo "Could not automatically determine OS!"
+    exit 1;
+fi
+
 echo "Entering gdb client shell"
-$ANDROID_TOOLCHAIN/host_prebuilt/bin/gdb -x $GDBSETUP
+$GDB_HOST -x $GDBSETUP
 
 # Clean up:
 # We could 'rm -rf $GDB_TMP_DIR', but doing so would cause subsequent debugging

@@ -11,7 +11,7 @@ declare_args() {
   is_official_build = false
   is_component_build = false
   ndk = ""
-  ndk_api = 21
+  ndk_api = 24
   sanitize = ""
 }
 declare_args() {
