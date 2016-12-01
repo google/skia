@@ -86,7 +86,9 @@ var (
 		"Build-Win-MSVC-x86_64-Release-GN",
 		"Build-Win-MSVC-x86_64-Release-Vulkan",
 		"Housekeeper-Nightly-RecreateSKPs_Canary",
+		"Housekeeper-PerCommit",
 		"Housekeeper-PerCommit-InfraTests",
+		"Housekeeper-PerCommit-Presubmit_Trybot",
 		"Housekeeper-Weekly-RecreateSKPs",
 		"Perf-Android-Clang-AndroidOne-CPU-MT6582-arm-Debug-GN_Android",
 		"Perf-Android-Clang-AndroidOne-CPU-MT6582-arm-Release-GN_Android",
@@ -510,7 +512,7 @@ func ctSKPs(b *specs.TasksCfgBuilder, name string) string {
 // in the generated chain of tasks, which the Job should add as a dependency.
 func housekeeper(b *specs.TasksCfgBuilder, name, compileTaskName string) string {
 	b.MustAddTask(name, &specs.TaskSpec{
-		CipdPackages: []*specs.CipdPackage{},
+		CipdPackages: []*specs.CipdPackage{b.MustGetCipdPackageFromAsset("go")},
 		Dependencies: []string{compileTaskName},
 		Dimensions:   LINUX_GCE_DIMENSIONS,
 		ExtraArgs: []string{
@@ -528,6 +530,32 @@ func housekeeper(b *specs.TasksCfgBuilder, name, compileTaskName string) string 
 			fmt.Sprintf("patch_set=%s", specs.PLACEHOLDER_PATCHSET),
 		},
 		Isolate:  "housekeeper_skia.isolate",
+		Priority: 0.8,
+	})
+	return name
+}
+
+// presubmit generates a Presubmit task. Returns then name of the task, which
+// the Job should add as a dependency.
+func presubmit(b *specs.TasksCfgBuilder, name string) string {
+	b.MustAddTask(name, &specs.TaskSpec{
+		CipdPackages: []*specs.CipdPackage{},
+		Dimensions:   LINUX_GCE_DIMENSIONS,
+		ExtraArgs: []string{
+			"--workdir", "../../..", "swarm_presubmit",
+			fmt.Sprintf("repository=%s", specs.PLACEHOLDER_REPO),
+			fmt.Sprintf("buildername=%s", name),
+			"mastername=fake-master",
+			"buildnumber=2",
+			"slavename=fake-buildslave",
+			"nobuildbot=True",
+			fmt.Sprintf("swarm_out_dir=%s", specs.PLACEHOLDER_ISOLATED_OUTDIR),
+			fmt.Sprintf("revision=%s", specs.PLACEHOLDER_REVISION),
+			fmt.Sprintf("patch_storage=%s", specs.PLACEHOLDER_PATCH_STORAGE),
+			fmt.Sprintf("patch_issue=%s", specs.PLACEHOLDER_ISSUE),
+			fmt.Sprintf("patch_set=%s", specs.PLACEHOLDER_PATCHSET),
+		},
+		Isolate:  "presubmit_skia.isolate",
 		Priority: 0.8,
 	})
 	return name
@@ -755,8 +783,13 @@ func process(b *specs.TasksCfgBuilder, name string) {
 	}
 
 	// Housekeeper.
-	if parts["role"] == "Housekeeper-PerCommit" {
+	if name == "Housekeeper-PerCommit" {
 		deps = append(deps, housekeeper(b, name, compileTaskName))
+	}
+
+	// Presubmit.
+	if name == "Housekeeper-PerCommit-Presubmit_Trybot" {
+		deps = append(deps, presubmit(b, name))
 	}
 
 	// Common assets needed by the remaining bots.
@@ -798,6 +831,9 @@ func process(b *specs.TasksCfgBuilder, name string) {
 	}
 	if name == "Test-Ubuntu-GCC-GCE-CPU-AVX2-x86_64-Debug-CT_DM_1m_SKPs" {
 		j.Trigger = "weekly"
+	}
+	if name == "Housekeeper-PerCommit-Presubmit_Trybot" {
+		j.Trigger = "trybot-only"
 	}
 	b.AddJob(name, j)
 }
