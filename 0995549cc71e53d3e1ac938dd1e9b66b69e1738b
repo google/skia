@@ -16,6 +16,24 @@
       "revId": "0995549cc71e53d3e1ac938dd1e9b66b69e1738b",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "2d6e6f0e_9c04cd37",
+        "filename": "src/core/SkColorSpace_XYZ.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 83,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2016-12-01T14:10:33Z",
+      "side": 1,
+      "message": "Of course!  Good catch!",
+      "parentUuid": "2d82efcd_76bd309a",
+      "revId": "0995549cc71e53d3e1ac938dd1e9b66b69e1738b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
