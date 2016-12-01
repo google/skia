@@ -250,6 +250,8 @@ SI void from_565(const SkNh& _565, SkNf* r, SkNf* g, SkNf* b) {
     *b = SkNx_cast<float>(_32_bit & SK_B16_MASK_IN_PLACE) * (1.0f / SK_B16_MASK_IN_PLACE);
 }
 
+SI SkNf SkNf_fma(const SkNf& f, const SkNf& m, const SkNf& a) { return SkNx_fma(f,m,a); }
+
 STAGE(trace) {
     SkDebugf("%s\n", (const char*)ctx);
 }
@@ -387,7 +389,7 @@ STAGE(scale_u8) {
 }
 
 SI SkNf lerp(const SkNf& from, const SkNf& to, const SkNf& cov) {
-    return SkNx_fma(to-from, cov, from);
+    return SkNf_fma(to-from, cov, from);
 }
 
 // s' = d(1-c) + sc, for a scalar c.
@@ -541,10 +543,10 @@ STAGE(load_8888_d) {
 }
 STAGE(store_8888) {
     auto ptr = *(uint32_t**)ctx + x;
-    store(tail, ( SkNx_cast<int>(255.0f * r + 0.5f) << 0
-                | SkNx_cast<int>(255.0f * g + 0.5f) << 8
-                | SkNx_cast<int>(255.0f * b + 0.5f) << 16
-                | SkNx_cast<int>(255.0f * a + 0.5f) << 24 ), (int*)ptr);
+    store(tail, ( SkNx_cast<int>(SkNf_fma(255.0f, r, 0.5f)) << 0
+                | SkNx_cast<int>(SkNf_fma(255.0f, g, 0.5f)) << 8
+                | SkNx_cast<int>(SkNf_fma(255.0f, b, 0.5f)) << 16
+                | SkNx_cast<int>(SkNf_fma(255.0f, a, 0.5f)) << 24 ), (int*)ptr);
 }
 
 STAGE(load_tables) {
@@ -580,7 +582,7 @@ RGBA_XFERMODE(clear)    { return 0.0f; }
 RGBA_XFERMODE(srcatop)  { return s*da + d*inv(sa); }
 RGBA_XFERMODE(srcin)    { return s * da; }
 RGBA_XFERMODE(srcout)   { return s * inv(da); }
-RGBA_XFERMODE(srcover)  { return SkNx_fma(d, inv(sa), s); }
+RGBA_XFERMODE(srcover)  { return SkNf_fma(d, inv(sa), s); }
 RGBA_XFERMODE(dstatop)  { return srcatop_kernel(d,da,s,sa); }
 RGBA_XFERMODE(dstin)    { return srcin_kernel  (d,da,s,sa); }
 RGBA_XFERMODE(dstout)   { return srcout_kernel (d,da,s,sa); }
@@ -635,19 +637,17 @@ STAGE(luminance_to_alpha) {
 STAGE(matrix_2x3) {
     auto m = (const float*)ctx;
 
-    auto fma = [](const SkNf& f, const SkNf& m, const SkNf& a) { return SkNx_fma(f,m,a); };
-    auto R = fma(r,m[0], fma(g,m[2], m[4])),
-         G = fma(r,m[1], fma(g,m[3], m[5]));
+    auto R = SkNf_fma(r,m[0], SkNf_fma(g,m[2], m[4])),
+         G = SkNf_fma(r,m[1], SkNf_fma(g,m[3], m[5]));
     r = R;
     g = G;
 }
 STAGE(matrix_3x4) {
     auto m = (const float*)ctx;
 
-    auto fma = [](const SkNf& f, const SkNf& m, const SkNf& a) { return SkNx_fma(f,m,a); };
-    auto R = fma(r,m[0], fma(g,m[3], fma(b,m[6], m[ 9]))),
-         G = fma(r,m[1], fma(g,m[4], fma(b,m[7], m[10]))),
-         B = fma(r,m[2], fma(g,m[5], fma(b,m[8], m[11])));
+    auto R = SkNf_fma(r,m[0], SkNf_fma(g,m[3], SkNf_fma(b,m[6], m[ 9]))),
+         G = SkNf_fma(r,m[1], SkNf_fma(g,m[4], SkNf_fma(b,m[7], m[10]))),
+         B = SkNf_fma(r,m[2], SkNf_fma(g,m[5], SkNf_fma(b,m[8], m[11])));
     r = R;
     g = G;
     b = B;
@@ -655,11 +655,10 @@ STAGE(matrix_3x4) {
 STAGE(matrix_4x5) {
     auto m = (const float*)ctx;
 
-    auto fma = [](const SkNf& f, const SkNf& m, const SkNf& a) { return SkNx_fma(f,m,a); };
-    auto R = fma(r,m[0], fma(g,m[4], fma(b,m[ 8], fma(a,m[12], m[16])))),
-         G = fma(r,m[1], fma(g,m[5], fma(b,m[ 9], fma(a,m[13], m[17])))),
-         B = fma(r,m[2], fma(g,m[6], fma(b,m[10], fma(a,m[14], m[18])))),
-         A = fma(r,m[3], fma(g,m[7], fma(b,m[11], fma(a,m[15], m[19]))));
+    auto R = SkNf_fma(r,m[0], SkNf_fma(g,m[4], SkNf_fma(b,m[ 8], SkNf_fma(a,m[12], m[16])))),
+         G = SkNf_fma(r,m[1], SkNf_fma(g,m[5], SkNf_fma(b,m[ 9], SkNf_fma(a,m[13], m[17])))),
+         B = SkNf_fma(r,m[2], SkNf_fma(g,m[6], SkNf_fma(b,m[10], SkNf_fma(a,m[14], m[18])))),
+         A = SkNf_fma(r,m[3], SkNf_fma(g,m[7], SkNf_fma(b,m[11], SkNf_fma(a,m[15], m[19]))));
     r = R;
     g = G;
     b = B;
@@ -669,10 +668,9 @@ STAGE(matrix_perspective) {
     // N.B. unlike the matrix_NxM stages, this takes a row-major matrix.
     auto m = (const float*)ctx;
 
-    auto fma = [](const SkNf& f, const SkNf& m, const SkNf& a) { return SkNx_fma(f,m,a); };
-    auto R = fma(r,m[0], fma(g,m[1], m[2])),
-         G = fma(r,m[3], fma(g,m[4], m[5])),
-         Z = fma(r,m[6], fma(g,m[7], m[8]));
+    auto R = SkNf_fma(r,m[0], SkNf_fma(g,m[1], m[2])),
+         G = SkNf_fma(r,m[3], SkNf_fma(g,m[4], m[5])),
+         Z = SkNf_fma(r,m[6], SkNf_fma(g,m[7], m[8]));
     r = R * Z.invert();
     g = G * Z.invert();
 }
@@ -830,10 +828,10 @@ STAGE(accumulate) {
     auto sc = (const SkImageShaderContext*)ctx;
 
     auto scale = SkNf::Load(sc->scale);
-    dr = SkNx_fma(scale, r, dr);
-    dg = SkNx_fma(scale, g, dg);
-    db = SkNx_fma(scale, b, db);
-    da = SkNx_fma(scale, a, da);
+    dr = SkNf_fma(scale, r, dr);
+    dg = SkNf_fma(scale, g, dg);
+    db = SkNf_fma(scale, b, db);
+    da = SkNf_fma(scale, a, da);
 }
 
 template <typename T>
