@@ -10,15 +10,15 @@
 #include "GrBatchFlushState.h"
 #include "GrBatchTest.h"
 #include "GrCaps.h"
-#include "GrGeometryProcessor.h"
 #include "GrContext.h"
 #include "GrCoordTransform.h"
 #include "GrDefaultGeoProcFactory.h"
+#include "GrGeometryProcessor.h"
 #include "GrInvariantOutput.h"
 #include "GrProcessor.h"
 #include "GrStyle.h"
 #include "SkGr.h"
-#include "batches/GrVertexBatch.h"
+#include "batches/GrMeshDrawOp.h"
 #include "glsl/GrGLSLFragmentShaderBuilder.h"
 #include "glsl/GrGLSLGeometryProcessor.h"
 #include "glsl/GrGLSLProgramDataManager.h"
@@ -238,7 +238,7 @@ static sk_sp<GrGeometryProcessor> make_dash_gp(GrColor,
                                                const SkMatrix& localMatrix,
                                                bool usesLocalCoords);
 
-class DashBatch : public GrVertexBatch {
+class DashBatch : public GrMeshDrawOp {
 public:
     DEFINE_OP_CLASS_ID
     struct Geometry {
@@ -704,7 +704,7 @@ private:
     BatchTracker fBatch;
     SkSTArray<1, Geometry, true> fGeoData;
 
-    typedef GrVertexBatch INHERITED;
+    typedef GrMeshDrawOp INHERITED;
 };
 
 GrDrawOp* GrDashingEffect::CreateDashLineBatch(GrColor color,

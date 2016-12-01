@@ -10,9 +10,9 @@
 
 #include "GrColor.h"
 #include "GrDefaultGeoProcFactory.h"
-#include "GrVertexBatch.h"
+#include "GrMeshDrawOp.h"
 
-class GrDrawAtlasBatch : public GrVertexBatch {
+class GrDrawAtlasBatch : public GrMeshDrawOp {
 public:
     DEFINE_OP_CLASS_ID
 
@@ -71,7 +71,7 @@ private:
     bool     fCoverageIgnored;
     bool     fHasColors;
 
-    typedef GrVertexBatch INHERITED;
+    typedef GrMeshDrawOp INHERITED;
 };
 
 #endif
