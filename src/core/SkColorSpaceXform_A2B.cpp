@@ -72,35 +72,19 @@ bool SkColorSpaceXform_A2B::onApply(ColorFormat dstFormat, void* dst, ColorForma
     return true;
 }
 
-static inline SkColorSpaceTransferFn value_to_parametric(float exp) {
-    return {exp, 1.f, 0.f, 0.f, 0.f, 0.f, 0.f};
-}
-
-static inline SkColorSpaceTransferFn gammanamed_to_parametric(SkGammaNamed gammaNamed) {
-    switch (gammaNamed) {
-        case kLinear_SkGammaNamed:
-            return value_to_parametric(1.f);
-        case kSRGB_SkGammaNamed:
-            return {2.4f, (1.f / 1.055f), (0.055f / 1.055f), 0.f, 0.04045f, (1.f / 12.92f), 0.f};
-        case k2Dot2Curve_SkGammaNamed:
-            return value_to_parametric(2.2f);
-        default:
-            SkASSERT(false);
-            return {-1.f, -1.f, -1.f, -1.f, -1.f, -1.f, -1.f};
-    }
-}
-
-static inline SkColorSpaceTransferFn gamma_to_parametric(const SkGammas& gammas, int channel) {
+static inline bool gamma_to_parametric(SkColorSpaceTransferFn* coeffs, const SkGammas& gammas,
+                                       int channel) {
     switch (gammas.type(channel)) {
         case SkGammas::Type::kNamed_Type:
-            return gammanamed_to_parametric(gammas.data(channel).fNamed);
+            return named_to_parametric(coeffs, gammas.data(channel).fNamed);
         case SkGammas::Type::kValue_Type:
-            return value_to_parametric(gammas.data(channel).fValue);
+            value_to_parametric(coeffs, gammas.data(channel).fValue);
+            return true;
         case SkGammas::Type::kParam_Type:
-            return gammas.params(channel);
+            *coeffs = gammas.params(channel);
+            return true;
         default:
-            SkASSERT(false);
-            return {-1.f, -1.f, -1.f, -1.f, -1.f, -1.f, -1.f};
+            return false;
     }
 }
 static inline SkColorSpaceTransferFn invert_parametric(const SkColorSpaceTransferFn& fn) {
@@ -177,15 +161,17 @@ SkColorSpaceXform_A2B::SkColorSpaceXform_A2B(SkColorSpace_A2B* srcSpace,
         const SkColorSpace_A2B::Element& e = srcSpace->element(i);
         switch (e.type()) {
             case SkColorSpace_A2B::Element::Type::kGammaNamed:
-                if (kLinear_SkGammaNamed != e.gammaNamed()) {
-                    SkCSXformPrintf("Gamma stage added: %s\n",
-                                    debugGammaNamed[(int)e.gammaNamed()]);
-                    SkColorSpaceTransferFn fn = gammanamed_to_parametric(e.gammaNamed());
-                    this->addTransferFn(fn, kRGB_Channels);
-
-                    fElementsPipeline.append(SkRasterPipeline::clamp_0);
-                    fElementsPipeline.append(SkRasterPipeline::clamp_1);
+                if (kLinear_SkGammaNamed == e.gammaNamed()) {
+                    continue;
                 }
+
+                SkCSXformPrintf("Gamma stage added: %s\n", debugGammaNamed[(int)e.gammaNamed()]);
+                SkColorSpaceTransferFn fn;
+                SkAssertResult(named_to_parametric(&fn, e.gammaNamed()));
+                this->addTransferFn(fn, kRGB_Channels);
+
+                fElementsPipeline.append(SkRasterPipeline::clamp_0);
+                fElementsPipeline.append(SkRasterPipeline::clamp_1);
                 break;
             case SkColorSpace_A2B::Element::Type::kGammas: {
                 const SkGammas& gammas = e.gammas();
@@ -205,7 +191,8 @@ SkColorSpaceXform_A2B::SkColorSpaceXform_A2B(SkColorSpace_A2B* srcSpace,
                         this->addTableFn(table, static_cast<Channels>(channel));
                         gammaNeedsRef = true;
                     } else {
-                        SkColorSpaceTransferFn fn = gamma_to_parametric(gammas, channel);
+                        SkColorSpaceTransferFn fn;
+                        SkAssertResult(gamma_to_parametric(&fn, gammas, channel));
                         this->addTransferFn(fn, static_cast<Channels>(channel));
                     }
                 }
@@ -244,14 +231,15 @@ SkColorSpaceXform_A2B::SkColorSpaceXform_A2B(SkColorSpace_A2B* srcSpace,
         addMatrix(*dstSpace->fromXYZD50());
     }
 
-    if (kNonStandard_SkGammaNamed != dstSpace->gammaNamed()) {
-        if (!fLinearDstGamma) {
-            SkColorSpaceTransferFn fn =
-                    invert_parametric(gammanamed_to_parametric(dstSpace->gammaNamed()));
-            this->addTransferFn(fn, kRGB_Channels);
-            fElementsPipeline.append(SkRasterPipeline::clamp_0);
-            fElementsPipeline.append(SkRasterPipeline::clamp_1);
-        }
+    if (kLinear_SkGammaNamed == dstSpace->gammaNamed()) {
+        return;
+    }
+
+    SkColorSpaceTransferFn fn;
+    if (named_to_parametric(&fn, dstSpace->gammaNamed())) {
+        this->addTransferFn(invert_parametric(fn), kRGB_Channels);
+        fElementsPipeline.append(SkRasterPipeline::clamp_0);
+        fElementsPipeline.append(SkRasterPipeline::clamp_1);
     } else {
         for (int channel = 0; channel < 3; ++channel) {
             const SkGammas& gammas = *dstSpace->gammas();
@@ -266,8 +254,9 @@ SkColorSpaceXform_A2B::SkColorSpaceXform_A2B(SkColorSpace_A2B* srcSpace,
 
                 this->addTableFn(table, static_cast<Channels>(channel));
             } else {
-                SkColorSpaceTransferFn fn = invert_parametric(gamma_to_parametric(gammas, channel));
-                this->addTransferFn(fn, static_cast<Channels>(channel));
+                SkColorSpaceTransferFn channelFn;
+                SkAssertResult(gamma_to_parametric(&channelFn, gammas, channel));
+                this->addTransferFn(invert_parametric(channelFn), static_cast<Channels>(channel));
             }
         }
 

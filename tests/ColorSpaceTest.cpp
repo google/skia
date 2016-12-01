@@ -402,3 +402,77 @@ DEF_TEST(ColorSpace_InvalidICC, r) {
     sk_sp<SkColorSpace> cs = SkColorSpace::MakeICC(data->data(), data->size());
     REPORTER_ASSERT(r, !cs);
 }
+
+static inline void test_is_numerical_transfer_fn(skiatest::Reporter* r, SkColorSpace* space,
+                                                 bool shouldSucceed,
+                                                 const SkColorSpaceTransferFn& reference) {
+    SkColorSpaceTransferFn result;
+    REPORTER_ASSERT(r, shouldSucceed == space->isNumericalTransferFn(&result));
+    if (shouldSucceed) {
+        REPORTER_ASSERT(r, 0 == memcmp(&result, &reference, sizeof(SkColorSpaceTransferFn)));
+    }
+}
+
+DEF_TEST(ColorSpace_IsNumericalTransferFn, r) {
+    SkColorSpaceTransferFn srgbFn;
+    srgbFn.fA = 1.0f / 1.055f;
+    srgbFn.fB = 0.055f / 1.055f;
+    srgbFn.fC = 0.0f;
+    srgbFn.fD = 0.04045f;
+    srgbFn.fE = 1.0f / 12.92f;
+    srgbFn.fF = 0.0f;
+    srgbFn.fG = 2.4f;
+    sk_sp<SkColorSpace> srgb = SkColorSpace::MakeNamed(SkColorSpace::kSRGB_Named);
+    test_is_numerical_transfer_fn(r, srgb.get(), true, srgbFn);
+
+    SkColorSpaceTransferFn adobeFn;
+    adobeFn.fA = 1.0f;
+    adobeFn.fB = 0.0f;
+    adobeFn.fC = 0.0f;
+    adobeFn.fD = 0.0f;
+    adobeFn.fE = 0.0f;
+    adobeFn.fF = 0.0f;
+    adobeFn.fG = 2.2f;
+    sk_sp<SkColorSpace> adobe = SkColorSpace::MakeNamed(SkColorSpace::kAdobeRGB_Named);
+    test_is_numerical_transfer_fn(r, adobe.get(), true, adobeFn);
+
+    sk_sp<SkData> data = SkData::MakeFromFileName(
+            GetResourcePath("icc_profiles/HP_ZR30w.icc").c_str());
+    sk_sp<SkColorSpace> z30 = SkColorSpace::MakeICC(data->data(), data->size());
+    test_is_numerical_transfer_fn(r, z30.get(), true, adobeFn);
+
+    data = SkData::MakeFromFileName( GetResourcePath("icc_profiles/HP_Z32x.icc").c_str());
+    sk_sp<SkColorSpace> z32 = SkColorSpace::MakeICC(data->data(), data->size());
+    test_is_numerical_transfer_fn(r, z32.get(), true, adobeFn);
+
+    data = SkData::MakeFromFileName(GetResourcePath("icc_profiles/upperLeft.icc").c_str());
+    sk_sp<SkColorSpace> upperLeft = SkColorSpace::MakeICC(data->data(), data->size());
+    test_is_numerical_transfer_fn(r, upperLeft.get(), false, adobeFn);
+
+    data = SkData::MakeFromFileName(GetResourcePath("icc_profiles/upperRight.icc").c_str());
+    sk_sp<SkColorSpace> upperRight = SkColorSpace::MakeICC(data->data(), data->size());
+    test_is_numerical_transfer_fn(r, upperRight.get(), false, adobeFn);
+
+    SkColorSpaceTransferFn linearFn;
+    linearFn.fA = 0.0f;
+    linearFn.fB = 0.0f;
+    linearFn.fC = 0.0f;
+    linearFn.fD = 1.0f;
+    linearFn.fE = 1.0f;
+    linearFn.fF = 0.0f;
+    linearFn.fG = 0.0f;
+    sk_sp<SkColorSpace> linear = SkColorSpace::MakeNamed(SkColorSpace::kSRGBLinear_Named);
+    test_is_numerical_transfer_fn(r, linear.get(), true, linearFn);
+
+    SkColorSpaceTransferFn randomFn;
+    randomFn.fA = 1.0f;
+    randomFn.fB = 0.0f;
+    randomFn.fC = 0.0f;
+    randomFn.fD = 0.5f;
+    randomFn.fE = 1.0f;
+    randomFn.fF = 0.0f;
+    randomFn.fG = 1.0f;
+    SkMatrix44 toXYZ(SkMatrix44::kIdentity_Constructor);
+    sk_sp<SkColorSpace> random = SkColorSpace::MakeRGB(randomFn, toXYZ);
+    test_is_numerical_transfer_fn(r, random.get(), true, randomFn);
+}

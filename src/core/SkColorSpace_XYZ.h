@@ -20,18 +20,20 @@ public:
     const SkMatrix44* fromXYZD50() const override;
 
     bool onGammaCloseToSRGB() const override;
-    
+
     bool onGammaIsLinear() const override;
-    
+
+    bool onIsNumericalTransferFn(SkColorSpaceTransferFn* coeffs) const override;
+
     Type type() const override { return Type::kXYZ; }
-    
+
     sk_sp<SkColorSpace> makeLinearGamma() override;
     sk_sp<SkColorSpace> makeSRGBGamma() override;
-    
+
     SkGammaNamed gammaNamed() const { return fGammaNamed; }
-    
+
     const SkGammas* gammas() const { return fGammas.get(); }
-    
+
     void toDstGammaTables(const uint8_t* tables[3], sk_sp<SkData>* storage, int numTables) const;
 
 private:
