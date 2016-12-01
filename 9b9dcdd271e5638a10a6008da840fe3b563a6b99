@@ -19,6 +19,93 @@
     },
     {
       "key": {
+        "uuid": "2d6e6f0e_90ef8c00",
+        "filename": "src/core/SkColorSpace_ICC.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 351,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2016-12-01T14:38:29Z",
+      "side": 1,
+      "message": "Good to know.  Thanks for being thorough with this.",
+      "parentUuid": "f01d104e_82d139e9",
+      "revId": "9b9dcdd271e5638a10a6008da840fe3b563a6b99",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "2d6e6f0e_b06288bc",
+        "filename": "src/core/SkColorSpace_ICC.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 858,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2016-12-01T14:38:29Z",
+      "side": 1,
+      "message": "What about just making this signature: bool is_linear(..)",
+      "range": {
+        "startLine": 858,
+        "startChar": 7,
+        "endLine": 858,
+        "endChar": 46
+      },
+      "revId": "9b9dcdd271e5638a10a6008da840fe3b563a6b99",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "2d6e6f0e_505214fa",
+        "filename": "src/core/SkColorSpace_ICC.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 865,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2016-12-01T14:38:29Z",
+      "side": 1,
+      "message": "nit: return kLinear_SkGammaNamed?",
+      "range": {
+        "startLine": 865,
+        "startChar": 12,
+        "endLine": 865,
+        "endChar": 26
+      },
+      "revId": "9b9dcdd271e5638a10a6008da840fe3b563a6b99",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "2d6e6f0e_905cac0b",
+        "filename": "src/core/SkColorSpace_ICC.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 873,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2016-12-01T14:38:29Z",
+      "side": 1,
+      "message": "nit: return kNonStandard_SkGammaNamed?\n\nThen just return kLinear at the end?",
+      "range": {
+        "startLine": 872,
+        "startChar": 16,
+        "endLine": 873,
+        "endChar": 22
+      },
+      "revId": "9b9dcdd271e5638a10a6008da840fe3b563a6b99",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "f01d104e_421e61db",
         "filename": "src/core/SkColorSpace_ICC.cpp",
         "patchSetId": 1
@@ -30,6 +117,24 @@
       "writtenOn": "2016-11-30T20:26:44Z",
       "side": 1,
       "message": "Oops. Will fix whitespace before submitting.",
+      "revId": "9b9dcdd271e5638a10a6008da840fe3b563a6b99",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "2d6e6f0e_70f470d6",
+        "filename": "src/core/SkColorSpace_ICC.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 880,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2016-12-01T14:38:29Z",
+      "side": 1,
+      "message": "Acknowledged",
+      "parentUuid": "f01d104e_421e61db",
       "revId": "9b9dcdd271e5638a10a6008da840fe3b563a6b99",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
