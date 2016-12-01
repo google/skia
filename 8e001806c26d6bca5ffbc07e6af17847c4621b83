@@ -25,6 +25,24 @@
     },
     {
       "key": {
+        "uuid": "f01d104e_ce399b95",
+        "filename": "include/codec/SkCodec.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 787,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2016-12-01T15:32:27Z",
+      "side": 1,
+      "message": "If you use Vim, I can heartily recommend\n    autocmd BufWritePre * :%s/\\s\\+$//e\nwhich removes all trailing whitespace every time you save.",
+      "parentUuid": "2d6e6f0e_9075cc75",
+      "revId": "8e001806c26d6bca5ffbc07e6af17847c4621b83",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "2d82efcd_16c87cb2",
         "filename": "include/codec/SkCodec.h",
         "patchSetId": 1
