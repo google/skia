@@ -124,7 +124,11 @@ static inline bool append_gamut_transform(SkRasterPipeline* p, float scratch_mat
     bool needs_clamp_0, needs_clamp_a;
     analyze_3x4_matrix(scratch_matrix_3x4, &needs_clamp_0, &needs_clamp_a);
 
-    p->append(SkRasterPipeline::matrix_3x4, scratch_matrix_3x4);
+    if (scratch_matrix_3x4[9] || scratch_matrix_3x4[10] || scratch_matrix_3x4[11]) {
+        p->append(SkRasterPipeline::matrix_3x4, scratch_matrix_3x4);
+    } else {
+        p->append(SkRasterPipeline::matrix_3x3, scratch_matrix_3x4);
+    }
     if (needs_clamp_0) { p->append(SkRasterPipeline::clamp_0); }
     if (needs_clamp_a) { p->append(SkRasterPipeline::clamp_a); }
     return true;
