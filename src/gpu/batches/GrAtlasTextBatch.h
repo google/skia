@@ -8,12 +8,12 @@
 #ifndef GrAtlasTextBatch_DEFINED
 #define GrAtlasTextBatch_DEFINED
 
-#include "batches/GrVertexBatch.h"
+#include "batches/GrMeshDrawOp.h"
 
 #include "text/GrAtlasTextContext.h"
 #include "text/GrDistanceFieldAdjustTable.h"
 
-class GrAtlasTextBatch : public GrVertexBatch {
+class GrAtlasTextBatch : public GrMeshDrawOp {
 public:
     DEFINE_OP_CLASS_ID
 
@@ -145,7 +145,7 @@ private:
                kLCDDistanceField_MaskType == fMaskType;
     }
 
-    inline void flush(GrVertexBatch::Target* target, FlushInfo* flushInfo) const;
+    inline void flush(GrMeshDrawOp::Target* target, FlushInfo* flushInfo) const;
 
     GrColor color() const { return fBatch.fColor; }
     const SkMatrix& viewMatrix() const { return fGeoData[0].fViewMatrix; }
@@ -191,7 +191,7 @@ private:
 
     friend class GrBlobRegenHelper; // Needs to trigger flushes
 
-    typedef GrVertexBatch INHERITED;
+    typedef GrMeshDrawOp INHERITED;
 };
 
 /*
@@ -200,12 +200,9 @@ private:
  */
 class GrBlobRegenHelper {
 public:
-    GrBlobRegenHelper(const GrAtlasTextBatch* batch,
-                      GrVertexBatch::Target* target,
+    GrBlobRegenHelper(const GrAtlasTextBatch* batch, GrMeshDrawOp::Target* target,
                       GrAtlasTextBatch::FlushInfo* flushInfo)
-        : fBatch(batch)
-        , fTarget(target)
-        , fFlushInfo(flushInfo) {}
+        : fBatch(batch), fTarget(target), fFlushInfo(flushInfo) {}
 
     void flush();
 
@@ -215,7 +212,7 @@ public:
 
 private:
     const GrAtlasTextBatch* fBatch;
-    GrVertexBatch::Target* fTarget;
+    GrMeshDrawOp::Target* fTarget;
     GrAtlasTextBatch::FlushInfo* fFlushInfo;
 };
 

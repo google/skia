@@ -14,7 +14,7 @@
 #include "GrGpu.h"
 #include "GrResourceProvider.h"
 #include "GrXferProcessor.h"
-#include "batches/GrVertexBatch.h"
+#include "batches/GrMeshDrawOp.h"
 #include "effects/GrPorterDuffXferProcessor.h"
 #include "gl/GrGLCaps.h"
 
@@ -1090,26 +1090,27 @@ static void test_color_opaque_no_coverage(skiatest::Reporter* reporter, const Gr
 }
 
 static void test_lcd_coverage_fallback_case(skiatest::Reporter* reporter, const GrCaps& caps) {
-    class TestLCDCoverageBatch: public GrVertexBatch {
-    public:
-        DEFINE_OP_CLASS_ID
+  class TestLCDCoverageBatch : public GrMeshDrawOp {
+  public:
+    DEFINE_OP_CLASS_ID
 
-        TestLCDCoverageBatch() : INHERITED(ClassID()) {}
+    TestLCDCoverageBatch() : INHERITED(ClassID()) {}
 
-    private:
-        void computePipelineOptimizations(GrInitInvariantOutput* color,
-                                          GrInitInvariantOutput* coverage,
-                                          GrBatchToXPOverrides* overrides) const override {
-            color->setKnownFourComponents(GrColorPackRGBA(123, 45, 67, 221));
-            coverage->setUnknownFourComponents();
-            coverage->setUsingLCDCoverage();        }
+  private:
+    void computePipelineOptimizations(
+        GrInitInvariantOutput *color, GrInitInvariantOutput *coverage,
+        GrBatchToXPOverrides *overrides) const override {
+      color->setKnownFourComponents(GrColorPackRGBA(123, 45, 67, 221));
+      coverage->setUnknownFourComponents();
+      coverage->setUsingLCDCoverage();
+    }
 
-        const char* name() const override { return "Test LCD Text Batch"; }
-        void initBatchTracker(const GrXPOverridesForBatch&) override {}
-        bool onCombineIfPossible(GrOp*, const GrCaps&) override  { return false; }
-        void onPrepareDraws(Target*) const override {}
+    const char *name() const override { return "Test LCD Text Batch"; }
+    void initBatchTracker(const GrXPOverridesForBatch &) override {}
+    bool onCombineIfPossible(GrOp *, const GrCaps &) override { return false; }
+    void onPrepareDraws(Target *) const override {}
 
-        typedef GrVertexBatch INHERITED;
+    typedef GrMeshDrawOp INHERITED;
     } testLCDCoverageBatch;
 
     GrPipelineOptimizations opts;

@@ -7,11 +7,11 @@
 
 #include "GrNonAAStrokeRectBatch.h"
 
-#include "GrBatchTest.h"
 #include "GrBatchFlushState.h"
+#include "GrBatchTest.h"
 #include "GrColor.h"
 #include "GrDefaultGeoProcFactory.h"
-#include "GrVertexBatch.h"
+#include "GrMeshDrawOp.h"
 #include "SkRandom.h"
 
 /*  create a triangle strip that strokes the specified rect. There are 8
@@ -45,7 +45,7 @@ inline static bool allowed_stroke(const SkStrokeRec& stroke) {
            (stroke.getJoin() == SkPaint::kMiter_Join && stroke.getMiter() > SK_ScalarSqrt2);
 }
 
-class NonAAStrokeRectBatch : public GrVertexBatch {
+class NonAAStrokeRectBatch : public GrMeshDrawOp {
 public:
     DEFINE_OP_CLASS_ID
 
@@ -183,8 +183,7 @@ private:
     const static int kVertsPerHairlineRect = 5;
     const static int kVertsPerStrokeRect = 10;
 
-
-    typedef GrVertexBatch INHERITED;
+    typedef GrMeshDrawOp INHERITED;
 };
 
 namespace GrNonAAStrokeRectBatch {
