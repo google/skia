@@ -11,13 +11,13 @@
 #include "GrBatchFlushState.h"
 #include "GrGeometryProcessor.h"
 
-#include "batches/GrVertexBatch.h"
+#include "batches/GrMeshDrawOp.h"
 
 /*
  * A simple solid color batch only for testing purposes which actually doesn't batch at all. It
  * saves having to fill out some boiler plate methods.
  */
-class GrTestBatch : public GrVertexBatch {
+class GrTestBatch : public GrMeshDrawOp {
 public:
     virtual const char* name() const override = 0;
 
@@ -60,7 +60,7 @@ private:
     GrColor       fColor;
     Optimizations fOptimizations;
 
-    typedef GrVertexBatch INHERITED;
+    typedef GrMeshDrawOp INHERITED;
 };
 
 #endif

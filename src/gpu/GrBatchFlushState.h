@@ -10,7 +10,7 @@
 
 #include "GrBufferAllocPool.h"
 #include "GrGpu.h"
-#include "batches/GrVertexBatch.h"
+#include "batches/GrMeshDrawOp.h"
 
 class GrGpuCommandBuffer;
 class GrResourceProvider;
@@ -130,12 +130,12 @@ private:
  * upload must occur before. The upload will then occur between the draw that requires the new
  * data but after the token that requires the old data.
  *
- * TODO: Currently the token/upload interface is spread over GrDrawOp, GrVertexBatch,
- * GrDrawOp::Target, and GrVertexBatch::Target. However, the interface at the GrDrawOp
- * level is not complete and isn't useful. We should push it down to GrVertexBatch until it
- * is required at the GrDrawOp level.
+ * TODO: Currently the token/upload interface is spread over GrDrawOp, GrMeshDrawOp,
+ * GrDrawOp::Target, and GrMeshDrawOp::Target. However, the interface at the GrDrawOp level is not
+ * complete and isn't useful. We should push it down to GrMeshDrawOp until it is required at the
+ * GrDrawOp level.
  */
- 
+
 /**
  * GrDrawOp instances use this object to allocate space for their geometry and to issue the draws
  * that render their batch.
@@ -180,11 +180,11 @@ private:
     GrDrawOp*           fBatch;
 };
 
-/** Extension of GrDrawOp::Target for use by GrVertexBatch. Adds the ability to create vertex
+/** Extension of GrDrawOp::Target for use by GrMeshDrawOp. Adds the ability to create vertex
     draws. */
-class GrVertexBatch::Target : public GrDrawOp::Target {
+class GrMeshDrawOp::Target : public GrDrawOp::Target {
 public:
-    Target(GrBatchFlushState* state, GrVertexBatch* batch) : INHERITED(state, batch) {}
+    Target(GrBatchFlushState* state, GrMeshDrawOp* batch) : INHERITED(state, batch) {}
 
     void draw(const GrGeometryProcessor* gp, const GrMesh& mesh);
 
@@ -204,7 +204,7 @@ public:
     }
 
 private:
-    GrVertexBatch* vertexBatch() { return static_cast<GrVertexBatch*>(this->batch()); }
+    GrMeshDrawOp* vertexBatch() { return static_cast<GrMeshDrawOp*>(this->batch()); }
     typedef GrDrawOp::Target INHERITED;
 };
 

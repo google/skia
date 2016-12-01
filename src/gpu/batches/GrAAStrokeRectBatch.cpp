@@ -116,7 +116,7 @@ static sk_sp<GrGeometryProcessor> create_stroke_rect_gp(bool tweakAlphaForCovera
     return MakeForDeviceSpace(color, coverage, localCoords, viewMatrix);
 }
 
-class AAStrokeRectBatch : public GrVertexBatch {
+class AAStrokeRectBatch : public GrMeshDrawOp {
 public:
     DEFINE_OP_CLASS_ID
 
@@ -241,7 +241,7 @@ private:
     SkMatrix fViewMatrix;
     bool fMiterStroke;
 
-    typedef GrVertexBatch INHERITED;
+    typedef GrMeshDrawOp INHERITED;
 };
 
 void AAStrokeRectBatch::initBatchTracker(const GrXPOverridesForBatch& overrides) {

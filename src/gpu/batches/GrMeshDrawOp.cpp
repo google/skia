@@ -5,24 +5,22 @@
  * found in the LICENSE file.
  */
 
-#include "GrVertexBatch.h"
+#include "GrMeshDrawOp.h"
 #include "GrBatchFlushState.h"
 #include "GrResourceProvider.h"
 
-GrVertexBatch::GrVertexBatch(uint32_t classID)
-    : INHERITED(classID)
-    , fBaseDrawToken(GrDrawOpUploadToken::AlreadyFlushedToken()) {
-}
+GrMeshDrawOp::GrMeshDrawOp(uint32_t classID)
+    : INHERITED(classID), fBaseDrawToken(GrDrawOpUploadToken::AlreadyFlushedToken()) {}
 
-void GrVertexBatch::onPrepare(GrBatchFlushState* state) {
+void GrMeshDrawOp::onPrepare(GrBatchFlushState* state) {
     Target target(state, this);
     this->onPrepareDraws(&target);
 }
 
-void* GrVertexBatch::InstancedHelper::init(Target* target, GrPrimitiveType primType,
-                                           size_t vertexStride, const GrBuffer* indexBuffer,
-                                           int verticesPerInstance, int indicesPerInstance,
-                                           int instancesToDraw) {
+void* GrMeshDrawOp::InstancedHelper::init(Target* target, GrPrimitiveType primType,
+                                          size_t vertexStride, const GrBuffer* indexBuffer,
+                                          int verticesPerInstance, int indicesPerInstance,
+                                          int instancesToDraw) {
     SkASSERT(target);
     if (!indexBuffer) {
         return nullptr;
@@ -30,7 +28,8 @@ void* GrVertexBatch::InstancedHelper::init(Target* target, GrPrimitiveType primT
     const GrBuffer* vertexBuffer;
     int firstVertex;
     int vertexCount = verticesPerInstance * instancesToDraw;
-    void* vertices = target->makeVertexSpace(vertexStride, vertexCount, &vertexBuffer, &firstVertex);
+    void* vertices =
+            target->makeVertexSpace(vertexStride, vertexCount, &vertexBuffer, &firstVertex);
     if (!vertices) {
         SkDebugf("Vertices could not be allocated for instanced rendering.");
         return nullptr;
@@ -39,21 +38,18 @@ void* GrVertexBatch::InstancedHelper::init(Target* target, GrPrimitiveType primT
     size_t ibSize = indexBuffer->gpuMemorySize();
     int maxInstancesPerDraw = static_cast<int>(ibSize / (sizeof(uint16_t) * indicesPerInstance));
 
-    fMesh.initInstanced(primType, vertexBuffer, indexBuffer,
-        firstVertex, verticesPerInstance, indicesPerInstance, instancesToDraw,
-        maxInstancesPerDraw);
+    fMesh.initInstanced(primType, vertexBuffer, indexBuffer, firstVertex, verticesPerInstance,
+                        indicesPerInstance, instancesToDraw, maxInstancesPerDraw);
     return vertices;
 }
 
-void GrVertexBatch::InstancedHelper::recordDraw(Target* target, const GrGeometryProcessor* gp) {
+void GrMeshDrawOp::InstancedHelper::recordDraw(Target* target, const GrGeometryProcessor* gp) {
     SkASSERT(fMesh.instanceCount());
     target->draw(gp, fMesh);
 }
 
-void* GrVertexBatch::QuadHelper::init(Target* target, size_t vertexStride,
-                                      int quadsToDraw) {
-    sk_sp<const GrBuffer> quadIndexBuffer(
-        target->resourceProvider()->refQuadIndexBuffer());
+void* GrMeshDrawOp::QuadHelper::init(Target* target, size_t vertexStride, int quadsToDraw) {
+    sk_sp<const GrBuffer> quadIndexBuffer(target->resourceProvider()->refQuadIndexBuffer());
     if (!quadIndexBuffer) {
         SkDebugf("Could not get quad index buffer.");
         return nullptr;
@@ -63,7 +59,7 @@ void* GrVertexBatch::QuadHelper::init(Target* target, size_t vertexStride,
                                  quadsToDraw);
 }
 
-void GrVertexBatch::onDraw(GrBatchFlushState* state, const SkRect& bounds) {
+void GrMeshDrawOp::onDraw(GrBatchFlushState* state, const SkRect& bounds) {
     int currUploadIdx = 0;
     int currMeshIdx = 0;
 
@@ -75,7 +71,7 @@ void GrVertexBatch::onDraw(GrBatchFlushState* state, const SkRect& bounds) {
                fInlineUploads[currUploadIdx].fUploadBeforeToken == drawToken) {
             state->commandBuffer()->inlineUpload(state, fInlineUploads[currUploadIdx++].fUpload);
         }
-        const QueuedDraw &draw = fQueuedDraws[currDrawIdx];
+        const QueuedDraw& draw = fQueuedDraws[currDrawIdx];
         state->commandBuffer()->draw(*this->pipeline(), *draw.fGeometryProcessor.get(),
                                      fMeshes.begin() + currMeshIdx, draw.fMeshCnt, bounds);
         currMeshIdx += draw.fMeshCnt;
@@ -89,13 +85,13 @@ void GrVertexBatch::onDraw(GrBatchFlushState* state, const SkRect& bounds) {
 
 //////////////////////////////////////////////////////////////////////////////
 
-void GrVertexBatch::Target::draw(const GrGeometryProcessor* gp, const GrMesh& mesh) {
-    GrVertexBatch* batch = this->vertexBatch();
+void GrMeshDrawOp::Target::draw(const GrGeometryProcessor* gp, const GrMesh& mesh) {
+    GrMeshDrawOp* batch = this->vertexBatch();
     batch->fMeshes.push_back(mesh);
     if (!batch->fQueuedDraws.empty()) {
         // If the last draw shares a geometry processor and there are no intervening uploads,
         // add this mesh to it.
-        GrVertexBatch::QueuedDraw& lastDraw = this->vertexBatch()->fQueuedDraws.back();
+        GrMeshDrawOp::QueuedDraw& lastDraw = this->vertexBatch()->fQueuedDraws.back();
         if (lastDraw.fGeometryProcessor == gp &&
             (batch->fInlineUploads.empty() ||
              batch->fInlineUploads.back().fUploadBeforeToken != this->nextDrawToken())) {
@@ -103,7 +99,7 @@ void GrVertexBatch::Target::draw(const GrGeometryProcessor* gp, const GrMesh& me
             return;
         }
     }
-    GrVertexBatch::QueuedDraw& draw = this->vertexBatch()->fQueuedDraws.push_back();
+    GrMeshDrawOp::QueuedDraw& draw = this->vertexBatch()->fQueuedDraws.push_back();
     GrDrawOpUploadToken token = this->state()->issueDrawToken();
     draw.fGeometryProcessor.reset(gp);
     draw.fMeshCnt = 1;

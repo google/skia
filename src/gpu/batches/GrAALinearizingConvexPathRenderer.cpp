@@ -15,14 +15,14 @@
 #include "GrGeometryProcessor.h"
 #include "GrInvariantOutput.h"
 #include "GrPathUtils.h"
-#include "GrProcessor.h"
 #include "GrPipelineBuilder.h"
+#include "GrProcessor.h"
 #include "GrStyle.h"
 #include "SkGeometry.h"
+#include "SkPathPriv.h"
 #include "SkString.h"
 #include "SkTraceEvent.h"
-#include "SkPathPriv.h"
-#include "batches/GrVertexBatch.h"
+#include "batches/GrMeshDrawOp.h"
 #include "glsl/GrGLSLGeometryProcessor.h"
 
 static const int DEFAULT_BUFFER_SIZE = 100;
@@ -123,7 +123,7 @@ static sk_sp<GrGeometryProcessor> create_fill_gp(bool tweakAlphaForCoverage,
     return MakeForDeviceSpace(color, coverage, localCoords, viewMatrix);
 }
 
-class AAFlatteningConvexPathBatch : public GrVertexBatch {
+class AAFlatteningConvexPathBatch : public GrMeshDrawOp {
 public:
     DEFINE_OP_CLASS_ID
 
@@ -190,7 +190,7 @@ private:
         fBatch.fCanTweakAlphaForCoverage = overrides.canTweakAlphaForCoverage();
     }
 
-    void draw(GrVertexBatch::Target* target, const GrGeometryProcessor* gp, int vertexCount,
+    void draw(GrMeshDrawOp::Target* target, const GrGeometryProcessor* gp, int vertexCount,
               size_t vertexStride, void* vertices, int indexCount, uint16_t* indices) const {
         if (vertexCount == 0 || indexCount == 0) {
             return;
@@ -337,7 +337,7 @@ private:
     BatchTracker fBatch;
     SkSTArray<1, Geometry, true> fGeoData;
 
-    typedef GrVertexBatch INHERITED;
+    typedef GrMeshDrawOp INHERITED;
 };
 
 bool GrAALinearizingConvexPathRenderer::onDrawPath(const DrawPathArgs& args) {

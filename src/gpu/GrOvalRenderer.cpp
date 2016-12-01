@@ -17,14 +17,14 @@
 #include "GrStyle.h"
 #include "SkRRect.h"
 #include "SkStrokeRec.h"
-#include "batches/GrVertexBatch.h"
+#include "batches/GrMeshDrawOp.h"
 #include "glsl/GrGLSLFragmentShaderBuilder.h"
 #include "glsl/GrGLSLGeometryProcessor.h"
 #include "glsl/GrGLSLProgramDataManager.h"
-#include "glsl/GrGLSLVarying.h"
-#include "glsl/GrGLSLVertexShaderBuilder.h"
 #include "glsl/GrGLSLUniformHandler.h"
 #include "glsl/GrGLSLUtil.h"
+#include "glsl/GrGLSLVarying.h"
+#include "glsl/GrGLSLVertexShaderBuilder.h"
 
 // TODO(joshualitt) - Break this file up during GrOp post implementation cleanup
 
@@ -597,7 +597,7 @@ static const uint16_t* circle_type_to_indices(bool stroked) {
 
 ///////////////////////////////////////////////////////////////////////////////
 
-class CircleBatch : public GrVertexBatch {
+class CircleBatch : public GrMeshDrawOp {
 public:
     DEFINE_OP_CLASS_ID
 
@@ -1143,12 +1143,12 @@ private:
     bool                         fClipPlaneIsect;
     bool                         fClipPlaneUnion;
 
-    typedef GrVertexBatch INHERITED;
+    typedef GrMeshDrawOp INHERITED;
 };
 
 ///////////////////////////////////////////////////////////////////////////////
 
-class EllipseBatch : public GrVertexBatch {
+class EllipseBatch : public GrMeshDrawOp {
 public:
     DEFINE_OP_CLASS_ID
     static GrDrawOp* Create(GrColor color, const SkMatrix& viewMatrix, const SkRect& ellipse,
@@ -1374,12 +1374,12 @@ private:
     SkMatrix                     fViewMatrixIfUsingLocalCoords;
     SkSTArray<1, Geometry, true> fGeoData;
 
-    typedef GrVertexBatch INHERITED;
+    typedef GrMeshDrawOp INHERITED;
 };
 
 /////////////////////////////////////////////////////////////////////////////////////////////////
 
-class DIEllipseBatch : public GrVertexBatch {
+class DIEllipseBatch : public GrMeshDrawOp {
 public:
     DEFINE_OP_CLASS_ID
 
@@ -1598,7 +1598,7 @@ private:
     bool                         fUsesLocalCoords;
     SkSTArray<1, Geometry, true> fGeoData;
 
-    typedef GrVertexBatch INHERITED;
+    typedef GrMeshDrawOp INHERITED;
 };
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -1721,7 +1721,7 @@ static const uint16_t* rrect_type_to_indices(RRectType type) {
 //   each vertex is also given the normalized x & y distance from the interior rect's edge
 //      the GP takes the min of those depths +1 to get the normalized distance to the outer edge
 
-class RRectCircleRendererBatch : public GrVertexBatch {
+class RRectCircleRendererBatch : public GrMeshDrawOp {
 public:
     DEFINE_OP_CLASS_ID
 
@@ -2055,7 +2055,7 @@ private:
     int                          fIndexCount;
     bool                         fAllFill;
 
-    typedef GrVertexBatch INHERITED;
+    typedef GrMeshDrawOp INHERITED;
 };
 
 static const int kNumRRectsInIndexBuffer = 256;
@@ -2081,7 +2081,7 @@ static const GrBuffer* ref_rrect_index_buffer(RRectType type,
     };
 }
 
-class RRectEllipseRendererBatch : public GrVertexBatch {
+class RRectEllipseRendererBatch : public GrMeshDrawOp {
 public:
     DEFINE_OP_CLASS_ID
 
@@ -2309,7 +2309,7 @@ private:
     SkMatrix                        fViewMatrixIfUsingLocalCoords;
     SkSTArray<1, Geometry, true>    fGeoData;
 
-    typedef GrVertexBatch INHERITED;
+    typedef GrMeshDrawOp INHERITED;
 };
 
 static GrDrawOp* create_rrect_batch(GrColor color,

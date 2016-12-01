@@ -14,7 +14,7 @@
 #include "GrGpu.h"
 #include "GrResourceProvider.h"
 #include "GrXferProcessor.h"
-#include "batches/GrVertexBatch.h"
+#include "batches/GrMeshDrawOp.h"
 #include "effects/GrPorterDuffXferProcessor.h"
 #include "gl/GrGLCaps.h"
 
@@ -1090,7 +1090,7 @@ static void test_color_opaque_no_coverage(skiatest::Reporter* reporter, const Gr
 }
 
 static void test_lcd_coverage_fallback_case(skiatest::Reporter* reporter, const GrCaps& caps) {
-    class TestLCDCoverageBatch: public GrVertexBatch {
+    class TestLCDCoverageBatch : public GrMeshDrawOp {
     public:
         DEFINE_OP_CLASS_ID
 
@@ -1109,7 +1109,7 @@ static void test_lcd_coverage_fallback_case(skiatest::Reporter* reporter, const 
         bool onCombineIfPossible(GrOp*, const GrCaps&) override  { return false; }
         void onPrepareDraws(Target*) const override {}
 
-        typedef GrVertexBatch INHERITED;
+        typedef GrMeshDrawOp INHERITED;
     } testLCDCoverageBatch;
 
     GrPipelineOptimizations opts;

@@ -170,7 +170,7 @@ void GrAtlasTextBatch::onPrepareDraws(Target* target) const {
     this->flush(target, &flushInfo);
 }
 
-void GrAtlasTextBatch::flush(GrVertexBatch::Target* target, FlushInfo* flushInfo) const {
+void GrAtlasTextBatch::flush(GrMeshDrawOp::Target* target, FlushInfo* flushInfo) const {
     GrMesh mesh;
     int maxGlyphsPerDraw =
         static_cast<int>(flushInfo->fIndexBuffer->gpuMemorySize() / sizeof(uint16_t) / 6);

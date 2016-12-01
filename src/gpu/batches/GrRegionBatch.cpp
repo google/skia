@@ -7,10 +7,10 @@
 
 #include "GrRegionBatch.h"
 
-#include "GrDefaultGeoProcFactory.h"
 #include "GrBatchFlushState.h"
+#include "GrDefaultGeoProcFactory.h"
+#include "GrMeshDrawOp.h"
 #include "GrResourceProvider.h"
-#include "GrVertexBatch.h"
 #include "SkMatrixPriv.h"
 #include "SkRegion.h"
 
@@ -50,7 +50,7 @@ static void tesselate_region(intptr_t vertices,
     }
 }
 
-class RegionBatch : public GrVertexBatch {
+class RegionBatch : public GrMeshDrawOp {
 public:
     DEFINE_OP_CLASS_ID
 
@@ -155,7 +155,7 @@ private:
     GrXPOverridesForBatch fOverrides;
     SkSTArray<1, RegionInfo, true> fRegions;
 
-    typedef GrVertexBatch INHERITED;
+    typedef GrMeshDrawOp INHERITED;
 };
 
 namespace GrRegionBatch {

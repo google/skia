@@ -10,10 +10,10 @@
 #include "GrBatchFlushState.h"
 #include "GrColor.h"
 #include "GrDefaultGeoProcFactory.h"
+#include "GrMeshDrawOp.h"
 #include "GrPrimitiveProcessor.h"
-#include "GrResourceProvider.h"
 #include "GrQuad.h"
-#include "GrVertexBatch.h"
+#include "GrResourceProvider.h"
 
 static const int kVertsPerInstance = 4;
 static const int kIndicesPerInstance = 6;
@@ -90,7 +90,7 @@ static void tesselate(intptr_t vertices,
 }
 
 // We handle perspective in the local matrix or viewmatrix with special batches
-class GrNonAAFillRectPerspectiveBatch : public GrVertexBatch {
+class GrNonAAFillRectPerspectiveBatch : public GrMeshDrawOp {
 public:
     DEFINE_OP_CLASS_ID
 
@@ -229,7 +229,7 @@ private:
     SkMatrix fLocalMatrix;
     SkMatrix fViewMatrix;
 
-    typedef GrVertexBatch INHERITED;
+    typedef GrMeshDrawOp INHERITED;
 };
 
 namespace GrNonAAFillRectBatch {
