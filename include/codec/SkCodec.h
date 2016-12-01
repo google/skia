@@ -784,6 +784,12 @@ protected:
     virtual int onGetRepetitionCount() {
         return 0;
     }
+    
+    void setUnsupportedICC(bool value) {
+#ifdef SK_DEBUG
+        fUnsupportedICC = value;
+#endif
+    }
 
 private:
     const SkEncodedInfo                fEncodedInfo;
@@ -800,6 +806,9 @@ private:
     int                                fCurrScanline;
 
     bool                               fStartedIncrementalDecode;
+#ifdef SK_DEBUG
+    bool                               fUnsupportedICC;
+#endif
 
     /**
      *  Return whether these dimensions are supported as a scale.
@@ -864,5 +873,7 @@ private:
     friend class DM::CodecSrc;  // for fillIncompleteImage
     friend class SkSampledCodec;
     friend class SkIcoCodec;
+    friend struct Sniffer; // for fUnsupportedICC
+    friend class AutoCleanPng; // for setUnsupportedICC()
 };
 #endif // SkCodec_DEFINED
