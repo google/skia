@@ -76,6 +76,7 @@ public:
             str.appendf("%d: Color: 0x%08x, Region with %d rects\n",
                         i, info.fColor, info.fRegion.computeRegionComplexity());
         }
+        str.append(DumpPipelineInfo(*this->pipeline()));
         str.append(INHERITED::dumpInfo());
         return str;
     }

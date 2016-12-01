@@ -51,6 +51,17 @@ public:
 
     const char* name() const override { return "NonAAStrokeRectBatch"; }
 
+    SkString dumpInfo() const override {
+        SkString string;
+        string.appendf("Color: 0x%08x, Rect [L: %.2f, T: %.2f, R: %.2f, B: %.2f], "
+                       "StrokeWidth: %.2f\n",
+                       fColor, fRect.fLeft, fRect.fTop, fRect.fRight, fRect.fBottom,
+                       fStrokeWidth);
+        string.append(DumpPipelineInfo(*this->pipeline()));
+        string.append(INHERITED::dumpInfo());
+        return string;
+    }
+
     void computePipelineOptimizations(GrInitInvariantOutput* color,
                                       GrInitInvariantOutput* coverage,
                                       GrBatchToXPOverrides* overrides) const override {

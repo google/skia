@@ -270,6 +270,7 @@ public:
                            fGeoData[i].fHalfWidth,
                            fGeoData[i].fHalfHeight);
         }
+        string.append(DumpPipelineInfo(*this->pipeline()));
         string.append(INHERITED::dumpInfo());
         return string;
     }

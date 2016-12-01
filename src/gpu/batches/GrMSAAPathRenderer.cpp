@@ -233,6 +233,17 @@ public:
 
     const char* name() const override { return "MSAAPathBatch"; }
 
+    SkString dumpInfo() const override {
+        SkString string;
+        string.appendf("Indexed: %d\n", fIsIndexed);
+        for (const auto& path : fPaths) {
+            string.appendf("Color: 0x%08x\n", path.fColor);
+        }
+        string.append(DumpPipelineInfo(*this->pipeline()));
+        string.append(INHERITED::dumpInfo());
+        return string;
+    }
+
     void computePipelineOptimizations(GrInitInvariantOutput* color,
                                       GrInitInvariantOutput* coverage,
                                       GrBatchToXPOverrides* overrides) const override {
