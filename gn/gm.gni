@@ -172,7 +172,6 @@ gm_sources = [
   "$_gm/imagetoyuvplanes.cpp",
   "$_gm/internal_links.cpp",
   "$_gm/inversepaths.cpp",
-  "$_gm/labpcsdemo.cpp",
   "$_gm/largeglyphblur.cpp",
   "$_gm/lattice.cpp",
   "$_gm/lcdblendmodes.cpp",
