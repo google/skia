@@ -51,7 +51,6 @@ GrGLCaps::GrGLCaps(const GrContextOptions& contextOptions,
     fMipMapLevelAndLodControlSupport = false;
     fRGBAToBGRAReadbackConversionsAreSlow = false;
     fDoManualMipmapping = false;
-    fSRGBDecodeDisableSupport = false;
 
     fBlitFramebufferFlags = kNoSupport_BlitFramebufferFlag;
 
@@ -608,11 +607,9 @@ void GrGLCaps::init(const GrContextOptions& contextOptions,
         fDoManualMipmapping = true;
     }
 
-    fSRGBDecodeDisableSupport = ctxInfo.hasExtension("GL_EXT_texture_sRGB_decode");
-
     // Requires fTextureRedSupport, fTextureSwizzleSupport, msaa support, ES compatibility have
     // already been detected.
-    this->initConfigTable(contextOptions, ctxInfo, gli, shaderCaps);
+    this->initConfigTable(ctxInfo, gli, shaderCaps);
 
     this->applyOptionsOverrides(contextOptions);
     shaderCaps->applyOptionsOverrides(contextOptions);
@@ -1392,8 +1389,7 @@ bool GrGLCaps::getExternalFormat(GrPixelConfig surfaceConfig, GrPixelConfig memo
     return true;
 }
 
-void GrGLCaps::initConfigTable(const GrContextOptions& contextOptions,
-                               const GrGLContextInfo& ctxInfo, const GrGLInterface* gli,
+void GrGLCaps::initConfigTable(const GrGLContextInfo& ctxInfo, const GrGLInterface* gli,
                                GrShaderCaps* shaderCaps) {
     /*
         Comments on renderability of configs on various GL versions.
@@ -1579,37 +1575,19 @@ void GrGLCaps::initConfigTable(const GrContextOptions& contextOptions,
             fSRGBWriteControl = true;
         }
     } else {
-        fSRGBSupport = ctxInfo.version() >= GR_GL_VER(3,0) || ctxInfo.hasExtension("GL_EXT_sRGB");
-#if defined(SK_CPU_X86)
-        if (kPowerVRRogue_GrGLRenderer == ctxInfo.renderer()) {
-            // NexusPlayer has strange bugs with sRGB (skbug.com/4148). This is a targeted fix to
-            // blacklist that device (and any others that might be sharing the same driver).
-            fSRGBSupport = false;
-        }
-#endif
+        // See https://bug.skia.org/4148 for PowerVR issue.
+        fSRGBSupport = kPowerVRRogue_GrGLRenderer != ctxInfo.renderer() &&
+            (ctxInfo.version() >= GR_GL_VER(3,0) || ctxInfo.hasExtension("GL_EXT_sRGB"));
         // ES through 3.1 requires EXT_srgb_write_control to support toggling
         // sRGB writing for destinations.
         // See https://bug.skia.org/5329 for Adreno4xx issue.
         fSRGBWriteControl = kAdreno4xx_GrGLRenderer != ctxInfo.renderer() &&
             ctxInfo.hasExtension("GL_EXT_sRGB_write_control");
     }
-    if (contextOptions.fRequireDecodeDisableForSRGB && !fSRGBDecodeDisableSupport) {
-        // To support "legacy" L32 mode, we require the ability to turn off sRGB decode. Clients
-        // can opt-out of that requirement, if they intend to always do linear blending.
+    if (!ctxInfo.hasExtension("GL_EXT_texture_sRGB_decode")) {
+        // To support "legacy" L32 mode, we require the ability to turn off sRGB decode:
         fSRGBSupport = false;
     }
-
-    // This is very conservative, if we're on a platform where N32 is BGRA, and using ES, disable
-    // all sRGB support. Too much code relies on creating surfaces with N32 + sRGB colorspace,
-    // and sBGRA is basically impossible to support on any version of ES (with our current code).
-    // In particular, ES2 doesn't support sBGRA at all, and even in ES3, there is no valid pair
-    // of formats that can be used for TexImage calls to upload BGRA data to sRGBA (which is what
-    // we *have* to use as the internal format, because sBGRA doesn't exist). This primarily
-    // affects Windows.
-    if (kSkia8888_GrPixelConfig == kBGRA_8888_GrPixelConfig && kGLES_GrGLStandard == standard) {
-        fSRGBSupport = false;
-    }
-
     fConfigTable[kSRGBA_8888_GrPixelConfig].fFormats.fBaseInternalFormat = GR_GL_SRGB_ALPHA;
     fConfigTable[kSRGBA_8888_GrPixelConfig].fFormats.fSizedInternalFormat = GR_GL_SRGB8_ALPHA8;
     // GL does not do srgb<->rgb conversions when transferring between cpu and gpu. Thus, the

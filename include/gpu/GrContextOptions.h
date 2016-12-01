@@ -77,14 +77,6 @@ struct GrContextOptions {
      * purposes.
      */
     bool fForceSWPathMasks = false;
-
-    /**
-     * If true, sRGB support will not be enabled unless sRGB decoding can be disabled (via an
-     * extension). If mixed use of "legacy" mode and sRGB/color-correct mode is not required, this
-     * can be set to false, which will significantly expand the number of devices that qualify for
-     * sRGB support.
-     */
-    bool fRequireDecodeDisableForSRGB = true;
 };
 
 #endif
