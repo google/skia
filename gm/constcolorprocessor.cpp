@@ -15,7 +15,7 @@
 #include "GrRenderTargetContextPriv.h"
 #include "SkGrPriv.h"
 #include "SkGradientShader.h"
-#include "batches/GrDrawBatch.h"
+#include "batches/GrDrawOp.h"
 #include "batches/GrRectBatchFactory.h"
 #include "effects/GrConstColorProcessor.h"
 
@@ -109,7 +109,7 @@ protected:
 
                     grPaint.addColorFragmentProcessor(std::move(fp));
 
-                    sk_sp<GrDrawBatch> batch(
+                    sk_sp<GrDrawOp> batch(
                             GrRectBatchFactory::CreateNonAAFill(grPaint.getColor(), viewMatrix,
                                                                 renderRect, nullptr, nullptr));
                     renderTargetContext->priv().testingOnly_drawBatch(grPaint, batch.get());

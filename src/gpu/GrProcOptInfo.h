@@ -11,7 +11,7 @@
 #include "GrColor.h"
 #include "GrInvariantOutput.h"
 
-class GrDrawBatch;
+class GrDrawOp;
 class GrFragmentProcessor;
 class GrPrimitiveProcessor;
 

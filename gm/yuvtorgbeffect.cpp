@@ -16,7 +16,7 @@
 #include "SkBitmap.h"
 #include "SkGr.h"
 #include "SkGradientShader.h"
-#include "batches/GrDrawBatch.h"
+#include "batches/GrDrawOp.h"
 #include "batches/GrRectBatchFactory.h"
 #include "effects/GrYUVEffect.h"
 
@@ -126,7 +126,7 @@ protected:
                     SkMatrix viewMatrix;
                     viewMatrix.setTranslate(x, y);
                     grPaint.addColorFragmentProcessor(std::move(fp));
-                    sk_sp<GrDrawBatch> batch(
+                    sk_sp<GrDrawOp> batch(
                             GrRectBatchFactory::CreateNonAAFill(GrColor_WHITE, viewMatrix,
                                                                 renderRect, nullptr, nullptr));
                     renderTargetContext->priv().testingOnly_drawBatch(grPaint, batch.get());
@@ -242,7 +242,7 @@ protected:
                 SkMatrix viewMatrix;
                 viewMatrix.setTranslate(x, y);
                 grPaint.addColorFragmentProcessor(fp);
-                sk_sp<GrDrawBatch> batch(GrRectBatchFactory::CreateNonAAFill(
+                sk_sp<GrDrawOp> batch(GrRectBatchFactory::CreateNonAAFill(
                     GrColor_WHITE, viewMatrix, renderRect, nullptr, nullptr));
                 renderTargetContext->priv().testingOnly_drawBatch(grPaint, batch.get());
             }

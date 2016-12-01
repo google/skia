@@ -8,7 +8,7 @@
 #ifndef GrVertexBatch_DEFINED
 #define GrVertexBatch_DEFINED
 
-#include "GrDrawBatch.h"
+#include "GrDrawOp.h"
 #include "GrGeometryProcessor.h"
 #include "GrMesh.h"
 #include "GrPendingProgramElement.h"
@@ -20,7 +20,7 @@ class GrBatchFlushState;
 /**
  * Base class for vertex-based GrBatches.
  */
-class GrVertexBatch : public GrDrawBatch {
+class GrVertexBatch : public GrDrawOp {
 public:
     class Target;
 
@@ -80,12 +80,12 @@ private:
     // All draws in all the vertex batches have implicit tokens based on the order they are
     // enqueued globally across all batches. This is the offset of the first entry in fQueuedDraws.
     // fQueuedDraws[i]'s token is fBaseDrawToken + i.
-    GrBatchDrawToken fBaseDrawToken;
+    GrDrawOpUploadToken fBaseDrawToken;
 
     SkSTArray<4, GrMesh>           fMeshes;
     SkSTArray<4, QueuedDraw, true> fQueuedDraws;
 
-    typedef GrDrawBatch INHERITED;
+    typedef GrDrawOp INHERITED;
 };
 
 #endif

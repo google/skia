@@ -344,34 +344,34 @@ private:
 
 namespace GrAAFillRectBatch {
 
-GrDrawBatch* Create(GrColor color,
-                    const SkMatrix& viewMatrix,
-                    const SkRect& rect,
-                    const SkRect& devRect) {
+GrDrawOp* Create(GrColor color,
+                 const SkMatrix& viewMatrix,
+                 const SkRect& rect,
+                 const SkRect& devRect) {
     return new AAFillRectBatch(color, viewMatrix, rect, devRect, nullptr);
 }
 
-GrDrawBatch* Create(GrColor color,
-                    const SkMatrix& viewMatrix,
-                    const SkMatrix& localMatrix,
-                    const SkRect& rect,
-                    const SkRect& devRect) {
+GrDrawOp* Create(GrColor color,
+                 const SkMatrix& viewMatrix,
+                 const SkMatrix& localMatrix,
+                 const SkRect& rect,
+                 const SkRect& devRect) {
     return new AAFillRectBatch(color, viewMatrix, rect, devRect, &localMatrix);
 }
 
-GrDrawBatch* Create(GrColor color,
-                    const SkMatrix& viewMatrix,
-                    const SkMatrix& localMatrix,
-                    const SkRect& rect) {
+GrDrawOp* Create(GrColor color,
+                 const SkMatrix& viewMatrix,
+                 const SkMatrix& localMatrix,
+                 const SkRect& rect) {
     SkRect devRect;
     viewMatrix.mapRect(&devRect, rect);
     return Create(color, viewMatrix, localMatrix, rect, devRect);
 }
 
-GrDrawBatch* CreateWithLocalRect(GrColor color,
-                                 const SkMatrix& viewMatrix,
-                                 const SkRect& rect,
-                                 const SkRect& localRect) {
+GrDrawOp* CreateWithLocalRect(GrColor color,
+                              const SkMatrix& viewMatrix,
+                              const SkRect& rect,
+                              const SkRect& localRect) {
     SkRect devRect;
     viewMatrix.mapRect(&devRect, rect);
     SkMatrix localMatrix;

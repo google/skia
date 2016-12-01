@@ -21,24 +21,24 @@ InstancedRendering::InstancedRendering(GrGpu* gpu)
       fDrawPool(1024, 1024) {
 }
 
-GrDrawBatch* InstancedRendering::recordRect(const SkRect& rect, const SkMatrix& viewMatrix,
-                                            GrColor color, bool antialias,
-                                            const GrInstancedPipelineInfo& info, bool* useHWAA) {
+GrDrawOp* InstancedRendering::recordRect(const SkRect& rect, const SkMatrix& viewMatrix,
+                                         GrColor color, bool antialias,
+                                         const GrInstancedPipelineInfo& info, bool* useHWAA) {
     return this->recordShape(ShapeType::kRect, rect, viewMatrix, color, rect, antialias, info,
                              useHWAA);
 }
 
-GrDrawBatch* InstancedRendering::recordRect(const SkRect& rect, const SkMatrix& viewMatrix,
-                                            GrColor color, const SkRect& localRect, bool antialias,
-                                            const GrInstancedPipelineInfo& info, bool* useHWAA) {
+GrDrawOp* InstancedRendering::recordRect(const SkRect& rect, const SkMatrix& viewMatrix,
+                                         GrColor color, const SkRect& localRect, bool antialias,
+                                         const GrInstancedPipelineInfo& info, bool* useHWAA) {
     return this->recordShape(ShapeType::kRect, rect, viewMatrix, color, localRect, antialias, info,
                              useHWAA);
 }
 
-GrDrawBatch* InstancedRendering::recordRect(const SkRect& rect, const SkMatrix& viewMatrix,
-                                            GrColor color, const SkMatrix& localMatrix,
-                                            bool antialias, const GrInstancedPipelineInfo& info,
-                                            bool* useHWAA) {
+GrDrawOp* InstancedRendering::recordRect(const SkRect& rect, const SkMatrix& viewMatrix,
+                                         GrColor color, const SkMatrix& localMatrix,
+                                         bool antialias, const GrInstancedPipelineInfo& info,
+                                         bool* useHWAA) {
     if (localMatrix.hasPerspective()) {
         return nullptr; // Perspective is not yet supported in the local matrix.
     }
@@ -55,16 +55,16 @@ GrDrawBatch* InstancedRendering::recordRect(const SkRect& rect, const SkMatrix& 
     return nullptr;
 }
 
-GrDrawBatch* InstancedRendering::recordOval(const SkRect& oval, const SkMatrix& viewMatrix,
-                                            GrColor color, bool antialias,
-                                            const GrInstancedPipelineInfo& info, bool* useHWAA) {
+GrDrawOp* InstancedRendering::recordOval(const SkRect& oval, const SkMatrix& viewMatrix,
+                                         GrColor color, bool antialias,
+                                         const GrInstancedPipelineInfo& info, bool* useHWAA) {
     return this->recordShape(ShapeType::kOval, oval, viewMatrix, color, oval, antialias, info,
                              useHWAA);
 }
 
-GrDrawBatch* InstancedRendering::recordRRect(const SkRRect& rrect, const SkMatrix& viewMatrix,
-                                             GrColor color, bool antialias,
-                                             const GrInstancedPipelineInfo& info, bool* useHWAA) {
+GrDrawOp* InstancedRendering::recordRRect(const SkRRect& rrect, const SkMatrix& viewMatrix,
+                                          GrColor color, bool antialias,
+                                          const GrInstancedPipelineInfo& info, bool* useHWAA) {
     if (Batch* batch = this->recordShape(GetRRectShapeType(rrect), rrect.rect(), viewMatrix, color,
                                          rrect.rect(), antialias, info, useHWAA)) {
         batch->appendRRectParams(rrect);
@@ -73,10 +73,10 @@ GrDrawBatch* InstancedRendering::recordRRect(const SkRRect& rrect, const SkMatri
     return nullptr;
 }
 
-GrDrawBatch* InstancedRendering::recordDRRect(const SkRRect& outer, const SkRRect& inner,
-                                              const SkMatrix& viewMatrix, GrColor color,
-                                              bool antialias, const GrInstancedPipelineInfo& info,
-                                              bool* useHWAA) {
+GrDrawOp* InstancedRendering::recordDRRect(const SkRRect& outer, const SkRRect& inner,
+                                           const SkMatrix& viewMatrix, GrColor color,
+                                           bool antialias, const GrInstancedPipelineInfo& info,
+                                           bool* useHWAA) {
     if (inner.getType() > SkRRect::kSimple_Type) {
        return nullptr; // Complex inner round rects are not yet supported.
     }

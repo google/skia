@@ -9,7 +9,7 @@
 
 #include "GrCaps.h"
 #include "GrContext.h"
-#include "batches/GrDrawBatch.h"
+#include "batches/GrDrawOp.h"
 #include "GrRenderTargetContext.h"
 #include "GrPipelineBuilder.h"
 #include "GrShape.h"
@@ -194,8 +194,7 @@ void GrSWMaskHelper::DrawToTargetWithShapeMask(GrTexture* texture,
                                                      maskMatrix,
                                                      GrSamplerParams::kNone_FilterMode));
 
-    sk_sp<GrDrawBatch> batch(GrRectBatchFactory::CreateNonAAFill(paint.getColor(),
-                                                                 SkMatrix::I(),
-                                                                 dstRect, nullptr, &invert));
+    sk_sp<GrDrawOp> batch(GrRectBatchFactory::CreateNonAAFill(paint.getColor(), SkMatrix::I(),
+                                                              dstRect, nullptr, &invert));
     renderTargetContext->drawBatch(pipelineBuilder, clip, batch.get());
 }

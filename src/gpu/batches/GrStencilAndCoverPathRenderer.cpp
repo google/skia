@@ -120,7 +120,7 @@ bool GrStencilAndCoverPathRenderer::onDrawPath(const DrawPathArgs& args) {
         }
         const SkMatrix& viewM = viewMatrix.hasPerspective() ? SkMatrix::I() : viewMatrix;
 
-        sk_sp<GrDrawBatch> coverBatch(
+        sk_sp<GrDrawOp> coverBatch(
                 GrRectBatchFactory::CreateNonAAFill(args.fPaint->getColor(), viewM, bounds,
                                                     nullptr, &invert));
 
@@ -160,8 +160,8 @@ bool GrStencilAndCoverPathRenderer::onDrawPath(const DrawPathArgs& args) {
                 0xffff>()
         );
 
-        sk_sp<GrDrawBatch> batch(GrDrawPathBatch::Create(viewMatrix, args.fPaint->getColor(),
-                                                         path.get()));
+        sk_sp<GrDrawOp> batch(GrDrawPathBatch::Create(viewMatrix, args.fPaint->getColor(),
+                                                      path.get()));
 
         GrPipelineBuilder pipelineBuilder(*args.fPaint, args.fPaint->isAntiAlias());
         pipelineBuilder.setUserStencil(&kCoverPass);

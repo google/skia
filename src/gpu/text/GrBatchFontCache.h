@@ -64,7 +64,7 @@ public:
     // happen.
     // TODO we can handle some of these cases if we really want to, but the long term solution is to
     // get the actual glyph image itself when we get the glyph metrics.
-    bool addGlyphToAtlas(GrDrawBatch::Target*, GrGlyph*, SkGlyphCache*,
+    bool addGlyphToAtlas(GrDrawOp::Target*, GrGlyph*, SkGlyphCache*,
                          GrMaskFormat expectedMaskFormat);
 
     // testing
@@ -149,21 +149,21 @@ public:
     // For convenience, this function will also set the use token for the current glyph if required
     // NOTE: the bulk uploader is only valid if the subrun has a valid atlasGeneration
     void addGlyphToBulkAndSetUseToken(GrBatchAtlas::BulkUseTokenUpdater* updater,
-                                      GrGlyph* glyph, GrBatchDrawToken token) {
+                                      GrGlyph* glyph, GrDrawOpUploadToken token) {
         SkASSERT(glyph);
         updater->add(glyph->fID);
         this->getAtlas(glyph->fMaskFormat)->setLastUseToken(glyph->fID, token);
     }
 
     void setUseTokenBulk(const GrBatchAtlas::BulkUseTokenUpdater& updater,
-                         GrBatchDrawToken token,
+                         GrDrawOpUploadToken token,
                          GrMaskFormat format) {
         this->getAtlas(format)->setLastUseTokenBulk(updater, token);
     }
 
     // add to texture atlas that matches this format
     bool addToAtlas(GrBatchTextStrike* strike, GrBatchAtlas::AtlasID* id,
-                    GrDrawBatch::Target* target,
+                    GrDrawOp::Target* target,
                     GrMaskFormat format, int width, int height, const void* image,
                     SkIPoint16* loc) {
         fPreserveStrike = strike;

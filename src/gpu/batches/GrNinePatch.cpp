@@ -180,8 +180,8 @@ private:
 };
 
 namespace GrNinePatch {
-GrDrawBatch* CreateNonAA(GrColor color, const SkMatrix& viewMatrix, int imageWidth, int imageHeight,
-                         std::unique_ptr<SkLatticeIter> iter, const SkRect& dst) {
+GrDrawOp* CreateNonAA(GrColor color, const SkMatrix& viewMatrix, int imageWidth, int imageHeight,
+                      std::unique_ptr<SkLatticeIter> iter, const SkRect& dst) {
     return new GrNonAANinePatchBatch(color, viewMatrix, imageWidth, imageHeight, std::move(iter),
                                      dst);
 }

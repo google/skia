@@ -12,7 +12,7 @@
 
 #ifdef GR_TEST_UTILS
 
-class GrDrawBatch;
+class GrDrawOp;
 class GrContext;
 class SkRandom;
 
@@ -23,17 +23,17 @@ class SkRandom;
 
 // Batches should define test functions using DRAW_BATCH_TEST_DEFINE.  The other macros defined
 // below are used exclusively by the test harness.
-typedef GrDrawBatch* (*BatchTestFunc)(SkRandom* random, GrContext* context);
+typedef GrDrawOp* (*BatchTestFunc)(SkRandom* random, GrContext* context);
 #define DRAW_BATCH_TEST_DEFINE(Batch) \
-    GrDrawBatch* Batch##__Test(SkRandom* random, GrContext* context)
+    GrDrawOp* Batch##__Test(SkRandom* random, GrContext* context)
 #define DRAW_BATCH_TEST_EXTERN(Batch) \
-    extern GrDrawBatch* Batch##__Test(SkRandom*, GrContext* context);
+    extern GrDrawOp* Batch##__Test(SkRandom*, GrContext* context);
 #define DRAW_BATCH_TEST_ENTRY(Batch) \
     Batch##__Test
 #define DRAW_BATCH_TEST_FRIEND(Batch) \
-    friend GrDrawBatch* Batch##__Test(SkRandom* random, GrContext* context);
+    friend GrDrawOp* Batch##__Test(SkRandom* random, GrContext* context);
 
-GrDrawBatch* GrRandomDrawBatch(SkRandom*, GrContext*);
+GrDrawOp* GrRandomDrawBatch(SkRandom*, GrContext*);
 
 #endif
 #endif

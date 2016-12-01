@@ -13,7 +13,7 @@
 #include "SkPathEffect.h"
 
 class GrClip;
-class GrDrawBatch;
+class GrDrawOp;
 class GrStyle;
 
 namespace GrDashingEffect {
@@ -24,11 +24,11 @@ namespace GrDashingEffect {
     };
     static const int kAAModeCnt = static_cast<int>(AAMode::kCoverageWithMSAA) + 1;
 
-    GrDrawBatch* CreateDashLineBatch(GrColor,
-                                     const SkMatrix& viewMatrix,
-                                     const SkPoint pts[2],
-                                     AAMode,
-                                     const GrStyle& style);
+    GrDrawOp* CreateDashLineBatch(GrColor,
+                                  const SkMatrix& viewMatrix,
+                                  const SkPoint pts[2],
+                                  AAMode,
+                                  const GrStyle& style);
     bool CanDrawDashLine(const SkPoint pts[2], const GrStyle& style,
                          const SkMatrix& viewMatrix);
 }

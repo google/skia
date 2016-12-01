@@ -9,7 +9,7 @@
 #define GrDrawPathBatch_DEFINED
 
 #include "GrBatchFlushState.h"
-#include "GrDrawBatch.h"
+#include "GrDrawOp.h"
 #include "GrGpu.h"
 #include "GrPath.h"
 #include "GrPathRendering.h"
@@ -18,7 +18,7 @@
 
 #include "SkTLList.h"
 
-class GrDrawPathBatchBase : public GrDrawBatch {
+class GrDrawPathBatchBase : public GrDrawOp {
 public:
     void computePipelineOptimizations(GrInitInvariantOutput* color,
                                       GrInitInvariantOutput* coverage,
@@ -58,14 +58,14 @@ private:
     GrStencilSettings                                       fStencilPassSettings;
     GrXPOverridesForBatch                                   fOverrides;
 
-    typedef GrDrawBatch INHERITED;
+    typedef GrDrawOp INHERITED;
 };
 
 class GrDrawPathBatch final : public GrDrawPathBatchBase {
 public:
     DEFINE_OP_CLASS_ID
 
-    static GrDrawBatch* Create(const SkMatrix& viewMatrix, GrColor color, const GrPath* path) {
+    static GrDrawOp* Create(const SkMatrix& viewMatrix, GrColor color, const GrPath* path) {
         return new GrDrawPathBatch(viewMatrix, color, path);
     }
 
@@ -155,9 +155,9 @@ public:
         SkDEBUGCODE(int fReserveCnt;)
     };
 
-    static GrDrawBatch* Create(const SkMatrix& viewMatrix, SkScalar scale, SkScalar x, SkScalar y,
-                               GrColor color, GrPathRendering::FillType fill, GrPathRange* range,
-                               const InstanceData* instanceData, const SkRect& bounds) {
+    static GrDrawOp* Create(const SkMatrix& viewMatrix, SkScalar scale, SkScalar x, SkScalar y,
+                            GrColor color, GrPathRendering::FillType fill, GrPathRange* range,
+                            const InstanceData* instanceData, const SkRect& bounds) {
         return new GrDrawPathRangeBatch(viewMatrix, scale, x, y, color, fill, range, instanceData,
                                         bounds);
     }

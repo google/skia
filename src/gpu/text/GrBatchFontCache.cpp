@@ -341,7 +341,7 @@ void GrBatchTextStrike::removeID(GrBatchAtlas::AtlasID id) {
     }
 }
 
-bool GrBatchTextStrike::addGlyphToAtlas(GrDrawBatch::Target* target,
+bool GrBatchTextStrike::addGlyphToAtlas(GrDrawOp::Target* target,
                                         GrGlyph* glyph,
                                         SkGlyphCache* cache,
                                         GrMaskFormat expectedMaskFormat) {

@@ -183,7 +183,7 @@ protected:
                 grPaint.setXPFactory(GrPorterDuffXPFactory::Make(SkBlendMode::kSrc));
                 grPaint.addCoverageFragmentProcessor(std::move(fp));
 
-                sk_sp<GrDrawBatch> batch(new PolyBoundsBatch(p.getBounds(), 0xff000000));
+                sk_sp<GrDrawOp> batch(new PolyBoundsBatch(p.getBounds(), 0xff000000));
 
                 renderTargetContext->priv().testingOnly_drawBatch(grPaint, batch.get());
 
@@ -222,7 +222,7 @@ protected:
                 grPaint.setXPFactory(GrPorterDuffXPFactory::Make(SkBlendMode::kSrc));
                 grPaint.addCoverageFragmentProcessor(std::move(fp));
 
-                sk_sp<GrDrawBatch> batch(new PolyBoundsBatch(rect, 0xff000000));
+                sk_sp<GrDrawOp> batch(new PolyBoundsBatch(rect, 0xff000000));
 
                 renderTargetContext->priv().testingOnly_drawBatch(grPaint, batch.get());
 

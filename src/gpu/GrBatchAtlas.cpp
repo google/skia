@@ -14,8 +14,8 @@
 
 GrBatchAtlas::BatchPlot::BatchPlot(int index, uint64_t genID, int offX, int offY, int width,
                                    int height, GrPixelConfig config)
-    : fLastUpload(GrBatchDrawToken::AlreadyFlushedToken())
-    , fLastUse(GrBatchDrawToken::AlreadyFlushedToken())
+    : fLastUpload(GrDrawOpUploadToken::AlreadyFlushedToken())
+    , fLastUse(GrDrawOpUploadToken::AlreadyFlushedToken())
     , fIndex(index)
     , fGenID(genID)
     , fID(CreateId(fIndex, fGenID))
@@ -86,7 +86,7 @@ bool GrBatchAtlas::BatchPlot::addSubImage(int width, int height, const void* ima
     return true;
 }
 
-void GrBatchAtlas::BatchPlot::uploadToTexture(GrDrawBatch::WritePixelsFn& writePixels,
+void GrBatchAtlas::BatchPlot::uploadToTexture(GrDrawOp::WritePixelsFn& writePixels,
                                               GrTexture* texture) {
     // We should only be issuing uploads if we are in fact dirty
     SkASSERT(fDirty && fData && texture);
@@ -158,7 +158,7 @@ void GrBatchAtlas::processEviction(AtlasID id) {
     }
 }
 
-inline void GrBatchAtlas::updatePlot(GrDrawBatch::Target* target, AtlasID* id, BatchPlot* plot) {
+inline void GrBatchAtlas::updatePlot(GrDrawOp::Target* target, AtlasID* id, BatchPlot* plot) {
     this->makeMRU(plot);
 
     // If our most recent upload has already occurred then we have to insert a new
@@ -168,8 +168,8 @@ inline void GrBatchAtlas::updatePlot(GrDrawBatch::Target* target, AtlasID* id, B
         // With c+14 we could move sk_sp into lamba to only ref once.
         sk_sp<BatchPlot> plotsp(SkRef(plot));
         GrTexture* texture = fTexture.get();
-        GrBatchDrawToken lastUploadToken = target->addAsapUpload(
-            [plotsp, texture] (GrDrawBatch::WritePixelsFn& writePixels) {
+        GrDrawOpUploadToken lastUploadToken = target->addAsapUpload(
+            [plotsp, texture] (GrDrawOp::WritePixelsFn& writePixels) {
                plotsp->uploadToTexture(writePixels, texture);
             }
         );
@@ -178,7 +178,7 @@ inline void GrBatchAtlas::updatePlot(GrDrawBatch::Target* target, AtlasID* id, B
     *id = plot->id();
 }
 
-bool GrBatchAtlas::addToAtlas(AtlasID* id, GrDrawBatch::Target* target,
+bool GrBatchAtlas::addToAtlas(AtlasID* id, GrDrawOp::Target* target,
                               int width, int height, const void* image, SkIPoint16* loc) {
     // We should already have a texture, TODO clean this up
     SkASSERT(fTexture);
@@ -238,8 +238,8 @@ bool GrBatchAtlas::addToAtlas(AtlasID* id, GrDrawBatch::Target* target,
     // With c+14 we could move sk_sp into lamba to only ref once.
     sk_sp<BatchPlot> plotsp(SkRef(newPlot.get()));
     GrTexture* texture = fTexture.get();
-    GrBatchDrawToken lastUploadToken = target->addInlineUpload(
-        [plotsp, texture] (GrDrawBatch::WritePixelsFn& writePixels) {
+    GrDrawOpUploadToken lastUploadToken = target->addInlineUpload(
+        [plotsp, texture] (GrDrawOp::WritePixelsFn& writePixels) {
             plotsp->uploadToTexture(writePixels, texture);
         }
     );

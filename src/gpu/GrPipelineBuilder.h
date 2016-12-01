@@ -22,7 +22,7 @@
 #include "effects/GrPorterDuffXferProcessor.h"
 #include "effects/GrSimpleTextureEffect.h"
 
-class GrDrawBatch;
+class GrDrawOp;
 class GrCaps;
 class GrPaint;
 class GrTexture;
@@ -294,7 +294,7 @@ public:
 
     ///////////////////////////////////////////////////////////////////////////
 
-    bool usePLSDstRead(const GrDrawBatch* batch) const;
+    bool usePLSDstRead(const GrDrawOp* batch) const;
 
 private:
     // Some of the auto restore objects assume that no effects are removed during their lifetime.

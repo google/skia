@@ -24,7 +24,7 @@ public:
 
     /** Inserts an upload to be executed after all batches in the flush prepared their draws
         but before the draws are executed to the backend 3D API. */
-    void addASAPUpload(GrDrawBatch::DeferredUploadFn&& upload) {
+    void addASAPUpload(GrDrawOp::DeferredUploadFn&& upload) {
         fAsapUploads.emplace_back(std::move(upload));
     }
 
@@ -32,26 +32,26 @@ public:
     GrResourceProvider* resourceProvider() const { return fResourceProvider; }
 
     /** Has the token been flushed to the backend 3D API. */
-    bool hasDrawBeenFlushed(GrBatchDrawToken token) const {
+    bool hasDrawBeenFlushed(GrDrawOpUploadToken token) const {
         return token.fSequenceNumber <= fLastFlushedToken.fSequenceNumber;
     }
 
     /** Issue a token to an operation that is being enqueued. */
-    GrBatchDrawToken issueDrawToken() {
-        return GrBatchDrawToken(++fLastIssuedToken.fSequenceNumber);
+    GrDrawOpUploadToken issueDrawToken() {
+        return GrDrawOpUploadToken(++fLastIssuedToken.fSequenceNumber);
     }
 
     /** Call every time a draw that was issued a token is flushed */
     void flushToken() { ++fLastFlushedToken.fSequenceNumber; }
 
     /** Gets the next draw token that will be issued. */
-    GrBatchDrawToken nextDrawToken() const {
-        return GrBatchDrawToken(fLastIssuedToken.fSequenceNumber + 1);
+    GrDrawOpUploadToken nextDrawToken() const {
+        return GrDrawOpUploadToken(fLastIssuedToken.fSequenceNumber + 1);
     }
 
     /** The last token flushed to all the way to the backend API. */
-    GrBatchDrawToken nextTokenToFlush() const {
-        return GrBatchDrawToken(fLastFlushedToken.fSequenceNumber + 1);
+    GrDrawOpUploadToken nextTokenToFlush() const {
+        return GrDrawOpUploadToken(fLastFlushedToken.fSequenceNumber + 1);
     }
 
     void* makeVertexSpace(size_t vertexSize, int vertexCount,
@@ -71,8 +71,8 @@ public:
         fAsapUploads.reset();
     }
 
-    void doUpload(GrDrawBatch::DeferredUploadFn& upload) {
-        GrDrawBatch::WritePixelsFn wp = [this] (GrSurface* surface,
+    void doUpload(GrDrawOp::DeferredUploadFn& upload) {
+        GrDrawOp::WritePixelsFn wp = [this] (GrSurface* surface,
                 int left, int top, int width, int height,
                 GrPixelConfig config, const void* buffer,
                 size_t rowBytes) -> bool {
@@ -98,20 +98,20 @@ public:
 
 private:
 
-    GrGpu*                                              fGpu;
+    GrGpu*                                      fGpu;
 
-    GrResourceProvider*                                 fResourceProvider;
+    GrResourceProvider*                         fResourceProvider;
 
-    GrGpuCommandBuffer*                                 fCommandBuffer;
+    GrGpuCommandBuffer*                         fCommandBuffer;
 
-    GrVertexBufferAllocPool                             fVertexPool;
-    GrIndexBufferAllocPool                              fIndexPool;
+    GrVertexBufferAllocPool                     fVertexPool;
+    GrIndexBufferAllocPool                      fIndexPool;
 
-    SkSTArray<4, GrDrawBatch::DeferredUploadFn>         fAsapUploads;
+    SkSTArray<4, GrDrawOp::DeferredUploadFn>    fAsapUploads;
 
-    GrBatchDrawToken                                    fLastIssuedToken;
+    GrDrawOpUploadToken                         fLastIssuedToken;
 
-    GrBatchDrawToken                                    fLastFlushedToken;
+    GrDrawOpUploadToken                         fLastFlushedToken;
 };
 
 /**
@@ -130,22 +130,22 @@ private:
  * upload must occur before. The upload will then occur between the draw that requires the new
  * data but after the token that requires the old data.
  *
- * TODO: Currently the token/upload interface is spread over GrDrawBatch, GrVertexBatch,
- * GrDrawBatch::Target, and GrVertexBatch::Target. However, the interface at the GrDrawBatch
+ * TODO: Currently the token/upload interface is spread over GrDrawOp, GrVertexBatch,
+ * GrDrawOp::Target, and GrVertexBatch::Target. However, the interface at the GrDrawOp
  * level is not complete and isn't useful. We should push it down to GrVertexBatch until it
- * is required at the GrDrawBatch level.
+ * is required at the GrDrawOp level.
  */
  
 /**
- * GrDrawBatch instances use this object to allocate space for their geometry and to issue the draws
+ * GrDrawOp instances use this object to allocate space for their geometry and to issue the draws
  * that render their batch.
  */
-class GrDrawBatch::Target {
+class GrDrawOp::Target {
 public:
-    Target(GrBatchFlushState* state, GrDrawBatch* batch) : fState(state), fBatch(batch) {}
+    Target(GrBatchFlushState* state, GrDrawOp* batch) : fState(state), fBatch(batch) {}
 
     /** Returns the token of the draw that this upload will occur before. */
-    GrBatchDrawToken addInlineUpload(DeferredUploadFn&& upload) {
+    GrDrawOpUploadToken addInlineUpload(DeferredUploadFn&& upload) {
         fBatch->fInlineUploads.emplace_back(std::move(upload), fState->nextDrawToken());
         return fBatch->fInlineUploads.back().fUploadBeforeToken;
     }
@@ -153,36 +153,36 @@ public:
     /** Returns the token of the draw that this upload will occur before. Since ASAP uploads
         are done first during a flush, this will be the first token since the most recent
         flush. */
-    GrBatchDrawToken addAsapUpload(DeferredUploadFn&& upload) {
+    GrDrawOpUploadToken addAsapUpload(DeferredUploadFn&& upload) {
         fState->addASAPUpload(std::move(upload));
         return fState->nextTokenToFlush();
     }
 
-    bool hasDrawBeenFlushed(GrBatchDrawToken token) const {
+    bool hasDrawBeenFlushed(GrDrawOpUploadToken token) const {
         return fState->hasDrawBeenFlushed(token);
     }
 
     /** Gets the next draw token that will be issued by this target. This can be used by a batch
         to record that the next draw it issues will use a resource (e.g. texture) while preparing
         that draw. */
-    GrBatchDrawToken nextDrawToken() const { return fState->nextDrawToken(); }
+    GrDrawOpUploadToken nextDrawToken() const { return fState->nextDrawToken(); }
 
     const GrCaps& caps() const { return fState->caps(); }
 
     GrResourceProvider* resourceProvider() const { return fState->resourceProvider(); }
 
 protected:
-    GrDrawBatch* batch() { return fBatch; }
+    GrDrawOp* batch() { return fBatch; }
     GrBatchFlushState* state() { return fState; }
 
 private:
     GrBatchFlushState*  fState;
-    GrDrawBatch*        fBatch;
+    GrDrawOp*           fBatch;
 };
 
-/** Extension of GrDrawBatch::Target for use by GrVertexBatch. Adds the ability to create vertex
+/** Extension of GrDrawOp::Target for use by GrVertexBatch. Adds the ability to create vertex
     draws. */
-class GrVertexBatch::Target : public GrDrawBatch::Target {
+class GrVertexBatch::Target : public GrDrawOp::Target {
 public:
     Target(GrBatchFlushState* state, GrVertexBatch* batch) : INHERITED(state, batch) {}
 
@@ -205,7 +205,7 @@ public:
 
 private:
     GrVertexBatch* vertexBatch() { return static_cast<GrVertexBatch*>(this->batch()); }
-    typedef GrDrawBatch::Target INHERITED;
+    typedef GrDrawOp::Target INHERITED;
 };
 
 #endif

@@ -123,7 +123,7 @@ DEF_GPUTEST_FOR_ALL_CONTEXTS(VertexAttributeCount, reporter, ctxInfo) {
     REPORTER_ASSERT(reporter, context->getGpu()->stats()->numDraws() == 0);
     REPORTER_ASSERT(reporter, context->getGpu()->stats()->numFailedDraws() == 0);
 #endif
-    sk_sp<GrDrawBatch> batch;
+    sk_sp<GrDrawOp> batch;
     GrPaint grPaint;
     // This one should succeed.
     batch.reset(new Batch(attribCnt));

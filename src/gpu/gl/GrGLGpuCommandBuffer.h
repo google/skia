@@ -36,7 +36,7 @@ public:
         SkASSERT(target == fRenderTarget);
     }
 
-    void inlineUpload(GrBatchFlushState* state, GrDrawBatch::DeferredUploadFn& upload) override {
+    void inlineUpload(GrBatchFlushState* state, GrDrawOp::DeferredUploadFn& upload) override {
         state->doUpload(upload);
     }
 

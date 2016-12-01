@@ -634,7 +634,7 @@ void GrStencilAndCoverTextContext::TextRun::draw(GrContext* ctx,
         const SkRect bounds = SkRect::MakeIWH(renderTargetContext->width(),
                                               renderTargetContext->height());
 
-        sk_sp<GrDrawBatch> batch(
+        sk_sp<GrDrawOp> batch(
             GrDrawPathRangeBatch::Create(viewMatrix, fTextRatio, fTextInverseRatio * x,
                                          fTextInverseRatio * y, grPaint.getColor(),
                                          GrPathRendering::kWinding_FillType, glyphs.get(),

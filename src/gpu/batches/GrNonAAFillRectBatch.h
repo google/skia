@@ -10,23 +10,23 @@
 
 #include "GrColor.h"
 
-class GrDrawBatch;
+class GrDrawOp;
 class SkMatrix;
 struct SkRect;
 
 namespace GrNonAAFillRectBatch {
 
-GrDrawBatch* Create(GrColor color,
-                    const SkMatrix& viewMatrix,
-                    const SkRect& rect,
-                    const SkRect* localRect,
-                    const SkMatrix* localMatrix);
+GrDrawOp* Create(GrColor color,
+                 const SkMatrix& viewMatrix,
+                 const SkRect& rect,
+                 const SkRect* localRect,
+                 const SkMatrix* localMatrix);
 
-GrDrawBatch* CreateWithPerspective(GrColor color,
-                                   const SkMatrix& viewMatrix,
-                                   const SkRect& rect,
-                                   const SkRect* localRect,
-                                   const SkMatrix* localMatrix);
+GrDrawOp* CreateWithPerspective(GrColor color,
+                                const SkMatrix& viewMatrix,
+                                const SkRect& rect,
+                                const SkRect* localRect,
+                                const SkMatrix* localMatrix);
 
 };
 

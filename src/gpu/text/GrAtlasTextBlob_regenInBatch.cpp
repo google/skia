@@ -138,7 +138,7 @@ inline void regen_vertices(intptr_t vertex, const GrGlyph* glyph, size_t vertexS
 }
 
 template <bool regenPos, bool regenCol, bool regenTexCoords, bool regenGlyphs>
-void GrAtlasTextBlob::regenInBatch(GrDrawBatch::Target* target,
+void GrAtlasTextBlob::regenInBatch(GrDrawOp::Target* target,
                                    GrBatchFontCache* fontCache,
                                    GrBlobRegenHelper *helper,
                                    Run* run,
@@ -246,7 +246,7 @@ enum RegenMask {
 #define REGEN_ARGS target, fontCache, helper, &run, &info, lazyCache, \
                    *glyphCount, vertexStride, color, transX, transY
 
-void GrAtlasTextBlob::regenInBatch(GrDrawBatch::Target* target,
+void GrAtlasTextBlob::regenInBatch(GrDrawOp::Target* target,
                                    GrBatchFontCache* fontCache,
                                    GrBlobRegenHelper *helper,
                                    int runIndex, int subRunIndex, SkAutoGlyphCache* lazyCache,

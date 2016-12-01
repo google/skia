@@ -26,7 +26,7 @@
 #include "SkRandom.h"
 #include "Test.h"
 
-#include "batches/GrDrawBatch.h"
+#include "batches/GrDrawOp.h"
 
 #include "effects/GrConfigConversionEffect.h"
 #include "effects/GrPorterDuffXferProcessor.h"
@@ -330,7 +330,7 @@ bool GrDrawingManager::ProgramUnitTest(GrContext* context, int maxStages) {
 
         GrPaint grPaint;
 
-        sk_sp<GrDrawBatch> batch(GrRandomDrawBatch(&random, context));
+        sk_sp<GrDrawOp> batch(GrRandomDrawBatch(&random, context));
         SkASSERT(batch);
 
         GrProcessorTestData ptd(&random, context, context->caps(),
@@ -361,7 +361,7 @@ bool GrDrawingManager::ProgramUnitTest(GrContext* context, int maxStages) {
     for (int i = 0; i < fpFactoryCnt; ++i) {
         // Since FP factories internally randomize, call each 10 times.
         for (int j = 0; j < 10; ++j) {
-            sk_sp<GrDrawBatch> batch(GrRandomDrawBatch(&random, context));
+            sk_sp<GrDrawOp> batch(GrRandomDrawBatch(&random, context));
             SkASSERT(batch);
             GrProcessorTestData ptd(&random, context, context->caps(),
                                     renderTargetContext.get(), dummyTextures);

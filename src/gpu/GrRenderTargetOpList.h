@@ -16,7 +16,7 @@
 #include "GrPathRendering.h"
 #include "GrXferProcessor.h"
 
-#include "batches/GrDrawBatch.h"
+#include "batches/GrDrawOp.h"
 
 #include "SkClipStack.h"
 #include "SkMatrix.h"
@@ -82,7 +82,7 @@ public:
      */
     const GrCaps* caps() const { return fGpu->caps(); }
 
-    void drawBatch(const GrPipelineBuilder&, GrRenderTargetContext*, const GrClip&, GrDrawBatch*);
+    void drawBatch(const GrPipelineBuilder&, GrRenderTargetContext*, const GrClip&, GrDrawOp*);
 
     void addBatch(sk_sp<GrOp>);
 

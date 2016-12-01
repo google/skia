@@ -15,49 +15,49 @@
 struct GrInitInvariantOutput;
 
 /**
- * GrDrawBatches are flushed in two phases (preDraw, and draw). In preDraw uploads to GrGpuResources
- * and draws are determined and scheduled. They are issued in the draw phase. GrBatchToken is used
- * to sequence the uploads relative to each other and to draws.
+ * GrDrawOps are flushed in two phases (preDraw, and draw). In preDraw uploads to GrGpuResources
+ * and draws are determined and scheduled. They are issued in the draw phase. GrDrawOpUploadToken is
+ * used to sequence the uploads relative to each other and to draws.
  **/
 
-class GrBatchDrawToken {
+class GrDrawOpUploadToken {
 public:
-    static GrBatchDrawToken AlreadyFlushedToken() { return GrBatchDrawToken(0); }
+    static GrDrawOpUploadToken AlreadyFlushedToken() { return GrDrawOpUploadToken(0); }
 
-    GrBatchDrawToken(const GrBatchDrawToken& that) : fSequenceNumber(that.fSequenceNumber) {}
-    GrBatchDrawToken& operator =(const GrBatchDrawToken& that) {
+    GrDrawOpUploadToken(const GrDrawOpUploadToken& that) : fSequenceNumber(that.fSequenceNumber) {}
+    GrDrawOpUploadToken& operator =(const GrDrawOpUploadToken& that) {
         fSequenceNumber = that.fSequenceNumber;
         return *this;
     }
-    bool operator==(const GrBatchDrawToken& that) const {
+    bool operator==(const GrDrawOpUploadToken& that) const {
         return fSequenceNumber == that.fSequenceNumber;
     }
-    bool operator!=(const GrBatchDrawToken& that) const { return !(*this == that); }
+    bool operator!=(const GrDrawOpUploadToken& that) const { return !(*this == that); }
 
 private:
-    GrBatchDrawToken();
-    explicit GrBatchDrawToken(uint64_t sequenceNumber) : fSequenceNumber(sequenceNumber) {}
+    GrDrawOpUploadToken();
+    explicit GrDrawOpUploadToken(uint64_t sequenceNumber) : fSequenceNumber(sequenceNumber) {}
     friend class GrBatchFlushState;
     uint64_t fSequenceNumber;
 };
 
 /**
- * Base class for GrBatches that draw. These batches have a GrPipeline installed by GrOpList.
+ * Base class for GrOps that draw. These batches have a GrPipeline installed by GrOpList.
  */
-class GrDrawBatch : public GrOp {
+class GrDrawOp : public GrOp {
 public:
     /** Method that performs an upload on behalf of a DeferredUploadFn. */
     using WritePixelsFn = std::function<bool(GrSurface* texture,
                                              int left, int top, int width, int height,
                                              GrPixelConfig config, const void* buffer,
                                              size_t rowBytes)>;
-    /** See comments before GrDrawBatch::Target definition on how deferred uploaders work. */
+    /** See comments before GrDrawOp::Target definition on how deferred uploaders work. */
     using DeferredUploadFn = std::function<void(WritePixelsFn&)>;
 
     class Target;
 
-    GrDrawBatch(uint32_t classID);
-    ~GrDrawBatch() override;
+    GrDrawOp(uint32_t classID);
+    ~GrDrawOp() override;
 
     /**
      * Fills in a structure informing the XP of overrides to its normal behavior.
@@ -125,13 +125,14 @@ private:
 
 protected:
     struct QueuedUpload {
-        QueuedUpload(DeferredUploadFn&& upload, GrBatchDrawToken token)
+        QueuedUpload(DeferredUploadFn&& upload, GrDrawOpUploadToken token)
             : fUpload(std::move(upload))
             , fUploadBeforeToken(token) {}
         DeferredUploadFn    fUpload;
-        GrBatchDrawToken    fUploadBeforeToken;
+        GrDrawOpUploadToken fUploadBeforeToken;
     };
-    SkTArray<QueuedUpload>   fInlineUploads;
+
+    SkTArray<QueuedUpload>                          fInlineUploads;
 
 private:
     SkAlignedSTStorage<1, GrPipeline>               fPipelineStorage;

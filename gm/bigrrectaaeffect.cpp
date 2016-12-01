@@ -10,7 +10,7 @@
 #include "GrContext.h"
 #include "GrRenderTargetContextPriv.h"
 #include "SkRRect.h"
-#include "batches/GrDrawBatch.h"
+#include "batches/GrDrawOp.h"
 #include "batches/GrRectBatchFactory.h"
 #include "effects/GrRRectEffect.h"
 
@@ -87,7 +87,7 @@ protected:
                     SkRect bounds = testBounds;
                     bounds.offset(SkIntToScalar(x), SkIntToScalar(y));
 
-                    sk_sp<GrDrawBatch> batch(
+                    sk_sp<GrDrawOp> batch(
                             GrRectBatchFactory::CreateNonAAFill(0xff000000, SkMatrix::I(), bounds,
                                                                 nullptr, nullptr));
                     renderTargetContext->priv().testingOnly_drawBatch(grPaint, batch.get());

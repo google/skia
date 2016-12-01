@@ -10,7 +10,7 @@
 
 #include "GrColor.h"
 
-class GrDrawBatch;
+class GrDrawOp;
 class GrShaderCaps;
 class GrStyle;
 class SkMatrix;
@@ -23,26 +23,26 @@ class SkStrokeRec;
  */
 class GrOvalRenderer {
 public:
-    static GrDrawBatch* CreateOvalBatch(GrColor,
-                                        const SkMatrix& viewMatrix,
-                                        const SkRect& oval,
-                                        const SkStrokeRec& stroke,
-                                        const GrShaderCaps* shaderCaps);
-    static GrDrawBatch* CreateRRectBatch(GrColor,
-                                         bool needsDistance,
-                                         const SkMatrix& viewMatrix,
-                                         const SkRRect& rrect,
-                                         const SkStrokeRec& stroke,
-                                         const GrShaderCaps* shaderCaps);
+    static GrDrawOp* CreateOvalBatch(GrColor,
+                                     const SkMatrix& viewMatrix,
+                                     const SkRect& oval,
+                                     const SkStrokeRec& stroke,
+                                     const GrShaderCaps* shaderCaps);
+    static GrDrawOp* CreateRRectBatch(GrColor,
+                                      bool needsDistance,
+                                      const SkMatrix& viewMatrix,
+                                      const SkRRect& rrect,
+                                      const SkStrokeRec& stroke,
+                                      const GrShaderCaps* shaderCaps);
 
-    static GrDrawBatch* CreateArcBatch(GrColor,
-                                       const SkMatrix& viewMatrix,
-                                       const SkRect& oval,
-                                       SkScalar startAngle,
-                                       SkScalar sweepAngle,
-                                       bool useCenter,
-                                       const GrStyle&,
-                                       const GrShaderCaps* shaderCaps);
+    static GrDrawOp* CreateArcBatch(GrColor,
+                                    const SkMatrix& viewMatrix,
+                                    const SkRect& oval,
+                                    SkScalar startAngle,
+                                    SkScalar sweepAngle,
+                                    bool useCenter,
+                                    const GrStyle&,
+                                    const GrShaderCaps* shaderCaps);
 };
 
 #endif // GrOvalRenderer_DEFINED
