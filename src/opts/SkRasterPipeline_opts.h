@@ -541,10 +541,11 @@ STAGE(load_8888_d) {
 }
 STAGE(store_8888) {
     auto ptr = *(uint32_t**)ctx + x;
-    store(tail, ( SkNx_cast<int>(255.0f * r + 0.5f) << 0
-                | SkNx_cast<int>(255.0f * g + 0.5f) << 8
-                | SkNx_cast<int>(255.0f * b + 0.5f) << 16
-                | SkNx_cast<int>(255.0f * a + 0.5f) << 24 ), (int*)ptr);
+    auto fma = [](const SkNf& f, const SkNf& m, const SkNf& a) { return SkNx_fma(f,m,a); };
+    store(tail, ( SkNx_cast<int>(fma(255.0f, r, 0.5f)) << 0
+                | SkNx_cast<int>(fma(255.0f, g, 0.5f)) << 8
+                | SkNx_cast<int>(fma(255.0f, b, 0.5f)) << 16
+                | SkNx_cast<int>(fma(255.0f, a, 0.5f)) << 24 ), (int*)ptr);
 }
 
 STAGE(load_tables) {
