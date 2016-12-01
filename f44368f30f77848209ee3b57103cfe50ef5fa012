@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "2d6e6f0e_f06c00b1",
+        "filename": "gm/animatedimageblurs.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 76,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2016-12-01T14:40:11Z",
+      "side": 1,
+      "message": "super nit, trailing ws",
+      "revId": "f44368f30f77848209ee3b57103cfe50ef5fa012",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "2d6e6f0e_507b3468",
+        "filename": "gm/animatedimageblurs.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 115,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2016-12-01T14:40:11Z",
+      "side": 1,
+      "message": "nit trailing ws",
+      "revId": "f44368f30f77848209ee3b57103cfe50ef5fa012",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
