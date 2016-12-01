@@ -2,6 +2,29 @@
   "comments": [
     {
       "key": {
+        "uuid": "2d6e6f0e_9075cc75",
+        "filename": "include/codec/SkCodec.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 787,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2016-12-01T15:09:20Z",
+      "side": 1,
+      "message": "nit: Gerrit is starting to nag us about whitespace everywhere",
+      "range": {
+        "startLine": 787,
+        "startChar": 0,
+        "endLine": 787,
+        "endChar": 4
+      },
+      "revId": "8e001806c26d6bca5ffbc07e6af17847c4621b83",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "2d82efcd_16c87cb2",
         "filename": "include/codec/SkCodec.h",
         "patchSetId": 1
@@ -18,6 +41,47 @@
         "startChar": 17,
         "endLine": 788,
         "endChar": 31
+      },
+      "revId": "8e001806c26d6bca5ffbc07e6af17847c4621b83",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "2d6e6f0e_d08e244e",
+        "filename": "include/codec/SkCodec.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 788,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2016-12-01T15:09:20Z",
+      "side": 1,
+      "message": "Yes this is testing only.  What do you think about it being a debug only API?  Ex:\n#if defined(SK_DEBUG)\n\nLooking at the rest of the CL, this could be really messy (though SkDEBUGCODE() would help).",
+      "parentUuid": "2d82efcd_16c87cb2",
+      "revId": "8e001806c26d6bca5ffbc07e6af17847c4621b83",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "2d6e6f0e_b08ba83c",
+        "filename": "src/codec/SkJpegCodec.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 61,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2016-12-01T15:09:20Z",
+      "side": 1,
+      "message": "nit (two in this file)",
+      "range": {
+        "startLine": 61,
+        "startChar": 0,
+        "endLine": 61,
+        "endChar": 4
       },
       "revId": "8e001806c26d6bca5ffbc07e6af17847c4621b83",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
@@ -42,6 +106,24 @@
         "endLine": 141,
         "endChar": 8
       },
+      "revId": "8e001806c26d6bca5ffbc07e6af17847c4621b83",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "2d6e6f0e_b00608cd",
+        "filename": "src/codec/SkPngCodec.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 141,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2016-12-01T15:09:20Z",
+      "side": 1,
+      "message": "+1",
+      "parentUuid": "f01d104e_4cce9ac1",
       "revId": "8e001806c26d6bca5ffbc07e6af17847c4621b83",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
