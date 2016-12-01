@@ -793,7 +793,7 @@ static bool parse_and_load_gamma(SkGammaNamed* gammaNamed, sk_sp<SkGammas>* gamm
     if (inputChannels * alignedTagBytes <= tagLen) {
         allChannelsSame = true;
         for (uint8_t i = 1; i < inputChannels; ++i) {
-            if (0 != memcmp(tagSrc, tagSrc + i * alignedTagBytes, tagBytes)) {
+            if (0 != memcmp(tagPtr, tagPtr + i * alignedTagBytes, tagBytes)) {
                 allChannelsSame = false;
                 break;
             }
@@ -855,8 +855,28 @@ static bool parse_and_load_gamma(SkGammaNamed* gammaNamed, sk_sp<SkGammas>* gamm
     return true;
 }
 
-static bool load_lut_gammas(sk_sp<SkGammas>* gammas, size_t numTables, size_t entriesPerTable,
-                            size_t precision, const uint8_t* src, size_t len) {
+static bool is_lut_gamma_linear(const uint8_t* src, size_t count, size_t precision) {
+    // check for linear gamma (this is very common in lut gammas, as they aren't optional)
+    if (2 == precision) {
+        // every 16-bit linear LUT gamma I found had 2 elements (0 and 1)
+        if (2 == count && 0 == read_big_endian_u16(src) && 65535 == read_big_endian_u16(src + 2)) {
+            return true;
+        }
+    } else {
+        SkASSERT(256 == count);
+        for (uint32_t x = 0; x < count; x += 32) {
+            if (!color_space_almost_equal(x, src[x])) {
+                return false;
+            }
+        }
+        return true;
+    }
+    return false;
+}
+
+static bool load_lut_gammas(sk_sp<SkGammas>* gammas, SkGammaNamed* gammaNamed, size_t numTables,
+                            size_t entriesPerTable, size_t precision, const uint8_t* src,
+                            size_t len) {
     if (precision != 1 && precision != 2) {
         SkColorSpacePrintf("Invalid gamma table precision %d\n", precision);
         return false;
@@ -884,6 +904,14 @@ static bool load_lut_gammas(sk_sp<SkGammas>* gammas, size_t numTables, size_t en
             break;
         }
     }
+
+    if (1 == numTablesToUse) {
+        if (is_lut_gamma_linear(src, entriesPerTable, precision)) {
+            *gammaNamed = kLinear_SkGammaNamed;
+            return true;
+        }
+    }
+    *gammaNamed = kNonStandard_SkGammaNamed;
 
     uint32_t writetableBytes;
     return_if_false(safe_mul(numTablesToUse, writeBytesPerChannel, &writetableBytes),
@@ -1127,13 +1155,13 @@ bool load_a2b0_lutn_type(std::vector<SkColorSpace_A2B::Element>* elements, const
     const size_t inputOffset = dataOffset;
     return_if_false(len >= inputOffset, "A2B0 lutnType tag too small for input gamma table");
     sk_sp<SkGammas> inputGammas;
-    if (!load_lut_gammas(&inputGammas, inputChannels, inTableEntries, precision,
+    SkGammaNamed inputGammaNamed;
+    if (!load_lut_gammas(&inputGammas, &inputGammaNamed, inputChannels, inTableEntries, precision,
                          src + inputOffset, len - inputOffset)) {
         SkColorSpacePrintf("Failed to read input gammas from lutnType tag.\n");
         return false;
     }
-    SkASSERT(inputGammas);
-    const SkGammaNamed inputGammaNamed = is_named(inputGammas);
+    SkASSERT(inputGammas || inputGammaNamed != kNonStandard_SkGammaNamed);
     if (kLinear_SkGammaNamed != inputGammaNamed) {
         if (kNonStandard_SkGammaNamed != inputGammaNamed) {
             elements->push_back(SkColorSpace_A2B::Element(inputGammaNamed, inputChannels));
@@ -1163,13 +1191,13 @@ bool load_a2b0_lutn_type(std::vector<SkColorSpace_A2B::Element>* elements, const
     const size_t outputOffset = clutOffset + clutSize;
     return_if_false(len >= outputOffset, "A2B0 lutnType tag too small for output gamma table");
     sk_sp<SkGammas> outputGammas;
-    if (!load_lut_gammas(&outputGammas, outputChannels, outTableEntries, precision,
-                         src + outputOffset, len - outputOffset)) {
+    SkGammaNamed outputGammaNamed;
+    if (!load_lut_gammas(&outputGammas, &outputGammaNamed, outputChannels, outTableEntries,
+                         precision, src + outputOffset, len - outputOffset)) {
         SkColorSpacePrintf("Failed to read output gammas from lutnType tag.\n");
         return false;
     }
-    SkASSERT(outputGammas);
-    const SkGammaNamed outputGammaNamed = is_named(outputGammas);
+    SkASSERT(outputGammas || outputGammaNamed != kNonStandard_SkGammaNamed);
     if (kLinear_SkGammaNamed != outputGammaNamed) {
         if (kNonStandard_SkGammaNamed != outputGammaNamed) {
             elements->push_back(SkColorSpace_A2B::Element(outputGammaNamed, outputChannels));

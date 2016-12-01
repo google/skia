@@ -134,7 +134,7 @@ float SkColorLookUpTable::interpDimension(const float* src, int inputDimension,
     // Base case. We've already decided whether to use the low or high point for each dimension
     // which is stored inside of index[] where index[i] gives the point in the CLUT to use for
     // input dimension i.
-    if (inputDimension < 0) {
+    if (-1 == inputDimension) {
         // compute index into CLUT and look up the colour
         int outputIndex = outputDimension;
         int indexMultiplier = kOutputChannels;
