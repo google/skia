@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "ede617fe_9f4f77da",
+        "filename": "include/codec/SkCodec.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 787,
+      "author": {
+        "id": 5740
+      },
+      "writtenOn": "2016-12-01T23:00:23Z",
+      "side": 1,
+      "message": "Will remove whitespace.",
+      "revId": "3696e16dc69b4d397dff1a42689f3e2852f35eb9",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
